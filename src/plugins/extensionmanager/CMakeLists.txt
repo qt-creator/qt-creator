@@ -17,10 +17,19 @@ add_qtc_plugin(ExtensionManager
     remotespec.h
 )
 
+if (WITH_TESTS)
+  qt_add_resources(ExtensionManager extensionmanager_test_qrc
+    PREFIX "/extensionmanager"
+    FILES
+      testdata/defaultdata/registry/3dlights.vale/extension.json
+      testdata/defaultdata/registry/cristianadam.dracula/extension.json
+      testdata/defaultdata/registry/theqtcompany.cpp/pack.json
+  )
+endif()
+
 extend_qtc_plugin(ExtensionManager
   CONDITION WITH_TESTS
   SOURCES
     extensionmanager_test.cpp
     extensionmanager_test.h
-    extensionmanager_test.qrc
 )

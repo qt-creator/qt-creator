@@ -45,13 +45,16 @@ public:
     Utils::FilePath installLocation(bool inUserFolder) const override;
 
     Utils::Result fromJson(const QJsonObject &remoteJsonData);
+    Utils::Result fromJson(const QJsonObject &remoteJsonData, const QString &version);
 
     QString id() const override;
     QString displayName() const override;
     QString vendor() const override;
     QString vendorId() const override;
 
+    std::optional<Source> compatibleSource() const;
     const QList<Source> sources() const;
+    std::vector<std::unique_ptr<RemoteSpec>> versions() const;
 
     QList<QString> tags() const;
 
@@ -71,6 +74,7 @@ public:
 
     bool isPack() const;
 
+    QJsonObject infoObject() const;
     QJsonObject pluginObject() const;
     QJsonObject packObject() const;
 
@@ -78,7 +82,10 @@ public:
 
 private:
     QJsonObject m_remoteJsonData;
+    QString m_version;
     bool m_isPack = false;
 };
 
 } // namespace ExtensionManager::Internal
+
+Q_DECLARE_METATYPE(ExtensionManager::Internal::RemoteSpec)

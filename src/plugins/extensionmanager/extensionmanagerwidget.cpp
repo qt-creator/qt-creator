@@ -147,6 +147,8 @@ public:
                 return;
 
             const auto &remoteSpec = m_versions.at(index);
+            emit versionSelected(remoteSpec.get());
+
             if (remoteSpec->hasError()) {
                 m_versionSelector->setToolTip(remoteSpec->errorString());
                 return;
@@ -183,6 +185,24 @@ public:
         }
         if (initialIndex != -1)
             m_versionSelector->setCurrentIndex(initialIndex);
+    }
+
+    void setExtension(const RemoteSpec *spec)
+    {
+        m_versions.clear();
+        m_versionSelector->clear();
+
+        m_versionSelector->setEnabled(!!spec);
+
+        if (!spec)
+            return;
+
+        m_versions = spec->versions();
+        Utils::sort(m_versions, [](const auto &a, const auto &b) {
+            return RemoteSpec::versionCompare(a->version(), b->version()) > 0;
+        });
+
+        updateEntries();
     }
 
     void setExtensionId(const QString &extensionId)
@@ -248,6 +268,16 @@ public:
 
         m_fetchVersionsRunner.start(receipe);
     }
+
+    RemoteSpec *selectedVersion() const
+    {
+        if (m_versionSelector->currentIndex() < 0)
+            return nullptr;
+        return m_versions.at(m_versionSelector->currentIndex()).get();
+    }
+
+signals:
+    void versionSelected(const RemoteSpec *spec);
 
 private:
     std::vector<std::unique_ptr<RemoteSpec>> m_versions;
@@ -316,6 +346,14 @@ public:
         connect(updateButton, &QAbstractButton::pressed, this, &HeadingWidget::pluginUpdateRequested);
 
         m_versionSelector = new VersionSelector();
+        connect(
+            m_versionSelector,
+            &VersionSelector::versionSelected,
+            this,
+            [this](const RemoteSpec *spec) {
+                Q_UNUSED(spec);
+                versionSelected(spec);
+            });
 
         using namespace Layouting;
         // clang-format off
@@ -364,6 +402,30 @@ public:
         update({});
     }
 
+    RemoteSpec *selectedVersion() { return m_versionSelector->selectedVersion(); }
+
+    void versionSelected(const RemoteSpec *spec)
+    {
+        installButton->setVisible(false);
+        if (spec) {
+            installButton->setVisible(true);
+            installButton->setEnabled(false);
+
+            if (spec->hasError()) {
+                installButton->setToolTip(
+                    Tr::tr("Cannot install extension: %1").arg(spec->errorString()));
+                return;
+            }
+
+            const std::optional<Source> source = spec->compatibleSource();
+            if (!source)
+                return;
+
+            installButton->setEnabled(true);
+            installButton->setToolTip(source->url);
+        }
+    }
+
     void update(const QModelIndex &current)
     {
         if (!current.isValid())
@@ -388,16 +450,22 @@ public:
         const QString description = current.data(RoleDescriptionShort).toString();
         m_details->setText(description);
 
-        ExtensionSystem::PluginSpec *pluginSpec = pluginSpecForId(current.data(RoleId).toString());
+        QVariant spec = current.data(RoleSpec);
+
+        ExtensionSystem::PluginSpec *pluginSpec = qvariant_cast<ExtensionSystem::PluginSpec *>(spec);
+        RemoteSpec *remoteSpec = qvariant_cast<RemoteSpec *>(spec);
+
+        if (remoteSpec) {
+            pluginSpec = Utils::findOrDefault(
+                ExtensionSystem::PluginManager::plugins(),
+                Utils::equal(&ExtensionSystem::PluginSpec::id, remoteSpec->id()));
+        }
 
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
         const bool isPack = itemType == ItemTypePack;
         const bool isRemotePlugin = !(isPack || pluginSpec);
         const QString downloadUrl = current.data(RoleDownloadUrl).toString();
         removeButton->setVisible(!isRemotePlugin && pluginSpec && !pluginSpec->isSystemPlugin());
-        installButton->setVisible(isRemotePlugin && !downloadUrl.isEmpty());
-        if (installButton->isVisible())
-            installButton->setToolTip(downloadUrl);
 
         updateButton->setVisible(
             pluginSpec
@@ -406,7 +474,14 @@ public:
                    < 0);
 
         m_versionSelector->setVisible(isRemotePlugin);
-        m_versionSelector->setExtensionId(current.data(RoleFullId).toString());
+
+        //const RemoteSpec *remoteSpec = dynamic_cast<RemoteSpec *>(pluginSpec);
+        m_versionSelector->setExtension(remoteSpec);
+
+        if (isRemotePlugin) {
+            auto spec = m_versionSelector->selectedVersion();
+            versionSelected(spec);
+        }
     }
 
 signals:
@@ -742,12 +817,21 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         const int secondaryDescriptionWidth = secondaryDescriptionVisible ? 264 : 0;
         m_secondaryDescriptionWidget->setWidth(secondaryDescriptionWidth);
     });
-    connect(m_headingWidget, &HeadingWidget::pluginInstallationRequested, this, [this]() {
-        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl), m_currentId, false);
+
+    const auto installOrUpdate = [this](bool update) {
+        QTC_ASSERT(m_headingWidget->selectedVersion(), return);
+        const std::optional<Source> source = m_headingWidget->selectedVersion()->compatibleSource();
+        QTC_ASSERT(source, return);
+        fetchAndInstallPlugin(QUrl::fromUserInput(source->url), m_currentId, update);
+    };
+
+    connect(m_headingWidget, &HeadingWidget::pluginInstallationRequested, this, [installOrUpdate] {
+        installOrUpdate(false);
     });
-    connect(m_headingWidget, &HeadingWidget::pluginUpdateRequested, this, [this]() {
-        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl), m_currentId, true);
+    connect(m_headingWidget, &HeadingWidget::pluginUpdateRequested, this, [installOrUpdate]() {
+        installOrUpdate(true);
     });
+
     connect(m_tags, &TagList::tagSelected, m_extensionBrowser, &ExtensionsBrowser::setFilter);
     connect(m_headingWidget, &HeadingWidget::vendorClicked,
             m_extensionBrowser, &ExtensionsBrowser::setFilter);

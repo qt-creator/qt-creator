@@ -3,10 +3,14 @@
 
 #include "remotespec.h"
 
+#include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(remoteSpec, "qtc.extensionmanager.remotespec", QtWarningMsg)
 
 using namespace Utils;
 
@@ -47,7 +51,15 @@ FilePath RemoteSpec::installLocation(bool inUserFolder) const
 
 Result RemoteSpec::fromJson(const QJsonObject &remoteJsonData)
 {
+    qCDebug(remoteSpec).noquote() << "Remote JSON data:"
+                                  << QJsonDocument(remoteJsonData).toJson(QJsonDocument::Indented);
+    return fromJson(remoteJsonData, remoteJsonData.value("latest").toString());
+}
+
+Utils::Result RemoteSpec::fromJson(const QJsonObject &remoteJsonData, const QString &version)
+{
     m_remoteJsonData = remoteJsonData;
+    m_version = version;
 
     const QJsonObject plugin = pluginObject();
 
@@ -63,6 +75,38 @@ Result RemoteSpec::fromJson(const QJsonObject &remoteJsonData)
     m_isPack = true;
 
     return Result::Ok;
+}
+
+std::vector<std::unique_ptr<RemoteSpec>> RemoteSpec::versions() const
+{
+    std::vector<std::unique_ptr<RemoteSpec>> versionList;
+
+    QJsonObject versions = m_remoteJsonData.value("versions").toObject();
+    for (const auto &version : versions.keys()) {
+        std::unique_ptr<RemoteSpec> remoteSpec(new RemoteSpec());
+        auto result = remoteSpec->fromJson(m_remoteJsonData, version);
+        if (!result) {
+            qWarning() << "Remote version error:" << result.error();
+            continue;
+        }
+        versionList.push_back(std::move(remoteSpec));
+    }
+
+    return versionList;
+}
+
+std::optional<Source> RemoteSpec::compatibleSource() const
+{
+    return Utils::findOr(sources(), std::nullopt, [](const auto &source) {
+        if (!source.platform)
+            return true;
+
+        if (source.platform->os == HostOsInfo::hostOs()
+            && source.platform->architecture == HostOsInfo::hostArchitecture())
+            return true;
+
+        return false;
+    });
 }
 
 const QList<Source> RemoteSpec::sources() const
@@ -108,11 +152,11 @@ int RemoteSpec::downloads() const
 }
 QString RemoteSpec::icon() const
 {
-    return m_remoteJsonData.value("icon").toString();
+    return infoObject().value("icon").toString();
 }
 QString RemoteSpec::smallIcon() const
 {
-    return m_remoteJsonData.value("small_icon").toString();
+    return infoObject().value("small_icon").toString();
 }
 bool RemoteSpec::isLatest() const
 {
@@ -144,7 +188,10 @@ QJsonObject RemoteSpec::packObject() const
 }
 QJsonObject RemoteSpec::pluginObject() const
 {
-    return m_remoteJsonData.value("plugin").toObject();
+    if (m_version.isEmpty())
+        return {};
+
+    return m_remoteJsonData.value("versions").toObject().value(m_version).toObject();
 }
 bool RemoteSpec::isPack() const
 {
@@ -182,7 +229,7 @@ QStringList RemoteSpec::packPluginIds() const
 QString RemoteSpec::id() const
 {
     if (isPack())
-        return m_remoteJsonData.value("id").toString();
+        return infoObject().value("id").toString();
 
     return PluginSpec::id();
 }
@@ -190,7 +237,7 @@ QString RemoteSpec::id() const
 QString RemoteSpec::displayName() const
 {
     if (isPack())
-        return m_remoteJsonData.value("display_name").toString();
+        return infoObject().value("display_name").toString();
 
     return PluginSpec::displayName();
 }
@@ -198,7 +245,7 @@ QString RemoteSpec::displayName() const
 QString RemoteSpec::vendor() const
 {
     if (isPack())
-        return m_remoteJsonData.value("vendor").toString();
+        return infoObject().value("vendor").toString();
 
     return PluginSpec::vendor();
 }
@@ -206,9 +253,13 @@ QString RemoteSpec::vendor() const
 QString RemoteSpec::vendorId() const
 {
     if (isPack())
-        return m_remoteJsonData.value("vendor_id").toString();
+        return infoObject().value("vendor_id").toString();
 
     return PluginSpec::vendorId();
 }
 
+QJsonObject RemoteSpec::infoObject() const
+{
+    return m_remoteJsonData.value("info").toObject();
+}
 } // namespace ExtensionManager::Internal

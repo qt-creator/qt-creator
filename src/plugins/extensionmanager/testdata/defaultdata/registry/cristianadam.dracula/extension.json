@@ -1,0 +1,115 @@
+{
+    "$schema": "../../schema/extension.schema.json",
+    "info": {
+        "id": "dracula",
+        "vendor_id": "cristianadam",
+        "display_name": "Dracula",
+        "display_vendor": "Cristian Adam",
+        "license": "open-source"
+    },
+    "latest": "15.0.1",
+    "versions": {
+        "15.0.1": {
+            "sources": [
+                {
+                    "url": "https://github.com/cristianadam/qt-creator-dracula/releases/download/v15.0.1/Dracula-15.0.1-Windows-x64.7z",
+                    "sha256": "fe6c2102451d0a2911ec0ea2817e26da20a7e63fcae09810914e0351bc87f7c6",
+                    "platform": {
+                        "name": "Windows",
+                        "architecture": "x86_64"
+                    }
+                },
+                {
+                    "url": "https://github.com/cristianadam/qt-creator-dracula/releases/download/v15.0.1/Dracula-15.0.1-Windows-arm64.7z",
+                    "sha256": "11f9ef66ed11fbe43fc210e50bb9b5790a23ea118ca5f6defdd318305a8c280b",
+                    "platform": {
+                        "name": "Windows",
+                        "architecture": "arm64"
+                    }
+                },
+                {
+                    "url": "https://github.com/cristianadam/qt-creator-dracula/releases/download/v15.0.1/Dracula-15.0.1-Linux-x64.7z",
+                    "sha256": "6ed29a8d1af3fab4af2d1ae3750e9717141fb30a11e1c5f6df61950a81f94dba",
+                    "platform": {
+                        "name": "Linux",
+                        "architecture": "x86_64"
+                    }
+                },
+                {
+                    "url": "https://github.com/cristianadam/qt-creator-dracula/releases/download/v15.0.1/Dracula-15.0.1-Linux-arm64.7z",
+                    "sha256": "caf11016dc12107f1dda9d47a731173b6b1ea5293f35e719810b5014cd0fd6ed",
+                    "platform": {
+                        "name": "Linux",
+                        "architecture": "arm64"
+                    }
+                },
+                {
+                    "url": "https://github.com/cristianadam/qt-creator-dracula/releases/download/v15.0.1/Dracula-15.0.1-macOS-universal.7z",
+                    "sha256": "e645ca9e1324d984a1367bedcaf021779c899543cf4c73f3f5ac659476fd2f8f",
+                    "platform": {
+                        "name": "macOS",
+                        "architecture": "x86_64"
+                    }
+                },
+                {
+                    "url": "https://github.com/cristianadam/qt-creator-dracula/releases/download/v15.0.1/Dracula-15.0.1-macOS-universal.7z",
+                    "sha256": "e645ca9e1324d984a1367bedcaf021779c899543cf4c73f3f5ac659476fd2f8f",
+                    "platform": {
+                        "name": "macOS",
+                        "architecture": "arm64"
+                    }
+                }
+            ],
+
+            "metadata": {
+                "Id": "dracula",
+                "Url": "https://github.com/cristianadam/qt-creator-dracula",
+                "Name": "Dracula",
+                "Vendor": "Cristian Adam",
+                "License": "MIT",
+                "Version": "15.0.1",
+                "VendorId": "cristianadam",
+                "Copyright": "(C) 2016 Dracula Theme, Cristian Adam, Copyright (C) The Qt Company Ltd. and other contributors.",
+                "Description": "Dark theme for Qt Creator",
+                "Dependencies": [
+                    {
+                        "Id": "core",
+                        "Version": "15.0.1"
+                    }
+                ],
+                "SoftLoadable": true,
+                "CompatVersion": "15.0.0",
+                "LongDescription": [
+                    "# Dracula for [Qt Creator](https://www.qt.io/product/development-tools)",
+                    "",
+                    "> A dark theme for [Qt Creator](https://www.qt.io/product/development-tools).",
+                    "",
+                    "![Screenshot](https://raw.githubusercontent.com/cristianadam/qt-creator-dracula/refs/heads/master/screenshot.png)",
+                    "",
+                    "## Install",
+                    "",
+                    "All instructions can be found at [draculatheme.com/qtcreator](https://draculatheme.com/qtcreator).",
+                    "",
+                    "## Team",
+                    "",
+                    "This theme is maintained by the following person(s) and a bunch of [awesome contributors](https://github.com/dracula/qtcreator/graphs/contributors).",
+                    "",
+                    "| [![Ergenekon Yigit](https://avatars1.githubusercontent.com/u/7110136?v=3&s=70)](https://github.com/ergenekonyigit) |",
+                    "| ------------------------------------------------------------------------------------------------------------------ |",
+                    "| [Ergenekon Yigit](https://github.com/ergenekonyigit)                                                               |",
+                    "",
+                    "## Community",
+                    "",
+                    "- [Twitter](https://twitter.com/draculatheme) - Best for getting updates about themes and new stuff.",
+                    "- [GitHub](https://github.com/dracula/dracula-theme/discussions) - Best for asking questions and discussing issues.",
+                    "- [Discord](https://draculatheme.com/discord-invite) - Best for hanging out with the community.",
+                    "",
+                    "## License",
+                    "",
+                    "[MIT License](./LICENSE)"
+                ],
+                "DocumentationUrl": ""
+            }
+        }
+    }
+}

@@ -4,6 +4,7 @@
 #pragma once
 
 #include <utils/osspecificaspects.h>
+#include <utils/filepath.h>
 
 #include <QAbstractListModel>
 
@@ -48,6 +49,7 @@ enum Role {
     RoleVendorId,
     RoleVersion,
     RoleFullId,
+    RoleSpec,
 };
 
 class ExtensionsModel : public QAbstractListModel
@@ -60,7 +62,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     QModelIndex indexOfId(const QString &extensionId) const;
-    void setExtensionsJson(const QByteArray &json);
+    void setRepositoryPath(const Utils::FilePath &path);
 
 private:
     class ExtensionsModelPrivate *d = nullptr;

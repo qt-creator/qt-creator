@@ -42,7 +42,8 @@ ExtensionManagerSettings::ExtensionManagerSettings()
     }
 
     externalRepoUrl.setSettingsKey("ExternalRepoUrl");
-    externalRepoUrl.setDefaultValue("https://qc-extensions.qt.io");
+    externalRepoUrl.setDefaultValue(
+        "https://github.com/qt-creator/extension-registry/archive/refs/heads/main.zip");
     externalRepoUrl.setDisplayStyle(Utils::StringAspect::LineEditDisplay);
     externalRepoUrl.setLabelText(Tr::tr("Server URL:"));
 

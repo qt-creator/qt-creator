@@ -33,7 +33,9 @@
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/qtcprocess.h>
 #include <utils/stylehelper.h>
+#include <utils/unarchiver.h>
 #include <utils/utilsicons.h>
 
 #include <QApplication>
@@ -46,6 +48,7 @@
 #include <QPainterPath>
 #include <QPushButton>
 #include <QStyle>
+#include <QTemporaryFile>
 
 using namespace Core;
 using namespace ExtensionSystem;
@@ -718,49 +721,126 @@ void ExtensionsBrowser::selectIndex(const QModelIndex &index)
 {
     d->selectionModel->setCurrentIndex(index, QItemSelectionModel::ClearAndSelect);
 }
+class Downloader : public QObject
+{
+    Q_OBJECT
+public:
+    ~Downloader() { abort(); }
+
+    void setUrl(const QUrl &url) { m_url = url; }
+    void setDestination(QFile *file) { m_file = file; }
+
+    void abort()
+    {
+        if (m_reply) {
+            disconnect(m_reply, &QNetworkReply::finished, this, nullptr);
+            m_reply->abort();
+        }
+    }
+
+    void start()
+    {
+        if (!m_file || !m_file->isOpen()) {
+            emit done(Tasking::DoneResult::Error);
+            return;
+        }
+
+        m_reply = NetworkAccessManager::instance()->get(QNetworkRequest(m_url));
+        m_reply->setParent(this);
+
+        connect(m_reply, &QNetworkReply::readyRead, this, [this] {
+            QByteArray data = m_reply->readAll();
+            if (m_file->write(data) != data.size()) {
+                m_file->close();
+                abort();
+                emit done(Tasking::DoneResult::Error);
+            }
+        });
+
+        connect(m_reply, &QNetworkReply::downloadProgress, this, &Downloader::downloadProgress);
+        connect(m_reply, &QNetworkReply::sslErrors, this, &Downloader::sslErrors);
+        connect(m_reply, &QNetworkReply::finished, this, [this] {
+            m_file->close();
+            if (m_reply->error() == QNetworkReply::NoError)
+                emit done(Tasking::DoneResult::Success);
+            else
+                emit done(Tasking::DoneResult::Error);
+        });
+
+        if (m_reply->isRunning())
+            emit started();
+    }
+
+signals:
+    void started();
+    void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+    void sslErrors(const QList<QSslError> &errors);
+    void done(Tasking::DoneResult result);
+
+private:
+    QUrl m_url;
+    QFile *m_file;
+    QNetworkReply *m_reply;
+};
+
+using DownloadTask = Tasking::SimpleCustomTask<Downloader>;
 
 void ExtensionsBrowser::fetchExtensions()
 {
 #ifdef WITH_TESTS
-    // Uncomment for testing with local json data.
-    // Available: "defaultpacks", "thirdpartyplugins"
-    // d->model->setExtensionsJson(testData("defaultpacks")); return;
+    // Uncomment for testing with a local repository.
+    // d->model->setRepositoryPath(testData("defaultdata")); return;
 #endif // WITH_TESTS
 
     if (!settings().useExternalRepo()) {
-        d->model->setExtensionsJson({});
+        d->model->setRepositoryPath({});
         return;
     }
 
-    using namespace Tasking;
+    FilePath externalUrl = FilePath::fromUserInput(settings().externalRepoUrl());
+    if (externalUrl.scheme() == QLatin1StringView("https")) {
+        using namespace Tasking;
 
-    const auto onQuerySetup = [this](NetworkQuery &query) {
-        const QString url = "%1/api/v1/getAll";
-        const QString request = url.arg(settings().externalRepoUrl());
-        query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
-        query.setNetworkAccessManager(NetworkAccessManager::instance());
-        qCDebug(browserLog).noquote() << "Sending JSON request:" << request;
-        d->m_spinner->show();
-    };
-    const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
-        const QByteArray response = query.reply()->readAll();
-        qCDebug(browserLog).noquote() << "Got JSON QNetworkReply:" << query.reply()->error();
-        if (result == DoneWith::Success) {
-            qCDebug(browserLog).noquote() << "JSON response size:"
-                                          << QLocale::system().formattedDataSize(response.size());
-            d->model->setExtensionsJson(response);
-        } else {
-            qCWarning(browserLog).noquote() << response;
-            d->model->setExtensionsJson({});
-        }
-        d->m_spinner->hide();
-    };
+        const FilePath destination = ICore::userResourcePath() / "extensionstore";
+        Storage<QTemporaryFile> storage;
 
-    Group group {
-        NetworkQueryTask{onQuerySetup, onQueryDone},
-    };
+        const auto setupDownloader = [&storage, externalUrl](Downloader &downloader) {
+            storage->setFileTemplate(QDir::tempPath() + "/extensionstore-XXXXXX.zip");
+            if (!storage->open())
+                return SetupResult::StopWithError;
+            downloader.setUrl(externalUrl.toUrl());
+            downloader.setDestination(&*storage);
+            return SetupResult::Continue;
+        };
 
-    d->taskTreeRunner.start(group);
+        const auto setupUnarchiver = [storage, destination](Unarchiver &unarchiver) {
+            if (destination.exists())
+                destination.removeRecursively();
+
+            storage->flush();
+            unarchiver.setArchive(FilePath::fromUserInput(storage->fileName()));
+            unarchiver.setDestination(destination);
+        };
+
+        // clang-format off
+        Group group {
+            storage,
+            Sync([this] { d->m_spinner->show(); }),
+            DownloadTask{setupDownloader},
+            UnarchiverTask{setupUnarchiver},
+            onGroupDone([this, destination](DoneWith result) {
+                d->m_spinner->hide();
+                d->model->setRepositoryPath(result == DoneWith::Success ? destination : FilePath{});
+            }, CallDoneIf::SuccessOrError)
+        };
+        // clang-format on
+
+        d->taskTreeRunner.start(group);
+    } else if (externalUrl.scheme().isEmpty()) {
+        d->model->setRepositoryPath(externalUrl);
+    } else {
+        qCWarning(browserLog) << "Unsupported URL scheme:" << externalUrl;
+    }
 }
 
 const int iconRectRounding = 4;
@@ -836,3 +916,5 @@ QPixmap itemBadge(const QModelIndex &index, [[maybe_unused]] Size size)
 }
 
 } // ExtensionManager::Internal
+
+#include "extensionsbrowser.moc"

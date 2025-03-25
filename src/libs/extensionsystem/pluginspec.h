@@ -237,3 +237,5 @@ private:
 };
 
 } // namespace ExtensionSystem
+
+Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec);

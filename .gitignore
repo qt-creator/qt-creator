@@ -56,7 +56,6 @@ CMakeLists.txt.user*
 /share/qtcreator/generic-highlighter/
 /share/qtcreator/qmldesigner/QtProject/
 /src/app/Info.plist
-/src/plugins/**/*.json
 !/src/plugins/**/wizard.json
 /src/plugins/coreplugin/ide_version.h
 /.cmake/

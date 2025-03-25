@@ -87,6 +87,8 @@ QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) co
     RemoteSpec *remoteSpec = remotePlugins.at(index).get();
 
     switch (role) {
+    case RoleSpec:
+        return QVariant::fromValue(remoteSpec);
     case Qt::DisplayRole:
     case RoleName:
         return remoteSpec->displayName();
@@ -164,6 +166,8 @@ QVariant ExtensionsModelPrivate::dataFromLocalPlugin(int index, int role) const
     const PluginSpec *pluginSpec = localPlugins.at(index);
 
     switch (role) {
+    case RoleSpec:
+        return QVariant::fromValue(pluginSpec);
     case Qt::DisplayRole:
     case RoleName:
         return pluginSpec->displayName();
@@ -298,26 +302,57 @@ QModelIndex ExtensionsModel::indexOfId(const QString &extensionId) const
     return {};
 }
 
-void ExtensionsModel::setExtensionsJson(const QByteArray &json)
+void ExtensionsModel::setRepositoryPath(const Utils::FilePath &path)
 {
     beginResetModel();
-    QJsonParseError error;
-    const QJsonObject jsonObj = QJsonDocument::fromJson(json, &error).object();
     d->remotePlugins.clear();
 
-    qCDebug(modelLog) << "QJsonParseError:" << error.errorString();
-    const QJsonArray responseItems = jsonObj.value("items").toArray();
+    [this, &path]() {
+        if (path.isEmpty())
+            return;
 
-    for (const QJsonValue &item : responseItems) {
-        const QJsonObject itemObject = item.toObject();
-        std::unique_ptr<RemoteSpec> remoteSpec(new RemoteSpec());
-        auto result = remoteSpec->fromJson(itemObject);
-        if (!result) {
-            qCWarning(modelLog) << "Failed to read remote extension:" << result.error();
-            continue;
+        FilePath registryPath = path / "registry";
+        if (!registryPath.isReadableDir()) {
+            // Github has one top-level directory in its zip, so lets check if thats the case ...
+            const FilePaths firstLevelEntries = path.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+
+            if (firstLevelEntries.size() == 1)
+                registryPath = firstLevelEntries.first() / "registry";
+
+            if (!registryPath.isReadableDir()) {
+                qCWarning(modelLog) << "Registry path not readable:" << registryPath;
+                return;
+            }
         }
-        d->remotePlugins.push_back(std::move(remoteSpec));
-    }
+
+        registryPath.iterateDirectory(
+            [this](const FilePath &item) -> IterationPolicy {
+                const auto contents = item.fileContents();
+                if (!contents) {
+                    qCWarning(modelLog) << "Failed to read file:" << item << contents.error();
+                    return IterationPolicy::Continue;
+                }
+
+                QJsonParseError error;
+                const QJsonObject obj = QJsonDocument::fromJson(*contents, &error).object();
+                if (error.error != QJsonParseError::NoError) {
+                    qCWarning(modelLog) << "Failed to parse JSON" << item.toUserOutput() << ":"
+                                        << error.errorString();
+                    return IterationPolicy::Continue;
+                }
+                std::unique_ptr<RemoteSpec> remoteSpec(new RemoteSpec());
+                auto result = remoteSpec->fromJson(obj);
+                if (!result) {
+                    qCWarning(modelLog) << "Failed to read remote extension" << item.toUserOutput()
+                                        << ":" << result.error();
+                    return IterationPolicy::Continue;
+                }
+                d->remotePlugins.push_back(std::move(remoteSpec));
+
+                return IterationPolicy::Continue;
+            },
+            FileFilter({"extension.json"}, QDir::Files, QDirIterator::Subdirectories));
+    }();
 
     d->addUnlistedLocalPlugins();
     endResetModel();
