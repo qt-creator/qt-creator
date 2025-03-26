@@ -97,6 +97,7 @@ CppToolsSettings::CppToolsSettings()
     qtTabSettings.m_tabSize = 4;
     qtTabSettings.m_indentSize = 4;
     qtTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
+    qtTabSettings.m_autoDetect = false;
     qtCodeStyle->setTabSettings(qtTabSettings);
     pool->addCodeStyle(qtCodeStyle);
 
@@ -109,6 +110,7 @@ CppToolsSettings::CppToolsSettings()
     gnuTabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
     gnuTabSettings.m_tabSize = 2;
     gnuTabSettings.m_indentSize = 2;
+    gnuTabSettings.m_autoDetect = false;
     gnuTabSettings.m_continuationAlignBehavior = TabSettings::ContinuationAlignWithIndent;
     gnuCodeStyle->setTabSettings(gnuTabSettings);
     CppCodeStyleSettings gnuCodeStyleSettings;
