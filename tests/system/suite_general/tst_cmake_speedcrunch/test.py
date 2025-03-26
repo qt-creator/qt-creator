@@ -20,7 +20,7 @@ def cmakeSupported():
     return (major, minor) >= (3, 14)
 
 def main():
-    if (which("cmake") == None):
+    if (shutil.which("cmake") == None):
         test.fatal("cmake not found in PATH - needed to run this test")
         return
     if not cmakeSupported():

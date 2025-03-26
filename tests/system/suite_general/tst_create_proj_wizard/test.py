@@ -6,7 +6,7 @@ source("../../shared/qtcreator.py")
 def main():
     global tmpSettingsDir, availableBuildSystems
     availableBuildSystems = ["qmake", "Qbs"]
-    if which("cmake"):
+    if shutil.which("cmake"):
         availableBuildSystems.append("CMake")
     else:
         test.warning("Could not find cmake in PATH - several tests won't run without.")

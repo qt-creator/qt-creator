@@ -133,7 +133,7 @@ class JIRA:
             else:
                 cmdAndArgs = { 'curl':['-k'], 'wget':['-qO-']}
             for call in cmdAndArgs:
-                prog = which(call)
+                prog = shutil.which(call)
                 if prog:
                     if call == 'wget' and proxy and os.getenv("https_proxy", None) == None:
                         test.warning("Missing environment variable https_proxy for using wget with proxy!")
