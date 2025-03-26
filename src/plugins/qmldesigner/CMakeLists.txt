@@ -405,6 +405,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/propertyeditor
+  PUBLIC_INCLUDES components/propertyeditor
   SOURCES
     aligndistribute.cpp aligndistribute.h
     assetimageprovider.cpp assetimageprovider.h

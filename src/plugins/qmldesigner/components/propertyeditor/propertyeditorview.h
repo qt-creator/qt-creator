@@ -4,6 +4,7 @@
 #pragma once
 
 #include "abstractview.h"
+#include "qmldesigner_global.h"
 
 #include <QHash>
 #include <QObject>
@@ -28,7 +29,7 @@ class PropertyEditorView;
 class PropertyEditorWidget;
 class QmlObjectNode;
 
-class PropertyEditorView : public AbstractView
+class QMLDESIGNER_EXPORT PropertyEditorView : public AbstractView
 {
     Q_OBJECT
 
