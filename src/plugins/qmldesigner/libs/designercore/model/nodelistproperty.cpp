@@ -67,7 +67,8 @@ void NodeListProperty::slide(int from, int to) const
     if (!isValid())
         return;
 
-    if (to < 0 || to > count() - 1 || from < 0 || from > count() - 1)
+    const int count = this->count();
+    if (to < 0 || to > count - 1 || from < 0 || from > count - 1)
         return;
 
     privateModel()->changeNodeOrder(internalNodeSharedPointer(), name(), from, to);
