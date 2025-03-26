@@ -20,6 +20,7 @@ StructureModel::StructureModel(QObject *parent)
     m_icons.addIcon(Parallel, ScxmlEditor::Icons::PARALLEL.icon());
     m_icons.addIcon(Initial, ScxmlEditor::Icons::INITIAL.icon());
     m_icons.addIcon(Final, ScxmlEditor::Icons::FINAL.icon());
+    m_icons.addIcon(History, ScxmlEditor::Icons::HISTORY.icon());
 }
 
 void StructureModel::setDocument(ScxmlDocument *document)
