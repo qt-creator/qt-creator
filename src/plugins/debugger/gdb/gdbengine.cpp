@@ -4874,6 +4874,12 @@ void GdbEngine::callTargetRemote()
 {
     CHECK_STATE(EngineSetupRequested);
     QString channel = runParameters().remoteChannel();
+    // The remoteChannel string might have been created via a QUrl::toString
+    // which isn't suitable for `target qnx` or `target (extended-)remote`
+    // https://www.qnx.com/developers/docs/7.0.0/index.html#com.qnx.doc.neutrino.utilities/topic/g/gdb.html
+    // https://sourceware.org/gdb/current/onlinedocs/gdb.html/Connecting.html#index-remote-connection-commands
+    // so change any :// to just :
+    channel.replace("://", ":");
 
     // Don't touch channels with explicitly set protocols.
     if (!channel.startsWith("tcp:") && !channel.startsWith("udp:")
