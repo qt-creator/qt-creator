@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QObject>
+#include <QPointer>
 #include <QQuickItem>
 
 QT_BEGIN_NAMESPACE
@@ -36,7 +37,7 @@ signals:
     void rejected();
 
 private:
-    QDialog *m_dialog;
+    QPointer<QDialog> m_dialog;
     RichTextEditor *m_widget;
 };
 
