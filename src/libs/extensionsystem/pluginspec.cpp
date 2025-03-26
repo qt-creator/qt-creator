@@ -1046,12 +1046,13 @@ Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &dat
             return reportError(::ExtensionSystem::Tr::tr("Terms and conditions: %1")
                                    .arg(msgValueMissing("version")));
         }
-        if (!text.isString() || text.toString().isEmpty()) {
-            return reportError(
-                ::ExtensionSystem::Tr::tr("Terms and conditions: %1").arg(msgValueMissing("text")));
+        QString tAndCText;
+        if (!readMultiLineString(text, &tAndCText)) {
+            return reportError(::ExtensionSystem::Tr::tr("Terms and conditions: %1")
+                                   .arg(msgValueIsNotAMultilineString("text")));
         }
 
-        termsAndConditions.emplace(TermsAndConditions{version.toInt(), text.toString()});
+        termsAndConditions.emplace(TermsAndConditions{version.toInt(), tAndCText});
     }
 
     QJsonValue value = metaData.value(QLatin1String(PLATFORM));
