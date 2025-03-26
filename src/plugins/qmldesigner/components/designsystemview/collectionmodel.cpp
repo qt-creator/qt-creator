@@ -237,13 +237,17 @@ bool CollectionModel::setData(const QModelIndex &index, const QVariant &value, i
     ThemeProperty p = value.value<ThemeProperty>();
     switch (role) {
     case Qt::EditRole: {
+        const auto [groupType, propName] = m_propertyInfoList[index.row()];
+        p.name = propName;
         if (p.isBinding) {
-            if (!m_store->resolvedDSBinding(p.value.toString()))
+            // Check if binding is valid design system binding.
+            const QString collectionName = m_store->typeName(m_collection).value_or("");
+            const QString propName = QString::fromLatin1(p.name);
+            CollectionBinding currentPropBinding{collectionName, propName};
+            if (!m_store->resolvedDSBinding(p.value.toString(), currentPropBinding))
                 return false; // Invalid binding, it must resolved to a valid property.
         }
 
-        const auto [groupType, propName] = m_propertyInfoList[index.row()];
-        p.name = propName;
         const ThemeId id = m_themeIdList[index.column()];
         if (m_collection->updateProperty(id, groupType, p)) {
             updateCache();
@@ -283,10 +287,8 @@ bool CollectionModel::setHeaderData(int section,
         if (auto propInfo = findPropertyName(section)) {
             auto [groupType, propName] = *propInfo;
             success = m_collection->renameProperty(groupType, propName, newName);
-            if (success) {
-                const auto collectionName = m_store->typeName(m_collection);
+            if (success)
                 m_store->refactorBindings(m_collection, propName, newName);
-            }
         }
     } else {
         // Theme

@@ -284,33 +284,15 @@ QStringList DSStore::collectionNames() const
     return names;
 }
 
-std::optional<ThemeProperty> DSStore::resolvedDSBinding(QStringView binding) const
+std::optional<ThemeProperty> DSStore::resolvedDSBinding(QStringView binding,
+                                                        std::optional<CollectionBinding> avoidValue) const
 {
     if (auto parts = unpackDSBinding(binding)) {
-        auto &[collectionName, _, propertyName] = *parts;
-        return resolvedDSBinding(collectionName, propertyName);
+        auto &[collectionName, groupId, propertyName] = *parts;
+        return resolvedDSBinding({collectionName, propertyName}, groupId, avoidValue);
     }
 
     qCDebug(dsLog) << "Resolving binding failed. Unexpected binding" << binding;
-    return {};
-}
-
-std::optional<ThemeProperty> DSStore::resolvedDSBinding(QStringView collectionName,
-                                                        QStringView propertyName) const
-{
-    auto itr = m_collections.find(collectionName.toString());
-    if (itr == m_collections.end())
-        return {};
-
-    const DSThemeManager &boundCollection = itr->second;
-    if (const auto group = boundCollection.groupType(propertyName.toLatin1())) {
-        auto property = boundCollection.property(boundCollection.activeTheme(),
-                                                 *group,
-                                                 propertyName.toLatin1());
-        if (property)
-            return property->isBinding ? resolvedDSBinding(property->value.toString()) : *property;
-    }
-
     return {};
 }
 
@@ -372,11 +354,11 @@ void DSStore::breakBindings(DSThemeManager *collection, PropertyName propertyNam
                 qCDebug(dsLog) << "Error breaking binding. Unexpected binding" << expression;
                 continue;
             }
-            const auto &[boundCollection, _, boundProp] = *bindingParts;
+            const auto &[boundCollection, groupId, boundProp] = *bindingParts;
             if (boundCollection != collectionName || propertyName != boundProp.toLatin1())
                 continue;
 
-            if (auto value = resolvedDSBinding(*collectionName, boundProp))
+            if (auto value = resolvedDSBinding({*collectionName, boundProp}, groupId))
                 currentCollection.updateProperty(themeId, gt, {propName, value->value});
         }
     }
@@ -391,11 +373,11 @@ void DSStore::breakBindings(DSThemeManager *collection, QStringView removeCollec
             continue;
         }
 
-        const auto &[boundCollection, _, boundProp] = *bindingParts;
+        const auto &[boundCollection, groupId, boundProp] = *bindingParts;
         if (boundCollection != removeCollection)
             continue;
 
-        if (auto value = resolvedDSBinding(boundCollection, boundProp))
+        if (auto value = resolvedDSBinding({boundCollection, boundProp}, groupId))
             collection->updateProperty(themeId, gt, {propName, value->value});
     }
 }
@@ -405,6 +387,67 @@ QString DSStore::uniqueCollectionName(const QString &hint) const
     return UniqueName::generateTypeName(hint, "Collection", [this](const QString &t) {
         return m_collections.contains(t);
     });
+}
+
+std::optional<ThemeProperty> DSStore::boundProperty(const CollectionBinding &binding,
+                                                    QStringView groupId) const
+{
+    auto bindingGroupType = groupIdToGroupType(groupId.toLatin1());
+    if (!bindingGroupType)
+        return {};
+
+    auto itr = m_collections.find(binding.collection.toString());
+    if (itr != m_collections.end()) {
+        const DSThemeManager &boundCollection = itr->second;
+        const auto propertyName = binding.propName.toLatin1();
+        if (const auto group = boundCollection.groupType(propertyName)) {
+            if (group != *bindingGroupType)
+                return {}; // Found property has a different group.
+
+            return boundCollection.property(boundCollection.activeTheme(), *group, propertyName);
+        }
+    }
+    return {};
+}
+
+std::optional<ThemeProperty> DSStore::resolvedDSBinding(CollectionBinding binding,
+                                                        QStringView groupId,
+                                                        std::optional<CollectionBinding> avoidValue) const
+{
+    std::unordered_set<QStringView> visited;
+    const auto hasCycle = [&visited](const CollectionBinding &binding) {
+        // Return true if the dsBinding token exists, insert otherwise.
+        const auto token = QString("%1.%2").arg(binding.collection, binding.propName);
+        return !visited.emplace(token).second;
+    };
+
+    if (avoidValue) // Insert the extra binding for cycle detection
+        hasCycle(*avoidValue);
+
+    std::optional<ThemeProperty> resolvedProperty;
+    do {
+        if (hasCycle(binding)) {
+            qCDebug(dsLog) << "Cyclic binding";
+            resolvedProperty = {};
+        } else {
+            resolvedProperty = boundProperty(binding, groupId);
+        }
+
+        if (resolvedProperty && resolvedProperty->isBinding) {
+            // The value is again a binding.
+            if (auto bindingParts = unpackDSBinding(resolvedProperty->value.toString())) {
+                std::tie(binding.collection, std::ignore, binding.propName) = *bindingParts;
+            } else {
+                qCDebug(dsLog) << "Invalid binding" << resolvedProperty->value.toString();
+                resolvedProperty = {};
+            }
+        }
+    } while (resolvedProperty && resolvedProperty->isBinding);
+
+    if (!resolvedProperty)
+        qCDebug(dsLog) << "Can not resolve binding." << binding.collection << binding.propName;
+
+    return resolvedProperty;
 }
 
 DSThemeManager *DSStore::collection(const QString &typeName)
