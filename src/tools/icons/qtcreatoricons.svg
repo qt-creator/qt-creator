@@ -5920,7 +5920,24 @@
          inkscape:connector-curvature="0"
          id="path5247"
          style="stroke:#000000"
-         d="m 1378.5,572 v 5 m 2.5,-2.5 h -5" />
+         d="m 1381.5,572 v 5 m 2.5,-2.5 h -5" />
+    </g>
+    <g
+       id="zoomin_overlay_preview">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/libs/utils/images/zoom"
+         id="use120"
+         style="display:inline"
+         transform="translate(787,16)" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/libs/utils/images/zoomin_overlay"
+         id="use124"
+         style="display:inline;mix-blend-mode:darken"
+         transform="translate(0,16)" />
     </g>
     <g
        id="src/libs/utils/images/zoomout_overlay">
@@ -5935,8 +5952,25 @@
          inkscape:connector-curvature="0"
          id="path5247-8"
          style="stroke:#000000"
-         d="m 1397,574.5 h -5"
+         d="m 1400,574.5 h -5"
          sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="zoomout_overlay_preview">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/libs/utils/images/zoom"
+         id="use122"
+         style="display:inline"
+         transform="translate(803,16)" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/libs/utils/images/zoomout_overlay"
+         id="use125"
+         style="display:inline;mix-blend-mode:darken"
+         transform="translate(0,16)" />
     </g>
     <g
        transform="translate(176)"
