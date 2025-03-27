@@ -125,6 +125,7 @@ const QList<Source> RemoteSpec::sources() const
                 osArchFromString(platform.value("architecture").toString()).value_or(OsArchUnknown)};
         }
         s.url = source.toObject().value("url").toString();
+        s.sha = source.toObject().value("sha256").toString();
         sources.append(s);
     }
     return sources;

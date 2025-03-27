@@ -21,6 +21,7 @@ public:
         Utils::OsArch architecture;
     };
     QString url;
+    QString sha;
     std::optional<Platform> platform;
 };
 

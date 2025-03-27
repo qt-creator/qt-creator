@@ -46,6 +46,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QCheckBox>
+#include <QCryptographicHash>
 #include <QHBoxLayout>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -576,7 +577,7 @@ public:
 
 private:
     void updateView(const QModelIndex &current);
-    void fetchAndInstallPlugin(const QUrl &url, bool update);
+    void fetchAndInstallPlugin(const QUrl &url, bool update, const QString &sha);
 
     QString m_currentItemName;
     ExtensionsModel *m_extensionModel;
@@ -759,7 +760,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         QTC_ASSERT(m_headingWidget->selectedVersion(), return);
         const std::optional<Source> source = m_headingWidget->selectedVersion()->compatibleSource();
         QTC_ASSERT(source, return);
-        fetchAndInstallPlugin(QUrl::fromUserInput(source->url), update);
+        fetchAndInstallPlugin(QUrl::fromUserInput(source->url), update, source->sha);
     };
 
     connect(m_headingWidget, &HeadingWidget::pluginInstallationRequested, this, [installOrUpdate] {
@@ -875,7 +876,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     m_packExtensions->setVisible(hasExtensions);
 }
 
-void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update)
+void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update, const QString &sha)
 {
     using namespace Tasking;
 
@@ -893,20 +894,43 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update)
         std::unique_ptr<QProgressDialog> progressDialog;
         QByteArray packageData;
         QUrl url;
+        QString sha;
         QString filename;
     };
     Storage<StorageStruct> storage;
 
-    const auto onQuerySetup = [url, storage](NetworkQuery &query) {
+    const auto onQuerySetup = [url, storage, sha](NetworkQuery &query) {
         storage->url = url;
+        storage->sha = sha;
         query.setRequest(QNetworkRequest(url));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
     };
-    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) {
+    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) -> DoneResult {
         storage->progressDialog->close();
-        if (result == DoneWith::Success) {
+
+        if (result != DoneWith::Success) {
+            QMessageBox::warning(
+                ICore::dialogParent(),
+                Tr::tr("Download Error"),
+                Tr::tr("Cannot download extension") + "\n\n" + storage->url.toString() + "\n\n"
+                    + Tr::tr("Code: %1.").arg(query.reply()->error()));
+            return DoneResult::Error;
+        }
+
             storage->packageData = query.reply()->readAll();
 
+        const QByteArray hash
+            = QCryptographicHash::hash(storage->packageData, QCryptographicHash::Sha256);
+
+        if (QString::fromLatin1(hash.toHex()) != storage->sha) {
+            QMessageBox::warning(
+                ICore::dialogParent(),
+                Tr::tr("Download Error"),
+                Tr::tr("Downloaded extension has invalid hash"));
+            return DoneResult::Error;
+        }
+
+        const auto checkContentDisposition = [storage, &query] {
             QString contentDispo
                 = query.reply()->header(QNetworkRequest::ContentDispositionHeader).toString();
 
@@ -937,13 +961,11 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update)
                 return;
 
             storage->filename = match.captured(1);
-        } else {
-            QMessageBox::warning(
-                ICore::dialogParent(),
-                Tr::tr("Download Error"),
-                Tr::tr("Cannot download extension") + "\n\n" + storage->url.toString() + "\n\n"
-                    + Tr::tr("Code: %1.").arg(query.reply()->error()));
-        }
+        };
+
+        checkContentDisposition();
+
+        return DoneResult::Success;
     };
 
     const auto onPluginInstallation = [storage, update]() {
