@@ -23,7 +23,7 @@ using namespace Tasking;
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
-namespace Valgrind {
+namespace Valgrind::Internal {
 
 static CommandLine valgrindCommand(const CommandLine &command,
                                    const QTcpServer &xmlServer,
@@ -280,6 +280,6 @@ bool ValgrindProcess::runBlocking()
     return ok;
 }
 
-} // namespace Valgrind
+} // namespace Valgrind::Internal
 
 #include "valgrindprocess.moc"

@@ -3,6 +3,7 @@
 
 #include "valgrindengine.h"
 
+#include "valgrindprocess.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
 
@@ -11,6 +12,7 @@
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/runcontrol.h>
 
 using namespace Core;
 using namespace ProjectExplorer;

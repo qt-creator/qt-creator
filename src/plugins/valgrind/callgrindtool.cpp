@@ -17,6 +17,7 @@
 #include "callgrindvisualisation.h"
 #include "startremotedialog.h"
 #include "valgrindengine.h"
+#include "valgrindprocess.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
 
@@ -45,6 +46,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>
 
 #include <solutions/tasking/tasktreerunner.h>

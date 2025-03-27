@@ -19,12 +19,12 @@ class CommandLine;
 class ProcessRunData;
 }
 
-namespace Valgrind {
-
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 class Error;
 class Status;
 }
+
+namespace Valgrind::Internal {
 
 class ValgrindProcessPrivate;
 
@@ -64,4 +64,4 @@ private:
 
 using ValgrindProcessTask = Tasking::SimpleCustomTask<ValgrindProcess>;
 
-} // namespace Valgrind
+} // namespace Valgrind::Internal

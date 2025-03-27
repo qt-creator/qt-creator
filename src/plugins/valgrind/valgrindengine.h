@@ -3,14 +3,15 @@
 
 #pragma once
 
-#include "valgrindprocess.h"
-#include "valgrindsettings.h"
+#include <solutions/tasking/tasktree.h>
 
-#include <projectexplorer/runcontrol.h>
-
-#include <QFutureInterface>
+namespace ProjectExplorer { class RunControl; }
+namespace Utils { class CommandLine; }
 
 namespace Valgrind::Internal {
+
+class ValgrindProcess;
+class ValgrindSettings;
 
 Tasking::ExecutableItem initValgrindRecipe(const Tasking::Storage<ValgrindSettings> &storage,
                                            ProjectExplorer::RunControl *runControl);
