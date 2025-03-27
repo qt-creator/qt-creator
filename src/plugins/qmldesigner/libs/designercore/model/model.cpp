@@ -1813,7 +1813,9 @@ QmlDesigner::Imports createQt6ModulesForProjectStorage()
         QmlDesigner::Import::createLibraryImport("QtQuick.VirtualKeyboard.Styles"),
 
         QmlDesigner::Import::createLibraryImport("QtQuick3D"),
+        QmlDesigner::Import::createLibraryImport("QtQuick3D.AssetUtils"),
         QmlDesigner::Import::createLibraryImport("QtQuick3D.Effects"),
+        QmlDesigner::Import::createLibraryImport("QtQuick3D.Helpers"),
         QmlDesigner::Import::createLibraryImport("QtQuick3D.Particles3D"),
         QmlDesigner::Import::createLibraryImport("QtQuick3D.Physics"),
         QmlDesigner::Import::createLibraryImport("QtQuick3D.Physics.Helpers"),
