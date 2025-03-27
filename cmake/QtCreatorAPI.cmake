@@ -1064,6 +1064,10 @@ function(add_qtc_test name)
     enable_pch(${name})
   endif()
 
+  if (WITH_SANITIZE)
+    qtc_enable_sanitize("${name}" ${SANITIZE_FLAGS})
+  endif()
+
   if (_arg_NEEDS_GUI)
     set(EXTRA_ARGUMENTS "-platform" "minimal")
   endif()

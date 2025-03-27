@@ -389,6 +389,10 @@ function(enable_pch target)
             POSITION_INDEPENDENT_CODE ON
           )
           target_link_libraries(${pch_target} PRIVATE ${pch_dependency})
+
+          if (WITH_SANITIZE)
+            qtc_enable_sanitize("${pch_target}" ${SANITIZE_FLAGS})
+          endif()
         endif()
       endfunction()
 
