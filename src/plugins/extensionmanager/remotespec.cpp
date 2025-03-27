@@ -133,7 +133,7 @@ const QList<Source> RemoteSpec::sources() const
 
 QList<QString> RemoteSpec::tags() const
 {
-    return m_remoteJsonData.value("tags").toVariant().toStringList();
+    return infoObject().value("tags").toVariant().toStringList();
 }
 QDateTime RemoteSpec::createdAt() const
 {

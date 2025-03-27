@@ -525,38 +525,28 @@ class TagList : public QWidget
     Q_OBJECT
 
 public:
-    explicit TagList(QWidget *parent = nullptr)
-        : QWidget(parent)
-    {
-        QHBoxLayout *layout = new QHBoxLayout(this);
-        setLayout(layout);
-        layout->setContentsMargins({});
-    }
+    using QWidget::QWidget;
 
     void setTags(const QStringList &tags)
     {
-        if (m_container) {
-            delete m_container;
-            m_container = nullptr;
-        }
+        delete layout();
+        qDeleteAll(children());
 
         if (!tags.empty()) {
-            m_container = new QWidget(this);
-            layout()->addWidget(m_container);
+            const auto tagToButton = [this](const QString &tag) {
+                auto btn = new Button(tag, Button::Tag);
+                connect(btn, &QAbstractButton::clicked, [tag, this] { emit tagSelected(tag); });
+                return btn;
+            };
 
             using namespace Layouting;
-            Flow flow {};
-            flow.setNoMargins();
-            flow.setSpacing(SpacingTokens::HGapXs);
-
-            for (const QString &tag : tags) {
-                QAbstractButton *tagButton = new Button(tag, Button::Tag);
-                connect(tagButton, &QAbstractButton::clicked,
-                        this, [this, tag] { emit tagSelected(tag); });
-                flow.addItem(tagButton);
-            }
-
-            flow.attachTo(m_container);
+            // clang-format off
+            Flow {
+                noMargin,
+                spacing(SpacingTokens::HGapXs),
+                Utils::transform(tags, tagToButton)
+            }.attachTo(this);
+            // clang-format on
         }
 
         updateGeometry();
@@ -564,9 +554,6 @@ public:
 
 signals:
     void tagSelected(const QString &tag);
-
-private:
-    QWidget *m_container = nullptr;
 };
 
 class ExtensionManagerWidget final : public Core::ResizeSignallingWidget
