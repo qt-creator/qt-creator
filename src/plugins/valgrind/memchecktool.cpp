@@ -25,11 +25,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 
+#include <debugger/analyzer/analyzerutils.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerruncontrol.h>
-#include <debugger/analyzer/analyzerutils.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
@@ -536,24 +536,7 @@ MemcheckTool::MemcheckTool(QObject *parent)
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "Memcheck.Remote"),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [this, action] {
-        RunConfiguration *runConfig = activeRunConfigForActiveProject();
-        if (!runConfig) {
-            showCannotStartDialog(action->text());
-            return;
-        }
-        const std::optional<ProcessRunData> params = runStartRemoteDialog();
-        if (!params)
-            return;
-        TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
-        m_perspective.select();
-        RunControl *rc = new RunControl(MEMCHECK_RUN_MODE);
-        rc->copyDataFromRunConfiguration(runConfig);
-        rc->createMainWorker();
-        rc->setCommandLine(params->command);
-        rc->setWorkingDirectory(params->workingDirectory);
-        rc->start();
-    });
+    setupExternalAnalyzer(action, &m_perspective, MEMCHECK_RUN_MODE);
 
     m_perspective.addToolBarAction(m_startAction);
     //toolbar.addAction(m_startWithGdbAction);

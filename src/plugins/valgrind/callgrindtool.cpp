@@ -351,23 +351,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, CallgrindRemoteActionId),
                     Debugger::Constants::G_ANALYZER_REMOTE_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [this, action] {
-        auto runConfig = activeRunConfigForActiveProject();
-        if (!runConfig) {
-            showCannotStartDialog(action->text());
-            return;
-        }
-        const std::optional<ProcessRunData> params = runStartRemoteDialog();
-        if (!params)
-            return;
-        m_perspective.select();
-        auto runControl = new RunControl(CALLGRIND_RUN_MODE);
-        runControl->copyDataFromRunConfiguration(runConfig);
-        runControl->createMainWorker();
-        runControl->setCommandLine(params->command);
-        runControl->setWorkingDirectory(params->workingDirectory);
-        runControl->start();
-    });
+    setupExternalAnalyzer(action, &m_perspective, CALLGRIND_RUN_MODE);
 
     // If there is a CppEditor context menu add our own context menu actions.
     if (ActionContainer *editorContextMenu =

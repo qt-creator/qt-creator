@@ -7,15 +7,25 @@
 
 #include <coreplugin/icore.h>
 
+#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/debuggerconstants.h>
+#include <debugger/debuggermainwindow.h>
+
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/kitchooser.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
+#include <projectexplorer/taskhub.h>
+
+#include <utils/processinterface.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QPushButton>
 
 using namespace ProjectExplorer;
@@ -121,13 +131,27 @@ FilePath StartRemoteDialog::workingDirectory() const
     return FilePath::fromString(m_workingDirectory->text());
 }
 
-std::optional<ProcessRunData> runStartRemoteDialog()
+void setupExternalAnalyzer(QAction *action, Perspective *perspective, Id runMode)
 {
-    StartRemoteDialog dlg;
-    if (dlg.exec() != QDialog::Accepted)
-        return {};
+    QObject::connect(action, &QAction::triggered, perspective, [action, perspective, runMode] {
+        RunConfiguration *runConfig = activeRunConfigForActiveProject();
+        if (!runConfig) {
+            Debugger::showCannotStartDialog(action->text());
+            return;
+        }
+        StartRemoteDialog dlg;
+        if (dlg.exec() != QDialog::Accepted)
+            return;
 
-    return ProcessRunData{dlg.commandLine(), dlg.workingDirectory()};
+        TaskHub::clearTasks(Debugger::Constants::ANALYZERTASK_ID);
+        perspective->select();
+        RunControl *runControl = new RunControl(runMode);
+        runControl->copyDataFromRunConfiguration(runConfig);
+        runControl->createMainWorker();
+        runControl->setCommandLine(dlg.commandLine());
+        runControl->setWorkingDirectory(dlg.workingDirectory());
+        runControl->start();
+    });
 }
 
 } // Valgrind::Internal

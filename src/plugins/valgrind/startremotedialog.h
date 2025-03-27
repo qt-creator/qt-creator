@@ -3,10 +3,16 @@
 
 #pragma once
 
-#include <utils/processinterface.h>
+#include <utils/id.h>
+
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
+
+namespace Utils { class Perspective; }
 
 namespace Valgrind::Internal {
 
-std::optional<Utils::ProcessRunData> runStartRemoteDialog();
+void setupExternalAnalyzer(QAction *action, Utils::Perspective *perspective, Utils::Id runMode);
 
 } // Valgrind::Internal
