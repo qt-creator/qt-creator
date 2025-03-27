@@ -16,10 +16,10 @@
 #include "callgrindtextmark.h"
 #include "callgrindvisualisation.h"
 #include "startremotedialog.h"
-#include "valgrindengine.h"
 #include "valgrindprocess.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
+#include "valgrindutils.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

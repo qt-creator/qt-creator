@@ -25,11 +25,11 @@ add_qtc_plugin(Valgrind
     memchecktool.cpp memchecktool.h
     startremotedialog.cpp startremotedialog.h
     valgrind.qrc
-    valgrindengine.cpp valgrindengine.h
     valgrindplugin.cpp
     valgrindprocess.cpp valgrindprocess.h
     valgrindsettings.cpp valgrindsettings.h
     valgrindtr.h
+    valgrindutils.cpp valgrindutils.h
     xmlprotocol/announcethread.cpp xmlprotocol/announcethread.h
     xmlprotocol/error.cpp xmlprotocol/error.h
     xmlprotocol/errorlistmodel.cpp xmlprotocol/errorlistmodel.h

@@ -5,10 +5,10 @@
 
 #include "memcheckerrorview.h"
 #include "startremotedialog.h"
-#include "valgrindengine.h"
 #include "valgrindprocess.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
+#include "valgrindutils.h"
 
 #include "xmlprotocol/error.h"
 #include "xmlprotocol/error.h"
