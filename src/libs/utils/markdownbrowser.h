@@ -40,13 +40,15 @@ public:
 
 protected:
     void changeEvent(QEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
     void handleAnchorClicked(const QUrl &link);
-    void postProcessDocument(bool firstTime) const;
+    void postProcessDocument(bool firstTime);
+    void highlightCodeBlock(const QString &language, QTextBlock &block);
 
 private:
-    bool m_enableCodeCopyButton;
+    bool m_enableCodeCopyButton = false;
 };
 
 } // namespace Utils

@@ -284,6 +284,8 @@
         \row
             \li \c {--language <ID>}
             \li ID of the input language of the toolchain: \c C or \c Cxx.
+                When you register a C or C++ compiler, make sure to register the
+                corresponding C++ or C compiler as well.
             \li \inlineimage ok.png
         \row
             \li \c {--name <NAME>}
