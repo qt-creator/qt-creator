@@ -595,7 +595,7 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
                                  {},
                                  &Directory::sourceContextId);
 
-    if (isChanged(directoryState)) {
+    if (isChangedOrAdded(directoryState)) {
         for (const auto &[subdirectoryPath, subdirectoryId] : existingSubdirecories) {
             package.directoryInfos.emplace_back(directoryId,
                                                 SourceId::create(SourceNameId{}, subdirectoryId),
