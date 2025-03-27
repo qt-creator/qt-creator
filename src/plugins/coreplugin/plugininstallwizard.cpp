@@ -579,8 +579,10 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
 
     if (spec->isEffectivelySoftloadable()) {
         spec->setEnabledBySettings(data.loadImmediately);
-        if (data.loadImmediately)
+        if (data.loadImmediately) {
             PluginManager::loadPluginsAtRuntime({spec});
+            ExtensionSystem::PluginManager::writeSettings();
+        }
         return InstallResult::Success;
     }
 
