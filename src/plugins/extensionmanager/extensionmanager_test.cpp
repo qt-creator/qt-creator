@@ -22,7 +22,7 @@ private slots:
 void ExtensionsModelTest::testRepositoryJsonParser()
 {
     ExtensionsModel model;
-    model.setRepositoryPath(testData("defaultdata"));
+    model.setRepositoryPaths({testData("defaultdata")});
 }
 
 QObject *createExtensionsModelTest()

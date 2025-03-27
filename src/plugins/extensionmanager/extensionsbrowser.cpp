@@ -23,6 +23,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <solutions/spinner/spinner.h>
+#include <solutions/tasking/conditional.h>
 #include <solutions/tasking/networkquery.h>
 #include <solutions/tasking/tasktree.h>
 #include <solutions/tasking/tasktreerunner.h>
@@ -792,55 +793,88 @@ void ExtensionsBrowser::fetchExtensions()
     // d->model->setRepositoryPath(testData("defaultdata")); return;
 #endif // WITH_TESTS
 
-    if (!settings().useExternalRepo()) {
-        d->model->setRepositoryPath({});
+    FilePaths urls = Utils::transform(settings().repositoryUrls(), &FilePath::fromUserInput);
+
+    if (!settings().useExternalRepo() || urls.isEmpty()) {
+        d->model->setRepositoryPaths({});
         return;
     }
 
-    FilePath externalUrl = FilePath::fromUserInput(settings().externalRepoUrl());
-    if (externalUrl.scheme() == QLatin1StringView("https")) {
-        using namespace Tasking;
+    using namespace Tasking;
 
-        const FilePath destination = ICore::userResourcePath() / "extensionstore";
-        Storage<QTemporaryFile> storage;
+    const FilePath unpackDestination = ICore::userResourcePath() / "extensionstore";
+    if (unpackDestination.exists())
+        unpackDestination.removeRecursively();
 
-        const auto setupDownloader = [&storage, externalUrl](Downloader &downloader) {
-            storage->setFileTemplate(QDir::tempPath() + "/extensionstore-XXXXXX.zip");
-            if (!storage->open())
-                return SetupResult::StopWithError;
-            downloader.setUrl(externalUrl.toUrl());
-            downloader.setDestination(&*storage);
-            return SetupResult::Continue;
-        };
+    Storage<FilePaths> unpackedRepositories;
+    Storage<QTemporaryFile> storage;
 
-        const auto setupUnarchiver = [storage, destination](Unarchiver &unarchiver) {
-            if (destination.exists())
-                destination.removeRecursively();
+    LoopList urlIterator(urls);
 
+    const auto setupDownloader = [&storage, urlIterator](Downloader &downloader) {
+        storage->setFileTemplate(
+            QDir::tempPath() + "/extensionstore-XXXXXX." + urlIterator->completeSuffix());
+        if (!storage->open())
+            return SetupResult::StopWithError;
+        qCDebug(browserLog) << "Downloading" << *urlIterator << "to" << storage->fileName();
+        downloader.setUrl(urlIterator->toUrl());
+        downloader.setDestination(&*storage);
+        return SetupResult::Continue;
+    };
+
+    const auto setupUnarchiver =
+        [storage, unpackDestination, urlIterator, unpackedRepositories](Unarchiver &unarchiver) {
+            const FilePath archive = FilePath::fromString(storage->fileName());
+            const FilePath destination = unpackDestination / archive.baseName();
             storage->flush();
-            unarchiver.setArchive(FilePath::fromUserInput(storage->fileName()));
+            qCDebug(browserLog) << "Unpacking" << archive << "to" << destination;
+            unarchiver.setArchive(archive);
             unarchiver.setDestination(destination);
+            *unpackedRepositories << destination;
         };
 
-        // clang-format off
-        Group group {
-            storage,
-            Sync([this] { d->m_spinner->show(); }),
-            DownloadTask{setupDownloader},
-            UnarchiverTask{setupUnarchiver},
-            onGroupDone([this, destination](DoneWith result) {
-                d->m_spinner->hide();
-                d->model->setRepositoryPath(result == DoneWith::Success ? destination : FilePath{});
-            }, CallDoneIf::SuccessOrError)
-        };
-        // clang-format on
+    const auto isRemoteUrl = [urlIterator]() {
+        return urlIterator->scheme() == QLatin1String("http")
+               || urlIterator->scheme() == QLatin1String("https");
+    };
 
-        d->taskTreeRunner.start(group);
-    } else if (externalUrl.scheme().isEmpty()) {
-        d->model->setRepositoryPath(externalUrl);
-    } else {
-        qCWarning(browserLog) << "Unsupported URL scheme:" << externalUrl;
-    }
+    const auto isDirectory = [urlIterator]() { return urlIterator->isReadableDir(); };
+
+    const auto warnInvalidUrl = [urlIterator] {
+        qCWarning(browserLog) << *urlIterator
+                              << "is not a http(s) url or an existing directory, skipping";
+    };
+
+    const auto addDirectory = [urlIterator, unpackedRepositories] {
+        *unpackedRepositories << *urlIterator;
+    };
+
+    // clang-format off
+    Group group {
+        unpackedRepositories,
+        Sync([this] { d->m_spinner->show(); }),
+        For (urlIterator) >> Do {
+            continueOnError,
+            If (isRemoteUrl) >> Then {
+                storage,
+                DownloadTask { setupDownloader },
+                UnarchiverTask { setupUnarchiver },
+            } >> ElseIf(isDirectory) >> Then {
+                Sync { addDirectory }
+            } >> Else {
+                Sync { warnInvalidUrl }
+            }
+        },
+
+        onGroupDone([this, unpackedRepositories](DoneWith result) {
+            d->m_spinner->hide();
+            qCDebug(browserLog) << "Done with" << result << "unpacked repositories" << *unpackedRepositories;
+            d->model->setRepositoryPaths(*unpackedRepositories);
+        }, CallDoneIf::SuccessOrError)
+    };
+    // clang-format on
+
+    d->taskTreeRunner.start(group);
 }
 
 const int iconRectRounding = 4;

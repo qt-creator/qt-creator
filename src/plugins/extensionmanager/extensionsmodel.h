@@ -62,7 +62,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     QModelIndex indexOfId(const QString &extensionId) const;
-    void setRepositoryPath(const Utils::FilePath &path);
+    void setRepositoryPaths(const Utils::FilePaths &paths);
 
 private:
     class ExtensionsModelPrivate *d = nullptr;

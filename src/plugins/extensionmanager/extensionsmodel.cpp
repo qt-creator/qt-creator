@@ -302,12 +302,12 @@ QModelIndex ExtensionsModel::indexOfId(const QString &extensionId) const
     return {};
 }
 
-void ExtensionsModel::setRepositoryPath(const Utils::FilePath &path)
+void ExtensionsModel::setRepositoryPaths(const FilePaths &paths)
 {
     beginResetModel();
     d->remotePlugins.clear();
 
-    [this, &path]() {
+    const auto scanPath = [this](const FilePath &path) {
         if (path.isEmpty())
             return;
 
@@ -347,12 +347,22 @@ void ExtensionsModel::setRepositoryPath(const Utils::FilePath &path)
                                         << ":" << result.error();
                     return IterationPolicy::Continue;
                 }
-                d->remotePlugins.push_back(std::move(remoteSpec));
 
+                for (auto it = d->remotePlugins.begin(); it != d->remotePlugins.end(); ++it) {
+                    if ((*it)->id() == remoteSpec->id()) {
+                        std::swap(*it, remoteSpec);
+                        return IterationPolicy::Continue;
+                    }
+                }
+
+                d->remotePlugins.push_back(std::move(remoteSpec));
                 return IterationPolicy::Continue;
             },
             FileFilter({"extension.json"}, QDir::Files, QDirIterator::Subdirectories));
-    }();
+    };
+
+    for (const FilePath &path : paths)
+        scanPath(path);
 
     d->addUnlistedLocalPlugins();
     endResetModel();

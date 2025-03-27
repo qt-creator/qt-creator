@@ -205,70 +205,6 @@ public:
         updateEntries();
     }
 
-    void setExtensionId(const QString &extensionId)
-    {
-        m_versions.clear();
-        m_versionSelector->clear();
-        if (extensionId.isEmpty())
-            return;
-
-        m_versionSelector->addItem(Tr::tr("Loading..."));
-        m_versionSelector->setEnabled(false);
-
-        using namespace Tasking;
-        const auto onQuerySetup = [extensionId](NetworkQuery &query) {
-            const QString url = "%1/api/v1/plugins/%2/versions";
-            const QString request = url.arg(settings().externalRepoUrl()).arg(extensionId);
-            query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
-            query.setNetworkAccessManager(NetworkAccessManager::instance());
-        };
-
-        const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
-            const QByteArray response = query.reply()->readAll();
-            qCDebug(widgetLog).noquote() << "Got versions reply:" << query.reply()->error();
-            if (result == DoneWith::Success) {
-                qCDebug(widgetLog).noquote()
-                    << "JSON response size:"
-                    << QLocale::system().formattedDataSize(response.size());
-
-                QJsonParseError error;
-                QJsonDocument doc = QJsonDocument::fromJson(response, &error);
-                if (error.error != QJsonParseError::NoError) {
-                    qCWarning(widgetLog).noquote()
-                        << "Failed to parse version JSON:" << error.errorString();
-                    return;
-                }
-
-                const QJsonArray versions = doc.array();
-                qCDebug(widgetLog).noquote() << "Got" << versions.size() << "versions";
-                for (const QJsonValue &version : versions) {
-                    std::unique_ptr<RemoteSpec> remoteSpec(new RemoteSpec);
-                    if (const auto result = remoteSpec->fromJson(version.toObject()); !result) {
-                        qCWarning(widgetLog).noquote()
-                            << "Failed to parse version:" << result.error();
-                        continue;
-                    }
-                    m_versions.push_back(std::move(remoteSpec));
-                    Utils::sort(m_versions, [](const auto &a, const auto &b) {
-                        return RemoteSpec::versionCompare(a->version(), b->version()) > 0;
-                    });
-                }
-
-                updateEntries();
-            } else {
-                qCWarning(widgetLog).noquote() << response;
-                m_versionSelector->clear();
-                m_versionSelector->addItem(Tr::tr("Failed to load versions"));
-            }
-        };
-
-        Group receipe{
-            NetworkQueryTask{onQuerySetup, onQueryDone},
-        };
-
-        m_fetchVersionsRunner.start(receipe);
-    }
-
     RemoteSpec *selectedVersion() const
     {
         if (m_versionSelector->currentIndex() < 0)
@@ -639,7 +575,7 @@ public:
 
 private:
     void updateView(const QModelIndex &current);
-    void fetchAndInstallPlugin(const QUrl &url, const QString &id, bool update);
+    void fetchAndInstallPlugin(const QUrl &url, bool update);
 
     QString m_currentItemName;
     ExtensionsModel *m_extensionModel;
@@ -822,7 +758,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         QTC_ASSERT(m_headingWidget->selectedVersion(), return);
         const std::optional<Source> source = m_headingWidget->selectedVersion()->compatibleSource();
         QTC_ASSERT(source, return);
-        fetchAndInstallPlugin(QUrl::fromUserInput(source->url), m_currentId, update);
+        fetchAndInstallPlugin(QUrl::fromUserInput(source->url), update);
     };
 
     connect(m_headingWidget, &HeadingWidget::pluginInstallationRequested, this, [installOrUpdate] {
@@ -938,7 +874,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     m_packExtensions->setVisible(hasExtensions);
 }
 
-void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QString &id, bool update)
+void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update)
 {
     using namespace Tasking;
 
@@ -1033,6 +969,9 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
         return false;
     };
 
+    /*
+    // TODO: Implement download completion notification
+
     const auto onDownloadSetup = [id](NetworkQuery &query) {
         query.setOperation(NetworkOperation::Post);
         query.setRequest(QNetworkRequest(
@@ -1050,13 +989,14 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
             qCDebug(widgetLog) << query.reply()->readAll();
         }
     };
+    */
 
     Group group{
         storage,
         NetworkQueryTask{onQuerySetup, onQueryDone},
         Sync{onPluginInstallation},
         Sync{[this]() { updateView(m_extensionBrowser->currentIndex()); }},
-        NetworkQueryTask{onDownloadSetup, onDownloadDone},
+        //NetworkQueryTask{onDownloadSetup, onDownloadDone},
     };
 
     m_dlTaskTreeRunner.start(group);
