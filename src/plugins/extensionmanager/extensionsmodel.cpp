@@ -84,7 +84,7 @@ QString descriptionWithLinks(const QString &description, const QString &url,
 QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) const
 {
     QTC_ASSERT(index >= 0 && size_t(index) < remotePlugins.size(), return {});
-    RemoteSpec *remoteSpec = remotePlugins.at(index).get();
+    const RemoteSpec *remoteSpec = remotePlugins.at(index).get();
 
     switch (role) {
     case RoleSpec:

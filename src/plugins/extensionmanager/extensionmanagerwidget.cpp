@@ -388,8 +388,9 @@ public:
 
         QVariant spec = current.data(RoleSpec);
 
-        ExtensionSystem::PluginSpec *pluginSpec = qvariant_cast<ExtensionSystem::PluginSpec *>(spec);
-        RemoteSpec *remoteSpec = qvariant_cast<RemoteSpec *>(spec);
+        const ExtensionSystem::PluginSpec *pluginSpec
+            = qvariant_cast<const ExtensionSystem::PluginSpec *>(spec);
+        const RemoteSpec *remoteSpec = qvariant_cast<const RemoteSpec *>(spec);
 
         if (remoteSpec) {
             pluginSpec = Utils::findOrDefault(
