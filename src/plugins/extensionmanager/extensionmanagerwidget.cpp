@@ -57,6 +57,7 @@ using namespace Core;
 using namespace Utils;
 using namespace StyleHelper;
 using namespace WelcomePageHelpers;
+using namespace ExtensionSystem;
 
 namespace ExtensionManager::Internal {
 
@@ -171,8 +172,7 @@ public:
         int initialIndex = -1;
 
         for (int i = 0; const auto &remoteSpec : m_versions) {
-            const bool isCompatible = remoteSpec->resolveDependencies(
-                ExtensionSystem::PluginManager::plugins());
+            const bool isCompatible = remoteSpec->resolveDependencies(PluginManager::plugins());
 
             QString versionStr = remoteSpec->version();
             if (!isCompatible)
@@ -272,7 +272,7 @@ public:
         removeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         removeButton->hide();
         connect(removeButton, &QAbstractButton::pressed, this, [this]() {
-            ExtensionSystem::PluginManager::removePluginOnRestart(m_currentPluginId);
+            PluginManager::removePluginOnRestart(m_currentPluginId);
             requestRestart();
         });
 
@@ -388,14 +388,12 @@ public:
 
         QVariant spec = current.data(RoleSpec);
 
-        const ExtensionSystem::PluginSpec *pluginSpec
-            = qvariant_cast<const ExtensionSystem::PluginSpec *>(spec);
+        const PluginSpec *pluginSpec = qvariant_cast<const PluginSpec *>(spec);
         const RemoteSpec *remoteSpec = qvariant_cast<const RemoteSpec *>(spec);
 
         if (remoteSpec) {
             pluginSpec = Utils::findOrDefault(
-                ExtensionSystem::PluginManager::plugins(),
-                Utils::equal(&ExtensionSystem::PluginSpec::id, remoteSpec->id()));
+                PluginManager::plugins(), Utils::equal(&PluginSpec::id, remoteSpec->id()));
         }
 
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
@@ -406,8 +404,7 @@ public:
 
         updateButton->setVisible(
             pluginSpec
-            && ExtensionSystem::PluginSpec::versionCompare(
-                   pluginSpec->version(), current.data(RoleVersion).toString())
+            && PluginSpec::versionCompare(pluginSpec->version(), current.data(RoleVersion).toString())
                    < 0);
 
         m_versionSelector->setVisible(isRemotePlugin);
@@ -462,24 +459,27 @@ public:
         }.attachTo(this);
 
         connect(m_switch, &QCheckBox::clicked, this, [this](bool checked) {
-            ExtensionSystem::PluginSpec *spec = pluginSpecForId(m_pluginId);
+            PluginSpec *spec = pluginSpecForId(m_pluginId);
             if (spec == nullptr)
                 return;
             const bool doIt = m_pluginView.data().setPluginsEnabled({spec}, checked);
             if (doIt) {
                 if (checked && spec->isEffectivelySoftloadable())
-                    ExtensionSystem::PluginManager::loadPluginsAtRuntime({spec});
+                    PluginManager::loadPluginsAtRuntime({spec});
                 else
                     requestRestart();
 
-                ExtensionSystem::PluginManager::writeSettings();
+                PluginManager::writeSettings();
             } else {
                 m_switch->setChecked(!checked);
             }
         });
 
-        connect(ExtensionSystem::PluginManager::instance(),
-                &ExtensionSystem::PluginManager::pluginsChanged, this, &PluginStatusWidget::update);
+        connect(
+            PluginManager::instance(),
+            &PluginManager::pluginsChanged,
+            this,
+            &PluginStatusWidget::update);
 
         update();
     }
@@ -493,7 +493,7 @@ public:
 private:
     void update()
     {
-        const ExtensionSystem::PluginSpec *spec = pluginSpecForId(m_pluginId);
+        const PluginSpec *spec = pluginSpecForId(m_pluginId);
         setVisible(spec != nullptr);
         if (spec == nullptr)
             return;
@@ -501,7 +501,7 @@ private:
         if (spec->hasError()) {
             m_label->setType(InfoLabel::Error);
             m_label->setText(Tr::tr("Error"));
-        } else if (spec->state() == ExtensionSystem::PluginSpec::Running) {
+        } else if (spec->state() == PluginSpec::Running) {
             m_label->setType(InfoLabel::Ok);
             m_label->setText(Tr::tr("Loaded"));
         } else {
@@ -517,7 +517,7 @@ private:
     InfoLabel *m_label;
     Switch *m_switch;
     QString m_pluginId;
-    ExtensionSystem::PluginView m_pluginView{this};
+    PluginView m_pluginView{this};
 };
 
 class TagList : public QWidget
