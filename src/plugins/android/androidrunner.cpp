@@ -103,9 +103,7 @@ class AndroidRunWorkerFactory final : public RunWorkerFactory
 public:
     AndroidRunWorkerFactory()
     {
-        setProducer([](RunControl *runControl) {
-            return new RecipeRunner(runControl, androidRecipe(runControl));
-        });
+        setRecipeProducer(androidRecipe);
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
     }

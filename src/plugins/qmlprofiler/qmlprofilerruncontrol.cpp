@@ -110,9 +110,7 @@ class QmlProfilerRunWorkerFactory final : public RunWorkerFactory
 public:
     QmlProfilerRunWorkerFactory()
     {
-        setProducer([](RunControl *runControl) {
-            return new RecipeRunner(runControl, qmlProfilerRecipe(runControl));
-        });
+        setRecipeProducer(qmlProfilerRecipe);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
     }
 };

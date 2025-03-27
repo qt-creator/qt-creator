@@ -79,6 +79,13 @@ void RunWorkerFactory::setProducer(const WorkerCreator &producer)
     m_producer = producer;
 }
 
+void RunWorkerFactory::setRecipeProducer(const RecipeCreator &producer)
+{
+    setProducer([producer](RunControl *runControl) {
+        return new RecipeRunner(runControl, producer(runControl));
+    });
+}
+
 void RunWorkerFactory::setSupportedRunConfigs(const QList<Id> &runConfigs)
 {
     for (Id runConfig : runConfigs)

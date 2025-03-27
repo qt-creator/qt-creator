@@ -98,9 +98,7 @@ static Group qmlPreviewRecipe(RunControl *runControl)
 
 QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory()
 {
-    setProducer([](RunControl *runControl) {
-        return new RecipeRunner(runControl, qmlPreviewRecipe(runControl));
-    });
+    setRecipeProducer(qmlPreviewRecipe);
     addSupportedRunMode(Constants::QML_PREVIEW_RUNNER);
 }
 

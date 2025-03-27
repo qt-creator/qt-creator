@@ -163,9 +163,7 @@ class CallgrindToolRunnerFactory final : public RunWorkerFactory
 public:
     CallgrindToolRunnerFactory()
     {
-        setProducer([](RunControl *runControl) {
-            return new RecipeRunner(runControl, callgrindRecipe(runControl));
-        });
+        setRecipeProducer(callgrindRecipe);
         addSupportedRunMode(CALLGRIND_RUN_MODE);
 
         addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
