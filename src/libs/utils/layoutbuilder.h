@@ -579,6 +579,14 @@ QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Space &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Stretch &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const If &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Span &inner);
+
+template<class T>
+void addToLayout(Layout *layout, const QList<T> &inner)
+{
+    for (const auto &i : inner)
+        addToLayout(layout, i);
+}
+
 // ... can be added to anywhere later to support "user types"
 
 QTCREATOR_UTILS_EXPORT void addToWidget(Widget *widget, const Layout &layout);
