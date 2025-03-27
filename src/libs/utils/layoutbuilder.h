@@ -290,6 +290,7 @@ public:
     void setTextInteractionFlags(Qt::TextInteractionFlags);
     void setOpenExternalLinks(bool);
     void onLinkHovered(QObject *guard, const std::function<void(const QString &)> &);
+    void onLinkActivated(QObject *guard, const std::function<void(const QString &)> &);
 };
 
 class QTCREATOR_UTILS_EXPORT Group : public Widget
@@ -545,6 +546,7 @@ QTC_DEFINE_BUILDER_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy)
 QTC_DEFINE_BUILDER_SETTER(groupChecker, setGroupChecker)
 QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
 QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
+QTC_DEFINE_BUILDER_SETTER(onLinkActivated, onLinkActivated)
 QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
 QTC_DEFINE_BUILDER_SETTER(openExternalLinks, setOpenExternalLinks)
 QTC_DEFINE_BUILDER_SETTER(orientation, setOrientation);

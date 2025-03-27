@@ -895,6 +895,11 @@ void Label::onLinkHovered(QObject *guard, const std::function<void (const QStrin
     QObject::connect(access(this), &QLabel::linkHovered, guard, func);
 }
 
+void Label::onLinkActivated(QObject *guard, const std::function<void(const QString &)> &func)
+{
+    QObject::connect(access(this), &QLabel::linkActivated, guard, func);
+}
+
 // Group
 
 Group::Group(std::initializer_list<I> ps)
