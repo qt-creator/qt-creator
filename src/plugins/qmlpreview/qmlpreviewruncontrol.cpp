@@ -24,20 +24,21 @@ using namespace Utils;
 
 namespace QmlPreview {
 
-static Group qmlPreviewRecipe(RunControl *runControl, QmlPreviewPlugin *plugin,
-                              const QmlPreviewRunnerSetting &settings)
+static Group qmlPreviewRecipe(RunControl *runControl)
 {
-    const auto onTranslationSetup = [settings](Async<void> &task) {
-        if (!settings.refreshTranslationsFunction)
+    const auto onTranslationSetup = [](Async<void> &task) {
+        if (!QmlPreviewPlugin::settings().refreshTranslationsFunction)
             return SetupResult::StopWithSuccess;
 
-        task.setConcurrentCallData(settings.refreshTranslationsFunction);
+        task.setConcurrentCallData(QmlPreviewPlugin::settings().refreshTranslationsFunction);
         // Cancel and blocking wait for finished when deleting the translation task.
         task.setFutureSynchronizer(nullptr);
         return SetupResult::Continue;
     };
 
-    const auto onPreviewSetup = [runControl, plugin, settings](QmlPreviewConnectionManager &task) {
+    const auto onPreviewSetup = [runControl](QmlPreviewConnectionManager &task) {
+        QmlPreviewPlugin *plugin = QmlPreviewPlugin::instance();
+        const QmlPreviewRunnerSetting &settings = QmlPreviewPlugin::settings();
         task.setFileLoader(settings.fileLoader);
         task.setFileClassifier(settings.fileClassifier);
         task.setFpsHandler(settings.fpsHandler);
@@ -82,8 +83,8 @@ static Group qmlPreviewRecipe(RunControl *runControl, QmlPreviewPlugin *plugin,
         plugin->addPreview(runControl);
     };
 
-    const auto onDone = [runControl, plugin] {
-        plugin->removePreview(runControl);
+    const auto onDone = [runControl] {
+        QmlPreviewPlugin::instance()->removePreview(runControl);
     };
 
     return Group {
@@ -95,11 +96,10 @@ static Group qmlPreviewRecipe(RunControl *runControl, QmlPreviewPlugin *plugin,
     }.withCancel(canceler());
 }
 
-QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory(QmlPreviewPlugin *plugin,
-                                                       const QmlPreviewRunnerSetting *runnerSettings)
+QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory()
 {
-    setProducer([plugin, runnerSettings](RunControl *runControl) {
-        return new RecipeRunner(runControl, qmlPreviewRecipe(runControl, plugin, *runnerSettings));
+    setProducer([](RunControl *runControl) {
+        return new RecipeRunner(runControl, qmlPreviewRecipe(runControl));
     });
     addSupportedRunMode(Constants::QML_PREVIEW_RUNNER);
 }

@@ -16,6 +16,7 @@ namespace QmlDebug { class QmlDebugConnection; }
 
 namespace QmlPreview {
 
+struct QmlPreviewRunnerSetting;
 using QmlPreviewFileClassifier = bool (*)(const QString &);
 using QmlPreviewFileLoader = QByteArray (*)(const QString &, bool *);
 using QmlPreviewFpsHandler = void (*)(quint16[8]);
@@ -43,6 +44,9 @@ class QMLPREVIEW_EXPORT QmlPreviewPlugin : public ExtensionSystem::IPlugin
 
 public:
     ~QmlPreviewPlugin() override;
+
+    static QmlPreviewPlugin *instance();
+    static const QmlPreviewRunnerSetting &settings();
 
     void initialize() override;
 

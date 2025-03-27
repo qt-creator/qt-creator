@@ -24,7 +24,7 @@ struct QmlPreviewRunnerSetting
 class QmlPreviewRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    QmlPreviewRunWorkerFactory(QmlPreviewPlugin *plugin, const QmlPreviewRunnerSetting *runnerSettings);
+    QmlPreviewRunWorkerFactory();
 };
 
 class LocalQmlPreviewSupportFactory final : public ProjectExplorer::RunWorkerFactory
