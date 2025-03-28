@@ -80,6 +80,9 @@ public:
     static const QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
     static void checkForProblematicPlugins();
     static PluginSpec *specForPlugin(IPlugin *plugin);
+    static PluginSpec *specById(const QString &id);
+    static bool specExists(const QString &id);
+    static bool specExistsAndIsEnabled(const QString &id);
 
     static void addPlugins(const QVector<PluginSpec *> &specs);
 

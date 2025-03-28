@@ -1713,6 +1713,22 @@ PluginSpec *PluginManager::specForPlugin(IPlugin *plugin)
     return findOrDefault(d->pluginSpecs, equal(&PluginSpec::plugin, plugin));
 }
 
+PluginSpec *PluginManager::specById(const QString &id)
+{
+    return d->pluginById(id);
+}
+
+bool PluginManager::specExists(const QString &id)
+{
+    return Utils::anyOf(d->pluginSpecs, Utils::equal(&PluginSpec::id, id));
+}
+
+bool PluginManager::specExistsAndIsEnabled(const QString &id)
+{
+    PluginSpec *spec = d->pluginById(id);
+    return spec && spec->isEffectivelyEnabled();
+}
+
 static QString pluginListString(const QSet<PluginSpec *> &plugins)
 {
     QStringList names = Utils::transform<QList>(plugins, &PluginSpec::name);
@@ -1957,8 +1973,7 @@ static const char PLUGINS_TO_REMOVE_KEY[] = "PluginsToRemove";
 
 Result PluginManagerPrivate::removePluginOnRestart(const QString &pluginId)
 {
-    const PluginSpec *pluginSpec
-        = findOrDefault(pluginSpecs, Utils::equal(&PluginSpec::id, pluginId));
+    const PluginSpec *pluginSpec = pluginById(pluginId);
 
     if (!pluginSpec)
         return Result::Error(Tr::tr("Plugin not found."));
@@ -2153,7 +2168,7 @@ PluginSpec *PluginManagerPrivate::pluginById(const QString &id_in) const
     QString id = id_in;
     // Plugin ids are always lower case. So the id argument should be too.
     QTC_ASSERT(id.isLower(), id = id.toLower());
-    return Utils::findOrDefault(pluginSpecs, [id](PluginSpec *spec) { return spec->id() == id; });
+    return Utils::findOrDefault(pluginSpecs, Utils::equal(&PluginSpec::id, id));
 }
 
 void PluginManagerPrivate::increaseProfilingVerbosity()
