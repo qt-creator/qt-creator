@@ -36,6 +36,10 @@ Group qmlProfilerRecipe(RunControl *runControl)
         QObject::connect(clientManager, &QmlProfilerClientManager::connectionClosed,
                          &barrier, &Barrier::advance);
         QObject::connect(iface, &RunInterface::canceled, &barrier, [barrier = &barrier] {
+            if (QmlProfilerTool::instance() == nullptr) {
+                barrier->stopWithResult(DoneResult::Error);
+                return;
+            }
             QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
             if (stateManager) {
                 if (stateManager->currentState() == QmlProfilerStateManager::AppRunning)
@@ -54,6 +58,8 @@ Group qmlProfilerRecipe(RunControl *runControl)
         emit iface->started();
     };
     const auto onDone = [] {
+        if (QmlProfilerTool::instance() == nullptr)
+            return;
         QmlProfilerTool::instance()->handleStop();
         QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
         if (stateManager && stateManager->currentState() == QmlProfilerStateManager::AppRunning)
