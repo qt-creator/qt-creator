@@ -126,6 +126,25 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     empty->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     buttons.append(empty);
 
+    // Colorize Component Icons
+    const QIcon colorizeOffIcon = Theme::iconFromName(Theme::Icon::colorSelection_medium);
+    const QIcon colorizeOnIcon = Theme::iconFromName(Theme::Icon::colorSelection_medium,
+                                             Theme::getColor(Theme::Color::DStextSelectedTextColor));
+    QIcon cIcon;
+    cIcon.addPixmap(colorizeOnIcon.pixmap({16, 16}), QIcon::Normal, QIcon::On);
+    cIcon.addPixmap(colorizeOffIcon.pixmap({16, 16}), QIcon::Normal, QIcon::Off);
+
+    button = new QToolButton();
+    button->setIcon(cIcon);
+    button->setCheckable(true);
+    bool colorizeFlag = QmlDesignerPlugin::settings()
+                           .value(DesignerSettingsKey::NAVIGATOR_COLORIZE_ICONS)
+                           .toBool();
+    button->setChecked(colorizeFlag);
+    button->setToolTip(tr("Colorize Component Icons"));
+    connect(button, &QAbstractButton::toggled, this, &NavigatorWidget::colorizeToggled);
+    buttons.append(button);
+
     // Show Only Visible Components
     auto visibleIcon = Theme::iconFromName(Theme::Icon::visible_medium);
     auto invisibleIcon = Theme::iconFromName(Theme::Icon::invisible_medium,

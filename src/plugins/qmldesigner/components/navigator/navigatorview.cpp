@@ -637,6 +637,12 @@ void NavigatorView::downButtonClicked()
     blockSelectionChangedSignal(blocked);
 }
 
+void NavigatorView::colorizeToggled(bool flag)
+{
+    QmlDesignerPlugin::settings().insert(DesignerSettingsKey::NAVIGATOR_COLORIZE_ICONS, flag);
+    m_currentModelInterface->notifyIconsChanged();
+}
+
 void NavigatorView::filterToggled(bool flag)
 {
     m_currentModelInterface->setFilter(flag);
@@ -776,6 +782,7 @@ void NavigatorView::setupWidget()
     connect(m_widget.data(), &NavigatorWidget::rightButtonClicked, this, &NavigatorView::rightButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::downButtonClicked, this, &NavigatorView::downButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::upButtonClicked, this, &NavigatorView::upButtonClicked);
+    connect(m_widget.data(), &NavigatorWidget::colorizeToggled, this, &NavigatorView::colorizeToggled);
     connect(m_widget.data(), &NavigatorWidget::filterToggled, this, &NavigatorView::filterToggled);
     connect(m_widget.data(), &NavigatorWidget::reverseOrderToggled, this, &NavigatorView::reverseOrderToggled);
 

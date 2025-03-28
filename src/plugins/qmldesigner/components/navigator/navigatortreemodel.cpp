@@ -35,6 +35,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QMimeData>
@@ -178,6 +179,37 @@ static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty
     }
 }
 
+static QColor nodeColor(const ModelNode &node)
+{
+    const NodeMetaInfo metaInfo = node.metaInfo();
+    const Model *model = node.model();
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    NodeMetaInfo item = model->qtQuickItemMetaInfo();
+    NodeMetaInfo node3D = model->qtQuick3DNodeMetaInfo();
+    NodeMetaInfo material = model->qtQuick3DMaterialMetaInfo();
+    NodeMetaInfo texture = model->qtQuick3DTextureMetaInfo();
+
+    NodeMetaInfo nodeType = metaInfo.basedOn(item, node3D, material, texture);
+
+    if (nodeType == item)
+        return Utils::creatorTheme()->color(Utils::Theme::Navigator_2DColor);
+    if (nodeType == node3D)
+        return Utils::creatorTheme()->color(Utils::Theme::Navigator_3DColor);
+    if (nodeType == material || nodeType == texture)
+        return Utils::creatorTheme()->color(Utils::Theme::Navigator_MaterialColor);
+#else
+    if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo()))
+        return Utils::creatorTheme()->color(Utils::Theme::Navigator_2DColor);
+    if (metaInfo.isBasedOn(model->qtQuick3DNodeMetaInfo()))
+        return Utils::creatorTheme()->color(Utils::Theme::Navigator_3DColor);
+    if (metaInfo.isBasedOn(model->qtQuick3DMaterialMetaInfo()), model->qtQuick3DTextureMetaInfo())
+        return Utils::creatorTheme()->color(Utils::Theme::Navigator_MaterialColor);
+#endif
+
+    return Utils::creatorTheme()->color(Utils::Theme::Navigator_DefaultColor);
+}
+
 NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
@@ -215,8 +247,10 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
             if (currentQmlObjectNode.hasError())
                 return ::Utils::Icons::WARNING.icon();
 
-            return modelNode.typeIcon();
+            if (QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_COLORIZE_ICONS).toBool())
+                return colorizeIcon(modelNode.typeIcon(), nodeColor(modelNode));
 
+            return modelNode.typeIcon();
         } else if (role == Qt::ToolTipRole) {
             if (currentQmlObjectNode.hasError()) {
                 QString errorString = currentQmlObjectNode.error();
@@ -867,6 +901,24 @@ bool QmlDesigner::NavigatorTreeModel::moveNodeToParent(const NodeAbstractPropert
     return false;
 }
 
+QIcon NavigatorTreeModel::colorizeIcon(const QIcon &icon, const QColor &color) const
+{
+    if (!color.isValid())
+        return icon;
+
+    const quint64 key = icon.cacheKey();
+    const auto it = m_colorizeIconHash.find(key);
+    if (it != m_colorizeIconHash.cend())
+        return *it;
+
+    QPixmap pixmap = icon.pixmap(icon.actualSize(QSize(32, 32)));
+    QImage image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
+    Utils::StyleHelper::tintImage(image, color);
+    const QIcon colorIcon = QIcon(QPixmap::fromImage(image));
+    m_colorizeIconHash.insert(key, colorIcon);
+    return colorIcon;
+}
+
 namespace {
 NodeMetaInfo propertyType(const NodeAbstractProperty &property)
 {
@@ -1068,6 +1120,7 @@ void NavigatorTreeModel::resetModel()
     beginResetModel();
     m_rowCache.clear();
     m_nodeIndexHash.clear();
+    m_colorizeIconHash.clear();
     endResetModel();
 }
 

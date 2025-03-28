@@ -104,10 +104,12 @@ private:
     void addImport(const QString &importName);
     QList<ModelNode> filteredList(const NodeListProperty &property, bool filter, bool reverseOrder) const;
     bool moveNodeToParent(const NodeAbstractProperty &targetProperty, const ModelNode &newModelNode);
+    QIcon colorizeIcon(const QIcon &icon, const QColor &color) const;
 
     QPointer<NavigatorView> m_view;
     mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
     mutable QHash<ModelNode, QList<ModelNode> > m_rowCache;
+    mutable QHash<qint64, QIcon> m_colorizeIconHash;
     bool m_showOnlyVisibleItems = true;
     bool m_reverseItemOrder = false;
     DesignerActionManager *m_actionManager = nullptr;

@@ -270,6 +270,12 @@ public:
         /* Debugger Plugin */
         Debugger_Breakpoint_TextMarkColor,
 
+        /* Navigator Icons Colors */
+        Navigator_DefaultColor,
+        Navigator_3DColor,
+        Navigator_2DColor,
+        Navigator_MaterialColor,
+
         /* ProjectExplorer Plugin */
         ProjectExplorer_TaskError_TextMarkColor,
         ProjectExplorer_TaskWarn_TextMarkColor,

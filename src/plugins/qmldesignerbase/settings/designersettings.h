@@ -51,6 +51,7 @@ inline constexpr char DEBUG_PUPPET[] = "DebugPuppet";
 inline constexpr char FORWARD_PUPPET_OUTPUT[] = "ForwardPuppetOutput";
 inline constexpr char NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS[] = "NavigatorShowOnlyVisibleItems";
 inline constexpr char NAVIGATOR_REVERSE_ITEM_ORDER[] = "NavigatorReverseItemOrder";
+inline constexpr char NAVIGATOR_COLORIZE_ICONS[] = "NavigatorColorizeIcons";
 inline constexpr char REFORMAT_UI_QML_FILES[]
     = "ReformatUiQmlFiles"; /* These settings are not exposed in ui. */
 inline constexpr char IGNORE_DEVICE_PIXEL_RATIO[]
