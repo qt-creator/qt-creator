@@ -888,8 +888,7 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
     pixmap.setDevicePixelRatio(dpr);
     const QRect iconBgR(QPoint(), pixmap.deviceIndependentSize().toSize());
 
-    const PluginSpec *ps = pluginSpecForId(index.data(RoleId).toString());
-    const bool isEnabled = ps == nullptr || ps->isEffectivelyEnabled();
+    const bool isEnabled = PluginManager::specExistsAndIsEnabled(index.data(RoleId).toString());
     const QGradientStops gradientStops = {
         {0, creatorColor(Theme::Token_Gradient01_Start)},
         {1, creatorColor(Theme::Token_Gradient01_End)},

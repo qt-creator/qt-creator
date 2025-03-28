@@ -459,7 +459,7 @@ public:
         }.attachTo(this);
 
         connect(m_switch, &QCheckBox::clicked, this, [this](bool checked) {
-            PluginSpec *spec = pluginSpecForId(m_pluginId);
+            PluginSpec *spec = PluginManager::specById(m_pluginId);
             if (spec == nullptr)
                 return;
             const bool doIt = m_pluginView.data().setPluginsEnabled({spec}, checked);
@@ -493,7 +493,7 @@ public:
 private:
     void update()
     {
-        const PluginSpec *spec = pluginSpecForId(m_pluginId);
+        const PluginSpec *spec = PluginManager::specById(m_pluginId);
         setVisible(spec != nullptr);
         if (spec == nullptr)
             return;

@@ -427,9 +427,7 @@ private:
 QStringList lastSessionArgument()
 {
     // using insider information here is not particularly beautiful, anyhow
-    const bool hasProjectExplorer = Utils::anyOf(PluginManager::plugins(),
-                                                 Utils::equal(&PluginSpec::id,
-                                                              QString("projectexplorer")));
+    const bool hasProjectExplorer = PluginManager::specExists("projectexplorer");
     return hasProjectExplorer ? QStringList({"-lastsession"}) : QStringList();
 }
 
@@ -889,14 +887,7 @@ int main(int argc, char **argv)
             settingspath};
     PluginManager::setCreatorProcessData(processData);
 
-    const PluginSpecs plugins = PluginManager::plugins();
-    PluginSpec *coreplugin = nullptr;
-    for (PluginSpec *spec : plugins) {
-        if (spec->id() == QLatin1String(corePluginIdC)) {
-            coreplugin = spec;
-            break;
-        }
-    }
+    PluginSpec *coreplugin = PluginManager::specById(QLatin1String(corePluginIdC));
     if (!coreplugin) {
         QString nativePaths = QDir::toNativeSeparators(pluginPaths.join(QLatin1Char(',')));
         const QString reason = QCoreApplication::translate("Application", "Could not find Core plugin in %1").arg(nativePaths);

@@ -90,15 +90,13 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
             this,
             &DataModelDownloader::downloadFailed);
 
-    const ExtensionSystem::PluginSpec *pluginSpec
-        = Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(),
-                               Utils::equal(&ExtensionSystem::PluginSpec::id,
-                                            QString("studiowelcome")));
+    using namespace ExtensionSystem;
+    const PluginSpec *pluginSpec = PluginManager::specById(QString("studiowelcome"));
 
     if (!pluginSpec)
         return;
 
-    ExtensionSystem::IPlugin *plugin = pluginSpec->plugin();
+    IPlugin *plugin = pluginSpec->plugin();
 
     if (!plugin)
         return;

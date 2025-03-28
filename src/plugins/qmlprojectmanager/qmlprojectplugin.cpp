@@ -46,6 +46,7 @@
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcprocess.h>
@@ -65,19 +66,9 @@ using namespace Utils;
 
 namespace QmlProjectManager::Internal {
 
-static bool isQmlDesigner(const ExtensionSystem::PluginSpec *spec)
-{
-    if (!spec)
-        return false;
-
-    return spec->id().contains("qmldesigner");
-}
-
 static bool qmlDesignerEnabled()
 {
-    const auto plugins = ExtensionSystem::PluginManager::plugins();
-    const auto it = std::find_if(plugins.begin(), plugins.end(), &isQmlDesigner);
-    return it != plugins.end() && (*it)->plugin();
+    return ExtensionSystem::PluginManager::specExistsAndIsEnabled("qmldesigner");
 }
 
 static QString alwaysOpenWithMode()

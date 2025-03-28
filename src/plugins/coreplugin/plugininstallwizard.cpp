@@ -124,10 +124,7 @@ using CheckResult = expected_str<PluginSpec *>;
 
 static Result checkPlugin(PluginSpec *spec, bool update)
 {
-    const bool pluginAlreadyExists
-        = Utils::anyOf(PluginManager::plugins(), [spec](PluginSpec *other) {
-              return other->id() == spec->id();
-          });
+    const bool pluginAlreadyExists = PluginManager::specExists(spec->id());
 
     if (!update && pluginAlreadyExists) {
         return Result::Error(

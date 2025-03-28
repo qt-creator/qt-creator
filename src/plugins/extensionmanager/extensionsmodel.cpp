@@ -233,7 +233,7 @@ static QString badgeText(const QModelIndex &index)
     if (index.data(RoleDownloadUrl).isNull())
         return {};
 
-    const PluginSpec *ps = pluginSpecForId(index.data(RoleId).toString());
+    const PluginSpec *ps = PluginManager::specById(index.data(RoleId).toString());
     if (!ps)
         return Tr::tr("New");
 
@@ -248,7 +248,7 @@ ExtensionState extensionState(const QModelIndex &index)
     if (index.data(RoleItemType) != ItemTypeExtension)
         return None;
 
-    const PluginSpec *ps = pluginSpecForId(index.data(RoleId).toString());
+    const PluginSpec *ps = PluginManager::specById(index.data(RoleId).toString());
     if (!ps)
         return NotInstalled;
 
@@ -403,14 +403,6 @@ QString customOsArchToString(OsArch osArch)
     }
 
     return "Unknown";
-}
-
-PluginSpec *pluginSpecForId(const QString &pluginId)
-{
-    PluginSpec *spec = findOrDefault(PluginManager::plugins(), equal(&PluginSpec::id, pluginId));
-    if (spec)
-        return spec;
-    return nullptr;
 }
 
 QString statusDisplayString(const QModelIndex &index)

@@ -47,11 +47,8 @@ namespace CppEditor::Internal::Tests {
 
 bool isClangFormatPresent()
 {
-    using namespace ExtensionSystem;
-    return Utils::contains(PluginManager::plugins(), [](const PluginSpec *plugin) {
-        return plugin->id() == "clangformat" && plugin->isEffectivelyEnabled();
-    });
-};
+    return ExtensionSystem::PluginManager::specExistsAndIsEnabled("clangformat");
+}
 
 CppTestDocument::CppTestDocument(const QByteArray &fileName, const QByteArray &source,
                                          char cursorMarker)

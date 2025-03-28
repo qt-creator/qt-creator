@@ -125,13 +125,10 @@ class TestBuildConfigFactory : public BuildConfigurationFactory
 public:
     TestBuildConfigFactory()
     {
-        for (ExtensionSystem::PluginSpec * const spec : ExtensionSystem::PluginManager::plugins()) {
-            if (spec->id() == "qmakeprojectmanager") {
-                if (spec->state() == ExtensionSystem::PluginSpec::Running)
-                    return;
-                break;
-            }
-        }
+        using namespace ExtensionSystem;
+        PluginSpec *const spec = PluginManager::specById("qmakeprojectmanager");
+        if (spec && spec->state() == PluginSpec::Running)
+            return;
         registerBuildConfiguration<BuildConfiguration>("QtSupport.Test");
         setSupportedProjectMimeTypeName(Utils::Constants::PROFILE_MIMETYPE);
     }

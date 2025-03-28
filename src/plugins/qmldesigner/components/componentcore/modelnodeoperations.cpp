@@ -1755,10 +1755,7 @@ void editInEffectComposer(const SelectionContext &selectionContext)
 
 bool isEffectComposerActivated()
 {
-    using namespace ExtensionSystem;
-    return Utils::anyOf(PluginManager::plugins(), [](PluginSpec *spec) {
-        return spec->id() == "effectcomposer" && spec->isEffectivelyEnabled();
-    });
+    return ExtensionSystem::PluginManager::specExistsAndIsEnabled("effectcomposer");
 }
 
 void openEffectComposer(const QString &filePath)

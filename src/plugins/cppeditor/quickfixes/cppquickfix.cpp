@@ -98,11 +98,9 @@ public:
 static ExtensionSystem::IPlugin *getCppEditor()
 {
     using namespace ExtensionSystem;
-    for (PluginSpec * const spec : PluginManager::plugins()) {
-        if (spec->id() == "cppeditor")
-            return spec->plugin();
-    }
-    QTC_ASSERT(false, return nullptr);
+    PluginSpec *const cppEditorSpec = PluginManager::specById("cppeditor");
+    QTC_ASSERT(cppEditorSpec, return nullptr);
+    return cppEditorSpec->plugin();
 }
 
 CppQuickFixOperation::~CppQuickFixOperation() = default;

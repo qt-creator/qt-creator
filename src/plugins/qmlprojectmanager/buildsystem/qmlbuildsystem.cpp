@@ -49,6 +49,7 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace ExtensionSystem;
 
 namespace QmlProjectManager {
 
@@ -56,15 +57,10 @@ namespace {
 Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)
 }
 
-ExtensionSystem::IPlugin *findMcuSupportPlugin()
+IPlugin *findMcuSupportPlugin()
 {
-    const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
-        ExtensionSystem::PluginManager::plugins(),
-        Utils::equal(&ExtensionSystem::PluginSpec::id, QString("mcusupport")));
-
-    if (pluginSpec)
-        return pluginSpec->plugin();
-    return nullptr;
+    const PluginSpec *pluginSpec = PluginManager::specById(QString("mcusupport"));
+    return pluginSpec ? pluginSpec->plugin() : nullptr;
 }
 
 void updateMcuBuildStep(BuildConfiguration *bc, bool mcuEnabled)
