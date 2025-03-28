@@ -186,6 +186,8 @@ public:
         }
         if (initialIndex != -1)
             m_versionSelector->setCurrentIndex(initialIndex);
+        else
+            emit versionSelected(nullptr);
     }
 
     void setExtension(const RemoteSpec *spec)
@@ -195,13 +197,12 @@ public:
 
         m_versionSelector->setEnabled(!!spec);
 
-        if (!spec)
-            return;
-
-        m_versions = spec->versions();
-        Utils::sort(m_versions, [](const auto &a, const auto &b) {
-            return RemoteSpec::versionCompare(a->version(), b->version()) > 0;
-        });
+        if (spec) {
+            m_versions = spec->versions();
+            Utils::sort(m_versions, [](const auto &a, const auto &b) {
+                return RemoteSpec::versionCompare(a->version(), b->version()) > 0;
+            });
+        }
 
         updateEntries();
     }
@@ -287,10 +288,7 @@ public:
             m_versionSelector,
             &VersionSelector::versionSelected,
             this,
-            [this](const RemoteSpec *spec) {
-                Q_UNUSED(spec);
-                versionSelected(spec);
-            });
+            &HeadingWidget::versionSelected);
 
         using namespace Layouting;
         // clang-format off
@@ -345,7 +343,10 @@ public:
     {
         installButton->setVisible(false);
         if (spec) {
-            installButton->setVisible(true);
+            const PluginSpec *installedSpec = PluginManager::specById(spec->id());
+
+            installButton->setVisible(
+                !installedSpec || (installedSpec->version() != spec->version()));
             installButton->setEnabled(false);
 
             if (spec->hasError()) {
@@ -392,10 +393,8 @@ public:
         const PluginSpec *pluginSpec = qvariant_cast<const PluginSpec *>(spec);
         const RemoteSpec *remoteSpec = qvariant_cast<const RemoteSpec *>(spec);
 
-        if (remoteSpec) {
-            pluginSpec = Utils::findOrDefault(
-                PluginManager::plugins(), Utils::equal(&PluginSpec::id, remoteSpec->id()));
-        }
+        if (remoteSpec)
+            pluginSpec = PluginManager::specById(remoteSpec->id());
 
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
         const bool isPack = itemType == ItemTypePack;
