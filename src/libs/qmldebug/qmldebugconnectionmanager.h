@@ -55,7 +55,7 @@ private:
     QTimer m_connectionTimer;
     QUrl m_server;
 
-    int m_retryInterval = 200;
+    int m_retryInterval = 5000;
     int m_maximumRetries = 10;
     int m_numRetries = 0;
 
