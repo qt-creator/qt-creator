@@ -780,8 +780,8 @@ signals:
 
 private:
     QUrl m_url;
-    QFile *m_file;
-    QNetworkReply *m_reply;
+    QFile *m_file = nullptr;
+    QNetworkReply *m_reply = nullptr;
 };
 
 using DownloadTask = Tasking::SimpleCustomTask<Downloader>;
