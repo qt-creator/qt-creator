@@ -91,6 +91,14 @@ std::ostream &operator<<(std::ostream &out, const QIcon &icon)
     out << icon.cacheKey() << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const QStringList &list)
+{
+    if (list.isEmpty())
+        return out << "[]";
+
+    return out << "[" << list.join("\", \"") << "]";
+}
+
 void PrintTo(QStringView text, std::ostream *os)
 {
     *os << text;

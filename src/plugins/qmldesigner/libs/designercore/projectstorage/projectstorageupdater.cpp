@@ -484,7 +484,7 @@ void ProjectStorageUpdater::updateDirectoryChanged(Utils::SmallStringView direct
                        qmldirState,
                        qmldirSourceId,
                        isInsideProject);
-    tracer.tick("append updated project source id", keyValue("module id", moduleId));
+    tracer.tick("append updated directory source id", keyValue("module id", moduleId));
     package.updatedDirectoryInfoDirectoryIds.push_back(directoryId);
 
     if (isInsideProject == IsInsideProject::Yes) {
@@ -1168,13 +1168,21 @@ void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
         tracer.tick("append module dependenct source source id", keyValue("source id", sourceId));
         package.updatedModuleDependencySourceIds.push_back(sourceId);
 
-        const auto &directoryInfo = package.directoryInfos.emplace_back(
-            directoryId, sourceId, moduleId, Storage::Synchronization::FileType::QmlTypes);
-        tracer.tick("append project data", keyValue("source id", sourceId));
+        const Storage::Synchronization::DirectoryInfo directoryInfo{
+            directoryId, sourceId, moduleId, Storage::Synchronization::FileType::QmlTypes};
 
         const QString qmltypesPath = directoryPath + "/" + typeInfo;
 
-        parseTypeInfo(directoryInfo, qmltypesPath, package, notUpdatedSourceIds, isInsideProject);
+        auto state = parseTypeInfo(directoryInfo,
+                                   qmltypesPath,
+                                   package,
+                                   notUpdatedSourceIds,
+                                   isInsideProject);
+
+        if (isExisting(state)) {
+            package.directoryInfos.push_back(directoryInfo);
+            tracer.tick("append directory info", keyValue("source id", directoryInfo.sourceId));
+        }
     }
 }
 
@@ -1225,6 +1233,7 @@ auto ProjectStorageUpdater::parseTypeInfo(const Storage::Synchronization::Direct
 
         const auto content = m_fileSystem.contentAsQString(qmltypesPath);
         m_qmlTypesParser.parse(content, package.imports, package.types, directoryInfo, isInsideProject);
+
         break;
     }
     case FileState::Unchanged: {
