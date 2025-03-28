@@ -53,8 +53,8 @@ WidgetInfo DesignSystemView::widgetInfo()
     return createWidgetInfo(m_designSystemWidget,
                             "DesignSystemView",
                             WidgetInfo::RightPane,
-                            Tr::tr("Design System"),
-                            Tr::tr("Design System view"),
+                            Tr::tr("Design Tokens"),
+                            Tr::tr("Design Tokens view"),
                             DesignerWidgetFlags::IgnoreErrors);
 }
 

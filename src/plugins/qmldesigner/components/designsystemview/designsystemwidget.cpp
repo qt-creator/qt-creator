@@ -62,7 +62,7 @@ DesignSystemWidget::DesignSystemWidget(DesignSystemView *view, DesignSystemInter
 
     Theme::setupTheme(engine());
 
-    setWindowTitle(tr("Design System", "Title of Editor widget"));
+    setWindowTitle(tr("Design Tokens", "Title of Editor widget"));
     setMinimumSize(QSize(195, 195));
 
     // init the first load of the QML UI elements
