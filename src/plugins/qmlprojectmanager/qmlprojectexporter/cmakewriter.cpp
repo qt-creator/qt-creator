@@ -4,6 +4,7 @@
 #include "cmakegenerator.h"
 #include "cmakewriterv0.h"
 #include "cmakewriterv1.h"
+#include "cmakewriterlib.h"
 
 #include "qmlprojectmanager/buildsystem/qmlbuildsystem.h"
 #include "qmlprojectmanager/qmlproject.h"
@@ -42,14 +43,24 @@ CMakeWriter::Ptr CMakeWriter::create(CMakeGenerator *parent)
     const QmlBuildSystem *buildSystem = parent->buildSystem();
     QTC_ASSERT(buildSystem, return {});
 
-    auto [major, minor, patch] = versionFromString(buildSystem->versionDesignStudio());
+    auto version = versionFromString(buildSystem->versionDesignStudio());
+    auto normalizedVersion = normalizeVersion(version);
 
-    bool useV1 = false;
-    if (major.has_value())
-        useV1 = minor.has_value() ? *major >= 4 && *minor >= 5 : *major >= 5;
-
-    if (useV1)
+    if (normalizedVersion >= std::make_tuple(4, 5, 0)) {
+        if (!buildSystem->standaloneApp()) {
+            if (normalizedVersion >= std::make_tuple(4, 8, 0)) {
+                return std::make_unique<CMakeWriterLib>(parent);
+            } else {
+                CMakeGenerator::logIssue(
+                    ProjectExplorer::Task::Error,
+                    Tr::tr(
+                    "Compiling the project as a library requires"
+                     " Qt Design Studio 4.8 or later."),
+                    buildSystem->projectFilePath());
+            }
+        }
         return std::make_unique<CMakeWriterV1>(parent);
+    }
 
     CMakeGenerator::logIssue(
         ProjectExplorer::Task::Warning,
@@ -65,6 +76,24 @@ CMakeWriter::Ptr CMakeWriter::create(CMakeGenerator *parent)
         buildSystem->projectFilePath());
 
     return std::make_unique<CMakeWriterV0>(parent);
+}
+
+CMakeWriter::Ptr CMakeWriter::createAndRecover(int id, CMakeGenerator *parent)
+{
+    switch (id)
+    {
+    case 1:
+        return std::make_unique<CMakeWriterV0>(parent);
+    case 2:
+        parent->setStandaloneApp(true);
+        return std::make_unique<CMakeWriterV1>(parent);
+    case 3:
+        parent->setStandaloneApp(false);
+        return std::make_unique<CMakeWriterLib>(parent);
+    default:
+        break;
+    }
+    return {};
 }
 
 CMakeWriter::Version CMakeWriter::versionFromString(const QString &versionString)
@@ -96,6 +125,12 @@ CMakeWriter::Version CMakeWriter::versionFromIgnoreFile(const Utils::FilePath &p
         return versionFromString(parts[2]);
     }
     return {};
+}
+
+CMakeWriter::NormalizedVersion CMakeWriter::normalizeVersion(const Version &version)
+{
+    auto [major, minor, patch] = version;
+    return {major.value_or(0), minor.value_or(0), patch.value_or(0)};
 }
 
 QString CMakeWriter::readTemplate(const QString &templatePath)
@@ -148,6 +183,19 @@ QString CMakeWriter::sourceDirName() const
 
 void CMakeWriter::transformNode(NodePtr &) const
 {}
+
+bool CMakeWriter::hasNewComponents() const
+{
+    auto rootDir = m_parent->projectDir();
+    auto componentsDir = rootDir.pathAppended("Dependencies/Components");
+
+    if (!componentsDir.exists())
+        return false;
+
+    auto ignoreFile = componentsDir.pathAppended("ignore-in-qds");
+    auto version = normalizeVersion(versionFromIgnoreFile(ignoreFile));
+    return version >= std::make_tuple(4, 8, 0);
+}
 
 std::vector<Utils::FilePath> CMakeWriter::files(const NodePtr &node, const FileGetter &getter) const
 {

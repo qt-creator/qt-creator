@@ -63,10 +63,14 @@ class CMakeWriter
 public:
     using Ptr = std::shared_ptr<CMakeWriter>;
     using Version = std::tuple<std::optional<int>, std::optional<int>, std::optional<int>>;
+    using NormalizedVersion = std::tuple<int, int, int>;
 
     static Ptr create(CMakeGenerator *parent);
+    static Ptr createAndRecover(int id, CMakeGenerator *parent);
+
     static Version versionFromString(const QString &versionString);
     static Version versionFromIgnoreFile(const Utils::FilePath &path);
+    static NormalizedVersion normalizeVersion(const Version &version);
     static QString readTemplate(const QString &templatePath);
     static void writeFile(const Utils::FilePath &path, const QString &content);
 
@@ -79,11 +83,14 @@ public:
     virtual QString sourceDirName() const;
     virtual void transformNode(NodePtr &) const;
 
+    virtual int identifier() const = 0;
     virtual void writeRootCMakeFile(const NodePtr &node) const = 0;
     virtual void writeModuleCMakeFile(const NodePtr &node, const NodePtr &root) const = 0;
     virtual void writeSourceFiles(const NodePtr &node, const NodePtr &root) const = 0;
 
 protected:
+    bool hasNewComponents() const;
+
     std::vector<Utils::FilePath> files(const NodePtr &node, const FileGetter &getter) const;
     std::vector<Utils::FilePath> qmlFiles(const NodePtr &node) const;
     std::vector<Utils::FilePath> singletons(const NodePtr &node) const;

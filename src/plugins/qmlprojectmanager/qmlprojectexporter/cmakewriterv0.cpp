@@ -46,6 +46,11 @@ void CMakeWriterV0::transformNode(NodePtr &node) const
     }
 }
 
+int CMakeWriterV0::identifier() const
+{
+    return 1;
+}
+
 void CMakeWriterV0::writeRootCMakeFile(const NodePtr &node) const
 {
     QTC_ASSERT(parent(), return);

@@ -11,10 +11,12 @@
 #include "projectexplorer/projectnodes.h"
 
 #include "utils/filenamevalidatinglineedit.h"
+#include "utils/persistentsettings.h"
 
 #include <QDirIterator>
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QMessageBox>
 
 #include <set>
 
@@ -60,7 +62,12 @@ void CMakeGenerator::updateProject(QmlProject *project)
     if (!isEnabled())
         return;
 
-    m_writer = CMakeWriter::create(this);
+    if (!isActive())
+        return;
+
+    createWriter();
+    if (!m_writer)
+        return;
 
     m_root = std::make_shared<Node>();
     m_root->type = Node::Type::App;
@@ -83,6 +90,14 @@ void CMakeGenerator::updateProject(QmlProject *project)
 QString CMakeGenerator::projectName() const
 {
     return m_projectName;
+}
+
+Utils::FilePath CMakeGenerator::projectDir() const
+{
+    if (!m_root)
+        return {};
+
+    return m_root->dir;
 }
 
 bool CMakeGenerator::findFile(const Utils::FilePath& file) const
@@ -440,6 +455,18 @@ void CMakeGenerator::removeFile(NodePtr &node, const Utils::FilePath &path) cons
     }
 }
 
+void CMakeGenerator::removeAmbiguousFiles(const Utils::FilePath &rootPath) const
+{
+    const Utils::FilePath rootCMakeFile = rootPath.pathAppended("CMakeLists.txt");
+    rootCMakeFile.removeFile();
+
+    const Utils::FilePath sourceDirPath = rootPath.pathAppended("App");
+    if (sourceDirPath.exists()) {
+        const Utils::FilePath appCMakeFile = sourceDirPath.pathAppended("CMakeLists.txt");
+        appCMakeFile.removeFile();
+    }
+}
+
 void CMakeGenerator::printModules(const NodePtr &node) const
 {
     if (node->type == Node::Type::Module)
@@ -470,11 +497,12 @@ void CMakeGenerator::printNodeTree(const NodePtr &generatorNode, size_t indent) 
     case Node::Type::Module:
         typeString = "Node::Type::Module";
         break;
+    case Node::Type::MockModule:
+        typeString = "Node::Type::MockModule";
+        break;
     case Node::Type::Library:
         typeString = "Node::Type::Library";
         break;
-    default:
-        typeString = "Node::Type::Undefined";
     }
 
     qDebug() << addIndent(indent) << "GeneratorNode: " << generatorNode->name;
@@ -517,7 +545,11 @@ void CMakeGenerator::parseSourceTree()
 {
     QTC_ASSERT(m_writer, return);
 
-    const Utils::FilePath srcDir = m_root->dir.pathAppended(m_writer->sourceDirName());
+    QString srcDirName = m_writer->sourceDirName();
+    if (srcDirName.isEmpty())
+        return;
+
+    const Utils::FilePath srcDir = m_root->dir.pathAppended(srcDirName);
     QDirIterator it(srcDir.path(), {"*.cpp"}, QDir::Files, QDirIterator::Subdirectories);
 
     NodePtr srcNode = std::make_shared<Node>();
@@ -558,6 +590,63 @@ void CMakeGenerator::compareWithFileSystem(const NodePtr &node) const
     const QString text("File is not part of the project");
     for (const auto &file : files)
         logIssue(ProjectExplorer::Task::Warning, text, file);
+}
+
+void CMakeGenerator::createWriter()
+{
+    auto writer = CMakeWriter::create(this);
+
+    const QmlProject *project = qmlProject();
+    QTC_ASSERT(project, return );
+
+    const Utils::FilePath rootPath = project->projectDirectory();
+    const Utils::FilePath settingsFile = rootPath.pathAppended("CMakeLists.txt.shared");
+    Utils::PersistentSettingsReader reader;
+    reader.load(settingsFile);
+    auto store = reader.restoreValues();
+
+    auto writeSettings = [settingsFile, &store](int identifier) {
+        store["CMake Generator"] = identifier;
+        QString error;
+        Utils::PersistentSettingsWriter settingsWriter(settingsFile, "QtCreatorProject");
+        if (!settingsWriter.save(store, &error)) {
+            const QString text("Failed to write settings file");
+            logIssue(ProjectExplorer::Task::Error, text, settingsFile);
+        }
+    };
+
+    QVariant idVariant = store["CMake Generator"];
+    if (!idVariant.isValid()) {
+        writeSettings(writer->identifier());
+        m_writer = writer;
+        return;
+    }
+
+    int identifier = writer->identifier();
+    int currentId = idVariant.toInt();
+    if (currentId == identifier) {
+        m_writer = writer;
+        return;
+    }
+
+    QMessageBox msgBox;
+    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    msgBox.setText("The CmakeGenerator Has Changed");
+    msgBox.setInformativeText(
+        "This operation will delete build files that may contain"
+        " user-made changes. Are you sure you want to proceed?");
+    int ret = msgBox.exec();
+
+    if (ret == QMessageBox::Cancel) {
+        m_writer = CMakeWriter::createAndRecover(currentId, this);
+        return;
+    }
+
+    removeAmbiguousFiles( rootPath );
+
+    writeSettings(writer->identifier());
+    m_writer = writer;
 }
 
 } // namespace QmlProjectExporter

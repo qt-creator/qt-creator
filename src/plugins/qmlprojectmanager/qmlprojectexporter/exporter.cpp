@@ -36,9 +36,6 @@ void Exporter::updateProjectItem(QmlProjectItem *item, bool updateEnabled)
     if (updateEnabled) {
         m_cmakeGen->setEnabled(item->enableCMakeGeneration());
         m_pythonGen->setEnabled(item->enablePythonGeneration());
-
-        m_cmakeGen->setStandaloneApp(item->standaloneApp());
-        m_pythonGen->setStandaloneApp(item->standaloneApp());
     }
 }
 

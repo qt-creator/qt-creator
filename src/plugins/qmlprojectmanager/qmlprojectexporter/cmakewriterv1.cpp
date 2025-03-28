@@ -33,6 +33,11 @@ CMakeWriterV1::CMakeWriterV1(CMakeGenerator *parent)
     : CMakeWriter(parent)
 {}
 
+QString CMakeWriterV1::mainLibName() const
+{
+    return "${CMAKE_PROJECT_NAME}";
+}
+
 QString CMakeWriterV1::sourceDirName() const
 {
     return "App";
@@ -45,6 +50,11 @@ void CMakeWriterV1::transformNode(NodePtr &node) const
     QString contentDir = parent()->projectName() + "Content";
     if (node->name == contentDir)
         node->type = Node::Type::Module;
+}
+
+int CMakeWriterV1::identifier() const
+{
+    return 2;
 }
 
 void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
@@ -62,72 +72,7 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
         writeFile(insightPath, insightTemplate);
     }
 
-    const Utils::FilePath dependenciesPath = node->dir.pathAppended(DEPENDENCIES_DIR);
-    const Utils::FilePath componentsPath = dependenciesPath.pathAppended(COMPONENTS_DIR);
-    const Utils::FilePath componentsIgnoreFile = componentsPath.pathAppended(COMPONENTS_IGNORE_FILE);
-
-    bool copyComponents = false;
-    // Note: If dependencies directory exists but not the components directory, we assunme
-    // the user has intentionally deleted it because he has the components installed in Qt.
-    if (!dependenciesPath.exists()) {
-        dependenciesPath.createDir();
-        copyComponents = true;
-    } else if (componentsIgnoreFile.exists()) {
-        auto normalizeVersion = [](const auto &version) -> std::tuple<int, int, int> {
-            auto [major, minor, patch] = version;
-            return {major.value_or(0), minor.value_or(0), patch.value_or(0)};
-        };
-        auto *bs = parent()->buildSystem();
-        auto versionDS = normalizeVersion(versionFromString(bs->versionDesignStudio()));
-        auto versionIgnore = normalizeVersion(versionFromIgnoreFile(componentsIgnoreFile));
-        if (versionDS > versionIgnore) {
-            copyComponents = true;
-            if (componentsPath.exists())
-                componentsPath.removeRecursively();
-        }
-    }
-
-    if (copyComponents) {
-        if (!componentsPath.exists())
-            componentsPath.createDir();
-
-        const Utils::FilePath componentsSrc =
-            Core::ICore::resourcePath("qmldesigner/Dependencies/qtquickdesigner-components");
-
-        if (componentsSrc.exists()) {
-            auto cpyResult = componentsSrc.copyRecursively(componentsPath);
-            if (cpyResult) {
-                QString depsTemplate =
-                    QString::fromUtf8(TEMPLATE_DEPENDENCIES_CMAKELISTS, -1).arg(COMPONENTS_DIR);
-                writeFile(dependenciesPath.pathAppended("CMakeLists.txt"), depsTemplate);
-
-                const Utils::FilePath qmlComponentsFilePath =
-                    cmakeFolderPath.pathAppended("qmlcomponents.cmake");
-
-                if (qmlComponentsFilePath.exists()) {
-
-                    const QString warningMsg = Tr::tr(
-                        "The project structure has changed.\n"
-                        "Please clean the build folder before rebuilding\n");
-
-                    CMakeGenerator::logIssue(
-                        ProjectExplorer::Task::Warning, warningMsg, componentsPath);
-
-                    auto removeResult = qmlComponentsFilePath.removeFile();
-                    if (!removeResult) {
-                        QString removeMsg = Tr::tr("Failed to remove the qmlcomponents.cmake file.\n");
-                        removeMsg.append(removeResult.error());
-
-                        CMakeGenerator::logIssue(
-                            ProjectExplorer::Task::Warning, removeMsg, qmlComponentsFilePath);
-                    }
-                }
-            } else {
-                CMakeGenerator::logIssue(
-                    ProjectExplorer::Task::Error, cpyResult.error(), componentsSrc);
-            }
-        }
-    }
+    createDependencies(node->dir);
 
     const Utils::FilePath sharedFile = node->dir.pathAppended("CMakeLists.txt.shared");
     if (!sharedFile.exists()) {
@@ -179,12 +124,15 @@ void CMakeWriterV1::writeModuleCMakeFile(const NodePtr &node, const NodePtr &) c
                 pluginNames.append("\n");
         }
 
+        if (hasNewComponents())
+            pluginNames.append(QString("\n\t") + "QtQuickDesignerComponents");
+
         QString linkLibrariesTemplate(
-            "target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE\n"
-            "%1)");
+            "target_link_libraries(%1 PRIVATE\n"
+            "%2)");
 
         userFileContent.append("\n");
-        userFileContent.append(linkLibrariesTemplate.arg(pluginNames));
+        userFileContent.append(linkLibrariesTemplate.arg(mainLibName(), pluginNames));
         writeFile(userFile, userFileContent);
         return;
     }
@@ -263,6 +211,79 @@ void CMakeWriterV1::writeSourceFiles(const NodePtr &node, const NodePtr &root) c
     const QString environmentPostfix = makeSetEnvironmentFn();
     const QString headerTemplate = readTemplate(":/templates/environment_h");
     writeFile(headerPath, headerTemplate.arg(environmentPrefix, environmentPostfix));
+}
+
+void CMakeWriterV1::createDependencies(const Utils::FilePath &rootDir) const
+{
+    const Utils::FilePath dependenciesPath = rootDir.pathAppended(DEPENDENCIES_DIR);
+    const Utils::FilePath componentsPath = dependenciesPath.pathAppended(COMPONENTS_DIR);
+    const Utils::FilePath componentsIgnoreFile = componentsPath.pathAppended(COMPONENTS_IGNORE_FILE);
+
+    bool copyComponents = false;
+    // Note: If dependencies directory exists but not the components directory, we assunme
+    // the user has intentionally deleted it because he has the components installed in Qt.
+    if (!dependenciesPath.exists()) {
+        dependenciesPath.createDir();
+        copyComponents = true;
+    } else if (componentsIgnoreFile.exists()) {
+        auto *bs = parent()->buildSystem();
+        auto versionDS = normalizeVersion(versionFromString(bs->versionDesignStudio()));
+        auto versionIgnore = normalizeVersion(versionFromIgnoreFile(componentsIgnoreFile));
+        if (versionDS > versionIgnore) {
+            copyComponents = true;
+            if (componentsPath.exists())
+                componentsPath.removeRecursively();
+        }
+    }
+
+    if (copyComponents) {
+        if (!componentsPath.exists())
+            componentsPath.createDir();
+
+        Utils::FilePath componentsSrc =
+            Core::ICore::resourcePath("qmldesigner/Dependencies/qtquickdesigner-components");
+
+        const Utils::FilePath unifiedPath =
+            Core::ICore::resourcePath("qmldesigner/Dependencies/qtquickdesigner-components/components");
+
+        if (unifiedPath.exists( ))
+            componentsSrc = unifiedPath;
+
+        if (componentsSrc.exists()) {
+            auto cpyResult = componentsSrc.copyRecursively(componentsPath);
+            if (cpyResult) {
+                QString depsTemplate =
+                    QString::fromUtf8(TEMPLATE_DEPENDENCIES_CMAKELISTS, -1).arg(COMPONENTS_DIR);
+                writeFile(dependenciesPath.pathAppended("CMakeLists.txt"), depsTemplate);
+
+                const Utils::FilePath cmakeFolderPath = rootDir.pathAppended("cmake");
+                const Utils::FilePath qmlComponentsFilePath =
+                    cmakeFolderPath.pathAppended("qmlcomponents.cmake");
+
+                if (qmlComponentsFilePath.exists()) {
+
+                    const QString warningMsg = Tr::tr(
+                        "The project structure has changed.\n"
+                        "Please clean the build folder before rebuilding\n");
+
+                    CMakeGenerator::logIssue(
+                        ProjectExplorer::Task::Warning, warningMsg, componentsPath);
+
+                    auto removeResult = qmlComponentsFilePath.removeFile();
+                    if (!removeResult) {
+                        QString removeMsg = Tr::tr("Failed to remove the qmlcomponents.cmake file.\n");
+                        removeMsg.append(removeResult.error());
+
+                        CMakeGenerator::logIssue(
+                            ProjectExplorer::Task::Warning, removeMsg, qmlComponentsFilePath);
+                    }
+                }
+            } else {
+                CMakeGenerator::logIssue(
+                    ProjectExplorer::Task::Error, cpyResult.error(), componentsSrc);
+            }
+        }
+    }
 }
 
 } // namespace QmlProjectExporter
