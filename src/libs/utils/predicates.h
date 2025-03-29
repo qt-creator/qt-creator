@@ -30,81 +30,54 @@ decltype(auto) equal(R S::*member, T value)
 //////////////////
 // comparison predicates
 //////////////////
-template <typename Type>
-auto equalTo(Type &&value)
+
+template<typename Type, typename Compare, typename Projection>
+auto compare(Type &&value, Compare compare, Projection projection)
 {
-    return [value = std::forward<Type>(value)] (const auto &entry)
-    {
-        static_assert(std::is_same<std::decay_t<Type>,
-                      std::decay_t<decltype(entry)>>::value,
-                      "The container and predicate type of equalTo should be the same to prevent "
-                      "unnecessary conversion.");
-        return entry == value;
-    };
+    if constexpr (std::is_lvalue_reference_v<Type>) {
+        return [&value, compare, projection](const auto &entry) {
+            return std::invoke(compare, value, std::invoke(projection, entry));
+        };
+    } else {
+        return [value = std::forward<Type>(value), compare, projection](const auto &entry) {
+            return std::invoke(compare, value, std::invoke(projection, entry));
+        };
+    }
 }
 
-template <typename Type>
-auto unequalTo(Type &&value)
+template<typename Type, typename Projection = std::identity>
+auto equalTo(Type &&value, Projection projection = {})
 {
-    return [value = std::forward<Type>(value)] (const auto &entry)
-    {
-        static_assert(std::is_same<std::decay_t<Type>,
-                      std::decay_t<decltype(entry)>>::value,
-                      "The container and predicate type of unequalTo should be the same to prevent "
-                      "unnecessary conversion.");
-        return !(entry == value);
-    };
+    return compare(value, std::ranges::equal_to{}, projection);
 }
 
-template <typename Type>
-auto lessThan(Type &&value)
+template<typename Type, typename Projection = std::identity>
+auto unequalTo(Type &&value, Projection projection = {})
 {
-    return [value = std::forward<Type>(value)] (const auto &entry)
-    {
-        static_assert(std::is_same<std::decay_t<Type>,
-                      std::decay_t<decltype(entry)>>::value,
-                      "The container and predicate type of unequalTo should be the same to prevent "
-                      "unnecessary conversion.");
-        return entry < value;
-    };
+    return compare(value, std::ranges::not_equal_to{}, projection);
 }
 
-template <typename Type>
-auto lessEqualThan(Type &&value)
+template<typename Type, typename Projection = std::identity>
+auto lessThan(Type &&value, Projection projection = {})
 {
-    return [value = std::forward<Type>(value)] (const auto &entry)
-    {
-        static_assert(std::is_same<std::decay_t<Type>,
-                      std::decay_t<decltype(entry)>>::value,
-                      "The container and predicate type of lessEqualThan should be the same to "
-                      "prevent unnecessary conversion.");
-        return !(value < entry);
-    };
+    return compare(value, std::ranges::less{}, projection);
 }
 
-template <typename Type>
-auto greaterThan(Type &&value)
+template<typename Type, typename Projection = std::identity>
+auto lessEqualThan(Type &&value, Projection projection = {})
 {
-    return [value = std::forward<Type>(value)] (const auto &entry)
-    {
-        static_assert(std::is_same<std::decay_t<Type>,
-                      std::decay_t<decltype(entry)>>::value,
-                      "The container and predicate type of greaterThan should be the same to "
-                      "prevent unnecessary conversion.");
-        return value < entry;
-    };
+    return compare(value, std::ranges::less_equal{}, projection);
 }
 
-template <typename Type>
-auto greaterEqualThan(Type &&value)
+template<typename Type, typename Projection = std::identity>
+auto greaterThan(Type &&value, Projection projection = {})
 {
-    return [value = std::forward<Type>(value)] (const auto &entry)
-    {
-        static_assert(std::is_same<std::decay_t<Type>,
-                      std::decay_t<decltype(entry)>>::value,
-                      "The container and predicate type of greaterEqualThan should be the same to "
-                      "prevent unnecessary conversion.");
-        return !(entry < value);
-    };
+    return compare(value, std::ranges::greater{}, projection);
+}
+
+template<typename Type, typename Projection = std::identity>
+auto greaterEqualThan(Type &&value, Projection projection = {})
+{
+    return compare(value, std::ranges::greater_equal{}, projection);
 }
 } // namespace Utils
