@@ -916,16 +916,6 @@ void extractComponent(const SelectionContext &selectionContext)
     inputModel->setRewriterView(&rewriterView);
     rewriterView.restoreAuxiliaryData();
 
-    if (rewriterView.errors().isEmpty() && rewriterView.rootModelNode().isValid()) {
-        try {
-            ModelMerger merger(contextView);
-            merger.insertModel(rewriterView.rootModelNode());
-        } catch(Exception &/*e*/) {
-            qWarning() << "Cannot add model " << rewriterView.rootModelNode().displayName();
-            return;
-        }
-    }
-
     // Merge the nodes in to the current document model
     ModelPointer pasteModel = DesignDocumentView::pasteToModel(contextView->externalDependencies());
     QTC_ASSERT(pasteModel, return);
@@ -938,6 +928,26 @@ void extractComponent(const SelectionContext &selectionContext)
     contextView->model()->attachView(&view);
     ModelNode originalNode = rewriterView.rootModelNode();
     view.executeInTransaction("DesignerActionManager::extractComponent", [=, &view]() {
+        Utils3D::ensureMaterialLibraryNode(&view);
+        ModelNode mainMaterialLib = Utils3D::materialLibraryNode(&view);
+
+        // Move component's materials/textures to the main material library
+        const QList<ModelNode> allSubModelNodes = originalNode.allSubModelNodes();
+        for (ModelNode node : allSubModelNodes) {
+            if (node.metaInfo().isQtQuick3DMaterial() || node.metaInfo().isQtQuick3DTexture()) {
+                // Create copy of the node, reparent under main mat library, and delete the original
+                ModelNode matOrTexture = view.insertModel(node);
+                mainMaterialLib.defaultNodeListProperty().reparentHere(matOrTexture);
+                node.destroy();
+            }
+        }
+
+        // Delete the extracted component's material library if present
+        ModelNode componentMaterialLibrary = originalNode.view()
+                                                 ->modelNodeForId(Constants::MATERIAL_LIB_ID);
+        if (componentMaterialLibrary.isValid())
+            componentMaterialLibrary.destroy();
+
         // Acquire the root of selected node
         const ModelNode rootOfSelection = selectedNode.parentProperty().parentModelNode();
         QTC_ASSERT(rootOfSelection.isValid(), return);
