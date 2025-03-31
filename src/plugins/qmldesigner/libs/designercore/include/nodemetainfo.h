@@ -9,7 +9,7 @@
 #include <projectstorage/projectstorageinterface.h>
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorageids.h>
-#include <sqlite/sourcelocation.h>
+#include <tracing/qmldesignertracingsourcelocation.h>
 
 #include <QList>
 #include <QString>
@@ -35,38 +35,7 @@ enum class MetaInfoType { None, Reference, Value, Sequence };
 
 class QMLDESIGNERCORE_EXPORT NodeMetaInfo
 {
-#ifdef ENABLE_PROJECT_STORAGE_TRACING
-    class SL : public Sqlite::source_location
-    {
-    public:
-        consteval SL(const char *fileName = __builtin_FILE(),
-                     const char *functionName = __builtin_FUNCTION(),
-                     const uint_least32_t line = __builtin_LINE())
-            : Sqlite::source_location(Sqlite::source_location::current(fileName, functionName, line))
-        {}
-
-        template<typename String>
-        friend void convertToString(String &string, SL sourceLocation)
-        {
-            using NanotraceHR::dictonary;
-            using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("file", sourceLocation.file_name()),
-                                  keyValue("function", sourceLocation.function_name()),
-                                  keyValue("line", sourceLocation.line()));
-            convertToString(string, dict);
-        }
-    };
-
-#else
-    class SL
-    {
-    public:
-        template<typename String>
-        friend void convertToString(String &, SL)
-        {}
-    };
-#endif
-
+    using SL = ModelTracing::SourceLocation;
     using NodeMetaInfos = std::vector<NodeMetaInfo>;
 
 public:

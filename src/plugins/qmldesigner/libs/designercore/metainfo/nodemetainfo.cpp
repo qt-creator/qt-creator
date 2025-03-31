@@ -38,7 +38,7 @@ namespace {
 
 using Storage::ModuleKind;
 
-auto category = MetaInfoTracing::category;
+auto category = ModelTracing::category;
 
 struct TypeDescription
 {
@@ -2537,7 +2537,7 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo, [[maybe_unused]] SL s
         return false;
 
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"is based on",
+    NanotraceHR::Tracer tracer{"is based on 1 node meta info",
                                category(),
                                keyValue("type id", m_typeId),
                                keyValue("meta info type id", metaInfo.m_typeId),
@@ -2562,7 +2562,7 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
         return false;
 
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"is based on",
+    NanotraceHR::Tracer tracer{"is based on 2 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
@@ -2589,7 +2589,7 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
         return false;
 
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"is based on",
+    NanotraceHR::Tracer tracer{"is based on 3 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
@@ -2622,7 +2622,7 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
         return false;
 
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"is based on",
+    NanotraceHR::Tracer tracer{"is based on 4 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
@@ -2655,7 +2655,7 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
         return false;
 
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"is based on",
+    NanotraceHR::Tracer tracer{"is based on 5 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
@@ -2691,7 +2691,7 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
         return false;
 
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"is based on",
+    NanotraceHR::Tracer tracer{"is based on 6 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
@@ -2730,7 +2730,7 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
         return false;
 
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"is based on",
+    NanotraceHR::Tracer tracer{"is based on 7 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
