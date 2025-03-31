@@ -179,6 +179,10 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 
     handleActions(view->backgroundColorActions(), m_backgroundColorMenu, false);
 
+    m_viewportPresetsMenu = new QMenu(this);
+    m_viewportPresetsMenu->setToolTipsVisible(true);
+    handleActions(view->viewportPresetActions(), m_viewportPresetsMenu, false);
+
     createContextMenu();
 
     // Onboarding label contains instructions for new users how to get 3D content into the project
@@ -568,11 +572,11 @@ void Edit3DWidget::onMatOverrideAction(QAction *action)
         return;
 
     QVariantList list;
-    for (int i = 0; i < m_view->splitToolStates().size(); ++i) {
-        Edit3DView::SplitToolState state = m_view->splitToolStates()[i];
-        if (i == m_view->activeSplit()) {
+    for (int i = 0; i < m_view->viewportToolStates().size(); ++i) {
+        Edit3DView::ViewportToolState state = m_view->viewportToolStates()[i];
+        if (i == m_view->activeViewport()) {
             state.matOverride = action->data().toInt();
-            m_view->setSplitToolState(i, state);
+            m_view->setViewportToolState(i, state);
             list.append(action->data());
         } else {
             list.append(state.matOverride);
@@ -588,11 +592,11 @@ void Edit3DWidget::onWireframeAction()
         return;
 
     QVariantList list;
-    for (int i = 0; i < m_view->splitToolStates().size(); ++i) {
-        Edit3DView::SplitToolState state = m_view->splitToolStates()[i];
-        if (i == m_view->activeSplit()) {
+    for (int i = 0; i < m_view->viewportToolStates().size(); ++i) {
+        Edit3DView::ViewportToolState state = m_view->viewportToolStates()[i];
+        if (i == m_view->activeViewport()) {
             state.showWireframe = m_wireFrameAction->isChecked();
-            m_view->setSplitToolState(i, state);
+            m_view->setViewportToolState(i, state);
             list.append(m_wireFrameAction->isChecked());
         } else {
             list.append(state.showWireframe);
@@ -610,11 +614,11 @@ void Edit3DWidget::onResetAllOverridesAction()
     QVariantList wList;
     QVariantList mList;
 
-    for (int i = 0; i < m_view->splitToolStates().size(); ++i) {
-        Edit3DView::SplitToolState state;
+    for (int i = 0; i < m_view->viewportToolStates().size(); ++i) {
+        Edit3DView::ViewportToolState state;
         state.showWireframe = false;
         state.matOverride = 0;
-        m_view->setSplitToolState(i, state);
+        m_view->setViewportToolState(i, state);
         wList.append(state.showWireframe);
         mList.append(state.matOverride);
     }
@@ -675,6 +679,21 @@ void Edit3DWidget::showBackgroundColorMenu(bool show, const QPoint &pos)
         m_backgroundColorMenu->close();
 }
 
+QMenu *Edit3DWidget::viewportPresetsMenu() const
+{
+    return m_viewportPresetsMenu.data();
+}
+
+void Edit3DWidget::showViewportPresetsMenu(bool show, const QPoint &pos)
+{
+    if (m_viewportPresetsMenu.isNull())
+        return;
+    if (show)
+        m_viewportPresetsMenu->popup(pos);
+    else
+        m_viewportPresetsMenu->close();
+}
+
 void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode, const QVector3D &pos3d)
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
@@ -711,11 +730,11 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_materialsAction->updateMenu(view()->selectedModelNodes());
 
     if (m_view) {
-        int idx = m_view->activeSplit();
-        m_wireFrameAction->setChecked(m_view->splitToolStates()[idx].showWireframe);
+        int idx = m_view->activeViewport();
+        m_wireFrameAction->setChecked(m_view->viewportToolStates()[idx].showWireframe);
         for (QAction *a : std::as_const(m_matOverrideActions))
             a->setChecked(false);
-        int type = m_view->splitToolStates()[idx].matOverride;
+        int type = m_view->viewportToolStates()[idx].matOverride;
         m_matOverrideActions[type]->setChecked(true);
     }
 

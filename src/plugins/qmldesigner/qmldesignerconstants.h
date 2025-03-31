@@ -44,6 +44,14 @@ inline constexpr char EDIT3D_EDIT_SHOW_CAMERA_FRUSTUM[]
     = "QmlDesigner.Editor3D.ToggleCameraFrustum";
 inline constexpr char EDIT3D_EDIT_SHOW_PARTICLE_EMITTER[]
     = "QmlDesigner.Editor3D.ToggleParticleEmitter";
+
+inline constexpr char EDIT3D_PRESETS[] = "QmlDesigner.Editor3D.Presets";
+inline constexpr char EDIT3D_PRESET_SINGLE[] = "QmlDesigner.Editor3D.Single";
+inline constexpr char EDIT3D_PRESET_QUAD[] = "QmlDesigner.Editor3D.Quad";
+inline constexpr char EDIT3D_PRESET_3LEFT1RIGHT[] = "QmlDesigner.Editor3D.3Left1Right";
+inline constexpr char EDIT3D_PRESET_2HORIZONTAL[] = "QmlDesigner.Editor3D.2Horizontal";
+inline constexpr char EDIT3D_PRESET_2VERTICAL[] = "QmlDesigner.Editor3D.2Vertical";
+
 inline constexpr char EDIT3D_RESET_VIEW[] = "QmlDesigner.Editor3D.ResetView";
 inline constexpr char EDIT3D_PARTICLE_MODE[] = "QmlDesigner.Editor3D.ParticleViewModeToggle";
 inline constexpr char EDIT3D_PARTICLES_PLAY[] = "QmlDesigner.Editor3D.ParticlesPlay";

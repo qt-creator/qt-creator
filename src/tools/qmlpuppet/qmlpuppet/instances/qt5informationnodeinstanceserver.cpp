@@ -956,9 +956,9 @@ void Qt5InformationNodeInstanceServer::handleActiveSceneChange()
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::handleActiveSplitChange(int index)
+void Qt5InformationNodeInstanceServer::handleActiveViewportChange(int index)
 {
-    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveSplitChanged,
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveViewportChanged,
                                                         index});
 }
 
@@ -1966,8 +1966,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
                      this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
     QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveSceneChange()),
                      this, SLOT(handleActiveSceneChange()));
-    QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveSplitChange(int)),
-                     this, SLOT(handleActiveSplitChange(int)));
+    QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveViewportChange(int)),
+                     this, SLOT(handleActiveViewportChange(int)));
     QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
     QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
@@ -2599,6 +2599,9 @@ void Qt5InformationNodeInstanceServer::view3DAction([[maybe_unused]] const View3
     case View3DActionType::SyncEnvBackground:
         updatedToolState.insert("syncEnvBackground", command.isEnabled());
         break;
+    case View3DActionType::ViewportPreset:
+        updatedToolState.insert("activePreset", command.value());
+        break;
 #ifdef QUICK3D_PARTICLES_MODULE
     case View3DActionType::ShowParticleEmitter:
         updatedToolState.insert("showParticleEmitter", command.isEnabled());
@@ -2637,8 +2640,8 @@ void Qt5InformationNodeInstanceServer::view3DAction([[maybe_unused]] const View3
             getNodeAtMainScenePos(data[0].toPointF(), qint32(data[1].toInt()));
         return;
     }
-    case View3DActionType::SplitViewToggle:
-        updatedToolState.insert("splitView", command.isEnabled());
+    case View3DActionType::ViewportViewToggle:
+        updatedToolState.insert("viewportView", command.isEnabled());
         break;
     case View3DActionType::FlyModeToggle:
         updatedToolState.insert("flyMode", command.isEnabled());

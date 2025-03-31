@@ -16,7 +16,7 @@ View3D {
 
     property var viewRoot: null
     property View3D editView: null
-    property bool isActive: viewRoot.overlayViews[viewRoot.activeSplit] === overlayView
+    property bool isActive: viewRoot.overlayViews[viewRoot.activeViewport] === overlayView
 
     property var lightIconGizmos: []
     property var cameraGizmos: []
@@ -629,7 +629,7 @@ View3D {
             scale: lookAtAutoScale.getScale(Qt.vector3d(10, 10, 10))
             visible: overlayView.viewRoot.showLookAt
                      && overlayView.isActive
-                     && !overlayView.viewRoot.cameraControls[viewRoot.activeSplit].showCrosshairs
+                     && !overlayView.viewRoot.cameraControls[viewRoot.activeViewport].showCrosshairs
         }
     }
 }

@@ -73,7 +73,7 @@ Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
     connect(&m_compressionTimer, &QTimer::timeout, this, &Edit3DView::handleEntriesChanged);
 
     for (int i = 0; i < 4; ++i)
-        m_splitToolStates.append({0, false, i == 0});
+        m_viewportToolStates.append({0, false, i == 0});
 }
 
 void Edit3DView::createEdit3DWidget()
@@ -120,15 +120,15 @@ void Edit3DView::renderImage3DChanged(const QImage &img)
 
 void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 {
-    const QString activeSplitKey = QStringLiteral("activeSplit");
-    if (sceneState.contains(activeSplitKey)) {
-        setActiveSplit(sceneState[activeSplitKey].toInt());
-        // If the sceneState contained just activeSplit key, then this is simply an active split
+    const QString activeViewportKey = QStringLiteral("activeViewport");
+    if (sceneState.contains(activeViewportKey)) {
+        setActiveViewport(sceneState[activeViewportKey].toInt());
+        // If the sceneState contained just activeViewport key, then this is simply an active Viewport
         // change rather than entire active scene change, and we don't need to process further.
         if (sceneState.size() == 1)
             return;
     } else {
-        setActiveSplit(0);
+        setActiveViewport(0);
     }
 
     const QString sceneKey              = QStringLiteral("sceneInstanceId");
@@ -146,7 +146,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     const QString particleEmitterKey    = QStringLiteral("showParticleEmitter");
     const QString particlesPlayKey      = QStringLiteral("particlePlay");
     const QString syncEnvBgKey          = QStringLiteral("syncEnvBackground");
-    const QString splitViewKey          = QStringLiteral("splitView");
+    const QString activePresetKey       = QStringLiteral("activePreset");
     const QString matOverrideKey        = QStringLiteral("matOverride");
     const QString showWireframeKey      = QStringLiteral("showWireframe");
 
@@ -177,10 +177,10 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     if (sceneState.contains(perspectiveKey)) {
         const QVariantList showList = sceneState[perspectiveKey].toList();
         for (int i = 0; i < 4; ++i)
-            m_splitToolStates[i].isPerspective = i < showList.size() ? showList[i].toBool() : i == 0;
+            m_viewportToolStates[i].isPerspective = i < showList.size() ? showList[i].toBool() : i == 0;
     } else {
         for (int i = 0; i < 4; ++i) {
-            SplitToolState &state = m_splitToolStates[i];
+            ViewportToolState &state = m_viewportToolStates[i];
             state.isPerspective = i == 0;
         }
     }
@@ -235,26 +235,21 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     else
         m_particlesPlayAction->action()->setChecked(true);
 
-    if (sceneState.contains(splitViewKey))
-        m_splitViewAction->action()->setChecked(sceneState[splitViewKey].toBool());
-    else
-        m_splitViewAction->action()->setChecked(false);
-
     if (sceneState.contains(matOverrideKey)) {
         const QVariantList overrides = sceneState[matOverrideKey].toList();
         for (int i = 0; i < 4; ++i)
-            m_splitToolStates[i].matOverride = i < overrides.size() ? overrides[i].toInt() : 0;
+            m_viewportToolStates[i].matOverride = i < overrides.size() ? overrides[i].toInt() : 0;
     } else {
-        for (SplitToolState &state : m_splitToolStates)
+        for (ViewportToolState &state : m_viewportToolStates)
             state.matOverride = 0;
     }
 
     if (sceneState.contains(showWireframeKey)) {
         const QVariantList showList = sceneState[showWireframeKey].toList();
         for (int i = 0; i < 4; ++i)
-            m_splitToolStates[i].showWireframe = i < showList.size() ? showList[i].toBool() : false;
+            m_viewportToolStates[i].showWireframe = i < showList.size() ? showList[i].toBool() : false;
     } else {
-        for (SplitToolState &state : m_splitToolStates)
+        for (ViewportToolState &state : m_viewportToolStates)
             state.showWireframe = false;
     }
 
@@ -274,10 +269,10 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     storeCurrentSceneEnvironment();
 }
 
-void Edit3DView::setActiveSplit(int split)
+void Edit3DView::setActiveViewport(int viewport)
 {
-    m_activeSplit = split;
-    m_cameraModeAction->action()->setChecked(m_splitToolStates[m_activeSplit].isPerspective);
+    m_activeViewport = viewport;
+    m_cameraModeAction->action()->setChecked(m_viewportToolStates[m_activeViewport].isPerspective);
 }
 
 void Edit3DView::modelAttached(Model *model)
@@ -709,6 +704,45 @@ void Edit3DView::createSyncEnvBackgroundAction()
         tooltip);
 }
 
+void Edit3DView::createViewportPresetActions()
+{
+    auto createViewportPresetAction = [this](std::unique_ptr<Edit3DAction> &targetAction,
+                                     const QByteArray &id,
+                                     const QString &label,
+                                     bool isChecked) {
+        auto operation = [this, &targetAction, label](const SelectionContext &) {
+            for (Edit3DAction *action : std::as_const(m_viewportPresetActions)) {
+                if (action->menuId() != targetAction->menuId())
+                    action->action()->setChecked(false);
+            }
+            emitView3DAction(View3DActionType::ViewportPreset, label);
+        };
+
+        targetAction = std::make_unique<Edit3DAction>(
+            id,
+            View3DActionType::Empty,
+            label,
+            QKeySequence(),
+            true,
+            isChecked,
+            QIcon(),
+            this,
+            operation);
+    };
+
+    createViewportPresetAction(m_viewportPresetSingleAction, Constants::EDIT3D_PRESET_SINGLE, "Single", true);
+    createViewportPresetAction(m_viewportPresetQuadAction, Constants::EDIT3D_PRESET_QUAD, "Quad", false);
+    createViewportPresetAction(m_viewportPreset3Left1RightAction, Constants::EDIT3D_PRESET_3LEFT1RIGHT, "3Left1Right", false);
+    createViewportPresetAction(m_viewportPreset2HorizontalAction, Constants::EDIT3D_PRESET_2HORIZONTAL, "2Horizontal", false);
+    createViewportPresetAction(m_viewportPreset2VerticalAction, Constants::EDIT3D_PRESET_2VERTICAL, "2Vertical", false);
+
+    m_viewportPresetActions << m_viewportPresetSingleAction.get();
+    m_viewportPresetActions << m_viewportPresetQuadAction.get();
+    m_viewportPresetActions << m_viewportPreset3Left1RightAction.get();
+    m_viewportPresetActions << m_viewportPreset2HorizontalAction.get();
+    m_viewportPresetActions << m_viewportPreset2VerticalAction.get();
+}
+
 void Edit3DView::createSeekerSliderAction()
 {
     m_seekerAction = std::make_unique<Edit3DParticleSeekerAction>(
@@ -930,27 +964,27 @@ void Edit3DView::storeCurrentSceneEnvironment()
     }
 }
 
-const QList<Edit3DView::SplitToolState> &Edit3DView::splitToolStates() const
+const QList<Edit3DView::ViewportToolState> &Edit3DView::viewportToolStates() const
 {
-    return m_splitToolStates;
+    return m_viewportToolStates;
 }
 
-void Edit3DView::setSplitToolState(int splitIndex, const SplitToolState &state)
+void Edit3DView::setViewportToolState(int viewportIndex, const ViewportToolState &state)
 {
-    if (splitIndex >= m_splitToolStates.size())
+    if (viewportIndex >= m_viewportToolStates.size())
         return;
 
-    m_splitToolStates[splitIndex] = state;
+    m_viewportToolStates[viewportIndex] = state;
 }
 
-int Edit3DView::activeSplit() const
+int Edit3DView::activeViewport() const
 {
-    return m_activeSplit;
+    return m_activeViewport;
 }
 
-bool Edit3DView::isSplitView() const
+bool Edit3DView::isMultiViewportView() const
 {
-    return m_splitViewAction->action()->isChecked();
+    return m_viewportPresetsMenuAction->action()->isChecked();
 }
 
 void Edit3DView::createEdit3DActions()
@@ -1022,12 +1056,12 @@ void Edit3DView::createEdit3DActions()
 
     SelectionContextOperation cameraModeTrigger = [this](const SelectionContext &) {
         QVariantList list;
-        for (int i = 0; i < m_splitToolStates.size(); ++i) {
-            Edit3DView::SplitToolState state = m_splitToolStates[i];
-            if (i == m_activeSplit) {
+        for (int i = 0; i < m_viewportToolStates.size(); ++i) {
+            Edit3DView::ViewportToolState state = m_viewportToolStates[i];
+            if (i == m_activeViewport) {
                 bool isChecked = m_cameraModeAction->action()->isChecked();
                 state.isPerspective = isChecked;
-                setSplitToolState(i, state);
+                setViewportToolState(i, state);
                 list.append(isChecked);
             } else {
                 list.append(state.isPerspective);
@@ -1315,14 +1349,24 @@ void Edit3DView::createEdit3DActions()
                                                         this,
                                                         snapConfigTrigger);
 
-    m_splitViewAction = std::make_unique<Edit3DAction>(QmlDesigner::Constants::EDIT3D_SPLIT_VIEW,
-                                                       View3DActionType::SplitViewToggle,
-                                                       Tr::tr("Toggle Split View On/Off"),
-                                                       QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Q),
-                                                       true,
+    SelectionContextOperation viewportPresetsActionTrigger = [this](const SelectionContext &) {
+        if (!edit3DWidget()->viewportPresetsMenu())
+            return;
+
+        edit3DWidget()->showViewportPresetsMenu(
+            !edit3DWidget()->viewportPresetsMenu()->isVisible(),
+            resolveToolbarPopupPos(m_viewportPresetsMenuAction.get()));
+    };
+
+    m_viewportPresetsMenuAction = std::make_unique<Edit3DAction>(QmlDesigner::Constants::EDIT3D_PRESETS,
+                                                       View3DActionType::Empty,
+                                                       Tr::tr("Show Viewport Modes"),
+                                                       QKeySequence(),
+                                                       false,
                                                        false,
                                                        toolbarIcon(DesignerIcons::SplitViewIcon),
-                                                       this);
+                                                       this,
+                                                       viewportPresetsActionTrigger);
 
     SelectionContextOperation cameraSpeedConfigTrigger = [this](const SelectionContext &) {
         if (!m_cameraSpeedConfiguration) {
@@ -1372,7 +1416,7 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << nullptr;
     m_leftActions << m_visibilityTogglesAction.get();
     m_leftActions << m_backgroundColorMenuAction.get();
-    m_leftActions << m_splitViewAction.get();
+    m_leftActions << m_viewportPresetsMenuAction.get();
 
     m_rightActions << m_particleViewModeAction.get();
     m_rightActions << m_particlesPlayAction.get();
@@ -1400,6 +1444,8 @@ void Edit3DView::createEdit3DActions()
     m_backgroundColorActions << m_selectGridColorAction.get();
     m_backgroundColorActions << m_syncEnvBackgroundAction.get();
     m_backgroundColorActions << m_resetColorAction.get();
+
+    createViewportPresetActions();
 }
 
 QVector<Edit3DAction *> Edit3DView::leftActions() const
@@ -1422,6 +1468,10 @@ QVector<Edit3DAction *> Edit3DView::backgroundColorActions() const
     return m_backgroundColorActions;
 }
 
+QVector<Edit3DAction *> Edit3DView::viewportPresetActions() const
+{
+    return m_viewportPresetActions;
+}
 
 Edit3DAction *Edit3DView::edit3DAction(View3DActionType type) const
 {
