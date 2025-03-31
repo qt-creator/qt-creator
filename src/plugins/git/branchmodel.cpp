@@ -89,6 +89,8 @@ public:
     bool childOfRoot(RootNodes root) const
     {
         BranchNode *rn = rootNode();
+        QTC_ASSERT(rn, return false);
+
         if (rn->isLeaf())
             return false;
         if (root >= rn->children.count())
@@ -222,9 +224,9 @@ public:
     void flushOldEntries();
     void updateAllUpstreamStatus(BranchNode *node);
 
-    BranchModel *q;
+    BranchModel *q = nullptr;
     FilePath workingDirectory;
-    BranchNode *rootNode;
+    BranchNode *rootNode = nullptr;
     BranchNode *currentBranch = nullptr;
     BranchNode *headNode = nullptr;
     QString currentSha;
@@ -269,6 +271,7 @@ QModelIndex BranchModel::index(int row, int column, const QModelIndex &parentIdx
     if (column > 1)
         return {};
     BranchNode *parentNode = indexToNode(parentIdx);
+    QTC_ASSERT(parentNode, return {});
 
     if (row >= parentNode->count())
         return {};
@@ -292,7 +295,10 @@ int BranchModel::rowCount(const QModelIndex &parentIdx) const
     if (parentIdx.column() > 0)
         return 0;
 
-    return indexToNode(parentIdx)->count();
+    const BranchNode *node = indexToNode(parentIdx);
+    QTC_ASSERT(node, return 0);
+
+    return node->count();
 }
 
 int BranchModel::columnCount(const QModelIndex &parent) const
@@ -394,6 +400,8 @@ Qt::ItemFlags BranchModel::flags(const QModelIndex &index) const
 void BranchModel::clear()
 {
     for (BranchNode *root : std::as_const(d->rootNode->children)) {
+        QTC_ASSERT(root, continue);
+
         while (root->count())
             delete root->children.takeLast();
     }
@@ -464,6 +472,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         }
         if (!d->currentBranch) {
             BranchNode *local = d->rootNode->children.at(LocalBranches);
+            QTC_ASSERT(local, return);
             d->currentBranch = d->headNode = new BranchNode(
                 Tr::tr("Detached HEAD"), "HEAD", {}, d->currentDateTime);
             local->prepend(d->headNode);
@@ -484,6 +493,8 @@ void BranchModel::setCurrentBranch()
         return;
 
     BranchNode *local = d->rootNode->children.at(LocalBranches);
+    QTC_ASSERT(local, return);
+
     const QStringList branchParts = currentBranch.split('/');
     for (const QString &branchPart : branchParts) {
         local = local->childOfName(branchPart);
@@ -602,7 +613,10 @@ bool BranchModel::isTag(const QModelIndex &idx) const
 {
     if (!idx.isValid() || !d->hasTags())
         return false;
-    return indexToNode(idx)->isTag();
+    const BranchNode *node = indexToNode(idx);
+    QTC_ASSERT(node, return false);
+
+    return node->isTag();
 }
 
 void BranchModel::removeBranch(const QModelIndex &idx)
@@ -718,6 +732,8 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     }
 
     BranchNode *local = d->rootNode->children.at(LocalBranches);
+    QTC_ASSERT(local, return {});
+
     const int slash = name.indexOf('/');
     const QString leafName = slash == -1 ? name : name.mid(slash + 1);
     bool added = false;
@@ -766,6 +782,8 @@ void BranchModel::setOldBranchesIncluded(bool value)
 std::optional<QString> BranchModel::remoteName(const QModelIndex &idx) const
 {
     const BranchNode *remotesNode = d->rootNode->children.at(RemoteBranches);
+    QTC_ASSERT(remotesNode, return std::nullopt);
+
     const BranchNode *node = indexToNode(idx);
     if (!node)
         return std::nullopt;
@@ -828,6 +846,8 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
         rootType = RemoteBranches;
         const QString remoteName = nameParts.at(1);
         root = rootNode->children.at(rootType);
+        QTC_ASSERT(root, return);
+
         oldEntriesRoot = root->childOfName(remoteName);
         if (!oldEntriesRoot)
             oldEntriesRoot = root->append(new BranchNode(remoteName));
@@ -843,6 +863,7 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
     if (!oldEntriesRoot)
         oldEntriesRoot = root;
     if (isOld) {
+        QTC_ASSERT(oldEntriesRoot, return);
         if (oldEntriesRoot->children.size() > Constants::MAX_OBSOLETE_COMMITS_TO_DISPLAY)
             return;
         if (currentRoot != oldEntriesRoot) {
@@ -869,6 +890,7 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
     const QString name = nameParts.last();
     nameParts.removeLast();
 
+    QTC_ASSERT(root, return);
     auto newNode = new BranchNode(name, sha, upstream, dateTime);
     root->insert(nameParts, newNode);
     if (current)
@@ -900,6 +922,7 @@ QModelIndex BranchModel::nodeToIndex(BranchNode *node, int column) const
 {
     if (node == d->rootNode)
         return {};
+    QTC_ASSERT(node, return {});
     QTC_ASSERT(node->parent, return {});
 
     return createIndex(node->parent->rowOf(node), column, static_cast<void *>(node));
@@ -913,6 +936,7 @@ void BranchModel::removeNode(const QModelIndex &idx)
 
     while (node->count() == 0 && node->parent != d->rootNode) {
         BranchNode *parentNode = node->parent;
+        QTC_ASSERT(node, return);
         const QModelIndex parentIndex = nodeToIndex(parentNode, ColumnBranch);
         const int nodeRow = nodeIndex.row();
         beginRemoveRows(parentIndex, nodeRow, nodeRow);
@@ -926,7 +950,7 @@ void BranchModel::removeNode(const QModelIndex &idx)
 
 void BranchModel::updateUpstreamStatus(BranchNode *node)
 {
-    if (!node->isLocal())
+    if (!node || !node->isLocal())
         return;
 
     Process *process = new Process(node);
@@ -967,7 +991,7 @@ void BranchModel::Private::updateAllUpstreamStatus(BranchNode *node)
         q->updateUpstreamStatus(node);
         return;
     }
-    for (BranchNode *child : node->children)
+    for (BranchNode *child : std::as_const(node->children))
         updateAllUpstreamStatus(child);
 }
 

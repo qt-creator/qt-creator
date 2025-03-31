@@ -718,6 +718,7 @@ void QmlEngine::updateBreakpoint(const Breakpoint &bp)
         bp->setEnabled(requested.enabled);
     } else if (d->canChangeBreakpoint()) {
         d->changeBreakpoint(bp, requested.enabled);
+        d->breakpointsSync.insert(d->sequence, bp);
     } else {
         d->clearBreakpoint(bp);
         d->setBreakpoint(SCRIPTREGEXP, requested.fileName.toUrlishString(),
@@ -1739,6 +1740,16 @@ void QmlEnginePrivate::messageReceived(const QByteArray &data)
                         breakpointsTemp.append(index);
                     }
 
+                } else if (debugCommand == CHANGEBREAKPOINT) {
+                    // v8message {"body":{"breakpoint":2,"type":"scriptRegExp"},"command":"changebreakpoint","request_seq":8,"running":true,"seq":9,"success":true,"type":"response"}
+                    const int seq = resp.value("request_seq").toInt();
+                    if (breakpointsSync.contains(seq)) {
+                        Breakpoint bp = breakpointsSync.take(seq);
+                        QTC_ASSERT(bp, return);
+                        if (resp.value("success").toBool())
+                            bp->setEnabled(!bp->isEnabled());
+                        bp->update();
+                    }
 
                 } else if (debugCommand == CLEARBREAKPOINT) {
                     // DO NOTHING

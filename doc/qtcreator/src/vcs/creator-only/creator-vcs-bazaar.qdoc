@@ -13,13 +13,15 @@
 
     \ingroup creator-reference-vcs
 
-    \title Bazaar
+    \title Bazaar and Breezy
 
-    \brief Additional Bazaar functions.
+    \brief Additional Bazaar and Breezy functions.
 
-    Bazaar is a free version control system sponsored by Canonical.
+    Bazaar is a free version control system sponsored by Canonical. Breezy is a
+    fork of Bazaar that is backwards compatible with Bazaar's disk format and
+    protocols. However, Breezy runs on Python 3, rather than on Python 2.
 
-    \note Enable the Bazaar plugin to use it.
+    \note Enable the Bazaar plugin to use Bazaar or Breezy.
 
     In addition to the standard version control system functions described in
     \l {Use common VCS Functions}, you can select \uicontrol Tools >
@@ -28,7 +30,7 @@
 
     \section1 Uncommitting Revisions
 
-    In Bazaar, committing changes to a branch creates a new revision that holds
+    In Bazaar and Breezy, committing changes to a branch creates a new revision that holds
     a snapshot of the state of the working tree. To remove the last committed
     revision, select \uicontrol Tools > \uicontrol Bazaar > \uicontrol Uncommit.
 
@@ -46,9 +48,9 @@
     change it might make is restoring pending merges that were present before
     the commit.
 
-    \section1 Bazaar Preferences
+    \section1 Bazaar and Breezy Preferences
 
-    To set Bazaar preferences, select \preferences >
+    To set Bazaar or Breezy preferences, select \preferences >
     \uicontrol {Version Control} > \uicontrol Bazaar:
 
     \image qtcreator-preferences-vcs-bazaar.webp {Bazaar preferences}

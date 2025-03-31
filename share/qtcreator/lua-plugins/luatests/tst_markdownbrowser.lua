@@ -1,10 +1,7 @@
 local function tst_markdownBrowser()
     G = require 'Gui'
 
-    G.Column {
-        G.MarkdownBrowser {
-            enableCodeCopyButton = true,
-            markdown = [[# Markdown Browser Test
+    local markdownText = [[# Markdown Browser Test
 
 ## Code Snippets
 
@@ -16,7 +13,7 @@ local function tst_markdownBrowser()
 #include <print>
 
 int main() {
-  std::print("Hello World!");
+    std::print("Hello World!");
 }
 ```
 
@@ -26,6 +23,29 @@ int main() {
 * [Is this an anchor link that scrolls up to the top?](#markdown-browser-test)
 
 ]]
+
+    local mb = G.MarkdownBrowser {
+        enableCodeCopyButton = true,
+        markdown = markdownText
+    }
+
+    G.Column {
+        mb,
+        G.PushButton {
+            text = "Add some more markdown",
+            onClicked = function()
+                markdownText = markdownText .. [[
+## More code snippets
+
+```c++
+#include <print>
+int main() {
+  std::print("More text?");
+}
+```
+]]
+                mb.markdown = markdownText
+            end
         }
     }:show()
 end

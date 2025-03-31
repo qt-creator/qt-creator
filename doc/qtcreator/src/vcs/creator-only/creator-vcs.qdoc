@@ -29,9 +29,9 @@
             \li  Address
             \li  Notes
         \row
-            \li \l{Bazaar}
-            \li \l{http://bazaar.canonical.com/}
-            \li Enable the plugin to use it.
+            \li \l{Bazaar and Breezy}
+            \li \l{https://github.com/breezy-team/breezy}
+            \li Enable the plugin to use Bazaar or Breezy.
         \row
             \li \l{ClearCase}
             \li \l{http://www-01.ibm.com/software/awdtools/clearcase/}
@@ -56,7 +56,7 @@
             \li Enable the plugin to use it.
         \row
             \li \l{Mercurial}
-            \li \l{http://mercurial.selenic.com/}
+            \li \l{https://www.mercurial-scm.org/}
             \li Enable the plugin to use it.
         \row
             \li \l{Perforce}
@@ -124,7 +124,7 @@
     functions and options available for a particular version control system
     are described in separate topics.
 
-    \sa {Bazaar}, {ClearCase}, {CVS}, {Fossil}, {Git}, {GitLab}, {Mercurial},
+    \sa {Bazaar and Breezy}, {ClearCase}, {CVS}, {Fossil}, {Git}, {GitLab}, {Mercurial},
     {Perforce}, {Subversion}
 
     The \uicontrol{Version Control} view displays the commands that are

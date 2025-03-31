@@ -50,11 +50,14 @@ QString AddToolChainOperation::argumentsHelpText() const
     return QString(
         "    --id <ID>                                  id of the new tool chain (required).\n"
         "    --language <ID>                            input language id of the new tool chain (required).\n"
+        "                                               When you register a C or C++ compiler, make sure to"
+        "                                               register the corresponding C++ or C compiler as well."
         "    --name <NAME>                              display name of the new tool chain (required).\n"
         "    --path <PATH>                              path to the compiler (required).\n"
         "    --abi <ABI STRING>                         ABI of the compiler (required).\n"
         "    --supportedAbis <ABI STRING>,<ABI STRING>  list of ABIs supported by the compiler.\n"
-        "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
+        "    <KEY> <TYPE:VALUE>                         extra key value pairs\n"
+    );
 }
 
 bool AddToolChainOperation::setArguments(const QStringList &args)
