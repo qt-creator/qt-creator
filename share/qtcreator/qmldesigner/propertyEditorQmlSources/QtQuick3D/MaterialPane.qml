@@ -24,12 +24,6 @@ Item {
         Controller.closeContextMenu()
     }
 
-    Material.Toolbar {
-        id: toolbar
-
-        width: parent.width
-    }
-
     Settings {
         id: settings
 
@@ -42,9 +36,7 @@ Item {
 
         readonly property bool isHorizontal: splitView.orientation == Qt.Horizontal
 
-        anchors.top: toolbar.bottom
-        anchors.bottom: parent.bottom
-        width: parent.width
+        anchors.fill: parent
         orientation: splitView.width > 1000 ? Qt.Horizontal : Qt.Vertical
         clip: true
 
@@ -81,6 +73,8 @@ Item {
                 previewComponent: preview
                 showImage: !hasMultiSelection && !splitView.isHorizontal
             }
+
+            toolbarComponent: Material.Toolbar {}
 
             DynamicPropertiesSection {
                 propertiesModel: PropertyEditorDynamicPropertiesModel {}

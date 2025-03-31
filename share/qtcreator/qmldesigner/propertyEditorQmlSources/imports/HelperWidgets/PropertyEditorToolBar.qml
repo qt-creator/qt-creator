@@ -9,10 +9,21 @@ import PropertyToolBarAction
 Rectangle {
     id: root
 
+    property alias customToolbar: customToolbarLoader.sourceComponent
+
     signal toolBarAction(int action)
 
     color: StudioTheme.Values.themeToolbarBackground
     height: StudioTheme.Values.toolbarHeight
+
+    Loader {
+        id: customToolbarLoader
+
+        anchors.left: parent.left
+        anchors.right: lockButton.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+    }
 
     HelperWidgets.AbstractButton {
         id: lockButton
