@@ -109,8 +109,11 @@ public:
     bool isQmlDebugging() const { return m_isQmlDebugging; }
     void setQmlDebugging(bool on) { m_isQmlDebugging = on; }
 
-    void setRemoteChannel(const QString &channel) { m_remoteChannel = channel; }
-    QString remoteChannel() const { return m_remoteChannel; }
+    void setRemoteChannel(const QUrl &channel) { m_remoteChannel = channel; }
+    QUrl remoteChannel() const { return m_remoteChannel; }
+
+    void setRemoteChannelPipe(const QString &pipe) { m_remoteChannelPipe = pipe; }
+    QString remoteChannelPipe() const { return m_remoteChannelPipe; }
 
     void setUseExtendedRemote(bool on) { m_useExtendedRemote = on; }
     bool useExtendedRemote() const { return m_useExtendedRemote; }
@@ -280,7 +283,8 @@ private:
     QUrl m_qmlServer; // Used by Qml debugging.
     bool m_isQmlDebugging = false;
 
-    QString m_remoteChannel; // Used by general remote debugging.
+    QUrl m_remoteChannel; // Used by general remote debugging.
+    QString m_remoteChannelPipe;
     bool m_useExtendedRemote = false; // Whether to use GDB's target extended-remote or not.
     Utils::FilePath m_symbolFile;
 

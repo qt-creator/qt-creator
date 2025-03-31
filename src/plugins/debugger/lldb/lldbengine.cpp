@@ -311,7 +311,7 @@ void LldbEngine::handleLldbStarted()
                                                                  : rp.deviceSymbolsRoot());
             cmd2.arg("remotechannel", ((rp.startMode() == AttachToRemoteProcess
                                         || rp.startMode() == AttachToRemoteServer)
-                                           ? rp.remoteChannel() : QString()));
+                                           ? rp.remoteChannel().toString(): QString()));
             QTC_CHECK(
                 !rp.continueAfterAttach()
                 || (rp.startMode() == AttachToRemoteProcess || rp.startMode() == AttachToLocalProcess

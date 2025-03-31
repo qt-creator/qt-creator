@@ -4598,6 +4598,23 @@ void GdbEngine::setupInferior()
     }
 }
 
+static QString extractRemoteChannel(const QUrl &url, const QString &pipe)
+{
+    if (!pipe.isEmpty())
+        return " | " + pipe;
+
+    QString scheme = url.scheme();
+    if (scheme.isEmpty())
+        scheme = "tcp:";
+
+    // "Fix" the IPv6 case with host names without '['...']'
+    QString host = url.host();
+    if (!host.startsWith('[') && host.count(':') >= 2)
+        host = '[' + host + ']';
+
+    return QString("%1:%2:%3").arg(scheme, host).arg(url.port());
+}
+
 void GdbEngine::runEngine()
 {
     CHECK_STATE(EngineRunRequested);
@@ -4609,7 +4626,7 @@ void GdbEngine::runEngine()
         claimInitialBreakpoints();
         notifyEngineRunAndInferiorStopOk();
 
-        runCommand({"target remote " + rp.remoteChannel()});
+        runCommand({"target remote " + extractRemoteChannel(rp.remoteChannel(), rp.remoteChannelPipe())});
 
     } else if (runParameters().isLocalAttachEngine()) {
 
@@ -4873,26 +4890,8 @@ void GdbEngine::handleSetTargetAsync(const DebuggerResponse &response)
 void GdbEngine::callTargetRemote()
 {
     CHECK_STATE(EngineSetupRequested);
-    QString channel = runParameters().remoteChannel();
-    // The remoteChannel string might have been created via a QUrl::toString
-    // which isn't suitable for `target qnx` or `target (extended-)remote`
-    // https://www.qnx.com/developers/docs/7.0.0/index.html#com.qnx.doc.neutrino.utilities/topic/g/gdb.html
-    // https://sourceware.org/gdb/current/onlinedocs/gdb.html/Connecting.html#index-remote-connection-commands
-    // so change any :// to just :
-    channel.replace("://", ":");
-
-    // Don't touch channels with explicitly set protocols.
-    if (!channel.startsWith("tcp:") && !channel.startsWith("udp:")
-            && !channel.startsWith("file:") && channel.contains(':')
-            && !channel.startsWith('|'))
-    {
-        // "Fix" the IPv6 case with host names without '['...']'
-        if (!channel.startsWith('[') && channel.count(':') >= 2) {
-            channel.insert(0, '[');
-            channel.insert(channel.lastIndexOf(':'), ']');
-        }
-        channel = "tcp:" + channel;
-    }
+    const QString channel = extractRemoteChannel(runParameters().remoteChannel(),
+                                                 runParameters().remoteChannelPipe());
 
     if (m_isQnxGdb)
         runCommand({"target qnx " + channel, CB(handleTargetQnx)});

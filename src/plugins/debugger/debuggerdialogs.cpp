@@ -409,10 +409,14 @@ void StartApplicationDialog::run(bool attachRemote)
 
     DebuggerRunParameters &rp = debugger->runParameters();
     const QString inputAddress = dialog.channelOverrideEdit->text();
-    if (!inputAddress.isEmpty())
+    if (!inputAddress.isEmpty()) {
         rp.setRemoteChannel(inputAddress);
-    else
-        rp.setRemoteChannel(dev->sshParameters().host() + ':' + QString::number(newParameters.serverPort));
+    } else {
+        QUrl channel;
+        channel.setHost(dev->sshParameters().host());
+        channel.setPort(newParameters.serverPort);
+        rp.setRemoteChannel(channel);
+    }
     rp.setDisplayName(newParameters.displayName());
     rp.setBreakOnMain(newParameters.breakAtMain);
     rp.setDebugInfoLocation(newParameters.debugInfoLocation);
@@ -435,7 +439,7 @@ void StartApplicationDialog::run(bool attachRemote)
         rp.setStartMode(AttachToRemoteServer);
         rp.setCloseMode(KillAtClose);
         rp.setUseContinueInsteadOfRun(true);
-        rp.setDisplayName(Tr::tr("Attach to %1").arg(rp.remoteChannel()));
+        rp.setDisplayName(Tr::tr("Attach to %1").arg(rp.remoteChannel().toDisplayString()));
     }
 
     runControl->start();
@@ -578,7 +582,10 @@ void runAttachToQmlPortDialog()
     rp.setQmlServer(qmlServer);
 
     const SshParameters sshParameters = device->sshParameters();
-    rp.setRemoteChannel(sshParameters.host() + ':' + QString::number(sshParameters.port()));
+    QUrl channel;
+    channel.setHost(sshParameters.host());
+    channel.setPort(sshParameters.port());
+    rp.setRemoteChannel(channel);
     rp.setStartMode(AttachToQmlServer);
 
     runControl->start();

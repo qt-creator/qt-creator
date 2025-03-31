@@ -1048,7 +1048,7 @@ static ExecutableItem debuggerRecipe(const Storage<ProcessHandle> pidStorage, Ru
         DebuggerRunParameters &rp = debugger->runParameters();
         rp.setStartMode(Debugger::AttachToRemoteServer);
         rp.setDisplayName(QString("VGdb %1").arg(pidStorage->pid()));
-        rp.setRemoteChannel(QString("| vgdb --pid=%1").arg(pidStorage->pid()));
+        rp.setRemoteChannelPipe(QString("vgdb --pid=%1").arg(pidStorage->pid()));
         rp.setUseContinueInsteadOfRun(true);
         rp.addExpectedSignal("SIGTRAP");
 

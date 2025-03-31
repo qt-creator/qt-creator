@@ -332,7 +332,7 @@ void CdbEngine::setupEngine()
     m_extensionFileName = extensionFi.fileName();
     const bool isRemote = sp.startMode() == AttachToRemoteServer;
     if (isRemote) // Must be first
-        debugger.addArgs({"-remote", sp.remoteChannel()});
+        debugger.addArgs({"-remote", sp.remoteChannel().toString()});
     else
         debugger.addArg("-a" + m_extensionFileName);
 
