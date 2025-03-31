@@ -115,7 +115,6 @@ protected:
 
     IosDevice::ConstPtr m_device;
     QStringList m_arguments;
-    qint64 m_processIdentifier = -1;
 
 private:
     GroupItem killProcess(Storage<AppInfo> &appInfo);
@@ -136,6 +135,7 @@ private:
     GroupItem launchTask(const QString &bundleIdentifier);
     void checkProcess();
 
+    qint64 m_processIdentifier = -1;
     std::unique_ptr<TaskTree> m_stopTask;
     std::unique_ptr<TaskTree> m_pollTask;
     QTimer m_pollTimer;
@@ -485,8 +485,7 @@ GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
                 findProcess(appInfo),
                 onGroupDone([this, appInfo](DoneWith doneWith) {
                     if (doneWith == DoneWith::Success) {
-                        m_processIdentifier = appInfo->processIdentifier;
-                        runControl()->setAttachPid(ProcessHandle(m_processIdentifier));
+                        runControl()->setAttachPid(ProcessHandle(appInfo->processIdentifier));
                         reportStarted();
                     } else {
                         reportFailure(Tr::tr("Failed to retrieve process ID."));
