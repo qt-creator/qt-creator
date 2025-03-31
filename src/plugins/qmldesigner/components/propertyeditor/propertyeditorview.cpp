@@ -613,26 +613,27 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
 {
     Utils::PathString panePath;
     Utils::PathString specificsPath;
+    Utils::PathString specificsDynamicPath;
 
     for (const NodeMetaInfo &prototype : prototypes) {
         auto sourceId = prototype.propertyEditorPathId();
         if (sourceId) {
             auto path = pathCache.sourcePath(sourceId);
             if (path.endsWith("Pane.qml")) {
-                if (!panePath.size())
-                    panePath = path;
-                if (specificsPath.size())
-                    return std::make_tuple(panePath, specificsPath);
+                panePath = path;
+                // Pane should always be encountered last, so we can return
+                return std::make_tuple(panePath, specificsPath, specificsDynamicPath);
             } else if (path.endsWith("Specifics.qml")) {
                 if (!specificsPath.size())
                     specificsPath = path;
-                if (panePath.size())
-                    return std::make_tuple(panePath, specificsPath);
+            } else if (path.endsWith("SpecificsDynamic.qml")) {
+                if (!specificsDynamicPath.size())
+                    specificsDynamicPath = path;
             }
         }
     }
 
-    return std::make_tuple(panePath, specificsPath);
+    return std::make_tuple(panePath, specificsPath, specificsDynamicPath);
 }
 
 [[maybe_unused]] QUrl createPaneUrl(Utils::SmallStringView panePath)
@@ -666,9 +667,18 @@ void PropertyEditorView::setupQmlBackend()
     auto selfAndPrototypes = commonAncestor.selfAndPrototypes();
     bool isEditableComponent = activeNode().isComponent()
                                && !QmlItemNode(activeNode()).isEffectItem();
-    auto specificQmlData = m_propertyEditorComponentGenerator.create(selfAndPrototypes,
-                                                                     isEditableComponent);
-    auto [panePath, specificsPath] = findPaneAndSpecificsPath(selfAndPrototypes, model()->pathCache());
+    auto [panePath, specificsPath, specificsDynamicPath]
+        = findPaneAndSpecificsPath(selfAndPrototypes, model()->pathCache());
+
+    QString specificQmlData;
+
+    if (specificsDynamicPath.size()) {
+        Utils::FilePath fp = Utils::FilePath::fromString(QString{specificsDynamicPath});
+        specificQmlData = QString::fromUtf8(fp.fileContents().value_or(QByteArray()));
+    } else {
+        specificQmlData = m_propertyEditorComponentGenerator.create(selfAndPrototypes,
+                                                                    isEditableComponent);
+    }
 
     PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
                                                                 createPaneUrl(panePath),
