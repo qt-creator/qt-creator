@@ -113,10 +113,9 @@ protected:
     void reportStoppedImpl();
 
     IosDevice::ConstPtr m_device;
-    QStringList m_arguments;
 
 private:
-    virtual GroupItem launchTask(const QString &bundleIdentifier) = 0;
+    virtual GroupItem launchTask(const QString &bundleIdentifier, const QStringList &arguments) = 0;
 
     FilePath m_bundlePath;
     std::unique_ptr<TaskTree> m_startTask;
@@ -130,7 +129,7 @@ public:
     void stop();
 
 private:
-    GroupItem launchTask(const QString &bundleIdentifier);
+    GroupItem launchTask(const QString &bundleIdentifier, const QStringList &arguments);
     void checkProcess();
 
     qint64 m_processIdentifier = -1;
@@ -149,7 +148,7 @@ public:
     void setStartStopped(bool startStopped) { m_startStopped = startStopped; }
 
 private:
-    GroupItem launchTask(const QString &bundleIdentifier);
+    GroupItem launchTask(const QString &bundleIdentifier, const QStringList &arguments);
 
     Process m_process;
     std::unique_ptr<TemporaryFile> m_deviceCtlOutput;
@@ -164,7 +163,6 @@ DeviceCtlRunnerBase::DeviceCtlRunnerBase(RunControl *runControl)
     const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
     QTC_ASSERT(data, return);
     m_bundlePath = data->bundleDirectory;
-    m_arguments = ProcessArgs::splitArgs(runControl->commandLine().arguments(), OsTypeMac);
     m_device = std::dynamic_pointer_cast<const IosDevice>(RunDeviceKitAspect::device(runControl->kit()));
 }
 
@@ -260,9 +258,9 @@ static GroupItem killProcess(const Storage<AppInfo> &appInfo)
     return ProcessTask(onSetup, DoneResult::Success); // we tried our best and don't care at this point
 }
 
-GroupItem DeviceCtlPollingRunner::launchTask(const QString &bundleIdentifier)
+GroupItem DeviceCtlPollingRunner::launchTask(const QString &bundleIdentifier, const QStringList &arguments)
 {
-    const auto onSetup = [this, bundleIdentifier](Process &process) {
+    const auto onSetup = [this, bundleIdentifier, arguments](Process &process) {
         if (!m_device) {
             reportFailure(Tr::tr("Running failed. No iOS device found."));
             return SetupResult::StopWithError;
@@ -278,7 +276,7 @@ GroupItem DeviceCtlPollingRunner::launchTask(const QString &bundleIdentifier)
                              "--json-output",
                              "-",
                              bundleIdentifier,
-                             m_arguments}});
+                             arguments}});
         return SetupResult::Continue;
     };
     const auto onDone = [this](const Process &process, DoneWith result) {
@@ -333,14 +331,15 @@ void DeviceCtlRunnerBase::start()
     // Check if a process is running for that path, and get its processIdentifier.
     // Try to kill that.
     // Then launch the app (again).
-    Storage<AppInfo> appInfo;
+    const QStringList args = ProcessArgs::splitArgs(runControl()->commandLine().arguments(), OsTypeMac);
+    const Storage<AppInfo> appInfo;
     m_startTask.reset(new TaskTree(Group{
         sequential,
         appInfo,
         findApp(runControl(), bundleIdentifier, appInfo),
         findProcess(runControl(), appInfo),
         killProcess(appInfo),
-        launchTask(bundleIdentifier)}));
+        launchTask(bundleIdentifier, args)}));
     m_startTask->start();
 }
 
@@ -446,9 +445,9 @@ void DeviceCtlRunner::stop()
         m_process.stop();
 }
 
-GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
+GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier, const QStringList &arguments)
 {
-    const auto onSetup = [this, bundleIdentifier] {
+    const auto onSetup = [this, bundleIdentifier, arguments] {
         if (!m_device) {
             reportFailure(Tr::tr("Running failed. No iOS device found."));
             return false;
@@ -460,19 +459,19 @@ GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
         }
         const QStringList startStoppedArg = m_startStopped ? QStringList("--start-stopped")
                                                            : QStringList();
-        const QStringList arguments = QStringList(
-                                          {"devicectl",
-                                           "device",
-                                           "process",
-                                           "launch",
-                                           "--device",
-                                           m_device->uniqueInternalDeviceId(),
-                                           "--quiet",
-                                           "--json-output",
-                                           m_deviceCtlOutput->fileName()})
-                                      + startStoppedArg
-                                      + QStringList({"--console", bundleIdentifier}) + m_arguments;
-        m_process.setCommand({FilePath::fromString("/usr/bin/xcrun"), arguments});
+        const QStringList args = QStringList(
+                                     {"devicectl",
+                                      "device",
+                                      "process",
+                                      "launch",
+                                      "--device",
+                                      m_device->uniqueInternalDeviceId(),
+                                      "--quiet",
+                                      "--json-output",
+                                      m_deviceCtlOutput->fileName()})
+                                 + startStoppedArg
+                                 + QStringList({"--console", bundleIdentifier}) + arguments;
+        m_process.setCommand({FilePath::fromString("/usr/bin/xcrun"), args});
         connect(&m_process, &Process::started, this, [this, bundleIdentifier] {
             // devicectl does report the process ID in its json output, but that is broken
             // for --console. When that is used, the json output is only written after the process
