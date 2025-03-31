@@ -365,6 +365,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
         case if_statement:
             switch (kind) {
             case T_LPAREN:      enter(condition_open); break;
+            case T_CONSTEXPR:   break;
             default:            leave(true); continue;
             } break;
 

@@ -17,6 +17,7 @@ class tst_CodeFormatter: public QObject
 private Q_SLOTS:
     void ifStatementWithoutBraces1();
     void ifStatementWithoutBraces2();
+    void ifStatementWithoutBraces3();
     void ifStatementWithBraces1();
     void ifStatementWithBraces2();
     void ifStatementMixed();
@@ -264,6 +265,19 @@ void tst_CodeFormatter::ifStatementWithoutBraces2()
          << Line("        foo;")
          << Line("}")
          ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::ifStatementWithoutBraces3()
+{
+    QList<Line> data;
+    data << Line("template <typename T> void foo() {")
+         << Line("    if constexpr (true)")
+         << Line("        return;")
+         << Line("    if constexpr (sizeof(T) == 0)")
+         << Line("        return;")
+         << Line("}")
+        ;
     checkIndent(data);
 }
 
