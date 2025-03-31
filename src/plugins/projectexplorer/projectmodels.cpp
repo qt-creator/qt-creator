@@ -223,8 +223,9 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         return tooltip;
     }
     case Qt::DecorationRole: {
+        QTC_ASSERT(fileNode || folderNode, return {});
         if (!folderNode)
-            return node->asFileNode()->icon();
+            return fileNode->icon();
         if (!project)
             return folderNode->icon();
         static QIcon warnIcon = Utils::Icons::WARNING.icon();
