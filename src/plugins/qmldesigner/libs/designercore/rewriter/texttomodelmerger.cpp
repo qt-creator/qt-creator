@@ -702,8 +702,10 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
         }
     }
 
-    for (const Import &import : std::as_const(existingImports))
-        differenceHandler.importAbsentInQMl(import);
+    if (m_removeImports) {
+        for (const Import &import : std::as_const(existingImports))
+            differenceHandler.importAbsentInQMl(import);
+    }
 }
 
 namespace {
@@ -2437,6 +2439,11 @@ void TextToModelMerger::clearPossibleImportKeys()
 {
     m_possibleModules.clear();
     m_previousPossibleModulesSize = -1;
+}
+
+void TextToModelMerger::setRemoveImports(bool removeImports)
+{
+    m_removeImports = removeImports;
 }
 
 QString TextToModelMerger::textAt(const Document::Ptr &doc,

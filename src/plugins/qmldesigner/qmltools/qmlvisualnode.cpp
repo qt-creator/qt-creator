@@ -289,6 +289,8 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     auto inputModel = Model::create("QtQuick.Item", 1, 0, view->model());
 #endif
     inputModel->setFileUrl(view->model()->fileUrl());
+    inputModel->changeImports(view->model()->imports(), {});
+
     QPlainTextEdit textEdit;
 
     textEdit.setPlainText(source);
@@ -300,6 +302,7 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     rewriterView->setTextModifier(&modifier);
     rewriterView->setAllowComponentRoot(true);
     rewriterView->setPossibleImportsEnabled(false);
+    rewriterView->setRemoveImports(false);
     inputModel->setRewriterView(rewriterView.get());
 
     if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {

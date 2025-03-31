@@ -179,6 +179,8 @@ public:
     void setIsDocumentRewriterView(bool b);
 #endif
 
+    void setRemoveImports(bool removeImports);
+
 signals:
     void modelInterfaceProjectUpdated();
 
