@@ -11,6 +11,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlDesignerBase" }
     Depends { name: "QtSupport" }
+    Depends { name: "QmlJSEditor" }
     Depends { name: "TextEditor" }
 
     Group {
