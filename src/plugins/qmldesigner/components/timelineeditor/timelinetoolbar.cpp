@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "timelinetoolbar.h"
+#include <qmldesignertr.h>
 
 #include "timelineconstants.h"
 #include "timelinegraphicsscene.h"
@@ -132,7 +133,7 @@ QString TimelineToolBar::currentTimelineId() const
 void TimelineToolBar::setCurrentState(const QString &name)
 {
     if (name.isEmpty())
-        m_stateLabel->setText(tr("Base State"));
+        m_stateLabel->setText(Tr::tr("Base State"));
     else
         m_stateLabel->setText(name);
 }
@@ -191,9 +192,9 @@ void TimelineToolBar::setIsMcu(bool isMcu)
 {
     m_curvePicker->setDisabled(isMcu);
     if (isMcu)
-        m_curvePicker->setText(tr("Not Supported for MCUs"));
+        m_curvePicker->setText(Tr::tr("Not Supported for MCUs"));
     else
-        m_curvePicker->setText(tr(m_curveEditorName));
+        m_curvePicker->setText(Tr::tr(m_curveEditorName));
 }
 
 void TimelineToolBar::setActionEnabled(const QString &name, bool enabled)
@@ -232,7 +233,7 @@ void TimelineToolBar::createLeftControls()
 
     auto *settingsAction = createAction(TimelineConstants::C_SETTINGS,
                                         Theme::iconFromName(Theme::Icon::settings_medium),
-                                        tr("Timeline Settings"),
+                                        Tr::tr("Timeline Settings"),
                                         QKeySequence(Qt::Key_S));
 
     connect(settingsAction, &QAction::triggered, this, &TimelineToolBar::settingDialogClicked);
@@ -267,7 +268,7 @@ void TimelineToolBar::createCenterControls()
 
     auto *toStart = createAction(TimelineConstants::C_TO_START,
                                  Theme::iconFromName(Theme::Icon::toStartFrame_medium),
-                                 tr("To Start"),
+                                 Tr::tr("Start Frame"),
                                  QKeySequence(Qt::Key_Home));
 
     connect(toStart, &QAction::triggered, this, &TimelineToolBar::toFirstFrameTriggered);
@@ -277,7 +278,7 @@ void TimelineToolBar::createCenterControls()
 
     auto *previous = createAction(TimelineConstants::C_PREVIOUS,
                                   Theme::iconFromName(Theme::Icon::toPrevFrame_medium),
-                                  tr("Previous"),
+                                  Tr::tr("Previous Frame"),
                                   QKeySequence(Qt::Key_Comma));
 
     connect(previous, &QAction::triggered, this, &TimelineToolBar::previousFrameTriggered);
@@ -292,7 +293,7 @@ void TimelineToolBar::createCenterControls()
 
     m_playing = createAction(TimelineConstants::C_PLAY,
                              playbackIcon,
-                             tr("Play"),
+                             Tr::tr("Play"),
                              QKeySequence(Qt::Key_Space));
     m_playing->setCheckable(true);
     connect(m_playing, &QAction::triggered, this, &TimelineToolBar::playTriggered);
@@ -302,7 +303,7 @@ void TimelineToolBar::createCenterControls()
 
     auto *next = createAction(TimelineConstants::C_NEXT,
                               Theme::iconFromName(Theme::Icon::toNextFrame_medium),
-                              tr("Next"),
+                              Tr::tr("Next Frame"),
                               QKeySequence(Qt::Key_Period));
 
     connect(next, &QAction::triggered, this, &TimelineToolBar::nextFrameTriggered);
@@ -312,7 +313,7 @@ void TimelineToolBar::createCenterControls()
 
     auto *toEnd = createAction(TimelineConstants::C_TO_END,
                                Theme::iconFromName(Theme::Icon::toEndFrame_medium),
-                               tr("To End"),
+                               Tr::tr("End Frame"),
                                QKeySequence(Qt::Key_End));
 
     connect(toEnd, &QAction::triggered, this, &TimelineToolBar::toLastFrameTriggered);
@@ -327,7 +328,7 @@ void TimelineToolBar::createCenterControls()
     // TODO: Toggles looping. Select shortcut for this QDS-4941
     auto *loopAnimation = createAction(TimelineConstants::C_LOOP_PLAYBACK,
                                        Theme::iconFromName(Theme::Icon::loopPlayback_medium),
-                                       tr("Loop Playback"),
+                                       Tr::tr("Loop Playback"),
                                        Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Space);
 
     loopAnimation->setCheckable(true);
@@ -340,7 +341,7 @@ void TimelineToolBar::createCenterControls()
     m_animationPlaybackSpeed = createToolBarLineEdit(this);
     LineEditDoubleValidator *validator = new LineEditDoubleValidator(0.1, 100.0, 1, m_animationPlaybackSpeed);
     m_animationPlaybackSpeed->setValidator(validator);
-    m_animationPlaybackSpeed->setToolTip(tr("Playback Speed"));
+    m_animationPlaybackSpeed->setToolTip(Tr::tr("Playback Speed"));
     addWidget(m_animationPlaybackSpeed);
 
     auto emitPlaybackSpeedChanged = [this, validator]() {
@@ -356,6 +357,7 @@ void TimelineToolBar::createCenterControls()
     addSeparator();
 
     m_currentFrame = createToolBarLineEdit(this);
+    m_currentFrame->setToolTip(Tr::tr("Timeline Current Frame"));
     addWidget(m_currentFrame);
 
     auto emitCurrentChanged = [this] { emit currentFrameChanged(m_currentFrame->text().toInt()); };
@@ -372,7 +374,7 @@ void TimelineToolBar::createCenterControls()
 
     m_recording = createAction(TimelineConstants::C_AUTO_KEYFRAME,
                                autoKeyIcon,
-                               tr("Auto Key"),
+                               Tr::tr("Auto Key"),
                                QKeySequence(Qt::Key_K));
 
     m_recording->setCheckable(true);
@@ -387,9 +389,9 @@ void TimelineToolBar::createCenterControls()
     addSpacing(10);
 
     m_curvePicker = createAction(TimelineConstants::C_CURVE_PICKER,
-                                     Theme::iconFromName(Theme::Icon::curveDesigner_medium),
-                                     tr(m_curveEditorName),
-                                     QKeySequence(Qt::Key_C));
+                                 Theme::iconFromName(Theme::Icon::curveDesigner_medium),
+                                 Tr::tr(m_curveEditorName),
+                                 QKeySequence(Qt::Key_C));
 
     m_curvePicker->setObjectName("Easing Curve Editor");
     connect(m_curvePicker, &QAction::triggered, this, &TimelineToolBar::openEasingCurveEditor);
@@ -416,6 +418,7 @@ void TimelineToolBar::createRightControls()
     addSeparator();
 
     m_firstFrame = createToolBarLineEdit(this);
+    m_firstFrame->setToolTip(Tr::tr("Timeline First Frame"));
     addWidget(m_firstFrame);
 
     auto emitStartChanged = [this] { emit startFrameChanged(m_firstFrame->text().toInt()); };
@@ -427,7 +430,7 @@ void TimelineToolBar::createRightControls()
 
     auto *zoomOut = createAction(TimelineConstants::C_ZOOM_OUT,
                                  Theme::iconFromName(Theme::Icon::zoomOut_medium),
-                                 tr("Zoom Out"),
+                                 Tr::tr("Zoom Out"),
                                  QKeySequence(QKeySequence::ZoomOut));
 
     connect(zoomOut, &QAction::triggered, [this] {
@@ -454,7 +457,7 @@ void TimelineToolBar::createRightControls()
 
     auto *zoomIn = createAction(TimelineConstants::C_ZOOM_IN,
                                 Theme::iconFromName(Theme::Icon::zoomIn_medium),
-                                tr("Zoom In"),
+                                Tr::tr("Zoom In"),
                                 QKeySequence(QKeySequence::ZoomIn));
 
     connect(zoomIn, &QAction::triggered, [this] {
@@ -467,6 +470,7 @@ void TimelineToolBar::createRightControls()
     addSeparator();
 
     m_lastFrame = createToolBarLineEdit(this);
+    m_lastFrame->setToolTip(Tr::tr("Timeline Last Frame"));
     addWidget(m_lastFrame);
 
     auto emitEndChanged = [this] { emit endFrameChanged(m_lastFrame->text().toInt()); };
