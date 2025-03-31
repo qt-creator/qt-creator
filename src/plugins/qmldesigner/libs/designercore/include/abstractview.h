@@ -155,6 +155,9 @@ public:
     virtual void modelAboutToBeDetached(Model *model);
 
     virtual void refreshMetaInfos(const TypeIds &deletedTypeIds);
+    using ExportedTypeNames = Storage::Info::ExportedTypeNames;
+    virtual void exportedTypeNamesChanged(const ExportedTypeNames &added,
+                                          const ExportedTypeNames &removed);
 
     virtual void nodeCreated(const ModelNode &createdNode);
     virtual void nodeAboutToBeRemoved(const ModelNode &removedNode);

@@ -257,20 +257,7 @@ public:
 
     explicit operator bool() const { return value >= 0; }
 
-    friend bool operator==(VersionNumber first, VersionNumber second) noexcept
-    {
-        return first.value == second.value;
-    }
-
-    friend bool operator!=(VersionNumber first, VersionNumber second) noexcept
-    {
-        return !(first == second);
-    }
-
-    friend bool operator<(VersionNumber first, VersionNumber second) noexcept
-    {
-        return first.value < second.value;
-    }
+    auto operator<=>(const VersionNumber &first) const noexcept = default;
 
 public:
     int value = -1;
@@ -294,15 +281,7 @@ public:
         : major{major}
     {}
 
-    friend bool operator==(Version first, Version second) noexcept
-    {
-        return first.major == second.major && first.minor == second.minor;
-    }
-
-    friend bool operator<(Version first, Version second) noexcept
-    {
-        return std::tie(first.major, first.minor) < std::tie(second.major, second.minor);
-    }
+    auto operator<=>(const Version &first) const noexcept = default;
 
     explicit operator bool() const { return major && minor; }
 
@@ -470,32 +449,36 @@ public:
     ExportedTypeName() = default;
 
     ExportedTypeName(ModuleId moduleId,
+                     TypeId typeId,
                      ::Utils::SmallStringView name,
                      Storage::Version version = Storage::Version{})
         : name{name}
         , version{version}
         , moduleId{moduleId}
+        , typeId{typeId}
     {}
 
     ExportedTypeName(ModuleId moduleId,
+                     TypeId typeId,
                      ::Utils::SmallStringView name,
                      int majorVersion,
                      int minorVersion)
         : name{name}
         , version{majorVersion, minorVersion}
         , moduleId{moduleId}
+        , typeId{typeId}
     {}
 
     friend bool operator==(const ExportedTypeName &first, const ExportedTypeName &second)
     {
-        return first.moduleId == second.moduleId && first.version == second.version
-               && first.name == second.name;
+        return first.moduleId == second.moduleId && first.typeId == second.typeId
+               && first.version == second.version && first.name == second.name;
     }
 
-    friend bool operator<(const ExportedTypeName &first, const ExportedTypeName &second)
+    friend auto operator<=>(const ExportedTypeName &first, const ExportedTypeName &second)
     {
-        return std::tie(first.moduleId, first.name, first.version)
-               < std::tie(second.moduleId, second.name, second.version);
+        return std::tie(first.moduleId, first.name, first.version, second.typeId)
+               <=> std::tie(second.moduleId, second.name, second.version, second.typeId);
     }
 
     template<typename String>
@@ -505,7 +488,8 @@ public:
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("name", exportedTypeName.name),
                               keyValue("version", exportedTypeName.version),
-                              keyValue("module id", exportedTypeName.moduleId));
+                              keyValue("module id", exportedTypeName.moduleId),
+                              keyValue("type id", exportedTypeName.typeId));
 
         convertToString(string, dict);
     }
@@ -514,6 +498,7 @@ public:
     ::Utils::SmallString name;
     Storage::Version version;
     ModuleId moduleId;
+    TypeId typeId;
 };
 
 using ExportedTypeNames = std::vector<ExportedTypeName>;

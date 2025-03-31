@@ -393,11 +393,13 @@ public:
     {}
 
     explicit ExportedType(ModuleId moduleId,
+                          TypeId typeId,
                           ::Utils::SmallStringView name,
                           int majorVersion,
                           int minorVersion)
         : name{name}
         , version{majorVersion, minorVersion}
+        , typeId{typeId}
         , moduleId{moduleId}
     {}
 

@@ -474,6 +474,13 @@ void ModelPrivate::exportedTypesChanged()
     }
 }
 
+void ModelPrivate::exportedTypeNamesChanged(const ExportedTypeNames &added,
+                                            const ExportedTypeNames &removed)
+{
+    notifyNodeInstanceViewLast(
+        [&](AbstractView *view) { view->exportedTypeNamesChanged(added, removed); });
+}
+
 void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
 {
     for (const InternalNodePointer &subNode : node->allSubNodes())

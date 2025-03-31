@@ -751,7 +751,8 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
 
 std::ostream &operator<<(std::ostream &out, const ExportedTypeName &name)
 {
-    return out << "(\"" << name.name << "\", " << name.moduleId << ", " << name.version << ")";
+    return out << "(\"" << name.name << "\", " << name.moduleId << ", " << name.version << ", "
+               << name.typeId << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const TypeHint &hint)

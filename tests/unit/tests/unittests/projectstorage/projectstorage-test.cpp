@@ -8189,9 +8189,9 @@ TEST_F(ProjectStorage, get_exported_type_names)
     auto exportedTypeNames = storage.exportedTypeNames(typeId);
 
     ASSERT_THAT(exportedTypeNames,
-                UnorderedElementsAre(IsInfoExportTypeNames(qmlModuleId, "Object", 2, -1),
-                                     IsInfoExportTypeNames(qmlModuleId, "Obj", 2, -1),
-                                     IsInfoExportTypeNames(qmlNativeModuleId, "QObject", -1, -1)));
+                UnorderedElementsAre(IsInfoExportTypeName(qmlModuleId, typeId, "Object", 2, -1),
+                                     IsInfoExportTypeName(qmlModuleId, typeId, "Obj", 2, -1),
+                                     IsInfoExportTypeName(qmlNativeModuleId, typeId, "QObject", -1, -1)));
 }
 
 TEST_F(ProjectStorage, get_no_exported_type_names_if_type_id_is_invalid)
@@ -8215,8 +8215,8 @@ TEST_F(ProjectStorage, get_exported_type_names_for_source_id)
     auto exportedTypeNames = storage.exportedTypeNames(typeId, sourceId3);
 
     ASSERT_THAT(exportedTypeNames,
-                UnorderedElementsAre(IsInfoExportTypeNames(qmlModuleId, "Object", 2, -1),
-                                     IsInfoExportTypeNames(qmlModuleId, "Obj", 2, -1)));
+                UnorderedElementsAre(IsInfoExportTypeName(qmlModuleId, typeId, "Object", 2, -1),
+                                     IsInfoExportTypeName(qmlModuleId, typeId, "Obj", 2, -1)));
 }
 
 TEST_F(ProjectStorage, get_no_exported_type_names_for_source_id_for_invalid_type_id)
@@ -9075,7 +9075,7 @@ TEST_F(ProjectStorage, added_document_import_fixes_unresolved_extension)
     ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(fetchTypeId(sourceId2, "QObject")));
 }
 
-TEST_F(ProjectStorage, added_export_is_notifing_changed_exported_types)
+TEST_F(ProjectStorage, added_export_is_notifying_changed_exported_types)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -9088,7 +9088,7 @@ TEST_F(ProjectStorage, added_export_is_notifing_changed_exported_types)
     storage.synchronize(std::move(package));
 }
 
-TEST_F(ProjectStorage, removed_export_is_notifing_changed_exported_types)
+TEST_F(ProjectStorage, removed_export_is_notifying_changed_exported_types)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -9101,7 +9101,7 @@ TEST_F(ProjectStorage, removed_export_is_notifing_changed_exported_types)
     storage.synchronize(std::move(package));
 }
 
-TEST_F(ProjectStorage, changed_export_is_notifing_changed_exported_types)
+TEST_F(ProjectStorage, changed_export_is_notifying_changed_exported_types)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
@@ -9110,6 +9110,66 @@ TEST_F(ProjectStorage, changed_export_is_notifing_changed_exported_types)
     storage.addObserver(&observerMock);
 
     EXPECT_CALL(observerMock, exportedTypesChanged());
+
+    storage.synchronize(std::move(package));
+}
+
+TEST_F(ProjectStorage, added_export_is_notifying_changed_exported_type_names)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+    NiceMock<ProjectStorageObserverMock> observerMock;
+    storage.addObserver(&observerMock);
+
+    EXPECT_CALL(observerMock,
+                exportedTypeNamesChanged(ElementsAre(
+                                             IsInfoExportTypeName(qmlNativeModuleId,
+                                                                  fetchTypeId(sourceId2, "QObject"),
+                                                                  Eq("Objec"),
+                                                                  A<QmlDesigner::Storage::Version>())),
+                                         IsEmpty()));
+
+    storage.synchronize(std::move(package));
+}
+
+TEST_F(ProjectStorage, removed_export_is_notifying_changed_exported_type_names)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[1].exportedTypes.pop_back();
+    NiceMock<ProjectStorageObserverMock> observerMock;
+    storage.addObserver(&observerMock);
+
+    EXPECT_CALL(observerMock,
+                exportedTypeNamesChanged(IsEmpty(),
+                                         ElementsAre(
+                                             IsInfoExportTypeName(qmlNativeModuleId,
+                                                                  fetchTypeId(sourceId2, "QObject"),
+                                                                  Eq("QObject"),
+                                                                  A<QmlDesigner::Storage::Version>()))));
+
+    storage.synchronize(std::move(package));
+}
+
+TEST_F(ProjectStorage, changed_export_is_notifying_changed_exported_type_names)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[1].exportedTypes[1].name = "Obj2";
+    NiceMock<ProjectStorageObserverMock> observerMock;
+    storage.addObserver(&observerMock);
+
+    EXPECT_CALL(observerMock,
+                exportedTypeNamesChanged(
+                    ElementsAre(IsInfoExportTypeName(qmlModuleId,
+                                                     fetchTypeId(sourceId2, "QObject"),
+                                                     Eq("Obj2"),
+                                                     A<QmlDesigner::Storage::Version>())),
+                    ElementsAre(IsInfoExportTypeName(qmlModuleId,
+                                                     fetchTypeId(sourceId2, "QObject"),
+                                                     Eq("Obj"),
+                                                     A<QmlDesigner::Storage::Version>()))));
 
     storage.synchronize(std::move(package));
 }
