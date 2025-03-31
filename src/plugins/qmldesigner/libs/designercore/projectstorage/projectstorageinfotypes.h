@@ -415,14 +415,7 @@ struct ItemLibraryEntry
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("type id", entry.typeId),
                               keyValue("type name", entry.typeName),
-                              keyValue("name", entry.name),
-                              keyValue("icon path", entry.iconPath),
-                              keyValue("category", entry.category),
-                              keyValue("import", entry.import),
-                              keyValue("tool tip", entry.toolTip),
-                              keyValue("template path", entry.templatePath),
-                              keyValue("properties", entry.properties),
-                              keyValue("extra file paths", entry.extraFilePaths));
+                              keyValue("name", entry.name));
 
         convertToString(string, dict);
     }
