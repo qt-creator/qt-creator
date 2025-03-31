@@ -1,6 +1,8 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <qmldesignertr.h>
+
 #include "annotationeditor.h"
 
 #include "annotation.h"
@@ -57,8 +59,8 @@ void AnnotationEditor::removeFullAnnotation()
         return;
 
     if (QMessageBox::question(Core::ICore::dialogParent(),
-                              node.customId().isNull() ? tr("Annotation") : node.customId(),
-                              tr("Delete this annotation?"))
+                              node.customId().isNull() ? Tr::tr("Annotation") : node.customId(),
+                              Tr::tr("Delete this annotation?"))
         == QMessageBox::Yes) {
         node.removeCustomId();
         node.removeAnnotation();

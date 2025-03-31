@@ -1,6 +1,8 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <qmldesignertr.h>
+
 #include "signallistdelegate.h"
 
 #include "signallist.h"
@@ -42,7 +44,7 @@ void SignalListDelegate::paint(QPainter *painter,
     if (index.column() == SignalListModel::ButtonColumn) {
         QStyleOptionButton button;
         button.rect = connectButtonRect(option);
-        button.text = connected ? tr("Release") : tr("Connect");
+        button.text = connected ? Tr::tr("Release") : Tr::tr("Connect");
         button.state = QStyle::State_Enabled;
         QApplication::style()->drawControl(QStyle::CE_PushButton, &button, painter);
         return;
