@@ -108,7 +108,7 @@ std::optional<OutputLineParser::Result> LdParser::checkMainRegex(
         const QString identifier = "(?:[A-Za-z_][A-Za-z_0-9]*)";
         const QString scopedIdentifier = QString("(?:%1(?:::%1)*)").arg(identifier);
         const QString position
-            = QString("(?:%1|%2|%3)").arg(lineNumber, elfSegmentAndOffset, scopedIdentifier);
+            = QString("(?:%1(?::%2)?|%2|%3)").arg(lineNumber, elfSegmentAndOffset, scopedIdentifier);
         const QString srcFile = QString("(?:(?<src>%1)(?::%2)?: )").arg(file, position);
         const QString description = "(?<desc>.+)";
 
@@ -579,6 +579,18 @@ make: *** [Makefile:245: ExternC] Error 1
                      errorTask("lld-link: error: duplicate symbol: __Z4funcv in test1.o and in test2.o"),
                      errorTask("collect2.exe: error: ld returned 1 exit status", {})};
         }
+
+        QTest::newRow("mixed location")
+            << "/usr/lib/gcc/x86_64-pc-linux-gnu/14/../../../../x86_64-pc-linux-gnu/bin/ld: Build.dir/Target.dir/path/to/source_file.cpp.o: in function `foo()':\n"
+               "/path/to/source_file.cpp:42:(.text+0xb58): undefined reference to `bar()'\n"
+               "/usr/lib/gcc/x86_64-pc-linux-gnu/14/../../../../x86_64-pc-linux-gnu/bin/ld: /path/to/source_file.cpp:138:(.text+0xbc2): undefined reference to `bar()'"
+            << OutputParserTester::STDERR << QStringList() << QStringList()
+            << Tasks{
+                   errorTask("undefined reference to `bar()'\n"
+                             "/usr/lib/gcc/x86_64-pc-linux-gnu/14/../../../../x86_64-pc-linux-gnu/bin/ld: Build.dir/Target.dir/path/to/source_file.cpp.o: in function `foo()':\n"
+                             "/path/to/source_file.cpp:42:(.text+0xb58): undefined reference to `bar()'",
+                             "/path/to/source_file.cpp", 42),
+                   errorTask("undefined reference to `bar()'", "/path/to/source_file.cpp", 138)};
     }
 
     void test()
