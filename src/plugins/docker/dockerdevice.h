@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "dockerdeviceenvironmentaspect.h"
+
 #include <coreplugin/documentmanager.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -68,6 +70,7 @@ public:
     Utils::FilePathAspect clangdExecutableAspect{this};
     Utils::StringSelectionAspect network{this};
     Utils::StringAspect extraArgs{this};
+    DockerDeviceEnvironmentAspect environment{this};
 
     Utils::TextDisplay containerStatus{this};
 

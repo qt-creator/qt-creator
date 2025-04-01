@@ -1190,7 +1190,7 @@ Result LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool a
     setOsTypeFromUnameResult(m_scriptAccess.m_handler->runInShell(unameCommand()));
 
     // We have good shell access now, try to get bridge access, too:
-    Result initResult = m_cmdBridgeAccess.deployAndInit(Core::ICore::libexecPath(), q->rootPath());
+    Result initResult = m_cmdBridgeAccess.deployAndInit(Core::ICore::libexecPath(), q->rootPath(), getEnvironment());
     if (initResult) {
         qCDebug(linuxDeviceLog) << "Bridge ok to use";
         q->setFileAccess(&m_cmdBridgeAccess);

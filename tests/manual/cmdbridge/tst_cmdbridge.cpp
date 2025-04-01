@@ -53,7 +53,7 @@ class tst_CmdBridge : public QObject
 {
     Q_OBJECT
 
-    QString libExecPath;
+    QString libExecPath = TEST_LIBEXEC_PATH;
 
 private slots:
     void initTestCase()
@@ -67,8 +67,13 @@ private slots:
     void testDeviceEnvironment()
     {
         CmdBridge::FileAccess fileAccess;
-        auto res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+        Utils::Result res = fileAccess.deployAndInit(
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
+
+        if (!res)
+            qDebug() << "Failed to deploy and init:" << res.error();
 
         QVERIFY(res);
 
@@ -82,7 +87,9 @@ private slots:
     {
         CmdBridge::FileAccess fileAccess;
         auto res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
 
         QVERIFY(res);
 
@@ -107,7 +114,9 @@ private slots:
     {
         CmdBridge::FileAccess fileAccess;
         auto res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
 
         QVERIFY(res);
 
@@ -132,7 +141,9 @@ private slots:
     {
         CmdBridge::FileAccess fileAccess;
         auto res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
 
         QVERIFY(res);
 
@@ -155,7 +166,9 @@ private slots:
     {
         CmdBridge::FileAccess fileAccess;
         auto res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
 
         QVERIFY(res);
 
@@ -231,7 +244,7 @@ The end.
                                                               FilePath::fromUserInput(libExecPath));
         QTC_ASSERT_EXPECTED(bridgePath, QSKIP("No bridge found"));
 
-        CmdBridge::Client client(*bridgePath);
+        CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
         client.start();
 
         auto result = client.is("/tmp", CmdBridge::Client::Is::Dir)->result();
@@ -250,7 +263,7 @@ The end.
                                                               FilePath::fromUserInput(libExecPath));
         QTC_ASSERT_EXPECTED(bridgePath, QSKIP("No bridge found"));
 
-        CmdBridge::Client client(*bridgePath);
+        CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
         QTC_ASSERT_EXPECTED(client.start(), return);
 
         try {
@@ -266,7 +279,9 @@ The end.
     {
         CmdBridge::FileAccess fileAccess;
         auto res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
 
         QVERIFY(res);
 
@@ -279,7 +294,9 @@ The end.
     {
         CmdBridge::FileAccess fileAccess;
         auto res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
 
         QVERIFY(res);
 
@@ -292,7 +309,9 @@ The end.
     {
         CmdBridge::FileAccess fileAccess;
         auto res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
 
         QVERIFY(res);
 
@@ -305,7 +324,9 @@ The end.
     {
         CmdBridge::FileAccess fileAccess;
         auto res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
 
         QVERIFY(res);
         fileAccess.iterateDirectory(
@@ -331,7 +352,9 @@ The end.
     {
         CmdBridge::FileAccess fileAccess;
         auto res = fileAccess.deployAndInit(
-            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+            FilePath::fromUserInput(libExecPath),
+            FilePath::fromUserInput("/"),
+            Environment::systemEnvironment());
 
         QVERIFY(res);
 
@@ -364,7 +387,7 @@ The end.
                                                               FilePath::fromUserInput(libExecPath));
         QTC_ASSERT_EXPECTED(bridgePath, QSKIP("No bridge found"));
 
-        CmdBridge::Client client(*bridgePath);
+        CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
 
         auto result = client.start();
         QTC_ASSERT_EXPECTED(result, QFAIL("Failed to start bridge"));

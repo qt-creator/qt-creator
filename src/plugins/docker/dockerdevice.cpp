@@ -187,8 +187,6 @@ public:
 
     expected_str<QPair<Utils::OsType, Utils::OsArch>> osTypeAndArch() const;
 
-    expected_str<Environment> environment();
-
     expected_str<CommandLine> withDockerExecCmd(
         const CommandLine &cmd,
         const std::optional<Environment> &env = std::nullopt,
@@ -201,7 +199,7 @@ public:
     Tasks validateMounts() const;
 
     void stopCurrentContainer();
-    Result fetchSystemEnviroment();
+    Utils::expected_str<Utils::Environment> fetchEnvironment() const;
 
     expected_str<FilePath> getCmdBridgePath() const;
 
@@ -227,11 +225,16 @@ public:
 
         auto fAccess = std::make_unique<DockerDeviceFileAccess>(this);
 
+        if (auto result = updateContainerAccess(); !result)
+            return make_unexpected(result.error());
+
         Result initResult = Result::Ok;
         if (cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath()))
-            initResult = fAccess->init(q->rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
+            initResult
+                = fAccess->init(q->rootPath().withNewPath("/tmp/_qtc_cmdbridge"), q->environment());
         else
-            initResult = fAccess->deployAndInit(Core::ICore::libexecPath(), q->rootPath());
+            initResult
+                = fAccess->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), q->environment());
 
         if (!initResult)
             return make_unexpected(initResult.error());
@@ -271,7 +274,6 @@ public:
         FilePath containerPath;
     };
 
-    std::optional<Environment> m_cachedEnviroment;
     bool m_isShutdown = false;
     SynchronizedValue<std::unique_ptr<DeviceFileAccess>> m_fileAccess;
     SynchronizedValue<std::unique_ptr<DockerContainerThread>> m_deviceThread;
@@ -538,6 +540,28 @@ Tasks DockerDevicePrivate::validateMounts() const
     return result;
 }
 
+expected_str<Environment> DockerDevicePrivate::fetchEnvironment() const
+{
+    Process envCaptureProcess;
+    envCaptureProcess.setCommand(
+        {settings().dockerBinaryPath(), {"run", "--rm", "-i", q->repoAndTag()}});
+    envCaptureProcess.setWriteData("printenv\n");
+    envCaptureProcess.runBlocking();
+    if (envCaptureProcess.result() != ProcessResult::FinishedWithSuccess) {
+        return make_unexpected(envCaptureProcess.readAllStandardError());
+    }
+    const QStringList envLines = QString::fromUtf8(envCaptureProcess.readAllRawStandardOutput())
+                                     .split('\n', Qt::SkipEmptyParts);
+    NameValueDictionary envDict;
+    for (const QString &line : envLines) {
+        const QStringList parts = line.split('=', Qt::KeepEmptyParts);
+        if (parts.size() == 2)
+            envDict.set(parts[0], parts[1]);
+    }
+
+    return Environment(envDict);
+}
+
 QString DockerDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
 {
     // make sure to convert windows style paths to unix style paths with the file system case:
@@ -790,7 +814,6 @@ expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
 
 void DockerDevicePrivate::stopCurrentContainer()
 {
-    m_cachedEnviroment.reset();
     auto fileAccess = m_fileAccess.writeLocked();
     fileAccess->reset();
 
@@ -1003,6 +1026,16 @@ void DockerDevice::fromMap(const Store &map)
 {
     ProjectExplorer::IDevice::fromMap(map);
 
+    if (!environment.isRemoteEnvironmentSet()) {
+        // Old devices may not have the environment stored yet
+        if (const expected_str<Environment> env = d->fetchEnvironment(); !env)
+            qCWarning(dockerDeviceLog) << "Failed to fetch environment:" << env.error();
+        else {
+            qCDebug(dockerDeviceLog) << "Setting environment for device:" << env->toStringList();
+            environment.setRemoteEnvironment(*env);
+        }
+    }
+
     // This is the only place where we can correctly set the default name.
     // Only here do we know the image id and the repo reliably, no matter
     // where or how we were created.
@@ -1069,41 +1102,16 @@ expected_str<FilePath> DockerDevice::localSource(const FilePath &other) const
 
 expected_str<Environment> DockerDevice::systemEnvironmentWithError() const
 {
-    return d->environment();
+    if (environment.isRemoteEnvironmentSet())
+        return environment();
+
+    return make_unexpected(Tr::tr("Environment could not be captured."));
 }
 
 void DockerDevice::aboutToBeRemoved() const
 {
     KitDetector detector(shared_from_this());
     detector.undoAutoDetect(id().toString());
-}
-
-Result DockerDevicePrivate::fetchSystemEnviroment()
-{
-    if (m_cachedEnviroment)
-        return Result::Ok;
-
-    if (auto fileAccess = m_fileAccess.readLocked()->get()) {
-        m_cachedEnviroment = fileAccess->deviceEnvironment();
-        return Result::Ok;
-    }
-
-    const expected_str<CommandLine> fullCommandLine = withDockerExecCmd(CommandLine{"env"});
-    if (!fullCommandLine)
-        return Result::Error(fullCommandLine.error());
-
-    Process proc;
-    proc.setCommand(*fullCommandLine);
-    proc.runBlocking();
-    const QString remoteOutput = proc.cleanedStdOut();
-
-    m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
-    QString stdErr = proc.cleanedStdErr();
-
-    if (stdErr.isEmpty())
-        return Result::Ok;
-
-    return Result::Error("Could not read container environment: " + stdErr);
 }
 
 // Factory
@@ -1277,6 +1285,11 @@ public:
         device->tag.setValue(item->tag);
         device->imageId.setValue(item->imageId);
 
+        if (const auto env = device->d->fetchEnvironment(); !env)
+            qCWarning(dockerDeviceLog) << "Failed to fetch environment:" << env.error();
+        else
+            device->environment.setRemoteEnvironment(*env);
+
         return device;
     }
 
@@ -1344,17 +1357,6 @@ expected_str<QPair<Utils::OsType, Utils::OsArch>> DockerDevicePrivate::osTypeAnd
         return make_unexpected(arch.error());
 
     return qMakePair(os.value(), arch.value());
-}
-
-expected_str<Environment> DockerDevicePrivate::environment()
-{
-    if (!m_cachedEnviroment) {
-        if (Result result = fetchSystemEnviroment(); !result)
-            return make_unexpected(result.error());
-    }
-
-    QTC_ASSERT(m_cachedEnviroment, return {});
-    return *m_cachedEnviroment;
 }
 
 void DockerDevicePrivate::shutdown()

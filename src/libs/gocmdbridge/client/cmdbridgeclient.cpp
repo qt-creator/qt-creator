@@ -43,6 +43,7 @@ namespace Internal {
 struct ClientPrivate
 {
     FilePath remoteCmdBridgePath;
+    Environment environment;
 
     // Only access from the thread
     Process *process = nullptr;
@@ -236,10 +237,11 @@ expected_str<void> ClientPrivate::readPacket(QCborStreamReader &reader)
 
 } // namespace Internal
 
-Client::Client(const Utils::FilePath &remoteCmdBridgePath)
+Client::Client(const Utils::FilePath &remoteCmdBridgePath, const Utils::Environment &env)
     : d(new Internal::ClientPrivate())
 {
     d->remoteCmdBridgePath = remoteCmdBridgePath;
+    d->environment = env;
 }
 
 Client::~Client()
@@ -248,7 +250,7 @@ Client::~Client()
         d->thread->wait(2000);
 }
 
-expected_str<QFuture<Environment>> Client::start()
+Result Client::start()
 {
     d->thread = new QThread(this);
     d->thread->setObjectName("CmdBridgeClientThread");
@@ -257,37 +259,13 @@ expected_str<QFuture<Environment>> Client::start()
     d->process = new Process();
     d->process->moveToThread(d->thread);
 
-    std::shared_ptr<QPromise<Environment>> envPromise = std::make_shared<QPromise<Environment>>();
-
-    expected_str<void> result;
-
-    d->jobs.writeLocked()->map.insert(-1, [envPromise](QVariantMap map) {
-        envPromise->start();
-        QString type = map.value("Type").toString();
-        if (type == "environment") {
-            expected_str<OsType> osType = osTypeFromString(map.value("OsType").toString());
-            QTC_CHECK_EXPECTED(osType);
-            Environment env(map.value("Env").toStringList(), osType.value_or(OsTypeLinux));
-            envPromise->addResult(env);
-        } else if (type == "error") {
-            QString err = map.value("Error", QString{}).toString();
-            qCWarning(clientLog) << "Error: " << err;
-            envPromise->setException(std::make_exception_ptr(std::runtime_error(err.toStdString())));
-        } else {
-            qCWarning(clientLog) << "Unknown initial response type: " << type;
-            envPromise->setException(
-                std::make_exception_ptr(std::runtime_error("Unknown response type")));
-        }
-
-        envPromise->finish();
-
-        return JobResult::Done;
-    });
+    Result result = Result::Ok;
 
     QMetaObject::invokeMethod(
         d->process,
-        [this]() -> expected_str<void> {
+        [this]() -> Result {
             d->process->setCommand({d->remoteCmdBridgePath, {}});
+            d->process->setEnvironment(d->environment);
             d->process->setProcessMode(ProcessMode::Writer);
             d->process->setProcessChannelMode(QProcess::ProcessChannelMode::SeparateChannels);
             // Make sure the process has a codec, otherwise it will try to ask us recursively
@@ -398,20 +376,17 @@ expected_str<QFuture<Environment>> Client::start()
             d->process->start();
 
             if (!d->process)
-                return make_unexpected(Tr::tr("Failed starting bridge process"));
+                return Result::Error(Tr::tr("Failed starting bridge process"));
 
             if (!d->process->waitForStarted())
-                return make_unexpected(
+                return Result::Error(
                     Tr::tr("Failed starting bridge process: %1").arg(d->process->errorString()));
-            return {};
+            return Result::Ok;
         },
         Qt::BlockingQueuedConnection,
         &result);
 
-    if (!result)
-        return make_unexpected(result.error());
-
-    return envPromise->future();
+    return result;
 }
 
 enum class Errors {

@@ -167,6 +167,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     Column {
         noMargin,
         Form {
+            noMargin,
             dockerDevice->repo, br,
             dockerDevice->tag, br,
             dockerDevice->imageId, br,
@@ -178,12 +179,12 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             dockerDevice->clangdExecutableAspect, br,
             dockerDevice->network, br,
             dockerDevice->extraArgs, br,
+            Tr::tr("Container Environment:"), dockerDevice->environment.createConfigWidget(), br,
             Column {
                 pathListLabel,
                 dockerDevice->mounts,
             }, br,
             If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
-            noMargin,
         },br,
         Tr::tr("Command line:"), createLineLabel, br,
     }.attachTo(this);

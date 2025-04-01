@@ -23,10 +23,10 @@ class QTCREATOR_CMDBRIDGE_EXPORT Client : public QObject
 {
     Q_OBJECT
 public:
-    Client(const Utils::FilePath &remoteCmdBridgePath);
+    Client(const Utils::FilePath &remoteCmdBridgePath, const Utils::Environment &env);
     ~Client();
 
-    Utils::expected_str<QFuture<Utils::Environment>> start();
+    Utils::Result start();
 
     static Utils::expected_str<Utils::FilePath> getCmdBridgePath(Utils::OsType osType,
                                                                  Utils::OsArch osArch,

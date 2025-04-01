@@ -10,9 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"runtime"
-	"slices"
-	"strings"
 	"sync"
 	"syscall"
 
@@ -345,7 +342,6 @@ func processSignal(cmd command, out chan<- []byte) {
 	out <- data
 }
 
-
 func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
 	defer globalWaitGroup.Done()
 
@@ -402,26 +398,7 @@ func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
 	}
 }
 
-
-func sendEnvironment(out chan<- []byte) {
-	// Delete all entries without a valid key.
-	env := slices.DeleteFunc(os.Environ(), func(s string) bool {
-		trimmed := strings.TrimSpace(s)
-		return len(trimmed) == 0 || trimmed[0] == '='
-	})
-
-	result, _ := cbor.Marshal(environment{
-		Type: "environment",
-		Id: -1,
-		OsType: runtime.GOOS,
-		Env:  env,
-	})
-	out <- result
-}
-
 func executor(watcher *WatcherHandler, commands <-chan command, out chan<- []byte) {
-	sendEnvironment(out)
-
 	for cmd := range commands {
 		globalWaitGroup.Add(1)
 		go processCommand(watcher, cmd, out)

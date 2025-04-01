@@ -33,26 +33,20 @@ expected_str<QString> run(const CommandLine &cmdLine, const QByteArray &inputDat
     return p.readAllStandardOutput().trimmed();
 }
 
-Result FileAccess::init(const FilePath &pathToBridge)
+Result FileAccess::init(const FilePath &pathToBridge, const Environment &environment)
 {
-    m_client = std::make_unique<Client>(pathToBridge);
+    m_environment = environment;
+    m_client = std::make_unique<Client>(pathToBridge, environment);
 
     auto startResult = m_client->start();
     if (!startResult)
         return Result::Error(QString("Could not start cmdbridge: %1").arg(startResult.error()));
 
-    try {
-        if (!startResult->isValid())
-            startResult->waitForFinished();
-        m_environment = startResult->takeResult();
-    } catch (const std::exception &e) {
-        return Result::Error(
-            Tr::tr("Error starting cmdbridge: %1").arg(QString::fromLocal8Bit(e.what())));
-    }
     return Result::Ok;
 }
 
-Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &remoteRootPath)
+Result FileAccess::deployAndInit(
+    const FilePath &libExecPath, const FilePath &remoteRootPath, const Environment &environment)
 {
     if (remoteRootPath.isEmpty())
         return Result::Error(Tr::tr("Remote root path is empty"));
@@ -136,10 +130,10 @@ Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &re
                 QString("Could not make temporary file executable: %1").arg(makeExecutable.error()));
         }
 
-        return init(remoteRootPath.withNewPath(*tmpFile));
+        return init(remoteRootPath.withNewPath(*tmpFile), environment);
     }
 
-    return init(*cmdBridgePath);
+    return init(*cmdBridgePath, environment);
 }
 
 bool FileAccess::isExecutableFile(const FilePath &filePath) const
@@ -567,12 +561,6 @@ Result FileAccess::renameFile(const FilePath &filePath, const FilePath &target) 
     return Result::Ok;
 }
 
-Environment FileAccess::deviceEnvironment() const
-{
-    return m_environment;
-}
-
-
 expected_str<std::unique_ptr<FilePathWatcher>> FileAccess::watch(const FilePath &filePath) const
 {
     return m_client->watch(filePath.nativePath());
@@ -670,5 +658,8 @@ void FileAccess::iterateDirectory(const FilePath &filePath,
 
     qCDebug(faLog) << "Iterated directory" << filePath.toUserOutput() << "in" << t.elapsed() << "ms";
 }
-
+Utils::Environment FileAccess::deviceEnvironment() const
+{
+    return m_environment;
+}
 } // namespace CmdBridge

@@ -28,9 +28,11 @@ public:
     ~FileAccess() override;
 
     Utils::Result deployAndInit(
-        const Utils::FilePath &libExecPath, const Utils::FilePath &remoteRootPath);
+        const Utils::FilePath &libExecPath,
+        const Utils::FilePath &remoteRootPath,
+        const Utils::Environment &environment);
 
-    Utils::Result init(const Utils::FilePath &pathToBridge);
+    Utils::Result init(const Utils::FilePath &pathToBridge, const Utils::Environment &environment);
 
     Utils::Result signalProcess(int pid, Utils::ControlSignal signal) const;
 
