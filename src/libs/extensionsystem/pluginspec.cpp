@@ -1414,9 +1414,6 @@ IPlugin::ShutdownFlag CppPluginSpec::stop()
 */
 void CppPluginSpec::kill()
 {
-    if (hasError())
-        return;
-
     if (!d->plugin)
         return;
     delete d->plugin;
