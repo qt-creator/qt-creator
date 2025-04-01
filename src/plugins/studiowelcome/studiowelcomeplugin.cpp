@@ -283,7 +283,7 @@ public:
 
     Q_INVOKABLE void openExample(const QString &examplePath,
                                  const QString &exampleName,
-                                 const QString &formFile,
+                                 const QString &,
                                  const QString &explicitQmlproject)
     {
         QTC_ASSERT(!exampleName.isEmpty(), return );
