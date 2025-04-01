@@ -144,6 +144,19 @@ private:
         int y = effectiveRect.y();
         int lineHeight = 0;
 
+        QList<QRect> geometries;
+        geometries.resize(itemList.size());
+        const auto setItemGeometries = [this,
+                                        &geometries](int count, int beforeIndex, int lineHeight) {
+            for (int j = 0; j < count; ++j) {
+                // Vertically center the items.
+                QLayoutItem *currentItem = itemList.at(beforeIndex - count + j);
+                const QRect geom = geometries.at(j);
+                currentItem->setGeometry(
+                    QRect(QPoint(geom.x(), geom.y() + (lineHeight - geom.height()) / 2), geom.size()));
+            }
+        };
+        int indexInRow = 0;
         for (int i = 0; i < itemList.size(); ++i) {
             QLayoutItem *item = itemList.at(i);
             QWidget *wid = item->widget();
@@ -158,6 +171,10 @@ private:
             }
             int nextX = x + item->sizeHint().width() + spaceX;
             if (nextX - spaceX > effectiveRect.right() && lineHeight > 0) {
+                // The item doesn't fit and it isn't the only one, finish the row.
+                if (!testOnly)
+                    setItemGeometries(/*count=*/indexInRow, /*beforeIndex=*/i, lineHeight);
+
                 int spaceY = verticalSpacing();
                 if (spaceY < 0) {
                     spaceY = wid->style()->layoutSpacing(
@@ -169,14 +186,18 @@ private:
                 y = y + lineHeight + spaceY;
                 nextX = x + item->sizeHint().width() + spaceX;
                 lineHeight = 0;
+                indexInRow = 0;
             }
-
-            if (!testOnly)
-                item->setGeometry(QRect(QPoint(x, y), item->sizeHint()));
+            geometries[indexInRow] = QRect(QPoint(x, y), item->sizeHint());
 
             x = nextX;
             lineHeight = qMax(lineHeight, item->sizeHint().height());
+            ++indexInRow;
         }
+        // Finish the last row.
+        if (!testOnly)
+            setItemGeometries(/*count=*/indexInRow, /*beforeIndex=*/itemList.size(), lineHeight);
+
         return y + lineHeight - rect.y() + bottom;
     }
 
