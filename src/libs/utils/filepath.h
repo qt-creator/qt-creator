@@ -255,6 +255,9 @@ public:
                                             const FilePathPredicate &filter = {},
                                             MatchScope matchScope = WithAnySuffix) const;
 
+    [[nodiscard]] static FilePaths fromSettingsList(const QVariant &variant);
+    [[nodiscard]] static QVariant toSettingsList(const FilePaths &filePaths);
+
     std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
 
     [[nodiscard]] expected_str<FilePath> tmpDir() const;

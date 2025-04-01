@@ -1543,6 +1543,16 @@ FilePath FilePath::fromSettings(const QVariant &variant)
     return FilePath::fromUserInput(data);
 }
 
+FilePaths FilePath::fromSettingsList(const QVariant &variant)
+{
+    return transform(variant.toList(), &FilePath::fromSettings);
+}
+
+QVariant FilePath::toSettingsList(const FilePaths &filePaths)
+{
+    return transform(filePaths, &FilePath::toSettings);
+}
+
 QVariant FilePath::toSettings() const
 {
     return toUrlishString();
