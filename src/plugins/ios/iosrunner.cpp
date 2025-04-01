@@ -100,6 +100,9 @@ struct AppInfo
     QUrl pathOnDevice;
     qint64 processIdentifier = -1;
     IosDevice::ConstPtr device;
+    FilePath bundlePath;
+    QString bundleIdentifier;
+    QStringList arguments;
 };
 
 class DeviceCtlRunnerBase : public RunWorker
@@ -115,7 +118,7 @@ protected:
     IosDevice::ConstPtr m_device;
 
 private:
-    virtual GroupItem launchTask(const QString &bundleIdentifier, const QStringList &arguments) = 0;
+    virtual GroupItem launchTask(const Storage<AppInfo> &appInfo) = 0;
 
     FilePath m_bundlePath;
     std::unique_ptr<TaskTree> m_startTask;
@@ -129,7 +132,7 @@ public:
     void stop();
 
 private:
-    GroupItem launchTask(const QString &bundleIdentifier, const QStringList &arguments);
+    GroupItem launchTask(const Storage<AppInfo> &appInfo);
     void checkProcess();
 
     qint64 m_processIdentifier = -1;
@@ -148,7 +151,7 @@ public:
     void setStartStopped(bool startStopped) { m_startStopped = startStopped; }
 
 private:
-    GroupItem launchTask(const QString &bundleIdentifier, const QStringList &arguments);
+    GroupItem launchTask(const Storage<AppInfo> &appInfo);
 
     Process m_process;
     std::unique_ptr<TemporaryFile> m_deviceCtlOutput;
@@ -166,11 +169,32 @@ DeviceCtlRunnerBase::DeviceCtlRunnerBase(RunControl *runControl)
     m_device = std::dynamic_pointer_cast<const IosDevice>(RunDeviceKitAspect::device(runControl->kit()));
 }
 
-static GroupItem findApp(RunControl *runControl, const QString &bundleIdentifier,
-                         const Storage<AppInfo> &appInfo)
+static GroupItem initSetup(RunControl *runControl, const Storage<AppInfo> &appInfo)
 {
-    const auto onSetup = [runControl, appInfo](Process &process) {
+    const auto onSetup = [runControl, appInfo] {
+        const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
+        if (!data)
+            return false;
+
+        appInfo->bundlePath = data->bundleDirectory;
+        appInfo->bundleIdentifier = getBundleIdentifier(appInfo->bundlePath);
+        if (appInfo->bundleIdentifier.isEmpty()) {
+            runControl->postMessage(Tr::tr("Failed to determine bundle identifier."), ErrorMessageFormat);
+            return false;
+        }
+        runControl->postMessage(Tr::tr("Running \"%1\" on %2...")
+            .arg(appInfo->bundlePath.toUserOutput(), runControl->device()->displayName()),
+            NormalMessageFormat);
         appInfo->device = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
+        appInfo->arguments = ProcessArgs::splitArgs(runControl->commandLine().arguments(), OsTypeMac);
+        return true;
+    };
+    return Sync(onSetup);
+}
+
+static GroupItem findApp(RunControl *runControl, const Storage<AppInfo> &appInfo)
+{
+    const auto onSetup = [appInfo](Process &process) {
         if (!appInfo->device)
             return SetupResult::StopWithSuccess; // don't block the following tasks
         process.setCommand({FilePath::fromString("/usr/bin/xcrun"),
@@ -185,13 +209,13 @@ static GroupItem findApp(RunControl *runControl, const QString &bundleIdentifier
                              "-"}});
         return SetupResult::Continue;
     };
-    const auto onDone = [runControl, bundleIdentifier, appInfo](const Process &process) {
+    const auto onDone = [runControl, appInfo](const Process &process) {
         if (process.error() != QProcess::UnknownError) {
             runControl->postMessage(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()),
                                     ErrorMessageFormat);
             return DoneResult::Error;
         }
-        const expected_str<QUrl> pathOnDevice = parseAppInfo(process.rawStdOut(), bundleIdentifier);
+        const expected_str<QUrl> pathOnDevice = parseAppInfo(process.rawStdOut(), appInfo->bundleIdentifier);
         if (pathOnDevice) {
             appInfo->pathOnDevice = *pathOnDevice;
             return DoneResult::Success;
@@ -258,9 +282,9 @@ static GroupItem killProcess(const Storage<AppInfo> &appInfo)
     return ProcessTask(onSetup, DoneResult::Success); // we tried our best and don't care at this point
 }
 
-GroupItem DeviceCtlPollingRunner::launchTask(const QString &bundleIdentifier, const QStringList &arguments)
+GroupItem DeviceCtlPollingRunner::launchTask(const Storage<AppInfo> &appInfo)
 {
-    const auto onSetup = [this, bundleIdentifier, arguments](Process &process) {
+    const auto onSetup = [this, appInfo](Process &process) {
         if (!m_device) {
             reportFailure(Tr::tr("Running failed. No iOS device found."));
             return SetupResult::StopWithError;
@@ -275,8 +299,8 @@ GroupItem DeviceCtlPollingRunner::launchTask(const QString &bundleIdentifier, co
                              "--quiet",
                              "--json-output",
                              "-",
-                             bundleIdentifier,
-                             arguments}});
+                             appInfo->bundleIdentifier,
+                             appInfo->arguments}});
         return SetupResult::Continue;
     };
     const auto onDone = [this](const Process &process, DoneWith result) {
@@ -312,16 +336,6 @@ void DeviceCtlRunnerBase::reportStoppedImpl()
 
 void DeviceCtlRunnerBase::start()
 {
-    const QString bundleIdentifier = getBundleIdentifier(m_bundlePath);
-    if (bundleIdentifier.isEmpty()) {
-        reportFailure(Tr::tr("Failed to determine bundle identifier."));
-        return;
-    }
-
-    appendMessage(Tr::tr("Running \"%1\" on %2...")
-                      .arg(m_bundlePath.toUserOutput(), runControl()->device()->displayName()),
-                  NormalMessageFormat);
-
     // If the app is already running, we should first kill it, then launch again.
     // Usually deployment already kills the running app, but we support running without
     // deployment. Restarting is then e.g. needed if the app arguments changed.
@@ -331,15 +345,15 @@ void DeviceCtlRunnerBase::start()
     // Check if a process is running for that path, and get its processIdentifier.
     // Try to kill that.
     // Then launch the app (again).
-    const QStringList args = ProcessArgs::splitArgs(runControl()->commandLine().arguments(), OsTypeMac);
     const Storage<AppInfo> appInfo;
     m_startTask.reset(new TaskTree(Group{
         sequential,
         appInfo,
-        findApp(runControl(), bundleIdentifier, appInfo),
+        initSetup(runControl(), appInfo),
+        findApp(runControl(), appInfo),
         findProcess(runControl(), appInfo),
         killProcess(appInfo),
-        launchTask(bundleIdentifier, args)}));
+        launchTask(appInfo)}));
     m_startTask->start();
 }
 
@@ -445,9 +459,9 @@ void DeviceCtlRunner::stop()
         m_process.stop();
 }
 
-GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier, const QStringList &arguments)
+GroupItem DeviceCtlRunner::launchTask(const Storage<AppInfo> &appInfo)
 {
-    const auto onSetup = [this, bundleIdentifier, arguments] {
+    const auto onSetup = [this, appInfo] {
         if (!m_device) {
             reportFailure(Tr::tr("Running failed. No iOS device found."));
             return false;
@@ -465,23 +479,24 @@ GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier, const QSt
                                       "process",
                                       "launch",
                                       "--device",
-                                      m_device->uniqueInternalDeviceId(),
+                                      appInfo->device->uniqueInternalDeviceId(),
                                       "--quiet",
                                       "--json-output",
                                       m_deviceCtlOutput->fileName()})
                                  + startStoppedArg
-                                 + QStringList({"--console", bundleIdentifier}) + arguments;
+                                 + QStringList({"--console", appInfo->bundleIdentifier})
+                                 + appInfo->arguments;
         m_process.setCommand({FilePath::fromString("/usr/bin/xcrun"), args});
-        connect(&m_process, &Process::started, this, [this, bundleIdentifier] {
+        connect(&m_process, &Process::started, this, [this, appInfoCopy = *appInfo] {
             // devicectl does report the process ID in its json output, but that is broken
             // for --console. When that is used, the json output is only written after the process
             // finished, which is not helpful.
             // Manually find the process ID for the bundle identifier.
-            Storage<AppInfo> appInfo;
+            const Storage<AppInfo> appInfo{appInfoCopy};
             m_processIdTask.reset(new TaskTree(Group{
                 sequential,
                 appInfo,
-                findApp(runControl(), bundleIdentifier, appInfo),
+                findApp(runControl(), appInfo),
                 findProcess(runControl(), appInfo),
                 onGroupDone([this, appInfo](DoneWith doneWith) {
                     if (doneWith == DoneWith::Success) {
