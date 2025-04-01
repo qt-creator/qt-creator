@@ -144,20 +144,27 @@ private:
         int y = effectiveRect.y();
         int lineHeight = 0;
 
-        for (QLayoutItem *item : itemList) {
+        for (int i = 0; i < itemList.size(); ++i) {
+            QLayoutItem *item = itemList.at(i);
             QWidget *wid = item->widget();
             int spaceX = horizontalSpacing();
-            if (spaceX == -1) {
-                spaceX = wid->style()->layoutSpacing(
-                    QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal);
-            }
-            int spaceY = verticalSpacing();
-            if (spaceY == -1) {
-                spaceY = wid->style()->layoutSpacing(
-                    QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Vertical);
+            if (spaceX < 0) {
+                if (i < itemList.size() - 1) {
+                    spaceX = wid->style()->combinedLayoutSpacing(
+                        item->controlTypes(), itemList.at(i + 1)->controlTypes(), Qt::Horizontal);
+                }
+                if (spaceX < 0)
+                    spaceX = 0;
             }
             int nextX = x + item->sizeHint().width() + spaceX;
             if (nextX - spaceX > effectiveRect.right() && lineHeight > 0) {
+                int spaceY = verticalSpacing();
+                if (spaceY < 0) {
+                    spaceY = wid->style()->layoutSpacing(
+                        QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Vertical);
+                }
+                if (spaceY < 0)
+                    spaceY = 0;
                 x = effectiveRect.x();
                 y = y + lineHeight + spaceY;
                 nextX = x + item->sizeHint().width() + spaceX;
@@ -173,6 +180,7 @@ private:
         return y + lineHeight - rect.y() + bottom;
     }
 
+    // see qboxlayout.cpp qSmartSpacing
     int smartSpacing(QStyle::PixelMetric pm) const
     {
         QObject *parent = this->parent();
