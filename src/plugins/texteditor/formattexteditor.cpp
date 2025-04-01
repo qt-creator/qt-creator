@@ -87,12 +87,12 @@ static FormatOutput format(const FormatInput &input)
             return Utils::make_unexpected(executable.toUserOutput() + ": " + output);
 
         // Read text back
-        Utils::FileReader reader;
-        if (!reader.fetch(sourceFile.filePath())) {
+        const expected_str<QByteArray> contents = sourceFile.filePath().fileContents();
+        if (!contents) {
             return Utils::make_unexpected(Tr::tr("Cannot read file \"%1\": %2.")
-                         .arg(sourceFile.filePath().toUserOutput(), reader.errorString()));
+                         .arg(sourceFile.filePath().toUserOutput(), contents.error()));
         }
-        return QString::fromUtf8(reader.text());
+        return QString::fromUtf8(*contents);
     }
 
     case Command::PipeProcessing: {
