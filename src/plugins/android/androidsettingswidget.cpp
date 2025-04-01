@@ -19,6 +19,7 @@
 
 #include <utils/async.h>
 #include <utils/detailswidget.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -342,14 +343,14 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     connect(m_ndkListWidget, &QListWidget::currentTextChanged,
             this, [this, removeCustomNdkButton](const QString &ndk) {
         updateUI();
-        removeCustomNdkButton->setEnabled(AndroidConfig::getCustomNdkList().contains(ndk));
+        removeCustomNdkButton->setEnabled(AndroidConfig::getCustomNdkList().contains(FilePath::fromUserInput(ndk)));
     });
     connect(addCustomNdkButton, &QPushButton::clicked, this,
             &AndroidSettingsWidget::addCustomNdkItem);
     connect(removeCustomNdkButton, &QPushButton::clicked, this, [this] {
         if (isDefaultNdkSelected())
             AndroidConfig::setDefaultNdk({});
-        AndroidConfig::removeCustomNdk(m_ndkListWidget->currentItem()->text());
+        AndroidConfig::removeCustomNdk(FilePath::fromUserInput(m_ndkListWidget->currentItem()->text()));
         m_ndkListWidget->takeItem(m_ndkListWidget->currentRow());
     });
     connect(m_makeDefaultNdkButton, &QPushButton::clicked, this, [this] {
@@ -431,10 +432,10 @@ void AndroidSettingsWidget::updateNdkList()
                                                         ndk->installedLocation().toUserOutput()));
     }
 
-    const auto customNdks = AndroidConfig::getCustomNdkList();
-    for (const QString &ndk : customNdks) {
+    const FilePaths customNdks = AndroidConfig::getCustomNdkList();
+    for (const FilePath &ndk : customNdks) {
         if (AndroidConfig::isValidNdk(ndk)) {
-            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndk));
+            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndk.toUrlishString()));
         } else {
             AndroidConfig::removeCustomNdk(ndk);
         }
@@ -445,14 +446,14 @@ void AndroidSettingsWidget::updateNdkList()
 
 void AndroidSettingsWidget::addCustomNdkItem()
 {
-    const QString homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation)
-            .constFirst();
-    const QString ndkPath = QFileDialog::getExistingDirectory(this, Tr::tr("Select an NDK"), homePath);
+    const FilePath homePath = FilePath::fromUserInput(QStandardPaths::standardLocations(QStandardPaths::HomeLocation)
+            .constFirst());
+    const FilePath ndkPath = FileUtils::getExistingDirectory(Tr::tr("Select an NDK"), homePath);
 
     if (AndroidConfig::isValidNdk(ndkPath)) {
         AndroidConfig::addCustomNdk(ndkPath);
-        if (m_ndkListWidget->findItems(ndkPath, Qt::MatchExactly).size() == 0) {
-            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndkPath));
+        if (m_ndkListWidget->findItems(ndkPath.toUrlishString(), Qt::MatchExactly).size() == 0) {
+            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndkPath.toUrlishString()));
         }
     } else if (!ndkPath.isEmpty()) {
         QMessageBox::warning(

@@ -33,7 +33,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcprocess.h>
@@ -42,7 +41,6 @@
 #include <utils/stringutils.h>
 
 #include <QApplication>
-#include <QDirIterator>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -237,7 +235,7 @@ struct AndroidConfigData
     QByteArray m_sdkToolsSha256;
     QStringList m_commonEssentialPkgs;
     QList<SdkForQtVersions> m_specificQtVersions;
-    QStringList m_customNdkList;
+    FilePaths m_customNdkList;
     FilePath m_defaultNdk;
     bool m_sdkFullyConfigured = false;
     QHash<QString, QString> m_serialNumberToDeviceName; // cache
@@ -302,13 +300,12 @@ void AndroidConfigData::load(const QtcSettings &settings)
     if (emulatorArgs.typeId() == QMetaType::QStringList) // Changed in 8.0 from QStringList to QString.
         emulatorArgs = ProcessArgs::joinArgs(emulatorArgs.toStringList());
     m_emulatorArgs = emulatorArgs.toString();
-    m_sdkLocation = FilePath::fromUserInput(settings.value(SDKLocationKey).toString()).cleanPath();
-    m_customNdkList = settings.value(CustomNdkLocationsKey).toStringList();
-    m_defaultNdk =
-            FilePath::fromUserInput(settings.value(DefaultNdkLocationKey).toString()).cleanPath();
+    m_sdkLocation = FilePath::fromSettings(settings.value(SDKLocationKey)).cleanPath();
+    m_customNdkList = FilePath::fromSettingsList(settings.value(CustomNdkLocationsKey));
+    m_defaultNdk = FilePath::fromSettings(settings.value(DefaultNdkLocationKey)).cleanPath();
     m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
-    m_openJDKLocation = FilePath::fromString(settings.value(OpenJDKLocationKey).toString());
-    m_openSslLocation = FilePath::fromString(settings.value(OpenSslPriLocationKey).toString());
+    m_openJDKLocation = FilePath::fromSettings(settings.value(OpenJDKLocationKey));
+    m_openSslLocation = FilePath::fromSettings(settings.value(OpenSslPriLocationKey));
     m_automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
     m_sdkFullyConfigured = settings.value(SdkFullyConfiguredKey, false).toBool();
 
@@ -319,7 +316,7 @@ void AndroidConfigData::load(const QtcSettings &settings)
         m_sdkLocation = FilePath::fromSettings(
                             reader.restoreValue(SDKLocationKey, m_sdkLocation.toSettings()))
                             .cleanPath();
-        m_customNdkList = reader.restoreValue(CustomNdkLocationsKey).toStringList();
+        m_customNdkList = FilePath::fromSettingsList(reader.restoreValue(CustomNdkLocationsKey));
         m_sdkManagerToolArgs = reader.restoreValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs).toStringList();
         m_openJDKLocation = FilePath::fromSettings(
             reader.restoreValue(OpenJDKLocationKey, m_openJDKLocation.toSettings()));
@@ -347,7 +344,7 @@ void AndroidConfigData::save(QtcSettings &settings) const
 
     // user settings
     settings.setValue(SDKLocationKey, m_sdkLocation.toSettings());
-    settings.setValue(CustomNdkLocationsKey, m_customNdkList);
+    settings.setValue(CustomNdkLocationsKey, FilePath::toSettingsList(m_customNdkList));
     settings.setValue(DefaultNdkLocationKey, m_defaultNdk.toSettings());
     settings.setValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs);
     settings.setValue(OpenJDKLocationKey, m_openJDKLocation.toSettings());
@@ -499,24 +496,36 @@ static QList<int> availableNdkPlatforms(const QtVersion *qtVersion)
                                      HostOsInfo::hostOs());
 }
 
-QStringList getCustomNdkList() { return config().m_customNdkList; }
+FilePaths getCustomNdkList()
+{
+    return config().m_customNdkList;
+}
 
-void addCustomNdk(const QString &customNdk)
+void addCustomNdk(const FilePath &customNdk)
 {
     if (!config().m_customNdkList.contains(customNdk))
         config().m_customNdkList.append(customNdk);
 }
 
-void removeCustomNdk(const QString &customNdk)
+void removeCustomNdk(const FilePath &customNdk)
 {
     config().m_customNdkList.removeAll(customNdk);
 }
 
-void setDefaultNdk(const FilePath &defaultNdk) { config().m_defaultNdk = defaultNdk; }
+void setDefaultNdk(const FilePath &defaultNdk)
+{
+    config().m_defaultNdk = defaultNdk;
+}
 
-FilePath defaultNdk() { return config().m_defaultNdk; }
+FilePath defaultNdk()
+{
+    return config().m_defaultNdk;
+}
 
-FilePath openSslLocation() { return config().m_openSslLocation; }
+FilePath openSslLocation()
+{
+    return config().m_openSslLocation;
+}
 
 void setOpenSslLocation(const FilePath &openSslLocation)
 {
@@ -735,10 +744,8 @@ QStringList getAbis(const QString &device)
     return result;
 }
 
-bool isValidNdk(const QString &ndkLocation)
+bool isValidNdk(const FilePath &ndkPath)
 {
-    const FilePath ndkPath = FilePath::fromUserInput(ndkLocation);
-
     if (!ndkPath.exists() || !ndkPath.pathAppended("toolchains").exists())
         return false;
 
@@ -1247,7 +1254,7 @@ void AndroidConfigurations::removeUnusedDebuggers()
             uniqueNdks.append(ndkLocation);
     }
 
-    uniqueNdks.append(FileUtils::toFilePathList(AndroidConfig::getCustomNdkList()));
+    uniqueNdks.append(AndroidConfig::getCustomNdkList());
 
     const QList<Debugger::DebuggerItem> allDebuggers = Debugger::DebuggerItemManager::debuggers();
     for (const Debugger::DebuggerItem &debugger : allDebuggers) {
@@ -1338,7 +1345,7 @@ void AndroidConfigurations::registerCustomToolchainsAndDebuggers()
     const Toolchains existingAndroidToolchains = ToolchainManager::toolchains(
         Utils::equal(&Toolchain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
-    const FilePaths customNdks = FileUtils::toFilePathList(AndroidConfig::getCustomNdkList());
+    const FilePaths customNdks = AndroidConfig::getCustomNdkList();
     const Toolchains customToolchains
         = autodetectToolchainsFromNdks(existingAndroidToolchains, customNdks, true);
 
