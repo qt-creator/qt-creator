@@ -79,8 +79,8 @@ public:
     static void clearParentheses(const QTextBlock &block) { setParentheses(block, Parentheses());}
     static Parentheses parentheses(const QTextBlock &block);
     static bool hasParentheses(const QTextBlock &block);
-    static bool setIfdefedOut(const QTextBlock &block);
-    static bool clearIfdefedOut(const QTextBlock &block);
+    static void setIfdefedOut(const QTextBlock &block);
+    static void clearIfdefedOut(const QTextBlock &block);
     static bool ifdefedOut(const QTextBlock &block);
     static int braceDepthDelta(const QTextBlock &block);
     static int braceDepth(const QTextBlock &block);

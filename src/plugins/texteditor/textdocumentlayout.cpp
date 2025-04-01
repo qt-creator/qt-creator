@@ -380,16 +380,15 @@ bool TextBlockUserData::hasParentheses(const QTextBlock &block)
     return false;
 }
 
-bool TextBlockUserData::setIfdefedOut(const QTextBlock &block)
+void TextBlockUserData::setIfdefedOut(const QTextBlock &block)
 {
-    return userData(block)->m_ifdefedOut = true;
+    userData(block)->m_ifdefedOut = true;
 }
 
-bool TextBlockUserData::clearIfdefedOut(const QTextBlock &block)
+void TextBlockUserData::clearIfdefedOut(const QTextBlock &block)
 {
     if (TextBlockUserData *userData = textUserData(block))
-        return userData->m_ifdefedOut = false;
-    return false;
+        userData->m_ifdefedOut = false;
 }
 
 bool TextBlockUserData::ifdefedOut(const QTextBlock &block)
