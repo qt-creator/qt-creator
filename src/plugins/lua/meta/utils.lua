@@ -18,6 +18,11 @@ function utils.waitms_cb(ms, callback) end
 ---@return QString Arbitrary UUID string.
 function utils.createUuid() end
 
+---Converts a given shortcut string into its native representation for the current platform.
+---@param shortcut string The shortcut string (e.g., "Ctrl+Shift+A").
+---@return QString The native representation of the shortcut.
+function utils.getNativeShortcut(shortcut) end
+
 ---@class Id
 utils.Id = {}
 

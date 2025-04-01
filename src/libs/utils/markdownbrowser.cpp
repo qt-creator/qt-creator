@@ -29,6 +29,8 @@
 #include <QTextBlock>
 #include <QTextBrowser>
 #include <QTextDocument>
+#include <QTextDocumentFragment>
+#include <QTextDocumentWriter>
 #include <QTextObjectInterface>
 
 namespace Utils {
@@ -860,6 +862,31 @@ void MarkdownBrowser::mousePressEvent(QMouseEvent *event)
         }
     }
     QTextBrowser::mousePressEvent(event);
+}
+
+QMimeData *MarkdownBrowser::createMimeDataFromSelection() const
+{
+    // Basically a copy of QTextEditMimeData::setup, just replacing the object markers.
+    QMimeData *mimeData = new QMimeData;
+    QTextDocumentFragment fragment(textCursor());
+
+    static const auto removeObjectChar = [](QString &&text) {
+        return text.replace(QChar::ObjectReplacementCharacter, "");
+    };
+
+    mimeData->setData("text/html", removeObjectChar(fragment.toHtml()).toUtf8());
+    mimeData->setData("text/markdown", removeObjectChar(fragment.toMarkdown()).toUtf8());
+    {
+        QBuffer buffer;
+        QTextDocumentWriter writer(&buffer, "ODF");
+        if (writer.write(fragment)) {
+            buffer.close();
+            mimeData->setData("application/vnd.oasis.opendocument.text", buffer.data());
+        }
+    }
+    mimeData->setText(removeObjectChar(fragment.toPlainText()));
+
+    return mimeData;
 }
 
 } // namespace Utils

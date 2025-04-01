@@ -93,6 +93,10 @@ void setupUtilsModule()
 
             utils.set_function("createUuid", []() { return QUuid::createUuid().toString(); });
 
+            utils.set_function("getNativeShortcut", [](QString shortcut) {
+                return QKeySequence::fromString(shortcut).toString(QKeySequence::NativeText);
+            });
+
             sol::function wrap = async["wrap"].get<sol::function>();
 
             utils["waitms"] = wrap(utils["waitms_cb"]);
