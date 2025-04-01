@@ -255,7 +255,7 @@ public:
         m_crashReportsSizeText->setToolTip(s.enableCrashReporting.toolTip());
         auto crashReportsMenu = new QMenu(m_crashReportsMenuButton);
         m_crashReportsMenuButton->setMenu(crashReportsMenu);
-        crashDetails.addItems({m_clearCrashReportsButton, m_crashReportsSizeText});
+        crashDetails.addItems({m_crashReportsMenuButton, m_crashReportsSizeText});
 #endif // CRASHREPORTING_USES_CRASHPAD
         crashDetails.addItem(helpCrashReportingButton);
         if (qtcEnvironmentVariableIsSet("QTC_SHOW_CRASHBUTTON")) {
@@ -303,9 +303,10 @@ public:
                ICore::crashReportsPath() / "new"};
 
         auto openLocationAction = new QAction(Tr::tr("Go to crash reports"));
-        connect(openLocationAction, &QAction::triggered, this, [this, reportsPath] {
-            if (!QDesktopServices::openUrl(reportsPath.toUrl())) {
-                qWarning() << "Failed to open path:" << reportsPath;
+        connect(openLocationAction, &QAction::triggered, this, [reportsPaths] {
+            const FilePath path = reportsPaths.first().parentDir();
+            if (!QDesktopServices::openUrl(path.toUrl())) {
+                qWarning() << "Failed to open path:" << path;
             }
         });
         crashReportsMenu->addAction(openLocationAction);
@@ -314,6 +315,7 @@ public:
         crashReportsMenu->addAction(clearAction);
 
         const auto updateClearCrashWidgets = [this, reportsPaths] {
+            qint64 size = 0;
             FilePath::iterateDirectories(
                 reportsPaths,
                 [&size](const FilePath &item) {
