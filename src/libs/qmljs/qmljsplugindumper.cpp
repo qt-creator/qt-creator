@@ -16,7 +16,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QDir>
-#include <QDirIterator>
 #include <QRegularExpression>
 
 using namespace LanguageUtils;
@@ -331,9 +330,9 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
         PluginDumper::QmlTypeDescription result;
 
         for (const FilePath &p: paths) {
-            Utils::FileReader reader;
-            if (!reader.fetch(p)) {
-                result.errors += reader.errorString();
+            const expected_str<QByteArray> contents = p.fileContents();
+            if (!contents) {
+                result.errors += contents.error();
                 continue;
             }
             QString error;
@@ -341,8 +340,8 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
             CppQmlTypesLoader::BuiltinObjects objs;
             QList<ModuleApiInfo> apis;
             QStringList deps;
-            CppQmlTypesLoader::parseQmlTypeDescriptions(reader.text(), &objs, &apis, &deps,
-                                                        &error, &warning, p.toUrlishString());
+            CppQmlTypesLoader::parseQmlTypeDescriptions(*contents, &objs, &apis, &deps,
+                                                        &error, &warning, p.toFSPathString());
             if (!error.isEmpty()) {
                 result.errors += Tr::tr("Failed to parse \"%1\".\nError: %2").arg(p.toUserOutput(), error);
             } else {
