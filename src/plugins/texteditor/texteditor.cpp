@@ -836,6 +836,7 @@ public:
     void transformSelection(TransformationMethod method);
 
     void slotUpdateExtraAreaWidth(std::optional<int> width = {});
+    void slotUpdateBlockCount();
     void slotUpdateRequest(const QRect &r, int dy);
     void slotUpdateBlockNotify(const QTextBlock &);
     void updateTabStops();
@@ -850,6 +851,7 @@ public:
     void setupScrollBar();
     void highlightSearchResultsInScrollBar();
     void scheduleUpdateHighlightScrollBar();
+    void slotFoldChanged(const int blockNumber, bool folded);
     void updateHighlightScrollBarNow();
     struct SearchResult {
         int start;
@@ -953,6 +955,7 @@ public:
     TextEditorOverlay *m_selectionHighlightOverlay = nullptr;
     bool snippetCheckCursor(const QTextCursor &cursor);
     void snippetTabOrBacktab(bool forward);
+    QSet<int> m_foldedBlockCache;
 
     struct AnnotationRect
     {
@@ -1275,7 +1278,8 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     connect(&m_codeAssistant, &CodeAssistant::finished,
             q, &TextEditorWidget::assistFinished);
 
-    connect(q, &PlainTextEdit::blockCountChanged, this, [this] { slotUpdateExtraAreaWidth(); });
+    connect(q, &PlainTextEdit::blockCountChanged,
+            this, &TextEditorWidgetPrivate::slotUpdateBlockCount);
 
     connect(q, &PlainTextEdit::modificationChanged,
             m_extraArea, QOverload<>::of(&QWidget::update));
@@ -1545,6 +1549,11 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
                                      &TextDocumentLayout::updateExtraArea,
                                      m_extraArea,
                                      QOverload<>::of(&QWidget::update));
+
+    m_documentConnections << connect(documentLayout,
+                                     &TextDocumentLayout::foldChanged,
+                                     this,
+                                     &TextEditorWidgetPrivate::slotFoldChanged);
 
     m_documentConnections << connect(q,
                                      &TextEditorWidget::requestBlockUpdate,
@@ -3755,19 +3764,7 @@ QByteArray TextEditorWidget::saveState() const
     convertPosition(textCursor().position(), &line, &column);
     stream << line;
     stream << column;
-
-    // store code folding state
-    QList<int> foldedBlocks;
-    QTextBlock block = document()->firstBlock();
-    while (block.isValid()) {
-        if (TextBlockUserData::isFolded(block)) {
-            int number = block.blockNumber();
-            foldedBlocks += number;
-        }
-        block = block.next();
-    }
-    stream << foldedBlocks;
-
+    stream << d->m_foldedBlockCache;
     stream << firstVisibleBlockNumber();
     stream << lastVisibleBlockNumber();
 
@@ -3817,7 +3814,7 @@ void TextEditorWidget::restoreState(const QByteArray &state)
     stream >> columnVal;
 
     if (version >= 1) {
-        QList<int> collapsedBlocks;
+        QSet<int> collapsedBlocks;
         stream >> collapsedBlocks;
         auto foldingRestore = [this, collapsedBlocks] {
             QTextDocument *doc = document();
@@ -6612,6 +6609,18 @@ void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth(std::optional<int> width)
         q->setViewportMargins(margins);
 }
 
+void TextEditorWidgetPrivate::slotUpdateBlockCount()
+{
+    slotUpdateExtraAreaWidth();
+    m_foldedBlockCache.clear();
+    QTextBlock block = q->document()->firstBlock();
+    while (block.isValid()) {
+        if (TextBlockUserData::isFolded(block))
+            m_foldedBlockCache += block.blockNumber();
+        block = block.next();
+    }
+}
+
 struct Internal::ExtraAreaPaintEventData
 {
     ExtraAreaPaintEventData(const TextEditorWidget *editor, TextEditorWidgetPrivate *d)
@@ -8276,6 +8285,14 @@ void TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar()
     m_scrollBarUpdateScheduled = true;
     QMetaObject::invokeMethod(this, &TextEditorWidgetPrivate::updateHighlightScrollBarNow,
                               Qt::QueuedConnection);
+}
+
+void TextEditorWidgetPrivate::slotFoldChanged(const int blockNumber, bool folded)
+{
+    if (folded)
+        m_foldedBlockCache.insert(blockNumber);
+    else
+        m_foldedBlockCache.remove(blockNumber);
 }
 
 Highlight::Priority textMarkPrioToScrollBarPrio(const TextMark::Priority &prio)
