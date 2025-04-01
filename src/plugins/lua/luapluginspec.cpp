@@ -159,6 +159,9 @@ ExtensionSystem::IPlugin::ShutdownFlag LuaPluginSpec::stop()
 
 void LuaPluginSpec::kill()
 {
+    if (!d->activeLuaState)
+        return;
+
     d->activeLuaState.reset();
     setState(PluginSpec::State::Deleted);
 }
