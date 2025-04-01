@@ -204,7 +204,7 @@ public:
 
     QByteArray rawData;
     QString incompleteLineBuffer; // lines not yet signaled
-    QTextCodec *codec = nullptr; // Not owner
+    const QTextCodec *codec = nullptr; // Not owner
     std::unique_ptr<QTextCodec::ConverterState> codecState;
     std::function<void(const QString &lines)> outputCallback;
     TextChannelMode m_textChannelMode = TextChannelMode::Off;
@@ -726,8 +726,8 @@ public:
     qint64 m_applicationMainThreadId = 0;
     ProcessResultData m_resultData;
 
-    QTextCodec *m_stdOutCodec = nullptr;
-    QTextCodec *m_stdErrCodec = nullptr;
+    const QTextCodec *m_stdOutCodec = nullptr;
+    const QTextCodec *m_stdErrCodec = nullptr;
 
     ProcessResult m_result = ProcessResult::StartFailed;
     ChannelBuffer m_stdOut;
@@ -1756,7 +1756,7 @@ void ChannelBuffer::handleRest()
     }
 }
 
-void Process::setCodec(QTextCodec *codec)
+void Process::setCodec(const QTextCodec *codec)
 {
     QTC_ASSERT(codec, return);
     d->m_stdOutCodec = codec;
