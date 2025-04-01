@@ -55,13 +55,13 @@ QStringList fixGeneratorScript(const QString &configFile, QString binary)
 }
 
 // Helper for running the optional generation script.
-static bool
+static Result
     runGenerationScriptHelper(const FilePath &workingDirectory,
                               const QStringList &script,
                               const QList<GeneratorScriptArgument> &argumentsIn,
                               bool dryRun,
                               const QMap<QString, QString> &fieldMap,
-                              QString *stdOut /* = 0 */, QString *errorMessage)
+                              QString *stdOut /* = 0 */)
 {
     Utils::Process process;
     const QString binary = script.front();
@@ -95,20 +95,20 @@ static bool
     using namespace std::chrono_literals;
     process.runBlocking(30s, EventLoopMode::On);
     if (process.result() != Utils::ProcessResult::FinishedWithSuccess) {
-        *errorMessage = QString("Generator script failed: %1").arg(process.exitMessage());
+        QString errorMessage = QString("Generator script failed: %1").arg(process.exitMessage());
         const QString stdErr = process.cleanedStdErr();
         if (!stdErr.isEmpty()) {
-            errorMessage->append(QLatin1Char('\n'));
-            errorMessage->append(stdErr);
+            errorMessage.append(QLatin1Char('\n'));
+            errorMessage.append(stdErr);
         }
-        return false;
+        return Result::Error(errorMessage);
     }
     if (stdOut) {
         *stdOut = process.cleanedStdOut();
         if (CustomWizard::verbose())
             qDebug("Output: '%s'\n", qPrintable(*stdOut));
     }
-    return true;
+    return Result::Ok;
 }
 
 /*!
@@ -127,9 +127,12 @@ Core::GeneratedFiles
 {
     // Run in temporary directory as the target path may not exist yet.
     QString stdOut;
-    if (!runGenerationScriptHelper(Utils::TemporaryDirectory::masterDirectoryFilePath(),
-                                   script, arguments, true, fieldMap, &stdOut, errorMessage))
+    const Result res = runGenerationScriptHelper(Utils::TemporaryDirectory::masterDirectoryFilePath(),
+                                                 script, arguments, true, fieldMap, &stdOut);
+    if (!res) {
+        *errorMessage = res.error();
         return Core::GeneratedFiles();
+    }
     Core::GeneratedFiles files;
     // Parse the output consisting of lines with ',' separated tokens.
     // (file name + attributes matching those of the <file> element)
@@ -204,15 +207,13 @@ Core::GeneratedFiles
     \sa dryRunCustomWizardGeneratorScript, ProjectExplorer::CustomWizard
  */
 
-bool runCustomWizardGeneratorScript(const QString &targetPath,
-                                    const QStringList &script,
-                                    const QList<GeneratorScriptArgument> &arguments,
-                                    const QMap<QString, QString> &fieldMap,
-                                    QString *errorMessage)
+Result runCustomWizardGeneratorScript(const QString &targetPath,
+                                      const QStringList &script,
+                                      const QList<GeneratorScriptArgument> &arguments,
+                                      const QMap<QString, QString> &fieldMap)
 {
     return runGenerationScriptHelper(FilePath::fromString(targetPath), script, arguments,
-                                     false, fieldMap,
-                                     nullptr, errorMessage);
+                                     false, fieldMap, nullptr);
 }
 
 } // namespace Internal

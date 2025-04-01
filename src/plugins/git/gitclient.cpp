@@ -1593,9 +1593,8 @@ bool GitClient::synchronousAddGitignore(const FilePath &workingDirectory)
 
     Core::GeneratedFile gitIgnoreFile(gitIgnoreDestination);
     gitIgnoreFile.setBinaryContents(gitIgnoreTemplate.fileContents().value());
-    QString errorMessage;
-    if (!gitIgnoreFile.write(&errorMessage)) {
-        VcsOutputWindow::appendError(errorMessage);
+    if (const Result res = gitIgnoreFile.write(); !res) {
+        VcsOutputWindow::appendError(res.error());
         return false;
     }
 

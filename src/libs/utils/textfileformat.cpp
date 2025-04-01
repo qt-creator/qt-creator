@@ -333,9 +333,9 @@ TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCode
     returns an error message, \a errorString.
 */
 
-bool TextFileFormat::writeFile(const FilePath &filePath, QString plainText, QString *errorString) const
+Result TextFileFormat::writeFile(const FilePath &filePath, QString plainText) const
 {
-    QTC_ASSERT(m_codec, return false);
+    QTC_ASSERT(m_codec, return Result::Error("No codec"));
 
     // Does the user want CRLF? If that is native,
     // do not let QFile do the work, because it replaces the line ending after the text was encoded,
@@ -350,11 +350,13 @@ bool TextFileFormat::writeFile(const FilePath &filePath, QString plainText, QStr
             saver.write("\xef\xbb\xbf", 3);
         saver.write(m_codec->fromUnicode(plainText));
     }
-    const bool ok = saver.finalize(errorString);
+
+    QString errorString;
+    const bool ok = saver.finalize(&errorString);
     if (debug)
         qDebug().nospace() << Q_FUNC_INFO << filePath << ' ' << *this <<  ' ' << plainText.size()
                            << " bytes, returns " << ok;
-    return ok;
+    return ok ? Result::Ok : Result::Error(errorString);
 }
 
 } // namespace Utils

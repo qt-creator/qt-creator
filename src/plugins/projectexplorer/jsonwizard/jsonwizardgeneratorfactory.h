@@ -25,7 +25,7 @@ public:
                                           const Utils::FilePath &wizardDir, const Utils::FilePath &projectDir,
                                           QString *errorMessage) = 0;
     virtual bool formatFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
-    virtual bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
+    virtual Utils::Result writeFile(const JsonWizard *wizard, Core::GeneratedFile *file);
     virtual bool postWrite(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
     virtual bool polish(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
     virtual bool allDone(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage);
@@ -36,7 +36,7 @@ public:
     static OverwriteResult promptForOverwrite(JsonWizard::GeneratorFiles *files, QString *errorMessage);
 
     static bool formatFiles(const JsonWizard *wizard, QList<JsonWizard::GeneratorFile> *files, QString *errorMessage);
-    static bool writeFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage);
+    static Utils::Result writeFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files);
     static bool postWrite(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage);
     static bool polish(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage);
     static bool allDone(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage);

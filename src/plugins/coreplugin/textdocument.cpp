@@ -24,14 +24,17 @@
 
 enum { debug = 0 };
 
+using namespace Utils;
+
 namespace Core {
 
 namespace Internal {
+
 class TextDocumentPrivate
 {
 public:
-    Utils::TextFileFormat m_format;
-    Utils::TextFileFormat::ReadResult m_readResult = Utils::TextFileFormat::ReadSuccess;
+    TextFileFormat m_format;
+    TextFileFormat::ReadResult m_readResult = TextFileFormat::ReadSuccess;
     QByteArray m_decodingErrorSample;
     bool m_supportsUtf8Bom = true;
 };
@@ -52,7 +55,7 @@ BaseTextDocument::~BaseTextDocument()
 
 bool BaseTextDocument::hasDecodingError() const
 {
-    return d->m_readResult == Utils::TextFileFormat::ReadEncodingError;
+    return d->m_readResult == TextFileFormat::ReadEncodingError;
 }
 
 QByteArray BaseTextDocument::decodingErrorSample() const
@@ -70,11 +73,9 @@ QByteArray BaseTextDocument::decodingErrorSample() const
     Returns whether the operation was successful.
 */
 
-bool BaseTextDocument::write(const Utils::FilePath &filePath,
-                             const QString &data,
-                             QString *errorMessage) const
+Result BaseTextDocument::write(const FilePath &filePath, const QString &data) const
 {
-    return write(filePath, format(), data, errorMessage);
+    return write(filePath, format(), data);
 }
 
 /*!
@@ -87,14 +88,13 @@ bool BaseTextDocument::write(const Utils::FilePath &filePath,
     Returns whether the operation was successful.
 */
 
-bool BaseTextDocument::write(const Utils::FilePath &filePath,
-                             const Utils::TextFileFormat &format,
-                             const QString &data,
-                             QString *errorMessage) const
+Result BaseTextDocument::write(const FilePath &filePath,
+                               const TextFileFormat &format,
+                               const QString &data) const
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << filePath;
-    return format.writeFile(filePath, data, errorMessage);
+    return format.writeFile(filePath, data);
 }
 
 void BaseTextDocument::setSupportsUtf8Bom(bool value)
@@ -102,7 +102,7 @@ void BaseTextDocument::setSupportsUtf8Bom(bool value)
     d->m_supportsUtf8Bom = value;
 }
 
-void BaseTextDocument::setLineTerminationMode(Utils::TextFileFormat::LineTerminationMode mode)
+void BaseTextDocument::setLineTerminationMode(TextFileFormat::LineTerminationMode mode)
 {
     d->m_format.lineTerminationMode = mode;
 }
@@ -208,7 +208,7 @@ bool BaseTextDocument::supportsUtf8Bom() const
     return d->m_supportsUtf8Bom;
 }
 
-Utils::TextFileFormat::LineTerminationMode BaseTextDocument::lineTerminationMode() const
+TextFileFormat::LineTerminationMode BaseTextDocument::lineTerminationMode() const
 {
     return d->m_format.lineTerminationMode;
 }
@@ -217,7 +217,7 @@ Utils::TextFileFormat::LineTerminationMode BaseTextDocument::lineTerminationMode
     Returns the format obtained from the last call to read().
 */
 
-Utils::TextFileFormat BaseTextDocument::format() const
+TextFileFormat BaseTextDocument::format() const
 {
     return d->m_format;
 }

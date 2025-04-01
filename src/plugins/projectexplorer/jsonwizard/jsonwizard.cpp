@@ -366,9 +366,8 @@ void JsonWizard::accept()
     Core::EditorManager::closeDocuments(documentsToClose, /*askAboutModifiedEditors=*/false);
 
     emit preWriteFiles(m_files);
-    if (!JsonWizardGenerator::writeFiles(this, &m_files, &errorMessage)) {
-        if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, Tr::tr("Failed to Write Files"), errorMessage);
+    if (const Result res = JsonWizardGenerator::writeFiles(this, &m_files); !res) {
+        QMessageBox::warning(this, Tr::tr("Failed to Write Files"), res.error());
         return;
     }
 

@@ -318,12 +318,11 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
         const FilePath file = FileUtils::getSaveFilePath(
             {}, FileUtils::homePath() / d->outputFileNameHint);
         if (!file.isEmpty()) {
-            QString error;
             Utils::TextFileFormat format;
             format.setCodecName(EditorManager::defaultTextCodecName());
             format.lineTerminationMode = EditorManager::defaultLineEnding();
-            if (!format.writeFile(file, toPlainText(), &error))
-                MessageManager::writeDisrupting(error);
+            if (const Result res = format.writeFile(file, toPlainText()); !res)
+                MessageManager::writeDisrupting(res.error());
         }
     });
     saveAction->setEnabled(!document()->isEmpty());

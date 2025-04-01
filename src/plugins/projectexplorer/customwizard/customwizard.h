@@ -83,7 +83,7 @@ protected:
     Core::GeneratedFiles generateWizardFiles(QString *errorMessage) const;
     // Create replacement map as static base fields + QWizard fields
     FieldReplacementMap replacementMap(const QWizard *w) const;
-    bool writeFiles(const Core::GeneratedFiles &files, QString *errorMessage) const override;
+    Utils::Result writeFiles(const Core::GeneratedFiles &files) const override;
 
     CustomWizardParametersPtr parameters() const;
     CustomWizardContextPtr context() const;

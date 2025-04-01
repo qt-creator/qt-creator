@@ -35,7 +35,7 @@ public:
                                   const FilePath &projectDir,
                                   QString *errorMessage) final;
 
-    bool writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage) final;
+    Utils::Result writeFile(const JsonWizard *wizard, Core::GeneratedFile *file) final;
 
 private:
     class File {
@@ -253,14 +253,12 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(MacroExpander *expander,
     return result;
 }
 
-bool JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::GeneratedFile *file, QString *errorMessage)
+Result JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::GeneratedFile *file)
 {
     Q_UNUSED(wizard)
-    if (!(file->attributes() & Core::GeneratedFile::KeepExistingFileAttribute)) {
-        if (!file->write(errorMessage))
-            return false;
-    }
-    return true;
+    if (file->attributes() & Core::GeneratedFile::KeepExistingFileAttribute)
+        return Result::Ok;
+    return file->write();
 }
 
 void setupJsonWizardFileGenerator()

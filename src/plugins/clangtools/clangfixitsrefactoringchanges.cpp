@@ -100,10 +100,9 @@ bool FixitsRefactoringFile::apply()
     if (!m_textFileFormat.codec())
         return false; // Error reading file
 
-    QString error;
     for (auto it = m_documents.begin(); it != m_documents.end(); ++it) {
-        if (!m_textFileFormat.writeFile(it.key(), it.value()->toPlainText(), &error)) {
-            qCDebug(fixitsLog) << "ERROR: Could not write file" << it.key() << ":" << error;
+        if (const Result res = m_textFileFormat.writeFile(it.key(), it.value()->toPlainText()); !res) {
+            qCDebug(fixitsLog) << "ERROR: Could not write file" << it.key() << ":" << res.error();
             return false; // Error writing file
         }
     }

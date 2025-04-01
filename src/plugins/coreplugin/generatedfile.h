@@ -11,7 +11,10 @@
 #include <QList>
 #include <QSharedDataPointer>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class Result;
+} // Utils
 
 namespace Core {
 class GeneratedFilePrivate;
@@ -63,7 +66,7 @@ public:
     Utils::Id editorId() const;
     void setEditorId(Utils::Id id);
 
-    bool write(QString *errorMessage) const;
+    Utils::Result write() const;
 
     Attributes attributes() const;
     void setAttributes(Attributes a);

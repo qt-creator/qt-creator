@@ -354,8 +354,8 @@ bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting,
         fileContent.replace(match.capturedStart(1), match.capturedLength(1), relativePath);
     }
 
-    if (!textFileFormat.writeFile(qmlProjectFilePath, fileContent, &error))
-        qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << error;
+    if (const Result res = textFileFormat.writeFile(qmlProjectFilePath, fileContent); !res)
+        qWarning() << "Failed to write file" << qmlProjectFilePath << ":" << res.error();
 
     refresh(RefreshOptions::Project);
     return true;
@@ -503,8 +503,8 @@ bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFil
     if (fileContent.contains(currentMain))
         fileContent.replace(currentMain, newMain);
 
-    if (!textFileFormat.writeFile(mainFilePath(), fileContent, &error))
-        qWarning() << "Failed to write file" << mainFilePath() << ":" << error;
+    if (const Result res = textFileFormat.writeFile(mainFilePath(), fileContent); !res)
+        qWarning() << "Failed to write file" << mainFilePath() << ":" << res.error();
 
     return true;
 }

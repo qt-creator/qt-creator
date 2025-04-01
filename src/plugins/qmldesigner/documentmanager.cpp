@@ -314,11 +314,10 @@ void DocumentManager::goIntoComponent(const QString &fileName)
 
 bool DocumentManager::createFile(const QString &filePath, const QString &contents)
 {
-    Utils::TextFileFormat textFileFormat;
+    TextFileFormat textFileFormat;
     textFileFormat.setCodecName(Core::EditorManager::defaultTextCodecName());
-    QString errorMessage;
 
-    return textFileFormat.writeFile(Utils::FilePath::fromString(filePath), contents, &errorMessage);
+    return textFileFormat.writeFile(FilePath::fromString(filePath), contents);
 }
 
 void DocumentManager::addFileToVersionControl(const QString &directoryPath, const QString &newFilePath)

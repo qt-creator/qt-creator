@@ -37,8 +37,8 @@ public:
     GeneratedFilePrivate() = default;
     explicit GeneratedFilePrivate(const FilePath &path);
 
-    bool writeContents(QString *errorMessage) const;
-    bool writePermissions(QString *errorMessage) const;
+    Result writeContents() const;
+    Result writePermissions() const;
 
     FilePath path;
     std::optional<QFile::Permissions> permissions;
@@ -150,49 +150,47 @@ void GeneratedFile::setEditorId(Id id)
     m_d->editorId = id;
 }
 
-bool GeneratedFilePrivate::writeContents(QString *errorMessage) const
+Result GeneratedFilePrivate::writeContents() const
 {
     if (binary) {
         QIODevice::OpenMode flags = QIODevice::WriteOnly | QIODevice::Truncate;
         FileSaver saver(path, flags);
         saver.write(contents);
-        return saver.finalize(errorMessage);
+        QString errorMessage;
+        const bool ok = saver.finalize(&errorMessage);
+        return ok ? Result::Ok : Result::Error(errorMessage);
     }
 
     TextFileFormat format;
     format.setCodecName(EditorManager::defaultTextCodecName());
     format.lineTerminationMode = EditorManager::defaultLineEnding();
-    return format.writeFile(path, QString::fromUtf8(contents), errorMessage);
+    return format.writeFile(path, QString::fromUtf8(contents));
 }
 
-bool GeneratedFilePrivate::writePermissions(QString *errorMessage) const
+Result GeneratedFilePrivate::writePermissions() const
 {
     if (!permissions)
-        return true;
-    if (!path.setPermissions(*permissions)) {
-        if (errorMessage)
-            *errorMessage = Tr::tr("Failed to set permissions.");
-        return false;
-    }
-    return true;
+        return Result::Ok;
+    if (!path.setPermissions(*permissions))
+        return Result::Error(Tr::tr("Failed to set permissions."));
+    return Result::Ok;
 }
 
-bool GeneratedFile::write(QString *errorMessage) const
+Result GeneratedFile::write() const
 {
     // Ensure the directory
     const FilePath parentDir = m_d->path.parentDir();
     if (!parentDir.isDir()) {
         if (!parentDir.createDir()) {
-            *errorMessage = Tr::tr("Unable to create the directory %1.")
-                                .arg(parentDir.toUserOutput());
-            return false;
+            return Result::Error(Tr::tr("Unable to create the directory %1.")
+                                .arg(parentDir.toUserOutput()));
         }
     }
 
     // Write out
-    if (!m_d->writeContents(errorMessage))
-        return false;
-    return m_d->writePermissions(errorMessage);
+    if (const Result res = m_d->writeContents(); !res)
+        return res;
+    return m_d->writePermissions();
 }
 
 GeneratedFile::Attributes GeneratedFile::attributes() const

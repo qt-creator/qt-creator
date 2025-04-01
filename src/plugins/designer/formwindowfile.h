@@ -40,7 +40,7 @@ public:
     // Internal
     void setFallbackSaveAsFileName(const QString &fileName);
 
-    bool writeFile(const Utils::FilePath &filePath, QString *errorString) const;
+    Utils::Result writeFile(const Utils::FilePath &filePath) const;
 
     QDesignerFormWindowInterface *formWindow() const;
     void syncXmlFromFormWindow();

@@ -230,14 +230,12 @@ Result DiffEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     Q_UNUSED(autoSave)
 
-    QString errorString;
     if (state() != LoadOK)
-        return Result::Error(errorString);
+        return Result::Error(QString());
 
-    const bool ok = write(filePath, format(), plainText(), &errorString);
-
-    if (!ok)
-        return Result::Error(errorString);
+    const Result res = write(filePath, format(), plainText());
+    if (!res)
+        return res;
 
     setController(nullptr);
     setDescription({});

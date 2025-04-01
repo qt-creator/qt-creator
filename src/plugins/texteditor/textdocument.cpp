@@ -685,8 +685,7 @@ Result TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
         }
     }
 
-    QString errorString;
-    const bool ok = write(filePath, saveFormat, plainText(), &errorString);
+    const Result res = write(filePath, saveFormat, plainText());
 
     // restore text cursor and scroll bar positions
     if (autoSave && undos < d->m_document.availableUndoSteps()) {
@@ -701,8 +700,9 @@ Result TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
         }
     }
 
-    if (!ok)
-        return Result::Error(errorString);
+    if (!res)
+        return res;
+
     d->m_autoSaveRevision = d->m_document.revision();
     if (autoSave)
         return Result::Ok;

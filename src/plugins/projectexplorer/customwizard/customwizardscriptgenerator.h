@@ -8,8 +8,9 @@
 
 namespace Core { class GeneratedFile; }
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace Utils { class Result; }
+
+namespace ProjectExplorer::Internal {
 
 class GeneratorScriptArgument;
 
@@ -25,11 +26,9 @@ QList<Core::GeneratedFile>
                                       QString *errorMessage);
 
 // Step 2) Generate files
-bool runCustomWizardGeneratorScript(const QString &targetPath,
-                                    const QStringList &script,
-                                    const QList<GeneratorScriptArgument> &arguments,
-                                    const QMap<QString, QString> &fieldMap,
-                                    QString *errorMessage);
+Utils::Result runCustomWizardGeneratorScript(const QString &targetPath,
+                                             const QStringList &script,
+                                             const QList<GeneratorScriptArgument> &arguments,
+                                             const QMap<QString, QString> &fieldMap);
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

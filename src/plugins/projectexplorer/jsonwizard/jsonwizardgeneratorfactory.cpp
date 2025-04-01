@@ -101,12 +101,11 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     return true;
 }
 
-bool JsonWizardGenerator::writeFile(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
+Result JsonWizardGenerator::writeFile(const JsonWizard *wizard, GeneratedFile *file)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(file)
-    Q_UNUSED(errorMessage)
-    return true;
+    return Result::Ok;
 }
 
 bool JsonWizardGenerator::postWrite(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
@@ -213,14 +212,13 @@ bool JsonWizardGenerator::formatFiles(const JsonWizard *wizard, JsonWizard::Gene
     return true;
 }
 
-bool JsonWizardGenerator::writeFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,
-                                     QString *errorMessage)
+Result JsonWizardGenerator::writeFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
-        if (!i->generator->writeFile(wizard, &(i->file), errorMessage))
-            return false;
+        if (const Result res = i->generator->writeFile(wizard, &(i->file)); !res)
+            return res;
     }
-    return true;
+    return Result::Ok;
 }
 
 bool JsonWizardGenerator::postWrite(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,

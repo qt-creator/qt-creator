@@ -124,15 +124,16 @@ Wizard *BaseFileWizardFactory::runWizardImpl(const FilePath &path, Id platform,
     GeneratedFile::CustomGeneratorAttribute set.
 */
 
-bool BaseFileWizardFactory::writeFiles(const GeneratedFiles &files, QString *errorMessage) const
+Result BaseFileWizardFactory::writeFiles(const GeneratedFiles &files) const
 {
     const GeneratedFile::Attributes noWriteAttributes
         = GeneratedFile::CustomGeneratorAttribute|GeneratedFile::KeepExistingFileAttribute;
-    for (const GeneratedFile &generatedFile : std::as_const(files))
+    for (const GeneratedFile &generatedFile : std::as_const(files)) {
         if (!(generatedFile.attributes() & noWriteAttributes ))
-            if (!generatedFile.write(errorMessage))
-                return false;
-    return true;
+            if (const Result res = generatedFile.write(); !res)
+                return res;
+    }
+    return Result::Ok;
 }
 
 /*!

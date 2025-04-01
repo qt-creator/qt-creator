@@ -305,8 +305,7 @@ public:
                                   const FilePath &wizardDir,
                                   const FilePath &projectDir,
                                   QString *errorMessage) final;
-    bool writeFile(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file,
-                   QString *errorMessage) final;
+    Result writeFile(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file) final;
     bool allDone(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file,
                  QString *errorMessage) final;
 
@@ -392,15 +391,11 @@ Core::GeneratedFiles SquishFileGenerator::fileList(MacroExpander *expander,
     return result;
 }
 
-bool SquishFileGenerator::writeFile(const JsonWizard *,
-                                    Core::GeneratedFile *file,
-                                    QString *errorMessage)
+Result SquishFileGenerator::writeFile(const JsonWizard *, Core::GeneratedFile *file)
 {
-    if (!(file->attributes() & Core::GeneratedFile::CustomGeneratorAttribute)) {
-        if (!file->write(errorMessage))
-            return false;
-    }
-    return true;
+    if (file->attributes() & Core::GeneratedFile::CustomGeneratorAttribute)
+        return Result::Ok;
+    return file->write();
 }
 
 bool SquishFileGenerator::allDone(const JsonWizard *wizard,

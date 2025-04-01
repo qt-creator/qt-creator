@@ -916,10 +916,8 @@ void QmakePriFile::save(const QStringList &lines)
     {
         QTC_ASSERT(m_textFormat.codec(), return);
         FileChangeBlocker changeGuard(filePath());
-        QString errorMsg;
-        if (!m_textFormat.writeFile(filePath(), lines.join('\n'), &errorMsg)) {
-            QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("File Error"), errorMsg);
-        }
+        if (const Result res = m_textFormat.writeFile(filePath(), lines.join('\n')); !res)
+            QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("File Error"), res.error());
     }
 
     // This is a hack.

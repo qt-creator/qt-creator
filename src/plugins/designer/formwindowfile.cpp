@@ -92,15 +92,15 @@ Result FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
         m_formWindow->setFileName(filePath.toUrlishString());
-    QString errorString;
-    const bool writeOK = writeFile(filePath, &errorString);
+
+    const Result res = writeFile(filePath);
     m_shouldAutoSave = false;
     if (autoSave)
-        return Result(writeOK, errorString);
+        return res;
 
-    if (!writeOK) {
+    if (!res) {
         m_formWindow->setFileName(oldFormName);
-        return Result::Error(errorString);
+        return res;
     }
 
     m_formWindow->setDirty(false);
@@ -227,7 +227,7 @@ bool FormWindowFile::supportsCodec(const QByteArray &codec) const
     return TextEditor::TextDocument::isUtf8Codec(codec);
 }
 
-bool FormWindowFile::writeFile(const Utils::FilePath &filePath, QString *errorString) const
+Result FormWindowFile::writeFile(const Utils::FilePath &filePath) const
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << this->filePath() << filePath;
@@ -235,7 +235,7 @@ bool FormWindowFile::writeFile(const Utils::FilePath &filePath, QString *errorSt
     Q_ASSERT(integration);
     if (!integration->setQtVersionFromFile(filePath))
         integration->resetQtVersion();
-    return write(filePath, format(), m_formWindow->contents(), errorString);
+    return write(filePath, format(), m_formWindow->contents());
 }
 
 QDesignerFormWindowInterface *FormWindowFile::formWindow() const
