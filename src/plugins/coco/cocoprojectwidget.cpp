@@ -323,7 +323,7 @@ void CocoProjectWidget::onExcludeDirButtonClicked()
         // Make it a relative path with "*/" at the beginnig.
         path = "*/" + path.arg(path.mid(projectDir.size()));
 
-    addCocoOption("--cs-exclude-file-abs-wildcard=" + maybeQuote(path));
+    addCocoOption("--cs-exclude-file-abs-wildcard=" + maybeQuote(path + "/*"));
 
     writeSelectionDir(path);
 }
