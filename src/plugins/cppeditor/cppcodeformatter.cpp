@@ -901,6 +901,10 @@ bool CodeFormatter::tryDeclaration()
     case T_CONST:
     case T_VOLATILE:
     case T_INLINE:
+    case T_STATIC_CAST:
+    case T_DYNAMIC_CAST:
+    case T_REINTERPRET_CAST:
+    case T_STATIC_ASSERT:
         enter(declaration_start);
         return true;
 
