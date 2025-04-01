@@ -52,6 +52,7 @@ private:
     void setupTerminalWidget(TerminalWidget *terminal);
     void initActions();
     void createShellMenu();
+    void contextMenuRequested(const QPoint &pos);
 
 private:
     QTabWidget m_tabWidget;
@@ -65,6 +66,9 @@ private:
     QAction *m_newTerminalAction{nullptr};
     QAction *m_closeTerminalAction{nullptr};
     QAction *m_toggleKeyboardLockAction{nullptr};
+    QAction *m_closeCurrentTabAction{nullptr};
+    QAction *m_closeAllTabsAction{nullptr};
+    QAction *m_closeOtherTabsAction{nullptr};
 
     QMenu m_shellMenu;
 
