@@ -844,15 +844,13 @@ QVersionNumber ndkVersion(const FilePath &ndkPath)
     } else {
         // No source.properties. There should be a file named RELEASE.TXT
         const FilePath ndkReleaseTxtPath = ndkPath.pathAppended("RELEASE.TXT");
-        FileReader reader;
-        QString errorString;
-        if (reader.fetch(ndkReleaseTxtPath, &errorString)) {
+        const expected_str<QByteArray> content = ndkReleaseTxtPath.fileContents();
+        if (content) {
             // RELEASE.TXT contains the ndk version in either of the following formats:
             // r6a
             // r10e (64 bit)
-            QString content = QString::fromUtf8(reader.data());
             static const QRegularExpression re("(r)(?<major>[0-9]{1,2})(?<minor>[a-z]{1,1})");
-            QRegularExpressionMatch match = re.match(content);
+            const QRegularExpressionMatch match = re.match(QString::fromUtf8(*content));
             if (match.hasMatch()) {
                 QString major = match.captured("major");
                 QString minor = match.captured("minor");
@@ -862,10 +860,10 @@ QVersionNumber ndkVersion(const FilePath &ndkPath)
                                                      .arg((int)minor[0].toLatin1() - 97));
             } else {
                 qCDebug(avdConfigLog) << "Cannot find ndk version. Cannot parse RELEASE.TXT."
-                                      << content;
+                                      << *content;
             }
         } else {
-            qCDebug(avdConfigLog) << "Cannot find ndk version." << errorString;
+            qCDebug(avdConfigLog) << "Cannot find ndk version." << content.error();
         }
     }
     return version;
