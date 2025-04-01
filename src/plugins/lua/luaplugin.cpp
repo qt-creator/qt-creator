@@ -455,7 +455,8 @@ public:
         }
 
         PluginManager::addPlugins({plugins.begin(), plugins.end()});
-        PluginManager::loadPluginsAtRuntime(plugins);
+        PluginManager::loadPluginsAtRuntime(
+            Utils::filtered(plugins, &PluginSpec::isEffectivelyEnabled));
     }
 
     void scanForScripts()
