@@ -351,9 +351,8 @@ void JsonWizard::accept()
     }
 
     emit preFormatFiles(m_files);
-    if (!JsonWizardGenerator::formatFiles(this, &m_files, &errorMessage)) {
-        if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, Tr::tr("Failed to Format Files"), errorMessage);
+    if (const Result res = JsonWizardGenerator::formatFiles(this, &m_files); !res) {
+        QMessageBox::warning(this, Tr::tr("Failed to Format Files"), res.error());
         return;
     }
 
@@ -372,21 +371,18 @@ void JsonWizard::accept()
     }
 
     emit postProcessFiles(m_files);
-    if (!JsonWizardGenerator::postWrite(this, &m_files, &errorMessage)) {
-        if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, Tr::tr("Failed to Post-Process Files"), errorMessage);
+    if (const Result res = JsonWizardGenerator::postWrite(this, &m_files); !res) {
+        QMessageBox::warning(this, Tr::tr("Failed to Post-Process Files"), res.error());
         return;
     }
     emit filesReady(m_files);
-    if (!JsonWizardGenerator::polish(this, &m_files, &errorMessage)) {
-        if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, Tr::tr("Failed to Polish Files"), errorMessage);
+    if (const Result res = JsonWizardGenerator::polish(this, &m_files); !res) {
+        QMessageBox::warning(this, Tr::tr("Failed to Polish Files"), res.error());
         return;
     }
     emit filesPolished(m_files);
-    if (!JsonWizardGenerator::allDone(this, &m_files, &errorMessage)) {
-        if (!errorMessage.isEmpty())
-            QMessageBox::warning(this, Tr::tr("Failed to Open Files"), errorMessage);
+    if (const Result res = JsonWizardGenerator::allDone(this, &m_files); !res) {
+        QMessageBox::warning(this, Tr::tr("Failed to Open Files"), res.error());
         return;
     }
     emit allDone(m_files);

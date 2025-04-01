@@ -28,7 +28,7 @@ namespace ProjectExplorer::Internal {
 class JsonWizardFileGenerator final : public JsonWizardGenerator
 {
 public:
-    bool setup(const QVariant &data, QString *errorMessage);
+    Utils::Result setup(const QVariant &data);
 
     Core::GeneratedFiles fileList(MacroExpander *expander,
                                   const FilePath &wizardDir,
@@ -70,19 +70,16 @@ private:
     }
 };
 
-bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
+Result JsonWizardFileGenerator::setup(const QVariant &data)
 {
-    QTC_ASSERT(errorMessage && errorMessage->isEmpty(), return false);
-
-    const QVariantList list = JsonWizardFactory::objectOrList(data, errorMessage);
+    QString errorMessage;
+    const QVariantList list = JsonWizardFactory::objectOrList(data, &errorMessage);
     if (list.isEmpty())
-        return false;
+        return Result::Error(errorMessage);
 
     for (const QVariant &d : list) {
-        if (d.typeId() != QMetaType::QVariantMap) {
-            *errorMessage = Tr::tr("Files data list entry is not an object.");
-            return false;
-        }
+        if (d.typeId() != QMetaType::QVariantMap)
+            return Result::Error(Tr::tr("Files data list entry is not an object."));
 
         File f;
 
@@ -96,14 +93,12 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         f.isTemporary = tmp.value(QLatin1String("temporary"), false);
         f.openAsProject = tmp.value(QLatin1String("openAsProject"), false);
 
-        f.options = JsonWizard::parseOptions(tmp.value(QLatin1String("options")), errorMessage);
-        if (!errorMessage->isEmpty())
-            return false;
+        f.options = JsonWizard::parseOptions(tmp.value(QLatin1String("options")), &errorMessage);
+        if (!errorMessage.isEmpty())
+            return Result::Error(errorMessage);
 
-        if (f.source.isEmpty() && f.target.isEmpty()) {
-            *errorMessage = Tr::tr("Source and target are both empty.");
-            return false;
-        }
+        if (f.source.isEmpty() && f.target.isEmpty())
+            return Result::Error(Tr::tr("Source and target are both empty."));
 
         if (f.target.isEmpty())
             f.target = f.source;
@@ -111,7 +106,7 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         m_fileList << f;
     }
 
-    return true;
+    return Result::Ok;
 }
 
 Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,

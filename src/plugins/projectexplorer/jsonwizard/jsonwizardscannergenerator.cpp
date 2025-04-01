@@ -7,8 +7,6 @@
 #include "../projectmanager.h"
 #include "../projectexplorertr.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/macroexpander.h>
@@ -27,7 +25,7 @@ namespace ProjectExplorer::Internal {
 class JsonWizardScannerGenerator final : public JsonWizardGenerator
 {
 public:
-    bool setup(const QVariant &data, QString *errorMessage);
+    Result setup(const QVariant &data);
 
     Core::GeneratedFiles fileList(MacroExpander *expander,
                                   const FilePath &wizardDir,
@@ -41,15 +39,13 @@ private:
     QList<QRegularExpression> m_subDirectoryExpressions;
 };
 
-bool JsonWizardScannerGenerator::setup(const QVariant &data, QString *errorMessage)
+Result JsonWizardScannerGenerator::setup(const QVariant &data)
 {
     if (data.isNull())
-        return true;
+        return Result::Ok;
 
-    if (data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("Key is not an object.");
-        return false;
-    }
+    if (data.typeId() != QMetaType::QVariantMap)
+        return Result::Error(Tr::tr("Key is not an object."));
 
     QVariantMap gen = data.toMap();
 
@@ -57,14 +53,12 @@ bool JsonWizardScannerGenerator::setup(const QVariant &data, QString *errorMessa
     const QStringList patterns = gen.value(QLatin1String("subdirectoryPatterns")).toStringList();
     for (const QString &pattern : patterns) {
         QRegularExpression regexp(pattern);
-        if (!regexp.isValid()) {
-            *errorMessage = Tr::tr("Pattern \"%1\" is no valid regular expression.");
-            return false;
-        }
+        if (!regexp.isValid())
+            return Result::Error(Tr::tr("Pattern \"%1\" is no valid regular expression."));
         m_subDirectoryExpressions << regexp;
     }
 
-    return true;
+    return Result::Ok;
 }
 
 Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *expander,

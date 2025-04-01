@@ -57,17 +57,15 @@ static ICodeStylePreferences *codeStylePreferences(Project *project, Id language
 // JsonWizardGenerator:
 // --------------------------------------------------------------------
 
-bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
+Result JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *file)
 {
-    Q_UNUSED(errorMessage)
-
     if (file->isBinary() || file->contents().isEmpty())
-        return true; // nothing to do
+        return Result::Ok; // nothing to do
 
     Id languageId = TextEditorSettings::languageId(Utils::mimeTypeForFile(file->filePath()).name());
 
     if (!languageId.isValid())
-        return true; // don't modify files like *.ui, *.pro
+        return Result::Ok; // don't modify files like *.ui, *.pro
 
     auto baseProject = qobject_cast<Project *>(wizard->property("SelectedProject").value<QObject *>());
     ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
@@ -98,7 +96,7 @@ bool JsonWizardGenerator::formatFile(const JsonWizard *wizard, GeneratedFile *fi
     }
     file->setContents(doc.toPlainText());
 
-    return true;
+    return Result::Ok;
 }
 
 Result JsonWizardGenerator::writeFile(const JsonWizard *wizard, GeneratedFile *file)
@@ -108,28 +106,25 @@ Result JsonWizardGenerator::writeFile(const JsonWizard *wizard, GeneratedFile *f
     return Result::Ok;
 }
 
-bool JsonWizardGenerator::postWrite(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
+Result JsonWizardGenerator::postWrite(const JsonWizard *wizard, GeneratedFile *file)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(file)
-    Q_UNUSED(errorMessage)
-    return true;
+    return Result::Ok;
 }
 
-bool JsonWizardGenerator::polish(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
+Result JsonWizardGenerator::polish(const JsonWizard *wizard, GeneratedFile *file)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(file)
-    Q_UNUSED(errorMessage)
-    return true;
+    return Result::Ok;
 }
 
-bool JsonWizardGenerator::allDone(const JsonWizard *wizard, GeneratedFile *file, QString *errorMessage)
+Result JsonWizardGenerator::allDone(const JsonWizard *wizard, GeneratedFile *file)
 {
     Q_UNUSED(wizard)
     Q_UNUSED(file)
-    Q_UNUSED(errorMessage)
-    return true;
+    return Result::Ok;
 }
 
 JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(JsonWizard::GeneratorFiles *files,
@@ -202,14 +197,13 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
     return OverwriteOk;
 }
 
-bool JsonWizardGenerator::formatFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,
-                                      QString *errorMessage)
+Result JsonWizardGenerator::formatFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
-        if (!i->generator->formatFile(wizard, &(i->file), errorMessage))
-            return false;
+        if (const Result res = i->generator->formatFile(wizard, &(i->file)); !res)
+            return res;
     }
-    return true;
+    return Result::Ok;
 }
 
 Result JsonWizardGenerator::writeFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files)
@@ -221,34 +215,31 @@ Result JsonWizardGenerator::writeFiles(const JsonWizard *wizard, JsonWizard::Gen
     return Result::Ok;
 }
 
-bool JsonWizardGenerator::postWrite(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,
-                                    QString *errorMessage)
+Result JsonWizardGenerator::postWrite(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
-        if (!i->generator->postWrite(wizard, &(i->file), errorMessage))
-            return false;
+        if (const Result res = i->generator->postWrite(wizard, &(i->file)); !res)
+            return res;
     }
-    return true;
+    return Result::Ok;
 }
 
-bool JsonWizardGenerator::polish(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,
-                                 QString *errorMessage)
+Result JsonWizardGenerator::polish(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
-        if (!i->generator->polish(wizard, &(i->file), errorMessage))
-            return false;
+        if (const Result res = i->generator->polish(wizard, &(i->file)); !res)
+            return res;
     }
-    return true;
+    return Result::Ok;
 }
 
-bool JsonWizardGenerator::allDone(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files,
-                                  QString *errorMessage)
+Result JsonWizardGenerator::allDone(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files)
 {
     for (auto i = files->begin(); i != files->end(); ++i) {
-        if (!i->generator->allDone(wizard, &(i->file), errorMessage))
-            return false;
+        if (const Result res = i->generator->allDone(wizard, &(i->file)); !res)
+            return res;
     }
-    return true;
+    return Result::Ok;
 }
 
 // --------------------------------------------------------------------
