@@ -54,6 +54,12 @@
 #include "client/settings.h"
 #endif
 
+#ifdef ENABLE_SENTRY
+#include <sentry.h>
+
+Q_LOGGING_CATEGORY(sentryLog, "qtc.sentry", QtWarningMsg)
+#endif
+
 using namespace ExtensionSystem;
 using namespace Utils;
 
@@ -494,6 +500,35 @@ void startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
 }
 #endif
 
+#ifdef ENABLE_SENTRY
+void configureSentry(const AppInfo &appInfo, bool crashReportingEnabled)
+{
+    if (!crashReportingEnabled)
+        return;
+
+    sentry_options_t *options = sentry_options_new();
+    sentry_options_set_dsn(options, SENTRY_DSN);
+#ifdef Q_OS_WIN
+    sentry_options_set_database_pathw(options, appInfo.crashReports.nativePath().toStdWString().c_str());
+#else
+    sentry_options_set_database_path(options, appInfo.crashReports.nativePath().toUtf8().constData());
+#endif
+#ifdef SENTRY_CRASHPAD_PATH
+    if (const FilePath handlerpath = appInfo.libexec / "crashpad_handler"; handlerpath.exists()) {
+        sentry_options_set_handler_path(options, handlerpath.nativePath().toUtf8().constData());
+    } else if (const auto fallback = FilePath::fromString(SENTRY_CRASHPAD_PATH); fallback.exists()) {
+        sentry_options_set_handler_path(options, fallback.nativePath().toUtf8().constData());
+    } else {
+        qCWarning(sentryLog) << "Failed to find crashpad_handler for Sentry crash reports.";
+    }
+#endif
+    const QString release = QString(SENTRY_PROJECT) + "@" + QCoreApplication::applicationVersion();
+    sentry_options_set_release(options, release.toUtf8().constData());
+    sentry_options_set_debug(options, sentryLog().isDebugEnabled() ? 1 : 0);
+    sentry_init(options);
+}
+#endif
+
 class ShowInGuiHandler
 {
 public:
@@ -790,10 +825,15 @@ int main(int argc, char **argv)
     CrashHandlerSetup setupCrashHandler(
         Core::Constants::IDE_DISPLAY_NAME, CrashHandlerSetup::EnableRestart, info.libexec.path());
 
-#ifdef ENABLE_CRASHPAD
     // depends on AppInfo and QApplication being created
-    bool crashReportingEnabled = settings->value("CrashReportingEnabled", false).toBool();
+    const bool crashReportingEnabled = settings->value("CrashReportingEnabled", false).toBool();
+
+#if defined(ENABLE_CRASHPAD)
     startCrashpad(info, crashReportingEnabled);
+#elif defined(ENABLE_SENTRY)
+    configureSentry(info, crashReportingEnabled);
+#else
+    Q_UNUSED(crashReportingEnabled)
 #endif
 
     PluginManager pluginManager;
@@ -974,5 +1014,9 @@ int main(int argc, char **argv)
         QApplication::setEffectEnabled(Qt::UI_AnimateMenu, false);
     }
 
-    return restarter.restartOrExit(app.exec());
+    const int exitCode = restarter.restartOrExit(app.exec());
+#ifdef ENABLE_SENTRY
+    sentry_close();
+#endif
+    return exitCode;
 }
