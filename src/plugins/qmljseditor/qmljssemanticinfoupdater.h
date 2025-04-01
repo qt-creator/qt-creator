@@ -11,8 +11,7 @@
 #include <QMutex>
 #include <QThread>
 
-namespace QmlJSEditor {
-namespace Internal {
+namespace QmlJSEditor::Internal {
 
 class SemanticInfoUpdater: public QThread
 {
@@ -45,5 +44,4 @@ private:
     QmlJSTools::SemanticInfo m_lastSemanticInfo;
 };
 
-} // namespace Internal
-} // namespace QmlJSEditor
+} // namespace QmlJSEditor::Internal
