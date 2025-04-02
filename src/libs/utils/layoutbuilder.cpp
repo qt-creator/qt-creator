@@ -69,9 +69,8 @@ public:
 
     ~FlowLayout() override
     {
-        QLayoutItem *item;
-        while ((item = takeAt(0)))
-            delete item;
+        qDeleteAll(itemList);
+        itemList.clear();
     }
 
     void addItem(QLayoutItem *item) override { itemList.append(item); }
