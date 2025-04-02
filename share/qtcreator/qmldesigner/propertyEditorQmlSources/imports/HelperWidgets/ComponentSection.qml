@@ -36,7 +36,7 @@ Section {
                     anchors.fill: parent
                     anchors.leftMargin: StudioTheme.Values.inputHorizontalPadding
                     anchors.topMargin: StudioTheme.Values.typeLabelVerticalShift
-                    text: backendValues.__classNamePrivateInternal.value
+                    text: backendValues.__classNamePrivateInternal?.value ?? ""
                 }
 
                 ToolTipArea {

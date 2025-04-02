@@ -89,7 +89,7 @@ PropertyEditorPane {
         anchors.right: parent.right
 
         StudioControls.TabButton {
-            text: backendValues.__classNamePrivateInternal.value
+            text: backendValues.__classNamePrivateInternal?.value
             onClicked: () => {
                 if (itemPane.searchBar.hasDoneSearch)
                     itemPane.searchBar.search();

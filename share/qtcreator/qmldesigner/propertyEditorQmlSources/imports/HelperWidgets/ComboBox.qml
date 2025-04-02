@@ -112,6 +112,11 @@ StudioControls.ComboBox {
                     comboBox.currentIndex = comboBox.indexOfValue(comboBox.backendValue.value)
                 }
             } else {
+                if (!comboBox.backendValue) {
+                    comboBox.block = false
+                    return
+                }
+
                 switch (comboBox.valueType) {
                 case ComboBox.ValueType.String:
                     if (comboBox.currentText !== comboBox.backendValue.value) {
@@ -129,9 +134,6 @@ StudioControls.ComboBox {
                     break
                 case ComboBox.ValueType.Enum:
                 default:
-                    if (!comboBox.backendValue)
-                        break
-
                     var enumString = comboBox.backendValue.enumeration
 
                     if (enumString === "")

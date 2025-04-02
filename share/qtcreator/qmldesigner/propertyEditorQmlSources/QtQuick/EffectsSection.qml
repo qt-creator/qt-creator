@@ -40,7 +40,7 @@ Section {
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr('Effects <a style="color:%1;">[beta]</a>').arg(StudioTheme.Values.themeInteraction)
-    visible: backendValues.layer_effect.isAvailable
+    visible: backendValues.layer_effect?.isAvailable ?? false
 
     property Connections connection: Connections {
         target: modelNodeBackend
