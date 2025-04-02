@@ -150,23 +150,24 @@ def __selectQtVersionDesktop__(buildSystem, checks, available=None, targets=[]):
         wanted = Targets.desktopTargetClasses()
     checkedTargets = __chooseTargets__(wanted, available)
     if checks:
+        def __verifyAndExplicitlyCheck__(text, detailsWidget, expectChecked):
+            cbObjectTxt = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' container=%s}")
+            cbObject = cbObjectTxt % (text, objectMap.realName(detailsWidget))
+            verifyChecked(cbObject, expectChecked)
+            ensureChecked(cbObject, True)
+
         for target in checkedTargets:
             detailsWidget = waitForObject("{type='Utils::DetailsWidget' unnamed='1' visible='1' "
                                           "summaryText='%s'}" % Targets.getStringForTarget(target))
             detailsButton = getChildByClass(detailsWidget, "QToolButton")
             if test.verify(detailsButton != None, "Verifying if 'Details' button could be found"):
                 clickButton(detailsButton)
-                cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "
-                            "container=%s}")
-                verifyChecked(cbObject % ("Debug", objectMap.realName(detailsWidget)))
-                verifyChecked(cbObject % ("Release", objectMap.realName(detailsWidget)))
+                __verifyAndExplicitlyCheck__("Debug", detailsWidget, True)
+                __verifyAndExplicitlyCheck__("Release", detailsWidget, False)
+                __verifyAndExplicitlyCheck__("Profile", detailsWidget, False)
                 if buildSystem == "CMake":
-                    verifyChecked(cbObject % ("Release with Debug Information",
-                                              objectMap.realName(detailsWidget)))
-                    verifyChecked(cbObject % ("Minimum Size Release",
-                                              objectMap.realName(detailsWidget)))
-                elif buildSystem == "qmake":
-                    verifyChecked(cbObject % ("Profile", objectMap.realName(detailsWidget)))
+                    __verifyAndExplicitlyCheck__("Release with Debug Information", detailsWidget, False)
+                    __verifyAndExplicitlyCheck__("Minimum Size Release", detailsWidget, False)
                 clickButton(detailsButton)
     clickButton(waitForObject(":Next_QPushButton"))
     return checkedTargets
