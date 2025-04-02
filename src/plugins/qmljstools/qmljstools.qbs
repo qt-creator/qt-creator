@@ -31,8 +31,6 @@ QtcPlugin {
         "qmljsfunctionfilter.h",
         "qmljsindenter.cpp",
         "qmljsindenter.h",
-        "qmljslocatordata.cpp",
-        "qmljslocatordata.h",
         "qmljsmodelmanager.cpp",
         "qmljsmodelmanager.h",
         "qmljsqtstylecodeformatter.cpp",

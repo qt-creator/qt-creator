@@ -11,7 +11,6 @@ add_qtc_plugin(QmlJSTools
     qmljscodestylesettingspage.cpp qmljscodestylesettingspage.h
     qmljsfunctionfilter.cpp qmljsfunctionfilter.h
     qmljsindenter.cpp qmljsindenter.h
-    qmljslocatordata.cpp qmljslocatordata.h
     qmljsmodelmanager.cpp qmljsmodelmanager.h
     qmljsqtstylecodeformatter.cpp qmljsqtstylecodeformatter.h
     qmljsrefactoringchanges.cpp qmljsrefactoringchanges.h

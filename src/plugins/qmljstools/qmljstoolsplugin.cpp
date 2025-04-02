@@ -37,7 +37,6 @@ public:
 
     QAction resetCodeModelAction{Tr::tr("Reset Code Model"), nullptr};
 
-    QmlJSFunctionsFilter functionsFilter;
     QmlJSCodeStyleSettingsPage codeStyleSettingsPage;
     BasicBundleProvider basicBundleProvider;
 };
@@ -96,6 +95,8 @@ private:
         addTestCreator(createQmlJSToolsTest);
 #endif
         d = new QmlJSToolsPluginPrivate;
+
+        setupQmlJSFunctionsFilter();
     }
 
     void extensionsInitialized() final
