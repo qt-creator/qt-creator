@@ -5,9 +5,10 @@
 
 #include <qmldesignercomponents_global.h>
 
-#include <abstractview.h>
-
 #include <coreplugin/icontext.h>
+
+#include <abstractview.h>
+#include <widgetregistration.h>
 
 #include <utils/filepath.h>
 
@@ -31,13 +32,12 @@ namespace Internal { class DesignModeWidget; }
 
 class ViewManagerData;
 
-class QMLDESIGNERCOMPONENTS_EXPORT ViewManager
+class QMLDESIGNERCOMPONENTS_EXPORT ViewManager : private WidgetRegistrationInterface
 {
 public:
     ViewManager(class AsynchronousImageCache &imageCache,
                 class ExternalDependenciesInterface &externalDependencies);
     ~ViewManager();
-
     void attachRewriterView();
     void detachRewriterView();
 
@@ -50,7 +50,6 @@ public:
     void setComponentNode(const ModelNode &componentNode);
     void setComponentViewToMaster();
     void setNodeInstanceViewTarget(ProjectExplorer::Target *target);
-
     void resetPropertyEditorView();
 
     void registerFormEditorTool(std::unique_ptr<AbstractCustomTool> &&tool);
@@ -61,8 +60,7 @@ public:
         addView(std::move(view));
         return notOwningPointer;
     }
-
-    QList<WidgetInfo> widgetInfos() const;
+    QList<WidgetInfo> widgetInfos();
 
     void disableWidgets();
     void enableWidgets();
@@ -99,6 +97,9 @@ public:
 
     void hideView(AbstractView &view);
     void showView(AbstractView &view);
+    void registerWidgetInfo(WidgetInfo info) override;
+    void deregisterWidgetInfo(WidgetInfo info) override;
+    void initializeWidgetInfos();
 
 private: // functions
     Q_DISABLE_COPY(ViewManager)
@@ -123,10 +124,12 @@ private: // functions
     void registerViewActions();
     void registerViewAction(AbstractView &view);
     void enableView(AbstractView &view);
+
     void disableView(AbstractView &view);
 
 private: // variables
     std::unique_ptr<ViewManagerData> d;
+    QList<WidgetInfo> m_widgetInfo;
 };
 
 } // namespace QmlDesigner

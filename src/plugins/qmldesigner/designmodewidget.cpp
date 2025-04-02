@@ -331,6 +331,8 @@ void DesignModeWidget::setup()
         viewCommands.append(command);
     }
 
+    viewManager().initializeWidgetInfos();
+
     // Afterwards get all the other widgets
     for (const auto &view : viewManager().views()) {
         if (!view->hasWidget())

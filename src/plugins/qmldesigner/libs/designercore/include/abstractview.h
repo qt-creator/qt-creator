@@ -6,6 +6,8 @@
 #include "model.h"
 #include "modelnode.h"
 #include "qmldesignercorelib_global.h"
+#include "widgetregistration.h"
+
 #include <commondefines.h>
 
 #include <utils/span.h>
@@ -36,30 +38,6 @@ namespace Internal {
 class InternalNode;
 using InternalNodePointer = std::shared_ptr<InternalNode>;
 }
-
-enum DesignerWidgetFlags {
-    DisableOnError,
-    IgnoreErrors
-};
-
-class WidgetInfo {
-public:
-    enum PlacementHint {
-        NoPane,
-        LeftPane,
-        RightPane,
-        BottomPane,
-        TopPane, // not used
-        CentralPane
-    };
-
-    QString uniqueId;
-    QString tabName;
-    QString feedbackDisplayName;
-    QWidget *widget = nullptr;
-    PlacementHint placementHint;
-    DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError;
-};
 
 class QMLDESIGNERCORE_EXPORT AbstractViewAction : public QAction
 {
@@ -94,6 +72,8 @@ public:
         , m_action{Utils::makeUniqueObjectPtr<AbstractViewAction>(*this)}
     {}
 
+    void setWidgetRegistration(WidgetRegistrationInterface *interface);
+    virtual void registerWidgetInfo();
     ~AbstractView() override;
 
     Model *model() const { return m_model.data(); }
@@ -310,6 +290,7 @@ public:
 protected:
     void setModel(Model *model);
     void removeModel();
+
     static WidgetInfo createWidgetInfo(
         QWidget *widget = nullptr,
         const QString &uniqueId = QString(),
@@ -319,7 +300,6 @@ protected:
         DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError);
 
     void setKind(Kind kind) { m_kind = kind; }
-
 private:
     QList<ModelNode> toModelNodeList(Utils::span<const Internal::InternalNodePointer> nodeList) const;
 
@@ -329,6 +309,7 @@ private:
     bool m_visible = true;
     bool m_isBlockingNotifications = false;
     Kind m_kind = Kind::Other;
+    WidgetRegistrationInterface *m_widgetRegistration = nullptr;
 };
 
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(

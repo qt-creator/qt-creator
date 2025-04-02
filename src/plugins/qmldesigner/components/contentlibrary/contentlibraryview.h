@@ -37,7 +37,7 @@ public:
 
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;
-
+    void registerWidgetInfo() override;
     // AbstractView
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;

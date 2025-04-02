@@ -19,6 +19,7 @@
 #include <bundleimporter.h>
 #include <designerpaths.h>
 #include <documentmanager.h>
+#include <dynamiclicensecheck.h>
 #include <enumeration.h>
 #include <externaldependenciesinterface.h>
 #include <modelutils.h>
@@ -65,6 +66,12 @@ ContentLibraryView::~ContentLibraryView()
 bool ContentLibraryView::hasWidget() const
 {
     return true;
+}
+
+void ContentLibraryView::registerWidgetInfo()
+{
+    if (QmlDesigner::checkEnterpriseLicense())
+        AbstractView::registerWidgetInfo();
 }
 
 WidgetInfo ContentLibraryView::widgetInfo()
