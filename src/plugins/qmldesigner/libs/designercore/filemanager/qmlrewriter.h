@@ -56,6 +56,8 @@ protected:
         QmlJS::AST::UiObjectMemberList *members,
         PropertyNameView propertyName,
         const PropertyNameList &propertyOrder);
+    static QmlJS::AST::UiObjectMemberList *searchChildrenToInsertAfter(
+        QmlJS::AST::UiObjectMemberList *members, const PropertyNameList &propertyOrder, int pos = -1);
 
 protected:
     bool didRewriting() const

@@ -13,6 +13,7 @@ class AddObjectVisitor: public QMLRewriter
 public:
     AddObjectVisitor(QmlDesigner::TextModifier &modifier,
                      quint32 parentLocation,
+                     quint32 nodeLocation,
                      const QString &content,
                      const PropertyNameList &propertyOrder);
 
@@ -25,6 +26,7 @@ private:
 
 private:
     quint32 m_parentLocation;
+    quint32 m_nodeLocation;
     QString m_content;
     PropertyNameList m_propertyOrder;
 };
