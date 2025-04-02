@@ -2114,7 +2114,11 @@ void PluginManagerPrivate::readPluginPaths()
     // static
     for (const QStaticPlugin &plugin : QPluginLoader::staticPlugins()) {
         expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(plugin);
-        QTC_ASSERT_EXPECTED(spec, continue);
+        if (!spec) {
+            qCInfo(pluginLog).noquote()
+                << QString("Ignoring static plugin because: %2").arg(spec.error());
+            continue;
+        }
         newSpecs.append(spec->release());
     }
 
