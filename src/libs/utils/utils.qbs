@@ -36,7 +36,7 @@ QtcLibrary {
         cpp.frameworks: ["Foundation", "AppKit"]
     }
 
-    Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "qml", "widgets", "xml"] }
+    Depends { name: "Qt"; submodules: ["concurrent", "core-private", "network", "printsupport", "qml", "widgets", "xml"] }
     Depends { name: "Qt.macextras"; condition: Qt.core.versionMajor < 6 && qbs.targetOS.contains("macos") }
     Depends { name: "Spinner" }
     Depends { name: "Tasking" }
@@ -493,6 +493,19 @@ QtcLibrary {
             condition: !qbs.targetOS.contains("macos")
             files: "touchbar.cpp"
         }
+    }
+
+    Group {
+        name: "PlainTextEdit"
+        prefix: "plaintextedit/"
+        files: [
+            "inputcontrol.cpp",
+            "inputcontrol.h",
+            "plaintextedit.cpp",
+            "plaintextedit.h",
+            "widgettextcontrol.cpp",
+            "widgettextcontrol.h",
+        ]
     }
 
     Export {

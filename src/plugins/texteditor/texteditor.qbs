@@ -227,19 +227,6 @@ Project {
             ]
         }
 
-        Group {
-            name: "PlainTextEdit"
-            prefix: "plaintextedit/"
-            files: [
-                "inputcontrol.h",
-                "inputhandler.cpp",
-                "plaintextedit.cpp",
-                "plaintextedit.h",
-                "widgettextcontrol.cpp",
-                "widgettextcontrol.h",
-            ]
-        }
-
         QtcTestFiles {
             files: [
                 "codeassist/codeassist_test.cpp",
