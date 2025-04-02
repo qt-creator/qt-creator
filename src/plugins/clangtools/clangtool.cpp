@@ -57,6 +57,7 @@
 #include <QAction>
 #include <QCheckBox>
 #include <QDesktopServices>
+#include <QElapsedTimer>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLoggingCategory>

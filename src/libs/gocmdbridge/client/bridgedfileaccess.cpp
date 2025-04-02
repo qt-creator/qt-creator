@@ -6,6 +6,7 @@
 #include "cmdbridgeclient.h"
 #include "cmdbridgetr.h"
 
+#include <QElapsedTimer>
 #include <QFutureWatcher>
 #include <QLoggingCategory>
 

@@ -9,6 +9,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QElapsedTimer>
 #include <QPointer>
 #include <QTextDocument>
 #include <QThread>

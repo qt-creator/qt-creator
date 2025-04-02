@@ -15,6 +15,7 @@
 
 #include <utils/processinterface.h>
 
+#include <QElapsedTimer>
 #include <QFuture>
 #include <QQueue>
 

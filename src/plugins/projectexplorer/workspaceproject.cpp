@@ -28,6 +28,7 @@
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
+#include <QElapsedTimer>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>

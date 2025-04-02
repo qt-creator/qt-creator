@@ -12,6 +12,7 @@
 #include <utils/futuresynchronizer.h>
 #include <utils/id.h>
 
+#include <QElapsedTimer>
 #include <QObject>
 #include <QTimer>
 

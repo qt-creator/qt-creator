@@ -31,6 +31,7 @@
 
 #include <nanotrace/nanotrace.h>
 
+#include <QElapsedTimer>
 #include <QHash>
 
 #include <optional>
