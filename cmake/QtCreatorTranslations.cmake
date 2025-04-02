@@ -120,13 +120,10 @@ function(_create_ts_custom_target name)
 
   # Uses lupdate + convert instead of just lupdate with '-locations none -no-obsolete'
   # to keep the same sorting as the non-'cleaned' target and therefore keep the diff small
-  # get path for lconvert...
-  get_target_property(_lupdate_binary Qt::lupdate IMPORTED_LOCATION)
-  get_filename_component(_bin_dir ${_lupdate_binary} DIRECTORY)
 
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_cleaned"
     COMMAND Qt::lupdate -locations relative -no-ui-lines "@${response_file}" -ts ${ts_file}
-    COMMAND ${_bin_dir}/lconvert -locations none -no-ui-lines -no-obsolete ${ts_file} -o ${ts_file}
+    COMMAND Qt::lconvert -locations none -no-ui-lines -no-obsolete ${ts_file} -o ${ts_file}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Generate .ts file (${name}), remove obsolete and vanished translations, and do not add files and line number"
     DEPENDS ${_arg_DEPENDS}
@@ -149,7 +146,7 @@ function(_create_ts_custom_target name)
 endfunction()
 
 function(add_translation_targets file_prefix)
-  if (NOT TARGET Qt::lrelease OR NOT TARGET Qt::lupdate)
+  if(NOT TARGET Qt::lrelease OR NOT TARGET Qt::lupdate OR NOT TARGET Qt::lconvert)
     # No Qt translation tools were found: Skip this directory
     message(WARNING "No Qt translation tools found, skipping translation targets. Add find_package(Qt6 COMPONENTS LinguistTools) to CMake to enable.")
     return()
