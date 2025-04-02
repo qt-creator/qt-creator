@@ -10,12 +10,10 @@
 #include <QHash>
 #include <QMutex>
 
-namespace QmlJSTools {
-namespace Internal {
+namespace QmlJSTools::Internal {
 
 class LocatorData : public QObject
 {
-    Q_OBJECT
 public:
     LocatorData();
     ~LocatorData() override;
@@ -47,5 +45,4 @@ private:
     QHash<Utils::FilePath, QList<Entry>> m_entries;
 };
 
-} // namespace Internal
-} // namespace QmlJSTools
+} // namespace QmlJSTools::Internal

@@ -5,19 +5,19 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-namespace QmlJSTools::Internal {
+#include <qmljslocatordata.h>
 
-class LocatorData;
+namespace QmlJSTools::Internal {
 
 class QmlJSFunctionsFilter final : public Core::ILocatorFilter
 {
 public:
-    QmlJSFunctionsFilter(LocatorData *data);
+    QmlJSFunctionsFilter();
 
 private:
     Core::LocatorMatcherTasks matchers() final;
 
-    LocatorData *m_data = nullptr;
+    LocatorData m_data;
 };
 
 } // namespace QmlJSTools::Internal

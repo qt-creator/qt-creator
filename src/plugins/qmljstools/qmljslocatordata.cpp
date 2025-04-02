@@ -8,15 +8,15 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsutils.h>
-//#include <qmljs/qmljsinterpreter.h>
 #include <qmljs/parser/qmljsast_p.h>
 
 #include <QDebug>
 #include <QMutexLocker>
 
-using namespace QmlJSTools::Internal;
 using namespace QmlJS;
 using namespace QmlJS::AST;
+
+namespace QmlJSTools::Internal {
 
 LocatorData::LocatorData()
 {
@@ -236,3 +236,5 @@ void LocatorData::onAboutToRemoveFiles(const Utils::FilePaths &files)
         m_entries.remove(file);
     }
 }
+
+} // namespace QmlJSTools::Internal

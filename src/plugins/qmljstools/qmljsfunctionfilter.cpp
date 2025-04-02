@@ -17,8 +17,7 @@ using namespace Utils;
 
 Q_DECLARE_METATYPE(LocatorData::Entry)
 
-QmlJSFunctionsFilter::QmlJSFunctionsFilter(LocatorData *data)
-    : m_data(data)
+QmlJSFunctionsFilter::QmlJSFunctionsFilter()
 {
     setId("Functions");
     setDisplayName(Tr::tr("QML Functions"));
@@ -75,7 +74,7 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
 
 LocatorMatcherTasks QmlJSFunctionsFilter::matchers()
 {
-    const auto onSetup = [entries = m_data->entries()](Async<void> &async) {
+    const auto onSetup = [entries = m_data.entries()](Async<void> &async) {
         async.setConcurrentCallData(matches, *LocatorStorage::storage(), entries);
     };
 

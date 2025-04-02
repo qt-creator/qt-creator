@@ -4,7 +4,6 @@
 #include "qmljsbundleprovider.h"
 #include "qmljscodestylesettingspage.h"
 #include "qmljsfunctionfilter.h"
-#include "qmljslocatordata.h"
 #include "qmljsmodelmanager.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
@@ -38,8 +37,7 @@ public:
 
     QAction resetCodeModelAction{Tr::tr("Reset Code Model"), nullptr};
 
-    LocatorData locatorData;
-    QmlJSFunctionsFilter functionsFilter{&locatorData};
+    QmlJSFunctionsFilter functionsFilter;
     QmlJSCodeStyleSettingsPage codeStyleSettingsPage;
     BasicBundleProvider basicBundleProvider;
 };
