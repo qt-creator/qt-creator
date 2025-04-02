@@ -117,13 +117,39 @@ public:
         return size;
     }
 
+    QSize preferredSize() const
+    {
+        QSize size(0, 0);
+        for (int i = 0; i < itemList.size(); ++i) {
+            QLayoutItem *item = itemList.at(i);
+            QWidget *wid = item->widget();
+            // Last item doesn't have spacing to the right
+            int spaceX = i < itemList.size() - 1 ? horizontalSpacing() : 0;
+            if (spaceX < 0) {
+                if (i < itemList.size() - 1) {
+                    spaceX = wid->style()->combinedLayoutSpacing(
+                        item->controlTypes(), itemList.at(i + 1)->controlTypes(), Qt::Horizontal);
+                }
+                if (spaceX < 0)
+                    spaceX = 0;
+            }
+            size.setWidth(size.width() + item->sizeHint().width() + spaceX);
+            size.setHeight(std::max(size.height(), item->sizeHint().height()));
+        }
+
+        int left, top, right, bottom;
+        getContentsMargins(&left, &top, &right, &bottom);
+        size += QSize(left + right, top + bottom);
+        return size;
+    }
+
     void setGeometry(const QRect &rect) override
     {
         QLayout::setGeometry(rect);
         doLayout(rect, false);
     }
 
-    QSize sizeHint() const override { return minimumSize(); }
+    QSize sizeHint() const override { return preferredSize(); }
 
     QLayoutItem *takeAt(int index) override
     {
@@ -166,7 +192,8 @@ private:
         for (int i = 0; i < itemList.size(); ++i) {
             QLayoutItem *item = itemList.at(i);
             QWidget *wid = item->widget();
-            int spaceX = horizontalSpacing();
+            // Last item doesn't have spacing to the right
+            int spaceX = i < itemList.size() - 1 ? horizontalSpacing() : 0;
             if (spaceX < 0) {
                 if (i < itemList.size() - 1) {
                     spaceX = wid->style()->combinedLayoutSpacing(
@@ -175,8 +202,10 @@ private:
                 if (spaceX < 0)
                     spaceX = 0;
             }
-            int nextX = x + item->sizeHint().width() + spaceX;
-            if (nextX - spaceX > effectiveRect.right() && lineHeight > 0) {
+            const QSize itemSizeHint = item->sizeHint();
+            int nextX = x + itemSizeHint.width() + spaceX;
+            // The "right-most x-coordinate" of item is x + width - 1
+            if (nextX - spaceX - 1 > effectiveRect.right() && lineHeight > 0) {
                 // The item doesn't fit and it isn't the only one, finish the row.
                 if (!testOnly)
                     setItemGeometries(/*count=*/indexInRow, /*beforeIndex=*/i, lineHeight);
@@ -190,14 +219,14 @@ private:
                     spaceY = 0;
                 x = effectiveRect.x();
                 y = y + lineHeight + spaceY;
-                nextX = x + item->sizeHint().width() + spaceX;
+                nextX = x + itemSizeHint.width() + spaceX;
                 lineHeight = 0;
                 indexInRow = 0;
             }
-            geometries[indexInRow] = QRect(QPoint(x, y), item->sizeHint());
+            geometries[indexInRow] = QRect(QPoint(x, y), itemSizeHint);
 
             x = nextX;
-            lineHeight = qMax(lineHeight, item->sizeHint().height());
+            lineHeight = qMax(lineHeight, itemSizeHint.height());
             ++indexInRow;
         }
         // Finish the last row.
