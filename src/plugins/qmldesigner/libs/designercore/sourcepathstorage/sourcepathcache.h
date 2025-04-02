@@ -142,27 +142,38 @@ private:
         Storage &storage;
     };
 
-    static bool sourceLess(Utils::SmallStringView first, Utils::SmallStringView second) noexcept
+    struct SourceNameLess
     {
-        return std::lexicographical_compare(first.rbegin(),
-                                            first.rend(),
-                                            second.rbegin(),
-                                            second.rend());
-    }
+        bool operator()(Utils::SmallStringView first, Utils::SmallStringView second) const noexcept
+        {
+            return first < second;
+        }
+    };
+
+    struct SourceContextLess
+    {
+        bool operator()(Utils::SmallStringView first, Utils::SmallStringView second) const noexcept
+        {
+            return std::ranges::lexicographical_compare(first.rbegin(),
+                                                        first.rend(),
+                                                        second.rbegin(),
+                                                        second.rend());
+        }
+    };
 
     using SourceContextPathCache = StorageCache<Utils::PathString,
                                                 Utils::SmallStringView,
                                                 SourceContextId,
                                                 SourceContextStorageAdapter,
                                                 Mutex,
-                                                sourceLess,
+                                                SourceContextLess,
                                                 Cache::SourceContext>;
-    using SourceNameCache = StorageCache<Utils::PathString,
+    using SourceNameCache = StorageCache<Utils::SmallString,
                                          Utils::SmallStringView,
                                          SourceNameId,
                                          SourceNameStorageAdapter,
                                          Mutex,
-                                         sourceLess,
+                                         SourceNameLess,
                                          Cache::SourceName>;
 
 private:

@@ -9,6 +9,8 @@
 #include <utils/smallstringview.h>
 #include <utils/span.h>
 
+#include <shared_mutex>
+
 namespace QmlDesigner {
 using PropertyName = QByteArray;
 using PropertyNameView = QByteArrayView;
@@ -40,7 +42,7 @@ constexpr bool useProjectStorage()
 #endif
 }
 class SourcePathStorage;
-using PathCache = SourcePathCache<SourcePathStorage, NonLockingMutex>;
+using PathCache = SourcePathCache<SourcePathStorage, std::shared_mutex>;
 
 #ifdef QDS_MODEL_USE_PROJECTSTORAGEINTERFACE
 using ProjectStorageType = ProjectStorageInterface;
@@ -48,7 +50,7 @@ class SourcePathCacheInterface;
 using PathCacheType = SourcePathCacheInterface;
 #else
 using ProjectStorageType = ProjectStorage;
-using PathCacheType = SourcePathCache<SourcePathStorage, NonLockingMutex>;
+using PathCacheType = SourcePathCache<SourcePathStorage, std::shared_mutex>;
 #endif
 
 struct ProjectStorageDependencies

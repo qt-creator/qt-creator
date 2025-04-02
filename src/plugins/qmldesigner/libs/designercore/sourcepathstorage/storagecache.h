@@ -33,7 +33,7 @@ template<typename Type,
          typename IndexType,
          typename Storage,
          typename Mutex,
-         bool (*compare)(ViewType, ViewType),
+         typename Compare,
          class CacheEntry = StorageCacheEntry<Type, ViewType, IndexType>>
 class StorageCache
 {
@@ -140,17 +140,11 @@ public:
     {
         m_entries = m_storage.fetchAll();
 
-        std::sort(m_entries.begin(), m_entries.end(), [](ViewType first, ViewType second) {
-            return compare(first, second);
-        });
+        std::ranges::sort(m_entries, Compare{});
 
         std::size_t max_id = 0;
 
-        auto found = std::max_element(m_entries.begin(),
-                                      m_entries.end(),
-                                      [](const auto &first, const auto &second) {
-                                          return first.id < second.id;
-                                      });
+        auto found = std::ranges::max_element(m_entries, {}, &CacheEntry::id);
 
         if (found != m_entries.end())
             max_id = static_cast<std::size_t>(found->id);
@@ -162,31 +156,25 @@ public:
 
     void add(std::vector<ViewType> &&views)
     {
-        auto less = [](ViewType first, ViewType second) { return compare(first, second); };
+        std::ranges::sort(views, Compare{});
 
-        std::sort(views.begin(), views.end(), less);
-
-        views.erase(std::unique(views.begin(), views.end()), views.end());
+        auto removed = std::ranges::unique(views.begin(), views.end());
+        views.erase(removed.begin(), removed.end());
 
         CacheEntries newCacheEntries;
         newCacheEntries.reserve(views.size());
 
-        std::set_difference(views.begin(),
-                            views.end(),
-                            m_entries.begin(),
-                            m_entries.end(),
-                            Utils::make_iterator([&](ViewType newView) {
-                                IndexType index = m_storage.fetchId(newView);
-                                newCacheEntries.emplace_back(newView, index);
-                            }),
-                            less);
+        Utils::set_difference(
+            views,
+            m_entries,
+            [&](ViewType newView) {
+                IndexType index = m_storage.fetchId(newView);
+                newCacheEntries.emplace_back(newView, index);
+            },
+            Compare{});
 
         if (newCacheEntries.size()) {
-            auto found = std::max_element(newCacheEntries.begin(),
-                                          newCacheEntries.end(),
-                                          [](const auto &first, const auto &second) {
-                                              return first.id < second.id;
-                                          });
+            auto found = std::ranges::max_element(newCacheEntries, {}, &CacheEntry::id);
 
             auto max_id = static_cast<std::size_t>(found->id);
 
@@ -196,12 +184,12 @@ public:
             CacheEntries mergedCacheEntries;
             mergedCacheEntries.reserve(newCacheEntries.size() + m_entries.size());
 
-            std::merge(std::make_move_iterator(m_entries.begin()),
-                       std::make_move_iterator(m_entries.end()),
-                       std::make_move_iterator(newCacheEntries.begin()),
-                       std::make_move_iterator(newCacheEntries.end()),
-                       std::back_inserter(mergedCacheEntries),
-                       less);
+            std::ranges::merge(std::make_move_iterator(m_entries.begin()),
+                               std::make_move_iterator(m_entries.end()),
+                               std::make_move_iterator(newCacheEntries.begin()),
+                               std::make_move_iterator(newCacheEntries.end()),
+                               std::back_inserter(mergedCacheEntries),
+                               Compare{});
 
             m_entries = std::move(mergedCacheEntries);
 
@@ -221,7 +209,7 @@ public:
         sharedLock.unlock();
         std::lock_guard<Mutex> exclusiveLock(m_mutex);
 
-        if (!std::is_base_of<NonLockingMutex, Mutex>::value)
+        if constexpr (!std::is_base_of_v<NonLockingMutex, Mutex>)
             found = find(view);
         if (found == m_entries.end())
             found = insertEntry(found, view, m_storage.fetchId(view));
@@ -235,7 +223,7 @@ public:
         std::vector<IndexType> ids;
         ids.reserve(values.size());
 
-        std::transform(values.begin(), values.end(), std::back_inserter(ids), [&](const auto &values) {
+        std::ranges::transform(values, std::back_inserter(ids), [&](const auto &values) {
             return this->id(values);
         });
 
@@ -252,9 +240,9 @@ public:
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
         if (IndexType::create(static_cast<IndexDatabaseType>(m_indices.size()) + 1) > id) {
-            if (StorageCacheIndex indirectionIndex = m_indices.at(static_cast<std::size_t>(id) - 1);
+            if (StorageCacheIndex indirectionIndex = m_indices[static_cast<std::size_t>(id) - 1];
                 indirectionIndex.isValid()) {
-                return m_entries.at(static_cast<std::size_t>(indirectionIndex)).value;
+                return m_entries[static_cast<std::size_t>(indirectionIndex)].value;
             }
         }
 
@@ -276,9 +264,7 @@ public:
 
         for (IndexType id : ids) {
             values.emplace_back(
-                m_entries
-                    .at(static_cast<std::size_t>(m_indices.at(static_cast<std::size_t>(id) - 1)))
-                    .value);
+                m_entries[static_cast<std::size_t>(m_indices[static_cast<std::size_t>(id) - 1])].value);
         }
         return values;
     }
@@ -306,19 +292,10 @@ private:
     template<typename Entries>
     static auto find(Entries &&entries, ViewType view)
     {
-        auto begin = entries.begin();
-        auto end = entries.end();
-        auto found = std::lower_bound(begin, end, view, compare);
+        auto found = std::ranges::lower_bound(entries, view, Compare{});
 
-        if (found == entries.end()) {
-            return entries.end();
-        }
-
-        const auto &value = *found;
-
-        if (value == view) {
+        if (found != entries.end() && *found == view)
             return found;
-        }
 
         return entries.end();
     }
@@ -329,9 +306,8 @@ private:
 
         auto found = find(view);
 
-        if (found != m_entries.end()) {
+        if (found != m_entries.end())
             return found->id;
-        }
 
         return IndexType();
     }
@@ -341,9 +317,9 @@ private:
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
         if (IndexType::create(static_cast<IndexDatabaseType>(m_indices.size()) + 1) > id) {
-            if (StorageCacheIndex indirectionIndex = m_indices.at(static_cast<std::size_t>(id) - 1);
+            if (StorageCacheIndex indirectionIndex = m_indices[static_cast<std::size_t>(id) - 1];
                 indirectionIndex.isValid()) {
-                return m_entries.at(static_cast<std::size_t>(indirectionIndex)).value;
+                return m_entries[static_cast<std::size_t>(indirectionIndex)].value;
             }
         }
 
@@ -377,7 +353,7 @@ private:
 
         auto indirectionIndex = static_cast<std::size_t>(id) - 1;
         ensureSize(indirectionIndex);
-        m_indices.at(indirectionIndex) = newIndirectionIndex;
+        m_indices[indirectionIndex] = newIndirectionIndex;
 
         return inserted;
     }

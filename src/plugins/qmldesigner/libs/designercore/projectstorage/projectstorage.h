@@ -284,10 +284,13 @@ private:
 
     friend ModuleStorageAdapter;
 
-    static bool moduleNameLess(ModuleView first, ModuleView second) noexcept
+    struct ModuleNameLess
     {
-        return first < second;
-    }
+        bool operator()(ModuleView first, ModuleView second) const noexcept
+        {
+            return first < second;
+        }
+    };
 
     class ModuleCacheEntry : public StorageCacheEntry<Storage::Module, ModuleView, ModuleId>
     {
@@ -314,7 +317,7 @@ private:
     using ModuleCacheEntries = std::vector<ModuleCacheEntry>;
 
     using ModuleCache
-        = StorageCache<Storage::Module, ModuleView, ModuleId, ModuleStorageAdapter, NonLockingMutex, moduleNameLess, ModuleCacheEntry>;
+        = StorageCache<Storage::Module, ModuleView, ModuleId, ModuleStorageAdapter, NonLockingMutex, ModuleNameLess, ModuleCacheEntry>;
 
     ModuleId fetchModuleId(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind);
 

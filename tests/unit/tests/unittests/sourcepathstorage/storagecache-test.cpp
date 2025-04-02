@@ -30,9 +30,12 @@ public:
     ProjectStorageMock &storage;
 };
 
-auto less(Utils::SmallStringView first, Utils::SmallStringView second) -> bool
+struct Less
 {
-    return Utils::compare(first, second) < 0;
+    bool operator()(Utils::SmallStringView first, Utils::SmallStringView second) const
+    {
+        return Utils::compare(first, second) < 0;
+    }
 };
 
 using CacheWithMockLocking = QmlDesigner::StorageCache<Utils::PathString,
@@ -40,7 +43,7 @@ using CacheWithMockLocking = QmlDesigner::StorageCache<Utils::PathString,
                                                        SourceContextId,
                                                        StorageAdapter,
                                                        NiceMock<MockMutex>,
-                                                       less,
+                                                       Less,
                                                        QmlDesigner::Cache::SourceContext>;
 
 using CacheWithoutLocking = QmlDesigner::StorageCache<Utils::PathString,
@@ -48,7 +51,7 @@ using CacheWithoutLocking = QmlDesigner::StorageCache<Utils::PathString,
                                                       SourceContextId,
                                                       StorageAdapter,
                                                       NiceMock<MockMutexNonLocking>,
-                                                      less,
+                                                      Less,
                                                       QmlDesigner::Cache::SourceContext>;
 
 template<typename Cache>
