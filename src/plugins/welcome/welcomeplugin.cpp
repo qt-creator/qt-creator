@@ -376,7 +376,7 @@ class WelcomePlugin final : public ExtensionSystem::IPlugin
 
     ~WelcomePlugin() final { delete m_welcomeMode; }
 
-    bool initialize(const QStringList &arguments, QString *) final
+    Result<> initialize(const QStringList &arguments) final
     {
         m_welcomeMode = new WelcomeMode;
 
@@ -389,8 +389,7 @@ class WelcomePlugin final : public ExtensionSystem::IPlugin
             connect(ICore::instance(), &ICore::coreOpened, this, [] { askUserAboutIntroduction(); },
             Qt::QueuedConnection);
         }
-
-        return true;
+        return ResultOk;
     }
 
     void extensionsInitialized() final

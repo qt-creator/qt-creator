@@ -82,7 +82,7 @@ private:
     QString m_errorMessage;
 };
 
-class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin : public ExtensionSystem::IPlugin
+class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ProjectExplorer.json")
@@ -91,7 +91,7 @@ class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin : public ExtensionSystem::IPl
 
 public:
     ProjectExplorerPlugin();
-    ~ProjectExplorerPlugin() override;
+    ~ProjectExplorerPlugin() final;
 
     static ProjectExplorerPlugin *instance();
 
@@ -106,10 +106,10 @@ public:
     static void showContextMenu(QWidget *view, const QPoint &globalPos, Node *node);
 
     //PluginInterface
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-    void extensionsInitialized() override;
-    bool delayedInitialize() override;
-    ShutdownFlag aboutToShutdown() override;
+    Utils::Result<> initialize(const QStringList &arguments) final;
+    void extensionsInitialized() final;
+    bool delayedInitialize() final;
+    ShutdownFlag aboutToShutdown() final;
 
     static void setCustomParsers(const QList<CustomParserSettings> &settings);
     static void addCustomParser(const CustomParserSettings &settings);

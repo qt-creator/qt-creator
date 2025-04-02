@@ -1342,9 +1342,8 @@ bool CppPluginSpec::initializePlugin()
             ::ExtensionSystem::Tr::tr("Internal error: have no plugin instance to initialize"));
         return false;
     }
-    QString err;
-    if (!d->plugin->initialize(arguments(), &err)) {
-        setError(::ExtensionSystem::Tr::tr("Plugin initialization failed: %1").arg(err));
+    if (Result<> res = d->plugin->initialize(arguments()); !res) {
+        setError(::ExtensionSystem::Tr::tr("Plugin initialization failed: %1").arg(res.error()));
         return false;
     }
     setState(PluginSpec::Initialized);

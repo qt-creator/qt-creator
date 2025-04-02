@@ -129,7 +129,7 @@ class DesignerPlugin final : public ExtensionSystem::IPlugin
         delete d;
     }
 
-    bool initialize(const QStringList &arguments, QString *) final
+    Result<> initialize(const QStringList &arguments) final
     {
         d = new FormEditorPluginPrivate;
 
@@ -166,7 +166,7 @@ class DesignerPlugin final : public ExtensionSystem::IPlugin
 #endif
 
         parseArguments(arguments);
-        return true;
+        return ResultOk;
     }
 
     void extensionsInitialized() final

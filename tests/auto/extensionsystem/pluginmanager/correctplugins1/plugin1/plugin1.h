@@ -24,7 +24,7 @@ public:
     MyPlugin1() = default;
     ~MyPlugin1() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    Utils::Result<> initialize(const QStringList &arguments) final;
     void extensionsInitialized() final;
 
 private:

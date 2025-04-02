@@ -44,7 +44,7 @@ public:
     QmlDesignerPlugin();
     ~QmlDesignerPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    Utils::Result<> initialize(const QStringList &arguments) final;
     bool delayedInitialize() final;
     void extensionsInitialized() final;
     ShutdownFlag aboutToShutdown() final;

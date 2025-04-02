@@ -2254,10 +2254,8 @@ class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
         dd = nullptr;
     }
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final
+    Result<> initialize(const QStringList &arguments) final
     {
-        Q_UNUSED(errorMessage)
-
 #ifdef WITH_TESTS
         addTest<GitTest>();
 #endif
@@ -2270,8 +2268,7 @@ class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
             remoteCommand(arguments, QDir::currentPath(), {});
             cmdContext->deleteLater();
         });
-
-        return true;
+        return ResultOk;
     }
 
     void extensionsInitialized() final

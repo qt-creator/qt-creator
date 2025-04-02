@@ -244,15 +244,14 @@ static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
         menu->insertSeparator(firstAction);
 }
 
-bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
+Result<> CorePlugin::initialize(const QStringList &arguments)
 {
     initTAndCAcceptDialog();
     initProxyAuthDialog();
 
-    if (ThemeEntry::availableThemes().isEmpty()) {
-        *errorMessage = Tr::tr("No themes found in installation.");
-        return false;
-    }
+    if (ThemeEntry::availableThemes().isEmpty())
+        return ResultError(Tr::tr("No themes found in installation."));
+
     const CoreArguments args = parseArguments(arguments);
     Theme *themeFromArg = ThemeEntry::createTheme(args.themeId);
     Theme *theme = themeFromArg ? themeFromArg
@@ -372,7 +371,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addTestCreator(&createVcsManagerTest);
 #endif
 
-    return true;
+    return ResultOk;
 }
 
 static Id generateOpenPageCommandId(IOptionsPage *page)

@@ -14,10 +14,6 @@ class QmlDesignerLitePlugin final : public ExtensionSystem::IPlugin
 
 public:
     QmlDesignerLitePlugin();
-    ~QmlDesignerLitePlugin();
-
-private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
 };
 
 } // namespace QmlDesigner

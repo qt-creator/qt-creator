@@ -172,12 +172,11 @@ IPlugin::IPlugin() = default;
 */
 IPlugin::~IPlugin() = default;
 
-bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
+Utils::Result<> IPlugin::initialize(const QStringList &arguments)
 {
     Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
     initialize();
-    return true;
+    return Utils::ResultOk;
 }
 
 /*!

@@ -6,6 +6,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 using namespace Plugin1;
+using namespace Utils;
 
 MyPlugin1::~MyPlugin1()
 {
@@ -13,7 +14,7 @@ MyPlugin1::~MyPlugin1()
     ExtensionSystem::PluginManager::removeObject(object2);
 }
 
-bool MyPlugin1::initialize(const QStringList & /*arguments*/, QString *errorString)
+Result<> MyPlugin1::initialize(const QStringList &)
 {
     initializeCalled = true;
     object1 = new QObject(this);
@@ -28,18 +29,15 @@ bool MyPlugin1::initialize(const QStringList & /*arguments*/, QString *errorStri
             found2 = true;
         else if (object->objectName() == "MyPlugin3")
             found3 = true;
+        if (found2 && found3)
+            return ResultOk;
     }
-    if (found2 && found3)
-        return true;
-    if (errorString) {
-        QString error = "object(s) missing from plugin(s):";
-        if (!found2)
-            error.append(" plugin2");
-        if (!found3)
-            error.append(" plugin3");
-        *errorString = error;
-    }
-    return false;
+    QString error = "object(s) missing from plugin(s):";
+    if (!found2)
+        error.append(" plugin2");
+    if (!found3)
+        error.append(" plugin3");
+    return ResultError(error);
 }
 
 void MyPlugin1::extensionsInitialized()

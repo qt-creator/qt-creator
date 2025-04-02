@@ -166,7 +166,6 @@
 
 #include <algorithm>
 #include <functional>
-#include <iterator>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -781,10 +780,8 @@ static void restoreRecentProjects(QtcSettings *s)
     dd->checkRecentProjectsAsync();
 }
 
-bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
+Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 {
-    Q_UNUSED(error)
-
     IOptionsPage::registerCategory(
                 Constants::KITS_SETTINGS_CATEGORY,
                 Tr::tr("Kits"),
@@ -1940,7 +1937,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 #ifdef WITH_TESTS
     addTestCreator(&createSanitizerOutputParserTest);
 #endif
-    return true;
+    return ResultOk;
 }
 
 void ProjectExplorerPluginPrivate::loadAction()

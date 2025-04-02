@@ -2056,7 +2056,7 @@ public:
 
 private:
     // IPlugin implementation.
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    Utils::Result<> initialize(const QStringList &arguments) final;
     QObject *remoteCommand(const QStringList &options,
                            const QString &workingDirectory,
                            const QStringList &arguments) final;
@@ -2272,10 +2272,8 @@ void showPermanentStatusMessage(const QString &message)
 
 namespace Internal {
 
-bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+Result<> DebuggerPlugin::initialize(const QStringList &arguments)
 {
-    Q_UNUSED(errorMessage)
-
     IOptionsPage::registerCategory(
         DEBUGGER_SETTINGS_CATEGORY,
         Tr::tr("Debugger"),
@@ -2295,7 +2293,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     addTestCreator(createDebuggerTest);
 #endif
 
-    return true;
+    return ResultOk;
 }
 
 void DebuggerPlugin::attachToProcess(const qint64 processId, const Utils::FilePath &executable)

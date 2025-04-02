@@ -288,21 +288,19 @@ void UpdateInfoPlugin::extensionsInitialized()
         QTimer::singleShot(OneMinute, this, &UpdateInfoPlugin::startAutoCheckForUpdates);
 }
 
-bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
+Result<> UpdateInfoPlugin::initialize(const QStringList &)
 {
     loadSettings();
 
     if (d->m_maintenanceTool.isEmpty()) {
-        *errorMessage = Tr::tr("Could not determine location of maintenance tool. Please check "
-            "your installation if you did not enable this plugin manually.");
-        return false;
+        return ResultError(Tr::tr("Could not determine location of maintenance tool. Please check "
+                                  "your installation if you did not enable this plugin manually."));
     }
 
     if (!d->m_maintenanceTool.isExecutableFile()) {
-        *errorMessage = Tr::tr("The maintenance tool at \"%1\" is not an executable. Check your installation.")
-            .arg(d->m_maintenanceTool.toUserOutput());
         d->m_maintenanceTool.clear();
-        return false;
+        return ResultError(Tr::tr("The maintenance tool at \"%1\" is not an executable. Check your installation.")
+            .arg(d->m_maintenanceTool.toUserOutput()));
     }
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
@@ -332,8 +330,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
         startMaintenanceTool({});
     });
     mmaintenanceTool->addAction(startMaintenanceToolCommand);
-
-    return true;
+    return ResultOk;
 }
 
 void UpdateInfoPlugin::loadSettings() const
