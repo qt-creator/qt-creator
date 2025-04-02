@@ -129,6 +129,10 @@ const std::optional<DashboardInfo> currentDashboardInfo();
 void setAnalysisVersion(const QString &version);
 void enableInlineIssues(bool enable);
 
+enum class DashboardMode { Global, Local };
+void switchDashboardMode(DashboardMode mode);
+DashboardMode currentDashboardMode();
+
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
 
 } // Axivion::Internal

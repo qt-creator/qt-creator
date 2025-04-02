@@ -15,6 +15,8 @@ void resetDashboard();
 void updateIssueDetails(const QString &html);
 void updateNamedFilters();
 
+void leaveOrEnterDashboardMode();
+
 void setupAxivionPerspective();
 
 } // Axivion::Internal

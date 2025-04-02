@@ -265,6 +265,8 @@ public:
     void fetchIssueInfo(const QString &id);
     void fetchNamedFilters();
 
+    void switchDashboardMode(DashboardMode mode);
+
     void onSessionLoaded(const QString &sessionName);
     void onAboutToSaveSession();
 
@@ -292,6 +294,7 @@ public:
     QMetaObject::Connection m_fileFinderConnection;
     QHash<FilePath, QSet<TextMark *>> m_allMarks;
     bool m_inlineIssuesEnabled = true;
+    DashboardMode m_dashboardMode = DashboardMode::Global;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
@@ -1172,6 +1175,14 @@ void AxivionPluginPrivate::enableInlineIssues(bool enable)
         clearAllMarks();
 }
 
+void AxivionPluginPrivate::switchDashboardMode(DashboardMode mode)
+{
+    if (m_dashboardMode == mode)
+        return;
+    m_dashboardMode = mode;
+    leaveOrEnterDashboardMode();
+}
+
 static constexpr char SV_PROJECTNAME[] = "Axivion.ProjectName";
 static constexpr char SV_DASHBOARDID[] = "Axivion.DashboardId";
 
@@ -1292,6 +1303,18 @@ Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath)
     if (result.size() == 1)
         return dd->m_project->projectDirectory().resolvePath(result.first());
     return {};
+}
+
+void switchDashboardMode(DashboardMode mode)
+{
+    QTC_ASSERT(dd, return);
+    dd->switchDashboardMode(mode);
+}
+
+DashboardMode currentDashboardMode()
+{
+    QTC_ASSERT(dd, return DashboardMode::Global);
+    return dd->m_dashboardMode;
 }
 
 } // Axivion::Internal
