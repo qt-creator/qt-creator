@@ -14,9 +14,7 @@
 
 #include <android/androidconstants.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <proparser/qmakevfs.h>
 
@@ -25,7 +23,6 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
-#include <projectexplorer/headerpath.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -48,11 +45,10 @@
 #include <utils/stringutils.h>
 #include <utils/winutils.h>
 
-#include <resourceeditor/resourcenode.h>
-
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QHash>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QUrl>
@@ -60,6 +56,7 @@
 #include <QtConcurrent>
 
 #include <algorithm>
+#include <optional>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -230,6 +227,7 @@ public:
     FilePath m_qscxmlcPath;
     FilePath m_qmlRuntimePath;
     FilePath m_qmlplugindumpPath;
+    std::optional<QHash<QString, QStringList>> m_classesPerModule;
 
     std::unique_ptr<MacroExpander> m_expander;
 };
@@ -281,6 +279,39 @@ QString QtVersion::defaultUnexpandedDisplayName() const
         result += QString(Tr::tr(" (on %1)")).arg(qmakeFilePath().host().toString());
 
     return result;
+}
+
+QString QtVersion::moduleForClass(const QString &className) const
+{
+    if (!d->m_classesPerModule) {
+        d->m_classesPerModule.emplace();
+        const FileFilter classesFilter({"Q[A-Z]*"}, QDir::Files);
+        const FileFilter frameworksFilter({"*.framework"}, QDir::Dirs | QDir::NoDotAndDotDot);
+        const FilePaths frameworks = libraryPath().dirEntries(frameworksFilter);
+        for (const FilePath &framework : frameworks) {
+            const QString frameworkName = framework.fileName();
+            const QString &moduleName = frameworkName.left(frameworkName.indexOf('.'));
+            const FilePath headersDir = libraryPath().resolvePath(framework.pathAppended("Headers"));
+            const FilePaths headers = headersDir.dirEntries(classesFilter);
+            d->m_classesPerModule->insert(moduleName, Utils::transform(headers, &FilePath::fileName));
+        }
+        if (frameworks.isEmpty()) {
+            const FileFilter modulesFilter({"Qt[A-Z]*"}, QDir::Dirs | QDir::NoDotAndDotDot);
+            const FilePaths modules = headerPath().dirEntries(modulesFilter);
+            for (const FilePath &module : modules) {
+                const FilePath headersDir = headerPath().resolvePath(module);
+                const FilePaths headers = headersDir.dirEntries(classesFilter);
+                d->m_classesPerModule
+                    ->insert(module.fileName(), Utils::transform(headers, &FilePath::fileName));
+            }
+        }
+    }
+
+    for (auto it = d->m_classesPerModule->cbegin(); it != d->m_classesPerModule->cend(); ++it) {
+        if (it.value().contains(className))
+            return it.key();
+    }
+    return {};
 }
 
 QSet<Id> QtVersion::availableFeatures() const

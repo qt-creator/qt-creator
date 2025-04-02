@@ -174,6 +174,7 @@ public:
     Utils::FilePath librarySearchPath() const;
 
     Utils::FilePaths directoriesToIgnoreInProjectTree() const;
+    QString moduleForClass(const QString &className) const;
 
     QString qtNamespace() const;
     QString qtLibInfix() const;
