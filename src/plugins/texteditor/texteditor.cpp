@@ -3493,7 +3493,9 @@ void TextEditorWidget::gotoLine(int line, int column, bool centerLine, bool anim
     const QTextBlock &block = document()->findBlockByNumber(blockNumber);
     if (block.isValid()) {
         QTextCursor cursor(block);
-        if (column > 0) {
+        if (column >= block.length()) {
+            cursor.movePosition(QTextCursor::EndOfBlock);
+        } else if (column > 0) {
             cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, column);
         } else {
             int pos = cursor.position();
