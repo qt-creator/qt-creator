@@ -28,8 +28,6 @@ using namespace Core;
 
 namespace QmlJSTools::Internal {
 
-enum { debug = 0 };
-
 class QmlJSToolsPluginPrivate : public QObject
 {
 public:
@@ -48,13 +46,6 @@ public:
 
 QmlJSToolsPluginPrivate::QmlJSToolsPluginPrivate()
 {
-//    Core::VcsManager *vcsManager = Core::VcsManager::instance();
-//    Core::DocumentManager *documentManager = Core::DocumentManager::instance();
-//    connect(vcsManager, &Core::VcsManager::repositoryChanged,
-//            &d->modelManager, &ModelManager::updateModifiedSourceFiles);
-//    connect(documentManager, &DocumentManager::filesChangedInternally,
-//            &d->modelManager, &ModelManager::updateSourceFiles);
-
     // Menus
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     ActionContainer *mqmljstools = ActionManager::createMenu(Constants::M_TOOLS_QMLJS);
