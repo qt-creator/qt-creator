@@ -94,7 +94,7 @@ Item {
     }
 
     Connections {
-        target: modelNodeBackend ?? null
+        target: this.modelNodeBackend ?? null
         ignoreUnknownSignals: true
 
         function onSelectionChanged() {
