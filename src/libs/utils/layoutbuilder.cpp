@@ -139,23 +139,30 @@ private:
     {
         int left, top, right, bottom;
         getContentsMargins(&left, &top, &right, &bottom);
-        QRect effectiveRect = rect.adjusted(+left, +top, -right, -bottom);
+        const QRect effectiveRect = rect.adjusted(+left, +top, -right, -bottom);
         int x = effectiveRect.x();
         int y = effectiveRect.y();
         int lineHeight = 0;
 
         QList<QRect> geometries;
         geometries.resize(itemList.size());
-        const auto setItemGeometries = [this,
-                                        &geometries](int count, int beforeIndex, int lineHeight) {
-            for (int j = 0; j < count; ++j) {
-                // Vertically center the items.
-                QLayoutItem *currentItem = itemList.at(beforeIndex - count + j);
-                const QRect geom = geometries.at(j);
-                currentItem->setGeometry(
-                    QRect(QPoint(geom.x(), geom.y() + (lineHeight - geom.height()) / 2), geom.size()));
-            }
-        };
+        const auto setItemGeometries =
+            [this, &geometries, effectiveRect](int count, int beforeIndex, int lineHeight) {
+                QTC_ASSERT(count > 0, return);
+                QTC_ASSERT(beforeIndex - count >= 0, return);
+                // Move to the right edge if alignment is Right.
+                const int xd = alignment() & Qt::AlignRight
+                                   ? (effectiveRect.right() - geometries.at(count - 1).right())
+                                   : 0;
+                for (int j = 0; j < count; ++j) {
+                    // Vertically center the items.
+                    QLayoutItem *currentItem = itemList.at(beforeIndex - count + j);
+                    const QRect geom = geometries.at(j);
+                    currentItem->setGeometry(QRect(
+                        QPoint(geom.x() + xd, geom.y() + (lineHeight - geom.height()) / 2),
+                        geom.size()));
+                }
+            };
         int indexInRow = 0;
         for (int i = 0; i < itemList.size(); ++i) {
             QLayoutItem *item = itemList.at(i);
@@ -376,6 +383,11 @@ void Layout::span(int cols, int rows)
     QTC_ASSERT(!pendingItems.empty(), return);
     pendingItems.back().spanCols = cols;
     pendingItems.back().spanRows = rows;
+}
+
+void Layout::setAlignment(Qt::Alignment alignment)
+{
+    access(this)->setAlignment(alignment);
 }
 
 void Layout::setNoMargins()

@@ -79,6 +79,15 @@ int main(int argc, char *argv[])
             ToolButton { bindTo(&toolButton2) },
             ToolButton { bindTo(&toolButton3) },
         },
+        Label { wordWrap(true), text("Right aligned:") },
+        Flow {
+            alignment(Qt::AlignRight),
+            PushButton { text("button1") },
+            PushButton { text("button2") },
+            PushButton { text("button3") },
+            PushButton { text("button4") },
+            PushButton { text("button5") }
+        },
         st
     }.emerge();
     toolButton1->setDefaultAction(new QAction("tool button 1", toolButton1));

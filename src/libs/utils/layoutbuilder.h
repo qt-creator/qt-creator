@@ -118,6 +118,7 @@ public:
 
     void span(int cols, int rows);
 
+    void setAlignment(Qt::Alignment alignment);
     void setNoMargins();
     void setNormalMargins();
     void setContentsMargins(int left, int top, int right, int bottom);
@@ -539,6 +540,7 @@ void doit(Interface *x, IdId, auto p)
 
 // Setter dispatchers
 
+QTC_DEFINE_BUILDER_SETTER(alignment, setAlignment)
 QTC_DEFINE_BUILDER_SETTER(childrenCollapsible, setChildrenCollapsible)
 QTC_DEFINE_BUILDER_SETTER(columnStretch, setColumnStretch)
 QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
