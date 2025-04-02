@@ -91,8 +91,8 @@ function(_create_lupdate_response_file response_file)
 endfunction()
 
 function(_create_ts_custom_target name)
-  cmake_parse_arguments(_arg "EXCLUDE_FROM_ALL" "FILE_PREFIX;LUPDATE_RESPONSE_FILE;TS_TARGET_PREFIX"
-    "DEPENDS" ${ARGN}
+  cmake_parse_arguments(_arg "" "FILE_PREFIX;LUPDATE_RESPONSE_FILE;TS_TARGET_PREFIX"
+    "DEPENDS;LANGUAGES" ${ARGN}
   )
   if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "Invalid parameters to _create_ts_custom_target: ${_arg_UNPARSED_ARGUMENTS}.")
@@ -102,47 +102,54 @@ function(_create_ts_custom_target name)
     set(_arg_TS_TARGET_PREFIX "ts_")
   endif()
 
-  set(ts_file "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_FILE_PREFIX}_${name}.ts")
+  set(languages "${name}")
+  if(DEFINED _arg_LANGUAGES)
+    set(languages ${_arg_LANGUAGES})
+  endif()
+
+  set(ts_files "")
+  foreach(language IN LISTS languages)
+    list(APPEND ts_files "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_FILE_PREFIX}_${language}.ts")
+  endforeach()
+
+  set(common_comment "Generate .ts file")
+  list(LENGTH languages languages_length)
+  if(languages_length GREATER 1)
+    string(APPEND common_comment "s")
+  endif()
+  string(APPEND common_comment " (${name})")
+
   set(response_file ${_arg_LUPDATE_RESPONSE_FILE})
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}"
-    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${response_file}" -ts ${ts_file}
+    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${response_file}" -ts ${ts_files}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Generate .ts file (${name}), with obsolete translations and files and line numbers"
+    COMMENT "${common_comment}, with obsolete translations and files and line numbers"
     DEPENDS ${_arg_DEPENDS}
     VERBATIM)
 
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_no_locations"
-    COMMAND Qt::lupdate -locations none -no-ui-lines "@${response_file}" -ts ${ts_file}
+    COMMAND Qt::lupdate -locations none -no-ui-lines "@${response_file}" -ts ${ts_files}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Generate .ts file (${name}), with obsolete translations, without files and line numbers"
+    COMMENT "${common_comment}, with obsolete translations, without files and line numbers"
     DEPENDS ${_arg_DEPENDS}
     VERBATIM)
 
   # Uses lupdate + convert instead of just lupdate with '-locations none -no-obsolete'
   # to keep the same sorting as the non-'cleaned' target and therefore keep the diff small
+  set(lconvert_commands "")
+  foreach(ts_file IN LISTS ts_files)
+    list(APPEND lconvert_commands
+      COMMAND Qt::lconvert -locations none -no-ui-lines -no-obsolete ${ts_file} -o ${ts_file}
+    )
+  endforeach()
 
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_cleaned"
-    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${response_file}" -ts ${ts_file}
-    COMMAND Qt::lconvert -locations none -no-ui-lines -no-obsolete ${ts_file} -o ${ts_file}
+    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${response_file}" -ts ${ts_files}
+    ${lconvert_commands}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    COMMENT "Generate .ts file (${name}), remove obsolete and vanished translations, and do not add files and line number"
+    COMMENT "${common_comment}, remove obsolete and vanished translations, and do not add files and line number"
     DEPENDS ${_arg_DEPENDS}
     VERBATIM)
-
-  if (NOT _arg_EXCLUDE_FROM_ALL)
-    if (NOT TARGET ts_all_cleaned)
-      add_custom_target(ts_all_cleaned
-        COMMENT "Generate .ts files, remove obsolete and vanished translations, and do not add files and line numbers")
-      add_custom_target(ts_all
-        COMMENT "Generate .ts files, with obsolete translations and files and line numbers")
-      add_custom_target(ts_all_no_locations
-        COMMENT "Generate .ts files, with obsolete translations, without files and line numbers")
-    endif()
-
-    add_dependencies(ts_all_cleaned ${_arg_TS_TARGET_PREFIX}${name}_cleaned)
-    add_dependencies(ts_all ${_arg_TS_TARGET_PREFIX}${name})
-    add_dependencies(ts_all_no_locations ${_arg_TS_TARGET_PREFIX}${name}_no_locations)
-  endif()
 endfunction()
 
 function(add_translation_targets file_prefix)
@@ -191,7 +198,7 @@ function(add_translation_targets file_prefix)
     FILE_PREFIX "${file_prefix}" TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
     LUPDATE_RESPONSE_FILE "${lupdate_response_file}"
     DEPENDS ${_arg_SOURCES}
-    EXCLUDE_FROM_ALL)
+  )
 
   if (NOT TARGET "${_arg_ALL_QM_TARGET}")
     add_custom_target("${_arg_ALL_QM_TARGET}" ALL COMMENT "Generate .qm-files")
@@ -221,4 +228,14 @@ function(add_translation_targets file_prefix)
 
     add_dependencies("${_arg_ALL_QM_TARGET}" "${_arg_QM_TARGET_PREFIX}${l}")
   endforeach()
+
+  # Create ts_all* targets.
+  set(languages_for_all_target untranslated ${_arg_LANGUAGES})
+  list(REMOVE_ITEM languages_for_all_target en)
+  _create_ts_custom_target(all
+    LANGUAGES ${languages_for_all_target}
+    FILE_PREFIX "${file_prefix}"
+    TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
+    LUPDATE_RESPONSE_FILE "${lupdate_response_file}"
+  )
 endfunction()
