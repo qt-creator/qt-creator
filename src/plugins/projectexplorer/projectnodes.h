@@ -125,6 +125,7 @@ public:
     const Utils::FilePath &filePath() const;  // file system path
     int line() const;
     virtual QString displayName() const;
+    virtual QString rawDisplayName() const { return displayName(); }
     virtual QString tooltip() const;
     bool isEnabled() const;
     bool listInProject() const;
@@ -437,6 +438,7 @@ public:
     ContainerNode(Project *project);
 
     QString displayName() const final;
+    QString rawDisplayName() const final;
     bool supportsAction(ProjectAction action, const Node *node) const final;
 
     bool isFolderNodeType() const override { return false; }

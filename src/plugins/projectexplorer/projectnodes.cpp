@@ -1065,7 +1065,7 @@ ContainerNode::ContainerNode(Project *project)
 
 QString ContainerNode::displayName() const
 {
-    QString name = m_project->displayName();
+    QString name = rawDisplayName();
 
     const FilePath fp = m_project->projectFilePath();
     const FilePath dir = fp.isDir() ? fp.absoluteFilePath() : fp.absolutePath();
@@ -1076,6 +1076,11 @@ QString ContainerNode::displayName() const
     }
 
     return name;
+}
+
+QString ContainerNode::rawDisplayName() const
+{
+    return m_project->displayName();
 }
 
 bool ContainerNode::supportsAction(ProjectAction action, const Node *node) const
