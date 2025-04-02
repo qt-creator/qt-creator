@@ -379,7 +379,8 @@ Rectangle {
                 }
 
                 Connections {
-                    target: backend.designViewerConnector
+                    target: backend.designViewerConnector ?? null
+                    ignoreUnknownSignals: true
 
                     function onUserInfoReceived(reply: var) {
                         let jsonReply = JSON.parse(reply)
@@ -397,7 +398,7 @@ Rectangle {
                     property int internalMargin: 8
 
                     anchors.fill: parent
-                    currentIndex: backend.designViewerConnector.connectorStatus
+                    currentIndex: backend.designViewerConnector?.connectorStatus ?? 0
 
                     // Fetching
                     Rectangle {
@@ -469,7 +470,8 @@ Rectangle {
                                 id: shareNotification
 
                                 Connections {
-                                    target: backend.designViewerConnector
+                                    target: backend.designViewerConnector ?? null
+                                    ignoreUnknownSignals: true
 
                                     function onProjectUploadProgress(progress: var) {
                                         shareNotification.setProgress(progress)
