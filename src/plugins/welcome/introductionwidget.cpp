@@ -428,6 +428,7 @@ void askUserAboutIntroduction()
                     "interface elements and shows how they are used. To take the tour later, "
                     "select Help > UI Tour."),
              InfoBarEntry::GlobalSuppression::Enabled);
+    info.setTitle(Tr::tr("UI Tour"));
     info.addCustomButton(Tr::tr("Take UI Tour"), [] {
         ICore::infoBar()->removeInfo(kTakeTourSetting);
         ICore::infoBar()->globallySuppressInfo(kTakeTourSetting);

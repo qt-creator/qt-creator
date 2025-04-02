@@ -194,6 +194,7 @@ static void showUpdateInfo(const QList<Update> &updates,
                            const std::function<void()> &startPackageManager)
 {
     InfoBarEntry info(InstallUpdates, infoTitle(updates, newQt));
+    info.setTitle(Tr::tr("Updates Available"));
     info.addCustomButton(Tr::tr("Open Settings"), [] {
         ICore::infoBar()->removeInfo(InstallQtUpdates);
         ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID);

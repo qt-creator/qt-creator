@@ -40,7 +40,10 @@ public:
 
     Id id() const;
     QString text() const;
+    QString title() const;
     GlobalSuppression globalSuppression() const;
+
+    void setTitle(const QString &title);
 
     using CallBack = std::function<void()>;
     struct Button
@@ -89,6 +92,7 @@ public:
 private:
     Id m_id;
     QString m_infoText;
+    QString m_title;
     InfoLabel::InfoType m_infoType = InfoLabel::None;
     QList<Button> m_buttons;
     QString m_cancelButtonText;

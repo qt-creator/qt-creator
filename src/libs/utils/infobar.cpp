@@ -136,6 +136,19 @@ QString InfoBarEntry::text() const
     return m_infoText;
 }
 
+QString InfoBarEntry::title() const
+{
+    return m_title;
+}
+
+/*!
+    Sets the \a title that is used if the entry is shown in popup form.
+*/
+void InfoBarEntry::setTitle(const QString &title)
+{
+    m_title = title;
+}
+
 InfoBarEntry::GlobalSuppression InfoBarEntry::globalSuppression() const
 {
     return m_globalSuppression;
