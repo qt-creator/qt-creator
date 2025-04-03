@@ -60,8 +60,40 @@ function(_extract_ts_data_from_targets outprefix)
   set("${outprefix}_includes" "${_includes}" PARENT_SCOPE)
 endfunction()
 
+function(_create_lupdate_response_file response_file)
+  set(no_value_options "")
+  set(single_value_options "")
+  set(multi_value_options SOURCES INCLUDES)
+  cmake_parse_arguments(PARSE_ARGV 1 arg
+    "${no_value_options}" "${single_value_options}" "${multi_value_options}"
+  )
+  if(arg_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "Unexpected arguments: ${arg_UNPARSED_ARGUMENTS}")
+  endif()
+
+  set(sources "${arg_SOURCES}")
+  list(SORT sources)
+
+  set(includes "${arg_INCLUDES}")
+
+  list(REMOVE_DUPLICATES sources)
+  list(REMOVE_DUPLICATES includes)
+
+  list(REMOVE_ITEM sources "")
+  list(REMOVE_ITEM includes "")
+
+  list(TRANSFORM includes PREPEND "-I")
+
+  string(REPLACE ";" "\n" sources_str "${sources}")
+  string(REPLACE ";" "\n" includes_str "${includes}")
+
+  file(WRITE "${response_file}" "${sources_str}\n${includes_str}")
+endfunction()
+
 function(_create_ts_custom_target name)
-  cmake_parse_arguments(_arg "EXCLUDE_FROM_ALL" "FILE_PREFIX;TS_TARGET_PREFIX" "SOURCES;INCLUDES" ${ARGN})
+  cmake_parse_arguments(_arg "EXCLUDE_FROM_ALL" "FILE_PREFIX;LUPDATE_RESPONSE_FILE;TS_TARGET_PREFIX"
+    "DEPENDS" ${ARGN}
+  )
   if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "Invalid parameters to _create_ts_custom_target: ${_arg_UNPARSED_ARGUMENTS}.")
   endif()
@@ -71,42 +103,19 @@ function(_create_ts_custom_target name)
   endif()
 
   set(ts_file "${CMAKE_CURRENT_SOURCE_DIR}/${_arg_FILE_PREFIX}_${name}.ts")
-
-  set(_sources "${_arg_SOURCES}")
-  list(SORT _sources)
-
-  set(_includes "${_arg_INCLUDES}")
-
-  list(REMOVE_DUPLICATES _sources)
-  list(REMOVE_DUPLICATES _includes)
-
-  list(REMOVE_ITEM _sources "")
-  list(REMOVE_ITEM _includes "")
-
-  set(_prepended_includes)
-  foreach(include IN LISTS _includes)
-    list(APPEND _prepended_includes "-I${include}")
-  endforeach()
-  set(_includes "${_prepended_includes}")
-
-  string(REPLACE ";" "\n" _sources_str "${_sources}")
-  string(REPLACE ";" "\n" _includes_str "${_includes}")
-
-  set(ts_file_list "${CMAKE_CURRENT_BINARY_DIR}/ts_${name}.lst")
-  file(WRITE "${ts_file_list}" "${_sources_str}\n${_includes_str}\n")
-
+  set(response_file ${_arg_LUPDATE_RESPONSE_FILE})
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}"
-    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${ts_file_list}" -ts ${ts_file}
+    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${response_file}" -ts ${ts_file}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Generate .ts file (${name}), with obsolete translations and files and line numbers"
-    DEPENDS ${_sources}
+    DEPENDS ${_arg_DEPENDS}
     VERBATIM)
 
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_no_locations"
-    COMMAND Qt::lupdate -locations none -no-ui-lines "@${ts_file_list}" -ts ${ts_file}
+    COMMAND Qt::lupdate -locations none -no-ui-lines "@${response_file}" -ts ${ts_file}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Generate .ts file (${name}), with obsolete translations, without files and line numbers"
-    DEPENDS ${_sources}
+    DEPENDS ${_arg_DEPENDS}
     VERBATIM)
 
   # Uses lupdate + convert instead of just lupdate with '-locations none -no-obsolete'
@@ -116,11 +125,11 @@ function(_create_ts_custom_target name)
   get_filename_component(_bin_dir ${_lupdate_binary} DIRECTORY)
 
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_cleaned"
-    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${ts_file_list}" -ts ${ts_file}
+    COMMAND Qt::lupdate -locations relative -no-ui-lines "@${response_file}" -ts ${ts_file}
     COMMAND ${_bin_dir}/lconvert -locations none -no-ui-lines -no-obsolete ${ts_file} -o ${ts_file}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Generate .ts file (${name}), remove obsolete and vanished translations, and do not add files and line number"
-    DEPENDS ${_sources}
+    DEPENDS ${_arg_DEPENDS}
     VERBATIM)
 
   if (NOT _arg_EXCLUDE_FROM_ALL)
@@ -175,9 +184,16 @@ function(add_translation_targets file_prefix)
 
   _extract_ts_data_from_targets(_to_process "${_arg_TARGETS}")
 
+  set(lupdate_response_file "${CMAKE_CURRENT_BINARY_DIR}/lupdate-args.lst")
+  _create_lupdate_response_file(${lupdate_response_file}
+    SOURCES ${_to_process_sources} ${_arg_SOURCES}
+    INCLUDES ${_to_process_includes} ${_arg_INCLUDES}
+  )
+
   _create_ts_custom_target(untranslated
     FILE_PREFIX "${file_prefix}" TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
-    SOURCES ${_to_process_sources} ${_arg_SOURCES} INCLUDES ${_to_process_includes} ${_arg_INCLUDES}
+    LUPDATE_RESPONSE_FILE "${lupdate_response_file}"
+    DEPENDS ${_arg_SOURCES}
     EXCLUDE_FROM_ALL)
 
   if (NOT TARGET "${_arg_ALL_QM_TARGET}")
@@ -190,8 +206,12 @@ function(add_translation_targets file_prefix)
     set(_ts_file "${CMAKE_CURRENT_SOURCE_DIR}/${file_prefix}_${l}.ts")
     set(_qm_file "${_arg_OUTPUT_DIRECTORY}/${file_prefix}_${l}.qm")
 
-    _create_ts_custom_target("${l}" FILE_PREFIX "${file_prefix}" TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
-      SOURCES ${_to_process_sources} ${_arg_SOURCES} INCLUDES ${_to_process_includes} ${_arg_INCLUDES})
+    _create_ts_custom_target("${l}"
+      FILE_PREFIX "${file_prefix}"
+      TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
+      LUPDATE_RESPONSE_FILE "${lupdate_response_file}"
+      DEPENDS ${_arg_SOURCES}
+    )
 
     add_custom_command(OUTPUT "${_qm_file}"
       COMMAND Qt::lrelease "${_ts_file}" -qm "${_qm_file}"
