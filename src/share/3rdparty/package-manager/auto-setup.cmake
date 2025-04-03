@@ -12,6 +12,9 @@ if (QT_CREATOR_SOURCE_GROUPS)
   source_group("Resources" REGULAR_EXPRESSION "\\.(pdf|plist|png|jpeg|jpg|storyboard|xcassets|qrc|svg|gif|ico|webp)$")
   source_group("Forms" REGULAR_EXPRESSION "\\.(ui)$")
   source_group("State charts" REGULAR_EXPRESSION "\\.(scxml)$")
+  source_group("Source Files" REGULAR_EXPRESSION
+    "\\.(C|F|M|c|c\\+\\+|cc|cpp|mpp|cxx|ixx|cppm|ccm|cxxm|c\\+\\+m|cu|f|f90|for|fpp|ftn|m|mm|rc|def|r|odl|idl|hpj|bat|qml|js)$"
+  )
 endif()
 
 #
