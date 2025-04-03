@@ -1387,8 +1387,6 @@ public:
     State m_state = Inactive;
     bool m_stopRequested = false;
 
-    Utils::FilePath m_workingDirectory;
-
     ProcessResultData m_resultData;
 
     std::function<void()> m_startModifier;
@@ -1559,7 +1557,6 @@ void ProcessRunnerPrivate::start()
     m_process.setExtraData(extraData);
 
     m_state = Run;
-    m_process.setWorkingDirectory(m_workingDirectory);
     m_process.setForceDefaultErrorModeOnWindows(true);
     m_process.start();
 }
@@ -1621,7 +1618,7 @@ void ProcessRunnerPrivate::forwardStarted()
 void ProcessRunner::start()
 {
     setCommandLine(runControl()->commandLine());
-    d->m_workingDirectory = runControl()->workingDirectory();
+    setWorkingDirectory(runControl()->workingDirectory());
     setEnvironment(runControl()->environment());
 
     if (d->m_startModifier)
@@ -1687,7 +1684,7 @@ void ProcessRunner::setEnvironment(const Environment &environment)
 
 void ProcessRunner::setWorkingDirectory(const FilePath &workingDirectory)
 {
-    d->m_workingDirectory = workingDirectory;
+    d->m_process.setWorkingDirectory(workingDirectory);
 }
 
 void ProcessRunner::setProcessMode(Utils::ProcessMode processMode)
