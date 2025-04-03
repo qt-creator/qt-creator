@@ -94,8 +94,8 @@ public:
     {
         setProducer([](RunControl *runControl) {
             auto worker = new ProcessRunner(runControl);
-            worker->setStartModifier([worker] {
-                const CommandLine remoteCommand = worker->commandLine();
+            worker->setStartModifier([worker, runControl] {
+                const CommandLine remoteCommand = runControl->commandLine();
                 const FilePath remoteExe = remoteCommand.executable();
                 CommandLine cmd{remoteExe.withNewPath(Constants::AppcontrollerFilepath)};
                 cmd.addArg(remoteExe.nativePath());

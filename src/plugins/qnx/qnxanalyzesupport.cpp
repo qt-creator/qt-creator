@@ -36,7 +36,7 @@ public:
             worker->addStopDependency(profiler);
 
             worker->setStartModifier([worker, runControl] {
-                CommandLine cmd = worker->commandLine();
+                CommandLine cmd = runControl->commandLine();
                 cmd.addArg(qmlDebugTcpArguments(QmlProfilerServices, runControl->qmlChannel()));
                 worker->setCommandLine(cmd);
             });

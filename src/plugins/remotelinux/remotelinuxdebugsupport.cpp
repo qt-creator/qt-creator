@@ -88,7 +88,7 @@ public:
             worker->setStartModifier([worker, runControl] {
                 QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
 
-                CommandLine cmd = worker->commandLine();
+                CommandLine cmd = runControl->commandLine();
                 cmd.addArg(qmlDebugTcpArguments(services, runControl->qmlChannel()));
                 worker->setCommandLine(cmd);
             });

@@ -181,7 +181,7 @@ public:
             debuggeeRunner->setId("QnxDebuggeeRunner");
 
             debuggeeRunner->setStartModifier([debuggeeRunner, runControl] {
-                CommandLine cmd = debuggeeRunner->commandLine();
+                CommandLine cmd = runControl->commandLine();
                 QStringList arguments;
                 if (runControl->usesDebugChannel()) {
                     const int pdebugPort = runControl->debugChannel().port();

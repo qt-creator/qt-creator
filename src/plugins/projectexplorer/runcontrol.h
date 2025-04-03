@@ -279,9 +279,7 @@ public:
 
     void setStartModifier(const std::function<void()> &startModifier);
 
-    Utils::CommandLine commandLine() const;
     void setCommandLine(const Utils::CommandLine &commandLine);
-
     void setEnvironment(const Utils::Environment &environment);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setProcessMode(Utils::ProcessMode processMode);

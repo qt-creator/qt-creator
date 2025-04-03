@@ -1674,11 +1674,6 @@ void ProcessRunner::setStartModifier(const std::function<void ()> &startModifier
     d->m_startModifier = startModifier;
 }
 
-CommandLine ProcessRunner::commandLine() const
-{
-    return d->m_command;
-}
-
 void ProcessRunner::setCommandLine(const Utils::CommandLine &commandLine)
 {
     d->m_command = commandLine;

@@ -119,7 +119,7 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
         worker->addStartDependency(preview);
 
         worker->setStartModifier([worker, runControl] {
-            CommandLine cmd = worker->commandLine();
+            CommandLine cmd = runControl->commandLine();
 
             if (const auto aspect = runControl->aspectData<QmlProjectManager::QmlMainFileAspect>()) {
                 const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(

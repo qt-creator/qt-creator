@@ -94,7 +94,7 @@ RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
         const QString arguments = Utils::ProcessArgs::quoteArg(
             qmlDebugCommandLineArguments(QmlProfilerServices, code, true));
 
-        Utils::CommandLine cmd = worker->commandLine();
+        Utils::CommandLine cmd = runControl->commandLine();
         cmd.prependArgs(arguments, Utils::CommandLine::Raw);
         worker->setCommandLine(cmd.toLocal());
     });
