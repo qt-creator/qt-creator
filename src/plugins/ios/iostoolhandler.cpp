@@ -347,12 +347,12 @@ void IosToolHandlerPrivate::appOutput(const QString &output)
 
 void IosToolHandlerPrivate::errorMsg(const QString &msg)
 {
-    emit q->errorMsg(q, msg);
+    emit q->errorMsg(msg);
 }
 
 void IosToolHandlerPrivate::toolExited(int code)
 {
-    emit q->toolExited(q, code);
+    emit q->toolExited(code);
 }
 
 void IosDeviceToolHandlerPrivate::processXml()
@@ -617,7 +617,7 @@ IosDeviceToolHandlerPrivate::IosDeviceToolHandlerPrivate(const IosDeviceType &de
             if (process->result() == ProcessResult::StartFailed)
                 qCDebug(toolHandlerLog) << "IosToolHandler::finished(" << this << ")";
         }
-        emit IosToolHandlerPrivate::q->finished(IosToolHandlerPrivate::q);
+        emit IosToolHandlerPrivate::q->finished();
     });
 }
 
@@ -755,7 +755,7 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const FilePath &appBundl
             if (!response.error().isEmpty())
                 errorMsg(response.error());
             didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
-            emit q->finished(q);
+            emit q->finished();
         }
     };
 
@@ -830,7 +830,7 @@ void IosSimulatorToolHandlerPrivate::stop(int errorCode)
     futureSynchronizer.flushFinishedFutures();
 
     toolExited(errorCode);
-    emit q->finished(q);
+    emit q->finished();
 }
 
 void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
@@ -845,7 +845,7 @@ void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
             errorMsg(Tr::tr("Application install on simulator failed. %1").arg(response.error()));
             didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
         }
-        emit q->finished(q);
+        emit q->finished();
     };
 
     isTransferringApp(m_bundlePath, m_deviceId, 20, 100, "");
@@ -911,7 +911,7 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             errorMsg(Tr::tr("Application launch on simulator failed. %1").arg(response.error()));
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
             stop(-1);
-            emit q->finished(q);
+            emit q->finished();
         }
     };
 
@@ -929,7 +929,7 @@ bool IosSimulatorToolHandlerPrivate::isResponseValid(const SimulatorControl::Res
                         "Device Id = %1 Response Id = %2")
                  .arg(responseData.simUdid)
                  .arg(m_deviceId));
-        emit q->finished(q);
+        emit q->finished();
         return false;
     }
     return true;

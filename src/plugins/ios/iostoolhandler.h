@@ -63,9 +63,9 @@ signals:
                     const Ios::IosToolHandler::Dict &info);
     void appOutput(const QString &output);
     void message(const QString &msg);
-    void errorMsg(Ios::IosToolHandler *handler, const QString &msg);
-    void toolExited(Ios::IosToolHandler *handler, int code);
-    void finished(Ios::IosToolHandler *handler);
+    void errorMsg(const QString &msg);
+    void toolExited(int code);
+    void finished();
 
 private:
     friend class Ios::Internal::IosToolHandlerPrivate;

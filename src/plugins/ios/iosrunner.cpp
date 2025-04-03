@@ -483,9 +483,8 @@ private:
     void handleGotInferiorPid(Ios::IosToolHandler *handler, const FilePath &bundlePath,
                               const QString &deviceId, qint64 pid);
     void handleMessage(const QString &msg);
-    void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
-    void handleToolExited(Ios::IosToolHandler *handler, int code);
-    void handleFinished(Ios::IosToolHandler *handler);
+    void handleErrorMsg(const QString &msg);
+    void handleToolExited(int code);
 
     IosToolHandler *m_toolHandler = nullptr;
     FilePath m_bundleDir;
@@ -532,14 +531,21 @@ void IosRunner::start()
     connect(m_toolHandler, &IosToolHandler::appOutput, this, &IosRunner::handleMessage);
     connect(m_toolHandler, &IosToolHandler::message, this, &IosRunner::handleMessage);
     connect(m_toolHandler, &IosToolHandler::errorMsg, this, &IosRunner::handleErrorMsg);
-    connect(m_toolHandler, &IosToolHandler::gotServerPorts,
-            this, &IosRunner::handleGotServerPorts);
-    connect(m_toolHandler, &IosToolHandler::gotInferiorPid,
-            this, &IosRunner::handleGotInferiorPid);
-    connect(m_toolHandler, &IosToolHandler::toolExited,
-            this, &IosRunner::handleToolExited);
-    connect(m_toolHandler, &IosToolHandler::finished,
-            this, &IosRunner::handleFinished);
+    connect(m_toolHandler, &IosToolHandler::gotServerPorts, this, &IosRunner::handleGotServerPorts);
+    connect(m_toolHandler, &IosToolHandler::gotInferiorPid, this, &IosRunner::handleGotInferiorPid);
+    connect(m_toolHandler, &IosToolHandler::toolExited, this, &IosRunner::handleToolExited);
+    connect(m_toolHandler, &IosToolHandler::finished, this, [this, handler = m_toolHandler] {
+        if (m_toolHandler == handler) {
+            if (m_cleanExit)
+                appendMessage(Tr::tr("Run ended."), NormalMessageFormat);
+            else
+                appendMessage(Tr::tr("Run ended with error."), ErrorMessageFormat);
+            m_toolHandler = nullptr;
+        }
+        handler->deleteLater();
+        reportStopped();
+
+    });
 
     const CommandLine command = runControl()->commandLine();
     QStringList args = ProcessArgs::splitArgs(command.arguments(), OsTypeMac);
@@ -635,9 +641,8 @@ void IosRunner::handleMessage(const QString &msg)
     appendMessage(msg, StdOutFormat);
 }
 
-void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
+void IosRunner::handleErrorMsg(const QString &msg)
 {
-    Q_UNUSED(handler)
     QString res(msg);
     QString lockedErr ="Unexpected reply: ELocked (454c6f636b6564) vs OK (4f4b)";
     if (msg.contains("AMDeviceStartService returned -402653150")) {
@@ -651,23 +656,9 @@ void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
     appendMessage(res, StdErrFormat);
 }
 
-void IosRunner::handleToolExited(IosToolHandler *handler, int code)
+void IosRunner::handleToolExited(int code)
 {
-    Q_UNUSED(handler)
     m_cleanExit = (code == 0);
-}
-
-void IosRunner::handleFinished(IosToolHandler *handler)
-{
-    if (m_toolHandler == handler) {
-        if (m_cleanExit)
-            appendMessage(Tr::tr("Run ended."), NormalMessageFormat);
-        else
-            appendMessage(Tr::tr("Run ended with error."), ErrorMessageFormat);
-        m_toolHandler = nullptr;
-    }
-    handler->deleteLater();
-    reportStopped();
 }
 
 bool IosRunner::isAppRunning() const
