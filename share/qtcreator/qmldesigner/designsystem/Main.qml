@@ -1072,6 +1072,9 @@ Rectangle {
 
         DSC.TextField {
             id: overlayTextField
+
+            property string previousText
+
             anchors.fill: parent
             leftPadding: root.leftPadding + (overlayIcon.visible ? overlayIcon.width + 8 : 0)
 
@@ -1092,8 +1095,7 @@ Rectangle {
                 // Revoke active focus from text field by forcing active focus on another item
                 tableView.forceActiveFocus()
 
-
-                if (!result)
+                if (!result && overlayTextField.previousText !== overlayTextField.text)
                     overlayInvalid.showHeaderData(overlay.section, overlay.orientation)
             }
 
@@ -1148,6 +1150,8 @@ Rectangle {
             overlayTextField.text = tableView.model.headerData(section,
                                                                orientation,
                                                                CollectionModel.EditRole)
+            overlayTextField.previousText = overlayTextField.text
+
             overlayTextField.forceActiveFocus()
             overlayTextField.selectAll()
         }
