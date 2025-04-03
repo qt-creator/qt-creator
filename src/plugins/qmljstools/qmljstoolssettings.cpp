@@ -3,17 +3,23 @@
 
 #include "qmljscodestylesettings.h"
 
-#include "qmljscodestylepreferencesfactory.h"
+#include "qmljscodestylesettingspage.h"
+#include "qmljseditor/qmljseditorconstants.h"
+#include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
 #include "qmljstoolstr.h"
 
-#include <coreplugin/icore.h>
+#include <projectexplorer/project.h>
 
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/tabsettings.h>
+#include <texteditor/codestyleeditor.h>
 #include <texteditor/codestylepool.h>
+#include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/indenter.h>
+#include <texteditor/tabsettings.h>
+#include <texteditor/texteditorsettings.h>
 
+#include <utils/id.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
@@ -26,12 +32,114 @@ const char idKey[] = "QmlJSGlobal";
 
 static QmlJSCodeStylePreferences *m_globalCodeStyle = nullptr;
 
+class QmlJsCodeStyleEditor final : public CodeStyleEditor
+{
+public:
+    static QmlJsCodeStyleEditor *create(
+        const ICodeStylePreferencesFactory *factory,
+        ProjectExplorer::Project *project,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent)
+    {
+        auto editor = new QmlJsCodeStyleEditor{parent};
+        editor->init(factory, wrapProject(project), codeStyle);
+        return editor;
+    }
+
+private:
+    QmlJsCodeStyleEditor(QWidget *parent)
+        : CodeStyleEditor{parent}
+    {}
+
+    CodeStyleEditorWidget *createEditorWidget(
+        const void * /*project*/,
+        ICodeStylePreferences *codeStyle,
+        QWidget *parent) const final
+    {
+        auto qmlJSPreferences = dynamic_cast<QmlJSCodeStylePreferences *>(codeStyle);
+        if (qmlJSPreferences == nullptr)
+            return nullptr;
+        auto widget = new Internal::QmlJSCodeStylePreferencesWidget(previewText(), parent);
+        widget->setPreferences(qmlJSPreferences);
+        return widget;
+    }
+
+    QString previewText() const final
+    {
+        static const QString defaultPreviewText = R"(import QtQuick 1.0
+
+Rectangle {
+    width: 360
+    height: 360
+    Text {
+        anchors.centerIn: parent
+        text: "Hello World"
+    }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            Qt.quit();
+        }
+    }
+})";
+
+        return defaultPreviewText;
+    }
+
+    QString snippetProviderGroupId() const final
+    {
+        return QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID;
+    }
+};
+
+
+// QmlJSCodeStylePreferencesFactory
+
+class QmlJSCodeStylePreferencesFactory final : public ICodeStylePreferencesFactory
+{
+public:
+    QmlJSCodeStylePreferencesFactory() = default;
+
+private:
+    CodeStyleEditorWidget *createCodeStyleEditor(
+            const ProjectWrapper &project,
+            ICodeStylePreferences *codeStyle,
+            QWidget *parent) const final
+    {
+        return QmlJsCodeStyleEditor::create(
+                    this, ProjectExplorer::unwrapProject(project), codeStyle, parent);
+    }
+
+    Utils::Id languageId() final
+    {
+        return Constants::QML_JS_SETTINGS_ID;
+    }
+
+    QString displayName() final
+    {
+        return Tr::tr("Qt Quick");
+    }
+
+    ICodeStylePreferences *createCodeStyle() const final
+    {
+        return new QmlJSCodeStylePreferences;
+    }
+
+    Indenter *createIndenter(QTextDocument *doc) const final
+    {
+        return QmlJSEditor::createQmlJsIndenter(doc);
+    }
+};
+
+// QmlJSToolsSettings
+
 QmlJSToolsSettings::QmlJSToolsSettings()
 {
     QTC_ASSERT(!m_globalCodeStyle, return);
 
     // code style factory
-    ICodeStylePreferencesFactory *factory = createQmlJSCodeStylePreferencesFactory();
+    ICodeStylePreferencesFactory *factory =  new QmlJSCodeStylePreferencesFactory;
+
     TextEditorSettings::registerCodeStyleFactory(factory);
 
     // code style pool

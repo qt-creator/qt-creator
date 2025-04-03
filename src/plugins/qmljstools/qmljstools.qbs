@@ -19,8 +19,6 @@ QtcPlugin {
     files: [
         "qmljsbundleprovider.cpp",
         "qmljsbundleprovider.h",
-        "qmljscodestylepreferencesfactory.cpp",
-        "qmljscodestylepreferencesfactory.h",
         "qmljscodestylepreferenceswidget.cpp",
         "qmljscodestylepreferenceswidget.h",
         "qmljscodestylesettings.cpp",
