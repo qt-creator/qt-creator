@@ -161,7 +161,7 @@ function(add_translation_targets file_prefix)
 
   cmake_parse_arguments(_arg ""
     "OUTPUT_DIRECTORY;INSTALL_DESTINATION;TS_TARGET_PREFIX;QM_TARGET_PREFIX;ALL_QM_TARGET"
-    "LANGUAGES;TARGETS;SOURCES;INCLUDES" ${ARGN})
+    "TS_LANGUAGES;QM_LANGUAGES;TARGETS;SOURCES;INCLUDES" ${ARGN})
   if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "Invalid parameters to add_translation_targets: ${_arg_UNPARSED_ARGUMENTS}.")
   endif()
@@ -194,8 +194,20 @@ function(add_translation_targets file_prefix)
     INCLUDES ${_to_process_includes} ${_arg_INCLUDES}
   )
 
-  _create_ts_custom_target(untranslated
-    FILE_PREFIX "${file_prefix}" TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
+  set(ts_languages untranslated ${_arg_TS_LANGUAGES})
+  foreach(language IN LISTS ts_languages)
+    _create_ts_custom_target(${language}
+      FILE_PREFIX "${file_prefix}" TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
+      LUPDATE_RESPONSE_FILE "${lupdate_response_file}"
+      DEPENDS ${_arg_SOURCES}
+    )
+  endforeach()
+
+  # Create ts_all* targets.
+  _create_ts_custom_target(all
+    LANGUAGES ${ts_languages}
+    FILE_PREFIX "${file_prefix}"
+    TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
     LUPDATE_RESPONSE_FILE "${lupdate_response_file}"
     DEPENDS ${_arg_SOURCES}
   )
@@ -206,16 +218,9 @@ function(add_translation_targets file_prefix)
 
   file(MAKE_DIRECTORY ${_arg_OUTPUT_DIRECTORY})
 
-  foreach(l IN ITEMS ${_arg_LANGUAGES})
+  foreach(l IN LISTS _arg_QM_LANGUAGES)
     set(_ts_file "${CMAKE_CURRENT_SOURCE_DIR}/${file_prefix}_${l}.ts")
     set(_qm_file "${_arg_OUTPUT_DIRECTORY}/${file_prefix}_${l}.qm")
-
-    _create_ts_custom_target("${l}"
-      FILE_PREFIX "${file_prefix}"
-      TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
-      LUPDATE_RESPONSE_FILE "${lupdate_response_file}"
-      DEPENDS ${_arg_SOURCES}
-    )
 
     add_custom_command(OUTPUT "${_qm_file}"
       COMMAND Qt::lrelease "${_ts_file}" -qm "${_qm_file}"
@@ -228,14 +233,4 @@ function(add_translation_targets file_prefix)
 
     add_dependencies("${_arg_ALL_QM_TARGET}" "${_arg_QM_TARGET_PREFIX}${l}")
   endforeach()
-
-  # Create ts_all* targets.
-  set(languages_for_all_target untranslated ${_arg_LANGUAGES})
-  list(REMOVE_ITEM languages_for_all_target en)
-  _create_ts_custom_target(all
-    LANGUAGES ${languages_for_all_target}
-    FILE_PREFIX "${file_prefix}"
-    TS_TARGET_PREFIX "${_arg_TS_TARGET_PREFIX}"
-    LUPDATE_RESPONSE_FILE "${lupdate_response_file}"
-  )
 endfunction()
