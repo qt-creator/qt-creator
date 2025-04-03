@@ -116,6 +116,8 @@ void DockerDeviceEnvironmentAspect::fromMap(const Store &map)
                 envDict.set(parts[0], parts[1]);
         }
         m_remoteEnvironment = Environment(envDict);
+        if (baseEnvironmentBase() == -1)
+            setBaseEnvironmentBase(1);
     }
 }
 
