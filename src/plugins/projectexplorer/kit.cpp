@@ -556,6 +556,15 @@ void Kit::addToRunEnvironment(Environment &env) const
         factory->addToRunEnvironment(this, env);
 }
 
+QString Kit::moduleForClass(const QString &className) const
+{
+    for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        if (const QString module = factory->moduleForClass(this, className); !module.isEmpty())
+            return module;
+    }
+    return {};
+}
+
 Environment Kit::buildEnvironment() const
 {
     IDevice::ConstPtr device = BuildDeviceKitAspect::device(this);

@@ -59,6 +59,8 @@ public:
 
     virtual int weight(const Kit *k) const;
 
+    virtual QString moduleForClass(const Kit *k, const QString &className) const;
+
     virtual ItemList toUserOutput(const Kit *) const = 0;
 
     virtual KitAspect *createKitAspect(Kit *) const = 0;
