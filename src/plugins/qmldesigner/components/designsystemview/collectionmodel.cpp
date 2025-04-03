@@ -253,6 +253,7 @@ bool CollectionModel::setData(const QModelIndex &index, const QVariant &value, i
             updateCache();
 
             emit dataChanged(index, index);
+            updateBoundValues();
             result = true;
         }
     }
