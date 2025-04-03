@@ -17,6 +17,7 @@
 #include <QLoggingCategory>
 #include <QPromise>
 #include <QThread>
+#include <QTimer>
 
 Q_LOGGING_CATEGORY(clientLog, "qtc.cmdbridge.client", QtWarningMsg)
 
@@ -48,6 +49,7 @@ struct ClientPrivate
     // Only access from the thread
     Process *process = nullptr;
     QThread *thread = nullptr;
+    QTimer *watchDogTimer = nullptr;
 
     struct Jobs
     {
@@ -259,6 +261,20 @@ Result Client::start()
     d->process = new Process();
     d->process->moveToThread(d->thread);
 
+    d->watchDogTimer = new QTimer();
+    d->watchDogTimer->setInterval(1000);
+    d->watchDogTimer->moveToThread(d->thread);
+
+    connect(d->thread, &QThread::finished, d->watchDogTimer, &QTimer::deleteLater);
+    connect(d->watchDogTimer, &QTimer::timeout, d->process, [this] {
+        QTC_ASSERT(d->process, return);
+        QCborMap args;
+        args.insert(QString("Id"), -1);
+        args.insert(QString("Type"), QString("ping"));
+        d->process->writeRaw(args.toCborValue().toCbor());
+    });
+    connect(d->process, &Process::started, d->watchDogTimer, qOverload<>(&QTimer::start));
+
     Result result = Result::Ok;
 
     QMetaObject::invokeMethod(
@@ -443,7 +459,10 @@ static Utils::expected_str<QFuture<R>> createJob(
 
     QMetaObject::invokeMethod(
         d->process,
-        [d, args]() { d->process->writeRaw(args.toCborValue().toCbor()); },
+        [d, args]() {
+            QTC_ASSERT(d->process, return);
+            d->process->writeRaw(args.toCborValue().toCbor());
+        },
         Qt::QueuedConnection);
 
     return future;
@@ -762,6 +781,7 @@ public:
 void Client::stopWatch(int id)
 {
     QMetaObject::invokeMethod(d->process, [this, id]() mutable {
+        QTC_ASSERT(d->process, return);
         QCborMap stopWatch{{"Type", "stopwatch"}, {"Id", id}};
         d->watchers.remove(id);
         d->process->writeRaw(stopWatch.toCborValue().toCbor());

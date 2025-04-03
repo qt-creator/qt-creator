@@ -12,6 +12,7 @@ import (
 	"reflect"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/fxamacker/cbor/v2"
 )
@@ -342,10 +343,15 @@ func processSignal(cmd command, out chan<- []byte) {
 	out <- data
 }
 
-func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
+func processCommand(watcher *WatcherHandler, watchDogChannel chan struct{} ,cmd command, out chan<- []byte) {
 	defer globalWaitGroup.Done()
 
 	switch cmd.Type {
+	case "ping":
+		select {
+			case watchDogChannel <- struct{}{}:
+			default:
+		}
 	case "copyfile":
 		processCopyFile(cmd, out)
 	case "createdir":
@@ -398,10 +404,10 @@ func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
 	}
 }
 
-func executor(watcher *WatcherHandler, commands <-chan command, out chan<- []byte) {
+func executor(watcher *WatcherHandler, watchDogChannel chan struct {}, commands <-chan command, out chan<- []byte) {
 	for cmd := range commands {
 		globalWaitGroup.Add(1)
-		go processCommand(watcher, cmd, out)
+		go processCommand(watcher, watchDogChannel, cmd, out)
 	}
 }
 
@@ -471,9 +477,29 @@ func writeMain(out *bufio.Writer) {
 	out.Flush()
 }
 
+func watchDogLoop(channel chan struct {}) {
+	watchDogTimeOut := 60 * time.Second
+	timer := time.NewTimer(watchDogTimeOut)
+
+	for {
+		select {
+		case <-channel:
+			timer.Reset(watchDogTimeOut)
+		case <-timer.C:
+			// If we don't get a signal for one minute, we assume that the connection is dead.
+			fmt.Println("Watchdog timeout, exiting.")
+			os.Exit(100)
+		}
+	}
+}
+
 func readMain(test bool) {
 	commandChannel := make(chan command)
 	outputChannel := make(chan []byte)
+
+	watchDogChannel := make(chan struct {}, 1)
+	go watchDogLoop(watchDogChannel)
+
 	watcher := NewWatcherHandler()
 
 	var outputWG sync.WaitGroup
@@ -490,7 +516,7 @@ func readMain(test bool) {
 	globalWaitGroup.Add(1)
 	go func() {
 		defer globalWaitGroup.Done()
-		executor(watcher, commandChannel, outputChannel)
+		executor(watcher, watchDogChannel, commandChannel, outputChannel)
 	}()
 
 	globalWaitGroup.Add(1)
