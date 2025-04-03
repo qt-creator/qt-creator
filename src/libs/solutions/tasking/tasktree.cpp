@@ -5,6 +5,7 @@
 #include "tasktree.h"
 
 #include "barrier.h"
+#include "conditional.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QEventLoop>
@@ -1741,16 +1742,32 @@ Group operator||(const ExecutableItem &item, DoneResult result)
 }
 
 Group ExecutableItem::withCancelImpl(
-    const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const
+    const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper,
+    const GroupItems &postCancelRecipe) const
 {
-    const auto onSetup = [connectWrapper](Barrier &barrier) {
-        connectWrapper(&barrier, [barrierPtr = &barrier] { barrierPtr->advance(); });
+    const Storage<bool> canceledStorage(false);
+
+    const auto onSetup = [connectWrapper, canceledStorage](Barrier &barrier) {
+        connectWrapper(&barrier, [barrierPtr = &barrier, canceled = canceledStorage.activeStorage()] {
+            *canceled = true;
+            barrierPtr->advance();
+        });
     };
-    return Group {
-        parallel,
-        stopOnSuccessOrError,
-        BarrierTask(onSetup) && errorItem,
-        *this
+
+    const auto wasCanceled = [canceledStorage] { return *canceledStorage; };
+
+    return {
+        continueOnError,
+        canceledStorage,
+        Group {
+            parallel,
+            stopOnSuccessOrError,
+            BarrierTask(onSetup) && errorItem,
+            *this
+        },
+        If (wasCanceled) >> Then {
+            postCancelRecipe
+        }
     };
 }
 

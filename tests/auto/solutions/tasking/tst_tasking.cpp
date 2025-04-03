@@ -3828,7 +3828,7 @@ void tst_Tasking::testTree_data()
             return std::make_pair(tickStorage->get(), &QTimer::timeout);
         };
 
-        const Group cancelRecipe {
+        const Group cancelTriggeredRecipe {
             storage,
             tickStorage,
             onGroupSetup(onSetup(0ms)), // 1st queued call
@@ -3836,18 +3836,76 @@ void tst_Tasking::testTree_data()
                 groupSetup(1),
                 createSuccessTask(2, s_endlessTime),
                 groupDone(1)
-            }.withCancel(onTickSetup) // 2nd queued call
+            }.withCancel(onTickSetup, {
+                createSuccessTask(3), // 2nd queued call
+                createFailingTask(4), // 3rd queued call
+                createSuccessTask(5)
+            })
         };
 
-        const Log cancelLog {
+        const Log cancelTriggeredLog {
             {1, Handler::GroupSetup},
             {2, Handler::Setup},
             {2, Handler::Canceled},
             {1, Handler::GroupCanceled},
+            {3, Handler::Setup},
+            {3, Handler::Success},
+            {4, Handler::Setup},
+            {4, Handler::Error}
         };
 
-        QTest::newRow("WithCancel")
-            << TestData{storage, cancelRecipe, cancelLog, 2, DoneWith::Error, 1};
+        QTest::newRow("WithCancelTriggered")
+            << TestData{storage, cancelTriggeredRecipe, cancelTriggeredLog, 5, DoneWith::Error, 3};
+
+        const Group cancelSkippedSuccessRecipe {
+            storage,
+            tickStorage,
+            onGroupSetup(onSetup(s_endlessTime)),
+            Group {
+                groupSetup(1),
+                createSuccessTask(2), // 1st queued call
+                groupDone(1)
+            }.withCancel(onTickSetup, { // This group is skipped since the previous group wasn't canceled
+                createSuccessTask(3),
+                createFailingTask(4),
+                createSuccessTask(5)
+            })
+        };
+
+        const Log cancelSkippedSuccessLog {
+            {1, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {2, Handler::Success},
+            {1, Handler::GroupSuccess}
+        };
+
+        QTest::newRow("WithCancelSkippedSuccess")
+            << TestData{storage, cancelSkippedSuccessRecipe, cancelSkippedSuccessLog, 5, DoneWith::Success, 1};
+
+        const Group cancelSkippedErrorRecipe {
+            storage,
+            tickStorage,
+            onGroupSetup(onSetup(s_endlessTime)),
+            Group {
+                groupSetup(1),
+                createFailingTask(2), // 1st queued call
+                groupDone(1)
+            }.withCancel(onTickSetup, { // This group is skipped since the previous group wasn't canceled
+                createSuccessTask(3),
+                createFailingTask(4),
+                createSuccessTask(5)
+            })
+        };
+
+        const Log cancelSkippedErrorLog {
+            {1, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {1, Handler::GroupError}
+        };
+
+        QTest::newRow("WithCancelSkippedError")
+            << TestData{storage, cancelSkippedErrorRecipe, cancelSkippedErrorLog, 5, DoneWith::Error, 1};
 
         const Group acceptRecipe {
             storage,
