@@ -686,6 +686,11 @@
                 add multiple entries of this type.
             \li
         \row
+            \li \c {--run-env <VALUE>}
+            \li Environment variable values for the run environment. You can
+                add multiple entries of this type.
+            \li
+        \row
             \li \c {--icon <PATH>}
             \li Path to the image to use as an icon for the kit.
             \li
