@@ -877,6 +877,7 @@ public:
     void updateRedoAction();
     void updateUndoAction();
     void updateCopyAction(bool on);
+    void updatePasteAction();
 
 public:
     TextEditorWidget *q;
@@ -1074,6 +1075,7 @@ public:
     QAction *m_copyAction = nullptr;
     QAction *m_copyHtmlAction = nullptr;
     QAction *m_cutAction = nullptr;
+    QAction *m_pasteAction = nullptr;
     QAction *m_autoIndentAction = nullptr;
     QAction *m_autoFormatAction = nullptr;
     QAction *m_visualizeWhitespaceAction = nullptr;
@@ -1271,6 +1273,8 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
     connect(q, &QPlainTextEdit::copyAvailable,
             this, &TextEditorWidgetPrivate::updateCopyAction);
+
+    connect(qApp->clipboard(), &QClipboard::changed, this, &TextEditorWidgetPrivate::updatePasteAction);
 
     m_parenthesesMatchingTimer.setSingleShot(true);
     m_parenthesesMatchingTimer.setInterval(50);
@@ -4257,11 +4261,13 @@ void TextEditorWidgetPrivate::registerActions()
                       .addOnTriggered([this] { q->cut(); })
                       .setScriptable(true)
                       .contextAction();
-    m_modifyingActions << ActionBuilder(this, PASTE)
-                              .setContext(m_editorContext)
-                              .addOnTriggered([this] { q->paste(); })
-                              .setScriptable(true)
-                              .contextAction();
+    m_pasteAction = ActionBuilder(this, PASTE)
+                                  .setContext(m_editorContext)
+                                  .addOnTriggered([this] { q->paste(); })
+                                  .setScriptable(true)
+                                  .contextAction();
+    m_modifyingActions << m_pasteAction;
+
     ActionBuilder(this, SELECTALL)
         .setContext(m_editorContext)
         .setScriptable(true)
@@ -4710,7 +4716,7 @@ void TextEditorWidgetPrivate::updateActions()
     updateRedoAction();
     updateUndoAction();
     updateCopyAction(q->textCursor().hasSelection());
-
+    updatePasteAction();
     updateOptionalActions();
 }
 
@@ -4753,6 +4759,12 @@ void TextEditorWidgetPrivate::updateCopyAction(bool hasCopyableText)
         m_copyAction->setEnabled(hasCopyableText);
     if (m_copyHtmlAction)
         m_copyHtmlAction->setEnabled(hasCopyableText);
+}
+
+void TextEditorWidgetPrivate::updatePasteAction()
+{
+    if (m_pasteAction)
+        m_pasteAction->setEnabled(!q->isReadOnly() && !qApp->clipboard()->text(QClipboard::Mode::Clipboard).isEmpty());
 }
 
 bool TextEditorWidget::codeFoldingVisible() const
