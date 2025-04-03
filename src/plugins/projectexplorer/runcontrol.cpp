@@ -1388,7 +1388,6 @@ public:
     bool m_stopRequested = false;
 
     Utils::FilePath m_workingDirectory;
-    Utils::Environment m_environment;
 
     ProcessResultData m_resultData;
 
@@ -1509,7 +1508,7 @@ void ProcessRunnerPrivate::handleStandardError()
 void ProcessRunnerPrivate::start()
 {
     CommandLine cmdLine = m_process.commandLine();
-    Environment env = m_environment;
+    Environment env = m_process.environment();
 
     m_resultData = {};
     QTC_ASSERT(m_state == Inactive, return);
@@ -1623,7 +1622,7 @@ void ProcessRunner::start()
 {
     setCommandLine(runControl()->commandLine());
     d->m_workingDirectory = runControl()->workingDirectory();
-    d->m_environment = runControl()->environment();
+    setEnvironment(runControl()->environment());
 
     if (d->m_startModifier)
         d->m_startModifier();
@@ -1637,6 +1636,7 @@ void ProcessRunner::start()
         runAsRoot = runAsRootAspect->value;
 
     const CommandLine command = d->m_process.commandLine();
+    const Environment environment = d->m_process.environment();
     d->m_stopForced = false;
     d->m_stopReported = false;
     d->disconnect(this);
@@ -1649,7 +1649,7 @@ void ProcessRunner::start()
     d->postMessage(msg, NormalMessageFormat);
     if (runControl()->isPrintEnvironmentEnabled()) {
         d->postMessage(Tr::tr("Environment:"), NormalMessageFormat);
-        d->m_environment.forEachEntry([this](const QString &key, const QString &value, bool enabled) {
+        environment.forEachEntry([this](const QString &key, const QString &value, bool enabled) {
             if (enabled)
                 d->postMessage(key + '=' + value, StdOutFormat);
         });
@@ -1682,7 +1682,7 @@ void ProcessRunner::setCommandLine(const Utils::CommandLine &commandLine)
 
 void ProcessRunner::setEnvironment(const Environment &environment)
 {
-    d->m_environment = environment;
+    d->m_process.setEnvironment(environment);
 }
 
 void ProcessRunner::setWorkingDirectory(const FilePath &workingDirectory)
