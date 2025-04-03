@@ -42,7 +42,7 @@
 
     \list 1
       \li Open the application in \QDS.
-      \li \l {Connecting to the \QDV web serivce} {Connect} \QDS to the \QDV web service.
+      \li \l {Connecting to the \QDV web service} {Connect} \QDS to the \QDV web service.
       \li Select \imageshareproject in the top toolbar, then select \uicontrol Share.
     \endlist
 
