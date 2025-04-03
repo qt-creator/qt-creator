@@ -281,6 +281,7 @@ public:
     NotNullPointer<const ProjectStorageType> projectStorage() const;
     const PathCacheType &pathCache() const;
     PathCacheType &pathCache();
+    ProjectStorageTriggerUpdateInterface &projectStorageTriggerUpdate() const;
 
     void emitInstancePropertyChange(AbstractView *view,
                                     const QList<QPair<ModelNode, PropertyName>> &propertyList);

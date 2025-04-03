@@ -415,6 +415,51 @@ TEST_F(ProjectStoragePathWatcher, no_duplicate_path_changes)
     mockQFileSytemWatcher.directoryChanged(sourceContextPath);
 }
 
+TEST_F(ProjectStoragePathWatcher, trigger_manual_two_notify_file_changes)
+{
+    watcher.updateIdPaths(
+        {{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+         {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[2], sourceIds[3], sourceIds[4]}},
+         {projectChunkId3, {sourceIds[4]}}});
+    ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
+        .WillByDefault(Return(FileStatus{sourceIds[0], 1, 2}));
+    ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[1])))
+        .WillByDefault(Return(FileStatus{sourceIds[1], 1, 2}));
+    ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
+        .WillByDefault(Return(FileStatus{sourceIds[3], 1, 2}));
+
+    EXPECT_CALL(notifier,
+                pathsWithIdsChanged(
+                    ElementsAre(IdPaths{projectChunkId1, {sourceIds[0], sourceIds[1]}},
+                                IdPaths{projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}})));
+
+    watcher.checkForChangeInDirectory({sourceIds[0].contextId(), sourceIds[1].contextId()});
+}
+
+TEST_F(ProjectStoragePathWatcher, trigger_manual_notify_for_path_changes)
+{
+    watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+                           {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
+    ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
+        .WillByDefault(Return(FileStatus{sourceIds[0], 1, 2}));
+
+    ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
+        .WillByDefault(Return(FileStatus{sourceIds[3], 1, 2}));
+
+    EXPECT_CALL(notifier, pathsChanged(ElementsAre(sourceIds[0])));
+
+    watcher.checkForChangeInDirectory({sourceIds[0].contextId()});
+}
+
+TEST_F(ProjectStoragePathWatcher, trigger_manual_no_notify_for_unwatched_path_changes)
+{
+    watcher.updateIdPaths({{projectChunkId1, {sourceIds[3]}}, {projectChunkId2, {sourceIds[3]}}});
+
+    EXPECT_CALL(notifier, pathsChanged(IsEmpty()));
+
+    watcher.checkForChangeInDirectory({sourceIds[0].contextId()});
+}
+
 TEST_F(ProjectStoragePathWatcher, update_context_id_paths_adds_entry_in_new_directory)
 {
     watcher.updateIdPaths({

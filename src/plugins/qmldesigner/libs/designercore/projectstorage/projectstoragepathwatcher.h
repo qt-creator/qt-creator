@@ -8,6 +8,7 @@
 #include "projectstoragepathwatcherinterface.h"
 #include "projectstoragepathwatchernotifierinterface.h"
 #include "projectstoragepathwatchertypes.h"
+#include "projectstoragetriggerupdateinterface.h"
 
 #include <sourcepathstorage/storagecache.h>
 
@@ -34,7 +35,8 @@ void set_greedy_intersection_call(
 }
 
 template<typename FileSystemWatcher, typename Timer, class SourcePathCache>
-class ProjectStoragePathWatcher : public ProjectStoragePathWatcherInterface
+class ProjectStoragePathWatcher : public ProjectStoragePathWatcherInterface,
+                                  public ProjectStorageTriggerUpdateInterface
 {
 public:
     ProjectStoragePathWatcher(SourcePathCache &pathCache,
@@ -81,6 +83,13 @@ public:
         };
 
         removeUnusedEntries(entires, notContainsId);
+    }
+
+    void checkForChangeInDirectory(SourceContextIds sourceContextIds) override
+    {
+        std::ranges::sort(sourceContextIds);
+
+        addChangedPathForFilePath(sourceContextIds);
     }
 
     void removeIds(const ProjectPartIds &ids) override
@@ -279,10 +288,7 @@ public:
         return notWatchedPaths(uniquePaths(entries));
     }
 
-    const WatcherEntries &watchedEntries() const
-    {
-        return m_watchedEntries;
-    }
+    const WatcherEntries &watchedEntries() const { return m_watchedEntries; }
 
     WatcherEntries removeIdsFromWatchedEntries(const ProjectPartIds &ids)
     {

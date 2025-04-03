@@ -5,6 +5,7 @@
 
 #include <mocks/abstractviewmock.h>
 #include <mocks/projectstoragemock.h>
+#include <mocks/projectstoragetriggerupdatemock.h>
 #include <mocks/sourcepathcachemock.h>
 
 #include <abstractview.h>
@@ -183,12 +184,14 @@ public:
     }
 
 protected:
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     NiceMock<MockFunction<ModelNode(const ModelNode &)>> goIntoComponentMock;
     QmlDesigner::ModelPointer designerModel{
         QmlDesigner::Model::create(QmlDesigner::ProjectStorageDependencies{projectStorageMock,
-                                                                           pathCacheMock},
+                                                                           pathCacheMock,
+                                                                           projectStorageTriggerUpdateMock},
                                    "Item",
                                    {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
                                     QmlDesigner::Import::createLibraryImport("QtQuick")},
@@ -204,7 +207,7 @@ protected:
     ModelNode element2;
     ModelNode element3;
     QmlDesigner::ModelPointer componentModel{
-        QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
+        QmlDesigner::Model::create({projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
                                    "ListModel",
                                    {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
                                     QmlDesigner::Import::createLibraryImport("QtQuick")},

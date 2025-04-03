@@ -6,6 +6,7 @@
 #include <mocks/externaldependenciesmock.h>
 #include <mocks/modelresourcemanagementmock.h>
 #include <mocks/projectstoragemock.h>
+#include <mocks/projectstoragetriggerupdatemock.h>
 #include <mocks/sourcepathcachemock.h>
 
 #include <model/auxiliarypropertystorageview.h>
@@ -40,17 +41,18 @@ protected:
 
     inline static std::unique_ptr<StaticData> staticData;
     Sqlite::Database &database = staticData->database;
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
     QmlDesigner::Imports imports = {QmlDesigner::Import::createLibraryImport("QtQuick")};
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
                              "Item",
                              imports,
                              pathCacheMock.path.toQString(),
                              std::make_unique<ModelResourceManagementMockWrapper>(
                                  resourceManagementMock)};
-    QmlDesigner::Model model2{{projectStorageMock, pathCacheMock},
+    QmlDesigner::Model model2{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
                               "Item",
                               imports,
                               pathCacheMock.path.toQString(),

@@ -366,14 +366,21 @@ namespace {
     return nullptr;
 }
 
+[[maybe_unused]] ProjectStorageTriggerUpdateInterface *dummyTriggerUpdate()
+{
+    return nullptr;
+}
+
 } // namespace
 
 ProjectStorageDependencies QmlDesignerProjectManager::projectStorageDependencies()
 {
     if constexpr (useProjectStorage()) {
-        return {m_projectData->projectStorageData->storage, m_data->pathCache};
+        return {m_projectData->projectStorageData->storage,
+                m_data->pathCache,
+                m_projectData->projectStorageData->pathWatcher};
     } else {
-        return {*dummyProjectStorage(), *dummyPathCache()};
+        return {*dummyProjectStorage(), *dummyPathCache(), *dummyTriggerUpdate()};
     }
 }
 

@@ -85,6 +85,7 @@ ModelPrivate::ModelPrivate(Model *model,
                            std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : projectStorage{&projectStorageDependencies.storage}
     , pathCache{&projectStorageDependencies.cache}
+    , projectStorageTriggerUpdate{&projectStorageDependencies.triggerUpdate}
     , m_model{model}
     , m_resourceManagement{std::move(resourceManagement)}
 {
@@ -110,6 +111,7 @@ ModelPrivate::ModelPrivate(Model *model,
                            std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : projectStorage{&projectStorageDependencies.storage}
     , pathCache{&projectStorageDependencies.cache}
+    , projectStorageTriggerUpdate{&projectStorageDependencies.triggerUpdate}
     , m_model{model}
     , m_resourceManagement{std::move(resourceManagement)}
 {
@@ -1771,7 +1773,7 @@ Model::Model(const TypeName &typeName,
 ModelPointer Model::createModel(const TypeName &typeName,
                                 std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
 {
-    return Model::create({*d->projectStorage, *d->pathCache},
+    return Model::create({*d->projectStorage, *d->pathCache, *d->projectStorageTriggerUpdate},
                          typeName,
                          imports(),
                          fileUrl(),
@@ -2016,6 +2018,11 @@ const PathCacheType &Model::pathCache() const
 PathCacheType &Model::pathCache()
 {
     return *d->pathCache;
+}
+
+ProjectStorageTriggerUpdateInterface &Model::projectStorageTriggerUpdate() const
+{
+    return *d->projectStorageTriggerUpdate;
 }
 
 void Model::emitInstancePropertyChange(AbstractView *view,

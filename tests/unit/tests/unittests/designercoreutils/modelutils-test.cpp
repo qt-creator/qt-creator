@@ -5,7 +5,9 @@
 
 #include <mocks/abstractviewmock.h>
 #include <mocks/projectstoragemock.h>
+#include <mocks/projectstoragetriggerupdatemock.h>
 #include <mocks/sourcepathcachemock.h>
+
 #include <modelutils.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
@@ -18,11 +20,12 @@ using QmlDesigner::Storage::ModuleKind;
 class ModelUtilsWithModel : public ::testing::Test
 {
 protected:
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/model.qml"};
     QmlDesigner::SourceId sourceId = pathCacheMock.createSourceId("/path/foo.qml");
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     QmlDesigner::ModuleId moduleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
                              "Item",
                              {QmlDesigner::Import::createLibraryImport("QML"),
                               QmlDesigner::Import::createLibraryImport("QtQuick"),

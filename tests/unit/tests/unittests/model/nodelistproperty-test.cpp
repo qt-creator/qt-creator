@@ -4,6 +4,7 @@
 #include <abstractviewmock.h>
 #include <googletest.h>
 #include <projectstoragemock.h>
+#include <projectstoragetriggerupdatemock.h>
 #include <sourcepathcachemock.h>
 
 #include <model.h>
@@ -73,11 +74,13 @@ protected:
     }
 
 protected:
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCache{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCache.sourceId, "/path"};
     QmlDesigner::ModelPointer model{
         QmlDesigner::Model::create(QmlDesigner::ProjectStorageDependencies{projectStorageMock,
-                                                                           pathCache},
+                                                                           pathCache,
+                                                                           projectStorageTriggerUpdateMock},
                                    "Item",
                                    {QmlDesigner::Import::createLibraryImport("QtQuick")},
                                    QUrl::fromLocalFile(pathCache.path.toQString()))};

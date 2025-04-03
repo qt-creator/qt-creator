@@ -7,6 +7,7 @@
 #include <model.h>
 #include <nodeproperty.h>
 #include <projectstoragemock.h>
+#include <projectstoragetriggerupdatemock.h>
 #include <sourcepathcachemock.h>
 #include <variantproperty.h>
 
@@ -103,9 +104,10 @@ protected:
     const QmlDesigner::GroupType groupType = GetParam();
     const QmlDesigner::PropertyName groupName = GroupId(groupType);
     QmlDesigner::DSThemeGroup group;
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/model.qm"};
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
                              "QtObject",
                              {Import::createLibraryImport("QM"),
                               Import::createLibraryImport("QtQuick")},

@@ -342,6 +342,7 @@ extend_qtc_library(TestDesignerCore
     projectstorageinfotypes.h
     projectstorageobserver.h
     projectstoragepathwatcher.h
+    projectstoragetriggerupdateinterface.h
     projectstoragepathwatcherinterface.h
     projectstoragepathwatchernotifierinterface.h
     projectstoragepathwatcher.h
