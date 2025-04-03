@@ -60,6 +60,8 @@ static bool displayAlreadySet(const Utils::EnvironmentItems &changes)
 DockerDeviceEnvironmentAspect::DockerDeviceEnvironmentAspect(AspectContainer *container)
     : EnvironmentAspect(container)
 {
+    setAllowPrintOnRun(false);
+
     addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
     addPreferredBaseEnvironment(Tr::tr("Device Environment"), [this] {
         return m_remoteEnvironment;
