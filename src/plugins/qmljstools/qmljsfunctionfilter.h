@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <coreplugin/locator/ilocatorfilter.h>
+#include "qmljslocatordata.h"
 
-#include <qmljslocatordata.h>
+#include <coreplugin/locator/ilocatorfilter.h>
 
 namespace QmlJSTools::Internal {
 
