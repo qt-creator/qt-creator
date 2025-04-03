@@ -459,14 +459,17 @@ static Group deviceCtlPollingRecipe(RunControl *runControl)
     };
 }
 
+struct DebugInfo
+{
+    QmlDebugServicesPreset qmlDebugServices = NoQmlDebugServices;
+    bool cppDebug = false;
+};
+
 class IosRunner : public RunWorker
 {
 public:
-    IosRunner(RunControl *runControl);
+    IosRunner(RunControl *runControl, const DebugInfo &debugInfo = {});
     ~IosRunner() override;
-
-    void setCppDebugging(bool cppDebug);
-    void setQmlDebugging(QmlDebugServicesPreset qmlDebugServices);
 
     void start() override;
     void stop() final;
@@ -489,15 +492,15 @@ private:
     FilePath m_bundleDir;
     IDeviceConstPtr m_device;
     IosDeviceType m_deviceType;
-    bool m_cppDebug = false;
-    QmlDebugServicesPreset m_qmlDebugServices = NoQmlDebugServices;
+    DebugInfo m_debugInfo;
 
     bool m_cleanExit = false;
     Port m_gdbServerPort;
 };
 
-IosRunner::IosRunner(RunControl *runControl)
+IosRunner::IosRunner(RunControl *runControl, const DebugInfo &debugInfo)
     : RunWorker(runControl)
+    , m_debugInfo(debugInfo)
 {
     setId("IosRunner");
     stopRunningRunControl(runControl);
@@ -511,16 +514,6 @@ IosRunner::IosRunner(RunControl *runControl)
 IosRunner::~IosRunner()
 {
     stop();
-}
-
-void IosRunner::setCppDebugging(bool cppDebug)
-{
-    m_cppDebug = cppDebug;
-}
-
-void IosRunner::setQmlDebugging(QmlDebugServicesPreset qmlDebugServices)
-{
-    m_qmlDebugServices = qmlDebugServices;
 }
 
 void IosRunner::start()
@@ -556,14 +549,14 @@ void IosRunner::start()
     if (portOnDevice.isValid()) {
         QUrl qmlServer;
         qmlServer.setPort(portOnDevice.number());
-        args.append(qmlDebugTcpArguments(m_qmlDebugServices, qmlServer));
+        args.append(qmlDebugTcpArguments(m_debugInfo.qmlDebugServices, qmlServer));
     }
 
     appendMessage(Tr::tr("Starting remote process."), NormalMessageFormat);
     QString deviceId;
     if (IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(m_device))
         deviceId = dev->uniqueDeviceID();
-    const IosToolHandler::RunKind runKind = m_cppDebug ? IosToolHandler::DebugRun : IosToolHandler::NormalRun;
+    const IosToolHandler::RunKind runKind = m_debugInfo.cppDebug ? IosToolHandler::DebugRun : IosToolHandler::NormalRun;
     m_toolHandler->requestRunApp(m_bundleDir, args, runKind, deviceId);
 }
 
@@ -594,7 +587,7 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
     qmlChannel.setPort(qmlPort.number());
     runControl()->setQmlChannel(qmlChannel);
 
-    if (m_cppDebug) {
+    if (m_debugInfo.cppDebug) {
         if (!m_gdbServerPort.isValid()) {
             reportFailure(Tr::tr("Failed to get a local debugger port."));
             return;
@@ -603,7 +596,7 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
             Tr::tr("Listening for debugger on local port %1.").arg(m_gdbServerPort.number()),
             LogMessageFormat);
     }
-    if (m_qmlDebugServices != NoQmlDebugServices) {
+    if (m_debugInfo.qmlDebugServices != NoQmlDebugServices) {
         if (!qmlPort.isValid()) {
             reportFailure(Tr::tr("Failed to get a local debugger port."));
             return;
@@ -633,7 +626,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bu
     }
     runControl()->setAttachPid(ProcessHandle(pid));
 
-    if (m_qmlDebugServices != NoQmlDebugServices && runControl()->qmlChannel().port() == -1)
+    if (m_debugInfo.qmlDebugServices != NoQmlDebugServices && runControl()->qmlChannel().port() == -1)
         reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
     else
         reportStarted();
@@ -799,9 +792,9 @@ static RunWorker *createWorker(RunControl *runControl)
     IosRunner *iosRunner = nullptr;
     RunWorker *runner = nullptr;
     if (!isIosDeviceInstance /*== simulator */ || dev->handler() == IosDevice::Handler::IosTool) {
-        runner = iosRunner = new IosRunner(runControl);
-        iosRunner->setCppDebugging(rp.isCppDebugging());
-        iosRunner->setQmlDebugging(rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices);
+        const DebugInfo debugInfo{rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices,
+                                  rp.isCppDebugging()};
+        runner = iosRunner = new IosRunner(runControl, debugInfo);
     } else {
         QTC_CHECK(rp.isCppDebugging());
         runner = new RecipeRunner(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ true));
@@ -871,8 +864,7 @@ IosDebugWorkerFactory::IosDebugWorkerFactory()
 IosQmlProfilerWorkerFactory::IosQmlProfilerWorkerFactory()
 {
     setProducer([](RunControl *runControl) {
-        auto runner = new IosRunner(runControl);
-        runner->setQmlDebugging(QmlProfilerServices);
+        auto runner = new IosRunner(runControl, {QmlProfilerServices});
 
         auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
         profiler->addStartDependency(runner);
