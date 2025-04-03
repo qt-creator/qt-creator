@@ -1387,7 +1387,6 @@ public:
     State m_state = Inactive;
     bool m_stopRequested = false;
 
-    Utils::CommandLine m_command;
     Utils::FilePath m_workingDirectory;
     Utils::Environment m_environment;
 
@@ -1431,7 +1430,7 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
     m_waitForDoneTimer.setSingleShot(true);
     connect(&m_waitForDoneTimer, &QTimer::timeout, this, [this] {
         postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
-        if (!m_command.executable().isLocal())
+        if (!m_process.commandLine().executable().isLocal())
             postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
         m_process.close();
         forwardDone();
@@ -1509,13 +1508,13 @@ void ProcessRunnerPrivate::handleStandardError()
 
 void ProcessRunnerPrivate::start()
 {
-    CommandLine cmdLine = m_command;
+    CommandLine cmdLine = m_process.commandLine();
     Environment env = m_environment;
 
     m_resultData = {};
     QTC_ASSERT(m_state == Inactive, return);
 
-    if (m_command.executable().isLocal()) {
+    if (cmdLine.executable().isLocal()) {
         // Running locally.
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
@@ -1531,8 +1530,8 @@ void ProcessRunnerPrivate::start()
         m_process.setRunAsRoot(m_runAsRoot);
     }
 
-    const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_command.executable());
-    if (device && !device->allowEmptyCommand() && m_command.isEmpty()) {
+    const IDevice::ConstPtr device = DeviceManager::deviceForPath(cmdLine.executable());
+    if (device && !device->allowEmptyCommand() && cmdLine.isEmpty()) {
         m_resultData.m_errorString = Tr::tr("Cannot run: No command given.");
         m_resultData.m_error = QProcess::FailedToStart;
         m_resultData.m_exitStatus = QProcess::CrashExit;
@@ -1553,7 +1552,7 @@ void ProcessRunnerPrivate::start()
 
         extraData[TERMINAL_SHELL_NAME] = shellName;
     } else {
-        extraData[TERMINAL_SHELL_NAME] = m_command.executable().fileName();
+        extraData[TERMINAL_SHELL_NAME] = cmdLine.executable().fileName();
     }
 
     m_process.setCommand(cmdLine);
@@ -1591,7 +1590,8 @@ void ProcessRunnerPrivate::forwardDone()
         return;
     m_state = Inactive;
     m_waitForDoneTimer.stop();
-    const QString executable = m_command.executable().displayName();
+    const CommandLine command = m_process.commandLine();
+    const QString executable = command.executable().displayName();
     QString msg = Tr::tr("%1 exited with code %2").arg(executable).arg(m_resultData.m_exitCode);
     if (m_resultData.m_exitStatus == QProcess::CrashExit) {
         if (m_stopForced)
@@ -1599,7 +1599,7 @@ void ProcessRunnerPrivate::forwardDone()
         else
             msg = Tr::tr("The process crashed.");
     } else if (m_resultData.m_error != QProcess::UnknownError) {
-        msg = RunWorker::userMessageForProcessError(m_resultData.m_error, m_command.executable());
+        msg = RunWorker::userMessageForProcessError(m_resultData.m_error, command.executable());
     }
     postMessage(msg, NormalMessageFormat);
     m_stopReported = true;
@@ -1608,7 +1608,7 @@ void ProcessRunnerPrivate::forwardDone()
 
 void ProcessRunnerPrivate::forwardStarted()
 {
-    const bool isDesktop = m_command.executable().isLocal();
+    const bool isDesktop = m_process.commandLine().executable().isLocal();
     if (isDesktop) {
         // Console processes only know their pid after being started
         ProcessHandle pid{privateApplicationPID()};
@@ -1621,7 +1621,7 @@ void ProcessRunnerPrivate::forwardStarted()
 
 void ProcessRunner::start()
 {
-    d->m_command = runControl()->commandLine();
+    setCommandLine(runControl()->commandLine());
     d->m_workingDirectory = runControl()->workingDirectory();
     d->m_environment = runControl()->environment();
 
@@ -1636,6 +1636,7 @@ void ProcessRunner::start()
     if (auto runAsRootAspect = runControl()->aspectData<RunAsRootAspect>())
         runAsRoot = runAsRootAspect->value;
 
+    const CommandLine command = d->m_process.commandLine();
     d->m_stopForced = false;
     d->m_stopReported = false;
     d->disconnect(this);
@@ -1644,7 +1645,7 @@ void ProcessRunner::start()
         std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds));
     d->m_runAsRoot = runAsRoot;
 
-    const QString msg = Tr::tr("Starting %1...").arg(d->m_command.displayName());
+    const QString msg = Tr::tr("Starting %1...").arg(command.displayName());
     d->postMessage(msg, NormalMessageFormat);
     if (runControl()->isPrintEnvironmentEnabled()) {
         d->postMessage(Tr::tr("Environment:"), NormalMessageFormat);
@@ -1655,8 +1656,8 @@ void ProcessRunner::start()
         d->postMessage({}, StdOutFormat);
     }
 
-    const bool isDesktop = d->m_command.executable().isLocal();
-    if (isDesktop && d->m_command.isEmpty()) {
+    const bool isDesktop = command.executable().isLocal();
+    if (isDesktop && command.isEmpty()) {
         reportFailure(Tr::tr("No executable specified."));
         return;
     }
@@ -1676,7 +1677,7 @@ void ProcessRunner::setStartModifier(const std::function<void ()> &startModifier
 
 void ProcessRunner::setCommandLine(const Utils::CommandLine &commandLine)
 {
-    d->m_command = commandLine;
+    d->m_process.setCommand(commandLine);
 }
 
 void ProcessRunner::setEnvironment(const Environment &environment)
