@@ -111,7 +111,7 @@ public:
                && first.sourceId == second.sourceId;
     }
 
-    friend auto operator<=>(const WatcherEntry &first, const WatcherEntry &second)
+    friend std::weak_ordering operator<=>(const WatcherEntry &first, const WatcherEntry &second)
     {
         return std::tie(first.sourceContextId, first.sourceId, first.id)
                <=> std::tie(second.sourceContextId, second.sourceId, second.id);

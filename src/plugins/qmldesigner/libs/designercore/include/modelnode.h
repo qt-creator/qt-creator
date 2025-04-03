@@ -263,7 +263,7 @@ public:
         return firstNode.m_internalNode == secondNode.m_internalNode;
     }
 
-    friend auto operator<=>(const ModelNode &firstNode, const ModelNode &secondNode)
+    friend std::weak_ordering operator<=>(const ModelNode &firstNode, const ModelNode &secondNode)
     {
         return firstNode.m_internalNode <=> secondNode.m_internalNode;
     }

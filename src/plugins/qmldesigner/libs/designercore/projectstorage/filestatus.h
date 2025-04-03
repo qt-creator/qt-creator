@@ -25,7 +25,7 @@ public:
                && first.lastModified == second.lastModified;
     }
 
-    friend auto operator<=>(const FileStatus &first, const FileStatus &second)
+    friend std::weak_ordering operator<=>(const FileStatus &first, const FileStatus &second)
     {
         return first.sourceId <=> second.sourceId;
     }

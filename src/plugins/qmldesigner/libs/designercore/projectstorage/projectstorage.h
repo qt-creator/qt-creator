@@ -364,8 +364,8 @@ private:
             , sourceId{sourceId}
         {}
 
-        friend auto operator<=>(const AliasPropertyDeclaration &first,
-                                const AliasPropertyDeclaration &second)
+        friend std::weak_ordering operator<=>(const AliasPropertyDeclaration &first,
+                                              const AliasPropertyDeclaration &second)
         {
             return std::tie(first.typeId, first.propertyDeclarationId)
                    <=> std::tie(second.typeId, second.propertyDeclarationId);
@@ -434,7 +434,8 @@ private:
                    == std::tie(second.typeId, second.propertyDeclarationId);
         }
 
-        friend auto operator<=>(const PropertyDeclaration &first, const PropertyDeclaration &second)
+        friend std::weak_ordering operator<=>(const PropertyDeclaration &first,
+                                              const PropertyDeclaration &second)
         {
             return std::tie(first.typeId, first.propertyDeclarationId)
                    <=> std::tie(second.typeId, second.propertyDeclarationId);
@@ -470,7 +471,7 @@ private:
             , prototypeNameId{std::move(prototypeNameId)}
         {}
 
-        friend auto operator<=>(Prototype first, Prototype second)
+        friend std::weak_ordering operator<=>(Prototype first, Prototype second)
         {
             return first.typeId <=> second.typeId;
         }
