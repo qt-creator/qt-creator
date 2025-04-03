@@ -1146,6 +1146,17 @@ void Process::start()
                qWarning("Restarting the Process directly from one of its signal handlers will "
                         "lead to crash! Consider calling close() prior to direct restart."));
     d->clearForRun();
+
+    if (d->m_setup.m_commandLine.executable().isEmpty()) {
+        d->m_result = ProcessResult::StartFailed;
+        d->m_resultData.m_exitCode = 255;
+        d->m_resultData.m_exitStatus = QProcess::CrashExit;
+        d->m_resultData.m_errorString = Tr::tr("No executable specified.");
+        d->m_resultData.m_error = QProcess::FailedToStart;
+        d->emitGuardedSignal(&Process::done);
+        return;
+    }
+
     ProcessInterface *processImpl = nullptr;
     if (d->m_setup.m_commandLine.executable().isLocal()) {
         processImpl = d->createProcessInterface();
