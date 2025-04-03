@@ -8,6 +8,8 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
+#include <utils/synchronizedvalue.h>
+
 namespace Utils { class ProcessResultData; }
 
 namespace RemoteLinux {
@@ -71,6 +73,9 @@ public:
 
     void attachToSharedConnection(Internal::SshConnectionHandle *sshConnectionHandle,
                                   const ProjectExplorer::SshParameters &sshParams) const;
+
+    void shutdown();
+
 protected:
     LinuxDevice();
 
@@ -78,6 +83,19 @@ protected:
     friend class LinuxDevicePrivate;
 };
 
-namespace Internal { void setupLinuxDevice(); }
+namespace Internal {
+
+class LinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
+{
+public:
+    LinuxDeviceFactory();
+    ~LinuxDeviceFactory() override;
+
+private:
+    Utils::SynchronizedValue<std::vector<std::weak_ptr<LinuxDevice>>> m_existingDevices;
+    void shutdownExistingDevices();
+};
+
+} // namespace Internal
 
 } // namespace RemoteLinux

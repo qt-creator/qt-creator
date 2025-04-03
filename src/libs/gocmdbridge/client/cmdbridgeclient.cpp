@@ -252,7 +252,7 @@ Client::~Client()
         d->thread->wait(2000);
 }
 
-Result Client::start()
+Result Client::start(bool deleteOnExit)
 {
     d->thread = new QThread(this);
     d->thread->setObjectName("CmdBridgeClientThread");
@@ -279,8 +279,11 @@ Result Client::start()
 
     QMetaObject::invokeMethod(
         d->process,
-        [this]() -> Result {
-            d->process->setCommand({d->remoteCmdBridgePath, {}});
+        [this, deleteOnExit]() -> Result {
+            if (deleteOnExit)
+                d->process->setCommand({d->remoteCmdBridgePath, {"-deleteOnExit"}});
+            else
+                d->process->setCommand({d->remoteCmdBridgePath, {}});
             d->process->setEnvironment(d->environment);
             d->process->setProcessMode(ProcessMode::Writer);
             d->process->setProcessChannelMode(QProcess::ProcessChannelMode::SeparateChannels);

@@ -38,6 +38,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/synchronizedvalue.h>
 #include <utils/temporaryfile.h>
 #include <utils/threadutils.h>
 
@@ -340,12 +341,18 @@ public:
     Environment getEnvironment();
     void invalidateEnvironmentCache();
 
+    void shutdown()
+    {
+        q->setFileAccess(&m_disconnectedAccess);
+        m_cmdBridgeAccess.reset();
+    }
+
     LinuxDevice *q = nullptr;
 
     BoolAspect m_disconnected;
     UnavailableDeviceFileAccess m_disconnectedAccess;
     LinuxDeviceAccess m_scriptAccess;
-    CmdBridge::FileAccess m_cmdBridgeAccess;
+    std::unique_ptr<CmdBridge::FileAccess> m_cmdBridgeAccess;
 
     QReadWriteLock m_environmentCacheLock;
     std::optional<Environment> m_environmentCache;
@@ -1189,11 +1196,14 @@ Result LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool a
     setupConnectedAccess();
     setOsTypeFromUnameResult(m_scriptAccess.m_handler->runInShell(unameCommand()));
 
+    m_cmdBridgeAccess = std::make_unique<CmdBridge::FileAccess>();
     // We have good shell access now, try to get bridge access, too:
-    Result initResult = m_cmdBridgeAccess.deployAndInit(Core::ICore::libexecPath(), q->rootPath(), getEnvironment());
+    Result initResult
+        = m_cmdBridgeAccess
+              ->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), getEnvironment());
     if (initResult) {
         qCDebug(linuxDeviceLog) << "Bridge ok to use";
-        q->setFileAccess(&m_cmdBridgeAccess);
+        q->setFileAccess(m_cmdBridgeAccess.get());
     } else {
         qCDebug(linuxDeviceLog) << "Failed to start CmdBridge:" << initResult.error()
                                   << ", falling back to slow shell access";
@@ -1318,34 +1328,50 @@ bool LinuxDevice::tryToConnect()
     return d->tryToConnect(sshParameters());
 }
 
-namespace Internal {
-
-class LinuxDeviceFactory final : public IDeviceFactory
+void LinuxDevice::shutdown()
 {
-public:
-    LinuxDeviceFactory()
-        : IDeviceFactory(Constants::GenericLinuxOsType)
-    {
-        setDisplayName(Tr::tr("Remote Linux Device"));
-        setIcon(QIcon());
-        setConstructionFunction(&LinuxDevice::create);
-        setQuickCreationAllowed(true);
-        setCreator([]() -> IDevice::Ptr {
-            const IDevice::Ptr device = LinuxDevice::create();
-            SshDeviceWizard wizard(Tr::tr("New Remote Linux Device Configuration Setup"), device);
-            if (wizard.exec() != QDialog::Accepted)
-                return {};
-            return device;
-        });
-    }
-};
-
-void setupLinuxDevice()
-{
-    static LinuxDeviceFactory theLinuxDeviceFactory;
+    d->shutdown();
 }
 
-} // namespace Internal
+Internal::LinuxDeviceFactory::LinuxDeviceFactory()
+    : IDeviceFactory(Constants::GenericLinuxOsType)
+{
+    setDisplayName(Tr::tr("Remote Linux Device"));
+    setIcon(QIcon());
+    setConstructionFunction(&LinuxDevice::create);
+    setQuickCreationAllowed(true);
+    setCreator([this]() -> IDevice::Ptr {
+        auto device = LinuxDevice::create();
+        m_existingDevices.writeLocked()->push_back(device);
+
+        SshDeviceWizard
+            wizard(Tr::tr("New Remote Linux Device Configuration Setup"), IDevice::Ptr(device));
+        if (wizard.exec() != QDialog::Accepted)
+            return {};
+        return device;
+    });
+
+    setConstructionFunction([this] {
+        auto device = LinuxDevice::create();
+        m_existingDevices.writeLocked()->push_back(device);
+        return device;
+    });
+}
+
+Internal::LinuxDeviceFactory::~LinuxDeviceFactory()
+{
+    shutdownExistingDevices();
+}
+
+void Internal::LinuxDeviceFactory::shutdownExistingDevices()
+{
+    m_existingDevices.read([](const std::vector<std::weak_ptr<LinuxDevice>> &devices) {
+        for (auto device : devices) {
+            if (auto d = device.lock())
+                d->shutdown();
+        }
+    });
+}
 } // namespace RemoteLinux
 
 #include "linuxdevice.moc"

@@ -38,11 +38,12 @@ public:
     ~RemoteLinuxPlugin() final
     {
         FSEngine::unregisterDeviceScheme(u"ssh");
+        m_linuxDeviceFactory.reset();
     }
 
     void initialize() final
     {
-        setupLinuxDevice();
+        m_linuxDeviceFactory = std::make_unique<LinuxDeviceFactory>();
         setupRemoteLinuxRunConfiguration();
         setupRemoteLinuxCustomRunConfiguration();
         setupRemoteLinuxRunAndDebugSupport();
@@ -56,6 +57,9 @@ public:
         addTest<FileSystemAccessTest>();
 #endif
     }
+
+private:
+    std::unique_ptr<LinuxDeviceFactory> m_linuxDeviceFactory;
 };
 
 } // RemoteLinux::Internal

@@ -229,13 +229,13 @@ public:
             return make_unexpected(result.error());
 
         Result initResult = Result::Ok;
-        if (cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath()))
-            initResult
-                = fAccess->init(q->rootPath().withNewPath("/tmp/_qtc_cmdbridge"), q->environment());
-        else
+        if (cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath())) {
+            initResult = fAccess->init(
+                q->rootPath().withNewPath("/tmp/_qtc_cmdbridge"), q->environment(), false);
+        } else {
             initResult
                 = fAccess->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), q->environment());
-
+        }
         if (!initResult)
             return make_unexpected(initResult.error());
 
@@ -1311,10 +1311,12 @@ DockerDeviceFactory::DockerDeviceFactory()
 {
     setDisplayName(Tr::tr("Docker Device"));
     setIcon(QIcon());
-    setCreator([] {
+    setCreator([this] {
         DockerDeviceSetupWizard wizard;
         if (wizard.exec() != QDialog::Accepted)
             return IDevice::Ptr();
+        m_existingDevices.writeLocked()->push_back(
+            std::static_pointer_cast<DockerDevice>(wizard.device()));
         return wizard.device();
     });
     setConstructionFunction([this] {

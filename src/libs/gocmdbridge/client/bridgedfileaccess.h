@@ -32,7 +32,10 @@ public:
         const Utils::FilePath &remoteRootPath,
         const Utils::Environment &environment);
 
-    Utils::Result init(const Utils::FilePath &pathToBridge, const Utils::Environment &environment);
+    Utils::Result init(
+        const Utils::FilePath &pathToBridge,
+        const Utils::Environment &environment,
+        bool deleteOnExit);
 
     Utils::Result signalProcess(int pid, Utils::ControlSignal signal) const;
 

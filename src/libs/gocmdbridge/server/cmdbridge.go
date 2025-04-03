@@ -343,7 +343,19 @@ func processSignal(cmd command, out chan<- []byte) {
 	out <- data
 }
 
-func processCommand(watcher *WatcherHandler, watchDogChannel chan struct{} ,cmd command, out chan<- []byte) {
+func exit(exitCode int, deleteOnExit bool) {
+	if deleteOnExit {
+		executable, err := os.Executable()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error getting executable path:", err)
+			os.Exit(1)
+		}
+		os.Remove(executable)
+	}
+	os.Exit(0)
+}
+
+func processCommand(watcher *WatcherHandler, watchDogChannel chan struct{} ,cmd command, out chan<- []byte, deleteOnExit bool) {
 	defer globalWaitGroup.Done()
 
 	switch cmd.Type {
@@ -400,14 +412,14 @@ func processCommand(watcher *WatcherHandler, watchDogChannel chan struct{} ,cmd 
 		})
 		out <- result
 	case "exit":
-		os.Exit(0)
+		exit(0, deleteOnExit)
 	}
 }
 
-func executor(watcher *WatcherHandler, watchDogChannel chan struct {}, commands <-chan command, out chan<- []byte) {
+func executor(watcher *WatcherHandler, watchDogChannel chan struct {}, commands <-chan command, out chan<- []byte, deleteOnExit bool) {
 	for cmd := range commands {
 		globalWaitGroup.Add(1)
-		go processCommand(watcher, watchDogChannel, cmd, out)
+		go processCommand(watcher, watchDogChannel, cmd, out, deleteOnExit)
 	}
 }
 
@@ -477,7 +489,7 @@ func writeMain(out *bufio.Writer) {
 	out.Flush()
 }
 
-func watchDogLoop(channel chan struct {}) {
+func watchDogLoop(channel chan struct {}, deleteOnExit bool) {
 	watchDogTimeOut := 60 * time.Second
 	timer := time.NewTimer(watchDogTimeOut)
 
@@ -488,17 +500,17 @@ func watchDogLoop(channel chan struct {}) {
 		case <-timer.C:
 			// If we don't get a signal for one minute, we assume that the connection is dead.
 			fmt.Println("Watchdog timeout, exiting.")
-			os.Exit(100)
+			exit(100, deleteOnExit)
 		}
 	}
 }
 
-func readMain(test bool) {
+func readMain(test bool, deleteOnExit bool) {
 	commandChannel := make(chan command)
 	outputChannel := make(chan []byte)
 
 	watchDogChannel := make(chan struct {}, 1)
-	go watchDogLoop(watchDogChannel)
+	go watchDogLoop(watchDogChannel, deleteOnExit)
 
 	watcher := NewWatcherHandler()
 
@@ -516,7 +528,7 @@ func readMain(test bool) {
 	globalWaitGroup.Add(1)
 	go func() {
 		defer globalWaitGroup.Done()
-		executor(watcher, watchDogChannel, commandChannel, outputChannel)
+		executor(watcher, watchDogChannel, commandChannel, outputChannel, deleteOnExit)
 	}()
 
 	globalWaitGroup.Add(1)
@@ -561,11 +573,13 @@ func readMain(test bool) {
 func main() {
 	test := flag.Bool("test", false, "test instead of read from stdin")
 	write := flag.Bool("write", false, "write instead of read data")
+	deleteOnExit := flag.Bool("deleteOnExit", false, "delete application on exit")
+
 	flag.Parse()
 
 	if *write {
 		writeMain(bufio.NewWriter(os.Stdout))
 	} else {
-		readMain(*test)
+		readMain(*test, *deleteOnExit)
 	}
 }

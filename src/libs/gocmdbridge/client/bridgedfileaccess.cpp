@@ -33,12 +33,13 @@ expected_str<QString> run(const CommandLine &cmdLine, const QByteArray &inputDat
     return p.readAllStandardOutput().trimmed();
 }
 
-Result FileAccess::init(const FilePath &pathToBridge, const Environment &environment)
+Result FileAccess::init(
+    const FilePath &pathToBridge, const Environment &environment, bool deleteOnExit)
 {
     m_environment = environment;
     m_client = std::make_unique<Client>(pathToBridge, environment);
 
-    auto startResult = m_client->start();
+    auto startResult = m_client->start(deleteOnExit);
     if (!startResult)
         return Result::Error(QString("Could not start cmdbridge: %1").arg(startResult.error()));
 
@@ -46,7 +47,9 @@ Result FileAccess::init(const FilePath &pathToBridge, const Environment &environ
 }
 
 Result FileAccess::deployAndInit(
-    const FilePath &libExecPath, const FilePath &remoteRootPath, const Environment &environment)
+    const FilePath &libExecPath,
+    const FilePath &remoteRootPath,
+    const Environment &environment)
 {
     if (remoteRootPath.isEmpty())
         return Result::Error(Tr::tr("Remote root path is empty"));
@@ -130,10 +133,10 @@ Result FileAccess::deployAndInit(
                 QString("Could not make temporary file executable: %1").arg(makeExecutable.error()));
         }
 
-        return init(remoteRootPath.withNewPath(*tmpFile), environment);
+        return init(remoteRootPath.withNewPath(*tmpFile), environment, true);
     }
 
-    return init(*cmdBridgePath, environment);
+    return init(*cmdBridgePath, environment, false);
 }
 
 bool FileAccess::isExecutableFile(const FilePath &filePath) const
