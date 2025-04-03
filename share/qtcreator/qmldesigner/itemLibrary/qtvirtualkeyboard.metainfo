@@ -1,0 +1,35 @@
+MetaInfo {
+Type {
+    name: "QtQuick.VirtualKeyboard.InputPanel"
+    icon: "images/text-input-icon16.png"
+
+    ItemLibraryEntry {
+        name: "Input Panel"
+        category: "Virtual Keyboard"
+        libraryIcon: "images/text-input-icon.png"
+        version: "6.0"
+        requiredImport: "QtQuick.VirtualKeyboard"
+
+        Property { name: "width"; type: "int"; value: 200; }
+        Property { name: "height"; type: "int"; value: 200; }
+        toolTip: qsTr("Provides the virtual keyboard UI.")
+    }
+}
+
+Type {
+    name: "QtQuick.VirtualKeyboard.HandwritingInputPanel"
+    icon: "images/text-input-icon16.png"
+
+    ItemLibraryEntry {
+        name: "Handwriting Input Panel"
+        category: "Virtual Keyboard"
+        libraryIcon: "images/text-input-icon.png"
+        version: "6.0"
+        requiredImport: "QtQuick.VirtualKeyboard"
+
+        Property { name: "width"; type: "int"; value: 200; }
+        Property { name: "height"; type: "int"; value: 200; }
+        toolTip: qsTr("Provides a handwriting panel add-on for the virtual keyboard UI.")
+    }
+}
+}
