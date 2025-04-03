@@ -148,7 +148,7 @@ void DynamicPropertiesModel::setCurrent(int internalId, PropertyNameView name)
 
 void DynamicPropertiesModel::updateItem(const AbstractProperty &property)
 {
-    if (!property.isDynamic())
+    if (!property.isDynamic() && !property.isSignalDeclarationProperty())
         return;
 
     if (auto *item = itemForProperty(property)) {
@@ -351,6 +351,21 @@ void DynamicPropertiesModel::dispatchPropertyChanges(const AbstractProperty &abs
             const AbstractProperty targetProperty = target.variantProperty(propertyName);
             if (target.hasProperty(propertyName) && targetProperty.isDynamic())
                 updateItem(targetProperty);
+        }
+    }
+}
+
+void DynamicPropertiesModel::handleInstancePropertyChanged(const ModelNode &modelNode,
+                                                           PropertyNameView propertyName)
+{
+    if (modelNode != singleSelectedNode())
+        return;
+
+    QmlObjectNode qmlObjectNode(modelNode);
+    if (qmlObjectNode.isValid() && qmlObjectNode.currentState().isValid()) {
+        const AbstractProperty property = modelNode.property(propertyName);
+        if (property.isDynamic()) {
+            updateItem(property);
         }
     }
 }

@@ -11,6 +11,27 @@ namespace QmlProjectManager::Converters {
 
 const static QStringList qmlFilesFilter{QStringLiteral("*.qml")};
 const static QStringList javaScriptFilesFilter{QStringLiteral("*.js"), QStringLiteral("*.ts")};
+const static QStringList fontFilesFilter{
+    QStringLiteral("*.afm"),
+    QStringLiteral("*.bdf"),
+    QStringLiteral("*.ccc"),
+    QStringLiteral("*.cff"),
+    QStringLiteral("*.fmp"),
+    QStringLiteral("*.fnt"),
+    QStringLiteral("*.otc"),
+    QStringLiteral("*.otf"),
+    QStringLiteral("*.pcf"),
+    QStringLiteral("*.pfa"),
+    QStringLiteral("*.pfb"),
+    QStringLiteral("*.pfm"),
+    QStringLiteral("*.pfr"),
+    QStringLiteral("*.ttc"),
+    QStringLiteral("*.ttcf"),
+    QStringLiteral("*.tte"),
+    QStringLiteral("*.ttf"),
+    QStringLiteral("*.woff"),
+    QStringLiteral("*.woff2"),
+};
 
 const QStringList imageFilesFilter() {
     return imageFiles([](const QString& suffix) { return "*." + suffix; });
@@ -466,6 +487,9 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
             // if directory is empty, then the files are prefixed with the project directory
             if (childNodeFiles.empty()) {
                 auto inserter = [&childNodeFilters](const QStringList &filterSource) {
+                    if (!childNodeFilters.empty())
+                        return;
+
                     std::for_each(filterSource.begin(),
                                   filterSource.end(),
                                   [&childNodeFilters](const auto &value) {
@@ -475,7 +499,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
                                   });
                 };
 
-                // Those 3 file groups are the special ones
+                // Those 4 file groups are the special ones
                 // that have a default set of filters.
                 // The default filters are written to the
                 // qmlproject file after conversion
@@ -485,6 +509,8 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
                     inserter(javaScriptFilesFilter);
                 } else if (childNodeName == "imagefiles") {
                     inserter(imageFilesFilter());
+                } else if (childNodeName == "fontfiles") {
+                    inserter(fontFilesFilter);
                 }
             }
 

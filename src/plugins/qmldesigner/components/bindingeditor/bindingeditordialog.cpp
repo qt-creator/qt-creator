@@ -1,6 +1,8 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <qmldesignertr.h>
+
 #include "bindingeditordialog.h"
 
 #include <texteditor/texteditor.h>
@@ -20,7 +22,7 @@
 namespace QmlDesigner {
 
 BindingEditorDialog::BindingEditorDialog(QWidget *parent)
-    : AbstractEditorDialog(parent, tr("Binding Editor"))
+    : AbstractEditorDialog(parent, Tr::tr("Binding Editor"))
 {
     setupUIComponents();
 
@@ -97,10 +99,10 @@ void BindingEditorDialog::setupUIComponents()
     m_comboBoxItem = new QComboBox(this);
     m_comboBoxProperty = new QComboBox(this);
     m_checkBoxNot = new QCheckBox(this);
-    m_checkBoxNot->setText(tr("NOT"));
+    m_checkBoxNot->setText(Tr::tr("NOT"));
     m_checkBoxNot->setVisible(false);
     m_checkBoxNot->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    m_checkBoxNot->setToolTip(tr("Invert the boolean expression."));
+    m_checkBoxNot->setToolTip(Tr::tr("Invert the boolean expression."));
 
     m_comboBoxLayout->addWidget(m_comboBoxItem);
     m_comboBoxLayout->addWidget(m_comboBoxProperty);

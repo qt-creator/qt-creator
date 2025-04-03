@@ -126,7 +126,6 @@ private:
     QHash<int, QString> m_importIdToAssetNameMap;
     QHash<QString, ParseData> m_parseData; // Key: asset name
     QString m_progressTitle;
-    QStringList m_requiredImports;
     QList<int> m_puppetQueue;
 };
 } // QmlDesigner

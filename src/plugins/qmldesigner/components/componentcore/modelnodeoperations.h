@@ -73,6 +73,8 @@ void paste(const SelectionContext &selectionState);
 void undo(const SelectionContext &selectionState);
 void redo(const SelectionContext &selectionState);
 void setVisible(const SelectionContext &selectionState);
+void isolateSelectedNodes(const SelectionContext &selectionState);
+void showAllNodes(const SelectionContext &selectionState);
 void setFillWidth(const SelectionContext &selectionState);
 void setFillHeight(const SelectionContext &selectionState);
 void resetSize(const SelectionContext &selectionState);
@@ -98,6 +100,7 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
 void removeLayout(const SelectionContext &selectionContext);
 void removePositioner(const SelectionContext &selectionContext);
 void moveToComponent(const SelectionContext &selectionContext);
+void extractComponent(const SelectionContext &selectionContext);
 void add3DAssetToContentLibrary(const SelectionContext &selectionContext);
 PropertyName getIndexPropertyName(const ModelNode &modelNode);
 void addItemToStackedContainer(const SelectionContext &selectionContext);

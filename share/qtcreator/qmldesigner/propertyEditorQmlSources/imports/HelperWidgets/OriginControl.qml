@@ -31,6 +31,9 @@ Row {
         id: colorLogic
         backendValue: root.backendValue
         onValueFromBackendChanged: {
+            if (!root.backendValue)
+                return
+
             var enumString = root.backendValue.enumeration
             if (enumString === "")
                 enumString = root.backendValue.value

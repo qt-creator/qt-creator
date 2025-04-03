@@ -210,4 +210,24 @@ bool QmlProject::isMCUs()
     return buildSystem && buildSystem->qtForMCUs();
 }
 
+QmlProject::Version QmlProject::qtQuickVersion()
+{
+    const QmlProjectManager::QmlBuildSystem *buildSystem
+        = qobject_cast<QmlProjectManager::QmlBuildSystem *>(activeBuildSystemForActiveProject());
+
+    if (buildSystem) {
+        const QStringList versions = buildSystem->versionQtQuick().split('.');
+        if (versions.size() >= 2) {
+            const QString majorVersion = versions[0];
+            const QString minorVersion = versions[1];
+            Version version {
+                majorVersion.isEmpty() ? -1 : majorVersion.toInt(),
+                minorVersion.isEmpty() ? -1 : minorVersion.toInt()
+            };
+            return version;
+        }
+    }
+    return {};
+}
+
 } // namespace QmlProjectManager

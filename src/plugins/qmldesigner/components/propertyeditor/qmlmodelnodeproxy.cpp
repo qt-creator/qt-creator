@@ -22,9 +22,15 @@ QmlModelNodeProxy::QmlModelNodeProxy(QObject *parent) :
 {
 }
 
-void QmlModelNodeProxy::setup(const QmlObjectNode &objectNode)
+void QmlModelNodeProxy::setup(const ModelNode &node)
 {
-    m_qmlObjectNode = objectNode;
+    setup(ModelNodes{node});
+}
+
+void QmlModelNodeProxy::setup(const ModelNodes &editorNodes)
+{
+    m_qmlObjectNode = editorNodes.isEmpty() ? ModelNode{} : editorNodes.first();
+    m_editorNodes = editorNodes;
 
     m_subselection.clear();
 
@@ -61,12 +67,22 @@ ModelNode QmlModelNodeProxy::modelNode() const
     return m_qmlObjectNode.modelNode();
 }
 
+ModelNodes QmlModelNodeProxy::editorNodes() const
+{
+    return m_editorNodes;
+}
+
+ModelNode QmlModelNodeProxy::singleSelectedNode() const
+{
+    return multiSelection() ? ModelNode{} : modelNode();
+}
+
 bool QmlModelNodeProxy::multiSelection() const
 {
     if (!m_qmlObjectNode.isValid())
         return false;
 
-    return m_qmlObjectNode.view()->selectedModelNodes().size() > 1;
+    return editorNodes().size() > 1;
 }
 
 QString QmlModelNodeProxy::nodeId() const
@@ -78,6 +94,17 @@ QString QmlModelNodeProxy::nodeId() const
         return tr("multiselection");
 
     return m_qmlObjectNode.id();
+}
+
+QString QmlModelNodeProxy::nodeObjectName() const
+{
+    if (!m_qmlObjectNode.isValid())
+        return {};
+
+    if (multiSelection())
+        return tr("multiselection");
+
+    return m_qmlObjectNode.modelNode().variantProperty("objectName").value().toString();
 }
 
 QString QmlModelNodeProxy::simplifiedTypeName() const

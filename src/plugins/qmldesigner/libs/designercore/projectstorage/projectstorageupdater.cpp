@@ -22,6 +22,8 @@
 #include <QDirIterator>
 #include <QRegularExpression>
 
+#include <private/qqmldirparser_p.h>
+
 #include <algorithm>
 #include <functional>
 
@@ -37,11 +39,20 @@ void convertToString(String &string, const ProjectStorageUpdater::FileState &sta
     case ProjectStorageUpdater::FileState::Changed:
         convertToString(string, "Changed");
         break;
-    case ProjectStorageUpdater::FileState::NotChanged:
-        convertToString(string, "NotChanged");
+    case ProjectStorageUpdater::FileState::Unchanged:
+        convertToString(string, "Unchanged");
         break;
     case ProjectStorageUpdater::FileState::NotExists:
         convertToString(string, "NotExists");
+        break;
+    case ProjectStorageUpdater::FileState::NotExistsUnchanged:
+        convertToString(string, "NotExistsUnchanged");
+        break;
+    case ProjectStorageUpdater::FileState::Added:
+        convertToString(string, "Added");
+        break;
+    case ProjectStorageUpdater::FileState::Removed:
+        convertToString(string, "Removed");
         break;
     }
 }
@@ -56,35 +67,32 @@ QStringList filterMultipleEntries(QStringList qmlTypes)
     return qmlTypes;
 }
 
-QList<QmlDirParser::Import> filterMultipleEntries(QList<QmlDirParser::Import> imports)
+QList<QQmlDirParser::Import> filterMultipleEntries(QList<QQmlDirParser::Import> imports)
 {
-    std::stable_sort(imports.begin(), imports.end(), [](auto &&first, auto &&second) {
-        return first.module < second.module;
-    });
-    imports.erase(std::unique(imports.begin(),
-                              imports.end(),
-                              [](auto &&first, auto &&second) {
-                                  return first.module == second.module;
-                              }),
-                  imports.end());
+    std::ranges::stable_sort(imports, {}, &QQmlDirParser::Import::module);
+    auto removedRange = std::ranges::unique(imports, {}, &QQmlDirParser::Import::module);
+    imports.erase(removedRange.begin(), removedRange.end());
 
     return imports;
 }
 
-QList<QmlDirParser::Import> joinImports(const QList<QmlDirParser::Import> &firstImports,
-                                        const QList<QmlDirParser::Import> &secondImports)
+std::vector<Utils::PathString> toImportNames(const QList<QQmlDirParser::Import> &imports)
 {
-    QList<QmlDirParser::Import> imports;
+    return Utils::transform<std::vector<Utils::PathString>>(imports, &QQmlDirParser::Import::module);
+}
+
+std::vector<Utils::PathString> joinImports(const std::vector<Utils::PathString> &firstImports,
+                                           const std::vector<Utils::PathString> &secondImports)
+{
+    std::vector<Utils::PathString> imports;
     imports.reserve(firstImports.size() + secondImports.size());
-    imports.append(firstImports);
-    imports.append(secondImports);
-    imports = filterMultipleEntries(std::move(imports));
+    std::ranges::set_union(firstImports, secondImports, std::back_inserter(imports));
 
     return imports;
 }
 
 ProjectStorageUpdater::Components createComponents(
-    const QMultiHash<QString, QmlDirParser::Component> &qmlDirParserComponents,
+    const QMultiHash<QString, QQmlDirParser::Component> &qmlDirParserComponents,
     ModuleId moduleId,
     ModuleId pathModuleId,
     FileSystemInterface &fileSystem,
@@ -92,7 +100,7 @@ ProjectStorageUpdater::Components createComponents(
 {
     ProjectStorageUpdater::Components components;
 
-    auto qmlFileNames = fileSystem.qmlFileNames(directory);
+    auto qmlFileNames = fileSystem.fileNames(directory, {"*.qml"});
 
     components.reserve(static_cast<std::size_t>(qmlDirParserComponents.size() + qmlFileNames.size()));
 
@@ -103,14 +111,14 @@ ProjectStorageUpdater::Components createComponents(
             ProjectStorageUpdater::Component{fileName, typeName, pathModuleId, -1, -1});
     }
 
-    for (const QmlDirParser::Component &qmlDirParserComponent : qmlDirParserComponents) {
+    for (const QQmlDirParser::Component &qmlDirParserComponent : qmlDirParserComponents) {
         if (qmlDirParserComponent.fileName.contains('/'))
             continue;
-        components.push_back(ProjectStorageUpdater::Component{qmlDirParserComponent.fileName,
-                                                              qmlDirParserComponent.typeName,
-                                                              moduleId,
-                                                              qmlDirParserComponent.majorVersion,
-                                                              qmlDirParserComponent.minorVersion});
+        components.push_back({qmlDirParserComponent.fileName,
+                              qmlDirParserComponent.typeName,
+                              moduleId,
+                              qmlDirParserComponent.version.majorVersion(),
+                              qmlDirParserComponent.version.minorVersion()});
     }
 
     return components;
@@ -148,28 +156,33 @@ void addSourceIds(SourceIds &sourceIds,
     }
 }
 
-Storage::Version convertVersion(LanguageUtils::ComponentVersion version)
+Storage::Version convertVersion(QTypeRevision version)
 {
-    return Storage::Version{version.majorVersion(), version.minorVersion()};
+    return Storage::Version{version.hasMajorVersion() ? version.majorVersion() : -1,
+                            version.hasMinorVersion() ? version.minorVersion() : -1};
 }
 
-Storage::Synchronization::IsAutoVersion convertToIsAutoVersion(QmlDirParser::Import::Flags flags)
+Storage::Synchronization::IsAutoVersion convertToIsAutoVersion(QQmlDirParser::Import::Flags flags,
+                                                               QTypeRevision version)
 {
-    if (flags & QmlDirParser::Import::Flag::Auto)
+    if (flags & QQmlDirParser::Import::Flag::Auto)
         return Storage::Synchronization::IsAutoVersion::Yes;
+
+    if (!version.isValid())
+        return Storage::Synchronization::IsAutoVersion::Yes;
+
     return Storage::Synchronization::IsAutoVersion::No;
 }
 
 void addDependencies(Storage::Imports &dependencies,
                      SourceId sourceId,
-                     const QList<QmlDirParser::Import> &qmldirDependencies,
+                     const std::vector<Utils::PathString> &qmldirDependencies,
                      ProjectStorageInterface &projectStorage,
                      TracerLiteral message,
                      Tracer &tracer)
 {
-    for (const QmlDirParser::Import &qmldirDependency : qmldirDependencies) {
-        ModuleId moduleId = projectStorage.moduleId(Utils::PathString{qmldirDependency.module},
-                                                    Storage::ModuleKind::CppLibrary);
+    for (std::string_view qmldirDependency : qmldirDependencies) {
+        ModuleId moduleId = projectStorage.moduleId(qmldirDependency, Storage::ModuleKind::CppLibrary);
         auto &import = dependencies.emplace_back(moduleId, Storage::Version{}, sourceId);
         tracer.tick(message, keyValue("import", import));
     }
@@ -197,16 +210,17 @@ void addModuleExportedImport(Storage::Synchronization::ModuleExportedImports &im
     imports.emplace_back(moduleId, exportedModuleId, version, isAutoVersion);
 }
 
-bool isOptionalImport(QmlDirParser::Import::Flags flags)
+bool isOptionalImport(QQmlDirParser::Import::Flags flags)
 {
-    return flags & QmlDirParser::Import::Optional && !(flags & QmlDirParser::Import::OptionalDefault);
+    return flags & QQmlDirParser::Import::Optional
+           && !(flags & QQmlDirParser::Import::OptionalDefault);
 }
 
 void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &imports,
                               ModuleId moduleId,
                               ModuleId cppModuleId,
                               std::string_view moduleName,
-                              const QList<QmlDirParser::Import> &qmldirImports,
+                              const QList<QQmlDirParser::Import> &qmldirImports,
                               ProjectStorageInterface &projectStorage)
 {
     NanotraceHR::Tracer tracer{"add module exported imports",
@@ -214,7 +228,7 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
                                keyValue("cpp module id", cppModuleId),
                                keyValue("module id", moduleId)};
 
-    for (const QmlDirParser::Import &qmldirImport : qmldirImports) {
+    for (const QQmlDirParser::Import &qmldirImport : qmldirImports) {
         if (isOptionalImport(qmldirImport.flags))
             continue;
 
@@ -226,7 +240,7 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
                                 moduleId,
                                 exportedModuleId,
                                 convertVersion(qmldirImport.version),
-                                convertToIsAutoVersion(qmldirImport.flags),
+                                convertToIsAutoVersion(qmldirImport.flags, qmldirImport.version),
                                 moduleName,
                                 ModuleKind::QmlLibrary,
                                 exportedModuleName);
@@ -244,36 +258,53 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
     }
 }
 
-std::vector<IdPaths> createIdPaths(ProjectStorageUpdater::WatchedSourceIdsIds watchedSourceIds,
-                                   ProjectPartId projectPartId)
+using Storage::IsInsideProject;
+
+using WatchedSourceIds = ProjectStorageUpdater::WatchedSourceIds;
+
+void appendIdPaths(WatchedSourceIds watchedSourceIds, ProjectPartId id, std::vector<IdPaths> &idPaths)
 {
-    std::vector<IdPaths> idPaths;
-    idPaths.reserve(4);
+    if (watchedSourceIds.directoryIds.size())
+        idPaths.emplace_back(id, SourceType::Directory, std::move(watchedSourceIds.directoryIds));
 
-    idPaths.push_back({projectPartId, SourceType::Directory, std::move(watchedSourceIds.directoryIds)});
-    idPaths.push_back({projectPartId, SourceType::QmlDir, std::move(watchedSourceIds.qmldirSourceIds)});
-    idPaths.push_back({projectPartId, SourceType::Qml, std::move(watchedSourceIds.qmlSourceIds)});
-    idPaths.push_back(
-        {projectPartId, SourceType::QmlTypes, std::move(watchedSourceIds.qmltypesSourceIds)});
+    if (watchedSourceIds.qmldirSourceIds.size())
+        idPaths.emplace_back(id, SourceType::QmlDir, std::move(watchedSourceIds.qmldirSourceIds));
 
-    return idPaths;
+    if (watchedSourceIds.qmlSourceIds.size())
+        idPaths.emplace_back(id, SourceType::Qml, std::move(watchedSourceIds.qmlSourceIds));
+
+    if (watchedSourceIds.qmltypesSourceIds.size())
+        idPaths.emplace_back(id, SourceType::QmlTypes, std::move(watchedSourceIds.qmltypesSourceIds));
 }
 
 } // namespace
 
 void ProjectStorageUpdater::update(Update update)
 {
-    QStringList directories = std::move(update.directories);
+    QStringList qtDirectories = std::move(update.qtDirectories);
     const QString &propertyEditorResourcesPath = update.propertyEditorResourcesPath;
     const QStringList &typeAnnotationPaths = update.typeAnnotationPaths;
+    const Utils::PathString projectDirectory = update.projectDirectory;
 
-    NanotraceHR::Tracer tracer{"update", category(), keyValue("directories", directories)};
+    NanotraceHR::Tracer tracer{"update",
+                               category(),
+                               keyValue("Qt directories", qtDirectories),
+                               keyValue("project directory", projectDirectory)};
 
     Storage::Synchronization::SynchronizationPackage package;
-    WatchedSourceIdsIds watchedSourceIds{Utils::usize(directories)};
-    NotUpdatedSourceIds notUpdatedSourceIds{Utils::usize(directories)};
+    WatchedSourceIds watchedQtSourceIds{32};
+    WatchedSourceIds watchedProjectSourceIds{32};
+    NotUpdatedSourceIds notUpdatedSourceIds{1024};
 
-    updateDirectories(directories, package, notUpdatedSourceIds, watchedSourceIds);
+    updateDirectories(qtDirectories, package, notUpdatedSourceIds, watchedQtSourceIds);
+    if (projectDirectory.size()) {
+        updateDirectory(projectDirectory,
+                        {},
+                        package,
+                        notUpdatedSourceIds,
+                        watchedProjectSourceIds,
+                        IsInsideProject::Yes);
+    }
     updatePropertyEditorPaths(propertyEditorResourcesPath, package, notUpdatedSourceIds);
     updateTypeAnnotations(typeAnnotationPaths, package, notUpdatedSourceIds);
 
@@ -285,57 +316,136 @@ void ProjectStorageUpdater::update(Update update)
 
     m_projectStorage.synchronize(std::move(package));
 
-    m_pathWatcher.updateIdPaths(createIdPaths(watchedSourceIds, m_projectPartId));
+    std::vector<IdPaths> idPaths;
+    idPaths.reserve(8);
+    appendIdPaths(std::move(watchedQtSourceIds), m_qtPartId, idPaths);
+    appendIdPaths(std::move(watchedProjectSourceIds), m_projectPartId, idPaths);
+    m_pathWatcher.updateIdPaths(idPaths);
 }
 
 namespace {
+
+bool isChanged(ProjectStorageUpdater::FileState state)
+{
+    using FileState = ProjectStorageUpdater::FileState;
+    switch (state) {
+    case FileState::Changed:
+    case FileState::Added:
+    case FileState::Removed:
+        return true;
+    case FileState::NotExists:
+    case FileState::NotExistsUnchanged:
+    case FileState::Unchanged:
+        break;
+    }
+    return false;
+}
+
+bool isUnchanged(ProjectStorageUpdater::FileState state)
+{
+    return !isChanged(state);
+}
+
+bool isChangedOrAdded(ProjectStorageUpdater::FileState state)
+{
+    using FileState = ProjectStorageUpdater::FileState;
+    switch (state) {
+    case FileState::Changed:
+    case FileState::Added:
+        return true;
+    case FileState::Removed:
+    case FileState::NotExists:
+    case FileState::NotExistsUnchanged:
+    case FileState::Unchanged:
+        break;
+    }
+    return false;
+}
+
 template<typename... FileStates>
 ProjectStorageUpdater::FileState combineState(FileStates... fileStates)
 {
-    if (((fileStates == ProjectStorageUpdater::FileState::Changed) || ...))
+    if (((fileStates == ProjectStorageUpdater::FileState::Removed) && ...))
+        return ProjectStorageUpdater::FileState::Removed;
+
+    if (((fileStates == ProjectStorageUpdater::FileState::Added) || ...))
+        return ProjectStorageUpdater::FileState::Added;
+
+    if ((isChanged(fileStates) || ...))
         return ProjectStorageUpdater::FileState::Changed;
 
-    if (((fileStates == ProjectStorageUpdater::FileState::NotChanged) || ...))
-        return ProjectStorageUpdater::FileState::NotChanged;
+    if (((fileStates == ProjectStorageUpdater::FileState::Unchanged) || ...))
+        return ProjectStorageUpdater::FileState::Unchanged;
 
     return ProjectStorageUpdater::FileState::NotExists;
+}
+
+bool isExisting(ProjectStorageUpdater::FileState state)
+{
+    using FileState = ProjectStorageUpdater::FileState;
+    switch (state) {
+    case FileState::Changed:
+    case FileState::Added:
+    case FileState::Unchanged:
+        return true;
+    case FileState::NotExistsUnchanged:
+    case FileState::NotExists:
+    case FileState::Removed:
+        break;
+    }
+    return false;
+}
+
+bool isNotExisting(ProjectStorageUpdater::FileState state)
+{
+    return !isExisting(state);
+}
+
+std::string_view directoryName(std::string_view directoryPath)
+{
+    auto last = directoryPath.rfind('/');
+    if (last == std::string_view::npos)
+        return {""};
+    return directoryPath.substr(last + 1);
 }
 
 } // namespace
 
 void ProjectStorageUpdater::updateDirectoryChanged(Utils::SmallStringView directoryPath,
+                                                   Utils::SmallStringView annotationDirectoryPath,
                                                    FileState qmldirState,
+                                                   FileState annotationDirectoryState,
                                                    SourcePath qmldirSourcePath,
                                                    SourceId qmldirSourceId,
                                                    SourceContextId directoryId,
+                                                   SourceContextId annotationDirectoryId,
                                                    Storage::Synchronization::SynchronizationPackage &package,
                                                    NotUpdatedSourceIds &notUpdatedSourceIds,
-                                                   WatchedSourceIdsIds &watchedSourceIdsIds,
+                                                   WatchedSourceIds &WatchedSourceIds,
+                                                   IsInsideProject isInsideProject,
                                                    Tracer &tracer)
 {
-    QmlDirParser parser;
-    if (qmldirState != FileState::NotExists)
+    QQmlDirParser parser;
+    if (isExisting(qmldirState))
         parser.parse(m_fileSystem.contentAsQString(QString{qmldirSourcePath}));
 
-    if (qmldirState != FileState::NotChanged) {
+    if (isChanged(qmldirState)) {
         tracer.tick("append updated source id", keyValue("module id", qmldirSourceId));
         package.updatedSourceIds.push_back(qmldirSourceId);
     }
 
     using Storage::ModuleKind;
     Utils::PathString moduleName{parser.typeNamespace()};
+    if (moduleName.empty())
+        moduleName = directoryName(directoryPath);
     ModuleId moduleId = m_projectStorage.moduleId(moduleName, ModuleKind::QmlLibrary);
     ModuleId cppModuleId = m_projectStorage.moduleId(moduleName, ModuleKind::CppLibrary);
     ModuleId pathModuleId = m_projectStorage.moduleId(directoryPath, ModuleKind::PathLibrary);
 
     auto imports = filterMultipleEntries(parser.imports());
 
-    addModuleExportedImports(package.moduleExportedImports,
-                             moduleId,
-                             cppModuleId,
-                             moduleName,
-                             imports,
-                             m_projectStorage);
+    addModuleExportedImports(
+        package.moduleExportedImports, moduleId, cppModuleId, moduleName, imports, m_projectStorage);
     tracer.tick("append updated module id", keyValue("module id", moduleId));
     package.updatedModuleIds.push_back(moduleId);
 
@@ -352,14 +462,15 @@ void ProjectStorageUpdater::updateDirectoryChanged(Utils::SmallStringView direct
 
     if (!qmlTypes.isEmpty()) {
         parseTypeInfos(qmlTypes,
-                       filterMultipleEntries(parser.dependencies()),
-                       imports,
+                       toImportNames(filterMultipleEntries(parser.dependencies())),
+                       toImportNames(imports),
                        directoryId,
                        directoryPathAsQString,
                        cppModuleId,
                        package,
                        notUpdatedSourceIds,
-                       watchedSourceIdsIds);
+                       WatchedSourceIds,
+                       isInsideProject);
     }
     parseQmlComponents(createComponents(parser.components(),
                                         moduleId,
@@ -369,22 +480,36 @@ void ProjectStorageUpdater::updateDirectoryChanged(Utils::SmallStringView direct
                        directoryId,
                        package,
                        notUpdatedSourceIds,
-                       watchedSourceIdsIds,
+                       WatchedSourceIds,
                        qmldirState,
-                       qmldirSourceId);
+                       qmldirSourceId,
+                       isInsideProject);
     tracer.tick("append updated project source id", keyValue("module id", moduleId));
     package.updatedDirectoryInfoDirectoryIds.push_back(directoryId);
+
+    if (isInsideProject == IsInsideProject::Yes) {
+        if (isExisting(annotationDirectoryState)) {
+            annotationDirectoryChanged(annotationDirectoryPath,
+                                       directoryId,
+                                       annotationDirectoryId,
+                                       moduleId,
+                                       package);
+        } else if (annotationDirectoryState == FileState::Removed) {
+            package.updatedPropertyEditorQmlPathDirectoryIds.push_back(annotationDirectoryId);
+        }
+    }
 }
 
 void ProjectStorageUpdater::updateDirectories(const QStringList &directories,
                                               Storage::Synchronization::SynchronizationPackage &package,
                                               NotUpdatedSourceIds &notUpdatedSourceIds,
-                                              WatchedSourceIdsIds &watchedSourceIdsIds)
+                                              WatchedSourceIds &WatchedSourceIds)
 {
     NanotraceHR::Tracer tracer{"update directories", category()};
 
     for (const QString &directory : directories)
-        updateDirectory({directory}, {}, package, notUpdatedSourceIds, watchedSourceIdsIds);
+        updateDirectory(
+            {directory}, {}, package, notUpdatedSourceIds, WatchedSourceIds, IsInsideProject::No);
 }
 
 void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &directoryPath,
@@ -393,7 +518,8 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
                                                  const SourceContextIds &subdirectoriesToIgnore,
                                                  Storage::Synchronization::SynchronizationPackage &package,
                                                  NotUpdatedSourceIds &notUpdatedSourceIds,
-                                                 WatchedSourceIdsIds &watchedSourceIdsIds)
+                                                 WatchedSourceIds &WatchedSourceIds,
+                                                 IsInsideProject isInsideProject)
 {
     struct Directory
     {
@@ -417,12 +543,35 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
 
     auto exisitingSubdirectoryPaths = m_fileSystem.subdirectories(directoryPath.toQString());
     Directories existingSubdirecories;
-    for (const QString &subdirectory : exisitingSubdirectoryPaths) {
-        if (subdirectory.endsWith("/designer") || subdirectory.endsWith("/QtQuick/Scene2D")
-            || subdirectory.endsWith("/QtQuick/Scene3D"))
-            continue;
-        Utils::PathString subdirectoryPath = subdirectory;
+
+    auto skipDirectory = [&](std::string_view subdirectoryPath, SourceContextId sourceContextId) {
+        if (subdirectoryPath.ends_with("designer"))
+            return true;
+
+        if (isInsideProject == IsInsideProject::Yes) {
+            static SourceNameId ignoreInQdsSourceNameId = m_pathCache.sourceNameId("ignore-in-qds");
+
+            SourceId ignoreInQdsSourceId = SourceId::create(ignoreInQdsSourceNameId, sourceContextId);
+
+            auto ignoreInQdsState = fileState(ignoreInQdsSourceId, package, notUpdatedSourceIds);
+
+            if (isExisting(ignoreInQdsState))
+                return true;
+        } else {
+            if (subdirectoryPath.ends_with("/QtQuick/Scene2D")
+                || subdirectoryPath.ends_with("/QtQuick/Scene3D"))
+                return true;
+        }
+
+        return false;
+    };
+
+    for (Utils::PathString subdirectoryPath : exisitingSubdirectoryPaths) {
         SourceContextId sourceContextId = m_pathCache.sourceContextId(subdirectoryPath);
+
+        if (skipDirectory(subdirectoryPath, sourceContextId))
+            continue;
+
         subdirectories.emplace_back(subdirectoryPath, sourceContextId);
         existingSubdirecories.emplace_back(subdirectoryPath, sourceContextId);
     }
@@ -431,20 +580,22 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
     auto removed = std::ranges::unique(subdirectories, {}, &Directory::sourceContextId);
     subdirectories.erase(removed.begin(), removed.end());
 
-    Utils::set_greedy_difference(
-        subdirectories,
-        subdirectoriesToIgnore,
-        [&](const Directory &subdirectory) {
-            updateDirectory(subdirectory.path,
-                            subdirectoriesToIgnore,
-                            package,
-                            notUpdatedSourceIds,
-                            watchedSourceIdsIds);
-        },
-        {},
-        &Directory::sourceContextId);
+    auto updateDirectory = [&](const Directory &subdirectory) {
+        this->updateDirectory(subdirectory.path,
+                              subdirectoriesToIgnore,
+                              package,
+                              notUpdatedSourceIds,
+                              WatchedSourceIds,
+                              isInsideProject);
+    };
 
-    if (directoryState == FileState::Changed) {
+    Utils::set_greedy_difference(subdirectories,
+                                 subdirectoriesToIgnore,
+                                 updateDirectory,
+                                 {},
+                                 &Directory::sourceContextId);
+
+    if (isChanged(directoryState)) {
         for (const auto &[subdirectoryPath, subdirectoryId] : existingSubdirecories) {
             package.directoryInfos.emplace_back(directoryId,
                                                 SourceId::create(SourceNameId{}, subdirectoryId),
@@ -454,54 +605,114 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
     }
 }
 
+void ProjectStorageUpdater::annotationDirectoryChanged(
+    Utils::SmallStringView directoryPath,
+    SourceContextId directoryId,
+    SourceContextId annotationDirectoryId,
+    ModuleId moduleId,
+    Storage::Synchronization::SynchronizationPackage &package)
+{
+    NanotraceHR::Tracer tracer{"annotation directory changed",
+                               category(),
+                               keyValue("directory path", directoryPath),
+                               keyValue("directory id", directoryId)};
+
+    package.updatedPropertyEditorQmlPathDirectoryIds.push_back(annotationDirectoryId);
+
+    updatePropertyEditorFiles(directoryPath, annotationDirectoryId, moduleId, package);
+}
+
+void ProjectStorageUpdater::updatePropertyEditorFiles(
+    Utils::SmallStringView directoryPath,
+    SourceContextId directoryId,
+    ModuleId moduleId,
+    Storage::Synchronization::SynchronizationPackage &package)
+{
+    NanotraceHR::Tracer tracer{"update property editor files",
+                               category(),
+                               keyValue("directory path", directoryPath),
+                               keyValue("directory id", directoryId)};
+
+    const auto fileNames = m_fileSystem.fileNames(QString{directoryPath},
+                                                  {"*Pane.qml",
+                                                   "*Specifics.qml",
+                                                   "*SpecificsDynamic.qml"});
+    for (const QString &fileName : fileNames)
+        updatePropertyEditorFile(fileName, directoryId, moduleId, package);
+}
+
+void ProjectStorageUpdater::updatePropertyEditorFile(
+    const QString &fileName,
+    SourceContextId directoryId,
+    ModuleId moduleId,
+    Storage::Synchronization::SynchronizationPackage &package)
+{
+    Utils::PathString propertyEditorFileName{fileName};
+    auto propertyEditorSourceId = m_pathCache.sourceId(directoryId, propertyEditorFileName);
+
+    QRegularExpression regex{R"xo((\w+)(Specifics|Pane|SpecificsDynamic).qml)xo"};
+    auto match = regex.match(fileName);
+
+    Storage::TypeNameString typeName{match.capturedView(1)};
+
+    package.propertyEditorQmlPaths.emplace_back(moduleId, typeName, propertyEditorSourceId, directoryId);
+}
+
 void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPath,
                                             const SourceContextIds &subdirectoriesToIgnore,
                                             Storage::Synchronization::SynchronizationPackage &package,
                                             NotUpdatedSourceIds &notUpdatedSourceIds,
-                                            WatchedSourceIdsIds &watchedSourceIdsIds)
+                                            WatchedSourceIds &WatchedSourceIds,
+                                            IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"update directory", category(), keyValue("directory", directoryPath)};
 
-    SourcePath qmldirSourcePath{directoryPath + "/qmldir"};
-    auto [directoryId, qmldirSourceId] = m_pathCache.sourceContextAndSourceId(qmldirSourcePath);
+    SourcePath qmldirPath{directoryPath + "/qmldir"};
+    SourceId qmldirSourceId = m_pathCache.sourceId(qmldirPath);
+    SourceContextId directoryId = qmldirSourceId.contextId();
 
     auto directoryState = fileState(directoryId, package, notUpdatedSourceIds);
-    if (directoryState != FileState::NotExists)
-        watchedSourceIdsIds.directoryIds.push_back(SourceId::create(SourceNameId{}, directoryId));
+    if (isExisting(directoryState))
+        WatchedSourceIds.directoryIds.push_back(SourceId::create(SourceNameId{}, directoryId));
 
     auto qmldirState = fileState(qmldirSourceId, package, notUpdatedSourceIds);
-    if (qmldirState != FileState::NotExists)
-        watchedSourceIdsIds.qmldirSourceIds.push_back(qmldirSourceId);
+    if (isExisting(qmldirState))
+        WatchedSourceIds.qmldirSourceIds.push_back(qmldirSourceId);
 
-    switch (combineState(directoryState, qmldirState)) {
-    case FileState::Changed: {
+    SourcePath annotationDirectoryPath{directoryPath + "/designer"};
+    auto annotationDirectoryId = m_pathCache.sourceContextId(annotationDirectoryPath);
+    auto annotationDirectoryState = fileState(annotationDirectoryId, package, notUpdatedSourceIds);
+
+    switch (combineState(directoryState, qmldirState, annotationDirectoryState)) {
+    case FileState::Added:
+    case FileState::Changed:
         tracer.tick("update directory changed");
         updateDirectoryChanged(directoryPath,
+                               annotationDirectoryPath,
                                qmldirState,
-                               qmldirSourcePath,
+                               annotationDirectoryState,
+                               qmldirPath,
                                qmldirSourceId,
                                directoryId,
+                               annotationDirectoryId,
                                package,
                                notUpdatedSourceIds,
-                               watchedSourceIdsIds,
+                               WatchedSourceIds,
+                               isInsideProject,
                                tracer);
         break;
-    }
-    case FileState::NotChanged: {
+    case FileState::Unchanged:
         tracer.tick("update directory not changed");
 
         parseDirectoryInfos(m_projectStorage.fetchDirectoryInfos(directoryId),
                             package,
                             notUpdatedSourceIds,
-                            watchedSourceIdsIds);
+                            WatchedSourceIds,
+                            isInsideProject);
         break;
-    }
-    case FileState::NotExists: {
+    case FileState::Removed: {
         tracer.tick("update directory don't exits");
 
-        auto directorySourceId = SourceId::create(SourceNameId{}, directoryId);
-        package.updatedFileStatusSourceIds.push_back(directorySourceId);
-        package.updatedFileStatusSourceIds.push_back(qmldirSourceId);
         package.updatedDirectoryInfoDirectoryIds.push_back(directoryId);
         package.updatedSourceIds.push_back(qmldirSourceId);
         auto qmlDirectoryInfos = m_projectStorage.fetchDirectoryInfos(directoryId);
@@ -512,9 +723,11 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
                         keyValue("source id", directoryInfo.sourceId));
             package.updatedFileStatusSourceIds.push_back(directoryInfo.sourceId);
         }
-
         break;
     }
+    case FileState::NotExists:
+    case FileState::NotExistsUnchanged:
+        break;
     }
 
     updateSubdirectories(directoryPath,
@@ -523,9 +736,10 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
                          subdirectoriesToIgnore,
                          package,
                          notUpdatedSourceIds,
-                         watchedSourceIdsIds);
+                         WatchedSourceIds,
+                         isInsideProject);
 
-    tracer.end(keyValue("qmldir source path", qmldirSourcePath),
+    tracer.end(keyValue("qmldir source path", qmldirPath),
                keyValue("directory id", directoryId),
                keyValue("qmldir source id", qmldirSourceId),
                keyValue("qmldir state", qmldirState),
@@ -556,7 +770,7 @@ void ProjectStorageUpdater::updatePropertyEditorPaths(
 
         auto state = fileState(directoryId, package, notUpdatedSourceIds);
 
-        if (state == FileState::Changed) {
+        if (isChanged(state)) {
             updatePropertyEditorPath(pathInfo.filePath(),
                                      package,
                                      directoryId,
@@ -572,11 +786,7 @@ SmallSourceIds<16> mergedSourceIds(const SourceIds1 &sourceIds1, const SourceIds
 {
     SmallSourceIds<16> mergedSourceIds;
 
-    std::set_union(sourceIds1.begin(),
-                   sourceIds1.end(),
-                   sourceIds2.begin(),
-                   sourceIds2.end(),
-                   std::back_inserter(mergedSourceIds));
+    std::ranges::set_union(sourceIds1, sourceIds2, std::back_inserter(mergedSourceIds));
 
     return mergedSourceIds;
 }
@@ -627,10 +837,10 @@ void ProjectStorageUpdater::updateTypeAnnotations(
         SourceContextId directoryId = m_pathCache.sourceContextId(Utils::PathString{directoryPath});
 
         auto state = fileState(sourceId, package, notUpdatedSourceIds);
-        if (state == FileState::Changed)
+        if (isChangedOrAdded(state))
             updateTypeAnnotation(directoryPath, fileInfo.filePath(), sourceId, directoryId, package);
 
-        if (state != FileState::NotChanged)
+        if (isChanged(state))
             updatedSourceIdsDictonary[directoryId].push_back(sourceId);
     }
 }
@@ -643,13 +853,14 @@ void ProjectStorageUpdater::updateTypeAnnotationDirectories(
     for (auto &[directoryId, updatedSourceIds] : updatedSourceIdsDictonary) {
         auto directoryState = fileState(directoryId, package, notUpdatedSourceIds);
 
-        if (directoryState != FileState::NotChanged) {
-            auto existingTypeAnnotationSourceIds = m_projectStorage.typeAnnotationSourceIds(
-                directoryId);
+        if (isChanged(directoryState)) {
+            auto storedTypeAnnotationSourceIds = m_projectStorage.typeAnnotationSourceIds(directoryId);
+            storedTypeAnnotationSourceIds.removeIf(
+                [&](SourceId sourceId) { return m_fileStatusCache.find(sourceId).isExisting(); });
 
-            std::sort(updatedSourceIds.begin(), updatedSourceIds.end());
+            std::ranges::sort(updatedSourceIds);
 
-            auto changedSourceIds = mergedSourceIds(existingTypeAnnotationSourceIds, updatedSourceIds);
+            auto changedSourceIds = mergedSourceIds(storedTypeAnnotationSourceIds, updatedSourceIds);
             package.updatedTypeAnnotationSourceIds.insert(package.updatedTypeAnnotationSourceIds.end(),
                                                           changedSourceIds.begin(),
                                                           changedSourceIds.end());
@@ -708,7 +919,7 @@ void ProjectStorageUpdater::updatePropertyEditorPath(
 
     tracer.tick("append updated property editor qml path source id",
                 keyValue("source id", directoryId));
-    package.updatedPropertyEditorQmlPathSourceContextIds.push_back(directoryId);
+    package.updatedPropertyEditorQmlPathDirectoryIds.push_back(directoryId);
     auto dir = QDir{directoryPath};
     const auto fileInfos = dir.entryInfoList({"*Pane.qml", "*Specifics.qml"}, QDir::Files);
     for (const auto &fileInfo : fileInfos)
@@ -744,8 +955,7 @@ void ProjectStorageUpdater::updatePropertyEditorFilePath(
                                                                         typeName,
                                                                         pathId,
                                                                         directoryId);
-        tracer.tick("append property editor qml paths",
-                    keyValue("property editor qml paths", paths));
+        tracer.tick("append property editor qml paths", keyValue("property editor qml paths", paths));
     }
 }
 
@@ -775,6 +985,40 @@ bool contains(const Container &container, Id id)
 {
     return std::find(container.begin(), container.end(), id) != container.end();
 }
+
+struct ProjectChunkSourceIds
+{
+    ProjectChunkSourceIds()
+    {
+        directory.reserve(32);
+        qmlDocument.reserve(128);
+        qmltypes.reserve(32);
+    }
+
+    SourceIds directory;
+    SourceIds qmlDocument;
+    SourceIds qmltypes;
+};
+
+void appendProjectChunkSourceIds(ProjectChunkSourceIds &ids,
+                                 const ProjectChunkId &projectChunkId,
+                                 const SourceIds &sourceIds)
+{
+    switch (projectChunkId.sourceType) {
+    case SourceType::Directory:
+    case SourceType::QmlDir:
+        ids.directory.insert(ids.directory.end(), sourceIds.begin(), sourceIds.end());
+        break;
+    case SourceType::Qml:
+    case SourceType::QmlUi:
+        ids.qmlDocument.insert(ids.qmlDocument.end(), sourceIds.begin(), sourceIds.end());
+        break;
+    case SourceType::QmlTypes:
+        ids.qmltypes.insert(ids.qmltypes.end(), sourceIds.begin(), sourceIds.end());
+        break;
+    }
+}
+
 } // namespace
 
 void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &changedIdPaths)
@@ -787,58 +1031,73 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
 
     Storage::Synchronization::SynchronizationPackage package;
 
-    WatchedSourceIdsIds watchedSourceIds{10};
+    WatchedSourceIds watchedQtSourceIds{10};
+    WatchedSourceIds watchedProjectSourceIds{10};
     NotUpdatedSourceIds notUpdatedSourceIds{10};
     std::vector<IdPaths> idPaths;
     idPaths.reserve(4);
 
-    SourceIds directorySourceIds;
-    directorySourceIds.reserve(32);
-    SourceIds qmlDocumentSourceIds;
-    qmlDocumentSourceIds.reserve(128);
-    SourceIds qmltypesSourceIds;
-    qmltypesSourceIds.reserve(32);
+    ProjectChunkSourceIds project;
+    ProjectChunkSourceIds qt;
 
     for (const auto &[projectChunkId, sourceIds] : m_changedIdPaths) {
-        if (projectChunkId.id != m_projectPartId)
-            continue;
+        if (projectChunkId.id == m_projectPartId)
+            appendProjectChunkSourceIds(project, projectChunkId, sourceIds);
+        else if (projectChunkId.id == m_qtPartId)
+            appendProjectChunkSourceIds(qt, projectChunkId, sourceIds);
+    }
 
-        switch (projectChunkId.sourceType) {
-        case SourceType::Directory:
-        case SourceType::QmlDir:
-            directorySourceIds.insert(directorySourceIds.end(), sourceIds.begin(), sourceIds.end());
-            break;
-        case SourceType::Qml:
-        case SourceType::QmlUi:
-            qmlDocumentSourceIds.insert(qmlDocumentSourceIds.end(), sourceIds.begin(), sourceIds.end());
-            break;
-        case SourceType::QmlTypes:
-            qmltypesSourceIds.insert(qmltypesSourceIds.end(), sourceIds.begin(), sourceIds.end());
-            break;
+    auto updateDirectory = [&](const SourceIds &directorySourceIds,
+                               WatchedSourceIds &watchedSourceIds) {
+        auto directoryIds = filterUniqueSourceContextIds(directorySourceIds);
+        for (auto directoryId : directoryIds) {
+            Utils::PathString directory = m_pathCache.sourceContextPath(directoryId);
+            this->updateDirectory(directory,
+                                  directoryIds,
+                                  package,
+                                  notUpdatedSourceIds,
+                                  watchedSourceIds,
+                                  IsInsideProject::No);
         }
-    }
 
-    auto directoryIds = filterUniqueSourceContextIds(directorySourceIds);
+        return directoryIds;
+    };
 
-    for (auto directoryId : directoryIds) {
-        Utils::PathString directory = m_pathCache.sourceContextPath(directoryId);
-        updateDirectory(directory, directoryIds, package, notUpdatedSourceIds, watchedSourceIds);
-    }
+    auto qtDirectoryIds = updateDirectory(qt.directory, watchedQtSourceIds);
+    auto projectDirectoryIds = updateDirectory(project.directory, watchedProjectSourceIds);
 
-    for (SourceId sourceId : filterUniqueSourceIds(qmlDocumentSourceIds)) {
-        if (!contains(directoryIds, sourceId.contextId()))
-            parseQmlComponent(sourceId, package, notUpdatedSourceIds);
-    }
+    auto parseQmlComponent = [&](SourceIds qmlDocumentSourceIds,
+                                 const SourceContextIds &directoryIds,
+                                 IsInsideProject isInsideProject) {
+        for (SourceId sourceId : filterUniqueSourceIds(std::move(qmlDocumentSourceIds))) {
+            if (!contains(directoryIds, sourceId.contextId()))
+                this->parseQmlComponent(sourceId, package, notUpdatedSourceIds, isInsideProject);
+        }
+    };
 
-    try {
+    parseQmlComponent(std::move(qt.qmlDocument), qtDirectoryIds, IsInsideProject::No);
+    parseQmlComponent(std::move(project.qmlDocument), projectDirectoryIds, IsInsideProject::Yes);
+
+    auto parseTypeInfo = [&](SourceIds qmltypesSourceIds,
+                             const SourceContextIds &directoryIds,
+                             IsInsideProject isInsideProject) {
         for (SourceId sourceId : filterUniqueSourceIds(std::move(qmltypesSourceIds))) {
             if (!contains(directoryIds, sourceId.contextId())) {
                 QString qmltypesPath{m_pathCache.sourcePath(sourceId)};
                 auto directoryInfo = m_projectStorage.fetchDirectoryInfo(sourceId);
                 if (directoryInfo)
-                    parseTypeInfo(*directoryInfo, qmltypesPath, package, notUpdatedSourceIds);
+                    this->parseTypeInfo(*directoryInfo,
+                                        qmltypesPath,
+                                        package,
+                                        notUpdatedSourceIds,
+                                        isInsideProject);
             }
         }
+    };
+
+    try {
+        parseTypeInfo(std::move(qt.qmltypes), qtDirectoryIds, IsInsideProject::No);
+        parseTypeInfo(std::move(project.qmltypes), projectDirectoryIds, IsInsideProject::Yes);
     } catch (const QmlDesigner::CannotParseQmlTypesFile &) {
         return;
     }
@@ -855,9 +1114,17 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
         return;
     }
 
-    if (directoryIds.size()) {
-        m_pathWatcher.updateContextIdPaths(createIdPaths(watchedSourceIds, m_projectPartId),
-                                           directoryIds);
+    auto directoryIdsSize = projectDirectoryIds.size() + qtDirectoryIds.size();
+    if (directoryIdsSize > 0) {
+        SourceContextIds directoryIds;
+        std::vector<IdPaths> newIdPaths;
+        idPaths.reserve(8);
+        appendIdPaths(std::move(watchedQtSourceIds), m_qtPartId, newIdPaths);
+        appendIdPaths(std::move(watchedProjectSourceIds), m_projectPartId, newIdPaths);
+
+        directoryIds.reserve(directoryIdsSize);
+        std::ranges::merge(projectDirectoryIds, qtDirectoryIds, std::back_inserter(directoryIds));
+        m_pathWatcher.updateContextIdPaths(newIdPaths, directoryIds);
     }
 
     m_changedIdPaths.clear();
@@ -866,14 +1133,15 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
 void ProjectStorageUpdater::pathsChanged(const SourceIds &) {}
 
 void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
-                                           const QList<QmlDirParser::Import> &qmldirDependencies,
-                                           const QList<QmlDirParser::Import> &qmldirImports,
+                                           const std::vector<Utils::PathString> &qmldirDependencies,
+                                           const std::vector<Utils::PathString> &qmldirImports,
                                            SourceContextId directoryId,
                                            const QString &directoryPath,
                                            ModuleId moduleId,
                                            Storage::Synchronization::SynchronizationPackage &package,
                                            NotUpdatedSourceIds &notUpdatedSourceIds,
-                                           WatchedSourceIdsIds &watchedSourceIds)
+                                           WatchedSourceIds &watchedSourceIds,
+                                           IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"parse type infos",
                                category(),
@@ -906,7 +1174,7 @@ void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
 
         const QString qmltypesPath = directoryPath + "/" + typeInfo;
 
-        parseTypeInfo(directoryInfo, qmltypesPath, package, notUpdatedSourceIds);
+        parseTypeInfo(directoryInfo, qmltypesPath, package, notUpdatedSourceIds, isInsideProject);
     }
 }
 
@@ -914,7 +1182,8 @@ void ProjectStorageUpdater::parseDirectoryInfos(
     const Storage::Synchronization::DirectoryInfos &directoryInfos,
     Storage::Synchronization::SynchronizationPackage &package,
     NotUpdatedSourceIds &notUpdatedSourceIds,
-    WatchedSourceIdsIds &watchedSourceIds)
+    WatchedSourceIds &watchedSourceIds,
+    IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"parse project datas", category()};
 
@@ -924,13 +1193,13 @@ void ProjectStorageUpdater::parseDirectoryInfos(
             watchedSourceIds.qmltypesSourceIds.push_back(directoryInfo.sourceId);
 
             QString qmltypesPath{m_pathCache.sourcePath(directoryInfo.sourceId)};
-            parseTypeInfo(directoryInfo, qmltypesPath, package, notUpdatedSourceIds);
+            parseTypeInfo(directoryInfo, qmltypesPath, package, notUpdatedSourceIds, isInsideProject);
             break;
         }
         case Storage::Synchronization::FileType::QmlDocument: {
             watchedSourceIds.qmlSourceIds.push_back(directoryInfo.sourceId);
 
-            parseQmlComponent(directoryInfo.sourceId, package, notUpdatedSourceIds);
+            parseQmlComponent(directoryInfo.sourceId, package, notUpdatedSourceIds, isInsideProject);
             break;
         }
         case Storage::Synchronization::FileType::Directory:
@@ -942,28 +1211,30 @@ void ProjectStorageUpdater::parseDirectoryInfos(
 auto ProjectStorageUpdater::parseTypeInfo(const Storage::Synchronization::DirectoryInfo &directoryInfo,
                                           const QString &qmltypesPath,
                                           Storage::Synchronization::SynchronizationPackage &package,
-                                          NotUpdatedSourceIds &notUpdatedSourceIds) -> FileState
+                                          NotUpdatedSourceIds &notUpdatedSourceIds,
+                                          IsInsideProject isInsideProject) -> FileState
 {
-    NanotraceHR::Tracer tracer{"parse type info",
-                               category(),
-                               keyValue("qmltypes path", qmltypesPath)};
+    NanotraceHR::Tracer tracer{"parse type info", category(), keyValue("qmltypes path", qmltypesPath)};
 
     auto state = fileState(directoryInfo.sourceId, package, notUpdatedSourceIds);
     switch (state) {
+    case FileState::Added:
     case FileState::Changed: {
         tracer.tick("append updated source ids", keyValue("source id", directoryInfo.sourceId));
         package.updatedSourceIds.push_back(directoryInfo.sourceId);
 
         const auto content = m_fileSystem.contentAsQString(qmltypesPath);
-        m_qmlTypesParser.parse(content, package.imports, package.types, directoryInfo);
+        m_qmlTypesParser.parse(content, package.imports, package.types, directoryInfo, isInsideProject);
         break;
     }
-    case FileState::NotChanged: {
+    case FileState::Unchanged: {
         tracer.tick("append not updated source ids", keyValue("source id", directoryInfo.sourceId));
         notUpdatedSourceIds.sourceIds.push_back(directoryInfo.sourceId);
         break;
     }
+    case FileState::Removed:
     case FileState::NotExists:
+    case FileState::NotExistsUnchanged:
         throw CannotParseQmlTypesFile{};
     }
 
@@ -978,9 +1249,10 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
                                               SourceContextId directoryId,
                                               Storage::Synchronization::SynchronizationPackage &package,
                                               NotUpdatedSourceIds &notUpdatedSourceIds,
-                                              WatchedSourceIdsIds &watchedSourceIds,
+                                              WatchedSourceIds &watchedSourceIds,
                                               FileState qmldirState,
-                                              SourceId qmldirSourceId)
+                                              SourceId qmldirSourceId,
+                                              IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"parse qml component",
                                category(),
@@ -1003,8 +1275,8 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
     watchedSourceIds.qmlSourceIds.push_back(sourceId);
 
     switch (state) {
-    case FileState::NotChanged:
-        if (qmldirState == FileState::NotExists) {
+    case FileState::Unchanged:
+        if (isNotExisting(qmldirState)) {
             tracer.tick("append not updated source id", keyValue("source id", sourceId));
             notUpdatedSourceIds.sourceIds.emplace_back(sourceId);
 
@@ -1017,6 +1289,7 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
         type.changeLevel = Storage::Synchronization::ChangeLevel::Minimal;
         break;
     case FileState::NotExists:
+    case FileState::Removed:
         tracer.tick("file does not exits", keyValue("source id", sourceId));
         for (const auto &exportedType : exportedTypes)
             m_errorNotifier.qmlDocumentDoesNotExistsForQmldirEntry(exportedType.name,
@@ -1024,16 +1297,19 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
                                                                    sourceId,
                                                                    qmldirSourceId);
         break;
+    case FileState::NotExistsUnchanged:
+        break;
+    case FileState::Added:
     case FileState::Changed:
         tracer.tick("update from qml document", keyValue("source id", sourceId));
         const auto content = m_fileSystem.contentAsQString(QString{qmlFilePath});
-        type = m_qmlDocumentParser.parse(content, package.imports, sourceId, directoryPath);
+        type = m_qmlDocumentParser.parse(content, package.imports, sourceId, directoryPath, isInsideProject);
         break;
     }
 
     const auto &directoryInfo = package.directoryInfos.emplace_back(
         directoryId, sourceId, ModuleId{}, Storage::Synchronization::FileType::QmlDocument);
-    tracer.tick("append project data", keyValue("project data", directoryInfo));
+    tracer.tick("append directory info", keyValue("project data", directoryInfo));
 
     tracer.tick("append updated source id", keyValue("source id", sourceId));
     package.updatedSourceIds.push_back(sourceId);
@@ -1049,24 +1325,29 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
 
 void ProjectStorageUpdater::parseQmlComponent(SourceId sourceId,
                                               Storage::Synchronization::SynchronizationPackage &package,
-                                              NotUpdatedSourceIds &notUpdatedSourceIds)
+                                              NotUpdatedSourceIds &notUpdatedSourceIds,
+                                              IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"parse qml component", category(), keyValue("source id", sourceId)};
 
     auto state = fileState(sourceId, package, notUpdatedSourceIds);
-    if (state == FileState::NotChanged)
+    if (isUnchanged(state))
         return;
 
     tracer.tick("append updated source id", keyValue("source id", sourceId));
     package.updatedSourceIds.push_back(sourceId);
 
-    if (state == FileState::NotExists)
+    if (isNotExisting(state))
         return;
 
     SourcePath sourcePath = m_pathCache.sourcePath(sourceId);
 
     const auto content = m_fileSystem.contentAsQString(QString{sourcePath});
-    auto type = m_qmlDocumentParser.parse(content, package.imports, sourceId, sourcePath.directory());
+    auto type = m_qmlDocumentParser.parse(content,
+                                          package.imports,
+                                          sourceId,
+                                          sourcePath.directory(),
+                                          isInsideProject);
 
     type.typeName = sourcePath.name();
     type.traits = Storage::TypeTraitsKind::Reference;
@@ -1076,15 +1357,6 @@ void ProjectStorageUpdater::parseQmlComponent(SourceId sourceId,
     tracer.end(keyValue("type", type));
 
     package.types.push_back(std::move(type));
-}
-
-ProjectStorageUpdater::FileState ProjectStorageUpdater::fileState(
-    SourceContextId sourceContextId,
-    Storage::Synchronization::SynchronizationPackage &package,
-    NotUpdatedSourceIds &notUpdatedSourceIds) const
-{
-    auto sourceId = SourceId::create(SourceNameId{}, sourceContextId);
-    return fileState(sourceId, package, notUpdatedSourceIds);
 }
 
 namespace {
@@ -1145,9 +1417,10 @@ void ProjectStorageUpdater::parseQmlComponents(Components components,
                                                SourceContextId directoryId,
                                                Storage::Synchronization::SynchronizationPackage &package,
                                                NotUpdatedSourceIds &notUpdatedSourceIds,
-                                               WatchedSourceIdsIds &watchedSourceIdsIds,
+                                               WatchedSourceIds &WatchedSourceIds,
                                                FileState qmldirState,
-                                               SourceId qmldirSourceId)
+                                               SourceId qmldirSourceId,
+                                               IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"parse qml components",
                                category(),
@@ -1168,9 +1441,10 @@ void ProjectStorageUpdater::parseQmlComponents(Components components,
                           directoryId,
                           package,
                           notUpdatedSourceIds,
-                          watchedSourceIdsIds,
+                          WatchedSourceIds,
                           qmldirState,
-                          qmldirSourceId);
+                          qmldirSourceId,
+                          isInsideProject);
     };
 
     rangeForTheSameFileName(components, callback);
@@ -1186,33 +1460,51 @@ ProjectStorageUpdater::FileState ProjectStorageUpdater::fileState(
                                keyValue("source id", sourceId)};
 
     auto currentFileStatus = m_fileStatusCache.find(sourceId);
+    auto projectStorageFileStatus = m_projectStorage.fetchFileStatus(sourceId);
 
-    if (!currentFileStatus.isValid()) {
-        tracer.tick("append updated file status source id", keyValue("source id", sourceId));
+    if (!currentFileStatus.isExisting()) {
+        if (projectStorageFileStatus.isExisting()) {
+            package.updatedFileStatusSourceIds.push_back(sourceId);
+            return FileState::Removed;
+        }
+
+        if (projectStorageFileStatus) {
+            notUpdatedSourceIds.fileStatusSourceIds.push_back(sourceId);
+            return FileState::NotExistsUnchanged;
+        }
+
+        package.fileStatuses.push_back(currentFileStatus);
         package.updatedFileStatusSourceIds.push_back(sourceId);
 
-        tracer.end(keyValue("state", FileState::NotExists));
         return FileState::NotExists;
     }
 
-    auto projectStorageFileStatus = m_projectStorage.fetchFileStatus(sourceId);
-
-    if (!projectStorageFileStatus.isValid() || projectStorageFileStatus != currentFileStatus) {
-        tracer.tick("append file status", keyValue("file status", sourceId));
+    if (!projectStorageFileStatus) {
         package.fileStatuses.push_back(currentFileStatus);
-
-        tracer.tick("append updated file status source id", keyValue("source id", sourceId));
         package.updatedFileStatusSourceIds.push_back(sourceId);
 
-        tracer.end(keyValue("state", FileState::Changed));
+        return FileState::Added;
+    }
+
+    if (projectStorageFileStatus != currentFileStatus) {
+        package.fileStatuses.push_back(currentFileStatus);
+        package.updatedFileStatusSourceIds.push_back(sourceId);
+
         return FileState::Changed;
     }
 
-    tracer.tick("append not updated file status source id", keyValue("source id", sourceId));
     notUpdatedSourceIds.fileStatusSourceIds.push_back(sourceId);
 
-    tracer.end(keyValue("state", FileState::NotChanged));
-    return FileState::NotChanged;
+    return FileState::Unchanged;
+}
+
+ProjectStorageUpdater::FileState ProjectStorageUpdater::fileState(
+    SourceContextId sourceContextId,
+    Storage::Synchronization::SynchronizationPackage &package,
+    NotUpdatedSourceIds &notUpdatedSourceIds) const
+{
+    auto sourceId = SourceId::create(SourceNameId{}, sourceContextId);
+    return fileState(sourceId, package, notUpdatedSourceIds);
 }
 
 } // namespace QmlDesigner

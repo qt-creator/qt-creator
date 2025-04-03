@@ -90,9 +90,9 @@ TEST_F(ImageCacheDispatchCollector, call_qml_collector_start)
                 start(Eq("foo.qml"),
                       Eq("state"),
                       VariantWith<FontCollectorSizesAuxiliaryData>(
-                          AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                          AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                       ElementsAre(QSize{20, 11})),
-                                Field(&FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")))),
+                                Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")))),
                       _,
                       _,
                       _))
@@ -128,9 +128,9 @@ TEST_F(ImageCacheDispatchCollector, call_ui_file_collector_start)
                 start(Eq("foo.ui.qml"),
                       Eq("state"),
                       VariantWith<FontCollectorSizesAuxiliaryData>(
-                          AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                          AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                       ElementsAre(QSize{20, 11})),
-                                Field(&FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")))),
+                                Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")))),
                       _,
                       _,
                       _))
@@ -206,9 +206,9 @@ TEST_F(ImageCacheDispatchCollector, first_collector_create_icon_calls)
                 createIcon(Eq("foo.ui.qml"),
                            Eq("state"),
                            VariantWith<FontCollectorSizesAuxiliaryData>(
-                               AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                               AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                            ElementsAre(QSize{20, 11})),
-                                     Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                     Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName,
                                            Eq(u"color"))))));
     EXPECT_CALL(collectorMock2, createIcon(_, _, _)).Times(0);
 
@@ -252,9 +252,9 @@ TEST_F(ImageCacheDispatchCollector, second_collector_create_icon_calls)
                 createIcon(Eq("foo.qml"),
                            Eq("state"),
                            VariantWith<FontCollectorSizesAuxiliaryData>(
-                               AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                               AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                            ElementsAre(QSize{20, 11})),
-                                     Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                     Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName,
                                            Eq(u"color"))))));
     EXPECT_CALL(collectorMock1, createIcon(_, _, _)).Times(0);
 
@@ -317,9 +317,9 @@ TEST_F(ImageCacheDispatchCollector, first_collector_create_image_calls)
                 createImage(Eq("foo.ui.qml"),
                             Eq("state"),
                             VariantWith<FontCollectorSizesAuxiliaryData>(
-                                AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                                AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                             ElementsAre(QSize{20, 11})),
-                                      Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                      Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName,
                                             Eq(u"color"))))));
     EXPECT_CALL(collectorMock2, createImage(_, _, _)).Times(0);
 
@@ -363,9 +363,9 @@ TEST_F(ImageCacheDispatchCollector, second_collector_create_image_calls)
                 createImage(Eq("foo.qml"),
                             Eq("state"),
                             VariantWith<FontCollectorSizesAuxiliaryData>(
-                                AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                                AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                             ElementsAre(QSize{20, 11})),
-                                      Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                      Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName,
                                             Eq(u"color"))))));
     EXPECT_CALL(collectorMock1, createImage(_, _, _)).Times(0);
 

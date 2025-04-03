@@ -4,14 +4,15 @@
 #pragma once
 
 #include "abstractaction.h"
-#include "bindingproperty.h"
 #include "abstractactiongroup.h"
-#include "qmlitemnode.h"
-#include <qmldesignerplugin.h>
-#include <nodemetainfo.h>
+#include "utils3d.h"
 
+#include <bindingproperty.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
+#include <nodemetainfo.h>
+#include <qmldesignerplugin.h>
+#include <qmlitemnode.h>
 
 #include <utils/proxyaction.h>
 
@@ -47,6 +48,20 @@ inline bool inBaseState(const SelectionContext &selectionState)
     return selectionState.isInBaseState();
 }
 
+inline bool isFileComponent(const SelectionContext &selectionContext)
+{
+    //TODO: FLAG to hide/show the action until it's completed
+    bool shouldShowAction = false;
+    if (shouldShowAction && selectionContext.isValid() && selectionContext.singleNodeIsSelected()) {
+        ModelNode node = selectionContext.currentSingleSelectedNode();
+        if (node.hasMetaInfo()) {
+            NodeMetaInfo nodeInfo = node.metaInfo();
+            return nodeInfo.isFileComponent();
+        }
+    }
+    return false;
+}
+
 inline bool singleSelection(const SelectionContext &selectionState)
 {
     return selectionState.singleNodeIsSelected();
@@ -72,12 +87,17 @@ inline bool isModelOrMaterial(const SelectionContext &selectionState)
 
 inline bool enableAddToContentLib(const SelectionContext &selectionState)
 {
-    ModelNode modelNode = selectionState.currentSingleSelectedNode();
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    bool isInBundle = modelNode.type().startsWith(compUtils.componentBundlesTypePrefix().toLatin1());
-    bool isNode3D = modelNode.metaInfo().isQtQuick3DNode();
+    const QList<ModelNode> nodes = selectionState.selectedModelNodes();
+    if (nodes.isEmpty())
+        return false;
 
-    return isNode3D && !isInBundle;
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
+    return std::all_of(nodes.cbegin(), nodes.cend(), [&](const ModelNode &node) {
+        bool isInBundle = node.type().startsWith(compUtils.componentBundlesTypePrefix().toLatin1());
+        bool isNode3D = node.metaInfo().isQtQuick3DNode();
+        return isNode3D && !isInBundle;
+    });
 }
 
 inline bool are3DNodes(const SelectionContext &selectionState)
@@ -111,6 +131,23 @@ inline bool selectionEnabled(const SelectionContext &selectionState)
 inline bool selectionNotEmpty(const SelectionContext &selectionState)
 {
     return !selectionState.selectedModelNodes().isEmpty();
+}
+
+inline bool selectionNot2D3DMix(const SelectionContext &selectionState)
+{
+    const QList<ModelNode> selectedNodes = selectionState.view()->selectedModelNodes();
+    if (selectedNodes.size() <= 1)
+        return true;
+
+    ModelNode active3DScene = Utils3D::active3DSceneNode(selectionState.view());
+    bool isFirstNode3D = active3DScene.isAncestorOf(selectedNodes.first());
+
+    for (const ModelNode &node : selectedNodes) {
+        if (active3DScene.isAncestorOf(node) != isFirstNode3D)
+            return false;
+    }
+
+    return true;
 }
 
 inline bool singleSelectionNotRoot(const SelectionContext &selectionState)

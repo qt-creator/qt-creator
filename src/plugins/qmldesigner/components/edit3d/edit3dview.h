@@ -43,6 +43,7 @@ public:
     {
         int matOverride = 0;
         bool showWireframe = false;
+        bool isPerspective = false;
     };
 
     static bool isQDSTrusted()
@@ -149,6 +150,8 @@ private:
     void syncCameraSpeedToNewView();
     QmlObjectNode currentSceneEnv();
     void storeCurrentSceneEnvironment();
+
+    void setActiveSplit(int split);
 
     QPoint resolveToolbarPopupPos(Edit3DAction *action) const;
 

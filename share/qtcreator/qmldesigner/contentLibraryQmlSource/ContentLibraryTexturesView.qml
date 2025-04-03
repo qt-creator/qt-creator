@@ -120,7 +120,10 @@ HelperWidgets.ScrollView {
             font.pixelSize: StudioTheme.Values.baseFontSize
             topPadding: 10
             leftPadding: 10
+            rightPadding: 10
             visible: root.model.isEmpty
+            wrapMode: Text.WordWrap
+            width: root.width
         }
     }
 }

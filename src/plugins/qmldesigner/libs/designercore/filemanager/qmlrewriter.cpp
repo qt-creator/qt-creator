@@ -272,6 +272,47 @@ QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(
     return nullptr;
 }
 
+QmlJS::AST::UiObjectMemberList *QMLRewriter::searchChildrenToInsertAfter(
+    QmlJS::AST::UiObjectMemberList *members, const PropertyNameList &propertyOrder, int pos)
+{
+    if (pos < 0)
+        return searchMemberToInsertAfter(members, propertyOrder);
+
+    // An empty property name should be available in the propertyOrder List, which is the right place
+    // to define the objects there.
+    const int objectDefinitionInsertionPoint = propertyOrder.indexOf(PropertyName());
+
+    QmlJS::AST::UiObjectMemberList *lastObjectDef = nullptr;
+    QmlJS::AST::UiObjectMemberList *lastNonObjectDef = nullptr;
+    int objectPos = 0;
+
+    for (QmlJS::AST::UiObjectMemberList *iter = members; iter; iter = iter->next) {
+        QmlJS::AST::UiObjectMember *member = iter->member;
+        int idx = -1;
+
+        if (QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(member)) {
+            lastObjectDef = iter;
+            if (objectPos++ == pos)
+                break;
+        } else if (auto arrayBinding = QmlJS::AST::cast<QmlJS::AST::UiArrayBinding *>(member))
+            idx = propertyOrder.indexOf(toString(arrayBinding->qualifiedId).toUtf8());
+        else if (auto objectBinding = QmlJS::AST::cast<QmlJS::AST::UiObjectBinding *>(member))
+            idx = propertyOrder.indexOf(toString(objectBinding->qualifiedId).toUtf8());
+        else if (auto scriptBinding = QmlJS::AST::cast<QmlJS::AST::UiScriptBinding *>(member))
+            idx = propertyOrder.indexOf(toString(scriptBinding->qualifiedId).toUtf8());
+        else if (QmlJS::AST::cast<QmlJS::AST::UiPublicMember *>(member))
+            idx = propertyOrder.indexOf("property");
+
+        if (idx < objectDefinitionInsertionPoint)
+            lastNonObjectDef = iter;
+    }
+
+    if (lastObjectDef)
+        return lastObjectDef;
+    else
+        return lastNonObjectDef;
+}
+
 void QMLRewriter::dump(const ASTPath &path)
 {
     qCDebug(qmlRewriter) << "AST path with" << path.size() << "node(s):";

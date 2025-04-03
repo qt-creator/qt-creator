@@ -182,6 +182,7 @@ std::ostream &operator<<(std::ostream &out, const FontCollectorSizesAuxiliaryDat
 namespace Storage {
 enum class PropertyDeclarationTraits : int;
 enum class TypeTraitsKind : unsigned int;
+enum class IsInsideProject : char;
 struct TypeTraits;
 class Import;
 class Version;
@@ -190,6 +191,7 @@ class VersionNumber;
 std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits);
 std::ostream &operator<<(std::ostream &out, TypeTraitsKind kind);
 std::ostream &operator<<(std::ostream &out, TypeTraits traits);
+std::ostream &operator<<(std::ostream &out, IsInsideProject isInsideProject);
 std::ostream &operator<<(std::ostream &out, const Import &import);
 std::ostream &operator<<(std::ostream &out, VersionNumber versionNumber);
 std::ostream &operator<<(std::ostream &out, Version version);

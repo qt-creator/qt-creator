@@ -21,7 +21,7 @@ struct Task
 template<typename Matcher>
 auto IsTask(Matcher matcher)
 {
-    return Field(&Task::i, matcher);
+    return Field("Task::i", &Task::i, matcher);
 }
 
 class TaskQueue : public testing::Test

@@ -34,15 +34,13 @@ Rectangle {
             Layout.fillWidth: true
         }
 
-        Texture.TopSection {
-            id: topSection
-
-            Layout.fillWidth: true
-        }
-
         PropertyEditorPane {
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            headerComponent: Texture.TopSection {
+                id: topSection
+            }
 
             DynamicPropertiesSection {
                 propertiesModel: PropertyEditorDynamicPropertiesModel {}

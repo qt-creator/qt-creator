@@ -34,11 +34,12 @@ testing::Matcher<QVariant> IsQVariantType()
 template<typename Type, typename Matcher>
 auto IsQVariant(const Matcher &matcher)
 {
-    return AllOf(IsQVariantType<Type>(), Property(&QVariant::value<Type>, matcher));
+    return AllOf(IsQVariantType<Type>(),
+                 Property("QVariant::value<Type>", &QVariant::value<Type>, matcher));
 }
 
 template<typename Matcher>
 auto QVariantIsValid(const Matcher &matcher)
 {
-    return Property(&QVariant::isValid, matcher);
+    return Property("QVariant::isValid", &QVariant::isValid, matcher);
 }

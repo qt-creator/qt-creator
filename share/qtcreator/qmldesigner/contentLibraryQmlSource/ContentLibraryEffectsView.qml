@@ -135,11 +135,15 @@ HelperWidgets.ScrollView {
             leftPadding: 10
             rightPadding: 10
             visible: ContentLibraryBackend.effectsModel.isEmpty
-            horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
             width: root.width
 
             onLinkActivated: ContentLibraryBackend.rootView.addQtQuick3D()
+
+            HoverHandler {
+                enabled: infoText.hoveredLink
+                cursorShape: Qt.PointingHandCursor
+            }
         }
     }
 }

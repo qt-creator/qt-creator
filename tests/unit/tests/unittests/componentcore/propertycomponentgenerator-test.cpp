@@ -36,13 +36,15 @@ using ComplexProperty = QmlDesigner::PropertyComponentGenerator::ComplexProperty
 template<typename Matcher>
 auto IsBasicProperty(const Matcher &matcher)
 {
-    return VariantWith<BasicProperty>(Field(&BasicProperty::component, matcher));
+    return VariantWith<BasicProperty>(
+        Field("BasicProperty::component", &BasicProperty::component, matcher));
 }
 
 template<typename Matcher>
 auto IsComplexProperty(const Matcher &matcher)
 {
-    return VariantWith<ComplexProperty>(Field(&ComplexProperty::component, matcher));
+    return VariantWith<ComplexProperty>(
+        Field("ComplexProperty::component", &ComplexProperty::component, matcher));
 }
 
 constexpr Utils::SmallStringView sourcesPath = UNITTEST_DIR

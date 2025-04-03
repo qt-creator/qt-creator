@@ -19,7 +19,6 @@
 #include <formeditorview.h>
 #include <itemlibraryview.h>
 #include <materialbrowserview.h>
-#include <materialeditorview.h>
 #include <model/auxiliarypropertystorageview.h>
 #include <navigatorview.h>
 #include <nodeinstanceview.h>
@@ -29,7 +28,6 @@
 #include <rewriterview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
-#include <textureeditorview.h>
 
 #include <qmldesignerbase/settings/designersettings.h>
 
@@ -73,9 +71,7 @@ public:
         , navigatorView{externalDependencies}
         , propertyEditorView(imageCache, externalDependencies)
 #ifndef QTC_USE_QML_DESIGNER_LITE
-        , materialEditorView{externalDependencies}
         , materialBrowserView{imageCache, externalDependencies}
-        , textureEditorView{imageCache, externalDependencies}
 #endif
         , statesEditorView{externalDependencies}
     {}
@@ -103,9 +99,7 @@ public:
     NavigatorView navigatorView;
     PropertyEditorView propertyEditorView;
 #ifndef QTC_USE_QML_DESIGNER_LITE
-    MaterialEditorView materialEditorView;
     MaterialBrowserView materialBrowserView;
-    TextureEditorView textureEditorView;
 #endif
     StatesEditorView statesEditorView;
 
@@ -233,9 +227,7 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->itemLibraryView,
                                   &d->navigatorView,
                                   &d->propertyEditorView,
-                                  &d->materialEditorView,
                                   &d->materialBrowserView,
-                                  &d->textureEditorView,
                                   &d->statesEditorView,
                                   &d->designerActionManagerView};
 #else
@@ -460,9 +452,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->navigatorView.widgetInfo());
     widgetInfoList.append(d->propertyEditorView.widgetInfo());
 #ifndef QTC_USE_QML_DESIGNER_LITE
-    widgetInfoList.append(d->materialEditorView.widgetInfo());
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
-    widgetInfoList.append(d->textureEditorView.widgetInfo());
 #endif
     widgetInfoList.append(d->statesEditorView.widgetInfo());
 

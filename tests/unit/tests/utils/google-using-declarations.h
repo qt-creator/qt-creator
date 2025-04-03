@@ -19,6 +19,7 @@ using testing::ByMove;
 using testing::ByRef;
 using testing::ContainerEq;
 using testing::Contains;
+using testing::Each;
 using testing::ElementsAre;
 using testing::Eq;
 using testing::Exactly;

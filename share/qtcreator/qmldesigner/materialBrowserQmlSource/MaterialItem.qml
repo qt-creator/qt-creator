@@ -10,6 +10,11 @@ import MaterialBrowserBackend
 Item {
     id: root
 
+    readonly property bool selected: materialSelected?? false
+    readonly property bool matchedSearch: materialMatchedSearch?? false
+    readonly property int itemIndex: index
+    property bool rightClicked: false
+
     signal showContextMenu()
 
     function refreshPreview() {
@@ -25,7 +30,7 @@ Item {
         matName.startRename()
     }
 
-    visible: materialVisible
+    visible: matchedSearch
 
     DropArea {
         anchors.fill: parent
@@ -55,17 +60,24 @@ Item {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-        onPressed: (mouse) => {
-            MaterialBrowserBackend.materialBrowserModel.selectMaterial(index)
+        function handleClick(mouse) {
             MaterialBrowserBackend.rootView.focusMaterialSection(true)
 
-            if (mouse.button === Qt.LeftButton)
+            if (mouse.button === Qt.LeftButton) {
+                let appendMat = mouse.modifiers & Qt.ControlModifier
                 MaterialBrowserBackend.rootView.startDragMaterial(index, mapToGlobal(mouse.x, mouse.y))
-            else if (mouse.button === Qt.RightButton)
+                MaterialBrowserBackend.materialBrowserModel.selectMaterial(index, appendMat)
+            } else if (mouse.button === Qt.RightButton) {
                 root.showContextMenu()
+            }
         }
 
-        onDoubleClicked: MaterialBrowserBackend.materialBrowserModel.openMaterialEditor();
+        onPressed: (mouse) => handleClick(mouse)
+
+        onDoubleClicked: {
+            MaterialBrowserBackend.materialBrowserModel.selectMaterial(index, false)
+            MaterialBrowserBackend.rootView.openPropertyEditor()
+        }
     }
 
     Column {
@@ -95,24 +107,16 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
 
             onRenamed: (newName) => {
-                MaterialBrowserBackend.materialBrowserModel.renameMaterial(index, newName);
+                MaterialBrowserBackend.materialBrowserModel.renameMaterial(index, newName)
                 mouseArea.forceActiveFocus()
             }
 
-            onClicked: {
-                MaterialBrowserBackend.materialBrowserModel.selectMaterial(index)
-                MaterialBrowserBackend.rootView.focusMaterialSection(true)
-            }
+            onClicked: (mouse) => mouseArea.handleClick(mouse)
         }
     }
 
-    Rectangle {
-        id: marker
-        anchors.fill: parent
-        border.width: MaterialBrowserBackend.materialBrowserModel.selectedIndex === index ? MaterialBrowserBackend.rootView.materialSectionFocused ? 3 : 1 : 0
-        border.color: MaterialBrowserBackend.materialBrowserModel.selectedIndex === index
-                            ? StudioTheme.Values.themeControlOutlineInteraction
-                            : "transparent"
-        color: "transparent"
+    ItemBorder {
+        selected: root.selected
+        rightClicked: root.rightClicked
     }
 }

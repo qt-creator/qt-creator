@@ -1,0 +1,112 @@
+{
+    "deployment": {
+    },
+    "fileGroups": [
+        {
+            "directory": "",
+            "files": [
+            ],
+            "filters": [
+                "*.otf"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Font"
+        },
+        {
+            "directory": "fonts1",
+            "files": [
+            ],
+            "filters": [
+                "*.otf",
+                "*.ttf"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Font"
+        },
+        {
+            "directory": "fonts2",
+            "files": [
+                "test1.ttf",
+                "test2.ttf"
+            ],
+            "filters": [
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Font"
+        },
+        {
+            "directory": "",
+            "files": [
+            ],
+            "filters": [
+                "*.ttf",
+                "*.otf"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Font"
+        },
+        {
+            "directory": "fonts3",
+            "files": [
+            ],
+            "filters": [
+                "*.otf",
+                "*.ttf"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Font"
+        },
+        {
+            "directory": "fonts3",
+            "files": [
+                "test3.ttf",
+                "test4.ttf"
+            ],
+            "filters": [
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Font"
+        }
+    ],
+    "fileVersion": 1,
+    "language": {
+    },
+    "mcu": {
+        "config": {
+        },
+        "enabled": false,
+        "module": {
+        }
+    },
+    "otherProperties": {
+    },
+    "qmlprojectDependencies": [
+    ],
+    "runConfig": {
+        "fileSelectors": [
+        ],
+        "mainFile": "content/App.qml",
+        "mainUiFile": "content/Screen01.ui.qml"
+    },
+    "versions": {
+        "qt": "5"
+    }
+}

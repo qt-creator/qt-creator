@@ -535,6 +535,26 @@ MetaInfo {
     }
 
     Type {
+        name: "QtQuick.FrameAnimation"
+        icon: "images/frame-animation-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Frame"
+            category: "d.Qt Quick - Animation"
+            libraryIcon: "images/frame-animation-24px.png"
+            version: "2.0"
+            toolTip: qsTr("Triggers a handler at every animation frame update.")
+        }
+    }
+
+    Type {
         name: "QtQuick.Loader"
         icon: "images/loader-icon16.png"
 

@@ -28,6 +28,7 @@ private:
     void compressPropertyActions(QList<RewriteAction *> &actions) const;
     void compressAddEditActions(QList<RewriteAction *> &actions, const TextEditor::TabSettings &tabSettings) const;
     void compressAddReparentActions(QList<RewriteAction *> &actions) const;
+    void compressSlidesIntoNewNode(QList<RewriteAction *> &actions) const;
 
 private:
     PropertyNameList m_propertyOrder;

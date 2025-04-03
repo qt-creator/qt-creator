@@ -98,14 +98,4 @@ Category &category()
     return category_;
 }
 } // namespace SourcePathStorageTracing
-
-namespace MetaInfoTracing {
-Category &category()
-{
-    thread_local Category category_{"meta info", Tracing::eventQueueWithStringArguments(), category};
-
-    return category_;
-}
-} // namespace MetaInfoTracing
-
 } // namespace QmlDesigner

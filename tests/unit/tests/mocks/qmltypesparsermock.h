@@ -15,6 +15,7 @@ public:
                 (const QString &sourceContent,
                  QmlDesigner::Storage::Imports &imports,
                  QmlDesigner::Storage::Synchronization::Types &types,
-                 const QmlDesigner::Storage::Synchronization::DirectoryInfo &directoryInfo),
+                 const QmlDesigner::Storage::Synchronization::DirectoryInfo &directoryInfo,
+                 IsInsideProject isInsideProject),
                 (override));
 };

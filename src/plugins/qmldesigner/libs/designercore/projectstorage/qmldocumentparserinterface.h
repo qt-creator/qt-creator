@@ -12,10 +12,13 @@ namespace QmlDesigner {
 class QmlDocumentParserInterface
 {
 public:
+    using IsInsideProject = Storage::IsInsideProject;
+
     virtual Storage::Synchronization::Type parse(const QString &sourceContent,
                                                  Storage::Imports &imports,
                                                  SourceId sourceId,
-                                                 Utils::SmallStringView directoryPath)
+                                                 Utils::SmallStringView directoryPath,
+                                                 IsInsideProject isInsideProject)
         = 0;
 
 protected:

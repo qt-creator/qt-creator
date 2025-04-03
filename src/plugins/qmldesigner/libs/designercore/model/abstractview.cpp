@@ -177,6 +177,8 @@ void AbstractView::modelAboutToBeDetached(Model *)
 
 void AbstractView::refreshMetaInfos(const TypeIds &) {}
 
+void AbstractView::exportedTypeNamesChanged(const ExportedTypeNames &, const ExportedTypeNames &) {}
+
 /*!
     \enum QmlDesigner::AbstractView::PropertyChangeFlag
 

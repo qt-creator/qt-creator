@@ -1,0 +1,74 @@
+MetaInfo {
+    Type {
+        name: "QtQuick.Layouts.RowLayout"
+        icon: "images/row-layouts-icon-16px.png"
+
+        ItemLibraryEntry {
+            name: "Row Layout"
+            category: "Qt Quick - Layouts"
+            libraryIcon: "images/row-layouts-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Layouts"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("Organizes items in a row.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Layouts.ColumnLayout"
+        icon: "images/column-layouts-icon-16px.png"
+
+        ItemLibraryEntry {
+            name: "Column Layout"
+            category: "Qt Quick - Layouts"
+            libraryIcon: "images/column-layouts-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Layouts"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("Organizes items in a column.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Layouts.GridLayout"
+        icon: "images/grid-layouts-icon-16px.png"
+
+        ItemLibraryEntry {
+            name: "Grid Layout"
+            category: "Qt Quick - Layouts"
+            libraryIcon: "images/grid-layouts-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Layouts"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("Organizes items in a grid.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Layouts.StackLayout"
+        icon: "images/stack-layouts-icon-16px.png"
+
+        Hints {
+            isStackedContainer: true
+            indexPropertyForStackedContainer: "currentIndex"
+        }
+
+        ItemLibraryEntry {
+            name: "Stack Layout"
+            category: "Qt Quick - Layouts"
+            libraryIcon: "images/stack-layouts-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Layouts"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("Organizes items in a grid. Only the top item is visible.")
+        }
+    }
+}

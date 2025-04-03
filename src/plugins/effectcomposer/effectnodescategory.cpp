@@ -3,6 +3,8 @@
 
 #include "effectnodescategory.h"
 
+#include <utils/algorithm.h>
+
 namespace EffectComposer {
 
 EffectNodesCategory::EffectNodesCategory(const QString &name, const QList<EffectNode *> &nodes)
@@ -17,6 +19,20 @@ QString EffectNodesCategory::name() const
 QList<EffectNode *> EffectNodesCategory::nodes() const
 {
     return m_categoryNodes;
+}
+
+void EffectNodesCategory::setNodes(const QList<EffectNode *> &nodes)
+{
+    m_categoryNodes = nodes;
+
+    emit nodesChanged();
+}
+
+void EffectNodesCategory::removeNode(const QString &nodeName)
+{
+    Utils::eraseOne(m_categoryNodes, [nodeName](const EffectNode *node) {
+        return node->name() == nodeName;
+    });
 }
 
 } // namespace EffectComposer

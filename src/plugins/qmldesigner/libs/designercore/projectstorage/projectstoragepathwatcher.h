@@ -38,10 +38,9 @@ class ProjectStoragePathWatcher : public ProjectStoragePathWatcherInterface
 {
 public:
     ProjectStoragePathWatcher(SourcePathCache &pathCache,
-                              FileSystemInterface &fileSystem,
+                              FileStatusCache &fileStatusCache,
                               ProjectStoragePathWatcherNotifierInterface *notifier = nullptr)
-        : m_fileStatusCache(fileSystem)
-        , m_fileSystem(fileSystem)
+        : m_fileStatusCache(fileStatusCache)
         , m_pathCache(pathCache)
         , m_notifier(notifier)
     {
@@ -74,14 +73,14 @@ public:
 
         addEntries(entires);
 
-        auto notContainsdId = [&, &ids = ids](WatcherEntry entry) {
+        auto notContainsId = [&, &ids = ids](WatcherEntry entry) {
             return !std::binary_search(ids.begin(), ids.end(), entry.id)
                    || !std::binary_search(sourceContextIds.begin(),
                                           sourceContextIds.end(),
                                           entry.sourceContextId);
         };
 
-        removeUnusedEntries(entires, notContainsdId);
+        removeUnusedEntries(entires, notContainsId);
     }
 
     void removeIds(const ProjectPartIds &ids) override
@@ -390,8 +389,7 @@ public:
 private:
     WatcherEntries m_watchedEntries;
     FileSystemWatcher m_fileSystemWatcher;
-    FileStatusCache m_fileStatusCache;
-    FileSystemInterface &m_fileSystem;
+    FileStatusCache &m_fileStatusCache;
     SourcePathCache &m_pathCache;
     ProjectStoragePathWatcherNotifierInterface *m_notifier;
     DirectoryPathCompressor<Timer> m_directoryPathCompressor;

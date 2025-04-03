@@ -116,7 +116,6 @@ inline constexpr char EVENT_CURVEDITOR_TIME[] = "curveEditor";
 inline constexpr char EVENT_STATESEDITOR_TIME[] = "statesEditor";
 inline constexpr char EVENT_DESIGNSYSTEM_TIME[] = "designSystem";
 inline constexpr char EVENT_TEXTEDITOR_TIME[] = "textEditor";
-inline constexpr char EVENT_TEXTUREEDITOR_TIME[] = "textureEditor";
 inline constexpr char EVENT_PROPERTYEDITOR_TIME[] = "propertyEditor";
 inline constexpr char EVENT_ASSETSLIBRARY_TIME[] = "assetsLibrary";
 inline constexpr char EVENT_EFFECTCOMPOSER_NODE[] = "effectComposerNode";
@@ -124,7 +123,6 @@ inline constexpr char EVENT_EFFECTCOMPOSER_TIME[] = "effectComposerTime";
 inline constexpr char EVENT_ITEMLIBRARY_TIME[] = "itemLibrary";
 inline constexpr char EVENT_TRANSLATIONVIEW_TIME[] = "translationView";
 inline constexpr char EVENT_NAVIGATORVIEW_TIME[] = "navigatorView";
-inline constexpr char EVENT_MATERIALEDITOR_TIME[] = "materialEditor";
 inline constexpr char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
 inline constexpr char EVENT_CONTENTLIBRARY_TIME[] = "contentLibrary";
 inline constexpr char EVENT_INSIGHT_TIME[] = "insight";
@@ -154,6 +152,16 @@ inline constexpr char EVENT_DESIGNVIEWER_PROJECT_THUMBNAIL_DELETED[]
     = "DesignViewerProjectThumbnailDeleted";
 inline constexpr char EVENT_DESIGNVIEWER_PROJECT_THUMBNAIL_DOWNLOADED[]
     = "DesignViewerProjectThumbnailDownloaded";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_SET_ALIAS[] = "DeviceManagerAndroidSetAlias";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_SET_ACTIVE[] = "DeviceManagerAndroidSetActive";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_SET_DEVICE_IP[]
+    = "DeviceManagerAndroidSetDeviceIP";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_ADD_DEVICE[] = "DeviceManagerAndroidAddDevice";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_REMOVE_DEVICE[]
+    = "DeviceManagerAndroidRemoveDevice";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_RUN_PROJECT[] = "DeviceManagerAndroidRunProject";
+inline constexpr char EVENT_DEVICE_MANAGER_ANDROID_STOP_PROJECT[]
+    = "DeviceManagerAndroidStopProject";
 
 inline constexpr char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 
@@ -167,10 +175,8 @@ inline constexpr char OBJECT_NAME_COMPONENT_LIBRARY[] = "QQuickWidgetComponentLi
 inline constexpr char OBJECT_NAME_DESIGN_SYSTEM[] = "QQuickWidgetDesignSystem";
 inline constexpr char OBJECT_NAME_EFFECT_COMPOSER[] = "QQuickWidgetEffectComposer";
 inline constexpr char OBJECT_NAME_MATERIAL_BROWSER[] = "QQuickWidgetMaterialBrowser";
-inline constexpr char OBJECT_NAME_MATERIAL_EDITOR[] = "QQuickWidgetMaterialEditor";
 inline constexpr char OBJECT_NAME_PROPERTY_EDITOR[] = "QQuickWidgetPropertyEditor";
 inline constexpr char OBJECT_NAME_STATES_EDITOR[] = "QQuickWidgetStatesEditor";
-inline constexpr char OBJECT_NAME_TEXTURE_EDITOR[] = "QQuickWidgetTextureEditor";
 inline constexpr char OBJECT_NAME_TOP_TOOLBAR[] = "QQuickWidgetTopToolbar";
 inline constexpr char OBJECT_NAME_STATUSBAR[] = "QQuickWidgetStatusbar";
 inline constexpr char OBJECT_NAME_TOP_FEEDBACK[] = "QQuickWidgetQDSFeedback";

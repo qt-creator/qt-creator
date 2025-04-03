@@ -612,6 +612,7 @@ bool BundleHelper::isItemBundle(const QString &bundleId) const
            || bundleId == compUtils.user3DBundleId();
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 namespace {
 
 Utils::FilePath getComponentFilePath(const QString &nodeType, const Utils::FilePath &compDir)
@@ -668,6 +669,7 @@ Utils::FilePath getComponentFilePath(const QString &nodeType, const Utils::FileP
 }
 
 } // namespace
+#endif
 
 QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &filePath,
                                                        const Utils::FilePath &mainCompDir) const

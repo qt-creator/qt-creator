@@ -15,6 +15,7 @@ public:
                 (const QString &sourceContent,
                  QmlDesigner::Storage::Imports &imports,
                  QmlDesigner::SourceId sourceId,
-                 Utils::SmallStringView directoryPath),
+                 Utils::SmallStringView directoryPath,
+                 IsInsideProject isInsideProject),
                 (override));
 };

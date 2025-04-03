@@ -60,56 +60,118 @@ HelperWidgets.Section {
         leftPadding: StudioTheme.Values.toolbarSpacing
     }
 
+    Item {
+        id: nodeConfirmFormParent
+        width: parent.width
+        height: childrenRect.height
+    }
+
     TextEdit {
-        id: warningText
+        id: infoText
 
         visible: false
         height: 60
         width: root.width
-        text: qsTr("A node with this name already exists.\nSuffix was added to make the name unique.")
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        color: StudioTheme.Values.themeWarning
         readOnly: true
+        wrapMode: TextEdit.WordWrap
+
+        function showNodeExistsWarning(enable)
+        {
+            infoText.text = qsTr("An effect with this name already exists.\nSuffix was added to make the name unique.")
+            infoTimer.restart()
+            infoText.visible = enable
+            infoText.color = StudioTheme.Values.themeWarning
+        }
+
+        function showNodeAddedToLibraryInfo(message)
+        {
+            let errorTag = "@ERROR@"
+            if (message.startsWith(errorTag)) {
+                infoText.text = message.substring(errorTag.length)
+                infoText.color = StudioTheme.Values.themeError
+            } else {
+                infoText.text = message
+                infoText.color = StudioTheme.Values.themeInteraction
+            }
+            infoTimer.restart()
+            infoText.visible = message !== ""
+        }
+
+        function showNeedRenameInfo()
+        {
+            infoText.text = qsTr("A built-in effect with this name already exists in the library.\nPlease rename the effect before adding it to the library.")
+            infoText.visible = true
+            infoText.color = StudioTheme.Values.themeWarning
+        }
 
         onVisibleChanged: {
-            if (warningText.visible) {
-                warningTimer.running = true
+            if (infoText.visible)
                 root.expanded = true // so that warning is visible
-            }
         }
 
         Timer {
-            id: warningTimer
+            id: infoTimer
 
             interval: 12000
             repeat: false
             running: false
 
             onTriggered: {
-                warningText.visible = false
-                warningTimer.running = false
+                infoText.visible = false
+                infoTimer.running = false
             }
         }
     }
 
-    ConfirmPropertyRemoveForm {
-        id: confirmRemoveForm
+    ConfirmForm {
+        id: confirmForm
 
-        property int uniformIndex: -1
+        property int confirmIndex: -1
+        property bool confirmingRemove: false
 
         width: root.width - StudioTheme.Values.scrollBarThicknessHover - 8
         visible: false
 
-        onHeightChanged: root.emitEnsure(confirmRemoveForm)
-        onVisibleChanged: root.emitEnsure(confirmRemoveForm)
+        onHeightChanged: root.emitEnsure(confirmForm)
+        onVisibleChanged: root.emitEnsure(confirmForm)
 
-        onAccepted: {
-            confirmRemoveForm.parent = root
-            nodeUniformsModel.remove(confirmRemoveForm.uniformIndex)
+        function showConfirmRemove(formParent, uniformIndex)
+        {
+            confirmForm.parent = formParent
+            confirmForm.confirmIndex = uniformIndex
+            text = qsTr("The property is in use in the shader code.\nAre you sure you want to remove it?")
+            acceptButtonLabel = qsTr("Remove")
+            confirmForm.confirmingRemove = true
+            confirmForm.visible = true
         }
 
-        onCanceled: confirmRemoveForm.parent = root
+        function showConfirmLibraryAdd(nodeIndex)
+        {
+            confirmForm.parent = nodeConfirmFormParent
+            confirmForm.confirmIndex = nodeIndex
+            text = qsTr("The effect is already added into the library.\nAre you sure you want to update it?")
+            acceptButtonLabel = qsTr("Update")
+            confirmForm.confirmingRemove = false
+            confirmForm.visible = true
+        }
+
+        function clear()
+        {
+            confirmForm.visible = false
+            confirmForm.parent = root
+        }
+
+        onAccepted: {
+            confirmForm.clear()
+            if (confirmForm.confirmingRemove)
+                nodeUniformsModel.remove(confirmForm.confirmIndex)
+            else
+                infoText.showNodeAddedToLibraryInfo(root.backendModel.addNodeToLibraryNode(confirmForm.confirmIndex))
+        }
+
+        onCanceled: confirmForm.clear()
     }
 
     MouseArea {
@@ -149,7 +211,7 @@ HelperWidgets.Section {
 
                 onEditingFinished: {
                     nameEditField.visible = false
-                    warningText.visible = !root.backendModel.changeNodeName(modelIndex, nameEditText.text)
+                    infoText.showNodeExistsWarning(!root.backendModel.changeNodeName(modelIndex, nameEditText.text))
                 }
 
                 onActiveFocusChanged: {
@@ -180,13 +242,18 @@ HelperWidgets.Section {
                 iconColor: StudioTheme.Values.themeTextColor
                 iconScale: nameEditButton.containsMouse ? 1.2 : 1
                 implicitWidth: width
-                tooltip: qsTr("Edit effect node name")
+                tooltip: qsTr("Edit effect name")
 
-                onPressed: (event) => {
+                function handlePress()
+                {
                     nameEditText.text = nodeName
                     nameEditText.initializing = true
                     nameEditField.visible = true
                     nameEditText.forceActiveFocus()
+                }
+
+                onPressed: (event) => {
+                    nameEditButton.handlePress()
                 }
             }
         }
@@ -223,17 +290,16 @@ HelperWidgets.Section {
 
                     onReset: nodeUniformsModel.resetData(index)
                     onRemove: {
+                        confirmForm.clear()
                         if (uniformIsInUse) {
-                            confirmRemoveForm.parent = effectCompositionNodeUniform.editPropertyFormParent
-                            confirmRemoveForm.uniformIndex = index
-                            confirmRemoveForm.visible = true
+                            confirmForm.showConfirmRemove(
+                                        effectCompositionNodeUniform.editPropertyFormParent, index)
                         } else {
                             nodeUniformsModel.remove(index)
                         }
                     }
                     onEdit: {
-                        confirmRemoveForm.visible = false
-                        confirmRemoveForm.parent = root
+                        confirmForm.clear()
                         addPropertyForm.parent = effectCompositionNodeUniform.editPropertyFormParent
                         let dispNames = nodeUniformsModel.displayNames()
                         let filteredDispNames = dispNames.filter(name => name !== uniformDisplayName);
@@ -294,9 +360,14 @@ HelperWidgets.Section {
                     enabled: !addPropertyForm.visible
                     anchors.verticalCenter: parent.verticalCenter
 
+                    HelperWidgets.ToolTipArea {
+                        anchors.fill: parent
+                        tooltip: qsTr("Add new property to the effect.")
+                        acceptedButtons: Qt.NoButton
+                    }
+
                     onClicked: {
-                        confirmRemoveForm.visible = false
-                        confirmRemoveForm.parent = root
+                        confirmForm.clear()
                         root.editedUniformIndex = -1
                         addPropertyForm.parent = addProperty
                         addPropertyForm.reservedDispNames = nodeUniformsModel.displayNames()
@@ -310,7 +381,50 @@ HelperWidgets.Section {
                     height: 30
                     text: qsTr("Show Code")
                     anchors.verticalCenter: parent.verticalCenter
-                    onClicked: root.backendModel.openCodeEditor(index)
+
+                    HelperWidgets.ToolTipArea {
+                        anchors.fill: parent
+                        tooltip: qsTr("Open the shader code editor.")
+                        acceptedButtons: Qt.NoButton
+                    }
+
+                    onClicked: {
+                        confirmForm.clear()
+                        root.backendModel.openCodeEditor(index)
+                    }
+                }
+
+                HelperWidgets.Button {
+                    id: addToLibraryButton
+                    width: 100
+                    height: 30
+                    text: qsTr("Add to Library")
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    HelperWidgets.ToolTipArea {
+                        anchors.fill: parent
+                        tooltip: qsTr("Add the effect to the effect library.\nYou can reuse effects added to the library in other effect compositions.")
+                        acceptedButtons: Qt.NoButton
+                    }
+
+                    function handleClicked()
+                    {
+                        confirmForm.clear()
+                        if (root.backendModel.canAddNodeToLibrary(index)) {
+                            if (root.backendModel.nodeExists(index)) {
+                                infoText.visible = false
+                                confirmForm.showConfirmLibraryAdd(index)
+                            } else {
+                                infoText.showNodeAddedToLibraryInfo(root.backendModel
+                                                                    .addNodeToLibraryNode(index))
+                            }
+                        } else {
+                            infoText.showNeedRenameInfo()
+                            nameEditButton.handlePress()
+                        }
+                    }
+
+                    onClicked: addToLibraryButton.handleClicked()
                 }
             }
         }

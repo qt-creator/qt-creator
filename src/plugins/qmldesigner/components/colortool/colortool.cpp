@@ -1,6 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <qmldesignertr.h>
+
 #include "colortool.h"
 
 #include "formeditorscene.h"
@@ -150,7 +152,7 @@ int ColorTool::wantHandleItem(const ModelNode &modelNode) const
 
 QString ColorTool::name() const
 {
-    return tr("Color Tool");
+    return Tr::tr("Color Tool");
 }
 
 void ColorTool::colorDialogAccepted()

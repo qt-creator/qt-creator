@@ -545,11 +545,11 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
     m_modelNode.model()->endDrag();
 }
 
-void PropertyEditorValue::openMaterialEditor(int idx)
+void PropertyEditorValue::editMaterial(int idx)
 {
     if (ModelNode material = Utils3D::getMaterialOfModel(m_modelNode, idx)) {
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
-        Utils3D::selectMaterial(material);
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Properties", true);
+        material.selectNode();
     }
 }
 

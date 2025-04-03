@@ -11,19 +11,19 @@
 template<typename Matcher>
 auto IsVersionNumber(const Matcher &matcher)
 {
-    return Field(&QmlDesigner::Storage::VersionNumber::value, matcher);
+    return Field("QmlDesigner::Storage::VersionNumber::value", &QmlDesigner::Storage::VersionNumber::value, matcher);
 }
 
 template<typename Matcher>
 auto IsMinorVersion(const Matcher &matcher)
 {
-    return Field(&QmlDesigner::Storage::Version::minor, matcher);
+    return Field("QmlDesigner::Storage::Version::minor", &QmlDesigner::Storage::Version::minor, matcher);
 }
 
 template<typename Matcher>
 auto IsMajorVersion(const Matcher &matcher)
 {
-    return Field(&QmlDesigner::Storage::Version::major, matcher);
+    return Field("QmlDesigner::Storage::Version::major", &QmlDesigner::Storage::Version::major, matcher);
 }
 
 template<typename MajorMatcher, typename MinorMatcher>

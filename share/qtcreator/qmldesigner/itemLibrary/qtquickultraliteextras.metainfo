@@ -1,0 +1,61 @@
+MetaInfo {
+    Type {
+        name: "QtQuickUltralite.Extras.ColorizedImage"
+        icon: "images/image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Colorized Image"
+            category: "QtQuickUltralite - Extras"
+            libraryIcon: "images/image-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuickUltralite.Extras"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            Property { name: "source"; type: "QUrl"; value:"qrc:/qtquickplugin/images/template_image.png"; }
+
+            toolTip: qsTr("Displays a colorized image.")
+        }
+    }
+    Type {
+        name: "QtQuickUltralite.Extras.StaticText"
+        icon: "images/text-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Static Text"
+            category: "QtQuickUltralite - Extras"
+            libraryIcon: "images/text-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuickUltralite.Extras"
+
+            Property { name: "font.pixelSize"; type: "int"; value: 12; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Static Text\")"; }
+
+            toolTip: qsTr("Enables optimized drawing of text.")
+        }
+    }
+
+    Type {
+        name: "QtQuickUltralite.Extras.AnimatedSpriteDirectory"
+        icon: "images/animated-image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "AnimatedSprite Directory"
+            category: "QtQuickUltralite - Extras"
+            libraryIcon: "images/animated-image-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuickUltralite.Extras"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            Property { name: "currentFrame"; type: "int"; value: 0; }
+            Property { name: "frameDuration"; type: "int"; value: 30; }
+            Property { name: "loops"; type: "int"; value: -1; }
+            Property { name: "running"; type: "bool"; value: true; }
+            Property { name: "paused"; type: "bool"; value: false; }
+            Property { name: "sourcePath"; type: "string"; value: ""; }
+
+            toolTip: qsTr("Draws a sprite animation stored in a directory.")
+        }
+    }
+}

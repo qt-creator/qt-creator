@@ -1,6 +1,8 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <qmldesignertr.h>
+
 #include "globalannotationdialog.h"
 #include "annotation.h"
 #include "annotationcommenttab.h"
@@ -107,7 +109,7 @@ void GlobalAnnotationDialog::updateAnnotation()
 void GlobalAnnotationDialog::setupUI()
 {
     setWindowFlag(Qt::Tool, true);
-    setWindowTitle(tr("Global Annotation Editor"));
+    setWindowTitle(Tr::tr("Global Annotation Editor"));
     setModal(true);
 
     if (!QWidget::layout())
@@ -118,8 +120,8 @@ void GlobalAnnotationDialog::setupUI()
     m_tabWidget->setMovable(false);
     QWidget::layout()->addWidget(m_tabWidget);
 
-    m_tabWidget->addTab(m_editorWidget, tr("Global Annotation"));
-    m_tabWidget->addTab(m_annotationListWidget, tr("All Annotations"));
+    m_tabWidget->addTab(m_editorWidget, Tr::tr("Global Annotation"));
+    m_tabWidget->addTab(m_annotationListWidget, Tr::tr("All Annotations"));
 
     const QDialogButtonBox::StandardButtons buttonsToCreate =
             QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply;

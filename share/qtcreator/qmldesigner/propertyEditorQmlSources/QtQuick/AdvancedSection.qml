@@ -25,7 +25,7 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.enabled
-                text: backendValues.enabled.valueToString
+                text: backendValues.enabled?.valueToString
             }
 
             ExpandingSpacer {}
@@ -34,7 +34,7 @@ Section {
         PropertyLabel {
             text: qsTr("Smooth")
             tooltip: qsTr("Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items.")
-            blockedByTemplate: !backendValues.smooth.isAvailable
+            blockedByTemplate: !backendValues.smooth?.isAvailable
         }
 
         SecondColumnLayout {
@@ -42,8 +42,8 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.smooth
-                text: backendValues.smooth.valueToString
-                enabled: backendValues.smooth.isAvailable
+                text: backendValues.smooth?.valueToString
+                enabled: backendValues.smooth?.isAvailable ?? false
             }
 
             ExpandingSpacer {}
@@ -52,7 +52,7 @@ Section {
         PropertyLabel {
             text: qsTr("Antialiasing")
             tooltip: qsTr("Refines the edges of the image.")
-            blockedByTemplate: !backendValues.antialiasing.isAvailable
+            blockedByTemplate: !backendValues.antialiasing?.isAvailable
         }
 
         SecondColumnLayout {
@@ -60,8 +60,8 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.antialiasing
-                text: backendValues.antialiasing.valueToString
-                enabled: backendValues.antialiasing.isAvailable
+                text: backendValues.antialiasing?.valueToString
+                enabled: backendValues.antialiasing?.isAvailable ?? false
             }
 
             ExpandingSpacer {}
@@ -70,7 +70,7 @@ Section {
         PropertyLabel {
             text: qsTr("Focus")
             tooltip: qsTr("Sets focus on the component within the enclosing focus scope.")
-            blockedByTemplate: !backendValues.focus.isAvailable
+            blockedByTemplate: !backendValues.focus?.isAvailable
         }
 
         SecondColumnLayout {
@@ -78,8 +78,8 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.focus
-                text: backendValues.focus.valueToString
-                enabled: backendValues.focus.isAvailable
+                text: backendValues.focus?.valueToString
+                enabled: backendValues.focus?.isAvailable ?? false
             }
 
             ExpandingSpacer {}
@@ -88,7 +88,7 @@ Section {
         PropertyLabel {
             text: qsTr("Focus on tab")
             tooltip: qsTr("Adds the component to the tab focus chain.")
-            blockedByTemplate: !backendValues.activeFocusOnTab.isAvailable
+            blockedByTemplate: !backendValues.activeFocusOnTab?.isAvailable
         }
 
         SecondColumnLayout {
@@ -96,8 +96,8 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.activeFocusOnTab
-                text: backendValues.activeFocusOnTab.valueToString
-                enabled: backendValues.activeFocusOnTab.isAvailable
+                text: backendValues.activeFocusOnTab?.valueToString
+                enabled: backendValues.activeFocusOnTab?.isAvailable ?? false
             }
 
             ExpandingSpacer {}
@@ -106,7 +106,7 @@ Section {
         PropertyLabel {
             text: qsTr("Baseline offset")
             tooltip: qsTr("Sets the position of the component's baseline in local coordinates.")
-            blockedByTemplate: !backendValues.baselineOffset.isAvailable
+            blockedByTemplate: !backendValues.baselineOffset?.isAvailable
         }
 
         SecondColumnLayout {
@@ -119,7 +119,7 @@ Section {
                 decimals: 0
                 minimumValue: -1000
                 maximumValue: 1000
-                enabled: backendValues.baselineOffset.isAvailable
+                enabled: backendValues.baselineOffset?.isAvailable ?? false
             }
 
             ExpandingSpacer {}

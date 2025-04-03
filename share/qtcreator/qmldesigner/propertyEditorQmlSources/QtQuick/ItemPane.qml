@@ -89,7 +89,7 @@ PropertyEditorPane {
         anchors.right: parent.right
 
         StudioControls.TabButton {
-            text: backendValues.__classNamePrivateInternal.value
+            text: backendValues.__classNamePrivateInternal?.value
             onClicked: () => {
                 if (itemPane.searchBar.hasDoneSearch)
                     itemPane.searchBar.search();
@@ -142,15 +142,15 @@ PropertyEditorPane {
             }
 
             EffectsSection {
-                expanded: false
+                defaultExpanded: false
             }
 
             AdvancedSection {
-                expanded: false
+                defaultExpanded: false
             }
 
             LayerSection {
-                expanded: false
+                defaultExpanded: false
             }
         }
 

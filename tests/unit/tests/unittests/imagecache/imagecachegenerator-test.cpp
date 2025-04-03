@@ -421,9 +421,9 @@ TEST_F(ImageCacheGenerator, calls_collector_with_auxiliary_data)
                 start(Eq("name"),
                       _,
                       VariantWith<FontCollectorSizesAuxiliaryData>(
-                          AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                          AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                       ElementsAre(QSize{20, 11})),
-                                Field(&FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")))),
+                                Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")))),
                       _,
                       _,
                       _))

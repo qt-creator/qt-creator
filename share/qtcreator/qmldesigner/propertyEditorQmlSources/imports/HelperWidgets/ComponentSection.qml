@@ -36,7 +36,7 @@ Section {
                     anchors.fill: parent
                     anchors.leftMargin: StudioTheme.Values.inputHorizontalPadding
                     anchors.topMargin: StudioTheme.Values.typeLabelVerticalShift
-                    text: backendValues.__classNamePrivateInternal.value
+                    text: backendValues.__classNamePrivateInternal?.value ?? ""
                 }
 
                 ToolTipArea {
@@ -164,7 +164,7 @@ Section {
                     id: toolTipArea
                     enabled: !modelNodeBackend.multiSelection && anchorBackend.hasParent
                     anchors.fill: parent
-                    onClicked: toogleExportAlias()
+                    onClicked: toggleExportAlias()
                     tooltip: qsTr("Exports this component as an alias property of the root component.")
                 }
             }

@@ -28,10 +28,6 @@ env_with_default("QTC_ENABLE_MODEL_TRACING" ENV_QTC_ENABLE_MODEL_TRACING OFF)
 option(ENABLE_MODEL_TRACING "Enable model tracing" ${ENV_QTC_ENABLE_MODEL_TRACING})
 add_feature_info("Model tracing" ${ENABLE_MODEL_TRACING} "")
 
-env_with_default("QTC_ENABLE_METAINFO_TRACING" ENV_QTC_ENABLE_METAINFO_TRACING OFF)
-option(ENABLE_METAINFO_TRACING "Enable meta info tracing" ${ENV_QTC_ENABLE_METAINFO_TRACING})
-add_feature_info("Meta info tracing" ${ENABLE_METAINFO_TRACING} "")
-
 env_with_default("QDS_DESIGNVIEWER_USE_STAGING" ENV_QDS_DESIGNVIEWER_USE_STAGING OFF)
 option(QDS_DESIGNVIEWER_USE_STAGING "Use staging API URL for Design Viewer" ${ENV_QDS_DESIGNVIEWER_USE_STAGING})
 add_feature_info("Use staging API URL for Design Viewer" ${QDS_DESIGNVIEWER_USE_STAGING} "")
@@ -82,8 +78,6 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}/components/integration
     ${CMAKE_CURRENT_LIST_DIR}/components/itemlibrary
     ${CMAKE_CURRENT_LIST_DIR}/components/materialbrowser
-    ${CMAKE_CURRENT_LIST_DIR}/components/materialeditor
-    ${CMAKE_CURRENT_LIST_DIR}/components/textureeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/navigator
     ${CMAKE_CURRENT_LIST_DIR}/components/propertyeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/stateseditor
@@ -407,10 +401,12 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/propertyeditor
+  PUBLIC_INCLUDES components/propertyeditor
   SOURCES
     aligndistribute.cpp aligndistribute.h
     assetimageprovider.cpp assetimageprovider.h
     colorpalettebackend.cpp colorpalettebackend.h
+    compatibleproperties.cpp compatibleproperties.h
     designerpropertymap.cpp designerpropertymap.h
     fileresourcesmodel.cpp fileresourcesmodel.h
     itemfiltermodel.cpp itemfiltermodel.h
@@ -437,6 +433,7 @@ extend_qtc_plugin(QmlDesigner
     qmltexturenodeproxy.cpp qmltexturenodeproxy.h
     quick2propertyeditorview.cpp quick2propertyeditorview.h
     propertyeditorutils.cpp propertyeditorutils.h
+    propertyeditor.qrc
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -458,29 +455,6 @@ extend_qtc_plugin(QmlDesigner
     usercategory.cpp usercategory.h
     useritemcategory.cpp useritemcategory.h
     usertexturecategory.cpp usertexturecategory.h
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/materialeditor
-  SOURCES
-    materialeditorcontextobject.cpp materialeditorcontextobject.h
-    materialeditordynamicpropertiesproxymodel.cpp materialeditordynamicpropertiesproxymodel.h
-    materialeditorimageprovider.cpp materialeditorimageprovider.h
-    materialeditorqmlbackend.cpp materialeditorqmlbackend.h
-    materialeditortransaction.cpp materialeditortransaction.h
-    materialeditorview.cpp materialeditorview.h
-    materialeditor.qrc
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/textureeditor
-  SOURCES
-    textureeditorcontextobject.cpp textureeditorcontextobject.h
-    textureeditordynamicpropertiesproxymodel.cpp textureeditordynamicpropertiesproxymodel.h
-    textureeditorqmlbackend.cpp textureeditorqmlbackend.h
-    textureeditortransaction.cpp textureeditortransaction.h
-    textureeditorview.cpp textureeditorview.h
-    textureeditor.qrc
 )
 
 extend_qtc_plugin(QmlDesigner

@@ -393,11 +393,13 @@ public:
     {}
 
     explicit ExportedType(ModuleId moduleId,
+                          TypeId typeId,
                           ::Utils::SmallStringView name,
                           int majorVersion,
                           int minorVersion)
         : name{name}
         , version{majorVersion, minorVersion}
+        , typeId{typeId}
         , moduleId{moduleId}
     {}
 
@@ -1331,7 +1333,7 @@ public:
     ModuleExportedImports moduleExportedImports;
     ModuleIds updatedModuleIds;
     PropertyEditorQmlPaths propertyEditorQmlPaths;
-    SourceContextIds updatedPropertyEditorQmlPathSourceContextIds;
+    SourceContextIds updatedPropertyEditorQmlPathDirectoryIds;
     TypeAnnotations typeAnnotations;
     SourceIds updatedTypeAnnotationSourceIds;
 };

@@ -1,6 +1,8 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <qmldesignertr.h>
+
 #include "graphicsview.h"
 #include "axis.h"
 #include "curveeditormodel.h"
@@ -414,7 +416,7 @@ void GraphicsView::contextMenuEvent(QContextMenuEvent *event)
     QMenu menu;
 
     if (Utils::qtcEnvironmentVariableIsSet("QTC_STYLE_CURVE_EDITOR")) {
-        QAction *openEditorAction = menu.addAction(tr("Open Style Editor"));
+        QAction *openEditorAction = menu.addAction(Tr::tr("Open Style Editor"));
         connect(openEditorAction, &QAction::triggered, openStyleEditor);
     }
 
@@ -422,14 +424,14 @@ void GraphicsView::contextMenuEvent(QContextMenuEvent *event)
 
     menu.addSeparator();
     auto insertKeyframes = [this, rasterPos]() { m_scene->insertKeyframe(rasterPos.x(), true); };
-    QAction *insertKeyframeAction = menu.addAction(tr("Insert Keyframe"));
+    QAction *insertKeyframeAction = menu.addAction(Tr::tr("Insert Keyframe"));
     connect(insertKeyframeAction, &QAction::triggered, insertKeyframes);
 
     if (!m_scene->hasEditableSegment(rasterPos.x()))
         insertKeyframeAction->setEnabled(false);
 
     auto deleteKeyframes = [this] { m_scene->deleteSelectedKeyframes(); };
-    QAction *deleteKeyframeAction = menu.addAction(tr("Delete Selected Keyframes"));
+    QAction *deleteKeyframeAction = menu.addAction(Tr::tr("Delete Selected Keyframes"));
     connect(deleteKeyframeAction, &QAction::triggered, deleteKeyframes);
 
     if (!m_scene->hasSelectedKeyframe())

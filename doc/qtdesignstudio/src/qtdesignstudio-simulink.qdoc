@@ -170,6 +170,10 @@
 
     \image studio-binding-editor.png "The Binding Editor window"
 
-    Run the simulation by first clicking the \uicontrol Run icon in \QDS and
-    then the \uicontrol Run icon in Simulink.
+    To run the simulation:
+    \list 1
+        \li Select the run dropdown in the \QDS top toolbar,
+            and then select \uicontrol {Run App}.
+        \li Select the \uicontrol Run icon in Simulink.
+    \endlist
 */

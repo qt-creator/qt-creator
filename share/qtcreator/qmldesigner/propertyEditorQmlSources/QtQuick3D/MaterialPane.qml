@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Controls
 import HelperWidgets 2.0
 import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 import "Material" as Material
 
 Item {
@@ -23,12 +24,6 @@ Item {
         Controller.closeContextMenu()
     }
 
-    Material.Toolbar {
-        id: toolbar
-
-        width: parent.width
-    }
-
     Settings {
         id: settings
 
@@ -41,9 +36,7 @@ Item {
 
         readonly property bool isHorizontal: splitView.orientation == Qt.Horizontal
 
-        anchors.top: toolbar.bottom
-        anchors.bottom: parent.bottom
-        width: parent.width
+        anchors.fill: parent
         orientation: splitView.width > 1000 ? Qt.Horizontal : Qt.Vertical
         clip: true
 
@@ -58,7 +51,7 @@ Item {
             active: splitView.isHorizontal
             visible: leftSideView.active && leftSideView.item
 
-            sourceComponent: PreviewComponent {}
+            sourceComponent: hasMultiSelection ? blankPreview : preview
         }
 
         PropertyEditorPane {
@@ -77,9 +70,11 @@ Item {
 
                 Component.onCompleted: topSection.restoreState(settings.topSection)
                 Component.onDestruction: settings.topSection = topSection.saveState()
-                previewComponent: PreviewComponent {}
-                showImage: !splitView.isHorizontal
+                previewComponent: preview
+                showImage: !hasMultiSelection && !splitView.isHorizontal
             }
+
+            toolbarComponent: Material.Toolbar {}
 
             DynamicPropertiesSection {
                 propertiesModel: PropertyEditorDynamicPropertiesModel {}
@@ -119,19 +114,31 @@ Item {
         }
     }
 
-    component PreviewComponent : Material.Preview {
-        id: previewItem
+    Component {
+        id: preview
 
-        pinned: settings.dockMode
-        showPinButton: !leftSideView.visible
-        onPinnedChanged: settings.dockMode = previewItem.pinned
+        Material.Preview {
+            id: previewItem
 
-        Connections {
-            target: root
+            pinned: settings.dockMode
+            showPinButton: !leftSideView.visible
+            onPinnedChanged: settings.dockMode = previewItem.pinned
 
-            function onRefreshPreview() {
-                previewItem.refreshPreview()
+            Connections {
+                target: root
+
+                function onRefreshPreview() {
+                    previewItem.refreshPreview()
+                }
             }
+        }
+    }
+
+    Component {
+        id: blankPreview
+
+        Rectangle {
+            color: StudioTheme.Values.themePanelBackground
         }
     }
 }

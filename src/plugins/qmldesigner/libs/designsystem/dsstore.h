@@ -11,6 +11,12 @@
 namespace QmlDesigner {
 class ExternalDependenciesInterface;
 
+struct CollectionBinding
+{
+    QStringView collection;
+    QStringView propName;
+};
+
 class DESIGNSYSTEM_EXPORT DSStore
 {
     Q_DECLARE_TR_FUNCTIONS(DSStore)
@@ -38,19 +44,35 @@ public:
     std::optional<Utils::FilePath> moduleDirPath() const;
     QStringList collectionNames() const;
 
-    ThemeProperty resolvedDSBinding(QStringView binding) const;
+    std::optional<ThemeProperty> resolvedDSBinding(QStringView binding,
+                                                   std::optional<CollectionBinding> avoidValue = {}) const;
+
+    void refactorBindings(QStringView oldCollectionName, QStringView newCollectionName);
+    void refactorBindings(DSThemeManager *srcCollection, PropertyName from, PropertyName to);
+
+    void breakBindings(DSThemeManager *collection, PropertyName propertyName);
+    void breakBindings(DSThemeManager *collection, QStringView removeCollection);
+
+    QString uniqueCollectionName(const QString &hint) const;
 
 private:
-    QString uniqueCollectionName(const QString &hint) const;
+    std::optional<ThemeProperty> boundProperty(const CollectionBinding &binding,
+                                               QStringView groupId) const;
+    std::optional<ThemeProperty> resolvedDSBinding(CollectionBinding binding,
+                                                   QStringView groupId,
+                                                   std::optional<CollectionBinding> avoidValue = {}) const;
     std::optional<QString> loadCollection(const QString &typeName, const Utils::FilePath &qmlFilePath);
     std::optional<QString> writeQml(const DSThemeManager &mgr,
                                     const QString &typeName,
                                     const Utils::FilePath &targetDir,
                                     bool mcuCompatible);
 
+    void removeCollectionFiles(const QString &typeName) const;
+
 private:
     ExternalDependenciesInterface &m_ed;
     ProjectStorageDependencies m_projectStorageDependencies;
     DSCollections m_collections;
+    bool m_blockLoading = false;
 };
 } // namespace QmlDesigner

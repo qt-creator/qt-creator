@@ -75,7 +75,6 @@ static QList<QmlDesigner::ModelNode> modelNodesFromMimeData(const QByteArray &mi
 
 EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     : m_effectComposerModel{new EffectComposerModel(this)}
-    , m_effectComposerNodesModel{new EffectComposerNodesModel(this)}
     , m_effectComposerView(view)
     , m_quickWidget{new StudioQuickWidget(this)}
 {
@@ -108,7 +107,7 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     g_propertyData.insert(QString("blur_fs_path"), QString(blurPath + "bluritems.frag.qsb"));
 
     auto map = m_quickWidget->registerPropertyMap("EffectComposerBackend");
-    map->setProperties({{"effectComposerNodesModel", QVariant::fromValue(m_effectComposerNodesModel.data())},
+    map->setProperties({{"effectComposerNodesModel", QVariant::fromValue(effectComposerNodesModel().data())},
                         {"effectComposerModel", QVariant::fromValue(m_effectComposerModel.data())},
                         {"rootView", QVariant::fromValue(this)}});
 
@@ -174,7 +173,7 @@ QPointer<EffectComposerModel> EffectComposerWidget::effectComposerModel() const
 
 QPointer<EffectComposerNodesModel> EffectComposerWidget::effectComposerNodesModel() const
 {
-    return m_effectComposerNodesModel;
+    return m_effectComposerModel->effectComposerNodesModel();
 }
 
 void EffectComposerWidget::addEffectNode(const QString &nodeQenPath)
@@ -186,6 +185,11 @@ void EffectComposerWidget::addEffectNode(const QString &nodeQenPath)
         QString id = nodeQenPath.split('/').last().chopped(4).prepend('_');
         QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_EFFECTCOMPOSER_NODE + id);
     }
+}
+
+void EffectComposerWidget::removeEffectNodeFromLibrary(const QString &nodeName)
+{
+    effectComposerNodesModel()->removeEffectNode(nodeName);
 }
 
 void EffectComposerWidget::focusSection(int section)
@@ -209,7 +213,7 @@ QPoint EffectComposerWidget::globalPos(const QPoint &point) const
 
 QString EffectComposerWidget::uniformDefaultImage(const QString &nodeName, const QString &uniformName) const
 {
-    return m_effectComposerNodesModel->defaultImagesForNode(nodeName).value(uniformName);
+    return effectComposerNodesModel()->defaultImagesForNode(nodeName).value(uniformName);
 }
 
 QString EffectComposerWidget::imagesPath() const
@@ -247,7 +251,7 @@ void EffectComposerWidget::dropNode(const QByteArray &mimeData)
 
 void EffectComposerWidget::updateCanBeAdded()
 {
-    m_effectComposerNodesModel->updateCanBeAdded(m_effectComposerModel->uniformNames(),
+    effectComposerNodesModel()->updateCanBeAdded(m_effectComposerModel->uniformNames(),
                                                  m_effectComposerModel->nodeNames());
 }
 

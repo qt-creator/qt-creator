@@ -69,7 +69,8 @@ INSTANTIATE_TEST_SUITE_P(QmlProjectItem,
                                            QString("test-set-2"),
                                            QString("test-set-3"),
                                            QString("test-set-mcu-1"),
-                                           QString("test-set-mcu-2")));
+                                           QString("test-set-mcu-2"),
+                                           QString("test-set-font-files")));
 
 TEST_P(QmlProjectConverter, qml_project_to_json)
 {
@@ -83,7 +84,7 @@ TEST_P(QmlProjectConverter, qml_project_to_json)
 
     // THEN
     QString convertedContent{QString::fromLatin1(QJsonDocument(jsonObject).toJson())};
-    ASSERT_THAT(convertedContent, Eq(targetContent));
+    ASSERT_EQ(convertedContent, targetContent);
 }
 
 TEST_P(QmlProjectConverter, json_to_qml_project)
@@ -98,7 +99,7 @@ TEST_P(QmlProjectConverter, json_to_qml_project)
 
     // THEN
     QString convertedContent = QmlProjectManager::Converters::jsonToQmlProject(jsonObject);
-    ASSERT_THAT(convertedContent, Eq(targetContent));
+    ASSERT_EQ(convertedContent, targetContent);
 }
 
 } // namespace

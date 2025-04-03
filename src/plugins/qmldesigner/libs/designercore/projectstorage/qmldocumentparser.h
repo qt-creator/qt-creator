@@ -32,7 +32,8 @@ public:
     Storage::Synchronization::Type parse(const QString &sourceContent,
                                          Storage::Imports &imports,
                                          SourceId sourceId,
-                                         Utils::SmallStringView directoryPath) override;
+                                         Utils::SmallStringView directoryPath,
+                                         IsInsideProject isInsideProject) override;
 
 private:
     // m_pathCache and m_storage are only used when compiled for QDS

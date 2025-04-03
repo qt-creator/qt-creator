@@ -27,6 +27,7 @@ namespace QmlDesigner {
 
 constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
+using Storage::IsInsideProject;
 using Tracer = ProjectStorageTracing::Category::TracerType;
 using Storage::ModuleKind;
 namespace QmlDom = QQmlJS::Dom;
@@ -120,15 +121,16 @@ Storage::TypeTraits createAccessTypeTraits(QQmlJSScope::AccessSemantics accessSe
 
 Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics,
                                      bool hasCustomParser,
-                                     bool isSingleton)
+                                     bool isSingleton,
+                                     IsInsideProject isInsideProject)
 {
     auto typeTrait = createAccessTypeTraits(accessSematics);
 
-    if (hasCustomParser)
-        typeTrait.usesCustomParser = true;
+    typeTrait.usesCustomParser = hasCustomParser;
 
-    if (isSingleton)
-        typeTrait.isSingleton = true;
+    typeTrait.isSingleton = isSingleton;
+
+    typeTrait.isInsideProject = isInsideProject == IsInsideProject::Yes;
 
     return typeTrait;
 }
@@ -444,7 +446,8 @@ void addType(Storage::Synchronization::Types &types,
              ModuleId cppModuleId,
              const QQmlJSExportedScope &exportScope,
              QmlTypesParser::ProjectStorage &storage,
-             const ComponentWithoutNamespaces &componentNameWithoutNamespace)
+             const ComponentWithoutNamespaces &componentNameWithoutNamespace,
+             IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"add type",
                                category(),
@@ -466,7 +469,8 @@ void addType(Storage::Synchronization::Types &types,
         Storage::Synchronization::ImportedType{extensionTypeName(component)},
         createTypeTraits(component.accessSemantics(),
                          component.hasCustomParser(),
-                         component.isSingleton()),
+                         component.isSingleton(),
+                         isInsideProject),
         sourceId,
         createExports(exports, typeName, storage, cppModuleId),
         createProperties(component.ownProperties(), enumerationTypes, componentNameWithoutNamespace),
@@ -509,7 +513,8 @@ void addTypes(Storage::Synchronization::Types &types,
               const Storage::Synchronization::DirectoryInfo &directoryInfo,
               const QList<QQmlJSExportedScope> &objects,
               QmlTypesParser::ProjectStorage &storage,
-              const ComponentWithoutNamespaces &componentNameWithoutNamespaces)
+              const ComponentWithoutNamespaces &componentNameWithoutNamespaces,
+              IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"add types", category()};
     types.reserve(Utils::usize(objects) + types.size());
@@ -525,7 +530,8 @@ void addTypes(Storage::Synchronization::Types &types,
                 directoryInfo.moduleId,
                 object,
                 storage,
-                componentNameWithoutNamespaces);
+                componentNameWithoutNamespaces,
+                isInsideProject);
     }
 }
 
@@ -534,7 +540,8 @@ void addTypes(Storage::Synchronization::Types &types,
 void QmlTypesParser::parse(const QString &sourceContent,
                            Storage::Imports &imports,
                            Storage::Synchronization::Types &types,
-                           const Storage::Synchronization::DirectoryInfo &directoryInfo)
+                           const Storage::Synchronization::DirectoryInfo &directoryInfo,
+                           IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"qmltypes parser parse", category()};
 
@@ -548,7 +555,7 @@ void QmlTypesParser::parse(const QString &sourceContent,
     auto componentNameWithoutNamespaces = createComponentNameWithoutNamespaces(components);
 
     addImports(imports, directoryInfo.sourceId, dependencies, m_storage, directoryInfo.moduleId);
-    addTypes(types, directoryInfo, components, m_storage, componentNameWithoutNamespaces);
+    addTypes(types, directoryInfo, components, m_storage, componentNameWithoutNamespaces, isInsideProject);
 }
 
 #else
@@ -556,7 +563,8 @@ void QmlTypesParser::parse(const QString &sourceContent,
 void QmlTypesParser::parse([[maybe_unused]] const QString &sourceContent,
                            [[maybe_unused]] Storage::Imports &imports,
                            [[maybe_unused]] Storage::Synchronization::Types &types,
-                           [[maybe_unused]] const Storage::Synchronization::DirectoryInfo &directoryInfo)
+                           [[maybe_unused]] const Storage::Synchronization::DirectoryInfo &directoryInfo,
+                           [[maybe_unused]] IsInsideProject isInsideProject)
 {}
 
 #endif

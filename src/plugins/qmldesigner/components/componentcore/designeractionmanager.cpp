@@ -1087,7 +1087,7 @@ bool selectionCanBeLayouted(const SelectionContext &context)
 
 bool selectionCanBeLayoutedAndQtQuickLayoutPossible(const SelectionContext &context)
 {
-    return selectionCanBeLayouted(context) && context.view()->majorQtQuickVersion() > 1;
+    return selectionCanBeLayouted(context);
 }
 
 bool selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU(const SelectionContext &context)
@@ -1515,6 +1515,28 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &resetSize,
                           &selectionNotEmptyAndHasWidthOrHeightProperty));
 
+    addDesignerAction(new ModelNodeAction(
+                          isolateSelectionCommandId,
+                          isolateSelectionDisplayName,
+                          contextIcon(DesignerIcons::VisibilityIcon), // TODO: placeholder icon
+                          isolateNodesToolTip,
+                          rootCategory,
+                          QKeySequence("shift+h"),
+                          Priorities::IsolateSelection,
+                          &isolateSelectedNodes,
+                          &selectionNot2D3DMix));
+
+    addDesignerAction(new ModelNodeAction(
+                          showAllCommandId,
+                          showAllDisplayName,
+                          contextIcon(DesignerIcons::VisibilityIcon), // TODO: placeholder icon
+                          showAllToolTip,
+                          rootCategory,
+                          QKeySequence("alt+h"),
+                          Priorities::ShowAllNodes,
+                          &showAllNodes,
+                          &always));
+
     addDesignerAction(new SeparatorDesignerAction(editCategory, 40));
 
     addDesignerAction(new VisiblityModelNodeAction(
@@ -1936,7 +1958,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      contextIcon(DesignerIcons::EnterComponentIcon),
                                                      rootCategory,
                                                      QKeySequence(Qt::Key_F2),
-                                                     Priorities::ComponentActions + 4,
+                                                     Priorities::ComponentActions + 5,
                                                      &goIntoComponentOperation,
                                                      &selectionIsEditableComponent));
 
@@ -2006,12 +2028,23 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
+        extractComponentCommandId,
+        extractComponentDisplayName,
+        contextIcon(DesignerIcons::MakeComponentIcon),
+        rootCategory,
+        QKeySequence(),
+        Priorities::ComponentActions + 3,
+        &extractComponent,
+        &singleSelection,
+        &isFileComponent));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
         editInEffectComposerCommandId,
         editInEffectComposerDisplayName,
         contextIcon(DesignerIcons::EditIcon),
         rootCategory,
         QKeySequence(),
-        Priorities::ComponentActions + 3,
+        Priorities::ComponentActions + 4,
         &editInEffectComposer,
         &SelectionContextFunctors::always, // If action is visible, it is usable
         &singleSelectionEffectComposer));

@@ -1,0 +1,175 @@
+MetaInfo {
+    Type {
+        name: "QtQuick.Studio.Components.GroupItem"
+        icon: "images/group-16px.png"
+
+        ItemLibraryEntry {
+            name: "Group"
+            category: "Studio Components"
+            libraryIcon: "images/group-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            toolTip: qsTr("Groups several Studio Components.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.ArcItem"
+        icon: "images/item-arc-16px.png"
+
+        ItemLibraryEntry {
+            name: "Arc"
+            category: "Studio Components"
+            libraryIcon: "images/item-arc-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            Property { name: "fillColor"; type: "QColor"; value: "transparent"; }
+            toolTip: qsTr("An arc that begins and ends at given positions.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.PieItem"
+        icon: "images/item-pie-16px.png"
+
+        ItemLibraryEntry {
+            name: "Pie"
+            category: "Studio Components"
+            libraryIcon: "images/item-pie-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            toolTip: qsTr("A pie slice or a pie with a slice missing from it.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.TriangleItem"
+        icon: "images/item-triangle-16px.png"
+
+        ItemLibraryEntry {
+            name: "Triangle"
+            category: "Studio Components"
+            libraryIcon: "images/item-triangle-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            toolTip: qsTr("A triangle with different dimensions and shapes is enclosed in an invisible rectangle.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.SvgPathItem"
+        icon: "images/item-svg-16px.png"
+
+        ItemLibraryEntry {
+            name: "SVG Path Item"
+            category: "Studio Components"
+            libraryIcon: "images/item-svg-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            toolTip: qsTr("Allows to implement vector shape paths from another design tool such as Adobe Illustrator or Figma.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.FlipableItem"
+        icon: "images/item-flippable-16px.png"
+
+        ItemLibraryEntry {
+            name: "Flipable"
+            category: "Studio Components"
+            libraryIcon: "images/item-flippable-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            toolTip: qsTr("A component that can be visibly flipped between its front and back sides, like a card.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.RectangleItem"
+        icon: "images/custom-rectangle-16px.png"
+
+        ItemLibraryEntry {
+            name: "Rectangle"
+            category: "Studio Components"
+            libraryIcon: "images/custom-rectangle-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            Property { name: "adjustBorderRadius"; type: "bool"; value: "true"; }
+            toolTip: qsTr("An extended rectangle painted with a solid fill color or linear, conical, or radial gradients and corners that you can shape independently of each other.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.RegularPolygonItem"
+        icon: "images/polygon-16px.png"
+
+        ItemLibraryEntry {
+            name: "Regular Polygon"
+            category: "Studio Components"
+            libraryIcon: "images/polygon-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            toolTip: qsTr("A regular polygon with a variable amount of edges painted with a solid fill color or linear gradient and an optional border.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.EllipseItem"
+        icon: "images/ellipse-16px.png"
+
+        ItemLibraryEntry {
+            name: "Ellipse"
+            category: "Studio Components"
+            libraryIcon: "images/ellipse-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            toolTip: qsTr("An ellipse painted with a solid fill color or linear gradient and an optional border.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.BorderItem"
+        icon: "images/custom-border-16px.png"
+
+        ItemLibraryEntry {
+            name: "Border"
+            category: "Studio Components"
+            libraryIcon: "images/custom-border-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            Property { name: "adjustBorderRadius"; type: "bool"; value: "true"; }
+            toolTip: qsTr("An extended border painted without solid fill color, having corners that you can shape independently of each other.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.TextItem"
+        icon: "images/text-16px.png"
+
+        ItemLibraryEntry {
+            name: "Text"
+            category: "Studio Components"
+            libraryIcon: "images/text-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            toolTip: qsTr("A text painted with a solid fill color or linear gradient and an optional border.")
+
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Text Item\")"; }
+            Property { name: "font.pixelSize"; type: "int"; value: 32; }
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Components.StarItem"
+        icon: "images/star-16px.png"
+
+        ItemLibraryEntry {
+            name: "Star"
+            category: "Studio Components"
+            libraryIcon: "images/star-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Components"
+            toolTip: qsTr("A star-shaped polygon, painted with a solid fill color or linear gradient and an optional border.")
+        }
+    }
+}

@@ -109,8 +109,8 @@ TEST_F(Storage, return_all_entries_with_the_name_which_starts_with_foo)
 
     auto entries = storage.entries("foo*");
 
-    ASSERT_THAT(entries, UnorderedElementsAre(IsEntry("foo", Field(&Entry::values), Contains(5)),
-                                              IsEntry("fooBar", Field(&Entry::values), IsSubset(42, 77))));
+    ASSERT_THAT(entries, UnorderedElementsAre(IsEntry("foo", Field("Entry::values)", &Entry::values, Contains(5)),
+                                              IsEntry("fooBar", Field("Entry::values", &Entry::values, IsSubset(42, 77))));
 }
 ```
 
@@ -120,7 +120,7 @@ You can even make the matcher easier to read.
 template<typename Matcher>
 auto FieldValues(const Matcher &matcher)
 {
-    return Field(&Entry::values, matcher);
+    return Field("Entry::values", &Entry::values, matcher);
 }
 
 TEST_F(Storage, return_all_entries_with_the_name_which_starts_with_foo)

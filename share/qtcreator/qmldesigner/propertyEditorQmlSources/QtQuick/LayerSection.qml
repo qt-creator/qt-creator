@@ -10,7 +10,7 @@ Section {
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr("Layer")
-    visible: backendValues.layer_effect.isAvailable
+    visible: backendValues.layer_effect?.isAvailable ?? false
 
     SectionLayout {
         PropertyLabel {
@@ -22,7 +22,7 @@ Section {
             CheckBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                text: backendValues.layer_enabled.valueToString
+                text: backendValues.layer_enabled?.valueToString
                 backendValue: backendValues.layer_enabled
             }
 
@@ -81,7 +81,7 @@ Section {
 
                 function syncIndexToBackendValue() {
                     samplesComboBox.block = true
-                    samplesComboBox.currentIndex = samplesComboBox.model.indexOf(backendValues.layer_samples.value)
+                    samplesComboBox.currentIndex = samplesComboBox.model.indexOf(backendValues.layer_samples?.value)
                     samplesComboBox.block = false
                 }
             }
@@ -214,7 +214,7 @@ Section {
             CheckBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                text: backendValues.layer_mipmap.valueToString
+                text: backendValues.layer_mipmap?.valueToString
                 backendValue: backendValues.layer_mipmap
             }
 
@@ -230,7 +230,7 @@ Section {
             CheckBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                text: backendValues.layer_smooth.valueToString
+                text: backendValues.layer_smooth?.valueToString
                 backendValue: backendValues.layer_smooth
             }
 

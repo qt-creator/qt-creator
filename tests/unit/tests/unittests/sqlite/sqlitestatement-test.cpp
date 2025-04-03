@@ -665,7 +665,7 @@ TEST_F(SqliteStatement, write_sqlite_blob_value)
     statement.write(Sqlite::Value{bytes});
 
     ASSERT_THAT(readStatement.template optionalValue<Sqlite::Blob>(),
-                Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
+                Optional(Field("Sqlite::Blob::bytes", &Sqlite::Blob::bytes, Eq(bytes))));
 }
 
 TEST_F(SqliteStatement, write_null_value_view)
@@ -717,7 +717,7 @@ TEST_F(SqliteStatement, write_sqlite_blob_value_view)
     statement.write(Sqlite::ValueView::create(bytes));
 
     ASSERT_THAT(readStatement.template optionalValue<Sqlite::Blob>(),
-                Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
+                Optional(Field("Sqlite::Blob::bytes", &Sqlite::Blob::bytes, Eq(bytes))));
 }
 
 TEST_F(SqliteStatement, write_empty_blobs)
@@ -754,7 +754,7 @@ TEST_F(SqliteStatement, write_blobs)
     statement.write(bytes);
 
     ASSERT_THAT(readStatement.template optionalValue<Sqlite::Blob>(),
-                Optional(Field(&Sqlite::Blob::bytes, Eq(bytes))));
+                Optional(Field("Sqlite::Blob::bytes", &Sqlite::Blob::bytes, Eq(bytes))));
 }
 
 TEST_F(SqliteStatement, cannot_write_to_closed_database)
@@ -1145,7 +1145,7 @@ TEST_F(SqliteStatement, get_blob_values)
 
     auto values = statement.values<Sqlite::Blob>();
 
-    ASSERT_THAT(values, ElementsAre(Field(&Sqlite::Blob::bytes, Eq(bytes))));
+    ASSERT_THAT(values, ElementsAre(Field("Sqlite::Blob::bytes", &Sqlite::Blob::bytes, Eq(bytes))));
 }
 
 TEST_F(SqliteStatement, get_empty_optional_blob_value_for_integer)
@@ -1154,7 +1154,7 @@ TEST_F(SqliteStatement, get_empty_optional_blob_value_for_integer)
 
     auto value = statement.optionalValue<Sqlite::Blob>();
 
-    ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
+    ASSERT_THAT(value, Optional(Field("Sqlite::Blob::bytes", &Sqlite::Blob::bytes, IsEmpty())));
 }
 
 TEST_F(SqliteStatement, get_empty_optional_blob_value_for_float)
@@ -1163,7 +1163,7 @@ TEST_F(SqliteStatement, get_empty_optional_blob_value_for_float)
 
     auto value = statement.optionalValue<Sqlite::Blob>();
 
-    ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
+    ASSERT_THAT(value, Optional(Field("Sqlite::Blob::bytes", &Sqlite::Blob::bytes, IsEmpty())));
 }
 
 TEST_F(SqliteStatement, get_empty_optional_blob_value_for_text)
@@ -1172,7 +1172,7 @@ TEST_F(SqliteStatement, get_empty_optional_blob_value_for_text)
 
     auto value = statement.optionalValue<Sqlite::Blob>();
 
-    ASSERT_THAT(value, Optional(Field(&Sqlite::Blob::bytes, IsEmpty())));
+    ASSERT_THAT(value, Optional(Field("Sqlite::Blob::bytes", &Sqlite::Blob::bytes, IsEmpty())));
 }
 
 TEST_F(SqliteStatement, get_optional_single_value_and_multiple_query_value)

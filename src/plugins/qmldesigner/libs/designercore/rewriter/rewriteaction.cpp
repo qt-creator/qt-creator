@@ -63,34 +63,38 @@ QStringView toString(QmlRefactoring::PropertyType type)
 bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     if (m_sheduledInHierarchy) {
-        const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
+        const int parentLocation = positionStore.nodeOffset(m_property.parentModelNode());
         bool result = false;
 
         if (m_propertyType != QmlRefactoring::ScriptBinding && m_property.isDefaultProperty()) {
-            result = refactoring.addToObjectMemberList(nodeLocation, m_valueText);
+            const int nodeLocation = movedAfterCreation()
+                                         ? m_property.toNodeListProperty().indexOf(m_containedModelNode)
+                                         : -1;
+            result = refactoring.addToObjectMemberList(parentLocation, nodeLocation, m_valueText);
 
             if (!result) {
                 qDebug() << "*** AddPropertyRewriteAction::execute failed in addToObjectMemberList("
-                         << nodeLocation << ','
-                         << m_valueText << ") **"
+                         << parentLocation << ',' << nodeLocation << ',' << m_valueText << ") **"
                          << info();
             }
         } else if (m_property.isNodeListProperty() && m_property.toNodeListProperty().count() > 1) {
-            result = refactoring.addToArrayMemberList(nodeLocation, m_property.name(), m_valueText);
+            result = refactoring.addToArrayMemberList(parentLocation, m_property.name(), m_valueText);
 
             if (!result) {
                 qDebug() << "*** AddPropertyRewriteAction::execute failed in addToArrayMemberList("
-                         << nodeLocation << ','
-                         << m_property.name() << ','
-                         << m_valueText << ") **"
-                         << info();
+                         << parentLocation << ',' << m_property.name() << ',' << m_valueText
+                         << ") **" << info();
             }
         } else {
-            result = refactoring.addProperty(nodeLocation, m_property.name(), m_valueText, m_propertyType, m_property.dynamicTypeName());
+            result = refactoring.addProperty(parentLocation,
+                                             m_property.name(),
+                                             m_valueText,
+                                             m_propertyType,
+                                             m_property.dynamicTypeName());
 
             if (!result) {
                 qDebug() << "*** AddPropertyRewriteAction::execute failed in addProperty("
-                         << nodeLocation << ',' << m_property.name() << ',' << m_valueText << ","
+                         << parentLocation << ',' << m_property.name() << ',' << m_valueText << ","
                          << toString(m_propertyType) << ") **" << info();
             }
         }
@@ -163,38 +167,44 @@ QString ChangeIdRewriteAction::info() const
 bool ChangePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
     if (m_sheduledInHierarchy) {
-        const int nodeLocation = positionStore.nodeOffset(m_property.parentModelNode());
-        if (nodeLocation < 0) {
+        const int parentLocation = positionStore.nodeOffset(m_property.parentModelNode());
+        if (parentLocation < 0) {
             qWarning() << "*** ChangePropertyRewriteAction::execute ignored. Invalid node location";
             return true;
         }
         bool result = false;
 
         if (m_propertyType != QmlRefactoring::ScriptBinding && m_property.isDefaultProperty()) {
-            result = refactoring.addToObjectMemberList(nodeLocation, m_valueText);
+            const int nodeLocation = movedAfterCreation()
+                                         ? m_property.toNodeListProperty().indexOf(m_containedModelNode)
+                                         : -1;
+
+            result = refactoring.addToObjectMemberList(parentLocation, nodeLocation, m_valueText);
 
             if (!result) {
-                qDebug() << "*** ChangePropertyRewriteAction::execute failed in addToObjectMemberList("
-                         << nodeLocation << ','
-                         << m_valueText << ") **"
-                         << info();
+                qDebug()
+                    << "*** ChangePropertyRewriteAction::execute failed in addToObjectMemberList("
+                    << parentLocation << ',' << nodeLocation << ',' << m_valueText << ") **"
+                    << info();
             }
         } else if (m_propertyType == QmlRefactoring::ArrayBinding) {
-            result = refactoring.addToArrayMemberList(nodeLocation, m_property.name(), m_valueText);
+            result = refactoring.addToArrayMemberList(parentLocation, m_property.name(), m_valueText);
 
             if (!result) {
-                qDebug() << "*** ChangePropertyRewriteAction::execute failed in addToArrayMemberList("
-                         << nodeLocation << ','
-                         << m_property.name() << ','
-                         << m_valueText << ") **"
-                         << info();
+                qDebug()
+                    << "*** ChangePropertyRewriteAction::execute failed in addToArrayMemberList("
+                    << parentLocation << ',' << m_property.name() << ',' << m_valueText << ") **"
+                    << info();
             }
         } else {
-            result = refactoring.changeProperty(nodeLocation, m_property.name(), m_valueText, m_propertyType);
+            result = refactoring.changeProperty(parentLocation,
+                                                m_property.name(),
+                                                m_valueText,
+                                                m_propertyType);
 
             if (!result) {
                 qDebug() << "*** ChangePropertyRewriteAction::execute failed in changeProperty("
-                         << nodeLocation << ',' << m_property.name() << ',' << m_valueText << ','
+                         << parentLocation << ',' << m_property.name() << ',' << m_valueText << ','
                          << toString(m_propertyType) << ") **" << info();
             }
         }
@@ -327,12 +337,13 @@ bool MoveNodeRewriteAction::execute(QmlRefactoring &refactoring,
 
     bool inDefaultProperty = (m_movingNode.parentProperty().parentModelNode().metaInfo().defaultPropertyName() == m_movingNode.parentProperty().name());
 
-    result = refactoring.moveObjectBeforeObject(movingNodeLocation, newTrailingNodeLocation, inDefaultProperty);
+    result = refactoring.moveObjectBeforeObject(movingNodeLocation,
+                                                newTrailingNodeLocation,
+                                                inDefaultProperty);
     if (!result) {
         qDebug() << "*** MoveNodeRewriteAction::execute failed in moveObjectBeforeObject("
-                << movingNodeLocation << ','
-                << newTrailingNodeLocation << ") **"
-                << info();
+                 << movingNodeLocation << ',' << newTrailingNodeLocation << ',' << inDefaultProperty
+                 << ") **" << info();
     }
 
     return result;

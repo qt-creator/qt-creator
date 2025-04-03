@@ -373,7 +373,7 @@ void Edit3DWidget::createContextMenu()
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Add to Content Library"), [&] {
             QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
-            view()->emitCustomNotification("add_3d_to_content_lib", {m_contextMenuTarget}); // To ContentLibrary
+            view()->emitCustomNotification("add_3d_to_content_lib", {}); // To ContentLibrary
         });
 
     m_importBundleAction = m_contextMenu->addAction(

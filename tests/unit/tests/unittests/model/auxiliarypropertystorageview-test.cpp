@@ -19,8 +19,8 @@ using QmlDesigner::ModelNode;
 template<typename NameMatcher>
 auto AuxiliaryProperty(AuxiliaryDataType type, const NameMatcher &nameMatcher, const QVariant &value)
 {
-    return Pair(AllOf(Field(&AuxiliaryDataKey::type, type),
-                      Field(&AuxiliaryDataKey::name, nameMatcher)),
+    return Pair(AllOf(Field("AuxiliaryDataKey::type", &AuxiliaryDataKey::type, type),
+                      Field("AuxiliaryDataKey::name", &AuxiliaryDataKey::name, nameMatcher)),
                 value);
 }
 

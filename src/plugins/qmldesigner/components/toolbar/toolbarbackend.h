@@ -235,6 +235,7 @@ private:
 
     QStringList m_openDocuments;
     QMetaObject::Connection m_kitConnection;
+    QMetaObject::Connection m_documentConnection;
 };
 
 } // namespace QmlDesigner

@@ -465,10 +465,18 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         addLibAssets(data.first().toStringList());
         m_widget->showTab(ContentLibraryWidget::TabIndex::UserAssetsTab);
     } else if (identifier == "add_3d_to_content_lib") {
-        if (nodeList.first().isComponent())
-            addLib3DComponent(nodeList.first());
-        else
-            addLibItem(nodeList.first());
+        const QList<ModelNode> selected3DNodes = Utils::filtered(selectedModelNodes(),
+                                                                 [](const ModelNode &node) {
+            return node.metaInfo().isQtQuick3DNode();
+        });
+        QTC_ASSERT(!selected3DNodes.isEmpty(), return);
+        m_remainingIconsToSave = selected3DNodes.size();
+        for (const ModelNode &node : selected3DNodes) {
+            if (node.isComponent())
+                addLib3DComponent(node);
+            else
+                addLibItem(node);
+        }
         m_widget->showTab(ContentLibraryWidget::TabIndex::UserAssetsTab);
     }
 }
@@ -496,12 +504,14 @@ void ContentLibraryView::auxiliaryDataChanged(const ModelNode &,
         active3DSceneChanged(data.toInt());
 }
 
-void ContentLibraryView::modelNodePreviewPixmapChanged(const ModelNode &,
+void ContentLibraryView::modelNodePreviewPixmapChanged(const ModelNode &node,
                                                        const QPixmap &pixmap,
                                                        const QByteArray &requestId)
 {
-    if (requestId == ADD_ITEM_REQ_ID)
-        saveIconToBundle(pixmap);
+    if (requestId == ADD_ITEM_REQ_ID) {
+        saveIconToBundle(pixmap, m_nodeIconHash.value(node));
+        m_nodeIconHash.remove(node);
+    }
 }
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -644,8 +654,8 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
     }
 
     QString iconPath = QLatin1String("icons/%1").arg(UniqueName::generateId(compBaseName) + ".png");
-    m_iconSavePath = bundlePath.pathAppended(iconPath);
-    m_iconSavePath.parentDir().ensureWritableDir();
+    Utils::FilePath iconSavePath = bundlePath.pathAppended(iconPath);
+    iconSavePath.parentDir().ensureWritableDir();
 
     const QSet<AssetPath> compDependencies = m_bundleHelper->getComponentDependencies(compFilePath, compDir);
 
@@ -687,12 +697,13 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
                       .writeFileContents(QJsonDocument(jsonRef).toJson());
     QTC_ASSERT_EXPECTED(result,);
 
-    m_widget->userModel()->addItem(m_bundleId, compBaseName, compFileName, m_iconSavePath.toUrl(),
+    m_widget->userModel()->addItem(m_bundleId, compBaseName, compFileName, iconSavePath.toUrl(),
                                    filesList);
 
     // generate and save icon
-    m_bundleHelper->getImageFromCache(compDir.pathAppended(compFileName).path(), [&](const QImage &image) {
-        saveIconToBundle(image);
+    m_bundleHelper->getImageFromCache(compDir.pathAppended(compFileName).path(),
+                                      [&, iconSavePath](const QImage &image) {
+        saveIconToBundle(image, iconSavePath.toFSPathString());
     });
 }
 
@@ -713,7 +724,7 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
         bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
         m_bundleId = compUtils.user3DBundleId();
     } else {
-        qWarning() << __FUNCTION__ << "Unsuppported node type";
+        qWarning() << __FUNCTION__ << "Unsupported node type";
         return;
     }
 
@@ -785,10 +796,10 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
         QTC_ASSERT_EXPECTED(result,);
     }
 
-    m_iconSavePath = bundlePath.pathAppended(iconPath);
-    m_iconSavePath.parentDir().ensureWritableDir();
+    Utils::FilePath iconSavePath = bundlePath.pathAppended(iconPath);
+    iconSavePath.parentDir().ensureWritableDir();
 
-    m_widget->userModel()->addItem(m_bundleId, name, qml, m_iconSavePath.toUrl(), depAssetsRelativePaths);
+    m_widget->userModel()->addItem(m_bundleId, name, qml, iconSavePath.toUrl(), depAssetsRelativePaths);
 
     // generate and save icon
     QPixmap iconPixmapToSave;
@@ -800,21 +811,23 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
         iconPixmapToSave = iconPixmap;
 
     if (iconPixmapToSave.isNull()) {
+        m_nodeIconHash.insert(node, iconSavePath.toFSPathString());
         static_cast<const NodeInstanceView *>(model()->nodeInstanceView())
             ->previewImageDataForGenericNode(node, {}, {}, ADD_ITEM_REQ_ID);
     } else {
-        saveIconToBundle(iconPixmapToSave);
+        saveIconToBundle(iconPixmapToSave, iconSavePath.toFSPathString());
     }
 }
 
-void ContentLibraryView::saveIconToBundle(const auto &image) { // auto: QImage or QPixmap
-    bool iconSaved = image.save(m_iconSavePath.toFSPathString());
-    if (iconSaved)
-        m_widget->userModel()->refreshSection(m_bundleId);
-    else
+void ContentLibraryView::saveIconToBundle(const auto &image, const QString &iconPath) { // auto: QImage or QPixmap
+    --m_remainingIconsToSave;
+    bool iconSaved = image.save(iconPath);
+    if (iconSaved) {
+        if (m_remainingIconsToSave <= 0)
+            m_widget->userModel()->refreshSection(m_bundleId);
+    } else {
         qWarning() << __FUNCTION__ << ": icon save failed";
-
-    m_iconSavePath.clear();
+    }
 }
 
 void ContentLibraryView::decodeAndAddToContentLib(const QByteArray &data)

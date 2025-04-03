@@ -40,7 +40,7 @@ Section {
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr('Effects <a style="color:%1;">[beta]</a>').arg(StudioTheme.Values.themeInteraction)
-    visible: backendValues.layer_effect.isAvailable
+    visible: backendValues.layer_effect?.isAvailable ?? false
 
     property Connections connection: Connections {
         target: modelNodeBackend
@@ -195,7 +195,8 @@ Section {
             labelCapitalization: Font.MixedCase
             visible: root.hasDesignerEffect
             category: "DesignEffects"
-            expanded: false
+            defaultExpanded: false
+            expanded: defaultExpanded
 
             SectionLayout {
 
@@ -243,7 +244,8 @@ Section {
             labelCapitalization: Font.MixedCase
             visible: root.hasDesignerEffect
             category: "DesignEffects"
-            expanded: false
+            defaultExpanded: false
+            expanded: defaultExpanded
 
             SectionLayout {
 
@@ -355,7 +357,8 @@ Section {
                 anchors.right: parent.right
                 category: "DesignEffects"
                 fillBackground: true
-                expanded: false
+                defaultExpanded: false
+                expanded: defaultExpanded
 
                 draggable: true
                 showCloseButton: true

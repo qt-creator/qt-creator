@@ -171,7 +171,7 @@ public:
     Q_INVOKABLE bool idListRemove(int idx);
     Q_INVOKABLE bool idListReplace(int idx, const QString &value);
     Q_INVOKABLE void commitDrop(const QString &dropData);
-    Q_INVOKABLE void openMaterialEditor(int idx);
+    Q_INVOKABLE void editMaterial(int idx);
 
     Q_INVOKABLE void setForceBound(bool b);
 

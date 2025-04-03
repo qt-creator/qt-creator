@@ -254,11 +254,35 @@ bool CMakeGenerator::isMockModule(const NodePtr &node) const
     return false;
 }
 
+bool CMakeGenerator::checkQmlDirLocation(const Utils::FilePath &filePath) const
+{
+    QTC_ASSERT(m_root, return false);
+    QTC_ASSERT(buildSystem(), return false);
+
+    Utils::FilePath dirPath = filePath.parentDir().cleanPath();
+    Utils::FilePath rootPath = m_root->dir.cleanPath();
+    if (dirPath==rootPath)
+        return false;
+
+    for (const QString &path : buildSystem()->allImports()) {
+        Utils::FilePath importPath = rootPath.pathAppended(path).cleanPath();
+        if (dirPath==importPath)
+            return false;
+    }
+    return true;
+}
+
 void CMakeGenerator::readQmlDir(const Utils::FilePath &filePath, NodePtr &node) const
 {
     node->uri = "";
     node->name = "";
     node->singletons.clear();
+
+    if (!checkQmlDirLocation(filePath)) {
+        QString text("Unexpected location for qmldir file.");
+        logIssue(ProjectExplorer::Task::Warning, text, filePath);
+        return;
+    }
 
     if (isMockModule(node))
         node->type = Node::Type::MockModule;

@@ -12,10 +12,13 @@ namespace QmlDesigner {
 class QmlTypesParserInterface
 {
 public:
+    using IsInsideProject = Storage::IsInsideProject;
+
     virtual void parse(const QString &sourceContent,
                        Storage::Imports &imports,
                        Storage::Synchronization::Types &types,
-                       const Storage::Synchronization::DirectoryInfo &directoryInfo)
+                       const Storage::Synchronization::DirectoryInfo &directoryInfo,
+                       IsInsideProject isInsideProject)
         = 0;
 
 protected:

@@ -15,12 +15,14 @@ StudioControls.SplitView {
     property Component previewComponent: null
 
     width: parent.width
-    implicitHeight: showImage ? previewLoader.implicitHeight + nameSection.implicitHeight : nameSection.implicitHeight
+    implicitHeight: showImage ? previewLoader.activeHeight + nameSection.implicitHeight : nameSection.implicitHeight
 
     orientation: Qt.Vertical
 
     Loader {
         id: previewLoader
+
+        property real activeHeight: previewLoader.active ? implicitHeight : 0
 
         SplitView.fillWidth: true
         SplitView.minimumWidth: 152
@@ -58,6 +60,7 @@ StudioControls.SplitView {
                     placeholderText: qsTr("Material name")
                     showTranslateCheckBox: false
                     showExtendedFunctionButton: false
+                    enabled: !hasMultiSelection
 
                     Timer {
                         running: true
@@ -79,6 +82,8 @@ StudioControls.SplitView {
                 HelperWidgets.Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
 
                 HelperWidgets.ComboBox {
+                    id : typeComboBox
+
                     currentIndex: backend.possibleTypeIndex
                     model: backend.possibleTypes
                     showExtendedFunctionButton: false
@@ -86,6 +91,11 @@ StudioControls.SplitView {
                     enabled: backend.possibleTypes.length > 1
 
                     onActivated: changeTypeName(currentValue)
+
+                    Binding {
+                        when: !typeComboBox.open
+                        typeComboBox.currentIndex: backend.possibleTypeIndex
+                    }
                 }
             }
         }

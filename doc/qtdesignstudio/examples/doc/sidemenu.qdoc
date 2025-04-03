@@ -98,8 +98,8 @@
     In addition, we set the \uicontrol Checked property to \c true for the
     first button instance on the menu bar to make it appear selected.
 
-    We can now select the \imagerunsmall
-    (\uicontrol Run) button to run the application and test our menu bar.
+    We can now select the run dropdown from the top toolbar, and then select
+    \uicontrol {Run App} to run the application and test our menu bar.
 
     \section1 Creating a side menu
 

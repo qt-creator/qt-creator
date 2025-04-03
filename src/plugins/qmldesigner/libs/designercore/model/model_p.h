@@ -326,6 +326,8 @@ public:
 protected:
     void removedTypeIds(const TypeIds &removedTypeIds) override;
     void exportedTypesChanged() override;
+    void exportedTypeNamesChanged(const ExportedTypeNames &added,
+                                  const ExportedTypeNames &removed) override;
     void removeNode(const InternalNodePointer &node);
 
 private:

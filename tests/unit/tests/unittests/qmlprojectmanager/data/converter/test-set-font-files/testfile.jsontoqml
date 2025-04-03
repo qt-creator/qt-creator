@@ -1,0 +1,47 @@
+// prop: json-converted
+// prop: auto-generated
+
+import QmlProject
+
+Project {
+    mainFile: "content/App.qml"
+    mainUiFile: "content/Screen01.ui.qml"
+    widgetApp: false
+
+    qt6Project: false
+    qtForMCUs: false
+
+    FontFiles {
+        filter: "*.otf"
+    }
+
+    FontFiles {
+        directory: "fonts1"
+        filter: "*.otf;*.ttf"
+    }
+
+    FontFiles {
+        directory: "fonts2"
+        files: [
+            "test1.ttf",
+            "test2.ttf"
+        ]
+    }
+
+    FontFiles {
+        filter: "*.ttf;*.otf"
+    }
+
+    FontFiles {
+        directory: "fonts3"
+        filter: "*.otf;*.ttf"
+    }
+
+    FontFiles {
+        directory: "fonts3"
+        files: [
+            "test3.ttf",
+            "test4.ttf"
+        ]
+    }
+}

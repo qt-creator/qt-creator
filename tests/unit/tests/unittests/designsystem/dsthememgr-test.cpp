@@ -97,7 +97,7 @@ TEST(DesignSystemManagerTest, remove_theme)
     mgr.removeTheme(*themeId);
 
     // assert
-    ASSERT_THAT(mgr, Property(&DSThemeManager::themeCount, 0));
+    ASSERT_THAT(mgr, Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 0));
 }
 
 TEST(DesignSystemManagerTest, remove_theme_with_properties)
@@ -113,7 +113,7 @@ TEST(DesignSystemManagerTest, remove_theme_with_properties)
 
     // assert
     ASSERT_THAT(mgr,
-                AllOf(Property(&DSThemeManager::themeCount, 0),
+                AllOf(Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 0),
                       Not(HasProperty(*themeId, GroupType::Colors, testProp))));
 }
 
@@ -126,7 +126,7 @@ TEST_P(DesignSystemManagerTest, add_property_without_theme)
     mgr.addProperty(groupType, testProp);
 
     //assert
-    ASSERT_THAT(mgr, Property(&DSThemeManager::themeCount, 0));
+    ASSERT_THAT(mgr, Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 0));
 }
 
 TEST_P(DesignSystemManagerTest, add_property)
@@ -140,7 +140,7 @@ TEST_P(DesignSystemManagerTest, add_property)
 
     // assert
     ASSERT_THAT(mgr,
-                AllOf(Property(&DSThemeManager::themeCount, 1),
+                AllOf(Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 1),
                       HasProperty(*themeId, groupType, testProp)));
 }
 
@@ -156,7 +156,7 @@ TEST_P(DesignSystemManagerTest, adding_invalid_property_fails)
     // assert
     ASSERT_FALSE(result);
     ASSERT_THAT(mgr,
-                AllOf(Property(&DSThemeManager::themeCount, 1),
+                AllOf(Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 1),
                       Not(HasProperty(*themeId, groupType, testProp))));
 }
 
@@ -172,7 +172,7 @@ TEST_P(DesignSystemManagerTest, adding_property_adds_property_to_all_themes)
 
     // assert
     ASSERT_THAT(mgr,
-                AllOf(Property(&DSThemeManager::themeCount, 2),
+                AllOf(Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 2),
                       HasProperty(*themeIdDark, groupType, testProp),
                       HasProperty(*themeIdLight, groupType, testProp)));
 }
@@ -190,7 +190,7 @@ TEST_P(DesignSystemManagerTest, update_property_value)
 
     // assert
     ASSERT_THAT(mgr,
-                AllOf(Property(&DSThemeManager::themeCount, 1),
+                AllOf(Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 1),
                       HasProperty(*themeId, groupType, testPropUpdated)));
 }
 
@@ -207,7 +207,7 @@ TEST_P(DesignSystemManagerTest, update_property_name)
 
     // assert
     ASSERT_THAT(mgr,
-                AllOf(Property(&DSThemeManager::themeCount, 1),
+                AllOf(Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 1),
                       HasProperty(*themeId, groupType, testPropUpdated)));
 }
 
@@ -224,7 +224,7 @@ TEST_P(DesignSystemManagerTest, updating_invalid_property_fails)
 
     // assert
     ASSERT_THAT(mgr,
-                AllOf(Property(&DSThemeManager::themeCount, 1),
+                AllOf(Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 1),
                       HasProperty(*themeId, groupType, testProp)));
 }
 
@@ -240,7 +240,7 @@ TEST_P(DesignSystemManagerTest, remove_property)
 
     // assert
     ASSERT_THAT(mgr,
-                AllOf(Property(&DSThemeManager::themeCount, 1),
+                AllOf(Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 1),
                       Not(HasProperty(*themeId, groupType, testProp))));
 }
 
@@ -256,7 +256,7 @@ TEST_P(DesignSystemManagerTest, remove_absent_property_fails)
 
     // assert
     ASSERT_THAT(mgr,
-                AllOf(Property(&DSThemeManager::themeCount, 1),
+                AllOf(Property("DSThemeManager::themeCount", &DSThemeManager::themeCount, 1),
                       HasProperty(*themeId, groupType, testProp)));
 }
 } // namespace

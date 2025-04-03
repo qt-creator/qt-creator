@@ -11,10 +11,10 @@
     \image studio-qtquick-3d-material.webp "Material attached to model in Design mode"
 
     Materials and shaders define how object surfaces are rendered in \QDS and
-    live preview. As you change the properties of materials, new shaders are
-    generated accordingly, and the property values are bound. The complexity of
-    a shader depends on a combination of the properties that are set on it, and
-    the context of the scene itself.
+    \uicontrol {Live Preview}. As you change the properties of materials, new
+    shaders are generated accordingly, and the property values are bound.
+    The complexity of a shader depends on a combination of the properties that
+    are set on it, and the context of the scene itself.
 
     It is recommended that you use the \l {Material Editor and Browser} when
     working with materials, but you can also add materials using the components

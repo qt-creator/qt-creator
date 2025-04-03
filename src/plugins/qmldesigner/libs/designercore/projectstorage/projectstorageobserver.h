@@ -4,13 +4,17 @@
 #pragma once
 
 #include "projectstorageids.h"
+#include "projectstorageinfotypes.h"
 
 namespace QmlDesigner {
 
 class ProjectStorageObserver
 {
 public:
+    using ExportedTypeNames = Storage::Info::ExportedTypeNames;
+
     virtual void removedTypeIds(const TypeIds &removedTypeIds) = 0;
     virtual void exportedTypesChanged() = 0;
+    virtual void exportedTypeNamesChanged(const ExportedTypeNames &added, const ExportedTypeNames &removed) = 0;
 };
 } // namespace QmlDesigner

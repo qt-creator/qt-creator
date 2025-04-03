@@ -1,0 +1,15 @@
+MetaInfo {
+    Type {
+        name: "QtQuick.Studio.DesignEffects.DesignEffect"
+        icon: "images/drop-shadow-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            hideInNavigator: true
+        }
+    }
+}
