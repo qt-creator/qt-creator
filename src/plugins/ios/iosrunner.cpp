@@ -482,7 +482,6 @@ private:
                               const QString &deviceId, Port gdbPort, Port qmlPort);
     void handleGotInferiorPid(Ios::IosToolHandler *handler, const FilePath &bundlePath,
                               const QString &deviceId, qint64 pid);
-    void handleAppOutput(Ios::IosToolHandler *handler, const QString &output);
     void handleMessage(const QString &msg);
     void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void handleToolExited(Ios::IosToolHandler *handler, int code);
@@ -530,8 +529,7 @@ void IosRunner::start()
     }
 
     m_toolHandler = new IosToolHandler(m_deviceType, this);
-    connect(m_toolHandler, &IosToolHandler::appOutput,
-            this, &IosRunner::handleAppOutput);
+    connect(m_toolHandler, &IosToolHandler::appOutput, this, &IosRunner::handleMessage);
     connect(m_toolHandler, &IosToolHandler::message, this, &IosRunner::handleMessage);
     connect(m_toolHandler, &IosToolHandler::errorMsg, this, &IosRunner::handleErrorMsg);
     connect(m_toolHandler, &IosToolHandler::gotServerPorts,
@@ -630,12 +628,6 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bu
         reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
     else
         reportStarted();
-}
-
-void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
-{
-    Q_UNUSED(handler)
-    appendMessage(output, StdOutFormat);
 }
 
 void IosRunner::handleMessage(const QString &msg)

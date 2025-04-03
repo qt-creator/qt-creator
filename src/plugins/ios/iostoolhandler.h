@@ -61,7 +61,7 @@ signals:
                         const QString &deviceId, qint64 pid);
     void deviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,
                     const Ios::IosToolHandler::Dict &info);
-    void appOutput(Ios::IosToolHandler *handler, const QString &output);
+    void appOutput(const QString &output);
     void message(const QString &msg);
     void errorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void toolExited(Ios::IosToolHandler *handler, int code);

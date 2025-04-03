@@ -24,8 +24,6 @@
 #include <QXmlStreamReader>
 
 #include <signal.h>
-#include <string.h>
-#include <errno.h>
 
 static Q_LOGGING_CATEGORY(toolHandlerLog, "qtc.ios.toolhandler", QtWarningMsg)
 
@@ -344,7 +342,7 @@ void IosToolHandlerPrivate::deviceInfo(const QString &deviceId,
 
 void IosToolHandlerPrivate::appOutput(const QString &output)
 {
-    emit q->appOutput(q, output);
+    emit q->appOutput(output);
 }
 
 void IosToolHandlerPrivate::errorMsg(const QString &msg)
@@ -735,7 +733,7 @@ IosSimulatorToolHandlerPrivate::IosSimulatorToolHandlerPrivate(const IosDeviceTy
     : IosToolHandlerPrivate(devType, q)
 {
     QObject::connect(&outputLogger, &LogTailFiles::logMessage,
-                     q, [q](const QString &message) { q->appOutput(q, message); });
+                     q, [q](const QString &message) { q->appOutput(message); });
 }
 
 void IosSimulatorToolHandlerPrivate::requestTransferApp(const FilePath &appBundlePath,
