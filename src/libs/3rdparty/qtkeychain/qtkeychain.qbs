@@ -83,6 +83,11 @@ QtcLibrary {
         }
     }
 
+    Group {
+        name: "CMake helpers"
+        files: "cmake/**/*"
+    }
+
     Export {
         Depends { name: "cpp" }
         cpp.includePaths: project.ide_source_tree + "/src/libs/3rdparty/"

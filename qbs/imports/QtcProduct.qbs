@@ -87,4 +87,10 @@ Product {
         files: "qtcreator_gui_pch.h"
         fileTags: "cpp_pch_src"
     }
+
+    Group {
+        name: "CMake project file"
+        prefix: sourceDirectory + '/'
+        files: "CMakeLists.tx[t]"
+    }
 }
