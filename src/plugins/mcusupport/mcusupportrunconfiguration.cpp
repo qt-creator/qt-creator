@@ -16,6 +16,7 @@
 #include <cmakeprojectmanager/cmaketool.h>
 
 #include <utils/aspects.h>
+#include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -80,12 +81,12 @@ FlashRunWorkerFactory::FlashRunWorkerFactory()
 {
     setProducer([](RunControl *runControl) {
         auto worker = new ProcessRunner(runControl);
-        worker->setStartModifier([worker, runControl] {
+        worker->setStartModifier([runControl](Process &process) {
             const BuildConfiguration *bc = runControl->buildConfiguration();
-            worker->setCommandLine({cmakeFilePath(bc->kit()),
-                                    runControl->aspectData<StringAspect>()->value, CommandLine::Raw});
-            worker->setWorkingDirectory(bc->buildDirectory());
-            worker->setEnvironment(bc->environment());
+            process.setCommand({cmakeFilePath(bc->kit()),
+                                runControl->aspectData<StringAspect>()->value, CommandLine::Raw});
+            process.setWorkingDirectory(bc->buildDirectory());
+            process.setEnvironment(bc->environment());
         });
 
         QObject::connect(runControl, &RunControl::started, runControl, [] {

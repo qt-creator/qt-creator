@@ -16,6 +16,7 @@
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/result.h>
 
 #include <QComboBox>
@@ -165,8 +166,8 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
     auto worker = new ProcessRunner(runControl);
     worker->setId("BareMetalGdbServer");
     // Baremetal's GDB servers are launched on the host, not on the target.
-    worker->setStartModifier([worker, cmd = command()] {
-        worker->setCommandLine(cmd.toLocal());
+    worker->setStartModifier([cmd = command()](Process &process) {
+        process.setCommand(cmd.toLocal());
     });
     return worker;
 }

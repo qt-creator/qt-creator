@@ -101,7 +101,7 @@ public:
         setProducer([](RunControl *runControl) {
             auto runner = new ProcessRunner(runControl);
             runner->suppressDefaultStdOutHandling();
-            runner->setStartModifier([runner, runControl] {
+            runner->setStartModifier([runControl](Process &process) {
                 const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
                 const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
 
@@ -110,9 +110,9 @@ public:
                 cmd.addArgs({"-o", "-", "--"});
                 cmd.addCommandLineAsArgs(runControl->commandLine(), CommandLine::Raw);
 
-                runner->setCommandLine(cmd);
-                runner->setWorkingDirectory(runControl->workingDirectory());
-                runner->setEnvironment(runControl->environment());
+                process.setCommand(cmd);
+                process.setWorkingDirectory(runControl->workingDirectory());
+                process.setEnvironment(runControl->environment());
                 runControl->appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
             });
             return runner;

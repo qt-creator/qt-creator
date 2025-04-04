@@ -141,9 +141,9 @@ void showAttachToProcessDialog()
     if (rp.isCppDebugging()) {
         auto pdebugRunner = new ProcessRunner(runControl);
         pdebugRunner->setId("PDebugRunner");
-        pdebugRunner->setStartModifier([pdebugRunner, runControl] {
+        pdebugRunner->setStartModifier([runControl](Process &process) {
             const int pdebugPort = runControl->debugChannel().port();
-            pdebugRunner->setCommandLine({QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}});
+            process.setCommand({QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}});
         });
 
         debugger->addStartDependency(pdebugRunner);
@@ -180,7 +180,7 @@ public:
             auto debuggeeRunner = new ProcessRunner(runControl);
             debuggeeRunner->setId("QnxDebuggeeRunner");
 
-            debuggeeRunner->setStartModifier([debuggeeRunner, runControl] {
+            debuggeeRunner->setStartModifier([runControl](Process &process) {
                 CommandLine cmd = runControl->commandLine();
                 QStringList arguments;
                 if (runControl->usesDebugChannel()) {
@@ -192,7 +192,7 @@ public:
                     arguments.append(qmlDebugTcpArguments(QmlDebuggerServices, runControl->qmlChannel()));
                 }
                 cmd.setArguments(ProcessArgs::joinArgs(arguments));
-                debuggeeRunner->setCommandLine(cmd);
+                process.setCommand(cmd);
             });
 
             auto slog2InfoRunner = new RecipeRunner(runControl, slog2InfoRecipe(runControl));

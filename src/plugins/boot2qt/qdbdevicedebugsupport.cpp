@@ -35,7 +35,7 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
     if (suppressDefaultStdOutHandling)
         worker->suppressDefaultStdOutHandling();
 
-    worker->setStartModifier([worker, runControl, qmlServices] {
+    worker->setStartModifier([worker, runControl, qmlServices](Process &process) {
         CommandLine cmd{runControl->device()->filePath(Constants::AppcontrollerFilepath)};
 
         int lowerPort = 0;
@@ -80,9 +80,9 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
         cmd.addArg(QString("%1-%2").arg(lowerPort).arg(upperPort));
         cmd.addCommandLineAsArgs(runControl->commandLine());
 
-        worker->setCommandLine(cmd);
-        worker->setWorkingDirectory(runControl->workingDirectory());
-        worker->setEnvironment(runControl->environment());
+        process.setCommand(cmd);
+        process.setWorkingDirectory(runControl->workingDirectory());
+        process.setEnvironment(runControl->environment());
     });
     return worker;
 }
@@ -94,13 +94,13 @@ public:
     {
         setProducer([](RunControl *runControl) {
             auto worker = new ProcessRunner(runControl);
-            worker->setStartModifier([worker, runControl] {
+            worker->setStartModifier([runControl](Process &process) {
                 const CommandLine remoteCommand = runControl->commandLine();
                 const FilePath remoteExe = remoteCommand.executable();
                 CommandLine cmd{remoteExe.withNewPath(Constants::AppcontrollerFilepath)};
                 cmd.addArg(remoteExe.nativePath());
                 cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
-                worker->setCommandLine(cmd);
+                process.setCommand(cmd);
             });
             return worker;
         });

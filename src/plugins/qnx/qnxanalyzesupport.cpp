@@ -11,6 +11,8 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 
+#include <utils/qtcprocess.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -35,10 +37,10 @@ public:
             profiler->addStartDependency(worker);
             worker->addStopDependency(profiler);
 
-            worker->setStartModifier([worker, runControl] {
+            worker->setStartModifier([runControl](Process &process) {
                 CommandLine cmd = runControl->commandLine();
                 cmd.addArg(qmlDebugTcpArguments(QmlProfilerServices, runControl->qmlChannel()));
-                worker->setCommandLine(cmd);
+                process.setCommand(cmd);
             });
             return worker;
         });

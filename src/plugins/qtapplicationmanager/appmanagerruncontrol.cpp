@@ -48,7 +48,7 @@ static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesP
     if (suppressDefaultStdOutHandling)
         worker->suppressDefaultStdOutHandling();
 
-    worker->setStartModifier([worker, runControl, qmlServices] {
+    worker->setStartModifier([runControl, qmlServices](Process &process) {
         FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
         QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
         QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
@@ -93,10 +93,10 @@ static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesP
 
         // Always use the default environment to start the appman-controller in
         // The env variables from the EnvironmentAspect are set through the controller
-        worker->setEnvironment({});
+        process.setEnvironment({});
         // Prevent the write channel to be closed, otherwise the appman-controller will exit
-        worker->setProcessMode(ProcessMode::Writer);
-        worker->setCommandLine(cmd);
+        process.setProcessMode(ProcessMode::Writer);
+        process.setCommand(cmd);
 
         runControl->postMessage(Tr::tr("Starting Application Manager debugging..."), NormalMessageFormat);
         runControl->postMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
@@ -118,7 +118,7 @@ public:
                     OutputFormat::NormalMessageFormat);
             });
 
-            worker->setStartModifier([worker, runControl] {
+            worker->setStartModifier([runControl](Process &process) {
                 FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
                 QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
                 QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
@@ -131,9 +131,9 @@ public:
 
                 // Always use the default environment to start the appman-controller in
                 // The env variables from the EnvironmentAspect are set through the controller
-                worker->setEnvironment({});
+                process.setEnvironment({});
                 // Prevent the write channel to be closed, otherwise the appman-controller will exit
-                worker->setProcessMode(ProcessMode::Writer);
+                process.setProcessMode(ProcessMode::Writer);
                 CommandLine cmd{controller};
                 if (!instanceId.isEmpty())
                     cmd.addArgs({"--instance-id", instanceId});
@@ -150,7 +150,7 @@ public:
                 cmd.addArg(appId);
                 if (!documentUrl.isEmpty())
                     cmd.addArg(documentUrl);
-                worker->setCommandLine(cmd);
+                process.setCommand(cmd);
             });
             return worker;
         });

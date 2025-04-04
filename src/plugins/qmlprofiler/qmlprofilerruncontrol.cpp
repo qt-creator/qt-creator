@@ -15,10 +15,12 @@
 #include <solutions/tasking/barrier.h>
 
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 using namespace ProjectExplorer;
 using namespace Tasking;
+using namespace Utils;
 
 namespace QmlProfiler::Internal {
 
@@ -81,7 +83,7 @@ RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
     // In the TCP case, it doesn't hurt either to start the profiler before.
     worker->addStartDependency(profiler);
 
-    worker->setStartModifier([worker, runControl] {
+    worker->setStartModifier([runControl](Process &process) {
         const QUrl serverUrl = runControl->qmlChannel();
         QString code;
         if (serverUrl.scheme() == Utils::urlSocketScheme())
@@ -91,12 +93,12 @@ RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
         else
             QTC_CHECK(false);
 
-        const QString arguments = Utils::ProcessArgs::quoteArg(
+        const QString arguments = ProcessArgs::quoteArg(
             qmlDebugCommandLineArguments(QmlProfilerServices, code, true));
 
-        Utils::CommandLine cmd = runControl->commandLine();
-        cmd.prependArgs(arguments, Utils::CommandLine::Raw);
-        worker->setCommandLine(cmd.toLocal());
+        CommandLine cmd = runControl->commandLine();
+        cmd.prependArgs(arguments, CommandLine::Raw);
+        process.setCommand(cmd.toLocal());
     });
 
     return worker;

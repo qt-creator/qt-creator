@@ -16,6 +16,7 @@
 
 #include <utils/async.h>
 #include <utils/filepath.h>
+#include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 using namespace ProjectExplorer;
@@ -118,7 +119,7 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
         worker->addStopDependency(preview);
         worker->addStartDependency(preview);
 
-        worker->setStartModifier([worker, runControl] {
+        worker->setStartModifier([runControl](Process &process) {
             CommandLine cmd = runControl->commandLine();
 
             if (const auto aspect = runControl->aspectData<QmlProjectManager::QmlMainFileAspect>()) {
@@ -141,7 +142,7 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
             }
 
             cmd.addArg(qmlDebugLocalArguments(QmlPreviewServices, runControl->qmlChannel().path()));
-            worker->setCommandLine(cmd.toLocal());
+            process.setCommand(cmd.toLocal());
         });
         return worker;
     });

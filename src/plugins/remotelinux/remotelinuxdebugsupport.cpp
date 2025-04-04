@@ -5,12 +5,14 @@
 
 #include "remotelinux_constants.h"
 
+#include <debugger/debuggerruncontrol.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
-#include <debugger/debuggerruncontrol.h>
+#include <utils/qtcprocess.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -85,12 +87,12 @@ public:
             runworker->addStartDependency(worker);
             worker->addStopDependency(runworker);
 
-            worker->setStartModifier([worker, runControl] {
+            worker->setStartModifier([runControl](Process &process) {
                 QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
 
                 CommandLine cmd = runControl->commandLine();
                 cmd.addArg(qmlDebugTcpArguments(services, runControl->qmlChannel()));
-                worker->setCommandLine(cmd);
+                process.setCommand(cmd);
             });
             return worker;
         });

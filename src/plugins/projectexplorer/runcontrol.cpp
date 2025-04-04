@@ -1389,7 +1389,7 @@ public:
 
     ProcessResultData m_resultData;
 
-    std::function<void()> m_startModifier;
+    std::function<void(Process &)> m_startModifier;
 
     bool m_stopReported = false;
     bool m_stopForced = false;
@@ -1617,12 +1617,12 @@ void ProcessRunnerPrivate::forwardStarted()
 
 void ProcessRunner::start()
 {
-    setCommandLine(runControl()->commandLine());
-    setWorkingDirectory(runControl()->workingDirectory());
-    setEnvironment(runControl()->environment());
+    d->m_process.setCommand(runControl()->commandLine());
+    d->m_process.setWorkingDirectory(runControl()->workingDirectory());
+    d->m_process.setEnvironment(runControl()->environment());
 
     if (d->m_startModifier)
-        d->m_startModifier();
+        d->m_startModifier(d->m_process);
 
     bool useTerminal = false;
     if (auto terminalAspect = runControl()->aspectData<TerminalAspect>())
@@ -1667,29 +1667,9 @@ void ProcessRunner::stop()
     d->stop();
 }
 
-void ProcessRunner::setStartModifier(const std::function<void ()> &startModifier)
+void ProcessRunner::setStartModifier(const std::function<void(Process &)> &startModifier)
 {
     d->m_startModifier = startModifier;
-}
-
-void ProcessRunner::setCommandLine(const Utils::CommandLine &commandLine)
-{
-    d->m_process.setCommand(commandLine);
-}
-
-void ProcessRunner::setEnvironment(const Environment &environment)
-{
-    d->m_process.setEnvironment(environment);
-}
-
-void ProcessRunner::setWorkingDirectory(const FilePath &workingDirectory)
-{
-    d->m_process.setWorkingDirectory(workingDirectory);
-}
-
-void ProcessRunner::setProcessMode(Utils::ProcessMode processMode)
-{
-    d->m_process.setProcessMode(processMode);
 }
 
 void ProcessRunner::suppressDefaultStdOutHandling()

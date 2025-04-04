@@ -22,6 +22,7 @@
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/result.h>
 
 #include <QFormLayout>
@@ -198,8 +199,10 @@ ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runCont
 {
     auto worker = new ProcessRunner(runControl);
     worker->setId("BareMetalUvscServer");
-    worker->setCommandLine({DebuggerKitAspect::runnable(runControl->kit()).command.executable(),
+    worker->setStartModifier([this, runControl](Process &process) {
+        process.setCommand({DebuggerKitAspect::runnable(runControl->kit()).command.executable(),
                             {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}});
+    });
     return worker;
 }
 

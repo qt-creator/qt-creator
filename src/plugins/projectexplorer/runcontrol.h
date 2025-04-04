@@ -277,13 +277,7 @@ public:
     explicit ProcessRunner(RunControl *runControl);
     ~ProcessRunner() override;
 
-    void setStartModifier(const std::function<void()> &startModifier);
-
-    void setCommandLine(const Utils::CommandLine &commandLine);
-    void setEnvironment(const Utils::Environment &environment);
-    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
-    void setProcessMode(Utils::ProcessMode processMode);
-
+    void setStartModifier(const std::function<void(Utils::Process &)> &startModifier);
     void suppressDefaultStdOutHandling();
 
 private:

@@ -213,12 +213,12 @@ public:
             auto worker = new ProcessRunner(runControl);
             runControl->requestWorkerChannel();
 
-            worker->setStartModifier([worker, runControl] {
+            worker->setStartModifier([runControl](Process &process) {
                 const QString browserId =
                     runControl->aspectData<WebBrowserSelectionAspect>()->currentBrowser;
-                worker->setCommandLine(emrunCommand(runControl->buildConfiguration(), runControl->buildKey(),
+                process.setCommand(emrunCommand(runControl->buildConfiguration(), runControl->buildKey(),
                     browserId, QString::number(runControl->workerChannel().port())));
-                worker->setEnvironment(runControl->buildEnvironment());
+                process.setEnvironment(runControl->buildEnvironment());
             });
 
             return worker;
