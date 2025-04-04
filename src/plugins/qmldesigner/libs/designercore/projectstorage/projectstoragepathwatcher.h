@@ -88,6 +88,8 @@ public:
     void checkForChangeInDirectory(SourceContextIds sourceContextIds) override
     {
         std::ranges::sort(sourceContextIds);
+        auto removed = std::ranges::unique(sourceContextIds);
+        sourceContextIds.erase(removed.begin(), removed.end());
 
         addChangedPathForFilePath(sourceContextIds);
     }

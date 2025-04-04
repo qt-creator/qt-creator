@@ -433,7 +433,7 @@ TEST_F(ProjectStoragePathWatcher, trigger_manual_two_notify_file_changes)
                     ElementsAre(IdPaths{projectChunkId1, {sourceIds[0], sourceIds[1]}},
                                 IdPaths{projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}})));
 
-    watcher.checkForChangeInDirectory({sourceIds[0].contextId(), sourceIds[1].contextId()});
+    watcher.checkForChangeInDirectory({sourceIds[0].contextId(), sourceIds[2].contextId()});
 }
 
 TEST_F(ProjectStoragePathWatcher, trigger_manual_notify_for_path_changes)
