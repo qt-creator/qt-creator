@@ -698,4 +698,9 @@ std::reverse_iterator<CellIterator> TerminalSurface::rIteratorAt(int pos) const
     return std::make_reverse_iterator(iteratorAt(pos));
 }
 
+void TerminalSurface::enableLiveReflow(bool enable)
+{
+    vterm_screen_enable_reflow(d->m_vtermScreen, enable);
+}
+
 } // namespace TerminalSolution
