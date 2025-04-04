@@ -35,6 +35,8 @@ const char peripheralDescriptionFileKeyC[] = "PeripheralDescriptionFile";
 const char initCommandsKeyC[] = "InitCommands";
 const char resetCommandsKeyC[] = "ResetCommands";
 const char useExtendedRemoteKeyC[] = "UseExtendedRemote";
+const char executableFileKeyC[] = "ExecutableFile";
+const char additionalArgumentsKeyC[] = "AdditionalArguments";
 
 // GdbServerProvider
 
@@ -96,7 +98,9 @@ void GdbServerProvider::setResetCommands(const QString &cmds)
 
 Utils::CommandLine GdbServerProvider::command() const
 {
-    return {};
+    if (m_executableFile.isEmpty())
+        return {};
+    return CommandLine{m_executableFile, m_additionalArguments, CommandLine::Raw};
 }
 
 bool GdbServerProvider::operator==(const IDebugServerProvider &other) const
@@ -120,6 +124,8 @@ void GdbServerProvider::toMap(Store &data) const
     data.insert(initCommandsKeyC, m_initCommands);
     data.insert(resetCommandsKeyC, m_resetCommands);
     data.insert(useExtendedRemoteKeyC, m_useExtendedRemote);
+    data.insert(executableFileKeyC, m_executableFile.toSettings());
+    data.insert(additionalArgumentsKeyC, m_additionalArguments);
 }
 
 bool GdbServerProvider::isValid() const
@@ -158,12 +164,13 @@ Result<> GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp
 
 RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
 {
-    if (m_startupMode != GdbServerProvider::StartupOnNetwork)
+    const CommandLine cmd = command();
+    if (m_startupMode != GdbServerProvider::StartupOnNetwork || cmd.isEmpty())
         return nullptr;
 
     // Command arguments are in host OS style as the bare metal's GDB servers are launched
     // on the host, not on that target.
-    return createProcessWorker(runControl, [cmd = command()](Process &process) {
+    return createProcessWorker(runControl, [cmd](Process &process) {
         // Baremetal's GDB servers are launched on the host, not on the target.
         process.setCommand(cmd.toLocal());
     });
@@ -174,6 +181,8 @@ void GdbServerProvider::fromMap(const Store &data)
     IDebugServerProvider::fromMap(data);
     m_startupMode = static_cast<StartupMode>(data.value(startupModeKeyC).toInt());
     m_peripheralDescriptionFile = FilePath::fromSettings(data.value(peripheralDescriptionFileKeyC));
+    m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
+    m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
     m_initCommands = data.value(initCommandsKeyC).toString();
     m_resetCommands = data.value(resetCommandsKeyC).toString();
     m_useExtendedRemote = data.value(useExtendedRemoteKeyC).toBool();

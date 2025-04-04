@@ -22,10 +22,8 @@ using namespace Utils;
 
 namespace BareMetal::Internal {
 
-const char executableFileKeyC[] = "ExecutableFile";
 const char rootScriptsDirKeyC[] = "RootScriptsDir";
 const char configurationFileKeyC[] = "ConfigurationPath";
-const char additionalArgumentsKeyC[] = "AdditionalArguments";
 
 // OpenOcdGdbServerProviderConfigWidget
 
@@ -74,10 +72,8 @@ private:
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    Utils::FilePath m_executableFile = "openocd";
     Utils::FilePath m_rootScriptsDir;
     Utils::FilePath m_configurationFile;
-    QString m_additionalArguments;
 
     friend class OpenOcdGdbServerProviderConfigWidget;
     friend class OpenOcdGdbServerProviderFactory;
@@ -87,6 +83,7 @@ private:
 OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_OPENOCD_PROVIDER_ID)
 {
+    m_executableFile = "openocd";
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
     setChannel("localhost", 3333);
@@ -183,19 +180,15 @@ bool OpenOcdGdbServerProvider::isValid() const
 void OpenOcdGdbServerProvider::toMap(Store &data) const
 {
     GdbServerProvider::toMap(data);
-    data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(rootScriptsDirKeyC, m_rootScriptsDir.toSettings());
     data.insert(configurationFileKeyC, m_configurationFile.toSettings());
-    data.insert(additionalArgumentsKeyC, m_additionalArguments);
 }
 
 void OpenOcdGdbServerProvider::fromMap(const Store &data)
 {
     GdbServerProvider::fromMap(data);
-    m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_rootScriptsDir = FilePath::fromSettings(data.value(rootScriptsDirKeyC));
     m_configurationFile = FilePath::fromSettings(data.value(configurationFileKeyC));
-    m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
 }
 
 bool OpenOcdGdbServerProvider::operator==(const IDebugServerProvider &other) const

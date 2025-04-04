@@ -91,7 +91,6 @@ private:
     static QString defaultInitCommands();
     static QString defaultResetCommands();
 
-    Utils::FilePath m_executableFile = "eblink"; // server execute filename
     int  m_verboseLevel = 0;                // verbose <0..7>  Specify generally verbose logging
     InterfaceType m_interfaceType = SWD;    // -I stlink ;swd(default) jtag
     Utils::FilePath m_deviceScript = "stm32-auto.script";  // -D <script> ;Select the device script <>.script
@@ -112,6 +111,7 @@ private:
 EBlinkGdbServerProvider::EBlinkGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_EBLINK_PROVIDER_ID)
 {
+    m_executableFile = "eblink"; // server execute filename
     setInitCommands(defaultInitCommands());
     setResetCommands(defaultResetCommands());
     setChannel("127.0.0.1", 2331);

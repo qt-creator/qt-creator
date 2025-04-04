@@ -61,6 +61,8 @@ protected:
     QString m_initCommands;
     QString m_resetCommands;
     bool m_useExtendedRemote = false;
+    Utils::FilePath m_executableFile;
+    QString m_additionalArguments;
 
     friend class GdbServerProviderConfigWidget;
 };
