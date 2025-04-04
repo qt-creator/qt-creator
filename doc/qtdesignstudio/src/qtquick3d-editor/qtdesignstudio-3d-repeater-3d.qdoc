@@ -74,7 +74,7 @@
       \e scene in \uicontrol Navigator.
       \li Select \e repeater3D in \uicontrol Navigator and in
       \uicontrol Properties, set \uicontrol Model to 4.
-      \image repeater3d-model-property.png
+      \image {repeater3d-model-property.png} {The Repeater Model property set to 4 in the Properties view.}
     \endlist
     Now, you have set up the \uicontrol Repeater3D component to use a numeric
     model that draws four instances of the same item. Next, you need to add the
@@ -90,11 +90,11 @@
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
       \li In the binding editor, enter \c{index * 150}. This sets the X
       location to increase by 150 for each of the cube instances.
-      \image repeater3d-index-binding.png
+      \image {repeater3d-index-binding.png} {index * 150 set in Bindings Editor.}
       \li Select \uicontrol OK and go to the \uicontrol{3D} view to see the
       result.
     \endlist
-    \image repeater3d-numeric-model.webp
+    \image {repeater3d-numeric-model.webp} {Four cubes rendered with the Repeater component in the 3D view.}
 
     \section1 Adding a Repeater3D component with a List Model
 
@@ -172,7 +172,7 @@
     \list 1
       \li From \uicontrol Components, drag a \uicontrol Sphere to \e _3DRepeater
       in \uicontrol Navigator.
-      \image repeater3d-listmodel-navigator.png
+      \image {repeater3d-listmodel-navigator.png} {The Sphere component in the Navigator view.}
       \li Select \e sphere in \uicontrol Navigator and in the \uicontrol Properties view, select
       \imageactionicon
       next to \uicontrol Scale > \uicontrol X.
@@ -180,7 +180,7 @@
       \li In the binding editor, enter \c{radius}. This sets the X
       scale to the radius value defined in the list model for each of the sphere
       instances.
-      \image repeater3d-radius-binding.png
+      \image {repeater3d-radius-binding.png} {radius set in Binding Editor.}
       \li Select \uicontrol OK.
       \li Repeat steps 2 to 5 for \uicontrol Scale > \uicontrol Y and
       \uicontrol Scale > \uicontrol Z.
@@ -196,7 +196,7 @@
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
       \li In the binding editor, enter \c{index * 1000}. This sets the X
       location to increase by 1000 for each of the sphere instances.
-      \image repeater3d-location-binding.png
+      \image {repeater3d-location-binding.png} {index * 1000 set in Binding Editor.}
       \li Select \uicontrol OK and go to the \uicontrol{3D} view to see the
       result. You need to zoom out to see all the spheres.
     \endlist

@@ -12,7 +12,7 @@
     project. When you create a project with the wizard, all the necessary files
     are created, you can adjust the project settings, and save custom presets.
 
-    \image studio-preset-for-mcus.png
+    \image studio-preset-for-mcus.png {The Qt for MCU preset on the Qt Design Studio Welcome page.}
 
     Using the \uicontrol {\QMCU} preset creates an application that uses a subset
     of the default components that you can deploy, run, and debug on MCU boards.

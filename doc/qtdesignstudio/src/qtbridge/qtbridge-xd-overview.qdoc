@@ -16,7 +16,7 @@
     You can use \QBXD to export designs from Adobe XD to \e {.qtbridge}
     format that you can \l{Importing 2D Assets}{import} to projects in \QDS.
 
-    \image qt-bridge-xd.png
+    \image {qt-bridge-xd.png} {The Qt Bridge for Adobe XD open in Adobe XD.}
 
     The following topics describe setting up and using \QBXD:
 

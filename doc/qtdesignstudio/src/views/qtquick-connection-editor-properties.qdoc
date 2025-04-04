@@ -40,9 +40,9 @@
         \li Select the \imageplus
             (\uicontrol Add) button to add a custom property for the currently
             selected component.
-            \image add-local-custom-property.png
+            \image {add-local-custom-property.png} {Selecting the Add button in the Properties view.}
         \li Set the \uicontrol Name and \uicontrol Type for the property.
-            \image add-new-property-dialog.png
+            \image {add-new-property-dialog.png} {Selecting the Type for the property in the Add New Property dialog.}
     \endlist
 
     \section1 Binding a property value
@@ -69,14 +69,14 @@
             \uicontrol {2D} view or in the \uicontrol {Navigator} view.
         \li Select \uicontrol {Properties} from the \uicontrol {Connections} view.
 
-            \image add-updated-local-custom-property.webp
+            \image {add-updated-local-custom-property.webp} {The Properties tab in the Connections view.}
 
         \li Select the \imageplus
              (\uicontrol Add) button to add a Custom property.
         \li From the pop-up \uicontrol {Custom property editor}, select the \uicontrol {Type}
             of the property you want to include.
 
-            \image add-updated-local-custom-property-editor.webp
+            \image {add-updated-local-custom-property-editor.webp} {The Custom Property Editor dialog.}
 
         \li Next, set the \uicontrol{Name} of the property.
         \li Set a value to the Custom property in the \uicontrol {Value} field.

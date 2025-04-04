@@ -311,7 +311,7 @@
       \uicontrol Navigator. You can also drag it to the \uicontrol{3D} view.
     \endlist
 
-    \image studio-3d-particles-sprite-template.png
+    \image {studio-3d-particles-sprite-template.png} {The particle system template components in the Component view.}
 
     \section1 Performance considerations
 
@@ -536,7 +536,7 @@
     Specify properties for line particles in \uicontrol Properties >
     \uicontrol {Line Particle}.
 
-    \image studio-3d-properties-line-particle.png
+    \image {studio-3d-properties-line-particle.png} {The Line Particle properties in the Properties view.}
 
     \uicontrol {Segments} defines the number of segments in each line.
 
@@ -845,7 +845,7 @@
     Specify properties for emit bursts in \uicontrol Properties >
     \uicontrol {Dynamic Burst}.
 
-    \image studio-3d-properties-particle-dynamic-burst.png
+    \image {studio-3d-properties-particle-dynamic-burst.png} {The Dynamic Burst properties in the Properties view.}
 
     \uicontrol {Trigger Mode} defines when the burst is triggered:
 
@@ -1022,7 +1022,7 @@
     Specify settings for \uicontrol Repeller component instances in
     \uicontrol Properties > \uicontrol {Particle Repeller}.
 
-    \image studio-3d-properties-particle-repeller.png
+    \image {studio-3d-properties-particle-repeller.png} {The Repeller properties in the Properties view.}
 
     \uicontrol {Outer Radius} defines the outer radius of the repeller. The
     particle is not affected until it enters this radius and the repel
@@ -1038,7 +1038,7 @@
     \uicontrol {Scale Affector} scales particles based on their lifetime and
     other parameters.
 
-    \image studio-3d-properties-particle-scale-affector.png
+    \image {studio-3d-properties-particle-scale-affector.png} {The Particle Scale Affector properties in the Properties view.}
 
     \uicontrol {Minimum Size} defines the minimum size that the affector can
     scale particles to.

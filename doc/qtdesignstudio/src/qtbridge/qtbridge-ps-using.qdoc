@@ -133,7 +133,7 @@
     \l{Property Aliases}{property aliases} to fetch the values from other
     properties.
 
-    \image qt-bridge.png
+    \image {qt-bridge.png} {The Qt Bridge for Photoshop default home screen.}
 
     \section2 Specifying settings for exporting assets
 
@@ -238,7 +238,7 @@
     In the \uicontrol {ID Suffix} field, specify an ID suffix that will be
     appended to all auto generated IDs.
 
-    \image qt-bridge-qml-id-settings.png
+    \image {qt-bridge-qml-id-settings.png} {The ID Prefix field highlighted in the settings.}
 
     \section1 Cloning documents
 
@@ -246,7 +246,7 @@
     allows the user to filter out certain kind of layers and groups. In the \QBPS
     \uicontrol Settings dialog, select \uicontrol {Clone} to start cloning the document.
 
-    \image qt-bridge-clone.png
+    \image {qt-bridge-clone.png} {The Clone button highlighted in the Clone document settings.}
 
     \section2 Clone options
     The following exclusion options can be selected to exclude certain kind of layers and
@@ -273,7 +273,7 @@
     \note The sanitization is done in memory and the document must be saved to
     keep the sanitized state.
 
-    \image qt-bridge-sanitize.png
+    \image {qt-bridge-sanitize.png} {The Sanitize button highlighted in the settings.}
 
     \section1 Extending \QBPS
     You can change the default behavior of \QBPS with the help of a JSX script. One can write
@@ -297,11 +297,11 @@
             PSD layer instance.
     \endlist
 
-    \note Please refer to \l {https://www.adobe.com/devnet/photoshop/scripting.html}
+    \note See the \l {https://www.adobe.com/devnet/photoshop/scripting.html}
     {Adobe Photoshop CC Javascript} scripting guide to understand the object model and \e Document
     and \e Layer instances.
 
-    \image qt-bridge-override.png
+    \image {qt-bridge-override.png} {The Script Path field highlighted in the settings.}
 
     In the \QBPS \uicontrol Settings dialog, select \uicontrol {Override JSX Script} to set the
     override JSX script.
@@ -317,14 +317,14 @@
     Select the \uicontrol Import button to launch the \uicontrol Import panel. Alternatively, \QB
     import can be launched from \uicontrol Window > \uicontrol Extensions.
 
-    \image qt-bridge-import.png
+    \image {qt-bridge-import.png} {The Qt Bridge import dialog.}
 
     Create a new PSD document and launch the \uicontrol Import dialog. Open the metadata file to
     import and select \uicontrol Import.
 
     \note The import process removes all the existing layers in the selected PSD document.
 
-    \image qt-bridge-import-warning.png
+    \image {qt-bridge-import-warning.png} {An import warning in the Qt Bridge import dialog.}
 
     The following guidelines are followed to generate the Photoshop document:
     \list

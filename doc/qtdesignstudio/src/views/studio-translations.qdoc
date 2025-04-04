@@ -106,13 +106,13 @@
           \li \uicontrol{Exceeds boundaries} highlights translations where
           the text is too long to fit in the text object.
         \endlist
-        \image translation-tester.png
+        \image {translation-tester.png} {The Translation Tester dialog with all highlights selected.}
       \li Select \uicontrol{Run Tests}.
     \endlist
 
     When the test has completed, you can see the test result highlights in
     the \uicontrol {2D} view.
-    \image qml-translation-test-result.png
+    \image {qml-translation-test-result.png} {The Test Results dialog.}
 
     If the test finds an error, it is highlighted for all languages. For
     example, if a translation is missing for Swedish, it is also highlighted

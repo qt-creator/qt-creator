@@ -37,7 +37,7 @@
                 of the timeline. Negative values are allowed.
                 \li In the \uicontrol {End frame} field, set the last frame
                 of the timeline.
-                \image timeline-settings-dialog.png
+                \image {timeline-settings-dialog.png} {The Timeline Settings dialog.}
             \endlist
         \li On the \uicontrol {Animation Settings} tab:
             \list
@@ -87,13 +87,13 @@
        . This creates another timeline.
        \li In the table below the \uicontrol {Animation Settings} tab, set the
        Timeline for the state where you want to use it.
-       \image timeline-settings-dialog-second.png
+       \image {timeline-settings-dialog-second.png} {Two timelines in the Timeline Settings dialog.}
     \endlist
     To set the keyframe values for the timeline you created, first select the
     state in \uicontrol {States} and the timeline is available in
     \uicontrol{Timelines}.
 
-    \image timeline-states.webp
+    \image {timeline-states.webp} {The Timeline and States views.}
 
     \section2 Setting keyframe values
 
@@ -114,11 +114,11 @@
         \li In the \l Properties view, select \imageactionicon
             (\uicontrol Actions) > \uicontrol {Insert Keyframe} for the property
             that you want to animate.
-            \image timeline-insert-keyframe.png
+            \image {timeline-insert-keyframe.png} {Selecting Insert Keyframe from the Action drop-down menu in the Properties view.}
         \li In the \l Timeline view, select the
             \uicontrol {Per Property Recording} button
             to start recording property changes.
-            \image timeline-per-property-recording.webp
+            \image {timeline-per-property-recording.webp} {Selecting the Per Property Recording button in the Timeline view.}
         \li Ensure that the playhead is in frame 0 and enter the value of the
             property in the field next to the property name on the timeline.
             Select \key Enter to save the value.
@@ -155,7 +155,7 @@
         next to the \uicontrol {Animation Settings} tab to delete the
         animation. If you have several animations, delete all.
         \li In \uicontrol {Expression binding}, enter \c {slider.value}.
-        \image timeline-settings-property-binding.png
+        \image {timeline-settings-property-binding.png} {Expression binding set to slider.value in the Timeline Settings dialog.}
     \endlist
 
     \section2 Binding animations to states
@@ -172,7 +172,7 @@
           the timeline with the animation you want to bind to the state.
           \li Double-click the value in the \uicontrol Animation field and
           select the animation you want to bind to the state.
-          \image timeline-bind-animation-state.png
+          \image {timeline-bind-animation-state.png} {Selecting an Animation in the Timeline Settings dialog window to bind it to a state.}
         \endlist
     \endlist
     To bind a state to a certain keyframe in an animation without running the

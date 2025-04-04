@@ -14,7 +14,7 @@
     To view all \QDS functions in and their keyboard shortcuts, select
     \preferences > \uicontrol Environment > \uicontrol Keyboard.
 
-    \image qtcreator-keyboard-shortcuts.png
+    \image {qtcreator-keyboard-shortcuts.png} {Keyboard shortcut settings.}
 
     The shortcuts that are displayed in red color are associated with several
     functions. \QDS executes the function that is available in the current

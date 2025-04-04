@@ -19,7 +19,7 @@
 
     The following image describes the workflow in a basic way using \QBPS and \QDS:
 
-    \image studio-workflow.png
+    \image {studio-workflow.png} {The complete designer-developer workflow from design tool to a finished application.}
 
     The workflow consists of the following steps:
 
