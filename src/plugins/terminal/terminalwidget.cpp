@@ -66,6 +66,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
     surfaceChanged();
 
     setAllowBlinkingCursor(settings().allowBlinkingCursor());
+    enableMouseTracking(settings().enableMouseTracking());
 
     connect(&settings(), &AspectContainer::applied, this, [this] {
         // Setup colors first, as setupFont will redraw the screen.
@@ -73,6 +74,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
         setupFont();
         configBlinkTimer();
         setAllowBlinkingCursor(settings().allowBlinkingCursor());
+        enableMouseTracking(settings().enableMouseTracking());
     });
 }
 
