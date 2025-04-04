@@ -103,6 +103,7 @@ public:
     SourceContextId sourceContextId;
     SourceId sourceId;
     long long lastModified = -1;
+    long long size = -1;
 
     friend bool operator==(WatcherEntry first, WatcherEntry second)
     {

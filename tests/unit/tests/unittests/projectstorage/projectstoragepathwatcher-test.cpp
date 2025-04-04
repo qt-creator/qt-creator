@@ -378,15 +378,42 @@ TEST_F(ProjectStoragePathWatcher, two_notify_file_changes)
     mockQFileSytemWatcher.directoryChanged(sourceContextPath2);
 }
 
-TEST_F(ProjectStoragePathWatcher, notify_for_path_changes)
+TEST_F(ProjectStoragePathWatcher, notify_for_path_changes_if_modified_time_changes)
 {
     watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
                            {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
         .WillByDefault(Return(FileStatus{sourceIds[0], 1, 2}));
-
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
         .WillByDefault(Return(FileStatus{sourceIds[3], 1, 2}));
+
+    EXPECT_CALL(notifier, pathsChanged(ElementsAre(sourceIds[0])));
+
+    mockQFileSytemWatcher.directoryChanged(sourceContextPath);
+}
+
+TEST_F(ProjectStoragePathWatcher, notify_for_path_changes_if_size_get_bigger)
+{
+    watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+                           {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
+    ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
+        .WillByDefault(Return(FileStatus{sourceIds[0], 2, 1}));
+    ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
+        .WillByDefault(Return(FileStatus{sourceIds[3], 2, 1}));
+
+    EXPECT_CALL(notifier, pathsChanged(ElementsAre(sourceIds[0])));
+
+    mockQFileSytemWatcher.directoryChanged(sourceContextPath);
+}
+
+TEST_F(ProjectStoragePathWatcher, notify_for_path_changes_if_size_get_smaller)
+{
+    watcher.updateIdPaths({{projectChunkId1, {sourceIds[0], sourceIds[1], sourceIds[2]}},
+                           {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
+    ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
+        .WillByDefault(Return(FileStatus{sourceIds[0], 0, 1}));
+    ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
+        .WillByDefault(Return(FileStatus{sourceIds[3], 0, 1}));
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(sourceIds[0])));
 
@@ -442,7 +469,6 @@ TEST_F(ProjectStoragePathWatcher, trigger_manual_notify_for_path_changes)
                            {projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}}});
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[0])))
         .WillByDefault(Return(FileStatus{sourceIds[0], 1, 2}));
-
     ON_CALL(mockFileSystem, fileStatus(Eq(sourceIds[3])))
         .WillByDefault(Return(FileStatus{sourceIds[3], 1, 2}));
 

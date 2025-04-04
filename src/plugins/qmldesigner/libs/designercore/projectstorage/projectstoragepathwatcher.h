@@ -116,10 +116,12 @@ public:
             ids.push_back(id);
 
             std::ranges::transform(idPath.sourceIds, std::back_inserter(entries), [&](SourceId sourceId) {
+                auto fileStatus = m_fileStatusCache.find(sourceId);
                 return WatcherEntry{id,
                                     sourceId.contextId(),
                                     sourceId,
-                                    m_fileStatusCache.lastModifiedTime(sourceId)};
+                                    fileStatus.lastModified,
+                                    fileStatus.size};
             });
         }
 
@@ -290,10 +292,11 @@ public:
             sourceContextIds,
             [&](WatcherEntry &entry) {
                 m_fileStatusCache.update(entry.sourceId);
-                auto currentLastModified = m_fileStatusCache.lastModifiedTime(entry.sourceId);
-                if (entry.lastModified < currentLastModified) {
+                auto fileStatus = m_fileStatusCache.find(entry.sourceId);
+                if (entry.lastModified < fileStatus.lastModified || entry.size != fileStatus.size) {
                     foundEntries.push_back(entry);
-                    entry.lastModified = currentLastModified;
+                    entry.lastModified = fileStatus.lastModified;
+                    entry.size = fileStatus.size;
                 }
             },
             {},
