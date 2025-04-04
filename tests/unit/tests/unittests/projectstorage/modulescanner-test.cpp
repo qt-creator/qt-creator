@@ -15,13 +15,13 @@ QLatin1String qmlModulesPath(UNITTEST_DIR "/projectstorage/data/qml");
 template<typename Matcher>
 auto UrlProperty(const Matcher &matcher)
 {
-    return Property(&QmlDesigner::Import::url, matcher);
+    return Property("QmlDesigner::Import::url", &QmlDesigner::Import::url, matcher);
 }
 
 template<typename Matcher>
 auto VersionProperty(const Matcher &matcher)
 {
-    return Property(&QmlDesigner::Import::version, matcher);
+    return Property("QmlDesigner::Import::version", &QmlDesigner::Import::version, matcher);
 }
 
 template<typename Matcher>

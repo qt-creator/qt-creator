@@ -39,6 +39,7 @@ void RewriteActionCompressor::operator()(QList<RewriteAction *> &actions,
     compressAddEditRemoveNodeActions(actions);
     compressAddEditActions(actions, tabSettings);
     compressAddReparentActions(actions);
+    compressSlidesIntoNewNode(actions);
 }
 
 void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) const
@@ -369,6 +370,48 @@ void RewriteActionCompressor::compressAddReparentActions(QList<RewriteAction *> 
 
                 actions[i] = replacementAction;
                 delete action;
+            }
+        }
+    }
+
+    for (RewriteAction *action : std::as_const(actionsToRemove)) {
+        actions.removeOne(action);
+        delete action;
+    }
+}
+
+void RewriteActionCompressor::compressSlidesIntoNewNode(QList<RewriteAction *> &actions) const
+{
+    QList<RewriteAction *> actionsToRemove;
+    QMap<ModelNode, RewriteAction *> addedNodes;
+    for (RewriteAction *action : std::as_const(actions)) {
+        if (action->asAddPropertyRewriteAction() || action->asChangePropertyRewriteAction()) {
+            ModelNode containedNode;
+
+            if (AddPropertyRewriteAction *addAction = action->asAddPropertyRewriteAction())
+                containedNode = addAction->containedModelNode();
+            else if (ChangePropertyRewriteAction *changeAction = action->asChangePropertyRewriteAction())
+                containedNode = changeAction->containedModelNode();
+
+            if (!containedNode.isValid())
+                continue;
+
+            if (m_positionStore->nodeOffset(containedNode) != ModelNodePositionStorage::INVALID_LOCATION)
+                continue;
+
+            addedNodes.insert(containedNode, action);
+        } else if (MoveNodeRewriteAction *moveNodeAction = action->asMoveNodeRewriteAction()) {
+            RewriteAction *previousAction = addedNodes[moveNodeAction->movingNode()];
+            if (!previousAction)
+                continue;
+
+            if (AddPropertyRewriteAction *addAction = previousAction->asAddPropertyRewriteAction()) {
+                actionsToRemove.append(moveNodeAction);
+                addAction->setMovedAfterCreation(true);
+            } else if (ChangePropertyRewriteAction *changeAction = previousAction
+                                                                       ->asChangePropertyRewriteAction()) {
+                actionsToRemove.append(moveNodeAction);
+                changeAction->setMovedAfterCreation(true);
             }
         }
     }

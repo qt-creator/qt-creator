@@ -73,7 +73,7 @@ Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
     connect(&m_compressionTimer, &QTimer::timeout, this, &Edit3DView::handleEntriesChanged);
 
     for (int i = 0; i < 4; ++i)
-        m_splitToolStates.append({0, false});
+        m_splitToolStates.append({0, false, i == 0});
 }
 
 void Edit3DView::createEdit3DWidget()
@@ -122,14 +122,13 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 {
     const QString activeSplitKey = QStringLiteral("activeSplit");
     if (sceneState.contains(activeSplitKey)) {
-        m_activeSplit = sceneState[activeSplitKey].toInt();
-
+        setActiveSplit(sceneState[activeSplitKey].toInt());
         // If the sceneState contained just activeSplit key, then this is simply an active split
         // change rather than entire active scene change, and we don't need to process further.
         if (sceneState.size() == 1)
             return;
     } else {
-        m_activeSplit = 0;
+        setActiveSplit(0);
     }
 
     const QString sceneKey              = QStringLiteral("sceneInstanceId");
@@ -175,10 +174,16 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_moveToolAction->action()->setChecked(true);
     }
 
-    if (sceneState.contains(perspectiveKey))
-        m_cameraModeAction->action()->setChecked(sceneState[perspectiveKey].toBool());
-    else
-        m_cameraModeAction->action()->setChecked(false);
+    if (sceneState.contains(perspectiveKey)) {
+        const QVariantList showList = sceneState[perspectiveKey].toList();
+        for (int i = 0; i < 4; ++i)
+            m_splitToolStates[i].isPerspective = i < showList.size() ? showList[i].toBool() : i == 0;
+    } else {
+        for (int i = 0; i < 4; ++i) {
+            SplitToolState &state = m_splitToolStates[i];
+            state.isPerspective = i == 0;
+        }
+    }
 
     if (sceneState.contains(orientationKey))
         m_orientationModeAction->action()->setChecked(sceneState[orientationKey].toBool());
@@ -267,6 +272,12 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     syncCameraSpeedToNewView();
 
     storeCurrentSceneEnvironment();
+}
+
+void Edit3DView::setActiveSplit(int split)
+{
+    m_activeSplit = split;
+    m_cameraModeAction->action()->setChecked(m_splitToolStates[m_activeSplit].isPerspective);
 }
 
 void Edit3DView::modelAttached(Model *model)
@@ -1002,15 +1013,32 @@ void Edit3DView::createEdit3DActions()
                                                        toolbarIcon(DesignerIcons::AlignViewToCameraIcon),
                                                        this);
 
+    SelectionContextOperation cameraModeTrigger = [this](const SelectionContext &) {
+        QVariantList list;
+        for (int i = 0; i < m_splitToolStates.size(); ++i) {
+            Edit3DView::SplitToolState state = m_splitToolStates[i];
+            if (i == m_activeSplit) {
+                bool isChecked = m_cameraModeAction->action()->isChecked();
+                state.isPerspective = isChecked;
+                setSplitToolState(i, state);
+                list.append(isChecked);
+            } else {
+                list.append(state.isPerspective);
+            }
+        }
+        emitView3DAction(View3DActionType::CameraToggle, list);
+    };
+
     m_cameraModeAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_EDIT_CAMERA,
-        View3DActionType::CameraToggle,
+        View3DActionType::Empty,
         Tr::tr("Toggle Perspective/Orthographic Camera Mode"),
         QKeySequence(Qt::Key_T),
         true,
         false,
         toolbarIcon(DesignerIcons::CameraIcon),
-        this);
+        this,
+        cameraModeTrigger);
 
     m_orientationModeAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_ORIENTATION,

@@ -15,8 +15,9 @@ public:
     EffectUtils() = delete;
 
     static QString codeFromJsonArray(const QJsonArray &codeArray);
-
     static QString nodesSourcesPath();
+    static QString nodeLibraryPath();
+    static QString nodeNameToFileName(const QString &nodeName);
 };
 
 } // namespace EffectComposer

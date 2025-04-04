@@ -2568,7 +2568,7 @@ void Qt5InformationNodeInstanceServer::view3DAction([[maybe_unused]] const View3
         updatedToolState.insert("selectionMode", command.isEnabled() ? 1 : 0);
         break;
     case View3DActionType::CameraToggle:
-        updatedToolState.insert("usePerspective", command.isEnabled());
+        updatedToolState.insert("usePerspective", command.value().toList());
         // It can take a couple frames to properly update icon gizmo positions
         renderCount = 2;
         break;

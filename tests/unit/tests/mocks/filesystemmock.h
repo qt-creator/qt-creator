@@ -15,7 +15,10 @@ public:
                 directoryEntries,
                 (const QString &directoryPath),
                 (const, override));
-    MOCK_METHOD(QStringList, qmlFileNames, (const QString &directoryPath), (const, override));
+    MOCK_METHOD(QStringList,
+                fileNames,
+                (const QString &directoryPath, const QStringList &nameFilters),
+                (const, override));
     MOCK_METHOD(long long, lastModified, (QmlDesigner::SourceId sourceId), (const, override));
     MOCK_METHOD(QmlDesigner::FileStatus, fileStatus, (QmlDesigner::SourceId sourceId), (const, override));
     MOCK_METHOD(void, remove, (const QmlDesigner::SourceIds &sourceIds), (override));

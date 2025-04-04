@@ -107,19 +107,22 @@ function(configure_qml_designer Qt6_VERSION)
     option(WITH_QMLDESIGNER "Build QmlDesigner" ${ENV_QTC_WITH_QMLDESIGNER})
     add_feature_info("WITH_QMLDESIGNER" ${WITH_QMLDESIGNER} "${QMLDESIGNER_FEATURE_DESC}")
 
-    set(QTC_IS_SUPPORTED_PROJECTSTORAGE_QT_DEFAULT OFF)
     if(Qt6_VERSION VERSION_GREATER_EQUAL ${PROJECTSTORAGE_QT_MIN_VERSION} AND Qt6_VERSION VERSION_LESS ${PROJECTSTORAGE_QT_MAX_VERSION})
-        set(QTC_IS_SUPPORTED_PROJECTSTORAGE_QT_DEFAULT ON)
+        set(IS_SUPPORTED_PROJECTSTORAGE_QT ON)
+    else()
+        set(IS_SUPPORTED_PROJECTSTORAGE_QT OFF)
     endif()
-    env_with_default("QTC_IS_SUPPORTED_PROJECTSTORAGE_QT" IS_SUPPORTED_PROJECTSTORAGE_QT ${QTC_IS_SUPPORTED_PROJECTSTORAGE_QT_DEFAULT})
     set(IS_SUPPORTED_PROJECTSTORAGE_QT "${IS_SUPPORTED_PROJECTSTORAGE_QT}" PARENT_SCOPE)
 
     if(USE_PROJECTSTORAGE AND NOT IS_SUPPORTED_PROJECTSTORAGE_QT)
-        message(WARNING
+        if(BUILD_DESIGNSTUDIO)
+            set(_level FATAL_ERROR)
+        else()
+            set(_level WARNING)
+        endif()
+        message(${_level}
             "USE_PROJECTSTORAGE is enabled, but current Qt ${Qt6_VERSION} is not supported by the project storage "
             "(required: ${PROJECTSTORAGE_QT_MIN_VERSION} - ${PROJECTSTORAGE_QT_MAX_VERSION})."
-            "You can override this check by setting the environment variable "
-            "QTC_IS_SUPPORTED_PROJECTSTORAGE_QT=ON."
         )
     endif()
 

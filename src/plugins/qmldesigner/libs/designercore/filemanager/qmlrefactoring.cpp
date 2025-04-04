@@ -75,12 +75,12 @@ bool QmlRefactoring::addToArrayMemberList(int parentLocation,
     return visit(qmlDocument->qmlProgram());
 }
 
-bool QmlRefactoring::addToObjectMemberList(int parentLocation, const QString &content)
+bool QmlRefactoring::addToObjectMemberList(int parentLocation, int nodeLocation, const QString &content)
 {
     if (parentLocation < 0)
         return false;
 
-    AddObjectVisitor visit(*textModifier, parentLocation, content, m_propertyOrder);
+    AddObjectVisitor visit(*textModifier, parentLocation, nodeLocation, content, m_propertyOrder);
     return visit(qmlDocument->qmlProgram());
 }
 

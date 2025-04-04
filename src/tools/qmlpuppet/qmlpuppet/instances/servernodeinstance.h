@@ -166,6 +166,9 @@ public:
 
     QQuickItem *contentItem() const;
 
+    bool hasProperty(const PropertyName &name);
+    void createNewDynamicProperty(const PropertyName &name);
+
 private: // functions
     ServerNodeInstance(const QSharedPointer<Internal::ObjectNodeInstance> &abstractInstance);
 

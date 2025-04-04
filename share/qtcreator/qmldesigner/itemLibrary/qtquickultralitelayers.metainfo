@@ -1,0 +1,106 @@
+MetaInfo {
+    Type {
+        name: "QtQuickUltralite.Layers.ApplicationScreens"
+        icon: "images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Application Screens"
+            category: "QtQuickUltralite - Layers"
+            libraryIcon: "images/item-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuickUltralite.Layers"
+
+            toolTip: qsTr("An application container for multiple screens.")
+        }
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: true
+        }
+    }
+    Type {
+        name: "QtQuickUltralite.Layers.ImageLayer"
+        icon: "images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Image Layer"
+            category: "QtQuickUltralite - Layers"
+            libraryIcon: "images/item-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuickUltralite.Layers"
+
+            Property { name: "renderingHints"; type: "enum"; value: "ImageLayer.OptimizeForSpeed"; }
+            Property { name: "platformId"; type: "int"; value: 0; }
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 200; }
+
+            toolTip: qsTr("A layer consisting of a single image.")
+        }
+    }
+    Type {
+        name: "QtQuickUltralite.Layers.ItemLayer"
+        icon: "images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Item Layer"
+            category: "QtQuickUltralite - Layers"
+            libraryIcon: "images/item-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuickUltralite.Layers"
+
+            Property { name: "depth"; type: "enum"; value: "ItemLayer.Bpp32"; }
+            Property { name: "renderingHints"; type: "enum"; value: "ItemLayer.OptimizeForSpeed"; }
+            Property { name: "refreshInterval"; type: "int"; value: 1; }
+            Property { name: "platformId"; type: "int"; value: 0; }
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 200; }
+
+            toolTip: qsTr("A layer containing dynamic Qt Quick Ultralite items.")
+        }
+    }
+    Type {
+        name: "QtQuickUltralite.Layers.Screen"
+        icon: "images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Screen"
+            category: "QtQuickUltralite - Layers"
+            libraryIcon: "images/item-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuickUltralite.Layers"
+
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 200; }
+
+            toolTip: qsTr("Contains QML items to be shown on a specific screen.")
+        }
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: true
+        }
+    }
+    Type {
+        name: "QtQuickUltralite.Layers.SpriteLayer"
+        icon: "images/item-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Sprite Layer"
+            category: "QtQuickUltralite - Layers"
+            libraryIcon: "images/item-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuickUltralite.Layers"
+
+            Property { name: "depth"; type: "enum"; value: "SpriteLayer.Bpp32"; }
+            Property { name: "platformId"; type: "int"; value: 0; }
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 200; }
+
+            toolTip: qsTr("A sprite layer which can contain multiple image and item layers.")
+        }
+    }
+}

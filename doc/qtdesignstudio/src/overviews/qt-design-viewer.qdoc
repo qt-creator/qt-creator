@@ -1,4 +1,4 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -8,42 +8,81 @@
 
     \title Sharing applications online
 
-    \image qt-design-viewer.webp
+    \image {qt-design-viewer.webp} {Qt Design Viewer example}
 
     In \QDS, you can share your applications in most widely-used web browsers,
     such as Apple Safari, Google Chrome, Microsoft Edge, and Mozilla Firefox,
     on the desktop and on mobile devices.
 
-    The application shared online runs in Qt Design Viewer, which is a QML
+    The application shared online runs in \QDV, which is a QML
     viewer that runs in your web browser.
 
     The startup and compilation time depend on your browser and configuration.
     However, the actual performance of the application once started is
     indistinguishable from the same application running on the desktop.
 
-    The loaded applications remain locally in your browser. No data is uploaded
-    into the cloud.
+    \section1 Connecting to the \QDV web service
 
-    \section1 Sharing your application online
+    \list 1
+      \li Open a project in \QDS.
+      \li Select \imageshareproject in the top toolbar, then select \uicontrol {Sign in}.
+          \image {studio-share-sign-in.webp} {Sign in to the Design Viewer web service}
+
+      \li Log in with your Qt account. After logging in, you receive 10 GB of
+          space on the \QDV server to upload your projects.
+          \image {studio-share-logged-in.webp} {After signing in to the Design Viewer}
+    \endlist
+
+    To sign out of the \QDV web service, select \imageshareproject in the top toolbar,
+    then select \uicontrol {Sign out}.
+
+    \section1 Sharing your application online from \QDS
 
     To share your \QDS application online:
 
     \list 1
       \li Open the application in \QDS.
-      \li Select \uicontrol File > \uicontrol {Share Application Online}.
-      \li Optionally, select \uicontrol {Protect with password}, and enter a password to prevent
-      unauthorized viewing of the application.
-      \note If you share the same application again, you must set the password
-      again. Otherwise, the application is not password protected any longer.
-      \li Select \uicontrol Share.
-      \image share-online.webp
+      \li \l {Connecting to the \QDV web service} {Connect} \QDS to the \QDV web service.
+      \li Select \imageshareproject in the top toolbar, then select \uicontrol Share.
     \endlist
 
-    You can now open the application in a web
-    browser, copy the link to share with others, or manage your shared
-    applications.
+    \section1 Running the shared \QDS application in the \QDV web service
 
-    \image share-online-manage.webp
+    \list 1
+      \li Go to the \l {https://designviewer.qt.io/} {\QDV web service}.
+          \image {qt-design-viewer-homepage.webp} {Qt Design Viewer homepage}
+
+      \li Log in with your Qt account.
+      \li Select \uicontrol Projects, then select the project you want to run.
+    \endlist
+
+    \note The changes you make after sharing the application from \QDS are not immediately
+          reflected in the \QDV web service. Share the application again
+          from \QDS to have the latest changes in the \QDV web service.
+
+    \section1 Sharing an application from the \QDV web service
+
+    \list 1
+      \li Go to the \l {https://designviewer.qt.io/} {\QDV web service}.
+      \li Log in with your Qt account.
+      \li Select \uicontrol Projects, then find the project you want to share.
+      \li To open the extra options, select \imagemorebutton in the project thumbnail,
+          then select \uicontrol Share.
+          \image {qt-design-viewer-share.webp} {Share application from Qt Design Viewer}
+
+      \li Select the corresponding options to add a description, set an expiration date,
+          or protect the project with a password.
+          \image {qt-design-viewer-share-options.webp} {Options for shared application in Qt Design Viewer}
+
+      \li After selecting your preferred options, select \uicontrol {Create new link}.
+    \endlist
+
+    Share the generated link with others to allow them direct access to the application.
+    \image {qt-design-viewer-shared-application-link.webp} {Generated link after sharing the application from Qt Design Viewer}
+
+    \note You cannot update the description, expiration date, or password on an
+          existing shared link. Instead, create a new link by
+          following the above process.
 
     \section1 Best practices
 

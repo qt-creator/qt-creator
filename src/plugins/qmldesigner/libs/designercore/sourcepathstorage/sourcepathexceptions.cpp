@@ -56,4 +56,14 @@ const char *SourceNameIdDoesNotExists::what() const noexcept
     return "The source id does not exist in the database!";
 }
 
+NoSourceNameForInvalidSourceNameId::NoSourceNameForInvalidSourceNameId()
+{
+    category().threadEvent("NoSourceNameForInvalidSourceNameId");
+}
+
+const char *NoSourceNameForInvalidSourceNameId::what() const noexcept
+{
+    return "You cannot get a source name for an invalid source name id!";
+}
+
 } // namespace QmlDesigner

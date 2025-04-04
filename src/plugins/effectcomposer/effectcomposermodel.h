@@ -29,6 +29,7 @@ class Process;
 namespace EffectComposer {
 
 class CompositionNode;
+class EffectComposerNodesModel;
 class EffectShadersCodeEditor;
 struct ShaderEditorData;
 class Uniform;
@@ -67,6 +68,8 @@ class EffectComposerModel : public QAbstractListModel
 
 public:
     EffectComposerModel(QObject *parent = nullptr);
+
+    EffectComposerNodesModel *effectComposerNodesModel() const;
 
     QHash<int, QByteArray> roleNames() const override;
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
@@ -129,6 +132,10 @@ public:
 
     Q_INVOKABLE void openCodeEditor(int idx);
     Q_INVOKABLE void openMainCodeEditor();
+
+    Q_INVOKABLE bool canAddNodeToLibrary(int idx);
+    Q_INVOKABLE bool nodeExists(int idx);
+    Q_INVOKABLE QString addNodeToLibraryNode(int idx);
 
     Q_INVOKABLE QVariant valueLimit(const QString &type, bool max) const;
 
@@ -265,6 +272,7 @@ private:
     bool writeToFile(const QByteArray &buf, const QString &filename, FileType fileType);
 
     QList<CompositionNode *> m_nodes;
+    QPointer<EffectComposerNodesModel> m_effectComposerNodesModel;
 
     int m_selectedIndex = -1;
     int m_codeEditorIndex = -1;

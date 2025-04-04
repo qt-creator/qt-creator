@@ -4,6 +4,7 @@
 #include "propertyeditorcontextobject.h"
 
 #include "abstractview.h"
+#include "compatibleproperties.h"
 #include "easingcurvedialog.h"
 #include "nodemetainfo.h"
 #include "propertyeditorutils.h"
@@ -30,47 +31,6 @@
 #include <QWindow>
 
 #include <coreplugin/icore.h>
-
-static uchar fromHex(const uchar c, const uchar c2)
-{
-    uchar rv = 0;
-    if (c >= '0' && c <= '9')
-        rv += (c - '0') * 16;
-    else if (c >= 'A' && c <= 'F')
-        rv += (c - 'A' + 10) * 16;
-    else if (c >= 'a' && c <= 'f')
-        rv += (c - 'a' + 10) * 16;
-
-    if (c2 >= '0' && c2 <= '9')
-        rv += (c2 - '0');
-    else if (c2 >= 'A' && c2 <= 'F')
-        rv += (c2 - 'A' + 10);
-    else if (c2 >= 'a' && c2 <= 'f')
-        rv += (c2 - 'a' + 10);
-
-    return rv;
-}
-
-static uchar fromHex(const QString &s, int idx)
-{
-    uchar c = s.at(idx).toLatin1();
-    uchar c2 = s.at(idx + 1).toLatin1();
-    return fromHex(c, c2);
-}
-
-QColor convertColorFromString(const QString &s)
-{
-    if (s.length() == 9 && s.startsWith(QLatin1Char('#'))) {
-        uchar a = fromHex(s, 1);
-        uchar r = fromHex(s, 3);
-        uchar g = fromHex(s, 5);
-        uchar b = fromHex(s, 7);
-        return {r, g, b, a};
-    } else {
-        QColor rv(s);
-        return rv;
-    }
-}
 
 namespace QmlDesigner {
 
@@ -110,7 +70,7 @@ QString PropertyEditorContextObject::convertColorToString(const QVariant &color)
 
 QColor PropertyEditorContextObject::colorFromString(const QString &colorString)
 {
-    return convertColorFromString(colorString);
+    return QColor::fromString(colorString);
 }
 
 QString PropertyEditorContextObject::translateFunction()
@@ -138,7 +98,7 @@ QStringList PropertyEditorContextObject::autoComplete(const QString &text, int p
     return {};
 }
 
-void PropertyEditorContextObject::toogleExportAlias()
+void PropertyEditorContextObject::toggleExportAlias()
 {
     QTC_ASSERT(m_model && m_model->rewriterView(), return);
 
@@ -156,13 +116,13 @@ void PropertyEditorContextObject::toogleExportAlias()
         PropertyName modelNodeId = selectedNode.id().toUtf8();
         ModelNode rootModelNode = rewriterView->rootModelNode();
 
-        rewriterView->executeInTransaction("PropertyEditorContextObject:toogleExportAlias", [&objectNode, &rootModelNode, modelNodeId](){
-            if (!objectNode.isAliasExported())
-                objectNode.ensureAliasExport();
-            else
-                if (rootModelNode.hasProperty(modelNodeId))
-                    rootModelNode.removeProperty(modelNodeId);
-        });
+        rewriterView->executeInTransaction("PropertyEditorContextObject:toggleExportAlias",
+                                           [&objectNode, &rootModelNode, modelNodeId]() {
+                                               if (!objectNode.isAliasExported())
+                                                   objectNode.ensureAliasExport();
+                                               else if (rootModelNode.hasProperty(modelNodeId))
+                                                   rootModelNode.removeProperty(modelNodeId);
+                                           });
     }
 }
 
@@ -189,20 +149,17 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
      * If we add more code here we have to forward the property editor view */
     RewriterView *rewriterView = m_model->rewriterView();
 
-    QTC_ASSERT(!rewriterView->selectedModelNodes().isEmpty(), return);
+    QTC_ASSERT(!m_editorNodes.isEmpty(), return);
 
-    try {
-        auto transaction = RewriterTransaction(rewriterView, "PropertyEditorContextObject:changeTypeName");
-
-        ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
-
+    auto changeNodeTypeName = [&](ModelNode &selectedNode) {
         // Check if the requested type is the same as already set
         if (selectedNode.simplifiedTypeName() == typeName)
             return;
 
         NodeMetaInfo metaInfo = m_model->metaInfo(typeName.toLatin1());
         if (!metaInfo.isValid()) {
-            Core::AsynchronousMessageBox::warning(tr("Invalid Type"), tr("%1 is an invalid type.").arg(typeName));
+            Core::AsynchronousMessageBox::warning(tr("Invalid Type"),
+                                                  tr("%1 is an invalid type.").arg(typeName));
             return;
         }
 
@@ -210,7 +167,9 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
         auto propertiesAndSignals = Utils::transform<PropertyNameList>(
             PropertyEditorUtils::filteredProperties(metaInfo), &PropertyMetaInfo::name);
         // Add signals to the list
-        for (const auto &signal : metaInfo.signalNames()) {
+
+        const PropertyNameList &signalNames = metaInfo.signalNames();
+        for (const PropertyName &signal : signalNames) {
             if (signal.isEmpty())
                 continue;
 
@@ -222,7 +181,8 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
         }
 
         // Add dynamic properties and respective change signals
-        for (const auto &property : selectedNode.properties()) {
+        const QList<AbstractProperty> &nodeProperties = selectedNode.properties();
+        for (const AbstractProperty &property : nodeProperties) {
             if (!property.isDynamic())
                 continue;
 
@@ -239,10 +199,13 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
         // Compare current properties and signals with the once available for change type
         QList<PropertyName> incompatibleProperties;
-        for (const auto &property : selectedNode.properties()) {
+        for (const AbstractProperty &property : nodeProperties) {
             if (!propertiesAndSignals.contains(property.name()))
                 incompatibleProperties.append(property.name().toByteArray());
         }
+
+        CompatibleProperties compatibleProps(selectedNode.metaInfo(), metaInfo);
+        compatibleProps.createCompatibilityMap(incompatibleProperties);
 
         Utils::sort(incompatibleProperties);
 
@@ -259,11 +222,11 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
             msgBox.setTextFormat(Qt::RichText);
             msgBox.setIcon(QMessageBox::Question);
             msgBox.setWindowTitle("Change Type");
-            msgBox.setText(QString("Changing the type from %1 to %2 can't be done without removing incompatible properties.<br><br>%3")
-                                   .arg(selectedNode.simplifiedTypeName())
-                                   .arg(typeName)
-                                   .arg(detailedText));
-            msgBox.setInformativeText("Do you want to continue by removing incompatible properties?");
+            msgBox.setText(QString("Changing the type from %1 to %2 can't be done without removing "
+                                   "incompatible properties.<br><br>%3")
+                               .arg(selectedNode.simplifiedTypeName(), typeName, detailedText));
+            msgBox.setInformativeText(
+                "Do you want to continue by removing incompatible properties?");
             msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
             msgBox.setDefaultButton(QMessageBox::Ok);
 
@@ -274,6 +237,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
                 selectedNode.removeProperty(p);
         }
 
+        compatibleProps.copyMappedProperties(selectedNode);
 #ifdef QDS_USE_PROJECTSTORAGE
         if (selectedNode.isRootNode())
             rewriterView->changeRootNodeType(typeName.toUtf8(), -1, -1);
@@ -281,10 +245,24 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
             selectedNode.changeType(typeName.toUtf8(), -1, -1);
 #else
         if (selectedNode.isRootNode())
-            rewriterView->changeRootNodeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+            rewriterView->changeRootNodeType(metaInfo.typeName(),
+                                             metaInfo.majorVersion(),
+                                             metaInfo.minorVersion());
         else
-            selectedNode.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+            selectedNode.changeType(metaInfo.typeName(),
+                                    metaInfo.majorVersion(),
+                                    metaInfo.minorVersion());
 #endif
+        compatibleProps.applyCompatibleProperties(selectedNode);
+    };
+
+    try {
+        auto transaction = RewriterTransaction(rewriterView, "PropertyEditorContextObject:changeTypeName");
+
+        ModelNodes selectedNodes = m_editorNodes;
+        for (ModelNode &selectedNode : selectedNodes)
+            changeNodeTypeName(selectedNode);
+
         transaction.commit();
     } catch (const Exception &e) {
         e.showException();
@@ -443,6 +421,20 @@ void PropertyEditorContextObject::setHasMultiSelection(bool b)
     emit hasMultiSelectionChanged();
 }
 
+bool PropertyEditorContextObject::isSelectionLocked() const
+{
+    return m_isSelectionLocked;
+}
+
+void PropertyEditorContextObject::setIsSelectionLocked(bool lock)
+{
+    if (lock == m_isSelectionLocked)
+        return;
+
+    m_isSelectionLocked = lock;
+    emit isSelectionLockedChanged();
+}
+
 void PropertyEditorContextObject::setInsightEnabled(bool value)
 {
     if (value != m_insightEnabled) {
@@ -462,9 +454,9 @@ bool PropertyEditorContextObject::hasQuick3DImport() const
     return m_hasQuick3DImport;
 }
 
-void PropertyEditorContextObject::setSelectedNode(const ModelNode &node)
+void PropertyEditorContextObject::setEditorNodes(const ModelNodes &nodes)
 {
-    m_selectedNode = node;
+    m_editorNodes = nodes;
 }
 
 void PropertyEditorContextObject::setHasQuick3DImport(bool value)
@@ -504,18 +496,18 @@ void PropertyEditorContextObject::setIsQt6Project(bool value)
     emit isQt6ProjectChanged();
 }
 
-bool PropertyEditorContextObject::has3DModelSelection() const
+bool PropertyEditorContextObject::has3DModelSelected() const
 {
-    return m_has3DModelSelection;
+    return m_has3DModelSelected;
 }
 
-void PropertyEditorContextObject::set3DHasModelSelection(bool value)
+void PropertyEditorContextObject::setHas3DModelSelected(bool value)
 {
-    if (value == m_has3DModelSelection)
+    if (value == m_has3DModelSelected)
         return;
 
-    m_has3DModelSelection = value;
-    emit has3DModelSelectionChanged();
+    m_has3DModelSelected = value;
+    emit has3DModelSelectedChanged();
 }
 
 void PropertyEditorContextObject::setSpecificsUrl(const QUrl &newSpecificsUrl)
@@ -694,6 +686,21 @@ QPoint PropertyEditorContextObject::globalPos(const QPoint &point) const
     if (m_quickWidget)
         return m_quickWidget->mapToGlobal(point);
     return point;
+}
+
+void PropertyEditorContextObject::handleToolBarAction(int action)
+{
+    emit toolBarAction(action);
+}
+
+void PropertyEditorContextObject::saveExpandedState(const QString &sectionName, bool expanded)
+{
+    s_expandedStateHash.insert(sectionName, expanded);
+}
+
+bool PropertyEditorContextObject::loadExpandedState(const QString &sectionName, bool defaultValue) const
+{
+    return s_expandedStateHash.value(sectionName, defaultValue);
 }
 
 void EasingCurveEditor::registerDeclarativeType()

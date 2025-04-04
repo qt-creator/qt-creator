@@ -239,9 +239,8 @@
       button or select \key Space.
     \endlist
 
-    To preview the whole UI, select the
-    \uicontrol {Live Preview} button on the top toolbar
-    or select \key Alt + \key P.
+    To preview the whole UI, select the run dropdown from the top toolbar,
+    and then select \uicontrol {Live Preview}, or select \key Alt + \key P.
 
     \section1 Animating rotation
 

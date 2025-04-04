@@ -1,0 +1,314 @@
+MetaInfo {
+
+    Type {
+        name: "QtQuick.Studio.Effects.BrightnessContrastEffect"
+        icon: "images/brightness-contrast-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Brightness Contrast"
+            category: "Effects"
+            libraryIcon: "images/brightness-contrast-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.ColorizeEffect"
+        icon: "images/colourize-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Colorize"
+            category: "Effects"
+            libraryIcon: "images/colourize-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.ColorOverlayEffect"
+        icon: "images/colourize-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Color Overlay"
+            category: "Effects"
+            libraryIcon: "images/colourize-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.DesaturationEffect"
+        icon: "images/desaturation-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Desaturation"
+            category: "Effects"
+            libraryIcon: "images/desaturation-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.DisplaceEffect"
+        icon: "images/displace-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Displace"
+            category: "Effects"
+            libraryIcon: "images/displace-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.DropShadowEffect"
+        icon: "images/drop-shadow-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Drop Shadow"
+            category: "Effects"
+            libraryIcon: "images/drop-shadow-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.FastBlurEffect"
+        icon: "images/fast-blur-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Fast Blur"
+            category: "Effects"
+            libraryIcon: "images/fast-blur-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.GammaAdjustEffect"
+        icon: "images/gamma-adjust-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Gamma Adjust"
+            category: "Effects"
+            libraryIcon: "images/gamma-adjust-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.GlowEffect"
+        icon: "images/glow-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Glow"
+            category: "Effects"
+            libraryIcon: "images/glow-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.HueSaturationEffect"
+        icon: "images/hue-saturation-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Hue Saturation"
+            category: "Effects"
+            libraryIcon: "images/hue-saturation-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.LevelAdjustEffect"
+        icon: "images/levels-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Level Adjust"
+            category: "Effects"
+            libraryIcon: "images/levels-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.OpacityMaskEffect"
+        icon: "images/opacity-mask-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Opacity Mask"
+            category: "Effects"
+            libraryIcon: "images/opacity-mask-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Studio.Effects.ThresholdMaskEffect"
+        icon: "images/threshold-16px.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            canBeDroppedInNavigator: true
+            isMovable: false
+            isResizable: false
+            canBeReparented: false
+            visibleInNavigator: true
+            forceNonDefaultProperty: "layer.effect"
+            setParentProperty: "layer.enabled: true"
+        }
+
+        ItemLibraryEntry {
+            name: "Threshold Mask"
+            category: "Effects"
+            libraryIcon: "images/threshold-24px.png"
+            version: "1.0"
+            requiredImport: "QtQuick.Studio.Effects"
+        }
+    }
+}

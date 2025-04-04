@@ -59,6 +59,7 @@ public:
     void setItems(const QList<FormEditorItem*> &itemList);
     QList<FormEditorItem*> items() const;
 
+    static bool hasDroppableAsset(const QMimeData *mimeData);
     static QList<FormEditorItem*> toFormEditorItemList(const QList<QGraphicsItem*> &itemList);
     static QGraphicsItem* topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList);
     static FormEditorItem* topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList, bool selectOnlyContentItems);

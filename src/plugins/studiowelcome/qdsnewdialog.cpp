@@ -89,18 +89,27 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     m_dialog->installEventFilter(this);
 
     QObject::connect(&m_wizard, &WizardHandler::wizardCreationFailed, this, [this] {
-        // TODO: if the dialog itself could react on the error
-        // the would not be necessary
+        // TODO: if the dialog itself could react on the error this would not be necessary
         QMessageBox::critical(m_dialog.get(), tr("New Project"), tr("Failed to initialize data."));
-        reject();
+        m_dialog->close();
     });
 }
 
 bool QdsNewDialog::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == m_dialog.get() && event->type() == QEvent::KeyPress
+    if (obj != m_dialog.get())
+        return false;
+
+    if (event->type() == QEvent::KeyPress
         && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape) {
-        reject();
+        m_dialog->close();
+        return true;
+    }
+
+    if (event->type() == QEvent::Close) {
+        m_screenSizeModel->setBackendModel(nullptr);
+        m_styleModel->setSourceModel(nullptr);
+        m_wizard.destroyWizard();
         return true;
     }
 
@@ -404,10 +413,6 @@ void QdsNewDialog::accept()
 
 void QdsNewDialog::reject()
 {
-    m_screenSizeModel->setBackendModel(nullptr);
-    m_styleModel->setSourceModel(nullptr);
-    m_wizard.destroyWizard();
-
     m_dialog->close();
 }
 

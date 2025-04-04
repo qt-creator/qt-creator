@@ -474,6 +474,13 @@ void ModelPrivate::exportedTypesChanged()
     }
 }
 
+void ModelPrivate::exportedTypeNamesChanged(const ExportedTypeNames &added,
+                                            const ExportedTypeNames &removed)
+{
+    notifyNodeInstanceViewLast(
+        [&](AbstractView *view) { view->exportedTypeNamesChanged(added, removed); });
+}
+
 void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
 {
     for (const InternalNodePointer &subNode : node->allSubNodes())
@@ -1788,10 +1795,65 @@ Storage::Info::ExportedTypeName Model::exportedTypeNameForMetaInfo(const NodeMet
     return {};
 }
 
+#ifdef QDS_USE_PROJECTSTORAGE
+
+namespace {
+
+QmlDesigner::Imports createQt6ModulesForProjectStorage()
+{
+    QmlDesigner::Imports imports = {
+        QmlDesigner::Import::createLibraryImport("QtQuick"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.Controls"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.Window"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.VectorImage"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.Layouts"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.Timeline"),
+        QmlDesigner::Import::createLibraryImport("QtCharts"),
+        QmlDesigner::Import::createLibraryImport("QtGraphs"),
+        QmlDesigner::Import::createLibraryImport("QtInsightTracker"),
+        QmlDesigner::Import::createLibraryImport("QtMultimedia"),
+
+        QmlDesigner::Import::createLibraryImport("QtQuick.VirtualKeyboard"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.VirtualKeyboard.Components"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.VirtualKeyboard.Layouts"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.VirtualKeyboard.Settings"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.VirtualKeyboard.Styles"),
+
+        QmlDesigner::Import::createLibraryImport("QtQuick3D"),
+        QmlDesigner::Import::createLibraryImport("QtQuick3D.AssetUtils"),
+        QmlDesigner::Import::createLibraryImport("QtQuick3D.Effects"),
+        QmlDesigner::Import::createLibraryImport("QtQuick3D.Helpers"),
+        QmlDesigner::Import::createLibraryImport("QtQuick3D.Particles3D"),
+        QmlDesigner::Import::createLibraryImport("QtQuick3D.Physics"),
+        QmlDesigner::Import::createLibraryImport("QtQuick3D.Physics.Helpers"),
+        QmlDesigner::Import::createLibraryImport("QtQuick3D.SpatialAudio"),
+        QmlDesigner::Import::createLibraryImport("QtQuick3D.Xr"),
+
+        QmlDesigner::Import::createLibraryImport("QtQuickUltralite.Extras"),
+        QmlDesigner::Import::createLibraryImport("QtQuickUltralite.Layers"),
+        QmlDesigner::Import::createLibraryImport("QtQuickUltralite.Studio.Components"),
+
+        QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Components"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.Studio.DesignEffects"),
+        QmlDesigner::Import::createLibraryImport("QtQuick.Studio.LogicHelper"),
+
+        QmlDesigner::Import::createLibraryImport("Qt.SafeRenderer"),
+
+        QmlDesigner::Import::createLibraryImport("SimulinkConnector")};
+
+    std::ranges::sort(imports);
+    return imports;
+};
+
+} //namespace
+
+#endif //QDS_USE_PROJECTSTORAGE
+
 Imports Model::possibleImports() const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
-    return {};
+    static auto imports = createQt6ModulesForProjectStorage();
+    return imports;
 #else
     return d->m_possibleImportList;
 #endif
@@ -1800,7 +1862,7 @@ Imports Model::possibleImports() const
 Imports Model::usedImports() const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
-    return {};
+    return imports();
 #else
     return d->m_usedImportList;
 #endif

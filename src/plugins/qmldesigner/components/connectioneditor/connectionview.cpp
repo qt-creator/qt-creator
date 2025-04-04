@@ -258,6 +258,13 @@ void ConnectionView::bindingPropertiesChanged(const QList<BindingProperty> &prop
     }
 }
 
+void ConnectionView::signalDeclarationPropertiesChanged(
+    const QVector<SignalDeclarationProperty> &propertyList, PropertyChangeFlags /* propertyChange */)
+{
+    for (const SignalDeclarationProperty &property : propertyList)
+        d->dynamicPropertiesModel.updateItem(property);
+}
+
 void ConnectionView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &propertyList,
                                                     AbstractView::PropertyChangeFlags /*propertyChange*/)
 {

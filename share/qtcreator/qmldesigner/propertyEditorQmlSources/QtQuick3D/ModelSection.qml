@@ -76,7 +76,7 @@ Column {
 
                     extraButtonIcon: StudioTheme.Constants.material_medium
                     extraButtonToolTip: qsTr("Edit material")
-                    onExtraButtonClicked: (idx) => { backendValues.materials.openMaterialEditor(idx) }
+                    onExtraButtonClicked: (idx) => { backendValues.materials.editMaterial(idx) }
                 }
 
                 ExpandingSpacer {}

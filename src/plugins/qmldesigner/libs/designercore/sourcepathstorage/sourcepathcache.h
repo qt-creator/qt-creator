@@ -43,14 +43,13 @@ public:
 
     void populateIfEmpty() override
     {
-        if (m_sourcePathCache.isEmpty()) {
+        if (m_sourceNameCache.isEmpty()) {
             m_sourceContextPathCache.populate();
-            m_sourcePathCache.populate();
+            m_sourceNameCache.populate();
         }
     }
 
-    std::pair<SourceContextId, SourceId> sourceContextAndSourceId(
-        SourcePathView sourcePath) const override
+    SourceId sourceId(SourcePathView sourcePath) const override
     {
         Utils::SmallStringView sourceContextPath = sourcePath.directory();
 
@@ -58,20 +57,19 @@ public:
 
         Utils::SmallStringView sourceName = sourcePath.name();
 
-        auto sourceId = m_sourcePathCache.id(sourceName);
+        auto sourceNameId = m_sourceNameCache.id(sourceName);
 
-        return {sourceContextId, SourceId::create(sourceId, sourceContextId)};
+        return SourceId::create(sourceNameId, sourceContextId);
     }
 
-    SourceId sourceId(SourcePathView sourcePath) const override
+    SourceNameId sourceNameId(Utils::SmallStringView sourceName) const override
     {
-        return sourceContextAndSourceId(sourcePath).second;
+        return m_sourceNameCache.id(sourceName);
     }
 
-    SourceId sourceId(SourceContextId sourceContextId,
-                      Utils::SmallStringView sourceName) const override
+    SourceId sourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName) const override
     {
-        SourceNameId sourceNameId = m_sourcePathCache.id(sourceName);
+        SourceNameId sourceNameId = m_sourceNameCache.id(sourceName);
 
         return SourceId::create(sourceNameId, sourceContextId);
     }
@@ -87,10 +85,10 @@ public:
 
     SourcePath sourcePath(SourceId sourceId) const override
     {
-        if (Q_UNLIKELY(!sourceId.isValid()))
+        if (!sourceId) [[unlikely]]
             throw NoSourcePathForInvalidSourceId();
 
-        auto sourceName = m_sourcePathCache.value(sourceId.mainId());
+        auto sourceName = m_sourceNameCache.value(sourceId.mainId());
 
         Utils::PathString sourceContextPath = m_sourceContextPathCache.value(sourceId.contextId());
 
@@ -99,10 +97,18 @@ public:
 
     Utils::PathString sourceContextPath(SourceContextId sourceContextId) const override
     {
-        if (Q_UNLIKELY(!sourceContextId.isValid()))
+        if (!sourceContextId) [[unlikely]]
             throw NoSourceContextPathForInvalidSourceContextId();
 
         return m_sourceContextPathCache.value(sourceContextId);
+    }
+
+    Utils::SmallString sourceName(SourceNameId sourceNameId) const override
+    {
+        if (!sourceNameId) [[unlikely]]
+            throw NoSourceNameForInvalidSourceNameId();
+
+        return m_sourceNameCache.value(sourceNameId);
     }
 
 private:
@@ -163,7 +169,7 @@ private:
     SourceContextStorageAdapter m_sourceContextStorageAdapter;
     SourceNameStorageAdapter m_sourceNameStorageAdapter;
     mutable SourceContextPathCache m_sourceContextPathCache{m_sourceContextStorageAdapter};
-    mutable SourceNameCache m_sourcePathCache{m_sourceNameStorageAdapter};
+    mutable SourceNameCache m_sourceNameCache{m_sourceNameStorageAdapter};
 };
 
 } // namespace QmlDesigner

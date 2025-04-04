@@ -28,7 +28,7 @@ Project {
     ImageFiles {
         directory: "%{ContentDir}"
     }
-    
+
     ImageFiles {
         directory: "%{AssetDir}"
     }
@@ -43,7 +43,7 @@ Project {
         directory: "."
     }
 
-    Files {
+    FontFiles {
         filter: "*.ttf;*.otf"
     }
 

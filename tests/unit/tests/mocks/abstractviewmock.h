@@ -65,6 +65,10 @@ public:
                 (override));
     MOCK_METHOD(void, nodeAboutToBeRemoved, (const QmlDesigner::ModelNode &removedNode), (override));
     MOCK_METHOD(void, refreshMetaInfos, (const QmlDesigner::TypeIds &), (override));
+    MOCK_METHOD(void,
+                exportedTypeNamesChanged,
+                (const ExportedTypeNames &added, const ExportedTypeNames &removed),
+                (override));
 
     MOCK_METHOD(void, modelAttached, (QmlDesigner::Model *), (override));
     MOCK_METHOD(void, modelAboutToBeDetached, (QmlDesigner::Model *), (override));

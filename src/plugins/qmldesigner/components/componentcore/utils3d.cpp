@@ -3,6 +3,7 @@
 
 #include "utils3d.h"
 
+#include <designmodewidget.h>
 #include <itemlibraryentry.h>
 #include <modelutils.h>
 #include <nodeabstractproperty.h>
@@ -13,6 +14,7 @@
 #include <qmldesignertr.h>
 #include <qmlitemnode.h>
 #include <qmlobjectnode.h>
+#include <uniquename.h>
 #include <variantproperty.h>
 
 #include <coreplugin/messagebox.h>
@@ -185,45 +187,6 @@ ModelNode getMaterialOfModel(const ModelNode &model, int idx)
     return mat;
 }
 
-void selectMaterial(const ModelNode &material)
-{
-    if (material.metaInfo().isQtQuick3DMaterial()) {
-        material.model()->rootModelNode().setAuxiliaryData(Utils3D::matLibSelectedMaterialProperty,
-                                                           material.id());
-    }
-}
-
-void selectTexture(const ModelNode &texture)
-{
-    if (texture.metaInfo().isQtQuick3DTexture()) {
-        texture.model()->rootModelNode().setAuxiliaryData(Utils3D::matLibSelectedTextureProperty,
-                                                          texture.id());
-    }
-}
-
-ModelNode selectedMaterial(AbstractView *view)
-{
-    if (!view)
-        return {};
-
-    ModelNode root = view->rootModelNode();
-
-    if (auto selectedProperty = root.auxiliaryData(Utils3D::matLibSelectedMaterialProperty))
-        return view->modelNodeForId(selectedProperty->toString());
-    return {};
-}
-
-ModelNode selectedTexture(AbstractView *view)
-{
-    if (!view)
-        return {};
-
-    ModelNode root = view->rootModelNode();
-    if (auto selectedProperty = root.auxiliaryData(Utils3D::matLibSelectedTextureProperty))
-        return view->modelNodeForId(selectedProperty->toString());
-    return {};
-}
-
 QList<ModelNode> getSelectedModels(AbstractView *view)
 {
     if (!view || !view->model())
@@ -231,6 +194,26 @@ QList<ModelNode> getSelectedModels(AbstractView *view)
 
     return Utils::filtered(view->selectedModelNodes(), [](const ModelNode &node) {
         return node.metaInfo().isQtQuick3DModel();
+    });
+}
+
+QList<ModelNode> getSelectedTextures(AbstractView *view)
+{
+    if (!view || !view->model())
+        return {};
+
+    return Utils::filtered(view->selectedModelNodes(), [](const ModelNode &node) {
+        return node.metaInfo().isQtQuick3DTexture();
+    });
+}
+
+QList<ModelNode> getSelectedMaterials(AbstractView *view)
+{
+    if (!view || !view->model())
+        return {};
+
+    return Utils::filtered(view->selectedModelNodes(), [](const ModelNode &node) {
+        return node.metaInfo().isQtQuick3DMaterial();
     });
 }
 
@@ -348,18 +331,20 @@ ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo)
 }
 #endif
 
-void addQuick3DImportAndView3D(AbstractView *view)
+bool addQuick3DImportAndView3D(AbstractView *view, bool suppressWarningDialog)
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     if (!view || !view->model() || !document || document->inFileComponentModelActive()) {
-        Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Import"),
-                                              Tr::tr("Could not add QtQuick3D import to the document."));
-        return;
+        if (!suppressWarningDialog) {
+            Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Import"),
+                                                  Tr::tr("Could not add QtQuick3D import to the document."));
+        }
+        return false;
     }
 
     QString importName{"QtQuick3D"};
     if (view->model()->hasImport(importName))
-        return;
+        return true;
 
     view->executeInTransaction(__FUNCTION__, [&] {
         Import import = Import::createLibraryImport(importName);
@@ -396,6 +381,7 @@ void addQuick3DImportAndView3D(AbstractView *view)
         if (!models.isEmpty())
             assignMaterialTo3dModel(view, models.at(0));
     });
+    return true;
 }
 
 // Assigns given material to a 3D model.
@@ -452,6 +438,132 @@ void assignMaterialTo3dModel(AbstractView *view, const ModelNode &modelNode,
     }
 
     QmlObjectNode(modelNode).setBindingProperty("materials", newMaterialNode.id());
+}
+
+ModelNode createMaterial(AbstractView *view)
+{
+    QTC_ASSERT(view && view->model(), return {});
+
+    ModelNode newMatNode;
+    view->executeInTransaction(__FUNCTION__, [&] {
+        ModelNode matLib = materialLibraryNode(view);
+        if (!matLib.isValid())
+            return;
+#ifdef QDS_USE_PROJECTSTORAGE
+        newMatNode = view->createModelNode("PrincipledMaterial");
+#else
+        NodeMetaInfo metaInfo = view->model()->qtQuick3DPrincipledMaterialMetaInfo();
+        newMatNode = view->createModelNode("QtQuick3D.PrincipledMaterial",
+                                     metaInfo.majorVersion(),
+                                     metaInfo.minorVersion());
+#endif
+        QmlObjectNode(newMatNode).setNameAndId("New Material", "material");
+        matLib.defaultNodeListProperty().reparentHere(newMatNode);
+        newMatNode.selectNode();
+    });
+    return newMatNode;
+}
+
+void renameMaterial(const ModelNode &material, const QString &newName)
+{
+    QTC_ASSERT(material, return);
+    QmlObjectNode(material).setNameAndId(newName, "material");
+}
+
+void duplicateMaterial(AbstractView *view, const ModelNode &material)
+{
+    QTC_ASSERT(view && view->model() && material, return);
+
+    TypeName matType = material.type();
+    QmlObjectNode sourceMat(material);
+    ModelNode duplicateMatNode;
+    QList<AbstractProperty> dynamicProps;
+
+    view->executeInTransaction(__FUNCTION__, [&] {
+        ModelNode matLib = Utils3D::materialLibraryNode(view);
+        QTC_ASSERT(matLib.isValid(), return);
+
+// create the duplicate material
+#ifdef QDS_USE_PROJECTSTORAGE
+        QmlObjectNode duplicateMat = view->createModelNode(matType);
+#else
+        NodeMetaInfo metaInfo = view->model()->metaInfo(matType);
+        QmlObjectNode duplicateMat = view->createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
+#endif
+        duplicateMatNode = duplicateMat.modelNode();
+
+        // generate and set a unique name
+        QString newName = sourceMat.modelNode().variantProperty("objectName").value().toString();
+        if (!newName.contains("copy", Qt::CaseInsensitive))
+            newName.append(" copy");
+
+        const QList<ModelNode> mats = matLib.directSubModelNodesOfType(
+            view->model()->qtQuick3DMaterialMetaInfo());
+        QStringList matNames;
+        for (const ModelNode &mat : mats)
+            matNames.append(mat.variantProperty("objectName").value().toString());
+
+        newName = UniqueName::generate(newName,
+                                       [&](const QString &name) { return matNames.contains(name); });
+
+        VariantProperty objNameProp = duplicateMatNode.variantProperty("objectName");
+        objNameProp.setValue(newName);
+
+        // generate and set an id
+        duplicateMatNode.setIdWithoutRefactoring(view->model()->generateNewId(newName, "material"));
+
+        // sync properties. Only the base state is duplicated.
+        const QList<AbstractProperty> props = material.properties();
+        for (const AbstractProperty &prop : props) {
+            if (prop.name() == "objectName" || prop.name() == "data")
+                continue;
+
+            if (prop.isVariantProperty()) {
+                if (prop.isDynamic()) {
+                    dynamicProps.append(prop);
+                } else {
+                    VariantProperty variantProp = duplicateMatNode.variantProperty(prop.name());
+                    variantProp.setValue(prop.toVariantProperty().value());
+                }
+            } else if (prop.isBindingProperty()) {
+                if (prop.isDynamic()) {
+                    dynamicProps.append(prop);
+                } else {
+                    BindingProperty bindingProp = duplicateMatNode.bindingProperty(prop.name());
+                    bindingProp.setExpression(prop.toBindingProperty().expression());
+                }
+            }
+        }
+
+        matLib.defaultNodeListProperty().reparentHere(duplicateMat);
+        duplicateMat.modelNode().selectNode();
+    });
+
+    // For some reason, creating dynamic properties in the same transaction doesn't work, so
+    // let's do it in separate transaction.
+    // TODO: Fix the issue and merge transactions (QDS-8094)
+    if (!dynamicProps.isEmpty()) {
+        view->executeInTransaction(__FUNCTION__, [&] {
+            for (const AbstractProperty &prop : std::as_const(dynamicProps)) {
+                if (prop.isVariantProperty()) {
+                    VariantProperty variantProp = duplicateMatNode.variantProperty(prop.name());
+                    variantProp.setDynamicTypeNameAndValue(prop.dynamicTypeName(),
+                                                           prop.toVariantProperty().value());
+                } else if (prop.isBindingProperty()) {
+                    BindingProperty bindingProp = duplicateMatNode.bindingProperty(prop.name());
+                    bindingProp.setDynamicTypeNameAndExpression(prop.dynamicTypeName(),
+                                                                prop.toBindingProperty().expression());
+                }
+            }
+        });
+    }
+}
+
+void openNodeInPropertyEditor(const ModelNode &node)
+{
+    QTC_ASSERT(node, return);
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("PropertyEditor", true);
+    node.view()->emitCustomNotification("force_editing_node", {node}); // To PropertyEditor
 }
 
 } // namespace Utils3D

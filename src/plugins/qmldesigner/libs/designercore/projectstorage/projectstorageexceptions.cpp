@@ -112,7 +112,7 @@ CannotParseQmlDocumentFile::CannotParseQmlDocumentFile(const Sqlite::source_loca
 
 const char *CannotParseQmlDocumentFile::what() const noexcept
 {
-    return "Cannot parse qml types file!";
+    return "Cannot parse qml document file!";
 }
 
 DirectoryInfoHasInvalidProjectSourceId::DirectoryInfoHasInvalidProjectSourceId(

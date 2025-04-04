@@ -12,6 +12,7 @@ StudioControls.Menu {
 
     property var targetMaterial: null
     property var targetItem: null
+    property int targetIndex: -1
     property int copiedMaterialInternalId: -1
     property var matSectionsModel: []
     property bool restoreFocusOnClose: true
@@ -22,11 +23,18 @@ StudioControls.Menu {
     {
         this.targetItem = targetItem
         this.targetMaterial = targetMaterial
+        this.targetIndex = targetMaterial ? targetMaterial.index : -1
         restoreFocusOnClose = true
         popup()
     }
 
     closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
+
+    onClosed: {
+        this.targetItem = null
+        this.targetMaterial = null
+        this.targetIndex = -1
+    }
 
     StudioControls.MenuItem {
         text: qsTr("Apply to selected (replace)")
@@ -50,26 +58,26 @@ StudioControls.Menu {
 
         onAboutToShow: {
             if (root.targetMaterial.hasDynamicProperties)
-                root.matSectionsModel = ["All", "Custom"];
+                root.matSectionsModel = ["All", "Custom"]
             else
-                root.matSectionsModel = ["All"];
+                root.matSectionsModel = ["All"]
 
             switch (root.targetMaterial.materialType) {
             case "DefaultMaterial":
-                root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.defaultMaterialSections);
-                break;
+                root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.defaultMaterialSections)
+                break
 
             case "PrincipledMaterial":
-                root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.principledMaterialSections);
-                break;
+                root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.principledMaterialSections)
+                break
 
             case "SpecularGlossyMaterial":
-                root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.specularGlossyMaterialSections);
-                break;
+                root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.specularGlossyMaterialSections)
+                break
 
             case "CustomMaterial":
-                root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.customMaterialSections);
-                break;
+                root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.customMaterialSections)
+                break
             }
         }
 
@@ -81,7 +89,7 @@ StudioControls.Menu {
                 enabled: root.targetMaterial
                 onTriggered: {
                     root.copiedMaterialInternalId = root.targetMaterial.materialInternalId
-                    materialBrowserModel.copyMaterialProperties(materialBrowserModel.selectedIndex, modelData)
+                    materialBrowserModel.copyMaterialProperties(root.targetIndex, modelData)
                 }
             }
         }
@@ -93,7 +101,7 @@ StudioControls.Menu {
                  && root.copiedMaterialInternalId !== root.targetMaterial.materialInternalId
                  && root.targetMaterial.materialType === materialBrowserModel.copiedMaterialType
                  && materialBrowserModel.isCopiedMaterialValid()
-        onTriggered: materialBrowserModel.pasteMaterialProperties(materialBrowserModel.selectedIndex)
+        onTriggered: materialBrowserModel.pasteMaterialProperties(root.targetIndex)
     }
 
     StudioControls.MenuSeparator {}
@@ -101,7 +109,7 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         text: qsTr("Duplicate")
         enabled: root.targetMaterial
-        onTriggered: materialBrowserModel.duplicateMaterial(materialBrowserModel.selectedIndex)
+        onTriggered: materialBrowserModel.duplicateMaterial(root.targetIndex)
     }
 
     StudioControls.MenuItem {
@@ -117,7 +125,7 @@ StudioControls.Menu {
         text: qsTr("Delete")
         enabled: root.targetMaterial
 
-        onTriggered: materialBrowserModel.deleteMaterial(materialBrowserModel.selectedIndex)
+        onTriggered: materialBrowserModel.deleteMaterial(root.targetIndex)
     }
 
     StudioControls.MenuSeparator {}
@@ -130,8 +138,9 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Add to Content Library")
+        enabled: root.targetMaterial
 
-        onTriggered: MaterialBrowserBackend.rootView.addMaterialToContentLibrary()
+        onTriggered: MaterialBrowserBackend.rootView.addMaterialToContentLibrary(root.targetIndex)
     }
 
     StudioControls.MenuItem {
@@ -142,8 +151,8 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Export Material")
-        enabled: !materialBrowserModel.selectedMaterialIsComponent // TODO: support component materials
+        enabled: root.targetMaterial && !root.targetMaterial.materialIsComponent // TODO: support component materials
 
-        onTriggered: MaterialBrowserBackend.rootView.exportMaterial()
+        onTriggered: MaterialBrowserBackend.rootView.exportMaterial(root.targetIndex)
     }
 }

@@ -160,6 +160,14 @@ bool CompositionNode::isCustom() const
     return m_isCustom;
 }
 
+void CompositionNode::setCustom(bool enable)
+{
+    if (enable != m_isCustom) {
+        m_isCustom = enable;
+        emit isCustomChanged();
+    }
+}
+
 CompositionNode::NodeType CompositionNode::type() const
 {
     return m_type;

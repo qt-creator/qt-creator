@@ -32,7 +32,7 @@ MetaInfo {
     }
 
 Type {
-    name: "QtQml.Base.Timer"
+    name: "QtQml.Timer"
     icon: "images/timer-16px.png"
 
     Hints {
@@ -47,7 +47,7 @@ Type {
         category: "d.Qt Quick - Animation"
         libraryIcon: "images/timer-24px.png"
         version: "2.0"
-        toolTip: qsTr(" Triggers an action at a given time.")
+        toolTip: qsTr("Triggers an action at a given time.")
     }
 }
 }

@@ -209,6 +209,8 @@ static ItemLibraryEntry itemLibraryEntryFromMimeData(const QMimeData *mimeData)
 
 static bool canBeDropped(const QMimeData *mimeData, Model *model)
 {
+    if (AbstractFormEditorTool::hasDroppableAsset(mimeData))
+        return true;
 #ifdef QDS_USE_PROJECTSTORAGE
     auto itemLibraryEntry = itemLibraryEntryFromMimeData(mimeData);
     NodeMetaInfo metaInfo{itemLibraryEntry.typeId(), model->projectStorage()};

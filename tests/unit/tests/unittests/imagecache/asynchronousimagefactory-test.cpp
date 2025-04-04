@@ -74,10 +74,10 @@ TEST_F(AsynchronousImageFactory, request_image_with_auxiliary_data_request_image
                 start(Eq("/path/to/Component.qml"),
                       Eq("foo"),
                       VariantWith<FontCollectorSizesAuxiliaryData>(
-                          AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                          AllOf(Field("FontCollectorSizesAuxiliaryData::sizes", &FontCollectorSizesAuxiliaryData::sizes,
                                       ElementsAre(QSize{20, 11})),
-                                Field(&FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")),
-                                Field(&FontCollectorSizesAuxiliaryData::text, Eq(u"some text")))),
+                                Field("FontCollectorSizesAuxiliaryData::colorName", &FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")),
+                                Field("FontCollectorSizesAuxiliaryData::text", &FontCollectorSizesAuxiliaryData::text, Eq(u"some text")))),
                       _,
                       _,
                       _))

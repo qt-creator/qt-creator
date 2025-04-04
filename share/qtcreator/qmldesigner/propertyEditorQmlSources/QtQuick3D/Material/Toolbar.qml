@@ -23,6 +23,7 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.apply_medium
             tooltip: qsTr("Apply material to selected model.")
+            enabled: has3DModelSelected
             onClicked: root.backend.toolBarAction(QmlMaterialNodeProxy.ApplyToSelected)
         }
 

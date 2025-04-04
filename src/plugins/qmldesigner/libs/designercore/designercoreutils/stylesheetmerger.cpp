@@ -328,8 +328,20 @@ void StylesheetMerger::adjustNodeIndex(ModelNode &node)
     parentListProperty.slide(currentIndex, info.parentIndex);
 }
 
-void StylesheetMerger::applyStyleProperties(ModelNode &templateNode, const ModelNode &styleNode)
+void StylesheetMerger::applyStyleProperties(ModelNode &templateNode,
+                                            const ModelNode &styleNode,
+                                            bool isRootNode)
 {
+    // using isRootNode allows transferring custom properties that may have been added in Qt Bridge
+    auto addProperty = [&templateNode, isRootNode](const VariantProperty &variantProperty) {
+        if (isRootNode)
+            templateNode.variantProperty(variantProperty.name())
+                .setDynamicTypeNameAndValue(variantProperty.dynamicTypeName(),
+                                            variantProperty.value());
+        else
+            templateNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
+    };
+
     const QRegularExpression regEx("[a-z]", QRegularExpression::CaseInsensitiveOption);
     for (const VariantProperty &variantProperty : styleNode.variantProperties()) {
         if (templateNode.hasBindingProperty(variantProperty.name())) {
@@ -337,16 +349,20 @@ void StylesheetMerger::applyStyleProperties(ModelNode &templateNode, const Model
             // replace it with the corresponding variant property.
             if (!templateNode.bindingProperty(variantProperty.name()).expression().contains(regEx)) {
                 templateNode.removeProperty(variantProperty.name());
-                templateNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
+                addProperty(variantProperty);
             }
         } else {
-            if (variantProperty.holdsEnumeration()) {
-                templateNode.variantProperty(variantProperty.name()).setEnumeration(variantProperty.enumeration().toEnumerationName());
-            } else {
-                templateNode.variantProperty(variantProperty.name()).setValue(variantProperty.value());
-            }
+            if (variantProperty.holdsEnumeration())
+                templateNode.variantProperty(variantProperty.name())
+                    .setEnumeration(variantProperty.enumeration().toEnumerationName());
+            else
+                addProperty(variantProperty);
         }
     }
+
+    if (isRootNode)
+        return;
+
     syncBindingProperties(templateNode, styleNode);
     syncNodeProperties(templateNode, styleNode, true);
     syncNodeListProperties(templateNode, styleNode, true);
@@ -472,6 +488,9 @@ void StylesheetMerger::merge()
 
     // build a hash of generated replacement ids
     setupIdRenamingHash();
+
+    // transfer custom root properties
+    applyStyleProperties(templateRootNode, styleRootNode, true);
 
     //in case we are replacing the root node, just do that and exit
     if (m_styleView->hasId(templateRootNode.id())) {

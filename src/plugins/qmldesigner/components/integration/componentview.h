@@ -40,7 +40,7 @@ public:
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
-    void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
+    void nodeIdChanged(const ModelNode &node, const QString &newId, const QString &oldId) override;
     void nodeSourceChanged(const ModelNode &node, const QString &newNodeSource) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void updateImport3DSupport(const QVariantMap &supportMap) override;

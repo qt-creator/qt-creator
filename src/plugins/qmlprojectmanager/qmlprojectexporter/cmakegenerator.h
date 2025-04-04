@@ -44,6 +44,7 @@ private:
     bool ignore(const Utils::FilePath &path) const;
     bool checkUri(const QString& uri, const Utils::FilePath &path) const;
     bool isMockModule(const NodePtr &node) const;
+    bool checkQmlDirLocation(const Utils::FilePath &path) const;
 
     void createCMakeFiles(const NodePtr &node) const;
     void createSourceFiles() const;

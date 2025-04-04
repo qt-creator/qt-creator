@@ -11,10 +11,10 @@
     To preview the currently active QML file on the desktop:
 
     \list 1
-        \li Select \uicontrol Run dropdown from the top toolbar and select
+        \li Select the run dropdown from the top toolbar, and then select
           \uicontrol {Live Preview}.
         \li Select \imagerunproject.
-            \image studio-live-preview.webp Live preview a \QDS project on the desktop
+            \image studio-live-preview.webp Selecting Live Preview in the run dropdown menu.
 
         \note Alternatively, select \key {Alt+P}.
     \endlist
@@ -22,8 +22,8 @@
     To preview any QML file in the project:
 
     \list 1
-        \li Select \uicontrol Run dropdown from the top toolbar and select
-          \uicontrol {Live Preview}.
+        \li Select the run dropdown from the top toolbar, and then select
+            \uicontrol {Live Preview}.
         \li Select \imagerunproject.
         \li Right-click the filename in the \l Projects view, and select
             \uicontrol {Preview File}.

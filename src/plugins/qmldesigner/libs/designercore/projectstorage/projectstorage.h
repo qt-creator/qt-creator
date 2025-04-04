@@ -325,7 +325,9 @@ private:
     enum class ExportedTypesChanged { No, Yes };
 
     void callRefreshMetaInfoCallback(TypeIds &deletedTypeIds,
-                                     ExportedTypesChanged &exportedTypesChanged);
+                                     ExportedTypesChanged exportedTypesChanged,
+                                     const Storage::Info::ExportedTypeNames &removedExportedTypeNames,
+                                     const Storage::Info::ExportedTypeNames &addedExportedTypeNames);
 
     class AliasPropertyDeclaration
     {
@@ -565,6 +567,8 @@ private:
                           Prototypes &relinkablePrototypes,
                           Prototypes &relinkableExtensions,
                           ExportedTypesChanged &exportedTypesChanged,
+                          Storage::Info::ExportedTypeNames &removedExportedTypeNames,
+                          Storage::Info::ExportedTypeNames &addedExportedTypeNames,
                           const SourceIds &updatedSourceIds);
 
     void synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
@@ -666,7 +670,9 @@ private:
                                   PropertyDeclarations &relinkablePropertyDeclarations,
                                   Prototypes &relinkablePrototypes,
                                   Prototypes &relinkableExtensions,
-                                  ExportedTypesChanged &exportedTypesChanged);
+                                  ExportedTypesChanged &exportedTypesChanged,
+                                  Storage::Info::ExportedTypeNames &removedExportedTypeNames,
+                                  Storage::Info::ExportedTypeNames &addedExportedTypeNames);
 
     void synchronizePropertyDeclarationsInsertAlias(
         AliasPropertyDeclarations &insertedAliasPropertyDeclarations,

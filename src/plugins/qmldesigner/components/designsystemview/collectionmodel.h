@@ -5,6 +5,7 @@
 
 #include <designsystem/dsconstants.h>
 #include <QAbstractItemModel>
+#include <QTimer>
 
 #include <optional>
 
@@ -28,8 +29,10 @@ public:
     Q_ENUM(Roles)
 
     Q_PROPERTY(QStringList themeNames READ themeNameList NOTIFY themeNameChanged FINAL)
+    Q_PROPERTY(bool editableOverride READ editableOverride WRITE setEditableOverride NOTIFY
+                   editableOverrideChanged FINAL)
 
-    CollectionModel(DSThemeManager *collection, const DSStore *store);
+    CollectionModel(DSThemeManager *collection, DSStore *store);
 
     QStringList themeNameList() const;
     Q_INVOKABLE void setActiveTheme(const QString &themeName);
@@ -65,19 +68,32 @@ public:
                                    const QVariant &value,
                                    int role = Qt::EditRole) override;
 
+    bool editableOverride() const;
+    void setEditableOverride(bool value);
+
 signals:
     void themeNameChanged();
+    void editableOverrideChanged();
 
 private:
     ThemeId findThemeId(int column) const;
     std::optional<PropInfo> findPropertyName(int row) const;
 
+    void save();
+    void aboutToSave();
+
+    void updateBoundValues();
+
 private:
     DSThemeManager *m_collection = nullptr;
-    const DSStore *m_store;
+    DSStore *m_store;
 
     // cache
     std::vector<ThemeId> m_themeIdList;
     std::vector<PropInfo> m_propertyInfoList;
+
+    QTimer m_saveCompressionTimer;
+
+    bool m_editableOverride = false;
 };
 } // namespace QmlDesigner

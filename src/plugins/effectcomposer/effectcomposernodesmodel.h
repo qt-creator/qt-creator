@@ -9,6 +9,8 @@
 
 namespace EffectComposer {
 
+class EffectNode;
+
 class EffectComposerNodesModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -26,13 +28,19 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     void loadModel();
+    void loadCustomNodes();
     void resetModel();
+
+    bool nodeExists(const QString &name);
+    bool isBuiltIn(const QString &name);
 
     QList<EffectNodesCategory *> categories() const { return  m_categories; }
 
     void updateCanBeAdded(const QStringList &uniforms, const QStringList &nodeNames);
 
     QHash<QString, QString> defaultImagesForNode(const QString &name) const;
+
+    void removeEffectNode(const QString &name);
 
 private:
     QString nodesSourcesPath() const;
@@ -41,6 +49,10 @@ private:
     bool m_probeNodesDir = false;
     bool m_modelLoaded = false;
     QHash<QString, QHash<QString, QString>> m_defaultImagesHash;
+    QStringList m_builtInNodeNames;
+    QStringList m_customNodeNames;
+    EffectNode *m_builtinCustomNode = nullptr;
+    EffectNodesCategory *m_customCategory = nullptr;
 };
 
 } // namespace EffectComposer

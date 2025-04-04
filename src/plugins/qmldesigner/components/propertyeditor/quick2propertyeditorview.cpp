@@ -87,6 +87,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
 
         QUrl regExpUrl = QUrl::fromLocalFile(resourcePath + "/RegExpValidator.qml");
         qmlRegisterType(regExpUrl, "HelperWidgets", 2, 0, "RegExpValidator");
+        qmlRegisterUncreatableType<PropertyEditorContextObject>("PropertyToolBarAction", 2, 0, "ToolBarAction", "Enum type");
     }
 }
 

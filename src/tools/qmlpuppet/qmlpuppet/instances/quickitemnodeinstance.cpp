@@ -628,6 +628,9 @@ void QuickItemNodeInstance::resetHorizontal()
     } else {
         setPropertyVariant("width", quickItem()->implicitWidth());
     }
+
+    resetProperty("width");
+    refreshLayoutable();
 }
 
 void QuickItemNodeInstance::resetVertical()
@@ -638,6 +641,9 @@ void QuickItemNodeInstance::resetVertical()
     } else {
         setPropertyVariant("height", quickItem()->implicitHeight());
     }
+
+    resetProperty("height");
+    refreshLayoutable();
 }
 
 QList<ServerNodeInstance> QuickItemNodeInstance::childItemsForChild(QQuickItem *item) const

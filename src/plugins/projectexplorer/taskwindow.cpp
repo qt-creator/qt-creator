@@ -232,7 +232,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     connect(hub, &TaskHub::taskFileNameUpdated, this, &TaskWindow::updatedTaskFileName);
     connect(hub, &TaskHub::tasksCleared, this, &TaskWindow::clearTasks);
     connect(hub, &TaskHub::categoryVisibilityChanged, this, &TaskWindow::setCategoryVisibility);
-    connect(hub, &TaskHub::popupRequested, this, &TaskWindow::popup);
+    connect(hub, &TaskHub::popupRequested, this, &TaskWindow::popup, Qt::QueuedConnection);
     connect(hub, &TaskHub::showTask, this, &TaskWindow::showTask);
     connect(hub, &TaskHub::openTask, this, &TaskWindow::openTask);
 

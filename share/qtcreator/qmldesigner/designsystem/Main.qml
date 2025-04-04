@@ -44,7 +44,21 @@ Rectangle {
     height: 400
     color: StudioTheme.Values.themePanelBackground
 
+    function clearModel() {
+        root.currentCollectionName = ""
+        tableView.model = null
+
+        topLeftCell.visible = false
+        createModeButton.enabled = false
+        modelConnections.target = null
+    }
+
     function loadModel(name) {
+        if (name === undefined) {
+            clearModel()
+            return
+        }
+
         root.currentCollectionName = name
         tableView.model = DesignSystemBackend.dsInterface.model(name)
 
@@ -67,10 +81,190 @@ Rectangle {
     }
 
     function setValue(value: var, row: int, column: int, isBinding: bool): bool {
-        console.log("setValue(", value, row, column, isBinding, ")")
-        return tableView.model.setData(tableView.index(row, column),
+        let result = tableView.model.setData(tableView.index(row, column),
                                        DesignSystemBackend.dsInterface.createThemeProperty("", value, isBinding),
                                        Qt.EditRole)
+
+        if (!result)
+            overlayInvalid.showData(row, column)
+
+        return result
+    }
+
+    function dismissInvalidOverlay() {
+        overlayInvalid.hide()
+        notification.visible = false
+    }
+
+    Rectangle {
+        id: overlayInvalid
+
+        property Item cellItem
+
+        color: "transparent"
+        border {
+            width: StudioTheme.Values.border
+            color: StudioTheme.Values.themeAmberLight
+        }
+
+        visible: false
+        z: 112
+
+        function show() {
+            overlayInvalid.visible = true
+            overlayInvalid.layout()
+            notification.visible = true
+
+            notification.forceActiveFocus()
+        }
+
+        function showData(row: int, column: int) {
+            overlayInvalid.parent = tableView.contentItem
+            overlayInvalid.cellItem = tableView.itemAtCell(Qt.point(column, row))
+
+            notification.message = qsTr("Invalid binding. Please use a valid non-cyclic binding.")
+
+            overlayInvalid.show()
+        }
+
+        function showHeaderData(section: int, orientation: var) {
+            if (orientation === Qt.Horizontal) {
+                overlayInvalid.parent = horizontalHeaderView.contentItem
+                overlayInvalid.cellItem = horizontalHeaderView.itemAtCell(Qt.point(overlay.section, 0))
+            } else {
+                overlayInvalid.parent = verticalHeaderView.contentItem
+                overlayInvalid.cellItem = verticalHeaderView.itemAtCell(Qt.point(0, overlay.section))
+            }
+
+            notification.message = qsTr("This name is already in use, please use a different name.")
+
+            overlayInvalid.show()
+        }
+
+        function hide() {
+            overlayInvalid.visible = false
+        }
+
+        function layout() {
+            if (!overlayInvalid.visible)
+                return
+
+            if (overlayInvalid.cellItem !== null) {
+                overlayInvalid.x = overlayInvalid.cellItem.x + 1
+                overlayInvalid.y = overlayInvalid.cellItem.y + 1
+                overlayInvalid.width = overlayInvalid.cellItem.width - 2
+                overlayInvalid.height = overlayInvalid.cellItem.height - 2
+            }
+        }
+
+        Connections {
+            target: tableView
+
+            function onLayoutChanged() { overlayInvalid.layout() }
+        }
+    }
+
+    Rectangle {
+        id: notification
+
+        property alias message: contentItemText.text
+
+        width: 260
+        height: 78
+        z: 666
+
+        visible: false
+
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 20
+
+        color: StudioTheme.Values.themePopoutBackground
+        border.color: "#636363"
+        border.width: StudioTheme.Values.border
+
+        onActiveFocusChanged: {
+            if (!notification.activeFocus)
+                root.dismissInvalidOverlay()
+        }
+
+        Column {
+            id: column
+            anchors.fill: parent
+            anchors.margins: StudioTheme.Values.border
+
+            Item {
+                id: titleBarItem
+                width: parent.width
+                height: StudioTheme.Values.height
+
+                Row {
+                    id: row
+                    anchors.fill: parent
+                    anchors.leftMargin: 8
+                    anchors.rightMargin: 4
+                    spacing: 4
+
+                    Item {
+                        id: titleBarContent
+                        width: row.width - row.spacing - closeIndicator.width
+                        height: row.height
+
+                        Row {
+                            anchors.fill: parent
+                            spacing: 10
+
+                            T.Label {
+                                anchors.verticalCenter: parent.verticalCenter
+                                font.pixelSize: root.customStyle.mediumIconFontSize
+                                text: StudioTheme.Constants.warning2_medium
+                                font.family: StudioTheme.Constants.iconFont.family
+                                color: StudioTheme.Values.themeAmberLight
+                            }
+
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: qsTr("Warning")
+                                color: StudioTheme.Values.themeTextColor
+                            }
+                        }
+                    }
+
+                    StudioControls.IconIndicator {
+                        id: closeIndicator
+                        anchors.verticalCenter: parent.verticalCenter
+                        icon: StudioTheme.Constants.colorPopupClose
+                        pixelSize: StudioTheme.Values.myIconFontSize
+                        onClicked: root.dismissInvalidOverlay()
+                    }
+                }
+            }
+
+            Item {
+                id: contentItem
+                width: parent.width
+                height: parent.height - titleBarItem.height
+
+                Column {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    anchors.topMargin: 4
+
+                    Item {
+                        width: parent.width
+                        height: parent.height
+
+                        Text {
+                            id: contentItemText
+                            anchors.fill: parent
+                            wrapMode: Text.Wrap
+                            elide: Text.ElideRight
+                            color: StudioTheme.Values.themeTextColor
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Connections {
@@ -140,6 +334,7 @@ Rectangle {
 
     StudioControls.Dialog {
         id: createCollectionDialog
+        property alias newCollectionName: createCollectionTextField.text
         title: qsTr("Create collection")
         width: Math.min(300, root.width)
         closePolicy: Popup.CloseOnEscape
@@ -157,8 +352,6 @@ Rectangle {
                 actionIndicatorVisible: false
                 translationIndicatorVisible: false
                 width: parent.width
-
-                text: qsTr("NewCollection")
 
                 onAccepted: createCollectionDialog.accept()
                 onRejected: createCollectionDialog.reject()
@@ -256,6 +449,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 actionIndicatorVisible: false
                 model: DesignSystemBackend.dsInterface.collections
+                enabled: collectionsComboBox.count
                 onActivated: root.loadModel(collectionsComboBox.currentText)
             }
 
@@ -264,7 +458,8 @@ Rectangle {
                 style: StudioTheme.Values.viewBarControlStyle
                 anchors.verticalCenter: parent.verticalCenter
                 actionIndicatorVisible: false
-                model: tableView.model.themeNames
+                model: tableView.model?.themeNames ?? null
+                enabled: tableView.model
                 onActivated: tableView.model.setActiveTheme(themesComboBox.currentText)
             }
 
@@ -274,6 +469,7 @@ Rectangle {
                 buttonIcon: StudioTheme.Constants.more_medium
                 checkable: true
                 checked: moreMenu.visible
+                tooltip: qsTr("More options")
 
                 onToggled: {
                     if (moreMenu.visible)
@@ -301,24 +497,35 @@ Rectangle {
 
                     StudioControls.MenuItem {
                         text: qsTr("Create collection")
-                        onTriggered: createCollectionDialog.open()
+                        onTriggered: {
+                            createCollectionDialog.newCollectionName = DesignSystemBackend.dsInterface.generateCollectionName(qsTr("NewCollection"))
+                            createCollectionDialog.open()
+                        }
                     }
                 }
             }
 
             // TODO this is only for debugging purposes
-            Button {
-                anchors.verticalCenter: parent.verticalCenter
-                text: qsTr("load")
-                onClicked: {
-                    DesignSystemBackend.dsInterface.loadDesignSystem()
+            Connections {
+                target: DesignSystemBackend.dsInterface
+                function onCollectionsChanged() {
                     root.loadModel(DesignSystemBackend.dsInterface.collections[0])
                 }
+            }
+
+            StudioControls.IconTextButton {
+                id: refreshButton
+                anchors.verticalCenter: parent.verticalCenter
+                buttonIcon: StudioTheme.Constants.updateContent_medium
+                tooltip: qsTr("Refresh")
+                onClicked: DesignSystemBackend.dsInterface.loadDesignSystem()
             }
         }
     }
 
     component Cell: Rectangle {
+        id: cell
+
         required property var display
         required property int row
         required property int column
@@ -330,9 +537,8 @@ Rectangle {
         required property bool isBinding
         required property var propertyValue
 
-        property bool creatingBinding: false
-
-        readonly property bool bindingEditor: isBinding || creatingBinding
+        readonly property bool bindingEditor: cell.isBinding || tableView.model.editableOverride
+        readonly property bool isValid: cell.resolvedValue !== undefined
 
         color: root.backgroundColor
         implicitWidth: root.cellWidth
@@ -349,10 +555,13 @@ Rectangle {
         HoverHandler { id: cellHoverHandler }
 
         DSC.BindingIndicator {
-            icon.text: dataCell.isBinding ? StudioTheme.Constants.actionIconBinding
-                                          : StudioTheme.Constants.actionIcon
-            icon.color: dataCell.isBinding ? StudioTheme.Values.themeInteraction
-                                           : StudioTheme.Values.themeTextColor
+            id: bindingIndicator
+            icon.text: !dataCell.isValid ? StudioTheme.Constants.warning2_medium
+                                         : dataCell.isBinding ? StudioTheme.Constants.actionIconBinding
+                                                              : StudioTheme.Constants.actionIcon
+            icon.color: !dataCell.isValid ? StudioTheme.Values.themeAmberLight
+                                          : dataCell.isBinding ? StudioTheme.Values.themeInteraction
+                                                               : StudioTheme.Values.themeTextColor
 
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
@@ -363,8 +572,23 @@ Rectangle {
                 tableView.closeEditor()
                 menu.show(dataCell.row, dataCell.column)
             }
+
+            onHoverChanged: {
+                if (dataCell.isValid)
+                    return
+
+                if (bindingIndicator.hover)
+                    toolTipInvalid.showText(dataCell,
+                                            Qt.point(bindingIndicator.x + bindingIndicator.width,
+                                                     bindingIndicator.y),
+                                            qsTr("Invalid binding. Cyclic binding is not allowed."))
+                else
+                    toolTipInvalid.hideText()
+            }
         }
     }
+
+    StudioControls.ToolTipExt { id: toolTipInvalid }
 
     DelegateChooser {
         id: chooser
@@ -399,11 +623,12 @@ Rectangle {
                     horizontalAlignment: TextInput.AlignLeft
                     verticalAlignment: TextInput.AlignVCenter
 
-                    text: stringDelegate.bindingEditor ? stringDelegate.propertyValue
-                                                       : stringDelegate.resolvedValue
+                    text: stringDelegate.isBinding ? stringDelegate.propertyValue
+                                                   : tableView.model.editableOverride ? ""
+                                                                                      : stringDelegate.resolvedValue
 
                     Component.onCompleted: stringEditDelegate.selectAll()
-                    Component.onDestruction: stringDelegate.creatingBinding = false
+                    Component.onDestruction: tableView.model.editableOverride = false
 
                     TableView.onCommit: {
                         root.setValue(stringEditDelegate.text,
@@ -412,8 +637,6 @@ Rectangle {
                                       stringDelegate.bindingEditor)
                     }
                 }
-
-                //Component.onCompleted: console.log("DelegateChoice - string", stringDelegate.resolvedValue)
             }
         }
 
@@ -495,13 +718,13 @@ Rectangle {
                         horizontalAlignment: TextInput.AlignLeft
                         verticalAlignment: TextInput.AlignVCenter
 
-                        text: numberDelegate.propertyValue
+                        text: numberDelegate.isBinding ? numberDelegate.propertyValue : ""
 
                         focus: numberDelegate.bindingEditor
                         visible: numberDelegate.bindingEditor
 
                         Component.onCompleted: numberBindingEditDelegate.selectAll()
-                        Component.onDestruction: numberDelegate.creatingBinding = false
+                        Component.onDestruction: tableView.model.editableOverride = false
                     }
 
                     TableView.onCommit: {
@@ -525,8 +748,6 @@ Rectangle {
                         numberEditDelegateFocusScope.alreadyCommited = true
                     }
                 }
-
-                //Component.onCompleted: console.log("DelegateChoice - number", numberDelegate.resolvedValue)
             }
         }
 
@@ -585,10 +806,12 @@ Rectangle {
                     horizontalAlignment: TextInput.AlignLeft
                     verticalAlignment: TextInput.AlignVCenter
 
-                    text: flagDelegate.bindingEditor ? flagDelegate.propertyValue
-                                                     : flagDelegate.resolvedValue
+                    text: flagDelegate.isBinding ? flagDelegate.propertyValue
+                                                 : tableView.model.editableOverride ? ""
+                                                                                    : flagDelegate.resolvedValue
+
                     Component.onCompleted: flagBindingEditDelegate.selectAll()
-                    Component.onDestruction: flagDelegate.creatingBinding = false
+                    Component.onDestruction: tableView.model.editableOverride = false
 
                     TableView.onCommit: {
                         root.setValue(flagBindingEditDelegate.text,
@@ -597,8 +820,6 @@ Rectangle {
                                       true)
                     }
                 }
-
-                //Component.onCompleted: console.log("DelegateChoice - bool", flagDelegate.resolvedValue)
             }
         }
 
@@ -683,8 +904,9 @@ Rectangle {
                     horizontalAlignment: TextInput.AlignLeft
                     verticalAlignment: TextInput.AlignVCenter
 
-                    text: colorDelegate.bindingEditor ? colorDelegate.propertyValue
-                                                      : colorDelegate.resolvedValue
+                    text: colorDelegate.isBinding ? colorDelegate.propertyValue
+                                                  : tableView.model.editableOverride ? ""
+                                                                                    : colorDelegate.resolvedValue
 
                     RegularExpressionValidator {
                         id: hexValidator
@@ -694,7 +916,7 @@ Rectangle {
                     validator: colorDelegate.bindingEditor ? null : hexValidator
 
                     Component.onCompleted: colorEditDelegate.selectAll()
-                    Component.onDestruction: colorDelegate.creatingBinding = false
+                    Component.onDestruction: tableView.model.editableOverride = false
 
                     TableView.onCommit: {
                         root.setValue(colorEditDelegate.text,
@@ -732,8 +954,6 @@ Rectangle {
                         }
                     }
                 }
-
-                //Component.onCompleted: console.log("DelegateChoice - color", colorDelegate.resolvedValue)
             }
         }
     }
@@ -759,7 +979,7 @@ Rectangle {
             }
             text: qsTr("Reset")
             onTriggered: {
-                let data = tableView.model.data(menu.modelIndex, CollectionModel.ResolvedValueRole)
+                let data = tableView.model.data(menu.modelIndex, CollectionModel.ResolvedValueRole) ?? ""
                 var prop = DesignSystemBackend.dsInterface.createThemeProperty("", data, false)
                 let result = tableView.model.setData(menu.modelIndex, prop, Qt.EditRole)
             }
@@ -769,7 +989,7 @@ Rectangle {
             text: qsTr("Set Binding")
             onTriggered: {
                 let cell = tableView.itemAtIndex(menu.modelIndex)
-                cell.creatingBinding = true
+                tableView.model.editableOverride = true
                 tableView.edit(menu.modelIndex)
             }
         }
@@ -852,6 +1072,9 @@ Rectangle {
 
         DSC.TextField {
             id: overlayTextField
+
+            property string previousText
+
             anchors.fill: parent
             leftPadding: root.leftPadding + (overlayIcon.visible ? overlayIcon.width + 8 : 0)
 
@@ -871,6 +1094,9 @@ Rectangle {
 
                 // Revoke active focus from text field by forcing active focus on another item
                 tableView.forceActiveFocus()
+
+                if (!result && overlayTextField.previousText !== overlayTextField.text)
+                    overlayInvalid.showHeaderData(overlay.section, overlay.orientation)
             }
 
             Text {
@@ -905,8 +1131,7 @@ Rectangle {
         }
 
         function show(section, orientation) {
-            // Close all currently visible edit delegates
-            tableView.closeEditor()
+            tableView.closeEditor() // Close all currently visible edit delegates
 
             if (orientation === Qt.Horizontal)
                 overlay.parent = horizontalHeaderView.contentItem
@@ -925,6 +1150,8 @@ Rectangle {
             overlayTextField.text = tableView.model.headerData(section,
                                                                orientation,
                                                                CollectionModel.EditRole)
+            overlayTextField.previousText = overlayTextField.text
+
             overlayTextField.forceActiveFocus()
             overlayTextField.selectAll()
         }
@@ -946,7 +1173,6 @@ Rectangle {
 
             let insideViewport = item !== null
 
-            //overlay.visible = insideViewport
             if (insideViewport) {
                 overlay.x = item.x
                 overlay.y = item.y

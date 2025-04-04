@@ -1,6 +1,8 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <qmldesignertr.h>
+
 #include "signallist.h"
 
 #include "signallistdelegate.h"
@@ -28,8 +30,8 @@ namespace QmlDesigner {
 SignalListModel::SignalListModel(QObject *parent)
     : QStandardItemModel(0, 3, parent)
 {
-    setHeaderData(TargetColumn, Qt::Horizontal, tr("Item ID"));
-    setHeaderData(SignalColumn, Qt::Horizontal, tr("Signal"));
+    setHeaderData(TargetColumn, Qt::Horizontal, Tr::tr("Item ID"));
+    setHeaderData(SignalColumn, Qt::Horizontal, Tr::tr("Signal"));
     setHeaderData(ButtonColumn, Qt::Horizontal, "");
 }
 

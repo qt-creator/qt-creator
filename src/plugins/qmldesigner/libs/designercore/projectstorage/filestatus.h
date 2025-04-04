@@ -22,8 +22,7 @@ public:
     friend bool operator==(const FileStatus &first, const FileStatus &second)
     {
         return first.sourceId == second.sourceId && first.size == second.size
-               && first.lastModified == second.lastModified && first.size >= 0
-               && first.lastModified >= 0;
+               && first.lastModified == second.lastModified;
     }
 
     friend bool operator!=(const FileStatus &first, const FileStatus &second)
@@ -46,9 +45,9 @@ public:
         return first.sourceId < second;
     }
 
-    bool isValid() const { return sourceId && size >= 0 && lastModified >= 0; }
+    bool isExisting() const { return sourceId && size >= 0 && lastModified >= 0; }
 
-    explicit operator bool() const { return isValid(); }
+    explicit operator bool() const { return bool(sourceId); }
 
     template<typename String>
     friend void convertToString(String &string, const FileStatus &fileStatus)

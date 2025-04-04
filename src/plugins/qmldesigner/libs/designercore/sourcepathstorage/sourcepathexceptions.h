@@ -27,6 +27,13 @@ public:
     const char *what() const noexcept override;
 };
 
+class QMLDESIGNERCORE_EXPORT NoSourceNameForInvalidSourceNameId : public SourcePathError
+{
+public:
+    NoSourceNameForInvalidSourceNameId();
+    const char *what() const noexcept override;
+};
+
 class QMLDESIGNERCORE_EXPORT NoSourceContextPathForInvalidSourceContextId : public SourcePathError
 {
 public:

@@ -118,11 +118,11 @@ void convertToString(String &string, const QImage &image);
 
 extern template NANOTRACE_EXPORT void convertToString(ArgumentsString &string, const QImage &image);
 
-template<typename String, std::size_t size>
-void convertToString(String &string, const char (&text)[size])
+template<typename String>
+void convertToString(String &string, const char *text)
 {
     string.append('\"');
-    string.append(std::string_view{text, size - 1});
+    string.append(std::string_view{text});
     string.append('\"');
 }
 
@@ -363,7 +363,7 @@ auto keyValue(const Key &key, Value &&value)
     if constexpr (std::is_lvalue_reference_v<Value>)
         return std::tuple<const Key &, const Value &>(key, value);
     else
-        return std::tuple<const Key &, std::decay_t<Value>>(key, value);
+        return std::tuple<const Key &, std::remove_cvref_t<Value>>(key, value);
 }
 
 template<KeyValue... Entries>

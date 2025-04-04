@@ -26,7 +26,7 @@ TextInput {
     validator: RegularExpressionValidator { regularExpression: /^(\w+\s)*\w+$/ }
 
     signal renamed(string newName)
-    signal clicked()
+    signal clicked(var mouseEvent)
 
     function startRename()
     {
@@ -40,7 +40,7 @@ TextInput {
     function commitRename()
     {
         if (root.readOnly)
-            return;
+            return
 
         root.renamed(root.text)
     }
@@ -61,7 +61,7 @@ TextInput {
         id: mouseArea
         anchors.fill: parent
 
-        onClicked: root.clicked()
+        onClicked: (mouseEvent) => root.clicked(mouseEvent)
         onDoubleClicked: root.startRename()
     }
 }

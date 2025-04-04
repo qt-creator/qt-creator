@@ -1,6 +1,8 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <qmldesignertr.h>
+
 #include "annotationtableview.h"
 
 #include "defaultannotations.h"
@@ -347,9 +349,9 @@ void AnnotationTableView::setupComments(const QVector<Comment> &comments)
     m_model->clear();
     m_modelUpdating = true;
     m_model->setColumnCount(3);
-    m_model->setHeaderData(ColumnId::Title, Qt::Horizontal, tr("Title"));
-    m_model->setHeaderData(ColumnId::Author, Qt::Horizontal, tr("Author"));
-    m_model->setHeaderData(ColumnId::Value, Qt::Horizontal, tr("Value"));
+    m_model->setHeaderData(ColumnId::Title, Qt::Horizontal, Tr::tr("Title"));
+    m_model->setHeaderData(ColumnId::Author, Qt::Horizontal, Tr::tr("Author"));
+    m_model->setHeaderData(ColumnId::Value, Qt::Horizontal, Tr::tr("Value"));
     setItemDelegateForColumn(ColumnId::Title, &m_titleDelegate);
     setItemDelegateForColumn(ColumnId::Value, &m_valueDelegate);
 

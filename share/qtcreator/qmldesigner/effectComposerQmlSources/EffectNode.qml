@@ -15,16 +15,18 @@ Rectangle {
     width: 140
     height: 32
 
-    color: mouseArea.containsMouse && modelData.canBeAdded
+    color: mouseArea.containsMouse && modelData.canBeAdded && root.enabled
            ? StudioTheme.Values.themeControlBackgroundInteraction : "transparent"
 
     signal addEffectNode(var nodeQenPath)
+    signal removeEffectNodeFromLibrary(var nodeName)
 
     ToolTipArea {
         id: mouseArea
 
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton
+        visible: root.enabled
 
         tooltip: modelData.canBeAdded ? modelData.nodeDescription
                                       : qsTr("An effect with same properties already exists, this effect cannot be added.")
@@ -59,6 +61,28 @@ Rectangle {
             anchors.verticalCenter: nodeIcon.verticalCenter
             wrapMode: Text.WordWrap
             width: parent.width - parent.spacing - nodeIcon.width
+
+            IconButton {
+                id: removeButton
+
+                visible: root.enabled && modelData.canBeRemoved
+                         && (mouseArea.containsMouse || removeButton.containsMouse)
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: StudioTheme.Values.iconAreaWidth / 4
+                icon: StudioTheme.Constants.close_small
+                transparentBg: false
+                buttonSize: StudioTheme.Values.iconAreaWidth
+                iconSize: StudioTheme.Values.smallIconFontSize
+                iconColor: StudioTheme.Values.themeTextColor
+                iconScale: removeButton.containsMouse ? 1.2 : 1
+                implicitWidth: width
+                tooltip: qsTr("Remove custom effect from the library.")
+
+                onPressed: (event) => {
+                    root.removeEffectNodeFromLibrary(modelData.nodeName)
+                }
+            }
         }
     }
 }

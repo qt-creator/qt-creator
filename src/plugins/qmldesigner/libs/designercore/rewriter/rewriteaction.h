@@ -73,12 +73,16 @@ public:
     ModelNode containedModelNode() const
     { return m_containedModelNode; }
 
+    bool movedAfterCreation() const { return m_movedAfterCreation; }
+    void setMovedAfterCreation(bool moved) { m_movedAfterCreation = moved; }
+
 private:
     AbstractProperty m_property;
     QString m_valueText;
     QmlDesigner::QmlRefactoring::PropertyType m_propertyType;
     ModelNode m_containedModelNode;
     bool m_sheduledInHierarchy;
+    bool m_movedAfterCreation = false;
 };
 
 class ChangeIdRewriteAction: public RewriteAction
@@ -127,12 +131,16 @@ public:
     ModelNode containedModelNode() const
     { return m_containedModelNode; }
 
+    bool movedAfterCreation() const { return m_movedAfterCreation; }
+    void setMovedAfterCreation(bool moved) { m_movedAfterCreation = moved; }
+
 private:
     AbstractProperty m_property;
     QString m_valueText;
     QmlDesigner::QmlRefactoring::PropertyType m_propertyType;
     ModelNode m_containedModelNode;
     bool m_sheduledInHierarchy;
+    bool m_movedAfterCreation;
 };
 
 class ChangeTypeRewriteAction:public RewriteAction
@@ -237,6 +245,8 @@ public:
     QString info() const override;
 
     MoveNodeRewriteAction *asMoveNodeRewriteAction() override { return this; }
+
+    ModelNode movingNode() const { return m_movingNode; }
 
 private:
     ModelNode m_movingNode;

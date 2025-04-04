@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "effectcomposernodesmodel.h"
+
 #include "effectutils.h"
 
 #include <utils/algorithm.h>
@@ -11,6 +12,8 @@
 #include <QCoreApplication>
 
 namespace EffectComposer {
+
+constexpr QStringView customCatName{u"Custom"};
 
 EffectComposerNodesModel::EffectComposerNodesModel(QObject *parent)
     : QAbstractListModel{parent}
@@ -53,7 +56,8 @@ void EffectComposerNodesModel::loadModel()
         return;
     }
 
-    m_categories = {};
+    m_categories.clear();
+    m_builtInNodeNames.clear();
 
     QDirIterator itCategories(nodesPath.toUrlishString(), QDir::Dirs | QDir::NoDotAndDotDot);
     while (itCategories.hasNext()) {
@@ -69,10 +73,11 @@ void EffectComposerNodesModel::loadModel()
         QDirIterator itEffects(categoryPath.toUrlishString(), {"*.qen"}, QDir::Files);
         while (itEffects.hasNext()) {
             itEffects.next();
-            auto node = new EffectNode(itEffects.filePath());
+            auto node = new EffectNode(itEffects.filePath(), true);
             if (!node->defaultImagesHash().isEmpty())
                 m_defaultImagesHash.insert(node->name(), node->defaultImagesHash());
             effects.push_back(node);
+            m_builtInNodeNames.append(node->name());
         }
 
         catName[0] = catName[0].toUpper(); // capitalize first letter
@@ -80,11 +85,15 @@ void EffectComposerNodesModel::loadModel()
 
         EffectNodesCategory *category = new EffectNodesCategory(catName, effects);
         m_categories.push_back(category);
+
+        if (catName == customCatName && !effects.isEmpty()) {
+            m_builtinCustomNode = effects[0];
+            m_customCategory = category;
+        }
     }
 
-    const QString customCatName = "Custom";
     std::sort(m_categories.begin(), m_categories.end(),
-              [&customCatName](EffectNodesCategory *a, EffectNodesCategory *b) {
+              [](EffectNodesCategory *a, EffectNodesCategory *b) {
         if (a->name() == customCatName)
             return false;
         if (b->name() == customCatName)
@@ -94,6 +103,40 @@ void EffectComposerNodesModel::loadModel()
 
     m_modelLoaded = true;
 
+    loadCustomNodes();
+}
+
+void EffectComposerNodesModel::loadCustomNodes()
+{
+    if (!m_customCategory)
+        return;
+
+    for (const QString &nodeName : std::as_const(m_customNodeNames))
+        m_defaultImagesHash.remove(nodeName);
+
+    m_customNodeNames.clear();
+
+    QList<EffectNode *> effects;
+
+    const Utils::FilePath nodeLibPath = Utils::FilePath::fromString(EffectUtils::nodeLibraryPath());
+    const Utils::FilePaths libraryNodes = nodeLibPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const Utils::FilePath &nodePath : libraryNodes) {
+        const Utils::FilePath qenPath = nodePath.pathAppended(nodePath.fileName() + ".qen");
+        auto node = new EffectNode(qenPath.toFSPathString(), false);
+        if (!node->defaultImagesHash().isEmpty())
+            m_defaultImagesHash.insert(node->name(), node->defaultImagesHash());
+        m_customNodeNames.append(node->name());
+        effects.push_back(node);
+    }
+
+    Utils::sort(effects, &EffectNode::name);
+
+    if (m_customCategory) {
+        if (m_builtinCustomNode)
+            effects.prepend(m_builtinCustomNode);
+        m_customCategory->setNodes(effects);
+    }
+
     resetModel();
 }
 
@@ -101,6 +144,17 @@ void EffectComposerNodesModel::resetModel()
 {
     beginResetModel();
     endResetModel();
+}
+
+bool EffectComposerNodesModel::nodeExists(const QString &name)
+{
+    return m_customNodeNames.contains(name, Qt::CaseInsensitive)
+         || m_builtInNodeNames.contains(name, Qt::CaseInsensitive);
+}
+
+bool EffectComposerNodesModel::isBuiltIn(const QString &name)
+{
+    return m_builtInNodeNames.contains(name, Qt::CaseInsensitive);
 }
 
 void EffectComposerNodesModel::updateCanBeAdded(
@@ -124,6 +178,24 @@ void EffectComposerNodesModel::updateCanBeAdded(
 QHash<QString, QString> EffectComposerNodesModel::defaultImagesForNode(const QString &name) const
 {
     return m_defaultImagesHash.value(name);
+}
+
+void EffectComposerNodesModel::removeEffectNode(const QString &name)
+{
+    if (!m_customCategory || name.isEmpty())
+        return;
+
+    m_defaultImagesHash.remove(name);
+    m_customNodeNames.removeOne(name);
+    m_customCategory->removeNode(name);
+
+    QString fileNameBase = EffectUtils::nodeNameToFileName(name);
+    Utils::FilePath nodePath = Utils::FilePath::fromString(EffectUtils::nodeLibraryPath())
+                                   .pathAppended(fileNameBase);
+    if (nodePath.exists())
+        nodePath.removeRecursively();
+
+    resetModel();
 }
 
 } // namespace EffectComposer

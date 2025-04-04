@@ -14,13 +14,18 @@ class EffectNodesCategory : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString categoryName MEMBER m_name CONSTANT)
-    Q_PROPERTY(QList<EffectNode *> categoryNodes MEMBER m_categoryNodes CONSTANT)
+    Q_PROPERTY(QList<EffectNode *> categoryNodes READ nodes NOTIFY nodesChanged)
 
 public:
     EffectNodesCategory(const QString &name, const QList<EffectNode *> &nodes);
 
     QString name() const;
     QList<EffectNode *> nodes() const;
+    void setNodes(const QList<EffectNode *> &nodes);
+    void removeNode(const QString &nodeName);
+
+signals:
+    void nodesChanged();
 
 private:
     QString m_name;

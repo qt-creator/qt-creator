@@ -24,6 +24,7 @@ Rectangle {
     readonly property Item headerItem: headerDocked ? dockedHeaderLoader.item : undockedHeaderLoader.item
 
     property Component headerComponent: null
+    property alias toolbarComponent: toolbar.customToolbar
 
     // Called from C++ to close context menu on focus out
     function closeContextMenu() {
@@ -39,14 +40,24 @@ Rectangle {
         id: propertySearchBar
 
         contentItem: mainColumn
+        anchors.top: itemPane.top
         width: parent.width
         z: parent.z + 1
+    }
+
+    PropertyEditorToolBar {
+        id: toolbar
+
+        anchors.top: propertySearchBar.bottom
+        width: parent.width
+
+        onToolBarAction: action => handleToolBarAction(action)
     }
 
     Loader {
         id: dockedHeaderLoader
 
-        anchors.top: propertySearchBar.bottom
+        anchors.top: toolbar.bottom
         z: parent.z + 1
         height: item ? item.implicitHeight : 0
         width: parent.width
@@ -58,52 +69,8 @@ Rectangle {
     }
 
     MouseArea {
-        anchors.fill: parent
+        anchors.fill: mainScrollView
         onClicked: itemPane.forceActiveFocus()
-    }
-
-    Rectangle {
-        id: stateSection
-        width: itemPane.width
-        height: StudioTheme.Values.height + StudioTheme.Values.controlGap * 2
-        color:  StudioTheme.Values.themePanelBackground
-        z: isBaseState ? -1: 10
-        SectionLayout {
-            y: StudioTheme.Values.controlGap
-            x: StudioTheme.Values.controlGap
-            PropertyLabel {
-                text: qsTr("Current State")
-                tooltip: tooltipItem.tooltip
-            }
-
-            SecondColumnLayout {
-
-                Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
-
-                Item {
-
-                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                    height: StudioTheme.Values.height
-
-                    HelperWidgets.Label {
-                        anchors.fill: parent
-                        anchors.leftMargin: StudioTheme.Values.inputHorizontalPadding
-                        anchors.topMargin: StudioTheme.Values.typeLabelVerticalShift
-                        text: stateName
-                        color: StudioTheme.Values.themeInteraction
-                    }
-
-                    ToolTipArea {
-                        id: tooltipItem
-                        anchors.fill: parent
-                        tooltip: qsTr("The current state of the States View.")
-                    }
-
-                }
-
-                ExpandingSpacer {}
-            }
-        }
     }
 
     HelperWidgets.ScrollView {
@@ -115,7 +82,7 @@ Rectangle {
             bottom: itemPane.bottom
             left: itemPane.left
             right: itemPane.right
-            topMargin: dockedHeaderLoader.active ? 2 : 0 + isBaseState ? 0 : stateSection.height
+            topMargin: dockedHeaderLoader.active ? 2 : 0
         }
 
         interactive: !Controller.contextMenuOpened
@@ -135,6 +102,17 @@ Rectangle {
 
                 visible: active
                 HeaderBackground{}
+            }
+
+            Loader {
+                Layout.fillWidth: true
+                Layout.leftMargin: StudioTheme.Values.sectionPadding
+                Layout.preferredHeight: item ? item.implicitHeight : 0
+
+                active: !isBaseState
+                sourceComponent: StatesSection{}
+
+                visible: active
             }
 
             Label {
@@ -167,5 +145,38 @@ Rectangle {
         color: StudioTheme.Values.themeToolbarBackground
         border.color: StudioTheme.Values.themePanelBackground
         border.width: StudioTheme.Values.border
+    }
+
+    component StatesSection: SectionLayout {
+        PropertyLabel {
+            text: qsTr("Current State")
+            tooltip: tooltipItem.tooltip
+        }
+
+        SecondColumnLayout {
+
+            Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
+
+            Item {
+                implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                height: StudioTheme.Values.height
+
+                HelperWidgets.Label {
+                    anchors.fill: parent
+                    text: stateName
+                    color: StudioTheme.Values.themeInteraction
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                ToolTipArea {
+                    id: tooltipItem
+
+                    anchors.fill: parent
+                    tooltip: qsTr("The current state of the States View.")
+                }
+            }
+
+            ExpandingSpacer {}
+        }
     }
 }

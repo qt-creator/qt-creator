@@ -1,6 +1,8 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <qmldesignertr.h>
+
 #include "curveeditortoolbar.h"
 #include "curveeditorconstants.h"
 #include "curveeditormodel.h"
@@ -70,10 +72,11 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
     addSpace(5);
 
-    QAction *tangentLinearAction = addAction(Theme::iconFromName(Theme::linear_medium), tr("Linear"));
-    m_stepAction = addAction(Theme::iconFromName(Theme::step_medium), tr(m_stepLabel));
-    m_splineAction = addAction(Theme::iconFromName(Theme::bezier_medium), tr(m_splineLabel));
-    m_unifyAction = addAction(Theme::iconFromName(Theme::unify_medium), tr(m_unifyLabel));
+    QAction *tangentLinearAction = addAction(Theme::iconFromName(Theme::linear_medium),
+                                             Tr::tr("Linear"));
+    m_stepAction = addAction(Theme::iconFromName(Theme::step_medium), Tr::tr(m_stepLabel));
+    m_splineAction = addAction(Theme::iconFromName(Theme::bezier_medium), Tr::tr(m_splineLabel));
+    m_unifyAction = addAction(Theme::iconFromName(Theme::unify_medium), Tr::tr(m_unifyLabel));
 
     auto setLinearInterpolation = [this] {
         emit interpolationClicked(Keyframe::Interpolation::Linear);
@@ -136,10 +139,10 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
     auto *durationBox = new QHBoxLayout;
     durationBox->setContentsMargins(0, 0, 0, 0);
-    durationBox->addWidget(new QLabel(tr("Start Frame")));
+    durationBox->addWidget(new QLabel(Tr::tr("Start Frame")));
     durationBox->addWidget(m_startSpin);
     addSpace(durationBox);
-    durationBox->addWidget(new QLabel(tr("End Frame")));
+    durationBox->addWidget(new QLabel(Tr::tr("End Frame")));
     durationBox->addWidget(m_endSpin);
 
     auto *durationWidget = new QWidget;
@@ -149,7 +152,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
     auto *positionBox = new QHBoxLayout;
     positionBox->setContentsMargins(0, 0, 0, 0);
-    positionBox->addWidget(new QLabel(tr("Current Frame")));
+    positionBox->addWidget(new QLabel(Tr::tr("Current Frame")));
     positionBox->addWidget(m_currentSpin);
 
     auto *positionWidget = new QWidget;
@@ -169,7 +172,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
     auto *zoomOut = createAction(CurveEditorConstants::C_ZOOM_OUT,
                                  Theme::iconFromName(Theme::Icon::zoomOut_medium),
-                                 tr("Zoom Out"),
+                                 Tr::tr("Zoom Out"),
                                  QKeySequence(QKeySequence::ZoomOut));
 
     connect(zoomOut, &QAction::triggered, [this] {
@@ -178,7 +181,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
     auto *zoomIn = createAction(CurveEditorConstants::C_ZOOM_IN,
                                 Theme::iconFromName(Theme::Icon::zoomIn_medium),
-                                tr("Zoom In"),
+                                Tr::tr("Zoom In"),
                                 QKeySequence(QKeySequence::ZoomIn));
 
     connect(zoomIn, &QAction::triggered, [this] {
@@ -201,13 +204,13 @@ void CurveEditorToolBar::setIsMcuProject(bool isMcu)
     static constexpr const char* notSupportedString = QT_TR_NOOP("Not supported for MCUs");
 
     if (isMcu) {
-        m_stepAction->setText(tr(notSupportedString));
-        m_splineAction->setText(tr(notSupportedString));
-        m_unifyAction->setText(tr(notSupportedString));
+        m_stepAction->setText(Tr::tr(notSupportedString));
+        m_splineAction->setText(Tr::tr(notSupportedString));
+        m_unifyAction->setText(Tr::tr(notSupportedString));
     } else {
-        m_stepAction->setText(tr(m_stepLabel));
-        m_splineAction->setText(tr(m_splineLabel));
-        m_unifyAction->setText(tr(m_unifyLabel));
+        m_stepAction->setText(Tr::tr(m_stepLabel));
+        m_splineAction->setText(Tr::tr(m_splineLabel));
+        m_unifyAction->setText(Tr::tr(m_unifyLabel));
     }
 }
 

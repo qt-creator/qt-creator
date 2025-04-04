@@ -24,7 +24,10 @@ DesignSystemInterface::~DesignSystemInterface() {}
 void DesignSystemInterface::loadDesignSystem()
 {
     m_models.clear();
-    m_store->load();
+
+    if (auto err = m_store->load())
+        qDebug() << err;
+
     emit collectionsChanged();
 }
 
@@ -34,6 +37,11 @@ CollectionModel *DesignSystemInterface::model(const QString &typeName)
         return createModel(typeName, collection);
 
     return nullptr;
+}
+
+QString DesignSystemInterface::generateCollectionName(const QString &hint) const
+{
+    return m_store->uniqueCollectionName(hint);
 }
 
 void DesignSystemInterface::addCollection(const QString &name)

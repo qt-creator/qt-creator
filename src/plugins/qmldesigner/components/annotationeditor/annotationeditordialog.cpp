@@ -1,6 +1,8 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <qmldesignertr.h>
+
 #include "annotationeditordialog.h"
 #include "annotation.h"
 #include "annotationcommenttab.h"
@@ -27,7 +29,7 @@ AnnotationEditorDialog::AnnotationEditorDialog(QWidget *parent,
     , m_defaults(std::make_unique<DefaultAnnotationsModel>())
     , m_editorWidget(new AnnotationEditorWidget(this, targetId, customId))
 {
-    setWindowTitle(tr("Annotation Editor"));
+    setWindowTitle(Tr::tr("Annotation Editor"));
 
     setWindowFlag(Qt::Tool, true);
     setModal(true);

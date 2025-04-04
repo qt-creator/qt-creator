@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "signalhandlerproperty.h"
-#include "internalproperty.h"
+#include "externaldependenciesinterface.h"
 #include "internalnode_p.h"
+#include "internalproperty.h"
 #include "model.h"
 #include "model_p.h"
 
@@ -62,6 +63,12 @@ QString SignalHandlerProperty::sourceNormalizedWithBraces() const
 bool SignalHandlerProperty::useNewFunctionSyntax()
 {
     if (name().contains('.'))
+        return false;
+
+    if (!view())
+        return false;
+
+    if (view()->externalDependencies().isQtForMcusProject())
         return false;
 
     return parentModelNode().metaInfo().isQtQmlConnections();

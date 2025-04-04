@@ -59,7 +59,6 @@
                 "*.svgz",
                 "*.tif",
                 "*.tiff",
-                "*.ttf",
                 "*.webp",
                 "*.xbm",
                 "*.xpm",

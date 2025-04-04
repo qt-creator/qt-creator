@@ -16,8 +16,11 @@
 #include "viewmanager.h"
 
 #include <modelutils.h>
+#include <utils3d.h>
 
+#ifndef QDS_USE_PROJECTSTORAGE
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#endif
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -241,7 +244,6 @@ void Import3dImporter::reset()
     m_importFiles.clear();
     m_puppetProcess.reset();
     m_parseData.clear();
-    m_requiredImports.clear();
     m_currentImportId = 0;
     m_puppetQueue.clear();
     m_importIdToAssetNameMap.clear();
@@ -449,13 +451,7 @@ void Import3dImporter::postParseQuick3DAsset(ParseData &pd)
                                         }
                                     }
                                 }
-
-                                // Add quick3D import unless it is already added
-                                if (impVersionMajor > 0 && (m_requiredImports.isEmpty()
-                                                            || m_requiredImports.first() != "QtQuick3D")) {
-                                    m_requiredImports.prepend("QtQuick3D");
-                                }
-                            }
+                           }
                         }
                     }
                 }
@@ -698,6 +694,11 @@ void Import3dImporter::finalizeQuick3DImport()
             addInfo(progressTitle);
             notifyProgress(0, progressTitle);
 
+            QTimer *timer = new QTimer(parent());
+            static int counter;
+            counter = 0;
+
+#ifndef QDS_USE_PROJECTSTORAGE
             auto modelManager = QmlJS::ModelManagerInterface::instance();
             QFuture<void> result;
             if (modelManager) {
@@ -711,49 +712,17 @@ void Import3dImporter::finalizeQuick3DImport()
                                            true,
                                            true);
             }
-
             // First we have to wait a while to ensure qmljs detects new files and updates its
             // internal model. Then we force amend on rewriter to trigger qmljs snapshot update.
-            QTimer *timer = new QTimer(parent());
-            static int counter;
-            counter = 0;
-
             timer->callOnTimeout([this, timer, progressTitle, model, result]() {
                 if (!isCancelled()) {
                     notifyProgress(++counter * 2, progressTitle);
-                    if (counter < 49) {
+                    if (counter == 1) {
+                        if (!Utils3D::addQuick3DImportAndView3D(model->rewriterView(), true))
+                            addError(tr("Failed to insert QtQuick3D import to the qml document."));
+                    } else if (counter < 50) {
                         if (result.isCanceled() || result.isFinished())
-                            counter = 48; // skip to next step
-                    } else if (counter == 49) {
-#ifndef QDS_USE_PROJECTSTORAGE
-                        QmlDesignerPlugin::instance()->documentManager().resetPossibleImports();
-                        model->rewriterView()->forceAmend();
-                        try {
-                            RewriterTransaction transaction = model->rewriterView()->beginRewriterTransaction(
-                                QByteArrayLiteral("Import3dImporter::finalizeQuick3DImport"));
-                            bool success = ModelUtils::addImportsWithCheck(m_requiredImports, model);
-                            if (!success)
-                                addError(tr("Failed to insert import statement into qml document."));
-                            transaction.commit();
-#else
-                        const Imports &imports = model->imports();
-                        Imports importsToAdd;
-                        for (const QString &importName : std::as_const(m_requiredImports)) {
-                            auto hasName = [&](const auto &import) {
-                                return import.url() == importName || import.file() == importName;
-                            };
-                            if (!Utils::anyOf(imports, hasName)) {
-                                Import import = Import::createLibraryImport(importName);
-                                importsToAdd.push_back(import);
-                            }
-                        }
-
-                        try {
-                            model->changeImports(std::move(importsToAdd), {});
-#endif
-                        } catch (const RewritingException &e) {
-                            addError(tr("Failed to update imports: %1").arg(e.description()));
-                        }
+                            counter = 49; // skip to next step
                     } else if (counter >= 50) {
                         for (const ParseData &pd : std::as_const(m_parseData)) {
                             if (!pd.overwrittenImports.isEmpty()) {
@@ -766,6 +735,27 @@ void Import3dImporter::finalizeQuick3DImport()
                         notifyFinished();
                         model->rewriterView()->emitCustomNotification("asset_import_finished");
                     }
+#else
+            counter = 0;
+            timer->callOnTimeout([this, timer, progressTitle, model]() {
+                if (!isCancelled()) {
+                    notifyProgress(++counter * 50, progressTitle);
+                    if (counter == 1) {
+                        if (!Utils3D::addQuick3DImportAndView3D(model->rewriterView(), true))
+                            addError(tr("Failed to insert QtQuick3D import to the qml document."));
+                    } else if (counter > 1) {
+                        for (const ParseData &pd : std::as_const(m_parseData)) {
+                            if (!pd.overwrittenImports.isEmpty()) {
+                                model->rewriterView()->resetPuppet();
+                                model->rewriterView()->emitCustomNotification("asset_import_update");
+                                break;
+                            }
+                        }
+                        timer->stop();
+                        notifyFinished();
+                        model->rewriterView()->emitCustomNotification("asset_import_finished");
+                    }
+#endif
                 } else {
                     timer->stop();
                 }

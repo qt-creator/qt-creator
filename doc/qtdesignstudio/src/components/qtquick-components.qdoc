@@ -46,6 +46,16 @@
         \li \l {Creating custom components}
     \endlist
 
+    \section1 Component IDs
+
+    Each component and each instance of a component has an \e ID that uniquely
+    identifies it and enables other components' properties to be bound to it.
+    An ID must be unique, it must begin with a lower-case letter or an
+    underscore character, and it can contain only letters, numbers, and
+    underscore characters.
+
+    For more information, see \l{The id Attribute}.
+
     \section1 Using components economically
 
     It is important to understand the performance costs associated with using

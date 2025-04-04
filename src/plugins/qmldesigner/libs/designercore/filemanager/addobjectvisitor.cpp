@@ -10,12 +10,14 @@ using namespace QmlDesigner::Internal;
 
 AddObjectVisitor::AddObjectVisitor(QmlDesigner::TextModifier &modifier,
                                    quint32 parentLocation,
+                                   quint32 nodeLocation,
                                    const QString &content,
-                                   const PropertyNameList &propertyOrder):
-    QMLRewriter(modifier),
-    m_parentLocation(parentLocation),
-    m_content(content),
-    m_propertyOrder(propertyOrder)
+                                   const PropertyNameList &propertyOrder)
+    : QMLRewriter(modifier)
+    , m_parentLocation(parentLocation)
+    , m_nodeLocation(nodeLocation)
+    , m_content(content)
+    , m_propertyOrder(propertyOrder)
 {
 }
 
@@ -44,7 +46,9 @@ bool AddObjectVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
 void AddObjectVisitor::insertInto(QmlJS::AST::UiObjectInitializer *ast)
 {
-    QmlJS::AST::UiObjectMemberList *insertAfter = searchMemberToInsertAfter(ast->members, m_propertyOrder);
+    QmlJS::AST::UiObjectMemberList *insertAfter = searchChildrenToInsertAfter(ast->members,
+                                                                              m_propertyOrder,
+                                                                              m_nodeLocation - 1);
 
     int insertionPoint;
     int depth;

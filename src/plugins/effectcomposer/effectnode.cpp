@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "effectnode.h"
+
 #include "compositionnode.h"
+#include "effectutils.h"
 #include "uniform.h"
 
 #include <QDir>
@@ -10,26 +12,26 @@
 
 namespace EffectComposer {
 
-EffectNode::EffectNode(const QString &qenPath)
+EffectNode::EffectNode(const QString &qenPath, bool isBuiltIn)
     : m_qenPath(qenPath)
 {
     const QFileInfo fileInfo = QFileInfo(qenPath);
-
-    QString iconPath = QStringLiteral("%1/icon/%2.svg").arg(fileInfo.absolutePath(),
-                                                            fileInfo.baseName());
-    if (!QFileInfo::exists(iconPath)) {
-        QDir parentDir = QDir(fileInfo.absolutePath());
-        parentDir.cdUp();
-
-        iconPath = QStringLiteral("%1/%2").arg(parentDir.path(), "placeholder.svg");
-    }
-    m_iconPath = QUrl::fromLocalFile(iconPath);
 
     CompositionNode node({}, qenPath);
 
     m_name = node.name();
     m_description = node.description();
     m_isCustom = node.isCustom();
+    m_canBeRemoved = !isBuiltIn;
+
+    QString iconPath = QStringLiteral("%1/icon/%2.svg").arg(fileInfo.absolutePath(),
+                                                            fileInfo.baseName());
+    if (!QFileInfo::exists(iconPath)) {
+        QString iconFileName = m_isCustom ? QString{"user_custom_effect.svg"}
+                                          : QString{"placeholder.svg"};
+        iconPath = QStringLiteral("%1/%2").arg(EffectUtils::nodesSourcesPath(), iconFileName);
+    }
+    m_iconPath = QUrl::fromLocalFile(iconPath);
 
     const QList<Uniform *> uniforms = node.uniforms();
     for (const Uniform *uniform : uniforms) {

@@ -23,6 +23,13 @@ public:
 
     static bool isMCUs();
 
+    struct Version
+    {
+        int major = -1;
+        int minor = -1;
+    };
+    static Version qtQuickVersion();
+
 protected:
     RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) override;
 

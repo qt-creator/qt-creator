@@ -168,6 +168,19 @@ QQuickItem *ServerNodeInstance::contentItem() const
     return m_nodeInstance->contentItem();
 }
 
+bool ServerNodeInstance::hasProperty(const PropertyName &name)
+{
+    return propertyNames().contains(name);
+}
+
+void ServerNodeInstance::createNewDynamicProperty(const PropertyName &name)
+{
+    auto nameStr = QString::fromUtf8(name);
+    auto *context = QQmlEngine::contextForObject(internalObject());
+    Internal::QmlPrivateGate::createNewDynamicProperty(internalObject(), context->engine(), nameStr);
+    internalInstance()->handleNewDynamicProperty(name);
+}
+
 void ServerNodeInstance::updateDirtyNodeRecursive()
 {
     m_nodeInstance->updateAllDirtyNodesRecursive();

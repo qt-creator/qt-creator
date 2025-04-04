@@ -88,7 +88,7 @@ ModelNode CreateTexture::execute()
     });
 
     QTimer::singleShot(0, m_view, [newTextureNode]() {
-        Utils3D::selectTexture(newTextureNode);
+        Utils3D::openNodeInPropertyEditor(newTextureNode);
     });
 
     return newTextureNode;
@@ -120,7 +120,7 @@ ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, i
     QTimer::singleShot(0, m_view, [view = m_view, texture]() {
         if (view && view->model() && texture.isValid()) {
             QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
-            Utils3D::selectTexture(texture);
+            Utils3D::openNodeInPropertyEditor(texture);
         }
     });
 

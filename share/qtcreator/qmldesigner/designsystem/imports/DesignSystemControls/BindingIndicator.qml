@@ -11,7 +11,7 @@ Item {
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
     property alias icon: icon
 
-    property bool hover: mouseArea.containsMouse//false
+    property bool hover: mouseArea.containsMouse
     property bool pressed: false
     property bool forceVisible: false
 
@@ -19,6 +19,7 @@ Item {
     implicitHeight: control.style.actionIndicatorSize.height
 
     signal clicked
+
     z: 10
 
     T.Label {
@@ -56,7 +57,6 @@ Item {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-        //onContainsMouseChanged: control.hover = mouseArea.containsMouse
         onClicked: control.clicked()
     }
 }

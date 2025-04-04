@@ -66,7 +66,7 @@
         scene.
         \image 3d-scene-bread-crumb.png
     \endlist
-    When you run the application or live preview, notice that you don't see much of the materials.
+    When you run the application or \uicontrol {Live Preview}, notice that you don't see much of the materials.
     The next step is to set up the environmental light.
 
     \section1 Adding environmental lighting to the scene

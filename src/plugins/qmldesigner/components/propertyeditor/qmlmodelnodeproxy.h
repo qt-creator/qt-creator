@@ -22,7 +22,8 @@ class QMLDESIGNER_EXPORT QmlModelNodeProxy : public QObject
 public:
     explicit QmlModelNodeProxy(QObject *parent = nullptr);
 
-    void setup(const QmlObjectNode &objectNode);
+    void setup(const ModelNode &node);
+    void setup(const ModelNodes &editorNodes);
 
     static void registerDeclarativeType();
 
@@ -33,10 +34,14 @@ public:
     QmlObjectNode qmlObjectNode() const;
 
     ModelNode modelNode() const;
+    ModelNodes editorNodes() const;
+    ModelNode singleSelectedNode() const;
 
     bool multiSelection() const;
 
     QString nodeId() const;
+
+    QString nodeObjectName() const;
 
     QString simplifiedTypeName() const;
 
@@ -79,6 +84,7 @@ private:
     PropertyEditorSubSelectionWrapper *findWrapper(int internalId) const;
 
     QmlObjectNode m_qmlObjectNode;
+    ModelNodes m_editorNodes;
     QList<QSharedPointer<PropertyEditorSubSelectionWrapper>> m_subselection;
 };
 

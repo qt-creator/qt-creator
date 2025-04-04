@@ -40,7 +40,9 @@ private:
     bool idExistsInBothModels(const QString& id);
     void replaceNode(ModelNode&, ModelNode&);
     void replaceRootNode(ModelNode& templateRootNode);
-    void applyStyleProperties(ModelNode &templateNode, const ModelNode &styleNode);
+    void applyStyleProperties(ModelNode &templateNode,
+                              const ModelNode &styleNode,
+                              bool isRootNode = false);
     void adjustNodeIndex(ModelNode &node);
     void setupIdRenamingHash();
     ModelNode createReplacementNode(const ModelNode &styleNode, ModelNode &modelNode);

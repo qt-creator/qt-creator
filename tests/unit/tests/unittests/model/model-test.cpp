@@ -1141,20 +1141,49 @@ TEST_F(Model_MetaInfo, remove_project_storage_observer_from_project_storage)
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
 }
 
-TEST_F(Model_MetaInfo, refresh_callback_is_calling_abstract_view)
+TEST_F(Model_MetaInfo, refresh_meta_infos_callback_is_calling_abstract_view)
 {
     const QmlDesigner::TypeIds typeIds = {QmlDesigner::TypeId::create(3),
                                           QmlDesigner::TypeId::create(1)};
     ProjectStorageObserverMock observerMock;
     QmlDesigner::ProjectStorageObserver *observer = nullptr;
     ON_CALL(projectStorageMock, addObserver(_)).WillByDefault([&](auto *o) { observer = o; });
-
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
     model.attachView(&viewMock);
 
     EXPECT_CALL(viewMock, refreshMetaInfos(typeIds));
 
     observer->removedTypeIds(typeIds);
+}
+
+TEST_F(Model_MetaInfo, added_exported_type_names_are_changed_callback_is_calling_abstract_view)
+{
+    using QmlDesigner::Storage::Info::ExportedTypeNames;
+    ExportedTypeNames added = {{qtQuickModuleId, itemTypeId, "Foo", 1, 1}};
+    ProjectStorageObserverMock observerMock;
+    QmlDesigner::ProjectStorageObserver *observer = nullptr;
+    ON_CALL(projectStorageMock, addObserver(_)).WillByDefault([&](auto *o) { observer = o; });
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
+    model.attachView(&viewMock);
+
+    EXPECT_CALL(viewMock, exportedTypeNamesChanged(added, IsEmpty()));
+
+    observer->exportedTypeNamesChanged(added, {});
+}
+
+TEST_F(Model_MetaInfo, removed_exported_type_names_are_changed_callback_is_calling_abstract_view)
+{
+    using QmlDesigner::Storage::Info::ExportedTypeNames;
+    ExportedTypeNames removed = {{qtQuickModuleId, itemTypeId, "Foo", 1, 1}};
+    ProjectStorageObserverMock observerMock;
+    QmlDesigner::ProjectStorageObserver *observer = nullptr;
+    ON_CALL(projectStorageMock, addObserver(_)).WillByDefault([&](auto *o) { observer = o; });
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
+    model.attachView(&viewMock);
+
+    EXPECT_CALL(viewMock, exportedTypeNamesChanged(IsEmpty(), removed));
+
+    observer->exportedTypeNamesChanged({}, removed);
 }
 
 TEST_F(Model_MetaInfo, meta_infos_for_mdoule)

@@ -1,0 +1,40 @@
+import QmlProject
+
+Project {
+    QDS.mainFile: "content/App.qml"
+    QDS.mainUiFile: "content/Screen01.ui.qml"
+
+    QDS.FontFiles {
+        filter: "*.otf"
+    }
+
+    QDS.FontFiles {
+        directory: "fonts1"
+        filter: "*.otf;*.ttf"
+    }
+
+    QDS.FontFiles {
+        directory: "fonts2"
+        files: [
+            "test1.ttf",
+            "test2.ttf"
+        ]
+    }
+
+    FontFiles {
+        filter: "*.ttf;*.otf"
+    }
+
+    FontFiles {
+        directory: "fonts3"
+        filter: "*.otf;*.ttf"
+    }
+
+    FontFiles {
+        directory: "fonts3"
+        files: [
+            "test3.ttf",
+            "test4.ttf"
+        ]
+    }
+}

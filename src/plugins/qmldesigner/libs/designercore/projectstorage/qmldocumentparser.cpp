@@ -25,6 +25,7 @@ namespace QmlDesigner {
 
 constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
+using Storage::IsInsideProject;
 using Tracer = ProjectStorageTracing::Category::TracerType;
 
 namespace QmlDom = QQmlJS::Dom;
@@ -306,13 +307,15 @@ bool isSingleton(const QmlDom::QmlFile *qmlFile)
     return std::ranges::find(pragmas, "Singleton"_L1, &QQmlJS::Dom::Pragma::name) != pragmas.end();
 }
 
-Storage::TypeTraits createTypeTraits(const QmlDom::QmlFile *qmlFile)
+Storage::TypeTraits createTypeTraits(const QmlDom::QmlFile *qmlFile, IsInsideProject isInsideProject)
 {
     Storage::TypeTraits traits = Storage::TypeTraitsKind::Reference;
 
     traits.isFileComponent = true;
 
     traits.isSingleton = isSingleton(qmlFile);
+
+    traits.isInsideProject = isInsideProject == IsInsideProject::Yes;
 
     return traits;
 }
@@ -322,7 +325,8 @@ Storage::TypeTraits createTypeTraits(const QmlDom::QmlFile *qmlFile)
 Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceContent,
                                                         Storage::Imports &imports,
                                                         SourceId sourceId,
-                                                        Utils::SmallStringView directoryPath)
+                                                        Utils::SmallStringView directoryPath,
+                                                        IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"qml document parser parse",
                                category(),
@@ -372,7 +376,7 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
                                                          directoryPath,
                                                          m_storage);
 
-    type.traits = createTypeTraits(qmlFile);
+    type.traits = createTypeTraits(qmlFile, isInsideProject);
     type.prototype = createImportedTypeName(qmlObject.name(), qualifiedImports);
     type.defaultPropertyName = qmlObject.localDefaultPropertyName();
     addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_storage);
@@ -390,7 +394,8 @@ Storage::Synchronization::Type QmlDocumentParser::parse(
     [[maybe_unused]] const QString &sourceContent,
     [[maybe_unused]] Storage::Imports &imports,
     [[maybe_unused]] SourceId sourceId,
-    [[maybe_unused]] Utils::SmallStringView directoryPath)
+    [[maybe_unused]] Utils::SmallStringView directoryPath,
+    [[maybe_unused]] IsInsideProject isInsideProject)
 {
     return Storage::Synchronization::Type{};
 }

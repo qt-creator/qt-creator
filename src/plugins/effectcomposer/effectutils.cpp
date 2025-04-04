@@ -6,6 +6,8 @@
 #include <coreplugin/icore.h>
 
 #include <QJsonArray>
+#include <QRegularExpression>
+#include <QStandardPaths>
 
 namespace EffectComposer {
 
@@ -29,6 +31,22 @@ QString EffectUtils::nodesSourcesPath()
         return QLatin1String(SHARE_QML_PATH) + "/effectComposerNodes";
 #endif
     return Core::ICore::resourcePath("qmldesigner/effectComposerNodes").toUrlishString();
+}
+
+QString EffectUtils::nodeLibraryPath()
+{
+    QStandardPaths::StandardLocation location = QStandardPaths::DocumentsLocation;
+
+    return QStandardPaths::writableLocation(location)
+           + "/QtDesignStudio/effect_composer/node_library";
+}
+
+QString EffectUtils::nodeNameToFileName(const QString &nodeName)
+{
+    static const QRegularExpression re("[^a-zA-Z0-9]");
+    QString newName = nodeName;
+    newName.replace(re, "_");
+    return newName;
 }
 
 } // namespace EffectComposer
