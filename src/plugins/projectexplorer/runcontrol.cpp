@@ -1379,8 +1379,6 @@ public:
 
     ProcessRunner *q = nullptr;
 
-    bool m_runAsRoot = false;
-
     Process m_process;
     QTimer m_waitForDoneTimer;
 
@@ -1513,7 +1511,11 @@ void ProcessRunnerPrivate::start()
 
     if (cmdLine.executable().isLocal()) {
         // Running locally.
-        if (m_runAsRoot)
+        bool runAsRoot = false;
+        if (auto runAsRootAspect = q->runControl()->aspectData<RunAsRootAspect>())
+            runAsRoot = runAsRootAspect->value;
+
+        if (runAsRoot)
             RunControl::provideAskPassEntry(env);
 
         WinDebugInterface::startIfNeeded();
@@ -1524,7 +1526,7 @@ void ProcessRunnerPrivate::start()
             cmdLine = disclaim;
         }
 
-        m_process.setRunAsRoot(m_runAsRoot);
+        m_process.setRunAsRoot(runAsRoot);
     }
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(cmdLine.executable());
@@ -1628,10 +1630,6 @@ void ProcessRunner::start()
     if (auto terminalAspect = runControl()->aspectData<TerminalAspect>())
         useTerminal = terminalAspect->useTerminal;
 
-    bool runAsRoot = false;
-    if (auto runAsRootAspect = runControl()->aspectData<RunAsRootAspect>())
-        runAsRoot = runAsRootAspect->value;
-
     const CommandLine command = d->m_process.commandLine();
     const Environment environment = d->m_process.environment();
     d->m_stopForced = false;
@@ -1640,7 +1638,6 @@ void ProcessRunner::start()
     d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::Run : Utils::TerminalMode::Off);
     d->m_process.setReaperTimeout(
         std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds));
-    d->m_runAsRoot = runAsRoot;
 
     const QString msg = Tr::tr("Starting %1...").arg(command.displayName());
     d->postMessage(msg, NormalMessageFormat);
