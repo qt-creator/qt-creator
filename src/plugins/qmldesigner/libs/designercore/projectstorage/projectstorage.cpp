@@ -870,7 +870,7 @@ struct ProjectStorage::Statements
         "                   USING(moduleId) "
         "                 WHERE di.sourceId=?)",
         database};
-    mutable Sqlite::ReadStatement<4, 2> selectLocalFileItemLibraryEntriesBySourceIdStatement{
+    mutable Sqlite::ReadStatement<4, 2> selectDirectoryImportsItemLibraryEntriesBySourceIdStatement{
         "SELECT typeId, etn.name, m.name, t.sourceId "
         "FROM documentImports AS di "
         "  JOIN exportedTypeNames AS etn USING(moduleId) "
@@ -1877,16 +1877,16 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(SourceId so
     using Storage::Info::ItemLibraryProperties;
     Storage::Info::ItemLibraryEntries entries;
 
-    auto typeAnnotationCallback = [&](TypeId typeId,
-                                      Utils::SmallStringView typeName,
-                                      Utils::SmallStringView name,
-                                      Utils::SmallStringView iconPath,
-                                      Utils::SmallStringView category,
-                                      Utils::SmallStringView import,
-                                      Utils::SmallStringView toolTip,
-                                      Utils::SmallStringView properties,
-                                      Utils::SmallStringView extraFilePaths,
-                                      Utils::SmallStringView templatePath) {
+    auto callback = [&](TypeId typeId,
+                        Utils::SmallStringView typeName,
+                        Utils::SmallStringView name,
+                        Utils::SmallStringView iconPath,
+                        Utils::SmallStringView category,
+                        Utils::SmallStringView import,
+                        Utils::SmallStringView toolTip,
+                        Utils::SmallStringView properties,
+                        Utils::SmallStringView extraFilePaths,
+                        Utils::SmallStringView templatePath) {
         auto &last = entries.emplace_back(
             typeId, typeName, name, iconPath, category, import, toolTip, templatePath);
         if (properties.size())
@@ -1895,23 +1895,7 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(SourceId so
             s->selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
     };
 
-    s->selectItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(typeAnnotationCallback,
-                                                                               sourceId);
-
-    auto fileComponentCallback = [&](TypeId typeId,
-                                     Utils::SmallStringView typeName,
-                                     Utils::SmallStringView import,
-                                     SourceId componentSourceId) {
-        if (!isCapitalLetter(typeName.front()))
-            return;
-
-        auto &last = entries.emplace_back(typeId, typeName, typeName, "My Components", import);
-        last.moduleKind = Storage::ModuleKind::PathLibrary;
-        last.componentSourceId = componentSourceId;
-    };
-
-    s->selectLocalFileItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(
-        fileComponentCallback, sourceId, Storage::ModuleKind::PathLibrary);
+    s->selectItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(callback, sourceId);
 
     tracer.end(keyValue("item library entries", entries));
 
@@ -1945,6 +1929,36 @@ Storage::Info::ItemLibraryEntries ProjectStorage::allItemLibraryEntries() const
     };
 
     s->selectItemLibraryEntriesStatement.readCallbackWithTransaction(callback);
+
+    tracer.end(keyValue("item library entries", entries));
+
+    return entries;
+}
+
+Storage::Info::ItemLibraryEntries ProjectStorage::directoryImportsItemLibraryEntries(SourceId sourceId) const
+{
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"get directory import item library entries",
+                               projectStorageCategory(),
+                               keyValue("source id", sourceId)};
+
+    using Storage::Info::ItemLibraryProperties;
+    Storage::Info::ItemLibraryEntries entries;
+
+    auto callback = [&](TypeId typeId,
+                        Utils::SmallStringView typeName,
+                        Utils::SmallStringView import,
+                        SourceId componentSourceId) {
+        if (!isCapitalLetter(typeName.front()))
+            return;
+
+        auto &last = entries.emplace_back(typeId, typeName, typeName, "My Components", import);
+        last.moduleKind = Storage::ModuleKind::PathLibrary;
+        last.componentSourceId = componentSourceId;
+    };
+
+    s->selectDirectoryImportsItemLibraryEntriesBySourceIdStatement
+        .readCallbackWithTransaction(callback, sourceId, Storage::ModuleKind::PathLibrary);
 
     tracer.end(keyValue("item library entries", entries));
 

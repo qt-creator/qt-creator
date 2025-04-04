@@ -2819,6 +2819,17 @@ QList<ItemLibraryEntry> Model::itemLibraryEntries() const
 #endif
 }
 
+QList<ItemLibraryEntry> Model::directoryImportsItemLibraryEntries() const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    using namespace Storage::Info;
+    return toItemLibraryEntries(*d->pathCache,
+                                d->projectStorage->directoryImportsItemLibraryEntries(d->m_sourceId));
+#else
+    return {};
+#endif
+}
+
 NodeMetaInfo Model::qtQuickTimelineKeyframeGroupMetaInfo() const
 {
     if constexpr (useProjectStorage()) {

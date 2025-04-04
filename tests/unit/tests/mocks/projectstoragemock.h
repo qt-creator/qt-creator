@@ -114,6 +114,8 @@ public:
                                const QmlDesigner::Storage::Info::ItemLibraryEntries &entries);
     void setItemLibraryEntries(QmlDesigner::SourceId sourceId,
                                const QmlDesigner::Storage::Info::ItemLibraryEntries &entries);
+    void setDirectoryImportsItemLibraryEntries(
+        QmlDesigner::SourceId sourceId, const QmlDesigner::Storage::Info::ItemLibraryEntries &entries);
 
     MOCK_METHOD(void,
                 synchronize,
@@ -227,6 +229,10 @@ public:
     MOCK_METHOD(QmlDesigner::Storage::Info::ItemLibraryEntries,
                 allItemLibraryEntries,
                 (),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::Storage::Info::ItemLibraryEntries,
+                directoryImportsItemLibraryEntries,
+                (QmlDesigner::SourceId sourceId),
                 (const, override));
     MOCK_METHOD(std::vector<::Utils::SmallString>,
                 signalDeclarationNames,

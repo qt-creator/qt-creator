@@ -65,6 +65,7 @@ public:
     virtual Storage::Info::ItemLibraryEntries itemLibraryEntries(TypeId typeId) const = 0;
     virtual Storage::Info::ItemLibraryEntries itemLibraryEntries(SourceId sourceId) const = 0;
     virtual Storage::Info::ItemLibraryEntries allItemLibraryEntries() const = 0;
+    virtual Storage::Info::ItemLibraryEntries directoryImportsItemLibraryEntries(SourceId sourceId) const = 0;
     virtual std::vector<::Utils::SmallString> signalDeclarationNames(TypeId typeId) const = 0;
     virtual std::vector<::Utils::SmallString> functionDeclarationNames(TypeId typeId) const = 0;
     virtual std::optional<::Utils::SmallString>

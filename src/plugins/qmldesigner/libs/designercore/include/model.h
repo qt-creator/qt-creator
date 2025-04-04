@@ -209,6 +209,7 @@ public:
 #endif
 
     QList<ItemLibraryEntry> itemLibraryEntries() const;
+    QList<ItemLibraryEntry> directoryImportsItemLibraryEntries() const;
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);

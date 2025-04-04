@@ -110,12 +110,10 @@ public:
     SmallSourceContextIds<64> typeAnnotationDirectoryIds() const override;
 
     Storage::Info::ItemLibraryEntries itemLibraryEntries(TypeId typeId) const override;
-
     Storage::Info::ItemLibraryEntries itemLibraryEntries(ImportId importId) const;
-
     Storage::Info::ItemLibraryEntries itemLibraryEntries(SourceId sourceId) const override;
-
     Storage::Info::ItemLibraryEntries allItemLibraryEntries() const override;
+    Storage::Info::ItemLibraryEntries directoryImportsItemLibraryEntries(SourceId sourceId) const override;
 
     std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const override;
 

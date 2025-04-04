@@ -8890,14 +8890,14 @@ TEST_F(ProjectStorage, get_item_library_entries_by_source_id)
                                IsEmpty())));
 }
 
-TEST_F(ProjectStorage, get_local_file_item_library_entries_by_source_id)
+TEST_F(ProjectStorage, get_directory_imports_item_library_entries_by_source_id)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
     package.types[1].exportedTypes.emplace_back(pathToModuleId, "Object");
     storage.synchronize(package);
 
-    auto entries = storage.itemLibraryEntries(sourceId2);
+    auto entries = storage.directoryImportsItemLibraryEntries(sourceId2);
 
     ASSERT_THAT(entries,
                 UnorderedElementsAre(IsItemLibraryEntry(fetchTypeId(sourceId2, "QObject"),
