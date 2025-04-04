@@ -71,6 +71,7 @@ public:
         ProjectExplorer::Node *context,
         const Utils::FilePairs &filesToRename,
         Utils::FilePaths *notRenamed) final;
+    bool addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies) final;
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;
 
@@ -91,6 +92,8 @@ public:
         const QJsonObject &product,
         const QJsonObject &group,
         Utils::FilePaths *notRenamed);
+    bool addDependenciesToProduct(
+        const QStringList &deps, const QJsonObject &product, const QJsonObject &group);
 
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 

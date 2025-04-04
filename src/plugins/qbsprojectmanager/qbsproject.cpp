@@ -307,6 +307,23 @@ bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, 
     return BuildSystem::renameFiles(context, filesToRename, notRenamed);
 }
 
+bool QbsBuildSystem::addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies)
+{
+    if (session()->apiLevel() < 9)
+        return BuildSystem::addDependencies(context, dependencies);
+
+    if (auto *n = dynamic_cast<QbsGroupNode *>(context)) {
+        const QbsProductNode * const prdNode = parentQbsProductNode(n);
+        QTC_ASSERT(prdNode, return false);
+        return addDependenciesToProduct(dependencies, prdNode->productData(), n->groupData());
+    }
+
+    if (auto *n = dynamic_cast<QbsProductNode *>(context))
+        return addDependenciesToProduct(dependencies, n->productData(), n->mainGroup());
+
+    return BuildSystem::addDependencies(context, dependencies);
+}
+
 QVariant QbsBuildSystem::additionalData(Id id) const
 {
     if (id == "QmlDesignerImportPath") {
@@ -461,6 +478,19 @@ bool QbsBuildSystem::renameFilesInProduct(
     if (result.error().hasError())
         MessageManager::writeDisrupting(result.error().toString());
     return notRenamed->isEmpty();
+}
+
+bool QbsBuildSystem::addDependenciesToProduct(
+    const QStringList &deps, const QJsonObject &product, const QJsonObject &group)
+{
+    ensureWriteableQbsFile(groupFilePath(group));
+    const ErrorInfo error = session()->addDependencies(
+        deps, product.value("full-display-name").toString(), group.value("name").toString());
+    if (error.hasError()) {
+        MessageManager::writeDisrupting(error.toString());
+        return false;
+    }
+    return true;
 }
 
 QString QbsBuildSystem::profile() const
