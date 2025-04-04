@@ -88,6 +88,14 @@ int main(int argc, char *argv[])
             PushButton { text("button4") },
             PushButton { text("button5") }
         },
+        Label { wordWrap(true), text("Spacing:") },
+        Flow {
+            spacing(1),
+            PushButton { text("button1") },
+            PushButton { text("button2") },
+            PushButton { text("button3") },
+            PushButton { text("button4") }
+        },
         st
     }.emerge();
     toolButton1->setDefaultAction(new QAction("tool button 1", toolButton1));

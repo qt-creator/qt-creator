@@ -52,17 +52,15 @@ void apply(X *x, std::initializer_list<typename X::I> ps)
 class FlowLayout : public QLayout
 {
 public:
-    explicit FlowLayout(QWidget *parent, int margin = -1, int hSpacing = -1, int vSpacing = -1)
+    explicit FlowLayout(QWidget *parent, int margin = -1, int vSpacing = -1)
         : QLayout(parent)
-        , m_hSpace(hSpacing)
         , m_vSpace(vSpacing)
     {
         setContentsMargins(margin, margin, margin, margin);
     }
 
-    FlowLayout(int margin = -1, int hSpacing = -1, int vSpacing = -1)
-        : m_hSpace(hSpacing)
-        , m_vSpace(vSpacing)
+    FlowLayout(int margin = -1, int vSpacing = -1)
+        : m_vSpace(vSpacing)
     {
         setContentsMargins(margin, margin, margin, margin);
     }
@@ -75,13 +73,7 @@ public:
 
     void addItem(QLayoutItem *item) override { itemList.append(item); }
 
-    int horizontalSpacing() const
-    {
-        if (m_hSpace >= 0)
-            return m_hSpace;
-        else
-            return smartSpacing(QStyle::PM_LayoutHorizontalSpacing);
-    }
+    int horizontalSpacing() const { return spacing(); }
 
     int verticalSpacing() const
     {
@@ -251,7 +243,6 @@ private:
     }
 
     QList<QLayoutItem *> itemList;
-    int m_hSpace;
     int m_vSpace;
 };
 
