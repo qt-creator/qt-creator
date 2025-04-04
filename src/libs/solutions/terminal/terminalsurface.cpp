@@ -192,7 +192,6 @@ struct TerminalSurfacePrivate
             vterm_state_set_palette_color(vts, i, &col);
         }
 
-        vterm_screen_enable_reflow(m_vtermScreen, true);
         vterm_screen_reset(m_vtermScreen, 1);
     }
 
