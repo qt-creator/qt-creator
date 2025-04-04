@@ -22,6 +22,9 @@ constexpr int DEFAULT_MAX_DIM = 1024;
 
 void QmlRenderer::initCoreApp()
 {
+#ifdef Q_OS_MACOS
+    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
+#endif
 #if defined QT_WIDGETS_LIB
     createCoreApp<QApplication>();
 #else
@@ -144,9 +147,14 @@ bool QmlRenderer::setupRenderer()
         return false;
     }
 
-    QObject *renderObj = component.create();
+    // Window components will flash the window briefly if we don't initialize visible to false
+    QVariantMap initialProps;
+    initialProps["visible"] = false;
+    QObject *renderObj = component.createWithInitialProperties(initialProps);
 
     if (renderObj) {
+        if (!qobject_cast<QWindow *>(renderObj))
+            renderObj->setProperty("visible", true);
 #ifdef QUICK3D_MODULE
         QQuickItem *contentItem3D = nullptr;
         renderObj->setParent(m_window->contentItem());
@@ -195,11 +203,6 @@ bool QmlRenderer::setupRenderer()
             // Hack to render Window items: reparent window content to m_window->contentItem()
             setRenderSize(renderWindow->size());
             m_containerItem = m_window->contentItem();
-            // Suppress the original window.
-            // Offscreen position ensures we don't get even brief flash of it.
-            renderWindow->setVisible(false);
-            renderWindow->resize(2, 2);
-            renderWindow->setPosition(-10000, -10000);
             const QList<QQuickItem *> childItems = renderWindow->contentItem()->childItems();
             for (QQuickItem *item : childItems) {
                 item->setParent(m_window->contentItem());
