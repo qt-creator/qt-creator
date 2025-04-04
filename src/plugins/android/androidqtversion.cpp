@@ -39,6 +39,7 @@
 #endif // WITH_TESTS
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Android::Internal {
 
@@ -156,13 +157,11 @@ Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const BuildConfigura
 
 AndroidQtVersion::BuiltWith AndroidQtVersion::builtWith(bool *ok) const
 {
-    const Utils::FilePath coreModuleJson = qmakeFilePath().parentDir().parentDir()
-                                           // version.prefix() not yet set when this is called
-                                           / "modules/Core.json";
+    // version.prefix() not yet set when this is called
+    const FilePath coreModuleJson = qmakeFilePath().parentDir().parentDir() / "modules/Core.json";
     if (coreModuleJson.exists()) {
-        Utils::FileReader reader;
-        if (reader.fetch(coreModuleJson))
-            return parseModulesCoreJson(reader.data(), ok);
+        if (const expected_str<QByteArray> contents = coreModuleJson.fileContents())
+            return parseModulesCoreJson(*contents, ok);
     }
 
     if (ok)
