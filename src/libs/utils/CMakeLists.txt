@@ -66,7 +66,7 @@ add_qtc_library(Utils
     filesystemwatcher.cpp filesystemwatcher.h
     fileutils.cpp fileutils.h
     filewizardpage.cpp filewizardpage.h
-    flowlayout.cpp flowlayout.h
+
     fsengine/fsengine.cpp fsengine/fsengine.h
     fsengine/fileiconprovider.cpp fsengine/fileiconprovider.h
     futuresynchronizer.cpp futuresynchronizer.h

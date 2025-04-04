@@ -158,8 +158,6 @@ QtcLibrary {
         "fileutils.h",
         "filewizardpage.cpp",
         "filewizardpage.h",
-        "flowlayout.cpp",
-        "flowlayout.h",
         "futuresynchronizer.cpp",
         "futuresynchronizer.h",
         "fuzzymatcher.cpp",
