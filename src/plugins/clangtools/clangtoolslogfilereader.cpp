@@ -100,10 +100,9 @@ private:
         if (filePath.isEmpty())
             return {};
 
-        Utils::FileReader reader;
-        // Do not use FileReader::text as we have to deal with byte offsets.
-        if (reader.fetch(Utils::FilePath::fromUserInput(filePath)))
-            return reader.data();
+        // Do not change \r\n as we have to deal with byte offsets.
+        if (expected_str<QByteArray> contents = FilePath::fromUserInput(filePath).fileContents())
+            return *contents;
 
         return {};
     }
