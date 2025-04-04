@@ -1379,8 +1379,6 @@ public:
     Process m_process;
     QTimer m_waitForDoneTimer;
 
-    bool m_stopRequested = false;
-
     ProcessResultData m_resultData;
 
     std::function<void(Process &)> m_startModifier;
@@ -1456,10 +1454,10 @@ ProcessRunnerPrivate::~ProcessRunnerPrivate()
 
 void ProcessRunnerPrivate::stop()
 {
-    if (m_stopRequested || m_process.state() == QProcess::NotRunning)
+    if (m_stopForced || m_process.state() == QProcess::NotRunning)
         return;
 
-    m_stopRequested = true;
+    m_stopForced = true;
     m_resultData.m_exitStatus = QProcess::CrashExit;
     m_waitForDoneTimer.setInterval(2 * m_process.reaperTimeout());
     m_waitForDoneTimer.start();
@@ -1529,8 +1527,6 @@ void ProcessRunnerPrivate::start()
         forwardDone();
         return;
     }
-
-    m_stopRequested = false;
 
     QVariantHash extraData = q->runControl()->extraData();
     if (const auto rc = q->runControl()) {
@@ -1649,7 +1645,6 @@ void ProcessRunner::start()
 
 void ProcessRunner::stop()
 {
-    d->m_stopForced = true;
     d->stop();
 }
 
