@@ -1367,8 +1367,6 @@ public:
     }
     Utils::ProcessHandle applicationPID() const;
 
-    enum State { Inactive, Run };
-
     void handleStandardOutput();
     void handleStandardError();
 
@@ -1381,7 +1379,6 @@ public:
     Process m_process;
     QTimer m_waitForDoneTimer;
 
-    State m_state = Inactive;
     bool m_stopRequested = false;
 
     ProcessResultData m_resultData;
@@ -1453,13 +1450,13 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
 
 ProcessRunnerPrivate::~ProcessRunnerPrivate()
 {
-    if (m_state == Run)
+    if (m_process.state() != QProcess::NotRunning)
         forwardDone();
 }
 
 void ProcessRunnerPrivate::stop()
 {
-    if (m_stopRequested || m_state != Run)
+    if (m_stopRequested || m_process.state() == QProcess::NotRunning)
         return;
 
     m_stopRequested = true;
@@ -1502,7 +1499,7 @@ void ProcessRunnerPrivate::start()
     Environment env = m_process.environment();
 
     m_resultData = {};
-    QTC_ASSERT(m_state == Inactive, return);
+    QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
 
     if (cmdLine.executable().isLocal()) {
         // Running locally.
@@ -1552,8 +1549,6 @@ void ProcessRunnerPrivate::start()
     m_process.setCommand(cmdLine);
     m_process.setEnvironment(env);
     m_process.setExtraData(extraData);
-
-    m_state = Run;
     m_process.setForceDefaultErrorModeOnWindows(true);
     m_process.start();
 }
@@ -1581,7 +1576,6 @@ void ProcessRunnerPrivate::forwardDone()
 {
     if (m_stopReported)
         return;
-    m_state = Inactive;
     m_waitForDoneTimer.stop();
     const CommandLine command = m_process.commandLine();
     const QString executable = command.executable().displayName();
