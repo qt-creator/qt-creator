@@ -34,6 +34,7 @@
         \li \l{Developing for MCUs}{MCU} (commercial only)
         \li \l{Add a QNX Neutrino device}{QNX}
         \li \l{Developing for Remote Linux Devices}{Remote Linux}
+        \li \l{Create kits for VxWorks devices}{VxWorks}
         \li \l{Build applications for the web}{WebAssembly Runtime}
     \endlist
 
