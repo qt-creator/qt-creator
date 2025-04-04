@@ -103,7 +103,7 @@ public:
     int m_exitCode = 0;
     QProcess::ExitStatus m_exitStatus = QProcess::NormalExit;
     QProcess::ProcessError m_error = QProcess::UnknownError;
-    QString m_errorString;
+    QString m_errorString = {};
 };
 
 enum class ControlSignal {

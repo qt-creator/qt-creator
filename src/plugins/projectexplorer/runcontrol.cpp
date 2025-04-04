@@ -1374,8 +1374,6 @@ public:
     Process m_process;
     QTimer m_waitForDoneTimer;
 
-    ProcessResultData m_resultData;
-
     std::function<void(Process &)> m_startModifier;
 
     bool m_stopReported = false;
@@ -1383,7 +1381,7 @@ public:
     bool m_suppressDefaultStdOutHandling = false;
 
     void forwardStarted();
-    void forwardDone();
+    void forwardDone(const ProcessResultData &resultData);
 };
 
 } // Internal
@@ -1400,8 +1398,7 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
     m_process.setProcessChannelMode(defaultProcessChannelMode());
     connect(&m_process, &Process::started, this, &ProcessRunnerPrivate::forwardStarted);
     connect(&m_process, &Process::done, this, [this] {
-        m_resultData = m_process.resultData();
-        forwardDone();
+        forwardDone(m_process.resultData());
     });
     connect(&m_process, &Process::readyReadStandardError, this, [this] {
         postMessage(m_process.readAllStandardError(), StdErrFormat, false);
@@ -1425,7 +1422,7 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
         if (!m_process.commandLine().executable().isLocal())
             postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
         m_process.close();
-        forwardDone();
+        forwardDone({-1, QProcess::CrashExit, QProcess::Crashed});
     });
 
     if (WinDebugInterface::instance()) {
@@ -1449,7 +1446,7 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
 ProcessRunnerPrivate::~ProcessRunnerPrivate()
 {
     if (m_process.state() != QProcess::NotRunning)
-        forwardDone();
+        forwardDone({-1, QProcess::CrashExit, QProcess::Crashed});
 }
 
 void ProcessRunnerPrivate::stop()
@@ -1458,7 +1455,6 @@ void ProcessRunnerPrivate::stop()
         return;
 
     m_stopForced = true;
-    m_resultData.m_exitStatus = QProcess::CrashExit;
     m_waitForDoneTimer.setInterval(2 * m_process.reaperTimeout());
     m_waitForDoneTimer.start();
     m_process.stop();
@@ -1477,7 +1473,6 @@ void ProcessRunnerPrivate::start()
     CommandLine cmdLine = m_process.commandLine();
     Environment env = m_process.environment();
 
-    m_resultData = {};
     QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
 
     if (cmdLine.executable().isLocal()) {
@@ -1502,10 +1497,8 @@ void ProcessRunnerPrivate::start()
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(cmdLine.executable());
     if (device && !device->allowEmptyCommand() && cmdLine.isEmpty()) {
-        m_resultData.m_errorString = Tr::tr("Cannot run: No command given.");
-        m_resultData.m_error = QProcess::FailedToStart;
-        m_resultData.m_exitStatus = QProcess::CrashExit;
-        forwardDone();
+        forwardDone({255, QProcess::CrashExit, QProcess::FailedToStart,
+                     Tr::tr("Cannot run: No command given.")});
         return;
     }
 
@@ -1549,21 +1542,21 @@ ProcessRunner::ProcessRunner(RunControl *runControl)
 
 ProcessRunner::~ProcessRunner() = default;
 
-void ProcessRunnerPrivate::forwardDone()
+void ProcessRunnerPrivate::forwardDone(const ProcessResultData &resultData)
 {
     if (m_stopReported)
         return;
     m_waitForDoneTimer.stop();
     const CommandLine command = m_process.commandLine();
     const QString executable = command.executable().displayName();
-    QString msg = Tr::tr("%1 exited with code %2").arg(executable).arg(m_resultData.m_exitCode);
-    if (m_resultData.m_exitStatus == QProcess::CrashExit) {
+    QString msg = Tr::tr("%1 exited with code %2").arg(executable).arg(resultData.m_exitCode);
+    if (resultData.m_exitStatus == QProcess::CrashExit) {
         if (m_stopForced)
             msg = Tr::tr("The process was ended forcefully.");
         else
             msg = Tr::tr("The process crashed.");
-    } else if (m_resultData.m_error != QProcess::UnknownError) {
-        msg = RunWorker::userMessageForProcessError(m_resultData.m_error, command.executable());
+    } else if (resultData.m_error != QProcess::UnknownError) {
+        msg = RunWorker::userMessageForProcessError(resultData.m_error, command.executable());
     }
     postMessage(msg, NormalMessageFormat);
     m_stopReported = true;
