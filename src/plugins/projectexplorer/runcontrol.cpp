@@ -1371,7 +1371,6 @@ public:
 
     void handleStandardOutput();
     void handleStandardError();
-    void handleDone();
 
     // Local
     qint64 privateApplicationPID() const;
@@ -1410,7 +1409,10 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
 {
     m_process.setProcessChannelMode(defaultProcessChannelMode());
     connect(&m_process, &Process::started, this, &ProcessRunnerPrivate::forwardStarted);
-    connect(&m_process, &Process::done, this, &ProcessRunnerPrivate::handleDone);
+    connect(&m_process, &Process::done, this, [this] {
+        m_resultData = m_process.resultData();
+        forwardDone();
+    });
     connect(&m_process, &Process::readyReadStandardError,
                 this, &ProcessRunnerPrivate::handleStandardError);
     connect(&m_process, &Process::readyReadStandardOutput,
@@ -1478,13 +1480,6 @@ qint64 ProcessRunnerPrivate::privateApplicationPID() const
         return 0;
 
     return m_process.processId();
-}
-
-void ProcessRunnerPrivate::handleDone()
-{
-    m_resultData = m_process.resultData();
-    QTC_CHECK(m_state == Run);
-    forwardDone();
 }
 
 void ProcessRunnerPrivate::handleStandardOutput()
