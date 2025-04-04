@@ -198,10 +198,6 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
         if (!qmlRuntime.isEmpty())
             return qmlRuntime;
     }
-    auto hasDeployStep = [this] {
-        return buildConfiguration()->activeDeployConfiguration() &&
-            !buildConfiguration()->activeDeployConfiguration()->stepList()->isEmpty();
-    };
 
     // The Qt version might know, but we need to make sure
     // that the device can reach it.
