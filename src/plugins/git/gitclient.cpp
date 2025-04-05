@@ -1934,7 +1934,7 @@ bool GitClient::executeSynchronousStash(const FilePath &workingDirectory,
                                         bool unstagedOnly,
                                         QString *errorMessage) const
 {
-    QStringList arguments = {"stash", "save"};
+    QStringList arguments = {"stash", "push"};
     if (unstagedOnly)
         arguments << "--keep-index";
     if (!message.isEmpty())
