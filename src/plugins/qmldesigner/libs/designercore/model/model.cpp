@@ -2724,6 +2724,16 @@ NodeMetaInfo Model::qtQuick3DDefaultMaterialMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuick3DLightMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, Light>();
+    } else {
+        return metaInfo("QtQuick3D.Light");
+    }
+}
+
 NodeMetaInfo Model::qtQuick3DDirectionalLightMetaInfo() const
 {
     if constexpr (useProjectStorage()) {

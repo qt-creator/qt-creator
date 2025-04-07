@@ -172,6 +172,7 @@ public:
     NodeMetaInfo qtQuick3DBakedLightmapMetaInfo() const;
     NodeMetaInfo qtQuick3DDefaultMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DDirectionalLightMetaInfo() const;
+    NodeMetaInfo qtQuick3DLightMetaInfo() const;
     NodeMetaInfo qtQuick3DMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DModelMetaInfo() const;
     NodeMetaInfo qtQuick3DNodeMetaInfo() const;
