@@ -139,14 +139,12 @@ void showAttachToProcessDialog()
     debugger->setupPortsGatherer();
     rp.setUseCtrlCStub(true);
     if (rp.isCppDebugging()) {
-        auto pdebugRunner = new ProcessRunner(runControl);
-        pdebugRunner->setId("PDebugRunner");
-        pdebugRunner->setStartModifier([runControl](Process &process) {
+        const auto modifier = [runControl](Process &process) {
             const int pdebugPort = runControl->debugChannel().port();
             process.setCommand({QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}});
-        });
-
-        debugger->addStartDependency(pdebugRunner);
+        };
+        auto worker = createProcessWorker(runControl, modifier);
+        debugger->addStartDependency(worker);
     }
 
     rp.setStartMode(AttachToRemoteServer);
@@ -177,10 +175,7 @@ public:
 
             debugger->setupPortsGatherer();
 
-            auto debuggeeRunner = new ProcessRunner(runControl);
-            debuggeeRunner->setId("QnxDebuggeeRunner");
-
-            debuggeeRunner->setStartModifier([runControl](Process &process) {
+            const auto modifier = [runControl](Process &process) {
                 CommandLine cmd = runControl->commandLine();
                 QStringList arguments;
                 if (runControl->usesDebugChannel()) {
@@ -193,12 +188,13 @@ public:
                 }
                 cmd.setArguments(ProcessArgs::joinArgs(arguments));
                 process.setCommand(cmd);
-            });
+            };
+            auto worker = createProcessWorker(runControl, modifier);
 
             auto slog2InfoRunner = new RecipeRunner(runControl, slog2InfoRecipe(runControl));
-            debuggeeRunner->addStartDependency(slog2InfoRunner);
+            worker->addStartDependency(slog2InfoRunner);
 
-            debugger->addStartDependency(debuggeeRunner);
+            debugger->addStartDependency(worker);
 
             Kit *k = runControl->kit();
 

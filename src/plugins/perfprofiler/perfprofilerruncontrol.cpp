@@ -99,9 +99,7 @@ public:
     PerfRecordWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto runner = new ProcessRunner(runControl);
-            runner->suppressDefaultStdOutHandling();
-            runner->setStartModifier([runControl](Process &process) {
+            const auto modifier = [runControl](Process &process) {
                 const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
                 const QString recordArgs = perfArgs[Constants::PerfRecordArgsId].toString();
 
@@ -114,8 +112,8 @@ public:
                 process.setWorkingDirectory(runControl->workingDirectory());
                 process.setEnvironment(runControl->environment());
                 runControl->appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
-            });
-            return runner;
+            };
+            return createProcessWorker(runControl, modifier, true);
         });
 
         addSupportedRunMode(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE);

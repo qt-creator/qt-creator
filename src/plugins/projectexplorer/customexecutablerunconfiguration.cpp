@@ -73,7 +73,7 @@ CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory
 
 CustomExecutableRunWorkerFactory::CustomExecutableRunWorkerFactory()
 {
-    setProduct<ProcessRunner>();
+    setRecipeProducer([](RunControl *runControl) { return processRecipe(runControl); });
     addSupportedRunMode(Constants::NORMAL_RUN_MODE);
     addSupportedRunConfig(Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
 }

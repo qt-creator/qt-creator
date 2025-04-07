@@ -3,6 +3,7 @@
 
 #include "qmlpreviewruncontrol.h"
 
+#include "projectexplorer/runcontrol.h"
 #include "qmlpreviewconnectionmanager.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -107,25 +108,18 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
 {
     setId(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
     setProducer([](RunControl *runControl) {
-        auto worker = new ProcessRunner(runControl);
-        worker->setId("LocalQmlPreviewSupport");
-
         runControl->setQmlChannel(Utils::urlFromLocalSocket());
 
         // Create QmlPreviewRunner
-        RunWorker *preview =
-            runControl->createWorker(ProjectExplorer::Constants::QML_PREVIEW_RUNNER);
+        RunWorker *preview = runControl->createWorker(ProjectExplorer::Constants::QML_PREVIEW_RUNNER);
 
-        worker->addStopDependency(preview);
-        worker->addStartDependency(preview);
-
-        worker->setStartModifier([runControl](Process &process) {
+        const auto modifier = [runControl](Process &process) {
             CommandLine cmd = runControl->commandLine();
 
             if (const auto aspect = runControl->aspectData<QmlProjectManager::QmlMainFileAspect>()) {
                 const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
                     runControl->buildConfiguration()->buildSystem());
-                QTC_ASSERT(qmlBuildSystem, return);
+                QTC_ASSERT(qmlBuildSystem, return SetupResult::StopWithError);
 
                 const FilePath mainScript = aspect->mainScript;
                 const FilePath currentFile = aspect->currentFile;
@@ -143,7 +137,11 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
 
             cmd.addArg(qmlDebugLocalArguments(QmlPreviewServices, runControl->qmlChannel().path()));
             process.setCommand(cmd.toLocal());
-        });
+            return SetupResult::Continue;
+        };
+        auto worker = createProcessWorker(runControl, modifier);
+        worker->addStopDependency(preview);
+        worker->addStartDependency(preview);
         return worker;
     });
     addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);

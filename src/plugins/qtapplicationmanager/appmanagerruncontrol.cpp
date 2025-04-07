@@ -43,12 +43,7 @@ namespace AppManager::Internal {
 static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices,
                                        bool suppressDefaultStdOutHandling = false)
 {
-    auto worker = new ProcessRunner(runControl);
-    worker->setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
-    if (suppressDefaultStdOutHandling)
-        worker->suppressDefaultStdOutHandling();
-
-    worker->setStartModifier([runControl, qmlServices](Process &process) {
+    const auto modifier = [runControl, qmlServices](Process &process) {
         FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
         QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
         QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
@@ -100,8 +95,8 @@ static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesP
 
         runControl->postMessage(Tr::tr("Starting Application Manager debugging..."), NormalMessageFormat);
         runControl->postMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
-    });
-    return worker;
+    };
+    return createProcessWorker(runControl, modifier, suppressDefaultStdOutHandling);
 }
 
 class AppManagerRunWorkerFactory final : public RunWorkerFactory
@@ -110,15 +105,7 @@ public:
     AppManagerRunWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new ProcessRunner(runControl);
-            worker->setId("ApplicationManagerPlugin.Run.TargetRunner");
-            QObject::connect(worker, &RunWorker::stopped, worker, [runControl] {
-                runControl->postMessage(
-                    Tr::tr("%1 exited.").arg(runControl->commandLine().toUserOutput()),
-                    OutputFormat::NormalMessageFormat);
-            });
-
-            worker->setStartModifier([runControl](Process &process) {
+            const auto modifier = [runControl](Process &process) {
                 FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
                 QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
                 QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
@@ -151,8 +138,8 @@ public:
                 if (!documentUrl.isEmpty())
                     cmd.addArg(documentUrl);
                 process.setCommand(cmd);
-            });
-            return worker;
+            };
+            return createProcessWorker(runControl, modifier);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);

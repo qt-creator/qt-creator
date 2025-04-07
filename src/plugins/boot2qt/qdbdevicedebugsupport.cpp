@@ -30,12 +30,7 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
                                                 QmlDebugServicesPreset qmlServices,
                                                 bool suppressDefaultStdOutHandling = false)
 {
-    auto worker = new ProcessRunner(runControl);
-    worker->setId("QdbDeviceInferiorWorker");
-    if (suppressDefaultStdOutHandling)
-        worker->suppressDefaultStdOutHandling();
-
-    worker->setStartModifier([worker, runControl, qmlServices](Process &process) {
+    const auto modifier = [runControl, qmlServices](Process &process) {
         CommandLine cmd{runControl->device()->filePath(Constants::AppcontrollerFilepath)};
 
         int lowerPort = 0;
@@ -55,8 +50,9 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
             lowerPort = runControl->debugChannel().port();
             upperPort = runControl->qmlChannel().port();
             if (lowerPort + 1 != upperPort) {
-                worker->reportFailure("Need adjacent free ports for combined C++/QML debugging");
-                return;
+                runControl->postMessage("Need adjacent free ports for combined C++/QML debugging",
+                                        ErrorMessageFormat);
+                return Tasking::SetupResult::StopWithError;
             }
         }
         if (runControl->usesPerfChannel()) {
@@ -83,8 +79,9 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
         process.setCommand(cmd);
         process.setWorkingDirectory(runControl->workingDirectory());
         process.setEnvironment(runControl->environment());
-    });
-    return worker;
+        return Tasking::SetupResult::Continue;
+    };
+    return createProcessWorker(runControl, modifier, suppressDefaultStdOutHandling);
 }
 
 class QdbRunWorkerFactory final : public RunWorkerFactory
@@ -93,16 +90,15 @@ public:
     QdbRunWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new ProcessRunner(runControl);
-            worker->setStartModifier([runControl](Process &process) {
+            const auto modifier = [runControl](Process &process) {
                 const CommandLine remoteCommand = runControl->commandLine();
                 const FilePath remoteExe = remoteCommand.executable();
                 CommandLine cmd{remoteExe.withNewPath(Constants::AppcontrollerFilepath)};
                 cmd.addArg(remoteExe.nativePath());
                 cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
                 process.setCommand(cmd);
-            });
-            return worker;
+            };
+            return createProcessWorker(runControl, modifier);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);

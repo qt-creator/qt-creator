@@ -210,18 +210,17 @@ public:
     EmrunRunWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new ProcessRunner(runControl);
             runControl->requestWorkerChannel();
 
-            worker->setStartModifier([runControl](Process &process) {
+            const auto modifier = [runControl](Process &process) {
                 const QString browserId =
                     runControl->aspectData<WebBrowserSelectionAspect>()->currentBrowser;
                 process.setCommand(emrunCommand(runControl->buildConfiguration(), runControl->buildKey(),
                     browserId, QString::number(runControl->workerChannel().port())));
                 process.setEnvironment(runControl->buildEnvironment());
-            });
+            };
 
-            return worker;
+            return createProcessWorker(runControl, modifier);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);

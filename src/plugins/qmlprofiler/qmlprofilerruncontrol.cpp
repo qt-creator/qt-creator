@@ -71,19 +71,10 @@ Group qmlProfilerRecipe(RunControl *runControl)
 
 RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
 {
-    auto worker = new ProcessRunner(runControl);
-
-    worker->setId("LocalQmlProfilerSupport");
-
     auto profiler = new RecipeRunner(runControl, qmlProfilerRecipe(runControl));
     runControl->requestQmlChannel();
 
-    worker->addStopDependency(profiler);
-    // We need to open the local server before the application tries to connect.
-    // In the TCP case, it doesn't hurt either to start the profiler before.
-    worker->addStartDependency(profiler);
-
-    worker->setStartModifier([runControl](Process &process) {
+    const auto modifier = [runControl](Process &process) {
         const QUrl serverUrl = runControl->qmlChannel();
         QString code;
         if (serverUrl.scheme() == Utils::urlSocketScheme())
@@ -99,8 +90,13 @@ RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
         CommandLine cmd = runControl->commandLine();
         cmd.prependArgs(arguments, CommandLine::Raw);
         process.setCommand(cmd.toLocal());
-    });
+    };
 
+    auto worker = createProcessWorker(runControl, modifier);
+    worker->addStopDependency(profiler);
+    // We need to open the local server before the application tries to connect.
+    // In the TCP case, it doesn't hurt either to start the profiler before.
+    worker->addStartDependency(profiler);
     return worker;
 }
 

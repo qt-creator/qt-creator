@@ -267,7 +267,7 @@ private:
 };
 
 PROJECTEXPLORER_EXPORT Tasking::Group processRecipe(RunControl *runControl,
-    const std::function<void(Utils::Process &)> &startModifier = {},
+    const std::function<Tasking::SetupResult(Utils::Process &)> &startModifier = {},
     bool suppressDefaultStdOutHandling = false);
 
 class PROJECTEXPLORER_EXPORT ProcessRunner final : public RunWorker
@@ -331,5 +331,38 @@ private:
     Tasking::TaskTreeRunner m_taskTreeRunner;
     const Tasking::Group m_recipe;
 };
+
+// Just a helper
+template <typename Result, typename Function, typename ...Args,
+         typename DecayedFunction = std::decay_t<Function>>
+static constexpr bool isModifierInvocable()
+{
+    // Note, that std::is_invocable_r_v doesn't check Result type properly.
+    if constexpr (std::is_invocable_r_v<Result, DecayedFunction, Args...>)
+        return std::is_same_v<Result, std::invoke_result_t<DecayedFunction, Args...>>;
+    return false;
+}
+
+template <typename Modifier>
+RunWorker *createProcessWorker(RunControl *runControl,
+                               const Modifier &startModifier = {},
+                               bool suppressDefaultStdOutHandling = false)
+{
+    // R, V stands for: Setup[R]esult, [V]oid
+    static constexpr bool isR = isModifierInvocable<Tasking::SetupResult, Modifier, Utils::Process &>();
+    static constexpr bool isV = isModifierInvocable<void, Modifier, Utils::Process &>();
+    static_assert(isR || isV,
+                  "Process modifier needs to take (Process &) as an argument and has to return void or "
+                  "SetupResult. The passed handler doesn't fulfill these requirements.");
+    if constexpr (isR) {
+        return new RecipeRunner(runControl, processRecipe(runControl, startModifier, suppressDefaultStdOutHandling));
+    } else {
+        const auto modifier = [startModifier](Utils::Process &process) {
+            startModifier(process);
+            return Tasking::SetupResult::Continue;
+        };
+        return new RecipeRunner(runControl, processRecipe(runControl, modifier, suppressDefaultStdOutHandling));
+    }
+}
 
 } // namespace ProjectExplorer

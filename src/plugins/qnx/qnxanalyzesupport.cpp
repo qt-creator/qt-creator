@@ -24,24 +24,23 @@ public:
     QnxQmlProfilerWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new ProcessRunner(runControl);
-            worker->setId("QnxQmlProfilerSupport");
-            runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
-
             runControl->requestQmlChannel();
 
-            auto slog2InfoRunner = new RecipeRunner(runControl, slog2InfoRecipe(runControl));
-            worker->addStartDependency(slog2InfoRunner);
-
-            auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
-            profiler->addStartDependency(worker);
-            worker->addStopDependency(profiler);
-
-            worker->setStartModifier([runControl](Process &process) {
+            const auto modifier = [runControl](Process &process) {
                 CommandLine cmd = runControl->commandLine();
                 cmd.addArg(qmlDebugTcpArguments(QmlProfilerServices, runControl->qmlChannel()));
                 process.setCommand(cmd);
-            });
+            };
+
+            auto worker = createProcessWorker(runControl, modifier);
+            runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
+
+            auto slog2InfoRunner = new RecipeRunner(runControl, slog2InfoRecipe(runControl));
+
+            auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
+            profiler->addStartDependency(worker);
+            worker->addStartDependency(slog2InfoRunner);
+            worker->addStopDependency(profiler);
             return worker;
         });
         // FIXME: Shouldn't this use the run mode id somehow?

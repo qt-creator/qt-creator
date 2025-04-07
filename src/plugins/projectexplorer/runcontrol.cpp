@@ -1612,7 +1612,7 @@ void ProcessRunner::suppressDefaultStdOutHandling()
 }
 
 Group processRecipe(RunControl *runControl,
-                    const std::function<void(Process &)> &startModifier,
+                    const std::function<SetupResult(Process &)> &startModifier,
                     bool suppressDefaultStdOutHandling)
 {
     const Storage<bool> isLocalStorage{true};
@@ -1623,8 +1623,11 @@ Group processRecipe(RunControl *runControl,
         process.setWorkingDirectory(runControl->workingDirectory());
         process.setEnvironment(runControl->environment());
 
-        if (startModifier)
-            startModifier(process);
+        if (startModifier) {
+            const SetupResult result = startModifier(process);
+            if (result != SetupResult::Continue)
+                return result;
+        }
 
         const CommandLine command = process.commandLine();
         const bool isDesktop = command.executable().isLocal();
@@ -1999,7 +2002,7 @@ void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target
 
 ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
 {
-    setProduct<ProcessRunner>();
+    setRecipeProducer([](RunControl *runControl) { return processRecipe(runControl); });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     setSupportedRunConfigs(runConfigs);
 }

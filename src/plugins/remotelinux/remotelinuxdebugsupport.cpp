@@ -34,7 +34,7 @@ class RemoteLinuxRunWorkerFactory final : public RunWorkerFactory
 public:
     RemoteLinuxRunWorkerFactory()
     {
-        setProduct<ProcessRunner>();
+        setRecipeProducer([](RunControl *runControl) { return processRecipe(runControl); });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
         setSupportedRunConfigs(supportedRunConfigs());
@@ -80,20 +80,18 @@ public:
         setProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
 
-            auto worker = new ProcessRunner(runControl);
-            worker->setId("RemoteLinuxQmlToolingSupport");
-
             auto runworker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
-            runworker->addStartDependency(worker);
-            worker->addStopDependency(runworker);
 
-            worker->setStartModifier([runControl](Process &process) {
+            const auto modifier = [runControl](Process &process) {
                 QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
 
                 CommandLine cmd = runControl->commandLine();
                 cmd.addArg(qmlDebugTcpArguments(services, runControl->qmlChannel()));
                 process.setCommand(cmd);
-            });
+            };
+            auto worker = createProcessWorker(runControl, modifier);
+            runworker->addStartDependency(worker);
+            worker->addStopDependency(runworker);
             return worker;
         });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);

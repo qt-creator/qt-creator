@@ -80,14 +80,13 @@ McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
 FlashRunWorkerFactory::FlashRunWorkerFactory()
 {
     setProducer([](RunControl *runControl) {
-        auto worker = new ProcessRunner(runControl);
-        worker->setStartModifier([runControl](Process &process) {
+        const auto modifier = [runControl](Process &process) {
             const BuildConfiguration *bc = runControl->buildConfiguration();
             process.setCommand({cmakeFilePath(bc->kit()),
                                 runControl->aspectData<StringAspect>()->value, CommandLine::Raw});
             process.setWorkingDirectory(bc->buildDirectory());
             process.setEnvironment(bc->environment());
-        });
+        };
 
         QObject::connect(runControl, &RunControl::started, runControl, [] {
             FlashAndRunConfiguration::disabled = true;
@@ -97,8 +96,7 @@ FlashRunWorkerFactory::FlashRunWorkerFactory()
             FlashAndRunConfiguration::disabled = false;
             ProjectExplorerPlugin::updateRunActions();
         });
-
-        return worker;
+        return createProcessWorker(runControl, modifier);
     });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     addSupportedRunConfig(Constants::RUNCONFIGURATION);

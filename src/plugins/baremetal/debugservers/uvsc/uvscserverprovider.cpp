@@ -197,13 +197,10 @@ Result UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
 
 ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runControl) const
 {
-    auto worker = new ProcessRunner(runControl);
-    worker->setId("BareMetalUvscServer");
-    worker->setStartModifier([this, runControl](Process &process) {
+    return createProcessWorker(runControl, [this, runControl](Process &process) {
         process.setCommand({DebuggerKitAspect::runnable(runControl->kit()).command.executable(),
                             {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}});
     });
-    return worker;
 }
 
 void UvscServerProvider::fromMap(const Store &data)

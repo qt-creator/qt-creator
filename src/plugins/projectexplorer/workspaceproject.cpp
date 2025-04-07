@@ -430,7 +430,7 @@ class WorkspaceProjectRunWorkerFactory : public RunWorkerFactory
 public:
     WorkspaceProjectRunWorkerFactory()
     {
-        setProduct<ProcessRunner>();
+        setRecipeProducer([](RunControl *runControl) { return processRecipe(runControl); });
         addSupportedRunMode(Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(WORKSPACE_PROJECT_RUNCONFIG_ID);
     }
