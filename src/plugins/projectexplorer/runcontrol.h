@@ -38,7 +38,6 @@ class Target;
 namespace Internal {
 class RunControlPrivate;
 class RunWorkerPrivate;
-class ProcessRunnerPrivate;
 } // Internal
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject
@@ -269,24 +268,6 @@ private:
 PROJECTEXPLORER_EXPORT Tasking::Group processRecipe(RunControl *runControl,
     const std::function<Tasking::SetupResult(Utils::Process &)> &startModifier = {},
     bool suppressDefaultStdOutHandling = false);
-
-class PROJECTEXPLORER_EXPORT ProcessRunner final : public RunWorker
-{
-    Q_OBJECT
-
-public:
-    explicit ProcessRunner(RunControl *runControl);
-    ~ProcessRunner() override;
-
-    void setStartModifier(const std::function<void(Utils::Process &)> &startModifier);
-    void suppressDefaultStdOutHandling();
-
-private:
-    void start() final;
-    void stop() final;
-
-    const std::unique_ptr<Internal::ProcessRunnerPrivate> d;
-};
 
 class PROJECTEXPLORER_EXPORT ProcessRunnerFactory : public RunWorkerFactory
 {
