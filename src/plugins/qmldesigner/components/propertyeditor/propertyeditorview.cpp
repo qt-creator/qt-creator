@@ -8,12 +8,13 @@
 #include "propertyeditorvalue.h"
 #include "propertyeditorwidget.h"
 
+#include "qmldesignerplugin.h"
 #include <asset.h>
 #include <auxiliarydataproperties.h>
 #include <dynamicpropertiesmodel.h>
+#include <functional.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
-#include "qmldesignerplugin.h"
 #include <qmltimeline.h>
 
 #include <rewritingexception.h>
@@ -863,11 +864,16 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
     const ModelNodes &allRemovedNodes = removedNode.allSubModelNodesAndThisNode();
 
-    if (Utils::contains(allRemovedNodes, model()->qtQuick3DTextureMetaInfo(), &ModelNode::metaInfo))
+    using SL = ModelTracing::SourceLocation;
+    if (Utils::contains(allRemovedNodes,
+                        model()->qtQuick3DTextureMetaInfo(),
+                        bind_back(&ModelNode::metaInfo, SL{})))
         m_textureAboutToBeRemoved = true;
 
     if (m_qmlBackEndForCurrentType) {
-        if (Utils::contains(allRemovedNodes, QLatin1String{Constants::MATERIAL_LIB_ID}, &ModelNode::id))
+        if (Utils::contains(allRemovedNodes,
+                            QLatin1String{Constants::MATERIAL_LIB_ID},
+                            bind_back(&ModelNode::id, SL{})))
             m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(false);
     }
 }
@@ -1262,12 +1268,17 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
     if (node == activeNode())
         m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(activeNode()));
 
+    using SL = const ModelTracing::SourceLocation;
     const ModelNodes &allNodes = node.allSubModelNodesAndThisNode();
-    if (Utils::contains(allNodes, model()->qtQuick3DTextureMetaInfo(), &ModelNode::metaInfo))
+    if (Utils::contains(allNodes,
+                        model()->qtQuick3DTextureMetaInfo(),
+                        bind_back(&ModelNode::metaInfo, SL{})))
         m_qmlBackEndForCurrentType->refreshBackendModel();
 
     if (m_qmlBackEndForCurrentType) {
-        if (Utils::contains(allNodes, QLatin1String{Constants::MATERIAL_LIB_ID}, &ModelNode::id))
+        if (Utils::contains(allNodes,
+                            QLatin1String{Constants::MATERIAL_LIB_ID},
+                            bind_back(&ModelNode::id, SL{})))
             m_qmlBackEndForCurrentType->contextObject()->setHasMaterialLibrary(true);
     }
 }

@@ -27,6 +27,8 @@ using QmlDesigner::PropertyDeclarationId;
 using QmlDesigner::TypeId;
 namespace Info = QmlDesigner::Storage::Info;
 
+constexpr QmlDesigner::ModelTracing::SourceLocation sl;
+
 MATCHER_P2(HasItem,
            name,
            value,
@@ -388,10 +390,13 @@ TEST_F(ListModelEditor, add_row_creates_new_model_node_and_reparents)
 {
     model.setListModel(listModelNode);
 
-    EXPECT_CALL(mockView, nodeCreated(Property("ModelNode::type", &ModelNode::type, Eq("ListElement"))));
     EXPECT_CALL(mockView,
-                nodeReparented(Property("ModelNode::type", &ModelNode::type, Eq("ListElement")),
-                               Property("AbstractProperty::parentModelNode", &AbstractProperty::parentModelNode, Eq(listModelNode)),
+                nodeCreated(Property("ModelNode::type", &ModelNode::type, Eq("ListElement"), sl)));
+    EXPECT_CALL(mockView,
+                nodeReparented(Property("ModelNode::type", &ModelNode::type, Eq("ListElement"), sl),
+                               Property("AbstractProperty::parentModelNode",
+                                        &AbstractProperty::parentModelNode,
+                                        Eq(listModelNode)),
                                _,
                                _));
 

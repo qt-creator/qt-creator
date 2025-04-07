@@ -24,6 +24,8 @@ using QmlDesigner::Import;
 using QmlDesigner::ModelNode;
 using QmlDesigner::ThemeProperty;
 
+constexpr QmlDesigner::ModelTracing::SourceLocation sl;
+
 namespace {
 std::string formatedPropStr(std::string tag, const QByteArray &name, const QVariant &value)
 {
@@ -136,7 +138,7 @@ TEST_P(DesignSystemQmlTest, group_aliase_properties_are_generated)
 
     // assert
     ASSERT_THAT(rootNode,
-                AllOf(Property("ModelNode::type", &ModelNode::type, Eq("QtObject")),
+                AllOf(Property("ModelNode::type", &ModelNode::type, Eq("QtObject"), sl),
                       HasBindingProperty(groupName, binding),
                       HasBindingProperty("currentTheme", darkThemeName),
                       HasNodeProperty(darkThemeName, "QtObject")));
@@ -154,7 +156,7 @@ TEST_P(DesignSystemQmlTest, empty_groups_generate_no_group_aliase_properties)
 
     // assert
     ASSERT_THAT(rootNode,
-                AllOf(Property("ModelNode::type", &ModelNode::type, Eq("QtObject")),
+                AllOf(Property("ModelNode::type", &ModelNode::type, Eq("QtObject"), sl),
                       Not(HasBindingProperty(groupName, binding)),
                       Not(HasBindingProperty("currentTheme", darkThemeName)),
                       Not(HasNodeProperty(darkThemeName, "QtObject"))));

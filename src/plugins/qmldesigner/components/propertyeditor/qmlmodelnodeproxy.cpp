@@ -120,7 +120,7 @@ QString QmlModelNodeProxy::simplifiedTypeName() const
 
 static QList<int> toInternalIdList(const QList<ModelNode> &nodes)
 {
-    return Utils::transform(nodes, &ModelNode::internalId);
+    return Utils::transform(nodes, [](const ModelNode &node) { return node.internalId(); });
 }
 
 QList<int> QmlModelNodeProxy::allChildren(int internalId) const

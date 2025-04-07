@@ -17,7 +17,7 @@ class PropertyMatcher
 public:
     PropertyMatcher(Property property, const Matcher &matcher, Arguments... arguments)
         : m_property(property)
-        , matcher_(matcher)
+        , m_matcher(matcher)
         , m_whose_property()
         , m_arguments{arguments...}
     {}
@@ -27,7 +27,7 @@ public:
                     const Matcher &matcher,
                     Arguments... arguments)
         : m_property(property)
-        , matcher_(matcher)
+        , m_matcher(matcher)
         , m_whose_property(whose_property)
         , m_arguments{arguments...}
     {}
@@ -35,13 +35,13 @@ public:
     void DescribeTo(::std::ostream *os) const
     {
         *os << "is an object " << m_whose_property;
-        matcher_.DescribeTo(os);
+        m_matcher.DescribeTo(os);
     }
 
     void DescribeNegationTo(::std::ostream *os) const
     {
         *os << "is an object " << m_whose_property;
-        matcher_.DescribeNegationTo(os);
+        m_matcher.DescribeNegationTo(os);
     }
 
     template<typename T>
@@ -52,14 +52,14 @@ public:
         auto result = std::apply(
             [&](auto &&...arguments) { return std::invoke(m_property, value, arguments...); },
             m_arguments);
-        return MatchPrintAndExplain(result, matcher_, listener);
+        return m_matcher.MatchAndExplain(result, listener->stream());
     }
 
 private:
     Property m_property;
-    const Matcher matcher_;
-    const std::string m_whose_property;
-    const std::tuple<Arguments...> m_arguments;
+    Matcher m_matcher;
+    std::string m_whose_property;
+    std::tuple<Arguments...> m_arguments;
 };
 
 template<typename PropertyMatcher>
