@@ -172,7 +172,7 @@ static GroupItem findApp(RunControl *runControl, const QString &bundleIdentifier
                          const Storage<AppInfo> &appInfo)
 {
     const auto onSetup = [runControl, appInfo](Process &process) {
-        appInfo->device = std::dynamic_pointer_cast<const IosDevice>(RunDeviceKitAspect::device(runControl->kit()));
+        appInfo->device = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
         if (!appInfo->device)
             return SetupResult::StopWithSuccess; // don't block the following tasks
         process.setCommand({FilePath::fromString("/usr/bin/xcrun"),
