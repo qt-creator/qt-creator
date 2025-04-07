@@ -610,6 +610,8 @@ void IosDeviceManager::monitorAvailableDevices()
 
 bool IosDeviceManager::isDeviceCtlOutputSupported()
 {
+    if (qtcEnvironmentVariableIsSet("QTC_FORCE_POLLINGIOSRUNNER"))
+        return false;
     // Theoretically the devicectl from Xcode 15.4 already has the required `--console` option,
     // but that is broken for some (newer?) devices (QTCREATORBUG-32637).
     return instance()->m_deviceCtlVersion
@@ -618,6 +620,8 @@ bool IosDeviceManager::isDeviceCtlOutputSupported()
 
 bool IosDeviceManager::isDeviceCtlDebugSupported()
 {
+    if (qtcEnvironmentVariableIsSet("QTC_FORCE_POLLINGIOSRUNNER"))
+        return false;
     // TODO this actually depends on a kit with LLDB >= lldb-1600.0.36.3 (Xcode 16.0)
     // and devicectl >= 355.28 (Xcode 15.4) already has the devicectl requirements
     // In principle users could install Xcode 16, and get devicectl >= 397.21 from that
