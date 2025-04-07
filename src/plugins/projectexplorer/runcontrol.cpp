@@ -25,6 +25,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <solutions/tasking/barrier.h>
 #include <solutions/tasking/tasktree.h>
 #include <solutions/tasking/tasktreerunner.h>
 
@@ -1610,7 +1611,169 @@ void ProcessRunner::suppressDefaultStdOutHandling()
     d->m_suppressDefaultStdOutHandling = true;
 }
 
-// RunWorkerPrivate
+Group processRecipe(RunControl *runControl,
+                    const std::function<void(Process &)> &startModifier,
+                    bool suppressDefaultStdOutHandling)
+{
+    const Storage<bool> isLocalStorage{true};
+
+    const auto onSetup = [isLocalStorage, runControl, startModifier, suppressDefaultStdOutHandling](Process &process) {
+        process.setProcessChannelMode(defaultProcessChannelMode());
+        process.setCommand(runControl->commandLine());
+        process.setWorkingDirectory(runControl->workingDirectory());
+        process.setEnvironment(runControl->environment());
+
+        if (startModifier)
+            startModifier(process);
+
+        const CommandLine command = process.commandLine();
+        const bool isDesktop = command.executable().isLocal();
+        if (isDesktop && command.isEmpty()) {
+            runControl->postMessage(Tr::tr("No executable specified."), ErrorMessageFormat);
+            return SetupResult::StopWithError;
+        }
+
+        bool useTerminal = false;
+        if (auto terminalAspect = runControl->aspectData<TerminalAspect>())
+            useTerminal = terminalAspect->useTerminal;
+
+        const Environment environment = process.environment();
+        process.setTerminalMode(useTerminal ? Utils::TerminalMode::Run : Utils::TerminalMode::Off);
+        process.setReaperTimeout(
+            std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds));
+
+        runControl->postMessage(Tr::tr("Starting %1...").arg(command.displayName()), NormalMessageFormat);
+        if (runControl->isPrintEnvironmentEnabled()) {
+            runControl->postMessage(Tr::tr("Environment:"), NormalMessageFormat);
+            environment.forEachEntry([runControl](const QString &key, const QString &value, bool enabled) {
+                if (enabled)
+                    runControl->postMessage(key + '=' + value, StdOutFormat);
+            });
+            runControl->postMessage({}, StdOutFormat);
+        }
+
+        CommandLine cmdLine = process.commandLine();
+        Environment env = process.environment();
+
+        if (cmdLine.executable().isLocal()) {
+            // Running locally.
+            bool runAsRoot = false;
+            if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>())
+                runAsRoot = runAsRootAspect->value;
+
+            if (runAsRoot)
+                RunControl::provideAskPassEntry(env);
+
+            WinDebugInterface::startIfNeeded();
+
+            if (HostOsInfo::isMacHost()) {
+                CommandLine disclaim(Core::ICore::libexecPath("disclaim"));
+                disclaim.addCommandLineAsArgs(cmdLine);
+                cmdLine = disclaim;
+            }
+
+            process.setRunAsRoot(runAsRoot);
+        }
+
+        const IDevice::ConstPtr device = DeviceManager::deviceForPath(cmdLine.executable());
+        if (device && !device->allowEmptyCommand() && cmdLine.isEmpty()) {
+            runControl->postMessage(Tr::tr("Cannot run: No command given."), NormalMessageFormat);
+            return SetupResult::StopWithError;
+        }
+
+        QVariantHash extraData = runControl->extraData();
+        QString shellName = runControl->displayName();
+
+        if (runControl->buildConfiguration()) {
+            if (BuildConfiguration *buildConfig = runControl->buildConfiguration())
+                shellName += " - " + buildConfig->displayName();
+        }
+
+        extraData[TERMINAL_SHELL_NAME] = shellName;
+
+        process.setCommand(cmdLine);
+        process.setEnvironment(env);
+        process.setExtraData(extraData);
+        process.setForceDefaultErrorModeOnWindows(true);
+
+        *isLocalStorage = cmdLine.executable().isLocal();
+
+        QObject::connect(&process, &Process::started, runStorage().activeStorage(),
+                         [runControl, process = &process, iface = runStorage().activeStorage()] {
+            const bool isDesktop = process->commandLine().executable().isLocal();
+            if (isDesktop) {
+                // Console processes only know their pid after being started
+                ProcessHandle pid{process->processId()};
+                runControl->setApplicationProcessHandle(pid);
+                pid.activate();
+            }
+            emit iface->started();
+        });
+        QObject::connect(&process, &Process::readyReadStandardError, runControl, [runControl, process = &process] {
+            runControl->postMessage(process->readAllStandardError(), StdErrFormat, false);
+        });
+        QObject::connect(&process, &Process::readyReadStandardOutput, runControl, [runControl, suppressDefaultStdOutHandling, process = &process] {
+            if (suppressDefaultStdOutHandling)
+                emit runControl->stdOutData(process->readAllRawStandardOutput());
+            else
+                runControl->postMessage(process->readAllStandardOutput(), StdOutFormat, false);
+        });
+        QObject::connect(&process, &Process::stoppingForcefully, runControl, [runControl] {
+            runControl->postMessage(Tr::tr("Stopping process forcefully ...."), NormalMessageFormat);
+        });
+
+        if (WinDebugInterface::instance()) {
+            QObject::connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
+                             &process, [runControl, process = &process] {
+                QObject::disconnect(WinDebugInterface::instance(), nullptr, process, nullptr);
+                runControl->postMessage(Tr::tr("Cannot retrieve debugging output.")
+                                            + QLatin1Char('\n'), ErrorMessageFormat);
+            });
+
+            QObject::connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
+                             &process, [runControl, process = &process](qint64 pid, const QList<QString> &messages) {
+                if (process->processId() != pid)
+                    return;
+                for (const QString &message : messages)
+                    runControl->postMessage(message, DebugFormat);
+            });
+        }
+        QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, &process,
+                         [runControl, process = &process] {
+            process->stop();
+            runControl->postMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
+        });
+        return SetupResult::Continue;
+    };
+
+    const auto onDone = [runControl](const Process &process) {
+        runControl->postMessage(process.exitMessage(), NormalMessageFormat);
+    };
+
+    const auto onCancelSetup = [](Barrier &barrier) {
+        QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, &barrier, &Barrier::advance);
+    };
+
+    const auto onTimeoutDone = [runControl, isLocalStorage](DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return;
+        runControl->postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
+        if (*isLocalStorage == false)
+            runControl->postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
+    };
+
+    return {
+        parallel,
+        stopOnSuccessOrError,
+        isLocalStorage,
+        ProcessTask(onSetup, onDone),
+        Group {
+            BarrierTask(onCancelSetup),
+            timeoutTask(2 * std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds)),
+            onGroupDone(onTimeoutDone)
+        }
+    };
+}
 
 RunWorkerPrivate::RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl)
     : q(runWorker), runControl(runControl)
