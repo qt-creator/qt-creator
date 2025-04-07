@@ -70,9 +70,6 @@ public:
 
     void reportFailure(const QString &msg = QString());
 
-    static QString userMessageForProcessError(QProcess::ProcessError,
-                                              const Utils::FilePath &programName);
-
 signals:
     void started();
     void stopping();

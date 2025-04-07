@@ -4158,8 +4158,7 @@ void GdbEngine::handleGdbDone()
             msg = failedToStartMessage() + ' ' + Tr::tr("The working directory \"%1\" is not usable.")
                 .arg(wd.toUserOutput());
         } else {
-            msg = RunWorker::userMessageForProcessError(QProcess::FailedToStart,
-                runParameters().debugger().command.executable());
+            msg = m_gdbProc.exitMessage();
         }
         handleAdapterStartFailed(msg);
         return;
@@ -4167,8 +4166,7 @@ void GdbEngine::handleGdbDone()
 
     const QProcess::ProcessError error = m_gdbProc.error();
     if (error != QProcess::UnknownError) {
-        QString msg = RunWorker::userMessageForProcessError(error,
-                      runParameters().debugger().command.executable());
+        QString msg = m_gdbProc.exitMessage();
         const QString errorString = m_gdbProc.errorString();
         if (!errorString.isEmpty())
             msg += '\n' + errorString;

@@ -1803,39 +1803,6 @@ void RunWorker::setId(const QString &id)
     d->id = id;
 }
 
-QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, const FilePath &program)
-{
-    QString failedToStart = Tr::tr("The process failed to start.");
-    QString msg = Tr::tr("An unknown error in the process occurred.");
-    switch (error) {
-        case QProcess::FailedToStart:
-            msg = failedToStart + ' ' + Tr::tr("Either the "
-                "invoked program \"%1\" is missing, or you may have insufficient "
-                "permissions to invoke the program.").arg(program.toUserOutput());
-            break;
-        case QProcess::Crashed:
-            msg = Tr::tr("The process crashed.");
-            break;
-        case QProcess::Timedout:
-            // "The last waitFor...() function timed out. "
-            //   "The state of QProcess is unchanged, and you can try calling "
-            // "waitFor...() again."
-            return {}; // sic!
-        case QProcess::WriteError:
-            msg = Tr::tr("An error occurred when attempting to write "
-                "to the process. For example, the process may not be running, "
-                "or it may have closed its input channel.");
-            break;
-        case QProcess::ReadError:
-            msg = Tr::tr("An error occurred when attempting to read from "
-                "the process. For example, the process may not be running.");
-            break;
-        case QProcess::UnknownError:
-            break;
-    }
-    return msg;
-}
-
 void RunWorker::start()
 {
     reportStarted();
