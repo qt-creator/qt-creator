@@ -1365,14 +1365,9 @@ public:
     {
         q->runControl()->postMessage(msg, format, appendNewLine);
     }
-    Utils::ProcessHandle applicationPID() const;
-
-    void handleStandardOutput();
-    void handleStandardError();
 
     // Local
     qint64 privateApplicationPID() const;
-    bool isRunning() const;
 
     ProcessRunner *q = nullptr;
 
@@ -1408,10 +1403,15 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
         m_resultData = m_process.resultData();
         forwardDone();
     });
-    connect(&m_process, &Process::readyReadStandardError,
-                this, &ProcessRunnerPrivate::handleStandardError);
-    connect(&m_process, &Process::readyReadStandardOutput,
-                this, &ProcessRunnerPrivate::handleStandardOutput);
+    connect(&m_process, &Process::readyReadStandardError, this, [this] {
+        postMessage(m_process.readAllStandardError(), StdErrFormat, false);
+    });
+    connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
+        if (m_suppressDefaultStdOutHandling)
+            emit q->runControl()->stdOutData(m_process.readAllRawStandardOutput());
+        else
+            postMessage(m_process.readAllStandardOutput(), StdOutFormat, false);
+    });
     connect(&m_process, &Process::requestingStop, this, [this] {
         postMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
     });
@@ -1464,31 +1464,12 @@ void ProcessRunnerPrivate::stop()
     m_process.stop();
 }
 
-bool ProcessRunnerPrivate::isRunning() const
-{
-    return m_process.state() != QProcess::NotRunning;
-}
-
 qint64 ProcessRunnerPrivate::privateApplicationPID() const
 {
-    if (!isRunning())
+    if (m_process.state() == QProcess::NotRunning)
         return 0;
 
     return m_process.processId();
-}
-
-void ProcessRunnerPrivate::handleStandardOutput()
-{
-    if (m_suppressDefaultStdOutHandling)
-        emit q->runControl()->stdOutData(m_process.readAllRawStandardOutput());
-    else
-        postMessage(m_process.readAllStandardOutput(), StdOutFormat, false);
-}
-
-void ProcessRunnerPrivate::handleStandardError()
-{
-    const QString msg = m_process.readAllStandardError();
-    postMessage(msg, StdErrFormat, false);
 }
 
 void ProcessRunnerPrivate::start()
