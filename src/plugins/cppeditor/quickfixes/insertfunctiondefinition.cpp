@@ -1087,14 +1087,12 @@ private slots:
             "#define MACRO(X) X x;\n"
             "int lala;\n"
             "\n"
-            "\n"
+            "MACRO(int)\n"
             "\n"
             "void f()\n"
             "{\n"
             "\n"
             "}\n"
-            "\n"
-            "MACRO(int)\n"
             ;
         testDocuments << CppTestDocument::create("file.cpp", original, expected);
 
@@ -1127,14 +1125,12 @@ private slots:
             "#include \"file.h\"\n"
             "#define MACRO(X) X x;\n"
             "\n"
-            "\n"
+            "MACRO(int)\n"
             "\n"
             "void f()\n"
             "{\n"
             "\n"
             "}\n"
-            "\n"
-            "MACRO(int)\n"
             ;
         testDocuments << CppTestDocument::create("file.cpp", original, expected);
 

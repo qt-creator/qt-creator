@@ -27,7 +27,6 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
     _addIncludesToCurrentDoc = _currentDoc->resolvedIncludes().isEmpty()
             && _currentDoc->unresolvedIncludes().isEmpty();
     const FilePath filePath = _currentDoc->filePath();
-    _preproc.setExpandFunctionlikeMacros(false);
     _preproc.setKeepComments(true);
 
     if (Document::Ptr doc = _snapshot.document(filePath)) {
