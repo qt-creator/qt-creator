@@ -1422,7 +1422,7 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
         if (!m_process.commandLine().executable().isLocal())
             postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
         m_process.close();
-        forwardDone({-1, QProcess::CrashExit, QProcess::Crashed});
+        q->reportStopped();
     });
 
     if (WinDebugInterface::instance()) {
@@ -1446,7 +1446,7 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
 ProcessRunnerPrivate::~ProcessRunnerPrivate()
 {
     if (m_process.state() != QProcess::NotRunning)
-        forwardDone({-1, QProcess::CrashExit, QProcess::Crashed});
+        postMessage(Tr::tr("The process didn't stop after sending cancel request."), NormalMessageFormat);
 }
 
 void ProcessRunnerPrivate::stop()
@@ -1497,8 +1497,8 @@ void ProcessRunnerPrivate::start()
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(cmdLine.executable());
     if (device && !device->allowEmptyCommand() && cmdLine.isEmpty()) {
-        forwardDone({255, QProcess::CrashExit, QProcess::FailedToStart,
-                     Tr::tr("Cannot run: No command given.")});
+        postMessage(Tr::tr("Cannot run: No command given."), NormalMessageFormat);
+        q->reportStopped();
         return;
     }
 
