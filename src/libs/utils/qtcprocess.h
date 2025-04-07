@@ -198,7 +198,6 @@ signals:
     void readyReadStandardError();
     void textOnStandardOutput(const QString &text);
     void textOnStandardError(const QString &text);
-    void requestingStop();
     void stoppingForcefully();
 
 private:

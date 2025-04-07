@@ -1551,7 +1551,6 @@ void Process::stop()
     if (state() == QProcess::NotRunning)
         return;
 
-    emit requestingStop();
     d->sendControlSignal(ControlSignal::Terminate);
     d->m_killTimer.start(d->m_process->m_setup.m_reaperTimeout);
 }
