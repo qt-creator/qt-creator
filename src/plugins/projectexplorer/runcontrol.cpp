@@ -1376,12 +1376,10 @@ public:
 
     std::function<void(Process &)> m_startModifier;
 
-    bool m_stopReported = false;
     bool m_stopForced = false;
     bool m_suppressDefaultStdOutHandling = false;
 
     void forwardStarted();
-    void forwardDone(const ProcessResultData &resultData);
 };
 
 } // Internal
@@ -1398,7 +1396,9 @@ ProcessRunnerPrivate::ProcessRunnerPrivate(ProcessRunner *parent)
     m_process.setProcessChannelMode(defaultProcessChannelMode());
     connect(&m_process, &Process::started, this, &ProcessRunnerPrivate::forwardStarted);
     connect(&m_process, &Process::done, this, [this] {
-        forwardDone(m_process.resultData());
+        m_waitForDoneTimer.stop();
+        postMessage(m_process.exitMessage(), NormalMessageFormat);
+        q->reportStopped();
     });
     connect(&m_process, &Process::readyReadStandardError, this, [this] {
         postMessage(m_process.readAllStandardError(), StdErrFormat, false);
@@ -1542,27 +1542,6 @@ ProcessRunner::ProcessRunner(RunControl *runControl)
 
 ProcessRunner::~ProcessRunner() = default;
 
-void ProcessRunnerPrivate::forwardDone(const ProcessResultData &resultData)
-{
-    if (m_stopReported)
-        return;
-    m_waitForDoneTimer.stop();
-    const CommandLine command = m_process.commandLine();
-    const QString executable = command.executable().displayName();
-    QString msg = Tr::tr("%1 exited with code %2").arg(executable).arg(resultData.m_exitCode);
-    if (resultData.m_exitStatus == QProcess::CrashExit) {
-        if (m_stopForced)
-            msg = Tr::tr("The process was ended forcefully.");
-        else
-            msg = Tr::tr("The process crashed.");
-    } else if (resultData.m_error != QProcess::UnknownError) {
-        msg = RunWorker::userMessageForProcessError(resultData.m_error, command.executable());
-    }
-    postMessage(msg, NormalMessageFormat);
-    m_stopReported = true;
-    q->reportStopped();
-}
-
 void ProcessRunnerPrivate::forwardStarted()
 {
     const bool isDesktop = m_process.commandLine().executable().isLocal();
@@ -1592,7 +1571,6 @@ void ProcessRunner::start()
     const CommandLine command = d->m_process.commandLine();
     const Environment environment = d->m_process.environment();
     d->m_stopForced = false;
-    d->m_stopReported = false;
     d->disconnect(this);
     d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::Run : Utils::TerminalMode::Off);
     d->m_process.setReaperTimeout(
