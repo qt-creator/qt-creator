@@ -14,6 +14,14 @@
 
 namespace Docker::Internal {
 
+class PortMappings : public Utils::AspectList
+{
+public:
+    PortMappings(Utils::AspectContainer *container);
+
+    QStringList createArguments() const;
+};
+
 class DockerDevice : public ProjectExplorer::IDevice
 {
 public:
@@ -71,6 +79,7 @@ public:
     Utils::StringSelectionAspect network{this};
     Utils::StringAspect extraArgs{this};
     DockerDeviceEnvironmentAspect environment{this};
+    PortMappings portMappings{this};
 
     Utils::TextDisplay containerStatus{this};
 

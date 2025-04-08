@@ -684,6 +684,8 @@ DockerDevice::DockerDevice()
 
     allowEmptyCommand.setValue(true);
 
+    portMappings.setSettingsKey("Ports");
+
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeLinux);
     setupId(IDevice::ManuallyAdded);
@@ -971,6 +973,7 @@ CommandLine DockerDevicePrivate::createCommandLine()
     }
 
     dockerCreate.addArgs(createMountArgs());
+    dockerCreate.addArgs(q->portMappings.createArguments());
 
     if (!q->keepEntryPoint())
         dockerCreate.addArgs({"--entrypoint", "/bin/sh"});
@@ -1420,4 +1423,95 @@ std::optional<FilePath> DockerDevice::clangdExecutable() const
     return d->clangdExecutable();
 }
 
+class PortMapping : public Utils::AspectContainer
+{
+public:
+    PortMapping();
+
+    void addToLayoutImpl(Layouting::Layout &parent) override;
+
+    Utils::StringAspect ip{this};
+    Utils::IntegerAspect hostPort{this};
+    Utils::IntegerAspect containerPort{this};
+    Utils::SelectionAspect protocol{this};
+};
+
+PortMapping::PortMapping()
+{
+    ip.setSettingsKey("HostIp");
+    ip.setDefaultValue("0.0.0.0");
+    ip.setToolTip(Tr::tr("Host IP"));
+    ip.setLabelText(Tr::tr("Host IP:"));
+    ip.setDisplayStyle(StringAspect::LineEditDisplay);
+
+    hostPort.setSettingsKey("HostPort");
+    hostPort.setToolTip(Tr::tr("Host Port"));
+    hostPort.setRange(1, 65535);
+    hostPort.setDefaultValue(8080);
+    hostPort.setLabelText(Tr::tr("Host Port:"));
+
+    containerPort.setSettingsKey("ContainerPort");
+    containerPort.setToolTip(Tr::tr("Container Port"));
+    containerPort.setRange(1, 65535);
+    containerPort.setDefaultValue(8080);
+    containerPort.setLabelText(Tr::tr("Container Port:"));
+
+    protocol.setSettingsKey("Protocol");
+    protocol.setToolTip(Tr::tr("Protocol"));
+    protocol.addOption("tcp", "TCP");
+    protocol.addOption("udp", "UDP");
+    protocol.setDefaultValue("tcp");
+    protocol.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    protocol.setLabelText(Tr::tr("Protocol:"));
+
+    for (const auto &aspect : aspects()) {
+        connect(aspect, &BaseAspect::changed, this, &PortMapping::changed);
+    }
+}
+
+void PortMapping::addToLayoutImpl(Layouting::Layout &parent)
+{
+    using namespace Layouting;
+
+    parent.addItem(ip);
+    parent.addItem(hostPort);
+    parent.addItem(containerPort);
+    parent.addItem(protocol);
+}
+
+PortMappings::PortMappings(Utils::AspectContainer *container)
+    : AspectList(container)
+{
+    setCreateItemFunction([this]() {
+        auto mapping = std::make_unique<PortMapping>();
+        connect(mapping.get(), &PortMapping::changed, this, &AspectContainer::changed);
+        return mapping;
+    });
+}
+
+QStringList PortMappings::createArguments() const
+{
+    QStringList cmds;
+
+    forEachItem<PortMapping>([&cmds](const std::shared_ptr<PortMapping> &portMapping) {
+        if (portMapping->ip().isEmpty()) {
+            cmds
+                += {"-p",
+                    QString("%1:%2/%3")
+                        .arg(portMapping->hostPort())
+                        .arg(portMapping->containerPort())
+                        .arg(portMapping->protocol.stringValue())};
+            return;
+        }
+        cmds
+            += {"-p",
+                QString("%1:%2:%3/%4")
+                    .arg(portMapping->ip())
+                    .arg(portMapping->hostPort())
+                    .arg(portMapping->containerPort())
+                    .arg(portMapping->protocol.stringValue())};
+    });
+
+    return cmds;
+}
 } // namespace Docker::Internal

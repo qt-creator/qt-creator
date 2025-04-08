@@ -184,6 +184,10 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 pathListLabel,
                 dockerDevice->mounts,
             }, br,
+            Column {
+                Tr::tr("Port Mappings:"),
+                dockerDevice->portMappings,
+            }, br,
             If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
         },br,
         Tr::tr("Command line:"), createLineLabel, br,
@@ -218,4 +222,4 @@ void DockerDeviceWidget::updateDaemonStateTexts()
     }
 }
 
-} // Docker::Internal
+} // namespace Docker::Internal
