@@ -1143,14 +1143,14 @@ public:
     void setCreateItemFunction(CreateItem createItem);
 
     template<class T>
-    void forEachItem(std::function<void(const std::shared_ptr<T> &)> callback)
+    void forEachItem(std::function<void(const std::shared_ptr<T> &)> callback) const
     {
         for (const auto &item : volatileItems())
             callback(std::static_pointer_cast<T>(item));
     }
 
     template<class T>
-    void forEachItem(std::function<void(const std::shared_ptr<T> &, int)> callback)
+    void forEachItem(std::function<void(const std::shared_ptr<T> &, int)> callback) const
     {
         int idx = 0;
         for (const auto &item : volatileItems())
