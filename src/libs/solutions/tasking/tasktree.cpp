@@ -3662,6 +3662,12 @@ void TimeoutTaskAdapter::start()
     });
 }
 
+/*!
+    Returns the ExecutableItem of TimeoutTask type, initially set up with \a timeout.
+    The returned task, when finished, reports \a result.
+
+    \sa TimeoutTask
+*/
 ExecutableItem timeoutTask(const std::chrono::milliseconds &timeout, DoneResult result)
 {
     return TimeoutTask([timeout](std::chrono::milliseconds &t) { t = timeout; }, result);
@@ -3694,6 +3700,8 @@ ExecutableItem timeoutTask(const std::chrono::milliseconds &timeout, DoneResult 
             Timeout(onSetup, onDone)
         };
     \endcode
+
+    \sa timeoutTask
 */
 
 } // namespace Tasking
