@@ -676,7 +676,7 @@ void BaseAspect::setContainer(AspectContainer *container)
 }
 
 void BaseAspect::saveToMap(Store &data, const QVariant &value,
-                           const QVariant &defaultValue, const Key &key)
+                           const QVariant &defaultValue, const Key &key) const
 {
     if (key.isEmpty())
         return;
@@ -702,15 +702,11 @@ void BaseAspect::fromMap(const Store &map)
 */
 void BaseAspect::toMap(Store &map) const
 {
-    if (settingsKey().isEmpty())
-        return;
     saveToMap(map, toSettingsValue(variantValue()), toSettingsValue(defaultVariantValue()), settingsKey());
 }
 
 void BaseAspect::volatileToMap(Store &map) const
 {
-    if (settingsKey().isEmpty())
-        return;
     saveToMap(map,
               toSettingsValue(volatileVariantValue()),
               toSettingsValue(defaultVariantValue()),

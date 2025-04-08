@@ -270,8 +270,8 @@ protected:
     }
 
     void registerSubWidget(QWidget *widget);
-    static void saveToMap(Store &data, const QVariant &value,
-                          const QVariant &defaultValue, const Key &key);
+    void saveToMap(Store &data, const QVariant &value,
+                   const QVariant &defaultValue, const Key &key) const;
 
     void forEachSubWidget(const std::function<void(QWidget *)> &func);
 
