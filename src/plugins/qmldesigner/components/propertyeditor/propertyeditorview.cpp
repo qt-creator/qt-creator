@@ -890,6 +890,7 @@ void PropertyEditorView::modelAttached(Model *model)
     if (debug)
         qDebug() << Q_FUNC_INFO;
 
+    resetSelectionLocked();
     resetView();
 }
 
