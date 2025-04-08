@@ -45,14 +45,11 @@ class DeviceSettingsWidget final : public Core::IOptionsPageWidget
 {
 public:
     DeviceSettingsWidget();
-    ~DeviceSettingsWidget() final
-    {
-        DeviceManager::removeClonedInstance();
-        delete m_configWidget;
-    }
+    ~DeviceSettingsWidget() final { delete m_configWidget; }
 
 private:
     void apply() final { saveSettings(); }
+    void cancel() final;
 
     void saveSettings();
 
@@ -73,7 +70,6 @@ private:
     QString parseTestOutput();
     void updateDeviceFromUi();
 
-    DeviceManager * const m_deviceManager;
     DeviceManagerModel * const m_deviceManagerModel;
     QList<QPushButton *> m_additionalActionButtons;
     IDeviceWidget *m_configWidget = nullptr;
@@ -93,9 +89,15 @@ private:
     QLayout *m_generalFormLayout;
 };
 
+void DeviceSettingsWidget::cancel()
+{
+    for (int i = 0; i < m_deviceManagerModel->rowCount(); i++)
+        m_deviceManagerModel->device(i)->cancel();
+    IOptionsPageWidget::cancel();
+}
+
 DeviceSettingsWidget::DeviceSettingsWidget()
-    : m_deviceManager(DeviceManager::cloneInstance())
-    , m_deviceManagerModel(new DeviceManagerModel(m_deviceManager, this))
+    : m_deviceManagerModel(new DeviceManagerModel(DeviceManager::instance(), this))
 {
     m_configurationLabel = new QLabel(Tr::tr("&Device:"));
     m_configurationComboBox = new QComboBox;
@@ -132,7 +134,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
         connect(action, &QAction::triggered, this, [factory, this] {
             IDevice::Ptr device = factory->construct();
             QTC_ASSERT(device, return);
-            m_deviceManager->addDevice(device);
+            DeviceManager::instance()->addDevice(device);
             m_removeConfigButton->setEnabled(true);
             m_configurationComboBox->setCurrentIndex(m_deviceManagerModel->indexOf(device));
             saveSettings();
@@ -206,7 +208,7 @@ DeviceSettingsWidget::DeviceSettingsWidget()
             this, &DeviceSettingsWidget::setDefaultDevice);
     connect(m_removeConfigButton, &QAbstractButton::clicked,
             this, &DeviceSettingsWidget::removeDevice);
-    connect(m_deviceManager, &DeviceManager::deviceUpdated,
+    connect(DeviceManager::instance(), &DeviceManager::deviceUpdated,
             this, &DeviceSettingsWidget::handleDeviceUpdated);
 }
 
@@ -228,7 +230,7 @@ void DeviceSettingsWidget::addDevice()
 
     Utils::asyncRun([device] { device->checkOsType(); });
 
-    m_deviceManager->addDevice(device);
+    DeviceManager::instance()->addDevice(device);
     m_removeConfigButton->setEnabled(true);
     m_configurationComboBox->setCurrentIndex(m_deviceManagerModel->indexOf(device));
     saveSettings();
@@ -238,8 +240,8 @@ void DeviceSettingsWidget::addDevice()
 
 void DeviceSettingsWidget::removeDevice()
 {
-    m_deviceManager->removeDevice(currentDevice()->id());
-    if (m_deviceManager->deviceCount() == 0)
+    DeviceManager::instance()->removeDevice(currentDevice()->id());
+    if (DeviceManager::instance()->deviceCount() == 0)
         currentDeviceChanged(-1);
 }
 
@@ -247,7 +249,7 @@ void DeviceSettingsWidget::displayCurrent()
 {
     const IDevice::ConstPtr &current = currentDevice();
     m_defaultDeviceButton->setEnabled(
-        m_deviceManager->defaultDevice(current->type()) != current);
+        DeviceManager::instance()->defaultDevice(current->type()) != current);
     m_osTypeValueLabel->setText(current->displayType());
     m_autoDetectionLabel->setText(current->isAutoDetected()
             ? Tr::tr("Yes (id is \"%1\")").arg(current->id().toString()) : Tr::tr("No"));
@@ -281,7 +283,6 @@ void DeviceSettingsWidget::saveSettings()
 {
     updateDeviceFromUi();
     ICore::settings()->setValueWithDefault(LastDeviceIndexKey, currentIndex(), 0);
-    DeviceManager::replaceInstance();
 }
 
 int DeviceSettingsWidget::currentIndex() const
@@ -298,7 +299,7 @@ IDevice::ConstPtr DeviceSettingsWidget::currentDevice() const
 
 void DeviceSettingsWidget::setDefaultDevice()
 {
-    m_deviceManager->setDefaultDevice(currentDevice()->id());
+    DeviceManager::instance()->setDefaultDevice(currentDevice()->id());
     m_defaultDeviceButton->setEnabled(false);
 }
 
@@ -306,7 +307,7 @@ void DeviceSettingsWidget::testDevice()
 {
     const IDevice::ConstPtr &device = currentDevice();
     QTC_ASSERT(device && device->hasDeviceTester(), return);
-    auto dlg = new DeviceTestDialog(m_deviceManager->mutableDevice(device->id()), this);
+    auto dlg = new DeviceTestDialog(DeviceManager::instance()->mutableDevice(device->id()), this);
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->setModal(true);
     dlg->show();
@@ -368,7 +369,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
         QPushButton * const button = new QPushButton(deviceAction.display);
         m_additionalActionButtons << button;
         connect(button, &QAbstractButton::clicked, this, [this, deviceAction] {
-            const IDevice::Ptr device = m_deviceManager->mutableDevice(currentDevice()->id());
+            const IDevice::Ptr device = DeviceManager::instance()->mutableDevice(currentDevice()->id());
             QTC_ASSERT(device, return);
             updateDeviceFromUi();
             deviceAction.execute(device);
@@ -382,7 +383,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
 
     if (!m_osSpecificGroupBox->layout())
         new QVBoxLayout(m_osSpecificGroupBox);
-    m_configWidget = m_deviceManager->mutableDevice(device->id())->createWidget();
+    m_configWidget = DeviceManager::instance()->mutableDevice(device->id())->createWidget();
     if (m_configWidget)
         m_osSpecificGroupBox->layout()->addWidget(m_configWidget);
     displayCurrent();

@@ -618,7 +618,7 @@ public:
 #endif
     QThreadPool m_threadPool;
 
-    DeviceManager m_deviceManager{true};
+    DeviceManager m_deviceManager;
 
 #ifdef Q_OS_WIN
     WinDebugInterface m_winDebugInterface;

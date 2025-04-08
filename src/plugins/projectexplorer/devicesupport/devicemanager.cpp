@@ -56,14 +56,11 @@ public:
         return devices;
     }
 
-    static DeviceManager *clonedInstance;
-
     mutable QMutex mutex;
     QList<IDevice::Ptr> devices;
     QHash<Id, Id> defaultDevices;
     PersistentSettingsWriter *writer = nullptr;
 };
-DeviceManager *DeviceManagerPrivate::clonedInstance = nullptr;
 
 } // namespace Internal
 
@@ -81,60 +78,8 @@ int DeviceManager::deviceCount() const
     return d->devices.count();
 }
 
-void DeviceManager::replaceInstance()
-{
-    const QList<Id> newIds =
-        Utils::transform(DeviceManagerPrivate::clonedInstance->d->devices, &IDevice::id);
-
-    for (const IDevice::Ptr &dev : std::as_const(m_instance->d->devices)) {
-        if (!newIds.contains(dev->id()))
-            dev->aboutToBeRemoved();
-    }
-
-    {
-        QMutexLocker locker(&instance()->d->mutex);
-        copy(DeviceManagerPrivate::clonedInstance, instance(), false);
-    }
-
-    emit instance()->deviceListReplaced();
-    emit instance()->updated();
-}
-
-void DeviceManager::removeClonedInstance()
-{
-    delete DeviceManagerPrivate::clonedInstance;
-    DeviceManagerPrivate::clonedInstance = nullptr;
-}
-
-DeviceManager *DeviceManager::cloneInstance()
-{
-    QTC_ASSERT(!DeviceManagerPrivate::clonedInstance, return nullptr);
-
-    DeviceManagerPrivate::clonedInstance = new DeviceManager(false);
-    copy(instance(), DeviceManagerPrivate::clonedInstance, true);
-    return DeviceManagerPrivate::clonedInstance;
-}
-
-DeviceManager *DeviceManager::clonedInstance()
-{
-    return DeviceManagerPrivate::clonedInstance;
-}
-
-void DeviceManager::copy(const DeviceManager *source, DeviceManager *target, bool deep)
-{
-    if (deep) {
-        for (const IDevice::Ptr &device : std::as_const(source->d->devices))
-            target->d->devices << device->clone();
-    } else {
-        target->d->devices = source->d->devices;
-    }
-    target->d->defaultDevices = source->d->defaultDevices;
-}
-
 void DeviceManager::save()
 {
-    if (d->clonedInstance == this || !d->writer)
-        return;
     Store data;
     data.insert(DeviceManagerKey, variantFromStore(toMap()));
     d->writer->save(data);
@@ -169,7 +114,7 @@ void DeviceManager::load()
         userDevices = fromMap(storeFromVariant(reader.restoreValues().value(DeviceManagerKey)), &defaultDevices);
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
-    for (IDevice::ConstPtr device : std::as_const(userDevices)) {
+    for (IDevice::Ptr device : std::as_const(userDevices)) {
         for (const IDevice::Ptr &sdkDevice : std::as_const(sdkDevices)) {
             if (device->id() == sdkDevice->id() || device->rootPath() == sdkDevice->rootPath()) {
                 if (device->version() < sdkDevice->version())
@@ -250,10 +195,8 @@ Store DeviceManager::toMap() const
     return map;
 }
 
-void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
+void DeviceManager::addDevice(const IDevice::Ptr &device)
 {
-    const IDevice::Ptr device = _device->clone();
-
     QStringList names;
     for (const IDevice::Ptr &tmp : std::as_const(d->devices)) {
         if (tmp->id() != device->id())
@@ -267,8 +210,6 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
 
     if (!defaultDevice(device->type()))
         d->defaultDevices.insert(device->type(), device->id());
-    if (this == DeviceManager::instance() && d->clonedInstance)
-        d->clonedInstance->addDevice(device->clone());
 
     if (pos >= 0) {
         {
@@ -294,7 +235,6 @@ void DeviceManager::removeDevice(Id id)
 {
     const IDevice::Ptr device = mutableDevice(id);
     QTC_ASSERT(device, return);
-    QTC_ASSERT(this != instance() || device->isAutoDetected(), return);
 
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
     const Id deviceType = device->type();
@@ -316,19 +256,12 @@ void DeviceManager::removeDevice(Id id)
             }
         }
     }
-    if (this == instance() && d->clonedInstance)
-        d->clonedInstance->removeDevice(id);
 
     emit updated();
 }
 
 void DeviceManager::setDeviceState(Id deviceId, IDevice::DeviceState deviceState)
 {
-    // To see the state change in the DeviceSettingsWidget. This has to happen before
-    // the pos check below, in case the device is only present in the cloned instance.
-    if (this == instance() && d->clonedInstance)
-        d->clonedInstance->setDeviceState(deviceId, deviceState);
-
     const int pos = d->indexForId(deviceId);
     if (pos < 0)
         return;
@@ -389,13 +322,9 @@ void DeviceManager::setDefaultDevice(Id id)
     emit updated();
 }
 
-DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManagerPrivate>())
+DeviceManager::DeviceManager()
+    : d(std::make_unique<DeviceManagerPrivate>())
 {
-    QTC_ASSERT(isInstance == !m_instance, return);
-
-    if (!isInstance)
-        return;
-
     m_instance = this;
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &DeviceManager::save);
@@ -482,15 +411,13 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
 
 DeviceManager::~DeviceManager()
 {
-    if (d->clonedInstance != this)
-        delete d->writer;
-    if (m_instance == this)
-        m_instance = nullptr;
+    delete d->writer;
+    m_instance = nullptr;
 }
 
-IDevice::ConstPtr DeviceManager::deviceAt(int idx) const
+IDevice::Ptr DeviceManager::deviceAt(int idx) const
 {
-    QTC_ASSERT(idx >= 0 && idx < deviceCount(), return IDevice::ConstPtr());
+    QTC_ASSERT(idx >= 0 && idx < deviceCount(), return IDevice::Ptr());
     return d->devices.at(idx);
 }
 
@@ -515,16 +442,16 @@ bool DeviceManager::hasDevice(const QString &name) const
     });
 }
 
-IDevice::ConstPtr DeviceManager::find(Id id) const
+IDevice::Ptr DeviceManager::find(Id id) const
 {
     const int index = d->indexForId(id);
-    return index == -1 ? IDevice::ConstPtr() : deviceAt(index);
+    return index == -1 ? IDevice::Ptr() : deviceAt(index);
 }
 
-IDevice::ConstPtr DeviceManager::defaultDevice(Id deviceType) const
+IDevice::Ptr DeviceManager::defaultDevice(Id deviceType) const
 {
     const Id id = d->defaultDevices.value(deviceType);
-    return id.isValid() ? find(id) : IDevice::ConstPtr();
+    return id.isValid() ? find(id) : IDevice::Ptr();
 }
 
 } // namespace ProjectExplorer
@@ -574,9 +501,6 @@ void ProjectExplorerTest::testDeviceManager()
     QCOMPARE(dev->deviceState(), IDevice::DeviceStateUnknown);
     QCOMPARE(dev->type(), TestDevice::testTypeId());
 
-    TestDevice::Ptr dev2 = dev->clone();
-    QCOMPARE(dev->id(), dev2->id());
-
     DeviceManager * const mgr = DeviceManager::instance();
     QVERIFY(!mgr->find(dev->id()));
     const int oldDeviceCount = mgr->deviceCount();
@@ -584,7 +508,6 @@ void ProjectExplorerTest::testDeviceManager()
     QSignalSpy deviceAddedSpy(mgr, &DeviceManager::deviceAdded);
     QSignalSpy deviceRemovedSpy(mgr, &DeviceManager::deviceRemoved);
     QSignalSpy deviceUpdatedSpy(mgr, &DeviceManager::deviceUpdated);
-    QSignalSpy deviceListReplacedSpy(mgr, &DeviceManager::deviceListReplaced);
     QSignalSpy updatedSpy(mgr, &DeviceManager::updated);
 
     mgr->addDevice(dev);
@@ -594,7 +517,6 @@ void ProjectExplorerTest::testDeviceManager()
     QCOMPARE(deviceAddedSpy.count(), 1);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 0);
-    QCOMPARE(deviceListReplacedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 1);
     deviceAddedSpy.clear();
     updatedSpy.clear();
@@ -603,7 +525,6 @@ void ProjectExplorerTest::testDeviceManager()
     QCOMPARE(deviceAddedSpy.count(), 0);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 0);
-    QCOMPARE(deviceListReplacedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 0);
 
     mgr->setDeviceState(dev->id(), IDevice::DeviceReadyToUse);
@@ -611,18 +532,6 @@ void ProjectExplorerTest::testDeviceManager()
     QCOMPARE(deviceAddedSpy.count(), 0);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 1);
-    QCOMPARE(deviceListReplacedSpy.count(), 0);
-    QCOMPARE(updatedSpy.count(), 1);
-    deviceUpdatedSpy.clear();
-    updatedSpy.clear();
-
-    mgr->addDevice(dev2);
-    QCOMPARE(mgr->deviceCount(), oldDeviceCount + 1);
-    QVERIFY(mgr->find(dev->id()));
-    QCOMPARE(deviceAddedSpy.count(), 0);
-    QCOMPARE(deviceRemovedSpy.count(), 0);
-    QCOMPARE(deviceUpdatedSpy.count(), 1);
-    QCOMPARE(deviceListReplacedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 1);
     deviceUpdatedSpy.clear();
     updatedSpy.clear();
@@ -632,12 +541,12 @@ void ProjectExplorerTest::testDeviceManager()
 
     dev3->setDisplayName(dev->displayName());
     mgr->addDevice(dev3);
-    QCOMPARE(mgr->deviceAt(mgr->deviceCount() - 1)->displayName(),
-             QString(dev3->displayName() + QLatin1Char('2')));
+    QCOMPARE(
+        mgr->deviceAt(mgr->deviceCount() - 1)->displayName(),
+        QString(dev->displayName() + QLatin1Char('2')));
     QCOMPARE(deviceAddedSpy.count(), 1);
     QCOMPARE(deviceRemovedSpy.count(), 0);
     QCOMPARE(deviceUpdatedSpy.count(), 0);
-    QCOMPARE(deviceListReplacedSpy.count(), 0);
     QCOMPARE(updatedSpy.count(), 1);
     deviceAddedSpy.clear();
     updatedSpy.clear();
@@ -649,8 +558,7 @@ void ProjectExplorerTest::testDeviceManager()
     QVERIFY(!mgr->find(dev3->id()));
     QCOMPARE(deviceAddedSpy.count(), 0);
     QCOMPARE(deviceRemovedSpy.count(), 2);
-//    QCOMPARE(deviceUpdatedSpy.count(), 0); Uncomment once the "default" stuff is gone.
-    QCOMPARE(deviceListReplacedSpy.count(), 0);
+    //    QCOMPARE(deviceUpdatedSpy.count(), 0); Uncomment once the "default" stuff is gone.
     QCOMPARE(updatedSpy.count(), 2);
 }
 

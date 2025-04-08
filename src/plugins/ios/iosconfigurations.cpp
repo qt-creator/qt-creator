@@ -381,9 +381,9 @@ void IosConfigurations::updateSimulators()
     // currently we have just one simulator
     DeviceManager *devManager = DeviceManager::instance();
     Id devId = Constants::IOS_SIMULATOR_DEVICE_ID;
-    IDevice::ConstPtr dev = devManager->find(devId);
+    IDevice::Ptr dev = devManager->find(devId);
     if (!dev) {
-        dev = IDevice::ConstPtr(new IosSimulator(devId));
+        dev = IDevice::Ptr(new IosSimulator(devId));
         devManager->addDevice(dev);
     }
     Utils::futureSynchronizer()->addFuture(SimulatorControl::updateAvailableSimulators(this));

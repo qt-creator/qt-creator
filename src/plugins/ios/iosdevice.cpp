@@ -263,20 +263,21 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
     Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
     Utils::Id devId = baseDevId.withSuffix(uid);
-    IDevice::ConstPtr dev = devManager->find(devId);
+    IDevice::Ptr dev = devManager->find(devId);
     if (!dev) {
-        auto newDev = new IosDevice(uid);
+        auto newDev = IosDevice::make(uid);
         if (!name.isNull())
             newDev->setDisplayName(name);
         qCDebug(detectLog) << "adding ios device " << uid;
-        devManager->addDevice(IDevice::ConstPtr(newDev));
+        devManager->addDevice(newDev);
     } else if (dev->deviceState() != IDevice::DeviceConnected &&
                dev->deviceState() != IDevice::DeviceReadyToUse) {
         qCDebug(detectLog) << "updating ios device " << uid;
+
         if (dev->type() == devType) // FIXME: Should that be a QTC_ASSERT?
-            devManager->addDevice(dev->clone());
+            devManager->addDevice(dev);
         else
-            devManager->addDevice(IDevice::ConstPtr(new IosDevice(uid)));
+            devManager->addDevice(IosDevice::make(uid));
     }
     updateInfo(uid);
 }
@@ -381,22 +382,22 @@ void IosDeviceManager::deviceInfo(const QString &uid,
     Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
     Utils::Id devId = baseDevId.withSuffix(uid);
-    IDevice::ConstPtr dev = devManager->find(devId);
+    IDevice::Ptr dev = devManager->find(devId);
     bool skipUpdate = false;
-    IosDevice *newDev = nullptr;
+    IosDevice::Ptr newDev;
     if (dev && dev->type() == devType) {
-        auto iosDev = static_cast<const IosDevice *>(dev.get());
+        IosDevice::Ptr iosDev = std::static_pointer_cast<IosDevice>(dev);
         if (iosDev->m_handler == handler && iosDev->m_extraInfo == info) {
             skipUpdate = true;
-            newDev = const_cast<IosDevice *>(iosDev);
+            newDev = iosDev;
         } else {
             Store store;
             iosDev->toMap(store);
-            newDev = new IosDevice();
+            newDev = IosDevice::make();
             newDev->fromMap(store);
         }
     } else {
-        newDev = new IosDevice(uid);
+        newDev = IosDevice::make(uid);
     }
     if (!skipUpdate) {
         if (info.contains(kDeviceName))
@@ -404,7 +405,7 @@ void IosDeviceManager::deviceInfo(const QString &uid,
         newDev->m_extraInfo = info;
         newDev->m_handler = handler;
         qCDebug(detectLog) << "updated info of ios device " << uid;
-        dev = IDevice::ConstPtr(newDev);
+        dev = newDev;
         devManager->addDevice(dev);
     }
     QLatin1String devStatusKey = QLatin1String("developerStatus");

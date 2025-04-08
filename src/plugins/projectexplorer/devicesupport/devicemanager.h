@@ -31,18 +31,17 @@ public:
     ~DeviceManager() override;
 
     static DeviceManager *instance();
-    static DeviceManager *clonedInstance();
 
     int deviceCount() const;
-    IDevice::ConstPtr deviceAt(int index) const;
+    IDevice::Ptr deviceAt(int index) const;
 
     void forEachDevice(const std::function<void(const IDeviceConstPtr &)> &) const;
 
-    IDevice::ConstPtr find(Utils::Id id) const;
-    IDevice::ConstPtr defaultDevice(Utils::Id deviceType) const;
+    IDevice::Ptr find(Utils::Id id) const;
+    IDevice::Ptr defaultDevice(Utils::Id deviceType) const;
     bool hasDevice(const QString &name) const;
 
-    void addDevice(const IDevice::ConstPtr &device);
+    void addDevice(const IDevice::Ptr &device);
     void removeDevice(Utils::Id id);
     void setDeviceState(Utils::Id deviceId, IDevice::DeviceState deviceState);
 
@@ -55,7 +54,6 @@ signals:
     void deviceAdded(Utils::Id id);
     void deviceRemoved(Utils::Id id);
     void deviceUpdated(Utils::Id id);
-    void deviceListReplaced(); // For bulk changes via the settings dialog.
     void updated(); // Emitted for all of the above.
 
     void devicesLoaded(); // Emitted once load() is done
@@ -63,7 +61,7 @@ signals:
 private:
     void save();
 
-    DeviceManager(bool isInstance = true);
+    DeviceManager();
 
     void load();
     QList<IDevice::Ptr> fromMap(const Utils::Store &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
@@ -72,11 +70,6 @@ private:
     // For SettingsWidget.
     IDevice::Ptr mutableDevice(Utils::Id id) const;
     void setDefaultDevice(Utils::Id id);
-    static DeviceManager *cloneInstance();
-    static void replaceInstance();
-    static void removeClonedInstance();
-
-    static void copy(const DeviceManager *source, DeviceManager *target, bool deep);
 
     const std::unique_ptr<Internal::DeviceManagerPrivate> d;
 

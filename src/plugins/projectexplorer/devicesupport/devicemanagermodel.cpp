@@ -18,7 +18,7 @@ class DeviceManagerModelPrivate
 {
 public:
     const DeviceManager *deviceManager;
-    QList<IDevice::ConstPtr> devices;
+    QList<IDevice::Ptr> devices;
     QList<Id> filter;
     Id typeToKeep;
 };
@@ -36,8 +36,6 @@ DeviceManagerModel::DeviceManagerModel(const DeviceManager *deviceManager, QObje
             this, &DeviceManagerModel::handleDeviceRemoved);
     connect(deviceManager, &DeviceManager::deviceUpdated,
             this, &DeviceManagerModel::handleDeviceUpdated);
-    connect(deviceManager, &DeviceManager::deviceListReplaced,
-            this, &DeviceManagerModel::handleDeviceListChanged);
 }
 
 DeviceManagerModel::~DeviceManagerModel() = default;
@@ -61,10 +59,10 @@ void DeviceManagerModel::updateDevice(Id id)
     handleDeviceUpdated(id);
 }
 
-IDevice::ConstPtr DeviceManagerModel::device(int pos) const
+IDevice::Ptr DeviceManagerModel::device(int pos) const
 {
     if (pos < 0 || pos >= d->devices.count())
-        return IDevice::ConstPtr();
+        return nullptr;
     return d->devices.at(pos);
 }
 
@@ -90,7 +88,7 @@ void DeviceManagerModel::handleDeviceAdded(Id id)
 {
     if (d->filter.contains(id))
         return;
-    IDevice::ConstPtr dev = d->deviceManager->find(id);
+    IDevice::Ptr dev = d->deviceManager->find(id);
     if (!matchesTypeFilter(dev))
         return;
 
@@ -124,7 +122,7 @@ void DeviceManagerModel::handleDeviceListChanged()
     d->devices.clear();
 
     for (int i = 0; i < d->deviceManager->deviceCount(); ++i) {
-        IDevice::ConstPtr dev = d->deviceManager->deviceAt(i);
+        IDevice::Ptr dev = d->deviceManager->deviceAt(i);
         if (d->filter.contains(dev->id()))
             continue;
         if (!matchesTypeFilter(dev))

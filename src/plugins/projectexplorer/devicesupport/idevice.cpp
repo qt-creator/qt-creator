@@ -224,7 +224,7 @@ IDevice::IDevice()
         if (newValue.trimmed().isEmpty())
             return ResultError(Tr::tr("The device name cannot be empty."));
 
-        if (DeviceManager::clonedInstance()->hasDevice(newValue))
+        if (DeviceManager::instance()->hasDevice(newValue))
             return ResultError(Tr::tr("A device with this name already exists."));
 
         return ResultOk;
@@ -645,22 +645,6 @@ void IDevice::toMap(Store &map) const
     map.insert(KeyFileKey, ssh.privateKeyFile().toSettings());
     map.insert(TimeoutKey, ssh.timeout());
     map.insert(HostKeyCheckingKey, ssh.hostKeyCheckingMode());
-}
-
-IDevice::Ptr IDevice::clone() const
-{
-    IDeviceFactory *factory = IDeviceFactory::find(d->type);
-    QTC_ASSERT(factory, return {});
-    Store store;
-    toMap(store);
-    IDevice::Ptr device = factory->construct();
-    QTC_ASSERT(device, return {});
-    device->d->deviceState = d->deviceState;
-    device->d->deviceActions = d->deviceActions;
-    device->d->deviceIcons = d->deviceIcons;
-    device->d->osType = d->osType;
-    device->fromMap(store);
-    return device;
 }
 
 QString IDevice::displayName() const

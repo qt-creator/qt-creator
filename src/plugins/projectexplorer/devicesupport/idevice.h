@@ -91,8 +91,6 @@ public:
 
     virtual ~IDevice();
 
-    virtual Ptr clone() const;
-
     QString displayName() const;
     void setDisplayName(const QString &name);
 
