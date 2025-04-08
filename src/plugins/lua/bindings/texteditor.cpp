@@ -427,6 +427,13 @@ void setupTextEditorModule()
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 textEditor->editorWidget()->insertExtraToolBarWidget(side, toWidget(widget));
             },
+            "insertExtraToolBarAction",
+            [](const TextEditorPtr &textEditor,
+               TextEditorWidget::Side side,
+               QAction* action) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                textEditor->editorWidget()->insertExtraToolBarAction(side, action);
+            },
             "setRefactorMarker",
             [pluginSpec, activeMarkers](
                 const TextEditorPtr &textEditor,
