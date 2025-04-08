@@ -566,5 +566,24 @@ void openNodeInPropertyEditor(const ModelNode &node)
     node.view()->emitCustomNotification("force_editing_node", {node}); // To PropertyEditor
 }
 
+bool hasImported3dType(AbstractView *view,
+                       const AbstractView::ExportedTypeNames &added,
+                       const AbstractView::ExportedTypeNames &removed)
+{
+    QTC_ASSERT(view && view->model(), return false);
+
+    using Storage::Info::ExportedTypeName;
+
+    const QByteArray import3dPrefix = QmlDesignerPlugin::instance()->documentManager()
+                                          .generatedComponentUtils().import3dTypePrefix().toUtf8();
+
+    auto generatedModuleIds = view->model()->moduleIdsStartsWith(import3dPrefix,
+                                                                 Storage::ModuleKind::QmlLibrary);
+    std::ranges::sort(generatedModuleIds);
+
+    return Utils::set_has_common_element(added, generatedModuleIds, {}, &ExportedTypeName::moduleId)
+           || Utils::set_has_common_element(removed, generatedModuleIds, {}, &ExportedTypeName::moduleId);
+}
+
 } // namespace Utils3D
 } // namespace QmlDesigner

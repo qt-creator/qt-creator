@@ -317,8 +317,6 @@ void Edit3DView::modelAttached(Model *model)
             m_isBakingLightsSupported = qtVer->qtVersion() >= QVersionNumber(6, 5, 0);
     }
 #ifdef QDS_USE_PROJECTSTORAGE
-    // TODO: Handle actual entries changed signal/notification once it is available.
-    //       Until then, we simply get what entries are available at model attach time.
     onEntriesChanged();
 #else
     connect(model->metaInfo().itemLibraryInfo(),
@@ -462,7 +460,9 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
             self->m_pickView3dNode = self->modelNodeForInternalId(qint32(data[1].toInt()));
         });
     } else if (identifier == "asset_import_finished" || identifier == "assets_deleted") {
-        handleEntriesChanged();
+        // TODO: These custom notifications should be removed once QDS-15163 is fixed and
+        //       exportedTypeNamesChanged notification is reliable
+        onEntriesChanged();
     }
 }
 
@@ -569,6 +569,13 @@ void Edit3DView::bindingPropertiesChanged(const QList<BindingProperty> &property
 void Edit3DView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags)
 {
     maybeStoreCurrentSceneEnvironment(propertyList);
+}
+
+void Edit3DView::exportedTypeNamesChanged(const ExportedTypeNames &added,
+                                          const ExportedTypeNames &removed)
+{
+    if (Utils3D::hasImported3dType(this, added, removed))
+        onEntriesChanged();
 }
 
 void Edit3DView::sendInputEvent(QEvent *e) const

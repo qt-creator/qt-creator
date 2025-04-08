@@ -80,7 +80,8 @@ public:
                                   PropertyChangeFlags propertyChange) override;
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                   PropertyChangeFlags propertyChange) override;
-
+    void exportedTypeNamesChanged(const ExportedTypeNames &added,
+                                  const ExportedTypeNames &removed) override;
     void sendInputEvent(QEvent *e) const;
     void edit3DViewResized(const QSize &size) const;
 
