@@ -23,12 +23,11 @@ Rectangle {
     readonly property int cellWidth: 200
     readonly property int cellHeight: 40
 
-    readonly property color textColor: "#ffffff"
-    readonly property color iconColor: "#959595"
-    readonly property color backgroundColor: "#2c2c2c"
-    readonly property color borderColor: "#444444"
+    readonly property color backgroundColor: StudioTheme.Values.themePanelBackground
+    // TODO This is not a proper color value, but will be fixed with new design
+    readonly property color borderColor: StudioTheme.Values.themeControlBackground_topToolbarHover
 
-    readonly property int borderWidth: 1
+    readonly property int borderWidth: StudioTheme.Values.border
 
     readonly property int textSize: 18
     readonly property int iconSize: 16
