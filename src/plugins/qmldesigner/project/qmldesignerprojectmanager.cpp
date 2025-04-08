@@ -294,7 +294,7 @@ public:
 class QmlDesignerProjectManager::Data
 {
 public:
-    Sqlite::Database sourcePathDatabase{createDatabasePath("source_path.db"),
+    Sqlite::Database sourcePathDatabase{createDatabasePath("source_path_v1.db"),
                                         Sqlite::JournalMode::Wal,
                                         Sqlite::LockingMode::Normal};
     QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
