@@ -64,21 +64,21 @@ public:
                 (long long, Utils::SmallStringView),
                 ());
 
-    MOCK_METHOD(std::vector<QmlDesigner::Cache::SourceContext>,
-                valuesReturnCacheSourceContexts,
+    MOCK_METHOD(std::vector<QmlDesigner::Cache::DirectoryPath>,
+                valuesReturnCacheDirectoryPaths,
                 (std::size_t),
                 ());
 
-    MOCK_METHOD(std::vector<QmlDesigner::Cache::SourceName>,
-                valuesReturnCacheSourceNames,
+    MOCK_METHOD(std::vector<QmlDesigner::Cache::FileName>,
+                valuesReturnCacheFileNames,
                 (std::size_t),
                 ());
 
     MOCK_METHOD(Sqlite::TimeStamp, valueWithTransactionReturnsTimeStamp, (Utils::SmallStringView), ());
     MOCK_METHOD(int, valueWithTransactionReturnsInt, (Utils::SmallStringView), ());
 
-    MOCK_METHOD(QmlDesigner::SourceContextId, valueReturnsSourceContextId, (Utils::SmallStringView), ());
-    MOCK_METHOD(QmlDesigner::SourceContextId, valueWithTransactionReturnsSourceContextId, (int), ());
+    MOCK_METHOD(QmlDesigner::DirectoryPathId, valueReturnsDirectoryPathId, (Utils::SmallStringView), ());
+    MOCK_METHOD(QmlDesigner::DirectoryPathId, valueWithTransactionReturnsDirectoryPathId, (int), ());
 
     MOCK_METHOD(QmlDesigner::SourceId, valueReturnsSourceId, (int, Utils::SmallStringView), ());
 
@@ -161,8 +161,8 @@ public:
         else if constexpr (std::is_same_v<ResultType,
                                           std::tuple<QmlDesigner::PropertyDeclarationId, QmlDesigner::TypeId>>)
             return valueReturnsPropertyDeclaration(queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceContextId>)
-            return valueReturnsSourceContextId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::DirectoryPathId>)
+            return valueReturnsDirectoryPathId(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceId>)
             return valueReturnsSourceId(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::Type>)
@@ -181,8 +181,8 @@ public:
         else if constexpr (std::is_same_v<ResultType,
                                           std::tuple<QmlDesigner::PropertyDeclarationId, QmlDesigner::TypeId>>)
             return valueReturnsPropertyDeclaration(queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceContextId>)
-            return valueWithTransactionReturnsSourceContextId(queryValues...);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::DirectoryPathId>)
+            return valueWithTransactionReturnsDirectoryPathId(queryValues...);
         else if constexpr (std::is_same_v<ResultType, Sqlite::TimeStamp>)
             return valueWithTransactionReturnsTimeStamp(queryValues...);
         else if constexpr (std::is_same_v<ResultType, int>)
@@ -207,10 +207,10 @@ public:
             return valuesReturnStringVector(reserveSize);
         else if constexpr (std::is_same_v<ResultType, long long>)
             return valuesReturnRowIds(reserveSize);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::SourceContext>)
-            return valuesReturnCacheSourceContexts(reserveSize);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::SourceName>)
-            return valuesReturnCacheSourceNames(reserveSize);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::DirectoryPath>)
+            return valuesReturnCacheDirectoryPaths(reserveSize);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::FileName>)
+            return valuesReturnCacheFileNames(reserveSize);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::Type>)
             return valuesReturnsStorageTypes(reserveSize, queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::ExportedType>)

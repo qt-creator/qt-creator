@@ -14,7 +14,7 @@ public:
     MOCK_METHOD(void,
                 updateContextIdPaths,
                 (const std::vector<QmlDesigner::IdPaths> &idPaths,
-                 const QmlDesigner::SourceContextIds &sourceContextIds),
+                 const QmlDesigner::DirectoryPathIds &directoryPathIds),
                 (override));
     MOCK_METHOD(void, removeIds, (const QmlDesigner::ProjectPartIds &ids), (override));
     MOCK_METHOD(void,

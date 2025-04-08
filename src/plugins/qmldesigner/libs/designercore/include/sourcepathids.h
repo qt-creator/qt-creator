@@ -12,22 +12,22 @@
 namespace QmlDesigner {
 
 enum class SourcePathIdType {
-    SourceName,
-    SourceContext,
+    FileName,
+    DirectoryPath,
 
 };
 
-using SourceContextId = Sqlite::BasicId<SourcePathIdType::SourceContext, int>;
-using SourceContextIds = std::vector<SourceContextId>;
+using DirectoryPathId = Sqlite::BasicId<SourcePathIdType::DirectoryPath, int>;
+using DirectoryPathIds = std::vector<DirectoryPathId>;
 template<std::size_t size>
-using SmallSourceContextIds = QVarLengthArray<SourceContextId, size>;
+using SmallDirectoryPathIds = QVarLengthArray<DirectoryPathId, size>;
 
-using SourceNameId = Sqlite::BasicId<SourcePathIdType::SourceName, int>;
-using SourceNameIds = std::vector<SourceNameId>;
+using FileNameId = Sqlite::BasicId<SourcePathIdType::FileName, int>;
+using FileNameIds = std::vector<FileNameId>;
 template<std::size_t size>
-using SmallSourceNameIds = QVarLengthArray<SourceNameId, size>;
+using SmallFileNameIds = QVarLengthArray<FileNameId, size>;
 
-using SourceId = Sqlite::CompoundBasicId<SourcePathIdType::SourceName, SourcePathIdType::SourceContext>;
+using SourceId = Sqlite::CompoundBasicId<SourcePathIdType::FileName, SourcePathIdType::DirectoryPath>;
 using SourceIds = std::vector<SourceId>;
 template<std::size_t size>
 using SmallSourceIds = QVarLengthArray<SourceId, size>;

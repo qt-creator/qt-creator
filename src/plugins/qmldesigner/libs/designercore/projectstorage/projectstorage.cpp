@@ -1762,7 +1762,7 @@ Storage::Info::TypeHints ProjectStorage::typeHints(TypeId typeId) const
     return typeHints;
 }
 
-SmallSourceIds<4> ProjectStorage::typeAnnotationSourceIds(SourceContextId directoryId) const
+SmallSourceIds<4> ProjectStorage::typeAnnotationSourceIds(DirectoryPathId directoryId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get type annotaion source ids",
@@ -1777,13 +1777,13 @@ SmallSourceIds<4> ProjectStorage::typeAnnotationSourceIds(SourceContextId direct
     return sourceIds;
 }
 
-SmallSourceContextIds<64> ProjectStorage::typeAnnotationDirectoryIds() const
+SmallDirectoryPathIds<64> ProjectStorage::typeAnnotationDirectoryIds() const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get type annotaion source ids", projectStorageCategory()};
 
     auto sourceIds = s->selectTypeAnnotationDirectoryIdsStatement
-                         .valuesWithTransaction<SmallSourceContextIds<64>>();
+                         .valuesWithTransaction<SmallDirectoryPathIds<64>>();
 
     tracer.end(keyValue("source ids", sourceIds));
 
@@ -2226,7 +2226,7 @@ std::optional<Storage::Synchronization::DirectoryInfo> ProjectStorage::fetchDire
     return directoryInfo;
 }
 
-Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(SourceContextId directoryId) const
+Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(DirectoryPathId directoryId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch directory infos by directory id",
@@ -2243,7 +2243,7 @@ Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(Sou
 }
 
 Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
-    SourceContextId directoryId, Storage::Synchronization::FileType fileType) const
+    DirectoryPathId directoryId, Storage::Synchronization::FileType fileType) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch directory infos by source id and file type",
@@ -2261,7 +2261,7 @@ Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
 }
 
 Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
-    const SourceContextIds &directoryIds) const
+    const DirectoryPathIds &directoryIds) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch directory infos by source ids",
@@ -2277,7 +2277,7 @@ Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
     return directoryInfos;
 }
 
-SmallSourceContextIds<32> ProjectStorage::fetchSubdirectoryIds(SourceContextId directoryId) const
+SmallDirectoryPathIds<32> ProjectStorage::fetchSubdirectoryIds(DirectoryPathId directoryId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch subdirectory source ids",
@@ -2288,7 +2288,7 @@ SmallSourceContextIds<32> ProjectStorage::fetchSubdirectoryIds(SourceContextId d
                          .rangeWithTransaction<SourceId>(directoryId,
                                                          Storage::Synchronization::FileType::Directory);
 
-    SmallSourceContextIds<32> directoryIds;
+    SmallDirectoryPathIds<32> directoryIds;
     for (SourceId sourceId : sourceIds)
         directoryIds.push_back(sourceId.contextId());
 
@@ -2609,7 +2609,7 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
 }
 
 void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
-                                               const SourceContextIds &updatedDirectoryInfoDirectoryIds)
+                                               const DirectoryPathIds &updatedDirectoryInfoDirectoryIds)
 {
     NanotraceHR::Tracer tracer{"synchronize directory infos", projectStorageCategory()};
 
@@ -4057,13 +4057,13 @@ void ProjectStorage::addTypeIdToPropertyEditorQmlPaths(
 
 void ProjectStorage::synchronizePropertyEditorPaths(
     Storage::Synchronization::PropertyEditorQmlPaths &paths,
-    SourceContextIds updatedPropertyEditorQmlPathsSourceContextIds)
+    DirectoryPathIds updatedPropertyEditorQmlPathsDirectoryPathIds)
 {
     using Storage::Synchronization::PropertyEditorQmlPath;
     std::ranges::sort(paths, {}, &PropertyEditorQmlPath::typeId);
 
     auto range = s->selectPropertyEditorPathsForForSourceIdsStatement.range<PropertyEditorQmlPathView>(
-        toIntegers(updatedPropertyEditorQmlPathsSourceContextIds));
+        toIntegers(updatedPropertyEditorQmlPathsDirectoryPathIds));
 
     auto compareKey = [](const PropertyEditorQmlPathView &view, const PropertyEditorQmlPath &value) {
         return view.typeId <=> value.typeId;
@@ -4110,7 +4110,7 @@ void ProjectStorage::synchronizePropertyEditorPaths(
 
 void ProjectStorage::synchronizePropertyEditorQmlPaths(
     Storage::Synchronization::PropertyEditorQmlPaths &paths,
-    SourceContextIds updatedPropertyEditorQmlPathsSourceIds)
+    DirectoryPathIds updatedPropertyEditorQmlPathsSourceIds)
 {
     NanotraceHR::Tracer tracer{"synchronize property editor qml paths", projectStorageCategory()};
 

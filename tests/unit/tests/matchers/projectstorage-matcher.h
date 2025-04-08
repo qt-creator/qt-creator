@@ -78,7 +78,7 @@ MATCHER_P3(IsItemLibraryProperty,
 
 template<typename IconPathMatcher, typename TypeTraitsMatcher, typename HintsJsonMatcher, typename ItemLibraryJsonMatcher>
 auto IsTypeAnnotation(QmlDesigner::SourceId sourceId,
-                      QmlDesigner::SourceContextId directoryId,
+                      QmlDesigner::DirectoryPathId directoryId,
                       Utils::SmallStringView typeName,
                       QmlDesigner::ModuleId moduleId,
                       IconPathMatcher iconPath,

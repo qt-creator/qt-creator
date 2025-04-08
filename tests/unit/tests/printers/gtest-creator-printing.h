@@ -164,9 +164,9 @@ std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::S
 std::ostream &operator<<(std::ostream &out, AuxiliaryDataType type);
 
 namespace Cache {
-class SourceContext;
+class DirectoryPath;
 
-std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext);
+std::ostream &operator<<(std::ostream &out, const DirectoryPath &directoryPath);
 } // namespace Cache
 
 namespace ImageCache {
@@ -175,8 +175,8 @@ class FontCollectorSizeAuxiliaryData;
 class FontCollectorSizesAuxiliaryData;
 
 std::ostream &operator<<(std::ostream &out, const LibraryIconAuxiliaryData &date);
-std::ostream &operator<<(std::ostream &out, const FontCollectorSizeAuxiliaryData &sourceContext);
-std::ostream &operator<<(std::ostream &out, const FontCollectorSizesAuxiliaryData &sourceContext);
+std::ostream &operator<<(std::ostream &out, const FontCollectorSizeAuxiliaryData &directoryPath);
+std::ostream &operator<<(std::ostream &out, const FontCollectorSizesAuxiliaryData &directoryPath);
 } // namespace ImageCache
 
 namespace Storage {

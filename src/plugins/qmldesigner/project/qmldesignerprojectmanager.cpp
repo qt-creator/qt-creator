@@ -214,10 +214,10 @@ public:
         , qmlDocumentParser{storage, pathCache}
         , pathWatcher{pathCache, fileStatusCache, &updater}
         , projectPartId{ProjectPartId::create(
-              pathCache.sourceContextId(Utils::PathString{project->projectDirectory().path()})
+              pathCache.directoryPathId(Utils::PathString{project->projectDirectory().path()})
                   .internalId())}
         , qtPartId{ProjectPartId::create(
-              pathCache.sourceContextId(Utils::PathString{qmlPath(project)}).internalId())}
+              pathCache.directoryPathId(Utils::PathString{qmlPath(project)}).internalId())}
         , updater{fileSystem,
                   storage,
                   fileStatusCache,

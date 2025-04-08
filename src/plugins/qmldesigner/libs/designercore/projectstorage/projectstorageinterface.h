@@ -58,8 +58,8 @@ public:
         = 0;
     virtual PropertyDeclarationId defaultPropertyDeclarationId(TypeId typeId) const = 0;
     virtual std::optional<Storage::Info::Type> type(TypeId typeId) const = 0;
-    virtual SmallSourceIds<4> typeAnnotationSourceIds(SourceContextId directoryId) const = 0;
-    virtual SmallSourceContextIds<64> typeAnnotationDirectoryIds() const = 0;
+    virtual SmallSourceIds<4> typeAnnotationSourceIds(DirectoryPathId directoryId) const = 0;
+    virtual SmallDirectoryPathIds<64> typeAnnotationDirectoryIds() const = 0;
     virtual Utils::PathString typeIconPath(TypeId typeId) const = 0;
     virtual Storage::Info::TypeHints typeHints(TypeId typeId) const = 0;
     virtual Storage::Info::ItemLibraryEntries itemLibraryEntries(TypeId typeId) const = 0;
@@ -82,13 +82,13 @@ public:
     virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
 
     virtual FileStatus fetchFileStatus(SourceId sourceId) const = 0;
-    virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(SourceContextId directoryId) const = 0;
+    virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(DirectoryPathId directoryId) const = 0;
     virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(
-        SourceContextId directoryId, Storage::Synchronization::FileType) const
+        DirectoryPathId directoryId, Storage::Synchronization::FileType) const
         = 0;
     virtual std::optional<Storage::Synchronization::DirectoryInfo>
     fetchDirectoryInfo(SourceId sourceId) const = 0;
-    virtual SmallSourceContextIds<32> fetchSubdirectoryIds(SourceContextId directoryId) const = 0;
+    virtual SmallDirectoryPathIds<32> fetchSubdirectoryIds(DirectoryPathId directoryId) const = 0;
 
     virtual SourceId propertyEditorPathId(TypeId typeId) const = 0;
     virtual const Storage::Info::CommonTypeCache<ProjectStorageType> &commonTypeCache() const = 0;

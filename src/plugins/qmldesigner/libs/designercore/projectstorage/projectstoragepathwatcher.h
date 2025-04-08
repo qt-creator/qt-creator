@@ -36,8 +36,8 @@ public:
                          [&](const QString &path) { compressChangedDirectoryPath(path); });
 
         m_directoryPathCompressor.setCallback(
-            [&](const QmlDesigner::SourceContextIds &sourceContextIds) {
-                addChangedPathForFilePath(sourceContextIds);
+            [&](const QmlDesigner::DirectoryPathIds &directoryPathIds) {
+                addChangedPathForFilePath(directoryPathIds);
             });
     }
 
@@ -54,7 +54,7 @@ public:
     }
 
     void updateContextIdPaths(const std::vector<IdPaths> &idPaths,
-                              const SourceContextIds &sourceContextIds) override
+                              const DirectoryPathIds &directoryPathIds) override
     {
         const auto &[entires, ids] = convertIdPathsToWatcherEntriesAndIds(idPaths);
 
@@ -62,19 +62,19 @@ public:
 
         auto notContainsId = [&, &ids = ids](WatcherEntry entry) {
             return !std::ranges::binary_search(ids, entry.id)
-                   || !std::ranges::binary_search(sourceContextIds, entry.sourceContextId);
+                   || !std::ranges::binary_search(directoryPathIds, entry.directoryPathId);
         };
 
         removeUnusedEntries(entires, notContainsId);
     }
 
-    void checkForChangeInDirectory(SourceContextIds sourceContextIds) override
+    void checkForChangeInDirectory(DirectoryPathIds directoryPathIds) override
     {
-        std::ranges::sort(sourceContextIds);
-        auto removed = std::ranges::unique(sourceContextIds);
-        sourceContextIds.erase(removed.begin(), removed.end());
+        std::ranges::sort(directoryPathIds);
+        auto removed = std::ranges::unique(directoryPathIds);
+        directoryPathIds.erase(removed.begin(), removed.end());
 
-        addChangedPathForFilePath(sourceContextIds);
+        addChangedPathForFilePath(directoryPathIds);
     }
 
     void removeIds(const ProjectPartIds &ids) override
@@ -158,23 +158,23 @@ public:
 
     FileSystemWatcher &fileSystemWatcher() { return m_fileSystemWatcher; }
 
-    QStringList convertWatcherEntriesToDirectoryPathList(const SourceContextIds &sourceContextIds) const
+    QStringList convertWatcherEntriesToDirectoryPathList(const DirectoryPathIds &directoryPathIds) const
     {
-        return Utils::transform<QStringList>(sourceContextIds, [&](SourceContextId id) {
-            return QString(m_pathCache.sourceContextPath(id));
+        return Utils::transform<QStringList>(directoryPathIds, [&](DirectoryPathId id) {
+            return QString(m_pathCache.directoryPath(id));
         });
     }
 
     QStringList convertWatcherEntriesToDirectoryPathList(const WatcherEntries &watcherEntries) const
     {
-        SourceContextIds sourceContextIds = Utils::transform<SourceContextIds>(
-            watcherEntries, &WatcherEntry::sourceContextId);
+        DirectoryPathIds directoryPathIds = Utils::transform<DirectoryPathIds>(
+            watcherEntries, &WatcherEntry::directoryPathId);
 
-        std::ranges::sort(sourceContextIds);
-        auto removed = std::ranges::unique(sourceContextIds);
-        sourceContextIds.erase(removed.begin(), removed.end());
+        std::ranges::sort(directoryPathIds);
+        auto removed = std::ranges::unique(directoryPathIds);
+        directoryPathIds.erase(removed.begin(), removed.end());
 
-        return convertWatcherEntriesToDirectoryPathList(sourceContextIds);
+        return convertWatcherEntriesToDirectoryPathList(directoryPathIds);
     }
 
     WatcherEntries notWatchedEntries(const WatcherEntries &entries) const
@@ -187,9 +187,9 @@ public:
         return notWatchedEntries;
     }
 
-    SourceContextIds notWatchedPaths(const SourceContextIds &ids) const
+    DirectoryPathIds notWatchedPaths(const DirectoryPathIds &ids) const
     {
-        SourceContextIds notWatchedDirectoryIds;
+        DirectoryPathIds notWatchedDirectoryIds;
         notWatchedDirectoryIds.reserve(ids.size());
 
         std::ranges::set_difference(ids, m_watchedEntries, std::back_inserter(notWatchedDirectoryIds));
@@ -231,20 +231,20 @@ public:
         m_watchedEntries = std::move(newWatchedEntries);
     }
 
-    static SourceContextIds uniquePaths(const WatcherEntries &pathEntries)
+    static DirectoryPathIds uniquePaths(const WatcherEntries &pathEntries)
     {
-        SourceContextIds uniqueDirectoryIds;
+        DirectoryPathIds uniqueDirectoryIds;
         uniqueDirectoryIds.reserve(pathEntries.size());
 
         std::ranges::unique_copy(pathEntries,
                                  std::back_inserter(uniqueDirectoryIds),
                                  {},
-                                 &WatcherEntry::sourceContextId);
+                                 &WatcherEntry::directoryPathId);
 
         return uniqueDirectoryIds;
     }
 
-    SourceContextIds filterNotWatchedPaths(const WatcherEntries &entries) const
+    DirectoryPathIds filterNotWatchedPaths(const WatcherEntries &entries) const
     {
         return notWatchedPaths(uniquePaths(entries));
     }
@@ -278,18 +278,18 @@ public:
 
     void compressChangedDirectoryPath(const QString &path)
     {
-        m_directoryPathCompressor.addSourceContextId(
-            m_pathCache.sourceContextId(Utils::PathString{path}));
+        m_directoryPathCompressor.addDirectoryPathId(
+            m_pathCache.directoryPathId(Utils::PathString{path}));
     }
 
-    WatcherEntries watchedEntriesForPaths(const QmlDesigner::SourceContextIds &sourceContextIds)
+    WatcherEntries watchedEntriesForPaths(const QmlDesigner::DirectoryPathIds &directoryPathIds)
     {
         WatcherEntries foundEntries;
         foundEntries.reserve(m_watchedEntries.size());
 
         Utils::set_greedy_intersection(
             m_watchedEntries,
-            sourceContextIds,
+            directoryPathIds,
             [&](WatcherEntry &entry) {
                 m_fileStatusCache.update(entry.sourceId);
                 auto fileStatus = m_fileStatusCache.find(entry.sourceId);
@@ -300,7 +300,7 @@ public:
                 }
             },
             {},
-            &WatcherEntry::sourceContextId);
+            &WatcherEntry::directoryPathId);
 
         return foundEntries;
     }
@@ -339,10 +339,10 @@ public:
         return idPaths;
     }
 
-    void addChangedPathForFilePath(const SourceContextIds &sourceContextIds)
+    void addChangedPathForFilePath(const DirectoryPathIds &directoryPathIds)
     {
         if (m_notifier) {
-            WatcherEntries foundEntries = watchedEntriesForPaths(sourceContextIds);
+            WatcherEntries foundEntries = watchedEntriesForPaths(directoryPathIds);
 
             SourceIds watchedSourceIds = watchedPaths(foundEntries);
 

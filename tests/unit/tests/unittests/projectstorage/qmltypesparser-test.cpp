@@ -17,7 +17,7 @@ namespace {
 namespace Storage = QmlDesigner::Storage;
 namespace Synchronization = QmlDesigner::Storage::Synchronization;
 using QmlDesigner::ModuleId;
-using QmlDesigner::SourceContextId;
+using QmlDesigner::DirectoryPathId;
 using QmlDesigner::SourceId;
 using QmlDesigner::Storage::ModuleKind;
 
@@ -200,7 +200,7 @@ protected:
                                                  qmltypesFileSourceId,
                                                  qtQmlNativeModuleId,
                                                  Synchronization::FileType::QmlTypes};
-    SourceContextId qmltypesFileSourceContextId{qmltypesFileSourceId.contextId()};
+    DirectoryPathId qmltypesFileDirectoryPathId{qmltypesFileSourceId.contextId()};
 };
 
 TEST_F(QmlTypesParser, imports)

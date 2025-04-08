@@ -22,27 +22,27 @@ public:
                 (const, override));
     MOCK_METHOD(QmlDesigner::SourceId,
                 sourceId,
-                (QmlDesigner::SourceContextId sourceContextId, Utils::SmallStringView sourceName),
+                (QmlDesigner::DirectoryPathId directoryPathId, Utils::SmallStringView fileName),
                 (const, override));
-    MOCK_METHOD(QmlDesigner::SourceNameId,
-                sourceNameId,
-                (Utils::SmallStringView sourceName),
+    MOCK_METHOD(QmlDesigner::FileNameId,
+                fileNameId,
+                (Utils::SmallStringView fileName),
                 (const, override));
     MOCK_METHOD(QmlDesigner::SourcePath,
                 sourcePath,
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
-    MOCK_METHOD(QmlDesigner::SourceContextId,
-                sourceContextId,
+    MOCK_METHOD(QmlDesigner::DirectoryPathId,
+                directoryPathId,
                 (Utils::SmallStringView directoryPath),
                 (const, override));
     MOCK_METHOD(Utils::PathString,
-                sourceContextPath,
-                (QmlDesigner::SourceContextId directoryPathId),
+                directoryPath,
+                (QmlDesigner::DirectoryPathId directoryPathId),
                 (const, override));
     MOCK_METHOD(Utils::SmallString,
-                sourceName,
-                (QmlDesigner::SourceNameId sourceName),
+                fileName,
+                (QmlDesigner::FileNameId fileName),
                 (const, override));
     MOCK_METHOD(void, populateIfEmpty, (), (override));
 };

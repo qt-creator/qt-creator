@@ -100,26 +100,26 @@ class WatcherEntry
 {
 public:
     ProjectChunkId id;
-    SourceContextId sourceContextId;
+    DirectoryPathId directoryPathId;
     SourceId sourceId;
     long long lastModified = -1;
     long long size = -1;
 
     friend bool operator==(WatcherEntry first, WatcherEntry second)
     {
-        return first.id == second.id && first.sourceContextId == second.sourceContextId
+        return first.id == second.id && first.directoryPathId == second.directoryPathId
                && first.sourceId == second.sourceId;
     }
 
     friend std::weak_ordering operator<=>(const WatcherEntry &first, const WatcherEntry &second)
     {
-        return std::tie(first.sourceContextId, first.sourceId, first.id)
-               <=> std::tie(second.sourceContextId, second.sourceId, second.id);
+        return std::tie(first.directoryPathId, first.sourceId, first.id)
+               <=> std::tie(second.directoryPathId, second.sourceId, second.id);
     }
 
     operator SourceId() const { return sourceId; }
 
-    operator SourceContextId() const { return sourceContextId; }
+    operator DirectoryPathId() const { return directoryPathId; }
 };
 
 using WatcherEntries = std::vector<WatcherEntry>;

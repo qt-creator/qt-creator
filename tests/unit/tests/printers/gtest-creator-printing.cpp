@@ -489,7 +489,7 @@ std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths)
 
 std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry)
 {
-    return out << "(" << entry.sourceId << ", " << entry.sourceContextId << ", " << entry.id << ", "
+    return out << "(" << entry.sourceId << ", " << entry.directoryPathId << ", " << entry.id << ", "
                << entry.lastModified << ")";
 }
 
@@ -600,9 +600,9 @@ std::ostream &operator<<(std::ostream &out, AuxiliaryDataType type)
 
 namespace Cache {
 
-std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)
+std::ostream &operator<<(std::ostream &out, const DirectoryPath &directoryPath)
 {
-    return out << "(" << sourceContext.id << ", " << sourceContext.value << ")";
+    return out << "(" << directoryPath.id << ", " << directoryPath.value << ")";
 }
 } // namespace Cache
 

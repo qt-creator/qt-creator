@@ -51,7 +51,7 @@ long long FileSystem::lastModified(SourceId sourceId) const
 FileStatus FileSystem::fileStatus(SourceId sourceId) const
 {
     auto path = sourceId.mainId() ? m_sourcePathCache.sourcePath(sourceId)
-                                  : m_sourcePathCache.sourceContextPath(sourceId.contextId());
+                                  : m_sourcePathCache.directoryPath(sourceId.contextId());
     QFileInfo fileInfo(QString{path});
 
     fileInfo.refresh();

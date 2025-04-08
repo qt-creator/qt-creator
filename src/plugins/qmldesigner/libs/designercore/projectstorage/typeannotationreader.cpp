@@ -28,7 +28,7 @@ constexpr auto extraFileElementName = "ExtraFile"_L1;
 } // namespace
 
 Synchronization::TypeAnnotations TypeAnnotationReader::parseTypeAnnotation(
-    const QString &content, const QString &directoryPath, SourceId sourceId, SourceContextId directoryId)
+    const QString &content, const QString &directoryPath, SourceId sourceId, DirectoryPathId directoryId)
 {
     m_sourceId = sourceId;
     m_directoryId = directoryId;

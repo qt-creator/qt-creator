@@ -14,6 +14,6 @@ public:
 
     MOCK_METHOD(void,
                 checkForChangeInDirectory,
-                (QmlDesigner::SourceContextIds sourceContextIds),
+                (QmlDesigner::DirectoryPathIds directoryPathIds),
                 (override));
 };

@@ -14,7 +14,7 @@ public:
     ProjectStorageTriggerUpdateInterface(const ProjectStorageTriggerUpdateInterface &) = delete;
     ProjectStorageTriggerUpdateInterface &operator=(const ProjectStorageTriggerUpdateInterface &) = delete;
 
-    virtual void checkForChangeInDirectory(SourceContextIds sourceContextIds) = 0;
+    virtual void checkForChangeInDirectory(DirectoryPathIds directoryPathIds) = 0;
 
 protected:
     ~ProjectStorageTriggerUpdateInterface() = default;
