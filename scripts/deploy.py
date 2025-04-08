@@ -289,7 +289,8 @@ def deploy_clang(qtc_binary_path, llvm_install_dir, chrpath_bin):
             os.makedirs(clanglibs_targetdir)
         for lib_pattern in ['lib64/ClazyPlugin.so', 'lib/ClazyPlugin.so']:
             for lib in glob(os.path.join(llvm_install_dir, lib_pattern)):
-                deployinfo.append((lib, clanglibs_targetdir))
+                if os.path.exists(lib):
+                    deployinfo.append((lib, clanglibs_targetdir))
     else:
         clang_targetdir = os.path.join(qtc_binary_path, 'Contents', 'Resources', 'libexec', 'clang')
         clanglibs_targetdir = os.path.join(clang_targetdir, 'lib')
@@ -300,7 +301,8 @@ def deploy_clang(qtc_binary_path, llvm_install_dir, chrpath_bin):
         if not os.path.exists(clanglibs_targetdir):
             os.makedirs(clanglibs_targetdir)
         clazy_plugin = os.path.join(llvm_install_dir, 'lib', 'ClazyPlugin.dylib')
-        deployinfo.append((clazy_plugin, clanglibs_targetdir))
+        if os.path.exists(clazy_plugin):
+            deployinfo.append((clazy_plugin, clanglibs_targetdir))
 
     # collect binaries
     if not os.path.exists(clangbinary_targetdir):
@@ -327,7 +329,7 @@ def deploy_clang(qtc_binary_path, llvm_install_dir, chrpath_bin):
             filename = os.path.basename(source)
             targetfilepath = target if not os.path.isdir(target) else os.path.join(target, filename)
             if filename == 'clazy-standalone':
-                subprocess.check_call([chrpath_bin, '-r', '$ORIGIN/../lib', targetfilepath])
+                subprocess.call([chrpath_bin, '-r', '$ORIGIN/../lib', targetfilepath])
             elif not os.path.islink(target):
                 targetfilepath = target if not os.path.isdir(target) else os.path.join(target, os.path.basename(source))
                 subprocess.check_call([chrpath_bin, '-d', targetfilepath])
