@@ -219,7 +219,7 @@ protected:
 
     virtual void inputMethodEvent(QInputMethodEvent *) override;
 
-    PlainTextEdit(PlainTextEditPrivate &dd, QWidget *parent);
+    // PlainTextEdit(PlainTextEditPrivate &dd, QWidget *parent);
 
     virtual void scrollContentsBy(int dx, int dy) override;
     virtual void doSetTextCursor(const QTextCursor &cursor);

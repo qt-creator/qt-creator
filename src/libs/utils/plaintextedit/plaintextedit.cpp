@@ -1319,13 +1319,14 @@ PlainTextEdit::PlainTextEdit(QWidget *parent)
 
 /*!
     \internal
-*/
+    // Note: This constructor is unused, as we cannot forward the private "dd" argument 
 PlainTextEdit::PlainTextEdit(PlainTextEditPrivate &dd, QWidget *parent)
     : QAbstractScrollArea(parent)
     , d(std::make_unique<PlainTextEditPrivate>(this))
 {
     d->init();
 }
+*/
 
 /*!
     Constructs a PlainTextEdit with parent \a parent. The text edit will display
@@ -1459,6 +1460,7 @@ QTextCursor PlainTextEdit::textCursor() const
  */
 QString PlainTextEdit::anchorAt(const QPoint &pos) const
 {
+    Q_UNUSED(pos);
     return QString();
 }
 
