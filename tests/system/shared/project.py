@@ -114,6 +114,8 @@ def __handleBuildSystem__(buildSystem):
     try:
         if buildSystem is None:
             buildSystem = str(comboObj.currentText)
+            if buildSystem.startswith("CMake"):
+                buildSystem = "CMake"
             test.log("Keeping default build system '%s'" % buildSystem)
         else:
             test.log("Trying to select build system '%s'" % buildSystem)
