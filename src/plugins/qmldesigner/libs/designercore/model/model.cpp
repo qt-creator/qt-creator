@@ -2917,6 +2917,15 @@ Module Model::module(Utils::SmallStringView moduleName, Storage::ModuleKind modu
     return {};
 }
 
+SmallModuleIds<128> Model::moduleIdsStartsWith(Utils::SmallStringView startsWith,
+                                               Storage::ModuleKind kind) const
+{
+    if constexpr (useProjectStorage())
+        return d->projectStorage->moduleIdsStartsWith(startsWith, kind);
+
+    return {};
+}
+
 /*! \name View related functions
 */
 //\{

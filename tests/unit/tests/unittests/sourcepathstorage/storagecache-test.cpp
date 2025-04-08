@@ -514,4 +514,41 @@ TYPED_TEST(StorageCache, fetch_ids_from_storage_calls)
 
     this->cache.ids({"foo", "bar"});
 }
+
+TYPED_TEST(StorageCache, getting_ids_that_start_with_po)
+{
+    ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq("poh"))).WillByDefault(Return(this->id43));
+    this->cache.add({"poo", "foo", "poh", "taa"});
+    auto projection = [](Utils::SmallStringView text) -> Utils::SmallStringView {
+        return text.substr(0, 2);
+    };
+
+    auto ids = this->cache.template ids<4>("po", projection);
+
+    ASSERT_THAT(ids, UnorderedElementsAre(this->id43, this->id44));
+}
+
+TYPED_TEST(StorageCache, getting_no_ids_if_there_is_no_entry_starts_with_oh)
+{
+    this->cache.add({"poo", "taa", "foo", "bar"});
+    auto projection = [](Utils::SmallStringView text) -> Utils::SmallStringView {
+        return text.substr(0, 2);
+    };
+
+    auto ids = this->cache.template ids<4>("oh", projection);
+
+    ASSERT_THAT(ids, IsEmpty());
+}
+
+TYPED_TEST(StorageCache, get_all_ids_if_the_string_is_empty)
+{
+    this->cache.add({"foo", "bar", "poo", "taa"});
+    auto projection = [](Utils::SmallStringView text) -> Utils::SmallStringView {
+        return text.substr(0, 0);
+    };
+
+    auto ids = this->cache.template ids<4>("", projection);
+
+    ASSERT_THAT(ids, UnorderedElementsAre(this->id42, this->id43, this->id44, this->id45));
+}
 } // namespace

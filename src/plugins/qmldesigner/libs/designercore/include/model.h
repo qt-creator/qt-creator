@@ -148,6 +148,8 @@ public:
 #endif
 
     Module module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind);
+    SmallModuleIds<128> moduleIdsStartsWith(Utils::SmallStringView startsWith,
+                                            Storage::ModuleKind kind) const;
     NodeMetaInfo metaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     NodeMetaInfo metaInfo(Module module,
                           Utils::SmallStringView typeName,

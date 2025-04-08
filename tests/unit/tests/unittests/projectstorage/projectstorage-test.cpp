@@ -5827,6 +5827,30 @@ TEST_F(ProjectStorage, populate_module_cache)
     ASSERT_THAT(newStorage.module(id), IsModule("Qml", ModuleKind::QmlLibrary));
 }
 
+TEST_F(ProjectStorage, get_no_module_ids_if_they_starts_with_nothing)
+{
+    storage.moduleId("QtQml", ModuleKind::QmlLibrary);
+
+    auto ids = storage.moduleIdsStartsWith("", ModuleKind::QmlLibrary);
+
+    ASSERT_THAT(ids, IsEmpty());
+}
+
+TEST_F(ProjectStorage, get_module_ids_if_they_starts_with_New)
+{
+    auto quickId = storage.moduleId("NewQuick", ModuleKind::QmlLibrary);
+    storage.moduleId("NewQuick", ModuleKind::CppLibrary);
+    auto quick3dId = storage.moduleId("NewQuick3D", ModuleKind::QmlLibrary);
+    storage.moduleId("NewQml", ModuleKind::CppLibrary);
+    auto qmlId = storage.moduleId("NewQml", ModuleKind::QmlLibrary);
+    storage.moduleId("Foo", ModuleKind::QmlLibrary);
+    storage.moduleId("Zoo", ModuleKind::QmlLibrary);
+
+    auto ids = storage.moduleIdsStartsWith("New", ModuleKind::QmlLibrary);
+
+    ASSERT_THAT(ids, UnorderedElementsAre(qmlId, quickId, quick3dId));
+}
+
 TEST_F(ProjectStorage, add_directory_infoes)
 {
     Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectDirectoryPathId,

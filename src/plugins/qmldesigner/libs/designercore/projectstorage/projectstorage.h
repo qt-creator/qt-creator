@@ -62,6 +62,9 @@ public:
 
     ModuleId moduleId(Utils::SmallStringView moduleName, Storage::ModuleKind kind) const override;
 
+    SmallModuleIds<128> moduleIdsStartsWith(Utils::SmallStringView startsWith,
+                                            Storage::ModuleKind kind) const override;
+
     Storage::Module module(ModuleId moduleId) const override;
 
     TypeId typeId(ModuleId moduleId,
@@ -252,9 +255,9 @@ private:
         Utils::SmallStringView name;
         Storage::ModuleKind kind;
 
-        friend bool operator<(ModuleView first, ModuleView second)
+        friend std::strong_ordering operator<=>(ModuleView first, ModuleView second)
         {
-            return std::tie(first.kind, first.name) < std::tie(second.kind, second.name);
+            return std::tie(first.kind, first.name) <=> std::tie(second.kind, second.name);
         }
 
         friend bool operator==(const Storage::Module &first, ModuleView second)

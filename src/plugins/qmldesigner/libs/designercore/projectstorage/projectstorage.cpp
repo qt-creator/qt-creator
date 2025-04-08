@@ -1424,7 +1424,8 @@ ModuleId ProjectStorage::moduleId(Utils::SmallStringView moduleName, Storage::Mo
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get module id",
                                projectStorageCategory(),
-                               keyValue("module name", moduleName)};
+                               keyValue("module name", moduleName),
+                               keyValue("module kind", kind)};
 
     if (moduleName.empty())
         return ModuleId{};
@@ -1434,6 +1435,27 @@ ModuleId ProjectStorage::moduleId(Utils::SmallStringView moduleName, Storage::Mo
     tracer.end(keyValue("module id", moduleId));
 
     return moduleId;
+}
+
+SmallModuleIds<128> ProjectStorage::moduleIdsStartsWith(Utils::SmallStringView startsWith,
+                                                        Storage::ModuleKind kind) const
+{
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"get module ids that starts with",
+                               projectStorageCategory(),
+                               keyValue("module name starts with", startsWith),
+                               keyValue("module kind", kind)};
+
+    if (startsWith.isEmpty())
+        return {};
+
+    auto projection = [&](ModuleView view) -> ModuleView {
+        return {view.name.substr(0, startsWith.size()), view.kind};
+    };
+
+    auto moduleIds = moduleCache.ids<128>({startsWith, kind}, projection);
+
+    return moduleIds;
 }
 
 Storage::Module ProjectStorage::module(ModuleId moduleId) const

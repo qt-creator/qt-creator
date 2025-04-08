@@ -32,6 +32,8 @@ public:
     virtual void removeObserver(ProjectStorageObserver *observer) = 0;
 
     virtual ModuleId moduleId(::Utils::SmallStringView name, Storage::ModuleKind kind) const = 0;
+    virtual SmallModuleIds<128>
+    moduleIdsStartsWith(Utils::SmallStringView startsWith, Storage::ModuleKind kind) const = 0;
     virtual QmlDesigner::Storage::Module module(ModuleId moduleId) const = 0;
     virtual std::optional<Storage::Info::PropertyDeclaration>
     propertyDeclaration(PropertyDeclarationId propertyDeclarationId) const = 0;

@@ -133,6 +133,10 @@ public:
                 moduleId,
                 (::Utils::SmallStringView, QmlDesigner::Storage::ModuleKind moduleKind),
                 (const, override));
+    MOCK_METHOD(QmlDesigner::SmallModuleIds<128>,
+                moduleIdsStartsWith,
+                (::Utils::SmallStringView, QmlDesigner::Storage::ModuleKind moduleKind),
+                (const, override));
     MOCK_METHOD(QmlDesigner::Storage::Module, module, (QmlDesigner::ModuleId), (const, override));
 
     MOCK_METHOD(std::optional<QmlDesigner::Storage::Info::PropertyDeclaration>,

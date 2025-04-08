@@ -201,38 +201,50 @@ public:
     {
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
-        auto found = find(view);
+        auto [iter, found] = find(view);
 
-        if (found != m_entries.end())
-            return found->id;
+        if (found)
+            return iter->id;
 
         sharedLock.unlock();
         std::lock_guard<Mutex> exclusiveLock(m_mutex);
 
         if constexpr (!std::is_base_of_v<NonLockingMutex, Mutex>)
-            found = find(view);
-        if (found == m_entries.end())
-            found = insertEntry(found, view, m_storage.fetchId(view));
+            std::tie(iter, found) = find(view);
+        if (!found)
+            iter = insertEntry(iter, view, m_storage.fetchId(view));
 
-        return found->id;
+        return iter->id;
     }
 
-    template<typename Container>
-    std::vector<IndexType> ids(const Container &values)
+    template<typename ValueType = ViewType>
+    std::vector<IndexType> ids(Utils::span<const ValueType> values)
     {
         std::vector<IndexType> ids;
         ids.reserve(values.size());
 
-        std::ranges::transform(values, std::back_inserter(ids), [&](const auto &values) {
-            return this->id(values);
+        std::ranges::transform(values, std::back_inserter(ids), [&](ViewType value) {
+            return this->id(value);
         });
 
         return ids;
     }
 
-    std::vector<IndexType> ids(std::initializer_list<Type> values)
+    template<std::indirectly_readable I, std::indirectly_regular_unary_invocable<I> Proj>
+    using projected_value_t = std::remove_cvref_t<std::invoke_result_t<Proj &, std::iter_value_t<I> &>>;
+
+    template<std::size_t size,
+             typename Projection = std::identity,
+             typename Value = projected_value_t<std::ranges::iterator_t<CacheEntries>, Projection>>
+    QVarLengthArray<IndexType, size> ids(Value value, Projection projection)
     {
-        return ids<std::initializer_list<Type>>(values);
+        std::shared_lock<Mutex> sharedLock(m_mutex);
+
+        auto range = std::ranges::equal_range(m_entries, value, Compare{}, projection);
+
+        QVarLengthArray<IndexType, size> ids;
+        std::ranges::transform(range, std::back_inserter(ids), &CacheEntry::id);
+        return ids;
     }
 
     ResultType value(IndexType id)
@@ -250,7 +262,7 @@ public:
         std::lock_guard<Mutex> exclusiveLock(m_mutex);
 
         Type value{m_storage.fetchValue(id)};
-        auto interator = insertEntry(find(value), value, id);
+        auto interator = insertEntry(std::get<0>(find(value)), value, id);
 
         return interator->value;
     }
@@ -290,24 +302,21 @@ private:
     }
 
     template<typename Entries>
-    static auto find(Entries &&entries, ViewType view)
+    static std::tuple<std::ranges::iterator_t<Entries>, bool> find(Entries &&entries, ViewType view)
     {
         auto found = std::ranges::lower_bound(entries, view, Compare{});
 
-        if (found != entries.end() && *found == view)
-            return found;
-
-        return entries.end();
+        return {found, found != entries.end() && *found == view};
     }
 
     IndexType id(ViewType view) const
     {
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
-        auto found = find(view);
+        auto [iter, found] = find(view);
 
-        if (found != m_entries.end())
-            return found->id;
+        if (found)
+            return iter->id;
 
         return IndexType();
     }

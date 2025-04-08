@@ -1137,6 +1137,16 @@ TEST_F(Model_MetaInfo, get_invalid_meta_info_by_module_for_wrong_module)
     ASSERT_THAT(metaInfo, IsFalse());
 }
 
+TEST_F(Model_MetaInfo, get_module_ids_that_starts_with)
+{
+    ON_CALL(projectStorageMock, moduleIdsStartsWith(Eq("Q"), ModuleKind::QmlLibrary))
+        .WillByDefault(Return(QmlDesigner::SmallModuleIds<128>{qtQuickModuleId}));
+
+    auto moduleIds = model.moduleIdsStartsWith("Q", ModuleKind::QmlLibrary);
+
+    ASSERT_THAT(moduleIds, Contains(qtQuickModuleId));
+}
+
 TEST_F(Model_MetaInfo, add_project_storage_observer_to_project_storage)
 {
     EXPECT_CALL(projectStorageMock, addObserver(_));
