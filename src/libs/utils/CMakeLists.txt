@@ -131,6 +131,7 @@ add_qtc_library(Utils
     processinfo.cpp processinfo.h
     processinterface.cpp processinterface.h
     processreaper.cpp processreaper.h
+    progressdialog.cpp progressdialog.h
     progressindicator.cpp progressindicator.h
     projectintropage.cpp projectintropage.h
     proxyaction.cpp proxyaction.h

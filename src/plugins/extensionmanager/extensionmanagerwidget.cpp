@@ -37,6 +37,7 @@
 #include <utils/markdownbrowser.h>
 #include <utils/mimeutils.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/progressdialog.h>
 #include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
@@ -51,7 +52,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QMessageBox>
-#include <QProgressDialog>
 #include <QScrollArea>
 
 using namespace Core;
@@ -870,14 +870,8 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
     struct StorageStruct
     {
         StorageStruct() {
-            progressDialog.reset(new QProgressDialog(
-                Tr::tr("Downloading..."), Tr::tr("Cancel"), 0, 0, ICore::dialogParent()));
-            progressDialog->setWindowTitle(Tr::tr("Download Extension"));
-            progressDialog->setWindowModality(Qt::ApplicationModal);
-            progressDialog->setMinimumDuration(INT_MAX); // In order to suppress calls to processEvents() from setValue()
-            progressDialog->setFixedSize(progressDialog->sizeHint());
-            progressDialog->setAutoClose(false);
-            progressDialog->show(); // TODO: Should not be needed. Investigate possible QT_BUG
+            progressDialog.reset(createProgressDialog(0, Tr::tr("Download Extension"),
+                                                      Tr::tr("Downloading...")));
         }
         std::unique_ptr<QProgressDialog> progressDialog;
         QByteArray packageData;

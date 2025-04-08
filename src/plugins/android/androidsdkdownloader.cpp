@@ -14,12 +14,12 @@
 #include <utils/async.h>
 #include <utils/filepath.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/progressdialog.h>
 #include <utils/unarchiver.h>
 
 #include <QCryptographicHash>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QProgressDialog>
 #include <QStandardPaths>
 
 using namespace Tasking;
@@ -92,20 +92,14 @@ GroupItem downloadSdkRecipe()
     struct StorageStruct
     {
         StorageStruct() {
-            progressDialog.reset(new QProgressDialog(Tr::tr("Downloading SDK Tools package..."),
-                                 Tr::tr("Cancel"), 0, 100, Core::ICore::dialogParent()));
-            progressDialog->setWindowModality(Qt::ApplicationModal);
-            progressDialog->setMinimumDuration(INT_MAX); // In order to suppress calls to processEvents() from setValue()
-            progressDialog->setWindowTitle(dialogTitle());
-            progressDialog->setFixedSize(progressDialog->sizeHint());
-            progressDialog->setAutoClose(false);
-            progressDialog->show(); // TODO: Should not be needed. Investigate possible QT_BUG
+            progressDialog.reset(createProgressDialog(100, dialogTitle(),
+                                                      Tr::tr("Downloading SDK Tools package...")));
         }
         std::unique_ptr<QProgressDialog> progressDialog;
         std::optional<FilePath> sdkFileName;
     };
 
-    Storage<StorageStruct> storage;
+    const Storage<StorageStruct> storage;
 
     const auto onSetup = [] {
         if (AndroidConfig::sdkToolsUrl().isEmpty()) {

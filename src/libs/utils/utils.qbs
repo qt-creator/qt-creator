@@ -265,6 +265,8 @@ QtcLibrary {
         "processinterface.h",
         "processreaper.cpp",
         "processreaper.h",
+        "progressdialog.cpp",
+        "progressdialog.h",
         "progressindicator.cpp",
         "progressindicator.h",
         "projectintropage.cpp",

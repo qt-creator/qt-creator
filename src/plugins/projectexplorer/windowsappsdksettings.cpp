@@ -20,6 +20,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/pathchooser.h>
+#include <utils/progressdialog.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -37,7 +38,6 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
-#include <QProgressDialog>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QTimer>
@@ -314,15 +314,8 @@ GroupItem WindowsSettingsWidget::downloadNugetRecipe()
     struct StorageStruct
     {
         StorageStruct() {
-            progressDialog.reset(new QProgressDialog(Tr::tr("Downloading NuGet..."),
-                                                     Tr::tr("Cancel"), 0, 100,
-                                                     Core::ICore::dialogParent()));
-            progressDialog->setWindowModality(Qt::ApplicationModal);
-            progressDialog->setMinimumDuration(INT_MAX); // In order to suppress calls to processEvents() from setValue()
-            progressDialog->setWindowTitle(Tr::tr("Downloading"));
-            progressDialog->setFixedSize(progressDialog->sizeHint());
-            progressDialog->setAutoClose(false);
-            progressDialog->show();
+            progressDialog.reset(createProgressDialog(100, Tr::tr("Downloading"),
+                                                      Tr::tr("Downloading NuGet...")));
         }
         std::unique_ptr<QProgressDialog> progressDialog;
         std::optional<FilePath> fileName;
