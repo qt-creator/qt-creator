@@ -1861,8 +1861,8 @@ class TaskTreePrivate
     Q_DISABLE_COPY_MOVE(TaskTreePrivate)
 
 public:
-    TaskTreePrivate(TaskTree *taskTree)
-        : q(taskTree) {}
+    explicit TaskTreePrivate(TaskTree *taskTree);
+    ~TaskTreePrivate();
 
     void start();
     void stop();
@@ -1968,6 +1968,7 @@ class RuntimeIteration
 
 public:
     RuntimeIteration(int index, RuntimeContainer *container);
+    ~RuntimeIteration();
     std::optional<Loop> loop() const;
     void removeChild(RuntimeTask *node);
 
@@ -2044,6 +2045,13 @@ public:
     std::unique_ptr<TaskInterface> m_task = {}; // Owning.
     SetupResult m_setupResult = SetupResult::Continue;
 };
+
+RuntimeIteration::~RuntimeIteration() = default;
+
+TaskTreePrivate::TaskTreePrivate(TaskTree *taskTree)
+    : q(taskTree) {}
+
+TaskTreePrivate::~TaskTreePrivate() = default;
 
 static bool isProgressive(RuntimeContainer *container)
 {
