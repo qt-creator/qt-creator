@@ -224,6 +224,15 @@ void setupTextEditorModule()
             return BaseTextEditor::currentTextEditor();
         };
 
+        result["openedEditors"] = [lua]() mutable -> sol::table {
+            QList<BaseTextEditor *> editors = BaseTextEditor::openedTextEditors();
+            sol::table result = lua.create_table();
+            for (auto& editor : editors) {
+                result.add(TextEditorPtr(editor));
+            }
+            return result;
+        };
+
         result.new_usertype<MultiTextCursor>(
             "MultiTextCursor",
             sol::no_constructor,
