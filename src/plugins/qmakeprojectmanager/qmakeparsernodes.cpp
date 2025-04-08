@@ -630,9 +630,9 @@ bool QmakePriFile::addDependencies(const QStringList &dependencies)
     qtDependencies = transform(qtDependencies, [](const QString &dep) {
         return dep.mid(3);
     });
-    qtDependencies.removeOne("core");
     if (qtDependencies.isEmpty())
         return true;
+    qtDependencies.removeOne("core");
 
     const QPair<ProFile *, QStringList> pair = readProFile();
     ProFile * const includeFile = pair.first;

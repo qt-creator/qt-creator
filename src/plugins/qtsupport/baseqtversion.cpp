@@ -308,8 +308,10 @@ QString QtVersion::moduleForClass(const QString &className) const
     }
 
     for (auto it = d->m_classesPerModule->cbegin(); it != d->m_classesPerModule->cend(); ++it) {
-        if (it.value().contains(className))
-            return it.key();
+        if (it.value().contains(className)) {
+            QTC_ASSERT(it.key().size() > 2, return it.key());
+            return it.key().left(2) + '.' + it.key().mid(2).toLower();
+        }
     }
     return {};
 }

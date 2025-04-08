@@ -587,5 +587,9 @@
         <file>testcases/MoveFunctionCommentsTest/template-def-to-decl/expected_file.h</file>
         <file>testcases/MoveFunctionCommentsTest/template-def-to-decl/original_file.h</file>
         <file>testcases/MoveFunctionCommentsTest/template-def-to-decl/fail.txt</file>
+        <file>testcases/bring-identifier-into-scope/add-qt-dependency/add-qt-dependency.pro</file>
+        <file>testcases/bring-identifier-into-scope/add-qt-dependency/add-qt-dependency.pro_expected</file>
+        <file>testcases/bring-identifier-into-scope/add-qt-dependency/main.cpp</file>
+        <file>testcases/bring-identifier-into-scope/add-qt-dependency/main.cpp_expected</file>
     </qresource>
 </RCC>
