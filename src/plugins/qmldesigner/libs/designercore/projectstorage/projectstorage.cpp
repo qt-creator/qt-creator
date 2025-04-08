@@ -2270,7 +2270,7 @@ Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
 
     auto directoryInfos = s->selectDirectoryInfosForDirectoryIdsStatement
                               .valuesWithTransaction<Storage::Synchronization::DirectoryInfo, 64>(
-                                  toIntegers(directoryIds));
+                                  Sqlite::toIntegers(directoryIds));
 
     tracer.end(keyValue("directory infos", directoryInfos));
 
@@ -2290,7 +2290,7 @@ SmallDirectoryPathIds<32> ProjectStorage::fetchSubdirectoryIds(DirectoryPathId d
 
     SmallDirectoryPathIds<32> directoryIds;
     for (SourceId sourceId : sourceIds)
-        directoryIds.push_back(sourceId.contextId());
+        directoryIds.push_back(sourceId.directoryPathId());
 
     tracer.end(keyValue("directory ids", directoryIds));
 
@@ -2422,7 +2422,7 @@ TypeIds ProjectStorage::fetchTypeIds(const SourceIds &sourceIds)
                                projectStorageCategory(),
                                keyValue("source ids", sourceIds)};
 
-    return s->selectTypeIdsForSourceIdsStatement.values<TypeId, 128>(toIntegers(sourceIds));
+    return s->selectTypeIdsForSourceIdsStatement.values<TypeId, 128>(Sqlite::toIntegers(sourceIds));
 }
 
 void ProjectStorage::unique(SourceIds &sourceIds)
@@ -2467,7 +2467,7 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
     std::ranges::sort(typeAnnotations, {}, &TypeAnnotation::typeId);
 
     auto range = s->selectTypeAnnotationsForSourceIdsStatement.range<TypeAnnotationView>(
-        toIntegers(updatedTypeAnnotationSourceIds));
+        Sqlite::toIntegers(updatedTypeAnnotationSourceIds));
 
     auto insert = [&](const TypeAnnotation &annotation) {
         if (!annotation.sourceId)
@@ -2625,7 +2625,7 @@ void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::Directo
 
     auto range = s->selectDirectoryInfosForDirectoryIdsStatement
                      .range<Storage::Synchronization::DirectoryInfo>(
-                         toIntegers(updatedDirectoryInfoDirectoryIds));
+                         Sqlite::toIntegers(updatedDirectoryInfoDirectoryIds));
 
     auto insert = [&](const Storage::Synchronization::DirectoryInfo &directoryInfo) {
         using NanotraceHR::keyValue;
@@ -2687,7 +2687,7 @@ void ProjectStorage::synchronizeFileStatuses(FileStatuses &fileStatuses,
     std::ranges::sort(fileStatuses, {}, &FileStatus::sourceId);
 
     auto range = s->selectFileStatusesForSourceIdsStatement.range<FileStatus>(
-        toIntegers(updatedSourceIds));
+        Sqlite::toIntegers(updatedSourceIds));
 
     auto insert = [&](const FileStatus &fileStatus) {
         using NanotraceHR::keyValue;
@@ -2775,7 +2775,7 @@ void ProjectStorage::synchromizeModuleExportedImports(
 
     auto range = s->selectModuleExportedImportsForSourceIdStatement
                      .range<Storage::Synchronization::ModuleExportedImportView>(
-                         toIntegers(updatedModuleIds));
+                         Sqlite::toIntegers(updatedModuleIds));
 
     auto compareKey = [](const Storage::Synchronization::ModuleExportedImportView &view,
                          const Storage::Synchronization::ModuleExportedImport &import) {
@@ -3193,8 +3193,8 @@ void ProjectStorage::deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
     };
 
     s->selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
-                                                            toIntegers(updatedSourceIds),
-                                                            toIntegers(updatedTypeIds));
+                                                            Sqlite::toIntegers(updatedSourceIds),
+                                                            Sqlite::toIntegers(updatedTypeIds));
     for (TypeId typeIdToBeDeleted : typeIdsToBeDeleted)
         callback(typeIdToBeDeleted);
 }
@@ -3368,7 +3368,8 @@ void ProjectStorage::synchronizeExportedTypes(
     });
 
     auto range = s->selectExportedTypesForSourceIdsStatement
-                     .range<Storage::Synchronization::ExportedTypeView>(toIntegers(updatedTypeIds));
+                     .range<Storage::Synchronization::ExportedTypeView>(
+                         Sqlite::toIntegers(updatedTypeIds));
 
     auto compareKey = [](const Storage::Synchronization::ExportedTypeView &view,
                          const Storage::Synchronization::ExportedType &type) {
@@ -3915,7 +3916,7 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
     });
 
     auto range = s->selectDocumentImportForSourceIdStatement
-                     .range<Storage::Synchronization::ImportView>(toIntegers(updatedSourceIds),
+                     .range<Storage::Synchronization::ImportView>(Sqlite::toIntegers(updatedSourceIds),
                                                                   importKind);
 
     auto compareKey = [](const Storage::Synchronization::ImportView &view,
@@ -4063,7 +4064,7 @@ void ProjectStorage::synchronizePropertyEditorPaths(
     std::ranges::sort(paths, {}, &PropertyEditorQmlPath::typeId);
 
     auto range = s->selectPropertyEditorPathsForForSourceIdsStatement.range<PropertyEditorQmlPathView>(
-        toIntegers(updatedPropertyEditorQmlPathsDirectoryPathIds));
+        Sqlite::toIntegers(updatedPropertyEditorQmlPathsDirectoryPathIds));
 
     auto compareKey = [](const PropertyEditorQmlPathView &view, const PropertyEditorQmlPath &value) {
         return view.typeId <=> value.typeId;

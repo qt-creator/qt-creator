@@ -551,7 +551,7 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
         if (isInsideProject == IsInsideProject::Yes) {
             static FileNameId ignoreInQdsFileNameId = m_pathCache.fileNameId("ignore-in-qds");
 
-            SourceId ignoreInQdsSourceId = SourceId::create(ignoreInQdsFileNameId, directoryPathId);
+            SourceId ignoreInQdsSourceId = SourceId::create(directoryPathId, ignoreInQdsFileNameId);
 
             auto ignoreInQdsState = fileState(ignoreInQdsSourceId, package, notUpdatedSourceIds);
 
@@ -598,7 +598,7 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
     if (isChangedOrAdded(directoryState)) {
         for (const auto &[subdirectoryPath, subdirectoryId] : existingSubdirecories) {
             package.directoryInfos.emplace_back(directoryId,
-                                                SourceId::create(FileNameId{}, subdirectoryId),
+                                                SourceId::create(subdirectoryId, FileNameId{}),
                                                 ModuleId{},
                                                 Storage::Synchronization::FileType::Directory);
         }
@@ -669,11 +669,11 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
 
     SourcePath qmldirPath{directoryPath + "/qmldir"};
     SourceId qmldirSourceId = m_pathCache.sourceId(qmldirPath);
-    DirectoryPathId directoryId = qmldirSourceId.contextId();
+    DirectoryPathId directoryId = qmldirSourceId.directoryPathId();
 
     auto directoryState = fileState(directoryId, package, notUpdatedSourceIds);
     if (isExisting(directoryState))
-        WatchedSourceIds.directoryIds.push_back(SourceId::create(FileNameId{}, directoryId));
+        WatchedSourceIds.directoryIds.push_back(SourceId::create(directoryId, FileNameId{}));
 
     auto qmldirState = fileState(qmldirSourceId, package, notUpdatedSourceIds);
     if (isExisting(qmldirState))
@@ -962,7 +962,7 @@ void ProjectStorageUpdater::updatePropertyEditorFilePath(
 namespace {
 DirectoryPathIds filterUniqueDirectoryPathIds(const SourceIds &sourceIds)
 {
-    auto directoryPathIds = Utils::transform(sourceIds, &SourceId::contextId);
+    auto directoryPathIds = Utils::transform(sourceIds, &SourceId::directoryPathId);
 
     std::sort(directoryPathIds.begin(), directoryPathIds.end());
     auto newEnd = std::unique(directoryPathIds.begin(), directoryPathIds.end());
@@ -1070,7 +1070,7 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
                                  const DirectoryPathIds &directoryIds,
                                  IsInsideProject isInsideProject) {
         for (SourceId sourceId : filterUniqueSourceIds(std::move(qmlDocumentSourceIds))) {
-            if (!contains(directoryIds, sourceId.contextId()))
+            if (!contains(directoryIds, sourceId.directoryPathId()))
                 this->parseQmlComponent(sourceId, package, notUpdatedSourceIds, isInsideProject);
         }
     };
@@ -1082,7 +1082,7 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
                              const DirectoryPathIds &directoryIds,
                              IsInsideProject isInsideProject) {
         for (SourceId sourceId : filterUniqueSourceIds(std::move(qmltypesSourceIds))) {
-            if (!contains(directoryIds, sourceId.contextId())) {
+            if (!contains(directoryIds, sourceId.directoryPathId())) {
                 QString qmltypesPath{m_pathCache.sourcePath(sourceId)};
                 auto directoryInfo = m_projectStorage.fetchDirectoryInfo(sourceId);
                 if (directoryInfo)
@@ -1515,7 +1515,7 @@ ProjectStorageUpdater::FileState ProjectStorageUpdater::fileState(
     Storage::Synchronization::SynchronizationPackage &package,
     NotUpdatedSourceIds &notUpdatedSourceIds) const
 {
-    auto sourceId = SourceId::create(FileNameId{}, directoryPathId);
+    auto sourceId = SourceId::create(directoryPathId, FileNameId{});
     return fileState(sourceId, package, notUpdatedSourceIds);
 }
 

@@ -139,6 +139,7 @@ struct CompoundPropertyMetaInfo;
 enum class FlagIs : unsigned int;
 template<typename NameType>
 class BasicAuxiliaryDataKey;
+class SourceId;
 
 void PrintTo(const ThemeProperty &prop, std::ostream *os);
 std::ostream &operator<<(std::ostream &out, const ThemeProperty &prop);
@@ -162,6 +163,7 @@ std::ostream &operator<<(std::ostream &out, FlagIs flagIs);
 std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallStringView> &key);
 std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallString> &key);
 std::ostream &operator<<(std::ostream &out, AuxiliaryDataType type);
+std::ostream &operator<<(std::ostream &out, SourceId sourceId);
 
 namespace Cache {
 class DirectoryPath;

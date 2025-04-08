@@ -108,9 +108,9 @@ protected:
                            pathCache.sourceId(path3),
                            pathCache.sourceId(path4),
                            pathCache.sourceId(path5)};
-    DirectoryPathIds directoryPathIds = {sourceIds[0].contextId(),
-                                         sourceIds[2].contextId(),
-                                         sourceIds[4].contextId()};
+    DirectoryPathIds directoryPathIds = {sourceIds[0].directoryPathId(),
+                                         sourceIds[2].directoryPathId(),
+                                         sourceIds[4].directoryPathId()};
     ProjectChunkIds ids{projectChunkId1, projectChunkId2, projectChunkId3};
     WatcherEntry watcherEntry1{projectChunkId1, directoryPathIds[0], sourceIds[0]};
     WatcherEntry watcherEntry2{projectChunkId2, directoryPathIds[0], sourceIds[0]};
@@ -460,7 +460,7 @@ TEST_F(ProjectStoragePathWatcher, trigger_manual_two_notify_file_changes)
                     ElementsAre(IdPaths{projectChunkId1, {sourceIds[0], sourceIds[1]}},
                                 IdPaths{projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}})));
 
-    watcher.checkForChangeInDirectory({sourceIds[0].contextId(), sourceIds[2].contextId()});
+    watcher.checkForChangeInDirectory({sourceIds[0].directoryPathId(), sourceIds[2].directoryPathId()});
 }
 
 TEST_F(ProjectStoragePathWatcher, trigger_manual_notify_for_path_changes)
@@ -474,7 +474,7 @@ TEST_F(ProjectStoragePathWatcher, trigger_manual_notify_for_path_changes)
 
     EXPECT_CALL(notifier, pathsChanged(ElementsAre(sourceIds[0])));
 
-    watcher.checkForChangeInDirectory({sourceIds[0].contextId()});
+    watcher.checkForChangeInDirectory({sourceIds[0].directoryPathId()});
 }
 
 TEST_F(ProjectStoragePathWatcher, trigger_manual_no_notify_for_unwatched_path_changes)
@@ -483,7 +483,7 @@ TEST_F(ProjectStoragePathWatcher, trigger_manual_no_notify_for_unwatched_path_ch
 
     EXPECT_CALL(notifier, pathsChanged(IsEmpty()));
 
-    watcher.checkForChangeInDirectory({sourceIds[0].contextId()});
+    watcher.checkForChangeInDirectory({sourceIds[0].directoryPathId()});
 }
 
 TEST_F(ProjectStoragePathWatcher, update_context_id_paths_adds_entry_in_new_directory)

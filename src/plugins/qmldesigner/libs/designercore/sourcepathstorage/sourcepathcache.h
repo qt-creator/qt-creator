@@ -59,7 +59,7 @@ public:
 
         auto fileNameId = m_fileNameCache.id(fileName);
 
-        return SourceId::create(fileNameId, directoryPathId);
+        return SourceId::create(directoryPathId, fileNameId);
     }
 
     FileNameId fileNameId(Utils::SmallStringView fileName) const override
@@ -71,7 +71,7 @@ public:
     {
         FileNameId fileNameId = m_fileNameCache.id(fileName);
 
-        return SourceId::create(fileNameId, directoryPathId);
+        return SourceId::create(directoryPathId, fileNameId);
     }
 
     DirectoryPathId directoryPathId(Utils::SmallStringView directoryPath) const override
@@ -88,9 +88,9 @@ public:
         if (!sourceId) [[unlikely]]
             throw NoSourcePathForInvalidSourceId();
 
-        auto fileName = m_fileNameCache.value(sourceId.mainId());
+        auto fileName = m_fileNameCache.value(sourceId.fileNameId());
 
-        Utils::PathString directoryPath = m_directoryPathCache.value(sourceId.contextId());
+        Utils::PathString directoryPath = m_directoryPathCache.value(sourceId.directoryPathId());
 
         return SourcePath{directoryPath, fileName};
     }

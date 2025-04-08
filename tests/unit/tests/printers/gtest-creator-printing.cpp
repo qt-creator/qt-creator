@@ -598,6 +598,12 @@ std::ostream &operator<<(std::ostream &out, AuxiliaryDataType type)
     return out;
 }
 
+std::ostream &operator<<(std::ostream &out, SourceId sourceId)
+{
+    return out << "id=(" << sourceId.fileNameId().internalId() << ", "
+               << sourceId.directoryPathId().internalId() << ")";
+}
+
 namespace Cache {
 
 std::ostream &operator<<(std::ostream &out, const DirectoryPath &directoryPath)

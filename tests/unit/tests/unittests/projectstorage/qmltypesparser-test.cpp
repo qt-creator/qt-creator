@@ -196,11 +196,11 @@ protected:
     Synchronization::Types types;
     SourceId qmltypesFileSourceId{sourcePathCache.sourceId("path/to/types.qmltypes")};
     ModuleId qtQmlNativeModuleId = storage.moduleId("QtQml", ModuleKind::CppLibrary);
-    Synchronization::DirectoryInfo directoryInfo{qmltypesFileSourceId.contextId(),
+    Synchronization::DirectoryInfo directoryInfo{qmltypesFileSourceId.directoryPathId(),
                                                  qmltypesFileSourceId,
                                                  qtQmlNativeModuleId,
                                                  Synchronization::FileType::QmlTypes};
-    DirectoryPathId qmltypesFileDirectoryPathId{qmltypesFileSourceId.contextId()};
+    DirectoryPathId qmltypesFileDirectoryPathId{qmltypesFileSourceId.directoryPathId()};
 };
 
 TEST_F(QmlTypesParser, imports)
@@ -893,7 +893,7 @@ TEST_F(QmlTypesParser, default_property)
 TEST_F(QmlTypesParser, skip_template_item)
 {
     ModuleId moduleId = storage.moduleId("QtQuick.Templates", ModuleKind::CppLibrary);
-    Synchronization::DirectoryInfo directoryInfo{qmltypesFileSourceId.contextId(),
+    Synchronization::DirectoryInfo directoryInfo{qmltypesFileSourceId.directoryPathId(),
                                                  qmltypesFileSourceId,
                                                  moduleId,
                                                  Synchronization::FileType::QmlTypes};

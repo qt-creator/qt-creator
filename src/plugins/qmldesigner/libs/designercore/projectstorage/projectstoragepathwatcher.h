@@ -118,7 +118,7 @@ public:
             std::ranges::transform(idPath.sourceIds, std::back_inserter(entries), [&](SourceId sourceId) {
                 auto fileStatus = m_fileStatusCache.find(sourceId);
                 return WatcherEntry{id,
-                                    sourceId.contextId(),
+                                    sourceId.directoryPathId(),
                                     sourceId,
                                     fileStatus.lastModified,
                                     fileStatus.size};

@@ -48,9 +48,9 @@ protected:
     FileNameId fileNameId63 = FileNameId::create(63);
     DirectoryPathId directoryPathId5 = DirectoryPathId::create(5);
     DirectoryPathId directoryPathId6 = DirectoryPathId::create(6);
-    SourceId sourceId542 = SourceId::create(fileNameId42, directoryPathId5);
-    SourceId sourceId563 = SourceId::create(fileNameId63, directoryPathId5);
-    SourceId sourceId642 = SourceId::create(fileNameId42, directoryPathId6);
+    SourceId sourceId542 = SourceId::create(directoryPathId5, fileNameId42);
+    SourceId sourceId563 = SourceId::create(directoryPathId5, fileNameId63);
+    SourceId sourceId642 = SourceId::create(directoryPathId6, fileNameId42);
     NiceMock<ProjectStorageMock> storageMock;
     Cache cache{storageMock};
     NiceMock<ProjectStorageMock> storageMockFilled;
@@ -278,7 +278,7 @@ TEST_F(SourcePathCache, second_directory_path_calls_not_fetch_directory_path)
 
 TEST_F(SourcePathCache, fetch_directory_path_from_source_id)
 {
-    auto directoryPathId = sourceId542.contextId();
+    auto directoryPathId = sourceId542.directoryPathId();
 
     ASSERT_THAT(directoryPathId, Eq(directoryPathId5));
 }
@@ -287,7 +287,7 @@ TEST_F(SourcePathCache, fetch_directory_path_id_after_fetching_file_path_by_sour
 {
     cache.sourcePath(sourceId542);
 
-    auto directoryPathId = sourceId542.contextId();
+    auto directoryPathId = sourceId542.directoryPathId();
 
     ASSERT_THAT(directoryPathId, Eq(directoryPathId5));
 }
@@ -313,7 +313,7 @@ TEST_F(SourcePathCache, get_directory_path_id_in_filled_cache)
 {
     Cache cacheFilled{storageMockFilled};
 
-    auto id = sourceId542.contextId();
+    auto id = sourceId542.directoryPathId();
 
     ASSERT_THAT(id, Eq(directoryPathId5));
 }

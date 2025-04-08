@@ -355,7 +355,7 @@ public:
     SourceId createDirectorySourceId(Utils::SmallStringView path) const
     {
         auto directoryId = sourcePathCache.directoryPathId(path);
-        return SourceId::create(FileNameId{}, directoryId);
+        return SourceId::create(directoryId, FileNameId{});
     }
 
     SourceId createDirectorySourceIdFromQString(const QString &path) const
@@ -470,8 +470,8 @@ protected:
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/path/example.qmltypes");
     SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/path/example2.qmltypes");
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");
-    DirectoryPathId directoryPathId = qmlDirPathSourceId.contextId();
-    SourceId directoryPathSourceId = SourceId::create(QmlDesigner::FileNameId{}, directoryPathId);
+    DirectoryPathId directoryPathId = qmlDirPathSourceId.directoryPathId();
+    SourceId directoryPathSourceId = SourceId::create(directoryPathId, QmlDesigner::FileNameId{});
     SourceId annotationDirectorySourceId = createDirectorySourceId("/path/designer");
     SourceId qmlDocumentSourceId1 = sourcePathCache.sourceId("/path/First.qml");
     SourceId qmlDocumentSourceId2 = sourcePathCache.sourceId("/path/First2.qml");
@@ -480,11 +480,11 @@ protected:
         UNITTEST_DIR "/../../../../share/qtcreator/qmldesigner/itemLibrary/");
     DirectoryPathId itemLibraryPathDirectoryPathId = sourcePathCache.directoryPathId(
         Utils::PathString{itemLibraryPath});
-    SourceId itemLibraryPathSourceId = SourceId::create(FileNameId{}, itemLibraryPathDirectoryPathId);
+    SourceId itemLibraryPathSourceId = SourceId::create(itemLibraryPathDirectoryPathId, FileNameId{});
     const QString qmlImportsPath = QDir::cleanPath(UNITTEST_DIR "/projectstorage/data/qml");
     DirectoryPathId qmlImportsPathDirectoryPathId = sourcePathCache.directoryPathId(
         Utils::PathString{itemLibraryPath});
-    SourceId qmlImportsPathSourceId = SourceId::create(FileNameId{}, qmlImportsPathDirectoryPathId);
+    SourceId qmlImportsPathSourceId = SourceId::create(qmlImportsPathDirectoryPathId, FileNameId{});
     ModuleId qmlModuleId{storage.moduleId("Qml", ModuleKind::QmlLibrary)};
     ModuleId qmlCppNativeModuleId{storage.moduleId("Qml", ModuleKind::CppLibrary)};
     ModuleId exampleModuleId{storage.moduleId("Example", ModuleKind::QmlLibrary)};
@@ -537,11 +537,11 @@ protected:
     QmlDesigner::ProjectChunkId otherQmltypesProjectChunkId{otherProjectPartId,
                                                             QmlDesigner::SourceType::QmlTypes};
     DirectoryPathId path1DirectoryPathId = sourcePathCache.directoryPathId("/path/one");
-    SourceId path1SourceId = SourceId::create(QmlDesigner::FileNameId{}, path1DirectoryPathId);
+    SourceId path1SourceId = SourceId::create(path1DirectoryPathId, QmlDesigner::FileNameId{});
     DirectoryPathId path2DirectoryPathId = sourcePathCache.directoryPathId("/path/two");
-    SourceId path2SourceId = SourceId::create(QmlDesigner::FileNameId{}, path2DirectoryPathId);
+    SourceId path2SourceId = SourceId::create(path2DirectoryPathId, QmlDesigner::FileNameId{});
     DirectoryPathId path3DirectoryPathId = sourcePathCache.directoryPathId("/path/three");
-    SourceId path3SourceId = SourceId::create(QmlDesigner::FileNameId{}, path3DirectoryPathId);
+    SourceId path3SourceId = SourceId::create(path3DirectoryPathId, QmlDesigner::FileNameId{});
     SourceId qmldir1SourceId = sourcePathCache.sourceId("/path/one/qmldir");
     SourceId qmldir2SourceId = sourcePathCache.sourceId("/path/two/qmldir");
     SourceId qmldir3SourceId = sourcePathCache.sourceId("/path/three/qmldir");
@@ -608,8 +608,8 @@ public:
     QStringList directories = {"/path"};
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/path/example.qmltypes");
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");
-    DirectoryPathId directoryPathId = qmlDirPathSourceId.contextId();
-    SourceId directoryPathSourceId = SourceId::create(QmlDesigner::FileNameId{}, directoryPathId);
+    DirectoryPathId directoryPathId = qmlDirPathSourceId.directoryPathId();
+    SourceId directoryPathSourceId = SourceId::create(directoryPathId, QmlDesigner::FileNameId{});
 };
 
 TEST_F(ProjectStorageUpdater_get_content_for_qml_types, added_qml_types_file_provides_content)
@@ -669,8 +669,8 @@ public:
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/root/path/example.qmltypes");
     SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/root/path/example2.qmltypes");
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/root/path/qmldir");
-    DirectoryPathId directoryPathId = qmlDirPathSourceId.contextId();
-    SourceId directoryPathSourceId = SourceId::create(QmlDesigner::FileNameId{}, directoryPathId);
+    DirectoryPathId directoryPathId = qmlDirPathSourceId.directoryPathId();
+    SourceId directoryPathSourceId = SourceId::create(directoryPathId, QmlDesigner::FileNameId{});
 };
 
 TEST_F(ProjectStorageUpdater_parse_qml_types, add_directory)
@@ -782,8 +782,8 @@ public:
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/root/path/example.qmltypes");
     SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/root/path/example2.qmltypes");
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/root/path/qmldir");
-    DirectoryPathId directoryPathId = qmlDirPathSourceId.contextId();
-    SourceId directoryPathSourceId = SourceId::create(QmlDesigner::FileNameId{}, directoryPathId);
+    DirectoryPathId directoryPathId = qmlDirPathSourceId.directoryPathId();
+    SourceId directoryPathSourceId = SourceId::create(directoryPathId, QmlDesigner::FileNameId{});
     SourceId annotationDirectoryId = createDirectorySourceId("/root/path/designer");
     SourceId rootQmlDirPathSourceId = sourcePathCache.sourceId("/root/qmldir");
     SourceId rootDirectoryPathSourceId = createDirectorySourceId("/root");
@@ -877,13 +877,13 @@ public:
 
 public:
     SourceId rootDirectoryPathSourceId = createDirectorySourceId("/root");
-    DirectoryPathId rootDirectoryPathId = rootDirectoryPathSourceId.contextId();
+    DirectoryPathId rootDirectoryPathId = rootDirectoryPathSourceId.directoryPathId();
     SourceId path1SourceId = createDirectorySourceId("/root/one");
-    DirectoryPathId path1DirectoryPathId = path1SourceId.contextId();
+    DirectoryPathId path1DirectoryPathId = path1SourceId.directoryPathId();
     SourceId path2SourceId = createDirectorySourceId("/root/two");
-    DirectoryPathId path2DirectoryPathId = path2SourceId.contextId();
+    DirectoryPathId path2DirectoryPathId = path2SourceId.directoryPathId();
     SourceId path3SourceId = createDirectorySourceId("/root/one/three");
-    DirectoryPathId path3DirectoryPathId = path3SourceId.contextId();
+    DirectoryPathId path3DirectoryPathId = path3SourceId.directoryPathId();
 };
 
 TEST_F(ProjectStorageUpdater_synchronize_subdirectories, added_qt_subdircectories)
@@ -1092,8 +1092,8 @@ public:
 public:
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/path/example.qmltypes");
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");
-    DirectoryPathId directoryPathId = qmlDirPathSourceId.contextId();
-    SourceId directoryPathSourceId = SourceId::create(QmlDesigner::FileNameId{}, directoryPathId);
+    DirectoryPathId directoryPathId = qmlDirPathSourceId.directoryPathId();
+    SourceId directoryPathSourceId = SourceId::create(directoryPathId, QmlDesigner::FileNameId{});
     SourceId annotationDirectorySourceId = createDirectorySourceId("/path/designer");
     ModuleId qmlModuleId{storage.moduleId("Qml", ModuleKind::QmlLibrary)};
     ModuleId exampleModuleId{storage.moduleId("Example", ModuleKind::QmlLibrary)};
@@ -3244,7 +3244,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_subdirectories)
                       SecondType 2.2 Second.qml)"};
     setContent(u"/path/qmldir", qmldir);
     DirectoryPathId rootPathId = sourcePathCache.directoryPathId("/root");
-    SourceId rootPathSourceId = SourceId::create(QmlDesigner::FileNameId{}, rootPathId);
+    SourceId rootPathSourceId = SourceId::create(rootPathId, QmlDesigner::FileNameId{});
     SourceId rootQmldirPathSourceId = sourcePathCache.sourceId("/root/qmldir");
     setFilesChanged({directoryPathSourceId, rootPathSourceId});
     setFilesUnchanged({qmlDirPathSourceId, rootQmldirPathSourceId});
@@ -3356,7 +3356,7 @@ TEST_F(ProjectStorageUpdater, watcher_watches_directories_after_directory_change
     setContent(u"/path/qmldir", qmldir);
     setFilesChanged({directoryPathSourceId});
     setFilesUnchanged({qmlDirPathSourceId});
-    auto directoryDirectoryPathId = directoryPathSourceId.contextId();
+    auto directoryDirectoryPathId = directoryPathSourceId.directoryPathId();
 
     EXPECT_CALL(patchWatcherMock,
                 updateContextIdPaths(
@@ -3471,7 +3471,7 @@ TEST_F(ProjectStorageUpdater, watcher_watches_directories_after_qmldir_changes)
                       FirstType 2.2 First2.qml
                       SecondType 2.2 Second.qml)"};
     setContent(u"/path/qmldir", qmldir);
-    auto directoryDirectoryPathId = qmlDirPathSourceId.contextId();
+    auto directoryDirectoryPathId = qmlDirPathSourceId.directoryPathId();
 
     EXPECT_CALL(patchWatcherMock,
                 updateContextIdPaths(
@@ -4794,7 +4794,7 @@ TEST_F(ProjectStorageUpdater, update_property_editor_panes)
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QML/QtObjectPane.qml"});
     auto directoryId = sourcePathCache.directoryPathId(
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QML"});
-    auto directorySourceId = SourceId::create(QmlDesigner::FileNameId{}, directoryId);
+    auto directorySourceId = SourceId::create(directoryId, QmlDesigner::FileNameId{});
     setFilesChanged({directorySourceId});
     auto qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
 
@@ -4829,12 +4829,12 @@ TEST_F(ProjectStorageUpdater, update_property_editor_specifics)
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/TextSpecifics.qml"});
     auto qtQuickDirectoryId = sourcePathCache.directoryPathId(
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick"});
-    auto qtQuickDirectorySourceId = SourceId::create(QmlDesigner::FileNameId{}, qtQuickDirectoryId);
+    auto qtQuickDirectorySourceId = SourceId::create(qtQuickDirectoryId, QmlDesigner::FileNameId{});
     auto buttonSourceId = sourcePathCache.sourceId(
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/Controls/ButtonSpecifics.qml"});
     auto controlsDirectoryId = sourcePathCache.directoryPathId(
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/Controls"});
-    auto controlsDirectorySourceId = SourceId::create(QmlDesigner::FileNameId{}, controlsDirectoryId);
+    auto controlsDirectorySourceId = SourceId::create(controlsDirectoryId, QmlDesigner::FileNameId{});
     setFilesChanged({qtQuickDirectorySourceId, controlsDirectorySourceId});
     auto qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
     auto controlsModuleId = storage.moduleId("QtQuick.Controls", ModuleKind::QmlLibrary);
@@ -5072,7 +5072,7 @@ TEST_F(ProjectStorageUpdater, synchronize_added_property_editor_qml_paths_direct
 {
     setFileSystemSubdirectories(u"/path/one", {"/path/one/designer"});
     DirectoryPathId designer1DirectoryId = sourcePathCache.directoryPathId("/path/one/designer");
-    SourceId designer1SourceId = SourceId::create(QmlDesigner::FileNameId{}, designer1DirectoryId);
+    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
     setFilesUnchanged({path1SourceId});
     setFilesAdded({designer1SourceId});
 
@@ -5106,7 +5106,7 @@ TEST_F(ProjectStorageUpdater, synchronize_changed_property_editor_qml_paths_dire
 {
     setFileSystemSubdirectories(u"/path/one", {"/path/one/designer"});
     DirectoryPathId designer1DirectoryId = sourcePathCache.directoryPathId("/path/one/designer");
-    SourceId designer1SourceId = SourceId::create(QmlDesigner::FileNameId{}, designer1DirectoryId);
+    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
     setFilesUnchanged({path1SourceId});
     setFilesChanged({designer1SourceId});
 
@@ -5140,7 +5140,7 @@ TEST_F(ProjectStorageUpdater, dont_synchronize_empty_property_editor_qml_paths_d
 {
     setFileSystemSubdirectories(u"/path/two", {});
     DirectoryPathId designer2DirectoryId = sourcePathCache.directoryPathId("/path/two/designer");
-    SourceId designer2SourceId = SourceId::create(QmlDesigner::FileNameId{}, designer2DirectoryId);
+    SourceId designer2SourceId = SourceId::create(designer2DirectoryId, QmlDesigner::FileNameId{});
     setFilesChanged({path2SourceId});
     setFilesNotExists({designer2SourceId});
 
@@ -5172,7 +5172,7 @@ TEST_F(ProjectStorageUpdater, dont_synchronize_empty_property_editor_qml_paths_d
 TEST_F(ProjectStorageUpdater, remove_property_editor_qml_paths_if_designer_directory_is_removed)
 {
     DirectoryPathId designer1DirectoryId = sourcePathCache.directoryPathId("/path/one/designer");
-    SourceId designer1SourceId = SourceId::create(QmlDesigner::FileNameId{}, designer1DirectoryId);
+    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
     setFilesUnchanged({path1SourceId, qmldir1SourceId});
     setFilesRemoved({designer1SourceId});
 
@@ -5213,7 +5213,7 @@ TEST_F(ProjectStorageUpdater,
         "/path/one/designer/HuoSpecificsDynamic.qml");
     SourceId propertyEditorPaneSourceId = sourcePathCache.sourceId(
         "/path/one/designer/CaoPane.qml");
-    SourceId designer1SourceId = SourceId::create(QmlDesigner::FileNameId{}, designer1DirectoryId);
+    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
     setFilesChanged({designer1SourceId});
     setFilesUnchanged({path1SourceId, qmldir1SourceId});
     auto barModuleId = storage.moduleId("Bar", ModuleKind::QmlLibrary);
@@ -5257,7 +5257,7 @@ TEST_F(ProjectStorageUpdater,
         "/path/one/designer/HuoSpecificsDynamic.qml");
     SourceId propertyEditorPaneSourceId = sourcePathCache.sourceId(
         "/path/one/designer/CaoPane.qml");
-    SourceId designer1SourceId = SourceId::create(QmlDesigner::FileNameId{}, designer1DirectoryId);
+    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
     setFilesChanged({path1SourceId});
     setFilesUnchanged({qmldir1SourceId, designer1SourceId});
     auto barModuleId = storage.moduleId("Bar", ModuleKind::QmlLibrary);
@@ -5300,7 +5300,7 @@ TEST_F(ProjectStorageUpdater, synchronize_property_editor_qml_paths_directory_if
         "/path/one/designer/HuoSpecificsDynamic.qml");
     SourceId propertyEditorPaneSourceId = sourcePathCache.sourceId(
         "/path/one/designer/CaoPane.qml");
-    SourceId designer1SourceId = SourceId::create(QmlDesigner::FileNameId{}, designer1DirectoryId);
+    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
     setFilesChanged({qmldir1SourceId});
     setFilesUnchanged({path1SourceId, designer1SourceId});
     auto barModuleId = storage.moduleId("Bar", ModuleKind::QmlLibrary);
