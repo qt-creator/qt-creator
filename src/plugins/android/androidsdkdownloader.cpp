@@ -95,6 +95,7 @@ GroupItem downloadSdkRecipe()
             progressDialog.reset(new QProgressDialog(Tr::tr("Downloading SDK Tools package..."),
                                  Tr::tr("Cancel"), 0, 100, Core::ICore::dialogParent()));
             progressDialog->setWindowModality(Qt::ApplicationModal);
+            progressDialog->setMinimumDuration(INT_MAX); // In order to suppress calls to processEvents() from setValue()
             progressDialog->setWindowTitle(dialogTitle());
             progressDialog->setFixedSize(progressDialog->sizeHint());
             progressDialog->setAutoClose(false);

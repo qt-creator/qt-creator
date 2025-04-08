@@ -697,6 +697,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QStrin
                 Tr::tr("Downloading..."), Tr::tr("Cancel"), 0, 0, ICore::dialogParent()));
             progressDialog->setWindowTitle(Tr::tr("Download Extension"));
             progressDialog->setWindowModality(Qt::ApplicationModal);
+            progressDialog->setMinimumDuration(INT_MAX); // In order to suppress calls to processEvents() from setValue()
             progressDialog->setFixedSize(progressDialog->sizeHint());
             progressDialog->setAutoClose(false);
             progressDialog->show(); // TODO: Should not be needed. Investigate possible QT_BUG
