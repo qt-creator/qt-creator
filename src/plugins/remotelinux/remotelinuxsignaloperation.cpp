@@ -77,11 +77,11 @@ void RemoteLinuxSignalOperation::interruptProcess(qint64 pid)
 
 void RemoteLinuxSignalOperation::runnerDone()
 {
-    Result result = Result::Ok;
+    Result<> result = ResultOk;
     if (m_process->exitStatus() != QProcess::NormalExit) {
-        result = Result::Error(m_process->errorString());
+        result = ResultError(m_process->errorString());
     } else if (m_process->exitCode() != 0) {
-        result = Result::Error(Tr::tr("Exit code is %1. stderr:").arg(m_process->exitCode())
+        result = ResultError(Tr::tr("Exit code is %1. stderr:").arg(m_process->exitCode())
                          + ' ' + QString::fromLatin1(m_process->rawStdErr()));
     }
     m_process.release()->deleteLater();

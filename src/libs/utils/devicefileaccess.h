@@ -43,15 +43,15 @@ protected:
     virtual bool isDirectory(const FilePath &filePath) const;
     virtual bool isSymLink(const FilePath &filePath) const;
     virtual bool hasHardLinks(const FilePath &filePath) const;
-    virtual Result ensureWritableDirectory(const FilePath &filePath) const;
+    virtual Result<> ensureWritableDirectory(const FilePath &filePath) const;
     virtual bool ensureExistingFile(const FilePath &filePath) const;
     virtual bool createDirectory(const FilePath &filePath) const;
     virtual bool exists(const FilePath &filePath) const;
-    virtual Result removeFile(const FilePath &filePath) const;
-    virtual Result removeRecursively(const FilePath &filePath) const;
-    virtual Result copyFile(const FilePath &filePath, const FilePath &target) const;
-    virtual Result copyRecursively(const FilePath &filePath, const FilePath &target) const;
-    virtual Result renameFile(const FilePath &filePath, const FilePath &target) const;
+    virtual Result<> removeFile(const FilePath &filePath) const;
+    virtual Result<> removeRecursively(const FilePath &filePath) const;
+    virtual Result<> copyFile(const FilePath &filePath, const FilePath &target) const;
+    virtual Result<> copyRecursively(const FilePath &filePath, const FilePath &target) const;
+    virtual Result<> renameFile(const FilePath &filePath, const FilePath &target) const;
 
     virtual FilePath symLinkTarget(const FilePath &filePath) const;
     virtual FilePathInfo filePathInfo(const FilePath &filePath) const;
@@ -105,15 +105,15 @@ protected:
     bool isDirectory(const FilePath &filePath) const override;
     bool isSymLink(const FilePath &filePath) const override;
     bool hasHardLinks(const FilePath &filePath) const override;
-    Result ensureWritableDirectory(const FilePath &filePath) const override;
+    Result<> ensureWritableDirectory(const FilePath &filePath) const override;
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
-    Result removeFile(const FilePath &filePath) const override;
-    Result removeRecursively(const FilePath &filePath) const override;
-    Result copyFile(const FilePath &filePath, const FilePath &target) const override;
-    Result copyRecursively(const FilePath &filePath, const FilePath &target) const override;
-    Result renameFile(const FilePath &filePath, const FilePath &target) const override;
+    Result<> removeFile(const FilePath &filePath) const override;
+    Result<> removeRecursively(const FilePath &filePath) const override;
+    Result<> copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result<> copyRecursively(const FilePath &filePath, const FilePath &target) const override;
+    Result<> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePath symLinkTarget(const FilePath &filePath) const override;
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
@@ -163,14 +163,14 @@ protected:
     bool isDirectory(const FilePath &filePath) const override;
     bool isSymLink(const FilePath &filePath) const override;
     bool hasHardLinks(const FilePath &filePath) const override;
-    Result ensureWritableDirectory(const FilePath &filePath) const override;
+    Result<> ensureWritableDirectory(const FilePath &filePath) const override;
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
-    Result removeFile(const FilePath &filePath) const override;
-    Result removeRecursively(const FilePath &filePath) const override;
-    Result copyFile(const FilePath &filePath, const FilePath &target) const override;
-    Result renameFile(const FilePath &filePath, const FilePath &target) const override;
+    Result<> removeFile(const FilePath &filePath) const override;
+    Result<> removeRecursively(const FilePath &filePath) const override;
+    Result<> copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result<> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePath symLinkTarget(const FilePath &filePath) const override;
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
@@ -214,7 +214,7 @@ public:
 protected:
     virtual RunResult runInShell(const CommandLine &cmdLine,
                                  const QByteArray &inputData = {}) const = 0;
-    Result runInShellSuccess(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
+    Result<> runInShellSuccess(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
 
     bool isExecutableFile(const FilePath &filePath) const override;
     bool isReadableFile(const FilePath &filePath) const override;
@@ -228,10 +228,10 @@ protected:
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
-    Result removeFile(const FilePath &filePath) const override;
-    Result removeRecursively(const FilePath &filePath) const override;
-    Result copyFile(const FilePath &filePath, const FilePath &target) const override;
-    Result renameFile(const FilePath &filePath, const FilePath &target) const override;
+    Result<> removeFile(const FilePath &filePath) const override;
+    Result<> removeRecursively(const FilePath &filePath) const override;
+    Result<> copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result<> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
     FilePath symLinkTarget(const FilePath &filePath) const override;

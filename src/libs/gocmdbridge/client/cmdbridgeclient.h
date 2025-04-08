@@ -26,7 +26,7 @@ public:
     Client(const Utils::FilePath &remoteCmdBridgePath, const Utils::Environment &env);
     ~Client();
 
-    Utils::Result start(bool deleteOnExit = false);
+    Utils::Result<> start(bool deleteOnExit = false);
 
     static Utils::expected_str<Utils::FilePath> getCmdBridgePath(Utils::OsType osType,
                                                                  Utils::OsArch osArch,

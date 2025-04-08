@@ -45,8 +45,8 @@ public:
     ExtensionSystem::IPlugin *plugin() const override;
     Utils::FilePath installLocation(bool inUserFolder) const override;
 
-    Utils::Result fromJson(const QJsonObject &remoteJsonData);
-    Utils::Result fromJson(const QJsonObject &remoteJsonData, const QString &version);
+    Utils::Result<> fromJson(const QJsonObject &remoteJsonData);
+    Utils::Result<> fromJson(const QJsonObject &remoteJsonData, const QString &version);
 
     QString id() const override;
     QString displayName() const override;

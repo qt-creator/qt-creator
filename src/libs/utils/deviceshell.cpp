@@ -161,7 +161,7 @@ CommandLine DeviceShell::createFallbackCommand(const CommandLine &cmd)
  *
  * \note You have to call this function when deriving from DeviceShell. Current implementations call the function from their constructor.
  */
-Result DeviceShell::start()
+Result<> DeviceShell::start()
 {
     m_shellProcess = std::make_unique<Process>();
     connect(m_shellProcess.get(), &Process::done, m_shellProcess.get(),
@@ -249,11 +249,11 @@ expected_str<QByteArray> DeviceShell::checkCommand(const QByteArray &command)
     return out;
 }
 
-Result DeviceShell::installShellScript()
+Result<> DeviceShell::installShellScript()
 {
     if (m_forceFailScriptInstallation) {
         m_shellScriptState = State::Failed;
-        return Result::Error(Tr::tr("Script installation was forced to fail."));
+        return ResultError(Tr::tr("Script installation was forced to fail."));
     }
 
     static const QList<QByteArray> requiredCommands
@@ -262,7 +262,7 @@ Result DeviceShell::installShellScript()
     for (const QByteArray &command : requiredCommands) {
         auto checkResult = checkCommand(command);
         if (!checkResult)
-            return Result::Error(checkResult.error());
+            return ResultError(checkResult.error());
     }
 
     const static QByteArray shellScriptBase64 = FilePath(":/utils/scripts/deviceshell.sh")
@@ -279,16 +279,16 @@ Result DeviceShell::installShellScript()
 
     while (m_shellScriptState == State::Unknown) {
         if (!m_shellProcess->waitForReadyRead(5s))
-            return Result::Error(Tr::tr("Timeout while waiting for shell script installation."));
+            return ResultError(Tr::tr("Timeout while waiting for shell script installation."));
 
         QByteArray out = m_shellProcess->readAllRawStandardError();
         if (out.contains("SCRIPT_INSTALLED") && !out.contains("ERROR_INSTALL_SCRIPT")) {
             m_shellScriptState = State::Succeeded;
-            return Result::Ok;
+            return ResultOk;
         }
         if (out.contains("ERROR_INSTALL_SCRIPT")) {
             m_shellScriptState = State::Failed;
-            return Result::Error(
+            return ResultError(
                 Tr::tr("Failed to install shell script: %1").arg(QString::fromUtf8(out)));
         }
         if (!out.isEmpty()) {
@@ -297,7 +297,7 @@ Result DeviceShell::installShellScript()
         }
     }
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 void DeviceShell::closeShellProcess()

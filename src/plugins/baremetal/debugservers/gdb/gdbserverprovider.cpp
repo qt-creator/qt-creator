@@ -127,17 +127,17 @@ bool GdbServerProvider::isValid() const
     return !channelString().isEmpty();
 }
 
-Result GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
+Result<> GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
                                                      RunControl *runControl) const
 {
     Q_UNUSED(runControl)
     const CommandLine cmd = rp.inferior().command;
     const FilePath bin = FilePath::fromString(cmd.executable().path());
     if (bin.isEmpty()) {
-        return Result::Error(Tr::tr("Cannot debug: Local executable is not set."));
+        return ResultError(Tr::tr("Cannot debug: Local executable is not set."));
     }
     if (!bin.exists()) {
-        return Result::Error(Tr::tr("Cannot debug: Could not find executable for \"%1\".")
+        return ResultError(Tr::tr("Cannot debug: Could not find executable for \"%1\".")
                                  .arg(bin.toUserOutput()));
     }
 
@@ -153,7 +153,7 @@ Result GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
     rp.setUseContinueInsteadOfRun(true);
     rp.setUseExtendedRemote(useExtendedRemote());
     rp.setPeripheralDescriptionFile(m_peripheralDescriptionFile);
-    return Result::Ok;
+    return ResultOk;
 }
 
 RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const

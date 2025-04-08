@@ -68,7 +68,7 @@ public:
 
     virtual OpenResult open(QString *errorString, const Utils::FilePath &filePath, const Utils::FilePath &realFilePath);
 
-    Utils::Result save(const Utils::FilePath &filePath = {}, bool autoSave = false);
+    Utils::Result<> save(const Utils::FilePath &filePath = {}, bool autoSave = false);
 
     virtual QByteArray contents() const;
     virtual bool setContents(const QByteArray &contents);
@@ -100,11 +100,11 @@ public:
     void setSuspendAllowed(bool value);
 
     virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    virtual Utils::Result reload(ReloadFlag flag, ChangeType type);
+    virtual Utils::Result<> reload(ReloadFlag flag, ChangeType type);
 
     void checkPermissions();
 
-    Utils::Result autoSave(const Utils::FilePath &filePath);
+    Utils::Result<> autoSave(const Utils::FilePath &filePath);
     void setRestoredFrom(const Utils::FilePath &path);
     void removeAutoSaveFile();
 
@@ -131,7 +131,7 @@ signals:
     void filePathChanged(const Utils::FilePath &oldName, const Utils::FilePath &newName);
 
 protected:
-    virtual Utils::Result saveImpl(const Utils::FilePath &filePath = {}, bool autoSave = false);
+    virtual Utils::Result<> saveImpl(const Utils::FilePath &filePath = {}, bool autoSave = false);
 
 private:
     Internal::IDocumentPrivate *d;

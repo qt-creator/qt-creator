@@ -155,7 +155,7 @@ public:
 
     bool isWritableDir() const;
     bool isWritableFile() const;
-    Result ensureWritableDir() const;
+    Result<> ensureWritableDir() const;
     bool ensureExistingFile() const;
     bool isExecutableFile() const;
     bool isReadableFile() const;
@@ -173,11 +173,11 @@ public:
     QFile::Permissions permissions() const;
     bool setPermissions(QFile::Permissions permissions) const;
     OsType osType() const;
-    Result removeFile() const;
-    Result removeRecursively() const;
-    Result copyRecursively(const FilePath &target) const;
-    Result copyFile(const FilePath &target) const;
-    Result renameFile(const FilePath &target) const;
+    Result<> removeFile() const;
+    Result<> removeRecursively() const;
+    Result<> copyRecursively(const FilePath &target) const;
+    Result<> copyFile(const FilePath &target) const;
+    Result<> renameFile(const FilePath &target) const;
     qint64 fileSize() const;
     qint64 bytesAvailable() const;
     bool createDir() const;

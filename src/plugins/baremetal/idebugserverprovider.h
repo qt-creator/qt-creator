@@ -9,6 +9,7 @@
 
 #include <utils/filepath.h>
 #include <utils/store.h>
+#include <utils/result.h>
 
 #include <QSet>
 #include <QUrl>
@@ -27,8 +28,6 @@ namespace ProjectExplorer {
 class RunControl;
 class RunWorker;
 }
-
-namespace Utils { class Result; }
 
 namespace BareMetal::Internal {
 
@@ -69,7 +68,7 @@ public:
     virtual void toMap(Utils::Store &data) const;
     virtual void fromMap(const Utils::Store &data);
 
-    virtual Utils::Result setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
+    virtual Utils::Result<> setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
                                                      ProjectExplorer::RunControl *runControl) const = 0;
     virtual ProjectExplorer::RunWorker *targetRunner(
             ProjectExplorer::RunControl *runControl) const = 0;

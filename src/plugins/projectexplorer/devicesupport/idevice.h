@@ -68,7 +68,7 @@ public:
 
 signals:
     // If the error message is empty the operation was successful
-    void finished(const Utils::Result &result);
+    void finished(const Utils::Result<> &result);
 
 protected:
     explicit DeviceProcessSignalOperation();
@@ -308,7 +308,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessKiller : public QObject
 public:
     void setProcessPath(const Utils::FilePath &path) { m_processPath = path; }
     void start();
-    Utils::Result result() const { return m_result; }
+    Utils::Result<> result() const { return m_result; }
 
 signals:
     void done(Tasking::DoneResult result);
@@ -316,7 +316,7 @@ signals:
 private:
     Utils::FilePath m_processPath;
     DeviceProcessSignalOperation::Ptr m_signalOperation;
-    Utils::Result m_result = Utils::Result::Ok;
+    Utils::Result<> m_result = Utils::ResultOk;
 };
 
 using DeviceProcessKillerTask = Tasking::SimpleCustomTask<DeviceProcessKiller>;

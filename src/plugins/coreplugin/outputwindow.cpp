@@ -321,7 +321,7 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
             Utils::TextFileFormat format;
             format.setCodecName(EditorManager::defaultTextCodecName());
             format.lineTerminationMode = EditorManager::defaultLineEnding();
-            if (const Result res = format.writeFile(file, toPlainText()); !res)
+            if (const Result<> res = format.writeFile(file, toPlainText()); !res)
                 MessageManager::writeDisrupting(res.error());
         }
     });

@@ -385,7 +385,7 @@ void GdbEngine::handleResponse(const QString &buff)
             else if (resultClass == u"connected")
                 response.resultClass = ResultConnected;
             else if (resultClass == u"error")
-                response.resultClass = ResultError;
+                response.resultClass = ResultFail;
             else if (resultClass == u"exit")
                 response.resultClass = ResultExit;
             else
@@ -686,7 +686,7 @@ void GdbEngine::interruptInferior()
             DeviceProcessSignalOperation::Ptr signalOperation = dev->signalOperation();
             QTC_ASSERT(signalOperation, notifyInferiorStopFailed(); return);
             connect(signalOperation.get(), &DeviceProcessSignalOperation::finished,
-                    this, [this, signalOperation](const Result &result) {
+                    this, [this, signalOperation](const Result<> &result) {
                         if (result) {
                             showMessage("Interrupted " + QString::number(inferiorPid()));
                             notifyInferiorStopOk();
@@ -720,7 +720,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
             .arg(cmd.function).arg(state()));
         if (cmd.callback) {
             DebuggerResponse response;
-            response.resultClass = ResultError;
+            response.resultClass = ResultFail;
             cmd.callback(response);
         }
         return;
@@ -864,7 +864,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         showMessage(QString("COOKIE FOR TOKEN %1 ALREADY EATEN (%2). "
                             "TWO RESPONSES FOR ONE COMMAND?").arg(token).
                     arg(stateName(state())));
-        if (response->resultClass == ResultError) {
+        if (response->resultClass == ResultFail) {
             QString msg = response->data["msg"].data();
             if (msg == "Cannot find new threads: generic error") {
                 // Handle a case known to occur on Linux/gdb 6.8 when debugging moc
@@ -955,7 +955,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
     }
 
     bool isExpectedResult =
-           (response->resultClass == ResultError) // Can always happen.
+           (response->resultClass == ResultFail) // Can always happen.
         || (response->resultClass == ResultRunning && (flags & RunRequest))
         || (response->resultClass == ResultExit && (flags & ExitRequest))
         || (response->resultClass == ResultDone);
@@ -1059,7 +1059,7 @@ void GdbEngine::handleExecuteJumpToLine(const DebuggerResponse &response)
         // All is fine. Waiting for a *running
         // and the temporary breakpoint to be hit.
         notifyInferiorRunOk(); // Only needed for gdb < 7.0.
-    } else if (response.resultClass == ResultError) {
+    } else if (response.resultClass == ResultFail) {
         // Could be "Unreasonable jump request" or similar.
         QString out = Tr::tr("Cannot jump. Stopped.");
         QString msg = response.data["msg"].data();
@@ -1509,7 +1509,7 @@ void GdbEngine::handleShowVersion(const DebuggerResponse &response)
 void GdbEngine::handleDumperSetup(const DebuggerResponse &response)
 {
     CHECK_STATE(EngineSetupRequested);
-    if (response.resultClass == ResultError) {
+    if (response.resultClass == ResultFail) {
         const QString msg = response.data["msg"].data();
         if (property("lru_fail").toBool() && msg.contains("Error while executing Python code.")) {
             AsynchronousMessageBox::critical(
@@ -4709,7 +4709,7 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
         }
         break;
     }
-    case ResultError:
+    case ResultFail:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             const QString msg = msgPtraceError(runParameters().startMode());
             showStatusMessage(Tr::tr("Failed to attach to application: %1").arg(msg));
@@ -4740,7 +4740,7 @@ void GdbEngine::handleRemoteAttach(const DebuggerResponse &response)
         handleInferiorPrepared();
         break;
     }
-    case ResultError:
+    case ResultFail:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode()));
             break;
@@ -4881,7 +4881,7 @@ void GdbEngine::handleExecRun(const DebuggerResponse &response)
 void GdbEngine::handleSetTargetAsync(const DebuggerResponse &response)
 {
     CHECK_STATE(EngineSetupRequested);
-    if (response.resultClass == ResultError)
+    if (response.resultClass == ResultFail)
         qDebug() << "Adapter too old: does not support asynchronous mode.";
 }
 
@@ -5001,7 +5001,7 @@ void GdbEngine::handleSetNtoExecutable(const DebuggerResponse &response)
         handleInferiorPrepared();
         break;
     }
-    case ResultError:
+    case ResultFail:
     default:
         notifyInferiorSetupFailedHelper(response.data["msg"].data());
     }
@@ -5050,7 +5050,7 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
             // Wait for the upcoming *stopped and handle it there.
         }
         break;
-    case ResultError:
+    case ResultFail:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode()));
             break;
@@ -5138,7 +5138,7 @@ void GdbEngine::handleTargetCore(const DebuggerResponse &response)
     CHECK_STATE(EngineRunRequested);
     notifyEngineRunOkAndInferiorUnrunnable();
     showMessage(Tr::tr("Attached to core."), StatusBar);
-    if (response.resultClass == ResultError) {
+    if (response.resultClass == ResultFail) {
         // We'll accept any kind of error e.g. &"Cannot access memory at address 0x2abc2a24\n"
         // Even without the stack, the user can find interesting stuff by exploring
         // the memory, globals etc.

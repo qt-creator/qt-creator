@@ -1311,7 +1311,7 @@ expected_str<QString> DockManager::cloneWorkspace(const QString &originalFileNam
 
     const FilePath clonePath = workspaceNameToFilePath(cloneName);
 
-    const Result copyResult = originalPath.copyFile(clonePath);
+    const Result<> copyResult = originalPath.copyFile(clonePath);
     if (!copyResult)
         return make_unexpected(Tr::tr("Could not clone \"%1\" due to: %2")
                                    .arg(originalPath.toUserOutput(), copyResult.error()));
@@ -1337,21 +1337,21 @@ expected_str<QString> DockManager::renameWorkspace(const QString &originalFileNa
     return originalFileName;
 }
 
-Result DockManager::resetWorkspacePreset(const QString &fileName)
+Result<> DockManager::resetWorkspacePreset(const QString &fileName)
 {
     qCInfo(adsLog) << "Reset workspace" << fileName;
 
     Workspace *w = workspace(fileName);
     if (!w)
-        return Result::Error(Tr::tr("Workspace \"%1\" does not exist.").arg(fileName));
+        return ResultError(Tr::tr("Workspace \"%1\" does not exist.").arg(fileName));
 
     if (!w->isPreset())
-        return Result::Error(Tr::tr("Workspace \"%1\" is not a preset.").arg(fileName));
+        return ResultError(Tr::tr("Workspace \"%1\" is not a preset.").arg(fileName));
 
     const FilePath filePath = w->filePath();
 
     if (!filePath.removeFile())
-        return Result::Error(Tr::tr("Cannot remove \"%1\".").arg(filePath.toUserOutput()));
+        return ResultError(Tr::tr("Cannot remove \"%1\".").arg(filePath.toUserOutput()));
 
     return presetDirectory().pathAppended(fileName).copyFile(filePath);
 }
@@ -1400,7 +1400,7 @@ expected_str<QString> DockManager::importWorkspace(const QString &filePath)
 
     const FilePath targetFilePath = userDirectory().pathAppended(fileName);
 
-    const Result copyResult = sourceFilePath.copyFile(targetFilePath);
+    const Result<> copyResult = sourceFilePath.copyFile(targetFilePath);
     if (!copyResult)
         return make_unexpected(
             Tr::tr("Could not copy \"%1\" to \"%2\" due to: %3")
@@ -1441,7 +1441,7 @@ expected_str<QString> DockManager::exportWorkspace(const QString &targetFilePath
             Tr::tr("The workspace \"%1\" does not exist ").arg(workspaceFile.toUserOutput()));
 
     // Finally copy the workspace to the target
-    const Result copyResult = workspaceFile.copyFile(targetFile);
+    const Result<> copyResult = workspaceFile.copyFile(targetFile);
     if (!copyResult)
         return make_unexpected(
             Tr::tr("Could not copy \"%1\" to \"%2\" due to: %3")
@@ -1675,7 +1675,7 @@ void DockManager::syncWorkspacePresets()
             continue;
         }
 
-        const Result copyResult = filePath.copyFile(
+        const Result<> copyResult = filePath.copyFile(
             userDirectory().pathAppended(filePath.fileName()));
         if (!copyResult)
             qWarning() << QString("Could not copy '%1' to '%2' due to %3")

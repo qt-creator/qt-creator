@@ -59,7 +59,7 @@ public:
 
     Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const override;
 
-    Utils::Result updateContainerAccess() const;
+    Utils::Result<> updateContainerAccess() const;
     void setMounts(const QStringList &mounts) const;
 
     bool prepareForBuild(const ProjectExplorer::Target *target) override;

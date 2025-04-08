@@ -3,12 +3,12 @@
 
 #pragma once
 
+#include <utils/result.h>
+
 #include <QMap>
 #include <QStringList>
 
 namespace Core { class GeneratedFile; }
-
-namespace Utils { class Result; }
 
 namespace ProjectExplorer::Internal {
 
@@ -26,7 +26,7 @@ QList<Core::GeneratedFile>
                                       QString *errorMessage);
 
 // Step 2) Generate files
-Utils::Result runCustomWizardGeneratorScript(const QString &targetPath,
+Utils::Result<> runCustomWizardGeneratorScript(const QString &targetPath,
                                              const QStringList &script,
                                              const QList<GeneratorScriptArgument> &arguments,
                                              const QMap<QString, QString> &fieldMap);

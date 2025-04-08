@@ -88,7 +88,7 @@ public:
 
     static void reInstallPlugins();
 
-    static Utils::Result removePluginOnRestart(const QString &id);
+    static Utils::Result<> removePluginOnRestart(const QString &id);
     static void installPluginOnRestart(
         const Utils::FilePath &source, const Utils::FilePath &destination);
 

@@ -25,7 +25,7 @@ namespace ProjectExplorer::Internal {
 class JsonWizardScannerGenerator final : public JsonWizardGenerator
 {
 public:
-    Result setup(const QVariant &data);
+    Result<> setup(const QVariant &data);
 
     Core::GeneratedFiles fileList(MacroExpander *expander,
                                   const FilePath &wizardDir,
@@ -39,13 +39,13 @@ private:
     QList<QRegularExpression> m_subDirectoryExpressions;
 };
 
-Result JsonWizardScannerGenerator::setup(const QVariant &data)
+Result<> JsonWizardScannerGenerator::setup(const QVariant &data)
 {
     if (data.isNull())
-        return Result::Ok;
+        return ResultOk;
 
     if (data.typeId() != QMetaType::QVariantMap)
-        return Result::Error(Tr::tr("Key is not an object."));
+        return ResultError(Tr::tr("Key is not an object."));
 
     QVariantMap gen = data.toMap();
 
@@ -54,11 +54,11 @@ Result JsonWizardScannerGenerator::setup(const QVariant &data)
     for (const QString &pattern : patterns) {
         QRegularExpression regexp(pattern);
         if (!regexp.isValid())
-            return Result::Error(Tr::tr("Pattern \"%1\" is no valid regular expression."));
+            return ResultError(Tr::tr("Pattern \"%1\" is no valid regular expression."));
         m_subDirectoryExpressions << regexp;
     }
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *expander,

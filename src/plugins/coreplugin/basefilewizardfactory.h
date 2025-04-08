@@ -72,7 +72,7 @@ protected:
     virtual GeneratedFiles generateFiles(const QWizard *w,
                                          QString *errorMessage) const = 0;
 
-    virtual Utils::Result writeFiles(const GeneratedFiles &files) const;
+    virtual Utils::Result<> writeFiles(const GeneratedFiles &files) const;
 
     virtual bool postGenerateFiles(const QWizard *w, const GeneratedFiles &l, QString *errorMessage) const;
 

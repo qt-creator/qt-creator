@@ -72,7 +72,7 @@ private:
 
 GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
 {
-    const auto onSetup = [storage](Async<Result> &async) {
+    const auto onSetup = [storage](Async<Result<>> &async) {
         FilePaths remoteDirs;
         for (const FileToTransfer &file : *storage)
             remoteDirs << file.m_target.parentDir();
@@ -80,9 +80,9 @@ GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
         FilePath::sort(remoteDirs);
         FilePath::removeDuplicates(remoteDirs);
 
-        async.setConcurrentCallData([remoteDirs](QPromise<Result> &promise) {
+        async.setConcurrentCallData([remoteDirs](QPromise<Result<>> &promise) {
             for (const FilePath &dir : remoteDirs) {
-                const Result result = dir.ensureWritableDir();
+                const Result<> result = dir.ensureWritableDir();
                 promise.addResult(result);
                 if (!result)
                     promise.future().cancel();
@@ -90,7 +90,7 @@ GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
         });
     };
 
-    const auto onError = [this](const Async<Result> &async) {
+    const auto onError = [this](const Async<Result<>> &async) {
         const int numResults = async.future().resultCount();
         if (numResults == 0) {
             addErrorMessage(
@@ -99,13 +99,13 @@ GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
         }
 
         for (int i = 0; i < numResults; ++i) {
-            const Result result = async.future().resultAt(i);
+            const Result<> result = async.future().resultAt(i);
             if (!result)
                 addErrorMessage(result.error());
         }
     };
 
-    return AsyncTask<Result>(onSetup, onError, CallDoneIf::Error);
+    return AsyncTask<Result<>>(onSetup, onError, CallDoneIf::Error);
 }
 
 static FileTransferMethod effectiveTransferMethodFor(const FileToTransfer &fileToTransfer,

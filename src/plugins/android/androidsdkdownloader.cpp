@@ -178,7 +178,7 @@ GroupItem downloadSdkRecipe()
         if (result == DoneWith::Cancel)
             return;
 
-        const Result unarchiveResult = task.result();
+        const Result<> unarchiveResult = task.result();
 
         if (!unarchiveResult) {
             logError(Tr::tr("Unarchiving error: %1").arg(unarchiveResult.error()));

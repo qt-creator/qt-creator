@@ -133,7 +133,7 @@ public:
     static void renameFilesForSymbol(const QString &oldSymbolName, const QString &newSymbolName,
                                      const Utils::FilePaths &files, bool preferLowerCaseFileNames);
 
-    static Utils::Result canRunStartupProject(Utils::Id runMode);
+    static Utils::Result<> canRunStartupProject(Utils::Id runMode);
     static void runProject(Project *pro, Utils::Id, const bool forceSkipDeploy = false);
     static void runStartupProject(Utils::Id runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, Utils::Id runMode,

@@ -333,9 +333,9 @@ TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCode
     returns an error message, \a errorString.
 */
 
-Result TextFileFormat::writeFile(const FilePath &filePath, QString plainText) const
+Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) const
 {
-    QTC_ASSERT(m_codec, return Result::Error("No codec"));
+    QTC_ASSERT(m_codec, return ResultError("No codec"));
 
     // Does the user want CRLF? If that is native,
     // do not let QFile do the work, because it replaces the line ending after the text was encoded,
@@ -356,7 +356,7 @@ Result TextFileFormat::writeFile(const FilePath &filePath, QString plainText) co
     if (debug)
         qDebug().nospace() << Q_FUNC_INFO << filePath << ' ' << *this <<  ' ' << plainText.size()
                            << " bytes, returns " << ok;
-    return ok ? Result::Ok : Result::Error(errorString);
+    return ok ? ResultOk : ResultError(errorString);
 }
 
 } // namespace Utils

@@ -621,7 +621,7 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
 
     \sa createDir()
 */
-Result FilePath::ensureWritableDir() const
+Result<> FilePath::ensureWritableDir() const
 {
     return fileAccess()->ensureWritableDirectory(*this);
 }
@@ -2020,7 +2020,7 @@ OsType FilePath::osType() const
     return deviceFileHooks().osType(*this);
 }
 
-Result FilePath::removeFile() const
+Result<> FilePath::removeFile() const
 {
     return fileAccess()->removeFile(*this);
 }
@@ -2028,23 +2028,23 @@ Result FilePath::removeFile() const
 /*!
     Removes the directory this filePath refers too and its subdirectories recursively.
 */
-Result FilePath::removeRecursively() const
+Result<> FilePath::removeRecursively() const
 {
     return fileAccess()->removeRecursively(*this);
 }
 
-Result FilePath::copyRecursively(const FilePath &target) const
+Result<> FilePath::copyRecursively(const FilePath &target) const
 {
     return fileAccess()->copyRecursively(*this, target);
 }
 
-Result FilePath::copyFile(const FilePath &target) const
+Result<> FilePath::copyFile(const FilePath &target) const
 {
     if (!isSameDevice(target)) {
         // FIXME: This does not scale.
         const expected_str<QByteArray> contents = fileContents();
         if (!contents) {
-            return Result::Error(
+            return ResultError(
                 Tr::tr("Error while trying to copy file: %1").arg(contents.error()));
         }
 
@@ -2052,37 +2052,37 @@ Result FilePath::copyFile(const FilePath &target) const
         const expected_str<qint64> copyResult = target.writeFileContents(*contents);
 
         if (!copyResult)
-            return Result::Error(Tr::tr("Could not copy file: %1").arg(copyResult.error()));
+            return ResultError(Tr::tr("Could not copy file: %1").arg(copyResult.error()));
 
         if (!target.setPermissions(perms)) {
             target.removeFile();
-            return Result::Error(
+            return ResultError(
                 Tr::tr("Could not set permissions on \"%1\"").arg(target.toUrlishString()));
         }
 
-        return Result::Ok;
+        return ResultOk;
     }
     return fileAccess()->copyFile(*this, target);
 }
 
-Result FilePath::renameFile(const FilePath &target) const
+Result<> FilePath::renameFile(const FilePath &target) const
 {
     if (isSameDevice(target))
         return fileAccess()->renameFile(*this, target);
 
-    const Result copyResult = copyFile(target);
+    const Result<> copyResult = copyFile(target);
     if (!copyResult)
         return copyResult;
 
-    const Result removeResult = removeFile();
+    const Result<> removeResult = removeFile();
     if (removeResult)
-        return Result::Ok;
+        return ResultOk;
 
     // If we fail to remove the source file, we remove the target file to return to the
     // original state.
-    Result rmResult = target.removeFile();
+    Result<> rmResult = target.removeFile();
     QTC_CHECK_EXPECTED(rmResult);
-    return Result::Error(
+    return ResultError(
         Tr::tr("Failed to move %1 to %2. Removing the source file failed: %3")
             .arg(toUserOutput())
             .arg(target.toUserOutput())

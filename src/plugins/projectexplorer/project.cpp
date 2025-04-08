@@ -144,13 +144,13 @@ public:
         return BehaviorSilent;
     }
 
-    Result reload(ReloadFlag flag, ChangeType type) final
+    Result<> reload(ReloadFlag flag, ChangeType type) final
     {
         Q_UNUSED(flag)
         Q_UNUSED(type)
 
         emit m_project->projectFileIsDirty(filePath());
-        return Result::Ok;
+        return ResultOk;
     }
 
 private:

@@ -122,22 +122,22 @@ public:
 
 using CheckResult = expected_str<PluginSpec *>;
 
-static Result checkPlugin(PluginSpec *spec, bool update)
+static Result<> checkPlugin(PluginSpec *spec, bool update)
 {
     const bool pluginAlreadyExists = PluginManager::specExists(spec->id());
 
     if (!update && pluginAlreadyExists) {
-        return Result::Error(
+        return ResultError(
             Tr::tr("A plugin with ID \"%1\" is already installed.").arg(spec->id()));
     } else if (update && !pluginAlreadyExists) {
-        return Result::Error(Tr::tr("No plugin with ID \"%1\" is installed.").arg(spec->id()));
+        return ResultError(Tr::tr("No plugin with ID \"%1\" is installed.").arg(spec->id()));
     }
 
     if (!spec->resolveDependencies(PluginManager::plugins())) {
-        return Result::Error(
+        return ResultError(
             Tr::tr("Plugin failed to resolve dependencies:") + " " + spec->errorString());
     }
-    return Result::Ok;
+    return ResultOk;
 }
 
 static expected_str<std::unique_ptr<PluginSpec>> checkPlugin(
@@ -145,7 +145,7 @@ static expected_str<std::unique_ptr<PluginSpec>> checkPlugin(
 {
     if (!spec)
         return spec;
-    const Result ok = checkPlugin(spec->get(), update);
+    const Result<> ok = checkPlugin(spec->get(), update);
     if (ok)
         return spec;
     return Utils::make_unexpected(ok.error());
@@ -166,7 +166,7 @@ void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir, bool
     }
 
     PluginSpec *plugin = plugins.front();
-    const Result ok = checkPlugin(plugin, update);
+    const Result<> ok = checkPlugin(plugin, update);
     if (!ok) {
         promise.addResult(Utils::make_unexpected(ok.error()));
         delete plugin;
@@ -512,7 +512,7 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
                                          / extensionId(data.pluginSpec.get());
 
             if (prepareForUpdate) {
-                const Result result = ExtensionSystem::PluginManager::removePluginOnRestart(
+                const Result<> result = ExtensionSystem::PluginManager::removePluginOnRestart(
                     data.pluginSpec->id());
                 if (!result) {
                     qWarning() << "Failed to remove plugin" << data.pluginSpec->id() << ":"

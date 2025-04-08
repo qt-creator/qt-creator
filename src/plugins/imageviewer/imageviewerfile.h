@@ -39,7 +39,7 @@ public:
                     const Utils::FilePath &realFilePath) override;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
-    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
+    Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
 
     QMovie *movie() const;
 

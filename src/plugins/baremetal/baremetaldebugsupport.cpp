@@ -58,7 +58,7 @@ public:
             if (RunWorker *runner = p->targetRunner(runControl))
                 debugger->addStartDependency(runner);
 
-            if (Result res = p->setupDebuggerRunParameters(debugger->runParameters(), runControl); !res)
+            if (Result<> res = p->setupDebuggerRunParameters(debugger->runParameters(), runControl); !res)
                 debugger->reportFailure(res.error()); // TODO: reportFailure won't work from RunWorker's c'tor.
 
             return debugger;

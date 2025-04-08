@@ -45,8 +45,9 @@ void PersistentSettingsTest::tst_readwrite()
     const FilePath filePath = FilePath::fromFileInfo(fi);
     PersistentSettingsWriter writer(filePath, "Narf");
     const Store originalData = generateData();
-    const Result res = writer.save(originalData, false);
-    QVERIFY2(res, res.error().toLocal8Bit());
+    const Result<> res = writer.save(originalData, false);
+    if (!res)
+        QVERIFY2(false, res.error().toLocal8Bit());
 
     // verify written data
     PersistentSettingsReader reader;

@@ -319,14 +319,14 @@ public:
 
     void setupDisconnectedAccess();
 
-    Result setupShell(const SshParameters &sshParameters, bool announce);
+    Result<> setupShell(const SshParameters &sshParameters, bool announce);
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
     bool tryToConnect(const SshParameters &sshParameters)
     {
         QMutexLocker locker(&m_scriptAccess.m_shellMutex);
-        return setupShell(sshParameters, false);
+        return setupShell(sshParameters, false).has_value();
     }
 
     bool checkDisconnectedWithWarning();
@@ -903,7 +903,7 @@ public:
     }
 
     // Call me with shell mutex locked
-    Result start(const SshParameters &parameters)
+    Result<> start(const SshParameters &parameters)
     {
         closeShell();
         setSshParameters(parameters);
@@ -920,7 +920,7 @@ public:
         connect(m_shell.get(), &DeviceShell::done, this, [this] {
             closeShell();
         });
-        Result result = m_shell->start();
+        Result<> result = m_shell->start();
         if (!result) {
             qCDebug(linuxDeviceLog) << "Failed to start shell for:" << parameters.userAtHostAndPort()
                                     << ", " << result.error();
@@ -1070,7 +1070,7 @@ LinuxDevice::LinuxDevice()
     });
 
     addDeviceAction({Tr::tr("Open Remote Shell"), [](const IDevice::Ptr &device) {
-                         Result result = device->openTerminal(Environment(), FilePath());
+                         Result<> result = device->openTerminal(Environment(), FilePath());
 
                          if (!result)
                              QMessageBox::warning(nullptr, Tr::tr("Error"), result.error());
@@ -1168,11 +1168,11 @@ void LinuxDevicePrivate::setupDisconnectedAccess()
 }
 
 // Call me with shell mutex locked
-Result LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool announce)
+Result<> LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool announce)
 {
     if (m_scriptAccess.m_handler->isRunning(sshParameters)) {
         setupConnectedAccess();
-        return Result::Ok;
+        return ResultOk;
     }
 
     invalidateEnvironmentCache();
@@ -1180,7 +1180,7 @@ Result LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool a
     if (announce)
         announceConnectionAttempt();
 
-    Result result = Result::Error("setupShell failed");
+    Result<> result = ResultError("setupShell failed");
     QMetaObject::invokeMethod(m_scriptAccess.m_handler, [this, sshParameters] {
         return m_scriptAccess.m_handler->start(sshParameters);
     }, Qt::BlockingQueuedConnection, &result);
@@ -1198,7 +1198,7 @@ Result LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool a
 
     m_cmdBridgeAccess = std::make_unique<CmdBridge::FileAccess>();
     // We have good shell access now, try to get bridge access, too:
-    Result initResult
+    Result<> initResult
         = m_cmdBridgeAccess
               ->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), getEnvironment());
     if (initResult) {
@@ -1209,7 +1209,7 @@ Result LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool a
                                   << ", falling back to slow shell access";
     }
 
-    return Result::Ok; // Both are fine.
+    return ResultOk; // Both are fine.
 }
 
 RunResult LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &data)
@@ -1218,7 +1218,7 @@ RunResult LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArra
     DEBUG(cmd.toUserOutput());
     if (checkDisconnectedWithWarning())
         return {};
-    const bool isSetup = setupShell(q->sshParameters(), true);
+    const bool isSetup = setupShell(q->sshParameters(), true).has_value();
     if (checkDisconnectedWithWarning())
         return {};
     QTC_ASSERT(isSetup, return {});

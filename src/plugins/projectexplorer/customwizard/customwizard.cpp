@@ -246,12 +246,12 @@ GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *error
     return generateWizardFiles(errorMessage);
 }
 
-Result CustomWizard::writeFiles(const GeneratedFiles &files) const
+Result<> CustomWizard::writeFiles(const GeneratedFiles &files) const
 {
-    if (const Result res = BaseFileWizardFactory::writeFiles(files); !res)
+    if (const Result<> res = BaseFileWizardFactory::writeFiles(files); !res)
         return res;
     if (d->m_parameters->filesGeneratorScript.isEmpty())
-        return Result::Ok;
+        return ResultOk;
     // Prepare run of the custom script to generate. In the case of a
     // project wizard that is entirely created by a script,
     // the target project directory might not exist.
@@ -264,10 +264,10 @@ Result CustomWizard::writeFiles(const GeneratedFiles &files) const
         if (CustomWizardPrivate::verbose)
             qDebug("Creating directory %s", qPrintable(scriptWorkingDir));
         if (!scriptWorkingDirDir.mkpath(scriptWorkingDir))
-            return Result::Error(QString("Unable to create the target directory \"%1\"").arg(scriptWorkingDir));
+            return ResultError(QString("Unable to create the target directory \"%1\"").arg(scriptWorkingDir));
     }
     // Run the custom script to actually generate the files.
-    const Result res = runCustomWizardGeneratorScript(scriptWorkingDir,
+    const Result<> res = runCustomWizardGeneratorScript(scriptWorkingDir,
                                                       d->m_parameters->filesGeneratorScript,
                                                       d->m_parameters->filesGeneratorScriptArguments,
                                                       ctx->replacements);
@@ -277,13 +277,13 @@ Result CustomWizard::writeFiles(const GeneratedFiles &files) const
     for (const GeneratedFile &generatedFile : files) {
         if (generatedFile.attributes() & GeneratedFile::CustomGeneratorAttribute) {
             if (!generatedFile.filePath().isFile()) {
-                return Result::Error(QString::fromLatin1("%1 failed to generate %2").
+                return ResultError(QString::fromLatin1("%1 failed to generate %2").
                         arg(d->m_parameters->filesGeneratorScript.back()).
                         arg(generatedFile.filePath().toUrlishString()));
             }
         }
     }
-    return Result::Ok;
+    return ResultOk;
 }
 
 GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const

@@ -252,7 +252,7 @@ Client::~Client()
         d->thread->wait(2000);
 }
 
-Result Client::start(bool deleteOnExit)
+Result<> Client::start(bool deleteOnExit)
 {
     d->thread = new QThread(this);
     d->thread->setObjectName("CmdBridgeClientThread");
@@ -275,11 +275,11 @@ Result Client::start(bool deleteOnExit)
     });
     connect(d->process, &Process::started, d->watchDogTimer, qOverload<>(&QTimer::start));
 
-    Result result = Result::Ok;
+    Result<> result = ResultOk;
 
     QMetaObject::invokeMethod(
         d->process,
-        [this, deleteOnExit]() -> Result {
+        [this, deleteOnExit]() -> Result<> {
             if (deleteOnExit)
                 d->process->setCommand({d->remoteCmdBridgePath, {"-deleteOnExit"}});
             else
@@ -395,12 +395,12 @@ Result Client::start(bool deleteOnExit)
             d->process->start();
 
             if (!d->process)
-                return Result::Error(Tr::tr("Failed starting bridge process"));
+                return ResultError(Tr::tr("Failed starting bridge process"));
 
             if (!d->process->waitForStarted())
-                return Result::Error(
+                return ResultError(
                     Tr::tr("Failed starting bridge process: %1").arg(d->process->errorString()));
-            return Result::Ok;
+            return ResultOk;
         },
         Qt::BlockingQueuedConnection,
         &result);

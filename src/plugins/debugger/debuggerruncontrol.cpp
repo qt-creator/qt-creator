@@ -88,8 +88,8 @@ class EnginesDriver : public QObject
 public:
     ~EnginesDriver() { clearEngines(); }
 
-    Result setupEngines(RunControl *runControl, const DebuggerRunParameters &rp);
-    Result checkBreakpoints() const;
+    Result<> setupEngines(RunControl *runControl, const DebuggerRunParameters &rp);
+    Result<> checkBreakpoints() const;
     QString debuggerName() const
     {
         return Utils::transform<QStringList>(m_engines, &DebuggerEngine::objectName).join(" ");
@@ -293,7 +293,7 @@ ExecutableItem DebuggerRunToolPrivate::fixupParamsRecipe()
         //    return;
         // }
 
-        if (Result res = m_runParameters.fixupParameters(q->runControl()); !res) {
+        if (Result<> res = m_runParameters.fixupParameters(q->runControl()); !res) {
             q->reportFailure(res.error());
             return false;
         }
@@ -478,11 +478,11 @@ ExecutableItem DebuggerRunToolPrivate::startEnginesRecipe(const Storage<EnginesD
     const auto setupEngines = [this, driverStorage] {
         EnginesDriver *driver = driverStorage.activeStorage();
         RunControl *rc = q->runControl();
-        if (Result res = driver->setupEngines(rc, m_runParameters); !res) {
+        if (Result<> res = driver->setupEngines(rc, m_runParameters); !res) {
             q->reportFailure(res.error());
             return false;
         }
-        if (Result res = driver->checkBreakpoints(); !res) {
+        if (Result<> res = driver->checkBreakpoints(); !res) {
             driver->showMessage(res.error(), LogWarning);
             if (settings().showUnsupportedBreakpointWarning()) {
                 bool doNotAskAgain = false;
@@ -584,13 +584,13 @@ static int newRunId()
     return ++toolRunCount;
 }
 
-Result EnginesDriver::setupEngines(RunControl *runControl, const DebuggerRunParameters &rp)
+Result<> EnginesDriver::setupEngines(RunControl *runControl, const DebuggerRunParameters &rp)
 {
     m_runControl = runControl;
     clearEngines();
     const auto engines = createEngines(runControl, rp);
     if (!engines)
-        return Result::Error(engines.error());
+        return ResultError(engines.error());
 
     m_engines = *engines;
     const QString runId = QString::number(newRunId());
@@ -606,10 +606,10 @@ Result EnginesDriver::setupEngines(RunControl *runControl, const DebuggerRunPara
         engine->setDevice(m_runControl->device());
     }
 
-    return Result::Ok;
+    return ResultOk;
 }
 
-Result EnginesDriver::checkBreakpoints() const
+Result<> EnginesDriver::checkBreakpoints() const
 {
     QStringList unhandledIds;
     bool hasQmlBreakpoints = false;
@@ -626,7 +626,7 @@ Result EnginesDriver::checkBreakpoints() const
     }
 
     if (unhandledIds.isEmpty())
-        return Result::Ok;
+        return ResultOk;
 
     QString warningMessage = Tr::tr("Some breakpoints cannot be handled by the debugger "
                                     "languages currently active, and will be ignored.<p>"
@@ -635,7 +635,7 @@ Result EnginesDriver::checkBreakpoints() const
         warningMessage += "<p>" + Tr::tr("QML debugging needs to be enabled both in the Build "
                                          "and the Run settings.");
     }
-    return Result::Error(warningMessage);
+    return ResultError(warningMessage);
 }
 
 void EnginesDriver::start()

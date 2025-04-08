@@ -194,7 +194,7 @@ enum ResultClass
     ResultDone,
     ResultRunning,
     ResultConnected,
-    ResultError,
+    ResultFail,
     ResultExit
 };
 

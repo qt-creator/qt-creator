@@ -212,15 +212,15 @@ bool FSEngineImpl::isSequential() const
 
 bool FSEngineImpl::remove()
 {
-    Result result = m_filePath.removeRecursively();
+    Result<> result = m_filePath.removeRecursively();
     if (!result)
         setError(QFile::RemoveError, result.error());
-    return result;
+    return result.has_value();
 }
 
 bool FSEngineImpl::copy(const QString &newName)
 {
-    Result result = m_filePath.copyFile(FilePath::fromString(newName));
+    Result<> result = m_filePath.copyFile(FilePath::fromString(newName));
     if (!result)
         setError(QFile::CopyError, result.error());
     return bool(result);
@@ -228,7 +228,7 @@ bool FSEngineImpl::copy(const QString &newName)
 
 bool FSEngineImpl::rename(const QString &newName)
 {
-    Result result = m_filePath.renameFile(FilePath::fromString(newName));
+    Result<> result = m_filePath.renameFile(FilePath::fromString(newName));
     if (!result)
         setError(QFile::RenameError, result.error());
     return bool(result);
@@ -258,7 +258,7 @@ bool FSEngineImpl::rmdir(const QString &dirName, bool recurseParentDirectories) 
     if (recurseParentDirectories)
         return false;
 
-    return m_filePath.pathAppended(dirName).removeRecursively();
+    return m_filePath.pathAppended(dirName).removeRecursively().has_value();
 }
 
 bool FSEngineImpl::setSize(qint64 size)

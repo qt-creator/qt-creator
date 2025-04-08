@@ -630,7 +630,7 @@ QTextDocument *TextDocument::document() const
  * If \a autoSave is true, the cursor will be restored and some signals suppressed
  * and we do not clean up the text file (cleanWhitespace(), ensureFinalNewLine()).
  */
-Result TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     QTextCursor cursor(&d->m_document);
 
@@ -685,7 +685,7 @@ Result TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
         }
     }
 
-    const Result res = write(filePath, saveFormat, plainText());
+    const Result<> res = write(filePath, saveFormat, plainText());
 
     // restore text cursor and scroll bar positions
     if (autoSave && undos < d->m_document.availableUndoSteps()) {
@@ -705,13 +705,13 @@ Result TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
 
     d->m_autoSaveRevision = d->m_document.revision();
     if (autoSave)
-        return Result::Ok;
+        return ResultOk;
 
     // inform about the new filename
     d->m_document.setModified(false); // also triggers update of the block revisions
     setFilePath(filePath.absoluteFilePath());
     emit changed();
-    return Result::Ok;
+    return ResultOk;
 }
 
 QByteArray TextDocument::contents() const
@@ -833,19 +833,19 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString,
     return OpenResult::Success;
 }
 
-Result TextDocument::reload(const QByteArray &codec)
+Result<> TextDocument::reload(const QByteArray &codec)
 {
-    QTC_ASSERT(!codec.isEmpty(), return Result::Error("No codec given"));
+    QTC_ASSERT(!codec.isEmpty(), return ResultError("No codec given"));
     setCodec(codec);
     return reload();
 }
 
-Result TextDocument::reload()
+Result<> TextDocument::reload()
 {
     return reload(filePath());
 }
 
-Result TextDocument::reload(const FilePath &realFilePath)
+Result<> TextDocument::reload(const FilePath &realFilePath)
 {
     emit aboutToReload();
     auto documentLayout =
@@ -861,7 +861,7 @@ Result TextDocument::reload(const FilePath &realFilePath)
         documentLayout->documentReloaded(this); // re-adds text marks
     emit reloadFinished(success);
 
-    return Result(success, errorString);
+    return makeResult(success, errorString);
 }
 
 bool TextDocument::setPlainText(const QString &text)
@@ -878,11 +878,11 @@ bool TextDocument::setPlainText(const QString &text)
     return true;
 }
 
-Result TextDocument::reload(ReloadFlag flag, ChangeType type)
+Result<> TextDocument::reload(ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore) {
         if (type != TypeContents)
-            return Result::Ok;
+            return ResultOk;
 
         const bool wasModified = document()->isModified();
         {
@@ -893,7 +893,7 @@ Result TextDocument::reload(ReloadFlag flag, ChangeType type)
         }
         if (!wasModified)
             modificationChanged(true);
-        return Result::Ok;
+        return ResultOk;
     }
     return reload();
 }

@@ -340,11 +340,11 @@ IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePat
     \sa saved()
     \sa filePath()
 */
-Result IDocument::save(const FilePath &filePath, bool autoSave)
+Result<> IDocument::save(const FilePath &filePath, bool autoSave)
 {
     const FilePath savePath = filePath.isEmpty() ? this->filePath() : filePath;
     emit aboutToSave(savePath, autoSave);
-    const Result res = saveImpl(savePath, autoSave);
+    const Result<> res = saveImpl(savePath, autoSave);
     if (res)
         emit saved(savePath, autoSave);
     return res;
@@ -361,11 +361,11 @@ Result IDocument::save(const FilePath &filePath, bool autoSave)
 
     The default implementation does nothing and returns \c false.
 */
-Result IDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> IDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     Q_UNUSED(filePath)
     Q_UNUSED(autoSave)
-    return Result::Error(Tr::tr("Not implemented"));
+    return ResultError(Tr::tr("Not implemented"));
 }
 
 /*!
@@ -461,11 +461,11 @@ IDocument::ReloadBehavior IDocument::reloadBehavior(ChangeTrigger trigger, Chang
     \sa reloadFinished()
     \sa changed()
 */
-Result IDocument::reload(ReloadFlag flag, ChangeType type)
+Result<> IDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(flag)
     Q_UNUSED(type)
-    return Result::Ok;
+    return ResultOk;
 }
 
 /*!
@@ -641,13 +641,13 @@ void IDocument::setMimeType(const QString &mimeType)
 /*!
     \internal
 */
-Result IDocument::autoSave(const FilePath &filePath)
+Result<> IDocument::autoSave(const FilePath &filePath)
 {
-    if (const Result res = save(filePath, true); !res)
+    if (const Result<> res = save(filePath, true); !res)
         return res;
 
     d->autoSavePath = filePath;
-    return Result::Ok;
+    return ResultOk;
 }
 
 static const char kRestoredAutoSave[] = "RestoredAutoSave";

@@ -323,7 +323,7 @@ bool SuiteConf::ensureObjectMapExists() const
         return true;
 
     const Utils::FilePath objectMap = scripts.pathAppended("objectmap_template" + extension);
-    Utils::Result result = destinationObjectMap.parentDir().ensureWritableDir();
+    Utils::Result<> result = destinationObjectMap.parentDir().ensureWritableDir();
     QTC_ASSERT_EXPECTED(result, return false);
     result = objectMap.copyFile(destinationObjectMap);
     QTC_ASSERT_EXPECTED(result, return false);

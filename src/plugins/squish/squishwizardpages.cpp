@@ -300,39 +300,39 @@ public:
 class SquishFileGenerator final : public JsonWizardGenerator
 {
 public:
-    Result setup(const QVariant &data);
+    Result<> setup(const QVariant &data);
     Core::GeneratedFiles fileList(MacroExpander *expander,
                                   const FilePath &wizardDir,
                                   const FilePath &projectDir,
                                   QString *errorMessage) final;
-    Result writeFile(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file) final;
-    Result allDone(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file) final;
+    Result<> writeFile(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file) final;
+    Result<> allDone(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file) final;
 
 private:
     QString m_mode;
 };
 
-Result SquishFileGenerator::setup(const QVariant &data)
+Result<> SquishFileGenerator::setup(const QVariant &data)
 {
     if (data.isNull())
-        return Result::Error("No data");
+        return ResultError("No data");
 
     if (data.typeId() != QMetaType::QVariantMap)
-        return Result::Error(Tr::tr("Key is not an object."));
+        return ResultError(Tr::tr("Key is not an object."));
 
     const QVariantMap map = data.toMap();
     const QVariant modeVariant = map.value("mode");
     if (!modeVariant.isValid())
-        return Result::Error(Tr::tr("Key 'mode' is not set."));
+        return ResultError(Tr::tr("Key 'mode' is not set."));
 
     m_mode = modeVariant.toString();
     if (m_mode != "TestSuite") {
-        const Result res = Result::Error(Tr::tr("Unsupported mode:") + ' ' + m_mode);
+        const Result<> res = ResultError(Tr::tr("Unsupported mode:") + ' ' + m_mode);
         m_mode.clear();
         return res;
     }
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 static QString generateSuiteConf(const QString &aut, const QString &language,
@@ -386,14 +386,14 @@ Core::GeneratedFiles SquishFileGenerator::fileList(MacroExpander *expander,
     return result;
 }
 
-Result SquishFileGenerator::writeFile(const JsonWizard *, Core::GeneratedFile *file)
+Result<> SquishFileGenerator::writeFile(const JsonWizard *, Core::GeneratedFile *file)
 {
     if (file->attributes() & Core::GeneratedFile::CustomGeneratorAttribute)
-        return Result::Ok;
+        return ResultOk;
     return file->write();
 }
 
-Result SquishFileGenerator::allDone(const JsonWizard *wizard, Core::GeneratedFile *file)
+Result<> SquishFileGenerator::allDone(const JsonWizard *wizard, Core::GeneratedFile *file)
 {
     Q_UNUSED(wizard)
 
@@ -402,7 +402,7 @@ Result SquishFileGenerator::allDone(const JsonWizard *wizard, Core::GeneratedFil
             SquishFileHandler::instance()->openTestSuite(filePath);
         }, Qt::QueuedConnection);
     }
-    return Result::Ok;
+    return ResultOk;
 }
 
 void setupSquishWizardPages()

@@ -382,12 +382,12 @@ PersistentSettingsWriter::PersistentSettingsWriter(const FilePath &fileName, con
     m_fileName(fileName), m_docType(docType)
 { }
 
-Result PersistentSettingsWriter::save(const Store &data, [[maybe_unused]] bool showErrorInMessageBox) const
+Result<> PersistentSettingsWriter::save(const Store &data, [[maybe_unused]] bool showErrorInMessageBox) const
 {
     if (data == m_savedData)
-        return Result::Ok;
+        return ResultOk;
 
-    const Result res = write(data);
+    const Result<> res = write(data);
 
 #ifdef QT_GUI_LIB
     if (showErrorInMessageBox && !res)
@@ -406,7 +406,7 @@ void PersistentSettingsWriter::setContents(const Store &data)
     m_savedData = data;
 }
 
-Result PersistentSettingsWriter::write(const Store &data) const
+Result<> PersistentSettingsWriter::write(const Store &data) const
 {
     m_fileName.parentDir().ensureWritableDir();
     FileSaver saver(m_fileName, QIODevice::Text);
@@ -435,11 +435,11 @@ Result PersistentSettingsWriter::write(const Store &data) const
 
     if (!saver.finalize()) {
         m_savedData.clear();
-        return Result::Error(saver.errorString());
+        return ResultError(saver.errorString());
     }
 
     m_savedData = data;
-    return Result::Ok;
+    return ResultOk;
 }
 
 } // namespace Utils

@@ -442,7 +442,7 @@ void PerfProfilerTool::updateRunActions()
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
             ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
         m_startAction->setToolTip(canRun ? Tr::tr("Start a performance analysis.") : canRun.error());
-        m_startAction->setEnabled(canRun);
+        m_startAction->setEnabled(canRun.has_value());
         m_loadPerfData->setEnabled(true);
         m_loadTrace->setEnabled(true);
     }

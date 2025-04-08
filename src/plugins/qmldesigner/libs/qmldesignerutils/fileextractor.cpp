@@ -243,9 +243,9 @@ void FileExtractor::extract()
         qWarning() << "Compressed size for file '" << m_sourceFile << "' is zero or invalid: " << m_compressedSize;
 
     QObject::connect(m_unarchiver.get(), &Unarchiver::done, this, [this]() {
-        Result r = m_unarchiver->result();
+        Result<> r = m_unarchiver->result();
         m_unarchiver.reset();
-        m_finished = r;
+        m_finished = r.has_value();
         m_timer.stop();
 
         m_progress = 100;

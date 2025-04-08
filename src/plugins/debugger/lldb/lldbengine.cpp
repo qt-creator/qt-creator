@@ -391,7 +391,7 @@ void LldbEngine::continueInferior()
     notifyInferiorRunRequested();
     DebuggerCommand cmd("continueInferior");
     cmd.callback = [this](const DebuggerResponse &response) {
-        if (response.resultClass == ResultError)
+        if (response.resultClass == ResultFail)
             notifyEngineIll();
     };
     runCommand(cmd);

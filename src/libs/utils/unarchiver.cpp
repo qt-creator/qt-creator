@@ -15,7 +15,7 @@ using namespace Tasking;
 
 namespace Utils {
 
-static Result copy_data(struct archive *ar, struct archive *aw, QPromise<Result> &promise)
+static Result<> copy_data(struct archive *ar, struct archive *aw, QPromise<Result<>> &promise)
 {
     int r;
     const void *buff;
@@ -27,12 +27,12 @@ static Result copy_data(struct archive *ar, struct archive *aw, QPromise<Result>
         if (r == ARCHIVE_EOF)
             break;
         if (r < ARCHIVE_OK)
-            return Result::Error(QString::fromUtf8(archive_error_string(ar)));
+            return ResultError(QString::fromUtf8(archive_error_string(ar)));
         r = archive_write_data_block(aw, buff, size, offset);
         if (r < ARCHIVE_OK)
-            return Result::Error(QString::fromUtf8(archive_error_string(aw)));
+            return ResultError(QString::fromUtf8(archive_error_string(aw)));
     }
-    return Result::Ok;
+    return ResultOk;
 }
 
 static void readFree(struct archive *a)
@@ -109,8 +109,8 @@ static int64_t _seek(struct archive *a, void *client_data, int64_t request, int 
     return data->file.pos();
 }
 
-static Result unarchive(
-    QPromise<Result> &promise, const Utils::FilePath &archive, const Utils::FilePath &destination)
+static Result<> unarchive(
+    QPromise<Result<>> &promise, const Utils::FilePath &archive, const Utils::FilePath &destination)
 {
     struct archive_entry *entry;
     int flags;
@@ -128,7 +128,7 @@ static Result unarchive(
     if (archive_read_support_format_all(a.get()) != ARCHIVE_OK
         || archive_read_support_format_raw(a.get()) != ARCHIVE_OK
         || archive_read_support_filter_all(a.get()) != ARCHIVE_OK) {
-        return Result::Error(QString("archive_read_ setup failed: %1")
+        return ResultError(QString("archive_read_ setup failed: %1")
                                  .arg(QString::fromUtf8(archive_error_string(a.get()))));
     }
 
@@ -136,12 +136,12 @@ static Result unarchive(
 
     if (archive_write_disk_set_options(ext.get(), flags) != ARCHIVE_OK
         || archive_write_disk_set_standard_lookup(ext.get()) != ARCHIVE_OK) {
-        return Result::Error(QString("archive_write_disk_ setup failed: %1")
+        return ResultError(QString("archive_write_disk_ setup failed: %1")
                                  .arg(QString::fromUtf8(archive_error_string(ext.get()))));
     }
 
     if (archive_read_append_callback_data(a.get(), &data) != (ARCHIVE_OK))
-        return Result::Error(
+        return ResultError(
             QString("Could not append callback data to %1").arg(archive.toUserOutput()));
 
     if (archive_read_set_open_callback(a.get(), _open) != ARCHIVE_OK
@@ -149,12 +149,12 @@ static Result unarchive(
         || archive_read_set_skip_callback(a.get(), _skip) != ARCHIVE_OK
         || archive_read_set_seek_callback(a.get(), _seek) != ARCHIVE_OK
         || archive_read_set_close_callback(a.get(), _close)) {
-        return Result::Error(QString("Could not set callbacks: %1")
+        return ResultError(QString("Could not set callbacks: %1")
                                  .arg(QString::fromUtf8(archive_error_string(a.get()))));
     }
 
     if ((r = archive_read_open1(a.get())))
-        return Result::Error(QString::fromUtf8(archive_error_string(a.get())));
+        return ResultError(QString::fromUtf8(archive_error_string(a.get())));
 
     int fileNumber = 0;
     while (!promise.isCanceled()) {
@@ -164,13 +164,13 @@ static Result unarchive(
         const int filter = archive_filter_code(a.get(), 0);
 
         if (format == ARCHIVE_FORMAT_RAW && filter == ARCHIVE_FILTER_NONE)
-            return Result::Error(Tr::tr("Not an archive"));
+            return ResultError(Tr::tr("Not an archive"));
 
         if (r == ARCHIVE_EOF)
             break;
 
         if (r < ARCHIVE_OK) {
-            return Result::Error(QString::fromUtf8(archive_error_string(a.get())));
+            return ResultError(QString::fromUtf8(archive_error_string(a.get())));
         }
 
         ++fileNumber;
@@ -184,27 +184,27 @@ static Result unarchive(
 
         r = archive_write_header(ext.get(), entry);
         if (r < ARCHIVE_OK) {
-            return Result::Error(QString::fromUtf8(archive_error_string(ext.get())));
+            return ResultError(QString::fromUtf8(archive_error_string(ext.get())));
         } else {
             const struct stat *stat = archive_entry_stat(entry);
             // Is regular file ? (See S_ISREG macro in stat.h)
             if ((((stat->st_mode) & 0170000) == 0100000)) {
-                r = copy_data(a.get(), ext.get(), promise);
+                r = copy_data(a.get(), ext.get(), promise).has_value();
                 if (r < ARCHIVE_OK) {
-                    return Result::Error(QString::fromUtf8(archive_error_string(ext.get())));
+                    return ResultError(QString::fromUtf8(archive_error_string(ext.get())));
                 }
             }
         }
         r = archive_write_finish_entry(ext.get());
         if (r < ARCHIVE_OK) {
-            return Result::Error(QString::fromUtf8(archive_error_string(ext.get())));
+            return ResultError(QString::fromUtf8(archive_error_string(ext.get())));
         }
     }
-    return Result::Ok;
+    return ResultOk;
 }
 
 static void unarchivePromised(
-    QPromise<Result> &promise, const Utils::FilePath &archive, const Utils::FilePath &destination)
+    QPromise<Result<>> &promise, const Utils::FilePath &archive, const Utils::FilePath &destination)
 {
     promise.addResult(unarchive(promise, archive, destination));
 }
@@ -218,7 +218,7 @@ Unarchiver::Unarchiver()
         emit progress(FilePath::fromString(text));
     });
     connect(&m_async, &AsyncBase::done, this, [this] {
-        Result result = m_async.isCanceled() ? Result::Error({}) : m_async.result();
+        Result<> result = m_async.isCanceled() ? ResultError(QString()) : m_async.result();
         emit done(result ? DoneResult::Success : DoneResult::Error);
     });
 }
@@ -229,10 +229,10 @@ void Unarchiver::start()
     m_async.start();
 }
 
-Result Unarchiver::result() const
+Result<> Unarchiver::result() const
 {
     if (m_async.isCanceled())
-        return Result::Error(Tr::tr("Canceled"));
+        return ResultError(Tr::tr("Canceled"));
     return m_async.result();
 }
 

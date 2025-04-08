@@ -26,7 +26,7 @@ public:
     bool isModified() const override { return m_isModified; }
     void setModified(bool modified);
     bool isSaveAsAllowed() const override { return true; }
-    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
+    Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
 
     bool shouldAutoSave() const override { return true; }
     bool setContents(const QByteArray &contents) override;
@@ -34,7 +34,7 @@ public:
     ObjectsMapModel *model() const { return m_contentModel; }
 
 protected:
-    Utils::Result saveImpl(const Utils::FilePath &fileName, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &fileName, bool autoSave) override;
 
 private:
     OpenResult openImpl(QString *error,

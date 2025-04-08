@@ -2012,7 +2012,7 @@ void TextEditorWidget::selectEncoding()
     const CodecSelectorResult result = Core::askForCodec(doc);
     switch (result.action) {
     case Core::CodecSelectorResult::Reload: {
-        if (Result res = doc->reload(result.codec); !res) {
+        if (Result<> res = doc->reload(result.codec); !res) {
             QMessageBox::critical(this, Tr::tr("File Error"), res.error());
             break;
         }

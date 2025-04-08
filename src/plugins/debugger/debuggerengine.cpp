@@ -210,7 +210,7 @@ void DebuggerRunParameters::setBreakOnMainNextTime()
     breakOnMainNextTime = true;
 }
 
-Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runControl)
+Result<> DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runControl)
 {
     if (m_symbolFile.isEmpty())
         m_symbolFile = m_inferior.command.executable();
@@ -227,7 +227,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
 
     // validate debugger if C++ debugging is enabled
     if (!m_validationErrors.isEmpty())
-        return Result::Error(m_validationErrors.join('\n'));
+        return ResultError(m_validationErrors.join('\n'));
 
     if (m_isQmlDebugging) {
         const auto device = runControl->device();
@@ -235,7 +235,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
             if (m_qmlServer.port() <= 0) {
                 m_qmlServer = Utils::urlFromLocalHostAndFreePort();
                 if (m_qmlServer.port() <= 0)
-                    return Result::Error(Tr::tr("Not enough free ports for QML debugging."));
+                    return ResultError(Tr::tr("Not enough free ports for QML debugging."));
             }
             // Makes sure that all bindings go through the JavaScript engine, so that
             // breakpoints are actually hit!
@@ -292,7 +292,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
         if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
-            return Result::Error(Tr::tr("Debugging complex command lines "
+            return ResultError(Tr::tr("Debugging complex command lines "
                                         "is currently not supported on Windows."));
         }
     }
@@ -303,7 +303,7 @@ Result DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runCo
     if (settings().forceLoggingToConsole())
         m_inferior.environment.set("QT_LOGGING_TO_CONSOLE", "1");
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 void DebuggerRunParameters::setStartMode(DebuggerStartMode startMode)

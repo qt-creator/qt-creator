@@ -52,16 +52,16 @@ Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
     return result;
 }
 
-Result ModelDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> ModelDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (!d->documentController)
-        return Result::Error(Tr::tr("No model loaded. Cannot save."));
+        return ResultError(Tr::tr("No model loaded. Cannot save."));
 
     d->documentController->projectController()->setFileName(filePath);
     try {
         d->documentController->projectController()->save();
     } catch (const qmt::Exception &ex) {
-        return Result::Error(ex.errorMessage());
+        return ResultError(ex.errorMessage());
     }
 
     if (autoSave) {
@@ -71,7 +71,7 @@ Result ModelDocument::saveImpl(const FilePath &filePath, bool autoSave)
         emit changed();
     }
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 bool ModelDocument::shouldAutoSave() const
@@ -89,22 +89,22 @@ bool ModelDocument::isSaveAsAllowed() const
     return true;
 }
 
-Result ModelDocument::reload(Core::IDocument::ReloadFlag flag,
+Result<> ModelDocument::reload(Core::IDocument::ReloadFlag flag,
                              Core::IDocument::ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return Result::Ok;
+        return ResultOk;
     try {
         d->documentController->loadProject(filePath());
     } catch (const qmt::FileNotFoundException &ex) {
-        return Result::Error(ex.errorMessage());
+        return ResultError(ex.errorMessage());
     } catch (const qmt::Exception &ex) {
-        return Result::Error(Tr::tr("Could not open \"%1\" for reading: %2.")
+        return ResultError(Tr::tr("Could not open \"%1\" for reading: %2.")
                            .arg(filePath().toUserOutput(), ex.errorMessage()));
     }
     emit contentSet();
-    return Result::Ok;
+    return ResultOk;
 }
 
 ExtDocumentController *ModelDocument::documentController() const

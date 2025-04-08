@@ -37,7 +37,7 @@ public:
 
     virtual Utils::CommandLine command() const;
 
-    Utils::Result setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
+    Utils::Result<> setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
                                              ProjectExplorer::RunControl *runControl) const final;
     ProjectExplorer::RunWorker *targetRunner(
             ProjectExplorer::RunControl *runControl) const override;

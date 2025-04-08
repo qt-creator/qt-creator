@@ -55,7 +55,7 @@ QStringList fixGeneratorScript(const QString &configFile, QString binary)
 }
 
 // Helper for running the optional generation script.
-static Result
+static Result<>
     runGenerationScriptHelper(const FilePath &workingDirectory,
                               const QStringList &script,
                               const QList<GeneratorScriptArgument> &argumentsIn,
@@ -101,14 +101,14 @@ static Result
             errorMessage.append(QLatin1Char('\n'));
             errorMessage.append(stdErr);
         }
-        return Result::Error(errorMessage);
+        return ResultError(errorMessage);
     }
     if (stdOut) {
         *stdOut = process.cleanedStdOut();
         if (CustomWizard::verbose())
             qDebug("Output: '%s'\n", qPrintable(*stdOut));
     }
-    return Result::Ok;
+    return ResultOk;
 }
 
 /*!
@@ -127,7 +127,7 @@ Core::GeneratedFiles
 {
     // Run in temporary directory as the target path may not exist yet.
     QString stdOut;
-    const Result res = runGenerationScriptHelper(Utils::TemporaryDirectory::masterDirectoryFilePath(),
+    const Result<> res = runGenerationScriptHelper(Utils::TemporaryDirectory::masterDirectoryFilePath(),
                                                  script, arguments, true, fieldMap, &stdOut);
     if (!res) {
         *errorMessage = res.error();
@@ -207,7 +207,7 @@ Core::GeneratedFiles
     \sa dryRunCustomWizardGeneratorScript, ProjectExplorer::CustomWizard
  */
 
-Result runCustomWizardGeneratorScript(const QString &targetPath,
+Result<> runCustomWizardGeneratorScript(const QString &targetPath,
                                       const QStringList &script,
                                       const QList<GeneratorScriptArgument> &arguments,
                                       const QMap<QString, QString> &fieldMap)

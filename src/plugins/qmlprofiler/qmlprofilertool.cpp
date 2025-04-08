@@ -347,7 +347,7 @@ void QmlProfilerTool::updateRunActions()
             ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         d->m_startAction->setToolTip(canRun ? Tr::tr("Start QML Profiler analysis.")
                                             : canRun.error());
-        d->m_startAction->setEnabled(canRun);
+        d->m_startAction->setEnabled(canRun.has_value());
         d->m_stopAction->setEnabled(false);
     }
 }

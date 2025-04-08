@@ -226,14 +226,14 @@ bool DiffEditorDocument::isSaveAsAllowed() const
     return state() == LoadOK;
 }
 
-Result DiffEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> DiffEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     Q_UNUSED(autoSave)
 
     if (state() != LoadOK)
-        return Result::Error(QString());
+        return ResultError(QString());
 
-    const Result res = write(filePath, format(), plainText());
+    const Result<> res = write(filePath, format(), plainText());
     if (!res)
         return res;
 
@@ -246,7 +246,7 @@ Result DiffEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
     setPreferredDisplayName({});
     emit temporaryStateChanged();
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 void DiffEditorDocument::reload()
@@ -257,14 +257,14 @@ void DiffEditorDocument::reload()
         reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents);
 }
 
-Result DiffEditorDocument::reload(ReloadFlag flag, ChangeType type)
+Result<> DiffEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return Result::Ok;
+        return ResultOk;
     QString errorString;
     bool success = open(&errorString, filePath(), filePath()) == OpenResult::Success;
-    return Result(success, errorString);
+    return makeResult(success, errorString);
 }
 
 Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const FilePath &filePath,

@@ -47,7 +47,7 @@ public:
 
     void toMap(Utils::Store &map) const override;
 
-    Utils::Result setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
+    Utils::Result<> setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
                                              ProjectExplorer::RunControl *runControl) const final;
     ProjectExplorer::RunWorker *targetRunner(ProjectExplorer::RunControl *runControl) const final;
 

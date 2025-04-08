@@ -40,20 +40,20 @@ Core::IDocument::OpenResult ObjectsMapDocument::open(QString *errorString,
     return result;
 }
 
-Result ObjectsMapDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> ObjectsMapDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (filePath.isEmpty())
-        return Result::Error("ASSERT: ObjectsMapDocument: filePath.isEmpty()");
+        return ResultError("ASSERT: ObjectsMapDocument: filePath.isEmpty()");
 
     const bool writeOk = writeFile(filePath);
     if (!writeOk)
-        return Result::Error(Tr::tr("Failed to write \"%1\"").arg(filePath.toUserOutput()));
+        return ResultError(Tr::tr("Failed to write \"%1\"").arg(filePath.toUserOutput()));
 
     if (!autoSave) {
         setModified(false);
         setFilePath(filePath);
     }
-    return Result::Ok;
+    return ResultOk;
 }
 
 Utils::FilePath ObjectsMapDocument::fallbackSaveAsPath() const
@@ -72,19 +72,19 @@ void ObjectsMapDocument::setModified(bool modified)
     emit changed();
 }
 
-Result ObjectsMapDocument::reload(Core::IDocument::ReloadFlag flag,
+Result<> ObjectsMapDocument::reload(Core::IDocument::ReloadFlag flag,
                                   Core::IDocument::ChangeType type)
 {
     Q_UNUSED(type);
     if (flag == FlagIgnore)
-        return Result::Ok;
+        return ResultOk;
     emit aboutToReload();
     QString errorString;
     const bool success = (openImpl(&errorString, filePath(), filePath()) == OpenResult::Success);
     if (success)
         setModified(false);
     emit reloadFinished(success);
-    return Result(success, errorString);
+    return makeResult(success, errorString);
 }
 
 bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)

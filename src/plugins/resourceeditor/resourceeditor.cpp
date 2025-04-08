@@ -56,7 +56,7 @@ public:
     bool shouldAutoSave() const final { return m_shouldAutoSave; }
     bool isModified() const final { return m_model.dirty(); }
     bool isSaveAsAllowed() const final { return true; }
-    Result reload(ReloadFlag flag, ChangeType type) final;
+    Result<> reload(ReloadFlag flag, ChangeType type) final;
     void setFilePath(const FilePath &newName) final;
     void setBlockDirtyChanged(bool value) { m_blockDirtyChanged = value; }
 
@@ -67,7 +67,7 @@ signals:
     void loaded(bool success);
 
 private:
-    Result saveImpl(const FilePath &filePath, bool autoSave) final;
+    Result<> saveImpl(const FilePath &filePath, bool autoSave) final;
     void dirtyChanged(bool);
 
     RelativeResourceModel m_model;
@@ -209,20 +209,20 @@ IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
     return OpenResult::Success;
 }
 
-Result ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (debugResourceEditorW)
         qDebug() << ">ResourceEditorW::saveImpl: " << filePath;
 
     if (filePath.isEmpty())
-        return Result::Error("ASSERT: ResourceEditorDocument: filePath.isEmpty()");
+        return ResultError("ASSERT: ResourceEditorDocument: filePath.isEmpty()");
 
     m_blockDirtyChanged = true;
     m_model.setFilePath(filePath);
     if (!m_model.save()) {
         m_model.setFilePath(this->filePath());
         m_blockDirtyChanged = false;
-        return Result::Error(m_model.errorMessage());
+        return ResultError(m_model.errorMessage());
     }
 
     m_shouldAutoSave = false;
@@ -230,14 +230,14 @@ Result ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
         m_model.setFilePath(this->filePath());
         m_model.setDirty(true);
         m_blockDirtyChanged = false;
-        return Result::Ok;
+        return ResultOk;
     }
 
     setFilePath(filePath);
     m_blockDirtyChanged = false;
 
     emit changed();
-    return Result::Ok;
+    return ResultOk;
 }
 
 bool ResourceEditorDocument::setContents(const QByteArray &contents)
@@ -280,16 +280,16 @@ void ResourceEditorImpl::restoreState(const QByteArray &state)
     m_resourceEditor->restoreState(splitterState);
 }
 
-Result ResourceEditorDocument::reload(ReloadFlag flag, ChangeType type)
+Result<> ResourceEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return Result::Ok;
+        return ResultOk;
     emit aboutToReload();
     QString errorString;
     const bool success = (open(&errorString, filePath(), filePath()) == OpenResult::Success);
     emit reloadFinished(success);
-    return Result(success, errorString);
+    return makeResult(success, errorString);
 }
 
 void ResourceEditorDocument::dirtyChanged(bool dirty)

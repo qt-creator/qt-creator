@@ -351,7 +351,7 @@ void JsonWizard::accept()
     }
 
     emit preFormatFiles(m_files);
-    if (const Result res = JsonWizardGenerator::formatFiles(this, &m_files); !res) {
+    if (const Result<> res = JsonWizardGenerator::formatFiles(this, &m_files); !res) {
         QMessageBox::warning(this, Tr::tr("Failed to Format Files"), res.error());
         return;
     }
@@ -365,23 +365,23 @@ void JsonWizard::accept()
     Core::EditorManager::closeDocuments(documentsToClose, /*askAboutModifiedEditors=*/false);
 
     emit preWriteFiles(m_files);
-    if (const Result res = JsonWizardGenerator::writeFiles(this, &m_files); !res) {
+    if (const Result<> res = JsonWizardGenerator::writeFiles(this, &m_files); !res) {
         QMessageBox::warning(this, Tr::tr("Failed to Write Files"), res.error());
         return;
     }
 
     emit postProcessFiles(m_files);
-    if (const Result res = JsonWizardGenerator::postWrite(this, &m_files); !res) {
+    if (const Result<> res = JsonWizardGenerator::postWrite(this, &m_files); !res) {
         QMessageBox::warning(this, Tr::tr("Failed to Post-Process Files"), res.error());
         return;
     }
     emit filesReady(m_files);
-    if (const Result res = JsonWizardGenerator::polish(this, &m_files); !res) {
+    if (const Result<> res = JsonWizardGenerator::polish(this, &m_files); !res) {
         QMessageBox::warning(this, Tr::tr("Failed to Polish Files"), res.error());
         return;
     }
     emit filesPolished(m_files);
-    if (const Result res = JsonWizardGenerator::allDone(this, &m_files); !res) {
+    if (const Result<> res = JsonWizardGenerator::allDone(this, &m_files); !res) {
         QMessageBox::warning(this, Tr::tr("Failed to Open Files"), res.error());
         return;
     }

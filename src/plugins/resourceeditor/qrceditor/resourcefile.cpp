@@ -223,9 +223,9 @@ bool ResourceFile::save()
         return false;
     }
 
-    const Result res = m_textFileFormat.writeFile(m_filePath, contents());
+    const Result<> res = m_textFileFormat.writeFile(m_filePath, contents());
     m_error_message = res.error();
-    return res;
+    return res.has_value();
 }
 
 void ResourceFile::refresh()

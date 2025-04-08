@@ -229,7 +229,7 @@ public:
         if (auto result = updateContainerAccess(); !result)
             return make_unexpected(result.error());
 
-        Result initResult = Result::Ok;
+        Result<> initResult = ResultOk;
         if (cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath())) {
             initResult = fAccess->init(
                 q->rootPath().withNewPath("/tmp/_qtc_cmdbridge"), q->environment(), false);
@@ -756,10 +756,10 @@ void DockerDevice::shutdown()
     d->shutdown();
 }
 
-Result DockerDevice::updateContainerAccess() const
+Result<> DockerDevice::updateContainerAccess() const
 {
     expected_str<QString> result = d->updateContainerAccess();
-    return result ? Result::Ok : Result::Error(result.error());
+    return result ? ResultOk : ResultError(result.error());
 }
 
 expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(

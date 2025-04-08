@@ -1012,7 +1012,7 @@ void CallgrindTool::updateRunActions()
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(CALLGRIND_RUN_MODE);
         m_startAction->setToolTip(canRun ? Tr::tr("Start a Valgrind Callgrind analysis.")
                                          : canRun.error());
-        m_startAction->setEnabled(canRun);
+        m_startAction->setEnabled(canRun.has_value());
         m_stopAction->setEnabled(false);
     }
 }

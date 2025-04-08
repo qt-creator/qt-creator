@@ -136,7 +136,7 @@ void ProcessList::killProcess(int row)
     const ProcessInfo processInfo = at(row);
     d->signalOperation = d->device->signalOperation();
     connect(d->signalOperation.get(), &DeviceProcessSignalOperation::finished,
-            this, [this](const Result &result) {
+            this, [this](const Result<> &result) {
         if (result) {
             QTC_CHECK(d->state == Killing);
             setFinished();

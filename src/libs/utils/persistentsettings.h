@@ -6,11 +6,10 @@
 #include "utils_global.h"
 
 #include "filepath.h"
+#include "result.h"
 #include "store.h"
 
 namespace Utils {
-
-class Result;
 
 class QTCREATOR_UTILS_EXPORT PersistentSettingsReader
 {
@@ -31,14 +30,14 @@ class QTCREATOR_UTILS_EXPORT PersistentSettingsWriter
 public:
     PersistentSettingsWriter(const FilePath &fileName, const QString &docType);
 
-    Result save(const Store &data, bool showError = true) const;
+    Result<> save(const Store &data, bool showError = true) const;
 
     FilePath fileName() const;
 
     void setContents(const Store &data);
 
 private:
-    Result write(const Store &data) const;
+    Result<> write(const Store &data) const;
 
     const FilePath m_fileName;
     const QString m_docType;

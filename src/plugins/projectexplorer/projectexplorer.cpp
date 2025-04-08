@@ -3142,32 +3142,32 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
     doUpdateRunActions();
 }
 
-Result ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode)
+Result<> ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode)
 {
     Project *project = ProjectManager::startupProject();
     if (!project)
-        return Result::Error(Tr::tr("No active project."));
+        return ResultError(Tr::tr("No active project."));
 
     if (project->needsConfiguration()) {
-        return Result::Error(Tr::tr("The project \"%1\" is not configured.")
+        return ResultError(Tr::tr("The project \"%1\" is not configured.")
                                    .arg(project->displayName()));
     }
 
     Kit *kit = project->activeKit();
     if (!kit) {
-        return Result::Error(Tr::tr("The project \"%1\" has no active kit.")
+        return ResultError(Tr::tr("The project \"%1\" has no active kit.")
                                    .arg(project->displayName()));
     }
 
     RunConfiguration *activeRC = project->activeRunConfiguration();
     if (!activeRC) {
-        return Result::Error(
+        return ResultError(
             Tr::tr("The kit \"%1\" for the project \"%2\" has no active run configuration.")
                 .arg(kit->displayName(), project->displayName()));
     }
 
     if (!activeRC->isEnabled(runMode))
-        return Result::Error(activeRC->disabledReason(runMode));
+        return ResultError(activeRC->disabledReason(runMode));
 
     if (projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off
             && projectExplorerSettings().deployBeforeRun
@@ -3175,28 +3175,28 @@ Result ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode)
             && hasBuildSettings(project)) {
         QPair<bool, QString> buildState = dd->buildSettingsEnabled(project);
         if (!buildState.first)
-            return Result::Error(buildState.second);
+            return ResultError(buildState.second);
 
         if (BuildManager::isBuilding())
-            return Result::Error(Tr::tr("A build is still in progress."));
+            return ResultError(Tr::tr("A build is still in progress."));
     }
 
     // shouldn't actually be shown to the user...
     if (!RunControl::canRun(runMode, RunDeviceTypeKitAspect::deviceTypeId(kit), activeRC->id()))
-        return Result::Error(Tr::tr("Cannot run \"%1\".").arg(activeRC->displayName()));
+        return ResultError(Tr::tr("Cannot run \"%1\".").arg(activeRC->displayName()));
 
     if (dd->m_delayedRunConfiguration && dd->m_delayedRunConfiguration->project() == project)
-        return Result::Error(Tr::tr("A run action is already scheduled for the active project."));
+        return ResultError(Tr::tr("A run action is already scheduled for the active project."));
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 void ProjectExplorerPluginPrivate::doUpdateRunActions()
 {
-    const auto canRun = ProjectExplorerPlugin::canRunStartupProject(Constants::NORMAL_RUN_MODE);
-    m_runAction->setEnabled(canRun);
-    m_runAction->setToolTip(canRun.error());
-    m_runWithoutDeployAction->setEnabled(canRun);
+    const Result<> canRun = ProjectExplorerPlugin::canRunStartupProject(Constants::NORMAL_RUN_MODE);
+    m_runAction->setEnabled(canRun.has_value());
+    m_runAction->setToolTip(canRun.has_value() ? QString() : canRun.error());
+    m_runWithoutDeployAction->setEnabled(canRun.has_value());
 
     emit m_instance->runActionsUpdated();
 }

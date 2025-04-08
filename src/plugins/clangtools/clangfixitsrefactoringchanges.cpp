@@ -101,7 +101,7 @@ bool FixitsRefactoringFile::apply()
         return false; // Error reading file
 
     for (auto it = m_documents.begin(); it != m_documents.end(); ++it) {
-        if (const Result res = m_textFileFormat.writeFile(it.key(), it.value()->toPlainText()); !res) {
+        if (const Result<> res = m_textFileFormat.writeFile(it.key(), it.value()->toPlainText()); !res) {
             qCDebug(fixitsLog) << "ERROR: Could not write file" << it.key() << ":" << res.error();
             return false; // Error writing file
         }

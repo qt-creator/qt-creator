@@ -41,7 +41,7 @@ void VirtualFileSystemOverlay::update()
             saved.path = m_root.filePath(doc->filePath().fileName() + ".auto");
             while (saved.path.exists())
                 saved.path = saved.path.stringAppended(".1");
-            if (Utils::Result res = doc->save(saved.path, true); !res) {
+            if (Utils::Result<> res = doc->save(saved.path, true); !res) {
                 qCDebug(LOG) << res.error();
                 continue;
             }
@@ -50,7 +50,7 @@ void VirtualFileSystemOverlay::update()
     }
 
     for (const AutoSavedPath &path : std::as_const(m_saved)) {
-        Utils::Result result = path.path.removeRecursively();
+        Utils::Result<> result = path.path.removeRecursively();
         if (!result)
             qCDebug(LOG) << result.error();
     }

@@ -78,7 +78,7 @@ void BaseFileWizard::accept()
     }
 
     // Write
-    if (const Result res = m_factory->writeFiles(m_files); !res) {
+    if (const Result<> res = m_factory->writeFiles(m_files); !res) {
         QMessageBox::critical(parentWidget(), Tr::tr("File Generation Failure"), res.error());
         reject();
         return;

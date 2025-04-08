@@ -175,7 +175,7 @@ QString AssetsLibraryModel::addNewFolder(const QString &folderPath)
 {
     Utils::FilePath uniqueDirPath = Utils::FilePath::fromString(UniqueName::generatePath(folderPath));
 
-    const Utils::Result res = uniqueDirPath.ensureWritableDir();
+    const Utils::Result<> res = uniqueDirPath.ensureWritableDir();
     if (!res) {
         qWarning() << __FUNCTION__ << res.error();
         return {};

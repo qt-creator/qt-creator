@@ -33,14 +33,14 @@ public:
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
-    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
+    Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
     QString fallbackSaveAsFileName() const override;
     bool supportsCodec(const QByteArray &codec) const override;
 
     // Internal
     void setFallbackSaveAsFileName(const QString &fileName);
 
-    Utils::Result writeFile(const Utils::FilePath &filePath) const;
+    Utils::Result<> writeFile(const Utils::FilePath &filePath) const;
 
     QDesignerFormWindowInterface *formWindow() const;
     void syncXmlFromFormWindow();
@@ -52,7 +52,7 @@ public:
     void updateIsModified();
 
 protected:
-    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     void slotFormWindowRemoved(QDesignerFormWindowInterface *w);

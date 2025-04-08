@@ -27,22 +27,22 @@ class QTCREATOR_CMDBRIDGE_EXPORT FileAccess : public Utils::DeviceFileAccess
 public:
     ~FileAccess() override;
 
-    Utils::Result deployAndInit(
+    Utils::Result<> deployAndInit(
         const Utils::FilePath &libExecPath,
         const Utils::FilePath &remoteRootPath,
         const Utils::Environment &environment);
 
-    Utils::Result init(
+    Utils::Result<> init(
         const Utils::FilePath &pathToBridge,
         const Utils::Environment &environment,
         bool deleteOnExit);
 
-    Utils::Result signalProcess(int pid, Utils::ControlSignal signal) const;
+    Utils::Result<> signalProcess(int pid, Utils::ControlSignal signal) const;
 
     Utils::Environment deviceEnvironment() const override;
 
 protected:
-    Utils::Result reinit();
+    Utils::Result<> reinit();
 
     void iterateDirectory(const Utils::FilePath &filePath,
                           const Utils::FilePath::IterateDirCallback &callBack,
@@ -74,16 +74,16 @@ protected:
     Utils::expected_str<qint64> writeFileContents(const Utils::FilePath &filePath,
                                                   const QByteArray &data) const override;
 
-    Utils::Result removeFile(const Utils::FilePath &filePath) const override;
-    Utils::Result removeRecursively(const Utils::FilePath &filePath) const override;
+    Utils::Result<> removeFile(const Utils::FilePath &filePath) const override;
+    Utils::Result<> removeRecursively(const Utils::FilePath &filePath) const override;
 
     bool ensureExistingFile(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;
 
-    Utils::Result copyFile(const Utils::FilePath &filePath,
+    Utils::Result<> copyFile(const Utils::FilePath &filePath,
                            const Utils::FilePath &target) const override;
 
-    Utils::Result renameFile(
+    Utils::Result<> renameFile(
         const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
 
     Utils::expected_str<Utils::FilePath> createTempFile(const Utils::FilePath &filePath) override;

@@ -22,7 +22,7 @@ public:
     void setArchive(const FilePath &archive);
     void setDestination(const FilePath &destination);
 
-    Result result() const;
+    Result<> result() const;
 
     void start();
 
@@ -35,7 +35,7 @@ signals:
     void progress(const FilePath &path);
 
 private:
-    Async<Result> m_async;
+    Async<Result<>> m_async;
 
     FilePath m_archive;
     FilePath m_destination;

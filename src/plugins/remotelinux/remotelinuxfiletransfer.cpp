@@ -313,18 +313,18 @@ private:
     QHash<FilePath, FilesToTransfer> m_batches;
 };
 
-static void createDir(QPromise<Result> &promise, const FilePath &pathToCreate)
+static void createDir(QPromise<Result<>> &promise, const FilePath &pathToCreate)
 {
-    const Result result = pathToCreate.ensureWritableDir();
+    const Result<> result = pathToCreate.ensureWritableDir();
     promise.addResult(result);
 
     if (!result)
         promise.future().cancel();
 };
 
-static void copyFile(QPromise<Result> &promise, const FileToTransfer &file)
+static void copyFile(QPromise<Result<>> &promise, const FileToTransfer &file)
 {
-    const Result result = file.m_source.copyFile(file.m_target);
+    const Result<> result = file.m_source.copyFile(file.m_target);
     promise.addResult(result);
 
     if (!result)
@@ -352,13 +352,13 @@ private:
 
         const LoopList iteratorParentDirs(QList(allParentDirs.cbegin(), allParentDirs.cend()));
 
-        const auto onCreateDirSetup = [iteratorParentDirs](Async<Result> &async) {
+        const auto onCreateDirSetup = [iteratorParentDirs](Async<Result<>> &async) {
             async.setConcurrentCallData(createDir, *iteratorParentDirs);
         };
 
         const auto onCreateDirDone = [this,
-                                      iteratorParentDirs](const Async<Result> &async) {
-            const Result result = async.result();
+                                      iteratorParentDirs](const Async<Result<>> &async) {
+            const Result<> result = async.result();
             if (result)
                 emit progress(
                     Tr::tr("Created directory: \"%1\".\n").arg(iteratorParentDirs->toUserOutput()));
@@ -369,13 +369,13 @@ private:
         const LoopList iterator(m_setup.m_files);
         const Storage<int> counterStorage;
 
-        const auto onCopySetup = [iterator](Async<Result> &async) {
+        const auto onCopySetup = [iterator](Async<Result<>> &async) {
             async.setConcurrentCallData(copyFile, *iterator);
         };
 
         const auto onCopyDone = [this, iterator, counterStorage](
-                                    const Async<Result> &async) {
-            const Result result = async.result();
+                                    const Async<Result<>> &async) {
+            const Result<> result = async.result();
             int &counter = *counterStorage;
             ++counter;
 
@@ -394,12 +394,12 @@ private:
         const Group recipe {
             For (iteratorParentDirs) >> Do {
                 parallelIdealThreadCountLimit,
-                AsyncTask<Result>(onCreateDirSetup, onCreateDirDone),
+                AsyncTask<Result<>>(onCreateDirSetup, onCreateDirDone),
             },
             For (iterator) >> Do {
                 parallelLimit(2),
                 counterStorage,
-                AsyncTask<Result>(onCopySetup, onCopyDone),
+                AsyncTask<Result<>>(onCopySetup, onCopyDone),
             },
         };
 

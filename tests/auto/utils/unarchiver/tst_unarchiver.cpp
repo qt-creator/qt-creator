@@ -72,7 +72,7 @@ public:
         unarchiver.setArchive(zipFile);
         unarchiver.setDestination(FilePath::fromString(tempDir.path() + "/unarchived"));
         unarchiver.start();
-        const Result r = unarchiver.result();
+        const Result<> r = unarchiver.result();
 
         if (!r)
             qWarning() << "ERROR:" << r.error();
@@ -165,7 +165,7 @@ private slots:
         unarchiver.setArchive(rawFile);
         unarchiver.setDestination(FilePath::fromString(tempDir.path() + "/unarchived"));
         unarchiver.start();
-        const Result r = unarchiver.result();
+        const Result<> r = unarchiver.result();
 
         // This should fail as the input file is not an archive
         QVERIFY(!r);
@@ -205,7 +205,7 @@ private slots:
         unarchiver.setArchive(gzFile);
         unarchiver.setDestination(FilePath::fromString(tempDir.path() + "/unarchived"));
         unarchiver.start();
-        const Result r = unarchiver.result();
+        const Result<> r = unarchiver.result();
 
         if (!r)
             qWarning() << "ERROR:" << r.error();
@@ -235,7 +235,7 @@ private slots:
         unarchiver.setArchive(gzFile);
         unarchiver.setDestination(FilePath::fromString(tempDir.path() + "/unarchived"));
         unarchiver.start();
-        const Result r = unarchiver.result();
+        const Result<> r = unarchiver.result();
 
         if (!r)
             qWarning() << "ERROR:" << r.error();

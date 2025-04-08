@@ -177,7 +177,7 @@ static JsonWizardFactory::Generator parseGenerator(const QVariant &value, QStrin
     }
 
     QVariant varVal = data.value(QLatin1String(DATA_KEY));
-    if (const Result res = factory->validateData(typeId, varVal); !res) {
+    if (const Result<> res = factory->validateData(typeId, varVal); !res) {
         *errorMessage = res.error();
         return gen;
     }

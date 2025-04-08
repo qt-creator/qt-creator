@@ -28,14 +28,14 @@ namespace ProjectExplorer::Internal {
 class JsonWizardFileGenerator final : public JsonWizardGenerator
 {
 public:
-    Utils::Result setup(const QVariant &data);
+    Utils::Result<> setup(const QVariant &data);
 
     Core::GeneratedFiles fileList(MacroExpander *expander,
                                   const FilePath &wizardDir,
                                   const FilePath &projectDir,
                                   QString *errorMessage) final;
 
-    Utils::Result writeFile(const JsonWizard *wizard, Core::GeneratedFile *file) final;
+    Utils::Result<> writeFile(const JsonWizard *wizard, Core::GeneratedFile *file) final;
 
 private:
     class File {
@@ -70,16 +70,16 @@ private:
     }
 };
 
-Result JsonWizardFileGenerator::setup(const QVariant &data)
+Result<> JsonWizardFileGenerator::setup(const QVariant &data)
 {
     QString errorMessage;
     const QVariantList list = JsonWizardFactory::objectOrList(data, &errorMessage);
     if (list.isEmpty())
-        return Result::Error(errorMessage);
+        return ResultError(errorMessage);
 
     for (const QVariant &d : list) {
         if (d.typeId() != QMetaType::QVariantMap)
-            return Result::Error(Tr::tr("Files data list entry is not an object."));
+            return ResultError(Tr::tr("Files data list entry is not an object."));
 
         File f;
 
@@ -95,10 +95,10 @@ Result JsonWizardFileGenerator::setup(const QVariant &data)
 
         f.options = JsonWizard::parseOptions(tmp.value(QLatin1String("options")), &errorMessage);
         if (!errorMessage.isEmpty())
-            return Result::Error(errorMessage);
+            return ResultError(errorMessage);
 
         if (f.source.isEmpty() && f.target.isEmpty())
-            return Result::Error(Tr::tr("Source and target are both empty."));
+            return ResultError(Tr::tr("Source and target are both empty."));
 
         if (f.target.isEmpty())
             f.target = f.source;
@@ -106,7 +106,7 @@ Result JsonWizardFileGenerator::setup(const QVariant &data)
         m_fileList << f;
     }
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
@@ -248,11 +248,11 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(MacroExpander *expander,
     return result;
 }
 
-Result JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::GeneratedFile *file)
+Result<> JsonWizardFileGenerator::writeFile(const JsonWizard *wizard, Core::GeneratedFile *file)
 {
     Q_UNUSED(wizard)
     if (file->attributes() & Core::GeneratedFile::KeepExistingFileAttribute)
-        return Result::Ok;
+        return ResultOk;
     return file->write();
 }
 

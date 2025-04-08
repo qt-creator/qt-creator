@@ -75,7 +75,7 @@ public:
     void removePluginsAfterRestart();
     void installPluginsAfterRestart();
 
-    Utils::Result removePluginOnRestart(const QString &pluginId);
+    Utils::Result<> removePluginOnRestart(const QString &pluginId);
     void installPluginOnRestart(const Utils::FilePath &src, const Utils::FilePath &dest);
 
     class TestSpec {

@@ -82,18 +82,18 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
     return OpenResult::Success;
 }
 
-Result FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
+Result<> FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (!m_formWindow)
-        return Result::Error("ASSERT: FormWindoFile: !m_formWindow");
+        return ResultError("ASSERT: FormWindoFile: !m_formWindow");
     if (filePath.isEmpty())
-        return Result::Error("ASSERT: FormWindowFile: filePath.isEmpty()");
+        return ResultError("ASSERT: FormWindowFile: filePath.isEmpty()");
 
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
         m_formWindow->setFileName(filePath.toUrlishString());
 
-    const Result res = writeFile(filePath);
+    const Result<> res = writeFile(filePath);
     m_shouldAutoSave = false;
     if (autoSave)
         return res;
@@ -107,7 +107,7 @@ Result FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
     setFilePath(filePath);
     updateIsModified();
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 QByteArray FormWindowFile::contents() const
@@ -184,11 +184,11 @@ bool FormWindowFile::isSaveAsAllowed() const
     return true;
 }
 
-Result FormWindowFile::reload(ReloadFlag flag, ChangeType type)
+Result<> FormWindowFile::reload(ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore) {
         if (!m_formWindow || type != TypeContents)
-            return Result::Ok;
+            return ResultOk;
         const bool wasModified = m_formWindow->isDirty();
         {
             Utils::GuardLocker locker(m_modificationChangedGuard);
@@ -198,14 +198,14 @@ Result FormWindowFile::reload(ReloadFlag flag, ChangeType type)
         }
         if (!wasModified)
             updateIsModified();
-        return Result::Ok;
+        return ResultOk;
     } else {
         emit aboutToReload();
         QString errorString;
         const bool success
                 = (open(&errorString, filePath(), filePath()) == OpenResult::Success);
         emit reloadFinished(success);
-        return Result(success, errorString);
+        return makeResult(success, errorString);
     }
 }
 
@@ -227,7 +227,7 @@ bool FormWindowFile::supportsCodec(const QByteArray &codec) const
     return TextEditor::TextDocument::isUtf8Codec(codec);
 }
 
-Result FormWindowFile::writeFile(const Utils::FilePath &filePath) const
+Result<> FormWindowFile::writeFile(const Utils::FilePath &filePath) const
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << this->filePath() << filePath;

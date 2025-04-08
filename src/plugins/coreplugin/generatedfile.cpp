@@ -37,8 +37,8 @@ public:
     GeneratedFilePrivate() = default;
     explicit GeneratedFilePrivate(const FilePath &path);
 
-    Result writeContents() const;
-    Result writePermissions() const;
+    Result<> writeContents() const;
+    Result<> writePermissions() const;
 
     FilePath path;
     std::optional<QFile::Permissions> permissions;
@@ -150,7 +150,7 @@ void GeneratedFile::setEditorId(Id id)
     m_d->editorId = id;
 }
 
-Result GeneratedFilePrivate::writeContents() const
+Result<> GeneratedFilePrivate::writeContents() const
 {
     if (binary) {
         QIODevice::OpenMode flags = QIODevice::WriteOnly | QIODevice::Truncate;
@@ -158,7 +158,7 @@ Result GeneratedFilePrivate::writeContents() const
         saver.write(contents);
         QString errorMessage;
         const bool ok = saver.finalize(&errorMessage);
-        return ok ? Result::Ok : Result::Error(errorMessage);
+        return ok ? ResultOk : ResultError(errorMessage);
     }
 
     TextFileFormat format;
@@ -167,28 +167,28 @@ Result GeneratedFilePrivate::writeContents() const
     return format.writeFile(path, QString::fromUtf8(contents));
 }
 
-Result GeneratedFilePrivate::writePermissions() const
+Result<> GeneratedFilePrivate::writePermissions() const
 {
     if (!permissions)
-        return Result::Ok;
+        return ResultOk;
     if (!path.setPermissions(*permissions))
-        return Result::Error(Tr::tr("Failed to set permissions."));
-    return Result::Ok;
+        return ResultError(Tr::tr("Failed to set permissions."));
+    return ResultOk;
 }
 
-Result GeneratedFile::write() const
+Result<> GeneratedFile::write() const
 {
     // Ensure the directory
     const FilePath parentDir = m_d->path.parentDir();
     if (!parentDir.isDir()) {
         if (!parentDir.createDir()) {
-            return Result::Error(Tr::tr("Unable to create the directory %1.")
+            return ResultError(Tr::tr("Unable to create the directory %1.")
                                 .arg(parentDir.toUserOutput()));
         }
     }
 
     // Write out
-    if (const Result res = m_d->writeContents(); !res)
+    if (const Result<> res = m_d->writeContents(); !res)
         return res;
     return m_d->writePermissions();
 }

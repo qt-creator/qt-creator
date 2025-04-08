@@ -49,14 +49,14 @@ FilePath RemoteSpec::installLocation(bool inUserFolder) const
     return {};
 };
 
-Result RemoteSpec::fromJson(const QJsonObject &remoteJsonData)
+Result<> RemoteSpec::fromJson(const QJsonObject &remoteJsonData)
 {
     qCDebug(remoteSpec).noquote() << "Remote JSON data:"
                                   << QJsonDocument(remoteJsonData).toJson(QJsonDocument::Indented);
     return fromJson(remoteJsonData, remoteJsonData.value("latest").toString());
 }
 
-Utils::Result RemoteSpec::fromJson(const QJsonObject &remoteJsonData, const QString &version)
+Utils::Result<> RemoteSpec::fromJson(const QJsonObject &remoteJsonData, const QString &version)
 {
     m_remoteJsonData = remoteJsonData;
     m_version = version;
@@ -66,15 +66,15 @@ Utils::Result RemoteSpec::fromJson(const QJsonObject &remoteJsonData, const QStr
     if (!plugin.isEmpty()) {
         auto res = ExtensionSystem::PluginSpec::readMetaData(plugin.value("metadata").toObject());
         if (!res)
-            return Result::Error(res.error());
+            return ResultError(res.error());
         if (hasError())
-            return Result::Error(errorString());
-        return Result::Ok;
+            return ResultError(errorString());
+        return ResultOk;
     }
 
     m_isPack = true;
 
-    return Result::Ok;
+    return ResultOk;
 }
 
 std::vector<std::unique_ptr<RemoteSpec>> RemoteSpec::versions() const

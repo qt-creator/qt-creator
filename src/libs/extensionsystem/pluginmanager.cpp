@@ -357,7 +357,7 @@ void PluginManager::installPluginsAfterRestart()
     d->installPluginsAfterRestart();
 }
 
-Result PluginManager::removePluginOnRestart(const QString &id)
+Result<> PluginManager::removePluginOnRestart(const QString &id)
 {
     return d->removePluginOnRestart(id);
 }
@@ -1971,23 +1971,23 @@ void PluginManagerPrivate::addPlugins(const PluginSpecs &specs)
 static const char PLUGINS_TO_INSTALL_KEY[] = "PluginsToInstall";
 static const char PLUGINS_TO_REMOVE_KEY[] = "PluginsToRemove";
 
-Result PluginManagerPrivate::removePluginOnRestart(const QString &pluginId)
+Result<> PluginManagerPrivate::removePluginOnRestart(const QString &pluginId)
 {
     const PluginSpec *pluginSpec = pluginById(pluginId);
 
     if (!pluginSpec)
-        return Result::Error(Tr::tr("Plugin not found."));
+        return ResultError(Tr::tr("Plugin not found."));
 
     const expected_str<FilePaths> filePaths = pluginSpec->filesToUninstall();
     if (!filePaths)
-        return Result::Error(filePaths.error());
+        return ResultError(filePaths.error());
 
     const QVariantList list = Utils::transform(*filePaths, &FilePath::toVariant);
 
     settings->setValue(PLUGINS_TO_REMOVE_KEY, settings->value(PLUGINS_TO_REMOVE_KEY).toList() + list);
 
     settings->sync();
-    return Result::Ok;
+    return ResultOk;
 }
 
 static QList<QPair<FilePath, FilePath>> readPluginInstallList(QtcSettings *settings)
@@ -2028,7 +2028,7 @@ void PluginManagerPrivate::removePluginsAfterRestart()
         = Utils::transform(settings->value(PLUGINS_TO_REMOVE_KEY).toList(), &FilePath::fromVariant);
 
     for (const FilePath &path : removeList) {
-        Result r = Result::Error(Tr::tr("It does not exist."));
+        Result<> r = ResultError(Tr::tr("It does not exist."));
         if (path.isFile())
             r = path.removeFile();
         else if (path.isDir())
@@ -2060,7 +2060,7 @@ void PluginManagerPrivate::installPluginsAfterRestart()
                 continue;
             }
         } else if (dest.isFile()) {
-            if (const Result result = dest.removeFile(); !result) {
+            if (const Result<> result = dest.removeFile(); !result) {
                 qCWarning(pluginLog()) << "Failed to remove" << dest << ":" << result.error();
                 continue;
             }
@@ -2074,7 +2074,7 @@ void PluginManagerPrivate::installPluginsAfterRestart()
             }
         }
 
-        Utils::Result result = src.isDir() ? src.copyRecursively(dest)
+        Utils::Result<> result = src.isDir() ? src.copyRecursively(dest)
                                            : src.copyFile(dest / src.fileName());
 
         if (!result) {

@@ -168,7 +168,7 @@ static Group installRecipe(
             if (result == DoneWith::Cancel)
                 return DoneResult::Error;
 
-            Result r = unarchiver.result();
+            Result<> r = unarchiver.result();
             if (!r)
                 return emitResult(r.error());
 

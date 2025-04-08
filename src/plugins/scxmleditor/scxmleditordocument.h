@@ -33,7 +33,7 @@ public:
     bool shouldAutoSave() const override;
     bool isSaveAsAllowed() const override;
     bool isModified() const override;
-    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
+    Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
     bool supportsCodec(const QByteArray &codec) const override;
 
     // Internal
@@ -46,7 +46,7 @@ signals:
     void reloadRequested(QString *errorString, const QString &);
 
 protected:
-    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     QPointer<Common::MainWidget> m_designWidget;

@@ -159,25 +159,25 @@ QString UvscServerProvider::channelString() const
     return m_channel.toString();
 }
 
-Result UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
+Result<> UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
                                                       RunControl *runControl) const
 {
     const FilePath bin = rp.inferior().command.executable();
     if (bin.isEmpty()) {
-        return Result::Error(Tr::tr("Cannot debug: Local executable is not set."));
+        return ResultError(Tr::tr("Cannot debug: Local executable is not set."));
     } else if (!bin.exists()) {
-        return Result::Error(Tr::tr("Cannot debug: Could not find executable for \"%1\".")
+        return ResultError(Tr::tr("Cannot debug: Could not find executable for \"%1\".")
                                  .arg(bin.toUserOutput()));
     }
 
     QString errorMessage;
     const FilePath projFilePath = projectFilePath(runControl, errorMessage);
     if (!projFilePath.exists())
-        return Result::Error(errorMessage);
+        return ResultError(errorMessage);
 
     const FilePath optFilePath = optionsFilePath(runControl, errorMessage);
     if (!optFilePath.exists())
-        return Result::Error(errorMessage);
+        return ResultError(errorMessage);
 
     const FilePath peripheralDescriptionFile = FilePath::fromString(m_deviceSelection.svd);
 
@@ -192,7 +192,7 @@ Result UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
     rp.setStartMode(AttachToRemoteServer);
     rp.setRemoteChannel(channelString());
     rp.setUseContinueInsteadOfRun(true);
-    return Result::Ok;
+    return ResultOk;
 }
 
 ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runControl) const

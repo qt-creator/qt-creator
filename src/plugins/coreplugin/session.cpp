@@ -360,7 +360,7 @@ bool SessionManager::deleteSession(const QString &session)
     FilePath sessionFile = sessionNameToFileName(session);
     if (!sessionFile.exists())
         return false;
-    Result result = sessionFile.removeFile();
+    Result<> result = sessionFile.removeFile();
     QTC_CHECK_EXPECTED(result);
     return bool(result);
 }
@@ -789,7 +789,7 @@ bool SessionManager::saveSession()
     if (!d->m_writer || d->m_writer->fileName() != filePath)
         d->m_writer.reset(new PersistentSettingsWriter(filePath, "QtCreatorSession"));
 
-    const Result result = d->m_writer->save(data);
+    const Result<> result = d->m_writer->save(data);
     if (result) {
         if (!SessionManager::isDefaultVirgin())
             d->m_sessionDateTimes.insert(SessionManager::activeSession(),
@@ -801,7 +801,7 @@ bool SessionManager::saveSession()
                                  .arg(d->m_writer->fileName().toUserOutput()));
     }
 
-    return result;
+    return result.has_value();
 }
 
 } // namespace Core

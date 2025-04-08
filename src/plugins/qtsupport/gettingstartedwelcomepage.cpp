@@ -140,7 +140,7 @@ static FilePath copyToAlternativeLocation(const FilePath &proFile,
                                  QMessageBox::NoButton);
             return {};
         } else {
-            Result result = projectDir.copyRecursively(targetDir);
+            Result<> result = projectDir.copyRecursively(targetDir);
 
             if (result) {
                 // set vars to new location

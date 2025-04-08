@@ -20,6 +20,7 @@
 #include <utils/outputformat.h>
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
+#include <utils/result.h>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -34,7 +35,6 @@ namespace Utils {
 class MacroExpander;
 class Perspective;
 class ProcessResultData;
-class Result;
 } // Utils
 
 namespace Debugger {
@@ -77,7 +77,7 @@ public:
 
     static void setBreakOnMainNextTime();
 
-    Utils::Result fixupParameters(ProjectExplorer::RunControl *runControl);
+    Utils::Result<> fixupParameters(ProjectExplorer::RunControl *runControl);
 
     void setStartMode(DebuggerStartMode startMode);
     DebuggerStartMode startMode() const { return m_startMode; }

@@ -47,14 +47,14 @@ public:
         return BehaviorSilent;
     }
 
-    Result reload(ReloadFlag, ChangeType) final
+    Result<> reload(ReloadFlag, ChangeType) final
     {
         FolderNode *parent = m_node->parentFolderNode();
         if (!parent)
-            return Result::Error("ASSERT: !parent");
+            return ResultError("ASSERT: !parent");
         parent->replaceSubtree(m_node, std::make_unique<ResourceTopLevelNode>(
                                    m_node->filePath(), parent->filePath(), m_node->contents()));
-        return Result::Ok;
+        return ResultOk;
     }
 
 private:

@@ -339,7 +339,7 @@ void SquishFileHandler::deleteTestCase(const QString &suiteName, const QString &
     SuiteConf suiteConf = SuiteConf::readSuiteConf(suiteConfPath);
     const Utils::FilePath testCaseDirectory = suiteConfPath.parentDir().pathAppended(testCaseName);
     closeOpenedEditorsFor(testCaseDirectory, false);
-    Utils::Result result = testCaseDirectory.removeRecursively();
+    Utils::Result<> result = testCaseDirectory.removeRecursively();
     if (!result) {
         QString detail = Tr::tr("Deletion of Test Case failed.");
         detail.append('\n').append(result.error());

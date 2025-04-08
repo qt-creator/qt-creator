@@ -317,7 +317,7 @@ bool DocumentManager::createFile(const QString &filePath, const QString &content
     TextFileFormat textFileFormat;
     textFileFormat.setCodecName(Core::EditorManager::defaultTextCodecName());
 
-    return textFileFormat.writeFile(FilePath::fromString(filePath), contents);
+    return textFileFormat.writeFile(FilePath::fromString(filePath), contents).has_value();
 }
 
 void DocumentManager::addFileToVersionControl(const QString &directoryPath, const QString &newFilePath)

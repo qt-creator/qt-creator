@@ -29,7 +29,7 @@ public:
 
 private:
     DockerContainerThread(Init init);
-    Utils::Result start();
+    Utils::Result<> start();
 
 private:
     QThread m_thread;

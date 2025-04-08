@@ -55,8 +55,8 @@ QTCREATOR_UTILS_EXPORT bool copyRecursively(
     QString *error,
     CopyHelper helper);
 
-QTCREATOR_UTILS_EXPORT Result copyIfDifferent(const FilePath &srcFilePath,
-                                              const FilePath &tgtFilePath);
+QTCREATOR_UTILS_EXPORT Result<> copyIfDifferent(const FilePath &srcFilePath,
+                                                const FilePath &tgtFilePath);
 QTCREATOR_UTILS_EXPORT QString fileSystemFriendlyName(const QString &name);
 QTCREATOR_UTILS_EXPORT int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);
 QTCREATOR_UTILS_EXPORT QString qmakeFriendlyName(const QString &name);
@@ -180,7 +180,7 @@ public:
 protected:
     std::unique_ptr<QFile> m_file;
     FilePath m_filePath;
-    Result m_result;
+    Result<> m_result;
 
 private:
     Q_DISABLE_COPY(FileSaverBase)

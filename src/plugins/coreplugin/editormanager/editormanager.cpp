@@ -2386,7 +2386,7 @@ void EditorManagerPrivate::autoSave()
         if (document->filePath().isEmpty()
                 || !savePath.isWritableDir()) // FIXME: save them to a dedicated directory
             continue;
-        if (Result res = document->autoSave(saveName); !res)
+        if (Result<> res = document->autoSave(saveName); !res)
             errors << res.error();
     }
     if (!errors.isEmpty())
@@ -2614,7 +2614,7 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
         }
     }
 
-    if (Result res = document->reload(IDocument::FlagReload, IDocument::TypeContents); !res)
+    if (Result<> res = document->reload(IDocument::FlagReload, IDocument::TypeContents); !res)
         QMessageBox::critical(ICore::dialogParent(), ::Core::Tr::tr("File Error"), res.error());
 }
 

@@ -24,22 +24,22 @@ public:
     virtual Core::GeneratedFiles fileList(Utils::MacroExpander *expander,
                                           const Utils::FilePath &wizardDir, const Utils::FilePath &projectDir,
                                           QString *errorMessage) = 0;
-    virtual Utils::Result formatFile(const JsonWizard *wizard, Core::GeneratedFile *file);
-    virtual Utils::Result writeFile(const JsonWizard *wizard, Core::GeneratedFile *file);
-    virtual Utils::Result postWrite(const JsonWizard *wizard, Core::GeneratedFile *file);
-    virtual Utils::Result polish(const JsonWizard *wizard, Core::GeneratedFile *file);
-    virtual Utils::Result allDone(const JsonWizard *wizard, Core::GeneratedFile *file);
+    virtual Utils::Result<> formatFile(const JsonWizard *wizard, Core::GeneratedFile *file);
+    virtual Utils::Result<> writeFile(const JsonWizard *wizard, Core::GeneratedFile *file);
+    virtual Utils::Result<> postWrite(const JsonWizard *wizard, Core::GeneratedFile *file);
+    virtual Utils::Result<> polish(const JsonWizard *wizard, Core::GeneratedFile *file);
+    virtual Utils::Result<> allDone(const JsonWizard *wizard, Core::GeneratedFile *file);
 
     virtual bool canKeepExistingFiles() const { return true; }
 
     enum OverwriteResult { OverwriteOk,  OverwriteError,  OverwriteCanceled };
     static OverwriteResult promptForOverwrite(JsonWizard::GeneratorFiles *files, QString *errorMessage);
 
-    static Utils::Result formatFiles(const JsonWizard *wizard, QList<JsonWizard::GeneratorFile> *files);
-    static Utils::Result writeFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files);
-    static Utils::Result postWrite(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files);
-    static Utils::Result polish(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files);
-    static Utils::Result allDone(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files);
+    static Utils::Result<> formatFiles(const JsonWizard *wizard, QList<JsonWizard::GeneratorFile> *files);
+    static Utils::Result<> writeFiles(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files);
+    static Utils::Result<> postWrite(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files);
+    static Utils::Result<> polish(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files);
+    static Utils::Result<> allDone(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files);
 };
 
 class PROJECTEXPLORER_EXPORT JsonWizardGeneratorFactory : public QObject
@@ -58,7 +58,7 @@ public:
                                         const QVariantMap &variables) = 0;
 
     // Basic syntax check for the data taken from the wizard.json file:
-    virtual Utils::Result validateData(Utils::Id typeId, const QVariant &data) = 0;
+    virtual Utils::Result<> validateData(Utils::Id typeId, const QVariant &data) = 0;
 
 protected:
     // This will add "PE.Wizard.Generator." in front of the suffixes and set those as supported typeIds
@@ -85,7 +85,7 @@ public:
         QTC_ASSERT(canCreate(typeId), return nullptr);
 
         auto gen = new Generator;
-        const Utils::Result res = gen->setup(data);
+        const Utils::Result<> res = gen->setup(data);
 
         if (!res) {
             qWarning() << "JsonWizardGeneratorTypedFactory for " << typeId << "setup error:"
@@ -96,9 +96,9 @@ public:
         return gen;
     }
 
-    Utils::Result validateData(Utils::Id typeId, const QVariant &data) final
+    Utils::Result<> validateData(Utils::Id typeId, const QVariant &data) final
     {
-        QTC_ASSERT(canCreate(typeId), return Utils::Result::Error("Cannot create type"));
+        QTC_ASSERT(canCreate(typeId), return Utils::ResultError("Cannot create type"));
         QScopedPointer<Generator> gen(new Generator);
         return gen->setup(data);
     }

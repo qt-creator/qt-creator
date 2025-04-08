@@ -145,7 +145,7 @@ std::optional<SettingsAccessor::Issue> SettingsAccessor::writeFile(const FilePat
     if (!m_readOnly && (!m_writer || m_writer->fileName() != path))
         m_writer = std::make_unique<PersistentSettingsWriter>(path, m_docType);
 
-    const Result res = m_writer->save(data, false);
+    const Result<> res = m_writer->save(data, false);
     if (!res)
         return Issue(Tr::tr("Failed to Write File"), res.error(), Issue::Type::ERROR);
 

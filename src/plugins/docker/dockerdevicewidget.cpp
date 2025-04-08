@@ -104,7 +104,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             this,
             [this, logView, dockerDevice, searchPaths] {
                 logView->clear();
-                Result startResult = dockerDevice->updateContainerAccess();
+                Result<> startResult = dockerDevice->updateContainerAccess();
 
                 if (!startResult) {
                     logView->append(Tr::tr("Failed to start container."));

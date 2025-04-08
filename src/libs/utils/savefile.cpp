@@ -197,7 +197,7 @@ bool SaveFile::commit()
         }
     }
 
-    Result renameResult = m_tempFile->filePath().renameFile(finalFileName);
+    Result<> renameResult = m_tempFile->filePath().renameFile(finalFileName);
     if (!renameResult) {
         // The case when someone else was able to create finalFileName after we've renamed it.
         // Higher level call may try to save this file again but here we do nothing and

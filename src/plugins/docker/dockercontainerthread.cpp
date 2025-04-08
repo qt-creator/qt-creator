@@ -41,7 +41,7 @@ public:
         else
             containerId = *create;
 
-        if (Result start = startContainer(); !start)
+        if (Result<> start = startContainer(); !start)
             return make_unexpected(start.error());
 
         return containerId;
@@ -70,7 +70,7 @@ private:
         return m_containerId;
     }
 
-    Result startContainer()
+    Result<> startContainer()
     {
         using namespace std::chrono_literals;
 
@@ -82,7 +82,7 @@ private:
         m_startProcess->start();
         if (!m_startProcess->waitForStarted(5s)) {
             if (m_startProcess->state() == QProcess::NotRunning) {
-                return Result::Error(
+                return ResultError(
                     Tr::tr("Failed starting Docker container. Exit code: %1, output: %2")
                         .arg(m_startProcess->exitCode())
                         .arg(m_startProcess->allOutput()));
@@ -94,7 +94,7 @@ private:
 
         qCDebug(dockerThreadLog) << "Started container: " << m_startProcess->commandLine();
 
-        return Result::Ok;
+        return ResultOk;
     }
 
 private:
@@ -112,15 +112,15 @@ DockerContainerThread::DockerContainerThread(Init init)
     m_thread.start();
 }
 
-Result DockerContainerThread::start()
+Result<> DockerContainerThread::start()
 {
     expected_str<QString> result;
     QMetaObject::invokeMethod(m_internal, &Internal::start, Qt::BlockingQueuedConnection, &result);
     if (result) {
         m_containerId = *result;
-        return Result::Ok;
+        return ResultOk;
     }
-    return Result::Error(result.error());
+    return ResultError(result.error());
 }
 
 DockerContainerThread::~DockerContainerThread()
@@ -138,7 +138,7 @@ expected_str<std::unique_ptr<DockerContainerThread>> DockerContainerThread::crea
 {
     std::unique_ptr<DockerContainerThread> thread(new DockerContainerThread(init));
 
-    if (Result result = thread->start(); !result)
+    if (Result<> result = thread->start(); !result)
         return make_unexpected(result.error());
 
     return thread;

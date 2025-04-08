@@ -172,7 +172,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         const FilePath rcPath = filesToCopy.bash.rcFile;
         const FilePath tmpRc = FilePath::fromUserInput(
             m_tempDir.filePath(filesToCopy.bash.rcFile.fileName()));
-        const Result copyResult = rcPath.copyFile(tmpRc);
+        const Result<> copyResult = rcPath.copyFile(tmpRc);
         QTC_ASSERT_EXPECTED(copyResult, return);
 
         if (cmd.arguments() == "-l")
@@ -181,7 +181,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         cmd = {cmd.executable(), {"--init-file", tmpRc.nativePath()}};
     } else if (cmd.executable().baseName() == "zsh") {
         for (const FileToCopy &file : std::as_const(filesToCopy.zsh.files)) {
-            const Result copyResult = file.source.copyFile(
+            const Result<> copyResult = file.source.copyFile(
                 FilePath::fromUserInput(m_tempDir.filePath(file.destName)));
             QTC_ASSERT_EXPECTED(copyResult, return);
         }
@@ -196,7 +196,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         const FilePath rcPath = filesToCopy.pwsh.script;
         const FilePath tmpRc = FilePath::fromUserInput(
             m_tempDir.filePath(filesToCopy.pwsh.script.fileName()));
-        const Result copyResult = rcPath.copyFile(tmpRc);
+        const Result<> copyResult = rcPath.copyFile(tmpRc);
         QTC_ASSERT_EXPECTED(copyResult, return);
 
         cmd.addArgs(QString("-noexit -command try { . '%1' } catch {Write-Host \"Shell "
@@ -207,7 +207,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         const FilePath rcPath = filesToCopy.clink.script;
         const FilePath tmpRc = FilePath::fromUserInput(
             m_tempDir.filePath(filesToCopy.clink.script.fileName()));
-        const Result copyResult = rcPath.copyFile(tmpRc);
+        const Result<> copyResult = rcPath.copyFile(tmpRc);
         QTC_ASSERT_EXPECTED(copyResult, return);
 
         env.set("CLINK_HISTORY_LABEL", "QtCreator");
@@ -216,7 +216,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         FilePath xdgDir = FilePath::fromUserInput(m_tempDir.filePath("fish_xdg_data"));
         FilePath subDir = xdgDir.resolvePath(QString("fish/vendor_conf.d"));
         QTC_ASSERT(subDir.createDir(), return);
-        const Result copyResult = filesToCopy.fish.script.copyFile(
+        const Result<> copyResult = filesToCopy.fish.script.copyFile(
             subDir.resolvePath(filesToCopy.fish.script.fileName()));
         QTC_ASSERT_EXPECTED(copyResult, return);
 

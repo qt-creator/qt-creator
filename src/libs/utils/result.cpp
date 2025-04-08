@@ -7,36 +7,24 @@
 
 namespace Utils {
 
-const Result Result::Ok;
+const Result<> ResultOk;
 
-Result::Result(bool success, const QString &errorString)
+ResultError::ResultError(const QString &errorMessage)
+    : m_error(errorMessage)
+{}
+
+ResultError::ResultError(ResultUnimplementedType)
+    : m_error(Tr::tr("Not implemented"))
+{}
+ResultError::ResultError(ResultAssertType, const QString &errorMessage)
+    : m_error(Tr::tr("Internal error: %1").arg(errorMessage))
+{}
+
+Result<> makeResult(bool ok, const QString &errorMessage)
 {
-    if (!success)
-        m_error = errorString;
-}
-
-Result::Result(const expected_str<void> &res)
-{
-    if (!res)
-        m_error = res.error();
-}
-
-Result::~Result() = default;
-
-Result Result::Error(const QString &errorString)
-{
-    return Result(errorString);
-}
-
-Result Result::Error(SpecialError specialError)
-{
-    switch (specialError) {
-    case Unimplemented:
-        return Error(Tr::tr("Not implemented"));
-    case Assert:
-        return Error(Tr::tr("Internal error"));
-    }
-    return Error(Tr::tr("Internal error"));
+    if (ok)
+        return ResultOk;
+    return tl::make_unexpected(errorMessage);
 }
 
 } // Utils

@@ -73,7 +73,7 @@ bool RefactoringFile::create(const QString &contents, bool reindent, bool openIn
     // Write the file to disk:
     TextFileFormat format;
     format.setCodecName(EditorManager::defaultTextCodecName());
-    const Result saveOk = format.writeFile(m_filePath, m_document->toPlainText());
+    const Result<> saveOk = format.writeFile(m_filePath, m_document->toPlainText());
     delete m_document;
     m_document = nullptr;
     if (!saveOk)
@@ -267,7 +267,7 @@ bool RefactoringFile::apply()
                 QTC_ASSERT(!m_filePath.isEmpty(), return false);
                 // suppress "file has changed" warnings if the file is open in a read-only editor
                 Core::FileChangeBlocker block(m_filePath);
-                if (const Result res = m_textFileFormat.writeFile(m_filePath, doc->toPlainText())) {
+                if (const Result<> res = m_textFileFormat.writeFile(m_filePath, doc->toPlainText())) {
                     Core::DocumentManager::notifyFilesChangedInternally({m_filePath});
                 } else {
                     qWarning() << "Could not apply changes to" << m_filePath

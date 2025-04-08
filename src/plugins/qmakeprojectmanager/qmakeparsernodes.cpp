@@ -916,7 +916,7 @@ void QmakePriFile::save(const QStringList &lines)
     {
         QTC_ASSERT(m_textFormat.codec(), return);
         FileChangeBlocker changeGuard(filePath());
-        if (const Result res = m_textFormat.writeFile(filePath(), lines.join('\n')); !res)
+        if (const Result<> res = m_textFormat.writeFile(filePath(), lines.join('\n')); !res)
             QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("File Error"), res.error());
     }
 
@@ -928,7 +928,7 @@ void QmakePriFile::save(const QStringList &lines)
     QStringList errorStrings;
     Core::IDocument *document = Core::DocumentModel::documentForFilePath(filePath());
     if (document) {
-        Result res = document->reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents);
+        Result<> res = document->reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents);
         if (!res)
             errorStrings << res.error();
     }

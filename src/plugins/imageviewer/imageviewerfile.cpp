@@ -146,17 +146,17 @@ Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger st
     return BehaviorAsk;
 }
 
-Result ImageViewerFile::reload(Core::IDocument::ReloadFlag flag,
+Result<> ImageViewerFile::reload(Core::IDocument::ReloadFlag flag,
                                Core::IDocument::ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return Result::Ok;
+        return ResultOk;
     emit aboutToReload();
     QString errorString;
     bool success = (openImpl(&errorString, filePath()) == OpenResult::Success);
     emit reloadFinished(success);
-    return Result(success, errorString);
+    return makeResult(success, errorString);
 }
 
 QMovie *ImageViewerFile::movie() const

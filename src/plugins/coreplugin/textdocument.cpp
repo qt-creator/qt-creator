@@ -73,7 +73,7 @@ QByteArray BaseTextDocument::decodingErrorSample() const
     Returns whether the operation was successful.
 */
 
-Result BaseTextDocument::write(const FilePath &filePath, const QString &data) const
+Result<> BaseTextDocument::write(const FilePath &filePath, const QString &data) const
 {
     return write(filePath, format(), data);
 }
@@ -88,7 +88,7 @@ Result BaseTextDocument::write(const FilePath &filePath, const QString &data) co
     Returns whether the operation was successful.
 */
 
-Result BaseTextDocument::write(const FilePath &filePath,
+Result<> BaseTextDocument::write(const FilePath &filePath,
                                const TextFileFormat &format,
                                const QString &data) const
 {

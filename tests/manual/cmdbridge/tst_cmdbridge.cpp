@@ -67,7 +67,7 @@ private slots:
     void testDeviceEnvironment()
     {
         CmdBridge::FileAccess fileAccess;
-        Utils::Result res = fileAccess.deployAndInit(
+        Utils::Result<> res = fileAccess.deployAndInit(
             FilePath::fromUserInput(libExecPath),
             FilePath::fromUserInput("/"),
             Environment::systemEnvironment());

@@ -11,31 +11,26 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT Result
+template<typename T = void>
+using Result = Utils::expected<T, QString>;
+
+QTCREATOR_UTILS_EXPORT extern const Result<> ResultOk;
+
+QTCREATOR_UTILS_EXPORT Result<> makeResult(bool ok, const QString &errorMessage);
+
+enum ResultUnimplementedType { ResultUnimplemented };
+enum ResultAssertType { ResultAssert };
+
+class QTCREATOR_UTILS_EXPORT ResultError
 {
-    Result() = default;
-    explicit Result(const std::optional<QString> &err) : m_error(err) {}
-
 public:
-    Result(bool success, const QString &errorString);
-    Result(const expected_str<void> &res);
-    Result(const Result &) = default;
-    Result(Result &&) = default;
-    ~Result();
-
-    Result &operator=(const Result &) = default;
-    Result &operator=(Result &&) = default;
-
-    enum SpecialError { Unimplemented, Assert };
-    static const Result Ok;
-    static Result Error(const QString &errorString);
-    static Result Error(SpecialError specialError);
-
-    QString error() const { return m_error ? *m_error : QString(); }
-    operator bool() const { return !m_error; }
+    ResultError(const QString &errorMessage);
+    ResultError(ResultUnimplementedType);
+    ResultError(ResultAssertType, const QString &errorMessage = {});
+    template<typename T> operator Result<T>() { return tl::make_unexpected(m_error); }
 
 private:
-    std::optional<QString> m_error;
+    QString m_error;
 };
 
 #define QTC_ASSERT_AND_ERROR_OUT(cond) \

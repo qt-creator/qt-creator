@@ -389,7 +389,7 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
             if (!filePath.exists())
                 return options->ignoreIfNotExists().value_or(false);
             if (filePath.isDir() && options->recursive().value_or(false))
-                return filePath.removeRecursively();
+                return filePath.removeRecursively().has_value();
         }
         return bool(filePath.removeFile());
     }

@@ -6,15 +6,13 @@
 #include "core_global.h"
 
 #include <utils/id.h>
+#include <utils/result.h>
 
 #include <QFile>
 #include <QList>
 #include <QSharedDataPointer>
 
-namespace Utils {
-class FilePath;
-class Result;
-} // Utils
+namespace Utils { class FilePath; }
 
 namespace Core {
 class GeneratedFilePrivate;
@@ -66,7 +64,7 @@ public:
     Utils::Id editorId() const;
     void setEditorId(Utils::Id id);
 
-    Utils::Result write() const;
+    Utils::Result<> write() const;
 
     Attributes attributes() const;
     void setAttributes(Attributes a);

@@ -732,12 +732,12 @@ void MemcheckTool::updateRunActions()
         const auto canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_RUN_MODE);
         m_startAction->setToolTip(canRun ? Tr::tr("Start a Valgrind Memcheck analysis.")
                                          : canRun.error());
-        m_startAction->setEnabled(canRun);
+        m_startAction->setEnabled(canRun.has_value());
         const auto canRunGdb = ProjectExplorerPlugin::canRunStartupProject(
             MEMCHECK_WITH_GDB_RUN_MODE);
         m_startWithGdbAction->setToolTip(
             canRunGdb ? Tr::tr("Start a Valgrind Memcheck with GDB analysis.") : canRunGdb.error());
-        m_startWithGdbAction->setEnabled(canRunGdb);
+        m_startWithGdbAction->setEnabled(canRunGdb.has_value());
         m_stopAction->setEnabled(false);
     }
 }
@@ -895,7 +895,7 @@ void MemcheckTool::loadXmlLogFile(const QString &filePath)
 
     m_logParser.reset(new Parser);
     connect(m_logParser.get(), &Parser::error, this, &MemcheckTool::parserError);
-    connect(m_logParser.get(), &Parser::done, this, [this](const Result &result) {
+    connect(m_logParser.get(), &Parser::done, this, [this](const Result<> &result) {
         if (!result)
             internalParserError(result.error());
         loadingExternalXmlLogFileFinished();

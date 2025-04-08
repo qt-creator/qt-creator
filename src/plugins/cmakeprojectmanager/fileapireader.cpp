@@ -321,7 +321,7 @@ void FileApiReader::makeBackupConfiguration(bool store)
         std::swap(cmakeCacheTxt, cmakeCacheTxtPrev);
 
     if (cmakeCacheTxt.exists()) {
-        if (Result res = FileUtils::copyIfDifferent(cmakeCacheTxt, cmakeCacheTxtPrev); !res) {
+        if (Result<> res = FileUtils::copyIfDifferent(cmakeCacheTxt, cmakeCacheTxtPrev); !res) {
             Core::MessageManager::writeFlashing(addCMakePrefix(
                 Tr::tr("Failed to copy \"%1\" to \"%2\": %3")
                     .arg(cmakeCacheTxt.toUserOutput(), cmakeCacheTxtPrev.toUserOutput(), res.error())));

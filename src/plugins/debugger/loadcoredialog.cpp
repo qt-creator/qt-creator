@@ -245,7 +245,7 @@ void AttachCoreDialog::accepted()
             const expected_str<FilePath> resultPath = pattern.createTempFile();
             if (!resultPath)
                 return make_unexpected(resultPath.error());
-            const Result result = srcPath.copyFile(resultPath.value());
+            const Result<> result = srcPath.copyFile(resultPath.value());
             if (!result)
                 return make_unexpected(result.error());
 

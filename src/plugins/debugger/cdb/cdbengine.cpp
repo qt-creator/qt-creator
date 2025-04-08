@@ -2081,7 +2081,7 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QString &what, c
                 response.data.m_type = GdbMi::Tuple;
             }
         } else {
-            response.resultClass = ResultError;
+            response.resultClass = ResultFail;
             GdbMi msg;
             msg.m_name = "msg";
             msg.m_data = message;

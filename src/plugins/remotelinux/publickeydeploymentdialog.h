@@ -5,12 +5,11 @@
 
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
+#include <utils/result.h>
+
 #include <QProgressDialog>
 
-namespace Utils {
-class FilePath;
-class Result;
-}
+namespace Utils { class FilePath; }
 
 namespace RemoteLinux::Internal {
 
@@ -29,7 +28,7 @@ public:
     ~PublicKeyDeploymentDialog() override;
 
 private:
-    void handleDeploymentDone(const Utils::Result &result);
+    void handleDeploymentDone(const Utils::Result<> &result);
 
     Internal::PublicKeyDeploymentDialogPrivate * const d;
 };

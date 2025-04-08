@@ -3,10 +3,11 @@
 
 #pragma once
 
-#include "expected.h"
+#include "result.h"
 #include "utils_global.h"
 
 #include <QStringList>
+
 #include <utility>
 
 QT_BEGIN_NAMESPACE
@@ -17,7 +18,6 @@ QT_END_NAMESPACE
 namespace Utils {
 
 class FilePath;
-class Result;
 
 class QTCREATOR_UTILS_EXPORT TextFileFormat
 {
@@ -60,7 +60,7 @@ public:
     static tl::expected<QString, std::pair<ReadResult, QString>>
     readFile(const FilePath &filePath, const QTextCodec *defaultCodec);
 
-    Utils::Result writeFile(const FilePath &filePath, QString plainText) const;
+    Utils::Result<> writeFile(const FilePath &filePath, QString plainText) const;
 
     static QByteArray decodingErrorSample(const QByteArray &data);
 

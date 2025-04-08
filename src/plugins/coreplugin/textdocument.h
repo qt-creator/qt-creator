@@ -37,8 +37,8 @@ public:
     bool hasDecodingError() const;
     QByteArray decodingErrorSample() const;
 
-    Utils::Result write(const Utils::FilePath &filePath, const QString &data) const;
-    Utils::Result write(const Utils::FilePath &filePath, const Utils::TextFileFormat &format, const QString &data) const;
+    Utils::Result<> write(const Utils::FilePath &filePath, const QString &data) const;
+    Utils::Result<> write(const Utils::FilePath &filePath, const Utils::TextFileFormat &format, const QString &data) const;
 
     void setSupportsUtf8Bom(bool value);
     void setLineTerminationMode(Utils::TextFileFormat::LineTerminationMode mode);
