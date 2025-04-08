@@ -8,6 +8,8 @@
 #include <asset.h>
 #include <imageutils.h>
 
+#include <QPixmap>
+
 namespace QmlDesigner {
 
 UserTextureCategory::UserTextureCategory(const QString &title, const Utils::FilePath &bundlePath)
