@@ -275,6 +275,9 @@ QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(
 QmlJS::AST::UiObjectMemberList *QMLRewriter::searchChildrenToInsertAfter(
     QmlJS::AST::UiObjectMemberList *members, const PropertyNameList &propertyOrder, int pos)
 {
+    if (pos < 0)
+        return searchMemberToInsertAfter(members, propertyOrder);
+
     // An empty property name should be available in the propertyOrder List, which is the right place
     // to define the objects there.
     const int objectDefinitionInsertionPoint = propertyOrder.indexOf(PropertyName());
@@ -288,8 +291,6 @@ QmlJS::AST::UiObjectMemberList *QMLRewriter::searchChildrenToInsertAfter(
         int idx = -1;
 
         if (QmlJS::AST::cast<QmlJS::AST::UiObjectDefinition *>(member)) {
-            if (pos < 0)
-                break;
             lastObjectDef = iter;
             if (objectPos++ == pos)
                 break;
