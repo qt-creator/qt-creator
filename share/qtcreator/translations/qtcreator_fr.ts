@@ -38241,7 +38241,7 @@ Voir la documentation spécifique au serveur de langage pour la liste des param�
         <translation>Permettre à l&apos;extension «&#xa0;%1&#xa0;» de récupérer des données depuis Internet&#xa0;?</translation>
     </message>
     <message>
-        <source>Allow the extension &quot;%1&quot; to fetch datafrom the following URL:
+        <source>Allow the extension &quot;%1&quot; to fetch data from the following URL:
 
 </source>
         <translation>Permettre à l&apos;extension «&#xa0;%1&#xa0;» de récupérer des données depuis l&apos;URL suivante&#xa0;:
@@ -53825,7 +53825,7 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
         <translation>Utiliser le transfert du port SSH pour le débogage</translation>
     </message>
     <message>
-        <source>Enable debugging on remote targes which cannot expose gdbserver ports.
+        <source>Enable debugging on remote targets which cannot expose gdbserver ports.
 The ssh tunneling is used to map the remote gdbserver port to localhost.
 The local and remote ports are determined automatically.</source>
         <translation>Active le débogage de cibles distantes qui ne peuvent pas exposer de ports gdbserver.

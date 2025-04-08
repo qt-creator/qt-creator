@@ -222,7 +222,7 @@ void setupFetchModule()
                     Tr::tr("Allow the extension \"%1\" to fetch data from the internet?")
                         .arg(pluginName)};
                 entry.setDetailsWidgetCreator([pluginName, url] {
-                    const QString markdown = Tr::tr("Allow the extension \"%1\" to fetch data"
+                    const QString markdown = Tr::tr("Allow the extension \"%1\" to fetch data "
                                                     "from the following URL:\n\n")
                                                  .arg("**" + pluginName + "**")
                                              + QString("* [%1](%1)").arg(url);

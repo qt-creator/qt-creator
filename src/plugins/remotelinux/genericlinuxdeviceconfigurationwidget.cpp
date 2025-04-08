@@ -108,10 +108,10 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
 
     m_useSshPortForwardingForDebugging = new QCheckBox;
     m_useSshPortForwardingForDebugging->setText(Tr::tr("Use SSH port forwarding for debugging"));
-    m_useSshPortForwardingForDebugging
-        ->setToolTip(Tr::tr("Enable debugging on remote targes which cannot expose gdbserver ports.\n"
-                            "The ssh tunneling is used to map the remote gdbserver port to localhost.\n"
-                            "The local and remote ports are determined automatically."));
+    m_useSshPortForwardingForDebugging->setToolTip(
+        Tr::tr("Enable debugging on remote targets which cannot expose gdbserver ports.\n"
+               "The ssh tunneling is used to map the remote gdbserver port to localhost.\n"
+               "The local and remote ports are determined automatically."));
 
     using namespace Layouting;
 
