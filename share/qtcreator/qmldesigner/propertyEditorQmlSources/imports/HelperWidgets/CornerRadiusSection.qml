@@ -21,7 +21,7 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.topLeftRadius
-                decimals: 1
+                decimals: 0
                 minimumValue: 0
                 maximumValue: 0xffff
                 stepSize: 1
@@ -40,7 +40,7 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.topRightRadius
-                decimals: 1
+                decimals: 0
                 minimumValue: 0
                 maximumValue: 0xffff
                 stepSize: 1
@@ -67,7 +67,7 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.bottomLeftRadius
-                decimals: 1
+                decimals: 0
                 minimumValue: 0
                 maximumValue: 0xffff
                 stepSize: 1
@@ -87,7 +87,7 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.bottomRightRadius
-                decimals: 1
+                decimals: 0
                 minimumValue: 0
                 maximumValue: 0xffff
                 stepSize: 1
@@ -114,7 +114,7 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.radius
-                decimals: 1
+                decimals: 0
                 minimumValue: 0
                 maximumValue: 0xffff
                 stepSize: 1
