@@ -51,7 +51,7 @@ void NetworkQuery::start()
 NetworkQuery::~NetworkQuery()
 {
     if (m_reply) {
-        disconnect(m_reply.get(), &QNetworkReply::finished, this, nullptr);
+        disconnect(m_reply.get(), nullptr, this, nullptr);
         m_reply->abort();
     }
 }
