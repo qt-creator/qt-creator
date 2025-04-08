@@ -1503,6 +1503,7 @@ PortMappings::PortMappings(Utils::AspectContainer *container)
         connect(mapping.get(), &PortMapping::changed, this, &AspectContainer::changed);
         return mapping;
     });
+    setLabelText(Tr::tr("Port Mappings:"));
 }
 
 QStringList PortMappings::createArguments() const

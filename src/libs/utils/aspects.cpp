@@ -3773,60 +3773,62 @@ private:
     int m_index;
 };
 
+static void destroyLayout(QLayout *layout)
+{
+    if (layout) {
+        while (QLayoutItem *child = layout->takeAt(0)) {
+            delete child->widget();
+            delete child;
+        }
+        delete layout;
+    }
+}
+
 void AspectList::addToLayoutImpl(Layouting::Layout &parent)
 {
     using namespace Layouting;
 
-    QScrollArea *scrollArea = new QScrollArea;
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setMaximumHeight(100);
-    scrollArea->setMinimumHeight(100);
-    scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QGroupBox *group = new QGroupBox;
+    group->setTitle(labelText());
 
-    auto fill = [this, scrollArea] {
-        if (scrollArea->widget())
-            delete scrollArea->takeWidget();
+    auto fill = [this, group] {
+        destroyLayout(group->layout());
 
-        auto add = new QPushButton(Tr::tr("Add"));
-        QObject::connect(add, &QPushButton::clicked, scrollArea, [this] {
-            addItem(d->createItem());
-        });
+        Column column;
 
-        Column column{noMargin};
-
-        forEachItem<BaseAspect>([&column, this](const std::shared_ptr<BaseAspect> &item, int idx) {
+        for (const std::shared_ptr<BaseAspect> &item : volatileItems()) {
             auto removeBtn = new IconButton;
             removeBtn->setIcon(Utils::Icons::EDIT_CLEAR.icon());
             removeBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             QObject::connect(removeBtn, &QPushButton::clicked, removeBtn, [this, item] {
                 removeItem(item);
             });
-            ColoredRow *rowWdgt = new ColoredRow(idx);
+
             // clang-format off
-            auto row = Row {
+            QWidget *rowWdgt = Row {
                 *item,
                 removeBtn,
                 spacing(5),
-            };
+                noMargin,
+            }.emerge();
             // clang-format on
-            row.attachTo(rowWdgt);
             column.addItem(rowWdgt);
+        }
+
+        auto add = new QPushButton(Tr::tr("Add"));
+        QObject::connect(add, &QPushButton::clicked, this, [this] {
+            addItem(d->createItem());
         });
 
-        ColoredRow *rowWdgt = new ColoredRow(size());
-        Row{st, add}.attachTo(rowWdgt);
-        column.addItem(rowWdgt);
+        column.addItem(Row{st, add, noMargin}.emerge());
 
-        QWidget *contentWidget = column.emerge();
-        contentWidget->layout()->setSpacing(1);
-
-        scrollArea->setWidget(contentWidget);
+        column.attachTo(group);
     };
 
     fill();
-    QObject::connect(this, &AspectList::volatileValueChanged, scrollArea, fill);
+    QObject::connect(this, &AspectList::volatileValueChanged, group, fill);
 
-    parent.addItem(scrollArea);
+    parent.addItem(group);
 }
 
 StringSelectionAspect::StringSelectionAspect(AspectContainer *container)

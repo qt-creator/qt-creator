@@ -184,12 +184,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 pathListLabel,
                 dockerDevice->mounts,
             }, br,
-            Column {
-                Tr::tr("Port Mappings:"),
-                dockerDevice->portMappings,
-            }, br,
+            dockerDevice->portMappings, br,
             If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
-        },br,
+        }, br,
         Tr::tr("Command line:"), createLineLabel, br,
     }.attachTo(this);
     // clang-format on
