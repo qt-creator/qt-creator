@@ -106,6 +106,9 @@ public:
 
     void setSpan(int x, int y = 1);
 
+    bool isSaveAlways() const;
+    void setSaveAlways(bool saveAlways);
+
     QString labelText() const;
     void setLabelText(const QString &labelText);
     void setLabelPixmap(const QPixmap &labelPixmap);
@@ -270,10 +273,11 @@ protected:
     }
 
     void registerSubWidget(QWidget *widget);
+    void forEachSubWidget(const std::function<void(QWidget *)> &func);
+
     void saveToMap(Store &data, const QVariant &value,
                    const QVariant &defaultValue, const Key &key) const;
-
-    void forEachSubWidget(const std::function<void(QWidget *)> &func);
+    bool skipSave() const;
 
 protected:
     template <class Value>

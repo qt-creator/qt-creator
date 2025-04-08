@@ -105,6 +105,7 @@ public:
     bool m_enabled = true;
     bool m_readOnly = false;
     bool m_autoApply = true;
+    bool m_saveAlways = false; // if true, also empty keys will be written
     bool m_hasEnabler = false;
     int m_spanX = 1;
     int m_spanY = 1;
@@ -455,6 +456,16 @@ void BaseAspect::setSpan(int x, int y)
     d->m_spanY = y;
 }
 
+bool BaseAspect::isSaveAlways() const
+{
+    return d->m_saveAlways;
+}
+
+void BaseAspect::setSaveAlways(bool saveAlways)
+{
+    d->m_saveAlways = saveAlways;
+}
+
 bool BaseAspect::isAutoApply() const
 {
     return d->m_autoApply;
@@ -678,7 +689,7 @@ void BaseAspect::setContainer(AspectContainer *container)
 void BaseAspect::saveToMap(Store &data, const QVariant &value,
                            const QVariant &defaultValue, const Key &key) const
 {
-    if (key.isEmpty())
+    if (key.isEmpty() && !d->m_saveAlways)
         return;
     if (value == defaultValue)
         data.remove(key);
@@ -686,13 +697,19 @@ void BaseAspect::saveToMap(Store &data, const QVariant &value,
         data.insert(key, value);
 }
 
+bool BaseAspect::skipSave() const
+{
+    return settingsKey().isEmpty() && !d->m_saveAlways;
+}
+
 /*!
     Retrieves the internal value of this BaseAspect from the Store \a map.
 */
 void BaseAspect::fromMap(const Store &map)
 {
-    if (settingsKey().isEmpty())
+    if (skipSave())
         return;
+
     const QVariant val = map.value(settingsKey(), toSettingsValue(defaultVariantValue()));
     setVariantValue(fromSettingsValue(val), BeQuiet);
 }
@@ -720,7 +737,7 @@ void BaseAspect::addToLayout(Layouting::Layout &parent) const
 
 void BaseAspect::readSettings()
 {
-    if (settingsKey().isEmpty())
+    if (skipSave())
         return;
     QTC_ASSERT(theSettings, return);
     // The enabler needs to be set up after reading the settings, otherwise
@@ -733,7 +750,7 @@ void BaseAspect::readSettings()
 
 void BaseAspect::writeSettings() const
 {
-    if (settingsKey().isEmpty())
+    if (skipSave())
         return;
     QTC_ASSERT(theSettings, return);
     theSettings->setValueWithDefault(settingsKey(),
@@ -1117,7 +1134,7 @@ void StringAspect::setValueAcceptor(StringAspect::ValueAcceptor &&acceptor)
 */
 void StringAspect::fromMap(const Store &map)
 {
-    if (!settingsKey().isEmpty())
+    if (!skipSave())
         setValue(map.value(settingsKey(), defaultValue()).toString(), BeQuiet);
     d->m_checkerImpl.fromMap(map);
 }
@@ -1748,7 +1765,7 @@ void FilePathAspect::addToLayoutImpl(Layouting::Layout &parent)
 */
 void FilePathAspect::fromMap(const Store &map)
 {
-    if (!settingsKey().isEmpty())
+    if (!skipSave())
         setValue(map.value(settingsKey(), defaultValue()).toString(), BeQuiet);
     d->m_checkerImpl.fromMap(map);
 }
