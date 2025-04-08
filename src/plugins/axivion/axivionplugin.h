@@ -31,6 +31,8 @@ namespace Axivion::Internal {
 
 constexpr int DefaultSearchLimit = 2048;
 
+enum class DashboardMode { Global, Local };
+
 enum class QueryMode {
     SimpleQuery,            // just kind and version start and end
     FilterQuery,            // + all filters if available
@@ -81,29 +83,36 @@ public:
     QByteArray outputData;
 };
 
-QUrl resolveDashboardInfoUrl(const QUrl &url);
+QUrl resolveDashboardInfoUrl(DashboardMode dashboardMode, const QUrl &url);
 
-Tasking::Group downloadDataRecipe(const Tasking::Storage<DownloadData> &storage);
+Tasking::Group downloadDataRecipe(DashboardMode dashboardMode,
+                                  const Tasking::Storage<DownloadData> &storage);
 
 using DashboardInfoHandler = std::function<void(const Utils::Result<DashboardInfo> &)>;
-Tasking::Group dashboardInfoRecipe(const DashboardInfoHandler &handler = {});
+Tasking::Group dashboardInfoRecipe(DashboardMode dashboardMode,
+                                   const DashboardInfoHandler &handler = {});
 
-Tasking::Group projectInfoRecipe(const QString &projectName);
+Tasking::Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName);
 
 // TODO: Wrap into Result<>?
 using TableInfoHandler = std::function<void(const Dto::TableInfoDto &)>;
-Tasking::Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler);
+Tasking::Group tableInfoRecipe(DashboardMode dashboardMode,
+                               const QString &prefix, const TableInfoHandler &handler);
 
 // TODO: Wrap into Result<>?
 using IssueTableHandler = std::function<void(const Dto::IssueTableDto &)>;
-Tasking::Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &handler);
+Tasking::Group issueTableRecipe(DashboardMode dashboardMode,
+                                const IssueListSearch &search, const IssueTableHandler &handler);
 
 // TODO: Wrap into Result<>?
 using LineMarkerHandler = std::function<void(const Dto::FileViewDto &)>;
-Tasking::Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarkerHandler &handler);
+Tasking::Group lineMarkerRecipe(DashboardMode dashboardMode,
+                                const Utils::FilePath &filePath, const LineMarkerHandler &handler);
 
+void fetchLocalDashboardInfo(const DashboardInfoHandler &handler, const QString &projectName);
 void fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler, const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
+std::optional<Dto::ProjectInfoDto> localProjectInfo();
 
 struct NamedFilter
 {
@@ -112,7 +121,7 @@ struct NamedFilter
     bool global = false;
 };
 
-void fetchNamedFilters();
+void fetchNamedFilters(DashboardMode dashboardMode);
 QList<NamedFilter> knownNamedFiltersFor(const QString &issueKind, bool global);
 std::optional<Dto::NamedFilterInfoDto> namedFilterInfoForKey(const QString &key, bool global);
 
@@ -121,7 +130,7 @@ bool handleCertificateIssue();
 QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind);
 QString anyToSimpleString(const Dto::Any &any, const QString &type,
                           const std::optional<std::vector<Dto::ColumnTypeOptionDto>> &options);
-void fetchIssueInfo(const QString &id);
+void fetchIssueInfo(DashboardMode dashboardMode, const QString &id);
 
 void switchActiveDashboardId(const Utils::Id &toDashboardId);
 const Utils::Id activeDashboardId();
@@ -129,8 +138,7 @@ const std::optional<DashboardInfo> currentDashboardInfo();
 void setAnalysisVersion(const QString &version);
 void enableInlineIssues(bool enable);
 
-enum class DashboardMode { Global, Local };
-void switchDashboardMode(DashboardMode mode);
+void switchDashboardMode(DashboardMode mode, bool byLocalBuildButton); // FIXME
 DashboardMode currentDashboardMode();
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);

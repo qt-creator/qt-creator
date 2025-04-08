@@ -15,7 +15,8 @@ void resetDashboard();
 void updateIssueDetails(const QString &html);
 void updateNamedFilters();
 
-void leaveOrEnterDashboardMode();
+void leaveOrEnterDashboardMode(bool byLocalBuildButton);
+bool currentIssueHasValidPathMapping();
 
 void setupAxivionPerspective();
 

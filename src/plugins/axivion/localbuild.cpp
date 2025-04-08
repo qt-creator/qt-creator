@@ -64,6 +64,8 @@ public:
         QTC_CHECK(m_startedDashboardTrees.empty());
     }
 
+    std::optional<LocalDashboardAccess> localDashboardAccessFor(const QString &projectName) const;
+
     void startDashboard(const QString &projectName, const LocalDashboard &dashboard,
                         const std::function<void()> &callback);
     bool shutdownAll(const std::function<void()> &callback);
@@ -169,6 +171,23 @@ bool LocalBuild::shutdownAll(const std::function<void()> &callback)
     taskTree->start();
 
     return true;
+}
+
+
+std::optional<LocalDashboardAccess> LocalBuild::localDashboardAccessFor(
+        const QString &projectName) const
+{
+    const LocalDashboard found
+            = Utils::findOrDefault(m_startedDashboards, [projectName](const LocalDashboard &d) {
+        return d.localProject == projectName;
+    });
+    if (found.localProject.isEmpty())
+        return std::nullopt;
+
+    LocalDashboardAccess result{found.localUser,
+                                QString::fromUtf8(found.pass),
+                                found.localUrl.toString(QUrl::None)};
+    return std::make_optional(result);
 }
 
 LocalBuild s_localBuildInstance;
@@ -291,6 +310,11 @@ void startLocalDashboard(const QString &projectName, const std::function<void ()
 bool shutdownAllLocalDashboards(const std::function<void()> &callback)
 {
     return s_localBuildInstance.shutdownAll(callback);
+}
+
+std::optional<LocalDashboardAccess> localDashboardAccessFor(const QString &projectName)
+{
+    return s_localBuildInstance.localDashboardAccessFor(projectName);
 }
 
 } // namespace Axivion::Internal
