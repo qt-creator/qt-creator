@@ -182,7 +182,7 @@ void CppcheckTool::check(const Utils::FilePaths &files)
             = CppEditor::CppModelManager::projectInfo(m_project);
     if (!info)
         return;
-    const QVector<CppEditor::ProjectPart::ConstPtr> parts = info->projectParts();
+    const QList<CppEditor::ProjectPart::ConstPtr> parts = info->projectParts();
     if (parts.size() == 1) {
         QTC_ASSERT(parts.first(), return);
         addToQueue(filtered, *parts.first());

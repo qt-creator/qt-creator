@@ -47,7 +47,7 @@ private:
     mutable QHash<Utils::FilePath, IndexItem::Ptr> m_infosByFile;
 
     mutable QMutex m_pendingDocumentsMutex;
-    mutable QVector<CPlusPlus::Document::Ptr> m_pendingDocuments;
+    mutable QList<CPlusPlus::Document::Ptr> m_pendingDocuments;
 };
 
 } // namespace CppEditor

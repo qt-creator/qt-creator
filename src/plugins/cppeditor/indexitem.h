@@ -109,7 +109,7 @@ private:
     int m_line = 0;
     int m_column = 0;
     bool m_isFuncDef = false;
-    QVector<IndexItem::Ptr> m_children;
+    QList<IndexItem::Ptr> m_children;
 };
 
 } // CppEditor namespace

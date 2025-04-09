@@ -29,7 +29,7 @@ struct Utils
     static QString toString(::Utils::LanguageExtensions languageExtension);
     static QString toString(::Utils::QtMajorVersion qtVersion);
     static QString toString(ProjectExplorer::BuildTargetType buildTargetType);
-    static QString toString(const QVector<ProjectFile> &projectFiles);
+    static QString toString(const QList<ProjectFile> &projectFiles);
     static QString toString(ProjectFile::Kind kind);
     static QString toString(CPlusPlus::Kind kind);
     static QString toString(const ProjectExplorer::Abi &abi);

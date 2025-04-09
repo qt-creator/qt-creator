@@ -84,7 +84,7 @@ public:
     CppEditorWidget *m_editorWidget = nullptr;
 };
 
-using TestDocuments = QVector<CppTestDocument>;
+using TestDocuments = QList<CppTestDocument>;
 
 class VerifyCleanCppModelManager
 {

@@ -1476,7 +1476,7 @@ public:
     }
 
 private:
-    static QSet<QString> projectPartIds(const QVector<ProjectPart::ConstPtr> &projectParts)
+    static QSet<QString> projectPartIds(const QList<ProjectPart::ConstPtr> &projectParts)
     {
         QSet<QString> ids;
 

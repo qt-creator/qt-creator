@@ -307,7 +307,7 @@ void CppSourceProcessor::passedMacroDefinitionCheck(int bytesOffset, int utf16ch
     m_currentDoc->addMacroUse(revision(m_workingCopy, macro),
                               bytesOffset, macro.name().length(),
                               utf16charsOffset, macro.nameToQString().size(),
-                              line, QVector<MacroArgumentReference>());
+                              line, QList<MacroArgumentReference>());
 }
 
 void CppSourceProcessor::failedMacroDefinitionCheck(int bytesOffset, int utf16charOffset,
@@ -329,12 +329,12 @@ void CppSourceProcessor::notifyMacroReference(int bytesOffset, int utf16charOffs
     m_currentDoc->addMacroUse(revision(m_workingCopy, macro),
                               bytesOffset, macro.name().length(),
                               utf16charOffset, macro.nameToQString().size(),
-                              line, QVector<MacroArgumentReference>());
+                              line, QList<MacroArgumentReference>());
 }
 
 void CppSourceProcessor::startExpandingMacro(int bytesOffset, int utf16charOffset,
                                              int line, const CPlusPlus::Macro &macro,
-                                             const QVector<MacroArgumentReference> &actuals)
+                                             const QList<MacroArgumentReference> &actuals)
 {
     if (!m_currentDoc)
         return;

@@ -124,7 +124,7 @@ public:
         // Write class qualification, if any.
         if (matchingClass) {
             const Scope *current = matchingClass;
-            QVector<const Name *> classes{matchingClass->name()};
+            QList<const Name *> classes{matchingClass->name()};
             while (current->enclosingScope()->asClass()) {
                 current = current->enclosingScope()->asClass();
                 classes.prepend(current->name());

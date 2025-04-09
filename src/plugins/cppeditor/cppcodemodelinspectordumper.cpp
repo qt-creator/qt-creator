@@ -502,7 +502,7 @@ void Dumper::dumpProjectInfos(const QList<ProjectInfo::ConstPtr> &projectInfos)
         m_out << i1 << "Project " << info->projectName()
               << " (" << info->projectFilePath().toUserOutput() << "){{{2\n";
 
-        const QVector<ProjectPart::ConstPtr> projectParts = info->projectParts();
+        const QList<ProjectPart::ConstPtr> projectParts = info->projectParts();
         for (const ProjectPart::ConstPtr &part : projectParts) {
             QString projectName = QLatin1String("<None>");
             QString projectFilePath = "<None>";

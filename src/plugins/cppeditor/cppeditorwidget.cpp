@@ -425,7 +425,7 @@ CppEditorWidget::CppEditorWidget()
 
 CppEditorWidget *CppEditorWidget::fromTextDocument(TextEditor::TextDocument *doc)
 {
-    const QVector<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);
+    const QList<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);
     for (BaseTextEditor * const editor : editors) {
         if (const auto editorWidget = qobject_cast<CppEditor::CppEditorWidget *>(
                 editor->editorWidget()))
