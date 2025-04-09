@@ -181,7 +181,7 @@
         \li Preference
         \li Value
     \row
-        \li \uicontrol {Use asynchronous mode to control the inferior}
+        \li \uicontrol {Use asynchronous mode to control the debugged process}
         \li Execute commands in the background (asynchronous) mode.
             GDB immediately opens a command prompt where you can issue
             other commands while your program runs.

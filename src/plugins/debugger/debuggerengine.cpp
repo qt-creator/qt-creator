@@ -1929,8 +1929,8 @@ void DebuggerEngine::notifyInferiorShutdownFinished()
 void DebuggerEngine::notifyInferiorIll()
 {
     showMessage("NOTE: INFERIOR ILL");
-    // This can be issued in almost any state. The inferior could still be
-    // alive as some previous notifications might have been bogus.
+    // This can be issued in almost any state. The debugged process could
+    // still be alive as some previous notifications might have been bogus.
     startDying();
     if (state() == InferiorRunRequested) {
         // We asked for running, but did not see a response.
@@ -2568,7 +2568,7 @@ bool DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
         name = ' ' + Tr::tr("<Unknown>", "name") + ' ';
     if (meaning.isEmpty())
         meaning = ' ' + Tr::tr("<Unknown>", "meaning") + ' ';
-    const QString msg = Tr::tr("<p>The inferior stopped because it received a "
+    const QString msg = Tr::tr("<p>The debugged process stopped because it received a "
                            "signal from the operating system.<p>"
                            "<table><tr><td>Signal name : </td><td>%1</td></tr>"
                            "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
@@ -2581,7 +2581,7 @@ bool DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
 void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description)
 {
     const QString msg =
-        Tr::tr("<p>The inferior stopped because it triggered an exception.<p>%1").
+        Tr::tr("<p>The debugged process stopped because it triggered an exception.<p>%1").
                          arg(description);
     AsynchronousMessageBox::information(Tr::tr("Exception Triggered"), msg);
 }
@@ -3037,7 +3037,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
             if (!preferredDebugger.isEmpty()) {
                 warnOnInappropriateDebugger = true;
                 detailedWarning = Tr::tr(
-                                      "The inferior is in the Portable Executable format.\n"
+                                      "The executable uses the Portable Executable format.\n"
                                       "Selecting %1 as debugger would improve the debugging "
                                       "experience for this binary format.")
                                       .arg(preferredDebugger);
