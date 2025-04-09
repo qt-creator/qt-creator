@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
 #include "informationcontainer.h"
 
@@ -17,14 +17,14 @@ class InformationChangedCommand
 
 public:
     InformationChangedCommand();
-    explicit InformationChangedCommand(const QVector<InformationContainer> &informationVector);
+    explicit InformationChangedCommand(const QList<InformationContainer> &informationVector);
 
-    QVector<InformationContainer> informations() const;
+    QList<InformationContainer> informations() const;
 
     void sort();
 
 private:
-    QVector<InformationContainer> m_informationVector;
+    QList<InformationContainer> m_informationVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const InformationChangedCommand &command);

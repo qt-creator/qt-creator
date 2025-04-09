@@ -3,12 +3,11 @@
 
 #pragma once
 
+#include <QColor>
+#include <QList>
+#include <QMetaType>
 #include <QSize>
 #include <QUrl>
-#include <QVector>
-#include <QList>
-#include <QColor>
-#include <qmetatype.h>
 
 #include "instancecontainer.h"
 #include "reparentcontainer.h"
@@ -24,14 +23,14 @@ class CreateSceneCommand
 {
 public:
     CreateSceneCommand() = default;
-    explicit CreateSceneCommand(const QVector<InstanceContainer> &instanceContainer,
-                                const QVector<ReparentContainer> &reparentContainer,
-                                const QVector<IdContainer> &idVector,
-                                const QVector<PropertyValueContainer> &valueChangeVector,
-                                const QVector<PropertyBindingContainer> &bindingChangeVector,
-                                const QVector<PropertyValueContainer> &auxiliaryChangeVector,
-                                const QVector<AddImportContainer> &importVector,
-                                const QVector<MockupTypeContainer> &mockupTypeVector,
+    explicit CreateSceneCommand(const QList<InstanceContainer> &instanceContainer,
+                                const QList<ReparentContainer> &reparentContainer,
+                                const QList<IdContainer> &idVector,
+                                const QList<PropertyValueContainer> &valueChangeVector,
+                                const QList<PropertyBindingContainer> &bindingChangeVector,
+                                const QList<PropertyValueContainer> &auxiliaryChangeVector,
+                                const QList<AddImportContainer> &importVector,
+                                const QList<MockupTypeContainer> &mockupTypeVector,
                                 const QUrl &fileUrl,
                                 const QUrl &resourceUrl,
                                 const QHash<QString, QVariantMap> &edit3dToolStates,
@@ -91,14 +90,14 @@ public:
     }
 
 public:
-    QVector<InstanceContainer> instances;
-    QVector<ReparentContainer> reparentInstances;
-    QVector<IdContainer> ids;
-    QVector<PropertyValueContainer> valueChanges;
-    QVector<PropertyBindingContainer> bindingChanges;
-    QVector<PropertyValueContainer> auxiliaryChanges;
-    QVector<AddImportContainer> imports;
-    QVector<MockupTypeContainer> mockupTypes;
+    QList<InstanceContainer> instances;
+    QList<ReparentContainer> reparentInstances;
+    QList<IdContainer> ids;
+    QList<PropertyValueContainer> valueChanges;
+    QList<PropertyBindingContainer> bindingChanges;
+    QList<PropertyValueContainer> auxiliaryChanges;
+    QList<AddImportContainer> imports;
+    QList<MockupTypeContainer> mockupTypes;
     QUrl fileUrl;
     QUrl resourceUrl;
     QHash<QString, QVariantMap> edit3dToolStates;

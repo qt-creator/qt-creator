@@ -16,14 +16,14 @@ class StatePreviewImageChangedCommand
 
 public:
     StatePreviewImageChangedCommand();
-    explicit StatePreviewImageChangedCommand(const QVector<ImageContainer> &imageVector);
+    explicit StatePreviewImageChangedCommand(const QList<ImageContainer> &imageVector);
 
-    QVector<ImageContainer> previews() const;
+    QList<ImageContainer> previews() const;
 
     void sort();
 
 private:
-    QVector<ImageContainer> m_previewVector;
+    QList<ImageContainer> m_previewVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const StatePreviewImageChangedCommand &command);

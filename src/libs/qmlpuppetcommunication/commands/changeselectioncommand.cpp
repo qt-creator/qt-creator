@@ -10,12 +10,12 @@ namespace QmlDesigner {
 
 ChangeSelectionCommand::ChangeSelectionCommand() = default;
 
-ChangeSelectionCommand::ChangeSelectionCommand(const QVector<qint32> &idVector)
+ChangeSelectionCommand::ChangeSelectionCommand(const QList<qint32> &idVector)
     : m_instanceIdVector(idVector)
 {
 }
 
-QVector<qint32> ChangeSelectionCommand::instanceIds() const
+QList<qint32> ChangeSelectionCommand::instanceIds() const
 {
     return m_instanceIdVector;
 }

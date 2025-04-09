@@ -3,11 +3,9 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 #include <QDataStream>
-
-#include "instancecontainer.h"
 
 namespace QmlDesigner {
 
@@ -20,12 +18,12 @@ class ChangeSelectionCommand
 
 public:
     ChangeSelectionCommand();
-    explicit ChangeSelectionCommand(const QVector<qint32> &idVector);
+    explicit ChangeSelectionCommand(const QList<qint32> &idVector);
 
-    QVector<qint32> instanceIds() const;
+    QList<qint32> instanceIds() const;
 
 private:
-    QVector<qint32> m_instanceIdVector;
+    QList<qint32> m_instanceIdVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const ChangeSelectionCommand &command);

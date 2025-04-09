@@ -5,7 +5,6 @@
 
 #include <QDebug>
 #include <QUrl>
-#include <QVector>
 #include <QSet>
 #include <QStringList>
 #include <QPointer>
@@ -153,7 +152,7 @@ public:
     ServerNodeInstance instanceForObject(QObject *object) const;
     bool hasInstanceForObject(QObject *object) const;
 
-    const QVector<ServerNodeInstance> &nodeInstances() const { return m_idInstances; }
+    const QList<ServerNodeInstance> &nodeInstances() const { return m_idInstances; }
 
     virtual QQmlEngine *engine() const = 0;
     QQmlContext *context() const;
@@ -190,7 +189,7 @@ public:
     virtual void setRootItem(QQuickItem *item) = 0;
 
     void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, qint32 instanceId = 0);
-    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QVector<qint32> &instanceIds);
+    void sendDebugOutput(DebugOutputCommand::Type type, const QString &message, const QList<qint32> &instanceIds);
 
     void removeInstanceRelationsipForDeletedObject(QObject *object, qint32 instanceId);
 
@@ -213,7 +212,7 @@ public:
     virtual bool isInformationServer() const;
     virtual bool isPreviewServer() const;
     void addAnimation(QQuickAbstractAnimation *animation);
-    QVector<QQuickAbstractAnimation *> animations() const;
+    QList<QQuickAbstractAnimation *> animations() const;
     QVariant animationDefaultValue(int index) const;
 
 public slots:
@@ -222,8 +221,8 @@ public slots:
     void emitParentChanged(QObject *child);
 
 protected:
-    virtual QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container);
-    void reparentInstances(const QVector<ReparentContainer> &containerVector);
+    virtual QList<ServerNodeInstance> createInstances(const QList<InstanceContainer> &container);
+    void reparentInstances(const QList<ReparentContainer> &containerVector);
 
     Internal::ChildrenChangeEventFilter *childrenChangeEventFilter();
     void resetInstanceProperty(const PropertyAbstractContainer &propertyContainer);
@@ -240,8 +239,8 @@ protected:
     void timerEvent(QTimerEvent *) override;
 
     ValuesChangedCommand createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
-    ValuesChangedCommand createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const;
-    ValuesModifiedCommand createValuesModifiedCommand(const QVector<InstancePropertyValueTriple> &propertyList) const;
+    ValuesChangedCommand createValuesChangedCommand(const QList<InstancePropertyPair> &propertyList) const;
+    ValuesModifiedCommand createValuesModifiedCommand(const QList<InstancePropertyValueTriple> &propertyList) const;
     PixmapChangedCommand createPixmapChangedCommand(const QList<ServerNodeInstance> &instanceList) const;
     InformationChangedCommand createAllInformationChangedCommand(const QList<ServerNodeInstance> &instanceList, bool initial = false) const;
     ChildrenChangedCommand createChildrenChangedCommand(const ServerNodeInstance &parentInstance, const QList<ServerNodeInstance> &instanceList) const;
@@ -276,16 +275,16 @@ protected:
     QQmlContext *rootContext() const;
 
 
-    const QVector<InstancePropertyPair> changedPropertyList() const;
+    const QList<InstancePropertyPair> changedPropertyList() const;
     void clearChangedPropertyList();
 
     virtual void refreshBindings() = 0;
 
     void setupDummysForContext(QQmlContext *context);
 
-    void setupMockupTypes(const QVector<MockupTypeContainer> &container);
+    void setupMockupTypes(const QList<MockupTypeContainer> &container);
     void setupFileUrl(const QUrl &fileUrl);
-    void setupImports(const QVector<AddImportContainer> &container);
+    void setupImports(const QList<AddImportContainer> &container);
     void setupDummyData(const QUrl &fileUrl);
     void setupDefaultDummyData();
     QList<ServerNodeInstance> setupInstances(const CreateSceneCommand &command);
@@ -301,7 +300,7 @@ private:
     void setupOnlyWorkingImports(const QStringList &workingImportStatementList);
     ServerNodeInstance m_rootNodeInstance;
     ServerNodeInstance m_activeStateInstance;
-    QVector<ServerNodeInstance> m_idInstances;
+    QList<ServerNodeInstance> m_idInstances;
     QHash<QObject*, ServerNodeInstance> m_objectInstanceHash;
     QMultiHash<QString, ObjectPropertyPair> m_fileSystemWatcherHash;
     QList<QPair<QString, QPointer<QObject> > > m_dummyObjectList;
@@ -314,7 +313,7 @@ private:
     int m_renderTimerInterval = 16;
     TimerMode m_timerMode = TimerMode::NormalTimer;
     int m_timerModeInterval = 200;
-    QVector<InstancePropertyPair> m_changedPropertyList;
+    QList<InstancePropertyPair> m_changedPropertyList;
     QByteArray m_importCode;
     QPointer<QObject> m_dummyContextObject;
     QPointer<QQmlComponent> m_importComponent;
@@ -322,8 +321,8 @@ private:
     std::unique_ptr<MultiLanguage::Link> multilanguageLink;
     int m_needsExtraRenderCount = 0;
     int m_extraRenderCurrentPass = 0;
-    QVector<QQuickAbstractAnimation *> m_animations;
-    QVector<QVariant> m_defaultValues;
+    QList<QQuickAbstractAnimation *> m_animations;
+    QList<QVariant> m_defaultValues;
 };
 
 }

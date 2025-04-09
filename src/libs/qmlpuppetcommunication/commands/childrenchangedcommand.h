@@ -3,8 +3,9 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
+
 #include "informationcontainer.h"
 
 namespace QmlDesigner {
@@ -16,18 +17,18 @@ class ChildrenChangedCommand
 
 public:
     ChildrenChangedCommand();
-    explicit ChildrenChangedCommand(qint32 parentInstanceId, const QVector<qint32> &childrenInstancesconst, const QVector<InformationContainer> &informationVector);
+    explicit ChildrenChangedCommand(qint32 parentInstanceId, const QList<qint32> &childrenInstancesconst, const QList<InformationContainer> &informationVector);
 
-    QVector<qint32> childrenInstances() const;
+    QList<qint32> childrenInstances() const;
     qint32 parentInstanceId() const;
-    QVector<InformationContainer> informations() const;
+    QList<InformationContainer> informations() const;
 
     void sort();
 
 private:
     qint32 m_parentInstanceId;
-    QVector<qint32> m_childrenVector;
-    QVector<InformationContainer> m_informationVector;
+    QList<qint32> m_childrenVector;
+    QList<InformationContainer> m_informationVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const ChildrenChangedCommand &command);

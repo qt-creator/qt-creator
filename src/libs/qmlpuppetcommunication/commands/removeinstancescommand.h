@@ -3,11 +3,9 @@
 
 #pragma once
 
-#include <QMetaType>
-#include <QVector>
 #include <QDataStream>
-
-#include "instancecontainer.h"
+#include <QList>
+#include <QMetaType>
 
 namespace QmlDesigner {
 
@@ -18,12 +16,12 @@ class RemoveInstancesCommand
 
 public:
     RemoveInstancesCommand();
-    explicit RemoveInstancesCommand(const QVector<qint32> &idVector);
+    explicit RemoveInstancesCommand(const QList<qint32> &idVector);
 
-    const QVector<qint32> instanceIds() const;
+    const QList<qint32> instanceIds() const;
 
 private:
-    QVector<qint32> m_instanceIdVector;
+    QList<qint32> m_instanceIdVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const RemoveInstancesCommand &command);

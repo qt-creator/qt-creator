@@ -4,7 +4,7 @@
 #pragma once
 
 #include <QMetaType>
-#include <QVector>
+#include <QList>
 #include <QDataStream>
 
 #include "idcontainer.h"
@@ -27,7 +27,7 @@ public:
     }
     friend QDebug operator <<(QDebug debug, const ChangeIdsCommand &command);
 
-    QVector<IdContainer> ids;
+    QList<IdContainer> ids;
 };
 
 } // namespace QmlDesigner

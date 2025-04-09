@@ -10,12 +10,12 @@ namespace QmlDesigner {
 
 RemoveInstancesCommand::RemoveInstancesCommand() = default;
 
-RemoveInstancesCommand::RemoveInstancesCommand(const QVector<qint32> &idVector)
+RemoveInstancesCommand::RemoveInstancesCommand(const QList<qint32> &idVector)
     : m_instanceIdVector(idVector)
 {
 }
 
-const QVector<qint32> RemoveInstancesCommand::instanceIds() const
+const QList<qint32> RemoveInstancesCommand::instanceIds() const
 {
     return m_instanceIdVector;
 }

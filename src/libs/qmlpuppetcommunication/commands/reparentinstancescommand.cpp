@@ -10,12 +10,12 @@ namespace QmlDesigner {
 
 ReparentInstancesCommand::ReparentInstancesCommand() = default;
 
-ReparentInstancesCommand::ReparentInstancesCommand(const QVector<ReparentContainer> &container)
+ReparentInstancesCommand::ReparentInstancesCommand(const QList<ReparentContainer> &container)
     : m_reparentInstanceVector(container)
 {
 }
 
-const QVector<ReparentContainer> ReparentInstancesCommand::reparentInstances() const
+const QList<ReparentContainer> ReparentInstancesCommand::reparentInstances() const
 {
     return m_reparentInstanceVector;
 }

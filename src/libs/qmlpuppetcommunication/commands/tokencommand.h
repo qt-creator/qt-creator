@@ -3,11 +3,10 @@
 
 #pragma once
 
-
-#include <QMetaType>
-#include <QVector>
-#include <QString>
 #include <QDataStream>
+#include <QList>
+#include <QMetaType>
+#include <QString>
 
 namespace QmlDesigner {
 
@@ -18,18 +17,18 @@ class TokenCommand
 
 public:
     TokenCommand();
-    explicit TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instances);
+    explicit TokenCommand(const QString &tokenName, qint32 tokenNumber, const QList<qint32> &instances);
 
     QString tokenName() const;
     qint32 tokenNumber() const;
-    QVector<qint32> instances() const;
+    QList<qint32> instances() const;
 
     void sort();
 
 private:
     QString m_tokenName;
     qint32 m_tokenNumber;
-    QVector<qint32> m_instanceIdVector;
+    QList<qint32> m_instanceIdVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const TokenCommand &command);

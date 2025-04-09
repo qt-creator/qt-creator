@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 #include <QDataStream>
 
 namespace QmlDesigner {
@@ -16,12 +16,12 @@ class CompleteComponentCommand
 
 public:
     CompleteComponentCommand();
-    explicit CompleteComponentCommand(const QVector<qint32> &container);
+    explicit CompleteComponentCommand(const QList<qint32> &container);
 
-    const QVector<qint32> instances() const;
+    const QList<qint32> instances() const;
 
 private:
-    QVector<qint32> m_instanceVector;
+    QList<qint32> m_instanceVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const CompleteComponentCommand &command);

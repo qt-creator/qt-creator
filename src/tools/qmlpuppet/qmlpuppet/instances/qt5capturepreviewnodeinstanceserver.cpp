@@ -29,7 +29,7 @@ QImage renderPreviewImage(ServerNodeInstance rootNodeInstance)
 }
 
 CapturedDataCommand::StateData collectStateData(ServerNodeInstance rootNodeInstance,
-                                                const QVector<ServerNodeInstance> &nodeInstances,
+                                                const QList<ServerNodeInstance> &nodeInstances,
                                                 qint32 stateInstanceId)
 {
     CapturedDataCommand::StateData stateData;
@@ -74,7 +74,7 @@ void Qt5CapturePreviewNodeInstanceServer::collectItemChangesAndSendChangeCommand
 
         QQuickDesignerSupport::polishItems(quickWindow());
 
-        QVector<CapturedDataCommand::StateData> stateDatas;
+        QList<CapturedDataCommand::StateData> stateDatas;
         stateDatas.push_back(collectStateData(rootNodeInstance(), nodeInstances(), 0));
 
         for (ServerNodeInstance stateInstance : rootNodeInstance().stateInstances()) {

@@ -3,10 +3,10 @@
 
 #pragma once
 
+#include <QList>
+#include <QDataStream>
 #include <QMetaType>
 #include <QString>
-#include <QDataStream>
-#include <QVector>
 
 namespace QmlDesigner {
 
@@ -24,14 +24,14 @@ public:
     };
 
     DebugOutputCommand();
-    explicit DebugOutputCommand(const QString &text, Type type, const QVector<qint32> &instanceIds);
+    explicit DebugOutputCommand(const QString &text, Type type, const QList<qint32> &instanceIds);
 
     qint32 type() const;
     QString text() const;
-    QVector<qint32> instanceIds() const;
+    QList<qint32> instanceIds() const;
 
 private:
-    QVector<qint32> m_instanceIds;
+    QList<qint32> m_instanceIds;
     QString m_text;
     quint32 m_type;
 };
