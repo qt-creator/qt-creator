@@ -260,8 +260,12 @@ void BindingEditor::prepareBindings()
             }
 
             if (!binding.properties.isEmpty()) {
-                binding.item = metaInfo.displayName();
-                bindings.append(binding);
+                for (auto &exportedType :
+                     metaInfo.exportedTypeNamesForSourceId(model->fileUrlSourceId())) {
+                    binding.item = exportedType.name.toQString();
+                    bindings.append(binding);
+                    break;
+                }
             }
         }
     }
