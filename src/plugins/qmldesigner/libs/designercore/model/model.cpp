@@ -1801,6 +1801,31 @@ Storage::Info::ExportedTypeName Model::exportedTypeNameForMetaInfo(const NodeMet
 
 namespace {
 
+QmlDesigner::Imports createPossibleFileImports(const Utils::FilePath &path)
+{
+    auto folder = path.parentDir();
+    QmlDesigner::Imports imports;
+
+    /* Creates imports for all sub folder that contain a qml file. */
+    folder.iterateDirectory(
+        [&](const Utils::FilePath &item) {
+            bool append = false;
+
+            item.iterateDirectory(
+                [&](const Utils::FilePath &item) {
+                    append = true;
+                    return Utils::IterationPolicy::Stop;
+                },
+                {{"*.qml"}, QDir::Files});
+            if (append)
+                imports.append(QmlDesigner::Import::createFileImport(item.fileName()));
+            return Utils::IterationPolicy::Continue;
+        },
+        {{}, QDir::Dirs | QDir::NoDotAndDotDot});
+
+    return imports;
+}
+
 QmlDesigner::Imports createQt6ModulesForProjectStorage()
 {
     QmlDesigner::Imports imports = {
@@ -1854,7 +1879,10 @@ QmlDesigner::Imports createQt6ModulesForProjectStorage()
 Imports Model::possibleImports() const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
-    static auto imports = createQt6ModulesForProjectStorage();
+    static auto qt6Imports = createQt6ModulesForProjectStorage();
+    auto imports = createPossibleFileImports(Utils::FilePath::fromUrl(fileUrl()));
+    imports.append(qt6Imports);
+
     return imports;
 #else
     return d->m_possibleImportList;
