@@ -677,9 +677,7 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     transitionEditorView->registerActions();
 
     if (QmlDesignerBasePlugin::experimentalFeaturesEnabled())
-        d->viewManager.registerView(
-            std::make_unique<DesignSystemView>(d->externalDependencies,
-                                               d->projectManager.projectStorageDependencies()));
+        d->viewManager.registerView(std::make_unique<DesignSystemView>(d->externalDependencies));
 
     d->viewManager.registerFormEditorTool(std::make_unique<SourceTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<ColorTool>());
