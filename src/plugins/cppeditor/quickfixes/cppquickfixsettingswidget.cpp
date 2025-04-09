@@ -154,7 +154,10 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
     const auto jsTestButton = new QPushButton(Tr::tr("Test"));
     const auto hideJsTestResultsButton = new QPushButton(Tr::tr("Hide Test Results"));
     const auto jsTestInputField = new QLineEdit;
-    jsTestInputField->setToolTip(Tr::tr("The content of the \"name\" variable."));
+    jsTestInputField->setToolTip(
+        Tr::tr(
+            "The content of the <b>name</b> parameter in the fields above, that is, the "
+            "\"semantic name\" without any prefix or suffix."));
     jsTestInputField->setText("myValue");
     const auto makeResultField = [] {
         const auto resultField = new QLineEdit;
@@ -319,7 +322,7 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget()
                 m_checkBox_signalWithNewValue, br,
                 Tr::tr("Member variable name:"), m_lineEdit_memberVariableName, memberTestResultField, br,
                 Tr::tr("Name from member variable:"), m_lineEdit_nameFromMemberVariable, nameFromMemberTestResultField, br,
-                Tr::tr("Test input:"), jsTestInputField, jsTestButton, hideJsTestResultsButton, st, br,
+                Tr::tr("Test with example name:"), jsTestInputField, jsTestButton, hideJsTestResultsButton, st, br,
             },
         },
         Group {
