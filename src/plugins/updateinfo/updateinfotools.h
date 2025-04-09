@@ -15,15 +15,14 @@
 
 Q_DECLARE_LOGGING_CATEGORY(updateLog)
 
+namespace UpdateInfo {
+
 struct Update
 {
     QString name;
     QString version;
 
-    bool operator==(const Update &other) const
-    {
-        return other.name == name && other.version == version;
-    };
+    bool operator==(const Update &other) const = default;
 };
 
 QList<Update> availableUpdates(const QString &updateXml)
@@ -45,27 +44,23 @@ QList<Update> availableUpdates(const QString &updateXml)
     return result;
 }
 
-struct QtPackage
+struct Package
 {
+    QString name;
     QString displayName;
     QVersionNumber version;
-    bool installed;
-    bool isPrerelease = false;
+    QVersionNumber installedVersion;
 
-    bool operator==(const QtPackage &other) const
-    {
-        return other.installed == installed && other.isPrerelease == isPrerelease
-               && other.version == version && other.displayName == displayName;
-    }
+    bool operator==(const Package &) const = default;
 };
 
-QList<QtPackage> availableQtPackages(const QString &packageXml)
+QList<Package> availablePackages(const QString &packageXml)
 {
     QDomDocument document;
     document.setContent(packageXml);
     if (document.isNull() || !document.firstChildElement().hasChildNodes())
         return {};
-    QList<QtPackage> result;
+    QList<Package> result;
     const QDomNodeList packages = document.firstChildElement().elementsByTagName("package");
     for (int i = 0; i < packages.size(); ++i) {
         const QDomNode node = packages.item(i);
@@ -73,16 +68,38 @@ QList<QtPackage> availableQtPackages(const QString &packageXml)
             const QDomElement element = node.toElement();
             if (element.hasAttribute("displayname") && element.hasAttribute("name")
                 && element.hasAttribute("version")) {
-                QtPackage package{element.attribute("displayname"),
-                                  QVersionNumber::fromString(element.attribute("version")),
-                                  element.hasAttribute("installedVersion")};
-                // Heuristic: Prerelease if the name is not "Qt x.y.z"
-                // (prereleases are named "Qt x.y.z-alpha" etc)
-                package.isPrerelease = package.displayName
-                                       != QString("Qt %1").arg(package.version.toString());
-                result.append(package);
+                result.append(Package{
+                    element.attribute("name"),
+                    element.attribute("displayname"),
+                    QVersionNumber::fromString(element.attribute("version")),
+                    QVersionNumber::fromString(element.attribute("installedVersion"))});
             }
         }
+    }
+    return result;
+}
+
+struct QtPackage
+{
+    QString displayName;
+    QVersionNumber version;
+    bool installed;
+    bool isPrerelease = false;
+
+    bool operator==(const QtPackage &other) const = default;
+};
+
+QList<QtPackage> availableQtPackages(const QString &packageXml)
+{
+    const QList<Package> available = availablePackages(packageXml);
+    QList<QtPackage> result;
+    for (const Package &p : available) {
+        QtPackage package{p.displayName, p.version, !p.installedVersion.isNull()};
+        // Heuristic: Prerelease if the name is not "Qt x.y.z"
+        // (prereleases are named "Qt x.y.z-alpha" etc)
+        package.isPrerelease = package.displayName
+                               != QString("Qt %1").arg(package.version.toString());
+        result.append(package);
     }
     std::sort(result.begin(), result.end(), [](const QtPackage &p1, const QtPackage &p2) {
         return p1.version > p2.version;
@@ -131,5 +148,7 @@ std::optional<QtPackage> qtToNagAbout(const QList<QtPackage> &allPackages,
     return highest;
 }
 
-Q_DECLARE_METATYPE(Update)
-Q_DECLARE_METATYPE(QtPackage)
+} // namespace UpdateInfo
+
+Q_DECLARE_METATYPE(UpdateInfo::Update)
+Q_DECLARE_METATYPE(UpdateInfo::QtPackage)

@@ -7,6 +7,8 @@
 
 Q_LOGGING_CATEGORY(updateLog, "qtc.updateinfo", QtWarningMsg)
 
+using namespace UpdateInfo;
+
 class tst_UpdateInfo : public QObject
 {
     Q_OBJECT
@@ -14,6 +16,8 @@ class tst_UpdateInfo : public QObject
 private slots:
     void updates_data();
     void updates();
+
+    void available();
 };
 
 void tst_UpdateInfo::updates_data()
@@ -51,6 +55,37 @@ void tst_UpdateInfo::updates()
     const QList<Update> updates = availableUpdates(updateXml);
     QCOMPARE(updates, xupdates);
     const QList<QtPackage> packages = availableQtPackages(packageXml);
+    QCOMPARE(packages, xpackages);
+}
+
+void tst_UpdateInfo::available()
+{
+    const QString input = R"raw(<?xml version="1.0"?>
+<availablepackages>
+    <package name="qt.tools.qtcreator_gui" displayname="Qt Creator 16.0.0" version="16.0.0-0-202503111337" installedVersion="16.0.0-0-202503111337"/>
+    <package name="qt.tools.qtcreatordev" displayname="Plugin Development" version="16.0.0-0-202503111337"/>
+    <package name="qt.tools.qtdesignstudio" displayname="Qt Design Studio 4.7.1" version="4.7.1-0-202503281750" installedVersion="4.7.0-0-202502170946"/>
+    <package name="qt.tools.qtcreatordbg" displayname="Debug Symbols" version="16.0.0-0-202503111337"/>
+</availablepackages>
+)raw";
+    const QList<Package> xpackages(
+        {{"qt.tools.qtcreator_gui",
+          "Qt Creator 16.0.0",
+          QVersionNumber::fromString("16.0.0-0-202503111337"),
+          QVersionNumber::fromString("16.0.0-0-202503111337")},
+         {"qt.tools.qtcreatordev",
+          "Plugin Development",
+          QVersionNumber::fromString("16.0.0-0-202503111337"),
+          {}},
+         {"qt.tools.qtdesignstudio",
+          "Qt Design Studio 4.7.1",
+          QVersionNumber::fromString("4.7.1-0-202503281750"),
+          QVersionNumber::fromString("4.7.0-0-202502170946")},
+         {"qt.tools.qtcreatordbg",
+          "Debug Symbols",
+          QVersionNumber::fromString("16.0.0-0-202503111337"),
+          {}}});
+    const QList<Package> packages = availablePackages(input);
     QCOMPARE(packages, xpackages);
 }
 
