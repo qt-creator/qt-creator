@@ -27,21 +27,19 @@
 #include <utils/temporarydirectory.h>
 #include <utils/winutils.h>
 
+#include <QComboBox>
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
+#include <QFormLayout>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLabel>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSettings>
-#include <QVector>
 #include <QVersionNumber>
-
-#include <QComboBox>
-#include <QDateTime>
-#include <QFormLayout>
-#include <QLabel>
 
 using namespace Utils;
 
@@ -255,9 +253,9 @@ static std::optional<VisualStudioInstallation> detectCppBuildTools2017()
     return installation;
 }
 
-static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QString &vswhere)
+static QList<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QString &vswhere)
 {
-    QVector<VisualStudioInstallation> installations;
+    QList<VisualStudioInstallation> installations;
     Process vsWhereProcess;
     vsWhereProcess.setUtf8Codec();
     vsWhereProcess.setCommand({FilePath::fromString(vswhere),
@@ -315,9 +313,9 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
     return installations;
 }
 
-static QVector<VisualStudioInstallation> detectVisualStudioFromRegistry()
+static QList<VisualStudioInstallation> detectVisualStudioFromRegistry()
 {
-    QVector<VisualStudioInstallation> result;
+    QList<VisualStudioInstallation> result;
 #ifdef Q_OS_WIN64
     const QString keyRoot = QStringLiteral(
         "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\");
@@ -348,12 +346,12 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromRegistry()
     return result;
 }
 
-static QVector<VisualStudioInstallation> detectVisualStudio()
+static QList<VisualStudioInstallation> detectVisualStudio()
 {
     const QString vswhere = windowsProgramFilesDir()
                             + "/Microsoft Visual Studio/Installer/vswhere.exe";
     if (QFileInfo::exists(vswhere)) {
-        const QVector<VisualStudioInstallation> installations = detectVisualStudioFromVsWhere(
+        const QList<VisualStudioInstallation> installations = detectVisualStudioFromVsWhere(
             vswhere);
         if (!installations.isEmpty())
             return installations;
@@ -1971,7 +1969,7 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
                 continue;
 
             QList<Toolchain *> tmp;
-            const QVector<QPair<MsvcToolchain::Platform, QString>> platforms = {
+            const QList<QPair<MsvcToolchain::Platform, QString>> platforms = {
                 {MsvcToolchain::x86, "x86"},
                 {MsvcToolchain::amd64, "x64"},
                 {MsvcToolchain::ia64, "ia64"},
@@ -2016,7 +2014,7 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
                                                  MsvcToolchain::arm64_x86,
                                                  MsvcToolchain::arm64_amd64};
 
-    const QVector<VisualStudioInstallation> studios = detectVisualStudio();
+    const QList<VisualStudioInstallation> studios = detectVisualStudio();
     for (const VisualStudioInstallation &i : studios) {
         for (MsvcToolchain::Platform platform : platforms) {
             const bool toolchainInstalled

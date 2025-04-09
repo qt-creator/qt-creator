@@ -200,13 +200,13 @@ private slots:
                                     const Utils::FilePath &file,
                                     int line,
                                     int column,
-                                    const QVector<QTextLayout::FormatRange> formats) {
+                                    const QList<QTextLayout::FormatRange> formats) {
             CompileTask task(type, description, file, line, column);
             task.formats = formats;
             return task;
         };
 
-        QVector<QTextLayout::FormatRange> formatRanges;
+        QList<QTextLayout::FormatRange> formatRanges;
         if (HostOsInfo::isWindowsHost()) {
             formatRanges << formatRange(51, 28)
             << formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::8::-1")
@@ -350,7 +350,7 @@ private slots:
                                "/home/user/test/foo.cpp:2: multiple definition of `foo()'",
                                FilePath::fromUserInput("/home/user/test/foo.cpp"),
                                2, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(31, 28)
                                    << formatRange(59, 23, "olpfile:///home/user/test/foo.cpp::2::-1")
                                    << formatRange(82, 34))

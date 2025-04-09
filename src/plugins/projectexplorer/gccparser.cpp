@@ -301,7 +301,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                           const Utils::FilePath &file,
                           int line,
                           int column,
-                          const QVector<QTextLayout::FormatRange> formats)
+                          const QList<QTextLayout::FormatRange> formats)
     {
         CompileTask task(type, description, file, line, column);
         task.formats = formats;
@@ -344,7 +344,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                "/temp/test/untitled8/main.cpp:9: error: `sfasdf' undeclared (first use this function)",
                                FilePath::fromUserInput("/temp/test/untitled8/main.cpp"),
                                9, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(46, 0)
                                    << formatRange(46, 29, "olpfile:///temp/test/untitled8/main.cpp::0::0")
                                    << formatRange(75, 39)
@@ -406,7 +406,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                FilePath::fromUserInput("/temp/test/untitled8/main.cpp"),
                                8, 2));
 
-    QVector<QTextLayout::FormatRange> formatRanges;
+    QList<QTextLayout::FormatRange> formatRanges;
     QTest::newRow("Invalid rpath")
             << QString::fromLatin1("g++: /usr/local/lib: No such file or directory")
             << OutputParserTester::STDERR
@@ -428,7 +428,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp:2114: warning: unused variable 'index'",
                                FilePath::fromUserInput("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"),
                                2114, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(24, 272))
                 << CompileTask(Task::Warning,
                                "unused variable 'handler'",
@@ -448,7 +448,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp:264: error: expected primary-expression before ':' token",
                                FilePath::fromUserInput("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp"),
                                264, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(45, 0)
                                    << formatRange(45, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp::0::0")
                                    << formatRange(113, 106)
@@ -495,7 +495,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                 "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c:194: warning: suggest explicit braces to avoid ambiguous 'else'",
                                 FilePath::fromUserInput("/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c"),
                                 194, 0,
-                                QVector<QTextLayout::FormatRange>()
+                                QList<QTextLayout::FormatRange>()
                                     << formatRange(50, 0)
                                     << formatRange(50, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::0::0")
                                     << formatRange(117, 216)
@@ -521,7 +521,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                 "../../scriptbug/main.cpp:22: instantiated from here",
                                 FilePath::fromUserInput("../../scriptbug/main.cpp"),
                                 -1, 0,
-                                QVector<QTextLayout::FormatRange>()
+                                QList<QTextLayout::FormatRange>()
                                     << formatRange(43, 120))
                  << CompileTask(Task::Warning,
                                 "unused variable c",
@@ -563,7 +563,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                 "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]",
                                 FilePath::fromUserInput("../../scriptbug/main.cpp"),
                                 -1, 0,
-                                QVector<QTextLayout::FormatRange>()
+                                QList<QTextLayout::FormatRange>()
                                     << formatRange(17, 195))
                 << CompileTask(Task::Unknown,
                                "instantiated from here",
@@ -599,7 +599,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                "../stl/main.cpp:38:   instantiated from here",
                                FilePath::fromUserInput("../stl/main.cpp"),
                                -1, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(163, 224))
                 << CompileTask(Task::Warning,
                                "returning reference to temporary",
@@ -610,7 +610,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                "../stl/main.cpp:31: warning: unused parameter index",
                                FilePath::fromUserInput("../stl/main.cpp"),
                                31, 0,
-                               QVector<QTextLayout::FormatRange>()
+                               QList<QTextLayout::FormatRange>()
                                    << formatRange(23, 85)));
 
     formatRanges.clear();
@@ -658,7 +658,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                  "      |                                                ^",
                                  FilePath::fromUserInput("perfattributes.cpp"),
                                  28, 48,
-                                 QVector<QTextLayout::FormatRange>()
+                                 QList<QTextLayout::FormatRange>()
                                      << formatRange(170, 400))};
     QTest::newRow("QTCREATORBUG-2206")
             << QString::fromLatin1("../../../src/XmlUg/targetdelete.c: At top level:")
@@ -683,7 +683,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                       "/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh:1134:26: warning: no newline at end of file",
                       FilePath::fromUserInput("/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh"),
                       1134, 26,
-                      QVector<QTextLayout::FormatRange>()
+                      QList<QTextLayout::FormatRange>()
                           << formatRange(26, 22)
                           << formatRange(48, 39, "olpfile:///Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h::15::0")
                           << formatRange(87, 46)
@@ -702,7 +702,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                 "../../../src/shared/proparser/profileevaluator.cpp:2817:9: warning: case value '0' not in enumerated type 'ProFileEvaluator::Private::TestFunc'",
                                 FilePath::fromUserInput("../../../src/shared/proparser/profileevaluator.cpp"),
                                 2817, 9,
-                                QVector<QTextLayout::FormatRange>()
+                                QList<QTextLayout::FormatRange>()
                                     << formatRange(76, 351)));
 
     QTest::newRow("include with line:column info")
@@ -717,7 +717,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                    "./mw.h:4:0: warning: \"STUPID_DEFINE\" redefined",
                    FilePath::fromUserInput("./mw.h"),
                    4, 0,
-                   QVector<QTextLayout::FormatRange>()
+                   QList<QTextLayout::FormatRange>()
                        << formatRange(26, 88))};
 
     QTest::newRow("instantiation with line:column info")
@@ -733,7 +733,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                 "file.cpp:87:10: instantiated from here",
                                 FilePath::fromUserInput("file.h"),
                                 -1, 0,
-                                QVector<QTextLayout::FormatRange>()
+                                QList<QTextLayout::FormatRange>()
                                     << formatRange(172, 218))
                  << CompileTask(Task::Warning,
                                 "comparison between signed and unsigned integer expressions [-Wsign-compare]",
@@ -756,7 +756,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                    "                         ^",
                    FilePath::fromUserInput(".uic/ui_pluginerrorview.h"),
                    14, 25,
-                   QVector<QTextLayout::FormatRange>()
+                   QList<QTextLayout::FormatRange>()
                        << formatRange(41, 22)
                        << formatRange(63, 67, "olpfile:///home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp::31::0")
                        << formatRange(130, 146))};
@@ -779,7 +779,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                    "main.cpp:7:22: error: within this context",
                    FilePath::fromUserInput("/usr/include/qt4/QtCore/qstring.h"),
                    597, 5,
-                   QVector<QTextLayout::FormatRange>()
+                   QList<QTextLayout::FormatRange>()
                        << formatRange(43, 22)
                        << formatRange(65, 31, "olpfile:///usr/include/qt4/QtCore/QString::1::0")
                        << formatRange(96, 40)
@@ -841,7 +841,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                  "      |                      ^~~~~~~)",
                                  FilePath::fromUserInput("/usr/include/qt/QtCore/qvariant.h"),
                                  273, 25,
-                                 QVector<QTextLayout::FormatRange>()
+                                 QList<QTextLayout::FormatRange>()
                                      << formatRange(140, 22)
                                      << formatRange(162, 32, "olpfile:///usr/include/qt/QtCore/qlocale.h::43::0")
                                      << formatRange(194, 27)
@@ -869,7 +869,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                  "     |                boxed_value<[...]>",
                                  FilePath::fromUserInput("t.cc"),
                                  15, 4,
-                                 QVector<QTextLayout::FormatRange>()
+                                 QList<QTextLayout::FormatRange>()
                                      << formatRange(93, 460)),
                       compileTask(Task::Error,
                                   "‘string’ in namespace ‘std’ does not name a type\n"
@@ -881,7 +881,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                   "  1 | std::string test(void)",
                                   FilePath::fromUserInput("incomplete.c"),
                                   1, 6,
-                                  QVector<QTextLayout::FormatRange>()
+                                  QList<QTextLayout::FormatRange>()
                                       << formatRange(49, 284)),
                       compileTask(Task::Warning,
                                   "passing argument 2 of ‘callee’ makes pointer from integer without a cast [-Wint-conversion]\n"
@@ -896,7 +896,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                   "    |                            ~~~~~~~~~~~~^~~",
                                   FilePath::fromUserInput("param-type-mismatch.c"),
                                   5, 24,
-                                  QVector<QTextLayout::FormatRange>()
+                                  QList<QTextLayout::FormatRange>()
                                       << formatRange(92, 519))};
 
     QTest::newRow(R"("inlined from")")
@@ -928,7 +928,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                                         "      |         ~~~~~~~~~~~~^~~",
                                  FilePath::fromUserInput("smallstring.h"),
                                  465, 21,
-                                 QVector<QTextLayout::FormatRange>()
+                                 QList<QTextLayout::FormatRange>()
                                      << formatRange(62, 805))};
 
     QTest::newRow(R"("required from")")
@@ -969,7 +969,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                  "      |       ^~~~~",
                                  FilePath::fromUserInput("moc_helpindexfilter.cpp"),
                                  105, 1,
-                                 QVector<QTextLayout::FormatRange>()
+                                 QList<QTextLayout::FormatRange>()
                                      << formatRange(46, 1458))};
 
     QTest::newRow(R"("requested here")")
@@ -1078,7 +1078,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
                "      |                                          ~~~~~~~~^~~~~",
                FilePath::fromUserInput("/data/dev/creator/src/libs/utils/aspects.cpp"), 3454, 13,
-               QVector<QTextLayout::FormatRange>{
+               QList<QTextLayout::FormatRange>{
                    formatRange(82, 22),
                    formatRange(104, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::12::0"),
                    formatRange(148, 5),

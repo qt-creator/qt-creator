@@ -436,7 +436,7 @@ protected:
         }
     };
 
-    using Candidates = QVector<Candidate>;
+    using Candidates = QList<Candidate>;
 
 private:
     QString m_displayName;

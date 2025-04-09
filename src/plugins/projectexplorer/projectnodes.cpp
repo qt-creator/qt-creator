@@ -782,12 +782,12 @@ void FolderNode::setIcon(const IconCreator &iconCreator)
     m_icon = iconCreator;
 }
 
-void FolderNode::setLocationInfo(const QVector<FolderNode::LocationInfo> &info)
+void FolderNode::setLocationInfo(const QList<FolderNode::LocationInfo> &info)
 {
     m_locations = Utils::sorted(info, &LocationInfo::priority);
 }
 
-const QVector<FolderNode::LocationInfo> FolderNode::locationInfo() const
+const QList<FolderNode::LocationInfo> FolderNode::locationInfo() const
 {
     return m_locations;
 }

@@ -7,7 +7,6 @@
 
 #include <QByteArray>
 #include <QHash>
-#include <QVector>
 
 namespace ProjectExplorer {
 

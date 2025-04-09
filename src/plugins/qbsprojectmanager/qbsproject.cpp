@@ -924,7 +924,7 @@ static RawProjectPart generateProjectPart(
 
     const QStringList defines = arrayToStringList(props.value("cpp.defines"))
             + arrayToStringList(props.value("cpp.platformDefines"));
-    rpp.setMacros(transform<QVector>(defines,
+    rpp.setMacros(transform<QList>(defines,
             [](const QString &s) { return Macro::fromKeyValue(s); }));
 
     ProjectExplorer::HeaderPaths headerPaths;

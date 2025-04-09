@@ -165,7 +165,7 @@ QmakeProject *QmakePriFile::project() const
     return static_cast<QmakeProject *>(m_buildSystem->project());
 }
 
-const QVector<QmakePriFile *> QmakePriFile::children() const
+const QList<QmakePriFile *> QmakePriFile::children() const
 {
     return m_children;
 }
@@ -268,10 +268,10 @@ QSet<FilePath> QmakePriFile::recursiveEnumerate(const QString &folder)
 }
 
 static QStringList fileListForVar(
-        const QHash<QString, QVector<ProFileEvaluator::SourceFile>> &sourceFiles,
+        const QHash<QString, QList<ProFileEvaluator::SourceFile>> &sourceFiles,
         const QString &varName)
 {
-    const QVector<ProFileEvaluator::SourceFile> &sources = sourceFiles[varName];
+    const QList<ProFileEvaluator::SourceFile> &sources = sourceFiles[varName];
     QStringList result;
     result.reserve(sources.size());
     for (const ProFileEvaluator::SourceFile &sf : sources)
@@ -281,7 +281,7 @@ static QStringList fileListForVar(
 
 static void extractSources(const QString &device,
         QHash<int, QmakePriFileEvalResult *> proToResult, QmakePriFileEvalResult *fallback,
-        const QVector<ProFileEvaluator::SourceFile> &sourceFiles, FileType type, bool cumulative)
+        const QList<ProFileEvaluator::SourceFile> &sourceFiles, FileType type, bool cumulative)
 {
     for (const ProFileEvaluator::SourceFile &source : sourceFiles) {
         auto *result = proToResult.value(source.proFileId);
@@ -458,7 +458,7 @@ bool QmakePriFile::deploysFolder(const QString &folder) const
     return false;
 }
 
-QVector<QmakePriFile *> QmakePriFile::subPriFilesExact() const
+QList<QmakePriFile *> QmakePriFile::subPriFilesExact() const
 {
     return Utils::filtered(m_children, &QmakePriFile::includedInExactParse);
 }
@@ -1413,13 +1413,13 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         }
 
         // Convert ProFileReader::includeFiles to IncludedPriFile structure
-        QHash<ProFile *, QVector<ProFile *>> includeFiles = input.readerExact->includeFiles();
+        QHash<ProFile *, QList<ProFile *>> includeFiles = input.readerExact->includeFiles();
         QList<QmakeIncludedPriFile *> toBuild = {&result->includedFiles};
         while (!toBuild.isEmpty()) {
             QmakeIncludedPriFile *current = toBuild.takeFirst();
             if (!current->proFile)
                 continue;  // Don't attempt to map subdirs here
-            const QVector<ProFile *> children = includeFiles.value(current->proFile);
+            const QList<ProFile *> children = includeFiles.value(current->proFile);
             for (ProFile *child : children) {
                 const FilePath childName = FilePath::fromString(child->fileName());
                 auto it = current->children.find(childName);
@@ -1449,13 +1449,13 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
     }
 
     // Add ProFileReader::includeFiles information from cumulative parse to IncludedPriFile structure
-    QHash<ProFile *, QVector<ProFile *>> includeFiles = input.readerCumulative->includeFiles();
+    QHash<ProFile *, QList<ProFile *>> includeFiles = input.readerCumulative->includeFiles();
     QList<QmakeIncludedPriFile *> toBuild = {&result->includedFiles};
     while (!toBuild.isEmpty()) {
         QmakeIncludedPriFile *current = toBuild.takeFirst();
         if (!current->proFile)
             continue;  // Don't attempt to map subdirs here
-        const QVector<ProFile *> children = includeFiles.value(current->proFile);
+        const QList<ProFile *> children = includeFiles.value(current->proFile);
         for (ProFile *child : children) {
             const FilePath childName = FilePath::fromString(child->fileName());
             auto it = current->children.find(childName);
@@ -1474,8 +1474,8 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
     auto exactReader = exactBuildPassReader ? exactBuildPassReader : input.readerExact;
     auto cumulativeReader = cumulativeBuildPassReader ? cumulativeBuildPassReader : input.readerCumulative;
 
-    QHash<QString, QVector<ProFileEvaluator::SourceFile>> exactSourceFiles;
-    QHash<QString, QVector<ProFileEvaluator::SourceFile>> cumulativeSourceFiles;
+    QHash<QString, QList<ProFileEvaluator::SourceFile>> exactSourceFiles;
+    QHash<QString, QList<ProFileEvaluator::SourceFile>> cumulativeSourceFiles;
 
     const QString &device = input.qmakeGlobals->device_root;
     const QStringList baseVPathsExact
@@ -1844,7 +1844,7 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
     const QString mocDir = mocDirPath(reader, buildDir);
     const QString uiDir = uiDirPath(reader, buildDir);
 
-    const QVector<ProFileEvaluator::SourceFile> elList = reader->fixifiedValues(
+    const QList<ProFileEvaluator::SourceFile> elList = reader->fixifiedValues(
                 QLatin1String("INCLUDEPATH"), projectDir, buildDir.path(), false);
     for (const ProFileEvaluator::SourceFile &el : elList) {
         const QString sysrootifiedPath = sysrootify(el.fileName, sysroot.path(),

@@ -506,7 +506,7 @@ Abi ToolchainKitAspect::targetAbi(const Kit *k)
             cxxAbi = tc->targetAbi();
         abiCount[ta] = (abiCount.contains(ta) ? abiCount[ta] + 1 : 1);
     }
-    QVector<Abi> candidates;
+    QList<Abi> candidates;
     int count = -1;
     candidates.reserve(tcList.count());
     for (auto i = abiCount.begin(); i != abiCount.end(); ++i) {

@@ -721,7 +721,7 @@ void QmakeBuildSystem::asyncUpdate()
     if (m_asyncUpdateState != AsyncFullUpdatePending) {
         QSet<FilePath> projectFilePaths;
         for (QmakeProFile * const file : std::as_const(m_partialEvaluate)) {
-            QVector<QmakePriFile *> priFiles = file->children();
+            QList<QmakePriFile *> priFiles = file->children();
             for (int i = 0; i < priFiles.count(); ++i) {
                 const QmakePriFile * const priFile = priFiles.at(i);
                 projectFilePaths << priFile->filePath();

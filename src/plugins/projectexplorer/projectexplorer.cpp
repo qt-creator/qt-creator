@@ -699,7 +699,7 @@ static void openProjectsInDirectory(const FilePath &filePath)
         ICore::openFiles(projectFiles);
 }
 
-static QStringList projectNames(const QVector<FolderNode *> &folders)
+static QStringList projectNames(const QList<FolderNode *> &folders)
 {
     const QStringList names = Utils::transform<QList>(folders, [](FolderNode *n) {
         return n->managingProject()->filePath().fileName();
@@ -707,9 +707,9 @@ static QStringList projectNames(const QVector<FolderNode *> &folders)
     return Utils::filteredUnique(names);
 }
 
-static QVector<FolderNode *> renamableFolderNodes(const FilePath &before, const FilePath &after)
+static QList<FolderNode *> renamableFolderNodes(const FilePath &before, const FilePath &after)
 {
-    QVector<FolderNode *> folderNodes;
+    QList<FolderNode *> folderNodes;
     ProjectTree::forEachNode([&](Node *node) {
         if (node->asFileNode() && node->filePath() == before && node->parentFolderNode()
             && node->parentFolderNode()->canRenameFile(before, after)) {
@@ -719,9 +719,9 @@ static QVector<FolderNode *> renamableFolderNodes(const FilePath &before, const 
     return folderNodes;
 }
 
-static QVector<FolderNode *> removableFolderNodes(const FilePath &filePath)
+static QList<FolderNode *> removableFolderNodes(const FilePath &filePath)
 {
-    QVector<FolderNode *> folderNodes;
+    QList<FolderNode *> folderNodes;
     ProjectTree::forEachNode([&](Node *node) {
         if (node->asFileNode() && node->filePath() == filePath && node->parentFolderNode()
             && node->parentFolderNode()->supportsAction(RemoveFile, node)) {
@@ -2835,8 +2835,8 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
             &FolderNavigationWidgetFactory::fileRenamed,
             this,
             [](const FilePath &before, const FilePath &after) {
-                const QVector<FolderNode *> folderNodes = renamableFolderNodes(before, after);
-                QVector<FolderNode *> failedNodes;
+                const QList<FolderNode *> folderNodes = renamableFolderNodes(before, after);
+                QList<FolderNode *> failedNodes;
                 for (FolderNode *folder : folderNodes) {
                     if (!folder->renameFiles({std::make_pair(before, after)}, nullptr))
                         failedNodes.append(folder);
@@ -2858,8 +2858,8 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
             &FolderNavigationWidgetFactory::aboutToRemoveFile,
             this,
             [](const FilePath &filePath) {
-                const QVector<FolderNode *> folderNodes = removableFolderNodes(filePath);
-                const QVector<FolderNode *> failedNodes
+                const QList<FolderNode *> folderNodes = removableFolderNodes(filePath);
+                const QList<FolderNode *> failedNodes
                     = Utils::filtered(folderNodes, [filePath](FolderNode *folder) {
                           return folder->removeFiles({filePath}) != RemovedFilesFromProject::Ok;
                       });
@@ -3495,8 +3495,8 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
 
     const FolderNode *const fn
             = ProjectTree::currentNode() ? ProjectTree::currentNode()->asFolderNode() : nullptr;
-    const QVector<FolderNode::LocationInfo> locations = fn ? fn->locationInfo()
-                                                           : QVector<FolderNode::LocationInfo>();
+    const QList<FolderNode::LocationInfo> locations = fn ? fn->locationInfo()
+                                                         : QList<FolderNode::LocationInfo>();
 
     const bool isVisible = !locations.isEmpty();
     projectMenu->menuAction()->setVisible(isVisible);

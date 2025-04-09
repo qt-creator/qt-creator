@@ -757,9 +757,9 @@ bool MiniProjectTargetSelector::event(QEvent *event)
 }
 
 // does some fancy calculations to ensure proper widths for the list widgets
-QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSize)
+QList<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSize)
 {
-    QVector<int> result;
+    QList<int> result;
     result.resize(LAST);
     if (m_projectListWidget->isVisibleTo(this))
         result[PROJECT] = m_projectListWidget->optimalWidth();
@@ -798,7 +798,7 @@ QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSiz
 
     int widthToDistribute = tooSmall ? (minSize - totalWidth)
                                      : (totalWidth - maxSize);
-    QVector<int> indexes;
+    QList<int> indexes;
     indexes.reserve(LAST);
     for (int i = PROJECT; i < LAST; ++i)
         if (result[i] != -1)
@@ -924,7 +924,7 @@ void MiniProjectTargetSelector::doLayout()
         int listHeight = heightWithoutKitArea + kitAreaHeight - bottomMargin - listY + 1;
 
         // list widget widths
-        QVector<int> widths = listWidgetWidths(minWidth, Core::ICore::mainWindow()->width() * 0.9);
+        QList<int> widths = listWidgetWidths(minWidth, Core::ICore::mainWindow()->width() * 0.9);
 
         const int runColumnWidth = widths[RUN] == -1 ? 0 : RunColumnWidth;
         int x = 0;

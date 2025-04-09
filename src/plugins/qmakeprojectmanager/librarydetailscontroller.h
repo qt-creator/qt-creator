@@ -177,7 +177,7 @@ private:
     void updateProFile();
 
     QString m_rootProjectPath;
-    QVector<QmakeProFile *> m_proFiles;
+    QList<QmakeProFile *> m_proFiles;
 };
 
 } // namespace Internal

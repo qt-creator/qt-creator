@@ -75,7 +75,7 @@ public:
 
     QmakeStaticData();
 
-    QVector<FileTypeData> fileTypeData;
+    QList<FileTypeData> fileTypeData;
     QIcon projectIcon;
     QIcon productIcon;
     QIcon groupIcon;
@@ -138,7 +138,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
     node->addNode(std::make_unique<FileNode>(pri->filePath(), FileType::Project));
 
     // other normal files:
-    const QVector<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
+    const QList<QmakeStaticData::FileTypeData> &fileTypes = qmakeStaticData()->fileTypeData;
     FilePaths generatedFiles;
     const auto proFile = dynamic_cast<const QmakeProFile *>(pri);
     for (int i = 0; i < fileTypes.size(); ++i) {

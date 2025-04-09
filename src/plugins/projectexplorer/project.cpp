@@ -193,7 +193,7 @@ public:
 
     MacroExpander m_macroExpander;
     FilePath m_rootProjectDirectory;
-    mutable QVector<const Node *> m_sortedNodeList;
+    mutable QList<const Node *> m_sortedNodeList;
 
     Store m_extraData;
 
@@ -689,7 +689,7 @@ void Project::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
 
 void Project::handleSubTreeChanged(FolderNode *node)
 {
-    QVector<const Node *> nodeList;
+    QList<const Node *> nodeList;
     if (d->m_rootProjectNode) {
         d->m_rootProjectNode->forEachGenericNode([&nodeList](const Node *n) {
             nodeList.append(n);

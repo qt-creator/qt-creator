@@ -291,8 +291,8 @@ public:
         unsigned int priority = 0;
         QString displayName;
     };
-    void setLocationInfo(const QVector<LocationInfo> &info);
-    const QVector<LocationInfo> locationInfo() const;
+    void setLocationInfo(const QList<LocationInfo> &info);
+    const QList<LocationInfo> locationInfo() const;
 
     QString addFileFilter() const;
     void setAddFileFilter(const QString &filter) { m_addFileFilter = filter; }
@@ -339,7 +339,7 @@ protected:
     virtual void handleSubTreeChanged(FolderNode *node);
 
     std::vector<std::unique_ptr<Node>> m_nodes;
-    QVector<LocationInfo> m_locations;
+    QList<LocationInfo> m_locations;
 
 private:
     std::unique_ptr<Node> takeNode(Node *node);
