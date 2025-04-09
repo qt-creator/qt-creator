@@ -98,12 +98,15 @@
             of your choice)
         \li Meta Code Llama 13B (for Qt 5, running in a cloud deployment of your
             choice)
-        \li Meta Code Llama 13 QML through Ollama (running locally on your
+        \li Meta Code Llama 13B QML through Ollama (running locally on your
             computer)
         \li Meta Llama 3.3 70B QML (running in a cloud deployment of your choice)
-        \li Anthropic Claude 3.5 Sonnet (provided as subscription-based service
-            by Anthropic)
-        \li OpenAI GPT-4o (provided as subscription-based service by OpenAI)
+        \li Anthropic Claude 3.5 Sonnet (provided by Anthropic, remember that you
+            need to have a token-based billing payment method configured for your
+            Anthropic account: \l {https://console.anthropic.com/}{console.anthropic.com})
+        \li OpenAI GPT-4o (provided by OpenAI, remember that you need to have a
+            token-based billing payment method configured for your OpenAI account:
+            \l {https://platform.openai.com/}{platform.openai.com})
         \li Meta Code Llama 7B through Ollama (running locally on your computer)
         \li BigCode StarCoder2 through Ollama (running locally on your computer)
     \endlist
