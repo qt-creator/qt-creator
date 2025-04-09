@@ -6,7 +6,6 @@
 #include <QObject>
 #include <QPair>
 #include <QStringList>
-#include <QVector>
 #include <QDebug>
 
 class CallgrindParserTests : public QObject

@@ -11,8 +11,8 @@ using namespace Timeline;
 class DummyPassState : public TimelineRenderPass::State
 {
 private:
-    QVector<QSGNode *> m_collapsedRows;
-    QVector<QSGNode *> m_expandedRows;
+    QList<QSGNode *> m_collapsedRows;
+    QList<QSGNode *> m_expandedRows;
     QSGNode *m_collapsedOverlay;
     QSGNode *m_expandedOverlay;
 
@@ -20,8 +20,8 @@ public:
     DummyPassState();
     ~DummyPassState();
 
-    const QVector<QSGNode *> &expandedRows() const;
-    const QVector<QSGNode *> &collapsedRows() const;
+    const QList<QSGNode *> &expandedRows() const;
+    const QList<QSGNode *> &collapsedRows() const;
     QSGNode *expandedOverlay() const;
     QSGNode *collapsedOverlay() const;
 };
@@ -49,12 +49,12 @@ DummyPassState::~DummyPassState()
     qDeleteAll(m_expandedRows);
 }
 
-const QVector<QSGNode *> &DummyPassState::expandedRows() const
+const QList<QSGNode *> &DummyPassState::expandedRows() const
 {
     return m_expandedRows;
 }
 
-const QVector<QSGNode *> &DummyPassState::collapsedRows() const
+const QList<QSGNode *> &DummyPassState::collapsedRows() const
 {
     return m_collapsedRows;
 }

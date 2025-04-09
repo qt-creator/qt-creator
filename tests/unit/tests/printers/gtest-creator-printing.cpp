@@ -29,7 +29,7 @@
 #include <designsystem/dsconstants.h>
 
 namespace std {
-template <typename T> ostream &operator<<(ostream &out, const QVector<T> &vector)
+template <typename T> ostream &operator<<(ostream &out, const QList<T> &vector)
 {
     out << "[";
     copy(vector.cbegin(), vector.cend(), ostream_iterator<T>(out, ", "));
