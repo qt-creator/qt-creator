@@ -115,7 +115,7 @@ void tst_PluginSpec::read()
     PluginDependency dep2;
     dep2.id = QString("EvenOther");
     dep2.version = QString("1.0.0");
-    QCOMPARE(spec.dependencies(), QVector<PluginDependency>() << dep1 << dep2);
+    QCOMPARE(spec.dependencies(), QList<PluginDependency>() << dep1 << dep2);
 
     // test missing compatVersion behavior
     // and 'required' attribute

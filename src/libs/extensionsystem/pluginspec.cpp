@@ -204,7 +204,7 @@ public:
     QStringList arguments;
     QRegularExpression platformSpecification;
     std::optional<TermsAndConditions> termsAndConditions;
-    QVector<ExtensionSystem::PluginDependency> dependencies;
+    QList<ExtensionSystem::PluginDependency> dependencies;
 
     PluginSpec::PluginArgumentDescriptions argumentDescriptions;
     FilePath location;
@@ -527,7 +527,7 @@ bool PluginSpec::isSoftLoadable() const
 /*!
     The plugin dependencies. This is valid after the PluginSpec::Read state is reached.
 */
-QVector<PluginDependency> PluginSpec::dependencies() const
+QList<PluginDependency> PluginSpec::dependencies() const
 {
     return d->dependencies;
 }

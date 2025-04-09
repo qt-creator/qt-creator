@@ -13,7 +13,6 @@
 #include <QHash>
 #include <QStaticPlugin>
 #include <QString>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QRegularExpression;
@@ -97,7 +96,7 @@ public:
     PluginSpec();
     virtual ~PluginSpec();
 
-    using PluginArgumentDescriptions = QVector<PluginArgumentDescription>;
+    using PluginArgumentDescriptions = QList<PluginArgumentDescription>;
     enum State { Invalid, Read, Resolved, Loaded, Initialized, Running, Stopped, Deleted};
 
     // information read from the plugin, valid after 'Read' state is reached
@@ -133,7 +132,7 @@ public:
     virtual bool isSoftLoadable() const;
     virtual bool isEffectivelySoftloadable() const;
 
-    virtual QVector<PluginDependency> dependencies() const;
+    virtual QList<PluginDependency> dependencies() const;
     virtual QJsonObject metaData() const;
     virtual PerformanceData &performanceData() const;
     virtual PluginArgumentDescriptions argumentDescriptions() const;

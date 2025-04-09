@@ -65,15 +65,15 @@ public:
 
     static void startProfiling();
     // Plugin operations
-    static QVector<PluginSpec *> loadQueue();
+    static QList<PluginSpec *> loadQueue();
     static void loadPlugins();
     static void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
     static Utils::FilePaths pluginPaths();
     static void setPluginPaths(const Utils::FilePaths &paths);
     static QString pluginIID();
     static void setPluginIID(const QString &iid);
-    static const QVector<PluginSpec *> plugins();
-    static QHash<QString, QVector<PluginSpec *>> pluginCollections();
+    static const QList<PluginSpec *> plugins();
+    static QHash<QString, QList<PluginSpec *>> pluginCollections();
     static bool hasError();
     static const QStringList allErrors();
     static const QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
@@ -84,7 +84,7 @@ public:
     static bool specExists(const QString &id);
     static bool specExistsAndIsEnabled(const QString &id);
 
-    static void addPlugins(const QVector<PluginSpec *> &specs);
+    static void addPlugins(const QList<PluginSpec *> &specs);
 
     static void reInstallPlugins();
 

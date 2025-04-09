@@ -1135,10 +1135,10 @@ using TestPlan = QHash<QObject *, QStringList>; // Object -> selected test funct
 
 static bool isTestFunction(const QMetaMethod &metaMethod)
 {
-    static const QVector<QByteArray> blackList = {"initTestCase()",
-                                                  "cleanupTestCase()",
-                                                  "init()",
-                                                  "cleanup()"};
+    static const QList<QByteArray> blackList = {"initTestCase()",
+                                                "cleanupTestCase()",
+                                                "init()",
+                                                "cleanup()"};
 
     if (metaMethod.methodType() != QMetaMethod::Slot)
         return false;
