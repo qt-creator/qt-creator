@@ -9,10 +9,8 @@
 
 #include <utils/changeset.h>
 
-#include <QFile>
 #include <QScopedPointer>
 #include <QtTest>
-#include <QVector>
 
 namespace ClangCodeModel::Internal {
 

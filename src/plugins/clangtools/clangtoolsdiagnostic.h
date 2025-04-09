@@ -7,10 +7,8 @@
 
 #include <QMetaType>
 #include <QString>
-#include <QVector>
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class ExplainingStep
 {
@@ -41,13 +39,12 @@ public:
     QString category;
     QString type;
     Utils::Link location;
-    QVector<ExplainingStep> explainingSteps;
+    QList<ExplainingStep> explainingSteps;
     bool hasFixits = false;
 };
 
 using Diagnostics = QList<Diagnostic>;
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal
 
 Q_DECLARE_METATYPE(ClangTools::Internal::Diagnostic)

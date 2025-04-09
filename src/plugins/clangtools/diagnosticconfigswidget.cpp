@@ -271,7 +271,7 @@ class Node
 {
 public:
     Node() = default;
-    Node(const QString &name, const QVector<Node> &children = QVector<Node>())
+    Node(const QString &name, const QList<Node> &children = {})
         : name(name)
         , children(children)
     {}
@@ -279,7 +279,7 @@ public:
     static Node fromCheckList(const QStringList &checks);
 
     QString name;
-    QVector<Node> children;
+    QList<Node> children;
 };
 
 class PrefixGroupIterator

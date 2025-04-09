@@ -184,7 +184,7 @@ bool ClangFormatForwardingIndenter::formatOnSave() const
 }
 
 TextEditor::IndentationForBlock ClangFormatForwardingIndenter::indentationForBlocks(
-    const QVector<QTextBlock> &blocks,
+    const QList<QTextBlock> &blocks,
     const TextEditor::TabSettings &tabSettings,
     int cursorPositionInEditor)
 {

@@ -11,8 +11,7 @@ QT_BEGIN_NAMESPACE
 class QTextDocument;
 QT_END_NAMESPACE
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class ActivationSequenceContextProcessor
 {
@@ -52,7 +51,7 @@ protected:
     bool isProbablyPreprocessorIncludeDirective() const;
 
 private:
-    QVector<CPlusPlus::Token> m_tokens;
+    QList<CPlusPlus::Token> m_tokens;
     QTextCursor m_textCursor;
     CPlusPlus::Token m_token;
     QTextDocument * const m_document;
@@ -64,5 +63,4 @@ private:
     CPlusPlus::Kind m_completionKind;
 };
 
-} // namespace Internal
-} // namespace ClangCodeModel
+} // namespace ClangCodeModel::Internal

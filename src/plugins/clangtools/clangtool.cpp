@@ -221,11 +221,11 @@ public:
     {
     public:
         FixitsRefactoringFile file;
-        QVector<DiagnosticItem *> diagnosticItems;
+        QList<DiagnosticItem *> diagnosticItems;
         bool hasScheduledFixits = false;
     };
 
-    ApplyFixIts(const QVector<DiagnosticItem *> &diagnosticItems)
+    ApplyFixIts(const QList<DiagnosticItem *> &diagnosticItems)
     {
         for (DiagnosticItem *diagnosticItem : diagnosticItems) {
             const FilePath &filePath = diagnosticItem->diagnostic().location.targetFilePath;
@@ -289,9 +289,9 @@ public:
         for (auto it = m_refactoringFileInfos.begin(); it != m_refactoringFileInfos.end(); ++it) {
             RefactoringFileInfo &fileInfo = it.value();
 
-            QVector<DiagnosticItem *> itemsScheduledOrSchedulable;
-            QVector<DiagnosticItem *> itemsScheduled;
-            QVector<DiagnosticItem *> itemsSchedulable;
+            QList<DiagnosticItem *> itemsScheduledOrSchedulable;
+            QList<DiagnosticItem *> itemsScheduled;
+            QList<DiagnosticItem *> itemsSchedulable;
 
             // Construct refactoring operations
             for (DiagnosticItem *diagnosticItem : std::as_const(fileInfo.diagnosticItems)) {
@@ -320,9 +320,9 @@ public:
                 continue;
 
             // Apply file
-            QVector<DiagnosticItem *> itemsApplied;
-            QVector<DiagnosticItem *> itemsFailedToApply;
-            QVector<DiagnosticItem *> itemsInvalidated;
+            QList<DiagnosticItem *> itemsApplied;
+            QList<DiagnosticItem *> itemsFailedToApply;
+            QList<DiagnosticItem *> itemsInvalidated;
 
             fileInfo.file.setReplacements(ops);
             if (fileInfo.file.apply()) {
@@ -347,7 +347,7 @@ private:
 };
 
 static FileInfos sortedFileInfos(const CppCodeModelSettings &settings,
-                                 const QVector<ProjectPart::ConstPtr> &projectParts)
+                                 const QList<ProjectPart::ConstPtr> &projectParts)
 {
     FileInfos fileInfos;
 
@@ -535,7 +535,7 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
                 updateForCurrentState();
             });
     connect(m_applyFixitsButton, &QToolButton::clicked, this, [this] {
-        QVector<DiagnosticItem *> diagnosticItems;
+        QList<DiagnosticItem *> diagnosticItems;
         m_diagnosticModel->forItemsAtLevel<2>([&](DiagnosticItem *item){
             diagnosticItems += item;
         });

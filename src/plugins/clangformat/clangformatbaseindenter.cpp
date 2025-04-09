@@ -850,7 +850,7 @@ int ClangFormatBaseIndenter::indentFor(const QTextBlock &block,
 }
 
 IndentationForBlock ClangFormatBaseIndenter::indentationForBlocks(
-    const QVector<QTextBlock> &blocks,
+    const QList<QTextBlock> &blocks,
     const TabSettings & /*tabSettings*/,
     int cursorPositionInEditor)
 {

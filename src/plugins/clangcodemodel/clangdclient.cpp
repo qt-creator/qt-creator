@@ -1475,7 +1475,7 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
             return c;
         }
 
-        // QVector<QString|>
+        // QList<QString|>
         if (const TemplateIdAST * const templAst = (*it)->asTemplateId()) {
             if (posForToken(templAst->greater_token) == cursor.position())
                 return leftMovedCursor();
