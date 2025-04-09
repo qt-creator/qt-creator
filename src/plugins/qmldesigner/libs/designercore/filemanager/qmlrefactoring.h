@@ -35,7 +35,9 @@ public:
     bool removeImport(const Import &import);
 
     bool addToArrayMemberList(int parentLocation, PropertyNameView propertyName, const QString &content);
-    bool addToObjectMemberList(int parentLocation, int nodeLocation, const QString &content);
+    bool addToObjectMemberList(int parentLocation,
+                               std::optional<int> nodeLocation,
+                               const QString &content);
     bool addProperty(int parentLocation,
                      PropertyNameView name,
                      const QString &value,

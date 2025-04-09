@@ -77,7 +77,9 @@ bool QmlRefactoring::addToArrayMemberList(int parentLocation,
     return visit(qmlDocument->qmlProgram());
 }
 
-bool QmlRefactoring::addToObjectMemberList(int parentLocation, int nodeLocation, const QString &content)
+bool QmlRefactoring::addToObjectMemberList(int parentLocation,
+                                           std::optional<int> nodeLocation,
+                                           const QString &content)
 {
     if (parentLocation < 0)
         return false;
