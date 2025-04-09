@@ -285,6 +285,8 @@ public:
     PathCacheType &pathCache();
     ProjectStorageTriggerUpdateInterface &projectStorageTriggerUpdate() const;
 
+    ProjectStorageDependencies projectStorageDependencies() const;
+
     void emitInstancePropertyChange(AbstractView *view,
                                     const QList<QPair<ModelNode, PropertyName>> &propertyList);
     void emitInstanceErrorChange(AbstractView *view, const QVector<qint32> &instanceIds);

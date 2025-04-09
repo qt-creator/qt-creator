@@ -2025,6 +2025,13 @@ ProjectStorageTriggerUpdateInterface &Model::projectStorageTriggerUpdate() const
     return *d->projectStorageTriggerUpdate;
 }
 
+ProjectStorageDependencies Model::projectStorageDependencies() const
+{
+    return ProjectStorageDependencies{*d->projectStorage,
+                                      *d->pathCache,
+                                      *d->projectStorageTriggerUpdate};
+}
+
 void Model::emitInstancePropertyChange(AbstractView *view,
                                        const QList<QPair<ModelNode, PropertyName>> &propertyList)
 {
