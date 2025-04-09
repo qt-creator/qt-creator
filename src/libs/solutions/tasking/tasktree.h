@@ -194,8 +194,8 @@ public:
 #else // C++17
     template <typename ...Args>
     Storage(const Args &...args)
-        : StorageBase([args = std::tuple(args...)] {
-            return std::apply([](const Args &...args) { return new StorageStruct(args...); }, args);
+        : StorageBase([argsTuple = std::tuple(args...)] {
+            return std::apply([](const Args &...arguments) { return new StorageStruct(arguments...); }, argsTuple);
         }, Storage::dtor()) {}
 #endif
     StorageStruct &operator*() const noexcept { return *activeStorage(); }
