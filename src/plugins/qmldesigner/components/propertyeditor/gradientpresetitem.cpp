@@ -86,7 +86,7 @@ void GradientPresetItem::setGradient(const Preset value)
 
 QList<qreal> GradientPresetItem::stopsPosList() const
 {
-    const QList<QPair<qreal, QColor>> subres = m_gradientVal.stops().toList();
+    const QList<QPair<qreal, QColor>> subres = m_gradientVal.stops();
     const QList<qreal> result = Utils::transform<QList<qreal>>(subres,
                                                                [](const QPair<qreal, QColor> &item) {
                                                                    return item.first;
@@ -96,7 +96,7 @@ QList<qreal> GradientPresetItem::stopsPosList() const
 
 QList<QString> GradientPresetItem::stopsColorList() const
 {
-    const QList<QPair<qreal, QColor>> subres = m_gradientVal.stops().toList();
+    const QList<QPair<qreal, QColor>> subres = m_gradientVal.stops();
     const QList<QString> result
         = Utils::transform<QList<QString>>(subres, [](const QPair<qreal, QColor> &item) {
               return item.second.name();

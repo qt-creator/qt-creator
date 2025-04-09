@@ -954,7 +954,7 @@ void GradientModel::setPresetByID(int presetID)
 {
     const QGradient gradient(GradientPresetItem::createGradientFromPreset(
         static_cast<GradientPresetItem::Preset>(presetID)));
-    const QList<QGradientStop> gradientStops = gradient.stops().toList();
+    const QList<QGradientStop> gradientStops = gradient.stops();
 
     QList<qreal> stopsPositions;
     QList<QString> stopsColors;
