@@ -142,7 +142,7 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
         const QString details = Tr::tr("Command line: %1\nProcess Error: %2\nOutput:\n%3")
                                     .arg(process.commandLine().toUserOutput())
                                     .arg(process.error())
-                                    .arg(process.cleanedStdOut());
+                                    .arg(process.allOutput());
         const ClangToolStorage &data = *storage;
         QString message;
         if (process.result() == ProcessResult::StartFailed)
