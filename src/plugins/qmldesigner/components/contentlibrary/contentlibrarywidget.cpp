@@ -13,7 +13,6 @@
 #include "contentlibraryusermodel.h"
 
 #include <bundleimporter.h>
-#include <coreplugin/icore.h>
 #include <designerpaths.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
@@ -26,6 +25,9 @@
 #include <qmldesignerutils/filedownloader.h>
 #include <qmldesignerutils/fileextractor.h>
 #include <qmldesignerutils/multifiledownloader.h>
+
+#include <coreplugin/fileutils.h>
+#include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -135,6 +137,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
     , m_effectsModel(new ContentLibraryEffectsModel(this))
     , m_userModel(new ContentLibraryUserModel(this))
+    , m_showInGraphicalShellMsg(Core::FileUtils::msgGraphicalShellAction())
 {
     qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
     qmlRegisterType<QmlDesigner::FileExtractor>("WebFetcher", 1, 0, "FileExtractor");
@@ -944,6 +947,11 @@ void ContentLibraryWidget::setHasModelSelection(bool b)
 
     m_hasModelSelection = b;
     emit hasModelSelectionChanged();
+}
+
+void ContentLibraryWidget::showInGraphicalShell(const QString &path)
+{
+    Core::FileUtils::showInGraphicalShell(Utils::FilePath::fromString(path));
 }
 
 } // namespace QmlDesigner

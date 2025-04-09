@@ -191,9 +191,13 @@ Item {
                         }
 
                         Grid {
+                            id: grid
+
                             width: section.width - section.leftPadding - section.rightPadding
                             spacing: StudioTheme.Values.sectionGridSpacing
                             columns: root.numColumns
+
+                            property int catIdx: index
 
                             Repeater {
                                 id: repeater
@@ -220,7 +224,7 @@ Item {
                                             width: root.cellWidth
                                             height: root.cellWidth // for textures use a square size since there is no name row
 
-                                            onShowContextMenu: ctxMenuTexture.popupMenu(modelData)
+                                            onShowContextMenu: ctxMenuTexture.popupMenu(modelData, grid.catIdx > 2)
                                         }
                                     }
                                     DelegateChoice {
