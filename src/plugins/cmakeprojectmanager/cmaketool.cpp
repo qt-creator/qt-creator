@@ -89,7 +89,7 @@ public:
     QList<CMakeTool::Generator> m_generators;
     CMakeKeywords m_keywords;
     QMutex m_keywordsMutex;
-    QVector<FileApi> m_fileApis;
+    QList<FileApi> m_fileApis;
     CMakeTool::Version m_version;
 };
 
@@ -445,7 +445,7 @@ static QStringList parseDefinition(const QString &definition)
     QStringList result;
     QString word;
     bool ignoreWord = false;
-    QVector<QChar> braceStack;
+    QList<QChar> braceStack;
 
     for (const QChar &c : definition) {
         if (c == '[' || c == '<' || c == '(') {

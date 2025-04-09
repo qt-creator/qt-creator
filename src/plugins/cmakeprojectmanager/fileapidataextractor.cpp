@@ -166,13 +166,13 @@ static PreprocessedData preprocess(const QFuture<void> &cancelFuture, FileApiDat
     return result;
 }
 
-static QVector<FolderNode::LocationInfo> extractBacktraceInformation(
+static QList<FolderNode::LocationInfo> extractBacktraceInformation(
     const BacktraceInfo &backtraces,
     const FilePath &sourceDir,
     int backtraceIndex,
     unsigned int locationInfoPriority)
 {
-    QVector<FolderNode::LocationInfo> info;
+    QList<FolderNode::LocationInfo> info;
     // Set up a default target path:
     while (backtraceIndex != -1) {
         const size_t bi = static_cast<size_t>(backtraceIndex);
@@ -450,8 +450,8 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                                               .arg(++compileLanguageCountHash[ci.language].second)
                                         : ci.language;
             rpp.setDisplayName(t.name + "_" + postfix);
-            rpp.setMacros(transform<QVector>(ci.defines, &DefineInfo::define));
-            rpp.setHeaderPaths(transform<QVector>(ci.includes, &IncludeInfo::path));
+            rpp.setMacros(transform<QList>(ci.defines, &DefineInfo::define));
+            rpp.setHeaderPaths(transform<QList>(ci.includes, &IncludeInfo::path));
 
             QStringList fragments = splitFragments(ci.fragments);
 
@@ -923,7 +923,7 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
         if (folderNode) {
             QSet<std::pair<FilePath, int>> locations;
             auto dedup = [&locations](const Backtrace &bt) {
-                QVector<FolderNode::LocationInfo> result;
+                QList<FolderNode::LocationInfo> result;
                 Utils::reverseForeach(bt, [&](const FolderNode::LocationInfo &i) {
                     int count = locations.count();
                     locations.insert({i.path, i.line});
@@ -934,9 +934,9 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
                 return result;
             };
 
-            QVector<FolderNode::LocationInfo> result = dedup(t.backtrace);
+            QList<FolderNode::LocationInfo> result = dedup(t.backtrace);
             auto dedupMulti = [&dedup](const Backtraces &bts) {
-                QVector<FolderNode::LocationInfo> result;
+                QList<FolderNode::LocationInfo> result;
                 for (const Backtrace &bt : bts) {
                     result.append(dedup(bt));
                 }

@@ -10,7 +10,6 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectmacro.h>
 
-#include <QVector>
 #include <QVersionNumber>
 
 #include <vector>
@@ -41,7 +40,7 @@ public:
     QString ctestExecutable;
     QString cmakeRoot;
 
-    QVector<ReplyObject> replies;
+    QList<ReplyObject> replies;
     QVersionNumber cmakeVersion;
 
     Utils::FilePath jsonFile(const QString &kind, const Utils::FilePath &replyDir) const;

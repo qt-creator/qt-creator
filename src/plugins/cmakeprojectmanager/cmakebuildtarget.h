@@ -19,8 +19,8 @@ enum TargetType {
     UtilityType
 };
 
-using Backtrace = QVector<ProjectExplorer::FolderNode::LocationInfo>;
-using Backtraces = QVector<Backtrace>;
+using Backtrace = QList<ProjectExplorer::FolderNode::LocationInfo>;
+using Backtraces = QList<Backtrace>;
 
 class CMAKE_EXPORT CMakeBuildTarget
 {

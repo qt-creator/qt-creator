@@ -79,7 +79,7 @@ struct DirectoryData
     QString toolset;
     FilePath sysroot;
     QtProjectImporter::QtVersionData qt;
-    QVector<ToolchainDescriptionEx> toolchains;
+    QList<ToolchainDescriptionEx> toolchains;
     QVariant debugger;
 };
 
@@ -616,9 +616,9 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     return {qmakeLocation, resultedPrefixPath};
 }
 
-static QVector<ToolchainDescriptionEx> extractToolchainsFromCache(const CMakeConfig &config)
+static QList<ToolchainDescriptionEx> extractToolchainsFromCache(const CMakeConfig &config)
 {
-    QVector<ToolchainDescriptionEx> result;
+    QList<ToolchainDescriptionEx> result;
     bool haveCCxxCompiler = false;
     for (const CMakeConfigItem &i : config) {
         if (!i.key.startsWith("CMAKE_") || !i.key.endsWith("_COMPILER"))
@@ -1395,7 +1395,7 @@ void CMakeProjectImporterTest::testCMakeProjectImporterToolchain()
         config.append(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
     }
 
-    const QVector<ToolchainDescriptionEx> tcs = extractToolchainsFromCache(config);
+    const QList<ToolchainDescriptionEx> tcs = extractToolchainsFromCache(config);
     QCOMPARE(tcs.count(), expectedLanguages.count());
     for (int i = 0; i < tcs.count(); ++i) {
         QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));

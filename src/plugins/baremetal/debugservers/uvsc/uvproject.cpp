@@ -63,7 +63,7 @@ static void extractAllFiles(ProjectExplorer::Project *project, QStringList &incl
     const CppEditor::ProjectInfo::ConstPtr info = CppModelManager::projectInfo(project);
     if (!info)
         return;
-    const QVector<ProjectPart::ConstPtr> parts = info->projectParts();
+    const QList<ProjectPart::ConstPtr> parts = info->projectParts();
     for (const ProjectPart::ConstPtr &part : parts) {
         for (const ProjectFile &file : std::as_const(part->files)) {
             if (!file.active)
