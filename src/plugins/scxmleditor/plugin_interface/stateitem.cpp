@@ -190,7 +190,7 @@ void StateItem::updateBoundingRect()
 void StateItem::shrink()
 {
     QRectF trect;
-    const QVector<TransitionItem *> items = outputTransitions();
+    const QList<TransitionItem *> items = outputTransitions();
     for (TransitionItem *item : items) {
         if (item->targetType() == TransitionItem::InternalSameTarget || item->targetType() == TransitionItem::InternalNoTarget) {
             trect = trect.united(item->wholeBoundingRect());
@@ -223,7 +223,7 @@ void StateItem::transitionsChanged()
 {
     QRectF rr = boundingRect();
     QRectF rectInternalTransitions;
-    const QVector<TransitionItem*> internalTransitions = outputTransitions();
+    const QList<TransitionItem*> internalTransitions = outputTransitions();
     for (TransitionItem *item : internalTransitions) {
         if (item->targetType() <= TransitionItem::InternalNoTarget) {
             QRectF br = mapFromItem(item, item->boundingRect()).boundingRect();

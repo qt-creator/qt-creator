@@ -24,7 +24,7 @@ bool checkPaste(const QString &copiedTagTypes, const ScxmlTag *currentTag)
     if (copiedTagTypes.isEmpty() || !currentTag)
         return false;
 
-    QVector<TagType> tagTypes;
+    QList<TagType> tagTypes;
     for (int i = 0; i < Finalize; ++i) {
         if (copiedTagTypes.contains(QLatin1String(scxml_tags[i].name)))
             tagTypes << TagType(i);
@@ -35,7 +35,7 @@ bool checkPaste(const QString &copiedTagTypes, const ScxmlTag *currentTag)
     if (tagTypes.isEmpty())
         return false;
 
-    QVector<TagType> childTags = allowedChildTypes(currentTag->tagType());
+    QList<TagType> childTags = allowedChildTypes(currentTag->tagType());
     for (const TagType &type : std::as_const(tagTypes)) {
         if (!childTags.contains(type))
             return false;
@@ -75,9 +75,9 @@ void createChildMenu(const ScxmlTag *tag, QMenu *menu, bool addRemove)
     }
 }
 
-QVector<TagType> allowedChildTypes(TagType tagType)
+QList<TagType> allowedChildTypes(TagType tagType)
 {
-    QVector<TagType> childTags;
+    QList<TagType> childTags;
 
     switch (tagType) {
     case Scxml:
@@ -161,9 +161,9 @@ QVector<TagType> allowedChildTypes(TagType tagType)
     return childTags;
 }
 
-QVector<TagType> childTypes(TagType tagType)
+QList<TagType> childTypes(TagType tagType)
 {
-    QVector<TagType> childTags;
+    QList<TagType> childTags;
 
     switch (tagType) {
     case Scxml:
@@ -241,7 +241,7 @@ void initChildMenu(TagType tagType, QMenu *menu)
 {
     menu->setTitle(QLatin1String(scxml_tags[tagType].name));
 
-    QVector<TagType> childTags = childTypes(tagType);
+    QList<TagType> childTags = childTypes(tagType);
 
     if (!childTags.isEmpty()) {
         for (int i = 0; i < childTags.count(); ++i) {
@@ -301,7 +301,7 @@ ScxmlTag *findChild(const ScxmlTag *tag, TagType childType)
     return nullptr;
 }
 
-void findAllChildren(const ScxmlTag *tag, QVector<ScxmlTag*> &children)
+void findAllChildren(const ScxmlTag *tag, QList<ScxmlTag*> &children)
 {
     QTC_ASSERT(tag, return);
 
@@ -312,7 +312,7 @@ void findAllChildren(const ScxmlTag *tag, QVector<ScxmlTag*> &children)
     }
 }
 
-void findAllTransitionChildren(const ScxmlTag *tag, QVector<ScxmlTag*> &children)
+void findAllTransitionChildren(const ScxmlTag *tag, QList<ScxmlTag*> &children)
 {
     QTC_ASSERT(tag, return);
 

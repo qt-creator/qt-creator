@@ -123,10 +123,10 @@ bool canDrop(int parentType, int childType)
     }
 }
 
-QVector<ScxmlTag*> findCopyTags(const QVector<BaseItem*> &items, QPointF &minPos)
+QList<ScxmlTag*> findCopyTags(const QList<BaseItem*> &items, QPointF &minPos)
 {
     QPointF pp(0, 0);
-    QVector<ScxmlTag*> tags;
+    QList<ScxmlTag*> tags;
     for (BaseItem *it : items) {
         if (it->type() >= InitialStateType && it->isSelected()) {
             BaseItem *parent = it->parentBaseItem();
@@ -155,10 +155,10 @@ QVector<ScxmlTag*> findCopyTags(const QVector<BaseItem*> &items, QPointF &minPos
     return tags;
 }
 
-QVector<ScxmlTag*> findRemovedTags(const QVector<BaseItem*> &items)
+QList<ScxmlTag*> findRemovedTags(const QList<BaseItem*> &items)
 {
     // Find right tags
-    QVector<ScxmlTag*> tags;
+    QList<ScxmlTag*> tags;
     for (BaseItem *it : items) {
         if (it->isSelected()) {
             // Find the last selected parent

@@ -497,7 +497,7 @@ void MainWidget::addStateView(BaseItem *item)
             // Update transitions
             auto scene = static_cast<GraphicsScene*>(it->scene());
             if (scene) {
-                QVector<ScxmlTag*> childTransitionTags;
+                QList<ScxmlTag*> childTransitionTags;
                 TagUtils::findAllTransitionChildren(it->tag(), childTransitionTags);
                 for (int i = 0; i < childTransitionTags.count(); ++i) {
                     BaseItem *item = scene->findItem(childTransitionTags[i]);

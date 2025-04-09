@@ -45,7 +45,7 @@ void ParallelItem::doLayout(int d)
         return;
 
     // 1. Find children items
-    QVector<StateItem*> children;
+    QList<StateItem*> children;
     const QList<QGraphicsItem *> items = childItems();
     for (QGraphicsItem *it : items) {
         if (it->type() >= StateType) {
@@ -74,7 +74,7 @@ void ParallelItem::doLayout(int d)
 
     // 3. Relocate children-states
     // a) sort list
-    QVector<StateItem*> sortedList;
+    QList<StateItem*> sortedList;
     while (!children.isEmpty()) {
         qreal minTop = children.first()->boundingRect().top();
         int minTopIndex = 0;

@@ -9,7 +9,7 @@
 
 #include <QAction>
 
-using namespace ScxmlEditor::PluginInterface;
+namespace ScxmlEditor::PluginInterface {
 
 ActionHandler::ActionHandler(QObject *parent)
     : QObject(parent)
@@ -68,3 +68,5 @@ QAction *ActionHandler::action(ActionType type) const
 
     return nullptr;
 }
+
+} // ScxmlEditor::PluginInterface

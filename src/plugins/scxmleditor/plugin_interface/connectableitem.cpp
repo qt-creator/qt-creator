@@ -47,17 +47,17 @@ ConnectableItem::~ConnectableItem()
 {
     setBlockUpdates(true);
 
-    const QVector<ConnectableItem *> overlappedItems = m_overlappedItems;
+    const QList<ConnectableItem *> overlappedItems = m_overlappedItems;
     for (ConnectableItem *item : overlappedItems)
         item->removeOverlappingItem(this);
     m_overlappedItems.clear();
 
-    const QVector<TransitionItem *> outputTransitions = m_outputTransitions;
+    const QList<TransitionItem *> outputTransitions = m_outputTransitions;
     for (TransitionItem *transition : outputTransitions)
         transition->disconnectItem(this);
     m_outputTransitions.clear();
 
-    const QVector<TransitionItem *> inputTransitions = m_inputTransitions;
+    const QList<TransitionItem *> inputTransitions = m_inputTransitions;
     for (TransitionItem *transition : inputTransitions)
         transition->disconnectItem(this);
     m_inputTransitions.clear();
@@ -741,7 +741,7 @@ void ConnectableItem::removeOverlappingItem(ConnectableItem *item)
 
 void ConnectableItem::checkOverlapping()
 {
-    QVector<ConnectableItem*> overlappedItems;
+    QList<ConnectableItem*> overlappedItems;
     const QList<QGraphicsItem *> items = collidingItems();
     for (QGraphicsItem *it : items) {
         if (it->type() >= InitialStateType && it->parentItem() == parentItem()) {
@@ -774,12 +774,12 @@ bool ConnectableItem::canStartTransition(ItemType type) const
     return true;
 }
 
-QVector<TransitionItem*> ConnectableItem::outputTransitions() const
+QList<TransitionItem*> ConnectableItem::outputTransitions() const
 {
     return m_outputTransitions;
 }
 
-QVector<TransitionItem*> ConnectableItem::inputTransitions() const
+QList<TransitionItem*> ConnectableItem::inputTransitions() const
 {
     return m_inputTransitions;
 }

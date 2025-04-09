@@ -38,8 +38,8 @@ public:
     void addInputTransition(TransitionItem *transition);
     void removeOutputTransition(TransitionItem *transition);
     void removeInputTransition(TransitionItem *transition);
-    QVector<TransitionItem*> outputTransitions() const;
-    QVector<TransitionItem*> inputTransitions() const;
+    QList<TransitionItem*> outputTransitions() const;
+    QList<TransitionItem*> inputTransitions() const;
 
     void setMinimumWidth(int width);
     void setMinimumHeight(int height);
@@ -101,10 +101,10 @@ private:
     void removeCorners();
     void updateShadowClipRegion();
 
-    QVector<TransitionItem*> m_outputTransitions;
-    QVector<TransitionItem*> m_inputTransitions;
-    QVector<CornerGrabberItem*> m_corners;
-    QVector<QuickTransitionItem*> m_quickTransitions;
+    QList<TransitionItem*> m_outputTransitions;
+    QList<TransitionItem*> m_inputTransitions;
+    QList<CornerGrabberItem*> m_corners;
+    QList<QuickTransitionItem*> m_quickTransitions;
     HighlightItem *m_highlighItem = nullptr;
     TransitionItem *m_newTransition = nullptr;
     QPen m_selectedPen;
@@ -118,7 +118,7 @@ private:
     QPainterPath m_shadowClipPath;
     QPointF m_moveStartPoint;
     bool m_moveMacroStarted = false;
-    QVector<ConnectableItem*> m_overlappedItems;
+    QList<ConnectableItem*> m_overlappedItems;
 };
 
 } // namespace PluginInterface

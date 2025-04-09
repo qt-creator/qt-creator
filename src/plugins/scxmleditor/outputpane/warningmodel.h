@@ -52,7 +52,7 @@ private:
     QString severityName(Warning::Severity severity) const;
     QIcon severityIcon(Warning::Severity severity) const;
 
-    QVector<Warning*> m_warnings;
+    QList<Warning*> m_warnings;
     QMap<int, bool> m_warningVisibilities;
     int m_oldCount = 0;
     QPointer<QTimer> m_countChecker;

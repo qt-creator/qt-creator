@@ -4,13 +4,13 @@
 #pragma once
 
 #include "transitionwarningitem.h"
+
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
 #include <QPen>
 #include <QPointF>
 #include <QPolygon>
 #include <QRectF>
-#include <QVector>
 
 namespace ScxmlEditor {
 
@@ -126,7 +126,7 @@ private:
     QPointF calculateTargetFactor(ConnectableItem *item, const QPointF &pos);
     QPointF sceneTargetPoint(TransitionPoint p);
     QPointF findIntersectionPoint(ConnectableItem *item, const QLineF &line, const QPointF &defaultPoint);
-    QVector<CornerGrabberItem*> m_cornerGrabbers;
+    QList<CornerGrabberItem*> m_cornerGrabbers;
     CornerGrabberItem *m_selectedCornerGrabber = nullptr;
 
     QPolygonF m_cornerPoints;

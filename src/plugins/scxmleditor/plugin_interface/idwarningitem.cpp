@@ -43,7 +43,7 @@ void IdWarningItem::setId(const QString &text)
 void IdWarningItem::checkDuplicates(const QString &id)
 {
     if (scene()) {
-        QVector<IdWarningItem*> foundItems;
+        QList<IdWarningItem*> foundItems;
 
         QList<QGraphicsItem*> items = scene()->items();
         for (int i = 0; i < items.count(); ++i) {

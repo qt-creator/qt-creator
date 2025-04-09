@@ -43,11 +43,11 @@ public:
     explicit StructureSortFilterProxyModel(QObject *parent = nullptr);
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
     void setSourceModel(QAbstractItemModel *sourceModel) override;
-    void setVisibleTags(const QVector<PluginInterface::TagType> &visibleTags);
+    void setVisibleTags(const QList<PluginInterface::TagType> &visibleTags);
 
 private:
     QPointer<StructureModel> m_sourceModel;
-    QVector<PluginInterface::TagType> m_visibleTags;
+    QList<PluginInterface::TagType> m_visibleTags;
 };
 
 /**
@@ -80,7 +80,7 @@ private:
     StructureModel *m_model;
     PluginInterface::ScxmlDocument *m_currentDocument = nullptr;
     PluginInterface::GraphicsScene *m_scene = nullptr;
-    QVector<QCheckBox*> m_checkboxes;
+    QList<QCheckBox*> m_checkboxes;
     TreeItemDelegate *m_customDelegate = nullptr;
 
     QWidget *m_paneInnerFrame = nullptr;

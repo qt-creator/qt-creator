@@ -108,8 +108,8 @@ private:
 
     PluginInterface::ScxmlDocument *m_document = nullptr;
     PluginInterface::ScxmlUiFactory *m_uiFactory = nullptr;
-    QVector<QToolButton*> m_toolButtons;
-    QVector<StateView*> m_views;
+    QList<QToolButton*> m_toolButtons;
+    QList<StateView*> m_views;
     bool m_autoFit = true;
     bool m_windowBlocked = false;
     PluginInterface::ActionHandler *m_actionHandler = nullptr;
