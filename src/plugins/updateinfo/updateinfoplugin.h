@@ -15,8 +15,6 @@ namespace Internal {
 
 const char FILTER_OPTIONS_PAGE_ID[] = "Update";
 
-class UpdateInfoPluginPrivate;
-
 class UpdateInfoPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -73,9 +71,6 @@ private:
 
     void loadSettings() const;
     void saveSettings();
-
-private:
-    UpdateInfoPluginPrivate *d;
 };
 
 } // namespace Internal

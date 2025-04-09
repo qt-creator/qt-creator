@@ -27,6 +27,10 @@
 
 #include <qtsupport/qtsupportconstants.h>
 
+#include <updateinfo/updateinfoservice.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -226,6 +230,11 @@ static void openQtVersionsOptions()
     Core::ICore::showOptionsDialog(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
 }
 
+static UpdateInfo::Service *updateInfoService()
+{
+    return ExtensionSystem::PluginManager::getObject<UpdateInfo::Service>();
+}
+
 class QmlJsEditingSettingsPageWidget final : public Core::IOptionsPageWidget
 {
 public:
@@ -251,6 +260,8 @@ public:
                 this, &QmlJsEditingSettingsPageWidget::showContextMenu);
 
         using namespace Layouting;
+        QWidget *installQdsRow = nullptr;
+        QPushButton *installQdsButton = nullptr;
         // clang-format off
         QWidget *formattingGroup = nullptr;
         QWidget *qdsGroup = nullptr;
@@ -285,7 +296,17 @@ public:
                         onLinkActivated(this, [](const QString &) { openQtVersionsOptions(); })
                     },
                     Form {
-                        s.qdsCommand
+                        s.qdsCommand, br
+                    },
+                    Widget {
+                        bindTo(&installQdsRow),
+                        Row {
+                            st,
+                            PushButton {
+                                bindTo(&installQdsButton),
+                                text(Tr::tr("Install Qt Design Studio"))
+                            }
+                        }
                     }
                 }
             },
@@ -318,6 +339,22 @@ public:
         // clang-format on
 
         qdsGroup->setVisible(s.qdsCommand.isVisible());
+        const auto updateQdsSettings = [installQdsRow] {
+            QmlJsEditingSettings &s = settings();
+            const QString placeholder = s.defaultQdsCommand().toUserOutput();
+            s.qdsCommand.setPlaceHolderText(placeholder);
+            s.qdsCommand.pathChooser()->setPlaceholderText(placeholder);
+            installQdsRow->setVisible(s.defaultQdsCommand().isEmpty() && updateInfoService());
+        };
+        updateQdsSettings();
+        connect(installQdsButton, &QPushButton::clicked, this, [updateQdsSettings] {
+            UpdateInfo::Service *updater = updateInfoService();
+            QTC_ASSERT(updater, return);
+            if (updater->installPackages("^qt[.].*qtdesignstudio.*$")) {
+                updateQdsSettings();
+                emit settings().qdsCommand.changed();
+            }
+        });
 
         Utils::VariableChooser::addSupportForChildWidgets(formattingGroup,
                                                           Utils::globalMacroExpander());

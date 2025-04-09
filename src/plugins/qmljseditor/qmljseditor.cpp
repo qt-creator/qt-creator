@@ -58,6 +58,7 @@
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
+#include <utils/aspects.h>
 #include <utils/changeset.h>
 #include <utils/delegates.h>
 #include <utils/mimeconstants.h>
@@ -1236,17 +1237,28 @@ void setupQmlJSEditor()
 
 } // namespace Internal
 
-void setQdsSettingVisible(bool visible)
+QdsSettings::QdsSettings()
+{
+    connect(&settings().qdsCommand, &FilePathAspect::changed, this, &QdsSettings::changed);
+}
+
+void QdsSettings::setQdsSettingVisible(bool visible)
 {
     Internal::settings().qdsCommand.setVisible(visible);
 }
 
-FilePath qdsCommand()
+FilePath QdsSettings::qdsCommand()
 {
     const FilePath command = Internal::settings().qdsCommand.effectiveBinary();
     if (command.isEmpty())
         return Internal::settings().defaultQdsCommand();
     return command;
+}
+
+QdsSettings &qdsSettings()
+{
+    static QdsSettings settings;
+    return settings;
 }
 
 // namespace Internal

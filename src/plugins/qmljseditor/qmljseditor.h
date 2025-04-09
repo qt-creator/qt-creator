@@ -28,8 +28,21 @@ class QmlJSEditorDocument;
 class QuickToolBar;
 class FindReferences;
 
-QMLJSEDITOR_EXPORT void setQdsSettingVisible(bool visible);
-QMLJSEDITOR_EXPORT Utils::FilePath qdsCommand();
+class QMLJSEDITOR_EXPORT QdsSettings : public QObject
+{
+    Q_OBJECT
+
+public:
+    QdsSettings();
+
+    void setQdsSettingVisible(bool visible);
+    Utils::FilePath qdsCommand();
+
+signals:
+    void changed();
+};
+
+QMLJSEDITOR_EXPORT QdsSettings &qdsSettings();
 
 class QMLJSEDITOR_EXPORT QmlJSEditorWidget : public TextEditor::TextEditorWidget
 {

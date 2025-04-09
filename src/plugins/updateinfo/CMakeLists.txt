@@ -6,6 +6,7 @@ add_qtc_plugin(UpdateInfo
     settingspage.h
     updateinfoplugin.cpp
     updateinfoplugin.h
+    updateinfoservice.h
     updateinfotools.h
     updateinfotr.h
 )

@@ -63,6 +63,7 @@
 using namespace Core;
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace QmlJSEditor;
 using namespace Utils;
 
 namespace QmlProjectManager::Internal {
@@ -95,7 +96,7 @@ enum class QdsMode { Lite, Full };
 
 static void openQds(const FilePath &fileName, QdsMode mode)
 {
-    const FilePath qdsPath = QmlJSEditor::qdsCommand();
+    const FilePath qdsPath = qdsSettings().qdsCommand();
     bool qdsStarted = false;
     qputenv(Constants::enviromentLaunchedQDS, "true");
     const QStringList modeArgument = mode == QdsMode::Lite ? QStringList("-qml-lite-designer")
@@ -114,14 +115,14 @@ static void openQds(const FilePath &fileName, QdsMode mode)
 
 bool qdsInstallationExists()
 {
-    return QmlJSEditor::qdsCommand().exists();
+    return qdsSettings().qdsCommand().exists();
 }
 
 bool checkIfEditorIsuiQml(IEditor *editor)
 {
     if (editor
-        && (editor->document()->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID
-            || editor->document()->id() == QmlJSEditor::Constants::C_QTQUICKDESIGNEREDITOR_ID)) {
+        && (editor->document()->id() == ::QmlJSEditor::Constants::C_QMLJSEDITOR_ID
+            || editor->document()->id() == ::QmlJSEditor::Constants::C_QTQUICKDESIGNEREDITOR_ID)) {
         QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
         QmlJS::Document::Ptr document = modelManager->ensuredGetDocumentForPath(
             editor->document()->filePath());
@@ -315,14 +316,19 @@ void QmlProjectPlugin::setupEditorToolButton()
             return;
         auto action = new QAction(this);
         action->setIconText("QDS");
-        if (!qdsInstallationExists()) {
-            action->setText(
-                Tr::tr("Open the document in Qt Design Studio.\n\nQt Design Studio is not "
-                       "configured. Configure it in Preferences > Qt Quick > QML/JS Editing."));
-            action->setEnabled(false);
-        } else {
-            action->setText(Tr::tr("Open the document in Qt Design Studio."));
-        }
+        const auto updateQdsAction = [action] {
+            if (!qdsInstallationExists()) {
+                action->setText(
+                    Tr::tr("Open the document in Qt Design Studio.\n\nQt Design Studio is not "
+                           "configured. Configure it in Preferences > Qt Quick > QML/JS Editing."));
+                action->setEnabled(false);
+            } else {
+                action->setText(Tr::tr("Open the document in Qt Design Studio."));
+                action->setEnabled(true);
+            }
+        };
+        updateQdsAction();
+        connect(&qdsSettings(), &QdsSettings::changed, action, updateQdsAction);
         cmd->augmentActionWithShortcutToolTip(action);
         toolBar->addAction(action);
         connect(action, &QAction::triggered, editor, [editor] {
@@ -337,7 +343,7 @@ void QmlProjectPlugin::initialize()
     setupExternalDesignStudio();
 
     if (!qmlDesignerEnabled()) {
-        QmlJSEditor::setQdsSettingVisible(true);
+        qdsSettings().setQdsSettingVisible(true);
         m_landingPage = new QdsLandingPage();
         qmlRegisterSingletonInstance<QdsLandingPage>("LandingPageApi",
                                                      1,
