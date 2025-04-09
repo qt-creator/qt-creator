@@ -6,8 +6,7 @@
 #include "quick3dmodel.h"
 #include <tracing/timelineformattime.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 int Quick3DModel::eventDataId(int id)
 {
@@ -392,5 +391,4 @@ int Quick3DModel::typeId(int index) const
     return QmlProfilerTimelineModel::typeId(index);
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

@@ -12,8 +12,7 @@
 #include <QMouseEvent>
 #include <QMetaEnum>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 InputEventsModel::InputEventsModel(QmlProfilerModelManager *manager,
                                    Timeline::TimelineModelAggregator *parent) :
@@ -161,5 +160,4 @@ InputEventsModel::Item::Item(InputEventType type, int a, int b) :
 {
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

@@ -60,10 +60,10 @@ void QmlEventTest::testCtors()
     }
 
     {
-        QmlEvent event(20, 30, QVector<qint64>({600, 700, 800, 900}));
+        QmlEvent event(20, 30, QList<qint64>({600, 700, 800, 900}));
         QCOMPARE(event.timestamp(), 20);
         QCOMPARE(event.typeIndex(), 30);
-        QCOMPARE(event.numbers<QVector<qint32>>(), QVector<qint32>({600, 700, 800, 900}));
+        QCOMPARE(event.numbers<QList<qint32>>(), QList<qint32>({600, 700, 800, 900}));
 
         QmlEvent event2(event);
         QCOMPARE(event2, event);

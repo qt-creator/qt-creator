@@ -32,8 +32,7 @@
 
 #include <tracing/timelineformattime.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 Quick3DFrameModel::Quick3DFrameModel(QmlProfilerModelManager *modelManager)
     : m_modelManager(modelManager)
@@ -526,5 +525,4 @@ void Quick3DFrameModel::finalize()
     endResetModel();
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

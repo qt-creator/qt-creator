@@ -17,7 +17,9 @@
 
 namespace QmlProfiler {
 
-struct QmlEvent : public Timeline::TraceEvent {
+class QmlEvent : public Timeline::TraceEvent
+{
+public:
     static const qint32 staticClassId = 0x716d6c65; // 'qmle';
 
     QmlEvent() : TraceEvent(staticClassId) {}
@@ -36,10 +38,10 @@ struct QmlEvent : public Timeline::TraceEvent {
     }
 
     template<typename Number>
-    QmlEvent(qint64 timestamp, int typeIndex, const QVector<Number> &data)
+    QmlEvent(qint64 timestamp, int typeIndex, const QList<Number> &data)
         : TraceEvent(staticClassId, timestamp, typeIndex)
     {
-        assignNumbers<QVector<Number>, Number>(data);
+        assignNumbers<QList<Number>, Number>(data);
     }
 
     QmlEvent(const QmlEvent &other)

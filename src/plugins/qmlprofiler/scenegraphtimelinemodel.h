@@ -9,12 +9,12 @@
 #include <QStringList>
 #include <QColor>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class SceneGraphTimelineModel : public QmlProfilerTimelineModel
 {
     Q_OBJECT
+
 public:
     enum SceneGraphStage {
         MinimumSceneGraphStage = 0,
@@ -83,8 +83,7 @@ private:
                   int glyphCount = -1);
     static const char *threadLabel(SceneGraphStage stage);
 
-    QVector<Item> m_data;
+    QList<Item> m_data;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

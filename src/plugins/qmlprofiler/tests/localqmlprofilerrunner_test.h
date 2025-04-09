@@ -5,8 +5,7 @@
 
 #include <qmlprofiler/qmlprofilermodelmanager.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class LocalQmlProfilerRunnerTest : public QObject
 {
@@ -21,5 +20,4 @@ private slots:
     void testFindFreeSocket();
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

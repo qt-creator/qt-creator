@@ -11,8 +11,7 @@
 
 #include <QSGMaterial>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerBindingLoopsRenderPass : public Timeline::TimelineRenderPass
 {
@@ -26,5 +25,4 @@ protected:
     QmlProfilerBindingLoopsRenderPass();
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

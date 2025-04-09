@@ -12,6 +12,7 @@
 #include <QObject>
 
 namespace QmlProfiler {
+
 class QmlProfilerModelManager;
 
 namespace Internal {
@@ -47,7 +48,7 @@ public:
     void clear() override;
 
 private:
-    QVector<Item> m_data;
+    QList<Item> m_data;
     int m_maxGuiThreadAnimations = 0;
     int m_maxRenderThreadAnimations = 0;
     qint64 m_minNextStartTimes[2];
@@ -56,4 +57,5 @@ private:
 };
 
 } // namespace Internal
+
 } // namespace QmlProfiler

@@ -19,6 +19,7 @@
 namespace ProjectExplorer { class BuildConfiguration; }
 
 namespace QmlProfiler {
+
 class QmlProfilerModelManager;
 class QmlProfilerNotesModel;
 

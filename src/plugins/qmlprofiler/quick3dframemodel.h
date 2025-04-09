@@ -33,7 +33,6 @@
 
 #include <QHash>
 #include <QStack>
-#include <QVector>
 #include <QPointer>
 #include <QAbstractItemModel>
 

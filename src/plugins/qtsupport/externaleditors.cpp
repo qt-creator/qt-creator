@@ -150,7 +150,7 @@ static LaunchData createMacOpenCommand(const LaunchData &data)
 
 using CommandForQtVersion = std::function<QString(const QtSupport::QtVersion *)>;
 
-static QString findFirstCommand(const QVector<QtSupport::QtVersion *> &qtVersions,
+static QString findFirstCommand(const QList<QtSupport::QtVersion *> &qtVersions,
                                 CommandForQtVersion command)
 {
     for (QtSupport::QtVersion *qt : qtVersions) {
@@ -179,20 +179,20 @@ static bool getEditorLaunchData(const CommandForQtVersion &commandForQtVersion,
         return false;
     }
     data->workingDirectory.clear();
-    QVector<QtSupport::QtVersion *> qtVersionsToCheck; // deduplicated after being filled
+    QList<QtSupport::QtVersion *> qtVersionsToCheck; // deduplicated after being filled
     if (const Project *project = ProjectManager::projectForFile(filePath)) {
         data->workingDirectory = project->projectDirectory();
         // active kit
         qtVersionsToCheck << QtSupport::QtKitAspect::qtVersion(project->activeKit());
         // all kits of project
-        qtVersionsToCheck += Utils::transform<QVector>(project->targets(), [](Target *t) {
+        qtVersionsToCheck += Utils::transform<QList>(project->targets(), [](Target *t) {
             return QTC_GUARD(t) ? QtSupport::QtKitAspect::qtVersion(t->kit()) : nullptr;
         });
     }
     // default kit
     qtVersionsToCheck << QtSupport::QtKitAspect::qtVersion(KitManager::defaultKit());
     // all kits
-    qtVersionsToCheck += Utils::transform<QVector>(KitManager::kits(), QtSupport::QtKitAspect::qtVersion);
+    qtVersionsToCheck += Utils::transform<QList>(KitManager::kits(), QtSupport::QtKitAspect::qtVersion);
     qtVersionsToCheck = Utils::filteredUnique(qtVersionsToCheck); // can still contain nullptr
     data->binary = findFirstCommand(qtVersionsToCheck, commandForQtVersion);
     // fallback

@@ -10,7 +10,6 @@
 
 #include <QHash>
 #include <QStack>
-#include <QVector>
 #include <QPointer>
 #include <QAbstractTableModel>
 
@@ -60,6 +59,7 @@ enum RelativeField {
 class QmlProfilerStatisticsModel : public QAbstractTableModel
 {
     Q_OBJECT
+
 public:
     struct QmlEventStats {
         std::vector<qint64> durations;
@@ -111,7 +111,7 @@ public:
     bool isRestrictedToRange() const;
 
     QStringList details(int typeIndex) const;
-    QString summary(const QVector<int> &typeIds) const;
+    QString summary(const QList<int> &typeIds) const;
 
     void clear();
 
@@ -138,7 +138,7 @@ private:
     double durationPercent(int typeId) const;
     double durationSelfPercent(int typeId) const;
 
-    QVector<QmlEventStats> m_data;
+    QList<QmlEventStats> m_data;
 
     QPointer<QmlProfilerStatisticsRelativesModel> m_calleesModel;
     QPointer<QmlProfilerStatisticsRelativesModel> m_callersModel;
@@ -156,8 +156,8 @@ private:
 class QmlProfilerStatisticsRelativesModel : public QAbstractTableModel
 {
     Q_OBJECT
-public:
 
+public:
     struct QmlStatisticsRelativesData {
         QmlStatisticsRelativesData(qint64 duration = 0, qint64 calls = 0,
                                    int typeIndex = QmlProfilerStatisticsModel::s_invalidTypeId,
@@ -187,7 +187,7 @@ private:
     QVariant dataForMainEntry(qint64 totalDuration, int role, int column) const;
     void typeDetailsChanged(int typeId);
 
-    QHash<int, QVector<QmlStatisticsRelativesData>> m_data;
+    QHash<int, QList<QmlStatisticsRelativesData>> m_data;
     QPointer<QmlProfilerModelManager> m_modelManager;
 
     int m_relativeTypeIndex = QmlProfilerStatisticsModel::s_invalidTypeId;

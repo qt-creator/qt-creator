@@ -70,7 +70,7 @@ int FlameGraphModelTest::generateData(QmlProfilerModelManager *manager,
     manager->finalize();
 
     static_cast<QmlProfilerNotesModel *>(manager->notesModel())
-            ->setNotes(QVector<QmlNote>({
+            ->setNotes(QList<QmlNote>({
                                             // row 2 on purpose to test the range heuristic
                                             QmlNote(0, 2, 1, 21, "dings"),
                                             QmlNote(0, 3, 12, 1, "weg")
@@ -109,7 +109,7 @@ void FlameGraphModelTest::testCounts()
 
 void FlameGraphModelTest::testData()
 {
-    const QVector<QString> typeRoles({
+    const QList<QString> typeRoles({
         Tr::tr("JavaScript"),
         Tr::tr("Signal"),
         Tr::tr("Binding"),

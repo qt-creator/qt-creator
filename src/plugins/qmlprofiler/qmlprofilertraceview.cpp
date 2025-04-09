@@ -50,8 +50,7 @@
 #include <QRegularExpression>
 #include <QTextCursor>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerTraceView::QmlProfilerTraceViewPrivate
 {
@@ -406,5 +405,4 @@ bool TraceViewFindSupport::findOne(const QString &txt, Utils::FindFlags findFlag
     return false;
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal

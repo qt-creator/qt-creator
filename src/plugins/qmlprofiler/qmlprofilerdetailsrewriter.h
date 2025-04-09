@@ -11,12 +11,12 @@
 
 #include <QObject>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerDetailsRewriter : public QObject
 {
     Q_OBJECT
+
 public:
     explicit QmlProfilerDetailsRewriter(QObject *parent = nullptr);
 
@@ -48,8 +48,7 @@ private:
     friend class QTypeInfo<PendingEvent>;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // namespace QmlProfiler::Internal
 
 QT_BEGIN_NAMESPACE
 Q_DECLARE_TYPEINFO(QmlProfiler::Internal::QmlProfilerDetailsRewriter::PendingEvent, Q_MOVABLE_TYPE);

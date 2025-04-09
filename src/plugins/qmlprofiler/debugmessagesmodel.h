@@ -5,8 +5,7 @@
 
 #include "qmlprofilertimelinemodel.h"
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class DebugMessagesModel : public QmlProfilerTimelineModel
 {
@@ -37,8 +36,7 @@ private:
     static QString messageType(uint i);
 
     int m_maximumMsgType;
-    QVector<Item> m_data;
+    QList<Item> m_data;
 };
 
-} // namespace Internal
-} // namespace Qmlprofiler
+} // namespace Qmlprofiler::Internal

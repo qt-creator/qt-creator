@@ -10,6 +10,7 @@ namespace QmlProfiler {
 class QmlProfilerStateManager : public QObject
 {
     Q_OBJECT
+
 public:
     enum QmlProfilerState {
         Idle,
