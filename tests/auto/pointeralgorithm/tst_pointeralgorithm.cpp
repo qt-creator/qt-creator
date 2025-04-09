@@ -204,11 +204,11 @@ void tst_PointerAlgorithm::toRawPointer()
     const std::vector<Struct *> x1 = Utils::toRawPointer(v);
     // different result container
     const std::vector<Struct *> x2 = Utils::toRawPointer<std::vector>(v);
-    const QVector<Struct *> x3 = Utils::toRawPointer<QVector>(v);
+    const QList<Struct *> x3 = Utils::toRawPointer<QList>(v);
     const std::list<Struct *> x4 = Utils::toRawPointer<std::list>(v);
     // different fully specified result container
     const std::vector<BaseStruct *> x5 = Utils::toRawPointer<std::vector<BaseStruct *>>(v);
-    const QVector<BaseStruct *> x6 = Utils::toRawPointer<QVector<BaseStruct *>>(v);
+    const QList<BaseStruct *> x6 = Utils::toRawPointer<QList<BaseStruct *>>(v);
 }
 
 void tst_PointerAlgorithm::toReferences()
