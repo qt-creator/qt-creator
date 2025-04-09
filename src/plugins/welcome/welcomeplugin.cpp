@@ -66,9 +66,14 @@ public:
         auto ideIconLabel = new QLabel;
         {
             const QPixmap logo = Core::Icons::QTCREATORLOGO_BIG.pixmap();
-            const int iconSize = 40 * logo.devicePixelRatio();
-            const QPixmap scaledLogo = logo.scaledToHeight(iconSize, Qt::SmoothTransformation);
-            ideIconLabel->setPixmap(scaledLogo);
+            const int logoSize = logo.width();
+            const int margin = logoSize * 3.0 / 32.0;
+            const QRect cropR(margin, margin, logoSize - 2 * margin, logoSize - 2 * margin);
+            const QPixmap croppedLogo = logo.copy(cropR);
+            const QPixmap scaledCroppedLogo =
+                croppedLogo.scaledToHeight(40 * logo.devicePixelRatio(),
+                                           Qt::SmoothTransformation);
+            ideIconLabel->setPixmap(scaledCroppedLogo);
             ideIconLabel->setFixedHeight(welcomeTF.lineHeight());
         }
 
