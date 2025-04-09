@@ -303,6 +303,7 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeNam
     node->typeName = typeName;
     node->majorVersion = majorVersion;
     node->minorVersion = minorVersion;
+    setTypeId(node.get(), typeName);
 
     try {
         notifyNodeTypeChanged(node, typeName, majorVersion, minorVersion);

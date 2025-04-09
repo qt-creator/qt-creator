@@ -1066,6 +1066,18 @@ TEST_F(Model_Node, create_qualified_model_node_has_meta_info)
     ASSERT_THAT(node.metaInfo(), model.qtQmlModelsListModelMetaInfo());
 }
 
+TEST_F(Model_Node, change_node_type_changes_meta_info)
+{
+    projectStorageMock.createImportedTypeNameId(filePathId,
+                                                "QtObject",
+                                                model.qmlQtObjectMetaInfo().id());
+    auto node = model.createModelNode("Item");
+
+    node.changeType("QtObject");
+
+    ASSERT_THAT(node.metaInfo(), model.qmlQtObjectMetaInfo());
+}
+
 TEST_F(Model_Node, change_root_node_type_changes_meta_info)
 {
     projectStorageMock.createImportedTypeNameId(filePathId,
