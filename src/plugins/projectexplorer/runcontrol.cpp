@@ -1740,8 +1740,8 @@ Group processRecipe(RunControl *runControl,
         }
         QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, &process,
                          [runControl, process = &process] {
-            process->stop();
             runControl->postMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
+            process->stop();
         });
         return SetupResult::Continue;
     };
