@@ -772,6 +772,7 @@ ITargetItem *TargetGroupItem::targetItem(Target *target) const
 void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
 {
     q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
+    scheduleRebuildContents();
 }
 
 void TargetItem::updateSubItems()
