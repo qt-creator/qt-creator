@@ -13,7 +13,6 @@
 #include <utils/filepath.h>
 
 #include <QSet>
-#include <QString>
 
 namespace CPlusPlus {
 
@@ -50,7 +49,7 @@ public:
                                      int,
                                      int,
                                      const Macro &,
-                                     const QVector<MacroArgumentReference> &);
+                                     const QList<MacroArgumentReference> &);
     virtual void stopExpandingMacro(int, const Macro &) {}
     virtual void markAsIncludeGuard(const QByteArray &macroName);
 

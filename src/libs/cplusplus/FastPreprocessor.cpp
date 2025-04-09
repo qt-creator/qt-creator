@@ -110,7 +110,7 @@ void FastPreprocessor::passedMacroDefinitionCheck(int bytesOffset, int utf16char
     _currentDoc->addMacroUse(revision(_snapshot, macro),
                              bytesOffset, macro.name().size(),
                              utf16charsOffset, macro.nameToQString().size(),
-                             line, QVector<MacroArgumentReference>());
+                             line, QList<MacroArgumentReference>());
 }
 
 void FastPreprocessor::failedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
@@ -130,12 +130,12 @@ void FastPreprocessor::notifyMacroReference(int bytesOffset, int utf16charsOffse
     _currentDoc->addMacroUse(revision(_snapshot, macro),
                              bytesOffset, macro.name().size(),
                              utf16charsOffset, macro.nameToQString().size(),
-                             line, QVector<MacroArgumentReference>());
+                             line, QList<MacroArgumentReference>());
 }
 
 void FastPreprocessor::startExpandingMacro(int bytesOffset, int utf16charsOffset,
                                            int line, const Macro &macro,
-                                           const QVector<MacroArgumentReference> &actuals)
+                                           const QList<MacroArgumentReference> &actuals)
 {
     Q_ASSERT(_currentDoc);
 

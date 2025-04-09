@@ -8,7 +8,6 @@
 #include <utils/filepath.h>
 
 #include <QStringList>
-#include <QVector>
 
 namespace CPlusPlus {
 
@@ -74,7 +73,7 @@ public:
 
   virtual void startExpandingMacro(int bytesOffset, int utf16charsOffset,
                                    int line, const Macro &macro,
-                                   const QVector<MacroArgumentReference> &actuals = {}) = 0;
+                                   const QList<MacroArgumentReference> &actuals = {}) = 0;
   virtual void stopExpandingMacro(int bytesOffset, const Macro &macro) = 0; // TODO: ?!
 
   /// Mark the given macro name as the include guard for the current file.

@@ -50,7 +50,7 @@ public:
     void addMacroUse(const Macro &macro,
                      int bytesOffset, int bytesLength,
                      int utf16charsOffset, int utf16charLength,
-                     int beginLine, const QVector<MacroArgumentReference> &range);
+                     int beginLine, const QList<MacroArgumentReference> &range);
     void addUndefinedMacroUse(const QByteArray &name,
                               int bytesOffset, int utf16charsOffset);
 
@@ -245,7 +245,7 @@ public:
 
     class MacroUse: public Block {
         Macro _macro;
-        QVector<Block> _arguments;
+        QList<Block> _arguments;
         int _beginLine;
 
     public:
@@ -264,7 +264,7 @@ public:
         bool isFunctionLike() const
         { return _macro.isFunctionLike(); }
 
-        const QVector<Block> &arguments() const
+        const QList<Block> &arguments() const
         { return _arguments; }
 
         int beginLine() const

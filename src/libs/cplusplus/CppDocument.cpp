@@ -331,7 +331,7 @@ void Document::addMacroUse(const Macro &macro,
                            int bytesOffset, int bytesLength,
                            int utf16charsOffset, int utf16charLength,
                            int beginLine,
-                           const QVector<MacroArgumentReference> &actuals)
+                           const QList<MacroArgumentReference> &actuals)
 {
     MacroUse use(macro,
                  bytesOffset, bytesOffset + bytesLength,

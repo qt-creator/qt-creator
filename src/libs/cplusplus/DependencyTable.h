@@ -11,7 +11,6 @@
 #include <QHash>
 #include <QString>
 #include <QStringList>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 template <typename T>
@@ -29,10 +28,10 @@ private:
     void build(const std::optional<QFuture<void>> &future, const Snapshot &snapshot);
     Utils::FilePaths filesDependingOn(const Utils::FilePath &fileName) const;
 
-    QVector<Utils::FilePath> files;
+    Utils::FilePaths files;
     QHash<Utils::FilePath, int> fileIndex;
     QHash<int, QList<int> > includes;
-    QVector<QBitArray> includeMap;
+    QList<QBitArray> includeMap;
 };
 
 } // namespace CPlusPlus

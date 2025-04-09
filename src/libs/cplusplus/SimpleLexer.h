@@ -7,13 +7,12 @@
 #include <cplusplus/Token.h>
 
 #include <QString>
-#include <QVector>
 
 namespace CPlusPlus {
 
 class SimpleLexer;
 class Token;
-typedef QVector<Token> Tokens;
+typedef QList<Token> Tokens;
 
 class CPLUSPLUS_EXPORT SimpleLexer
 {
