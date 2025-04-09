@@ -41,7 +41,9 @@ public:
 Q_SIGNALS:
     void started();
     void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
+#if QT_CONFIG(ssl)
     void sslErrors(const QList<QSslError> &errors);
+#endif
     void done(DoneResult result);
 
 private:

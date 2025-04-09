@@ -38,7 +38,9 @@ void NetworkQuery::start()
     }
 
     connect(m_reply.get(), &QNetworkReply::downloadProgress, this, &NetworkQuery::downloadProgress);
+#if QT_CONFIG(ssl)
     connect(m_reply.get(), &QNetworkReply::sslErrors, this, &NetworkQuery::sslErrors);
+#endif
     connect(m_reply.get(), &QNetworkReply::finished, this, [this] {
         disconnect(m_reply.get(), &QNetworkReply::finished, this, nullptr);
         emit done(toDoneResult(m_reply->error() == QNetworkReply::NoError));
