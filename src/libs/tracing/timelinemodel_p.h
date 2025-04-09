@@ -102,7 +102,7 @@ public:
     }
 
     template<typename RangeDelimiter>
-    static inline int lowerBound(const QVector<RangeDelimiter> &container, qint64 time)
+    static inline int lowerBound(const QList<RangeDelimiter> &container, qint64 time)
     {
         int fromIndex = 0;
         int toIndex = container.count() - 1;
@@ -120,10 +120,10 @@ public:
     int prevItemById(std::function<bool(int)> matchesId, qint64 time, int currentSelected) const;
     int nextItemById(std::function<bool(int)> matchesId, qint64 time, int currentSelected) const;
 
-    QVector<Range> ranges;
-    QVector<RangeEnd> endTimes;
+    QList<Range> ranges;
+    QList<RangeEnd> endTimes;
 
-    QVector<int> rowOffsets;
+    QList<int> rowOffsets;
     const int modelId;
     QString displayName;
     QString tooltip;

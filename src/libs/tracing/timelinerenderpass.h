@@ -4,7 +4,8 @@
 #pragma once
 
 #include "tracing_global.h"
-#include <QVector>
+
+#include <QList>
 
 QT_FORWARD_DECLARE_CLASS(QSGNode)
 namespace Timeline {
@@ -16,8 +17,8 @@ class TRACING_EXPORT TimelineRenderPass {
 public:
     class TRACING_EXPORT State {
     public:
-        virtual const QVector<QSGNode *> &expandedRows() const;
-        virtual const QVector<QSGNode *> &collapsedRows() const;
+        virtual const QList<QSGNode *> &expandedRows() const;
+        virtual const QList<QSGNode *> &collapsedRows() const;
         virtual QSGNode *expandedOverlay() const;
         virtual QSGNode *collapsedOverlay() const;
         virtual ~State();
