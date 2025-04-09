@@ -290,7 +290,7 @@ void PerfProfilerFlameGraphData::loadEvent(const PerfEvent &event, const PerfEve
     const uint numSamples = (event.timestamp() < 0) ? 0 : 1;
     m_stackBottom->samples += numSamples;
     auto data = m_stackBottom.get();
-    const QVector<int> &stack = event.frames();
+    const QList<int> &stack = event.frames();
     for (auto it = stack.rbegin(), end = stack.rend(); it != end; ++it)
         data = pushChild(data, *it, numSamples);
 

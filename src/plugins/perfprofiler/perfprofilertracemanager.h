@@ -135,7 +135,7 @@ public:
 
     const std::vector<PerfEventType> &attributes() const;
     const std::vector<PerfEventType> &locations() const;
-    const QVector<QByteArray> &strings() const { return m_strings; }
+    const QList<QByteArray> &strings() const { return m_strings; }
     const QHash<qint32, Symbol> &symbols() const { return m_symbols; }
     const QHash<qint32, TracePoint> &tracePoints() const { return m_tracePoints; }
     const QHash<quint32, Thread> &threads() const { return m_threads; }
@@ -167,7 +167,7 @@ protected:
 private:
     QTimer m_reparseTimer;
 
-    QVector<QByteArray> m_strings;
+    QList<QByteArray> m_strings;
     QHash<qint32, Symbol> m_symbols;
     QHash<qint32, TracePoint> m_tracePoints;
     QHash<quint32, Thread> m_threads;

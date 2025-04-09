@@ -111,7 +111,7 @@ private:
         }
     };
 
-    QVector<int> m_currentStack;
+    QList<int> m_currentStack;
 
     qint64 m_lastTimestamp;
     qint64 m_threadStartTimestamp;
@@ -119,16 +119,16 @@ private:
 
     PerfResourceCounter<> m_resourceBlocks;
 
-    QVector<int> m_locationOrder;
+    QList<int> m_locationOrder;
     QHash<int, LocationStats> m_locationStats;
 
     quint32 m_pid;
     quint32 m_tid;
     qint64 m_samplingFrequency;
 
-    QVector<StackFrame> m_data;
+    QList<StackFrame> m_data;
     QHash<int, QHash<qint32, QVariant>> m_extraData;
-    QHash<int, QVector<QPair<qint32, quint64>>> m_attributeValues;
+    QHash<int, QList<QPair<qint32, quint64>>> m_attributeValues;
 
     void computeExpandedLevels();
 

@@ -49,7 +49,7 @@ protected:
     int lastSortColumn;
     Qt::SortOrder lastSortOrder;
     QFont m_font;
-    QVector<Column> m_columns;
+    QList<Column> m_columns;
 };
 
 class PerfProfilerStatisticsRelativesModel;
@@ -89,9 +89,9 @@ public:
     };
 
 private:
-    QVector<Data> m_data;
-    QVector<int> m_forwardIndex;
-    QVector<int> m_backwardIndex;
+    QList<Data> m_data;
+    QList<int> m_forwardIndex;
+    QList<int> m_backwardIndex;
 
     PerfProfilerStatisticsRelativesModel *m_children;
     PerfProfilerStatisticsRelativesModel *m_parents;
@@ -108,7 +108,7 @@ class PerfProfilerStatisticsRelativesModel : public PerfProfilerStatisticsModel
 public:
     struct Data {
         uint totalOccurrences;
-        QVector<Frame> data;
+        QList<Frame> data;
     };
 
     PerfProfilerStatisticsRelativesModel(Relation relation,

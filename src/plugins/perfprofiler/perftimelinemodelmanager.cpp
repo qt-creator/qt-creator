@@ -45,7 +45,7 @@ void PerfTimelineModelManager::initialize()
 
 void PerfTimelineModelManager::finalize()
 {
-    QVector<PerfTimelineModel *> finished;
+    QList<PerfTimelineModel *> finished;
     QHash<quint32, PerfProfilerTraceManager::Thread> threads = traceManager().threads();
     for (auto it = m_unfinished.begin(), end = m_unfinished.end(); it != end; ++it) {
         PerfTimelineModel *model = *it;

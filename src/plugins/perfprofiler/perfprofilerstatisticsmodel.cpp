@@ -64,13 +64,13 @@ static inline bool operator<(const PerfProfilerStatisticsModel::Frame &a, int b)
 
 struct PerfProfilerStatisticsData
 {
-    QVector<PerfProfilerStatisticsMainModel::Data> mainData;
+    QList<PerfProfilerStatisticsMainModel::Data> mainData;
     QHash<int, PerfProfilerStatisticsRelativesModel::Data> parentsData;
     QHash<int, PerfProfilerStatisticsRelativesModel::Data> childrenData;
     uint totalSamples = 0;
 
     void loadEvent(const PerfEvent &event, const PerfEventType &type);
-    void updateRelative(PerfProfilerStatisticsModel::Relation relation, const QVector<int> &stack);
+    void updateRelative(PerfProfilerStatisticsModel::Relation relation, const QList<int> &stack);
     bool isEmpty() const;
     void clear();
 };
@@ -193,7 +193,7 @@ void PerfProfilerStatisticsData::loadEvent(const PerfEvent &event, const PerfEve
     Q_UNUSED(type)
     ++totalSamples;
     auto data = mainData.end();
-    const QVector<qint32> &stack = event.frames();
+    const QList<qint32> &stack = event.frames();
     for (auto typeId = stack.rbegin(), end = stack.rend(); typeId != end; ++typeId) {
         data = std::lower_bound(mainData.begin(), mainData.end(), *typeId);
         if (data == mainData.end() || data->typeId != *typeId)
@@ -454,7 +454,7 @@ void PerfProfilerStatisticsRelativesModel::finalize(PerfProfilerStatisticsData *
 }
 
 void PerfProfilerStatisticsData::updateRelative(PerfProfilerStatisticsModel::Relation relation,
-                                                const QVector<int> &stack)
+                                                const QList<int> &stack)
 {
     int prevFrame = -1;
     const bool isParents = (relation == PerfProfilerStatisticsModel::Parents);
