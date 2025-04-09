@@ -715,7 +715,7 @@ void BookmarkManager::documentPrevNext(bool next)
     int lastLine = -1;
     int prevLine = -1;
     int nextLine = -1;
-    const QVector<Bookmark *> marks = m_bookmarksMap[filePath];
+    const QList<Bookmark *> marks = m_bookmarksMap[filePath];
     for (int i = 0; i < marks.count(); ++i) {
         int markLine = marks.at(i)->lineNumber();
         if (firstLine == -1 || firstLine > markLine)

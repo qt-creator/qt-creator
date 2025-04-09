@@ -690,7 +690,7 @@ struct PaintEventData
 struct PaintEventBlockData
 {
     QRectF boundingRect;
-    QVector<QTextLayout::FormatRange> selections;
+    QList<QTextLayout::FormatRange> selections;
     QTextLayout *layout = nullptr;
     int position = 0;
     int length = 0;
@@ -1036,8 +1036,8 @@ public:
 
     QFuture<SearchResultItems> m_searchFuture;
     QFuture<SearchResultItems> m_selectionHighlightFuture;
-    QVector<SearchResult> m_searchResults;
-    QVector<SearchResult> m_selectionResults;
+    QList<SearchResult> m_searchResults;
+    QList<SearchResult> m_selectionResults;
     QTimer m_scrollBarUpdateTimer;
     HighlightScrollBarController *m_highlightScrollBarController = nullptr;
     bool m_scrollBarUpdateScheduled = false;
@@ -1740,8 +1740,7 @@ void TextEditorWidgetPrivate::print(QPrinter *printer)
          srcBlock.isValid() && dstBlock.isValid();
          srcBlock = srcBlock.next(), dstBlock = dstBlock.next()) {
 
-
-        QVector<QTextLayout::FormatRange> formatList = srcBlock.layout()->formats();
+        QList<QTextLayout::FormatRange> formatList = srcBlock.layout()->formats();
         if (backgroundIsDark) {
             // adjust syntax highlighting colors for better contrast
             for (int i = formatList.count() - 1; i >= 0; --i) {
@@ -6097,7 +6096,7 @@ void TextEditorWidgetPrivate::setupBlockLayout(const PaintEventData &data,
 void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
                                               PaintEventBlockData &blockData) const
 {
-    QVector<QTextLayout::FormatRange> prioritySelections;
+    QList<QTextLayout::FormatRange> prioritySelections;
 
     int deltaPos = -1;
     int delta = 0;
@@ -6364,7 +6363,7 @@ void TextEditorWidget::paintEvent(QPaintEvent *e)
 void TextEditorWidget::paintBlock(QPainter *painter,
                                   const QTextBlock &block,
                                   const QPointF &offset,
-                                  const QVector<QTextLayout::FormatRange> &selections,
+                                  const QList<QTextLayout::FormatRange> &selections,
                                   const QRect &clipRect) const
 {
     if (TextSuggestion *suggestion = TextBlockUserData::suggestion(block)) {
@@ -6372,9 +6371,9 @@ void TextEditorWidget::paintBlock(QPainter *painter,
         QPointF suggestionOffset = offset;
         suggestionOffset.rx() += document()->documentMargin();
         while (suggestionBlock.isValid()) {
-            const QVector<QTextLayout::FormatRange> blockSelections
+            const QList<QTextLayout::FormatRange> blockSelections
                 = suggestionBlock.blockNumber() == 0 ? selections
-                                                      : QVector<QTextLayout::FormatRange>{};
+                                                      : QList<QTextLayout::FormatRange>{};
             suggestionBlock.layout()->draw(painter,
                                             suggestionOffset,
                                             blockSelections,
@@ -6444,7 +6443,7 @@ void TextEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
         b.setVisible(true); // make sure block bounding rect works
         QRectF r = blockBoundingRect(b).translated(offset);
         QTextLayout *layout = b.layout();
-        QVector<QTextLayout::FormatRange> selections;
+        QList<QTextLayout::FormatRange> selections;
         layout->draw(&painter, offset, selections, clip);
 
         b.setVisible(false); // restore previous state
@@ -9468,7 +9467,7 @@ QMimeData *TextEditorWidget::createMimeDataFromSelection(bool withHtml) const
                      current = current.next()) {
                     if (selectionVisible(current.blockNumber())) {
                         const QTextLayout *layout = current.layout();
-                        const QVector<QTextLayout::FormatRange> ranges = layout->formats();
+                        const QList<QTextLayout::FormatRange> ranges = layout->formats();
                         for (const QTextLayout::FormatRange &range : ranges) {
                             const int startPosition = current.position() + range.start
                                                       - selectionStart - removedCount;

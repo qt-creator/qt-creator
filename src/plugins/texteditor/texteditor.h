@@ -583,7 +583,7 @@ protected:
     virtual void paintBlock(QPainter *painter,
                             const QTextBlock &block,
                             const QPointF &offset,
-                            const QVector<QTextLayout::FormatRange> &selections,
+                            const QList<QTextLayout::FormatRange> &selections,
                             const QRect &clipRect) const;
     void timerEvent(QTimerEvent *) override;
     void mouseMoveEvent(QMouseEvent *) override;

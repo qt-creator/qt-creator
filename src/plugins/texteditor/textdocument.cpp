@@ -941,7 +941,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
     if (cursor.hasSelection())
         end = d->m_document.findBlock(cursor.selectionEnd()-1).next();
 
-    QVector<QTextBlock> blocks;
+    QList<QTextBlock> blocks;
     while (block.isValid() && block != end) {
         if (inEntireDocument || block.revision() != documentLayout->lastSaveRevision) {
             blocks.append(block);

@@ -51,7 +51,7 @@ int TextIndenter::indentFor(const QTextBlock &block,
     return tabSettings.indentationColumn(previousText);
 }
 
-IndentationForBlock TextIndenter::indentationForBlocks(const QVector<QTextBlock> &blocks,
+IndentationForBlock TextIndenter::indentationForBlocks(const QList<QTextBlock> &blocks,
                                                        const TabSettings &tabSettings,
                                                        int /*cursorPositionInEditor*/)
 {

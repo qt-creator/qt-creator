@@ -12,7 +12,6 @@
 #include <QCoreApplication>
 #include <QIcon>
 #include <QStaticText>
-#include <QVector>
 
 #include <optional>
 

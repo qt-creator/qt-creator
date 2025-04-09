@@ -127,7 +127,7 @@ protected:
     QStringList fileExclusionFilters() const;
 
     SearchEngine *currentSearchEngine() const;
-    QVector<SearchEngine *> searchEngines() const;
+    QList<SearchEngine *> searchEngines() const;
     void setCurrentSearchEngine(int index);
     virtual void syncSearchEngineCombo(int /*selectedSearchEngineIndex*/) {}
 

@@ -35,7 +35,7 @@ public:
 
     bool operator==(const Parenthesis &other) const;
 };
-using Parentheses = QVector<Parenthesis>;
+using Parentheses = QList<Parenthesis>;
 TEXTEDITOR_EXPORT void insertSorted(Parentheses &list, const Parenthesis &elem);
 
 class TEXTEDITOR_EXPORT CodeFormatterData

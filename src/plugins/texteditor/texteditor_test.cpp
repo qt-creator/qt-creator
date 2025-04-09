@@ -44,11 +44,11 @@ using IsClean = std::function<bool (TabSettingsFlags)>;
 
 static void generateTestRows(const QLatin1String &name, const QString &text, IsClean isClean)
 {
-    const QVector<TabSettings::TabPolicy> allPolicies = {
+    const QList<TabSettings::TabPolicy> allPolicies = {
         TabSettings::SpacesOnlyTabPolicy,
         TabSettings::TabsOnlyTabPolicy,
     };
-    const QVector<TabSettings::ContinuationAlignBehavior> allbehaviors = {
+    const QList<TabSettings::ContinuationAlignBehavior> allbehaviors = {
         TabSettings::NoContinuationAlign,
         TabSettings::ContinuationAlignWithSpaces,
         TabSettings::ContinuationAlignWithIndent

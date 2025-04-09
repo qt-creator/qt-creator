@@ -186,7 +186,7 @@ public:
     QString m_exclusionSetting;
     QPointer<QComboBox> m_filterCombo;
     QPointer<QComboBox> m_exclusionCombo;
-    QVector<SearchEngine *> m_searchEngines;
+    QList<SearchEngine *> m_searchEngines;
     InternalEngine m_internalSearchEngine;
     int m_currentSearchEngineIndex = -1;
     FilePath m_searchDir;
@@ -279,7 +279,7 @@ SearchEngine *BaseFileFind::currentSearchEngine() const
     return d->m_searchEngines[d->m_currentSearchEngineIndex];
 }
 
-QVector<SearchEngine *> BaseFileFind::searchEngines() const
+QList<SearchEngine *> BaseFileFind::searchEngines() const
 {
     return d->m_searchEngines;
 }

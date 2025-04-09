@@ -9,7 +9,6 @@
 
 #include <QString>
 #include <QTextCursor>
-#include <QVector>
 
 #include <utils/filepath.h>
 
@@ -43,7 +42,7 @@ private:
     Utils::FilePath m_filePath;
     AssistReason m_reason;
     QString m_text;
-    QVector<int> m_userStates;
+    QList<int> m_userStates;
 };
 
 } // namespace TextEditor
