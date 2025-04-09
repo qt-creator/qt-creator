@@ -686,7 +686,7 @@ void TestTreeModel::onParseResultsReady(const QList<TestParseResultPtr> &results
 
 void Autotest::TestTreeModel::onDataChanged(const QModelIndex &topLeft,
                                             const QModelIndex &bottomRight,
-                                            const QVector<int> &roles)
+                                            const QList<int> &roles)
 {
     const QModelIndex parent = topLeft.parent();
     QTC_ASSERT(parent == bottomRight.parent(), return);

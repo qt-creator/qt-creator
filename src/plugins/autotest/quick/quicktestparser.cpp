@@ -212,7 +212,7 @@ static bool checkQmlDocumentForQuickTestCode(QPromise<TestParseResultPtr> &promi
     if (!qmlVisitor.isValid())
         return false;
 
-    const QVector<QuickTestCaseSpec> &testCases = qmlVisitor.testCases();
+    const QList<QuickTestCaseSpec> &testCases = qmlVisitor.testCases();
 
     for (const QuickTestCaseSpec &testCase : testCases) {
         const QString testCaseName = testCase.m_caseName;

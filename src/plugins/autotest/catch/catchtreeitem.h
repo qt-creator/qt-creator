@@ -5,8 +5,7 @@
 
 #include "../testtreeitem.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class CatchTreeItem : public TestTreeItem
 {
@@ -58,7 +57,6 @@ public:
     QStringList tags; // TODO: use them for the item
 };
 
-typedef QVector<CatchTestCodeLocationAndType> CatchTestCodeLocationList;
+using CatchTestCodeLocationList = QList<CatchTestCodeLocationAndType>;
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

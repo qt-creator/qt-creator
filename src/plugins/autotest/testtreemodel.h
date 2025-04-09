@@ -79,7 +79,7 @@ signals:
 private:
     void onParseResultsReady(const QList<TestParseResultPtr> &results);
     void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                       const QVector<int> &roles);
+                       const QList<int> &roles);
     void handleParseResult(const TestParseResult *result, TestTreeItem *rootNode);
     void removeAllTestItems();
     void removeAllTestToolItems();

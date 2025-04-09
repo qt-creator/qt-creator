@@ -5,8 +5,7 @@
 
 #include "../testtreeitem.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class GTestParseResult;
 
@@ -54,6 +53,7 @@ public:
     bool isGroupable() const override;
     TestTreeItem *applyFilters() override;
     bool shouldBeAddedAfterFiltering() const override;
+
 private:
     bool modifyTestSetContent(const GTestParseResult *result);
     QList<ITestConfiguration *> getTestConfigurations(bool ignoreCheckState) const;
@@ -66,7 +66,7 @@ public:
     GTestTreeItem::TestStates m_state;
 };
 
-typedef QVector<GTestCodeLocationAndType> GTestCodeLocationList;
+using GTestCodeLocationList = QList<GTestCodeLocationAndType>;
 
 struct GTestCaseSpec
 {
@@ -76,5 +76,4 @@ struct GTestCaseSpec
     bool disabled;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

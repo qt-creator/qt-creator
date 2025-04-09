@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "quicktesttreeitem.h"
+#include "../testtreeitem.h"
 
 #include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>
@@ -12,8 +12,7 @@
 
 #include <QStack>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class QuickTestCaseSpec
 {
@@ -40,14 +39,14 @@ public:
 
     void throwRecursionDepthError() override;
 
-    QVector<QuickTestCaseSpec> testCases() const { return m_testCases; }
+    QList<QuickTestCaseSpec> testCases() const { return m_testCases; }
     bool isValid() const { return !m_testCases.isEmpty(); }
 
 private:
     QmlJS::Document::Ptr m_currentDoc;
     const QmlJS::Snapshot &m_snapshot;
     QStack<QuickTestCaseSpec> m_caseParseStack;
-    QVector<QuickTestCaseSpec> m_testCases;
+    QList<QuickTestCaseSpec> m_testCases;
     QStack<bool> m_objectIsTestStack;
     bool m_expectTestCaseName = false;
     bool m_checkForDerivedTest = false;
@@ -66,5 +65,4 @@ private:
     CPlusPlus::Document::Ptr m_currentDoc;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

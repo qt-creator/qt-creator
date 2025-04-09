@@ -62,7 +62,7 @@ static bool hasGTestNames(const CPlusPlus::Document::Ptr &document)
         if (!macro.isFunctionLike())
             continue;
         if (GTestUtils::isGTestMacro(QLatin1String(macro.macro().name()))) {
-            const QVector<CPlusPlus::Document::Block> args = macro.arguments();
+            const QList<CPlusPlus::Document::Block> args = macro.arguments();
             if (args.size() != 2)
                 continue;
             return true;

@@ -124,7 +124,7 @@ private:
     bool m_autoScroll = false;
     bool m_atEnd = false;
     bool m_testRunning = false;
-    QVector<TestEditorMark *> m_marks;
+    QList<TestEditorMark *> m_marks;
 };
 
 } // namespace Internal
