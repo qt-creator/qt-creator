@@ -352,6 +352,7 @@ public:
 
     enum Side { Left, Right };
     QAction *insertExtraToolBarWidget(Side side, QWidget *widget);
+    void insertExtraToolBarAction(Side side, QAction *action);
     void setToolbarOutline(QWidget* widget);
     const QWidget *toolbarOutlineWidget();
 

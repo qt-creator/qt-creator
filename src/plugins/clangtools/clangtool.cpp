@@ -174,7 +174,7 @@ public:
         m_error->setVisible(!text.isEmpty());
         m_error->setText(text);
         m_error->setType(type == Warning ? InfoLabel::Warning : InfoLabel::Error);
-        m_error->disconnect();
+        disconnect(m_error, &QLabel::linkActivated, this, nullptr);
         if (linkAction)
             connect(m_error, &QLabel::linkActivated, this, linkAction);
         evaluateVisibility();

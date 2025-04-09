@@ -26,7 +26,6 @@ namespace QmlProfiler::Internal {
 
 Group qmlProfilerRecipe(RunControl *runControl)
 {
-    runControl->requestQmlChannel();
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
 
     const auto onSetup = [runControl](Barrier &barrier) {
@@ -77,6 +76,7 @@ RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
     worker->setId("LocalQmlProfilerSupport");
 
     auto profiler = new RecipeRunner(runControl, qmlProfilerRecipe(runControl));
+    runControl->requestQmlChannel();
 
     worker->addStopDependency(profiler);
     // We need to open the local server before the application tries to connect.

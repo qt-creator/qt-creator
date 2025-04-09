@@ -238,9 +238,13 @@ void setupTextEditorModule()
             "Position",
             sol::no_constructor,
             "line",
-            sol::property(&Position::line, &Position::line),
+            sol::property(
+                [](const Position &pos) { return pos.line; },
+                [](Position &pos, int line) { pos.line = line; }),
             "column",
-            sol::property(&Position::column, &Position::column),
+            sol::property(
+                [](const Position &pos) { return pos.column; },
+                [](Position &pos, int column) { pos.column = column; }),
             "toPositionInDocument",
             sol::overload(
                 &Position::toPositionInDocument,
@@ -257,9 +261,13 @@ void setupTextEditorModule()
             "Range",
             sol::no_constructor,
             "from",
-            sol::property(&Range::begin, &Range::begin),
+            sol::property(
+                [](const Range &range) { return range.begin; },
+                [](Range &range, const Position &begin) { range.begin = begin; }),
             "to",
-            sol::property(&Range::end, &Range::end),
+            sol::property(
+                [](const Range &range) { return range.end; },
+                [](Range &range, const Position &end) { range.end = end; }),
             "toTextCursor",
             sol::overload(&Range::toTextCursor, [](const Range &range, TextDocument *doc) {
                 return range.toTextCursor(doc->document());
@@ -428,6 +436,13 @@ void setupTextEditorModule()
                LayoutOrWidget widget) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 textEditor->editorWidget()->insertExtraToolBarWidget(side, toWidget(widget));
+            },
+            "insertExtraToolBarAction",
+            [](const TextEditorPtr &textEditor,
+               TextEditorWidget::Side side,
+               QAction* action) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                textEditor->editorWidget()->insertExtraToolBarAction(side, action);
             },
             "setRefactorMarker",
             [pluginSpec, activeMarkers](

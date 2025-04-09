@@ -708,8 +708,12 @@ bool CMakeGeneratorKitAspectFactory::isNinjaPresent(const Kit *k, const CMakeToo
         return true;
 
     if (Internal::settings(nullptr).ninjaPath().isEmpty()) {
-        auto findNinja = [](const Environment &env) -> bool {
-            return !env.searchInPath("ninja").isEmpty();
+        FilePaths extraDirs;
+        if (tool->filePath().osType() == OsTypeMac)
+            extraDirs << tool->filePath().parentDir();
+
+        auto findNinja = [extraDirs](const Environment &env) -> bool {
+            return !env.searchInPath("ninja", extraDirs).isEmpty();
         };
         if (!findNinja(tool->filePath().deviceEnvironment()))
             return findNinja(k->buildEnvironment());

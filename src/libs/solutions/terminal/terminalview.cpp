@@ -278,6 +278,11 @@ void TerminalView::setPasswordMode(bool passwordMode)
     }
 }
 
+void TerminalView::enableMouseTracking(bool enable)
+{
+    d->m_allowMouseTracking = enable;
+}
+
 void TerminalView::setFont(const QFont &font)
 {
     QAbstractScrollArea::setFont(font);

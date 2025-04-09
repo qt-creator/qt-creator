@@ -3499,7 +3499,9 @@ void TextEditorWidget::gotoLine(int line, int column, bool centerLine, bool anim
     const QTextBlock &block = document()->findBlockByNumber(blockNumber);
     if (block.isValid()) {
         QTextCursor cursor(block);
-        if (column > 0) {
+        if (column >= block.length()) {
+            cursor.movePosition(QTextCursor::EndOfBlock);
+        } else if (column > 0) {
             cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, column);
         } else {
             int pos = cursor.position();
@@ -9873,6 +9875,23 @@ QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side
         return d->m_toolBar->insertWidget(before, widget);
     } else {
         return d->m_toolBar->insertWidget(d->m_fileLineEndingAction, widget);
+    }
+}
+
+void TextEditorWidget::insertExtraToolBarAction(TextEditorWidget::Side side, QAction *action)
+{
+    if (side == Left) {
+        auto findLeftMostAction = [this](QAction *action) {
+            if (d->m_toolbarOutlineAction && action == d->m_toolbarOutlineAction)
+                return false;
+            return d->m_toolBar->widgetForAction(action) != nullptr;
+        };
+        QAction *before = Utils::findOr(d->m_toolBar->actions(),
+                                        d->m_fileEncodingLabelAction,
+                                        findLeftMostAction);
+        d->m_toolBar->insertAction(before, action);
+    } else {
+        d->m_toolBar->insertAction(d->m_fileLineEndingAction, action);
     }
 }
 

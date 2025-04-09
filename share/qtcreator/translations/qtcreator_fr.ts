@@ -60490,7 +60490,7 @@ Les données de la trace sont perdues.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; terminated with exit code %2.</source>
-        <translation>La commande «&#xa0;%1&#xa0;» s’est terminée avec le code de sortie %1.</translation>
+        <translation>La commande «&#xa0;%1&#xa0;» s’est terminée avec le code de sortie %2.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; terminated abnormally.</source>

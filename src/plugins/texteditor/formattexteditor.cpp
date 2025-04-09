@@ -77,6 +77,7 @@ static FormatOutput format(const FormatInput &input)
         options.replaceInStrings(QLatin1String("%file"), sourceFile.filePath().toUrlishString());
         Process process;
         process.setCommand({executable, options});
+        process.setUtf8StdOutCodec();
         process.runBlocking(5s);
         if (process.result() != ProcessResult::FinishedWithSuccess) {
             return Utils::make_unexpected(Tr::tr("Failed to format: %1.")
@@ -102,6 +103,7 @@ static FormatOutput format(const FormatInput &input)
         options.replaceInStrings("%file", input.filePath.toUrlishString());
         process.setCommand({executable, options});
         process.setWriteData(input.sourceData.toUtf8());
+        process.setUtf8StdOutCodec();
         process.start();
         if (!process.waitForFinished(5s)) {
             return Utils::make_unexpected(Tr::tr("Cannot call %1 or some other error occurred. "
