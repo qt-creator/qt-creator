@@ -88,6 +88,8 @@ static QStringList defaultCodeFontFamilies()
     return {"Menlo", "Source Code Pro", "Monospace", "Courier"};
 }
 
+static QTextFragment copyButtonFragment(const QTextBlock &block);
+
 class CopyButtonHandler : public QObject, public QTextObjectInterface
 {
     Q_OBJECT
@@ -113,6 +115,32 @@ public:
         if (isCopied)
             return clickedIcon;
         return unclickedIcon;
+    }
+
+    static void resetOtherCopyButtons(QTextDocument *doc, const QTextFragment &clickedFragment)
+    {
+        for (QTextBlock block = doc->begin(); block != doc->end(); block = block.next()) {
+            const QTextFragment otherFragment = copyButtonFragment(block);
+            if (otherFragment.isValid() && otherFragment != clickedFragment) {
+                QTextCursor resetCursor(block);
+                resetCursor.setPosition(otherFragment.position());
+                resetCursor.setPosition(
+                    otherFragment.position() + otherFragment.length(), QTextCursor::KeepAnchor);
+                QTextCharFormat resetFormat = otherFragment.charFormat();
+                resetFormat.setProperty(isCopiedPropertyId(), false);
+                resetCursor.setCharFormat(resetFormat);
+            }
+        }
+    }
+
+    static void copyCodeAndUpdateButton(QTextCursor &cursor, const QTextCharFormat &format)
+    {
+        const QString code = format.property(codePropertyId()).value<QString>();
+        Utils::setClipboardAndSelection(code);
+
+        QTextCharFormat newFormat = format;
+        newFormat.setProperty(isCopiedPropertyId(), true);
+        cursor.setCharFormat(newFormat);
     }
 
     QSizeF intrinsicSize(QTextDocument *doc, int pos, const QTextFormat &format) override
@@ -823,45 +851,50 @@ void MarkdownBrowser::changeEvent(QEvent *event)
 void MarkdownBrowser::mousePressEvent(QMouseEvent *event)
 {
     QTextCursor cursor = cursorForPosition(event->pos());
-    if (!cursor.isNull()) {
-        QTextCharFormat format = cursor.charFormat();
-        if (format.objectType() == CopyButtonHandler::objectId()) {
-            QTextBlock block = cursor.block();
-            QTextFragment fragment = copyButtonFragment(block);
-            if (fragment.isValid()) {
-                QPointF blockPosition = blockBBoxTopLeftPosition(block);
-                QRectF fragmentRect = calculateFragmentBounds(block, fragment, blockPosition);
-
-                QPointF mousePos = event->pos();
-                QPointF viewportOffset(
-                    horizontalScrollBar()->value(), verticalScrollBar()->value());
-                mousePos += viewportOffset;
-
-                if (fragmentRect.isValid() && fragmentRect.contains(mousePos)) {
-                    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-                    // If the user clicks the text, the cursor will be positioned after the object,
-                    // so we have to move the cursor back to the object.
-                    if (cursor.selectedText() == QChar::ParagraphSeparator)
-                        cursor
-                            .movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor,
-                                          2);
-
-                    QString code
-                        = format.property(CopyButtonHandler::codePropertyId()).value<QString>();
-                    Utils::setClipboardAndSelection(code);
-
-                    QTextCharFormat newFormat = format;
-                    newFormat.setProperty(CopyButtonHandler::isCopiedPropertyId(), true);
-                    cursor.setCharFormat(newFormat);
-
-                    document()->documentLayout()->update();
-                    event->accept();
-                    return;
-                }
-            }
-        }
+    if (cursor.isNull()) {
+        QTextBrowser::mousePressEvent(event);
+        return;
     }
-    QTextBrowser::mousePressEvent(event);
+
+    const QTextCharFormat format = cursor.charFormat();
+    if (format.objectType() != CopyButtonHandler::objectId()) {
+        QTextBrowser::mousePressEvent(event);
+        return;
+    }
+
+    const QTextBlock block = cursor.block();
+    const QTextFragment fragment = copyButtonFragment(block);
+    if (!fragment.isValid()) {
+        QTextBrowser::mousePressEvent(event);
+        return;
+    }
+
+    const QPointF blockPosition = blockBBoxTopLeftPosition(block);
+    const QRectF fragmentRect = calculateFragmentBounds(block, fragment, blockPosition);
+
+    auto isClickWithinFragment = [this, event, &fragmentRect]() {
+        const QPointF mousePos = event->pos();
+        const QPointF viewportOffset(horizontalScrollBar()->value(), verticalScrollBar()->value());
+        return fragmentRect.isValid() && fragmentRect.contains(mousePos + viewportOffset);
+    };
+
+    if (!isClickWithinFragment()) {
+        QTextBrowser::mousePressEvent(event);
+        return;
+    }
+
+    CopyButtonHandler::resetOtherCopyButtons(document(), fragment);
+
+    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+    // If the user clicks the text, the cursor will be positioned after the object,
+    // so we have to move the cursor back to the object.
+    if (cursor.selectedText() == QChar::ParagraphSeparator)
+        cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, 2);
+
+    CopyButtonHandler::copyCodeAndUpdateButton(cursor, format);
+
+    document()->documentLayout()->update();
+    event->accept();
 }
 
 QMimeData *MarkdownBrowser::createMimeDataFromSelection() const
