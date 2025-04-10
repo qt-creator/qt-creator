@@ -387,6 +387,7 @@ public:
 
     void handleDelayedQuitAll(bool forced);
     void handleDelayedQuit(bool forced, Core::IEditor *editor);
+    void handleBufferDelete(bool forced, Core::IEditor *editor);
     void userActionTriggered(int key);
 
     void updateAllHightLights();
@@ -399,6 +400,7 @@ public:
 signals:
     void delayedQuitRequested(bool forced, Core::IEditor *editor);
     void delayedQuitAllRequested(bool forced);
+    void delayedBufferDeleteRequested(bool forced, Core::IEditor *editor);
 
 public:
     struct HandlerAndData
@@ -1147,6 +1149,8 @@ void FakeVimPlugin::initialize()
             this, &FakeVimPlugin::handleDelayedQuit, Qt::QueuedConnection);
     connect(this, &FakeVimPlugin::delayedQuitAllRequested,
             this, &FakeVimPlugin::handleDelayedQuitAll, Qt::QueuedConnection);
+    connect(this, &FakeVimPlugin::delayedBufferDeleteRequested,
+            this, &FakeVimPlugin::handleBufferDelete, Qt::QueuedConnection);
 
     setCursorBlinking(s.blinkingCursor());
 }
@@ -1942,6 +1946,9 @@ void FakeVimPlugin::handleExCommand(FakeVimHandler *handler, bool *handled, cons
             handler->showMessage(MessageError, Tr::tr("%n files not saved", nullptr, failed.size()));
         if (cmd.matches("wqa", "wqall"))
             emit delayedQuitAllRequested(cmd.hasBang);
+    } else if (cmd.matches("bd", "bdelete")) {
+        // :bd[elete]
+        emit delayedBufferDeleteRequested(cmd.hasBang, editorFromHandler());
     } else if (cmd.matches("q", "quit")) {
         // :q[uit]
         emit delayedQuitRequested(cmd.hasBang, editorFromHandler());
@@ -2021,6 +2028,11 @@ void FakeVimPlugin::handleDelayedQuitAll(bool forced)
 {
     triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
     EditorManager::closeAllEditors(!forced);
+}
+
+void FakeVimPlugin::handleBufferDelete(bool forced, IEditor *editor)
+{
+    EditorManager::closeEditors({editor}, !forced);
 }
 
 void FakeVimPlugin::quitFakeVim()
