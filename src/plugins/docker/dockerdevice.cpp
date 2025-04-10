@@ -554,9 +554,13 @@ expected_str<Environment> DockerDevicePrivate::fetchEnvironment() const
     const QStringList envLines = QString::fromUtf8(envCaptureProcess.readAllRawStandardOutput())
                                      .split('\n', Qt::SkipEmptyParts);
     NameValueDictionary envDict;
+
+    // We don't want to capture the following environment variables:
+    static const QStringList filterKeys{"_", "HOSTNAME", "PWD", "HOME"};
+
     for (const QString &line : envLines) {
         const QStringList parts = line.split('=', Qt::KeepEmptyParts);
-        if (parts.size() == 2)
+        if (parts.size() == 2 && !filterKeys.contains(parts[0]))
             envDict.set(parts[0], parts[1]);
     }
 
