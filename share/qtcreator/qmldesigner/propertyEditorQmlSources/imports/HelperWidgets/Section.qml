@@ -13,6 +13,7 @@ Item {
     readonly property bool __isSection: true // used by property search logic
 
     property string caption: "Title"
+    property string captionTooltip: ""
     property color labelColor: StudioTheme.Values.themeTextColor
     property int labelCapitalization: Font.AllUppercase
     property alias sectionHeight: header.height
@@ -40,6 +41,20 @@ Item {
         font.capitalization: section.labelCapitalization
         anchors.verticalCenter: parent?.verticalCenter
         textFormat: Text.RichText
+
+        MouseArea {
+            id: labelMouseArea
+
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            hoverEnabled: true
+            enabled: section.captionTooltip !== ""
+        }
+
+        StudioControls.ToolTip {
+            visible: labelMouseArea.containsMouse
+            text: section.captionTooltip
+        }
     }
 
     property Item icons
