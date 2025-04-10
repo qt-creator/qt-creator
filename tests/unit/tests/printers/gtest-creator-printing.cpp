@@ -867,17 +867,17 @@ std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel)
 
 std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &package)
 {
-    return out << "(imports: " << package.imports << ", types: " << package.types
-               << ", updatedSourceIds: " << package.updatedSourceIds
-               << ", fileStatuses: " << package.fileStatuses
-               << ", updatedFileStatusSourceIds: " << package.updatedFileStatusSourceIds
-               << ", directoryInfos: " << package.directoryInfos
-               << ", updatedDirectoryInfoDirectoryIds: " << package.updatedDirectoryInfoDirectoryIds
-               << ", propertyEditorQmlPaths: " << package.propertyEditorQmlPaths
-               << ", updatedPropertyEditorQmlPathSourceIds: "
+    return out << "(\n\t\timports: " << package.imports << ",\n\t\ttypes: " << package.types
+               << ",\n\t\tupdatedSourceIds: " << package.updatedSourceIds
+               << ",\n\t\tfileStatuses: " << package.fileStatuses
+               << ",\n\t\tupdatedFileStatusSourceIds: " << package.updatedFileStatusSourceIds
+               << ",\n\t\tdirectoryInfos: " << package.directoryInfos
+               << ",\n\t\tupdatedDirectoryInfoDirectoryIds: " << package.updatedDirectoryInfoDirectoryIds
+               << ",\n\t\tpropertyEditorQmlPaths: " << package.propertyEditorQmlPaths
+               << ",\n\t\tupdatedPropertyEditorQmlPathSourceIds: "
                << package.updatedPropertyEditorQmlPathDirectoryIds
-               << ", typeAnnotations: " << package.typeAnnotations
-               << ", updatedTypeAnnotationSourceIds: " << package.updatedTypeAnnotationSourceIds
+               << ",\n\t\ttypeAnnotations: " << package.typeAnnotations
+               << ",\n\t\tupdatedTypeAnnotationSourceIds: " << package.updatedTypeAnnotationSourceIds
                << ")";
 }
 
@@ -911,14 +911,15 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
 {
     using std::operator<<;
     using Utils::operator<<;
-    return out << "( typename: \"" << type.typeName << "\", prototype: {\"" << type.prototype
-               << "\", " << type.prototypeId << "}, " << "\", extension: {\"" << type.extension
-               << "\", " << type.extensionId << "}, traits" << type.traits
-               << ", source: " << type.sourceId << ", exports: " << type.exportedTypes
-               << ", properties: " << type.propertyDeclarations
-               << ", functions: " << type.functionDeclarations
-               << ", signals: " << type.signalDeclarations << ", changeLevel: " << type.changeLevel
-               << ", default: " << type.defaultPropertyName << ")";
+    return out << "(\n\t\t\ttypename: \"" << type.typeName << "\",\n\t\t\tprototype: {\""
+               << type.prototype << "\", " << type.prototypeId << "}, " << "\",\n\t\t\textension: {\""
+               << type.extension << "\", " << type.extensionId << "},\n\t\t\ttraits" << type.traits
+               << ",\n\t\t\tsource: " << type.sourceId << ",\n\t\t\texports: " << type.exportedTypes
+               << ",\n\t\t\tproperties: " << type.propertyDeclarations
+               << ",\n\t\t\tfunctions: " << type.functionDeclarations
+               << ",\n\t\t\tsignals: " << type.signalDeclarations
+               << ",\n\t\t\tchangeLevel: " << type.changeLevel
+               << ",\n\t\t\tdefault: " << type.defaultPropertyName << "\n\t\t\t)";
 }
 
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration)

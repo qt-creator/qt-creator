@@ -1288,7 +1288,7 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
 
     switch (state) {
     case FileState::Unchanged:
-        if (isNotExisting(qmldirState)) {
+        if (qmldirState == FileState::NotExists || qmldirState == FileState::NotExistsUnchanged) {
             tracer.tick("append not updated source id", keyValue("source id", sourceId));
             notUpdatedSourceIds.sourceIds.emplace_back(sourceId);
 
