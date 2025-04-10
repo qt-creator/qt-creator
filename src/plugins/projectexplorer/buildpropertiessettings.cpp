@@ -3,6 +3,7 @@
 
 #include "buildpropertiessettings.h"
 
+#include "buildconfiguration.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 
@@ -60,6 +61,8 @@ BuildPropertiesSettings::BuildPropertiesSettings()
                "<tt>%1</tt>.")
             .arg(Constants::QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE));
     buildDirectoryTemplate.setUseResetButton();
+    BuildConfiguration::setupBuildDirMacroExpander(
+        *buildDirectoryTemplate.macroExpander(), {}, {}, {}, {}, {}, {}, true);
 
     separateDebugInfo.setSettingsKey("ProjectExplorer/Settings/SeparateDebugInfo");
     separateDebugInfo.setLabelText(Tr::tr("Separate debug info:"));

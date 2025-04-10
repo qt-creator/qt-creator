@@ -1137,6 +1137,38 @@ QString BuildConfiguration::activeBuildKey() const
     return d->m_activeRunConfiguration->buildKey();
 }
 
+void BuildConfiguration::setupBuildDirMacroExpander(
+    Utils::MacroExpander &exp,
+    const Utils::FilePath &mainFilePath,
+    const QString &projectName,
+    const Kit *kit,
+    const QString &bcName,
+    BuildType buildType,
+    const QString &buildSystem,
+    bool documentationOnly)
+{
+    exp.registerFileVariables("Project",
+                              Tr::tr("Main file of the project"),
+                              [mainFilePath] { return mainFilePath; }, true, !documentationOnly);
+    exp.registerVariable("Project:Name",
+                         Tr::tr("Name of the project"),
+                         [projectName] { return projectName; }, true, !documentationOnly);
+    exp.registerVariable("BuildConfig:Name",
+                         Tr::tr("Name of the project's active build configuration"),
+                         [bcName] { return bcName; }, true, !documentationOnly);
+    exp.registerVariable("BuildSystem:Name",
+                         Tr::tr("Name of the project's active build system"),
+                         [buildSystem] { return buildSystem; }, true, !documentationOnly);
+    exp.registerVariable("CurrentBuild:Type",
+                         Tr::tr("Type of current build"),
+                         [buildType] { return buildTypeName(buildType); }, false, false);
+    exp.registerVariable("BuildConfig:Type",
+                         Tr::tr("Type of the project's active build configuration"),
+                         [buildType] { return buildTypeName(buildType); }, true, !documentationOnly);
+    if (kit)
+        exp.registerSubProvider([kit] { return kit->macroExpander(); });
+}
+
 FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectDir,
                                                         const FilePath &mainFilePath,
                                                         const QString &projectName,
@@ -1145,29 +1177,11 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
                                                         BuildType buildType,
                                                         const QString &buildSystem)
 {
-    MacroExpander exp;
-
     qCDebug(bcLog) << Q_FUNC_INFO << projectDir << mainFilePath << projectName << bcName;
 
-    exp.registerFileVariables("Project",
-                              Tr::tr("Main file of the project"),
-                              [mainFilePath] { return mainFilePath; });
-    exp.registerVariable("Project:Name",
-                         Tr::tr("Name of the project"),
-                         [projectName] { return projectName; });
-    exp.registerVariable("BuildConfig:Name",
-                         Tr::tr("Name of the project's active build configuration"),
-                         [bcName] { return bcName; });
-    exp.registerVariable("BuildSystem:Name",
-                         Tr::tr("Name of the project's active build system"),
-                         [buildSystem] { return buildSystem; });
-    exp.registerVariable("CurrentBuild:Type",
-                         Tr::tr("Type of current build"),
-                         [buildType] { return buildTypeName(buildType); }, false);
-    exp.registerVariable("BuildConfig:Type",
-                         Tr::tr("Type of the project's active build configuration"),
-                         [buildType] { return buildTypeName(buildType); });
-    exp.registerSubProvider([kit] { return kit->macroExpander(); });
+    MacroExpander exp;
+    setupBuildDirMacroExpander(
+        exp, mainFilePath, projectName, kit, bcName, buildType, buildSystem, false);
 
     auto project = ProjectManager::projectWithProjectFilePath(mainFilePath);
     auto environment = Environment::systemEnvironment();

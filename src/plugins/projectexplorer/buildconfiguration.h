@@ -116,6 +116,15 @@ public:
 
     static QString buildTypeName(BuildType type);
 
+    static void setupBuildDirMacroExpander(
+        Utils::MacroExpander &exp,
+        const Utils::FilePath &mainFilePath,
+        const QString &projectName,
+        const Kit *kit,
+        const QString &bcName,
+        BuildType buildType,
+        const QString &buildSystem,
+        bool documentationOnly);
     static Utils::FilePath buildDirectoryFromTemplate(const Utils::FilePath &projectDir,
                                                       const Utils::FilePath &mainFilePath,
                                                       const QString &projectName,
