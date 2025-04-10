@@ -16,9 +16,11 @@
 #ifdef QTCREATOR_PCH_H
 #define CALLBACK WINAPI
 #endif
+// windows.h needs to be included before psapi.h!
+#include <windows.h>
+
 #include <psapi.h>
 #include <tlhelp32.h>
-#include <windows.h>
 #endif
 
 namespace Utils {
