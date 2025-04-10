@@ -395,7 +395,7 @@ Timeline_BackgroundColor2=fff6f6f6
 Timeline_DividerColor=ffd6d6d6
 Timeline_HighlightColor=ff71b2db
 Timeline_PanelBackgroundColor=ffd6d6d6
-Timeline_PanelHeaderColor=alternateBackground
+Timeline_PanelHeaderColor=shadowBackground
 Timeline_HandleColor=alternateBackground
 Timeline_RangeColor=selectedBackground
 
