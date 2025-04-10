@@ -237,47 +237,43 @@ static expected_str<QList<ProcessInfo>> processInfoListUnix(const FilePath &devi
         });
 }
 
-#if defined(Q_OS_UNIX)
-
 QList<ProcessInfo> ProcessInfo::processInfoList(const FilePath &deviceRoot)
 {
-    auto result = processInfoListUnix(deviceRoot);
-    if (!result) {
-        qWarning().noquote() << result.error();
-        return {};
+    if (deviceRoot.osType() != OsType::OsTypeWindows) {
+        auto result = processInfoListUnix(deviceRoot);
+        if (!result) {
+            qWarning().noquote() << result.error();
+            return {};
+        }
+        return *result;
     }
 
-    return *result;
-}
+    if (HostOsInfo::isWindowsHost() && deviceRoot.isLocal()) {
+#if defined(Q_OS_WIN)
+        QList<ProcessInfo> processes;
 
-#elif defined(Q_OS_WIN)
+        PROCESSENTRY32 pe;
+        pe.dwSize = sizeof(PROCESSENTRY32);
+        HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+        if (snapshot == INVALID_HANDLE_VALUE)
+            return processes;
 
-QList<ProcessInfo> ProcessInfo::processInfoList(const FilePath &deviceRoot)
-{
-    if (!deviceRoot.isLocal())
-        return processInfoListUnix(deviceRoot);
-
-    QList<ProcessInfo> processes;
-
-    PROCESSENTRY32 pe;
-    pe.dwSize = sizeof(PROCESSENTRY32);
-    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (snapshot == INVALID_HANDLE_VALUE)
+        for (bool hasNext = Process32First(snapshot, &pe); hasNext;
+             hasNext = Process32Next(snapshot, &pe)) {
+            ProcessInfo p;
+            p.processId = pe.th32ProcessID;
+            // Image has the absolute path, but can fail.
+            const QString image = imageName(pe.th32ProcessID);
+            p.executable = p.commandLine = image.isEmpty() ? QString::fromWCharArray(pe.szExeFile)
+                                                           : image;
+            processes << p;
+        }
+        CloseHandle(snapshot);
         return processes;
-
-    for (bool hasNext = Process32First(snapshot, &pe); hasNext; hasNext = Process32Next(snapshot, &pe)) {
-        ProcessInfo p;
-        p.processId = pe.th32ProcessID;
-        // Image has the absolute path, but can fail.
-        const QString image = imageName(pe.th32ProcessID);
-        p.executable = p.commandLine = image.isEmpty() ?
-            QString::fromWCharArray(pe.szExeFile) : image;
-        processes << p;
+#endif
     }
-    CloseHandle(snapshot);
-    return processes;
-}
 
-#endif //Q_OS_WIN
+    return {};
+}
 
 } // namespace Utils
