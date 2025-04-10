@@ -348,10 +348,13 @@ void Target::updateDefaultBuildConfigurations()
         qWarning("No build configuration factory found for target id '%s'.", qPrintable(id().toString()));
         return;
     }
-    for (const BuildInfo &info : bcFactory->allAvailableSetups(kit(), project()->projectFilePath())) {
+    for (const BuildInfo &info : Utils::filtered(
+             bcFactory->allAvailableSetups(kit(), project()->projectFilePath()),
+             &BuildInfo::enabledByDefault)) {
         if (BuildConfiguration *bc = bcFactory->create(this, info))
             addBuildConfiguration(bc);
     }
+    QTC_CHECK(!d->m_buildConfigurations.isEmpty());
 }
 
 void Target::updateDefaultRunConfigurations()
