@@ -17,6 +17,7 @@ Project {
         "filesearch/filesearch.qbs",
         "json/json.qbs",
         "languageserverprotocol/languageserverprotocol.qbs",
+        "pointeralgorithm/pointeralgorithm.qbs",
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
         "sdktool/sdktool.qbs",
