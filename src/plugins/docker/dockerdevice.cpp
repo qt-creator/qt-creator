@@ -776,10 +776,6 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
     else
         containerId = *result;
 
-    auto osAndArch = osTypeAndArch();
-    if (!osAndArch)
-        return make_unexpected(osAndArch.error());
-
     CommandLine dockerCmd{settings().dockerBinaryPath(), {"exec"}};
 
     if (interactive)
@@ -802,12 +798,16 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
 
     dockerCmd.addArg(containerId);
 
-    dockerCmd.addArgs({"/bin/sh", "-c"}, osAndArch->first);
+    dockerCmd.addArgs({"/bin/sh", "-c"});
 
     CommandLine exec("exec");
     exec.addCommandLineAsArgs(cmd, CommandLine::Raw);
 
     if (withMarker) {
+        auto osAndArch = osTypeAndArch();
+        if (!osAndArch)
+            return make_unexpected(osAndArch.error());
+
         // Check the executable for existence.
         CommandLine testType({"type", {}});
         testType.addArg(cmd.executable().path(), osAndArch->first);
@@ -821,9 +821,9 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
 
         testType.addCommandLineWithAnd(echo);
 
-        dockerCmd.addCommandLineAsSingleArg(testType, osAndArch->first);
+        dockerCmd.addCommandLineAsSingleArg(testType);
     } else {
-        dockerCmd.addCommandLineAsSingleArg(exec, osAndArch->first);
+        dockerCmd.addCommandLineAsSingleArg(exec);
     }
 
     return dockerCmd;
