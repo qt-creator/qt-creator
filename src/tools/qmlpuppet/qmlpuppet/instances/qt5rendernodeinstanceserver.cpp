@@ -163,7 +163,9 @@ ServerNodeInstance Qt5RenderNodeInstanceServer::findNodeInstanceForItem(QQuickIt
     if (item) {
         if (hasInstanceForObject(item))
             return instanceForObject(item);
-        else if (item->parentItem())
+        else if (item == rootNodeInstance().rootQuickItem()->parentItem())
+            return rootNodeInstance();
+        else
             return findNodeInstanceForItem(item->parentItem());
     }
 
