@@ -23,10 +23,9 @@ Module {
 
     validate: {
         if (!incProbe.found || !libProbe.found) {
-            console.warn("No usable libarchive found.\n"
+            throw new Error("No usable libarchive found.\n"
                          + "Have libarchive and its development headers installed "
                          + "and/or set LIBARCHIVE_INSTALL_ROOT.");
-            throw new Error();
         }
     }
 }
