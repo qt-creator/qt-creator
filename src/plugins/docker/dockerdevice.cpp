@@ -106,6 +106,7 @@ const char DockerDeviceKeepEntryPoint[] = "DockerDeviceKeepEntryPoint";
 const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
 const char DockerDeviceClangDExecutable[] = "DockerDeviceClangDExecutable";
 const char DockerDeviceExtraArgs[] = "DockerDeviceExtraCreateArguments";
+const char DockerDeviceEnvironment[] = "DockerDeviceEnvironment";
 
 class DockerDeviceFileAccess : public CmdBridge::FileAccess
 {
@@ -589,6 +590,17 @@ DockerDevice::DockerDevice()
     tag.setSettingsKey(DockerDeviceDataTagKey);
     tag.setLabelText(Tr::tr("Tag:"));
     tag.setReadOnly(true);
+
+    environment.setSettingsKey(DockerDeviceEnvironment);
+    environment.setLabelText(Tr::tr("Container Environment:"));
+    connect(&environment, &DockerDeviceEnvironmentAspect::fetchRequested, this, [this] {
+        const expected_str<Environment> result = d->fetchEnvironment();
+        if (!result) {
+            QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), result.error());
+            return;
+        }
+        environment.setRemoteEnvironment(*result);
+    });
 
     useLocalUidGid.setSettingsKey(DockerDeviceUseOutsideUser);
     useLocalUidGid.setLabelText(Tr::tr("Run as outside user:"));

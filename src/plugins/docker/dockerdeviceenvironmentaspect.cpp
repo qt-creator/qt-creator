@@ -20,95 +20,97 @@
 
 #include <QMessageBox>
 #include <QPushButton>
+#include <QStandardItem>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Docker {
 
-const char DISPLAY_KEY[] = "DISPLAY";
-const char VERSION_KEY[] = "Docker.EnvironmentAspect.Version";
-const char DEVICE_ENVIRONMENT_KEY[] = "Docker.DeviceEnvironment";
-const int ENVIRONMENTASPECT_VERSION = 1; // Version was introduced in 4.3 with the value 1
+const char DEVICE_ENVIRONMENT_KEY[] = "RemoteEnvironment";
+const char CHANGES_KEY[] = "UserChanges";
 
-class DockerDeviceEnvironmentAspectWidget : public EnvironmentAspectWidget
+DockerDeviceEnvironmentAspect::DockerDeviceEnvironmentAspect(Utils::AspectContainer *parent)
+    : Utils::TypedAspect<QStringList>(parent)
+{}
+
+void DockerDeviceEnvironmentAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-public:
-    DockerDeviceEnvironmentAspectWidget(DockerDeviceEnvironmentAspect *aspect)
-        : EnvironmentAspectWidget(aspect)
-    {
-        //auto fetchButton = new QPushButton(Tr::tr("Fetch Device Environment"));
-        //addWidget(fetchButton);
-        //
-        //connect(fetchButton, &QPushButton::clicked, this, [aspect] {
-        //    if (IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->kit())) {
-        //        DeviceFileAccess *access = device->fileAccess();
-        //        QTC_ASSERT(access, return);
-        //        aspect->setRemoteEnvironment(access->deviceEnvironment());
-        //    }
-        //});
-    }
-};
+    undoable.setSilently(value());
 
-static bool displayAlreadySet(const Utils::EnvironmentItems &changes)
-{
-    return Utils::contains(changes, [](const Utils::EnvironmentItem &item) {
-        return item.name == DISPLAY_KEY;
-    });
-}
+    using namespace Layouting;
 
-DockerDeviceEnvironmentAspect::DockerDeviceEnvironmentAspect(AspectContainer *container)
-    : EnvironmentAspect(container)
-{
-    setAllowPrintOnRun(false);
+    // clang-format off
+    auto fetchBtn = Row {
+        st,
+        PushButton {
+            text(Tr::tr("Fetch Environment")),
+            onClicked(this, [this]{ emit fetchRequested(); })
+        },
+        st
+    }.emerge();
+    // clang-format on
 
-    addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
-    addPreferredBaseEnvironment(Tr::tr("Device Environment"), [this] {
-        return m_remoteEnvironment;
-    });
+    auto envWidget = new EnvironmentWidget(nullptr, EnvironmentWidget::Type::TypeRemote, fetchBtn);
+    envWidget->setOpenTerminalFunc(nullptr);
+    envWidget->setUserChanges(EnvironmentItem::fromStringList(undoable.get()));
 
-    setConfigWidgetCreator([this] { return new DockerDeviceEnvironmentAspectWidget(this); });
-}
+    connect(
+        this, &DockerDeviceEnvironmentAspect::remoteEnvironmentChanged, envWidget, [this, envWidget] {
+            if (m_remoteEnvironment)
+                envWidget->setBaseEnvironment(*m_remoteEnvironment);
+            else
+                envWidget->setBaseEnvironment(Environment());
+        });
 
-void DockerDeviceEnvironmentAspect::setRemoteEnvironment(const Utils::Environment &env)
-{
-    if (env != m_remoteEnvironment) {
-        m_remoteEnvironment = env;
-        setBaseEnvironmentBase(1);
-        emit environmentChanged();
-    }
-}
-
-QString DockerDeviceEnvironmentAspect::userEnvironmentChangesAsString() const
-{
-    QString env;
-    QString placeHolder = QLatin1String("%1=%2 ");
-    const Utils::EnvironmentItems items = userEnvironmentChanges();
-    for (const Utils::EnvironmentItem &item : items)
-        env.append(placeHolder.arg(item.name, item.value));
-    return env.mid(0, env.size() - 1);
-}
-
-void DockerDeviceEnvironmentAspect::fromMap(const Store &map)
-{
-    ProjectExplorer::EnvironmentAspect::fromMap(map);
-
-    const auto version = map.value(VERSION_KEY, 0).toInt();
-    if (version == 0) {
-        // In Qt Creator versions prior to 4.3 RemoteLinux included DISPLAY=:0.0 in the base
-        // environment, if DISPLAY was not set. In order to keep existing projects expecting
-        // that working, add the DISPLAY setting to user changes in them. New projects will
-        // have version 1 and will not get DISPLAY set.
-        auto changes = userEnvironmentChanges();
-        if (!displayAlreadySet(changes)) {
-            changes.append(
-                Utils::EnvironmentItem(QLatin1String(DISPLAY_KEY), QLatin1String(":0.0")));
-            setUserEnvironmentChanges(changes);
+    connect(&undoable.m_signal, &UndoSignaller::changed, envWidget, [this, envWidget] {
+        if (EnvironmentItem::toStringList(envWidget->userChanges()) != undoable.get()) {
+            envWidget->setUserChanges(EnvironmentItem::fromStringList(undoable.get()));
+            handleGuiChanged();
         }
-    }
+    });
 
-    if (map.contains(DEVICE_ENVIRONMENT_KEY)) {
-        const QStringList deviceEnv = map.value(DEVICE_ENVIRONMENT_KEY).toStringList();
+    connect(envWidget, &EnvironmentWidget::userChangesChanged, this, [this, envWidget] {
+        undoable.set(undoStack(), EnvironmentItem::toStringList(envWidget->userChanges()));
+        handleGuiChanged();
+    });
+
+    if (m_remoteEnvironment)
+        envWidget->setBaseEnvironment(*m_remoteEnvironment);
+
+    registerSubWidget(envWidget);
+    addLabeledItem(parent, envWidget);
+}
+
+Utils::Environment DockerDeviceEnvironmentAspect::operator()() const
+{
+    Environment result = m_remoteEnvironment.value_or(Environment());
+    result.modify(EnvironmentItem::fromStringList(value()));
+    return result;
+}
+bool DockerDeviceEnvironmentAspect::guiToBuffer()
+{
+    const QStringList newValue = undoable.get();
+    if (newValue != m_buffer) {
+        m_buffer = newValue;
+        return true;
+    }
+    return false;
+}
+void DockerDeviceEnvironmentAspect::bufferToGui()
+{
+    undoable.setWithoutUndo(m_buffer);
+}
+
+void DockerDeviceEnvironmentAspect::fromMap(const Utils::Store &map)
+{
+    if (skipSave())
+        return;
+
+    Store subMap = storeFromVariant(map.value(settingsKey()));
+
+    if (subMap.contains(DEVICE_ENVIRONMENT_KEY)) {
+        const QStringList deviceEnv = subMap.value(DEVICE_ENVIRONMENT_KEY).toStringList();
         NameValueDictionary envDict;
         for (const QString &env : deviceEnv) {
             const auto parts = env.split(QLatin1Char('='));
@@ -116,16 +118,27 @@ void DockerDeviceEnvironmentAspect::fromMap(const Store &map)
                 envDict.set(parts[0], parts[1]);
         }
         m_remoteEnvironment = Environment(envDict);
-        if (baseEnvironmentBase() == -1)
-            setBaseEnvironmentBase(1);
+    }
+
+    if (subMap.contains(CHANGES_KEY)) {
+        const QStringList changes = subMap.value(CHANGES_KEY).toStringList();
+        setValue(changes, BeQuiet);
     }
 }
-
-void DockerDeviceEnvironmentAspect::toMap(Store &map) const
+void DockerDeviceEnvironmentAspect::toMap(Utils::Store &map) const
 {
-    ProjectExplorer::EnvironmentAspect::toMap(map);
-    map.insert(VERSION_KEY, ENVIRONMENTASPECT_VERSION);
-    map.insert(DEVICE_ENVIRONMENT_KEY, m_remoteEnvironment.toStringList());
+    Store subMap;
+    saveToMap(subMap, value(), defaultValue(), CHANGES_KEY);
+    if (m_remoteEnvironment.has_value()) {
+        subMap.insert(DEVICE_ENVIRONMENT_KEY, m_remoteEnvironment->toStringList());
+    }
+
+    saveToMap(map, mapFromStore(subMap), QVariant(), settingsKey());
 }
 
+void DockerDeviceEnvironmentAspect::setRemoteEnvironment(const Utils::Environment &env)
+{
+    m_remoteEnvironment = env;
+    emit remoteEnvironmentChanged();
+}
 } // namespace Docker

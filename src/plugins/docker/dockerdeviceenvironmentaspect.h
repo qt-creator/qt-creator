@@ -9,27 +9,32 @@
 
 namespace Docker {
 
-class DOCKER_EXPORT DockerDeviceEnvironmentAspect : public ProjectExplorer::EnvironmentAspect
+class DOCKER_EXPORT DockerDeviceEnvironmentAspect : public Utils::TypedAspect<QStringList>
 {
     Q_OBJECT
-
 public:
-    explicit DockerDeviceEnvironmentAspect(Utils::AspectContainer *container = nullptr);
+    DockerDeviceEnvironmentAspect(Utils::AspectContainer *parent);
+
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     void setRemoteEnvironment(const Utils::Environment &env);
+    bool isRemoteEnvironmentSet() const { return m_remoteEnvironment.has_value(); }
 
-    QString userEnvironmentChangesAsString() const;
+    bool guiToBuffer() override;
+    void bufferToGui() override;
 
-    Utils::Environment operator()() const { return environment(); }
+    Utils::Environment operator()() const;
 
-    bool isRemoteEnvironmentSet() const { return m_remoteEnvironment.hasChanges(); }
-
-protected:
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
 
-private:
-    Utils::Environment m_remoteEnvironment;
+signals:
+    void fetchRequested();
+    void remoteEnvironmentChanged();
+
+protected:
+    std::optional<Utils::Environment> m_remoteEnvironment;
+    Utils::UndoableValue<QStringList> undoable;
 };
 
 } // namespace Docker

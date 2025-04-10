@@ -179,7 +179,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             dockerDevice->clangdExecutableAspect, br,
             dockerDevice->network, br,
             dockerDevice->extraArgs, br,
-            Tr::tr("Container Environment:"), dockerDevice->environment.createConfigWidget(), br,
+            dockerDevice->environment, br,
             Column {
                 pathListLabel,
                 dockerDevice->mounts,
