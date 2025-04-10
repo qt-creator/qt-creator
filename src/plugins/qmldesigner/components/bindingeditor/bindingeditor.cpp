@@ -205,8 +205,9 @@ void BindingEditor::prepareBindings()
 
     for (const auto &objnode : allNodes) {
         BindingEditorDialog::BindingOption binding;
-        for (const auto &property : objnode.metaInfo().properties()) {
-            const auto &propertyType = property.propertyType();
+        for (const auto &property :
+             MetaInfoUtils::addInflatedValueAndReadOnlyProperties(objnode.metaInfo().properties())) {
+            const auto &propertyType = property.property.propertyType();
 
             if (compareTypes(m_backendValueType, propertyType)) {
                 binding.properties.append(QString::fromUtf8(property.name()));
