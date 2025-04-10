@@ -15,7 +15,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -338,12 +337,24 @@ class ExtractLiteralAsParameter : public CppQuickFixFactory
     }
 };
 
+#ifdef WITH_TESTS
+class ExtractLiteralAsParameterTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerExtractLiteralAsParameterQuickfix()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<ExtractLiteralAsParameter>(
-        "ExtractLiteralAsParameterTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ExtractLiteralAsParameter);
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <extractliteralasparameter.moc>
+#endif

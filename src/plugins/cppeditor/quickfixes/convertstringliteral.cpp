@@ -13,7 +13,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -757,15 +756,33 @@ class EscapeStringLiteral : public CppQuickFixFactory
     }
 };
 
+#ifdef WITH_TESTS
+class EscapeStringLiteralTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+class WrapStringLiteralTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerConvertStringLiteralQuickfixes()
 {
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(EscapeStringLiteral);
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(WrapStringLiteral);
     CppQuickFixFactory::registerFactory<ConvertCStringToNSString>();
-    CppQuickFixFactory::registerFactoryWithStandardTest<EscapeStringLiteral>(
-        "EscapeStringLiteralTest");
     CppQuickFixFactory::registerFactory<TranslateStringLiteral>();
-    CppQuickFixFactory::registerFactoryWithStandardTest<WrapStringLiteral>("WrapStringLiteralTest");
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <convertstringliteral.moc>
+#endif

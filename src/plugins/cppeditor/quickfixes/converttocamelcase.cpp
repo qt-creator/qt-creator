@@ -10,7 +10,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -107,12 +106,24 @@ class ConvertToCamelCase : public CppQuickFixFactory
     }
 };
 
+#ifdef WITH_TESTS
+class ConvertToCamelCaseTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerConvertToCamelCaseQuickfix()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<ConvertToCamelCase>(
-        "ConvertToCamelCaseTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ConvertToCamelCase);
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <converttocamelcase.moc>
+#endif

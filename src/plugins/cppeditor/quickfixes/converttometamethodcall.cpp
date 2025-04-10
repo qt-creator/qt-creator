@@ -14,7 +14,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -156,12 +155,24 @@ class ConvertToMetaMethodCall : public CppQuickFixFactory
     }
 };
 
+#ifdef WITH_TESTS
+class ConvertToMetaMethodCallTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerConvertToMetaMethodCallQuickfix()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<ConvertToMetaMethodCall>(
-        "ConvertToMetaMethodCallTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ConvertToMetaMethodCall);
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <converttometamethodcall.moc>
+#endif

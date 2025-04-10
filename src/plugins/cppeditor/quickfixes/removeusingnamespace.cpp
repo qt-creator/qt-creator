@@ -13,7 +13,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -581,12 +580,24 @@ private:
     }
 };
 
+#ifdef WITH_TESTS
+class RemoveUsingNamespaceTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerRemoveUsingNamespaceQuickfix()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<RemoveUsingNamespace>(
-        "RemoveUsingNamespaceTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(RemoveUsingNamespace);
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <removeusingnamespace.moc>
+#endif

@@ -74,21 +74,21 @@ public:
 #endif
     }
 
-    template<class Factory> static void registerFactoryWithStandardTest(const QString &testName)
+#ifdef WITH_TESTS
+    template<class Factory, class Test> static void registerFactoryWithStandardTest()
     {
         new Factory;
-#ifdef WITH_TESTS
-        cppEditor()->addTestCreator([testName] {
+        cppEditor()->addTestCreator([] {
             auto factory = std::make_unique<Factory>();
             factory->enableTestMode();
-            const auto obj = new Internal::Tests::CppQuickFixTestObject(std::move(factory));
-            obj->setObjectName(testName);
-            return obj;
+            return new Test(std::move(factory));
         });
-#endif
     }
+#endif
 
     void enableTestMode() { m_testMode = true; }
+
+    static ExtensionSystem::IPlugin *cppEditor();
 
 protected:
     bool testMode() const { return m_testMode; }
@@ -104,10 +104,15 @@ private:
     virtual void doMatch(const Internal::CppQuickFixInterface &interface,
                          QuickFixOperations &result) = 0;
 
-    static ExtensionSystem::IPlugin *cppEditor();
-
     std::optional<QVersionNumber> m_clangdReplacement;
     bool m_testMode = false;
 };
 
 } // namespace CppEditor
+
+#ifdef WITH_TESTS
+#define REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(Factory) \
+    CppQuickFixFactory::registerFactoryWithStandardTest<Factory, Factory##Test>()
+#else
+#define REGISTER_FACTORY_WITH_STANDARD_TEST(Factory) CppQuickFixFactory::registerFactory<Factory>()
+#endif

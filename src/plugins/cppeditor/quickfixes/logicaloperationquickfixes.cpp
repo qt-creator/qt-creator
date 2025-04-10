@@ -9,7 +9,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -310,14 +309,26 @@ private:
     }
 };
 
+#ifdef WITH_TESTS
+class FlipLogicalOperandsTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerLogicalOperationQuickfixes()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<FlipLogicalOperands>(
-        "FlipLogicalOperandsTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(FlipLogicalOperands);
     CppQuickFixFactory::registerFactory<InverseLogicalComparison>();
     CppQuickFixFactory::registerFactory<RewriteLogicalAnd>();
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <logicaloperationquickfixes.moc>
+#endif

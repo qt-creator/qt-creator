@@ -17,7 +17,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -250,12 +249,24 @@ private:
     }
 };
 
+#ifdef WITH_TESTS
+class AssignToLocalVariableTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerAssignToLocalVariableQuickfix()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<AssignToLocalVariable>(
-        "AssignToLocalVariableTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(AssignToLocalVariable);
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <assigntolocalvariable.moc>
+#endif

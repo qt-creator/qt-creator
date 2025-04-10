@@ -13,7 +13,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -339,11 +338,24 @@ class ConvertQt4Connect : public CppQuickFixFactory
     }
 };
 
+#ifdef WITH_TESTS
+class ConvertQt4ConnectTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerConvertQt4ConnectQuickfix()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<ConvertQt4Connect>("ConvertQt4ConnectTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ConvertQt4Connect);
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <convertqt4connect.moc>
+#endif

@@ -979,16 +979,28 @@ QObject *MoveFuncDefToDeclPull::createTest()
     return new QObject; // The test for the push factory handled both cases.
 }
 
+class MoveFuncDefOutsideTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+
+class MoveAllFuncDefOutsideTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+
 #endif // WITH_TESTS
 
 } // namespace
 
 void registerMoveFunctionDefinitionQuickfixes()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<MoveFuncDefOutside>(
-        "MoveFuncDefOutsideTest");
-    CppQuickFixFactory::registerFactoryWithStandardTest<MoveAllFuncDefOutside>(
-        "MoveAllFuncDefOutsideTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(MoveFuncDefOutside);
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(MoveAllFuncDefOutside);
     CppQuickFixFactory::registerFactory<MoveFuncDefToDeclPush>();
     CppQuickFixFactory::registerFactory<MoveFuncDefToDeclPull>();
 }

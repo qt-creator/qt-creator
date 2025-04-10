@@ -13,7 +13,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QtTest>
 #endif
 
 using namespace CPlusPlus;
@@ -385,12 +384,24 @@ class ConvertFromAndToPointer : public CppQuickFixFactory
     }
 };
 
+#ifdef WITH_TESTS
+class ConvertFromAndToPointerTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerConvertFromAndToPointerQuickfix()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<ConvertFromAndToPointer>(
-        "ConvertFromAndToPointerTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ConvertFromAndToPointer);
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <convertfromandtopointer.moc>
+#endif

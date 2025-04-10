@@ -24,7 +24,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QTest>
 #endif
 
 using namespace CPlusPlus;
@@ -617,11 +616,24 @@ class ExtractFunction : public CppQuickFixFactory
     }
 };
 
+#ifdef WITH_TESTS
+class ExtractFunctionTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerExtractFunctionQuickfix()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<ExtractFunction>("ExtractFunctionTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(ExtractFunction);
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <extractfunction.moc>
+#endif

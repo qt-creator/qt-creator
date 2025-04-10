@@ -14,7 +14,6 @@
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
-#include <QTest>
 #endif
 
 using namespace CPlusPlus;
@@ -670,18 +669,46 @@ class OptimizeForLoop : public CppQuickFixFactory
     }
 };
 
+#ifdef WITH_TESTS
+class AddBracesToControlStatementTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+class MoveDeclarationOutOfIfTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+class MoveDeclarationOutOfWhileTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+class OptimizeForLoopTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
+#endif
+
 } // namespace
 
 void registerRewriteControlStatementQuickfixes()
 {
-    CppQuickFixFactory::registerFactoryWithStandardTest<AddBracesToControlStatement>(
-        "AddBracesToControlStatementTest");
-    CppQuickFixFactory::registerFactoryWithStandardTest<MoveDeclarationOutOfIf>(
-        "MoveDeclarationOutOfIfTest");
-    CppQuickFixFactory::registerFactoryWithStandardTest<MoveDeclarationOutOfWhile>(
-        "MoveDeclarationOutOfWhileTest");
-    CppQuickFixFactory::registerFactoryWithStandardTest<OptimizeForLoop>("OptimizeForLoopTest");
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(AddBracesToControlStatement);
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(MoveDeclarationOutOfIf);
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(MoveDeclarationOutOfWhile);
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(OptimizeForLoop);
     CppQuickFixFactory::registerFactory<SplitIfStatement>();
 }
 
 } // namespace CppEditor::Internal
+
+#ifdef WITH_TESTS
+#include <rewritecontrolstatements.moc>
+#endif
