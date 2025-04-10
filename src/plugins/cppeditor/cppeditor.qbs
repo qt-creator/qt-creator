@@ -24,6 +24,8 @@ QtcPlugin {
         cpp.defines: "_SCL_SECURE_NO_WARNINGS"
     }
 
+    Qt.core.resourceFileBaseName: "cppeditor_testdata"
+
     files: [
         "abstracteditorsupport.cpp",
         "abstracteditorsupport.h",
@@ -351,6 +353,14 @@ QtcPlugin {
             "typehierarchybuilder_test.cpp",
             "typehierarchybuilder_test.h",
         ]
+    }
+
+    Group {
+        name: "test data"
+        files: "testcases/**/*"
+        fileTags: qtc.withPluginTests ? ["qt.core.resource_data"] : []
+        Qt.core.resourcePrefix: "cppeditor"
+        Qt.core.resourceSourceBase: sourceDirectory
     }
 
     Export {

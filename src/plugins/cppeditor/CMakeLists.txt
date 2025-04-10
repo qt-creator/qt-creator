@@ -168,3 +168,11 @@ extend_qtc_plugin(CppEditor
     cppdoxygen_test.h
     quickfixes/cppquickfix_test.h
 )
+
+file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testcases/*)
+qtc_add_resources(CppEditor "testcases"
+  CONDITION WITH_TESTS
+  PREFIX "/cppeditor"
+  BASE "."
+  FILES ${test_cases}
+)
