@@ -177,10 +177,8 @@ bool isType(const TypeName &first, const TypeName &second, const Tuple &...types
 bool compareTypes(const NodeMetaInfo &sourceType, const NodeMetaInfo &targetType)
 {
 #ifdef QDS_USE_PROJECTSTORAGE
-    return targetType.isVariant() || sourceType.isVariant() || targetType == sourceType
-           || (targetType.isNumber() && sourceType.isNumber())
-           || (targetType.isColor() && sourceType.isColor())
-           || (targetType.isString() && sourceType.isString());
+    return targetType.isVariant() || sourceType.isVariant()
+           || (targetType.isNumber() && sourceType.isNumber()) || sourceType.isBasedOn(targetType);
 #else
     const TypeName source = sourceType.simplifiedTypeName();
     const TypeName target = targetType.simplifiedTypeName();
