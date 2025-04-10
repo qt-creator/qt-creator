@@ -3,8 +3,14 @@
 
 #include "propertyhandler.h"
 
+#include <QQmlPropertyMap>
+
 namespace EffectComposer {
 
-QQmlPropertyMap g_propertyData;
+Q_GLOBAL_STATIC(QQmlPropertyMap, globalEffectComposerPropertyData)
 
+QQmlPropertyMap *g_propertyData()
+{
+    return globalEffectComposerPropertyData();
+}
 }

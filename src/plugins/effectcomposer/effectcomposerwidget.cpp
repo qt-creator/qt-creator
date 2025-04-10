@@ -100,11 +100,12 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
 
     QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(this, QmlDesigner::Constants::EVENT_EFFECTCOMPOSER_TIME);
 
-    m_quickWidget->rootContext()->setContextProperty("g_propertyData", &g_propertyData);
+    qmlRegisterSingletonInstance<QQmlPropertyMap>(
+        "EffectComposerPropertyData", 1, 0, "GlobalPropertyData", g_propertyData());
 
     QString blurPath = "file:" + EffectUtils::nodesSourcesPath() + "/common/";
-    g_propertyData.insert(QString("blur_vs_path"), QString(blurPath + "bluritems.vert.qsb"));
-    g_propertyData.insert(QString("blur_fs_path"), QString(blurPath + "bluritems.frag.qsb"));
+    g_propertyData()->insert("blur_vs_path", QString(blurPath + "bluritems.vert.qsb"));
+    g_propertyData()->insert("blur_fs_path", QString(blurPath + "bluritems.frag.qsb"));
 
     auto map = m_quickWidget->registerPropertyMap("EffectComposerBackend");
     map->setProperties({{"effectComposerNodesModel", QVariant::fromValue(effectComposerNodesModel().data())},

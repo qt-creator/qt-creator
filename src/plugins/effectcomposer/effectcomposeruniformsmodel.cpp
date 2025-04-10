@@ -68,10 +68,10 @@ bool EffectComposerUniformsModel::setData(const QModelIndex &index, const QVaria
             updatedValue = QUrl::fromLocalFile(path).toString();
 
         uniform->setValue(updatedValue);
-        g_propertyData.insert(uniform->name(), updatedValue);
+        g_propertyData()->insert(uniform->name(), updatedValue);
     } else {
         uniform->setValue(value);
-        g_propertyData.insert(uniform->name(), value);
+        g_propertyData()->insert(uniform->name(), value);
     }
 
     emit dataChanged(index, index, {role});

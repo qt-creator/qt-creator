@@ -2547,8 +2547,8 @@ QString EffectComposerModel::getQmlComponentString(bool localFiles)
         s += l3 + "id: blurHelper\n";
         s += l3 + "source: rootItem.source\n";
         int blurMax = 32;
-        if (g_propertyData.contains("BLUR_HELPER_MAX_LEVEL"))
-            blurMax = g_propertyData["BLUR_HELPER_MAX_LEVEL"].toInt();
+        if (g_propertyData()->contains("BLUR_HELPER_MAX_LEVEL"))
+            blurMax = g_propertyData()->value("BLUR_HELPER_MAX_LEVEL").toInt();
         s += l3 + QString("property int blurMax: %1\n").arg(blurMax);
         s += l3 + "property real blurMultiplier: rootItem.blurMultiplier\n";
         s += l2 + "}\n";

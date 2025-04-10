@@ -210,7 +210,7 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     for (const QJsonValueConstRef &prop : jsonProps) {
         const auto uniform = new Uniform(effectName, prop.toObject(), qenPath);
         m_uniformsModel.addUniform(uniform);
-        g_propertyData.insert(uniform->name(), uniform->value());
+        g_propertyData()->insert(uniform->name(), uniform->value());
         if (uniform->type() == Uniform::Type::Define) {
             // Changing defines requires rebaking the shaders
             connect(uniform, &Uniform::uniformValueChanged, this, &CompositionNode::rebakeRequested);
@@ -335,7 +335,7 @@ void CompositionNode::openCodeEditor()
 void CompositionNode::addUniform(const QVariantMap &data)
 {
     const auto uniform = new Uniform({}, QJsonObject::fromVariantMap(data), {});
-    g_propertyData.insert(uniform->name(), uniform->value());
+    g_propertyData()->insert(uniform->name(), uniform->value());
     m_uniformsModel.addUniform(uniform);
     updateAreUniformsInUse(true);
 }
@@ -346,7 +346,7 @@ void CompositionNode::updateUniform(int index, const QVariantMap &data)
 
     const auto uniform = new Uniform({}, QJsonObject::fromVariantMap(data), {});
 
-    g_propertyData.insert(uniform->name(), uniform->value());
+    g_propertyData()->insert(uniform->name(), uniform->value());
     m_uniformsModel.updateUniform(index, uniform);
     updateAreUniformsInUse(true);
 }
