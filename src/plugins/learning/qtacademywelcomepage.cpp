@@ -290,9 +290,9 @@ class QtAcademyWelcomePage final : public IWelcomePage
 public:
     QtAcademyWelcomePage() = default;
 
-    QString title() const final { return Tr::tr("Qt Academy"); }
+    QString title() const final { return Tr::tr("Courses"); }
     int priority() const final { return 60; }
-    Utils::Id id() const final { return "QtAcademy"; }
+    Utils::Id id() const final { return "Courses"; }
     QWidget *createWidget() const final { return new QtAcademyWelcomePageWidget; }
 };
 
