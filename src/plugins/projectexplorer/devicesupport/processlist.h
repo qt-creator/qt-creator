@@ -37,7 +37,6 @@ signals:
     void processKilled();
 
 private:
-    void handleUpdate();
     void setFinished();
 
     const std::unique_ptr<Internal::DeviceProcessListPrivate> d;

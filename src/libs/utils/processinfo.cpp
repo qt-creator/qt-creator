@@ -16,9 +16,9 @@
 #ifdef QTCREATOR_PCH_H
 #define CALLBACK WINAPI
 #endif
-#include <windows.h>
-#include <tlhelp32.h>
 #include <psapi.h>
+#include <tlhelp32.h>
+#include <windows.h>
 #endif
 
 namespace Utils {
@@ -220,6 +220,8 @@ static expected_str<QList<ProcessInfo>> getProcessesUsingPidin(const FilePath &d
 static expected_str<QList<ProcessInfo>> processInfoListUnix(const FilePath &deviceRoot)
 {
     return getLocalProcessesUsingPs(deviceRoot)
+        .transform_error(
+            [](const QString &error) { return Tr::tr("Failed to run ps: %1").arg(error); })
         .or_else([&deviceRoot](const QString &error) {
             return getProcessesUsingPidin(deviceRoot)
                 .transform_error([error](const QString &pidinError) {
@@ -229,24 +231,15 @@ static expected_str<QList<ProcessInfo>> processInfoListUnix(const FilePath &devi
         .or_else([&deviceRoot](const QString &error) {
             return getLocalProcessesUsingProc(deviceRoot)
                 .transform_error([error](const QString &procError) {
-                    return Tr::tr("Failed to run /proc: %1\n%2").arg(procError).arg(error);
+                    return Tr::tr("Failed to check /proc: %1\n%2").arg(procError).arg(error);
                 });
-        })
-        .transform_error([](const QString &error) {
-            return Tr::tr("Failed to retrieve process information: %1").arg(error);
         });
 }
 
-QList<ProcessInfo> ProcessInfo::processInfoList(const FilePath &deviceRoot)
+expected_str<QList<ProcessInfo>> ProcessInfo::processInfoList(const FilePath &deviceRoot)
 {
-    if (deviceRoot.osType() != OsType::OsTypeWindows) {
-        auto result = processInfoListUnix(deviceRoot);
-        if (!result) {
-            qWarning().noquote() << result.error();
-            return {};
-        }
-        return *result;
-    }
+    if (deviceRoot.osType() != OsType::OsTypeWindows)
+        return processInfoListUnix(deviceRoot);
 
     if (HostOsInfo::isWindowsHost() && deviceRoot.isLocal()) {
 #if defined(Q_OS_WIN)
@@ -255,8 +248,10 @@ QList<ProcessInfo> ProcessInfo::processInfoList(const FilePath &deviceRoot)
         PROCESSENTRY32 pe;
         pe.dwSize = sizeof(PROCESSENTRY32);
         HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-        if (snapshot == INVALID_HANDLE_VALUE)
-            return processes;
+        if (snapshot == INVALID_HANDLE_VALUE) {
+            return make_unexpected(
+                Tr::tr("Failed to create snapshot: %1").arg(winErrorMessage(GetLastError())));
+        }
 
         for (bool hasNext = Process32First(snapshot, &pe); hasNext;
              hasNext = Process32Next(snapshot, &pe)) {

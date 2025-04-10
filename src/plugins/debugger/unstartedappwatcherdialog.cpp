@@ -236,7 +236,8 @@ void UnstartedAppWatcherDialog::findProcess()
 {
     const QString appName = m_pathChooser->filePath().normalizedPathName().path();
     ProcessInfo fallback;
-    const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
+    const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList().value_or(
+        QList<ProcessInfo>());
     for (const ProcessInfo &processInfo : processInfoList) {
         if (m_excluded.contains(processInfo.processId))
             continue;
@@ -325,7 +326,8 @@ void UnstartedAppWatcherDialog::setWaitingState(UnstartedAppWacherState state)
         m_pathChooser->setEnabled(false);
         m_kitChooser->setEnabled(false);
         m_excluded.clear();
-        const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
+        const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList().value_or(
+            QList<ProcessInfo>());
         for (const ProcessInfo &processInfo : processInfoList)
             m_excluded.insert(processInfo.processId);
         break;
