@@ -96,7 +96,10 @@ Item {
             HelperWidgets.AbstractButton {
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.add_medium
-                enabled: hasMaterial && hasModelSelection && hasQuick3DImport && hasMaterialLibrary
+                enabled: (this.hasMaterial ?? false)
+                      && hasModelSelection
+                      && hasQuick3DImport
+                      && hasMaterialLibrary
                 tooltip: qsTr("Add a custom bundle folder.")
                 onClicked: ContentLibraryBackend.rootView.browseBundleFolder()
                 x: 5 // left margin

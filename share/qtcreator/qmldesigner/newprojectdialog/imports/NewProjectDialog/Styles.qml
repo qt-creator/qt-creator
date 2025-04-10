@@ -132,7 +132,7 @@ Item {
                     delegate: ItemDelegate {
                         id: delegateId
 
-                        readonly property string styleName: model.display
+                        readonly property string styleName: model?.display ?? ""
                         width: stylesList.width
                         height: DialogValues.styleListItemHeight
                         hoverEnabled: true
@@ -180,7 +180,7 @@ Item {
                                         width: DialogValues.styleImageWidth
                                         height: DialogValues.styleImageHeight
                                         asynchronous: false
-                                        source: "image://newprojectdialog_library/" + model.iconName
+                                        source: model?.iconName ? "image://newprojectdialog_library/" + model.iconName : ""
                                     }
                                 } // Rectangle
 

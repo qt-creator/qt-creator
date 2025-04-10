@@ -20,8 +20,8 @@ Item {
         visible: false
         layer.enabled: true
         layer.smooth: true
-        vertexShader: g_propertyData.blur_vs_path
-        fragmentShader: g_propertyData.blur_fs_path
+        vertexShader: g_propertyData?.blur_vs_path ?? ""
+        fragmentShader: g_propertyData?.blur_fs_path ?? ""
     }
 
     QtObject {
