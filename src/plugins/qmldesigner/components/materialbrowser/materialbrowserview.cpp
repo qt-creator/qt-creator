@@ -46,6 +46,11 @@ static bool isTexture(const ModelNode &node)
     return node.metaInfo().isQtQuick3DTexture();
 }
 
+static bool isModel3D(const ModelNode &node)
+{
+    return node.metaInfo().isQtQuick3DModel();
+}
+
 static QString propertyEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
@@ -354,8 +359,10 @@ void MaterialBrowserView::selectedNodesChanged([[maybe_unused]] const QList<Mode
     ModelNodes selectedTextures = Utils::filtered(selectedNodeList, isTexture);
     ModelNodes deselectedTextures = Utils::filtered(lastSelectedNodeList, isTexture);
 
+    ModelNodes selectedModels = Utils::filtered(selectedNodeList, isModel3D);
+
     m_widget->materialBrowserModel()->notifySelectionChanges(selectedMaterials, deselectedMaterials);
-    m_widget->materialBrowserModel()->setHasModelSelection(!selectedMaterials.isEmpty());
+    m_widget->materialBrowserModel()->setHasModelSelection(!selectedModels.isEmpty());
 
     m_widget->materialBrowserTexturesModel()->notifySelectionChanges(selectedTextures,
                                                                      deselectedTextures);
