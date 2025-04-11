@@ -109,10 +109,9 @@ public:
     // command line arguments
     static QStringList arguments();
     static QStringList argumentsForRestart();
-    static bool parseOptions(const QStringList &args,
+    static Utils::Result<> parseOptions(const QStringList &args,
         const QMap<QString, bool> &appOptions,
-        QMap<QString, QString> *foundAppOptions,
-        QString *errorString);
+        QMap<QString, QString> *foundAppOptions);
     static void formatOptions(QTextStream &str, int optionIndentation, int descriptionIndentation);
     static void formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation);
     static void formatPluginVersions(QTextStream &str);

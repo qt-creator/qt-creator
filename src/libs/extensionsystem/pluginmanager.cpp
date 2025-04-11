@@ -705,16 +705,13 @@ void PluginManager::remoteArguments(const QString &serializedArgument, QObject *
 
     Returns if there was an error.
  */
-bool PluginManager::parseOptions(const QStringList &args,
+Result<> PluginManager::parseOptions(const QStringList &args,
     const QMap<QString, bool> &appOptions,
-    QMap<QString, QString> *foundAppOptions,
-    QString *errorString)
+    QMap<QString, QString> *foundAppOptions)
 {
-    OptionsParser options(args, appOptions, foundAppOptions, errorString, d);
+    OptionsParser options(args, appOptions, foundAppOptions, d);
     return options.parse();
 }
-
-
 
 static inline void indent(QTextStream &str, int indent)
 {
