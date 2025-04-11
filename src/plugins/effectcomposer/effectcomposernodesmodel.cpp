@@ -52,7 +52,7 @@ void EffectComposerNodesModel::loadModel()
     auto nodesPath = Utils::FilePath::fromString(EffectUtils::nodesSourcesPath());
 
     if (!nodesPath.exists()) {
-        qWarning() << __FUNCTION__ << "Effects not found.";
+        qWarning() << __FUNCTION__ << "Effects not found in: " << nodesPath;
         return;
     }
 
