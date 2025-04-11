@@ -133,6 +133,7 @@ Item {
                         bottomPadding: StudioTheme.Values.sectionPadding
 
                         caption: categoryTitle
+                        captionTooltip: section.isCustomCat ? categoryBundlePath : ""
                         dropEnabled: true
                         category: "ContentLib_User"
                         showCloseButton: section.isCustomCat
