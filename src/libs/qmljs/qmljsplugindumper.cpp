@@ -330,7 +330,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
         PluginDumper::QmlTypeDescription result;
 
         for (const FilePath &p: paths) {
-            const expected_str<QByteArray> contents = p.fileContents();
+            const Result<QByteArray> contents = p.fileContents();
             if (!contents) {
                 result.errors += contents.error();
                 continue;

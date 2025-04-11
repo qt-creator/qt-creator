@@ -149,7 +149,7 @@ bool CppToolsJsExtension::hasQObjectParent(const QString &klassName) const
     const WorkingCopy workingCopy = CppModelManager::workingCopy();
     std::optional<QByteArray> source = workingCopy.source(item->filePath());
     if (!source) {
-        const Utils::expected_str<QByteArray> contents = item->filePath().fileContents();
+        const Utils::Result<QByteArray> contents = item->filePath().fileContents();
         QTC_ASSERT_EXPECTED(contents, return false);
         source = *contents;
     }

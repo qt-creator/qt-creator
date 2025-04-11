@@ -175,7 +175,7 @@ static FilePath findValidExecutable(const FilePaths &candidates)
 
 FilePath toolShippedExecutable(ClangToolType tool)
 {
-    const expected_str<FilePath> shippedExecutable
+    const Result<FilePath> shippedExecutable
         = tool == ClangToolType::Tidy ? Core::ICore::clangTidyExecutable(CLANG_BINDIR)
                                       : Core::ICore::clazyStandaloneExecutable(CLANG_BINDIR);
     return shippedExecutable.value_or(FilePath{});

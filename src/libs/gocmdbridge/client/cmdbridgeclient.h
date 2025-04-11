@@ -28,13 +28,13 @@ public:
 
     Utils::Result<> start(bool deleteOnExit = false);
 
-    static Utils::expected_str<Utils::FilePath> getCmdBridgePath(Utils::OsType osType,
+    static Utils::Result<Utils::FilePath> getCmdBridgePath(Utils::OsType osType,
                                                                  Utils::OsArch osArch,
                                                                  const Utils::FilePath &libExecPath);
 
     using ExecResult = std::variant<std::pair<QByteArray, QByteArray>, int>;
 
-    Utils::expected_str<QFuture<ExecResult>> execute(const Utils::CommandLine &cmdLine,
+    Utils::Result<QFuture<ExecResult>> execute(const Utils::CommandLine &cmdLine,
                                                      const Utils::Environment &env = {},
                                                      const QByteArray &stdIn = {});
 
@@ -55,7 +55,7 @@ public:
     // It will either be a "FindEntry", or an error message, or a null optional in case no entries
     // were found.
     // That way it is safe to wait for results using QFuture::resultAt().
-    Utils::expected_str<QFuture<FindData>> find(const QString &directory,
+    Utils::Result<QFuture<FindData>> find(const QString &directory,
                                                 const Utils::FileFilter &filter);
 
     enum class Is {
@@ -70,7 +70,7 @@ public:
         Symlink = 8,
     };
 
-    Utils::expected_str<QFuture<bool>> is(const QString &path, Is is);
+    Utils::Result<QFuture<bool>> is(const QString &path, Is is);
 
     struct Stat
     {
@@ -82,35 +82,35 @@ public:
         bool isDir;
     };
 
-    Utils::expected_str<QFuture<Stat>> stat(const QString &path);
+    Utils::Result<QFuture<Stat>> stat(const QString &path);
 
-    Utils::expected_str<QFuture<QString>> readlink(const QString &path);
-    Utils::expected_str<QFuture<QString>> fileId(const QString &path);
-    Utils::expected_str<QFuture<quint64>> freeSpace(const QString &path);
+    Utils::Result<QFuture<QString>> readlink(const QString &path);
+    Utils::Result<QFuture<QString>> fileId(const QString &path);
+    Utils::Result<QFuture<quint64>> freeSpace(const QString &path);
 
-    Utils::expected_str<QFuture<QByteArray>> readFile(const QString &path,
+    Utils::Result<QFuture<QByteArray>> readFile(const QString &path,
                                                       qint64 limit,
                                                       qint64 offset);
 
-    Utils::expected_str<QFuture<qint64>> writeFile(const QString &path, const QByteArray &data);
+    Utils::Result<QFuture<qint64>> writeFile(const QString &path, const QByteArray &data);
 
-    Utils::expected_str<QFuture<void>> removeFile(const QString &path);
-    Utils::expected_str<QFuture<void>> removeRecursively(const QString &path);
+    Utils::Result<QFuture<void>> removeFile(const QString &path);
+    Utils::Result<QFuture<void>> removeRecursively(const QString &path);
 
-    Utils::expected_str<QFuture<void>> ensureExistingFile(const QString &path);
-    Utils::expected_str<QFuture<void>> createDir(const QString &path);
+    Utils::Result<QFuture<void>> ensureExistingFile(const QString &path);
+    Utils::Result<QFuture<void>> createDir(const QString &path);
 
-    Utils::expected_str<QFuture<void>> copyFile(const QString &source, const QString &target);
-    Utils::expected_str<QFuture<void>> renameFile(const QString &source, const QString &target);
+    Utils::Result<QFuture<void>> copyFile(const QString &source, const QString &target);
+    Utils::Result<QFuture<void>> renameFile(const QString &source, const QString &target);
 
-    Utils::expected_str<QFuture<Utils::FilePath>> createTempFile(const QString &path);
+    Utils::Result<QFuture<Utils::FilePath>> createTempFile(const QString &path);
 
-    Utils::expected_str<QFuture<void>> setPermissions(const QString &path, QFile::Permissions perms);
+    Utils::Result<QFuture<void>> setPermissions(const QString &path, QFile::Permissions perms);
 
-    Utils::expected_str<std::unique_ptr<Utils::FilePathWatcher>> watch(const QString &path);
+    Utils::Result<std::unique_ptr<Utils::FilePathWatcher>> watch(const QString &path);
     void stopWatch(int id);
 
-    Utils::expected_str<QFuture<void>> signalProcess(int pid, Utils::ControlSignal signal);
+    Utils::Result<QFuture<void>> signalProcess(int pid, Utils::ControlSignal signal);
 
 protected:
     bool exit();

@@ -492,7 +492,7 @@ QSet<AssetPath> BundleHelper::getBundleComponentDependencies(const ModelNode &no
 
     Utils::FilePath assetRefPath = compPath.pathAppended(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE);
 
-    Utils::expected_str<QByteArray> assetRefContents = assetRefPath.fileContents();
+    Utils::Result<QByteArray> assetRefContents = assetRefPath.fileContents();
     if (!assetRefContents.has_value()) {
         qWarning() << __FUNCTION__ << assetRefContents.error();
         return {};

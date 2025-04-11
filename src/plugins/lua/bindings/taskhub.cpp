@@ -24,7 +24,7 @@ struct FPTR<Ret (Obj::*)(Args...)>
     static std::function<void(Args...)> makeCallable(sol::protected_function func)
     {
         return [func](Args... args) {
-            expected_str<void> res = void_safe_call(func, args...);
+            Result<> res = void_safe_call(func, args...);
             QTC_CHECK_EXPECTED(res);
         };
     }

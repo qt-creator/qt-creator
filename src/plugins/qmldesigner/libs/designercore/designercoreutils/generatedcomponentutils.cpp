@@ -30,7 +30,7 @@ bool couldBeProjectModule(const Utils::FilePath &path, const QString &projectNam
 
     Utils::FilePath qmlDirPath = path.pathAppended("qmldir");
     if (qmlDirPath.exists()) {
-        Utils::expected_str<QByteArray> qmldirContents = qmlDirPath.fileContents();
+        Utils::Result<QByteArray> qmldirContents = qmlDirPath.fileContents();
         if (!qmldirContents.has_value())
             return false;
 
@@ -361,7 +361,7 @@ QString GeneratedComponentUtils::getImported3dImportName(const Utils::FilePath &
 Utils::FilePath GeneratedComponentUtils::getImported3dQml(const QString &assetPath) const
 {
     Utils::FilePath assetFilePath = Utils::FilePath::fromString(assetPath);
-    const Utils::expected_str<QByteArray> data = assetFilePath.fileContents();
+    const Utils::Result<QByteArray> data = assetFilePath.fileContents();
 
     if (!data)
         return {};

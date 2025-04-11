@@ -411,7 +411,7 @@ void ExamplesViewController::updateExamples()
         qCDebug(log) << QString::fromLatin1("Reading file \"%1\"...")
                             .arg(manifest.absoluteFilePath().toUserOutput());
 
-        const expected_str<ParsedExamples> result
+        const Result<ParsedExamples> result
             = parseExamples(manifest,
                             FilePath::fromUserInput(examplesInstallPath),
                             FilePath::fromUserInput(demosInstallPath),

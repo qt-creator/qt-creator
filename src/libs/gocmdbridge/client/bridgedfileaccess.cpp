@@ -18,7 +18,7 @@ namespace CmdBridge {
 
 FileAccess::~FileAccess() = default;
 
-expected_str<QString> run(const CommandLine &cmdLine, const QByteArray &inputData = {})
+Result<QString> run(const CommandLine &cmdLine, const QByteArray &inputData = {})
 {
     Process p;
     p.setCommand(cmdLine);
@@ -71,30 +71,30 @@ Result<> FileAccess::deployAndInit(
 
     qCDebug(faLog) << deco() << "Found dd on remote host:" << *whichDD;
 
-    const expected_str<QString> unameOs = run({remoteRootPath.withNewPath("uname"), {"-s"}});
+    const Result<QString> unameOs = run({remoteRootPath.withNewPath("uname"), {"-s"}});
     if (!unameOs) {
         return ResultError(
             QString("Could not determine OS on remote host: %1").arg(unameOs.error()));
     }
-    Utils::expected_str<OsType> osType = osTypeFromString(*unameOs);
+    Utils::Result<OsType> osType = osTypeFromString(*unameOs);
     if (!osType)
         return ResultError(osType.error());
 
     qCDebug(faLog) << deco() << "Remote host OS:" << *unameOs;
 
-    const expected_str<QString> unameArch = run({remoteRootPath.withNewPath("uname"), {"-m"}});
+    const Result<QString> unameArch = run({remoteRootPath.withNewPath("uname"), {"-m"}});
     if (!unameArch) {
         return ResultError(
             QString("Could not determine architecture on remote host: %1").arg(unameArch.error()));
     }
 
-    const Utils::expected_str<OsArch> osArch = osArchFromString(*unameArch);
+    const Utils::Result<OsArch> osArch = osArchFromString(*unameArch);
     if (!osArch)
         return ResultError(osArch.error());
 
     qCDebug(faLog) << deco() << "Remote host architecture:" << *unameArch;
 
-    const Utils::expected_str<Utils::FilePath> cmdBridgePath
+    const Utils::Result<Utils::FilePath> cmdBridgePath
         = Client::getCmdBridgePath(*osType, *osArch, libExecPath);
 
     if (!cmdBridgePath) {
@@ -167,7 +167,7 @@ bool FileAccess::isReadableFile(const FilePath &filePath) const
 bool FileAccess::isWritableFile(const FilePath &filePath) const
 {
     try {
-        expected_str<QFuture<bool>> f = m_client->is(filePath.nativePath(),
+        Result<QFuture<bool>> f = m_client->is(filePath.nativePath(),
                                                      CmdBridge::Client::Is::WritableFile);
         QTC_ASSERT_EXPECTED(f, return false);
         return f->result();
@@ -348,7 +348,7 @@ FilePathInfo::FileFlags fileInfoFlagsfromStatMode(uint mode)
 qint64 FileAccess::bytesAvailable(const FilePath &filePath) const
 {
     try {
-        expected_str<QFuture<quint64>> f = m_client->freeSpace(filePath.nativePath());
+        Result<QFuture<quint64>> f = m_client->freeSpace(filePath.nativePath());
         QTC_ASSERT_EXPECTED(f, return -1);
         return f->result();
     } catch (const std::exception &e) {
@@ -360,7 +360,7 @@ qint64 FileAccess::bytesAvailable(const FilePath &filePath) const
 QByteArray FileAccess::fileId(const FilePath &filePath) const
 {
     try {
-        expected_str<QFuture<QString>> f = m_client->fileId(filePath.nativePath());
+        Result<QFuture<QString>> f = m_client->fileId(filePath.nativePath());
         QTC_ASSERT_EXPECTED(f, return {});
         return f->result().toUtf8();
     } catch (const std::exception &e) {
@@ -387,7 +387,7 @@ FilePathInfo FileAccess::filePathInfo(const FilePath &filePath) const
     }
 
     try {
-        expected_str<QFuture<Client::Stat>> f = m_client->stat(filePath.nativePath());
+        Result<QFuture<Client::Stat>> f = m_client->stat(filePath.nativePath());
         QTC_ASSERT_EXPECTED(f, return {});
         Client::Stat stat = f->result();
         return {stat.size,
@@ -402,7 +402,7 @@ FilePathInfo FileAccess::filePathInfo(const FilePath &filePath) const
 FilePath FileAccess::symLinkTarget(const FilePath &filePath) const
 {
     try {
-        expected_str<QFuture<QString>> f = m_client->readlink(filePath.nativePath());
+        Result<QFuture<QString>> f = m_client->readlink(filePath.nativePath());
         QTC_ASSERT_EXPECTED(f, return {});
         return filePath.parentDir().resolvePath(filePath.withNewPath(f->result()).path());
     } catch (const std::exception &e) {
@@ -424,7 +424,7 @@ QFile::Permissions FileAccess::permissions(const FilePath &filePath) const
 bool FileAccess::setPermissions(const FilePath &filePath, QFile::Permissions perms) const
 {
     try {
-        expected_str<QFuture<void>> f = m_client->setPermissions(filePath.nativePath(), perms);
+        Result<QFuture<void>> f = m_client->setPermissions(filePath.nativePath(), perms);
         QTC_ASSERT_EXPECTED(f, return false);
         f->waitForFinished();
         return true;
@@ -439,12 +439,12 @@ qint64 FileAccess::fileSize(const FilePath &filePath) const
     return filePathInfo(filePath).fileSize;
 }
 
-expected_str<QByteArray> FileAccess::fileContents(const FilePath &filePath,
+Result<QByteArray> FileAccess::fileContents(const FilePath &filePath,
                                                   qint64 limit,
                                                   qint64 offset) const
 {
     try {
-        expected_str<QFuture<QByteArray>> f = m_client->readFile(filePath.nativePath(),
+        Result<QFuture<QByteArray>> f = m_client->readFile(filePath.nativePath(),
                                                                  limit,
                                                                  offset);
         QTC_ASSERT_EXPECTED(f, return {});
@@ -460,11 +460,11 @@ expected_str<QByteArray> FileAccess::fileContents(const FilePath &filePath,
     }
 }
 
-expected_str<qint64> FileAccess::writeFileContents(const FilePath &filePath,
+Result<qint64> FileAccess::writeFileContents(const FilePath &filePath,
                                                    const QByteArray &data) const
 {
     try {
-        expected_str<QFuture<qint64>> f = m_client->writeFile(filePath.nativePath(), data);
+        Result<QFuture<qint64>> f = m_client->writeFile(filePath.nativePath(), data);
         QTC_ASSERT_EXPECTED(f, return {});
         return f->result();
     } catch (const std::exception &e) {
@@ -476,7 +476,7 @@ expected_str<qint64> FileAccess::writeFileContents(const FilePath &filePath,
 Result<> FileAccess::removeFile(const FilePath &filePath) const
 {
     try {
-        Utils::expected_str<QFuture<void>> f = m_client->removeFile(filePath.nativePath());
+        Utils::Result<QFuture<void>> f = m_client->removeFile(filePath.nativePath());
         if (!f)
             return ResultError(f.error());
         f->waitForFinished();
@@ -550,7 +550,7 @@ Result<> FileAccess::copyFile(const FilePath &filePath, const FilePath &target) 
 Result<> FileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
     try {
-        Utils::expected_str<QFuture<void>> f
+        Utils::Result<QFuture<void>> f
             = m_client->renameFile(filePath.nativePath(), target.nativePath());
         if (!f)
             return ResultError(f.error());
@@ -565,7 +565,7 @@ Result<> FileAccess::renameFile(const FilePath &filePath, const FilePath &target
     return ResultOk;
 }
 
-expected_str<std::unique_ptr<FilePathWatcher>> FileAccess::watch(const FilePath &filePath) const
+Result<std::unique_ptr<FilePathWatcher>> FileAccess::watch(const FilePath &filePath) const
 {
     return m_client->watch(filePath.nativePath());
 }
@@ -583,7 +583,7 @@ Result<> FileAccess::signalProcess(int pid, ControlSignal signal) const
     };
 }
 
-expected_str<FilePath> FileAccess::createTempFile(const FilePath &filePath)
+Result<FilePath> FileAccess::createTempFile(const FilePath &filePath)
 {
     try {
         QString path = filePath.nativePath();
@@ -598,11 +598,11 @@ expected_str<FilePath> FileAccess::createTempFile(const FilePath &filePath)
             path += ".*";
         }
 
-        Utils::expected_str<QFuture<Utils::FilePath>> f = m_client->createTempFile(path);
+        Utils::Result<QFuture<Utils::FilePath>> f = m_client->createTempFile(path);
         QTC_ASSERT_EXPECTED(f, return {});
         f->waitForFinished();
 
-        expected_str<FilePath> result = f->result();
+        Result<FilePath> result = f->result();
         if (!result)
             return result;
         return filePath.withNewPath(result->path());

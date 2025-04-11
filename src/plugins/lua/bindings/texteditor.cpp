@@ -105,7 +105,7 @@ void setRefactorMarker(
     marker.cursor = cursor;
     marker.icon = icon.icon();
     marker.callback = [callback](TextEditorWidget *) {
-        expected_str<void> res = Lua::void_safe_call(callback);
+        Result<> res = Lua::void_safe_call(callback);
         QTC_CHECK_EXPECTED(res);
     };
     marker.type = id;
@@ -407,7 +407,7 @@ void setupTextEditorModule()
             "onShouldClose",
             [guard](EmbeddedWidgetInterface *widget, sol::main_function func) {
                 QObject::connect(widget, &EmbeddedWidgetInterface::shouldClose, guard, [func]() {
-                    expected_str<void> res = void_safe_call(func);
+                    Result<> res = void_safe_call(func);
                     QTC_CHECK_EXPECTED(res);
                 });
             });
@@ -602,7 +602,7 @@ void setupTextEditorModule()
             &TextEditorRegistry::currentEditorChanged,
             guard,
             [func](BaseTextEditor *editor) {
-                expected_str<void> res = void_safe_call(func, editor);
+                Result<> res = void_safe_call(func, editor);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -613,7 +613,7 @@ void setupTextEditorModule()
             &TextEditorRegistry::editorCreated,
             guard,
             [func](TextEditorPtr editor) {
-                expected_str<void> res = void_safe_call(func, editor);
+                Result<> res = void_safe_call(func, editor);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -624,7 +624,7 @@ void setupTextEditorModule()
             &TextEditorRegistry::documentContentsChanged,
             guard,
             [func](TextDocument *document, int position, int charsRemoved, int charsAdded) {
-                expected_str<void> res
+                Result<> res
                     = void_safe_call(func, document, position, charsRemoved, charsAdded);
                 QTC_CHECK_EXPECTED(res);
             });
@@ -636,7 +636,7 @@ void setupTextEditorModule()
             &TextEditorRegistry::currentCursorChanged,
             guard,
             [func](BaseTextEditor *editor, const MultiTextCursor &cursor) {
-                expected_str<void> res = void_safe_call(func, editor, cursor);
+                Result<> res = void_safe_call(func, editor, cursor);
                 QTC_CHECK_EXPECTED(res);
             });
     });

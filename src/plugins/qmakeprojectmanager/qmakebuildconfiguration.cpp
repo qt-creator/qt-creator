@@ -534,7 +534,7 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     // and compare that on its own
     FilePath workingDirectory = makefile.parentDir();
     QStringList actualArgs;
-    expected_str<QString> expandResult = macroExpander()->expandProcessArgs(
+    Result<QString> expandResult = macroExpander()->expandProcessArgs(
         qs->allArguments(QtKitAspect::qtVersion(kit()), QMakeStep::ArgumentFlag::Expand));
 
     if (!expandResult) {

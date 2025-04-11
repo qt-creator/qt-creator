@@ -597,7 +597,7 @@ bool ExternalToolRunner::resolve()
         }
     }
 
-    const expected_str<QString> args = expander->expandProcessArgs(m_tool->arguments());
+    const Result<QString> args = expander->expandProcessArgs(m_tool->arguments());
     QTC_ASSERT_EXPECTED(args, return false);
 
     m_resolvedArguments = *args;

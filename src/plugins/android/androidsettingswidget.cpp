@@ -111,7 +111,7 @@ enum OpenSslValidation {
     OpenSslCmakeListsPathExists
 };
 
-static expected_str<void> testJavaC(const FilePath &jdkPath)
+static Result<> testJavaC(const FilePath &jdkPath)
 {
     if (!jdkPath.isReadableDir())
         return make_unexpected(Tr::tr("The selected path does not exist or is not readable."));
@@ -256,8 +256,8 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                          openSslDetailsWidget);
 
     m_openJdkLocationPathChooser->setValidationFunction([](const QString &s) {
-        return Utils::asyncRun([s]() -> expected_str<QString> {
-            expected_str<void> test = testJavaC(FilePath::fromUserInput(s));
+        return Utils::asyncRun([s]() -> Result<QString> {
+            Result<> test = testJavaC(FilePath::fromUserInput(s));
             if (!test) {
                 Core::MessageManager::writeSilently(test.error());
                 return make_unexpected(test.error());
@@ -480,7 +480,7 @@ bool AndroidSettingsWidget::isDefaultNdkSelected() const
 void AndroidSettingsWidget::validateJdk()
 {
     AndroidConfig::setOpenJDKLocation(m_openJdkLocationPathChooser->filePath());
-    expected_str<void> test = testJavaC(AndroidConfig::openJDKLocation());
+    Result<> test = testJavaC(AndroidConfig::openJDKLocation());
 
     m_androidSummary->setPointValid(JavaPathExistsAndWritableRow, test);
 

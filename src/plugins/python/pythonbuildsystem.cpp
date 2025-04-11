@@ -34,7 +34,7 @@ namespace Python::Internal {
 
 static QJsonObject readObjJson(const FilePath &projectFile, QString *errorMessage)
 {
-    const expected_str<QByteArray> fileContentsResult = projectFile.fileContents();
+    const Result<QByteArray> fileContentsResult = projectFile.fileContents();
     if (!fileContentsResult) {
         *errorMessage = fileContentsResult.error();
         return {};
@@ -68,7 +68,7 @@ static QStringList readLines(const FilePath &projectFile)
     QSet<QString> visited;
     QStringList lines;
 
-    const expected_str<QByteArray> contents = projectFile.fileContents();
+    const Result<QByteArray> contents = projectFile.fileContents();
     if (contents) {
         QTextStream stream(contents.value());
 
@@ -250,7 +250,7 @@ bool PythonBuildSystem::save()
         newContents = newPyProjectToml.value().toUtf8();
     } else if (filePath.endsWith(".pyproject")) {
         // *.pyproject project file
-        expected_str<QByteArray> contents = filePath.fileContents();
+        Result<QByteArray> contents = filePath.fileContents();
         if (!contents) {
             MessageManager::writeDisrupting(contents.error());
             return false;
@@ -265,7 +265,7 @@ bool PythonBuildSystem::save()
         newContents = projectFiles.join('\n').toUtf8();
     }
 
-    const expected_str<qint64> writeResult = filePath.writeFileContents(newContents);
+    const Result<qint64> writeResult = filePath.writeFileContents(newContents);
     if (!writeResult) {
         MessageManager::writeDisrupting(writeResult.error());
         return false;

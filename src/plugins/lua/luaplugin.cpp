@@ -326,7 +326,7 @@ public:
         pluginSpecsFromArchiveFactories().push_back([](const FilePath &path) -> QList<PluginSpec *> {
             if (path.isFile()) {
                 if (path.suffix() == "lua") {
-                    Utils::expected_str<PluginSpec *> spec = loadPlugin(path);
+                    Utils::Result<PluginSpec *> spec = loadPlugin(path);
                     QTC_CHECK_EXPECTED(spec);
                     if (spec)
                         return {*spec};
@@ -339,7 +339,7 @@ public:
             for (const auto &dir : dirs) {
                 const auto specFilePath = dir / (dir.fileName() + ".lua");
                 if (specFilePath.exists()) {
-                    Utils::expected_str<PluginSpec *> spec = loadPlugin(specFilePath);
+                    Utils::Result<PluginSpec *> spec = loadPlugin(specFilePath);
                     QTC_CHECK_EXPECTED(spec);
                     if (spec)
                         plugins.push_back(*spec);
@@ -440,7 +440,7 @@ public:
                     continue;
                 }
 
-                const expected_str<LuaPluginSpec *> result = loadPlugin(script);
+                const Result<LuaPluginSpec *> result = loadPlugin(script);
 
                 if (!result) {
                     qWarning() << "Failed to load plugin" << script << ":" << result.error();
@@ -511,7 +511,7 @@ public:
 
     static void runScript(const FilePath &script)
     {
-        expected_str<QByteArray> content = script.fileContents();
+        Result<QByteArray> content = script.fileContents();
         if (content) {
             Lua::runScript(QString::fromUtf8(*content), script.fileName());
         } else {

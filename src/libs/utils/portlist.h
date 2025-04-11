@@ -53,7 +53,7 @@ public:
     std::function<QList<Port>(const QByteArray &)> portsParser = &Port::parseFromCommandOutput;
 };
 
-using PortsOutputData = expected_str<QList<Port>>;
+using PortsOutputData = Result<QList<Port>>;
 
 QTCREATOR_UTILS_EXPORT Tasking::ExecutableItem portsFromProcessRecipe(
     const Tasking::Storage<PortsInputData> &input, const Tasking::Storage<PortsOutputData> &output);

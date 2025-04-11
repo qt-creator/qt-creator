@@ -347,7 +347,7 @@ bool FilePath::equalsCaseSensitive(const FilePath &other) const
 
     \sa FilePathWatcher
 */
-Utils::expected_str<std::unique_ptr<FilePathWatcher>> FilePath::watch() const
+Utils::Result<std::unique_ptr<FilePathWatcher>> FilePath::watch() const
 {
     return fileAccess()->watch(*this);
 }
@@ -644,10 +644,10 @@ std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) 
     return fileAccess()->refersToExecutableFile(*this,  matchScope);
 }
 
-expected_str<FilePath> FilePath::tmpDir() const
+Result<FilePath> FilePath::tmpDir() const
 {
     if (!isLocal()) {
-        const expected_str<Environment> env = deviceEnvironmentWithError();
+        const Result<Environment> env = deviceEnvironmentWithError();
         if (!env)
             return make_unexpected(env.error());
 
@@ -667,7 +667,7 @@ expected_str<FilePath> FilePath::tmpDir() const
     return FilePath::fromUserInput(QDir::tempPath());
 }
 
-expected_str<FilePath> FilePath::createTempFile() const
+Result<FilePath> FilePath::createTempFile() const
 {
     if (isLocal()) {
         QTemporaryFile file(path());
@@ -767,7 +767,7 @@ void FilePath::iterateDirectories(const FilePaths &dirs,
         dir.iterateDirectory(callBack, filter);
 }
 
-expected_str<QByteArray> FilePath::fileContents(qint64 maxSize, qint64 offset) const
+Result<QByteArray> FilePath::fileContents(qint64 maxSize, qint64 offset) const
 {
     return fileAccess()->fileContents(*this, maxSize, offset);
 }
@@ -781,7 +781,7 @@ bool FilePath::ensureReachable(const FilePath &other) const
     return other.isLocal();
 }
 
-expected_str<qint64> FilePath::writeFileContents(const QByteArray &data) const
+Result<qint64> FilePath::writeFileContents(const QByteArray &data) const
 {
     return fileAccess()->writeFileContents(*this, data);
 }
@@ -1322,7 +1322,7 @@ void FilePath::setFromString(QStringView fileNameView)
     setParts({}, {}, fileNameView);
 }
 
-static expected_str<DeviceFileAccess *> getFileAccess(const FilePath &filePath)
+static Result<DeviceFileAccess *> getFileAccess(const FilePath &filePath)
 {
     if (filePath.isLocal())
         return DesktopDeviceFileAccess::instance();
@@ -1339,20 +1339,20 @@ static expected_str<DeviceFileAccess *> getFileAccess(const FilePath &filePath)
 DeviceFileAccess *FilePath::fileAccess() const
 {
     static DeviceFileAccess dummy;
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     QTC_ASSERT_EXPECTED(access, return &dummy);
     return *access;
 }
 
 bool FilePath::hasFileAccess() const
 {
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     return access.has_value();
 }
 
 FilePathInfo FilePath::filePathInfo() const
 {
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return {};
     return (*access)->filePathInfo(*this);
@@ -1366,7 +1366,7 @@ bool FilePath::exists() const
     if (isEmpty())
         return false;
 
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1381,7 +1381,7 @@ bool FilePath::isExecutableFile() const
     if (isEmpty())
         return false;
 
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1396,7 +1396,7 @@ bool FilePath::isWritableDir() const
     if (isEmpty())
         return false;
 
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1411,7 +1411,7 @@ bool FilePath::isWritableFile() const
     if (isEmpty())
         return false;
 
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1423,7 +1423,7 @@ bool FilePath::isReadableFile() const
     if (isEmpty())
         return false;
 
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1435,7 +1435,7 @@ bool FilePath::isReadableDir() const
     if (isEmpty())
         return false;
 
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1447,7 +1447,7 @@ bool FilePath::isFile() const
     if (isEmpty())
         return false;
 
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1459,7 +1459,7 @@ bool FilePath::isDir() const
     if (isEmpty())
         return false;
 
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1471,7 +1471,7 @@ bool FilePath::isSymLink() const
     if (isEmpty())
         return false;
 
-    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    const Result<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
 
@@ -1899,12 +1899,12 @@ FilePaths FilePath::searchAllInPath(const FilePaths &additionalDirs,
 
 Environment FilePath::deviceEnvironment() const
 {
-    expected_str<Environment> env = deviceEnvironmentWithError();
+    Result<Environment> env = deviceEnvironmentWithError();
     QTC_ASSERT_EXPECTED(env, return {});
     return *env;
 }
 
-expected_str<Environment> FilePath::deviceEnvironmentWithError() const
+Result<Environment> FilePath::deviceEnvironmentWithError() const
 {
     if (!isLocal()) {
         QTC_ASSERT(deviceFileHooks().environment, return {});
@@ -2042,14 +2042,14 @@ Result<> FilePath::copyFile(const FilePath &target) const
 {
     if (!isSameDevice(target)) {
         // FIXME: This does not scale.
-        const expected_str<QByteArray> contents = fileContents();
+        const Result<QByteArray> contents = fileContents();
         if (!contents) {
             return ResultError(
                 Tr::tr("Error while trying to copy file: %1").arg(contents.error()));
         }
 
         const QFile::Permissions perms = permissions();
-        const expected_str<qint64> copyResult = target.writeFileContents(*contents);
+        const Result<qint64> copyResult = target.writeFileContents(*contents);
 
         if (!copyResult)
             return ResultError(Tr::tr("Could not copy file: %1").arg(copyResult.error()));
@@ -2336,7 +2336,7 @@ FilePath FilePath::resolvePath(const QString &tail) const
    return resolvePath(FilePath::fromUserInput(tail));
 }
 
-expected_str<FilePath> FilePath::localSource() const
+Result<FilePath> FilePath::localSource() const
 {
     if (isLocal())
         return *this;
@@ -2567,10 +2567,10 @@ public:
     bool autoRemove = true;
 };
 
-expected_str<std::unique_ptr<TemporaryFilePath>> TemporaryFilePath::create(
+Result<std::unique_ptr<TemporaryFilePath>> TemporaryFilePath::create(
     const FilePath &templatePath)
 {
-    expected_str<FilePath> result = templatePath.createTempFile();
+    Result<FilePath> result = templatePath.createTempFile();
     if (!result)
         return make_unexpected(result.error());
     return std::unique_ptr<TemporaryFilePath>(new TemporaryFilePath(templatePath, *result));

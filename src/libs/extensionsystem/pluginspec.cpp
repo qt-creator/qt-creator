@@ -228,8 +228,8 @@ public:
 
     QJsonObject metaData;
 
-    Utils::expected_str<void> readMetaData(const QJsonObject &metaData);
-    Utils::expected_str<void> reportError(const QString &error)
+    Utils::Result<> readMetaData(const QJsonObject &metaData);
+    Utils::Result<> reportError(const QString &error)
     {
         errorString = error;
         return {};
@@ -796,7 +796,7 @@ namespace {
     \internal
     Returns false if the file does not represent a Qt Creator plugin.
 */
-expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(const FilePath &fileName)
+Result<std::unique_ptr<PluginSpec>> readCppPluginSpec(const FilePath &fileName)
 {
     auto spec = std::unique_ptr<CppPluginSpec>(new CppPluginSpec());
 
@@ -813,20 +813,20 @@ expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(const FilePath &file
     if (spec->d->loader->fileName().isEmpty())
         return make_unexpected(::ExtensionSystem::Tr::tr("Cannot open file"));
 
-    expected_str<void> r = spec->readMetaData(spec->d->loader->metaData());
+    Result<> r = spec->readMetaData(spec->d->loader->metaData());
     if (!r)
         return make_unexpected(r.error());
 
     return spec;
 }
 
-expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(const QStaticPlugin &plugin)
+Result<std::unique_ptr<PluginSpec>> readCppPluginSpec(const QStaticPlugin &plugin)
 {
     auto spec = std::unique_ptr<CppPluginSpec>(new CppPluginSpec());
 
     qCDebug(pluginLog) << "\nReading meta data of static plugin";
     spec->d->staticPlugin = plugin;
-    expected_str<void> r = spec->readMetaData(plugin.metaData());
+    Result<> r = spec->readMetaData(plugin.metaData());
     if (!r)
         return make_unexpected(r.error());
 
@@ -864,11 +864,11 @@ static inline QString msgInvalidFormat(const char *key, const QString &content)
     return Tr::tr("Value \"%2\" for key \"%1\" has invalid format").arg(QLatin1String(key), content);
 }
 
-Utils::expected_str<void> PluginSpec::readMetaData(const QJsonObject &metaData)
+Utils::Result<> PluginSpec::readMetaData(const QJsonObject &metaData)
 {
     return d->readMetaData(metaData);
 }
-Utils::expected_str<void> PluginSpec::reportError(const QString &error)
+Utils::Result<> PluginSpec::reportError(const QString &error)
 {
     return d->reportError(error);
 }
@@ -876,7 +876,7 @@ Utils::expected_str<void> PluginSpec::reportError(const QString &error)
 /*!
     \internal
 */
-expected_str<void> CppPluginSpec::readMetaData(const QJsonObject &pluginMetaData)
+Result<> CppPluginSpec::readMetaData(const QJsonObject &pluginMetaData)
 {
     qCDebug(pluginLog).noquote() << "MetaData:" << QJsonDocument(pluginMetaData).toJson();
     QJsonValue value;
@@ -913,11 +913,11 @@ struct Invert
 template<class T>
 using copy_assign_t = decltype(std::declval<T &>() = std::declval<const T &>());
 
-Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &data)
+Utils::Result<> PluginSpecPrivate::readMetaData(const QJsonObject &data)
 {
     metaData = data;
 
-    auto assign = [&data](QString &member, const char *fieldName) -> expected_str<void> {
+    auto assign = [&data](QString &member, const char *fieldName) -> Result<> {
         QJsonValue value = data.value(QLatin1String(fieldName));
         if (value.isUndefined())
             return make_unexpected(msgValueMissing(fieldName));
@@ -928,7 +928,7 @@ Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &dat
     };
 
     auto assignOr =
-        [&data](auto &&member, const char *fieldName, auto &&defaultValue) -> expected_str<void> {
+        [&data](auto &&member, const char *fieldName, auto &&defaultValue) -> Result<> {
         QJsonValue value = data.value(QLatin1String(fieldName));
         if (value.isUndefined())
             member = defaultValue;
@@ -951,7 +951,7 @@ Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &dat
         return {};
     };
 
-    auto assignMultiLine = [&data](QString &member, const char *fieldName) -> expected_str<void> {
+    auto assignMultiLine = [&data](QString &member, const char *fieldName) -> Result<> {
         QJsonValue value = data.value(QLatin1String(fieldName));
         if (value.isUndefined())
             return {};
@@ -1440,7 +1440,7 @@ static QList<PluginSpec *> createCppPluginsFromArchive(const FilePath &path)
 
     if (path.isFile()) {
         if (QLibrary::isLibrary(path.toFSPathString())) {
-            expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(path);
+            Result<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(path);
             QTC_CHECK_EXPECTED(spec);
             if (spec)
                 results.push_back(spec->release());
@@ -1457,7 +1457,7 @@ static QList<PluginSpec *> createCppPluginsFromArchive(const FilePath &path)
 
     while (it.hasNext()) {
         it.next();
-        expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(
+        Result<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(
             FilePath::fromUserInput(it.filePath()));
         if (spec)
             results.push_back(spec->release());
@@ -1480,7 +1480,7 @@ QList<PluginSpec *> pluginSpecsFromArchive(const Utils::FilePath &path)
     return results;
 }
 
-expected_str<FilePaths> PluginSpec::filesToUninstall() const
+Result<FilePaths> PluginSpec::filesToUninstall() const
 {
     if (isSystemPlugin())
         return make_unexpected(Tr::tr("Cannot remove system plugins."));

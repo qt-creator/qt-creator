@@ -37,9 +37,9 @@ class Environment;
 enum class FileStreamHandle;
 
 template <class ...Args> using Continuation = std::function<void(Args...)>;
-using CopyContinuation = Continuation<const expected_str<void> &>;
-using ReadContinuation = Continuation<const expected_str<QByteArray> &>;
-using WriteContinuation = Continuation<const expected_str<qint64> &>;
+using CopyContinuation = Continuation<const Result<> &>;
+using ReadContinuation = Continuation<const Result<QByteArray> &>;
+using WriteContinuation = Continuation<const Result<qint64> &>;
 
 class QTCREATOR_UTILS_EXPORT FileFilter
 {
@@ -82,7 +82,7 @@ public:
 
     ~TemporaryFilePath();
 
-    static expected_str<std::unique_ptr<TemporaryFilePath>> create(const FilePath &templatePath);
+    static Result<std::unique_ptr<TemporaryFilePath>> create(const FilePath &templatePath);
 
     void setAutoRemove(bool autoDelete);
     bool autoRemove() const;
@@ -183,8 +183,8 @@ public:
     bool createDir() const;
     FilePaths dirEntries(const FileFilter &filter, QDir::SortFlags sort = QDir::NoSort) const;
     FilePaths dirEntries(QDir::Filters filters) const;
-    expected_str<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
-    expected_str<qint64> writeFileContents(const QByteArray &data) const;
+    Result<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
+    Result<qint64> writeFileContents(const QByteArray &data) const;
     FilePathInfo filePathInfo() const;
 
     [[nodiscard]] FilePath operator/(const QString &str) const;
@@ -215,7 +215,7 @@ public:
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePathFromDir(const FilePath &anchorDir) const;
     [[nodiscard]] Environment deviceEnvironment() const;
-    [[nodiscard]] expected_str<Environment> deviceEnvironmentWithError() const;
+    [[nodiscard]] Result<Environment> deviceEnvironmentWithError() const;
     [[nodiscard]] FilePaths devicePathEnvironmentVariable() const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     [[nodiscard]] FilePath withNewMappedPath(const FilePath &newPath) const;
@@ -260,8 +260,8 @@ public:
 
     std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
 
-    [[nodiscard]] expected_str<FilePath> tmpDir() const;
-    [[nodiscard]] expected_str<FilePath> createTempFile() const;
+    [[nodiscard]] Result<FilePath> tmpDir() const;
+    [[nodiscard]] Result<FilePath> createTempFile() const;
 
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
@@ -315,7 +315,7 @@ public:
     [[nodiscard]] static int schemeAndHostLength(const QStringView path);
 
     //! Returns a filepath the represents the same file on a local drive
-    expected_str<FilePath> localSource() const;
+    Result<FilePath> localSource() const;
 
     // FIXME: Avoid. See toSettings, toVariant, toUserOutput, toFSPathString, path, nativePath.
     QString toUrlishString() const;
@@ -325,7 +325,7 @@ public:
 
     bool equalsCaseSensitive(const FilePath &other) const;
 
-    Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch() const;
+    Utils::Result<std::unique_ptr<FilePathWatcher>> watch() const;
     void openTerminal(const Environment &env) const;
 
     FilePath intern() const;
@@ -364,12 +364,12 @@ private:
 class QTCREATOR_UTILS_EXPORT DeviceFileHooks
 {
 public:
-    std::function<expected_str<DeviceFileAccess *>(const FilePath &)> fileAccess;
+    std::function<Result<DeviceFileAccess *>(const FilePath &)> fileAccess;
     std::function<QString(const FilePath &)> deviceDisplayName;
     std::function<bool(const FilePath &, const FilePath &)> ensureReachable;
-    std::function<expected_str<Environment>(const FilePath &)> environment;
+    std::function<Result<Environment>(const FilePath &)> environment;
     std::function<bool(const FilePath &left, const FilePath &right)> isSameDevice;
-    std::function<expected_str<FilePath>(const FilePath &)> localSource;
+    std::function<Result<FilePath>(const FilePath &)> localSource;
     std::function<void(const FilePath &, const Environment &)> openTerminal;
     std::function<OsType(const FilePath &)> osType;
 

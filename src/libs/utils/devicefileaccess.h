@@ -71,16 +71,16 @@ protected:
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const;
 
-    virtual expected_str<QByteArray> fileContents(const FilePath &filePath,
+    virtual Result<QByteArray> fileContents(const FilePath &filePath,
                                                   qint64 limit,
                                                   qint64 offset) const;
 
-    virtual expected_str<qint64> writeFileContents(const FilePath &filePath,
+    virtual Result<qint64> writeFileContents(const FilePath &filePath,
                                                    const QByteArray &data) const;
 
-    virtual expected_str<FilePath> createTempFile(const FilePath &filePath);
+    virtual Result<FilePath> createTempFile(const FilePath &filePath);
 
-    virtual Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
+    virtual Utils::Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
 
     virtual QTextCodec *processStdOutCodec(const FilePath &executable) const;
     virtual QTextCodec *processStdErrCodec(const FilePath &executable) const;
@@ -133,16 +133,16 @@ protected:
             const FilePath::IterateDirCallback &callBack,
             const FileFilter &filter) const override;
 
-    expected_str<QByteArray> fileContents(const FilePath &filePath,
+    Result<QByteArray> fileContents(const FilePath &filePath,
                                           qint64 limit,
                                           qint64 offset) const override;
 
-    expected_str<qint64> writeFileContents(const FilePath &filePath,
+    Result<qint64> writeFileContents(const FilePath &filePath,
                                            const QByteArray &data) const override;
 
-    expected_str<FilePath> createTempFile(const FilePath &filePath) override;
+    Result<FilePath> createTempFile(const FilePath &filePath) override;
 
-    Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
+    Utils::Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
@@ -192,15 +192,15 @@ protected:
 
     Environment deviceEnvironment() const override;
 
-    expected_str<QByteArray> fileContents(const FilePath &filePath,
+    Result<QByteArray> fileContents(const FilePath &filePath,
                                           qint64 limit,
                                           qint64 offset) const override;
-    expected_str<qint64> writeFileContents(const FilePath &filePath,
+    Result<qint64> writeFileContents(const FilePath &filePath,
                                            const QByteArray &data) const override;
 
-    expected_str<FilePath> createTempFile(const FilePath &filePath) override;
+    Result<FilePath> createTempFile(const FilePath &filePath) override;
 
-    Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
+    Utils::Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
 
     QTextCodec *processStdOutCodec(const FilePath &executable) const override;
     QTextCodec *processStdErrCodec(const FilePath &executable) const override;
@@ -248,13 +248,13 @@ protected:
             const FileFilter &filter) const override;
 
     Environment deviceEnvironment() const override;
-    expected_str<QByteArray> fileContents(const FilePath &filePath,
+    Result<QByteArray> fileContents(const FilePath &filePath,
                                           qint64 limit,
                                           qint64 offset) const override;
-    expected_str<qint64> writeFileContents(const FilePath &filePath,
+    Result<qint64> writeFileContents(const FilePath &filePath,
                                            const QByteArray &data) const override;
 
-    expected_str<FilePath> createTempFile(const FilePath &filePath) override;
+    Result<FilePath> createTempFile(const FilePath &filePath) override;
 
     void findUsingLs(const QString &current,
                      const FileFilter &filter,

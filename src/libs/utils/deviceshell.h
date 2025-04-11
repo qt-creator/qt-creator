@@ -63,7 +63,7 @@ private:
 
     void onReadyRead();
 
-    expected_str<QByteArray> checkCommand(const QByteArray &command);
+    Result<QByteArray> checkCommand(const QByteArray &command);
 
 private:
     struct CommandRun : public RunResult

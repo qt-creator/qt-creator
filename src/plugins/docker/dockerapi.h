@@ -41,7 +41,7 @@ public:
     bool canConnect();
     void checkCanConnect(bool async = true);
     static void recheckDockerDaemon();
-    QFuture<Utils::expected_str<QList<Network>>> networks();
+    QFuture<Utils::Result<QList<Network>>> networks();
 
     bool isContainerRunning(const QString &containerId);
 

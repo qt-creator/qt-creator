@@ -101,7 +101,7 @@ private:
             return {};
 
         // Do not change \r\n as we have to deal with byte offsets.
-        if (expected_str<QByteArray> contents = FilePath::fromUserInput(filePath).fileContents())
+        if (Result<QByteArray> contents = FilePath::fromUserInput(filePath).fileContents())
             return *contents;
 
         return {};
@@ -176,11 +176,11 @@ private:
 
 } // namespace
 
-void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
+void parseDiagnostics(QPromise<Utils::Result<Diagnostics>> &promise,
                       const Utils::FilePath &logFilePath,
                       const AcceptDiagsFromFilePath &acceptFromFilePath)
 {
-    const Utils::expected_str<QByteArray> localFileContents = logFilePath.fileContents();
+    const Utils::Result<QByteArray> localFileContents = logFilePath.fileContents();
     if (!localFileContents.has_value()) {
         promise.addResult(Utils::make_unexpected(localFileContents.error()));
         promise.future().cancel();
@@ -255,10 +255,10 @@ void parseDiagnostics(QPromise<Utils::expected_str<Diagnostics>> &promise,
     }
 }
 
-Utils::expected_str<Diagnostics> readExportedDiagnostics(
+Utils::Result<Diagnostics> readExportedDiagnostics(
     const Utils::FilePath &logFilePath, const AcceptDiagsFromFilePath &acceptFromFilePath)
 {
-    QPromise<Utils::expected_str<Diagnostics>> promise;
+    QPromise<Utils::Result<Diagnostics>> promise;
     promise.start();
     parseDiagnostics(promise, logFilePath, acceptFromFilePath);
     return promise.future().result();

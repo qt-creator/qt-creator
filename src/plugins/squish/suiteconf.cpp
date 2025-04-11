@@ -79,7 +79,7 @@ static QMap<QString, QString> readSuiteConfContent(const Utils::FilePath &file)
     if (!file.isReadableFile())
         return {};
 
-    const Utils::expected_str<QByteArray> suiteConfContent = file.fileContents();
+    const Utils::Result<QByteArray> suiteConfContent = file.fileContents();
     if (!suiteConfContent)
         return {};
 
@@ -111,7 +111,7 @@ static bool writeSuiteConfContent(const Utils::FilePath &file, const QMap<QStrin
         else
             outData.append(it.key().toUtf8()).append('=').append(it.value().toUtf8()).append('\n');
     }
-    const Utils::expected_str<qint64> result = file.writeFileContents(outData);
+    const Utils::Result<qint64> result = file.writeFileContents(outData);
     QTC_ASSERT_EXPECTED(result, return false);
     return true;
 }

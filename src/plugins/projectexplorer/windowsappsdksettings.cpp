@@ -91,7 +91,7 @@ static bool isHttpRedirect(QNetworkReply *reply)
 // TODO: Make it a separate async task in a chain?
 static std::optional<QString> saveToDisk(const FilePath &filename, QIODevice *data)
 {
-    const expected_str<qint64> result = filename.writeFileContents(data->readAll());
+    const Result<qint64> result = filename.writeFileContents(data->readAll());
     if (!result) {
         return Tr::tr("Could not open \"%1\" for writing: %2.")
         .arg(filename.toUserOutput(), result.error());

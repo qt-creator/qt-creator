@@ -924,7 +924,7 @@ void ExternalToolConfig::addCategory()
 
 void ExternalToolConfig::updateEffectiveArguments()
 {
-    const expected_str<QString> result = Utils::globalMacroExpander()->expandProcessArgs(
+    const Result<QString> result = Utils::globalMacroExpander()->expandProcessArgs(
         m_arguments->text());
     if (result)
         m_arguments->setToolTip(*result);

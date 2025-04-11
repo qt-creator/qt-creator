@@ -82,9 +82,9 @@ void setupColor(TerminalSettings *settings,
     settings->registerAspect(&color);
 }
 
-static expected_str<void> loadXdefaults(const FilePath &path)
+static Result<> loadXdefaults(const FilePath &path)
 {
-    const expected_str<QByteArray> readResult = path.fileContents();
+    const Result<QByteArray> readResult = path.fileContents();
     if (!readResult)
         return make_unexpected(readResult.error());
 
@@ -113,7 +113,7 @@ static expected_str<void> loadXdefaults(const FilePath &path)
     return {};
 }
 
-static expected_str<void> loadItermColors(const FilePath &path)
+static Result<> loadItermColors(const FilePath &path)
 {
     QFile f(path.toFSPathString());
     const bool opened = f.open(QIODevice::ReadOnly);
@@ -183,9 +183,9 @@ static expected_str<void> loadItermColors(const FilePath &path)
     return {};
 }
 
-static expected_str<void> loadWindowsTerminalColors(const FilePath &path)
+static Result<> loadWindowsTerminalColors(const FilePath &path)
 {
-    const expected_str<QByteArray> readResult = path.fileContents();
+    const Result<QByteArray> readResult = path.fileContents();
     if (!readResult)
         return make_unexpected(readResult.error());
 
@@ -249,9 +249,9 @@ static expected_str<void> loadWindowsTerminalColors(const FilePath &path)
     return {};
 }
 
-static expected_str<void> loadVsCodeColors(const FilePath &path)
+static Result<> loadVsCodeColors(const FilePath &path)
 {
-    const expected_str<QByteArray> readResult = path.fileContents();
+    const Result<QByteArray> readResult = path.fileContents();
     if (!readResult)
         return make_unexpected(readResult.error());
 
@@ -320,9 +320,9 @@ static expected_str<void> loadVsCodeColors(const FilePath &path)
     return {};
 }
 
-static expected_str<void> loadKonsoleColorScheme(const FilePath &path)
+static Result<> loadKonsoleColorScheme(const FilePath &path)
 {
-    auto parseColor = [](const QStringList &parts) -> expected_str<QColor> {
+    auto parseColor = [](const QStringList &parts) -> Result<QColor> {
         if (parts.size() != 3 && parts.size() != 4)
             return make_unexpected(Tr::tr("Invalid color format."));
         int alpha = parts.size() == 4 ? parts[3].toInt() : 255;
@@ -375,9 +375,9 @@ static expected_str<void> loadKonsoleColorScheme(const FilePath &path)
     return {};
 }
 
-static expected_str<void> loadXFCE4ColorScheme(const FilePath &path)
+static Result<> loadXFCE4ColorScheme(const FilePath &path)
 {
-    expected_str<QByteArray> arr = path.fileContents();
+    Result<QByteArray> arr = path.fileContents();
     if (!arr)
         return make_unexpected(arr.error());
 
@@ -412,13 +412,13 @@ static expected_str<void> loadXFCE4ColorScheme(const FilePath &path)
     return {};
 }
 
-static expected_str<void> loadVsCodeOrWindows(const FilePath &path)
+static Result<> loadVsCodeOrWindows(const FilePath &path)
 {
     return loadVsCodeColors(path).or_else(
         [path](const auto &) { return loadWindowsTerminalColors(path); });
 }
 
-static expected_str<void> loadColorScheme(const FilePath &path)
+static Result<> loadColorScheme(const FilePath &path)
 {
     if (path.endsWith("Xdefaults"))
         return loadXdefaults(path);
@@ -595,7 +595,7 @@ TerminalSettings::TerminalSettings()
             if (path.isEmpty())
                 return;
 
-            const expected_str<void> result = loadColorScheme(path);
+            const Result<> result = loadColorScheme(path);
             if (!result)
                 QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Error"), result.error());
         });

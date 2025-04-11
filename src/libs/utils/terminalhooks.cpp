@@ -12,12 +12,12 @@
 
 namespace Utils::Terminal {
 
-expected_str<FilePath> defaultShellForDevice(const FilePath &deviceRoot)
+Result<FilePath> defaultShellForDevice(const FilePath &deviceRoot)
 {
     if (deviceRoot.osType() == OsTypeWindows)
         return deviceRoot.withNewPath("cmd.exe").searchInPath();
 
-    const expected_str<Environment> env = deviceRoot.deviceEnvironmentWithError();
+    const Result<Environment> env = deviceRoot.deviceEnvironmentWithError();
     if (!env)
         return make_unexpected(env.error());
 

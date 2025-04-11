@@ -371,7 +371,7 @@ void AndroidConfigData::parseDependenciesJson()
         sdkConfigFile.copyFile(sdkConfigUserFile);
     }
 
-    const expected_str<QByteArray> result = sdkConfigUserFile.fileContents();
+    const Result<QByteArray> result = sdkConfigUserFile.fileContents();
     if (!result) {
         qCDebug(
             avdConfigLog,
@@ -851,7 +851,7 @@ QVersionNumber ndkVersion(const FilePath &ndkPath)
     } else {
         // No source.properties. There should be a file named RELEASE.TXT
         const FilePath ndkReleaseTxtPath = ndkPath.pathAppended("RELEASE.TXT");
-        const expected_str<QByteArray> content = ndkReleaseTxtPath.fileContents();
+        const Result<QByteArray> content = ndkReleaseTxtPath.fileContents();
         if (content) {
             // RELEASE.TXT contains the ndk version in either of the following formats:
             // r6a

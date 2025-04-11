@@ -236,7 +236,7 @@ void tst_PluginSpec::experimental()
 
 void tst_PluginSpec::locationAndPath()
 {
-    Utils::expected_str<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
+    Utils::Result<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
         PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
     QVERIFY_EXPECTED(ps);
     CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps->get());
@@ -290,7 +290,7 @@ void tst_PluginSpec::resolveDependencies()
 
 void tst_PluginSpec::loadLibrary()
 {
-    Utils::expected_str<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
+    Utils::Result<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
         PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
 
     QVERIFY_EXPECTED(ps);
@@ -308,7 +308,7 @@ void tst_PluginSpec::loadLibrary()
 
 void tst_PluginSpec::initializePlugin()
 {
-    Utils::expected_str<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
+    Utils::Result<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
         PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
     QVERIFY_EXPECTED(ps);
     CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps->get());
@@ -332,7 +332,7 @@ void tst_PluginSpec::initializePlugin()
 
 void tst_PluginSpec::initializeExtensions()
 {
-    Utils::expected_str<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
+    Utils::Result<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
         PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
     QVERIFY_EXPECTED(ps);
     CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps->get());

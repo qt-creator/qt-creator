@@ -1379,7 +1379,7 @@ QString EffectComposerModel::addNodeToLibraryNode(int idx)
     QJsonObject nodeObject = nodeToJson(*node);
     rootObj.insert("QEN", nodeObject);
     QJsonDocument jsonDoc(rootObj);
-    Utils::expected_str<qint64> result = qenFile.writeFileContents(jsonDoc.toJson());
+    Utils::Result<qint64> result = qenFile.writeFileContents(jsonDoc.toJson());
     if (!result)
         return errorTag + Tr::tr("Failed to write QEN file for effect:\n%1").arg(qenFile.fileName());
 

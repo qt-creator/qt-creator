@@ -16,7 +16,7 @@ const char TERMINAL_SHELL_NAME[] = "Terminal.ShellName";
 class StubCreator : public QObject
 {
 public:
-    virtual expected_str<qint64> startStubProcess(const ProcessSetupData &setup) = 0;
+    virtual Result<qint64> startStubProcess(const ProcessSetupData &setup) = 0;
 };
 
 class QTCREATOR_UTILS_EXPORT TerminalInterface : public ProcessInterface
@@ -46,7 +46,7 @@ protected:
     void killInferiorProcess();
     void killStubProcess();
 
-    expected_str<void> startStubServer();
+    Result<> startStubServer();
     void shutdownStubServer();
     void cleanupAfterStartFailure(const QString &errorMessage);
 

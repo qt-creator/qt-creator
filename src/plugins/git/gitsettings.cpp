@@ -175,7 +175,7 @@ GitSettings::GitSettings()
     readSettings();
 }
 
-expected_str<FilePath> GitSettings::gitExecutable() const
+Result<FilePath> GitSettings::gitExecutable() const
 {
     if (tryResolve) {
         resolvedBinPath = binaryPath();

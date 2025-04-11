@@ -685,7 +685,7 @@ FilePath ICore::clangIncludeDirectory(const QString &clangVersion,
 /*!
     \internal
 */
-static expected_str<FilePath> clangBinary(
+static Result<FilePath> clangBinary(
     const QString &binaryBaseName, const FilePath &clangBinDirectory)
 {
     FilePath executable =
@@ -711,7 +711,7 @@ static expected_str<FilePath> clangBinary(
 /*!
     \internal
 */
-expected_str<FilePath> ICore::clangExecutable(const FilePath &clangBinDirectory)
+Result<FilePath> ICore::clangExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clang", clangBinDirectory);
 }
@@ -719,7 +719,7 @@ expected_str<FilePath> ICore::clangExecutable(const FilePath &clangBinDirectory)
 /*!
     \internal
 */
-expected_str<FilePath> ICore::clangdExecutable(const FilePath &clangBinDirectory)
+Result<FilePath> ICore::clangdExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clangd", clangBinDirectory);
 }
@@ -727,7 +727,7 @@ expected_str<FilePath> ICore::clangdExecutable(const FilePath &clangBinDirectory
 /*!
     \internal
 */
-expected_str<FilePath> ICore::clangTidyExecutable(const FilePath &clangBinDirectory)
+Result<FilePath> ICore::clangTidyExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clang-tidy", clangBinDirectory);
 }
@@ -735,7 +735,7 @@ expected_str<FilePath> ICore::clangTidyExecutable(const FilePath &clangBinDirect
 /*!
     \internal
 */
-expected_str<FilePath> ICore::clazyStandaloneExecutable(const FilePath &clangBinDirectory)
+Result<FilePath> ICore::clazyStandaloneExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clazy-standalone", clangBinDirectory);
 }
@@ -743,7 +743,7 @@ expected_str<FilePath> ICore::clazyStandaloneExecutable(const FilePath &clangBin
 /*!
     \internal
  */
-expected_str<FilePath> ICore::lldbExecutable(const Utils::FilePath &lldbBinDirectory)
+Result<FilePath> ICore::lldbExecutable(const Utils::FilePath &lldbBinDirectory)
 {
     return clangBinary("lldb", lldbBinDirectory);
 }

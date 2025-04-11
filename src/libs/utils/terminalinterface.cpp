@@ -199,7 +199,7 @@ void TerminalInterface::onStubReadyRead()
     }
 }
 
-expected_str<void> TerminalInterface::startStubServer()
+Result<> TerminalInterface::startStubServer()
 {
     if (HostOsInfo::isWindowsHost()) {
         if (d->stubServer.listen(QString::fromLatin1("creator-%1-%2")
@@ -310,7 +310,7 @@ void TerminalInterface::start()
         return;
 
     if (m_setup.m_terminalMode == TerminalMode::Detached) {
-        expected_str<qint64> result;
+        Result<qint64> result;
         QMetaObject::invokeMethod(
             d->stubCreator,
             [this, &result] { result = d->stubCreator->startStubProcess(m_setup); },
@@ -326,7 +326,7 @@ void TerminalInterface::start()
         return;
     }
 
-    const expected_str<void> result = startStubServer();
+    const Result<> result = startStubServer();
     if (!result) {
         emitError(QProcess::FailedToStart, msgCommChannelFailed(result.error()));
         return;

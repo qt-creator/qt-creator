@@ -63,14 +63,14 @@ EnvironmentItems QnxUtils::qnxEnvironmentFromEnvFile(const FilePath &filePath)
     const bool isWindows = filePath.osType() == Utils::OsTypeWindows;
 
     // locking creating sdp-env file wrapper script
-    const expected_str<FilePath> tmpPath = filePath.tmpDir();
+    const Result<FilePath> tmpPath = filePath.tmpDir();
     if (!tmpPath)
         return {}; // make_unexpected(tmpPath.error());
 
     const QString tmpName = "sdp-env-eval-XXXXXX" + QLatin1String(isWindows ? ".bat" : "");
     const FilePath pattern = *tmpPath / tmpName;
 
-    const expected_str<FilePath> tmpFile = pattern.createTempFile();
+    const Result<FilePath> tmpFile = pattern.createTempFile();
     if (!tmpFile)
         return {}; // make_unexpected(tmpFile.error());
 

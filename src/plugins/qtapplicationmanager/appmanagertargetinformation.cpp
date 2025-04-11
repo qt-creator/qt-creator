@@ -71,7 +71,7 @@ QList<TargetInformation> TargetInformation::readFromProject(
         };
 
         try {
-            const Utils::expected_str<QByteArray> localFileContents = manifestFilePath.fileContents();
+            const Utils::Result<QByteArray> localFileContents = manifestFilePath.fileContents();
             if (!localFileContents.has_value())
                 throw std::runtime_error("Invalid empty file");
 

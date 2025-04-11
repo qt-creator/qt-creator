@@ -61,8 +61,8 @@ struct ClientPrivate
 
     QMap<int, std::shared_ptr<QPromise<FilePath>>> watchers;
 
-    expected_str<void> readPacket(QCborStreamReader &reader);
-    std::optional<expected_str<void>> handleWatchResults(const QVariantMap &map);
+    Result<> readPacket(QCborStreamReader &reader);
+    std::optional<Result<>> handleWatchResults(const QVariantMap &map);
 };
 
 QString decodeString(QCborStreamReader &reader)
@@ -170,7 +170,7 @@ static QVariant readVariant(QCborStreamReader &reader)
     return result;
 }
 
-std::optional<expected_str<void>> ClientPrivate::handleWatchResults(const QVariantMap &map)
+std::optional<Result<>> ClientPrivate::handleWatchResults(const QVariantMap &map)
 {
     const QString type = map.value("Type").toString();
     if (type == "watchEvent") {
@@ -184,17 +184,17 @@ std::optional<expected_str<void>> ClientPrivate::handleWatchResults(const QVaria
         if (!promise->isCanceled())
             promise->addResult(FilePath::fromUserInput(map.value("Path").toString()));
 
-        return expected_str<void>{};
+        return Result<>{};
     } else if (type == "removewatchresult") {
         auto id = map.value("Id").toInt();
         watchers.remove(id);
-        return expected_str<void>{};
+        return Result<>{};
     }
 
     return std::nullopt;
 }
 
-expected_str<void> ClientPrivate::readPacket(QCborStreamReader &reader)
+Result<> ClientPrivate::readPacket(QCborStreamReader &reader)
 {
     if (!reader.enterContainer())
         return make_unexpected(QString("The packet did not contain a container"));
@@ -414,7 +414,7 @@ enum class Errors {
 };
 
 template<class R>
-static Utils::expected_str<QFuture<R>> createJob(
+static Utils::Result<QFuture<R>> createJob(
     Internal::ClientPrivate *d,
     QCborMap args,
     const std::function<JobResult(QVariantMap map, QPromise<R> &promise)> &resultFunc,
@@ -471,7 +471,7 @@ static Utils::expected_str<QFuture<R>> createJob(
     return future;
 }
 
-static Utils::expected_str<QFuture<void>> createVoidJob(
+static Utils::Result<QFuture<void>> createVoidJob(
     Internal::ClientPrivate *d, const QCborMap &args, const QString &resulttype)
 {
     return createJob<void>(d, args, [resulttype](QVariantMap map, QPromise<void> &promise) {
@@ -481,7 +481,7 @@ static Utils::expected_str<QFuture<void>> createVoidJob(
     });
 }
 
-expected_str<QFuture<Client::ExecResult>> Client::execute(
+Result<QFuture<Client::ExecResult>> Client::execute(
     const Utils::CommandLine &cmdLine, const Utils::Environment &env, const QByteArray &stdIn)
 {
     QCborMap execArgs = QCborMap{
@@ -510,7 +510,7 @@ expected_str<QFuture<Client::ExecResult>> Client::execute(
     });
 }
 
-expected_str<QFuture<Client::FindData>> Client::find(
+Result<QFuture<Client::FindData>> Client::find(
     const QString &directory, const Utils::FileFilter &filter)
 {
     // TODO: golang's walkDir does not support automatically following symlinks.
@@ -579,7 +579,7 @@ expected_str<QFuture<Client::FindData>> Client::find(
         Errors::DontHandle);
 }
 
-Utils::expected_str<QFuture<QString>> Client::readlink(const QString &path)
+Utils::Result<QFuture<QString>> Client::readlink(const QString &path)
 {
     return createJob<QString>(
         d.get(),
@@ -592,7 +592,7 @@ Utils::expected_str<QFuture<QString>> Client::readlink(const QString &path)
         });
 }
 
-Utils::expected_str<QFuture<QString>> Client::fileId(const QString &path)
+Utils::Result<QFuture<QString>> Client::fileId(const QString &path)
 {
     return createJob<QString>(
         d.get(),
@@ -605,7 +605,7 @@ Utils::expected_str<QFuture<QString>> Client::fileId(const QString &path)
         });
 }
 
-Utils::expected_str<QFuture<quint64>> Client::freeSpace(const QString &path)
+Utils::Result<QFuture<quint64>> Client::freeSpace(const QString &path)
 {
     return createJob<quint64>(
         d.get(),
@@ -617,7 +617,7 @@ Utils::expected_str<QFuture<quint64>> Client::freeSpace(const QString &path)
         });
 }
 
-Utils::expected_str<QFuture<QByteArray>> Client::readFile(
+Utils::Result<QFuture<QByteArray>> Client::readFile(
     const QString &path, qint64 limit, qint64 offset)
 {
     return createJob<QByteArray>(
@@ -638,7 +638,7 @@ Utils::expected_str<QFuture<QByteArray>> Client::readFile(
         });
 }
 
-Utils::expected_str<QFuture<qint64>> Client::writeFile(
+Utils::Result<QFuture<qint64>> Client::writeFile(
     const QString &path, const QByteArray &contents)
 {
     return createJob<qint64>(
@@ -657,17 +657,17 @@ Utils::expected_str<QFuture<qint64>> Client::writeFile(
         });
 }
 
-Utils::expected_str<QFuture<void>> Client::removeFile(const QString &path)
+Utils::Result<QFuture<void>> Client::removeFile(const QString &path)
 {
     return createVoidJob(d.get(), QCborMap{{"Type", "remove"}, {"Path", path}}, "removeresult");
 }
 
-Utils::expected_str<QFuture<void>> Client::removeRecursively(const QString &path)
+Utils::Result<QFuture<void>> Client::removeRecursively(const QString &path)
 {
     return createVoidJob(d.get(), QCborMap{{"Type", "removeall"}, {"Path", path}}, "removeallresult");
 }
 
-Utils::expected_str<QFuture<void>> Client::ensureExistingFile(const QString &path)
+Utils::Result<QFuture<void>> Client::ensureExistingFile(const QString &path)
 {
     return createVoidJob(
         d.get(),
@@ -675,12 +675,12 @@ Utils::expected_str<QFuture<void>> Client::ensureExistingFile(const QString &pat
         "ensureexistingfileresult");
 }
 
-Utils::expected_str<QFuture<void>> Client::createDir(const QString &path)
+Utils::Result<QFuture<void>> Client::createDir(const QString &path)
 {
     return createVoidJob(d.get(), QCborMap{{"Type", "createdir"}, {"Path", path}}, "createdirresult");
 }
 
-Utils::expected_str<QFuture<void>> Client::copyFile(const QString &source, const QString &target)
+Utils::Result<QFuture<void>> Client::copyFile(const QString &source, const QString &target)
 {
     return createVoidJob(
         d.get(),
@@ -691,7 +691,7 @@ Utils::expected_str<QFuture<void>> Client::copyFile(const QString &source, const
         "copyfileresult");
 }
 
-Utils::expected_str<QFuture<void>> Client::renameFile(const QString &source, const QString &target)
+Utils::Result<QFuture<void>> Client::renameFile(const QString &source, const QString &target)
 {
     return createVoidJob(
         d.get(),
@@ -702,7 +702,7 @@ Utils::expected_str<QFuture<void>> Client::renameFile(const QString &source, con
         "renamefileresult");
 }
 
-Utils::expected_str<QFuture<FilePath>> Client::createTempFile(const QString &path)
+Utils::Result<QFuture<FilePath>> Client::createTempFile(const QString &path)
 {
     return createJob<FilePath>(
         d.get(),
@@ -745,7 +745,7 @@ constexpr int toUnixChmod(QFileDevice::Permissions permissions)
     return mode;
 }
 
-Utils::expected_str<QFuture<void>> Client::setPermissions(
+Utils::Result<QFuture<void>> Client::setPermissions(
     const QString &path, QFile::Permissions perms)
 {
     int p = toUnixChmod(perms);
@@ -791,7 +791,7 @@ void Client::stopWatch(int id)
     });
 }
 
-Utils::expected_str<std::unique_ptr<FilePathWatcher>> Client::watch(const QString &path)
+Utils::Result<std::unique_ptr<FilePathWatcher>> Client::watch(const QString &path)
 {
     auto jobResult = createJob<GoFilePathWatcher::Watch>(
         d.get(),
@@ -827,7 +827,7 @@ Utils::expected_str<std::unique_ptr<FilePathWatcher>> Client::watch(const QStrin
     }
 }
 
-Utils::expected_str<QFuture<void>> Client::signalProcess(int pid, Utils::ControlSignal signal)
+Utils::Result<QFuture<void>> Client::signalProcess(int pid, Utils::ControlSignal signal)
 {
     QString signalString;
     switch (signal) {
@@ -857,7 +857,7 @@ bool Client::exit()
     try {
         createVoidJob(d.get(), QCborMap{{"Type", "exit"}}, "exitres").and_then([](auto future) {
             future.waitForFinished();
-            return expected_str<void>();
+            return Result<>();
         });
         return true;
     } catch (const std::runtime_error &e) {
@@ -875,7 +875,7 @@ bool Client::exit()
     }
 }
 
-Utils::expected_str<QFuture<Client::Stat>> Client::stat(const QString &path)
+Utils::Result<QFuture<Client::Stat>> Client::stat(const QString &path)
 {
     return createJob<Stat>(
         d.get(),
@@ -897,7 +897,7 @@ Utils::expected_str<QFuture<Client::Stat>> Client::stat(const QString &path)
         });
 }
 
-expected_str<QFuture<bool>> Client::is(const QString &path, Is is)
+Result<QFuture<bool>> Client::is(const QString &path, Is is)
 {
     return createJob<bool>(
         d.get(),
@@ -911,7 +911,7 @@ expected_str<QFuture<bool>> Client::is(const QString &path, Is is)
         });
 }
 
-expected_str<FilePath> Client::getCmdBridgePath(
+Result<FilePath> Client::getCmdBridgePath(
     OsType osType, OsArch osArch, const FilePath &libExecPath)
 {
     static const QMap<OsType, QString> typeToString = {

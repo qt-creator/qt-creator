@@ -137,7 +137,7 @@ GroupItem createDeviceCtlDeployTask(
                          Task::Error);
             return DoneResult::Error;
         }
-        const Utils::expected_str<QJsonValue> resultValue = parseDevicectlResult(
+        const Utils::Result<QJsonValue> resultValue = parseDevicectlResult(
             process.rawStdOut());
         if (resultValue) {
             // success

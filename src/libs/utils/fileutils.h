@@ -66,7 +66,7 @@ QTCREATOR_UTILS_EXPORT QString normalizedPathName(const QString &name);
 QTCREATOR_UTILS_EXPORT FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
 QTCREATOR_UTILS_EXPORT FilePath commonPath(const FilePaths &paths);
 QTCREATOR_UTILS_EXPORT FilePath homePath();
-QTCREATOR_UTILS_EXPORT expected_str<FilePath> scratchBufferFilePath(const QString &pattern);
+QTCREATOR_UTILS_EXPORT Result<FilePath> scratchBufferFilePath(const QString &pattern);
 
 QTCREATOR_UTILS_EXPORT FilePaths toFilePathList(const QStringList &paths);
 

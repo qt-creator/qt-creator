@@ -3793,7 +3793,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
         && !buildDevice->ensureReachable(workingDir))
         workingDir.clear();
 
-    const expected_str<FilePath> shell = Terminal::defaultShellForDevice(buildDevice->rootPath());
+    const Result<FilePath> shell = Terminal::defaultShellForDevice(buildDevice->rootPath());
 
     if (!shell) {
         Core::MessageManager::writeDisrupting(
@@ -3832,7 +3832,7 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
     if (!device->filePath(workingDir.path()).exists() && !device->ensureReachable(workingDir))
         workingDir.clear();
 
-    const expected_str<FilePath> shell = Terminal::defaultShellForDevice(device->rootPath());
+    const Result<FilePath> shell = Terminal::defaultShellForDevice(device->rootPath());
 
     if (!shell) {
         Core::MessageManager::writeDisrupting(

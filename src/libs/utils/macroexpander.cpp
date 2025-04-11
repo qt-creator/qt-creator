@@ -415,7 +415,7 @@ QVariant MacroExpander::expandVariant(const QVariant &v) const
     return v;
 }
 
-expected_str<QString> MacroExpander::expandProcessArgs(
+Result<QString> MacroExpander::expandProcessArgs(
     const QString &argsWithVariables, Utils::OsType osType) const
 {
     QString result = argsWithVariables;

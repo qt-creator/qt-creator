@@ -67,7 +67,7 @@ static std::optional<QDomElement> documentElement(const FilePath &fileName)
         return {};
     }
 
-    const expected_str<QByteArray> result = fileName.fileContents();
+    const Result<QByteArray> result = fileName.fileContents();
     if (!result) {
         MessageManager::writeDisrupting(Tr::tr("Cannot open \"%1\".")
                                             .arg(fileName.toUserOutput())
@@ -110,7 +110,7 @@ QString packageName(const BuildConfiguration *bc)
     };
 
     const FilePath androidBuildDir = androidBuildDirectory(bc);
-    const expected_str<QByteArray> gradleContents = androidBuildDir.pathAppended("build.gradle")
+    const Result<QByteArray> gradleContents = androidBuildDir.pathAppended("build.gradle")
                                                         .fileContents();
     if (gradleContents) {
         const auto lines = gradleContents->split('\n');
@@ -274,7 +274,7 @@ QJsonObject deploymentSettings(const Kit *k)
 
 bool isQtCreatorGenerated(const FilePath &deploymentFile)
 {
-    const expected_str<QByteArray> result = deploymentFile.fileContents();
+    const Result<QByteArray> result = deploymentFile.fileContents();
     if (!result)
         return false;
     return QJsonDocument::fromJson(*result).object()["_description"].toString() == qtcSignature;

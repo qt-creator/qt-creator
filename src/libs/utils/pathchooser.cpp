@@ -612,14 +612,14 @@ FancyLineEdit::AsyncValidationFunction PathChooser::defaultValidationFunction() 
 {
     return [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
         if (text.isEmpty()) {
-            return QtFuture::makeReadyFuture((Utils::expected_str<QString>(
+            return QtFuture::makeReadyFuture((Utils::Result<QString>(
                 make_unexpected(Tr::tr("The path must not be empty.")))));
         }
 
         const FilePath expanded = d->expandedPath(FilePath::fromUserInput(text));
 
         if (expanded.isEmpty()) {
-            return QtFuture::makeReadyFuture((Utils::expected_str<QString>(
+            return QtFuture::makeReadyFuture((Utils::Result<QString>(
                 make_unexpected(Tr::tr("The path \"%1\" expanded to an empty string.")
                                     .arg(expanded.toUserOutput())))));
         }

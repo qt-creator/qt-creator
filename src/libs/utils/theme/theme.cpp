@@ -356,7 +356,7 @@ void Theme::setHelpMenu(QMenu *menu)
 #endif
 }
 
-expected_str<Theme::Color> Theme::colorToken(const QString &tokenName,
+Result<Theme::Color> Theme::colorToken(const QString &tokenName,
                                              [[maybe_unused]] TokenFlags flags)
 {
     const QString colorName = "Token_" + tokenName;

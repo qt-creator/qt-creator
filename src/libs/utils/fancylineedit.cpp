@@ -626,7 +626,7 @@ void FancyLineEdit::validate()
 
         QString error;
         const bool validates = validationFunction(this, &error);
-        expected_str<QString> result;
+        Result<QString> result;
 
         if (validates)
             result = t;

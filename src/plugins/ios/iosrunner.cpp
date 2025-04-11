@@ -215,7 +215,7 @@ static GroupItem findApp(RunControl *runControl, const Storage<AppInfo> &appInfo
                                     ErrorMessageFormat);
             return DoneResult::Error;
         }
-        const expected_str<QUrl> pathOnDevice = parseAppInfo(process.rawStdOut(), appInfo->bundleIdentifier);
+        const Result<QUrl> pathOnDevice = parseAppInfo(process.rawStdOut(), appInfo->bundleIdentifier);
         if (pathOnDevice) {
             appInfo->pathOnDevice = *pathOnDevice;
             return DoneResult::Success;
@@ -247,7 +247,7 @@ static GroupItem findProcess(RunControl *runControl, const Storage<AppInfo> &app
         return SetupResult::Continue;
     };
     const auto onDone = [runControl, appInfo](const Process &process) {
-        const Utils::expected_str<qint64> pid = parseProcessIdentifier(process.rawStdOut());
+        const Utils::Result<qint64> pid = parseProcessIdentifier(process.rawStdOut());
         if (pid) {
             appInfo->processIdentifier = *pid;
             return DoneResult::Success;
@@ -312,7 +312,7 @@ GroupItem DeviceCtlPollingRunner::launchTask(const Storage<AppInfo> &appInfo)
             reportFailure(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()));
             return DoneResult::Error;
         }
-        const Utils::expected_str<qint64> pid = parseLaunchResult(process.rawStdOut());
+        const Utils::Result<qint64> pid = parseLaunchResult(process.rawStdOut());
         if (pid) {
             m_processIdentifier = *pid;
             runControl()->setAttachPid(ProcessHandle(m_processIdentifier));
@@ -397,7 +397,7 @@ void DeviceCtlPollingRunner::stop()
             reportFailure(Tr::tr("Failed to run devicectl: %1.").arg(process.errorString()));
             return DoneResult::Error;
         }
-        const Utils::expected_str<QJsonValue> resultValue = parseDevicectlResult(
+        const Utils::Result<QJsonValue> resultValue = parseDevicectlResult(
             process.rawStdOut());
         if (!resultValue) {
             reportFailure(resultValue.error());
@@ -433,7 +433,7 @@ void DeviceCtlPollingRunner::checkProcess()
         return SetupResult::Continue;
     };
     const auto onDone = [this](const Process &process) {
-        const Utils::expected_str<QJsonValue> resultValue = parseDevicectlResult(
+        const Utils::Result<QJsonValue> resultValue = parseDevicectlResult(
             process.rawStdOut());
         if (!resultValue || (*resultValue)["runningProcesses"].toArray().size() < 1) {
             // no process with processIdentifier found, or some error occurred, device disconnected
@@ -764,7 +764,7 @@ Port IosRunner::gdbServerPort() const
     return m_gdbServerPort;
 }
 
-static expected_str<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
+static Result<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
 {
     const QString osVersion = dev->osVersion();
     const QString productType = dev->productType();
@@ -897,7 +897,7 @@ static RunWorker *createWorker(RunControl *runControl)
             rp.setStartMode(AttachToRemoteProcess);
         }
         rp.setLldbPlatform("remote-ios");
-        const expected_str<FilePath> deviceSdk = findDeviceSdk(dev);
+        const Result<FilePath> deviceSdk = findDeviceSdk(dev);
 
         if (!deviceSdk)
             TaskHub::addTask(DeploymentTask(Task::Warning, deviceSdk.error()));

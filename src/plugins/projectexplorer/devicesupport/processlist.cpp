@@ -87,7 +87,7 @@ void ProcessList::update()
 
     using namespace Tasking;
 
-    using ProcessListResult = expected_str<QList<ProcessInfo>>;
+    using ProcessListResult = Result<QList<ProcessInfo>>;
 
     auto setupListFetcher = [this](Async<ProcessListResult> &async) {
         async.setConcurrentCallData(&ProcessInfo::processInfoList, d->device->rootPath());

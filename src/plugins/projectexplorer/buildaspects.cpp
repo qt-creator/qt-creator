@@ -55,14 +55,14 @@ BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
 
         const QString problem = updateProblemLabelsHelper(text);
         if (!problem.isEmpty())
-            return QtFuture::makeReadyFuture(expected_str<QString>(make_unexpected(problem)));
+            return QtFuture::makeReadyFuture(Result<QString>(make_unexpected(problem)));
 
         const FilePath newPath = FilePath::fromUserInput(text);
         const auto buildDevice = BuildDeviceKitAspect::device(buildConfiguration()->kit());
 
         if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !buildDevice->rootPath().ensureReachable(newPath)) {
-            return QtFuture::makeReadyFuture((Utils::expected_str<QString>(make_unexpected(
+            return QtFuture::makeReadyFuture((Utils::Result<QString>(make_unexpected(
                 Tr::tr("The build directory is not reachable from the build device.")))));
         }
 

@@ -1020,7 +1020,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
             qmlRootPath = project()->rootProjectDirectory().path();
         deploySettings["qml-root-path"] = qmlRootPath;
 
-        const expected_str<qint64> result = m_inputFile.writeFileContents(QJsonDocument{deploySettings}.toJson());
+        const Result<qint64> result = m_inputFile.writeFileContents(QJsonDocument{deploySettings}.toJson());
         if (!result) {
             reportWarningOrError(
                 Tr::tr("Cannot open androiddeployqt input file \"%1\" for writing.")
@@ -1073,7 +1073,7 @@ void AndroidBuildApkStep::reportWarningOrError(const QString &message, Task::Tas
 
 void AndroidBuildApkStep::updateBuildToolsVersionInJsonFile()
 {
-    expected_str<QByteArray> contents = m_inputFile.fileContents();
+    Result<QByteArray> contents = m_inputFile.fileContents();
     if (!contents)
         return;
 

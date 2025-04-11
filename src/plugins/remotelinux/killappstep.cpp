@@ -28,7 +28,7 @@ public:
     {
         setWidgetExpandedByDefault(false);
 
-        setInternalInitializer([this]() -> expected_str<void> {
+        setInternalInitializer([this]() -> Result<> {
             BuildConfiguration * const bc = buildConfiguration();
             QTC_ASSERT(bc, return make_unexpected(QString()));
             RunConfiguration * const rc = bc->activeRunConfiguration();

@@ -201,7 +201,7 @@ public:
     DisplayName m_unexpandedDisplayName;
 
     std::optional<QtVersionData> m_data;
-    QFuture<expected_str<QtVersionData>> m_dataFuture;
+    QFuture<Result<QtVersionData>> m_dataFuture;
 
     bool m_mkspecUpToDate = false;
     bool m_mkspecReadUpToDate = false;
@@ -1258,7 +1258,7 @@ QVersionNumber QtVersion::qtVersion() const
     return QVersionNumber::fromString(qtVersionString());
 }
 
-expected_str<QtVersionData> dataForQMake(const FilePath m_qmakeCommand, const Environment env)
+Result<QtVersionData> dataForQMake(const FilePath m_qmakeCommand, const Environment env)
 {
     QtVersionData data;
 
@@ -1331,7 +1331,7 @@ QtVersionData &QtVersionPrivate::data()
         if (m_dataFuture.isRunning())
             m_dataFuture.waitForFinished();
 
-        const expected_str<QtVersionData> data = m_dataFuture.result();
+        const Result<QtVersionData> data = m_dataFuture.result();
         m_qmakeIsExecutable = data.has_value();
         if (!data.has_value()) {
             Core::MessageManager::writeFlashing(data.error());

@@ -39,13 +39,13 @@ public:
     QStringList categoryOrder;
 };
 
-QTSUPPORT_TEST_EXPORT Utils::expected_str<ParsedExamples> parseExamples(
+QTSUPPORT_TEST_EXPORT Utils::Result<ParsedExamples> parseExamples(
     const Utils::FilePath &manifest,
     const Utils::FilePath &examplesInstallPath,
     const Utils::FilePath &demosInstallPath,
     bool examples);
 
-QTSUPPORT_TEST_EXPORT Utils::expected_str<ParsedExamples> parseExamples(
+QTSUPPORT_TEST_EXPORT Utils::Result<ParsedExamples> parseExamples(
     const QByteArray &manifestData,
     const Utils::FilePath &manifestPath,
     const Utils::FilePath &examplesInstallPath,

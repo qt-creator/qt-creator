@@ -120,7 +120,7 @@ public:
     Data *m_data = nullptr;
 };
 
-using CheckResult = expected_str<PluginSpec *>;
+using CheckResult = Result<PluginSpec *>;
 
 static Result<> checkPlugin(PluginSpec *spec, bool update)
 {
@@ -140,8 +140,8 @@ static Result<> checkPlugin(PluginSpec *spec, bool update)
     return ResultOk;
 }
 
-static expected_str<std::unique_ptr<PluginSpec>> checkPlugin(
-    expected_str<std::unique_ptr<PluginSpec>> spec, bool update)
+static Result<std::unique_ptr<PluginSpec>> checkPlugin(
+    Result<std::unique_ptr<PluginSpec>> spec, bool update)
 {
     if (!spec)
         return spec;
@@ -213,7 +213,7 @@ public:
         emit completeChanged();
         if (hasLibSuffix(m_data->sourcePath)) {
             m_cancelButton->setVisible(false);
-            expected_str<std::unique_ptr<PluginSpec>> spec
+            Result<std::unique_ptr<PluginSpec>> spec
                 = checkPlugin(readCppPluginSpec(m_data->sourcePath), m_data->prepareForUpdate);
             if (!spec) {
                 m_label->setType(InfoLabel::Error);
@@ -275,7 +275,7 @@ public:
             return SetupResult::Continue;
         };
         const auto onCheckerDone = [this](const Async<CheckResult> &async) {
-            expected_str<PluginSpec *> result = async.result();
+            Result<PluginSpec *> result = async.result();
             if (!result) {
                 m_label->setType(InfoLabel::Error);
                 m_label->setText(result.error());

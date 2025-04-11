@@ -175,10 +175,10 @@ Result<> DeviceShell::start()
     // Moving the process into its own thread ...
     m_shellProcess->moveToThread(&m_thread);
 
-    expected_str<void> result;
+    Result<> result;
     QMetaObject::invokeMethod(
         m_shellProcess.get(),
-        [this]() -> expected_str<void> {
+        [this]() -> Result<> {
             qCDebug(deviceShellLog)
                 << "Starting shell process:" << m_shellProcess->commandLine().toUserOutput();
             m_shellProcess->start();
@@ -229,7 +229,7 @@ Result<> DeviceShell::start()
     return result;
 }
 
-expected_str<QByteArray> DeviceShell::checkCommand(const QByteArray &command)
+Result<QByteArray> DeviceShell::checkCommand(const QByteArray &command)
 {
     const QByteArray checkCmd = "(type " + command + " || echo '<missing>')\n";
 

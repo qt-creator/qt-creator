@@ -1085,7 +1085,7 @@ void tst_Process::recursiveCrashingProcess()
 static int runningTestProcessCount()
 {
     int testProcessCounter = 0;
-    const expected_str<QList<ProcessInfo>> processInfoList
+    const Result<QList<ProcessInfo>> processInfoList
         = ProcessInfo::processInfoList().value_or(QList<ProcessInfo>());
     for (const ProcessInfo &processInfo : *processInfoList) {
         if (FilePath::fromString(processInfo.executable).baseName() == "processtestapp")

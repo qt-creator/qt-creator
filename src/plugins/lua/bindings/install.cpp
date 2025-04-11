@@ -34,14 +34,14 @@ using namespace std::string_view_literals;
 
 namespace Lua::Internal {
 
-expected_str<QJsonDocument> getPackageInfo(const FilePath &appDataPath)
+Result<QJsonDocument> getPackageInfo(const FilePath &appDataPath)
 {
     const FilePath packageInfoPath = appDataPath / "package.json";
 
     if (!packageInfoPath.exists())
         return QJsonDocument();
 
-    expected_str<QByteArray> json = packageInfoPath.fileContents();
+    Result<QByteArray> json = packageInfoPath.fileContents();
     if (!json)
         return make_unexpected(json.error());
 
@@ -59,7 +59,7 @@ expected_str<QJsonDocument> getPackageInfo(const FilePath &appDataPath)
     return doc;
 }
 
-expected_str<QJsonObject> getInstalledPackageInfo(const FilePath &appDataPath, const QString &name)
+Result<QJsonObject> getInstalledPackageInfo(const FilePath &appDataPath, const QString &name)
 {
     auto packageDoc = getPackageInfo(appDataPath);
     if (!packageDoc)
@@ -77,9 +77,9 @@ expected_str<QJsonObject> getInstalledPackageInfo(const FilePath &appDataPath, c
     return QJsonObject();
 }
 
-expected_str<QJsonDocument> getOrCreatePackageInfo(const FilePath &appDataPath)
+Result<QJsonDocument> getOrCreatePackageInfo(const FilePath &appDataPath)
 {
-    expected_str<QJsonDocument> doc = getPackageInfo(appDataPath);
+    Result<QJsonDocument> doc = getPackageInfo(appDataPath);
     if (doc && doc->isObject())
         return doc;
 
@@ -87,7 +87,7 @@ expected_str<QJsonDocument> getOrCreatePackageInfo(const FilePath &appDataPath)
     return QJsonDocument(obj);
 }
 
-expected_str<void> savePackageInfo(const FilePath &appDataPath, const QJsonDocument &doc)
+Result<> savePackageInfo(const FilePath &appDataPath, const QJsonDocument &doc)
 {
     if (!appDataPath.ensureWritableDir())
         return make_unexpected(Tr::tr("Cannot create app data directory."));
@@ -178,7 +178,7 @@ static Group installRecipe(
             if (binary.isFile())
                 binary.setPermissions(QFile::ExeUser | QFile::ExeGroup | QFile::ExeOther);
 
-            expected_str<QJsonDocument> doc = getOrCreatePackageInfo(appDataPath);
+            Result<QJsonDocument> doc = getOrCreatePackageInfo(appDataPath);
             if (!doc)
                 return emitResult(doc.error());
 
@@ -189,7 +189,7 @@ static Group installRecipe(
             installedPackage["path"] = destDir.toFSPathString();
             obj[installOptionsIt->name] = installedPackage;
 
-            expected_str<void> res = savePackageInfo(appDataPath, QJsonDocument(obj));
+            Result<> res = savePackageInfo(appDataPath, QJsonDocument(obj));
             if (!res)
                 return emitResult(res.error());
             return DoneResult::Success;
@@ -271,7 +271,7 @@ void setupInstallModule()
 
             install["packageInfo"] =
                 [pluginSpec](const QString &name, sol::this_state l) -> sol::optional<sol::table> {
-                expected_str<QJsonObject> obj
+                Result<QJsonObject> obj
                     = getInstalledPackageInfo(pluginSpec->appDataPath, name);
                 if (!obj)
                     throw sol::error(obj.error().toStdString());

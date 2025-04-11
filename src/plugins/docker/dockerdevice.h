@@ -55,9 +55,9 @@ public:
 
     bool handlesFile(const Utils::FilePath &filePath) const override;
     bool ensureReachable(const Utils::FilePath &other) const override;
-    Utils::expected_str<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
+    Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
 
-    Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const override;
+    Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
 
     Utils::Result<> updateContainerAccess() const;
     void setMounts(const QStringList &mounts) const;

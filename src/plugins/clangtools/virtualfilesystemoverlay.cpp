@@ -83,7 +83,7 @@ void VirtualFileSystemOverlay::update()
     main["roots"] = jsonRoots;
 
     QJsonDocument overlay(main);
-    const Utils::expected_str<qint64> res = m_overlayFilePath.writeFileContents(
+    const Utils::Result<qint64> res = m_overlayFilePath.writeFileContents(
         overlay.toJson(QJsonDocument::Compact));
     if (!res)
         qCDebug(LOG) << "failed to write vfso to " << m_overlayFilePath;

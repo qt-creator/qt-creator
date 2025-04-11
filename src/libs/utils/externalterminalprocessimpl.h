@@ -23,7 +23,7 @@ public:
     ProcessStubCreator(TerminalInterface *interface);
     ~ProcessStubCreator() override = default;
 
-    expected_str<qint64> startStubProcess(const ProcessSetupData &setupData) override;
+    Result<qint64> startStubProcess(const ProcessSetupData &setupData) override;
 
     TerminalInterface *m_interface;
 };

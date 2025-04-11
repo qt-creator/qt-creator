@@ -55,10 +55,10 @@ DesktopDevice::DesktopDevice()
         = QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
     setFreePorts(Utils::PortList::fromString(portRange));
 
-    setOpenTerminal([](const Environment &env, const FilePath &path) -> expected_str<void> {
+    setOpenTerminal([](const Environment &env, const FilePath &path) -> Result<> {
         const Environment realEnv = env.hasChanges() ? env : Environment::systemEnvironment();
 
-        const expected_str<FilePath> shell = Terminal::defaultShellForDevice(path);
+        const Result<FilePath> shell = Terminal::defaultShellForDevice(path);
         if (!shell)
             return make_unexpected(shell.error());
 
@@ -113,7 +113,7 @@ FilePath DesktopDevice::filePath(const QString &pathOnDevice) const
     return FilePath::fromParts({}, {}, pathOnDevice);
 }
 
-expected_str<Environment> DesktopDevice::systemEnvironmentWithError() const
+Result<Environment> DesktopDevice::systemEnvironmentWithError() const
 {
     return Environment::systemEnvironment();
 }

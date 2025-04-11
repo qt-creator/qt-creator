@@ -589,10 +589,10 @@ void FileSystemAccessTest::testFileStreamerManager()
     const auto writeAndRead = [hitCount, loop, data](const FilePath &destination,
                                                      std::optional<QByteArray> *result) {
         const auto onWrite = [hitCount, loop, destination, result]
-            (const expected_str<qint64> &writeResult) {
+            (const Result<qint64> &writeResult) {
             QVERIFY(writeResult);
             const auto onRead = [hitCount, loop, result]
-                (const expected_str<QByteArray> &readResult) {
+                (const Result<QByteArray> &readResult) {
                 QVERIFY(readResult);
                 *result = *readResult;
                 ++(*hitCount);
@@ -621,10 +621,10 @@ void FileSystemAccessTest::testFileStreamerManager()
                                                         const FilePath &destination,
                                                         std::optional<QByteArray> *result) {
         const auto onTransfer = [hitCount, loop, destination, result]
-            (const expected_str<void> &transferResult) {
+            (const Result<> &transferResult) {
                 QVERIFY(transferResult);
                 const auto onRead = [hitCount, loop, result]
-                    (const expected_str<QByteArray> &readResult) {
+                    (const Result<QByteArray> &readResult) {
                     QVERIFY(readResult);
                     *result = *readResult;
                     ++(*hitCount);

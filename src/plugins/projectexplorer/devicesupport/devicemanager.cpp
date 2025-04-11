@@ -409,14 +409,14 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return leftDevice == rightDevice;
     };
 
-    deviceHooks.localSource = [](const FilePath &file) -> expected_str<FilePath> {
+    deviceHooks.localSource = [](const FilePath &file) -> Result<FilePath> {
         auto device = DeviceManager::deviceForPath(file);
         if (!device)
             return make_unexpected(Tr::tr("No device for path \"%1\"").arg(file.toUserOutput()));
         return device->localSource(file);
     };
 
-    deviceHooks.fileAccess = [](const FilePath &filePath) -> expected_str<DeviceFileAccess *> {
+    deviceHooks.fileAccess = [](const FilePath &filePath) -> Result<DeviceFileAccess *> {
         if (filePath.isLocal())
             return DesktopDeviceFileAccess::instance();
         IDevice::ConstPtr device = DeviceManager::deviceForPath(filePath);
@@ -432,7 +432,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return fileAccess;
     };
 
-    deviceHooks.environment = [](const FilePath &filePath) -> expected_str<Environment> {
+    deviceHooks.environment = [](const FilePath &filePath) -> Result<Environment> {
         auto device = DeviceManager::deviceForPath(filePath);
         if (!device) {
             return make_unexpected(

@@ -21,7 +21,7 @@ public:
 
     bool operator<(const ProcessInfo &other) const;
 
-    static expected_str<QList<ProcessInfo>> processInfoList(
+    static Result<QList<ProcessInfo>> processInfoList(
         const Utils::FilePath &deviceRoot = Utils::FilePath());
 };
 

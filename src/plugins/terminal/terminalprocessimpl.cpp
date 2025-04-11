@@ -28,7 +28,7 @@ public:
         , m_interface(interface)
     {}
 
-    expected_str<qint64> startStubProcess(const ProcessSetupData &setup) override
+    Result<qint64> startStubProcess(const ProcessSetupData &setup) override
     {
         if (QApplication::activeModalWidget()) {
             m_fallbackStubCreator = std::make_unique<Utils::ProcessStubCreator>(m_interface);

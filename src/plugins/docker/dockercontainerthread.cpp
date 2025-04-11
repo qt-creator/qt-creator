@@ -32,11 +32,11 @@ public:
         }
     }
 
-    expected_str<QString> start()
+    Result<QString> start()
     {
         QString containerId;
 
-        if (expected_str<QString> create = createContainer(); !create)
+        if (Result<QString> create = createContainer(); !create)
             return make_unexpected(create.error());
         else
             containerId = *create;
@@ -48,7 +48,7 @@ public:
     }
 
 private:
-    expected_str<QString> createContainer()
+    Result<QString> createContainer()
     {
         Process createProcess;
         createProcess.setCommand(m_init.createContainerCmd);
@@ -114,7 +114,7 @@ DockerContainerThread::DockerContainerThread(Init init)
 
 Result<> DockerContainerThread::start()
 {
-    expected_str<QString> result;
+    Result<QString> result;
     QMetaObject::invokeMethod(m_internal, &Internal::start, Qt::BlockingQueuedConnection, &result);
     if (result) {
         m_containerId = *result;
@@ -134,7 +134,7 @@ QString DockerContainerThread::containerId() const
     return m_containerId;
 }
 
-expected_str<std::unique_ptr<DockerContainerThread>> DockerContainerThread::create(const Init &init)
+Result<std::unique_ptr<DockerContainerThread>> DockerContainerThread::create(const Init &init)
 {
     std::unique_ptr<DockerContainerThread> thread(new DockerContainerThread(init));
 

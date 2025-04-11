@@ -373,7 +373,7 @@ void setupSettingsModule()
             },
             "requestValue_cb",
             [](SecretAspect *aspect, sol::function callback) {
-                aspect->requestValue([callback](const expected_str<QString> &secret) {
+                aspect->requestValue([callback](const Result<QString> &secret) {
                     if (secret) {
                         auto res = void_safe_call(callback, true, secret.value());
                         QTC_CHECK_EXPECTED(res);

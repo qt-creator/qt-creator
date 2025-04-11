@@ -120,7 +120,7 @@ private:
     // Called from the separate thread, exclusively by run(). Checks if the new data already
     // came before sleeping with wait condition. If so, it doesn't sleep with wait condition,
     // but returns the data collected in meantime. Otherwise, it calls wait() on wait condition.
-    expected_str<QByteArray> waitForData()
+    Result<QByteArray> waitForData()
     {
         QMutexLocker locker(&m_mutex);
         while (true) {

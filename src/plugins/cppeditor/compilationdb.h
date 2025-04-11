@@ -17,7 +17,7 @@
 namespace CppEditor {
 class ClangDiagnosticConfig;
 
-using GenerateCompilationDbResult = Utils::expected_str<Utils::FilePath>;
+using GenerateCompilationDbResult = Utils::Result<Utils::FilePath>;
 using GetOptionsBuilder = std::function<CompilerOptionsBuilder(const ProjectPart &)>;
 enum class CompilationDbPurpose { Project, CodeModel, Analysis };
 

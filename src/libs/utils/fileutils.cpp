@@ -58,7 +58,7 @@ QByteArray FileReader::fetchQrc(const QString &fileName)
 
 bool FileReader::fetch(const FilePath &filePath)
 {
-    const expected_str<QByteArray> contents = filePath.fileContents();
+    const Result<QByteArray> contents = filePath.fileContents();
     if (!contents) {
         m_errorString = contents.error();
         return false;
@@ -273,7 +273,7 @@ TempFileSaver::TempFileSaver(const FilePath &templ)
     if (templ.isEmpty() || templ.isLocal()) {
         initFromString(templ.path());
     } else {
-        expected_str<FilePath> result = templ.createTempFile();
+        Result<FilePath> result = templ.createTempFile();
         if (!result) {
             m_result = ResultError(Tr::tr("Cannot create temporary file %1: %2")
                                 .arg(templ.toUserOutput(), result.error()));
@@ -732,8 +732,8 @@ Result<> copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePat
         const QDateTime tgtModified = tgtFilePath.lastModified();
         if (srcModified == tgtModified) {
             // TODO: Create FilePath::hashFromContents() and compare hashes.
-            const expected_str<QByteArray> srcContents = srcFilePath.fileContents();
-            const expected_str<QByteArray> tgtContents = tgtFilePath.fileContents();
+            const Result<QByteArray> srcContents = srcFilePath.fileContents();
+            const Result<QByteArray> tgtContents = tgtFilePath.fileContents();
             if (srcContents && srcContents == tgtContents)
                 return ResultOk;
         }
@@ -821,7 +821,7 @@ FilePath homePath()
     return FilePath::fromUserInput(QDir::homePath());
 }
 
-expected_str<FilePath> scratchBufferFilePath(const QString &pattern)
+Result<FilePath> scratchBufferFilePath(const QString &pattern)
 {
     QString tmp = pattern;
     QFileInfo fi(tmp);

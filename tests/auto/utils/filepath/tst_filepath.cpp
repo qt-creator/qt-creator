@@ -1312,7 +1312,7 @@ void tst_filepath::asyncLocalCopy()
     bool wasCalled = false;
     // When QTRY_VERIFY failed, don't call the continuation after we leave this method
     QObject context;
-    auto afterCopy = [&orig, &dest, &wasCalled](expected_str<void> result) {
+    auto afterCopy = [&orig, &dest, &wasCalled](Result<> result) {
         QVERIFY(result);
         // check existence, size and content
         QVERIFY(dest.exists());

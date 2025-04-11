@@ -184,7 +184,7 @@ public:
     void setupId(Origin origin, Utils::Id id = Utils::Id());
 
     bool canOpenTerminal() const;
-    Utils::expected_str<void> openTerminal(const Utils::Environment &env,
+    Utils::Result<> openTerminal(const Utils::Environment &env,
                                            const Utils::FilePath &workingDir) const;
 
     Utils::BoolAspect allowEmptyCommand{this};
@@ -206,12 +206,12 @@ public:
             const FileTransferSetupData &setup) const;
 
     Utils::Environment systemEnvironment() const;
-    virtual Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const;
+    virtual Utils::Result<Utils::Environment> systemEnvironmentWithError() const;
 
     virtual void aboutToBeRemoved() const {}
 
     virtual bool ensureReachable(const Utils::FilePath &other) const;
-    virtual Utils::expected_str<Utils::FilePath> localSource(const Utils::FilePath &other) const;
+    virtual Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const;
 
     virtual bool prepareForBuild(const Target *target);
     virtual std::optional<Utils::FilePath> clangdExecutable() const;
@@ -226,7 +226,7 @@ protected:
     virtual void fromMap(const Utils::Store &map);
     virtual void toMap(Utils::Store &map) const;
 
-    using OpenTerminal = std::function<Utils::expected_str<void>(const Utils::Environment &,
+    using OpenTerminal = std::function<Utils::Result<>(const Utils::Environment &,
                                                                  const Utils::FilePath &)>;
     void setOpenTerminal(const OpenTerminal &openTerminal);
     void setDisplayType(const QString &type);

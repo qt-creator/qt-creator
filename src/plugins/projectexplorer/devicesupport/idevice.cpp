@@ -179,7 +179,7 @@ IDevice::IDevice()
     // allowEmptyCommand.setSettingsKey() intentionally omitted, this is not persisted.
 
     auto validateDisplayName = [](const QString &old,
-                                  const QString &newValue) -> expected_str<void> {
+                                  const QString &newValue) -> Result<> {
         if (old == newValue)
             return {};
 
@@ -239,7 +239,7 @@ bool IDevice::canOpenTerminal() const
     return bool(d->openTerminal);
 }
 
-expected_str<void> IDevice::openTerminal(const Environment &env, const FilePath &workingDir) const
+Result<> IDevice::openTerminal(const Environment &env, const FilePath &workingDir) const
 {
     QTC_ASSERT(canOpenTerminal(),
                return make_unexpected(Tr::tr("Opening a terminal is not supported.")));
@@ -328,12 +328,12 @@ FileTransferInterface *IDevice::createFileTransferInterface(
 
 Environment IDevice::systemEnvironment() const
 {
-    expected_str<Environment> env = systemEnvironmentWithError();
+    Result<Environment> env = systemEnvironmentWithError();
     QTC_ASSERT_EXPECTED(env, return {});
     return *env;
 }
 
-expected_str<Environment> IDevice::systemEnvironmentWithError() const
+Result<Environment> IDevice::systemEnvironmentWithError() const
 {
     DeviceFileAccess *access = fileAccess();
     QTC_ASSERT(access, return Environment::systemEnvironment());
@@ -716,7 +716,7 @@ bool IDevice::ensureReachable(const FilePath &other) const
     return handlesFile(other); // Some first approximation.
 }
 
-expected_str<FilePath> IDevice::localSource(const Utils::FilePath &other) const
+Result<FilePath> IDevice::localSource(const Utils::FilePath &other) const
 {
     Q_UNUSED(other);
     return make_unexpected(Tr::tr("localSource() not implemented for this device type."));

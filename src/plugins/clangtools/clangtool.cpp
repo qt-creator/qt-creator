@@ -981,7 +981,7 @@ void ClangTool::loadDiagnosticsFromFiles()
     Diagnostics diagnostics;
     QStringList errors;
     for (const FilePath &filePath : filePaths) {
-        if (expected_str<Diagnostics> expectedDiagnostics = readExportedDiagnostics(filePath))
+        if (Result<Diagnostics> expectedDiagnostics = readExportedDiagnostics(filePath))
             diagnostics << *expectedDiagnostics;
         else
             errors.append(expectedDiagnostics.error());

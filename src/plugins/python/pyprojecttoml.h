@@ -65,7 +65,7 @@ Utils::expected<ExpectedType, PyProjectTomlError> getNodeValue(
 
 PyProjectTomlParseResult parsePyProjectToml(const Utils::FilePath &pyProjectTomlPath);
 
-Utils::expected_str<QString> updatePyProjectTomlContent(
+Utils::Result<QString> updatePyProjectTomlContent(
     const QString &pyProjectTomlContent, const QStringList &projectFiles);
 
 } // namespace Python::Internal

@@ -62,7 +62,7 @@ Utils::FilePath ClangFixItTest::compareFilePath() const
 
 QString ClangFixItTest::fileContent(const QString &relFilePath) const
 {
-    Utils::expected_str<QByteArray> data = m_dataDir->absolutePath(relFilePath).fileContents();
+    Utils::Result<QByteArray> data = m_dataDir->absolutePath(relFilePath).fileContents();
     if (!data)
         qDebug() << "File with the unsaved content cannot be opened!" << data.error();
     return QString::fromUtf8(*data);

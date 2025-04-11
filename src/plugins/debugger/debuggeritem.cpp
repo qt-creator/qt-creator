@@ -27,7 +27,7 @@ using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-static expected_str<QString> fetchVersionOutput(const FilePath &executable, Environment environment)
+static Result<QString> fetchVersionOutput(const FilePath &executable, Environment environment)
 {
     // CDB only understands the single-dash -version, whereas GDB and LLDB are
     // happy with both -version and --version. So use the "working" -version
@@ -141,7 +141,7 @@ static std::optional<Abi> extractLegacyGdbTargetAbi(const QString &fromOutput)
     return Abi::abiFromTargetTriplet(*legacyGdbTargetAbiString);
 }
 
-static Utils::expected_str<DebuggerItem::TechnicalData> extractLldbTechnicalData(
+static Utils::Result<DebuggerItem::TechnicalData> extractLldbTechnicalData(
     const FilePath &fromExecutable, const Environment &env, const QString &dapServerSuffix)
 {
     // As of LLVM 19.1.4 `lldb-dap`/`lldb-vscode` has no `--version` switch
@@ -162,7 +162,7 @@ static Utils::expected_str<DebuggerItem::TechnicalData> extractLldbTechnicalData
                                    .arg(lldb.fileNameView(), fromExecutable.toUserOutput()));
     }
 
-    const expected_str<QString> output = fetchVersionOutput(lldb, env);
+    const Result<QString> output = fetchVersionOutput(lldb, env);
     if (!output)
         return make_unexpected(output.error());
 
@@ -190,7 +190,7 @@ const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 // DebuggerItem
 // --------------------------------------------------------------------------
 
-Utils::expected_str<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
+Utils::Result<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
     const FilePath &fromExecutable, const std::optional<Utils::Environment> &customEnvironment)
 {
     Environment env = customEnvironment.value_or(fromExecutable.deviceEnvironment());
@@ -221,7 +221,7 @@ Utils::expected_str<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::ex
         };
     }
 
-    const expected_str<QString> output = fetchVersionOutput(fromExecutable, env);
+    const Result<QString> output = fetchVersionOutput(fromExecutable, env);
     if (!output) {
         return make_unexpected(output.error());
     }
@@ -326,7 +326,7 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
         return;
 
     auto env = customEnv ? std::optional<Environment>{*customEnv} : std::optional<Environment>{};
-    expected_str<TechnicalData> technicalData = TechnicalData::extract(m_command, env);
+    Result<TechnicalData> technicalData = TechnicalData::extract(m_command, env);
     if (!technicalData) {
         if (error)
             *error = technicalData.error();

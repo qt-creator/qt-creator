@@ -31,7 +31,7 @@ class DEBUGGER_EXPORT DebuggerItem
 public:
     struct TechnicalData
     {
-        static Utils::expected_str<DebuggerItem::TechnicalData> extract(
+        static Utils::Result<DebuggerItem::TechnicalData> extract(
             const Utils::FilePath &fromExecutable,
             const std::optional<Utils::Environment> &customEnvironment);
         bool isEmpty() const;

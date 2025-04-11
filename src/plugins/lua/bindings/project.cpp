@@ -150,7 +150,7 @@ void setupProjectModule()
             &ProjectManager::startupProjectChanged,
             guard,
             [func](Project *project) {
-                expected_str<void> res = void_safe_call(func, project);
+                Result<> res = void_safe_call(func, project);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -162,7 +162,7 @@ void setupProjectModule()
             &ProjectManager::projectAdded,
             guard,
             [func](Project *project) {
-                expected_str<void> res = void_safe_call(func, project);
+                Result<> res = void_safe_call(func, project);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -174,7 +174,7 @@ void setupProjectModule()
             &ProjectManager::projectRemoved,
             guard,
             [func](Project *project) {
-                expected_str<void> res = void_safe_call(func, project);
+                Result<> res = void_safe_call(func, project);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -186,7 +186,7 @@ void setupProjectModule()
             &ProjectManager::aboutToRemoveProject,
             guard,
             [func](Project *project) {
-                expected_str<void> res = void_safe_call(func, project);
+                Result<> res = void_safe_call(func, project);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -198,7 +198,7 @@ void setupProjectModule()
             &ProjectExplorerPlugin::runActionsUpdated,
             guard,
             [func]() {
-                expected_str<void> res = void_safe_call(func);
+                Result<> res = void_safe_call(func);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -211,7 +211,7 @@ void setupProjectModule()
             guard,
             [func](ProjectExplorer::Project *pro) {
                 const bool isBuilding = BuildManager::isBuilding(pro);
-                expected_str<void> res = void_safe_call(func, pro, isBuilding);
+                Result<> res = void_safe_call(func, pro, isBuilding);
                 QTC_CHECK_EXPECTED(res);
             }
         );

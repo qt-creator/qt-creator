@@ -152,7 +152,7 @@ QString stringFromKey(const Key &key)
     return QString::fromLatin1(key.view());
 }
 
-expected_str<Store> storeFromJson(const QByteArray &json)
+Result<Store> storeFromJson(const QByteArray &json)
 {
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(json, &error);

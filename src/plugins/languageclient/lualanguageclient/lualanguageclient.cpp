@@ -209,8 +209,8 @@ class LuaClientWrapper : public QObject
     Q_OBJECT
 public:
     TransportType m_transportType{TransportType::StdIO};
-    std::function<expected_str<void>(CommandLine &)> m_cmdLineCallback;
-    std::function<expected_str<void>(QString &)> m_initOptionsCallback;
+    std::function<Result<>(CommandLine &)> m_cmdLineCallback;
+    std::function<Result<>(QString &)> m_initOptionsCallback;
     sol::main_function m_asyncInitOptions;
     bool m_isUpdatingAsyncOptions{false};
     AspectContainer *m_aspects{nullptr};
@@ -247,7 +247,7 @@ public:
             options,
             "cmd",
             m_cmdLine,
-            [](const sol::protected_function_result &res) -> expected_str<CommandLine> {
+            [](const sol::protected_function_result &res) -> Result<CommandLine> {
                 if (res.get_type(0) != sol::type::table)
                     return make_unexpected(QString("cmd callback did not return a table"));
                 return cmdFromTable(res.get<sol::table>());
@@ -257,7 +257,7 @@ public:
             options,
             "initializationOptions",
             m_initializationOptions,
-            [](const sol::protected_function_result &res) -> expected_str<QString> {
+            [](const sol::protected_function_result &res) -> Result<QString> {
                 if (res.get_type(0) == sol::type::table)
                     return ::Lua::toJsonString(res.get<sol::table>());
                 else if (res.get_type(0) == sol::type::string)
@@ -536,7 +536,7 @@ public:
                 qWarning() << "Error applying option callback:" << result.error();
         }
         if (m_initOptionsCallback) {
-            expected_str<void> result = m_initOptionsCallback(m_initializationOptions);
+            Result<> result = m_initOptionsCallback(m_initializationOptions);
             if (!result)
                 qWarning() << "Error applying init option callback:" << result.error();
 
@@ -561,11 +561,11 @@ public:
     }
 
     template<typename T>
-    std::function<expected_str<void>(T &)> addValue(
+    std::function<Result<>(T &)> addValue(
         const sol::table &options,
         const char *fieldName,
         T &dest,
-        std::function<expected_str<T>(const sol::protected_function_result &)> transform)
+        std::function<Result<T>(const sol::protected_function_result &)> transform)
     {
         auto fixed = options.get<sol::optional<sol::table>>(fieldName);
         auto cb = options.get<sol::optional<sol::protected_function>>(fieldName);
@@ -573,15 +573,15 @@ public:
         if (fixed) {
             dest = fixed.value().get<T>(1);
         } else if (cb) {
-            std::function<expected_str<void>(T &)> callback =
-                [cb, transform](T &dest) -> expected_str<void> {
+            std::function<Result<>(T &)> callback =
+                [cb, transform](T &dest) -> Result<> {
                 auto res = cb.value().call();
                 if (!res.valid()) {
                     sol::error err = res;
                     return Utils::make_unexpected(QString::fromLocal8Bit(err.what()));
                 }
 
-                expected_str<T> trResult = transform(res);
+                Result<T> trResult = transform(res);
                 if (!trResult)
                     return make_unexpected(trResult.error());
 

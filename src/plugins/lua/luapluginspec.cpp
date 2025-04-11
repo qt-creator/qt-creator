@@ -47,7 +47,7 @@ LuaPluginSpec::LuaPluginSpec()
     : d(new LuaPluginSpecPrivate())
 {}
 
-expected_str<LuaPluginSpec *> LuaPluginSpec::create(const FilePath &filePath, sol::table pluginTable)
+Result<LuaPluginSpec *> LuaPluginSpec::create(const FilePath &filePath, sol::table pluginTable)
 {
     const FilePath directory = filePath.parentDir();
     std::unique_ptr<LuaPluginSpec> pluginSpec(new LuaPluginSpec());
@@ -114,7 +114,7 @@ bool LuaPluginSpec::initializePlugin()
 
     std::unique_ptr<sol::state> activeLuaState = std::make_unique<sol::state>();
 
-    expected_str<sol::protected_function> setupResult = prepareSetup(*activeLuaState, *this);
+    Result<sol::protected_function> setupResult = prepareSetup(*activeLuaState, *this);
 
     if (!setupResult) {
         setError(Lua::Tr::tr("Cannot prepare extension setup: %1").arg(setupResult.error()));

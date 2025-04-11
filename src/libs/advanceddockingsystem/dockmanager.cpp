@@ -1185,7 +1185,7 @@ bool DockManager::isWorkspaceLocked() const
     return d->m_workspaceLocked;
 }
 
-expected_str<QString> DockManager::createWorkspace(const QString &workspaceName)
+Result<QString> DockManager::createWorkspace(const QString &workspaceName)
 {
     qCInfo(adsLog) << "Create workspace" << workspaceName;
 
@@ -1193,7 +1193,7 @@ expected_str<QString> DockManager::createWorkspace(const QString &workspaceName)
     uniqueWorkspaceFileName(fileName);
     const FilePath filePath = userDirectory().pathAppended(fileName);
 
-    expected_str<void> result = write(filePath, saveState(workspaceName)); // TODO utils
+    Result<> result = write(filePath, saveState(workspaceName)); // TODO utils
     if (!result)
         return make_unexpected(result.error());
 
@@ -1204,7 +1204,7 @@ expected_str<QString> DockManager::createWorkspace(const QString &workspaceName)
     return workspace.fileName();
 }
 
-expected_str<void> DockManager::openWorkspace(const QString &fileName)
+Result<> DockManager::openWorkspace(const QString &fileName)
 {
     qCInfo(adsLog) << "Open workspace" << fileName;
 
@@ -1220,13 +1220,13 @@ expected_str<void> DockManager::openWorkspace(const QString &fileName)
     if (activeWorkspace()->isValid()) {
         // Allow everyone to set something in the workspace and before saving
         emit aboutToUnloadWorkspace(activeWorkspace()->fileName());
-        expected_str<void> saveResult = save();
+        Result<> saveResult = save();
         if (!saveResult)
             return saveResult;
     }
 
     // Try loading the file
-    const expected_str<QByteArray> data = loadWorkspace(*wrk);
+    const Result<QByteArray> data = loadWorkspace(*wrk);
     if (!data)
         return make_unexpected(data.error());
 
@@ -1241,7 +1241,7 @@ expected_str<void> DockManager::openWorkspace(const QString &fileName)
     return {};
 }
 
-expected_str<void> DockManager::reloadActiveWorkspace()
+Result<> DockManager::reloadActiveWorkspace()
 {
     qCInfo(adsLog) << "Reload active workspace";
 
@@ -1252,7 +1252,7 @@ expected_str<void> DockManager::reloadActiveWorkspace()
             Tr::tr("Cannot reload \"%1\". It is not in the list of workspaces.")
                 .arg(wrk->filePath().toUserOutput()));
 
-    const expected_str<QByteArray> data = loadWorkspace(*wrk);
+    const Result<QByteArray> data = loadWorkspace(*wrk);
     if (!data)
         return make_unexpected(data.error());
 
@@ -1294,7 +1294,7 @@ void DockManager::deleteWorkspaces(const QStringList &fileNames)
         deleteWorkspace(fileName);
 }
 
-expected_str<QString> DockManager::cloneWorkspace(const QString &originalFileName,
+Result<QString> DockManager::cloneWorkspace(const QString &originalFileName,
                                                   const QString &cloneName)
 {
     qCInfo(adsLog) << "Clone workspace" << originalFileName << cloneName;
@@ -1322,7 +1322,7 @@ expected_str<QString> DockManager::cloneWorkspace(const QString &originalFileNam
     return clonePath.fileName();
 }
 
-expected_str<QString> DockManager::renameWorkspace(const QString &originalFileName,
+Result<QString> DockManager::renameWorkspace(const QString &originalFileName,
                                                    const QString &newName)
 {
     qCInfo(adsLog) << "Rename workspace" << originalFileName << newName;
@@ -1356,7 +1356,7 @@ Result<> DockManager::resetWorkspacePreset(const QString &fileName)
     return presetDirectory().pathAppended(fileName).copyFile(filePath);
 }
 
-expected_str<void> DockManager::save()
+Result<> DockManager::save()
 {
     if (isModeChangeState())
         return make_unexpected(Tr::tr("Cannot save workspace while in mode change state."));
@@ -1383,7 +1383,7 @@ void DockManager::aboutToShow()
     d->m_wasShown = true;
 }
 
-expected_str<QString> DockManager::importWorkspace(const QString &filePath)
+Result<QString> DockManager::importWorkspace(const QString &filePath)
 {
     qCInfo(adsLog) << "Import workspace" << filePath;
 
@@ -1412,7 +1412,7 @@ expected_str<QString> DockManager::importWorkspace(const QString &filePath)
     return targetFilePath.fileName();
 }
 
-expected_str<QString> DockManager::exportWorkspace(const QString &targetFilePath,
+Result<QString> DockManager::exportWorkspace(const QString &targetFilePath,
                                                    const QString &sourceFileName)
 {
     qCInfo(adsLog) << "Export workspace" << targetFilePath << sourceFileName;
@@ -1533,7 +1533,7 @@ QByteArray DockManager::loadFile(const FilePath &filePath)
         return {};
     }
 
-    const expected_str<QByteArray> data = filePath.fileContents();
+    const Result<QByteArray> data = filePath.fileContents();
 
     if (!data) {
         qWarning() << "Could not open" << filePath.toUserOutput() << data.error();
@@ -1582,7 +1582,7 @@ QString DockManager::readAttribute(const FilePath &filePath, QStringView key)
 
 bool DockManager::writeAttribute(const FilePath &filePath, QStringView key, const QString &value)
 {
-    const expected_str<QByteArray> content = filePath.fileContents();
+    const Result<QByteArray> content = filePath.fileContents();
     QTC_ASSERT_EXPECTED(content, return false);
 
     QDomDocument doc;
@@ -1597,7 +1597,7 @@ bool DockManager::writeAttribute(const FilePath &filePath, QStringView key, cons
     QDomElement docElem = doc.documentElement();
     docElem.setAttribute(key.toString(), value);
 
-    const expected_str<void> result = write(filePath, doc.toByteArray(workspaceXmlFormattingIndent));
+    const Result<> result = write(filePath, doc.toByteArray(workspaceXmlFormattingIndent));
     if (result)
         return true;
 
@@ -1605,7 +1605,7 @@ bool DockManager::writeAttribute(const FilePath &filePath, QStringView key, cons
     return false;
 }
 
-expected_str<void> DockManager::write(const FilePath &filePath, const QByteArray &data)
+Result<> DockManager::write(const FilePath &filePath, const QByteArray &data)
 {
     qCInfo(adsLog) << "Write" << filePath;
 
@@ -1623,7 +1623,7 @@ expected_str<void> DockManager::write(const FilePath &filePath, const QByteArray
     return {};
 }
 
-expected_str<QByteArray> DockManager::loadWorkspace(const Workspace &workspace) const
+Result<QByteArray> DockManager::loadWorkspace(const Workspace &workspace) const
 {
     qCInfo(adsLog) << "Load workspace" << workspace.fileName();
 

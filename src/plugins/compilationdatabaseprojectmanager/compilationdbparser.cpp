@@ -142,7 +142,7 @@ CompilationDbParser::~CompilationDbParser()
 void CompilationDbParser::start()
 {
     // Check hash first.
-    expected_str<QByteArray> fileContents = m_projectFilePath.fileContents();
+    Result<QByteArray> fileContents = m_projectFilePath.fileContents();
     if (!fileContents) {
         finish(ParseResult::Failure);
         return;

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "expected.h"
+#include "result.h"
 
 #include <QDebug>
 #include <QString>
@@ -36,7 +36,7 @@ inline QString osTypeToString(OsType osType)
     }
 }
 
-inline Utils::expected_str<OsType> osTypeFromString(const QString &string)
+inline Utils::Result<OsType> osTypeFromString(const QString &string)
 {
     if (string.compare("windows", Qt::CaseInsensitive) == 0)
         return OsTypeWindows;
@@ -52,7 +52,7 @@ inline Utils::expected_str<OsType> osTypeFromString(const QString &string)
     return Utils::make_unexpected(QString::fromLatin1("Unknown os type: %1").arg(string));
 }
 
-inline Utils::expected_str<OsArch> osArchFromString(const QString &architecture)
+inline Utils::Result<OsArch> osArchFromString(const QString &architecture)
 {
     if (architecture == QLatin1String("x86_64") || architecture == QLatin1String("amd64"))
         return OsArchAMD64;

@@ -150,7 +150,7 @@ PyProjectTomlParseResult parsePyProjectToml(const FilePath &pyProjectTomlPath)
 {
     PyProjectTomlParseResult result;
 
-    const expected_str<QByteArray> fileContentsResult = pyProjectTomlPath.fileContents();
+    const Result<QByteArray> fileContentsResult = pyProjectTomlPath.fileContents();
     if (!fileContentsResult) {
         result.errors << PyProjectTomlError::FileNotFoundError(
             pyProjectTomlPath.toUserOutput().toStdString(), -1);
@@ -227,7 +227,7 @@ PyProjectTomlParseResult parsePyProjectToml(const FilePath &pyProjectTomlPath)
     \brief Given an existing pyproject.toml file, update it with the given \a projectFiles.
     \return If successful, returns the new contents of the file. Otherwise, returns an error.
 */
-expected_str<QString> updatePyProjectTomlContent(
+Result<QString> updatePyProjectTomlContent(
     const QString &pyProjectTomlContent, const QStringList &projectFiles)
 {
     toml::ordered_value rootTable;

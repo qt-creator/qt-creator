@@ -1043,7 +1043,7 @@ LinuxDevice::LinuxDevice()
     }});
 
     setOpenTerminal([this](const Environment &env,
-                           const FilePath &workingDir) -> expected_str<void> {
+                           const FilePath &workingDir) -> Result<> {
         Process *proc = new Process;
 
         // If we will not set any environment variables, we can leave out the shell executable

@@ -34,7 +34,7 @@ bool ProcessInfo::operator<(const ProcessInfo &other) const
     return commandLine < other.commandLine;
 }
 
-static expected_str<QList<ProcessInfo>> getLocalProcessesUsingProc(const FilePath &devicePath)
+static Result<QList<ProcessInfo>> getLocalProcessesUsingProc(const FilePath &devicePath)
 {
     const FilePath procDir = devicePath.withNewPath("/proc");
     if (!procDir.exists())
@@ -109,7 +109,7 @@ static expected_str<QList<ProcessInfo>> getLocalProcessesUsingProc(const FilePat
 }
 
 // Determine UNIX processes by running ps
-static expected_str<QMap<qint64, QString>> getLocalProcessDataUsingPs(
+static Result<QMap<qint64, QString>> getLocalProcessDataUsingPs(
     const FilePath &ps, const QString &column)
 {
     Process process;
@@ -138,7 +138,7 @@ static expected_str<QMap<qint64, QString>> getLocalProcessDataUsingPs(
     return result;
 }
 
-static expected_str<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath &deviceRoot)
+static Result<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath &deviceRoot)
 {
     QList<ProcessInfo> processes;
 
@@ -175,7 +175,7 @@ static expected_str<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath 
     return processes;
 }
 
-static expected_str<QList<ProcessInfo>> getProcessesUsingPidin(const FilePath &deviceRoot)
+static Result<QList<ProcessInfo>> getProcessesUsingPidin(const FilePath &deviceRoot)
 {
     const FilePath pidin = deviceRoot.withNewPath("pidin").searchInPath();
     if (!pidin.isExecutableFile())
@@ -219,7 +219,7 @@ static expected_str<QList<ProcessInfo>> getProcessesUsingPidin(const FilePath &d
     return Utils::sorted(std::move(processes));
 }
 
-static expected_str<QList<ProcessInfo>> processInfoListUnix(const FilePath &deviceRoot)
+static Result<QList<ProcessInfo>> processInfoListUnix(const FilePath &deviceRoot)
 {
     return getLocalProcessesUsingPs(deviceRoot)
         .transform_error(
@@ -238,7 +238,7 @@ static expected_str<QList<ProcessInfo>> processInfoListUnix(const FilePath &devi
         });
 }
 
-expected_str<QList<ProcessInfo>> ProcessInfo::processInfoList(const FilePath &deviceRoot)
+Result<QList<ProcessInfo>> ProcessInfo::processInfoList(const FilePath &deviceRoot)
 {
     if (deviceRoot.osType() != OsType::OsTypeWindows)
         return processInfoListUnix(deviceRoot);

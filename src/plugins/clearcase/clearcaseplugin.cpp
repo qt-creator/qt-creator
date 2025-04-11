@@ -1818,7 +1818,7 @@ bool ClearCasePluginPrivate::vcsCheckIn(const FilePath &messageFile, const QStri
     replaceActivity &= (activity != QLatin1String(Constants::KEEP_ACTIVITY));
     if (replaceActivity && !vcsSetActivity(m_checkInView, title, activity))
         return false;
-    expected_str<QByteArray> messageFileContents = messageFile.fileContents();
+    Result<QByteArray> messageFileContents = messageFile.fileContents();
     const QString message = messageFileContents
                                 ? QString::fromLocal8Bit(*std::move(messageFileContents))
                                 : QString{};

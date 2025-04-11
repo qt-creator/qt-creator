@@ -54,7 +54,7 @@ public:
         method.addOption(Tr::tr("Use sftp if available. Otherwise use default transfer."));
         method.addOption(Tr::tr("Use default transfer. This might be slow."));
 
-        setInternalInitializer([this]() -> expected_str<void> {
+        setInternalInitializer([this]() -> Result<> {
             return isDeploymentPossible();
         });
     }

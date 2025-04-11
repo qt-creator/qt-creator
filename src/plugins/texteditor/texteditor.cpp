@@ -10422,7 +10422,7 @@ void TextEditorWidget::configureGenericHighlighter(const Utils::MimeType &mimeTy
     d->removeSyntaxInfoBar();
 }
 
-expected_str<void> TextEditorWidget::configureGenericHighlighter(const QString &definitionName)
+Result<> TextEditorWidget::configureGenericHighlighter(const QString &definitionName)
 {
     const HighlighterHelper::Definition definition = TextEditor::HighlighterHelper::definitionForName(definitionName);
     if (!definition.isValid())

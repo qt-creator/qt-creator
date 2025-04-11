@@ -502,7 +502,7 @@ public:
     void configureGenericHighlighter(const Utils::MimeType &mimeType);
 
     /// Overwrite the current highlighter with a new generic highlighter based on the given definition
-    Utils::expected_str<void> configureGenericHighlighter(const QString &definitionName);
+    Utils::Result<> configureGenericHighlighter(const QString &definitionName);
 
     Q_INVOKABLE void inSnippetMode(bool *active); // Used by FakeVim.
 

@@ -180,15 +180,15 @@ public:
 
     CommandLine createCommandLine();
 
-    expected_str<QString> updateContainerAccess();
+    Result<QString> updateContainerAccess();
     void changeMounts(QStringList newMounts);
     bool ensureReachable(const FilePath &other);
     void shutdown();
-    expected_str<FilePath> localSource(const FilePath &other) const;
+    Result<FilePath> localSource(const FilePath &other) const;
 
-    expected_str<QPair<Utils::OsType, Utils::OsArch>> osTypeAndArch() const;
+    Result<QPair<Utils::OsType, Utils::OsArch>> osTypeAndArch() const;
 
-    expected_str<CommandLine> withDockerExecCmd(
+    Result<CommandLine> withDockerExecCmd(
         const CommandLine &cmd,
         const std::optional<Environment> &env = std::nullopt,
         const std::optional<FilePath> &workDir = std::nullopt,
@@ -200,9 +200,9 @@ public:
     Tasks validateMounts() const;
 
     void stopCurrentContainer();
-    Utils::expected_str<Utils::Environment> fetchEnvironment() const;
+    Utils::Result<Utils::Environment> fetchEnvironment() const;
 
-    expected_str<FilePath> getCmdBridgePath() const;
+    Result<FilePath> getCmdBridgePath() const;
 
     std::optional<FilePath> clangdExecutable() const
     {
@@ -217,9 +217,9 @@ public:
 
     bool isImageAvailable() const;
 
-    expected_str<std::unique_ptr<DeviceFileAccess>> createBridgeFileAccess()
+    Result<std::unique_ptr<DeviceFileAccess>> createBridgeFileAccess()
     {
-        expected_str<FilePath> cmdBridgePath = getCmdBridgePath();
+        Result<FilePath> cmdBridgePath = getCmdBridgePath();
 
         if (!cmdBridgePath)
             return make_unexpected(cmdBridgePath.error());
@@ -253,7 +253,7 @@ public:
         if (*fileAccess)
             return fileAccess->get();
 
-        expected_str<std::unique_ptr<DeviceFileAccess>> fAccess = createBridgeFileAccess();
+        Result<std::unique_ptr<DeviceFileAccess>> fAccess = createBridgeFileAccess();
 
         if (fAccess) {
             *fileAccess = std::move(*fAccess);
@@ -447,7 +447,7 @@ void DockerProcessImpl::start()
     const bool interactive = m_setup.m_processMode == ProcessMode::Writer
                              || !m_setup.m_writeData.isEmpty() || inTerminal;
 
-    const expected_str<CommandLine> fullCommandLine = m_devicePrivate->withDockerExecCmd(
+    const Result<CommandLine> fullCommandLine = m_devicePrivate->withDockerExecCmd(
         m_setup.m_commandLine,
         m_setup.m_environment,
         m_setup.m_workingDirectory,
@@ -541,7 +541,7 @@ Tasks DockerDevicePrivate::validateMounts() const
     return result;
 }
 
-expected_str<Environment> DockerDevicePrivate::fetchEnvironment() const
+Result<Environment> DockerDevicePrivate::fetchEnvironment() const
 {
     Process envCaptureProcess;
     envCaptureProcess.setCommand(
@@ -598,7 +598,7 @@ DockerDevice::DockerDevice()
     environment.setSettingsKey(DockerDeviceEnvironment);
     environment.setLabelText(Tr::tr("Container Environment:"));
     connect(&environment, &DockerDeviceEnvironmentAspect::fetchRequested, this, [this] {
-        const expected_str<Environment> result = d->fetchEnvironment();
+        const Result<Environment> result = d->fetchEnvironment();
         if (!result) {
             QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), result.error());
             return;
@@ -642,12 +642,12 @@ DockerDevice::DockerDevice()
     network.setFillCallback([this](const StringSelectionAspect::ResultCallback &cb) {
         auto future = DockerApi::instance()->networks();
 
-        auto watcher = new QFutureWatcher<expected_str<QList<Network>>>(this);
+        auto watcher = new QFutureWatcher<Result<QList<Network>>>(this);
         QObject::connect(watcher,
-                         &QFutureWatcher<expected_str<QList<Network>>>::finished,
+                         &QFutureWatcher<Result<QList<Network>>>::finished,
                          this,
                          [watcher, cb]() {
-                             expected_str<QList<Network>> result = watcher->result();
+                             Result<QList<Network>> result = watcher->result();
                              if (result) {
                                  auto items = transform(*result, [](const Network &network) {
                                      QStandardItem *item = new QStandardItem(network.name);
@@ -675,7 +675,7 @@ DockerDevice::DockerDevice()
             const FilePath rootPath = FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,
                                                           repoAndTagEncoded(),
                                                           u"/");
-            return asyncRun([rootPath, newValue]() -> expected_str<QString> {
+            return asyncRun([rootPath, newValue]() -> Result<QString> {
                 QString changedValue = newValue;
                 FilePath path = FilePath::fromUserInput(newValue);
                 if (path.isLocal()) {
@@ -711,15 +711,15 @@ DockerDevice::DockerDevice()
     setFileAccessFactory([this] { return d->createFileAccess(); });
 
     setOpenTerminal([this](const Environment &env,
-                           const FilePath &workingDir) -> expected_str<void> {
+                           const FilePath &workingDir) -> Result<> {
         Q_UNUSED(env); // TODO: That's the runnable's environment in general. Use it via -e below.
 
-        expected_str<QString> result = d->updateContainerAccess();
+        Result<QString> result = d->updateContainerAccess();
 
         if (!result)
             return make_unexpected(result.error());
 
-        expected_str<FilePath> shell = Terminal::defaultShellForDevice(rootPath());
+        Result<FilePath> shell = Terminal::defaultShellForDevice(rootPath());
         if (!shell)
             return make_unexpected(shell.error());
 
@@ -735,12 +735,12 @@ DockerDevice::DockerDevice()
 
     addDeviceAction(
         {Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device) {
-             expected_str<Environment> env = device->systemEnvironmentWithError();
+             Result<Environment> env = device->systemEnvironmentWithError();
              if (!env) {
                  QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), env.error());
                  return;
              }
-             expected_str<void> result = device->openTerminal(*env, FilePath());
+             Result<> result = device->openTerminal(*env, FilePath());
              if (!result)
                  QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), result.error());
          }});
@@ -758,11 +758,11 @@ void DockerDevice::shutdown()
 
 Result<> DockerDevice::updateContainerAccess() const
 {
-    expected_str<QString> result = d->updateContainerAccess();
+    Result<QString> result = d->updateContainerAccess();
     return result ? ResultOk : ResultError(result.error());
 }
 
-expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
+Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
     const CommandLine &cmd,
     const std::optional<Environment> &env,
     const std::optional<FilePath> &workDir,
@@ -772,7 +772,7 @@ expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
 {
     QString containerId;
 
-    if (const expected_str<QString> result = updateContainerAccess(); !result)
+    if (const Result<QString> result = updateContainerAccess(); !result)
         return make_unexpected(result.error());
     else
         containerId = *result;
@@ -883,7 +883,7 @@ QStringList toMountArg(const DockerDevicePrivate::MountPair &mi)
     return QStringList{"--mount", mountArg};
 }
 
-expected_str<void> isValidMountInfo(const DockerDevicePrivate::MountPair &mi)
+Result<> isValidMountInfo(const DockerDevicePrivate::MountPair &mi)
 {
     if (!mi.path.isLocal())
         return make_unexpected(QString("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));
@@ -916,7 +916,7 @@ expected_str<void> isValidMountInfo(const DockerDevicePrivate::MountPair &mi)
     return {};
 }
 
-expected_str<FilePath> DockerDevicePrivate::getCmdBridgePath() const
+Result<FilePath> DockerDevicePrivate::getCmdBridgePath() const
 {
     auto osAndArch = osTypeAndArch();
     if (!osAndArch)
@@ -927,7 +927,7 @@ expected_str<FilePath> DockerDevicePrivate::getCmdBridgePath() const
 
 QStringList DockerDevicePrivate::createMountArgs() const
 {
-    const Utils::expected_str<Utils::FilePath> cmdBridgePath = getCmdBridgePath();
+    const Utils::Result<Utils::FilePath> cmdBridgePath = getCmdBridgePath();
     QTC_CHECK_EXPECTED(cmdBridgePath);
 
     QStringList cmds;
@@ -1004,7 +1004,7 @@ CommandLine DockerDevicePrivate::createCommandLine()
     return dockerCreate;
 }
 
-expected_str<QString> DockerDevicePrivate::updateContainerAccess()
+Result<QString> DockerDevicePrivate::updateContainerAccess()
 {
     if (m_isShutdown)
         return make_unexpected(Tr::tr("Device is shut down"));
@@ -1047,7 +1047,7 @@ void DockerDevice::fromMap(const Store &map)
 
     if (!environment.isRemoteEnvironmentSet()) {
         // Old devices may not have the environment stored yet
-        if (const expected_str<Environment> env = d->fetchEnvironment(); !env)
+        if (const Result<Environment> env = d->fetchEnvironment(); !env)
             qCWarning(dockerDeviceLog) << "Failed to fetch environment:" << env.error();
         else {
             qCDebug(dockerDeviceLog) << "Setting environment for device:" << env->toStringList();
@@ -1114,12 +1114,12 @@ bool DockerDevice::ensureReachable(const FilePath &other) const
     return d->ensureReachable(other.parentDir());
 }
 
-expected_str<FilePath> DockerDevice::localSource(const FilePath &other) const
+Result<FilePath> DockerDevice::localSource(const FilePath &other) const
 {
     return d->localSource(other);
 }
 
-expected_str<Environment> DockerDevice::systemEnvironmentWithError() const
+Result<Environment> DockerDevice::systemEnvironmentWithError() const
 {
     if (environment.isRemoteEnvironmentSet())
         return environment();
@@ -1355,7 +1355,7 @@ void DockerDeviceFactory::shutdownExistingDevices()
     });
 }
 
-expected_str<QPair<Utils::OsType, Utils::OsArch>> DockerDevicePrivate::osTypeAndArch() const
+Result<QPair<Utils::OsType, Utils::OsArch>> DockerDevicePrivate::osTypeAndArch() const
 {
     Process proc;
     proc.setCommand(
@@ -1395,7 +1395,7 @@ void DockerDevicePrivate::changeMounts(QStringList newMounts)
     }
 }
 
-expected_str<FilePath> DockerDevicePrivate::localSource(const FilePath &other) const
+Result<FilePath> DockerDevicePrivate::localSource(const FilePath &other) const
 {
     const auto devicePath = FilePath::fromString(other.path());
     for (const FilePath &mount : q->mounts()) {

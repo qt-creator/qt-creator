@@ -417,7 +417,7 @@ Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreference
            / QLatin1String(Constants::SETTINGS_FILE_NAME);
 }
 
-Utils::expected_str<void> parseConfigurationContent(const std::string &fileContent,
+Utils::Result<> parseConfigurationContent(const std::string &fileContent,
                                                     clang::format::FormatStyle &style,
                                                     bool allowUnknownOptions)
 {
@@ -444,7 +444,7 @@ Utils::expected_str<void> parseConfigurationContent(const std::string &fileConte
     return {};
 }
 
-Utils::expected_str<void> parseConfigurationFile(const Utils::FilePath &filePath,
+Utils::Result<> parseConfigurationFile(const Utils::FilePath &filePath,
                                                  clang::format::FormatStyle &style)
 {
     return parseConfigurationContent(filePath.fileContents().value_or(QByteArray()).toStdString(),

@@ -71,10 +71,10 @@ static DebuggerItem makeAutoDetectedDebuggerItem(
     return item;
 }
 
-static expected_str<DebuggerItem> makeAutoDetectedDebuggerItem(
+static Result<DebuggerItem> makeAutoDetectedDebuggerItem(
     const FilePath &command, const QString &detectionSource)
 {
-    expected_str<DebuggerItem::TechnicalData> technicalData
+    Result<DebuggerItem::TechnicalData> technicalData
         = DebuggerItem::TechnicalData::extract(command, {});
 
     if (!technicalData)
@@ -689,7 +689,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
     if (searchPaths.front().isLocal()) {
         paths.append(searchGdbPathsFromRegistry());
 
-        const expected_str<FilePath> lldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
+        const Result<FilePath> lldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
         if (lldb)
             suspects.append(*lldb);
     }
@@ -749,7 +749,7 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
             continue;
         }
 
-        const expected_str<DebuggerItem> item
+        const Result<DebuggerItem> item
             = makeAutoDetectedDebuggerItem(command, detectionSource);
         if (!item) {
             logMessages.append(item.error());

@@ -40,7 +40,7 @@ const char installDebugPyInfoBarId[] = "Python::InstallDebugPy";
 
 static FilePath packageDir(const FilePath &python, const QString &packageName)
 {
-    expected_str<FilePath> baseDir = python.isLocal() ? Core::ICore::userResourcePath()
+    Result<FilePath> baseDir = python.isLocal() ? Core::ICore::userResourcePath()
                                                       : python.tmpDir();
     return baseDir ? baseDir->pathAppended(packageName) : FilePath();
 }

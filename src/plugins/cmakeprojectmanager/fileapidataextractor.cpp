@@ -74,7 +74,7 @@ static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
               const auto mimeType = Utils::mimeTypeForFile(info.path);
               if (mimeType.matchesName(Utils::Constants::CMAKE_MIMETYPE)
                   || mimeType.matchesName(Utils::Constants::CMAKE_PROJECT_MIMETYPE)) {
-                  expected_str<QByteArray> fileContent = sfn.fileContents();
+                  Result<QByteArray> fileContent = sfn.fileContents();
                   std::string errorString;
                   if (fileContent) {
                       fileContent = fileContent->replace("\r\n", "\n");

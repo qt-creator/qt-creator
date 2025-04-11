@@ -25,7 +25,7 @@ public:
 
     QString containerId() const;
 
-    static Utils::expected_str<std::unique_ptr<DockerContainerThread>> create(const Init &init);
+    static Utils::Result<std::unique_ptr<DockerContainerThread>> create(const Init &init);
 
 private:
     DockerContainerThread(Init init);

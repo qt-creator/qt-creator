@@ -305,7 +305,7 @@ Environment DeviceFileAccess::deviceEnvironment() const
     return {};
 }
 
-expected_str<QByteArray> DeviceFileAccess::fileContents(const FilePath &filePath,
+Result<QByteArray> DeviceFileAccess::fileContents(const FilePath &filePath,
                                                         qint64 limit,
                                                         qint64 offset) const
 {
@@ -317,7 +317,7 @@ expected_str<QByteArray> DeviceFileAccess::fileContents(const FilePath &filePath
         Tr::tr("fileContents is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
-expected_str<qint64> DeviceFileAccess::writeFileContents(const FilePath &filePath,
+Result<qint64> DeviceFileAccess::writeFileContents(const FilePath &filePath,
                                                          const QByteArray &data) const
 {
     Q_UNUSED(filePath)
@@ -385,7 +385,7 @@ std::optional<FilePath> DeviceFileAccess::refersToExecutableFile(
     return {};
 }
 
-expected_str<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath)
+Result<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath)
 {
     Q_UNUSED(filePath)
     QTC_CHECK(false);
@@ -393,7 +393,7 @@ expected_str<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath
         Tr::tr("createTempFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
-Utils::expected_str<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(
+Utils::Result<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(
     const FilePath &path) const
 {
     Q_UNUSED(path);
@@ -559,7 +559,7 @@ Environment UnavailableDeviceFileAccess::deviceEnvironment() const
     return {};
 }
 
-expected_str<QByteArray> UnavailableDeviceFileAccess::fileContents(const FilePath &filePath,
+Result<QByteArray> UnavailableDeviceFileAccess::fileContents(const FilePath &filePath,
                                                                    qint64 limit,
                                                                    qint64 offset) const
 {
@@ -569,7 +569,7 @@ expected_str<QByteArray> UnavailableDeviceFileAccess::fileContents(const FilePat
     return make_unexpected(unavailableMessage());
 }
 
-expected_str<qint64> UnavailableDeviceFileAccess::writeFileContents(const FilePath &filePath,
+Result<qint64> UnavailableDeviceFileAccess::writeFileContents(const FilePath &filePath,
                                                                     const QByteArray &data) const
 {
     Q_UNUSED(filePath)
@@ -627,13 +627,13 @@ std::optional<FilePath> UnavailableDeviceFileAccess::refersToExecutableFile(
     return {};
 }
 
-expected_str<FilePath> UnavailableDeviceFileAccess::createTempFile(const FilePath &filePath)
+Result<FilePath> UnavailableDeviceFileAccess::createTempFile(const FilePath &filePath)
 {
     Q_UNUSED(filePath)
     return make_unexpected(unavailableMessage());
 }
 
-expected_str<std::unique_ptr<FilePathWatcher>>
+Result<std::unique_ptr<FilePathWatcher>>
     UnavailableDeviceFileAccess::watch(const FilePath &path) const
 {
     Q_UNUSED(path);
@@ -1131,7 +1131,7 @@ Environment DesktopDeviceFileAccess::deviceEnvironment() const
     return Environment::systemEnvironment();
 }
 
-expected_str<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &filePath,
+Result<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &filePath,
                                                                qint64 limit,
                                                                qint64 offset) const
 {
@@ -1158,7 +1158,7 @@ expected_str<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &f
     return data;
 }
 
-expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &filePath,
+Result<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &filePath,
                                                                 const QByteArray &data) const
 {
     QFile file(filePath.path());
@@ -1178,7 +1178,7 @@ expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &
     return res;
 }
 
-expected_str<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &filePath)
+Result<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &filePath)
 {
     QTemporaryFile file(filePath.path());
     file.setAutoRemove(false);
@@ -1190,7 +1190,7 @@ expected_str<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &f
     return filePath.withNewPath(file.fileName());
 }
 
-Utils::expected_str<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(
+Utils::Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(
     const FilePath &path) const
 {
     auto watcher = std::make_unique<DesktopFilePathWatcher>(path);
@@ -1466,11 +1466,11 @@ FilePath UnixDeviceFileAccess::symLinkTarget(const FilePath &filePath) const
     return out.isEmpty() ? FilePath() : filePath.withNewPath(out);
 }
 
-expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &filePath,
+Result<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &filePath,
                                                             qint64 limit,
                                                             qint64 offset) const
 {
-    expected_str<FilePath> localSource = filePath.localSource();
+    Result<FilePath> localSource = filePath.localSource();
     if (localSource && *localSource != filePath)
         return localSource->fileContents(limit, offset);
 
@@ -1498,10 +1498,10 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
 #endif
 }
 
-expected_str<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &filePath,
+Result<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &filePath,
                                                              const QByteArray &data) const
 {
-    expected_str<FilePath> localSource = filePath.localSource();
+    Result<FilePath> localSource = filePath.localSource();
     if (localSource && *localSource != filePath)
         return localSource->writeFileContents(data);
 
@@ -1515,7 +1515,7 @@ expected_str<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &fil
     return data.size();
 }
 
-expected_str<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &filePath)
+Result<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &filePath)
 {
     if (!m_hasMkTemp.has_value())
         m_hasMkTemp = runInShellSuccess({"which", {"mktemp"}, OsType::OsTypeLinux}).has_value();
@@ -1566,7 +1566,7 @@ expected_str<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &file
         }
     } while (newPath.exists());
 
-    const expected_str<qint64> createResult = newPath.writeFileContents({});
+    const Result<qint64> createResult = newPath.writeFileContents({});
 
     if (!createResult)
         return make_unexpected(createResult.error());

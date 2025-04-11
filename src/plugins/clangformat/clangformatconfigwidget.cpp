@@ -164,7 +164,7 @@ void ClangFormatConfigWidget::initEditor()
 
     connect(m_editor->document(), &TextEditor::TextDocument::contentsChanged, this, [this] {
         clang::format::FormatStyle currentSettingsStyle{};
-        const Utils::expected_str<void> success
+        const Utils::Result<> success
             = parseConfigurationContent(m_editor->document()->contents().toStdString(),
                                         currentSettingsStyle);
 

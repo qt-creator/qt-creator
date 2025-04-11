@@ -53,7 +53,7 @@ static FilePaths getSoLibSearchPath(const ProjectNode *node)
 
     const FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(
                 node->getProject()->activeBuildConfiguration());
-    if (const expected_str<QByteArray> contents = jsonFile.fileContents()) {
+    if (const Result<QByteArray> contents = jsonFile.fileContents()) {
         QJsonParseError error;
         QJsonDocument doc = QJsonDocument::fromJson(*contents, &error);
         if (error.error == QJsonParseError::NoError) {

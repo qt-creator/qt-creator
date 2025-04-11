@@ -124,9 +124,9 @@ FilePath DockerApi::dockerClient()
     return settings().dockerBinaryPath.effectiveBinary();
 }
 
-QFuture<Utils::expected_str<QList<Network>>> DockerApi::networks()
+QFuture<Utils::Result<QList<Network>>> DockerApi::networks()
 {
-    return Utils::asyncRun([this]() -> Utils::expected_str<QList<Network>> {
+    return Utils::asyncRun([this]() -> Utils::Result<QList<Network>> {
         QList<Network> result;
 
         Process process;

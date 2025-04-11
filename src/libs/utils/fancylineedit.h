@@ -6,7 +6,7 @@
 #include "utils_global.h"
 
 #include "completinglineedit.h"
-#include "expected.h"
+#include "result.h"
 #include "storekey.h"
 
 #include <QAbstractButton>
@@ -102,7 +102,7 @@ public:
     //  Validation
 
     // line edit, (out)errorMessage -> valid?
-    using AsyncValidationResult = Utils::expected_str<QString>;
+    using AsyncValidationResult = Utils::Result<QString>;
     using AsyncValidationFuture = QFuture<AsyncValidationResult>;
     using AsyncValidationFunction = std::function<AsyncValidationFuture(QString)>;
     using SynchronousValidationFunction = std::function<bool(FancyLineEdit *, QString *)>;

@@ -140,7 +140,7 @@ std::optional<QString> DSStore::load(const Utils::FilePath &dsModuleDirPath)
 
     // read qmldir
     const auto qmldirFile = dsModuleDirPath / "qmldir";
-    const Utils::expected_str<QByteArray> contents = qmldirFile.fileContents();
+    const Utils::Result<QByteArray> contents = qmldirFile.fileContents();
     if (!contents)
         return tr("Can not read Design System qmldir");
 

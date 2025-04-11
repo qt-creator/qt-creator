@@ -536,7 +536,7 @@ ExecutableItem DebuggerRunToolPrivate::finalizeRecipe(const Storage<EnginesDrive
     };
 }
 
-static expected_str<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
+static Result<QList<QPointer<Internal::DebuggerEngine>>> createEngines(
     RunControl *runControl, const DebuggerRunParameters &rp)
 {
     if (auto dapEngine = createDapEngine(runControl->runMode()))

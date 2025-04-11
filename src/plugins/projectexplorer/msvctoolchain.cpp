@@ -2235,7 +2235,7 @@ Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector
     Toolchains results;
     Toolchains known = detector.alreadyKnown;
 
-    expected_str<FilePath> qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
+    Result<FilePath> qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
     if (qtCreatorsClang) {
         qtCreatorsClang = qtCreatorsClang->parentDir().pathAppended("clang-cl.exe");
         results.append(detectClangClToolChainInPath(*qtCreatorsClang,

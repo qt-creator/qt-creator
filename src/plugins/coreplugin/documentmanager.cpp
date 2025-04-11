@@ -145,7 +145,7 @@ public:
         if (watchers.contains(path))
             return false;
 
-        expected_str<std::unique_ptr<FilePathWatcher>> res = path.watch();
+        Result<std::unique_ptr<FilePathWatcher>> res = path.watch();
         if (!res) {
             if (!path.exists())
                 return false; // Too much noise if we complain about non-existing files here.

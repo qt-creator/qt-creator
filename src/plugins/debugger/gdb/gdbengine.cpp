@@ -4019,7 +4019,7 @@ void GdbEngine::handleGdbStarted()
     if (!rp.debugger().command.executable().isLocal()) {
         // Gdb itself running remotely.
         const FilePath loadOrderFile = dumperPath / "loadorder.txt";
-        const expected_str<QByteArray> toLoad = loadOrderFile.fileContents();
+        const Result<QByteArray> toLoad = loadOrderFile.fileContents();
         if (!toLoad) {
             AsynchronousMessageBox::critical(Tr::tr("Cannot Find Debugger Initialization Script"),
                                              Tr::tr("Cannot read \"%1\": %2")
@@ -4038,7 +4038,7 @@ void GdbEngine::handleGdbStarted()
                 module = "gdbbridge";
 
             const FilePath codeFile = dumperPath / (module + ".py");
-            const expected_str<QByteArray> code = codeFile.fileContents();
+            const Result<QByteArray> code = codeFile.fileContents();
             if (!code) {
                 qDebug() << Tr::tr("Cannot read \"%1\": %2")
                                 .arg(codeFile.toUserOutput(), code.error());

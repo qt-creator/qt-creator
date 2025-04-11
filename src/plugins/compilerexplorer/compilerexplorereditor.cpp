@@ -432,7 +432,7 @@ Result<> JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSa
         setFilePath(newFilePath);
     }
 
-    expected_str<qint64> result = path.writeFileContents(jsonFromStore(store));
+    Result<qint64> result = path.writeFileContents(jsonFromStore(store));
     if (!result)
         return ResultError(result.error());
 

@@ -51,7 +51,7 @@ const QLatin1StringView FILES_EXCLUDE_KEY{"files.exclude"};
 const char EXCLUDE_ACTION_ID[] = "ProjectExplorer.ExcludeFromWorkspace";
 const char RESCAN_ACTION_ID[] = "ProjectExplorer.RescanWorkspace";
 
-const expected_str<QJsonObject> projectDefinition(const FilePath &path)
+const Result<QJsonObject> projectDefinition(const FilePath &path)
 {
     if (auto fileContents = path.fileContents())
         return QJsonDocument::fromJson(*fileContents).object();
@@ -674,7 +674,7 @@ public:
     void excludePath(const FilePath &path)
     {
         QTC_ASSERT(projectFilePath().exists(), return);
-        if (expected_str<QJsonObject> json = projectDefinition(projectFilePath())) {
+        if (Result<QJsonObject> json = projectDefinition(projectFilePath())) {
             QJsonArray excludes = (*json)[FILES_EXCLUDE_KEY].toArray();
             const QString relative = path.relativePathFromDir(projectDirectory()).path();
             if (excludes.contains(relative))

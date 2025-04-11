@@ -143,10 +143,10 @@ bool FSEngineImpl::open(QIODeviceBase::OpenMode openMode, std::optional<QFile::P
         return false;
 
     if (read || append) {
-        const expected_str<QByteArray> readResult = m_filePath.fileContents();
+        const Result<QByteArray> readResult = m_filePath.fileContents();
         QTC_ASSERT_EXPECTED(readResult, return false);
 
-        const expected_str<qint64> writeResult = m_tempStorage->write(*readResult);
+        const Result<qint64> writeResult = m_tempStorage->write(*readResult);
         QTC_ASSERT_EXPECTED(writeResult, return false);
 
         if (!append)

@@ -160,7 +160,7 @@ AndroidQtVersion::BuiltWith AndroidQtVersion::builtWith(bool *ok) const
     // version.prefix() not yet set when this is called
     const FilePath coreModuleJson = qmakeFilePath().parentDir().parentDir() / "modules/Core.json";
     if (coreModuleJson.exists()) {
-        if (const expected_str<QByteArray> contents = coreModuleJson.fileContents())
+        if (const Result<QByteArray> contents = coreModuleJson.fileContents())
             return parseModulesCoreJson(*contents, ok);
     }
 

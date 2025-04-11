@@ -160,7 +160,7 @@ public:
 
     virtual Utils::FilePath installLocation(bool inUserFolder) const = 0;
 
-    virtual Utils::expected_str<Utils::FilePaths> filesToUninstall() const;
+    virtual Utils::Result<Utils::FilePaths> filesToUninstall() const;
     virtual bool isSystemPlugin() const;
 
 protected:
@@ -183,8 +183,8 @@ protected:
 
     virtual void setLocation(const Utils::FilePath &location);
     virtual void setFilePath(const Utils::FilePath &filePath);
-    virtual Utils::expected_str<void> readMetaData(const QJsonObject &metaData);
-    Utils::expected_str<void> reportError(const QString &error);
+    virtual Utils::Result<> readMetaData(const QJsonObject &metaData);
+    Utils::Result<> reportError(const QString &error);
 
 private:
     std::unique_ptr<Internal::PluginSpecPrivate> d;
@@ -194,16 +194,16 @@ using PluginFromArchiveFactory = std::function<QList<PluginSpec *>(const Utils::
 EXTENSIONSYSTEM_EXPORT QList<PluginFromArchiveFactory> &pluginSpecsFromArchiveFactories();
 EXTENSIONSYSTEM_EXPORT QList<PluginSpec *> pluginSpecsFromArchive(const Utils::FilePath &path);
 
-EXTENSIONSYSTEM_EXPORT Utils::expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(
+EXTENSIONSYSTEM_EXPORT Utils::Result<std::unique_ptr<PluginSpec>> readCppPluginSpec(
     const Utils::FilePath &filePath);
-EXTENSIONSYSTEM_EXPORT Utils::expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(
+EXTENSIONSYSTEM_EXPORT Utils::Result<std::unique_ptr<PluginSpec>> readCppPluginSpec(
     const QStaticPlugin &plugin);
 
 class EXTENSIONSYSTEM_TEST_EXPORT CppPluginSpec : public PluginSpec
 {
-    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(
+    friend EXTENSIONSYSTEM_EXPORT Utils::Result<std::unique_ptr<PluginSpec>> readCppPluginSpec(
         const Utils::FilePath &filePath);
-    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(
+    friend EXTENSIONSYSTEM_EXPORT Utils::Result<std::unique_ptr<PluginSpec>> readCppPluginSpec(
         const QStaticPlugin &plugin);
 
 public:
@@ -219,7 +219,7 @@ public:
     IPlugin::ShutdownFlag stop() override;
     void kill() override;
 
-    Utils::expected_str<void> readMetaData(const QJsonObject &pluginMetaData) override;
+    Utils::Result<> readMetaData(const QJsonObject &pluginMetaData) override;
 
     Utils::FilePath installLocation(bool inUserFolder) const override;
 

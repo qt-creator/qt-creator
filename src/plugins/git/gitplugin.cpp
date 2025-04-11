@@ -405,7 +405,7 @@ void GitPluginPrivate::onApplySettings()
 {
     emit configurationChanged();
     updateRepositoryBrowserAction();
-    const expected_str<FilePath> result = settings().gitExecutable();
+    const Result<FilePath> result = settings().gitExecutable();
     if (!result) {
         QTimer::singleShot(0, this, [errorMessage = result.error()] {
             AsynchronousMessageBox::warning(Tr::tr("Git Settings"), errorMessage);

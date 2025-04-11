@@ -19,7 +19,7 @@ namespace Python::Internal {
     \param relativeFilePath The relative path to the file from the testfiles folder
     \returns The contents of the file
 */
-static Utils::expected_str<QString> readTestFile(const QString &relativeFilePath)
+static Utils::Result<QString> readTestFile(const QString &relativeFilePath)
 {
     const auto filePath = Utils::FilePath::fromUserInput(":/unittests/Python/" + relativeFilePath);
     Core::BaseTextDocument projectFile;

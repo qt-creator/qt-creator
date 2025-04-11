@@ -323,7 +323,7 @@ void IosDeviceManager::updateInfo(const QString &devId)
                                 {"devicectl", "list", "devices", "--quiet", "--json-output", "-"}});
         },
         [this, devId](const Process &process) {
-            const expected_str<QMap<QString, QString>> result = parseDeviceInfo(process.rawStdOut(),
+            const Result<QMap<QString, QString>> result = parseDeviceInfo(process.rawStdOut(),
                                                                                 devId);
             if (!result) {
                 qCDebug(detectLog) << result.error();

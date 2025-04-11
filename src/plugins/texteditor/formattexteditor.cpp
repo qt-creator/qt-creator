@@ -38,7 +38,7 @@ struct FormatInput
     int endPos = 0;
 };
 
-using FormatOutput = expected_str<QString>;
+using FormatOutput = Result<QString>;
 
 void formatCurrentFile(const Command &command, int startPos, int endPos)
 {
@@ -88,7 +88,7 @@ static FormatOutput format(const FormatInput &input)
             return Utils::make_unexpected(executable.toUserOutput() + ": " + output);
 
         // Read text back
-        const expected_str<QByteArray> contents = sourceFile.filePath().fileContents();
+        const Result<QByteArray> contents = sourceFile.filePath().fileContents();
         if (!contents) {
             return Utils::make_unexpected(Tr::tr("Cannot read file \"%1\": %2.")
                          .arg(sourceFile.filePath().toUserOutput(), contents.error()));

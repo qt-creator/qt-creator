@@ -90,7 +90,7 @@ struct AppScript
     QString detached;
 };
 
-expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setupData)
+Result<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setupData)
 {
     const TerminalCommand terminal = TerminalCommand::terminalEmulator();
     bool detached = setupData.m_terminalMode == TerminalMode::Detached;

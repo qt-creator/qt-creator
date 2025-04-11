@@ -929,7 +929,7 @@ clang::format::FormatStyle ClangFormatBaseIndenterPrivate::customSettingsStyle(
         return currentQtStyle(preferences);
 
     clang::format::FormatStyle currentSettingsStyle;
-    const Utils::expected_str<void> result = parseConfigurationFile(filePath, currentSettingsStyle);
+    const Utils::Result<> result = parseConfigurationFile(filePath, currentSettingsStyle);
     if (!result) {
         qCWarning(clangIndenterLog)
             << QString{"Failed to parse config %1. Falling back to the Qt style."}.arg(

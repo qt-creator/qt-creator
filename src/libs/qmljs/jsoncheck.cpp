@@ -1084,7 +1084,7 @@ JsonSchema *JsonSchemaManager::schemaByName(const QString &baseName) const
 
 JsonSchema *JsonSchemaManager::parseSchema(const FilePath &schemaFileName) const
 {
-    if (expected_str<QByteArray> contents = schemaFileName.fileContents()) {
+    if (Result<QByteArray> contents = schemaFileName.fileContents()) {
         JsonValue *json = JsonValue::create(QString::fromUtf8(*contents), &m_pool);
         if (json && json->kind() == JsonValue::Object)
             return new JsonSchema(json->toObject(), this);

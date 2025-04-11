@@ -18,7 +18,7 @@ void setupHookModule()
             &Core::EditorManager::documentOpened,
             guard,
             [func](Core::IDocument *document) {
-                expected_str<void> res = void_safe_call(func, document);
+                Result<> res = void_safe_call(func, document);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -29,7 +29,7 @@ void setupHookModule()
             &Core::EditorManager::documentClosed,
             guard,
             [func](Core::IDocument *document) {
-                expected_str<void> res = void_safe_call(func, document);
+                Result<> res = void_safe_call(func, document);
                 QTC_CHECK_EXPECTED(res);
             });
     });

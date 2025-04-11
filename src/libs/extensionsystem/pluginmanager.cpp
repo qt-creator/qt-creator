@@ -1978,7 +1978,7 @@ Result<> PluginManagerPrivate::removePluginOnRestart(const QString &pluginId)
     if (!pluginSpec)
         return ResultError(Tr::tr("Plugin not found."));
 
-    const expected_str<FilePaths> filePaths = pluginSpec->filesToUninstall();
+    const Result<FilePaths> filePaths = pluginSpec->filesToUninstall();
     if (!filePaths)
         return ResultError(filePaths.error());
 
@@ -2101,7 +2101,7 @@ void PluginManagerPrivate::readPluginPaths()
 
     // from the file system
     for (const FilePath &pluginFile : pluginFiles(pluginPaths)) {
-        expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(pluginFile);
+        Result<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(pluginFile);
         if (!spec) {
             qCInfo(pluginLog).noquote() << QString("Ignoring plugin \"%1\" because: %2")
                                                .arg(pluginFile.toUserOutput())
@@ -2113,7 +2113,7 @@ void PluginManagerPrivate::readPluginPaths()
 
     // static
     for (const QStaticPlugin &plugin : QPluginLoader::staticPlugins()) {
-        expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(plugin);
+        Result<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(plugin);
         if (!spec) {
             qCInfo(pluginLog).noquote()
                 << QString("Ignoring static plugin because: %2").arg(spec.error());

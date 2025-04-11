@@ -318,7 +318,7 @@ static std::optional<cmListFile> getUncachedCMakeListFile(const FilePath &target
     // Have a fresh look at the CMake file, not relying on a cached value
     Core::DocumentManager::saveModifiedDocumentSilently(
         Core::DocumentModel::documentForFilePath(targetCMakeFile));
-    expected_str<QByteArray> fileContent = targetCMakeFile.fileContents();
+    Result<QByteArray> fileContent = targetCMakeFile.fileContents();
     cmListFile cmakeListFile;
     std::string errorString;
     if (fileContent) {
@@ -410,7 +410,7 @@ static SnippetAndLocation generateSnippetAndLocationForSources(
         result.line += extraChars;
     return result;
 }
-static expected_str<bool> insertSnippetSilently(const FilePath &cmakeFile,
+static Result<bool> insertSnippetSilently(const FilePath &cmakeFile,
                                                 const SnippetAndLocation &snippetLocation)
 {
     BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(
@@ -531,7 +531,7 @@ static std::optional<cmListFileFunction> handleQtCreateTranslation(const cmListF
 }
 
 
-static expected_str<bool> insertQtAddTranslations(const cmListFile &cmakeListFile,
+static Result<bool> insertQtAddTranslations(const cmListFile &cmakeListFile,
                                                   const FilePath &targetCmakeFile,
                                                   const QString &targetName,
                                                   int targetDefinitionLine,
@@ -556,7 +556,7 @@ static expected_str<bool> insertQtAddTranslations(const cmListFile &cmakeListFil
         snippet = QString("\nqt_add_translations(%1 TS_FILES %2)\n").arg(targetName, filesToAdd);
 
     const int insertionLine = function->LineEnd() + 1;
-    expected_str<bool> inserted = insertSnippetSilently(targetCmakeFile,
+    Result<bool> inserted = insertSnippetSilently(targetCmakeFile,
                                                         {snippet, insertionLine, 0});
     if (!inserted || !addLinguist)
         return inserted;
@@ -618,7 +618,7 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
             }
 
             // we failed to find any pre-existing, add one ourself
-            expected_str<bool> inserted = insertQtAddTranslations(*cmakeListFile,
+            Result<bool> inserted = insertQtAddTranslations(*cmakeListFile,
                                                                   targetCMakeFile,
                                                                   targetName,
                                                                   cmakeFile->targetLine,
@@ -641,7 +641,7 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
         if (lastArgument.Delim == cmListFileArgument::Quoted)
             snippetLocation.column += 2;
 
-        expected_str<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
+        Result<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
         if (!inserted) {
             qCCritical(cmakeBuildSystemLog) << inserted.error();
             return false;
@@ -727,7 +727,7 @@ bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, Fi
 
             const SnippetAndLocation snippetLocation = generateSnippetAndLocationForSources(
                         newSourceFiles, *cmakeListFile, *function, targetName);
-            expected_str<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
+            Result<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
             if (!inserted) {
                 qCCritical(cmakeBuildSystemLog) << inserted.error();
                 return false;
@@ -1519,7 +1519,7 @@ void CMakeBuildSystem::updateProjectData()
         for (const RawProjectPart &rpp : std::as_const(rpps)) {
             FilePath moduleMapFile = buildConfiguration()->buildDirectory()
                     .pathAppended("qml_module_mappings/" + rpp.buildSystemTarget);
-            if (expected_str<QByteArray> content = moduleMapFile.fileContents()) {
+            if (Result<QByteArray> content = moduleMapFile.fileContents()) {
                 const QList<QByteArray> lines = content->split('\n');
                 for (const QByteArray &line : lines) {
                     if (!line.isEmpty())
