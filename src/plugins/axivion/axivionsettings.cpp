@@ -134,7 +134,7 @@ static QList<AxivionServer> readAxivionJson(const FilePath &filePath)
 {
     if (!filePath.exists())
         return {};
-    expected_str<QByteArray> contents = filePath.fileContents();
+    Result<QByteArray> contents = filePath.fileContents();
     if (!contents)
         return {};
     const QJsonDocument doc = QJsonDocument::fromJson(*contents);

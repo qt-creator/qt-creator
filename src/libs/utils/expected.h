@@ -11,9 +11,6 @@ namespace Utils {
 
 using namespace tl;
 
-template<class T>
-using expected_str = tl::expected<T, QString>;
-
 } // namespace Utils
 
 //! If 'expected' has an error the error will be printed and the 'action' will be executed.

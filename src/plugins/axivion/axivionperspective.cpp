@@ -558,7 +558,7 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
 void IssuesWidget::reinitProjectList(const QString &currentProject)
 {
     const auto onDashboardInfoFetched
-            = [this, currentProject] (const expected_str<DashboardInfo> &info) {
+            = [this, currentProject] (const Result<DashboardInfo> &info) {
         if (!info) {
             m_issuesView->hideProgressIndicator();
             return;

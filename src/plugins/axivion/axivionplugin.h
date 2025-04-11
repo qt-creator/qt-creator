@@ -5,8 +5,8 @@
 
 #include "dashboard/dto.h"
 
-#include <utils/expected.h>
 #include <utils/id.h>
+#include <utils/result.h>
 
 #include <QHash>
 #include <QMap>
@@ -85,20 +85,20 @@ QUrl resolveDashboardInfoUrl(const QUrl &url);
 
 Tasking::Group downloadDataRecipe(const Tasking::Storage<DownloadData> &storage);
 
-using DashboardInfoHandler = std::function<void(const Utils::expected_str<DashboardInfo> &)>;
+using DashboardInfoHandler = std::function<void(const Utils::Result<DashboardInfo> &)>;
 Tasking::Group dashboardInfoRecipe(const DashboardInfoHandler &handler = {});
 
 Tasking::Group projectInfoRecipe(const QString &projectName);
 
-// TODO: Wrap into expected_str<>?
+// TODO: Wrap into Result<>?
 using TableInfoHandler = std::function<void(const Dto::TableInfoDto &)>;
 Tasking::Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler);
 
-// TODO: Wrap into expected_str<>?
+// TODO: Wrap into Result<>?
 using IssueTableHandler = std::function<void(const Dto::IssueTableDto &)>;
 Tasking::Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &handler);
 
-// TODO: Wrap into expected_str<>?
+// TODO: Wrap into Result<>?
 using LineMarkerHandler = std::function<void(const Dto::FileViewDto &)>;
 Tasking::Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarkerHandler &handler);
 

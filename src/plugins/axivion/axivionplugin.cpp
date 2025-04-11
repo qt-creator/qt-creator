@@ -586,7 +586,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
 
         QString errorString;
         if (contentType == s_jsonContentType) {
-            const Utils::expected_str<Dto::ErrorDto> error
+            const Result<Dto::ErrorDto> error
                 = Dto::ErrorDto::deserializeExpected(reply->readAll());
 
             if (error) {
@@ -622,18 +622,18 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
         return DoneResult::Error;
     };
 
-    const auto onDeserializeSetup = [storage](Async<expected_str<DtoType>> &task) {
+    const auto onDeserializeSetup = [storage](Async<Result<DtoType>> &task) {
         if (!*storage)
             return SetupResult::StopWithSuccess;
 
-        const auto deserialize = [](QPromise<expected_str<DtoType>> &promise, const QByteArray &input) {
+        const auto deserialize = [](QPromise<Result<DtoType>> &promise, const QByteArray &input) {
             promise.addResult(DtoType::deserializeExpected(input));
         };
         task.setConcurrentCallData(deserialize, **storage);
         return SetupResult::Continue;
     };
 
-    const auto onDeserializeDone = [dtoStorage](const Async<expected_str<DtoType>> &task,
+    const auto onDeserializeDone = [dtoStorage](const Async<Result<DtoType>> &task,
                                                 DoneWith doneWith) {
         if (doneWith == DoneWith::Success && task.isResultAvailable()) {
             const auto result = task.result();
@@ -652,7 +652,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
     return {
         storage,
         NetworkQueryTask(onNetworkQuerySetup, onNetworkQueryDone),
-        AsyncTask<expected_str<DtoType>>(onDeserializeSetup, onDeserializeDone)
+        AsyncTask<Result<DtoType>>(onDeserializeSetup, onDeserializeDone)
     };
 }
 
