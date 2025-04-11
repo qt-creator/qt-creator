@@ -16,7 +16,7 @@ namespace Internal {
 class QmlTextGenerator
 {
 public:
-    explicit QmlTextGenerator(const PropertyNameList &propertyOrder,
+    explicit QmlTextGenerator(Utils::span<const PropertyNameView> propertyOrder,
                               const TextEditor::TabSettings &tabSettings,
                               const int startIndentDepth = 0);
 
@@ -33,7 +33,7 @@ private:
     QString propertyToQml(const AbstractProperty &property, int indentDepth) const;
 
 private:
-    PropertyNameList m_propertyOrder;
+    Utils::span<const PropertyNameView> m_propertyOrder;
     TextEditor::TabSettings m_tabSettings;
     const int m_startIndentDepth;
 };

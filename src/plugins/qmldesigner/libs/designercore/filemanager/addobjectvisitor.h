@@ -15,7 +15,7 @@ public:
                      quint32 parentLocation,
                      quint32 nodeLocation,
                      const QString &content,
-                     const PropertyNameList &propertyOrder);
+                     Utils::span<const PropertyNameView> propertyOrder);
 
 protected:
     bool visit(QmlJS::AST::UiObjectBinding *ast) override;
@@ -28,7 +28,7 @@ private:
     quint32 m_parentLocation;
     quint32 m_nodeLocation;
     QString m_content;
-    PropertyNameList m_propertyOrder;
+    Utils::span<const PropertyNameView> m_propertyOrder;
 };
 
 } // namespace Internal

@@ -16,6 +16,8 @@
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <utils/algorithm.h>
+#include <utils/array.h>
+#include <utils/span.h>
 
 namespace {
     enum {
@@ -355,52 +357,53 @@ QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractPrope
     return QmlRefactoring::Invalid;
 }
 
-PropertyNameList ModelToTextMerger::propertyOrder()
+Utils::span<const PropertyNameView> ModelToTextMerger::propertyOrder()
 {
-    static const PropertyNameList properties = {PropertyName("id"),
-                                                PropertyName("name"),
-                                                PropertyName("target"),
-                                                PropertyName("property"),
-                                                PropertyName("x"),
-                                                PropertyName("y"),
-                                                PropertyName("width"),
-                                                PropertyName("height"),
-                                                PropertyName("opacity"),
-                                                PropertyName("visible"),
-                                                PropertyName("position"),
-                                                PropertyName("color"),
-                                                PropertyName("radius"),
-                                                PropertyName("text"),
-                                                PropertyName("elide"),
-                                                PropertyName("value"),
-                                                PropertyName("border.color"),
-                                                PropertyName("border.width"),
-                                                PropertyName("anchors.verticalCenter"),
-                                                PropertyName("anchors.left"),
-                                                PropertyName("anchors.right"),
-                                                PropertyName("anchors.top"),
-                                                PropertyName("anchors.bottom"),
-                                                PropertyName("anchors.fill"),
-                                                PropertyName("anchors.margins"),
-                                                PropertyName("anchors.leftMargin"),
-                                                PropertyName("anchors.rightMargin"),
-                                                PropertyName("anchors.topMargin"),
-                                                PropertyName("anchors.bottomMargin"),
-                                                PropertyName("font.letterSpacing"),
-                                                PropertyName("font.pixelSize"),
-                                                PropertyName("horizontalAlignment"),
-                                                PropertyName("verticalAlignment"),
-                                                PropertyName("source"),
-                                                PropertyName("lineHeight"),
-                                                PropertyName("lineHeightMode"),
-                                                PropertyName("wrapMode"),
-                                                PropertyName(),
-                                                PropertyName("states"),
-                                                PropertyName("to"),
-                                                PropertyName("from"),
-                                                PropertyName("transitions")};
+    static constexpr auto propertyNames = Utils::to_array<PropertyNameView>(
+        "id",
+        "name",
+        "target",
+        "property",
+        "x",
+        "y",
+        "width",
+        "height",
+        "opacity",
+        "visible",
+        "position",
+        "color",
+        "radius",
+        "text",
+        "elide",
+        "value",
+        "border.color",
+        "border.width",
+        "anchors.verticalCenter",
+        "anchors.left",
+        "anchors.right",
+        "anchors.top",
+        "anchors.bottom",
+        "anchors.fill",
+        "anchors.margins",
+        "anchors.leftMargin",
+        "anchors.rightMargin",
+        "anchors.topMargin",
+        "anchors.bottomMargin",
+        "font.letterSpacing",
+        "font.pixelSize",
+        "horizontalAlignment",
+        "verticalAlignment",
+        "source",
+        "lineHeight",
+        "lineHeightMode",
+        "wrapMode",
+        "",
+        "states",
+        "to",
+        "from",
+        "transitions");
 
-    return properties;
+    return propertyNames;
 }
 
 bool ModelToTextMerger::isInHierarchy(const AbstractProperty &property) {

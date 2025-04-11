@@ -25,7 +25,9 @@ public:
     };
 
 public:
-    QmlRefactoring(const QmlJS::Document::Ptr &doc, QmlDesigner::TextModifier &modifier, const PropertyNameList &propertyOrder);
+    QmlRefactoring(const QmlJS::Document::Ptr &doc,
+                   QmlDesigner::TextModifier &modifier,
+                   Utils::span<const PropertyNameView> propertyOrder);
 
     bool reparseDocument();
 
@@ -57,7 +59,7 @@ public:
 private:
     QmlJS::Document::Ptr qmlDocument;
     TextModifier *textModifier;
-    PropertyNameList m_propertyOrder;
+    Utils::span<const PropertyNameView> m_propertyOrder;
 };
 
 } // namespace QmlDesigner

@@ -18,7 +18,7 @@ public:
                        PropertyNameView name,
                        const QString &value,
                        QmlRefactoring::PropertyType propertyType,
-                       const PropertyNameList &propertyOrder,
+                       Utils::span<const PropertyNameView> propertyOrder,
                        const TypeName &dynamicTypeName);
 
 protected:
@@ -33,7 +33,7 @@ private:
     PropertyNameView m_name;
     QString m_value;
     QmlRefactoring::PropertyType m_propertyType;
-    PropertyNameList m_propertyOrder;
+    Utils::span<const PropertyNameView> m_propertyOrder;
     TypeName m_dynamicTypeName;
 };
 

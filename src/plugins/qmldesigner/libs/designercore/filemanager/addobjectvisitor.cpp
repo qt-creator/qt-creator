@@ -12,7 +12,7 @@ AddObjectVisitor::AddObjectVisitor(QmlDesigner::TextModifier &modifier,
                                    quint32 parentLocation,
                                    quint32 nodeLocation,
                                    const QString &content,
-                                   const PropertyNameList &propertyOrder)
+                                   Utils::span<const PropertyNameView> propertyOrder)
     : QMLRewriter(modifier)
     , m_parentLocation(parentLocation)
     , m_nodeLocation(nodeLocation)
