@@ -8,6 +8,7 @@
 #include "../cppeditorwidget.h"
 #include "../cppfunctiondecldeflink.h"
 #include "../cpprefactoringchanges.h"
+#include "addmodulefrominclude.h"
 #include "assigntolocalvariable.h"
 #include "bringidentifierintoscope.h"
 #include "completeswitchstatement.h"
@@ -111,6 +112,7 @@ void createCppQuickFixFactories()
     new ExtraRefactoringOperations;
 
     registerAssignToLocalVariableQuickfix();
+    registerAddModuleFromIncludeQuickfix();
     registerBringIdentifierIntoScopeQuickfixes();
     registerCodeGenerationQuickfixes();
     registerCompleteSwitchStatementQuickfix();

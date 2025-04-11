@@ -556,10 +556,10 @@ void Kit::addToRunEnvironment(Environment &env) const
         factory->addToRunEnvironment(this, env);
 }
 
-QString Kit::moduleForClass(const QString &className) const
+QString Kit::moduleForHeader(const QString &headerFileName) const
 {
     for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
-        if (const QString module = factory->moduleForClass(this, className); !module.isEmpty())
+        if (const QString module = factory->moduleForHeader(this, headerFileName); !module.isEmpty())
             return module;
     }
     return {};

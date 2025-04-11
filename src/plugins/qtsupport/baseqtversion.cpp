@@ -281,18 +281,18 @@ QString QtVersion::defaultUnexpandedDisplayName() const
     return result;
 }
 
-QString QtVersion::moduleForClass(const QString &className) const
+QString QtVersion::moduleForHeader(const QString &headerFileName) const
 {
     if (!d->m_classesPerModule) {
         d->m_classesPerModule.emplace();
-        const FileFilter classesFilter({"Q[A-Z]*"}, QDir::Files);
+        const FileFilter filesFilter({}, QDir::Files);
         const FileFilter frameworksFilter({"*.framework"}, QDir::Dirs | QDir::NoDotAndDotDot);
         const FilePaths frameworks = libraryPath().dirEntries(frameworksFilter);
         for (const FilePath &framework : frameworks) {
             const QString frameworkName = framework.fileName();
             const QString &moduleName = frameworkName.left(frameworkName.indexOf('.'));
             const FilePath headersDir = libraryPath().resolvePath(framework.pathAppended("Headers"));
-            const FilePaths headers = headersDir.dirEntries(classesFilter);
+            const FilePaths headers = headersDir.dirEntries(filesFilter);
             d->m_classesPerModule->insert(moduleName, Utils::transform(headers, &FilePath::fileName));
         }
         if (frameworks.isEmpty()) {
@@ -300,7 +300,7 @@ QString QtVersion::moduleForClass(const QString &className) const
             const FilePaths modules = headerPath().dirEntries(modulesFilter);
             for (const FilePath &module : modules) {
                 const FilePath headersDir = headerPath().resolvePath(module);
-                const FilePaths headers = headersDir.dirEntries(classesFilter);
+                const FilePaths headers = headersDir.dirEntries(filesFilter);
                 d->m_classesPerModule
                     ->insert(module.fileName(), Utils::transform(headers, &FilePath::fileName));
             }
@@ -308,7 +308,7 @@ QString QtVersion::moduleForClass(const QString &className) const
     }
 
     for (auto it = d->m_classesPerModule->cbegin(); it != d->m_classesPerModule->cend(); ++it) {
-        if (it.value().contains(className)) {
+        if (it.value().contains(headerFileName)) {
             QTC_ASSERT(it.key().size() > 2, return it.key());
             return it.key().left(2) + '.' + it.key().mid(2).toLower();
         }

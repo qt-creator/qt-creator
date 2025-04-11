@@ -130,7 +130,7 @@ private:
     QSet<Id> availableFeatures(const Kit *k) const override;
 
     int weight(const Kit *k) const override;
-    QString moduleForClass(const Kit *k, const QString &className) const override;
+    QString moduleForHeader(const Kit *k, const QString &className) const override;
 
     void qtVersionsChanged(const QList<int> &addedIds,
                            const QList<int> &removedIds,
@@ -472,10 +472,10 @@ int QtKitAspectFactory::weight(const Kit *k) const
         return qtAbi.isCompatibleWith(tcAbi); }) ? 1 : 0;
 }
 
-QString QtKitAspectFactory::moduleForClass(const Kit *k, const QString &className) const
+QString QtKitAspectFactory::moduleForHeader(const Kit *k, const QString &headerFileName) const
 {
     if (const QtVersion * const v = QtKitAspect::qtVersion(k))
-        return v->moduleForClass(className);
+        return v->moduleForHeader(headerFileName);
     return {};
 }
 

@@ -95,6 +95,7 @@ add_qtc_plugin(CppEditor
     insertionpointlocator.cpp insertionpointlocator.h
     projectinfo.cpp projectinfo.h
     projectpart.cpp projectpart.h
+    quickfixes/addmodulefrominclude.cpp quickfixes/addmodulefrominclude.h
     quickfixes/assigntolocalvariable.cpp quickfixes/assigntolocalvariable.h
     quickfixes/bringidentifierintoscope.cpp quickfixes/bringidentifierintoscope.h
     quickfixes/completeswitchstatement.cpp quickfixes/completeswitchstatement.h

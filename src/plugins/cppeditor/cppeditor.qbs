@@ -223,6 +223,8 @@ QtcPlugin {
         name: "Quickfixes"
         prefix: "quickfixes/"
         files: [
+            "addmodulefrominclude.cpp",
+            "addmodulefrominclude.h",
             "assigntolocalvariable.cpp",
             "assigntolocalvariable.h",
             "bringidentifierintoscope.cpp",

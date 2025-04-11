@@ -457,7 +457,7 @@ private:
         Kit * const currentKit = activeKitForCurrentProject();
         if (!currentKit)
             return;
-        if (const QString module = currentKit->moduleForClass(className); !module.isEmpty()) {
+        if (const QString module = currentKit->moduleForHeader(className); !module.isEmpty()) {
             result << new AddIncludeForUndefinedIdentifierOp(
                 interface, 2, '<' + className + '>', module);
         }
