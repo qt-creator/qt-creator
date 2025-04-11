@@ -128,7 +128,7 @@ QString PropertyComponentGenerator::generateComplexComponentText(Utils::SmallStr
     static QString templateText = QStringLiteral(
         R"xy(
            Section {
-             caption: %1 - %2
+             caption: "%1 - %2"
              anchors.left: parent.left
              anchors.right: parent.right
              leftPadding: 8

@@ -223,7 +223,7 @@ TEST_F(PropertyComponentGenerator,
     QString expectedText = QStringLiteral(
         R"xy(
            Section {
-             caption: foo - Foo
+             caption: "foo - Foo"
              anchors.left: parent.left
              anchors.right: parent.right
              leftPadding: 8
@@ -256,7 +256,7 @@ TEST_F(PropertyComponentGenerator,
     QString expectedText = QStringLiteral(
         R"xy(
            Section {
-             caption: foo - Foo
+             caption: "foo - Foo"
              anchors.left: parent.left
              anchors.right: parent.right
              leftPadding: 8
