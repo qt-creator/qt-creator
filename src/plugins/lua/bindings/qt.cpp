@@ -7,10 +7,11 @@
 
 #include <utils/stringutils.h>
 
+#include <QAction>
 #include <QApplication>
 #include <QClipboard>
-#include <QCursor>
 #include <QCompleter>
+#include <QCursor>
 #include <QDir>
 #include <QFileDevice>
 #include <QFontMetrics>
@@ -25,6 +26,40 @@ void setupQtModule()
     registerProvider("Qt", [](sol::state_view lua) {
         sol::table qt(lua, sol::create);
         const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec"sv);
+
+        qt.new_usertype<QAction>(
+            "QAction",
+            sol::no_constructor,
+            "checkable",
+            sol::property(&QAction::isCheckable, &QAction::setCheckable),
+            "checked",
+            sol::property(&QAction::isChecked, &QAction::setChecked),
+            "enabled",
+            sol::property(&QAction::isEnabled, &QAction::setEnabled),
+            "icon",
+            sol::property(
+                &QAction::icon,
+                [](QAction *action, IconFilePathOrString icon) {
+                    action->setIcon(toIcon(icon)->icon());
+                }),
+            "text",
+            sol::property(&QAction::text, &QAction::setText),
+            "iconText",
+            sol::property(&QAction::iconText, &QAction::setIconText),
+            "toolTip",
+            sol::property(&QAction::toolTip, &QAction::setToolTip),
+            "statusTip",
+            sol::property(&QAction::statusTip, &QAction::setStatusTip),
+            "whatsThis",
+            sol::property(&QAction::whatsThis, &QAction::setWhatsThis),
+            "visible",
+            sol::property(&QAction::isVisible, &QAction::setVisible),
+            "iconVisibleInMenu",
+            sol::property(&QAction::isIconVisibleInMenu, &QAction::setIconVisibleInMenu),
+            "shortcutVisibleInContextMenu",
+            sol::property(
+                &QAction::isShortcutVisibleInContextMenu,
+                &QAction::setShortcutVisibleInContextMenu));
 
         qt.new_usertype<QCompleter>(
             "QCompleter",

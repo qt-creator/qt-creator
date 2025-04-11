@@ -10354,6 +10354,11 @@ BaseTextEditor *BaseTextEditor::currentTextEditor()
     return qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
 }
 
+QList<BaseTextEditor *> BaseTextEditor::openedTextEditors()
+{
+    return qobject_container_cast<BaseTextEditor *>(DocumentModel::editorsForOpenedDocuments());
+}
+
 QList<BaseTextEditor *> BaseTextEditor::textEditorsForDocument(TextDocument *doc)
 {
     return qobject_container_cast<BaseTextEditor *>(DocumentModel::editorsForDocument(doc));

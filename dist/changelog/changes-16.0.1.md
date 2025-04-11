@@ -37,6 +37,8 @@ Projects
 --------
 
 * Fixed a possible crash when renaming files
+* Fixed a crash when canceling the download of SDKs
+  ([QTCREATORBUG-32746](https://bugreports.qt.io/browse/QTCREATORBUG-32746))
 
 ### CMake
 
@@ -77,6 +79,7 @@ Terminal
 
 * Fixed issues with the `PATH` environment variable
   ([QTCREATORBUG-32647](https://bugreports.qt.io/browse/QTCREATORBUG-32647))
+* Fixed `Enable mouse tracking`
 
 Version Control Systems
 -----------------------
@@ -98,6 +101,7 @@ Credits for these changes go to:
 --------------------------------
 Alessandro Portale  
 Andre Hartmann  
+Aurélien Brooke  
 Christian Kandeler  
 Christian Stenger  
 Cristian Adam  
