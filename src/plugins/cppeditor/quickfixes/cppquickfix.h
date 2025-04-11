@@ -114,5 +114,5 @@ private:
 #define REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(Factory) \
     CppQuickFixFactory::registerFactoryWithStandardTest<Factory, Factory##Test>()
 #else
-#define REGISTER_FACTORY_WITH_STANDARD_TEST(Factory) CppQuickFixFactory::registerFactory<Factory>()
+#define REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(Factory) CppQuickFixFactory::registerFactory<Factory>()
 #endif
