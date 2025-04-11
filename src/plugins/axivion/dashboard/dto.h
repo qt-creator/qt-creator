@@ -14,7 +14,7 @@
  * <AxivionSuiteRepo>/projects/libs/dashboard_cpp_api/generator/generate_dashboard_cpp_api.py
  */
 
-#include <utils/expected.h>
+#include <utils/result.h>
 
 #include <QAnyStringView>
 #include <QByteArray>
@@ -72,7 +72,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static Any deserialize(const QByteArray &json);
 
-        static Utils::expected_str<Any> deserializeExpected(const QByteArray &json);
+        static Utils::Result<Any> deserializeExpected(const QByteArray &json);
 
         Any();
 
@@ -175,7 +175,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static AnalyzedFileDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<AnalyzedFileDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<AnalyzedFileDto> deserializeExpected(const QByteArray &json);
 
         AnalyzedFileDto(
             QString path,
@@ -197,8 +197,8 @@ namespace Axivion::Internal::Dto
      * * `LogIn` - Used internally by browsers for the &quot;Keep me logged in&quot; functionality. Cannot be created via this API.
      * * `ContinuousIntegration` - Limits user permissions to those typically needed for CI purposes.
      * 
-     * <p>For the types `IdePlugin` and `LogIn` the Dashboard will automatically
-     * delete the tokens when the owner changes his password. The Dashboard
+     * <p>Dashboard will automatically delete all of the created
+     * tokens when the account password is changed or deleted. The Dashboard
      * will try to detect this for external password changes as well
      * but cannot guarantee this will always work.
      * 
@@ -253,7 +253,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static ChangePasswordFormDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<ChangePasswordFormDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<ChangePasswordFormDto> deserializeExpected(const QByteArray &json);
 
         ChangePasswordFormDto(
             QString currentPassword,
@@ -344,7 +344,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static ColumnTypeOptionDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<ColumnTypeOptionDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<ColumnTypeOptionDto> deserializeExpected(const QByteArray &json);
 
         ColumnTypeOptionDto(
             QString key,
@@ -370,7 +370,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static CommentRequestDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<CommentRequestDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<CommentRequestDto> deserializeExpected(const QByteArray &json);
 
         CommentRequestDto(
             QString text
@@ -400,7 +400,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static CsrfTokenDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<CsrfTokenDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<CsrfTokenDto> deserializeExpected(const QByteArray &json);
 
         CsrfTokenDto(
             QString csrfToken
@@ -445,7 +445,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static EntityDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<EntityDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<EntityDto> deserializeExpected(const QByteArray &json);
 
         EntityDto(
             QString id,
@@ -564,7 +564,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static ErrorDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<ErrorDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<ErrorDto> deserializeExpected(const QByteArray &json);
 
         ErrorDto(
             std::optional<QString> dashboardVersionNumber,
@@ -635,7 +635,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static IssueCommentDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<IssueCommentDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<IssueCommentDto> deserializeExpected(const QByteArray &json);
 
         IssueCommentDto(
             QString username,
@@ -758,9 +758,11 @@ namespace Axivion::Internal::Dto
         /**
          * The column of the start line in which the issue starts.
          * 
-         * <p>1-relative
-         * 
-         * <p>0 iff unknown
+         * <p>Columns are counting codepoints (UTF-32 units).
+         * Tabs only count as 1 column.
+         * The first column in a line is 1, not 0.
+         * If the first line of the file has a BOM, the BOM is not counted as a codepoint.
+         * 0 means unknown.
          * 
          * @since 7.2.0
          */
@@ -776,9 +778,12 @@ namespace Axivion::Internal::Dto
         /**
          * The column of the end line in which the issue ends.
          * 
-         * <p>1-relative
-         * 
-         * <p>0 iff unknown
+         * <p>Columns are counting codepoints (UTF-32 units).
+         * Tabs only count as 1 column.
+         * The first column in a line is 1, not 0.
+         * If the first line of the file has a BOM, the BOM is not counted as a codepoint.
+         * End columns are inclusive, so a marker on the token `var` in `int var;` has startColumn=5 and endColumn=7.
+         * 0 means unknown.
          * 
          * @since 7.2.0
          */
@@ -787,7 +792,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static IssueSourceLocationDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<IssueSourceLocationDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<IssueSourceLocationDto> deserializeExpected(const QByteArray &json);
 
         IssueSourceLocationDto(
             QString fileName,
@@ -825,7 +830,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static IssueTagDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<IssueTagDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<IssueTagDto> deserializeExpected(const QByteArray &json);
 
         IssueTagDto(
             QString tag,
@@ -883,7 +888,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static IssueTagTypeDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<IssueTagTypeDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<IssueTagTypeDto> deserializeExpected(const QByteArray &json);
 
         IssueTagTypeDto(
             QString id,
@@ -973,7 +978,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static MetricDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<MetricDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<MetricDto> deserializeExpected(const QByteArray &json);
 
         MetricDto(
             QString name,
@@ -1034,7 +1039,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static MetricValueTableRowDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<MetricValueTableRowDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<MetricValueTableRowDto> deserializeExpected(const QByteArray &json);
 
         MetricValueTableRowDto(
             QString metric,
@@ -1104,7 +1109,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static NamedFilterVisibilityDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<NamedFilterVisibilityDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<NamedFilterVisibilityDto> deserializeExpected(const QByteArray &json);
 
         NamedFilterVisibilityDto(
             std::optional<std::vector<QString>> groups
@@ -1133,7 +1138,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static ProjectReferenceDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<ProjectReferenceDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<ProjectReferenceDto> deserializeExpected(const QByteArray &json);
 
         ProjectReferenceDto(
             QString name,
@@ -1173,7 +1178,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static RuleDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<RuleDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<RuleDto> deserializeExpected(const QByteArray &json);
 
         RuleDto(
             QString name,
@@ -1246,6 +1251,38 @@ namespace Axivion::Internal::Dto
     };
 
     /**
+     * Table Gadget Options
+     * 
+     * <p>Contains options to configure how the dashboard table gadget displays it data.
+     */
+    class TableOptionsDto : public Serializable
+    {
+    public:
+
+        /**
+         * <p>If set determines the property that is used to store sub rows in a row object.
+         */
+        std::optional<QString> subRowsProp;
+
+        /**
+         * <p>Maximum height for the table gadget in rows.
+         */
+        std::optional<qint32> maxHeight;
+
+        // Throws Axivion::Internal::Dto::invalid_dto_exception
+        static TableOptionsDto deserialize(const QByteArray &json);
+
+        static Utils::Result<TableOptionsDto> deserializeExpected(const QByteArray &json);
+
+        TableOptionsDto(
+            std::optional<QString> subRowsProp,
+            std::optional<qint32> maxHeight
+        );
+
+        QByteArray serialize() const override;
+    };
+
+    /**
      * Refers to a specific version of the Axivion Suite
      */
     class ToolsVersionDto : public Serializable
@@ -1270,7 +1307,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static ToolsVersionDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<ToolsVersionDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<ToolsVersionDto> deserializeExpected(const QByteArray &json);
 
         ToolsVersionDto(
             QString name,
@@ -1340,7 +1377,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static VersionKindCountDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<VersionKindCountDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<VersionKindCountDto> deserializeExpected(const QByteArray &json);
 
         VersionKindCountDto(
             qint32 Total,
@@ -1352,116 +1389,44 @@ namespace Axivion::Internal::Dto
     };
 
     /**
-     * Describes the version of analysis data of a certain Project.
+     * Request Data for creating a branched Project
+     * 
+     * <p>Parameters for branching an existing Dashboard Project.
+     * 
+     * @since 7.7.3
      */
-    class AnalysisVersionDto : public Serializable
+    class ProjectBranchRequestDto : public Serializable
     {
     public:
 
         /**
-         * <p>The ID used to refer to an `AnalysisVersion` in this API.
-         * 
-         * <p>ISO8601 compatible date-strings that are guaranteed to
-         * contain time zone information.
-         * 
-         * <p>An example version string is `2020-11-23T09:37:04.797286Z`.
-         * 
-         * <p>The precision of these dates is undefined, thus in order to be sure to refer
-         * to exactly the same version when specifying a version as an argument e.g.
-         * when querying issues, you must use this exact string.
-         * 
-         * <p>If you want to interpret the version-date e.g. for passing it to a
-         * graph-drawing library or to order a list of `AnalysisVersion`s,
-         * it is easier to use the field `millis` instead of parsing these dates.
+         * <p>The analysis version date of the source database specified as
+         * :ref:`version query string&lt;version-strings&gt;`. With Dashboard version
+         * 7.8.3, this property became optional, where, if omitted, it defaults
+         * to `latest`. Moreover, leaving this property out disables the version
+         * check for already existing branches, i.e., if a project with given
+         * name already exists, only the origin check is applied; the version
+         * check is skipped.
          */
-        QString date;
+        std::optional<QString> sourceVersion;
 
         /**
-         * <p>Optional label of the version.
-         * 
-         * @since 7.6.0
+         * <p>Name of a non-existing project that will be the name of the branched
+         * project. The created project will be `managed`, i.e., its artifacts
+         * will reside inside the `artifacts`-folder and analysis the analysis
+         * of the branched project is supposed to happen with the `upload`-feature of
+         * `axivion_ci`.
          */
-        std::optional<QString> label;
-
-        /**
-         * <p>The 0-based index of all the known analysis versions of a project.
-         * 
-         * <p>The version with index 0 never contains actual analysis data but always
-         * refers to a fictional version without any issues that happened before
-         * version 1.
-         */
-        qint32 index;
-
-        /**
-         * <p>The display name of the analysis version consisting of the date formatted with the
-         * preferred time zone of the user making the request and the label in parentheses.
-         */
-        QString name;
-
-        /**
-         * <p>Analysis version timestamp in milliseconds
-         * 
-         * <p>The number of milliseconds passed since 1970-01-01T00:00:00 UTC
-         * 
-         * <p>Meant for programmatic interpretation of the actual instant in time that
-         * represents a version.
-         */
-        qint64 millis;
-
-        /**
-         * <p>For every Issue Kind contains some Issue counts.
-         * 
-         * <p>Namely the Total count, as well as the newly Added and newly Removed issues in comparison
-         * with the version before.
-         * 
-         * <p>N.B. The Bauhaus Version used to analyze the project must be at least 6.5.0 in order for
-         * these values to be available.
-         * 
-         * @since 6.6.0
-         */
-        Any issueCounts;
-
-        /**
-         * Refers to a specific version of the Axivion Suite
-         * 
-         * <p>Version information of the Axivion Suite used to do this analysis run.
-         * 
-         * <p>Note, that this field is only available when the analysis was done with at least version
-         * 6.5.0.
-         * 
-         * @since 6.9.15
-         */
-        std::optional<ToolsVersionDto> toolsVersion;
-
-        /**
-         * <p>The total lines of code of the project at the current version if available
-         * 
-         * @since 7.0.4
-         */
-        std::optional<qint64> linesOfCode;
-
-        /**
-         * <p>The clone ratio of the project at the current version if available
-         * 
-         * @since 7.0.4
-         */
-        std::optional<double> cloneRatio;
+        QString targetProject;
 
         // Throws Axivion::Internal::Dto::invalid_dto_exception
-        static AnalysisVersionDto deserialize(const QByteArray &json);
+        static ProjectBranchRequestDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<AnalysisVersionDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<ProjectBranchRequestDto> deserializeExpected(const QByteArray &json);
 
-        AnalysisVersionDto(
-            QString date,
-            std::optional<QString> label,
-            qint32 index,
-            QString name,
-            qint64 millis,
-            Any issueCounts,
-            std::optional<ToolsVersionDto> toolsVersion,
-            std::optional<qint64> linesOfCode,
-            std::optional<double> cloneRatio
+        ProjectBranchRequestDto(
+            std::optional<QString> sourceVersion,
+            QString targetProject
         );
 
         QByteArray serialize() const override;
@@ -1510,7 +1475,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static ApiTokenCreationRequestDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<ApiTokenCreationRequestDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<ApiTokenCreationRequestDto> deserializeExpected(const QByteArray &json);
 
         ApiTokenCreationRequestDto(
             QString password,
@@ -1630,7 +1595,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static ApiTokenInfoDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<ApiTokenInfoDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<ApiTokenInfoDto> deserializeExpected(const QByteArray &json);
 
         ApiTokenInfoDto(
             QString id,
@@ -1749,15 +1714,19 @@ namespace Axivion::Internal::Dto
         bool showByDefault;
 
         /**
-         * <p>Key used to identify a column that provides the hyperlink targets
-         * for this column (&#x27;ErrorLink&#x27; or null)
+         * <p>Property under which the rows contain hyperlinks for this column.
+         * This is useful when creating a table gadget to have the dashboard
+         * render cells of this column as links. The designated property of
+         * the rows is optional. If present the value must either be an absolute
+         * URL or start with a slash. In the latter case the dashboard will
+         * automatically prepend its base path.
          */
         std::optional<QString> linkKey;
 
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static ColumnInfoDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<ColumnInfoDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<ColumnInfoDto> deserializeExpected(const QByteArray &json);
 
         ColumnInfoDto(
             QString key,
@@ -1925,7 +1894,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static DashboardInfoDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<DashboardInfoDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<DashboardInfoDto> deserializeExpected(const QByteArray &json);
 
         DashboardInfoDto(
             std::optional<QString> mainUrl,
@@ -1963,7 +1932,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static IssueCommentListDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<IssueCommentListDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<IssueCommentListDto> deserializeExpected(const QByteArray &json);
 
         IssueCommentListDto(
             std::vector<IssueCommentDto> comments
@@ -1999,7 +1968,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static IssueKindInfoDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<IssueKindInfoDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<IssueKindInfoDto> deserializeExpected(const QByteArray &json);
 
         IssueKindInfoDto(
             QString prefix,
@@ -2038,7 +2007,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static IssueTagTypeListDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<IssueTagTypeListDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<IssueTagTypeListDto> deserializeExpected(const QByteArray &json);
 
         IssueTagTypeListDto(
             std::vector<IssueTagTypeDto> tags
@@ -2080,7 +2049,10 @@ namespace Axivion::Internal::Dto
         /**
          * The column of the start line in which the issue starts.
          * 
-         * <p>First column in line is column 1.
+         * <p>Columns are counting codepoints (UTF-32 units).
+         * Tabs only count as 1 column.
+         * The first column in a line is 1, not 0.
+         * If the first line of the file has a BOM, the BOM is not counted as a codepoint.
          * 
          * <p>0 iff unknown
          * 
@@ -2098,7 +2070,11 @@ namespace Axivion::Internal::Dto
         /**
          * The column of the end line in which the issue ends.
          * 
-         * <p>First column in line is column 1.
+         * <p>Columns are counting codepoints (UTF-32 units).
+         * Tabs only count as 1 column.
+         * The first column in a line is 1, not 0.
+         * If the first line of the file has a BOM, the BOM is not counted as a codepoint.
+         * End columns are inclusive, so a marker on the token `var` in `int var;` has startColumn=5 and endColumn=7.
          * 
          * <p>0 iff unknown
          * 
@@ -2130,7 +2106,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static LineMarkerDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<LineMarkerDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<LineMarkerDto> deserializeExpected(const QByteArray &json);
 
         LineMarkerDto(
             QString kind,
@@ -2191,7 +2167,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static RepositoryUpdateMessageDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<RepositoryUpdateMessageDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<RepositoryUpdateMessageDto> deserializeExpected(const QByteArray &json);
 
         RepositoryUpdateMessageDto(
             QString severity,
@@ -2228,7 +2204,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static RuleListDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<RuleListDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<RuleListDto> deserializeExpected(const QByteArray &json);
 
         RuleListDto(
             std::vector<RuleDto> rules
@@ -2259,7 +2235,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static SortInfoDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<SortInfoDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<SortInfoDto> deserializeExpected(const QByteArray &json);
 
         SortInfoDto(
             QString key,
@@ -2317,7 +2293,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static UserRefDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<UserRefDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<UserRefDto> deserializeExpected(const QByteArray &json);
 
         UserRefDto(
             QString name,
@@ -2344,60 +2320,176 @@ namespace Axivion::Internal::Dto
     };
 
     /**
-     * Contains a list of analyzed file descriptions.
+     * Holds VersionKindCount objects for the different issue kinds
      */
-    class AnalyzedFileListDto : public Serializable
+    class VersionKindCountsDto : public Serializable
     {
     public:
 
         /**
-         * Describes the version of analysis data of a certain Project.
-         * 
-         * <p>The version this list was queried with.
+         * Kind-specific issue count statistics that are cheaply available.
          */
-        AnalysisVersionDto version;
+        VersionKindCountDto AV;
 
-        
-        std::vector<AnalyzedFileDto> rows;
+        /**
+         * Kind-specific issue count statistics that are cheaply available.
+         */
+        VersionKindCountDto CL;
+
+        /**
+         * Kind-specific issue count statistics that are cheaply available.
+         */
+        VersionKindCountDto CY;
+
+        /**
+         * Kind-specific issue count statistics that are cheaply available.
+         */
+        VersionKindCountDto DE;
+
+        /**
+         * Kind-specific issue count statistics that are cheaply available.
+         */
+        VersionKindCountDto MV;
+
+        /**
+         * Kind-specific issue count statistics that are cheaply available.
+         */
+        VersionKindCountDto SV;
 
         // Throws Axivion::Internal::Dto::invalid_dto_exception
-        static AnalyzedFileListDto deserialize(const QByteArray &json);
+        static VersionKindCountsDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<AnalyzedFileListDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<VersionKindCountsDto> deserializeExpected(const QByteArray &json);
 
-        AnalyzedFileListDto(
-            AnalysisVersionDto version,
-            std::vector<AnalyzedFileDto> rows
+        VersionKindCountsDto(
+            VersionKindCountDto AV,
+            VersionKindCountDto CL,
+            VersionKindCountDto CY,
+            VersionKindCountDto DE,
+            VersionKindCountDto MV,
+            VersionKindCountDto SV
         );
 
         QByteArray serialize() const override;
     };
 
     /**
-     * Contains a list of entities and the version of their versioned aspects
+     * Describes the version of analysis data of a certain Project.
      */
-    class EntityListDto : public Serializable
+    class AnalysisVersionDto : public Serializable
     {
     public:
 
         /**
-         * Describes the version of analysis data of a certain Project.
+         * <p>The ID used to refer to an `AnalysisVersion` in this API.
          * 
-         * <p>The version this entity list was queried with.
+         * <p>ISO8601 compatible date-strings that are guaranteed to
+         * contain time zone information.
+         * 
+         * <p>An example version string is `2020-11-23T09:37:04.797286Z`.
+         * 
+         * <p>The precision of these dates is undefined, thus in order to be sure to refer
+         * to exactly the same version when specifying a version as an argument e.g.
+         * when querying issues, you must use this exact string.
+         * 
+         * <p>If you want to interpret the version-date e.g. for passing it to a
+         * graph-drawing library or to order a list of `AnalysisVersion`s,
+         * it is easier to use the field `millis` instead of parsing these dates.
          */
-        std::optional<AnalysisVersionDto> version;
+        QString date;
 
-        
-        std::vector<EntityDto> entities;
+        /**
+         * <p>Optional label of the version.
+         * 
+         * @since 7.6.0
+         */
+        std::optional<QString> label;
+
+        /**
+         * <p>The 0-based index of all the known analysis versions of a project.
+         * 
+         * <p>The version with index 0 never contains actual analysis data but always
+         * refers to a fictional version without any issues that happened before
+         * version 1.
+         */
+        qint32 index;
+
+        /**
+         * <p>The display name of the analysis version consisting of the date formatted with the
+         * preferred time zone of the user making the request and the label in parentheses.
+         */
+        QString name;
+
+        /**
+         * <p>Analysis version timestamp in milliseconds
+         * 
+         * <p>The number of milliseconds passed since 1970-01-01T00:00:00 UTC
+         * 
+         * <p>Meant for programmatic interpretation of the actual instant in time that
+         * represents a version.
+         */
+        qint64 millis;
+
+        /**
+         * Holds VersionKindCount objects for the different issue kinds
+         * 
+         * <p>For every Issue Kind contains some Issue counts.
+         * 
+         * <p>Namely the Total count, as well as the newly Added and newly Removed issues in comparison
+         * with the version before.
+         * 
+         * <p>N.B. The Bauhaus Version used to analyze the project must be at least 6.5.0 in order for
+         * these values to be available.
+         * 
+         * @since 6.6.0
+         */
+        std::optional<VersionKindCountsDto> issueCounts;
+
+        /**
+         * Refers to a specific version of the Axivion Suite
+         * 
+         * <p>Version information of the Axivion Suite used to do this analysis run.
+         * 
+         * <p>Note, that this field is only available when the analysis was done with at least version
+         * 6.5.0.
+         * 
+         * @since 6.9.15
+         */
+        std::optional<ToolsVersionDto> toolsVersion;
+
+        /**
+         * <p>The total lines of code of the project at the current version if available.
+         * This property will be removed in a future version. Use queryMetricValueRange instead.
+         * 
+         * @since 7.0.4
+         * @deprecated
+         */
+        std::optional<qint64> linesOfCode;
+
+        /**
+         * <p>The clone ratio of the project at the current version if available.
+         * This property will be removed in a future version. Use queryMetricValueRange instead.
+         * 
+         * @since 7.0.4
+         * @deprecated
+         */
+        std::optional<double> cloneRatio;
 
         // Throws Axivion::Internal::Dto::invalid_dto_exception
-        static EntityListDto deserialize(const QByteArray &json);
+        static AnalysisVersionDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<EntityListDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<AnalysisVersionDto> deserializeExpected(const QByteArray &json);
 
-        EntityListDto(
-            std::optional<AnalysisVersionDto> version,
-            std::vector<EntityDto> entities
+        AnalysisVersionDto(
+            QString date,
+            std::optional<QString> label,
+            qint32 index,
+            QString name,
+            qint64 millis,
+            std::optional<VersionKindCountsDto> issueCounts,
+            std::optional<ToolsVersionDto> toolsVersion,
+            std::optional<qint64> linesOfCode,
+            std::optional<double> cloneRatio
         );
 
         QByteArray serialize() const override;
@@ -2443,7 +2535,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static FileViewDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<FileViewDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<FileViewDto> deserializeExpected(const QByteArray &json);
 
         FileViewDto(
             QString fileName,
@@ -2508,7 +2600,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static IssueDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<IssueDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<IssueDto> deserializeExpected(const QByteArray &json);
 
         IssueDto(
             QString kind,
@@ -2541,192 +2633,6 @@ namespace Axivion::Internal::Dto
     };
 
     /**
-     * Result of querying the issue-list retrieval entry point mainly
-     * containing a list of issues.
-     */
-    class IssueTableDto : public Serializable
-    {
-    public:
-
-        /**
-         * Describes the version of analysis data of a certain Project.
-         * 
-         * <p>The version of the ``removed`` issues.
-         * 
-         * <p>If the query was not an actual diff query this will be unset.
-         */
-        std::optional<AnalysisVersionDto> startVersion;
-
-        /**
-         * Describes the version of analysis data of a certain Project.
-         * 
-         * <p>The version of the ``added`` issues for a diff query
-         * or simply the version of a normal issue list query (no startVersion)
-         */
-        AnalysisVersionDto endVersion;
-
-        /**
-         * <p>Url to view the issues in the Dashboard Browser UI
-         * 
-         * @since 7.2.1
-         */
-        std::optional<QString> tableViewUrl;
-
-        /**
-         * <p>The Issue Table Columns describing the issue fields.
-         * 
-         * <p>Deprecated since 7.1.0. Use :json:object`TableInfo` instead
-         * 
-         * @deprecated
-         */
-        std::optional<std::vector<ColumnInfoDto>> columns;
-
-        /**
-         * <p>The actual issue data objects.
-         * 
-         * <p>The issue object contents are dynamic and depend on the queried
-         * issue kind. See :ref:`here&lt;issue-table-columns&gt;` for the individual field
-         * descriptions depending on the issue kind. The values need to be interpreted
-         * according to their columntype.
-         * 
-         * <p>This only contains a subset of the complete data if paging is enabled via
-         * ``offset`` and ``limit``.
-         */
-        std::vector<std::map<QString, Any>> rows;
-
-        /**
-         * <p>The total number of issues.
-         * 
-         * <p>Only available when ``computeTotalRowCount`` was specified as ``true``.
-         * Mostly useful when doing paged queries using the query parameters ``limit``
-         * and ``offset``.
-         */
-        std::optional<qint32> totalRowCount;
-
-        /**
-         * <p>The total number of issues existing in the ``current`` version and not in
-         * the ``baseline`` version.
-         * 
-         * <p>Only useful in diff queries and only calculated when
-         * ``computeTotalRowCount`` was specified as ``true``.
-         */
-        std::optional<qint32> totalAddedCount;
-
-        /**
-         * <p>The total number of issues existing in the ``baseline`` version and not in
-         * the ``current`` version.
-         * 
-         * <p>Only useful in diff queries and only calculated when
-         * ``computeTotalRowCount`` was specified as ``true``.
-         */
-        std::optional<qint32> totalRemovedCount;
-
-        // Throws Axivion::Internal::Dto::invalid_dto_exception
-        static IssueTableDto deserialize(const QByteArray &json);
-
-        static Utils::expected_str<IssueTableDto> deserializeExpected(const QByteArray &json);
-
-        IssueTableDto(
-            std::optional<AnalysisVersionDto> startVersion,
-            AnalysisVersionDto endVersion,
-            std::optional<QString> tableViewUrl,
-            std::optional<std::vector<ColumnInfoDto>> columns,
-            std::vector<std::map<QString, Any>> rows,
-            std::optional<qint32> totalRowCount,
-            std::optional<qint32> totalAddedCount,
-            std::optional<qint32> totalRemovedCount
-        );
-
-        QByteArray serialize() const override;
-    };
-
-    /**
-     * Contains a list of metric descriptions
-     */
-    class MetricListDto : public Serializable
-    {
-    public:
-
-        /**
-         * Describes the version of analysis data of a certain Project.
-         * 
-         * <p>The version this metric list was queried with.
-         */
-        std::optional<AnalysisVersionDto> version;
-
-        
-        std::vector<MetricDto> metrics;
-
-        // Throws Axivion::Internal::Dto::invalid_dto_exception
-        static MetricListDto deserialize(const QByteArray &json);
-
-        static Utils::expected_str<MetricListDto> deserializeExpected(const QByteArray &json);
-
-        MetricListDto(
-            std::optional<AnalysisVersionDto> version,
-            std::vector<MetricDto> metrics
-        );
-
-        QByteArray serialize() const override;
-    };
-
-    /**
-     * The result of a metric values query
-     */
-    class MetricValueRangeDto : public Serializable
-    {
-    public:
-
-        /**
-         * Describes the version of analysis data of a certain Project.
-         * 
-         * <p>The start version of the metric value range.
-         */
-        AnalysisVersionDto startVersion;
-
-        /**
-         * Describes the version of analysis data of a certain Project.
-         * 
-         * <p>The end version of the metric value range.
-         */
-        AnalysisVersionDto endVersion;
-
-        /**
-         * <p>The id of the entity
-         */
-        QString entity;
-
-        /**
-         * <p>The id of the metric
-         */
-        QString metric;
-
-        /**
-         * <p>An array with the metric values.
-         * 
-         * <p>The array size is ``endVersion.index - startVersion.index + 1``.
-         * Its values are numbers or ``null`` if no value is available.
-         * They correspond to the range defined by ``startVersion`` and ``endVersion``.
-         */
-        std::vector<std::optional<double>> values;
-
-        // Throws Axivion::Internal::Dto::invalid_dto_exception
-        static MetricValueRangeDto deserialize(const QByteArray &json);
-
-        static Utils::expected_str<MetricValueRangeDto> deserializeExpected(const QByteArray &json);
-
-        MetricValueRangeDto(
-            AnalysisVersionDto startVersion,
-            AnalysisVersionDto endVersion,
-            QString entity,
-            QString metric,
-            std::vector<std::optional<double>> values
-        );
-
-        QByteArray serialize() const override;
-    };
-
-    /**
      * The result of a metric value table query
      */
     class MetricValueTableDto : public Serializable
@@ -2748,7 +2654,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static MetricValueTableDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<MetricValueTableDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<MetricValueTableDto> deserializeExpected(const QByteArray &json);
 
         MetricValueTableDto(
             std::vector<ColumnInfoDto> columns,
@@ -2812,7 +2718,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static NamedFilterCreateDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<NamedFilterCreateDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<NamedFilterCreateDto> deserializeExpected(const QByteArray &json);
 
         NamedFilterCreateDto(
             QString displayName,
@@ -2936,7 +2842,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static NamedFilterInfoDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<NamedFilterInfoDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<NamedFilterInfoDto> deserializeExpected(const QByteArray &json);
 
         NamedFilterInfoDto(
             QString key,
@@ -3028,13 +2934,298 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static NamedFilterUpdateDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<NamedFilterUpdateDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<NamedFilterUpdateDto> deserializeExpected(const QByteArray &json);
 
         NamedFilterUpdateDto(
             std::optional<QString> name,
             std::optional<std::map<QString, QString>> filters,
             std::optional<std::vector<SortInfoDto>> sorters,
             std::optional<NamedFilterVisibilityDto> visibility
+        );
+
+        QByteArray serialize() const override;
+    };
+
+    /**
+     * Response to Repository Update Request
+     * 
+     * <p>Contains messages returned from the VCS-adapters reporting on
+     * the VCS update result.
+     */
+    class RepositoryUpdateResponseDto : public Serializable
+    {
+    public:
+
+        /**
+         * <p>The messages returned from the VCS-adapters
+         */
+        std::vector<RepositoryUpdateMessageDto> messages;
+
+        /**
+         * <p>Whether at least one of the messages is at least an ERROR
+         */
+        bool hasErrors;
+
+        /**
+         * <p>Whether at least one of the messages is at least a WARNING
+         */
+        bool hasWarnings;
+
+        // Throws Axivion::Internal::Dto::invalid_dto_exception
+        static RepositoryUpdateResponseDto deserialize(const QByteArray &json);
+
+        static Utils::Result<RepositoryUpdateResponseDto> deserializeExpected(const QByteArray &json);
+
+        RepositoryUpdateResponseDto(
+            std::vector<RepositoryUpdateMessageDto> messages,
+            bool hasErrors,
+            bool hasWarnings
+        );
+
+        QByteArray serialize() const override;
+    };
+
+    /**
+     * Contains a list of analyzed file descriptions.
+     */
+    class AnalyzedFileListDto : public Serializable
+    {
+    public:
+
+        /**
+         * Describes the version of analysis data of a certain Project.
+         * 
+         * <p>The version this list was queried with.
+         */
+        AnalysisVersionDto version;
+
+        
+        std::vector<AnalyzedFileDto> rows;
+
+        // Throws Axivion::Internal::Dto::invalid_dto_exception
+        static AnalyzedFileListDto deserialize(const QByteArray &json);
+
+        static Utils::Result<AnalyzedFileListDto> deserializeExpected(const QByteArray &json);
+
+        AnalyzedFileListDto(
+            AnalysisVersionDto version,
+            std::vector<AnalyzedFileDto> rows
+        );
+
+        QByteArray serialize() const override;
+    };
+
+    /**
+     * Contains a list of entities and the version of their versioned aspects
+     */
+    class EntityListDto : public Serializable
+    {
+    public:
+
+        /**
+         * Describes the version of analysis data of a certain Project.
+         * 
+         * <p>The version this entity list was queried with.
+         */
+        std::optional<AnalysisVersionDto> version;
+
+        
+        std::vector<EntityDto> entities;
+
+        // Throws Axivion::Internal::Dto::invalid_dto_exception
+        static EntityListDto deserialize(const QByteArray &json);
+
+        static Utils::Result<EntityListDto> deserializeExpected(const QByteArray &json);
+
+        EntityListDto(
+            std::optional<AnalysisVersionDto> version,
+            std::vector<EntityDto> entities
+        );
+
+        QByteArray serialize() const override;
+    };
+
+    /**
+     * Result of querying the issue-list retrieval entry point mainly
+     * containing a list of issues.
+     */
+    class IssueTableDto : public Serializable
+    {
+    public:
+
+        /**
+         * Describes the version of analysis data of a certain Project.
+         * 
+         * <p>The version of the ``removed`` issues.
+         * 
+         * <p>If the query was not an actual diff query this will be unset.
+         */
+        std::optional<AnalysisVersionDto> startVersion;
+
+        /**
+         * Describes the version of analysis data of a certain Project.
+         * 
+         * <p>The version of the ``added`` issues for a diff query
+         * or simply the version of a normal issue list query (no startVersion)
+         */
+        AnalysisVersionDto endVersion;
+
+        /**
+         * <p>Url to view the issues in the Dashboard Browser UI
+         * 
+         * @since 7.2.1
+         */
+        std::optional<QString> tableViewUrl;
+
+        /**
+         * <p>The Issue Table Columns describing the issue fields.
+         * 
+         * <p>Deprecated since 7.1.0. Use :json:object`TableInfo` instead
+         * 
+         * @deprecated
+         */
+        std::optional<std::vector<ColumnInfoDto>> columns;
+
+        /**
+         * <p>The actual issue data objects.
+         * 
+         * <p>The issue object contents are dynamic and depend on the queried
+         * issue kind. See :ref:`here&lt;issue-table-columns&gt;` for the individual field
+         * descriptions depending on the issue kind. The values need to be interpreted
+         * according to their columntype.
+         * 
+         * <p>This only contains a subset of the complete data if paging is enabled via
+         * ``offset`` and ``limit``.
+         */
+        std::vector<std::map<QString, Any>> rows;
+
+        /**
+         * <p>The total number of issues.
+         * 
+         * <p>Only available when ``computeTotalRowCount`` was specified as ``true``.
+         * Mostly useful when doing paged queries using the query parameters ``limit``
+         * and ``offset``.
+         */
+        std::optional<qint32> totalRowCount;
+
+        /**
+         * <p>The total number of issues existing in the ``current`` version and not in
+         * the ``baseline`` version.
+         * 
+         * <p>Only useful in diff queries and only calculated when
+         * ``computeTotalRowCount`` was specified as ``true``.
+         */
+        std::optional<qint32> totalAddedCount;
+
+        /**
+         * <p>The total number of issues existing in the ``baseline`` version and not in
+         * the ``current`` version.
+         * 
+         * <p>Only useful in diff queries and only calculated when
+         * ``computeTotalRowCount`` was specified as ``true``.
+         */
+        std::optional<qint32> totalRemovedCount;
+
+        // Throws Axivion::Internal::Dto::invalid_dto_exception
+        static IssueTableDto deserialize(const QByteArray &json);
+
+        static Utils::Result<IssueTableDto> deserializeExpected(const QByteArray &json);
+
+        IssueTableDto(
+            std::optional<AnalysisVersionDto> startVersion,
+            AnalysisVersionDto endVersion,
+            std::optional<QString> tableViewUrl,
+            std::optional<std::vector<ColumnInfoDto>> columns,
+            std::vector<std::map<QString, Any>> rows,
+            std::optional<qint32> totalRowCount,
+            std::optional<qint32> totalAddedCount,
+            std::optional<qint32> totalRemovedCount
+        );
+
+        QByteArray serialize() const override;
+    };
+
+    /**
+     * Contains a list of metric descriptions
+     */
+    class MetricListDto : public Serializable
+    {
+    public:
+
+        /**
+         * Describes the version of analysis data of a certain Project.
+         * 
+         * <p>The version this metric list was queried with.
+         */
+        std::optional<AnalysisVersionDto> version;
+
+        
+        std::vector<MetricDto> metrics;
+
+        // Throws Axivion::Internal::Dto::invalid_dto_exception
+        static MetricListDto deserialize(const QByteArray &json);
+
+        static Utils::Result<MetricListDto> deserializeExpected(const QByteArray &json);
+
+        MetricListDto(
+            std::optional<AnalysisVersionDto> version,
+            std::vector<MetricDto> metrics
+        );
+
+        QByteArray serialize() const override;
+    };
+
+    /**
+     * The result of a metric values query
+     */
+    class MetricValueRangeDto : public Serializable
+    {
+    public:
+
+        /**
+         * Describes the version of analysis data of a certain Project.
+         * 
+         * <p>The start version of the metric value range.
+         */
+        AnalysisVersionDto startVersion;
+
+        /**
+         * Describes the version of analysis data of a certain Project.
+         * 
+         * <p>The end version of the metric value range.
+         */
+        AnalysisVersionDto endVersion;
+
+        /**
+         * <p>The id of the entity
+         */
+        QString entity;
+
+        /**
+         * <p>The id of the metric
+         */
+        QString metric;
+
+        /**
+         * <p>An array with the metric values.
+         * 
+         * <p>The array size is ``endVersion.index - startVersion.index + 1``.
+         * Its values are numbers or ``null`` if no value is available.
+         * They correspond to the range defined by ``startVersion`` and ``endVersion``.
+         */
+        std::vector<std::optional<double>> values;
+
+        // Throws Axivion::Internal::Dto::invalid_dto_exception
+        static MetricValueRangeDto deserialize(const QByteArray &json);
+
+        static Utils::Result<MetricValueRangeDto> deserializeExpected(const QByteArray &json);
+
+        MetricValueRangeDto(
+            AnalysisVersionDto startVersion,
+            AnalysisVersionDto endVersion,
+            QString entity,
+            QString metric,
+            std::vector<std::optional<double>> values
         );
 
         QByteArray serialize() const override;
@@ -3089,7 +3280,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static ProjectInfoDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<ProjectInfoDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<ProjectInfoDto> deserializeExpected(const QByteArray &json);
 
         ProjectInfoDto(
             QString name,
@@ -3099,45 +3290,6 @@ namespace Axivion::Internal::Dto
             std::vector<AnalysisVersionDto> versions,
             std::vector<IssueKindInfoDto> issueKinds,
             bool hasHiddenIssues
-        );
-
-        QByteArray serialize() const override;
-    };
-
-    /**
-     * Response to Repository Update Request
-     * 
-     * <p>Contains messages returned from the VCS-adapters reporting on
-     * the VCS update result.
-     */
-    class RepositoryUpdateResponseDto : public Serializable
-    {
-    public:
-
-        /**
-         * <p>The messages returned from the VCS-adapters
-         */
-        std::vector<RepositoryUpdateMessageDto> messages;
-
-        /**
-         * <p>Whether at least one of the messages is at least an ERROR
-         */
-        bool hasErrors;
-
-        /**
-         * <p>Whether at least one of the messages is at least a WARNING
-         */
-        bool hasWarnings;
-
-        // Throws Axivion::Internal::Dto::invalid_dto_exception
-        static RepositoryUpdateResponseDto deserialize(const QByteArray &json);
-
-        static Utils::expected_str<RepositoryUpdateResponseDto> deserializeExpected(const QByteArray &json);
-
-        RepositoryUpdateResponseDto(
-            std::vector<RepositoryUpdateMessageDto> messages,
-            bool hasErrors,
-            bool hasWarnings
         );
 
         QByteArray serialize() const override;
@@ -3201,7 +3353,7 @@ namespace Axivion::Internal::Dto
         // Throws Axivion::Internal::Dto::invalid_dto_exception
         static TableInfoDto deserialize(const QByteArray &json);
 
-        static Utils::expected_str<TableInfoDto> deserializeExpected(const QByteArray &json);
+        static Utils::Result<TableInfoDto> deserializeExpected(const QByteArray &json);
 
         TableInfoDto(
             QString tableDataUri,
