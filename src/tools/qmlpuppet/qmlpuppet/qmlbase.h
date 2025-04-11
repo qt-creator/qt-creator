@@ -5,6 +5,7 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QFont>
 #include <QQmlApplicationEngine>
 
 #include <iostream>
@@ -13,6 +14,10 @@ class QmlBase : public QObject
 {
     Q_OBJECT
 public:
+    // These constants should be kept in sync with their counterparts in qmlprojectconstants.h
+    static constexpr char QMLPUPPET_ENV_MCU_FONTS_DIR[] = "QMLPUPPET_MCU_FONTS_DIR";
+    static constexpr char QMLPUPPET_ENV_DEFAULT_FONT_FAMILY[] = "QMLPUPPET_DEFAULT_FONT_FAMILY";
+
     struct AppArgs
     {
     public:
@@ -65,6 +70,13 @@ protected:
     void createCoreApp()
     {
         m_coreApp.reset(new T(m_args.argc, m_args.argv));
+        if (const QString defaultFontFamily = qEnvironmentVariable(
+                QMLPUPPET_ENV_DEFAULT_FONT_FAMILY);
+            !defaultFontFamily.isEmpty()) {
+            if (qobject_cast<QGuiApplication *>(QCoreApplication::instance()) != nullptr) {
+                QGuiApplication::setFont(QFont{defaultFontFamily});
+            }
+        }
     }
 
     QSharedPointer<QCoreApplication> m_coreApp;

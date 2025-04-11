@@ -22,10 +22,6 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/session.h>
 
-#include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
-
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -49,17 +45,6 @@ namespace QmlProjectManager {
 
 namespace {
 Q_LOGGING_CATEGORY(infoLogger, "QmlProjectManager.QmlBuildSystem", QtInfoMsg)
-}
-
-ExtensionSystem::IPlugin *findMcuSupportPlugin()
-{
-    const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
-        ExtensionSystem::PluginManager::plugins(),
-        Utils::equal(&ExtensionSystem::PluginSpec::id, QString("mcusupport")));
-
-    if (pluginSpec)
-        return pluginSpec->plugin();
-    return nullptr;
 }
 
 void updateMcuBuildStep(Target *target, bool mcuEnabled)
@@ -121,6 +106,18 @@ void QmlBuildSystem::updateDeploymentData()
     }
 
     setDeploymentData(deploymentData);
+}
+
+QString QmlBuildSystem::defaultFontFamilyMCU() const
+{
+    const QJsonObject project = m_projectItem->project();
+    QString defaultFontFamily = project["mcu"].toObject()["config"].toObject()["defaultFontFamily"].toString();
+
+    if (!defaultFontFamily.isEmpty()) {
+        return defaultFontFamily;
+    }
+
+    return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
 }
 
 //probably this method needs to be moved into QmlProjectPlugin::initialize to be called only once
@@ -607,6 +604,8 @@ QVariant QmlBuildSystem::additionalData(Utils::Id id) const
         return mainFilePath().toUrlishString();
     if (id == Constants::canonicalProjectDir)
         return canonicalProjectDir().toUrlishString();
+    if (id == Constants::customDefaultFontFamilyMCU)
+        return defaultFontFamilyMCU();
     return {};
 }
 
@@ -701,7 +700,20 @@ bool QmlBuildSystem::qt6Project() const
 
 Utils::EnvironmentItems QmlBuildSystem::environment() const
 {
-    return m_projectItem->environment();
+    Utils::EnvironmentItems env = m_projectItem->environment();
+
+    Utils::expected_str<Utils::FilePath> fontsDir = mcuFontsDir();
+    if (!fontsDir) {
+        qWarning() << "Failed to locate MCU installation." << fontsDir.error();
+        return env;
+    }
+
+    env.append({Constants::QMLPUPPET_ENV_MCU_FONTS_DIR, fontsDir->toUserOutput()});
+    if (qtForMCUs()) {
+        env.append({Constants::QMLPUPPET_ENV_DEFAULT_FONT_FAMILY, defaultFontFamilyMCU()});
+    }
+
+    return env;
 }
 
 QStringList QmlBuildSystem::fileSelectors() const

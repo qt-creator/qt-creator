@@ -13,6 +13,7 @@
 #include "bindingeditor/bindingeditor.h"
 #include "colorpalettebackend.h"
 #include "fileresourcesmodel.h"
+#include "fontresourcesmodel.h"
 #include "gradientmodel.h"
 #include "gradientpresetcustomlistmodel.h"
 #include "gradientpresetdefaultlistmodel.h"
@@ -60,6 +61,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         declarativeTypesRegistered = true;
         PropertyEditorValue::registerDeclarativeTypes();
         FileResourcesModel::registerDeclarativeType();
+        FontResourcesModel::registerDeclarativeType();
         GradientModel::registerDeclarativeType();
         GradientPresetDefaultListModel::registerDeclarativeType();
         GradientPresetCustomListModel::registerDeclarativeType();

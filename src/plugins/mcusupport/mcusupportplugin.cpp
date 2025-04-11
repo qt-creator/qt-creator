@@ -3,6 +3,7 @@
 
 #include "mcubuildstep.h"
 #include "mcukitmanager.h"
+#include "mculegacyconstants.h"
 #include "mcuqmlprojectnode.h"
 #include "mcusupportconstants.h"
 #include "mcusupportdevice.h"
@@ -15,6 +16,8 @@
 #if defined(WITH_TESTS) && defined(GOOGLE_TEST_IS_FOUND)
 #include "test/unittest.h"
 #endif
+
+#include <cmakeprojectmanager/cmakekitaspect.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -38,6 +41,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
+#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/infobar.h>
 
@@ -48,6 +52,8 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+
+using namespace Qt::Literals::StringLiterals;
 
 namespace McuSupport::Internal {
 
@@ -192,6 +198,7 @@ public:
     void extensionsInitialized() final;
 
     Q_INVOKABLE static void updateDeployStep(ProjectExplorer::Target *target, bool enabled);
+    Q_INVOKABLE static expected_str<Utils::FilePath> installationRoot();
 };
 
 void McuSupportPlugin::initialize()
@@ -284,6 +291,26 @@ void McuSupportPlugin::extensionsInitialized()
 void McuSupportPlugin::updateDeployStep(ProjectExplorer::Target *target, bool enabled)
 {
     MCUBuildStepFactory::updateDeployStep(target, enabled);
+}
+
+expected_str<Utils::FilePath> McuSupportPlugin::installationRoot()
+{
+    const ProjectExplorer::Kit *kit = MCUBuildStepFactory::findMostRecentQulKit();
+    if (kit == nullptr) {
+        return make_unexpected("No QUL kits installed"_L1);
+    }
+
+    const auto config
+        = CMakeProjectManager::CMakeConfigurationKitAspect::configuration(kit).toList();
+    const auto key = QString{Internal::Legacy::Constants::QUL_CMAKE_VAR}.toUtf8();
+    for (const CMakeProjectManager::CMakeConfigItem &configItem : config) {
+        if (configItem.key == key) {
+            return Utils::FilePath::fromUserInput(QString::fromUtf8(configItem.value));
+        }
+    }
+    return make_unexpected("No QUL installation root ('%1') key in kit '%2' configuration"_L1
+                               .arg(Internal::Legacy::Constants::QUL_CMAKE_VAR)
+                               .arg(kit->displayName()));
 }
 
 } // namespace McuSupport::Internal

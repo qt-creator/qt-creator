@@ -7,14 +7,18 @@
 
 #include <model.h>
 
+#include <designermcumanager.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
-#include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 #include <qmlprojectmanager/qmlproject.h>
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversions.h>
+#include <utils/algorithm.h>
+#include <utils/expected.h>
+#include <utils/hostosinfo.h>
 
 #include <QLibraryInfo>
 
@@ -51,6 +55,7 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
     addCustomFileSelectors();
     addDisableDeferredProperties();
     addResolveUrlsOnAssignment();
+    addMcuFonts();
 
     qCInfo(puppetEnvirmentBuild) << "Puppet environment:" << m_environment.toStringList();
 
@@ -247,6 +252,24 @@ void PuppetEnvironmentBuilder::addDisableDeferredProperties() const
 void PuppetEnvironmentBuilder::addResolveUrlsOnAssignment() const
 {
     m_environment.set("QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT", "true");
+}
+
+void PuppetEnvironmentBuilder::addMcuFonts() const
+{
+    const Utils::expected_str<Utils::FilePath> mcuFontsDir = QmlProjectManager::mcuFontsDir();
+    if (!mcuFontsDir) {
+        qCWarning(puppetEnvirmentBuild)
+            << "Failed to locate MCU installation." << mcuFontsDir.error();
+        return;
+    }
+
+    m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_MCU_FONTS_DIR,
+                      mcuFontsDir->toUserOutput());
+    if (QmlDesigner::DesignerMcuManager::instance().isMCUProject()) {
+        const QString defaultFontFamily = DesignerMcuManager::defaultFontFamilyMCU();
+        m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_DEFAULT_FONT_FAMILY,
+                          defaultFontFamily);
+    }
 }
 
 PuppetType PuppetEnvironmentBuilder::determinePuppetType() const

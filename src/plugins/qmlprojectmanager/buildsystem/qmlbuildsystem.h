@@ -144,6 +144,9 @@ private:
 
     void registerMenuButtons();
     void updateDeploymentData();
+
+    [[nodiscard]] QString defaultFontFamilyMCU() const;
+
     friend class FilesUpdateBlocker;
 
     QmlProjectExporter::Exporter* m_fileGen;

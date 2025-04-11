@@ -409,6 +409,7 @@ extend_qtc_plugin(QmlDesigner
     compatibleproperties.cpp compatibleproperties.h
     designerpropertymap.cpp designerpropertymap.h
     fileresourcesmodel.cpp fileresourcesmodel.h
+    fontresourcesmodel.cpp fontresourcesmodel.h
     itemfiltermodel.cpp itemfiltermodel.h
     listvalidator.cpp listvalidator.h
     gradientmodel.cpp gradientmodel.h

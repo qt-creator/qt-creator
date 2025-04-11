@@ -20,6 +20,7 @@
 #include <viewmanager.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
+#include <qmlprojectmanager/qmlprojectconstants.h>
 
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
@@ -421,6 +422,16 @@ bool DesignDocument::isQtForMCUsProject() const
         return m_currentTarget->additionalData("CustomQtForMCUs").toBool();
 
     return false;
+}
+
+QString DesignDocument::defaultFontFamilyMCU() const
+{
+    if (m_currentTarget == nullptr) {
+        return QmlProjectManager::Constants::FALLBACK_MCU_FONT_FAMILY;
+    }
+
+    return m_currentTarget->additionalData(QmlProjectManager::Constants::customDefaultFontFamilyMCU)
+        .toString();
 }
 
 Utils::FilePath DesignDocument::projectFolder() const

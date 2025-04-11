@@ -87,6 +87,7 @@ public:
     void changeToDocumentModel();
 
     bool isQtForMCUsProject() const;
+    [[nodiscard]] QString defaultFontFamilyMCU() const;
 
     Utils::FilePath projectFolder() const;
     bool hasProject() const;

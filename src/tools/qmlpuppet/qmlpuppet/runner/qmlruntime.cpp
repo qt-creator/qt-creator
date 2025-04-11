@@ -162,6 +162,12 @@ void QmlRuntime::initCoreApp()
 void QmlRuntime::initQmlRunner()
 {
     registerFonts(findProjectFolder(QDir::current()));
+
+    if (const QString mcuFontsFolder = qEnvironmentVariable(QmlBase::QMLPUPPET_ENV_MCU_FONTS_DIR);
+        !mcuFontsFolder.isEmpty()) {
+        registerFonts(mcuFontsFolder);
+    }
+
     m_qmlEngine.reset(new QQmlApplicationEngine());
 
     QStringList files;

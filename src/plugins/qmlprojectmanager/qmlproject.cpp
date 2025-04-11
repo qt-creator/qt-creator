@@ -10,6 +10,10 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitmanager.h>
@@ -26,10 +30,12 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/expected.h>
 #include <utils/infobar.h>
 #include <utils/mimeconstants.h>
-#include <utils/qtcprocess.h>
+#include <utils/predicates.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -40,8 +46,51 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Qt::Literals::StringLiterals;
+
+namespace {
+expected_str<FilePath> mcuInstallationRoot()
+{
+    ExtensionSystem::IPlugin *mcuSupportPlugin = QmlProjectManager::findMcuSupportPlugin();
+    if (mcuSupportPlugin == nullptr) {
+        return make_unexpected("Failed to find MCU Support plugin"_L1);
+    }
+
+    expected_str<FilePath> root;
+    QMetaObject::invokeMethod(mcuSupportPlugin,
+                              "installationRoot",
+                              Qt::DirectConnection,
+                              Q_RETURN_ARG(expected_str<FilePath>, root));
+
+    return root;
+}
+} // namespace
 
 namespace QmlProjectManager {
+
+ExtensionSystem::IPlugin *findMcuSupportPlugin()
+{
+    const QString pluginId = "mcusupport";
+    const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
+        ExtensionSystem::PluginManager::plugins(),
+        Utils::equal(&ExtensionSystem::PluginSpec::id, pluginId));
+
+    if (pluginSpec == nullptr) {
+        return nullptr;
+    }
+
+    return pluginSpec->plugin();
+}
+
+expected_str<FilePath> mcuFontsDir()
+{
+    expected_str<FilePath> mcuRoot = mcuInstallationRoot();
+    if (!mcuRoot) {
+        return mcuRoot;
+    }
+
+    return *mcuRoot / "src" / "3rdparty" / "fonts";
+}
 
 QmlProject::QmlProject(const Utils::FilePath &fileName)
     : Project(Utils::Constants::QMLPROJECT_MIMETYPE, fileName)

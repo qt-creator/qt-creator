@@ -8,6 +8,7 @@
 #include "childrenchangeeventfilter.h"
 
 #include "dummycontextobject.h"
+#include "qmlpuppet/qmlbase.h"
 
 #include <propertyabstractcontainer.h>
 #include <propertybindingcontainer.h>
@@ -312,6 +313,10 @@ void NodeInstanceServer::stopRenderTimer()
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
     initializeView();
+    if (const QString mcuFontsFolder = qEnvironmentVariable(QmlBase::QMLPUPPET_ENV_MCU_FONTS_DIR);
+        !mcuFontsFolder.isEmpty()) {
+        registerFonts(QUrl::fromLocalFile(mcuFontsFolder));
+    }
     registerFonts(command.resourceUrl);
     setTranslationLanguage(command.language);
 
