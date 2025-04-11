@@ -378,20 +378,16 @@ Environment LinuxDevicePrivate::getEnvironment()
     if (m_disconnected())
         return {};
 
-    const bool sourceProfile = q->extraData(Constants::SourceProfile).toBool();
-
-    CommandLine cmd;
-    if (sourceProfile) {
-        cmd.setExecutable(q->filePath("sh"));
-        cmd.addArgs({"-c", ". /etc/profile ; . ~/.profile ; env"});
-    } else {
-        cmd.setExecutable(q->filePath("env"));
-    }
-
     Process getEnvProc;
-    getEnvProc.setCommand(cmd);
+    getEnvProc.setCommand({q->filePath("env"), {}});
     using namespace std::chrono;
     getEnvProc.runBlocking(5s);
+
+    if (getEnvProc.result() != ProcessResult::FinishedWithSuccess) {
+        qCWarning(linuxDeviceLog) << "Failed to get environment variables from device:"
+                                  << getEnvProc.exitMessage() << getEnvProc.allOutput();
+        return {};
+    }
 
     const QString remoteOutput = getEnvProc.cleanedStdOut();
     m_environmentCache = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
