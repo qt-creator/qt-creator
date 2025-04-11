@@ -24,7 +24,8 @@ QtcPlugin {
         cpp.defines: "_SCL_SECURE_NO_WARNINGS"
     }
 
-    Qt.core.resourceFileBaseName: "cppeditor_testdata"
+    Qt.core.resourcePrefix: "cppeditor"
+    Qt.core.resourceSourceBase: sourceDirectory
 
     files: [
         "abstracteditorsupport.cpp",
@@ -90,7 +91,6 @@ QtcPlugin {
         "cppeditorlogging.h",
         "cppeditorwidget.cpp",
         "cppeditorwidget.h",
-        "cppeditor.qrc",
         "cppeditor_global.h",
         "cppeditortr.h",
         "cppeditorconstants.h",
@@ -359,8 +359,17 @@ QtcPlugin {
         name: "test data"
         files: "testcases/**/*"
         fileTags: qtc.withPluginTests ? ["qt.core.resource_data"] : []
-        Qt.core.resourcePrefix: "cppeditor"
-        Qt.core.resourceSourceBase: sourceDirectory
+    }
+
+    Group {
+        name: "images"
+        prefix: "images/"
+        files: [
+            "dark_qt_cpp.png",
+            "dark_qt_h.png",
+            "dark_qt_c.png",
+        ]
+        fileTags: "qt.core.resource_data"
     }
 
     Export {

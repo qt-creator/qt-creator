@@ -33,7 +33,6 @@ add_qtc_plugin(CppEditor
     cppcompletionassistprovider.cpp cppcompletionassistprovider.h
     cppcursorinfo.h
     cppdoxygen.cpp cppdoxygen.h
-    cppeditor.qrc
     cppeditor_global.h
     cppeditortr.h
     cppeditorconstants.h
@@ -169,6 +168,14 @@ extend_qtc_plugin(CppEditor
     quickfixes/cppquickfix_test.h
 )
 
+qtc_add_resources(CppEditor "images"
+  PREFIX "/cppeditor"
+  BASE "."
+  FILES
+    images/dark_qt_c.png
+    images/dark_qt_cpp.png
+    images/dark_qt_h.png
+)
 file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testcases/*)
 qtc_add_resources(CppEditor "testcases"
   CONDITION WITH_TESTS
