@@ -130,11 +130,13 @@ class DebuggerRunToolPrivate
 public:
     ExecutableItem coreFileRecipe(const Storage<FilePath> &tempCoreFileStorage);
     ExecutableItem terminalRecipe(const SingleBarrier &barrier,
-                                  const Storage<EnginesDriver> &driverStorage);
+                                  const Storage<EnginesDriver> &driverStorage,
+                                  const Storage<std::unique_ptr<Process>> &terminalStorage);
     ExecutableItem fixupParamsRecipe();
     ExecutableItem debugServerRecipe(const SingleBarrier &barrier);
     ExecutableItem startEnginesRecipe(const Storage<EnginesDriver> &driverStorage);
-    ExecutableItem finishEnginesRecipe(const Storage<EnginesDriver> &driverStorage);
+    ExecutableItem finalizeRecipe(const Storage<EnginesDriver> &driverStorage,
+                                  const Storage<std::unique_ptr<Process> > &terminalStorage);
 
     DebuggerRunTool *q = nullptr;
     DebuggerRunParameters m_runParameters;
@@ -193,54 +195,47 @@ ExecutableItem DebuggerRunToolPrivate::coreFileRecipe(const Storage<FilePath> &t
 }
 
 ExecutableItem DebuggerRunToolPrivate::terminalRecipe(const SingleBarrier &barrier,
-                                                      const Storage<EnginesDriver> &driverStorage)
+    const Storage<EnginesDriver> &driverStorage,
+    const Storage<std::unique_ptr<Process>> &terminalStorage)
 {
-    const auto useTerminal = [this] {
+    const auto onSetup = [this, barrier, driverStorage, terminalStorage] {
         const bool useCdbConsole = m_runParameters.cppEngineType() == CdbEngineType
                                    && (m_runParameters.startMode() == StartInternal
                                        || m_runParameters.startMode() == StartExternal)
                                    && settings().useCdbConsole();
         if (useCdbConsole)
             m_runParameters.setUseTerminal(false);
-        return m_runParameters.useTerminal();
-    };
+        if (!m_runParameters.useTerminal()) {
+            barrier->barrier()->advance();
+            return;
+        }
 
-    const auto onSetup = [this, barrier, driverStorage](Process &process) {
+        Process *process = new Process;
+        terminalStorage->reset(process);
         ProcessRunData stub = m_runParameters.inferior();
         if (m_runParameters.runAsRoot()) {
-            process.setRunAsRoot(true);
+            process->setRunAsRoot(true);
             RunControl::provideAskPassEntry(stub.environment);
         }
-        process.setTerminalMode(TerminalMode::Debug);
-        process.setRunData(stub);
+        process->setTerminalMode(TerminalMode::Debug);
+        process->setRunData(stub);
 
-        QObject::connect(&process, &Process::started, &process,
-                         [this, processPtr = &process, barrier = barrier->barrier()] {
-            m_runParameters.setApplicationPid(processPtr->processId());
-            m_runParameters.setApplicationMainThreadId(processPtr->applicationMainThreadId());
+        QObject::connect(process, &Process::started, process,
+                         [this, process, barrier = barrier->barrier()] {
+            m_runParameters.setApplicationPid(process->processId());
+            m_runParameters.setApplicationMainThreadId(process->applicationMainThreadId());
             barrier->advance();
         });
 
         EnginesDriver *driver = driverStorage.activeStorage();
         QObject::connect(driver, &EnginesDriver::interruptTerminalRequested,
-                         &process, &Process::interrupt);
+                         process, &Process::interrupt);
         QObject::connect(driver, &EnginesDriver::kickoffTerminalProcessRequested,
-                         &process, &Process::kickoffProcess);
-    };
-    const auto onDone = [this](const Process &process, DoneWith result) {
-        if (result != DoneWith::Success)
-            q->reportFailure(process.errorString());
-        else
-            q->reportDone();
+                         process, &Process::kickoffProcess);
+        process->start();
     };
 
-    return Group {
-        If (useTerminal) >> Then {
-            ProcessTask(onSetup, onDone)
-        } >> Else {
-            Sync([barrier] { barrier->barrier()->advance(); })
-        }
-    };
+    return Sync(onSetup);
 }
 
 ExecutableItem DebuggerRunToolPrivate::fixupParamsRecipe()
@@ -513,13 +508,31 @@ ExecutableItem DebuggerRunToolPrivate::startEnginesRecipe(const Storage<EnginesD
     };
 }
 
-ExecutableItem DebuggerRunToolPrivate::finishEnginesRecipe(const Storage<EnginesDriver> &driverStorage)
+static ExecutableItem terminalAwaiter(const Storage<std::unique_ptr<Process>> &terminalStorage)
+{
+    return BarrierTask([terminalStorage](Barrier &barrier) {
+        QObject::connect(terminalStorage->get(), &Process::done, &barrier, &Barrier::advance,
+                         static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
+    });
+}
+
+ExecutableItem DebuggerRunToolPrivate::finalizeRecipe(const Storage<EnginesDriver> &driverStorage,
+    const Storage<std::unique_ptr<Process>> &terminalStorage)
 {
     const auto isRunning = [driverStorage] { return driverStorage->isRunning(); };
+    const auto isTerminalRunning = [terminalStorage] {
+        return terminalStorage->get() && terminalStorage->get()->isRunning();
+    };
 
-    return If (isRunning) >> Then {
-        Sync([driverStorage] { driverStorage->stop(); }),
-        doneAwaiter(driverStorage)
+    return Group {
+        continueOnError,
+        If (isRunning) >> Then {
+            Sync([driverStorage] { driverStorage->stop(); }),
+            doneAwaiter(driverStorage)
+        },
+        If (isTerminalRunning) >> Then {
+            terminalAwaiter(terminalStorage)
+        }
     };
 }
 
@@ -719,6 +732,7 @@ void DebuggerRunTool::start()
 {
     const Storage<EnginesDriver> driverStorage;
     const Storage<FilePath> tempCoreFileStorage;
+    const Storage<std::unique_ptr<Process>> terminalStorage;
 
     const auto onSetup = [this] {
         RunInterface *iface = runStorage().activeStorage();
@@ -727,8 +741,8 @@ void DebuggerRunTool::start()
         d->m_runParameters.setAttachPid(runControl()->attachPid());
     };
 
-    const auto terminalKicker = [this, driverStorage](const SingleBarrier &barrier) {
-        return d->terminalRecipe(barrier, driverStorage);
+    const auto terminalKicker = [this, driverStorage, terminalStorage](const SingleBarrier &barrier) {
+        return d->terminalRecipe(barrier, driverStorage, terminalStorage);
     };
 
     const auto debugServerKicker = [this](const SingleBarrier &barrier) {
@@ -745,6 +759,7 @@ void DebuggerRunTool::start()
     const Group recipe {
         runStorage(),
         driverStorage,
+        terminalStorage,
         tempCoreFileStorage,
         continueOnError,
         onGroupSetup(onSetup),
@@ -757,7 +772,7 @@ void DebuggerRunTool::start()
                 }
             }
         }.withCancel(canceler()),
-        d->finishEnginesRecipe(driverStorage),
+        d->finalizeRecipe(driverStorage, terminalStorage),
         onGroupDone(onDone)
     };
     d->m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
