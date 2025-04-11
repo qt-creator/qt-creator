@@ -37,7 +37,7 @@
             (\uicontrol Start) to start the application from the
             \uicontrol {Performance Analyzer}.
 
-            \image qtcreator-performance-analyzer-toolbar.png {Performance Analyzer toolbar}
+            \image {qtcreator-performance-analyzer-toolbar.png} {Performance Analyzer toolbar}
 
     \endlist
 
@@ -75,7 +75,7 @@
     In the \uicontrol {Create Memory Trace Points} dialog, modify the
     script to run.
 
-    \image qtcreator-performance-analyzer-create-memory-trace-points.png {Create Memory Trace Points dialog}
+    \image {qtcreator-performance-analyzer-create-memory-trace-points.png} {Create Memory Trace Points dialog}
 
     If you need root privileges to run scripts as root, select the privileges to
     use in \uicontrol {Elevate privileges using}.
@@ -122,13 +122,13 @@
     \uicontrol Projects > \uicontrol Run, and then select \uicontrol Details
     next to \uicontrol {Performance Analyzer Settings}.
 
-    \image qtcreator-performance-analyzer-settings.png {Performance Analyzer Settings}
+    \image {qtcreator-performance-analyzer-settings.png} {Performance Analyzer Settings}
 
     To edit the settings for the current run configuration, select the
     drop down menu next to \inlineimage icons/recordfill.png on the
     Performance Analyzer toolbar.
 
-    \image qtcreator-performance-analyzer-toolbar.png {Performance Analyzer toolbar}
+    \image {qtcreator-performance-analyzer-toolbar.png} {Performance Analyzer toolbar}
 
     \section1 Choosing Event Types
 
@@ -257,7 +257,7 @@
     The \uicontrol Timeline view displays a graphical representation of CPU
     usage per thread and a condensed view of all recorded events.
 
-    \image qtcreator-performance-analyzer-timeline.webp {Performance Analyzer Timeline view}
+    \image {qtcreator-performance-analyzer-timeline.webp} {Performance Analyzer Timeline view}
 
     Each category in the timeline describes a thread in the application. Move
     the cursor on an event (5) on a row to see how long it takes and which
@@ -349,7 +349,7 @@
 
     \section1 Viewing Statistics
 
-    \image qtcreator-performance-analyzer-statistics.png
+    \image {qtcreator-performance-analyzer-statistics.png} {Performance Analyzer Statistics view}
 
     The \uicontrol Statistics view displays the number of samples each function
     in the timeline was contained in, in total and when on the top of the
@@ -375,7 +375,7 @@
 
     \section2 Visualizing Statistics as Flame Graphs
 
-    \image qtcreator-performance-analyzer-flamegraph.png
+    \image {qtcreator-performance-analyzer-flamegraph.png} {Performance Analyzer Flame Graph view}
 
     The \uicontrol {Flame Graph} view shows a more concise statistical overview
     of the execution. The horizontal bars show an aspect of the samples
@@ -426,7 +426,7 @@
     \uicontrol {Performance Analyzer Options} > \uicontrol {Load perf.data File}
     to load a file.
 
-    \image qtcreator-cpu-usage-analyzer-load-perf-trace.png
+    \image {qtcreator-cpu-usage-analyzer-load-perf-trace.png} {Load Perf Trace dialog}
 
     Performance Analyzer needs to know the context in which the
     data was recorded to find the debug symbols. Therefore, you have to specify

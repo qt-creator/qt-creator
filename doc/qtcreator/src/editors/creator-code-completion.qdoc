@@ -22,11 +22,11 @@
     the code.
 
     \if defined(qtcreator)
-    \image qtcreator-codecompletion.png
+    \image {qtcreator-codecompletion.png} {Suggestions for completing C++ code}
     \caption Suggestions for completing C++ code.
     \endif
 
-    \image qml-code-completion.png
+    \image {qml-code-completion.png} {Suggestions for completing QML code}
     \caption Suggestions for completing QML code.
 
     To open the list of suggestions at any time, select \key {Ctrl+Space}.
@@ -113,11 +113,11 @@
     within the snippet are renamed.
 
     \if defined(qtcreator)
-    \image qmldesigner-code-completion.png "Completing C++ code"
+    \image {qmldesigner-code-completion.png } {C++ code snippet}
     \caption C++ code snippet.
     \endif
 
-    \image qml-code-snippet.png
+    \image {qml-code-snippet.png}{QML code snippet}
     \caption QML code snippet.
 
     \if defined(qtcreator)
@@ -146,7 +146,7 @@
     To set preferences for code completion, select \preferences >
     \uicontrol {Text Editor} > \uicontrol Completion.
 
-    \image qtcreator-preferences-texteditor-completion.webp {Text Editor Completion preferences}
+    \image {qtcreator-preferences-texteditor-completion.webp} {Completion tab in Text Editor preferences}
 
     \section1 Code Completion Behavior
 
@@ -226,11 +226,11 @@
     \endlist
 
     \if defined(qtcreator)
-    \image qtcreator-edit-code-snippets.png {C++ snippet preferences}
+    \image {qtcreator-edit-code-snippets.png} {Built in C++ code snippets in the Snippets tab in Text Editor preferences}
     \caption Built-in C++ code snippets.
     \endif
 
-    \image qml-snippet-editor.png
+    \image {qml-snippet-editor.png} {Built-in QML code snippets in the Snippets tab in Text Editor preferences}
     \caption Built-in QML code snippets.
 
     \section1 Editing Snippets
@@ -292,7 +292,7 @@
         void $name:l$() {}
     \endcode
 
-    \image qtcreator-snippet-modifiers.png
+    \image {qtcreator-snippet-modifiers.png} {Snippet modifiers in the snippet editor}
     \endif
 
     The snippet editor does not check the syntax of the snippets that you edit
@@ -347,7 +347,7 @@
 
     \list 1
         \li Select \preferences > \uicontrol {Text Editor} > \uicontrol Snippets.
-            \image qtcreator-snippet-modifiers.png {Snippets preferences}
+            \image {qtcreator-snippet-modifiers.png} {Snippets tab in Text Editor preferences}
         \li In \uicontrol Group, select the type of snippet to add.
         \li Select \uicontrol Add.
         \li Specify a trigger. If the trigger is already in use, add an optional

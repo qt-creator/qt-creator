@@ -71,7 +71,7 @@
     and integrate it in the \QC build system, so that it can deployed along with
     the \QC binaries as part of the build.
 
-    \image qtcreator-cpp-class-wizard.png
+    \image {qtcreator-cpp-class-wizard.png} {C++ Class dialog}
 
     For more information about the pages and widgets that you can add and their
     supported properties, see \l {Available Pages} and \l{Available Widgets}.

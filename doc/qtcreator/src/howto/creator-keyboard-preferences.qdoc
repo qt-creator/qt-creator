@@ -32,7 +32,7 @@
     \list 1
 
         \li Select \preferences > \uicontrol Environment > \uicontrol Keyboard.
-            \image qtcreator-keyboard-shortcuts.png {Keyboard preferences}
+            \image {qtcreator-keyboard-shortcuts.png} {Keyboard tab in Environment preferences}
 
         \li Select a command from the list.
 
@@ -89,7 +89,7 @@
 
     \list 1
         \li Select \preferences > \uicontrol Environment > \uicontrol Keyboard.
-            \image qtcreator-keyboard-shortcuts.png {Keyboard preferences}
+            \image {qtcreator-keyboard-shortcuts.png} {Keyboard tab in Environment preferences}
         \li Start typing the name of a function or shortcut in the
             \uicontrol Filter field.
     \endlist
@@ -120,7 +120,7 @@
     \list 1
 
         \li Select \preferences > \uicontrol Environment > \uicontrol Keyboard.
-            \image qtcreator-keyboard-shortcuts.png {Keyboard preferences}
+            \image {qtcreator-keyboard-shortcuts.png} {Keyboard tab in Environment preferences}
 
         \li To import a keyboard shortcut mapping scheme, click \uicontrol Import
             and select the .kms file that has the keyboard shortcut mapping scheme

@@ -16,7 +16,7 @@
 
     \list 1
         \li Select \uicontrol Tools > \uicontrol {Screen Recording}.
-           \image qtcreator-record-screen.webp {Record Screen dialog}
+           \image {qtcreator-record-screen.webp} {Record Screen dialog}
         \li Select \inlineimage icons/settings.png
             to select the screen to record from and to set the recorded
             screen area.
@@ -36,7 +36,7 @@
     Set the screen and the area to record in the
     \uicontrol {Screen Recording Options} dialog.
 
-    \image qtcreator-screen-recording-options.webp {Screen Recording Options dialog}
+    \image {qtcreator-screen-recording-options.webp} {Screen Recording Options dialog}
 
     To select a screen and area:
 
@@ -56,7 +56,7 @@
 
     You can crop and trim the recording in the \uicontrol {Crop and Trim} dialog.
 
-    \image qtcreator-crop-and-trim.webp {Crop and Trim}
+    \image {qtcreator-crop-and-trim.webp} {Crop and Trim}
 
     To crop a recording, in \uicontrol Cropping, drag the guides to set the
     \uicontrol x and \uicontrol y coordinates of the starting point of
@@ -107,7 +107,7 @@
 
     \list 1
         \li Select \preferences > \uicontrol Help > \uicontrol {Screen Recording}.
-            \image qtcreator-preferences-screen-recording.webp {Screen Recording preferences}
+            \image {qtcreator-preferences-screen-recording.webp} {Screen Recording tab in Help preferences}
         \li In \uicontrol {ffmpeg tool}, set the path to the FFmpeg executable.
         \li In \uicontrol {ffprobe tool}, set the path to the FFprobe executable.
         \li Set preferences for recording screens and saving the recordings.

@@ -21,7 +21,7 @@
     in the header file (inside or outside the class) or in the implementation
     file.
 
-    \image qtcreator-preferences-quick-fixes-function-locations.webp {Generated Function Locations group in Quick Fixes preferences}
+    \image {qtcreator-preferences-quick-fixes-function-locations.webp} {Generated Function Locations in the Quick Fixes tab in C++ preferences}
 
     \section1 Function Names and Attributes
 
@@ -31,7 +31,7 @@
     \e slots and that signals should be generated with the new value as a
     parameter.
 
-    \image qtcreator-refactoring-options-generation.png {Getter and Setter generation settings}
+    \image {qtcreator-refactoring-options-generation.png} {Getter and setter generation in the Quick Fixes tab in C++ preferences}
 
     \section1 Namespace Handling
 
@@ -39,7 +39,7 @@
     generate missing namespaces, add \c {using namespace} where necessary, or
     rewrite types to match the existing namespaces.
 
-    \image qtcreator-refactoring-options-namespaces.png "Namespace handling settings"
+    \image {qtcreator-refactoring-options-namespaces.png} {Namespace handling in the Quick Fixes tab in C++ preferences}
 
     \section1 Custom Parameter Types
 
@@ -58,7 +58,7 @@
     and \c <cur> to access the parameter and current value. Use \c <type> to
     access the type and \c <T> for the template parameter.
 
-    \image qtcreator-refactoring-options-templates.webp {Settings for handling custom parameter types}
+    \image {qtcreator-refactoring-options-templates.webp} {Handling custom parameter types in the Quick Fixes tab in C++ preferences}
 
     Usually, arguments are passed by using a \c const reference. To pass
     arguments of a particular type as values, list them in the
@@ -954,7 +954,7 @@
     \uicontrol Projects > \uicontrol {Project Settings} >
     \uicontrol {Quick Fixes} and clear \uicontrol {Use global settings}.
 
-    \image qtcreator-refactoring-options-locations.png {Quick Fixes preferences}
+    \image {qtcreator-refactoring-options-locations.png} {Quick Fixes preferences for a project}
 
     To revert to global settings, select \uicontrol {Reset to Global}. To
     delete the custom settings, select \uicontrol {Use global settings}, and

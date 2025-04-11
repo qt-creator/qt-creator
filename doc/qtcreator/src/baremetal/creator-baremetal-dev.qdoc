@@ -86,7 +86,7 @@
     \l{https://github.com/EmBitz/EBlink}{EBlink} is an ARM Cortex-M debug tool
     that supports squirrel scripting, live variables, and hot-plugging.
 
-    \image qtcreator-baremetal-eblink.webp {Bare metal device preferences for EBlink}
+    \image {qtcreator-baremetal-eblink.webp} {EBlink in the Bare Metal tab in Devices preferences}
 
     To set preferences for \EBlink:
 
@@ -133,7 +133,7 @@
     \l{https://www.segger.com/products/debug-probes/j-link/}{J-Link} is a line
     of debug probes by Segger.
 
-    \image qtcreator-baremetal-jlink.webp {Bare metal device preferences for J-Link}
+    \image {qtcreator-baremetal-jlink.webp} {J-Link in the Bare Metal tab in Devices preferences}
 
     To set preferences for J-Link debug probes:
 
@@ -174,7 +174,7 @@
     (JTAG) facility. It enables source level debugging with the GDB compiled
     for the ARM architecture.
 
-    \image qtcreator-baremetal-openocd.webp {Bare metal device preferences for OpenOCD}
+    \image {qtcreator-baremetal-openocd.webp} {OpenOCD in the Bare Metal tab in Devices preferences}
 
     To set preferences for \OpenOCD:
 
@@ -210,7 +210,7 @@
     \l{https://www.st.com/en/development-tools/stlink-v3-bridge.html}
     {ST-LINK Utility} is used for programming STM32 microcontrollers.
 
-    \image qtcreator-baremetal-stlink.webp {Bare metal device preferences for St-Link}
+    \image {qtcreator-baremetal-stlink.webp} {St-Link  in the Bare Metal tab in Devices preferences}
 
     To set preferences for St-Link:
 
@@ -256,7 +256,7 @@
 
     \section1 uVision Simulator
 
-    \image qtcreator-baremetal-uvision-simulator.png {Bare metal device preferences for uVision Simulator}
+    \image {qtcreator-baremetal-uvision-simulator.png} {uVision Simulator in the Bare Metal tab in Devices preferences}}
 
     To set preferences for uVision Simulator:
 
@@ -273,7 +273,7 @@
 
     \section1 uVision St-Link or JLink Debugger
 
-    \image qtcreator-baremetal-uvision-st-link.png {Bare metal device preferences for uVision St-Link}
+    \image {qtcreator-baremetal-uvision-st-link.png} {uVision St-Link in the Bare Metal tab in Devices preferences}
 
     To set preferences for uVision St-Link or JLink Debugger:
 
@@ -309,7 +309,7 @@
         \list 1
 
            \li Go to \preferences > \uicontrol Devices.
-               \image qtcreator-baremetal-devices.png {Bare Metal device preferences}
+               \image {qtcreator-baremetal-devices.png} {Bare Metal tab in Devices preferences}
            \li Select \uicontrol Add > \uicontrol {Bare Metal Device} >
                 \uicontrol {Start Wizard}.
 
@@ -325,7 +325,7 @@
     To add a kit for building applications and running them on bare metal
     devices, go to \preferences > \uicontrol Kits and select \uicontrol Add.
 
-    \image qtcreator-baremetal-kit.png {Kit preferences for Bare Metal}
+    \image {qtcreator-baremetal-kit.png} {Bare Metal selected in Kits preferences}
 
     Build applications for and run them on bare metal devices
     in same way as for and on the desktop.

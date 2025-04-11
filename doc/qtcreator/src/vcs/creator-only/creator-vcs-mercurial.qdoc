@@ -53,7 +53,7 @@
     To set preferences for Mercurial, select \preferences >
     \uicontrol {Version Control} > \uicontrol Mercurial:
 
-    \image qtcreator-preferences-vcs-mercurial.webp {Mercurial preferences}
+    \image {qtcreator-preferences-vcs-mercurial.webp} {Mercurial tab in Version Control preferences}
 
     \list
         \li \uicontrol Command specifies the path to the command-line client

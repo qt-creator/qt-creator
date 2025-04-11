@@ -398,7 +398,7 @@
     Use the \uicontrol Locator to browse
     through projects, files, classes, functions, documentation, and file systems.
 
-    \image qtcreator-locator-open.webp "List of found files"
+    \image {qtcreator-locator-open.webp} {List of found files in the locator}
 
     To quickly access files not directly mentioned in your project, you can
     create your own locator filters. That way you can locate files in a
@@ -407,7 +407,7 @@
     To create locator filters, select \preferences >
     \uicontrol Environment > \uicontrol Locator > \uicontrol Add.
 
-    \image qtcreator-locator-customize.webp "Locator preferences"
+    \image {qtcreator-locator-customize.webp} {Locator tab in Environment preferences}
 
     \sa {Creating Locator Filters}, {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
@@ -425,7 +425,7 @@
     \list 1
         \li Press \key {Ctrl+K} (\key {Cmd+K} on \macos) to activate the locator.
         \li Enter \c =, followed by a space.
-        \image qtcreator-locator.webp {List of locator filters}
+        \image {qtcreator-locator.webp} {List of locator filters}
         \li Perform calculations.
     \endlist
 
@@ -532,7 +532,7 @@
     \list 1
         \li Press \key {Ctrl+K} to activate the locator.
         \li Type m, followed by a space.
-            \image qtcreator-locator-m-filter.webp {The m filter in the locator}
+            \image {qtcreator-locator-m-filter.webp} {The m filter in the locator}
         \li Double-click a QML method in the list to move to it in the editor.
     \endlist
 
@@ -578,7 +578,7 @@
     Specify a file that has a license header for C++ in \preferences >
     \uicontrol C++ > \uicontrol {File Naming} > \uicontrol {License template}.
 
-    \image qtcreator-options-cpp-files.png "File Naming preferences"
+    \image {qtcreator-options-cpp-files.png} {File Naming tab in C++ preferences}
 
     The license file may have special placeholders enclosed
     in \c{%%} that are replaced when generating a new file:
@@ -640,7 +640,7 @@
     To specify whether to automatically insert matching characters,
     select \preferences > \uicontrol {Text Editor} > \uicontrol Completion.
 
-    \image qtcreator-preferences-texteditor-completion.webp "Completion preferences"
+    \image {qtcreator-preferences-texteditor-completion.webp} {Completion tab in Text Editor preferences}
 
     \sa {Completion}, {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
@@ -666,7 +666,7 @@
     > \uicontrol {Text Editor} > \uicontrol Behavior and select
     \uicontrol {Enable smart selection changing}.
 
-    \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
+    \image {qtcreator-preferences-texteditor-behavior.webp} {Behavior tab in Text Editor preferences}
 
     \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
@@ -683,7 +683,7 @@
     later, create a new empty text file and save it to a temporary directory
     on your machine.
 
-    \image qtcreator-scratch-buffer.webp {Scratch file open in the text editor}
+    \image {qtcreator-scratch-buffer.webp} {Scratch file open in the text editor}
 
     To create a scratch file and open it in the text editor:
 
@@ -713,7 +713,7 @@
 
     \list 1
         \li Select \preferences > \uicontrol Environment > \uicontrol System.
-            \image qtcreator-preferences-environment-system.webp {System preferences}
+            \image {qtcreator-preferences-environment-system.webp} {System tab in Environment preferences}
         \li In \uicontrol {Maximum number of entries in "Recent Files"}, set
             the number of files to show.
     \endlist
@@ -743,7 +743,7 @@
     \li Press \key {Ctrl+Shift+F} or go to \uicontrol Edit >
         \uicontrol {Find/Replace} > \uicontrol {Advanced Find} >
         \uicontrol {Open Advanced Find} to open \uicontrol {Search Results}.
-        \image qtcreator-search-reg-exp.webp {Regular expression in Search Results view}
+        \image {qtcreator-search-reg-exp.webp} {Regular expression in Search Results view}
     \li In \uicontrol Scope, select whatever is appropriate for your search.
     \li Select \uicontrol {Use regular expressions}.
     \li Enter the following text in \uicontrol {Search for}:
@@ -751,7 +751,7 @@
         if \((.*) == (.*)\)
         \endcode
     \li Select \uicontrol {Search & Replace} to see a list of search results.
-        \image qtcreator-search-results-reg-exp.webp {Search results for the regular expression}
+        \image {qtcreator-search-results-reg-exp.webp} {Search results for the regular expression}
     \li In \uicontrol {Replace with}, enter the following text:
         \badcode
         if (\1.strictlyEquals(\2))

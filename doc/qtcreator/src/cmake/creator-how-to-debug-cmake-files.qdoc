@@ -22,7 +22,7 @@
         \li In the \uicontrol Edit mode, set breakpoints in a CMake file.
         \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Start CMake Debugging}.
-            \image qtcreator-debugger-cmake.webp {DAP CMake Preset view in the Debug mode}
+            \image {qtcreator-debugger-cmake.webp} {DAP CMake Preset view in the Debug mode}
     \endlist
 
     When the application stops at a breakpoint, you can examine data in the

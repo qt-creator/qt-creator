@@ -19,7 +19,7 @@
     compiler, status of a program when it is executed, debug output, or search
     results.
 
-    \image qtcreator-output-panes-taskbar.webp {Output views}
+    \image {qtcreator-output-panes-taskbar.webp} {Output views}
 
     You can open output views in all
     \if defined (qtcreator)
@@ -56,7 +56,7 @@
     \uicontrol Environment > \uicontrol Interface, and
     then select the codec in the \uicontrol {Text codec for tools} field.
 
-    \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
+    \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
 
     \section1 Find and filter output
 

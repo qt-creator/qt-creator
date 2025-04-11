@@ -63,7 +63,7 @@
     The \uicontrol Method field lists deployment settings.
     To add deployment methods for a project, select \uicontrol Add.
 
-    \image qtcreator-android-deployment-settings.png {Deployment settings}
+    \image {qtcreator-android-deployment-settings.png} {Deployment settings}
 
     To rename the current deployment method, select \uicontrol Rename.
 
@@ -88,7 +88,7 @@
     \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
     \uicontrol {Build Android APK} > \uicontrol Details.
 
-    \image qtcreator-build-settings-android-apk.webp {Build Android APK step}
+    \image {qtcreator-build-settings-android-apk.webp} {Build Android APK step}
 
     The \c androiddeployqt tool create APKs based on the settings. For more
     information about the available options, see \l{androiddeployqt}.
@@ -121,18 +121,18 @@
     \uicontrol {Initial Configuration} in the \uicontrol CMake section.
     You can set additional ABIs as values of the \c ANDROID_ABI key:
 
-    \image qtcreator-android-cmake-settings.png {CMake settings for building AABs}
+    \image {qtcreator-android-cmake-settings.png} {CMake settings for building AABs}
 
     When building with Qbs or qmake, you can select the ABIs in the
     \uicontrol ABIs field in the \uicontrol {Build Steps}:
 
-    \image qtcreator-android-build-steps.png {qmake settings for building AABs}
+    \image {qtcreator-android-build-steps.png} {qmake settings for building AABs}
 
     \section3 Building AARs
 
     Select the AAR target in the \uicontrol {Build Steps} section.
 
-    \image qt-creator-android-build-aar.webp {Selecting the AAR target}
+    \image {qt-creator-android-build-aar.webp} {Selecting the AAR target}
 
     \section3 Signing Android Packages
 
@@ -170,7 +170,7 @@
             a new keystore that has one key pair in the
             \uicontrol {Create a Keystore and a Certificate} dialog:
 
-            \image qtcreator-android-certificate.png
+            \image {qtcreator-android-certificate.png} {Create a Keystore and a Certificate dialog}
 
         \li In the \uicontrol Keystore group, enter a password to protect the
             keystore.
@@ -251,7 +251,7 @@
 
     \li Check the path in \uicontrol {Android package source directory}.
 
-        \image qtcreator-android-create-template.png {Create Template dialog}
+        \image {qtcreator-android-create-template.png} {Create Template dialog}
 
     \li Select \uicontrol {Copy the Gradle files to Android directory} if you
         plan to extend the Java part of your Qt application.
@@ -259,7 +259,7 @@
     \li Select \uicontrol Finish to copy the template files to the \c android
         directory and to open the manifest file for editing.
 
-        \image qtcreator-android-manifest-editor-package.webp {Package info in Android Manifest Editor}
+        \image {qtcreator-android-manifest-editor-package.webp} {Package info in Android Manifest Editor}
 
     \endlist
 
@@ -465,7 +465,7 @@
     high, and extra high DPI displays, as needed. Alternatively, set the icons
     for each resolution separately.
 
-    \image qtcreator-android-manifest-editor-app-icon.webp {Application icons in Android Manifest Editor}
+    \image {qtcreator-android-manifest-editor-app-icon.webp} {Application icons in Android Manifest Editor}
 
     \section2 Splash Screens
 
@@ -473,7 +473,7 @@
     Select images to display as splash screens depending on the device
     orientation and screen resolution.
 
-    \image qtcreator-android-manifest-editor-splash-screen.webp {Splash screens in Android Manifest Editor}
+    \image {qtcreator-android-manifest-editor-splash-screen.webp} {Splash screens in Android Manifest Editor}
 
     By default, drawing an activity hides the splash screen. To keep it visible until
     \l{https://doc.qt.io/qt-6/qnativeinterface-qandroidapplication.html#hideSplashScreen}
@@ -499,7 +499,7 @@
     install the application. Android OS then grants the application access to the
     appropriate data and features.
 
-    \image qtcreator-android-manifest-editor-permissions.webp {Permissions in Android Manifest Editor}
+    \image {qtcreator-android-manifest-editor-permissions.webp} {Permissions in Android Manifest Editor}
 
     Select the \uicontrol {Include default permissions for Qt modules} and
     \uicontrol {Include default features for Qt modules} check boxes to add the

@@ -114,7 +114,7 @@
     \uicontrol {Toggle Progress Details} (1), and then select \uicontrol X on
     the progress bar.
 
-    \image qtcreator-toggle-progress-bar.webp {Toggle Progress Details button}
+    \image {qtcreator-toggle-progress-bar.webp} {Toggle Progress Details button}
 
     By default, \QC runs one clangd process per project. If you have created
     \l{Manage sessions}{sessions} that have related projects, you can
@@ -146,7 +146,7 @@
     \list 1
         \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol {C++ Code Model}.
-            \image qtcreator-projects-cpp-code-model.webp {C++ Code Model settings}
+            \image {qtcreator-projects-cpp-code-model.webp} {C++ Code Model settings}
         \li Clear \uicontrol {Use global settings}.
         \li Set \uicontrol {C++ Code Model} settings for the project.
     \endlist
@@ -170,7 +170,7 @@
     To configure the C++ code model globally, go to \preferences >
     \uicontrol C++ > \uicontrol {Code Model}.
 
-    \image qtcreator-preferences-code-model.webp {C++ Code Model preferences}
+    \image {qtcreator-preferences-code-model.webp} {Code Model tab in C++ preferences}
 
     The following table summarizes the preferences.
 
@@ -242,7 +242,7 @@
     \list 1
         \li Select \preferences > \uicontrol C++ >
             \uicontrol Clangd > \uicontrol {Use clangd}.
-            \image qtcreator-preferences-clangd.webp {Clangd preferences}
+            \image {qtcreator-preferences-clangd.webp} {Clangd tab in C++ preferences}
         \li In \uicontrol {Path to executable}, enter the path to clangd
             version 14, or later.
         \li In the \uicontrol {Background indexing} field, select \uicontrol Off
@@ -300,7 +300,7 @@
     the \uicontrol {Diagnostic Configurations} dialog, where you can select and
     edit the checks to perform.
 
-    \image qtcreator-clang-diagnostic-configurations.webp {Diagnostic Configurations dialog}
+    \image {qtcreator-clang-diagnostic-configurations.webp} {Diagnostic Configurations dialog}
 
     In addition to using the built-in checks, you can select \uicontrol Copy to
     create copies of them and edit the copies to fit your needs.
@@ -336,7 +336,7 @@
     \list 1
         \li Select \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol {Clangd}.
-            \image qtcreator-projects-settings-clangd.webp {Clangd preferences for a project}
+            \image {qtcreator-projects-settings-clangd.webp} {Clangd preferences for a project}
         \li Clear \uicontrol {Use global settings}.
         \li Select \uicontrol {Use clangd}.
         \li Specify \uicontrol Clangd preferences for the project.

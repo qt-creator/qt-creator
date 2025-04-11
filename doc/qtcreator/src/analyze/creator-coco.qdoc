@@ -45,14 +45,14 @@
     off for the build configuration. Select \uicontrol {Enable Coverage}
     or \uicontrol {Disable Coverage} to turn on or off code coverage.
 
-    \image qtcreator-projects-settings-build-coco.webp {Setting code coverage from a build step}
+    \image {qtcreator-projects-settings-build-coco.webp} {Setting code coverage from a build step}
 
     \section1 Set code coverage for a project
 
     To specify code coverage settings for a project, go to \uicontrol Projects >
     \uicontrol {Project Settings} > \uicontrol {Coco Code Coverage}.
 
-    \image qtcreator-projects-settings-coco.webp {Coco Code Coverage settings}
+    \image {qtcreator-projects-settings-coco.webp} {Coco Code Coverage settings}
 
     \table
     \header
@@ -150,13 +150,13 @@
 
     \list 1
         \li Go to \uicontrol Analyze > \uicontrol {Squish Coco}.
-            \image qtcreator-coco.png {Coco CoverageBrowser and CSMes file}
+            \image {qtcreator-coco.png} {Coco CoverageBrowser and CSMes file}
         \li In \uicontrol CSMes, select the instrumentation database to load.
         \li Select \uicontrol Open to start CoverageBrowser.
         \li In CoverageBrowser, go to \uicontrol File >
             \uicontrol {Load Execution Report} and select the \c .csexe file for the
             coverage scan.
-            \image coco-coveragebrowser-load-execution-report.png {Load Execution Report dialog}
+            \image {coco-coveragebrowser-load-execution-report.png} {Load Execution Report dialog}
         \li To keep the execution report, clear
             \uicontrol {Delete execution report after loading}.
     \endlist

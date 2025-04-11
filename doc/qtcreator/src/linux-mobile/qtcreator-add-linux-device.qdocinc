@@ -10,7 +10,7 @@
      \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
         \li Select \uicontrol Add > \uicontrol {\1} > \uicontrol {Start Wizard}.
-            \image qtcreator-preferences-devices-remote-linux-connection.webp {Connection Data wizard}
+            \image {qtcreator-preferences-devices-remote-linux-connection.webp} {Connection Data wizard}
         \li In \uicontrol {The name to identify this configuration},
             enter a name for the connection.
         \li In \uicontrol {The device's host name or IP address},
@@ -24,7 +24,7 @@
             becomes the value of the \c %{Device:UserName} variable.
         \li Select \uicontrol {Next} to open the \uicontrol {Key Deployment}
             dialog.
-            \image qtcreator-preferences-devices-remote-linux-key-deployment.webp {Key Deployment dialog}
+            \image {qtcreator-preferences-devices-remote-linux-key-deployment.webp} {Key Deployment dialog}
         \li In \uicontrol {Private key file}, select a private key file
             for authentication. This becomes the value of the
             \c %{Device:PrivateKeyFile} variable.

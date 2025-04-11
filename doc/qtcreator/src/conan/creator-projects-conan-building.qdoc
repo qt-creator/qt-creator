@@ -18,7 +18,7 @@
     To configure a project to be built using the Conan package manager, select
     \uicontrol {Add Build Step} > \uicontrol {Run Conan Install}.
 
-    \image qtcreator-build-steps-conan-install.png {Conan Install build step}
+    \image {qtcreator-build-steps-conan-install.png} {Conan Install build step}
 
     In the \uicontrol {Conan file} field, enter the location of the
     \e conanfile.txt file for the project.

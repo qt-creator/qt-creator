@@ -17,7 +17,7 @@
     To open the log viewer and start collecting log information, select
     \uicontrol Tools > \uicontrol {Debug \QC} > \uicontrol {Show Logs}.
 
-    \image qtcreator-logging-category-viewer.png
+    \image {qtcreator-logging-category-viewer.png} {Logging Category Viewer dialog}
 
     The viewer displays log messages from the selected logging categories.
     If you have logging rules defined, they might be listed on startup.

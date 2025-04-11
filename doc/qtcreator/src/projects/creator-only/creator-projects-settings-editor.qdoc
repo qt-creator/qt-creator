@@ -32,7 +32,7 @@
 
     \endlist
 
-    \image qtcreator-editor-settings.webp {Editor settings for a project}
+    \image {qtcreator-editor-settings.webp} {Editor settings for a project in the Projects mode}
 
     Click \uicontrol {Restore Global} to revert to the global settings.
 

@@ -38,14 +38,14 @@
     \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol Docker.
         \li In \uicontrol Command, enter the path to the Docker CLI.
-            \image qtcreator-preferences-devices-docker.webp {Docker tab in Devices preferences}
+            \image {qtcreator-preferences-devices-docker.webp} {Docker tab in Devices preferences}
         \li Go to \uicontrol Devices.
         \li Select \uicontrol Add > \uicontrol {Docker Device} >
             \uicontrol {Start Wizard} to search for images in your
             local Docker installation.
         \li Select a Docker image, and then select \uicontrol OK.
         \li In \uicontrol Devices, check and change Docker device preferences.
-            \image qtcreator-preferences-devices-docker-device.png {Docker device preferences}
+            \image {qtcreator-preferences-devices-docker-device.png} {Docker device in the Devices tab in Devices preferences}
         \li Select \uicontrol Apply to save your changes.
     \endlist
 
@@ -55,7 +55,7 @@
     images in your local Docker installation. You can sort the images according
     to the repository name or tag or the image ID or size.
 
-    \image qtcreator-docker-image-selection.webp {Docker Image Selection dialog}
+    \image {qtcreator-docker-image-selection.webp} {Docker Image Selection dialog}
 
     Select \uicontrol {Show unnamed images} to show images that are not tagged.
 
@@ -85,7 +85,7 @@
     \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
         \li In \uicontrol Device, select a Docker device.
-            \image qtcreator-preferences-devices-docker-device.png {Docker device preferences}
+            \image {qtcreator-preferences-devices-docker-device.png} {Docker device in the Devices tab in Devices preferences}
     \endlist
 
     The following table summarizes the preferences you can set.

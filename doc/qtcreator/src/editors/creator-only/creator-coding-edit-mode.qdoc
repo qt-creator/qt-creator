@@ -13,7 +13,7 @@
 
     Write and navigate code in the \uicontrol Edit mode.
 
-    \image qtcreator-spliteditorview.png {Code editor}
+    \image {qtcreator-spliteditorview.png} {Code editor}
 
     \section1 Editing Code
 
@@ -65,10 +65,10 @@
     The editor toolbar is context sensitive and shows items relevant to the file
     currently open in the editor.
 
-    \image qtcreator-editor-toolbar.webp {Editor toolbar for a C++ source file}
+    \image {qtcreator-editor-toolbar.webp} {Editor toolbar for a C++ source file}
     \caption Editor toolbar when a C++ source file is open
 
-    \image qtcreator-editor-toolbar-qml.webp {Editor toolbar for a QML file}
+    \image {qtcreator-editor-toolbar-qml.webp} {Editor toolbar for a QML file}
     \caption Editor toolbar when a QML file is open
 
     \table
@@ -132,7 +132,7 @@
     \uicontrol Environment > \uicontrol Interface, and
     then select \uicontrol Relaxed in the \uicontrol {Toolbar style} field.
 
-    \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
+    \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
 
     \section1 Resizing Views
 
@@ -188,7 +188,7 @@
     The editor toolbar shows the name of the file that is currently open (1) in
     the editor.
 
-    \image qtcreator-editor-open-files.webp {Current file shown on Edit mode toolbar}
+    \image {qtcreator-editor-open-files.webp} {Current file shown on Edit mode toolbar}
 
     Use the locator, \l{Sidebar Views}{sidebar views}, \uicontrol Window menu
     items, \l{General Keyboard Shortcuts}{keyboard shortcuts}, or
@@ -208,7 +208,7 @@
     \list 1
         \li Select \key {Ctrl+K} to activate the locator.
         \li Start typing the filename.
-            \image qtcreator-locator-open.webp {List of files in the locator}
+            \image {qtcreator-locator-open.webp} {List of files in the locator}
         \li Use the arrow keys to move to the filename in the list and press
             \key Enter.
 
@@ -234,7 +234,7 @@
     clear the \uicontrol {Sort results} check box in the \c md
     locator filter configuration.
 
-    \image qtcreator-locator-filter-edit-md.webp {Filter Configuration dialog}
+    \image {qtcreator-locator-filter-edit-md.webp} {Filter Configuration dialog}
 
     \section1 Browse location history
 
@@ -273,7 +273,7 @@
 
     The editor toolbar shows the symbol currently under the cursor (1).
 
-    \image qtcreator-editor-symbols.webp {Symbol under the cursor shown on Edit mode toolbar}
+    \image {qtcreator-editor-symbols.webp} {Symbol under the cursor shown on Edit mode toolbar}
 
     By default, the list of symbols shows them in the order in which they appear
     in the file. Right-click the field and go to \uicontrol {Sort Alphabetically}
@@ -306,7 +306,7 @@
 
     The locator lists the results.
 
-    \image qtcreator-locator-example.webp {List of files matching the locator filter}
+    \image {qtcreator-locator-example.webp} {List of files matching the locator filter}
 
     Filters locating class and function definitions also accept namespaces,
     such as \c {Utils::*View}.
@@ -323,7 +323,7 @@
     To enable this moving function, go to \preferences > \uicontrol {Text Editor}
     > \uicontrol Behavior > \uicontrol {Enable mouse navigation}.
 
-    \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
+    \image {qtcreator-preferences-texteditor-behavior.webp} {Behavior tab in Text Editor preferences}
 
     \section2 Follow symbols
 
@@ -369,7 +369,7 @@
     shortcuts for opening link targets in the next split are used
     to open them in the current split.
 
-    \image qtcreator-options-text-editor-display.png {Text Editor Display preferences}
+    \image {qtcreator-options-text-editor-display.png} {Display tab in Text Editor preferences}
 
     \section1 Open resource files for editing
 
@@ -377,7 +377,7 @@
     (.qrc) path, following the symbol opens the specified resource file for
     editing in the \uicontrol {Resource Browser}.
 
-    \image qtcreator-add-resource.png {Resource Browser}
+    \image {qtcreator-add-resource.png} {Resource Browser}
 
     \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Editor Shortcuts},
     {Navigate with locator}
@@ -391,18 +391,18 @@
 
     \title Change text encoding
 
-    \image qtcreator-editor-toolbar.webp {Edit mode toolbar}
+    \image {qtcreator-editor-toolbar.webp} {Edit mode toolbar}
 
     To show the file encoding of the current file on the editor toolbar (4) in
     the \uicontrol Edit mode, go to \preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Display file encoding}.
 
-    \image qtcreator-options-text-editor-display.png {Text Editor Display preferences}
+    \image {qtcreator-options-text-editor-display.png} {Display tab in Text Editor preferences}
 
     To change the text encoding, select it on the toolbar, and then select new
     encoding in the \uicontrol {Text Encoding} dialog:
 
-    \image qtcreator-text-encoding.png {Text Encoding dialog}
+    \image {qtcreator-text-encoding.png} {Text Encoding dialog}
 
     To reload the file with the selected encoding, select
     \uicontrol {Reload with Encoding}.
@@ -416,7 +416,7 @@
     \uicontrol {Text Editor} > \uicontrol Behavior, and
     then select a suitable option in \uicontrol {Default encoding}.
 
-    \image qtcreator-options-texteditor-behavior-file-encodings.png {File encoding preferences}
+    \image {qtcreator-options-texteditor-behavior-file-encodings.png} {File encoding in the Behavior tab in Text Editor preferences}
 
     Qt requires UTF-8 encoded source files, and therefore the default
     encoding is set to \uicontrol UTF-8.
@@ -448,7 +448,7 @@
     select the ending style on the editor toolbar (3) in the \uicontrol Edit
     mode.
 
-    \image qtcreator-editor-toolbar.webp {Edit mode toolbar}
+    \image {qtcreator-editor-toolbar.webp} {Edit mode toolbar}
 
     To hide this field, go to \preferences > \uicontrol {Text Editor}
     > \uicontrol Display, and clear \uicontrol {Display file line ending}.
@@ -459,12 +459,12 @@
     \preferences > \uicontrol {Text Editor} > \uicontrol Behavior and
     select the ending style in \uicontrol {Default line endings}.
 
-    \image qtcreator-options-texteditor-behavior-file-encodings.png {Default file ending preferences}
+    \image {qtcreator-options-texteditor-behavior-file-encodings.png} {Default file endings in the Behavior tab in Text Editor preferences}
 
     To set the line endings to use for a project, go to \uicontrol Projects >
     \uicontrol {Project Settings} > \uicontrol Editor.
 
-    \image qtcreator-editor-settings.webp {Editor settings for a project}
+    \image {qtcreator-editor-settings.webp} {Editor settings for a project}
 
     \sa {Edit Code}{How To: Edit Code}, {Specify editor settings}, {Edit Mode}
 */
@@ -482,7 +482,7 @@
     in several places in the file. Any changes you make are applied
     simultaneously at all the cursor positions.
 
-    \image qtcreator-editor-multicursor.webp {Multiple cursors in the editor}
+    \image {qtcreator-editor-multicursor.webp} {Multiple cursors in the editor}
 
     To manage cursors:
 
@@ -511,7 +511,7 @@
     Split the editor view or open the editor in a new window to work on
     and view many files on the same screen or on many screens.
 
-    \image qtcreator-spliteditorview.png {Editor view split horizontally and vertically}
+    \image {qtcreator-spliteditorview.png} {Editor view split horizontally and vertically}
 
     View many files at the same time:
 
@@ -590,7 +590,7 @@
 
     \endlist
 
-    \image qtcreator-togglebookmark.png
+    \image {qtcreator-togglebookmark.png} {Toggling bookmarks}
 
     \section1 Add notes to bookmarks
 
@@ -625,7 +625,7 @@
     the number or string after the space. Double-click a bookmark in the list to
     go to it in the editor.
 
-    \image qtcreator-locator-bookmark-filtering.png "Filtering bookmarks in locator"
+    \image {qtcreator-locator-bookmark-filtering.png} {Filtering bookmarks in locator}
 
     \section1 View bookmarks
 
@@ -633,7 +633,7 @@
     move between bookmarks, select the \uicontrol {Previous Bookmark} or
     \uicontrol {Next Bookmark} button or use the keyboard shortcuts.
 
-    \image qtcreator-bookmarks-view.webp {Listing bookmarks in Bookmarks view}
+    \image {qtcreator-bookmarks-view.webp} {Listing bookmarks in Bookmarks view}
 
     To move bookmarks up and down, select \uicontrol {Move Up} or
     \uicontrol {Move Down} in the context menu or select \key {Ctrl+Alt+,} or
@@ -667,7 +667,7 @@
     \uicontrol Edit mode toolbar in \uicontrol #. The button is visible only when
     several parse contexts are available.
 
-    \image qtcreator-editor-open-files.webp {Edit mode toolbar}
+    \image {qtcreator-editor-open-files.webp} {Edit mode toolbar}
 
     To reset the parse context, go to \uicontrol # >
     \uicontrol {Clear Preferred Parse Context}.
@@ -705,7 +705,7 @@
     select \uicontrol Tools > \uicontrol {Debug \QC } >
     \uicontrol {Inspect C++ Code Model} or select \key {Ctrl+Shift+F12}.
 
-    \image qtcreator-code-model-inspector.webp {Code Model Inspector dialog}
+    \image {qtcreator-code-model-inspector.webp} {Code Model Inspector dialog}
 
     \QC generates the code model inspection log file in a temporary folder.
 

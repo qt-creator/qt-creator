@@ -14,7 +14,7 @@
     To move the code for types and symbols around in the source file, drag
     them in the outline.
 
-    \image qtcreator-outline-view.png {Outline view}
+    \image {qtcreator-outline-view.png} {Outline view}
 
     \list
         \li To see a complete list of all bindings, select
@@ -38,7 +38,7 @@
 
     \brief Shows the class hierarchy of the currently open projects.
 
-    \image qtcreator-class-view.png {Class View}
+    \image {qtcreator-class-view.png} {Class View}
 
     \list
         \li To organize the view by subprojects, click
@@ -68,7 +68,7 @@
     button on the \l{Edit Mode}{editor toolbar}, and then select
     \uicontrol {Restart} to collect call hierarchy information for the function.
 
-    \image qtcreator-call-hierarchy-view.png {Call Hierarchy view}
+    \image {qtcreator-call-hierarchy-view.png} {Call Hierarchy view}
 */
 
 /*!
@@ -87,7 +87,7 @@
         \li Select \uicontrol {Open Type Hierarchy} or select \key {Ctrl+Shift+T}.
     \endlist
 
-    \image qtcreator-type-hierarchy-view.png {Type Hierarchy view}
+    \image {qtcreator-type-hierarchy-view.png} {Type Hierarchy view}
 
     To navigate in the type hierarchy:
 
@@ -121,7 +121,7 @@
             or select \key {Ctrl+Shift+I}.
     \endlist
 
-    \image qtcreator-include-hierarchy-view.png {Include Hierarchy view}
+    \image {qtcreator-include-hierarchy-view.png} {Include Hierarchy view}
 
     To keep the view synchronized with the file currently open in the editor,
     select \inlineimage icons/linkicon.png

@@ -125,7 +125,7 @@
         \li Go to \preferences > \uicontrol SDKs > \uicontrol MCU.
         \li In \uicontrol {\QMCU SDK}, specify the path to the directory where
             you installed \QMCU SDK.
-            \image qtcreator-preferences-mcu.webp {MCU preferences}
+            \image {qtcreator-preferences-mcu.webp} {MCU tab in SDKs preferences}
         \li In \uicontrol {Targets supported by the \QMCU SDK}, select your MCU
             board.
         \li In \uicontrol Requirements, check that the platform-specific
@@ -186,7 +186,7 @@
     \uicontrol Apply in \preferences > \uicontrol SDKs > \uicontrol MCU after
     adding an SDK.
 
-    \image qtcreator-mcu-device.webp {MCU devices}
+    \image {qtcreator-mcu-device.webp} {MCU device in the Devices tab in Devices preferences}
 
     To add MCU devices, select \preferences > \uicontrol Devices > \uicontrol Add
     > \uicontrol {MCU Device} > \uicontrol {Start Wizard}:
@@ -217,7 +217,7 @@
     in \preferences > \uicontrol SDKs > \uicontrol MCU. This setting is selected
     by default.
 
-    \image qtcreator-mcu-new-kit.webp {Automatically create MCU kits}
+    \image {qtcreator-mcu-new-kit.webp} {Automatically create MCU kits in the MCU tab in SDKs preferences}
 
     \note When you update the \QMCU SDK, \QC asks you whether you want to replace
     the existing kits or create additional kits. To do this manually for each
@@ -232,7 +232,7 @@
 
     To change or remove individual kits, go to \preferences > \uicontrol Kits.
 
-    \image qtcreator-preferences-kits-mcu.webp {MCU kit}
+    \image {qtcreator-preferences-kits-mcu.webp} {MCU kit in the Kits tab in Kits preferences}
 
     The \uicontrol {MCU dependencies} field displays paths to 3rd party
     software required for MCU development with the current kit.
@@ -260,7 +260,7 @@
 
     \list 1
         \li Go to \uicontrol File > \uicontrol {New Project}.
-            \image qtcreator-mcu-new-project.webp {New Project dialog}
+            \image {qtcreator-mcu-new-project.webp} {New Project dialog}
         \li Select \uicontrol {QmlProject Application (\QMCU)} >
             \uicontrol {Qt for MCUs Empty Application} or
             \uicontrol {Qt for MCUs Example Application} > \uicontrol Choose.

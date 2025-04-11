@@ -22,7 +22,7 @@
     You will use the \l{Edit Mode}{Edit} mode to create an application
     that moves a Qt logo between three rectangles when you click them.
 
-    \image qtquick-tutorial.gif {Transitions example}
+    \image {qtquick-tutorial.gif} {Transitions example}
 
     For more examples, see \l{Qt Quick Examples and Tutorials}.
 
@@ -82,7 +82,7 @@
     type name to open a \l{Edit rectangles}{toolbar} that you can use to specify
     rectangle properties, such as color, transparency, and gradients.
 
-    \image qml-toolbar-rectangle.png {Qt Quick toolbar for rectangles}
+    \image {qml-toolbar-rectangle.png} {Qt Quick toolbar for rectangles}
 
     Next, add an \l Image type with \e qt-logo.png as the source. You can also
     use any other image or a component. Position the image in the top-left
@@ -93,7 +93,7 @@
     Use a \l{Preview images}{toolbar for images} to specify image properties,
     such as source file and fill mode.
 
-    \image qml-toolbar-image.png {Logo visible in Qt Quick toolbar for images}
+    \image {qml-toolbar-image.png} {Logo visible in Qt Quick toolbar for images}
 
     Now, create the rectangles that the image will move between. Their size
     should match the image size and they should be transparent, so that the
@@ -173,7 +173,7 @@
     \note Use a \l{Preview animations}{toolbar for animations} to specify the
     easing curve type and animation duration.
 
-    \image qml-toolbar-animation.png {Qt Quick Toolbar for animation}
+    \image {qml-toolbar-animation.png} {Qt Quick Toolbar for animation}
 
     Then, change the easing curve type for transitions to \e State2 from
     linear to \c Easing.InOutQuad to create the easing effect:

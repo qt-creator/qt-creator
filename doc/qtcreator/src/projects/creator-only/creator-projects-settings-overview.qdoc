@@ -25,14 +25,14 @@
     To maintain the list of active kits for a currently open project, switch to
     the \uicontrol Projects mode by pressing \key Ctrl+5.
 
-    \image qtcreator-projects-kits.webp {Sidebar in the Projects mode}
+    \image {qtcreator-projects-kits.webp} {Sidebar in the Projects mode}
 
     To specify build or run settings for a kit, select \uicontrol Build or
     \uicontrol Run below the kit name.
 
     \section1 Specifying Build Settings
 
-    \image qtcreator-build-configurations.png {Build configurations}
+    \image {qtcreator-build-configurations.png} {Build configurations}
 
     Different build configurations allow you to quickly switch between
     different build settings. \QC creates some configurations by default,
@@ -69,7 +69,7 @@
 
     \QC automatically creates deploy and run configurations for your project.
 
-    \image qtcreator-settings-run-desktop.webp {Run Settings}
+    \image {qtcreator-settings-run-desktop.webp} {Run Settings in the Projects mode}
 
     To prevent \QC from automatically creating run configurations, select
     \preferences > \uicontrol {Build & Run}, and then clear the
@@ -120,7 +120,7 @@
     lists the kits that are compatible with your project. To activate one or more
     kits, click them.
 
-    \image qtcreator-projects-kits.webp {List of kits in Projects mode sidebar}
+    \image {qtcreator-projects-kits.webp} {List of kits in the Projects mode sidebar}
 
     The list displays kits from \preferences >
     \uicontrol Kits. Warning and error icons indicate that the kit configuration
@@ -159,7 +159,7 @@
     would disappear if \QOI removes the corresponding kits when you update your
     Qt installation.
 
-    \image qtcreator-projects-vanished-targets.webp {Vanished Targets in Projects}
+    \image {qtcreator-projects-vanished-targets.webp} {Vanished Targets in Projects}
 
     Go to one of the following options in the context menu to restore the
     project's settings:

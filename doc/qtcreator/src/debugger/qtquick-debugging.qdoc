@@ -48,7 +48,7 @@
     or \uicontrol Enabled in \uicontrol{Run Settings} >
     \uicontrol {Debugger Settings} > \uicontrol {QML debugger}.
 
-    \image qtquick-debugger-settings.webp {Debugger settings section in Run Settings}
+    \image {qtquick-debugger-settings.webp} {Debugger settings section in Run Settings}
 
     \if defined(qtcreator)
     \section2 Debugging Qt Quick applications
@@ -62,7 +62,7 @@
 
         \li In \uicontrol {QML debugging and profiling}, select \uicontrol Enable.
 
-            \image qtcreator-build-settings-cmake-configure.webp {Build settings for a CMake project}
+            \image {qtcreator-build-settings-cmake-configure.webp} {Build settings for a CMake project}
 
             \note Debugging requires opening a socket at a TCP port,
             which presents a security risk. Anyone on the Internet could connect
@@ -97,7 +97,7 @@
     You can enable or disable QML debugging globally in \preferences >
     \uicontrol {Build & Run} > \uicontrol {Default Build Properties}.
 
-    \image qtcreator-build-settings-default.webp "Default Build Properties tab in Build & Run Preferences"
+    \image {qtcreator-build-settings-default.webp} {Default Build Properties tab in Build & Run preferences}
 
     The value of the \uicontrol {QML debugging} field determines what happens
     when creating new build configurations. The values \uicontrol Enable
@@ -214,7 +214,7 @@
     While the application is running, you can use the \uicontrol {Locals}
     view to explore the QML item structure.
 
-    \image qml-observer-view.png "QML item tree"
+    \image {qml-observer-view.png} {QML item tree in the Locals view}
 
     To keep the application visible while you interact with the debugger, select
     \uicontrol Debug > \uicontrol {Show Application on Top}.
@@ -263,7 +263,7 @@
     current context. To open it, choose \uicontrol View > \uicontrol Output >
     \uicontrol {QML Debugger Console}.
 
-    \image qml-script-console.png "QML Debugger Console"
+    \image {qml-script-console.png} {QML Debugger Console}
 
     You can change property values temporarily, without editing the source, and
     view the results in the running application. You can change the property

@@ -17,7 +17,7 @@
     \uicontrol {Chrome Trace Format Visualizer}, select \uicontrol Analyze >
     \uicontrol {CMake Profiler}.
 
-    \image qtcreator-cmake-profiler.webp {CMake profiling information in Chrome Trace Format Visualizer}
+    \image {qtcreator-cmake-profiler.webp} {CMake profiling information in Chrome Trace Format Visualizer}
 
     \sa {CMake}, {Chrome Trace Format Visualizer}
 */

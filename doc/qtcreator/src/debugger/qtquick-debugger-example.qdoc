@@ -48,7 +48,7 @@
             border on the line where the \c startNewGame() function is
             called (1).
 
-            \image qtquick-example-setting-breakpoint1.webp {Breakpoint in the code editor}
+            \image {qtquick-example-setting-breakpoint1.webp} {Breakpoint in the code editor}
 
             The red circle indicates that a breakpoint is now set on that line
             number.
@@ -60,20 +60,20 @@
         \li Once the Same Game application starts, select \uicontrol {Puzzle}
             to start a new game.
 
-            \image samegame.png
+            \image {samegame.png} {Same Game application}
 
         \li When the debugger hits the breakpoint, it interrupts the
             application. \QC displays the nested function calls leading to the
             current position as a call stack trace.
 
-            \image qtquick-example-setting-breakpoint2.webp {Debugger view}
+            \image {qtquick-example-setting-breakpoint2.webp} {Debugger view}
 
         \li Select \inlineimage icons/debugger_stepinto_small.png
             (\uicontrol {Step Into}) on the toolbar or select \key F11 to step
             into the code in the stack. The samegame.js file opens in the code
             editor at the function that starts a new game.
 
-            \image qtquick-example-stack.webp {Stack view}
+            \image {qtquick-example-stack.webp} {Stack view}
 
         \li Examine the local variables in the \uicontrol Locals
             view. Step through the code to see how the information changes in
@@ -83,12 +83,12 @@
             select \inlineimage icons/qtcreator-debugging-continue.png
             (\uicontrol Continue) to hit the breakpoint.
 
-            \image qtquick-example-setting-breakpoint3.webp {Second breakpoint in the Breakpoints view}
+            \image {qtquick-example-setting-breakpoint3.webp} {Second breakpoint in the Breakpoints view}
 
         \li To execute JavaScript commands in the current context, open the
             \uicontrol {QML Debugger Console}.
 
-            \image qml-script-console.png
+            \image {qml-script-console.png} {QML Debugger Console}
 
         \li To remove a breakpoint, right-click it and select
             \uicontrol {Delete Breakpoint}.
@@ -96,7 +96,7 @@
         \li In the \uicontrol Locals view, explore the object structure at
             runtime.
 
-            \image qtquick-example-qml-inspector.png
+            \image {qtquick-example-qml-inspector.png} {Locals view}
 
         \li Go to \uicontrol Debug > \uicontrol {Show Application on Top} to
             keep the application visible while you interact with the debugger.

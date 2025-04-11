@@ -23,7 +23,7 @@
                 \li \uicontrol {Compiler Explorer Python Source}
                 \li \uicontrol {Compiler Explorer Qt & C++ Source}
             \endlist
-            \image qtcreator-new-project-compiler-explorer.webp {New File dialog}
+            \image {qtcreator-new-project-compiler-explorer.webp} {New File dialog}
         \li Select \uicontrol Choose.
         \li Follow the instructions of the wizard to create an example
             compiler explorer session as a JSON-based \c .qtce file and to open
@@ -46,7 +46,7 @@
     all languages, compilers, and libraries that Compiler Explorer supports. You
     can save your compiler explorer session as a JSON-based \c .qtce file.
 
-    \image qtcreator-compiler-explorer.webp {Python code in the compiler explorer}
+    \image {qtcreator-compiler-explorer.webp} {Python code in the compiler explorer}
 
     \note Enable the Compiler Explorer plugin to use it.
 
@@ -72,7 +72,7 @@
     Select \inlineimage icons/settings.png next to the \uicontrol Compiler field
     to set options for the selected compiler.
 
-    \image qtcreator-compiler-explorer-options.webp {Compiler Explorer options}
+    \image {qtcreator-compiler-explorer-options.webp} {Compiler Explorer options}
 
     \table
     \header
@@ -114,7 +114,7 @@
         \li Select \inlineimage icons/settings.png next to
             \uicontrol {Powered by}.
         \li In \uicontrol URL, enter the address of the Compiler Explorer to use.
-            \image qtcreator-set-compiler-explorer-url.webp {Set Compiler Explorer dialog}
+            \image {qtcreator-set-compiler-explorer-url.webp} {Set Compiler Explorer dialog}
     \endlist
 
     \sa {Create compiler explorer sessions}, {Enable and disable plugins},

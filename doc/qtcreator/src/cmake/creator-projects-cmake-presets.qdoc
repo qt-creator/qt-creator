@@ -28,12 +28,12 @@
     {open a project}, when no \c CMakeLists.txt.user file exists or you have
     disabled all kits in the project.
 
-    \image qtcreator-cmake-presets-configure.webp {Opening a project that has CMake presets}
+    \image {qtcreator-cmake-presets-configure.webp} {Opening a project that has CMake presets}
 
     You can view the presets in the \uicontrol {Initial Configuration} field and
     in the environment configuration field below it.
 
-    \image qtcreator-cmake-presets-environment.webp {CMake environment configuration}
+    \image {qtcreator-cmake-presets-environment.webp} {CMake environment configuration}
 
     To update changes to the \c CMakePresets.json file, select \uicontrol Build >
     \uicontrol {Reload CMake Presets}, and then select the presets file to load.

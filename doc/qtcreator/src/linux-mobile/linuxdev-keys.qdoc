@@ -24,7 +24,7 @@
 
     \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol SSH.
-            \image qtcreator-ssh-options.png "SSH preferences"
+            \image {qtcreator-ssh-options.png} {SSH tab in Devices preferences}
         \li Clear \uicontrol {Enable connection sharing} to
             create a new SSH connection for each deploy and run procedure. This
             option is grayed on Windows, where connection sharing is not
@@ -68,7 +68,7 @@
     \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol Devices
         \li Select \uicontrol {Create New}.
-            \image qtcreator-ssh-key-configuration.png {SSH Key Configuration dialog}
+            \image {qtcreator-ssh-key-configuration.png} {SSH Key Configuration dialog}
         \li In \uicontrol {Private key file}, select the location to save
             the private key.
             \uicontrol {Public key file} displays the location to save the

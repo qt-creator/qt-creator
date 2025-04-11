@@ -47,7 +47,7 @@
         \li Select \uicontrol Apply to add the compiler.
         \li Select \uicontrol Kits > \uicontrol Add to add a kit for building
             applications with Nimble:
-            \image qtcreator-kit-nimble.png "Nimble kit"
+            \image {qtcreator-kit-nimble.png} {Adding a Nimble kit in the Kits preferences}
             \list 1
                 \li In the \uicontrol Name field, specify a name for the kit.
                 \li In the \uicontrol Compiler group, \uicontrol Nim field,
@@ -77,7 +77,7 @@
         \li Specify the name and location of the application.
         \li Select \uicontrol Next.
         \li Specify information about your application package.
-            \image qtcreator-project-nimble.png
+            \image {qtcreator-project-nimble.png} {Define Project Configuration dialog}
         \li Select \uicontrol Next to select a kit that contains the Nim
             compiler.
         \li Select \uicontrol Next to create the project.

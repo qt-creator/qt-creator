@@ -38,7 +38,7 @@
 
     \list 1
         \li Go to \preferences > \uicontrol Copilot.
-            \image qtcreator-preferences-copilot.webp {Copilot tab in Preferences}
+            \image {qtcreator-preferences-copilot.webp} {Copilot preferences}
         \li Select \uicontrol {Enable Copilot} to use Copilot.
         \li Select \uicontrol {Sign In} to sign into your subscription, activate
             your device, and authorize the GitHub Copilot plugin.
@@ -74,7 +74,7 @@
     \uicontrol {Auto request} is enabled, Copilot automatically makes
     suggestions when you type.
 
-    \image qtcreator-copilot.gif {Receiving suggestions from Copilot in the editor}
+    \image {qtcreator-copilot.gif} {Receiving suggestions from Copilot in the editor}
 
     To manually request a suggestion at the current editor's cursor position,
     enter \uicontrol {t}, followed by \key Space to show
@@ -112,7 +112,7 @@
     \list 1
         \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol Copilot.
-            \image qtcreator-project-settings-copilot.webp {Copilot project settings}
+            \image {qtcreator-project-settings-copilot.webp} {Copilot project settings}
         \li Clear \uicontrol {Use global settings}.
         \li Select or clear \uicontrol {Enable Copilot}.
     \endlist

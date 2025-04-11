@@ -22,12 +22,12 @@
    hover over an annotation to bring up a tooltip with a short
     description of the issue.
 
-    \image qtcreator-axivion-annotation.webp {Annotation popup}
+    \image {qtcreator-axivion-annotation.webp} {Annotation popup}
 
     Select \inlineimage icons/info.png to view detailed information about the
     issue in the \uicontrol {Issue Details} view.
 
-    \image qtcreator-axivion-view-rule.webp {Issue Details view}
+    \image {qtcreator-axivion-view-rule.webp} {Issue Details view}
 
     To hide inline annotations, go to \uicontrol Analyze > \uicontrol Axivion
     and clear \inlineimage icons/warning.png.
@@ -38,7 +38,7 @@
 
     \list 1
         \li To go to the \uicontrol Axivion view:
-            \image qtcreator-axivion-issue-search.webp {Issues in Axivion view}
+            \image {qtcreator-axivion-issue-search.webp} {Issues in Axivion view}
             \list
                 \li Go to \uicontrol Analyze > \uicontrol Axivion.
                 \li In the mode selector, select \uicontrol Debug >
@@ -159,10 +159,10 @@
 
     \list 1
         \li Go to \preferences > \uicontrol Analyzer > \uicontrol Axivion.
-            \image qtcreator-preferences-axivion.webp {Axivion tab in Analyzer Preferences}
+            \image {qtcreator-preferences-axivion.webp} {Axivion tab in Analyzer preferences}
         \li Select \uicontrol Add to add a new connection to an Axivion
             dashboard server or \uicontrol Edit to change an existing connection:
-            \image qtcreator-edit-dashboard-configuration.webp {Edit Dashboard Configuration dialog}
+            \image {qtcreator-edit-dashboard-configuration.webp} {Edit Dashboard Configuration dialog}
             \list
                 \li In \uicontrol {Dashboard URL}, enter the URL of the server.
                 \li In \uicontrol Username, enter the username to access the server.

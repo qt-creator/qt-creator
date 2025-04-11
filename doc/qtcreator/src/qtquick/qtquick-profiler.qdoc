@@ -44,7 +44,7 @@
             must install Qt libraries on them.
         \li Go to \uicontrol Analyze > \uicontrol {QML Profiler} to profile the
             current application.
-            \image qtcreator-qml-profiler-toolbar.webp {QML Profiler}
+            \image {qtcreator-qml-profiler-toolbar.webp} {QML Profiler}
         \li Select \inlineimage icons/qtcreator-analyze-start-button.png
             (\uicontrol Start) to start the application from QML Profiler.
     \endlist
@@ -85,7 +85,7 @@
     \list 1
         \li Go to \uicontrol Projects > \uicontrol Run.
         \li In \uicontrol {QML Profiler Settings}, select \uicontrol Custom.
-            \image qml-profiler-settings.png {QML Profiler Settings}
+            \image {qml-profiler-settings.png} {QML Profiler Settings}
     \endlist
 
     You can set the following preferences:
@@ -129,7 +129,7 @@
     \list 1
         \li Go to \uicontrol Analyze >
             \uicontrol {QML Profiler (Attach to Waiting Application)}.
-            \image qml-profiler-start-dialog.png {Start QML Profiler dialog}
+            \image {qml-profiler-start-dialog.png} {Start QML Profiler dialog}
          \li In \uicontrol Kit, select the kit used to build the application.
          \li In \uicontrol Port, specify the port to listen to.
          \li Select \uicontrol OK.
@@ -207,7 +207,7 @@
     The \uicontrol Timeline view displays graphical representations of QML and
     JavaScript execution and a condensed view of all recorded events.
 
-    \image qtcreator-qml-profiler.webp {QML Profiler}
+    \image {qtcreator-qml-profiler.webp} {QML Profiler}
 
     Each row in the timeline (6) describes a type of QML events that were
     recorded. Move the cursor on an event on a row to see how long it takes and
@@ -582,7 +582,7 @@
     Select an event to move to it in the source code
     in the code editor.
 
-    \image qml-profiler-statistics.png "Statistics view"
+    \image {qml-profiler-statistics.png} {Statistics view}
 
     \uicontrol Callers and \uicontrol Callees show dependencies between events.
     They allow you to examine the internal functions of the application.
@@ -609,7 +609,7 @@
     total runtime of all JavaScript and QML events. The nesting shows which
     functions were called by which other ones.
 
-    \image qml-profiler-flamegraph.png "Flame Graph View"
+    \image {qml-profiler-flamegraph.png} {Flame Graph view}
 
     To view the total amount of memory allocated by the functions, select
     \uicontrol Memory in the drop-down menu.

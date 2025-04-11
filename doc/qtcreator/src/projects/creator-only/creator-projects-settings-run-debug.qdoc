@@ -14,7 +14,7 @@
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
-    \image qtquick-debugger-settings.webp {Debugger Settings"}
+    \image {qtquick-debugger-settings.webp} {Debugger Settings section in Run Settings}
 
     To select the languages to debug, select \uicontrol Automatic
     or \uicontrol Enabled in \uicontrol {Debugger Settings} >

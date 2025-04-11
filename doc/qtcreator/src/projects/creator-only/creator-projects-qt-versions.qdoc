@@ -22,7 +22,7 @@
     To view the installed Qt versions, select \preferences > \uicontrol Kits >
     \uicontrol {Qt Versions}.
 
-    \image qtcreator-qt-versions.png {Qt Versions tab in Kit preferences}
+    \image {qtcreator-qt-versions.png} {Qt Versions tab in Kits preferences}
 
     To view detailed information about each Qt version, select it in the list and
     select \uicontrol Details in the \uicontrol {Qt version for} section.
@@ -44,7 +44,7 @@
     \list 1
         \li Select \preferences > \uicontrol Kits > \uicontrol {Qt Versions} >
             \uicontrol {Link with Qt}.
-            \image qtcreator-link-with-qt.png {Choose Qt Installation dialog}
+            \image {qtcreator-link-with-qt.png} {Choose Qt Installation dialog}
         \li In the \uicontrol {Qt installation path} field, enter the path to
             the directory where you installed Qt.
         \li Select \uicontrol {Link with Qt} to automatically register Qt
@@ -148,7 +148,7 @@
             to the location where you installed Qt.
     \endlist
 
-    \image qtcreator-edit-cmake-configuration-self-built-qt.webp {Setting the path to a self-built Qt}
+    \image {qtcreator-edit-cmake-configuration-self-built-qt.webp} {Setting the path to a self-built Qt}
 
     \sa {Manage Kits}{How To: Manage Kits}, {kits-tab}{Kits}
 */

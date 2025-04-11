@@ -30,7 +30,7 @@
     (\uicontrol {Filter Tree}) and then select a filter. See the tooltips for
     more information about each filter.
 
-    \image qtcreator-issues.webp {Issues}
+    \image {qtcreator-issues.webp} {Issues}
 
     To find output in the view, enter search criteria in the \uicontrol Filter
     field.
@@ -114,14 +114,14 @@
             \uicontrol {Ignore binary files}.
     \endlist
 
-    \image qtcreator-search-file-system.webp {Search Results view with search options}
+    \image {qtcreator-search-file-system.webp} {Search Results view with search options}
 
     \section1 Viewing Search Results
 
     After you select \uicontrol Search or \uicontrol {Search & Replace}, the view
     shows a list of files that have search hits.
 
-    \image qtcreator-search-results-matches.webp {Found matches in Search Results}
+    \image {qtcreator-search-results-matches.webp} {Found matches in Search Results}
 
     To show search hits in the editor:
 
@@ -186,7 +186,7 @@
     \brief Displays the status of a program when you execute it, and the debug
     output.
 
-    \image qtcreator-application-output.webp {Application Output}
+    \image {qtcreator-application-output.webp} {Application Output}
 
     \if defined(qtcreator)
     If you specify command-line arguments in the run settings that are passed
@@ -208,7 +208,7 @@
             (\uicontrol {Open Settings Page}) button.
     \endlist
 
-    \image qtcreator-preferences-application-output.webp {Application Output tab in Preferences}
+    \image {qtcreator-preferences-application-output.webp} {Application Output tab in Build & Run preferences}
 
     You can select whether to open \uicontrol{Application Output} on output when
     running or debugging applications, to clear old output on a new run,
@@ -236,7 +236,7 @@
     \uicontrol{Compile Output} shows a more detailed version of information
     displayed in \l Issues.
 
-    \image qtcreator-compile-output.webp {Compile Output}
+    \image {qtcreator-compile-output.webp} {Compile Output}
 
     Double-click a file name in an error message to open the file in the
     code editor.
@@ -262,7 +262,7 @@
                 \li Select \preferences > \uicontrol {Build & Run} >
                     \uicontrol {Compile Output}.
             \endlist
-            \image qtcreator-preferences-compile-output.webp {Compile Output tab in Preferences}
+            \image {qtcreator-preferences-compile-output.webp} {Compile Output tab in Build & Run preferences}
         \li Select \uicontrol {Open Compile Output when building}.
         \li Select \uicontrol {Discard excessive output} to discard compile
             output that continuously comes in faster than it can be handled.
@@ -281,7 +281,7 @@
 
     \list 1
         \li Go to \uicontrol Tools > \uicontrol {Parse Build Output}.
-            \image qtcreator-parse-build-output.png
+            \image {qtcreator-parse-build-output.png} {Parse Build Output dialog}
         \li Paste the build output in \uicontrol {Build Output}, or
             select \uicontrol {Load from File} to load it from a file.
         \li Clear \uicontrol {Output went to stderr} if the parser expects issues

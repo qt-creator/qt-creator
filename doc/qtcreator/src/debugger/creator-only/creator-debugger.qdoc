@@ -32,7 +32,7 @@
     another kit. To specify the debugger and compiler to use for each kit, go to
     \preferences > \uicontrol Kits.
 
-    \image qtcreator-preferences-kits.webp {Kits preferences}
+    \image {qtcreator-preferences-kits.webp} {Kits preferences}
 
     You need to set up the debugger only if the automatic setup fails because
     the debugger is missing (for example, you must install the CDB
@@ -51,7 +51,7 @@
     \preferences > \uicontrol Kits >
     \uicontrol Debuggers > \uicontrol Add to add it.
 
-    \image qtcreator-preferences-kits-debuggers.webp {Debuggers tab in Kits preferences}
+    \image {qtcreator-preferences-kits-debuggers.webp} {Debuggers tab in Kits preferences}
 
     To use the debugging tools for Windows, you must install them.
     Optionally, you can set up the Microsoft Symbol Server if you need
@@ -311,7 +311,7 @@
     \list 1
         \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Start and Debug External Application}.
-        \image qtcreator-debugger-start-external.png
+        \image {qtcreator-debugger-start-external.png} {Start and Debug External Application dialog}
         \li In \uicontrol Kit, select the build and run kit to
             use for building the project.
         \li In \uicontrol {Local executable}, specify the path to the
@@ -358,7 +358,7 @@
     \list 1
         \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Attach to Running Application}.
-            \image qtcreator-debugger-attach-to-running.png
+            \image {qtcreator-debugger-attach-to-running.png} {Attach to Running Application dialog}
         \li In \uicontrol Filter, enter a string to filter processes
             by their process ID or name.
         \li Select a process in the list, and then select
@@ -392,7 +392,7 @@
     \list 1
         \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Attach to Unstarted Application}.
-            \image qtcreator-debugger-attach-to-process-not-yet-started.png
+            \image {qtcreator-debugger-attach-to-process-not-yet-started.png} {Attach to Unstarted Application dialog}
         \li In \uicontrol Kit, select the build and run kit to
             use for building the project.
         \li In \uicontrol Executable, specify the path to the
@@ -437,7 +437,7 @@
     \list 1
         \li Go to \uicontrol Debug > \uicontrol {Start Debugging}, and then
             select \uicontrol {Load Core File}.
-            \image qtcreator-debugger-load-core-file.png
+            \image {qtcreator-debugger-load-core-file.png} {Load Core File dialog}
         \li In \uicontrol Kit, select a build and run kit that was
             used for building the binary for which the core file was created.
             If the core file stems from a binary not built by \QC or a process
@@ -555,7 +555,7 @@
 
         \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Attach to Running Debug Server}.
-            \image qtcreator-debugger-attach-to-running-debug-server.png
+            \image {qtcreator-debugger-attach-to-running-debug-server.png} {Attach to Running Debug Server dialog}
         \li In \uicontrol Kit, select the build and run kit to
             use for building the project.
         \li In \uicontrol {Server port}, enter the name of the remote
@@ -612,7 +612,7 @@
 
     \list 1
         \li Go to \preferences > \uicontrol Devices.
-            \image qtcreator-preferences-devices-remote-linux.webp {Remote Linux device preferences}
+            \image {qtcreator-preferences-devices-remote-linux.webp} {Remote Linux device in Devices preferences}
         \li In \uicontrol Device, select \uicontrol {Remote Linux Device}.
         \li Select \uicontrol {Use SSH port forwarding for debugging}.
         \li Select \uicontrol OK.
@@ -713,7 +713,7 @@
     In the \uicontrol Debug mode, you can inspect the state of your
     application while debugging.
 
-    \image qtcreator-debugger-views.webp {Debug mode views while debugging}
+    \image {qtcreator-debugger-views.webp} {Debug mode views while debugging}
 
     You can interact with the debugger in many ways:
 
@@ -819,7 +819,7 @@
     When you are not debugging, the \uicontrol Debug mode shows the
     \uicontrol {Debugger Preset} perspective:
 
-    \image qtcreator-debugger-views-initial.webp {Initial Debug mode views}
+    \image {qtcreator-debugger-views-initial.webp} {Initial Debug mode views}
 
     During debugging, the mode shows the views that you usually need to
     debug C++ or QML applications. To show other views or to hide views,
@@ -838,7 +838,7 @@
     To change the appearance and behavior of the debug views, set preferences
     in \preferences > \uicontrol Debugger > \uicontrol General.
 
-    \image qtcreator-preferences-debugger-general.webp {General tab in Debugger preferences}
+    \image {qtcreator-preferences-debugger-general.webp} {General tab in Debugger preferences}
 
     For example, you can:
 
@@ -867,7 +867,7 @@
     To display the value of a simple variable, hover the mouse pointer over its
     name in the code editor.
 
-    \image qtcreator-debugger-value-tooltips.webp {Value tooltip in code editor}
+    \image {qtcreator-debugger-value-tooltips.webp} {Value tooltip in code editor}
 
     To keep the tooltip visible, click the pin button.
     You can expand pinned tooltips to view their full content.
@@ -896,7 +896,7 @@
     concise manner to simplify the debugging process without losing the power
     of the debuggers.
 
-    \image qtcreator-locals.png {Locals view}
+    \image {qtcreator-locals.png} {Locals view}
 
     The \l {Local variables and function parameters}{Locals} and
     \l {Evaluating expressions}{Expressions} views show structured
@@ -1095,10 +1095,10 @@
 
     If an instance of a class is derived from QObject, you can find all other
     objects connected to this object's slots with Qt's signals and slots
-    mechanism. Go to \preferences > \uicontrol {Debugging} >
+    mechanism. Go to \preferences > \uicontrol {Debugger} >
     \uicontrol {Locals & Expressions} > \uicontrol {Use Debugging Helpers}.
 
-    \image qtcreator-debugging-helper-options.webp {Locals & Expressions preferences}
+    \image {qtcreator-debugging-helper-options.webp} {Locals & Expressions tab in Debugger preferences}
 
     In the \uicontrol Locals view, expand the object's entry and open the slot
     in the \e slots subitem. The view shows the objects connected to this slot
@@ -1154,7 +1154,7 @@
     currently active in the application and switch between them in the
     \uicontrol Threads view (1):
 
-    \image qtcreator-debugger-threads.webp {Threads view}
+    \image {qtcreator-debugger-threads.webp} {Threads view}
 
     You can also select a thread in the \uicontrol Threads field (2) on the
     debugger toolbar.
@@ -1188,7 +1188,7 @@
         \li A dynamic shared library (\c {.dylib}) in \macos
     \endlist
 
-    \image qtcreator-debugger-modules.webp {Modules view}
+    \image {qtcreator-debugger-modules.webp} {Modules view}
 
     In addition, the view displays symbols within the modules and indicates
     where each module was loaded. Right-click column headers to show and
@@ -1228,7 +1228,7 @@
     for the specified modules, go to \preferences > \uicontrol Debugger >
     \uicontrol CDB.
 
-    \image qtcreator-preferences-debugger-cdb.webp {CDB tab in Debugger preferences}
+    \image {qtcreator-preferences-debugger-cdb.webp} {CDB tab in Debugger preferences}
 
     For more information, see \l{CDB}.
 
@@ -1250,7 +1250,7 @@
     the source file is actually part of the project, or whether it was compiled
     elsewhere. The view shows the path to each file in the file system.
 
-    \image qtcreator-debugger-source-files.webp {Source Files view}
+    \image {qtcreator-debugger-source-files.webp} {Source Files view}
 
     Right-click the view to select the following actions:
 
@@ -1270,7 +1270,7 @@
     at which the libraries were built, you can map source paths to target
     paths in \preferences > \uicontrol Debugger > \uicontrol General.
 
-    \image qtcreator-preferences-debugger-general.webp {General tab in Debugger preferences}
+    \image {qtcreator-preferences-debugger-general.webp} {General tab in Debugger preferences}
 
     For more information, see \l{Source Paths Mapping}.
 
@@ -1296,7 +1296,7 @@
     and special-purpose CPU registers. The available registers depend on the CPU
     type.
 
-    \image qtcreator-debugger-registers-view.webp {Registers view}
+    \image {qtcreator-debugger-registers-view.webp} {Registers view}
 
     You can view register values when the application stops. Double-click
     register values to edit them.
@@ -1329,7 +1329,7 @@
     and then select \uicontrol {Open Memory Editor at <value>} or
     \uicontrol {Open Memory View at <value>} in the context menu:
 
-    \image qtcreator-debugger-memory-editor.webp {Memory Editor}
+    \image {qtcreator-debugger-memory-editor.webp} {Memory Editor}
 
     Hover the mouse pointer on a value to see details as a tooltip.
 
@@ -1362,7 +1362,7 @@
     peripheral device, the application accesses its I/O addresses with a load
     or store instruction that the CPU issues.
 
-    \image qtcreator-debugger-peripheral-registers-view.webp {Peripheral Registers view}
+    \image {qtcreator-debugger-peripheral-registers-view.webp} {Peripheral Registers view}
 
     The \uicontrol Access column shows whether the register is read-and-write
     (\uicontrol RW), read-only (\uicontrol RO), or write-only (\uicontrol WO).
@@ -1396,7 +1396,7 @@
     You can view debug output in the \uicontrol {Debugger Log} view to
     \l {Debugger Does Not Work}{troubleshoot the debugger}.
 
-    \image qtcreator-debugger-log-view.webp {Debugger Log view}
+    \image {qtcreator-debugger-log-view.webp} {Debugger Log view}
 
     If debug output is sent to the system log, go to \preferences >
     \uicontrol Debugger > \uicontrol General and select
@@ -1451,7 +1451,7 @@
     function. It is useful for low-level commands for checking single
     instructions, such as \uicontrol {Step Into} and \uicontrol {Step Over}.
 
-    \image qtcreator-debugger-disassembler-view.webp {Disassembler view}
+    \image {qtcreator-debugger-disassembler-view.webp} {Disassembler view}
 
     By default, GDB shows AT&T style disassembly. To switch to the Intel style,
     go to \preferences > \uicontrol Debugger >
@@ -1475,7 +1475,7 @@
     To start a disassembler from the \uicontrol Registers view, select
     \uicontrol {Open Disassembler} and  set the disassembler address:
 
-    \image qcreator-debugger-select-start-address.webp {Select Start Address dialog}
+    \image {qcreator-debugger-select-start-address.webp} {Select Start Address dialog}
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
@@ -1509,7 +1509,7 @@
     \uicontrol Debugger > \uicontrol GDB > \uicontrol {Load system GDB pretty
     printers}. For more information, see \l{GDB}.
 
-    \image qtcreator-preferences-debugger-gdb.webp {GDB preferences}
+    \image {qtcreator-preferences-debugger-gdb.webp} {GDB tab in Debugger preferences}
 
     \section1 Customizing Built-In Debugging Helpers
 
@@ -1519,7 +1519,7 @@
     \uicontrol {Locals & Expressions}, and enter the commands in the
     \uicontrol {Debugging Helper Customization} field.
 
-    \image qtcreator-debugging-helper-options.webp {Locals & Expressions preferences}
+    \image {qtcreator-debugging-helper-options.webp} {Locals & Expressions tab in Debugger preferences}
 
     If you receive error messages about receiving signals when using GDB, you
     can specify \l{https://sourceware.org/gdb/onlinedocs/gdb/Signals.html}
@@ -1728,7 +1728,7 @@
     selecting \preferences > \uicontrol Debugger >
     \uicontrol CDB > \uicontrol {Use Python dumper}.
 
-    \image qtcreator-preferences-debugger-cdb.webp {CDB preferences}
+    \image {qtcreator-preferences-debugger-cdb.webp} {CDB tab in Debugger preferences}
 
     The following sections describe some of the widely-used Dumper classes and
     members specified in \c qtcreator\share\qtcreator\debugger\dumper.py.
@@ -2182,7 +2182,7 @@
     when loading the same binary in the future. Go to \preferences >
     \uicontrol Debugger > \uicontrol GDB > \uicontrol {Use automatic symbol cache}.
 
-    \image qtcreator-preferences-debugger-gdb.webp {GDB preferences}
+    \image {qtcreator-preferences-debugger-gdb.webp} {GDB tab in Debugger preferences}
 
     \section2 Minimizing Number of Breakpoints
 

@@ -35,8 +35,7 @@
             \uicontrol {Version Control} > \uicontrol Fossil, and set the
             designated directory in the \uicontrol {Default path} field.
 
-            \image qtcreator-preferences-vcs-fossil.webp {Fossil preferences}
-
+            \image {qtcreator-preferences-vcs-fossil.webp} {Fossil tab in Version Control preferences}
     \endlist
 
     To create a local Fossil repository, select \uicontrol Tools >

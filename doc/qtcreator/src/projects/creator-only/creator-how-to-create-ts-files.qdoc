@@ -20,7 +20,7 @@
         \li Select \uicontrol Qt > \uicontrol {Qt Translation File} >
             \uicontrol Choose.
         \li In \uicontrol Language, select a language and territory (\e locale).
-            \image qtcreator-new-file-ts.webp {Select language for a TS file}
+            \image {qtcreator-new-file-ts.webp} {Select the language for a TS file}
     \endlist
 
     You can see the file name in \uicontrol {Translation file}.

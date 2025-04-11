@@ -55,7 +55,7 @@
 
         \li Go to \preferences > \uicontrol Environment > \uicontrol {MIME Types}.
 
-            \image qtcreator-mime-types.png {MIME Types}
+            \image {qtcreator-mime-types.png} {MIME Types tab in Environment preferences}
 
         \li In \uicontrol {MIME Type}, select a MIME type.
 
@@ -94,10 +94,10 @@
 
     \list 1
 
-        \li In \uicontrol {Mime Types}, select \uicontrol Add to add
-            \uicontrol {Magic Headers}.
+        \li In \uicontrol {MIME Types}, select \uicontrol Add to add magic
+            headers.
 
-            \image qtcreator-mime-types-magic-header.png {Magic Header}
+            \image {qtcreator-mime-types-magic-header.png} {Add Magic Header dialog}
 
         \li In \uicontrol Value, specify a text string or bytes that
             appear in the files.

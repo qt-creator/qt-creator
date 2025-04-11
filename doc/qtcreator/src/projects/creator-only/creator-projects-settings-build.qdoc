@@ -20,7 +20,7 @@
     \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
     \uicontrol {Build Settings}.
 
-    \image qtcreator-build-configurations.png {Build Settings}
+    \image {qtcreator-build-configurations.png} {Build Settings}
 
     \section1 Manage build configurations
 
@@ -97,7 +97,7 @@
 
     \section1 Add build steps
 
-    \image qtcreator-cmake-build-steps.webp {CMake build steps}
+    \image {qtcreator-cmake-build-steps.webp} {CMake build steps}
 
     In \uicontrol{Build Steps}, you can change the settings for the build system
     selected for building the project:
@@ -133,7 +133,7 @@
     \uicontrol {Add Build Step} > \uicontrol {Custom Process Step}.
 
 
-    \image qtcreator-build-steps-custom.png {Custom Process Step}
+    \image {qtcreator-build-steps-custom.png} {Custom Process Step}
 
     \section2 Execute custom commands
 
@@ -159,7 +159,7 @@
     To add a clean step using make or a custom process, select
     \uicontrol{Add Clean Step} and select the step to add.
 
-    \image qtcreator-cmake-clean-steps.webp {Clean steps}
+    \image {qtcreator-cmake-clean-steps.webp} {Clean steps}
 
     \sa {Configuring Projects}, {Select the build system}, {Use \QC variables},
     {Enable debugging}, {Setting Up QML Debugging},
