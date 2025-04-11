@@ -239,8 +239,12 @@ ItemLibraryImport::SectionType ItemLibraryImport::sectionType() const
 
 void ItemLibraryImport::updateRemovable()
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    bool importRemovable = m_sectionType == SectionType::Default && m_import.url() != "QtQuick";
+#else
     bool importRemovable = !m_importUsed && m_sectionType == SectionType::Default
-            && m_import.url() != "QtQuick";
+                           && m_import.url() != "QtQuick";
+#endif
     if (importRemovable != m_importRemovable) {
         m_importRemovable = importRemovable;
         emit importRemovableChanged();
