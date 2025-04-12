@@ -225,11 +225,11 @@ public:
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
 
     void emitCustomNotification(const QString &identifier,
-                                const QList<ModelNode> &nodeList = {},
+                                Utils::span<const ModelNode> nodes = {},
                                 const QList<QVariant> &data = {})
     {
         if (isAttached())
-            model()->emitCustomNotification(this, identifier, nodeList, data);
+            model()->emitCustomNotification(this, identifier, nodes, data);
     }
 
     const AbstractView *nodeInstanceView() const;

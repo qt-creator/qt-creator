@@ -664,12 +664,12 @@ void ModelPrivate::notifyRootNodeTypeChanged(const QString &type, int majorVersi
         [&](AbstractView *view) { view->rootNodeTypeChanged(type, majorVersion, minorVersion); });
 }
 
-void ModelPrivate::notifyInstancePropertyChange(const QList<QPair<ModelNode, PropertyName>> &propertyPairList)
+void ModelPrivate::notifyInstancePropertyChange(Utils::span<const QPair<ModelNode, PropertyName>> properties)
 {
     notifyInstanceChanges([&](AbstractView *view) {
         using ModelNodePropertyPair = QPair<ModelNode, PropertyName>;
         QList<QPair<ModelNode, PropertyName>> adaptedPropertyList;
-        for (const ModelNodePropertyPair &propertyPair : propertyPairList) {
+        for (const ModelNodePropertyPair &propertyPair : properties) {
             ModelNodePropertyPair newPair(ModelNode{propertyPair.first.internalNode(), m_model, view}, propertyPair.second);
             adaptedPropertyList.append(newPair);
         }
@@ -677,20 +677,20 @@ void ModelPrivate::notifyInstancePropertyChange(const QList<QPair<ModelNode, Pro
     });
 }
 
-void ModelPrivate::notifyInstanceErrorChange(const QVector<qint32> &instanceIds)
+void ModelPrivate::notifyInstanceErrorChange(Utils::span<const qint32> instanceIds)
 {
     notifyInstanceChanges([&](AbstractView *view) {
         QVector<ModelNode> errorNodeList;
-        errorNodeList.reserve(instanceIds.size());
+        errorNodeList.reserve(std::ssize(instanceIds));
         for (qint32 instanceId : instanceIds)
             errorNodeList.emplace_back(m_model->d->nodeForInternalId(instanceId), m_model, view);
         view->instanceErrorChanged(errorNodeList);
     });
 }
 
-void ModelPrivate::notifyInstancesCompleted(const QVector<ModelNode> &modelNodeVector)
+void ModelPrivate::notifyInstancesCompleted(Utils::span<const ModelNode> modelNodes)
 {
-    auto internalNodes = toInternalNodeList(modelNodeVector);
+    auto internalNodes = toInternalNodeList(modelNodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
         view->instancesCompleted(toModelNodeList(internalNodes, view));
@@ -718,27 +718,27 @@ void ModelPrivate::notifyInstancesInformationsChange(
     });
 }
 
-void ModelPrivate::notifyInstancesRenderImageChanged(const QVector<ModelNode> &modelNodeVector)
+void ModelPrivate::notifyInstancesRenderImageChanged(Utils::span<const ModelNode> nodes)
 {
-    auto internalNodes = toInternalNodeList(modelNodeVector);
+    auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
         view->instancesRenderImageChanged(toModelNodeList(internalNodes, view));
     });
 }
 
-void ModelPrivate::notifyInstancesPreviewImageChanged(const QVector<ModelNode> &modelNodeVector)
+void ModelPrivate::notifyInstancesPreviewImageChanged(Utils::span<const ModelNode> nodes)
 {
-    auto internalNodes = toInternalNodeList(modelNodeVector);
+    auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
         view->instancesPreviewImageChanged(toModelNodeList(internalNodes, view));
     });
 }
 
-void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &modelNodeVector)
+void ModelPrivate::notifyInstancesChildrenChanged(Utils::span<const ModelNode> nodes)
 {
-    auto internalNodes = toInternalNodeList(modelNodeVector);
+    auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
         view->instancesChildrenChanged(toModelNodeList(internalNodes, view));
@@ -812,10 +812,11 @@ void ModelPrivate::notifyRewriterEndTransaction()
     notifyNodeInstanceViewLast([&](AbstractView *view) { view->rewriterEndTransaction(); });
 }
 
-void ModelPrivate::notifyInstanceToken(const QString &token, int number,
-                                       const QVector<ModelNode> &modelNodeVector)
+void ModelPrivate::notifyInstanceToken(const QString &token,
+                                       int number,
+                                       Utils::span<const ModelNode> nodes)
 {
-    auto internalNodes = toInternalNodeList(modelNodeVector);
+    auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
         view->instancesToken(token, number, toModelNodeList(internalNodes, view));
@@ -824,10 +825,10 @@ void ModelPrivate::notifyInstanceToken(const QString &token, int number,
 
 void ModelPrivate::notifyCustomNotification(const AbstractView *senderView,
                                             const QString &identifier,
-                                            const QList<ModelNode> &modelNodeList,
+                                            Utils::span<const ModelNode> nodes,
                                             const QList<QVariant> &data)
 {
-    auto internalList = toInternalNodeList(modelNodeList);
+    auto internalList = toInternalNodeList(nodes);
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->customNotification(senderView, identifier, toModelNodeList(internalList, view), data);
     });
@@ -1229,22 +1230,22 @@ void ModelPrivate::removeAuxiliaryData(const InternalNodePointer &node, const Au
         notifyAuxiliaryDataChanged(node, key, QVariant());
 }
 
-QList<ModelNode> ModelPrivate::toModelNodeList(Utils::span<const InternalNodePointer> nodeList,
+QList<ModelNode> ModelPrivate::toModelNodeList(Utils::span<const InternalNodePointer> nodes,
                                                AbstractView *view) const
 {
     QList<ModelNode> modelNodeList;
-    modelNodeList.reserve(nodeList.size());
-    for (const InternalNodePointer &node : nodeList)
+    modelNodeList.reserve(std::ssize(nodes));
+    for (const InternalNodePointer &node : nodes)
         modelNodeList.emplace_back(node, m_model, view);
 
     return modelNodeList;
 }
 
-ModelPrivate::ManyNodes ModelPrivate::toInternalNodeList(const QList<ModelNode> &modelNodeList) const
+ModelPrivate::ManyNodes ModelPrivate::toInternalNodeList(Utils::span<const ModelNode> modelNodes) const
 {
     ManyNodes newNodeList;
-    newNodeList.reserve(modelNodeList.size());
-    for (const ModelNode &modelNode : modelNodeList)
+    newNodeList.reserve(std::ssize(modelNodes));
+    for (const ModelNode &modelNode : modelNodes)
         newNodeList.append(modelNode.internalNode());
 
     return newNodeList;
@@ -1813,7 +1814,7 @@ QmlDesigner::Imports createPossibleFileImports(const Utils::FilePath &path)
             bool append = false;
 
             item.iterateDirectory(
-                [&](const Utils::FilePath &item) {
+                [&](const Utils::FilePath &) {
                     append = true;
                     return Utils::IterationPolicy::Stop;
                 },
@@ -2062,22 +2063,22 @@ ProjectStorageDependencies Model::projectStorageDependencies() const
 }
 
 void Model::emitInstancePropertyChange(AbstractView *view,
-                                       const QList<QPair<ModelNode, PropertyName>> &propertyList)
+                                       Utils::span<const QPair<ModelNode, PropertyName>> properties)
 {
     if (d->nodeInstanceView() == view) // never remove check
-        d->notifyInstancePropertyChange(propertyList);
+        d->notifyInstancePropertyChange(properties);
 }
 
-void Model::emitInstanceErrorChange(AbstractView *view, const QVector<qint32> &instanceIds)
+void Model::emitInstanceErrorChange(AbstractView *view, Utils::span<const qint32> instanceIds)
 {
     if (d->nodeInstanceView() == view) // never remove check
         d->notifyInstanceErrorChange(instanceIds);
 }
 
-void Model::emitInstancesCompleted(AbstractView *view, const QVector<ModelNode> &nodeVector)
+void Model::emitInstancesCompleted(AbstractView *view, Utils::span<const ModelNode> nodes)
 {
     if (d->nodeInstanceView() == view) // never remove check
-        d->notifyInstancesCompleted(nodeVector);
+        d->notifyInstancesCompleted(nodes);
 }
 
 void Model::emitInstanceInformationsChange(
@@ -2087,22 +2088,22 @@ void Model::emitInstanceInformationsChange(
         d->notifyInstancesInformationsChange(informationChangeHash);
 }
 
-void Model::emitInstancesRenderImageChanged(AbstractView *view, const QVector<ModelNode> &nodeVector)
+void Model::emitInstancesRenderImageChanged(AbstractView *view, Utils::span<const ModelNode> nodes)
 {
     if (d->nodeInstanceView() == view) // never remove check
-        d->notifyInstancesRenderImageChanged(nodeVector);
+        d->notifyInstancesRenderImageChanged(nodes);
 }
 
-void Model::emitInstancesPreviewImageChanged(AbstractView *view, const QVector<ModelNode> &nodeVector)
+void Model::emitInstancesPreviewImageChanged(AbstractView *view, Utils::span<const ModelNode> nodes)
 {
     if (d->nodeInstanceView() == view) // never remove check
-        d->notifyInstancesPreviewImageChanged(nodeVector);
+        d->notifyInstancesPreviewImageChanged(nodes);
 }
 
-void Model::emitInstancesChildrenChanged(AbstractView *view, const QVector<ModelNode> &nodeVector)
+void Model::emitInstancesChildrenChanged(AbstractView *view, Utils::span<const ModelNode> nodes)
 {
     if (d->nodeInstanceView() == view) // never remove check
-        d->notifyInstancesChildrenChanged(nodeVector);
+        d->notifyInstancesChildrenChanged(nodes);
 }
 
 void Model::emitInstanceToken(AbstractView *view,
@@ -2165,10 +2166,10 @@ void Model::emitDocumentMessage(const QList<DocumentMessage> &errors,
 
 void Model::emitCustomNotification(AbstractView *view,
                                    const QString &identifier,
-                                   const QList<ModelNode> &nodeList,
+                                   Utils::span<const ModelNode> nodes,
                                    const QList<QVariant> &data)
 {
-    d->notifyCustomNotification(view, identifier, nodeList, data);
+    d->notifyCustomNotification(view, identifier, nodes, data);
 }
 
 void Model::sendCustomNotificationTo(AbstractView *to, const CustomNotificationPackage &package)
@@ -2300,11 +2301,11 @@ QList<ModelNode> Model::selectedNodes(AbstractView *view) const
     return d->toModelNodeList(d->selectedNodes(), view);
 }
 
-void Model::setSelectedModelNodes(const QList<ModelNode> &selectedNodeList)
+void Model::setSelectedModelNodes(Utils::span<const ModelNode> selectedNodes)
 {
     QList<ModelNode> unlockedNodes;
 
-    for (const auto &modelNode : selectedNodeList) {
+    for (const auto &modelNode : selectedNodes) {
         if (!ModelUtils::isThisOrAncestorLocked(modelNode))
             unlockedNodes.push_back(modelNode);
     }

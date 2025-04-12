@@ -266,7 +266,7 @@ public:
                              const QList<DocumentMessage> &warnings);
 
     QList<ModelNode> selectedNodes(AbstractView *view) const;
-    void setSelectedModelNodes(const QList<ModelNode> &selectedNodeList);
+    void setSelectedModelNodes(Utils::span<const ModelNode> selectedNodes);
 
     void clearMetaInfoCache();
 
@@ -291,14 +291,14 @@ public:
     ProjectStorageDependencies projectStorageDependencies() const;
 
     void emitInstancePropertyChange(AbstractView *view,
-                                    const QList<QPair<ModelNode, PropertyName>> &propertyList);
-    void emitInstanceErrorChange(AbstractView *view, const QVector<qint32> &instanceIds);
-    void emitInstancesCompleted(AbstractView *view, const QVector<ModelNode> &nodeList);
+                                    Utils::span<const QPair<ModelNode, PropertyName>> properties);
+    void emitInstanceErrorChange(AbstractView *view, Utils::span<const qint32> instanceIds);
+    void emitInstancesCompleted(AbstractView *view, Utils::span<const ModelNode> nodes);
     void emitInstanceInformationsChange(
         AbstractView *view, const QMultiHash<ModelNode, InformationName> &informationChangeHash);
-    void emitInstancesRenderImageChanged(AbstractView *view, const QVector<ModelNode> &nodeList);
-    void emitInstancesPreviewImageChanged(AbstractView *view, const QVector<ModelNode> &nodeList);
-    void emitInstancesChildrenChanged(AbstractView *view, const QVector<ModelNode> &nodeList);
+    void emitInstancesRenderImageChanged(AbstractView *view, Utils::span<const ModelNode> nodes);
+    void emitInstancesPreviewImageChanged(AbstractView *view, Utils::span<const ModelNode> nodes);
+    void emitInstancesChildrenChanged(AbstractView *view, Utils::span<const ModelNode> nodes);
     void emitInstanceToken(AbstractView *view,
                            const QString &token,
                            int number,
@@ -318,7 +318,7 @@ public:
     void emitDocumentMessage(const QString &error);
     void emitCustomNotification(AbstractView *view,
                                 const QString &identifier,
-                                const QList<ModelNode> &nodeList = {},
+                                Utils::span<const ModelNode> nodes = {},
                                 const QList<QVariant> &data = {});
 
     void sendCustomNotificationTo(AbstractView *to, const CustomNotificationPackage &package);
