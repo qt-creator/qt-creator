@@ -10,4 +10,5 @@ set_target_properties(tst_manual_plugin3 PROPERTIES
 )
 
 target_link_libraries(tst_manual_plugin3 PRIVATE ExtensionSystem
+                                         PRIVATE Utils
                                          PRIVATE tst_manual_plugin2)
