@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/mesonproject">
-        <file>icons/meson_logo.png</file>
-        <file>icons/meson_bw_logo.png</file>
-        <file>icons/meson_bw_logo@2x.png</file>
-    </qresource>
-</RCC>
