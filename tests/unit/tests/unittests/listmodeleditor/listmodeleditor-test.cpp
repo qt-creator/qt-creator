@@ -196,7 +196,7 @@ public:
     QItemSelection itemSelection(std::initializer_list<QPair<int, int>> items) const
     {
         QItemSelection selection;
-        for (const auto [row, column] : items) {
+        for (const auto &[row, column] : items) {
             QModelIndex idx = index(row, column);
             selection.select(idx, idx);
         }
