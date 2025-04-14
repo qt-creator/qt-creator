@@ -172,7 +172,7 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     connect(&QmlFormatSettings::instance(), &QmlFormatSettings::qmlformatIniCreated, [](Utils::FilePath qmlformatIniPath) {
         QmlJSCodeStyleSettings s;
         s.lineLength = 80;
-        Utils::expected_str<QByteArray> fileContents = qmlformatIniPath.fileContents();
+        Utils::Result<QByteArray> fileContents = qmlformatIniPath.fileContents();
         if (fileContents)
             s.qmlformatIniContent = QString::fromUtf8(*qmlformatIniPath.fileContents());
         auto builtInCodeStyles = TextEditorSettings::codeStylePool(
