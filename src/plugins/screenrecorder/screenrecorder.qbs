@@ -15,7 +15,6 @@ QtcPlugin {
         "ffmpegutils.h",
         "record.cpp",
         "record.h",
-        "screenrecorder.qrc",
         "screenrecorderconstants.h",
         "screenrecorderplugin.cpp",
         "screenrecordersettings.cpp",
