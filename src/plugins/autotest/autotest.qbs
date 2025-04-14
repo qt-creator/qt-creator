@@ -20,8 +20,9 @@ QtcPlugin {
     Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
     Depends { name: "Qt.widgets" }
 
+    Qt.core.resourceSourceBase: sourceDirectory
+
     files: [
-        "autotest.qrc",
         "autotesticons.h",
         "autotest_global.h", "autotesttr.h",
         "autotestconstants.h",
@@ -119,10 +120,22 @@ QtcPlugin {
         files: [
             "autotestunittests.cpp",
             "autotestunittests.h",
-            "autotestunittests.qrc",
             "loadprojectscenario.cpp",
             "loadprojectscenario.h",
         ]
+    }
+
+    Group {
+        name: "test data"
+        files: "unit_test/**/*"
+        fileTags: qtc.withPluginTests ? ["qt.core.resource_data"] : []
+    }
+
+    Group {
+        name: "images"
+        files: "images/*.png"
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "autotest"
     }
 
     Group {
