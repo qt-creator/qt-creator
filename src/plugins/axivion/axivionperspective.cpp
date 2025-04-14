@@ -202,6 +202,7 @@ public:
     void resetDashboard();
     void leaveOrEnterDashboardMode(bool byLocalBuildButton);
     void updateNamedFilters();
+    void updateLocalBuildState(const QString &projectName, int percent);
 
     const std::optional<Dto::TableInfoDto> currentTableInfo() const { return m_currentTableInfo; }
     IssueListSearch searchFromUi() const;
@@ -230,6 +231,7 @@ private:
     void fetchIssues(DashboardMode dashboardMode, const IssueListSearch &search);
     void onFetchRequested(int startRow, int limit);
     void switchDashboard(bool local);
+    void onLocalBuildTriggered();
     void hideOverlays();
     void openFilterHelp();
 
@@ -326,6 +328,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_localBuild->setIcon(build.icon());
     m_localBuild->setToolTip(Tr::tr("Local Build..."));
     m_localBuild->setEnabled(false);
+    connect(m_localBuild, &QToolButton::clicked, this, &IssuesWidget::onLocalBuildTriggered);
     m_localDashBoard = new QToolButton(this);
     const Icon dashboard({{":/axivion/images/dashboard.png", Theme::PaletteButtonText},
                           {":/axivion/images/local.png", Theme::PaletteButtonText}}, Icon::Tint);
@@ -337,7 +340,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     localLayout->addWidget(m_localDashBoard);
     connect(&settings(), &AxivionSettings::suitePathValidated, this, [this] {
         const auto info = settings().versionInfo();
-        const bool enable = info && !info->versionNumber.isEmpty();
+        const bool enable = info && !info->versionNumber.isEmpty()
+                && !hasRunningLocalBuild(m_currentProject);
         m_localBuild->setEnabled(enable);
         checkForLocalBuildResults(m_currentProject, [this] { m_localDashBoard->setEnabled(true); });
     });
@@ -595,6 +599,16 @@ void IssuesWidget::updateNamedFilters()
         m_namedFilters->addItem(user, it.displayName, QVariant::fromValue(it));
     for (const auto &it : std::as_const(globalFilters))
         m_namedFilters->addItem(global, it.displayName, QVariant::fromValue(it));
+}
+
+void IssuesWidget::updateLocalBuildState(const QString &projectName, int percent)
+{
+    // TODO update progress
+
+    if (percent != 100 || projectName != m_currentProject)
+        return;
+    m_localBuild->setEnabled(true);
+    checkForLocalBuildResults(m_currentProject, [this] { m_localDashBoard->setEnabled(true); });
 }
 
 void IssuesWidget::initDashboardList(const QString &preferredProject)
@@ -1182,6 +1196,20 @@ void IssuesWidget::switchDashboard(bool local)
     }
 }
 
+void IssuesWidget::onLocalBuildTriggered()
+{
+    QTC_ASSERT(!m_currentProject.isEmpty(), return);
+
+    m_localBuild->setEnabled(false);
+    if (startLocalBuild(m_currentProject)) {
+        m_localDashBoard->setEnabled(false);
+        if (currentDashboardMode() == DashboardMode::Local)   // TODO maybe handle differently but
+            switchDashboardMode(DashboardMode::Global, true); // for now avoid access while build
+    } else {
+        m_localBuild->setEnabled(true);
+    }
+}
+
 void IssuesWidget::hideOverlays()
 {
     if (m_overlay)
@@ -1285,6 +1313,7 @@ public:
     void setIssueDetailsHtml(const QString &html);
     void handleAnchorClicked(const QUrl &url);
     void updateNamedFilters();
+    void updateLocalBuildStateFor(const QString &projectName, const QString &state, int percent);
 
     void leaveOrEnterDashboardMode(bool byLocalBuildButton);
     bool currentIssueHasValidPathMapping() const;
@@ -1462,6 +1491,12 @@ void AxivionPerspective::updateNamedFilters()
     m_issuesWidget->updateNamedFilters();
 }
 
+void AxivionPerspective::updateLocalBuildStateFor(const QString &projectName, const QString & /*state*/,
+                                                  int percent)
+{
+    m_issuesWidget->updateLocalBuildState(projectName, percent);
+}
+
 void AxivionPerspective::leaveOrEnterDashboardMode(bool byLocalBuildButton)
 {
     m_issuesWidget->leaveOrEnterDashboardMode(byLocalBuildButton);
@@ -1529,6 +1564,12 @@ void updateNamedFilters()
 {
     QTC_ASSERT(axivionPerspective(), return);
     axivionPerspective()->updateNamedFilters();
+}
+
+void updateLocalBuildStateFor(const QString &projectName, const QString &state, int percent)
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->updateLocalBuildStateFor(projectName, state, percent);
 }
 
 void leaveOrEnterDashboardMode(bool byLocalBuildButton)

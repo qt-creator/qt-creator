@@ -20,4 +20,7 @@ bool shutdownAllLocalDashboards(const std::function<void()> &callback);
 
 std::optional<LocalDashboardAccess> localDashboardAccessFor(const QString &projectName);
 
+bool startLocalBuild(const QString &projectName);
+bool hasRunningLocalBuild(const QString &projectName);
+
 } // namespace Axivion::Internal

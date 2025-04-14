@@ -4,31 +4,41 @@
 #include "localbuild.h"
 
 #include "axivionperspective.h"
+#include "axivionplugin.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <solutions/tasking/tasktreerunner.h>
 #include <solutions/tasking/tasktree.h>
 
 #include <utils/algorithm.h>
+#include <utils/aspects.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QLabel>
 #include <QLoggingCategory>
+#include <QPushButton>
 #include <QSqlDatabase>
 #include <QSqlDriver>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlResult>
 #include <QTimer>
+#include <QVBoxLayout>
 
 #include <unordered_map>
 
@@ -39,6 +49,7 @@ namespace Axivion::Internal {
 
 Q_LOGGING_CATEGORY(sqlLog, "qtc.axivion.sql", QtWarningMsg)
 Q_LOGGING_CATEGORY(localDashLog, "qtc.axivion.localdashboard", QtWarningMsg)
+Q_LOGGING_CATEGORY(localBuildLog, "qtc.axivion.localbuild", QtWarningMsg)
 
 struct LocalDashboard
 {
@@ -54,6 +65,15 @@ struct LocalDashboard
     QByteArray pass;
 };
 
+enum class LocalBuildState { None, Started, Building, Analyzing, UpdatingDashboard, Finished };
+
+struct LocalBuildInfo
+{
+    LocalBuildState state = LocalBuildState::None;
+    QString buildOutput = {};
+    QString axivionOutput = {};
+};
+
 class LocalBuild
 {
 public:
@@ -61,6 +81,7 @@ public:
     ~LocalBuild()
     {
         QTC_CHECK(m_startedDashboards.isEmpty()); // shutdownAll() must be done already
+        QTC_ASSERT(m_runningLocalBuilds.isEmpty(), qDeleteAll(m_runningLocalBuilds));
         QTC_CHECK(m_startedDashboardTrees.empty());
     }
 
@@ -70,9 +91,20 @@ public:
                         const std::function<void()> &callback);
     bool shutdownAll(const std::function<void()> &callback);
 
+    bool startLocalBuildFor(const QString &projectName);
+    bool hasRunningBuildFor(const QString &projectName)
+    {
+        return m_runningLocalBuilds.contains(projectName);
+    }
+
 private:
+    void handleLocalBuildOutputFor(const QString &projectName, const QString &line);
+
     QHash<QString, LocalDashboard> m_startedDashboards;
     std::unordered_map<QString, std::unique_ptr<TaskTree>> m_startedDashboardTrees;
+
+    QHash<QString, TaskTreeRunner *> m_runningLocalBuilds;
+    QHash<QString, LocalBuildInfo> m_localBuildInfos;
 };
 
 void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard &dashboard,
@@ -133,6 +165,9 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
 
 bool LocalBuild::shutdownAll(const std::function<void()> &callback)
 {
+    for (auto it : std::as_const(m_runningLocalBuilds)) // runners that perform a local build
+        it->cancel();
+
     for (auto it = m_startedDashboardTrees.begin(), end = m_startedDashboardTrees.end();
          it != end; ++it) {
         if (it->second)
@@ -172,7 +207,6 @@ bool LocalBuild::shutdownAll(const std::function<void()> &callback)
 
     return true;
 }
-
 
 std::optional<LocalDashboardAccess> LocalBuild::localDashboardAccessFor(
         const QString &projectName) const
@@ -307,6 +341,241 @@ void startLocalDashboard(const QString &projectName, const std::function<void ()
     s_localBuildInstance.startDashboard(projectName, localDashboard, callback);
 }
 
+class LocalBuildDialog : public QDialog
+{
+public:
+    LocalBuildDialog(const QString &projectName)
+    {
+        bauhausSuite.setExpectedKind(PathChooser::ExistingDirectory);
+        bauhausSuite.setAllowPathFromDevice(false);
+        if (settings().versionInfo())
+            bauhausSuite.setValue(settings().axivionSuitePath());
+        fileOrCommand.setExpectedKind(PathChooser::Any);
+        fileOrCommand.setAllowPathFromDevice(false);
+        fileOrCommand.setHistoryCompleter("LocalBuildHistory");
+        buildType.setLabelText(Tr::tr("Build Type:"));
+        buildType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+        buildType.setToolTip(Tr::tr("Clean Build: Set environment variable AXIVION_CLEAN_BUILD=1\n"
+                                    "Incremental Build: Set environment variable AXIVION_INCREMENTAL_BUILD=1"));
+        buildType.addOption("");
+        buildType.addOption(Tr::tr("Clean Build"));
+        buildType.addOption(Tr::tr("Incremental Build"));
+
+        QWidget *widget = new QWidget(this);
+
+        auto warn1 = new QLabel(widget);
+        warn1->setPixmap(Icons::WARNING.pixmap());
+        warn1->setAlignment(Qt::AlignTop);
+        auto warnText1 = new QLabel(Tr::tr("Warning: Modifying source files during the local build may "
+                                           "produce unexpected warnings, errors, and/or wrong results."),
+                                    widget);
+        warnText1->setAlignment(Qt::AlignLeft);
+        warnText1->setWordWrap(true);
+        auto warn2 = new QLabel(widget);
+        warn2->setAlignment(Qt::AlignTop);
+        warn2->setPixmap(Icons::WARNING.pixmap());
+        auto warnText2 = new QLabel(Tr::tr("Warning: If your build is not configured for local build, you "
+                                           "may overwrite output files of your native compiler when starting "
+                                           "a local build."), widget);
+        warnText2->setAlignment(Qt::AlignLeft);
+        warnText2->setWordWrap(true);
+        auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel, this);
+        auto okButton = buttons->button(QDialogButtonBox::Ok);
+        okButton->setText(Tr::tr("Start Local Build"));
+        okButton->setEnabled(false);
+
+        using namespace Layouting;
+        Column {
+            Row {
+                Column {
+                    Form {
+                       warn1, warnText1, br,
+                       warn2, warnText2, br,
+                   },
+                   Space(20),
+                   Tr::tr("Choose the same Axivion Suite version as your CI build uses "
+                          "- otherwise the results may differ.")
+                }, st
+            }, st,
+            Row { Tr::tr("Axivion Suite Installation Directory:") },
+            Row { bauhausSuite },
+            Row { Tr::tr("Please enter the command which will be used to build %1:").arg(projectName) },
+            Row { fileOrCommand },
+            Row { buildType, st },
+            st
+        }.attachTo(widget);
+
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->addWidget(widget);
+        layout->addWidget(buttons);
+
+        const auto updateOkButton = [this, okButton] {
+            bool enable = bauhausSuite().pathAppended("bin/axivion_suite_info")
+                    .withExecutableSuffix().exists();
+            enable &= !fileOrCommand().isEmpty();
+            okButton->setEnabled(enable);
+        };
+        connect(&bauhausSuite, &FilePathAspect::changed, this, updateOkButton);
+        connect(&fileOrCommand, &FilePathAspect::changed, this, updateOkButton);
+        connect(okButton, &QPushButton::clicked,
+                this, &QDialog::accept);
+        connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked,
+                this, &QDialog::reject);
+        setWindowTitle(Tr::tr("Local Build Command: %1").arg(projectName));
+        updateOkButton();
+    }
+
+    FilePathAspect bauhausSuite;
+    FilePathAspect fileOrCommand;
+    SelectionAspect buildType;
+};
+
+void LocalBuild::handleLocalBuildOutputFor(const QString &projectName, const QString &line)
+{
+    static const QRegularExpression buildStateRegex(
+                R"(^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} - (?<type>[a-z ]{4}) - (.+) - (?<text>.+)$)");
+    QTC_ASSERT(hasRunningBuildFor(projectName), return);
+    const LocalBuildState state = m_localBuildInfos.value(projectName).state;
+
+    const QRegularExpressionMatch match = buildStateRegex.match(line);
+    switch (state) {
+    case LocalBuildState::None:
+        m_localBuildInfos.insert(projectName, {LocalBuildState::Started});
+        qCDebug(localBuildLog) << "buildState changed > started" << projectName;
+        updateLocalBuildStateFor(projectName, Tr::tr("Started"), 5);
+        break;
+    case LocalBuildState::Started:
+        if (match.hasMatch()) {
+            const QString type = match.captured("type").trimmed();
+            if (type == "sql" && match.captured("text").startsWith("Finished import")) {
+                qCDebug(localBuildLog) << "local dashboard changed.. (LocalBuild)"; // TODO trigger update of perspective?
+            } else if (type == "bld") {
+                m_localBuildInfos.insert(projectName, {LocalBuildState::Building});
+                qCDebug(localBuildLog) << "buildState changed > building" << projectName;
+                updateLocalBuildStateFor(projectName, Tr::tr("Building"), 30);
+            }
+        }
+        break;
+    case LocalBuildState::Building:
+        if (match.hasMatch()) {
+            if (match.captured("type").trimmed() == "bld"
+                    && match.captured("text").startsWith("End of build actions")) {
+                m_localBuildInfos.insert(projectName, {LocalBuildState::Analyzing});
+                qCDebug(localBuildLog) << "buildState changed > analyzing" << projectName;
+                updateLocalBuildStateFor(projectName, Tr::tr("Analyzing"), 60);
+            }
+        }
+        break;
+    case LocalBuildState::Analyzing:
+        if (match.hasMatch()) {
+            const QString type = match.captured("type").trimmed();
+            if (type == "sql" || "db") {
+                m_localBuildInfos.insert(projectName, {LocalBuildState::UpdatingDashboard});
+                qCDebug(localBuildLog) << "buildState changed > updatingdashboard" << projectName;
+                updateLocalBuildStateFor(projectName, Tr::tr("Updating Dashboard"), 90);
+            }
+        }
+        break;
+    case LocalBuildState::UpdatingDashboard:
+    case LocalBuildState::Finished:
+        break;
+    }
+
+}
+
+static void setupEnvAndCommandLineFromUserInput(Environment *env, CommandLine *cmdLine,
+                                                const FilePath &file, int buildType)
+{
+    switch (buildType) {
+    case 1:
+        env->set("AXIVION_CLEAN_BUILD", "1");
+        break;
+    case 2:
+        env->set("AXIVION_INCREMENTAL_BUILD", "1");
+        break;
+    default:
+        break;
+    }
+
+    if (file.isDir() || (file.isFile() && file.suffix() == "json")) {
+        env->set("BAUHAUS_CONFIG", file.toUserOutput());
+        *cmdLine = CommandLine{ FilePath("axivion_ci").withExecutableSuffix() };
+    } else {
+        *cmdLine = CommandLine{file};
+    }
+}
+
+bool LocalBuild::startLocalBuildFor(const QString &projectName)
+{
+    if (ExtensionSystem::PluginManager::isShuttingDown())
+        return false;
+
+    LocalBuildDialog dia(projectName);
+    if (dia.exec() != QDialog::Accepted)
+        return false;
+
+
+    Environment env = Environment::systemEnvironment();
+    updateEnvironmentForLocalBuild(&env);
+    if (!env.hasKey("AXIVION_LOCAL_BUILD"))
+        return false;
+    const QString createdPassFile = env.value("AXIVION_PASSFILE");
+    qCDebug(localDashLog) << "passfile:" << createdPassFile;
+
+    CommandLine cmdLine;
+    setupEnvAndCommandLineFromUserInput(&env, &cmdLine, dia.fileOrCommand(), dia.buildType());
+
+    const FilePath bauhaus = dia.bauhausSuite();
+    if (!bauhaus.isEmpty()) {
+        env.set("AXIVION_BASE_DIR", bauhaus.toUserOutput());
+        env.prependOrSetPath(bauhaus.pathAppended("bin"));
+    }
+    if (!settings().javaHome().isEmpty())
+        env.set("JAVA_HOME", settings().javaHome().toUserOutput());
+    if (!settings().bauhausPython().isEmpty())
+        env.set("BAUHAUS_PYTHON", settings().bauhausPython().toUserOutput());
+
+    TaskTreeRunner *localBuildRunner = new TaskTreeRunner;
+    m_runningLocalBuilds.insert(projectName, localBuildRunner);
+
+    const auto onSetup = [this, projectName, cmdLine, env](Process &process) {
+        CommandLine cmd = HostOsInfo::isWindowsHost() ? CommandLine{"cmd", {"/c"}}
+                                                      : CommandLine{"/bin/sh", {"-c"}};
+        cmd.addCommandLineAsArgs(cmdLine, CommandLine::Raw);
+        process.setCommand(cmd);
+        process.setEnvironment(env);
+        process.setUseCtrlCStub(true);
+
+        process.setStdErrCallback([this, projectName](const QString &line) {
+            handleLocalBuildOutputFor(projectName, line);
+        });
+    };
+
+    const auto onDone = [this, projectName, createdPassFile](const Process &process) {
+        const FilePath fp = FilePath::fromUserInput(createdPassFile);
+        if (QTC_GUARD(fp.exists())) {
+            fp.removeFile();
+            qCDebug(localBuildLog) << "removed passfile: " << createdPassFile;
+        }
+        const QString state = process.result() == ProcessResult::FinishedWithSuccess
+                ? Tr::tr("Finished") : Tr::tr("Failed");
+        m_localBuildInfos.insert(projectName, {LocalBuildState::Finished, process.cleanedStdOut(),
+                                               process.cleanedStdErr()});
+        qCDebug(localBuildLog) << "buildState changed >" << state << projectName;
+        updateLocalBuildStateFor(projectName, state, 100);
+        TaskTreeRunner *runner = m_runningLocalBuilds.take(projectName);
+        if (runner)
+            runner->deleteLater();
+    };
+
+    m_localBuildInfos.insert(projectName, {LocalBuildState::None});
+    updateLocalBuildStateFor(projectName, Tr::tr("Starting"), 1);
+    qCDebug(localBuildLog) << "starting local build (" << projectName << "):"
+                           << cmdLine.toUserOutput();
+    localBuildRunner->start({ProcessTask(onSetup, onDone)});
+    return true;
+}
+
 bool shutdownAllLocalDashboards(const std::function<void()> &callback)
 {
     return s_localBuildInstance.shutdownAll(callback);
@@ -315,6 +584,16 @@ bool shutdownAllLocalDashboards(const std::function<void()> &callback)
 std::optional<LocalDashboardAccess> localDashboardAccessFor(const QString &projectName)
 {
     return s_localBuildInstance.localDashboardAccessFor(projectName);
+}
+
+bool startLocalBuild(const QString &projectName)
+{
+    return s_localBuildInstance.startLocalBuildFor(projectName);
+}
+
+bool hasRunningLocalBuild(const QString &projectName)
+{
+    return s_localBuildInstance.hasRunningBuildFor(projectName);
 }
 
 } // namespace Axivion::Internal

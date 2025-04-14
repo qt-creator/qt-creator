@@ -25,7 +25,10 @@ template <typename StorageStruct>
 class Storage;
 }
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class Environment;
+class FilePath;
+}
 
 namespace Axivion::Internal {
 
@@ -66,6 +69,7 @@ public:
     std::optional<QUrl> checkCredentialsUrl;
     std::optional<QUrl> globalNamedFilters;
     std::optional<QUrl> userNamedFilters;
+    std::optional<QString> userName;
 };
 
 enum class ContentType {
@@ -142,6 +146,8 @@ void switchDashboardMode(DashboardMode mode, bool byLocalBuildButton); // FIXME
 DashboardMode currentDashboardMode();
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
+
+void updateEnvironmentForLocalBuild(Utils::Environment *env);
 
 } // Axivion::Internal
 

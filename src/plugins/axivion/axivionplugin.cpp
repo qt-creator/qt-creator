@@ -35,6 +35,7 @@
 #include <utils/fileinprojectfinder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
+#include <utils/temporaryfile.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -204,7 +205,8 @@ static DashboardInfo toDashboardInfo(const GetDtoStorage<Dto::DashboardInfoDto> 
         projectUrls,
         infoDto.checkCredentialsUrl,
         infoDto.namedFiltersUrl,
-        infoDto.userNamedFiltersUrl
+        infoDto.userNamedFiltersUrl,
+        infoDto.username,
     };
 }
 
@@ -1460,6 +1462,54 @@ DashboardMode currentDashboardMode()
 {
     QTC_ASSERT(dd, return DashboardMode::Global);
     return dd->m_dashboardMode;
+}
+
+void updateEnvironmentForLocalBuild(Environment *env)
+{
+    QTC_ASSERT(env, return);
+    QTC_ASSERT(dd, return);
+    QTC_ASSERT(dd->m_dashboardInfo && dd->m_currentProjectInfo, return);
+    if (!dd->m_apiToken)
+        return;
+
+    QJsonObject json;
+    json.insert("apiToken", QString::fromUtf8(*dd->m_apiToken));
+    const QJsonDocument doc(json);
+    QByteArray bytes = doc.toJson(QJsonDocument::Compact);
+    if (bytes.size() < 256)
+        bytes.append(256 - bytes.size(), 0x20);
+    QTC_ASSERT(bytes.size() >= 256, qDebug() << bytes.size(); return);
+    QRandomGenerator *gen = QRandomGenerator::global();
+    QByteArray key;
+    key.reserve(bytes.size());
+    for (int i = 0, end = bytes.size(); i < end; ++i)
+        key.append(gen->bounded(0, 256) & 0xFF);
+
+    QTC_ASSERT(bytes.size() == key.size(), return);
+    QByteArray xored;
+    xored.reserve(bytes.size());
+    for (int i = 0, end = bytes.size(); i < end; ++i)
+        xored.append(bytes.at(i) ^ key.at(i));
+
+    // write key to file
+    TemporaryFile keyFile("axivion-XXXXXX");
+    keyFile.setAutoRemove(false);
+    if (!keyFile.open())
+        return;
+    if (!keyFile.write(key))
+        return;
+    keyFile.close();
+    // set environment variables
+    env->set("AXIVION_PASSFILE", keyFile.fileName());
+    env->set("AXIVION_PASSWORD", QString::fromUtf8(xored.toBase64()));
+    env->set("AXIVION_DASHBOARD_URL", dd->m_dashboardInfo->source.toString());
+    if (dd->m_dashboardInfo->userName)
+        env->set("AXIVION_USERNAME", *dd->m_dashboardInfo->userName);
+    env->set("AXIVION_LOCAL_BUILD", "1");
+    const QString ua = QString("Axivion" + QCoreApplication::applicationName()
+                               + "Plugin/" + QCoreApplication::applicationVersion());
+    env->set("AXIVION_USER_AGENT", ua);
+    env->set("AXIVION_PROJECT_NAME", dd->m_currentProjectInfo->name);
 }
 
 } // Axivion::Internal
