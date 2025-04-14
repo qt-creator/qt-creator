@@ -71,6 +71,7 @@ public:
 
     void setInfoBar(InfoBar *infoBar);
     InfoBar *infoBar() const;
+    void paintEvent(QPaintEvent *ev) override;
 
 private:
     void update();
@@ -94,7 +95,7 @@ private:
 PopupInfoBarDisplay::PopupInfoBarDisplay()
 {
     m_layout = new QVBoxLayout;
-    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setContentsMargins(0, 2, 0, 0);
     m_layout->setSpacing(0);
     setLayout(m_layout);
 }
@@ -115,6 +116,15 @@ void PopupInfoBarDisplay::setInfoBar(InfoBar *infoBar)
 InfoBar *PopupInfoBarDisplay::infoBar() const
 {
     return m_infoBar;
+}
+
+void PopupInfoBarDisplay::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    const QRect r = rect().adjusted(0, layout()->contentsMargins().top(), 0, 0);
+    StyleHelper::drawCardBg(&p, r, creatorColor(Theme::Token_Background_Muted),
+                            creatorColor(Theme::Token_Stroke_Subtle),
+                            StyleHelper::SpacingTokens::HPaddingXs);
 }
 
 static void disconnectRecursively(QObject *obj)
@@ -164,14 +174,12 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
         }
         return info.infoType();
     }();
-    QPalette pal = palette();
-    pal.setColor(QPalette::Window, InfoBarEntry::backgroundColor(infoType));
-    setPalette(pal);
 
     const Id id = info.id();
 
     QToolButton *infoWidgetCloseButton = nullptr;
     QLayout *buttonLayout;
+    QLabel *titleLabel;
 
     // clang-format off
     Column {
@@ -179,10 +187,11 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
             Column {
                 Layouting::IconDisplay { icon(InfoBarEntry::icon(infoType)) },
                 st,
+                customMargins(0, 0, StyleHelper::SpacingTokens::ExPaddingGapS, 0),
             },
             Column {
                 Row {
-                    Label { text("<b>" + info.title() + "</b>")},
+                    Label { bindTo(&titleLabel), text(info.title()) },
                     st,
                     If { info.hasCancelButton(), { ToolButton { bindTo(&infoWidgetCloseButton) } } }
                 },
@@ -191,9 +200,16 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
                 }
             }
         },
-        Flow{ bindTo(&buttonLayout), alignment(Qt::AlignRight) }
+        Space(StyleHelper::SpacingTokens::HGapS),
+        Flow{ bindTo(&buttonLayout), alignment(Qt::AlignRight) },
+        customMargins(StyleHelper::SpacingTokens::HPaddingS,
+                      StyleHelper::SpacingTokens::ExPaddingGapL,
+                      StyleHelper::SpacingTokens::HPaddingS,
+                      StyleHelper::SpacingTokens::ExPaddingGapL),
     }.attachTo(this);
     // clang-format on
+
+    titleLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH5));
 
     if (info.hasCancelButton() && QTC_GUARD(infoWidgetCloseButton)) {
         // need to connect to cancelObjectbefore connecting to cancelButtonClicked,
@@ -278,9 +294,9 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
 void InfoWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    p.setPen({palette().color(QPalette::Window).darker(105)});
-    p.setBrush(palette().brush(QPalette::Window));
-    p.drawRoundedRect(rect().adjusted(0, 2, 0, -1), 10, 10);
+    p.setPen(creatorColor(Theme::Token_Stroke_Subtle));
+    p.drawLine(Utils::StyleHelper::SpacingTokens::HPaddingXs, 0,
+               width() - Utils::StyleHelper::SpacingTokens::HPaddingXs - 1, 0);
 }
 
 class ProgressTimer : public QObject
