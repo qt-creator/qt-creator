@@ -286,10 +286,12 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     setFrameStyle(QFrame::NoFrame);
     QWidget *widget = new QWidget(this);
     m_dashboards = new QComboBox(this);
-    m_dashboards->setMinimumContentsLength(15);
+    m_dashboards->setMinimumWidth(250);
+    m_dashboards->setMaximumWidth(250);
     connect(m_dashboards, &QComboBox::currentIndexChanged, this, [this] {
         if (m_signalBlocker.isLocked())
             return;
+        m_dashboards->setToolTip(m_dashboards->currentText());
         const QVariant data = m_dashboards->currentData();
         if (data.isValid()) {
             const AxivionServer server = data.value<AxivionServer>();
@@ -307,7 +309,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     });
 
     m_dashboardProjects = new QComboBox(this);
-    m_dashboardProjects->setMinimumContentsLength(25);
+    m_dashboardProjects->setMinimumWidth(250);
+    m_dashboardProjects->setMaximumWidth(250);
     connect(m_dashboardProjects, &QComboBox::currentIndexChanged, this, [this] {
         if (m_signalBlocker.isLocked())
             return;
@@ -318,6 +321,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         m_localBuild->setEnabled(false);
         m_localDashBoard->setEnabled(false);
 
+        m_dashboardProjects->setToolTip(m_dashboardProjects->currentText());
         if (currentDashboardMode() == DashboardMode::Local) {
             switchDashboardMode(DashboardMode::Global, false);
             return;
