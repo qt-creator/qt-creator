@@ -7,6 +7,8 @@
 
 namespace QmlDesigner {
 
+class ExtraPropertyEditorAction;
+
 class ExtraPropertyEditorView : public AbstractView
 {
     Q_OBJECT
@@ -15,9 +17,17 @@ public:
                             ExternalDependenciesInterface &externalDependencies);
     ~ExtraPropertyEditorView() override;
 
+    void customNotification(const AbstractView *view,
+                            const QString &identifier,
+                            const QList<ModelNode> &nodeList,
+                            const QList<QVariant> &data) override;
+
+    ExtraPropertyEditorAction *unifiedAction() const;
+
 private:
     AsynchronousImageCache &m_imageCache;
     ExternalDependenciesInterface &m_externalDependencies;
+    ExtraPropertyEditorAction *m_unifiedAction = nullptr;
 };
 
 } //  namespace QmlDesigner

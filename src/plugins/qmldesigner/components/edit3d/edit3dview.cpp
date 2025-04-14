@@ -427,6 +427,11 @@ void Edit3DView::updateAlignActionStates()
     m_alignViewAction->action()->setEnabled(enabled);
 }
 
+void Edit3DView::setActive3DSceneId(qint32 sceneId)
+{
+    rootModelNode().setAuxiliaryData(active3dSceneProperty, sceneId);
+}
+
 void Edit3DView::emitView3DAction(View3DActionType type, const QVariant &value)
 {
     if (isAttached())

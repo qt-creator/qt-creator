@@ -69,6 +69,13 @@ void AbstractView::registerWidgetInfo()
     if (m_widgetRegistration)
         m_widgetRegistration->registerWidgetInfo(widgetInfo());
 }
+
+void AbstractView::deregisterWidgetInfo()
+{
+    if (m_widgetRegistration)
+        m_widgetRegistration->deregisterWidgetInfo(widgetInfo());
+}
+
 RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &identifier)
 {
     return RewriterTransaction(this, identifier);
@@ -142,16 +149,17 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
                                           WidgetInfo::PlacementHint placementHint,
                                           const QString &tabName,
                                           const QString &feedbackDisplayName,
-                                          DesignerWidgetFlags widgetFlags)
+                                          DesignerWidgetFlags widgetFlags,
+                                          const QString &parentId)
 {
     WidgetInfo widgetInfo;
-
     widgetInfo.widget = widget;
     widgetInfo.uniqueId = uniqueId;
     widgetInfo.placementHint = placementHint;
     widgetInfo.tabName = tabName;
     widgetInfo.feedbackDisplayName = feedbackDisplayName;
     widgetInfo.widgetFlags = widgetFlags;
+    widgetInfo.parentId = parentId;
 
     return widgetInfo;
 }

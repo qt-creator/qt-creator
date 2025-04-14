@@ -341,6 +341,35 @@ DynamicPropertiesModel *PropertyEditorView::dynamicPropertiesModel() const
     return m_dynamicPropertiesModel.get();
 }
 
+void PropertyEditorView::setUnifiedAction(QAction *unifiedAction)
+{
+    NanotraceHR::Tracer tracer{"property editor set unified action", category()};
+
+    m_unifiedAction = unifiedAction;
+    action()->setVisible(m_unifiedAction.isNull());
+}
+
+QAction *PropertyEditorView::unifiedAction() const
+{
+    return m_unifiedAction.get();
+}
+
+void PropertyEditorView::registerWidgetInfo()
+{
+    NanotraceHR::Tracer tracer{"property editor register widget info", category()};
+
+    AbstractView::registerWidgetInfo();
+    emitCustomNotification("register_property_editor", {}, {QVariant::fromValue(this)});
+}
+
+void PropertyEditorView::deregisterWidgetInfo()
+{
+    NanotraceHR::Tracer tracer{"property editor deregister widget info", category()};
+
+    AbstractView::deregisterWidgetInfo();
+    emitCustomNotification("unregister_property_editor", {}, {QVariant::fromValue(this)});
+}
+
 void PropertyEditorView::setExpressionOnObjectNode(const QmlObjectNode &constObjectNode,
                                                    PropertyNameView name,
                                                    const QString &newExpression)
@@ -452,21 +481,7 @@ void PropertyEditorView::removeAliasForProperty(const ModelNode &modelNode, cons
 PropertyEditorView *PropertyEditorView::instance()
 {
     NanotraceHR::Tracer tracer{"property editor view instance", category()};
-
-    static PropertyEditorView *s_instance = nullptr;
-
-    if (s_instance)
-        return s_instance;
-
-    const QList<AbstractView *> views = QmlDesignerPlugin::instance()->viewManager().views();
-    for (AbstractView *view : views) {
-        PropertyEditorView *propView = qobject_cast<PropertyEditorView *>(view);
-        if (propView)
-            s_instance = propView;
-    }
-
-    QTC_ASSERT(s_instance, return nullptr);
-    return s_instance;
+    return QmlDesignerPlugin::instance()->viewManager().propertyEditorView();
 }
 
 NodeMetaInfo PropertyEditorView::findCommonAncestor(const ModelNode &node)
@@ -489,6 +504,14 @@ NodeMetaInfo PropertyEditorView::findCommonAncestor(const ModelNode &node)
     }
 
     return node.metaInfo();
+}
+
+void PropertyEditorView::showAsExtraWidget()
+{
+    NanotraceHR::Tracer tracer{"property editor show as extra widget", category()};
+
+    if (auto wr = widgetRegistration())
+        wr->showExtraWidget(widgetInfo());
 }
 
 void PropertyEditorView::updateSize()
@@ -699,11 +722,15 @@ void PropertyEditorView::handleToolBarAction(int action)
         setIsSelectionLocked(true);
         break;
     }
-        case PropertyEditorContextObject::SelectionUnlock: {
-            setIsSelectionLocked(false);
-            break;
-        }
-        }
+    case PropertyEditorContextObject::SelectionUnlock: {
+        setIsSelectionLocked(false);
+        break;
+    }
+    case PropertyEditorContextObject::AddExtraWidget: {
+        emitCustomNotification("add_extra_property_editor_widget", {}, {widgetInfo().uniqueId});
+        break;
+    }
+    }
 }
 
 void PropertyEditorView::setupQmlBackend()
@@ -781,8 +808,11 @@ void PropertyEditorView::setupQmlBackend()
 #endif // QDS_USE_PROJECTSTORAGE
 
     m_dynamicPropertiesModel->setSelectedNode(activeNode());
-
-    QObject::connect(m_qmlBackEndForCurrentType->contextObject(), SIGNAL(toolBarAction(int)), this, SLOT(handleToolBarAction(int)));
+    connect(m_qmlBackEndForCurrentType->contextObject(),
+            &PropertyEditorContextObject::toolBarAction,
+            this,
+            &PropertyEditorView::handleToolBarAction,
+            Qt::UniqueConnection);
 }
 
 void PropertyEditorView::commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value)
@@ -974,8 +1004,7 @@ void PropertyEditorView::modelAttached(Model *model)
     resetSelectionLocked();
     resetView();
 
-    m_qmlBackEndForCurrentType->contextObject()->setHas3DScene(Utils3D::active3DSceneId(model)
-                                                               != -1);
+    showAsExtraWidget();
 }
 
 static PropertyEditorValue *variantToPropertyEditorValue(const QVariant &value)
@@ -991,7 +1020,8 @@ void PropertyEditorView::modelAboutToBeDetached(Model *model)
     NanotraceHR::Tracer tracer{"property editor view model about to be detached", category()};
 
     AbstractView::modelAboutToBeDetached(model);
-    m_qmlBackEndForCurrentType->propertyEditorTransaction()->end();
+    if (m_qmlBackEndForCurrentType)
+        m_qmlBackEndForCurrentType->propertyEditorTransaction()->end();
 
     resetView();
     m_dynamicPropertiesModel->reset();
@@ -1325,15 +1355,32 @@ bool PropertyEditorView::hasWidget() const
     return true;
 }
 
+void PropertyEditorView::setWidgetInfo(WidgetInfo info)
+{
+    auto mainPropertyEditor = QmlDesignerPlugin::instance()->viewManager().propertyEditorView();
+    if (this == mainPropertyEditor)
+        return;
+
+    m_parentWidgetId = info.parentId;
+    m_widgetTabName = info.tabName;
+
+    if (m_uniqueWidgetId == mainPropertyEditor->m_uniqueWidgetId) {
+        static int counter = 0;
+        m_uniqueWidgetId = QString("Properties_%1").arg(++counter);
+    }
+}
+
 WidgetInfo PropertyEditorView::widgetInfo()
 {
     NanotraceHR::Tracer tracer{"property editor view widget info", category()};
 
     return createWidgetInfo(m_stackedWidget,
-                            QStringLiteral("Properties"),
+                            m_uniqueWidgetId,
                             WidgetInfo::RightPane,
-                            tr("Properties"),
-                            tr("Property Editor view"));
+                            m_widgetTabName,
+                            tr("Property Editor view"),
+                            DesignerWidgetFlags::DisableOnError,
+                            m_parentWidgetId);
 }
 
 void PropertyEditorView::currentStateChanged(const ModelNode &node)

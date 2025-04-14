@@ -1,10 +1,11 @@
 add_qtc_plugin(ExtraPropertyEditorManager
   CONDITION TARGET QtCreator::QmlDesigner AND NOT QTC_USE_QML_DESIGNER_LITE
   PLUGIN_DEPENDS
-    QtCreator::QmlDesigner
+    QtCreator::QmlDesigner QmlDesigner
   DEPENDS
-    Qt::Core Qt::CorePrivate QtCreator::Utils
+    Qt::Core Qt::CorePrivate Qt6::Qml QtCreator::Utils
   SOURCES
+    extrapropertyeditoraction.cpp extrapropertyeditoraction.h
     extrapropertyeditormanagerplugin.cpp
     extrapropertyeditormanagerplugin.h
     extrapropertyeditorview.cpp

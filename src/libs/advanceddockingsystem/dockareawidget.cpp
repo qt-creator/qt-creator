@@ -313,8 +313,8 @@ void DockAreaWidgetPrivate::updateTitleBarButtonVisibility(bool isTopLevel)
     } else {
         m_titleBar->button(TitleBarButtonClose)->setVisible(true);
         m_titleBar->button(TitleBarButtonAutoHide)->setVisible(true);
-        m_titleBar->button(TitleBarButtonUndock)->setVisible(!q->isAutoHide());
-        m_titleBar->button(TitleBarButtonTabsMenu)->setVisible(!q->isAutoHide());
+        m_titleBar->button(TitleBarButtonUndock)->setVisible(!isAutoHide);
+        m_titleBar->button(TitleBarButtonTabsMenu)->setVisible(!isAutoHide);
     }
 }
 
@@ -646,11 +646,14 @@ void DockAreaWidget::updateTitleBarVisibility()
     bool autoHide = isAutoHide();
 
     if (!DockManager::testConfigFlag(DockManager::AlwaysShowTabs)) {
-        bool hidden = container->hasTopLevelDockWidget()
-                      && (container->isFloating()
-                          || DockManager::testConfigFlag(
-                              DockManager::HideSingleCentralWidgetTitleBar));
-        hidden |= (d->m_flags.testFlag(HideSingleWidgetTitleBar) && openDockWidgetsCount() == 1);
+        const bool isSingleWidget = openDockWidgetsCount() == 1;
+        bool hidden = false;
+        if (container->hasTopLevelDockWidget() && isSingleWidget) {
+            if (DockManager::testConfigFlag(DockManager::HideSingleCentralWidgetTitleBar))
+                hidden = true;
+            else
+                hidden = container->isFloating() && d->m_flags.testFlag(HideSingleWidgetTitleBar);
+        }
         hidden &= !autoHide; // Titlebar must always be visible when auto hidden so it can be dragged
         d->m_titleBar->setVisible(!hidden);
     }

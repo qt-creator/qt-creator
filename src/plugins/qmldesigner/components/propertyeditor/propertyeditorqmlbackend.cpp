@@ -292,9 +292,13 @@ void PropertyEditorQmlBackend::handleAuxiliaryDataChanges(const QmlObjectNode &q
     NanotraceHR::Tracer tracer{"property editor qml backend handle auxiliary data changes",
                                category()};
 
-    if (qmlObjectNode.isRootModelNode() && isMaterialAuxiliaryKey(key)) {
-        m_backendMaterialNode.handleAuxiliaryPropertyChanges();
-        m_view->instanceImageProvider()->invalidate();
+    if (qmlObjectNode.isRootModelNode()) {
+        if (isMaterialAuxiliaryKey(key)) {
+            m_backendMaterialNode.handleAuxiliaryPropertyChanges();
+            m_view->instanceImageProvider()->invalidate();
+        } else if (key == active3dSceneProperty) {
+            contextObject()->setHas3DScene(Utils3D::active3DSceneId(qmlObjectNode.model()) != -1);
+        }
     }
 }
 
@@ -360,7 +364,6 @@ void PropertyEditorQmlBackend::handleModelSelectedNodesChanged(PropertyEditorVie
                                category()};
 
     contextObject()->setHas3DModelSelected(!Utils3D::getSelectedModels(propertyEditor).isEmpty());
-    contextObject()->setHas3DScene(Utils3D::active3DSceneId(propertyEditor->model()) != -1);
     m_backendTextureNode.updateSelectionDetails();
 }
 

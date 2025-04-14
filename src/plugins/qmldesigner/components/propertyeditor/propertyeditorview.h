@@ -40,7 +40,7 @@ public:
 
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;
-
+    void setWidgetInfo(WidgetInfo info);
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
@@ -105,6 +105,12 @@ public:
 
     DynamicPropertiesModel *dynamicPropertiesModel() const;
 
+    void setUnifiedAction(QAction *unifiedAction);
+    QAction *unifiedAction() const;
+
+    virtual void registerWidgetInfo() override;
+    virtual void deregisterWidgetInfo() override;
+
     static void setExpressionOnObjectNode(const QmlObjectNode &objectNode,
                                           PropertyNameView name,
                                           const QString &expression);
@@ -150,26 +156,33 @@ private: //functions
     bool isNodeOrChildSelected(const ModelNode &node) const;
     void resetIfNodeIsRemoved(const ModelNode &removedNode);
 
-    static PropertyEditorView *instance();
+    static PropertyEditorView *instance(); // TODO: remove
 
     NodeMetaInfo findCommonAncestor(const ModelNode &node);
+
+    void showAsExtraWidget();
 
 private: //variables
     AsynchronousImageCache &m_imageCache;
     ModelNode m_activeNode;
     QShortcut *m_updateShortcut;
+    QPointer<QAction> m_unifiedAction;
     std::unique_ptr<DynamicPropertiesModel> m_dynamicPropertiesModel;
     PropertyEditorWidget* m_stackedWidget;
     QString m_qmlDir;
     QHash<QString, PropertyEditorQmlBackend *> m_qmlBackendHash;
-    PropertyEditorQmlBackend *m_qmlBackEndForCurrentType;
+    PropertyEditorQmlBackend *m_qmlBackEndForCurrentType = nullptr;
     PropertyComponentGenerator m_propertyComponentGenerator;
     PropertyEditorComponentGenerator m_propertyEditorComponentGenerator{m_propertyComponentGenerator};
     bool m_locked;
     bool m_textureAboutToBeRemoved = false;
     bool m_isSelectionLocked = false;
+    QString m_parentWidgetId = "";
+    QString m_uniqueWidgetId = "Properties";
+    QString m_widgetTabName = tr("Properties");
 
     friend class PropertyEditorDynamicPropertiesProxyModel;
+    friend class ExtraPropertyEditorAction;
 };
 
 } //QmlDesigner

@@ -17,6 +17,8 @@
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
 
+#include <utils3d.h>
+
 #include <qmldesignerbase/settings/designersettings.h>
 
 #include <coreplugin/messagebox.h>
@@ -706,6 +708,7 @@ void PropertyEditorContextObject::setModel(Model *model)
     NanotraceHR::Tracer tracer{"property editor context object set model", category()};
 
     m_model = model;
+    setHas3DScene(Utils3D::active3DSceneId(model) != -1);
 }
 
 void PropertyEditorContextObject::triggerSelectionChanged()

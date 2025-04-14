@@ -54,6 +54,7 @@
 
 #include <advanceddockingsystem/dockareawidget.h>
 #include <advanceddockingsystem/docksplitter.h>
+#include <advanceddockingsystem/dockwidgettab.h>
 #include <advanceddockingsystem/iconprovider.h>
 
 using namespace Core;
@@ -362,6 +363,16 @@ void DesignModeWidget::setup()
         viewCommands.append(command);
     }
 
+    // PropertyEditor Unified action
+    if (auto propertyEditorAction = viewManager().propertyEditorUnifiedAction()) {
+        auto command = Core::ActionManager::registerAction(propertyEditorAction,
+                                                           actionToggle.withSuffix(
+                                                               "Property Editor Global"),
+                                                           designContext);
+        command->setAttribute(Core::Command::CA_Hide);
+        viewCommands.append(command);
+    }
+
     // Finally the output pane
     {
         const QString uniqueId = "OutputPane";
@@ -527,7 +538,12 @@ void DesignModeWidget::aboutToShowViews()
     for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
         QString id = widgetInfo.uniqueId;
         ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(id);
+        if (!dockWidget)
+            continue;
+
         QAction *action = dockWidget->toggleViewAction();
+        if (!action)
+            continue;
 
         bool isMcuProject = currentDesignDocument() && currentDesignDocument()->isQtForMCUsProject();
         if (isMcuProject && isMcuDisabledView(id) && action->isEnabled()) {
@@ -582,6 +598,83 @@ void DesignModeWidget::aboutToShowWorkspaces()
             action->setEnabled(workspace.isMcusEnabled());
     }
     menu->addActions(ag->actions());
+}
+
+void DesignModeWidget::showExtraWidget(WidgetInfo widgetInfo)
+{
+    ADS::DockWidget *parentDockWidget = m_dockManager->findDockWidget(widgetInfo.parentId);
+    ensureMinimumSize(widgetInfo.widget);
+    ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
+    if (!dockWidget) {
+        dockWidget = createDockWidget(widgetInfo.widget,
+                                      widgetInfo.uniqueId,
+                                      widgetInfo.tabName,
+                                      m_minimumSizeHintMode);
+        if (dockWidget->tabWidget()) {
+            connect(dockWidget->tabWidget(),
+                    &ADS::DockWidgetTab::closeRequested,
+                    this,
+                    [widgetInfo, this]() { viewManager().removeExtraView(widgetInfo); });
+        }
+    }
+
+    if (parentDockWidget) {
+        auto parentArea = parentDockWidget->dockAreaWidget();
+        m_dockManager->addDockWidget(ADS::TopDockWidgetArea, dockWidget, parentArea, 0);
+        parentArea->setDockAreaFlag(ADS::DockAreaWidget::HideSingleWidgetTitleBar, true);
+    } else {
+        m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
+        dockWidget->setFloating();
+    }
+
+    dockWidget->setFeature(ADS::DockWidget::DockWidgetAlwaysCloseAndDelete, false);
+    if (auto dockArea = dockWidget->dockAreaWidget())
+        dockArea->setDockAreaFlag(ADS::DockAreaWidget::HideSingleWidgetTitleBar, true);
+
+    if (auto tabWidget = dockWidget->tabWidget(); tabWidget && tabWidget->dockAreaWidget()) {
+        tabWidget->dockAreaWidget()->setDockAreaFlag(ADS::DockAreaWidget::HideSingleWidgetTitleBar,
+                                                     true);
+    }
+
+    if (m_dockManager->isWorkspaceLocked()) {
+        dockWidget->setFeature(ADS::DockWidget::DockWidgetMovable, false);
+        dockWidget->setFeature(ADS::DockWidget::DockWidgetFloatable, false);
+    }
+}
+
+void DesignModeWidget::closeExtraWidget(WidgetInfo widgetInfo)
+{
+    ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
+    if (dockWidget)
+        dockWidget->closeDockWidget();
+}
+
+void DesignModeWidget::removeExtraWidget(WidgetInfo widgetInfo)
+{
+    ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(widgetInfo.uniqueId);
+    if (!dockWidget)
+        return;
+
+    m_dockManager->removeDockWidget(dockWidget);
+}
+
+void DesignModeWidget::hideSingleWidgetTitleBars(const QString &uniqueId)
+{
+    auto dockWidget = dockManager()->findDockWidget(uniqueId);
+
+    if (!dockWidget)
+        return;
+
+    if (auto dockArea = dockWidget->dockAreaWidget()) {
+        dockArea->setDockAreaFlag(ADS::DockAreaWidget::HideSingleWidgetTitleBar, false);
+        dockArea->setDockAreaFlag(ADS::DockAreaWidget::HideSingleWidgetTitleBar, true);
+    }
+
+    if (auto tabWidget = dockWidget->tabWidget(); tabWidget && tabWidget->dockAreaWidget()) {
+        auto dockArea = tabWidget->dockAreaWidget();
+        dockArea->setDockAreaFlag(ADS::DockAreaWidget::HideSingleWidgetTitleBar, false);
+        dockArea->setDockAreaFlag(ADS::DockAreaWidget::HideSingleWidgetTitleBar, true);
+    }
 }
 
 void DesignModeWidget::toolBarOnGoBackClicked()

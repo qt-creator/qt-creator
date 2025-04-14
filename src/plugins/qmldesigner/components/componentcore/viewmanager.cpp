@@ -34,7 +34,6 @@
 #include <coreplugin/icore.h>
 
 #include <sqlitedatabase.h>
-#include <utils/algorithm.h>
 
 #include <advanceddockingsystem/dockwidget.h>
 
@@ -227,6 +226,16 @@ QList<AbstractView *> ViewManager::views() const
                                                         [](auto &&view) { return view.get(); });
     list.append(standardViews());
     return list;
+}
+
+AbstractView *ViewManager::findView(const QString &uniqueId)
+{
+    NanotraceHR::Tracer tracer{"view manager find view", category()};
+
+    const auto allViews = views();
+    return Utils::findOrDefault(allViews, [=](const auto &view) {
+        return view->widgetInfo().uniqueId == uniqueId;
+    });
 }
 
 void ViewManager::hideView(AbstractView &view)
@@ -570,6 +579,11 @@ AbstractView *ViewManager::view()
     return &d->nodeInstanceView;
 }
 
+PropertyEditorView *ViewManager::propertyEditorView() const
+{
+    return &d->propertyEditorView;
+}
+
 TextEditorView *ViewManager::textEditorView()
 {
     NanotraceHR::Tracer tracer{"view manager text editor view", category()};
@@ -590,6 +604,11 @@ QWidgetAction *ViewManager::componentViewAction() const
     NanotraceHR::Tracer tracer{"view manager component view action", category()};
 
     return d->componentView.action();
+}
+
+QAction *ViewManager::propertyEditorUnifiedAction() const
+{
+    return d->propertyEditorView.unifiedAction();
 }
 
 DesignerActionManager &ViewManager::designerActionManager()
@@ -706,12 +725,39 @@ void ViewManager::jumpToCodeInTextEditor(const ModelNode &modelNode)
     d->textEditorView.jumpToModelNode(modelNode);
 }
 
+void ViewManager::removeExtraView(WidgetInfo info)
+{
+    NanotraceHR::Tracer tracer{"view manager remove extra view", category()};
+
+    if (auto view = findView(info.uniqueId)) {
+        removeExtraWidget(info);
+        removeView(*view);
+    };
+}
+
 void ViewManager::addView(std::unique_ptr<AbstractView> &&view)
 {
     NanotraceHR::Tracer tracer{"view manager add view", category()};
 
+    view->setWidgetRegistration(this);
+    view->registerWidgetInfo();
+
     d->additionalViews.push_back(std::move(view));
     registerViewAction(*d->additionalViews.back());
+}
+
+void ViewManager::removeView(AbstractView &removedView)
+{
+    NanotraceHR::Tracer tracer{"view manager remove view", category()};
+
+    removedView.deregisterWidgetInfo();
+    std::erase_if(d->additionalViews, [&](auto &view) { return view.get() == &removedView; });
+}
+
+void ViewManager::hideSingleWidgetTitleBars(const QString &uniqueId)
+{
+    if (auto designModeWidget = QmlDesignerPlugin::instance()->mainWidget())
+        designModeWidget->hideSingleWidgetTitleBars(uniqueId);
 }
 
 void ViewManager::registerWidgetInfo(WidgetInfo info)
@@ -726,6 +772,32 @@ void ViewManager::deregisterWidgetInfo(WidgetInfo info)
     NanotraceHR::Tracer tracer{"view manager deregister widget info", category()};
 
     m_widgetInfo.removeIf(Utils::equal(&WidgetInfo::uniqueId, info.uniqueId));
+}
+
+void ViewManager::showExtraWidget(WidgetInfo info)
+{
+    NanotraceHR::Tracer tracer{"view manager show extra widget", category()};
+
+    if (info.parentId != "") {
+        if (Internal::DesignModeWidget *w = QmlDesignerPlugin::instance()->mainWidget())
+            w->showExtraWidget(info);
+    }
+}
+
+void ViewManager::hideExtraWidget(WidgetInfo info)
+{
+    NanotraceHR::Tracer tracer{"view manager hide extra widget", category()};
+
+    if (Internal::DesignModeWidget *w = QmlDesignerPlugin::instance()->mainWidget())
+        w->closeExtraWidget(info);
+}
+
+void ViewManager::removeExtraWidget(WidgetInfo info)
+{
+    NanotraceHR::Tracer tracer{"view manager remove extra widget", category()};
+
+    if (Internal::DesignModeWidget *w = QmlDesignerPlugin::instance()->mainWidget())
+        w->removeExtraWidget(info);
 }
 
 } // namespace QmlDesigner

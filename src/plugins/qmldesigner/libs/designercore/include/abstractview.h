@@ -75,7 +75,6 @@ public:
     {}
 
     void setWidgetRegistration(WidgetRegistrationInterface *interface);
-    virtual void registerWidgetInfo();
     ~AbstractView() override;
 
     Model *model() const { return m_model.data(); }
@@ -249,6 +248,8 @@ public:
 
     virtual bool hasWidget() const;
     virtual WidgetInfo widgetInfo();
+    virtual void registerWidgetInfo();
+    virtual void deregisterWidgetInfo();
     virtual void disableWidget();
     virtual void enableWidget();
 
@@ -307,9 +308,13 @@ protected:
         WidgetInfo::PlacementHint placementHint = WidgetInfo::NoPane,
         const QString &tabName = QString(),
         const QString &feedbackDisplayName = QString(),
-        DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError);
+        DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError,
+        const QString &parentId = QString());
 
     void setKind(Kind kind) { m_kind = kind; }
+
+    WidgetRegistrationInterface *widgetRegistration() const { return m_widgetRegistration; }
+
 private:
     QList<ModelNode> toModelNodeList(Utils::span<const Internal::InternalNodePointer> nodeList) const;
 

@@ -95,7 +95,6 @@ add_qtc_plugin(QmlDesigner
     QmlProjectManager
     QtSupport
     TextEditor
-    QmlDesignerBase
   PLUGIN_MANUAL_DEPENDS LicenseChecker ${IDE_VERSION} optional
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem

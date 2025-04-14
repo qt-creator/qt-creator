@@ -109,7 +109,7 @@ public:
     Q_INVOKABLE void saveExpandedState(const QString &sectionName, bool expanded);
     Q_INVOKABLE bool loadExpandedState(const QString &sectionName, bool defaultValue) const;
 
-    enum ToolBarAction { SelectionLock, SelectionUnlock };
+    enum ToolBarAction { SelectionLock, SelectionUnlock, AddExtraWidget };
     Q_ENUM(ToolBarAction)
 
     QString activeDragSuffix() const;

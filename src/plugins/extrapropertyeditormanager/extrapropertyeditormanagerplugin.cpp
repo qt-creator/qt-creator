@@ -2,7 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "extrapropertyeditormanagerplugin.h"
+
+#include "extrapropertyeditoraction.h"
 #include "extrapropertyeditorview.h"
+
+#include <propertyeditorview.h>
 
 #include <coreplugin/icore.h>
 #include <qmldesignerplugin.h>
@@ -18,9 +22,11 @@ bool ExtraPropertyEditorManagerPlugin::delayedInitialize()
 {
     auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
     auto &viewManager = designerPlugin->viewManager();
-    viewManager.registerView(std::make_unique<QmlDesigner::ExtraPropertyEditorView>(
+    auto view = viewManager.registerView(std::make_unique<QmlDesigner::ExtraPropertyEditorView>(
         designerPlugin->imageCache(),
         QmlDesigner::QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
+
+    view->unifiedAction()->registerView(viewManager.propertyEditorView());
 
     return true;
 }
