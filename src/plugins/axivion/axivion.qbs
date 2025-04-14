@@ -13,7 +13,6 @@ QtcPlugin {
     Depends { name: "Qt.network" }
 
     files: [
-        "axivion.qrc",
         "axivionperspective.cpp",
         "axivionperspective.h",
         "axivionplugin.cpp",
@@ -47,5 +46,13 @@ QtcPlugin {
         name: "long description"
         files: "AxivionDescription.md"
         fileTags: "pluginjson.longDescription"
+    }
+
+    Group {
+        name: "images"
+        files: "images/*.png"
+        fileTags: "qt.core.resource_data"
+        Qt.core.resourcePrefix: "/axivion"
+        Qt.core.resourceSourceBase: sourceDirectory
     }
 }
