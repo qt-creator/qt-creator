@@ -23,13 +23,15 @@ QtcPlugin {
     cpp.includePaths: base.concat([project.sharedSourcesDir + "/registryaccess"])
     cpp.enableExceptions: true
 
+    Qt.core.resourcePrefix: "debugger"
+    Qt.core.resourceSourceBase: sourceDirectory
+
     Group {
         name: "General"
         files: [
             "breakhandler.cpp", "breakhandler.h",
             "breakpoint.cpp", "breakpoint.h",
             "commonoptionspage.cpp", "commonoptionspage.h",
-            "debugger.qrc",
             "debugger_global.h", "debuggertr.h",
             "debuggeractions.cpp", "debuggeractions.h",
             "debuggerconstants.h",
@@ -180,18 +182,6 @@ QtcPlugin {
     }
 
     Group {
-        name: "Images"
-        prefix: "images/"
-        files: ["*.png"]
-    }
-
-    Group {
-        name: "Images/qml"
-        prefix: "images/qml/"
-        files: ["*.png"]
-    }
-
-    Group {
         name: "RegistryAccess"
         condition: qbs.targetOS.contains("windows")
         prefix: project.sharedSourcesDir + "/registryaccess/"
@@ -229,17 +219,17 @@ QtcPlugin {
         ]
     }
 
-    QtcTestFiles {
-        files: [
-            "debuggerunittests.qrc",
-        ]
-    }
-
     Group {
         name: "Unit test resources"
         prefix: "unit-tests/"
-        fileTags: []
+        fileTags: qtc.withPluginTests ? ["qt.core.resource_data"] : []
         files: ["**/*"]
+    }
+
+    Group {
+        name: "images"
+        files: "images/*.png"
+        fileTags: "qt.core.resource_data"
     }
 
     Export {
