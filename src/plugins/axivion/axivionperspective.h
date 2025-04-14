@@ -18,6 +18,7 @@ void updateLocalBuildStateFor(const QString &projectName, const QString &state, 
 
 void leaveOrEnterDashboardMode(bool byLocalBuildButton);
 bool currentIssueHasValidPathMapping();
+void showLocalBuildProgress();
 
 void setupAxivionPerspective();
 
