@@ -6,6 +6,7 @@
 #include "utils_global.h"
 
 #include "expected.h"
+#include "qtcassert.h"
 
 #include <QString>
 
@@ -39,3 +40,31 @@ private:
        .arg(#cond).arg(__FILE__).arg(__LINE__)))
 
 } // namespace Utils
+
+
+//! If \a result has an error the error will be printed and the \a action will be executed.
+#define QTC_ASSERT_RESULT(result, action) \
+    if (Q_LIKELY(result)) { \
+    } else { \
+        ::Utils::writeAssertLocation(QString("%1:%2: %3") \
+                                         .arg(__FILE__) \
+                                         .arg(__LINE__) \
+                                         .arg(result.error()) \
+                                         .toUtf8() \
+                                         .data()); \
+        action; \
+    } \
+    do { \
+    } while (0)
+
+#define QTC_CHECK_RESULT(result) \
+    if (Q_LIKELY(result)) { \
+    } else { \
+        ::Utils::writeAssertLocation( \
+            QString("%1:%2: %3").arg(__FILE__).arg(__LINE__).arg(result.error()).toUtf8().data()); \
+    } \
+    do { \
+    } while (0)
+
+#define QVERIFY_RESULT(result) \
+    QVERIFY2(result, result ? #result : static_cast<const char*>(result.error().toUtf8()))

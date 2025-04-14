@@ -33,11 +33,10 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/guard.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
-#include <utils/infolabel.h>
-#include <utils/expected.h>
 
 #include <QComboBox>
 #include <QLabel>

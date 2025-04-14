@@ -12,7 +12,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
-#include <utils/expected.h>
 
 #include <QJsonDocument>
 #include <QLoggingCategory>

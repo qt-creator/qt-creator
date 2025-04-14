@@ -126,7 +126,7 @@ ShellModelPrivate::ShellModelPrivate()
     } else {
         FilePath shellsFile = FilePath::fromString("/etc/shells");
         const auto shellFileContent = shellsFile.fileContents();
-        QTC_ASSERT_EXPECTED(shellFileContent, return);
+        QTC_ASSERT_RESULT(shellFileContent, return);
 
         QString shellFileContentString = QString::fromUtf8(*shellFileContent);
 

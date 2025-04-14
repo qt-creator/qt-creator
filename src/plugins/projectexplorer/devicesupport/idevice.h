@@ -9,7 +9,6 @@
 #include <solutions/tasking/tasktree.h>
 
 #include <utils/aspects.h>
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/id.h>

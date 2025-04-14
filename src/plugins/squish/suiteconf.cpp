@@ -112,7 +112,7 @@ static bool writeSuiteConfContent(const Utils::FilePath &file, const QMap<QStrin
             outData.append(it.key().toUtf8()).append('=').append(it.value().toUtf8()).append('\n');
     }
     const Utils::Result<qint64> result = file.writeFileContents(outData);
-    QTC_ASSERT_EXPECTED(result, return false);
+    QTC_ASSERT_RESULT(result, return false);
     return true;
 }
 
@@ -324,9 +324,9 @@ bool SuiteConf::ensureObjectMapExists() const
 
     const Utils::FilePath objectMap = scripts.pathAppended("objectmap_template" + extension);
     Utils::Result<> result = destinationObjectMap.parentDir().ensureWritableDir();
-    QTC_ASSERT_EXPECTED(result, return false);
+    QTC_ASSERT_RESULT(result, return false);
     result = objectMap.copyFile(destinationObjectMap);
-    QTC_ASSERT_EXPECTED(result, return false);
+    QTC_ASSERT_RESULT(result, return false);
     return true;
 }
 

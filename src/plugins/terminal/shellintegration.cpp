@@ -173,7 +173,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         const FilePath tmpRc = FilePath::fromUserInput(
             m_tempDir.filePath(filesToCopy.bash.rcFile.fileName()));
         const Result<> copyResult = rcPath.copyFile(tmpRc);
-        QTC_ASSERT_EXPECTED(copyResult, return);
+        QTC_ASSERT_RESULT(copyResult, return);
 
         if (cmd.arguments() == "-l")
             env.set("VSCODE_SHELL_LOGIN", "1");
@@ -183,7 +183,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         for (const FileToCopy &file : std::as_const(filesToCopy.zsh.files)) {
             const Result<> copyResult = file.source.copyFile(
                 FilePath::fromUserInput(m_tempDir.filePath(file.destName)));
-            QTC_ASSERT_EXPECTED(copyResult, return);
+            QTC_ASSERT_RESULT(copyResult, return);
         }
 
         const Utils::FilePath originalZdotDir = FilePath::fromUserInput(
@@ -197,7 +197,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         const FilePath tmpRc = FilePath::fromUserInput(
             m_tempDir.filePath(filesToCopy.pwsh.script.fileName()));
         const Result<> copyResult = rcPath.copyFile(tmpRc);
-        QTC_ASSERT_EXPECTED(copyResult, return);
+        QTC_ASSERT_RESULT(copyResult, return);
 
         cmd.addArgs(QString("-noexit -command try { . '%1' } catch {Write-Host \"Shell "
                             "integration error:\" $_}")
@@ -208,7 +208,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         const FilePath tmpRc = FilePath::fromUserInput(
             m_tempDir.filePath(filesToCopy.clink.script.fileName()));
         const Result<> copyResult = rcPath.copyFile(tmpRc);
-        QTC_ASSERT_EXPECTED(copyResult, return);
+        QTC_ASSERT_RESULT(copyResult, return);
 
         env.set("CLINK_HISTORY_LABEL", "QtCreator");
         env.appendOrSet("CLINK_PATH", tmpRc.parentDir().nativePath());
@@ -218,7 +218,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         QTC_ASSERT(subDir.createDir(), return);
         const Result<> copyResult = filesToCopy.fish.script.copyFile(
             subDir.resolvePath(filesToCopy.fish.script.fileName()));
-        QTC_ASSERT_EXPECTED(copyResult, return);
+        QTC_ASSERT_RESULT(copyResult, return);
 
         env.appendOrSet("XDG_DATA_DIRS", xdgDir.toUserOutput());
     }

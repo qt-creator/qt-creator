@@ -41,7 +41,7 @@ static void processChildren(T *item, const sol::table &children)
         } else if (child.is<sol::function>()) {
             const sol::function f = child.get<sol::function>();
             auto res = void_safe_call(f, item);
-            QTC_ASSERT_EXPECTED(res, continue);
+            QTC_ASSERT_RESULT(res, continue);
         } else if (child.is<Span>()) {
             const Span &span = child.get<Span>();
             item->addItem(span);
@@ -315,7 +315,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
                 guard,
                 [f = *onTextChanged](const QString &text) {
                     auto res = void_safe_call(f, text);
-                    QTC_CHECK_EXPECTED(res);
+                    QTC_CHECK_RESULT(res);
                 });
         }
     }
@@ -327,7 +327,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
                 guard,
                 [f = *onClicked]() {
                     auto res = void_safe_call(f);
-                    QTC_CHECK_EXPECTED(res);
+                    QTC_CHECK_RESULT(res);
                 });
         }
     }

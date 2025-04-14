@@ -1583,7 +1583,7 @@ QString DockManager::readAttribute(const FilePath &filePath, QStringView key)
 bool DockManager::writeAttribute(const FilePath &filePath, QStringView key, const QString &value)
 {
     const Result<QByteArray> content = filePath.fileContents();
-    QTC_ASSERT_EXPECTED(content, return false);
+    QTC_ASSERT_RESULT(content, return false);
 
     QDomDocument doc;
     QString error_msg;

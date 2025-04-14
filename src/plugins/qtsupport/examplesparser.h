@@ -6,8 +6,9 @@
 #include "qtsupport_global.h"
 
 #include <coreplugin/welcomepagehelper.h>
-#include <utils/expected.h>
+
 #include <utils/filepath.h>
+#include <utils/result.h>
 
 namespace QtSupport::Internal {
 

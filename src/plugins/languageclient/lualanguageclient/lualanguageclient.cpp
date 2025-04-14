@@ -62,7 +62,7 @@ public:
 
                 auto result = ::Lua::void_safe_call(
                     callback, ::Lua::toTable(callback.lua_state(), msg.toJsonObject()));
-                QTC_CHECK_EXPECTED(result);
+                QTC_CHECK_RESULT(result);
             }};
     }
 };
@@ -357,7 +357,7 @@ public:
             return;
 
         if (unexpected && m_startFailedCallback) {
-            QTC_CHECK_EXPECTED(::Lua::void_safe_call(*m_startFailedCallback));
+            QTC_CHECK_RESULT(::Lua::void_safe_call(*m_startFailedCallback));
         }
     }
 
@@ -589,7 +589,7 @@ public:
                 return {};
             };
 
-            QTC_CHECK_EXPECTED(callback(dest));
+            QTC_CHECK_RESULT(callback(dest));
             return callback;
         }
         return {};

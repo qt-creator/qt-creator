@@ -186,7 +186,7 @@ void SquishTestTreeItemDelegate::setEditorData(QWidget *editor, const QModelInde
 static bool copyScriptTemplates(const SuiteConf &suiteConf, const Utils::FilePath &destination)
 {
     Utils::Result<> result = destination.ensureWritableDir();
-    QTC_ASSERT_EXPECTED(result, return false);
+    QTC_ASSERT_RESULT(result, return false);
 
     const bool scripted = suiteConf.objectMapStyle() == "script";
     const QString extension = suiteConf.scriptExtension();
@@ -197,7 +197,7 @@ static bool copyScriptTemplates(const SuiteConf &suiteConf, const Utils::FilePat
     const Utils::FilePath testFile = destination.pathAppended("test" + extension);
     QTC_ASSERT(!testFile.exists(), return false);
     result = test.copyFile(testFile);
-    QTC_ASSERT_EXPECTED(result, return false);
+    QTC_ASSERT_RESULT(result, return false);
 
     if (scripted)
         return suiteConf.ensureObjectMapExists();

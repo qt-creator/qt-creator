@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/guard.h>
+#include <utils/result.h>
 
 #include <QFuture>
 #include <QMutex>

@@ -144,7 +144,7 @@ bool FileAccess::isExecutableFile(const FilePath &filePath) const
 {
     try {
         auto f = m_client->is(filePath.nativePath(), CmdBridge::Client::Is::ExecutableFile);
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         return f->result();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking executable file:" << e.what();
@@ -156,7 +156,7 @@ bool FileAccess::isReadableFile(const FilePath &filePath) const
 {
     try {
         auto f = m_client->is(filePath.nativePath(), CmdBridge::Client::Is::ReadableFile);
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         return f->result();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking readable file:" << e.what();
@@ -169,7 +169,7 @@ bool FileAccess::isWritableFile(const FilePath &filePath) const
     try {
         Result<QFuture<bool>> f = m_client->is(filePath.nativePath(),
                                                      CmdBridge::Client::Is::WritableFile);
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         return f->result();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking writable file:" << e.what();
@@ -181,7 +181,7 @@ bool FileAccess::isReadableDirectory(const FilePath &filePath) const
 {
     try {
         auto f = m_client->is(filePath.nativePath(), CmdBridge::Client::Is::ReadableDir);
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         return f->result();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking readable directory:" << e.what();
@@ -193,7 +193,7 @@ bool FileAccess::isWritableDirectory(const FilePath &filePath) const
 {
     try {
         auto f = m_client->is(filePath.nativePath(), CmdBridge::Client::Is::WritableDir);
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         return f->result();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking writable directory:" << e.what();
@@ -205,7 +205,7 @@ bool FileAccess::isFile(const FilePath &filePath) const
 {
     try {
         auto f = m_client->is(filePath.nativePath(), CmdBridge::Client::Is::File);
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         return f->result();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking file:" << e.what();
@@ -217,7 +217,7 @@ bool FileAccess::isDirectory(const FilePath &filePath) const
 {
     try {
         auto f = m_client->is(filePath.nativePath(), CmdBridge::Client::Is::Dir);
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         return f->result();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking directory:" << e.what();
@@ -229,7 +229,7 @@ bool FileAccess::isSymLink(const FilePath &filePath) const
 {
     try {
         auto f = m_client->is(filePath.nativePath(), CmdBridge::Client::Is::Symlink);
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         return f->result();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking symlink:" << e.what();
@@ -241,7 +241,7 @@ bool FileAccess::exists(const FilePath &filePath) const
 {
     try {
         auto f = m_client->is(filePath.nativePath(), CmdBridge::Client::Is::Exists);
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         return f->result();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking existence:" << e.what();
@@ -253,7 +253,7 @@ bool FileAccess::hasHardLinks(const FilePath &filePath) const
 {
     try {
         auto f = m_client->stat(filePath.nativePath());
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         return f->result().numHardLinks > 1;
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking hard links:" << e.what();
@@ -349,7 +349,7 @@ qint64 FileAccess::bytesAvailable(const FilePath &filePath) const
 {
     try {
         Result<QFuture<quint64>> f = m_client->freeSpace(filePath.nativePath());
-        QTC_ASSERT_EXPECTED(f, return -1);
+        QTC_ASSERT_RESULT(f, return -1);
         return f->result();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error getting free space:" << e.what();
@@ -361,7 +361,7 @@ QByteArray FileAccess::fileId(const FilePath &filePath) const
 {
     try {
         Result<QFuture<QString>> f = m_client->fileId(filePath.nativePath());
-        QTC_ASSERT_EXPECTED(f, return {});
+        QTC_ASSERT_RESULT(f, return {});
         return f->result().toUtf8();
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error getting file ID:" << e.what();
@@ -388,7 +388,7 @@ FilePathInfo FileAccess::filePathInfo(const FilePath &filePath) const
 
     try {
         Result<QFuture<Client::Stat>> f = m_client->stat(filePath.nativePath());
-        QTC_ASSERT_EXPECTED(f, return {});
+        QTC_ASSERT_RESULT(f, return {});
         Client::Stat stat = f->result();
         return {stat.size,
                 fileInfoFlagsfromStatMode(stat.mode) | FilePathInfo::FileFlags(stat.usermode),
@@ -403,7 +403,7 @@ FilePath FileAccess::symLinkTarget(const FilePath &filePath) const
 {
     try {
         Result<QFuture<QString>> f = m_client->readlink(filePath.nativePath());
-        QTC_ASSERT_EXPECTED(f, return {});
+        QTC_ASSERT_RESULT(f, return {});
         return filePath.parentDir().resolvePath(filePath.withNewPath(f->result()).path());
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error getting symlink target:" << e.what();
@@ -425,7 +425,7 @@ bool FileAccess::setPermissions(const FilePath &filePath, QFile::Permissions per
 {
     try {
         Result<QFuture<void>> f = m_client->setPermissions(filePath.nativePath(), perms);
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         f->waitForFinished();
         return true;
     } catch (const std::exception &e) {
@@ -447,7 +447,7 @@ Result<QByteArray> FileAccess::fileContents(const FilePath &filePath,
         Result<QFuture<QByteArray>> f = m_client->readFile(filePath.nativePath(),
                                                                  limit,
                                                                  offset);
-        QTC_ASSERT_EXPECTED(f, return {});
+        QTC_ASSERT_RESULT(f, return {});
         f->waitForFinished();
         QByteArray data;
         for (const QByteArray &result : *f) {
@@ -465,7 +465,7 @@ Result<qint64> FileAccess::writeFileContents(const FilePath &filePath,
 {
     try {
         Result<QFuture<qint64>> f = m_client->writeFile(filePath.nativePath(), data);
-        QTC_ASSERT_EXPECTED(f, return {});
+        QTC_ASSERT_RESULT(f, return {});
         return f->result();
     } catch (const std::exception &e) {
         return make_unexpected(
@@ -499,7 +499,7 @@ Result<> FileAccess::removeRecursively(const Utils::FilePath &filePath) const
 {
     try {
         auto f = m_client->removeRecursively(filePath.nativePath());
-        QTC_ASSERT_EXPECTED(f, return ResultError(ResultAssert));
+        QTC_ASSERT_RESULT(f, return ResultError(ResultAssert));
         f->waitForFinished();
         return ResultOk;
     } catch (const std::exception &e) {
@@ -512,7 +512,7 @@ bool FileAccess::ensureExistingFile(const Utils::FilePath &filePath) const
 {
     try {
         auto f = m_client->ensureExistingFile(filePath.nativePath());
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         f->waitForFinished();
         return true;
     } catch (const std::exception &e) {
@@ -525,7 +525,7 @@ bool FileAccess::createDirectory(const Utils::FilePath &filePath) const
 {
     try {
         auto f = m_client->createDir(filePath.nativePath());
-        QTC_ASSERT_EXPECTED(f, return false);
+        QTC_ASSERT_RESULT(f, return false);
         f->waitForFinished();
         return true;
     } catch (const std::exception &e) {
@@ -538,7 +538,7 @@ Result<> FileAccess::copyFile(const FilePath &filePath, const FilePath &target) 
 {
     try {
         auto f = m_client->copyFile(filePath.nativePath(), target.nativePath());
-        QTC_ASSERT_EXPECTED(f, return ResultOk);
+        QTC_ASSERT_RESULT(f, return ResultOk);
         f->waitForFinished();
         return ResultOk;
     } catch (const std::exception &e) {
@@ -574,7 +574,7 @@ Result<> FileAccess::signalProcess(int pid, ControlSignal signal) const
 {
     try {
         auto f = m_client->signalProcess(pid, signal);
-        QTC_ASSERT_EXPECTED(f, return ResultOk);
+        QTC_ASSERT_RESULT(f, return ResultOk);
         f->waitForFinished();
         return ResultOk;
     } catch (const std::exception &e) {
@@ -599,7 +599,7 @@ Result<FilePath> FileAccess::createTempFile(const FilePath &filePath)
         }
 
         Utils::Result<QFuture<Utils::FilePath>> f = m_client->createTempFile(path);
-        QTC_ASSERT_EXPECTED(f, return {});
+        QTC_ASSERT_RESULT(f, return {});
         f->waitForFinished();
 
         Result<FilePath> result = f->result();
@@ -617,7 +617,7 @@ void FileAccess::iterateDirectory(const FilePath &filePath,
                                   const FileFilter &filter) const
 {
     auto result = m_client->find(filePath.nativePath(), filter);
-    QTC_ASSERT_EXPECTED(result, return);
+    QTC_ASSERT_RESULT(result, return);
 
     int idx = 0;
 

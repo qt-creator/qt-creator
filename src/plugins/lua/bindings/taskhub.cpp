@@ -25,7 +25,7 @@ struct FPTR<Ret (Obj::*)(Args...)>
     {
         return [func](Args... args) {
             Result<> res = void_safe_call(func, args...);
-            QTC_CHECK_EXPECTED(res);
+            QTC_CHECK_RESULT(res);
         };
     }
 };

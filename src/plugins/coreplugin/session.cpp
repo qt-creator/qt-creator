@@ -361,7 +361,7 @@ bool SessionManager::deleteSession(const QString &session)
     if (!sessionFile.exists())
         return false;
     Result<> result = sessionFile.removeFile();
-    QTC_CHECK_EXPECTED(result);
+    QTC_CHECK_RESULT(result);
     return bool(result);
 }
 

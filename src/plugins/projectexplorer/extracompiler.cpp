@@ -14,8 +14,8 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/async.h>
-#include <utils/expected.h>
 #include <utils/guard.h>
+#include <utils/result.h>
 #include <utils/qtcprocess.h>
 
 #include <QDateTime>
@@ -89,7 +89,7 @@ ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
             d->compileTime = lastModified;
 
         const Result<QByteArray> contents = target.fileContents();
-        QTC_ASSERT_EXPECTED(contents, return);
+        QTC_ASSERT_RESULT(contents, return);
 
         setContent(target, *contents);
     }
@@ -212,7 +212,7 @@ void ExtraCompiler::onTargetsBuilt(Project *project)
                 return;
 
             const Result<QByteArray> contents = target.fileContents();
-            QTC_ASSERT_EXPECTED(contents, return);
+            QTC_ASSERT_RESULT(contents, return);
 
             d->compileTime = generateTime;
             setContent(target, *contents);

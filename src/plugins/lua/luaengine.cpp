@@ -141,7 +141,7 @@ void prepareLuaState(
         }
     };
     const Result<FilePath> tmpDir = HostOsInfo::root().tmpDir();
-    QTC_ASSERT_EXPECTED(tmpDir, return);
+    QTC_ASSERT_RESULT(tmpDir, return);
     QString id = name;
     static const QRegularExpression regexp("[^a-zA-Z0-9_]");
     id = id.replace(regexp, "_").toLower();

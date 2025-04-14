@@ -44,7 +44,6 @@
 #include <utils/devicefileaccess.h>
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
-#include <utils/expected.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
@@ -928,7 +927,7 @@ Result<FilePath> DockerDevicePrivate::getCmdBridgePath() const
 QStringList DockerDevicePrivate::createMountArgs() const
 {
     const Utils::Result<Utils::FilePath> cmdBridgePath = getCmdBridgePath();
-    QTC_CHECK_EXPECTED(cmdBridgePath);
+    QTC_CHECK_RESULT(cmdBridgePath);
 
     QStringList cmds;
     QList<MountPair> mounts;

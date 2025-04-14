@@ -1441,7 +1441,7 @@ static QList<PluginSpec *> createCppPluginsFromArchive(const FilePath &path)
     if (path.isFile()) {
         if (QLibrary::isLibrary(path.toFSPathString())) {
             Result<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(path);
-            QTC_CHECK_EXPECTED(spec);
+            QTC_CHECK_RESULT(spec);
             if (spec)
                 results.push_back(spec->release());
         }

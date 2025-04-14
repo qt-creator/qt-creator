@@ -373,7 +373,7 @@ Result<> Client::start(bool deleteOnExit)
                             packetData.clear();
                             state = 0;
                             auto result = d->readPacket(reader);
-                            QTC_CHECK_EXPECTED(result);
+                            QTC_CHECK_RESULT(result);
                         }
                     }
                 };

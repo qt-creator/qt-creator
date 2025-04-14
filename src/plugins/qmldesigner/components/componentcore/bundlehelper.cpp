@@ -195,7 +195,7 @@ void BundleHelper::importBundleToProject()
         for (const QString &file : std::as_const(allFiles)) {
             Utils::FilePath filePath = bundlePath.pathAppended(file);
             filePath.parentDir().ensureWritableDir();
-            QTC_ASSERT_EXPECTED(filePath.writeFileContents(zipReader.fileData(file)),);
+            QTC_ASSERT_RESULT(filePath.writeFileContents(zipReader.fileData(file)),);
         }
 
         QString typePrefix = compUtils.userBundleType(bundleId);
@@ -323,7 +323,7 @@ QJsonObject BundleHelper::exportNode(const ModelNode &node, const QPixmap &iconP
 
     auto qmlFilePath = tempPath.pathAppended(qml);
     auto result = qmlFilePath.writeFileContents(qmlString.toUtf8());
-    QTC_ASSERT_EXPECTED(result, return {});
+    QTC_ASSERT_RESULT(result, return {});
     m_zipWriter->addFile(qmlFilePath.fileName(), qmlString.toUtf8());
 
     // add item's dependency assets to the bundle zip and target path (for icon generation)

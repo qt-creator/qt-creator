@@ -17,9 +17,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <utils/qtcassert.h>
-#include <utils/expected.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QCryptographicHash>
 #include <QLoggingCategory>

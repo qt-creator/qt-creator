@@ -52,7 +52,7 @@ public:
 
         const FilePath path = FilePath::fromUserInput(QString::fromStdString(Name.str()));
         const Result<QByteArray> contents = path.fileContents(FileSize, 0);
-        QTC_ASSERT_EXPECTED(contents, return std::error_code());
+        QTC_ASSERT_RESULT(contents, return std::error_code());
 
         return MemoryBuffer::getMemBufferCopy(contents->data(), Name);
     }

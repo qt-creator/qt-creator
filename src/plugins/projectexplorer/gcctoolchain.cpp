@@ -214,7 +214,7 @@ static HeaderPaths gccHeaderPaths(const FilePath &gcc,
                                   const Environment &env)
 {
     Result<QString> result = runGcc(gcc, arguments, env);
-    QTC_ASSERT_EXPECTED(result, return {});
+    QTC_ASSERT_RESULT(result, return {});
 
     HeaderPaths builtInHeaderPaths;
     QByteArray line;
@@ -311,7 +311,7 @@ static GccToolchain::DetectedAbisResult guessGccAbi(const FilePath &path,
     arguments << "-dumpmachine";
 
     Result<QString> result = runGcc(path, arguments, env);
-    QTC_ASSERT_EXPECTED(result, return {});
+    QTC_ASSERT_RESULT(result, return {});
 
     QString machine = result->section('\n', 0, 0, QString::SectionSkipEmpty);
     if (machine.isEmpty()) {
@@ -330,7 +330,7 @@ static QString gccVersion(const FilePath &path,
     QStringList arguments = extraArgs;
     arguments << "-dumpversion";
     Result<QString> result = runGcc(path, arguments, env);
-    QTC_ASSERT_EXPECTED(result, return {});
+    QTC_ASSERT_RESULT(result, return {});
     return *result;
 }
 
@@ -341,7 +341,7 @@ static FilePath gccInstallDir(const FilePath &compiler,
     QStringList arguments = extraArgs;
     arguments << "-print-search-dirs";
     Result<QString> result = runGcc(compiler, arguments, env);
-    QTC_ASSERT_EXPECTED(result, return {});
+    QTC_ASSERT_RESULT(result, return {});
 
     // Expected output looks like this:
     //   install: /usr/lib/gcc/x86_64-linux-gnu/7/
@@ -622,7 +622,7 @@ Toolchain::MacroInspectionRunner GccToolchain::createMacroInspectionRunner() con
 
         const Result<Macros> macroResult
             = gccPredefinedMacros(findLocalCompiler(compilerCommand, env), arguments, env);
-        QTC_CHECK_EXPECTED(macroResult);
+        QTC_CHECK_RESULT(macroResult);
 
         const auto macros = macroResult.value_or(Macros{});
 
@@ -2006,7 +2006,7 @@ void GccToolchainConfigWidget::handleCompilerCommandChange(Id language)
         const FilePath localCompilerPath = findLocalCompiler(path, env);
         Result<ProjectExplorer::Macros> macros
             = gccPredefinedMacros(localCompilerPath, args, env);
-        QTC_CHECK_EXPECTED(macros);
+        QTC_CHECK_RESULT(macros);
         m_macros = macros.value_or(ProjectExplorer::Macros{});
         abiList = guessGccAbi(localCompilerPath, env, m_macros,
                               splitString(m_platformCodeGenFlagsLineEdit->text())).supportedAbis;

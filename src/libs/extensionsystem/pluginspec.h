@@ -7,7 +7,6 @@
 
 #include "iplugin.h"
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 
 #include <QHash>

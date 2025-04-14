@@ -6,7 +6,6 @@
 #include "cppeditor_global.h"
 #include "projectinfo.h"
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 
 #include <QPromise>

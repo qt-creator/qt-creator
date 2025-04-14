@@ -329,7 +329,7 @@ FileTransferInterface *IDevice::createFileTransferInterface(
 Environment IDevice::systemEnvironment() const
 {
     Result<Environment> env = systemEnvironmentWithError();
-    QTC_ASSERT_EXPECTED(env, return {});
+    QTC_ASSERT_RESULT(env, return {});
     return *env;
 }
 

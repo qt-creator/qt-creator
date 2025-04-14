@@ -327,7 +327,7 @@ public:
             if (path.isFile()) {
                 if (path.suffix() == "lua") {
                     Utils::Result<PluginSpec *> spec = loadPlugin(path);
-                    QTC_CHECK_EXPECTED(spec);
+                    QTC_CHECK_RESULT(spec);
                     if (spec)
                         return {*spec};
                 }
@@ -340,7 +340,7 @@ public:
                 const auto specFilePath = dir / (dir.fileName() + ".lua");
                 if (specFilePath.exists()) {
                     Utils::Result<PluginSpec *> spec = loadPlugin(specFilePath);
-                    QTC_CHECK_EXPECTED(spec);
+                    QTC_CHECK_RESULT(spec);
                     if (spec)
                         plugins.push_back(*spec);
                 }

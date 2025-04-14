@@ -327,7 +327,7 @@ QString ArgumentsAspect::arguments() const
 
     m_currentlyExpanding = true;
     const Result<QString> expanded = macroExpander()->expandProcessArgs(m_arguments);
-    QTC_ASSERT_EXPECTED(expanded, return m_arguments);
+    QTC_ASSERT_RESULT(expanded, return m_arguments);
 
     m_currentlyExpanding = false;
     return *expanded;

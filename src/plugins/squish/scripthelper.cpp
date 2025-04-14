@@ -145,7 +145,7 @@ bool ScriptHelper::writeScriptFile(const Utils::FilePath &outScriptFile,
         data.append(line).append('\n');
 
     const Utils::Result<qint64> result = outScriptFile.writeFileContents(data);
-    QTC_ASSERT_EXPECTED(result, return false);
+    QTC_ASSERT_RESULT(result, return false);
     return true;
 }
 

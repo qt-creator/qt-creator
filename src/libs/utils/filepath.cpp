@@ -1340,7 +1340,7 @@ DeviceFileAccess *FilePath::fileAccess() const
 {
     static DeviceFileAccess dummy;
     const Result<DeviceFileAccess *> access = getFileAccess(*this);
-    QTC_ASSERT_EXPECTED(access, return &dummy);
+    QTC_ASSERT_RESULT(access, return &dummy);
     return *access;
 }
 
@@ -1900,7 +1900,7 @@ FilePaths FilePath::searchAllInPath(const FilePaths &additionalDirs,
 Environment FilePath::deviceEnvironment() const
 {
     Result<Environment> env = deviceEnvironmentWithError();
-    QTC_ASSERT_EXPECTED(env, return {});
+    QTC_ASSERT_RESULT(env, return {});
     return *env;
 }
 
@@ -2081,7 +2081,7 @@ Result<> FilePath::renameFile(const FilePath &target) const
     // If we fail to remove the source file, we remove the target file to return to the
     // original state.
     Result<> rmResult = target.removeFile();
-    QTC_CHECK_EXPECTED(rmResult);
+    QTC_CHECK_RESULT(rmResult);
     return ResultError(
         Tr::tr("Failed to move %1 to %2. Removing the source file failed: %3")
             .arg(toUserOutput())

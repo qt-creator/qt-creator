@@ -150,7 +150,7 @@ bool CppToolsJsExtension::hasQObjectParent(const QString &klassName) const
     std::optional<QByteArray> source = workingCopy.source(item->filePath());
     if (!source) {
         const Utils::Result<QByteArray> contents = item->filePath().fileContents();
-        QTC_ASSERT_EXPECTED(contents, return false);
+        QTC_ASSERT_RESULT(contents, return false);
         source = *contents;
     }
     const auto doc = snapshot.preprocessedDocument(*source, item->filePath());

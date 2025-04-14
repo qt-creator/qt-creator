@@ -190,22 +190,22 @@ The end.
 )";
 
         auto writeResult = fileAccess.writeFileContents(testFile, testData);
-        QTC_ASSERT_EXPECTED(writeResult, QVERIFY(writeResult));
+        QTC_ASSERT_RESULT(writeResult, QVERIFY(writeResult));
         QCOMPARE(*writeResult, testData.size());
 
         auto fileContents = fileAccess.fileContents(testFile, -1, 0);
 
-        QTC_ASSERT_EXPECTED(fileContents, QVERIFY(fileContents));
+        QTC_ASSERT_RESULT(fileContents, QVERIFY(fileContents));
 
         QVERIFY(fileContents->size() > 100);
 
         auto midContent = fileAccess.fileContents(testFile, 10, 10);
-        QTC_ASSERT_EXPECTED(midContent, QVERIFY(midContent));
+        QTC_ASSERT_RESULT(midContent, QVERIFY(midContent));
 
         QCOMPARE(*midContent, fileContents->mid(10, 10));
 
         auto endContent = fileAccess.fileContents(testFile, -1, 10);
-        QTC_ASSERT_EXPECTED(endContent, QVERIFY(endContent));
+        QTC_ASSERT_RESULT(endContent, QVERIFY(endContent));
 
         QCOMPARE(*endContent, fileContents->mid(10));
 
@@ -242,7 +242,7 @@ The end.
         auto bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
                                                               HostOsInfo::hostArchitecture(),
                                                               FilePath::fromUserInput(libExecPath));
-        QTC_ASSERT_EXPECTED(bridgePath, QSKIP("No bridge found"));
+        QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));
 
         CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
         client.start();
@@ -261,10 +261,10 @@ The end.
         auto bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
                                                               HostOsInfo::hostArchitecture(),
                                                               FilePath::fromUserInput(libExecPath));
-        QTC_ASSERT_EXPECTED(bridgePath, QSKIP("No bridge found"));
+        QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));
 
         CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
-        QTC_ASSERT_EXPECTED(client.start(), return);
+        QTC_ASSERT_RESULT(client.start(), return);
 
         try {
             auto result = client.stat("/tmp")->result();
@@ -385,12 +385,12 @@ The end.
         auto bridgePath = CmdBridge::Client::getCmdBridgePath(HostOsInfo::hostOs(),
                                                               HostOsInfo::hostArchitecture(),
                                                               FilePath::fromUserInput(libExecPath));
-        QTC_ASSERT_EXPECTED(bridgePath, QSKIP("No bridge found"));
+        QTC_ASSERT_RESULT(bridgePath, QSKIP("No bridge found"));
 
         CmdBridge::Client client(*bridgePath, Environment::systemEnvironment());
 
         auto result = client.start();
-        QTC_ASSERT_EXPECTED(result, QFAIL("Failed to start bridge"));
+        QTC_ASSERT_RESULT(result, QFAIL("Failed to start bridge"));
 
         auto lsRes = client.execute({"ls", {"-lach"}});
 

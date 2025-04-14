@@ -5,7 +5,6 @@
 
 #include "cmdbridgeglobal.h"
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/osspecificaspects.h>
 #include <utils/processinterface.h>

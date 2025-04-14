@@ -598,7 +598,7 @@ bool ExternalToolRunner::resolve()
     }
 
     const Result<QString> args = expander->expandProcessArgs(m_tool->arguments());
-    QTC_ASSERT_EXPECTED(args, return false);
+    QTC_ASSERT_RESULT(args, return false);
 
     m_resolvedArguments = *args;
     m_resolvedInput = expander->expand(m_tool->input());

@@ -149,7 +149,7 @@ public:
         if (!res) {
             if (!path.exists())
                 return false; // Too much noise if we complain about non-existing files here.
-            QTC_ASSERT_EXPECTED(res, return false);
+            QTC_ASSERT_RESULT(res, return false);
         }
 
         connect(res->get(), &FilePathWatcher::pathChanged, this, [this, path] {

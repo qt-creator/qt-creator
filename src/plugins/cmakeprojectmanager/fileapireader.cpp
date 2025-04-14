@@ -332,7 +332,7 @@ void FileApiReader::makeBackupConfiguration(bool store)
 void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)
 {
     const FilePath buildDir = m_parameters.buildDirectory;
-    QTC_ASSERT_EXPECTED(buildDir.ensureWritableDir(), return);
+    QTC_ASSERT_RESULT(buildDir.ensureWritableDir(), return);
 
     QByteArray contents;
     QStringList unknownOptions;
@@ -344,7 +344,7 @@ void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &conf
             .toUtf8());
 
     const FilePath settingsFile = buildDir / "qtcsettings.cmake";
-    QTC_ASSERT_EXPECTED(settingsFile.writeFileContents(contents), return);
+    QTC_ASSERT_RESULT(settingsFile.writeFileContents(contents), return);
 }
 
 void FileApiReader::setupCMakeFileApi()

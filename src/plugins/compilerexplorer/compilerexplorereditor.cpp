@@ -448,7 +448,7 @@ bool JsonSettingsDocument::isModified() const
 bool JsonSettingsDocument::setContents(const QByteArray &contents)
 {
     auto result = storeFromJson(contents);
-    QTC_ASSERT_EXPECTED(result, return false);
+    QTC_ASSERT_RESULT(result, return false);
 
     m_ceSettings.fromMap(*result);
 
@@ -602,7 +602,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
             this,
             &CompilerWidget::hoveredLineChanged);
 
-    QTC_ASSERT_EXPECTED(m_asmEditor->configureGenericHighlighter("Intel x86 (NASM)"),
+    QTC_ASSERT_RESULT(m_asmEditor->configureGenericHighlighter("Intel x86 (NASM)"),
                         m_asmEditor->configureGenericHighlighter(
                             Utils::mimeTypeForName("text/x-asm")));
     m_asmEditor->setReadOnly(true);

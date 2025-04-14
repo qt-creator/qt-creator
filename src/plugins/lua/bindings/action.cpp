@@ -71,7 +71,7 @@ void setupActionModule()
                 else if (key == "onTrigger")
                     b.addOnTriggered([f = v.as<sol::main_function>()]() {
                         auto res = void_safe_call(f);
-                        QTC_CHECK_EXPECTED(res);
+                        QTC_CHECK_RESULT(res);
                     });
                 else if (key == "text")
                     b.setText(v.as<QString>());

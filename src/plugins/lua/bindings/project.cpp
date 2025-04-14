@@ -151,7 +151,7 @@ void setupProjectModule()
             guard,
             [func](Project *project) {
                 Result<> res = void_safe_call(func, project);
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
             });
     });
 
@@ -163,7 +163,7 @@ void setupProjectModule()
             guard,
             [func](Project *project) {
                 Result<> res = void_safe_call(func, project);
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
             });
     });
 
@@ -175,7 +175,7 @@ void setupProjectModule()
             guard,
             [func](Project *project) {
                 Result<> res = void_safe_call(func, project);
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
             });
     });
 
@@ -187,7 +187,7 @@ void setupProjectModule()
             guard,
             [func](Project *project) {
                 Result<> res = void_safe_call(func, project);
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
             });
     });
 
@@ -199,7 +199,7 @@ void setupProjectModule()
             guard,
             [func]() {
                 Result<> res = void_safe_call(func);
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
             });
     });
 
@@ -212,7 +212,7 @@ void setupProjectModule()
             [func](ProjectExplorer::Project *pro) {
                 const bool isBuilding = BuildManager::isBuilding(pro);
                 Result<> res = void_safe_call(func, pro, isBuilding);
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
             }
         );
     });

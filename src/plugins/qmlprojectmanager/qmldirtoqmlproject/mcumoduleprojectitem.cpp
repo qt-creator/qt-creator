@@ -233,7 +233,7 @@ bool McuModuleProjectItem::saveQmlProjectFile() const
         }
     }
 
-    QTC_ASSERT_EXPECTED(path.writeFileContents(jsonToQmlproject()), return false);
+    QTC_ASSERT_RESULT(path.writeFileContents(jsonToQmlproject()), return false);
     return true;
 }
 

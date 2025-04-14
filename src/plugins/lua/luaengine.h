@@ -8,7 +8,6 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/lua.h>
 

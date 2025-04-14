@@ -19,7 +19,7 @@ void setupHookModule()
             guard,
             [func](Core::IDocument *document) {
                 Result<> res = void_safe_call(func, document);
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
             });
     });
 
@@ -30,7 +30,7 @@ void setupHookModule()
             guard,
             [func](Core::IDocument *document) {
                 Result<> res = void_safe_call(func, document);
-                QTC_CHECK_EXPECTED(res);
+                QTC_CHECK_RESULT(res);
             });
     });
 }
