@@ -360,6 +360,7 @@ void PropertyEditorQmlBackend::handleModelSelectedNodesChanged(PropertyEditorVie
                                category()};
 
     contextObject()->setHas3DModelSelected(!Utils3D::getSelectedModels(propertyEditor).isEmpty());
+    contextObject()->setHas3DScene(Utils3D::active3DSceneId(propertyEditor->model()) != -1);
     m_backendTextureNode.updateSelectionDetails();
 }
 

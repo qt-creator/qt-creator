@@ -33,6 +33,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils3d.h>
 
 #include <QApplication>
 #include <QCoreApplication>
@@ -972,6 +973,9 @@ void PropertyEditorView::modelAttached(Model *model)
 
     resetSelectionLocked();
     resetView();
+
+    m_qmlBackEndForCurrentType->contextObject()->setHas3DScene(Utils3D::active3DSceneId(model)
+                                                               != -1);
 }
 
 void PropertyEditorView::modelAboutToBeDetached(Model *model)
@@ -1198,6 +1202,11 @@ void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node,
 
     if (key == insightCategoriesProperty)
         m_qmlBackEndForCurrentType->contextObject()->setInsightCategories(data.toStringList());
+
+    if (key == active3dSceneProperty) {
+        bool hasScene3D = data.toInt() != -1;
+        m_qmlBackEndForCurrentType->contextObject()->setHas3DScene(hasScene3D);
+    }
 }
 
 void PropertyEditorView::signalDeclarationPropertiesChanged(

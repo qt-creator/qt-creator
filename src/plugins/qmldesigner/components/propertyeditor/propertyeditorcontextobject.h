@@ -51,6 +51,8 @@ class PropertyEditorContextObject : public QObject
 
     Q_PROPERTY(bool isSelectionLocked READ isSelectionLocked WRITE setIsSelectionLocked NOTIFY isSelectionLockedChanged)
 
+    Q_PROPERTY(bool isExtraPropertyEditorPluginEnabled READ isExtraPropertyEditorPluginEnabled
+                   NOTIFY isExtraPropertyEditorPluginEnabledChanged)
     Q_PROPERTY(bool insightEnabled MEMBER m_insightEnabled NOTIFY insightEnabledChanged)
     Q_PROPERTY(QStringList insightCategories MEMBER m_insightCategories NOTIFY insightCategoriesChanged)
 
@@ -58,7 +60,7 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
     Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
     Q_PROPERTY(bool has3DModelSelected READ has3DModelSelected NOTIFY has3DModelSelectedChanged)
-
+    Q_PROPERTY(bool has3DScene READ has3DScene NOTIFY has3DSceneChanged)
 public:
     PropertyEditorContextObject(QObject *parent = nullptr);
 
@@ -145,6 +147,9 @@ public:
     bool isQt6Project() const;
     void setIsQt6Project(bool value);
 
+    bool has3DScene() const;
+    void setHas3DScene(bool value);
+
     bool has3DModelSelected() const;
     void setHas3DModelSelected(bool value);
 
@@ -152,6 +157,7 @@ public:
 
     void setIsSelectionLocked(bool lock);
     bool isSelectionLocked() const;
+    bool isExtraPropertyEditorPluginEnabled() const;
 
     void setQuickWidget(QQuickWidget *newQuickWidget);
 
@@ -175,8 +181,10 @@ signals:
     void hasQuick3DImportChanged();
     void hasMaterialLibraryChanged();
     void has3DModelSelectedChanged();
+    void has3DSceneChanged();
     void isQt6ProjectChanged();
     void isSelectionLockedChanged();
+    void isExtraPropertyEditorPluginEnabledChanged();
 
     void insightEnabledChanged();
     void insightCategoriesChanged();
@@ -223,6 +231,7 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialLibrary = false;
     bool m_has3DModelSelected = false;
+    bool m_has3DScene = false;
     bool m_isQt6Project = false;
 
     QQmlComponent *m_qmlComponent;

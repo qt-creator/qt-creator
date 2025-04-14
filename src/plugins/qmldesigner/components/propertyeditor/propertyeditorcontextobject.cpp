@@ -34,8 +34,12 @@
 
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 namespace QmlDesigner {
 
+using namespace Qt::StringLiterals;
 static auto category = QmlDesigner::PropertyEditorTracing::category;
 
 static Q_LOGGING_CATEGORY(urlSpecifics, "qtc.propertyeditor.specifics", QtWarningMsg)
@@ -468,6 +472,20 @@ void PropertyEditorContextObject::setHasMultiSelection(bool b)
     emit hasMultiSelectionChanged();
 }
 
+bool PropertyEditorContextObject::isExtraPropertyEditorPluginEnabled() const
+{
+    NanotraceHR::Tracer tracer{
+        "property editor context object is extra property editor plugin enabled", category()};
+
+    const auto plugins = ExtensionSystem::PluginManager::plugins();
+    auto found = std::ranges::find(plugins, "extrapropertyeditormanager"_L1, &ExtensionSystem::PluginSpec::id);
+
+    if (found != plugins.end())
+        return (*found)->isEffectivelyEnabled();
+
+    return false;
+}
+
 bool PropertyEditorContextObject::isSelectionLocked() const
 {
     NanotraceHR::Tracer tracer{"property editor context object is selection locked", category()};
@@ -568,6 +586,24 @@ bool PropertyEditorContextObject::has3DModelSelected() const
     NanotraceHR::Tracer tracer{"property editor context object has 3D model selected", category()};
 
     return m_has3DModelSelected;
+}
+
+bool PropertyEditorContextObject::has3DScene() const
+{
+    NanotraceHR::Tracer tracer{"property editor context object has 3D scene", category()};
+
+    return m_has3DScene;
+}
+
+void PropertyEditorContextObject::setHas3DScene(bool value)
+{
+    NanotraceHR::Tracer tracer{"property editor context object set has 3D scene", category()};
+
+    if (value == m_has3DScene)
+        return;
+
+    m_has3DScene = value;
+    emit has3DSceneChanged();
 }
 
 void PropertyEditorContextObject::setHas3DModelSelected(bool value)

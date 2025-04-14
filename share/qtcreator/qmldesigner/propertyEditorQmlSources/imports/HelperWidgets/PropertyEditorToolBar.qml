@@ -20,14 +20,13 @@ Rectangle {
         id: customToolbarLoader
 
         anchors.left: parent.left
-        anchors.right: lockButton.left
+        anchors.right: addExtraViewButton.visible ? addExtraViewButton.left : lockButton.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
     }
 
     HelperWidgets.AbstractButton {
         id: lockButton
-
         anchors.right: parent.right
         anchors.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
         anchors.verticalCenter: parent.verticalCenter
@@ -38,6 +37,19 @@ Rectangle {
         style: StudioTheme.Values.viewBarButtonStyle
         tooltip: qsTr("Lock current node")
 
-        onClicked: root.toolBarAction(lockButton.checked ? ToolBarAction.SelectionLock : ToolBarAction.SelectionUnlock)
+        onClicked: root.toolBarAction(
+                       lockButton.checked ? ToolBarAction.SelectionLock : ToolBarAction.SelectionUnlock)
+    }
+
+    HelperWidgets.AbstractButton {
+        id: addExtraViewButton
+        anchors.right: lockButton.left
+        anchors.verticalCenter: parent.verticalCenter
+        visible: has3DScene && isExtraPropertyEditorPluginEnabled
+        buttonIcon: StudioTheme.Constants.add_medium
+        style: StudioTheme.Values.viewBarButtonStyle
+        enabled: true
+        tooltip: qsTr("Add extra property editor")
+        onClicked: root.toolBarAction(ToolBarAction.AddExtraWidget)
     }
 }
