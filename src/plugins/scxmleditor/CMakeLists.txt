@@ -8,7 +8,6 @@ add_qtc_plugin(ScxmlEditor
     common/colorthemes.cpp common/colorthemes.h
     common/colorthemeview.cpp common/colorthemeview.h
     common/colortoolbutton.cpp common/colortoolbutton.h
-    common/common.qrc
     common/dragshapebutton.cpp common/dragshapebutton.h
     common/graphicsview.cpp common/graphicsview.h
     common/magnifier.cpp common/magnifier.h
@@ -91,4 +90,11 @@ add_qtc_plugin(ScxmlEditor
     scxmleditoricons.h
     scxmleditorplugin.cpp
     scxmltexteditor.cpp scxmltexteditor.h
+)
+
+file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/common common/images/*)
+qtc_add_resources(ScxmlEditor "images"
+  PREFIX "/scxmleditor"
+  FILES_PREFIX "common"
+  FILES ${images}
 )

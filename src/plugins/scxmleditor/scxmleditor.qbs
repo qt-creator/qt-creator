@@ -63,9 +63,15 @@ QtcPlugin {
             "structure.cpp", "structure.h",
             "structuremodel.cpp", "structuremodel.h",
             "treeview.h", "treeview.cpp",
-
-            "common.qrc",
         ]
+
+        Group {
+            name: "images"
+            files: "images/*.png"
+            fileTags: "qt.core.resource_data"
+            Qt.core.resourcePrefix: "/scxmleditor"
+            Qt.core.resourceSourceBase: product.sourceDirectory + "/common"
+        }
     }
 
     Group {
