@@ -31,6 +31,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <vcsbase/vcsbaseconstants.h>
@@ -1414,9 +1415,9 @@ bool PerforcePluginPrivate::activateCommit()
         return false;
 
     // Pipe file into p4 submit -i
-    FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(m_commitMessageFileName))) {
-        VcsOutputWindow::appendError(reader.errorString());
+    const Result<QByteArray> contents = FilePath::fromString(m_commitMessageFileName).fileContents();
+    if (!contents) {
+        VcsOutputWindow::appendError(contents.error());
         return false;
     }
 
@@ -1424,7 +1425,7 @@ bool PerforcePluginPrivate::activateCommit()
     submitArgs << QLatin1String("submit") << QLatin1String("-i");
     const PerforceResponse submitResponse = runP4Cmd(settings().topLevelSymLinkTarget(), submitArgs,
                                                      LongTimeOut|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
-                                                     {}, reader.text());
+                                                     {}, normalizeNewlines(contents.value()));
     if (submitResponse.error)
         return false;
 
