@@ -11,14 +11,12 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <utils/fileutils.h>
-#include <utils/qtcassert.h>
-#include <utils/macroexpander.h>
-#include <utils/templateengine.h>
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
+#include <utils/stringutils.h>
+#include <utils/templateengine.h>
 
-#include <QDir>
-#include <QDirIterator>
 #include <QVariant>
 
 using namespace Utils;
@@ -111,9 +109,9 @@ Result<> JsonWizardFileGenerator::setup(const QVariant &data)
 Result<Core::GeneratedFile> JsonWizardFileGenerator::generateFile(const File &file, MacroExpander *expander)
 {
     // Read contents of source file
-    FileReader reader;
-    if (!reader.fetch(file.source))
-        return ResultError(reader.errorString());
+    const Result<QByteArray> contents = file.source.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
 
     // Generate file information:
     Core::GeneratedFile gf;
@@ -122,7 +120,7 @@ Result<Core::GeneratedFile> JsonWizardFileGenerator::generateFile(const File &fi
     if (!file.keepExisting) {
         if (file.isBinary.toBool()) {
             gf.setBinary(true);
-            gf.setBinaryContents(reader.data());
+            gf.setBinaryContents(contents.value());
         } else {
             // TODO: Document that input files are UTF8 encoded!
             gf.setBinary(false);
@@ -146,7 +144,8 @@ Result<Core::GeneratedFile> JsonWizardFileGenerator::generateFile(const File &fi
             });
 
             QString errorMessage;
-            gf.setContents(TemplateEngine::processText(&nested, QString::fromUtf8(reader.text()),
+            gf.setContents(TemplateEngine::processText(&nested,
+                                                       QString::fromUtf8(normalizeNewlines(contents.value())),
                                                        &errorMessage));
             if (!errorMessage.isEmpty()) {
                 return ResultError(Tr::tr("When processing \"%1\":<br>%2")
