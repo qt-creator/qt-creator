@@ -30,6 +30,8 @@ private slots:
     void testSplitAtFirst();
     void testAsciify_data();
     void testAsciify();
+    void testNormalizeNewlinesInString();
+    void testNormalizeNewlinesInByteArray();
 };
 
 void tst_StringUtils::testWithTildeHomePath()
@@ -354,6 +356,27 @@ void tst_StringUtils::testAsciify()
 
     QCOMPARE(asciified, expected);
 }
+
+void tst_StringUtils::testNormalizeNewlinesInString()
+{
+    const QString input = "asd\r\r\nfoo\r\nbar\nfoo\r";
+    const QString expected = "asd\nfoo\nbar\nfoo\r";
+
+    const QString normalized = Utils::normalizeNewlines(input);
+
+    QCOMPARE(normalized, expected);
+}
+
+void tst_StringUtils::testNormalizeNewlinesInByteArray()
+{
+    const QByteArray input = "asd\r\r\nfoo\r\nbar\nfoo\r";
+    const QByteArray expected = "asd\nfoo\nbar\nfoo\r";
+
+    const QByteArray normalized = Utils::normalizeNewlines(input);
+
+    QCOMPARE(normalized, expected);
+}
+
 
 QTEST_GUILESS_MAIN(tst_StringUtils)
 

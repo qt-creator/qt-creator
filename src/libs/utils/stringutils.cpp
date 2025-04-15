@@ -387,11 +387,20 @@ QTCREATOR_UTILS_EXPORT QStringView chopIfEndsWith(QStringView str, QChar c)
 QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text)
 {
     QString res = text;
-    const auto newEnd = std::unique(res.begin(), res.end(), [](const QChar c1, const QChar c2) {
-        return c1 == '\r' && c2 == '\r'; // QTCREATORBUG-24556
+    const auto newEnd = std::unique(res.rbegin(), res.rend(), [](const QChar c1, const QChar c2) {
+        return c1 == '\n' && c2 == '\r'; // QTCREATORBUG-24556
     });
-    res.chop(std::distance(newEnd, res.end()));
-    res.replace("\r\n", "\n");
+    res.remove(0, std::distance(newEnd, res.rend()));
+    return res;
+}
+
+QTCREATOR_UTILS_EXPORT QByteArray normalizeNewlines(const QByteArray &text)
+{
+    QByteArray res = text;
+    const auto newEnd = std::unique(res.rbegin(), res.rend(), [](const char c1, const char c2) {
+        return c1 == '\n' && c2 == '\r'; // QTCREATORBUG-24556
+    });
+    res.remove(0, std::distance(newEnd, res.rend()));
     return res;
 }
 

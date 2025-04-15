@@ -90,6 +90,7 @@ QTCREATOR_UTILS_EXPORT QString chopIfEndsWith(QString str, QChar c);
 QTCREATOR_UTILS_EXPORT QStringView chopIfEndsWith(QStringView str, QChar c);
 
 QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text);
+QTCREATOR_UTILS_EXPORT QByteArray normalizeNewlines(const QByteArray &text);
 
 // Skips empty parts - see QTBUG-110900
 QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar separator);
