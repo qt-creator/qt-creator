@@ -103,12 +103,13 @@ void ExternalToolManager::parseDirectory(const QString &directory,
     const QList<QFileInfo> infoList = dir.entryInfoList();
     for (const QFileInfo &info : infoList) {
         const QString &fileName = info.absoluteFilePath();
-        QString error;
-        ExternalTool *tool = ExternalTool::createFromFile(Utils::FilePath::fromString(fileName), &error, ICore::userInterfaceLanguage());
-        if (!tool) {
-            qWarning() << Tr::tr("Error while parsing external tool %1: %2").arg(fileName, error);
+        Result<ExternalTool *> res = ExternalTool::createFromFile(FilePath::fromString(fileName),
+                                                                  ICore::userInterfaceLanguage());
+        if (!res) {
+            qWarning() << Tr::tr("Error while parsing external tool %1: %2").arg(fileName, res.error());
             continue;
         }
+        ExternalTool *tool = res.value();
         if (tools->contains(tool->id())) {
             if (isPreset) {
                 // preset that was changed

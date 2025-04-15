@@ -89,10 +89,10 @@ private Q_SLOTS:
 
 void ExternaltoolTest::testRead1()
 {
-    QString error;
-    ExternalTool *tool = ExternalTool::createFromXml(QByteArray(TEST_XML1), &error);
-    QVERIFY(tool != 0);
-    QVERIFY(error.isEmpty());
+    const Result<ExternalTool *> res = ExternalTool::createFromXml(QByteArray(TEST_XML1));
+    QVERIFY(res.has_value());
+    ExternalTool *tool = res.value();
+    QVERIFY(tool != nullptr);
     QCOMPARE(tool->id(), QString::fromLatin1("lupdate"));
     QVERIFY(tool->description().startsWith(QLatin1String("Synchronizes tran")));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Update translations (lupdate)"));
@@ -111,10 +111,10 @@ void ExternaltoolTest::testRead1()
 
 void ExternaltoolTest::testRead2()
 {
-    QString error;
-    ExternalTool *tool = ExternalTool::createFromXml(QByteArray(TEST_XML2), &error);
-    QVERIFY(tool != 0);
-    QVERIFY(error.isEmpty());
+    const Result<ExternalTool *> res = ExternalTool::createFromXml(QByteArray(TEST_XML2));
+    QVERIFY(res.has_value());
+    ExternalTool *tool = res.value();
+    QVERIFY(tool != nullptr);
     QCOMPARE(tool->id(), QString::fromLatin1("sort"));
     QVERIFY(tool->description().startsWith(QLatin1String("Sorts the")));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Sort"));
@@ -132,10 +132,10 @@ void ExternaltoolTest::testRead2()
 
 void ExternaltoolTest::testRead3()
 {
-    QString error;
-    ExternalTool *tool = ExternalTool::createFromXml(QByteArray(TEST_XML3), &error);
-    QVERIFY(tool != 0);
-    QVERIFY(error.isEmpty());
+    const Result<ExternalTool *> res = ExternalTool::createFromXml(QByteArray(TEST_XML3));
+    QVERIFY(res.has_value());
+    ExternalTool *tool = res.value();
+    QVERIFY(tool != nullptr);
     QCOMPARE(tool->id(), QString::fromLatin1("vi"));
     QVERIFY(tool->description().startsWith(QLatin1String("Opens the")));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Edit with vi"));
@@ -155,35 +155,40 @@ void ExternaltoolTest::testRead3()
 void ExternaltoolTest::testReadLocale()
 {
     QString error;
+    Result<ExternalTool *> res;
     ExternalTool *tool;
 
-    tool = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), &error);
-    QVERIFY(tool != 0);
-    QVERIFY(error.isEmpty());
+    res = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG));
+    QVERIFY(res.has_value());
+    tool = res.value();
+    QVERIFY(tool != nullptr);
     QCOMPARE(tool->description(), QString::fromLatin1("Hi"));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Hi"));
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Hi"));
     delete tool;
 
-    tool = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), &error, QLatin1String("uk"));
-    QVERIFY(tool != 0);
-    QVERIFY(error.isEmpty());
+    res = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), QLatin1String("uk"));
+    QVERIFY(res.has_value());
+    tool = res.value();
+    QVERIFY(tool != nullptr);
     QCOMPARE(tool->description(), QString::fromLatin1("Hi"));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Hi"));
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Hi"));
     delete tool;
 
-    tool = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), &error, QLatin1String("de_DE.UTF-8"));
-    QVERIFY(tool != 0);
-    QVERIFY(error.isEmpty());
+    res = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), QLatin1String("de_DE.UTF-8"));
+    QVERIFY(res.has_value());
+    tool = res.value();
+    QVERIFY(tool != nullptr);
     QCOMPARE(tool->description(), QString::fromLatin1("Hallo"));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Hallo"));
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Hallo"));
     delete tool;
 
-    tool = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), &error, QLatin1String("de_CH"));
-    QVERIFY(tool != 0);
-    QVERIFY(error.isEmpty());
+    res = ExternalTool::createFromXml(QByteArray(TEST_XML_LANG), QLatin1String("de_CH"));
+    QVERIFY(res.has_value());
+    tool = res.value();
+    QVERIFY(tool != nullptr);
     QCOMPARE(tool->description(), QString::fromLatin1("Grüezi"));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Grüezi"));
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Grüezi"));

@@ -55,10 +55,10 @@ public:
     // all tools that are preset (changed or unchanged) have the original value here:
     std::shared_ptr<ExternalTool> preset() const;
 
-    static ExternalTool *createFromXml(const QByteArray &xml, QString *errorMessage = nullptr,
-                                       const QString &locale = {});
-    static ExternalTool *createFromFile(const Utils::FilePath &fileName, QString *errorMessage = nullptr,
-                                        const QString &locale = {});
+    static Utils::Result<ExternalTool *> createFromXml(const QByteArray &xml,
+                                                       const QString &locale = {});
+    static Utils::Result<ExternalTool *> createFromFile(const Utils::FilePath &filePath,
+                                                        const QString &locale = {});
 
     bool save(QString *errorMessage = nullptr) const;
 

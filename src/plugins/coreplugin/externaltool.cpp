@@ -330,7 +330,7 @@ static bool parseOutputAttribute(const QString &attribute, QXmlStreamReader *rea
     return true;
 }
 
-ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *errorMessage, const QString &locale)
+Result<ExternalTool *> ExternalTool::createFromXml(const QByteArray &xml, const QString &locale)
 {
     int descriptionLocale = -1;
     int nameLocale = -1;
@@ -427,25 +427,22 @@ ExternalTool * ExternalTool::createFromXml(const QByteArray &xml, QString *error
         }
     }
     if (reader.hasError()) {
-        if (errorMessage)
-            *errorMessage = reader.errorString();
         delete tool;
-        return nullptr;
+        return ResultError(reader.errorString());
     }
     return tool;
 }
 
-ExternalTool * ExternalTool::createFromFile(const FilePath &fileName, QString *errorMessage,
-                                            const QString &locale)
+Result<ExternalTool *> ExternalTool::createFromFile(const FilePath &filePath, const QString &locale)
 {
-    FilePath absFileName = fileName.absoluteFilePath();
-    FileReader reader;
-    if (!reader.fetch(absFileName, errorMessage))
-        return nullptr;
-    ExternalTool *tool = ExternalTool::createFromXml(reader.data(), errorMessage, locale);
-    if (!tool)
-        return nullptr;
-    tool->m_filePath = absFileName;
+    const Result<QByteArray> contents = filePath.fileContents();
+    if (!contents)
+        return ResultError(contents.error());
+    Result<ExternalTool *> res = ExternalTool::createFromXml(contents.value(), locale);
+    if (!res)
+        return ResultError(contents.error());
+    ExternalTool *tool = res.value();
+    tool->m_filePath = filePath.absoluteFilePath();
     return tool;
 }
 
