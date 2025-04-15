@@ -56,15 +56,14 @@ QByteArray FileReader::fetchQrc(const QString &fileName)
     return file.readAll();
 }
 
-bool FileReader::fetch(const FilePath &filePath)
+Result<> FileReader::fetch(const FilePath &filePath)
 {
     const Result<QByteArray> contents = filePath.fileContents();
-    if (!contents) {
-        m_errorString = contents.error();
-        return false;
-    }
+    if (!contents)
+        return ResultError(contents.error());
+
     m_data = *contents;
-    return true;
+    return ResultOk;
 }
 
 QByteArray FileReader::text() const
@@ -76,10 +75,11 @@ QByteArray FileReader::text() const
 
 bool FileReader::fetch(const FilePath &filePath, QString *errorString)
 {
-    if (fetch(filePath))
+    const Result<> res = fetch(filePath);
+    if (res)
         return true;
     if (errorString)
-        *errorString = m_errorString;
+        *errorString = res.error();
     return false;
 }
 

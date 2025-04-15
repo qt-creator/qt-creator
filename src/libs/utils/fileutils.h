@@ -143,14 +143,13 @@ class QTCREATOR_UTILS_EXPORT FileReader
 {
 public:
     static QByteArray fetchQrc(const QString &fileName); // Only for internal resources
-    bool fetch(const FilePath &filePath);
+    Result<> fetch(const FilePath &filePath);
     bool fetch(const FilePath &filePath, QString *errorString);
     const QByteArray &data() const { return m_data; }
     QByteArray text() const; // data with replaced \r\n -> \n
-    const QString &errorString() const { return m_errorString; }
+
 private:
     QByteArray m_data;
-    QString m_errorString;
 };
 
 class QTCREATOR_UTILS_EXPORT FileSaverBase
