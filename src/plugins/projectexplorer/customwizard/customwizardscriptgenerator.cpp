@@ -95,12 +95,9 @@ static Result<>
     using namespace std::chrono_literals;
     process.runBlocking(30s, EventLoopMode::On);
     if (process.result() != Utils::ProcessResult::FinishedWithSuccess) {
-        QString errorMessage = QString("Generator script failed: %1").arg(process.exitMessage());
-        const QString stdErr = process.cleanedStdErr();
-        if (!stdErr.isEmpty()) {
-            errorMessage.append(QLatin1Char('\n'));
-            errorMessage.append(stdErr);
-        }
+        QString errorMessage = QString("Generator script failed: %1")
+                                   .arg(process.exitMessage(
+                                       Process::FailureMessageFormat::WithStdErr));
         return ResultError(errorMessage);
     }
     if (stdOut) {

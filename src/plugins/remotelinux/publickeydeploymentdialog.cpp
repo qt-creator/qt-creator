@@ -59,8 +59,8 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
         Result<> result = ResultOk;
         if (!succeeded) {
             const QString errorString = d->m_process.errorString();
-            const QString errorMessage = errorString.isEmpty() ? d->m_process.cleanedStdErr()
-                                                               : errorString;
+            const QString errorMessage = d->m_process.exitMessage(
+                Process::FailureMessageFormat::WithStdErr);
             result = ResultError(Utils::joinStrings({Tr::tr("Key deployment failed."),
                                                Utils::trimBack(errorMessage, '\n')}, '\n'));
         }

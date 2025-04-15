@@ -45,10 +45,12 @@ bool DockerApi::canConnect()
     process.runBlocking();
 
     const bool success = process.result() == ProcessResult::FinishedWithSuccess;
-    if (!success)
-        qCWarning(dockerApiLog) << "Failed to connect to docker daemon:" << process.allOutput();
-    else
+    if (!success) {
+        qCWarning(dockerApiLog) << "Failed to connect to docker daemon:"
+                                << process.verboseExitMessage();
+    } else {
         qCInfo(dockerApiLog) << "'docker info' result:\n" << qPrintable(process.allOutput());
+    }
 
     return process.result() == ProcessResult::FinishedWithSuccess;
 }
@@ -139,9 +141,7 @@ QFuture<Utils::Result<QList<Network>>> DockerApi::networks()
 
         if (process.result() != ProcessResult::FinishedWithSuccess) {
             return make_unexpected(
-                Tr::tr("Failed to retrieve docker networks. Exit code: %1. Error: %2")
-                    .arg(process.exitCode())
-                    .arg(process.allOutput()));
+                Tr::tr("Failed to retrieve docker networks: %1").arg(process.verboseExitMessage()));
         }
 
         for (const auto &line : process.readAllStandardOutput().split('\n')) {

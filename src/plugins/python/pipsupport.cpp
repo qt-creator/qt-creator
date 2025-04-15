@@ -130,9 +130,9 @@ void PipInstallTask::handleDone()
     m_future.reportFinished();
     const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
     if (!success) {
-        Core::MessageManager::writeFlashing(Tr::tr("Installing \"%1\" failed with exit code %2.")
+        Core::MessageManager::writeFlashing(Tr::tr("Installing \"%1\" failed:")
                                                 .arg(packagesDisplayName())
-                                                .arg(m_process.exitCode()));
+                                                .arg(m_process.exitMessage()));
     }
     emit finished(success);
 }

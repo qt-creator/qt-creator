@@ -1361,7 +1361,7 @@ Result<QPair<Utils::OsType, Utils::OsArch>> DockerDevicePrivate::osTypeAndArch()
          {"image", "inspect", q->repoAndTag(), "--format", "{{.Os}}\t{{.Architecture}}"}});
     proc.runBlocking();
     if (proc.result() != ProcessResult::FinishedWithSuccess)
-        return make_unexpected(Tr::tr("Failed to inspect image: %1").arg(proc.allOutput()));
+        return make_unexpected(Tr::tr("Failed to inspect image: %1").arg(proc.verboseExitMessage()));
 
     const QString out = proc.cleanedStdOut().trimmed();
     const QStringList parts = out.split('\t');

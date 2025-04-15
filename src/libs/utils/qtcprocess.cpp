@@ -1588,9 +1588,26 @@ QString Process::exitMessage(const CommandLine &command, ProcessResult result,
     return {};
 }
 
-QString Process::exitMessage() const
+QString Process::exitMessage(FailureMessageFormat format) const
 {
-    return exitMessage(commandLine(), result(), exitCode(), processDuration());
+    QString msg = exitMessage(commandLine(), result(), exitCode(), processDuration());
+    if (format == FailureMessageFormat::Plain || result() == ProcessResult::FinishedWithSuccess)
+        return msg;
+    if (format == FailureMessageFormat::WithStdErr
+        || format == FailureMessageFormat::WithAllOutput) {
+        const QString stdErr = cleanedStdErr();
+        if (!stdErr.isEmpty()) {
+            msg.append('\n').append(Tr::tr("Standard error output was:")).append('\n')
+                .append(stdErr);
+        }
+    }
+    if (format == FailureMessageFormat::WithStdOut
+        || format == FailureMessageFormat::WithAllOutput) {
+        const QString stdOut = cleanedStdOut();
+        if (!stdOut.isEmpty())
+            msg.append('\n').append(Tr::tr("Standard output was:")).append('\n').append(stdOut);
+    }
+    return msg;
 }
 
 milliseconds Process::processDuration() const

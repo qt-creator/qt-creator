@@ -172,9 +172,8 @@ static Result<QString> runGcc(
     cpp.setCommand({gcc, arguments});
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess || cpp.exitCode() != 0) {
-        return make_unexpected(QString("Compiler feature detection failure.\n%1\n%2")
-                                   .arg(cpp.exitMessage())
-                                   .arg(cpp.allOutput()));
+        return make_unexpected(
+            QString("Compiler feature detection failure.\n%1").arg(cpp.verboseExitMessage()));
     }
 
     return cpp.allOutput().trimmed();

@@ -56,9 +56,8 @@ private:
 
         if (createProcess.result() != ProcessResult::FinishedWithSuccess) {
             return make_unexpected(
-                Tr::tr("Failed creating Docker container. Exit code: %1, output: %2")
-                    .arg(createProcess.exitCode())
-                    .arg(createProcess.allOutput()));
+                Tr::tr("Failed creating Docker container: %1")
+                    .arg(createProcess.verboseExitMessage()));
         }
 
         m_containerId = createProcess.cleanedStdOut().trimmed();

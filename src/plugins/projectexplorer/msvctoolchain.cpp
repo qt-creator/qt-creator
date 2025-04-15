@@ -262,7 +262,7 @@ static QList<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QStri
                         {"-products", "*", "-prerelease", "-legacy", "-format", "json", "-utf8"}});
     vsWhereProcess.runBlocking(5s);
     if (vsWhereProcess.result() != ProcessResult::FinishedWithSuccess) {
-        qWarning() << vsWhereProcess.exitMessage();
+        qWarning() << vsWhereProcess.verboseExitMessage();
         return installations;
     }
 
@@ -2116,7 +2116,7 @@ std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Utils::E
     run.runBlocking(1min);
 
     if (run.result() != ProcessResult::FinishedWithSuccess) {
-        const QString message = !run.cleanedStdErr().isEmpty() ? run.cleanedStdErr() : run.exitMessage();
+        const QString message = run.exitMessage(Process::FailureMessageFormat::WithStdErr);
         qWarning().noquote() << message;
         QString command = QDir::toNativeSeparators(batchFile);
         if (!batchArgs.isEmpty())

@@ -385,7 +385,7 @@ Environment LinuxDevicePrivate::getEnvironment()
 
     if (getEnvProc.result() != ProcessResult::FinishedWithSuccess) {
         qCWarning(linuxDeviceLog) << "Failed to get environment variables from device:"
-                                  << getEnvProc.exitMessage() << getEnvProc.allOutput();
+                                  << getEnvProc.verboseExitMessage();
         return {};
     }
 

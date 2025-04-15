@@ -177,9 +177,11 @@ public:
     const QStringList stdOutLines() const; // split, CR removed
     const QStringList stdErrLines() const; // split, CR removed
 
+    enum class FailureMessageFormat { Plain, WithStdErr, WithStdOut, WithAllOutput };
     static QString exitMessage(const CommandLine &command, ProcessResult result, int exitCode,
                                std::chrono::milliseconds duration);
-    QString exitMessage() const;
+    QString exitMessage(FailureMessageFormat format = FailureMessageFormat::Plain) const;
+    QString verboseExitMessage() const { return exitMessage(FailureMessageFormat::WithAllOutput); }
     std::chrono::milliseconds processDuration() const;
 
     QString toStandaloneCommandLine() const;
