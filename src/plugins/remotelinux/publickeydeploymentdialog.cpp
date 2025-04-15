@@ -67,14 +67,14 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
         handleDeploymentDone(result);
     });
 
-    FileReader reader;
-    if (!reader.fetch(publicKeyFileName)) {
-        handleDeploymentDone(ResultError(Tr::tr("Public key error: %1").arg(reader.errorString())));
+    const Result<QByteArray> publicKey = publicKeyFileName.fileContents();
+    if (!publicKey) {
+        handleDeploymentDone(ResultError(Tr::tr("Public key error: %1").arg(publicKey.error())));
         return;
     }
 
     const QString command = "test -d .ssh || mkdir -p ~/.ssh && chmod 0700 .ssh && echo '"
-            + QString::fromLocal8Bit(reader.data())
+            + QString::fromLocal8Bit(publicKey.value())
             + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
 
     const SshParameters params = device.sshParameters();
