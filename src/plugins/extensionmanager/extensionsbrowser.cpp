@@ -333,7 +333,7 @@ public:
                 creatorColor(selected ? Theme::Token_Stroke_Strong
                              : hovered ? WelcomePageHelpers::cardHoverStroke
                                        : WelcomePageHelpers::cardDefaultStroke);
-            WelcomePageHelpers::drawCardBackground(painter, bgR, fillColor, strokeColor);
+            StyleHelper::drawCardBg(painter, bgR, fillColor, strokeColor);
         }
 
         render(painter, bgR.topLeft(), {}, QWidget::DrawChildren);
@@ -353,7 +353,8 @@ public:
                                     circleSize, circleSize);
             const QColor fillColor = creatorColor(Theme::Token_Foreground_Muted);
             const QColor strokeColor = creatorColor(Theme::Token_Stroke_Subtle);
-            drawCardBackground(painter, smallCircle, fillColor, strokeColor, circleSize / 2);
+            StyleHelper::drawCardBg(painter, smallCircle, fillColor, strokeColor,
+                                    circleSize / 2);
 
             painter->setFont(countTF.font());
             painter->setPen(countTF.color());
@@ -913,7 +914,7 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
     gradient.setStops(gradientStops);
     if (!isEnabled)
         p.setOpacity(iconOpacityDisabled);
-    WelcomePageHelpers::drawCardBackground(&p, iconBgR, gradient, Qt::NoPen, iconRectRounding);
+    StyleHelper::drawCardBg(&p, iconBgR, gradient, Qt::NoPen, iconRectRounding);
     icon.paint(&p, iconBgR);
 
     return pixmap;
@@ -939,9 +940,8 @@ QPixmap itemBadge(const QModelIndex &index, [[maybe_unused]] Size size)
     pixmap.setDevicePixelRatio(dpr);
 
     QPainter p(&pixmap);
-    WelcomePageHelpers::drawCardBackground(&p, badgeR,
-                                           creatorColor(Theme::Token_Notification_Neutral_Default),
-                                           Qt::NoPen, iconRectRounding);
+    StyleHelper::drawCardBg(&p, badgeR, creatorColor(Theme::Token_Notification_Neutral_Default),
+                            Qt::NoPen, iconRectRounding);
     p.setFont(font);
     p.setPen(badgeTF.color());
     p.drawText(badgeR, Qt::AlignCenter, badgeText);

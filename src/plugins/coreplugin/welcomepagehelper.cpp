@@ -60,25 +60,6 @@ void setBackgroundColor(QWidget *widget, Theme::Color colorRole)
     widget->setAutoFillBackground(true);
 }
 
-void drawCardBackground(QPainter *painter, const QRectF &rect,
-                        const QBrush &fill, const QPen &pen, qreal rounding)
-{
-    const qreal strokeWidth = pen.style() == Qt::NoPen ? 0 : pen.widthF();
-    const qreal strokeShrink = strokeWidth / 2;
-    const QRectF itemRectAdjusted = rect.adjusted(strokeShrink, strokeShrink,
-                                                  -strokeShrink, -strokeShrink);
-    const qreal roundingAdjusted = rounding - strokeShrink;
-    QPainterPath itemOutlinePath;
-    itemOutlinePath.addRoundedRect(itemRectAdjusted, roundingAdjusted, roundingAdjusted);
-
-    painter->save();
-    painter->setRenderHint(QPainter::Antialiasing);
-    painter->setBrush(fill);
-    painter->setPen(pen);
-    painter->drawPath(itemOutlinePath);
-    painter->restore();
-}
-
 QWidget *createRule(Qt::Orientation orientation, QWidget *parent)
 {
     auto rule = new QWidget(parent);
@@ -227,7 +208,7 @@ void Button::paintEvent(QPaintEvent *event)
                                                              : Theme::Token_Accent_Default))
                                                : Theme::Token_Foreground_Subtle;
         const QBrush fill(creatorColor(color));
-        drawCardBackground(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
+        StyleHelper::drawCardBg(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
         break;
     }
     case LargeSecondary:
@@ -236,7 +217,7 @@ void Button::paintEvent(QPaintEvent *event)
                                                : Theme::Token_Stroke_Subtle;
         const qreal width = hovered ? 2.0 : 1.0;
         const QPen outline(creatorColor(color), width);
-        drawCardBackground(&p, bgR, QBrush(Qt::NoBrush), outline, brRectRounding);
+        StyleHelper::drawCardBg(&p, bgR, QBrush(Qt::NoBrush), outline, brRectRounding);
         break;
     }
     case LargeTertiary:
@@ -247,14 +228,14 @@ void Button::paintEvent(QPaintEvent *event)
                                                         : (hovered ? Theme::Token_Foreground_Muted
                                                                    : Theme::Token_Foreground_Subtle))
                                             : Theme::Token_Foreground_Subtle;
-        drawCardBackground(&p, bgR, creatorColor(bg), creatorColor(border), brRectRounding);
+        StyleHelper::drawCardBg(&p, bgR, creatorColor(bg), creatorColor(border), brRectRounding);
         break;
     }
     case SmallList: {
         if (isChecked() || hovered) {
             const QBrush fill(creatorColor(isChecked() ? Theme::Token_Foreground_Muted
                                                        : Theme::Token_Foreground_Subtle));
-            drawCardBackground(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
+            StyleHelper::drawCardBg(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
         }
         break;
     }
@@ -264,7 +245,7 @@ void Button::paintEvent(QPaintEvent *event)
         const QBrush fill(hovered ? creatorColor(Theme::Token_Foreground_Subtle)
                                   : QBrush(Qt::NoBrush));
         const QPen outline(hovered ? QPen(Qt::NoPen) : creatorColor(Theme::Token_Stroke_Subtle));
-        drawCardBackground(&p, bgR, fill, outline, brRectRounding);
+        StyleHelper::drawCardBg(&p, bgR, fill, outline, brRectRounding);
         break;
     }
     }
@@ -393,7 +374,7 @@ static void paintCommonBackground(QPainter *p, const QRectF &rect, const QWidget
                                                                : Theme::Token_Stroke_Subtle))
                            : Theme::Token_Foreground_Subtle;
     const QPen pen(creatorColor(c));
-    drawCardBackground(p, rect, fill, pen);
+    StyleHelper::drawCardBg(p, rect, fill, pen);
 }
 
 void SearchBox::paintEvent(QPaintEvent *event)
@@ -536,7 +517,7 @@ void Switch::paintEvent([[maybe_unused]] QPaintEvent *event)
         const QPen outline = checkedEnabled ? QPen(Qt::NoPen)
                                             : creatorColor(hovered ? Theme::Token_Stroke_Muted
                                                                    : Theme::Token_Stroke_Subtle);
-        drawCardBackground(&p, trackR, fill, outline, trackRounding);
+        StyleHelper::drawCardBg(&p, trackR, fill, outline, trackRounding);
     }
     { // track label
         const QColor color = creatorColor(isEnabled() ? (isChecked() ? Theme::Token_Basic_White
@@ -550,7 +531,7 @@ void Switch::paintEvent([[maybe_unused]] QPaintEvent *event)
         } else {
             const QRect offLabelR(trackX + switchTrackS.width() - trackRounding - labelS / 2 - 1,
                                   labelY, labelS, labelS);
-            drawCardBackground(&p, offLabelR, Qt::NoBrush, color, labelS / 2);
+            StyleHelper::drawCardBg(&p, offLabelR, Qt::NoBrush, color, labelS / 2);
         }
     }
     { // knob
@@ -566,7 +547,7 @@ void Switch::paintEvent([[maybe_unused]] QPaintEvent *event)
                                                      : Theme::Token_Foreground_Default);
         const QPen outline = checkedEnabled ? QPen(Qt::NoPen)
                                             : creatorColor(Theme::Token_Stroke_Subtle);
-        drawCardBackground(&p, thumbR, fill, outline, thumbRounding);
+        StyleHelper::drawCardBg(&p, thumbR, fill, outline, thumbRounding);
     }
     { // switch text label
         const int switchAndGapWidth = switchTrackS.width() + HGapS;
@@ -1013,7 +994,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 
     const QColor fill(themeColor(hovered ? cardHoverBackground : cardDefaultBackground));
     const QPen pen(themeColor(hovered ? cardHoverStroke : cardDefaultStroke), itemOutlineWidth);
-    WelcomePageHelpers::drawCardBackground(painter, bgR, fill, pen, itemCornerRounding);
+    StyleHelper::drawCardBg(painter, bgR, fill, pen, itemCornerRounding);
 
     const int shiftY = thumbnailAreaR.bottom();
     int offset = 0;
@@ -1086,8 +1067,8 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
                 QPainter maskPainter(&mask);
                 const QRect maskR = bgR.translated(filterMargin, filterMargin)
                                         .adjusted(1, 1, -1, -1);
-                WelcomePageHelpers::drawCardBackground(&maskPainter, maskR,
-                                                       Qt::white, Qt::NoPen, itemCornerRounding);
+                StyleHelper::drawCardBg(&maskPainter, maskR, Qt::white, Qt::NoPen,
+                                        itemCornerRounding);
                 thumbnail.setAlphaChannel(mask);
 
                 m_blurredThumbnail = QPixmap::fromImage(

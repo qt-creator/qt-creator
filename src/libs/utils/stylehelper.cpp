@@ -498,6 +498,25 @@ void StyleHelper::drawPanelBgRect(QPainter *painter, const QRectF &rect, const Q
     }
 }
 
+void StyleHelper::drawCardBg(QPainter *painter, const QRectF &rect,
+                             const QBrush &fill, const QPen &pen, qreal rounding)
+{
+    const qreal strokeWidth = pen.style() == Qt::NoPen ? 0 : pen.widthF();
+    const qreal strokeShrink = strokeWidth / 2;
+    const QRectF itemRectAdjusted = rect.adjusted(strokeShrink, strokeShrink,
+                                                  -strokeShrink, -strokeShrink);
+    const qreal roundingAdjusted = rounding - strokeShrink;
+    QPainterPath itemOutlinePath;
+    itemOutlinePath.addRoundedRect(itemRectAdjusted, roundingAdjusted, roundingAdjusted);
+
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setBrush(fill);
+    painter->setPen(pen);
+    painter->drawPath(itemOutlinePath);
+    painter->restore();
+}
+
 void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
 {
     if (StyleHelper::usePixmapCache()) {

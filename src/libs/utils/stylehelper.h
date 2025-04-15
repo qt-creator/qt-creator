@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include <QPen>
 #include <QStyle>
 
 QT_BEGIN_NAMESPACE
@@ -22,6 +23,7 @@ namespace Utils::StyleHelper {
 
 const unsigned int DEFAULT_BASE_COLOR = 0x666666;
 const int progressFadeAnimationDuration = 600;
+constexpr qreal defaultCardBgRounding = 3.75;
 
 constexpr char C_ALIGN_ARROW[] = "alignarrow";
 constexpr char C_DRAW_LEFT_BORDER[] = "drawleftborder";
@@ -140,6 +142,9 @@ QTCREATOR_UTILS_EXPORT void drawMinimalArrow(QStyle::PrimitiveElement element, Q
 
 QTCREATOR_UTILS_EXPORT void drawPanelBgRect(QPainter *painter, const QRectF &rect,
                                             const QBrush &brush);
+QTCREATOR_UTILS_EXPORT void drawCardBg(QPainter *painter, const QRectF &rect, const QBrush &fill,
+                                       const QPen &pen = QPen(Qt::NoPen),
+                                       qreal rounding = defaultCardBgRounding);
 
 // Gradients used for panels
 QTCREATOR_UTILS_EXPORT void horizontalGradient(QPainter *painter, const QRect &spanRect,
