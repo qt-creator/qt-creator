@@ -9,12 +9,24 @@
 
 static auto category = QmlDesigner::PropertyEditorTracing::category;
 
-static const char INSTANCE_IMAGE_REQUEST_ID[] = "PropertyEditor.InstanceImage";
+constexpr QByteArrayView instanceImageRequestId = "PropertyEditor.InstanceImage_";
+
+static QByteArray nextProviderId()
+{
+    static int counter = 0;
+    QByteArray id;
+    id.reserve(instanceImageRequestId.size() + 11);
+    id.append(instanceImageRequestId);
+    id.append(QByteArray::number(++counter));
+    id.append('_');
+    return id;
+}
 
 namespace QmlDesigner {
 
 InstanceImageProvider::InstanceImageProvider()
     : QQuickImageProvider(Pixmap)
+    , m_providerId(nextProviderId())
     , m_delayTimer(std::make_unique<QTimer>())
 {
     NanotraceHR::Tracer tracer{"instance image provider constructor", category()};
@@ -78,7 +90,7 @@ bool InstanceImageProvider::feedImage(const ModelNode &node,
 {
     NanotraceHR::Tracer tracer{"instance image provider feed image", category()};
 
-    if (!requestId.startsWith(INSTANCE_IMAGE_REQUEST_ID))
+    if (!requestId.startsWith(m_providerId))
         return false;
 
     if (m_pendingRequest == requestId)
@@ -112,8 +124,7 @@ void InstanceImageProvider::requestOne()
         return;
 
     static int requestId = 0;
-    QByteArray previewRequestId = QByteArray(INSTANCE_IMAGE_REQUEST_ID)
-                                  + QByteArray::number(++requestId);
+    QByteArray previewRequestId = m_providerId + QByteArray::number(++requestId);
     m_pendingRequest = previewRequestId;
 
     m_resetRequest = false;

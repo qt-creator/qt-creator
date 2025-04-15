@@ -38,6 +38,7 @@ protected:
     QPixmap getScaledImage(QSize size);
 
 private:
+    const QByteArray m_providerId;
     QByteArray m_pendingRequest;
     bool m_resetRequest = false;
 
