@@ -2,5 +2,6 @@ import "../cplusplus-shared/CPlusPlusToolUsingCustomUtils.qbs" as CPlusPlusToolU
 
 CPlusPlusToolUsingCustomUtils {
     name: "cplusplus-frontend"
+    hasCMakeProjectFile: false
     files: base.concat("cplusplus-frontend.cpp")
 }

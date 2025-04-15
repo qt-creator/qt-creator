@@ -11,6 +11,7 @@ Product {
     property bool useNonGuiPchFile: false
     property bool useGuiPchFile: false
     property bool useQt: true
+    property bool hasCMakeProjectFile: true
     property string pathToSharedSources: FileInfo.joinPaths(path,
             FileInfo.relativePath(FileInfo.joinPaths('/', qtc.ide_qbs_imports_path),
                                   FileInfo.joinPaths('/', qtc.ide_shared_sources_path)))
@@ -90,7 +91,8 @@ Product {
 
     Group {
         name: "CMake project file"
+        condition: hasCMakeProjectFile
         prefix: sourceDirectory + '/'
-        files: "CMakeLists.tx[t]"
+        files: "CMakeLists.txt"
     }
 }
