@@ -93,8 +93,14 @@ void SshParameters::setupSshEnvironment(Process *process)
     }
     process->setEnvironment(env);
 
-    // Otherwise, ssh will ignore SSH_ASKPASS and read from /dev/tty directly.
-    process->setDisableUnixTerminal();
+    // Originally, OpenSSH used to ignore the value of SSH_ASKPASS if it had access to a terminal,
+    // reading instead from /dev/tty directly.
+    // Therefore, we needed to start the ssh process in a new session.
+    // Since version 8.4, we can (and do) force the use of SSH_ASKPASS via the SSH_ASKPASS_REQUIRE
+    // environment variable. We still create a new session for backward compatibility, but not
+    // on macOS, because of QTCREATORBUG-32613.
+    if (!HostOsInfo::isMacHost())
+        process->setDisableUnixTerminal();
 }
 
 bool operator==(const SshParameters &p1, const SshParameters &p2)
