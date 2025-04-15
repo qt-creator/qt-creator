@@ -132,15 +132,16 @@ private:
     // to avoid a crash while destructing DesignerPropertyMap in the QQmlData
     // this needs be destructed after m_quickWidget->engine() is destructed
     DesignerPropertyMap m_backendValuesPropertyMap;
-
-    Utils::UniqueObjectPtr<Quick2PropertyEditorView> m_view = nullptr;
+    std::unique_ptr<PropertyEditorContextObject> m_contextObject;
+    QmlModelNodeProxy m_backendModelNode;
     QmlAnchorBindingProxy m_backendAnchorBinding;
     QmlMaterialNodeProxy m_backendMaterialNode;
     QmlTextureNodeProxy m_backendTextureNode;
-    QmlModelNodeProxy m_backendModelNode;
+
+    Utils::UniqueObjectPtr<Quick2PropertyEditorView> m_view = nullptr;
+
     std::unique_ptr<PropertyEditorTransaction> m_propertyEditorTransaction;
     std::unique_ptr<PropertyEditorValue> m_dummyPropertyEditorValue;
-    std::unique_ptr<PropertyEditorContextObject> m_contextObject;
 };
 
 } //QmlDesigner
