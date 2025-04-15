@@ -3,6 +3,7 @@
 
 #include "stylehelper.h"
 
+#include "algorithm.h"
 #include "theme/theme.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
@@ -917,9 +918,10 @@ QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &des
 static const QStringList &applicationFontFamilies()
 {
     const static QStringList families = [] {
-        const QLatin1String familyName("Inter");
         // Font is either installed in the system, or was loaded from share/qtcreator/fonts/
-        return QFontDatabase::hasFamily(familyName) ? QStringList(familyName) : QStringList();
+        const QStringList candidates = {"Inter", "Inter Variable"};
+        const QString family = Utils::findOrDefault(candidates, &QFontDatabase::hasFamily);
+        return family.isEmpty() ? QStringList() : QStringList(family);
     }();
     return families;
 }
