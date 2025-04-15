@@ -52,7 +52,7 @@ public:
             auto debugger = new DebuggerRunTool(rc);
             DebuggerRunParameters &rp = debugger->runParameters();
             debugger->setId("RemoteLinuxDebugWorker");
-            debugger->setupPortsGatherer();
+            rp.setupPortsGatherer(rc);
             rp.setUseTerminal(false);
             rp.setAddQmlServerInferiorCmdArgIfNeeded(true);
 

@@ -155,7 +155,6 @@ public:
         setProducer([](RunControl *runControl) {
             DebuggerRunTool *debugger = new DebuggerRunTool(runControl);
             debugger->setId("ApplicationManagerPlugin.Debug.Support");
-            debugger->setupPortsGatherer();
 
             auto debuggee = createInferiorRunner(runControl, QmlDebuggerServices);
             debugger->addStartDependency(debuggee);
@@ -195,6 +194,7 @@ public:
             }
 
             Debugger::DebuggerRunParameters &rp = debugger->runParameters();
+            rp.setupPortsGatherer(runControl);
             rp.setStartMode(Debugger::AttachToRemoteServer);
             rp.setCloseMode(Debugger::KillAndExitMonitorAtClose);
 

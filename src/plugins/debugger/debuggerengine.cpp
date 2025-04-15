@@ -210,6 +210,14 @@ void DebuggerRunParameters::setBreakOnMainNextTime()
     breakOnMainNextTime = true;
 }
 
+void DebuggerRunParameters::setupPortsGatherer(ProjectExplorer::RunControl *runControl) const
+{
+    if (isCppDebugging())
+        runControl->requestDebugChannel();
+    if (isQmlDebugging())
+        runControl->requestQmlChannel();
+}
+
 Result<> DebuggerRunParameters::fixupParameters(ProjectExplorer::RunControl *runControl)
 {
     if (m_symbolFile.isEmpty())

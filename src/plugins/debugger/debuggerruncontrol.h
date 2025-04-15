@@ -25,8 +25,6 @@ public:
     void start() final;
     void stop() final;
 
-    void setupPortsGatherer();
-
     DebuggerRunParameters &runParameters();
 
 signals:

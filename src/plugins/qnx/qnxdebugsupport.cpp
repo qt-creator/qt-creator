@@ -136,7 +136,7 @@ void showAttachToProcessDialog()
     auto debugger = new DebuggerRunTool(runControl);
     DebuggerRunParameters &rp = debugger->runParameters();
     debugger->setId("QnxAttachDebugSupport");
-    debugger->setupPortsGatherer();
+    rp.setupPortsGatherer(runControl);
     rp.setUseCtrlCStub(true);
     if (rp.isCppDebugging()) {
         const auto modifier = [runControl](Process &process) {
@@ -173,8 +173,6 @@ public:
             debugger->setId("QnxDebugSupport");
             runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
 
-            debugger->setupPortsGatherer();
-
             const auto modifier = [runControl](Process &process) {
                 CommandLine cmd = runControl->commandLine();
                 QStringList arguments;
@@ -199,6 +197,7 @@ public:
             Kit *k = runControl->kit();
 
             DebuggerRunParameters &rp = debugger->runParameters();
+            rp.setupPortsGatherer(runControl);
             rp.setStartMode(AttachToRemoteServer);
             rp.setCloseMode(KillAtClose);
             rp.setUseCtrlCStub(true);

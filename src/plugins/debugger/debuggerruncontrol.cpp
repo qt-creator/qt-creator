@@ -791,15 +791,6 @@ void DebuggerRunTool::stop()
     emit canceled();
 }
 
-void DebuggerRunTool::setupPortsGatherer()
-{
-    if (d->m_runParameters.isCppDebugging())
-        runControl()->requestDebugChannel();
-
-    if (d->m_runParameters.isQmlDebugging())
-        runControl()->requestQmlChannel();
-}
-
 DebuggerRunParameters &DebuggerRunTool::runParameters()
 {
     return d->m_runParameters;

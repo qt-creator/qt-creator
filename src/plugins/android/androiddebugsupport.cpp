@@ -90,8 +90,8 @@ public:
         setProducer([](RunControl *runControl) {
             DebuggerRunTool *debugger = new DebuggerRunTool(runControl);
             debugger->setId("AndroidDebugger");
-            debugger->setupPortsGatherer();
             DebuggerRunParameters &rp = debugger->runParameters();
+            rp.setupPortsGatherer(runControl);
             rp.setSkipDebugServer(true);
             rp.setLldbPlatform("remote-android");
 

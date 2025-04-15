@@ -77,6 +77,8 @@ public:
 
     static void setBreakOnMainNextTime();
 
+    void setupPortsGatherer(ProjectExplorer::RunControl *runControl) const;
+
     Utils::Result<> fixupParameters(ProjectExplorer::RunControl *runControl);
 
     void setStartMode(DebuggerStartMode startMode);
