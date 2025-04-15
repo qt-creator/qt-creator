@@ -631,7 +631,7 @@ void FancyLineEdit::validate()
         if (validates)
             result = t;
         else
-            result = make_unexpected(error);
+            result = ResultError(error);
 
         handleValidationResult(result, t);
     }

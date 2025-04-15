@@ -27,7 +27,7 @@ Result<QString> run(const CommandLine &cmdLine, const QByteArray &inputData = {}
         p.setWriteData(inputData);
     p.runBlocking();
     if (p.exitCode() != 0) {
-        return make_unexpected(Tr::tr("Command failed with exit code %1: %2")
+        return ResultError(Tr::tr("Command failed with exit code %1: %2")
                                    .arg(p.exitCode())
                                    .arg(p.readAllStandardOutput()));
     }
@@ -455,7 +455,7 @@ Result<QByteArray> FileAccess::fileContents(const FilePath &filePath,
         }
         return data;
     } catch (const std::exception &e) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Error reading file: %1").arg(QString::fromLocal8Bit(e.what())));
     }
 }
@@ -468,7 +468,7 @@ Result<qint64> FileAccess::writeFileContents(const FilePath &filePath,
         QTC_ASSERT_RESULT(f, return {});
         return f->result();
     } catch (const std::exception &e) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Error writing file: %1").arg(QString::fromLocal8Bit(e.what())));
     }
 }
@@ -607,7 +607,7 @@ Result<FilePath> FileAccess::createTempFile(const FilePath &filePath)
             return result;
         return filePath.withNewPath(result->path());
     } catch (const std::exception &e) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Error creating temporary file: %1").arg(QString::fromLocal8Bit(e.what())));
     }
 }

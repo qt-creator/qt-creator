@@ -892,7 +892,7 @@ Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
         if (result == DoneWith::Success && dd->m_dashboardInfo)
             handler(*dd->m_dashboardInfo);
         else
-            handler(make_unexpected(QString("Error"))); // TODO: Collect error message in the storage.
+            handler(ResultError("Error")); // TODO: Collect error message in the storage.
     };
 
     const Group root {

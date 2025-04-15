@@ -19,7 +19,7 @@ Result<FilePath> defaultShellForDevice(const FilePath &deviceRoot)
 
     const Result<Environment> env = deviceRoot.deviceEnvironmentWithError();
     if (!env)
-        return make_unexpected(env.error());
+        return ResultError(env.error());
 
     FilePath shell = FilePath::fromUserInput(env->value_or("SHELL", "/bin/sh"));
 
@@ -27,7 +27,7 @@ Result<FilePath> defaultShellForDevice(const FilePath &deviceRoot)
         shell = env->searchInPath(shell.nativePath());
 
     if (shell.isEmpty())
-        return make_unexpected(Tr::tr("Could not find any shell."));
+        return ResultError(Tr::tr("Could not find any shell."));
 
     return deviceRoot.withNewMappedPath(shell);
 }

@@ -221,12 +221,12 @@ public:
         Result<FilePath> cmdBridgePath = getCmdBridgePath();
 
         if (!cmdBridgePath)
-            return make_unexpected(cmdBridgePath.error());
+            return ResultError(cmdBridgePath.error());
 
         auto fAccess = std::make_unique<DockerDeviceFileAccess>(this);
 
         if (auto result = updateContainerAccess(); !result)
-            return make_unexpected(result.error());
+            return ResultError(result.error());
 
         Result<> initResult = ResultOk;
         if (cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath())) {
@@ -237,7 +237,7 @@ public:
                 = fAccess->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), q->environment());
         }
         if (!initResult)
-            return make_unexpected(initResult.error());
+            return ResultError(initResult.error());
 
         return fAccess;
     }
@@ -548,7 +548,7 @@ Result<Environment> DockerDevicePrivate::fetchEnvironment() const
     envCaptureProcess.setWriteData("printenv\n");
     envCaptureProcess.runBlocking();
     if (envCaptureProcess.result() != ProcessResult::FinishedWithSuccess) {
-        return make_unexpected(envCaptureProcess.readAllStandardError());
+        return ResultError(envCaptureProcess.readAllStandardError());
     }
     const QStringList envLines = QString::fromUtf8(envCaptureProcess.readAllRawStandardOutput())
                                      .split('\n', Qt::SkipEmptyParts);

@@ -178,7 +178,7 @@ std::optional<Result<>> ClientPrivate::handleWatchResults(const QVariantMap &map
         auto it = watchers.find(id);
 
         if (it == watchers.end())
-            return make_unexpected(QString("No watcher found for id %1").arg(id));
+            return ResultError(QString("No watcher found for id %1").arg(id));
 
         auto promise = it.value();
         if (!promise->isCanceled())
@@ -197,7 +197,7 @@ std::optional<Result<>> ClientPrivate::handleWatchResults(const QVariantMap &map
 Result<> ClientPrivate::readPacket(QCborStreamReader &reader)
 {
     if (!reader.enterContainer())
-        return make_unexpected(QString("The packet did not contain a container"));
+        return ResultError(QString("The packet did not contain a container"));
 
     Q_ASSERT(QThread::currentThread() == thread);
 
@@ -209,10 +209,10 @@ Result<> ClientPrivate::readPacket(QCborStreamReader &reader)
     }
 
     if (!reader.leaveContainer())
-        return make_unexpected(QString("The packet did not contain a finalized map"));
+        return ResultError(QString("The packet did not contain a finalized map"));
 
     if (!map.contains("Id")) {
-        return make_unexpected(QString("The packet did not contain an Id"));
+        return ResultError(QString("The packet did not contain an Id"));
     }
 
     auto watchHandled = handleWatchResults(map);
@@ -223,7 +223,7 @@ Result<> ClientPrivate::readPacket(QCborStreamReader &reader)
     auto j = jobs.readLocked();
     auto it = j->map.find(id);
     if (it == j->map.end())
-        return make_unexpected(
+        return ResultError(
             QString("No job found for packet with id %1: %2")
                 .arg(id)
                 .arg(QString::fromUtf8(QJsonDocument::fromVariant(map).toJson())));
@@ -421,7 +421,7 @@ static Utils::Result<QFuture<R>> createJob(
     Errors handleErrors = Errors::Handle)
 {
     if (!d->process || !d->process->isRunning())
-        return make_unexpected(Tr::tr("Bridge process not running"));
+        return ResultError(Tr::tr("Bridge process not running"));
 
     std::shared_ptr<QPromise<R>> promise = std::make_shared<QPromise<R>>();
     QFuture<R> future = promise->future();
@@ -515,7 +515,7 @@ Result<QFuture<Client::FindData>> Client::find(
 {
     // TODO: golang's walkDir does not support automatically following symlinks.
     if (filter.iteratorFlags.testFlag(QDirIterator::FollowSymlinks))
-        return make_unexpected(Tr::tr("FollowSymlinks is not supported"));
+        return ResultError(Tr::tr("FollowSymlinks is not supported"));
 
     QCborMap findArgs{
         {"Type", "find"},
@@ -818,12 +818,12 @@ Utils::Result<std::unique_ptr<FilePathWatcher>> Client::watch(const QString &pat
         });
 
     if (!jobResult)
-        return make_unexpected(jobResult.error());
+        return ResultError(jobResult.error());
 
     try {
         return std::make_unique<GoFilePathWatcher>(jobResult->result());
     } catch (const std::exception &e) {
-        return make_unexpected(QString::fromUtf8(e.what()));
+        return ResultError(QString::fromUtf8(e.what()));
     }
 }
 
@@ -841,9 +841,9 @@ Utils::Result<QFuture<void>> Client::signalProcess(int pid, Utils::ControlSignal
         signalString = "kill";
         break;
     case ControlSignal::KickOff:
-        return make_unexpected(Tr::tr("Kickoff signal is not supported"));
+        return ResultError(Tr::tr("Kickoff signal is not supported"));
     case ControlSignal::CloseWriteChannel:
-        return make_unexpected(Tr::tr("CloseWriteChannel signal is not supported"));
+        return ResultError(Tr::tr("CloseWriteChannel signal is not supported"));
     }
 
     return createVoidJob(
@@ -942,7 +942,7 @@ Result<FilePath> Client::getCmdBridgePath(
     if (result.exists())
         return result;
 
-    return make_unexpected(
+    return ResultError(
         QString(Tr::tr("No command bridge found for architecture %1-%2")).arg(type, arch));
 }
 

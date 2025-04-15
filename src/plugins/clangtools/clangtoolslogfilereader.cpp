@@ -169,20 +169,20 @@ public:
 private:
     const YAML::Node &m_node;
     FileCache &m_fileCache;
-    Utils::FilePath m_filePath;
+    FilePath m_filePath;
     const char *m_fileOffsetKey = nullptr;
     int m_extraOffset = 0;
 };
 
 } // namespace
 
-void parseDiagnostics(QPromise<Utils::Result<Diagnostics>> &promise,
-                      const Utils::FilePath &logFilePath,
+void parseDiagnostics(QPromise<Result<Diagnostics>> &promise,
+                      const FilePath &logFilePath,
                       const AcceptDiagsFromFilePath &acceptFromFilePath)
 {
-    const Utils::Result<QByteArray> localFileContents = logFilePath.fileContents();
+    const Result<QByteArray> localFileContents = logFilePath.fileContents();
     if (!localFileContents.has_value()) {
-        promise.addResult(Utils::make_unexpected(localFileContents.error()));
+        promise.addResult(ResultError(localFileContents.error()));
         promise.future().cancel();
         return;
     }

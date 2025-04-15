@@ -54,7 +54,7 @@ static Result<QString> fetchVersionOutput(const FilePath &executable, Environmen
     proc.runBlocking();
     QString output = proc.allOutput().trimmed();
     if (proc.result() != ProcessResult::FinishedWithSuccess)
-        return make_unexpected(output);
+        return ResultError(output);
 
     return output;
 }
@@ -154,11 +154,11 @@ static Utils::Result<DebuggerItem::TechnicalData> extractLldbTechnicalData(
     binaryName.replace(dapServerSuffix, QString{});
     const FilePath lldb = fromExecutable.parentDir() / binaryName;
     if (!lldb.exists()) {
-        return make_unexpected(QString{"%1 does not exist alongside %2"}
+        return ResultError(QString{"%1 does not exist alongside %2"}
                                    .arg(lldb.fileNameView(), fromExecutable.toUserOutput()));
     }
     if (!lldb.isExecutableFile()) {
-        return make_unexpected(QString{"%1 exists alongside %2 but is not executable"}
+        return ResultError(QString{"%1 exists alongside %2 but is not executable"}
                                    .arg(lldb.fileNameView(), fromExecutable.toUserOutput()));
     }
 
@@ -190,8 +190,8 @@ const char DEBUGGER_INFORMATION_WORKINGDIRECTORY[] = "WorkingDirectory";
 // DebuggerItem
 // --------------------------------------------------------------------------
 
-Utils::Result<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
-    const FilePath &fromExecutable, const std::optional<Utils::Environment> &customEnvironment)
+Result<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
+    const FilePath &fromExecutable, const std::optional<Environment> &customEnvironment)
 {
     Environment env = customEnvironment.value_or(fromExecutable.deviceEnvironment());
     DebuggerItem::addAndroidLldbPythonEnv(fromExecutable, env);
@@ -212,7 +212,7 @@ Utils::Result<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
             WinDLLFileVersion, fromExecutable.absoluteFilePath().path(), &errorMessage);
 
         if (!errorMessage.isEmpty())
-            return make_unexpected(std::move(errorMessage));
+            return ResultError(std::move(errorMessage));
 
         return DebuggerItem::TechnicalData{
             .engineType = UvscEngineType,
@@ -223,7 +223,7 @@ Utils::Result<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
 
     const Result<QString> output = fetchVersionOutput(fromExecutable, env);
     if (!output) {
-        return make_unexpected(output.error());
+        return ResultError(output.error());
     }
 
     if (output->contains("gdb")) {
@@ -267,7 +267,7 @@ Utils::Result<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
         };
     }
 
-    return make_unexpected(
+    return ResultError(
         QString{"Failed to determine debugger engine type from '%1'"}.arg(*output));
 }
 

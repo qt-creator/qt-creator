@@ -418,14 +418,14 @@ static Result<bool> insertSnippetSilently(const FilePath &cmakeFile,
         Constants::CMAKE_EDITOR_ID,
         Core::EditorManager::DoNotMakeVisible | Core::EditorManager::DoNotChangeCurrentEditor));
     if (!editor) {
-        return make_unexpected("BaseTextEditor cannot be obtained for " + cmakeFile.toUserOutput()
+        return ResultError("BaseTextEditor cannot be obtained for " + cmakeFile.toUserOutput()
                                + ":" + QString::number(snippetLocation.line) + ":"
                                + QString::number(snippetLocation.column));
     }
     editor->insert(snippetLocation.snippet);
     editor->editorWidget()->autoIndent();
     if (!Core::DocumentManager::saveDocument(editor->document()))
-        return make_unexpected("Changes to " + cmakeFile.toUserOutput() + " could not be saved.");
+        return ResultError("Changes to " + cmakeFile.toUserOutput() + " could not be saved.");
     return true;
 }
 

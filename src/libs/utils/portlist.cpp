@@ -227,7 +227,7 @@ ExecutableItem portsFromProcessRecipe(const Storage<PortsInputData> &input,
             const QString stdErr = process.stdErr();
             const QString outputString
                 = stdErr.isEmpty() ? stdErr : Tr::tr("Remote error output was: %1").arg(stdErr);
-            *output = make_unexpected(Utils::joinStrings({errorString, outputString}, '\n'));
+            *output = ResultError(Utils::joinStrings({errorString, outputString}, '\n'));
         }
     };
     return ProcessTask(onSetup, onDone);

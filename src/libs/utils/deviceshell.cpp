@@ -185,7 +185,7 @@ Result<> DeviceShell::start()
 
             if (!m_shellProcess->waitForStarted()) {
                 closeShellProcess();
-                return make_unexpected(Tr::tr("The process failed to start."));
+                return ResultError(Tr::tr("The process failed to start."));
             }
 
             auto installResult = installShellScript();
@@ -219,7 +219,7 @@ Result<> DeviceShell::start()
             const QString stdErr = m_shellProcess->readAllStandardError();
             m_shellProcess.reset();
 
-            return make_unexpected(Tr::tr("Failed to install shell script: %1\n%2")
+            return ResultError(Tr::tr("Failed to install shell script: %1\n%2")
                                        .arg(installResult.error())
                                        .arg(stdErr));
         },
@@ -235,14 +235,14 @@ Result<QByteArray> DeviceShell::checkCommand(const QByteArray &command)
 
     m_shellProcess->writeRaw(checkCmd);
     if (!m_shellProcess->waitForReadyRead()) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Timeout while trying to check for %1.").arg(QString::fromUtf8(command)));
     }
     QByteArray out = m_shellProcess->readAllRawStandardOutput();
     if (out.contains("<missing>")) {
         m_shellScriptState = State::Failed;
         m_missingFeatures.append(QString::fromUtf8(command));
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Command \"%1\" was not found.").arg(QString::fromUtf8(command)));
     }
 

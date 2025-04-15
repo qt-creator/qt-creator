@@ -313,7 +313,7 @@ Result<QByteArray> DeviceFileAccess::fileContents(const FilePath &filePath,
     Q_UNUSED(limit)
     Q_UNUSED(offset)
     QTC_CHECK(false);
-    return make_unexpected(
+    return ResultError(
         Tr::tr("fileContents is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
@@ -323,7 +323,7 @@ Result<qint64> DeviceFileAccess::writeFileContents(const FilePath &filePath,
     Q_UNUSED(filePath)
     Q_UNUSED(data)
     QTC_CHECK(false);
-    return make_unexpected(
+    return ResultError(
         Tr::tr("writeFileContents is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
@@ -389,7 +389,7 @@ Result<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath)
 {
     Q_UNUSED(filePath)
     QTC_CHECK(false);
-    return make_unexpected(
+    return ResultError(
         Tr::tr("createTempFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
@@ -397,7 +397,7 @@ Utils::Result<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(
     const FilePath &path) const
 {
     Q_UNUSED(path);
-    return make_unexpected(Tr::tr("watch is not implemented."));
+    return ResultError(Tr::tr("watch is not implemented."));
 }
 
 QTextCodec *DeviceFileAccess::processStdOutCodec(const FilePath &executable) const
@@ -566,7 +566,7 @@ Result<QByteArray> UnavailableDeviceFileAccess::fileContents(const FilePath &fil
     Q_UNUSED(filePath)
     Q_UNUSED(limit)
     Q_UNUSED(offset)
-    return make_unexpected(unavailableMessage());
+    return ResultError(unavailableMessage());
 }
 
 Result<qint64> UnavailableDeviceFileAccess::writeFileContents(const FilePath &filePath,
@@ -574,7 +574,7 @@ Result<qint64> UnavailableDeviceFileAccess::writeFileContents(const FilePath &fi
 {
     Q_UNUSED(filePath)
     Q_UNUSED(data)
-    return make_unexpected(unavailableMessage());
+    return ResultError(unavailableMessage());
 }
 
 FilePathInfo UnavailableDeviceFileAccess::filePathInfo(const FilePath &filePath) const
@@ -630,14 +630,14 @@ std::optional<FilePath> UnavailableDeviceFileAccess::refersToExecutableFile(
 Result<FilePath> UnavailableDeviceFileAccess::createTempFile(const FilePath &filePath)
 {
     Q_UNUSED(filePath)
-    return make_unexpected(unavailableMessage());
+    return ResultError(unavailableMessage());
 }
 
 Result<std::unique_ptr<FilePathWatcher>>
     UnavailableDeviceFileAccess::watch(const FilePath &path) const
 {
     Q_UNUSED(path);
-    return make_unexpected(unavailableMessage());
+    return ResultError(unavailableMessage());
 }
 
 // DesktopDeviceFileAccess
@@ -1138,10 +1138,10 @@ Result<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &filePat
     const QString path = filePath.path();
     QFile f(path);
     if (!f.exists())
-        return make_unexpected(Tr::tr("File \"%1\" does not exist.").arg(path));
+        return ResultError(Tr::tr("File \"%1\" does not exist.").arg(path));
 
     if (!f.open(QFile::ReadOnly))
-        return make_unexpected(Tr::tr("Could not open File \"%1\".").arg(path));
+        return ResultError(Tr::tr("Could not open File \"%1\".").arg(path));
 
     if (offset != 0)
         f.seek(offset);
@@ -1151,7 +1151,7 @@ Result<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &filePat
 
     const QByteArray data = f.readAll();
     if (f.error() != QFile::NoError) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Cannot read \"%1\": %2").arg(filePath.toUserOutput(), f.errorString()));
     }
 
@@ -1164,12 +1164,12 @@ Result<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &filePa
     QFile file(filePath.path());
     const bool isOpened = file.open(QFile::WriteOnly | QFile::Truncate);
     if (!isOpened)
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Could not open file \"%1\" for writing.").arg(filePath.toUserOutput()));
 
     qint64 res = file.write(data);
     if (res != data.size())
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Could not write to file \"%1\" (only %2 of %n byte(s) written).",
                    nullptr,
                    data.size())
@@ -1183,7 +1183,7 @@ Result<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &filePat
     QTemporaryFile file(filePath.path());
     file.setAutoRemove(false);
     if (!file.open()) {
-        return make_unexpected(Tr::tr("Could not create temporary file in \"%1\" (%2).")
+        return ResultError(Tr::tr("Could not create temporary file in \"%1\" (%2).")
                                    .arg(filePath.toUserOutput())
                                    .arg(file.errorString()));
     }
@@ -1196,7 +1196,7 @@ Utils::Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(
     auto watcher = std::make_unique<DesktopFilePathWatcher>(path);
     if (watcher->error().isEmpty())
         return watcher;
-    return make_unexpected(watcher->error());
+    return ResultError(watcher->error());
 }
 
 QTextCodec *DesktopDeviceFileAccess::processStdOutCodec(const FilePath &executable) const
@@ -1489,12 +1489,12 @@ Result<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &filePath,
     p.setCommand({dd, args, OsType::OsTypeLinux});
     p.runBlocking(0s); // Run forever
     if (p.exitCode() != 0) {
-        return make_unexpected(Tr::tr("Failed reading file \"%1\": %2")
+        return ResultError(Tr::tr("Failed reading file \"%1\": %2")
                                    .arg(filePath.toUserOutput(), p.readAllStandardError()));
     }
     return p.rawStdOut();
 #else
-    return make_unexpected(QString("Not implemented"));
+    return ResultError(QString("Not implemented"));
 #endif
 }
 
@@ -1509,7 +1509,7 @@ Result<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &filePath,
     RunResult result = runInShell({"dd", args, OsType::OsTypeLinux}, data);
 
     if (result.exitCode != 0) {
-        return make_unexpected(Tr::tr("Failed writing file \"%1\": %2")
+        return ResultError(Tr::tr("Failed writing file \"%1\": %2")
                                    .arg(filePath.toUserOutput(), QString::fromUtf8(result.stdErr)));
     }
     return data.size();
@@ -1530,7 +1530,7 @@ Result<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &filePath)
         const RunResult result = runInShell({"mktemp", {tmplate}, OsType::OsTypeLinux});
 
         if (result.exitCode != 0) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("Failed creating temporary file \"%1\": %2")
                     .arg(filePath.toUserOutput(), QString::fromUtf8(result.stdErr)));
         }
@@ -1561,7 +1561,7 @@ Result<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &filePath)
         }
         newPath = filePath.withNewPath(tmplate);
         if (--maxTries == 0) {
-            return make_unexpected(Tr::tr("Failed creating temporary file \"%1\" (too many tries).")
+            return ResultError(Tr::tr("Failed creating temporary file \"%1\" (too many tries).")
                                        .arg(filePath.toUserOutput()));
         }
     } while (newPath.exists());
@@ -1569,7 +1569,7 @@ Result<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &filePath)
     const Result<qint64> createResult = newPath.writeFileContents({});
 
     if (!createResult)
-        return make_unexpected(createResult.error());
+        return ResultError(createResult.error());
 
     return newPath;
 }

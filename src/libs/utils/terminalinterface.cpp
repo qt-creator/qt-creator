@@ -206,27 +206,27 @@ Result<> TerminalInterface::startStubServer()
                                      .arg(QCoreApplication::applicationPid())
                                      .arg(rand())))
             return {};
-        return make_unexpected(d->stubServer.errorString());
+        return ResultError(d->stubServer.errorString());
     }
 
     // We need to put the socket in a private directory, as some systems simply do not
     // check the file permissions of sockets.
     if (!QDir(d->tempDir.path())
              .mkdir("socket")) { //  QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner
-        return make_unexpected(msgCannotCreateTempDir(d->tempDir.filePath("socket"),
+        return ResultError(msgCannotCreateTempDir(d->tempDir.filePath("socket"),
                                                       QString::fromLocal8Bit(strerror(errno))));
     }
 
     if (!QFile::setPermissions(d->tempDir.filePath("socket"),
                                QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner)) {
-        return make_unexpected(Tr::tr("Cannot set permissions on temporary directory \"%1\": %2")
+        return ResultError(Tr::tr("Cannot set permissions on temporary directory \"%1\": %2")
                                    .arg(d->tempDir.filePath("socket"))
                                    .arg(QString::fromLocal8Bit(strerror(errno))));
     }
 
     const QString socketPath = d->tempDir.filePath("socket/stub-socket");
     if (!d->stubServer.listen(socketPath)) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Cannot create socket \"%1\": %2").arg(socketPath, d->stubServer.errorString()));
     }
     return {};

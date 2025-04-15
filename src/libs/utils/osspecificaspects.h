@@ -49,7 +49,7 @@ inline Utils::Result<OsType> osTypeFromString(const QString &string)
     if (string.compare("other unix", Qt::CaseInsensitive) == 0)
         return OsTypeOtherUnix;
 
-    return Utils::make_unexpected(QString::fromLatin1("Unknown os type: %1").arg(string));
+    return Utils::ResultError(QString::fromLatin1("Unknown os type: %1").arg(string));
 }
 
 inline Utils::Result<OsArch> osArchFromString(const QString &architecture)
@@ -65,7 +65,7 @@ inline Utils::Result<OsArch> osArchFromString(const QString &architecture)
     if (architecture == QLatin1String("arm64") || architecture == QLatin1String("aarch64"))
         return OsArchArm64;
 
-    return Utils::make_unexpected(QString::fromLatin1("Unknown architecture: %1").arg(architecture));
+    return Utils::ResultError(QString::fromLatin1("Unknown architecture: %1").arg(architecture));
 }
 
 namespace OsSpecificAspects {

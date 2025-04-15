@@ -835,7 +835,7 @@ Result<FilePath> scratchBufferFilePath(const QString &pattern)
     QTemporaryFile file(tmp);
     file.setAutoRemove(false);
     if (!file.open()) {
-        return make_unexpected(Tr::tr("Failed to set up scratch buffer in \"%1\".")
+        return ResultError(Tr::tr("Failed to set up scratch buffer in \"%1\".")
                                    .arg(FilePath::fromString(tmp).parentDir().toUserOutput()));
     }
     file.close();

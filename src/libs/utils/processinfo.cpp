@@ -38,11 +38,11 @@ static Result<QList<ProcessInfo>> getLocalProcessesUsingProc(const FilePath &dev
 {
     const FilePath procDir = devicePath.withNewPath("/proc");
     if (!procDir.exists())
-        return make_unexpected(Tr::tr("%1 does not exist").arg(procDir.toUserOutput()));
+        return ResultError(Tr::tr("%1 does not exist").arg(procDir.toUserOutput()));
 
     const FilePath find = devicePath.withNewPath("find").searchInPath();
     if (!find.isExecutableFile())
-        return make_unexpected(Tr::tr("find is not an existing executable"));
+        return ResultError(Tr::tr("find is not an existing executable"));
 
     static const QString execs = "-exec test -f {}/exe \\; "
                                  "-exec test -f {}/cmdline \\; "
@@ -63,7 +63,7 @@ static Result<QList<ProcessInfo>> getLocalProcessesUsingProc(const FilePath &dev
 
     // We can only check the errorString here. The exit code maybe != 0 if one of the "test"s failed.
     if (!procProcess.errorString().isEmpty()) {
-        return make_unexpected(Tr::tr("Failed to run %1: %2")
+        return ResultError(Tr::tr("Failed to run %1: %2")
                                    .arg(cmd.executable().toUserOutput())
                                    .arg(procProcess.errorString()));
     }
@@ -116,12 +116,12 @@ static Result<QMap<qint64, QString>> getLocalProcessDataUsingPs(
     process.setCommand({ps, {"-e", "-o", "pid," + column}});
     process.runBlocking();
     if (!process.errorString().isEmpty()) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Failed to run %1: %2").arg(ps.toUserOutput()).arg(process.errorString()));
     }
 
     if (process.exitCode() != 0) {
-        return make_unexpected(Tr::tr("Failed to run %1: %2")
+        return ResultError(Tr::tr("Failed to run %1: %2")
                                    .arg(ps.toUserOutput())
                                    .arg(process.readAllStandardError()));
     }
@@ -144,17 +144,17 @@ static Result<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath &devic
 
     const FilePath ps = deviceRoot.withNewPath("ps").searchInPath();
     if (!ps.isExecutableFile())
-        return make_unexpected(Tr::tr("ps is not an existing executable"));
+        return ResultError(Tr::tr("ps is not an existing executable"));
 
     // cmdLines are full command lines, usually with absolute path,
     // exeNames only the file part of the executable's path.
     const auto exeNames = getLocalProcessDataUsingPs(ps, "comm");
     if (!exeNames)
-        return make_unexpected(exeNames.error());
+        return ResultError(exeNames.error());
 
     const auto cmdLines = getLocalProcessDataUsingPs(ps, "args");
     if (!cmdLines)
-        return make_unexpected(cmdLines.error());
+        return ResultError(cmdLines.error());
 
     for (auto it = exeNames->begin(), end = exeNames->end(); it != end; ++it) {
         const qint64 pid = it.key();
@@ -179,17 +179,17 @@ static Result<QList<ProcessInfo>> getProcessesUsingPidin(const FilePath &deviceR
 {
     const FilePath pidin = deviceRoot.withNewPath("pidin").searchInPath();
     if (!pidin.isExecutableFile())
-        return make_unexpected(Tr::tr("pidin is not an existing executable"));
+        return ResultError(Tr::tr("pidin is not an existing executable"));
 
     Process process;
     process.setCommand({pidin, {"-F", "%a %A {/%n}"}});
     process.runBlocking();
     if (process.errorString().isEmpty()) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Failed to run %1: %2").arg(pidin.toUserOutput()).arg(process.errorString()));
     }
     if (process.exitCode() != 0)
-        return make_unexpected(process.readAllStandardError());
+        return ResultError(process.readAllStandardError());
 
     QList<ProcessInfo> processes;
     QStringList lines = process.readAllStandardOutput().split(QLatin1Char('\n'));
@@ -251,7 +251,7 @@ Result<QList<ProcessInfo>> ProcessInfo::processInfoList(const FilePath &deviceRo
         pe.dwSize = sizeof(PROCESSENTRY32);
         HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         if (snapshot == INVALID_HANDLE_VALUE) {
-            return make_unexpected(
+            return ResultError(
                 Tr::tr("Failed to create snapshot: %1").arg(winErrorMessage(GetLastError())));
         }
 

@@ -24,7 +24,7 @@ Result<> makeResult(bool ok, const QString &errorMessage)
 {
     if (ok)
         return ResultOk;
-    return tl::make_unexpected(errorMessage);
+    return ResultError(errorMessage);
 }
 
 } // Utils

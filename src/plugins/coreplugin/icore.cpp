@@ -703,7 +703,7 @@ static Result<FilePath> clangBinary(
     if (!fromPath.isEmpty())
         return fromPath;
 
-    return make_unexpected(Tr::tr("Could not find %1 executable in %2")
+    return ResultError(Tr::tr("Could not find %1 executable in %2")
                                .arg(binaryBaseName)
                                .arg(clangBinDirectory.toUserOutput()));
 }

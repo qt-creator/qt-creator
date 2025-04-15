@@ -415,8 +415,7 @@ QVariant MacroExpander::expandVariant(const QVariant &v) const
     return v;
 }
 
-Result<QString> MacroExpander::expandProcessArgs(
-    const QString &argsWithVariables, Utils::OsType osType) const
+Result<QString> MacroExpander::expandProcessArgs(const QString &argsWithVariables, OsType osType) const
 {
     QString result = argsWithVariables;
     const bool ok = ProcessArgs::expandMacros(
@@ -425,7 +424,7 @@ Result<QString> MacroExpander::expandProcessArgs(
         osType);
 
     if (!ok) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Failed to expand macros in process arguments: %1").arg(argsWithVariables));
     }
     return result;

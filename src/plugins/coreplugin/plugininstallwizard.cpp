@@ -148,7 +148,7 @@ static Result<std::unique_ptr<PluginSpec>> checkPlugin(
     const Result<> ok = checkPlugin(spec->get(), update);
     if (ok)
         return spec;
-    return Utils::make_unexpected(ok.error());
+    return ResultError(ok.error());
 }
 
 // Async. Result is set if any issue was found.
@@ -156,11 +156,11 @@ void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir, bool
 {
     QList<PluginSpec *> plugins = pluginSpecsFromArchive(tempDir);
     if (plugins.isEmpty()) {
-        promise.addResult(Utils::make_unexpected(Tr::tr("No plugins found.")));
+        promise.addResult(ResultError(Tr::tr("No plugins found.")));
         return;
     }
     if (plugins.size() > 1) {
-        promise.addResult(Utils::make_unexpected(Tr::tr("More than one plugin found.")));
+        promise.addResult(ResultError(Tr::tr("More than one plugin found.")));
         qDeleteAll(plugins);
         return;
     }
@@ -168,7 +168,7 @@ void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir, bool
     PluginSpec *plugin = plugins.front();
     const Result<> ok = checkPlugin(plugin, update);
     if (!ok) {
-        promise.addResult(Utils::make_unexpected(ok.error()));
+        promise.addResult(ResultError(ok.error()));
         delete plugin;
         return;
     }

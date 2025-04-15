@@ -157,10 +157,10 @@ Result<Store> storeFromJson(const QByteArray &json)
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(json, &error);
     if (error.error != QJsonParseError::NoError)
-        return make_unexpected(error.errorString());
+        return ResultError(error.errorString());
 
     if (!doc.isObject())
-        return make_unexpected(QString("Not a valid JSON object."));
+        return ResultError(QString("Not a valid JSON object."));
 
     return storeFromMap(doc.toVariant().toMap());
 }

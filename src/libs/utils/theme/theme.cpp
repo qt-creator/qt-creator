@@ -364,7 +364,7 @@ Result<Theme::Color> Theme::colorToken(const QString &tokenName,
     bool ok = false;
     const Color result = static_cast<Color>(colorEnum.keyToValue(colorName.toLatin1(), &ok));
     if (!ok)
-        return make_unexpected(QString::fromLatin1("%1 - Color token \"%2\" not found.")
+        return ResultError(QString::fromLatin1("%1 - Color token \"%2\" not found.")
                                .arg(Q_FUNC_INFO).arg(tokenName));
     return result;
 }

@@ -114,14 +114,14 @@ enum OpenSslValidation {
 static Result<> testJavaC(const FilePath &jdkPath)
 {
     if (!jdkPath.isReadableDir())
-        return make_unexpected(Tr::tr("The selected path does not exist or is not readable."));
+        return ResultError(Tr::tr("The selected path does not exist or is not readable."));
 
     const QString javacCommand("javac");
     const QString versionParameter("-version");
     const FilePath bin = jdkPath / "bin" / (javacCommand + QTC_HOST_EXE_SUFFIX);
 
     if (!bin.isExecutableFile())
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Could not find \"%1\" in the selected path.")
                 .arg(bin.toUserOutput()));
 
@@ -136,20 +136,20 @@ static Result<> testJavaC(const FilePath &jdkPath)
     const QString stdOut = javacProcess.stdOut().trimmed();
 
     if (javacProcess.exitCode() != 0)
-        return make_unexpected(
+        return ResultError(
             Tr::tr("The selected path does not contain a valid JDK. (%1 failed: %2)")
                 .arg(cmd.toUserOutput(), stdOut));
 
     // We expect "javac <version>" where <version> is "major.minor.patch"
     const QString outputPrefix = javacCommand + " ";
     if (!stdOut.startsWith(outputPrefix))
-        return make_unexpected(Tr::tr("Unexpected output from \"%1\": %2")
+        return ResultError(Tr::tr("Unexpected output from \"%1\": %2")
                                    .arg(cmd.toUserOutput(), stdOut));
 
     jdkVersion = QVersionNumber::fromString(stdOut.mid(outputPrefix.length()).split('\n').first());
 
     if (jdkVersion.isNull() /* || jdkVersion.majorVersion() != requiredJavaMajorVersion */ ) {
-        return make_unexpected(Tr::tr("Unsupported JDK version (needs to be %1): %2 (parsed: %3)")
+        return ResultError(Tr::tr("Unsupported JDK version (needs to be %1): %2 (parsed: %3)")
                                    .arg(requiredJavaMajorVersion)
                                    .arg(stdOut, jdkVersion.toString()));
     }
@@ -260,7 +260,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             Result<> test = testJavaC(FilePath::fromUserInput(s));
             if (!test) {
                 Core::MessageManager::writeSilently(test.error());
-                return make_unexpected(test.error());
+                return ResultError(test.error());
             }
             return s;
         });

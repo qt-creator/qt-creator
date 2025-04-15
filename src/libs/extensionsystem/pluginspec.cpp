@@ -811,11 +811,11 @@ Result<std::unique_ptr<PluginSpec>> readCppPluginSpec(const FilePath &fileName)
 
     spec->d->loader->setFileName(absPath.toFSPathString());
     if (spec->d->loader->fileName().isEmpty())
-        return make_unexpected(::ExtensionSystem::Tr::tr("Cannot open file"));
+        return ResultError(::ExtensionSystem::Tr::tr("Cannot open file"));
 
     Result<> r = spec->readMetaData(spec->d->loader->metaData());
     if (!r)
-        return make_unexpected(r.error());
+        return ResultError(r.error());
 
     return spec;
 }
@@ -828,7 +828,7 @@ Result<std::unique_ptr<PluginSpec>> readCppPluginSpec(const QStaticPlugin &plugi
     spec->d->staticPlugin = plugin;
     Result<> r = spec->readMetaData(plugin.metaData());
     if (!r)
-        return make_unexpected(r.error());
+        return ResultError(r.error());
 
     return spec;
 }
@@ -882,10 +882,10 @@ Result<> CppPluginSpec::readMetaData(const QJsonObject &pluginMetaData)
     QJsonValue value;
     value = pluginMetaData.value(QLatin1String("IID"));
     if (!value.isString())
-        return make_unexpected(::ExtensionSystem::Tr::tr("No IID found"));
+        return ResultError(::ExtensionSystem::Tr::tr("No IID found"));
 
     if (value.toString() != PluginManager::pluginIID())
-        return make_unexpected(::ExtensionSystem::Tr::tr("Expected IID \"%1\", but found \"%2\"")
+        return ResultError(::ExtensionSystem::Tr::tr("Expected IID \"%1\", but found \"%2\"")
                                    .arg(PluginManager::pluginIID())
                                    .arg(value.toString()));
 
@@ -920,9 +920,9 @@ Utils::Result<> PluginSpecPrivate::readMetaData(const QJsonObject &data)
     auto assign = [&data](QString &member, const char *fieldName) -> Result<> {
         QJsonValue value = data.value(QLatin1String(fieldName));
         if (value.isUndefined())
-            return make_unexpected(msgValueMissing(fieldName));
+            return ResultError(msgValueMissing(fieldName));
         if (!value.isString())
-            return make_unexpected(msgValueIsNotAString(fieldName));
+            return ResultError(msgValueIsNotAString(fieldName));
         member = value.toString();
         return {};
     };
@@ -940,11 +940,11 @@ Utils::Result<> PluginSpecPrivate::readMetaData(const QJsonObject &data)
 
             if constexpr (isString) {
                 if (!value.isString())
-                    return make_unexpected(msgValueIsNotAString(fieldName));
+                    return ResultError(msgValueIsNotAString(fieldName));
                 member = value.toString();
             } else if constexpr (isBool) {
                 if (!value.isBool())
-                    return make_unexpected(msgValueIsNotABool(fieldName));
+                    return ResultError(msgValueIsNotABool(fieldName));
                 member = value.toBool();
             }
         }
@@ -956,7 +956,7 @@ Utils::Result<> PluginSpecPrivate::readMetaData(const QJsonObject &data)
         if (value.isUndefined())
             return {};
         if (!readMultiLineString(value, &member))
-            return make_unexpected(msgValueIsNotAMultilineString(fieldName));
+            return ResultError(msgValueIsNotAMultilineString(fieldName));
         return {};
     };
 
@@ -1483,7 +1483,7 @@ QList<PluginSpec *> pluginSpecsFromArchive(const Utils::FilePath &path)
 Result<FilePaths> PluginSpec::filesToUninstall() const
 {
     if (isSystemPlugin())
-        return make_unexpected(Tr::tr("Cannot remove system plugins."));
+        return ResultError(Tr::tr("Cannot remove system plugins."));
 
     // Try to figure out where we are ...
     const FilePaths pluginPaths = PluginManager::pluginPaths();
@@ -1492,7 +1492,7 @@ Result<FilePaths> PluginSpec::filesToUninstall() const
         if (location().isChildOf(pluginPath)) {
             const FilePath rootFolder = location().relativeChildPath(pluginPath);
             if (rootFolder.isEmpty())
-                return make_unexpected(Tr::tr("Could not determine root folder."));
+                return ResultError(Tr::tr("Could not determine root folder."));
 
             const FilePath pathToDelete = pluginPath
                                           / rootFolder.pathComponents().first().toString();

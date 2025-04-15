@@ -121,7 +121,7 @@ Result<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setu
             QTemporaryFile shFile;
             shFile.setAutoRemove(false);
             QTC_ASSERT(shFile.open(),
-                       return make_unexpected(Tr::tr("Failed to open temporary script file.")));
+                       return ResultError(Tr::tr("Failed to open temporary script file.")));
 
             const QString shScript = QString("cd '%1'\n%2\nclear\n'%3' %4\nrm '%5'\n")
                                          .arg(setupData.m_workingDirectory.nativePath())
@@ -148,7 +148,7 @@ Result<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setu
             process->start();
 
             if (!process->waitForStarted()) {
-                return make_unexpected(
+                return ResultError(
                     Tr::tr("Failed to start terminal process: \"%1\".").arg(process->errorString()));
             }
 
@@ -196,7 +196,7 @@ Result<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData &setu
     process->start();
     process->waitForStarted();
     if (process->error() != QProcess::UnknownError) {
-        return make_unexpected(
+        return ResultError(
             Tr::tr("Failed to start terminal process: \"%1\".").arg(process->errorString()));
     }
 

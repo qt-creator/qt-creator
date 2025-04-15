@@ -332,7 +332,7 @@ Utils::FilePath findConfig(const Utils::FilePath &filePath)
     return {};
 }
 
-ICodeStylePreferences *preferencesForFile(const Utils::FilePath &filePath)
+ICodeStylePreferences *preferencesForFile(const FilePath &filePath)
 {
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
         filePath);
@@ -342,7 +342,7 @@ ICodeStylePreferences *preferencesForFile(const Utils::FilePath &filePath)
                : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
 }
 
-Utils::FilePath configForFile(const Utils::FilePath &filePath)
+FilePath configForFile(const FilePath &filePath)
 {
     if (!getCurrentCustomSettings(filePath))
         return findConfig(filePath);
@@ -409,16 +409,16 @@ void addQtcStatementMacros(clang::format::FormatStyle &style)
     }
 }
 
-Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle)
+FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle)
 {
     return Core::ICore::userResourcePath() / "clang-format/"
            / Utils::FileUtils::fileSystemFriendlyName(codeStyle->displayName())
            / QLatin1String(Constants::SETTINGS_FILE_NAME);
 }
 
-Utils::Result<> parseConfigurationContent(const std::string &fileContent,
-                                                    clang::format::FormatStyle &style,
-                                                    bool allowUnknownOptions)
+Result<> parseConfigurationContent(const std::string &fileContent,
+                                   clang::format::FormatStyle &style,
+                                   bool allowUnknownOptions)
 {
     llvm::SourceMgr::DiagHandlerTy diagHandler = [](const llvm::SMDiagnostic &diag, void *context) {
         QString *errorMessage = reinterpret_cast<QString *>(context);
@@ -439,12 +439,11 @@ Utils::Result<> parseConfigurationContent(const std::string &fileContent,
     errorMessage = errorMessage.trimmed().isEmpty() ? QString::fromStdString(error.message())
                                                     : errorMessage;
     if (error)
-        return make_unexpected(errorMessage);
-    return {};
+        return ResultError(errorMessage);
+    return ResultOk;
 }
 
-Utils::Result<> parseConfigurationFile(const Utils::FilePath &filePath,
-                                                 clang::format::FormatStyle &style)
+Result<> parseConfigurationFile(const FilePath &filePath, clang::format::FormatStyle &style)
 {
     return parseConfigurationContent(filePath.fileContents().value_or(QByteArray()).toStdString(),
                                      style, true);

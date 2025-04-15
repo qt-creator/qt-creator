@@ -649,7 +649,7 @@ Result<FilePath> FilePath::tmpDir() const
     if (!isLocal()) {
         const Result<Environment> env = deviceEnvironmentWithError();
         if (!env)
-            return make_unexpected(env.error());
+            return ResultError(env.error());
 
         if (env->hasKey("TMPDIR"))
             return withNewPath(env->value("TMPDIR")).cleanPath();
@@ -660,7 +660,7 @@ Result<FilePath> FilePath::tmpDir() const
 
         if (osType() != OsTypeWindows)
             return withNewPath("/tmp");
-        return make_unexpected(QString("Could not find temporary directory on device %1")
+        return ResultError(QString("Could not find temporary directory on device %1")
                                .arg(displayName()));
     }
 
@@ -675,7 +675,7 @@ Result<FilePath> FilePath::createTempFile() const
         if (file.open())
             return FilePath::fromString(file.fileName());
 
-        return make_unexpected(QString("Could not create temporary file: %1").arg(file.errorString()));
+        return ResultError(QString("Could not create temporary file: %1").arg(file.errorString()));
     }
 
     return fileAccess()->createTempFile(*this);
@@ -2342,7 +2342,7 @@ Result<FilePath> FilePath::localSource() const
         return *this;
 
     QTC_ASSERT(deviceFileHooks().localSource,
-               return make_unexpected(Tr::tr("No \"localSource\" device hook set.")));
+               return ResultError(Tr::tr("No \"localSource\" device hook set.")));
     return deviceFileHooks().localSource(*this);
 }
 
@@ -2572,7 +2572,7 @@ Result<std::unique_ptr<TemporaryFilePath>> TemporaryFilePath::create(
 {
     Result<FilePath> result = templatePath.createTempFile();
     if (!result)
-        return make_unexpected(result.error());
+        return ResultError(result.error());
     return std::unique_ptr<TemporaryFilePath>(new TemporaryFilePath(templatePath, *result));
 }
 
