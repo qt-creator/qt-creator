@@ -152,7 +152,7 @@ public:
 static inline bool shouldEnableInputMethod(PlainTextEdit *control)
 {
 #if defined(Q_OS_ANDROID)
-    Q_UNUSED(control);
+    Q_UNUSED(control)
     return !control->isReadOnly() || (control->textInteractionFlags() & Qt::TextSelectableByMouse);
 #else
     return !control->isReadOnly();
@@ -575,7 +575,7 @@ qreal PlainTextEditPrivate::verticalOffset(int topBlock, int topLine) const
         PlainTextDocumentLayout *documentLayout = qobject_cast<PlainTextDocumentLayout*>(doc->documentLayout());
         Q_ASSERT(documentLayout);
         QRectF r = documentLayout->blockBoundingRect(currentBlock);
-        Q_UNUSED(r);
+        Q_UNUSED(r)
         QTextLayout *layout = currentBlock.layout();
         if (layout && topLine <= layout->lineCount()) {
             QTextLine line = layout->lineAt(topLine - 1);
@@ -1894,8 +1894,8 @@ void PlainTextEdit::keyReleaseEvent(QKeyEvent *e)
 */
 QVariant PlainTextEdit::loadResource(int type, const QUrl &name)
 {
-    Q_UNUSED(type);
-    Q_UNUSED(name);
+    Q_UNUSED(type)
+    Q_UNUSED(name)
     return QVariant();
 }
 

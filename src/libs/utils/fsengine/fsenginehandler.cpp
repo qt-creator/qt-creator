@@ -296,7 +296,7 @@ QStringList FSEngineImpl::entryList(QDir::Filters filters, const QStringList &fi
 
 QAbstractFileEngine::FileFlags FSEngineImpl::fileFlags(FileFlags type) const
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     return {g_filePathInfoCache.cached(m_filePath, createCacheData).filePathInfo.fileFlags.toInt()};
 }
 

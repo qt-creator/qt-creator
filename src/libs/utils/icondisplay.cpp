@@ -29,7 +29,7 @@ IconDisplay::~IconDisplay() = default;
 
 void IconDisplay::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);

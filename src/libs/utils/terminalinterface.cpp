@@ -418,7 +418,7 @@ void TerminalInterface::start()
 
 qint64 TerminalInterface::write(const QByteArray &data)
 {
-    Q_UNUSED(data);
+    Q_UNUSED(data)
     QTC_CHECK(false);
     return -1;
 }

@@ -281,7 +281,7 @@ public:
     WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) final
     {
         Q_UNUSED(wizard)
-        Q_UNUSED(data);
+        Q_UNUSED(data)
         QTC_ASSERT(canCreate(typeId), return nullptr);
         return new SquishAUTPage;
     }

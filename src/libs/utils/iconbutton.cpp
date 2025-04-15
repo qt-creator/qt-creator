@@ -20,7 +20,7 @@ IconButton::IconButton(QWidget *parent)
 
 void IconButton::paintEvent(QPaintEvent *e)
 {
-    Q_UNUSED(e);
+    Q_UNUSED(e)
 
     QPainter p(this);
     QRect r(QPoint(), size());

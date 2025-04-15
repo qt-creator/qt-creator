@@ -606,7 +606,7 @@ const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredPropertyName
 std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredSignalNames(const NodeMetaInfo &metaInfo,
                                                                           bool recursive)
 {
-    Q_UNUSED(recursive);
+    Q_UNUSED(recursive)
 
     auto filtered = Utils::filtered(metaInfo.signalNames(), [](const PropertyName &name) {
         if (std::find(priorityListSignals.cbegin(), priorityListSignals.cend(), name)
@@ -647,7 +647,7 @@ std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredSignalNames(const 
 std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredSlotNames(const NodeMetaInfo &metaInfo,
                                                                         bool recursive)
 {
-    Q_UNUSED(recursive);
+    Q_UNUSED(recursive)
 
     auto priorityList = priorityListSlots;
     auto filtered = Utils::filtered(metaInfo.slotNames(), [priorityList](const PropertyName &name) {

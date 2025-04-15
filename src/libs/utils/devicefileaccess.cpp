@@ -396,7 +396,7 @@ Result<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath)
 Utils::Result<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(
     const FilePath &path) const
 {
-    Q_UNUSED(path);
+    Q_UNUSED(path)
     return ResultError(Tr::tr("watch is not implemented."));
 }
 
@@ -484,7 +484,7 @@ bool UnavailableDeviceFileAccess::hasHardLinks(const FilePath &filePath) const
 
 Result<> UnavailableDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
-    Q_UNUSED(filePath);
+    Q_UNUSED(filePath)
     return ResultError(unavailableMessage());
 }
 
@@ -636,7 +636,7 @@ Result<FilePath> UnavailableDeviceFileAccess::createTempFile(const FilePath &fil
 Result<std::unique_ptr<FilePathWatcher>>
     UnavailableDeviceFileAccess::watch(const FilePath &path) const
 {
-    Q_UNUSED(path);
+    Q_UNUSED(path)
     return ResultError(unavailableMessage());
 }
 
@@ -1201,13 +1201,13 @@ Utils::Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(
 
 QTextCodec *DesktopDeviceFileAccess::processStdOutCodec(const FilePath &executable) const
 {
-    Q_UNUSED(executable);
+    Q_UNUSED(executable)
     return QTextCodec::codecForLocale();
 }
 
 QTextCodec *DesktopDeviceFileAccess::processStdErrCodec(const FilePath &executable) const
 {
-    Q_UNUSED(executable);
+    Q_UNUSED(executable)
     return QTextCodec::codecForLocale();
 }
 

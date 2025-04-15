@@ -193,7 +193,7 @@ static bool saveFileSupportedFileSystem(const FilePath &path)
         }
     }
 #else
-    Q_UNUSED(path);
+    Q_UNUSED(path)
 #endif
     return true;
 }

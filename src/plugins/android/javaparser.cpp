@@ -33,7 +33,7 @@ void JavaParser::setSourceDirectory(const FilePath &sourceDirectory)
 
 OutputLineParser::Result JavaParser::handleLine(const QString &line, OutputFormat type)
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     static const QRegularExpression javaRegExp("^(.*\\[javac\\]\\s)(.*\\.java):(\\d+):(.*)$");
 
     const QRegularExpressionMatch match = javaRegExp.match(line);

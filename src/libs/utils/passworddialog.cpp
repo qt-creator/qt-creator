@@ -27,7 +27,7 @@ ShowPasswordButton::ShowPasswordButton(QWidget *parent)
 
 void ShowPasswordButton::paintEvent(QPaintEvent *e)
 {
-    Q_UNUSED(e);
+    Q_UNUSED(e)
     QIcon icon = isChecked() ? Utils::Icons::EYE_OPEN_TOOLBAR.icon()
                              : Utils::Icons::EYE_CLOSED_TOOLBAR.icon();
     QPainter p(this);

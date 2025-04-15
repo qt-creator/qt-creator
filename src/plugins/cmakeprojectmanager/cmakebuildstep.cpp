@@ -818,7 +818,7 @@ void CMakeBuildStep::updateDeploymentData()
 
     QString install = currentInstallPrefix();
     FilePath rootDir = cmakeExecutable().withNewPath(stagingDir().path());
-    Q_UNUSED(install);
+    Q_UNUSED(install)
 
     DeploymentData deploymentData;
     deploymentData.setLocalInstallRoot(rootDir);

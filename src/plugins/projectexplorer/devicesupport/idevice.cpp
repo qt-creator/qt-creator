@@ -718,7 +718,7 @@ bool IDevice::ensureReachable(const FilePath &other) const
 
 Result<FilePath> IDevice::localSource(const Utils::FilePath &other) const
 {
-    Q_UNUSED(other);
+    Q_UNUSED(other)
     return make_unexpected(Tr::tr("localSource() not implemented for this device type."));
 }
 

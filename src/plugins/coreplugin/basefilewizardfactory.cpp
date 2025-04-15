@@ -50,7 +50,7 @@ Wizard *BaseFileWizardFactory::runWizardImpl(const FilePath &path, Id platform,
                                              const QVariantMap &extraValues,
                                              bool showWizard)
 {
-    Q_UNUSED(showWizard);
+    Q_UNUSED(showWizard)
     QTC_ASSERT(!path.isEmpty(), return nullptr);
 
     // Create dialog and run it. Ensure that the dialog is deleted when

@@ -156,7 +156,7 @@ void JsonFieldPage::Field::setHasUserChanges()
 
 void JsonFieldPage::Field::fromSettings(const QVariant &value)
 {
-    Q_UNUSED(value);
+    Q_UNUSED(value)
 }
 
 QVariant JsonFieldPage::Field::toSettings() const

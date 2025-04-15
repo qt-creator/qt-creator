@@ -327,7 +327,7 @@ const Style *DefaultStyleEngine::applyObjectStyle(const Style *baseStyle, const 
 
 const Style *DefaultStyleEngine::applyRelationStyle(const Style *baseStyle, ElementType elementType, const RelationVisuals &relationVisuals, const Parameters *parameters)
 {
-    Q_UNUSED(parameters);
+    Q_UNUSED(parameters)
 
     RelationStyleKey key(elementType, relationVisuals);
     const Style *derivedStyle = m_relationStyleMap.value(key);

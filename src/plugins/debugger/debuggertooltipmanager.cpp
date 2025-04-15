@@ -90,7 +90,7 @@ public:
 
     void onModeChanged(Id mode)
     {
-        Q_UNUSED(mode);
+        Q_UNUSED(mode)
         // if (mode == Constants::MODE_DEBUG)
         updateVisibleToolTips();
     }

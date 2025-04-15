@@ -100,7 +100,7 @@ class TestProvider final : public CompletionAssistProvider
 public:
     IAssistProcessor *createProcessor(const AssistInterface *assistInterface) const final
     {
-        Q_UNUSED(assistInterface);
+        Q_UNUSED(assistInterface)
         return new TestProcessor(m_items);
     }
     QList<AssistProposalItemInterface *> m_items;

@@ -1544,7 +1544,7 @@ void Client::projectClosed(ProjectExplorer::Project *project)
 
 bool Client::canOpenProject(ProjectExplorer::Project *project)
 {
-    Q_UNUSED(project);
+    Q_UNUSED(project)
     return true;
 }
 

@@ -2537,7 +2537,7 @@ QTCREATOR_UTILS_EXPORT bool operator>=(const FilePath &first, const FilePath &se
 
 QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath, uint seed)
 {
-    Q_UNUSED(seed);
+    Q_UNUSED(seed)
 
     if (filePath.m_hash == 0) {
         if (filePath.caseSensitivity() == Qt::CaseSensitive)

@@ -364,7 +364,7 @@ struct TerminalSurfacePrivate
     }
     int movecursor(VTermPos pos, VTermPos oldpos, int visible)
     {
-        Q_UNUSED(oldpos);
+        Q_UNUSED(oldpos)
         Cursor oldCursor = q->cursor();
         m_cursor.position = {pos.col, pos.row};
         m_cursor.visible = visible > 0;

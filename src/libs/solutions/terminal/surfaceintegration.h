@@ -13,9 +13,9 @@ public:
     virtual void onOsc(int cmd, std::string_view str, bool initial, bool final) = 0;
 
     virtual void onBell() {}
-    virtual void onTitle(const QString &title) { Q_UNUSED(title); }
+    virtual void onTitle(const QString &title) { Q_UNUSED(title) }
 
-    virtual void onSetClipboard(const QByteArray &text) { Q_UNUSED(text); }
+    virtual void onSetClipboard(const QByteArray &text) { Q_UNUSED(text) }
     virtual void onGetClipboard() {}
 };
 

@@ -33,7 +33,7 @@ void PushButton::setButtonOrientation(Orientation orientation)
 
 void PushButton::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     QStylePainter painter(this);
     QStyleOptionButton option;

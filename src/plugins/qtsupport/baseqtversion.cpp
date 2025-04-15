@@ -1692,7 +1692,7 @@ Environment QtVersion::qmakeRunEnvironment() const
 
 void QtVersion::setupQmakeRunEnvironment(Environment &env) const
 {
-    Q_UNUSED(env);
+    Q_UNUSED(env)
 }
 
 bool QtVersion::hasQmlDumpWithRelocatableFlag() const

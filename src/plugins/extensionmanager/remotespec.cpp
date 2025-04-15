@@ -45,7 +45,7 @@ ExtensionSystem::IPlugin *RemoteSpec::plugin() const
 
 FilePath RemoteSpec::installLocation(bool inUserFolder) const
 {
-    Q_UNUSED(inUserFolder);
+    Q_UNUSED(inUserFolder)
     return {};
 };
 

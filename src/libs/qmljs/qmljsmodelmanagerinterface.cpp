@@ -1736,8 +1736,8 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() c
 ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfoForProject(
     ProjectExplorer::Project *project, const FilePaths &hiddenRccFolders) const
 {
-    Q_UNUSED(project);
-    Q_UNUSED(hiddenRccFolders);
+    Q_UNUSED(project)
+    Q_UNUSED(hiddenRccFolders)
     return ModelManagerInterface::ProjectInfo();
 }
 

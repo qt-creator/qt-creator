@@ -75,7 +75,7 @@ void ObjectsMapDocument::setModified(bool modified)
 Result<> ObjectsMapDocument::reload(Core::IDocument::ReloadFlag flag,
                                   Core::IDocument::ChangeType type)
 {
-    Q_UNUSED(type);
+    Q_UNUSED(type)
     if (flag == FlagIgnore)
         return ResultOk;
     emit aboutToReload();

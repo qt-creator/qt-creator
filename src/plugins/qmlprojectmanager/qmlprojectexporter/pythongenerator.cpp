@@ -87,8 +87,8 @@ void PythonGenerator::updateProject(QmlProject *project)
     Regenerates the .qrc resources file
 */
 void PythonGenerator::update(const QSet<QString> &added, const QSet<QString> &removed) {
-    Q_UNUSED(added);
-    Q_UNUSED(removed);
+    Q_UNUSED(added)
+    Q_UNUSED(removed)
     ResourceGenerator::createQrc(qmlProject());
     // Generated Python code does not need to be updated
 };

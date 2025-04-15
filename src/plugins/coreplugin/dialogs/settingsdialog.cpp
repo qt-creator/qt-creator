@@ -261,7 +261,7 @@ static bool categoryVisible([[maybe_unused]] const Id &id)
     if (anyOf(list, [id](const QString &str) { return id.toString().contains(str); }))
         return false;
 #else
-    Q_UNUSED(id);
+    Q_UNUSED(id)
 #endif
     return true;
 }

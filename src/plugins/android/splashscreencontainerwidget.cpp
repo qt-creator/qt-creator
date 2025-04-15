@@ -84,7 +84,7 @@ class SplashScreenWidget : public QWidget
     private:
         void paintEvent(QPaintEvent *event) override
         {
-            Q_UNUSED(event);
+            Q_UNUSED(event)
             QPainter painter(this);
             painter.setPen(QPen(Qt::gray, 1));
             painter.setBrush(QBrush(m_parentWidget->m_backgroundColor));

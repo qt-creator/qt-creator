@@ -196,7 +196,7 @@ FullFormattingRequest::FullFormattingRequest(Client *client, TextEditor::TextDoc
 IFormattingRequest::RequestType FullFormattingRequest::prepareRequest(
     const QTextCursor &cursor, const TextEditor::TabSettings &settings, LanguageClientFormatter *formatter)
 {
-    Q_UNUSED(cursor);
+    Q_UNUSED(cursor)
     if (!canRequest<DocumentFormattingRequest>(m_client, m_document))
         return std::monostate();
     const FilePath &filePath = m_document->filePath();

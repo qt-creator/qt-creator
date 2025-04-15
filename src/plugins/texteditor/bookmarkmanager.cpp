@@ -550,9 +550,9 @@ bool BookmarkManager::canDropMimeData(const QMimeData *data, Qt::DropAction acti
                                       int row, int column,
                                       const QModelIndex &parent) const
 {
-    Q_UNUSED(row);
-    Q_UNUSED(column);
-    Q_UNUSED(parent);
+    Q_UNUSED(row)
+    Q_UNUSED(column)
+    Q_UNUSED(parent)
 
     if (!(action & supportedDropActions()))
         return false;
@@ -567,7 +567,7 @@ bool BookmarkManager::canDropMimeData(const QMimeData *data, Qt::DropAction acti
 bool BookmarkManager::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                    int row, int column, const QModelIndex &parent)
 {
-    Q_UNUSED(column);
+    Q_UNUSED(column)
 
     if (!(action & supportedDropActions()))
         return false;

@@ -66,7 +66,7 @@ static int _open(struct archive *a, void *client_data)
 
 static la_ssize_t _read(struct archive *a, void *client_data, const void **buff)
 {
-    Q_UNUSED(a);
+    Q_UNUSED(a)
     ReadData *data = static_cast<ReadData *>(client_data);
     *buff = data->data;
     return data->file.read(data->data, 10240);
@@ -74,7 +74,7 @@ static la_ssize_t _read(struct archive *a, void *client_data, const void **buff)
 
 int _close(struct archive *a, void *client_data)
 {
-    Q_UNUSED(a);
+    Q_UNUSED(a)
     ReadData *data = static_cast<ReadData *>(client_data);
     data->file.close();
     return ARCHIVE_OK;

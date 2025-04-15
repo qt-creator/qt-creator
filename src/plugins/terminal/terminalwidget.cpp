@@ -584,7 +584,7 @@ void TerminalWidget::dropEvent(QDropEvent *event)
 
 void TerminalWidget::showEvent(QShowEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
     if (!m_process)
         setupPty();

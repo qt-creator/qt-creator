@@ -145,7 +145,7 @@ public:
 
     QSizeF intrinsicSize(QTextDocument *doc, int pos, const QTextFormat &format) override
     {
-        Q_UNUSED(pos);
+        Q_UNUSED(pos)
 
         if (!doc || !format.hasProperty(isCopiedPropertyId()))
             return QSizeF(0, 0);
@@ -163,7 +163,7 @@ public:
         int pos,
         const QTextFormat &format) override
     {
-        Q_UNUSED(pos);
+        Q_UNUSED(pos)
 
         if (!doc || !format.hasProperty(isCopiedPropertyId()))
             return;
@@ -300,8 +300,8 @@ public:
     virtual QSizeF intrinsicSize(
         QTextDocument *doc, int posInDocument, const QTextFormat &format) override
     {
-        Q_UNUSED(doc);
-        Q_UNUSED(posInDocument);
+        Q_UNUSED(doc)
+        Q_UNUSED(posInDocument)
         QSize result = Utils::Icons::UNKNOWN_FILE.icon().actualSize(QSize(16, 16));
         QString name = format.toImageFormat().name();
 
@@ -329,8 +329,8 @@ public:
         int posInDocument,
         const QTextFormat &format) override
     {
-        Q_UNUSED(document);
-        Q_UNUSED(posInDocument);
+        Q_UNUSED(document)
+        Q_UNUSED(posInDocument)
 
         const QString name = format.toImageFormat().name();
         Entry::Pointer *entryPtr = m_entries.object(name);

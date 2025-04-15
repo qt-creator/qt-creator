@@ -40,19 +40,19 @@ public:
 
     virtual void importFile(const QString &jsfile, const QString &module, int line, int column)
     {
-        Q_UNUSED(jsfile);
-        Q_UNUSED(module);
-        Q_UNUSED(line);
-        Q_UNUSED(column);
+        Q_UNUSED(jsfile)
+        Q_UNUSED(module)
+        Q_UNUSED(line)
+        Q_UNUSED(column)
     }
 
     virtual void importModule(const QString &uri, const QString &version, const QString &module, int line, int column)
     {
-        Q_UNUSED(uri);
-        Q_UNUSED(version);
-        Q_UNUSED(module);
-        Q_UNUSED(line);
-        Q_UNUSED(column);
+        Q_UNUSED(uri)
+        Q_UNUSED(version)
+        Q_UNUSED(module)
+        Q_UNUSED(line)
+        Q_UNUSED(column)
     }
 };
 

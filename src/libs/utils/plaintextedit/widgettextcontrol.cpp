@@ -275,7 +275,7 @@ WidgetTextControlPrivate::WidgetTextControlPrivate(WidgetTextControl *q)
 bool WidgetTextControlPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
 #ifdef QT_NO_SHORTCUT
-    Q_UNUSED(e);
+    Q_UNUSED(e)
 #endif
 
     if (cursor.isNull())
@@ -810,9 +810,9 @@ void WidgetTextControlPrivate::_q_contentsChanged(int from, int charsRemoved, in
         delete ev;
     }
 #else
-    Q_UNUSED(from);
-    Q_UNUSED(charsRemoved);
-    Q_UNUSED(charsAdded);
+    Q_UNUSED(from)
+    Q_UNUSED(charsRemoved)
+    Q_UNUSED(charsAdded)
 #endif
 }
 
@@ -1049,7 +1049,7 @@ void WidgetTextControl::setTextCursor(const QTextCursor &cursor, bool selectionC
     if (selectionClipboard)
         d->setClipboardSelection();
 #else
-    Q_UNUSED(selectionClipboard);
+    Q_UNUSED(selectionClipboard)
 #endif
 }
 
@@ -1503,8 +1503,8 @@ accept:
 
 QVariant WidgetTextControl::loadResource(int type, const QUrl &name)
 {
-    Q_UNUSED(type);
-    Q_UNUSED(name);
+    Q_UNUSED(type)
+    Q_UNUSED(name)
     return QVariant();
 }
 
@@ -2018,12 +2018,12 @@ bool WidgetTextControlPrivate::sendMouseEventToInputContext(
     QEvent *e, QEvent::Type eventType, Qt::MouseButton button, const QPointF &pos,
     Qt::KeyboardModifiers modifiers, Qt::MouseButtons buttons, const QPoint &globalPos)
 {
-    Q_UNUSED(eventType);
-    Q_UNUSED(button);
-    Q_UNUSED(pos);
-    Q_UNUSED(modifiers);
-    Q_UNUSED(buttons);
-    Q_UNUSED(globalPos);
+    Q_UNUSED(eventType)
+    Q_UNUSED(button)
+    Q_UNUSED(pos)
+    Q_UNUSED(modifiers)
+    Q_UNUSED(buttons)
+    Q_UNUSED(globalPos)
 #if !defined(QT_NO_IM)
 
     if (isPreediting()) {
@@ -2042,7 +2042,7 @@ bool WidgetTextControlPrivate::sendMouseEventToInputContext(
         }
     }
 #else
-    Q_UNUSED(e);
+    Q_UNUSED(e)
 #endif
     return false;
 }
@@ -2050,9 +2050,9 @@ bool WidgetTextControlPrivate::sendMouseEventToInputContext(
 void WidgetTextControlPrivate::contextMenuEvent(const QPoint &screenPos, const QPointF &docPos, QWidget *contextWidget)
 {
 #ifdef QT_NO_CONTEXTMENU
-    Q_UNUSED(screenPos);
-    Q_UNUSED(docPos);
-    Q_UNUSED(contextWidget);
+    Q_UNUSED(screenPos)
+    Q_UNUSED(docPos)
+    Q_UNUSED(contextWidget)
 #else
     QMenu *menu = q->createStandardContextMenu(docPos, contextWidget);
     if (!menu)
@@ -3322,7 +3322,7 @@ void WidgetTextControlPrivate::append(const QString &text, Qt::TextFormat format
         tmp.insertText(text);
     }
 #else
-    Q_UNUSED(format);
+    Q_UNUSED(format)
     tmp.insertText(text);
 #endif // QT_NO_TEXTHTMLPARSER
     if (!cursor.hasSelection())

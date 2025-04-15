@@ -100,7 +100,7 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
         m_view, &GraphicsView::updateSelection);
 
     connect(m_view, &GraphicsView::zoomChanged, [this](double x, double y) {
-        Q_UNUSED(y);
+        Q_UNUSED(y)
         m_toolbar->setZoom(x);
     });
 

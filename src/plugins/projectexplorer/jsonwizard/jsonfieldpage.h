@@ -72,7 +72,10 @@ public:
         virtual void initializeData(Utils::MacroExpander *expander) { Q_UNUSED(expander) }
         virtual QWidget *createWidget(const QString &displayName, JsonFieldPage *page) = 0;
         virtual void setup(JsonFieldPage *page, const QString &name)
-        { Q_UNUSED(page); Q_UNUSED(name) }
+        {
+            Q_UNUSED(page)
+            Q_UNUSED(name)
+        }
 
         QString type() const;
         void setHasUserChanges();

@@ -305,7 +305,7 @@ bool MimeTypeParserBase::parse(QIODevice *dev, const QString &fileName, QString 
 
     return true;
 #else
-    Q_UNUSED(dev);
+    Q_UNUSED(dev)
     if (errorMessage)
         *errorMessage = QString::fromLatin1("QXmlStreamReader is not available, cannot parse '%1'.").arg(fileName);
     return false;

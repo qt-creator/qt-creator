@@ -208,7 +208,7 @@ void DockFocusController::onFocusWindowChanged(QWindow *focusWindow)
 
 void DockFocusController::onApplicationFocusChanged(QWidget *focusedOld, QWidget *focusedNow)
 {
-    Q_UNUSED(focusedOld);
+    Q_UNUSED(focusedOld)
 
     // Ignore focus changes if we are restoring state, or if user clicked a tab which in turn
     // caused the focus change.

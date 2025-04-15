@@ -159,7 +159,7 @@ void QbsRequestObject::start()
                                                                 const QStringList &stdOut,
                                                                 const QStringList &stdErr,
                                                                 bool success) {
-        Q_UNUSED(workingDir);
+        Q_UNUSED(workingDir)
         const bool hasOutput = !stdOut.isEmpty() || !stdErr.isEmpty();
         if (success && !hasOutput)
             return;

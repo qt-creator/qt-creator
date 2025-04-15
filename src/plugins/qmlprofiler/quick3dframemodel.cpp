@@ -72,7 +72,7 @@ int Quick3DFrameModel::rowCount(const QModelIndex &parent) const
 
 int Quick3DFrameModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return MaxColumnType;
 }
 

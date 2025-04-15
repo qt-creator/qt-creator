@@ -731,7 +731,7 @@ void McuSupportTest::test_legacy_createPackagesWithCorrespondingSettings()
     const McuTargetDescription description = parseDescriptionJson(json.toLocal8Bit());
     auto [targets, packages]{
         targetsFromDescriptions({description}, settingsMockPtr, sdkPackagePtr, runLegacy)};
-    Q_UNUSED(targets);
+    Q_UNUSED(targets)
 
     QSet<Key> settings = transform<QSet<Key>>(packages, [](const auto &package) {
         return package->settingsKey();
@@ -1008,7 +1008,7 @@ void McuSupportTest::test_legacy_createTargetWithToolchainPackages()
 
     const auto [targets, packages]{
         targetsFromDescriptions({description}, settingsMockPtr, sdkPackagePtr, runLegacy)};
-    Q_UNUSED(packages);
+    Q_UNUSED(packages)
 
     verifyTargetToolchains(targets,
                            toolchainFilePath,
@@ -1042,7 +1042,7 @@ void McuSupportTest::test_createTargetWithToolchainPackages()
     const McuTargetDescription description = parseDescriptionJson(json.toLocal8Bit());
     const auto [targets, packages]{
         targetsFromDescriptions({description}, settingsMockPtr, sdkPackagePtr, !runLegacy)};
-    Q_UNUSED(packages);
+    Q_UNUSED(packages)
 
     const auto qtForMCUsSDK = findOrDefault(packages, [](const McuPackagePtr &pkg) {
         return (pkg->cmakeVariableName() == QUL_CMAKE_VAR);
