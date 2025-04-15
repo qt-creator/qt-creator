@@ -65,6 +65,14 @@
 #include <functional>
 #include <optional>
 
+#ifdef FAKEVIM_STANDALONE
+namespace Utils {
+using PlainTextEdit = QPlainTextEdit;
+}
+#else
+#include <utils/plaintextedit/plaintextedit.h>
+#endif
+
 //#define DEBUG_KEY  1
 #if DEBUG_KEY
 #   define KEY_DEBUG(s) qDebug() << s
@@ -102,8 +110,7 @@ namespace Internal {
 
 #define ParagraphSeparator QChar::ParagraphSeparator
 
-#define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
-
+#define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit ? m_plaintextedit->s : m_qcPlainTextEdit->s)
 
 #ifdef Q_OS_DARWIN
 #define ControlModifier Qt::MetaModifier
@@ -2074,6 +2081,8 @@ public:
 public:
     QTextEdit *m_textedit;
     QPlainTextEdit *m_plaintextedit;
+    Utils::PlainTextEdit *m_qcPlainTextEdit;
+    bool hasValidEditor();
     bool m_wasReadOnly; // saves read-only state of document
 
     bool m_inFakeVim; // true if currently processing a key press or a command
@@ -2377,6 +2386,7 @@ FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
     q = parent;
     m_textedit = qobject_cast<QTextEdit *>(widget);
     m_plaintextedit = qobject_cast<QPlainTextEdit *>(widget);
+    m_qcPlainTextEdit = qobject_cast<Utils::PlainTextEdit *>(widget);
 
     init();
 
@@ -2510,7 +2520,7 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
     }
 
     // The command might have destroyed the editor.
-    if (m_textedit || m_plaintextedit) {
+    if (hasValidEditor()) {
         if (s.showMarks())
             updateSelection();
 
@@ -2658,8 +2668,11 @@ void FakeVimHandler::Private::setupWidget()
     if (m_textedit) {
         connect(m_textedit, &QTextEdit::cursorPositionChanged,
                 this, &FakeVimHandler::Private::onCursorPositionChanged, Qt::UniqueConnection);
-    } else {
+    } else if (m_plaintextedit) {
         connect(m_plaintextedit, &QPlainTextEdit::cursorPositionChanged,
+                this, &FakeVimHandler::Private::onCursorPositionChanged, Qt::UniqueConnection);
+    } else {
+        connect(m_qcPlainTextEdit, &Utils::PlainTextEdit::cursorPositionChanged,
                 this, &FakeVimHandler::Private::onCursorPositionChanged, Qt::UniqueConnection);
     }
 
@@ -2795,8 +2808,11 @@ void FakeVimHandler::Private::restoreWidget(int tabSize)
     if (m_textedit) {
         disconnect(m_textedit, &QTextEdit::cursorPositionChanged,
                    this, &FakeVimHandler::Private::onCursorPositionChanged);
-    } else {
+    } else if (m_plaintextedit) {
         disconnect(m_plaintextedit, &QPlainTextEdit::cursorPositionChanged,
+                   this, &FakeVimHandler::Private::onCursorPositionChanged);
+    } else {
+        disconnect(m_qcPlainTextEdit, &Utils::PlainTextEdit::cursorPositionChanged,
                    this, &FakeVimHandler::Private::onCursorPositionChanged);
     }
 }
@@ -2886,7 +2902,7 @@ EventResult FakeVimHandler::Private::handleDefaultKey(const Input &input)
         passShortcuts(false);
         QKeyEvent event(QEvent::KeyPress, input.key(), input.modifiers(), input.text());
         bool accepted = QApplication::sendEvent(editor()->window(), &event);
-        if (accepted || (!m_textedit && !m_plaintextedit))
+        if (accepted || (!hasValidEditor()))
             return EventHandled;
     }
 
@@ -3753,7 +3769,7 @@ void FakeVimHandler::Private::updateHighlights()
 
 void FakeVimHandler::Private::updateMiniBuffer()
 {
-    if (!m_textedit && !m_plaintextedit)
+    if (!hasValidEditor())
         return;
 
     QString msg;
@@ -5128,7 +5144,7 @@ EventResult FakeVimHandler::Private::handleInsertOrReplaceMode(const Input &inpu
     else
         handleReplaceMode(input);
 
-    if (!m_textedit && !m_plaintextedit)
+    if (!hasValidEditor())
         return EventHandled;
 
     if (!isInsertMode() || m_buffer->breakEditBlock
@@ -5535,6 +5551,11 @@ void FakeVimHandler::Private::handleAs(const QString &command)
     beginLargeEditBlock();
     replay(cmd);
     endEditBlock();
+}
+
+bool FakeVimHandler::Private::hasValidEditor()
+{
+    return m_textedit || m_plaintextedit || m_qcPlainTextEdit;
 }
 
 bool FakeVimHandler::Private::executeRegister(int reg)
@@ -6670,7 +6691,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     }
 
     // if the last command closed the editor, we would crash here (:vs and then :on)
-    if (!(m_textedit || m_plaintextedit))
+    if (!hasValidEditor())
         return;
 
     endEditBlock();
@@ -6715,7 +6736,7 @@ bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)
     commitCursor();
     q->handleExCommandRequested(&handled, cmd);
     //qDebug() << "HANDLER REQUEST: " << cmd.cmd << handled;
-    if (handled && (m_textedit || m_plaintextedit)) {
+    if (handled && hasValidEditor()) {
         pullCursor();
         if (m_cursor.position() != pos)
             recordJump(pos);
@@ -7972,7 +7993,7 @@ bool FakeVimHandler::Private::handleInsertInEditor(const Input &input)
     QKeyEvent event(QEvent::KeyPress, input.key(), input.modifiers(), input.text());
     setAnchor();
     if (!passEventToEditor(event, m_cursor))
-        return !m_textedit && !m_plaintextedit; // Mark event as handled if it has destroyed editor.
+        return !hasValidEditor(); // Mark event as handled if it has destroyed editor.
 
     endEditBlock();
 
@@ -7990,7 +8011,7 @@ bool FakeVimHandler::Private::passEventToEditor(QEvent &event, QTextCursor &tc)
     EDITOR(setTextCursor(tc));
 
     bool accepted = QApplication::sendEvent(editor(), &event);
-    if (!m_textedit && !m_plaintextedit)
+    if (!hasValidEditor())
         return false;
 
     if (accepted)
@@ -8214,9 +8235,11 @@ void FakeVimHandler::Private::saveLastVisualMode()
 
 QWidget *FakeVimHandler::Private::editor() const
 {
-    return m_textedit
-        ? static_cast<QWidget *>(m_textedit)
-        : static_cast<QWidget *>(m_plaintextedit);
+    if (m_textedit)
+        return static_cast<QWidget *>(m_textedit);
+    if (m_plaintextedit)
+        return static_cast<QWidget *>(m_plaintextedit);
+    return static_cast<QWidget *>(m_qcPlainTextEdit);
 }
 
 void FakeVimHandler::Private::joinPreviousEditBlock()
@@ -9370,6 +9393,7 @@ void FakeVimHandler::disconnectFromEditor()
 {
     d->m_textedit = nullptr;
     d->m_plaintextedit = nullptr;
+    d->m_qcPlainTextEdit = nullptr;
 }
 
 void FakeVimHandler::updateGlobalMarksFilenames(const QString &oldFileName, const QString &newFileName)

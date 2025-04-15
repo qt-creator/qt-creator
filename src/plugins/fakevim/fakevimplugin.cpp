@@ -1455,6 +1455,8 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
         widget = edit;
     else if (auto edit = Aggregation::query<QPlainTextEdit>(widget))
         widget = edit;
+    else if (auto edit = Aggregation::query<Utils::PlainTextEdit>(widget))
+        widget = edit;
     else
         return;
 
