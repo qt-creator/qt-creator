@@ -229,6 +229,8 @@ public:
     void requestDebugChannel();
     bool usesDebugChannel() const;
     QUrl debugChannel() const;
+    // FIXME: Don't use. Convert existing users to portsgatherer.
+    void setDebugChannel(const QUrl &channel);
 
     void requestQmlChannel();
     bool usesQmlChannel() const;

@@ -474,7 +474,6 @@ public:
     void start() override;
     void stop() final;
 
-    Port gdbServerPort() const;
     bool isAppRunning() const;
 
 private:
@@ -491,9 +490,7 @@ private:
     IDeviceConstPtr m_device;
     IosDeviceType m_deviceType;
     DebugInfo m_debugInfo;
-
     bool m_cleanExit = false;
-    Port m_gdbServerPort;
 };
 
 IosRunner::IosRunner(RunControl *runControl, const DebugInfo &debugInfo)
@@ -581,7 +578,12 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
     if (m_toolHandler != handler)
         return;
 
-    m_gdbServerPort = gdbPort;
+    // TODO: Convert to portsgatherer.
+    QUrl debugChannel;
+    debugChannel.setScheme("connect");
+    debugChannel.setHost("localhost");
+    debugChannel.setPort(gdbPort.number());
+    runControl()->setDebugChannel(debugChannel);
     // The run control so far knows about the port on the device side,
     // but the QML Profiler has to actually connect to a corresponding
     // local port. That port is reported here, so we need to adapt the runControl's
@@ -592,12 +594,12 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
     runControl()->setQmlChannel(qmlChannel);
 
     if (m_debugInfo.cppDebug) {
-        if (!m_gdbServerPort.isValid()) {
+        if (!gdbPort.isValid()) {
             reportFailure(Tr::tr("Failed to get a local debugger port."));
             return;
         }
         appendMessage(
-            Tr::tr("Listening for debugger on local port %1.").arg(m_gdbServerPort.number()),
+            Tr::tr("Listening for debugger on local port %1.").arg(gdbPort.number()),
             LogMessageFormat);
     }
     if (m_debugInfo.qmlDebugServices != NoQmlDebugServices) {
@@ -666,11 +668,6 @@ bool IosRunner::isAppRunning() const
     return m_toolHandler && m_toolHandler->isRunning();
 }
 
-Port IosRunner::gdbServerPort() const
-{
-    return m_gdbServerPort;
-}
-
 static Result<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
 {
     const QString osVersion = dev->osVersion();
@@ -718,18 +715,14 @@ IosRunWorkerFactory::IosRunWorkerFactory()
     addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
 }
 
-static void parametersModifier(RunControl *runControl, DebuggerRunParameters &rp, IosRunner *iosRunner)
+static void parametersModifier(RunControl *runControl, DebuggerRunParameters &rp)
 {
     const bool cppDebug = rp.isCppDebugging();
     const bool qmlDebug = rp.isQmlDebugging();
     if (cppDebug) {
         const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
         rp.setInferiorExecutable(data->localExecutable);
-        QUrl channel;
-        channel.setScheme("connect");
-        channel.setHost("localhost");
-        channel.setPort(iosRunner->gdbServerPort().number());
-        rp.setRemoteChannel(channel);
+        rp.setRemoteChannel(runControl->debugChannel());
 
         QString bundlePath = data->bundleDirectory.toUrlishString();
         bundlePath.chop(4);
@@ -783,12 +776,12 @@ static RunWorker *createWorker(RunControl *runControl)
     rp.setDisplayName(data->applicationName);
     rp.setContinueAfterAttach(true);
 
-    IosRunner *iosRunner = nullptr;
     RunWorker *runner = nullptr;
-    if (!isIosDeviceInstance /*== simulator */ || dev->handler() == IosDevice::Handler::IosTool) {
+    const bool isIosRunner = !isIosDeviceInstance /*== simulator */ || dev->handler() == IosDevice::Handler::IosTool;
+    if (isIosRunner) {
         const DebugInfo debugInfo{rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices,
                                   rp.isCppDebugging()};
-        runner = iosRunner = new IosRunner(runControl, debugInfo);
+        runner = new IosRunner(runControl, debugInfo);
     } else {
         QTC_ASSERT(rp.isCppDebugging(),
                    // TODO: The message is not shown currently, fix me before 17.0.
@@ -823,10 +816,10 @@ static RunWorker *createWorker(RunControl *runControl)
         rp.setLldbPlatform("ios-simulator");
     }
 
-    auto debugger = createDebuggerWorker(runControl, rp, [runControl, iosRunner](DebuggerRunParameters &rp) {
-        if (iosRunner == nullptr)
+    auto debugger = createDebuggerWorker(runControl, rp, [runControl, isIosRunner](DebuggerRunParameters &rp) {
+        if (!isIosRunner)
             return;
-        parametersModifier(runControl, rp, iosRunner);
+        parametersModifier(runControl, rp);
     });
     debugger->addStartDependency(runner);
     return debugger;

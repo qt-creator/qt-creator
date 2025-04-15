@@ -659,6 +659,11 @@ QUrl RunControl::debugChannel() const
     return d->debugChannel;
 }
 
+void RunControl::setDebugChannel(const QUrl &channel)
+{
+    d->debugChannel = channel;
+}
+
 void RunControl::requestQmlChannel()
 {
     d->useQmlChannel = true;
