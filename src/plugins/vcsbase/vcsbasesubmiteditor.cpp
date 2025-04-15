@@ -38,6 +38,7 @@
 #include <utils/icon.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 #include <utils/theme/theme.h>
 
@@ -239,14 +240,14 @@ static inline QStringList fieldTexts(const QString &fileContents)
 
 void VcsBaseSubmitEditor::createUserFields(const FilePath &fieldConfigFile)
 {
-    FileReader reader;
-    if (!reader.fetch(fieldConfigFile)) {
-        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), reader.errorString());
+    const Result<QByteArray> config = fieldConfigFile.fileContents();
+    if (!config) {
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), config.error());
         return;
     }
 
     // Parse into fields
-    const QStringList fields = fieldTexts(QString::fromUtf8(reader.text()));
+    const QStringList fields = fieldTexts(QString::fromUtf8(normalizeNewlines(config.value())));
     if (fields.empty())
         return;
     // Create a completer on user names
