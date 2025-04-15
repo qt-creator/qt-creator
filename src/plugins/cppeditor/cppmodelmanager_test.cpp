@@ -139,16 +139,12 @@ public:
     }
 
     /// Saves the contents also internally so it can be restored on destruction
-    bool readContents(QByteArray *contents)
+    Result<QByteArray> readContents()
     {
-        Utils::FileReader fileReader;
-        const bool isFetchOk = fileReader.fetch(m_filePath);
-        if (isFetchOk) {
-            m_originalFileContents = fileReader.data();
-            if (contents)
-                *contents = m_originalFileContents;
-        }
-        return isFetchOk;
+        const Result<QByteArray> result = m_filePath.fileContents();
+        if (result)
+            m_originalFileContents = *result;
+        return result;
     }
 
     bool writeContents(const QByteArray &contents) const
@@ -493,9 +489,10 @@ void ModelManagerTest::testRefreshTimeStampModifiedIfSourcefilesChange()
     // Modify the file
     QTest::qSleep(1000); // Make sure the timestamp is different
     FileChangerAndRestorer fileChangerAndRestorer(filePath);
-    QByteArray originalContents;
-    QVERIFY(fileChangerAndRestorer.readContents(&originalContents));
-    const QByteArray newFileContentes = originalContents + "\nint addedOtherGlobal;";
+    const Result<QByteArray> originalContents = fileChangerAndRestorer.readContents();
+    QVERIFY(originalContents);
+    const QByteArray newFileContentes = originalContents.value_or(QByteArray())
+            + "\nint addedOtherGlobal;";
     QVERIFY(fileChangerAndRestorer.writeContents(newFileContentes));
 
     // Add or remove source file. The configuration stays the same.
