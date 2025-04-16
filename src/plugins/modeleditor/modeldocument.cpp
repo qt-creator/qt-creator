@@ -120,7 +120,7 @@ Core::IDocument::OpenResult ModelDocument::load(const FilePath &fileName)
         d->documentController->loadProject(fileName);
         setFilePath(d->documentController->projectController()->project()->fileName());
     } catch (const qmt::FileNotFoundException &ex) {
-        return {OpenResult::ReadError, ex.errorMessage()};
+        return {OpenResult::CannotHandle, ex.errorMessage()};
     } catch (const qmt::Exception &ex) {
         return {OpenResult::CannotHandle,
                     Tr::tr("Could not open \"%1\" for reading: %2.")

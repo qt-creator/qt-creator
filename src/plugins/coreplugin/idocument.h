@@ -31,7 +31,6 @@ public:
     public:
         enum Code {
             Success,
-            ReadError,
             CannotHandle
         };
 

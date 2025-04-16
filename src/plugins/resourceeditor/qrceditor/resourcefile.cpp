@@ -95,7 +95,7 @@ Core::IDocument::OpenResult ResourceFile::load()
 
     if (m_filePath.isEmpty()) {
         m_error_message = Tr::tr("The file name is empty.");
-        return Core::IDocument::OpenResult::ReadError;
+        return Core::IDocument::OpenResult::CannotHandle;
     }
 
     clearPrefixList();
@@ -108,7 +108,7 @@ Core::IDocument::OpenResult ResourceFile::load()
         QFile file(m_filePath.toUrlishString());
         if (!file.open(QIODevice::ReadOnly)) {
             m_error_message = file.errorString();
-            return Core::IDocument::OpenResult::ReadError;
+            return Core::IDocument::OpenResult::CannotHandle;
         }
         QByteArray data = file.readAll();
         // Detect line ending style

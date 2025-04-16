@@ -2125,7 +2125,7 @@ IDocument::OpenResult BinEditorDocument::openImpl(const FilePath &filePath, quin
         QString msg = Tr::tr("Cannot open %1: %2").arg(filePath.toUserOutput(), Tr::tr("File Error"));
         // FIXME: Was: file.errorString(), but we don't have a file anymore.
         QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-        return {OpenResult::ReadError, msg};
+        return {OpenResult::CannotHandle, msg};
     }
 
     if (size == 0) {

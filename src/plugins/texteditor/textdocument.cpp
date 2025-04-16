@@ -827,7 +827,7 @@ IDocument::OpenResult TextDocument::openImpl(const FilePath &filePath,
         setFilePath(filePath);
     }
     if (readResult == Utils::TextFileFormat::ReadIOError)
-        return {OpenResult::ReadError, errorString};
+        return {OpenResult::CannotHandle, errorString};
     return OpenResult::Success;
 }
 

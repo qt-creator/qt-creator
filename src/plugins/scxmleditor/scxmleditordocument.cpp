@@ -41,14 +41,14 @@ Core::IDocument::OpenResult ScxmlEditorDocument::open(const FilePath &filePath,
     Q_UNUSED(realFilePath)
 
     if (filePath.isEmpty())
-        return OpenResult::ReadError;
+        return OpenResult::CannotHandle;
 
     if (!m_designWidget)
-        return OpenResult::ReadError;
+        return OpenResult::CannotHandle;
 
     const FilePath &absoluteFilePath = filePath.absoluteFilePath();
     if (!m_designWidget->load(absoluteFilePath.toUrlishString()))
-        return {OpenResult::ReadError, m_designWidget->errorMessage()};
+        return {OpenResult::CannotHandle, m_designWidget->errorMessage()};
 
     setFilePath(absoluteFilePath);
 

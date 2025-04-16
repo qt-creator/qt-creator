@@ -183,18 +183,18 @@ IDocument::OpenResult ObjectsMapDocument::openImpl(const FilePath &fileName,
     if (realFileName.fileName() == "objects.map") {
         FileReader reader;
         if (const Result<> res = reader.fetch(realFileName); !res)
-            return {OpenResult::ReadError, res.error()};
+            return {OpenResult::CannotHandle, res.error()};
 
         text = reader.text();
     } else {
         const FilePath base = settings().squishPath();
         if (base.isEmpty()) {
-            return {OpenResult::ReadError, Tr::tr("Incomplete Squish settings. "
+            return {OpenResult::CannotHandle, Tr::tr("Incomplete Squish settings. "
                                      "Missing Squish installation path.")};
         }
         const FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();
         if (!exe.isExecutableFile())
-            return {OpenResult::ReadError, Tr::tr("objectmaptool not found.")};
+            return {OpenResult::CannotHandle, Tr::tr("objectmaptool not found.")};
 
 
         Process objectMapReader;
@@ -206,7 +206,7 @@ IDocument::OpenResult ObjectsMapDocument::openImpl(const FilePath &fileName,
         text = objectMapReader.cleanedStdOut().toUtf8();
     }
     if (!setContents(text))
-        return {OpenResult::ReadError, Tr::tr("Failure while parsing objects.map content.")};
+        return {OpenResult::CannotHandle, Tr::tr("Failure while parsing objects.map content.")};
     return OpenResult::Success;
 }
 

@@ -910,18 +910,6 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
             overrideCursor.reset();
             delete editor;
             editor = nullptr;
-            if (openResult.code == IDocument::OpenResult::ReadError) {
-                QMessageBox msgbox(QMessageBox::Critical,
-                                   ::Core::Tr::tr("File Error"),
-                                   ::Core::Tr::tr("Could not open \"%1\" for reading. "
-                                      "Either the file does not exist or you do not have "
-                                      "the permissions to open it.")
-                                       .arg(realFp.toUserOutput()),
-                                   QMessageBox::Ok,
-                                   ICore::dialogParent());
-                msgbox.exec();
-                return nullptr;
-            }
             // can happen e.g. when trying to open an completely empty .qrc file
             QTC_CHECK(openResult.code == IDocument::OpenResult::CannotHandle);
         } else {

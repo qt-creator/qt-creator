@@ -77,7 +77,7 @@ IDocument::OpenResult ImageViewerFile::openImpl(const FilePath &filePath)
     cleanUp();
 
     if (!filePath.isReadableFile())
-        return OpenResult::ReadError;
+        return OpenResult::CannotHandle;
 
     const QString &fileName = filePath.toUrlishString();
     QByteArray format = QImageReader::imageFormat(fileName);

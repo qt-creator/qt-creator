@@ -53,7 +53,7 @@ IDocument::OpenResult FormWindowFile::open(const FilePath &filePath,
     QTC_ASSERT(form, return OpenResult::CannotHandle);
 
     if (filePath.isEmpty())
-        return OpenResult::ReadError;
+        return OpenResult::CannotHandle;
 
     QString contents;
     QString errorString;
@@ -63,7 +63,7 @@ IDocument::OpenResult FormWindowFile::open(const FilePath &filePath,
     if (readResult == Utils::TextFileFormat::ReadEncodingError)
         return {OpenResult::CannotHandle, errorString};
     if (readResult != Utils::TextFileFormat::ReadSuccess)
-        return {OpenResult::ReadError, errorString};
+        return {OpenResult::CannotHandle, errorString};
 
     form->setFileName(filePath.absoluteFilePath().toUrlishString());
     const QByteArray contentsBA = contents.toUtf8();

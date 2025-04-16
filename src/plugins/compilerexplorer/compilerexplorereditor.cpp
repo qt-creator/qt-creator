@@ -384,15 +384,15 @@ IDocument::OpenResult JsonSettingsDocument::open(const FilePath &filePath,
                                                  const FilePath &realFilePath)
 {
     if (!filePath.isReadableFile())
-        return OpenResult::ReadError;
+        return OpenResult::CannotHandle;
 
     Result<QByteArray> contents = realFilePath.fileContents();
     if (!contents)
-        return {OpenResult::ReadError, contents.error()};
+        return {OpenResult::CannotHandle, contents.error()};
 
     Result<Store> result = storeFromJson(*contents);
     if (!result)
-        return {OpenResult::ReadError, result.error()};
+        return {OpenResult::CannotHandle, result.error()};
 
     setFilePath(filePath);
 

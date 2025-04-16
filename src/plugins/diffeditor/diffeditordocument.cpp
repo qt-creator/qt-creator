@@ -274,7 +274,7 @@ IDocument::OpenResult DiffEditorDocument::open(const FilePath &filePath, const F
     ReadResult readResult = read(filePath, &patch, &errorString);
     if (readResult == TextFileFormat::ReadIOError
         || readResult == TextFileFormat::ReadMemoryAllocationError) {
-        return {OpenResult::ReadError, errorString};
+        return {OpenResult::CannotHandle, errorString};
     }
 
     const std::optional<QList<FileData>> fileDataList = DiffUtils::readPatch(patch);
