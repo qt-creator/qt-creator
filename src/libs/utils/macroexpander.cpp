@@ -232,7 +232,7 @@ using namespace Internal;
     A typical setup is to register variables in the Plugin::initialize() function.
 
     \code
-    bool MyPlugin::initialize(const QStringList &arguments, QString *errorString)
+    void MyPlugin::initialize()
     {
         [...]
         MacroExpander::registerVariable(
