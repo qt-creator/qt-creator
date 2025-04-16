@@ -75,7 +75,6 @@ Project {
             ]
             fileTags: "qt.core.resource_data"
             Qt.core.resourcePrefix: "/mesonproject"
-            Qt.core.resourceSourceBase: sourceDirectory
         }
     }
 

@@ -53,7 +53,5 @@ QtcPlugin {
         name: "images"
         files: "images/*.png"
         fileTags: "qt.core.resource_data"
-        Qt.core.resourcePrefix: "/axivion"
-        Qt.core.resourceSourceBase: sourceDirectory
     }
 }

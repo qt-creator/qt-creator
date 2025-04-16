@@ -70,8 +70,6 @@ QtcPlugin {
         name: "images"
         prefix: "images/"
         fileTags: "qt.core.resource_data"
-        Qt.core.resourcePrefix: "/languageclient"
-        Qt.core.resourceSourceBase: sourceDirectory
         files: [
             "languageclient.png",
             "languageclient@2x.png",

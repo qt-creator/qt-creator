@@ -245,8 +245,6 @@ QtcPlugin {
         condition: qtc.withPluginTests
         files: ["testdata/**"]
         fileTags: ["qt.core.resource_data"]
-        Qt.core.resourcePrefix: "/projectexplorer"
-        Qt.core.resourceSourceBase: path
     }
 
     Export {

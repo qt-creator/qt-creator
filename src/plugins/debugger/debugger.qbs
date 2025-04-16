@@ -23,9 +23,6 @@ QtcPlugin {
     cpp.includePaths: base.concat([project.sharedSourcesDir + "/registryaccess"])
     cpp.enableExceptions: true
 
-    Qt.core.resourcePrefix: "debugger"
-    Qt.core.resourceSourceBase: sourceDirectory
-
     Group {
         name: "General"
         files: [

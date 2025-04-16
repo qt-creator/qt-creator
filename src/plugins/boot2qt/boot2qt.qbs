@@ -65,6 +65,5 @@ QtcPlugin {
         ]
         fileTags: "qt.core.resource_data"
         Qt.core.resourcePrefix: "/qdb"
-        Qt.core.resourceSourceBase: sourceDirectory
     }
 }

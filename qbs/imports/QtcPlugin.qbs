@@ -34,6 +34,10 @@ QtcProduct {
     cpp.sonamePrefix: qbs.targetOS.contains("macos")
         ? "@rpath"
         : undefined
+
+    Qt.core.resourceSourceBase: sourceDirectory
+    Qt.core.resourcePrefix: '/' + name.toLowerCase()
+
     pluginjson.useVcsData: false
 
     Group {

@@ -47,7 +47,5 @@ QtcPlugin {
             "webassemblydevicesmall@2x.png",
         ]
         fileTags: "qt.core.resource_data"
-        Qt.core.resourcePrefix: "webassembly"
-        Qt.core.resourceSourceBase: sourceDirectory
     }
 }

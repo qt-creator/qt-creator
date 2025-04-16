@@ -69,7 +69,6 @@ QtcPlugin {
             name: "images"
             files: "images/*.png"
             fileTags: "qt.core.resource_data"
-            Qt.core.resourcePrefix: "/scxmleditor"
             Qt.core.resourceSourceBase: product.sourceDirectory + "/common"
         }
     }

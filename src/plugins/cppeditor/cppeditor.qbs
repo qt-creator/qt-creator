@@ -24,9 +24,6 @@ QtcPlugin {
         cpp.defines: "_SCL_SECURE_NO_WARNINGS"
     }
 
-    Qt.core.resourcePrefix: "cppeditor"
-    Qt.core.resourceSourceBase: sourceDirectory
-
     files: [
         "abstracteditorsupport.cpp",
         "abstracteditorsupport.h",

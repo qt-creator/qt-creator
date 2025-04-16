@@ -102,8 +102,6 @@ QtcPlugin {
             "androiddevicesmall@2x.png",
         ]
         fileTags: "qt.core.resource_data"
-        Qt.core.resourcePrefix: "/android"
-        Qt.core.resourceSourceBase: sourceDirectory
     }
 
     QtcTestFiles {
