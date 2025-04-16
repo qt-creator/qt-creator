@@ -238,7 +238,7 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile &file)
 {
     setEventsSpans(*eventArrayOne.get(), *eventArrayTwo.get());
     Internal::EventQueueTracker<TraceEvent>::get().addQueue(this);
-    if (auto thread = QThread::currentThread()) {
+    if (QThread::currentThread()) {
         auto name = getThreadName();
         if (name.size()) {
             writeMetaEvent(file, "thread_name", name);

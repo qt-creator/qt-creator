@@ -266,8 +266,10 @@ void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
                 &QObject::destroyed,
                 this,
                 [this, extraCompiler, file = extraCompiler->targets().constFirst()]() {
-                    for (QList<ProjectExplorer::ExtraCompiler *> &extraCompilers : m_extraCompilers)
+                    for (QList<ProjectExplorer::ExtraCompiler *> &extraCompilers :
+                         m_extraCompilers) {
                         QTC_CHECK(extraCompilers.removeAll(extraCompiler) == 0);
+                    }
                     closeExtraCompiler(extraCompiler, file);
                 });
 
