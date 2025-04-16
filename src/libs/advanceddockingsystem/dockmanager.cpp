@@ -1616,11 +1616,11 @@ Result<> DockManager::write(const FilePath &filePath, const QByteArray &data)
     if (!fileSaver.hasError())
         fileSaver.write(data);
 
-    if (!fileSaver.finalize())
+    if (const Result<> res = fileSaver.finalize(); !res)
         return ResultError(Tr::tr("Cannot write to \"%1\" due to: %2")
-                                   .arg(filePath.toUserOutput(), fileSaver.errorString()));
+                                   .arg(filePath.toUserOutput(), res.error()));
 
-    return {};
+    return ResultOk;
 }
 
 Result<QByteArray> DockManager::loadWorkspace(const Workspace &workspace) const
