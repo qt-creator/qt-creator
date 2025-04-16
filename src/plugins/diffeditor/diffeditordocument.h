@@ -55,7 +55,7 @@ public:
     void setIgnoreWhitespace(bool ignore);
     bool ignoreWhitespace() const;
 
-    bool setContents(const QByteArray &contents) override;
+    Utils::Result<> setContents(const QByteArray &contents) override;
     Utils::FilePath fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
 

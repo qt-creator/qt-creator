@@ -114,17 +114,17 @@ QByteArray FormWindowFile::contents() const
     return formWindowContents().toUtf8();
 }
 
-bool FormWindowFile::setContents(const QByteArray &contents)
+Result<> FormWindowFile::setContents(const QByteArray &contents)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << contents.size();
 
     document()->clear();
 
-    QTC_ASSERT(m_formWindow, return false);
+    QTC_ASSERT(m_formWindow, return ResultError(ResultAssert));
 
     if (contents.isEmpty())
-        return false;
+        return ResultError(ResultAssert);
 
     // If we have an override cursor, reset it over Designer loading,
     // should it pop up messages about missing resources or such.
@@ -141,11 +141,11 @@ bool FormWindowFile::setContents(const QByteArray &contents)
         QApplication::setOverrideCursor(overrideCursor);
 
     if (!success)
-        return false;
+        return ResultError(ResultAssert);
 
     syncXmlFromFormWindow();
     setShouldAutoSave(false);
-    return true;
+    return ResultOk;
 }
 
 void FormWindowFile::setFilePath(const FilePath &newName)

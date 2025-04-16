@@ -29,7 +29,7 @@ public:
     Utils::Result<> open(const Utils::FilePath &filePath,
                          const Utils::FilePath &realFilePath) override;
     QByteArray contents() const override;
-    bool setContents(const QByteArray &contents) override;
+    Utils::Result<> setContents(const QByteArray &contents) override;
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;

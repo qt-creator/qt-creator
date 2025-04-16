@@ -102,7 +102,7 @@ public:
 
     // IDocument implementation.
     QByteArray contents() const override;
-    bool setContents(const QByteArray &contents) override;
+    Utils::Result<> setContents(const QByteArray &contents) override;
     void formatContents() override;
     bool shouldAutoSave() const override;
     bool isModified() const override;
@@ -122,7 +122,7 @@ public:
     virtual Utils::Result<> reload();
     Utils::Result<> reload(const Utils::FilePath &realFilePath);
 
-    bool setPlainText(const QString &text);
+    Utils::Result<> setPlainText(const QString &text);
     QTextDocument *document() const;
 
     using SyntaxHighLighterCreator = std::function<SyntaxHighlighter *()>;

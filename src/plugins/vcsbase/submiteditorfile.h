@@ -21,7 +21,7 @@ public:
                          const Utils::FilePath &realFilePath) override;
 
     QByteArray contents() const override;
-    bool setContents(const QByteArray &contents) override;
+    Utils::Result<> setContents(const QByteArray &contents) override;
 
     bool isModified() const override { return m_modified; }
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;

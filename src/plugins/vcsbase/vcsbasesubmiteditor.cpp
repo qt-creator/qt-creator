@@ -397,10 +397,10 @@ QByteArray VcsBaseSubmitEditor::fileContents() const
     return description().toLocal8Bit();
 }
 
-bool VcsBaseSubmitEditor::setFileContents(const QByteArray &contents)
+Result<> VcsBaseSubmitEditor::setFileContents(const QByteArray &contents)
 {
     setDescription(QString::fromUtf8(contents));
-    return true;
+    return ResultOk;
 }
 
 QString VcsBaseSubmitEditor::description() const

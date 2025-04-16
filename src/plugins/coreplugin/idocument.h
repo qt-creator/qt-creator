@@ -65,7 +65,7 @@ public:
     Utils::Result<> save(const Utils::FilePath &filePath = {}, bool autoSave = false);
 
     virtual QByteArray contents() const;
-    virtual bool setContents(const QByteArray &contents);
+    virtual Utils::Result<> setContents(const QByteArray &contents);
     virtual void formatContents();
 
     const Utils::FilePath &filePath() const;

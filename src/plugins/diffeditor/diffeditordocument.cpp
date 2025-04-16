@@ -208,10 +208,10 @@ bool DiffEditorDocument::ignoreWhitespace() const
     return m_ignoreWhitespace;
 }
 
-bool DiffEditorDocument::setContents(const QByteArray &contents)
+Result<> DiffEditorDocument::setContents(const QByteArray &contents)
 {
     Q_UNUSED(contents)
-    return true;
+    return ResultOk;
 }
 
 FilePath DiffEditorDocument::fallbackSaveAsPath() const

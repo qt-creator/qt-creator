@@ -51,7 +51,7 @@ public:
     Result<> open(const FilePath &filePath, const FilePath &realFilePath) final;
     QString plainText() const { return m_model.contents(); }
     QByteArray contents() const final { return m_model.contents().toUtf8(); }
-    bool setContents(const QByteArray &contents) final;
+    Result<> setContents(const QByteArray &contents) final;
     bool shouldAutoSave() const final { return m_shouldAutoSave; }
     bool isModified() const final { return m_model.dirty(); }
     bool isSaveAsAllowed() const final { return true; }
@@ -236,22 +236,23 @@ Result<> ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSav
     return ResultOk;
 }
 
-bool ResourceEditorDocument::setContents(const QByteArray &contents)
+Result<> ResourceEditorDocument::setContents(const QByteArray &contents)
 {
     TempFileSaver saver;
     saver.write(contents);
     if (!saver.finalize(ICore::dialogParent()))
-        return false;
+        return ResultError(saver.errorString());
 
     const FilePath originalFileName = m_model.filePath();
     m_model.setFilePath(saver.filePath());
-    const bool success = (m_model.reload().has_value());
+    const Result<> result = m_model.reload();
+    const bool success = result.has_value();
     m_model.setFilePath(originalFileName);
     m_shouldAutoSave = false;
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::createNew: " << contents << " (" << saver.filePath() << ") returns " << success;
     emit loaded(success);
-    return success;
+    return result;
 }
 
 void ResourceEditorDocument::setFilePath(const FilePath &newName)

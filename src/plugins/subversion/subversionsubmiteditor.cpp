@@ -9,7 +9,9 @@
 #include <vcsbase/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
 
-using namespace Subversion::Internal;
+using namespace Utils;
+
+namespace Subversion::Internal {
 
 SubversionSubmitEditor::SubversionSubmitEditor() :
     VcsBase::VcsBaseSubmitEditor(new VcsBase::SubmitEditorWidget)
@@ -54,8 +56,10 @@ QByteArray SubversionSubmitEditor::fileContents() const
     return description().toUtf8();
 }
 
-bool SubversionSubmitEditor::setFileContents(const QByteArray &contents)
+Result<> SubversionSubmitEditor::setFileContents(const QByteArray &contents)
 {
     setDescription(QString::fromUtf8(contents));
-    return true;
+    return ResultOk;
 }
+
+} // namespace Subversion::Internal

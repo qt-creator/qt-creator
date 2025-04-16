@@ -71,21 +71,6 @@
 */
 
 /*!
-    \enum Core::Utils::Result<>
-
-    The OpenResult enum describes whether a file was successfully opened.
-
-    \value Success
-           The file was read successfully and can be handled by this document
-           type.
-    \value ReadError
-           The file could not be opened for reading, either because it does not
-           exist or because of missing permissions.
-    \value CannotHandle
-           This document type could not handle the file content.
-*/
-
-/*!
     \enum Core::IDocument::ReloadSetting
 
     \internal
@@ -391,10 +376,10 @@ QByteArray IDocument::contents() const
     \sa contents()
     \sa EditorManager::openEditorWithContents()
 */
-bool IDocument::setContents(const QByteArray &contents)
+Result<> IDocument::setContents(const QByteArray &contents)
 {
     Q_UNUSED(contents)
-    return false;
+    return ResultError(ResultUnimplemented);
 }
 
 /*!

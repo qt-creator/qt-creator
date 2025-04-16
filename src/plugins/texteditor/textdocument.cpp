@@ -719,7 +719,7 @@ QByteArray TextDocument::contents() const
     return plainText().toUtf8();
 }
 
-bool TextDocument::setContents(const QByteArray &contents)
+Result<> TextDocument::setContents(const QByteArray &contents)
 {
     return setPlainText(QString::fromUtf8(contents));
 }
@@ -860,18 +860,18 @@ Result<> TextDocument::reload(const FilePath &realFilePath)
     return result;
 }
 
-bool TextDocument::setPlainText(const QString &text)
+Result<> TextDocument::setPlainText(const QString &text)
 {
     if (text.size() > EditorManager::maxTextFileSize()) {
         document()->setPlainText(TextEditorWidget::msgTextTooLarge(text.size()));
         d->resetRevisions();
         document()->setModified(false);
-        return false;
+        return ResultError(TextEditorWidget::msgTextTooLarge(text.size()));
     }
     document()->setPlainText(text);
     d->resetRevisions();
     document()->setModified(false);
-    return true;
+    return ResultOk;
 }
 
 Result<> TextDocument::reload(ReloadFlag flag, ChangeType type)

@@ -54,7 +54,7 @@ Result<> ObjectsMapDocument::saveImpl(const FilePath &filePath, bool autoSave)
     return ResultOk;
 }
 
-Utils::FilePath ObjectsMapDocument::fallbackSaveAsPath() const
+FilePath ObjectsMapDocument::fallbackSaveAsPath() const
 {
     return {};
 }
@@ -83,7 +83,7 @@ Result<> ObjectsMapDocument::reload(IDocument::ReloadFlag flag, IDocument::Chang
     return result;
 }
 
-bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
+Result<> ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
 {
     QMap<QString, ObjectsMapTreeItem *> itemForName;
 
@@ -97,7 +97,7 @@ bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
         const QString objectName = QString::fromUtf8(line.left(tabPosition).trimmed());
         if (!objectName.startsWith(ObjectsMapTreeItem::COLON)) {
             qDeleteAll(itemForName);
-            return false;
+            return ResultError(Tr::tr("Object name does not start with colon"));
         }
 
         ObjectsMapTreeItem *item = new ObjectsMapTreeItem(objectName,
@@ -123,10 +123,10 @@ bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
     }
 
     m_contentModel->changeRootItem(root);
-    return true;
+    return ResultOk;
 }
 
-bool ObjectsMapDocument::setContents(const QByteArray &contents)
+Result<> ObjectsMapDocument::setContents(const QByteArray &contents)
 {
     return buildObjectsMapTree(contents);
 }

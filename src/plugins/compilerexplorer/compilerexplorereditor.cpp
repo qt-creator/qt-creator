@@ -156,7 +156,7 @@ public:
 
     Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
-    bool setContents(const QByteArray &contents) override;
+    Result<> setContents(const QByteArray &contents) override;
 
     QString fallbackSaveAsFileName() const override;
 
@@ -418,7 +418,7 @@ Result<> JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSa
         m_ceSettings.toMap(store);
     }
 
-    Utils::FilePath path = newFilePath.isEmpty() ? filePath() : newFilePath;
+    FilePath path = newFilePath.isEmpty() ? filePath() : newFilePath;
 
     if (!newFilePath.isEmpty() && !autoSave) {
         setPreferredDisplayName({});
@@ -438,17 +438,17 @@ bool JsonSettingsDocument::isModified() const
     return m_ceSettings.isDirty();
 }
 
-bool JsonSettingsDocument::setContents(const QByteArray &contents)
+Result<> JsonSettingsDocument::setContents(const QByteArray &contents)
 {
-    auto result = storeFromJson(contents);
-    QTC_ASSERT_RESULT(result, return false);
+    Result<Store> result = storeFromJson(contents);
+    QTC_ASSERT_RESULT(result, return ResultError(result.error()));
 
-    m_ceSettings.fromMap(*result);
+    m_ceSettings.fromMap(result.value());
 
     emit settingsChanged();
     emit changed();
     emit contentsChanged();
-    return true;
+    return ResultOk;
 }
 
 QString JsonSettingsDocument::fallbackSaveAsFileName() const

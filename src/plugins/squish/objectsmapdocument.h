@@ -28,7 +28,7 @@ public:
     Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
 
     bool shouldAutoSave() const override { return true; }
-    bool setContents(const QByteArray &contents) override;
+    Utils::Result<> setContents(const QByteArray &contents) override;
     QByteArray contents() const override;
     ObjectsMapModel *model() const { return m_contentModel; }
 
@@ -38,7 +38,7 @@ protected:
 private:
     Utils::Result<> openImpl(const Utils::FilePath &fileName,
                              const Utils::FilePath &realFileName);
-    bool buildObjectsMapTree(const QByteArray &contents);
+    Utils::Result<> buildObjectsMapTree(const QByteArray &contents);
     bool writeFile(const Utils::FilePath &fileName) const;
     void syncXMLFromEditor();
 

@@ -50,7 +50,7 @@ QByteArray SubmitEditorFile::contents() const
     return m_editor->fileContents();
 }
 
-bool SubmitEditorFile::setContents(const QByteArray &contents)
+Result<> SubmitEditorFile::setContents(const QByteArray &contents)
 {
     return m_editor->setFileContents(contents);
 }

@@ -90,7 +90,7 @@ public:
     void setSizes(quint64 startAddr, qint64 range, int blockSize = 4096);
 
     QByteArray contents() const final { return dataMid(0, m_size); }
-    bool setContents(const QByteArray &contents) final;
+    Utils::Result<> setContents(const QByteArray &contents) final;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const final
     {
@@ -2107,14 +2107,14 @@ BinEditorDocument::BinEditorDocument()
     m_newRangeRequestHandler = [this](quint64 offset) { provideNewRange(offset); };
 }
 
-bool BinEditorDocument::setContents(const QByteArray &contents)
+Result<> BinEditorDocument::setContents(const QByteArray &contents)
 {
     clear();
     if (!contents.isEmpty()) {
         setSizes(0, contents.length(), contents.length());
         addData(0, contents);
     }
-    return true;
+    return ResultOk;
 }
 
 Result<> BinEditorDocument::openImpl(const FilePath &filePath, quint64 offset)
