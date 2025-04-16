@@ -29,6 +29,7 @@ public:
     MOCK_METHOD(bool, isValidStatus, (), (const));
     MOCK_METHOD(QString, cmakeVariableName, (), (const));
     MOCK_METHOD(QString, environmentVariableName, (), (const));
+    MOCK_METHOD(bool, isOptional, (), (const));
     MOCK_METHOD(bool, isAddToSystemPath, (), (const));
     MOCK_METHOD(bool, writeToSettings, (), (const));
     MOCK_METHOD(void, readFromSettings, ());

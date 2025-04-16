@@ -61,6 +61,7 @@ McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &settingsHandler
                        {},                                              // versions
                        {},                                              // downloadUrl
                        nullptr,                                         // versionDetector
+                       false,                                           // optional
                        false,                                           // addToPath
                        Utils::PathChooser::Kind::ExistingDirectory,     // valueType
                        true)};                                          // useNewestVersionKey
@@ -706,6 +707,7 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
             detectionPaths,
             versions,
             parseVersionDetection(cmakeEntry),
+            cmakeEntry["optional"].toBool(),
             cmakeEntry["addToSystemPath"].toBool(),
             parseLineEditType(cmakeEntry["type"])};
 }
