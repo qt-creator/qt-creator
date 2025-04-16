@@ -19,10 +19,10 @@
 
 using namespace Utils;
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
-class ModelDocument::ModelDocumentPrivate {
+class ModelDocument::ModelDocumentPrivate
+{
 public:
     ExtDocumentController *documentController = nullptr;
 };
@@ -42,13 +42,12 @@ ModelDocument::~ModelDocument()
     delete d;
 }
 
-Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
-                                                const FilePath &filePath,
+Core::IDocument::OpenResult ModelDocument::open(const FilePath &filePath,
                                                 const FilePath &realFilePath)
 {
     Q_UNUSED(filePath)
 
-    OpenResult result = load(errorString, realFilePath);
+    OpenResult result = load(realFilePath);
     return result;
 }
 
@@ -112,7 +111,7 @@ ExtDocumentController *ModelDocument::documentController() const
     return d->documentController;
 }
 
-Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const FilePath &fileName)
+Core::IDocument::OpenResult ModelDocument::load(const FilePath &fileName)
 {
     d->documentController = ModelEditorPlugin::modelsManager()->createModel(this);
     connect(d->documentController, &qmt::DocumentController::changed, this, &IDocument::changed);
@@ -121,11 +120,11 @@ Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const File
         d->documentController->loadProject(fileName);
         setFilePath(d->documentController->projectController()->project()->fileName());
     } catch (const qmt::FileNotFoundException &ex) {
-        *errorString = ex.errorMessage();
-        return OpenResult::ReadError;
+        return {OpenResult::ReadError, ex.errorMessage()};
     } catch (const qmt::Exception &ex) {
-        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.").arg(fileName.toUserOutput(), ex.errorMessage());
-        return OpenResult::CannotHandle;
+        return {OpenResult::CannotHandle,
+                    Tr::tr("Could not open \"%1\" for reading: %2.")
+                    .arg(fileName.toUserOutput(), ex.errorMessage())};
     }
 
     FilePath configPath = d->documentController->projectController()->project()->configPath();
@@ -143,5 +142,4 @@ Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const File
     return OpenResult::Success;
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

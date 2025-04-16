@@ -8,8 +8,7 @@
 
 namespace qmt { class Uid; }
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class ExtDocumentController;
 
@@ -27,8 +26,7 @@ signals:
     void contentSet();
 
 public:
-    OpenResult open(QString *errorString,
-                    const Utils::FilePath &filePath,
+    OpenResult open(const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
     bool shouldAutoSave() const override;
     bool isModified() const override;
@@ -37,7 +35,7 @@ public:
 
     ExtDocumentController *documentController() const;
 
-    OpenResult load(QString *errorString, const Utils::FilePath &fileName);
+    OpenResult load(const Utils::FilePath &fileName);
 
 protected:
     Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
@@ -46,5 +44,4 @@ private:
     ModelDocumentPrivate *d;
 };
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal

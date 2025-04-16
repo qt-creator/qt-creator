@@ -27,15 +27,14 @@ SubmitEditorFile::SubmitEditorFile(VcsBaseSubmitEditor *editor) :
             this, &IDocument::contentsChanged);
 }
 
-IDocument::OpenResult SubmitEditorFile::open(QString *errorString, const FilePath &filePath,
-                                             const FilePath &realFilePath)
+IDocument::OpenResult SubmitEditorFile::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     if (filePath.isEmpty())
         return OpenResult::ReadError;
 
     FileReader reader;
-    if (!reader.fetch(realFilePath, errorString))
-        return OpenResult::ReadError;
+    if (const Result<> res = reader.fetch(realFilePath); !res)
+        return {OpenResult::ReadError, res.error()};
 
     const QString text = QString::fromLocal8Bit(reader.text());
     if (!m_editor->setFileContents(text.toUtf8()))

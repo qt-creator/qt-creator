@@ -315,9 +315,8 @@ Id IDocument::id() const
     \sa shouldAutoSave()
     \sa setFilePath()
 */
-IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePath &filePath, const Utils::FilePath &realFilePath)
+IDocument::OpenResult IDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
-    Q_UNUSED(errorString)
     Q_UNUSED(filePath)
     Q_UNUSED(realFilePath)
     return OpenResult::CannotHandle;
@@ -806,6 +805,11 @@ void IDocument::setUniqueDisplayName(const QString &name)
 QString IDocument::uniqueDisplayName() const
 {
     return d->uniqueDisplayName;
+}
+
+IDocument::OpenResult::operator Result<>() const
+{
+    return makeResult(code == Success, error);
 }
 
 } // namespace Core

@@ -147,11 +147,11 @@ private:
 class JsonSettingsDocument : public Core::IDocument
 {
     Q_OBJECT
+
 public:
     JsonSettingsDocument(QUndoStack *undoStack);
 
-    OpenResult open(QString *errorString,
-                    const Utils::FilePath &filePath,
+    OpenResult open(const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
 
     Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
@@ -380,26 +380,19 @@ JsonSettingsDocument::JsonSettingsDocument(QUndoStack *undoStack)
     m_ceSettings.setUndoStack(undoStack);
 }
 
-Core::IDocument::OpenResult JsonSettingsDocument::open(QString *errorString,
-                                                       const FilePath &filePath,
-                                                       const FilePath &realFilePath)
+IDocument::OpenResult JsonSettingsDocument::open(const FilePath &filePath,
+                                                 const FilePath &realFilePath)
 {
     if (!filePath.isReadableFile())
         return OpenResult::ReadError;
 
-    auto contents = realFilePath.fileContents();
-    if (!contents) {
-        if (errorString)
-            *errorString = contents.error();
-        return OpenResult::ReadError;
-    }
+    Result<QByteArray> contents = realFilePath.fileContents();
+    if (!contents)
+        return {OpenResult::ReadError, contents.error()};
 
-    auto result = storeFromJson(*contents);
-    if (!result) {
-        if (errorString)
-            *errorString = result.error();
-        return OpenResult::ReadError;
-    }
+    Result<Store> result = storeFromJson(*contents);
+    if (!result)
+        return {OpenResult::ReadError, result.error()};
 
     setFilePath(filePath);
 

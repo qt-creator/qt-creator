@@ -97,21 +97,20 @@ public:
         return type == TypeRemoved ? BehaviorSilent : IDocument::reloadBehavior(state, type);
     }
 
-    OpenResult open(QString *errorString, const FilePath &filePath,
-                    const FilePath &realFilePath) final
+    OpenResult open(const FilePath &filePath, const FilePath &realFilePath) final
     {
         QTC_CHECK(filePath == realFilePath); // The bineditor can do no autosaving
-        return openImpl(errorString, filePath);
+        return openImpl(filePath);
     }
 
-    OpenResult openImpl(QString *errorString, const FilePath &filePath, quint64 offset = 0);
+    OpenResult openImpl(const FilePath &filePath, quint64 offset = 0);
 
     void provideData(quint64 address);
 
     void provideNewRange(quint64 offset)
     {
         if (filePath().exists())
-            openImpl(nullptr, filePath(), offset);
+            openImpl(filePath(), offset);
     }
 
     bool isModified() const final;
@@ -2119,36 +2118,27 @@ bool BinEditorDocument::setContents(const QByteArray &contents)
     return true;
 }
 
-IDocument::OpenResult BinEditorDocument::openImpl(QString *errorString, const FilePath &filePath, quint64 offset)
+IDocument::OpenResult BinEditorDocument::openImpl(const FilePath &filePath, quint64 offset)
 {
     const qint64 size = filePath.fileSize();
     if (size < 0) {
         QString msg = Tr::tr("Cannot open %1: %2").arg(filePath.toUserOutput(), Tr::tr("File Error"));
         // FIXME: Was: file.errorString(), but we don't have a file anymore.
-        if (errorString)
-            *errorString = msg;
-        else
-            QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-        return OpenResult::ReadError;
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
+        return {OpenResult::ReadError, msg};
     }
 
     if (size == 0) {
         QString msg = Tr::tr("The Binary Editor cannot open empty files.");
-        if (errorString)
-            *errorString = msg;
-        else
-            QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-        return OpenResult::CannotHandle;
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
+        return {OpenResult::CannotHandle, msg};
     }
 
     if (size / 16 >= qint64(1) << 31) {
         // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
         QString msg = Tr::tr("The file is too big for the Binary Editor (max. 32GB).");
-        if (errorString)
-            *errorString = msg;
-        else
-            QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-        return OpenResult::CannotHandle;
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
+        return {OpenResult::CannotHandle, msg};
     }
 
     if (offset >= quint64(size))
@@ -2189,10 +2179,9 @@ Result<> BinEditorDocument::reload(ReloadFlag flag, ChangeType type)
         return ResultOk;
     emit aboutToReload();
     clear();
-    QString errorString;
-    const bool success = (openImpl(&errorString, filePath()) == OpenResult::Success);
-    emit reloadFinished(success);
-    return makeResult(success, errorString);
+    const OpenResult result = openImpl(filePath());
+    emit reloadFinished(result.code == OpenResult::Success);
+    return result;
 }
 
 Result<> BinEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)

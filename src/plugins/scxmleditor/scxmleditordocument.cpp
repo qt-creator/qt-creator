@@ -18,7 +18,8 @@
 using namespace Utils;
 
 using namespace ScxmlEditor::Common;
-using namespace ScxmlEditor::Internal;
+
+namespace ScxmlEditor::Internal {
 
 ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *parent)
     : m_designWidget(designWidget)
@@ -34,9 +35,8 @@ ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *pare
     });
 }
 
-Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString,
-                                                      const Utils::FilePath &filePath,
-                                                      const Utils::FilePath &realFilePath)
+Core::IDocument::OpenResult ScxmlEditorDocument::open(const FilePath &filePath,
+                                                      const FilePath &realFilePath)
 {
     Q_UNUSED(realFilePath)
 
@@ -47,10 +47,8 @@ Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString,
         return OpenResult::ReadError;
 
     const FilePath &absoluteFilePath = filePath.absoluteFilePath();
-    if (!m_designWidget->load(absoluteFilePath.toUrlishString())) {
-        *errorString = m_designWidget->errorMessage();
-        return OpenResult::ReadError;
-    }
+    if (!m_designWidget->load(absoluteFilePath.toUrlishString()))
+        return {OpenResult::ReadError, m_designWidget->errorMessage()};
 
     setFilePath(absoluteFilePath);
 
@@ -137,3 +135,5 @@ void ScxmlEditorDocument::syncXmlFromDesignWidget()
 {
     document()->setPlainText(designWidgetContents());
 }
+
+} // namespace ScxmlEditor::Internal

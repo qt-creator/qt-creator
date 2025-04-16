@@ -13,9 +13,7 @@ QT_FORWARD_DECLARE_CLASS(QDesignerFormWindowInterface)
 
 namespace ScxmlEditor {
 
-namespace Common {
-class MainWidget;
-} // namespace Common
+namespace Common { class MainWidget; }
 
 namespace Internal {
 
@@ -27,9 +25,7 @@ public:
     explicit ScxmlEditorDocument(Common::MainWidget *designWidget, QObject *parent = nullptr);
 
     // IDocument
-    OpenResult open(QString *errorString,
-                    const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    OpenResult open(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath) override;
     bool shouldAutoSave() const override;
     bool isSaveAsAllowed() const override;
     bool isModified() const override;

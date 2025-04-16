@@ -140,8 +140,7 @@ void ClangFormatConfigWidget::initEditor()
     Core::IEditorFactory *factory = factories.takeFirst();
     m_editor.reset(factory->createEditor());
 
-    QString errorString;
-    m_editor->document()->open(&errorString, m_config->filePath(), m_config->filePath());
+    m_editor->document()->open(m_config->filePath(), m_config->filePath());
     m_editor->widget()->adjustSize();
 
     invokeMethodForLanguageClientManager("documentOpened",
@@ -273,9 +272,8 @@ void ClangFormatConfigWidget::reopenClangFormatDocument()
 {
     GuardLocker locker(m_ignoreChanges);
 
-    QString errorString;
-    if (m_editor->document()->open(&errorString, m_config->filePath(), m_config->filePath())
-        == Core::IDocument::OpenResult::Success) {
+    if (m_editor->document()->open(m_config->filePath(), m_config->filePath()).code
+            == Core::IDocument::OpenResult::Success) {
         invokeMethodForLanguageClientManager("documentOpened",
                                              Q_ARG(Core::IDocument *, m_editor->document()));
     }

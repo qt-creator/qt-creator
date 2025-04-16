@@ -82,9 +82,8 @@ public:
 
         // Open file
         QScopedPointer<TextEditor::BaseTextEditor> editor(TextEditor::createPlainTextEditor());
-        QString error;
-        editor->document()->open(&error, document->filePath(), document->filePath());
-        QVERIFY(error.isEmpty());
+        Core::IDocument::OpenResult res = editor->document()->open(document->filePath(), document->filePath());
+        QVERIFY(res.error.isEmpty());
 
         // Set cursor position
         QTextCursor cursor = editor->textCursor();

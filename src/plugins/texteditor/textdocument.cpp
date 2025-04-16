@@ -754,31 +754,29 @@ bool TextDocument::isModified() const
     return d->m_document.isModified();
 }
 
-Core::IDocument::OpenResult TextDocument::open(QString *errorString,
-                                               const Utils::FilePath &filePath,
-                                               const Utils::FilePath &realFilePath)
+IDocument::OpenResult TextDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     emit aboutToOpen(filePath, realFilePath);
-    OpenResult success = openImpl(errorString, filePath, realFilePath, /*reload =*/ false);
-    if (success == OpenResult::Success) {
+    OpenResult result = openImpl(filePath, realFilePath, /*reload =*/ false);
+    if (result.code == OpenResult::Success) {
         setMimeType(Utils::mimeTypeForFile(filePath, MimeMatchMode::MatchDefaultAndRemote).name());
         setTabSettings(d->m_tabSettings);
         emit openFinishedSuccessfully();
     }
-    return success;
+    return result;
 }
 
-Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString,
-                                                   const Utils::FilePath &filePath,
-                                                   const Utils::FilePath &realFilePath,
-                                                   bool reload)
+IDocument::OpenResult TextDocument::openImpl(const FilePath &filePath,
+                                             const FilePath &realFilePath,
+                                             bool reload)
 {
     QStringList content;
+    QString errorString;
 
-    ReadResult readResult = Utils::TextFileFormat::ReadIOError;
+    ReadResult readResult = TextFileFormat::ReadIOError;
 
     if (!filePath.isEmpty()) {
-        readResult = read(realFilePath, &content, errorString);
+        readResult = read(realFilePath, &content, &errorString);
         const int chunks = content.size();
 
         // Don't call setUndoRedoEnabled(true) when reload is true and filenames are different,
@@ -829,7 +827,7 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString,
         setFilePath(filePath);
     }
     if (readResult == Utils::TextFileFormat::ReadIOError)
-        return OpenResult::ReadError;
+        return {OpenResult::ReadError, errorString};
     return OpenResult::Success;
 }
 
@@ -853,15 +851,13 @@ Result<> TextDocument::reload(const FilePath &realFilePath)
     if (documentLayout)
         documentLayout->documentAboutToReload(this); // removes text marks non-permanently
 
-    QString errorString;
-    bool success = openImpl(&errorString, filePath(), realFilePath, /*reload =*/true)
-                   == OpenResult::Success;
+    const OpenResult result = openImpl(filePath(), realFilePath, /*reload =*/true);
 
     if (documentLayout)
         documentLayout->documentReloaded(this); // re-adds text marks
-    emit reloadFinished(success);
+    emit reloadFinished(result.code == OpenResult::Success);
 
-    return makeResult(success, errorString);
+    return result;
 }
 
 bool TextDocument::setPlainText(const QString &text)

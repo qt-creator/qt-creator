@@ -7,8 +7,7 @@
 
 #include <QList>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class ObjectsMapModel;
 
@@ -18,8 +17,7 @@ class ObjectsMapDocument : public Core::IDocument
 public:
     ObjectsMapDocument();
 
-    OpenResult open(QString *errorString,
-                    const Utils::FilePath &fileName,
+    OpenResult open(const Utils::FilePath &fileName,
                     const Utils::FilePath &realFileName) override;
     Utils::FilePath fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
@@ -37,8 +35,7 @@ protected:
     Utils::Result<> saveImpl(const Utils::FilePath &fileName, bool autoSave) override;
 
 private:
-    OpenResult openImpl(QString *error,
-                        const Utils::FilePath &fileName,
+    OpenResult openImpl(const Utils::FilePath &fileName,
                         const Utils::FilePath &realFileName);
     bool buildObjectsMapTree(const QByteArray &contents);
     bool writeFile(const Utils::FilePath &fileName) const;
@@ -48,5 +45,4 @@ private:
     bool m_isModified;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

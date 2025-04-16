@@ -19,10 +19,10 @@
 #include <QTextDocument>
 #include <QUndoStack>
 
+using namespace Core;
 using namespace Utils;
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
   : m_formWindow(form)
@@ -43,9 +43,8 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
             m_resourceHandler, &ResourceHandler::updateResources);
 }
 
-Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
-                                                 const Utils::FilePath &filePath,
-                                                 const Utils::FilePath &realFilePath)
+IDocument::OpenResult FormWindowFile::open(const FilePath &filePath,
+                                           const FilePath &realFilePath)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowFile::open" << filePath.toUserOutput();
@@ -57,21 +56,22 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
         return OpenResult::ReadError;
 
     QString contents;
-    Utils::TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath(),
-                                                        &contents,
-                                                        errorString);
+    QString errorString;
+    TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath(),
+                                                 &contents,
+                                                 &errorString);
     if (readResult == Utils::TextFileFormat::ReadEncodingError)
-        return OpenResult::CannotHandle;
+        return {OpenResult::CannotHandle, errorString};
     if (readResult != Utils::TextFileFormat::ReadSuccess)
-        return OpenResult::ReadError;
+        return {OpenResult::ReadError, errorString};
 
     form->setFileName(filePath.absoluteFilePath().toUrlishString());
     const QByteArray contentsBA = contents.toUtf8();
     QBuffer str;
     str.setData(contentsBA);
     str.open(QIODevice::ReadOnly);
-    if (!form->setContents(&str, errorString))
-        return OpenResult::CannotHandle;
+    if (!form->setContents(&str, &errorString))
+        return {OpenResult::CannotHandle, errorString};
     form->setDirty(filePath != realFilePath);
 
     syncXmlFromFormWindow();
@@ -201,11 +201,9 @@ Result<> FormWindowFile::reload(ReloadFlag flag, ChangeType type)
         return ResultOk;
     } else {
         emit aboutToReload();
-        QString errorString;
-        const bool success
-                = (open(&errorString, filePath(), filePath()) == OpenResult::Success);
-        emit reloadFinished(success);
-        return makeResult(success, errorString);
+        const OpenResult result = open(filePath(), filePath());
+        emit reloadFinished(result.code == OpenResult::Success);
+        return result;
     }
 }
 
@@ -269,5 +267,4 @@ void FormWindowFile::slotFormWindowRemoved(QDesignerFormWindowInterface *w)
         m_formWindow = nullptr;
 }
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

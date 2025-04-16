@@ -48,8 +48,7 @@ class ResourceEditorDocument final : public IDocument
 public:
     ResourceEditorDocument(QObject *parent = nullptr);
 
-    OpenResult open(QString *errorString, const FilePath &filePath,
-                    const FilePath &realFilePath) final;
+    OpenResult open(const FilePath &filePath, const FilePath &realFilePath) final;
     QString plainText() const { return m_model.contents(); }
     QByteArray contents() const final { return m_model.contents().toUtf8(); }
     bool setContents(const QByteArray &contents) final;
@@ -180,8 +179,7 @@ ResourceEditorImpl::~ResourceEditorImpl()
     delete m_toolBar;
 }
 
-IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
-                                                   const FilePath &filePath,
+IDocument::OpenResult ResourceEditorDocument::open(const FilePath &filePath,
                                                    const FilePath &realFilePath)
 {
     if (debugResourceEditorW)
@@ -192,9 +190,8 @@ IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
     m_model.setFilePath(realFilePath);
 
     OpenResult openResult = m_model.reload();
-    if (openResult != OpenResult::Success) {
-        if (errorString)
-            *errorString = m_model.errorMessage();
+    if (openResult.code != OpenResult::Success) {
+        openResult.error = m_model.errorMessage();
         setBlockDirtyChanged(false);
         emit loaded(false);
         return openResult;
@@ -249,7 +246,7 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
 
     const FilePath originalFileName = m_model.filePath();
     m_model.setFilePath(saver.filePath());
-    const bool success = (m_model.reload() == OpenResult::Success);
+    const bool success = (m_model.reload().code == OpenResult::Success);
     m_model.setFilePath(originalFileName);
     m_shouldAutoSave = false;
     if (debugResourceEditorW)
@@ -286,10 +283,9 @@ Result<> ResourceEditorDocument::reload(ReloadFlag flag, ChangeType type)
     if (flag == FlagIgnore)
         return ResultOk;
     emit aboutToReload();
-    QString errorString;
-    const bool success = (open(&errorString, filePath(), filePath()) == OpenResult::Success);
-    emit reloadFinished(success);
-    return makeResult(success, errorString);
+    const OpenResult result = open(filePath(), filePath());
+    emit reloadFinished(result.code == OpenResult::Success);
+    return result;
 }
 
 void ResourceEditorDocument::dirtyChanged(bool dirty)

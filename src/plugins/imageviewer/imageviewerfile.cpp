@@ -25,6 +25,7 @@
 #include <QGraphicsSvgItem>
 #endif
 
+using namespace Core;
 using namespace Utils;
 
 namespace ImageViewer::Internal {
@@ -63,18 +64,15 @@ ImageViewerFile::~ImageViewerFile()
     cleanUp();
 }
 
-Core::IDocument::OpenResult ImageViewerFile::open(QString *errorString,
-                                                  const Utils::FilePath &filePath,
-                                                  const Utils::FilePath &realfilePath)
+IDocument::OpenResult ImageViewerFile::open(const FilePath &filePath, const FilePath &realfilePath)
 {
     QTC_CHECK(filePath == realfilePath); // does not support auto save
-    OpenResult success = openImpl(errorString, filePath);
-    emit openFinished(success == OpenResult::Success);
-    return success;
+    OpenResult res = openImpl(filePath);
+    emit openFinished(res.code == OpenResult::Success);
+    return res;
 }
 
-Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
-                                                      const Utils::FilePath &filePath)
+IDocument::OpenResult ImageViewerFile::openImpl(const FilePath &filePath)
 {
     cleanUp();
 
@@ -84,11 +82,8 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
     const QString &fileName = filePath.toUrlishString();
     QByteArray format = QImageReader::imageFormat(fileName);
     // if it is impossible to recognize a file format - file will not be open correctly
-    if (format.isEmpty()) {
-        if (errorString)
-            *errorString = Tr::tr("Image format not supported.");
-        return OpenResult::CannotHandle;
-    }
+    if (format.isEmpty())
+        return {OpenResult::CannotHandle, Tr::tr("Image format not supported.")};
 
 #ifndef QT_NO_SVG
     if (format.startsWith("svg")) {
@@ -97,9 +92,7 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
         if (!bound.isValid() || (qFuzzyIsNull(bound.width()) && qFuzzyIsNull(bound.height()))) {
             delete m_tempSvgItem;
             m_tempSvgItem = nullptr;
-            if (errorString)
-                *errorString = Tr::tr("Failed to read SVG image.");
-            return OpenResult::CannotHandle;
+            return {OpenResult::CannotHandle, Tr::tr("Failed to read SVG image.")};
         }
         m_type = TypeSvg;
         emit imageSizeChanged(m_tempSvgItem->boundingRect().size().toSize());
@@ -110,11 +103,9 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
         // force reading movie/image data, so we can catch completely invalid movies/images early:
         m_movie->jumpToNextFrame();
         if (!m_movie->isValid()) {
-            if (errorString)
-                *errorString = Tr::tr("Failed to read image.");
             delete m_movie;
             m_movie = nullptr;
-            return OpenResult::CannotHandle;
+            return {OpenResult::CannotHandle, Tr::tr("Failed to read image.")};
         }
         m_type = TypeMovie;
         connect(m_movie, &QMovie::resized, this, &ImageViewerFile::imageSizeChanged);
@@ -122,11 +113,9 @@ Core::IDocument::OpenResult ImageViewerFile::openImpl(QString *errorString,
     } else {
         m_pixmap = new QPixmap(fileName);
         if (m_pixmap->isNull()) {
-            if (errorString)
-                *errorString = Tr::tr("Failed to read image.");
             delete m_pixmap;
             m_pixmap = nullptr;
-            return OpenResult::CannotHandle;
+            return {OpenResult::CannotHandle, Tr::tr("Failed to read image.")};
         }
         m_type = TypePixmap;
         emit imageSizeChanged(m_pixmap->size());
@@ -146,17 +135,15 @@ Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger st
     return BehaviorAsk;
 }
 
-Result<> ImageViewerFile::reload(Core::IDocument::ReloadFlag flag,
-                               Core::IDocument::ChangeType type)
+Result<> ImageViewerFile::reload(IDocument::ReloadFlag flag, IDocument::ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
         return ResultOk;
     emit aboutToReload();
-    QString errorString;
-    bool success = (openImpl(&errorString, filePath()) == OpenResult::Success);
-    emit reloadFinished(success);
-    return makeResult(success, errorString);
+    const OpenResult result = openImpl(filePath());
+    emit reloadFinished( result.code == OpenResult::Success);
+    return result;
 }
 
 QMovie *ImageViewerFile::movie() const

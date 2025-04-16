@@ -17,8 +17,8 @@ class SubmitEditorFile : public Core::IDocument
 public:
     explicit SubmitEditorFile(VcsBaseSubmitEditor *editor);
 
-    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    OpenResult open(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath) override;
+
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
 

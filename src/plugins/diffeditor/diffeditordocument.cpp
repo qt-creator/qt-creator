@@ -262,28 +262,26 @@ Result<> DiffEditorDocument::reload(ReloadFlag flag, ChangeType type)
     Q_UNUSED(type)
     if (flag == FlagIgnore)
         return ResultOk;
-    QString errorString;
-    bool success = open(&errorString, filePath(), filePath()) == OpenResult::Success;
-    return makeResult(success, errorString);
+    return open(filePath(), filePath());
 }
 
-Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const FilePath &filePath,
-                                                     const FilePath &realFilePath)
+IDocument::OpenResult DiffEditorDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     QTC_CHECK(filePath == realFilePath); // does not support autosave
     beginReload();
     QString patch;
-    ReadResult readResult = read(filePath, &patch, errorString);
+    QString errorString;
+    ReadResult readResult = read(filePath, &patch, &errorString);
     if (readResult == TextFileFormat::ReadIOError
         || readResult == TextFileFormat::ReadMemoryAllocationError) {
-        return OpenResult::ReadError;
+        return {OpenResult::ReadError, errorString};
     }
 
     const std::optional<QList<FileData>> fileDataList = DiffUtils::readPatch(patch);
     bool ok = fileDataList.has_value();
     if (!ok) {
-        *errorString = Tr::tr("Could not parse patch file \"%1\". "
-                              "The content is not of unified diff format.")
+        errorString = Tr::tr("Could not parse patch file \"%1\". "
+                             "The content is not of unified diff format.")
                 .arg(filePath.toUserOutput());
     } else {
         setTemporary(false);
@@ -295,7 +293,9 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
     endReload(ok);
     if (!ok && readResult == TextFileFormat::ReadEncodingError)
         ok = selectEncoding();
-    return ok ? OpenResult::Success : OpenResult::CannotHandle;
+    if (!ok)
+        return {OpenResult::CannotHandle, errorString};
+    return OpenResult::Success;
 }
 
 bool DiffEditorDocument::selectEncoding()

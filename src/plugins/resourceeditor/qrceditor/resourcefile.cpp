@@ -1081,7 +1081,7 @@ Core::IDocument::OpenResult ResourceModel::reload()
 {
     beginResetModel();
     Core::IDocument::OpenResult result = m_resource_file.load();
-    if (result == Core::IDocument::OpenResult::Success)
+    if (result.code == Core::IDocument::OpenResult::Success)
         setDirty(false);
     endResetModel();
     return result;

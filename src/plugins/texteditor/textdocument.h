@@ -117,8 +117,7 @@ public:
     void setFallbackSaveAsPath(const Utils::FilePath &fallbackSaveAsPath);
     void setFallbackSaveAsFileName(const QString &fallbackSaveAsFileName);
 
-    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    OpenResult open(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath) override;
     virtual Utils::Result<> reload();
     Utils::Result<> reload(const Utils::FilePath &realFilePath);
 
@@ -170,8 +169,7 @@ protected:
     virtual void slotCodeStyleSettingsChanged(); // Used in CppEditorDocumet
 
 private:
-    OpenResult openImpl(QString *errorString,
-                        const Utils::FilePath &filePath,
+    OpenResult openImpl(const Utils::FilePath &filePath,
                         const Utils::FilePath &realFileName,
                         bool reload);
     void cleanWhitespace(QTextCursor &cursor, bool inEntireDocument, bool cleanIndentation);

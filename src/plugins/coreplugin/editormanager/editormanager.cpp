@@ -903,15 +903,14 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
                 factory = factories.isEmpty() ? nullptr : factories.takeFirst();
                 continue;
             }
-            IDocument::OpenResult openResult = editor->document()->open(&errorString,
-                                                                        filePath,
-                                                                        realFp);
-            if (openResult == IDocument::OpenResult::Success)
+            IDocument::OpenResult openResult = editor->document()->open(filePath, realFp);
+            if (openResult.code == IDocument::OpenResult::Success)
                 break;
+            errorString = openResult.error;
             overrideCursor.reset();
             delete editor;
             editor = nullptr;
-            if (openResult == IDocument::OpenResult::ReadError) {
+            if (openResult.code == IDocument::OpenResult::ReadError) {
                 QMessageBox msgbox(QMessageBox::Critical,
                                    ::Core::Tr::tr("File Error"),
                                    ::Core::Tr::tr("Could not open \"%1\" for reading. "
@@ -924,7 +923,7 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
                 return nullptr;
             }
             // can happen e.g. when trying to open an completely empty .qrc file
-            QTC_CHECK(openResult == IDocument::OpenResult::CannotHandle);
+            QTC_CHECK(openResult.code == IDocument::OpenResult::CannotHandle);
         } else {
             QTC_ASSERT(factory->isExternalEditor(),
                        factory = factories.isEmpty() ? nullptr : factories.takeFirst();
@@ -3019,7 +3018,7 @@ void EditorManager::runWithTemporaryEditor(const Utils::FilePath &filePath,
         if (!editor)
             continue;
         editor->document()->setTemporary(true);
-        if (editor->document()->open(nullptr, filePath, filePath) != IDocument::OpenResult::Success)
+        if (editor->document()->open(filePath, filePath).code != IDocument::OpenResult::Success)
             continue;
         callback(editor.get());
         break;

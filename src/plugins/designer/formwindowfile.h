@@ -26,7 +26,7 @@ public:
     ~FormWindowFile() override { }
 
     // IDocument
-    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
+    OpenResult open(const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;

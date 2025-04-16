@@ -35,8 +35,7 @@ public:
     ImageViewerFile();
     ~ImageViewerFile() override;
 
-    OpenResult open(QString *errorString, const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    OpenResult open(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath) override;
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
@@ -55,7 +54,7 @@ signals:
 
 private:
     void cleanUp();
-    OpenResult openImpl(QString *errorString, const Utils::FilePath &filePath);
+    OpenResult openImpl(const Utils::FilePath &filePath);
 
     ImageType m_type = TypeInvalid;
 #ifndef QT_NO_SVG
