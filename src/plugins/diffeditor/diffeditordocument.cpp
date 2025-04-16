@@ -265,7 +265,7 @@ Result<> DiffEditorDocument::reload(ReloadFlag flag, ChangeType type)
     return open(filePath(), filePath());
 }
 
-IDocument::OpenResult DiffEditorDocument::open(const FilePath &filePath, const FilePath &realFilePath)
+Result<> DiffEditorDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     QTC_CHECK(filePath == realFilePath); // does not support autosave
     beginReload();
@@ -274,7 +274,7 @@ IDocument::OpenResult DiffEditorDocument::open(const FilePath &filePath, const F
     ReadResult readResult = read(filePath, &patch, &errorString);
     if (readResult == TextFileFormat::ReadIOError
         || readResult == TextFileFormat::ReadMemoryAllocationError) {
-        return {OpenResult::CannotHandle, errorString};
+        return ResultError(errorString);
     }
 
     const std::optional<QList<FileData>> fileDataList = DiffUtils::readPatch(patch);
@@ -294,8 +294,8 @@ IDocument::OpenResult DiffEditorDocument::open(const FilePath &filePath, const F
     if (!ok && readResult == TextFileFormat::ReadEncodingError)
         ok = selectEncoding();
     if (!ok)
-        return {OpenResult::CannotHandle, errorString};
-    return OpenResult::Success;
+        return ResultError(errorString);
+    return ResultOk;
 }
 
 bool DiffEditorDocument::selectEncoding()

@@ -151,8 +151,8 @@ class JsonSettingsDocument : public Core::IDocument
 public:
     JsonSettingsDocument(QUndoStack *undoStack);
 
-    OpenResult open(const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    Result<> open(const Utils::FilePath &filePath,
+                  const Utils::FilePath &realFilePath) override;
 
     Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
@@ -380,25 +380,25 @@ JsonSettingsDocument::JsonSettingsDocument(QUndoStack *undoStack)
     m_ceSettings.setUndoStack(undoStack);
 }
 
-IDocument::OpenResult JsonSettingsDocument::open(const FilePath &filePath,
-                                                 const FilePath &realFilePath)
+Result<> JsonSettingsDocument::open(const FilePath &filePath,
+                                    const FilePath &realFilePath)
 {
     if (!filePath.isReadableFile())
-        return OpenResult::CannotHandle;
+        return ResultError(Tr::tr("File not readable"));
 
     Result<QByteArray> contents = realFilePath.fileContents();
     if (!contents)
-        return {OpenResult::CannotHandle, contents.error()};
+        return ResultError(contents.error());
 
     Result<Store> result = storeFromJson(*contents);
     if (!result)
-        return {OpenResult::CannotHandle, result.error()};
+        return ResultError(result.error());
 
     setFilePath(filePath);
 
-    m_ceSettings.fromMap(*result);
+    m_ceSettings.fromMap(result.value());
     emit settingsChanged();
-    return OpenResult::Success;
+    return ResultOk;
 }
 
 Result<> JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSave)

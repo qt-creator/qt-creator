@@ -121,7 +121,7 @@ static bool addFilesToResource(const FilePath &resourceFile,
         *notAdded = filePaths;
 
     ResourceFile file(resourceFile);
-    if (file.load().code != IDocument::OpenResult::Success)
+    if (!file.load())
         return false;
 
     int index = file.indexOfPrefix(prefix, lang);
@@ -272,7 +272,7 @@ static void compressTree(FolderNode *n)
 void ResourceTopLevelNode::addInternalNodes()
 {
     ResourceFile file(filePath(), m_contents);
-    if (file.load().code != IDocument::OpenResult::Success)
+    if (!file.load())
         return;
 
     QMap<PrefixFolderLang, FolderNode *> folderNodes;
@@ -382,7 +382,7 @@ RemovedFilesFromProject ResourceTopLevelNode::removeFiles(const FilePaths &fileP
 bool ResourceTopLevelNode::addPrefix(const QString &prefix, const QString &lang)
 {
     ResourceFile file(filePath());
-    if (file.load().code != IDocument::OpenResult::Success)
+    if (!file.load())
         return false;
     int index = file.addPrefix(prefix, lang);
     if (index == -1)
@@ -395,7 +395,7 @@ bool ResourceTopLevelNode::addPrefix(const QString &prefix, const QString &lang)
 bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &lang)
 {
     ResourceFile file(filePath());
-    if (file.load().code != IDocument::OpenResult::Success)
+    if (!file.load())
         return false;
     for (int i = 0; i < file.prefixCount(); ++i) {
         if (file.prefix(i) == prefix
@@ -411,7 +411,7 @@ bool ResourceTopLevelNode::removePrefix(const QString &prefix, const QString &la
 bool ResourceTopLevelNode::removeNonExistingFiles()
 {
     ResourceFile file(filePath());
-    if (file.load().code != IDocument::OpenResult::Success)
+    if (!file.load())
         return false;
 
     QFileInfo fi;
@@ -490,7 +490,7 @@ RemovedFilesFromProject ResourceFolderNode::removeFiles(const FilePaths &filePat
     if (notRemoved)
         *notRemoved = filePaths;
     ResourceFile file(m_topLevelNode->filePath());
-    if (file.load().code != IDocument::OpenResult::Success)
+    if (!file.load())
         return RemovedFilesFromProject::Error;
     int index = file.indexOfPrefix(m_prefix, m_lang);
     if (index == -1)
@@ -518,8 +518,7 @@ bool ResourceFolderNode::canRenameFile(const FilePath &oldFilePath, const FilePa
     bool fileEntryExists = false;
     ResourceFile file(m_topLevelNode->filePath());
 
-    int index = (file.load().code != IDocument::OpenResult::Success)
-            ? -1 : file.indexOfPrefix(m_prefix, m_lang);
+    int index = file.load() ? file.indexOfPrefix(m_prefix, m_lang) : -1;
     if (index != -1) {
         for (int j = 0; j < file.fileCount(index); ++j) {
             if (file.file(index, j) == oldFilePath.toUrlishString()) {
@@ -535,7 +534,7 @@ bool ResourceFolderNode::canRenameFile(const FilePath &oldFilePath, const FilePa
 bool ResourceFolderNode::renameFiles(const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     ResourceFile file(m_topLevelNode->filePath());
-    if (file.load().code != IDocument::OpenResult::Success)
+    if (!file.load())
         return false;
     int index = file.indexOfPrefix(m_prefix, m_lang);
     if (index == -1)
@@ -567,7 +566,7 @@ bool ResourceFolderNode::renameFiles(const FilePairs &filesToRename, FilePaths *
 bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang)
 {
     ResourceFile file(m_topLevelNode->filePath());
-    if (file.load().code != IDocument::OpenResult::Success)
+    if (!file.load())
         return false;
     int index = file.indexOfPrefix(m_prefix, m_lang);
     if (index == -1)

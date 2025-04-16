@@ -42,13 +42,10 @@ ModelDocument::~ModelDocument()
     delete d;
 }
 
-Core::IDocument::OpenResult ModelDocument::open(const FilePath &filePath,
-                                                const FilePath &realFilePath)
+Result<> ModelDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     Q_UNUSED(filePath)
-
-    OpenResult result = load(realFilePath);
-    return result;
+    return load(realFilePath);
 }
 
 Result<> ModelDocument::saveImpl(const FilePath &filePath, bool autoSave)
@@ -111,7 +108,7 @@ ExtDocumentController *ModelDocument::documentController() const
     return d->documentController;
 }
 
-Core::IDocument::OpenResult ModelDocument::load(const FilePath &fileName)
+Result<> ModelDocument::load(const FilePath &fileName)
 {
     d->documentController = ModelEditorPlugin::modelsManager()->createModel(this);
     connect(d->documentController, &qmt::DocumentController::changed, this, &IDocument::changed);
@@ -120,11 +117,10 @@ Core::IDocument::OpenResult ModelDocument::load(const FilePath &fileName)
         d->documentController->loadProject(fileName);
         setFilePath(d->documentController->projectController()->project()->fileName());
     } catch (const qmt::FileNotFoundException &ex) {
-        return {OpenResult::CannotHandle, ex.errorMessage()};
+        return ResultError(ex.errorMessage());
     } catch (const qmt::Exception &ex) {
-        return {OpenResult::CannotHandle,
-                    Tr::tr("Could not open \"%1\" for reading: %2.")
-                    .arg(fileName.toUserOutput(), ex.errorMessage())};
+        return ResultError(Tr::tr("Could not open \"%1\" for reading: %2.")
+                    .arg(fileName.toUserOutput(), ex.errorMessage()));
     }
 
     FilePath configPath = d->documentController->projectController()->project()->configPath();
@@ -139,7 +135,7 @@ Core::IDocument::OpenResult ModelDocument::load(const FilePath &fileName)
     }
 
     emit contentSet();
-    return OpenResult::Success;
+    return ResultOk;
 }
 
 } // namespace ModelEditor::Internal

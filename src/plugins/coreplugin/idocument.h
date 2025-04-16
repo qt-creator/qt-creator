@@ -26,24 +26,6 @@ class CORE_EXPORT IDocument : public QObject
     Q_OBJECT
 
 public:
-    class CORE_EXPORT OpenResult
-    {
-    public:
-        enum Code {
-            Success,
-            CannotHandle
-        };
-
-        OpenResult() = default;
-        OpenResult(Code code) : code(code) {}
-        OpenResult(Code code, const QString &error) : code(code), error(error) {}
-
-        operator Utils::Result<>() const;
-
-        Code code;
-        QString error;
-    };
-
     // This enum must match the indexes of the reloadBehavior widget
     // in generalsettings.ui
     enum ReloadSetting {
@@ -78,7 +60,7 @@ public:
     void setId(Utils::Id id);
     Utils::Id id() const;
 
-    virtual OpenResult open(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath);
+    virtual Utils::Result<> open(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath);
 
     Utils::Result<> save(const Utils::FilePath &filePath = {}, bool autoSave = false);
 

@@ -27,22 +27,22 @@ SubmitEditorFile::SubmitEditorFile(VcsBaseSubmitEditor *editor) :
             this, &IDocument::contentsChanged);
 }
 
-IDocument::OpenResult SubmitEditorFile::open(const FilePath &filePath, const FilePath &realFilePath)
+Result<> SubmitEditorFile::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     if (filePath.isEmpty())
-        return OpenResult::CannotHandle;
+        return ResultError("File name is empty");  // FIXME: Use something better
 
     FileReader reader;
     if (const Result<> res = reader.fetch(realFilePath); !res)
-        return {OpenResult::CannotHandle, res.error()};
+        return res;
 
     const QString text = QString::fromLocal8Bit(reader.text());
     if (!m_editor->setFileContents(text.toUtf8()))
-        return OpenResult::CannotHandle;
+        return ResultError("Cannot set file contents"); // FIXME: Use something better
 
     setFilePath(filePath.absoluteFilePath());
     setModified(filePath != realFilePath);
-    return OpenResult::Success;
+    return ResultOk;
 }
 
 QByteArray SubmitEditorFile::contents() const

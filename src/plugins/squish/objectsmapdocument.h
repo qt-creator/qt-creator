@@ -14,11 +14,12 @@ class ObjectsMapModel;
 class ObjectsMapDocument : public Core::IDocument
 {
     Q_OBJECT
+
 public:
     ObjectsMapDocument();
 
-    OpenResult open(const Utils::FilePath &fileName,
-                    const Utils::FilePath &realFileName) override;
+    Utils::Result<> open(const Utils::FilePath &fileName,
+                         const Utils::FilePath &realFileName) override;
     Utils::FilePath fallbackSaveAsPath() const override;
     QString fallbackSaveAsFileName() const override;
     bool isModified() const override { return m_isModified; }
@@ -35,8 +36,8 @@ protected:
     Utils::Result<> saveImpl(const Utils::FilePath &fileName, bool autoSave) override;
 
 private:
-    OpenResult openImpl(const Utils::FilePath &fileName,
-                        const Utils::FilePath &realFileName);
+    Utils::Result<> openImpl(const Utils::FilePath &fileName,
+                             const Utils::FilePath &realFileName);
     bool buildObjectsMapTree(const QByteArray &contents);
     bool writeFile(const Utils::FilePath &fileName) const;
     void syncXMLFromEditor();

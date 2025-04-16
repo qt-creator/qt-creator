@@ -71,7 +71,7 @@
 */
 
 /*!
-    \enum Core::IDocument::OpenResult
+    \enum Core::Utils::Result<>
 
     The OpenResult enum describes whether a file was successfully opened.
 
@@ -315,11 +315,11 @@ Id IDocument::id() const
     \sa shouldAutoSave()
     \sa setFilePath()
 */
-IDocument::OpenResult IDocument::open(const FilePath &filePath, const FilePath &realFilePath)
+Result<> IDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     Q_UNUSED(filePath)
     Q_UNUSED(realFilePath)
-    return OpenResult::CannotHandle;
+    return ResultError(ResultUnimplemented);
 }
 
 /*!
@@ -805,11 +805,6 @@ void IDocument::setUniqueDisplayName(const QString &name)
 QString IDocument::uniqueDisplayName() const
 {
     return d->uniqueDisplayName;
-}
-
-IDocument::OpenResult::operator Result<>() const
-{
-    return makeResult(code == Success, error);
 }
 
 } // namespace Core

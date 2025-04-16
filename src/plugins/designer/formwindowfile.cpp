@@ -43,27 +43,26 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
             m_resourceHandler, &ResourceHandler::updateResources);
 }
 
-IDocument::OpenResult FormWindowFile::open(const FilePath &filePath,
-                                           const FilePath &realFilePath)
+Result<> FormWindowFile::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormWindowFile::open" << filePath.toUserOutput();
 
     QDesignerFormWindowInterface *form = formWindow();
-    QTC_ASSERT(form, return OpenResult::CannotHandle);
+    QTC_ASSERT(form, return ResultError(ResultAssert));
 
     if (filePath.isEmpty())
-        return OpenResult::CannotHandle;
+        return ResultError("File name is empty"); // FIXME: Use something better
 
     QString contents;
     QString errorString;
     TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath(),
                                                  &contents,
                                                  &errorString);
-    if (readResult == Utils::TextFileFormat::ReadEncodingError)
-        return {OpenResult::CannotHandle, errorString};
-    if (readResult != Utils::TextFileFormat::ReadSuccess)
-        return {OpenResult::CannotHandle, errorString};
+    if (readResult == TextFileFormat::ReadEncodingError)
+        return ResultError(errorString);
+    if (readResult != TextFileFormat::ReadSuccess)
+        return ResultError(errorString);
 
     form->setFileName(filePath.absoluteFilePath().toUrlishString());
     const QByteArray contentsBA = contents.toUtf8();
@@ -71,7 +70,7 @@ IDocument::OpenResult FormWindowFile::open(const FilePath &filePath,
     str.setData(contentsBA);
     str.open(QIODevice::ReadOnly);
     if (!form->setContents(&str, &errorString))
-        return {OpenResult::CannotHandle, errorString};
+        return ResultError(errorString);
     form->setDirty(filePath != realFilePath);
 
     syncXmlFromFormWindow();
@@ -79,7 +78,7 @@ IDocument::OpenResult FormWindowFile::open(const FilePath &filePath,
     setShouldAutoSave(false);
     resourceHandler()->updateProjectResources();
 
-    return OpenResult::Success;
+    return ResultOk;
 }
 
 Result<> FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
@@ -201,8 +200,8 @@ Result<> FormWindowFile::reload(ReloadFlag flag, ChangeType type)
         return ResultOk;
     } else {
         emit aboutToReload();
-        const OpenResult result = open(filePath(), filePath());
-        emit reloadFinished(result.code == OpenResult::Success);
+        const Result<> result = open(filePath(), filePath());
+        emit reloadFinished(result.has_value());
         return result;
     }
 }

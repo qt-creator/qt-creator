@@ -28,11 +28,10 @@ ObjectsMapDocument::ObjectsMapDocument()
     connect(m_contentModel, &ObjectsMapModel::modelChanged, this, [this] { setModified(true); });
 }
 
-IDocument::OpenResult ObjectsMapDocument::open(const FilePath &fileName,
-                                               const FilePath &realFileName)
+Result<> ObjectsMapDocument::open(const FilePath &fileName, const FilePath &realFileName)
 {
-    OpenResult result = openImpl(fileName, realFileName);
-    if (result.code == OpenResult::Success) {
+    Result<> result = openImpl(fileName, realFileName);
+    if (result.has_value()) {
         setFilePath(fileName);
         setModified(fileName != realFileName);
     }
@@ -77,11 +76,10 @@ Result<> ObjectsMapDocument::reload(IDocument::ReloadFlag flag, IDocument::Chang
     if (flag == FlagIgnore)
         return ResultOk;
     emit aboutToReload();
-    const OpenResult result = openImpl(filePath(), filePath());
-    const bool success = result.code == OpenResult::Success;
-    if (success)
+    const Result<> result = openImpl(filePath(), filePath());
+    if (result.has_value())
         setModified(false);
-    emit reloadFinished(success);
+    emit reloadFinished(result.has_value());
     return result;
 }
 
@@ -173,28 +171,27 @@ QByteArray ObjectsMapDocument::contents() const
     return result;
 }
 
-IDocument::OpenResult ObjectsMapDocument::openImpl(const FilePath &fileName,
-                                                   const FilePath &realFileName)
+Result<> ObjectsMapDocument::openImpl(const FilePath &fileName, const FilePath &realFileName)
 {
     if (fileName.isEmpty())
-        return OpenResult::CannotHandle;
+        return ResultError("File name is empty"); // FIXME: Find somethong better
 
     QByteArray text;
     if (realFileName.fileName() == "objects.map") {
         FileReader reader;
         if (const Result<> res = reader.fetch(realFileName); !res)
-            return {OpenResult::CannotHandle, res.error()};
+            return res;
 
         text = reader.text();
     } else {
         const FilePath base = settings().squishPath();
         if (base.isEmpty()) {
-            return {OpenResult::CannotHandle, Tr::tr("Incomplete Squish settings. "
-                                     "Missing Squish installation path.")};
+            return ResultError(Tr::tr("Incomplete Squish settings. "
+                                      "Missing Squish installation path."));
         }
         const FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();
         if (!exe.isExecutableFile())
-            return {OpenResult::CannotHandle, Tr::tr("objectmaptool not found.")};
+            return ResultError(Tr::tr("objectmaptool not found."));
 
 
         Process objectMapReader;
@@ -206,8 +203,8 @@ IDocument::OpenResult ObjectsMapDocument::openImpl(const FilePath &fileName,
         text = objectMapReader.cleanedStdOut().toUtf8();
     }
     if (!setContents(text))
-        return {OpenResult::CannotHandle, Tr::tr("Failure while parsing objects.map content.")};
-    return OpenResult::Success;
+        return ResultError(Tr::tr("Failure while parsing objects.map content."));
+    return ResultOk;
 }
 
 bool ObjectsMapDocument::writeFile(const Utils::FilePath &fileName) const

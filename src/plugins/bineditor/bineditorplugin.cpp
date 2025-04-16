@@ -97,13 +97,13 @@ public:
         return type == TypeRemoved ? BehaviorSilent : IDocument::reloadBehavior(state, type);
     }
 
-    OpenResult open(const FilePath &filePath, const FilePath &realFilePath) final
+    Result<> open(const FilePath &filePath, const FilePath &realFilePath) final
     {
         QTC_CHECK(filePath == realFilePath); // The bineditor can do no autosaving
         return openImpl(filePath);
     }
 
-    OpenResult openImpl(const FilePath &filePath, quint64 offset = 0);
+    Result<> openImpl(const FilePath &filePath, quint64 offset = 0);
 
     void provideData(quint64 address);
 
@@ -2118,35 +2118,27 @@ bool BinEditorDocument::setContents(const QByteArray &contents)
     return true;
 }
 
-IDocument::OpenResult BinEditorDocument::openImpl(const FilePath &filePath, quint64 offset)
+Result<> BinEditorDocument::openImpl(const FilePath &filePath, quint64 offset)
 {
     const qint64 size = filePath.fileSize();
     if (size < 0) {
-        QString msg = Tr::tr("Cannot open %1: %2").arg(filePath.toUserOutput(), Tr::tr("File Error"));
         // FIXME: Was: file.errorString(), but we don't have a file anymore.
-        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-        return {OpenResult::CannotHandle, msg};
+        return ResultError(Tr::tr("Cannot open %1: %2").arg(filePath.toUserOutput()));
     }
 
-    if (size == 0) {
-        QString msg = Tr::tr("The Binary Editor cannot open empty files.");
-        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-        return {OpenResult::CannotHandle, msg};
-    }
+    if (size == 0)
+        return ResultError(Tr::tr("The Binary Editor cannot open empty files."));
 
-    if (size / 16 >= qint64(1) << 31) {
-        // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
-        QString msg = Tr::tr("The file is too big for the Binary Editor (max. 32GB).");
-        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-        return {OpenResult::CannotHandle, msg};
-    }
+    // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
+    if (size / 16 >= qint64(1) << 31)
+        return ResultError(Tr::tr("The file is too big for the Binary Editor (max. 32GB)."));
 
     if (offset >= quint64(size))
-        return OpenResult::CannotHandle;
+        return ResultError(Tr::tr("File offset too large"));
 
     setFilePath(filePath);
     setSizes(offset, size);
-    return OpenResult::Success;
+    return ResultOk;
 }
 
 void BinEditorDocument::provideData(quint64 address)
@@ -2179,8 +2171,8 @@ Result<> BinEditorDocument::reload(ReloadFlag flag, ChangeType type)
         return ResultOk;
     emit aboutToReload();
     clear();
-    const OpenResult result = openImpl(filePath());
-    emit reloadFinished(result.code == OpenResult::Success);
+    const Result<> result = openImpl(filePath());
+    emit reloadFinished(result.has_value());
     return result;
 }
 

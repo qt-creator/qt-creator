@@ -12,8 +12,7 @@ namespace ModelEditor::Internal {
 
 class ExtDocumentController;
 
-class ModelDocument :
-        public Core::IDocument
+class ModelDocument : public Core::IDocument
 {
     Q_OBJECT
     class ModelDocumentPrivate;
@@ -26,8 +25,8 @@ signals:
     void contentSet();
 
 public:
-    OpenResult open(const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    Utils::Result<> open(const Utils::FilePath &filePath,
+                         const Utils::FilePath &realFilePath) override;
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
@@ -35,7 +34,7 @@ public:
 
     ExtDocumentController *documentController() const;
 
-    OpenResult load(const Utils::FilePath &fileName);
+    Utils::Result<> load(const Utils::FilePath &fileName);
 
 protected:
     Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;

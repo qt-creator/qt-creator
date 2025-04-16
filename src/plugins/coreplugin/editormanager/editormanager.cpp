@@ -903,15 +903,13 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
                 factory = factories.isEmpty() ? nullptr : factories.takeFirst();
                 continue;
             }
-            IDocument::OpenResult openResult = editor->document()->open(filePath, realFp);
-            if (openResult.code == IDocument::OpenResult::Success)
+            Result<> openResult = editor->document()->open(filePath, realFp);
+            if (openResult)
                 break;
-            errorString = openResult.error;
+            errorString = openResult.error();
             overrideCursor.reset();
             delete editor;
             editor = nullptr;
-            // can happen e.g. when trying to open an completely empty .qrc file
-            QTC_CHECK(openResult.code == IDocument::OpenResult::CannotHandle);
         } else {
             QTC_ASSERT(factory->isExternalEditor(),
                        factory = factories.isEmpty() ? nullptr : factories.takeFirst();
@@ -2993,7 +2991,7 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
     menu->setEnabled(anyMatches);
 }
 
-void EditorManager::runWithTemporaryEditor(const Utils::FilePath &filePath,
+void EditorManager::runWithTemporaryEditor(const FilePath &filePath,
                                            const std::function<void (IEditor *)> &callback)
 {
     const MimeType mt = mimeTypeForFile(filePath, MimeMatchMode::MatchDefaultAndRemote);
@@ -3006,7 +3004,7 @@ void EditorManager::runWithTemporaryEditor(const Utils::FilePath &filePath,
         if (!editor)
             continue;
         editor->document()->setTemporary(true);
-        if (editor->document()->open(filePath, filePath).code != IDocument::OpenResult::Success)
+        if (!editor->document()->open(filePath, filePath))
             continue;
         callback(editor.get());
         break;

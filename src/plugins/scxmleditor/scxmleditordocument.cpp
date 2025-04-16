@@ -35,24 +35,23 @@ ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *pare
     });
 }
 
-Core::IDocument::OpenResult ScxmlEditorDocument::open(const FilePath &filePath,
-                                                      const FilePath &realFilePath)
+Result<> ScxmlEditorDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     Q_UNUSED(realFilePath)
 
     if (filePath.isEmpty())
-        return OpenResult::CannotHandle;
+        return ResultError("File path is empty"); // FIXME: Use something better
 
     if (!m_designWidget)
-        return OpenResult::CannotHandle;
+        return ResultError(ResultAssert);
 
     const FilePath &absoluteFilePath = filePath.absoluteFilePath();
     if (!m_designWidget->load(absoluteFilePath.toUrlishString()))
-        return {OpenResult::CannotHandle, m_designWidget->errorMessage()};
+        return ResultError(m_designWidget->errorMessage());
 
     setFilePath(absoluteFilePath);
 
-    return OpenResult::Success;
+    return ResultOk;
 }
 
 Result<> ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)

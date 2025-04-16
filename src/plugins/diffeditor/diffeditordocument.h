@@ -62,8 +62,8 @@ public:
     bool isSaveAsAllowed() const override;
     void reload();
     Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
-    OpenResult open(const Utils::FilePath &filePath,
-                    const Utils::FilePath &realFilePath) override;
+    Utils::Result<> open(const Utils::FilePath &filePath,
+                         const Utils::FilePath &realFilePath) override;
     bool selectEncoding();
     State state() const { return m_state; }
 

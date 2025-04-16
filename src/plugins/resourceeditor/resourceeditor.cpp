@@ -48,7 +48,7 @@ class ResourceEditorDocument final : public IDocument
 public:
     ResourceEditorDocument(QObject *parent = nullptr);
 
-    OpenResult open(const FilePath &filePath, const FilePath &realFilePath) final;
+    Result<> open(const FilePath &filePath, const FilePath &realFilePath) final;
     QString plainText() const { return m_model.contents(); }
     QByteArray contents() const final { return m_model.contents().toUtf8(); }
     bool setContents(const QByteArray &contents) final;
@@ -179,8 +179,7 @@ ResourceEditorImpl::~ResourceEditorImpl()
     delete m_toolBar;
 }
 
-IDocument::OpenResult ResourceEditorDocument::open(const FilePath &filePath,
-                                                   const FilePath &realFilePath)
+Result<> ResourceEditorDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::open: " << filePath;
@@ -189,9 +188,9 @@ IDocument::OpenResult ResourceEditorDocument::open(const FilePath &filePath,
 
     m_model.setFilePath(realFilePath);
 
-    OpenResult openResult = m_model.reload();
-    if (openResult.code != OpenResult::Success) {
-        openResult.error = m_model.errorMessage();
+    Result<> openResult = m_model.reload();
+    if (!openResult) {
+        openResult = ResultError(m_model.errorMessage()); // FIXME: Move to m_model
         setBlockDirtyChanged(false);
         emit loaded(false);
         return openResult;
@@ -203,7 +202,7 @@ IDocument::OpenResult ResourceEditorDocument::open(const FilePath &filePath,
     m_shouldAutoSave = false;
 
     emit loaded(true);
-    return OpenResult::Success;
+    return ResultOk;
 }
 
 Result<> ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
@@ -246,7 +245,7 @@ bool ResourceEditorDocument::setContents(const QByteArray &contents)
 
     const FilePath originalFileName = m_model.filePath();
     m_model.setFilePath(saver.filePath());
-    const bool success = (m_model.reload().code == OpenResult::Success);
+    const bool success = (m_model.reload().has_value());
     m_model.setFilePath(originalFileName);
     m_shouldAutoSave = false;
     if (debugResourceEditorW)
@@ -283,8 +282,8 @@ Result<> ResourceEditorDocument::reload(ReloadFlag flag, ChangeType type)
     if (flag == FlagIgnore)
         return ResultOk;
     emit aboutToReload();
-    const OpenResult result = open(filePath(), filePath());
-    emit reloadFinished(result.code == OpenResult::Success);
+    const Result<> result = open(filePath(), filePath());
+    emit reloadFinished(result.has_value());
     return result;
 }
 

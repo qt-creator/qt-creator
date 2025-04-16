@@ -64,26 +64,26 @@ ImageViewerFile::~ImageViewerFile()
     cleanUp();
 }
 
-IDocument::OpenResult ImageViewerFile::open(const FilePath &filePath, const FilePath &realfilePath)
+Result<> ImageViewerFile::open(const FilePath &filePath, const FilePath &realfilePath)
 {
     QTC_CHECK(filePath == realfilePath); // does not support auto save
-    OpenResult res = openImpl(filePath);
-    emit openFinished(res.code == OpenResult::Success);
+    Result<> res = openImpl(filePath);
+    emit openFinished(res.has_value());
     return res;
 }
 
-IDocument::OpenResult ImageViewerFile::openImpl(const FilePath &filePath)
+Result<> ImageViewerFile::openImpl(const FilePath &filePath)
 {
     cleanUp();
 
     if (!filePath.isReadableFile())
-        return OpenResult::CannotHandle;
+        return ResultError(Tr::tr("File not readable"));
 
     const QString &fileName = filePath.toUrlishString();
     QByteArray format = QImageReader::imageFormat(fileName);
     // if it is impossible to recognize a file format - file will not be open correctly
     if (format.isEmpty())
-        return {OpenResult::CannotHandle, Tr::tr("Image format not supported.")};
+        return ResultError(Tr::tr("Image format not supported."));
 
 #ifndef QT_NO_SVG
     if (format.startsWith("svg")) {
@@ -92,7 +92,7 @@ IDocument::OpenResult ImageViewerFile::openImpl(const FilePath &filePath)
         if (!bound.isValid() || (qFuzzyIsNull(bound.width()) && qFuzzyIsNull(bound.height()))) {
             delete m_tempSvgItem;
             m_tempSvgItem = nullptr;
-            return {OpenResult::CannotHandle, Tr::tr("Failed to read SVG image.")};
+            return ResultError(Tr::tr("Failed to read SVG image."));
         }
         m_type = TypeSvg;
         emit imageSizeChanged(m_tempSvgItem->boundingRect().size().toSize());
@@ -105,7 +105,7 @@ IDocument::OpenResult ImageViewerFile::openImpl(const FilePath &filePath)
         if (!m_movie->isValid()) {
             delete m_movie;
             m_movie = nullptr;
-            return {OpenResult::CannotHandle, Tr::tr("Failed to read image.")};
+            return ResultError(Tr::tr("Failed to read image."));
         }
         m_type = TypeMovie;
         connect(m_movie, &QMovie::resized, this, &ImageViewerFile::imageSizeChanged);
@@ -115,7 +115,7 @@ IDocument::OpenResult ImageViewerFile::openImpl(const FilePath &filePath)
         if (m_pixmap->isNull()) {
             delete m_pixmap;
             m_pixmap = nullptr;
-            return {OpenResult::CannotHandle, Tr::tr("Failed to read image.")};
+            return ResultError(Tr::tr("Failed to read image."));
         }
         m_type = TypePixmap;
         emit imageSizeChanged(m_pixmap->size());
@@ -123,7 +123,7 @@ IDocument::OpenResult ImageViewerFile::openImpl(const FilePath &filePath)
 
     setFilePath(filePath);
     setMimeType(Utils::mimeTypeForFile(filePath).name());
-    return OpenResult::Success;
+    return ResultOk;
 }
 
 Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
@@ -141,8 +141,8 @@ Result<> ImageViewerFile::reload(IDocument::ReloadFlag flag, IDocument::ChangeTy
     if (flag == FlagIgnore)
         return ResultOk;
     emit aboutToReload();
-    const OpenResult result = openImpl(filePath());
-    emit reloadFinished( result.code == OpenResult::Success);
+    const Result<> result = openImpl(filePath());
+    emit reloadFinished(result.has_value());
     return result;
 }
 

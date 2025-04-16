@@ -25,7 +25,8 @@ public:
     explicit ScxmlEditorDocument(Common::MainWidget *designWidget, QObject *parent = nullptr);
 
     // IDocument
-    OpenResult open(const Utils::FilePath &filePath, const Utils::FilePath &realFilePath) override;
+    Utils::Result<> open(const Utils::FilePath &filePath,
+                         const Utils::FilePath &realFilePath) override;
     bool shouldAutoSave() const override;
     bool isSaveAsAllowed() const override;
     bool isModified() const override;

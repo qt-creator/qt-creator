@@ -754,11 +754,11 @@ bool TextDocument::isModified() const
     return d->m_document.isModified();
 }
 
-IDocument::OpenResult TextDocument::open(const FilePath &filePath, const FilePath &realFilePath)
+Result<> TextDocument::open(const FilePath &filePath, const FilePath &realFilePath)
 {
     emit aboutToOpen(filePath, realFilePath);
-    OpenResult result = openImpl(filePath, realFilePath, /*reload =*/ false);
-    if (result.code == OpenResult::Success) {
+    const Result<> result = openImpl(filePath, realFilePath, /*reload =*/ false);
+    if (result) {
         setMimeType(Utils::mimeTypeForFile(filePath, MimeMatchMode::MatchDefaultAndRemote).name());
         setTabSettings(d->m_tabSettings);
         emit openFinishedSuccessfully();
@@ -766,9 +766,9 @@ IDocument::OpenResult TextDocument::open(const FilePath &filePath, const FilePat
     return result;
 }
 
-IDocument::OpenResult TextDocument::openImpl(const FilePath &filePath,
-                                             const FilePath &realFilePath,
-                                             bool reload)
+Result<> TextDocument::openImpl(const FilePath &filePath,
+                                const FilePath &realFilePath,
+                                bool reload)
 {
     QStringList content;
     QString errorString;
@@ -820,15 +820,15 @@ IDocument::OpenResult TextDocument::openImpl(const FilePath &filePath,
 
         auto documentLayout =
             qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
-        QTC_ASSERT(documentLayout, return OpenResult::CannotHandle);
+        QTC_ASSERT(documentLayout, return ResultError(ResultAssert));
         documentLayout->lastSaveRevision = d->m_autoSaveRevision = d->m_document.revision();
         d->updateRevisions();
         d->m_document.setModified(filePath != realFilePath);
         setFilePath(filePath);
     }
-    if (readResult == Utils::TextFileFormat::ReadIOError)
-        return {OpenResult::CannotHandle, errorString};
-    return OpenResult::Success;
+    if (readResult == TextFileFormat::ReadIOError)
+        return ResultError(errorString);
+    return ResultOk;
 }
 
 Result<> TextDocument::reload(const QByteArray &codec)
@@ -851,11 +851,11 @@ Result<> TextDocument::reload(const FilePath &realFilePath)
     if (documentLayout)
         documentLayout->documentAboutToReload(this); // removes text marks non-permanently
 
-    const OpenResult result = openImpl(filePath(), realFilePath, /*reload =*/true);
+    const Result<> result = openImpl(filePath(), realFilePath, /*reload =*/true);
 
     if (documentLayout)
         documentLayout->documentReloaded(this); // re-adds text marks
-    emit reloadFinished(result.code == OpenResult::Success);
+    emit reloadFinished(result.has_value());
 
     return result;
 }
