@@ -38,28 +38,31 @@ class BareMetalDebugSupportFactory final : public RunWorkerFactory
 public:
     BareMetalDebugSupportFactory()
     {
-        setProducer([](RunControl *runControl) {
-            DebuggerRunTool *debugger = new DebuggerRunTool(runControl);
+        setProducer([](RunControl *runControl) -> RunWorker * {
             const auto dev = std::static_pointer_cast<const BareMetalDevice>(runControl->device());
             if (!dev) {
                 // TODO: reportFailure won't work from RunWorker's c'tor.
-                debugger->reportFailure(Tr::tr("Cannot debug: Kit has no device."));
-                return debugger;
+                runControl->postMessage(Tr::tr("Cannot debug: Kit has no device."), ErrorMessageFormat);
+                return nullptr;
             }
 
             const QString providerId = dev->debugServerProviderId();
             IDebugServerProvider *p = DebugServerProviderManager::findProvider(providerId);
             if (!p) {
                 // TODO: reportFailure won't work from RunWorker's c'tor.
-                debugger->reportFailure(Tr::tr("No debug server provider found for %1").arg(providerId));
-                return debugger;
+                runControl->postMessage(Tr::tr("No debug server provider found for %1").arg(providerId),
+                                        ErrorMessageFormat);
+                return nullptr;
             }
 
+            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+            if (Result<> res = p->setupDebuggerRunParameters(rp, runControl); !res) {
+                runControl->postMessage(res.error(), ErrorMessageFormat); // TODO: reportFailure won't work from RunWorker's c'tor.
+                return nullptr;
+            }
+            auto debugger = createDebuggerWorker(runControl, rp);
             if (RunWorker *runner = p->targetRunner(runControl))
                 debugger->addStartDependency(runner);
-
-            if (Result<> res = p->setupDebuggerRunParameters(debugger->runParameters(), runControl); !res)
-                debugger->reportFailure(res.error()); // TODO: reportFailure won't work from RunWorker's c'tor.
 
             return debugger;
         });

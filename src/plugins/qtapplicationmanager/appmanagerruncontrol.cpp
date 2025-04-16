@@ -152,22 +152,15 @@ class AppManagerDebugWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerDebugWorkerFactory()
     {
-        setProducer([](RunControl *runControl) {
-            DebuggerRunTool *debugger = new DebuggerRunTool(runControl);
-            debugger->setId("ApplicationManagerPlugin.Debug.Support");
-
-            auto debuggee = createInferiorRunner(runControl, QmlDebuggerServices);
-            debugger->addStartDependency(debuggee);
-            debugger->addStopDependency(debuggee);
-            debuggee->addStopDependency(debugger);
-
+        setProducer([](RunControl *runControl) -> RunWorker * {
             BuildConfiguration *bc = runControl->buildConfiguration();
 
             const Internal::TargetInformation targetInformation(bc);
             if (!targetInformation.isValid()) {
                 // TODO: reportFailure won't work from RunWorker's c'tor.
-                debugger->reportFailure(Tr::tr("Cannot debug: Invalid target information."));
-                return debugger;
+                runControl->postMessage(Tr::tr("Cannot debug: Invalid target information."),
+                                        ErrorMessageFormat);
+                return nullptr;
             }
 
             FilePath symbolFile;
@@ -184,16 +177,20 @@ public:
                                                   }).targetFilePath;
             } else {
                 // TODO: reportFailure won't work from RunWorker's c'tor.
-                debugger->reportFailure(Tr::tr("Cannot debug: Only QML and native applications are supported."));
-                return debugger;
+                runControl->postMessage(Tr::tr("Cannot debug: Only QML and native applications are supported."),
+                                        ErrorMessageFormat);
+                return nullptr;
             }
             if (symbolFile.isEmpty()) {
                 // TODO: reportFailure won't work from RunWorker's c'tor.
-                debugger->reportFailure(Tr::tr("Cannot debug: Local executable is not set."));
-                return debugger;
+                runControl->postMessage(Tr::tr("Cannot debug: Local executable is not set."),
+                                        ErrorMessageFormat);
+                return nullptr;
             }
 
-            Debugger::DebuggerRunParameters &rp = debugger->runParameters();
+            auto debuggee = createInferiorRunner(runControl, QmlDebuggerServices);
+
+            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
             rp.setupPortsGatherer(runControl);
             rp.setStartMode(Debugger::AttachToRemoteServer);
             rp.setCloseMode(Debugger::KillAndExitMonitorAtClose);
@@ -216,6 +213,11 @@ public:
                 else
                     rp.setSysRoot(sysroot);
             }
+
+            auto debugger = createDebuggerWorker(runControl, rp);
+            debugger->addStartDependency(debuggee);
+            debugger->addStopDependency(debuggee);
+            debuggee->addStopDependency(debugger);
 
             return debugger;
         });

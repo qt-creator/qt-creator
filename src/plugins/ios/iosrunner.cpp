@@ -811,14 +811,8 @@ IosRunWorkerFactory::IosRunWorkerFactory()
     addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
 }
 
-static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger, IosRunner *iosRunner)
+static void parametersModifier(RunControl *runControl, DebuggerRunParameters &rp, IosRunner *iosRunner)
 {
-    if (!iosRunner->isAppRunning()) {
-        debugger->reportFailure(Tr::tr("Application not running."));
-        return;
-    }
-
-    DebuggerRunParameters &rp = debugger->runParameters();
     const bool cppDebug = rp.isCppDebugging();
     const bool qmlDebug = rp.isQmlDebugging();
     if (cppDebug) {
@@ -857,16 +851,13 @@ static void startDebugger(RunControl *runControl, DebuggerRunTool *debugger, Ios
 
 static RunWorker *createWorker(RunControl *runControl)
 {
-    DebuggerRunTool *debugger = new DebuggerRunTool(runControl);
-    debugger->setId("IosDebugSupport");
-
     IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
     const bool isIosDeviceType = runControl->device()->type() == Ios::Constants::IOS_DEVICE_TYPE;
     const bool isIosDeviceInstance = bool(dev);
     // type info and device class must match
     QTC_ASSERT(isIosDeviceInstance == isIosDeviceType,
                runControl->postMessage(Tr::tr("Internal error."), ErrorMessageFormat); return nullptr);
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     // TODO cannot use setupPortsGatherer() from DebuggerRunTool, because that also requests
     // the "debugChannel", which then results in runControl trying to retrieve ports&URL for that
     // via IDevice, which doesn't really work with the iOS setup, and also completely changes
@@ -886,7 +877,6 @@ static RunWorker *createWorker(RunControl *runControl)
         runner = deviceCtlRunner = new DeviceCtlRunner(runControl);
         deviceCtlRunner->setStartStopped(true);
     }
-    debugger->addStartDependency(runner);
 
     if (isIosDeviceInstance) {
         if (dev->handler() == IosDevice::Handler::DeviceCtl) {
@@ -914,7 +904,8 @@ static RunWorker *createWorker(RunControl *runControl)
     rp.setDisplayName(data->applicationName);
     rp.setContinueAfterAttach(true);
 
-    if (isIosDeviceInstance && dev->handler() == IosDevice::Handler::DeviceCtl) {
+    const bool isDeviceCtl = isIosDeviceInstance && dev->handler() == IosDevice::Handler::DeviceCtl;
+    if (isDeviceCtl) {
         const auto msgOnlyCppDebuggingSupported = [] {
             return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
         };
@@ -929,11 +920,15 @@ static RunWorker *createWorker(RunControl *runControl)
             runControl->postMessage(msgOnlyCppDebuggingSupported(), LogMessageFormat);
         }
         rp.setInferiorExecutable(data->localExecutable);
-    } else {
-        QObject::connect(runner, &RunWorker::started, debugger, [runControl, debugger, iosRunner] {
-            startDebugger(runControl, debugger, iosRunner);
-        });
     }
+
+    auto debugger = createDebuggerWorker(runControl, rp,
+        [runControl, iosRunner, isDeviceCtl](DebuggerRunParameters &rp) {
+        if (isDeviceCtl)
+            return;
+        parametersModifier(runControl, rp, iosRunner);
+    });
+    debugger->addStartDependency(runner);
     return debugger;
 }
 

@@ -45,6 +45,7 @@
 #include <QPushButton>
 
 using namespace Core;
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Tasking;
 using namespace Utils;
@@ -574,13 +575,15 @@ void TestRunner::debugTests()
                 .arg(config->displayName());
         reportResult(ResultType::MessageWarn, details);
     }
-    auto debugger = new Debugger::DebuggerRunTool(runControl);
-    debugger->runParameters().setInferior(inferior);
-    debugger->runParameters().setDisplayName(config->displayName());
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    rp.setInferior(inferior);
+    rp.setDisplayName(config->displayName());
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
     bool useOutputProcessor = true;
     if (Kit *kit = config->project()->activeKit()) {
-        if (Debugger::DebuggerKitAspect::engineType(kit) == Debugger::CdbEngineType) {
+        if (DebuggerKitAspect::engineType(kit) == CdbEngineType) {
             reportResult(ResultType::MessageWarn,
                          Tr::tr("Unable to display test results when using CDB."));
             useOutputProcessor = false;

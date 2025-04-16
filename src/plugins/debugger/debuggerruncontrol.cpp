@@ -688,13 +688,14 @@ void EnginesDriver::start()
                 rc->copyDataFromRunControl(m_runControl);
                 rc->resetDataForAttachToCore();
                 auto name = QString(Tr::tr("%1 - Snapshot %2").arg(m_runControl->displayName()).arg(++m_snapshotCounter));
-                auto debugger = new DebuggerRunTool(rc);
-                DebuggerRunParameters &rp = debugger->runParameters();
+                DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(rc);
                 rp.setStartMode(AttachToCore);
                 rp.setCloseMode(DetachAtClose);
                 rp.setDisplayName(name);
                 rp.setCoreFilePath(FilePath::fromString(coreFile));
                 rp.setSnapshot(true);
+                auto debugger = createDebuggerWorker(rc, rp);
+                Q_UNUSED(debugger)
                 rc->start();
             });
         }
@@ -835,6 +836,13 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
     };
 }
 
+RunWorker *createDebuggerWorker(RunControl *runControl, const DebuggerRunParameters &initialParameters,
+                                const std::function<void(DebuggerRunParameters &)> &parametersModifier)
+{
+    return new RecipeRunner(runControl,
+                            debuggerRecipe(runControl, initialParameters, parametersModifier));
+}
+
 void DebuggerRunTool::stop()
 {
     if (!d->m_taskTreeRunner.isRunning())
@@ -875,7 +883,9 @@ class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 public:
     DebuggerRunWorkerFactory()
     {
-        setProduct<DebuggerRunTool>();
+        setProducer([](RunControl *runControl) {
+            return createDebuggerWorker(runControl, DebuggerRunParameters::fromRunControl(runControl));
+        });
         setId(Constants::DEBUGGER_RUN_FACTORY);
 
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);

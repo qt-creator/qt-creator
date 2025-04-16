@@ -106,20 +106,19 @@ void DebuggerUnitTests::testStateMachine()
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->copyDataFromRunConfiguration(rc);
-    auto debugger = new DebuggerRunTool(runControl);
 
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferior(rc->runnable());
     rp.setTestCase(TestNoBoundsOfCurrentFunction);
 
-    connect(debugger, &DebuggerRunTool::stopped,
+    auto debugger = createDebuggerWorker(runControl, rp);
+    connect(debugger, &RunWorker::stopped,
             &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
 
     runControl->start();
 
     QTestEventLoop::instance().enterLoop(5);
 }
-
 
 enum FakeEnum { FakeDebuggerCommonSettingsId };
 

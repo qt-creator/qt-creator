@@ -46,13 +46,11 @@ class RemoteLinuxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFac
 public:
     RemoteLinuxDebugWorkerFactory()
     {
-        setProducer([](RunControl *rc) {
-            rc->requestDebugChannel();
+        setProducer([](RunControl *runControl) {
+            runControl->requestDebugChannel();
 
-            auto debugger = new DebuggerRunTool(rc);
-            DebuggerRunParameters &rp = debugger->runParameters();
-            debugger->setId("RemoteLinuxDebugWorker");
-            rp.setupPortsGatherer(rc);
+            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+            rp.setupPortsGatherer(runControl);
             rp.setUseTerminal(false);
             rp.setAddQmlServerInferiorCmdArgIfNeeded(true);
 
@@ -60,11 +58,11 @@ public:
             rp.setCloseMode(KillAndExitMonitorAtClose);
             rp.setUseExtendedRemote(true);
 
-            if (rc->device()->osType() == Utils::OsTypeMac)
+            if (runControl->device()->osType() == Utils::OsTypeMac)
                 rp.setLldbPlatform("remote-macosx");
             else
                 rp.setLldbPlatform("remote-linux");
-            return debugger;
+            return createDebuggerWorker(runControl, rp);
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);

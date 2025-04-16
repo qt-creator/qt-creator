@@ -113,10 +113,7 @@ public:
     QdbDebugWorkerFactory()
     {
         setProducer([](RunControl *runControl) {
-            auto worker = new DebuggerRunTool(runControl);
-            worker->setId("QdbDeviceDebugSupport");
-
-            DebuggerRunParameters &rp = worker->runParameters();
+            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
             rp.setupPortsGatherer(runControl);
             rp.setStartMode(Debugger::AttachToRemoteServer);
             rp.setCloseMode(KillAndExitMonitorAtClose);
@@ -125,11 +122,13 @@ public:
             rp.addSolibSearchDir("%{sysroot}/system/lib");
             rp.setSkipDebugServer(true);
 
-            auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
-            worker->addStartDependency(debuggee);
-            debuggee->addStopDependency(worker);
+            auto debugger = createDebuggerWorker(runControl, rp);
 
-            return worker;
+            auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
+            debugger->addStartDependency(debuggee);
+            debuggee->addStopDependency(debugger);
+
+            return debugger;
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);

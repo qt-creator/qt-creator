@@ -19,6 +19,11 @@ DEBUGGER_EXPORT Tasking::Group debuggerRecipe(
     const DebuggerRunParameters &initialParameters,
     const std::function<void(DebuggerRunParameters &)> &parametersModifier = {});
 
+DEBUGGER_EXPORT ProjectExplorer::RunWorker *createDebuggerWorker(
+    ProjectExplorer::RunControl *runControl,
+    const DebuggerRunParameters &initialParameters,
+    const std::function<void(DebuggerRunParameters &)> &parametersModifier = {});
+
 class DEBUGGER_EXPORT DebuggerRunTool final : public ProjectExplorer::RunWorker
 {
     Q_OBJECT

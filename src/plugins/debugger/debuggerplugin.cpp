@@ -1413,8 +1413,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
 
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         runControl->setKit(kit);
-        auto debugger = new DebuggerRunTool(runControl);
-        DebuggerRunParameters &rp = debugger->runParameters();
+        DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
         rp.setInferiorExecutable(executable);
         if (!sysRoot.isEmpty())
             rp.setSysRoot(FilePath::fromUserInput(sysRoot));
@@ -1442,6 +1441,9 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         rp.setUseTerminal(useTerminal);
 
+        auto debugger = createDebuggerWorker(runControl, rp);
+        Q_UNUSED(debugger)
+
         m_scheduledStarts.append(runControl);
         return true;
     }
@@ -1460,8 +1462,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         runControl->setKit(findUniversalCdbKit());
         runControl->setAttachPid(ProcessHandle(pid));
-        auto debugger = new DebuggerRunTool(runControl);
-        DebuggerRunParameters &rp = debugger->runParameters();
+        DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
         rp.setStartMode(AttachToCrashedProcess);
         rp.setCrashParameter(it->section(':', 0, 0));
         rp.setDisplayName(Tr::tr("Crashed process %1").arg(pid));
@@ -1471,6 +1472,10 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);
             return false;
         }
+
+        auto debugger = createDebuggerWorker(runControl, rp);
+        Q_UNUSED(debugger)
+
         m_scheduledStarts.append(runControl);
         return true;
     }
@@ -1637,12 +1642,14 @@ void DebuggerPluginPrivate::attachToLastCore()
     runControl->setKit(KitManager::defaultKit());
     runControl->setDisplayName(Tr::tr("Last Core file \"%1\"").arg(lastCore.coreFile.toUserOutput()));
 
-    auto debugger = new DebuggerRunTool(runControl);
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferiorExecutable(lastCore.binary);
     rp.setCoreFilePath(lastCore.coreFile);
     rp.setStartMode(AttachToCore);
     rp.setCloseMode(DetachAtClose);
+
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
     runControl->start();
 }
@@ -1686,9 +1693,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         runControl->setDisplayName(Tr::tr("Process %1").arg(processInfo.processId));
         runControl->requestDebugChannel();
 
-        auto debugger = new DebuggerRunTool(runControl);
-        DebuggerRunParameters &rp = debugger->runParameters();
-        debugger->setId("AttachToRunningProcess");
+        DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
         rp.setServerAttachPid(ProcessHandle(processInfo.processId));
         rp.setServerUseMulti(false);
         rp.setServerEssential(false);
@@ -1696,6 +1701,9 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         rp.setCloseMode(DetachAtClose);
         rp.setUseContinueInsteadOfRun(true);
         rp.setContinueAfterAttach(false);
+
+        auto debugger = createDebuggerWorker(runControl, rp);
+        Q_UNUSED(debugger)
 
         runControl->start();
     }
@@ -1759,15 +1767,16 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     runControl->setDisplayName(Tr::tr("Process %1").arg(processInfo.processId));
     runControl->setAttachPid(ProcessHandle(processInfo.processId));
 
-    auto debugger = new DebuggerRunTool(runControl);
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferiorExecutable(device->filePath(processInfo.executable));
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
     rp.setContinueAfterAttach(contAfterAttach);
 
-    runControl->start();
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
+    runControl->start();
     return runControl;
 }
 
@@ -2319,11 +2328,13 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     runControl->setDisplayName(Tr::tr("Process %1").arg(pid.pid()));
     runControl->setAttachPid(pid);
 
-    auto debugger = new DebuggerRunTool(runControl);
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferiorExecutable(rc->targetFilePath());
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
+
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
     runControl->start();
 }

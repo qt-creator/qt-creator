@@ -349,8 +349,7 @@ void runAttachToCoreDialog()
     runControl->setKit(dlg.kit());
     runControl->setDisplayName(Tr::tr("Core file \"%1\"").arg(dlg.coreFile().toUserOutput()));
 
-    auto debugger = new DebuggerRunTool(runControl);
-    DebuggerRunParameters &rp = debugger->runParameters();
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferiorExecutable(dlg.symbolFileCopy());
     rp.setCoreFilePath(dlg.coreFileCopy());
     rp.setStartMode(AttachToCore);
@@ -359,6 +358,9 @@ void runAttachToCoreDialog()
     const FilePath sysRoot = dlg.sysRoot();
     if (!sysRoot.isEmpty())
         rp.setSysRoot(sysRoot);
+
+    auto debugger = createDebuggerWorker(runControl, rp);
+    Q_UNUSED(debugger)
 
     runControl->start();
 }

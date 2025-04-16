@@ -1044,16 +1044,15 @@ static ExecutableItem debuggerRecipe(const Storage<ProcessHandle> pidStorage, Ru
 
     return Sync([runControl, pidStorage] {
         // TODO: Make a part of this recipe
-        auto debugger = new Debugger::DebuggerRunTool(runControl);
-        DebuggerRunParameters &rp = debugger->runParameters();
+        DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
         rp.setStartMode(Debugger::AttachToRemoteServer);
         rp.setDisplayName(QString("VGdb %1").arg(pidStorage->pid()));
         rp.setRemoteChannelPipe(QString("vgdb --pid=%1").arg(pidStorage->pid()));
         rp.setUseContinueInsteadOfRun(true);
         rp.addExpectedSignal("SIGTRAP");
 
+        auto debugger = createDebuggerWorker(runControl, rp);
         QObject::connect(runControl, &RunControl::stopped, debugger, &RunControl::deleteLater);
-
         debugger->initiateStart();
     });
 }
@@ -1575,8 +1574,7 @@ void HeobData::processFinished()
         if (m_data[0] >= HEOB_PID_ATTACH) {
             m_runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
             m_runControl->setKit(m_kit);
-            auto debugger = new DebuggerRunTool(m_runControl);
-            DebuggerRunParameters &rp = debugger->runParameters();
+            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(m_runControl);
             rp.setAttachPid(ProcessHandle(m_data[1]));
             rp.setDisplayName(Tr::tr("Process %1").arg(m_data[1]));
             rp.setStartMode(AttachToLocalProcess);
@@ -1586,6 +1584,8 @@ void HeobData::processFinished()
 
             connect(m_runControl, &RunControl::started, this, &HeobData::debugStarted);
             connect(m_runControl, &RunControl::stopped, this, &HeobData::debugStopped);
+            auto debugger = createDebuggerWorker(m_runControl, rp);
+            Q_UNUSED(debugger)
             m_runControl->start();
             return;
         }
