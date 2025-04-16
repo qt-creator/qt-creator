@@ -1243,6 +1243,8 @@ function(qtc_add_resources target resourceName)
     set_property(SOURCE "${file}" PROPERTY HEADER_FILE_ONLY ON)
   endforeach()
 
+  source_group("Resources" FILES ${files})
+
   # </qresource></RCC>
   string(APPEND qrcContents "  </qresource>\n</RCC>\n")
 
