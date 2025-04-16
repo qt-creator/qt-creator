@@ -7,7 +7,6 @@ add_qtc_plugin(Help
     docsettingspage.cpp docsettingspage.h
     filtersettingspage.cpp filtersettingspage.h
     generalsettingspage.cpp generalsettingspage.h
-    help.qrc
     helpconstants.h
     helpfindsupport.cpp helpfindsupport.h
     helpindexfilter.cpp helpindexfilter.h
@@ -66,4 +65,17 @@ extend_qtc_plugin(Help
   SOURCES
     litehtmlhelpviewer.cpp
     litehtmlhelpviewer.h
+)
+
+qtc_add_resources(Help "resources"
+  PREFIX "/help"
+  BASE "."
+  FILES
+    images/macos_touchbar_help.png
+    images/macos_touchbar_help@2x.png
+    images/mode_help.png
+    images/mode_help@2x.png
+    images/mode_help_mask.png
+    images/mode_help_mask@2x.png
+    offline-dark.css
 )
