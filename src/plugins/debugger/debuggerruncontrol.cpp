@@ -785,6 +785,56 @@ void DebuggerRunTool::start()
     });
 }
 
+Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initialParameters,
+                     const std::function<void(DebuggerRunParameters &)> &parametersModifier)
+{
+    const Storage<DebuggerRunParameters> parametersStorage{initialParameters};
+    const Storage<EnginesDriver> driverStorage;
+    const Storage<FilePath> tempCoreFileStorage;
+    const Storage<std::unique_ptr<Process>> terminalStorage;
+
+    const auto onSetup = [runControl, parametersStorage, parametersModifier] {
+        parametersStorage->setAttachPid(runControl->attachPid());
+        if (parametersModifier)
+            parametersModifier(*parametersStorage);
+    };
+
+    const auto terminalKicker = [parametersStorage, driverStorage, terminalStorage](const SingleBarrier &barrier) {
+        return terminalRecipe(parametersStorage, driverStorage, terminalStorage, barrier);
+    };
+
+    const auto debugServerKicker = [runControl, parametersStorage](const SingleBarrier &barrier) {
+        return debugServerRecipe(runControl, parametersStorage, barrier);
+    };
+
+    const auto onDone = [parametersStorage, tempCoreFileStorage] {
+        if (tempCoreFileStorage->exists())
+            tempCoreFileStorage->removeFile();
+        if (parametersStorage->isSnapshot() && !parametersStorage->coreFile().isEmpty())
+            parametersStorage->coreFile().removeFile();
+    };
+
+    return {
+        parametersStorage,
+        driverStorage,
+        terminalStorage,
+        tempCoreFileStorage,
+        continueOnError,
+        onGroupSetup(onSetup),
+        Group {
+            coreFileRecipe(runControl, parametersStorage, tempCoreFileStorage),
+            When (terminalKicker) >> Do {
+                fixupParamsRecipe(runControl, parametersStorage),
+                When (debugServerKicker) >> Do {
+                    startEnginesRecipe(runControl, parametersStorage, driverStorage)
+                }
+            }
+        }.withCancel(canceler()),
+        finalizeRecipe(driverStorage, terminalStorage),
+        onGroupDone(onDone)
+    };
+}
+
 void DebuggerRunTool::stop()
 {
     if (!d->m_taskTreeRunner.isRunning())

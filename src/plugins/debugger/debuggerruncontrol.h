@@ -14,6 +14,11 @@ namespace Debugger {
 
 namespace Internal { class DebuggerRunToolPrivate; }
 
+DEBUGGER_EXPORT Tasking::Group debuggerRecipe(
+    ProjectExplorer::RunControl *runControl,
+    const DebuggerRunParameters &initialParameters,
+    const std::function<void(DebuggerRunParameters &)> &parametersModifier = {});
+
 class DEBUGGER_EXPORT DebuggerRunTool final : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
