@@ -137,7 +137,7 @@ void CocoPlugin::initialize()
 
     IOptionsPage::registerCategory(
         "I.Coco",
-        QCoreApplication::translate("Coco", "Coco"),
+        Tr::tr("Coco"),
         ":/cocoplugin/images/SquishCoco_48x48.png");
 
     setupCocoSettings();
