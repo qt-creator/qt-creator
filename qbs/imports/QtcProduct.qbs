@@ -27,6 +27,11 @@ Product {
 
     Depends { name: "qtc" }
 
+    Properties {
+        condition: qbs.toolchain.includes("clang")
+        cpp.commonCompilerFlags: "-Wno-parentheses-equality"
+    }
+
     cpp.cxxFlags: {
         var flags = [];
         if (qbs.toolchain.contains("gcc")) {

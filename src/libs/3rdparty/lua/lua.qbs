@@ -13,11 +13,6 @@ QtcLibrary {
         return defines;
     }
 
-    Properties {
-        condition: qbs.toolchain.includes("clang")
-        cpp.cFlags: "-Wno-parentheses-equality"
-    }
-
     Group {
         name: "Sources"
         prefix: "src/"
