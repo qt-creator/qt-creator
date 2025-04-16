@@ -1241,6 +1241,7 @@ function(qtc_add_resources target resourceName)
     list(APPEND resource_dependencies ${file})
     target_sources(${target} PRIVATE "${file}")
     set_property(SOURCE "${file}" PROPERTY HEADER_FILE_ONLY ON)
+    set_property(SOURCE "${file}" PROPERTY SKIP_AUTOGEN ON)
   endforeach()
 
   source_group("Resources" FILES ${files})
