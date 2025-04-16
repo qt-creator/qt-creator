@@ -1173,7 +1173,7 @@ function(qtc_copy_to_builddir custom_target_name)
 endfunction()
 
 function(qtc_add_resources target resourceName)
-  cmake_parse_arguments(rcc "" "PREFIX;LANG;BASE" "FILES;OPTIONS;CONDITION" ${ARGN})
+  cmake_parse_arguments(rcc "" "PREFIX;LANG;BASE;FILES_PREFIX" "FILES;OPTIONS;CONDITION" ${ARGN})
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "qtc_add_resources had unparsed arguments!")
   endif()
@@ -1226,7 +1226,11 @@ function(qtc_add_resources target resourceName)
     set(file_resource_path ${file})
 
     if (NOT IS_ABSOLUTE ${file})
+      if (rcc_FILES_PREFIX)
+        set(file "${CMAKE_CURRENT_SOURCE_DIR}/${rcc_FILES_PREFIX}/${file}")
+      else()
         set(file "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
+      endif()
     endif()
 
     ### FIXME: escape file paths to be XML conform
