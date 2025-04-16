@@ -171,6 +171,7 @@ public:
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
     void toolExited(int code);
+    int exitCode() const { return m_exitCode; }
 
 protected:
     IosToolHandler *q;
@@ -178,6 +179,7 @@ protected:
     FilePath m_bundlePath;
     IosToolHandler::RunKind m_runKind = IosToolHandler::NormalRun;
     IosDeviceType m_devType;
+    int m_exitCode = 0;
 };
 
 class IosDeviceToolHandlerPrivate final : public IosToolHandlerPrivate
@@ -352,6 +354,7 @@ void IosToolHandlerPrivate::errorMsg(const QString &msg)
 
 void IosToolHandlerPrivate::toolExited(int code)
 {
+    m_exitCode = code;
     emit q->toolExited(code);
 }
 
@@ -961,6 +964,11 @@ void IosToolHandler::stop()
     d->stop(-1);
 }
 
+int IosToolHandler::exitCode() const
+{
+    return d->exitCode();
+}
+
 void IosToolHandler::requestTransferApp(const FilePath &bundlePath, const QString &deviceId,
                                         int timeout)
 {
@@ -999,8 +1007,10 @@ void IosToolTaskAdapter::start()
 {
     task()->m_iosToolHandler.reset(new IosToolHandler(Internal::IosDeviceType(task()->m_deviceType)));
     connect(task()->m_iosToolHandler.get(), &IosToolHandler::finished, this, [this] {
+        const Tasking::DoneResult result = task()->m_iosToolHandler->exitCode() == 0
+            ? Tasking::DoneResult::Success : Tasking::DoneResult::Error;
         task()->m_iosToolHandler.release()->deleteLater();
-        emit done(Tasking::DoneResult::Success);
+        emit done(result);
     });
     task()->m_startHandler(task()->m_iosToolHandler.get());
 }

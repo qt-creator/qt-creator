@@ -46,6 +46,7 @@ public:
     void requestDeviceInfo(const QString &deviceId, int timeout = 1000);
     bool isRunning() const;
     void stop();
+    int exitCode() const;
 
 signals:
     void isTransferringApp(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
