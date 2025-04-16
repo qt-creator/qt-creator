@@ -26,7 +26,7 @@ class CORE_EXPORT IDocument : public QObject
     Q_OBJECT
 
 public:
-    class OpenResult
+    class CORE_EXPORT OpenResult
     {
     public:
         enum Code {
