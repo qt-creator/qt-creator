@@ -2059,10 +2059,12 @@ void WidgetTextControlPrivate::contextMenuEvent(const QPoint &screenPos, const Q
         return;
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
+/*
     if (auto *widget = qobject_cast<QWidget *>(parent())) {
         if (auto *window = widget->window()->windowHandle())
             ;// QMenuPrivate::get(menu)->topData()->initialScreen = window->screen();
     }
+ */
 
     menu->popup(screenPos);
 #endif
