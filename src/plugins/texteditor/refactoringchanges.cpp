@@ -111,15 +111,13 @@ QTextDocument *RefactoringFile::mutableDocument() const
     if (!m_document) {
         QString fileContents;
         if (!m_filePath.isEmpty()) {
-            QString error;
             QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
             TextFileFormat::ReadResult result = TextFileFormat::readFile(m_filePath,
                                                                          defaultCodec,
                                                                          &fileContents,
-                                                                         &m_textFileFormat,
-                                                                         &error);
-            if (result != TextFileFormat::ReadSuccess) {
-                qWarning() << "Could not read " << m_filePath << ". Error: " << error;
+                                                                         &m_textFileFormat);
+            if (result.code != TextFileFormat::ReadSuccess) {
+                qWarning() << "Could not read " << m_filePath << ". Error: " << result.error;
                 m_textFileFormat.setCodec(nullptr);
             }
         }

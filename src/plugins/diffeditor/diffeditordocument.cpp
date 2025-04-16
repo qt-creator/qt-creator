@@ -270,18 +270,17 @@ Result<> DiffEditorDocument::open(const FilePath &filePath, const FilePath &real
     QTC_CHECK(filePath == realFilePath); // does not support autosave
     beginReload();
     QString patch;
-    QString errorString;
-    ReadResult readResult = read(filePath, &patch, &errorString);
-    if (readResult == TextFileFormat::ReadIOError
-        || readResult == TextFileFormat::ReadMemoryAllocationError) {
-        return ResultError(errorString);
+    ReadResult readResult = read(filePath, &patch);
+    if (readResult.code == TextFileFormat::ReadIOError
+        || readResult.code == TextFileFormat::ReadMemoryAllocationError) {
+        return ResultError(readResult.error);
     }
 
     const std::optional<QList<FileData>> fileDataList = DiffUtils::readPatch(patch);
     bool ok = fileDataList.has_value();
     if (!ok) {
-        errorString = Tr::tr("Could not parse patch file \"%1\". "
-                             "The content is not of unified diff format.")
+        readResult.error = Tr::tr("Could not parse patch file \"%1\". "
+                                  "The content is not of unified diff format.")
                 .arg(filePath.toUserOutput());
     } else {
         setTemporary(false);
@@ -291,10 +290,10 @@ Result<> DiffEditorDocument::open(const FilePath &filePath, const FilePath &real
         setDiffFiles(*fileDataList);
     }
     endReload(ok);
-    if (!ok && readResult == TextFileFormat::ReadEncodingError)
+    if (!ok && readResult.code == TextFileFormat::ReadEncodingError)
         ok = selectEncoding();
     if (!ok)
-        return ResultError(errorString);
+        return ResultError(readResult.error);
     return ResultOk;
 }
 

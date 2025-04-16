@@ -55,20 +55,18 @@ Result<> FormWindowFile::open(const FilePath &filePath, const FilePath &realFile
         return ResultError("File name is empty"); // FIXME: Use something better
 
     QString contents;
-    QString errorString;
-    TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath(),
-                                                 &contents,
-                                                 &errorString);
-    if (readResult == TextFileFormat::ReadEncodingError)
-        return ResultError(errorString);
-    if (readResult != TextFileFormat::ReadSuccess)
-        return ResultError(errorString);
+    TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath(), &contents);
+    if (readResult.code == TextFileFormat::ReadEncodingError)
+        return ResultError(readResult.error);
+    if (readResult.code != TextFileFormat::ReadSuccess)
+        return ResultError(readResult.error);
 
     form->setFileName(filePath.absoluteFilePath().toUrlishString());
     const QByteArray contentsBA = contents.toUtf8();
     QBuffer str;
     str.setData(contentsBA);
     str.open(QIODevice::ReadOnly);
+    QString errorString;
     if (!form->setContents(&str, &errorString))
         return ResultError(errorString);
     form->setDirty(filePath != realFilePath);

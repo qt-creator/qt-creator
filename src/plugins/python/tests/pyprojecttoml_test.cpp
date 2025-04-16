@@ -12,6 +12,8 @@
 
 #include <utils/filepath.h>
 
+using namespace Utils;
+
 namespace Python::Internal {
 
 /*
@@ -19,15 +21,14 @@ namespace Python::Internal {
     \param relativeFilePath The relative path to the file from the testfiles folder
     \returns The contents of the file
 */
-static Utils::Result<QString> readTestFile(const QString &relativeFilePath)
+static Result<QString> readTestFile(const QString &relativeFilePath)
 {
-    const auto filePath = Utils::FilePath::fromUserInput(":/unittests/Python/" + relativeFilePath);
+    const auto filePath = FilePath::fromUserInput(":/unittests/Python/" + relativeFilePath);
     Core::BaseTextDocument projectFile;
     QString fileContent;
-    QString readingError;
-    auto result = projectFile.read(filePath, &fileContent, &readingError);
-    if (result != Utils::TextFileFormat::ReadSuccess)
-        return Utils::make_unexpected(readingError);
+    const Core::BaseTextDocument::ReadResult result = projectFile.read(filePath, &fileContent);
+    if (result.code != TextFileFormat::ReadSuccess)
+        return ResultError(result.error);
 
     return fileContent;
 }

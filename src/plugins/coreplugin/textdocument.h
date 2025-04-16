@@ -31,8 +31,8 @@ public:
     bool supportsUtf8Bom() const;
     Utils::TextFileFormat::LineTerminationMode lineTerminationMode() const;
 
-    ReadResult read(const Utils::FilePath &filePath, QStringList *plainTextList, QString *errorString);
-    ReadResult read(const Utils::FilePath &filePath, QString *plainText, QString *errorString);
+    ReadResult read(const Utils::FilePath &filePath, QStringList *plainTextList);
+    ReadResult read(const Utils::FilePath &filePath, QString *plainText);
 
     bool hasDecodingError() const;
     QByteArray decodingErrorSample() const;

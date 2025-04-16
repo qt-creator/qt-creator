@@ -743,14 +743,13 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile()
     {
         QString contents;
         {
-            QString errorMsg;
-            if (TextFileFormat::readFile(filePath(),
+            const TextFileFormat::ReadResult result =
+                TextFileFormat::readFile(filePath(),
                                          Core::EditorManager::defaultTextCodec(),
                                          &contents,
-                                         &m_textFormat,
-                                         &errorMsg)
-                != TextFileFormat::ReadSuccess) {
-                QmakeBuildSystem::proFileParseError(errorMsg, filePath());
+                                         &m_textFormat);
+            if (result.code != TextFileFormat::ReadSuccess) {
+                QmakeBuildSystem::proFileParseError(result.error, filePath());
                 return {includeFile, lines};
             }
             lines = contents.split('\n');

@@ -140,16 +140,14 @@ QTextDocument *FixitsRefactoringFile::document(const FilePath &filePath) const
     if (m_documents.find(filePath) == m_documents.end()) {
         QString fileContents;
         if (!filePath.isEmpty()) {
-            QString error;
             QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
             TextFileFormat::ReadResult result = TextFileFormat::readFile(filePath,
                                                                          defaultCodec,
                                                                          &fileContents,
-                                                                         &m_textFileFormat,
-                                                                         &error);
-            if (result != TextFileFormat::ReadSuccess) {
+                                                                         &m_textFileFormat);
+            if (result.code != TextFileFormat::ReadSuccess) {
                 qCDebug(fixitsLog)
-                    << "ERROR: Could not read " << filePath.toUserOutput() << ":" << error;
+                    << "ERROR: Could not read " << filePath.toUserOutput() << ":" << result.error;
                 m_textFileFormat.setCodec(nullptr);
             }
         }

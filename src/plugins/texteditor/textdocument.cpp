@@ -771,12 +771,11 @@ Result<> TextDocument::openImpl(const FilePath &filePath,
                                 bool reload)
 {
     QStringList content;
-    QString errorString;
 
     ReadResult readResult = TextFileFormat::ReadIOError;
 
     if (!filePath.isEmpty()) {
-        readResult = read(realFilePath, &content, &errorString);
+        readResult = read(realFilePath, &content);
         const int chunks = content.size();
 
         // Don't call setUndoRedoEnabled(true) when reload is true and filenames are different,
@@ -826,8 +825,8 @@ Result<> TextDocument::openImpl(const FilePath &filePath,
         d->m_document.setModified(filePath != realFilePath);
         setFilePath(filePath);
     }
-    if (readResult == TextFileFormat::ReadIOError)
-        return ResultError(errorString);
+    if (readResult.code == TextFileFormat::ReadIOError)
+        return ResultError(readResult.error);
     return ResultOk;
 }
 

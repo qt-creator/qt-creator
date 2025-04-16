@@ -101,24 +101,21 @@ void CppSearchResultFilter::setValue(bool &member, bool value)
 
 namespace Internal {
 
-
-static QByteArray getSource(const Utils::FilePath &fileName,
-                            const WorkingCopy &workingCopy)
+static QByteArray getSource(const FilePath &fileName, const WorkingCopy &workingCopy)
 {
-    if (const auto source = workingCopy.source(fileName)) {
+    if (const auto source = workingCopy.source(fileName))
         return *source;
-    } else {
-        QString fileContents;
-        Utils::TextFileFormat format;
-        QString error;
-        QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
-        Utils::TextFileFormat::ReadResult result = Utils::TextFileFormat::readFile(
-                    fileName, defaultCodec, &fileContents, &format, &error);
-        if (result != Utils::TextFileFormat::ReadSuccess)
-            qWarning() << "Could not read " << fileName << ". Error: " << error;
 
-        return fileContents.toUtf8();
-    }
+    QString fileContents;
+    TextFileFormat format;
+    QString error;
+    QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
+    TextFileFormat::ReadResult result = TextFileFormat::readFile(
+                fileName, defaultCodec, &fileContents, &format);
+    if (result.code != TextFileFormat::ReadSuccess)
+        qWarning() << "Could not read " << fileName << ". Error: " << result.error;
+
+    return fileContents.toUtf8();
 }
 
 static QByteArray typeId(CPlusPlus::Symbol *symbol)

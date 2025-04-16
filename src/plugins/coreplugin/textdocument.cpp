@@ -55,7 +55,7 @@ BaseTextDocument::~BaseTextDocument()
 
 bool BaseTextDocument::hasDecodingError() const
 {
-    return d->m_readResult == TextFileFormat::ReadEncodingError;
+    return d->m_readResult.code == TextFileFormat::ReadEncodingError;
 }
 
 QByteArray BaseTextDocument::decodingErrorSample() const
@@ -129,16 +129,14 @@ bool BaseTextDocument::isUtf8Codec(const QByteArray &name)
     Returns whether the operation was successful.
 */
 
-BaseTextDocument::ReadResult BaseTextDocument::read(const Utils::FilePath &filePath,
-                                                    QStringList *plainTextList,
-                                                    QString *errorString)
+BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath,
+                                                    QStringList *plainTextList)
 {
-    d->m_readResult = Utils::TextFileFormat::readFile(filePath,
-                                                      codec(),
-                                                      plainTextList,
-                                                      &d->m_format,
-                                                      errorString,
-                                                      &d->m_decodingErrorSample);
+    d->m_readResult = TextFileFormat::readFile(filePath,
+                                               codec(),
+                                               plainTextList,
+                                               &d->m_format,
+                                               &d->m_decodingErrorSample);
     return d->m_readResult;
 }
 
@@ -152,16 +150,14 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const Utils::FilePath &fileP
     Returns whether the operation was successful.
 */
 
-BaseTextDocument::ReadResult BaseTextDocument::read(const Utils::FilePath &filePath,
-                                                    QString *plainText,
-                                                    QString *errorString)
+BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath,
+                                                    QString *plainText)
 {
-    d->m_readResult = Utils::TextFileFormat::readFile(filePath,
-                                                      codec(),
-                                                      plainText,
-                                                      &d->m_format,
-                                                      errorString,
-                                                      &d->m_decodingErrorSample);
+    d->m_readResult = TextFileFormat::readFile(filePath,
+                                               codec(),
+                                               plainText,
+                                               &d->m_format,
+                                               &d->m_decodingErrorSample);
     return d->m_readResult;
 }
 

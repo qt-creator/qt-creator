@@ -322,17 +322,14 @@ bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting,
     }
 
     QString fileContent;
-    QString error;
-    Utils::TextFileFormat textFileFormat;
+    TextFileFormat textFileFormat;
     const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
-    Utils::TextFileFormat::ReadResult readResult = Utils::TextFileFormat::readFile(qmlProjectFilePath,
-                                                                                   codec,
-                                                                                   &fileContent,
-                                                                                   &textFileFormat,
-                                                                                   &error);
-    if (readResult != Utils::TextFileFormat::ReadSuccess) {
-        qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << error;
-    }
+    TextFileFormat::ReadResult readResult = TextFileFormat::readFile(qmlProjectFilePath,
+                                                                     codec,
+                                                                     &fileContent,
+                                                                     &textFileFormat);
+    if (readResult.code != TextFileFormat::ReadSuccess)
+        qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << readResult.error;
 
     const QString settingQmlCode = setting + ":";
 
@@ -489,13 +486,12 @@ bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFil
     }
 
     QString fileContent;
-    QString error;
-    Utils::TextFileFormat textFileFormat;
+    TextFileFormat textFileFormat;
     const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
-    if (Utils::TextFileFormat::readFile(mainFilePath(), codec, &fileContent, &textFileFormat, &error)
-            != Utils::TextFileFormat::ReadSuccess) {
-        qWarning() << "Failed to read file" << mainFilePath() << ":" << error;
-    }
+    const TextFileFormat::ReadResult res =
+            TextFileFormat::readFile(mainFilePath(), codec, &fileContent, &textFileFormat);
+    if (res.code != TextFileFormat::ReadSuccess)
+        qWarning() << "Failed to read file" << mainFilePath() << ":" << res.error;
 
     const QString currentMain = QString("%1 {").arg(mainUiFilePath().baseName());
     const QString newMain = QString("%1 {").arg(newMainUiFilePath.baseName());

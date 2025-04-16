@@ -192,14 +192,11 @@ bool CppSourceProcessor::getFileContents(const FilePath &absoluteFilePath,
 
     // Get from file
     *revision = 0;
-    QString error;
-    if (Utils::TextFileFormat::readFileUTF8(absoluteFilePath,
-                                            m_defaultCodec,
-                                            contents,
-                                            &error)
-        != Utils::TextFileFormat::ReadSuccess) {
+    const TextFileFormat::ReadResult result =
+            TextFileFormat::readFileUTF8(absoluteFilePath, m_defaultCodec, contents);
+    if (result.code != TextFileFormat::ReadSuccess) {
         qWarning("Error reading file \"%s\": \"%s\".", qPrintable(absoluteFilePath.toUrlishString()),
-                 qPrintable(error));
+                 qPrintable(result.error));
         return false;
     }
     contents->replace("\r\n", "\n");
