@@ -10,6 +10,7 @@
 
 #include <QFileInfo>
 #include <QDataStream>
+#include <QCoreApplication>
 
 namespace Macros::Internal {
 

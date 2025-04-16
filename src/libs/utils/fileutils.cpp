@@ -82,21 +82,12 @@ FileSaverBase::FileSaverBase()
 
 FileSaverBase::~FileSaverBase() = default;
 
-bool FileSaverBase::finalize()
+Result<> FileSaverBase::finalize()
 {
     m_file->close();
     setResult(m_file->error() == QFile::NoError);
     m_file.reset();
-    return m_result.has_value();
-}
-
-bool FileSaverBase::finalize(QString *errStr)
-{
-    if (finalize())
-        return true;
-    if (errStr)
-        *errStr = errorString();
-    return false;
+    return m_result;
 }
 
 #ifdef QT_GUI_LIB
@@ -223,7 +214,7 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
     }
 }
 
-bool FileSaver::finalize()
+Result<> FileSaver::finalize()
 {
     if (!m_isSafe)
         return FileSaverBase::finalize();
@@ -236,7 +227,7 @@ bool FileSaver::finalize()
         setResult(sf->commit());
     }
     m_file.reset();
-    return m_result.has_value();
+    return m_result;
 }
 
 TempFileSaver::TempFileSaver(const QString &templ)

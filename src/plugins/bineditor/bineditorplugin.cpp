@@ -658,9 +658,8 @@ Result<> BinEditorDocument::save(const FilePath &oldFilePath, const FilePath &ne
             saver.setResult(output->resize(size));
     }
 
-    QString errorString;
-    if (!saver.finalize(&errorString))
-        return ResultError(errorString);
+    if (const Result<> res = saver.finalize(); !res)
+        return res;
 
     setModified(false);
     return ResultOk;

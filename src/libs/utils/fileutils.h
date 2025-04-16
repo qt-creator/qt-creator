@@ -6,9 +6,7 @@
 #include "utils_global.h"
 
 #include "filepath.h"
-
-#include <QCoreApplication>
-#include <QDir>
+#include "result.h"
 
 #ifdef QT_WIDGETS_LIB
 #include <QFileDialog>
@@ -161,8 +159,7 @@ public:
     FilePath filePath() const { return m_filePath; }
     bool hasError() const { return !m_result; }
     QString errorString() const { return m_result.error(); }
-    virtual bool finalize();
-    bool finalize(QString *errStr);
+    virtual Utils::Result<> finalize();
 #ifdef QT_GUI_LIB
     bool finalize(QWidget *parent);
 #endif
@@ -191,7 +188,7 @@ public:
     // QIODevice::WriteOnly is implicit
     explicit FileSaver(const FilePath &filePath, QIODevice::OpenMode mode = QIODevice::NotOpen);
 
-    bool finalize() override;
+    Utils::Result<> finalize() override;
     using FileSaverBase::finalize;
 
 private:

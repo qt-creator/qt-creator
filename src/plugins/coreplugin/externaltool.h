@@ -60,7 +60,7 @@ public:
     static Utils::Result<ExternalTool *> createFromFile(const Utils::FilePath &filePath,
                                                         const QString &locale = {});
 
-    bool save(QString *errorMessage = nullptr) const;
+    Utils::Result<> save() const;
 
     bool operator==(const ExternalTool &other) const;
     bool operator!=(const ExternalTool &other) const { return !((*this) == other); }

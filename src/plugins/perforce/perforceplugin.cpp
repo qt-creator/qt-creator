@@ -1064,8 +1064,11 @@ std::shared_ptr<TempFileSaver> PerforcePluginPrivate::createTemporaryArgumentFil
         if (i != last)
             rc->write("\n", 1);
     }
-    if (!rc->finalize(errorString))
+    if (const Result<> res = rc->finalize(); !res) {
+        if (errorString)
+            *errorString = res.error();
         return std::shared_ptr<TempFileSaver>();
+    }
     return rc;
 }
 

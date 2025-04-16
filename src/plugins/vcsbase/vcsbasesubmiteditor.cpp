@@ -530,8 +530,11 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const FilePath &checkScrip
     // Write out message
     TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/msgXXXXXX.txt");
     saver.write(fileContents());
-    if (!saver.finalize(errorMessage))
+    if (const Result<> res = saver.finalize(); !res) {
+        if (errorMessage)
+            *errorMessage = res.error();
         return false;
+    }
     // Run check process
     VcsOutputWindow::appendShellCommandLine(msgCheckScript(d->m_checkScriptWorkingDirectory,
                                                            checkScript));

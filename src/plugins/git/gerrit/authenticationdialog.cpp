@@ -25,8 +25,7 @@
 
 using namespace Utils;
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 static QRegularExpressionMatch entryMatch(const QString &line, const QString &type)
 {
@@ -176,10 +175,11 @@ bool AuthenticationDialog::setupCredentials()
     }
     if (!found)
         out << "machine " << m_server->host << " login " << user << " password " << password << '\n';
-    Utils::FileSaver saver(Utils::FilePath::fromString(m_netrcFileName),
-                           QFile::WriteOnly | QFile::Truncate | QFile::Text);
+
+    FileSaver saver(FilePath::fromString(m_netrcFileName),
+                    QFile::WriteOnly | QFile::Truncate | QFile::Text);
     saver.write(netrcContents.toUtf8());
-    return saver.finalize();
+    return saver.finalize().has_value();
 }
 
 void AuthenticationDialog::checkCredentials()
@@ -190,5 +190,4 @@ void AuthenticationDialog::checkCredentials()
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(result == 200);
 }
 
-} // Internal
-} // Gerrit
+} // Gerrit::Internal

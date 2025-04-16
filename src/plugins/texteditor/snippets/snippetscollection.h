@@ -68,7 +68,7 @@ public:
     QList<QString> groupIds() const;
 
     void reload();
-    bool synchronize(QString *errorString);
+    Utils::Result<> synchronize();
 
 private:
     void identifyGroups();

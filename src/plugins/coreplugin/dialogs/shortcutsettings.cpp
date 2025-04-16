@@ -192,7 +192,7 @@ bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
         if (!saver.setResult(&w))
             qWarning() << saver.errorString();
     }
-    return saver.finalize();
+    return saver.finalize().has_value();
 }
 
 static int translateModifiers(Qt::KeyboardModifiers state, const QString &text)

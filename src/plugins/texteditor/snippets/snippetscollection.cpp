@@ -279,12 +279,11 @@ void SnippetsCollection::reload()
         insertSnippet(snippet);
 }
 
-bool SnippetsCollection::synchronize(QString *errorString)
+Result<> SnippetsCollection::synchronize()
 {
     if (!m_userSnippetsFile.parentDir().ensureWritableDir()) {
-        *errorString = Tr::tr("Cannot create user snippet directory %1")
-                .arg(m_userSnippetsFile.parentDir().toUserOutput());
-        return false;
+        return ResultError(Tr::tr("Cannot create user snippet directory %1")
+                .arg(m_userSnippetsFile.parentDir().toUserOutput()));
     }
     FileSaver saver(m_userSnippetsFile);
     if (!saver.hasError()) {
@@ -309,11 +308,11 @@ bool SnippetsCollection::synchronize(QString *errorString)
 
         saver.setResult(&writer);
     }
-    if (!saver.finalize(errorString))
-        return false;
+    if (const Result<> res = saver.finalize(); !res)
+        return res;
 
     reload();
-    return true;
+    return ResultOk;
 }
 
 void SnippetsCollection::writeSnippetXML(const Snippet &snippet, QXmlStreamWriter *writer) const

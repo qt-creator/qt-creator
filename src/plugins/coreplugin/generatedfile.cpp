@@ -156,9 +156,7 @@ Result<> GeneratedFilePrivate::writeContents() const
         QIODevice::OpenMode flags = QIODevice::WriteOnly | QIODevice::Truncate;
         FileSaver saver(path, flags);
         saver.write(contents);
-        QString errorMessage;
-        const bool ok = saver.finalize(&errorMessage);
-        return ok ? ResultOk : ResultError(errorMessage);
+        return saver.finalize();
     }
 
     TextFileFormat format;

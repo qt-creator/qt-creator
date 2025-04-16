@@ -67,15 +67,12 @@ Result<> SubmitEditorFile::saveImpl(const FilePath &filePath, bool autoSave)
 {
     FileSaver saver(filePath, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(m_editor->fileContents());
-    QString errorString;
-    if (!saver.finalize(&errorString))
-        return ResultError(errorString);
+    if (const Result<> res = saver.finalize(); !res)
+        return res;
     if (autoSave)
         return ResultOk;
     setFilePath(filePath.absoluteFilePath());
     setModified(false);
-    if (!errorString.isEmpty())
-        return ResultError(errorString);
     emit changed();
     return ResultOk;
 }

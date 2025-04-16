@@ -351,12 +351,11 @@ Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) 
         saver.write(m_codec->fromUnicode(plainText));
     }
 
-    QString errorString;
-    const bool ok = saver.finalize(&errorString);
+    const Result<> result = saver.finalize();
     if (debug)
         qDebug().nospace() << Q_FUNC_INFO << filePath << ' ' << *this <<  ' ' << plainText.size()
-                           << " bytes, returns " << ok;
-    return ok ? ResultOk : ResultError(errorString);
+                           << " bytes, returns " << result.has_value();
+    return result;
 }
 
 } // namespace Utils

@@ -459,10 +459,10 @@ static QString stringForOutputHandling(ExternalTool::OutputHandling handling)
     return QString();
 }
 
-bool ExternalTool::save(QString *errorMessage) const
+Result<> ExternalTool::save() const
 {
     if (m_filePath.isEmpty())
-        return false;
+        return ResultError(ResultAssert); // FIXME: Find something better
     FileSaver saver(m_filePath);
     if (!saver.hasError()) {
         QXmlStreamWriter out(saver.file());
@@ -504,7 +504,7 @@ bool ExternalTool::save(QString *errorMessage) const
 
         saver.setResult(&out);
     }
-    return saver.finalize(errorMessage);
+    return saver.finalize();
 }
 
 bool ExternalTool::operator==(const ExternalTool &other) const

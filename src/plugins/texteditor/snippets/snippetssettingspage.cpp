@@ -388,12 +388,11 @@ void SnippetsSettingsWidget::apply()
         setSnippetContent();
 
     if (m_snippetsCollectionChanged) {
-        QString errorString;
-        if (SnippetsCollection::instance()->synchronize(&errorString)) {
+        if (const Result<> res = SnippetsCollection::instance()->synchronize()) {
             m_snippetsCollectionChanged = false;
         } else {
             QMessageBox::critical(Core::ICore::dialogParent(),
-                                  Tr::tr("Error While Saving Snippet Collection"), errorString);
+                                  Tr::tr("Error While Saving Snippet Collection"), res.error());
         }
     }
 }
