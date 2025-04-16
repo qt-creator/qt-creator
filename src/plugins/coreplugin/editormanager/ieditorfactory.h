@@ -6,6 +6,7 @@
 #include "../core_global.h"
 
 #include <utils/id.h>
+#include <utils/result.h>
 
 #include <QStringList>
 
@@ -42,7 +43,7 @@ public:
     bool isExternalEditor() const;
 
     IEditor *createEditor() const;
-    bool startEditor(const Utils::FilePath &filePath, QString *errorMessage);
+    Utils::Result<> startEditor(const Utils::FilePath &filePath);
 
 protected:
     IEditorFactory();
@@ -52,14 +53,14 @@ protected:
     void setMimeTypes(const QStringList &mimeTypes) { m_mimeTypes = mimeTypes; }
     void addMimeType(const QString &mimeType) { m_mimeTypes.append(mimeType); }
     void setEditorCreator(const std::function<IEditor *()> &creator);
-    void setEditorStarter(const std::function<bool(const Utils::FilePath &, QString *)> &starter);
+    void setEditorStarter(const std::function<Utils::Result<>(const Utils::FilePath &)> &starter);
 
 private:
     Utils::Id m_id;
     QString m_displayName;
     QStringList m_mimeTypes;
     std::function<IEditor *()> m_creator;
-    std::function<bool(const Utils::FilePath &, QString *)> m_starter;
+    std::function<Utils::Result<>(const Utils::FilePath &)> m_starter;
 };
 
 } // namespace Core

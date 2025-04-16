@@ -929,8 +929,10 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
             QTC_ASSERT(factory->isExternalEditor(),
                        factory = factories.isEmpty() ? nullptr : factories.takeFirst();
                        continue);
-            if (factory->startEditor(filePath, &errorString))
+            const Result<> res = factory->startEditor(filePath);
+            if (res)
                 break;
+            errorString = res.error();
         }
 
         if (errorString.isEmpty())
@@ -3293,13 +3295,13 @@ bool EditorManager::openExternalEditor(const FilePath &filePath, Id editorId)
 
     if (!ee)
         return false;
-    QString errorMessage;
+
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    const bool ok = ee->startEditor(filePath, &errorMessage);
+    const Result<> res = ee->startEditor(filePath);
     QApplication::restoreOverrideCursor();
-    if (!ok)
-        QMessageBox::critical(ICore::dialogParent(), ::Core::Tr::tr("Opening File"), errorMessage);
-    return ok;
+    if (!res)
+        QMessageBox::critical(ICore::dialogParent(), ::Core::Tr::tr("Opening File"), res.error());
+    return res.has_value();
 }
 
 /*!

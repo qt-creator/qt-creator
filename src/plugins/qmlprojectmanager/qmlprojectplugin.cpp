@@ -205,9 +205,9 @@ public:
         setId("Qt.QtDesignStudio");
         setDisplayName(Tr::tr("Qt Design Studio"));
         setMimeTypes({Utils::Constants::QMLUI_MIMETYPE});
-        setEditorStarter([](const FilePath &filePath, [[maybe_unused]] QString *errorMessage) {
+        setEditorStarter([](const FilePath &filePath) {
             openInQds(filePath);
-            return true;
+            return ResultOk;
         });
     }
 };
