@@ -107,6 +107,9 @@ QTCREATOR_UTILS_EXPORT FilePaths getOpenFilePaths(
         const QString &filter = {},
         QString *selectedFilter = nullptr,
         QFileDialog::Options options = {});
+
+QTCREATOR_UTILS_EXPORT void showError(const QString &errorMessage);
+
 #endif
 
 QTCREATOR_UTILS_EXPORT QString fetchQrc(const QString &fileName); // Only for internal resourcesm
@@ -160,9 +163,6 @@ public:
     bool hasError() const { return !m_result; }
     QString errorString() const { return m_result.error(); }
     virtual Utils::Result<> finalize();
-#ifdef QT_GUI_LIB
-    bool finalize(QWidget *parent);
-#endif
 
     bool write(const char *data, int len);
     bool write(const QByteArray &bytes);

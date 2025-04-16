@@ -959,7 +959,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
         TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/XXXXXX-" + filename);
 
         saver.write(storage->packageData);
-        if (saver.finalize(ICore::dialogParent())) {
+        if (const Result<> res = saver.finalize()) {
             auto result = executePluginInstallWizard(saver.filePath(), update);
             switch (result) {
             case InstallResult::Success:
@@ -970,6 +970,8 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
             case InstallResult::Error:
                 return false;
             }
+        } else {
+            FileUtils::showError(res.error());
         }
         return false;
     };

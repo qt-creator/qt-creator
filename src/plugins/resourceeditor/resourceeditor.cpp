@@ -14,7 +14,6 @@
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
 #include <utils/fileutils.h>
@@ -240,8 +239,10 @@ Result<> ResourceEditorDocument::setContents(const QByteArray &contents)
 {
     TempFileSaver saver;
     saver.write(contents);
-    if (!saver.finalize(ICore::dialogParent()))
-        return ResultError(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        FileUtils::showError(res.error());
+        return res;
+    }
 
     const FilePath originalFileName = m_model.filePath();
     m_model.setFilePath(saver.filePath());

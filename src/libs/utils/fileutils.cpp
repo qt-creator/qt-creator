@@ -90,16 +90,6 @@ Result<> FileSaverBase::finalize()
     return m_result;
 }
 
-#ifdef QT_GUI_LIB
-bool FileSaverBase::finalize(QWidget *parent)
-{
-    if (finalize())
-        return true;
-    QMessageBox::critical(parent, Tr::tr("File Error"), errorString());
-    return false;
-}
-#endif // QT_GUI_LIB
-
 bool FileSaverBase::write(const char *data, int len)
 {
     if (!m_result)
@@ -872,6 +862,11 @@ FilePaths usefulExtraSearchPaths()
     }
 
     return {};
+}
+
+void showError(const QString &errorMessage)
+{
+    QMessageBox::critical(dialogParent(), Tr::tr("File Error"), errorMessage);
 }
 
 } // namespace FileUtils

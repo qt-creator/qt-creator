@@ -319,8 +319,10 @@ bool GenericBuildSystem::saveRawList(const QStringList &rawList, const QString &
             stream << filePath << '\n';
         saver.setResult(&stream);
     }
-    bool result = saver.finalize(ICore::dialogParent());
-    return result;
+    const Result<> result = saver.finalize();
+    if (!result)
+        FileUtils::showError(result.error());
+    return result.has_value();
 }
 
 static void insertSorted(QStringList *list, const QString &value)

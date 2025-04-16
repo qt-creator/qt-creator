@@ -12,6 +12,8 @@
 #include <QDataStream>
 #include <QCoreApplication>
 
+using namespace Utils;
+
 namespace Macros::Internal {
 
 /*!
@@ -122,8 +124,10 @@ bool Macro::save(const QString &fileName)
         }
         saver.setResult(&stream);
     }
-    if (!saver.finalize(Core::ICore::dialogParent()))
+    if (const Result<> res = saver.finalize(); !res) {
+        FileUtils::showError(res.error());
         return false;
+    }
     d->fileName = fileName;
     return true;
 }

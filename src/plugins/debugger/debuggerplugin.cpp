@@ -1971,7 +1971,8 @@ void DebuggerPluginPrivate::dumpLog()
         ts << logWindow->combinedContents();
         saver.setResult(&ts);
     }
-    saver.finalize(ICore::dialogParent());
+    if (const Result<> res = saver.finalize(); !res)
+        FileUtils::showError(res.error());
 }
 
 void DebuggerPluginPrivate::remoteCommand(const QStringList &options)
