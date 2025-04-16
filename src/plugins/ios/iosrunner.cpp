@@ -475,10 +475,8 @@ public:
     void stop() final;
 
 private:
-    void handleGotServerPorts(Ios::IosToolHandler *handler, const FilePath &bundlePath,
-                              const QString &deviceId, Port gdbPort, Port qmlPort);
-    void handleGotInferiorPid(Ios::IosToolHandler *handler, const FilePath &bundlePath,
-                              const QString &deviceId, qint64 pid);
+    void handleGotServerPorts(Port gdbPort, Port qmlPort);
+    void handleGotInferiorPid(qint64 pid);
     void handleMessage(const QString &msg);
     void handleErrorMsg(const QString &msg);
     void handleToolExited(int code);
@@ -565,17 +563,8 @@ void IosRunner::stop()
         m_toolHandler->stop();
 }
 
-void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bundlePath,
-                                     const QString &deviceId, Port gdbPort,
-                                     Port qmlPort)
+void IosRunner::handleGotServerPorts(Port gdbPort, Port qmlPort)
 {
-    // Called when debugging on Device.
-    Q_UNUSED(bundlePath)
-    Q_UNUSED(deviceId)
-
-    if (m_toolHandler != handler)
-        return;
-
     // TODO: Convert to portsgatherer.
     QUrl debugChannel;
     debugChannel.setScheme("connect");
@@ -614,16 +603,8 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const FilePath &bu
     reportStarted();
 }
 
-void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bundlePath,
-                                     const QString &deviceId, qint64 pid)
+void IosRunner::handleGotInferiorPid(qint64 pid)
 {
-    // Called when debugging on Simulator.
-    Q_UNUSED(bundlePath)
-    Q_UNUSED(deviceId)
-
-    if (m_toolHandler != handler)
-        return;
-
     if (pid <= 0) {
         reportFailure(Tr::tr("Could not get inferior PID."));
         return;

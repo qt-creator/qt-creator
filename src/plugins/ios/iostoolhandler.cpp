@@ -164,9 +164,8 @@ public:
                         IosToolHandler::OpStatus status);
     void didStartApp(const FilePath &bundlePath, const QString &deviceId,
                      IosToolHandler::OpStatus status);
-    void gotServerPorts(const FilePath &bundlePath, const QString &deviceId, Port gdbPort,
-                        Port qmlPort);
-    void gotInferiorPid(const FilePath &bundlePath, const QString &deviceId, qint64 pid);
+    void gotServerPorts(Port gdbPort, Port qmlPort);
+    void gotInferiorPid(qint64 pid);
     void deviceInfo(const QString &deviceId, const IosToolHandler::Dict &info);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
@@ -324,16 +323,14 @@ void IosToolHandlerPrivate::didStartApp(const FilePath &bundlePath, const QStrin
     emit q->didStartApp(q, bundlePath, deviceId, status);
 }
 
-void IosToolHandlerPrivate::gotServerPorts(const FilePath &bundlePath, const QString &deviceId,
-                                           Port gdbPort, Port qmlPort)
+void IosToolHandlerPrivate::gotServerPorts(Port gdbPort, Port qmlPort)
 {
-    emit q->gotServerPorts(q, bundlePath, deviceId, gdbPort, qmlPort);
+    emit q->gotServerPorts(gdbPort, qmlPort);
 }
 
-void IosToolHandlerPrivate::gotInferiorPid(const FilePath &bundlePath, const QString &deviceId,
-                                           qint64 pid)
+void IosToolHandlerPrivate::gotInferiorPid(qint64 pid)
 {
-    emit q->gotInferiorPid(q, bundlePath, deviceId, pid);
+    emit q->gotInferiorPid(pid);
 }
 
 void IosToolHandlerPrivate::deviceInfo(const QString &deviceId,
@@ -451,7 +448,7 @@ void IosDeviceToolHandlerPrivate::processXml()
                     attributes.value(QLatin1String("gdb_server")).toString().toInt());
                 Port qmlServerPort(
                     attributes.value(QLatin1String("qml_server")).toString().toInt());
-                gotServerPorts(m_bundlePath, m_deviceId, gdbServerPort, qmlServerPort);
+                gotServerPorts(gdbServerPort, qmlServerPort);
             } else {
                 qCWarning(toolHandlerLog) << "unexpected element " << elName;
             }
@@ -506,7 +503,7 @@ void IosDeviceToolHandlerPrivate::processXml()
             case ParserState::Exit:
                 break;
             case ParserState::InferiorPid:
-                gotInferiorPid(m_bundlePath, m_deviceId, p.chars.toLongLong());
+                gotInferiorPid(p.chars.toLongLong());
                 break;
             case ParserState::ServerPorts:
                 break;
@@ -895,7 +892,7 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             if (!isResponseValid(*response))
                 return;
             m_pid = response->inferiorPid;
-            gotInferiorPid(m_bundlePath, m_deviceId, response->inferiorPid);
+            gotInferiorPid(response->inferiorPid);
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Success);
 #ifdef Q_OS_UNIX
             // Start monitoring app's life signs.

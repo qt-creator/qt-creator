@@ -56,10 +56,8 @@ signals:
                         const QString &deviceId, Ios::IosToolHandler::OpStatus status);
     void didStartApp(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
                      const QString &deviceId, Ios::IosToolHandler::OpStatus status);
-    void gotServerPorts(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
-                            const QString &deviceId, Utils::Port gdbPort, Utils::Port qmlPort);
-    void gotInferiorPid(Ios::IosToolHandler *handler, const Utils::FilePath &bundlePath,
-                        const QString &deviceId, qint64 pid);
+    void gotServerPorts(Utils::Port gdbPort, Utils::Port qmlPort);
+    void gotInferiorPid(qint64 pid);
     void deviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,
                     const Ios::IosToolHandler::Dict &info);
     void appOutput(const QString &output);
