@@ -148,13 +148,13 @@ QString UtilsJsExtension::asciify(const QString &input) const
 
 QString UtilsJsExtension::qtQuickVersion(const QString &filePath) const
 {
-    QDirIterator dirIt(Utils::FilePath::fromString(filePath).parentDir().path(), {"*.qml"},
+    QDirIterator dirIt(FilePath::fromString(filePath).parentDir().path(), {"*.qml"},
                        QDir::Files, QDirIterator::Subdirectories);
     while (dirIt.hasNext()) {
-        Utils::FileReader reader;
-        if (!reader.fetch(Utils::FilePath::fromString(dirIt.next())))
+        const Result<QByteArray> result = FilePath::fromString(dirIt.next()).fileContents();
+        if (!result)
             continue;
-        const QString data = QString::fromUtf8(reader.data());
+        const QString data = QString::fromUtf8(*result);
         static const QString importString("import QtQuick");
         const int importIndex = data.indexOf(importString);
         if (importIndex == -1)
