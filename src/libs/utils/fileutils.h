@@ -5,7 +5,6 @@
 
 #include "utils_global.h"
 
-#include "expected.h"
 #include "filepath.h"
 
 #include <QCoreApplication>
@@ -112,7 +111,7 @@ QTCREATOR_UTILS_EXPORT FilePaths getOpenFilePaths(
         QFileDialog::Options options = {});
 #endif
 
-QString fetchQrc(const QString &fileName); // Only for internal resourcesm
+QTCREATOR_UTILS_EXPORT QString fetchQrc(const QString &fileName); // Only for internal resourcesm
 
 } // namespace FileUtils
 
