@@ -3,6 +3,7 @@
 
 #include "runconfigurationaspects.h"
 
+#include "buildmanager.h"
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
@@ -635,6 +636,10 @@ FilePath ExecutableAspect::executable() const
 void ExecutableAspect::addToLayoutImpl(Layout &builder)
 {
     builder.addItem(m_executable);
+    if (m_executable.pathChooser()) {
+        connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
+                m_executable.pathChooser(), &PathChooser::triggerChanged);
+    }
     if (m_alternativeExecutable) {
         builder.flush();
         builder.addItem(m_alternativeExecutable);
