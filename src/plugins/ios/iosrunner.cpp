@@ -772,6 +772,12 @@ static RunWorker *createWorker(RunControl *runControl)
     if (rp.isQmlDebugging())
         runControl->requestQmlChannel();
 
+    const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
+    QTC_ASSERT(data, runControl->postMessage("Broken IosDeviceTypeAspect setup.", ErrorMessageFormat);
+               return nullptr);
+    rp.setDisplayName(data->applicationName);
+    rp.setContinueAfterAttach(true);
+
     IosRunner *iosRunner = nullptr;
     RunWorker *runner = nullptr;
     if (!isIosDeviceInstance /*== simulator */ || dev->handler() == IosDevice::Handler::IosTool) {
@@ -781,6 +787,20 @@ static RunWorker *createWorker(RunControl *runControl)
     } else {
         QTC_CHECK(rp.isCppDebugging());
         runner = new RecipeRunner(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ true));
+        const auto msgOnlyCppDebuggingSupported = [] {
+            return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
+        };
+        if (!rp.isCppDebugging()) {
+            // TODO: The message is not shown currently, fix me before 17.0.
+            runControl->postMessage(msgOnlyCppDebuggingSupported(), ErrorMessageFormat);
+            return nullptr;
+        }
+        if (rp.isQmlDebugging()) {
+            rp.setQmlDebugging(false);
+            // TODO: The message is not shown currently, fix me before 17.0.
+            runControl->postMessage(msgOnlyCppDebuggingSupported(), LogMessageFormat);
+        }
+        rp.setInferiorExecutable(data->localExecutable);
     }
 
     if (isIosDeviceInstance) {
@@ -803,33 +823,8 @@ static RunWorker *createWorker(RunControl *runControl)
         rp.setLldbPlatform("ios-simulator");
     }
 
-    const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
-    QTC_ASSERT(data, runControl->postMessage("Broken IosDeviceTypeAspect setup.", ErrorMessageFormat);
-               return nullptr);
-    rp.setDisplayName(data->applicationName);
-    rp.setContinueAfterAttach(true);
-
-    const bool isDeviceCtl = isIosDeviceInstance && dev->handler() == IosDevice::Handler::DeviceCtl;
-    if (isDeviceCtl) {
-        const auto msgOnlyCppDebuggingSupported = [] {
-            return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
-        };
-        if (!rp.isCppDebugging()) {
-            // TODO: The message is not shown currently, fix me before 17.0.
-            runControl->postMessage(msgOnlyCppDebuggingSupported(), ErrorMessageFormat);
-            return nullptr;
-        }
-        if (rp.isQmlDebugging()) {
-            rp.setQmlDebugging(false);
-            // TODO: The message is not shown currently, fix me before 17.0.
-            runControl->postMessage(msgOnlyCppDebuggingSupported(), LogMessageFormat);
-        }
-        rp.setInferiorExecutable(data->localExecutable);
-    }
-
-    auto debugger = createDebuggerWorker(runControl, rp,
-        [runControl, iosRunner, isDeviceCtl](DebuggerRunParameters &rp) {
-        if (isDeviceCtl)
+    auto debugger = createDebuggerWorker(runControl, rp, [runControl, iosRunner](DebuggerRunParameters &rp) {
+        if (iosRunner == nullptr)
             return;
         parametersModifier(runControl, rp, iosRunner);
     });
