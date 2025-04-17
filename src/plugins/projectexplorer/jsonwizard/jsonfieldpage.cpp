@@ -109,7 +109,7 @@ public:
         m_expander.registerVariable("INPUT", Tr::tr("The text edit input to fix up."),
                                     [this] { return m_currentInput; });
         m_expander.registerSubProvider([expander]() -> MacroExpander * { return expander; });
-        setValidationFunction([this, regex](FancyLineEdit *) -> Result<> {
+        setValidationFunction([this, regex](const QString &) -> Result<> {
             if (regex.match(text()).hasMatch())
                 return ResultOk;
             return ResultError(QString());

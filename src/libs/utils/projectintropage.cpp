@@ -99,8 +99,8 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_nameLineEdit->setPlaceholderText(Tr::tr("Enter project name"));
     d->m_nameLineEdit->setObjectName("nameLineEdit");
     d->m_nameLineEdit->setFocus();
-    d->m_nameLineEdit->setValidationFunction([this](FancyLineEdit *edit) {
-        return validateProjectName(edit->text());
+    d->m_nameLineEdit->setValidationFunction([this](const QString &text) {
+        return validateProjectName(text);
     });
 
     d->m_projectLabel = new QLabel(Tr::tr("Add to project:"));

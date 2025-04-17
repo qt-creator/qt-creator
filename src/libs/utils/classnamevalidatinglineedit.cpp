@@ -35,9 +35,7 @@ ClassNameValidatingLineEdit::ClassNameValidatingLineEdit(QWidget *parent) :
     FancyLineEdit(parent),
     d(new ClassNameValidatingLineEditPrivate)
 {
-    setValidationFunction([this](FancyLineEdit *edit) {
-        return validateClassName(edit);
-    });
+    setValidationFunction([this](const QString &text) { return validateClassName(text); });
     updateRegExp();
 }
 
@@ -73,18 +71,17 @@ void ClassNameValidatingLineEdit::setNamespaceDelimiter(const QString &delimiter
     d->m_namespaceDelimiter = delimiter;
 }
 
-Result<> ClassNameValidatingLineEdit::validateClassName(FancyLineEdit *edit) const
+Result<> ClassNameValidatingLineEdit::validateClassName(const QString &text) const
 {
     QTC_ASSERT(d->m_nameRegexp.isValid(), return ResultError(ResultAssert));
 
-    const QString value = edit->text();
-    if (!d->m_namespacesEnabled && value.contains(d->m_namespaceDelimiter))
+    if (!d->m_namespacesEnabled && text.contains(d->m_namespaceDelimiter))
         return ResultError(Tr::tr("The class name must not contain namespace delimiters."));
 
-    if (value.isEmpty())
+    if (text.isEmpty())
         return ResultError(Tr::tr("Please enter a class name."));
 
-    if (!d->m_nameRegexp.match(value).hasMatch())
+    if (!d->m_nameRegexp.match(text).hasMatch())
         return ResultError(Tr::tr("The class name contains invalid characters."));
 
     return ResultOk;

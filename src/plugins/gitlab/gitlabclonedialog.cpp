@@ -61,8 +61,8 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     m_pathChooser->setExpectedKind(PathChooser::ExistingDirectory);
     form->addRow(Tr::tr("Path"), m_pathChooser);
     m_directoryLE = new FancyLineEdit(this);
-    m_directoryLE->setValidationFunction([this](FancyLineEdit *e) -> Result<> {
-        const FilePath fullPath = m_pathChooser->filePath().pathAppended(e->text());
+    m_directoryLE->setValidationFunction([this](const QString &text) -> Result<> {
+        const FilePath fullPath = m_pathChooser->filePath().pathAppended(text);
         if (fullPath.exists())
             return ResultError(Tr::tr("Path \"%1\" already exists.").arg(fullPath.toUserOutput()));
         return ResultOk;

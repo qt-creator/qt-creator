@@ -493,11 +493,10 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
     m_commandEdit->setPlaceholderText(QString());
     connect(m_commandEdit, &FancyLineEdit::textChanged,
             this, &FakeVimExCommandsMappings::commandChanged);
-    m_commandEdit->setValidationFunction([](FancyLineEdit *e) -> Result<> {
-        if (QRegularExpression(e->text()).isValid())
+    m_commandEdit->setValidationFunction([](const QString &text) -> Result<> {
+        if (QRegularExpression(text).isValid())
             return ResultOk;
-        return ResultError(Tr::tr("The pattern \"%1\" is no valid regular expression")
-                           .arg(e->text()));
+        return ResultError(Tr::tr("The pattern \"%1\" is no valid regular expression").arg(text));
     });
     auto resetButton = new QPushButton(Tr::tr("Reset"), m_commandBox);
     resetButton->setToolTip(Tr::tr("Reset to default."));

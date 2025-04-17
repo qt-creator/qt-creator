@@ -53,10 +53,7 @@ ValidatingContainerNameLineEdit::ValidatingContainerNameLineEdit(const QStringLi
     : FancyLineEdit(parent)
     , m_forbidden(forbidden)
 {
-    setValidationFunction([this](FancyLineEdit *edit) -> Result<> {
-        if (!edit)
-            return ResultError(QString());
-        const QString &value = edit->text();
+    setValidationFunction([this](const QString &value) -> Result<> {
         if (value.isEmpty())
             return ResultError(QString());
         const QString realName = value.at(0) == ObjectsMapTreeItem::COLON

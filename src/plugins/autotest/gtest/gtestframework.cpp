@@ -111,8 +111,8 @@ GTestFramework::GTestFramework()
     gtestFilter.setToolTip(Tr::tr("Set the GTest filter to be used for grouping.\nSee Google Test "
                                   "documentation for further information on GTest filters."));
 
-    gtestFilter.setValidationFunction([](FancyLineEdit *edit) -> Result<> {
-        if (edit && GTestUtils::isValidGTestFilter(edit->text()))
+    gtestFilter.setValidationFunction([](const QString &text) -> Result<> {
+        if (GTestUtils::isValidGTestFilter(text))
             return ResultOk;
         return ResultError(QString());
     });

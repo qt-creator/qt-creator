@@ -496,7 +496,7 @@ ShortcutInput::ShortcutInput()
     m_warningLabel->setPalette(palette);
     connect(m_warningLabel, &QLabel::linkActivated, this, &ShortcutInput::showConflictsRequested);
 
-    m_shortcutEdit->setValidationFunction([this](FancyLineEdit *) -> Result<> {
+    m_shortcutEdit->setValidationFunction([this](const QString &) -> Result<> {
         QString warningMessage;
         const QKeySequence key = keySequenceFromEditString(m_shortcutEdit->text());
         const bool isValid = checkValidity(key, &warningMessage);

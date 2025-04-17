@@ -131,7 +131,7 @@ private:
 
     QbsBuildStep *qbsStep() const;
 
-    Result<> validateProperties(FancyLineEdit *edit);
+    Result<> validateProperties(const QString &text);
 
     class Property
     {
@@ -485,8 +485,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
 
     propertyEdit = new FancyLineEdit(this);
     propertyEdit->setToolTip(QbsProjectManager::Tr::tr("Properties to pass to the project."));
-    propertyEdit->setValidationFunction([this](FancyLineEdit *edit) {
-        return validateProperties(edit);
+    propertyEdit->setValidationFunction([this](const QString &text) {
+        return validateProperties(text);
     });
 
     defaultInstallDirCheckBox = new QCheckBox(this);
@@ -654,10 +654,10 @@ QbsBuildStep *QbsBuildStepConfigWidget::qbsStep() const
     return m_qbsStep;
 }
 
-Result<> QbsBuildStepConfigWidget::validateProperties(FancyLineEdit *edit)
+Result<> QbsBuildStepConfigWidget::validateProperties(const QString &text)
 {
     ProcessArgs::SplitError err;
-    const QStringList argList = ProcessArgs::splitArgs(edit->text(), HostOsInfo::hostOs(), false, &err);
+    const QStringList argList = ProcessArgs::splitArgs(text, HostOsInfo::hostOs(), false, &err);
     if (err != ProcessArgs::SplitOk)
         return ResultError(QbsProjectManager::Tr::tr("Could not split properties."));
 

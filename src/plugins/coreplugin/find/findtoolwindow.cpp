@@ -30,13 +30,13 @@ namespace Core::Internal {
 
 static FindToolWindow *m_instance = nullptr;
 
-static Result<> validateRegExp(FancyLineEdit *edit)
+static Result<> validateRegExp(const QString &text)
 {
-    if (edit->text().isEmpty())
+    if (text.isEmpty())
         return ResultError(Tr::tr("Empty search term."));
 
     if (Find::hasFindFlag(FindRegularExpression)) {
-        QRegularExpression regexp(edit->text());
+        QRegularExpression regexp(text);
         if (!regexp.isValid())
             return ResultError(regexp.errorString());
     }

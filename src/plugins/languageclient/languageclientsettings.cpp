@@ -917,8 +917,8 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
         m_startupBehavior->addItem(startupBehaviorString(BaseSettings::StartBehavior(behavior)));
     m_startupBehavior->setCurrentIndex(settings->m_startBehavior);
 
-    m_initializationOptions->setValidationFunction([](FancyLineEdit *edit) -> Result<> {
-            const QString value = globalMacroExpander()->expand(edit->text());
+    m_initializationOptions->setValidationFunction([](const QString &text) -> Result<> {
+            const QString value = globalMacroExpander()->expand(text);
 
             if (value.isEmpty())
                 return ResultOk;

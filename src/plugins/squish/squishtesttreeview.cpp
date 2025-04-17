@@ -120,9 +120,9 @@ static QWidget *testCaseEditor(QWidget *parent, const SquishTestTreeItem *item)
     const SuiteConf suiteConf = SuiteConf::readSuiteConf(suite->filePath());
     const QStringList inUse = suiteConf.usedTestCases();
     FancyLineEdit *editor = new FancyLineEdit(parent);
-    editor->setValidationFunction([inUse](FancyLineEdit *edit) -> Result<> {
+    editor->setValidationFunction([inUse](const QString &text) -> Result<> {
         static const QRegularExpression validFileName("^[-a-zA-Z0-9_$. ]+$");
-        QString testName = edit->text();
+        QString testName = text;
         if (!testName.startsWith("tst_"))
             testName.prepend("tst_");
         if (validFileName.match(testName).hasMatch() && !inUse.contains(testName))
@@ -137,8 +137,8 @@ static QWidget *sharedScriptEditor(QWidget *parent, const SquishTestTreeItem *it
 {
     const FilePath folder = static_cast<SquishTestTreeItem *>(item->parent())->filePath();
     FancyLineEdit *editor = new FancyLineEdit(parent);
-    editor->setValidationFunction([folder](FancyLineEdit *edit) -> Result<> {
-        if (!edit->text().isEmpty() && !folder.pathAppended(edit->text()).exists())
+    editor->setValidationFunction([folder](const QString &text) -> Result<> {
+        if (!text.isEmpty() && !folder.pathAppended(text).exists())
             return ResultOk;
         return ResultError(QString());
     });

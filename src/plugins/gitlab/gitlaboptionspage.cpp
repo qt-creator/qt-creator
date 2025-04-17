@@ -70,8 +70,8 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     m_host.setLabelText(Tr::tr("Host:"));
     m_host.setDisplayStyle(m == Display ? StringAspect::LabelDisplay
                                         : StringAspect::LineEditDisplay);
-    m_host.setValidationFunction([](FancyLineEdit *l) -> Result<> {
-        if (hostValid(l->text()))
+    m_host.setValidationFunction([](const QString &text) -> Result<> {
+        if (hostValid(text))
             return ResultOk;
         return ResultError(QString());
     });

@@ -48,10 +48,10 @@ FileNameValidatingLineEdit::FileNameValidatingLineEdit(QWidget *parent) :
     m_allowDirectories(false),
     m_forceFirstCapitalLetter(false)
 {
-    setValidationFunction([this](FancyLineEdit *edit) {
-        if (const Result<> res = validateFileNameExtension(edit->text(), requiredExtensions()); !res)
+    setValidationFunction([this](const QString &text) {
+        if (const Result<> res = validateFileNameExtension(text, requiredExtensions()); !res)
             return res;
-        if (const Result<> res = validateFileName(edit->text(), allowDirectories()); !res)
+        if (const Result<> res = validateFileName(text, allowDirectories()); !res)
             return res;
         return ResultOk;
     });

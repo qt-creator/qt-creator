@@ -231,8 +231,8 @@ IDevice::IDevice()
     };
 
     d->displayName.setValidationFunction(
-        [this, validateDisplayName](FancyLineEdit *edit) -> Result<> {
-            return validateDisplayName(d->displayName.value(), edit->text());
+        [this, validateDisplayName](const QString &text) -> Result<> {
+            return validateDisplayName(d->displayName.value(), text);
         });
 
     d->displayName.setValueAcceptor(

@@ -224,8 +224,8 @@ public:
         auto layout = new QFormLayout(&dlg);
 
         auto funcNameEdit = new FancyLineEdit;
-        funcNameEdit->setValidationFunction([](FancyLineEdit *edit) -> Result<> {
-            if (ExtractFunctionOptions::isValidFunctionName(edit->text()))
+        funcNameEdit->setValidationFunction([](const QString &text) -> Result<> {
+            if (ExtractFunctionOptions::isValidFunctionName(text))
                 return ResultOk;
             return ResultError(QString());
         });

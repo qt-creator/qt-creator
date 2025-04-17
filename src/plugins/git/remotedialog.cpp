@@ -44,12 +44,9 @@ public:
 
         m_nameEdit = new FancyLineEdit(this);
         m_nameEdit->setHistoryCompleter("Git.RemoteNames");
-        m_nameEdit->setValidationFunction([this](FancyLineEdit *edit) -> Result<> {
-            if (!edit)
-                return ResultError(ResultAssert);
-
-            QString input = edit->text();
-            edit->setText(input.replace(m_invalidRemoteNameChars, "_"));
+        m_nameEdit->setValidationFunction([this](FancyLineEdit &edit) -> Result<> {
+            QString input = edit.text();
+            edit.setText(input.replace(m_invalidRemoteNameChars, "_"));
 
             // "Intermediate" patterns, may change to Acceptable when user edits further:
             if (input.endsWith(".lock")) //..may not end with ".lock"
@@ -73,11 +70,11 @@ public:
 
         m_urlEdit = new FancyLineEdit(this);
         m_urlEdit->setHistoryCompleter("Git.RemoteUrls");
-        m_urlEdit->setValidationFunction([](FancyLineEdit *edit) -> Result<> {
-            if (!edit || edit->text().isEmpty())
+        m_urlEdit->setValidationFunction([](FancyLineEdit &edit) -> Result<> {
+            if (edit.text().isEmpty())
                 return ResultError(QString());
 
-            const GitRemote r(edit->text());
+            const GitRemote r(edit.text());
             if (!r.isValid)
                 return ResultError(Tr::tr("The URL may not be valid."));
 

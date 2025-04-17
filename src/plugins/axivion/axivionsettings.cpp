@@ -442,8 +442,8 @@ DashboardSettingsWidget::DashboardSettingsWidget(QWidget *parent, QPushButton *o
 {
     m_dashboardUrl.setLabelText(Tr::tr("Dashboard URL:"));
     m_dashboardUrl.setDisplayStyle(StringAspect::LineEditDisplay);
-    m_dashboardUrl.setValidationFunction([](FancyLineEdit *edit) -> Result<> {
-        if (isUrlValid(edit->text()))
+    m_dashboardUrl.setValidationFunction([](const QString &text) -> Result<> {
+        if (isUrlValid(text))
             return ResultOk;
         return ResultError(QString());
     });
@@ -502,18 +502,17 @@ public:
     {
         m_projectName.setLabelText(Tr::tr("Project name:"));
         m_projectName.setDisplayStyle(StringAspect::LineEditDisplay);
-        m_projectName.setValidationFunction([](FancyLineEdit *edit) -> Result<> {
-            QTC_ASSERT(edit, return ResultError(ResultAssert));
-            if (edit->text().isEmpty())
+        m_projectName.setValidationFunction([](const QString &text) -> Result<> {
+            if (text.isEmpty())
                 return ResultError(Tr::tr("Project name must be non-empty."));
             return ResultOk;
         });
         m_analysisPath.setLabelText(Tr::tr("Analysis path:"));
         m_analysisPath.setDisplayStyle(StringAspect::LineEditDisplay);
-        m_analysisPath.setValidationFunction([](FancyLineEdit *edit) -> Result<> {
-            QTC_ASSERT(edit, return ResultError(ResultAssert));
+        m_analysisPath.setValidationFunction([](const QString &text) -> Result<> {
+            QString input = text;
             // do NOT use fromUserInput() as this also cleans the path
-            const FilePath fp = FilePath::fromString(edit->text().replace('\\', '/'));
+            const FilePath fp = FilePath::fromString(input.replace('\\', '/'));
             return analysisPathValid(fp);
         });
         m_localPath.setLabelText(Tr::tr("Local path:"));
