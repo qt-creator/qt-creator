@@ -440,7 +440,7 @@ Result<ExternalTool *> ExternalTool::createFromFile(const FilePath &filePath, co
         return ResultError(contents.error());
     Result<ExternalTool *> res = ExternalTool::createFromXml(contents.value(), locale);
     if (!res)
-        return ResultError(contents.error());
+        return ResultError(res.error());
     ExternalTool *tool = res.value();
     tool->m_filePath = filePath.absoluteFilePath();
     return tool;
