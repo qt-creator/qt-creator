@@ -96,7 +96,7 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     layout->addWidget(m_quickWidget.data());
 
     setStyleSheet(QmlDesigner::Theme::replaceCssColors(
-        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
+        Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css")));
 
     QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(this, QmlDesigner::Constants::EVENT_EFFECTCOMPOSER_TIME);
 

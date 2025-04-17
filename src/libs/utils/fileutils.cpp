@@ -47,15 +47,6 @@ namespace Utils {
 
 // FileReader
 
-QByteArray FileReader::fetchQrc(const QString &fileName)
-{
-    QTC_ASSERT(fileName.startsWith(':'), return QByteArray());
-    QFile file(fileName);
-    bool ok = file.open(QIODevice::ReadOnly);
-    QTC_ASSERT(ok, qWarning() << fileName << "not there!"; return QByteArray());
-    return file.readAll();
-}
-
 Result<> FileReader::fetch(const FilePath &filePath)
 {
     const Result<QByteArray> contents = filePath.fileContents();
@@ -412,6 +403,15 @@ FilePath commonPath(const FilePaths &paths)
 }
 
 #ifdef QT_WIDGETS_LIB
+
+QString fetchQrc(const QString &fileName)
+{
+    QTC_ASSERT(fileName.startsWith(':'), return QString());
+    QFile file(fileName);
+    bool ok = file.open(QIODevice::ReadOnly);
+    QTC_ASSERT(ok, qWarning() << fileName << "not there!"; return QString());
+    return QString::fromUtf8(file.readAll());
+}
 
 static QUrl filePathToQUrl(const FilePath &filePath)
 {

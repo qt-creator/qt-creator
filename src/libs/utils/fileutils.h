@@ -112,6 +112,8 @@ QTCREATOR_UTILS_EXPORT FilePaths getOpenFilePaths(
         QFileDialog::Options options = {});
 #endif
 
+QString fetchQrc(const QString &fileName); // Only for internal resourcesm
+
 } // namespace FileUtils
 
 // for actually finding out if e.g. directories are writable on Windows
@@ -142,7 +144,6 @@ T withNtfsPermissions(const std::function<T()> &task)
 class QTCREATOR_UTILS_EXPORT FileReader
 {
 public:
-    static QByteArray fetchQrc(const QString &fileName); // Only for internal resources
     Result<> fetch(const FilePath &filePath);
     bool fetch(const FilePath &filePath, QString *errorString);
     const QByteArray &data() const { return m_data; }

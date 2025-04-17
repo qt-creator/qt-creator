@@ -63,8 +63,8 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
 
     setWindowTitle(tr("Navigator", "Title of navigator view"));
 
-    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+    QString sheet = Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css");
+    setStyleSheet(Theme::replaceCssColors(sheet));
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_NAVIGATORVIEW_TIME);
 

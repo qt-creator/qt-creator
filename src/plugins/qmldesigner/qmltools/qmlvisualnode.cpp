@@ -326,14 +326,14 @@ static QString imagePlaceHolderPath(AbstractView *view)
     return QString::fromLatin1(imagePlaceHolder);
 }
 
-static QByteArray getSourceForUrl(const QString &fileURl)
+static QString getSourceForUrl(const QString &fileURl)
 {
     Utils::FileReader fileReader;
 
     if (fileReader.fetch(Utils::FilePath::fromString(fileURl)))
-        return fileReader.data();
-    else
-        return Utils::FileReader::fetchQrc(fileURl);
+        return QString::fromUtf8(fileReader.data());
+
+    return Utils::FileUtils::fetchQrc(fileURl);
 }
 
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
@@ -396,7 +396,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                                    nodeSourceType));
 #endif
         } else {
-            const auto templateContent = QString::fromUtf8(getSourceForUrl(templatePath));
+            const QString templateContent = getSourceForUrl(templatePath);
             newQmlObjectNode = createQmlObjectNodeFromSource(view, templateContent, position);
         }
 

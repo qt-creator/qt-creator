@@ -301,8 +301,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     fillLayout->addWidget(m_graphicsView.data());
 
-    QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
-    setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+    QString sheet = Utils::FileUtils::fetchQrc(":/qmldesigner/stylesheet.css");
+    setStyleSheet(Theme::replaceCssColors(sheet));
 
     IContext::attach(this,
                      Context(Constants::qmlFormEditorContextId, Constants::qtQuickToolsMenuContextId),
