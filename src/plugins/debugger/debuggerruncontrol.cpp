@@ -126,31 +126,38 @@ private:
 
 } // namespace Internal
 
-ExecutableItem coreFileRecipe(RunControl *runControl,
-                              const Storage<DebuggerRunParameters> &parametersStorage,
-                              const Storage<FilePath> &tempCoreFileStorage)
+struct DebuggerData
 {
-    const Storage<QFile> storage; // tempCoreFile
+    DebuggerRunParameters runParameters;
+    RunControl *runControl = nullptr;
+    EnginesDriver enginesDriver = {};
+    FilePath tempCoreFile = {};
+    std::unique_ptr<Process> terminalProcess = {};
+};
 
-    const auto onSetup = [runControl, parametersStorage, storage, tempCoreFileStorage](Process &process) {
-        const FilePath coreFile = parametersStorage->coreFile();
+ExecutableItem coreFileRecipe(const Storage<DebuggerData> &storage)
+{
+    const Storage<QFile> fileStorage; // tempCoreFile
+
+    const auto onSetup = [storage, fileStorage](Process &process) {
+        const FilePath coreFile = storage->runParameters.coreFile();
         if (!coreFile.endsWith(".gz") && !coreFile.endsWith(".lzo"))
             return SetupResult::StopWithSuccess;
 
         {
             TemporaryFile tmp("tmpcore-XXXXXX");
             QTC_CHECK(tmp.open());
-            *tempCoreFileStorage = FilePath::fromString(tmp.fileName());
+            storage->tempCoreFile = FilePath::fromString(tmp.fileName());
         }
-        QFile *tempCoreFile = storage.activeStorage();
+        QFile *tempCoreFile = fileStorage.activeStorage();
         process.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
         const QString msg = Tr::tr("Unpacking core file to %1");
-        runControl->postMessage(msg.arg(tempCoreFileStorage->toUserOutput()), LogMessageFormat);
+        storage->runControl->postMessage(msg.arg(storage->tempCoreFile.toUserOutput()), LogMessageFormat);
 
         if (coreFile.endsWith(".lzo")) {
-            process.setCommand({"lzop", {"-o", tempCoreFileStorage->path(), "-x", coreFile.path()}});
+            process.setCommand({"lzop", {"-o", storage->tempCoreFile.path(), "-x", coreFile.path()}});
         } else { // ".gz"
-            tempCoreFile->setFileName(tempCoreFileStorage->path());
+            tempCoreFile->setFileName(storage->tempCoreFile.path());
             QTC_CHECK(tempCoreFile->open(QFile::WriteOnly));
             QObject::connect(&process, &Process::readyReadStandardOutput, &process,
                              [tempCoreFile, processPtr = &process] {
@@ -161,29 +168,27 @@ ExecutableItem coreFileRecipe(RunControl *runControl,
         return SetupResult::Continue;
     };
 
-    const auto onDone = [runControl, parametersStorage, storage, tempCoreFileStorage](DoneWith result) {
-        if (result == DoneWith::Success)
-            parametersStorage->setCoreFilePath(*tempCoreFileStorage);
-        else
-            runControl->postMessage("Error unpacking " + parametersStorage->coreFile().toUserOutput(),
-                                    ErrorMessageFormat);
-        if (storage->isOpen())
-            storage->close();
+    const auto onDone = [storage, fileStorage](DoneWith result) {
+        if (result == DoneWith::Success) {
+            storage->runParameters.setCoreFilePath(storage->tempCoreFile);
+        } else {
+            storage->runControl->postMessage("Error unpacking "
+                + storage->runParameters.coreFile().toUserOutput(), ErrorMessageFormat);
+        }
+        if (fileStorage->isOpen())
+            fileStorage->close();
     };
 
     return Group {
-        storage,
+        fileStorage,
         ProcessTask(onSetup, onDone)
     };
 }
 
-ExecutableItem terminalRecipe(const Storage<DebuggerRunParameters> &parametersStorage,
-                              const Storage<EnginesDriver> &driverStorage,
-                              const Storage<std::unique_ptr<Process>> &terminalStorage,
-                              const SingleBarrier &barrier)
+ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const SingleBarrier &barrier)
 {
-    const auto onSetup = [barrier, parametersStorage, driverStorage, terminalStorage] {
-        DebuggerRunParameters &runParameters = *parametersStorage;
+    const auto onSetup = [storage, barrier] {
+        DebuggerRunParameters &runParameters = storage->runParameters;
         const bool useCdbConsole = runParameters.cppEngineType() == CdbEngineType
                                    && (runParameters.startMode() == StartInternal
                                        || runParameters.startMode() == StartExternal)
@@ -196,7 +201,7 @@ ExecutableItem terminalRecipe(const Storage<DebuggerRunParameters> &parametersSt
         }
 
         Process *process = new Process;
-        terminalStorage->reset(process);
+        storage->terminalProcess.reset(process);
         ProcessRunData stub = runParameters.inferior();
         if (runParameters.runAsRoot()) {
             process->setRunAsRoot(true);
@@ -212,7 +217,7 @@ ExecutableItem terminalRecipe(const Storage<DebuggerRunParameters> &parametersSt
             barrier->advance();
         });
 
-        EnginesDriver *driver = driverStorage.activeStorage();
+        EnginesDriver *driver = &storage->enginesDriver;
         QObject::connect(driver, &EnginesDriver::interruptTerminalRequested,
                          process, &Process::interrupt);
         QObject::connect(driver, &EnginesDriver::kickoffTerminalProcessRequested,
@@ -223,11 +228,11 @@ ExecutableItem terminalRecipe(const Storage<DebuggerRunParameters> &parametersSt
     return Sync(onSetup);
 }
 
-ExecutableItem fixupParamsRecipe(RunControl *runControl,
-                                 const Storage<DebuggerRunParameters> &parametersStorage)
+ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
 {
-    return Sync([runControl, parametersStorage] {
-        DebuggerRunParameters &runParameters = *parametersStorage;
+    return Sync([storage] {
+        RunControl *runControl = storage->runControl;
+        DebuggerRunParameters &runParameters = storage->runParameters;
         TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
         if (runControl->usesDebugChannel())
@@ -312,17 +317,16 @@ ExecutableItem fixupParamsRecipe(RunControl *runControl,
     });
 }
 
-ExecutableItem debugServerRecipe(RunControl *runControl,
-                                 const Storage<DebuggerRunParameters> &parametersStorage,
-                                 const SingleBarrier &barrier)
+ExecutableItem debugServerRecipe(const Storage<DebuggerData> &storage, const SingleBarrier &barrier)
 {
-    const auto useDebugServer = [runControl, parametersStorage] {
-        return runControl->usesDebugChannel() && !parametersStorage->skipDebugServer();
+    const auto useDebugServer = [storage] {
+        return storage->runControl->usesDebugChannel() && !storage->runParameters.skipDebugServer();
     };
 
-    const auto onSetup = [runControl, parametersStorage, barrier](Process &process) {
+    const auto onSetup = [storage, barrier](Process &process) {
         process.setUtf8Codec();
-        DebuggerRunParameters &runParameters = *parametersStorage;
+        DebuggerRunParameters &runParameters = storage->runParameters;
+        RunControl *runControl = storage->runControl;
         CommandLine commandLine = runParameters.inferior().command;
         CommandLine cmd;
 
@@ -432,8 +436,8 @@ ExecutableItem debugServerRecipe(RunControl *runControl,
         return SetupResult::Continue;
     };
 
-    const auto onDone = [runControl](const Process &process) {
-        runControl->postMessage(process.errorString(), ErrorMessageFormat);
+    const auto onDone = [storage](const Process &process) {
+        storage->runControl->postMessage(process.errorString(), ErrorMessageFormat);
     };
 
     return Group {
@@ -445,21 +449,20 @@ ExecutableItem debugServerRecipe(RunControl *runControl,
     };
 }
 
-static ExecutableItem doneAwaiter(const Storage<EnginesDriver> &driverStorage)
+static ExecutableItem doneAwaiter(const Storage<DebuggerData> &storage)
 {
-    return BarrierTask([driverStorage](Barrier &barrier) {
-        QObject::connect(driverStorage.activeStorage(), &EnginesDriver::done, &barrier, &Barrier::stopWithResult,
+    return BarrierTask([storage](Barrier &barrier) {
+        QObject::connect(&storage->enginesDriver, &EnginesDriver::done, &barrier, &Barrier::stopWithResult,
                          static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
     });
 }
 
-ExecutableItem startEnginesRecipe(RunControl *runControl,
-                                  const Storage<DebuggerRunParameters> &parametersStorage,
-                                  const Storage<EnginesDriver> &driverStorage)
+ExecutableItem startEnginesRecipe(const Storage<DebuggerData> &storage)
 {
-    const auto setupEngines = [runControl, parametersStorage, driverStorage] {
-        DebuggerRunParameters &runParameters = *parametersStorage;
-        EnginesDriver *driver = driverStorage.activeStorage();
+    const auto setupEngines = [storage] {
+        RunControl *runControl = storage->runControl;
+        DebuggerRunParameters &runParameters = storage->runParameters;
+        EnginesDriver *driver = &storage->enginesDriver;
         if (Result<> res = driver->setupEngines(runControl, runParameters); !res) {
             runControl->postMessage(res.error(), ErrorMessageFormat);
             return false;
@@ -491,34 +494,33 @@ ExecutableItem startEnginesRecipe(RunControl *runControl,
     };
 
     return If (setupEngines) >> Then {
-        doneAwaiter(driverStorage)
+        doneAwaiter(storage)
     };
 }
 
-static ExecutableItem terminalAwaiter(const Storage<std::unique_ptr<Process>> &terminalStorage)
+static ExecutableItem terminalAwaiter(const Storage<DebuggerData> &storage)
 {
-    return BarrierTask([terminalStorage](Barrier &barrier) {
-        QObject::connect(terminalStorage->get(), &Process::done, &barrier, &Barrier::advance,
+    return BarrierTask([storage](Barrier &barrier) {
+        QObject::connect(storage->terminalProcess.get(), &Process::done, &barrier, &Barrier::advance,
                          static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
     });
 }
 
-ExecutableItem finalizeRecipe(const Storage<EnginesDriver> &driverStorage,
-                              const Storage<std::unique_ptr<Process>> &terminalStorage)
+ExecutableItem finalizeRecipe(const Storage<DebuggerData> &storage)
 {
-    const auto isRunning = [driverStorage] { return driverStorage->isRunning(); };
-    const auto isTerminalRunning = [terminalStorage] {
-        return terminalStorage->get() && terminalStorage->get()->isRunning();
+    const auto isRunning = [storage] { return storage->enginesDriver.isRunning(); };
+    const auto isTerminalRunning = [storage] {
+        return storage->terminalProcess && storage->terminalProcess->isRunning();
     };
 
     return Group {
         continueOnError,
         If (isRunning) >> Then {
-            Sync([driverStorage] { driverStorage->stop(); }),
-            doneAwaiter(driverStorage)
+            Sync([storage] { storage->enginesDriver.stop(); }),
+            doneAwaiter(storage)
         },
         If (isTerminalRunning) >> Then {
-            terminalAwaiter(terminalStorage)
+            terminalAwaiter(storage)
         }
     };
 }
@@ -719,49 +721,43 @@ void EnginesDriver::showMessage(const QString &msg, int channel, int timeout)
 Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initialParameters,
                      const std::function<void(DebuggerRunParameters &)> &parametersModifier)
 {
-    const Storage<DebuggerRunParameters> parametersStorage{initialParameters};
-    const Storage<EnginesDriver> driverStorage;
-    const Storage<FilePath> tempCoreFileStorage;
-    const Storage<std::unique_ptr<Process>> terminalStorage;
+    const Storage<DebuggerData> storage{initialParameters, runControl};
 
-    const auto onSetup = [runControl, parametersStorage, parametersModifier] {
-        parametersStorage->setAttachPid(runControl->attachPid());
+    const auto onSetup = [storage, parametersModifier] {
+        storage->runParameters.setAttachPid(storage->runControl->attachPid());
         if (parametersModifier)
-            parametersModifier(*parametersStorage);
+            parametersModifier(storage->runParameters);
     };
 
-    const auto terminalKicker = [parametersStorage, driverStorage, terminalStorage](const SingleBarrier &barrier) {
-        return terminalRecipe(parametersStorage, driverStorage, terminalStorage, barrier);
+    const auto terminalKicker = [storage](const SingleBarrier &barrier) {
+        return terminalRecipe(storage, barrier);
     };
 
-    const auto debugServerKicker = [runControl, parametersStorage](const SingleBarrier &barrier) {
-        return debugServerRecipe(runControl, parametersStorage, barrier);
+    const auto debugServerKicker = [storage](const SingleBarrier &barrier) {
+        return debugServerRecipe(storage, barrier);
     };
 
-    const auto onDone = [parametersStorage, tempCoreFileStorage] {
-        if (tempCoreFileStorage->exists())
-            tempCoreFileStorage->removeFile();
-        if (parametersStorage->isSnapshot() && !parametersStorage->coreFile().isEmpty())
-            parametersStorage->coreFile().removeFile();
+    const auto onDone = [storage] {
+        if (storage->tempCoreFile.exists())
+            storage->tempCoreFile.removeFile();
+        if (storage->runParameters.isSnapshot() && !storage->runParameters.coreFile().isEmpty())
+            storage->runParameters.coreFile().removeFile();
     };
 
     return {
-        parametersStorage,
-        driverStorage,
-        terminalStorage,
-        tempCoreFileStorage,
+        storage,
         continueOnError,
         onGroupSetup(onSetup),
         Group {
-            coreFileRecipe(runControl, parametersStorage, tempCoreFileStorage),
+            coreFileRecipe(storage),
             When (terminalKicker) >> Do {
-                fixupParamsRecipe(runControl, parametersStorage),
+                fixupParamsRecipe(storage),
                 When (debugServerKicker) >> Do {
-                    startEnginesRecipe(runControl, parametersStorage, driverStorage)
+                    startEnginesRecipe(storage)
                 }
             }
         }.withCancel(canceler()),
-        finalizeRecipe(driverStorage, terminalStorage),
+        finalizeRecipe(storage),
         onGroupDone(onDone)
     };
 }
