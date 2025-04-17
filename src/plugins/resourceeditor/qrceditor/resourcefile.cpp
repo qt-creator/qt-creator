@@ -224,7 +224,8 @@ bool ResourceFile::save()
     }
 
     const Result<> res = m_textFileFormat.writeFile(m_filePath, contents());
-    m_error_message = res.error();
+    if (!res)
+        m_error_message = res.error();
     return res.has_value();
 }
 
