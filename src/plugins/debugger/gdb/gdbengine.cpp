@@ -4603,7 +4603,7 @@ static QString extractRemoteChannel(const QUrl &url, const QString &pipe)
 
     QString scheme = url.scheme();
     if (scheme.isEmpty())
-        scheme = "tcp:";
+        scheme = "tcp";
 
     // "Fix" the IPv6 case with host names without '['...']'
     QString host = url.host();
