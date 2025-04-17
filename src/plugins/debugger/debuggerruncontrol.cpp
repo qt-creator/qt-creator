@@ -33,7 +33,6 @@
 
 #include <solutions/tasking/barrier.h>
 #include <solutions/tasking/conditional.h>
-#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -123,16 +122,6 @@ private:
     QList<QPointer<Internal::DebuggerEngine>> m_engines;
     int m_runningEngines = 0;
     int m_snapshotCounter = 0;
-};
-
-class DebuggerRunToolPrivate
-{
-public:
-    DebuggerRunTool *q = nullptr;
-    DebuggerRunParameters m_runParameters;
-
-    // TaskTree
-    Tasking::TaskTreeRunner m_taskTreeRunner = {};
 };
 
 } // namespace Internal
@@ -727,65 +716,6 @@ void EnginesDriver::showMessage(const QString &msg, int channel, int timeout)
     }
 }
 
-void DebuggerRunTool::start()
-{
-    const Storage<DebuggerRunParameters> parametersStorage;
-    const Storage<EnginesDriver> driverStorage;
-    const Storage<FilePath> tempCoreFileStorage;
-    const Storage<std::unique_ptr<Process>> terminalStorage;
-
-    const auto onSetup = [this, parametersStorage] {
-        RunInterface *iface = runStorage().activeStorage();
-        connect(this, &DebuggerRunTool::canceled, iface, &RunInterface::canceled);
-        connect(iface, &RunInterface::started, this, &RunWorker::reportStarted);
-        *parametersStorage = d->m_runParameters;
-        parametersStorage->setAttachPid(runControl()->attachPid());
-    };
-
-    const auto terminalKicker = [parametersStorage, driverStorage, terminalStorage]
-        (const SingleBarrier &barrier) {
-        return terminalRecipe(parametersStorage, driverStorage, terminalStorage, barrier);
-    };
-
-    const auto debugServerKicker = [runControl = runControl(), parametersStorage](const SingleBarrier &barrier) {
-        return debugServerRecipe(runControl, parametersStorage, barrier);
-    };
-
-    const auto onDone = [parametersStorage, tempCoreFileStorage] {
-        if (tempCoreFileStorage->exists())
-            tempCoreFileStorage->removeFile();
-        if (parametersStorage->isSnapshot() && !parametersStorage->coreFile().isEmpty())
-            parametersStorage->coreFile().removeFile();
-    };
-
-    const Group recipe {
-        runStorage(),
-        parametersStorage,
-        driverStorage,
-        terminalStorage,
-        tempCoreFileStorage,
-        continueOnError,
-        onGroupSetup(onSetup),
-        Group {
-            coreFileRecipe(runControl(), parametersStorage, tempCoreFileStorage),
-            When (terminalKicker) >> Do {
-                fixupParamsRecipe(runControl(), parametersStorage),
-                When (debugServerKicker) >> Do {
-                    startEnginesRecipe(runControl(), parametersStorage, driverStorage)
-                }
-            }
-        }.withCancel(canceler()),
-        finalizeRecipe(driverStorage, terminalStorage),
-        onGroupDone(onDone)
-    };
-    d->m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
-        if (result == DoneWith::Success)
-            reportStopped();
-        else
-            reportFailure();
-    });
-}
-
 Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initialParameters,
                      const std::function<void(DebuggerRunParameters &)> &parametersModifier)
 {
@@ -841,41 +771,6 @@ RunWorker *createDebuggerWorker(RunControl *runControl, const DebuggerRunParamet
 {
     return new RecipeRunner(runControl,
                             debuggerRecipe(runControl, initialParameters, parametersModifier));
-}
-
-void DebuggerRunTool::stop()
-{
-    if (!d->m_taskTreeRunner.isRunning())
-        return;
-
-    emit canceled();
-}
-
-DebuggerRunParameters &DebuggerRunTool::runParameters()
-{
-    return d->m_runParameters;
-}
-
-DebuggerRunTool::DebuggerRunTool(RunControl *runControl)
-    : RunWorker(runControl)
-    , d(new DebuggerRunToolPrivate{this, DebuggerRunParameters::fromRunControl(runControl)})
-{
-    setId("DebuggerRunTool");
-    runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
-    runControl->setPromptToStop([](bool *optionalPrompt) {
-        return RunControl::showPromptToStopDialog(
-            Tr::tr("Close Debugging Session"),
-            Tr::tr("A debugging session is still in progress. "
-                                "Terminating the session in the current"
-                                " state can leave the target in an inconsistent state."
-                                " Would you still like to terminate it?"),
-                QString(), QString(), optionalPrompt);
-    });
-}
-
-DebuggerRunTool::~DebuggerRunTool()
-{
-    delete d;
 }
 
 class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory

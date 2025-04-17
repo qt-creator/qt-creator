@@ -135,7 +135,7 @@ namespace Internal {
 
 static const char localsPrefixC[] = "local.";
 
-// Accessed by DebuggerRunTool
+// Accessed by debuggerRecipe()
 DebuggerEngine *createCdbEngine()
 {
     return new CdbEngine;

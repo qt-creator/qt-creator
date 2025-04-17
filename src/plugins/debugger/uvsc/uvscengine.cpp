@@ -58,7 +58,7 @@ static void allowRootLocals(const FilePath &projectFile)
     }
 }
 
-// Accessed by DebuggerRunTool.
+// Accessed by debuggerRecipe()
 DebuggerEngine *createUvscEngine()
 {
     return new UvscEngine;

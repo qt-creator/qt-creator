@@ -858,10 +858,10 @@ static RunWorker *createWorker(RunControl *runControl)
     QTC_ASSERT(isIosDeviceInstance == isIosDeviceType,
                runControl->postMessage(Tr::tr("Internal error."), ErrorMessageFormat); return nullptr);
     DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
-    // TODO cannot use setupPortsGatherer() from DebuggerRunTool, because that also requests
+    // TODO cannot use setupPortsGatherer(), because that also requests
     // the "debugChannel", which then results in runControl trying to retrieve ports&URL for that
     // via IDevice, which doesn't really work with the iOS setup, and also completely changes
-    // how the DebuggerRunTool works, breaking debugging on iOS <= 16 devices.
+    // how the debuggerRecipe() works, breaking debugging on iOS <= 16 devices.
     if (rp.isQmlDebugging())
         runControl->requestQmlChannel();
 

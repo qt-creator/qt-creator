@@ -12,8 +12,6 @@
 
 namespace Debugger {
 
-namespace Internal { class DebuggerRunToolPrivate; }
-
 DEBUGGER_EXPORT Tasking::Group debuggerRecipe(
     ProjectExplorer::RunControl *runControl,
     const DebuggerRunParameters &initialParameters,
@@ -23,26 +21,6 @@ DEBUGGER_EXPORT ProjectExplorer::RunWorker *createDebuggerWorker(
     ProjectExplorer::RunControl *runControl,
     const DebuggerRunParameters &initialParameters,
     const std::function<void(DebuggerRunParameters &)> &parametersModifier = {});
-
-class DEBUGGER_EXPORT DebuggerRunTool final : public ProjectExplorer::RunWorker
-{
-    Q_OBJECT
-
-public:
-    explicit DebuggerRunTool(ProjectExplorer::RunControl *runControl);
-    ~DebuggerRunTool() override;
-
-    void start() final;
-    void stop() final;
-
-    DebuggerRunParameters &runParameters();
-
-signals:
-    void canceled();
-
-private:
-    Internal::DebuggerRunToolPrivate *d;
-};
 
 void setupDebuggerRunWorker();
 
