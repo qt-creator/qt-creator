@@ -66,7 +66,11 @@ DesktopDevice::DesktopDevice()
         process.setTerminalMode(TerminalMode::Detached);
         process.setEnvironment(realEnv);
         process.setCommand(CommandLine{*shell});
-        process.setWorkingDirectory(path);
+        FilePath workingDir = path;
+        if (!workingDir.isDir())
+            workingDir = workingDir.parentDir();
+        if (QTC_GUARD(workingDir.exists()))
+            process.setWorkingDirectory(workingDir);
         process.start();
 
         return {};

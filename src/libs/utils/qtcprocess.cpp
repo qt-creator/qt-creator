@@ -377,12 +377,17 @@ public:
             penv = Environment::systemEnvironment().toProcessEnvironment();
         const QStringList senv = penv.toStringList();
 
+        FilePath workingDir = m_setup.m_workingDirectory;
+        if (!workingDir.isDir())
+            workingDir = workingDir.parentDir();
+        if (!QTC_GUARD(workingDir.exists()))
+            workingDir = workingDir.withNewPath({});
         bool startResult = m_ptyProcess->startProcess(executable,
                                                       HostOsInfo::isWindowsHost()
                                                           ? QStringList{m_setup.m_nativeArguments}
                                                                 << arguments
                                                           : arguments,
-                                                      m_setup.m_workingDirectory.nativePath(),
+                                                      workingDir.nativePath(),
                                                       senv,
                                                       m_setup.m_ptyData->size().width(),
                                                       m_setup.m_ptyData->size().height());
