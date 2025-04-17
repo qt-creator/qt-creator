@@ -4,6 +4,7 @@
 #pragma once
 
 #include <gmock/gmock.h>
+#include <matchers/property-matcher.h>
 
 using testing::_;
 using testing::A;
