@@ -756,6 +756,11 @@ static void parametersModifier(RunControl *runControl, DebuggerRunParameters &rp
     }
 }
 
+static QString msgOnlyCppDebuggingSupported()
+{
+    return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
+};
+
 static RunWorker *createWorker(RunControl *runControl)
 {
     IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
@@ -785,22 +790,17 @@ static RunWorker *createWorker(RunControl *runControl)
                                   rp.isCppDebugging()};
         runner = iosRunner = new IosRunner(runControl, debugInfo);
     } else {
-        QTC_CHECK(rp.isCppDebugging());
-        runner = new RecipeRunner(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ true));
-        const auto msgOnlyCppDebuggingSupported = [] {
-            return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
-        };
-        if (!rp.isCppDebugging()) {
-            // TODO: The message is not shown currently, fix me before 17.0.
-            runControl->postMessage(msgOnlyCppDebuggingSupported(), ErrorMessageFormat);
-            return nullptr;
-        }
+        QTC_ASSERT(rp.isCppDebugging(),
+                   // TODO: The message is not shown currently, fix me before 17.0.
+                   runControl->postMessage(msgOnlyCppDebuggingSupported(), ErrorMessageFormat);
+                   return nullptr);
         if (rp.isQmlDebugging()) {
             rp.setQmlDebugging(false);
             // TODO: The message is not shown currently, fix me before 17.0.
             runControl->postMessage(msgOnlyCppDebuggingSupported(), LogMessageFormat);
         }
         rp.setInferiorExecutable(data->localExecutable);
+        runner = new RecipeRunner(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ true));
     }
 
     if (isIosDeviceInstance) {
