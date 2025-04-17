@@ -72,7 +72,6 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const final;
 
-    QString channelString() const final;
     Utils::CommandLine command() const final;
 
     QSet<StartupMode> supportedStartupModes() const final;
@@ -113,20 +112,6 @@ QString StLinkUtilGdbServerProvider::defaultInitCommands()
 QString StLinkUtilGdbServerProvider::defaultResetCommands()
 {
     return {};
-}
-
-QString StLinkUtilGdbServerProvider::channelString() const
-{
-    switch (startupMode()) {
-    case StartupOnNetwork:
-        // Just return as "host:port" form.
-        return GdbServerProvider::channelString();
-    case StartupOnPipe:
-        // Unsupported mode
-        return {};
-    default: // wrong
-        return {};
-    }
 }
 
 CommandLine StLinkUtilGdbServerProvider::command() const

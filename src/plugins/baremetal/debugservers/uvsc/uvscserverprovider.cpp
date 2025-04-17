@@ -154,11 +154,6 @@ bool UvscServerProvider::isValid() const
     return m_channel.isValid();
 }
 
-QString UvscServerProvider::channelString() const
-{
-    return m_channel.toString();
-}
-
 Result<> UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
                                                       RunControl *runControl) const
 {
@@ -190,7 +185,7 @@ Result<> UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &r
     rp.setInferior(inferior);
     rp.setSymbolFile(bin);
     rp.setStartMode(AttachToRemoteServer);
-    rp.setRemoteChannel(channelString());
+    rp.setRemoteChannel(channelPipe());
     rp.setUseContinueInsteadOfRun(true);
     return ResultOk;
 }

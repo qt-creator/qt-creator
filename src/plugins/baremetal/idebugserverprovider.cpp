@@ -83,9 +83,9 @@ QUrl IDebugServerProvider::channel() const
     return m_channel;
 }
 
-QString IDebugServerProvider::channelString() const
+QString IDebugServerProvider::channelPipe() const
 {
-    return m_channel.toString();
+    return {};
 }
 
 QString IDebugServerProvider::id() const

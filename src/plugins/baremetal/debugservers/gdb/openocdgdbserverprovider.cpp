@@ -60,7 +60,7 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const final;
 
-    QString channelString() const final;
+    QString channelPipe() const final;
     Utils::CommandLine command() const final;
 
     QSet<StartupMode> supportedStartupModes() const final;
@@ -105,28 +105,17 @@ QString OpenOcdGdbServerProvider::defaultResetCommands()
     return {"monitor reset halt\n"};
 }
 
-QString OpenOcdGdbServerProvider::channelString() const
+QString OpenOcdGdbServerProvider::channelPipe() const
 {
-    switch (startupMode()) {
-    case StartupOnNetwork:
-        // Just return as "host:port" form.
-        return GdbServerProvider::channelString();
-    case StartupOnPipe: {
-        // In the pipe mode need to add quotes to each item of arguments;
-        // otherwise running will be stuck.
-        CommandLine cmd = command();
-        QStringList args = {"|", cmd.executable().path()};
-        for (const QString &a : ProcessArgs::splitArgs(cmd.arguments(), HostOsInfo::hostOs())) {
-            if (a.startsWith('\"') && a.endsWith('\"'))
-                args << a;
-            else
-                args << ('\"' + a + '\"');
-        }
-        return args.join(' ');
+    CommandLine cmd = command();
+    QStringList args = {cmd.executable().path()};
+    for (const QString &a : ProcessArgs::splitArgs(cmd.arguments(), HostOsInfo::hostOs())) {
+        if (a.startsWith('\"') && a.endsWith('\"'))
+            args << a;
+        else
+            args << ('\"' + a + '\"');
     }
-    default: // wrong
-        return {};
-    }
+    return args.join(' ');
 }
 
 CommandLine OpenOcdGdbServerProvider::command() const

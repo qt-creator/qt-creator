@@ -84,7 +84,6 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const final;
 
-    QString channelString() const final;
     CommandLine command() const final;
 
     QSet<StartupMode> supportedStartupModes() const final;
@@ -128,17 +127,6 @@ QString JLinkGdbServerProvider::defaultInitCommands()
 QString JLinkGdbServerProvider::defaultResetCommands()
 {
     return {"monitor reset halt\n"};
-}
-
-QString JLinkGdbServerProvider::channelString() const
-{
-    switch (startupMode()) {
-    case StartupOnNetwork:
-        // Just return as "host:port" form.
-        return GdbServerProvider::channelString();
-    default: // wrong
-        return {};
-    }
 }
 
 CommandLine JLinkGdbServerProvider::command() const

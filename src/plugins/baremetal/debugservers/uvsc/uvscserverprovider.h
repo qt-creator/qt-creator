@@ -52,7 +52,6 @@ public:
     ProjectExplorer::RunWorker *targetRunner(ProjectExplorer::RunControl *runControl) const final;
 
     bool isValid() const override;
-    QString channelString() const final;
 
     static QString buildDllRegistryKey(const Uv::DriverSelection &driver);
     static QString adjustFlashAlgorithmProperty(const QString &property);

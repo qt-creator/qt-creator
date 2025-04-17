@@ -53,7 +53,7 @@ public:
     void setChannel(const QUrl &channel);
     void setChannel(const QString &host, int port);
 
-    virtual QString channelString() const;
+    virtual QString channelPipe() const;
 
     QString id() const;
     QString typeDisplayName() const;

@@ -130,7 +130,8 @@ void GdbServerProvider::toMap(Store &data) const
 
 bool GdbServerProvider::isValid() const
 {
-    return !channelString().isEmpty();
+    return (m_startupMode == GdbServerProvider::StartupOnNetwork && channel().isValid()) ||
+           (m_startupMode == GdbServerProvider::StartupOnPipe && !channelPipe().isEmpty());
 }
 
 Result<> GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
@@ -155,7 +156,10 @@ Result<> GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp
     rp.setStartMode(AttachToRemoteServer);
     rp.setCommandsAfterConnect(initCommands()); // .. and here?
     rp.setCommandsForReset(resetCommands());
-    rp.setRemoteChannel(channelString());
+    if (m_startupMode == GdbServerProvider::StartupOnNetwork)
+        rp.setRemoteChannel(channel());
+    else
+        rp.setRemoteChannelPipe(channelPipe());
     rp.setUseContinueInsteadOfRun(true);
     rp.setUseExtendedRemote(useExtendedRemote());
     rp.setPeripheralDescriptionFile(m_peripheralDescriptionFile);

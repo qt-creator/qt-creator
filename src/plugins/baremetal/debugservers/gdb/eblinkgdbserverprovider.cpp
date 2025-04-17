@@ -79,7 +79,6 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const final;
 
-    QString channelString() const final;
     Utils::CommandLine command() const final;
 
     QSet<StartupMode> supportedStartupModes() const final;
@@ -136,17 +135,6 @@ QString EBlinkGdbServerProvider::scriptFileWoExt() const
 {
     // Server starts only without extension in scriptname
     return m_deviceScript.absolutePath().pathAppended(m_deviceScript.baseName()).path();
-}
-
-QString EBlinkGdbServerProvider::channelString() const
-{
-    switch (startupMode()) {
-    case StartupOnNetwork:
-        // Just return as "host:port" form.
-        return GdbServerProvider::channelString();
-    default:
-        return {};
-    }
 }
 
 CommandLine EBlinkGdbServerProvider::command() const
