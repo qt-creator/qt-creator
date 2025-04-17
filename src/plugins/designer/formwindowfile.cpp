@@ -56,8 +56,6 @@ Result<> FormWindowFile::open(const FilePath &filePath, const FilePath &realFile
 
     QString contents;
     TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath(), &contents);
-    if (readResult.code == TextFileFormat::ReadEncodingError)
-        return ResultError(readResult.error);
     if (readResult.code != TextFileFormat::ReadSuccess)
         return ResultError(readResult.error);
 
