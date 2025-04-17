@@ -3,31 +3,19 @@
 
 #include "debuggerruncontrol.h"
 
-#include "debuggermainwindow.h"
-#include "debuggertr.h"
-
 #include "console/console.h"
 #include "debuggeractions.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
 #include "debuggerkitaspect.h"
-#include "breakhandler.h"
+#include "debuggermainwindow.h"
+#include "debuggertr.h"
 #include "enginemanager.h"
 
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/environmentaspect.h> // For the environment
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorericons.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
-#include <projectexplorer/target.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/taskhub.h>
-#include <projectexplorer/toolchain.h>
 
 #include <remotelinux/remotelinux_constants.h>
 
@@ -37,21 +25,12 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
-#include <utils/portlist.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 #include <utils/temporaryfile.h>
-#include <utils/url.h>
 #include <utils/winutils.h>
 
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/messagebox.h>
-
-using namespace Core;
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Tasking;
@@ -68,7 +47,7 @@ DebuggerEngine *createPdbEngine();
 DebuggerEngine *createQmlEngine();
 DebuggerEngine *createLldbEngine();
 DebuggerEngine *createUvscEngine();
-DebuggerEngine *createDapEngine(Utils::Id runMode = ProjectExplorer::Constants::NO_RUN_MODE);
+DebuggerEngine *createDapEngine(Id runMode = ProjectExplorer::Constants::NO_RUN_MODE);
 
 static QString noEngineMessage()
 {
@@ -769,7 +748,7 @@ RunWorker *createDebuggerWorker(RunControl *runControl, const DebuggerRunParamet
                             debuggerRecipe(runControl, initialParameters, parametersModifier));
 }
 
-class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+class DebuggerRunWorkerFactory final : public RunWorkerFactory
 {
 public:
     DebuggerRunWorkerFactory()
