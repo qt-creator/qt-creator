@@ -16,8 +16,7 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 // Parse helper: Determine the correct binary to run:
 // Expand to full wizard path if it is relative and located
@@ -213,5 +212,4 @@ Result<> runCustomWizardGeneratorScript(const QString &targetPath,
                                      false, fieldMap, nullptr);
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

@@ -16,8 +16,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QDebug>
 #include <QFile>
@@ -160,35 +160,34 @@ BaseFileWizard *CustomWizard::create(const WizardDialogParameters &p) const
 }
 
 // Read out files and store contents with field contents replaced.
-static bool createFile(CustomWizardFile cwFile,
-                       const QString &sourceDirectory,
-                       const QString &targetDirectory,
-                       const CustomProjectWizard::FieldReplacementMap &fm,
-                       GeneratedFiles *files,
-                       QString *errorMessage)
+static Result<> createFile(CustomWizardFile cwFile,
+                           const QString &sourceDirectory,
+                           const FilePath &targetDirectory,
+                           const CustomProjectWizard::FieldReplacementMap &fm,
+                           GeneratedFiles *files)
 {
     const QChar slash =  QLatin1Char('/');
     const QString sourcePath = sourceDirectory + slash + cwFile.source;
     // Field replacement on target path
     CustomWizardContext::replaceFields(fm, &cwFile.target);
-    const QString targetPath = targetDirectory + slash + cwFile.target;
+    const FilePath targetPath = targetDirectory.pathAppended(cwFile.target);
     if (CustomWizardPrivate::verbose)
         qDebug() << "generating " << targetPath << sourcePath << fm;
 
     // Read contents of source file
-    FileReader reader;
-    if (!reader.fetch(FilePath::fromString(sourcePath), errorMessage))
-        return false;
+    const Result<QByteArray> contents = FilePath::fromString(sourcePath).fileContents();
+    if (!contents)
+        return ResultError(contents.error());
 
     GeneratedFile generatedFile;
-    generatedFile.setFilePath(FilePath::fromString(targetPath).cleanPath());
+    generatedFile.setFilePath(targetPath.cleanPath());
     if (cwFile.binary) {
         // Binary file: Set data.
         generatedFile.setBinary(true);
-        generatedFile.setBinaryContents(reader.data());
+        generatedFile.setBinaryContents(*contents);
     } else {
         // Template file: Preprocess.
-        const QString contentsIn = QString::fromLocal8Bit(reader.text());
+        const QString contentsIn = QString::fromLocal8Bit(normalizeNewlines(*contents));
         generatedFile.setContents(CustomWizardContext::processFile(fm, contentsIn));
     }
 
@@ -199,7 +198,7 @@ static bool createFile(CustomWizardFile cwFile,
         attributes |= GeneratedFile::OpenProjectAttribute;
     generatedFile.setAttributes(attributes);
     files->push_back(generatedFile);
-    return true;
+    return ResultOk;
 }
 
 // Helper to find a specific wizard page of a wizard by type.
@@ -237,7 +236,7 @@ GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *error
     if (CustomWizardPrivate::verbose) {
         QString logText;
         QTextStream str(&logText);
-        str << "CustomWizard::generateFiles: " << ctx->targetPath << '\n';
+        str << "CustomWizard::generateFiles: " << ctx->targetPath.toUserOutput() << '\n';
         const FieldReplacementMap::const_iterator cend = context()->replacements.constEnd();
         for (FieldReplacementMap::const_iterator it = context()->replacements.constBegin(); it != cend; ++it)
             str << "  '" << it.key() << "' -> '" << it.value() << "'\n";
@@ -308,10 +307,14 @@ GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const
             return rc;
     }
     // Add the template files specified by the <file> elements.
-    for (const CustomWizardFile &file : std::as_const(d->m_parameters->files))
-        if (!createFile(file, d->m_parameters->directory, ctx->targetPath.toUrlishString(), context()->replacements,
-                        &rc, errorMessage))
+    for (const CustomWizardFile &file : std::as_const(d->m_parameters->files)) {
+        const Result<> res = createFile(file, d->m_parameters->directory, ctx->targetPath, context()->replacements, &rc);
+        if (!res) {
+            if (errorMessage)
+                errorMessage->append(res.error());
             return {};
+        }
+    }
 
     return rc;
 }
