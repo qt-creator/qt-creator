@@ -48,10 +48,9 @@ QByteArray CppParser::getFileContent(const FilePath &filePath) const
         fileContent = *source;
     } else {
         const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
-        const TextFileFormat::ReadResult result =
-            TextFileFormat::readFileUTF8(filePath, codec, &fileContent);
-        if (result.code != TextFileFormat::ReadSuccess)
-            qDebug() << "Failed to read file" << filePath << ":" << result.error;
+        const Result<> result = TextFileFormat::readFileUtf8(filePath, codec, &fileContent);
+        if (!result)
+            qDebug() << "Failed to read file" << filePath << ":" << result.error();
     }
     fileContent.replace("\r\n", "\n");
     return fileContent;

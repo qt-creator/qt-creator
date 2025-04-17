@@ -273,18 +273,18 @@ TextFileFormat::ReadResult
     return result;
 }
 
-TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const FilePath &filePath,
-                                                        const QTextCodec *defaultCodec,
-                                                        QByteArray *plainText)
+Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
+                                      const QTextCodec *defaultCodec,
+                                      QByteArray *plainText)
 {
     QByteArray data;
     try {
         FileReader reader;
         if (const Result<> res = reader.fetch(filePath); !res)
-            return {TextFileFormat::ReadIOError, res.error()};
+            return res;
         data = reader.data();
     } catch (const std::bad_alloc &) {
-        return {TextFileFormat::ReadMemoryAllocationError, Tr::tr("Out of memory.")};
+        return ResultError(Tr::tr("Out of memory."));
     }
 
     TextFileFormat format = TextFileFormat::detect(data);
@@ -297,10 +297,10 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const FilePath &filePath
         if (format.lineTerminationMode == TextFileFormat::CRLFLineTerminator)
             data.replace("\r\n", "\n");
         *plainText = data;
-        return TextFileFormat::ReadSuccess;
+    } else {
+        *plainText = target.toUtf8();
     }
-    *plainText = target.toUtf8();
-    return TextFileFormat::ReadSuccess;
+    return ResultOk;
 }
 
 tl::expected<QString, TextFileFormat::ReadResult>

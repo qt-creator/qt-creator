@@ -63,8 +63,8 @@ public:
     static ReadResult readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
                                QString *plainText, TextFileFormat *format,
                                QByteArray *decodingErrorSample = nullptr);
-    static ReadResult readFileUTF8(const FilePath &filePath, const QTextCodec *defaultCodec,
-                                   QByteArray *plainText);
+    static Utils::Result<> readFileUtf8(const FilePath &filePath, const QTextCodec *defaultCodec,
+                                        QByteArray *plainText);
 
     static tl::expected<QString, ReadResult> readFile(const FilePath &filePath,
                                                       const QTextCodec *defaultCodec);

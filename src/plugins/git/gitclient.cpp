@@ -3865,8 +3865,7 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
         if (content.isEmpty())
             return nullptr;
         QByteArray fileContent;
-        if (TextFileFormat::readFileUTF8(path, nullptr, &fileContent).code
-                == TextFileFormat::ReadSuccess) {
+        if (TextFileFormat::readFileUtf8(path, nullptr, &fileContent)) {
             if (fileContent == content)
                 return nullptr; // open the file for read/write
         }
