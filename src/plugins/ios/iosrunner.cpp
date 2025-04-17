@@ -474,8 +474,6 @@ public:
     void start() override;
     void stop() final;
 
-    bool isAppRunning() const;
-
 private:
     void handleGotServerPorts(Ios::IosToolHandler *handler, const FilePath &bundlePath,
                               const QString &deviceId, Port gdbPort, Port qmlPort);
@@ -513,7 +511,7 @@ IosRunner::~IosRunner()
 
 void IosRunner::start()
 {
-    if (m_toolHandler && isAppRunning())
+    if (m_toolHandler && m_toolHandler->isRunning())
         m_toolHandler->stop();
 
     m_cleanExit = false;
@@ -563,7 +561,7 @@ void IosRunner::start()
 
 void IosRunner::stop()
 {
-    if (isAppRunning())
+    if (m_toolHandler && m_toolHandler->isRunning())
         m_toolHandler->stop();
 }
 
@@ -661,11 +659,6 @@ void IosRunner::handleErrorMsg(const QString &msg)
 void IosRunner::handleToolExited(int code)
 {
     m_cleanExit = (code == 0);
-}
-
-bool IosRunner::isAppRunning() const
-{
-    return m_toolHandler && m_toolHandler->isRunning();
 }
 
 static Result<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
