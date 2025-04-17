@@ -160,11 +160,10 @@ BaseFileWizard *CustomWizard::create(const WizardDialogParameters &p) const
 }
 
 // Read out files and store contents with field contents replaced.
-static Result<> createFile(CustomWizardFile cwFile,
-                           const QString &sourceDirectory,
-                           const FilePath &targetDirectory,
-                           const CustomProjectWizard::FieldReplacementMap &fm,
-                           GeneratedFiles *files)
+static Result<GeneratedFile> createFile(CustomWizardFile cwFile,
+                                        const QString &sourceDirectory,
+                                        const FilePath &targetDirectory,
+                                        const CustomProjectWizard::FieldReplacementMap &fm)
 {
     const QChar slash =  QLatin1Char('/');
     const QString sourcePath = sourceDirectory + slash + cwFile.source;
@@ -197,8 +196,7 @@ static Result<> createFile(CustomWizardFile cwFile,
     if (cwFile.openProject)
         attributes |= GeneratedFile::OpenProjectAttribute;
     generatedFile.setAttributes(attributes);
-    files->push_back(generatedFile);
-    return ResultOk;
+    return generatedFile;
 }
 
 // Helper to find a specific wizard page of a wizard by type.
@@ -242,7 +240,13 @@ GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *error
             str << "  '" << it.key() << "' -> '" << it.value() << "'\n";
         qWarning("%s", qPrintable(logText));
     }
-    return generateWizardFiles(errorMessage);
+    const Result<GeneratedFiles> res = generateWizardFiles();
+    if (!res) {
+        if (errorMessage)
+            *errorMessage = res.error();
+        return {};
+    }
+    return res.value();
 }
 
 Result<> CustomWizard::writeFiles(const GeneratedFiles &files) const
@@ -285,7 +289,7 @@ Result<> CustomWizard::writeFiles(const GeneratedFiles &files) const
     return ResultOk;
 }
 
-GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const
+Result<GeneratedFiles> CustomWizard::generateWizardFiles() const
 {
     GeneratedFiles rc;
     const CustomWizardContextPtr ctx = context();
@@ -296,24 +300,24 @@ GeneratedFiles CustomWizard::generateWizardFiles(QString *errorMessage) const
         qDebug() << "CustomWizard::generateWizardFiles: in "
                  << ctx->targetPath << ", using: " << ctx->replacements;
 
-    // If generator script is non-empty, do a dry run to get it's files.
+    // If generator script is non-empty, do a dry run to get its files.
     if (!d->m_parameters->filesGeneratorScript.isEmpty()) {
-        rc += dryRunCustomWizardGeneratorScript(scriptWorkingDirectory(ctx, d->m_parameters),
-                                                          d->m_parameters->filesGeneratorScript,
-                                                          d->m_parameters->filesGeneratorScriptArguments,
-                                                          ctx->replacements,
-                                                          errorMessage);
-        if (rc.isEmpty())
-            return rc;
+        Result<QList<GeneratedFile>> res =
+           dryRunCustomWizardGeneratorScript(scriptWorkingDirectory(ctx, d->m_parameters),
+                                             d->m_parameters->filesGeneratorScript,
+                                             d->m_parameters->filesGeneratorScriptArguments,
+                                             ctx->replacements);
+        if (!res)
+            return res;
+        rc.append(res.value());
     }
     // Add the template files specified by the <file> elements.
     for (const CustomWizardFile &file : std::as_const(d->m_parameters->files)) {
-        const Result<> res = createFile(file, d->m_parameters->directory, ctx->targetPath, context()->replacements, &rc);
-        if (!res) {
-            if (errorMessage)
-                errorMessage->append(res.error());
-            return {};
-        }
+        const Result<GeneratedFile> res = createFile(file, d->m_parameters->directory,
+                                                     ctx->targetPath, context()->replacements);
+        if (!res)
+            return ResultError(res.error());
+        rc.append(res.value());
     }
 
     return rc;
@@ -514,8 +518,13 @@ GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QString *err
     ctx->replacements = fieldReplacementMap;
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::generateFiles" << dialog << ctx->targetPath << ctx->replacements;
-    const GeneratedFiles generatedFiles = generateWizardFiles(errorMessage);
-    return generatedFiles;
+    const Result<GeneratedFiles> generatedFiles = generateWizardFiles();
+    if (!generatedFiles) {
+        if (errorMessage)
+            *errorMessage = generatedFiles.error();
+        return {};
+    }
+    return *generatedFiles;
 }
 
 /*!

@@ -14,6 +14,7 @@
 #include <QFileInfo>
 #include <QDebug>
 
+using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer::Internal {
@@ -114,39 +115,37 @@ static Result<>
     \sa runCustomWizardGeneratorScript, ProjectExplorer::CustomWizard
 */
 
-Core::GeneratedFiles
+Result<QList<GeneratedFile>>
     dryRunCustomWizardGeneratorScript(const QString &targetPath,
                                       const QStringList &script,
                                       const QList<GeneratorScriptArgument> &arguments,
-                                      const QMap<QString, QString> &fieldMap,
-                                      QString *errorMessage)
+                                      const QMap<QString, QString> &fieldMap)
 {
     // Run in temporary directory as the target path may not exist yet.
     QString stdOut;
-    const Result<> res = runGenerationScriptHelper(Utils::TemporaryDirectory::masterDirectoryFilePath(),
-                                                 script, arguments, true, fieldMap, &stdOut);
-    if (!res) {
-        *errorMessage = res.error();
-        return Core::GeneratedFiles();
-    }
-    Core::GeneratedFiles files;
+    const Result<> res = runGenerationScriptHelper(TemporaryDirectory::masterDirectoryFilePath(),
+                                                   script, arguments, true, fieldMap, &stdOut);
+    if (!res)
+        return ResultError(res.error());
+
+    GeneratedFiles files;
     // Parse the output consisting of lines with ',' separated tokens.
     // (file name + attributes matching those of the <file> element)
     const QStringList lines = stdOut.split(QLatin1Char('\n'));
     for (const QString &line : lines) {
         const QString trimmed = line.trimmed();
         if (!trimmed.isEmpty()) {
-            Core::GeneratedFile file;
-            Core::GeneratedFile::Attributes attributes = Core::GeneratedFile::CustomGeneratorAttribute;
+            GeneratedFile file;
+            GeneratedFile::Attributes attributes = GeneratedFile::CustomGeneratorAttribute;
             const QStringList tokens = line.split(QLatin1Char(','));
             const int count = tokens.count();
             for (int i = 0; i < count; i++) {
                 const QString &token = tokens.at(i);
                 if (i) {
                     if (token == QLatin1String(customWizardFileOpenEditorAttributeC))
-                        attributes |= Core::GeneratedFile::OpenEditorAttribute;
+                        attributes |= GeneratedFile::OpenEditorAttribute;
                     else if (token == QLatin1String(customWizardFileOpenProjectAttributeC))
-                            attributes |= Core::GeneratedFile::OpenProjectAttribute;
+                            attributes |= GeneratedFile::OpenProjectAttribute;
                 } else {
                     // Token 0 is file name. Wizard wants native names.
                     // Expand to full path if relative
@@ -165,7 +164,7 @@ Core::GeneratedFiles
     if (CustomWizard::verbose()) {
         QDebug nospace = qDebug().nospace();
         nospace << script << " generated:\n";
-        for (const Core::GeneratedFile &f : std::as_const(files))
+        for (const GeneratedFile &f : std::as_const(files))
             nospace << ' ' << f.filePath() << f.attributes() << '\n';
     }
     return files;

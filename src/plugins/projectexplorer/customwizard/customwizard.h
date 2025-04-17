@@ -80,7 +80,7 @@ protected:
     using CustomWizardContextPtr = std::shared_ptr<Internal::CustomWizardContext>;
 
     // generate files in path
-    Core::GeneratedFiles generateWizardFiles(QString *errorMessage) const;
+    Utils::Result<Core::GeneratedFiles> generateWizardFiles() const;
     // Create replacement map as static base fields + QWizard fields
     FieldReplacementMap replacementMap(const QWizard *w) const;
     Utils::Result<> writeFiles(const Core::GeneratedFiles &files) const override;
