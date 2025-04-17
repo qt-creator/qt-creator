@@ -131,7 +131,7 @@ private:
 
     QbsBuildStep *qbsStep() const;
 
-    bool validateProperties(FancyLineEdit *edit, QString *errorMessage);
+    Result<> validateProperties(FancyLineEdit *edit);
 
     class Property
     {
@@ -485,8 +485,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
 
     propertyEdit = new FancyLineEdit(this);
     propertyEdit->setToolTip(QbsProjectManager::Tr::tr("Properties to pass to the project."));
-    propertyEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
-        return validateProperties(edit, errorMessage);
+    propertyEdit->setValidationFunction([this](FancyLineEdit *edit) {
+        return validateProperties(edit);
     });
 
     defaultInstallDirCheckBox = new QCheckBox(this);
@@ -654,15 +654,12 @@ QbsBuildStep *QbsBuildStepConfigWidget::qbsStep() const
     return m_qbsStep;
 }
 
-bool QbsBuildStepConfigWidget::validateProperties(FancyLineEdit *edit, QString *errorMessage)
+Result<> QbsBuildStepConfigWidget::validateProperties(FancyLineEdit *edit)
 {
     ProcessArgs::SplitError err;
     const QStringList argList = ProcessArgs::splitArgs(edit->text(), HostOsInfo::hostOs(), false, &err);
-    if (err != ProcessArgs::SplitOk) {
-        if (errorMessage)
-            *errorMessage = QbsProjectManager::Tr::tr("Could not split properties.");
-        return false;
-    }
+    if (err != ProcessArgs::SplitOk)
+        return ResultError(QbsProjectManager::Tr::tr("Could not split properties."));
 
     QList<Property> properties;
     const MacroExpander * const expander = m_qbsStep->macroExpander();
@@ -678,19 +675,14 @@ bool QbsBuildStepConfigWidget::validateProperties(FancyLineEdit *edit, QString *
             if (m_qbsStep->selectedAbis.isManagedByTarget())
                 specialProperties << Constants::QBS_ARCHITECTURES;
             if (specialProperties.contains(propertyName)) {
-                if (errorMessage) {
-                    *errorMessage = QbsProjectManager::Tr::tr("Property \"%1\" cannot be set here. "
-                                          "Please use the dedicated UI element.").arg(propertyName);
-                }
-                return false;
+                return ResultError(QbsProjectManager::Tr::tr("Property \"%1\" cannot be set here. "
+                                          "Please use the dedicated UI element.").arg(propertyName));
             }
             const QString rawValue = rawArg.mid(pos + 1);
             Property property(propertyName, rawValue, expander->expand(rawValue));
             properties.append(property);
         } else {
-            if (errorMessage)
-                *errorMessage = QbsProjectManager::Tr::tr("No \":\" found in property definition.");
-            return false;
+            return ResultError(QbsProjectManager::Tr::tr("No \":\" found in property definition."));
         }
     }
 
@@ -698,7 +690,7 @@ bool QbsBuildStepConfigWidget::validateProperties(FancyLineEdit *edit, QString *
         m_propertyCache = properties;
         applyCachedProperties();
     }
-    return true;
+    return ResultOk;
 }
 
 // --------------------------------------------------------------------

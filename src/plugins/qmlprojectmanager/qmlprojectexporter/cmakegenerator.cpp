@@ -17,6 +17,8 @@
 
 #include <set>
 
+using namespace Utils;
+
 namespace QmlProjectManager {
 namespace QmlProjectExporter {
 
@@ -402,12 +404,12 @@ bool CMakeGenerator::findFile(const NodePtr &node, const Utils::FilePath &file) 
     return false;
 }
 
-void CMakeGenerator::insertFile(NodePtr &node, const Utils::FilePath &path) const
+void CMakeGenerator::insertFile(NodePtr &node, const FilePath &path) const
 {
-    QString error;
-    if (!Utils::FileNameValidatingLineEdit::validateFileName(path.fileName(), false, &error)) {
+    const Result<> valid = FileNameValidatingLineEdit::validateFileName(path.fileName(), false);
+    if (!valid) {
         if (!isImageFile(path))
-            logIssue(ProjectExplorer::Task::Error, error, path);
+            logIssue(ProjectExplorer::Task::Error, valid.error(), path);
     }
 
     if (path.fileName() == "qmldir") {

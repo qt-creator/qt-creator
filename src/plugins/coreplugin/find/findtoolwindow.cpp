@@ -30,21 +30,18 @@ namespace Core::Internal {
 
 static FindToolWindow *m_instance = nullptr;
 
-static bool validateRegExp(Utils::FancyLineEdit *edit, QString *errorMessage)
+static Result<> validateRegExp(FancyLineEdit *edit)
 {
-    if (edit->text().isEmpty()) {
-        if (errorMessage)
-            *errorMessage = Tr::tr("Empty search term.");
-        return false;
-    }
+    if (edit->text().isEmpty())
+        return ResultError(Tr::tr("Empty search term."));
+
     if (Find::hasFindFlag(FindRegularExpression)) {
         QRegularExpression regexp(edit->text());
-        bool regexpValid = regexp.isValid();
-        if (!regexpValid && errorMessage)
-            *errorMessage = regexp.errorString();
-        return regexpValid;
+        if (!regexp.isValid())
+            return ResultError(regexp.errorString());
     }
-    return true;
+
+    return ResultOk;
 }
 
 static bool isChildOf(QWidget *parent, QWidget *child)

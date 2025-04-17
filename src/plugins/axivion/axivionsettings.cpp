@@ -87,29 +87,26 @@ bool PathMapping::operator!=(const PathMapping &other) const
     return !(*this == other);
 }
 
-static bool analysisPathValid(const FilePath &analysisPath, QString *error)
+static Result<> analysisPathValid(const FilePath &analysisPath)
 {
     if (analysisPath.isEmpty())
-        return true;
-    if (!analysisPath.isLocal() || analysisPath.isAbsolutePath()) {
-        if (error)
-            *error = Tr::tr("Path must be relative.");
-        return false;
-    }
+        return ResultOk;
+
+    if (!analysisPath.isLocal() || analysisPath.isAbsolutePath())
+        return ResultError(Tr::tr("Path must be relative."));
+
     static const QRegularExpression invalid("^(.*/)?\\.\\.?(/.*)?$");
-    if (invalid.match(analysisPath.path()).hasMatch()) {
-        if (error)
-            *error = Tr::tr("Invalid path elements (. or ..).");
-        return false;
-    }
-    return true;
+    if (invalid.match(analysisPath.path()).hasMatch())
+        return ResultError(Tr::tr("Invalid path elements (. or ..)."));
+
+    return ResultOk;
 }
 
 bool PathMapping::isValid() const
  {
     return !projectName.isEmpty() && !localPath.isEmpty()
             && localPath.isLocal() && localPath.isAbsolutePath()
-            && analysisPathValid(analysisPath, nullptr);
+            && analysisPathValid(analysisPath);
 }
 
 static FilePath axivionJsonFilePath()
@@ -445,8 +442,10 @@ DashboardSettingsWidget::DashboardSettingsWidget(QWidget *parent, QPushButton *o
 {
     m_dashboardUrl.setLabelText(Tr::tr("Dashboard URL:"));
     m_dashboardUrl.setDisplayStyle(StringAspect::LineEditDisplay);
-    m_dashboardUrl.setValidationFunction([](FancyLineEdit *edit, QString *) {
-        return isUrlValid(edit->text());
+    m_dashboardUrl.setValidationFunction([](FancyLineEdit *edit) -> Result<> {
+        if (isUrlValid(edit->text()))
+            return ResultOk;
+        return ResultError(QString());
     });
 
     m_username.setLabelText(Tr::tr("Username:"));
@@ -503,21 +502,19 @@ public:
     {
         m_projectName.setLabelText(Tr::tr("Project name:"));
         m_projectName.setDisplayStyle(StringAspect::LineEditDisplay);
-        m_projectName.setValidationFunction([](FancyLineEdit *edit, QString *error) {
-            QTC_ASSERT(edit, return false);
-            if (!edit->text().isEmpty())
-                return true;
-            if (error)
-                *error = Tr::tr("Project name must be non-empty.");
-            return false;
+        m_projectName.setValidationFunction([](FancyLineEdit *edit) -> Result<> {
+            QTC_ASSERT(edit, return ResultError(ResultAssert));
+            if (edit->text().isEmpty())
+                return ResultError(Tr::tr("Project name must be non-empty."));
+            return ResultOk;
         });
         m_analysisPath.setLabelText(Tr::tr("Analysis path:"));
         m_analysisPath.setDisplayStyle(StringAspect::LineEditDisplay);
-        m_analysisPath.setValidationFunction([](FancyLineEdit *edit, QString *error) {
-            QTC_ASSERT(edit, return false);
+        m_analysisPath.setValidationFunction([](FancyLineEdit *edit) -> Result<> {
+            QTC_ASSERT(edit, return ResultError(ResultAssert));
             // do NOT use fromUserInput() as this also cleans the path
             const FilePath fp = FilePath::fromString(edit->text().replace('\\', '/'));
-            return analysisPathValid(fp, error);
+            return analysisPathValid(fp);
         });
         m_localPath.setLabelText(Tr::tr("Local path:"));
         m_localPath.setExpectedKind(PathChooser::ExistingDirectory);

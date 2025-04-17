@@ -12,6 +12,8 @@
 #include <QMouseEvent>
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Squish {
 namespace Internal {
 
@@ -133,14 +135,16 @@ ValidatingPropertyNameLineEdit::ValidatingPropertyNameLineEdit(const QStringList
     : Utils::FancyLineEdit(parent)
     , m_forbidden(forbidden)
 {
-    setValidationFunction([this](FancyLineEdit *edit, QString * /*errorMessage*/) {
+    setValidationFunction([this](FancyLineEdit *edit) -> Result<> {
         if (!edit)
-            return false;
+            return ResultError(QString());
 
         static const QRegularExpression identifier("^[a-zA-Z0-9_]+$");
         const QString &value = edit->text();
 
-        return !m_forbidden.contains(value) && identifier.match(value).hasMatch();
+        if (!m_forbidden.contains(value) && identifier.match(value).hasMatch())
+            return ResultOk;
+        return ResultError(QString());
     });
 }
 
@@ -152,8 +156,10 @@ ValidatingPropertyContainerLineEdit::ValidatingPropertyContainerLineEdit(const Q
     , m_allowed(allowed)
 {
     setSpecialCompleter(new QCompleter(allowed, this));
-    setValidationFunction([this](FancyLineEdit *edit, QString * /*errorMessage*/) {
-        return edit && m_allowed.contains(edit->text());
+    setValidationFunction([this](FancyLineEdit *edit) -> Result<> {
+        if (edit && m_allowed.contains(edit->text()))
+            return ResultOk;
+        return ResultError(QString());
     });
 }
 

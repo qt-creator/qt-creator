@@ -917,24 +917,21 @@ BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *pa
         m_startupBehavior->addItem(startupBehaviorString(BaseSettings::StartBehavior(behavior)));
     m_startupBehavior->setCurrentIndex(settings->m_startBehavior);
 
-    m_initializationOptions->setValidationFunction(
-        [](Utils::FancyLineEdit *edit, QString *errorMessage) {
-            const QString value = Utils::globalMacroExpander()->expand(edit->text());
+    m_initializationOptions->setValidationFunction([](FancyLineEdit *edit) -> Result<> {
+            const QString value = globalMacroExpander()->expand(edit->text());
 
             if (value.isEmpty())
-                return true;
+                return ResultOk;
 
             QJsonParseError parseInfo;
             const QJsonDocument json = QJsonDocument::fromJson(value.toUtf8(), &parseInfo);
 
             if (json.isNull()) {
-                if (errorMessage)
-                    *errorMessage = Tr::tr("Failed to parse JSON at %1: %2")
+                return ResultError(Tr::tr("Failed to parse JSON at %1: %2")
                                         .arg(parseInfo.offset)
-                                        .arg(parseInfo.errorString());
-                return false;
+                                        .arg(parseInfo.errorString()));
             }
-            return true;
+            return ResultOk;
         });
     m_initializationOptions->setText(settings->m_initializationOptions);
     m_initializationOptions->setPlaceholderText(Tr::tr("Language server-specific JSON to pass via "

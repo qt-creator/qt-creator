@@ -293,7 +293,7 @@ static bool checkValidity(const QKeySequence &key, QString *warningMessage)
         return false;
     }
     if (isTextKeySequence(key))
-        *warningMessage = Tr::tr("Key sequence will not work in editor.");
+        *warningMessage = Tr::tr("Key sequence will not work in editor."); // FIXME: return false missing?
     return true;
 }
 
@@ -496,7 +496,7 @@ ShortcutInput::ShortcutInput()
     m_warningLabel->setPalette(palette);
     connect(m_warningLabel, &QLabel::linkActivated, this, &ShortcutInput::showConflictsRequested);
 
-    m_shortcutEdit->setValidationFunction([this](FancyLineEdit *, QString *) {
+    m_shortcutEdit->setValidationFunction([this](FancyLineEdit *) -> Result<> {
         QString warningMessage;
         const QKeySequence key = keySequenceFromEditString(m_shortcutEdit->text());
         const bool isValid = checkValidity(key, &warningMessage);
@@ -505,7 +505,9 @@ ShortcutInput::ShortcutInput()
             m_warningLabel->setText(Tr::tr(
                 "Key sequence has potential conflicts. <a href=\"#conflicts\">Show.</a>"));
         }
-        return isValid;
+        if (!isValid)
+            return ResultError(warningMessage);
+        return ResultOk;
     });
 }
 

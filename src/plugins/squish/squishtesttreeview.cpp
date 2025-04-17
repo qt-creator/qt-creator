@@ -18,6 +18,8 @@
 
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Squish::Internal {
 
 SquishTestTreeView::SquishTestTreeView(QWidget *parent)
@@ -112,31 +114,33 @@ QSize SquishTestTreeItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     return QStyledItemDelegate::sizeHint(opt, idx);
 }
 
-static QWidget *testCaseEditor(QWidget *parent,
-                               const SquishTestTreeItem *item)
+static QWidget *testCaseEditor(QWidget *parent, const SquishTestTreeItem *item)
 {
     const SquishTestTreeItem *suite = static_cast<SquishTestTreeItem *>(item->parent());
     const SuiteConf suiteConf = SuiteConf::readSuiteConf(suite->filePath());
     const QStringList inUse = suiteConf.usedTestCases();
-    Utils::FancyLineEdit *editor = new Utils::FancyLineEdit(parent);
-    editor->setValidationFunction([inUse](Utils::FancyLineEdit *edit, QString *) {
+    FancyLineEdit *editor = new FancyLineEdit(parent);
+    editor->setValidationFunction([inUse](FancyLineEdit *edit) -> Result<> {
         static const QRegularExpression validFileName("^[-a-zA-Z0-9_$. ]+$");
         QString testName = edit->text();
         if (!testName.startsWith("tst_"))
             testName.prepend("tst_");
-        return validFileName.match(testName).hasMatch() && !inUse.contains(testName);
+        if (validFileName.match(testName).hasMatch() && !inUse.contains(testName))
+            return ResultOk;
+        return ResultError(QString());
     });
 
     return editor;
 }
 
-static QWidget *sharedScriptEditor(QWidget *parent,
-                                   const SquishTestTreeItem *item)
+static QWidget *sharedScriptEditor(QWidget *parent, const SquishTestTreeItem *item)
 {
-    const Utils::FilePath folder = static_cast<SquishTestTreeItem *>(item->parent())->filePath();
-    Utils::FancyLineEdit *editor = new Utils::FancyLineEdit(parent);
-    editor->setValidationFunction([folder](Utils::FancyLineEdit *edit, QString *) {
-        return !edit->text().isEmpty() && !folder.pathAppended(edit->text()).exists();
+    const FilePath folder = static_cast<SquishTestTreeItem *>(item->parent())->filePath();
+    FancyLineEdit *editor = new FancyLineEdit(parent);
+    editor->setValidationFunction([folder](FancyLineEdit *edit) -> Result<> {
+        if (!edit->text().isEmpty() && !folder.pathAppended(edit->text()).exists())
+            return ResultOk;
+        return ResultError(QString());
     });
 
     return editor;

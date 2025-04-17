@@ -42,7 +42,7 @@ signals:
     void updateFileName(const QString &t);
 
 protected:
-    bool validateClassName(FancyLineEdit *edit, QString *errorMessage) const;
+    Result<> validateClassName(FancyLineEdit *edit) const;
     void handleChanged(const QString &t) override;
     QString fixInputString(const QString &string) override;
 

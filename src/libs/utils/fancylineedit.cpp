@@ -481,15 +481,15 @@ FancyLineEdit::ValidationFunction FancyLineEdit::defaultValidationFunction()
     return &FancyLineEdit::validateWithValidator;
 }
 
-bool FancyLineEdit::validateWithValidator(FancyLineEdit *edit, QString *errorMessage)
+Result<> FancyLineEdit::validateWithValidator(FancyLineEdit *edit)
 {
-    Q_UNUSED(errorMessage)
     if (const QValidator *v = edit->validator()) {
         QString tmp = edit->text();
         int pos = edit->cursorPosition();
-        return v->validate(tmp, pos) == QValidator::Acceptable;
+        if (v->validate(tmp, pos) != QValidator::Acceptable)
+            return ResultError(QString());
     }
-    return true;
+    return ResultOk;
 }
 
 FancyLineEdit::State FancyLineEdit::state() const
@@ -624,14 +624,12 @@ void FancyLineEdit::validate()
             }
         }
 
-        QString error;
-        const bool validates = validationFunction(this, &error);
         Result<QString> result;
 
-        if (validates)
+        if (const Result<> validates = validationFunction(this))
             result = t;
         else
-            result = ResultError(error);
+            result = ResultError(validates.error());
 
         handleValidationResult(result, t);
     }

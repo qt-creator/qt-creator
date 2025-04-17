@@ -99,8 +99,8 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_nameLineEdit->setPlaceholderText(Tr::tr("Enter project name"));
     d->m_nameLineEdit->setObjectName("nameLineEdit");
     d->m_nameLineEdit->setFocus();
-    d->m_nameLineEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorString) {
-        return validateProjectName(edit->text(), errorString);
+    d->m_nameLineEdit->setValidationFunction([this](FancyLineEdit *edit) {
+        return validateProjectName(edit->text());
     });
 
     d->m_projectLabel = new QLabel(Tr::tr("Add to project:"));
@@ -330,16 +330,14 @@ ProjectIntroPage::ProjectInfo ProjectIntroPage::currentProjectInfo() const
     return d->m_projectInfos.at(index);
 }
 
-bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMessage)
+Result<> ProjectIntroPage::validateProjectName(const QString &name)
 {
     int pos = -1;
     // if we have a pattern it was set
     if (!d->m_projectNameValidator.regularExpression().pattern().isEmpty()) {
-        if (name.isEmpty()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("Name is empty.");
-            return false;
-        }
+        if (name.isEmpty())
+            return ResultError(Tr::tr("Name is empty."));
+
         // pos is set by reference
         QString tmp = name;
         QValidator::State validatorState = d->m_projectNameValidator.validate(tmp, pos);
@@ -347,31 +345,22 @@ bool ProjectIntroPage::validateProjectName(const QString &name, QString *errorMe
         // if pos is set by validate it is cought at the bottom where it shows
         // a more detailed error message
         if (validatorState != QValidator::Acceptable && (pos == -1 || pos >= name.size())) {
-            if (errorMessage) {
-                if (d->m_projectNameValidatorUserMessage.isEmpty())
-                    *errorMessage = Tr::tr("Project name is invalid.");
-                else
-                    *errorMessage = d->m_projectNameValidatorUserMessage;
-            }
-            return false;
+            if (d->m_projectNameValidatorUserMessage.isEmpty())
+                return ResultError(Tr::tr("Project name is invalid."));
+            return ResultError(d->m_projectNameValidatorUserMessage);
         }
     } else { // no validator means usually a qmake project
         // Validation is file name + checking for dots
-        if (!FileNameValidatingLineEdit::validateFileName(name, false, errorMessage))
-            return false;
+        if (const Result<> res = FileNameValidatingLineEdit::validateFileName(name, false); !res)
+            return res;
         if (name.contains(QLatin1Char('.'))) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("Invalid character \".\".");
-            return false;
+            return ResultError(Tr::tr("Invalid character \".\"."));
         }
         pos = FileUtils::indexOfQmakeUnfriendly(name);
     }
-    if (pos >= 0) {
-        if (errorMessage)
-            *errorMessage = Tr::tr("Invalid character \"%1\" found.").arg(name.at(pos));
-        return false;
-    }
-    return true;
+    if (pos >= 0)
+        return ResultError(Tr::tr("Invalid character \"%1\" found.").arg(name.at(pos)));
+    return ResultOk;
 }
 
 void ProjectIntroPage::displayStatusMessage(InfoLabel::InfoType t, const QString &s)

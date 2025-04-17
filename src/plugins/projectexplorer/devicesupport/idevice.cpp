@@ -178,30 +178,22 @@ IDevice::IDevice()
 
     // allowEmptyCommand.setSettingsKey() intentionally omitted, this is not persisted.
 
-    auto validateDisplayName = [](const QString &old,
-                                  const QString &newValue) -> Result<> {
+    auto validateDisplayName = [](const QString &old, const QString &newValue) -> Result<> {
         if (old == newValue)
-            return {};
+            return ResultOk;
 
         if (newValue.trimmed().isEmpty())
-            return make_unexpected(Tr::tr("The device name cannot be empty."));
+            return ResultError(Tr::tr("The device name cannot be empty."));
 
         if (DeviceManager::clonedInstance()->hasDevice(newValue))
-            return make_unexpected(Tr::tr("A device with this name already exists."));
+            return ResultError(Tr::tr("A device with this name already exists."));
 
-        return {};
+        return ResultOk;
     };
 
     d->displayName.setValidationFunction(
-        [this, validateDisplayName](FancyLineEdit *edit, QString *errorMsg) -> bool {
-            auto result = validateDisplayName(d->displayName.value(), edit->text());
-            if (result)
-                return true;
-
-            if (errorMsg)
-                *errorMsg = result.error();
-
-            return false;
+        [this, validateDisplayName](FancyLineEdit *edit) -> Result<> {
+            return validateDisplayName(d->displayName.value(), edit->text());
         });
 
     d->displayName.setValueAcceptor(

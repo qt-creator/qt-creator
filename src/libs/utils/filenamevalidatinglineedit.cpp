@@ -48,9 +48,12 @@ FileNameValidatingLineEdit::FileNameValidatingLineEdit(QWidget *parent) :
     m_allowDirectories(false),
     m_forceFirstCapitalLetter(false)
 {
-    setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
-        return validateFileNameExtension(edit->text(), requiredExtensions(), errorMessage)
-                && validateFileName(edit->text(), allowDirectories(), errorMessage);
+    setValidationFunction([this](FancyLineEdit *edit) {
+        if (const Result<> res = validateFileNameExtension(edit->text(), requiredExtensions()); !res)
+            return res;
+        if (const Result<> res = validateFileName(edit->text(), allowDirectories()); !res)
+            return res;
+        return ResultOk;
     });
 }
 
@@ -76,59 +79,48 @@ void FileNameValidatingLineEdit::setForceFirstCapitalLetter(bool b)
 
 /* Validate a file base name, check for forbidden characters/strings. */
 
-
 #define SLASHES "/\\"
 
-static const char notAllowedCharsSubDir[]   = ",^@={}[]~!?:&*\"|#%<>$\"'();`' ";
-static const char notAllowedCharsNoSubDir[] = ",^@={}[]~!?:&*\"|#%<>$\"'();`' " SLASHES;
-
-static const char *notAllowedSubStrings[] = {".."};
-
-bool FileNameValidatingLineEdit::validateFileName(const QString &name,
-                                                  bool allowDirectories,
-                                                  QString *errorMessage /* = 0*/)
+Result<> FileNameValidatingLineEdit::validateFileName(const QString &name, bool allowDirectories)
 {
-    if (name.isEmpty()) {
-        if (errorMessage)
-            *errorMessage = Tr::tr("Name is empty.");
-        return false;
-    }
+    static const char notAllowedCharsSubDir[]   = ",^@={}[]~!?:&*\"|#%<>$\"'();`' ";
+    static const char notAllowedCharsNoSubDir[] = ",^@={}[]~!?:&*\"|#%<>$\"'();`' " SLASHES;
+
+    static const char *notAllowedSubStrings[] = {".."};
+
+    if (name.isEmpty())
+        return ResultError(Tr::tr("Name is empty."));
+
     // Characters
     const char *notAllowedChars = allowDirectories ? notAllowedCharsSubDir : notAllowedCharsNoSubDir;
-    for (const char *c = notAllowedChars; *c; c++)
+    for (const char *c = notAllowedChars; *c; c++) {
         if (name.contains(QLatin1Char(*c))) {
-            if (errorMessage) {
-                const QChar qc = QLatin1Char(*c);
-                if (qc.isSpace())
-                    *errorMessage = Tr::tr("Name contains white space.");
-                else
-                    *errorMessage = Tr::tr("Invalid character \"%1\".").arg(qc);
-            }
-            return false;
+            const QChar qc = QLatin1Char(*c);
+            if (qc.isSpace())
+                return ResultError(Tr::tr("Name contains white space."));
+            return ResultError(Tr::tr("Invalid character \"%1\".").arg(qc));
         }
+    }
+
     // Substrings
     const int notAllowedSubStringCount = sizeof(notAllowedSubStrings)/sizeof(const char *);
     for (int s = 0; s < notAllowedSubStringCount; s++) {
         const QLatin1String notAllowedSubString(notAllowedSubStrings[s]);
-        if (name.contains(notAllowedSubString)) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("Invalid characters \"%1\".").arg(QString(notAllowedSubString));
-            return false;
-        }
+        if (name.contains(notAllowedSubString))
+            return ResultError(Tr::tr("Invalid characters \"%1\".").arg(QString(notAllowedSubString)));
     }
+
     // Windows devices
     bool matchesWinDevice = name.contains(windowsDeviceNoSubDirPattern());
     if (!matchesWinDevice && allowDirectories)
         matchesWinDevice = name.contains(windowsDeviceSubDirPattern());
     if (matchesWinDevice) {
-        if (errorMessage)
-            *errorMessage = Tr::tr("Name matches MS Windows device"
-                                   " (CON, AUX, PRN, NUL,"
-                                   " COM1, COM2, ..., COM9,"
-                                   " LPT1, LPT2, ..., LPT9)");
-        return false;
+        return ResultError(Tr::tr("Name matches MS Windows device"
+                                  " (CON, AUX, PRN, NUL,"
+                                  " COM1, COM2, ..., COM9,"
+                                  " LPT1, LPT2, ..., LPT9)"));
     }
-    return true;
+    return ResultOk;
 }
 
 QString FileNameValidatingLineEdit::fixInputString(const QString &string)
@@ -143,29 +135,23 @@ QString FileNameValidatingLineEdit::fixInputString(const QString &string)
     return fixedString;
 }
 
-bool FileNameValidatingLineEdit::validateFileNameExtension(const QString &fileName,
-                                                           const QStringList &requiredExtensions,
-                                                           QString *errorMessage)
+Result<> FileNameValidatingLineEdit::validateFileNameExtension(const QString &fileName,
+                                                               const QStringList &requiredExtensions)
 {
     // file extension
-    if (!requiredExtensions.isEmpty()) {
-        for (const QString &requiredExtension : requiredExtensions) {
-            QString extension = QLatin1Char('.') + requiredExtension;
-            if (fileName.endsWith(extension, Qt::CaseSensitive) && extension.size() < fileName.size())
-                return true;
-        }
+    if (requiredExtensions.isEmpty())
+        return ResultOk;
 
-        if (errorMessage) {
-            if (requiredExtensions.size() == 1)
-                *errorMessage = Tr::tr("File extension %1 is required:").arg(requiredExtensions.first());
-            else
-                *errorMessage = Tr::tr("File extensions %1 are required:").arg(requiredExtensions.join(QLatin1String(", ")));
-        }
-
-        return false;
+    for (const QString &requiredExtension : requiredExtensions) {
+        QString extension = QLatin1Char('.') + requiredExtension;
+        if (fileName.endsWith(extension, Qt::CaseSensitive) && extension.size() < fileName.size())
+            return ResultOk;
     }
 
-    return true;
+    if (requiredExtensions.size() == 1)
+        return ResultError(Tr::tr("File extension %1 is required:").arg(requiredExtensions.first()));
+
+    return ResultError(Tr::tr("File extensions %1 are required:").arg(requiredExtensions.join(", ")));
 }
 
 QStringList FileNameValidatingLineEdit::requiredExtensions() const

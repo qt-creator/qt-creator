@@ -174,8 +174,10 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     m_findEdit->setFiltering(true);
     m_findEdit->setPlaceholderText(QString());
     m_findEdit->button(Utils::FancyLineEdit::Left)->setFocusPolicy(Qt::TabFocus);
-    m_findEdit->setValidationFunction([this](Utils::FancyLineEdit *, QString *) {
-                                             return m_lastResult != IFindSupport::NotFound;
+    m_findEdit->setValidationFunction([this](FancyLineEdit *) -> Result<> {
+                                             if (m_lastResult != IFindSupport::NotFound)
+                                                 return ResultOk;
+                                             return ResultError(QString());
                                          });
     m_replaceEdit->setPlaceholderText(QString());
 

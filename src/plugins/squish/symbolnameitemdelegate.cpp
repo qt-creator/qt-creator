@@ -6,6 +6,8 @@
 
 #include <utils/treemodel.h>
 
+using namespace Utils;
+
 namespace Squish {
 namespace Internal {
 
@@ -48,19 +50,21 @@ void SymbolNameItemDelegate::setModelData(QWidget *editor,
 
 ValidatingContainerNameLineEdit::ValidatingContainerNameLineEdit(const QStringList &forbidden,
                                                                  QWidget *parent)
-    : Utils::FancyLineEdit(parent)
+    : FancyLineEdit(parent)
     , m_forbidden(forbidden)
 {
-    setValidationFunction([this](FancyLineEdit *edit, QString * /*errorMessage*/) {
+    setValidationFunction([this](FancyLineEdit *edit) -> Result<> {
         if (!edit)
-            return false;
+            return ResultError(QString());
         const QString &value = edit->text();
         if (value.isEmpty())
-            return false;
+            return ResultError(QString());
         const QString realName = value.at(0) == ObjectsMapTreeItem::COLON
                                      ? value
                                      : ObjectsMapTreeItem::COLON + value;
-        return !m_forbidden.contains(realName);
+        if (m_forbidden.contains(realName))
+            return ResultError(QString());
+        return ResultOk;
     });
 }
 

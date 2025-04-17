@@ -44,45 +44,44 @@ public:
 
         m_nameEdit = new FancyLineEdit(this);
         m_nameEdit->setHistoryCompleter("Git.RemoteNames");
-        m_nameEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
+        m_nameEdit->setValidationFunction([this](FancyLineEdit *edit) -> Result<> {
             if (!edit)
-                return false;
+                return ResultError(ResultAssert);
 
             QString input = edit->text();
             edit->setText(input.replace(m_invalidRemoteNameChars, "_"));
 
             // "Intermediate" patterns, may change to Acceptable when user edits further:
-
             if (input.endsWith(".lock")) //..may not end with ".lock"
-                return false;
+                return ResultError(QString());
 
             if (input.endsWith('.')) // no dot at the end (but allowed in the middle)
-                return false;
+                return ResultError(QString());
 
             if (input.endsWith('/')) // no slash at the end (but allowed in the middle)
-                return false;
+                return ResultError(QString());
 
-            if (m_remoteNames.contains(input)) {
-                if (errorMessage)
-                    *errorMessage = Tr::tr("A remote with the name \"%1\" already exists.").arg(input);
-                return false;
-            }
+            if (m_remoteNames.contains(input))
+                return ResultError(Tr::tr("A remote with the name \"%1\" already exists.").arg(input));
 
             // is a valid remote name
-            return !input.isEmpty();
+            if (input.isEmpty())
+                return ResultError(QString());
+
+            return ResultOk;
         });
 
         m_urlEdit = new FancyLineEdit(this);
         m_urlEdit->setHistoryCompleter("Git.RemoteUrls");
-        m_urlEdit->setValidationFunction([](FancyLineEdit *edit, QString *errorMessage) {
+        m_urlEdit->setValidationFunction([](FancyLineEdit *edit) -> Result<> {
             if (!edit || edit->text().isEmpty())
-                return false;
+                return ResultError(QString());
 
             const GitRemote r(edit->text());
-            if (!r.isValid && errorMessage)
-                *errorMessage = Tr::tr("The URL may not be valid.");
+            if (!r.isValid)
+                return ResultError(Tr::tr("The URL may not be valid."));
 
-            return r.isValid;
+            return ResultOk;
         });
 
         auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
