@@ -23,7 +23,9 @@ endif()
 target_compile_definitions(archive_static PRIVATE
   "PLATFORM_CONFIG_H=\"${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_CONFIG_H}\"")
 
-if (NOT WIN32)
+if (MSVC)
+  target_compile_options(archive_static PUBLIC /wd4996)
+elseif (NOT WIN32)
   find_package(Iconv REQUIRED)
   target_link_libraries(archive_static PRIVATE ${Iconv_LIBRARY})
 endif()

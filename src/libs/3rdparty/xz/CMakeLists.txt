@@ -108,6 +108,9 @@ add_qtc_library(qtcXz STATIC
 
 if(WIN32)
   target_compile_definitions(qtcXz PRIVATE MYTHREAD_VISTA)
+  if(MSVC)
+    target_compile_options(qtcXz PUBLIC /wd4244 /wd4267)
+  endif()
 else()
   target_compile_definitions(qtcXz PRIVATE MYTHREAD_POSIX)
 endif()

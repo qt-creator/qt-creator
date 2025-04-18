@@ -14,9 +14,11 @@ add_qtc_library(qtcBZip2
     .
 )
 
-IF (NOT MSVC)
+if (MSVC)
+  target_compile_options(qtcBZip2 PUBLIC /wd4244 /wd4267 /wd4996)
+else()
   # Disable warnings
-  IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_compile_options(qtcBZip2 PRIVATE "-Wno-unused-parameter")
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(qtcBZip2 PRIVATE "-Wimplicit-fallthrough=0" "-Wno-unused-parameter")
