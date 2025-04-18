@@ -225,7 +225,7 @@ ExtensionsModel::~ExtensionsModel()
 
 int ExtensionsModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
 {
-    return d->remotePlugins.size() + d->localPlugins.count();
+    return int(d->remotePlugins.size() + d->localPlugins.count());
 }
 
 static QString badgeText(const QModelIndex &index)
@@ -280,7 +280,7 @@ QVariant ExtensionsModel::data(const QModelIndex &index, int role) const
     }
 
     const bool isRemoteExtension = size_t(index.row()) < d->remotePlugins.size();
-    const int itemIndex = index.row() - (isRemoteExtension ? 0 : d->remotePlugins.size());
+    const int itemIndex = int(index.row() - (isRemoteExtension ? 0 : d->remotePlugins.size()));
 
     return isRemoteExtension ? d->dataFromRemoteExtension(itemIndex, role)
                              : d->dataFromLocalPlugin(itemIndex, role);
@@ -290,7 +290,7 @@ QModelIndex ExtensionsModel::indexOfId(const QString &extensionId) const
 {
     const int localIndex = indexOf(d->localPlugins, equal(&PluginSpec::id, extensionId));
     if (localIndex >= 0)
-        return index(d->remotePlugins.size() + localIndex);
+        return index(int(d->remotePlugins.size() + localIndex));
 
     for (int remoteIndex = 0;
          const std::unique_ptr<RemoteSpec> &spec : std::as_const(d->remotePlugins)) {
