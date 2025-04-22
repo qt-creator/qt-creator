@@ -49,7 +49,6 @@
 #include <QSortFilterProxyModel>
 #include <QTimer>
 #include <QToolButton>
-#include <QVBoxLayout>
 
 using namespace Utils;
 
@@ -254,7 +253,6 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_toggleSync(new QToolButton(this)),
     m_toggleRootSync(new QToolButton(this)),
     m_rootSelector(new QComboBox),
-    m_crumbContainer(new QWidget(this)),
     m_crumbLabel(new DelayedFileCrumbLabel(this))
 {
     IContext::attach(this, Context(C_FOLDERNAVIGATIONWIDGET));
@@ -273,11 +271,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_fileSystemModel->setFilter(filters);
     m_fileSystemModel->setRootPath(QString());
     m_filterHiddenFilesAction->setCheckable(true);
-    setHiddenFilesFilter(false);
     m_showBreadCrumbsAction->setCheckable(true);
-    setShowBreadCrumbs(true);
     m_showFoldersOnTopAction->setCheckable(true);
-    setShowFoldersOnTop(true);
     m_listView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_listView->setIconSize(QSize(16,16));
     m_listView->setModel(m_sortProxyModel);
@@ -290,31 +285,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
 
     auto selectorWidget = new StyledBar(this);
     selectorWidget->setLightColored(true);
-    auto selectorLayout = new QHBoxLayout(selectorWidget);
-    selectorWidget->setLayout(selectorLayout);
-    selectorLayout->setSpacing(0);
-    selectorLayout->setContentsMargins(0, 0, 0, 0);
-    selectorLayout->addWidget(m_rootSelector, 10);
 
-    auto crumbContainerLayout = new QVBoxLayout;
-    crumbContainerLayout->setSpacing(0);
-    crumbContainerLayout->setContentsMargins(0, 0, 0, 0);
-    m_crumbContainer->setLayout(crumbContainerLayout);
-    auto crumbLayout = new QVBoxLayout;
-    crumbLayout->setSpacing(0);
-    crumbLayout->setContentsMargins(4, 4, 4, 4);
-    crumbLayout->addWidget(m_crumbLabel);
-    crumbContainerLayout->addLayout(crumbLayout);
-    crumbContainerLayout->addWidget(Layouting::createHr(this));
     m_crumbLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
-    auto layout = new QVBoxLayout();
-    layout->addWidget(selectorWidget);
-    layout->addWidget(m_crumbContainer);
-    layout->addWidget(m_listView);
-    layout->setSpacing(0);
-    layout->setContentsMargins(0, 0, 0, 0);
-    setLayout(layout);
 
     m_toggleSync->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
@@ -323,7 +295,34 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_toggleRootSync->setIcon(Utils::Icons::LINK.icon());
     m_toggleRootSync->setCheckable(true);
     m_toggleRootSync->setToolTip(Tr::tr("Synchronize Root Directory with Editor"));
-    selectorLayout->addWidget(m_toggleRootSync);
+
+    using namespace Layouting;
+    Row {
+        m_rootSelector,
+        m_toggleRootSync,
+        noMargin, spacing(0),
+    }.attachTo(selectorWidget);
+
+    Column {
+        selectorWidget,
+        Widget {
+            bindTo(&m_crumbContainer),
+            Column {
+                Column {
+                    m_crumbLabel,
+                    customMargins(4, 4, 4, 4),
+                },
+                hr,
+                noMargin, spacing(0),
+            },
+        },
+        m_listView,
+        noMargin, spacing(0),
+    }.attachTo(this);
+
+    setHiddenFilesFilter(false);
+    setShowBreadCrumbs(true);
+    setShowFoldersOnTop(true);
 
     // connections
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
