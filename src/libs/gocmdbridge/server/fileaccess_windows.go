@@ -72,3 +72,19 @@ func freeSpace(path string) uint64 {
 	windows.GetDiskFreeSpaceEx(windows.StringToUTF16Ptr(path), &freeBytes, nil, nil)
 	return freeBytes
 }
+
+func owner(path string) string {
+	return ""
+}
+
+func ownerId(path string) int {
+	return -2
+}
+
+func group(path string) string {
+	return ""
+}
+
+func groupId(path string) int {
+	return -2
+}

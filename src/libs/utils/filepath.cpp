@@ -2094,6 +2094,26 @@ qint64 FilePath::fileSize() const
     return fileAccess()->fileSize(*this);
 }
 
+QString FilePath::owner() const
+{
+    return fileAccess()->owner(*this);
+}
+
+uint FilePath::ownerId() const
+{
+    return fileAccess()->ownerId(*this);
+}
+
+QString FilePath::group() const
+{
+    return fileAccess()->group(*this);
+}
+
+uint FilePath::groupId() const
+{
+    return fileAccess()->groupId(*this);
+}
+
 qint64 FilePath::bytesAvailable() const
 {
     return fileAccess()->bytesAvailable(*this);

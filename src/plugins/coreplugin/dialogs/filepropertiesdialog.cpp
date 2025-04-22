@@ -221,8 +221,8 @@ void FilePropertiesDialog::refresh()
         m_defaultEditor->setText(!factories.isEmpty() ? factories.at(0)->displayName()
                                                       : Tr::tr("Undefined"));
 
-        m_owner->setText(fileInfo.owner());
-        m_group->setText(fileInfo.group());
+        m_owner->setText(m_filePath.owner());
+        m_group->setText(m_filePath.group());
         m_size->setText(locale.formattedDataSize(fileInfo.size()));
         m_readable->setChecked(fileInfo.isReadable());
         m_writable->setChecked(fileInfo.isWritable());

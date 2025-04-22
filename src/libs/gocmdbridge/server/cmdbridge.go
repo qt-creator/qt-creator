@@ -69,6 +69,30 @@ type freespaceresult struct {
 	FreeSpace uint64
 }
 
+type groupresult struct {
+	Type string
+	Id   int
+	Group string
+}
+
+type groupidresult struct {
+	Type string
+	Id   int
+	GroupId int
+}
+
+type ownerresult struct {
+	Type string
+	Id   int
+	Owner string
+}
+
+type owneridresult struct {
+	Type string
+	Id   int
+	OwnerId int
+}
+
 type voidresult struct {
 	Type string
 	Id   int
@@ -171,6 +195,42 @@ func processFreespace(cmd command, out chan<- []byte) {
 		Type:         "freespaceresult",
 		Id:           cmd.Id,
 		FreeSpace:    freeSpace(cmd.Path),
+	})
+	out <- result
+}
+
+func processGroup(cmd command, out chan<- []byte) {
+	result, _ := cbor.Marshal(groupresult{
+		Type:         "groupresult",
+		Id:           cmd.Id,
+		Group:        group(cmd.Path),
+	})
+	out <- result
+}
+
+func processGroupId(cmd command, out chan<- []byte) {
+	result, _ := cbor.Marshal(groupidresult{
+		Type:         "groupidresult",
+		Id:           cmd.Id,
+		GroupId:      groupId(cmd.Path),
+	})
+	out <- result
+}
+
+func processOwner(cmd command, out chan<- []byte) {
+	result, _ := cbor.Marshal(ownerresult{
+		Type:         "ownerresult",
+		Id:           cmd.Id,
+		Owner:        owner(cmd.Path),
+	})
+	out <- result
+}
+
+func processOwnerId(cmd command, out chan<- []byte) {
+	result, _ := cbor.Marshal(owneridresult{
+		Type:         "owneridresult",
+		Id:           cmd.Id,
+		OwnerId:      ownerId(cmd.Path),
 	})
 	out <- result
 }
@@ -380,12 +440,20 @@ func processCommand(watcher *WatcherHandler, watchDogChannel chan struct{} ,cmd 
 		processFind(cmd, out)
 	case "freespace":
 		processFreespace(cmd, out)
+	case "group":
+		processGroup(cmd, out)
+	case "groupId":
+		processGroupId(cmd, out)
 	case "is":
 		processIs(cmd, out)
 	case "signal":
 		processSignal(cmd, out)
 	case "readfile":
 		processReadFile(cmd, out)
+	case "owner":
+		processOwner(cmd, out)
+	case "ownerid":
+		processOwnerId(cmd, out)
 	case "readlink":
 		processReadLink(cmd, out)
 	case "remove":

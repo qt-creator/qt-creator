@@ -439,6 +439,54 @@ qint64 FileAccess::fileSize(const FilePath &filePath) const
     return filePathInfo(filePath).fileSize;
 }
 
+QString FileAccess::owner(const FilePath &filePath) const
+{
+    try {
+        Result<QFuture<QString>> f = m_client->owner(filePath.nativePath());
+        QTC_ASSERT_RESULT(f, return {});
+        return f->result();
+    } catch (const std::exception &e) {
+        qCWarning(faLog) << "Error getting file owner:" << e.what();
+        return {};
+    }
+}
+
+uint FileAccess::ownerId(const FilePath &filePath) const
+{
+    try {
+        Result<QFuture<uint>> f = m_client->ownerId(filePath.nativePath());
+        QTC_ASSERT_RESULT(f, return {});
+        return f->result();
+    } catch (const std::exception &e) {
+        qCWarning(faLog) << "Error getting file owner id:" << e.what();
+        return {};
+    }
+}
+
+QString FileAccess::group(const FilePath &filePath) const
+{
+    try {
+        Result<QFuture<QString>> f = m_client->group(filePath.nativePath());
+        QTC_ASSERT_RESULT(f, return {});
+        return f->result();
+    } catch (const std::exception &e) {
+        qCWarning(faLog) << "Error getting file group:" << e.what();
+        return {};
+    }
+}
+
+uint FileAccess::groupId(const FilePath &filePath) const
+{
+    try {
+        Result<QFuture<uint>> f = m_client->groupId(filePath.nativePath());
+        QTC_ASSERT_RESULT(f, return {});
+        return f->result();
+    } catch (const std::exception &e) {
+        qCWarning(faLog) << "Error getting file group id:" << e.what();
+        return {};
+    }
+}
+
 Result<QByteArray> FileAccess::fileContents(const FilePath &filePath,
                                                   qint64 limit,
                                                   qint64 offset) const

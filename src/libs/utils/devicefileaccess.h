@@ -59,6 +59,10 @@ protected:
     virtual QFile::Permissions permissions(const FilePath &filePath) const;
     virtual bool setPermissions(const FilePath &filePath, QFile::Permissions) const;
     virtual qint64 fileSize(const FilePath &filePath) const;
+    virtual QString owner(const FilePath &filePath) const;
+    virtual uint ownerId(const FilePath &filePath) const;
+    virtual QString group(const FilePath &filePath) const;
+    virtual uint groupId(const FilePath &filePath) const;
     virtual qint64 bytesAvailable(const FilePath &filePath) const;
     virtual QByteArray fileId(const FilePath &filePath) const;
 
@@ -121,6 +125,10 @@ protected:
     QFile::Permissions permissions(const FilePath &filePath) const override;
     bool setPermissions(const FilePath &filePath, QFile::Permissions) const override;
     qint64 fileSize(const FilePath &filePath) const override;
+    QString owner(const FilePath &filePath) const override;
+    uint ownerId(const FilePath &filePath) const override;
+    QString group(const FilePath &filePath) const override;
+    uint groupId(const FilePath &filePath) const override;
     qint64 bytesAvailable(const FilePath &filePath) const override;
     QByteArray fileId(const FilePath &filePath) const override;
 
@@ -178,6 +186,10 @@ protected:
     QFile::Permissions permissions(const FilePath &filePath) const override;
     bool setPermissions(const FilePath &filePath, QFile::Permissions) const override;
     qint64 fileSize(const FilePath &filePath) const override;
+    QString owner(const FilePath &filePath) const override;
+    uint ownerId(const FilePath &filePath) const override;
+    QString group(const FilePath &filePath) const override;
+    uint groupId(const FilePath &filePath) const override;
     qint64 bytesAvailable(const FilePath &filePath) const override;
     QByteArray fileId(const FilePath &filePath) const override;
 
@@ -239,6 +251,10 @@ protected:
     QFile::Permissions permissions(const FilePath &filePath) const override;
     bool setPermissions(const FilePath &filePath, QFile::Permissions) const override;
     qint64 fileSize(const FilePath &filePath) const override;
+    QString owner(const FilePath &filePath) const override;
+    uint ownerId(const FilePath &filePath) const override;
+    QString group(const FilePath &filePath) const override;
+    uint groupId(const FilePath &filePath) const override;
     qint64 bytesAvailable(const FilePath &filePath) const override;
     QByteArray fileId(const FilePath &filePath) const override;
 

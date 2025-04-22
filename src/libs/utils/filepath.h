@@ -179,6 +179,10 @@ public:
     Result<> copyFile(const FilePath &target) const;
     Result<> renameFile(const FilePath &target) const;
     qint64 fileSize() const;
+    QString owner() const;
+    uint ownerId() const;
+    QString group() const;
+    uint groupId() const;
     qint64 bytesAvailable() const;
     bool createDir() const;
     FilePaths dirEntries(const FileFilter &filter, QDir::SortFlags sort = QDir::NoSort) const;

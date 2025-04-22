@@ -111,6 +111,11 @@ public:
 
     Utils::Result<QFuture<void>> signalProcess(int pid, Utils::ControlSignal signal);
 
+    Utils::Result<QFuture<QString>> owner(const QString &path);
+    Utils::Result<QFuture<uint>> ownerId(const QString &path);
+    Utils::Result<QFuture<QString>> group(const QString &path);
+    Utils::Result<QFuture<uint>> groupId(const QString &path);
+
 protected:
     bool exit();
 

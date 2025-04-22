@@ -362,6 +362,34 @@ qint64 DeviceFileAccess::fileSize(const FilePath &filePath) const
     return -1;
 }
 
+QString DeviceFileAccess::owner(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    QTC_CHECK(false);
+    return {};
+}
+
+uint DeviceFileAccess::ownerId(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    QTC_CHECK(false);
+    return -2;
+}
+
+QString DeviceFileAccess::group(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    QTC_CHECK(false);
+    return {};
+}
+
+uint DeviceFileAccess::groupId(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    QTC_CHECK(false);
+    return -2;
+}
+
 qint64 DeviceFileAccess::bytesAvailable(const FilePath &filePath) const
 {
     Q_UNUSED(filePath)
@@ -605,6 +633,30 @@ qint64 UnavailableDeviceFileAccess::fileSize(const FilePath &filePath) const
 {
     Q_UNUSED(filePath)
     return -1;
+}
+
+QString UnavailableDeviceFileAccess::owner(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return {};
+}
+
+uint UnavailableDeviceFileAccess::ownerId(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return -2;
+}
+
+QString UnavailableDeviceFileAccess::group(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return {};
+}
+
+uint UnavailableDeviceFileAccess::groupId(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return -2;
 }
 
 qint64 UnavailableDeviceFileAccess::bytesAvailable(const FilePath &filePath) const
@@ -1237,6 +1289,26 @@ qint64 DesktopDeviceFileAccess::bytesAvailable(const FilePath &filePath) const
     return QStorageInfo(filePath.path()).bytesAvailable();
 }
 
+QString DesktopDeviceFileAccess::owner(const FilePath &filePath) const
+{
+    return QFileInfo(filePath.path()).owner();
+}
+
+uint DesktopDeviceFileAccess::ownerId(const FilePath &filePath) const
+{
+    return QFileInfo(filePath.path()).ownerId();
+}
+
+QString DesktopDeviceFileAccess::group(const FilePath &filePath) const
+{
+    return QFileInfo(filePath.path()).group();
+}
+
+uint DesktopDeviceFileAccess::groupId(const FilePath &filePath) const
+{
+    return QFileInfo(filePath.path()).groupId();
+}
+
 // Copied from qfilesystemengine_win.cpp
 #ifdef Q_OS_WIN
 
@@ -1656,6 +1728,34 @@ qint64 UnixDeviceFileAccess::fileSize(const FilePath &filePath) const
     const QStringList args = statArgs(filePath, "%s", "%z");
     const RunResult result = runInShell({"stat", args, OsType::OsTypeLinux});
     return result.stdOut.toLongLong();
+}
+
+QString UnixDeviceFileAccess::owner(const FilePath &filePath) const
+{
+    const QStringList args = statArgs(filePath, "%U", "%U");
+    const RunResult result = runInShell({"stat", args, OsType::OsTypeLinux});
+    return QString::fromUtf8(result.stdOut);
+}
+
+uint UnixDeviceFileAccess::ownerId(const FilePath &filePath) const
+{
+    const QStringList args = statArgs(filePath, "%u", "%u");
+    const RunResult result = runInShell({"stat", args, OsType::OsTypeLinux});
+    return result.stdOut.toUInt();
+}
+
+QString UnixDeviceFileAccess::group(const FilePath &filePath) const
+{
+    const QStringList args = statArgs(filePath, "%G", "%G");
+    const RunResult result = runInShell({"stat", args, OsType::OsTypeLinux});
+    return QString::fromUtf8(result.stdOut);
+}
+
+uint UnixDeviceFileAccess::groupId(const FilePath &filePath) const
+{
+    const QStringList args = statArgs(filePath, "%g", "%g");
+    const RunResult result = runInShell({"stat", args, OsType::OsTypeLinux});
+    return result.stdOut.toUInt();
 }
 
 qint64 UnixDeviceFileAccess::bytesAvailable(const FilePath &filePath) const

@@ -852,6 +852,63 @@ Utils::Result<QFuture<void>> Client::signalProcess(int pid, Utils::ControlSignal
         "signalsuccess");
 }
 
+Result<QFuture<QString>> Client::owner(const QString &path)
+{
+    return createJob<QString>(
+        d.get(),
+        QCborMap{{"Type", "owner"}, {"Path", path}},
+        [](QVariantMap map, QPromise<QString> &promise) {
+            ASSERT_TYPE("ownerresult");
+
+            promise.addResult(map.value("Owner").toString());
+
+            return JobResult::Done;
+        });
+}
+
+Result<QFuture<uint>> Client::ownerId(const QString &path)
+{
+    return createJob<uint>(
+        d.get(),
+        QCborMap{{"Type", "ownerid"}, {"Path", path}},
+        [](QVariantMap map, QPromise<uint> &promise) {
+            ASSERT_TYPE("owneridresult");
+
+            promise.addResult(uint(map.value("OwnerId").toInt()));
+
+            return JobResult::Done;
+        });
+}
+
+Result<QFuture<QString>> Client::group(const QString &path)
+{
+    return createJob<QString>(
+        d.get(),
+        QCborMap{{"Type", "group"}, {"Path", path}},
+        [](QVariantMap map, QPromise<QString> &promise) {
+            ASSERT_TYPE("groupresult");
+
+            promise.addResult(map.value("Group").toString());
+
+            return JobResult::Done;
+        });
+}
+
+Result<QFuture<uint>> Client::groupId(const QString &path)
+{
+    return createJob<uint>(
+        d.get(),
+        QCborMap{{"Type", "groupid"}, {"Path", path}},
+        [](QVariantMap map, QPromise<uint> &promise) {
+            ASSERT_TYPE("groupidresult");
+
+            promise.addResult(uint(map.value("GroupId").toInt()));
+
+            return JobResult::Done;
+        });
+}
+
+
 bool Client::exit()
 {
     try {
