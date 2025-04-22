@@ -465,181 +465,178 @@ struct DebugInfo
     bool cppDebug = false;
 };
 
-class IosRunner : public RunWorker
+static void handleIosToolErrorMessage(RunControl *runControl, const QString &message)
 {
-public:
-    IosRunner(RunControl *runControl, const DebugInfo &debugInfo = {});
-    ~IosRunner() override;
-
-    void start() override;
-    void stop() final;
-
-private:
-    void handleGotServerPorts(Port gdbPort, Port qmlPort);
-    void handleGotInferiorPid(qint64 pid);
-    void handleMessage(const QString &msg);
-    void handleErrorMsg(const QString &msg);
-    void handleToolExited(int code);
-
-    IosToolHandler *m_toolHandler = nullptr;
-    FilePath m_bundleDir;
-    IDeviceConstPtr m_device;
-    IosDeviceType m_deviceType;
-    DebugInfo m_debugInfo;
-    bool m_cleanExit = false;
-};
-
-IosRunner::IosRunner(RunControl *runControl, const DebugInfo &debugInfo)
-    : RunWorker(runControl)
-    , m_debugInfo(debugInfo)
-{
-    setId("IosRunner");
-    stopRunningRunControl(runControl);
-    const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
-    QTC_ASSERT(data, return);
-    m_bundleDir = data->bundleDirectory;
-    m_device = RunDeviceKitAspect::device(runControl->kit());
-    m_deviceType = data->deviceType;
-}
-
-IosRunner::~IosRunner()
-{
-    stop();
-}
-
-void IosRunner::start()
-{
-    if (m_toolHandler && m_toolHandler->isRunning())
-        m_toolHandler->stop();
-
-    m_cleanExit = false;
-    if (!m_bundleDir.exists()) {
-        TaskHub::addTask(DeploymentTask(Task::Warning,
-            Tr::tr("Could not find %1.").arg(m_bundleDir.toUserOutput())));
-        reportFailure();
-        return;
-    }
-
-    m_toolHandler = new IosToolHandler(m_deviceType, this);
-    connect(m_toolHandler, &IosToolHandler::appOutput, this, &IosRunner::handleMessage);
-    connect(m_toolHandler, &IosToolHandler::message, this, &IosRunner::handleMessage);
-    connect(m_toolHandler, &IosToolHandler::errorMsg, this, &IosRunner::handleErrorMsg);
-    connect(m_toolHandler, &IosToolHandler::gotServerPorts, this, &IosRunner::handleGotServerPorts);
-    connect(m_toolHandler, &IosToolHandler::gotInferiorPid, this, &IosRunner::handleGotInferiorPid);
-    connect(m_toolHandler, &IosToolHandler::toolExited, this, &IosRunner::handleToolExited);
-    connect(m_toolHandler, &IosToolHandler::finished, this, [this, handler = m_toolHandler] {
-        if (m_toolHandler == handler) {
-            if (m_cleanExit)
-                appendMessage(Tr::tr("Run ended."), NormalMessageFormat);
-            else
-                appendMessage(Tr::tr("Run ended with error."), ErrorMessageFormat);
-            m_toolHandler = nullptr;
-        }
-        handler->deleteLater();
-        reportStopped();
-
-    });
-
-    const CommandLine command = runControl()->commandLine();
-    QStringList args = ProcessArgs::splitArgs(command.arguments(), OsTypeMac);
-    const Port portOnDevice = Port(runControl()->qmlChannel().port());
-    if (portOnDevice.isValid()) {
-        QUrl qmlServer;
-        qmlServer.setPort(portOnDevice.number());
-        args.append(qmlDebugTcpArguments(m_debugInfo.qmlDebugServices, qmlServer));
-    }
-
-    appendMessage(Tr::tr("Starting remote process."), NormalMessageFormat);
-    QString deviceId;
-    if (IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(m_device))
-        deviceId = dev->uniqueDeviceID();
-    const IosToolHandler::RunKind runKind = m_debugInfo.cppDebug ? IosToolHandler::DebugRun : IosToolHandler::NormalRun;
-    m_toolHandler->requestRunApp(m_bundleDir, args, runKind, deviceId);
-}
-
-void IosRunner::stop()
-{
-    if (m_toolHandler && m_toolHandler->isRunning())
-        m_toolHandler->stop();
-}
-
-void IosRunner::handleGotServerPorts(Port gdbPort, Port qmlPort)
-{
-    // TODO: Convert to portsgatherer.
-    QUrl debugChannel;
-    debugChannel.setScheme("connect");
-    debugChannel.setHost("localhost");
-    debugChannel.setPort(gdbPort.number());
-    runControl()->setDebugChannel(debugChannel);
-    // The run control so far knows about the port on the device side,
-    // but the QML Profiler has to actually connect to a corresponding
-    // local port. That port is reported here, so we need to adapt the runControl's
-    // "qmlChannel", so the QmlProfilerRunner uses the right port.
-    QUrl qmlChannel = runControl()->qmlChannel();
-    const int qmlPortOnDevice = qmlChannel.port();
-    qmlChannel.setPort(qmlPort.number());
-    runControl()->setQmlChannel(qmlChannel);
-
-    if (m_debugInfo.cppDebug) {
-        if (!gdbPort.isValid()) {
-            reportFailure(Tr::tr("Failed to get a local debugger port."));
-            return;
-        }
-        appendMessage(
-            Tr::tr("Listening for debugger on local port %1.").arg(gdbPort.number()),
-            LogMessageFormat);
-    }
-    if (m_debugInfo.qmlDebugServices != NoQmlDebugServices) {
-        if (!qmlPort.isValid()) {
-            reportFailure(Tr::tr("Failed to get a local debugger port."));
-            return;
-        }
-        appendMessage(
-            Tr::tr("Listening for QML debugger on local port %1 (port %2 on the device).")
-                .arg(qmlPort.number()).arg(qmlPortOnDevice),
-            LogMessageFormat);
-    }
-
-    reportStarted();
-}
-
-void IosRunner::handleGotInferiorPid(qint64 pid)
-{
-    if (pid <= 0) {
-        reportFailure(Tr::tr("Could not get inferior PID."));
-        return;
-    }
-    runControl()->setAttachPid(ProcessHandle(pid));
-
-    if (m_debugInfo.qmlDebugServices != NoQmlDebugServices && runControl()->qmlChannel().port() == -1)
-        reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
-    else
-        reportStarted();
-}
-
-void IosRunner::handleMessage(const QString &msg)
-{
-    appendMessage(msg, StdOutFormat);
-}
-
-void IosRunner::handleErrorMsg(const QString &msg)
-{
-    QString res(msg);
-    QString lockedErr ="Unexpected reply: ELocked (454c6f636b6564) vs OK (4f4b)";
-    if (msg.contains("AMDeviceStartService returned -402653150")) {
-        TaskHub::addTask(DeploymentTask(Task::Warning, Tr::tr("Run failed. "
-           "The settings in the Organizer window of Xcode might be incorrect.")));
+    QString res(message);
+    const QString lockedErr = "Unexpected reply: ELocked (454c6f636b6564) vs OK (4f4b)";
+    if (message.contains("AMDeviceStartService returned -402653150")) {
+        TaskHub::addTask(DeploymentTask(
+            Task::Warning,
+            Tr::tr("Run failed. "
+                   "The settings in the Organizer window of Xcode might be incorrect.")));
     } else if (res.contains(lockedErr)) {
         QString message = Tr::tr("The device is locked, please unlock.");
         TaskHub::addTask(DeploymentTask(Task::Error, message));
         res.replace(lockedErr, message);
     }
-    appendMessage(res, StdErrFormat);
+    runControl->postMessage(res, StdErrFormat);
 }
 
-void IosRunner::handleToolExited(int code)
+static void handleIosToolStartedOnDevice(
+    RunControl *runControl,
+    RunInterface *iface,
+    const DebugInfo &debugInfo,
+    IosToolHandler *handler,
+    Port gdbPort,
+    Port qmlPort)
 {
-    m_cleanExit = (code == 0);
+    QUrl debugChannel;
+    debugChannel.setScheme("connect");
+    debugChannel.setHost("localhost");
+    debugChannel.setPort(gdbPort.number());
+    runControl->setDebugChannel(debugChannel);
+    // The run control so far knows about the port on the device side,
+    // but the QML Profiler has to actually connect to a corresponding
+    // local port. That port is reported here, so we need to adapt the runControl's
+    // "qmlChannel", so the QmlProfilerRunner uses the right port.
+    QUrl qmlChannel = runControl->qmlChannel();
+    const int qmlPortOnDevice = qmlChannel.port();
+    qmlChannel.setPort(qmlPort.number());
+    runControl->setQmlChannel(qmlChannel);
+
+    if (debugInfo.cppDebug) {
+        if (!gdbPort.isValid()) {
+            runControl
+                ->postMessage(Tr::tr("Failed to get a local debugger port."), ErrorMessageFormat);
+            handler->stop();
+            return;
+        }
+        runControl->postMessage(
+            Tr::tr("Listening for debugger on local port %1.").arg(gdbPort.number()),
+            LogMessageFormat);
+    }
+    if (debugInfo.qmlDebugServices != NoQmlDebugServices) {
+        if (!qmlPort.isValid()) {
+            runControl->postMessage(
+                Tr::tr("Failed to get a local debugger port for QML."), ErrorMessageFormat);
+            handler->stop();
+            return;
+        }
+        runControl->postMessage(
+            Tr::tr("Listening for QML debugger on local port %1 (port %2 on the device).")
+                .arg(qmlPort.number())
+                .arg(qmlPortOnDevice),
+            LogMessageFormat);
+    }
+    emit iface->started();
+}
+
+static void handleIosToolStartedOnSimulator(
+    RunControl *runControl,
+    RunInterface *iface,
+    const DebugInfo &debugInfo,
+    IosToolHandler *handler,
+    qint64 pid)
+{
+    if (pid <= 0) {
+        runControl->postMessage(Tr::tr("Could not get inferior PID."), ErrorMessageFormat);
+        handler->stop();
+        return;
+    }
+    runControl->setAttachPid(ProcessHandle(pid));
+    if (debugInfo.qmlDebugServices != NoQmlDebugServices && runControl->qmlChannel().port() == -1) {
+        runControl->postMessage(
+            Tr::tr("Could not get necessary ports for the QML debugger connection."),
+            ErrorMessageFormat);
+        handler->stop();
+        return;
+    }
+    emit iface->started();
+}
+
+static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = {})
+{
+    stopRunningRunControl(runControl);
+    const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
+    QTC_ASSERT(data, return {});
+
+    const FilePath bundleDir = data->bundleDirectory;
+    const IosDeviceType deviceType = data->deviceType;
+    const IDeviceConstPtr device = RunDeviceKitAspect::device(runControl->kit());
+
+    const auto onSetup = [bundleDir] {
+        if (bundleDir.exists())
+            return SetupResult::Continue;
+
+        TaskHub::addTask(DeploymentTask(Task::Warning, Tr::tr("Could not find %1.")
+                                                           .arg(bundleDir.toUserOutput())));
+        return SetupResult::StopWithError;
+    };
+
+    const auto onIosToolSetup = [runControl, debugInfo, bundleDir, deviceType, device](
+                                    IosToolRunner &runner) {
+        runner.setDeviceType(deviceType);
+        RunInterface *iface = runStorage().activeStorage();
+        runner.setStartHandler([runControl, debugInfo, bundleDir, device, iface](IosToolHandler *handler) {
+            const auto messageHandler = [runControl](const QString &message) {
+                runControl->postMessage(message, StdOutFormat);
+            };
+
+            QObject::connect(handler, &IosToolHandler::appOutput, runControl, messageHandler);
+            QObject::connect(handler, &IosToolHandler::message, runControl, messageHandler);
+            QObject::connect(
+                handler, &IosToolHandler::errorMsg, runControl, [runControl](const QString &message) {
+                    handleIosToolErrorMessage(runControl, message);
+                });
+            QObject::connect(
+                handler,
+                &IosToolHandler::gotServerPorts,
+                runControl,
+                [runControl, iface, debugInfo, handler](Port gdbPort, Port qmlPort) {
+                    handleIosToolStartedOnDevice(
+                        runControl, iface, debugInfo, handler, gdbPort, qmlPort);
+                });
+            QObject::connect(
+                handler,
+                &IosToolHandler::gotInferiorPid,
+                runControl,
+                [runControl, iface, debugInfo, handler](qint64 pid) {
+                    handleIosToolStartedOnSimulator(runControl, iface, debugInfo, handler, pid);
+                });
+            QObject::connect(iface, &RunInterface::canceled, handler, [handler] {
+                if (handler->isRunning())
+                    handler->stop();
+            });
+
+            const CommandLine command = runControl->commandLine();
+            QStringList args = ProcessArgs::splitArgs(command.arguments(), OsTypeMac);
+            const Port portOnDevice = Port(runControl->qmlChannel().port());
+            if (portOnDevice.isValid()) {
+                QUrl qmlServer;
+                qmlServer.setPort(portOnDevice.number());
+                args.append(qmlDebugTcpArguments(debugInfo.qmlDebugServices, qmlServer));
+            }
+
+            runControl->postMessage(Tr::tr("Starting remote process."), NormalMessageFormat);
+            QString deviceId;
+            if (IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device))
+                deviceId = dev->uniqueDeviceID();
+            const IosToolHandler::RunKind runKind = debugInfo.cppDebug ? IosToolHandler::DebugRun
+                                                                       : IosToolHandler::NormalRun;
+            handler->requestRunApp(bundleDir, args, runKind, deviceId);
+        });
+    };
+    const auto onIosToolDone = [runControl](DoneWith result) {
+        if (result == DoneWith::Success)
+            runControl->postMessage(Tr::tr("Run ended."), NormalMessageFormat);
+        else
+            runControl->postMessage(Tr::tr("Run ended with error."), ErrorMessageFormat);
+    };
+
+    return {
+        onGroupSetup(onSetup),
+        IosToolTask(onIosToolSetup, onIosToolDone)
+    };
 }
 
 static Result<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
@@ -683,7 +680,7 @@ IosRunWorkerFactory::IosRunWorkerFactory()
         runControl->setIcon(Icons::RUN_SMALL_TOOLBAR);
         runControl->setDisplayName(QString("Run on %1")
                                        .arg(iosdevice ? iosdevice->displayName() : QString()));
-        return new IosRunner(runControl);
+        return new RecipeRunner(runControl, iosToolRecipe(runControl));
     });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
@@ -755,7 +752,7 @@ static RunWorker *createWorker(RunControl *runControl)
     if (isIosRunner) {
         const DebugInfo debugInfo{rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices,
                                   rp.isCppDebugging()};
-        runner = new IosRunner(runControl, debugInfo);
+        runner = new RecipeRunner(runControl, iosToolRecipe(runControl, debugInfo));
     } else {
         QTC_ASSERT(rp.isCppDebugging(),
                    // TODO: The message is not shown currently, fix me before 17.0.
@@ -809,7 +806,7 @@ IosDebugWorkerFactory::IosDebugWorkerFactory()
 IosQmlProfilerWorkerFactory::IosQmlProfilerWorkerFactory()
 {
     setProducer([](RunControl *runControl) {
-        auto runner = new IosRunner(runControl, {QmlProfilerServices});
+        auto runner = new RecipeRunner(runControl, iosToolRecipe(runControl, {QmlProfilerServices}));
 
         auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
         profiler->addStartDependency(runner);
