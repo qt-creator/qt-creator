@@ -78,6 +78,8 @@
         \li \c codellama:7b-code
         \li \c deepseek-coder-v2:lite
         \li \c starcoder2:7b
+        \li \c theqtcompany/codellama-7b-qml
+        \li \c theqtcompany/codellama-13b-qml
     \endlist
 
     \section2 Custom models
@@ -86,6 +88,7 @@
     You can use the following custom models:
 
     \list
+        \li \l {https://huggingface.co/QtGroup/CodeLlama-7B-QML}{codellama:7b-code-qml}
         \li \l {https://huggingface.co/QtGroup/CodeLlama-13B-QML}{codellama:13b-code-qml}
     \endlist
 
@@ -98,8 +101,6 @@
             of your choice)
         \li Meta Code Llama 13B (for Qt 5, running in a cloud deployment of your
             choice)
-        \li Meta Code Llama 13B QML through Ollama (running locally on your
-            computer)
         \li Meta Llama 3.3 70B QML (running in a cloud deployment of your choice)
         \li Anthropic Claude 3.5 Sonnet (provided by Anthropic, remember that you
             need to have a token-based billing payment method configured for your
@@ -107,7 +108,10 @@
         \li OpenAI GPT-4o (provided by OpenAI, remember that you need to have a
             token-based billing payment method configured for your OpenAI account:
             \l {https://platform.openai.com/}{platform.openai.com})
+        \li Meta Code Llama 13B QML through Ollama (running locally on your computer)
+        \li Meta Code Llama 7B QML through Ollama (running locally on your computer)
         \li Meta Code Llama 7B through Ollama (running locally on your computer)
+        \li DeepSeek Coder V2 Lite through Ollama (running locally on your computer)
         \li BigCode StarCoder2 through Ollama (running locally on your computer)
     \endlist
 

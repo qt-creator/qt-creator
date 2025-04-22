@@ -59705,7 +59705,7 @@ Influence l’indentation des lignes de continuation.
     </message>
     <message>
         <source>Swap Views</source>
-        <translation>Afficher les vues</translation>
+        <translation>Intervertir les vues</translation>
     </message>
     <message>
         <source>JSON Editor</source>
