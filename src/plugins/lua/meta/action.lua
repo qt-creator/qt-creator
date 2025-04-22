@@ -42,6 +42,7 @@ function action.trigger(id) end
 
 ---@class Command
 ---@field enabled boolean Whether the command is enabled or not.
+---@field keySequences QKeySequence[] Current key sequences for the command.
 ---@field text string The text of the command. Make sure to specify `commandAttributes = CommandAttribute.CA_UpdateText` in the options.
 ---@field toolTip string The toolTip of the command. Make sure to specify `commandAttributes = CommandAttribute.CA_UpdateText` in the options.
 Command = {}
