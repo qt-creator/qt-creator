@@ -8,14 +8,15 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
 
 #include <QCheckBox>
 #include <QDateTime>
 #include <QDebug>
+#include <QDialog>
 #include <QDialogButtonBox>
-#include <QDir>
 #include <QFileInfo>
 #include <QLabel>
 #include <QLocale>
@@ -24,8 +25,36 @@ using namespace Utils;
 
 namespace Core {
 
-FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath, QWidget *parent)
-    : QDialog(parent)
+class FilePropertiesDialog final : public QDialog
+{
+public:
+    explicit FilePropertiesDialog(const FilePath &filePath);
+
+private:
+    void refresh();
+    void setPermission(QFile::Permissions newPermissions, bool set);
+    void detectTextFileSettings();
+
+    QLabel *m_name;
+    QLabel *m_path;
+    QLabel *m_mimeType;
+    QLabel *m_defaultEditor;
+    QLabel *m_lineEndings;
+    QLabel *m_indentation;
+    QLabel *m_owner;
+    QLabel *m_group;
+    QLabel *m_size;
+    QLabel *m_lastRead;
+    QLabel *m_lastModified;
+    QCheckBox *m_readable;
+    QCheckBox *m_writable;
+    QCheckBox *m_executable;
+    QCheckBox *m_symLink;
+    const FilePath m_filePath;
+};
+
+FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath)
+    : QDialog(dialogParent())
     , m_name(new QLabel)
     , m_path(new QLabel)
     , m_mimeType(new QLabel)
@@ -100,8 +129,6 @@ FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath, QWidget *pa
 
     refresh();
 }
-
-FilePropertiesDialog::~FilePropertiesDialog() = default;
 
 void FilePropertiesDialog::detectTextFileSettings()
 {
@@ -226,6 +253,12 @@ void FilePropertiesDialog::setPermission(QFile::Permissions newPermissions, bool
     });
 
     refresh();
+}
+
+void executeFilePropertiesDialog(const FilePath &filePath)
+{
+    FilePropertiesDialog dialog(filePath);
+    dialog.exec();
 }
 
 } // Core

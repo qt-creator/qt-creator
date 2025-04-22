@@ -1018,8 +1018,7 @@ bool DocumentManager::saveModifiedDocument(IDocument *document, const QString &m
 
 void DocumentManager::showFilePropertiesDialog(const FilePath &filePath)
 {
-    FilePropertiesDialog properties(filePath);
-    properties.exec();
+    Core::executeFilePropertiesDialog(filePath);
 }
 
 /*!
