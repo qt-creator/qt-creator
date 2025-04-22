@@ -9,15 +9,24 @@ namespace Utils {
 
 const Result<> ResultOk;
 
+static QString messageForCode(ResultSpecialErrorCode code)
+{
+    switch (code) {
+    case ResultAssert:
+        return Tr::tr("Internal error: %1");
+    case ResultUnimplemented:
+        return Tr::tr("Not implemented error: %1");
+    default:
+        return Tr::tr("Unknown error: %1");
+    }
+}
+
 ResultError::ResultError(const QString &errorMessage)
     : m_error(errorMessage)
 {}
 
-ResultError::ResultError(ResultUnimplementedType)
-    : m_error(Tr::tr("Not implemented"))
-{}
-ResultError::ResultError(ResultAssertType, const QString &errorMessage)
-    : m_error(Tr::tr("Internal error: %1").arg(errorMessage))
+ResultError::ResultError(ResultSpecialErrorCode code, const QString &errorMessage)
+    : m_error(messageForCode(code).arg(errorMessage.isEmpty() ? Tr::tr("Unknown reason") : errorMessage))
 {}
 
 Result<> makeResult(bool ok, const QString &errorMessage)

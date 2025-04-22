@@ -19,15 +19,17 @@ QTCREATOR_UTILS_EXPORT extern const Result<> ResultOk;
 
 QTCREATOR_UTILS_EXPORT Result<> makeResult(bool ok, const QString &errorMessage);
 
-enum ResultUnimplementedType { ResultUnimplemented };
-enum ResultAssertType { ResultAssert };
+enum ResultSpecialErrorCode {
+    ResultAssert,
+    ResultUnimplemented,
+};
 
 class QTCREATOR_UTILS_EXPORT ResultError
 {
 public:
     ResultError(const QString &errorMessage);
-    ResultError(ResultUnimplementedType);
-    ResultError(ResultAssertType, const QString &errorMessage = {});
+    ResultError(ResultSpecialErrorCode code, const QString &errorMessage = {});
+
     template<typename T> operator Result<T>() { return tl::make_unexpected(m_error); }
 
 private:
