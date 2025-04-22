@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "core_global.h"
+#include "../core_global.h"
 
 namespace Utils { class FilePath; }
 
