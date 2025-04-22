@@ -67,7 +67,7 @@ void FileSystemAccessTest::initTestCase()
              << "\nHost:" << params.host()
              << "\nPort:" << params.port()
              << "\nUser:" << params.userName()
-             << "\nSSHKey:" << params.privateKeyFile;
+             << "\nSSHKey:" << params.privateKeyFile();
     if (!SshTest::checkParameters(params)) {
         m_skippedAtWhole = true;
         SshTest::printSetupHelp();
@@ -368,7 +368,7 @@ void FileSystemAccessTest::testFileTransfer()
     // Cleanup remote
     const FilePath remoteDir = m_device->filePath(QString("/tmp/foo/"));
     Result<> removeResult = remoteDir.removeRecursively();
-    QVERIFY2(removeResult, qPrintable(removeResult.error()));
+    QVERIFY2(removeResult, qPrintable(!removeResult ? removeResult.error() : QString()));
 }
 
 void FileSystemAccessTest::testFileStreamer_data()

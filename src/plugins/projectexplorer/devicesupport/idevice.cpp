@@ -517,14 +517,15 @@ void IDevice::fromMap(const Store &map)
         // Pre-4.9, the authentication enum used to have more values
         const int storedAuthType = map.value(AuthKey, DefaultAuthType).toInt();
         const bool outdatedAuthType = storedAuthType > SshParameters::AuthenticationTypeSpecificKey;
-        ssh.authenticationType = outdatedAuthType ? SshParameters::AuthenticationTypeAll
-                                                  : static_cast<AuthType>(storedAuthType);
+        ssh.setAuthenticationType(
+            outdatedAuthType ? SshParameters::AuthenticationTypeAll
+                             : static_cast<AuthType>(storedAuthType));
 
-        ssh.privateKeyFile = FilePath::fromSettings(
-            map.value(KeyFileKey, defaultPrivateKeyFilePath()));
-        ssh.timeout = map.value(TimeoutKey, DefaultTimeout).toInt();
-        ssh.hostKeyCheckingMode = static_cast<SshHostKeyCheckingMode>(
-            map.value(HostKeyCheckingKey, SshHostKeyCheckingNone).toInt());
+        ssh.setPrivateKeyFile(
+            FilePath::fromSettings(map.value(KeyFileKey, defaultPrivateKeyFilePath())));
+        ssh.setTimeout(map.value(TimeoutKey, DefaultTimeout).toInt());
+        ssh.setHostKeyCheckingMode(static_cast<SshHostKeyCheckingMode>(
+            map.value(HostKeyCheckingKey, SshHostKeyCheckingNone).toInt()));
     });
 
     QString portsSpec = map.value(PortsSpecKey).toString();
@@ -558,10 +559,10 @@ void IDevice::toMap(Store &map) const
         map.insert(HostKey, ssh.host());
         map.insert(SshPortKey, ssh.port());
         map.insert(UserNameKey, ssh.userName());
-        map.insert(AuthKey, ssh.authenticationType);
-        map.insert(KeyFileKey, ssh.privateKeyFile.toSettings());
-        map.insert(TimeoutKey, ssh.timeout);
-        map.insert(HostKeyCheckingKey, ssh.hostKeyCheckingMode);
+        map.insert(AuthKey, ssh.authenticationType());
+        map.insert(KeyFileKey, ssh.privateKeyFile().toSettings());
+        map.insert(TimeoutKey, ssh.timeout());
+        map.insert(HostKeyCheckingKey, ssh.hostKeyCheckingMode());
     });
 
     map.insert(PortsSpecKey, d->freePorts.toString());

@@ -41,7 +41,7 @@ QString SshParameters::userAtHostAndPort() const
 QStringList SshParameters::connectionOptions(const FilePath &binary) const
 {
     QString hostKeyCheckingString;
-    switch (hostKeyCheckingMode) {
+    switch (m_hostKeyCheckingMode) {
     case SshHostKeyCheckingNone:
     case SshHostKeyCheckingAllowNoMatch:
         // There is "accept-new" as well, but only since 7.6.
@@ -58,9 +58,9 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
     if (!userName().isEmpty())
         args << "-o" << "User=" + userName();
 
-    const bool keyOnly = authenticationType == SshParameters::AuthenticationTypeSpecificKey;
+    const bool keyOnly = m_authenticationType == SshParameters::AuthenticationTypeSpecificKey;
     if (keyOnly)
-        args << "-o" << "IdentitiesOnly=yes" << "-i" << privateKeyFile.path();
+        args << "-o" << "IdentitiesOnly=yes" << "-i" << m_privateKeyFile.path();
 
     const QString batchModeEnabled = (keyOnly || SshSettings::askpassFilePath().isEmpty())
             ? QLatin1String("yes") : QLatin1String("no");
@@ -68,9 +68,9 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
 
     const bool isWindows = HostOsInfo::isWindowsHost()
             && binary.toUrlishString().toLower().contains("/system32/");
-    const bool useTimeout = (timeout != 0) && !isWindows;
+    const bool useTimeout = (m_timeout != 0) && !isWindows;
     if (useTimeout)
-        args << "-o" << "ConnectTimeout=" + QString::number(timeout);
+        args << "-o" << "ConnectTimeout=" + QString::number(m_timeout);
 
     return args;
 }
@@ -108,11 +108,11 @@ bool operator==(const SshParameters &p1, const SshParameters &p2)
     return p1.m_host == p2.m_host
             && p1.m_port == p2.m_port
             && p1.m_userName == p2.m_userName
-            && p1.authenticationType == p2.authenticationType
-            && p1.privateKeyFile == p2.privateKeyFile
-            && p1.hostKeyCheckingMode == p2.hostKeyCheckingMode
-            && p1.x11DisplayName == p2.x11DisplayName
-            && p1.timeout == p2.timeout;
+            && p1.m_authenticationType == p2.m_authenticationType
+            && p1.m_privateKeyFile == p2.m_privateKeyFile
+            && p1.m_hostKeyCheckingMode == p2.m_hostKeyCheckingMode
+            && p1.m_x11DisplayName == p2.m_x11DisplayName
+            && p1.m_timeout == p2.m_timeout;
 }
 
 #ifdef WITH_TESTS
@@ -169,14 +169,14 @@ SshParameters getParameters()
     SshParameters params;
     if (!qtcEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS")) {
         params.setUserName(getUserFromEnvironment());
-        params.privateKeyFile = FilePath::fromUserInput(getKeyFileFromEnvironment());
+        params.setPrivateKeyFile(FilePath::fromUserInput(getKeyFileFromEnvironment()));
     }
     params.setHost(getHostFromEnvironment());
     params.setPort(getPortFromEnvironment());
-    params.timeout = 10;
-    params.authenticationType = !params.privateKeyFile.isEmpty()
-            ? SshParameters::AuthenticationTypeSpecificKey
-            : SshParameters::AuthenticationTypeAll;
+    params.setTimeout(10);
+    params.setAuthenticationType(
+        !params.privateKeyFile().isEmpty() ? SshParameters::AuthenticationTypeSpecificKey
+                                           : SshParameters::AuthenticationTypeAll);
     return params;
 }
 
@@ -190,7 +190,7 @@ bool checkParameters(const SshParameters &params)
     }
     if (params.userName().isEmpty())
         qWarning("No user name provided - test may fail with empty default. Set QTC_SSH_TEST_USER.");
-    if (params.privateKeyFile.isEmpty()) {
+    if (params.privateKeyFile().isEmpty()) {
         qWarning("No key file provided. Set QTC_SSH_TEST_KEYFILE.");
         return false;
     }

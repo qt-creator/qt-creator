@@ -173,9 +173,9 @@ void GenericLinuxDeviceConfigurationWidget::authenticationTypeChanged()
 {
     SshParameters sshParams = device()->sshParameters();
     const bool useKeyFile = m_keyButton->isChecked();
-    sshParams.authenticationType = useKeyFile
-            ? SshParameters::AuthenticationTypeSpecificKey
-            : SshParameters::AuthenticationTypeAll;
+    sshParams.setAuthenticationType(
+        useKeyFile ? SshParameters::AuthenticationTypeSpecificKey
+                   : SshParameters::AuthenticationTypeAll);
     device()->setSshParameters(sshParams);
     m_keyFileLineEdit->setEnabled(useKeyFile);
     m_keyLabel->setEnabled(useKeyFile);
@@ -198,7 +198,7 @@ void GenericLinuxDeviceConfigurationWidget::sshPortEditingFinished()
 void GenericLinuxDeviceConfigurationWidget::timeoutEditingFinished()
 {
     SshParameters sshParams = device()->sshParameters();
-    sshParams.timeout = m_timeoutSpinBox->value();
+    sshParams.setTimeout(m_timeoutSpinBox->value());
     device()->setSshParameters(sshParams);
 }
 
@@ -212,7 +212,7 @@ void GenericLinuxDeviceConfigurationWidget::userNameEditingFinished()
 void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 {
     SshParameters sshParams = device()->sshParameters();
-    sshParams.privateKeyFile = m_keyFileLineEdit->filePath();
+    sshParams.setPrivateKeyFile(m_keyFileLineEdit->filePath());
     device()->setSshParameters(sshParams);
 }
 
@@ -248,8 +248,8 @@ void GenericLinuxDeviceConfigurationWidget::createNewKey()
 void GenericLinuxDeviceConfigurationWidget::hostKeyCheckingChanged(bool doCheck)
 {
     SshParameters sshParams = device()->sshParameters();
-    sshParams.hostKeyCheckingMode
-            = doCheck ? SshHostKeyCheckingAllowNoMatch : SshHostKeyCheckingNone;
+    sshParams.setHostKeyCheckingMode(
+        doCheck ? SshHostKeyCheckingAllowNoMatch : SshHostKeyCheckingNone);
     device()->setSshParameters(sshParams);
 }
 
@@ -309,7 +309,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
 
     const SshParameters &sshParams = device()->sshParameters();
 
-    switch (sshParams.authenticationType) {
+    switch (sshParams.authenticationType()) {
     case SshParameters::AuthenticationTypeSpecificKey:
         m_keyButton->setChecked(true);
         break;
@@ -317,10 +317,10 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
         m_defaultAuthButton->setChecked(true);
         break;
     }
-    m_timeoutSpinBox->setValue(sshParams.timeout);
+    m_timeoutSpinBox->setValue(sshParams.timeout());
     m_hostLineEdit->setEnabled(!device()->isAutoDetected());
     m_sshPortSpinBox->setEnabled(!device()->isAutoDetected());
-    m_hostKeyCheckBox->setChecked(sshParams.hostKeyCheckingMode != SshHostKeyCheckingNone);
+    m_hostKeyCheckBox->setChecked(sshParams.hostKeyCheckingMode() != SshHostKeyCheckingNone);
     m_sourceProfileCheckBox->setChecked(device()->extraData(Constants::SourceProfile).toBool());
     Id linkDeviceId = Id::fromSetting(device()->extraData(Constants::LinkDevice));
     auto dm = DeviceManager::instance();
@@ -341,11 +341,11 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_hostLineEdit->setText(sshParams.host());
     m_sshPortSpinBox->setValue(sshParams.port());
     m_portsLineEdit->setText(device()->freePorts().toString());
-    m_timeoutSpinBox->setValue(sshParams.timeout);
+    m_timeoutSpinBox->setValue(sshParams.timeout());
     m_userLineEdit->setText(sshParams.userName());
-    m_keyFileLineEdit->setFilePath(sshParams.privateKeyFile);
+    m_keyFileLineEdit->setFilePath(sshParams.privateKeyFile());
     m_keyFileLineEdit->setEnabled(
-        sshParams.authenticationType == SshParameters::AuthenticationTypeSpecificKey);
+        sshParams.authenticationType() == SshParameters::AuthenticationTypeSpecificKey);
     m_gdbServerLineEdit->setFilePath(device()->debugServerPath());
     m_qmlRuntimeLineEdit->setFilePath(device()->qmlRunCommand());
     m_useSshPortForwardingForDebugging->setChecked(

@@ -31,7 +31,7 @@ public:
 
 PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(const DeviceConstRef &device)
 {
-    const FilePath dir = device.sshParameters().privateKeyFile.parentDir();
+    const FilePath dir = device.sshParameters().privateKeyFile().parentDir();
     const FilePath publicKeyFileName = FileUtils::getOpenFilePath(
         Tr::tr("Choose Public Key File"), dir,
         Tr::tr("Public Key Files (*.pub);;All Files (*)"));
@@ -78,11 +78,11 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
             + "' >> .ssh/authorized_keys && chmod 0600 .ssh/authorized_keys";
 
     const SshParameters params = device.sshParameters();
-    const QString hostKeyCheckingString = params.hostKeyCheckingMode == SshHostKeyCheckingStrict
+    const QString hostKeyCheckingString = params.hostKeyCheckingMode() == SshHostKeyCheckingStrict
             ? QLatin1String("yes") : QLatin1String("no");
     const bool isWindows = HostOsInfo::isWindowsHost()
             && SshSettings::sshFilePath().toUrlishString().toLower().contains("/system32/");
-    const bool useTimeout = (params.timeout != 0) && !isWindows;
+    const bool useTimeout = (params.timeout() != 0) && !isWindows;
 
     Utils::CommandLine cmd{SshSettings::sshFilePath()};
     QStringList args{"-q",
@@ -92,7 +92,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
         args << "-o" << "User=" + params.userName();
     args << "-o" << "BatchMode=no";
     if (useTimeout)
-        args << "-o" << "ConnectTimeout=" + QString::number(params.timeout);
+        args << "-o" << "ConnectTimeout=" + QString::number(params.timeout());
     args << params.host();
     cmd.addArgs(args);
 

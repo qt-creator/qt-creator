@@ -65,7 +65,7 @@ public:
         setType(Constants::QNX_QNX_OS_TYPE);
         setMachineType(IDevice::Hardware);
         SshParameters sshParams;
-        sshParams.timeout = 10;
+        sshParams.setTimeout(10);
         setSshParameters(sshParams);
         setFreePorts(PortList::fromString("10000-10100"));
         setExtraData(RemoteLinux::Constants::SourceProfile, true);

@@ -202,10 +202,10 @@ void SshSharedConnection::connectToHost()
                                             // connecting to the server. "echo" will print "\n"
                                             // on the process output if everything went fine.
             << connectionArgs(sshBinary);
-    if (!m_sshParameters.x11DisplayName.isEmpty()) {
+    if (!m_sshParameters.x11DisplayName().isEmpty()) {
         args.prepend("-X");
         Environment env = m_masterProcess->environment();
-        env.set("DISPLAY", m_sshParameters.x11DisplayName);
+        env.set("DISPLAY", m_sshParameters.x11DisplayName());
         m_masterProcess->setEnvironment(env);
     }
     m_masterProcess->setCommand(CommandLine(sshBinary, args));
@@ -712,8 +712,8 @@ void SshProcessInterfacePrivate::start()
             && !q->m_setup.m_extraData.value(Constants::DisableSharing).toBool();
 
     // TODO: Do we really need it for master process?
-    m_sshParameters.x11DisplayName
-            = q->m_setup.m_extraData.value("Ssh.X11ForwardToDisplay").toString();
+    m_sshParameters.setX11DisplayName(
+        q->m_setup.m_extraData.value("Ssh.X11ForwardToDisplay").toString());
 
     if (useConnectionSharing) {
         m_connecting = true;
@@ -761,11 +761,11 @@ void SshProcessInterfacePrivate::doStart()
 
     // TODO: what about other fields from m_setup?
     SshParameters::setupSshEnvironment(&m_process);
-    if (!m_sshParameters.x11DisplayName.isEmpty()) {
+    if (!m_sshParameters.x11DisplayName().isEmpty()) {
         Environment env = m_process.controlEnvironment();
         // Note: it seems this is no-op when shared connection is used.
         // In this case the display is taken from master process.
-        env.set("DISPLAY", m_sshParameters.x11DisplayName);
+        env.set("DISPLAY", m_sshParameters.x11DisplayName());
         m_process.setControlEnvironment(env);
     }
     m_process.setExtraData(q->m_setup.m_extraData);
@@ -779,7 +779,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
     const bool useTerminal = q->m_setup.m_terminalMode != TerminalMode::Off || q->m_setup.m_ptyData;
     const bool usePidMarker = !useTerminal;
     const bool sourceProfile = m_device->extraData(Constants::SourceProfile).toBool();
-    const bool useX = !m_sshParameters.x11DisplayName.isEmpty();
+    const bool useX = !m_sshParameters.x11DisplayName().isEmpty();
 
     CommandLine cmd{sshBinary};
 
@@ -849,7 +849,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 static SshParameters displayless(const SshParameters &sshParameters)
 {
     SshParameters parameters = sshParameters;
-    parameters.x11DisplayName.clear();
+    parameters.setX11DisplayName({});
     return parameters;
 }
 
@@ -1028,7 +1028,7 @@ LinuxDevice::LinuxDevice()
     setMachineType(IDevice::Hardware);
     setFreePorts(PortList::fromString(QLatin1String("10000-10100")));
     SshParameters sshParams;
-    sshParams.timeout = 10;
+    sshParams.setTimeout(10);
     setSshParameters(sshParams);
 
     addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device) {

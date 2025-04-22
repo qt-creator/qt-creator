@@ -148,7 +148,7 @@ public:
 
 private:
     void initializePage() final {
-        if (!m_device.sshParameters().privateKeyFile.isEmpty())
+        if (!m_device.sshParameters().privateKeyFile().isEmpty())
             m_keyFileChooser.setFilePath(m_keyFileChooser.filePath());
         m_iconLabel.clear();
     }
@@ -159,8 +159,8 @@ private:
     bool validatePage() final {
         if (!defaultKeys().contains(m_keyFileChooser.filePath())) {
             SshParameters sshParams = m_device.sshParameters();
-            sshParams.authenticationType = SshParameters::AuthenticationTypeSpecificKey;
-            sshParams.privateKeyFile = m_keyFileChooser.filePath();
+            sshParams.setAuthenticationType(SshParameters::AuthenticationTypeSpecificKey);
+            sshParams.setPrivateKeyFile(m_keyFileChooser.filePath());
             m_device.setSshParameters(sshParams);
         }
         return true;

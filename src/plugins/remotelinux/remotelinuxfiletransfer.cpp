@@ -36,7 +36,7 @@ const QByteArray s_pidMarker = "__qtc";
 static SshParameters displayless(const SshParameters &sshParameters)
 {
     SshParameters parameters = sshParameters;
-    parameters.x11DisplayName.clear();
+    parameters.setX11DisplayName({});
     return parameters;
 }
 

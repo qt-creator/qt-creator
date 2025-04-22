@@ -139,8 +139,8 @@ void QdbDevice::setupDefaultNetworkSettings(const QString &host)
     parameters.setHost(host);
     parameters.setUserName("root");
     parameters.setPort(22);
-    parameters.timeout = 10;
-    parameters.authenticationType = SshParameters::AuthenticationTypeAll;
+    parameters.setTimeout(10);
+    parameters.setAuthenticationType(SshParameters::AuthenticationTypeAll);
     setSshParameters(parameters);
 }
 

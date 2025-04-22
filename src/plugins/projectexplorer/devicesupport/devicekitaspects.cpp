@@ -277,7 +277,7 @@ private:
         expander->registerVariable(
             varName("KeyFile"), varDescription(Tr::tr("Private key file (%1)")), [kit] {
                 const IDevice::ConstPtr device = DeviceAspect::device(kit);
-                return device ? device->sshParameters().privateKeyFile.toUrlishString() : QString();
+                return device ? device->sshParameters().privateKeyFile().toUrlishString() : QString();
             });
         expander
             ->registerVariable(varName("Name"), varDescription(Tr::tr("Device name (%1)")), [kit] {
