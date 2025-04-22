@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlformatsettings.h"
+#include "qmljstoolstr.h"
 
+#include <coreplugin/messagemanager.h>
 #include <utils/commandline.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
@@ -130,7 +132,8 @@ QVersionNumber QmlFormatSettings::latestQmlFormatVersion() const
 void QmlFormatSettings::generateQmlFormatIniContent()
 {
     if (m_latestQmlFormat.isEmpty() || !m_latestQmlFormat.isExecutableFile()) {
-        qCWarning(qmlformatlog) << "No executable set for QmlFormat";
+        Core::MessageManager::writeSilently(
+            Tr::tr("No qmlformat executable found."));
         return;
     }
     std::shared_ptr<QTemporaryDir> tempDir = std::make_shared<QTemporaryDir>();
@@ -149,8 +152,8 @@ void QmlFormatSettings::generateQmlFormatIniContent()
             if (result.m_exitStatus == QProcess::NormalExit && result.m_exitCode == 0) {
                 emit qmlformatIniCreated(qmlformatIniFile);
             } else {
-                qCWarning(qmlformatlog) << "Failed to generate QmlFormat ini file:"
-                           << qmlformat->cmd().executable();
+                Core::MessageManager::writeSilently(
+                    Tr::tr("Failed to generate qmlformat.ini file."));
             }
         });
 
@@ -195,7 +198,8 @@ void QmlFormatProcess::run()
         return;
 
     if (m_cmd.executable().isEmpty()) {
-        qCWarning(qmlformatlog) << "No executable set for QmlFormatProcess";
+        Core::MessageManager::writeSilently(
+            Tr::tr("No qmlformat executable found."));
         return;
     }
     m_process->setCommand(m_cmd);
