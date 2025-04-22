@@ -48,7 +48,7 @@ QString AbstractEditorSupport::licenseTemplate(ProjectExplorer::Project *project
     expander.registerVariable("Cpp:License:ClassName", Tr::tr("The class name."),
                               [className] { return className; });
 
-    return Utils::TemplateEngine::processText(&expander, license, nullptr);
+    return TemplateEngine::processText(&expander, license).value_or(QString());
 }
 
 bool AbstractEditorSupport::usePragmaOnce(ProjectExplorer::Project *project)

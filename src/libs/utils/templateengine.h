@@ -5,24 +5,21 @@
 
 #include "utils_global.h"
 
+#include "result.h"
+
 QT_BEGIN_NAMESPACE
 class QJSEngine;
-class QString;
 QT_END_NAMESPACE
 
-namespace Utils {
+namespace Utils { class MacroExpander; }
 
-class MacroExpander;
+namespace Utils::TemplateEngine {
 
-class QTCREATOR_UTILS_EXPORT TemplateEngine {
-public:
-    static bool preprocessText(const QString &input, QString *output, QString *errorMessage);
+QTCREATOR_UTILS_EXPORT Result<QString> preprocessText(const QString &input);
 
-    static QString processText(MacroExpander *expander, const QString &input,
-                               QString *errorMessage);
+QTCREATOR_UTILS_EXPORT Result<QString> processText(MacroExpander *expander, const QString &input);
 
-    static bool evaluateBooleanJavaScriptExpression(QJSEngine &engine, const QString &expression,
-                                                    bool *result, QString *errorMessage);
-};
+QTCREATOR_UTILS_EXPORT Result<bool> evaluateBooleanJavaScriptExpression(QJSEngine &engine,
+                                                                        const QString &expression);
 
-} // namespace Utils
+} // namespace Utils::TemplateEngine

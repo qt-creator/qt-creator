@@ -143,13 +143,13 @@ Result<Core::GeneratedFile> JsonWizardFileGenerator::generateFile(const File &fi
                 return expander->resolveMacro(n, ret);
             });
 
-            QString errorMessage;
-            gf.setContents(TemplateEngine::processText(&nested,
-                                                       QString::fromUtf8(normalizeNewlines(contents.value())),
-                                                       &errorMessage));
-            if (!errorMessage.isEmpty()) {
+            const Result<QString> res =
+                    TemplateEngine::processText(&nested,
+                                    QString::fromUtf8(normalizeNewlines(contents.value())));
+            gf.setContents(res.value_or(QString()));
+            if (!res) {
                 return ResultError(Tr::tr("When processing \"%1\":<br>%2")
-                        .arg(file.source.toUserOutput(), errorMessage));
+                        .arg(file.source.toUserOutput(), res.error()));
             }
         }
         if (!file.source.isResourceFile()) // resource files mess up permissions, stay with default
