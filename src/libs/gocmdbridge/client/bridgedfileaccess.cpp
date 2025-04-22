@@ -76,7 +76,8 @@ Result<> FileAccess::deployAndInit(
         return ResultError(
             QString("Could not determine OS on remote host: %1").arg(unameOs.error()));
     }
-    Utils::Result<OsType> osType = osTypeFromString(*unameOs);
+
+    const Result<OsType> osType = osTypeFromString(*unameOs);
     if (!osType)
         return ResultError(osType.error());
 
@@ -88,14 +89,13 @@ Result<> FileAccess::deployAndInit(
             QString("Could not determine architecture on remote host: %1").arg(unameArch.error()));
     }
 
-    const Utils::Result<OsArch> osArch = osArchFromString(*unameArch);
+    const Result<OsArch> osArch = osArchFromString(*unameArch);
     if (!osArch)
         return ResultError(osArch.error());
 
     qCDebug(faLog) << deco() << "Remote host architecture:" << *unameArch;
 
-    const Utils::Result<Utils::FilePath> cmdBridgePath
-        = Client::getCmdBridgePath(*osType, *osArch, libExecPath);
+    const Result<FilePath> cmdBridgePath = Client::getCmdBridgePath(*osType, *osArch, libExecPath);
 
     if (!cmdBridgePath) {
         return ResultError(
@@ -105,39 +105,38 @@ Result<> FileAccess::deployAndInit(
 
     qCDebug(faLog) << deco() << "Using cmdbridge at:" << *cmdBridgePath;
 
-    if (!remoteRootPath.isLocal()) {
-        const auto cmdBridgeFileData = cmdBridgePath->fileContents();
+    if (remoteRootPath.isLocal())
+        return init(*cmdBridgePath, environment, false);
 
-        if (!cmdBridgeFileData) {
-            return ResultError(
-                QString("Could not read cmdbridge file: %1").arg(cmdBridgeFileData.error()));
-        }
+    const auto cmdBridgeFileData = cmdBridgePath->fileContents();
 
-        const auto tmpFile = run(
-            {remoteRootPath.withNewPath("mktemp"), {"-t", "cmdbridge.XXXXXXXXXX"}});
-
-        if (!tmpFile) {
-            return ResultError(
-                QString("Could not create temporary file: %1").arg(tmpFile.error()));
-        }
-
-        qCDebug(faLog) << deco() << "Using temporary file:" << *tmpFile;
-        const auto dd = run({remoteRootPath.withNewPath("dd"), {"of=" + *tmpFile}},
-                            *cmdBridgeFileData);
-
-        qCDebug(faLog) << deco() << "dd run";
-
-        const auto makeExecutable = run({remoteRootPath.withNewPath("chmod"), {"+x", *tmpFile}});
-
-        if (!makeExecutable) {
-            return ResultError(
-                QString("Could not make temporary file executable: %1").arg(makeExecutable.error()));
-        }
-
-        return init(remoteRootPath.withNewPath(*tmpFile), environment, true);
+    if (!cmdBridgeFileData) {
+        return ResultError(
+            QString("Could not read cmdbridge file: %1").arg(cmdBridgeFileData.error()));
     }
 
-    return init(*cmdBridgePath, environment, false);
+    const auto tmpFile = run(
+        {remoteRootPath.withNewPath("mktemp"), {"-t", "cmdbridge.XXXXXXXXXX"}});
+
+    if (!tmpFile) {
+        return ResultError(
+            QString("Could not create temporary file: %1").arg(tmpFile.error()));
+    }
+
+    qCDebug(faLog) << deco() << "Using temporary file:" << *tmpFile;
+    const auto dd = run({remoteRootPath.withNewPath("dd"), {"of=" + *tmpFile}},
+                        *cmdBridgeFileData);
+
+    qCDebug(faLog) << deco() << "dd run";
+
+    const auto makeExecutable = run({remoteRootPath.withNewPath("chmod"), {"+x", *tmpFile}});
+
+    if (!makeExecutable) {
+        return ResultError(
+            QString("Could not make temporary file executable: %1").arg(makeExecutable.error()));
+    }
+
+    return init(remoteRootPath.withNewPath(*tmpFile), environment, true);
 }
 
 bool FileAccess::isExecutableFile(const FilePath &filePath) const
@@ -524,7 +523,7 @@ Result<qint64> FileAccess::writeFileContents(const FilePath &filePath,
 Result<> FileAccess::removeFile(const FilePath &filePath) const
 {
     try {
-        Utils::Result<QFuture<void>> f = m_client->removeFile(filePath.nativePath());
+        Result<QFuture<void>> f = m_client->removeFile(filePath.nativePath());
         if (!f)
             return ResultError(f.error());
         f->waitForFinished();
@@ -543,7 +542,7 @@ Result<> FileAccess::removeFile(const FilePath &filePath) const
     return ResultOk;
 }
 
-Result<> FileAccess::removeRecursively(const Utils::FilePath &filePath) const
+Result<> FileAccess::removeRecursively(const FilePath &filePath) const
 {
     try {
         auto f = m_client->removeRecursively(filePath.nativePath());
@@ -556,7 +555,7 @@ Result<> FileAccess::removeRecursively(const Utils::FilePath &filePath) const
     }
 }
 
-bool FileAccess::ensureExistingFile(const Utils::FilePath &filePath) const
+bool FileAccess::ensureExistingFile(const FilePath &filePath) const
 {
     try {
         auto f = m_client->ensureExistingFile(filePath.nativePath());
@@ -569,7 +568,7 @@ bool FileAccess::ensureExistingFile(const Utils::FilePath &filePath) const
     }
 }
 
-bool FileAccess::createDirectory(const Utils::FilePath &filePath) const
+bool FileAccess::createDirectory(const FilePath &filePath) const
 {
     try {
         auto f = m_client->createDir(filePath.nativePath());
@@ -598,7 +597,7 @@ Result<> FileAccess::copyFile(const FilePath &filePath, const FilePath &target) 
 Result<> FileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
     try {
-        Utils::Result<QFuture<void>> f
+        Result<QFuture<void>> f
             = m_client->renameFile(filePath.nativePath(), target.nativePath());
         if (!f)
             return ResultError(f.error());
@@ -646,7 +645,7 @@ Result<FilePath> FileAccess::createTempFile(const FilePath &filePath)
             path += ".*";
         }
 
-        Utils::Result<QFuture<Utils::FilePath>> f = m_client->createTempFile(path);
+        Result<QFuture<FilePath>> f = m_client->createTempFile(path);
         QTC_ASSERT_RESULT(f, return {});
         f->waitForFinished();
 
@@ -710,8 +709,10 @@ void FileAccess::iterateDirectory(const FilePath &filePath,
 
     qCDebug(faLog) << "Iterated directory" << filePath.toUserOutput() << "in" << t.elapsed() << "ms";
 }
-Utils::Environment FileAccess::deviceEnvironment() const
+
+Environment FileAccess::deviceEnvironment() const
 {
     return m_environment;
 }
+
 } // namespace CmdBridge
