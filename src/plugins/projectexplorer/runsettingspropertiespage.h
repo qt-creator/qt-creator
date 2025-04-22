@@ -40,6 +40,7 @@ private:
     void currentRunConfigurationChanged(int index);
     void showAddRunConfigDialog();
     void cloneRunConfiguration();
+    void cloneOtherRunConfiguration();
     void removeRunConfiguration();
     void removeAllRunConfigurations();
     void activeRunConfigurationChanged();
@@ -56,7 +57,7 @@ private:
     QString uniqueDCName(const QString &name);
     QString uniqueRCName(const QString &name);
     void updateDeployConfiguration(DeployConfiguration *);
-    void setConfigurationWidget(RunConfiguration *rc);
+    void setConfigurationWidget(RunConfiguration *rc, bool force);
 
     void addRunControlWidgets();
     void addSubWidget(QWidget *subWidget, QLabel *label);
@@ -87,6 +88,7 @@ private:
     QPushButton *m_removeAllRunConfigsButton;
     QPushButton *m_renameRunButton;
     QPushButton *m_cloneRunButton;
+    QPushButton *m_cloneIntoThisButton;
     QPushButton *m_renameDeployButton;
     Utils::InfoLabel *m_disabledText;
 };

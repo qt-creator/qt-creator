@@ -28,6 +28,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/variablechooser.h>
 
 #include <QComboBox>
@@ -415,6 +416,23 @@ RunConfiguration *RunConfiguration::clone(BuildConfiguration *bc)
     Store map;
     toMap(map);
     return RunConfigurationFactory::restore(bc, map);
+}
+
+void RunConfiguration::cloneFromOther(const RunConfiguration *rc)
+{
+    Store map;
+    rc->toMap(map);
+    fromMap(map);
+
+    // Same build config? Then uniquify the name.
+    if (rc->buildConfiguration() == buildConfiguration()) {
+        QList<RunConfiguration *> others = buildConfiguration()->runConfigurations();
+        others.removeOne(this);
+        const QStringList otherNames = Utils::transform(others, [](const RunConfiguration *rc) {
+            return rc->displayName();
+        });
+        setDisplayName(makeUniquelyNumbered(rc->displayName(), otherNames));
+    }
 }
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const

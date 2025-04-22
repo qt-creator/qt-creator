@@ -7,6 +7,7 @@
 #include "buildmanager.h"
 #include "buildstepspage.h"
 #include "deployconfiguration.h"
+#include "project.h"
 #include "projectconfigurationmodel.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
@@ -14,23 +15,131 @@
 #include "target.h"
 
 #include <utils/guiutils.h>
+#include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
+#include <utils/treemodel.h>
 
 #include <QAction>
 #include <QComboBox>
+#include <QDialogButtonBox>
 #include <QGridLayout>
+#include <QHash>
 #include <QInputDialog>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPointer>
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QWidget>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
+namespace {
+class CloneIntoRunConfigDialog : public QDialog
+{
+public:
+    CloneIntoRunConfigDialog(const RunConfiguration *thisRc)
+        : m_rcModel(new RCModel), m_rcView(new TreeView(this))
+    {
+        // Collect run configurations.
+        using RCList = QList<const RunConfiguration *>;
+        using RCsPerBuildConfig = QHash<const BuildConfiguration *, RCList>;
+        QHash<const Target *, RCsPerBuildConfig> eligibleRcs;
+        for (const Target * const t : thisRc->project()->targets()) {
+            RCsPerBuildConfig rcsForTarget;
+            for (const BuildConfiguration * const bc : t->buildConfigurations()) {
+                RCList rcsForBuildConfig;
+                for (const RunConfiguration * const rc : bc->runConfigurations()) {
+                    if (rc != thisRc && rc->buildKey() == thisRc->buildKey())
+                        rcsForBuildConfig << rc;
+                }
+                if (!rcsForBuildConfig.isEmpty())
+                    rcsForTarget.insert(bc, rcsForBuildConfig);
+            }
+            if (!rcsForTarget.isEmpty())
+                eligibleRcs.insert(t, rcsForTarget);
+        }
+
+        // Initialize model. Only use static data. This way, we are immune
+        // to removal of any configurations while the dialog is running.
+        if (eligibleRcs.isEmpty()) {
+            m_rcModel->rootItem()->appendChild(new StaticTreeItem(
+                Tr::tr("There are no other run configurations for this application.")));
+        } else {
+            for (auto targetIt = eligibleRcs.cbegin(); targetIt != eligibleRcs.cend(); ++targetIt) {
+                const auto targetItem = new StaticTreeItem(targetIt.key()->displayName());
+                for (auto bcIt = targetIt.value().cbegin(); bcIt != targetIt.value().cend();
+                     ++bcIt) {
+                    const auto bcItem = new StaticTreeItem(bcIt.key()->displayName());
+                    for (const RunConfiguration *const rc : std::as_const(bcIt.value()))
+                        bcItem->appendChild(new RCTreeItem(rc));
+                    targetItem->appendChild(bcItem);
+                }
+                m_rcModel->rootItem()->appendChild(targetItem);
+            }
+        }
+
+        // UI
+        m_rcView->setModel(m_rcModel);
+        m_rcView->expandAll();
+        setWindowTitle(Tr::tr("Clone From Run Configuration"));
+        m_rcView->setSelectionMode(TreeView::SingleSelection);
+        m_rcView->setSelectionBehavior(TreeView::SelectItems);
+        m_rcView->setSortingEnabled(true);
+        m_rcView->resizeColumnToContents(0);
+        m_rcView->sortByColumn(0, Qt::AscendingOrder);
+        const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        buttonBox->button(QDialogButtonBox::Ok)->setText(Tr::tr("Clone"));
+        connect(m_rcView, &TreeView::doubleClicked, this, [this] { accept(); });
+        const auto updateOkButton = [buttonBox, this] {
+            buttonBox->button(QDialogButtonBox::Ok)
+                ->setEnabled(isRcItem(m_rcView->selectionModel()->currentIndex()));
+        };
+        connect(m_rcView->selectionModel(), &QItemSelectionModel::selectionChanged,
+                this, updateOkButton);
+        updateOkButton();
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        const auto layout = new QVBoxLayout(this);
+        layout->addWidget(m_rcView);
+        layout->addWidget(buttonBox);
+    }
+
+    const RunConfiguration *source() const { return m_source; }
+
+private:
+    class RCTreeItem : public StaticTreeItem
+    {
+    public:
+        RCTreeItem(const RunConfiguration *rc): StaticTreeItem(rc->displayName()), m_rc(rc) {}
+        const RunConfiguration *runConfig() const { return m_rc; }
+    private:
+        QPointer<const RunConfiguration> m_rc;
+    };
+
+    void accept() override
+    {
+        const QModelIndex current = m_rcView->selectionModel()->currentIndex();
+        QTC_ASSERT(isRcItem(current), return);
+        const auto item = dynamic_cast<RCTreeItem *>(m_rcModel->itemForIndex(current));
+        QTC_ASSERT(item, return);
+        m_source = item->runConfig();
+        QDialog::accept();
+    }
+
+    bool isRcItem(const QModelIndex &index) const { return index.parent().parent().isValid(); }
+
+    using RCModel = TreeModel<TreeItem, StaticTreeItem, StaticTreeItem, RCTreeItem>;
+    RCModel * const m_rcModel;
+    TreeView * const m_rcView;
+    const RunConfiguration * m_source = nullptr;
+};
+} // namespace
 
 // RunSettingsWidget
 
@@ -57,6 +166,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_removeAllRunConfigsButton = new QPushButton(Tr::tr("Remove All"), this);
     m_renameRunButton = new QPushButton(Tr::tr("Rename..."), this);
     m_cloneRunButton = new QPushButton(Tr::tr("Clone..."), this);
+    m_cloneIntoThisButton = new QPushButton(Tr::tr("Clone Into This..."), this);
 
     auto spacer1 = new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
     auto spacer2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -94,7 +204,8 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_gridLayout->addWidget(m_removeAllRunConfigsButton, 4, 4, 1, 1);
     m_gridLayout->addWidget(m_renameRunButton, 4, 5, 1, 1);
     m_gridLayout->addWidget(m_cloneRunButton, 4, 6, 1, 1);
-    m_gridLayout->addItem(spacer1, 4, 7, 1, 1);
+    m_gridLayout->addWidget(m_cloneIntoThisButton, 4, 7, 1, 1);
+    m_gridLayout->addItem(spacer1, 4, 8, 1, 1);
     m_gridLayout->addWidget(runWidget, 5, 0, 1, -1);
     m_gridLayout->addItem(spacer2, 6, 0, 1, 1);
 
@@ -140,6 +251,8 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
             this, &RunSettingsWidget::renameRunConfiguration);
     connect(m_cloneRunButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::cloneRunConfiguration);
+    connect(m_cloneIntoThisButton, &QAbstractButton::clicked,
+            this, &RunSettingsWidget::cloneOtherRunConfiguration);
 
     connect(m_target, &Target::addedRunConfiguration,
             this, &RunSettingsWidget::updateRemoveToolButtons);
@@ -194,6 +307,22 @@ void RunSettingsWidget::cloneRunConfiguration()
     m_target->activeBuildConfiguration()->setActiveRunConfiguration(newRc);
 }
 
+void RunSettingsWidget::cloneOtherRunConfiguration()
+{
+    // Paranoia: Guard against project changes during the dialog run.
+    const QPointer<RunConfiguration> thisRc = m_target->activeRunConfiguration();
+    const QPointer<BuildConfiguration> bc(thisRc->buildConfiguration());
+
+    CloneIntoRunConfigDialog dlg(m_target->activeRunConfiguration());
+    if (dlg.exec() == QDialog::Accepted) {
+        const RunConfiguration * const otherRc = dlg.source();
+        if (bc && otherRc && thisRc && thisRc == m_target->activeRunConfiguration()) {
+            thisRc->cloneFromOther(otherRc);
+            setConfigurationWidget(thisRc, true); // Force visual update.
+        }
+    }
+}
+
 void RunSettingsWidget::removeRunConfiguration()
 {
     RunConfiguration *rc = m_target->activeRunConfiguration();
@@ -209,6 +338,7 @@ void RunSettingsWidget::removeRunConfiguration()
     updateRemoveToolButtons();
     m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
     m_cloneRunButton->setEnabled(m_target->activeRunConfiguration());
+    m_cloneIntoThisButton->setEnabled(m_target->activeRunConfiguration());
 }
 
 void RunSettingsWidget::removeAllRunConfigurations()
@@ -228,6 +358,7 @@ void RunSettingsWidget::removeAllRunConfigurations()
     updateRemoveToolButtons();
     m_renameRunButton->setEnabled(false);
     m_cloneRunButton->setEnabled(false);
+    m_cloneIntoThisButton->setEnabled(false);
 }
 
 void RunSettingsWidget::activeRunConfigurationChanged()
@@ -240,10 +371,12 @@ void RunSettingsWidget::activeRunConfigurationChanged()
     {
         const Utils::GuardLocker locker(m_ignoreChanges);
         m_runConfigurationCombo->setCurrentIndex(index);
-        setConfigurationWidget(qobject_cast<RunConfiguration *>(model->projectConfigurationAt(index)));
+        setConfigurationWidget(
+            qobject_cast<RunConfiguration *>(model->projectConfigurationAt(index)), false);
     }
     m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
     m_cloneRunButton->setEnabled(m_target->activeRunConfiguration());
+    m_cloneIntoThisButton->setEnabled(m_target->activeRunConfiguration());
 }
 
 void RunSettingsWidget::renameRunConfiguration()
@@ -283,7 +416,7 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
     }
 
     // Update the run configuration configuration widget
-    setConfigurationWidget(selectedRunConfiguration);
+    setConfigurationWidget(selectedRunConfiguration, false);
 }
 
 void RunSettingsWidget::currentDeployConfigurationChanged(int index)
@@ -401,8 +534,9 @@ void RunSettingsWidget::initForActiveBuildConfig()
     updateRemoveToolButtons();
     m_renameRunButton->setEnabled(rc);
     m_cloneRunButton->setEnabled(rc);
+    m_cloneIntoThisButton->setEnabled(rc);
 
-    setConfigurationWidget(rc);
+    setConfigurationWidget(rc, false);
 }
 
 void RunSettingsWidget::updateRemoveToolButtons()
@@ -449,9 +583,9 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     m_deployLayout->addWidget(m_deploySteps);
 }
 
-void RunSettingsWidget::setConfigurationWidget(RunConfiguration *rc)
+void RunSettingsWidget::setConfigurationWidget(RunConfiguration *rc, bool force)
 {
-    if (rc == m_runConfiguration)
+    if (!force && rc == m_runConfiguration)
         return;
 
     delete m_runConfigurationWidget;

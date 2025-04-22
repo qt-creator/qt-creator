@@ -173,6 +173,7 @@ public:
     void update();
 
     virtual RunConfiguration *clone(BuildConfiguration *bc);
+    void cloneFromOther(const RunConfiguration *rc);
 
     BuildConfiguration *buildConfiguration() const { return m_buildConfiguration; }
 
