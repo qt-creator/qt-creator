@@ -41,6 +41,7 @@ public:
         LocalStateNameType, // name of a state in the current file
         BindingNameType, // name on the left hand side of a binding
         FieldType, // member of an object
+        KeywordType, // keywords like "of" that are only keywords inside of foreach loops
         Max // number of the last used value (to generate the warning formats)
     };
 
