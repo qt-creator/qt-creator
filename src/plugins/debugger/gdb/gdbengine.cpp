@@ -4623,8 +4623,10 @@ void GdbEngine::runEngine()
 
         claimInitialBreakpoints();
         notifyEngineRunAndInferiorStopOk();
-
-        runCommand({"target remote " + extractRemoteChannel(rp.remoteChannel(), rp.remoteChannelPipe())});
+        // in case of vxworks target remote is already set by commandsAfterConnect
+        if (!rp.debugger().command.executable().contains("gdb_bin"))
+            runCommand({"target remote " + extractRemoteChannel(rp.remoteChannel(),
+                                                                rp.remoteChannelPipe())});
 
     } else if (runParameters().isLocalAttachEngine()) {
 
