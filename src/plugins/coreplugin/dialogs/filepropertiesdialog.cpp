@@ -105,16 +105,15 @@ FilePropertiesDialog::~FilePropertiesDialog() = default;
 
 void FilePropertiesDialog::detectTextFileSettings()
 {
-    QFile file(m_filePath.toUrlishString());
-    if (!file.open(QIODevice::ReadOnly)) {
+    const Result<QByteArray> res = m_filePath.fileContents(/*maxsize*/ 50000);
+    if (!res) {
         m_lineEndings->setText(Tr::tr("Unknown"));
         m_indentation->setText(Tr::tr("Unknown"));
         return;
     }
+    const QByteArray data = *res;
 
     char lineSeparator = '\n';
-    const QByteArray data = file.read(50000);
-    file.close();
 
     // Try to guess the files line endings
     if (data.contains("\r\n")) {
@@ -185,10 +184,10 @@ void FilePropertiesDialog::refresh()
         const QFileInfo fileInfo = m_filePath.toFileInfo();
         QLocale locale;
 
-        m_name->setText(fileInfo.fileName());
-        m_path->setText(QDir::toNativeSeparators(fileInfo.canonicalPath()));
+        m_name->setText(m_filePath.fileName());
+        m_path->setText(m_filePath.parentDir().toUserOutput());
 
-        const Utils::MimeType mimeType = Utils::mimeTypeForFile(m_filePath);
+        const MimeType mimeType = Utils::mimeTypeForFile(m_filePath);
         m_mimeType->setText(mimeType.name());
 
         const EditorFactories factories = IEditorFactory::preferredEditorTypes(m_filePath);
