@@ -219,8 +219,9 @@ static GroupItem killProcess(const Storage<AppInfo> &appInfo)
     return ProcessTask(onSetup, DoneResult::Success); // we tried our best and don't care at this point
 }
 
-static Group deviceCtlTask(RunControl *runControl, const Storage<AppInfo> &appInfo,
-                           const Storage<TemporaryFile> tempFileStorage, bool startStopped)
+static Group deviceCtlKicker(const SingleBarrier &barrier, RunControl *runControl,
+                             const Storage<AppInfo> &appInfo,
+                             const Storage<TemporaryFile> tempFileStorage, bool startStopped)
 {
     const auto launchApp = [runControl, appInfo, tempFileStorage, startStopped](const SingleBarrier &barrier) {
         const auto onSetup = [runControl, appInfo, tempFileStorage, startStopped, barrier](Process &process) {
@@ -266,10 +267,10 @@ static Group deviceCtlTask(RunControl *runControl, const Storage<AppInfo> &appIn
         return ProcessTask(onSetup, onDone);
     };
 
-    const auto onDone = [runControl, appInfo](DoneWith result) {
+    const auto onDone = [runControl, appInfo, barrier](DoneWith result) {
         if (result == DoneWith::Success) {
             runControl->setAttachPid(ProcessHandle(appInfo->processIdentifier));
-            emit runStorage()->started();
+            barrier->barrier()->advance();
         } else {
             runControl->postMessage(Tr::tr("Failed to retrieve process ID."), ErrorMessageFormat);
         }
@@ -284,7 +285,7 @@ static Group deviceCtlTask(RunControl *runControl, const Storage<AppInfo> &appIn
     };
 }
 
-static Group deviceCtlRecipe(RunControl *runControl, bool startStopped)
+static Group deviceCtlKicker(const SingleBarrier &barrier, RunControl *runControl, bool startStopped)
 {
     const Storage<AppInfo> appInfo;
     const Storage<TemporaryFile> tempFileStorage{QString("devicectl")};
@@ -313,7 +314,17 @@ static Group deviceCtlRecipe(RunControl *runControl, bool startStopped)
             findProcess(runControl, appInfo),
             killProcess(appInfo)
         }.withCancel(canceler()),
-        deviceCtlTask(runControl, appInfo, tempFileStorage, startStopped)
+        deviceCtlKicker(barrier, runControl, appInfo, tempFileStorage, startStopped)
+    };
+}
+
+static Group deviceCtlRecipe(RunControl *runControl, bool startStopped)
+{
+    const auto kicker = [runControl, startStopped](const SingleBarrier &barrier) {
+        return deviceCtlKicker(barrier, runControl, startStopped);
+    };
+    return When (kicker) >> Do {
+        Sync([] { emit runStorage()->started(); })
     };
 }
 
