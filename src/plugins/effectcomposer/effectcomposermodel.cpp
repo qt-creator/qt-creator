@@ -1666,7 +1666,7 @@ void EffectComposerModel::saveResources(const QString &name)
         }
     }
 
-    writeToFile(qmlUtf8, qmlFilePath, FileType::Text);
+    writeToFile(qmlUtf8, qmlFilePath);
     newFileNames.insert(qmlFilename);
 
     // Save shaders and images
@@ -2298,11 +2298,11 @@ void EffectComposerModel::bakeShaders()
 
     setVertexShader(generateVertexShader());
     QString vs = m_vertexShader;
-    writeToFile(vs.toUtf8(), m_vertexSourceFilename, FileType::Text);
+    writeToFile(vs.toUtf8(), m_vertexSourceFilename);
 
     setFragmentShader(generateFragmentShader());
     QString fs = m_fragmentShader;
-    writeToFile(fs.toUtf8(), m_fragmentSourceFilename, FileType::Text);
+    writeToFile(fs.toUtf8(), m_fragmentSourceFilename);
 
     QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(kit);
     if (!qtVer) {
@@ -2835,8 +2835,7 @@ void EffectComposerModel::addOrUpdateNodeUniform(int idx, const QVariantMap &dat
     startRebakeTimer();
 }
 
-bool EffectComposerModel::writeToFile(
-    const QByteArray &buf, const QString &fileName, [[maybe_unused]] FileType fileType)
+bool EffectComposerModel::writeToFile(const QByteArray &buf, const QString &fileName)
 {
     Utils::FilePath fp = Utils::FilePath::fromString(fileName);
     fp.absolutePath().createDir();
