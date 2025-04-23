@@ -233,4 +233,28 @@ ExecutableItem portsFromProcessRecipe(const Storage<PortsInputData> &input,
     return ProcessTask(onSetup, onDone);
 }
 
+PortListAspect::PortListAspect(AspectContainer *container)
+    : StringAspect(container)
+{
+    setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
+    setValidatorFactory([](QObject *parent) {
+        return new QRegularExpressionValidator(QRegularExpression(PortList::regularExpression()), parent);
+    });
+}
+
+void PortListAspect::addToLayoutImpl(Layouting::Layout &parent)
+{
+    StringAspect::addToLayoutImpl(parent);
+}
+
+void PortListAspect::setPortList(const PortList &ports)
+{
+    setValue(ports.toString());
+}
+
+PortList PortListAspect::portList() const
+{
+    return PortList::fromString(value());
+}
+
 } // namespace Utils
