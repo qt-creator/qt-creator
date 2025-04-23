@@ -651,6 +651,11 @@ void DesignModeWidget::setMinimumSizeHintFromContentMinimumSize(bool value)
         dockContainer->layout()->update();
 }
 
+bool DesignModeWidget::isInitialized() const
+{
+    return m_initStatus == Initialized;
+}
+
 void DesignModeWidget::dragEnterEvent(QDragEnterEvent *event)
 {
     event->accept();
