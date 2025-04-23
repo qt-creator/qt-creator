@@ -628,7 +628,7 @@ bool QmakePriFile::addDependencies(const QStringList &dependencies)
         return dep.length() > 3 && dep.startsWith("Qt.");
     });
     qtDependencies = transform(qtDependencies, [](const QString &dep) {
-        return dep.mid(3);
+        return dep.mid(3).toLower();
     });
     if (qtDependencies.isEmpty())
         return true;

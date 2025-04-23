@@ -309,17 +309,22 @@ bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, 
 
 bool QbsBuildSystem::addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies)
 {
+    const QStringList lowercaseDeps = transform(dependencies, [](const QString &dep) -> QString {
+        QTC_ASSERT(dep.size() > 3, return dep);
+        return dep.left(3) + dep.mid(3).toLower();
+    });
+
     if (session()->apiLevel() < 9)
-        return BuildSystem::addDependencies(context, dependencies);
+        return BuildSystem::addDependencies(context, lowercaseDeps);
 
     if (auto *n = dynamic_cast<QbsGroupNode *>(context)) {
         const QbsProductNode * const prdNode = parentQbsProductNode(n);
         QTC_ASSERT(prdNode, return false);
-        return addDependenciesToProduct(dependencies, prdNode->productData(), n->groupData());
+        return addDependenciesToProduct(lowercaseDeps, prdNode->productData(), n->groupData());
     }
 
     if (auto *n = dynamic_cast<QbsProductNode *>(context))
-        return addDependenciesToProduct(dependencies, n->productData(), n->mainGroup());
+        return addDependenciesToProduct(lowercaseDeps, n->productData(), n->mainGroup());
 
     return BuildSystem::addDependencies(context, dependencies);
 }
