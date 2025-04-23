@@ -45,35 +45,6 @@
 
 namespace Utils {
 
-// FileReader
-
-Result<> FileReader::fetch(const FilePath &filePath)
-{
-    const Result<QByteArray> contents = filePath.fileContents();
-    if (!contents)
-        return ResultError(contents.error());
-
-    m_data = *contents;
-    return ResultOk;
-}
-
-QByteArray FileReader::text() const
-{
-    QByteArray res = m_data;
-    res = res.replace("\r\n", "\n");
-    return res;
-}
-
-bool FileReader::fetch(const FilePath &filePath, QString *errorString)
-{
-    const Result<> res = fetch(filePath);
-    if (res)
-        return true;
-    if (errorString)
-        *errorString = res.error();
-    return false;
-}
-
 // FileSaver
 
 FileSaverBase::FileSaverBase()

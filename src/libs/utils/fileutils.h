@@ -141,18 +141,6 @@ T withNtfsPermissions(const std::function<T()> &task)
 
 #endif // Q_OS_WIN
 
-class QTCREATOR_UTILS_EXPORT FileReader
-{
-public:
-    Result<> fetch(const FilePath &filePath);
-    bool fetch(const FilePath &filePath, QString *errorString);
-    const QByteArray &data() const { return m_data; }
-    QByteArray text() const; // data with replaced \r\n -> \n
-
-private:
-    QByteArray m_data;
-};
-
 class QTCREATOR_UTILS_EXPORT FileSaverBase
 {
 public:
