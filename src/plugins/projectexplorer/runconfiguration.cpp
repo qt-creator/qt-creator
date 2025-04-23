@@ -420,19 +420,15 @@ RunConfiguration *RunConfiguration::clone(BuildConfiguration *bc)
 
 void RunConfiguration::cloneFromOther(const RunConfiguration *rc)
 {
-    Store map;
-    rc->toMap(map);
-    fromMap(map);
+    Store ownData;
+    toMap(ownData);
 
-    // Same build config? Then uniquify the name.
-    if (rc->buildConfiguration() == buildConfiguration()) {
-        QList<RunConfiguration *> others = buildConfiguration()->runConfigurations();
-        others.removeOne(this);
-        const QStringList otherNames = Utils::transform(others, [](const RunConfiguration *rc) {
-            return rc->displayName();
-        });
-        setDisplayName(makeUniquelyNumbered(rc->displayName(), otherNames));
-    }
+    Store copyData;
+    rc->toMap(copyData);
+    copyData.insert(Constants::CONFIGURATION_ID_KEY, ownData.value(Constants::CONFIGURATION_ID_KEY));
+    copyData.insert(Constants::DISPLAY_NAME_KEY, ownData.value(Constants::DISPLAY_NAME_KEY));
+    copyData.insert(BUILD_KEY, ownData.value(BUILD_KEY));
+    fromMap(copyData);
 }
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const

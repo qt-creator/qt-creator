@@ -128,6 +128,10 @@ const char COPY_DIRECTORY_STEP[] = "ProjectExplorer.CopyDirectoryStep";
 const char DEVICE_CHECK_STEP[] =  "ProjectExplorer.DeviceCheckBuildStep";
 const char CUSTOM_PROCESS_STEP[] =  "ProjectExplorer.ProcessStep";
 
+// Project Configuration
+const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
+const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
+
 // Language
 
 // Keep these short: These constants are exposed to the MacroExplorer!

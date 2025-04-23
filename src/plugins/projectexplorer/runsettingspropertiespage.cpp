@@ -24,6 +24,7 @@
 #include <QAction>
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QFont>
 #include <QGridLayout>
 #include <QHash>
 #include <QInputDialog>
@@ -55,7 +56,7 @@ public:
             for (const BuildConfiguration * const bc : t->buildConfigurations()) {
                 RCList rcsForBuildConfig;
                 for (const RunConfiguration * const rc : bc->runConfigurations()) {
-                    if (rc != thisRc && rc->buildKey() == thisRc->buildKey())
+                    if (rc != thisRc)
                         rcsForBuildConfig << rc;
                 }
                 if (!rcsForBuildConfig.isEmpty())
@@ -69,27 +70,30 @@ public:
         // to removal of any configurations while the dialog is running.
         if (eligibleRcs.isEmpty()) {
             m_rcModel->rootItem()->appendChild(new StaticTreeItem(
-                Tr::tr("There are no other run configurations for this application.")));
+                Tr::tr("There are no other run configurations.")));
+            m_rcView->setSelectionMode(TreeView::NoSelection);
         } else {
             for (auto targetIt = eligibleRcs.cbegin(); targetIt != eligibleRcs.cend(); ++targetIt) {
                 const auto targetItem = new StaticTreeItem(targetIt.key()->displayName());
                 for (auto bcIt = targetIt.value().cbegin(); bcIt != targetIt.value().cend();
                      ++bcIt) {
                     const auto bcItem = new StaticTreeItem(bcIt.key()->displayName());
-                    for (const RunConfiguration *const rc : std::as_const(bcIt.value()))
-                        bcItem->appendChild(new RCTreeItem(rc));
+                    for (const RunConfiguration *const rc : std::as_const(bcIt.value())) {
+                        bcItem->appendChild(
+                            new RCTreeItem(rc, rc->buildKey() == thisRc->buildKey()));
+                    }
                     targetItem->appendChild(bcItem);
                 }
                 m_rcModel->rootItem()->appendChild(targetItem);
             }
+            m_rcView->setSelectionMode(TreeView::SingleSelection);
+            m_rcView->setSelectionBehavior(TreeView::SelectItems);
         }
 
         // UI
         m_rcView->setModel(m_rcModel);
         m_rcView->expandAll();
         setWindowTitle(Tr::tr("Clone From Run Configuration"));
-        m_rcView->setSelectionMode(TreeView::SingleSelection);
-        m_rcView->setSelectionBehavior(TreeView::SelectItems);
         m_rcView->setSortingEnabled(true);
         m_rcView->resizeColumnToContents(0);
         m_rcView->sortByColumn(0, Qt::AscendingOrder);
@@ -116,10 +120,23 @@ private:
     class RCTreeItem : public StaticTreeItem
     {
     public:
-        RCTreeItem(const RunConfiguration *rc): StaticTreeItem(rc->displayName()), m_rc(rc) {}
+        RCTreeItem(const RunConfiguration *rc, bool sameBuildKey)
+            : StaticTreeItem(rc->displayName()), m_rc(rc), m_sameBuildKey(sameBuildKey) {}
         const RunConfiguration *runConfig() const { return m_rc; }
     private:
-        QPointer<const RunConfiguration> m_rc;
+        QVariant data(int column, int role) const override
+        {
+            QTC_ASSERT(column == 0, return {});
+            if (role == Qt::FontRole && m_sameBuildKey) {
+                QFont f = StaticTreeItem::data(column, role).value<QFont>();
+                f.setBold(true);
+                return f;
+            }
+            return StaticTreeItem::data(column, role);
+        }
+
+        const QPointer<const RunConfiguration> m_rc;
+        const bool m_sameBuildKey;
     };
 
     void accept() override
