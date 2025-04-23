@@ -647,6 +647,7 @@ public:
     void setAcceptRichText(bool acceptRichText);
     void setUseResetButton();
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
+    void setValidatorFactory(const std::function<QValidator *(QObject *parent)> &validatorFactory);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
     void setElideMode(Qt::TextElideMode elideMode);
 

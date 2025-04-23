@@ -993,6 +993,7 @@ public:
     Key m_historyCompleterKey;
     StringAspect::ValueAcceptor m_valueAcceptor;
     std::optional<FancyLineEdit::ValidationFunction> m_validator;
+    std::function<QValidator *(QObject *parent)> m_validatorFactory;
 
     CheckableAspectImplementation m_checkerImpl;
 
@@ -1237,6 +1238,12 @@ void StringAspect::setValidationFunction(const FancyLineEdit::ValidationFunction
     emit validationFunctionChanged(validator);
 }
 
+void StringAspect::setValidatorFactory(
+    const std::function<QValidator *(QObject *parent)> &validatorFactory)
+{
+    d->m_validatorFactory = validatorFactory;
+}
+
 void StringAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
 {
     d->m_autoApplyOnEditingFinished = applyOnEditingFinished;
@@ -1285,6 +1292,9 @@ void StringAspect::addToLayoutImpl(Layout &parent)
 
         if (d->m_validator)
             lineEditDisplay->setValidationFunction(*d->m_validator);
+        else if (d->m_validatorFactory)
+            lineEditDisplay->setValidator(d->m_validatorFactory(lineEditDisplay));
+
         lineEditDisplay->setTextKeepingActiveCursor(displayedString);
         lineEditDisplay->setReadOnly(isReadOnly());
         lineEditDisplay->setValidatePlaceHolder(d->m_validatePlaceHolder);
@@ -3958,4 +3968,4 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
     return addLabeledItem(parent, comboBox);
 }
 
-} // Utils
+} // namespace Utils
