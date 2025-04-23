@@ -226,7 +226,7 @@ void SshParametersAspectContainer::setSshParameters(const SshParameters &params)
     userName.setVolatileValue(params.userName());
     privateKeyFile.setVolatileValue(params.privateKeyFile().toUserOutput());
     timeout.setVolatileValue(params.timeout());
-    authenticationType.setVolatileValue(params.authenticationType());
+    useKeyFile.setVolatileValue(params.authenticationType() == SshParameters::AuthenticationTypeSpecificKey);
     hostKeyCheckingMode.setVolatileValue(params.hostKeyCheckingMode());
 
     privateKeyFile.setEnabled(
@@ -246,21 +246,21 @@ SshParameters SshParametersAspectContainer::sshParameters() const
     params.setUserName(userName.expandedValue());
     params.setPrivateKeyFile(privateKeyFile.expandedValue());
     params.setTimeout(timeout.value());
-    params.setAuthenticationType(authenticationType.value());
+    params.setAuthenticationType(
+        useKeyFile() ? SshParameters::AuthenticationTypeSpecificKey
+                     : SshParameters::AuthenticationTypeAll);
     params.setHostKeyCheckingMode(hostKeyCheckingMode.value());
     return params;
 }
 
 SshParametersAspectContainer::SshParametersAspectContainer()
 {
-    authenticationType.setDefaultValue(SshParameters::AuthenticationTypeAll);
-    authenticationType.setDisplayStyle(SelectionAspect::DisplayStyle::RadioButtons);
-    authenticationType
-        .addOption(Tr::tr("Default"), Tr::tr("Use all available authentication methods"));
-    authenticationType
-        .addOption(Tr::tr("Specific &key"), Tr::tr("Use only the specified private key"));
-    authenticationType.setToolTip(Tr::tr("Select the authentication method to use"));
-    authenticationType.setLabelText(Tr::tr("Authentication type:"));
+    useKeyFile.setDefaultValue(SshParameters::AuthenticationTypeAll);
+    useKeyFile.setToolTip(
+      Tr::tr("Enable to specify a private key file to use for authentication, "
+             "otherwise the default mechanism is used for authentication "
+             "(password, .sshconfig and the default private key)"));
+    useKeyFile.setLabelText(Tr::tr("Use specific key:"));
 
     hostKeyCheckingMode.setToolTip(Tr::tr("The device's SSH host key checking mode"));
     hostKeyCheckingMode.setLabelText(Tr::tr("Host key check:"));
@@ -290,13 +290,7 @@ SshParametersAspectContainer::SshParametersAspectContainer()
     privateKeyFile.setToolTip(Tr::tr("The device's private key file"));
     privateKeyFile.setLabelText(Tr::tr("Private key file:"));
     privateKeyFile.setHistoryCompleter("KeyFile");
-    privateKeyFile.setEnabled(
-        authenticationType.volatileValue() == SshParameters::AuthenticationTypeSpecificKey);
-
-    connect(&authenticationType, &SelectionAspect::volatileValueChanged, this, [this]() {
-        privateKeyFile.setEnabled(
-            authenticationType.volatileValue() == SshParameters::AuthenticationTypeSpecificKey);
-    });
+    privateKeyFile.setEnabler(&useKeyFile);
 
     timeout.setDefaultValue(10);
     timeout.setLabelText(Tr::tr("Timeout:"));

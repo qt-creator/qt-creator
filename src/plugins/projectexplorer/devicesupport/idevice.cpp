@@ -717,8 +717,7 @@ SshParameters IDevice::sshParameters() const
 
 void IDevice::setDefaultSshParameters(const SshParameters &sshParameters)
 {
-    QTC_ASSERT(QThread::currentThread() == qApp->thread(),
-               return); // This is not thread-safe.
+    QTC_ASSERT(QThread::currentThread() == qApp->thread(), return);
 
     sshParametersAspectContainer().host.setDefaultValue(sshParameters.host());
     sshParametersAspectContainer().port.setDefaultValue(sshParameters.port());
@@ -726,8 +725,8 @@ void IDevice::setDefaultSshParameters(const SshParameters &sshParameters)
     sshParametersAspectContainer().privateKeyFile.setDefaultPathValue(
         sshParameters.privateKeyFile());
     sshParametersAspectContainer().timeout.setDefaultValue(sshParameters.timeout());
-    sshParametersAspectContainer().authenticationType.setDefaultValue(
-        sshParameters.authenticationType());
+    sshParametersAspectContainer().useKeyFile.setDefaultValue(
+        sshParameters.authenticationType() == SshParameters::AuthenticationTypeSpecificKey);
     sshParametersAspectContainer().hostKeyCheckingMode.setDefaultValue(
         sshParameters.hostKeyCheckingMode());
 
@@ -939,7 +938,7 @@ void DeviceRef::setSshParameters(const SshParameters &params)
 {
     const IDevice::Ptr device = m_mutableDevice.lock();
     QTC_ASSERT(device, return);
-    device->setDefaultSshParameters(params);
+    device->sshParametersAspectContainer().setSshParameters(params);
 }
 
 SshParametersAspectContainer &IDevice::sshParametersAspectContainer() const

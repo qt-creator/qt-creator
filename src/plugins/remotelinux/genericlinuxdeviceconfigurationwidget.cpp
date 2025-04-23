@@ -61,10 +61,10 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
 
     Form {
         Tr::tr("Machine type:"), machineType, st, br,
-        device->sshParametersAspectContainer().authenticationType.labelText(), device->sshParametersAspectContainer().authenticationType, st, br,
         device->sshParametersAspectContainer().host, device->sshParametersAspectContainer().port, device->sshParametersAspectContainer().hostKeyCheckingMode, st, br,
         device->freePortsAspect, portWarningLabel, device->sshParametersAspectContainer().timeout, st, br,
         device->sshParametersAspectContainer().userName, st, br,
+        device->sshParametersAspectContainer().useKeyFile, st, br,
         device->sshParametersAspectContainer().privateKeyFile, createKeyButton, br,
         device->debugServerPathAspect, br,
         device->qmlRunCommandAspect, br,

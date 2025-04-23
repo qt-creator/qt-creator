@@ -82,9 +82,9 @@ public:
     void setSshParameters(const SshParameters &params);
 
 public:
+    Utils::BoolAspect useKeyFile{this};
     Utils::FilePathAspect privateKeyFile{this};
     Utils::IntegerAspect timeout{this};
-    Utils::TypedSelectionAspect<SshParameters::AuthenticationType> authenticationType{this};
     Utils::TypedSelectionAspect<SshHostKeyCheckingMode> hostKeyCheckingMode{this};
 
     Utils::StringAspect host{this};
