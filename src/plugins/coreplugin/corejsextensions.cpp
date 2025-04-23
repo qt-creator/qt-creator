@@ -11,6 +11,7 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QDirIterator>
 #include <QLibraryInfo>

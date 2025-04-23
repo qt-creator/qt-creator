@@ -11,6 +11,8 @@
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
+#include <QCoreApplication>
+
 using namespace Utils;
 using namespace Core::Internal;
 
