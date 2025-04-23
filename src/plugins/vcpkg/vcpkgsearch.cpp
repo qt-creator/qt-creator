@@ -42,9 +42,8 @@ static void vcpkgManifests(QPromise<VcpkgManifest> &promise, const FilePath &vcp
     for (const FilePath &manifestFile : manifestFiles) {
         if (promise.isCanceled())
             return;
-        FileReader reader;
-        if (reader.fetch(manifestFile))
-            promise.addResult(parseVcpkgManifest(reader.data()));
+        if (const Result<QByteArray> res = manifestFile.fileContents())
+            promise.addResult(parseVcpkgManifest(*res));
     }
 }
 

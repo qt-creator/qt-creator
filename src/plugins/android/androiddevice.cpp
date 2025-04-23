@@ -31,6 +31,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/shutdownguard.h>
+#include <utils/stringutils.h>
 #include <utils/url.h>
 
 #include <QFileSystemWatcher>
@@ -755,12 +756,12 @@ static void modifyManufacturerTag(const FilePath &avdPath, TagModification modif
         return;
 
     const FilePath configFilePath = avdPath / "config.ini";
-    FileReader reader;
-    if (!reader.fetch(configFilePath))
+    const Result<QByteArray> res = configFilePath.fileContents();
+    if (!res)
         return;
 
     FileSaver saver(configFilePath);
-    QTextStream textStream(reader.text());
+    QTextStream textStream(normalizeNewlines(*res));
     while (!textStream.atEnd()) {
         QString line = textStream.readLine();
         if (line.contains("hw.device.manufacturer")) {

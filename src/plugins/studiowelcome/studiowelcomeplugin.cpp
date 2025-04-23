@@ -72,7 +72,6 @@
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace Core;
 
 namespace StudioWelcome {
 namespace Internal {
@@ -438,26 +437,22 @@ static QString description(const FilePath &projectFilePath)
 
 static QString tags(const FilePath &projectFilePath)
 {
-    QStringList ret;
-    const QString defaultReturn = "content/App.qml";
-    Utils::FileReader reader;
-    if (!reader.fetch(projectFilePath))
-            return defaultReturn;
+    const Result<QByteArray> res = projectFilePath.fileContents();
+    if (!res) {
+        // default return
+        return "content/App.qml";
+    }
 
-    const QByteArray data = reader.data();
+    const QByteArray data = *res;
 
     const bool isQt6 = data.contains("qt6Project: true");
     const bool isMcu = data.contains("qtForMCUs: true");
 
     if (isMcu)
-        ret.append("Qt For MCU");
-    else if (isQt6)
-        ret.append("Qt 6");
-    else
-        ret.append("Qt 5");
-
-
-    return ret.join(",");
+        return "Qt For MCU";
+    if (isQt6)
+        return "Qt 6";
+    return "Qt 5";
 }
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const

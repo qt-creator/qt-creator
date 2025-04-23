@@ -41,13 +41,12 @@ static QString cmakeCodeForPackage(const QString &package)
 {
     QString result;
 
-    Project* currentProject = ProjectTree::currentProject();
+    Project *currentProject = ProjectTree::currentProject();
     const FilePath usageFile =
         settings(currentProject).vcpkgRoot.expandedValue() / "ports" / package / "usage";
     if (usageFile.exists()) {
-        FileReader reader;
-        if (reader.fetch(usageFile))
-            result = QString::fromUtf8(reader.data());
+        if (const Result<QByteArray> res = usageFile.fileContents())
+            result = QString::fromUtf8(*res);
     } else {
         result = QString(
 R"(The package %1 provides CMake targets:

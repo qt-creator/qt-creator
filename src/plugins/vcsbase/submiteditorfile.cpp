@@ -6,6 +6,7 @@
 #include "vcsbasesubmiteditor.h"
 
 #include <utils/fileutils.h>
+#include <utils/stringutils.h>
 
 using namespace Core;
 using namespace Utils;
@@ -32,11 +33,11 @@ Result<> SubmitEditorFile::open(const FilePath &filePath, const FilePath &realFi
     if (filePath.isEmpty())
         return ResultError("File name is empty");  // FIXME: Use something better
 
-    FileReader reader;
-    if (const Result<> res = reader.fetch(realFilePath); !res)
-        return res;
+    const Result<QByteArray> res = realFilePath.fileContents();
+    if (!res)
+        return ResultError(res.error());
 
-    const QString text = QString::fromLocal8Bit(reader.text());
+    const QString text = QString::fromLocal8Bit(normalizeNewlines(*res));
     if (!m_editor->setFileContents(text.toUtf8()))
         return ResultError("Cannot set file contents"); // FIXME: Use something better
 

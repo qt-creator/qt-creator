@@ -36,16 +36,19 @@ struct ProjectContents {
 };
 
 // Create a binary icon file
-static Core::GeneratedFile generateIconFile(const FilePath &source,
-                                            const FilePath &target,
+static Core::GeneratedFile generateIconFile(const FilePath &sourcePath,
+                                            const FilePath &targetPath,
                                             QString *errorMessage)
 {
     // Read out source
-    Utils::FileReader reader;
-    if (!reader.fetch(source, errorMessage))
-        return Core::GeneratedFile();
-    Core::GeneratedFile rc(target);
-    rc.setBinaryContents(reader.data());
+    const Result<QByteArray> res = sourcePath.fileContents();
+    if (!res) {
+        if (errorMessage)
+            *errorMessage = res.error();
+        return {};
+    }
+    Core::GeneratedFile rc(targetPath);
+    rc.setBinaryContents(*res);
     rc.setBinary(true);
     return rc;
 }

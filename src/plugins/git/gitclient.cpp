@@ -36,6 +36,7 @@
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/temporaryfile.h>
 #include <utils/theme/theme.h>
 
@@ -2846,10 +2847,13 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
         }
         if (!templateFile.isEmpty()) {
             templateFile = repoDirectory.resolvePath(templateFile);
-            FileReader reader;
-            if (!reader.fetch(templateFile, errorMessage))
+            const Result<QByteArray> res = templateFile.fileContents();
+            if (!res) {
+                if (errorMessage)
+                    *errorMessage = res.error();
                 return false;
-            *commitTemplate = QString::fromLocal8Bit(reader.text());
+            }
+            *commitTemplate = QString::fromLocal8Bit(normalizeNewlines(*res));
         }
         break;
     }
