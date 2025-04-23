@@ -3,6 +3,7 @@
 
 #include "sshparameters.h"
 
+#include "../projectexplorertr.h"
 #include "sshsettings.h"
 
 #include <utils/environment.h>
@@ -59,7 +60,7 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
         args << "-o" << "User=" + userName();
 
     const bool keyOnly = m_authenticationType == SshParameters::AuthenticationTypeSpecificKey;
-    if (keyOnly)
+    if (keyOnly && m_privateKeyFile.isReadableFile())
         args << "-o" << "IdentitiesOnly=yes" << "-i" << m_privateKeyFile.path();
 
     const QString batchModeEnabled = (keyOnly || SshSettings::askpassFilePath().isEmpty())
@@ -215,5 +216,91 @@ void printSetupHelp()
 
 } // namespace SshTest
 #endif
+
+void SshParametersAspectContainer::setSshParameters(const SshParameters &params)
+{
+    QTC_ASSERT(QThread::currentThread() == thread(), return);
+
+    host.setVolatileValue(params.host());
+    port.setVolatileValue(params.port());
+    userName.setVolatileValue(params.userName());
+    privateKeyFile.setVolatileValue(params.privateKeyFile().toUserOutput());
+    timeout.setVolatileValue(params.timeout());
+    authenticationType.setVolatileValue(params.authenticationType());
+    hostKeyCheckingMode.setVolatileValue(params.hostKeyCheckingMode());
+
+    privateKeyFile.setEnabled(
+        params.authenticationType() == SshParameters::AuthenticationTypeSpecificKey);
+
+    // This will emit the applied signal which the IDevice uses to update the ssh parameters.
+    apply();
+}
+
+SshParameters SshParametersAspectContainer::sshParameters() const
+{
+    QTC_ASSERT(QThread::currentThread() == thread(), return SshParameters());
+
+    SshParameters params;
+    params.setHost(host.expandedValue());
+    params.setPort(port.value());
+    params.setUserName(userName.expandedValue());
+    params.setPrivateKeyFile(privateKeyFile.expandedValue());
+    params.setTimeout(timeout.value());
+    params.setAuthenticationType(authenticationType.value());
+    params.setHostKeyCheckingMode(hostKeyCheckingMode.value());
+    return params;
+}
+
+SshParametersAspectContainer::SshParametersAspectContainer()
+{
+    authenticationType.setDefaultValue(SshParameters::AuthenticationTypeAll);
+    authenticationType.setDisplayStyle(SelectionAspect::DisplayStyle::RadioButtons);
+    authenticationType
+        .addOption(Tr::tr("Default"), Tr::tr("Use all available authentication methods"));
+    authenticationType
+        .addOption(Tr::tr("Specific &key"), Tr::tr("Use only the specified private key"));
+    authenticationType.setToolTip(Tr::tr("Select the authentication method to use"));
+    authenticationType.setLabelText(Tr::tr("Authentication type:"));
+
+    hostKeyCheckingMode.setToolTip(Tr::tr("The device's SSH host key checking mode"));
+    hostKeyCheckingMode.setLabelText(Tr::tr("Host key check:"));
+    hostKeyCheckingMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    hostKeyCheckingMode.addOption("None", Tr::tr("No host key checking"));
+    hostKeyCheckingMode.addOption("Allow No Match", Tr::tr("Allow host key checking"));
+    hostKeyCheckingMode.addOption("Strict", Tr::tr("Strict host key checking"));
+
+    host.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
+    host.setPlaceHolderText(Tr::tr("Host name or IP address"));
+    host.setToolTip(Tr::tr("The device's host name or IP address"));
+    host.setHistoryCompleter("HostName");
+    host.setLabelText(Tr::tr("Host name:"));
+
+    userName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
+    userName.setPlaceHolderText(Tr::tr("User name"));
+    userName.setToolTip(Tr::tr("The device's SSH user name"));
+    userName.setHistoryCompleter("UserName");
+    userName.setLabelText(Tr::tr("User name:"));
+
+    port.setDefaultValue(22);
+    port.setRange(1, 65535);
+    port.setToolTip(Tr::tr("The device's SSH port number"));
+    port.setLabelText(Tr::tr("SSH port:"));
+
+    privateKeyFile.setPlaceHolderText(Tr::tr("Private key file"));
+    privateKeyFile.setToolTip(Tr::tr("The device's private key file"));
+    privateKeyFile.setLabelText(Tr::tr("Private key file:"));
+    privateKeyFile.setHistoryCompleter("KeyFile");
+    privateKeyFile.setEnabled(
+        authenticationType.volatileValue() == SshParameters::AuthenticationTypeSpecificKey);
+
+    connect(&authenticationType, &SelectionAspect::volatileValueChanged, this, [this]() {
+        privateKeyFile.setEnabled(
+            authenticationType.volatileValue() == SshParameters::AuthenticationTypeSpecificKey);
+    });
+
+    timeout.setDefaultValue(10);
+    timeout.setLabelText(Tr::tr("Timeout:"));
+    timeout.setToolTip(Tr::tr("The device's SSH connection timeout"));
+}
 
 } // namespace ProjectExplorer

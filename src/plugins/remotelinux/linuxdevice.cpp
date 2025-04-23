@@ -656,7 +656,7 @@ void SshProcessInterfacePrivate::start()
 {
     m_sshParameters = m_device->sshParameters();
 
-    const Id linkDeviceId = Id::fromSetting(m_device->extraData(Constants::LinkDevice));
+    const Id linkDeviceId = Id::fromSetting(m_device->linkDevice.value());
     if (const IDevice::ConstPtr linkDevice = DeviceManager::instance()->find(linkDeviceId)) {
         CommandLine cmd{linkDevice->filePath("ssh")};
         if (!m_sshParameters.userName().isEmpty()) {
@@ -775,10 +775,13 @@ void SshProcessInterfacePrivate::doStart()
 
 CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 {
+    auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
+    QTC_ASSERT(linuxDevice, return {});
+
     const FilePath sshBinary = SshSettings::sshFilePath();
     const bool useTerminal = q->m_setup.m_terminalMode != TerminalMode::Off || q->m_setup.m_ptyData;
     const bool usePidMarker = !useTerminal;
-    const bool sourceProfile = m_device->extraData(Constants::SourceProfile).toBool();
+    const bool sourceProfile = linuxDevice->sourceProfile();
     const bool useX = !m_sshParameters.x11DisplayName().isEmpty();
 
     CommandLine cmd{sshBinary};
@@ -1029,7 +1032,13 @@ LinuxDevice::LinuxDevice()
     setFreePorts(PortList::fromString(QLatin1String("10000-10100")));
     SshParameters sshParams;
     sshParams.setTimeout(10);
-    setSshParameters(sshParams);
+    setDefaultSshParameters(sshParams);
+
+    sourceProfile.setSettingsKey("SourceProfile");
+    sourceProfile.setDefaultValue(true);
+    sourceProfile.setToolTip(Tr::tr("Source profile before executing commands"));
+    sourceProfile.setLabelText(Tr::tr("Source %1 and %2").arg("/etc/profile").arg("$HOME/.profile"));
+    sourceProfile.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
     addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device) {
         if (auto d = Internal::PublicKeyDeploymentDialog::createDialog(device)) {
@@ -1368,6 +1377,35 @@ void Internal::LinuxDeviceFactory::shutdownExistingDevices()
         }
     });
 }
+
+namespace {
+static const char SourceProfile[] = "RemoteLinux.SourceProfile";
+
+static void backwardsFromExtraData(LinuxDevice *device)
+{
+    QVariant sourceProfile = device->extraData(SourceProfile);
+    if (sourceProfile.isValid())
+        device->sourceProfile.setValue(sourceProfile.toBool());
+}
+
+static void backwardsToExtraData(LinuxDevice *device)
+{
+    device->setExtraData(SourceProfile, device->sourceProfile.value());
+}
+
+} // namespace
+
+void LinuxDevice::fromMap(const Utils::Store &map)
+{
+    ProjectExplorer::IDevice::fromMap(map);
+    backwardsFromExtraData(this);
+}
+void LinuxDevice::toMap(Utils::Store &map) const
+{
+    backwardsToExtraData(const_cast<LinuxDevice *>(this));
+    ProjectExplorer::IDevice::toMap(map);
+}
+
 } // namespace RemoteLinux
 
 #include "linuxdevice.moc"

@@ -47,7 +47,7 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
         device->setupId(IDevice::ManuallyAdded);
         device->setType("test");
         qDebug() << "device : " << device->type();
-        device->setSshParameters(SshTest::getParameters());
+        device->sshParametersAspectContainer().setSshParameters(SshTest::getParameters());
         return device;
     });
 }

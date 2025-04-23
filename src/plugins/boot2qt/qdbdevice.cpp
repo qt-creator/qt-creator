@@ -141,7 +141,7 @@ void QdbDevice::setupDefaultNetworkSettings(const QString &host)
     parameters.setPort(22);
     parameters.setTimeout(10);
     parameters.setAuthenticationType(SshParameters::AuthenticationTypeAll);
-    setSshParameters(parameters);
+    setDefaultSshParameters(parameters);
 }
 
 // QdbDeviceWizard

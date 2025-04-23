@@ -380,7 +380,7 @@ ExecutableItem debugServerRecipe(const Storage<DebuggerData> &storage, const Sin
                 const auto port = runControl->debugChannel().port();
                 cmd.addArg(QString(":%1").arg(port));
 
-                if (runControl->device()->extraData(ProjectExplorer::Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool()) {
+                if (runControl->device()->sshForwardDebugServerPort()) {
                     QVariantHash extraData;
                     extraData[RemoteLinux::Constants::SshForwardPort] = port;
                     extraData[RemoteLinux::Constants::DisableSharing] = true;

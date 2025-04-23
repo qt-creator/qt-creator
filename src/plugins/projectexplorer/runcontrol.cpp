@@ -634,7 +634,7 @@ void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
 QUrl RunControlPrivate::getNextChannel(PortList *portList, const QList<Port> &usedPorts)
 {
     QUrl result;
-    if (q->device()->extraData(Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool()) {
+    if (q->device()->sshForwardDebugServerPort()) {
         result.setScheme(urlTcpScheme());
         result.setHost("localhost");
     } else {

@@ -45,6 +45,7 @@ class FileTransferInterface;
 class FileTransferSetupData;
 class Kit;
 class SshParameters;
+class SshParametersAspectContainer;
 class Target;
 class Task;
 
@@ -157,7 +158,9 @@ public:
     static QString defaultPublicKeyFilePath();
 
     SshParameters sshParameters() const;
-    void setSshParameters(const SshParameters &sshParameters);
+    void setDefaultSshParameters(const SshParameters &sshParameters);
+
+    SshParametersAspectContainer &sshParametersAspectContainer() const;
 
     enum ControlChannelHint { QmlControlChannel };
     virtual QUrl toolControlChannel(const ControlChannelHint &) const;
@@ -185,8 +188,6 @@ public:
     bool canOpenTerminal() const;
     Utils::Result<> openTerminal(const Utils::Environment &env,
                                            const Utils::FilePath &workingDir) const;
-
-    Utils::BoolAspect allowEmptyCommand{this};
 
     bool isWindowsDevice() const { return osType() == Utils::OsTypeWindows; }
     bool isLinuxDevice() const { return osType() == Utils::OsTypeLinux; }
@@ -218,6 +219,14 @@ public:
     virtual void checkOsType() {}
 
     void doApply() const;
+
+public:
+    Utils::BoolAspect allowEmptyCommand{this};
+    Utils::StringSelectionAspect linkDevice{this};
+    Utils::BoolAspect sshForwardDebugServerPort{this};
+    Utils::FilePathAspect debugServerPathAspect{this};
+    Utils::FilePathAspect qmlRunCommandAspect{this};
+    Utils::PortListAspect freePortsAspect{this};
 
 protected:
     IDevice();
@@ -257,6 +266,7 @@ public:
     SshParameters sshParameters() const;
     Utils::FilePath filePath(const QString &pathOnDevice) const;
     QVariant extraData(Utils::Id kind) const;
+    Utils::Id linkDeviceId() const;
 
 private:
     std::weak_ptr<const IDevice> m_constDevice;

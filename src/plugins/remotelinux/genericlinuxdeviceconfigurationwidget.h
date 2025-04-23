@@ -31,43 +31,8 @@ public:
     ~GenericLinuxDeviceConfigurationWidget() override;
 
 private:
-    void authenticationTypeChanged();
-    void hostNameEditingFinished();
-    void sshPortEditingFinished();
-    void timeoutEditingFinished();
-    void userNameEditingFinished();
-    void keyFileEditingFinished();
-    void gdbServerEditingFinished();
-    void qmlRuntimeEditingFinished();
-    void handleFreePortsChanged();
-    void setPrivateKey(const Utils::FilePath &path);
     void createNewKey();
-    void hostKeyCheckingChanged(bool doCheck);
-    void sourceProfileCheckingChanged(bool doCheck);
-    void linkDeviceChanged(int index);
-    void sshPortForwardingForDebugging(bool on);
-
-    void updateDeviceFromUi() override;
-    void updatePortsWarningLabel();
-    void initGui();
-
-    QRadioButton *m_defaultAuthButton;
-    QLabel *m_keyLabel;
-    QRadioButton *m_keyButton;
-    Utils::FancyLineEdit *m_hostLineEdit;
-    QSpinBox *m_sshPortSpinBox;
-    QCheckBox *m_hostKeyCheckBox;
-    Utils::FancyLineEdit *m_portsLineEdit;
-    QLabel *m_portsWarningLabel;
-    Utils::FancyLineEdit *m_userLineEdit;
-    QSpinBox *m_timeoutSpinBox;
-    Utils::PathChooser *m_keyFileLineEdit;
-    QLabel *m_machineTypeValueLabel;
-    Utils::PathChooser *m_gdbServerLineEdit;
-    Utils::PathChooser *m_qmlRuntimeLineEdit;
-    QCheckBox *m_sourceProfileCheckBox;
-    QComboBox *m_linkDeviceComboBox;
-    QCheckBox *m_useSshPortForwardingForDebugging;
+    void updateDeviceFromUi() override {}
 };
 
 } // RemoteLinux::Internal

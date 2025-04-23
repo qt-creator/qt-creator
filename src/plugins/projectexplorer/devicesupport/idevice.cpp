@@ -30,6 +30,7 @@
 
 #include <QDateTime>
 #include <QReadWriteLock>
+#include <QStandardItem>
 #include <QString>
 
 /*!
@@ -115,6 +116,9 @@ const char HostKeyCheckingKey[] = "HostKeyChecking";
 const char DebugServerKey[] = "DebugServerKey";
 const char QmlRuntimeKey[] = "QmlsceneKey";
 
+const char SshForwardDebugServerPortKey[] = "SshForwardDebugServerPort";
+const char LinkDeviceKey[] = "LinkDevice";
+
 using AuthType = SshParameters::AuthenticationType;
 const AuthType DefaultAuthType = SshParameters::AuthenticationTypeAll;
 const IDevice::MachineType DefaultMachineType = IDevice::Hardware;
@@ -139,16 +143,14 @@ public:
 
     Utils::SynchronizedValue<SshParameters> sshParameters;
 
-    PortList freePorts;
-
     QList<Icon> deviceIcons;
     QList<IDevice::DeviceAction> deviceActions;
     Store extraData;
     IDevice::OpenTerminal openTerminal;
 
     Utils::StringAspect displayName;
-    Utils::FilePathAspect debugServerPath;
-    Utils::FilePathAspect qmlRunCommand;
+
+    SshParametersAspectContainer sshParametersAspectContainer;
 
     bool isTesting = false;
 };
@@ -172,11 +174,48 @@ IDevice::IDevice()
 {
     setAutoApply(false);
 
+    registerAspect(&d->sshParametersAspectContainer);
+
+    connect(&d->sshParametersAspectContainer, &AspectContainer::applied, this, [this]() {
+        *d->sshParameters.writeLocked() = d->sshParametersAspectContainer.sshParameters();
+    });
+
     registerAspect(&d->displayName);
     d->displayName.setSettingsKey(DisplayNameKey);
     d->displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
 
     // allowEmptyCommand.setSettingsKey() intentionally omitted, this is not persisted.
+
+    sshForwardDebugServerPort.setSettingsKey(SshForwardDebugServerPortKey);
+    sshForwardDebugServerPort.setLabelText(Tr::tr("Use SSH port forwarding for debugging"));
+    sshForwardDebugServerPort.setToolTip(
+        Tr::tr("Enable debugging on remote targets which cannot expose gdbserver ports.\n"
+               "The ssh tunneling is used to map the remote gdbserver port to localhost.\n"
+               "The local and remote ports are determined automatically."));
+    sshForwardDebugServerPort.setDefaultValue(false);
+    sshForwardDebugServerPort.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+
+    linkDevice.setSettingsKey(LinkDeviceKey);
+    linkDevice.setLabelText(Tr::tr("Access via:"));
+    linkDevice.setToolTip(Tr::tr("Select the device to connect through."));
+    linkDevice.setDefaultValue("Direct");
+    linkDevice.setComboBoxEditable(false);
+    linkDevice.setFillCallback([this](const StringSelectionAspect::ResultCallback &cb) {
+        auto dm = DeviceManager::instance();
+        QList<QStandardItem *> items;
+        auto defaultItem = new QStandardItem(Tr::tr("Direct"));
+        defaultItem->setData("direct");
+        items.append(defaultItem);
+        for (int i = 0, n = dm->deviceCount(); i < n; ++i) {
+            const auto device = dm->deviceAt(i);
+            if (device->id() == this->id())
+                continue;
+            QStandardItem *newItem = new QStandardItem(device->displayName());
+            newItem->setData(device->id().toSetting());
+            items.append(newItem);
+        }
+        cb(items);
+    });
 
     auto validateDisplayName = [](const QString &old, const QString &newValue) -> Result<> {
         if (old == newValue)
@@ -205,11 +244,27 @@ IDevice::IDevice()
             return newValue;
         });
 
-    registerAspect(&d->debugServerPath);
-    d->debugServerPath.setSettingsKey(DebugServerKey);
+    debugServerPathAspect.setSettingsKey(DebugServerKey);
+    debugServerPathAspect.setLabelText(Tr::tr("GDB server executable:"));
+    debugServerPathAspect.setToolTip(Tr::tr("The GDB server executable to use on the device."));
+    debugServerPathAspect.setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
+    debugServerPathAspect.setHistoryCompleter("GdbServer");
+    debugServerPathAspect.setAllowPathFromDevice(true);
+    debugServerPathAspect.setExpectedKind(PathChooser::ExistingCommand);
 
-    registerAspect(&d->qmlRunCommand);
-    d->qmlRunCommand.setSettingsKey(QmlRuntimeKey);
+    qmlRunCommandAspect.setSettingsKey(QmlRuntimeKey);
+    qmlRunCommandAspect.setLabelText(Tr::tr("QML runtime executable:"));
+    qmlRunCommandAspect.setToolTip(Tr::tr("The QML runtime executable to use on the device."));
+    qmlRunCommandAspect.setPlaceHolderText(Tr::tr("Leave empty to look up executable in $PATH"));
+    qmlRunCommandAspect.setHistoryCompleter("QmlRuntime");
+    qmlRunCommandAspect.setAllowPathFromDevice(true);
+    qmlRunCommandAspect.setExpectedKind(PathChooser::ExistingCommand);
+
+    freePortsAspect.setSettingsKey(PortsSpecKey);
+    freePortsAspect.setLabelText(Tr::tr("Free ports:"));
+    freePortsAspect.setToolTip(
+        Tr::tr("You can enter lists and ranges like this: '1024,1026-1028,1030'."));
+    freePortsAspect.setHistoryCompleter("PortRange");
 }
 
 IDevice::~IDevice() = default;
@@ -258,22 +313,22 @@ FilePath IDevice::filePath(const QString &pathOnDevice) const
 
 FilePath IDevice::debugServerPath() const
 {
-    return d->debugServerPath();
+    return debugServerPathAspect();
 }
 
 void IDevice::setDebugServerPath(const FilePath &path)
 {
-    d->debugServerPath.setValue(path);
+    debugServerPathAspect.setValue(path);
 }
 
 FilePath IDevice::qmlRunCommand() const
 {
-    return d->qmlRunCommand();
+    return qmlRunCommandAspect();
 }
 
 void IDevice::setQmlRunCommand(const FilePath &path)
 {
-    d->qmlRunCommand.setValue(path);
+    qmlRunCommandAspect.setValue(path);
 }
 
 bool IDevice::handlesFile(const FilePath &filePath) const
@@ -492,12 +547,34 @@ Id IDevice::idFromMap(const Store &map)
     return Id::fromSetting(map.value(IdKey));
 }
 
+// Backwards compatibility: Pre 17.0 a bunch of settings were stored in the extra data
+namespace {
+
+static const char LinkDevice[] = "RemoteLinux.LinkDevice";
+static const char SSH_FORWARD_DEBUGSERVER_PORT[] = "RemoteLinux.SshForwardDebugServerPort";
+
+static void backwardsFromExtraData(IDevice *device, const Store &map)
+{
+    if (map.contains(LinkDevice))
+        device->linkDevice.setValue(Id::fromSetting(map.value(LinkDevice)).toString());
+
+    if (map.contains(SSH_FORWARD_DEBUGSERVER_PORT))
+        device->sshForwardDebugServerPort.setValue(map.value(SSH_FORWARD_DEBUGSERVER_PORT).toBool());
+}
+
+static void backwardsToExtraData(const IDevice *const device, Store &map)
+{
+    map.insert(LinkDevice, device->linkDevice());
+    map.insert(SSH_FORWARD_DEBUGSERVER_PORT, device->sshForwardDebugServerPort());
+}
+
+} // namespace
+
 /*!
     Restores a device object from a serialized state as written by toMap().
     If subclasses override this to restore additional state, they must call the
     base class implementation.
 */
-
 void IDevice::fromMap(const Store &map)
 {
     AspectContainer::fromMap(map);
@@ -509,33 +586,32 @@ void IDevice::fromMap(const Store &map)
         d->id = newId();
     d->origin = static_cast<Origin>(map.value(OriginKey, ManuallyAdded).toInt());
 
-    d->sshParameters.write([&map](SshParameters &ssh) {
-        ssh.setHost(map.value(HostKey).toString());
-        ssh.setPort(map.value(SshPortKey, 22).toInt());
-        ssh.setUserName(map.value(UserNameKey).toString());
-
-        // Pre-4.9, the authentication enum used to have more values
-        const int storedAuthType = map.value(AuthKey, DefaultAuthType).toInt();
-        const bool outdatedAuthType = storedAuthType > SshParameters::AuthenticationTypeSpecificKey;
-        ssh.setAuthenticationType(
-            outdatedAuthType ? SshParameters::AuthenticationTypeAll
-                             : static_cast<AuthType>(storedAuthType));
-
-        ssh.setPrivateKeyFile(
-            FilePath::fromSettings(map.value(KeyFileKey, defaultPrivateKeyFilePath())));
-        ssh.setTimeout(map.value(TimeoutKey, DefaultTimeout).toInt());
-        ssh.setHostKeyCheckingMode(static_cast<SshHostKeyCheckingMode>(
-            map.value(HostKeyCheckingKey, SshHostKeyCheckingNone).toInt()));
-    });
-
-    QString portsSpec = map.value(PortsSpecKey).toString();
-    if (portsSpec.isEmpty())
-        portsSpec = "10000-10100";
-    d->freePorts = PortList::fromString(portsSpec);
     d->machineType = static_cast<MachineType>(map.value(MachineTypeKey, DefaultMachineType).toInt());
     d->version = map.value(VersionKey, 0).toInt();
 
     d->extraData = storeFromVariant(map.value(ExtraDataKey));
+
+    backwardsFromExtraData(this, d->extraData);
+
+    SshParameters ssh;
+    ssh.setHost(map.value(HostKey).toString());
+    ssh.setPort(map.value(SshPortKey, 22).toInt());
+    ssh.setUserName(map.value(UserNameKey).toString());
+
+    // Pre-4.9, the authentication enum used to have more values
+    const int storedAuthType = map.value(AuthKey, DefaultAuthType).toInt();
+    const bool outdatedAuthType = storedAuthType > SshParameters::AuthenticationTypeSpecificKey;
+    ssh.setAuthenticationType(
+        outdatedAuthType ? SshParameters::AuthenticationTypeAll
+                         : static_cast<AuthType>(storedAuthType));
+
+    ssh.setPrivateKeyFile(
+        FilePath::fromSettings(map.value(KeyFileKey, defaultPrivateKeyFilePath())));
+    ssh.setTimeout(map.value(TimeoutKey, DefaultTimeout).toInt());
+    ssh.setHostKeyCheckingMode(static_cast<SshHostKeyCheckingMode>(
+        map.value(HostKeyCheckingKey, SshHostKeyCheckingNone).toInt()));
+
+    d->sshParametersAspectContainer.setSshParameters(ssh);
 }
 
 /*!
@@ -554,21 +630,21 @@ void IDevice::toMap(Store &map) const
     map.insert(OriginKey, d->origin);
 
     map.insert(MachineTypeKey, d->machineType);
-
-    d->sshParameters.read([&map](const auto &ssh) {
-        map.insert(HostKey, ssh.host());
-        map.insert(SshPortKey, ssh.port());
-        map.insert(UserNameKey, ssh.userName());
-        map.insert(AuthKey, ssh.authenticationType());
-        map.insert(KeyFileKey, ssh.privateKeyFile().toSettings());
-        map.insert(TimeoutKey, ssh.timeout());
-        map.insert(HostKeyCheckingKey, ssh.hostKeyCheckingMode());
-    });
-
-    map.insert(PortsSpecKey, d->freePorts.toString());
     map.insert(VersionKey, d->version);
 
-    map.insert(ExtraDataKey, variantFromStore(d->extraData));
+    Store extraData = d->extraData;
+    backwardsToExtraData(this, extraData);
+
+    map.insert(ExtraDataKey, variantFromStore(extraData));
+
+    SshParameters ssh = d->sshParametersAspectContainer.sshParameters();
+    map.insert(HostKey, ssh.host());
+    map.insert(SshPortKey, ssh.port());
+    map.insert(UserNameKey, ssh.userName());
+    map.insert(AuthKey, ssh.authenticationType());
+    map.insert(KeyFileKey, ssh.privateKeyFile().toSettings());
+    map.insert(TimeoutKey, ssh.timeout());
+    map.insert(HostKeyCheckingKey, ssh.hostKeyCheckingMode());
 }
 
 IDevice::Ptr IDevice::clone() const
@@ -639,9 +715,23 @@ SshParameters IDevice::sshParameters() const
     return *d->sshParameters.readLocked();
 }
 
-void IDevice::setSshParameters(const SshParameters &sshParameters)
+void IDevice::setDefaultSshParameters(const SshParameters &sshParameters)
 {
-    *d->sshParameters.writeLocked() = sshParameters;
+    QTC_ASSERT(QThread::currentThread() == qApp->thread(),
+               return); // This is not thread-safe.
+
+    sshParametersAspectContainer().host.setDefaultValue(sshParameters.host());
+    sshParametersAspectContainer().port.setDefaultValue(sshParameters.port());
+    sshParametersAspectContainer().userName.setDefaultValue(sshParameters.userName());
+    sshParametersAspectContainer().privateKeyFile.setDefaultPathValue(
+        sshParameters.privateKeyFile());
+    sshParametersAspectContainer().timeout.setDefaultValue(sshParameters.timeout());
+    sshParametersAspectContainer().authenticationType.setDefaultValue(
+        sshParameters.authenticationType());
+    sshParametersAspectContainer().hostKeyCheckingMode.setDefaultValue(
+        sshParameters.hostKeyCheckingMode());
+
+    *d->sshParameters.writeLocked() = sshParametersAspectContainer().sshParameters();
 }
 
 QUrl IDevice::toolControlChannel(const ControlChannelHint &) const
@@ -654,12 +744,12 @@ QUrl IDevice::toolControlChannel(const ControlChannelHint &) const
 
 void IDevice::setFreePorts(const PortList &freePorts)
 {
-    d->freePorts = freePorts;
+    freePortsAspect.setPortList(freePorts);
 }
 
 PortList IDevice::freePorts() const
 {
-    return d->freePorts;
+    return freePortsAspect.portList();
 }
 
 IDevice::MachineType IDevice::machineType() const
@@ -813,6 +903,13 @@ QVariant DeviceConstRef::extraData(Id kind) const
     return device->extraData(kind);
 }
 
+Id DeviceConstRef::linkDeviceId() const
+{
+    const IDevice::ConstPtr device = m_constDevice.lock();
+    QTC_ASSERT(device, return {});
+    return Id::fromString(device->linkDevice.value());
+}
+
 FilePath DeviceConstRef::filePath(const QString &pathOnDevice) const
 {
     const IDevice::ConstPtr device = m_constDevice.lock();
@@ -842,7 +939,12 @@ void DeviceRef::setSshParameters(const SshParameters &params)
 {
     const IDevice::Ptr device = m_mutableDevice.lock();
     QTC_ASSERT(device, return);
-    device->setSshParameters(params);
+    device->setDefaultSshParameters(params);
+}
+
+SshParametersAspectContainer &IDevice::sshParametersAspectContainer() const
+{
+    return d->sshParametersAspectContainer;
 }
 
 } // namespace ProjectExplorer

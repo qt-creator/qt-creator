@@ -76,6 +76,12 @@ public:
 
     void shutdown();
 
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
+
+public:
+    Utils::BoolAspect sourceProfile{this};
+
 protected:
     LinuxDevice();
 

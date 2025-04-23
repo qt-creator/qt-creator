@@ -121,7 +121,7 @@ private:
     void start() final
     {
         m_sshParameters = displayless(m_device.sshParameters());
-        const Id linkDeviceId = Id::fromSetting(m_device.extraData(Constants::LinkDevice));
+        const Id linkDeviceId = m_device.linkDeviceId();
         const auto linkDevice = DeviceManager::instance()->find(linkDeviceId);
         const bool useConnectionSharing = !linkDevice && SshSettings::connectionSharingEnabled();
 
@@ -186,7 +186,7 @@ private:
         FilePath sftpBinary = SshSettings::sftpFilePath();
 
         // This is a hack. We only test the last hop here.
-        const Id linkDeviceId = Id::fromSetting(device().extraData(Constants::LinkDevice));
+        const Id linkDeviceId = device().linkDeviceId();
         if (const auto linkDevice = DeviceManager::instance()->find(linkDeviceId))
             sftpBinary = linkDevice->filePath(sftpBinary.fileName()).searchInPath();
 

@@ -73,6 +73,25 @@ private:
     QString m_userName;
 };
 
+class PROJECTEXPLORER_EXPORT SshParametersAspectContainer : public Utils::AspectContainer
+{
+public:
+    SshParametersAspectContainer();
+
+    SshParameters sshParameters() const;
+    void setSshParameters(const SshParameters &params);
+
+public:
+    Utils::FilePathAspect privateKeyFile{this};
+    Utils::IntegerAspect timeout{this};
+    Utils::TypedSelectionAspect<SshParameters::AuthenticationType> authenticationType{this};
+    Utils::TypedSelectionAspect<SshHostKeyCheckingMode> hostKeyCheckingMode{this};
+
+    Utils::StringAspect host{this};
+    Utils::IntegerAspect port{this};
+    Utils::StringAspect userName{this};
+};
+
 #ifdef WITH_TESTS
 namespace SshTest {
 const QString PROJECTEXPLORER_EXPORT getHostFromEnvironment();
