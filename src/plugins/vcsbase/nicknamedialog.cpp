@@ -6,9 +6,10 @@
 #include "vcsbasetr.h"
 
 #include <utils/fancylineedit.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
+#include <utils/stringutils.h>
 
 #include <QDebug>
 #include <QDialogButtonBox>
@@ -226,20 +227,20 @@ QStandardItemModel *NickNameDialog::createModel(QObject *parent)
     return model;
 }
 
-bool NickNameDialog::populateModelFromMailCapFile(const FilePath &fileName,
-                                                  QStandardItemModel *model,
-                                                  QString *errorMessage)
+Result<> NickNameDialog::populateModelFromMailCapFile(const FilePath &fileName,
+                                                      QStandardItemModel *model)
 {
     if (const int rowCount = model->rowCount())
         model->removeRows(0, rowCount);
     if (fileName.isEmpty())
-        return true;
-    FileReader reader;
-    if (!reader.fetch(fileName, errorMessage))
-         return false;
+        return ResultOk;
+    const Result<QByteArray> res = fileName.fileContents();
+    if (!res)
+         return ResultError(res.error());
+
     // Split into lines and read
     NickNameEntry entry;
-    const QStringList lines = QString::fromUtf8(reader.text()).trimmed().split(QLatin1Char('\n'));
+    const QStringList lines = QString::fromUtf8(normalizeNewlines(*res)).trimmed().split('\n');
     const int count = lines.size();
     for (int i = 0; i < count; i++) {
         if (entry.parse(lines.at(i))) {
@@ -251,7 +252,7 @@ bool NickNameDialog::populateModelFromMailCapFile(const FilePath &fileName,
         }
     }
     model->sort(0);
-    return true;
+    return ResultOk;
 }
 
 QStringList NickNameDialog::nickNameList(const QStandardItemModel *model)
