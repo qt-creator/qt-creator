@@ -66,9 +66,9 @@ static FormatOutput format(const FormatInput &input)
             / (input.filePath.fileName() + "_format_XXXXXXXX." + input.filePath.suffix()));
         sourceFile.setAutoRemove(true);
         sourceFile.write(input.sourceData.toUtf8());
-        if (!sourceFile.finalize()) {
+        if (const Result<> res = sourceFile.finalize(); !res) {
             return Utils::make_unexpected(Tr::tr("Cannot create temporary file \"%1\": %2.")
-                         .arg(sourceFile.filePath().toUserOutput(), sourceFile.errorString()));
+                         .arg(sourceFile.filePath().toUserOutput(), res.error()));
         }
 
         // Format temporary file

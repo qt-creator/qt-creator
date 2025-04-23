@@ -368,20 +368,22 @@ void CodePasterPluginPrivate::finishFetch(const QString &titleDescription,
     // Default to "txt".
     QByteArray byteContent = content.toUtf8();
     QString suffix;
-    const Utils::MimeType mimeType = Utils::mimeTypeForData(byteContent);
+    const MimeType mimeType = mimeTypeForData(byteContent);
     if (mimeType.isValid())
         suffix = mimeType.preferredSuffix();
     if (suffix.isEmpty())
          suffix = QLatin1String("txt");
+
     const QString filePrefix = filePrefixFromTitle(titleDescription);
-    Utils::TempFileSaver saver(tempFilePattern(filePrefix, suffix));
+    TempFileSaver saver(tempFilePattern(filePrefix, suffix));
     saver.setAutoRemove(false);
     saver.write(byteContent);
-    if (!saver.finalize()) {
-        MessageManager::writeDisrupting(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        MessageManager::writeDisrupting(res.error());
         return;
     }
-    const Utils::FilePath filePath = saver.filePath();
+
+    const FilePath filePath = saver.filePath();
     m_fetchedSnippets.push_back(filePath.toUrlishString());
     // Open editor with title.
     IEditor *editor = EditorManager::openEditor(filePath);

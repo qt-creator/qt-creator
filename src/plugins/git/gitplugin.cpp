@@ -1394,8 +1394,8 @@ void GitPluginPrivate::startCommit(CommitType commitType)
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
     saver.write(commitTemplate.toLocal8Bit());
-    if (!saver.finalize()) {
-        VcsOutputWindow::appendError(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError(res.error());
         return;
     }
     m_commitMessageFileName = saver.filePath();

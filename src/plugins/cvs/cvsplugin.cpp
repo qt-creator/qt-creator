@@ -907,8 +907,8 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
     const QString submitTemplate;
     // Create a submit
     saver.write(submitTemplate.toUtf8());
-    if (!saver.finalize()) {
-        VcsOutputWindow::appendError(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError(res.error());
         return;
     }
     m_commitMessageFileName = saver.filePath().toUrlishString();

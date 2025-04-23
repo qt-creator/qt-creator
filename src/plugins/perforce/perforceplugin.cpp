@@ -711,8 +711,8 @@ void PerforcePluginPrivate::startSubmitProject()
     TempFileSaver saver;
     saver.setAutoRemove(false);
     saver.write(result.stdOut.toLatin1());
-    if (!saver.finalize()) {
-        VcsOutputWindow::appendError(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError(res.error());
         cleanCommitMessageFile();
         return;
     }

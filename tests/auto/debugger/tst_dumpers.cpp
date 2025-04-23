@@ -82,8 +82,8 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     const QByteArray redirect = "set > " + Utils::ProcessArgs::quoteArg(
                                     QDir::toNativeSeparators(tempOutFile)).toLocal8Bit() + "\r\n";
     saver.write(redirect);
-    if (!saver.finalize()) {
-        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
+    if (const Utils::Result<> res = saver.finalize(); !res) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
         return false;
     }
 

@@ -18,6 +18,8 @@
 #include <QPlainTextEdit>
 #include <QScopeGuard>
 
+using namespace Utils;
+
 namespace {
 Q_LOGGING_CATEGORY(dsLog, "qtc.designer.designSystem", QtInfoMsg)
 constexpr char DesignModuleName[] = "DesignSystem";
@@ -56,7 +58,7 @@ std::optional<QString> modelSerializeHelper(
     [[maybe_unused]] QmlDesigner::ProjectStorageDependencies &projectStorageDependencies,
     QmlDesigner::ExternalDependenciesInterface &ed,
     std::function<void(QmlDesigner::Model *)> callback,
-    const Utils::FilePath &targetDir,
+    const FilePath &targetDir,
     const QString &typeName,
     bool isSingelton = false)
 {
@@ -85,10 +87,10 @@ std::optional<QString> modelSerializeHelper(
 
     view.executeInTransaction("DSStore::modelSerializeHelper", [&] { callback(model.get()); });
 
-    Utils::FileSaver saver(dsFilePath(targetDir, typeName), QIODevice::Text);
+    FileSaver saver(dsFilePath(targetDir, typeName), QIODevice::Text);
     saver.write(reformatQml(modifier.text()));
-    if (!saver.finalize())
-        return saver.errorString();
+    if (const Result<> res = saver.finalize(); !res)
+        return res.error();
 
     return {};
 }
@@ -178,7 +180,7 @@ std::optional<QString> DSStore::save(bool mcuCompatible)
     return tr("Can not locate design system module");
 }
 
-std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool mcuCompatible)
+std::optional<QString> DSStore::save(const FilePath &moduleDirPath, bool mcuCompatible)
 {
     if (!QDir().mkpath(moduleDirPath.absoluteFilePath().toUrlishString()))
         return tr("Can not create design system module directory %1.").arg(moduleDirPath.toUrlishString());
@@ -196,11 +198,11 @@ std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool 
     }
 
     // Write qmldir
-    Utils::FileSaver saver(moduleDirPath / "qmldir", QIODevice::Text);
+    FileSaver saver(moduleDirPath / "qmldir", QIODevice::Text);
     const QString qmldirContents = QString("Module %1\n%2").arg(moduleImportStr(), singletons.join("\n"));
     saver.write(qmldirContents.toUtf8());
-    if (!saver.finalize())
-        errors << tr("Can not write design system qmldir. %1").arg(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res)
+        errors << tr("Can not write design system qmldir. %1").arg(res.error());
 
     if (!errors.isEmpty())
         return errors.join("\n");

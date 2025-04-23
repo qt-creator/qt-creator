@@ -433,9 +433,9 @@ Result<> PersistentSettingsWriter::write(const Store &data) const
         saver.setResult(&w);
     }
 
-    if (!saver.finalize()) {
+    if (const Result<> res = saver.finalize(); !res) {
         m_savedData.clear();
-        return ResultError(saver.errorString());
+        return res;
     }
 
     m_savedData = data;

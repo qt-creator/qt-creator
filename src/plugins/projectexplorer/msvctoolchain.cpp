@@ -608,7 +608,7 @@ static QByteArray msvcCompilationFile()
 // [1] https://msdn.microsoft.com/en-us/library/b0084kay.aspx
 // [2] http://stackoverflow.com/questions/3665537/how-to-find-out-cl-exes-built-in-macros
 Macros MsvcToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
-                                           const Utils::Environment &env) const
+                                           const Environment &env) const
 {
     Macros predefinedMacros;
 
@@ -632,18 +632,18 @@ Macros MsvcToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
         }
     }
 
-    Utils::TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath()
-                               + "/envtestXXXXXX.cpp");
+    TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/envtestXXXXXX.cpp");
     saver.write(msvcCompilationFile());
-    if (!saver.finalize()) {
-        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
+    if (const Result<> res = saver.finalize(); !res) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
         return predefinedMacros;
     }
-    Utils::Process cpp;
+
+    Process cpp;
     cpp.setEnvironment(env);
-    cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
+    cpp.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
     QStringList arguments;
-    const Utils::FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
+    const FilePath binary = env.searchInPath(QLatin1String("cl.exe"));
     if (binary.isEmpty()) {
         qWarning("%s: The compiler binary cl.exe could not be found in the path.", Q_FUNC_INFO);
         return predefinedMacros;
@@ -2058,17 +2058,17 @@ void MsvcToolchain::cancelMsvcToolChainDetection()
     envModThreadPool()->clear();
 }
 
-std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Utils::Environment &env,
-                                                                    const QString &batchFile,
-                                                                    const QString &batchArgs,
-                                                                    QMap<QString, QString> &envPairs)
+std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Environment &env,
+                                                                  const QString &batchFile,
+                                                                  const QString &batchArgs,
+                                                                  QMap<QString, QString> &envPairs)
 {
     const QString marker = "####################";
     // Create a temporary file name for the output. Use a temporary file here
     // as I don't know another way to do this in Qt...
 
     // Create a batch file to create and save the env settings
-    Utils::TempFileSaver saver(Utils::TemporaryDirectory::masterDirectoryPath() + "/XXXXXX.bat");
+    TempFileSaver saver(TemporaryDirectory::masterDirectoryPath() + "/XXXXXX.bat");
 
     QByteArray call = "call ";
     call += ProcessArgs::quoteArg(batchFile).toLocal8Bit();
@@ -2077,7 +2077,7 @@ std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Utils::E
         call += batchArgs.toLocal8Bit();
     }
 
-    if (Utils::HostOsInfo::isWindowsHost())
+    if (HostOsInfo::isWindowsHost())
         saver.write("chcp 65001\r\n");
     saver.write("set VSCMD_SKIP_SENDTELEMETRY=1\r\n");
     saver.write("set CLINK_NOAUTORUN=1\r\n");
@@ -2091,20 +2091,20 @@ std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Utils::E
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     saver.write("set\r\n");
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
-    if (!saver.finalize()) {
-        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
+    if (const Result<> &res = saver.finalize(); !res) {
+        qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
         return {};
     }
 
-    Utils::Process run;
+    Process run;
 
     // As of WinSDK 7.1, there is logic preventing the path from being set
     // correctly if "ORIGINALPATH" is already set. That can cause problems
     // if Creator is launched within a session set up by setenv.cmd.
-    Utils::Environment runEnv = env;
+    Environment runEnv = env;
     runEnv.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(runEnv);
-    Utils::FilePath cmdPath = Utils::FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
+    FilePath cmdPath = FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.

@@ -1412,8 +1412,8 @@ void ClearCasePluginPrivate::startCheckIn(const FilePath &workingDir, const QStr
         submitTemplate = ccGetComment(workingDir, files.first());
     // Create a submit
     saver.write(submitTemplate.toUtf8());
-    if (!saver.finalize()) {
-        VcsOutputWindow::appendError(saver.errorString());
+    if (const Result<> res = saver.finalize(); !res) {
+        VcsOutputWindow::appendError(res.error());
         return;
     }
     m_checkInMessageFilePath = saver.filePath();
