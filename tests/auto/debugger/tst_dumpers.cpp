@@ -4,7 +4,6 @@
 #include "debuggerprotocol.h"
 #include "simplifytype.h"
 #include "watchdata.h"
-#include "watchutils.h"
 
 #include <utils/commandline.h> // for Utils::ProcessArgs
 #include <utils/fileutils.h>
@@ -24,6 +23,7 @@ Q_LOGGING_CATEGORY(lcDumpers, "qtc.debugger.dumpers", QtDebugMsg)
 
 using namespace Debugger;
 using namespace Internal;
+using namespace Utils;
 
 enum class BuildSystem
 {
@@ -51,7 +51,7 @@ enum class Language
     "};\n"
 
 // Copied from msvctoolchain.cpp to avoid plugin dependency.
-static bool generateEnvironmentSettings(Utils::Environment &env,
+static bool generateEnvironmentSettings(Environment &env,
                                         const QString &batchFile,
                                         const QString &batchArgs,
                                         QMap<QString, QString> &envPairs)
@@ -69,20 +69,20 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     delete pVarsTempFile;
 
     // Create a batch file to create and save the env settings
-    Utils::TempFileSaver saver(QDir::tempPath() + "/XXXXXX.bat");
+    TempFileSaver saver(QDir::tempPath() + "/XXXXXX.bat");
 
     QByteArray call = "call ";
-    call += Utils::ProcessArgs::quoteArg(batchFile).toLocal8Bit();
+    call += ProcessArgs::quoteArg(batchFile).toLocal8Bit();
     if (!batchArgs.isEmpty()) {
         call += ' ';
         call += batchArgs.toLocal8Bit();
     }
     saver.write(call + "\r\n");
 
-    const QByteArray redirect = "set > " + Utils::ProcessArgs::quoteArg(
+    const QByteArray redirect = "set > " + ProcessArgs::quoteArg(
                                     QDir::toNativeSeparators(tempOutFile)).toLocal8Bit() + "\r\n";
     saver.write(redirect);
-    if (const Utils::Result<> res = saver.finalize(); !res) {
+    if (const Result<> res = saver.finalize(); !res) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
         return false;
     }
@@ -96,7 +96,7 @@ static bool generateEnvironmentSettings(Utils::Environment &env,
     const QString cmdPath = QString::fromLocal8Bit(qgetenv("COMSPEC"));
     // Windows SDK setup scripts require command line switches for environment expansion.
     QStringList cmdArguments{"/E:ON", "/V:ON", "/c",
-                             Utils::ProcessArgs::quoteArg(saver.filePath().toUserOutput())};
+                             ProcessArgs::quoteArg(saver.filePath().toUserOutput())};
     run.start(cmdPath, cmdArguments);
 
     if (!run.waitForStarted()) {
@@ -1069,7 +1069,7 @@ public:
 
     const Data &operator+(InternalProfile) const
     {
-        const auto parentDir = Utils::FilePath::fromUserInput(__FILE__).parentDir().path();
+        const auto parentDir = FilePath::fromUserInput(__FILE__).parentDir().path();
         profileExtra += "INCLUDEPATH += " + parentDir + "/../../../src/libs/3rdparty\n";
         return *this;
     }
@@ -1272,14 +1272,14 @@ void tst_Dumpers::initTestCase()
             &m_gdbBuildVersion, &m_isMacGdb, &m_isQnxGdb);
         m_makeBinary = QDir::fromNativeSeparators(QString::fromLocal8Bit(qgetenv("QTC_MAKE_PATH_FOR_TEST")));
 #ifdef Q_OS_WIN
-        Utils::Environment env = Utils::Environment::systemEnvironment();
+        Environment env = Environment::systemEnvironment();
         if (m_makeBinary.isEmpty())
             m_makeBinary = "mingw32-make";
         if (m_makeBinary != "mingw32-make")
-            env.prependOrSetPath(Utils::FilePath::fromString(m_makeBinary).parentDir());
+            env.prependOrSetPath(FilePath::fromString(m_makeBinary).parentDir());
         // if qmake is not in PATH make sure the correct libs for inferior are prepended to PATH
         if (m_qmakeBinary != "qmake")
-            env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary).parentDir());
+            env.prependOrSetPath(FilePath::fromString(m_qmakeBinary).parentDir());
         m_env = env.toProcessEnvironment();
 #else
         m_env = QProcessEnvironment::systemEnvironment();
@@ -1291,7 +1291,7 @@ void tst_Dumpers::initTestCase()
     } else if (m_debuggerEngine == CdbEngine) {
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         QMap <QString, QString> envPairs;
-        Utils::Environment env = Utils::Environment::systemEnvironment();
+        Environment env = Environment::systemEnvironment();
         QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
         for (auto envIt = envPairs.begin(); envIt != envPairs.end(); ++envIt)
             env.set(envIt.key(), envIt.value());
@@ -1300,7 +1300,7 @@ void tst_Dumpers::initTestCase()
             cdbextPath = QString(CDBEXT_PATH "\\qtcreatorcdbext64");
         QVERIFY(QFileInfo::exists(cdbextPath + "\\qtcreatorcdbext.dll"));
         env.set("_NT_DEBUGGER_EXTENSION_PATH", cdbextPath);
-        env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary).parentDir());
+        env.prependOrSetPath(FilePath::fromString(m_qmakeBinary).parentDir());
         m_makeBinary = env.searchInPath("nmake.exe").toUrlishString();
         m_env = env.toProcessEnvironment();
 
@@ -1349,10 +1349,10 @@ void tst_Dumpers::initTestCase()
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         if (!envBat.isEmpty()) {
             QMap <QString, QString> envPairs;
-            Utils::Environment env = Utils::Environment::systemEnvironment();
+            Environment env = Environment::systemEnvironment();
             QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
 
-            env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary).parentDir());
+            env.prependOrSetPath(FilePath::fromString(m_qmakeBinary).parentDir());
 
             m_env = env.toProcessEnvironment();
             m_makeBinary = env.searchInPath("nmake.exe").toUrlishString();
@@ -2011,7 +2011,7 @@ void tst_Dumpers::dumper()
         }
 
         const QString iname = check.iname;
-        WatchItem *item = local.findAnyChild([iname](Utils::TreeItem *item) {
+        WatchItem *item = local.findAnyChild([iname](TreeItem *item) {
             return static_cast<WatchItem *>(item)->internalName() == iname;
         });
         if (!item) {
