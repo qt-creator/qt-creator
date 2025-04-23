@@ -102,11 +102,11 @@ public:
     AspectContainer *m_container = nullptr; // Not owned by us.
 
     bool m_visible = true;
-    bool m_enabled = true;
     bool m_readOnly = false;
     bool m_autoApply = true;
     bool m_saveAlways = false; // if true, also empty keys will be written
-    bool m_hasEnabler = false;
+    QPointer<BoolAspect> m_enabler;
+    bool m_enabled = true;
     int m_spanX = 1;
     int m_spanY = 1;
     BaseAspect::ConfigWidgetCreator m_configWidgetCreator;
@@ -394,6 +394,8 @@ QUndoStack *BaseAspect::undoStack() const
 
 bool BaseAspect::isEnabled() const
 {
+    if (d->m_enabler)
+        return d->m_enabler->isEnabled() && d->m_enabler->volatileValue();
     return d->m_enabled;
 }
 
@@ -418,11 +420,9 @@ void BaseAspect::setEnabler(BoolAspect *checker)
 {
     QTC_ASSERT(checker, return);
 
-    d->m_hasEnabler = true;
+    d->m_enabler = checker;
 
-    auto update = [this, checker] {
-        BaseAspect::setEnabled(checker->isEnabled() && checker->volatileValue());
-    };
+    auto update = [this] { BaseAspect::setEnabled(isEnabled()); };
 
     connect(checker, &BoolAspect::volatileValueChanged, this, update);
     connect(checker, &BoolAspect::changed, this, update);
@@ -666,7 +666,7 @@ void BaseAspect::registerSubWidget(QWidget *widget)
         d->m_subWidgets.removeAll(widget);
     });
 
-    widget->setEnabled(d->m_enabled);
+    widget->setEnabled(isEnabled());
     widget->setToolTip(d->m_tooltip);
 
     // Visible is on by default. Not setting it explicitly avoid popping
@@ -740,10 +740,6 @@ void BaseAspect::readSettings()
     if (skipSave())
         return;
     QTC_ASSERT(theSettings, return);
-    // The enabler needs to be set up after reading the settings, otherwise
-    // changes from reading the settings will not update the enabled state
-    // because the updates are "quiet".
-    QTC_CHECK(!d->m_hasEnabler);
     const QVariant val = theSettings->value(settingsKey());
     setVariantValue(val.isValid() ? fromSettingsValue(val) : defaultVariantValue(), BeQuiet);
 }
