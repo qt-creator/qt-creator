@@ -206,10 +206,10 @@ TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCod
 
     QByteArray data;
     try {
-        FileReader reader;
-        if (const Result<> res = reader.fetch(filePath); !res)
+        const Result<QByteArray> res = filePath.fileContents();
+        if (!res)
             return {TextFileFormat::ReadIOError, res.error()};
-        data = reader.data();
+        data = *res;
     } catch (const std::bad_alloc &) {
         return {TextFileFormat::ReadMemoryAllocationError, Tr::tr("Out of memory.")};
     }
@@ -279,10 +279,10 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
 {
     QByteArray data;
     try {
-        FileReader reader;
-        if (const Result<> res = reader.fetch(filePath); !res)
-            return res;
-        data = reader.data();
+        const Result<QByteArray> res = filePath.fileContents();
+        if (!res)
+            return ResultError(res.error());
+        data = *res;
     } catch (const std::bad_alloc &) {
         return ResultError(Tr::tr("Out of memory."));
     }

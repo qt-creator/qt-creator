@@ -3,12 +3,12 @@
 
 #include "resourcepreviewhoverhandler.h"
 
-#include <coreplugin/icore.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+
 #include <texteditor/texteditor.h>
-#include <utils/fileutils.h>
+
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
@@ -20,9 +20,9 @@
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
 /*
  * finds a quoted sub-string around the pos in the given string
@@ -49,7 +49,7 @@ static QString makeResourcePath(const QStringList &prefixList, const QString &fi
     QTC_ASSERT(!prefixList.isEmpty(), return QString());
 
     const QChar sep = '/';
-    auto prefix = prefixList.join(sep);
+    const QString prefix = prefixList.join(sep);
     if (prefix == sep)
         return prefix + file;
 
@@ -63,12 +63,11 @@ static QString makeResourcePath(const QStringList &prefixList, const QString &fi
  */
 static QString findResourceInFile(const QString &resName, const QString &filePathName)
 {
-    Utils::FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(filePathName)))
-        return QString();
+    const Result<QByteArray> res = FilePath::fromString(filePathName).fileContents();
+    if (!res)
+        return {};
 
-    const QByteArray contents = reader.data();
-    QXmlStreamReader xmlr(contents);
+    QXmlStreamReader xmlr(*res);
 
     QStringList prefixStack;
 
@@ -185,5 +184,4 @@ QString ResourcePreviewHoverHandler::makeTooltip() const
     return ret;
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal

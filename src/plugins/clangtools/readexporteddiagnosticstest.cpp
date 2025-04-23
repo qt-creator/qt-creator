@@ -257,21 +257,21 @@ void ReadExportedDiagnosticsTest::testOffsetMultiByteCodePoint2()
 }
 
 // Replace FILE_PATH with a real absolute file path in the *.yaml files.
-FilePath ReadExportedDiagnosticsTest::createFile(const Utils::FilePath &yamlFilePath,
-                                                 const Utils::FilePath &filePathToInject) const
+FilePath ReadExportedDiagnosticsTest::createFile(const FilePath &yamlFilePath,
+                                                 const FilePath &filePathToInject) const
 {
     QTC_ASSERT(filePathToInject.isAbsolutePath(), return {});
     const FilePath newFileName = m_baseDir->filePath().resolvePath(yamlFilePath);
 
-    FileReader reader;
-    if (QTC_GUARD(reader.fetch(yamlFilePath))) {
-        QByteArray contents = reader.text();
-        contents.replace("FILE_PATH", filePathToInject.toUrlishString().toLocal8Bit());
+    const Result<QByteArray> res = yamlFilePath.fileContents();
+    QTC_ASSERT(res, return newFileName);
 
-        FileSaver fileSaver(newFileName, QIODevice::WriteOnly | QIODevice::Text);
-        QTC_CHECK(fileSaver.write(contents));
-        QTC_CHECK(fileSaver.finalize());
-    }
+    QByteArray contents = *res;
+    contents.replace("FILE_PATH", filePathToInject.toUrlishString().toLocal8Bit());
+
+    FileSaver fileSaver(newFileName, QIODevice::WriteOnly | QIODevice::Text);
+    QTC_CHECK(fileSaver.write(contents));
+    QTC_CHECK(fileSaver.finalize());
 
     return newFileName;
 }
