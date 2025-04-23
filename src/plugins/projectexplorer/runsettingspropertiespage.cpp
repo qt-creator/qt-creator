@@ -11,6 +11,7 @@
 #include "projectconfigurationmodel.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "runconfiguration.h"
 #include "target.h"
 
@@ -50,41 +51,54 @@ public:
         // Collect run configurations.
         using RCList = QList<const RunConfiguration *>;
         using RCsPerBuildConfig = QHash<const BuildConfiguration *, RCList>;
-        QHash<const Target *, RCsPerBuildConfig> eligibleRcs;
-        for (const Target * const t : thisRc->project()->targets()) {
-            RCsPerBuildConfig rcsForTarget;
-            for (const BuildConfiguration * const bc : t->buildConfigurations()) {
-                RCList rcsForBuildConfig;
-                for (const RunConfiguration * const rc : bc->runConfigurations()) {
-                    if (rc != thisRc)
-                        rcsForBuildConfig << rc;
+        using RCsPerTarget = QHash<const Target *, RCsPerBuildConfig>;
+        QHash<const Project *, RCsPerTarget> eligibleRcs;
+        for (const Project * const p : ProjectManager::projects()) {
+            RCsPerTarget rcsForProject;
+            for (const Target * const t : p->targets()) {
+                RCsPerBuildConfig rcsForTarget;
+                for (const BuildConfiguration * const bc : t->buildConfigurations()) {
+                    RCList rcsForBuildConfig;
+                    for (const RunConfiguration * const rc : bc->runConfigurations()) {
+                        if (rc != thisRc)
+                            rcsForBuildConfig << rc;
+                    }
+                    if (!rcsForBuildConfig.isEmpty())
+                        rcsForTarget.insert(bc, rcsForBuildConfig);
                 }
-                if (!rcsForBuildConfig.isEmpty())
-                    rcsForTarget.insert(bc, rcsForBuildConfig);
+                if (!rcsForTarget.isEmpty())
+                    rcsForProject.insert(t, rcsForTarget);
             }
-            if (!rcsForTarget.isEmpty())
-                eligibleRcs.insert(t, rcsForTarget);
+            if (!rcsForProject.isEmpty())
+                eligibleRcs.insert(p, rcsForProject);
         }
 
         // Initialize model. Only use static data. This way, we are immune
         // to removal of any configurations while the dialog is running.
         if (eligibleRcs.isEmpty()) {
-            m_rcModel->rootItem()->appendChild(new StaticTreeItem(
-                Tr::tr("There are no other run configurations.")));
+            m_rcModel->rootItem()->appendChild(
+                new StaticTreeItem(Tr::tr("There are no other run configurations.")));
             m_rcView->setSelectionMode(TreeView::NoSelection);
         } else {
-            for (auto targetIt = eligibleRcs.cbegin(); targetIt != eligibleRcs.cend(); ++targetIt) {
-                const auto targetItem = new StaticTreeItem(targetIt.key()->displayName());
-                for (auto bcIt = targetIt.value().cbegin(); bcIt != targetIt.value().cend();
-                     ++bcIt) {
-                    const auto bcItem = new StaticTreeItem(bcIt.key()->displayName());
-                    for (const RunConfiguration *const rc : std::as_const(bcIt.value())) {
-                        bcItem->appendChild(
-                            new RCTreeItem(rc, rc->buildKey() == thisRc->buildKey()));
+            for (auto projectIt = eligibleRcs.cbegin(); projectIt != eligibleRcs.cend();
+                 ++projectIt) {
+                const auto projectItem = new StaticTreeItem(projectIt.key()->displayName());
+                for (auto targetIt = projectIt.value().cbegin();
+                     targetIt != projectIt.value().cend();
+                     ++targetIt) {
+                    const auto targetItem = new StaticTreeItem(targetIt.key()->displayName());
+                    for (auto bcIt = targetIt.value().cbegin(); bcIt != targetIt.value().cend();
+                         ++bcIt) {
+                        const auto bcItem = new StaticTreeItem(bcIt.key()->displayName());
+                        for (const RunConfiguration *const rc : std::as_const(bcIt.value())) {
+                            bcItem->appendChild(
+                                new RCTreeItem(rc, rc->buildKey() == thisRc->buildKey()));
+                        }
+                        targetItem->appendChild(bcItem);
                     }
-                    targetItem->appendChild(bcItem);
+                    projectItem->appendChild(targetItem);
                 }
-                m_rcModel->rootItem()->appendChild(targetItem);
+                m_rcModel->rootItem()->appendChild(projectItem);
             }
             m_rcView->setSelectionMode(TreeView::SingleSelection);
             m_rcView->setSelectionBehavior(TreeView::SelectItems);
@@ -149,9 +163,12 @@ private:
         QDialog::accept();
     }
 
-    bool isRcItem(const QModelIndex &index) const { return index.parent().parent().isValid(); }
+    bool isRcItem(const QModelIndex &index) const
+    {
+        return index.parent().parent().parent().isValid();
+    }
 
-    using RCModel = TreeModel<TreeItem, StaticTreeItem, StaticTreeItem, RCTreeItem>;
+    using RCModel = TreeModel<TreeItem, StaticTreeItem, StaticTreeItem, StaticTreeItem, RCTreeItem>;
     RCModel * const m_rcModel;
     TreeView * const m_rcView;
     const RunConfiguration * m_source = nullptr;
