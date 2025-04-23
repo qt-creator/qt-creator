@@ -335,8 +335,9 @@ Store Target::toMap() const
     // Forward compatibility for Qt Creator < 17: Store the active build configuration's
     // deploy and run configurations as the target-global ones. A special tag signifies that
     // we should not read these ourselves.
-    d->m_activeBuildConfiguration->storeConfigurationsToMap(map);
     map.insert(HAS_PER_BC_DCS, true);
+    if (QTC_GUARD(d->m_activeBuildConfiguration))
+        d->m_activeBuildConfiguration->storeConfigurationsToMap(map);
 
     return map;
 }
