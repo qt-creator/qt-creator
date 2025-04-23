@@ -2087,10 +2087,10 @@ std::optional<QString> MsvcToolchain::generateEnvironmentSettings(const Environm
     saver.write("    call \"%VCINSTALLDIR%/Auxiliary/Build/vcvarsall.bat\" /clean_env\r\n");
     saver.write("  )\r\n");
     saver.write(")\r\n");
-    saver.write(call + "\r\n");
-    saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
+    saver.write(QByteArray(call + "\r\n"));
+    saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
     saver.write("set\r\n");
-    saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
+    saver.write(QByteArray("@echo " + marker.toLocal8Bit() + "\r\n"));
     if (const Result<> &res = saver.finalize(); !res) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(res.error()));
         return {};

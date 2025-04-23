@@ -159,7 +159,7 @@ void setupClangdConfigFile()
                                  "unless you remove this line.";
     if (!contents || contents->startsWith(firstLine)) {
         FileSaver saver(targetConfigFile);
-        saver.write(firstLine + '\n');
+        saver.write(QByteArray(firstLine + '\n'));
         saver.write("Hover:\n");
         saver.write("  ShowAKA: Yes\n");
         saver.write("Diagnostics:\n");

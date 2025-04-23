@@ -336,7 +336,7 @@ Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) 
     FileSaver saver(filePath, fileMode);
     if (!saver.hasError()) {
         if (hasUtf8Bom && m_codec->name() == "UTF-8")
-            saver.write("\xef\xbb\xbf", 3);
+            saver.write({"\xef\xbb\xbf", 3});
         saver.write(m_codec->fromUnicode(plainText));
     }
 

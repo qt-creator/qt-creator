@@ -90,18 +90,11 @@ Result<> FileSaverBase::finalize()
     return m_result;
 }
 
-bool FileSaverBase::write(const char *data, int len)
+bool FileSaverBase::write(const QByteArrayView bytes)
 {
     if (!m_result)
         return false;
-    return setResult(m_file->write(data, len) == len);
-}
-
-bool FileSaverBase::write(const QByteArray &bytes)
-{
-    if (!m_result)
-        return false;
-    return setResult(m_file->write(bytes) == bytes.size());
+    return setResult(m_file->write(bytes.data(), bytes.size()) == bytes.size());
 }
 
 bool FileSaverBase::setResult(bool ok)

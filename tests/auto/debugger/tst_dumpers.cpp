@@ -77,7 +77,7 @@ static bool generateEnvironmentSettings(Environment &env,
         call += ' ';
         call += batchArgs.toLocal8Bit();
     }
-    saver.write(call + "\r\n");
+    saver.write(QByteArray(call + "\r\n"));
 
     const QByteArray redirect = "set > " + ProcessArgs::quoteArg(
                                     QDir::toNativeSeparators(tempOutFile)).toLocal8Bit() + "\r\n";

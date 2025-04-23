@@ -164,8 +164,7 @@ public:
     QString errorString() const { return m_result.error(); }
     virtual Utils::Result<> finalize();
 
-    bool write(const char *data, int len);
-    bool write(const QByteArray &bytes);
+    bool write(QByteArrayView bytes);
     bool setResult(QTextStream *stream);
     bool setResult(QDataStream *stream);
     bool setResult(QXmlStreamWriter *stream);

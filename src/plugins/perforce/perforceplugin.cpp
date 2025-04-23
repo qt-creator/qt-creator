@@ -1062,7 +1062,7 @@ std::shared_ptr<TempFileSaver> PerforcePluginPrivate::createTemporaryArgumentFil
     for (int i = 0; i <= last; i++) {
         rc->write(extraArgs.at(i).toLocal8Bit());
         if (i != last)
-            rc->write("\n", 1);
+            rc->write({"\n", 1});
     }
     if (const Result<> res = rc->finalize(); !res) {
         if (errorString)
