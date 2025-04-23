@@ -15,6 +15,7 @@
 #include "runconfiguration.h"
 #include "target.h"
 
+#include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
@@ -35,12 +36,11 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QSpacerItem>
-#include <QWidget>
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
+
 namespace {
 class CloneIntoRunConfigDialog : public QDialog
 {
@@ -179,13 +179,72 @@ private:
 
 // RunSettingsWidget
 
-RunSettingsWidget::RunSettingsWidget(Target *target) :
-    m_target(target)
+class RunSettingsWidget : public QWidget
 {
-    Q_ASSERT(m_target);
+public:
+    explicit RunSettingsWidget(Target *target);
 
+private:
+    void currentRunConfigurationChanged(int index);
+    void showAddRunConfigDialog();
+    void cloneRunConfiguration();
+    void cloneOtherRunConfiguration();
+    void removeRunConfiguration();
+    void removeAllRunConfigurations();
+    void activeRunConfigurationChanged();
+    void renameRunConfiguration();
+    void currentDeployConfigurationChanged(int index);
+    void aboutToShowDeployMenu();
+    void removeDeployConfiguration();
+    void activeDeployConfigurationChanged();
+    void renameDeployConfiguration();
+    void initForActiveBuildConfig();
+
+    void updateRemoveToolButtons();
+
+    QString uniqueDCName(const QString &name);
+    QString uniqueRCName(const QString &name);
+    void updateDeployConfiguration(DeployConfiguration *);
+    void setConfigurationWidget(RunConfiguration *rc, bool force);
+
+    void addRunControlWidgets();
+    void addSubWidget(QWidget *subWidget, QLabel *label);
+    void removeSubWidgets();
+
+    void updateEnabledState();
+
+    Target *m_target;
+    QWidget *m_runConfigurationWidget = nullptr;
+    RunConfiguration *m_runConfiguration = nullptr;
+    QVBoxLayout *m_runLayout = nullptr;
+    QWidget *m_deployConfigurationWidget = nullptr;
+    QVBoxLayout *m_deployLayout = nullptr;
+    BuildStepListWidget *m_deploySteps = nullptr;
+    QMenu *m_addDeployMenu;
+    Guard m_ignoreChanges;
+    using RunConfigItem = QPair<QWidget *, QLabel *>;
+    QList<RunConfigItem> m_subWidgets;
+
+    QGridLayout *m_gridLayout;
+    QComboBox *m_deployConfigurationCombo;
+    QComboBox *m_runConfigurationCombo;
+    QPushButton *m_addDeployToolButton;
+    QPushButton *m_removeDeployToolButton;
+    QPushButton *m_addRunToolButton;
+    QPushButton *m_removeRunToolButton;
+    QPushButton *m_removeAllRunConfigsButton;
+    QPushButton *m_renameRunButton;
+    QPushButton *m_cloneRunButton;
+    QPushButton *m_cloneIntoThisButton;
+    QPushButton *m_renameDeployButton;
+    InfoLabel *m_disabledText;
+};
+
+RunSettingsWidget::RunSettingsWidget(Target *target)
+    : m_target(target)
+{
     m_deployConfigurationCombo = new QComboBox(this);
-    Utils::setWheelScrollingWithoutFocusBlocked(m_deployConfigurationCombo);
+    setWheelScrollingWithoutFocusBlocked(m_deployConfigurationCombo);
     m_addDeployToolButton = new QPushButton(Tr::tr("Add"), this);
     m_removeDeployToolButton = new QPushButton(Tr::tr("Remove"), this);
     m_renameDeployButton = new QPushButton(Tr::tr("Rename..."), this);
@@ -195,7 +254,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_runConfigurationCombo = new QComboBox(this);
     m_runConfigurationCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_runConfigurationCombo->setMinimumContentsLength(15);
-    Utils::setWheelScrollingWithoutFocusBlocked(m_runConfigurationCombo);
+    setWheelScrollingWithoutFocusBlocked(m_runConfigurationCombo);
 
     m_addRunToolButton = new QPushButton(Tr::tr("Add..."), this);
     m_removeRunToolButton = new QPushButton(Tr::tr("Remove"), this);
@@ -216,7 +275,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
     runLabel->setBuddy(m_runConfigurationCombo);
 
-    const QFont f = Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementH4);
+    const QFont f = StyleHelper::uiFont(StyleHelper::UiElementH4);
     runTitle->setFont(f);
     deployTitle->setFont(f);
 
@@ -259,7 +318,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_runLayout = new QVBoxLayout(runWidget);
     m_runLayout->setContentsMargins(0, 0, 0, 0);
     m_runLayout->setSpacing(5);
-    m_disabledText = new Utils::InfoLabel({}, Utils::InfoLabel::Warning);
+    m_disabledText = new InfoLabel({}, InfoLabel::Warning);
     m_runLayout->addWidget(m_disabledText);
 
     initForActiveBuildConfig();
@@ -405,7 +464,7 @@ void RunSettingsWidget::activeRunConfigurationChanged()
     ProjectConfigurationModel *model = m_target->activeBuildConfiguration()->runConfigurationModel();
     int index = model->indexFor(m_target->activeRunConfiguration());
     {
-        const Utils::GuardLocker locker(m_ignoreChanges);
+        const GuardLocker locker(m_ignoreChanges);
         m_runConfigurationCombo->setCurrentIndex(index);
         setConfigurationWidget(
             qobject_cast<RunConfiguration *>(model->projectConfigurationAt(index)), false);
@@ -447,7 +506,7 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
         return;
 
     {
-        const Utils::GuardLocker locker(m_ignoreChanges);
+        const GuardLocker locker(m_ignoreChanges);
         m_target->activeBuildConfiguration()->setActiveRunConfiguration(selectedRunConfiguration);
     }
 
@@ -593,7 +652,7 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     m_deploySteps = nullptr;
 
     {
-        const Utils::GuardLocker locker(m_ignoreChanges);
+        const GuardLocker locker(m_ignoreChanges);
         m_deployConfigurationCombo->setCurrentIndex(-1);
     }
 
@@ -607,7 +666,7 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     int index = bc->deployConfigurationModel()->indexFor(dc);
 
     {
-        const Utils::GuardLocker locker(m_ignoreChanges);
+        const GuardLocker locker(m_ignoreChanges);
         m_deployConfigurationCombo->setCurrentIndex(index);
     }
 
@@ -653,7 +712,7 @@ QString RunSettingsWidget::uniqueDCName(const QString &name)
                 continue;
             dcNames.append(dc->displayName());
         }
-        result = Utils::makeUniquelyNumbered(result, dcNames);
+        result = makeUniquelyNumbered(result, dcNames);
     }
     return result;
 }
@@ -670,14 +729,14 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
                 continue;
             rcNames.append(rc->displayName());
         }
-        result = Utils::makeUniquelyNumbered(result, rcNames);
+        result = makeUniquelyNumbered(result, rcNames);
     }
     return result;
 }
 
 void RunSettingsWidget::addRunControlWidgets()
 {
-    for (Utils::BaseAspect *aspect : m_runConfiguration->aspects()) {
+    for (BaseAspect *aspect : m_runConfiguration->aspects()) {
         if (QWidget *rcw = aspect->createConfigWidget()) {
             auto label = new QLabel(this);
             label->setText(aspect->displayName());
@@ -693,7 +752,7 @@ void RunSettingsWidget::addSubWidget(QWidget *widget, QLabel *label)
 {
     widget->setContentsMargins({});
 
-    label->setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementH4));
+    label->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
     label->setContentsMargins(0, 18, 0, 0);
 
@@ -728,5 +787,9 @@ void RunSettingsWidget::updateEnabledState()
     m_disabledText->setText(reason);
 }
 
-} // Internal
-} // ProjectExplorer
+QWidget *createRunSettingsWidget(Target *target)
+{
+    return new RunSettingsWidget(target);
+}
+
+} // ProjectExplorer::Internal

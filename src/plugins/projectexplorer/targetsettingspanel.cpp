@@ -652,8 +652,8 @@ public:
     {
         if (!m_panel) {
             m_panel = (m_subIndex == RunPage)
-                    ? new PanelsWidget(Tr::tr("Run Settings"), new RunSettingsWidget(target()))
-                    : new PanelsWidget(Tr::tr("Build Settings"), new BuildSettingsWidget(target()));
+                    ? new PanelsWidget(Tr::tr("Run Settings"), createRunSettingsWidget(target()))
+                    : new PanelsWidget(Tr::tr("Build Settings"), createBuildSettingsWidget(target()));
         }
         return m_panel;
     }

@@ -34,13 +34,44 @@ using namespace Utils;
 
 namespace ProjectExplorer::Internal {
 
-BuildSettingsWidget::~BuildSettingsWidget() = default;
+class BuildSettingsWidget final : public QWidget
+{
+public:
+    explicit BuildSettingsWidget(Target *target);
+
+private:
+    void clearWidgets();
+    void addSubWidget(QWidget *widget, const QString &displayName);
+
+    void updateBuildSettings();
+    void currentIndexChanged(int index);
+
+    void renameConfiguration();
+    void updateAddButtonMenu();
+
+    void updateActiveConfiguration();
+
+    void createConfiguration(const BuildInfo &info);
+    void cloneConfiguration();
+    void deleteConfiguration(BuildConfiguration *toDelete);
+    QString uniqueName(const QString &name, bool allowCurrentName);
+
+    Target *m_target = nullptr;
+    BuildConfiguration *m_buildConfiguration = nullptr;
+
+    QPushButton *m_addButton = nullptr;
+    QPushButton *m_removeButton = nullptr;
+    QPushButton *m_renameButton = nullptr;
+    QPushButton *m_cloneButton = nullptr;
+    QComboBox *m_buildConfigurationComboBox = nullptr;
+    QMenu *m_addButtonMenu = nullptr;
+
+    QList<QWidget *> m_subWidgets;
+};
 
 BuildSettingsWidget::BuildSettingsWidget(Target *target)
     : m_target(target)
 {
-    Q_ASSERT(m_target);
-
     auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 
@@ -311,6 +342,11 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
     }
 
     m_target->removeBuildConfiguration(deleteConfiguration);
+}
+
+QWidget *createBuildSettingsWidget(Target *target)
+{
+    return new BuildSettingsWidget(target);
 }
 
 } // ProjectExplorer::Internal
