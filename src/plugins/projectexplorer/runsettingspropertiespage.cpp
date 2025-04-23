@@ -48,6 +48,9 @@ public:
     CloneIntoRunConfigDialog(const RunConfiguration *thisRc)
         : m_rcModel(new RCModel), m_rcView(new TreeView(this))
     {
+        setWindowTitle(Tr::tr("Clone From Run Configuration"));
+        resize(500, 400);
+
         // Collect run configurations.
         using RCList = QList<const RunConfiguration *>;
         using RCsPerBuildConfig = QHash<const BuildConfiguration *, RCList>;
@@ -107,7 +110,6 @@ public:
         // UI
         m_rcView->setModel(m_rcModel);
         m_rcView->expandAll();
-        setWindowTitle(Tr::tr("Clone From Run Configuration"));
         m_rcView->setSortingEnabled(true);
         m_rcView->resizeColumnToContents(0);
         m_rcView->sortByColumn(0, Qt::AscendingOrder);
