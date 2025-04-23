@@ -68,6 +68,8 @@ public:
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
 
+    bool addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies) final;
+
     // Actions:
     void runCMake();
     void runCMakeAndScanProjectTree();
@@ -268,6 +270,10 @@ private:
     QString m_error;
     QString m_warning;
 };
+
+#ifdef WITH_TESTS
+QObject *createAddDependenciesTest();
+#endif
 
 } // namespace Internal
 } // namespace CMakeProjectManager

@@ -62,6 +62,11 @@
 #include <QLoggingCategory>
 #include <QPushButton>
 
+#ifdef WITH_TESTS
+#include <cppeditor/cpptoolstestcase.h>
+#include <QTest>
+#endif
+
 using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
@@ -1076,6 +1081,178 @@ void CMakeBuildSystem::buildNamedTarget(const QString &target)
 {
     CMakeProjectManager::Internal::buildTarget(this, target);
 }
+
+static Result<bool> insertDependencies(
+    const QString &targetName,
+    const FilePath &targetCMakeFile,
+    int targetDefinitionLine,
+    const QStringList &dependencies,
+    int qtMajorVersion)
+{
+    std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
+    if (!cmakeListFile)
+        return ResultError("Failed to read " + targetCMakeFile.toUserOutput());
+
+    std::optional<cmListFileFunction> function
+        = findFunction(*cmakeListFile, [targetDefinitionLine](const auto &func) {
+              return func.Line() == targetDefinitionLine;
+          });
+    if (!function.has_value())
+        return ResultError(QString("Failed to locate the target defining function at %1").arg(targetDefinitionLine));
+    const int targetDefinitionLastLine = function->LineEnd();
+
+    //
+    // find_package
+    //
+    const QString qtPackage = QString("Qt%1").arg(qtMajorVersion);
+    function = findFunction(
+        *cmakeListFile,
+        [qtPackage](const auto &func) {
+            return func.LowerCaseName() == "find_package" && func.Arguments().size() > 0
+                   && func.Arguments()[0].Value == qtPackage;
+        },
+        /* reverse = */ true);
+
+    const QString findComponents = transform(dependencies, [](const QString &dep) {
+                                       QTC_ASSERT(dep.size() > 3, return dep);
+                                       return dep.mid(3);
+                                   }).join(" ");
+    QString snippet = QString("find_package(%1 REQUIRED COMPONENTS %2)\n%3")
+                          .arg(qtPackage)
+                          .arg(findComponents)
+                          .arg(!function ? QString("\n") : QString(""));
+
+    int insertionLine = function ? function->LineEnd() + 1 : targetDefinitionLine;
+    Result<bool> inserted = insertSnippetSilently(targetCMakeFile, {snippet, insertionLine, 0});
+    if (!inserted)
+        return inserted;
+    const int insertedFindPackageOffset = 2;
+
+    //
+    // target_link_libraries
+    //
+    cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
+
+    function = findFunction(
+        *cmakeListFile,
+        [targetName](const auto &func) {
+            return func.LowerCaseName() == "target_link_libraries" && func.Arguments().size() > 0
+                   && func.Arguments()[0].Value == targetName;
+        },
+        /* reverse = */ true);
+
+    const QString targetPrefix = QString("Qt%1::").arg(qtMajorVersion);
+    const QString linkLibraries
+        = transform(dependencies, [targetPrefix](const QString &dep) -> QString {
+              QTC_ASSERT(dep.size() > 3, return targetPrefix + dep);
+              return targetPrefix + dep.mid(3);
+          }).join(" ");
+    snippet = QString("%1target_link_libraries(%2 PRIVATE %3)\n")
+                  .arg(!function ? QString("\n") : QString(""))
+                  .arg(targetName)
+                  .arg(linkLibraries);
+
+    insertionLine = (function ? function->LineEnd()
+                              : targetDefinitionLastLine + insertedFindPackageOffset)
+                    + 1;
+    return insertSnippetSilently(targetCMakeFile, {snippet, insertionLine, 0});
+}
+
+bool CMakeBuildSystem::addDependencies(
+    ProjectExplorer::Node *context, const QStringList &dependencies)
+{
+    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
+        const QString targetName = n->buildKey();
+        const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
+        if (!cmakeFile)
+            return false;
+
+        int qtMajorVersion = 6;
+        if (auto qt = m_findPackagesFilesHash.value("Qt5Core"); qt.hasValidTarget())
+            qtMajorVersion = 5;
+
+        Result<bool> inserted = insertDependencies(
+            targetName,
+            cmakeFile->targetFilePath,
+            cmakeFile->targetLine,
+            dependencies,
+            qtMajorVersion);
+        if (!inserted) {
+            qCCritical(cmakeBuildSystemLog) << inserted.error();
+            return false;
+        }
+
+        return true;
+    }
+    return BuildSystem::addDependencies(context, dependencies);
+}
+
+#ifdef WITH_TESTS
+class AddDependenciesTest final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        const auto projectDir = std::make_unique<CppEditor::Tests::TemporaryCopiedDir>(
+            ":/cmakeprojectmanager/testcases/adddependencies");
+
+        QVERIFY(insertDependencies(
+            "HelloQt",
+            projectDir->filePath().pathAppended("existing_qt5.cmake"),
+            18,
+            {"Qt.Concurrent"},
+            5));
+        QVERIFY(insertDependencies(
+            "HelloQt",
+            projectDir->filePath().pathAppended("existing_qt6.cmake"),
+            8,
+            {"Qt.Concurrent"},
+            6));
+        QVERIFY(insertDependencies(
+            "HelloCpp",
+            projectDir->filePath().pathAppended("no_qt6.cmake"),
+            8,
+            {"Qt.Concurrent"},
+            6));
+
+        // Compare files.
+        static const QString suffix = "_expected.cmake";
+        const FileFilter filter({"*" + suffix}, QDir::Files);
+        const FilePaths expectedDocuments = projectDir->filePath().dirEntries(filter);
+        QVERIFY(!expectedDocuments.isEmpty());
+        for (const FilePath &expected : expectedDocuments) {
+            const FilePath actual = expected.parentDir().pathAppended(
+                expected.fileName().chopped(suffix.length()) + ".cmake");
+            QVERIFY(actual.exists());
+            const auto actualContents = actual.fileContents();
+            QVERIFY(actualContents);
+            const auto expectedContents = expected.fileContents();
+            const QByteArrayList actualLines = actualContents->split('\n');
+            const QByteArrayList expectedLines = expectedContents->split('\n');
+            if (actualLines.size() != expectedLines.size()) {
+                qDebug().noquote().nospace() << "---\n" << *expectedContents << "EOF";
+                qDebug().noquote().nospace() << "+++\n" << *actualContents << "EOF";
+            }
+            QCOMPARE(actualLines.size(), expectedLines.size());
+            for (int i = 0; i < actualLines.size(); ++i) {
+                const QByteArray actualLine = actualLines.at(i);
+                const QByteArray expectedLine = expectedLines.at(i);
+                if (actualLine != expectedLine)
+                    qDebug() << "Unexpected content in line" << (i + 1) << "of file"
+                             << actual.fileName();
+                QCOMPARE(actualLine, expectedLine);
+            }
+        }
+    }
+};
+
+QObject *createAddDependenciesTest()
+{
+    return new AddDependenciesTest;
+}
+#endif
 
 FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
@@ -2608,3 +2785,7 @@ ExtraCompiler *CMakeBuildSystem::findExtraCompiler(const ExtraCompilerFilter &fi
 }
 
 } // CMakeProjectManager::Internal
+
+#ifdef WITH_TESTS
+#include <cmakebuildsystem.moc>
+#endif
