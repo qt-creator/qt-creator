@@ -1209,6 +1209,8 @@ public:
     void bufferToGui() override;
     bool guiToBuffer() override;
 
+    void setComboBoxEditable(bool editable) { m_comboBoxEditable = editable; }
+
 signals:
     void refillRequested();
 
@@ -1218,6 +1220,7 @@ private:
     FillCallback m_fillCallback;
     QStandardItemModel *m_model{nullptr};
     QItemSelectionModel *m_selectionModel{nullptr};
+    bool m_comboBoxEditable{true};
 
     Utils::UndoableValue<QString> m_undoable;
 };

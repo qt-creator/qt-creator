@@ -3916,10 +3916,11 @@ void StringSelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 
     QComboBox *comboBox = new QComboBox();
     comboBox->setInsertPolicy(QComboBox::InsertPolicy::NoInsert);
-    comboBox->setEditable(true);
-    comboBox->completer()->setCompletionMode(QCompleter::PopupCompletion);
-    comboBox->completer()->setFilterMode(Qt::MatchContains);
-
+    comboBox->setEditable(m_comboBoxEditable);
+    if (m_comboBoxEditable) {
+        comboBox->completer()->setCompletionMode(QCompleter::PopupCompletion);
+        comboBox->completer()->setFilterMode(Qt::MatchContains);
+    }
     comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     comboBox->setCurrentText(value());
     comboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
