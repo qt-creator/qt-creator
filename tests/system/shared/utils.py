@@ -112,7 +112,7 @@ def lineUnderCursor(window):
     return textUnderCursor(window, QTextCursor.StartOfLine, QTextCursor.EndOfLine)
 
 def textUnderCursor(window, fromPos, toPos):
-    cursor = window.textCursor()
+    cursor = textCursorForWidget(window)
     oldposition = cursor.position()
     cursor.movePosition(fromPos)
     cursor.movePosition(toPos, QTextCursor.KeepAnchor)

@@ -12,7 +12,6 @@
 #include <QTextEdit>
 
 QT_BEGIN_NAMESPACE
-class QTextCursor;
 class QTextCharFormat;
 class QMimeData;
 QT_END_NAMESPACE
@@ -41,6 +40,7 @@ class QTCREATOR_UTILS_EXPORT PlainTextEdit : public QAbstractScrollArea
     Q_PROPERTY(bool backgroundVisible READ backgroundVisible WRITE setBackgroundVisible)
     Q_PROPERTY(bool centerOnScroll READ centerOnScroll WRITE setCenterOnScroll)
     Q_PROPERTY(QString placeholderText READ placeholderText WRITE setPlaceholderText)
+
 public:
     enum LineWrapMode {
         NoWrap,
@@ -60,6 +60,7 @@ public:
 
     void setTextCursor(const QTextCursor &cursor);
     QTextCursor textCursor() const;
+    Q_INVOKABLE QVariant variantTextCursor() const; // needed for testing with Squish
 
     bool isReadOnly() const;
     void setReadOnly(bool ro);
