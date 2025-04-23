@@ -205,6 +205,8 @@ void CppHighlighter::highlightBlock(const QString &text)
             attrState.rbrackets = !attrState.rbrackets;
             if (attrState.rbrackets == 0 && attrState.opened > 0)
                 --attrState.opened;
+            if (attrState.lbrackets)
+                attrState.lbrackets = 0;
             continue;
         }
         attrState.lbrackets = attrState.rbrackets = 0;
@@ -722,6 +724,8 @@ private slots:
             << 79 << 9 << 76 << 11 << C_ATTRIBUTE;
         QTest::newRow("attribute with line split, attr")
             << 79 << 14 << 76 << 26 << C_ATTRIBUTE;
+        QTest::newRow("array with implicit first dimension")
+            << 83 << 26 << 83 << 26 << C_TEXT;
     }
 
     void test()
@@ -755,8 +759,10 @@ private slots:
             const QChar c = m_doc.characterAt(pos);
             if (c == QChar::ParagraphSeparator)
                 continue;
-            const QTextCharFormat expectedFormat = asSyntaxHighlight(
-                c.isSpace() ? whitespacified(formatForStyle) : formatForStyle);
+            QTextCharFormat expectedFormat = c.isSpace() ? whitespacified(formatForStyle)
+                                                         : formatForStyle;
+            if (style != C_TEXT)
+                expectedFormat = asSyntaxHighlight(expectedFormat);
 
             const QTextCharFormat actualFormat = getActualFormat(pos);
             if (actualFormat != expectedFormat) {
@@ -765,7 +771,8 @@ private slots:
                 Utils::Text::convertPosition(&m_doc, pos, &posLine, &posCol);
                 qDebug() << posLine << posCol << c
                          << actualFormat.foreground() << expectedFormat.foreground()
-                         << actualFormat.background() << expectedFormat.background();
+                         << actualFormat.background() << expectedFormat.background()
+                         << actualFormat.properties() << expectedFormat.properties();
             }
             QCOMPARE(actualFormat, expectedFormat);
         }
