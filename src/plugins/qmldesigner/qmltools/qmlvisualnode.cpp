@@ -326,14 +326,14 @@ static QString imagePlaceHolderPath(AbstractView *view)
     return QString::fromLatin1(imagePlaceHolder);
 }
 
-static QString getSourceForUrl(const QString &fileURl)
+static QString getSourceForUrl(const QString &fileUrl)
 {
-    Utils::FileReader fileReader;
+    const Utils::Result<QByteArray> res = Utils::FilePath::fromString(fileUrl).fileContents();
 
-    if (fileReader.fetch(Utils::FilePath::fromString(fileURl)))
-        return QString::fromUtf8(fileReader.data());
+    if (res)
+        return QString::fromUtf8(*res);
 
-    return Utils::FileUtils::fetchQrc(fileURl);
+    return Utils::FileUtils::fetchQrc(fileUrl);
 }
 
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,

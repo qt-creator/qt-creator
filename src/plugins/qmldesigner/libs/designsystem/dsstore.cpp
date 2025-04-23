@@ -464,10 +464,9 @@ DSThemeManager *DSStore::collection(const QString &typeName)
 std::optional<QString> DSStore::loadCollection(const QString &typeName,
                                                const Utils::FilePath &qmlFilePath)
 {
-    Utils::FileReader reader;
-    QString errorString;
-    if (!reader.fetch(qmlFilePath, &errorString))
-        return errorString;
+    const Utils::Result<QByteArray> res = qmlFilePath.fileContents();
+    if (!res)
+        return res.error();
 
 #ifdef QDS_USE_PROJECTSTORAGE
     auto model = QmlDesigner::Model::create(m_projectStorageDependencies,
@@ -479,7 +478,7 @@ std::optional<QString> DSStore::loadCollection(const QString &typeName,
     auto model = QmlDesigner::Model::create("QtObject");
 #endif
     QPlainTextEdit editor;
-    QString qmlContent = QString::fromUtf8(reader.data());
+    QString qmlContent = QString::fromUtf8(*res);
     editor.setPlainText(qmlContent);
 
     QmlDesigner::NotIndentingTextEditModifier modifier(editor.document());

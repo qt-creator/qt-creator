@@ -883,13 +883,13 @@ void extractComponent(const SelectionContext &selectionContext)
 
     // Read the content of the qml component
     QString componentText;
-    Utils::FilePath path = Utils::FilePath::fromString(filePath);
-    Utils::FileReader reader;
-    if (!reader.fetch(path)) {
+    const FilePath path = FilePath::fromString(filePath);
+    const Result<QByteArray> res = path.fileContents();
+    if (!res) {
         qWarning() << "Cannot open component file " << filePath;
         return;
     }
-    componentText = QString::fromUtf8(reader.data());
+    componentText = QString::fromUtf8(*res);
 
 #ifdef QDS_USE_PROJECTSTORAGE
     ModelPointer inputModel = contextView->model()->createModel("Rectangle");

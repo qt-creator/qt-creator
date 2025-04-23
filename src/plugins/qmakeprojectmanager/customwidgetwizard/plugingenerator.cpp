@@ -302,11 +302,13 @@ QString PluginGenerator::processTemplate(const QString &tmpl,
                                          const SubstitutionMap &substMap,
                                          QString *errorMessage)
 {
-    Utils::FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(tmpl), errorMessage))
+    const Result<QByteArray> res = FilePath::fromString(tmpl).fileContents();
+    if (!res) {
+        *errorMessage = res.error();
         return {};
+    }
 
-    QString cont = QString::fromUtf8(reader.data());
+    QString cont = QString::fromUtf8(*res);
 
     // Expander needed to handle extra variable "Cpp:PragmaOnce"
     Utils::MacroExpander *expander = Utils::globalMacroExpander();

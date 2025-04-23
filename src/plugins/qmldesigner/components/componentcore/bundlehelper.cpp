@@ -682,11 +682,11 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 #else
     ModelPointer model = Model::create("Item");
 #endif
-    Utils::FileReader reader;
-    QTC_ASSERT(reader.fetch(filePath), return {});
+    const Utils::Result<QByteArray> res = filePath.fileContents();
+    QTC_ASSERT(res, return {});
 
     QPlainTextEdit textEdit;
-    textEdit.setPlainText(QString::fromUtf8(reader.data()));
+    textEdit.setPlainText(QString::fromUtf8(*res));
     NotIndentingTextEditModifier modifier(textEdit.document());
     modifier.setParent(model.get());
     RewriterView rewriterView(m_view->externalDependencies(), RewriterView::Validate);
