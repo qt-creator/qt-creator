@@ -48,15 +48,10 @@ public:
     explicit RunWorker(RunControl *runControl);
     ~RunWorker() override;
 
-    RunControl *runControl() const;
-
     void addStartDependency(RunWorker *dependency);
     void addStopDependency(RunWorker *dependency);
 
     void setId(const QString &id);
-
-    // Part of read-only interface of RunControl for convenience.
-    void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
 
     // States
     void initiateStart();
@@ -65,13 +60,10 @@ public:
     void initiateStop();
     void reportStopped();
 
-    void reportDone();
-
     void reportFailure(const QString &msg = QString());
 
 signals:
     void started();
-    void stopping();
     void stopped();
 
 protected:

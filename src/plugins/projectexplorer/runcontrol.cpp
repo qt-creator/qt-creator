@@ -1630,7 +1630,6 @@ void RunWorker::reportStarted()
 void RunWorker::initiateStop()
 {
     d->runControl->d->debugMessage("Initiate stop for " + d->id);
-    emit stopping();
     stop();
 }
 
@@ -1651,33 +1650,6 @@ void RunWorker::reportStopped()
 }
 
 /*!
- * This function can be called by a RunWorker implementation for short-lived
- * tasks to notify its RunControl about this task being successful finished.
- * Dependent startup tasks can proceed, in cases of spontaneous or scheduled
- * stops, the effect is the same as \c reportStopped().
- *
- */
-void RunWorker::reportDone()
-{
-    switch (d->state) {
-        case RunWorkerState::Initialized:
-            QTC_CHECK(false);
-            d->state = RunWorkerState::Done;
-            break;
-        case RunWorkerState::Starting:
-            reportStarted();
-            reportStopped();
-            break;
-        case RunWorkerState::Running:
-        case RunWorkerState::Stopping:
-            reportStopped();
-            break;
-        case RunWorkerState::Done:
-            break;
-    }
-}
-
-/*!
  * This function can be called by a RunWorker implementation to
  * signal a problem in the operation in this worker. The
  * RunControl will start to ramp down through initiateStop().
@@ -1685,15 +1657,6 @@ void RunWorker::reportDone()
 void RunWorker::reportFailure(const QString &msg)
 {
     d->runControl->d->onWorkerFailed(this, msg);
-}
-
-/*!
- * Appends a message in the specified \a format to
- * the owning RunControl's \uicontrol{Application Output} pane.
- */
-void RunWorker::appendMessage(const QString &msg, OutputFormat format, bool appendNewLine)
-{
-    d->runControl->postMessage(msg, format, appendNewLine);
 }
 
 void RunWorker::addStartDependency(RunWorker *dependency)
@@ -1704,11 +1667,6 @@ void RunWorker::addStartDependency(RunWorker *dependency)
 void RunWorker::addStopDependency(RunWorker *dependency)
 {
     d->stopDependencies.append(dependency);
-}
-
-RunControl *RunWorker::runControl() const
-{
-    return d->runControl;
 }
 
 void RunWorker::setId(const QString &id)
