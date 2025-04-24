@@ -196,6 +196,7 @@ const PackageDescription
                             {},
                             VersionDetection{},
                             false,
+                            false,
                             Utils::PathChooser::Kind::ExistingDirectory};
 
 const McuTargetDescription::Platform platformDescription{id,
@@ -851,6 +852,7 @@ void McuSupportTest::test_useFallbackPathForToolchainWhenPathFromSettingsIsNotAv
                                            {},
                                            VersionDetection{},
                                            false,
+                                           false,
                                            Utils::PathChooser::Kind::ExistingDirectory};
     McuTargetDescription::Toolchain toolchainDescription{armGcc, {}, compilerDescription, {}};
 
@@ -874,6 +876,7 @@ void McuSupportTest::test_usePathFromSettingsForToolchainPath()
                                            {},
                                            {},
                                            VersionDetection{},
+                                           false,
                                            false,
                                            Utils::PathChooser::Kind::ExistingDirectory};
     McuTargetDescription::Toolchain toolchainDescription{armGcc, {}, compilerDescription, {}};

@@ -41,6 +41,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const QStringList &versions,
                        const QString &downloadUrl,
                        const McuPackageVersionDetector *versionDetector,
+                       const bool optional,
                        const bool addToSystemPath,
                        const Utils::PathChooser::Kind &valueType,
                        const bool allowNewerVersionKey)
@@ -53,6 +54,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     , m_cmakeVariableName(cmakeVarName)
     , m_environmentVariableName(envVarName)
     , m_downloadUrl(downloadUrl)
+    , m_optional(optional)
     , m_addToSystemPath(addToSystemPath)
     , m_valueType(valueType)
 {
@@ -91,6 +93,11 @@ QString McuPackage::cmakeVariableName() const
 QString McuPackage::environmentVariableName() const
 {
     return m_environmentVariableName;
+}
+
+bool McuPackage::isOptional() const
+{
+    return m_optional;
 }
 
 bool McuPackage::isAddToSystemPath() const
@@ -190,25 +197,34 @@ McuPackage::Status McuPackage::status() const
     return m_status;
 }
 
+bool McuPackage::isOptionalAndEmpty() const
+{
+    return m_status == Status::EmptyPath && isOptional();
+}
+
 bool McuPackage::isValidStatus() const
 {
     return m_status == Status::ValidPackage || m_status == Status::ValidPackageMismatchedVersion
-           || m_status == Status::ValidPackageVersionNotDetected;
+           || m_status == Status::ValidPackageVersionNotDetected || isOptionalAndEmpty();
 }
 
 void McuPackage::updateStatusUi()
 {
-    switch (m_status) {
-    case Status::ValidPackage:
+    if (isOptionalAndEmpty()) {
         m_infoLabel->setType(InfoLabel::Ok);
-        break;
-    case Status::ValidPackageMismatchedVersion:
-    case Status::ValidPackageVersionNotDetected:
-        m_infoLabel->setType(InfoLabel::Warning);
-        break;
-    default:
-        m_infoLabel->setType(InfoLabel::NotOk);
-        break;
+    } else {
+        switch (m_status) {
+        case Status::ValidPackage:
+            m_infoLabel->setType(InfoLabel::Ok);
+            break;
+        case Status::ValidPackageMismatchedVersion:
+        case Status::ValidPackageVersionNotDetected:
+            m_infoLabel->setType(InfoLabel::Warning);
+            break;
+        default:
+                m_infoLabel->setType(InfoLabel::NotOk);
+            break;
+        }
     }
     m_infoLabel->setText(statusText());
 }

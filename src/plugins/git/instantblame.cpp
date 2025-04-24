@@ -72,51 +72,56 @@ bool BlameMark::addToolTipContent(QLayout *target) const
     auto textLabel = new QLabel;
     textLabel->setText(toolTip());
     target->addWidget(textLabel);
-    QObject::connect(textLabel, &QLabel::linkActivated, textLabel, [this](const QString &link) {
-        qCInfo(log) << "Link activated with target:" << link;
-        const QString hash = (link == "blameParent") ? m_info.hash + "^" : m_info.hash;
+    QObject::connect(
+        textLabel, &QLabel::linkActivated, textLabel, [info = m_info](const QString &link) {
+            qCInfo(log) << "Link activated with target:" << link;
+            const QString hash = (link == "blameParent") ? info.hash + "^" : info.hash;
 
-        if (link.startsWith("blame") || link == "revert" || link == "showFile") {
-            const VcsBasePluginState state = currentState();
-            QTC_ASSERT(state.hasTopLevel(), return);
-            const Utils::FilePath path = state.topLevel();
+            if (link.startsWith("blame") || link == "revert" || link == "showFile") {
+                const VcsBasePluginState state = currentState();
+                QTC_ASSERT(state.hasTopLevel(), return);
+                const Utils::FilePath path = state.topLevel();
 
-            const QString originalFileName = m_info.originalFileName;
-            if (link.startsWith("blame")) {
-                qCInfo(log).nospace().noquote() << "Blaming: \"" << path << "/" << originalFileName
-                                                << "\":" << m_info.originalLine << " @ " << hash;
-                gitClient().annotate(path, originalFileName, m_info.originalLine, hash);
-            } else if (link == "revert") {
-                const QMessageBox::StandardButton result = QMessageBox::question(
-                    Core::ICore::dialogParent(), Tr::tr("Revert Commit?"),
-                    Tr::tr("Revert the commit %1?").arg(m_info.hash.left(8)),
-                    QMessageBox::Yes | QMessageBox::No);
-                if (result == QMessageBox::Yes) {
-                    qCInfo(log).nospace().noquote() << "Reverting: \"" << path << "\" @ " << hash;
-                    gitClient().synchronousRevert(path, hash);
+                const QString originalFileName = info.originalFileName;
+                if (link.startsWith("blame")) {
+                    qCInfo(log).nospace().noquote()
+                        << "Blaming: \"" << path << "/" << originalFileName
+                        << "\":" << info.originalLine << " @ " << hash;
+                    gitClient().annotate(path, originalFileName, info.originalLine, hash);
+                } else if (link == "revert") {
+                    const QMessageBox::StandardButton result = QMessageBox::question(
+                        Core::ICore::dialogParent(),
+                        Tr::tr("Revert Commit?"),
+                        Tr::tr("Revert the commit %1?").arg(info.hash.left(8)),
+                        QMessageBox::Yes | QMessageBox::No);
+                    if (result == QMessageBox::Yes) {
+                        qCInfo(log).nospace().noquote()
+                            << "Reverting: \"" << path << "\" @ " << hash;
+                        gitClient().synchronousRevert(path, hash);
+                    }
+                } else {
+                    qCInfo(log).nospace().noquote()
+                        << "Showing file: \"" << path << "/" << originalFileName << "\" @ " << hash;
+
+                    const auto fileName = Utils::FilePath::fromString(originalFileName);
+                    gitClient().openShowEditor(path, hash, fileName);
                 }
+            } else if (link == "logLine") {
+                const VcsBasePluginState state = currentState();
+                QTC_ASSERT(state.hasFile(), return);
+
+                qCInfo(log).nospace().noquote()
+                    << "Showing log for: \"" << info.filePath << "\" line:" << info.line;
+
+                const QString lineArg
+                    = QString("-L %1,%1:%2").arg(info.line).arg(state.relativeCurrentFile());
+                gitClient().log(state.currentFileTopLevel(), {}, true, {lineArg, "--no-patch"});
             } else {
-                qCInfo(log).nospace().noquote() << "Showing file: \"" << path << "/"
-                                                << originalFileName << "\" @ " << hash;
-
-                const auto fileName = Utils::FilePath::fromString(originalFileName);
-                gitClient().openShowEditor(path, hash, fileName);
+                qCInfo(log).nospace().noquote()
+                    << "Showing commit: " << hash << " for " << info.filePath;
+                gitClient().show(info.filePath, hash);
             }
-        } else if (link == "logLine") {
-            const VcsBasePluginState state = currentState();
-            QTC_ASSERT(state.hasFile(), return);
-
-            qCInfo(log).nospace().noquote() << "Showing log for: \"" << m_info.filePath
-                                            << "\" line:" << m_info.line;
-
-            const QString lineArg = QString("-L %1,%1:%2")
-                                        .arg(m_info.line).arg(state.relativeCurrentFile());
-            gitClient().log(state.currentFileTopLevel(), {}, true, {lineArg, "--no-patch"});
-        } else {
-            qCInfo(log).nospace().noquote() << "Showing commit: " << hash << " for " << m_info.filePath;
-            gitClient().show(m_info.filePath, hash);
-        }
-    });
+        });
 
     return true;
 }

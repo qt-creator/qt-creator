@@ -39,6 +39,7 @@ public:
                const QString &downloadUrl = {},
                const McuPackageVersionDetector *versionDetector = nullptr,
                const bool addToPath = false,
+               const bool optional = false,
                const Utils::PathChooser::Kind &valueType
                = Utils::PathChooser::Kind::ExistingDirectory,
                const bool allowNewerVersionKey = false);
@@ -50,6 +51,7 @@ public:
     QString label() const override;
     QString cmakeVariableName() const override;
     QString environmentVariableName() const override;
+    bool isOptional() const override;
     bool isAddToSystemPath() const override;
     QStringList versions() const override;
 
@@ -77,6 +79,8 @@ private:
     void updatePath();
     void updateStatusUi();
 
+    bool isOptionalAndEmpty() const;
+
     SettingsHandler::Ptr settingsHandler;
 
     Utils::PathChooser *m_fileChooser = nullptr;
@@ -95,6 +99,7 @@ private:
     const QString m_cmakeVariableName;
     const QString m_environmentVariableName;
     const QString m_downloadUrl;
+    const bool m_optional;
     const bool m_addToSystemPath;
     const Utils::PathChooser::Kind m_valueType;
 
