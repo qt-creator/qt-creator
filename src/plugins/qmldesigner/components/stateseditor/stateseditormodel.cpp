@@ -6,6 +6,7 @@
 
 #include <bindingproperty.h>
 #include <designermcumanager.h>
+#include <functional.h>
 #include <modelnode.h>
 #include <modelnodeoperations.h>
 #include <nodelistproperty.h>
@@ -276,8 +277,9 @@ QStringList StatesEditorModel::stateGroups() const
 
     const auto groupMetaInfo = m_statesEditorView->model()->qtQuickStateGroupMetaInfo();
 
+    using SL = ModelTracing::SourceLocation;
     auto stateGroups = Utils::transform(m_statesEditorView->allModelNodesOfType(groupMetaInfo),
-                                        &ModelNode::displayName);
+                                        bind_back(&ModelNode::displayName, SL{}));
     stateGroups.prepend(tr("Default"));
     return stateGroups;
 }

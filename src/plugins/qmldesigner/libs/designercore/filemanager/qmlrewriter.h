@@ -51,13 +51,16 @@ protected:
     bool includeSurroundingWhitespace(int &start, int &end) const;
     void includeLeadingEmptyLine(int &start) const;
 
-    static QmlJS::AST::UiObjectMemberList *searchMemberToInsertAfter(QmlJS::AST::UiObjectMemberList *members, const PropertyNameList &propertyOrder);
+    static QmlJS::AST::UiObjectMemberList *searchMemberToInsertAfter(
+        QmlJS::AST::UiObjectMemberList *members, Utils::span<const PropertyNameView> propertyOrder);
     static QmlJS::AST::UiObjectMemberList *searchMemberToInsertAfter(
         QmlJS::AST::UiObjectMemberList *members,
         PropertyNameView propertyName,
-        const PropertyNameList &propertyOrder);
+        Utils::span<const PropertyNameView> propertyOrder);
     static QmlJS::AST::UiObjectMemberList *searchChildrenToInsertAfter(
-        QmlJS::AST::UiObjectMemberList *members, const PropertyNameList &propertyOrder, int pos = -1);
+        QmlJS::AST::UiObjectMemberList *members,
+        Utils::span<const PropertyNameView> propertyOrder,
+        int pos = -1);
 
 protected:
     bool didRewriting() const

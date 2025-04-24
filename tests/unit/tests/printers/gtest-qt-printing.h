@@ -43,8 +43,10 @@ std::ostream &operator<<(std::ostream &out, QByteArrayView byteArray);
 std::ostream &operator<<(std::ostream &out, const QTextCharFormat &format);
 std::ostream &operator<<(std::ostream &out, const QImage &image);
 std::ostream &operator<<(std::ostream &out, const QIcon &icon);
+std::ostream &operator<<(std::ostream &out, const QStringList &list);
 
 void PrintTo(const QString &text, std::ostream *os);
+void PrintTo(QStringView text, std::ostream *os);
 void PrintTo(const QVariant &variant, std::ostream *os);
 void PrintTo(const QByteArray &text, std::ostream *os);
 QT_END_NAMESPACE

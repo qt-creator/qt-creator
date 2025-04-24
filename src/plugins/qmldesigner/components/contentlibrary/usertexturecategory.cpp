@@ -5,8 +5,10 @@
 
 #include "contentlibrarytexture.h"
 
-#include <designerpaths.h>
+#include <asset.h>
 #include <imageutils.h>
+
+#include <QPixmap>
 
 namespace QmlDesigner {
 
@@ -27,7 +29,7 @@ void UserTextureCategory::loadBundle(bool force)
     m_bundlePath.ensureWritableDir();
     m_bundlePath.pathAppended("icons").ensureWritableDir();
 
-    addItems(m_bundlePath.dirEntries(QDir::Files));
+    addItems(m_bundlePath.dirEntries({Asset::supportedImageSuffixes(), QDir::Files}));
 
     m_bundleLoaded = true;
 }
@@ -55,11 +57,28 @@ void UserTextureCategory::addItems(const Utils::FilePaths &paths)
         QSize imgDims = info.first;
         qint64 imgFileSize = info.second;
 
+        if (!iconFileInfo.exists()) { // generate an icon if one doesn't exist
+            Asset asset{filePath.toFSPathString()};
+            QPixmap icon = asset.pixmap({120, 120});
+            bool iconSaved = icon.save(iconFileInfo.filePath());
+            if (!iconSaved)
+                qWarning() << __FUNCTION__ << "icon save failed";
+        }
+
         auto tex = new ContentLibraryTexture(this, iconFileInfo, dirPath, suffix, imgDims, imgFileSize);
         m_items.append(tex);
     }
 
     setIsEmpty(m_items.isEmpty());
+    emit itemsChanged();
+}
+
+void UserTextureCategory::clearItems()
+{
+    qDeleteAll(m_items);
+    m_items.clear();
+
+    setIsEmpty(true);
     emit itemsChanged();
 }
 

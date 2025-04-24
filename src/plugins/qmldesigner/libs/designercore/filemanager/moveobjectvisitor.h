@@ -16,7 +16,7 @@ public:
                       PropertyNameView targetPropertyName,
                       bool targetIsArrayBinding,
                       quint32 targetParentObjectLocation,
-                      const PropertyNameList &propertyOrder);
+                      Utils::span<const PropertyNameView> propertyOrder);
 
     bool operator ()(QmlJS::AST::UiProgram *ast) override;
 
@@ -34,7 +34,7 @@ private:
     PropertyNameView targetPropertyName;
     bool targetIsArrayBinding;
     quint32 targetParentObjectLocation;
-    PropertyNameList propertyOrder;
+    Utils::span<const PropertyNameView> propertyOrder;
 
     QmlJS::AST::UiProgram *program;
 };

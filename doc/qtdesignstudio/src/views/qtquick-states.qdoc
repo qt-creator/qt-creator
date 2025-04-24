@@ -183,10 +183,10 @@
 
     Here, extended states are not used:
 
-    \image no-extended-state.webp
+    \image {no-extended-state.webp} {Three states in the States view with no extended state.}
 
     Here, \e State2 is extended from \e State1:
 
-    \image extended-state.webp
+    \image {extended-state.webp} {Three states in the States view with State2 extended from State1.}
 
 */

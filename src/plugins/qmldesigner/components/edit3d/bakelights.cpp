@@ -38,7 +38,6 @@
 #include <QSaveFile>
 #include <QTextCursor>
 #include <QTextDocument>
-#include <QTimer>
 #include <QVariant>
 
 namespace QmlDesigner {
@@ -73,6 +72,9 @@ BakeLights::BakeLights(AbstractView *view)
         deleteLater();
         return;
     }
+
+    m_pendingRebakeTimer.setInterval(100);
+    connect(&m_pendingRebakeTimer, &QTimer::timeout, this, &BakeLights::handlePendingRebakeTimeout);
 
     showSetupDialog();
 }
@@ -215,7 +217,8 @@ void BakeLights::rebake()
 void BakeLights::exposeModelsAndLights(const QString &nodeId)
 {
     ModelNode compNode = m_view->modelNodeForId(nodeId);
-    if (!compNode.isValid() || !compNode.isComponent()) {
+    if (!compNode.isValid() || !compNode.isComponent()
+        || (m_pendingRebakeTimer.isActive() && compNode == m_pendingRebakeCheckNode)) {
         return;
     }
 
@@ -294,8 +297,9 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
 
     compModel->setRewriterView({});
 
-    // Rebake to relaunch setup dialog with updated properties
-    rebake();
+    m_pendingRebakeTimerCount = 0;
+    m_pendingRebakeCheckNode = compNode;
+    m_pendingRebakeTimer.start();
 }
 
 void BakeLights::showSetupDialog()
@@ -376,6 +380,8 @@ void BakeLights::cleanup()
         m_model.reset();
     }
 
+    pendingRebakeCleanup();
+
     delete m_setupDialog;
     delete m_progressDialog;
     delete m_rewriterView;
@@ -384,6 +390,43 @@ void BakeLights::cleanup()
     delete m_dataModel;
 
     m_manualMode = false;
+}
+
+void BakeLights::handlePendingRebakeTimeout()
+{
+    QScopeGuard timerCleanup([this]() {
+        pendingRebakeCleanup();
+    });
+
+    if (m_view.isNull() || !m_pendingRebakeCheckNode || !m_pendingRebakeCheckNode.isComponent())
+        return;
+
+    const Model *model = m_pendingRebakeCheckNode.model();
+    if (!model)
+        return;
+
+    const QList<AbstractProperty> props = m_pendingRebakeCheckNode.properties();
+    PropertyMetaInfos metaInfos = m_pendingRebakeCheckNode.metaInfo().properties();
+    for (const PropertyMetaInfo &mi : metaInfos) {
+        if (mi.isValid() && !mi.isPrivate() && mi.isWritable()) {
+            if (mi.propertyType().isBasedOn(model->qtQuick3DModelMetaInfo(),
+                                            model->qtQuick3DLightMetaInfo())) {
+                // Rebake to relaunch setup dialog with updated properties
+                rebake();
+                return;
+            }
+        }
+    }
+
+    if (++m_pendingRebakeTimerCount < 100)
+        timerCleanup.dismiss();
+}
+
+void BakeLights::pendingRebakeCleanup()
+{
+    m_pendingRebakeTimer.stop();
+    m_pendingRebakeTimerCount = 0;
+    m_pendingRebakeCheckNode = {};
 }
 
 void BakeLights::cancel()

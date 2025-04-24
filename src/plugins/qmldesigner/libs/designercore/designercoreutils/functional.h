@@ -29,4 +29,9 @@ inline constexpr auto makeEqual = [](auto... projections) {
     };
 };
 
+template<class Function, class Argument>
+inline constexpr auto bind_back(Function &&function, Argument &&argument)
+{
+    return std::bind(function, std::placeholders::_1, std::forward<Argument>(argument));
+}
 } // namespace QmlDesigner

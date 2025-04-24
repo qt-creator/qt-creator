@@ -33,6 +33,8 @@ public:
     void updateMenuAction() override;
 
     QString projectName() const;
+    Utils::FilePath projectDir() const;
+
     bool findFile(const Utils::FilePath &file) const;
     bool isRootNode(const NodePtr &node) const;
     bool hasChildModule(const NodePtr &node) const;
@@ -57,6 +59,7 @@ private:
     bool findFile(const NodePtr &node, const Utils::FilePath &file) const;
     void insertFile(NodePtr &node, const Utils::FilePath &path) const;
     void removeFile(NodePtr &node, const Utils::FilePath &path) const;
+    void removeAmbiguousFiles(const Utils::FilePath &rootPath) const;
 
     void printModules(const NodePtr &generatorNode) const;
     void printNodeTree(const NodePtr &generatorNode, size_t indent = 0) const;
@@ -66,6 +69,7 @@ private:
 
     void compareWithFileSystem(const NodePtr &node) const;
 
+    void createWriter();
     CMakeWriter::Ptr m_writer = {};
 
     QString m_projectName = {};

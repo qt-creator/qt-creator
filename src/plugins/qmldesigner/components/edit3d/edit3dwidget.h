@@ -58,6 +58,9 @@ public:
     QMenu *backgroundColorMenu() const;
     void showBackgroundColorMenu(bool show, const QPoint &pos);
 
+    QMenu *viewportPresetsMenu() const;
+    void showViewportPresetsMenu(bool show, const QPoint &pos);
+
     void showContextMenu(const QPoint &pos, const ModelNode &modelNode, const QVector3D &pos3d);
     void updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesList);
 
@@ -91,6 +94,7 @@ private:
     Core::IContext *m_context = nullptr;
     QPointer<QMenu> m_visibilityTogglesMenu;
     QPointer<QMenu> m_backgroundColorMenu;
+    QPointer<QMenu> m_viewportPresetsMenu;
     QPointer<QMenu> m_contextMenu;
     QPointer<QAction> m_bakeLightsAction;
     QPointer<QAction> m_editComponentAction;

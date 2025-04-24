@@ -29,7 +29,7 @@
     \note Since the plugin is not distributed through Adobe's marketplace, during
     the installation Adobe XD might warn about the third-party developer.
 
-    \image qt-bridge-xd-warn.png
+    \image {qt-bridge-xd-warn.png} {The Install Qt Bridge plugin warning dialog.}
 
     You can launch the plugin from \uicontrol Plugins > \uicontrol {\QB}.
 */

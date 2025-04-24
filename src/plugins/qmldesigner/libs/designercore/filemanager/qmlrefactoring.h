@@ -25,7 +25,9 @@ public:
     };
 
 public:
-    QmlRefactoring(const QmlJS::Document::Ptr &doc, QmlDesigner::TextModifier &modifier, const PropertyNameList &propertyOrder);
+    QmlRefactoring(const QmlJS::Document::Ptr &doc,
+                   QmlDesigner::TextModifier &modifier,
+                   Utils::span<const PropertyNameView> propertyOrder);
 
     bool reparseDocument();
 
@@ -33,7 +35,9 @@ public:
     bool removeImport(const Import &import);
 
     bool addToArrayMemberList(int parentLocation, PropertyNameView propertyName, const QString &content);
-    bool addToObjectMemberList(int parentLocation, int nodeLocation, const QString &content);
+    bool addToObjectMemberList(int parentLocation,
+                               std::optional<int> nodeLocation,
+                               const QString &content);
     bool addProperty(int parentLocation,
                      PropertyNameView name,
                      const QString &value,
@@ -57,7 +61,7 @@ public:
 private:
     QmlJS::Document::Ptr qmlDocument;
     TextModifier *textModifier;
-    PropertyNameList m_propertyOrder;
+    Utils::span<const PropertyNameView> m_propertyOrder;
 };
 
 } // namespace QmlDesigner

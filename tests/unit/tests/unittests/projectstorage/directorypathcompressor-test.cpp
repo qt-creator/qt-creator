@@ -12,8 +12,8 @@
 
 namespace {
 
-using QmlDesigner::SourceContextId;
-using QmlDesigner::SourceContextIds;
+using QmlDesigner::DirectoryPathId;
+using QmlDesigner::DirectoryPathIds;
 
 class DirectoryPathCompressor : public testing::Test
 {
@@ -21,61 +21,61 @@ protected:
     void SetUp() { compressor.setCallback(mockCompressorCallback.AsStdFunction()); }
 
 protected:
-    NiceMock<MockFunction<void(const SourceContextIds &sourceContextIds)>> mockCompressorCallback;
+    NiceMock<MockFunction<void(const DirectoryPathIds &directoryPathIds)>> mockCompressorCallback;
     QmlDesigner::DirectoryPathCompressor<NiceMock<MockTimer>> compressor;
     NiceMock<MockTimer> &mockTimer = compressor.timer();
-    SourceContextId sourceContextId1{SourceContextId::create(1)};
-    SourceContextId sourceContextId2{SourceContextId::create(2)};
+    DirectoryPathId directoryPathId1{DirectoryPathId::create(1)};
+    DirectoryPathId directoryPathId2{DirectoryPathId::create(2)};
 };
 
 TEST_F(DirectoryPathCompressor, add_file_path)
 {
-    compressor.addSourceContextId(sourceContextId1);
+    compressor.addDirectoryPathId(directoryPathId1);
 
-    ASSERT_THAT(compressor.sourceContextIds(), ElementsAre(sourceContextId1));
+    ASSERT_THAT(compressor.directoryPathIds(), ElementsAre(directoryPathId1));
 }
 
 TEST_F(DirectoryPathCompressor, clear__after_calling_callback)
 {
-    compressor.addSourceContextId(sourceContextId1);
+    compressor.addDirectoryPathId(directoryPathId1);
 
     compressor.timer().emitTimoutIfStarted();
 
-    ASSERT_THAT(compressor.sourceContextIds(), IsEmpty());
+    ASSERT_THAT(compressor.directoryPathIds(), IsEmpty());
 }
 
 TEST_F(DirectoryPathCompressor, dont_clear_for_thrown_exception)
 {
-    compressor.addSourceContextId(sourceContextId1);
-    compressor.setCallback([](const SourceContextIds &) { throw std::exception{}; });
+    compressor.addDirectoryPathId(directoryPathId1);
+    compressor.setCallback([](const DirectoryPathIds &) { throw std::exception{}; });
 
     compressor.timer().emitTimoutIfStarted();
 
-    ASSERT_THAT(compressor.sourceContextIds(), ElementsAre(sourceContextId1));
+    ASSERT_THAT(compressor.directoryPathIds(), ElementsAre(directoryPathId1));
 }
 
 TEST_F(DirectoryPathCompressor, call_restart_timer_after_adding_path)
 {
     EXPECT_CALL(mockTimer, start(20));
 
-    compressor.addSourceContextId(sourceContextId1);
+    compressor.addDirectoryPathId(directoryPathId1);
 }
 
 TEST_F(DirectoryPathCompressor, call_time_out_after_adding_path)
 {
-    EXPECT_CALL(mockCompressorCallback, Call(ElementsAre(sourceContextId1, sourceContextId2)));
+    EXPECT_CALL(mockCompressorCallback, Call(ElementsAre(directoryPathId1, directoryPathId2)));
 
-    compressor.addSourceContextId(sourceContextId1);
-    compressor.addSourceContextId(sourceContextId2);
+    compressor.addDirectoryPathId(directoryPathId1);
+    compressor.addDirectoryPathId(directoryPathId2);
 }
 
 TEST_F(DirectoryPathCompressor, remove_duplicates)
 {
-    EXPECT_CALL(mockCompressorCallback, Call(ElementsAre(sourceContextId1, sourceContextId2)));
+    EXPECT_CALL(mockCompressorCallback, Call(ElementsAre(directoryPathId1, directoryPathId2)));
 
-    compressor.addSourceContextId(sourceContextId1);
-    compressor.addSourceContextId(sourceContextId2);
-    compressor.addSourceContextId(sourceContextId1);
+    compressor.addDirectoryPathId(directoryPathId1);
+    compressor.addDirectoryPathId(directoryPathId2);
+    compressor.addDirectoryPathId(directoryPathId1);
 }
 
 } // namespace

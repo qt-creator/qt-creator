@@ -60,42 +60,47 @@ QStringView toString(QmlRefactoring::PropertyType type)
 
 } // namespace anonymous
 
+std::optional<int> PropertyRewriteAction::nodeLocation() const
+{
+    if (movedAfterCreation())
+        return std::make_optional(m_property.toNodeListProperty().indexOf(m_containedModelNode));
+
+    return std::nullopt;
+}
+
 bool AddPropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
-    if (m_sheduledInHierarchy) {
-        const int parentLocation = positionStore.nodeOffset(m_property.parentModelNode());
+    if (scheduledInHierarchy()) {
+        const int parentLocation = positionStore.nodeOffset(property().parentModelNode());
         bool result = false;
 
-        if (m_propertyType != QmlRefactoring::ScriptBinding && m_property.isDefaultProperty()) {
-            const int nodeLocation = movedAfterCreation()
-                                         ? m_property.toNodeListProperty().indexOf(m_containedModelNode)
-                                         : -1;
-            result = refactoring.addToObjectMemberList(parentLocation, nodeLocation, m_valueText);
+        if (propertyType() != QmlRefactoring::ScriptBinding && property().isDefaultProperty()) {
+            result = refactoring.addToObjectMemberList(parentLocation, nodeLocation(), valueText());
 
             if (!result) {
                 qDebug() << "*** AddPropertyRewriteAction::execute failed in addToObjectMemberList("
-                         << parentLocation << ',' << nodeLocation << ',' << m_valueText << ") **"
+                         << parentLocation << ',' << nodeLocation() << ',' << valueText() << ") **"
                          << info();
             }
-        } else if (m_property.isNodeListProperty() && m_property.toNodeListProperty().count() > 1) {
-            result = refactoring.addToArrayMemberList(parentLocation, m_property.name(), m_valueText);
+        } else if (property().isNodeListProperty() && property().toNodeListProperty().count() > 1) {
+            result = refactoring.addToArrayMemberList(parentLocation, property().name(), valueText());
 
             if (!result) {
                 qDebug() << "*** AddPropertyRewriteAction::execute failed in addToArrayMemberList("
-                         << parentLocation << ',' << m_property.name() << ',' << m_valueText
+                         << parentLocation << ',' << property().name() << ',' << valueText()
                          << ") **" << info();
             }
         } else {
             result = refactoring.addProperty(parentLocation,
-                                             m_property.name(),
-                                             m_valueText,
-                                             m_propertyType,
-                                             m_property.dynamicTypeName());
+                                             property().name(),
+                                             valueText(),
+                                             propertyType(),
+                                             property().dynamicTypeName());
 
             if (!result) {
                 qDebug() << "*** AddPropertyRewriteAction::execute failed in addProperty("
-                         << parentLocation << ',' << m_property.name() << ',' << m_valueText << ","
-                         << toString(m_propertyType) << ") **" << info();
+                         << parentLocation << ',' << property().name() << ',' << valueText() << ","
+                         << toString(propertyType()) << ") **" << info();
             }
         }
 
@@ -109,12 +114,12 @@ QString AddPropertyRewriteAction::info() const
 {
     return QStringView(u"AddPropertyRewriteAction for property \"%1\" (type: %2) of node \"%3\" "
                        u"with value >>%4<< and contained object \"%5\"")
-        .arg(QString::fromUtf8(m_property.name()),
-             toString(m_propertyType),
-             (m_property.parentModelNode().isValid() ? m_property.parentModelNode().id()
+        .arg(QString::fromUtf8(property().name()),
+             toString(propertyType()),
+             (property().parentModelNode().isValid() ? property().parentModelNode().id()
                                                      : QLatin1String("(invalid)")),
-             QString(m_valueText).replace(QLatin1Char('\n'), QLatin1String("\\n")),
-             (m_containedModelNode.isValid() ? m_containedModelNode.id()
+             QString(valueText()).replace(QLatin1Char('\n'), QLatin1String("\\n")),
+             (containedModelNode().isValid() ? containedModelNode().id()
                                              : QString(QStringLiteral("(none)"))));
 }
 
@@ -166,46 +171,42 @@ QString ChangeIdRewriteAction::info() const
 
 bool ChangePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)
 {
-    if (m_sheduledInHierarchy) {
-        const int parentLocation = positionStore.nodeOffset(m_property.parentModelNode());
+    if (scheduledInHierarchy()) {
+        const int parentLocation = positionStore.nodeOffset(property().parentModelNode());
         if (parentLocation < 0) {
             qWarning() << "*** ChangePropertyRewriteAction::execute ignored. Invalid node location";
             return true;
         }
         bool result = false;
 
-        if (m_propertyType != QmlRefactoring::ScriptBinding && m_property.isDefaultProperty()) {
-            const int nodeLocation = movedAfterCreation()
-                                         ? m_property.toNodeListProperty().indexOf(m_containedModelNode)
-                                         : -1;
-
-            result = refactoring.addToObjectMemberList(parentLocation, nodeLocation, m_valueText);
+        if (propertyType() != QmlRefactoring::ScriptBinding && property().isDefaultProperty()) {
+            result = refactoring.addToObjectMemberList(parentLocation, nodeLocation(), valueText());
 
             if (!result) {
                 qDebug()
                     << "*** ChangePropertyRewriteAction::execute failed in addToObjectMemberList("
-                    << parentLocation << ',' << nodeLocation << ',' << m_valueText << ") **"
+                    << parentLocation << ',' << nodeLocation() << ',' << valueText() << ") **"
                     << info();
             }
-        } else if (m_propertyType == QmlRefactoring::ArrayBinding) {
-            result = refactoring.addToArrayMemberList(parentLocation, m_property.name(), m_valueText);
+        } else if (propertyType() == QmlRefactoring::ArrayBinding) {
+            result = refactoring.addToArrayMemberList(parentLocation, property().name(), valueText());
 
             if (!result) {
                 qDebug()
                     << "*** ChangePropertyRewriteAction::execute failed in addToArrayMemberList("
-                    << parentLocation << ',' << m_property.name() << ',' << m_valueText << ") **"
+                    << parentLocation << ',' << property().name() << ',' << valueText() << ") **"
                     << info();
             }
         } else {
             result = refactoring.changeProperty(parentLocation,
-                                                m_property.name(),
-                                                m_valueText,
-                                                m_propertyType);
+                                                property().name(),
+                                                valueText(),
+                                                propertyType());
 
             if (!result) {
                 qDebug() << "*** ChangePropertyRewriteAction::execute failed in changeProperty("
-                         << parentLocation << ',' << m_property.name() << ',' << m_valueText << ','
-                         << toString(m_propertyType) << ") **" << info();
+                         << parentLocation << ',' << property().name() << ',' << valueText() << ','
+                         << toString(propertyType()) << ") **" << info();
             }
         }
 
@@ -219,12 +220,12 @@ QString ChangePropertyRewriteAction::info() const
 {
     return QStringView(u"ChangePropertyRewriteAction for property \"%1\" (type: %2) of node \"%3\" "
                        u"with value >>%4<< and contained object \"%5\"")
-        .arg(QString::fromUtf8(m_property.name()),
-             toString(m_propertyType),
-             (m_property.parentModelNode().isValid() ? m_property.parentModelNode().id()
+        .arg(QString::fromUtf8(property().name()),
+             toString(propertyType()),
+             (property().parentModelNode().isValid() ? property().parentModelNode().id()
                                                      : QLatin1String("(invalid)")),
-             QString(m_valueText).replace(QLatin1Char('\n'), QLatin1String("\\n")),
-             (m_containedModelNode.isValid() ? m_containedModelNode.id()
+             QString(valueText()).replace(QLatin1Char('\n'), QLatin1String("\\n")),
+             (containedModelNode().isValid() ? containedModelNode().id()
                                              : QString(QStringLiteral("(none)"))));
 }
 

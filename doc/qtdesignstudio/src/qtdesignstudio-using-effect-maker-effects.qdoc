@@ -23,11 +23,11 @@
       \li Right-click in the \uicontrol Assets view and
       select \uicontrol {New Effect}.
       \QDS creates an effect file and opens it in \QQEM.
-      \image qt-quick-effect-maker.webp
+      \image {qt-quick-effect-maker.webp} {The Qt Effect Maker default view.}
       \li Edit the effect.
       \li In \QQEM, go to \uicontrol File > \uicontrol Save.
       \li With the default settings, select \uicontrol OK.
-      \image effect-maker-export.png
+      \image {effect-maker-export.png} {Qt Effect Maker export effect dialog.}
     \endlist
 
     Now, you can close \QQEM and return to \QDS and apply the
@@ -39,6 +39,6 @@
     from the \uicontrol Assets view to the component in the \uicontrol 2D or
     \uicontrol Navigator view.
 
-    \image apply-effect-maker-effect.webp
+    \image {apply-effect-maker-effect.webp} {Qt Design Studio with a Qt Effect Maker effect applied.}
 
 */

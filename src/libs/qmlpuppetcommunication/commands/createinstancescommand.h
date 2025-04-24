@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
 #include "instancecontainer.h"
 
@@ -16,12 +16,12 @@ class CreateInstancesCommand
 
 public:
     CreateInstancesCommand();
-    explicit CreateInstancesCommand(const QVector<InstanceContainer> &container);
+    explicit CreateInstancesCommand(const QList<InstanceContainer> &container);
 
-    QVector<InstanceContainer> instances() const;
+    QList<InstanceContainer> instances() const;
 
 private:
-    QVector<InstanceContainer> m_instanceVector;
+    QList<InstanceContainer> m_instanceVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const CreateInstancesCommand &command);

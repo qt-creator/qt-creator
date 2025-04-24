@@ -195,17 +195,17 @@ public:
 
     void notifyCustomNotification(const AbstractView *senderView,
                                   const QString &identifier,
-                                  const QList<ModelNode> &modelNodeList,
+                                  Utils::span<const ModelNode> nodes,
                                   const QList<QVariant> &data);
     void notifyCustomNotificationTo(AbstractView *view, const CustomNotificationPackage &package);
-    void notifyInstancePropertyChange(const QList<QPair<ModelNode, PropertyName>> &propertyList);
-    void notifyInstanceErrorChange(const QVector<qint32> &instanceIds);
-    void notifyInstancesCompleted(const QVector<ModelNode> &modelNodeVector);
+    void notifyInstancePropertyChange(Utils::span<const QPair<ModelNode, PropertyName>> properties);
+    void notifyInstanceErrorChange(Utils::span<const qint32> instanceIds);
+    void notifyInstancesCompleted(Utils::span<const ModelNode> modelNodes);
     void notifyInstancesInformationsChange(const QMultiHash<ModelNode, InformationName> &informationChangeHash);
-    void notifyInstancesRenderImageChanged(const QVector<ModelNode> &modelNodeVector);
-    void notifyInstancesPreviewImageChanged(const QVector<ModelNode> &modelNodeVector);
-    void notifyInstancesChildrenChanged(const QVector<ModelNode> &modelNodeVector);
-    void notifyInstanceToken(const QString &token, int number, const QVector<ModelNode> &modelNodeVector);
+    void notifyInstancesRenderImageChanged(Utils::span<const ModelNode> nodes);
+    void notifyInstancesPreviewImageChanged(Utils::span<const ModelNode> nodes);
+    void notifyInstancesChildrenChanged(Utils::span<const ModelNode> nodes);
+    void notifyInstanceToken(const QString &token, int number, Utils::span<const ModelNode> nodes);
 
     void notifyCurrentStateChanged(const ModelNode &node);
     void notifyCurrentTimelineChanged(const ModelNode &node);
@@ -334,7 +334,7 @@ private:
     void removePropertyWithoutNotification(InternalProperty *property);
     void removeAllSubNodes(const InternalNodePointer &node);
     void removeNodeFromModel(const InternalNodePointer &node);
-    ManyNodes toInternalNodeList(const QList<ModelNode> &modelNodeList) const;
+    ManyNodes toInternalNodeList(Utils::span<const ModelNode> modelNodes) const;
     QList<ModelNode> toModelNodeList(Utils::span<const InternalNodePointer> nodeList,
                                      AbstractView *view) const;
     static QList<InternalProperty *> toInternalProperties(const AbstractProperties &properties);
@@ -347,6 +347,7 @@ private:
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
     NotNullPointer<PathCacheType> pathCache = nullptr;
+    NotNullPointer<ProjectStorageTriggerUpdateInterface> projectStorageTriggerUpdate = nullptr;
     ModelTracing::AsynchronousToken traceToken = ModelTracing::category().beginAsynchronous("Model");
 
 private:

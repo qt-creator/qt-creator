@@ -35,6 +35,7 @@ signals:
 
 private:
     WindowManager();
+    bool connectMainWindowHandle();
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
-
 } // namespace QmlDesigner

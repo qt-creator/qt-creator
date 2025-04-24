@@ -44,7 +44,7 @@
         \li A property that has been added inside a component.
     \endtable
 
-    \image custom-properties.png
+    \image {custom-properties.png} {Local Custom Properties and Exposed Custom Properties settings in the Settings view.}
 
     \section1 Viewing changes in properties
 
@@ -81,21 +81,21 @@
 
     \table
         \row
-            \li \image qmldesigner-boolean-true.png
+            \li \image {qmldesigner-boolean-true.png} {The Visibility property selected but not highlighted.}
             \li TRUE
             \li The component is visible by default. The visibility might be
                 overridden by the visibility set in the base state.
         \row
-            \li \image qmldesigner-boolean-true-blue.png
+            \li \image {qmldesigner-boolean-true-blue.png} {The Visibility property selected and highlighted.}
             \li TRUE (highlighted)
             \li The component is explicitly set to visible.
         \row
-            \li \image qmldesigner-boolean-false.png
+            \li \image {qmldesigner-boolean-false.png} {The Visibility property not selected and not highlighted.}
             \li FALSE
             \li The component is hidden by default. The visibility might be
                 overridden by the visibility set in the base state.
         \row
-            \li \image qmldesigner-boolean-false-blue.png
+            \li \image {qmldesigner-boolean-false-blue.png} {The Visibility property not selected but highlighted.}
             \li FALSE (hightlighted)
             \li The component is explicitly set to hidden.
     \endtable

@@ -21,34 +21,34 @@ public:
     SourcePathStorage(Database &database, bool isInitialized);
     ~SourcePathStorage();
 
-    SourceContextId fetchSourceContextIdUnguarded(Utils::SmallStringView sourceContextPath);
+    DirectoryPathId fetchDirectoryPathIdUnguarded(Utils::SmallStringView directoryPath);
 
-    SourceContextId fetchSourceContextId(Utils::SmallStringView sourceContextPath);
+    DirectoryPathId fetchDirectoryPathId(Utils::SmallStringView directoryPath);
 
-    Utils::PathString fetchSourceContextPath(SourceContextId sourceContextId) const;
+    Utils::PathString fetchDirectoryPath(DirectoryPathId directoryPathId) const;
 
-    Cache::SourceContexts fetchAllSourceContexts() const;
+    Cache::DirectoryPaths fetchAllDirectoryPaths() const;
 
-    SourceNameId fetchSourceNameId(Utils::SmallStringView sourceName);
+    FileNameId fetchFileNameId(Utils::SmallStringView fileName);
 
-    Utils::SmallString fetchSourceName(SourceNameId sourceId) const;
+    Utils::SmallString fetchFileName(FileNameId sourceId) const;
 
     void clearSources();
 
-    Cache::SourceNames fetchAllSourceNames() const;
+    Cache::FileNames fetchAllFileNames() const;
 
-    SourceNameId fetchSourceNameIdUnguarded(Utils::SmallStringView sourceName);
+    FileNameId fetchFileNameIdUnguarded(Utils::SmallStringView fileName);
 
     void resetForTestsOnly();
 
 private:
-    SourceContextId readSourceContextId(Utils::SmallStringView sourceContextPath);
+    DirectoryPathId readDirectoryPathId(Utils::SmallStringView directoryPath);
 
-    SourceContextId writeSourceContextId(Utils::SmallStringView sourceContextPath);
+    DirectoryPathId writeDirectoryPathId(Utils::SmallStringView directoryPath);
 
-    SourceNameId writeSourceNameId(Utils::SmallStringView sourceName);
+    FileNameId writeFileNameId(Utils::SmallStringView fileName);
 
-    SourceNameId readSourceNameId(Utils::SmallStringView sourceName);
+    FileNameId readFileNameId(Utils::SmallStringView fileName);
 
     class Initializer;
 

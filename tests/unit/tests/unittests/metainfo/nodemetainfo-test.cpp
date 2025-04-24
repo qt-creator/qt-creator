@@ -6,6 +6,7 @@
 #include <matchers/info_exportedtypenames-matcher.h>
 #include <matchers/projectstorage-matcher.h>
 #include <mocks/projectstoragemock.h>
+#include <mocks/projectstoragetriggerupdatemock.h>
 #include <mocks/sourcepathcachemock.h>
 
 #include <designercore/include/model.h>
@@ -105,9 +106,10 @@ protected:
     }
 
 protected:
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCache{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCache.sourceId, "/path"};
-    QmlDesigner::Model model{{projectStorageMock, pathCache},
+    QmlDesigner::Model model{{projectStorageMock, pathCache, projectStorageTriggerUpdateMock},
                              "Item",
                              {QmlDesigner::Import::createLibraryImport("QML"),
                               QmlDesigner::Import::createLibraryImport("QtQuick"),

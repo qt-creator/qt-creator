@@ -3,9 +3,9 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
 #include <QString>
-#include <QVector>
 
 namespace QmlDesigner {
 
@@ -16,14 +16,14 @@ class RemoveSharedMemoryCommand
 
 public:
     RemoveSharedMemoryCommand();
-    explicit RemoveSharedMemoryCommand(const QString &typeName, const QVector<qint32> &keyNumberVector);
+    explicit RemoveSharedMemoryCommand(const QString &typeName, const QList<qint32> &keyNumberVector);
 
     QString typeName() const;
-    QVector<qint32> keyNumbers() const;
+    QList<qint32> keyNumbers() const;
 
 private:
     QString m_typeName;
-    QVector<qint32> m_keyNumberVector;
+    QList<qint32> m_keyNumberVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const RemoveSharedMemoryCommand &command);

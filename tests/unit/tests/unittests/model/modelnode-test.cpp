@@ -4,6 +4,7 @@
 #include "../utils/googletest.h"
 
 #include "../mocks/projectstoragemock.h"
+#include "../mocks/projectstoragetriggerupdatemock.h"
 #include "../mocks/sourcepathcachemock.h"
 
 #include <designercore/include/model.h>
@@ -15,9 +16,10 @@ namespace {
 class ModelNode : public testing::Test
 {
 protected:
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCache{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCache.sourceId, "/path"};
-    QmlDesigner::Model model{{projectStorageMock, pathCache}, "Item"};
+    QmlDesigner::Model model{{projectStorageMock, pathCache, projectStorageTriggerUpdateMock}, "Item"};
     QmlDesigner::ModelNode rootNode = model.rootModelNode();
 };
 

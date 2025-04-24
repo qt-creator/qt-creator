@@ -208,7 +208,7 @@
     or \uicontrol Vertical in the \uicontrol {Gradient Controls} section of the
     color picker.
 
-    \image qtquick-designer-gradient-stops.gif
+    \image {qtquick-designer-gradient-stops.gif} {An Animation showing how to add and remove gradient stops.}
 
     Calculating gradients can be computationally expensive compared to the
     use of solid color fills or images. Consider using gradients only for
@@ -462,5 +462,5 @@
     you can also right-click components to open the inline editors from the
     context menu.
 
-    \image qmldesigner-inline-editing.png
+    \image qmldesigner-inline-editing.png {Selecting Edit Color from the context menu in the 2D view.}
 */

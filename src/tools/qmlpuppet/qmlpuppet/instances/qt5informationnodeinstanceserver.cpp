@@ -327,7 +327,7 @@ void Qt5InformationNodeInstanceServer::updateActiveScenePreferredCamera()
 }
 
 void Qt5InformationNodeInstanceServer::updateMaterialPreviewData(
-    const QVector<PropertyValueContainer> &valueChanges)
+    const QList<PropertyValueContainer> &valueChanges)
 {
     for (const auto &container : valueChanges) {
         if (container.instanceId() == 0) {
@@ -342,7 +342,7 @@ void Qt5InformationNodeInstanceServer::updateMaterialPreviewData(
 }
 
 void Qt5InformationNodeInstanceServer::updateRotationBlocks(
-    [[maybe_unused]] const QVector<PropertyValueContainer> &valueChanges)
+    [[maybe_unused]] const QList<PropertyValueContainer> &valueChanges)
 {
 #ifdef QUICK3D_MODULE
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -372,7 +372,7 @@ void Qt5InformationNodeInstanceServer::updateRotationBlocks(
 }
 
 void Qt5InformationNodeInstanceServer::updateSnapAndCameraSettings(
-    [[maybe_unused]] const QVector<PropertyValueContainer> &valueChanges)
+    [[maybe_unused]] const QList<PropertyValueContainer> &valueChanges)
 {
 #ifdef QUICK3D_MODULE
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -411,7 +411,7 @@ void Qt5InformationNodeInstanceServer::updateSnapAndCameraSettings(
 }
 
 void Qt5InformationNodeInstanceServer::updateColorSettings(
-    [[maybe_unused]] const QVector<PropertyValueContainer> &valueChanges)
+    [[maybe_unused]] const QList<PropertyValueContainer> &valueChanges)
 {
 #ifdef QUICK3D_MODULE
     if (m_editView3DData.rootItem) {
@@ -430,7 +430,7 @@ void Qt5InformationNodeInstanceServer::updateColorSettings(
 }
 
 void Qt5InformationNodeInstanceServer::removeRotationBlocks(
-    [[maybe_unused]] const QVector<qint32> &instanceIds)
+    [[maybe_unused]] const QList<qint32> &instanceIds)
 {
 #ifdef QUICK3D_MODULE
     auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
@@ -642,7 +642,7 @@ void Qt5InformationNodeInstanceServer::handleParticleSystemSelected(QQuick3DPart
                    || ServerNodeInstance::isSubclassOf(o, "QQuickSequentialAnimation");
         };
 
-        const QVector<QQuickAbstractAnimation *> anims = animations();
+        const QList<QQuickAbstractAnimation *> anims = animations();
         QSet<QQuickAbstractAnimation *> containers;
         for (auto a : anims) {
             // Stop all animations by default. We only want to run animations related to currently
@@ -802,13 +802,13 @@ void Qt5InformationNodeInstanceServer::handleSelectionChanged(const QVariant &ob
     m_selectionChangeTimer.start(500);
 }
 
-QVector<Qt5InformationNodeInstanceServer::InstancePropertyValueTriple>
+QList<Qt5InformationNodeInstanceServer::InstancePropertyValueTriple>
 Qt5InformationNodeInstanceServer::propertyToPropertyValueTriples(
     const ServerNodeInstance &instance,
     const PropertyName &propertyName,
     const QVariant &variant)
 {
-    QVector<InstancePropertyValueTriple> result;
+    QList<InstancePropertyValueTriple> result;
     InstancePropertyValueTriple propTriple;
 
     if (variant.typeId() == QMetaType::QVector3D) {
@@ -854,7 +854,7 @@ void Qt5InformationNodeInstanceServer::modifyVariantValue(const QObjectList &obj
     }
 
     if (!objects.isEmpty()) {
-        QVector<PropertyValueContainer> valueVector;
+        QList<PropertyValueContainer> valueVector;
         for (const auto listObj : objects) {
             ServerNodeInstance instance = instanceForObject(listObj);
             if (instance.isValid()) {
@@ -865,7 +865,7 @@ void Qt5InformationNodeInstanceServer::modifyVariantValue(const QObjectList &obj
                     instance.setModifiedFlag(false);
                 for (const auto &propNamePair : propNamePairs) {
                     // We do have to split vector3d props into foobar.x, foobar.y, foobar.z
-                    const QVector<InstancePropertyValueTriple> triple
+                    const QList<InstancePropertyValueTriple> triple
                             = propertyToPropertyValueTriples(instance, propNamePair.targetPropName,
                                                              listObj->property(propNamePair.origPropName));
                     for (const auto &property : triple) {
@@ -956,9 +956,9 @@ void Qt5InformationNodeInstanceServer::handleActiveSceneChange()
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::handleActiveSplitChange(int index)
+void Qt5InformationNodeInstanceServer::handleActiveViewportChange(int index)
 {
-    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveSplitChanged,
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveViewportChanged,
                                                         index});
 }
 
@@ -1631,13 +1631,13 @@ void Qt5InformationNodeInstanceServer::selectInstances(const QList<ServerNodeIns
  * For performance reasons (and the undo stack) properties should always be modifed in 'bulks'.
  */
 void Qt5InformationNodeInstanceServer::modifyProperties(
-    const QVector<NodeInstanceServer::InstancePropertyValueTriple> &properties)
+    const QList<NodeInstanceServer::InstancePropertyValueTriple> &properties)
 {
     nodeInstanceClient()->valuesModified(createValuesModifiedCommand(properties));
 }
 
 QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
-        const QVector<InstanceContainer> &container)
+        const QList<InstanceContainer> &container)
 {
     const auto createdInstances = NodeInstanceServer::createInstances(container);
 
@@ -1966,8 +1966,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
                      this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
     QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveSceneChange()),
                      this, SLOT(handleActiveSceneChange()));
-    QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveSplitChange(int)),
-                     this, SLOT(handleActiveSplitChange(int)));
+    QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveViewportChange(int)),
+                     this, SLOT(handleActiveViewportChange(int)));
     QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
     QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
@@ -2054,7 +2054,7 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         QQuickDesignerSupport::polishItems(quickWindow());
 
         QSet<ServerNodeInstance> informationChangedInstanceSet;
-        QVector<InstancePropertyPair> propertyChangedList;
+        QList<InstancePropertyPair> propertyChangedList;
 
         if (quickWindow()) {
             for (QQuickItem *item : allItems()) {
@@ -2221,7 +2221,7 @@ void Qt5InformationNodeInstanceServer::completeComponent(const CompleteComponent
     Qt5NodeInstanceServer::completeComponent(command);
 
     QList<ServerNodeInstance> instanceList;
-    const QVector<qint32> instances = command.instances();
+    const QList<qint32> instances = command.instances();
     for (qint32 instanceId : instances) {
         if (hasInstanceForId(instanceId)) {
             ServerNodeInstance instance = instanceForId(instanceId);
@@ -2258,7 +2258,7 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
     }
 
     // Find a scene root of the selection to update active scene shown
-    const QVector<qint32> instanceIds = command.instanceIds();
+    const QList<qint32> instanceIds = command.instanceIds();
     QVariantList selectedObjs;
     QObject *firstSceneRoot = nullptr;
     ServerNodeInstance firstInstance;
@@ -2473,7 +2473,7 @@ bool Qt5InformationNodeInstanceServer::isSceneEnvironmentBgProperty(const Proper
 void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
 {
     bool hasDynamicProperties = false;
-    const QVector<PropertyValueContainer> values = command.valueChanges();
+    const QList<PropertyValueContainer> values = command.valueChanges();
     QSet<qint32> sceneEnvs;
     for (const PropertyValueContainer &container : values) {
         if (!container.isReflected()) {
@@ -2599,6 +2599,9 @@ void Qt5InformationNodeInstanceServer::view3DAction([[maybe_unused]] const View3
     case View3DActionType::SyncEnvBackground:
         updatedToolState.insert("syncEnvBackground", command.isEnabled());
         break;
+    case View3DActionType::ViewportPreset:
+        updatedToolState.insert("activePreset", command.value());
+        break;
 #ifdef QUICK3D_PARTICLES_MODULE
     case View3DActionType::ShowParticleEmitter:
         updatedToolState.insert("showParticleEmitter", command.isEnabled());
@@ -2637,8 +2640,8 @@ void Qt5InformationNodeInstanceServer::view3DAction([[maybe_unused]] const View3
             getNodeAtMainScenePos(data[0].toPointF(), qint32(data[1].toInt()));
         return;
     }
-    case View3DActionType::SplitViewToggle:
-        updatedToolState.insert("splitView", command.isEnabled());
+    case View3DActionType::ViewportViewToggle:
+        updatedToolState.insert("viewportView", command.isEnabled());
         break;
     case View3DActionType::FlyModeToggle:
         updatedToolState.insert("flyMode", command.isEnabled());
@@ -2757,7 +2760,7 @@ void Qt5InformationNodeInstanceServer::changeState(const ChangeStateCommand &com
 
 void Qt5InformationNodeInstanceServer::removeProperties(const RemovePropertiesCommand &command)
 {
-    const QVector<PropertyAbstractContainer> props = command.properties();
+    const QList<PropertyAbstractContainer> props = command.properties();
     QSet<qint32> sceneEnvs;
 
     for (const PropertyAbstractContainer &container : props) {

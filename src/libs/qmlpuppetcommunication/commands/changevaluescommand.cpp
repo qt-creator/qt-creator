@@ -9,12 +9,12 @@ namespace QmlDesigner {
 
 ChangeValuesCommand::ChangeValuesCommand() = default;
 
-ChangeValuesCommand::ChangeValuesCommand(const QVector<PropertyValueContainer> &valueChangeVector)
+ChangeValuesCommand::ChangeValuesCommand(const QList<PropertyValueContainer> &valueChangeVector)
     : m_valueChangeVector (valueChangeVector)
 {
 }
 
-const QVector<PropertyValueContainer> ChangeValuesCommand::valueChanges() const
+const QList<PropertyValueContainer> ChangeValuesCommand::valueChanges() const
 {
     return m_valueChangeVector;
 }

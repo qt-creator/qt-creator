@@ -346,7 +346,7 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
     if (isList(property)) {
         QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
 
-        if (!QmlPrivateGate::hasFullImplementedListInterface(list)) {
+        if (!list.isValid() || !list.canAppend()) {
             qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
             return;
         }

@@ -214,10 +214,10 @@ public:
         , qmlDocumentParser{storage, pathCache}
         , pathWatcher{pathCache, fileStatusCache, &updater}
         , projectPartId{ProjectPartId::create(
-              pathCache.sourceContextId(Utils::PathString{project->projectDirectory().path()})
+              pathCache.directoryPathId(Utils::PathString{project->projectDirectory().path()})
                   .internalId())}
         , qtPartId{ProjectPartId::create(
-              pathCache.sourceContextId(Utils::PathString{qmlPath(project)}).internalId())}
+              pathCache.directoryPathId(Utils::PathString{qmlPath(project)}).internalId())}
         , updater{fileSystem,
                   storage,
                   fileStatusCache,
@@ -294,7 +294,7 @@ public:
 class QmlDesignerProjectManager::Data
 {
 public:
-    Sqlite::Database sourcePathDatabase{createDatabasePath("source_path.db"),
+    Sqlite::Database sourcePathDatabase{createDatabasePath("source_path_v1.db"),
                                         Sqlite::JournalMode::Wal,
                                         Sqlite::LockingMode::Normal};
     QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
@@ -366,14 +366,21 @@ namespace {
     return nullptr;
 }
 
+[[maybe_unused]] ProjectStorageTriggerUpdateInterface *dummyTriggerUpdate()
+{
+    return nullptr;
+}
+
 } // namespace
 
 ProjectStorageDependencies QmlDesignerProjectManager::projectStorageDependencies()
 {
     if constexpr (useProjectStorage()) {
-        return {m_projectData->projectStorageData->storage, m_data->pathCache};
+        return {m_projectData->projectStorageData->storage,
+                m_data->pathCache,
+                m_projectData->projectStorageData->pathWatcher};
     } else {
-        return {*dummyProjectStorage(), *dummyPathCache()};
+        return {*dummyProjectStorage(), *dummyPathCache(), *dummyTriggerUpdate()};
     }
 }
 
@@ -400,6 +407,11 @@ namespace {
     if constexpr (useProjectStorage()) {
         auto qmlRootPath = qmlPath(target);
         qmldirPaths.push_back(qmlRootPath + "/QML");
+        qmldirPaths.push_back(qmlRootPath + "/Qt");
+        // TODO: Charts plugins.qmltypes needs to be fixed before QtCharts can be added (QTBUG-115358)
+        //qmldirPaths.push_back(qmlRootPath + "/QtCharts");
+        // TODO: Graphs plugins.qmltypes needs to be fixed before QtGraphs can be added (QTBUG-135402)
+        //qmldirPaths.push_back(qmlRootPath + "/QtGraphs");
         qmldirPaths.push_back(qmlRootPath + "/QtQml");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick3D");

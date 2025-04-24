@@ -1,10 +1,10 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import HelperWidgets 2.0
-import StudioTheme 1.0 as StudioTheme
+import QtQuick
+import QtQuick.Layouts
+import HelperWidgets
+import StudioTheme as StudioTheme
 
 Column {
     anchors.left: parent.left
@@ -68,11 +68,21 @@ Column {
                     width: implicitWidth
                     backendValue: backendValues.radius
                     minimumValue: 0
-                    maximumValue: Math.min(backendValues.height.value, backendValues.width.value) / 2
+                    maximumValue: 0xffff
                 }
 
                 ExpandingSpacer {}
             }
         }
+    }
+
+    CornerRadiusSection {
+        id: cornerRadiusSection
+        property bool radiiAvailable: backendValues.topLeftRadius.isAvailable
+                                // && backendValues.topRightRadius.isAvailable
+                                // && backendValues.bottomLeftRadius.isAvailable
+                                // && backendValues.bottomRightRadius.isAvailable
+
+        visible: majorQtQuickVersion >= 6 && minorQtQuickVersion >= 7 && cornerRadiusSection.radiiAvailable
     }
 }

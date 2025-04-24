@@ -189,10 +189,21 @@ QList<QQuickItem*> subItems(QQuickItem *parentItem)
 
 const QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
 {
-    if (rootNodeInstance().isValid())
-        return rootNodeInstance().allItemsRecursive();
+    if (!rootNodeInstance().isValid())
+        return {};
 
-    return {};
+    QList<QQuickItem*> allItems = rootNodeInstance().allItemsRecursive();
+
+    // ShaderEffects affecting root item will be root item siblings, so add those as well
+    QQuickItem *rootItem = rootNodeInstance().rootQuickItem();
+    if (rootItem && rootItem->parentItem()) {
+        const QList<QQuickItem *> siblings = rootItem->parentItem()->childItems();
+        for (QQuickItem *sibling : siblings) {
+            if (sibling != rootItem)
+                allItems.append(sibling);
+        }
+    }
+    return allItems;
 }
 
 bool Qt5NodeInstanceServer::rootIsRenderable3DObject() const

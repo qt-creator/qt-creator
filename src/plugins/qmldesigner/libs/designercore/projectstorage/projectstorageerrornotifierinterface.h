@@ -31,6 +31,8 @@ public:
                                                         SourceId qmldirSourceId)
         = 0;
 
+    virtual void qmltypesFileMissing(QStringView qmltypesPath) = 0;
+
 protected:
     ~ProjectStorageErrorNotifierInterface() = default;
 };

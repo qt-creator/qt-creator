@@ -148,6 +148,8 @@ public:
 #endif
 
     Module module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind);
+    SmallModuleIds<128> moduleIdsStartsWith(Utils::SmallStringView startsWith,
+                                            Storage::ModuleKind kind) const;
     NodeMetaInfo metaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     NodeMetaInfo metaInfo(Module module,
                           Utils::SmallStringView typeName,
@@ -170,6 +172,7 @@ public:
     NodeMetaInfo qtQuick3DBakedLightmapMetaInfo() const;
     NodeMetaInfo qtQuick3DDefaultMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DDirectionalLightMetaInfo() const;
+    NodeMetaInfo qtQuick3DLightMetaInfo() const;
     NodeMetaInfo qtQuick3DMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DModelMetaInfo() const;
     NodeMetaInfo qtQuick3DNodeMetaInfo() const;
@@ -209,6 +212,8 @@ public:
 #endif
 
     QList<ItemLibraryEntry> itemLibraryEntries() const;
+    QList<ItemLibraryEntry> directoryImportsItemLibraryEntries() const;
+    QList<ItemLibraryEntry> allItemLibraryEntries() const;
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);
@@ -261,7 +266,7 @@ public:
                              const QList<DocumentMessage> &warnings);
 
     QList<ModelNode> selectedNodes(AbstractView *view) const;
-    void setSelectedModelNodes(const QList<ModelNode> &selectedNodeList);
+    void setSelectedModelNodes(Utils::span<const ModelNode> selectedNodes);
 
     void clearMetaInfoCache();
 
@@ -281,16 +286,19 @@ public:
     NotNullPointer<const ProjectStorageType> projectStorage() const;
     const PathCacheType &pathCache() const;
     PathCacheType &pathCache();
+    ProjectStorageTriggerUpdateInterface &projectStorageTriggerUpdate() const;
+
+    ProjectStorageDependencies projectStorageDependencies() const;
 
     void emitInstancePropertyChange(AbstractView *view,
-                                    const QList<QPair<ModelNode, PropertyName>> &propertyList);
-    void emitInstanceErrorChange(AbstractView *view, const QVector<qint32> &instanceIds);
-    void emitInstancesCompleted(AbstractView *view, const QVector<ModelNode> &nodeList);
+                                    Utils::span<const QPair<ModelNode, PropertyName>> properties);
+    void emitInstanceErrorChange(AbstractView *view, Utils::span<const qint32> instanceIds);
+    void emitInstancesCompleted(AbstractView *view, Utils::span<const ModelNode> nodes);
     void emitInstanceInformationsChange(
         AbstractView *view, const QMultiHash<ModelNode, InformationName> &informationChangeHash);
-    void emitInstancesRenderImageChanged(AbstractView *view, const QVector<ModelNode> &nodeList);
-    void emitInstancesPreviewImageChanged(AbstractView *view, const QVector<ModelNode> &nodeList);
-    void emitInstancesChildrenChanged(AbstractView *view, const QVector<ModelNode> &nodeList);
+    void emitInstancesRenderImageChanged(AbstractView *view, Utils::span<const ModelNode> nodes);
+    void emitInstancesPreviewImageChanged(AbstractView *view, Utils::span<const ModelNode> nodes);
+    void emitInstancesChildrenChanged(AbstractView *view, Utils::span<const ModelNode> nodes);
     void emitInstanceToken(AbstractView *view,
                            const QString &token,
                            int number,
@@ -310,7 +318,7 @@ public:
     void emitDocumentMessage(const QString &error);
     void emitCustomNotification(AbstractView *view,
                                 const QString &identifier,
-                                const QList<ModelNode> &nodeList = {},
+                                Utils::span<const ModelNode> nodes = {},
                                 const QList<QVariant> &data = {});
 
     void sendCustomNotificationTo(AbstractView *to, const CustomNotificationPackage &package);

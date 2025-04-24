@@ -1154,7 +1154,7 @@ public:
     PropertyEditorQmlPath(ModuleId moduleId,
                           TypeNameString typeName,
                           SourceId pathId,
-                          SourceContextId directoryId)
+                          DirectoryPathId directoryId)
         : typeName{typeName}
         , pathId{pathId}
         , directoryId{directoryId}
@@ -1179,7 +1179,7 @@ public:
     TypeNameString typeName;
     TypeId typeId;
     SourceId pathId;
-    SourceContextId directoryId;
+    DirectoryPathId directoryId;
     ModuleId moduleId;
 };
 
@@ -1188,7 +1188,7 @@ using PropertyEditorQmlPaths = std::vector<class PropertyEditorQmlPath>;
 class DirectoryInfo
 {
 public:
-    DirectoryInfo(SourceContextId directoryId, SourceId sourceId, ModuleId moduleId, FileType fileType)
+    DirectoryInfo(DirectoryPathId directoryId, SourceId sourceId, ModuleId moduleId, FileType fileType)
         : directoryId{directoryId}
         , sourceId{sourceId}
         , moduleId{moduleId}
@@ -1216,7 +1216,7 @@ public:
     }
 
 public:
-    SourceContextId directoryId;
+    DirectoryPathId directoryId;
     SourceId sourceId;
     ModuleId moduleId;
     FileType fileType;
@@ -1227,13 +1227,13 @@ using DirectoryInfos = std::vector<DirectoryInfo>;
 class TypeAnnotation
 {
 public:
-    TypeAnnotation(SourceId sourceId, SourceContextId directoryId)
+    TypeAnnotation(SourceId sourceId, DirectoryPathId directoryId)
         : sourceId{sourceId}
         , directoryId{directoryId}
     {}
 
     TypeAnnotation(SourceId sourceId,
-                   SourceContextId directoryId,
+                   DirectoryPathId directoryId,
                    Utils::SmallStringView typeName,
                    ModuleId moduleId,
                    Utils::SmallStringView iconPath,
@@ -1274,7 +1274,7 @@ public:
     SourceId sourceId;
     ModuleId moduleId;
     TypeTraits traits;
-    SourceContextId directoryId;
+    DirectoryPathId directoryId;
 };
 
 using TypeAnnotations = std::vector<TypeAnnotation>;
@@ -1314,7 +1314,7 @@ public:
         , fileStatuses(std::move(fileStatuses))
     {}
 
-    SynchronizationPackage(SourceContextIds updatedDirectoryInfoDirectoryIds,
+    SynchronizationPackage(DirectoryPathIds updatedDirectoryInfoDirectoryIds,
                            DirectoryInfos directoryInfos)
         : directoryInfos(std::move(directoryInfos))
         , updatedDirectoryInfoDirectoryIds(std::move(updatedDirectoryInfoDirectoryIds))
@@ -1327,13 +1327,13 @@ public:
     SourceIds updatedFileStatusSourceIds;
     FileStatuses fileStatuses;
     DirectoryInfos directoryInfos;
-    SourceContextIds updatedDirectoryInfoDirectoryIds;
+    DirectoryPathIds updatedDirectoryInfoDirectoryIds;
     Imports moduleDependencies;
     SourceIds updatedModuleDependencySourceIds;
     ModuleExportedImports moduleExportedImports;
     ModuleIds updatedModuleIds;
     PropertyEditorQmlPaths propertyEditorQmlPaths;
-    SourceContextIds updatedPropertyEditorQmlPathDirectoryIds;
+    DirectoryPathIds updatedPropertyEditorQmlPathDirectoryIds;
     TypeAnnotations typeAnnotations;
     SourceIds updatedTypeAnnotationSourceIds;
 };

@@ -21,7 +21,7 @@ public:
              PropertyNameView targetPropertyName,
              bool targetIsArrayBinding,
              TextModifier::MoveInfo moveInfo,
-             const PropertyNameList &propertyOrder)
+             Utils::span<const PropertyNameView> propertyOrder)
         : QMLRewriter(modifier)
         , targetParentObjectLocation(targetParentObjectLocation)
         , targetPropertyName(targetPropertyName)
@@ -127,7 +127,7 @@ private:
     PropertyNameView targetPropertyName;
     bool targetIsArrayBinding;
     TextModifier::MoveInfo moveInfo;
-    PropertyNameList propertyOrder;
+    Utils::span<const PropertyNameView> propertyOrder;
 };
 
 MoveObjectVisitor::MoveObjectVisitor(TextModifier &modifier,
@@ -135,7 +135,7 @@ MoveObjectVisitor::MoveObjectVisitor(TextModifier &modifier,
                                      PropertyNameView targetPropertyName,
                                      bool targetIsArrayBinding,
                                      quint32 targetParentObjectLocation,
-                                     const PropertyNameList &propertyOrder)
+                                     Utils::span<const PropertyNameView> propertyOrder)
     : QMLRewriter(modifier)
     , objectLocation(objectLocation)
     , targetPropertyName(targetPropertyName)

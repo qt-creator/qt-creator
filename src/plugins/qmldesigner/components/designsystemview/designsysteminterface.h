@@ -18,7 +18,7 @@ class DesignSystemInterface : public QObject
     Q_PROPERTY(QStringList collections READ collections NOTIFY collectionsChanged FINAL)
 
 public:
-    DesignSystemInterface(DSStore *store);
+    DesignSystemInterface();
     ~DesignSystemInterface();
 
     Q_INVOKABLE void loadDesignSystem();
@@ -34,6 +34,8 @@ public:
                                                   bool isBinding = false) const;
 
     QStringList collections() const;
+
+    void setDSStore(DSStore *store);
 
 signals:
     void collectionsChanged();

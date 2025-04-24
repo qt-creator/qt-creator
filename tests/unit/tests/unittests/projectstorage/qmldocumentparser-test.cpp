@@ -18,7 +18,7 @@ namespace {
 namespace Storage = QmlDesigner::Storage;
 namespace Synchronization = Storage::Synchronization;
 using QmlDesigner::ModuleId;
-using QmlDesigner::SourceContextId;
+using QmlDesigner::DirectoryPathId;
 using QmlDesigner::SourceId;
 using QmlDesigner::Storage::ModuleKind;
 using Storage::TypeTraits;
@@ -158,8 +158,8 @@ protected:
     QmlDesigner::QmlDocumentParser parser{storage, sourcePathCache};
     Storage::Imports imports;
     SourceId qmlFileSourceId{sourcePathCache.sourceId("/path/to/qmlfile.qml")};
-    SourceContextId qmlFileSourceContextId{qmlFileSourceId.contextId()};
-    Utils::PathString directoryPath{sourcePathCache.sourceContextPath(qmlFileSourceContextId)};
+    DirectoryPathId qmlFileDirectoryPathId{qmlFileSourceId.directoryPathId()};
+    Utils::PathString directoryPath{sourcePathCache.directoryPath(qmlFileDirectoryPathId)};
     ModuleId directoryModuleId{storage.moduleId(directoryPath, ModuleKind::PathLibrary)};
 };
 

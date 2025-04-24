@@ -27,6 +27,7 @@ public:
                                                 Storage::Version version,
                                                 SourceId qmlDocumentSourceId,
                                                 SourceId qmldirSourceId) override;
+    void qmltypesFileMissing(QStringView qmltypesPath) override;
 
 private:
     PathCacheType &m_pathCache;

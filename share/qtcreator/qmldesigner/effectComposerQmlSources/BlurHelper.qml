@@ -4,6 +4,7 @@
 // This file should match the BlurHelper.qml in qtquickdesigner repository, except for shader paths
 
 import QtQuick
+import EffectComposerPropertyData
 
 Item {
     id: rootItem
@@ -20,8 +21,8 @@ Item {
         visible: false
         layer.enabled: true
         layer.smooth: true
-        vertexShader: g_propertyData.blur_vs_path
-        fragmentShader: g_propertyData.blur_fs_path
+        vertexShader: GlobalPropertyData?.blur_vs_path ?? ""
+        fragmentShader: GlobalPropertyData?.blur_fs_path ?? ""
     }
 
     QtObject {

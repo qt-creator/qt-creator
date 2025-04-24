@@ -199,7 +199,7 @@
     fields in the \uicontrol Opacity section are used to hide and show either
     the front or back side of the item at a time.
 
-    \image studio-flipable.png
+    \image {studio-flipable.png} {A Flipable in the 2D, Navigator, and Properties view.}
 
     The \uicontrol {Flip angle} property is used to animate the angle
     of the component to produce the flipping effect. The value of the

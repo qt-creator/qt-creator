@@ -7,6 +7,7 @@
 #include <bindingproperty.h>
 #include <designeralgorithm.h>
 #include <exception.h>
+#include <functional.h>
 #include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
@@ -904,7 +905,8 @@ void PropertyTreeModelDelegate::setPropertyType(PropertyTreeModel::PropertyTypes
 void PropertyTreeModelDelegate::setup(const QString &id, const QString &name, bool *nameExists)
 {
     m_model.resetModel();
-    QStringList idLists = Utils::transform(m_model.nodeList(), &ModelNode::id);
+    using SL = ModelTracing::SourceLocation;
+    QStringList idLists = Utils::transform(m_model.nodeList(), bind_back(&ModelNode::id, SL{}));
 
     if (!idLists.contains(id))
         idLists.prepend(id);

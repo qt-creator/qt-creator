@@ -5,6 +5,6 @@
     \QDS runs projects using a specific version of Qt.
     In \QDS, find the Qt runtime version in the bottom toolbar.
 
-    \image studio-qt-development-kit.webp
+    \image {studio-qt-development-kit.webp} {The kit selector dropdown menu in the bottom toolbar.}
 //! [qt-runtime-version]
 */

@@ -18,24 +18,24 @@ struct SourcePathStorage::Statements
     {}
 
     Sqlite::Database &database;
-    mutable Sqlite::ReadStatement<1, 1> selectSourceContextIdFromSourceContextsBySourceContextPathStatement{
-        "SELECT sourceContextId FROM sourceContexts WHERE sourceContextPath = ?", database};
-    mutable Sqlite::ReadStatement<1, 1> selectSourceContextPathFromSourceContextsBySourceContextIdStatement{
-        "SELECT sourceContextPath FROM sourceContexts WHERE sourceContextId = ?", database};
-    mutable Sqlite::ReadStatement<2> selectAllSourceContextsStatement{
-        "SELECT sourceContextPath, sourceContextId FROM sourceContexts", database};
-    Sqlite::WriteStatement<1> insertIntoSourceContextsStatement{
-        "INSERT INTO sourceContexts(sourceContextPath) VALUES (?)", database};
-    mutable Sqlite::ReadStatement<1, 1> selectSourceNameIdFromSourceNamesBySourceNameStatement{
-        "SELECT sourceNameId FROM sourceNames WHERE sourceName = ?", database};
-    mutable Sqlite::ReadStatement<1, 1> selectSourceNameFromSourceNamesBySourceNameIdStatement{
-        "SELECT sourceName FROM sourceNames WHERE sourceNameId = ?", database};
+    mutable Sqlite::ReadStatement<1, 1> selectDirectoryPathIdFromDirectoryPathsByDirectoryPathStatement{
+        "SELECT directoryPathId FROM directoryPaths WHERE directoryPath = ?", database};
+    mutable Sqlite::ReadStatement<1, 1> selectDirectoryPathFromDirectoryPathsByDirectoryPathIdStatement{
+        "SELECT directoryPath FROM directoryPaths WHERE directoryPathId = ?", database};
+    mutable Sqlite::ReadStatement<2> selectAllDirectoryPathsStatement{
+        "SELECT directoryPath, directoryPathId FROM directoryPaths", database};
+    Sqlite::WriteStatement<1> insertIntoDirectoryPathsStatement{
+        "INSERT INTO directoryPaths(directoryPath) VALUES (?)", database};
+    mutable Sqlite::ReadStatement<1, 1> selectFileNameIdFromFileNamesByFileNameStatement{
+        "SELECT fileNameId FROM fileNames WHERE fileName = ?", database};
+    mutable Sqlite::ReadStatement<1, 1> selectFileNameFromFileNamesByFileNameIdStatement{
+        "SELECT fileName FROM fileNames WHERE fileNameId = ?", database};
     Sqlite::WriteStatement<1> insertIntoSourcesStatement{
-        "INSERT INTO sourceNames(sourceName) VALUES (?)", database};
+        "INSERT INTO fileNames(fileName) VALUES (?)", database};
     mutable Sqlite::ReadStatement<2> selectAllSourcesStatement{
-        "SELECT sourceName, sourceNameId  FROM sourceNames", database};
-    Sqlite::WriteStatement<0> deleteAllSourceNamesStatement{"DELETE FROM sourceNames", database};
-    Sqlite::WriteStatement<0> deleteAllSourceContextsStatement{"DELETE FROM sourceContexts", database};
+        "SELECT fileName, fileNameId  FROM fileNames", database};
+    Sqlite::WriteStatement<0> deleteAllFileNamesStatement{"DELETE FROM fileNames", database};
+    Sqlite::WriteStatement<0> deleteAllDirectoryPathsStatement{"DELETE FROM directoryPaths", database};
 };
 
 class SourcePathStorage::Initializer
@@ -44,32 +44,32 @@ public:
     Initializer(Database &database, bool isInitialized)
     {
         if (!isInitialized) {
-            createSourceContextsTable(database);
-            createSourceNamesTable(database);
+            createDirectoryPathsTable(database);
+            createFileNamesTable(database);
         }
     }
 
-    void createSourceContextsTable(Database &database)
+    void createDirectoryPathsTable(Database &database)
     {
         Sqlite::Table table;
         table.setUseIfNotExists(true);
-        table.setName("sourceContexts");
-        table.addColumn("sourceContextId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
-        const Sqlite::Column &sourceContextPathColumn = table.addColumn("sourceContextPath");
+        table.setName("directoryPaths");
+        table.addColumn("directoryPathId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
+        const Sqlite::Column &directoryPathColumn = table.addColumn("directoryPath");
 
-        table.addUniqueIndex({sourceContextPathColumn});
+        table.addUniqueIndex({directoryPathColumn});
 
         table.initialize(database);
     }
 
-    void createSourceNamesTable(Database &database)
+    void createFileNamesTable(Database &database)
     {
         Sqlite::StrictTable table;
         table.setUseIfNotExists(true);
-        table.setName("sourceNames");
-        table.addColumn("sourceNameId", Sqlite::StrictColumnType::Integer, {Sqlite::PrimaryKey{}});
-        const auto &sourceNameColumn = table.addColumn("sourceName", Sqlite::StrictColumnType::Text);
-        table.addUniqueIndex({sourceNameColumn});
+        table.setName("fileNames");
+        table.addColumn("fileNameId", Sqlite::StrictColumnType::Integer, {Sqlite::PrimaryKey{}});
+        const auto &fileNameColumn = table.addColumn("fileName", Sqlite::StrictColumnType::Text);
+        table.addUniqueIndex({fileNameColumn});
 
         table.initialize(database);
     }
@@ -88,52 +88,52 @@ SourcePathStorage::SourcePathStorage(Database &database, bool isInitialized)
 
 SourcePathStorage::~SourcePathStorage() = default;
 
-SourceContextId SourcePathStorage::fetchSourceContextIdUnguarded(Utils::SmallStringView sourceContextPath)
+DirectoryPathId SourcePathStorage::fetchDirectoryPathIdUnguarded(Utils::SmallStringView directoryPath)
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source context id unguarded", category()};
 
-    auto sourceContextId = readSourceContextId(sourceContextPath);
+    auto directoryPathId = readDirectoryPathId(directoryPath);
 
-    return sourceContextId ? sourceContextId : writeSourceContextId(sourceContextPath);
+    return directoryPathId ? directoryPathId : writeDirectoryPathId(directoryPath);
 }
 
-SourceContextId SourcePathStorage::fetchSourceContextId(Utils::SmallStringView sourceContextPath)
+DirectoryPathId SourcePathStorage::fetchDirectoryPathId(Utils::SmallStringView directoryPath)
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source context id",
                                category(),
-                               keyValue("source context path", sourceContextPath)};
+                               keyValue("source context path", directoryPath)};
 
-    SourceContextId sourceContextId;
+    DirectoryPathId directoryPathId;
     try {
-        sourceContextId = Sqlite::withDeferredTransaction(database, [&] {
-            return fetchSourceContextIdUnguarded(sourceContextPath);
+        directoryPathId = Sqlite::withDeferredTransaction(database, [&] {
+            return fetchDirectoryPathIdUnguarded(directoryPath);
         });
     } catch (const Sqlite::ConstraintPreventsModification &) {
-        sourceContextId = fetchSourceContextId(sourceContextPath);
+        directoryPathId = fetchDirectoryPathId(directoryPath);
     }
 
-    tracer.end(keyValue("source context id", sourceContextId));
+    tracer.end(keyValue("source context id", directoryPathId));
 
-    return sourceContextId;
+    return directoryPathId;
 }
 
-Utils::PathString SourcePathStorage::fetchSourceContextPath(SourceContextId sourceContextId) const
+Utils::PathString SourcePathStorage::fetchDirectoryPath(DirectoryPathId directoryPathId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source context path",
                                category(),
-                               keyValue("source context id", sourceContextId)};
+                               keyValue("source context id", directoryPathId)};
 
     auto path = Sqlite::withDeferredTransaction(database, [&] {
-        auto optionalSourceContextPath = s->selectSourceContextPathFromSourceContextsBySourceContextIdStatement
-                                             .optionalValue<Utils::PathString>(sourceContextId);
+        auto optionalDirectoryPath = s->selectDirectoryPathFromDirectoryPathsByDirectoryPathIdStatement
+                                             .optionalValue<Utils::PathString>(directoryPathId);
 
-        if (!optionalSourceContextPath)
-            throw SourceContextIdDoesNotExists();
+        if (!optionalDirectoryPath)
+            throw DirectoryPathIdDoesNotExists();
 
-        return std::move(*optionalSourceContextPath);
+        return std::move(*optionalDirectoryPath);
     });
 
     tracer.end(keyValue("source context path", path));
@@ -141,133 +141,133 @@ Utils::PathString SourcePathStorage::fetchSourceContextPath(SourceContextId sour
     return path;
 }
 
-Cache::SourceContexts SourcePathStorage::fetchAllSourceContexts() const
+Cache::DirectoryPaths SourcePathStorage::fetchAllDirectoryPaths() const
 {
     NanotraceHR::Tracer tracer{"fetch all source contexts", category()};
 
-    return s->selectAllSourceContextsStatement.valuesWithTransaction<Cache::SourceContext, 128>();
+    return s->selectAllDirectoryPathsStatement.valuesWithTransaction<Cache::DirectoryPath, 128>();
 }
 
-SourceNameId SourcePathStorage::fetchSourceNameId(Utils::SmallStringView sourceName)
+FileNameId SourcePathStorage::fetchFileNameId(Utils::SmallStringView fileName)
 {
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch source id", category(), keyValue("source name", sourceName)};
+    NanotraceHR::Tracer tracer{"fetch source id", category(), keyValue("source name", fileName)};
 
-    auto sourceNameId = Sqlite::withDeferredTransaction(database, [&] {
-        return fetchSourceNameIdUnguarded(sourceName);
+    auto fileNameId = Sqlite::withDeferredTransaction(database, [&] {
+        return fetchFileNameIdUnguarded(fileName);
     });
 
-    tracer.end(keyValue("source name id", sourceNameId));
+    tracer.end(keyValue("source name id", fileNameId));
 
-    return sourceNameId;
+    return fileNameId;
 }
 
-Utils::SmallString SourcePathStorage::fetchSourceName(SourceNameId sourceNameId) const
+Utils::SmallString SourcePathStorage::fetchFileName(FileNameId fileNameId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source name and source context id",
                                category(),
-                               keyValue("source name id", sourceNameId)};
+                               keyValue("source name id", fileNameId)};
 
-    auto sourceName = s->selectSourceNameFromSourceNamesBySourceNameIdStatement
-                          .valueWithTransaction<Utils::SmallString>(sourceNameId);
+    auto fileName = s->selectFileNameFromFileNamesByFileNameIdStatement
+                          .valueWithTransaction<Utils::SmallString>(fileNameId);
 
-    if (sourceName.empty())
-        throw SourceNameIdDoesNotExists();
+    if (fileName.empty())
+        throw FileNameIdDoesNotExists();
 
-    tracer.end(keyValue("source name", sourceName));
+    tracer.end(keyValue("source name", fileName));
 
-    return sourceName;
+    return fileName;
 }
 
 void SourcePathStorage::clearSources()
 {
     Sqlite::withImmediateTransaction(database, [&] {
-        s->deleteAllSourceContextsStatement.execute();
-        s->deleteAllSourceNamesStatement.execute();
+        s->deleteAllDirectoryPathsStatement.execute();
+        s->deleteAllFileNamesStatement.execute();
     });
 }
 
-Cache::SourceNames SourcePathStorage::fetchAllSourceNames() const
+Cache::FileNames SourcePathStorage::fetchAllFileNames() const
 {
     NanotraceHR::Tracer tracer{"fetch all sources", category()};
 
-    return s->selectAllSourcesStatement.valuesWithTransaction<Cache::SourceName, 1024>();
+    return s->selectAllSourcesStatement.valuesWithTransaction<Cache::FileName, 1024>();
 }
 
-SourceNameId SourcePathStorage::fetchSourceNameIdUnguarded(Utils::SmallStringView sourceName)
+FileNameId SourcePathStorage::fetchFileNameIdUnguarded(Utils::SmallStringView fileName)
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source id unguarded",
                                category(),
-                               keyValue("source name", sourceName)};
+                               keyValue("source name", fileName)};
 
-    auto sourceId = readSourceNameId(sourceName);
+    auto sourceId = readFileNameId(fileName);
 
     if (!sourceId)
-        sourceId = writeSourceNameId(sourceName);
+        sourceId = writeFileNameId(fileName);
 
     tracer.end(keyValue("source id", sourceId));
 
     return sourceId;
 }
 
-SourceContextId SourcePathStorage::readSourceContextId(Utils::SmallStringView sourceContextPath)
+DirectoryPathId SourcePathStorage::readDirectoryPathId(Utils::SmallStringView directoryPath)
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"read source context id",
                                category(),
-                               keyValue("source context path", sourceContextPath)};
+                               keyValue("source context path", directoryPath)};
 
-    auto sourceContextId = s->selectSourceContextIdFromSourceContextsBySourceContextPathStatement
-                               .value<SourceContextId>(sourceContextPath);
+    auto directoryPathId = s->selectDirectoryPathIdFromDirectoryPathsByDirectoryPathStatement
+                               .value<DirectoryPathId>(directoryPath);
 
-    tracer.end(keyValue("source context id", sourceContextId));
+    tracer.end(keyValue("source context id", directoryPathId));
 
-    return sourceContextId;
+    return directoryPathId;
 }
 
-SourceContextId SourcePathStorage::writeSourceContextId(Utils::SmallStringView sourceContextPath)
+DirectoryPathId SourcePathStorage::writeDirectoryPathId(Utils::SmallStringView directoryPath)
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"write source context id",
                                category(),
-                               keyValue("source context path", sourceContextPath)};
+                               keyValue("source context path", directoryPath)};
 
-    s->insertIntoSourceContextsStatement.write(sourceContextPath);
+    s->insertIntoDirectoryPathsStatement.write(directoryPath);
 
-    auto sourceContextId = SourceContextId::create(static_cast<int>(database.lastInsertedRowId()));
+    auto directoryPathId = DirectoryPathId::create(static_cast<int>(database.lastInsertedRowId()));
 
-    tracer.end(keyValue("source context id", sourceContextId));
+    tracer.end(keyValue("source context id", directoryPathId));
 
-    return sourceContextId;
+    return directoryPathId;
 }
 
-SourceNameId SourcePathStorage::writeSourceNameId(Utils::SmallStringView sourceName)
+FileNameId SourcePathStorage::writeFileNameId(Utils::SmallStringView fileName)
 {
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"write source id", category(), keyValue("source name", sourceName)};
+    NanotraceHR::Tracer tracer{"write source id", category(), keyValue("source name", fileName)};
 
-    s->insertIntoSourcesStatement.write(sourceName);
+    s->insertIntoSourcesStatement.write(fileName);
 
-    auto sourceNameId = SourceNameId::create(static_cast<int>(database.lastInsertedRowId()));
+    auto fileNameId = FileNameId::create(static_cast<int>(database.lastInsertedRowId()));
 
-    tracer.end(keyValue("source name id", sourceNameId));
+    tracer.end(keyValue("source name id", fileNameId));
 
-    return sourceNameId;
+    return fileNameId;
 }
 
-SourceNameId SourcePathStorage::readSourceNameId(Utils::SmallStringView sourceName)
+FileNameId SourcePathStorage::readFileNameId(Utils::SmallStringView fileName)
 {
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"read source id", category(), keyValue("source name", sourceName)};
+    NanotraceHR::Tracer tracer{"read source id", category(), keyValue("source name", fileName)};
 
-    auto sourceNameId = s->selectSourceNameIdFromSourceNamesBySourceNameStatement.value<SourceNameId>(
-        sourceName);
+    auto fileNameId = s->selectFileNameIdFromFileNamesByFileNameStatement.value<FileNameId>(
+        fileName);
 
-    tracer.end(keyValue("source id", sourceNameId));
+    tracer.end(keyValue("source id", fileNameId));
 
-    return sourceNameId;
+    return fileNameId;
 }
 
 void SourcePathStorage::resetForTestsOnly()

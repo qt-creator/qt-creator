@@ -20,7 +20,7 @@ public:
 
     virtual void updateIdPaths(const std::vector<IdPaths> &idPaths) = 0;
     virtual void updateContextIdPaths(const std::vector<IdPaths> &idPaths,
-                                      const SourceContextIds &sourceContextIds)
+                                      const DirectoryPathIds &directoryPathIds)
         = 0;
     virtual void removeIds(const ProjectPartIds &ids) = 0;
 

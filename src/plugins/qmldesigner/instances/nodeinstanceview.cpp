@@ -1811,12 +1811,12 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         const auto sceneState = qvariant_cast<QVariantMap>(command.data());
         if (isAttached())
             model()->emitUpdateActiveScene3D(this, sceneState);
-    } else if (command.type() == PuppetToCreatorCommand::ActiveSplitChanged) {
-        // Active split change is a special case of active scene change
-        QVariantMap splitState;
-        splitState.insert("activeSplit", command.data());
+    } else if (command.type() == PuppetToCreatorCommand::ActiveViewportChanged) {
+        // Active viewport change is a special case of active scene change
+        QVariantMap viewportState;
+        viewportState.insert("activeViewport", command.data());
         if (isAttached())
-            model()->emitUpdateActiveScene3D(this, splitState);
+            model()->emitUpdateActiveScene3D(this, viewportState);
     } else if (command.type() == PuppetToCreatorCommand::RenderModelNodePreviewImage) {
         ImageContainer container = qvariant_cast<ImageContainer>(command.data());
         QImage image = container.image();

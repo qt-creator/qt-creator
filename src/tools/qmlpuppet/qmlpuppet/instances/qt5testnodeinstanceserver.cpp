@@ -238,7 +238,7 @@ void QmlDesigner::Qt5TestNodeInstanceServer::collectItemChangesAndSendChangeComm
     QQuickDesignerSupport::polishItems(quickWindow());
 
     QSet<ServerNodeInstance> informationChangedInstanceSet;
-    QVector<InstancePropertyPair> propertyChangedList;
+    QList<InstancePropertyPair> propertyChangedList;
     QSet<ServerNodeInstance> parentChangedSet;
 
     if (quickWindow()) {

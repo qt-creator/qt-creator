@@ -68,7 +68,7 @@
 
     \endlist
 
-    \image web-navigation-components.png
+    \image {web-navigation-components.png} {The structure of the web application in the Navigator view.}
 
     \section1 Creating the pages
 
@@ -88,7 +88,7 @@
       \li Set \uicontrol {Root Item} to \e Rectangle.
     \endlist
 
-    \image web-navigation-new-file.png
+    \image {web-navigation-new-file.png} {The New File dialog.}
 
     When you have created the new page, select \e rectangle in
     \uicontrol Navigator, and in the \uicontrol Properties view:
@@ -114,7 +114,7 @@
           \li Top, 100
           \li Left, 50
         \endlist
-        \image web-navigation-page-margins.png
+        \image {web-navigation-page-margins.png} {The Anchor and Margin properties for the web application header.}
     \endlist
 
 Now, with the first page done, create two more pages in the same way. For these
@@ -124,13 +124,13 @@ You can change the file that you are working on from the drop-down menu in the
 toolbar. Now, select \e Screen01.ui.qml from this menu to go back to your
 main page.
 
-\image web-navigation-change-file.png
+\image {web-navigation-change-file.png} {Changing the file in top toolbar.}
 
 You can see the pages you created under \uicontrol {My Components} in the
 \uicontrol Components view. To edit a component, right-click it in
 \uicontrol Components and select \uicontrol {Edit Component}
 
-\image web-navigation-page-components.png
+\image {web-navigation-page-components.png} {The web app pages in the Components view.}
 
 \section1 Organizing the pages
 
@@ -139,7 +139,7 @@ To organize the pages vertically:
 \list 1
   \li From \uicontrol Components, drag each of the pages to
   \e columnLayout in \uicontrol Navigator.
-  \image web-navigation-components-2.png
+  \image {web-navigation-components-2.png} {}
   \li Select \e columnLayout in Navigator and in \uicontrol Properties:
     \list
       \li Next to \uicontrol Size > \uicontrol W and \uicontrol Size >
@@ -189,7 +189,7 @@ main rectangle so that it adapts to the window size:
   \imageactioniconbinding
   next to \uicontrol Width and select \uicontrol {Set Binding}.
   \li Enter \c {Window.width}
-  \image web-navigation-size-binding.png
+  \image {web-navigation-size-binding.png} {Window.width set in Binding Editor.}
   \li Repeat step 2 and 3 for \uicontrol Height and set the value to
   \c {Window.height}.
 \endlist
@@ -226,7 +226,7 @@ vertically to the correct place:
   \li Select \imageactioniconbinding
   next to \uicontrol Width and select \uicontrol {Set Binding}.
   \li Enter \c {parent.width}.
-  \image web-navigation-size-binding-2.png
+  \image {web-navigation-size-binding-2.png} {parent.width set in Binding Editor.}
   \li In \uicontrol Navigator:
     \list 1
       \li Select \e Button and on the \uicontrol Button tab in \uicontrol Properties,

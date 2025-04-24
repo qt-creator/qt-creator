@@ -15,14 +15,14 @@ class PixmapChangedCommand
 
 public:
     PixmapChangedCommand();
-    explicit PixmapChangedCommand(const QVector<ImageContainer> &imageVector);
+    explicit PixmapChangedCommand(const QList<ImageContainer> &imageVector);
 
-    QVector<ImageContainer> images() const;
+    QList<ImageContainer> images() const;
 
     void sort();
 
 private:
-    QVector<ImageContainer> m_imageVector;
+    QList<ImageContainer> m_imageVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const PixmapChangedCommand &command);

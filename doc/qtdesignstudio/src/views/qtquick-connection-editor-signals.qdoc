@@ -45,7 +45,7 @@
     put \b {logical conditions} on this \uicontrol Actions to control them
     according to your needs.
 
-    \image qmldesigner-connections-advanced.webp
+    \image {qmldesigner-connections-advanced.webp} {The Connections tab in the Connections view.}
 
     Initiate a new connection for a component:
 
@@ -57,7 +57,7 @@
             (\uicontrol Add) button to add a connection.
     \endlist
 
-    \image qmldesigner-connections-editor.webp
+    \image {qmldesigner-connections-editor.webp} {The Add Connection dialog.}
 
     Connect component \uicontrol Signal to \uicontrol Action:
 
@@ -108,7 +108,7 @@
       \li Follow the steps described above in Connect component \uicontrol Signal to
           \uicontrol Action. For a list of \uicontrol Actions and their properties, see
           \l {Action Properties}.
-          \image qmldesigner-connections-ConditionalAction-Autometic.webp
+          \image {qmldesigner-connections-ConditionalAction-Autometic.webp} {The Add Connection dialog with a JavaScript expression.}
       \li Open the \uicontrol {Manual Code Edit} window from the
           \uicontrol {Connections} view and write JavaScript expressions with components
           and logical expressions manually.
@@ -118,7 +118,7 @@
             level \e {if-else} expression. For nested level \e {if-else} expressions,
             use the \uicontrol {Manual Code Edit}.
 
-        \image qmldesigner-connections-ConditionalAction-Manual.webp
+        \image {qmldesigner-connections-ConditionalAction-Manual.webp} {A JavaScript code snippet in the Manual Code Edit dialog.}
     \endlist
 
     \section2 Action properties

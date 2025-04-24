@@ -177,10 +177,8 @@ bool isType(const TypeName &first, const TypeName &second, const Tuple &...types
 bool compareTypes(const NodeMetaInfo &sourceType, const NodeMetaInfo &targetType)
 {
 #ifdef QDS_USE_PROJECTSTORAGE
-    return targetType.isVariant() || sourceType.isVariant() || targetType == sourceType
-           || (targetType.isNumber() && sourceType.isNumber())
-           || (targetType.isColor() && sourceType.isColor())
-           || (targetType.isString() && sourceType.isString());
+    return targetType.isVariant() || sourceType.isVariant()
+           || (targetType.isNumber() && sourceType.isNumber()) || sourceType.isBasedOn(targetType);
 #else
     const TypeName source = sourceType.simplifiedTypeName();
     const TypeName target = targetType.simplifiedTypeName();
@@ -207,8 +205,9 @@ void BindingEditor::prepareBindings()
 
     for (const auto &objnode : allNodes) {
         BindingEditorDialog::BindingOption binding;
-        for (const auto &property : objnode.metaInfo().properties()) {
-            const auto &propertyType = property.propertyType();
+        for (const auto &property :
+             MetaInfoUtils::addInflatedValueAndReadOnlyProperties(objnode.metaInfo().properties())) {
+            const auto &propertyType = property.property.propertyType();
 
             if (compareTypes(m_backendValueType, propertyType)) {
                 binding.properties.append(QString::fromUtf8(property.name()));
@@ -260,8 +259,12 @@ void BindingEditor::prepareBindings()
             }
 
             if (!binding.properties.isEmpty()) {
-                binding.item = metaInfo.displayName();
-                bindings.append(binding);
+                for (auto &exportedType :
+                     metaInfo.exportedTypeNamesForSourceId(model->fileUrlSourceId())) {
+                    binding.item = exportedType.name.toQString();
+                    bindings.append(binding);
+                    break;
+                }
             }
         }
     }

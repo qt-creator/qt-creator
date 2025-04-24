@@ -9,7 +9,7 @@ namespace QmlDesigner {
 
 DebugOutputCommand::DebugOutputCommand() = default;
 
-DebugOutputCommand::DebugOutputCommand(const QString &text, DebugOutputCommand::Type type, const QVector<qint32> &instanceIds)
+DebugOutputCommand::DebugOutputCommand(const QString &text, DebugOutputCommand::Type type, const QList<qint32> &instanceIds)
     : m_instanceIds(instanceIds)
     , m_text(text)
     , m_type(type)
@@ -26,7 +26,7 @@ QString DebugOutputCommand::text() const
     return m_text;
 }
 
-QVector<qint32> DebugOutputCommand::instanceIds() const
+QList<qint32> DebugOutputCommand::instanceIds() const
 {
     return m_instanceIds;
 }

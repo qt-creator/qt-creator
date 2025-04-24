@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
+
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 #include <QDataStream>
 
 namespace QmlDesigner {
@@ -15,14 +16,14 @@ class ComponentCompletedCommand
 
 public:
     ComponentCompletedCommand();
-    explicit ComponentCompletedCommand(const QVector<qint32> &container);
+    explicit ComponentCompletedCommand(const QList<qint32> &container);
 
-    QVector<qint32> instances() const;
+    QList<qint32> instances() const;
 
     void sort();
 
 private:
-    QVector<qint32> m_instanceVector;
+    QList<qint32> m_instanceVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const ComponentCompletedCommand &command);

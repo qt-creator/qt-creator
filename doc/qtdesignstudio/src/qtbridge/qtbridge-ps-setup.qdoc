@@ -81,7 +81,7 @@
             enter a password in the \uicontrol Password field.
         \li To test that the connection is working properly, start \QBPS and
             select the settings icon in the top right corner.
-            \image qt-bridge-settings.png
+            \image {qt-bridge-settings.png} {The Qt Bridge for Photoshop settings window in Adobe Photoshop.}
         \li In the \uicontrol Password field, enter the password you entered in
             Adobe Photoshop and select \uicontrol {Connect}.
         \li In the \uicontrol {Export Path} group, select the folder button

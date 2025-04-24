@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
 #include "reparentcontainer.h"
 
@@ -17,12 +17,12 @@ class ReparentInstancesCommand
 
 public:
     ReparentInstancesCommand();
-    explicit ReparentInstancesCommand(const QVector<ReparentContainer> &container);
+    explicit ReparentInstancesCommand(const QList<ReparentContainer> &container);
 
-    const QVector<ReparentContainer> reparentInstances() const;
+    const QList<ReparentContainer> reparentInstances() const;
 
 private:
-    QVector<ReparentContainer> m_reparentInstanceVector;
+    QList<ReparentContainer> m_reparentInstanceVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const ReparentInstancesCommand &command);

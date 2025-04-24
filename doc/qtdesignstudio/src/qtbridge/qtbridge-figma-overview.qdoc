@@ -13,7 +13,7 @@
     You can use \QBF to export designs from Figma to a \e {.qtbridge}
     archive that you can \l{Importing 2D Assets}{import} to projects in \QDS.
 
-    \image studio-figma-export.png
+    \image {studio-figma-export.png} {Qt Bridge for Figma open in Figma.}
 
     The following topics describe setting up and using \QBF:
 

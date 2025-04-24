@@ -72,7 +72,7 @@ static QString unicodeEscape(const QString &stringValue)
     return stringValue;
 }
 
-QmlTextGenerator::QmlTextGenerator(const PropertyNameList &propertyOrder,
+QmlTextGenerator::QmlTextGenerator(Utils::span<const PropertyNameView> propertyOrder,
                                    const TextEditor::TabSettings &tabSettings,
                                    const int startIndentDepth)
     : m_propertyOrder(propertyOrder)
@@ -220,7 +220,7 @@ QString QmlTextGenerator::propertiesToQml(const ModelNode &node, int indentDepth
     PropertyNameList nodePropertyNames = node.propertyNames();
     bool addToTop = true;
 
-    for (const PropertyName &propertyName : std::as_const(m_propertyOrder)) {
+    for (const auto propertyName : m_propertyOrder) {
         if (propertyName == "id") {
             // the model handles the id property special, so:
             if (!node.id().isEmpty()) {

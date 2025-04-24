@@ -163,7 +163,9 @@ ServerNodeInstance Qt5RenderNodeInstanceServer::findNodeInstanceForItem(QQuickIt
     if (item) {
         if (hasInstanceForObject(item))
             return instanceForObject(item);
-        else if (item->parentItem())
+        else if (item == rootNodeInstance().rootQuickItem()->parentItem())
+            return rootNodeInstance();
+        else
             return findNodeInstanceForItem(item->parentItem());
     }
 
@@ -205,7 +207,7 @@ void Qt5RenderNodeInstanceServer::completeComponent(const CompleteComponentComma
 {
     Qt5NodeInstanceServer::completeComponent(command);
 
-    const QVector<qint32> ids = command.instances();
+    const QList<qint32> ids = command.instances();
     for (qint32 instanceId : ids) {
         if (hasInstanceForId(instanceId)) {
             ServerNodeInstance instance = instanceForId(instanceId);
@@ -225,7 +227,7 @@ void Qt5RenderNodeInstanceServer::changePropertyValues(const ChangeValuesCommand
 {
     Qt5NodeInstanceServer::changePropertyValues(command);
 
-    const QVector<PropertyValueContainer> values = command.valueChanges();
+    const QList<PropertyValueContainer> values = command.valueChanges();
     for (const PropertyValueContainer &container : values) {
         // In case an effect item visibility changed to false, make sure all children are rendered
         // again as they might not have valid pixmaps yet
@@ -253,7 +255,7 @@ void Qt5RenderNodeInstanceServer::changePropertyBindings(const ChangeBindingsCom
 {
     Qt5NodeInstanceServer::changePropertyBindings(command);
 
-    const QVector<PropertyBindingContainer> changes = command.bindingChanges;
+    const QList<PropertyBindingContainer> changes = command.bindingChanges;
     for (const PropertyBindingContainer &container : changes) {
         if (container.isDynamic() && hasInstanceForId(container.instanceId())) {
             // Changes to dynamic properties are not always noticed by normal signal spy mechanism
@@ -267,7 +269,7 @@ void Qt5RenderNodeInstanceServer::reparentInstances(const ReparentInstancesComma
 {
     ServerNodeInstance effectNode;
     ServerNodeInstance oldParent;
-    const QVector<ReparentContainer> containers = command.reparentInstances();
+    const QList<ReparentContainer> containers = command.reparentInstances();
     for (const ReparentContainer &container : containers) {
         if (hasInstanceForId(container.instanceId())) {
             ServerNodeInstance instance = instanceForId(container.instanceId());
@@ -302,7 +304,7 @@ void Qt5RenderNodeInstanceServer::reparentInstances(const ReparentInstancesComma
 void Qt5RenderNodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
 {
     ServerNodeInstance oldParent;
-    const QVector<qint32> ids = command.instanceIds();
+    const QList<qint32> ids = command.instanceIds();
     for (qint32 id : ids) {
         if (hasInstanceForId(id)) {
             ServerNodeInstance instance = instanceForId(id);

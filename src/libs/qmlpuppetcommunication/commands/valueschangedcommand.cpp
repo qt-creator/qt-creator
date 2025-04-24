@@ -24,13 +24,13 @@ ValuesChangedCommand::ValuesChangedCommand()
 {
 }
 
-ValuesChangedCommand::ValuesChangedCommand(const QVector<PropertyValueContainer> &valueChangeVector)
+ValuesChangedCommand::ValuesChangedCommand(const QList<PropertyValueContainer> &valueChangeVector)
     : m_valueChangeVector (valueChangeVector),
       m_keyNumber(0)
 {
 }
 
-const QVector<PropertyValueContainer> ValuesChangedCommand::valueChanges() const
+const QList<PropertyValueContainer> ValuesChangedCommand::valueChanges() const
 {
     return m_valueChangeVector;
 }
@@ -40,7 +40,7 @@ quint32 ValuesChangedCommand::keyNumber() const
     return m_keyNumber;
 }
 
-void ValuesChangedCommand::removeSharedMemorys(const QVector<qint32> &keyNumberVector)
+void ValuesChangedCommand::removeSharedMemorys(const QList<qint32> &keyNumberVector)
 {
     for (qint32 keyNumber : keyNumberVector) {
         SharedMemory *sharedMemory = globalSharedMemoryContainer()->take(keyNumber);
@@ -75,7 +75,7 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
 {
     static const bool dontUseSharedMemory = qEnvironmentVariableIsSet("DESIGNER_DONT_USE_SHARED_MEMORY");
 
-    QVector<PropertyValueContainer> propertyValueContainer = command.valueChanges();
+    QList<PropertyValueContainer> propertyValueContainer = command.valueChanges();
 
     if (command.transactionOption != ValuesChangedCommand::TransactionOption::None) {
         PropertyValueContainer optionContainer(command.transactionOption);
@@ -114,7 +114,7 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
     return out;
 }
 
-void readSharedMemory(qint32 key, QVector<PropertyValueContainer> *valueChangeVector)
+void readSharedMemory(qint32 key, QList<PropertyValueContainer> *valueChangeVector)
 {
     SharedMemory sharedMemory(QString(valueKeyTemplateString).arg(key));
     bool canAttach = sharedMemory.attach(QSharedMemory::ReadOnly);
@@ -135,7 +135,7 @@ QDataStream &operator>>(QDataStream &in, ValuesChangedCommand &command)
 {
     in >> command.m_keyNumber;
 
-    QVector<PropertyValueContainer> valueChangeVector;
+    QList<PropertyValueContainer> valueChangeVector;
 
     if (command.keyNumber() > 0)
         readSharedMemory(command.keyNumber(), &valueChangeVector);

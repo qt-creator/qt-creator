@@ -67,10 +67,10 @@
       \li From \uicontrol {Components}, drag a \uicontrol Loader3D component to
       \e scene in the \uicontrol Navigator or \uicontrol{3D} view.
       \li In \uicontrol {Navigator}, select \e{loader3D}.
-      \image loader3d-navigator.png
+      \image {loader3d-navigator.png} {The loader3D component in the Navigator view.}
       \li In \uicontrol {Properties}, select \uicontrol{Source} and select a
       QML file.
-      \image loader3d-select-source.png
+      \image {loader3d-select-source.png} {Setting the Loader3D Source setting in the Properties view.}
     \endlist
 
     \section1 Setting Loader3D to load a Component3D component
@@ -85,12 +85,12 @@
       \li In \uicontrol {Navigator}, select the filter icon and clear
       \uicontrol {Show Only Visible Components}. This makes the \uicontrol Component3D
       component visible in \uicontrol Navigator.
-      \image navigator-show-all-loader.png
+      \image {navigator-show-all-loader.png} {Toggling component visibility in the Navigator view.}
       \li In \uicontrol {Navigator}, select \e{loader3D}.
       \li In \uicontrol {Properties}, select \uicontrol{Source Component}
       and select \e {component3D}.
 
-      \image loader3d-select-source-component.png
+      \image {loader3d-select-source-component.png} {Selecting Source Component in the Properties view.}
     \endlist
 
     \section1 Setting the Visibility of loading components
@@ -101,7 +101,7 @@
         \list 1
             \li In \uicontrol Properties > \uicontrol Loader3D, select the
                 \uicontrol Asynchronous check box.
-                \image loader3d-visibility.png
+                \image {loader3d-visibility.png} {The Asynchronous setting turned on in the Properties view.}
             \li In \uicontrol {Visibility},
                 select \imageactionicon
                 to open the actions menu, and then select \uicontrol {Set Binding}.

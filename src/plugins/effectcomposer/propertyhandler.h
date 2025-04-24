@@ -3,13 +3,16 @@
 
 #pragma once
 
-#include <QQmlPropertyMap>
+#include <QtCore/qglobal.h>
+
+QT_BEGIN_NAMESPACE
+class QQmlPropertyMap;
+QT_END_NAMESPACE
 
 namespace EffectComposer {
 
 // This will be used for binding dynamic properties
 // changes between C++ and QML.
-extern QQmlPropertyMap g_propertyData;
-
+QQmlPropertyMap *g_propertyData();
 }
 

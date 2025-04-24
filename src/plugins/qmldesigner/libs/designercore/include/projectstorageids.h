@@ -11,8 +11,8 @@ enum class ProjectStorageIdType {
     Type,
     PropertyType,
     PropertyDeclaration,
-    SourceName,
-    SourceContext,
+    FileName,
+    DirectoryPath,
     StorageCacheIndex,
     FunctionDeclaration,
     SignalDeclaration,
@@ -45,6 +45,8 @@ using EnumerationDeclarationIds = std::vector<EnumerationDeclarationId>;
 using ModuleId = Sqlite::BasicId<ProjectStorageIdType::Module, int>;
 using ModuleIds = std::vector<ModuleId>;
 using ModuleIdSpan = Utils::span<ModuleId>;
+template<std::size_t size>
+using SmallModuleIds = QVarLengthArray<ModuleId, size>;
 
 using ProjectPartId = Sqlite::BasicId<ProjectStorageIdType::ProjectPartId>;
 using ProjectPartIds = std::vector<ProjectPartId>;

@@ -16,6 +16,7 @@ public:
     bool isPlugin(const NodePtr &node) const override;
     void transformNode(NodePtr &node) const override;
 
+    int identifier() const override;
     void writeRootCMakeFile(const NodePtr &node) const override;
     void writeModuleCMakeFile(const NodePtr &node, const NodePtr &root) const override;
     void writeSourceFiles(const NodePtr &node, const NodePtr &root) const override;

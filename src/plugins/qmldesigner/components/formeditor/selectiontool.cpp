@@ -223,9 +223,12 @@ void SelectionTool::itemsAboutToRemoved(const QList<FormEditorItem*> &itemList)
 {
     const QList<FormEditorItem *> current = items();
 
-    QList<FormEditorItem *> remaining = Utils::filtered(current, [&itemList](FormEditorItem *item) {
-        return !itemList.contains(item);
-    });
+    const auto allItems = scene()->items();
+    QList<FormEditorItem *> remaining = Utils::filtered(current,
+                                                        [&itemList, &allItems](FormEditorItem *item) {
+                                                            return !itemList.contains(item)
+                                                                   && allItems.contains(item);
+                                                        });
 
     if (!remaining.isEmpty()) {
         m_selectionIndicator.setItems(remaining);

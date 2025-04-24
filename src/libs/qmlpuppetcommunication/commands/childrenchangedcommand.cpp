@@ -14,14 +14,14 @@ ChildrenChangedCommand::ChildrenChangedCommand()
 {
 }
 
-ChildrenChangedCommand::ChildrenChangedCommand(qint32 parentInstanceId, const QVector<qint32> &children, const QVector<InformationContainer> &informationVector)
+ChildrenChangedCommand::ChildrenChangedCommand(qint32 parentInstanceId, const QList<qint32> &children, const QList<InformationContainer> &informationVector)
     : m_parentInstanceId(parentInstanceId),
       m_childrenVector(children),
       m_informationVector(informationVector)
 {
 }
 
-QVector<qint32> ChildrenChangedCommand::childrenInstances() const
+QList<qint32> ChildrenChangedCommand::childrenInstances() const
 {
     return m_childrenVector;
 }
@@ -31,7 +31,7 @@ qint32 ChildrenChangedCommand::parentInstanceId() const
     return m_parentInstanceId;
 }
 
-QVector<InformationContainer> ChildrenChangedCommand::informations() const
+QList<InformationContainer> ChildrenChangedCommand::informations() const
 {
     return m_informationVector;
 }

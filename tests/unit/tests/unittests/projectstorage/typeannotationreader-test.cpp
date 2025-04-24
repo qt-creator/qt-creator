@@ -53,7 +53,7 @@ protected:
     QmlDesigner::ProjectStorage &storage = staticData->storage;
     QmlDesigner::Storage::TypeAnnotationReader reader{storage};
     QmlDesigner::SourceId sourceId = QmlDesigner::SourceId::create(33);
-    QmlDesigner::SourceContextId directoryId = QmlDesigner::SourceContextId::create(77);
+    QmlDesigner::DirectoryPathId directoryId = QmlDesigner::DirectoryPathId::create(77);
     QmlDesigner::Storage::TypeTraits traits;
 };
 

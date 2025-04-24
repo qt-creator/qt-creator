@@ -124,6 +124,8 @@ public:
 
     void clearPossibleImportKeys();
 
+    void setRemoveImports(bool removeImports);
+
 private:
     void setupCustomParserNode(const ModelNode &node);
     void setupComponent(const ModelNode &node);
@@ -160,6 +162,7 @@ private:
     Imports m_possibleModules;
     int m_previousPossibleModulesSize = -1;
     bool m_hasVersionlessImport = false;
+    bool m_removeImports = true;
 };
 
 class DifferenceHandler

@@ -33,6 +33,9 @@ public:
     // AbstractView
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
+    void exportedTypeNamesChanged(const ExportedTypeNames &added,
+                                  const ExportedTypeNames &removed) override;
+
     void setResourcePath(const QString &resourcePath);
 
 private:

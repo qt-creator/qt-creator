@@ -12,9 +12,7 @@
 #include <rewritingexception.h>
 
 #include <modelutils.h>
-#ifndef QDS_USE_PROJECTSTORAGE
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#endif
 #include <utils/async.h>
 
 #include <QJsonDocument>
@@ -54,9 +52,9 @@ QString BundleImporter::importComponent(const QString &bundleDir,
     if (!bundleImportPath.exists() && !bundleImportPath.createDir())
         return QStringLiteral("Failed to create bundle import folder: '%1'").arg(bundleImportPath.toUrlishString());
 
+    bool doReset = false;
 #ifndef QDS_USE_PROJECTSTORAGE
     bool doScan = false;
-    bool doReset = false;
 #endif
     FilePath qmldirPath = bundleImportPath.pathAppended("qmldir");
     QString qmldirContent = QString::fromUtf8(qmldirPath.fileContents().value_or(QByteArray()));
@@ -81,9 +79,7 @@ QString BundleImporter::importComponent(const QString &bundleDir,
         qmldirContent.append(qmlFile);
         qmldirContent.append('\n');
         qmldirPath.writeFileContents(qmldirContent.toUtf8());
-#ifndef QDS_USE_PROJECTSTORAGE
         doReset = true;
-#endif
     }
 
     QStringList allFiles;
@@ -129,6 +125,7 @@ QString BundleImporter::importComponent(const QString &bundleDir,
     Import import = Import::createLibraryImport(module, "1.0");
 #ifdef QDS_USE_PROJECTSTORAGE
     model->changeImports({import}, {});
+    m_pendingFullReset = doReset;
 #else
     if (doScan)
         data.pathToScan = bundleImportPath;
@@ -163,6 +160,7 @@ void BundleImporter::handleImportTimer()
     auto handleFailure = [this] {
         m_importTimer.stop();
         m_importTimerCount = 0;
+        m_pendingFullReset = false;
 
         // Emit dummy finished signals for all pending types
         const QList<TypeName> pendingTypes = m_pendingImports.keys();
@@ -196,6 +194,17 @@ void BundleImporter::handleImportTimer()
             else
                 emit unimportFinished(metaInfo, m_bundleId);
         }
+    }
+
+    if (keys.size() > 0)
+        return; // Do the code model reset/cleanup on next timer tick
+
+    if (m_pendingFullReset) {
+        m_pendingFullReset = false;
+        // Force code model reset to notice changes to existing module
+        auto modelManager = QmlJS::ModelManagerInterface::instance();
+        if (modelManager)
+            modelManager->resetCodeModel();
     }
 
     if (m_pendingImports.isEmpty()) {

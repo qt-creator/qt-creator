@@ -678,6 +678,11 @@ void RewriterView::setIsDocumentRewriterView(bool b)
 }
 #endif
 
+void RewriterView::setRemoveImports(bool removeImports)
+{
+    m_textToModelMerger->setRemoveImports(removeImports);
+}
+
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
     return m_positionStorage.get();

@@ -12,7 +12,7 @@ Item {
     visible: true
 
     property Node activeScene: null
-    property int activeSplit: 0
+    property int activeViewport: 0
     property var editViews: [null, null, null, null]
     property var usePerspective: [true, false, false, false]
     property var overlayViews: [overlayView0, overlayView1, overlayView2, overlayView3]
@@ -21,8 +21,8 @@ Item {
     property var materialOverrides:
         [DebugSettings.None, DebugSettings.None, DebugSettings.None, DebugSettings.None]
     property var showWireframes: [false, false, false, false]
-    property var activeEditView: editViews[activeSplit]
-    property var activeOverlayView: overlayViews[activeSplit]
+    property var activeEditView: editViews[activeViewport]
+    property var activeOverlayView: overlayViews[activeViewport]
     property string sceneId
 
     property bool showEditLight: false
@@ -37,11 +37,55 @@ Item {
     property color backgroundGradientColorStart: "#222222"
     property color backgroundGradientColorEnd: "#999999"
     property color gridColor: "#cccccc"
+    property color viewportBorderColor: "#aaaaaaaa"
     property bool syncEnvBackground: true
-    property bool splitView: false
+    property string activePreset: "Single"
     property bool flyMode: false
     property bool showCameraSpeed: false
     property string cameraViewMode
+
+    // The presets used to customize the display of the viewports
+    property var viewportPresets: {
+        "Single": {
+            numViewports: 1,
+            viewRects: [
+                { x: 0.0, y: 0.0, width: 1.0, height: 1.0 }
+            ]
+        },
+        "Quad": {
+            numViewports: 4,
+            viewRects: [
+                { x: 0.0, y: 0.0, width: 0.5, height: 0.5 },
+                { x: 0.5, y: 0.0, width: 0.5, height: 0.5 },
+                { x: 0.0, y: 0.5, width: 0.5, height: 0.5 },
+                { x: 0.5, y: 0.5, width: 0.5, height: 0.5 }
+            ]
+        },
+        "3Left1Right": {
+            numViewports: 4,
+            viewRects: [
+                { x: 0.0,  y: 0.0,  width: 0.25, height: 0.33 },
+                { x: 0.0,  y: 0.33, width: 0.25, height: 0.34 },
+                { x: 0.0,  y: 0.67, width: 0.25, height: 0.33 },
+                { x: 0.25, y: 0.0,  width: 0.75, height: 1.0  }
+            ]
+        },
+        "2Horizontal": {
+            numViewports: 2,
+            viewRects: [
+                { x: 0.0, y: 0.0,  width: 1.0, height: 0.5 },
+                { x: 0.0, y: 0.5,  width: 1.0, height: 0.5 }
+            ]
+        },
+        "2Vertical": {
+            numViewports: 2,
+            viewRects: [
+                { x: 0.0, y: 0.0,  width: 0.5, height: 1.0 },
+                { x: 0.5, y: 0.0,  width: 0.5, height: 1.0 }
+            ]
+        }
+        //TODO: reset of presets
+    };
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -64,7 +108,7 @@ Item {
     signal commitObjectProperty(var objects, var propNames)
     signal changeObjectProperty(var objects, var propNames)
     signal notifyActiveSceneChange()
-    signal notifyActiveSplitChange(int index)
+    signal notifyActiveViewportChange(int index)
 
     onUsePerspectiveChanged:      _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
     onShowEditLightChanged:       _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
@@ -81,14 +125,14 @@ Item {
     onTransformModeChanged:       _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
     onMaterialOverridesChanged:   _generalHelper.storeToolState(sceneId, "matOverride", materialOverrides);
     onShowWireframesChanged:      _generalHelper.storeToolState(sceneId, "showWireframe", showWireframes);
-    onSplitViewChanged: {
-        _generalHelper.storeToolState(sceneId, "splitView", splitView);
+    onActivePresetChanged: {
+        _generalHelper.storeToolState(sceneId, "activePreset", activePreset);
         _generalHelper.requestOverlayUpdate();
     }
-    onActiveSplitChanged: {
-        _generalHelper.storeToolState(sceneId, "activeSplit", activeSplit);
-        cameraControls[activeSplit].forceActiveFocus();
-        notifyActiveSplitChange(activeSplit);
+    onActiveViewportChanged: {
+        _generalHelper.storeToolState(sceneId, "activeViewport", activeViewport);
+        cameraControls[activeViewport].forceActiveFocus();
+        notifyActiveViewportChange(activeViewport);
     }
 
     onActiveSceneChanged: updateActiveScene()
@@ -141,7 +185,7 @@ Item {
 
             selectionBoxCount = 0;
             editViewsChanged();
-            cameraControls[activeSplit].forceActiveFocus();
+            cameraControls[activeViewport].forceActiveFocus();
             return true;
         }
         return false;
@@ -234,7 +278,7 @@ Item {
             } else if (selectedNodes.length > 0 && selectionBoxCount > 0) {
                 boxModels.push(activeEditView.selectionBoxes[0].model);
             }
-            cameraControls[activeSplit].focusObject(
+            cameraControls[activeViewport].focusObject(
                         boxModels, activeEditView.camera.eulerRotation, true, false);
         }
     }
@@ -242,7 +286,7 @@ Item {
     function alignCamerasToView(cameraNodes)
     {
         if (activeEditView) {
-            cameraControls[activeSplit].alignCameras(cameraNodes);
+            cameraControls[activeViewport].alignCameras(cameraNodes);
             var propertyNames = ["position", "eulerRotation"];
             viewRoot.changeObjectProperty(cameraNodes, propertyNames);
             viewRoot.commitObjectProperty(cameraNodes, propertyNames);
@@ -252,7 +296,7 @@ Item {
     function alignViewToCamera(cameraNodes)
     {
         if (activeEditView)
-            cameraControls[activeSplit].alignView(cameraNodes);
+            cameraControls[activeViewport].alignView(cameraNodes);
     }
 
     function updateBackgroundColors(colors)
@@ -388,15 +432,16 @@ Item {
             viewRoot.showCameraSpeed = false;
         }
 
-        if ("splitView" in toolStates)
-            splitView = toolStates.splitView;
+        if ("activePreset" in toolStates)
+            activePreset = toolStates.activePreset;
         else if (resetToDefault)
-            splitView = false;
+            activePreset = "Quad";
+        applyViewportPreset(activePreset)
 
-        if ("activeSplit" in toolStates)
-            activeSplit = toolStates.activeSplit;
+        if ("activeViewport" in toolStates)
+            activeViewport = toolStates.activeViewport;
         else if (resetToDefault)
-            activeSplit = 0;
+            activeViewport = 0;
 
         if ("showWireframe" in toolStates)
             showWireframes = toolStates.showWireframe;
@@ -424,8 +469,8 @@ Item {
         _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
         _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
         _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
-        _generalHelper.storeToolState(sceneId, "splitView", splitView)
-        _generalHelper.storeToolState(sceneId, "activeSplit", activeSplit)
+        _generalHelper.storeToolState(sceneId, "activePreset", activePreset)
+        _generalHelper.storeToolState(sceneId, "activeViewport", activeViewport)
         _generalHelper.storeToolState(sceneId, "showWireframe", showWireframes)
         _generalHelper.storeToolState(sceneId, "matOverride", materialOverrides)
 
@@ -527,6 +572,7 @@ Item {
         selectionChanged(newSelection);
     }
 
+    //TODO: only update the active viewport views
     function addLightGizmo(scene, obj)
     {
         for (var i = 0; i < 4; ++i)
@@ -617,64 +663,95 @@ Item {
             overlayViews[i].updateReflectionProbeGizmoScene(scene, obj);
     }
 
-    function resolveSplitPoint(x, y)
+    function resolveViewportPoint(x, y)
     {
-        if (!splitView || activeSplit === 0)
+        let rect = viewRects[activeViewport];
+        // Check invisible or out or range, then fallback to original origin
+        if (!rect || !rect.visible)
             return Qt.point(x, y);
 
-        if (activeSplit === 1)
-            return Qt.point(x - viewContainer.width / 2, y);
-        else if (activeSplit === 2)
-            return Qt.point(x, y - viewContainer.height / 2);
-        else
-            return Qt.point(x - viewContainer.width / 2, y - viewContainer.height / 2);
+        // Transform topleft of the active viewport to be the origin
+        return Qt.point(x - rect.x, y - rect.y);
     }
 
-    function updateActiveSplit(x, y)
+    function updateActiveViewport(x, y)
     {
-        if (splitView) {
-            if (x <= viewContainer.width / 2) {
-                if (y <= viewContainer.height / 2)
-                    activeSplit = 0;
-                else
-                    activeSplit = 2;
-             } else {
-                if (y <= viewContainer.height / 2)
-                    activeSplit = 1;
-                else
-                    activeSplit = 3;
+        for (let i = 0; i < 4; ++i) {
+            let rect = viewRects[i];
+            if (!rect.visible)
+                continue;
+
+            if (x >= rect.x && x <= rect.x + rect.width
+             && y >= rect.y && y <= rect.y + rect.height) {
+                activeViewport = i;
+                return;
             }
         }
+
+        // TODO: if click outside all visible viewRects, do nothing
+        // or reset to e.g. activeVireport = -1 or 0
     }
 
     function gizmoAt(x, y)
     {
-        updateActiveSplit(x, y);
-        let splitPoint = resolveSplitPoint(x, y);
+        updateActiveViewport(x, y);
+        let viewportPoint = resolveViewportPoint(x, y);
 
-        return activeOverlayView.gizmoAt(splitPoint.x, splitPoint.y);
+        return activeOverlayView.gizmoAt(viewportPoint.x, viewportPoint.y);
     }
 
     function rotateEditCamera(angles)
     {
-        cameraControls[activeSplit].rotateCamera(angles);
+        cameraControls[activeViewport].rotateCamera(angles);
     }
 
     function moveEditCamera(amounts)
     {
-        cameraControls[activeSplit].moveCamera(amounts);
+        cameraControls[activeViewport].moveCamera(amounts);
+    }
+
+    // Update viewports based on selected preset
+    function applyViewportPreset(presetName)
+    {
+        let preset = viewportPresets[presetName];
+        if (!preset)
+            return;
+
+        let count = preset.numViewports;
+
+        for (let i = 0; i < 4; ++i) {
+            if (i < count) {
+                viewRects[i].visible = true;
+                viewRects[i].x = preset.viewRects[i].x * viewContainer.width;
+                viewRects[i].y = preset.viewRects[i].y * viewContainer.height;
+                viewRects[i].width = preset.viewRects[i].width * viewContainer.width;
+                viewRects[i].height = preset.viewRects[i].height * viewContainer.height;
+            } else {
+                viewRects[i].visible = false;
+            }
+        }
+
+        //TODO: Do we need this here?
+        cameraView.updateSnapping();
     }
 
     Component.onCompleted: {
         createEditViews();
         selectObjects([]);
+        applyViewportPreset(activePreset)
         // Work-around the fact that the projection matrix for the camera is not calculated until
         // the first frame is rendered, so any initial calls to mapFrom3DScene() will fail.
         _generalHelper.requestOverlayUpdate();
     }
 
-    onWidthChanged: _generalHelper.requestOverlayUpdate()
-    onHeightChanged: _generalHelper.requestOverlayUpdate()
+    onWidthChanged: {
+        applyViewportPreset(activePreset)
+        _generalHelper.requestOverlayUpdate()
+    }
+    onHeightChanged: {
+        applyViewportPreset(activePreset)
+        _generalHelper.requestOverlayUpdate()
+    }
 
     Connections {
         target: _generalHelper
@@ -715,9 +792,9 @@ Item {
     }
 
     // Shared nodes of the overlay, set as importScene on all overlay views.
-    // Content here can be used as is on all splits.
-    // Nodes that utilize autoscaling or otherwise need to have different appearance on each split
-    // need to have separate copy on each split.
+    // Content here can be used as is on all viewports.
+    // Nodes that utilize autoscaling or otherwise need to have different appearance on each viewport
+    // need to have separate copy on each viewport.
     Node {
         id: overlayScene
 
@@ -743,12 +820,9 @@ Item {
 
             Rectangle {
                 id: viewRect0
-                width: viewRoot.splitView ? parent.width / 2 : parent.width
-                height: viewRoot.splitView ? parent.height / 2 : parent.height
-                x: 0
-                y: 0
-                visible: viewRoot.splitView || viewRoot.activeSplit == 0
                 gradient: bgGradient
+                border.width: 1
+                border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView0
                     editView: viewRoot.editViews[0]
@@ -765,18 +839,15 @@ Item {
                 EditCameraController {
                     id: cameraControl0
                     viewRoot: viewRoot
-                    splitId: 0
+                    viewportId: 0
                 }
             }
 
             Rectangle {
                 id: viewRect1
-                width: viewRoot.splitView ? parent.width / 2 : parent.width
-                height: viewRoot.splitView ? parent.height / 2 : parent.height
-                x: viewRoot.splitView ? parent.width / 2 : 0
-                y: 0
-                visible: viewRoot.splitView || viewRoot.activeSplit == 1
                 gradient: bgGradient
+                border.width: 1
+                border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView1
                     editView: viewRoot.editViews[1]
@@ -793,18 +864,15 @@ Item {
                 EditCameraController {
                     id: cameraControl1
                     viewRoot: viewRoot
-                    splitId: 1
+                    viewportId: 1
                 }
             }
 
             Rectangle {
                 id: viewRect2
-                width: viewRoot.splitView ? parent.width / 2 : parent.width
-                height: viewRoot.splitView ? parent.height / 2 : parent.height
-                x: 0
-                y: viewRoot.splitView ? parent.height / 2 : 0
-                visible: viewRoot.splitView || viewRoot.activeSplit == 2
                 gradient: bgGradient
+                border.width: 1
+                border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView2
                     editView: viewRoot.editViews[2]
@@ -821,18 +889,15 @@ Item {
                 EditCameraController {
                     id: cameraControl2
                     viewRoot: viewRoot
-                    splitId: 2
+                    viewportId: 2
                 }
             }
 
             Rectangle {
                 id: viewRect3
-                width: viewRoot.splitView ? parent.width / 2 : parent.width
-                height: viewRoot.splitView ? parent.height / 2 : parent.height
-                x: viewRoot.splitView ? parent.width / 2 : 0
-                y: viewRoot.splitView ? parent.height / 2 : 0
-                visible: viewRoot.splitView || viewRoot.activeSplit == 3
                 gradient: bgGradient
+                border.width: 1
+                border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView3
                     editView: viewRoot.editViews[3]
@@ -849,44 +914,21 @@ Item {
                 EditCameraController {
                     id: cameraControl3
                     viewRoot: viewRoot
-                    splitId: 3
+                    viewportId: 3
                 }
             }
 
+            // Active viewport highlight
             Rectangle {
-                // Vertical border between splits
-                visible: viewRoot.splitView
-                x: parent.width / 2
-                y: 0
-                width: 1
-                height: parent.height
-                border.width: 1
-                border.color: "#aaaaaa"
-            }
-
-            Rectangle {
-                // Horizontal border between splits
-                visible: viewRoot.splitView
-                x: 0
-                y: parent.height / 2
-                height: 1
-                width: parent.width
-                border.width: 1
-                border.color: "#aaaaaa"
-            }
-
-            Rectangle {
-                // Active split highlight
-                visible: viewRoot.splitView
-                x: viewRects[viewRoot.activeSplit].x
-                y: viewRects[viewRoot.activeSplit].y
-                height: viewRects[viewRoot.activeSplit].height
-                        + (viewRoot.activeSplit === 0 || viewRoot.activeSplit === 1 ? 1 : 0)
-                width: viewRects[viewRoot.activeSplit].width
-                       + (viewRoot.activeSplit === 0 || viewRoot.activeSplit === 2 ? 1 : 0)
+                visible: activePreset !== "Single" && viewRects[viewRoot.activeViewport].visible
+                x: viewRects[viewRoot.activeViewport].x
+                y: viewRects[viewRoot.activeViewport].y
+                width: viewRects[viewRoot.activeViewport].width
+                height: viewRects[viewRoot.activeViewport].height
                 border.width: 2
                 border.color: "#57B9FC"
                 color: "transparent"
+                z: 1000 // Edge case to make sure selection rect drawn over everything
             }
 
             MouseArea {
@@ -903,20 +945,20 @@ Item {
                     if (viewRoot.flyMode)
                         return;
 
-                    viewRoot.updateActiveSplit(mouse.x, mouse.y);
+                    viewRoot.updateActiveViewport(mouse.x, mouse.y);
 
-                    let splitPoint = viewRoot.resolveSplitPoint(mouse.x, mouse.y);
+                    let viewportPoint = viewRoot.resolveViewportPoint(mouse.x, mouse.y);
 
                     if (viewRoot.activeEditView) {
                         // First pick overlay to check for hits there
                         var pickResult = _generalHelper.pickViewAt(activeOverlayView,
-                                                                   splitPoint.x, splitPoint.y);
+                                                                   viewportPoint.x, viewportPoint.y);
                         var resolvedResult = _generalHelper.resolvePick(pickResult.objectHit);
 
                         if (!resolvedResult) {
                             // No hits from overlay view, pick the main scene
                             pickResult = _generalHelper.pickViewAt(viewRoot.activeEditView,
-                                                                   splitPoint.x, splitPoint.y);
+                                                                   viewportPoint.x, viewportPoint.y);
                             resolvedResult = _generalHelper.resolvePick(pickResult.objectHit);
                         }
 
@@ -940,17 +982,17 @@ Item {
                 }
                 onPositionChanged: (mouse) => {
                     if (freeDraggerArea) {
-                        let splitPoint = viewRoot.resolveSplitPoint(mouse.x, mouse.y);
-                        let splitPress = viewRoot.resolveSplitPoint(pressPoint.x, pressPoint.y);
-                        if (initialMoveBlock && Math.abs(splitPress.x - splitPoint.x)
-                            + Math.abs(splitPress.y - splitPoint.y) > 10) {
+                        let viewportPoint = viewRoot.resolveViewportPoint(mouse.x, mouse.y);
+                        let viewportPress = viewRoot.resolveViewportPoint(pressPoint.x, pressPoint.y);
+                        if (initialMoveBlock && Math.abs(viewportPress.x - viewportPoint.x)
+                            + Math.abs(viewportPress.y - viewportPoint.y) > 10) {
                             // Don't force press event at actual press, as that puts the gizmo
                             // in free-dragging state, which is bad UX if drag is not actually done
-                            freeDraggerArea.forcePressEvent(splitPress.x, splitPress.y);
-                            freeDraggerArea.forceMoveEvent(splitPoint.x, splitPoint.y);
+                            freeDraggerArea.forcePressEvent(viewportPress.x, viewportPress.y);
+                            freeDraggerArea.forceMoveEvent(viewportPoint.x, viewportPoint.y);
                             initialMoveBlock = false;
                         } else {
-                            freeDraggerArea.forceMoveEvent(splitPoint.x, splitPoint.y);
+                            freeDraggerArea.forceMoveEvent(viewportPoint.x, viewportPoint.y);
                         }
                     }
                 }
@@ -959,11 +1001,11 @@ Item {
                 {
                     if (freeDraggerArea) {
                         if (initialMoveBlock) {
-                            let splitPress = viewRoot.resolveSplitPoint(pressPoint.x, pressPoint.y);
-                            freeDraggerArea.forceReleaseEvent(splitPress.x, splitPress.y);
+                            let viewportPress = viewRoot.resolveViewportPoint(pressPoint.x, pressPoint.y);
+                            freeDraggerArea.forceReleaseEvent(viewportPress.x, viewportPress.y);
                         } else {
-                            let splitPoint = viewRoot.resolveSplitPoint(mouse.x, mouse.y);
-                            freeDraggerArea.forceReleaseEvent(splitPoint.x, splitPoint.y);
+                            let viewportPoint = viewRoot.resolveViewportPoint(mouse.x, mouse.y);
+                            freeDraggerArea.forceReleaseEvent(viewportPoint.x, viewportPoint.y);
                         }
                         freeDraggerArea = null;
                     }
@@ -1107,19 +1149,17 @@ Item {
                 viewPortSize: Qt.size(viewRoot.viewPortRect.width, viewRoot.viewPortRect.height)
 
                 function updateSnapping() {
-                    if (!viewRoot.splitView)
-                        cameraView.snapLeft = true
-                    else if (viewRoot.activeSplit === 2)
-                        cameraView.snapLeft = false
-                    else if (viewRoot.activeSplit === 3)
-                        cameraView.snapLeft = true
+                    const rect = viewRoot.viewRects[viewRoot.activeViewport];
+                    if (!rect || !rect.visible)
+                        return;
+
+                    const centerX = rect.x + rect.width / 2;
+                    cameraView.snapLeft = centerX < viewContainer.width / 2;
                 }
 
                 Connections {
                     target: viewRoot
-
-                    onSplitViewChanged: cameraView.updateSnapping()
-                    onActiveSplitChanged: cameraView.updateSnapping()
+                    onActiveViewportChanged: cameraView.updateSnapping()
                 }
             }
         }

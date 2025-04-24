@@ -249,7 +249,7 @@
       \li Select \uicontrol Bake.
     \endlist
 
-    \image bake-lights-dialog.png
+    \image {bake-lights-dialog.png} {The Lights Baking Setup dialog.}
 
     \section2 Manually baking lightmaps for a 3D model
 
@@ -261,7 +261,7 @@
     \list 1
       \li From \uicontrol Components, drag a \uicontrol {Baked Lightmap} component
           to the 3D model in the \uicontrol Navigator view.
-      \image baked-lightmaps-navigator.png
+      \image {baked-lightmaps-navigator.png} {The Baked Lightmap component in the Navigator view.}
       \li In the \uicontrol Navigator view, select \e bakedLightmap, and in the
           \uicontrol Properties view:
         \list
@@ -289,15 +289,15 @@
     \list 1
       \li In the \uicontrol Navigator view, right-click the subcomponent and select
       \uicontrol {Edit Component}.
-      \image baked-lightmaps-edit-component.png
+      \image {baked-lightmaps-edit-component.png} {Selecting Edit Component from the context menu in the Navigator view.}
       \li In the \uicontrol Navigator view, select the root component.
       \li In the \uicontrol Properties view, select \imageplus
       in the \uicontrol {Local Custom Properties} section.
       \li Add a new property, set \uicontrol Type to alias.
-      \image baked-lightmaps-add-property.png
+      \image {baked-lightmaps-add-property.png} {The Add New Property dialog.}
       \li For the property, set the value to the ID of the 3D model that you want
       to bake lightmaps for.
-      \image baked-lightmaps-property-value.png
+      \image {baked-lightmaps-property-value.png} {The custom property set to sphere in the Local Custom Tab in the Properties view.}
       \li In the \uicontrol Navigator view, select the 3D model and in the \uicontrol Properties
       view:
         \list
@@ -306,10 +306,10 @@
         \endlist
       \li Save your changes (\key {Ctrl+S}) and return to the main project file. To do this, select
       the bread crumb in the top toolbar.
-      \image baked-lightmaps-exit-component.png
+      \image {baked-lightmaps-exit-component.png} {Selecting the main project file bread crumb in the top toolbar.}
       \li From the \uicontrol Components view, drag a \uicontrol {Baked Lightmap} component to the
       subcomponent in the \uicontrol Navigator view.
-      \image baked-lightmaps-navigator-blm.png
+      \image {baked-lightmaps-navigator-blm.png} {The Baked Lightmap component in the Navigator view.}
       \li In the \uicontrol Navigator view, select the subcomponent and go to the
       \uicontrol Code view.
       \li In the \uicontrol Code view, you need to set the properties for the model inside the sub

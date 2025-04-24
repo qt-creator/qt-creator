@@ -5,6 +5,7 @@
 
 #include <mocks/abstractviewmock.h>
 #include <mocks/projectstoragemock.h>
+#include <mocks/projectstoragetriggerupdatemock.h>
 #include <mocks/sourcepathcachemock.h>
 
 #include <abstractview.h>
@@ -25,6 +26,8 @@ using QmlDesigner::ModuleId;
 using QmlDesigner::PropertyDeclarationId;
 using QmlDesigner::TypeId;
 namespace Info = QmlDesigner::Storage::Info;
+
+constexpr QmlDesigner::ModelTracing::SourceLocation sl;
 
 MATCHER_P2(HasItem,
            name,
@@ -177,18 +180,40 @@ public:
 
     QModelIndex index(int row, int column) const { return model.index(row, column); }
 
+    int rowCount() const { return model.rowCount(); }
+
     QList<ModelNode> elements(const ModelNode &node) const
     {
         return node.defaultNodeListProperty().toModelNodeList();
     }
 
+    QItemSelection rowSelection(std::initializer_list<int> rows) const
+    {
+        QItemSelection selection;
+        for (int row : rows)
+            selection.select(model.index(row, 0), model.index(row, model.columnCount() - 1));
+        return selection;
+    }
+
+    QItemSelection itemSelection(std::initializer_list<QPair<int, int>> items) const
+    {
+        QItemSelection selection;
+        for (const auto &[row, column] : items) {
+            QModelIndex idx = index(row, column);
+            selection.select(idx, idx);
+        }
+        return selection;
+    }
+
 protected:
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     NiceMock<MockFunction<ModelNode(const ModelNode &)>> goIntoComponentMock;
     QmlDesigner::ModelPointer designerModel{
         QmlDesigner::Model::create(QmlDesigner::ProjectStorageDependencies{projectStorageMock,
-                                                                           pathCacheMock},
+                                                                           pathCacheMock,
+                                                                           projectStorageTriggerUpdateMock},
                                    "Item",
                                    {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
                                     QmlDesigner::Import::createLibraryImport("QtQuick")},
@@ -197,6 +222,7 @@ protected:
     QmlDesigner::ListModelEditorModel model{[&] { return mockView.createModelNode("ListModel"); },
                                             [&] { return mockView.createModelNode("ListElement"); },
                                             goIntoComponentMock.AsStdFunction()};
+    QItemSelectionModel selectionModel{&model};
     ModelNode listViewNode;
     ModelNode listModelNode;
     ModelNode emptyListModelNode;
@@ -204,7 +230,7 @@ protected:
     ModelNode element2;
     ModelNode element3;
     QmlDesigner::ModelPointer componentModel{
-        QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
+        QmlDesigner::Model::create({projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
                                    "ListModel",
                                    {QmlDesigner::Import::createLibraryImport("QtQml.Models"),
                                     QmlDesigner::Import::createLibraryImport("QtQuick")},
@@ -290,7 +316,7 @@ TEST_F(ListModelEditor, add_row_added_invalid_row)
 {
     model.setListModel(listModelNode);
 
-    model.addRow();
+    model.addRow(rowCount());
 
     ASSERT_THAT(displayValues(),
                 ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
@@ -299,24 +325,252 @@ TEST_F(ListModelEditor, add_row_added_invalid_row)
                             ElementsAre(IsInvalid(), IsInvalid(), IsInvalid(), IsInvalid())));
 }
 
+TEST_F(ListModelEditor, add_row_to_zero_index_on_empty_model_works)
+{
+    model.setListModel(emptyListModelNode);
+    model.addColumn("foo");
+    model.addColumn("bar");
+
+    model.addRow(0);
+
+    ASSERT_THAT(displayValues(), ElementsAre(ElementsAre(IsInvalid(), IsInvalid())));
+}
+
+TEST_F(ListModelEditor, add_row_to_zero_index_on_non_empty_model_works)
+{
+    model.setListModel(listModelNode);
+
+    model.addRow(0);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), IsInvalid(), IsInvalid(), IsInvalid()),
+                            ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
+}
+
+TEST_F(ListModelEditor, add_row_to_index_one_works)
+{
+    model.setListModel(listModelNode);
+
+    model.addRow(1);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre(IsInvalid(), IsInvalid(), IsInvalid(), IsInvalid()),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
+}
+
+TEST_F(ListModelEditor, add_row_to_negative_index_does_nothing)
+{
+    model.setListModel(listModelNode);
+
+    model.addRow(-1);
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
+}
+
+TEST_F(ListModelEditor, add_row_to_int_max_index_does_nothing)
+{
+    model.setListModel(listModelNode);
+
+    model.addRow(std::numeric_limits<int>::max());
+
+    ASSERT_THAT(displayValues(),
+                ElementsAre(ElementsAre(IsInvalid(), "foo", 1, 42),
+                            ElementsAre("pic.png", "bar", 4, IsInvalid()),
+                            ElementsAre("pic.png", "poo", 111, IsInvalid())));
+}
+
 TEST_F(ListModelEditor, add_row_creates_new_model_node_and_reparents)
 {
     model.setListModel(listModelNode);
 
-    EXPECT_CALL(mockView, nodeCreated(Property("ModelNode::type", &ModelNode::type, Eq("ListElement"))));
     EXPECT_CALL(mockView,
-                nodeReparented(Property("ModelNode::type", &ModelNode::type, Eq("ListElement")),
-                               Property("AbstractProperty::parentModelNode", &AbstractProperty::parentModelNode, Eq(listModelNode)),
+                nodeCreated(Property("ModelNode::type", &ModelNode::type, Eq("ListElement"), sl)));
+    EXPECT_CALL(mockView,
+                nodeReparented(Property("ModelNode::type", &ModelNode::type, Eq("ListElement"), sl),
+                               Property("AbstractProperty::parentModelNode",
+                                        &AbstractProperty::parentModelNode,
+                                        Eq(listModelNode)),
                                _,
                                _));
 
-    model.addRow();
+    model.addRow(rowCount());
+}
+
+TEST_F(ListModelEditor, current_interaction_row_returns_invalid_on_empty_selection)
+{
+    QItemSelectionModel emptySelection;
+
+    int currentRow = ListModelEditorModel::currentInteractionRow(emptySelection);
+
+    ASSERT_THAT(currentRow, Eq(-1));
+}
+
+TEST_F(ListModelEditor, current_interaction_row_returns_0_when_first_row_is_selected)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(rowSelection({0}), QItemSelectionModel::Select);
+
+    int currentRow = ListModelEditorModel::currentInteractionRow(selectionModel);
+
+    ASSERT_THAT(currentRow, Eq(0));
+}
+
+TEST_F(ListModelEditor, current_interaction_row_returns_1_when_second_row_is_selected)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(rowSelection({1}), QItemSelectionModel::Select);
+
+    int currentRow = ListModelEditorModel::currentInteractionRow(selectionModel);
+
+    ASSERT_THAT(currentRow, Eq(1));
+}
+
+TEST_F(ListModelEditor, current_interaction_row_returns_first_selected_row_when_multiple_rows_selected)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(rowSelection({1, 2}), QItemSelectionModel::Select);
+
+    int currentRow = ListModelEditorModel::currentInteractionRow(selectionModel);
+
+    ASSERT_THAT(currentRow, Eq(1));
+}
+
+TEST_F(ListModelEditor, current_interaction_row_returns_first_selected_item_row_when_no_row_selected)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(itemSelection({{2, 2}, {1, 2}}), QItemSelectionModel::Select);
+
+    int currentRow = ListModelEditorModel::currentInteractionRow(selectionModel);
+
+    ASSERT_THAT(currentRow, Eq(2));
+}
+
+TEST_F(ListModelEditor, current_interaction_row_returns_current_row_when_nothing_selected)
+{
+    model.setListModel(listModelNode);
+    selectionModel.setCurrentIndex(index(2, 2), QItemSelectionModel::Current);
+
+    int currentRow = ListModelEditorModel::currentInteractionRow(selectionModel);
+
+    ASSERT_THAT(currentRow, Eq(2));
+}
+
+TEST_F(ListModelEditor, current_interaction_row_prefers_selected_index_to_current_index)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(itemSelection({{2, 2}}), QItemSelectionModel::Select);
+    selectionModel.setCurrentIndex(index(1, 1), QItemSelectionModel::Current);
+
+    int currentRow = ListModelEditorModel::currentInteractionRow(selectionModel);
+
+    ASSERT_THAT(currentRow, Eq(2));
+}
+
+TEST_F(ListModelEditor, current_interaction_row_prefers_selected_row_to_selected_index)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(itemSelection({{1, 1}}), QItemSelectionModel::Select);
+    selectionModel.select(rowSelection({2}), QItemSelectionModel::Select);
+
+    int currentRow = ListModelEditorModel::currentInteractionRow(selectionModel);
+
+    ASSERT_THAT(currentRow, Eq(2));
+}
+
+TEST_F(ListModelEditor, next_interaction_row_returns_zero_on_empty_selection)
+{
+    QItemSelectionModel emptySelection;
+
+    int nextRow = ListModelEditorModel::nextInteractionRow(emptySelection);
+
+    ASSERT_THAT(nextRow, Eq(0));
+}
+
+TEST_F(ListModelEditor, next_interaction_row_returns_1_when_first_row_is_selected)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(rowSelection({0}), QItemSelectionModel::Select);
+
+    int nextRow = ListModelEditorModel::nextInteractionRow(selectionModel);
+
+    ASSERT_THAT(nextRow, Eq(1));
+}
+
+TEST_F(ListModelEditor, next_interaction_row_returns_2_when_second_row_is_selected)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(rowSelection({1}), QItemSelectionModel::Select);
+
+    int nextRow = ListModelEditorModel::nextInteractionRow(selectionModel);
+
+    ASSERT_THAT(nextRow, Eq(2));
+}
+
+TEST_F(ListModelEditor,
+       next_interaction_row_returns_next_row_after_last_selected_row_when_multiple_rows_selected)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(rowSelection({1, 2}), QItemSelectionModel::Select);
+
+    int nextRow = ListModelEditorModel::nextInteractionRow(selectionModel);
+
+    ASSERT_THAT(nextRow, Eq(3));
+}
+
+TEST_F(ListModelEditor,
+       next_interaction_row_returns_next_row_after_last_selected_item_row_when_no_row_selected)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(itemSelection({{2, 2}, {1, 2}}), QItemSelectionModel::Select);
+
+    int nextRow = ListModelEditorModel::nextInteractionRow(selectionModel);
+
+    ASSERT_THAT(nextRow, Eq(2));
+}
+
+TEST_F(ListModelEditor, next_interaction_row_returns_next_row_after_current_row_when_nothing_selected)
+{
+    model.setListModel(listModelNode);
+    selectionModel.setCurrentIndex(index(2, 2), QItemSelectionModel::Current);
+
+    int nextRow = ListModelEditorModel::nextInteractionRow(selectionModel);
+
+    ASSERT_THAT(nextRow, Eq(3));
+}
+
+TEST_F(ListModelEditor, next_interaction_row_prefers_selected_index_to_current_index)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(itemSelection({{2, 2}}), QItemSelectionModel::Select);
+    selectionModel.setCurrentIndex(index(1, 1), QItemSelectionModel::Current);
+
+    int nextRow = ListModelEditorModel::nextInteractionRow(selectionModel);
+
+    ASSERT_THAT(nextRow, Eq(3));
+}
+
+TEST_F(ListModelEditor, next_interaction_row_prefers_selected_row_to_selected_index)
+{
+    model.setListModel(listModelNode);
+    selectionModel.select(itemSelection({{1, 1}}), QItemSelectionModel::Select);
+    selectionModel.select(rowSelection({2}), QItemSelectionModel::Select);
+
+    int nextRow = ListModelEditorModel::nextInteractionRow(selectionModel);
+
+    ASSERT_THAT(nextRow, Eq(3));
 }
 
 TEST_F(ListModelEditor, change_added_row_propery)
 {
     model.setListModel(listModelNode);
-    model.addRow();
+    model.addRow(rowCount());
 
     model.setValue(3, 2, 22);
 
@@ -332,7 +586,7 @@ TEST_F(ListModelEditor, change_added_row_propery_calls_variant_properties_change
     model.setListModel(listModelNode);
     ModelNode element4;
     ON_CALL(mockView, nodeReparented(_, _, _, _)).WillByDefault(SaveArg<0>(&element4));
-    model.addRow();
+    model.addRow(rowCount());
 
     EXPECT_CALL(mockView,
                 variantPropertiesChanged(ElementsAre(IsVariantProperty(element4, "value", 22)),
@@ -937,7 +1191,7 @@ TEST_F(ListModelEditor, remove_last_row)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("mood");
-    model.addRow();
+    model.addRow(rowCount());
 
     model.removeRows({index(0, 0)});
 
@@ -948,7 +1202,7 @@ TEST_F(ListModelEditor, remove_last_empty_row)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("mood");
-    model.addRow();
+    model.addRow(rowCount());
     model.removeColumns({index(0, 0)});
 
     model.removeRows({index(0, 0)});
@@ -960,7 +1214,7 @@ TEST_F(ListModelEditor, remove_last_column)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("mood");
-    model.addRow();
+    model.addRow(rowCount());
 
     model.removeColumns({index(0, 0)});
 
@@ -971,7 +1225,7 @@ TEST_F(ListModelEditor, remove_last_empty_column)
 {
     model.setListModel(emptyListModelNode);
     model.addColumn("mood");
-    model.addRow();
+    model.addRow(rowCount());
     model.removeRows({index(0, 0)});
 
     model.removeColumns({index(0, 0)});

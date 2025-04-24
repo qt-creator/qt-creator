@@ -6,6 +6,7 @@
 #include "../mocks/abstractviewmock.h"
 #include "../mocks/modelresourcemanagementmock.h"
 #include "../mocks/projectstoragemock.h"
+#include "../mocks/projectstoragetriggerupdatemock.h"
 #include "../mocks/sourcepathcachemock.h"
 
 #include <include/bindingproperty.h>
@@ -71,10 +72,11 @@ protected:
 
 protected:
     NiceMock<AbstractViewMock> viewMock;
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     QmlDesigner::ModelResourceManagement management;
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
                              "Item",
                              {QmlDesigner::Import::createLibraryImport("QtQtuick")},
                              QUrl::fromLocalFile(pathCacheMock.path.toQString())};

@@ -21,7 +21,7 @@
     \l{https://www.qt.io/product/insight/onboarding-instructions}{Getting Started with Qt Insight}
     documentation.
 
-    \image qt-insight-view.png
+    \image {qt-insight-view.png} {The Qt Insight view.}
 
     In \QDS, you can do the following with Qt Insight:
     \list

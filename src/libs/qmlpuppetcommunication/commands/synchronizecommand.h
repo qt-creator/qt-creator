@@ -4,8 +4,8 @@
 #pragma once
 
 #include <QDebug>
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
 namespace QmlDesigner {
 

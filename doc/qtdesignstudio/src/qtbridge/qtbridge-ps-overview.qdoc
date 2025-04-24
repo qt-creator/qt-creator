@@ -13,7 +13,7 @@
     You can use \QBPS to export designs from Adobe Photoshop to \e {.metadata}
     format that you can \l{Importing 2D Assets}{import} to projects in \QDS.
 
-    \image studio-ps-export.png
+    \image {studio-ps-export.png} {Qt Bridge for Photoshop open in Adobe Photoshop.}
 
     The following topics describe setting up and using \QBPS:
 

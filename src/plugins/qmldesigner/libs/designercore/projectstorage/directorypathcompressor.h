@@ -22,28 +22,26 @@ public:
 
     ~DirectoryPathCompressor() = default;
 
-    void addSourceContextId(SourceContextId sourceContextId)
+    void addDirectoryPathId(DirectoryPathId directoryPathId)
     {
-        auto found = std::lower_bound(m_sourceContextIds.begin(),
-                                      m_sourceContextIds.end(),
-                                      sourceContextId);
+        auto found = std::ranges::lower_bound(m_directoryPathIds, directoryPathId);
 
-        if (found == m_sourceContextIds.end() || *found != sourceContextId)
-            m_sourceContextIds.insert(found, sourceContextId);
+        if (found == m_directoryPathIds.end() || *found != directoryPathId)
+            m_directoryPathIds.insert(found, directoryPathId);
 
         restartTimer();
     }
 
-    const SourceContextIds &sourceContextIds() { return m_sourceContextIds; }
+    const DirectoryPathIds &directoryPathIds() { return m_directoryPathIds; }
 
-    virtual void setCallback(std::function<void(const QmlDesigner::SourceContextIds &)> &&callback)
+    virtual void setCallback(std::function<void(const QmlDesigner::DirectoryPathIds &)> &&callback)
     {
         if (connection)
             QObject::disconnect(connection);
         connection = QObject::connect(&m_timer, &Timer::timeout, [this, callback = std::move(callback)] {
             try {
-                callback(m_sourceContextIds);
-                m_sourceContextIds.clear();
+                callback(m_directoryPathIds);
+                m_directoryPathIds.clear();
             } catch (const std::exception &) {
             }
         });
@@ -72,7 +70,7 @@ private:
     };
 
 private:
-    SourceContextIds m_sourceContextIds;
+    DirectoryPathIds m_directoryPathIds;
     QMetaObject::Connection connection;
     ConnectionGuard connectionGuard{connection};
     Timer m_timer;

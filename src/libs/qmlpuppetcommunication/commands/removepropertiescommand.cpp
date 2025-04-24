@@ -9,12 +9,12 @@ namespace QmlDesigner {
 
 RemovePropertiesCommand::RemovePropertiesCommand() = default;
 
-RemovePropertiesCommand::RemovePropertiesCommand(const QVector<PropertyAbstractContainer> &properties)
+RemovePropertiesCommand::RemovePropertiesCommand(const QList<PropertyAbstractContainer> &properties)
     : m_properties(properties)
 {
 }
 
-const QVector<PropertyAbstractContainer> RemovePropertiesCommand::properties() const
+const QList<PropertyAbstractContainer> RemovePropertiesCommand::properties() const
 {
     return m_properties;
 }

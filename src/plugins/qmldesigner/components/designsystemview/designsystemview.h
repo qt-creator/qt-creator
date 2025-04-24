@@ -4,6 +4,7 @@
 #pragma once
 
 #include "designsysteminterface.h"
+#include "qmldesignerprojectmanager.h"
 #include <abstractview.h>
 
 #include <memory>
@@ -13,21 +14,24 @@ namespace QmlDesigner {
 class DSStore;
 class ExternalDependenciesInterface;
 class DesignSystemWidget;
+class QmlDesignerProjectManager;
 
 class DesignSystemView : public AbstractView
 {
     Q_OBJECT
 
 public:
-    explicit DesignSystemView(ExternalDependenciesInterface &externalDependencies,
-                              ProjectStorageDependencies projectStorageDependencies);
+    explicit DesignSystemView(ExternalDependenciesInterface &externalDependencies);
     ~DesignSystemView() override;
 
     WidgetInfo widgetInfo() override;
     bool hasWidget() const override;
 
+    void modelAttached(Model *model) override;
+
 private:
     void loadDesignSystem();
+    void resetDesignSystem();
     QWidget *createViewWidget();
 
 private:

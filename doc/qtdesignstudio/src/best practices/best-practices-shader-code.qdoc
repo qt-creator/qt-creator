@@ -146,7 +146,7 @@
 
     You can control these settings either from the \uicontrol Properties view or from code.
 
-    \image timeRunning_property.webp
+    \image {timeRunning_property.webp} {The Running setting turned on in the Properties view.}
 
     \code
         NorthernLights {

@@ -243,6 +243,13 @@ void ProjectStorageMock::setItemLibraryEntries(
     ON_CALL(*this, itemLibraryEntries(TypedEq<SourceId>(sourceId))).WillByDefault(Return(entries));
 }
 
+void ProjectStorageMock::setDirectoryImportsItemLibraryEntries(
+    QmlDesigner::SourceId sourceId, const QmlDesigner::Storage::Info::ItemLibraryEntries &entries)
+{
+    ON_CALL(*this, directoryImportsItemLibraryEntries(TypedEq<SourceId>(sourceId)))
+        .WillByDefault(Return(entries));
+}
+
 namespace {
 void addBaseProperties(TypeId typeId,
                        const QmlDesigner::SmallTypeIds<16> &baseTypeIds,

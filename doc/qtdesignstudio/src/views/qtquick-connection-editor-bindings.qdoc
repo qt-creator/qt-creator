@@ -25,7 +25,7 @@
 
     You can create bindings between components in \uicontrol Bindings.
 
-    \image qmldesigner-bindings.webp
+    \image {qmldesigner-bindings.webp} {The Bindings tab in the Connections view.}
 
     \section1 Creating bindings between component properties
 
@@ -35,7 +35,7 @@
 
         \li Place two components in the \uicontrol {2D} view.
 
-        \image qmldesigner-components-before-binding.webp
+        \image {qmldesigner-components-before-binding.webp} {Two components next to each other in the 2D view.}
 
         \li Name the first component as \e {viewBox}.
         \li Name the second component as \e {connectBox}.
@@ -46,7 +46,7 @@
              (\uicontrol Add) button to add a binding to the currently selected
             component.
 
-        \image qmldesigner-updated-bindings-editor.webp
+        \image qmldesigner-updated-bindings-editor.webp {The Add Binding dialog.}
 
         \li From the pop-up \uicontrol {Bindings editor}, in the \uicontrol From section,
             select \e {viewBox} as the parent component, then select its \uicontrol {border.color}
@@ -58,7 +58,7 @@
             instantly getting applied to the \uicontrol {color} of the \e {connectBox}
             component.
 
-        \image qmldesigner-components-after-binding.webp
+        \image qmldesigner-components-after-binding.webp {Two components next to each other in the 2D view with the property binding applied.}
 
     \endlist
 

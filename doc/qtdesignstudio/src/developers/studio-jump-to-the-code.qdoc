@@ -26,7 +26,7 @@
         \li Select \uicontrol {Jump to the Code}.
     \endlist
 
-    \image jump-to-the-code-from-navigator-view.webp
+    \image {jump-to-the-code-from-navigator-view.webp} {Selecting Jump to the Code from the context menu in the Navigator view.}
 
     \section1 Jump to the Code from the 2D view
 
@@ -35,7 +35,7 @@
         \li Select \uicontrol {Jump to the Code}.
     \endlist
 
-    \image jump-to-the-code-from-2D-view.webp
+    \image {jump-to-the-code-from-2D-view.webp} {Selecting Jump to the Code from the context menu in the 2D view.}
 
     \note Alternatively, you can select the component in the \uicontrol {Navigator} view
     or in the \uicontrol {2D} view and select \key {F4}. That takes you to the code
@@ -50,7 +50,7 @@
         \li Select \uicontrol {Jump to the Code}.
     \endlist
 
-    \image jump-to-the-code-from-state-view.webp
+    \image {jump-to-the-code-from-state-view.webp} {Selecting Jump to the Code from the context menu in the States view.}
 
     \section1 Jump to the Code from the Connections view
 
@@ -60,6 +60,6 @@
             to jump to the code segment related to the connection.
     \endlist
 
-    \image jump-to-the-code-from-connections-view.webp
+    \image {jump-to-the-code-from-connections-view.webp} {Selecting Jump to the Code from the context menu in the Connections view.}
 
 */

@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
 #include "propertyvaluecontainer.h"
 
@@ -19,18 +19,18 @@ class ValuesChangedCommand
 public:
     enum TransactionOption { Start = 1, End = 2, None = 0 };
     ValuesChangedCommand();
-    explicit ValuesChangedCommand(const QVector<PropertyValueContainer> &valueChangeVector);
+    explicit ValuesChangedCommand(const QList<PropertyValueContainer> &valueChangeVector);
 
-    const QVector<PropertyValueContainer> valueChanges() const;
+    const QList<PropertyValueContainer> valueChanges() const;
     quint32 keyNumber() const;
 
-    static void removeSharedMemorys(const QVector<qint32> &keyNumberVector);
+    static void removeSharedMemorys(const QList<qint32> &keyNumberVector);
 
     void sort();
     TransactionOption transactionOption = TransactionOption::None;
 
 private:
-    QVector<PropertyValueContainer> m_valueChangeVector;
+    QList<PropertyValueContainer> m_valueChangeVector;
     mutable quint32 m_keyNumber;
 };
 
@@ -51,7 +51,7 @@ class ValuesModifiedCommand : public ValuesChangedCommand
 public:
     ValuesModifiedCommand() = default;
 
-    explicit ValuesModifiedCommand(const QVector<PropertyValueContainer> &valueChangeVector)
+    explicit ValuesModifiedCommand(const QList<PropertyValueContainer> &valueChangeVector)
         : ValuesChangedCommand(valueChangeVector)
     {}
 };

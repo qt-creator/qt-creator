@@ -13,7 +13,7 @@
     new components that you can create instances of. You can then use the
     instances of the new components in other components.
 
-    \image qtquick-components-custom.png "Custom components in My Components"
+    \image {qtquick-components-custom.png} {Custom components in My Components.}
 
     Custom components are stored in \uicontrol Components >
     \uicontrol {My Components}. You can create instances of custom components
@@ -86,7 +86,7 @@
     in \uicontrol Navigator or the \uicontrol {2D} view, and select
     \uicontrol {Create Component} in the context menu.
 
-    \image qtcreator-move-component-into-separate-file.png
+    \image {qtcreator-move-component-into-separate-file.png} {The Move Component into Separate File dialog.}
 
     Give the new component a name, and select whether properties are set for
     the new component or for the original one.
@@ -117,7 +117,7 @@
     \uicontrol Navigator or \uicontrol {2D} view and select
     \uicontrol {Merge File with Template} in the context menu.
 
-    \image qmldesigner-merge-with-template.png "Merge with Template dialog"
+    \image {qmldesigner-merge-with-template.png} {The Merge with Template dialog.}
 
     In the \uicontrol Template field, select the file to use as a template.
 */

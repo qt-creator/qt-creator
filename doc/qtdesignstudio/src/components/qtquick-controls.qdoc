@@ -13,7 +13,7 @@
     available in \uicontrol Components >
     \uicontrol {Qt Quick Controls} > \uicontrol Controls.
 
-    \image qtquick-designer-qtquickcontrols-types.png "Qt Quick Controls components"
+    \image {qtquick-designer-qtquickcontrols-types.png} {The Qt Quick Controls components in the Components view.}
 
     The following types of controls are available for user interaction:
 
@@ -36,7 +36,7 @@
 
     You can set control properties in the \l Properties view.
 
-    \image qtquick-designer-control-properties.png "Control section in Properties"
+    \image {qtquick-designer-control-properties.png} {The Control section in the Properties view.}
 
     The \uicontrol Enable check box indicates whether the control is enabled.
 
@@ -64,7 +64,7 @@
     most suitable for a use case and discuss the values you can set for button
     properties in the \uicontrol Properties view.
 
-    \image qtquick-designer-button-types.png "Button controls in the 2D view"
+    \image {qtquick-designer-button-types.png} {Different types of button controls in the 2D view.}
 
     Recommendations for buttons that contain text:
 
@@ -387,20 +387,20 @@
     \target progress-bar-control
     \section2 Progress Bar
 
-    \image qtquickcontrols2-progressbar.gif "Progress bar"
+    \image {qtquickcontrols2-progressbar.gif} {An animation of a Progress Bar running.}
 
     \uicontrol {Progress Bar} indicates the progress of an operation. You
     can specify the initial value in the \uicontrol Value field, but it
     should be updated regularly. Specify the range in the \uicontrol From
     and \uicontrol To fields, which can both contain any value.
 
-    \image qtquick-designer-progressbar-properties.png "Progress Bar properties"
+    \image {qtquick-designer-progressbar-properties.png} {The Progress Bar section in the Properties view.}
 
     Select the \uicontrol Indeterminate check box when unable to determine the
     size of the item being downloaded, or if the download progress might get
     interrupted due to a network failure.
 
-    \image qtquickcontrols2-progressbar-indeterminate.gif
+    \image {qtquickcontrols2-progressbar-indeterminate.gif} {A runnning Progress Bar with the Indeterminate property turned on.}
 
     The indeterminate mode is similar to a \l {Busy Indicator} in that both can
     be used to indicate background activity. Due to their visual differences,
@@ -561,7 +561,7 @@
 
     \section2 Tumbler
 
-    \image qtquickcontrols2-tumbler-wrap.gif
+    \image {qtquickcontrols2-tumbler-wrap.gif} {An animation of a Tumbler with multiple wheels spinning.}
 
     \uicontrol Tumbler allows users to select an option from a spinnable
     \e wheel of items. It is useful when there are too many options to use, for
@@ -573,7 +573,7 @@
     field. Select the index of the current option in the
     \uicontrol {Current index} field.
 
-    \image qtquick-designer-tumbler-properties.png "Tumbler properties"
+    \image {qtquick-designer-tumbler-properties.png} {The Tumbler section in the Properties view.}
 
     To enable wrapping, select the \uicontrol Wrap check box.
 
@@ -600,18 +600,18 @@
     If the total width of the buttons exceeds the available width of the tab
     bar, it automatically becomes \l{Flickable}{flickable}.
 
-    \image qtquickcontrols2-tabbar-flickable.png
+    \image {qtquickcontrols2-tabbar-flickable.png} {A Tab Bar exceeding the available width.}
 
     \section1 Tool Bar
 
-    \image qtquickcontrols2-toolbar.png
+    \image {qtquickcontrols2-toolbar.png} {A Tool Bar}
 
     \uicontrol {Tool Bar} contains application-wide and context-sensitive
     actions and controls, such as navigation buttons and search fields. A
     toolbar is commonly used as a header or footer of an \l ApplicationWindow.
     Select the toolbar position in the \uicontrol Position field.
 
-    \image qtquick-designer-toolbar-properties.png "Tool Bar properties"
+    \image {qtquick-designer-toolbar-properties.png} {The Tool Bar section in the Properties View.}
 
     \uicontrol {Tool Button} is nearly identical to \l Button, but it has a
     graphical appearance that makes it more suitable for insertion into a

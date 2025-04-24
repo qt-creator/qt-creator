@@ -701,6 +701,8 @@ void StudioWelcomePlugin::extensionsInitialized()
 bool StudioWelcomePlugin::delayedInitialize()
 {
     QTimer::singleShot(2000, this, []() {
+        if (!ProjectExplorer::KitManager::isLoaded())
+            return;
         auto modelManager = QmlJS::ModelManagerInterface::instance();
         if (!modelManager)
             return;

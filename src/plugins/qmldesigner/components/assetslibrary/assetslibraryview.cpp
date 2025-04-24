@@ -25,6 +25,7 @@
 #include <sqlitedatabase.h>
 #include <synchronousimagecache.h>
 #include <utils/algorithm.h>
+#include <utils3d.h>
 
 namespace QmlDesigner {
 
@@ -80,10 +81,13 @@ void AssetsLibraryView::customNotification(const AbstractView * /*view*/,
                                            const QList<ModelNode> & /*nodeList*/,
                                            const QList<QVariant> & /*data*/)
 {
-    if (identifier == "delete_selected_assets")
+    if (identifier == "delete_selected_assets") {
         m_widget->deleteSelectedAssets();
-    else if (identifier == "asset_import_finished")
+    } else if (identifier == "asset_import_finished") {
+        // TODO: This custom notification should be removed once QDS-15163 is fixed and
+        //       exportedTypeNamesChanged notification is reliable
         m_3dImportsSyncTimer.start();
+    }
 }
 
 void AssetsLibraryView::modelAttached(Model *model)
@@ -102,6 +106,13 @@ void AssetsLibraryView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 
     m_3dImportsSyncTimer.stop();
+}
+
+void AssetsLibraryView::exportedTypeNamesChanged(const ExportedTypeNames &added,
+                                                 const ExportedTypeNames &removed)
+{
+    if (Utils3D::hasImported3dType(this, added, removed))
+        m_3dImportsSyncTimer.start();
 }
 
 void AssetsLibraryView::setResourcePath(const QString &resourcePath)
@@ -147,10 +158,6 @@ void AssetsLibraryView::sync3dImports()
 {
     if (!model())
         return;
-
-    // TODO: Once project storage supports notifications for new and removed types,
-    //       sync3dImports() should be called in that case as well.
-    //       Also, custom notification "asset_import_finished" should not be necessary in that case.
 
     // Sync generated 3d imports to .q3d files in project content
     const GeneratedComponentUtils &compUtils

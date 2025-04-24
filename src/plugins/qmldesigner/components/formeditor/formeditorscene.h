@@ -5,6 +5,8 @@
 #include <qmlitemnode.h>
 #include "abstractformeditortool.h"
 
+#include <utils/span.h>
+
 #include <QGraphicsScene>
 #include <QPointer>
 #include <QHash>
@@ -46,7 +48,7 @@ public:
 
     FormEditorItem* itemForQmlItemNode(const QmlItemNode &qmlItemNode) const;
 
-    QList<FormEditorItem*> itemsForQmlItemNodes(const QList<QmlItemNode> &nodeList) const;
+    QList<FormEditorItem*> itemsForQmlItemNodes(Utils::span<const QmlItemNode> nodeList) const;
     QList<FormEditorItem*> allFormEditorItems() const;
 
     void updateAllFormEditorItems();

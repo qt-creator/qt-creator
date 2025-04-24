@@ -8,9 +8,9 @@ Item {
     id: cameraCtrl
 
     property var viewRoot: null
-    property int splitId: -1
+    property int viewportId: -1
     property Camera camera: view3d ? view3d.camera : null
-    property View3D view3d: viewRoot.editViews[splitId]
+    property View3D view3d: viewRoot.editViews[viewportId]
     property string sceneId: viewRoot.sceneId
     property vector3d _lookAtPoint
     property vector3d _pressPoint
@@ -55,11 +55,11 @@ Item {
         _lookAtPoint = Qt.vector3d(0, 0, 0);
         _zoomFactor = 1;
 
-        if (splitId === 1) {
+        if (viewportId === 1) {
             jumpToRotation(originGizmo.quaternionForAxis(OriginGizmo.PositiveZ));
-        } else if (splitId === 2) {
+        } else if (viewportId === 2) {
             jumpToRotation(originGizmo.quaternionForAxis(OriginGizmo.NegativeY));
-        } else if (splitId === 3) {
+        } else if (viewportId === 3) {
             jumpToRotation(originGizmo.quaternionForAxis(OriginGizmo.NegativeX));
         } else {
             camera.position = _defaultCameraPosition;
@@ -79,7 +79,7 @@ Item {
         cameraState[1] = _zoomFactor;
         cameraState[2] = camera.position;
         cameraState[3] = camera.rotation;
-        _generalHelper.storeToolState(sceneId, "editCamState" + splitId, cameraState, delay);
+        _generalHelper.storeToolState(sceneId, "editCamState" + viewportId, cameraState, delay);
     }
 
     function focusObject(targetNodes, rotation, updateZoom, closeUp)
@@ -254,12 +254,12 @@ Item {
     }
 
     on_LookAtPointChanged: {
-        viewRoot.overlayViews[splitId].lookAtGizmo.position = _lookAtPoint;
+        viewRoot.overlayViews[viewportId].lookAtGizmo.position = _lookAtPoint;
     }
 
     Connections {
         target: _generalHelper
-        enabled: viewRoot.activeSplit === cameraCtrl.splitId
+        enabled: viewRoot.activeViewport === cameraCtrl.viewportId
 
         function onRequestCameraMove(camera, moveVec) {
             if (camera === cameraCtrl.camera) {
@@ -272,7 +272,7 @@ Item {
     Image {
         anchors.centerIn: parent
         source: "qrc:///qtquickplugin/mockfiles/images/crosshair.png"
-        visible: cameraCtrl.showCrosshairs && viewRoot.activeSplit === cameraCtrl.splitId
+        visible: cameraCtrl.showCrosshairs && viewRoot.activeViewport === cameraCtrl.viewportId
         opacity: 0.7
     }
 
@@ -303,7 +303,7 @@ Item {
         onPressed: (mouse) => {
             if (cameraCtrl.flyMode)
                 return;
-            viewRoot.activeSplit = cameraCtrl.splitId
+            viewRoot.activeViewport = cameraCtrl.viewportId
             if (cameraCtrl.camera && (mouse.modifiers & (Qt.AltModifier | Qt.ShiftModifier))) {
                 cameraCtrl._dragging = true;
                 cameraCtrl._startRotation = cameraCtrl.camera.eulerRotation;
@@ -328,9 +328,9 @@ Item {
         onCanceled: handleRelease()
 
         onWheel: (wheel) => {
-            if (cameraCtrl.flyMode && cameraCtrl.splitId !== viewRoot.activeSplit)
+            if (cameraCtrl.flyMode && cameraCtrl.viewportId !== viewRoot.activeViewport)
                 return;
-            viewRoot.activeSplit = cameraCtrl.splitId;
+            viewRoot.activeViewport = cameraCtrl.viewportId;
             if (cameraCtrl.camera) {
                 // Empirically determined divisor for nice zoom
                 cameraCtrl.zoomRelative(wheel.angleDelta.y / -40);
@@ -373,7 +373,7 @@ Item {
         targetNode: cameraCtrl.camera
 
         onAxisClicked: (axis) => {
-            viewRoot.activeSplit = cameraCtrl.splitId
+            viewRoot.activeViewport = cameraCtrl.viewportId
             cameraCtrl.jumpToRotation(quaternionForAxis(axis));
         }
     }

@@ -48,6 +48,7 @@ extend_qtc_plugin(QmlProjectManager
       cmakewriter.cpp cmakewriter.h
       cmakewriterv0.cpp cmakewriterv0.h
       cmakewriterv1.cpp cmakewriterv1.h
+      cmakewriterlib.cpp cmakewriterlib.h
       exporter.cpp exporter.h
       filegenerator.cpp filegenerator.h
       filetypes.cpp filetypes.h

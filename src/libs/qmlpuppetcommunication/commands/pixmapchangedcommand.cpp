@@ -13,12 +13,12 @@ namespace QmlDesigner {
 
 PixmapChangedCommand::PixmapChangedCommand() = default;
 
-PixmapChangedCommand::PixmapChangedCommand(const QVector<ImageContainer> &imageVector)
+PixmapChangedCommand::PixmapChangedCommand(const QList<ImageContainer> &imageVector)
     : m_imageVector(imageVector)
 {
 }
 
-QVector<ImageContainer> PixmapChangedCommand::images() const
+QList<ImageContainer> PixmapChangedCommand::images() const
 {
     return m_imageVector;
 }
