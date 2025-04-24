@@ -138,7 +138,7 @@ public:
                 = runControl->createWorker(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
             QTC_ASSERT(perfRecordWorker, return perfRecordWorker);
 
-            RunWorker *perfParserWorker = new RecipeRunner(runControl, perfParserRecipe(runControl));
+            RunWorker *perfParserWorker = new RunWorker(runControl, perfParserRecipe(runControl));
             perfParserWorker->addStartDependency(perfRecordWorker);
             perfParserWorker->addStopDependency(perfRecordWorker);
             QObject::connect(perfRecordWorker, &RunWorker::stopped, runControl, &RunControl::initiateStop);

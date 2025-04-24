@@ -683,15 +683,15 @@ IosRunWorkerFactory::IosRunWorkerFactory()
         IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
         if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl) {
             if (IosDeviceManager::isDeviceCtlOutputSupported())
-                return new RecipeRunner(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ false));
+                return new RunWorker(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ false));
             // TODO Remove the polling runner when we decide not to support iOS 17+ devices
             // with Xcode < 16 at all
-            return new RecipeRunner(runControl, deviceCtlPollingRecipe(runControl));
+            return new RunWorker(runControl, deviceCtlPollingRecipe(runControl));
         }
         runControl->setIcon(Icons::RUN_SMALL_TOOLBAR);
         runControl->setDisplayName(QString("Run on %1")
                                        .arg(iosdevice ? iosdevice->displayName() : QString()));
-        return new RecipeRunner(runControl, iosToolRecipe(runControl));
+        return new RunWorker(runControl, iosToolRecipe(runControl));
     });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
@@ -763,7 +763,7 @@ static RunWorker *createWorker(RunControl *runControl)
     if (isIosRunner) {
         const DebugInfo debugInfo{rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices,
                                   rp.isCppDebugging()};
-        runner = new RecipeRunner(runControl, iosToolRecipe(runControl, debugInfo));
+        runner = new RunWorker(runControl, iosToolRecipe(runControl, debugInfo));
     } else {
         QTC_ASSERT(rp.isCppDebugging(),
                    // TODO: The message is not shown currently, fix me before 17.0.
@@ -775,7 +775,7 @@ static RunWorker *createWorker(RunControl *runControl)
             runControl->postMessage(msgOnlyCppDebuggingSupported(), LogMessageFormat);
         }
         rp.setInferiorExecutable(data->localExecutable);
-        runner = new RecipeRunner(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ true));
+        runner = new RunWorker(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ true));
     }
 
     if (isIosDeviceInstance) {
@@ -817,7 +817,7 @@ IosDebugWorkerFactory::IosDebugWorkerFactory()
 IosQmlProfilerWorkerFactory::IosQmlProfilerWorkerFactory()
 {
     setProducer([](RunControl *runControl) {
-        auto runner = new RecipeRunner(runControl, iosToolRecipe(runControl, {QmlProfilerServices}));
+        auto runner = new RunWorker(runControl, iosToolRecipe(runControl, {QmlProfilerServices}));
 
         auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
         profiler->addStartDependency(runner);

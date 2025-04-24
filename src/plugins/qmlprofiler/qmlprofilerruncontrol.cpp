@@ -71,7 +71,7 @@ Group qmlProfilerRecipe(RunControl *runControl)
 
 RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
 {
-    auto profiler = new RecipeRunner(runControl, qmlProfilerRecipe(runControl));
+    auto profiler = new RunWorker(runControl, qmlProfilerRecipe(runControl));
     runControl->requestQmlChannel();
 
     const auto modifier = [runControl](Process &process) {

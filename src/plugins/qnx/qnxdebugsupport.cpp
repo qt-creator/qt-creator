@@ -187,7 +187,7 @@ public:
             };
             auto worker = createProcessWorker(runControl, modifier);
 
-            auto slog2InfoRunner = new RecipeRunner(runControl, slog2InfoRecipe(runControl));
+            auto slog2InfoRunner = new RunWorker(runControl, slog2InfoRecipe(runControl));
             worker->addStartDependency(slog2InfoRunner);
 
             Kit *k = runControl->kit();

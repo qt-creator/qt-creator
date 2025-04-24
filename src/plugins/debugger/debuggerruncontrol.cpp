@@ -744,8 +744,8 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
 RunWorker *createDebuggerWorker(RunControl *runControl, const DebuggerRunParameters &initialParameters,
                                 const std::function<void(DebuggerRunParameters &)> &parametersModifier)
 {
-    return new RecipeRunner(runControl,
-                            debuggerRecipe(runControl, initialParameters, parametersModifier));
+    return new RunWorker(runControl,
+                         debuggerRecipe(runControl, initialParameters, parametersModifier));
 }
 
 class DebuggerRunWorkerFactory final : public RunWorkerFactory

@@ -40,12 +40,12 @@ class RunControlPrivate;
 class RunWorkerPrivate;
 } // Internal
 
-class PROJECTEXPLORER_EXPORT RunWorker : public QObject
+class PROJECTEXPLORER_EXPORT RunWorker final : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit RunWorker(RunControl *runControl);
+    explicit RunWorker(RunControl *runControl, const Tasking::Group &recipe);
     ~RunWorker() override;
 
     void addStartDependency(RunWorker *dependency);
@@ -53,22 +53,17 @@ public:
 
     void setId(const QString &id);
 
-    // States
     void initiateStart();
     void reportStarted();
 
     void initiateStop();
     void reportStopped();
-
-    void reportFailure(const QString &msg = QString());
+    void reportFailure();
 
 signals:
     void started();
     void stopped();
-
-protected:
-    void virtual start();
-    void virtual stop();
+    void canceled();
 
 private:
     friend class Internal::RunControlPrivate;
@@ -285,26 +280,6 @@ PROJECTEXPLORER_EXPORT Tasking::Storage<RunInterface> runStorage();
 using Canceler = std::function<std::pair<RunInterface *, void (RunInterface::*)()>()>;
 PROJECTEXPLORER_EXPORT Canceler canceler();
 
-class PROJECTEXPLORER_EXPORT RecipeRunner final : public RunWorker
-{
-    Q_OBJECT
-
-public:
-    RecipeRunner(RunControl *runControl, const Tasking::Group &recipe)
-        : RunWorker(runControl), m_recipe(recipe)
-    {}
-
-signals:
-    void canceled();
-
-private:
-    void start() final;
-    void stop() final;
-
-    Tasking::TaskTreeRunner m_taskTreeRunner;
-    const Tasking::Group m_recipe;
-};
-
 // Just a helper
 template <typename Result, typename Function, typename ...Args,
          typename DecayedFunction = std::decay_t<Function>>
@@ -328,13 +303,13 @@ RunWorker *createProcessWorker(RunControl *runControl,
                   "Process modifier needs to take (Process &) as an argument and has to return void or "
                   "SetupResult. The passed handler doesn't fulfill these requirements.");
     if constexpr (isR) {
-        return new RecipeRunner(runControl, processRecipe(runControl, startModifier, suppressDefaultStdOutHandling));
+        return new RunWorker(runControl, processRecipe(runControl, startModifier, suppressDefaultStdOutHandling));
     } else {
         const auto modifier = [startModifier](Utils::Process &process) {
             startModifier(process);
             return Tasking::SetupResult::Continue;
         };
-        return new RecipeRunner(runControl, processRecipe(runControl, modifier, suppressDefaultStdOutHandling));
+        return new RunWorker(runControl, processRecipe(runControl, modifier, suppressDefaultStdOutHandling));
     }
 }
 

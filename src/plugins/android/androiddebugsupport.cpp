@@ -93,7 +93,7 @@ public:
             rp.setSkipDebugServer(true);
             rp.setLldbPlatform("remote-android");
 
-            auto androidRunner = new RecipeRunner(runControl, androidRecipe(runControl));
+            auto androidRunner = new RunWorker(runControl, androidRecipe(runControl));
 
             BuildConfiguration *bc = runControl->buildConfiguration();
             Kit *kit = runControl->kit();

@@ -83,7 +83,7 @@ void RunWorkerFactory::setProducer(const WorkerCreator &producer)
 void RunWorkerFactory::setRecipeProducer(const RecipeCreator &producer)
 {
     setProducer([producer](RunControl *runControl) {
-        return new RecipeRunner(runControl, producer(runControl));
+        return new RunWorker(runControl, producer(runControl));
     });
 }
 
@@ -230,7 +230,7 @@ static QString stateName(RunWorkerState s)
 class RunWorkerPrivate : public QObject
 {
 public:
-    RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl);
+    RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl, const Group &recipe);
 
     bool canStart() const;
     bool canStop() const;
@@ -238,6 +238,8 @@ public:
     RunWorker *q;
     RunWorkerState state = RunWorkerState::Initialized;
     const QPointer<RunControl> runControl;
+    TaskTreeRunner taskTreeRunner;
+    const Group recipe;
     QList<RunWorker *> startDependencies;
     QList<RunWorker *> stopDependencies;
     QString id;
@@ -1525,8 +1527,10 @@ Group processRecipe(RunControl *runControl,
     };
 }
 
-RunWorkerPrivate::RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl)
-    : q(runWorker), runControl(runControl)
+RunWorkerPrivate::RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl, const Group &recipe)
+    : q(runWorker)
+    , runControl(runControl)
+    , recipe(recipe)
 {
     runControl->d->m_workers.append(runWorker);
 }
@@ -1593,8 +1597,8 @@ bool RunWorkerPrivate::canStop() const
     also calls \c initiateStop on the RunControl.
 */
 
-RunWorker::RunWorker(RunControl *runControl)
-    : d(std::make_unique<RunWorkerPrivate>(this, runControl))
+RunWorker::RunWorker(RunControl *runControl, const Group &recipe)
+    : d(std::make_unique<RunWorkerPrivate>(this, runControl, recipe))
 { }
 
 RunWorker::~RunWorker() = default;
@@ -1606,7 +1610,27 @@ RunWorker::~RunWorker() = default;
 void RunWorker::initiateStart()
 {
     d->runControl->d->debugMessage("Initiate start for " + d->id);
-    start();
+    QTC_CHECK(!d->taskTreeRunner.isRunning());
+
+    const auto onSetup = [this] {
+        connect(this, &RunWorker::canceled,
+                runStorage().activeStorage(), &RunInterface::canceled);
+        connect(runStorage().activeStorage(), &RunInterface::started,
+                this, &RunWorker::reportStarted);
+    };
+
+    const Group recipe {
+        runStorage(),
+        onGroupSetup(onSetup),
+        d->recipe
+    };
+
+    d->taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
+        if (result == DoneWith::Success)
+            reportStopped();
+        else
+            reportFailure();
+    });
 }
 
 /*!
@@ -1630,7 +1654,7 @@ void RunWorker::reportStarted()
 void RunWorker::initiateStop()
 {
     d->runControl->d->debugMessage("Initiate stop for " + d->id);
-    stop();
+    emit canceled();
 }
 
 /*!
@@ -1654,9 +1678,9 @@ void RunWorker::reportStopped()
  * signal a problem in the operation in this worker. The
  * RunControl will start to ramp down through initiateStop().
  */
-void RunWorker::reportFailure(const QString &msg)
+void RunWorker::reportFailure()
 {
-    d->runControl->d->onWorkerFailed(this, msg);
+    d->runControl->d->onWorkerFailed(this, {});
 }
 
 void RunWorker::addStartDependency(RunWorker *dependency)
@@ -1672,16 +1696,6 @@ void RunWorker::addStopDependency(RunWorker *dependency)
 void RunWorker::setId(const QString &id)
 {
     d->id = id;
-}
-
-void RunWorker::start()
-{
-    reportStarted();
-}
-
-void RunWorker::stop()
-{
-    reportStopped();
 }
 
 // Output parser factories
@@ -1721,36 +1735,6 @@ Storage<RunInterface> runStorage()
 Canceler canceler()
 {
     return [] { return std::make_pair(runStorage().activeStorage(), &RunInterface::canceled); };
-}
-
-void RecipeRunner::start()
-{
-    QTC_CHECK(!m_taskTreeRunner.isRunning());
-
-    const auto onSetup = [this] {
-        connect(this, &RecipeRunner::canceled,
-                runStorage().activeStorage(), &RunInterface::canceled);
-        connect(runStorage().activeStorage(), &RunInterface::started,
-                this, &RecipeRunner::reportStarted);
-    };
-
-    const Group recipe {
-        runStorage(),
-        onGroupSetup(onSetup),
-        m_recipe
-    };
-
-    m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
-        if (result == DoneWith::Success)
-            reportStopped();
-        else
-            reportFailure();
-    });
-}
-
-void RecipeRunner::stop()
-{
-    emit canceled();
 }
 
 } // namespace ProjectExplorer
