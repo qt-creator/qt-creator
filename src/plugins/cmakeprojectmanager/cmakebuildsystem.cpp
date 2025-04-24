@@ -1109,7 +1109,7 @@ static Result<bool> insertDependencies(
         *cmakeListFile,
         [qtPackage](const auto &func) {
             return func.LowerCaseName() == "find_package" && func.Arguments().size() > 0
-                   && func.Arguments()[0].Value == qtPackage;
+                   && func.Arguments()[0].Value == qtPackage.toStdString();
         },
         /* reverse = */ true);
 
@@ -1137,7 +1137,7 @@ static Result<bool> insertDependencies(
         *cmakeListFile,
         [targetName](const auto &func) {
             return func.LowerCaseName() == "target_link_libraries" && func.Arguments().size() > 0
-                   && func.Arguments()[0].Value == targetName;
+                   && func.Arguments()[0].Value == targetName.toStdString();
         },
         /* reverse = */ true);
 
