@@ -128,7 +128,7 @@ public:
     virtual bool resizePty(QSize newSize)
     {
         Q_UNUSED(newSize)
-        return false;
+        return true;
     }
 
     virtual void setClipboard(const QString &text) { Q_UNUSED(text) }
