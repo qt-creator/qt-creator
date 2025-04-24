@@ -42,35 +42,34 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+using namespace Utils;
+
+namespace Core::Internal {
+
 const int kInitialWidth = 800;
 const int kInitialHeight = 500;
 const int kMaxMinimumWidth = 250;
 const int kMaxMinimumHeight = 250;
 
-static const char pageKeyC[] = "General/LastPreferencePage";
-static const char sortKeyC[] = "General/SortCategories";
+const char pageKeyC[] = "General/LastPreferencePage";
+const char sortKeyC[] = "General/SortCategories";
 const int categoryIconSize = 24;
 
-using namespace Utils;
-
-namespace Core {
-namespace Internal {
-
-namespace {
-
-bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
+static bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 {
     if (p1->category() != p2->category())
         return p1->category().alphabeticallyBefore(p2->category());
     return p1->id().alphabeticallyBefore(p2->id());
 }
 
-static inline QList<IOptionsPage*> sortedOptionsPages()
+static QList<IOptionsPage *> sortedOptionsPages()
 {
-    QList<IOptionsPage*> rc = IOptionsPage::allOptionsPages();
+    QList<IOptionsPage *> rc = IOptionsPage::allOptionsPages();
     std::stable_sort(rc.begin(), rc.end(), optionsPageLessThan);
     return rc;
 }
+
+namespace {
 
 // ----------- Category model
 
@@ -820,5 +819,4 @@ bool executeSettingsDialog(QWidget *parent, Id initialPage)
     return m_instance->execDialog();
 }
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal
