@@ -302,8 +302,8 @@ public:
     bool readDataFromCommit(const Utils::FilePath &repoDirectory, const QString &commit,
                             CommitData &commitData, QString *errorMessage = nullptr,
                             QString *commitTemplate = nullptr);
-    bool getCommitData(const Utils::FilePath &workingDirectory, QString *commitTemplate,
-                       CommitData &commitData, QString *errorMessage);
+    Utils::Result<CommitData> getCommitData(CommitType commitType,
+                                            const Utils::FilePath &workingDirectory);
 
     bool addAndCommit(const Utils::FilePath &workingDirectory,
                       const GitSubmitEditorPanelData &data,

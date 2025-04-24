@@ -72,7 +72,6 @@ public:
     // A pair of state string/file name ('modified', 'file.cpp').
     using StateFilePair = QPair<FileStates, QString>;
 
-    void clear();
     // Parse the files and the branch of panelInfo
     // from a git status output
     bool parseFilesFromStatus(const QString &output);
@@ -90,6 +89,7 @@ public:
     GitSubmitEditorPanelData panelData;
     bool enablePush = false;
     QChar commentChar;
+    QString commitTemplate;
 
     QList<StateFilePair> files;
 

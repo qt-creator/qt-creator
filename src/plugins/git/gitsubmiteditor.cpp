@@ -66,10 +66,12 @@ private:
 CommitDataFetchResult CommitDataFetchResult::fetch(CommitType commitType, const FilePath &workingDirectory)
 {
     CommitDataFetchResult result;
-    result.commitData.commitType = commitType;
-    QString commitTemplate;
-    result.success = gitClient().getCommitData(
-                workingDirectory, &commitTemplate, result.commitData, &result.errorMessage);
+    const Result<CommitData> data = gitClient().getCommitData(commitType, workingDirectory);
+    result.success = data.has_value();
+    if (data.has_value())
+        result.commitData = *data;
+    else
+        result.errorMessage = data.error();
     return result;
 }
 

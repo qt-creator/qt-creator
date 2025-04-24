@@ -2736,52 +2736,45 @@ Author GitClient::getAuthor(const Utils::FilePath &workingDirectory)
     return parseAuthor(authorInfo);
 }
 
-bool GitClient::getCommitData(const FilePath &workingDirectory,
-                              QString *commitTemplate,
-                              CommitData &commitData,
-                              QString *errorMessage)
+Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePath &workingDirectory)
 {
-    commitData.clear();
+    CommitData commitData(commitType);
 
     // Find repo
     const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
-    if (repoDirectory.isEmpty()) {
-        *errorMessage = msgRepositoryNotFound(workingDirectory);
-        return false;
-    }
+    if (repoDirectory.isEmpty())
+        return ResultError(msgRepositoryNotFound(workingDirectory));
 
     commitData.panelInfo.repository = repoDirectory;
 
     const FilePath gitDir = findGitDirForRepository(repoDirectory);
     if (gitDir.isEmpty()) {
-        *errorMessage = Tr::tr("The repository \"%1\" is not initialized.")
-            .arg(repoDirectory.toUserOutput());
-        return false;
+        return ResultError(Tr::tr("The repository \"%1\" is not initialized.")
+            .arg(repoDirectory.toUserOutput()));
     }
 
     // Run status. Note that it has exitcode 1 if there are no added files.
+    QString errorMessage;
     QString output;
     if (commitData.commitType == FixupCommit) {
-        synchronousLog(repoDirectory, {HEAD, "--not", "--remotes", "-n1"}, &output, errorMessage,
+        synchronousLog(repoDirectory, {HEAD, "--not", "--remotes", "-n1"}, &output, &errorMessage,
                        RunFlags::SuppressCommandLogging);
-        if (output.isEmpty()) {
-            *errorMessage = msgNoCommits(false);
-            return false;
-        }
+        if (output.isEmpty())
+            return ResultError(msgNoCommits(false));
     } else {
         commitData.commentChar = commentChar(repoDirectory);
     }
-    const StatusResult status = gitStatus(repoDirectory, ShowAll, &output, errorMessage);
+
+    const StatusResult status = gitStatus(repoDirectory, ShowAll, &output, &errorMessage);
     switch (status) {
     case  StatusChanged:
         break;
     case StatusUnchanged:
         if (commitData.commitType == AmendCommit) // amend might be run just for the commit message
             break;
-        *errorMessage = msgNoChangedFiles();
-        return false;
+        return ResultError(msgNoChangedFiles());
     case StatusFailed:
-        return false;
+        return ResultError(errorMessage);
     }
 
     //    Output looks like:
@@ -2791,10 +2784,8 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
     //    R  old -> new
     //     D deleted_file
     //    ?? untracked_file
-    if (!commitData.parseFilesFromStatus(output)) {
-        *errorMessage = msgParseFilesFailed();
-        return false;
-    }
+    if (!commitData.parseFilesFromStatus(output))
+        return ResultError(msgParseFilesFailed());
 
     if (status != StatusUnchanged) {
         // Filter out untracked files that are not part of the project
@@ -2810,10 +2801,8 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
         }
         commitData.files = filteredFiles;
 
-        if (commitData.files.isEmpty() && commitData.commitType != AmendCommit) {
-            *errorMessage = msgNoChangedFiles();
-            return false;
-        }
+        if (commitData.files.isEmpty() && commitData.commitType != AmendCommit)
+            return ResultError(msgNoChangedFiles());
     }
 
     commitData.commitEncoding = encoding(EncodingCommit, workingDirectory);
@@ -2821,8 +2810,9 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
     // Get the commit template or the last commit message
     switch (commitData.commitType) {
     case AmendCommit: {
-        if (!readDataFromCommit(repoDirectory, HEAD, commitData, errorMessage, commitTemplate))
-            return false;
+        if (!readDataFromCommit(repoDirectory, HEAD, commitData, &errorMessage,
+                                &commitData.commitTemplate))
+            return ResultError(errorMessage);
         break;
     }
     case SimpleCommit: {
@@ -2848,12 +2838,9 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
         if (!templateFile.isEmpty()) {
             templateFile = repoDirectory.resolvePath(templateFile);
             const Result<QByteArray> res = templateFile.fileContents();
-            if (!res) {
-                if (errorMessage)
-                    *errorMessage = res.error();
-                return false;
-            }
-            *commitTemplate = QString::fromLocal8Bit(normalizeNewlines(*res));
+            if (!res)
+                return ResultError(res.error());
+            commitData.commitTemplate = QString::fromLocal8Bit(normalizeNewlines(*res));
         }
         break;
     }
@@ -2868,7 +2855,7 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
             commitData.enablePush = false;
     }
 
-    return true;
+    return commitData;
 }
 
 // Log message for commits/amended commits to go to output window

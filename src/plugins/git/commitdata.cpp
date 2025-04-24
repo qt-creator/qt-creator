@@ -38,16 +38,6 @@ CommitData::CommitData(CommitType type)
 {
 }
 
-void CommitData::clear()
-{
-    panelInfo.clear();
-    panelData.clear();
-    amendHash.clear();
-    enablePush = false;
-
-    files.clear();
-}
-
 static FileStates stateFor(const QChar &c)
 {
     switch (c.unicode()) {

@@ -1376,12 +1376,12 @@ void GitPluginPrivate::startCommit(CommitType commitType)
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QString errorMessage, commitTemplate;
-    CommitData data(commitType);
-    if (!gitClient().getCommitData(state.topLevel(), &commitTemplate, data, &errorMessage)) {
-        VcsOutputWindow::appendError(errorMessage);
+    const Result<CommitData> res = gitClient().getCommitData(commitType, state.topLevel());
+    if (!res) {
+        VcsOutputWindow::appendError(res.error());
         return;
     }
+    const CommitData data = res.value();
 
     // Store repository for diff and the original list of
     // files to be able to unstage files the user unchecks
@@ -1393,7 +1393,7 @@ void GitPluginPrivate::startCommit(CommitType commitType)
         / "commit-msg.XXXXXX");
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
-    saver.write(commitTemplate.toLocal8Bit());
+    saver.write(data.commitTemplate.toLocal8Bit());
     if (const Result<> res = saver.finalize(); !res) {
         VcsOutputWindow::appendError(res.error());
         return;
