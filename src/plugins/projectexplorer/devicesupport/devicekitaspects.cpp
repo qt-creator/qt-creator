@@ -174,10 +174,8 @@ public:
 
     static Id defaultValue(const Kit *k)
     {
-        if (const IDeviceConstPtr &dev = DeviceManager::instance()->defaultDevice(
-                TypeAspect::deviceTypeId(k))) {
+        if (const IDeviceConstPtr dev = DeviceManager::defaultDevice(TypeAspect::deviceTypeId(k)))
             return dev->id();
-        }
         return {};
     }
 
@@ -221,7 +219,7 @@ private:
 
     void setup(Kit *k) override
     {
-        QTC_ASSERT(DeviceManager::instance()->isLoaded(), return);
+        QTC_ASSERT(DeviceManager::instance(), return);
         if (const IDevice::ConstPtr dev = DeviceAspect::device(k); dev && isCompatible(dev, k))
             return;
         DeviceAspect::setDeviceId(k, defaultValue(k));
@@ -391,8 +389,8 @@ Id RunDeviceKitAspect::id()
 
 IDevice::ConstPtr RunDeviceKitAspect::device(const Kit *k)
 {
-    QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
-    return DeviceManager::instance()->find(deviceId(k));
+    QTC_ASSERT(DeviceManager::isLoaded(), return IDevice::ConstPtr());
+    return DeviceManager::find(deviceId(k));
 }
 
 Id RunDeviceKitAspect::deviceId(const Kit *k)
@@ -514,8 +512,8 @@ Id BuildDeviceKitAspect::id()
 
 IDevice::ConstPtr BuildDeviceKitAspect::device(const Kit *k)
 {
-    QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
-    return DeviceManager::instance()->find(deviceId(k));
+    QTC_ASSERT(DeviceManager::isLoaded(), return IDevice::ConstPtr());
+    return DeviceManager::find(deviceId(k));
 }
 
 Id BuildDeviceKitAspect::deviceId(const Kit *k)

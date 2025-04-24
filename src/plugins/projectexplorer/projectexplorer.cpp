@@ -1930,7 +1930,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
              return Environment::systemEnvironment();
          }});
 
-    DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+    DeviceManager::addDevice(IDevice::Ptr(new DesktopDevice));
 
     setupWorkspaceProject(this);
 
@@ -2125,7 +2125,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     mtools->addAction(cmd);
 
     // Load devices immediately, as other plugins might want to use them
-    DeviceManager::instance()->load();
+    DeviceManager::load();
 
     Core::ICore::setRelativePathToProjectFunction([](const FilePath &path)
     {

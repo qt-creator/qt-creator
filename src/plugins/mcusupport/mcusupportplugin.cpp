@@ -264,7 +264,7 @@ void McuSupportPlugin::initialize()
 
 void McuSupportPlugin::extensionsInitialized()
 {
-    ProjectExplorer::DeviceManager::instance()->addDevice(McuSupportDevice::create());
+    DeviceManager::addDevice(McuSupportDevice::create());
 
     connect(KitManager::instance(), &KitManager::kitsLoaded, this, [] {
         McuKitManager::removeOutdatedKits();

@@ -236,9 +236,8 @@ QString IosRunConfiguration::disabledReason(Id runMode) const
     QString validDevName;
     bool hasConncetedDev = false;
     if (devType == Constants::IOS_DEVICE_TYPE) {
-        DeviceManager *dm = DeviceManager::instance();
-        for (int idev = 0; idev < dm->deviceCount(); ++idev) {
-            IDevice::ConstPtr availDev = dm->deviceAt(idev);
+        for (int idev = 0; idev < DeviceManager::deviceCount(); ++idev) {
+            IDevice::ConstPtr availDev = DeviceManager::deviceAt(idev);
             if (availDev && availDev->type() == Constants::IOS_DEVICE_TYPE) {
                 if (availDev->deviceState() == IDevice::DeviceReadyToUse) {
                     validDevName += QLatin1Char(' ');

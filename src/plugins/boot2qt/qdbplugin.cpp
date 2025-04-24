@@ -162,11 +162,10 @@ private:
 
     void extensionsInitialized() final
     {
-        DeviceManager * const dm = DeviceManager::instance();
-        if (dm->isLoaded()) {
+        if (DeviceManager::isLoaded()) {
             d->setupDeviceDetection();
         } else {
-            connect(dm, &DeviceManager::devicesLoaded,
+            connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
                     d, &QdbPluginPrivate::setupDeviceDetection);
         }
     }

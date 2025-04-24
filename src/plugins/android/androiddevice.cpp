@@ -130,12 +130,11 @@ static void updateDeviceState(const IDevice::ConstPtr &device)
 {
     const AndroidDevice *dev = static_cast<const AndroidDevice *>(device.get());
     const QString serial = dev->serialNumber();
-    DeviceManager *const devMgr = DeviceManager::instance();
     const Id id = dev->id();
     if (!serial.isEmpty())
-        devMgr->setDeviceState(id, getDeviceState(serial, dev->machineType()));
+        DeviceManager::setDeviceState(id, getDeviceState(serial, dev->machineType()));
     else if (dev->machineType() == IDevice::Emulator)
-        devMgr->setDeviceState(id, IDevice::DeviceConnected);
+        DeviceManager::setDeviceState(id, IDevice::DeviceConnected);
 }
 
 static void setEmulatorArguments()
@@ -600,7 +599,7 @@ void AndroidDevice::startAvd()
 
     const auto onDone = [this, serialNumberStorage] {
         if (!serialNumberStorage->isEmpty())
-            DeviceManager::instance()->setDeviceState(id(), IDevice::DeviceReadyToUse);
+            DeviceManager::setDeviceState(id(), IDevice::DeviceReadyToUse);
     };
 
     const Group root {
@@ -683,7 +682,6 @@ void AndroidDevice::initAvdSettings()
 
 static void handleDevicesListChange(const QString &serialNumber)
 {
-    DeviceManager *const devMgr = DeviceManager::instance();
     const QStringList serialBits = serialNumber.split('\t');
     if (serialBits.size() < 2)
         return;
@@ -715,7 +713,7 @@ static void handleDevicesListChange(const QString &serialNumber)
     if (isEmulator) {
         const QString avdName = emulatorName(serial);
         const Id avdId = Id(Constants::ANDROID_DEVICE_ID).withSuffix(':').withSuffix(avdName);
-        devMgr->setDeviceState(avdId, state);
+        DeviceManager::setDeviceState(avdId, state);
     } else {
         const Id id = Id(Constants::ANDROID_DEVICE_ID).withSuffix(':').withSuffix(serial);
         QString displayName = AndroidConfig::getProductModel(serial);
@@ -725,13 +723,13 @@ static void handleDevicesListChange(const QString &serialNumber)
         if (ipRegex.match(serial).hasMatch())
             displayName += QLatin1String(" (WiFi)");
 
-        if (IDevice::ConstPtr dev = devMgr->find(id)) {
+        if (IDevice::ConstPtr dev = DeviceManager::find(id)) {
             // DeviceManager doens't seem to have a way to directly update the name, if the name
             // of the device has changed, remove it and register it again with the new name.
             if (dev->displayName() == displayName)
-                devMgr->setDeviceState(id, state);
+                DeviceManager::setDeviceState(id, state);
             else
-                devMgr->removeDevice(id);
+                DeviceManager::removeDevice(id);
         } else {
             AndroidDevice *newDev = new AndroidDevice();
             newDev->setupId(IDevice::AutoDetected, id);
@@ -745,7 +743,7 @@ static void handleDevicesListChange(const QString &serialNumber)
 
             qCDebug(androidDeviceLog, "Registering new Android device id \"%s\".",
                     newDev->id().toString().toUtf8().data());
-            devMgr->addDevice(IDevice::Ptr(newDev));
+            DeviceManager::addDevice(IDevice::Ptr(newDev));
         }
     }
 }
@@ -778,11 +776,9 @@ static void modifyManufacturerTag(const FilePath &avdPath, TagModification modif
 
 static void handleAvdListChange(const AndroidDeviceInfoList &avdList)
 {
-    DeviceManager *const devMgr = DeviceManager::instance();
-
     QList<Id> existingAvds;
-    for (int i = 0; i < devMgr->deviceCount(); ++i) {
-        const IDevice::ConstPtr dev = devMgr->deviceAt(i);
+    for (int i = 0; i < DeviceManager::deviceCount(); ++i) {
+        const IDevice::ConstPtr dev = DeviceManager::deviceAt(i);
         const bool isEmulator = dev->machineType() == IDevice::Emulator;
         if (isEmulator && dev->type() == Constants::ANDROID_DEVICE_TYPE)
             existingAvds.append(dev->id());
@@ -792,7 +788,7 @@ static void handleAvdListChange(const AndroidDeviceInfoList &avdList)
     for (const AndroidDeviceInfo &item : avdList) {
         const Id deviceId = AndroidDevice::idFromDeviceInfo(item);
         const QString displayName = displayNameFromInfo(item);
-        IDevice::ConstPtr dev = devMgr->find(deviceId);
+        IDevice::ConstPtr dev = DeviceManager::find(deviceId);
         if (dev) {
             const auto androidDev = static_cast<const AndroidDevice *>(dev.get());
             // DeviceManager doens't seem to have a way to directly update the name, if the name
@@ -800,19 +796,19 @@ static void handleAvdListChange(const AndroidDeviceInfoList &avdList)
             // Also account for the case of an AVD registered through old QC which might have
             // invalid data by checking if the avdPath is not empty.
             if (dev->displayName() != displayName || androidDev->avdPath().isEmpty()) {
-                devMgr->removeDevice(dev->id());
+                DeviceManager::removeDevice(dev->id());
             } else {
                 // Find the state of the AVD retrieved from the AVD watcher
                 const QString serial = getRunningAvdsSerialNumber(item.avdName);
                 if (!serial.isEmpty()) {
                     const IDevice::DeviceState state = getDeviceState(serial, IDevice::Emulator);
                     if (dev->deviceState() != state) {
-                        devMgr->setDeviceState(dev->id(), state);
+                        DeviceManager::setDeviceState(dev->id(), state);
                         qCDebug(androidDeviceLog, "Device id \"%s\" changed its state.",
                                 dev->id().toString().toUtf8().data());
                     }
                 } else {
-                    devMgr->setDeviceState(dev->id(), IDevice::DeviceConnected);
+                    DeviceManager::setDeviceState(dev->id(), IDevice::DeviceConnected);
                 }
                 connectedDevs.append(dev->id());
                 continue;
@@ -833,7 +829,7 @@ static void handleAvdListChange(const AndroidDeviceInfoList &avdList)
 
         qCDebug(androidDeviceLog, "Registering new Android device id \"%s\".",
                 newDev->id().toString().toUtf8().data());
-        devMgr->addDevice(newDev);
+        DeviceManager::addDevice(newDev);
         connectedDevs.append(newDev->id());
     }
 
@@ -842,7 +838,7 @@ static void handleAvdListChange(const AndroidDeviceInfoList &avdList)
         if (!connectedDevs.contains(id)) {
             qCDebug(androidDeviceLog, "Removing AVD id \"%s\" because it no longer exists.",
                     id.toString().toUtf8().data());
-            devMgr->removeDevice(id);
+            DeviceManager::removeDevice(id);
         }
     }
 }
@@ -973,7 +969,7 @@ void AndroidDeviceManagerInstance::eraseAvd(const IDevice::Ptr &device)
             qCDebug(androidDeviceLog, "Android AVD id \"%s\" removed from the system.",
                     qPrintable(name));
             // Remove the device from QtC after it's been removed using avdmanager.
-            DeviceManager::instance()->removeDevice(device->id());
+            DeviceManager::removeDevice(device->id());
         } else {
             AndroidDeviceWidget::criticalDialog(Tr::tr("An error occurred while removing the "
                                                        "Android AVD \"%1\" using avdmanager tool.").arg(name));

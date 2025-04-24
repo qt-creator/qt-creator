@@ -1474,10 +1474,8 @@ void AndroidConfigurations::load()
 void AndroidConfigurations::updateAndroidDevice()
 {
     // Remove any dummy Android device, because it won't be usable.
-    DeviceManager *const devMgr = DeviceManager::instance();
-    IDevice::ConstPtr dev = devMgr->find(Constants::ANDROID_DEVICE_ID);
-    if (dev)
-        devMgr->removeDevice(dev->id());
+    if (IDevice::ConstPtr dev = DeviceManager::find(Constants::ANDROID_DEVICE_ID))
+       DeviceManager::removeDevice(dev->id());
     setupDevicesWatcher();
 }
 

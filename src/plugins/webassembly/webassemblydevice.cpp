@@ -88,7 +88,7 @@ void setupWebAssemblyDevice()
     static WebAssemblyDeviceFactory theWebAssemblyDeviceFactory;
 
     QObject::connect(KitManager::instance(), &KitManager::kitsLoaded, [] {
-        DeviceManager::instance()->addDevice(createWebAssemblyDevice());
+        DeviceManager::addDevice(createWebAssemblyDevice());
         askUserAboutEmSdkSetup();
     });
 }

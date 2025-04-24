@@ -201,13 +201,12 @@ IDevice::IDevice()
     linkDevice.setDefaultValue("Direct");
     linkDevice.setComboBoxEditable(false);
     linkDevice.setFillCallback([this](const StringSelectionAspect::ResultCallback &cb) {
-        auto dm = DeviceManager::instance();
         QList<QStandardItem *> items;
         auto defaultItem = new QStandardItem(Tr::tr("Direct"));
         defaultItem->setData("direct");
         items.append(defaultItem);
-        for (int i = 0, n = dm->deviceCount(); i < n; ++i) {
-            const auto device = dm->deviceAt(i);
+        for (int i = 0, n = DeviceManager::deviceCount(); i < n; ++i) {
+            const auto device = DeviceManager::deviceAt(i);
             if (device->id() == this->id())
                 continue;
             QStandardItem *newItem = new QStandardItem(device->displayName());
@@ -224,7 +223,7 @@ IDevice::IDevice()
         if (newValue.trimmed().isEmpty())
             return ResultError(Tr::tr("The device name cannot be empty."));
 
-        if (DeviceManager::instance()->hasDevice(newValue))
+        if (DeviceManager::hasDevice(newValue))
             return ResultError(Tr::tr("A device with this name already exists."));
 
         return ResultOk;
