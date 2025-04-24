@@ -17,7 +17,6 @@ namespace Internal {
 class DeviceManagerModelPrivate
 {
 public:
-    const DeviceManager *deviceManager;
     QList<IDevice::Ptr> devices;
     QList<Id> filter;
     Id typeToKeep;
@@ -25,16 +24,15 @@ public:
 
 } // namespace Internal
 
-DeviceManagerModel::DeviceManagerModel(const DeviceManager *deviceManager, QObject *parent) :
-    QAbstractListModel(parent), d(std::make_unique<Internal::DeviceManagerModelPrivate>())
+DeviceManagerModel::DeviceManagerModel(QObject *parent)
+    : QAbstractListModel(parent), d(std::make_unique<Internal::DeviceManagerModelPrivate>())
 {
-    d->deviceManager = deviceManager;
     handleDeviceListChanged();
-    connect(deviceManager, &DeviceManager::deviceAdded,
+    connect(DeviceManager::instance(), &DeviceManager::deviceAdded,
             this, &DeviceManagerModel::handleDeviceAdded);
-    connect(deviceManager, &DeviceManager::deviceRemoved,
+    connect(DeviceManager::instance(), &DeviceManager::deviceRemoved,
             this, &DeviceManagerModel::handleDeviceRemoved);
-    connect(deviceManager, &DeviceManager::deviceUpdated,
+    connect(DeviceManager::instance(), &DeviceManager::deviceUpdated,
             this, &DeviceManagerModel::handleDeviceUpdated);
 }
 
@@ -88,7 +86,7 @@ void DeviceManagerModel::handleDeviceAdded(Id id)
 {
     if (d->filter.contains(id))
         return;
-    IDevice::Ptr dev = d->deviceManager->find(id);
+    IDevice::Ptr dev = DeviceManager::find(id);
     if (!matchesTypeFilter(dev))
         return;
 
@@ -111,7 +109,7 @@ void DeviceManagerModel::handleDeviceUpdated(Id id)
     const int idx = indexForId(id);
     if (idx < 0) // This occurs when a device not matching the type filter is updated
         return;
-    d->devices[idx] = d->deviceManager->find(id);
+    d->devices[idx] = DeviceManager::find(id);
     const QModelIndex changedIndex = index(idx, 0);
     emit dataChanged(changedIndex, changedIndex);
 }
@@ -121,8 +119,8 @@ void DeviceManagerModel::handleDeviceListChanged()
     beginResetModel();
     d->devices.clear();
 
-    for (int i = 0; i < d->deviceManager->deviceCount(); ++i) {
-        IDevice::Ptr dev = d->deviceManager->deviceAt(i);
+    for (int i = 0; i < DeviceManager::deviceCount(); ++i) {
+        IDevice::Ptr dev = DeviceManager::deviceAt(i);
         if (d->filter.contains(dev->id()))
             continue;
         if (!matchesTypeFilter(dev))
@@ -150,7 +148,7 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
     case KitAspect::IdRole:
         return dev->id().toSetting();
     case Qt::DisplayRole:
-        if (d->deviceManager->defaultDevice(dev->type()) == dev)
+        if (DeviceManager::defaultDevice(dev->type()) == dev)
             return Tr::tr("%1 (default for %2)").arg(dev->displayName(), dev->displayType());
         return dev->displayName();
     }

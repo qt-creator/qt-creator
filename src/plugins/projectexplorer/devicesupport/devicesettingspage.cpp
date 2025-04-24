@@ -182,7 +182,7 @@ void DeviceSettingsWidget::cancel()
 }
 
 DeviceSettingsWidget::DeviceSettingsWidget()
-    : m_deviceManagerModel(new DeviceManagerModel(DeviceManager::instance(), this))
+    : m_deviceManagerModel(new DeviceManagerModel(this))
 {
     m_deviceProxyModel.setSourceModel(m_deviceManagerModel);
 
