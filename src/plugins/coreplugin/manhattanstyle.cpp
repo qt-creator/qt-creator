@@ -860,6 +860,39 @@ void ManhattanStyle::drawControl(
         const QWidget *widget) const
 {
     if (!panelWidget(widget) && !qobject_cast<const QMenu *>(widget)) {
+        // Workaround for QTBUG-136215
+        if constexpr (HostOsInfo::isMacHost()) {
+            if (element == CE_MenuItem) {
+                if (const QStyleOptionMenuItem *mi
+                    = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+                    if (mi->font.strikeOut()) {
+                        const bool active = mi->state & State_Selected;
+                        if (active)
+                            painter->fillRect(mi->rect, mi->palette.highlight());
+
+                        painter->save();
+                        painter->setFont(mi->font);
+                        int xpos = mi->rect.x() + 18;
+                        int yPos = mi->rect.y();
+                        const int xm = 2 /*macItemFrame*/ + mi->maxIconWidth + 3 /*macItemHMargin*/;
+                        const int tabwidth = mi->reservedShortcutWidth;
+                        const auto text_flags = Qt::AlignVCenter | Qt::TextHideMnemonic
+                                                | Qt::TextSingleLine | Qt::AlignAbsolute;
+
+                        painter->drawText(
+                            xpos,
+                            yPos,
+                            mi->rect.width() - xm - tabwidth + 1,
+                            mi->rect.height(),
+                            text_flags,
+                            mi->text);
+                        painter->restore();
+
+                        return;
+                    }
+                }
+            }
+        }
         QProxyStyle::drawControl(element, option, painter, widget);
         return;
     }
