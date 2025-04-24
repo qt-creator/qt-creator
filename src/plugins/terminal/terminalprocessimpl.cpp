@@ -44,7 +44,7 @@ public:
 
         TerminalWidget *terminal = m_terminalPane->stoppedTerminalWithId(id);
 
-        OpenTerminalParameters openParameters{setup.m_commandLine};
+        OpenTerminalParameters openParameters{setup.m_commandLine, setup.m_workingDirectory, setup.m_environment};
         openParameters.m_exitBehavior = ExitBehavior::Keep;
         openParameters.identifier = id;
 
