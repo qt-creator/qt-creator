@@ -1152,7 +1152,9 @@ void Process::start()
                         "lead to crash! Consider calling close() prior to direct restart."));
     d->clearForRun();
 
-    if (d->m_setup.m_commandLine.executable().isEmpty()) {
+    if (d->m_setup.m_commandLine.executable().isEmpty()
+        && d->m_setup.m_commandLine.executable().scheme().isEmpty()
+        && d->m_setup.m_commandLine.executable().host().isEmpty()) {
         d->m_result = ProcessResult::StartFailed;
         d->m_resultData.m_exitCode = 255;
         d->m_resultData.m_exitStatus = QProcess::CrashExit;
