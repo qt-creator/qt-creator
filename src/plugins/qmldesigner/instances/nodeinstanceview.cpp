@@ -356,7 +356,7 @@ void NodeInstanceView::restartProcess()
     clearErrors();
     emitInstanceErrorChange({});
     if (isAttached())
-        model()->emitDocumentMessage({}, {});
+        model()->emitDocumentMessage(QList<DocumentMessage>(), {});
 
     if (m_restartProcessTimerId)
         killTimer(m_restartProcessTimerId);
