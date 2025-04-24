@@ -77,139 +77,45 @@ public:
             ideIconLabel->setFixedHeight(welcomeTF.lineHeight());
         }
 
-        auto welcomeLabel = new ElidingLabel(Tr::tr("Welcome to %1")
-                                             .arg(QGuiApplication::applicationDisplayName()));
+        auto welcomeLabel = new ElidingLabel(QGuiApplication::applicationDisplayName());
         applyTf(welcomeLabel, welcomeTF);
         welcomeLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
-        using namespace Layouting;
+        m_pluginButtons = new QHBoxLayout;
+        m_pluginButtons->setSpacing(VGapL);
+        m_pluginButtons->setContentsMargins({});
 
+        auto newButton = new Button(Tr::tr("Create Project..."), Button::LargePrimary);
+        auto openButton = new Button(Tr::tr("Open Project..."), Button::LargeSecondary);
+
+        using namespace Layouting;
         Column {
             Row {
                 ideIconLabel,
                 welcomeLabel,
+                Space(HGapM),
+                m_pluginButtons,
                 st,
+                newButton,
+                openButton,
                 spacing(HGapM),
                 customMargins(HPaddingM, VPaddingM, HPaddingM, VPaddingM),
             },
             createRule(Qt::Horizontal),
             noMargin, spacing(0),
         }.attachTo(this);
-    }
-};
 
-class SideArea final : public QScrollArea
-{
-public:
-    SideArea(QWidget *parent = nullptr)
-        : QScrollArea(parent)
-    {
-        setWidgetResizable(true);
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setFrameShape(QFrame::NoFrame);
-        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Ignored);
-
-        using namespace Layouting;
-
-        Column mainColumn {
-            spacing(0),
-            customMargins(ExVPaddingGapXl, 0, ExVPaddingGapXl, 0),
-        };
-
-        m_essentials = new QWidget;
-        Column essentials {
-            spacing(0),
-            noMargin,
-        };
-
-        {
-            auto newButton = new Button(Tr::tr("Create Project..."), Button::LargePrimary);
-            auto openButton = new Button(Tr::tr("Open Project..."), Button::LargeSecondary);
-
-            Column projectButtons {
-                newButton,
-                openButton,
-                spacing(ExPaddingGapL),
-                customMargins(0, ExVPaddingGapXl, 0, ExVPaddingGapXl),
-            };
-
-            essentials.addItem(projectButtons);
-
-            connect(openButton, &Button::clicked, this, [] {
-                QAction *openAction = ActionManager::command(Core::Constants::OPEN)->action();
-                openAction->trigger();
-            });
-            connect(newButton, &Button::clicked, this, [] {
-                QAction *openAction = ActionManager::command(Core::Constants::NEW)->action();
-                openAction->trigger();
-            });
-        }
-
-        {
-            auto l = m_pluginButtons = new QVBoxLayout;
-            l->setSpacing(VGapL);
-            l->setContentsMargins({});
-            essentials.addItem(l);
-        }
-
-        essentials.attachTo(m_essentials);
-        mainColumn.addItem(m_essentials);
-        mainColumn.addItem(st);
-
-        {
-            auto label = new Core::Label(Tr::tr("Explore more"), Core::Label::Secondary);
-            label->setContentsMargins(HPaddingXxs, 0, 0, 0); // Is indented in Figma design
-
-            Column linksLayout {
-                label,
-                spacing(VGapS),
-                customMargins(0, VGapL, 0, ExVPaddingGapXl),
-            };
-
-            const struct {
-                const QString label;
-                const QString url;
-            } links [] =
-                {
-                 { Tr::tr("Get Started"), "qthelp://org.qt-project.qtcreator/doc/creator-getting-started.html" },
-                 { Tr::tr("Get Qt"), "https://www.qt.io/download" },
-                 { Tr::tr("Qt Account"), "https://account.qt.io" },
-                 { Tr::tr("Online Community"), "https://forum.qt.io" },
-                 { Tr::tr("Blogs"), "https://planet.qt.io" },
-                 { Tr::tr("User Guide"), "qthelp://org.qt-project.qtcreator/doc/index.html" },
-                 };
-            for (auto &link : links) {
-                auto button = new Button(link.label, Button::SmallLink, this);
-                connect(button, &Button::clicked, this, [link]{
-                    QDesktopServices::openUrl(link.url);});
-                button->setToolTip(link.url);
-                static const QPixmap icon = Icon({{":/welcome/images/link.png",
-                                                   Theme::Token_Accent_Default}},
-                                                 Icon::Tint).pixmap();
-                button->setPixmap(icon);
-                linksLayout.addItem(button);
-            }
-
-            m_links = new QWidget;
-            linksLayout.attachTo(m_links);
-            mainColumn.addItem(m_links);
-        }
-
-        QWidget *mainWidget = new QWidget;
-
-        Row {
-            mainColumn,
-            createRule(Qt::Vertical),
-            noMargin, spacing(0),
-        }.attachTo(mainWidget);
-
-        setWidget(mainWidget);
+        connect(openButton, &Button::clicked, this, [] {
+            QAction *openAction = ActionManager::command(Core::Constants::OPEN)->action();
+            openAction->trigger();
+        });
+        connect(newButton, &Button::clicked, this, [] {
+            QAction *openAction = ActionManager::command(Core::Constants::NEW)->action();
+            openAction->trigger();
+        });
     }
 
-    QVBoxLayout *m_pluginButtons = nullptr;
-    QWidget *m_essentials = nullptr;
-    QWidget *m_links = nullptr;
+    QHBoxLayout *m_pluginButtons = nullptr;
 };
 
 class WelcomeModeWidget final : public ResizeSignallingWidget
@@ -218,9 +124,6 @@ public:
     WelcomeModeWidget()
     {
         setBackgroundColor(this, Theme::Token_Background_Default);
-
-        m_sideArea = new SideArea(this);
-        m_sideArea->verticalScrollBar()->setEnabled(false);
 
         m_buttonGroup = new QButtonGroup(this);
         m_buttonGroup->setExclusive(true);
@@ -235,10 +138,7 @@ public:
         Column {
             new StyledBar,
             m_topArea,
-            Row {
-                m_sideArea,
-                m_pageStack,
-            },
+            m_pageStack,
             noMargin,
             spacing(0),
         }.attachTo(this);
@@ -246,17 +146,10 @@ public:
         IContext::attach(this, {}, "Qt Creator Manual");
 
         connect(this, &ResizeSignallingWidget::resized,
-                this, [this](const QSize &size, const QSize &) {
-            const QSize sideAreaS = m_sideArea->size();
+                this, [this] {
             const QSize topAreaS = m_topArea->size();
             const QSize mainWindowS = ICore::mainWindow()->size();
-
-            const bool showSideArea = sideAreaS.width() < size.width() / 4;
             const bool showTopArea = topAreaS.height() < mainWindowS.height() / 8.85;
-            const bool showLinks = true;
-
-            m_sideArea->m_links->setVisible(showLinks);
-            m_sideArea->setVisible(showSideArea);
             m_topArea->setVisible(showTopArea);
         });
     }
@@ -296,7 +189,7 @@ public:
             if (m_pluginList.at(idx)->priority() >= pagePriority)
                 break;
         }
-        auto pageButton = new Button(page->title(), Button::SmallList, m_sideArea->widget());
+        auto pageButton = new Button(page->title(), Button::SmallList, m_topArea);
         auto pageId = page->id();
         pageButton->setText(page->title());
 
@@ -304,7 +197,7 @@ public:
         m_pluginList.insert(idx, page);
         m_pageButtons.insert(idx, pageButton);
 
-        m_sideArea->m_pluginButtons->insertWidget(idx, pageButton);
+        m_topArea->m_pluginButtons->insertWidget(idx, pageButton);
 
         QWidget *stackPage = page->createWidget();
         stackPage->setAutoFillBackground(true);
@@ -332,7 +225,6 @@ public:
 
     QStackedWidget *m_pageStack;
     TopArea *m_topArea;
-    SideArea *m_sideArea;
     QList<IWelcomePage *> m_pluginList;
     QList<QAbstractButton *> m_pageButtons;
     QButtonGroup *m_buttonGroup;
