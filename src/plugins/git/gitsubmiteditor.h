@@ -19,16 +19,6 @@ namespace Git::Internal {
 class GitSubmitEditorWidget;
 class GitSubmitEditorPanelData;
 
-class CommitDataFetchResult
-{
-public:
-    static CommitDataFetchResult fetch(CommitType commitType, const Utils::FilePath &workingDirectory);
-
-    QString errorMessage;
-    CommitData commitData;
-    bool success;
-};
-
 class GitSubmitEditor : public VcsBase::VcsBaseSubmitEditor
 {
     Q_OBJECT
@@ -62,7 +52,7 @@ private:
     QString m_amenHash;
     Utils::FilePath m_workingDirectory;
     bool m_firstUpdate = true;
-    QFutureWatcher<CommitDataFetchResult> m_fetchWatcher;
+    QFutureWatcher<Utils::Result<CommitData>> m_fetchWatcher;
 };
 
 } // Git::Internal
