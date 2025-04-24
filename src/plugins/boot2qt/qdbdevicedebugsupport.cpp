@@ -169,7 +169,7 @@ public:
             runControl->requestPerfChannel();
             return createQdbDeviceInferiorWorker(runControl, NoQmlDebugServices, true);
         });
-        addSupportedRunMode(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE);
+        addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
     }

@@ -116,7 +116,7 @@ public:
             return createProcessWorker(runControl, modifier, true);
         });
 
-        addSupportedRunMode(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE);
+        addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportForLocalRunConfigs();
         addSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
         addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
@@ -135,7 +135,7 @@ public:
             // 2. PerfRecordWorkerFactory
             // 3. QdbPerfProfilerWorkerFactory
             RunWorker *perfRecordWorker
-                = runControl->createWorker(PerfProfiler::Constants::PERF_PROFILER_RUN_MODE);
+                = runControl->createWorker(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
             QTC_ASSERT(perfRecordWorker, return perfRecordWorker);
 
             RunWorker *perfParserWorker = new RecipeRunner(runControl, perfParserRecipe(runControl));
