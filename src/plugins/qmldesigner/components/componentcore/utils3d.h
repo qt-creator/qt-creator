@@ -52,7 +52,9 @@ void duplicateMaterial(AbstractView *view, const ModelNode &material);
 bool addQuick3DImportAndView3D(AbstractView *view, bool suppressWarningDialog = false);
 void assignMaterialTo3dModel(AbstractView *view, const ModelNode &modelNode,
                              const ModelNode &materialNode = {});
-
+bool hasImported3dType(AbstractView *view,
+                       const AbstractView::ExportedTypeNames &added,
+                       const AbstractView::ExportedTypeNames &removed);
 
 } // namespace Utils3D
 } // namespace QmlDesigner

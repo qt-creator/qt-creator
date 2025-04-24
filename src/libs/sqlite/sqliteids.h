@@ -70,7 +70,7 @@ public:
 
     explicit operator std::size_t() const { return static_cast<std::size_t>(id); }
 
-    InternalIntegerType internalId() const { return id; }
+    constexpr InternalIntegerType internalId() const { return id; }
 
     [[noreturn, deprecated]] InternalIntegerType operator&() const { throw std::exception{}; }
 

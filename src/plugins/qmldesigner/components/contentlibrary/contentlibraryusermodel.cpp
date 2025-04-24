@@ -9,6 +9,7 @@
 #include "contentlibrarytexture.h"
 #include "contentlibrarywidget.h"
 
+#include <asset.h>
 #include <bundleimporter.h>
 #include <designerpaths.h>
 #include <imageutils.h>
@@ -16,6 +17,7 @@
 #include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
+#include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -28,9 +30,17 @@ namespace QmlDesigner {
 ContentLibraryUserModel::ContentLibraryUserModel(ContentLibraryWidget *parent)
     : QAbstractListModel(parent)
     , m_widget(parent)
+    , m_fileWatcher(Utils::makeUniqueObjectPtr<Utils::FileSystemWatcher>(parent))
 {
     createCategories();
+
+    connect(m_fileWatcher.get(), &Utils::FileSystemWatcher::directoryChanged,
+            this, [this] (const auto &dirPath) {
+        reloadTextureCategory(dirPath);
+    });
 }
+
+ContentLibraryUserModel::~ContentLibraryUserModel() = default;
 
 int ContentLibraryUserModel::rowCount(const QModelIndex &) const
 {
@@ -44,17 +54,22 @@ QVariant ContentLibraryUserModel::data(const QModelIndex &index, int role) const
 
     UserCategory *currCat = m_userCategories.at(index.row());
 
-    if (role == TitleRole)
+    switch (role) {
+    case TitleRole:
         return currCat->title();
 
-    if (role == ItemsRole)
+    case BundlePathRole:
+        return currCat->bundlePath().toVariant();
+
+    case ItemsRole:
         return QVariant::fromValue(currCat->items());
 
-    if (role == NoMatchRole)
+    case NoMatchRole:
         return currCat->noMatch();
 
-    if (role == EmptyRole)
+    case EmptyRole:
         return currCat->isEmpty();
+    }
 
     return {};
 }
@@ -76,6 +91,71 @@ void ContentLibraryUserModel::createCategories()
                                       compUtils.user3DBundleId()};
 
     m_userCategories << catMaterial << catTexture << cat3D;
+
+    loadCustomCategories(userBundlePath);
+}
+
+void ContentLibraryUserModel::loadCustomCategories(const Utils::FilePath &userBundlePath)
+{
+    auto jsonFilePath = userBundlePath.pathAppended(Constants::CUSTOM_BUNDLES_JSON_FILENAME);
+    if (!jsonFilePath.exists()) {
+        const QString jsonContent = QStringLiteral(R"({ "version": "%1", "items": {}})")
+                                        .arg(CUSTOM_BUNDLES_JSON_FILE_VERSION);
+        Utils::Result<qint64> res = jsonFilePath.writeFileContents(jsonContent.toLatin1());
+        QTC_ASSERT_RESULT(res, return);
+    }
+
+    Utils::Result<QByteArray> jsonContents = jsonFilePath.fileContents();
+    QTC_ASSERT_RESULT(jsonContents, return);
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonContents.value());
+    QTC_ASSERT(!jsonDoc.isNull(), return);
+
+    m_customCatsRootObj = jsonDoc.object();
+    m_customCatsObj = m_customCatsRootObj.value("items").toObject();
+
+    for (auto it = m_customCatsObj.constBegin(); it != m_customCatsObj.constEnd(); ++it) {
+        auto dirPath = Utils::FilePath::fromString(it.key());
+        if (!dirPath.exists())
+            continue;
+
+        addBundleDir(dirPath);
+    }
+}
+
+bool ContentLibraryUserModel::bundleDirExists(const QString &dirPath) const
+{
+    return m_customCatsObj.contains(dirPath);
+}
+
+void ContentLibraryUserModel::addBundleDir(const Utils::FilePath &dirPath)
+{
+    QTC_ASSERT(!dirPath.isEmpty(), return);
+
+    // TODO: detect if a bundle exists in the dir, determine its type, and create a matching category.
+    // For now we consider a custom folder as a texture bundle
+
+    auto newCat = new UserTextureCategory{dirPath.fileName(), dirPath};
+    newCat->loadBundle();
+
+    beginInsertRows({}, m_userCategories.size(), m_userCategories.size());
+    m_userCategories << newCat;
+    endInsertRows();
+
+    m_fileWatcher->addDirectory(dirPath, Utils::FileSystemWatcher::WatchAllChanges);
+
+    // add the folder to custom bundles json file if it is missing
+    const QString dirPathStr = dirPath.toFSPathString();
+    if (!m_customCatsObj.contains(dirPathStr)) {
+        m_customCatsObj.insert(dirPathStr, QJsonObject{});
+
+        m_customCatsRootObj["items"] = m_customCatsObj;
+
+        auto userBundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User");
+        auto jsonFilePath = userBundlePath.pathAppended(Constants::CUSTOM_BUNDLES_JSON_FILENAME);
+        auto result = jsonFilePath.writeFileContents(QJsonDocument(m_customCatsRootObj).toJson());
+        QTC_CHECK_RESULT(result);
+    }
 }
 
 void ContentLibraryUserModel::addItem(const QString &bundleId, const QString &name,
@@ -102,22 +182,36 @@ void ContentLibraryUserModel::refreshSection(const QString &bundleId)
     updateIsEmpty();
 }
 
-void ContentLibraryUserModel::addTextures(const Utils::FilePaths &paths)
+void ContentLibraryUserModel::addTextures(const Utils::FilePaths &paths, const Utils::FilePath &bundlePath)
 {
-    auto texCat = qobject_cast<UserTextureCategory *>(m_userCategories[TexturesSectionIdx]);
+    int catIdx = bundlePathToIndex(bundlePath);
+    UserTextureCategory *texCat = qobject_cast<UserTextureCategory *>(m_userCategories.at(catIdx));
     QTC_ASSERT(texCat, return);
 
     texCat->addItems(paths);
 
-    emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx), {ItemsRole, EmptyRole});
+    emit dataChanged(index(catIdx), index(catIdx), {ItemsRole, EmptyRole});
     updateIsEmpty();
 }
 
-void ContentLibraryUserModel::removeTextures(const QStringList &fileNames)
+void ContentLibraryUserModel::reloadTextureCategory(const Utils::FilePath &dirPath)
+{
+    int catIdx = bundlePathToIndex(dirPath);
+    UserTextureCategory *texCat = qobject_cast<UserTextureCategory *>(m_userCategories.at(catIdx));
+    QTC_ASSERT(texCat, return);
+
+    const Utils::FilePaths &paths = dirPath.dirEntries({Asset::supportedImageSuffixes(), QDir::Files});
+
+    texCat->clearItems();
+    addTextures(paths, dirPath);
+}
+
+void ContentLibraryUserModel::removeTextures(const QStringList &fileNames, const Utils::FilePath &bundlePath)
 {
     // note: this method doesn't refresh the model after textures removal
 
-    auto texCat = qobject_cast<UserTextureCategory *>(m_userCategories[TexturesSectionIdx]);
+    int catIdx = bundlePathToIndex(bundlePath);
+    UserTextureCategory *texCat = qobject_cast<UserTextureCategory *>(m_userCategories.at(catIdx));
     QTC_ASSERT(texCat, return);
 
     const QObjectList items = texCat->items();
@@ -137,12 +231,27 @@ void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex, bool ref
     Utils::FilePath::fromString(tex->iconPath()).removeFile();
 
     // remove from model
-    m_userCategories[TexturesSectionIdx]->removeItem(tex);
+    UserTextureCategory *itemCat = qobject_cast<UserTextureCategory *>(tex->parent());
+    QTC_ASSERT(itemCat, return);
+    itemCat->removeItem(tex);
 
     // update model
     if (refresh) {
-        emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx));
+        int catIdx = bundlePathToIndex(itemCat->bundlePath());
+        emit dataChanged(index(catIdx), index(catIdx));
         updateIsEmpty();
+    }
+
+    const QString bundlePathStr = itemCat->bundlePath().toFSPathString();
+    if (m_customCatsObj.contains(bundlePathStr)) {
+        m_customCatsObj.remove(bundlePathStr);
+
+        m_customCatsRootObj["items"] = m_customCatsObj;
+
+        auto userBundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User");
+        auto jsonFilePath = userBundlePath.pathAppended(Constants::CUSTOM_BUNDLES_JSON_FILENAME);
+        auto result = jsonFilePath.writeFileContents(QJsonDocument(m_customCatsRootObj).toJson());
+        QTC_CHECK_RESULT(result);
     }
 }
 
@@ -152,6 +261,30 @@ void ContentLibraryUserModel::removeFromContentLib(QObject *item)
     QTC_ASSERT(castedItem, return);
 
     removeItem(castedItem);
+}
+
+void ContentLibraryUserModel::removeBundleDir(int catIdx)
+{
+    auto texCat = qobject_cast<UserTextureCategory *>(m_userCategories.at(catIdx));
+    QTC_ASSERT(texCat, return);
+
+    QString dirPath = texCat->bundlePath().toFSPathString();
+
+    // remove from json
+    QTC_ASSERT(m_customCatsObj.contains(dirPath), return);
+    m_customCatsObj.remove(dirPath);
+    m_customCatsRootObj["items"] = m_customCatsObj;
+
+    auto userBundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User");
+    auto jsonFilePath = userBundlePath.pathAppended(Constants::CUSTOM_BUNDLES_JSON_FILENAME);
+    auto result = jsonFilePath.writeFileContents(QJsonDocument(m_customCatsRootObj).toJson());
+    QTC_ASSERT_RESULT(result, return);
+
+    // remove from model
+    beginRemoveRows({}, catIdx, catIdx);
+    delete texCat;
+    m_userCategories.removeAt(catIdx);
+    endRemoveRows();
 }
 
 void ContentLibraryUserModel::removeItemByName(const QString &qmlFileName, const QString &bundleId)
@@ -239,10 +372,27 @@ ContentLibraryUserModel::SectionIndex ContentLibraryUserModel::bundleIdToSection
     return {};
 }
 
+int ContentLibraryUserModel::bundlePathToIndex(const QString &bundlePath) const
+{
+    return bundlePathToIndex(Utils::FilePath::fromString(bundlePath));
+}
+
+int ContentLibraryUserModel::bundlePathToIndex(const Utils::FilePath &bundlePath) const
+{
+    for (int i = 0; i < m_userCategories.size(); ++i) {
+        if (m_userCategories.at(i)->bundlePath() == bundlePath)
+            return i;
+    }
+
+    qWarning() << __FUNCTION__ << "Invalid bundlePath:" << bundlePath;
+    return -1;
+}
+
 QHash<int, QByteArray> ContentLibraryUserModel::roleNames() const
 {
     static const QHash<int, QByteArray> roles {
         {TitleRole, "categoryTitle"},
+        {BundlePathRole, "categoryBundlePath"},
         {EmptyRole, "categoryEmpty"},
         {ItemsRole, "categoryItems"},
         {NoMatchRole, "categoryNoMatch"}

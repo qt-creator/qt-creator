@@ -14,7 +14,7 @@
     using image-based lighting) or add ambient light. Using the glow effect is one way to make your
     scene more realistic.
 
-    \image glow-example.webp
+    \image {glow-example.webp} {An example showing the difference between using a glow effect and not using a glow effect.}
 
     \section1 Creating a project with ExtendedSceneEnvironment
 
@@ -29,7 +29,7 @@
     \uicontrol {ExtendedSceneEnvironment} component from \uicontrol Components to
     the \uicontrol 2D or \uicontrol Navigator view.
 
-    \image ext-scene-env-navigator.webp
+    \image {ext-scene-env-navigator.webp} {The ExtendedSceneEnvironment in the Navigator view.}
 
     \section1 Enabling the Glow effect
 
@@ -37,7 +37,7 @@
     then, in the \uicontrol Properties view, select \uicontrol Enabled in the
     \uicontrol Glow section.
 
-    \image glow-properties.webp
+    \image {glow-properties.webp} {The Glow effect properties in the Properties view.}
 
     \note When setting up or experimenting with the glow effect, use the \l {Blend Modes}{Replace}
     blend mode to see the effect more clearly.
@@ -52,7 +52,7 @@
     properties is to change them directly in the \uicontrol Properties view in \QDS and see the
     changes live in the \uicontrol 2D view.
 
-    \image glow-example-project.webp
+    \image {glow-example-project.webp} {The Flashlight Example project running.}
 
     \section1 Basic properties
 
@@ -96,13 +96,13 @@
         \li Example
       \row
         \li Bloom disabled
-        \li \image bleed-scale-no.webp
+        \li \image {bleed-scale-no.webp} {A close-up of a light in the scene with Bloom disabled.}
       \row
         \li 8
-        \li \image bleed-scale-8.webp
+        \li \image {bleed-scale-8.webp} {A close-up of a light in the scene with HDR Scale set to 8.}
       \row
         \li 1
-        \li \image bleed-scale-1.webp
+        \li \image {bleed-scale-1.webp} {A close-up of a light in the scene with HDR Scale set to 1.}
     \endtable
 
     \section1 Blur Levels
@@ -122,13 +122,13 @@
         \li Example
       \row
         \li 1, 2, 3
-        \li \image glow_low_blur_levels.webp
+        \li \image {glow_low_blur_levels.webp} {A close-up of a light in the scene with Blur level set to 1, 2, 3.}
       \row
         \li 5, 6, 7
-        \li \image glow_high_blur_levels.webp
+        \li \image {glow_high_blur_levels.webp} {A close-up of a light in the scene with Blur level set to 5, 6, 7.}
       \row
         \li 1, 2, 3, 4, 5, 6, 7
-        \li \image glow_all_blur_levels.webp
+        \li \image {glow_all_blur_levels.webp} {A close-up of a light in the scene with Blur level set to 1, 2, 3, 4, 5, 6, 7.}
       \endtable
 
     \section2 Blend modes
@@ -143,21 +143,21 @@
       \row
         \li Additive
         \li Often recommended for outdoor scenes with a visible sky or sun.
-        \li \image glow-additive-blend.webp
+        \li \image {glow-additive-blend.webp} {A close-up of a light in the scene with Blend mode set to Additive.}
       \row
         \li Screen
         \li Similar to \uicontrol {Additive}, but the result is less bright.
-        \li \image glow-screen-blend.webp
+        \li \image {glow-screen-blend.webp} {A close-up of a light in the scene with Blend mode set to Additive.}
       \row
         \li SoftLight
         \li Often recommended for in-door environments.
-        \li \image glow-softlight-blend.webp
+        \li \image {glow-softlight-blend.webp} {A close-up of a light in the scene with Blend mode set to SoftLight.}
       \row
         \li Replace
         \li Does not perform any blending, but displays only the contribution
         the glow effect would blend with the actual content. In practice, this is useful for
         experimenting and troubleshooting when setting up the glow effect.
-        \li \image glow-replace-blend.webp
+        \li \image {glow-replace-blend.webp} {A close-up of a light in the scene with Blend mode set to Replace.}
     \endtable
 
     \section1 Improvement properties
@@ -187,13 +187,13 @@
         \li Example
       \row
         \li No effect
-        \li \image glow-no-enhancment.webp
+        \li \image {glow-no-enhancment.webp} {A close-up of a light in the scene with no effect.}
       \row
         \li High Quality
-        \li \image glow-high-quality.webp
+        \li \image {glow-high-quality.webp} {A close-up of a light in the scene with the High Quality effect.}
       \row
         \li Bicubic Upsampling
-        \li \image glow-bicubic.webp
+        \li \image {glow-bicubic.webp} {A close-up of a light in the scene with the Bicubic Upsampling effect.}
     \endtable
 
 

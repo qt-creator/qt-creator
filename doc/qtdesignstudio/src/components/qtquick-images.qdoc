@@ -204,12 +204,12 @@
     the ISO icon in the \l Navigator or \l {2D} view, and then select
     \uicontrol {Choose Icon} in the context menu.
 
-    \image studio-iso-icon.png
+    \image {studio-iso-icon.png} {An Iso Icon selected in the 2D view.}
 
     You can use the \l{Picking colors}{color picker} in \l Properties to
     set the value of \uicontrol {Icon color}.
 
-    \image iso-icon-browser.png
+    \image {iso-icon-browser.png} {The Iso Icon browser window.}
 
     \section1 Summary of the image components
 

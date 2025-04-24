@@ -15,7 +15,7 @@ TokenCommand::TokenCommand()
 {
 }
 
-TokenCommand::TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instanceIdVector)
+TokenCommand::TokenCommand(const QString &tokenName, qint32 tokenNumber, const QList<qint32> &instanceIdVector)
     : m_tokenName(tokenName),
       m_tokenNumber(tokenNumber),
       m_instanceIdVector(instanceIdVector)
@@ -32,7 +32,7 @@ qint32 TokenCommand::tokenNumber() const
     return m_tokenNumber;
 }
 
-QVector<qint32> TokenCommand::instances() const
+QList<qint32> TokenCommand::instances() const
 {
     return m_instanceIdVector;
 }

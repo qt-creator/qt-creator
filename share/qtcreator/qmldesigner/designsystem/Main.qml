@@ -23,12 +23,11 @@ Rectangle {
     readonly property int cellWidth: 200
     readonly property int cellHeight: 40
 
-    readonly property color textColor: "#ffffff"
-    readonly property color iconColor: "#959595"
-    readonly property color backgroundColor: "#2c2c2c"
-    readonly property color borderColor: "#444444"
+    readonly property color backgroundColor: StudioTheme.Values.themePanelBackground
+    // TODO This is not a proper color value, but will be fixed with new design
+    readonly property color borderColor: StudioTheme.Values.themeControlBackground_topToolbarHover
 
-    readonly property int borderWidth: 1
+    readonly property int borderWidth: StudioTheme.Values.border
 
     readonly property int textSize: 18
     readonly property int iconSize: 16
@@ -127,7 +126,7 @@ Rectangle {
             overlayInvalid.show()
         }
 
-        function showHeaderData(section: int, orientation: var) {
+        function showHeaderData(section: int, orientation: var, message: string) {
             if (orientation === Qt.Horizontal) {
                 overlayInvalid.parent = horizontalHeaderView.contentItem
                 overlayInvalid.cellItem = horizontalHeaderView.itemAtCell(Qt.point(overlay.section, 0))
@@ -136,7 +135,7 @@ Rectangle {
                 overlayInvalid.cellItem = verticalHeaderView.itemAtCell(Qt.point(0, overlay.section))
             }
 
-            notification.message = qsTr("This name is already in use, please use a different name.")
+            notification.message = message
 
             overlayInvalid.show()
         }
@@ -1095,8 +1094,14 @@ Rectangle {
                 // Revoke active focus from text field by forcing active focus on another item
                 tableView.forceActiveFocus()
 
-                if (!result && overlayTextField.previousText !== overlayTextField.text)
-                    overlayInvalid.showHeaderData(overlay.section, overlay.orientation)
+                if (overlayTextField.text === "")
+                    overlayInvalid.showHeaderData(overlay.section,
+                                                  overlay.orientation,
+                                                  qsTr("No name found, please enter a valid name."))
+                else if (!result && overlayTextField.previousText !== overlayTextField.text)
+                    overlayInvalid.showHeaderData(overlay.section,
+                                                  overlay.orientation,
+                                                  qsTr("This name is already in use, please use a different name."))
             }
 
             Text {

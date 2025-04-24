@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
 #include "propertybindingcontainer.h"
 
@@ -25,7 +25,7 @@ public:
 
     friend QDebug operator <<(QDebug debug, const ChangeBindingsCommand &command);
 
-    QVector<PropertyBindingContainer> bindingChanges;
+    QList<PropertyBindingContainer> bindingChanges;
 };
 
 } // namespace QmlDesigner

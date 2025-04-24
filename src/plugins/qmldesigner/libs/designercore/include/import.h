@@ -59,7 +59,7 @@ public:
                    || second.m_version.isEmpty());
     }
 
-    friend auto operator<=>(const Import &first, const Import &second)
+    friend std::weak_ordering operator<=>(const Import &first, const Import &second)
     {
         return std::tie(first.m_url, first.m_type) <=> std::tie(second.m_url, second.m_type);
     }

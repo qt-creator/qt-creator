@@ -3,10 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
-
-#include "propertyvaluecontainer.h"
 
 namespace QmlDesigner {
 

@@ -52,7 +52,7 @@ protected:
     { return m_rewriteActions; }
 
     static QmlDesigner::QmlRefactoring::PropertyType propertyType(const AbstractProperty &property, const QString &textValue = QString());
-    static PropertyNameList propertyOrder();
+    static Utils::span<const PropertyNameView> propertyOrder();
 
     static bool isInHierarchy(const AbstractProperty &property);
 

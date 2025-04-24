@@ -21,17 +21,14 @@
 
 namespace QmlDesigner {
 
-DesignSystemView::DesignSystemView(ExternalDependenciesInterface &externalDependencies,
-                                   ProjectStorageDependencies projectStorageDependencies)
+DesignSystemView::DesignSystemView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
     , m_externalDependencies(externalDependencies)
-    , m_dsStore(std::make_unique<DSStore>(m_externalDependencies, projectStorageDependencies))
-    , m_dsInterface(m_dsStore.get())
 {
     connect(ProjectExplorer::ProjectManager::instance(),
             &ProjectExplorer::ProjectManager::startupProjectChanged,
             this,
-            [this](ProjectExplorer::Project *) { loadDesignSystem(); });
+            [this](ProjectExplorer::Project *) { resetDesignSystem(); });
 
     connect(Core::EditorManager::instance(),
             &Core::EditorManager::saved,
@@ -63,12 +60,31 @@ bool DesignSystemView::hasWidget() const
     return true;
 }
 
+void DesignSystemView::modelAttached(Model *model)
+{
+    AbstractView::modelAttached(model);
+    /* Only load on first attach */
+    if (!m_dsStore)
+        loadDesignSystem();
+}
+
 void DesignSystemView::loadDesignSystem()
 {
     /*This is only used to load internally - when saving we have to take care of reflection.
      * Saving should not trigger a load again.
     */
+
+    m_dsStore = std::make_unique<DSStore>(m_externalDependencies,
+                                          model()->projectStorageDependencies());
+    m_dsInterface.setDSStore(m_dsStore.get());
+
     m_dsInterface.loadDesignSystem();
+}
+
+void DesignSystemView::resetDesignSystem()
+{
+    m_dsStore.reset();
+    m_dsInterface.setDSStore(nullptr);
 }
 
 } // namespace QmlDesigner

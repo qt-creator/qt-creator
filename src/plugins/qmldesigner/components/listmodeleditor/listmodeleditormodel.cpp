@@ -7,6 +7,7 @@
 #include <bindingproperty.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
+#include <rewritertransaction.h>
 #include <variantproperty.h>
 
 #include <QVariant>
@@ -14,8 +15,11 @@
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <ranges>
 
 namespace QmlDesigner {
+
+namespace {
 
 class ListModelItem : public QStandardItem
 {
@@ -91,7 +95,6 @@ public:
     bool hasInvalidValue = false;
 };
 
-namespace {
 QList<PropertyName> getPropertyNames(const ModelNode &listElementNode)
 {
     auto properties = listElementNode.variantProperties();
@@ -102,7 +105,7 @@ QList<PropertyName> getPropertyNames(const ModelNode &listElementNode)
     for (const auto &property : properties)
         names.push_back(property.name().toByteArray());
 
-    std::sort(names.begin(), names.end());
+    std::ranges::sort(names);
 
     return names;
 }
@@ -113,11 +116,7 @@ QList<PropertyName> mergeProperyNames(const QList<PropertyName> &first,
     QList<PropertyName> merged;
     merged.reserve(first.size() + second.size());
 
-    std::set_union(first.begin(),
-                   first.end(),
-                   second.begin(),
-                   second.end(),
-                   std::back_inserter(merged));
+    std::ranges::set_union(first, second, std::back_inserter(merged));
 
     return merged;
 }
@@ -213,14 +212,23 @@ void ListModelEditorModel::createItems(const QList<ModelNode> &listElementNodes)
         appendItems(listElementNode);
 }
 
-void ListModelEditorModel::appendItems(const ModelNode &listElementNode)
+static QList<QStandardItem *> createRow(const auto &propertyNames, const auto &listElementNode)
 {
     QList<QStandardItem *> row;
-    row.reserve(m_propertyNames.size());
-    for (const PropertyName &propertyName : propertyNames())
+    row.reserve(propertyNames.size());
+    for (const PropertyName &propertyName : propertyNames)
         row.push_back(createItem(listElementNode, propertyName).release());
+    return row;
+}
 
-    appendRow(row);
+void ListModelEditorModel::insertItems(const ModelNode &listElementNode, int index)
+{
+    insertRow(index, createRow(m_propertyNames, listElementNode));
+}
+
+void ListModelEditorModel::appendItems(const ModelNode &listElementNode)
+{
+    appendRow(createRow(m_propertyNames, listElementNode));
 }
 
 void ListModelEditorModel::setListModel(ModelNode node)
@@ -234,19 +242,25 @@ void ListModelEditorModel::setListView(ModelNode listView)
     setListModel(listModelNode(listView, m_createModelCallback, m_goIntoComponentCallback));
 }
 
-void ListModelEditorModel::addRow()
+void ListModelEditorModel::addRow(int rowIndex)
 {
-    auto newElement = m_createElementCallback();
-    m_listModelNode.defaultNodeListProperty().reparentHere(newElement);
+    if (rowIndex < 0 || rowIndex > rowCount())
+        return;
 
-    appendItems(newElement);
+    NodeListProperty defaultNodeListProperty = m_listModelNode.defaultNodeListProperty();
+    defaultNodeListProperty.view()->executeInTransaction(__FUNCTION__, [&] {
+        auto newElement = m_createElementCallback();
+        defaultNodeListProperty.reparentHere(newElement);
+        defaultNodeListProperty.slide(defaultNodeListProperty.count() - 1, rowIndex);
+        insertItems(newElement, rowIndex);
+    });
 }
 
 void ListModelEditorModel::addColumn(const QString &columnName)
 {
     PropertyName propertyName = columnName.toUtf8();
 
-    auto found = std::lower_bound(m_propertyNames.begin(), m_propertyNames.end(), propertyName);
+    auto found = std::ranges::lower_bound(m_propertyNames, propertyName);
 
     if (found != m_propertyNames.end() && *found == propertyName)
         return;
@@ -271,7 +285,7 @@ bool ListModelEditorModel::setValue(int row, int column, QVariant value, Qt::Ite
 
 void ListModelEditorModel::removeColumn(int column)
 {
-    QList<QStandardItem *> columnItems = QStandardItemModel::takeColumn(column);
+    QList<QStandardItem *> columnItems = Super::takeColumn(column);
     m_propertyNames.removeAt(column);
 
     for (QStandardItem *columnItem : columnItems) {
@@ -282,27 +296,27 @@ void ListModelEditorModel::removeColumn(int column)
 
 void ListModelEditorModel::removeColumns(const QList<QModelIndex> &indices)
 {
+    using std::ranges::views::reverse;
+
     std::vector<int> columns = filterColumns(indices);
 
-    std::reverse(columns.begin(), columns.end());
-
-    for (int column : columns)
+    for (int column : columns | reverse)
         removeColumn(column);
 }
 
 void ListModelEditorModel::removeRows(const QList<QModelIndex> &indices)
 {
+    using std::ranges::views::reverse;
+
     std::vector<int> rows = filterRows(indices);
 
-    std::reverse(rows.begin(), rows.end());
-
-    for (int row : rows)
+    for (int row : rows | reverse)
         removeRow(row);
 }
 
 void ListModelEditorModel::removeRow(int row)
 {
-    QList<QStandardItem *> rowItems = QStandardItemModel::takeRow(row);
+    QList<QStandardItem *> rowItems = Super::takeRow(row);
 
     if (rowItems.size())
         static_cast<ListModelItem *>(rowItems.front())->node.destroy();
@@ -314,7 +328,7 @@ void ListModelEditorModel::renameColumn(int oldColumn, const QString &newColumnN
 {
     const PropertyName newPropertyName = newColumnName.toUtf8();
 
-    auto found = std::lower_bound(m_propertyNames.begin(), m_propertyNames.end(), newPropertyName);
+    auto found = std::ranges::lower_bound(m_propertyNames, newPropertyName);
 
     if (found != m_propertyNames.end() && *found == newPropertyName)
         return;
@@ -358,6 +372,8 @@ QItemSelection ListModelEditorModel::moveRowsUp(const QList<QModelIndex> &indice
 
 QItemSelection ListModelEditorModel::moveRowsDown(const QList<QModelIndex> &indices)
 {
+    using std::ranges::views::reverse;
+
     std::vector<int> rows = filterRows(indices);
 
     if (rows.empty() || rows.back() >= (rowCount() - 1))
@@ -365,29 +381,35 @@ QItemSelection ListModelEditorModel::moveRowsDown(const QList<QModelIndex> &indi
 
     auto nodeListProperty = m_listModelNode.defaultNodeListProperty();
 
-    std::reverse(rows.begin(), rows.end());
-
-    for (int row : rows) {
+    for (int row : rows | reverse) {
         insertRow(row + 1, takeRow(row));
         nodeListProperty.slide(row, row + 1);
     }
 
-    return {index(rows.front() + 1, 0), index(rows.back() + 1, columnCount() - 1)};
+    return {index(rows.back() + 1, 0), index(rows.front() + 1, columnCount() - 1)};
 }
+
+namespace {
+void removeDuplicates(std::vector<int> &container)
+{
+    std::ranges::sort(container);
+
+    auto removed = std::ranges::unique(container);
+    container.erase(removed.begin(), removed.end());
+}
+} // namespace
 
 std::vector<int> ListModelEditorModel::filterColumns(const QList<QModelIndex> &indices)
 {
     std::vector<int> columns;
-    columns.reserve(indices.size());
+    columns.reserve(Utils::usize(indices));
 
     for (QModelIndex index : indices) {
         if (index.column() >= 0)
             columns.push_back(index.column());
     }
 
-    std::sort(columns.begin(), columns.end());
-
-    columns.erase(std::unique(columns.begin(), columns.end()), columns.end());
+    removeDuplicates(columns);
 
     return columns;
 }
@@ -395,18 +417,39 @@ std::vector<int> ListModelEditorModel::filterColumns(const QList<QModelIndex> &i
 std::vector<int> ListModelEditorModel::filterRows(const QList<QModelIndex> &indices)
 {
     std::vector<int> rows;
-    rows.reserve(indices.size());
+    rows.reserve(Utils::usize(indices));
 
     for (QModelIndex index : indices) {
         if (index.row() >= 0)
             rows.push_back(index.row());
     }
 
-    std::sort(rows.begin(), rows.end());
-
-    rows.erase(std::unique(rows.begin(), rows.end()), rows.end());
+    removeDuplicates(rows);
 
     return rows;
+}
+
+static int interactionRow(const QItemSelectionModel &selectionModel,
+                          QModelIndex &(QModelIndexList::*defaultRowSelector)())
+{
+    QModelIndexList selectedRows = selectionModel.selectedRows();
+    auto defaultRow = std::mem_fn(defaultRowSelector);
+    int index = !selectedRows.isEmpty() ? defaultRow(selectedRows).row() : -1;
+    if (index < 0 && selectionModel.hasSelection())
+        index = defaultRow(selectionModel.selectedIndexes()).row();
+    if (index < 0 && selectionModel.currentIndex().isValid())
+        index = selectionModel.currentIndex().row();
+    return index;
+}
+
+int ListModelEditorModel::currentInteractionRow(const QItemSelectionModel &selectionModel)
+{
+    return interactionRow(selectionModel, &QModelIndexList::first);
+}
+
+int ListModelEditorModel::nextInteractionRow(const QItemSelectionModel &selectionModel)
+{
+    return interactionRow(selectionModel, &QModelIndexList::last) + 1;
 }
 
 } // namespace QmlDesigner

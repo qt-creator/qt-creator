@@ -870,7 +870,7 @@ struct ProjectStorage::Statements
         "                   USING(moduleId) "
         "                 WHERE di.sourceId=?)",
         database};
-    mutable Sqlite::ReadStatement<4, 2> selectLocalFileItemLibraryEntriesBySourceIdStatement{
+    mutable Sqlite::ReadStatement<4, 2> selectDirectoryImportsItemLibraryEntriesBySourceIdStatement{
         "SELECT typeId, etn.name, m.name, t.sourceId "
         "FROM documentImports AS di "
         "  JOIN exportedTypeNames AS etn USING(moduleId) "
@@ -1424,7 +1424,8 @@ ModuleId ProjectStorage::moduleId(Utils::SmallStringView moduleName, Storage::Mo
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get module id",
                                projectStorageCategory(),
-                               keyValue("module name", moduleName)};
+                               keyValue("module name", moduleName),
+                               keyValue("module kind", kind)};
 
     if (moduleName.empty())
         return ModuleId{};
@@ -1434,6 +1435,27 @@ ModuleId ProjectStorage::moduleId(Utils::SmallStringView moduleName, Storage::Mo
     tracer.end(keyValue("module id", moduleId));
 
     return moduleId;
+}
+
+SmallModuleIds<128> ProjectStorage::moduleIdsStartsWith(Utils::SmallStringView startsWith,
+                                                        Storage::ModuleKind kind) const
+{
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"get module ids that starts with",
+                               projectStorageCategory(),
+                               keyValue("module name starts with", startsWith),
+                               keyValue("module kind", kind)};
+
+    if (startsWith.isEmpty())
+        return {};
+
+    auto projection = [&](ModuleView view) -> ModuleView {
+        return {view.name.substr(0, startsWith.size()), view.kind};
+    };
+
+    auto moduleIds = moduleCache.ids<128>({startsWith, kind}, projection);
+
+    return moduleIds;
 }
 
 Storage::Module ProjectStorage::module(ModuleId moduleId) const
@@ -1762,7 +1784,7 @@ Storage::Info::TypeHints ProjectStorage::typeHints(TypeId typeId) const
     return typeHints;
 }
 
-SmallSourceIds<4> ProjectStorage::typeAnnotationSourceIds(SourceContextId directoryId) const
+SmallSourceIds<4> ProjectStorage::typeAnnotationSourceIds(DirectoryPathId directoryId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get type annotaion source ids",
@@ -1777,13 +1799,13 @@ SmallSourceIds<4> ProjectStorage::typeAnnotationSourceIds(SourceContextId direct
     return sourceIds;
 }
 
-SmallSourceContextIds<64> ProjectStorage::typeAnnotationDirectoryIds() const
+SmallDirectoryPathIds<64> ProjectStorage::typeAnnotationDirectoryIds() const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get type annotaion source ids", projectStorageCategory()};
 
     auto sourceIds = s->selectTypeAnnotationDirectoryIdsStatement
-                         .valuesWithTransaction<SmallSourceContextIds<64>>();
+                         .valuesWithTransaction<SmallDirectoryPathIds<64>>();
 
     tracer.end(keyValue("source ids", sourceIds));
 
@@ -1877,16 +1899,16 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(SourceId so
     using Storage::Info::ItemLibraryProperties;
     Storage::Info::ItemLibraryEntries entries;
 
-    auto typeAnnotationCallback = [&](TypeId typeId,
-                                      Utils::SmallStringView typeName,
-                                      Utils::SmallStringView name,
-                                      Utils::SmallStringView iconPath,
-                                      Utils::SmallStringView category,
-                                      Utils::SmallStringView import,
-                                      Utils::SmallStringView toolTip,
-                                      Utils::SmallStringView properties,
-                                      Utils::SmallStringView extraFilePaths,
-                                      Utils::SmallStringView templatePath) {
+    auto callback = [&](TypeId typeId,
+                        Utils::SmallStringView typeName,
+                        Utils::SmallStringView name,
+                        Utils::SmallStringView iconPath,
+                        Utils::SmallStringView category,
+                        Utils::SmallStringView import,
+                        Utils::SmallStringView toolTip,
+                        Utils::SmallStringView properties,
+                        Utils::SmallStringView extraFilePaths,
+                        Utils::SmallStringView templatePath) {
         auto &last = entries.emplace_back(
             typeId, typeName, name, iconPath, category, import, toolTip, templatePath);
         if (properties.size())
@@ -1895,23 +1917,7 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(SourceId so
             s->selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
     };
 
-    s->selectItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(typeAnnotationCallback,
-                                                                               sourceId);
-
-    auto fileComponentCallback = [&](TypeId typeId,
-                                     Utils::SmallStringView typeName,
-                                     Utils::SmallStringView import,
-                                     SourceId componentSourceId) {
-        if (!isCapitalLetter(typeName.front()))
-            return;
-
-        auto &last = entries.emplace_back(typeId, typeName, typeName, "My Components", import);
-        last.moduleKind = Storage::ModuleKind::PathLibrary;
-        last.componentSourceId = componentSourceId;
-    };
-
-    s->selectLocalFileItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(
-        fileComponentCallback, sourceId, Storage::ModuleKind::PathLibrary);
+    s->selectItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(callback, sourceId);
 
     tracer.end(keyValue("item library entries", entries));
 
@@ -1945,6 +1951,36 @@ Storage::Info::ItemLibraryEntries ProjectStorage::allItemLibraryEntries() const
     };
 
     s->selectItemLibraryEntriesStatement.readCallbackWithTransaction(callback);
+
+    tracer.end(keyValue("item library entries", entries));
+
+    return entries;
+}
+
+Storage::Info::ItemLibraryEntries ProjectStorage::directoryImportsItemLibraryEntries(SourceId sourceId) const
+{
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"get directory import item library entries",
+                               projectStorageCategory(),
+                               keyValue("source id", sourceId)};
+
+    using Storage::Info::ItemLibraryProperties;
+    Storage::Info::ItemLibraryEntries entries;
+
+    auto callback = [&](TypeId typeId,
+                        Utils::SmallStringView typeName,
+                        Utils::SmallStringView import,
+                        SourceId componentSourceId) {
+        if (!isCapitalLetter(typeName.front()))
+            return;
+
+        auto &last = entries.emplace_back(typeId, typeName, typeName, "My Components", import);
+        last.moduleKind = Storage::ModuleKind::PathLibrary;
+        last.componentSourceId = componentSourceId;
+    };
+
+    s->selectDirectoryImportsItemLibraryEntriesBySourceIdStatement
+        .readCallbackWithTransaction(callback, sourceId, Storage::ModuleKind::PathLibrary);
 
     tracer.end(keyValue("item library entries", entries));
 
@@ -2212,7 +2248,7 @@ std::optional<Storage::Synchronization::DirectoryInfo> ProjectStorage::fetchDire
     return directoryInfo;
 }
 
-Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(SourceContextId directoryId) const
+Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(DirectoryPathId directoryId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch directory infos by directory id",
@@ -2229,7 +2265,7 @@ Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(Sou
 }
 
 Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
-    SourceContextId directoryId, Storage::Synchronization::FileType fileType) const
+    DirectoryPathId directoryId, Storage::Synchronization::FileType fileType) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch directory infos by source id and file type",
@@ -2247,7 +2283,7 @@ Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
 }
 
 Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
-    const SourceContextIds &directoryIds) const
+    const DirectoryPathIds &directoryIds) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch directory infos by source ids",
@@ -2256,14 +2292,14 @@ Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
 
     auto directoryInfos = s->selectDirectoryInfosForDirectoryIdsStatement
                               .valuesWithTransaction<Storage::Synchronization::DirectoryInfo, 64>(
-                                  toIntegers(directoryIds));
+                                  Sqlite::toIntegers(directoryIds));
 
     tracer.end(keyValue("directory infos", directoryInfos));
 
     return directoryInfos;
 }
 
-SmallSourceContextIds<32> ProjectStorage::fetchSubdirectoryIds(SourceContextId directoryId) const
+SmallDirectoryPathIds<32> ProjectStorage::fetchSubdirectoryIds(DirectoryPathId directoryId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch subdirectory source ids",
@@ -2274,9 +2310,9 @@ SmallSourceContextIds<32> ProjectStorage::fetchSubdirectoryIds(SourceContextId d
                          .rangeWithTransaction<SourceId>(directoryId,
                                                          Storage::Synchronization::FileType::Directory);
 
-    SmallSourceContextIds<32> directoryIds;
+    SmallDirectoryPathIds<32> directoryIds;
     for (SourceId sourceId : sourceIds)
-        directoryIds.push_back(sourceId.contextId());
+        directoryIds.push_back(sourceId.directoryPathId());
 
     tracer.end(keyValue("directory ids", directoryIds));
 
@@ -2408,7 +2444,7 @@ TypeIds ProjectStorage::fetchTypeIds(const SourceIds &sourceIds)
                                projectStorageCategory(),
                                keyValue("source ids", sourceIds)};
 
-    return s->selectTypeIdsForSourceIdsStatement.values<TypeId, 128>(toIntegers(sourceIds));
+    return s->selectTypeIdsForSourceIdsStatement.values<TypeId, 128>(Sqlite::toIntegers(sourceIds));
 }
 
 void ProjectStorage::unique(SourceIds &sourceIds)
@@ -2453,7 +2489,7 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
     std::ranges::sort(typeAnnotations, {}, &TypeAnnotation::typeId);
 
     auto range = s->selectTypeAnnotationsForSourceIdsStatement.range<TypeAnnotationView>(
-        toIntegers(updatedTypeAnnotationSourceIds));
+        Sqlite::toIntegers(updatedTypeAnnotationSourceIds));
 
     auto insert = [&](const TypeAnnotation &annotation) {
         if (!annotation.sourceId)
@@ -2595,7 +2631,7 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
 }
 
 void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
-                                               const SourceContextIds &updatedDirectoryInfoDirectoryIds)
+                                               const DirectoryPathIds &updatedDirectoryInfoDirectoryIds)
 {
     NanotraceHR::Tracer tracer{"synchronize directory infos", projectStorageCategory()};
 
@@ -2611,7 +2647,7 @@ void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::Directo
 
     auto range = s->selectDirectoryInfosForDirectoryIdsStatement
                      .range<Storage::Synchronization::DirectoryInfo>(
-                         toIntegers(updatedDirectoryInfoDirectoryIds));
+                         Sqlite::toIntegers(updatedDirectoryInfoDirectoryIds));
 
     auto insert = [&](const Storage::Synchronization::DirectoryInfo &directoryInfo) {
         using NanotraceHR::keyValue;
@@ -2673,7 +2709,7 @@ void ProjectStorage::synchronizeFileStatuses(FileStatuses &fileStatuses,
     std::ranges::sort(fileStatuses, {}, &FileStatus::sourceId);
 
     auto range = s->selectFileStatusesForSourceIdsStatement.range<FileStatus>(
-        toIntegers(updatedSourceIds));
+        Sqlite::toIntegers(updatedSourceIds));
 
     auto insert = [&](const FileStatus &fileStatus) {
         using NanotraceHR::keyValue;
@@ -2761,7 +2797,7 @@ void ProjectStorage::synchromizeModuleExportedImports(
 
     auto range = s->selectModuleExportedImportsForSourceIdStatement
                      .range<Storage::Synchronization::ModuleExportedImportView>(
-                         toIntegers(updatedModuleIds));
+                         Sqlite::toIntegers(updatedModuleIds));
 
     auto compareKey = [](const Storage::Synchronization::ModuleExportedImportView &view,
                          const Storage::Synchronization::ModuleExportedImport &import) {
@@ -3179,8 +3215,8 @@ void ProjectStorage::deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
     };
 
     s->selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
-                                                            toIntegers(updatedSourceIds),
-                                                            toIntegers(updatedTypeIds));
+                                                            Sqlite::toIntegers(updatedSourceIds),
+                                                            Sqlite::toIntegers(updatedTypeIds));
     for (TypeId typeIdToBeDeleted : typeIdsToBeDeleted)
         callback(typeIdToBeDeleted);
 }
@@ -3354,7 +3390,8 @@ void ProjectStorage::synchronizeExportedTypes(
     });
 
     auto range = s->selectExportedTypesForSourceIdsStatement
-                     .range<Storage::Synchronization::ExportedTypeView>(toIntegers(updatedTypeIds));
+                     .range<Storage::Synchronization::ExportedTypeView>(
+                         Sqlite::toIntegers(updatedTypeIds));
 
     auto compareKey = [](const Storage::Synchronization::ExportedTypeView &view,
                          const Storage::Synchronization::ExportedType &type) {
@@ -3901,7 +3938,7 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
     });
 
     auto range = s->selectDocumentImportForSourceIdStatement
-                     .range<Storage::Synchronization::ImportView>(toIntegers(updatedSourceIds),
+                     .range<Storage::Synchronization::ImportView>(Sqlite::toIntegers(updatedSourceIds),
                                                                   importKind);
 
     auto compareKey = [](const Storage::Synchronization::ImportView &view,
@@ -4043,13 +4080,13 @@ void ProjectStorage::addTypeIdToPropertyEditorQmlPaths(
 
 void ProjectStorage::synchronizePropertyEditorPaths(
     Storage::Synchronization::PropertyEditorQmlPaths &paths,
-    SourceContextIds updatedPropertyEditorQmlPathsSourceContextIds)
+    DirectoryPathIds updatedPropertyEditorQmlPathsDirectoryPathIds)
 {
     using Storage::Synchronization::PropertyEditorQmlPath;
     std::ranges::sort(paths, {}, &PropertyEditorQmlPath::typeId);
 
     auto range = s->selectPropertyEditorPathsForForSourceIdsStatement.range<PropertyEditorQmlPathView>(
-        toIntegers(updatedPropertyEditorQmlPathsSourceContextIds));
+        Sqlite::toIntegers(updatedPropertyEditorQmlPathsDirectoryPathIds));
 
     auto compareKey = [](const PropertyEditorQmlPathView &view, const PropertyEditorQmlPath &value) {
         return view.typeId <=> value.typeId;
@@ -4096,7 +4133,7 @@ void ProjectStorage::synchronizePropertyEditorPaths(
 
 void ProjectStorage::synchronizePropertyEditorQmlPaths(
     Storage::Synchronization::PropertyEditorQmlPaths &paths,
-    SourceContextIds updatedPropertyEditorQmlPathsSourceIds)
+    DirectoryPathIds updatedPropertyEditorQmlPathsSourceIds)
 {
     NanotraceHR::Tracer tracer{"synchronize property editor qml paths", projectStorageCategory()};
 

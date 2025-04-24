@@ -7,21 +7,21 @@
 
 namespace {
 
-using QmlDesigner::Cache::SourceContext;
-using QmlDesigner::Cache::SourceName;
-using QmlDesigner::SourceContextId;
+using QmlDesigner::Cache::DirectoryPath;
+using QmlDesigner::Cache::FileName;
+using QmlDesigner::DirectoryPathId;
 using QmlDesigner::SourceId;
 using QmlDesigner::SourceIds;
-using QmlDesigner::SourceNameId;
+using QmlDesigner::FileNameId;
 
-MATCHER_P2(IsSourceContext,
+MATCHER_P2(IsDirectoryPath,
            id,
            value,
-           std::string(negation ? "isn't " : "is ") + PrintToString(SourceContext{value, id}))
+           std::string(negation ? "isn't " : "is ") + PrintToString(DirectoryPath{value, id}))
 {
-    const SourceContext &sourceContext = arg;
+    const DirectoryPath &directoryPath = arg;
 
-    return sourceContext.id == id && sourceContext.value == value;
+    return directoryPath.id == id && directoryPath.value == value;
 }
 
 class SourcePathStorage : public testing::Test
@@ -43,14 +43,14 @@ protected:
 
     void addSomeDummyData()
     {
-        storage.fetchSourceContextId("/path/dummy");
-        storage.fetchSourceContextId("/path/dummy2");
-        storage.fetchSourceContextId("/path/");
+        storage.fetchDirectoryPathId("/path/dummy");
+        storage.fetchDirectoryPathId("/path/dummy2");
+        storage.fetchDirectoryPathId("/path/");
 
-        storage.fetchSourceNameId("foo");
-        storage.fetchSourceNameId("dummy");
-        storage.fetchSourceNameId("bar");
-        storage.fetchSourceNameId("bar");
+        storage.fetchFileNameId("foo");
+        storage.fetchFileNameId("dummy");
+        storage.fetchFileNameId("bar");
+        storage.fetchFileNameId("bar");
     }
 
     template<typename Range>
@@ -67,112 +67,112 @@ protected:
     Sqlite::Database &database = staticData->database;
 };
 
-TEST_F(SourcePathStorage, fetch_source_context_id_returns_always_the_same_id_for_the_same_path)
+TEST_F(SourcePathStorage, fetch_directory_path_id_returns_always_the_same_id_for_the_same_path)
 
 {
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
+    auto directoryPathId = storage.fetchDirectoryPathId("/path/to");
 
-    auto newSourceContextId = storage.fetchSourceContextId("/path/to");
+    auto newDirectoryPathId = storage.fetchDirectoryPathId("/path/to");
 
-    ASSERT_THAT(newSourceContextId, Eq(sourceContextId));
+    ASSERT_THAT(newDirectoryPathId, Eq(directoryPathId));
 }
 
-TEST_F(SourcePathStorage, fetch_source_context_id_returns_not_the_same_id_for_different_path)
+TEST_F(SourcePathStorage, fetch_directory_path_id_returns_not_the_same_id_for_different_path)
 {
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
+    auto directoryPathId = storage.fetchDirectoryPathId("/path/to");
 
-    auto newSourceContextId = storage.fetchSourceContextId("/path/to2");
+    auto newDirectoryPathId = storage.fetchDirectoryPathId("/path/to2");
 
-    ASSERT_THAT(newSourceContextId, Ne(sourceContextId));
+    ASSERT_THAT(newDirectoryPathId, Ne(directoryPathId));
 }
 
-TEST_F(SourcePathStorage, fetch_source_context_path)
+TEST_F(SourcePathStorage, fetch_directory_path_path)
 {
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
+    auto directoryPathId = storage.fetchDirectoryPathId("/path/to");
 
-    auto path = storage.fetchSourceContextPath(sourceContextId);
+    auto path = storage.fetchDirectoryPath(directoryPathId);
 
     ASSERT_THAT(path, Eq("/path/to"));
 }
 
-TEST_F(SourcePathStorage, fetch_unknown_source_context_path_throws)
+TEST_F(SourcePathStorage, fetch_unknown_directory_path_path_throws)
 {
-    ASSERT_THROW(storage.fetchSourceContextPath(SourceContextId::create(323)),
-                 QmlDesigner::SourceContextIdDoesNotExists);
+    ASSERT_THROW(storage.fetchDirectoryPath(DirectoryPathId::create(323)),
+                 QmlDesigner::DirectoryPathIdDoesNotExists);
 }
 
-TEST_F(SourcePathStorage, fetch_all_source_contexts_are_empty_if_no_source_contexts_exists)
+TEST_F(SourcePathStorage, fetch_all_directory_paths_are_empty_if_no_directory_paths_exists)
 {
     storage.clearSources();
 
-    auto sourceContexts = storage.fetchAllSourceContexts();
+    auto directoryPaths = storage.fetchAllDirectoryPaths();
 
-    ASSERT_THAT(toValues(sourceContexts), IsEmpty());
+    ASSERT_THAT(toValues(directoryPaths), IsEmpty());
 }
 
-TEST_F(SourcePathStorage, fetch_all_source_contexts)
+TEST_F(SourcePathStorage, fetch_all_directory_paths)
 {
     storage.clearSources();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-    auto sourceContextId2 = storage.fetchSourceContextId("/path/to2");
+    auto directoryPathId = storage.fetchDirectoryPathId("/path/to");
+    auto directoryPathId2 = storage.fetchDirectoryPathId("/path/to2");
 
-    auto sourceContexts = storage.fetchAllSourceContexts();
+    auto directoryPaths = storage.fetchAllDirectoryPaths();
 
-    ASSERT_THAT(toValues(sourceContexts),
-                UnorderedElementsAre(IsSourceContext(sourceContextId, "/path/to"),
-                                     IsSourceContext(sourceContextId2, "/path/to2")));
+    ASSERT_THAT(toValues(directoryPaths),
+                UnorderedElementsAre(IsDirectoryPath(directoryPathId, "/path/to"),
+                                     IsDirectoryPath(directoryPathId2, "/path/to2")));
 }
 
 TEST_F(SourcePathStorage, fetch_source_id_first_time)
 {
     addSomeDummyData();
 
-    auto sourceNameId = storage.fetchSourceNameId("foo");
+    auto fileNameId = storage.fetchFileNameId("foo");
 
-    ASSERT_TRUE(sourceNameId.isValid());
+    ASSERT_TRUE(fileNameId.isValid());
 }
 
 TEST_F(SourcePathStorage, fetch_existing_source_id)
 {
     addSomeDummyData();
-    auto createdSourceNameId = storage.fetchSourceNameId("foo");
+    auto createdFileNameId = storage.fetchFileNameId("foo");
 
-    auto sourceNameId = storage.fetchSourceNameId("foo");
+    auto fileNameId = storage.fetchFileNameId("foo");
 
-    ASSERT_THAT(sourceNameId, createdSourceNameId);
+    ASSERT_THAT(fileNameId, createdFileNameId);
 }
 
 TEST_F(SourcePathStorage, fetch_source_id_with_different_name_are_not_equal)
 {
     addSomeDummyData();
-    auto sourceNameId2 = storage.fetchSourceNameId("foo");
+    auto fileNameId2 = storage.fetchFileNameId("foo");
 
-    auto sourceNameId = storage.fetchSourceNameId("foo2");
+    auto fileNameId = storage.fetchFileNameId("foo2");
 
-    ASSERT_THAT(sourceNameId, Ne(sourceNameId2));
+    ASSERT_THAT(fileNameId, Ne(fileNameId2));
 }
 
-TEST_F(SourcePathStorage, fetch_source_name_and_source_context_id_for_non_existing_source_id)
+TEST_F(SourcePathStorage, fetch_file_name_and_directory_path_id_for_non_existing_source_id)
 {
-    ASSERT_THROW(storage.fetchSourceName(SourceNameId::create(212)),
-                 QmlDesigner::SourceNameIdDoesNotExists);
+    ASSERT_THROW(storage.fetchFileName(FileNameId::create(212)),
+                 QmlDesigner::FileNameIdDoesNotExists);
 }
 
-TEST_F(SourcePathStorage, fetch_source_name_for_non_existing_entry)
+TEST_F(SourcePathStorage, fetch_file_name_for_non_existing_entry)
 {
     addSomeDummyData();
-    auto sourceNameId = storage.fetchSourceNameId("foo");
+    auto fileNameId = storage.fetchFileNameId("foo");
 
-    auto sourceName = storage.fetchSourceName(sourceNameId);
+    auto fileName = storage.fetchFileName(fileNameId);
 
-    ASSERT_THAT(sourceName, Eq("foo"));
+    ASSERT_THAT(fileName, Eq("foo"));
 }
 
 TEST_F(SourcePathStorage, fetch_all_sources)
 {
     storage.clearSources();
 
-    auto sources = storage.fetchAllSourceNames();
+    auto sources = storage.fetchAllFileNames();
 
     ASSERT_THAT(toValues(sources), IsEmpty());
 }
@@ -182,7 +182,7 @@ TEST_F(SourcePathStorage, fetch_source_id_unguarded_first_time)
     addSomeDummyData();
     std::lock_guard lock{database};
 
-    auto sourceId = storage.fetchSourceNameIdUnguarded("foo");
+    auto sourceId = storage.fetchFileNameIdUnguarded("foo");
 
     ASSERT_TRUE(sourceId.isValid());
 }
@@ -191,9 +191,9 @@ TEST_F(SourcePathStorage, fetch_existing_source_id_unguarded)
 {
     addSomeDummyData();
     std::lock_guard lock{database};
-    auto createdSourceId = storage.fetchSourceNameIdUnguarded("foo");
+    auto createdSourceId = storage.fetchFileNameIdUnguarded("foo");
 
-    auto sourceId = storage.fetchSourceNameIdUnguarded("foo");
+    auto sourceId = storage.fetchFileNameIdUnguarded("foo");
 
     ASSERT_THAT(sourceId, createdSourceId);
 }
@@ -202,9 +202,9 @@ TEST_F(SourcePathStorage, fetch_source_id_unguarded_with_different_name_are_not_
 {
     addSomeDummyData();
     std::lock_guard lock{database};
-    auto sourceId2 = storage.fetchSourceNameIdUnguarded("foo");
+    auto sourceId2 = storage.fetchFileNameIdUnguarded("foo");
 
-    auto sourceId = storage.fetchSourceNameIdUnguarded("foo2");
+    auto sourceId = storage.fetchFileNameIdUnguarded("foo2");
 
     ASSERT_THAT(sourceId, Ne(sourceId2));
 }

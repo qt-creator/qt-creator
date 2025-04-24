@@ -119,7 +119,7 @@ struct alignas(16) StringDataLayout
 
     StringDataLayout(const char *string, size_type size, size_type capacity) noexcept
     {
-        if (Q_LIKELY(capacity <= shortStringCapacity())) {
+        if (capacity <= shortStringCapacity()) [[likely]] {
             control = Internal::ControlBlock<MaximumShortStringDataAreaSize>(size, false, false);
             std::char_traits<char>::copy(shortString, string, size);
         } else {
@@ -181,11 +181,20 @@ struct alignas(16) StringDataLayout
 
     constexpr bool isReadOnlyReference() const noexcept { return control.isReadOnlyReference(); }
 
-    char *data() noexcept { return Q_LIKELY(isShortString()) ? shortString : reference.pointer; }
+    char *data() noexcept
+    {
+        if (isShortString()) [[likely]]
+            return shortString;
+        else
+            return reference.pointer;
+    }
 
     const char *data() const noexcept
     {
-        return Q_LIKELY(isShortString()) ? shortString : reference.pointer;
+        if (isShortString()) [[likely]]
+            return shortString;
+        else
+            return reference.pointer;
     }
 
     void setPointer(char *p) noexcept { reference.pointer = p; }
@@ -266,7 +275,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
         : size_{static_cast<int>(size)}
         , capacity_{static_cast<int>(std::max<size_type>(capacity, MaximumShortStringDataAreaSize))}
     {
-        if (Q_LIKELY(capacity <= shortStringCapacity())) {
+        if (capacity <= shortStringCapacity()) [[likely]] {
             std::char_traits<char>::copy(buffer, string, size);
             pointer = buffer;
         } else {

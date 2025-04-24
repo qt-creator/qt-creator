@@ -68,7 +68,7 @@
     exported. The \uicontrol {Home} panel displays and allows layer annotation for
     export.
 
-    \image qt-bridge-xd-home.png
+    \image {qt-bridge-xd-home.png} {The Qt Bridge for Adobe XD home panel.}
 
     \list 1
         \li In the \uicontrol ID field, enter a unique and descriptive name.
@@ -180,8 +180,8 @@
     \list 1
       \li Select \uicontrol Settings.
 
-          \image qt-bridge-xd-menu.png
-          \image qt-bridge-xd-settings.png
+          \image {qt-bridge-xd-menu.png} {Settings selected in the file menu.}
+          \image {qt-bridge-xd-settings.png} {The Qt Bridge for Adobe XD Settings panel.}
       \li You can now edit the following settings:
 
         \list

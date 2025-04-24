@@ -20,10 +20,12 @@ using namespace QmlJS;
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 
-QmlRefactoring::QmlRefactoring(const Document::Ptr &doc, TextModifier &modifier, const PropertyNameList &propertyOrder):
-        qmlDocument(doc),
-        textModifier(&modifier),
-        m_propertyOrder(propertyOrder)
+QmlRefactoring::QmlRefactoring(const Document::Ptr &doc,
+                               TextModifier &modifier,
+                               Utils::span<const PropertyNameView> propertyOrder)
+    : qmlDocument(doc)
+    , textModifier(&modifier)
+    , m_propertyOrder(propertyOrder)
 {
 }
 
@@ -75,7 +77,9 @@ bool QmlRefactoring::addToArrayMemberList(int parentLocation,
     return visit(qmlDocument->qmlProgram());
 }
 
-bool QmlRefactoring::addToObjectMemberList(int parentLocation, int nodeLocation, const QString &content)
+bool QmlRefactoring::addToObjectMemberList(int parentLocation,
+                                           std::optional<int> nodeLocation,
+                                           const QString &content)
 {
     if (parentLocation < 0)
         return false;

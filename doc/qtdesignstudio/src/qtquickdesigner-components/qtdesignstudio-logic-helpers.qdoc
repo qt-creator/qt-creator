@@ -246,7 +246,7 @@
     is under or over the going value. We then use \uicontrol {And Operator}
     components to determine whether the value is below minimum or above maximum.
 
-    \image studio-logic-helper-combining-example.gif
+    \image {studio-logic-helper-combining-example.gif} {An animated example of an app combining several logic helpers.}
 
     We use one \uicontrol {String Mapper} component to map the
     slider value to a \uicontrol Text component that displays the price, as
@@ -295,7 +295,7 @@
     and sell hints. For this purpose, we create the states and set
     \c when conditions for them.
 
-    \image studio-logic-helper-combining-example.png
+    \image {studio-logic-helper-combining-example.png} {The different stats of the app in the States view.}
 
     First, we create a \e tooLow state and set a \c when condition to
     apply it when the value of the \uicontrol {Below min} field of

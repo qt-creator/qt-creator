@@ -19,11 +19,32 @@ WindowManager::WindowManager()
     connect(qGuiApp, &QGuiApplication::focusWindowChanged, this, &WindowManager::focusWindowChanged);
     connect(
         Core::ICore::instance(), &Core::ICore::coreAboutToClose, this, &WindowManager::aboutToQuit);
-    connect(
-        Core::ICore::instance()->mainWindow()->windowHandle(),
-        &QWindow::visibleChanged,
-        this,
-        &WindowManager::mainWindowVisibleChanged);
+
+    if (!connectMainWindowHandle())
+        Core::ICore::instance()->mainWindow()->installEventFilter(this);
+}
+
+bool WindowManager::connectMainWindowHandle()
+{
+    if (QWindow *windowHandle = Core::ICore::instance()->mainWindow()->windowHandle()) {
+        QMetaObject::Connection success = connect(
+            windowHandle,
+            &QWindow::visibleChanged,
+            this,
+            &WindowManager::mainWindowVisibleChanged,
+            Qt::UniqueConnection);
+        return success;
+    }
+    return false;
+}
+
+bool WindowManager::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == Core::ICore::instance()->mainWindow() && event->type() == QEvent::WinIdChange) {
+        connectMainWindowHandle();
+        Core::ICore::instance()->mainWindow()->removeEventFilter(this);
+    }
+    return QObject::eventFilter(watched, event);
 }
 
 void WindowManager::registerDeclarativeType()

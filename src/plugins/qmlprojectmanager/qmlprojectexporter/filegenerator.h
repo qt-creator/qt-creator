@@ -32,6 +32,7 @@ public:
     const QmlBuildSystem *buildSystem() const;
 
     bool isEnabled() const;
+    bool isActive() const;
     void setEnabled(bool enabled);
 
     bool standaloneApp() const;
@@ -42,7 +43,6 @@ protected:
 
 private:
     bool m_enabled = false;
-    bool m_standaloneApp = false;
     QmlBuildSystem *m_buildSystem = nullptr;
 };
 

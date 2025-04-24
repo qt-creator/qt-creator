@@ -11,8 +11,7 @@
 #include <QQmlEngine>
 
 namespace QmlDesigner {
-DesignSystemInterface::DesignSystemInterface(DSStore *store)
-    : m_store(store)
+DesignSystemInterface::DesignSystemInterface()
 {
     qmlRegisterUncreatableMetaObject(
         QmlDesigner::staticMetaObject, "QmlDesigner.DesignSystem", 1, 0, "GroupType", "");
@@ -23,6 +22,8 @@ DesignSystemInterface::~DesignSystemInterface() {}
 
 void DesignSystemInterface::loadDesignSystem()
 {
+    QTC_ASSERT(m_store, return);
+
     m_models.clear();
 
     if (auto err = m_store->load())
@@ -33,6 +34,8 @@ void DesignSystemInterface::loadDesignSystem()
 
 CollectionModel *DesignSystemInterface::model(const QString &typeName)
 {
+    QTC_ASSERT(m_store, return nullptr);
+
     if (auto collection = m_store->collection(typeName))
         return createModel(typeName, collection);
 
@@ -41,17 +44,22 @@ CollectionModel *DesignSystemInterface::model(const QString &typeName)
 
 QString DesignSystemInterface::generateCollectionName(const QString &hint) const
 {
+    QTC_ASSERT(m_store, return {});
     return m_store->uniqueCollectionName(hint);
 }
 
 void DesignSystemInterface::addCollection(const QString &name)
 {
+    QTC_ASSERT(m_store, return);
+
     if (m_store->addCollection(name))
         emit collectionsChanged();
 }
 
 void DesignSystemInterface::removeCollection(const QString &name)
 {
+    QTC_ASSERT(m_store, return);
+
     if (m_store->collection(name)) {
         m_models.erase(name);
         m_store->removeCollection(name);
@@ -61,6 +69,8 @@ void DesignSystemInterface::removeCollection(const QString &name)
 
 void DesignSystemInterface::renameCollection(const QString &oldName, const QString &newName)
 {
+    QTC_ASSERT(m_store, return);
+
     if (m_store->renameCollection(oldName, newName))
         emit collectionsChanged();
 }
@@ -74,7 +84,14 @@ ThemeProperty DesignSystemInterface::createThemeProperty(const QString &name,
 
 QStringList DesignSystemInterface::collections() const
 {
+    QTC_ASSERT(m_store, return {});
+
     return m_store->collectionNames();
+}
+
+void DesignSystemInterface::setDSStore(DSStore *store)
+{
+    m_store = store;
 }
 
 CollectionModel *DesignSystemInterface::createModel(const QString &typeName, DSThemeManager *collection)

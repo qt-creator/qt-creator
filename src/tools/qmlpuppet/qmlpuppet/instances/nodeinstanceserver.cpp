@@ -182,7 +182,7 @@ NodeInstanceServer::~NodeInstanceServer()
     m_objectInstanceHash.clear();
 }
 
-QList<ServerNodeInstance> NodeInstanceServer::createInstances(const QVector<InstanceContainer> &containerVector)
+QList<ServerNodeInstance> NodeInstanceServer::createInstances(const QList<InstanceContainer> &containerVector)
 {
     Q_ASSERT(declarativeView() || quickWindow());
     QList<ServerNodeInstance> instanceList;
@@ -349,7 +349,7 @@ void NodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
     if (activeStateInstance().isValid())
         activeStateInstance().deactivateState();
 
-    const QVector<qint32> instanceIds = command.instanceIds();
+    const QList<qint32> instanceIds = command.instanceIds();
     for (qint32 instanceId : instanceIds)
         removeInstanceRelationsip(instanceId);
 
@@ -363,7 +363,7 @@ void NodeInstanceServer::removeInstances(const RemoveInstancesCommand &command)
 void NodeInstanceServer::removeProperties(const RemovePropertiesCommand &command)
 {
     bool hasDynamicProperties = false;
-    const QVector<PropertyAbstractContainer> props = command.properties();
+    const QList<PropertyAbstractContainer> props = command.properties();
     for (const PropertyAbstractContainer &container : props) {
         hasDynamicProperties |= container.isDynamic();
         resetInstanceProperty(container);
@@ -375,7 +375,7 @@ void NodeInstanceServer::removeProperties(const RemovePropertiesCommand &command
     startRenderTimer();
 }
 
-void NodeInstanceServer::reparentInstances(const QVector<ReparentContainer> &containerVector)
+void NodeInstanceServer::reparentInstances(const QList<ReparentContainer> &containerVector)
 {
     for (const ReparentContainer &container : containerVector) {
         if (hasInstanceForId(container.instanceId())) {
@@ -418,7 +418,7 @@ void NodeInstanceServer::completeComponent(const CompleteComponentCommand &comma
 {
     QList<ServerNodeInstance> instanceList;
 
-    const QVector<qint32> instanceIds = command.instances();
+    const QList<qint32> instanceIds = command.instances();
     for (qint32 instanceId : instanceIds) {
         if (hasInstanceForId(instanceId)) {
             ServerNodeInstance instance = instanceForId(instanceId);
@@ -449,7 +449,7 @@ void NodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &/*c
 {
 }
 
-void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector)
+void NodeInstanceServer::setupImports(const QList<AddImportContainer> &containerVector)
 {
     Q_ASSERT(quickWindow());
     QSet<QString> importStatementSet;
@@ -622,7 +622,7 @@ void NodeInstanceServer::changeFileUrl(const ChangeFileUrlCommand &command)
 void NodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)
 {
     bool hasDynamicProperties = false;
-    const QVector<PropertyValueContainer> valueChanges = command.valueChanges();
+    const QList<PropertyValueContainer> valueChanges = command.valueChanges();
     for (const PropertyValueContainer &container : valueChanges) {
         hasDynamicProperties |= container.isDynamic();
         setInstancePropertyVariant(container);
@@ -636,7 +636,7 @@ void NodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command
 
 void NodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
 {
-    const QVector<PropertyValueContainer> auxiliaryChanges = command.auxiliaryChanges;
+    const QList<PropertyValueContainer> auxiliaryChanges = command.auxiliaryChanges;
     for (const PropertyValueContainer &container : auxiliaryChanges)
         setInstanceAuxiliaryData(container);
 
@@ -646,7 +646,7 @@ void NodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &com
 void NodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
 {
     bool hasDynamicProperties = false;
-    const QVector<PropertyBindingContainer> bindingChanges = command.bindingChanges;
+    const QList<PropertyBindingContainer> bindingChanges = command.bindingChanges;
     for (const PropertyBindingContainer &container : bindingChanges) {
         hasDynamicProperties |= container.isDynamic();
         setInstancePropertyBinding(container);
@@ -688,7 +688,7 @@ QQmlContext *NodeInstanceServer::rootContext() const
     return engine()->rootContext();
 }
 
-const QVector<NodeInstanceServer::InstancePropertyPair> NodeInstanceServer::changedPropertyList() const
+const QList<NodeInstanceServer::InstancePropertyPair> NodeInstanceServer::changedPropertyList() const
 {
     return m_changedPropertyList;
 }
@@ -724,7 +724,7 @@ static bool isTypeAvailable(const MockupTypeContainer &mockupType, QQmlEngine *e
     return !component.isError();
 }
 
-void NodeInstanceServer::setupMockupTypes(const QVector<MockupTypeContainer> &container)
+void NodeInstanceServer::setupMockupTypes(const QList<MockupTypeContainer> &container)
 {
     for (const MockupTypeContainer &mockupType : container) {
         if (!isTypeAvailable(mockupType, engine())) {
@@ -1082,9 +1082,9 @@ NodeInstanceClientInterface *NodeInstanceServer::nodeInstanceClient() const
     return m_nodeInstanceClient;
 }
 
-static QVector<InformationContainer> createInformationVector(const QList<ServerNodeInstance> &instanceList, bool initial)
+static QList<InformationContainer> createInformationVector(const QList<ServerNodeInstance> &instanceList, bool initial)
 {
-    QVector<InformationContainer> informationVector;
+    QList<InformationContainer> informationVector;
 
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isValid()) {
@@ -1166,7 +1166,7 @@ static QVector<InformationContainer> createInformationVector(const QList<ServerN
 ChildrenChangedCommand NodeInstanceServer::createChildrenChangedCommand(const ServerNodeInstance &parentInstance,
                                                                         const QList<ServerNodeInstance> &instanceList) const
 {
-    QVector<qint32> instanceVector;
+    QList<qint32> instanceVector;
 
     for (const ServerNodeInstance &instance : instanceList)
         instanceVector.append(instance.instanceId());
@@ -1190,7 +1190,7 @@ static bool supportedVariantType(int type)
 
 ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const
 {
-    QVector<PropertyValueContainer> valueVector;
+    QList<PropertyValueContainer> valueVector;
 
     for (const ServerNodeInstance &instance : instanceList) {
         const QList<PropertyName> propertyNames = instance.propertyNames();
@@ -1208,7 +1208,7 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<
 
 ComponentCompletedCommand NodeInstanceServer::createComponentCompletedCommand(const QList<ServerNodeInstance> &instanceList)
 {
-    QVector<qint32> idVector;
+    QList<qint32> idVector;
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.instanceId() >= 0)
             idVector.append(instance.instanceId());
@@ -1219,7 +1219,7 @@ ComponentCompletedCommand NodeInstanceServer::createComponentCompletedCommand(co
 
 ChangeSelectionCommand NodeInstanceServer::createChangeSelectionCommand(const QList<ServerNodeInstance> &instanceList)
 {
-    QVector<qint32> idVector;
+    QList<qint32> idVector;
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.instanceId() >= 0)
             idVector.append(instance.instanceId());
@@ -1228,9 +1228,9 @@ ChangeSelectionCommand NodeInstanceServer::createChangeSelectionCommand(const QL
     return ChangeSelectionCommand(idVector);
 }
 
-ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVector<InstancePropertyPair> &propertyList) const
+ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<InstancePropertyPair> &propertyList) const
 {
-    QVector<PropertyValueContainer> valueVector;
+    QList<PropertyValueContainer> valueVector;
 
     for (const InstancePropertyPair &property : propertyList) {
         const PropertyName propertyName = property.second;
@@ -1257,9 +1257,9 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
 }
 
 ValuesModifiedCommand NodeInstanceServer::createValuesModifiedCommand(
-    const QVector<InstancePropertyValueTriple> &propertyList) const
+    const QList<InstancePropertyValueTriple> &propertyList) const
 {
-    QVector<PropertyValueContainer> valueVector;
+    QList<PropertyValueContainer> valueVector;
 
     for (const InstancePropertyValueTriple &property : propertyList) {
         const PropertyName propertyName = property.propertyName;
@@ -1322,7 +1322,7 @@ PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<
 {
     NANOTRACE_SCOPE("Update", "createPixmapChangedCommand");
 
-    QVector<ImageContainer> imageVector;
+    QList<ImageContainer> imageVector;
 
     for (const ServerNodeInstance &instance : instanceList) {
         if (!instance.isValid())
@@ -1440,13 +1440,13 @@ void NodeInstanceServer::loadDummyDataContext(const QString &directory)
 void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message,
                                          qint32 instanceId)
 {
-    QVector<qint32> ids;
+    QList<qint32> ids;
     ids.append(instanceId);
     sendDebugOutput(type, message, ids);
 }
 
 void NodeInstanceServer::sendDebugOutput(DebugOutputCommand::Type type, const QString &message,
-                                         const QVector<qint32> &instanceIds)
+                                         const QList<qint32> &instanceIds)
 {
     DebugOutputCommand command(message, type, instanceIds);
     nodeInstanceClient()->debugOutput(command);
@@ -1532,7 +1532,7 @@ void NodeInstanceServer::sheduleRootItemRender()
 
     if (result) {
         connect(result.data(), &QQuickItemGrabResult::ready, [this, result, instanceId] {
-            QVector<ImageContainer> imageVector;
+            QList<ImageContainer> imageVector;
             ImageContainer container(instanceId, result->image(), instanceId);
             imageVector.append(container);
             nodeInstanceClient()->pixmapChanged(PixmapChangedCommand(imageVector));
@@ -1618,7 +1618,7 @@ void NodeInstanceServer::addAnimation(QQuickAbstractAnimation *animation)
     }
 }
 
-QVector<QQuickAbstractAnimation *> NodeInstanceServer::animations() const
+QList<QQuickAbstractAnimation *> NodeInstanceServer::animations() const
 {
     return m_animations;
 }

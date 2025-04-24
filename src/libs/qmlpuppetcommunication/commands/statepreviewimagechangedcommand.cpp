@@ -11,12 +11,12 @@ namespace QmlDesigner {
 
 StatePreviewImageChangedCommand::StatePreviewImageChangedCommand() = default;
 
-StatePreviewImageChangedCommand::StatePreviewImageChangedCommand(const QVector<ImageContainer> &imageVector)
+StatePreviewImageChangedCommand::StatePreviewImageChangedCommand(const QList<ImageContainer> &imageVector)
     : m_previewVector(imageVector)
 {
 }
 
-QVector<ImageContainer> StatePreviewImageChangedCommand::previews()const
+QList<ImageContainer> StatePreviewImageChangedCommand::previews() const
 {
     return m_previewVector;
 }

@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
 #include "propertyabstractcontainer.h"
 
@@ -17,12 +17,12 @@ class RemovePropertiesCommand
 
 public:
     RemovePropertiesCommand();
-    explicit RemovePropertiesCommand(const QVector<PropertyAbstractContainer> &properties);
+    explicit RemovePropertiesCommand(const QList<PropertyAbstractContainer> &properties);
 
-    const QVector<PropertyAbstractContainer> properties() const;
+    const QList<PropertyAbstractContainer> properties() const;
 
 private:
-    QVector<PropertyAbstractContainer> m_properties;
+    QList<PropertyAbstractContainer> m_properties;
 };
 
 QDataStream &operator<<(QDataStream &out, const RemovePropertiesCommand &command);

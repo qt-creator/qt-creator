@@ -5,8 +5,8 @@
 
 #include <QDataStream>
 #include <QDebug>
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
 #include "propertyvaluecontainer.h"
 
@@ -29,7 +29,7 @@ public:
 
     friend QDebug operator <<(QDebug debug, const ChangeAuxiliaryCommand &command);
 
-    QVector<PropertyValueContainer> auxiliaryChanges;
+    QList<PropertyValueContainer> auxiliaryChanges;
 };
 
 } // namespace QmlDesigner

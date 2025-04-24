@@ -80,9 +80,10 @@ HelperWidgets.Section {
         function showNodeExistsWarning(enable)
         {
             infoText.text = qsTr("An effect with this name already exists.\nSuffix was added to make the name unique.")
-            infoTimer.restart()
-            infoText.visible = enable
             infoText.color = StudioTheme.Values.themeWarning
+            infoText.visible = enable
+            if (infoText.visible)
+                infoTimer.restart()
         }
 
         function showNodeAddedToLibraryInfo(message)
@@ -95,15 +96,17 @@ HelperWidgets.Section {
                 infoText.text = message
                 infoText.color = StudioTheme.Values.themeInteraction
             }
-            infoTimer.restart()
             infoText.visible = message !== ""
+            if (infoText.visible)
+                infoTimer.restart()
         }
 
         function showNeedRenameInfo()
         {
+            infoTimer.stop()
             infoText.text = qsTr("A built-in effect with this name already exists in the library.\nPlease rename the effect before adding it to the library.")
-            infoText.visible = true
             infoText.color = StudioTheme.Values.themeWarning
+            infoText.visible = true
         }
 
         onVisibleChanged: {
@@ -120,7 +123,7 @@ HelperWidgets.Section {
 
             onTriggered: {
                 infoText.visible = false
-                infoTimer.running = false
+                infoTimer.stop()
             }
         }
     }

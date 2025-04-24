@@ -10,12 +10,12 @@ namespace QmlDesigner {
 
 CreateInstancesCommand::CreateInstancesCommand() = default;
 
-CreateInstancesCommand::CreateInstancesCommand(const QVector<InstanceContainer> &container)
+CreateInstancesCommand::CreateInstancesCommand(const QList<InstanceContainer> &container)
     : m_instanceVector(container)
 {
 }
 
-QVector<InstanceContainer> CreateInstancesCommand::instances() const
+QList<InstanceContainer> CreateInstancesCommand::instances() const
 {
     return m_instanceVector;
 }

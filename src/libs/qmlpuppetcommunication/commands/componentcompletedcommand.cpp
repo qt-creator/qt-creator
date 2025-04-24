@@ -12,12 +12,12 @@ namespace QmlDesigner {
 
 ComponentCompletedCommand::ComponentCompletedCommand() = default;
 
-ComponentCompletedCommand::ComponentCompletedCommand(const QVector<qint32> &container)
+ComponentCompletedCommand::ComponentCompletedCommand(const QList<qint32> &container)
     : m_instanceVector(container)
 {
 }
 
-QVector<qint32> ComponentCompletedCommand::instances() const
+QList<qint32> ComponentCompletedCommand::instances() const
 {
     return m_instanceVector;
 }

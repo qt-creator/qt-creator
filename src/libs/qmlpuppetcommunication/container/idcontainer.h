@@ -4,9 +4,8 @@
 #pragma once
 
 #include <QDataStream>
-#include <qmetatype.h>
+#include <QMetaType>
 #include <QString>
-
 
 namespace QmlDesigner {
 

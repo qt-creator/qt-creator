@@ -16,10 +16,11 @@ class UserTextureCategory : public UserCategory
 public:
     UserTextureCategory(const QString &title, const Utils::FilePath &bundlePath);
 
-    void loadBundle(bool force) override;
+    void loadBundle(bool force = false) override;
     void filter(const QString &searchText) override;
 
     void addItems(const Utils::FilePaths &paths);
+    void clearItems();
 };
 
 } // namespace QmlDesigner

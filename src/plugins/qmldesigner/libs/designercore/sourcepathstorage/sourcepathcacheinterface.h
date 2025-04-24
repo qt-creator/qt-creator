@@ -24,19 +24,19 @@ public:
 
     virtual SourceId sourceId(SourcePathView sourcePath) const = 0;
 
-    virtual SourceId sourceId(SourceContextId sourceContextId,
-                              Utils::SmallStringView sourceName) const
+    virtual SourceId sourceId(DirectoryPathId directoryPathId,
+                              Utils::SmallStringView fileName) const
         = 0;
 
-    virtual SourceNameId sourceNameId(Utils::SmallStringView sourceName) const = 0;
+    virtual FileNameId fileNameId(Utils::SmallStringView fileName) const = 0;
 
-    virtual SourceContextId sourceContextId(Utils::SmallStringView sourceContextPath) const = 0;
+    virtual DirectoryPathId directoryPathId(Utils::SmallStringView directoryPath) const = 0;
 
     virtual SourcePath sourcePath(SourceId sourceId) const = 0;
 
-    virtual Utils::PathString sourceContextPath(SourceContextId sourceContextId) const = 0;
+    virtual Utils::PathString directoryPath(DirectoryPathId directoryPathId) const = 0;
 
-    virtual Utils::SmallString sourceName(SourceNameId sourceNameId) const = 0;
+    virtual Utils::SmallString fileName(FileNameId fileNameId) const = 0;
 
 protected:
     ~SourcePathCacheInterface() = default;

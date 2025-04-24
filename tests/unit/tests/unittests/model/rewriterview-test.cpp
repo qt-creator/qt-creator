@@ -7,6 +7,7 @@
 #include <mocks/abstractviewmock.h>
 #include <mocks/modelresourcemanagementmock.h>
 #include <mocks/projectstoragemock.h>
+#include <mocks/projectstoragetriggerupdatemock.h>
 #include <mocks/sourcepathcachemock.h>
 #include <rewriterview.h>
 #include <textmodifiermock.h>
@@ -26,13 +27,14 @@ protected:
     ~RewriterView() { model.setRewriterView(nullptr); }
 
 protected:
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<ExternalDependenciesMock> externalDependenciesMock;
     NiceMock<TextModifierMock> textModifierMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
     QmlDesigner::Imports imports = {QmlDesigner::Import::createLibraryImport("QtQuick")};
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
                              "Item",
                              imports,
                              QUrl::fromLocalFile(pathCacheMock.path.toQString()),

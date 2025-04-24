@@ -26,7 +26,7 @@
     Assets added to \uicontrol {User Assets} are always available in \uicontrol {Content Library}
     regardless of what project you are working on.
 
-    \image content-library.webp
+    \image {content-library.webp} {The Materials tab in the Content Library view.}
 
     \section1 Adding a material to your project
 
@@ -86,7 +86,7 @@
 
     \section1 User Assets
 
-    \image user-assets.webp
+    \image {user-assets.webp} {The User Assets tab in the Content Library view.}
 
     Add assets to \uicontrol {User Assets} to access them in any project.
 

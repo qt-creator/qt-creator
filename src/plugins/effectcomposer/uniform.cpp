@@ -47,7 +47,7 @@ Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QS
             m_enableMipmap = getBoolValue(propObj.value("enableMipmap"), false);
         // Update the mipmap property
         QString mipmapProperty = mipmapPropertyName(m_name);
-        g_propertyData[mipmapProperty] = m_enableMipmap;
+        g_propertyData()->insert(mipmapProperty, m_enableMipmap);
     }
 
     QString controlType = propObj.value("controlType").toString();

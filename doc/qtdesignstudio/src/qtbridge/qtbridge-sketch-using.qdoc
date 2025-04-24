@@ -160,7 +160,7 @@
     component in \QDS. Or you could export a button as a Qt Quick Controls
     \l Button component.
 
-    \image qt-sketch-bridge.png
+    \image {qt-sketch-bridge.png} {Qt Bridge for Sketch open with default settings.}
 
     \section2 Specifying settings for exporting assets
 
@@ -253,7 +253,7 @@
     You can export assets into JPG, PNG, or SVG format. To specify export path
     and asset format, select \uicontrol Settings.
 
-    \image qt-sketch-bridge-settings.png
+    \image {qt-sketch-bridge-settings.png} {Qt Bridge for Sketch export settings with export path and asset format specified.}
 
     \QBSK exports assets to a .qtbridge archive named after your
     Sketch file. By default, the directory is  located inside the parent directory
@@ -303,5 +303,5 @@
     To export a library, select \uicontrol Export. \QBSK asks you whether you want to export the
     complete library or to unlink the symbols.
 
-    \image qt-sketch-bridge-library.png
+    \image {qt-sketch-bridge-library.png} {Qt Bridge for Sketch Export Library dialog.}
 */

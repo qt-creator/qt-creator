@@ -18,7 +18,7 @@
     mode to modify UI files (.ui.qml). For more information, see
     \l {Implementing applications}.
 
-    \image qds-mcu-target-deployment.png
+    \image {qds-mcu-target-deployment.png} {The workflow of using Qt Design Studio and Qt for MCUs to create an application for an MCU target device.}
 
     With Qt Creator, you can test, preview, and fine-tune your designs directly
     on the desktop or on an actual MCU target device. As a developer you can use

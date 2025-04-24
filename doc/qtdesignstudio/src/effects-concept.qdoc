@@ -19,7 +19,7 @@
 designed for both experienced developers and beginners, simplifying the process of developing
 visual effects without requiring extensive knowledge of shader coding.
 
-\image northern-lights-effect.webp
+\image {northern-lights-effect.webp} {A northern lights effect in Effect Composer.}
 
 Key features of the \QDS Effect Composer:
 

@@ -24,12 +24,7 @@ long long FileStatusCache::fileSize(SourceId sourceId) const
 
 void FileStatusCache::update(SourceId sourceId)
 {
-    auto found = std::lower_bound(m_cacheEntries.begin(),
-                                  m_cacheEntries.end(),
-                                  sourceId,
-                                  [](const auto &first, const auto &second) {
-                                      return first < second;
-                                  });
+    auto found = std::ranges::lower_bound(m_cacheEntries, sourceId, {}, &FileStatus::sourceId);
 
     if (found != m_cacheEntries.end() && found->sourceId == sourceId)
         *found = m_fileSystem.fileStatus(sourceId);
@@ -37,13 +32,12 @@ void FileStatusCache::update(SourceId sourceId)
 
 void FileStatusCache::update(SourceIds sourceIds)
 {
-    std::set_intersection(m_cacheEntries.begin(),
-                          m_cacheEntries.end(),
-                          sourceIds.begin(),
-                          sourceIds.end(),
-                          Utils::make_iterator([&](auto &entry) {
-                              entry = m_fileSystem.fileStatus(entry.sourceId);
-                          }));
+    Utils::set_greedy_intersection(
+        m_cacheEntries,
+        sourceIds,
+        [&](auto &entry) { entry = m_fileSystem.fileStatus(entry.sourceId); },
+        {},
+        &FileStatus::sourceId);
 }
 
 SourceIds FileStatusCache::modified(SourceIds sourceIds) const
@@ -51,44 +45,43 @@ SourceIds FileStatusCache::modified(SourceIds sourceIds) const
     SourceIds modifiedSourceIds;
     modifiedSourceIds.reserve(sourceIds.size());
 
-    std::set_intersection(m_cacheEntries.begin(),
-                          m_cacheEntries.end(),
-                          sourceIds.begin(),
-                          sourceIds.end(),
-                          Utils::make_iterator([&](auto &entry) {
-                              auto fileStatus = m_fileSystem.fileStatus(entry.sourceId);
-                              if (fileStatus != entry) {
-                                  modifiedSourceIds.push_back(entry.sourceId);
-                                  entry = fileStatus;
-                              }
-                          }));
+    Utils::set_greedy_intersection(
+        m_cacheEntries,
+        sourceIds,
+        [&](auto &entry) {
+            auto fileStatus = m_fileSystem.fileStatus(entry.sourceId);
+            if (fileStatus != entry) {
+                modifiedSourceIds.push_back(entry.sourceId);
+                entry = fileStatus;
+            }
+        },
+        {},
+        &FileStatus::sourceId);
 
     FileStatuses newEntries;
     newEntries.reserve(sourceIds.size());
 
-    std::set_difference(sourceIds.begin(),
-                        sourceIds.end(),
-                        m_cacheEntries.begin(),
-                        m_cacheEntries.end(),
-                        Utils::make_iterator([&](SourceId newSourceId) {
-                            newEntries.push_back(m_fileSystem.fileStatus(newSourceId));
-                            modifiedSourceIds.push_back(newSourceId);
-                        }));
+    Utils::set_greedy_difference(
+        sourceIds,
+        m_cacheEntries,
+        [&](SourceId newSourceId) {
+            newEntries.push_back(m_fileSystem.fileStatus(newSourceId));
+            modifiedSourceIds.push_back(newSourceId);
+        },
+        {},
+        {},
+        &FileStatus::sourceId);
 
     if (newEntries.size()) {
         FileStatuses mergedEntries;
         mergedEntries.reserve(m_cacheEntries.size() + newEntries.size());
 
-        std::set_union(newEntries.begin(),
-                       newEntries.end(),
-                       m_cacheEntries.begin(),
-                       m_cacheEntries.end(),
-                       std::back_inserter(mergedEntries));
+        std::ranges::set_union(newEntries, m_cacheEntries, std::back_inserter(mergedEntries));
 
         m_cacheEntries = std::move(mergedEntries);
     }
 
-    std::sort(modifiedSourceIds.begin(), modifiedSourceIds.end());
+    std::ranges::sort(modifiedSourceIds);
 
     return modifiedSourceIds;
 }
@@ -100,12 +93,7 @@ FileStatusCache::size_type FileStatusCache::size() const
 
 const FileStatus &FileStatusCache::find(SourceId sourceId) const
 {
-    auto found = std::lower_bound(m_cacheEntries.begin(),
-                                  m_cacheEntries.end(),
-                                  sourceId,
-                                  [](const auto &first, const auto &second) {
-                                      return first < second;
-                                  });
+    auto found = std::ranges::lower_bound(m_cacheEntries, sourceId, {}, &FileStatus::sourceId);
 
     if (found != m_cacheEntries.end() && found->sourceId == sourceId)
         return *found;

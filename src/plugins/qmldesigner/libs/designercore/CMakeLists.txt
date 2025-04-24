@@ -243,6 +243,8 @@ extend_qtc_library(QmlDesignerCore
     stringutils.h
     synchronousimagecache.h
     variantproperty.h
+    widgetregistration.h
+    widgetinfo.h
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -392,6 +394,7 @@ extend_qtc_library(QmlDesignerCore
     projectstorageinfotypes.h
     projectstorageobserver.h
     projectstoragepathwatcher.h
+    projectstoragetriggerupdateinterface.h
     projectstoragepathwatcherinterface.h
     projectstoragepathwatchernotifierinterface.h
     projectstoragepathwatcher.h

@@ -13,35 +13,35 @@
 namespace QmlDesigner::Cache {
 
 
-class SourceContext
-    : public StorageCacheEntry<Utils::PathString, Utils::SmallStringView, SourceContextId>
+class DirectoryPath
+    : public StorageCacheEntry<Utils::PathString, Utils::SmallStringView, DirectoryPathId>
 {
-    using Base = StorageCacheEntry<Utils::PathString, Utils::SmallStringView, SourceContextId>;
+    using Base = StorageCacheEntry<Utils::PathString, Utils::SmallStringView, DirectoryPathId>;
 
 public:
     using Base::Base;
 
-    friend bool operator==(const SourceContext &first, const SourceContext &second)
+    friend bool operator==(const DirectoryPath &first, const DirectoryPath &second)
     {
         return first.id == second.id && first.value == second.value;
     }
 };
 
-using SourceContexts = std::vector<SourceContext>;
+using DirectoryPaths = std::vector<DirectoryPath>;
 
-class SourceName : public StorageCacheEntry<Utils::PathString, Utils::SmallStringView, SourceNameId>
+class FileName : public StorageCacheEntry<Utils::PathString, Utils::SmallStringView, FileNameId>
 {
-    using Base = StorageCacheEntry<Utils::PathString, Utils::SmallStringView, SourceNameId>;
+    using Base = StorageCacheEntry<Utils::PathString, Utils::SmallStringView, FileNameId>;
 
 public:
     using Base::Base;
 
-    friend bool operator==(const SourceName &first, const SourceName &second)
+    friend bool operator==(const FileName &first, const FileName &second)
     {
         return first.id == second.id && first.value == second.value;
     }
 };
 
-using SourceNames = std::vector<SourceName>;
+using FileNames = std::vector<FileName>;
 
 } // namespace QmlDesigner::Cache

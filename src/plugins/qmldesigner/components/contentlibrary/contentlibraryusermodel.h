@@ -6,9 +6,14 @@
 #include "usercategory.h"
 
 #include <utils/filepath.h>
+#include <utils/uniqueobjectptr.h>
 
 #include <QAbstractListModel>
 #include <QJsonObject>
+
+namespace Utils {
+class FileSystemWatcher;
+}
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
 
@@ -28,6 +33,7 @@ class ContentLibraryUserModel : public QAbstractListModel
 
 public:
     ContentLibraryUserModel(ContentLibraryWidget *parent = nullptr);
+    ~ContentLibraryUserModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -50,8 +56,9 @@ public:
     void addItem(const QString &bundleId, const QString &name, const QString &qml,const QUrl &icon,
                  const QStringList &files);
     void refreshSection(const QString &bundleId);
-    void addTextures(const Utils::FilePaths &paths);
-    void removeTextures(const QStringList &fileNames);
+    void addTextures(const Utils::FilePaths &paths, const Utils::FilePath &bundlePath);
+    void reloadTextureCategory(const Utils::FilePath &dirPath);
+    void removeTextures(const QStringList &fileNames, const Utils::FilePath &bundlePath);
 
     void removeItemByName(const QString &qmlFileName, const QString &bundleId);
 
@@ -59,12 +66,15 @@ public:
     QJsonObject &bundleObjectRef(const QString &bundleId);
 
     void loadBundles(bool force = false);
+    void addBundleDir(const Utils::FilePath &dirPath);
+    bool bundleDirExists(const QString &dirPath) const;
 
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryItem *mat, bool add = false);
     Q_INVOKABLE void addToProject(ContentLibraryItem *item);
     Q_INVOKABLE void removeFromProject(QObject *item);
     Q_INVOKABLE void removeTexture(QmlDesigner::ContentLibraryTexture *tex, bool refresh = true);
     Q_INVOKABLE void removeFromContentLib(QObject *item);
+    Q_INVOKABLE void removeBundleDir(int catIdx);
 
 signals:
     void hasRequiredQuick3DImportChanged();
@@ -79,14 +89,20 @@ private:
                         EffectsSectionIdx };
 
     void createCategories();
+    void loadCustomCategories(const Utils::FilePath &userBundlePath);
     void loadMaterialBundle();
     void load3DBundle();
     void loadTextureBundle();
     void removeItem(ContentLibraryItem *item);
     SectionIndex bundleIdToSectionIndex(const QString &bundleId) const;
+    int bundlePathToIndex(const QString &bundlePath) const;
+    int bundlePathToIndex(const Utils::FilePath &bundlePath) const;
 
     ContentLibraryWidget *m_widget = nullptr;
+    QJsonObject m_customCatsRootObj;
+    QJsonObject m_customCatsObj;
     QString m_searchText;
+    Utils::UniqueObjectPtr<Utils::FileSystemWatcher> m_fileWatcher;
 
     QList<UserCategory *> m_userCategories;
 
@@ -95,7 +111,9 @@ private:
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;
 
-    enum Roles { TitleRole = Qt::UserRole + 1, ItemsRole, EmptyRole, NoMatchRole };
+    enum Roles { TitleRole = Qt::UserRole + 1, BundlePathRole, ItemsRole, EmptyRole, NoMatchRole };
+
+    static constexpr char CUSTOM_BUNDLES_JSON_FILE_VERSION[] = "1.0";
 };
 
 } // namespace QmlDesigner

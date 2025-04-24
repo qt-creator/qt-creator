@@ -13,7 +13,7 @@ AddPropertyVisitor::AddPropertyVisitor(TextModifier &modifier,
                                        PropertyNameView name,
                                        const QString &value,
                                        QmlRefactoring::PropertyType propertyType,
-                                       const PropertyNameList &propertyOrder,
+                                       Utils::span<const PropertyNameView> propertyOrder,
                                        const TypeName &dynamicTypeName)
     : QMLRewriter(modifier)
     , m_parentLocation(parentLocation)

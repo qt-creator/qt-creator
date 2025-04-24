@@ -1,0 +1,111 @@
+MetaInfo {
+    Type {
+        name: "QtGraphs.Bars3D"
+        icon: "images/bars3d-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Bars3D"
+            category: "3D Graphs"
+            libraryIcon: "images/bars3d-icon.png"
+            version: "1.0"
+            requiredImport: "QtGraphs"
+
+            QmlSource { source: "source/Bars3D.qml" }
+        }
+    }
+
+    Type {
+        name: "QtGraphs.Scatter3D"
+        icon: "images/scatter3d-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Scatter3D"
+            category: "3D Graphs"
+            libraryIcon: "images/scatter3d-icon.png"
+            version: "1.0"
+            requiredImport: "QtGraphs"
+
+            QmlSource { source: "source/Scatter3D.qml" }
+        }
+    }
+
+    Type {
+        name: "QtGraphs.Surface3D"
+        icon: "images/surface3d-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Surface3D"
+            category: "3D Graphs"
+            libraryIcon: "images/surface3d-icon.png"
+            version: "1.0"
+            requiredImport: "QtGraphs"
+
+            QmlSource { source: "source/Surface3D.qml" }
+        }
+    }
+
+    Type {
+        name: "QtGraphs.GraphsView"
+        icon: "images/chartview-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Area"
+            category: "2D Graphs"
+            libraryIcon: "images/areaseries-icon.png"
+            version: "1.0"
+            requiredImport: "QtGraphs"
+
+            QmlSource { source: "source/Graphs2DAreaSeries.qml" }
+        }
+
+        ItemLibraryEntry {
+            name: "Bar"
+            category: "2D Graphs"
+            libraryIcon: "images/barseries-icon.png"
+            version: "1.0"
+            requiredImport: "QtGraphs"
+
+            QmlSource { source: "source/Graphs2DBarSeries.qml" }
+        }
+
+        ItemLibraryEntry {
+            name: "Line"
+            category: "2D Graphs"
+            libraryIcon: "images/lineseries-icon.png"
+            version: "1.0"
+            requiredImport: "QtGraphs"
+
+            QmlSource { source: "source/Graphs2DLineSeries.qml" }
+        }
+
+        ItemLibraryEntry {
+            name: "Pie"
+            category: "2D Graphs"
+            libraryIcon: "images/pieseries-icon.png"
+            version: "1.0"
+            requiredImport: "QtGraphs"
+
+            QmlSource { source: "source/Graphs2DPieSeries.qml" }
+        }
+
+        ItemLibraryEntry {
+            name: "Scatter"
+            category: "2D Graphs"
+            libraryIcon: "images/scatterseries-icon.png"
+            version: "1.0"
+            requiredImport: "QtGraphs"
+
+            QmlSource { source: "source/Graphs2DScatterSeries.qml" }
+        }
+
+        ItemLibraryEntry {
+            name: "Spline"
+            category: "2D Graphs"
+            libraryIcon: "images/splineseries-icon.png"
+            version: "1.0"
+            requiredImport: "QtGraphs"
+
+            QmlSource { source: "source/Graphs2DSplineSeries.qml" }
+        }
+    }
+}

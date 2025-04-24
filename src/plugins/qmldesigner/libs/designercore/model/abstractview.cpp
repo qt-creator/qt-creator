@@ -59,6 +59,16 @@ void AbstractView::setModel(Model *model)
     m_model = model;
 }
 
+void AbstractView::setWidgetRegistration(WidgetRegistrationInterface *interface)
+{
+    m_widgetRegistration = interface;
+}
+
+void AbstractView::registerWidgetInfo()
+{
+    if (m_widgetRegistration)
+        m_widgetRegistration->registerWidgetInfo(widgetInfo());
+}
 RewriterTransaction AbstractView::beginRewriterTransaction(const QByteArray &identifier)
 {
     return RewriterTransaction(this, identifier);

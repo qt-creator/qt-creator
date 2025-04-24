@@ -37,7 +37,7 @@ public:
 
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;
-
+    void registerWidgetInfo() override;
     // AbstractView
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
@@ -63,7 +63,7 @@ private:
     bool isItemBundle(const QString &bundleId) const;
     void active3DSceneChanged(qint32 sceneId);
     void updateBundlesQuick3DVersion();
-    void addLibAssets(const QStringList &paths);
+    void addLibAssets(const QStringList &paths, const QString &bundlePath = {});
     void addLib3DComponent(const ModelNode &node);
     void addLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
     void importBundleToContentLib();

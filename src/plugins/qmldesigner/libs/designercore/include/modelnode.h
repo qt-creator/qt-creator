@@ -3,17 +3,10 @@
 
 #pragma once
 
-#include "auxiliarydata.h"
 #include "abstractproperty.h"
-#include "qmldesignercorelib_global.h"
+#include "auxiliarydata.h"
 
-#include <QPointer>
-#include <QList>
-#include <QVector>
-#include <QVariant>
-
-#include <memory>
-#include <optional>
+#include <tracing/qmldesignertracingsourcelocation.h>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
@@ -75,6 +68,8 @@ class QMLDESIGNERCORE_EXPORT ModelNode
     friend NodeAbstractProperty;
     friend NodeProperty;
 
+    using SL = ModelTracing::SourceLocation;
+
 public:
     enum NodeSourceType {
         NodeWithoutSource = 0,
@@ -91,161 +86,172 @@ public:
     ModelNode &operator=(ModelNode &&) noexcept = default;
     ~ModelNode() = default;
 
-    TypeName type() const;
-    QString simplifiedTypeName() const;
-    QString displayName() const;
-    int minorVersion() const;
-    int majorVersion() const;
+    TypeName type(SL sl = {}) const;
+    QString simplifiedTypeName(SL sl = {}) const;
+    QString displayName(SL sl = {}) const;
+    int minorVersion(SL sl = {}) const;
+    int majorVersion(SL sl = {}) const;
 
     bool isValid() const;
+
     explicit operator bool() const { return isValid(); }
-    bool isInHierarchy() const;
 
+    bool isInHierarchy(SL sl = {}) const;
 
-    NodeAbstractProperty parentProperty() const;
-    void setParentProperty(NodeAbstractProperty parent);
-    void changeType(const TypeName &typeName, int majorVersion, int minorVersion);
-    void setParentProperty(const ModelNode &newParentNode, const PropertyName &propertyName);
-    bool hasParentProperty() const;
+    NodeAbstractProperty parentProperty(SL sl = {}) const;
+    void setParentProperty(NodeAbstractProperty parent, SL sl = {});
+    void changeType(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1, SL sl = {});
+    void setParentProperty(const ModelNode &newParentNode,
+                           const PropertyName &propertyName,
+                           SL sl = {});
+    bool hasParentProperty(SL sl = {}) const;
 
-    QList<ModelNode> directSubModelNodes() const;
-    QList<ModelNode> directSubModelNodesOfType(const NodeMetaInfo &type) const;
-    QList<ModelNode> subModelNodesOfType(const NodeMetaInfo &type) const;
+    QList<ModelNode> directSubModelNodes(SL sl = {}) const;
+    QList<ModelNode> directSubModelNodesOfType(const NodeMetaInfo &type, SL sl = {}) const;
+    QList<ModelNode> subModelNodesOfType(const NodeMetaInfo &type, SL sl = {}) const;
 
-    QList<ModelNode> allSubModelNodes() const;
-    QList<ModelNode> allSubModelNodesAndThisNode() const;
-    bool hasAnySubModelNodes() const;
-
-    //###
-
-    AbstractProperty property(PropertyNameView name) const;
-    VariantProperty variantProperty(PropertyNameView name) const;
-    BindingProperty bindingProperty(PropertyNameView name) const;
-    SignalHandlerProperty signalHandlerProperty(PropertyNameView name) const;
-    SignalDeclarationProperty signalDeclarationProperty(PropertyNameView name) const;
-    NodeListProperty nodeListProperty(PropertyNameView name) const;
-    NodeProperty nodeProperty(PropertyNameView name) const;
-    NodeAbstractProperty nodeAbstractProperty(PropertyNameView name) const;
-    NodeAbstractProperty defaultNodeAbstractProperty() const;
-    NodeListProperty defaultNodeListProperty() const;
-    NodeProperty defaultNodeProperty() const;
-
-    void removeProperty(PropertyNameView name) const; //### also implement in AbstractProperty
-    QList<AbstractProperty> properties() const;
-    QList<VariantProperty> variantProperties() const;
-    QList<NodeAbstractProperty> nodeAbstractProperties() const;
-    QList<NodeProperty> nodeProperties() const;
-    QList<NodeListProperty> nodeListProperties() const;
-    QList<BindingProperty> bindingProperties() const;
-    QList<SignalHandlerProperty> signalProperties() const;
-    QList<AbstractProperty> dynamicProperties() const;
-    PropertyNameList propertyNames() const;
-
-    bool hasProperty(PropertyNameView name) const;
-    bool hasVariantProperty(PropertyNameView name) const;
-    bool hasBindingProperty(PropertyNameView name) const;
-    bool hasSignalHandlerProperty(PropertyNameView name) const;
-    bool hasNodeAbstractProperty(PropertyNameView name) const;
-    bool hasDefaultNodeAbstractProperty() const;
-    bool hasDefaultNodeListProperty() const;
-    bool hasDefaultNodeProperty() const;
-    bool hasNodeProperty(PropertyNameView name) const;
-    bool hasNodeListProperty(PropertyNameView name) const;
-    bool hasProperty(PropertyNameView name, PropertyType propertyType) const;
-
-    void setScriptFunctions(const QStringList &scriptFunctionList);
-    QStringList scriptFunctions() const;
+    QList<ModelNode> allSubModelNodes(SL sl = {}) const;
+    QList<ModelNode> allSubModelNodesAndThisNode(SL sl = {}) const;
+    bool hasAnySubModelNodes(SL sl = {}) const;
 
     //###
-    void destroy();
 
-    QString id() const;
-    void ensureIdExists() const;
-    [[nodiscard]] QString validId() const;
-    void setIdWithRefactoring(const QString &id) const;
-    void setIdWithoutRefactoring(const QString &id) const;
+    AbstractProperty property(PropertyNameView name, SL sl = {}) const;
+    VariantProperty variantProperty(PropertyNameView name, SL sl = {}) const;
+    BindingProperty bindingProperty(PropertyNameView name, SL sl = {}) const;
+    SignalHandlerProperty signalHandlerProperty(PropertyNameView name, SL sl = {}) const;
+    SignalDeclarationProperty signalDeclarationProperty(PropertyNameView name, SL sl = {}) const;
+    NodeListProperty nodeListProperty(PropertyNameView name, SL sl = {}) const;
+    NodeProperty nodeProperty(PropertyNameView name, SL sl = {}) const;
+    NodeAbstractProperty nodeAbstractProperty(PropertyNameView name, SL sl = {}) const;
+    NodeAbstractProperty defaultNodeAbstractProperty(SL sl = {}) const;
+    NodeListProperty defaultNodeListProperty(SL sl = {}) const;
+    NodeProperty defaultNodeProperty(SL sl = {}) const;
+
+    void removeProperty(PropertyNameView name, SL sl = {}) const; //### also implement in AbstractProperty
+    QList<AbstractProperty> properties(SL sl = {}) const;
+    QList<VariantProperty> variantProperties(SL sl = {}) const;
+    QList<NodeAbstractProperty> nodeAbstractProperties(SL sl = {}) const;
+    QList<NodeProperty> nodeProperties(SL sl = {}) const;
+    QList<NodeListProperty> nodeListProperties(SL sl = {}) const;
+    QList<BindingProperty> bindingProperties(SL sl = {}) const;
+    QList<SignalHandlerProperty> signalProperties(SL sl = {}) const;
+    QList<AbstractProperty> dynamicProperties(SL sl = {}) const;
+    PropertyNameList propertyNames(SL sl = {}) const;
+
+    bool hasProperty(PropertyNameView name, SL sl = {}) const;
+    bool hasVariantProperty(PropertyNameView name, SL sl = {}) const;
+    bool hasBindingProperty(PropertyNameView name, SL sl = {}) const;
+    bool hasSignalHandlerProperty(PropertyNameView name, SL sl = {}) const;
+    bool hasNodeAbstractProperty(PropertyNameView name, SL sl = {}) const;
+    bool hasDefaultNodeAbstractProperty(SL sl = {}) const;
+    bool hasDefaultNodeListProperty(SL sl = {}) const;
+    bool hasDefaultNodeProperty(SL sl = {}) const;
+    bool hasNodeProperty(PropertyNameView name, SL sl = {}) const;
+    bool hasNodeListProperty(PropertyNameView name, SL sl = {}) const;
+    bool hasProperty(PropertyNameView name, PropertyType propertyType, SL sl = {}) const;
+
+    void setScriptFunctions(const QStringList &scriptFunctionList, SL sl = {});
+    QStringList scriptFunctions(SL sl = {}) const;
+
+    //###
+    void destroy(SL sl = {});
+
+    QString id(SL sl = {}) const;
+    void ensureIdExists(SL sl = {}) const;
+    [[nodiscard]] QString validId(SL sl = {}) const;
+    void setIdWithRefactoring(const QString &id, SL sl = {}) const;
+    void setIdWithoutRefactoring(const QString &id, SL sl = {}) const;
     static bool isValidId(const QString &id);
     static QString getIdValidityErrorMessage(const QString &id);
 
-    bool hasId() const;
+    bool hasId(SL sl = {}) const;
 
     Model *model() const;
     AbstractView *view() const;
 
-    NodeMetaInfo metaInfo() const;
-    bool hasMetaInfo() const;
+    NodeMetaInfo metaInfo(SL sl = {}) const;
+    bool hasMetaInfo(SL sl = {}) const;
 
-    bool isSelected() const;
-    bool isRootNode() const;
+    bool isSelected(SL sl = {}) const;
+    bool isRootNode(SL sl = {}) const;
 
-    bool isAncestorOf(const ModelNode &node) const;
-    void selectNode();
-    void deselectNode();
+    bool isAncestorOf(const ModelNode &node, SL sl = {}) const;
+    void selectNode(SL sl = {});
+    void deselectNode(SL sl = {});
 
     static int variantTypeId();
-    QVariant toVariant() const;
+    QVariant toVariant(SL sl = {}) const;
 
-    std::optional<QVariant> auxiliaryData(AuxiliaryDataKeyView key) const;
-    std::optional<QVariant> auxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
-    QVariant auxiliaryDataWithDefault(AuxiliaryDataType type, Utils::SmallStringView name) const;
-    QVariant auxiliaryDataWithDefault(AuxiliaryDataKeyView key) const;
-    QVariant auxiliaryDataWithDefault(AuxiliaryDataKeyDefaultValue key) const;
-    void setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data) const;
-    void setAuxiliaryDataWithoutLock(AuxiliaryDataKeyView key, const QVariant &data) const;
-    void setAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name, const QVariant &data) const;
+    std::optional<QVariant> auxiliaryData(AuxiliaryDataKeyView key, SL sl = {}) const;
+    std::optional<QVariant> auxiliaryData(AuxiliaryDataType type,
+                                          Utils::SmallStringView name,
+                                          SL sl = {}) const;
+    QVariant auxiliaryDataWithDefault(AuxiliaryDataType type,
+                                      Utils::SmallStringView name,
+                                      SL sl = {}) const;
+    QVariant auxiliaryDataWithDefault(AuxiliaryDataKeyView key, SL sl = {}) const;
+    QVariant auxiliaryDataWithDefault(AuxiliaryDataKeyDefaultValue key, SL sl = {}) const;
+    void setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data, SL sl = {}) const;
+    void setAuxiliaryDataWithoutLock(AuxiliaryDataKeyView key, const QVariant &data, SL sl = {}) const;
+    void setAuxiliaryData(AuxiliaryDataType type,
+                          Utils::SmallStringView name,
+                          const QVariant &data,
+                          SL sl = {}) const;
     void setAuxiliaryDataWithoutLock(AuxiliaryDataType type,
                                      Utils::SmallStringView name,
-                                     const QVariant &data) const;
-    void removeAuxiliaryData(AuxiliaryDataKeyView key) const;
-    void removeAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
-    bool hasAuxiliaryData(AuxiliaryDataKeyView key) const;
-    bool hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
+                                     const QVariant &data,
+                                     SL sl = {}) const;
+    void removeAuxiliaryData(AuxiliaryDataKeyView key, SL sl = {}) const;
+    void removeAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name, SL sl = {}) const;
+    bool hasAuxiliaryData(AuxiliaryDataKeyView key, SL sl = {}) const;
+    bool hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name, SL sl = {}) const;
     bool hasAuxiliaryData(AuxiliaryDataType type) const;
-    AuxiliaryDatasForType auxiliaryData(AuxiliaryDataType type) const;
-    AuxiliaryDatasView auxiliaryData() const;
+    AuxiliaryDatasForType auxiliaryData(AuxiliaryDataType type, SL sl = {}) const;
+    AuxiliaryDatasView auxiliaryData(SL sl = {}) const;
 
-    QString customId() const;
-    bool hasCustomId() const;
-    void setCustomId(const QString &str);
-    void removeCustomId();
+    QString customId(SL sl = {}) const;
+    bool hasCustomId(SL sl = {}) const;
+    void setCustomId(const QString &str, SL sl = {});
+    void removeCustomId(SL sl = {});
 
-    QVector<Comment> comments() const;
-    bool hasComments() const;
-    void setComments(const QVector<Comment> &coms);
-    void addComment(const Comment &com);
-    bool updateComment(const Comment &com, int position);
+    QVector<Comment> comments(SL sl = {}) const;
+    bool hasComments(SL sl = {}) const;
+    void setComments(const QVector<Comment> &coms, SL sl = {});
+    void addComment(const Comment &com, SL sl = {});
+    bool updateComment(const Comment &com, int position, SL sl = {});
 
-    Annotation annotation() const;
-    bool hasAnnotation() const;
-    void setAnnotation(const Annotation &annotation);
-    void removeAnnotation();
+    Annotation annotation(SL sl = {}) const;
+    bool hasAnnotation(SL sl = {}) const;
+    void setAnnotation(const Annotation &annotation, SL sl = {});
+    void removeAnnotation(SL sl = {});
 
-    Annotation globalAnnotation() const;
-    bool hasGlobalAnnotation() const;
-    void setGlobalAnnotation(const Annotation &annotation);
-    void removeGlobalAnnotation();
+    Annotation globalAnnotation(SL sl = {}) const;
+    bool hasGlobalAnnotation(SL sl = {}) const;
+    void setGlobalAnnotation(const Annotation &annotation, SL sl = {});
+    void removeGlobalAnnotation(SL sl = {});
 
-    GlobalAnnotationStatus globalStatus() const;
-    bool hasGlobalStatus() const;
-    void setGlobalStatus(const GlobalAnnotationStatus &status);
-    void removeGlobalStatus();
+    GlobalAnnotationStatus globalStatus(SL sl = {}) const;
+    bool hasGlobalStatus(SL sl = {}) const;
+    void setGlobalStatus(const GlobalAnnotationStatus &status, SL sl = {});
+    void removeGlobalStatus(SL sl = {});
 
-    bool locked() const;
-    void setLocked(bool value);
+    bool locked(SL sl = {}) const;
+    void setLocked(bool value, SL sl = {});
 
-    qint32 internalId() const;
+    qint32 internalId(SL sl = {}) const;
 
-    void setNodeSource(const QString&);
-    void setNodeSource(const QString &newNodeSource, NodeSourceType type);
-    QString nodeSource() const;
+    void setNodeSource(const QString &str, SL sl = {});
+    void setNodeSource(const QString &newNodeSource, NodeSourceType type, SL sl = {});
+    QString nodeSource(SL sl = {}) const;
 
-    QString convertTypeToImportAlias() const;
+    QString convertTypeToImportAlias(SL sl = {}) const;
 
-    NodeSourceType nodeSourceType() const;
+    NodeSourceType nodeSourceType(SL sl = {}) const;
 
-    bool isComponent() const;
-    QIcon typeIcon() const;
-    QString behaviorPropertyName() const;
+    bool isComponent(SL sl = {}) const;
+    QIcon typeIcon(SL sl = {}) const;
+    QString behaviorPropertyName(SL sl = {}) const;
 
     friend void swap(ModelNode &first, ModelNode &second) noexcept
     {
@@ -263,7 +269,7 @@ public:
         return firstNode.m_internalNode == secondNode.m_internalNode;
     }
 
-    friend auto operator<=>(const ModelNode &firstNode, const ModelNode &secondNode)
+    friend std::weak_ordering operator<=>(const ModelNode &firstNode, const ModelNode &secondNode)
     {
         return firstNode.m_internalNode <=> secondNode.m_internalNode;
     }
@@ -273,7 +279,7 @@ private: // functions
 
     template<typename Type, typename... PropertyType>
     QList<Type> properties(PropertyType... type) const;
-    bool hasLocked() const;
+    bool hasLocked(SL sl = {}) const;
 
 private: // variables
     Internal::InternalNodePointer m_internalNode;

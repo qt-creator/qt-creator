@@ -8,6 +8,7 @@
 #include "../qmlprojectmanagertr.h"
 
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/buildconfiguration.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -68,6 +69,17 @@ bool FileGenerator::isEnabled() const
     return m_enabled;
 }
 
+bool FileGenerator::isActive() const
+{
+    if (!m_buildSystem)
+        return false;
+
+    if (auto *configuration = m_buildSystem->buildConfiguration())
+        return configuration->isActive();
+
+    return false;
+}
+
 void FileGenerator::setEnabled(bool enabled)
 {
     m_enabled = enabled;
@@ -75,12 +87,15 @@ void FileGenerator::setEnabled(bool enabled)
 
 bool FileGenerator::standaloneApp() const
 {
-    return m_standaloneApp;
+    if (m_buildSystem)
+        return m_buildSystem->standaloneApp();
+    return false;
 }
 
 void FileGenerator::setStandaloneApp(bool value)
 {
-    m_standaloneApp = value;
+    if (m_buildSystem)
+        m_buildSystem->setStandaloneApp(value);
 }
 
 void FileGenerator::updateMenuAction(const Utils::Id &id, std::function<bool(void)> isEnabled)

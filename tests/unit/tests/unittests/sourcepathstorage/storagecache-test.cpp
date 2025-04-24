@@ -14,42 +14,45 @@
 
 namespace {
 
-using QmlDesigner::SourceContextId;
+using QmlDesigner::DirectoryPathId;
 using QmlDesigner::StorageCacheException;
 using Utils::compare;
 
 class StorageAdapter
 {
 public:
-    auto fetchId(Utils::SmallStringView view) const { return storage.fetchSourceContextId(view); }
+    auto fetchId(Utils::SmallStringView view) const { return storage.fetchDirectoryPathId(view); }
 
-    auto fetchValue(SourceContextId id) const { return storage.fetchSourceContextPath(id); }
+    auto fetchValue(DirectoryPathId id) const { return storage.fetchDirectoryPath(id); }
 
-    auto fetchAll() const { return storage.fetchAllSourceContexts(); }
+    auto fetchAll() const { return storage.fetchAllDirectoryPaths(); }
 
     ProjectStorageMock &storage;
 };
 
-auto less(Utils::SmallStringView first, Utils::SmallStringView second) -> bool
+struct Less
 {
-    return Utils::compare(first, second) < 0;
+    bool operator()(Utils::SmallStringView first, Utils::SmallStringView second) const
+    {
+        return Utils::compare(first, second) < 0;
+    }
 };
 
 using CacheWithMockLocking = QmlDesigner::StorageCache<Utils::PathString,
                                                        Utils::SmallStringView,
-                                                       SourceContextId,
+                                                       DirectoryPathId,
                                                        StorageAdapter,
                                                        NiceMock<MockMutex>,
-                                                       less,
-                                                       QmlDesigner::Cache::SourceContext>;
+                                                       Less,
+                                                       QmlDesigner::Cache::DirectoryPath>;
 
 using CacheWithoutLocking = QmlDesigner::StorageCache<Utils::PathString,
                                                       Utils::SmallStringView,
-                                                      SourceContextId,
+                                                      DirectoryPathId,
                                                       StorageAdapter,
                                                       NiceMock<MockMutexNonLocking>,
-                                                      less,
-                                                      QmlDesigner::Cache::SourceContext>;
+                                                      Less,
+                                                      QmlDesigner::Cache::DirectoryPath>;
 
 template<typename Cache>
 class StorageCache : public testing::Test
@@ -64,17 +67,17 @@ protected:
             return std::lexicographical_compare(f.rbegin(), f.rend(), l.rbegin(), l.rend());
         });
 
-        ON_CALL(this->mockStorage, fetchSourceContextId(Eq("foo"))).WillByDefault(Return(id42));
-        ON_CALL(this->mockStorage, fetchSourceContextId(Eq("bar"))).WillByDefault(Return(id43));
-        ON_CALL(this->mockStorage, fetchSourceContextId(Eq("poo"))).WillByDefault(Return(id44));
-        ON_CALL(this->mockStorage, fetchSourceContextId(Eq("taa"))).WillByDefault(Return(id45));
-        ON_CALL(this->mockStorage, fetchSourceContextPath(this->id41))
+        ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq("foo"))).WillByDefault(Return(id42));
+        ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq("bar"))).WillByDefault(Return(id43));
+        ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq("poo"))).WillByDefault(Return(id44));
+        ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq("taa"))).WillByDefault(Return(id45));
+        ON_CALL(this->mockStorage, fetchDirectoryPath(this->id41))
             .WillByDefault(Return(Utils::PathString("bar")));
-        ON_CALL(this->mockStorage, fetchSourceContextId(Eq(filePath1))).WillByDefault(Return(id1));
-        ON_CALL(this->mockStorage, fetchSourceContextId(Eq(filePath2))).WillByDefault(Return(id2));
-        ON_CALL(this->mockStorage, fetchSourceContextId(Eq(filePath3))).WillByDefault(Return(id3));
-        ON_CALL(this->mockStorage, fetchSourceContextId(Eq(filePath4))).WillByDefault(Return(id4));
-        ON_CALL(this->mockStorage, fetchSourceContextId(Eq(filePath5))).WillByDefault(Return(id5));
+        ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq(filePath1))).WillByDefault(Return(id1));
+        ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq(filePath2))).WillByDefault(Return(id2));
+        ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq(filePath3))).WillByDefault(Return(id3));
+        ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq(filePath4))).WillByDefault(Return(id4));
+        ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq(filePath5))).WillByDefault(Return(id5));
     }
 
 protected:
@@ -89,16 +92,16 @@ protected:
     Utils::PathString filePath5{"/file/pathFife"};
     Utils::PathStringVector filePaths{filePath1, filePath2, filePath3, filePath4, filePath5};
     Utils::PathStringVector reverseFilePaths{filePath1, filePath2, filePath3, filePath4, filePath5};
-    SourceContextId id1{SourceContextId::create(1)};
-    SourceContextId id2{SourceContextId::create(2)};
-    SourceContextId id3{SourceContextId::create(3)};
-    SourceContextId id4{SourceContextId::create(4)};
-    SourceContextId id5{SourceContextId::create(5)};
-    SourceContextId id41{SourceContextId::create(41)};
-    SourceContextId id42{SourceContextId::create(42)};
-    SourceContextId id43{SourceContextId::create(43)};
-    SourceContextId id44{SourceContextId::create(44)};
-    SourceContextId id45{SourceContextId::create(45)};
+    DirectoryPathId id1{DirectoryPathId::create(1)};
+    DirectoryPathId id2{DirectoryPathId::create(2)};
+    DirectoryPathId id3{DirectoryPathId::create(3)};
+    DirectoryPathId id4{DirectoryPathId::create(4)};
+    DirectoryPathId id5{DirectoryPathId::create(5)};
+    DirectoryPathId id41{DirectoryPathId::create(41)};
+    DirectoryPathId id42{DirectoryPathId::create(42)};
+    DirectoryPathId id43{DirectoryPathId::create(43)};
+    DirectoryPathId id44{DirectoryPathId::create(44)};
+    DirectoryPathId id45{DirectoryPathId::create(45)};
 };
 
 using CacheTypes = ::testing::Types<CacheWithMockLocking, CacheWithoutLocking>;
@@ -217,8 +220,8 @@ TYPED_TEST(StorageCache, is_not_empty_after_populate_with_some_entries)
     typename TypeParam::CacheEntries entries{{this->filePath1, this->id1},
                                              {this->filePath2, this->id4},
                                              {this->filePath3, this->id3},
-                                             {this->filePath4, SourceContextId::create(5)}};
-    ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
+                                             {this->filePath4, DirectoryPathId::create(5)}};
+    ON_CALL(this->mockStorage, fetchAllDirectoryPaths()).WillByDefault(Return(entries));
 
     this->cache.uncheckedPopulate();
 
@@ -229,12 +232,12 @@ TYPED_TEST(StorageCache, get_entry_after_populate_with_some_entries)
 {
     typename TypeParam::CacheEntries entries{{this->filePath1, this->id1},
                                              {this->filePath2, this->id2},
-                                             {this->filePath3, SourceContextId::create(7)},
+                                             {this->filePath3, DirectoryPathId::create(7)},
                                              {this->filePath4, this->id4}};
-    ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
+    ON_CALL(this->mockStorage, fetchAllDirectoryPaths()).WillByDefault(Return(entries));
     this->cache.uncheckedPopulate();
 
-    auto value = this->cache.value(SourceContextId::create(7));
+    auto value = this->cache.value(DirectoryPathId::create(7));
 
     ASSERT_THAT(value, this->filePath3);
 }
@@ -245,7 +248,7 @@ TYPED_TEST(StorageCache, entries_have_unique_ids)
                                              {this->filePath2, this->id2},
                                              {this->filePath3, this->id3},
                                              {this->filePath4, this->id3}};
-    ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
+    ON_CALL(this->mockStorage, fetchAllDirectoryPaths()).WillByDefault(Return(entries));
 
     ASSERT_THROW(this->cache.populate(), StorageCacheException);
 }
@@ -256,7 +259,7 @@ TYPED_TEST(StorageCache, multiple_entries)
                                              {this->filePath1, this->id2},
                                              {this->filePath3, this->id3},
                                              {this->filePath4, this->id4}};
-    ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
+    ON_CALL(this->mockStorage, fetchAllDirectoryPaths()).WillByDefault(Return(entries));
 
     ASSERT_THROW(this->cache.populate(), StorageCacheException);
 }
@@ -280,7 +283,7 @@ TYPED_TEST(StorageCache, id_with_storage_function_is_read_and_write_locked_for_u
     EXPECT_CALL(this->mockMutex, lock_shared());
     EXPECT_CALL(this->mockMutex, unlock_shared());
     EXPECT_CALL(this->mockMutex, lock());
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("foo")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("foo")));
     EXPECT_CALL(this->mockMutex, unlock());
 
     this->cache.id("foo");
@@ -294,7 +297,7 @@ TYPED_TEST(StorageCache, id_with_storage_function_is_read_locked_for_known_entry
     EXPECT_CALL(this->mockMutex, lock_shared());
     EXPECT_CALL(this->mockMutex, unlock_shared());
     EXPECT_CALL(this->mockMutex, lock()).Times(0);
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("foo"))).Times(0);
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("foo"))).Times(0);
     EXPECT_CALL(this->mockMutex, unlock()).Times(0);
 
     this->cache.id("foo");
@@ -355,7 +358,7 @@ TYPED_TEST(StorageCache, value_with_storage_function_is_read_and_write_locked_fo
     EXPECT_CALL(this->mockMutex, lock_shared());
     EXPECT_CALL(this->mockMutex, unlock_shared());
     EXPECT_CALL(this->mockMutex, lock());
-    EXPECT_CALL(this->mockStorage, fetchSourceContextPath(Eq(this->id41)));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPath(Eq(this->id41)));
     EXPECT_CALL(this->mockMutex, unlock());
 
     this->cache.value(this->id41);
@@ -369,7 +372,7 @@ TYPED_TEST(StorageCache, value_with_storage_function_is_read_locked_for_known_id
     EXPECT_CALL(this->mockMutex, lock_shared());
     EXPECT_CALL(this->mockMutex, unlock_shared());
     EXPECT_CALL(this->mockMutex, lock()).Times(0);
-    EXPECT_CALL(this->mockStorage, fetchSourceContextPath(Eq(this->id41))).Times(0);
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPath(Eq(this->id41))).Times(0);
     EXPECT_CALL(this->mockMutex, unlock()).Times(0);
 
     this->cache.value(this->id41);
@@ -377,7 +380,7 @@ TYPED_TEST(StorageCache, value_with_storage_function_is_read_locked_for_known_id
 
 TYPED_TEST(StorageCache, id_with_storage_function_which_has_no_entry_is_calling_storage_function)
 {
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("foo")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("foo")));
 
     this->cache.id("foo");
 }
@@ -386,7 +389,7 @@ TYPED_TEST(StorageCache, id_with_storage_function_which_has_entry_is_not_calling
 {
     this->cache.id("foo");
 
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("foo"))).Times(0);
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("foo"))).Times(0);
 
     this->cache.id("foo");
 }
@@ -416,24 +419,24 @@ TYPED_TEST(StorageCache, get_entry_by_index_after_inserting_by_custom_index)
     ASSERT_THAT(value, Eq("foo"));
 }
 
-TYPED_TEST(StorageCache, call_fetch_source_context_path_for_lower_index)
+TYPED_TEST(StorageCache, call_fetch_directory_path_path_for_lower_index)
 {
     auto index = this->cache.id("foo");
-    SourceContextId lowerIndex{SourceContextId::create(index.internalId() - 1)};
+    DirectoryPathId lowerIndex{DirectoryPathId::create(index.internalId() - 1)};
 
-    EXPECT_CALL(this->mockStorage, fetchSourceContextPath(Eq(lowerIndex)));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPath(Eq(lowerIndex)));
 
     this->cache.value(lowerIndex);
 }
 
-TYPED_TEST(StorageCache, call_fetch_source_context_path_for_unknown_index)
+TYPED_TEST(StorageCache, call_fetch_directory_path_path_for_unknown_index)
 {
-    EXPECT_CALL(this->mockStorage, fetchSourceContextPath(Eq(this->id1)));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPath(Eq(this->id1)));
 
     this->cache.value(this->id1);
 }
 
-TYPED_TEST(StorageCache, fetch_source_context_path_for_unknown_index)
+TYPED_TEST(StorageCache, fetch_directory_path_path_for_unknown_index)
 {
     auto value = this->cache.value(this->id41);
 
@@ -442,9 +445,9 @@ TYPED_TEST(StorageCache, fetch_source_context_path_for_unknown_index)
 
 TYPED_TEST(StorageCache, add_calls)
 {
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("foo")));
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("bar")));
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("poo")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("foo")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("bar")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("poo")));
 
     this->cache.add({"foo", "bar", "poo"});
 }
@@ -453,8 +456,8 @@ TYPED_TEST(StorageCache, add_calls_only_for_new_values)
 {
     this->cache.add({"foo", "poo"});
 
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("taa")));
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("bar")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("taa")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("bar")));
 
     this->cache.add({"foo", "bar", "poo", "taa"});
 }
@@ -501,14 +504,51 @@ TYPED_TEST(StorageCache, fetch_ids_from_storage_calls)
     EXPECT_CALL(this->mockMutex, lock_shared());
     EXPECT_CALL(this->mockMutex, unlock_shared());
     EXPECT_CALL(this->mockMutex, lock());
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("foo")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("foo")));
     EXPECT_CALL(this->mockMutex, unlock());
     EXPECT_CALL(this->mockMutex, lock_shared());
     EXPECT_CALL(this->mockMutex, unlock_shared());
     EXPECT_CALL(this->mockMutex, lock());
-    EXPECT_CALL(this->mockStorage, fetchSourceContextId(Eq("bar")));
+    EXPECT_CALL(this->mockStorage, fetchDirectoryPathId(Eq("bar")));
     EXPECT_CALL(this->mockMutex, unlock());
 
     this->cache.ids({"foo", "bar"});
+}
+
+TYPED_TEST(StorageCache, getting_ids_that_start_with_po)
+{
+    ON_CALL(this->mockStorage, fetchDirectoryPathId(Eq("poh"))).WillByDefault(Return(this->id43));
+    this->cache.add({"poo", "foo", "poh", "taa"});
+    auto projection = [](Utils::SmallStringView text) -> Utils::SmallStringView {
+        return text.substr(0, 2);
+    };
+
+    auto ids = this->cache.template ids<4>("po", projection);
+
+    ASSERT_THAT(ids, UnorderedElementsAre(this->id43, this->id44));
+}
+
+TYPED_TEST(StorageCache, getting_no_ids_if_there_is_no_entry_starts_with_oh)
+{
+    this->cache.add({"poo", "taa", "foo", "bar"});
+    auto projection = [](Utils::SmallStringView text) -> Utils::SmallStringView {
+        return text.substr(0, 2);
+    };
+
+    auto ids = this->cache.template ids<4>("oh", projection);
+
+    ASSERT_THAT(ids, IsEmpty());
+}
+
+TYPED_TEST(StorageCache, get_all_ids_if_the_string_is_empty)
+{
+    this->cache.add({"foo", "bar", "poo", "taa"});
+    auto projection = [](Utils::SmallStringView text) -> Utils::SmallStringView {
+        return text.substr(0, 0);
+    };
+
+    auto ids = this->cache.template ids<4>("", projection);
+
+    ASSERT_THAT(ids, UnorderedElementsAre(this->id42, this->id43, this->id44, this->id45));
 }
 } // namespace

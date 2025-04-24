@@ -2,6 +2,7 @@
     <qresource prefix="/templates">
         <file alias="cmakeroot_v0">templates/cmakeroot_v0.tpl</file>
         <file alias="cmakeroot_v1">templates/cmakeroot_v1.tpl</file>
+        <file alias="cmakeroot_lib">templates/cmakeroot_lib.tpl</file>
         <file alias="main_cpp_v0">templates/main_cpp_v0.tpl</file>
         <file alias="main_cpp_v1">templates/main_cpp_v1.tpl</file>
         <file alias="cmakemodule_v1">templates/cmakemodule_v1.tpl</file>

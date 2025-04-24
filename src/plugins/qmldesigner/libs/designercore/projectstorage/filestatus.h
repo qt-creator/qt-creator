@@ -25,24 +25,9 @@ public:
                && first.lastModified == second.lastModified;
     }
 
-    friend bool operator!=(const FileStatus &first, const FileStatus &second)
+    friend std::weak_ordering operator<=>(const FileStatus &first, const FileStatus &second)
     {
-        return !(first == second);
-    }
-
-    friend bool operator<(const FileStatus &first, const FileStatus &second)
-    {
-        return first.sourceId < second.sourceId;
-    }
-
-    friend bool operator<(SourceId first, const FileStatus &second)
-    {
-        return first < second.sourceId;
-    }
-
-    friend bool operator<(const FileStatus &first, SourceId second)
-    {
-        return first.sourceId < second;
+        return first.sourceId <=> second.sourceId;
     }
 
     bool isExisting() const { return sourceId && size >= 0 && lastModified >= 0; }

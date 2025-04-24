@@ -438,36 +438,19 @@ void ViewManager::setNodeInstanceViewTarget(ProjectExplorer::Target *target)
     d->nodeInstanceView.setTarget(target);
 }
 
-QList<WidgetInfo> ViewManager::widgetInfos() const
+void ViewManager::initializeWidgetInfos()
 {
-    QList<WidgetInfo> widgetInfoList;
-
-#ifndef QTC_USE_QML_DESIGNER_LITE
-    widgetInfoList.append(d->edit3DView.widgetInfo());
-#endif
-    widgetInfoList.append(d->formEditorView.widgetInfo());
-    widgetInfoList.append(d->textEditorView.widgetInfo());
-    widgetInfoList.append(d->assetsLibraryView.widgetInfo());
-    widgetInfoList.append(d->itemLibraryView.widgetInfo());
-    widgetInfoList.append(d->navigatorView.widgetInfo());
-    widgetInfoList.append(d->propertyEditorView.widgetInfo());
-#ifndef QTC_USE_QML_DESIGNER_LITE
-    widgetInfoList.append(d->materialBrowserView.widgetInfo());
-#endif
-    widgetInfoList.append(d->statesEditorView.widgetInfo());
-
-    if (checkEnterpriseLicense())
-        widgetInfoList.append(d->contentLibraryView.widgetInfo());
-
-    if (d->debugView.hasWidget())
-        widgetInfoList.append(d->debugView.widgetInfo());
-
-    for (auto &view : d->additionalViews) {
-        if (view->hasWidget())
-            widgetInfoList.append(view->widgetInfo());
+    for (const auto &view : views()) {
+        if (view->hasWidget()) {
+            view->setWidgetRegistration(this);
+            view->registerWidgetInfo();
+        }
     }
+}
 
-    return widgetInfoList;
+QList<WidgetInfo> ViewManager::widgetInfos()
+{
+    return m_widgetInfo;
 }
 
 void ViewManager::disableWidgets()
@@ -597,6 +580,16 @@ void ViewManager::addView(std::unique_ptr<AbstractView> &&view)
 {
     d->additionalViews.push_back(std::move(view));
     registerViewAction(*d->additionalViews.back());
+}
+
+void ViewManager::registerWidgetInfo(WidgetInfo info)
+{
+    m_widgetInfo.append(info);
+}
+
+void ViewManager::deregisterWidgetInfo(WidgetInfo info)
+{
+    m_widgetInfo.removeIf(Utils::equal(&WidgetInfo::uniqueId, info.uniqueId));
 }
 
 } // namespace QmlDesigner

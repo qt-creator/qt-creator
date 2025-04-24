@@ -62,6 +62,9 @@ public:
 
     ModuleId moduleId(Utils::SmallStringView moduleName, Storage::ModuleKind kind) const override;
 
+    SmallModuleIds<128> moduleIdsStartsWith(Utils::SmallStringView startsWith,
+                                            Storage::ModuleKind kind) const override;
+
     Storage::Module module(ModuleId moduleId) const override;
 
     TypeId typeId(ModuleId moduleId,
@@ -105,17 +108,15 @@ public:
 
     Storage::Info::TypeHints typeHints(TypeId typeId) const override;
 
-    SmallSourceIds<4> typeAnnotationSourceIds(SourceContextId directoryId) const override;
+    SmallSourceIds<4> typeAnnotationSourceIds(DirectoryPathId directoryId) const override;
 
-    SmallSourceContextIds<64> typeAnnotationDirectoryIds() const override;
+    SmallDirectoryPathIds<64> typeAnnotationDirectoryIds() const override;
 
     Storage::Info::ItemLibraryEntries itemLibraryEntries(TypeId typeId) const override;
-
     Storage::Info::ItemLibraryEntries itemLibraryEntries(ImportId importId) const;
-
     Storage::Info::ItemLibraryEntries itemLibraryEntries(SourceId sourceId) const override;
-
     Storage::Info::ItemLibraryEntries allItemLibraryEntries() const override;
+    Storage::Info::ItemLibraryEntries directoryImportsItemLibraryEntries(SourceId sourceId) const override;
 
     std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const override;
 
@@ -222,11 +223,11 @@ public:
 
     std::optional<Storage::Synchronization::DirectoryInfo> fetchDirectoryInfo(SourceId sourceId) const override;
 
-    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(SourceContextId directoryId) const override;
+    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(DirectoryPathId directoryId) const override;
     Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(
-        SourceContextId directoryId, Storage::Synchronization::FileType fileType) const override;
-    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(const SourceContextIds &directoryIds) const;
-    SmallSourceContextIds<32> fetchSubdirectoryIds(SourceContextId directoryId) const override;
+        DirectoryPathId directoryId, Storage::Synchronization::FileType fileType) const override;
+    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(const DirectoryPathIds &directoryIds) const;
+    SmallDirectoryPathIds<32> fetchSubdirectoryIds(DirectoryPathId directoryId) const override;
 
     void setPropertyEditorPathId(TypeId typeId, SourceId pathId);
 
@@ -254,9 +255,9 @@ private:
         Utils::SmallStringView name;
         Storage::ModuleKind kind;
 
-        friend bool operator<(ModuleView first, ModuleView second)
+        friend std::strong_ordering operator<=>(ModuleView first, ModuleView second)
         {
-            return std::tie(first.kind, first.name) < std::tie(second.kind, second.name);
+            return std::tie(first.kind, first.name) <=> std::tie(second.kind, second.name);
         }
 
         friend bool operator==(const Storage::Module &first, ModuleView second)
@@ -284,10 +285,13 @@ private:
 
     friend ModuleStorageAdapter;
 
-    static bool moduleNameLess(ModuleView first, ModuleView second) noexcept
+    struct ModuleNameLess
     {
-        return first < second;
-    }
+        bool operator()(ModuleView first, ModuleView second) const noexcept
+        {
+            return first < second;
+        }
+    };
 
     class ModuleCacheEntry : public StorageCacheEntry<Storage::Module, ModuleView, ModuleId>
     {
@@ -314,7 +318,7 @@ private:
     using ModuleCacheEntries = std::vector<ModuleCacheEntry>;
 
     using ModuleCache
-        = StorageCache<Storage::Module, ModuleView, ModuleId, ModuleStorageAdapter, NonLockingMutex, moduleNameLess, ModuleCacheEntry>;
+        = StorageCache<Storage::Module, ModuleView, ModuleId, ModuleStorageAdapter, NonLockingMutex, ModuleNameLess, ModuleCacheEntry>;
 
     ModuleId fetchModuleId(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind);
 
@@ -363,8 +367,8 @@ private:
             , sourceId{sourceId}
         {}
 
-        friend auto operator<=>(const AliasPropertyDeclaration &first,
-                                const AliasPropertyDeclaration &second)
+        friend std::weak_ordering operator<=>(const AliasPropertyDeclaration &first,
+                                              const AliasPropertyDeclaration &second)
         {
             return std::tie(first.typeId, first.propertyDeclarationId)
                    <=> std::tie(second.typeId, second.propertyDeclarationId);
@@ -433,7 +437,8 @@ private:
                    == std::tie(second.typeId, second.propertyDeclarationId);
         }
 
-        friend auto operator<=>(const PropertyDeclaration &first, const PropertyDeclaration &second)
+        friend std::weak_ordering operator<=>(const PropertyDeclaration &first,
+                                              const PropertyDeclaration &second)
         {
             return std::tie(first.typeId, first.propertyDeclarationId)
                    <=> std::tie(second.typeId, second.propertyDeclarationId);
@@ -469,7 +474,7 @@ private:
             , prototypeNameId{std::move(prototypeNameId)}
         {}
 
-        friend auto operator<=>(Prototype first, Prototype second)
+        friend std::weak_ordering operator<=>(Prototype first, Prototype second)
         {
             return first.typeId <=> second.typeId;
         }
@@ -572,7 +577,7 @@ private:
                           const SourceIds &updatedSourceIds);
 
     void synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
-                                   const SourceContextIds &updatedDirectoryInfoDirectoryIds);
+                                   const DirectoryPathIds &updatedDirectoryInfoDirectoryIds);
 
     void synchronizeFileStatuses(FileStatuses &fileStatuses, const SourceIds &updatedSourceIds);
 
@@ -787,7 +792,7 @@ private:
     class PropertyEditorQmlPathView
     {
     public:
-        PropertyEditorQmlPathView(TypeId typeId, SourceId pathId, SourceContextId directoryId)
+        PropertyEditorQmlPathView(TypeId typeId, SourceId pathId, DirectoryPathId directoryId)
             : typeId{typeId}
             , pathId{pathId}
             , directoryId{directoryId}
@@ -809,14 +814,14 @@ private:
     public:
         TypeId typeId;
         SourceId pathId;
-        SourceContextId directoryId;
+        DirectoryPathId directoryId;
     };
 
     void synchronizePropertyEditorPaths(Storage::Synchronization::PropertyEditorQmlPaths &paths,
-                                        SourceContextIds updatedPropertyEditorQmlPathsSourceContextIds);
+                                        DirectoryPathIds updatedPropertyEditorQmlPathsDirectoryPathIds);
 
     void synchronizePropertyEditorQmlPaths(Storage::Synchronization::PropertyEditorQmlPaths &paths,
-                                           SourceContextIds updatedPropertyEditorQmlPathsSourceIds);
+                                           DirectoryPathIds updatedPropertyEditorQmlPathsSourceIds);
 
     void synchronizeFunctionDeclarations(
         TypeId typeId, Storage::Synchronization::FunctionDeclarations &functionsDeclarations);

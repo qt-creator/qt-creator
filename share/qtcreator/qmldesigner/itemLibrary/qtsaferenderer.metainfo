@@ -1,0 +1,47 @@
+MetaInfo {
+    Type {
+        name: "Qt.SafeRenderer.SafePicture"
+        icon: "images/picture-icon16.png"
+
+        ItemLibraryEntry {
+            name: "SafePicture"
+            category: "Qt Safe Renderer"
+            libraryIcon: "images/picture-icon.png"
+            version: "2.0"
+            requiredImport: "Qt.SafeRenderer"
+
+            Property { name: "width"; type: "int"; value: 64; }
+            Property { name: "height"; type: "int"; value: 64; }
+        }
+    }
+    Type {
+        name: "Qt.SafeRenderer.SafeText"
+        icon: "images/text-16px.png"
+
+        ItemLibraryEntry {
+            name: "SafeText"
+            category: "Qt Safe Renderer"
+            libraryIcon: "images/text-24px.png"
+            version: "2.0"
+            requiredImport: "Qt.SafeRenderer"
+
+            Property { name: "width"; type: "int"; value: 128; }
+            Property { name: "height"; type: "int"; value: 64; }
+        }
+    }
+    Type {
+        name: "Qt.SafeRenderer.SafeImage"
+        icon: "images/image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "SafeImage"
+            category: "Qt Safe Renderer"
+            libraryIcon: "images/image-icon.png"
+            version: "2.0"
+            requiredImport: "Qt.SafeRenderer"
+
+            Property { name: "width"; type: "int"; value: 64; }
+            Property { name: "height"; type: "int"; value: 64; }
+        }
+    }
+}

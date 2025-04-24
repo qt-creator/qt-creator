@@ -162,7 +162,7 @@
     (\uicontrol Export) button in \uicontrol Navigator to export
     a component as a property alias with a valid alias reference.
 
-    \image qmldesigner-export-item.png
+    \image {qmldesigner-export-item.png} {Selecting the Export button in the Navigator view.}
 
     You can then use the property alias in other components to
     \l{Working with connections}{create connections} to this component.

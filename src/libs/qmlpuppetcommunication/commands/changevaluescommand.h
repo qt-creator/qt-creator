@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
 #include "propertyvaluecontainer.h"
 
@@ -17,12 +17,12 @@ class ChangeValuesCommand
 
 public:
     ChangeValuesCommand();
-    explicit ChangeValuesCommand(const QVector<PropertyValueContainer> &valueChangeVector);
+    explicit ChangeValuesCommand(const QList<PropertyValueContainer> &valueChangeVector);
 
-    const QVector<PropertyValueContainer> valueChanges() const;
+    const QList<PropertyValueContainer> valueChanges() const;
 
 private:
-    QVector<PropertyValueContainer> m_valueChangeVector;
+    QList<PropertyValueContainer> m_valueChangeVector;
 };
 
 QDataStream &operator<<(QDataStream &out, const ChangeValuesCommand &command);

@@ -13,7 +13,7 @@
     You can use \QBSK to export designs from Sketch to \e {.metadata}
     format that you can \l{Importing 2D Assets}{import} to projects in \QDS.
 
-    \image studio-sketch-export.png
+    \image {studio-sketch-export.png} {Qt Bridge for Sketch open in Sketch.}
 
     The following topics describe setting up and using \QBSK:
 

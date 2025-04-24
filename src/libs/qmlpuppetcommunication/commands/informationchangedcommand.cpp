@@ -6,20 +6,18 @@
 #include <QMetaType>
 #include <QtDebug>
 
-#include "propertyvaluecontainer.h"
-
 #include <algorithm>
 
 namespace QmlDesigner {
 
 InformationChangedCommand::InformationChangedCommand() = default;
 
-InformationChangedCommand::InformationChangedCommand(const QVector<InformationContainer> &informationVector)
+InformationChangedCommand::InformationChangedCommand(const QList<InformationContainer> &informationVector)
     : m_informationVector(informationVector)
 {
 }
 
-QVector<InformationContainer> InformationChangedCommand::informations() const
+QList<InformationContainer> InformationChangedCommand::informations() const
 {
     return m_informationVector;
 }

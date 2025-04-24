@@ -6,6 +6,7 @@
 #include "scripteditorutils.h"
 
 #include <abstractview.h>
+#include <functional.h>
 #include <indentingtexteditormodifier.h>
 #include <modelnodeoperations.h>
 #include <nodelistproperty.h>
@@ -842,13 +843,14 @@ void StatementDelegate::setupChangeState()
                                                   && !item.allStateNames().isEmpty();
                                        });
 
-    QStringList itemIds = Utils::transform(items, &ModelNode::id);
+    using SL = ModelTracing::SourceLocation;
+    QStringList itemIds = Utils::transform(items, bind_back(&ModelNode::id, SL{}));
     const auto groups = m_view->allModelNodesOfType(model->qtQuickStateGroupMetaInfo());
 
     const auto rootId = m_view->rootModelNode().id();
     itemIds.removeAll(rootId);
 
-    QStringList groupIds = Utils::transform(groups, &ModelNode::id);
+    QStringList groupIds = Utils::transform(groups, bind_back(&ModelNode::id, SL{}));
 
     Utils::sort(itemIds);
     Utils::sort(groupIds);

@@ -12,8 +12,9 @@ namespace QmlDesigner {
 
 class ListModelEditorModel : public QStandardItemModel
 {
-    using QStandardItemModel::removeColumns;
-    using QStandardItemModel::removeRows;
+    using Super = QStandardItemModel;
+    using Super::removeColumns;
+    using Super::removeRows;
 
 public:
     ListModelEditorModel(std::function<ModelNode()> createModelCallback,
@@ -28,7 +29,7 @@ public:
 
     void setListView(ModelNode listView);
 
-    void addRow();
+    void addRow(int rowIndex);
     void addColumn(const QString &columnName);
 
     const QList<QmlDesigner::PropertyName> &propertyNames() const { return m_propertyNames; }
@@ -44,11 +45,15 @@ public:
     static std::vector<int> filterColumns(const QList<QModelIndex> &indices);
     static std::vector<int> filterRows(const QList<QModelIndex> &indices);
 
+    static int currentInteractionRow(const QItemSelectionModel &selectionModel);
+    static int nextInteractionRow(const QItemSelectionModel &selectionModel);
+
 private:
     void removeRow(int row);
     void removeColumn(int column);
     void populateModel();
     void createItems(const QList<ModelNode> &listElementNodes);
+    void insertItems(const ModelNode &listElementNode, int index);
     void appendItems(const ModelNode &listElementNode);
 
 private:

@@ -137,7 +137,7 @@
       \li In \uicontrol Navigator, select the camera.
       \li In \uicontrol Properties > \uicontrol {Look-at-Node}, select the object that
       the camera should look at.
-      \image camera-look-at-node.webp
+      \image {camera-look-at-node.webp} {Selecting the Look-at-Node object in the Camera sections in the Properties view.}
     \endlist
 
     When you set a camera to look at an object, the camera automatically rotates to

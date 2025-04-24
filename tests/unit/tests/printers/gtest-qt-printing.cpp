@@ -1,6 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "gtest-qt-printing.h"
+
 #include <QDebug>
 #include <QIcon>
 #include <QString>
@@ -87,6 +89,19 @@ std::ostream &operator<<(std::ostream &out, const QIcon &icon)
         out << "(" << size.width() << ", " << size.height() << "), ";
 
     out << icon.cacheKey() << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const QStringList &list)
+{
+    if (list.isEmpty())
+        return out << "[]";
+
+    return out << "[" << list.join("\", \"") << "]";
+}
+
+void PrintTo(QStringView text, std::ostream *os)
+{
+    *os << text;
 }
 
 void PrintTo(const QString &text, std::ostream *os)

@@ -358,15 +358,14 @@ void ItemLibraryModel::update(Model *model)
         itemLibImport->setImportExpanded(loadExpandedState(itemLibImport->importUrl()));
     }
 
-#ifndef QDS_USE_PROJECTSTORAGE
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     const bool blockNewImports = document->inFileComponentModelActive();
-#endif
 
     TypeName currentFileType = QFileInfo(model->fileUrl().toLocalFile()).baseName().toUtf8();
 
-    const QList<ItemLibraryEntry> itemLibEntries = model->itemLibraryEntries();
-    for (const ItemLibraryEntry &entry : itemLibEntries) {
+    QList<ItemLibraryEntry> itemLibEntries = model->allItemLibraryEntries();
+    itemLibEntries.append(model->directoryImportsItemLibraryEntries());
+    for (const ItemLibraryEntry &entry : std::as_const(itemLibEntries)) {
         NodeMetaInfo metaInfo;
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -407,15 +406,14 @@ void ItemLibraryModel::update(Model *model)
             }
         }
 
-#ifndef QDS_USE_PROJECTSTORAGE
         Import import = entryToImport(entry);
         bool hasImport = model->hasImport(import, true, true);
+#ifndef QDS_USE_PROJECTSTORAGE
         bool isImportPossible = false;
         if (!hasImport)
             isImportPossible = !blockNewImports && model->isImportPossible(import, true, true);
 #else
-        bool hasImport = true;
-        bool isImportPossible = false;
+        bool isImportPossible = !blockNewImports;
 #endif
         bool isUsable = (valid && (isItem || forceVisibility))
                         && (entry.requiredImport().isEmpty() || hasImport);

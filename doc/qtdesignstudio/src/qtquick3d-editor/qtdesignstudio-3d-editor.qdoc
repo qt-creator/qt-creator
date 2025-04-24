@@ -186,7 +186,7 @@
 
     In the 3D view, you can show a small window displaying the camera view.
 
-    \image 3d-view-camera-view.webp
+    \image {3d-view-camera-view.webp} {The Camera view in the 3D view.}
 
     To toggle this view,
     select \imagevisibilityon

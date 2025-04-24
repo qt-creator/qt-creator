@@ -7,6 +7,7 @@
 
 #include <QObject>
 #include <QPointer>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QQuickView;
@@ -53,6 +54,8 @@ private:
     void showSetupDialog();
     void showProgressDialog();
     void cleanup();
+    void handlePendingRebakeTimeout();
+    void pendingRebakeCleanup();
 
     // Separate dialogs for setup and progress, as setup needs to be modal
     QPointer<QQuickView> m_setupDialog;
@@ -66,6 +69,9 @@ private:
     ModelPointer m_model;
     QString m_view3dId;
     bool m_manualMode = false;
+    QTimer m_pendingRebakeTimer;
+    ModelNode m_pendingRebakeCheckNode;
+    int m_pendingRebakeTimerCount = 0;
 };
 
 } // namespace QmlDesigner

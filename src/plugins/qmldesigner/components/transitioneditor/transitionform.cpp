@@ -7,13 +7,14 @@
 
 #include <abstractview.h>
 #include <bindingproperty.h>
+#include <dialogutils.h>
 #include <exception>
+#include <functional.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
+#include <qmlitemnode.h>
 #include <rewritertransaction.h>
 #include <variantproperty.h>
-#include <qmlitemnode.h>
-#include <dialogutils.h>
 
 #include <coreplugin/messagebox.h>
 
@@ -220,8 +221,9 @@ void TransitionForm::setupStateGroups()
 
     const auto groupMetaInfo = view->model()->qtQuickStateGroupMetaInfo();
 
+    using SL = ModelTracing::SourceLocation;
     auto stateGroups = Utils::transform(view->allModelNodesOfType(groupMetaInfo),
-                                        &ModelNode::displayName);
+                                        bind_back(&ModelNode::displayName, SL{}));
     stateGroups.prepend(tr("Default"));
 
     bool block = ui->stateGroupComboBox->blockSignals(true);

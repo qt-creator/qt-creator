@@ -131,7 +131,7 @@ public:
 
     CapturedDataCommand() = default;
 
-    CapturedDataCommand(QVector<StateData> &&stateData)
+    CapturedDataCommand(QList<StateData> &&stateData)
         : stateData{std::move(stateData)}
     {}
 
@@ -157,7 +157,7 @@ public:
 
 public:
     QImage image;
-    QVector<StateData> stateData;
+    QList<StateData> stateData;
 };
 
 } // namespace QmlDesigner

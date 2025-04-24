@@ -13,12 +13,14 @@ StudioControls.Menu {
     property var targetTexture: null
     property bool hasSceneEnv: false
     property bool showRemoveAction: false // true: adds an option to remove targetTexture
+    property bool showInGraphicalShellVisible: false
 
     property bool canUse3D: targetTexture && ContentLibraryBackend.rootView.hasQuick3DImport && ContentLibraryBackend.rootView.hasMaterialLibrary
 
-    function popupMenu(targetTexture = null)
+    function popupMenu(targetTexture = null, showInGraphicalShellItemVisible = false)
     {
         this.targetTexture = targetTexture
+        root.showInGraphicalShellVisible = showInGraphicalShellItemVisible
         ContentLibraryBackend.rootView.updateSceneEnvState();
         popup()
     }
@@ -48,5 +50,21 @@ StudioControls.Menu {
         visible: root.targetTexture && root.showRemoveAction
         height: visible ? implicitHeight : 0
         onTriggered: ContentLibraryBackend.userModel.removeTexture(root.targetTexture)
+    }
+
+    StudioControls.MenuSeparator {
+        visible: root.showInGraphicalShellVisible
+        height: visible ? StudioTheme.Values.border : 0
+    }
+
+    StudioControls.MenuItem {
+        text: ContentLibraryBackend.rootView.showInGraphicalShellMsg
+
+        visible: root.showInGraphicalShellVisible
+        height: visible ? implicitHeight : 0
+
+        onTriggered: {
+            ContentLibraryBackend.rootView.showInGraphicalShell(root.targetTexture.textureParentPath)
+        }
     }
 }

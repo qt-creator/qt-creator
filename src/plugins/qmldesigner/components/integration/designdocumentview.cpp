@@ -123,6 +123,7 @@ QString DesignDocumentView::toText() const
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setPossibleImportsEnabled(false);
     rewriterView->setTextModifier(&modifier);
+    rewriterView->setRemoveImports(false);
     outputModel->setRewriterView(rewriterView.get());
 
     ModelMerger merger(rewriterView.get());

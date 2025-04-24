@@ -56,6 +56,7 @@ private:
         bool isImport = true; // false = unimport
         TypeName type;
     };
+    bool m_pendingFullReset = false; // Reset old QMLJS code model (it's used for code view warnings)
 #else
     struct ImportData
     {

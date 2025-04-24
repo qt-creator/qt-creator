@@ -226,7 +226,7 @@
 
     \section2 Settings
 
-    \image qt-figma-bridge-settings.png
+    \image {qt-figma-bridge-settings.png} {The Qt Bridge for Figma settings window in Figma.}
 
     You can export assets in the selected format (JPG, PNG, or SVG).
 

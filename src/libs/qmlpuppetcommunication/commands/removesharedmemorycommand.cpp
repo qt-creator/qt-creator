@@ -10,7 +10,7 @@ namespace QmlDesigner {
 
 RemoveSharedMemoryCommand::RemoveSharedMemoryCommand() = default;
 
-RemoveSharedMemoryCommand::RemoveSharedMemoryCommand(const QString &typeName, const QVector<qint32> &keyNumberVector)
+RemoveSharedMemoryCommand::RemoveSharedMemoryCommand(const QString &typeName, const QList<qint32> &keyNumberVector)
     : m_typeName(typeName),
       m_keyNumberVector(keyNumberVector)
 {
@@ -21,7 +21,7 @@ QString RemoveSharedMemoryCommand::typeName() const
     return m_typeName;
 }
 
-QVector<qint32> RemoveSharedMemoryCommand::keyNumbers() const
+QList<qint32> RemoveSharedMemoryCommand::keyNumbers() const
 {
     return m_keyNumberVector;
 }

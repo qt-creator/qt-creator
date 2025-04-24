@@ -66,7 +66,7 @@ private slots:
     void handleObjectPropertyCommit(const QVariant &objects, const QVariant &propNames);
     void handleObjectPropertyChange(const QVariant &objects, const QVariant &propNames);
     void handleActiveSceneChange();
-    void handleActiveSplitChange(int index);
+    void handleActiveViewportChange(int index);
     void handleToolStateChanged(const QString &sceneId, const QString &tool,
                                 const QVariant &toolState);
     void handleView3DSizeChange();
@@ -80,8 +80,8 @@ protected:
     bool isDirtyRecursiveForNonInstanceItems(QQuickItem *item) const;
     bool isDirtyRecursiveForParentInstances(QQuickItem *item) const;
     void selectInstances(const QList<ServerNodeInstance> &instanceList);
-    void modifyProperties(const QVector<InstancePropertyValueTriple> &properties);
-    QList<ServerNodeInstance> createInstances(const QVector<InstanceContainer> &container) override;
+    void modifyProperties(const QList<InstancePropertyValueTriple> &properties);
+    QList<ServerNodeInstance> createInstances(const QList<InstanceContainer> &container) override;
     void initializeAuxiliaryViews() override;
 
 private:
@@ -98,7 +98,7 @@ private:
     QObject *findView3DForSceneRoot(QObject *sceneRoot) const;
     QObject *find3DSceneRoot(const ServerNodeInstance &instance) const;
     QObject *find3DSceneRoot(QObject *obj) const;
-    QVector<InstancePropertyValueTriple> propertyToPropertyValueTriples(
+    QList<InstancePropertyValueTriple> propertyToPropertyValueTriples(
             const ServerNodeInstance &instance,
             const PropertyName &propertyName,
             const QVariant &variant);
@@ -122,11 +122,11 @@ private:
     void handleInputEvents();
     void resolveImportSupport();
     void updateActiveScenePreferredCamera();
-    void updateMaterialPreviewData(const QVector<PropertyValueContainer> &valueChanges);
-    void updateRotationBlocks(const QVector<PropertyValueContainer> &valueChanges);
-    void updateSnapAndCameraSettings(const QVector<PropertyValueContainer> &valueChanges);
-    void updateColorSettings(const QVector<PropertyValueContainer> &valueChanges);
-    void removeRotationBlocks(const QVector<qint32> &instanceIds);
+    void updateMaterialPreviewData(const QList<PropertyValueContainer> &valueChanges);
+    void updateRotationBlocks(const QList<PropertyValueContainer> &valueChanges);
+    void updateSnapAndCameraSettings(const QList<PropertyValueContainer> &valueChanges);
+    void updateColorSettings(const QList<PropertyValueContainer> &valueChanges);
+    void removeRotationBlocks(const QList<qint32> &instanceIds);
     void getNodeAtPos(const QPointF &pos);
     void getNodeAtMainScenePos(const QPointF &pos, qint32 viewId);
 

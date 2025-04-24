@@ -52,7 +52,7 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
         QQuickDesignerSupport::polishItems(quickWindow());
 
-        QVector<ImageContainer> imageContainerVector;
+        QList<ImageContainer> imageContainerVector;
 
         // Base state needs to be rendered twice to properly render shared resources,
         // if there is more than one View3D and at least one of them is dirty.

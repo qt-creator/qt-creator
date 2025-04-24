@@ -676,9 +676,7 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     transitionEditorView->registerActions();
 
     if (QmlDesignerBasePlugin::experimentalFeaturesEnabled())
-        d->viewManager.registerView(
-            std::make_unique<DesignSystemView>(d->externalDependencies,
-                                               d->projectManager.projectStorageDependencies()));
+        d->viewManager.registerView(std::make_unique<DesignSystemView>(d->externalDependencies));
 
     d->viewManager.registerFormEditorTool(std::make_unique<SourceTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<ColorTool>());
@@ -849,6 +847,12 @@ void QmlDesignerPlugin::launchFeedbackPopupInternal(const QString &identifier)
     const QString qmlPath = Core::ICore::resourcePath("qmldesigner/feedback/FeedbackPopup.qml").toUrlishString();
 
     m_feedbackWidget->setSource(QUrl::fromLocalFile(qmlPath));
+    if (Utils::HostOsInfo::isLinuxHost()) {
+        QPoint pos = Core::ICore::dialogParent()->pos();
+        int x = (Core::ICore::dialogParent()->width() - m_feedbackWidget->width()) / 2;
+        int y = (Core::ICore::dialogParent()->height() - m_feedbackWidget->height()) / 2;
+        m_feedbackWidget->move(pos.x() + x, pos.y() + y);
+    }
     if (!m_feedbackWidget->errors().isEmpty()) {
         qDebug() << qmlPath;
         qDebug() << m_feedbackWidget->errors().first().toString();

@@ -22,7 +22,7 @@
     \section1 Getting the MCU Treadmill design to Figma
 
     \list 1
-        \li Get the optimized MCU Treadmill for Figma design from \l {https://git.qt.io/public-demos/qtdesign-studio/-/blob/treadmill-revision-revision/examples/TreadmillMcuDemo/figmadesign/McuDemo.fig} {here}.
+        \li Get the optimized MCU Treadmill for Figma design from \l {https://git.qt.io/public-demos/qtdesign-studio/-/blob/master/examples/TreadmillMcuDemo/figmadesign/McuDemo.fig} {here}.
         \li Go to \l {https://www.figma.com/}{Figma} and log in.
         \li Open the downloaded MCU Treadmill design in Figma.
     \endlist

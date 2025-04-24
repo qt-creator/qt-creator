@@ -7,6 +7,7 @@
 #include <model.h>
 #include <nodeproperty.h>
 #include <projectstoragemock.h>
+#include <projectstoragetriggerupdatemock.h>
 #include <sourcepathcachemock.h>
 #include <variantproperty.h>
 
@@ -22,6 +23,8 @@ using QmlDesigner::GroupType;
 using QmlDesigner::Import;
 using QmlDesigner::ModelNode;
 using QmlDesigner::ThemeProperty;
+
+constexpr QmlDesigner::ModelTracing::SourceLocation sl;
 
 namespace {
 std::string formatedPropStr(std::string tag, const QByteArray &name, const QVariant &value)
@@ -103,9 +106,10 @@ protected:
     const QmlDesigner::GroupType groupType = GetParam();
     const QmlDesigner::PropertyName groupName = GroupId(groupType);
     QmlDesigner::DSThemeGroup group;
+    NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/model.qm"};
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
                              "QtObject",
                              {Import::createLibraryImport("QM"),
                               Import::createLibraryImport("QtQuick")},
@@ -134,7 +138,7 @@ TEST_P(DesignSystemQmlTest, group_aliase_properties_are_generated)
 
     // assert
     ASSERT_THAT(rootNode,
-                AllOf(Property("ModelNode::type", &ModelNode::type, Eq("QtObject")),
+                AllOf(Property("ModelNode::type", &ModelNode::type, Eq("QtObject"), sl),
                       HasBindingProperty(groupName, binding),
                       HasBindingProperty("currentTheme", darkThemeName),
                       HasNodeProperty(darkThemeName, "QtObject")));
@@ -152,7 +156,7 @@ TEST_P(DesignSystemQmlTest, empty_groups_generate_no_group_aliase_properties)
 
     // assert
     ASSERT_THAT(rootNode,
-                AllOf(Property("ModelNode::type", &ModelNode::type, Eq("QtObject")),
+                AllOf(Property("ModelNode::type", &ModelNode::type, Eq("QtObject"), sl),
                       Not(HasBindingProperty(groupName, binding)),
                       Not(HasBindingProperty("currentTheme", darkThemeName)),
                       Not(HasNodeProperty(darkThemeName, "QtObject"))));

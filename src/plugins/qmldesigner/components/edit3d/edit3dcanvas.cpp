@@ -98,11 +98,11 @@ void Edit3DCanvas::setFlyMode(bool enabled, const QPoint &pos)
         m_flyModeStartCursorPos = pos;
         m_flyModeFirstUpdate = true;
 
-        // Hide cursor on the middle of the active split to make the wheel work during flight mode.
-        // We can't rely on current activeSplit value, as mouse press to enter flight mode can change the
-        // active split, so hide the cursor based on its current location.
+        // Hide cursor on the middle of the active viewport to make the wheel work during flight mode.
+        // We can't rely on current activeViewport value, as mouse press to enter flight mode can change the
+        // active viewport, so hide the cursor based on its current location.
         QPoint center = mapToGlobal(QPoint(width() / 2, height() / 2));
-        if (m_parent->view()->isSplitView()) {
+        if (m_parent->view()->isMultiViewportView()) {
             if (pos.x() <= center.x()) {
                 if (pos.y() <= center.y())
                     m_hiddenCursorPos = mapToGlobal(QPoint(width() / 4, height() / 4));
@@ -192,7 +192,7 @@ void Edit3DCanvas::mouseMoveEvent(QMouseEvent *e)
         if (!m_flyModeFirstUpdate) {
             // We notify explicit camera rotation needs for QML Puppet rather than relying on mouse events,
             // as mouse isn't grabbed on QML Puppet side and can't handle fast movements that go out of
-            // edit camera mouse area. This also simplifies split view handling.
+            // edit camera mouse area. This also simplifies viewport view handling.
             QPointF diff = m_isQDSTrusted ? (m_hiddenCursorPos - globalPos)
                                           : (m_lastCursorPos - e->globalPosition().toPoint());
 

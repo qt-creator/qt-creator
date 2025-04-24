@@ -142,15 +142,15 @@ private:
                            NotUpdatedSourceIds &notUpdatedSourceIds,
                            WatchedSourceIds &WatchedSourceIds);
     void updateDirectory(const Utils::PathString &directory,
-                         const SourceContextIds &subdirecoriesToIgnore,
+                         const DirectoryPathIds &subdirecoriesToIgnore,
                          Storage::Synchronization::SynchronizationPackage &package,
                          NotUpdatedSourceIds &notUpdatedSourceIds,
                          WatchedSourceIds &WatchedSourceIds,
                          IsInsideProject isInsideProject);
     void updateSubdirectories(const Utils::PathString &directory,
-                              SourceContextId directoryId,
+                              DirectoryPathId directoryId,
                               FileState directoryFileState,
-                              const SourceContextIds &subdirecoriesToIgnore,
+                              const DirectoryPathIds &subdirecoriesToIgnore,
                               Storage::Synchronization::SynchronizationPackage &package,
                               NotUpdatedSourceIds &notUpdatedSourceIds,
                               WatchedSourceIds &WatchedSourceIds,
@@ -161,24 +161,24 @@ private:
                                 FileState annotationDirectoryState,
                                 SourcePath qmldirSourcePath,
                                 SourceId qmldirSourceId,
-                                SourceContextId directoryId,
-                                SourceContextId annotationDirectoryId,
+                                DirectoryPathId directoryId,
+                                DirectoryPathId annotationDirectoryId,
                                 Storage::Synchronization::SynchronizationPackage &package,
                                 NotUpdatedSourceIds &notUpdatedSourceIds,
                                 WatchedSourceIds &WatchedSourceIds,
                                 IsInsideProject isInsideProject,
                                 ProjectStorageTracing::Category::TracerType &tracer);
     void annotationDirectoryChanged(Utils::SmallStringView directoryPath,
-                                    SourceContextId directoryId,
-                                    SourceContextId annotationDirectoryId,
+                                    DirectoryPathId directoryId,
+                                    DirectoryPathId annotationDirectoryId,
                                     ModuleId moduleId,
                                     Storage::Synchronization::SynchronizationPackage &package);
     void updatePropertyEditorFiles(Utils::SmallStringView directyPath,
-                                   SourceContextId directoryId,
+                                   DirectoryPathId directoryId,
                                    ModuleId moduleId,
                                    Storage::Synchronization::SynchronizationPackage &package);
     void updatePropertyEditorFile(const QString &fileName,
-                                  SourceContextId directoryId,
+                                  DirectoryPathId directoryId,
                                   ModuleId moduleId,
                                   Storage::Synchronization::SynchronizationPackage &package);
     void updatePropertyEditorPaths(const QString &propertyEditorResourcesPath,
@@ -187,31 +187,31 @@ private:
     void updateTypeAnnotations(const QString &directoryPath,
                                Storage::Synchronization::SynchronizationPackage &package,
                                NotUpdatedSourceIds &notUpdatedSourceIds,
-                               std::map<SourceContextId, SmallSourceIds<16>> &updatedSourceIdsDictonary);
+                               std::map<DirectoryPathId, SmallSourceIds<16>> &updatedSourceIdsDictonary);
     void updateTypeAnnotationDirectories(
         Storage::Synchronization::SynchronizationPackage &package,
         NotUpdatedSourceIds &notUpdatedSourceIds,
-        std::map<SourceContextId, SmallSourceIds<16>> &updatedSourceIdsDictonary);
+        std::map<DirectoryPathId, SmallSourceIds<16>> &updatedSourceIdsDictonary);
     void updateTypeAnnotations(const QStringList &directoryPath,
                                Storage::Synchronization::SynchronizationPackage &package,
                                NotUpdatedSourceIds &notUpdatedSourceIds);
     void updateTypeAnnotation(const QString &directoryPath,
                               const QString &filePath,
                               SourceId sourceId,
-                              SourceContextId directoryId,
+                              DirectoryPathId directoryId,
                               Storage::Synchronization::SynchronizationPackage &package);
     void updatePropertyEditorPath(const QString &path,
                                   Storage::Synchronization::SynchronizationPackage &package,
-                                  SourceContextId directoryId,
+                                  DirectoryPathId directoryId,
                                   long long pathOffset);
     void updatePropertyEditorFilePath(const QString &filePath,
                                       Storage::Synchronization::SynchronizationPackage &package,
-                                      SourceContextId directoryId,
+                                      DirectoryPathId directoryId,
                                       long long pathOffset);
     void parseTypeInfos(const QStringList &typeInfos,
                         const std::vector<Utils::PathString> &qmldirDependencies,
                         const std::vector<Utils::PathString> &qmldirImports,
-                        SourceContextId directoryId,
+                        DirectoryPathId directoryId,
                         const QString &directoryPath,
                         ModuleId moduleId,
                         Storage::Synchronization::SynchronizationPackage &package,
@@ -229,7 +229,7 @@ private:
                             NotUpdatedSourceIds &notUpdatedSourceIds,
                             IsInsideProject isInsideProject);
     void parseQmlComponents(Components components,
-                            SourceContextId directoryId,
+                            DirectoryPathId directoryId,
                             Storage::Synchronization::SynchronizationPackage &package,
                             NotUpdatedSourceIds &notUpdatedSourceIds,
                             WatchedSourceIds &WatchedSourceIds,
@@ -239,7 +239,7 @@ private:
     void parseQmlComponent(Utils::SmallStringView fileName,
                            Utils::SmallStringView directory,
                            Storage::Synchronization::ExportedTypes exportedTypes,
-                           SourceContextId directoryId,
+                           DirectoryPathId directoryId,
                            Storage::Synchronization::SynchronizationPackage &package,
                            NotUpdatedSourceIds &notUpdatedSourceIds,
                            WatchedSourceIds &WatchedSourceIds,
@@ -254,7 +254,7 @@ private:
     FileState fileState(SourceId sourceId,
                         Storage::Synchronization::SynchronizationPackage &package,
                         NotUpdatedSourceIds &notUpdatedSourceIds) const;
-    FileState fileState(SourceContextId sourceContextId,
+    FileState fileState(DirectoryPathId directoryPathId,
                         Storage::Synchronization::SynchronizationPackage &package,
                         NotUpdatedSourceIds &notUpdatedSourceIds) const;
 
