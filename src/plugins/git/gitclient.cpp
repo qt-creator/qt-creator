@@ -2688,22 +2688,20 @@ static QByteArray shiftLogLine(QByteArray &logText)
     return res;
 }
 
-bool GitClient::readDataFromCommit(const FilePath &repoDirectory, const QString &commit,
-                                   CommitData &commitData, QString *errorMessage,
-                                   QString *commitTemplate)
+Result<CommitData> GitClient::enrichCommitData(const FilePath &repoDirectory,
+                                               const QString &commit,
+                                               const CommitData &commitDataIn)
 {
     // Get commit data as "hash<lf>author<lf>email<lf>message".
     const QStringList arguments = {"log", "--max-count=1", "--pretty=format:%h\n%aN\n%aE\n%B", commit};
     const CommandResult result = vcsSynchronousExec(repoDirectory, arguments, RunFlags::NoOutput);
 
     if (result.result() != ProcessResult::FinishedWithSuccess) {
-        if (errorMessage) {
-            *errorMessage = Tr::tr("Cannot retrieve last commit data of repository \"%1\".")
-                .arg(repoDirectory.toUserOutput());
-        }
-        return false;
+        return ResultError(Tr::tr("Cannot retrieve last commit data of repository \"%1\".")
+                           .arg(repoDirectory.toUserOutput()));
     }
 
+    CommitData commitData = commitDataIn;
     QTextCodec *authorCodec = HostOsInfo::isWindowsHost()
             ? QTextCodec::codecForName("UTF-8")
             : commitData.commitEncoding;
@@ -2711,9 +2709,8 @@ bool GitClient::readDataFromCommit(const FilePath &repoDirectory, const QString 
     commitData.amendHash = QLatin1String(shiftLogLine(stdOut));
     commitData.panelData.author = authorCodec->toUnicode(shiftLogLine(stdOut));
     commitData.panelData.email = authorCodec->toUnicode(shiftLogLine(stdOut));
-    if (commitTemplate)
-        *commitTemplate = commitData.commitEncoding->toUnicode(stdOut);
-    return true;
+    commitData.commitTemplate = commitData.commitEncoding->toUnicode(stdOut);
+    return commitData;
 }
 
 Author GitClient::parseAuthor(const QString &authorInfo)
@@ -2815,16 +2812,20 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
     // Get the commit template or the last commit message
     switch (commitData.commitType) {
     case AmendCommit: {
-        if (!readDataFromCommit(repoDirectory, HEAD, commitData, &errorMessage,
-                                &commitData.commitTemplate))
-            return ResultError(errorMessage);
+        if (const Result<CommitData> res = enrichCommitData(repoDirectory, HEAD, commitData))
+            commitData = res.value();
+        else
+            return ResultError(res.error());
         break;
     }
     case SimpleCommit: {
         bool authorFromCherryPick = false;
         // For cherry-picked commit, read author data from the commit (but template from MERGE_MSG)
         if (gitDir.pathAppended(CHERRY_PICK_HEAD).exists()) {
-            authorFromCherryPick = readDataFromCommit(repoDirectory, CHERRY_PICK_HEAD, commitData);
+            if (const Result<CommitData> res = enrichCommitData(repoDirectory, CHERRY_PICK_HEAD, commitData)) {
+                authorFromCherryPick = true;
+                commitData = res.value();
+            }
             commitData.amendHash.clear();
         }
         if (!authorFromCherryPick) {

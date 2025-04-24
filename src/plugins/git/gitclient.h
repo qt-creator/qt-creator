@@ -299,9 +299,9 @@ public:
     void setConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar,
                         const QString &value) const;
 
-    bool readDataFromCommit(const Utils::FilePath &repoDirectory, const QString &commit,
-                            CommitData &commitData, QString *errorMessage = nullptr,
-                            QString *commitTemplate = nullptr);
+    Utils::Result<CommitData> enrichCommitData(const Utils::FilePath &repoDirectory,
+                                               const QString &commit,
+                                               const CommitData &commitDataIn);
     Utils::Result<CommitData> getCommitData(CommitType commitType,
                                             const Utils::FilePath &workingDirectory);
 
