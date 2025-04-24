@@ -49,7 +49,7 @@ jobs:
           }
         - {
             name: "macOS Latest Clang", artifact: "macos-universal",
-            os: macos-15,
+            os: macos-latest,
             cc: "clang", cxx: "clang++"
           }
 
