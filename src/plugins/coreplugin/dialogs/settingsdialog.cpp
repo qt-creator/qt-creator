@@ -447,8 +447,6 @@ private:
     QSize sizeHint() const final { return minimumSize(); }
 
     void done(int) final;
-    void accept() final;
-    void reject() final;
 
     void apply();
     void currentChanged(const QModelIndex &current);
@@ -730,33 +728,6 @@ void SettingsDialog::filter(const QString &text)
     updateEnabledTabs(category, text);
 }
 
-void SettingsDialog::accept()
-{
-    if (m_finished)
-        return;
-    m_finished = true;
-    disconnectTabWidgets();
-    m_applied = true;
-    for (IOptionsPage *page : std::as_const(m_visitedPages))
-        page->apply();
-    for (IOptionsPage *page : std::as_const(m_pages))
-        page->finish();
-    done(QDialog::Accepted);
-}
-
-void SettingsDialog::reject()
-{
-    if (m_finished)
-        return;
-    m_finished = true;
-    disconnectTabWidgets();
-    for (IOptionsPage *page : std::as_const(m_pages)) {
-        page->cancel();
-        page->finish();
-    }
-    done(QDialog::Rejected);
-}
-
 void SettingsDialog::apply()
 {
     for (IOptionsPage *page : std::as_const(m_visitedPages))
@@ -766,6 +737,25 @@ void SettingsDialog::apply()
 
 void SettingsDialog::done(int val)
 {
+    if (m_finished)
+        return;
+
+    m_finished = true;
+
+    disconnectTabWidgets();
+
+    if (val == QDialog::Accepted) {
+        m_applied = true;
+        for (IOptionsPage *page : std::as_const(m_visitedPages))
+            page->apply();
+    } else {
+        for (IOptionsPage *page : std::as_const(m_pages))
+            page->cancel();
+    }
+
+    for (IOptionsPage *page : std::as_const(m_pages))
+        page->finish();
+
     QtcSettings *settings = ICore::settings();
     settings->setValue(pageKeyC, m_currentPage.toSetting());
     settings->setValue(sortKeyC, m_sortCheckBox->isChecked());
