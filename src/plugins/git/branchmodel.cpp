@@ -707,7 +707,6 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     const QString trackedBranch = fullName(startPoint);
     const QString fullTrackedBranch = fullName(startPoint, true);
     QString startSha;
-    QString output;
     QString errorMessage;
     QDateTime branchDateTime;
 
@@ -717,14 +716,19 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
         startSha = sha(startPoint);
         branchDateTime = dateTime(startPoint);
     } else {
-        const QStringList arguments({"-n1", "--format=%H %ct"});
-        if (gitClient().synchronousLog(d->workingDirectory, arguments, &output, &errorMessage,
-                                       RunFlags::SuppressCommandLogging)) {
-            const QStringList values = output.split(' ');
+        const Result<QString> res = gitClient().synchronousLog(d->workingDirectory,
+                                                               {"-n1", "--format=%H %ct"},
+                                                               RunFlags::SuppressCommandLogging);
+        if (res) {
+            const QStringList values = res.value().split(' ');
             startSha = values[0];
             branchDateTime = QDateTime::fromSecsSinceEpoch(values[1].toLongLong());
+        } else {
+            errorMessage = res.error();
         }
     }
+
+    QString output;
 
     if (!gitClient().synchronousBranchCmd(d->workingDirectory, args, &output, &errorMessage)) {
         VcsOutputWindow::appendError(errorMessage);
@@ -998,13 +1002,9 @@ void BranchModel::Private::updateAllUpstreamStatus(BranchNode *node)
 QString BranchModel::toolTip(const QString &sha) const
 {
     // Show the sha description excluding diff as toolTip
-    QString output;
-    QString errorMessage;
-    if (!gitClient().synchronousLog(d->workingDirectory, {"-n1", sha}, &output, &errorMessage,
-                                    RunFlags::SuppressCommandLogging)) {
-        return errorMessage;
-    }
-    return output;
+    const Result<QString> res = gitClient().synchronousLog(d->workingDirectory, {"-n1", sha},
+                                                           RunFlags::SuppressCommandLogging);
+    return res ? res.value() : res.error();
 }
 
 } // Git::Internal

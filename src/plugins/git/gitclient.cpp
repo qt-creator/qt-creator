@@ -1481,8 +1481,9 @@ void GitClient::addFile(const FilePath &workingDirectory, const QString &fileNam
     vcsExec(workingDirectory, {"add", fileName});
 }
 
-bool GitClient::synchronousLog(const FilePath &workingDirectory, const QStringList &arguments,
-                               QString *output, QString *errorMessageIn, RunFlags flags)
+Result<QString> GitClient::synchronousLog(const FilePath &workingDirectory,
+                                          const QStringList &arguments,
+                                          RunFlags flags)
 {
     QStringList allArguments = {"log", noColorOption};
 
@@ -1490,13 +1491,13 @@ bool GitClient::synchronousLog(const FilePath &workingDirectory, const QStringLi
 
     const CommandResult result = vcsSynchronousExec(workingDirectory, allArguments, flags,
                         vcsTimeoutS(), encoding(EncodingLogOutput, workingDirectory));
-    if (result.result() == ProcessResult::FinishedWithSuccess) {
-        *output = result.cleanedStdOut();
-        return true;
-    }
+    if (result.result() == ProcessResult::FinishedWithSuccess)
+        return result.cleanedStdOut();
+
+    QString errorMessage;
     msgCannotRun(Tr::tr("Cannot obtain log of \"%1\": %2")
-                 .arg(workingDirectory.toUserOutput(), result.cleanedStdErr()), errorMessageIn);
-    return false;
+                 .arg(workingDirectory.toUserOutput(), result.cleanedStdErr()), &errorMessage);
+    return ResultError(errorMessage);
 }
 
 bool GitClient::synchronousAdd(const FilePath &workingDirectory,
@@ -2757,8 +2758,12 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
     QString errorMessage;
     QString output;
     if (commitData.commitType == FixupCommit) {
-        synchronousLog(repoDirectory, {HEAD, "--not", "--remotes", "-n1"}, &output, &errorMessage,
-                       RunFlags::SuppressCommandLogging);
+        const Result<QString> res = synchronousLog(repoDirectory, {HEAD, "--not", "--remotes", "-n1"},
+                                                   RunFlags::SuppressCommandLogging);
+        if (res)
+            output = res.value();
+        else
+            errorMessage = res.error();
         if (output.isEmpty())
             return ResultError(msgNoCommits(false));
     } else {
@@ -3710,10 +3715,14 @@ QString GitClient::suggestedLocalBranchName(
     if (targetType == BranchTargetType::Remote) {
         initialName = target.mid(target.lastIndexOf('/') + 1);
     } else {
-        QString subject;
-        gitClient().synchronousLog(workingDirectory, {"-n", "1", "--format=%s", target},
-                                   &subject, nullptr, RunFlags::NoOutput);
-        initialName = subject.trimmed();
+        const Result<QString> res =
+                gitClient().synchronousLog(workingDirectory,
+                                           {"-n", "1", "--format=%s", target},
+                                           RunFlags::NoOutput);
+        if (res)
+            initialName = res.value().trimmed();
+        else
+            VcsOutputWindow::appendError(res.error());
     }
     QString suggestedName = initialName;
     int i = 2;

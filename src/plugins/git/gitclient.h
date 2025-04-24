@@ -177,9 +177,9 @@ public:
     void removeStaleRemoteBranches(const Utils::FilePath &workingDirectory, const QString &remote);
     void recoverDeletedFiles(const Utils::FilePath &workingDirectory);
     void addFile(const Utils::FilePath &workingDirectory, const QString &fileName);
-    bool synchronousLog(const Utils::FilePath &workingDirectory, const QStringList &arguments,
-                        QString *output, QString *errorMessage = nullptr,
-                        VcsBase::RunFlags flags = VcsBase::RunFlags::None);
+    Utils::Result<QString> synchronousLog(const Utils::FilePath &workingDirectory,
+                                          const QStringList &arguments,
+                                          VcsBase::RunFlags flags = VcsBase::RunFlags::None);
     bool synchronousAdd(const Utils::FilePath &workingDirectory, const QStringList &files,
                         const QStringList &extraOptions = {});
     bool synchronousDelete(const Utils::FilePath &workingDirectory,
