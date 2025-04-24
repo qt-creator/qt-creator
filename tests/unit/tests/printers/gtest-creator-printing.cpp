@@ -878,7 +878,10 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
                << package.updatedPropertyEditorQmlPathDirectoryIds
                << ",\n\t\ttypeAnnotations: " << package.typeAnnotations
                << ",\n\t\tupdatedTypeAnnotationSourceIds: " << package.updatedTypeAnnotationSourceIds
-               << ")";
+               << ",\n\t\ttmoduleDependencies: " << package.moduleDependencies
+               << ",\n\t\tupdatedTypeAnnotationSourceIds: " << package.updatedModuleDependencySourceIds
+               << ",\n\t\tmoduleExportedImports: " << package.moduleExportedImports
+               << ",\n\t\tupdatedModuleIds: " << package.updatedModuleIds << "\n)";
 }
 
 std::ostream &operator<<(std::ostream &out, const DirectoryInfo &data)

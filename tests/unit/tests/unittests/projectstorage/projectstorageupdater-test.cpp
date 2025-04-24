@@ -1483,13 +1483,326 @@ TEST_P(synchronize_non_existing_qml_types, updates_directory_info)
     updater.update(update);
 }
 
+class ProjectStorageUpdater_synchronize_qmldir_dependencies : public synchronize_qml_types
+{
+public:
+    ProjectStorageUpdater_synchronize_qmldir_dependencies() {}
+
+public:
+    SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/path/example2.qmltypes");
+    ModuleId qmlCppNativeModuleId{storage.moduleId("Qml", ModuleKind::CppLibrary)};
+    ModuleId builtinCppNativeModuleId{storage.moduleId("QML", ModuleKind::CppLibrary)};
+};
+
+TEST_F(ProjectStorageUpdater_synchronize_qmldir_dependencies, with_multiple_qml_types)
+{
+    QString qmldir{R"(module Example
+                      depends  Qml
+                      depends  QML
+                      typeinfo example.qmltypes
+                      typeinfo example2.qmltypes
+                      )"};
+    setContent(u"/path/qmldir", qmldir);
+    setFilesChanged({qmlDirPathSourceId});
+
+    EXPECT_CALL(
+        projectStorageMock,
+        synchronize(AllOf(
+            Field("SynchronizationPackage::moduleDependencies",
+                  &SynchronizationPackage::moduleDependencies,
+                  UnorderedElementsAre(
+                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
+                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
+                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId},
+                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId})),
+            Field("SynchronizationPackage::updatedModuleDependencySourceIds",
+                  &SynchronizationPackage::updatedModuleDependencySourceIds,
+                  UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
+
+    updater.update({.qtDirectories = {"/path"}});
+}
+
+TEST_F(ProjectStorageUpdater_synchronize_qmldir_dependencies, with_double_entries)
+{
+    QString qmldir{R"(module Example
+                      depends  Qml
+                      depends  QML
+                      depends  Qml
+                      typeinfo example.qmltypes
+                      )"};
+    setContent(u"/path/qmldir", qmldir);
+    setFilesChanged({qmlDirPathSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field("SynchronizationPackage::moduleDependencies",
+                                        &SynchronizationPackage::moduleDependencies,
+                                        UnorderedElementsAre(Import{qmlCppNativeModuleId,
+                                                                    Storage::Version{},
+                                                                    qmltypesPathSourceId},
+                                                             Import{builtinCppNativeModuleId,
+                                                                    Storage::Version{},
+                                                                    qmltypesPathSourceId})),
+                                  Field("SynchronizationPackage::updatedModuleDependencySourceIds",
+                                        &SynchronizationPackage::updatedModuleDependencySourceIds,
+                                        UnorderedElementsAre(qmltypesPathSourceId)))));
+
+    updater.update({.qtDirectories = {"/path"}});
+}
+
+TEST_F(ProjectStorageUpdater_synchronize_qmldir_dependencies, with_colliding_qmldir_imports)
+{
+    QString qmldir{R"(module Example
+                      depends  Qml
+                      depends  QML
+                      import Qml
+                      typeinfo example.qmltypes
+                      )"};
+    setContent(u"/path/qmldir", qmldir);
+    setFilesChanged({qmlDirPathSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field("SynchronizationPackage::moduleDependencies",
+                                        &SynchronizationPackage::moduleDependencies,
+                                        UnorderedElementsAre(Import{qmlCppNativeModuleId,
+                                                                    Storage::Version{},
+                                                                    qmltypesPathSourceId},
+                                                             Import{builtinCppNativeModuleId,
+                                                                    Storage::Version{},
+                                                                    qmltypesPathSourceId})),
+                                  Field("SynchronizationPackage::updatedModuleDependencySourceIds",
+                                        &SynchronizationPackage::updatedModuleDependencySourceIds,
+                                        UnorderedElementsAre(qmltypesPathSourceId)))));
+
+    updater.update({.qtDirectories = {"/path"}});
+}
+
+TEST_F(ProjectStorageUpdater_synchronize_qmldir_dependencies, with_no_dependencies)
+{
+    QString qmldir{R"(module Example
+                      typeinfo example.qmltypes
+                      )"};
+    setContent(u"/path/qmldir", qmldir);
+    setFilesChanged({qmlDirPathSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field("SynchronizationPackage::moduleDependencies",
+                                        &SynchronizationPackage::moduleDependencies,
+                                        IsEmpty()),
+                                  Field("SynchronizationPackage::updatedModuleDependencySourceIds",
+                                        &SynchronizationPackage::updatedModuleDependencySourceIds,
+                                        UnorderedElementsAre(qmltypesPathSourceId)))));
+
+    updater.update({.qtDirectories = {"/path"}});
+}
+
+class ProjectStorageUpdater_synchronize_qmldir_imports : public synchronize_qml_types
+{
+public:
+    ProjectStorageUpdater_synchronize_qmldir_imports() {}
+
+public:
+    ModuleId qmlCppNativeModuleId{storage.moduleId("Qml", ModuleKind::CppLibrary)};
+    ModuleId builtinModuleId{storage.moduleId("QML", ModuleKind::QmlLibrary)};
+    ModuleId builtinCppNativeModuleId{storage.moduleId("QML", ModuleKind::CppLibrary)};
+    ModuleId quickModuleId{storage.moduleId("Quick", ModuleKind::QmlLibrary)};
+    ModuleId quickCppNativeModuleId{storage.moduleId("Quick", ModuleKind::CppLibrary)};
+};
+
+TEST_F(ProjectStorageUpdater_synchronize_qmldir_imports, imports)
+{
+    QString qmldir{R"(module Example
+                      import Qml auto
+                      import QML 2.1
+                      import Quick
+                      )"};
+    setContent(u"/path/qmldir", qmldir);
+    setFilesChanged({qmlDirPathSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(
+                    AllOf(Field("SynchronizationPackage::moduleExportedImports",
+                                &SynchronizationPackage::moduleExportedImports,
+                                UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
+                                                                          qmlModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::Yes},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          qmlCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleModuleId,
+                                                                          builtinModuleId,
+                                                                          Storage::Version{2, 1},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          builtinCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleModuleId,
+                                                                          quickModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::Yes},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          quickCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No})),
+                          Field("SynchronizationPackage::updatedModuleIds",
+                                &SynchronizationPackage::updatedModuleIds,
+                                ElementsAre(exampleModuleId)))));
+
+    updater.update({.qtDirectories = {"/path"}});
+}
+
+TEST_F(ProjectStorageUpdater_synchronize_qmldir_imports, with_no_imports)
+{
+    QString qmldir{R"(module Example
+                      )"};
+    setContent(u"/path/qmldir", qmldir);
+    setFilesChanged({qmlDirPathSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field("SynchronizationPackage::moduleExportedImports",
+                                        &SynchronizationPackage::moduleExportedImports,
+                                        IsEmpty()),
+                                  Field("SynchronizationPackage::updatedModuleIds",
+                                        &SynchronizationPackage::updatedModuleIds,
+                                        ElementsAre(exampleModuleId)))));
+
+    updater.update({.qtDirectories = {"/path"}});
+}
+
+TEST_F(ProjectStorageUpdater_synchronize_qmldir_imports, with_double_entries)
+{
+    QString qmldir{R"(module Example
+                      import Qml auto
+                      import QML 2.1
+                      import Quick
+                      import Qml
+                      )"};
+    setContent(u"/path/qmldir", qmldir);
+    setFilesChanged({qmlDirPathSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(
+                    AllOf(Field("SynchronizationPackage::moduleExportedImports",
+                                &SynchronizationPackage::moduleExportedImports,
+                                UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
+                                                                          qmlModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::Yes},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          qmlCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleModuleId,
+                                                                          builtinModuleId,
+                                                                          Storage::Version{2, 1},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          builtinCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleModuleId,
+                                                                          quickModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::Yes},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          quickCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No})),
+                          Field("SynchronizationPackage::updatedModuleIds",
+                                &SynchronizationPackage::updatedModuleIds,
+                                ElementsAre(exampleModuleId)))));
+
+    updater.update({.qtDirectories = {"/path"}});
+}
+
+TEST_F(ProjectStorageUpdater_synchronize_qmldir_imports, synchronize_qmldir_default_imports)
+{
+    QString qmldir{R"(module Example
+                      import Qml auto
+                      import QML 2.1
+                      default import Quick
+                      )"};
+    setContent(u"/path/qmldir", qmldir);
+    setFilesChanged({qmlDirPathSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(
+                    AllOf(Field("SynchronizationPackage::moduleExportedImports",
+                                &SynchronizationPackage::moduleExportedImports,
+                                UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
+                                                                          qmlModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::Yes},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          qmlCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleModuleId,
+                                                                          builtinModuleId,
+                                                                          Storage::Version{2, 1},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          builtinCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleModuleId,
+                                                                          quickModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::Yes},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          quickCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No})),
+                          Field("SynchronizationPackage::updatedModuleIds",
+                                &SynchronizationPackage::updatedModuleIds,
+                                ElementsAre(exampleModuleId)))));
+
+    updater.update({.qtDirectories = {"/path"}});
+}
+
+TEST_F(ProjectStorageUpdater_synchronize_qmldir_imports, do_not_synchronize_qmldir_optional_imports)
+{
+    QString qmldir{R"(module Example
+                      import Qml auto
+                      import QML 2.1
+                      optional import Quick
+                      )"};
+    setContent(u"/path/qmldir", qmldir);
+    setFilesChanged({qmlDirPathSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(
+                    AllOf(Field("SynchronizationPackage::moduleExportedImports",
+                                &SynchronizationPackage::moduleExportedImports,
+                                UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
+                                                                          qmlModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::Yes},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          qmlCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleModuleId,
+                                                                          builtinModuleId,
+                                                                          Storage::Version{2, 1},
+                                                                          IsAutoVersion::No},
+                                                     ModuleExportedImport{exampleCppNativeModuleId,
+                                                                          builtinCppNativeModuleId,
+                                                                          Storage::Version{},
+                                                                          IsAutoVersion::No})),
+                          Field("SynchronizationPackage::updatedModuleIds",
+                                &SynchronizationPackage::updatedModuleIds,
+                                ElementsAre(exampleModuleId)))));
+
+    updater.update({.qtDirectories = {"/path"}});
+}
+
 class ProjectStorageUpdater_synchronize_qml_documents : public BaseProjectStorageUpdater
 {
 public:
-    ProjectStorageUpdater_synchronize_qml_documents()
-    {
-
-    }
+    ProjectStorageUpdater_synchronize_qml_documents() {}
 
 public:
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");
@@ -2274,33 +2587,8 @@ TEST_P(synchronize_not_existing_qml_documents, directory_infos_in_qmldir_only)
     updater.update(update);
 }
 
-TEST_F(ProjectStorageUpdater, update_qml_types_files_is_empty)
-{
-    EXPECT_CALL(
-        projectStorageMock,
-        synchronize(
-            AllOf(Field("SynchronizationPackage::imports", &SynchronizationPackage::imports, IsEmpty()),
-                  Field("SynchronizationPackage::types", &SynchronizationPackage::types, IsEmpty()),
-                  Field("SynchronizationPackage::updatedSourceIds",
-                        &SynchronizationPackage::updatedSourceIds,
-                        IsEmpty()),
-                  Field("SynchronizationPackage::fileStatuses",
-                        &SynchronizationPackage::fileStatuses,
-                        IsEmpty()),
-                  Field("SynchronizationPackage::updatedFileStatusSourceIds",
-                        &SynchronizationPackage::updatedFileStatusSourceIds,
-                        IsEmpty()),
-                  Field("SynchronizationPackage::directoryInfos",
-                        &SynchronizationPackage::directoryInfos,
-                        IsEmpty()),
-                  Field("SynchronizationPackage::updatedDirectoryInfoDirectoryIds",
-                        &SynchronizationPackage::updatedDirectoryInfoDirectoryIds,
-                        IsEmpty()))));
-
-    updater.update({});
-}
-
-TEST_F(ProjectStorageUpdater, synchronize_qml_documents_with_different_version_but_same_type_name_and_file_name)
+TEST_F(ProjectStorageUpdater_synchronize_qml_documents,
+       with_different_version_but_same_type_name_and_file_name)
 {
     QString qmldir{R"(module Example
                       FirstType 1.0 First.qml
@@ -2308,104 +2596,57 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_with_different_version_b
                       FirstType 6.0 First.qml)"};
     setContent(u"/path/qmldir", qmldir);
     setQmlFileNames(u"/path", {"First.qml"});
+    setFilesChanged({qmlDirPathSourceId});
 
     EXPECT_CALL(
         projectStorageMock,
         synchronize(AllOf(
-            Field("SynchronizationPackage::imports",
-                  &SynchronizationPackage::imports,
-                  UnorderedElementsAre(import1)),
             Field("SynchronizationPackage::types",
                   &SynchronizationPackage::types,
-                  UnorderedElementsAre(AllOf(
-                      IsStorageType("First.qml",
-                                    ImportedType{"Object"},
-                                    TypeTraitsKind::Reference,
-                                    qmlDocumentSourceId1,
-                                    ChangeLevel::Full),
+                  UnorderedElementsAre(
                       Field("Type::exportedTypes",
                             &Type::exportedTypes,
                             UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0),
                                                  IsExportedType(exampleModuleId, "FirstType", 1, 1),
                                                  IsExportedType(exampleModuleId, "FirstType", 6, 0),
-                                                 IsExportedType(pathModuleId, "First", -1, -1)))))),
-            Field("SynchronizationPackage::updatedSourceIds",
-                  &SynchronizationPackage::updatedSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
-            Field("SynchronizationPackage::updatedFileStatusSourceIds",
-                  &SynchronizationPackage::updatedFileStatusSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
-            Field("SynchronizationPackage::fileStatuses",
-                  &SynchronizationPackage::fileStatuses,
-                  UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21),
-                                       IsFileStatus(qmlDocumentSourceId1, 1, 21))),
-            Field("SynchronizationPackage::updatedDirectoryInfoDirectoryIds",
-                  &SynchronizationPackage::updatedDirectoryInfoDirectoryIds,
-                  UnorderedElementsAre(directoryPathId)),
-            Field("SynchronizationPackage::directoryInfos",
-                  &SynchronizationPackage::directoryInfos,
-                  UnorderedElementsAre(IsDirectoryInfo(
-                      directoryPathId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument))))));
+                                                 IsExportedType(pathModuleId, "First", -1, -1))))))));
 
-    updater.update({.qtDirectories = directories});
+    updater.update({.projectDirectory = "/path"});
 }
 
-TEST_F(ProjectStorageUpdater, synchronize_qml_documents_with_different_type_name_but_same_version_and_file_name)
+TEST_F(ProjectStorageUpdater_synchronize_qml_documents,
+       with_different_type_name_but_same_version_and_file_name)
 {
     QString qmldir{R"(module Example
                       FirstType 1.0 First.qml
                       FirstType2 1.0 First.qml)"};
     setContent(u"/path/qmldir", qmldir);
     setQmlFileNames(u"/path", {"First.qml"});
+    setFilesChanged({qmlDirPathSourceId});
 
     EXPECT_CALL(
         projectStorageMock,
         synchronize(AllOf(
-            Field("SynchronizationPackage::imports",
-                  &SynchronizationPackage::imports,
-                  UnorderedElementsAre(import1)),
             Field("SynchronizationPackage::types",
                   &SynchronizationPackage::types,
-                  UnorderedElementsAre(AllOf(
-                      IsStorageType("First.qml",
-                                    ImportedType{"Object"},
-                                    TypeTraitsKind::Reference,
-                                    qmlDocumentSourceId1,
-                                    ChangeLevel::Full),
+                  UnorderedElementsAre(
                       Field("Type::exportedTypes",
                             &Type::exportedTypes,
                             UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0),
                                                  IsExportedType(exampleModuleId, "FirstType2", 1, 0),
-                                                 IsExportedType(pathModuleId, "First", -1, -1)))))),
-            Field("SynchronizationPackage::updatedSourceIds",
-                  &SynchronizationPackage::updatedSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
-            Field("SynchronizationPackage::updatedFileStatusSourceIds",
-                  &SynchronizationPackage::updatedFileStatusSourceIds,
-                  UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1)),
-            Field("SynchronizationPackage::fileStatuses",
-                  &SynchronizationPackage::fileStatuses,
-                  UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21),
-                                       IsFileStatus(qmlDocumentSourceId1, 1, 21))),
-            Field("SynchronizationPackage::updatedDirectoryInfoDirectoryIds",
-                  &SynchronizationPackage::updatedDirectoryInfoDirectoryIds,
-                  UnorderedElementsAre(directoryPathId)),
-            Field("SynchronizationPackage::directoryInfos",
-                  &SynchronizationPackage::directoryInfos,
-                  UnorderedElementsAre(IsDirectoryInfo(
-                      directoryPathId, qmlDocumentSourceId1, ModuleId{}, FileType::QmlDocument))))));
+                                                 IsExportedType(pathModuleId, "First", -1, -1))))))));
 
-    updater.update({.qtDirectories = directories});
+    updater.update({.projectDirectory = "/path"});
 }
 
-TEST_F(ProjectStorageUpdater, dont_synchronize_selectors)
+TEST_F(ProjectStorageUpdater_synchronize_qml_documents, dont_synchronize_selectors)
 {
-    setContent(u"/path/+First.qml", qmlDocument1);
-    setContent(u"/path/qml/+First.qml", qmlDocument1);
+    setContent(u"/path/+First.qml", "First{}");
     QString qmldir{R"(module Example
                       FirstType 1.0 +First.qml)"};
     setContent(u"/path/qmldir", qmldir);
     setQmlFileNames(u"/path", {"First.qml"});
+    setFilesChanged({qmlDirPathSourceId});
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(Not(Field(
@@ -2414,296 +2655,7 @@ TEST_F(ProjectStorageUpdater, dont_synchronize_selectors)
                                    &Type::exportedTypes,
                                    Contains(IsExportedType(exampleModuleId, "FirstType", 1, 0))))))));
 
-    updater.update({.qtDirectories = directories});
-}
-
-TEST_F(ProjectStorageUpdater, synchronize_qmldir_dependencies)
-{
-    QString qmldir{R"(module Example
-                      depends  Qml
-                      depends  QML
-                      typeinfo example.qmltypes
-                      typeinfo example2.qmltypes
-                      )"};
-    setContent(u"/path/qmldir", qmldir);
-
-    EXPECT_CALL(
-        projectStorageMock,
-        synchronize(AllOf(
-            Field("SynchronizationPackage::moduleDependencies",
-                  &SynchronizationPackage::moduleDependencies,
-                  UnorderedElementsAre(
-                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
-                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
-                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId},
-                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId})),
-            Field("SynchronizationPackage::updatedModuleDependencySourceIds",
-                  &SynchronizationPackage::updatedModuleDependencySourceIds,
-                  UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
-
-    updater.update({.qtDirectories = directories});
-}
-
-TEST_F(ProjectStorageUpdater, synchronize_qmldir_dependencies_with_double_entries)
-{
-    QString qmldir{R"(module Example
-                      depends  Qml
-                      depends  QML
-                      depends  Qml
-                      typeinfo example.qmltypes
-                      typeinfo example2.qmltypes
-                      )"};
-    setContent(u"/path/qmldir", qmldir);
-
-    EXPECT_CALL(
-        projectStorageMock,
-        synchronize(AllOf(
-            Field("SynchronizationPackage::moduleDependencies",
-                  &SynchronizationPackage::moduleDependencies,
-                  UnorderedElementsAre(
-                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
-                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
-                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId},
-                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId})),
-            Field("SynchronizationPackage::updatedModuleDependencySourceIds",
-                  &SynchronizationPackage::updatedModuleDependencySourceIds,
-                  UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
-
-    updater.update({.qtDirectories = directories});
-}
-
-TEST_F(ProjectStorageUpdater, synchronize_qmldir_dependencies_with_colliding_imports)
-{
-    QString qmldir{R"(module Example
-                      depends  Qml
-                      depends  QML
-                      import Qml
-                      typeinfo example.qmltypes
-                      typeinfo example2.qmltypes
-                      )"};
-    setContent(u"/path/qmldir", qmldir);
-
-    EXPECT_CALL(
-        projectStorageMock,
-        synchronize(AllOf(
-            Field("SynchronizationPackage::moduleDependencies",
-                  &SynchronizationPackage::moduleDependencies,
-                  UnorderedElementsAre(
-                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
-                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypesPathSourceId},
-                      Import{qmlCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId},
-                      Import{builtinCppNativeModuleId, Storage::Version{}, qmltypes2PathSourceId})),
-            Field("SynchronizationPackage::updatedModuleDependencySourceIds",
-                  &SynchronizationPackage::updatedModuleDependencySourceIds,
-                  UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
-
-    updater.update({.qtDirectories = directories});
-}
-
-TEST_F(ProjectStorageUpdater, synchronize_qmldir_with_no_dependencies)
-{
-    QString qmldir{R"(module Example
-                      typeinfo example.qmltypes
-                      typeinfo example2.qmltypes
-                      )"};
-    setContent(u"/path/qmldir", qmldir);
-
-    EXPECT_CALL(projectStorageMock,
-                synchronize(
-                    AllOf(Field("SynchronizationPackage::moduleDependencies",
-                                &SynchronizationPackage::moduleDependencies,
-                                IsEmpty()),
-                          Field("SynchronizationPackage::updatedModuleDependencySourceIds",
-                                &SynchronizationPackage::updatedModuleDependencySourceIds,
-                                UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
-
-    updater.update({.qtDirectories = directories});
-}
-
-TEST_F(ProjectStorageUpdater, synchronize_qmldir_imports)
-{
-    QString qmldir{R"(module Example
-                      import Qml auto
-                      import QML 2.1
-                      import Quick
-                      )"};
-    setContent(u"/path/qmldir", qmldir);
-
-    EXPECT_CALL(projectStorageMock,
-                synchronize(
-                    AllOf(Field("SynchronizationPackage::moduleExportedImports",
-                                &SynchronizationPackage::moduleExportedImports,
-                                UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
-                                                                          qmlModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::Yes},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          qmlCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleModuleId,
-                                                                          builtinModuleId,
-                                                                          Storage::Version{2, 1},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          builtinCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleModuleId,
-                                                                          quickModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::Yes},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          quickCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No})),
-                          Field("SynchronizationPackage::updatedModuleIds",
-                                &SynchronizationPackage::updatedModuleIds,
-                                ElementsAre(exampleModuleId)))));
-
-    updater.update({.qtDirectories = directories});
-}
-
-TEST_F(ProjectStorageUpdater, synchronize_qmldir_with_no_imports)
-{
-    QString qmldir{R"(module Example
-                      )"};
-    setContent(u"/path/qmldir", qmldir);
-
-    EXPECT_CALL(projectStorageMock,
-                synchronize(AllOf(Field("SynchronizationPackage::moduleExportedImports",
-                                        &SynchronizationPackage::moduleExportedImports,
-                                        IsEmpty()),
-                                  Field("SynchronizationPackage::updatedModuleIds",
-                                        &SynchronizationPackage::updatedModuleIds,
-                                        ElementsAre(exampleModuleId)))));
-
-    updater.update({.qtDirectories = directories});
-}
-
-TEST_F(ProjectStorageUpdater, synchronize_qmldir_imports_with_double_entries)
-{
-    QString qmldir{R"(module Example
-                      import Qml auto
-                      import QML 2.1
-                      import Quick
-                      import Qml
-                      )"};
-    setContent(u"/path/qmldir", qmldir);
-
-    EXPECT_CALL(projectStorageMock,
-                synchronize(
-                    AllOf(Field("SynchronizationPackage::moduleExportedImports",
-                                &SynchronizationPackage::moduleExportedImports,
-                                UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
-                                                                          qmlModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::Yes},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          qmlCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleModuleId,
-                                                                          builtinModuleId,
-                                                                          Storage::Version{2, 1},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          builtinCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleModuleId,
-                                                                          quickModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::Yes},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          quickCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No})),
-                          Field("SynchronizationPackage::updatedModuleIds",
-                                &SynchronizationPackage::updatedModuleIds,
-                                ElementsAre(exampleModuleId)))));
-
-    updater.update({.qtDirectories = directories});
-}
-
-TEST_F(ProjectStorageUpdater, synchronize_qmldir_default_imports)
-{
-    QString qmldir{R"(module Example
-                      import Qml auto
-                      import QML 2.1
-                      default import Quick
-                      )"};
-    setContent(u"/path/qmldir", qmldir);
-
-    EXPECT_CALL(projectStorageMock,
-                synchronize(
-                    AllOf(Field("SynchronizationPackage::moduleExportedImports",
-                                &SynchronizationPackage::moduleExportedImports,
-                                UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
-                                                                          qmlModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::Yes},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          qmlCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleModuleId,
-                                                                          builtinModuleId,
-                                                                          Storage::Version{2, 1},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          builtinCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleModuleId,
-                                                                          quickModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::Yes},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          quickCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No})),
-                          Field("SynchronizationPackage::updatedModuleIds",
-                                &SynchronizationPackage::updatedModuleIds,
-                                ElementsAre(exampleModuleId)))));
-
-    updater.update({.qtDirectories = directories});
-}
-
-TEST_F(ProjectStorageUpdater, do_not_synchronize_qmldir_optional_imports)
-{
-    QString qmldir{R"(module Example
-                      import Qml auto
-                      import QML 2.1
-                      optional import Quick
-                      )"};
-    setContent(u"/path/qmldir", qmldir);
-
-    EXPECT_CALL(projectStorageMock,
-                synchronize(
-                    AllOf(Field("SynchronizationPackage::moduleExportedImports",
-                                &SynchronizationPackage::moduleExportedImports,
-                                UnorderedElementsAre(ModuleExportedImport{exampleModuleId,
-                                                                          qmlModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::Yes},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          qmlCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleModuleId,
-                                                                          builtinModuleId,
-                                                                          Storage::Version{2, 1},
-                                                                          IsAutoVersion::No},
-                                                     ModuleExportedImport{exampleCppNativeModuleId,
-                                                                          builtinCppNativeModuleId,
-                                                                          Storage::Version{},
-                                                                          IsAutoVersion::No})),
-                          Field("SynchronizationPackage::updatedModuleIds",
-                                &SynchronizationPackage::updatedModuleIds,
-                                ElementsAre(exampleModuleId)))));
-
-    updater.update({.qtDirectories = directories});
+    updater.update({.qtDirectories = {"/path"}});
 }
 
 TEST_F(ProjectStorageUpdater, update_path_watcher_directories)
