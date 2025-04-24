@@ -66,6 +66,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
     surfaceChanged();
 
     setAllowBlinkingCursor(settings().allowBlinkingCursor());
+    enableMouseTracking(settings().enableMouseTracking());
 
     connect(&settings(), &AspectContainer::applied, this, [this] {
         // Setup colors first, as setupFont will redraw the screen.
@@ -73,6 +74,7 @@ TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &op
         setupFont();
         configBlinkTimer();
         setAllowBlinkingCursor(settings().allowBlinkingCursor());
+        enableMouseTracking(settings().enableMouseTracking());
     });
 }
 
@@ -127,8 +129,6 @@ void TerminalWidget::setupPty()
     env.setFallback("COMMAND_MODE", "unix2003");
     env.setFallback("INIT_CWD", QCoreApplication::applicationDirPath());
 
-    // For git bash on Windows
-    env.prependOrSetPath(shellCommand.executable().parentDir());
     if (env.hasKey("CLINK_NOAUTORUN"))
         env.unset("CLINK_NOAUTORUN");
 

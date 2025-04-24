@@ -355,6 +355,7 @@ void KitDetectorPrivate::autoDetect()
 
         RunDeviceTypeKitAspect::setDeviceTypeId(k, m_device->type());
         RunDeviceKitAspect::setDevice(k, m_device);
+        BuildDeviceTypeKitAspect::setDeviceTypeId(k, m_device->type());
         BuildDeviceKitAspect::setDevice(k, m_device);
 
         const Toolchains toolchainCandidates = ToolchainManager::toolchains(

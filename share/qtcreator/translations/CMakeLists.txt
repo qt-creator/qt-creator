@@ -1,4 +1,4 @@
-set(languages cs da de en fr hr ja pl ru sl uk zh_CN zh_TW)
+set(languages cs da de fr hr ja pl ru sl uk zh_CN zh_TW)
 set(bad_languages hu) # Fix these before including them in languages!
 
 find_package(Python3 COMPONENTS Interpreter)
@@ -45,7 +45,8 @@ else()
 endif()
 
 add_translation_targets(qtcreator
-  LANGUAGES ${languages}
+  TS_LANGUAGES ${languages}
+  QM_LANGUAGES ${languages} en
   OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}/translations"
   INSTALL_DESTINATION "${IDE_DATA_PATH}/translations"
   TARGETS "${__QTC_LIBRARIES}" "${__QTC_PLUGINS}"

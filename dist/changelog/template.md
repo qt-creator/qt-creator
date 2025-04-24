@@ -95,6 +95,8 @@ Analyzer
 
 ### Valgrind
 
+### Perf
+
 ### Cppcheck
 
 Terminal

@@ -504,7 +504,7 @@ static bool sdkManagerCommand(const QStringList &args, QString *output)
     proc.setCommand({AndroidConfig::sdkManagerToolPath(), newArgs});
     qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (sync):"
                                      << proc.commandLine().toUserOutput();
-    proc.runBlocking(60s, EventLoopMode::On);
+    proc.runBlocking(60s);
     if (output)
         *output = proc.allOutput();
     return proc.result() == ProcessResult::FinishedWithSuccess;

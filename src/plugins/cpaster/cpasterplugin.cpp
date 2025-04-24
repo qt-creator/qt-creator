@@ -22,6 +22,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -74,6 +75,7 @@ class CodePasterPluginPrivate : public QObject
 {
 public:
     CodePasterPluginPrivate();
+    ~CodePasterPluginPrivate();
 
     void post(PasteSource pasteSources);
     void post(QString data, const QString &mimeType);
@@ -173,6 +175,13 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
         .setText(Tr::tr("Fetch from URL..."))
         .addToContainer(menu)
         .addOnTriggered(this, &CodePasterPluginPrivate::fetchUrl);
+
+    ExtensionSystem::PluginManager::addObject(&m_service);
+}
+
+CodePasterPluginPrivate::~CodePasterPluginPrivate()
+{
+    ExtensionSystem::PluginManager::removeObject(&m_service);
 }
 
 static inline void textFromCurrentEditor(QString *text, QString *mimeType)

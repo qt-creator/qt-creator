@@ -224,6 +224,15 @@ void setupTextEditorModule()
             return BaseTextEditor::currentTextEditor();
         };
 
+        result["openedEditors"] = [lua]() mutable -> sol::table {
+            QList<BaseTextEditor *> editors = BaseTextEditor::openedTextEditors();
+            sol::table result = lua.create_table();
+            for (auto& editor : editors) {
+                result.add(TextEditorPtr(editor));
+            }
+            return result;
+        };
+
         result.new_usertype<MultiTextCursor>(
             "MultiTextCursor",
             sol::no_constructor,
@@ -238,18 +247,26 @@ void setupTextEditorModule()
             "Position",
             sol::no_constructor,
             "line",
-            sol::property(&Position::line, &Position::line),
+            sol::property(
+                [](const Position &pos) { return pos.line; },
+                [](Position &pos, int line) { pos.line = line; }),
             "column",
-            sol::property(&Position::column, &Position::column));
+            sol::property(
+                [](const Position &pos) { return pos.column; },
+                [](Position &pos, int column) { pos.column = column; }));
 
         // In range can't use begin/end as "end" is a reserved word for LUA scripts
         result.new_usertype<Range>(
             "Range",
             sol::no_constructor,
             "from",
-            sol::property(&Range::begin, &Range::begin),
+            sol::property(
+                [](const Range &range) { return range.begin; },
+                [](Range &range, const Position &begin) { range.begin = begin; }),
             "to",
-            sol::property(&Range::end, &Range::end));
+            sol::property(
+                [](const Range &range) { return range.end; },
+                [](Range &range, const Position &end) { range.end = end; }));
 
         auto textCursorType = result.new_usertype<QTextCursor>(
             "TextCursor",
@@ -418,6 +435,13 @@ void setupTextEditorModule()
                LayoutOrWidget widget) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 textEditor->editorWidget()->insertExtraToolBarWidget(side, toWidget(widget));
+            },
+            "insertExtraToolBarAction",
+            [](const TextEditorPtr &textEditor,
+               TextEditorWidget::Side side,
+               QAction* action) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                textEditor->editorWidget()->insertExtraToolBarAction(side, action);
             },
             "setRefactorMarker",
             [pluginSpec, activeMarkers](

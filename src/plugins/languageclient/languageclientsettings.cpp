@@ -618,6 +618,7 @@ Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
     BaseClientInterface *interface = createInterface(project);
     QTC_ASSERT(interface, return nullptr);
     auto *client = createClient(interface);
+    QTC_ASSERT(client, return nullptr);
 
     if (client->name().isEmpty())
         client->setName(Utils::globalMacroExpander()->expand(m_name));

@@ -317,6 +317,7 @@ void AvdDialog::createAvd()
             progressDialog.reset(new QProgressDialog(Core::ICore::dialogParent()));
             progressDialog->setRange(0, 0);
             progressDialog->setWindowModality(Qt::ApplicationModal);
+            progressDialog->setMinimumDuration(INT_MAX); // In order to suppress calls to processEvents() from setValue()
             progressDialog->setWindowTitle("Create new AVD");
             progressDialog->setLabelText(Tr::tr("Creating new AVD device..."));
             progressDialog->setFixedSize(progressDialog->sizeHint());

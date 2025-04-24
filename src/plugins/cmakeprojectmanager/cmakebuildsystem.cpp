@@ -697,6 +697,11 @@ bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, Fi
                                             << "could not be found at" << targetDefinitionLine;
             return false;
         }
+        if (function->Arguments().size() == 0) {
+            qCCritical(cmakeBuildSystemLog) << "Function that defined the target" << targetName
+                                            << "has zero arguments.";
+            return false;
+        }
 
         const bool haveGlobbing = isGlobbingFunction(*cmakeListFile, *function);
         n->setVisibleAfterAddFileAction(!haveGlobbing);

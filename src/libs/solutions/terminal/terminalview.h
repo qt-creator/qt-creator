@@ -55,6 +55,8 @@ public:
 
     void setFont(const QFont &font);
 
+    void enableMouseTracking(bool enable);
+
     void copyToClipboard();
     void pasteFromClipboard();
     void copyLinkToClipboard();

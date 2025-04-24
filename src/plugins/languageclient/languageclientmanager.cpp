@@ -660,7 +660,8 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
                 clients.removeAll(clientForProject);
             }
         } else if (setting->m_startBehavior == BaseSettings::RequiresFile && clients.isEmpty()) {
-            clients << startClient(setting);
+            if (Client *client = startClient(setting); QTC_GUARD(client))
+                clients << client;
         }
         allClients << clients;
     }

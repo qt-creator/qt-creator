@@ -551,6 +551,7 @@ ActionManager::ActionManager(QObject *parent)
 ActionManager::~ActionManager()
 {
     delete d;
+    d = nullptr;
 }
 
 /*!
@@ -734,6 +735,8 @@ QList<Command *> ActionManager::commands()
 */
 void ActionManager::unregisterAction(QAction *action, Id id)
 {
+    if (!d) // stray call during shutdown
+        return;
     Command *cmd = d->m_idCmdMap.value(id, nullptr);
     if (!cmd) {
         qWarning() << "unregisterAction: id" << id.name()

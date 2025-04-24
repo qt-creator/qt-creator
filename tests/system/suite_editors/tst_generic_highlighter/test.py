@@ -126,7 +126,7 @@ def displayHintForHighlighterDefinition(fileName, patterns, added):
     if hasSuffix(fileName, patterns):
         return not added
     test.warning("Got an unexpected suffix.", "Filename: %s, Patterns: %s"
-                 % (fileName, str(patterns + lPatterns)))
+                 % (fileName, str(patterns)))
     return False
 
 def main():

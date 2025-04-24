@@ -127,6 +127,7 @@ public:
     virtual void finalizeInitialization() {}
 
     static BaseTextEditor *currentTextEditor();
+    static QList<BaseTextEditor *> openedTextEditors();
     static QVector<BaseTextEditor *> textEditorsForDocument(TextDocument *textDocument);
 
     TextEditorWidget *editorWidget() const;
@@ -351,6 +352,7 @@ public:
 
     enum Side { Left, Right };
     QAction *insertExtraToolBarWidget(Side side, QWidget *widget);
+    void insertExtraToolBarAction(Side side, QAction *action);
     void setToolbarOutline(QWidget* widget);
     const QWidget *toolbarOutlineWidget();
 

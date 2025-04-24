@@ -318,6 +318,7 @@ GroupItem WindowsSettingsWidget::downloadNugetRecipe()
                                                      Tr::tr("Cancel"), 0, 100,
                                                      Core::ICore::dialogParent()));
             progressDialog->setWindowModality(Qt::ApplicationModal);
+            progressDialog->setMinimumDuration(INT_MAX); // In order to suppress calls to processEvents() from setValue()
             progressDialog->setWindowTitle(Tr::tr("Downloading"));
             progressDialog->setFixedSize(progressDialog->sizeHint());
             progressDialog->setAutoClose(false);

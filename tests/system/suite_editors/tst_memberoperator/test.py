@@ -62,12 +62,20 @@ def main():
                                      "consider raising the timeout.")
                 else:
                     snooze(1)
-                type(cppwindow, testData.field(record, "operator"))
+                operator = testData.field(record, "operator")
+                type(cppwindow, operator)
                 genericProposalWidget = __getGenericProposalListView__(1500)
                 # the clang code model does not change the . to -> before applying a proposal
                 # so, verify list of proposals roughly
                 if useClang:
                     expectProposal = testData.field(record, "clangProposal") == 'True'
+                    if expectProposal and (genericProposalWidget is None):
+                        test.warning("Expected proposal widget was not displayed as expected. "
+                                     "Trying again...")
+                        for _ in operator:
+                            type(cppwindow, "<Backspace>")
+                        type(cppwindow, operator)
+                        genericProposalWidget = __getGenericProposalListView__(500)
                     test.compare(genericProposalWidget is not None, expectProposal,
                                  'Verifying whether proposal widget is displayed as expected.')
 

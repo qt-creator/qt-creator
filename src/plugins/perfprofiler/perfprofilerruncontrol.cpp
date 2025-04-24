@@ -139,7 +139,7 @@ public:
 
             perfParserWorker->addStartDependency(perfRecordWorker);
             perfParserWorker->addStopDependency(perfRecordWorker);
-            perfRecordWorker->addStopDependency(perfParserWorker);
+            QObject::connect(perfRecordWorker, &RunWorker::stopped, runControl, &RunControl::initiateStop);
             PerfProfilerTool::instance()->onWorkerCreation(runControl);
 
             auto tool = PerfProfilerTool::instance();
