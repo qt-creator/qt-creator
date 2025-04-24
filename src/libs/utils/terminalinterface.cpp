@@ -386,6 +386,7 @@ void TerminalInterface::start()
 
     ProcessSetupData stubSetupData;
     stubSetupData.m_commandLine = cmd;
+    stubSetupData.m_environment = Environment::originalSystemEnvironment();
 
     stubSetupData.m_extraData[TERMINAL_SHELL_NAME]
         = m_setup.m_extraData.value(TERMINAL_SHELL_NAME,
