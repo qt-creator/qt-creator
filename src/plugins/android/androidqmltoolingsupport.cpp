@@ -21,7 +21,7 @@ public:
         setProducer([](RunControl *runControl) {
             auto androidRunner = new RecipeRunner(runControl, androidRecipe(runControl));
 
-            auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
+            auto extraWorker = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
             extraWorker->addStartDependency(androidRunner);
             return androidRunner;
         });
