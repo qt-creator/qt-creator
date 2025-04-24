@@ -55,8 +55,10 @@ private:
     QMap<McuPackagePtr, QWidget *> m_packageWidgets;
     QMap<McuTargetPtr, QWidget *> m_mcuTargetPacketWidgets;
     QFormLayout *m_packagesLayout = nullptr;
+    QFormLayout *m_optionalPackagesLayout = nullptr;
     QGroupBox *m_qtForMCUsSdkGroupBox = nullptr;
     QGroupBox *m_packagesGroupBox = nullptr;
+    QGroupBox *m_optionalPackagesGroupBox = nullptr;
     QGroupBox *m_mcuTargetsGroupBox = nullptr;
     QComboBox *m_mcuTargetsComboBox = nullptr;
     QGroupBox *m_kitCreationGroupBox = nullptr;
@@ -120,6 +122,14 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
         mainLayout->addWidget(m_packagesGroupBox);
         m_packagesLayout = new QFormLayout;
         m_packagesGroupBox->setLayout(m_packagesLayout);
+    }
+
+    {
+        m_optionalPackagesGroupBox = new QGroupBox(Tr::tr("Optional"));
+        m_optionalPackagesGroupBox->setFlat(true);
+        mainLayout->addWidget(m_optionalPackagesGroupBox);
+        m_optionalPackagesLayout = new QFormLayout;
+        m_optionalPackagesGroupBox->setLayout(m_optionalPackagesLayout);
     }
 
     {
@@ -187,6 +197,10 @@ void McuSupportOptionsWidget::updateStatus()
         const bool ready = valid && mcuTarget;
         m_mcuTargetsGroupBox->setVisible(ready);
         m_packagesGroupBox->setVisible(ready && !mcuTarget->packages().isEmpty());
+        m_optionalPackagesGroupBox->setVisible(
+            ready && std::ranges::any_of(mcuTarget->packages(), [](McuPackagePtr p) {
+                return p->isOptional();
+            }));
         m_kitCreationGroupBox->setVisible(ready);
         m_mcuTargetsInfoLabel->setVisible(valid && m_options.sdkRepository.mcuTargets.isEmpty());
         if (m_mcuTargetsInfoLabel->isVisible()) {
@@ -266,6 +280,10 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
         m_packagesLayout->removeRow(0);
     }
 
+    while (m_optionalPackagesLayout->rowCount() > 0) {
+        m_optionalPackagesLayout->removeRow(0);
+    }
+
     std::set<McuPackagePtr, McuPackageSort> packages;
 
     for (const auto &package : mcuTarget->packages()) {
@@ -285,7 +303,10 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
                 package->setPath(macroExpander->expand(package->defaultPath()));
             }
         });
-        m_packagesLayout->addRow(package->label(), packageWidget);
+        if (package->isOptional())
+            m_optionalPackagesLayout->addRow(package->label(), packageWidget);
+        else
+            m_packagesLayout->addRow(package->label(), packageWidget);
         packageWidget->show();
     }
 

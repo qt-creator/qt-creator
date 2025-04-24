@@ -33,6 +33,7 @@ struct PackageDescription
     Utils::FilePaths detectionPaths;
     QStringList versions;
     VersionDetection versionDetection;
+    bool optional;
     bool shouldAddToSystemPath;
     Utils::PathChooser::Kind type;
 }; //struct PackageDescription

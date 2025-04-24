@@ -137,6 +137,7 @@ McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
                                         pkgDesc.versions,
                                         {},
                                         createVersionDetection(pkgDesc.versionDetection),
+                                        pkgDesc.optional,
                                         pkgDesc.shouldAddToSystemPath,
                                         pkgDesc.type}};
 }
