@@ -553,12 +553,11 @@ Result<> CustomProjectWizard::postGenerateFiles(const QWizard *, const Generated
 }
 
 void CustomProjectWizard::handleProjectParametersChanged(const QString &name,
-                                                         const Utils::FilePath &path)
+                                                         const FilePath &path)
 {
+    Q_UNUSED(path);
     // Make '%ProjectName%' available in base replacements.
     context()->baseReplacements.insert(QLatin1String("ProjectName"), name);
-
-    emit projectLocationChanged(path / name);
 }
 
 } // namespace ProjectExplorer

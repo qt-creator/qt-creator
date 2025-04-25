@@ -10,8 +10,6 @@ namespace Internal {
 
 class SubdirsProjectWizard : public QtWizard
 {
-    Q_OBJECT
-
 public:
     SubdirsProjectWizard();
 

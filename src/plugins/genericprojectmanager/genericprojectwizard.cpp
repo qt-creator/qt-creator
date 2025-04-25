@@ -94,7 +94,7 @@ private:
 
 class GenericProjectWizard final : public BaseFileWizard
 {
-    Q_OBJECT
+    Q_OBJECT // needed for qobject_cast
 
 public:
     GenericProjectWizard(const BaseFileWizardFactory *factory)
@@ -152,8 +152,6 @@ public:
 
 class GenericProjectWizardFactory final : public BaseFileWizardFactory
 {
-    Q_OBJECT
-
 public:
     GenericProjectWizardFactory()
     {
