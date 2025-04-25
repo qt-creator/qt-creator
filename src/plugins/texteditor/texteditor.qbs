@@ -135,7 +135,6 @@ Project {
             "textdocumentlayout.h",
             "texteditor.cpp",
             "texteditor.h",
-            "texteditor.qrc",
             "texteditor_global.h",
             "texteditorconstants.cpp",
             "texteditorconstants.h",
@@ -235,6 +234,17 @@ Project {
                 "highlighter_test.h",
                 "texteditor_test.cpp",
                 "texteditor_test.h",
+            ]
+        }
+
+        Group {
+            name: "images"
+            fileTags: "qt.core.resource_data"
+            files: [
+                "images/finddocuments.png",
+                "images/snippet.png",
+                "images/settingscategory_texteditor.png",
+                "images/settingscategory_texteditor@2x.png",
             ]
         }
     }
