@@ -69,6 +69,7 @@ CORE_EXPORT void applyTf(QLabel *label, const TextFormat &tf, bool singleLine = 
 
 class CORE_EXPORT Button : public QAbstractButton
 {
+    Q_OBJECT
 public:
     enum Role {
         LargePrimary,
@@ -81,12 +82,14 @@ public:
         SmallLink,
         Tag,
     };
+    Q_ENUM(Role)
 
     explicit Button(const QString &text, Role role, QWidget *parent = nullptr);
 
     QSize minimumSizeHint() const override;
 
     void setPixmap(const QPixmap &newPixmap);
+    void setRole(Role role);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -94,7 +97,7 @@ protected:
 private:
     void updateMargins();
 
-    const Role m_role = LargePrimary;
+    Role m_role = LargePrimary;
     QPixmap m_pixmap;
 };
 

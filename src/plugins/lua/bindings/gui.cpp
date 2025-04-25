@@ -6,6 +6,8 @@
 #include "inheritance.h"
 #include "utils.h"
 
+#include <coreplugin/welcomepagehelper.h>
+
 #include <utils/aspects.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
@@ -138,6 +140,7 @@ CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
 CREATE_HAS_FUNC(setMinimumWidth, int());
 CREATE_HAS_FUNC(setEnableCodeCopyButton, bool());
 CREATE_HAS_FUNC(setDefaultAction, nullptr);
+CREATE_HAS_FUNC(setRole, Core::Button::Role());
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -373,6 +376,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         if (openExternalLinks)
             item->setOpenExternalLinks(*openExternalLinks);
     }
+    if constexpr (has_setRole<T>) {
+        sol::optional<Core::Button::Role> role = children.get<sol::optional<Core::Button::Role>>(
+            "role"sv);
+        if (role)
+            item->setRole(*role);
+    }
 }
 
 template<class T>
@@ -497,6 +506,21 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
     return item;
 }
 
+class CoreButton : public Widget
+{
+public:
+    using Implementation = Core::Button;
+    using I = Building::BuilderItem<Core::Button>;
+
+    CoreButton() { ptr = new Implementation("", Core::Button::LargePrimary, nullptr); }
+
+    Core::Button *access() const { return static_cast<Core::Button *>(ptr); }
+
+    void setText(const QString &text) { access()->setText(text); }
+    void setIcon(const Utils::Icon &icon) { access()->setPixmap(icon.pixmap()); }
+    void setRole(Core::Button::Role role) { access()->setRole(role); }
+};
+
 void setupGuiModule()
 {
     registerProvider("Gui", [](sol::state_view l) -> sol::object {
@@ -571,6 +595,21 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
+        gui.new_usertype<CoreButton>(
+            "CoreButton",
+            sol::call_constructor,
+            sol::factories([](const sol::table &children) {
+                return constructWidgetType<CoreButton>(children, nullptr);
+            }),
+            "setText",
+            &CoreButton::setText,
+            "setIcon",
+            &CoreButton::setIcon,
+            "setRole",
+            &CoreButton::setRole,
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
         gui.new_usertype<Label>(
             "Label",
             sol::call_constructor,
@@ -622,6 +661,7 @@ void setupGuiModule()
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextInteractionFlag>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::CursorShape>());
+        mirrorEnum(gui, QMetaEnum::fromType<Core::Button::Role>());
 
         auto sizePolicy = gui.create_named("QSizePolicy");
         mirrorEnum(sizePolicy, QMetaEnum::fromType<QSizePolicy::Policy>());

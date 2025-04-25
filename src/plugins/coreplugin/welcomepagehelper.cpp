@@ -273,6 +273,12 @@ void Button::setPixmap(const QPixmap &pixmap)
     updateMargins();
 }
 
+void Button::setRole(Role role)
+{
+    m_role = role;
+    updateMargins();
+}
+
 void Button::updateMargins()
 {
     if (m_role == Tag) {

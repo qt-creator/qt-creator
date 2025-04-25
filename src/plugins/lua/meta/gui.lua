@@ -168,6 +168,33 @@ local pushButton = {}
 ---@return PushButton
 function gui.PushButton(options) end
 
+
+---@class CoreButton : Widget
+local CoreButton = {}
+
+--- Enum representing text format types
+---@enum Role
+gui.Role = {
+    LargePrimary = 0,
+    LargeSecondary = 0,
+    LargeTertiary = 0,
+    SmallPrimary = 0,
+    SmallSecondary = 0,
+    SmallTertiary = 0,
+    SmallList = 0,
+    SmallLink = 0,
+    Tag = 0,
+}
+
+---@class CoreButtonOptions : BaseWidgetOptions
+---@field role? Role The role of the button. (default: "LargePrimary")
+---@field text? string The text of the button.
+---@field icon? IconFilePathOrString The icon of the button.
+
+---@param options CoreButtonOptions
+---@return CoreButton
+function gui.CoreButton(options) end
+
 ---@class Label : Widget
 ---@field text string Returns the content of the Label as string
 local label = {}
