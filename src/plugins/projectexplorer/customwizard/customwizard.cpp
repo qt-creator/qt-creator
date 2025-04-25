@@ -222,7 +222,7 @@ static FilePath scriptWorkingDirectory(const std::shared_ptr<CustomWizardContext
     return FilePath::fromUserInput(path);
 }
 
-GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *errorMessage) const
+Result<GeneratedFiles> CustomWizard::generateFiles(const QWizard *dialog) const
 {
     // Look for the Custom field page to find the path
     const CustomWizardPage *cwp = findWizardPage<CustomWizardPage>(dialog);
@@ -240,13 +240,7 @@ GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString *error
             str << "  '" << it.key() << "' -> '" << it.value() << "'\n";
         qWarning("%s", qPrintable(logText));
     }
-    const Result<GeneratedFiles> res = generateWizardFiles();
-    if (!res) {
-        if (errorMessage)
-            *errorMessage = res.error();
-        return {};
-    }
-    return res.value();
+    return generateWizardFiles();
 }
 
 Result<> CustomWizard::writeFiles(const GeneratedFiles &files) const
@@ -506,7 +500,7 @@ void CustomProjectWizard::initProjectWizardDialog(BaseProjectWizardDialog *w,
         qDebug() << "initProjectWizardDialog" << w << w->pageIds();
 }
 
-GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QString *errorMessage) const
+Result<GeneratedFiles> CustomProjectWizard::generateFiles(const QWizard *w) const
 {
     const auto *dialog = qobject_cast<const BaseProjectWizardDialog *>(w);
     QTC_ASSERT(dialog, return {});
@@ -519,13 +513,7 @@ GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QString *err
     ctx->replacements = fieldReplacementMap;
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::generateFiles" << dialog << ctx->targetPath << ctx->replacements;
-    const Result<GeneratedFiles> generatedFiles = generateWizardFiles();
-    if (!generatedFiles) {
-        if (errorMessage)
-            *errorMessage = generatedFiles.error();
-        return {};
-    }
-    return *generatedFiles;
+    return generateWizardFiles();
 }
 
 /*!

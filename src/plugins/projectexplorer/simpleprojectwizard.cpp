@@ -173,10 +173,8 @@ BaseFileWizard *SimpleProjectWizard::create(const WizardDialogParameters &parame
     return wizard;
 }
 
-GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard,
-                                  QString *errorMessage)
+static GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard)
 {
-    Q_UNUSED(errorMessage)
     const QString projectPath = wizard->projectDir().toUrlishString();
     const QDir dir(projectPath);
     const QString projectName = wizard->projectName();
@@ -232,10 +230,8 @@ GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard,
     return GeneratedFiles{generatedProFile};
 }
 
-GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard,
-                                  QString *errorMessage)
+static GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard)
 {
-    Q_UNUSED(errorMessage)
     const QDir dir(wizard->projectDir().toUrlishString());
     const QString projectName = wizard->projectName();
     const FilePath projectFileName = Utils::FilePath::fromString(QFileInfo(dir, "CMakeLists.txt").absoluteFilePath());
@@ -287,7 +283,6 @@ GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard,
         components.clear();
     }
 
-
     GeneratedFile generatedProFile(projectFileName);
     generatedProFile.setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     generatedProFile.setContents(
@@ -310,20 +305,15 @@ GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard,
     return GeneratedFiles{generatedProFile};
 }
 
-GeneratedFiles SimpleProjectWizard::generateFiles(const QWizard *w,
-                                                  QString *errorMessage) const
+Result<GeneratedFiles> SimpleProjectWizard::generateFiles(const QWizard *w) const
 {
-    Q_UNUSED(errorMessage)
-
     auto wizard = qobject_cast<const SimpleProjectWizardDialog *>(w);
     if (wizard->buildSystem() == "qmake")
-        return generateQmakeFiles(wizard, errorMessage);
-    else if (wizard->buildSystem() == "cmake")
-        return generateCmakeFiles(wizard, errorMessage);
+        return generateQmakeFiles(wizard);
+    if (wizard->buildSystem() == "cmake")
+        return generateCmakeFiles(wizard);
 
-    if (errorMessage)
-        *errorMessage = Tr::tr("Unknown build system \"%1\"").arg(wizard->buildSystem());
-    return {};
+    return ResultError(Tr::tr("Unknown build system \"%1\"").arg(wizard->buildSystem()));
 }
 
 Result<> SimpleProjectWizard::postGenerateFiles(const QWizard *w, const GeneratedFiles &l) const

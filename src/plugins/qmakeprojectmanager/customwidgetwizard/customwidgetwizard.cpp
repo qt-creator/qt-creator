@@ -14,6 +14,8 @@
 
 #include <utils/filepath.h>
 
+using namespace Utils;
+
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -36,8 +38,7 @@ Core::BaseFileWizard *CustomWidgetWizard::create(const Core::WizardDialogParamet
     return rc;
 }
 
-Core::GeneratedFiles CustomWidgetWizard::generateFiles(const QWizard *w,
-                                                       QString *errorMessage) const
+Result<Core::GeneratedFiles> CustomWidgetWizard::generateFiles(const QWizard *w) const
 {
     const auto *cw = qobject_cast<const CustomWidgetWizardDialog *>(w);
     Q_ASSERT(w);
@@ -46,7 +47,7 @@ Core::GeneratedFiles CustomWidgetWizard::generateFiles(const QWizard *w,
     p.path = cw->filePath().toUrlishString();
     p.templatePath = QtWizard::templateDir();
     p.templatePath += QLatin1String("/customwidgetwizard");
-    return PluginGenerator::generatePlugin(p, *(cw->pluginOptions()), errorMessage);
+    return PluginGenerator::generatePlugin(p, *(cw->pluginOptions()));
 }
 
 } // namespace Internal

@@ -17,8 +17,7 @@
 
 using namespace Utils;
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 SubdirsProjectWizard::SubdirsProjectWizard()
 {
@@ -43,8 +42,7 @@ Core::BaseFileWizard *SubdirsProjectWizard::create(const Core::WizardDialogParam
     return dialog;
 }
 
-Core::GeneratedFiles SubdirsProjectWizard::generateFiles(const QWizard *w,
-                                                         QString * /*errorMessage*/) const
+Result<Core::GeneratedFiles> SubdirsProjectWizard::generateFiles(const QWizard *w) const
 {
     const auto *wizard = qobject_cast< const SubdirsProjectWizardDialog *>(w);
     const QtProjectParameters params = wizard->parameters();
@@ -83,5 +81,4 @@ Result<> SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::G
     return ResultOk;
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

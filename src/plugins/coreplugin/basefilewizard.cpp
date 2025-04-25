@@ -122,10 +122,10 @@ void BaseFileWizard::reject()
 
 void BaseFileWizard::generateFileList()
 {
-    QString errorMessage;
-    m_files = m_factory->generateFiles(this, &errorMessage);
-    if (m_files.empty()) {
-        QMessageBox::critical(parentWidget(), Tr::tr("File Generation Failure"), errorMessage);
+    if (const Result<GeneratedFiles> res = m_factory->generateFiles(this)) {
+        m_files = res.value();
+    } else {
+        QMessageBox::critical(parentWidget(), Tr::tr("File Generation Failure"), res.error());
         reject();
     }
 }

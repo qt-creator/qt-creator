@@ -14,7 +14,7 @@ public:
 
 private:
     Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
-    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
+    Utils::Result<Core::GeneratedFiles> generateFiles(const QWizard *w) const override;
     Utils::Result<> postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l) const override;
 };
 

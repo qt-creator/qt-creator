@@ -3,6 +3,7 @@
 
 #include "formclasswizard.h"
 #include "formclasswizarddialog.h"
+#include "formclasswizardparameters.h"
 
 #include <designer/designerconstants.h>
 #include <designer/qtdesignerformclasscodegenerator.h>
@@ -19,8 +20,7 @@
 
 using namespace Utils;
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 FormClassWizard::FormClassWizard()
 {
@@ -47,15 +47,13 @@ Core::BaseFileWizard *FormClassWizard::create(const Core::WizardDialogParameters
     return new FormClassWizardDialog(this, parameters.defaultPath());
 }
 
-Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *errorMessage) const
+Result<Core::GeneratedFiles> FormClassWizard::generateFiles(const QWizard *w) const
 {
     auto wizardDialog = qobject_cast<const FormClassWizardDialog *>(w);
     const Designer::FormClassWizardParameters params = wizardDialog->parameters();
 
-    if (params.uiTemplate.isEmpty()) {
-        *errorMessage = "Internal error: FormClassWizard::generateFiles: empty template contents";
-        return Core::GeneratedFiles();
-    }
+    if (params.uiTemplate.isEmpty())
+        return ResultError("Internal error: FormClassWizard::generateFiles: empty template contents");
 
     // header
     const FilePath formFileName = buildFileName(params.path, params.uiFile, formSuffix());
@@ -87,5 +85,4 @@ Core::GeneratedFiles FormClassWizard::generateFiles(const QWizard *w, QString *e
     return  Core::GeneratedFiles() << headerFile << sourceFile << uiFile;
 }
 
-} // Internal
-} // Designer
+} // Designer::Internal

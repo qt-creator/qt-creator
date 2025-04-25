@@ -5,20 +5,18 @@
 
 #include "qtwizard.h"
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
-class SubdirsProjectWizard : public QtWizard
+class SubdirsProjectWizard final : public QtWizard
 {
 public:
     SubdirsProjectWizard();
 
 private:
-    Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
+    Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const final;
 
-    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
-    Utils::Result<> postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l) const override;
+    Utils::Result<Core::GeneratedFiles> generateFiles(const QWizard *w) const final;
+    Utils::Result<> postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l) const final;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal

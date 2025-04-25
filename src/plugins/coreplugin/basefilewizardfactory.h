@@ -69,8 +69,7 @@ public:
 protected:
     virtual BaseFileWizard *create(const WizardDialogParameters &parameters) const = 0;
 
-    virtual GeneratedFiles generateFiles(const QWizard *w,
-                                         QString *errorMessage) const = 0;
+    virtual Utils::Result<GeneratedFiles> generateFiles(const QWizard *w) const = 0;
 
     virtual Utils::Result<> writeFiles(const GeneratedFiles &files) const;
 

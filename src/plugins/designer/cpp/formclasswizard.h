@@ -3,14 +3,11 @@
 
 #pragma once
 
-#include "formclasswizardparameters.h"
-
 #include <coreplugin/basefilewizardfactory.h>
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
-class FormClassWizard : public Core::BaseFileWizardFactory
+class FormClassWizard final : public Core::BaseFileWizardFactory
 {
 public:
     FormClassWizard();
@@ -22,8 +19,7 @@ public:
 private:
     Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const final;
 
-    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const final;
+    Utils::Result<Core::GeneratedFiles> generateFiles(const QWizard *w) const final;
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

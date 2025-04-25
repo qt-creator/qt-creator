@@ -180,10 +180,8 @@ protected:
         return wizard;
     }
 
-    GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const final
+    Result<GeneratedFiles> generateFiles(const QWizard *w) const final
     {
-        Q_UNUSED(errorMessage)
-
         auto wizard = qobject_cast<const GenericProjectWizard *>(w);
         const FilePath projectPath = wizard->filePath();
         const QString projectName = wizard->projectName();

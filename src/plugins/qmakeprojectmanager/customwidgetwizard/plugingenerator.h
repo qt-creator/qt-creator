@@ -3,18 +3,11 @@
 
 #pragma once
 
-#include <QObject>
-#include <QString>
-#include <QList>
+#include <coreplugin/generatedfile.h>
+
 #include <QMap>
 
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
-
-namespace Core { class GeneratedFile; }
-
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 struct PluginOptions;
 
@@ -29,15 +22,13 @@ class PluginGenerator : public QObject
     Q_OBJECT
 
 public:
-    static QList<Core::GeneratedFile> generatePlugin(const GenerationParameters& p,
-                                                     const PluginOptions &options,
-                                                     QString *errorMessage);
+    static Utils::Result<Core::GeneratedFiles> generatePlugin(const GenerationParameters& p,
+                                                              const PluginOptions &options);
 
 private:
     using SubstitutionMap = QMap<QString, QString>;
-    static QString processTemplate(const QString &tmpl, const SubstitutionMap &substMap, QString *errorMessage);
+    static Utils::Result<QString> processTemplate(const QString &tmpl, const SubstitutionMap &substMap);
     static QString cStringQuote(QString s);
 };
 
-}
-}
+} // QmakeProjectManager::Internal

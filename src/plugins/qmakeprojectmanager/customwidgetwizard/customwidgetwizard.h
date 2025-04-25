@@ -16,7 +16,7 @@ public:
 protected:
     Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
 
-    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
+    Utils::Result<Core::GeneratedFiles> generateFiles(const QWizard *w) const override;
 };
 
 } // namespace Internal
