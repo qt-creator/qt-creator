@@ -206,6 +206,7 @@ public:
     static void provideAskPassEntry(Utils::Environment &env);
 
     RunWorker *createWorker(Utils::Id runMode);
+    Tasking::Group createRecipe(Utils::Id runMode);
 
     bool createMainWorker();
     static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);

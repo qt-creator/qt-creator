@@ -548,6 +548,16 @@ RunWorker *RunControl::createWorker(Id runMode)
     return nullptr;
 }
 
+Group RunControl::createRecipe(Id runMode)
+{
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->kit);
+    for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
+        if (factory->canCreate(runMode, deviceType, d->runConfigId.toString()))
+            return factory->createRecipe(this);
+    }
+    return noRecipeTask();
+}
+
 bool RunControl::createMainWorker()
 {
     const QList<RunWorkerFactory *> candidates
