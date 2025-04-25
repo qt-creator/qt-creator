@@ -1,9 +1,6 @@
 The subdirectory cpp contains classes for CPP-Editor/Designer integration.
 They are dependent on the CPP editor plugin.
 
-Including cpp.pri in designer.pro enables them and defines
-CPP_ENABLED.
-
 Editor
 ------
 

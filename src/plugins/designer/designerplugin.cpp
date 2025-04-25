@@ -1,18 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "cpp/formclasswizard.h"
 #include "designerconstants.h"
 #include "designertr.h"
 #include "formeditorfactory.h"
 #include "formeditor.h"
 #include "formtemplatewizardpage.h"
-
-#ifdef CPP_ENABLED
-#  include "cpp/formclasswizard.h"
-#endif
-
-#include "settingspage.h"
 #include "qtdesignerformclasscodegenerator.h"
+#include "settingspage.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -133,7 +129,6 @@ class DesignerPlugin final : public ExtensionSystem::IPlugin
     {
         d = new FormEditorPluginPrivate;
 
-#ifdef CPP_ENABLED
         IWizardFactory::registerFactoryCreator([]() -> IWizardFactory * {
             IWizardFactory *wizard = new FormClassWizard;
             wizard->setCategory(Core::Constants::WIZARD_CATEGORY_QT);
@@ -148,7 +143,6 @@ class DesignerPlugin final : public ExtensionSystem::IPlugin
 
             return wizard;
         });
-#endif
 
         // Ensure that loading designer translations is done before FormEditorW is instantiated
         const QString locale = ICore::userInterfaceLanguage();
