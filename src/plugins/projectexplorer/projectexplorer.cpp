@@ -3912,7 +3912,8 @@ void ProjectExplorerPluginPrivate::removeFile()
         changeGuards.emplace_back(std::make_unique<FileChangeBlocker>(file.second));
     }
 
-    Core::FileUtils::removeFiles(pathList, deleteFile);
+    if (deleteFile)
+        Core::FileUtils::removeFiles(pathList, deleteFile);
 }
 
 void ProjectExplorerPluginPrivate::duplicateFile()
