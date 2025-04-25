@@ -54,11 +54,7 @@ public:
     void setId(const QString &id);
 
     void initiateStart();
-    void reportStarted();
-
     void initiateStop();
-    void reportStopped();
-    void reportFailure();
 
 signals:
     void started();

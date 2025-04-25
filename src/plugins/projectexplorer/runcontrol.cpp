@@ -1615,8 +1615,10 @@ void RunWorker::initiateStart()
     const auto onSetup = [this] {
         connect(this, &RunWorker::canceled,
                 runStorage().activeStorage(), &RunInterface::canceled);
-        connect(runStorage().activeStorage(), &RunInterface::started,
-                this, &RunWorker::reportStarted);
+        connect(runStorage().activeStorage(), &RunInterface::started, this, [this] {
+            d->runControl->d->onWorkerStarted(this);
+            emit started();
+        });
     };
 
     const Group recipe {
@@ -1626,23 +1628,14 @@ void RunWorker::initiateStart()
     };
 
     d->taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
-        if (result == DoneWith::Success)
-            reportStopped();
-        else
-            reportFailure();
+        if (result == DoneWith::Success) {
+            QTC_ASSERT(d && d->runControl && d->runControl->d, return);
+            d->runControl->d->onWorkerStopped(this);
+            emit stopped();
+        } else {
+            d->runControl->d->onWorkerFailed(this, {});
+        }
     });
-}
-
-/*!
- * This function has to be called by a RunWorker implementation
- * to notify its RunControl about the successful start of this RunWorker.
- *
- * The RunControl may start other RunWorkers in response.
- */
-void RunWorker::reportStarted()
-{
-    d->runControl->d->onWorkerStarted(this);
-    emit started();
 }
 
 /*!
@@ -1655,32 +1648,6 @@ void RunWorker::initiateStop()
 {
     d->runControl->d->debugMessage("Initiate stop for " + d->id);
     emit canceled();
-}
-
-/*!
- * This function has to be called by a RunWorker implementation
- * to notify its RunControl about this RunWorker having stopped.
- *
- * The stop can be spontaneous, or in response to an initiateStop()
- * or an initiateFinish() call.
- *
- * The RunControl will adjust its global state in response.
- */
-void RunWorker::reportStopped()
-{
-    QTC_ASSERT(d && d->runControl && d->runControl->d, return);
-    d->runControl->d->onWorkerStopped(this);
-    emit stopped();
-}
-
-/*!
- * This function can be called by a RunWorker implementation to
- * signal a problem in the operation in this worker. The
- * RunControl will start to ramp down through initiateStop().
- */
-void RunWorker::reportFailure()
-{
-    d->runControl->d->onWorkerFailed(this, {});
 }
 
 void RunWorker::addStartDependency(RunWorker *dependency)
