@@ -2787,6 +2787,16 @@ NodeMetaInfo Model::qtQuick3DNodeMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuick3DObject3DMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, Object3D>();
+    } else {
+        return metaInfo("QtQuick3D.Object3D");
+    }
+}
+
 NodeMetaInfo Model::qtQuick3DPointLightMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
