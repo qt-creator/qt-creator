@@ -93,8 +93,10 @@ private:
     friend class RunControl;
     bool canCreate(Utils::Id runMode, Utils::Id deviceType, const QString &runConfigId) const;
     RunWorker *create(RunControl *runControl) const;
+    Tasking::Group createRecipe(RunControl *runControl) const;
 
     WorkerCreator m_producer;
+    RecipeCreator m_recipeCreator;
     QList<Utils::Id> m_supportedRunModes;
     QList<Utils::Id> m_supportedRunConfigurations;
     QList<Utils::Id> m_supportedDeviceTypes;
@@ -116,6 +118,8 @@ class PROJECTEXPLORER_EXPORT RunControl final : public QObject
 public:
     explicit RunControl(Utils::Id mode);
     ~RunControl() final;
+
+    Tasking::Group noRecipeTask();
 
     void start();
 

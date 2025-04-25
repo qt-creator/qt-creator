@@ -82,6 +82,7 @@ void RunWorkerFactory::setProducer(const WorkerCreator &producer)
 
 void RunWorkerFactory::setRecipeProducer(const RecipeCreator &producer)
 {
+    m_recipeCreator = producer;
     setProducer([producer](RunControl *runControl) {
         return new RunWorker(runControl, producer(runControl));
     });
@@ -169,6 +170,11 @@ RunWorker *RunWorkerFactory::create(RunControl *runControl) const
 {
     QTC_ASSERT(m_producer, return nullptr);
     return m_producer(runControl);
+}
+
+Tasking::Group RunWorkerFactory::createRecipe(RunControl *runControl) const
+{
+    return m_recipeCreator ? m_recipeCreator(runControl) : runControl->noRecipeTask();
 }
 
 void RunWorkerFactory::dumpAll()
@@ -384,6 +390,16 @@ void RunControl::copyDataFromRunControl(RunControl *runControl)
 {
     QTC_ASSERT(runControl, return);
     d->copyData(runControl->d.get());
+}
+
+Group RunControl::noRecipeTask()
+{
+    const auto onSync = [this] {
+        postMessage(Tr::tr("No recipe producer."), ErrorMessageFormat);
+        return false;
+    };
+
+    return { Sync(onSync) };
 }
 
 void RunControl::start()
