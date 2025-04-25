@@ -96,8 +96,6 @@ public:
     static void dumpAll(); // For debugging only.
 
 protected:
-    template <typename Worker>
-    void setProduct() { setProducer([](RunControl *rc) { return new Worker(rc); }); }
     void setId(Utils::Id id) { m_id = id; }
     void setProducer(const WorkerCreator &producer);
     void setRecipeProducer(const RecipeCreator &producer);
