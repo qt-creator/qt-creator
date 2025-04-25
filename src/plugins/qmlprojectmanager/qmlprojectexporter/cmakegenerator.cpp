@@ -608,10 +608,9 @@ void CMakeGenerator::createWriter()
 
     auto writeSettings = [settingsFile, &store](int identifier) {
         store["CMake Generator"] = identifier;
-        QString error;
         Utils::PersistentSettingsWriter settingsWriter(settingsFile, "QtCreatorProject");
-        if (!settingsWriter.save(store, &error)) {
-            const QString text("Failed to write settings file");
+        if (const Result<> res = settingsWriter.save(store); !res) {
+            const QString text = QString("Failed to write settings file: %1").arg(res.error());
             logIssue(ProjectExplorer::Task::Error, text, settingsFile);
         }
     };
