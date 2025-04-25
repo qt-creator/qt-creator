@@ -354,11 +354,7 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "test data"
-        files: "testcases/**/*"
-        fileTags: qtc.withPluginTests ? ["qt.core.resource_data"] : []
-    }
+    QtcTestResources { files: "testcases/**/*" }
 
     Group {
         name: "images"

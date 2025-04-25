@@ -240,12 +240,7 @@ QtcPlugin {
         files: ["outputparser_test.h", "outputparser_test.cpp"]
     }
 
-    Group {
-        name: "Test resources"
-        condition: qtc.withPluginTests
-        files: ["testdata/**"]
-        fileTags: ["qt.core.resource_data"]
-    }
+    QtcTestResources { files: ["testdata/**"] }
 
     Export {
         Depends { name: "Qt.network" }

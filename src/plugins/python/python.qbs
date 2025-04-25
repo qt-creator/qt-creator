@@ -78,12 +78,10 @@ QtcPlugin {
             "pyprojecttoml_test.cpp",
             "pyprojecttoml_test.h",
         ]
-        Group {
-            name: "test data"
-            fileTags: "qt.core.resource_data"
-            Qt.core.resourceSourceBase: product.sourceDirectory + "/tests/testfiles"
-            Qt.core.resourcePrefix: "/unittests/Python"
-            files: "testfiles/*"
-        }
+    }
+    QtcTestResources {
+        Qt.core.resourceSourceBase: product.sourceDirectory + "/tests/testfiles"
+        Qt.core.resourcePrefix: "/unittests/Python"
+        files: "tests/testfiles/*"
     }
 }

@@ -109,9 +109,5 @@ QtcPlugin {
         ]
     }
 
-    QtcTestFiles {
-        name: "test data"
-        files: "testcases/**/*"
-        fileTags: qtc.withPluginTests ? ["qt.core.resource_data"] : []
-    }
+    QtcTestResources { files: "testcases/**/*" }
 }

@@ -216,10 +216,8 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "Unit test resources"
+    QtcTestResources {
         prefix: "unit-tests/"
-        fileTags: qtc.withPluginTests ? ["qt.core.resource_data"] : []
         files: ["**/*"]
     }
 
