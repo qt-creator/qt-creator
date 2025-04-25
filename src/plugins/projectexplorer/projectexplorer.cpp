@@ -3896,8 +3896,7 @@ void ProjectExplorerPluginPrivate::removeFile()
         const FilePath &currentFilePath = file.second;
         const RemovedFilesFromProject status = folderNode->removeFiles({currentFilePath});
         const bool success = status == RemovedFilesFromProject::Ok
-                || (status == RemovedFilesFromProject::Wildcard
-                    && removeFileDialog.isDeleteFileChecked());
+                || (status == RemovedFilesFromProject::Wildcard && deleteFile);
         if (!success) {
             TaskHub::addTask(BuildSystemTask(Task::Error,
                     Tr::tr("Could not remove file \"%1\" from project \"%2\".")
