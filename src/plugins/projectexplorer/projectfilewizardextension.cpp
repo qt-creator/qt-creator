@@ -160,10 +160,11 @@ bool ProjectFileWizardExtension::processFiles(
 {
     if (!processProject(files, removeOpenProjectAttribute, errorMessage))
         return false;
-    if (!m_context->page->runVersionControl(files, errorMessage)) {
+    if (const Result<> res = m_context->page->runVersionControl(files); !res) {
         QString message;
         if (errorMessage) {
             message = *errorMessage;
+            message.append(res.error());
             message.append(QLatin1String("\n\n"));
             errorMessage->clear();
         }
