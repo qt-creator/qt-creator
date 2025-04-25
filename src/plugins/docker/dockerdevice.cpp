@@ -1289,7 +1289,7 @@ public:
         m_process->start();
     }
 
-    IDevice::Ptr device() const
+    DockerDevice::Ptr createDevice() const
     {
         const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
         QTC_ASSERT(selectedRows.size() == 1, return {});
@@ -1297,10 +1297,13 @@ public:
             m_proxyModel->mapToSource(selectedRows.front()));
         QTC_ASSERT(item, return {});
 
-        auto device = DockerDevice::create();
+        DockerDevice::Ptr device = DockerDevice::create();
         device->repo.setValue(item->repo);
         device->tag.setValue(item->tag);
         device->imageId.setValue(item->imageId);
+        device->setDefaultDisplayName(Tr::tr("Docker Image \"%1\" (%2)")
+                                          .arg(device->repoAndTag())
+                                          .arg(device->imageId.value()));
 
         if (const auto env = device->d->fetchEnvironment(); !env)
             qCWarning(dockerDeviceLog) << "Failed to fetch environment:" << env.error();
@@ -1332,7 +1335,7 @@ DockerDeviceFactory::DockerDeviceFactory()
         DockerDeviceSetupWizard wizard;
         if (wizard.exec() != QDialog::Accepted)
             return IDevice::Ptr();
-        auto device = std::static_pointer_cast<DockerDevice>(wizard.device());
+        DockerDevice::Ptr device = wizard.createDevice();
         m_existingDevices.writeLocked()->push_back(device);
         return std::static_pointer_cast<IDevice>(device);
     });
