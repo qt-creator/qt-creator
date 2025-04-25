@@ -408,10 +408,18 @@ public:
         m_shortcut->setText(row <= 9 ? QString::number(row) : QString());
 
         m_sessionName = index.data(Qt::DisplayRole).toString();
-        m_sessionNameLabel->setText(m_sessionName);
+
+        const bool isLastSession = index.data(SessionModel::LastSessionRole).toBool();
+        const bool isDefaultVirgin = SessionManager::isDefaultVirgin();
+        const bool isActiveSession = index.data(SessionModel::ActiveSessionRole).toBool();
+        QString fullSessionName = m_sessionName;
+        if (isLastSession && isDefaultVirgin)
+                fullSessionName = Tr::tr("%1 (last session)").arg(fullSessionName);
+        if (isActiveSession && !isDefaultVirgin)
+                fullSessionName = Tr::tr("%1 (current session)").arg(fullSessionName);
+        m_sessionNameLabel->setText(fullSessionName);
 
         m_rename->setEnabled(!SessionManager::isDefaultSession(m_sessionName));
-        const bool isActiveSession = index.data(SessionModel::ActiveSessionRole).toBool();
         m_delete->setEnabled(m_rename->isEnabled() && !isActiveSession);
 
         const QString entryType = Tr::tr("session", "Appears in \"Open session <name>\"");
