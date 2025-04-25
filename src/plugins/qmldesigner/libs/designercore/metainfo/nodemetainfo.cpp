@@ -4156,7 +4156,30 @@ bool NodeMetaInfo::isQtQuick3DNode() const
     }
 }
 
+<<<<<<< HEAD   (8777d4 qds: increase version to 4.7.2)
 bool NodeMetaInfo::isQtQuick3DParticles3DAffector3D() const
+=======
+bool NodeMetaInfo::isQtQuick3DObject3D(SL sl) const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Object3D",
+                                   category(),
+                                   keyValue("type id", m_typeId),
+                                   keyValue("caller location", sl)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick3D, Object3D>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick3D.Object3D");
+    }
+}
+
+bool NodeMetaInfo::isQtQuick3DParticles3DAffector3D(SL sl) const
+>>>>>>> CHANGE (472b88 QmlDesigner: Fix drag & drop 3D components into 2D/3D view)
 {
     if constexpr (useProjectStorage()) {
         if (!isValid())
