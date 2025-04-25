@@ -191,10 +191,6 @@ bool checkParameters(const SshParameters &params)
     }
     if (params.userName().isEmpty())
         qWarning("No user name provided - test may fail with empty default. Set QTC_SSH_TEST_USER.");
-    if (params.privateKeyFile().isEmpty()) {
-        qWarning("No key file provided. Set QTC_SSH_TEST_KEYFILE.");
-        return false;
-    }
     return true;
 }
 
