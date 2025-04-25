@@ -5,8 +5,7 @@
 
 #include <coreplugin/basefilewizardfactory.h>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class SimpleProjectWizard : public Core::BaseFileWizardFactory
 {
@@ -18,9 +17,7 @@ public:
 private:
     Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
-    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
-                           QString *errorMessage) const override;
+    Utils::Result<> postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l) const override;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

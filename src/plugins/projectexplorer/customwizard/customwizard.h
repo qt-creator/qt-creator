@@ -104,7 +104,7 @@ class PROJECTEXPLORER_EXPORT CustomProjectWizard : public CustomWizard
 public:
     CustomProjectWizard();
 
-    static bool postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage = nullptr);
+    static Utils::Result<> postGenerateOpen(const Core::GeneratedFiles &l);
 
 signals:
     void projectLocationChanged(const Utils::FilePath &path);
@@ -114,7 +114,7 @@ protected:
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
 
-    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) const override;
+    Utils::Result<> postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l) const override;
 
     void initProjectWizardDialog(BaseProjectWizardDialog *w, const Utils::FilePath &defaultPath,
                                  const QList<QWizardPage *> &extensionPages) const;

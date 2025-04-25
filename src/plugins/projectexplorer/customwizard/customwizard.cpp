@@ -532,27 +532,24 @@ GeneratedFiles CustomProjectWizard::generateFiles(const QWizard *w, QString *err
     the respective attributes set.
 */
 
-bool CustomProjectWizard::postGenerateOpen(const GeneratedFiles &l, QString *errorMessage)
+Result<> CustomProjectWizard::postGenerateOpen(const GeneratedFiles &l)
 {
     // Post-Generate: Open the project and the editors as desired
     for (const GeneratedFile &file : l) {
         if (file.attributes() & GeneratedFile::OpenProjectAttribute) {
             OpenProjectResult result = ProjectExplorerPlugin::openProject(file.filePath());
-            if (!result) {
-                if (errorMessage)
-                    *errorMessage = result.errorMessage();
-                return false;
-            }
+            if (!result)
+                return ResultError(result.errorMessage());
         }
     }
-    return BaseFileWizardFactory::postGenerateOpenEditors(l, errorMessage);
+    return BaseFileWizardFactory::postGenerateOpenEditors(l);
 }
 
-bool CustomProjectWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l, QString *errorMessage) const
+Result<> CustomProjectWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l) const
 {
     if (CustomWizardPrivate::verbose)
         qDebug() << "CustomProjectWizard::postGenerateFiles()";
-    return CustomProjectWizard::postGenerateOpen(l, errorMessage);
+    return CustomProjectWizard::postGenerateOpen(l);
 }
 
 void CustomProjectWizard::handleProjectParametersChanged(const QString &name,

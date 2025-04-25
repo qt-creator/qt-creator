@@ -58,14 +58,13 @@ QString QtWizard::profileSuffix()
     return preferredSuffix(QLatin1String(Utils::Constants::PROFILE_MIMETYPE));
 }
 
-bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) const
+Result<> QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l) const
 {
-    return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
+    return QtWizard::qt4ProjectPostGenerateFiles(w, l);
 }
 
-bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
-                                           const Core::GeneratedFiles &generatedFiles,
-                                           QString *errorMessage)
+Result<> QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
+                                               const Core::GeneratedFiles &generatedFiles)
 {
     const auto *dialog = qobject_cast<const BaseQmakeProjectWizardDialog *>(w);
 
@@ -77,7 +76,7 @@ bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
         }
 
     // Post-Generate: Open the projects/editors
-    return ProjectExplorer::CustomProjectWizard::postGenerateOpen(generatedFiles ,errorMessage);
+    return ProjectExplorer::CustomProjectWizard::postGenerateOpen(generatedFiles);
 }
 
 QString QtWizard::templateDir()
@@ -108,10 +107,9 @@ Core::BaseFileWizard *CustomQmakeProjectWizard::create(const Core::WizardDialogP
     return wizard;
 }
 
-bool CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
-                                                 QString *errorMessage) const
+Result<> CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l) const
 {
-    return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
+    return QtWizard::qt4ProjectPostGenerateFiles(w, l);
 }
 
 // ----------------- BaseQmakeProjectWizardDialog

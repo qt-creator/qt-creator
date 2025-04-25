@@ -255,11 +255,10 @@ protected:
         return files;
     }
 
-    bool postGenerateFiles(const QWizard *w, const GeneratedFiles &l,
-                           QString *errorMessage) const final
+    Result<> postGenerateFiles(const QWizard *w, const GeneratedFiles &l) const final
     {
         Q_UNUSED(w)
-        return CustomProjectWizard::postGenerateOpen(l, errorMessage);
+        return CustomProjectWizard::postGenerateOpen(l);
     }
 };
 

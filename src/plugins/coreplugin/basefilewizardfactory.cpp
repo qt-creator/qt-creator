@@ -146,10 +146,9 @@ Result<> BaseFileWizardFactory::writeFiles(const GeneratedFiles &files) const
     Returns \a errorMessage if errors occur.
 */
 
-bool BaseFileWizardFactory::postGenerateFiles(const QWizard *, const GeneratedFiles &l,
-                                              QString *errorMessage) const
+Result<> BaseFileWizardFactory::postGenerateFiles(const QWizard *, const GeneratedFiles &l) const
 {
-    return BaseFileWizardFactory::postGenerateOpenEditors(l, errorMessage);
+    return BaseFileWizardFactory::postGenerateOpenEditors(l);
 }
 
 /*!
@@ -161,23 +160,20 @@ bool BaseFileWizardFactory::postGenerateFiles(const QWizard *, const GeneratedFi
     \a errorMessage to the message that is displayed to users.
 */
 
-bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage)
+Result<> BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l)
 {
     for (const GeneratedFile &file : std::as_const(l)) {
         if (file.attributes() & GeneratedFile::OpenEditorAttribute) {
             IEditor * const editor = EditorManager::openEditor(file.filePath(), file.editorId());
             if (!editor) {
-                if (errorMessage) {
-                    *errorMessage = Tr::tr("Failed to open an editor for \"%1\".")
-                                        .arg(file.filePath().toUserOutput());
-                }
-                return false;
+                return ResultError(Tr::tr("Failed to open an editor for \"%1\".")
+                                        .arg(file.filePath().toUserOutput()));
             }
             editor->document()->formatContents();
             editor->document()->save();
         }
     }
-    return true;
+    return ResultOk;
 }
 
 /*!
