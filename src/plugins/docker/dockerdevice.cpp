@@ -1332,9 +1332,9 @@ DockerDeviceFactory::DockerDeviceFactory()
         DockerDeviceSetupWizard wizard;
         if (wizard.exec() != QDialog::Accepted)
             return IDevice::Ptr();
-        m_existingDevices.writeLocked()->push_back(
-            std::static_pointer_cast<DockerDevice>(wizard.device()));
-        return wizard.device();
+        auto device = std::static_pointer_cast<DockerDevice>(wizard.device());
+        m_existingDevices.writeLocked()->push_back(device);
+        return std::static_pointer_cast<IDevice>(device);
     });
     setConstructionFunction([this] {
         auto device = DockerDevice::create();
