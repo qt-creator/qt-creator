@@ -10,6 +10,8 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <utils/layoutbuilder.h>
+
 #include <QComboBox>
 #include <QElapsedTimer>
 #include <QLabel>
@@ -100,6 +102,22 @@ private:
     Role m_role = LargePrimary;
     QPixmap m_pixmap;
 };
+
+class CORE_EXPORT CoreButton : public Layouting::Widget
+{
+public:
+    using Implementation = Core::Button;
+    using I = Building::BuilderItem<CoreButton>;
+
+    CoreButton();
+    CoreButton(std::initializer_list<I> ps);
+
+    void setText(const QString &text);
+    void setIcon(const Utils::Icon &icon);
+    void setRole(Core::Button::Role role);
+};
+
+QTC_DEFINE_BUILDER_SETTER(role, setRole);
 
 class CORE_EXPORT Label : public QLabel
 {

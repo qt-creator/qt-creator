@@ -654,4 +654,21 @@ QTCREATOR_UTILS_EXPORT LayoutModifier stretch(int index, int stretch);
 
 QTCREATOR_UTILS_EXPORT QWidget *createHr(QWidget *parent = nullptr);
 
+namespace Tools {
+
+template<typename X>
+typename X::Implementation *access(const X *x)
+{
+    return static_cast<typename X::Implementation *>(x->ptr);
+}
+
+template<typename X>
+void apply(X *x, std::initializer_list<typename X::I> ps)
+{
+    for (auto &&p : ps)
+        p.apply(x);
+}
+
+} // Tools
+
 } // namespace Layouting

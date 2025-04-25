@@ -506,21 +506,6 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
     return item;
 }
 
-class CoreButton : public Widget
-{
-public:
-    using Implementation = Core::Button;
-    using I = Building::BuilderItem<Core::Button>;
-
-    CoreButton() { ptr = new Implementation("", Core::Button::LargePrimary, nullptr); }
-
-    Core::Button *access() const { return static_cast<Core::Button *>(ptr); }
-
-    void setText(const QString &text) { access()->setText(text); }
-    void setIcon(const Utils::Icon &icon) { access()->setPixmap(icon.pixmap()); }
-    void setRole(Core::Button::Role role) { access()->setRole(role); }
-};
-
 void setupGuiModule()
 {
     registerProvider("Gui", [](sol::state_view l) -> sol::object {
@@ -595,18 +580,18 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
-        gui.new_usertype<CoreButton>(
+        gui.new_usertype<Core::CoreButton>(
             "CoreButton",
             sol::call_constructor,
             sol::factories([](const sol::table &children) {
-                return constructWidgetType<CoreButton>(children, nullptr);
+                return constructWidgetType<Core::CoreButton>(children, nullptr);
             }),
             "setText",
-            &CoreButton::setText,
+            &Core::CoreButton::setText,
             "setIcon",
-            &CoreButton::setIcon,
+            &Core::CoreButton::setIcon,
             "setRole",
-            &CoreButton::setRole,
+            &Core::CoreButton::setRole,
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 

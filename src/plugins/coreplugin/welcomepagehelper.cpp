@@ -1450,4 +1450,32 @@ void ResizeSignallingWidget::resizeEvent(QResizeEvent *event)
     emit resized(event->size(), event->oldSize());
 }
 
+// CoreButton
+
+CoreButton::CoreButton()
+{
+    ptr = new Implementation("", Core::Button::LargePrimary, nullptr);
+}
+
+CoreButton::CoreButton(std::initializer_list<I> ps)
+{
+    ptr = new Implementation("", Core::Button::LargePrimary, nullptr);
+    Layouting::Tools::apply(this, ps);
+}
+
+void CoreButton::setText(const QString &text)
+{
+    Layouting::Tools::access(this)->setText(text);
+}
+
+void CoreButton::setIcon(const Icon &icon)
+{
+    Layouting::Tools::access(this)->setPixmap(icon.pixmap());
+}
+
+void CoreButton::setRole(Button::Role role)
+{
+    Layouting::Tools::access(this)->setRole(role);
+}
+
 } // namespace Core
