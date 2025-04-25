@@ -4985,7 +4985,7 @@ bool TextEditorWidget::viewportEvent(QEvent *event)
         // Only handle tool tip for text cursor if mouse is within the block for the text cursor,
         // and not if the mouse is e.g. in the empty space behind a short line.
         if (line.isValid()) {
-            const QRectF blockGeometry = blockBoundingGeometry(block);
+            const QRectF blockGeometry = blockBoundingGeometry(block).translated(contentOffset());
             const int width = block == d->m_suggestionBlock ? blockGeometry.width()
                                                             : line.naturalTextRect().right();
             if (pos.x() <= blockGeometry.left() + width) {
