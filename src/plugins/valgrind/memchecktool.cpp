@@ -1042,19 +1042,17 @@ static ExecutableItem debuggerRecipe(const Storage<ProcessHandle> pidStorage, Ru
     if (runControl->runMode() != MEMCHECK_WITH_GDB_RUN_MODE)
         return successItem;
 
-    return Sync([runControl, pidStorage] {
-        // TODO: Make a part of this recipe
-        DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
-        rp.setStartMode(Debugger::AttachToRemoteServer);
+    DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+    rp.setStartMode(Debugger::AttachToRemoteServer);
+    rp.setUseContinueInsteadOfRun(true);
+    rp.addExpectedSignal("SIGTRAP");
+
+    const auto parametersModifier = [pidStorage](DebuggerRunParameters &rp) {
         rp.setDisplayName(QString("VGdb %1").arg(pidStorage->pid()));
         rp.setRemoteChannelPipe(QString("vgdb --pid=%1").arg(pidStorage->pid()));
-        rp.setUseContinueInsteadOfRun(true);
-        rp.addExpectedSignal("SIGTRAP");
+    };
 
-        auto debugger = createDebuggerWorker(runControl, rp);
-        QObject::connect(runControl, &RunControl::stopped, debugger, &RunControl::deleteLater);
-        debugger->initiateStart();
-    });
+    return debuggerRecipe(runControl, rp, parametersModifier);
 }
 
 static Group memcheckRecipe(RunControl *runControl)
