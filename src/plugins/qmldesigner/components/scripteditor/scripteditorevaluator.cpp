@@ -6,9 +6,9 @@
 #include "qmljs/qmljsdocument.h"
 #include "scripteditorutils.h"
 
-#include <utils/ranges.h>
-
 #include <QList>
+
+#include <ranges>
 
 using namespace QmlDesigner;
 
@@ -690,7 +690,7 @@ public:
 
     int childLevelOfTheClosestItem(Kind kind)
     {
-        for (const NodeStatus &status : m_nodeHierarchy | Utils::views::reverse) {
+        for (const NodeStatus &status : m_nodeHierarchy | std::views::reverse) {
             if (status == kind)
                 return status.childId();
         }
@@ -849,7 +849,7 @@ void ScriptEditorEvaluator::postVisit(QmlJS::AST::Node *node)
     if (node->kind == Kind::Kind_IfStatement) {
         bool ifFound = false;
         int closestIfChildren = 0;
-        for (const NodeStatus &nodeStatus : d->m_nodeHierarchy | Utils::views::reverse) {
+        for (const NodeStatus &nodeStatus : d->m_nodeHierarchy | std::views::reverse) {
             if (nodeStatus == Kind::Kind_IfStatement) {
                 ifFound = true;
                 closestIfChildren = nodeStatus.children();

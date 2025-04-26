@@ -112,12 +112,15 @@ AuxiliaryDatasForType InternalNode::auxiliaryData(AuxiliaryDataType type) const
 PropertyNameList InternalNode::propertyNameList() const
 {
     return CoreUtils::to<PropertyNameList>(m_nameProperties | std::views::keys
-                                           | std::views::transform(&Utils::SmallString::toQByteArray));
+                                               | std::views::transform(
+                                                   &Utils::SmallString::toQByteArray),
+                                           m_nameProperties.size());
 }
 
 PropertyNameViews InternalNode::propertyNameViews() const
 {
-    return CoreUtils::to<PropertyNameViews>(m_nameProperties | std::views::keys);
+    return CoreUtils::to<PropertyNameViews>(m_nameProperties | std::views::keys,
+                                            m_nameProperties.size());
 }
 
 InternalNode::ManyNodes InternalNode::allSubNodes() const

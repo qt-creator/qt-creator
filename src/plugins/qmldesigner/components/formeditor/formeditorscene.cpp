@@ -25,6 +25,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/ranges.h>
 
 namespace QmlDesigner {
 
@@ -82,11 +83,14 @@ double FormEditorScene::canvasHeight() const
     return QmlDesignerPlugin::settings().value(DesignerSettingsKey::CANVASHEIGHT).toDouble();
 }
 
-QList<FormEditorItem*> FormEditorScene::itemsForQmlItemNodes(const QList<QmlItemNode> &nodeList) const
+QList<FormEditorItem *> FormEditorScene::itemsForQmlItemNodes(
+    const Utils::span<const QmlItemNode> &nodeList) const
 {
-    return CoreUtils::to<QList>(
-        nodeList | std::views::transform(std::bind_front(&FormEditorScene::itemForQmlItemNode, this))
-        | std::views::filter(std::identity{}));
+    return CoreUtils::to<QList>(nodeList
+                                    | std::views::transform(
+                                        std::bind_front(&FormEditorScene::itemForQmlItemNode, this))
+                                    | Utils::views::cache_latest | std::views::filter(std::identity{}),
+                                nodeList.size());
 }
 
 QList<FormEditorItem*> FormEditorScene::allFormEditorItems() const

@@ -310,12 +310,12 @@ QList<ModelNode> pruneChildren(const QList<ModelNode> &nodes)
             container.append(node);
     };
 
-    for (const ModelNode &node : nodes | Utils::views::reverse) {
+    for (const ModelNode &node : nodes | std::views::reverse) {
         if (node)
             pushIfIsNotChild(forwardNodes, node);
     }
 
-    for (const ModelNode &node : forwardNodes | Utils::views::reverse)
+    for (const ModelNode &node : forwardNodes | std::views::reverse)
         pushIfIsNotChild(backNodes, node);
 
     return backNodes;
