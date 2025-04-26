@@ -210,14 +210,14 @@ QString fixEscapedUnicodeChar(const QString &value) //convert "\u2939"
     return value;
 }
 
-bool isSignalPropertyName(const QString &signalName)
+bool isSignalPropertyName(QStringView signalName)
 {
     if (signalName.isEmpty())
         return false;
     // see QmlCompiler::isSignalPropertyName
-    QStringList list = signalName.split(QLatin1String("."));
+    auto begin = std::ranges::find(signalName | std::views::reverse, u'.').base();
 
-    const QString &pureSignalName = list.constLast();
+    QStringView pureSignalName = {begin, signalName.end()};
     return pureSignalName.length() >= 3 && pureSignalName.startsWith(u"on")
            && pureSignalName.at(2).isLetter();
 }
@@ -1626,23 +1626,24 @@ void TextToModelMerger::syncArrayProperty(AbstractProperty &modelProperty,
     }
 }
 
-static QString fileForFullQrcPath(const QString &string)
+static QString fileForFullQrcPath(QStringView string)
 {
-    QStringList stringList = string.split(QLatin1String("/"));
-    if (stringList.isEmpty())
-        return QString();
+    auto found = std::ranges::find(string | std::views::reverse, u'/');
 
-    return stringList.constLast();
+    if (found == string.rend())
+        return {};
+
+    return QStringView{found.base(), string.end()}.toString();
 }
 
-static QString removeFileFromQrcPath(const QString &string)
+static QString removeFileFromQrcPath(const QStringView string)
 {
-    QStringList stringList = string.split(QLatin1String("/"));
-    if (stringList.isEmpty())
-        return QString();
+    auto found = std::ranges::find(string | std::views::reverse, u'/');
 
-    stringList.removeLast();
-    return stringList.join(QLatin1String("/"));
+    if (found == string.rend())
+        return {};
+
+    return QStringView{string.begin(), std::prev(found.base())}.toString();
 }
 
 void TextToModelMerger::syncVariantProperty(AbstractProperty &modelProperty,
