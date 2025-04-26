@@ -129,7 +129,7 @@ public:
     const QmlJS::ScopeChain *scopeChain() const;
 #endif
 
-    QString convertTypeToImportAlias(const QString &type) const;
+    QString convertTypeToImportAlias(QStringView type) const;
 
     bool checkSemanticErrors() const { return m_checkSemanticErrors; }
 

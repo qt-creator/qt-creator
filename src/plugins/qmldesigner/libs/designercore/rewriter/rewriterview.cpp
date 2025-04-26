@@ -962,50 +962,29 @@ QmlJS::Document::Ptr RewriterView::document() const
     return textToModelMerger()->document();
 }
 
-inline static QString getUrlFromType(const QString &typeName)
+QString RewriterView::convertTypeToImportAlias(QStringView type) const
 {
-    QStringList nameComponents = typeName.split('.');
-    QString result;
+    auto simplifiedTypeBegin = std::ranges::find(type | std::views::reverse, u'.').base();
+    const auto simplifiedType = QStringView{simplifiedTypeBegin, type.end()}.toString();
+    if (type.begin() == simplifiedTypeBegin)
+        return simplifiedType;
 
-    for (int i = 0; i < (nameComponents.size() - 1); i++) {
-        result += nameComponents.at(i);
-    }
+    QStringView url{type.begin(), std::prev(simplifiedTypeBegin)};
+    auto &&imports = model()->imports();
+    auto projection = [](auto &&import) {
+        return import.isFileImport() ? import.file() : import.url();
+    };
+    auto found = std::ranges::find(imports, url, projection);
 
-    return result;
-}
+    if (found == imports.end())
+        return simplifiedType;
 
-QString RewriterView::convertTypeToImportAlias(const QString &type) const
-{
-    QString url;
-    QString simplifiedType = type;
-    if (type.contains('.')) {
-        QStringList nameComponents = type.split('.');
-        url = getUrlFromType(type);
-        simplifiedType = nameComponents.constLast();
-    }
+    auto &&alias = found->alias();
 
-    QString alias;
-    if (!url.isEmpty()) {
-        for (const Import &import : model()->imports()) {
-            if (import.url() == url) {
-                alias = import.alias();
-                break;
-            }
-            if (import.file() == url) {
-                alias = import.alias();
-                break;
-            }
-        }
-    }
+    if (alias.isEmpty())
+        return simplifiedType;
 
-    QString result;
-
-    if (!alias.isEmpty())
-        result = alias + '.';
-
-    result += simplifiedType;
-
-    return result;
+    return alias + '.'_L1 + simplifiedType;
 }
 
 QStringList RewriterView::importDirectories() const
