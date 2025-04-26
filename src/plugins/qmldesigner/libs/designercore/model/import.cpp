@@ -3,13 +3,19 @@
 
 #include "import.h"
 
+#include <qmldesignerutils/designeralgorithm.h>
 #include <qmldesignerutils/version.h>
 
 #include <QHash>
 
 #include <QStringView>
+#include <QVarLengthArray>
+
+#include <ranges>
 
 namespace QmlDesigner {
+
+using namespace Qt::StringLiterals;
 
 Import Import::createLibraryImport(const QString &url, const QString &version, const QString &alias, const QStringList &importPaths)
 {
@@ -29,6 +35,24 @@ Import Import::empty()
 bool Import::hasVersion() const
 {
     return !m_version.isEmpty() && m_version != "-1.-1";
+}
+
+std::array<int, 2> Import::versions() const
+{
+    QStringView version = m_version;
+
+#if defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 12)
+    auto toInteger = [](auto &&entry) {
+        QVarLengthArray<QChar, 12> string;
+        std::ranges::copy(entry, std::back_inserter(string));
+        return QStringView{string}.toInt();
+    };
+#else
+    auto toInteger = [](QStringView entry) { return entry.toInt(); };
+#endif
+
+    return CoreUtils::toDefaultInitializedArray<int, 2>(version | std::views::split('.'_L1)
+                                                        | std::views::transform(toInteger));
 }
 
 QString Import::toImportString() const

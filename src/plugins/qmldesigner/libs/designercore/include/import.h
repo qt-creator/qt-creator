@@ -41,6 +41,8 @@ public:
     const QString &alias() const { return m_alias; }
     const QStringList &importPaths() const { return m_importPathList; }
 
+    std::array<int, 2> versions() const;
+
     QString toString(bool skipAlias = false, bool skipVersion = false) const;
     QString toImportString() const;
 

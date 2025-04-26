@@ -52,4 +52,14 @@ constexpr auto to(View &&view, std::integral auto reserve)
     return container;
 }
 
+template<typename Type, std::size_t size, std::ranges::view View>
+constexpr auto toDefaultInitializedArray(View &&view)
+{
+    std::array<Type, size> container{};
+
+    std::ranges::copy(view | std::views::take(size), container.begin());
+
+    return container;
+}
+
 } // namespace QmlDesigner::CoreUtils

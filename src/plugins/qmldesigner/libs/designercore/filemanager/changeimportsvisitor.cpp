@@ -61,23 +61,27 @@ bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &impo
     return didRewriting();
 }
 
+namespace {
+bool isEqual(QmlJS::AST::UiImport *ast, const Import &import)
+{
+    if (import.isLibraryImport())
+        return toString(ast->importUri) == import.url();
+    else if (import.isFileImport())
+        return ast->fileName == import.file();
+
+    return false;
+}
+} // namespace
+
 bool ChangeImportsVisitor::equals(QmlJS::AST::UiImport *ast, const Import &import)
 {
-    bool equal = false;
-    if (import.isLibraryImport())
-        equal = toString(ast->importUri) == import.url();
-    else if (import.isFileImport())
-        equal = ast->fileName == import.file();
-
-    if (equal && ast->version) {
-        const QStringList versions = import.version().split('.');
-        if (versions.size() >= 1 && versions[0].toInt() == ast->version->majorVersion) {
-            if (versions.size() >= 2)
-                equal = versions[1].toInt() == ast->version->minorVersion;
-            else
-                equal = ast->version->minorVersion == 0;
+    if (isEqual(ast, import)) {
+        if (ast->version) {
+            return std::array{ast->version->majorVersion, ast->version->minorVersion}
+                   == import.versions();
         }
+        return true;
     }
 
-    return equal;
+    return false;
 }
