@@ -127,26 +127,23 @@ AbstractProperty BindingProperty::resolveToProperty() const
     if (!isValid())
         return {};
 
-    QString binding = expression();
+    QStringView binding = expression();
 
     if (binding.isEmpty())
         return {};
 
     ModelNode node = parentModelNode();
-    QString element;
-    if (binding.contains(QLatin1Char('.'))) {
-        element = binding.split(QLatin1Char('.')).constLast();
-        QString nodeBinding = binding;
-        nodeBinding.chop(element.length());
+    auto lastElementBegin = std::ranges::find(binding | std::views::reverse, u'.').base();
+    QStringView lastElement{lastElementBegin, binding.end()};
+    if (binding.begin() != lastElementBegin) {
+        QStringView nodeBinding{binding.begin(), std::prev(lastElementBegin)};
         node = resolveBinding(nodeBinding, parentModelNode());
-    } else {
-        element = binding;
     }
 
-    if (node.isValid() && !element.contains(' '))
-        return node.property(element.toUtf8());
-    else
-        return AbstractProperty();
+    if (node.isValid() && !lastElement.contains(' '))
+        return node.property(lastElement.toUtf8());
+
+    return {};
 }
 
 bool BindingProperty::isList() const
