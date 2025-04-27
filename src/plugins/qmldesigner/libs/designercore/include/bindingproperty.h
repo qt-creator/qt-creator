@@ -16,7 +16,7 @@ class QMLDESIGNERCORE_EXPORT BindingProperty final : public QmlDesigner::Abstrac
 
 public:
     void setExpression(const QString &expression);
-    QString expression() const;
+    const QString &expression() const;
 
     BindingProperty();
     BindingProperty(const BindingProperty &property, AbstractView *view);

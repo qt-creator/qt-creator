@@ -56,14 +56,16 @@ void BindingProperty::setExpression(const QString &expression)
     privateModel()->setBindingProperty(internalNodeSharedPointer(), name(), expression);
 }
 
-QString BindingProperty::expression() const
+const constinit QString null;
+
+const QString &BindingProperty::expression() const
 {
     if (isValid()) {
         if (auto property = internalNode()->bindingProperty(name()))
             return property->expression();
     }
 
-    return QString();
+    return null;
 }
 
 ModelNode BindingProperty::resolveBinding(const QString &binding, ModelNode currentNode) const
