@@ -151,7 +151,9 @@ bool BindingProperty::isList() const
     if (!isValid())
         return false;
 
-    return expression().startsWith('[') && expression().endsWith(']');
+    QStringView expression = this->expression();
+
+    return expression.startsWith('[') && expression.endsWith(']');
 }
 
 QList<ModelNode> BindingProperty::resolveListToModelNodes() const
