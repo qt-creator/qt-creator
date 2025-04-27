@@ -52,6 +52,7 @@ QtcPlugin {
             "resourcegenerator.cpp", "resourcegenerator.h",
             "cmakegenerator.cpp", "cmakegenerator.h",
             "cmakewriter.cpp", "cmakewriter.h",
+            "cmakewriterlib.cpp", "cmakewriterlib.h",
             "cmakewriterv0.cpp", "cmakewriterv0.h",
             "cmakewriterv1.cpp", "cmakewriterv1.h",
             "exporter.cpp", "exporter.h",
