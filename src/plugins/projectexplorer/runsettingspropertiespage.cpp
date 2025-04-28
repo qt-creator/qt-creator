@@ -261,7 +261,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     m_removeAllRunConfigsButton = new QPushButton(Tr::tr("Remove All"), this);
     m_renameRunButton = new QPushButton(Tr::tr("Rename..."), this);
     m_cloneRunButton = new QPushButton(Tr::tr("Clone..."), this);
-    m_cloneIntoThisButton = new QPushButton(Tr::tr("Clone Into This..."), this);
+    m_cloneIntoThisButton = new QPushButton(Tr::tr("Clone into This..."), this);
 
     auto spacer1 = new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
     auto spacer2 = new QSpacerItem(10, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);

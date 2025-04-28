@@ -529,7 +529,7 @@ TerminalSettings::TerminalSettings()
     enableMouseTracking.setDefaultValue(true);
 
     enableLiveReflow.setSettingsKey("EnableLiveReflow");
-    enableLiveReflow.setLabelText(Tr::tr("Enable live reflow (Experimental)"));
+    enableLiveReflow.setLabelText(Tr::tr("Enable live reflow (experimental)"));
     enableLiveReflow.setToolTip(
         Tr::tr("Wraps and reflows text when resizing the terminal. "
                "Note that this does not work properly with all shells and prompts."));
