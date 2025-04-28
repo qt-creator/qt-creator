@@ -68,12 +68,12 @@ const QString &BindingProperty::expression() const
     return null;
 }
 
-ModelNode BindingProperty::resolveBinding(const QString &binding, ModelNode currentNode) const
+ModelNode BindingProperty::resolveBinding(QStringView binding, ModelNode currentNode) const
 {
     int index = 0;
-    QString element = binding.split(QLatin1Char('.')).at(0);
-    while (!element.isEmpty())
-    {
+    auto elements = binding.split(QLatin1Char('.'));
+    QStringView element = elements.front();
+    while (!element.isEmpty()) {
         if (currentNode.isValid()) {
             if (element == QLatin1String("parent")) {
                 if (currentNode.hasParentProperty())
@@ -90,10 +90,10 @@ ModelNode BindingProperty::resolveBinding(const QString &binding, ModelNode curr
                 currentNode = ModelNode(privateModel()->nodeForId(element), model(), view());
             }
             index++;
-            if (index < binding.split(QLatin1Char('.')).size())
-                element = binding.split(QLatin1Char('.')).at(index);
+            if (std::cmp_less(index, elements.size()))
+                element = elements[index];
             else
-                element.clear();
+                element = {};
 
         } else {
             return ModelNode();

@@ -49,7 +49,7 @@ public:
     {}
 
 private:
-    ModelNode resolveBinding(const QString &binding, ModelNode currentNode) const;
+    ModelNode resolveBinding(QStringView binding, ModelNode currentNode) const;
 };
 
 using BindingProperties = QList<BindingProperty>;

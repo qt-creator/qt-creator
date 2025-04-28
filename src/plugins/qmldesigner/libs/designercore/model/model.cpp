@@ -1606,12 +1606,12 @@ InternalNodePointer ModelPrivate::currentTimelineNode() const
     return m_currentTimelineNode;
 }
 
-InternalNodePointer ModelPrivate::nodeForId(const QString &id) const
+InternalNodePointer ModelPrivate::nodeForId(QStringView id) const
 {
     return m_idNodeHash.value(id);
 }
 
-bool ModelPrivate::hasId(const QString &id) const
+bool ModelPrivate::hasId(QStringView id) const
 {
     return m_idNodeHash.contains(id);
 }

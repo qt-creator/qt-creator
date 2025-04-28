@@ -292,8 +292,8 @@ public:
     void setScriptFunctions(const InternalNodePointer &node, const QStringList &scriptFunctionList);
     void setNodeSource(const InternalNodePointer &node, const QString &nodeSource);
 
-    InternalNodePointer nodeForId(const QString &id) const;
-    bool hasId(const QString &id) const;
+    InternalNodePointer nodeForId(QStringView id) const;
+    bool hasId(QStringView id) const;
 
     InternalNodePointer nodeForInternalId(qint32 internalId) const;
     bool hasNodeForInternalId(qint32 internalId) const;
