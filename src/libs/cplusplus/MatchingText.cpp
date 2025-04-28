@@ -407,6 +407,21 @@ bool MatchingText::contextAllowsAutoParentheses(const QTextCursor &cursor,
     if (ch == QLatin1Char('{'))
         return allowAutoClosingBrace(cursor, isNextIndented);
 
+    // Does this paren create a raw string prefix?
+    if (ch == '(' && textToInsert.size() == 1
+        && cursor.document()->characterAt(cursor.position()) == '"') {
+        const Kind tokKind = stringKindAtCursor(cursor);
+        if (tokKind >= T_FIRST_RAW_STRING_LITERAL && tokKind <= T_LAST_RAW_STRING_LITERAL) {
+            for (int pos = cursor.position() - 1; pos >= 0; --pos) {
+                const QChar c = cursor.document()->characterAt(pos);
+                if (c.isSpace() || c == '\\' || c == '(' || c == ')')
+                    break;
+                if (c == '"' && cursor.document()->characterAt(pos - 1) == 'R')
+                    return true;
+            }
+        }
+    }
+
     if (!shouldInsertMatchingText(cursor) && ch != QLatin1Char('\'') && ch != QLatin1Char('"'))
         return false;
 
@@ -518,6 +533,22 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
         if (*skippedChars != 0) {
             tc.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, *skippedChars);
             text = textToProcess.mid(*skippedChars);
+        }
+    }
+
+    if (textToProcess == "(") {
+        const Kind tokKind = stringKindAtCursor(cursor);
+        if (tokKind >= T_FIRST_RAW_STRING_LITERAL && tokKind <= T_LAST_RAW_STRING_LITERAL) {
+            QString result;
+            for (int pos = cursor.position() - 1; pos > 1; --pos) {
+                const QChar c = cursor.document()->characterAt(pos);
+                if (c == 'R' && !result.isEmpty() && result.front() == '"') {
+                    result.removeFirst();
+                    break;
+                }
+                result.prepend(c);
+            }
+            return result.prepend(')');
         }
     }
 
