@@ -73,6 +73,10 @@ GeneralSettings::GeneralSettings()
                "not displayed properly, you can use the cursors provided by %1.")
             .arg(QGuiApplication::applicationDisplayName()));
 
+    preferInfoBarOverPopup.setSettingsKey("General/PreferInfoBarOverPopup");
+    preferInfoBarOverPopup.setDefaultValue(false);
+    preferInfoBarOverPopup.setLabelText(Tr::tr("Prefer banner style info bars over pop-ups"));
+
     readSettings();
 }
 
@@ -183,6 +187,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
 
     form.addRow({empty, generalSettings().showShortcutsInContextMenus});
     form.addRow({empty, generalSettings().provideSplitterCursors});
+    form.addRow({empty, generalSettings().preferInfoBarOverPopup});
     form.addRow({Row{m_resetWarningsButton, st}});
     form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
     Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);

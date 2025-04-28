@@ -25,6 +25,7 @@
 #include "fileutils.h"
 #include "find/basetextfind.h"
 #include "findplaceholder.h"
+#include "generalsettings.h"
 #include "helpmanager.h"
 #include "icore.h"
 #include "idocumentfactory.h"
@@ -292,7 +293,6 @@ public:
 
     MainWindow *m_mainwindow = nullptr;
     InfoBar m_infoBar;
-    InfoBar m_popupInfoBar;
     QTimer m_trimTimer;
     QString m_prependAboutInformation;
     QStringList m_aboutInformation;
@@ -869,13 +869,15 @@ QStatusBar *ICore::statusBar()
 Utils::InfoBar *ICore::infoBar()
 {
     if (qtcEnvironmentVariableIsSet("QTC_DEBUG_POPUPNOTIFICATION"))
-        return &d->m_popupInfoBar;
+        return ProgressManagerPrivate::popupInfoBar();
     return &d->m_infoBar;
 }
 
 InfoBar *ICore::popupInfoBar()
 {
-    return &d->m_popupInfoBar;
+    if (generalSettings().preferInfoBarOverPopup())
+        return infoBar();
+    return ProgressManagerPrivate::popupInfoBar();
 }
 
 /*!

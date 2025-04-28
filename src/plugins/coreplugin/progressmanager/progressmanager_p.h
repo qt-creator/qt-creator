@@ -5,6 +5,8 @@
 
 #include "progressmanager.h"
 
+#include <utils/infobar.h>
+
 #include <QFutureWatcher>
 #include <QList>
 #include <QGraphicsOpacityEffect>
@@ -35,6 +37,7 @@ public:
 
     static int infoMinWidth();
     static int infoMaxWidth();
+    static Utils::InfoBar *popupInfoBar();
 
     FutureProgress *doAddTask(const QFuture<void> &future, const QString &title, Utils::Id type,
                             ProgressFlags flags);
@@ -78,6 +81,7 @@ private:
     void updateApplicationLabelNow();
 
     QPointer<ProgressView> m_progressView;
+    Utils::InfoBar m_popupInfoBar;
     PopupInfoBarDisplay *m_infoBarDisplay;
     QList<FutureProgress *> m_taskList;
     QHash<QFutureWatcher<void> *, Utils::Id> m_runningTasks;

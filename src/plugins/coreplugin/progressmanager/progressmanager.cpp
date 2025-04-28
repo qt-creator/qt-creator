@@ -527,7 +527,7 @@ ProgressManagerPrivate::ProgressManagerPrivate()
 
     m_progressView = new ProgressView;
     m_infoBarDisplay = new PopupInfoBarDisplay;
-    m_infoBarDisplay->setInfoBar(ICore::popupInfoBar());
+    m_infoBarDisplay->setInfoBar(&m_popupInfoBar);
     m_progressView->addProgressWidget(m_infoBarDisplay);
 
     // withDelay, so the statusBarWidget has the chance to get the enter event
@@ -546,6 +546,11 @@ ProgressManagerPrivate::~ProgressManagerPrivate()
     m_statusBarWidget = nullptr;
     cleanup();
     m_instance = nullptr;
+}
+
+InfoBar *ProgressManagerPrivate::popupInfoBar()
+{
+    return &m_instance->m_popupInfoBar;
 }
 
 void ProgressManagerPrivate::readSettings()

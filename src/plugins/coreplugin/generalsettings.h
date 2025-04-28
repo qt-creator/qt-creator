@@ -14,6 +14,7 @@ public:
 
     Utils::BoolAspect showShortcutsInContextMenus{this};
     Utils::BoolAspect provideSplitterCursors{this};
+    Utils::BoolAspect preferInfoBarOverPopup{this};
 
     static void applyToolbarStyleFromSettings();
 };
