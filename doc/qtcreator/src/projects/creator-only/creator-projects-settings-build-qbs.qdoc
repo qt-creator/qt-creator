@@ -15,7 +15,7 @@
     \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
     \uicontrol {Build Settings}.
 
-    \image qtcreator-build-settings-qbs.png {Qbs build settings}
+    \image {qtcreator-build-settings-qbs.png} {Qbs build settings}
 
     Qbs builds projects in the directory specified in the
     \uicontrol {Build Directory} field.
@@ -41,7 +41,7 @@
 
     \section1 Qbs Build Steps
 
-    \image creator-qbs-build-app.png {Qbs build steps}
+    \image {creator-qbs-build-app.png} {Qbs build steps}
 
     To specify build steps for Qbs:
 
@@ -123,7 +123,7 @@
 
     When building with Qbs, you can specify flags in \uicontrol {Clean Steps}:
 
-    \image creator-qbs-build-clean.png {Qbs clean steps}
+    \image {creator-qbs-build-clean.png} {Qbs clean steps}
 
     \list
 

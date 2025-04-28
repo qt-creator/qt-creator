@@ -24,7 +24,7 @@
     project, designing a UI, and writing code to building applications and
     deploying them to the target platforms for running and debugging.
 
-    \image qt-app-dev-flow.webp {Application development life-cycle}
+    \image {qt-app-dev-flow.webp} {Application development life-cycle}
     \caption Application development life-cycle
 
     \section1 Managing Projects
@@ -65,7 +65,7 @@
 
     \section1 Designing User Interfaces
 
-    \image heartgame-start.webp {Heart Rate Game}
+    \image {heartgame-start.webp} {Heart Rate Game}
 
     To create intuitive, modern-looking, fluid user interfaces (UI), use
     \l{Qt Quick} and \l{Qt Design Studio documentation}{\QDS}:
@@ -321,7 +321,7 @@
     You can use \QC to create, build, and run code based tests for your
     projects.
 
-    \image qtcreator-autotests.png
+    \image {qtcreator-autotests.png} {Tests sidebar view and Test Results output}
 
     \section2 Using Squish
 
@@ -362,6 +362,6 @@
 
     \QC is one of many Qt tools for designing and developing applications.
 
-    \image qt-tools.webp {Tools for Qt application development}
+    \image {qt-tools.webp} {Tools for Qt application development}
     \caption Tools for Qt application development
 */

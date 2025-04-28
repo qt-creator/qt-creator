@@ -818,7 +818,7 @@ IosQmlProfilerWorkerFactory::IosQmlProfilerWorkerFactory()
 {
     setProducer([](RunControl *runControl) {
         auto runner = new RunWorker(runControl, iosToolRecipe(runControl, {QmlProfilerServices}));
-
+        runControl->requestQmlChannel();
         auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
         profiler->addStartDependency(runner);
         return profiler;

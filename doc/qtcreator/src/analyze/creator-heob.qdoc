@@ -24,7 +24,7 @@
 
         \li Select \uicontrol Analyze > \uicontrol Heob.
 
-            \image qtcreator-heob-settings.png {Heob settings}
+            \image {qtcreator-heob-settings.png} {Heob settings}
 
         \li Select the Heob settings profile to use, or select \uicontrol New
             to create a new profile.
@@ -40,13 +40,13 @@
 
     \QC runs the application, and then it runs Heob in a terminal.
 
-    \image qtcreator-heob-in-terminal.webp {Heob running in a terminal}
+    \image {qtcreator-heob-in-terminal.webp} {Heob running in a terminal}
 
     Heob raises an access violation on buffer overruns and records stack traces
     of the offending instruction and buffer allocation. You can see the results
     in the \uicontrol Memcheck view after Heob exits normally.
 
-    \image qtcreator-heob-output.png {Results from Heob in the Memcheck view}
+    \image {qtcreator-heob-output.png} {Results from Heob in the Memcheck view}
 
     \sa {Analyze}{How To: Analyze}, {Analyzers}, {Heob}, {Analyzing Code}
 */
@@ -63,7 +63,7 @@
 
     To specify settings for Heob, go to \uicontrol Analyze > \uicontrol Heob.
 
-    \image qtcreator-heob-settings.png {Heob settings}
+    \image {qtcreator-heob-settings.png} {Heob settings}
 
     In \uicontrol {Extra arguments}, enter additional arguments for
     running Heob. To list the available arguments in the Heob console, enter

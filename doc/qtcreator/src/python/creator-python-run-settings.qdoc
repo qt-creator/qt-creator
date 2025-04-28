@@ -35,7 +35,7 @@
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
-    \image qtcreator-python-run-settings.webp {Python run settings}
+    \image {qtcreator-python-run-settings.webp } {Python run settings}
 
     The following table summarizes the settings for running Qt for Python
     applications.
@@ -64,7 +64,7 @@
     To run some other Python file than \c main.py, create a custom
     executable run configuration:
 
-    \image qtcreator-python-run-settings-custom-executable.png {Python custom executable run configuration}
+    \image {qtcreator-python-run-settings-custom-executable.png} {Python custom executable run configuration}
 
     \list 1
         \li Select \uicontrol Add > \uicontrol {Custom Executable}.

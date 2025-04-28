@@ -16,7 +16,7 @@
     executable in the version control system specific tab in \preferences >
     \uicontrol {Version Control}.
 
-    \image qtcreator-preferences-vcs-bazaar.webp {Bazaar preferences}
+    \image {qtcreator-preferences-vcs-bazaar.webp} {Bazaar tab in Version Control preferences}
 
     The other configuration options depend on the version control system.
     After you set up the version control system, use the command line to check
@@ -31,7 +31,7 @@
     Go to \preferences > \uicontrol {Version Control}
     > \uicontrol General to specify settings for submit messages:
 
-    \image qtcreator-preferences-vcs-general.webp {General tab in Version Control preferences}
+    \image {qtcreator-preferences-vcs-general.webp} {General tab in Version Control preferences}
 
     \list
         \li \uicontrol{Wrap submit messages at} limits the line length of a

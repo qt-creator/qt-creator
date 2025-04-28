@@ -37,7 +37,7 @@
         \li Select \preferences > \uicontrol Meson >
             \uicontrol Tools > \uicontrol Add.
 
-            \image qtcreator-mesonexecutable.png
+            \image {qtcreator-mesonexecutable.png} {Tools tab in the Meson preferences}
 
         \li In the \uicontrol Name field, specify a name for the tool.
 
@@ -51,7 +51,7 @@
     \preferences > \uicontrol Kits > \uicontrol Kits
     tab to add the Meson tools to a build and run kit:
 
-    \image qtcreator-kits-meson.png "Setting Meson executable in Kit preferences"
+    \image {qtcreator-kits-meson.png} {Setting the Meson executable in the Kits tab in Kits preferences}
 
     For more information, see \l {Kits}.
 

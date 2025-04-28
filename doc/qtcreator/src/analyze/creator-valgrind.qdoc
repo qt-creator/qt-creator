@@ -37,7 +37,7 @@
 
         \li In the mode selector, select \uicontrol Debug > \uicontrol Memcheck.
 
-            \image qtcreator-valgrind-memcheck.webp {Memcheck view}
+            \image {qtcreator-valgrind-memcheck.webp} {Memcheck view}
 
         \li Select \inlineimage icons/qtcreator-analyze-start-button.png
             to start the application.
@@ -105,7 +105,7 @@
     \uicontrol Analyzer. Set Memcheck preferences in
     \uicontrol {Memcheck Memory Analysis Options}.
 
-    \image qtcreator-valgrind-memcheck-options.png {Memory Analysis options}
+    \image {qtcreator-valgrind-memcheck-options.png} {Memcheck Memory Analysis Options in the Valgrind tab in Analyzer preferences}
 
     In \uicontrol {Extra Memcheck arguments}, specify additional arguments
     for launching the executable.
@@ -221,7 +221,7 @@
 
         \li In the mode selector, select \uicontrol Debug > \uicontrol Callgrind.
 
-            \image qtcreator-valgrind-callgrind-toolbar.png {Callgrind view toolbar}
+            \image {qtcreator-valgrind-callgrind-toolbar.png} {Callgrind view toolbar}
 
         \li Select \inlineimage icons/qtcreator-analyze-start-button.png
             to start the application.
@@ -262,7 +262,7 @@
     \inlineimage icons/open.png
     to load an external log file into the \uicontrol Callgrind views.
 
-    \image qtcreator-valgrind-callgrind.png "Callgrind views"
+    \image {qtcreator-valgrind-callgrind.png} {Callgrind views}
 
     Enter a string in the \uicontrol Filter field to filter the results.
 
@@ -309,10 +309,10 @@
     {run settings} of the project.
 
     To set global preferences for Valgrind, select \preferences >
-    \uicontrol Analyzer. Set Callgrind preferences in
+    \uicontrol Analyzer > \uicontrol Valgrind. Set Callgrind preferences in
     \uicontrol {Callgrind Profiling Options}.
 
-    \image qtcreator-valgrind-callgrind-options.png {Callgrind Profiling Options}
+    \image {qtcreator-valgrind-callgrind-options.png} {Callgrind Profiling Options in the Valgrind tab in Analyzer preferences}
 
     In the \uicontrol {KCachegrind executable} field, enter the path to the
     KCachegrind executable to launch.
@@ -389,7 +389,7 @@
         \li Go to \uicontrol Analyze > \uicontrol {Valgrind Memory Analyzer (External
             Application)} or \uicontrol {Valgrind Function Profiler (External Application)}.
 
-            \image qtcreator-valgrind-remote-settings.png {Start Remote Analysis dialog}
+            \image {qtcreator-valgrind-remote-settings.png} {Start Remote Analysis dialog}
 
         \li Select the application to run and analyze, as well as the
             \l{Kits}{kit} to use.

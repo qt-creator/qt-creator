@@ -27,7 +27,7 @@
     \QC constructs using the values of the \uicontrol {Build directory} and
     \uicontrol {Build type} fields.
 
-    \image qtcreator-build-settings-cmake-configure.webp {CMake configure command}
+    \image {qtcreator-build-settings-cmake-configure.webp} {CMake configure command}
 
     You can specify additional CMake options, such as \c {--find-debug},
     \c {--trace-expand}, or \c {--warn-uninitialized}, in
@@ -42,7 +42,7 @@
 
     \section1 Initial Configuration
 
-    \image qtcreator-build-settings-cmake-initial.webp {Initial CMake configuration}
+    \image {qtcreator-build-settings-cmake-initial.webp} {Initial CMake configuration}
 
     \uicontrol {Initial Configuration} lists the variables that \QC uses to
     configure the CMake project for the first time. It shows the default values
@@ -52,7 +52,7 @@
 
     \section1 Current Configuration
 
-    \image qtcreator-build-settings-cmake-current.webp {Current CMake configuration}
+    \image {qtcreator-build-settings-cmake-current.webp} {Current CMake configuration}
 
     \uicontrol {Current Configuration} lists the CMake variables in the
     \c cmake-file-api JSON export in the \c {.cmake/api/v1/reply} directory.
@@ -89,14 +89,14 @@
     are passed to CMake in \uicontrol {Initial Configuration} or
     \uicontrol {Current Configuration}.
 
-    \image qtcreator-build-settings-cmake-current.webp {Current CMake configuration}
+    \image {qtcreator-build-settings-cmake-current.webp} {Current CMake configuration}
 
     You can select several variables and apply an action to them. To clear
     the selection, click anywhere in the view.
 
     To batch edit variable values, select \uicontrol {Batch Edit}.
 
-    \image qtcreator-edit-cmake-configuration.webp {Edit CMake Configuration dialog}
+    \image {qtcreator-edit-cmake-configuration.webp} {Edit CMake Configuration dialog}
 
     To build using the current configuration, select \uicontrol {Run CMake}.
     While building, the button text changes to \uicontrol {Stop CMake}. Select
@@ -148,7 +148,7 @@
     To view all variables by default, go to \preferences > \uicontrol CMake >
     \uicontrol General and select \uicontrol {Show advanced options by default}.
 
-    \image qtcreator-preferences-cmake-general.webp "General tab in CMake Preferences"
+    \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
 
     \section1 Re-configuring with Initial Variables
 
@@ -168,7 +168,7 @@
     Output from CMake is displayed next to the \uicontrol {Build Settings} and
     \uicontrol {Run Settings} panes in the \uicontrol Projects mode.
 
-    \image qtcreator-build-cmake-output.png {CMake output in Projects mode}
+    \image {qtcreator-build-cmake-output.png} {CMake output in Projects mode}
 
     To clear the output from CMake, select the \inlineimage icons/clean_pane_small.png
     (\uicontrol Clear) button.
@@ -198,7 +198,7 @@
     If the output looks incorrect or different from earlier \QC versions, try
     setting \c CLICOLOR_FORCE to \e 0 in \uicontrol {Use Build Environment}.
 
-    \image qtcreator-build-configuration-set-clicolor-force.webp {Build Environment with CLICOLOR_FORCE set}
+    \image {qtcreator-build-configuration-set-clicolor-force.webp} {Build Environment with CLICOLOR_FORCE set}
 
     \section1 Using Junction Points on Windows
 
@@ -211,7 +211,7 @@
     operations, go to \preferences > \uicontrol CMake > \uicontrol General and
     select \uicontrol {Use junctions for CMake configuration and build operations}.
 
-    \image qtcreator-preferences-cmake-general.webp {CMake General preferences}
+    \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
 
     \QC stores junction points in \c {C:\ProgramData\QtCreator\Links}. To use
     another path, set it as the value of the \c QTC_CMAKE_JUNCTIONS_DIR
@@ -230,7 +230,7 @@
     You can add arguments to pass to CMake and the generator and targets for
     the build command in \uicontrol {Build Steps}.
 
-    \image qtcreator-cmake-build-steps.webp {CMake build steps}
+    \image {qtcreator-cmake-build-steps.webp} {CMake build steps}
 
     \note While the other CMake generators are installed together with Qt,
     you usually need to install Ninja yourself.
@@ -252,10 +252,10 @@
             variable.
         \li In \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build
             > \uicontrol {Build Settings}, select \uicontrol {Kit Configuration}.
-            \image qtcreator-cmake-kit-configuration.png {Kit CMake Configuration dialog}
+            \image {qtcreator-cmake-kit-configuration.png} {Kit CMake Configuration dialog}
         \li Select \uicontrol Change next to the \uicontrol {CMake generator}
             field to open the \uicontrol {CMake Generator} dialog.
-            \image qtcreator-cmake-generator.webp {CMake Generator dialog}
+            \image {qtcreator-cmake-generator.webp} {CMake Generator dialog}
         \li In \uicontrol Generator, select \uicontrol Ninja.
         \li Select \uicontrol OK to save your changes and close the dialog.
         \li Select \uicontrol Close to close the
@@ -295,7 +295,7 @@
     When building with CMake, you can add arguments to pass to CMake and the
     generator and targets for the clean command in \uicontrol {Clean Steps}.
 
-    \image qtcreator-cmake-clean-steps.webp {CMake clean steps}
+    \image {qtcreator-cmake-clean-steps.webp} {CMake clean steps}
 
     The build errors and warnings are parsed and displayed in \l Issues.
 

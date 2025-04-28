@@ -39,7 +39,7 @@
     for each project. \QC prompts you to do so the first time you open a .py file
     for a project.
 
-    \image qtcreator-python-install.webp {Prompts to install PySide6 and Python language server}
+    \image {qtcreator-python-install.webp} {Prompts to install PySide6 and Python language server}
 
     Further, \QC prompts you to install the \l {Configure Python language servers}
     {Python language server} that offers services such as code completion
@@ -74,7 +74,7 @@
 
     The \l {Edit Mode}{Edit mode} toolbar shows the current Python version.
 
-    \image qtcreator-python-interpreter-edit-mode.webp {Python version on the Edit mode toolbar}
+    \image {qtcreator-python-interpreter-edit-mode.webp} {Python version on the Edit mode toolbar}
 
     To use another Python version, activate another kit for the project.
 
@@ -85,7 +85,7 @@
     It generates kits for the global Python versions that are not inside a
     virtual environment.
 
-    \image qtcreator-python-interpreters.webp {Python Interpreters in Preferences}
+    \image {qtcreator-python-interpreters.webp} {Interpreters tab in Python preferences}
 
     You can add and remove Python versions and clean up references to Python
     versions that you uninstalled, but that still appear in the list.
@@ -102,7 +102,7 @@
     on the toolbar to start the \l{https://pythonprogramminglanguage.com/repl/}
     {Python interactive shell} in the \l Terminal view.
 
-    \image qtcreator-terminal-python.webp {Python shell in the Terminal view}
+    \image {qtcreator-terminal-python.webp} {Python shell in the Terminal view}
 
     To start the shell and import the current file as a module, select
     \uicontrol {REPL Import File}. To also import all functions from

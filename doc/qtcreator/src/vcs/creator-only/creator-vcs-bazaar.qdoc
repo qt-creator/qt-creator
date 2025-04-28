@@ -53,7 +53,7 @@
     To set Bazaar or Breezy preferences, select \preferences >
     \uicontrol {Version Control} > \uicontrol Bazaar:
 
-    \image qtcreator-preferences-vcs-bazaar.webp {Bazaar preferences}
+    \image {qtcreator-preferences-vcs-bazaar.webp} {Bazaar tab in Version Control preferences}
 
     \list
         \li \uicontrol Command specifies the path to the command-line client

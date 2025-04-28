@@ -18,7 +18,7 @@
     example. You'll use \QD to construct the application user interface from
     Qt widgets and the code editor to write the application logic in C++.
 
-    \image qtcreator-textfinder-screenshot.png
+    \image {qtcreator-textfinder-screenshot.png} {Text Finder example}
 
     \section1 Create the Text Finder project
 
@@ -27,12 +27,12 @@
         \li Go to \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Application (Qt)} > \uicontrol {Qt Widgets Application}.
 
-            \image qtcreator-new-project-qt-widgets.webp {New Project dialog}
+            \image {qtcreator-new-project-qt-widgets.webp} {New Project dialog}
 
         \li Select \uicontrol Choose to open the \uicontrol {Project Location}
             dialog.
 
-            \image qtcreator-new-project-location-qt-widgets.webp {Project Location dialog}
+            \image {qtcreator-new-project-location-qt-widgets.webp} {Project Location dialog}
 
         \li In \uicontrol{Name}, type \b {TextFinder}.
 
@@ -43,7 +43,7 @@
             \uicontrol Continue (on \macos) to open the
             \uicontrol {Define Build System} dialog.
 
-            \image qtcreator-new-project-build-system.webp {Define Build System dialog}
+            \image {qtcreator-new-project-build-system.webp} {Define Build System dialog}
 
         \li In \uicontrol {Build system}, select \l {CMake}
             {CMake} as the build system to use for building the project.
@@ -51,7 +51,7 @@
         \li Select \uicontrol Next or \uicontrol Continue to open the
             \uicontrol{Class Information} dialog.
 
-            \image qtcreator-new-project-class-info.webp {Class Information dialog}
+            \image {qtcreator-new-project-class-info.webp} {Class Information dialog}
 
         \li In \uicontrol{Class name}, type \b {TextFinder} as the class
             name.
@@ -65,7 +65,7 @@
         \li Select \uicontrol Next or \uicontrol Continue to open the
             \uicontrol {Translation File} dialog.
 
-            \image qtcreator-new-project-translation-file.webp {Translation File dialog}
+            \image {qtcreator-new-project-translation-file.webp} {Translation File dialog}
 
         \li In \uicontrol Language, you can select a language that you
             plan to \l {Use Qt Linguist}{translate} the application to. This
@@ -75,7 +75,7 @@
         \li Select \uicontrol Next or \uicontrol Continue to open the
             \uicontrol {Kit Selection} dialog.
 
-            \image qtcreator-new-project-kit-selection.webp {Kit Selection dialog}
+            \image {qtcreator-new-project-kit-selection.webp} {Kit Selection dialog}
 
         \li Select build and run \l{Kits}{kits} for your
             project.
@@ -83,7 +83,7 @@
         \li Select \uicontrol Next or \uicontrol Continue to open the
             \uicontrol {Project Management} dialog.
 
-            \image qtcreator-new-project-summary.webp {Project Management dialog}
+            \image {qtcreator-new-project-summary.webp} {Project Management dialog}
 
         \li Review the project settings, and select \uicontrol{Finish} (on Windows and
             Linux) or \uicontrol Done (on \macos) to create the project.
@@ -105,7 +105,7 @@
 
     \endlist
 
-    \image qtcreator-textfinder-contents.png {TextFinder project contents}
+    \image {qtcreator-textfinder-contents.png} {TextFinder project contents}
 
     The .h and .cpp files come with the necessary boiler plate code.
 
@@ -119,7 +119,7 @@
 
     \section2 Design the user interface
 
-    \image qtcreator-textfinder-ui.png {Text Finder UI}
+    \image {qtcreator-textfinder-ui.png} {Text Finder UI}
 
     \list 1
 
@@ -136,13 +136,13 @@
 
         \endlist
 
-        \image qtcreator-textfinder-ui-widgets.png {Adding widgets to Text Finder UI}
+        \image {qtcreator-textfinder-ui-widgets.png} {Adding widgets to Text Finder UI}
 
         \note To easily locate the widgets, use the search box at the top of the
         \uicontrol {Widget Box}. For example, to find the \uicontrol Label widget,
         start typing the word \b label.
 
-        \image qtcreator-textfinder-filter.png {Filter}
+        \image {qtcreator-textfinder-filter.png} {Filter}
 
         \li Double-click the \uicontrol{Label} widget and enter the text
             \b{Keyword}.
@@ -153,21 +153,21 @@
         \li In the \uicontrol Properties view, change the \uicontrol objectName to
             \b findButton.
 
-            \image qtcreator-textfinder-objectname.png {Changing object names}
+            \image {qtcreator-textfinder-objectname.png} {Changing object names}
 
         \li Select \key {Ctrl+A} (or \key {Cmd+A}) to select the widgets and
             select \uicontrol{Lay out Horizontally} (or select \key {Ctrl+H} on Linux or
             Windows or \key {Ctrl+Shift+H} on \macos) to apply a horizontal
             layout (QHBoxLayout).
 
-            \image qtcreator-textfinder-ui-horizontal-layout.png {Applying horizontal layout}
+            \image {qtcreator-textfinder-ui-horizontal-layout.png} {Applying horizontal layout}
 
         \li Drag a \uicontrol{Text Edit} widget (QTextEdit) to the form.
 
         \li Select the screen area, and then select \uicontrol{Lay out Vertically}
             (or select \key {Ctrl+L}) to apply a vertical layout (QVBoxLayout).
 
-            \image qtcreator-textfinder-ui.png {Text Finder UI}
+            \image {qtcreator-textfinder-ui.png} {Text Finder UI}
 
             Applying the horizontal and vertical layouts ensures that the
             application UI scales to different screen sizes.
@@ -273,11 +273,11 @@
         \li Go to \uicontrol File > \uicontrol {New File} >
             \uicontrol Qt > \uicontrol {Qt Resource File} > \uicontrol Choose.
 
-            \image qtcreator-new-file-qrc.webp {New File dialog}
+            \image {qtcreator-new-file-qrc.webp} {New File dialog}
 
             The \uicontrol {Choose the Location} dialog opens.
 
-            \image qtcreator-new-file-qrc1.webp {Choose the Location dialog}
+            \image {qtcreator-new-file-qrc1.webp} {Choose the Location dialog}
 
         \li In \uicontrol{Name}, enter \b{textfinder}.
 
@@ -286,7 +286,7 @@
 
             The \uicontrol{Project Management} dialog opens.
 
-            \image qtcreator-new-file-qrc2.webp {Project Management dialog}
+            \image {qtcreator-new-file-qrc2.webp} {Project Management dialog}
 
 
         \li In \uicontrol{Add to project}, select \b{TextFinder}
@@ -301,7 +301,7 @@
         \li Select \uicontrol Add > \uicontrol {Add Files}, to locate and add
             input.txt.
 
-            \image qtcreator-add-resource.png {Editing resource files}
+            \image {qtcreator-add-resource.png} {Editing resource files}
 
     \endlist
 

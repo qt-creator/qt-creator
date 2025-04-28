@@ -60,7 +60,7 @@
     selected kit, go to \uicontrol Projects and select \uicontrol {Build & Run}
     > \uicontrol Run.
 
-    \image qtcreator-appman-deploy-settings.webp {Deploy to application manager}
+    \image {qtcreator-appman-deploy-settings.webp} {Deploy to application manager}
 
     \section2 Automatic deployment configuration selection
 
@@ -80,7 +80,7 @@
     \uicontrol Targets to the effective \uicontrol Build command. You can select
     the targets in the kit selector to deploy and run applications on them.
 
-    \image qtcreator-appman-kit-selector.webp {Automatically generated run targets in the kit selector}
+    \image {qtcreator-appman-kit-selector.webp} {Automatically generated run targets in the kit selector}
 
     \section2 Installation settings
 
@@ -105,7 +105,7 @@
     To specify settings for running applications, go to \uicontrol Projects >
     \uicontrol {Run Settings}.
 
-    \image qtcreator-appman-run-settings.webp {Run in Qt Application Manager}
+    \image {qtcreator-appman-run-settings.webp} {Run in Qt Application Manager}
 
     The following table summarizes the run settings for each application.
 

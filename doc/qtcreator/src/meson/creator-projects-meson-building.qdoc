@@ -14,7 +14,7 @@
     \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
     \uicontrol {Build Settings}.
 
-    \image qtcreator-meson-build-settings.png {Meson build settings}
+    \image {qtcreator-meson-build-settings.png} {Meson build settings}
 
     Meson builds projects in the directory specified in the
     \uicontrol {Build directory} field.
@@ -40,7 +40,7 @@
     You can add arguments and targets for the build command in
     \uicontrol {Build Steps}.
 
-    \image qtcreator-meson-build-steps.png {Meson build steps}
+    \image {qtcreator-meson-build-steps.png} {Meson build steps}
 
     The build errors and warnings are parsed and displayed in \l Issues.
 
@@ -49,7 +49,7 @@
     When building with Meson, you can add arguments and targets for the clean
     command in \uicontrol {Clean Steps}.
 
-    \image qtcreator-meson-clean-steps.png {Meson clean steps}
+    \image {qtcreator-meson-clean-steps.png} {Meson clean steps}
 
     The build errors and warnings are parsed and displayed in \uicontrol Issues.
 

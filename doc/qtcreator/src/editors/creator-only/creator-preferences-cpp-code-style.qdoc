@@ -18,8 +18,8 @@
     To specify global indentation settings for the C++ editor:
 
     \list 1
-        \li Go to \preferences > \uicontrol {C++}.
-            \image qtcreator-code-style-clang-format-global.webp {Code Style preferences}
+        \li Go to \preferences > \uicontrol {C++} > \uicontrol {Code Style}.
+            \image {qtcreator-code-style-clang-format-global.webp} {Code Style tab in C++ preferences}
         \li In \uicontrol {Formatting mode}, select:
             \list
                 \li \uicontrol {Indenting Only} to only indent code.
@@ -46,7 +46,7 @@
 
     \section1 Using Built-In Indenter
 
-    \image qtcreator-code-style-built-in-indenter.webp {Code Style preferences for built-in indenter}
+    \image {qtcreator-code-style-built-in-indenter.webp} {Code Style preferences for built-in indenter}
 
     If you select \uicontrol {Use Built-In Indenter} in
     \uicontrol {Formatting mode}, you can specify how to:
@@ -72,21 +72,21 @@
     You can also indent statements within functions and blocks and declarations
     within namespaces.
 
-    \image qtcreator-code-style-content.png {Content preferences}
+    \image {qtcreator-code-style-content.png} {Content tab in the Code Style tab in C++ preferences}
 
     \section2 Specifying Settings for Braces
 
     You can indent class, namespace, enum and function declarations and code
     blocks.
 
-    \image qtcreator-code-style-braces.png {Braces preferences}
+    \image {qtcreator-code-style-braces.png} {Braces tab in the Code Style tab in C++ preferences}
 
     \section2 Specifying Settings for Switch Statements
 
     You can indent case or default statements, or statements or blocks related
     to them within switch statements.
 
-    \image qtcreator-code-style-switch.png {Switch preferences}
+    \image {qtcreator-code-style-switch.png} {"switch" tab in the Code Style tab in C++ preferences}
 
     \section2 Specifying Alignment
 
@@ -99,7 +99,7 @@
     aligned with the following line. Usually, this only affects \c if
     statements.
 
-    \image qtcreator-code-style-alignment.png {Alignment preferences}
+    \image {qtcreator-code-style-alignment.png} {Alignment tab in the Code Style tab in C++ preferences}
 
     \section2 Binding Pointers and References
 
@@ -110,7 +110,7 @@
     The \c * and \c & characters are automatically bound to identifiers of
     pointers to functions and pointers to arrays.
 
-    \image qtcreator-pointers-references.png {Pointers and References preferences}
+    \image {qtcreator-pointers-references.png} {Pointers and References tab in the Code Style tab in C++ preferences}
 
     \section1 Creating ClangFormat Files from Command Line
 

@@ -99,14 +99,14 @@
             \li Go to \uicontrol Projects > \uicontrol {Build & Run} to select
                 the kit for building applications for and running them on iOS.
 
-                \image qtcreator-ios-add-kit.png "Build & Run Settings"
+                \image {qtcreator-ios-add-kit.png} {iOS kit selected for a project in Build & Run}
 
             \li In \uicontrol {iOS Settings}, select the development team to use
                 for signing and provisioning applications. You must configure
                 development teams and provisioning profiles in Xcode using an
                 Apple developer account.
 
-                \image qtcreator-build-settings-ios.png "iOS build settings"
+                \image {qtcreator-build-settings-ios.png} {iOS build settings}
 
             \li Select \uicontrol {Automatically manage signing}
                 to automatically select the provisioning profile and signing
@@ -140,7 +140,7 @@
     To view information about the connected device, go to \uicontrol Preferences >
     \uicontrol Devices.
 
-    \image qtcreator-ios-device-configurations.png {Devices dialog}
+    \image {qtcreator-ios-device-configurations.png} {Devices tab in Devices preferences}
 
     If the current device state is \uicontrol Connected, (the traffic light icon is
     orange), you need to configure the device using Xcode.
@@ -167,7 +167,7 @@
     settings for the project. Go to \uicontrol Projects > \uicontrol Run, and then select
     the device to simulate in the \uicontrol {Device type} field.
 
-    \image qtcreator-ios-simulator-deploy.png
+    \image {qtcreator-ios-simulator-deploy.png} {Deployment settings for iOS Simulator}
 
     The simulator starts automatically when you run the application.
     To start the simulator manually, either start the Simulator application

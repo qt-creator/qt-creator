@@ -26,7 +26,7 @@
 
         \li In \uicontrol Find, enter the text you are looking for.
 
-            \image qtcreator-find-from-current-file.webp {Search hits highlighted in editor}
+            \image {qtcreator-find-from-current-file.webp} {Search hits highlighted in the editor}
 
             All occurrences of the text are highlighted in the editor as you
             type.
@@ -110,7 +110,7 @@
     \preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Highlight search results on the scrollbar}.
 
-    \image qtcreator-options-text-editor-display.png {Text Editor Display preferences}
+    \image {qtcreator-options-text-editor-display.png} {Display tab in Text Editor preferences}
 
     \section1 Search globally
 
@@ -150,7 +150,7 @@
             \uicontrol {Find/Replace} > \uicontrol {Advanced Find} >
             \uicontrol {Open Advanced Find}.
         \li In \uicontrol Scope, select \uicontrol {All Projects}.
-            \image qtcreator-search-all-projects.webp {Search Results view}
+            \image {qtcreator-search-all-projects.webp} {Search Results view}
         \li In \uicontrol {Search for}, enter the string you are looking for.
         \li Select options to make the search case sensitive, search only whole
             words, use regular expressions, or ignore binary files.
@@ -175,7 +175,7 @@
 
     \list 1
         \li In \uicontrol Scope, select \uicontrol {Files in File System}.
-            \image qtcreator-search-file-system.webp {Search Results view}
+            \image {qtcreator-search-file-system.webp} {Search Results view}
         \li In \uicontrol {Search for}, enter the string you are looking for.
         \li In \uicontrol {Search engine}, select the search engine to use:
             \list
@@ -205,7 +205,7 @@
 
     \list 1
         \li Select \uicontrol {Search & Replace}.
-        \image qtcreator-search-results-reg-exp.webp {Search results when searching and replacing}
+        \image {qtcreator-search-results-reg-exp.webp} {Search results when searching and replacing}
         \li Enter the new text in \uicontrol {Replace with}.
         \li Select \uicontrol Replace.
     \endlist

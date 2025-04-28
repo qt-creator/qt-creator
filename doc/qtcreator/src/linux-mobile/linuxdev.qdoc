@@ -20,7 +20,7 @@
     Use a wizard to connect remote Linux devices to the computer. You can edit
     the settings later in \preferences > \uicontrol Devices > \uicontrol Devices.
 
-    \image qtcreator-preferences-devices-remote-linux.webp {Remote Linux Device in Devices}
+    \image {qtcreator-preferences-devices-remote-linux.webp} {Remote Linux device in the Devices tab in Devices preferences}
 
     //! [openssh]
     \section1 Protecting Device Connections
@@ -46,7 +46,7 @@
     \uicontrol {Connection sharing timeout} field. Windows does not support
     shared connections.
 
-    \image qtcreator-ssh-options.png {SSH preferences}
+    \image {qtcreator-ssh-options.png} {SSH tab in Devices preferences}
     //! [openssh]
 
     \sa {Add Docker devices}, {Remote Linux}{How To: Develop for remote Linux},
@@ -132,7 +132,7 @@
     Create connections between generic Linux devices and \QC to run, debug, and
     analyze applications on them.
 
-    \image qtcreator-preferences-devices-remote-linux.webp {Remote Linux Device in Devices}
+    \image {qtcreator-preferences-devices-remote-linux.webp} {Remote Linux device in the Devices tab in Devices preferences}
     \caption Remote Linux Device preferences
 
     \include qtcreator-add-linux-device.qdocinc {add linux device} {Remote Linux Device}

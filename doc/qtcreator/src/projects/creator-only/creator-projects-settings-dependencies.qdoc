@@ -22,7 +22,7 @@
     \note The build order is stored as a property of a session, not a project.
     You must open the session for these settings to take effect.
 
-    \image qtcreator-projects-build-dependencies.webp {Dependencies settings in Projects mode}
+    \image {qtcreator-projects-build-dependencies.webp} {Dependencies settings in the Projects mode}
 
     To define the build order of projects within a session:
 
