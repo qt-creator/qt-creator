@@ -483,8 +483,8 @@ static void handleIosToolErrorMessage(RunControl *runControl, const QString &mes
 }
 
 static void handleIosToolStartedOnDevice(
+    Barrier *barrier,
     RunControl *runControl,
-    RunInterface *iface,
     const DebugInfo &debugInfo,
     IosToolHandler *handler,
     Port gdbPort,
@@ -528,12 +528,12 @@ static void handleIosToolStartedOnDevice(
                 .arg(qmlPortOnDevice),
             LogMessageFormat);
     }
-    emit iface->started();
+    barrier->advance();
 }
 
 static void handleIosToolStartedOnSimulator(
+    Barrier *barrier,
     RunControl *runControl,
-    RunInterface *iface,
     const DebugInfo &debugInfo,
     IosToolHandler *handler,
     qint64 pid)
@@ -551,10 +551,10 @@ static void handleIosToolStartedOnSimulator(
         handler->stop();
         return;
     }
-    emit iface->started();
+    barrier->advance();
 }
 
-static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = {})
+static Group iosToolKicker(const SingleBarrier &barrier, RunControl *runControl, const DebugInfo &debugInfo)
 {
     stopRunningRunControl(runControl);
     const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
@@ -573,11 +573,12 @@ static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = 
         return SetupResult::StopWithError;
     };
 
-    const auto onIosToolSetup = [runControl, debugInfo, bundleDir, deviceType, device](
-                                    IosToolRunner &runner) {
+    const auto onIosToolSetup = [runControl, debugInfo, bundleDir, deviceType, device,
+                                 barrier](IosToolRunner &runner) {
         runner.setDeviceType(deviceType);
         RunInterface *iface = runStorage().activeStorage();
-        runner.setStartHandler([runControl, debugInfo, bundleDir, device, iface](IosToolHandler *handler) {
+        runner.setStartHandler([runControl, debugInfo, bundleDir, device, iface,
+                                barrier = barrier->barrier()](IosToolHandler *handler) {
             const auto messageHandler = [runControl](const QString &message) {
                 runControl->postMessage(message, StdOutFormat);
             };
@@ -592,16 +593,16 @@ static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = 
                 handler,
                 &IosToolHandler::gotServerPorts,
                 runControl,
-                [runControl, iface, debugInfo, handler](Port gdbPort, Port qmlPort) {
+                [barrier, runControl, debugInfo, handler](Port gdbPort, Port qmlPort) {
                     handleIosToolStartedOnDevice(
-                        runControl, iface, debugInfo, handler, gdbPort, qmlPort);
+                        barrier, runControl, debugInfo, handler, gdbPort, qmlPort);
                 });
             QObject::connect(
                 handler,
                 &IosToolHandler::gotInferiorPid,
                 runControl,
-                [runControl, iface, debugInfo, handler](qint64 pid) {
-                    handleIosToolStartedOnSimulator(runControl, iface, debugInfo, handler, pid);
+                [barrier, runControl, debugInfo, handler](qint64 pid) {
+                    handleIosToolStartedOnSimulator(barrier, runControl, debugInfo, handler, pid);
                 });
             QObject::connect(iface, &RunInterface::canceled, handler, [handler] {
                 if (handler->isRunning())
@@ -636,6 +637,16 @@ static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = 
     return {
         onGroupSetup(onSetup),
         IosToolTask(onIosToolSetup, onIosToolDone)
+    };
+}
+
+static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = {})
+{
+    const auto kicker = [runControl, debugInfo](const SingleBarrier &barrier) {
+        return iosToolKicker(barrier, runControl, debugInfo);
+    };
+    return When (kicker) >> Do {
+        Sync([] { emit runStorage()->started(); })
     };
 }
 
