@@ -417,9 +417,11 @@ void runUiTour()
 
 void askUserAboutIntroduction()
 {
+    InfoBar *infoBar = ICore::infoBar();
+
     // CheckableMessageBox for compatibility with Qt Creator < 4.11
     if (!CheckableDecider(Key(kTakeTourSetting)).shouldAskAgain()
-        || !ICore::infoBar()->canInfoBeAdded(kTakeTourSetting))
+        || !infoBar->canInfoBeAdded(kTakeTourSetting))
         return;
 
     InfoBarEntry
@@ -429,12 +431,12 @@ void askUserAboutIntroduction()
                     "select Help > UI Tour."),
              InfoBarEntry::GlobalSuppression::Enabled);
     info.setTitle(Tr::tr("UI Tour"));
-    info.addCustomButton(Tr::tr("Take UI Tour"), [] {
-        ICore::infoBar()->removeInfo(kTakeTourSetting);
-        ICore::infoBar()->globallySuppressInfo(kTakeTourSetting);
+    info.addCustomButton(Tr::tr("Take UI Tour"), [infoBar] {
+        infoBar->removeInfo(kTakeTourSetting);
+        infoBar->globallySuppressInfo(kTakeTourSetting);
         runUiTour();
     });
-    ICore::infoBar()->addInfo(info);
+    infoBar->addInfo(info);
 }
 
 } //  Welcome::Internal
