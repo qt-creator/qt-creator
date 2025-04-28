@@ -747,14 +747,14 @@ static QString msgOnlyCppDebuggingSupported()
     return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
 };
 
-static RunWorker *createWorker(RunControl *runControl)
+static RunWorker *createDebugWorker(RunControl *runControl)
 {
     IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
     const bool isIosDeviceType = runControl->device()->type() == Ios::Constants::IOS_DEVICE_TYPE;
     const bool isIosDeviceInstance = bool(dev);
     // type info and device class must match
-    QTC_ASSERT(isIosDeviceInstance == isIosDeviceType,
-               runControl->postMessage(Tr::tr("Internal error."), ErrorMessageFormat); return nullptr);
+    const bool isOK = isIosDeviceInstance == isIosDeviceType;
+    const bool isIosRunner = !isIosDeviceInstance /*== simulator */ || dev->handler() == IosDevice::Handler::IosTool;
     DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     // TODO cannot use setupPortsGatherer(), because that also requests
     // the "debugChannel", which then results in runControl trying to retrieve ports&URL for that
@@ -764,30 +764,9 @@ static RunWorker *createWorker(RunControl *runControl)
         runControl->requestQmlChannel();
 
     const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
-    QTC_ASSERT(data, runControl->postMessage("Broken IosDeviceTypeAspect setup.", ErrorMessageFormat);
-               return nullptr);
-    rp.setDisplayName(data->applicationName);
+    if (data)
+        rp.setDisplayName(data->applicationName);
     rp.setContinueAfterAttach(true);
-
-    RunWorker *runner = nullptr;
-    const bool isIosRunner = !isIosDeviceInstance /*== simulator */ || dev->handler() == IosDevice::Handler::IosTool;
-    if (isIosRunner) {
-        const DebugInfo debugInfo{rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices,
-                                  rp.isCppDebugging()};
-        runner = new RunWorker(runControl, iosToolRecipe(runControl, debugInfo));
-    } else {
-        QTC_ASSERT(rp.isCppDebugging(),
-                   // TODO: The message is not shown currently, fix me before 17.0.
-                   runControl->postMessage(msgOnlyCppDebuggingSupported(), ErrorMessageFormat);
-                   return nullptr);
-        if (rp.isQmlDebugging()) {
-            rp.setQmlDebugging(false);
-            // TODO: The message is not shown currently, fix me before 17.0.
-            runControl->postMessage(msgOnlyCppDebuggingSupported(), LogMessageFormat);
-        }
-        rp.setInferiorExecutable(data->localExecutable);
-        runner = new RunWorker(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ true));
-    }
 
     if (isIosDeviceInstance) {
         if (dev->handler() == IosDevice::Handler::DeviceCtl) {
@@ -809,18 +788,69 @@ static RunWorker *createWorker(RunControl *runControl)
         rp.setLldbPlatform("ios-simulator");
     }
 
-    auto debugger = createDebuggerWorker(runControl, rp, [runControl, isIosRunner](DebuggerRunParameters &rp) {
-        if (!isIosRunner)
-            return;
-        parametersModifier(runControl, rp);
-    });
-    debugger->addStartDependency(runner);
-    return debugger;
+    BarrierKickerGetter kicker;
+    if (isIosRunner) {
+        const DebugInfo debugInfo{rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices,
+                                  rp.isCppDebugging()};
+        kicker = [runControl, debugInfo](const SingleBarrier &barrier) {
+            return iosToolKicker(barrier, runControl, debugInfo);
+        };
+    } else {
+        if (data)
+            rp.setInferiorExecutable(data->localExecutable);
+        const bool warnAboutQml = rp.isQmlDebugging();
+        rp.setQmlDebugging(false);
+        kicker = [runControl, warnAboutDebug = rp.isCppDebugging(), warnAboutQml](const SingleBarrier &barrier) {
+            const auto onSetup = [runControl, warnAboutDebug, warnAboutQml] {
+                QTC_ASSERT(warnAboutDebug,
+                           runControl->postMessage(msgOnlyCppDebuggingSupported(), ErrorMessageFormat);
+                           return SetupResult::StopWithError);
+                if (warnAboutQml)
+                    runControl->postMessage(msgOnlyCppDebuggingSupported(), LogMessageFormat);
+                return SetupResult::Continue;
+            };
+            return Group {
+                onGroupSetup(onSetup),
+                deviceCtlKicker(barrier, runControl, /*startStopped=*/ true)
+            };
+        };
+    }
+
+    // TODO cannot use setupPortsGatherer(), because that also requests
+    // the "debugChannel", which then results in runControl trying to retrieve ports&URL for that
+    // via IDevice, which doesn't really work with the iOS setup, and also completely changes
+    // how the debuggerRecipe() works, breaking debugging on iOS <= 16 devices.
+    if (rp.isQmlDebugging())
+        runControl->requestQmlChannel();
+
+    const auto onSetup = [runControl, isOK] {
+        QTC_ASSERT(isOK,
+                   runControl->postMessage(Tr::tr("Internal error."), ErrorMessageFormat);
+                   return SetupResult::StopWithError);
+        QTC_ASSERT(runControl->aspectData<IosDeviceTypeAspect>(),
+                   runControl->postMessage("Broken IosDeviceTypeAspect setup.", ErrorMessageFormat);
+                   return SetupResult::StopWithError);
+        return SetupResult::Continue;
+    };
+
+    const auto modifier = [runControl, isIosRunner](DebuggerRunParameters &rp) {
+        if (isIosRunner)
+            parametersModifier(runControl, rp);
+    };
+
+    const Group recipe {
+        onGroupSetup(onSetup),
+        When (kicker) >> Do {
+            debuggerRecipe(runControl, rp, modifier)
+        }
+    };
+
+    return new RunWorker(runControl, recipe);
 }
 
 IosDebugWorkerFactory::IosDebugWorkerFactory()
 {
-    setProducer([](RunControl *runControl) { return createWorker(runControl); });
+    setProducer([](RunControl *runControl) { return createDebugWorker(runControl); });
     addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
 }
