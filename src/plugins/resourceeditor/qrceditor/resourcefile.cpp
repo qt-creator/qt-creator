@@ -6,7 +6,6 @@
 #include "../resourceeditortr.h"
 
 #include <coreplugin/fileutils.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -1225,8 +1224,7 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
             deleteItem(index);
             return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
         }
-        RemoveFileDialog removeFileDialog(FilePath::fromString(fileNameBackup),
-                                          Core::ICore::dialogParent());
+        RemoveFileDialog removeFileDialog(FilePath::fromString(fileNameBackup));
         if (removeFileDialog.exec() == QDialog::Accepted) {
             deleteItem(index);
             Core::FileUtils::removeFiles({FilePath::fromString(fileNameBackup)},

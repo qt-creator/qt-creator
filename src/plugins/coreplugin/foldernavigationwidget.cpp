@@ -484,7 +484,7 @@ void FolderNavigationWidget::removeCurrentItem()
     if (!current.isValid() || m_fileSystemModel->isDir(current))
         return;
     const FilePath filePath = FilePath::fromString(m_fileSystemModel->filePath(current));
-    RemoveFileDialog dialog(filePath, ICore::dialogParent());
+    RemoveFileDialog dialog(filePath);
     dialog.setDeleteFileVisible(false);
     if (dialog.exec() == QDialog::Accepted) {
         emit m_instance->aboutToRemoveFile(filePath);
@@ -728,10 +728,10 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         else
             createNewFolder(current.parent());
     } else if (action == removeFolder) {
-        RemoveFileDialog dialog(filePath, ICore::dialogParent());
+        RemoveFileDialog dialog(filePath);
         dialog.setDeleteFileVisible(false);
         if (dialog.exec() == QDialog::Accepted) {
-            Utils::Result<> result = filePath.removeRecursively();
+            Result<> result = filePath.removeRecursively();
             if (!result)
                 QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"), result.error());
         }
