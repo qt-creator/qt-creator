@@ -27,17 +27,18 @@ GTestOutputReader::GTestOutputReader(Process *testApplication,
 
 void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
 {
+    static const QRegularExpression gtestMarker("\\[[ A-Z=-]{10}\\]");
     static const QRegularExpression newTestStarts("^\\[-{10}\\] \\d+ tests? from (.*)$");
     static const QRegularExpression testEnds("^\\[-{10}\\] \\d+ tests? from (.*) \\(((\\d+) .*)\\)$");
     static const QRegularExpression newTestSetStarts("^\\[ RUN      \\] (.*)$");
-    static const QRegularExpression testSetSuccess("^\\[       OK \\] (.*) \\((.*)\\)$");
-    static const QRegularExpression testSetFail("^\\[  FAILED  \\] (.*) \\(((\\d+) ms)\\)$");
-    static const QRegularExpression testDeath("^\\[  DEATH   \\] (.*)$");
-    static const QRegularExpression testSetSkipped("^\\[  SKIPPED \\] (.*) \\(((\\d+) ms)\\)$");
+    static const QRegularExpression testSetSuccess("^.*\\[       OK \\] (.*) \\((.*)\\)$");
+    static const QRegularExpression testSetFail("^.*\\[  FAILED  \\] (.*) \\(((\\d+) ms)\\)$");
+    static const QRegularExpression testDeath("^.*\\[  DEATH   \\] (.*)$");
+    static const QRegularExpression testSetSkipped("^.*\\[  SKIPPED \\] (.*) \\(((\\d+) ms)\\)$");
     static const QRegularExpression disabledTests("^  YOU HAVE (\\d+) DISABLED TESTS?$");
     static const QRegularExpression iterations("^Repeating all tests "
                                                "\\(iteration (\\d+)\\) \\. \\. \\.$");
-    static const QRegularExpression logging("^\\[( FATAL | ERROR |WARNING|  INFO )\\] "
+    static const QRegularExpression logging("^.*\\[( FATAL | ERROR |WARNING|  INFO )\\] "
                                             "(.*):(\\d+):: (.*)$");
 
     const QString line = removeCommandlineColors(QString::fromLatin1(outputLine));
@@ -63,7 +64,8 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
             m_disabled = match.captured(1).toInt();
             m_description.clear();
         }
-        return;
+        if (!gtestMarker.match(line).hasMatch())
+            return;
     }
 
     if (ExactMatch match = testEnds.match(line)) {
