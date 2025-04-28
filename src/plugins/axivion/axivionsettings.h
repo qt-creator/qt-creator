@@ -70,6 +70,8 @@ public:
     const QList<AxivionServer> allAvailableServers() const { return m_allServers; };
     bool updateDashboardServers(const QList<AxivionServer> &other, const Utils::Id &selected);
     const QList<PathMapping> validPathMappings() const;
+    Utils::FilePath mappedFilePath(const Utils::FilePath &filePath,
+                                   const QString &projectName) const;
     void validatePath();
     std::optional<AxivionVersionInfo> versionInfo() const { return m_versionInfo; }
 

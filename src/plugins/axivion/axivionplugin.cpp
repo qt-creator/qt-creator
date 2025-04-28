@@ -264,7 +264,7 @@ public:
     void onDocumentClosed(IDocument * doc);
     void clearAllMarks();
     void updateExistingMarks();
-    void handleIssuesForFile(const Dto::FileViewDto &fileView);
+    void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &filePath);
     void enableInlineIssues(bool enable);
     void fetchIssueInfo(DashboardMode dashboardMode, const QString &id);
     void fetchNamedFilters(DashboardMode dashboardMode);
@@ -1245,19 +1245,25 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
 {
     if (!m_inlineIssuesEnabled)
         return;
-    if (!doc || !m_currentProjectInfo || !m_project || !m_project->isKnownFile(doc->filePath()))
+
+    if (!doc || !m_currentProjectInfo)
         return;
 
-    const FilePath filePath = doc->filePath().relativeChildPath(m_project->projectDirectory());
+    const FilePath docFilePath = doc->filePath();
+    FilePath filePath = settings().mappedFilePath(docFilePath, m_currentProjectInfo->name);
+    if (filePath.isEmpty() && m_project && m_project->isKnownFile(docFilePath))
+        filePath = docFilePath.relativeChildPath(m_project->projectDirectory());
+
     if (filePath.isEmpty())
-        return; // Empty is fine
-    if (m_allMarks.contains(filePath))
         return;
 
-    const auto handler = [this](const Dto::FileViewDto &data) {
+    if (m_allMarks.contains(filePath)) // FIXME local vs global dashboard
+        return;
+
+    const auto handler = [this, docFilePath](const Dto::FileViewDto &data) {
         if (data.lineMarkers.empty())
             return;
-        handleIssuesForFile(data);
+        handleIssuesForFile(data, docFilePath);
     };
     TaskTree *taskTree = new TaskTree;
     const bool useGlobal = m_dashboardMode == DashboardMode::Global
@@ -1287,16 +1293,12 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
     qDeleteAll(m_allMarks.take(document->filePath()));
 }
 
-void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView)
+void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView,
+                                               const FilePath &filePath)
 {
     if (fileView.lineMarkers.empty())
         return;
 
-    Project *project = ProjectManager::startupProject();
-    if (!project)
-        return;
-
-    const FilePath filePath = project->projectDirectory().pathAppended(fileView.fileName);
     std::optional<Theme::Color> color = std::nullopt;
     if (settings().highlightMarks())
         color.emplace(Theme::Color(Theme::Bookmarks_TextMarkColor)); // FIXME!
