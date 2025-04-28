@@ -6,6 +6,8 @@
 
 namespace {
 
+using namespace Qt::StringLiterals;
+
 using QmlDesigner::StringUtils::split_last;
 
 TEST(StringUtils_split_last, leaf_is_empty_for_empty_input)
@@ -79,4 +81,138 @@ TEST(StringUtils_split_last, no_steam_for_not_dot)
 
     ASSERT_THAT(steam, IsEmpty());
 }
+
+using ConvertFunction = QString (*)(QStringView);
+
+struct EscapeParameters
+{
+    QString input;
+    QString output;
+    std::string name;
+    ConvertFunction convert;
+};
+
+class escaping : public testing::TestWithParam<EscapeParameters>
+{
+public:
+    escaping()
+        : inputTerm{GetParam().input}
+        , outputTerm{GetParam().output}
+        , name{GetParam().name}
+        , convert{GetParam().convert}
+    {}
+
+public:
+    const QString &inputTerm;
+    const QString &outputTerm;
+    const std::string &name;
+    ConvertFunction convert;
+};
+
+auto excape_printer = [](const testing::TestParamInfo<EscapeParameters> &info) {
+    return info.param.name;
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    StringUtils,
+    escaping,
+    testing::Values(
+        EscapeParameters(u"\\"_s, u"\\\\"_s, "escape_backslash", QmlDesigner::StringUtils::escape),
+        EscapeParameters(u"\""_s, u"\\\""_s, "escape_quote", QmlDesigner::StringUtils::escape),
+        EscapeParameters(u"\t"_s, u"\\t"_s, "escape_tab", QmlDesigner::StringUtils::escape),
+        EscapeParameters(u"\n"_s, u"\\n"_s, "escape_new_line", QmlDesigner::StringUtils::escape),
+        EscapeParameters(u"\r"_s, u"\\r"_s, "escape_carriage_return", QmlDesigner::StringUtils::escape),
+        EscapeParameters(u"\\"_s, u"\\"_s, "deescape_backslash", QmlDesigner::StringUtils::deescape),
+        EscapeParameters(u"\\\\"_s, u"\\"_s, "deescape_double_backslash", QmlDesigner::StringUtils::deescape),
+        EscapeParameters(u"\\\""_s, u"\""_s, "deescape_quote", QmlDesigner::StringUtils::deescape),
+        EscapeParameters(u"\\t"_s, u"\t"_s, "deescape_tab", QmlDesigner::StringUtils::deescape),
+        EscapeParameters(u"\\n"_s, u"\n"_s, "deescape_new_line", QmlDesigner::StringUtils::deescape),
+        EscapeParameters(
+            u"\\r"_s, u"\r"_s, "deescape_carriage_return", QmlDesigner::StringUtils::deescape)),
+    excape_printer);
+
+TEST_P(escaping, begin)
+{
+    QString input = inputTerm + "foo";
+
+    auto converted = convert(input);
+
+    ASSERT_THAT(converted, outputTerm + "foo");
+}
+
+TEST_P(escaping, empty)
+{
+    QString input;
+
+    auto converted = convert(input);
+
+    ASSERT_THAT(converted, IsEmpty());
+}
+
+TEST_P(escaping, only)
+{
+    QString input = inputTerm;
+
+    auto converted = convert(input);
+
+    ASSERT_THAT(converted, outputTerm);
+}
+
+TEST_P(escaping, nothing)
+{
+    QString input = "foobar";
+
+    auto converted = convert(input);
+
+    ASSERT_THAT(converted, "foobar");
+}
+
+TEST_P(escaping, end)
+{
+    QString input = "foo" + inputTerm;
+
+    auto converted = convert(input);
+
+    ASSERT_THAT(converted, "foo" + outputTerm);
+}
+
+TEST_P(escaping, middle)
+{
+    QString input = "foo" + inputTerm + "bar";
+
+    auto converted = convert(input);
+
+    ASSERT_THAT(converted, "foo" + outputTerm + "bar");
+}
+
+TEST_P(escaping, multiple)
+{
+    QString input = "foo" + inputTerm + "bar" + inputTerm + "foo";
+
+    auto converted = convert(input);
+
+    ASSERT_THAT(converted, "foo" + outputTerm + "bar" + outputTerm + "foo");
+}
+
+TEST_P(escaping, multiple_in_row)
+{
+    if (name == "deescape_backslash") // would be double backslash
+        return;
+    QString input = "foo" + inputTerm + inputTerm + "foo";
+
+    auto converted = convert(input);
+
+    ASSERT_THAT(converted, "foo" + outputTerm + outputTerm + "foo");
+}
+
+TEST_P(escaping, skip_unicode)
+{
+    QString input = "\\u" + inputTerm + "foo";
+    input.resize(6);
+
+    auto converted = convert(input);
+
+    ASSERT_THAT(converted, input);
+}
+
 } // namespace

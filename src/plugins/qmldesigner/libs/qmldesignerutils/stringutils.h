@@ -11,40 +11,106 @@
 
 namespace QmlDesigner::StringUtils {
 
-inline QString escape(const QString &value)
+inline QString escape(QStringView text)
 {
     using namespace Qt::StringLiterals;
 
-    if (value.length() == 6 && value.startsWith("\\u")) //Do not double escape unicode chars
-        return value;
+    if (text.size() == 6 && text.startsWith(u"\\u")) //Do not double escape unicode chars
+        return text.toString();
 
-    QString result = value;
+    QString escapedText;
+    escapedText.reserve(text.size() * 2);
 
-    result.replace("\\"_L1, "\\\\"_L1);
-    result.replace("\""_L1, "\\\""_L1);
-    result.replace("\t"_L1, "\\t"_L1);
-    result.replace("\r"_L1, "\\r"_L1);
-    result.replace("\n"_L1, "\\n"_L1);
+    const auto end = text.end();
+    auto current = text.begin();
+    QStringView pattern = u"\\\"\t\r\n";
+    while (current != end) {
+        auto found = std::ranges::find_first_of(current, end, pattern.begin(), pattern.end());
+        escapedText.append(QStringView{current, found});
 
-    return result;
+        if (found == end)
+            break;
+
+        QChar c = *found;
+        switch (c.unicode()) {
+        case u'\\':
+            escapedText.append(u"\\\\");
+            break;
+        case u'\"':
+            escapedText.append(u"\\\"");
+            break;
+        case u'\t':
+            escapedText.append(u"\\t");
+            break;
+        case u'\r':
+            escapedText.append(u"\\r");
+            break;
+        case u'\n':
+            escapedText.append(u"\\n");
+            break;
+        }
+
+        current = std::next(found);
+    }
+
+    return escapedText;
 }
 
-inline QString deescape(const QString &value)
+inline QString deescape(QStringView text)
 {
     using namespace Qt::StringLiterals;
 
-    if (value.length() == 6 && value.startsWith("\\u")) //Ignore unicode chars
-        return value;
+    if (text.isEmpty() || (text.size() == 6 && text.startsWith(u"\\u"))) //Ignore unicode chars
+        return text.toString();
 
-    QString result = value;
+    QString deescapedText;
+    deescapedText.reserve(text.size());
 
-    result.replace("\\\\"_L1, "\\"_L1);
-    result.replace("\\\""_L1, "\""_L1);
-    result.replace("\\t"_L1, "\t"_L1);
-    result.replace("\\r"_L1, "\r"_L1);
-    result.replace("\\n"_L1, "\n"_L1);
+    const auto end = text.end();
+    auto current = text.begin();
+    while (current != end) {
+        auto found = std::ranges::find(current, end, u'\\');
+        deescapedText.append(QStringView{current, found});
 
-    return result;
+        if (found == end)
+            break;
+
+        current = std::next(found);
+
+        if (current == end) {
+            deescapedText.append(u'\\');
+            break;
+        }
+
+        QChar c = *current;
+        switch (c.unicode()) {
+        case u'\\':
+            deescapedText.append(u'\\');
+            current = std::next(current);
+            break;
+        case u'\"':
+            deescapedText.append(u'\"');
+            current = std::next(current);
+            break;
+        case u't':
+            deescapedText.append(u'\t');
+            current = std::next(current);
+            break;
+        case u'r':
+            deescapedText.append(u'\r');
+            current = std::next(current);
+            break;
+        case u'n':
+            deescapedText.append(u'\n');
+            current = std::next(current);
+            break;
+        default:
+            deescapedText.append(u'\\');
+            break;
+        }
+    }
+
+    return deescapedText;
 }
 
 template<typename T>
