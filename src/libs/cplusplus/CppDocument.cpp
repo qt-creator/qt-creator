@@ -735,6 +735,7 @@ static QList<Macro> macrosDefinedUntilLine(const QList<Macro> &macros, int line)
 
 Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
                                              const FilePath &filePath,
+                                             bool expandFunctionLikeMacros,
                                              int withDefinedMacrosFromDocumentUntilLine) const
 {
     Document::Ptr newDoc = Document::create(filePath);
@@ -751,7 +752,7 @@ Document::Ptr Snapshot::preprocessedDocument(const QByteArray &source,
         }
     }
 
-    FastPreprocessor pp(*this);
+    FastPreprocessor pp(*this, expandFunctionLikeMacros);
     const bool mergeDefinedMacrosOfDocument = !newDoc->_definedMacros.isEmpty();
     const QByteArray preprocessedCode = pp.run(newDoc, source, mergeDefinedMacrosOfDocument);
     newDoc->setUtf8Source(preprocessedCode);
