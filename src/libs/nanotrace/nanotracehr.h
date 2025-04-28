@@ -7,6 +7,7 @@
 
 #include "staticstring.h"
 
+#include <sqlite/sourcelocation.h>
 #include <utils/smallstring.h>
 #include <utils/span.h>
 #include <utils/utility.h>
@@ -1155,6 +1156,14 @@ template<typename TraceEvent, Tracing isEnabled>
 class Category
 {
 public:
+    class SourceLocation
+    {
+    public:
+        template<typename String>
+        friend void convertToString(String &, SourceLocation)
+        {}
+    };
+
     using IsActive = std::false_type;
     using ArgumentType = typename TraceEvent::ArgumentType;
     using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
@@ -1207,6 +1216,38 @@ class Category<TraceEvent, Tracing::IsEnabled>
     {};
 
 public:
+    class SourceLocation : public Sqlite::source_location
+    {
+    public:
+        consteval SourceLocation(
+            const char *fileName = __builtin_FILE(),
+            const char *functionName = __builtin_FUNCTION(),
+            const uint_least32_t line = __builtin_LINE())
+            : Sqlite::source_location(Sqlite::source_location::current(fileName, functionName, line))
+        {}
+
+        template<typename String>
+        friend void convertToString(String &string, SourceLocation sourceLocation)
+        {
+            using NanotraceHR::dictonary;
+            using NanotraceHR::keyValue;
+            auto dict = dictonary(
+                keyValue("file", sourceLocation.file_name()),
+                keyValue("function", sourceLocation.function_name()),
+                keyValue("line", sourceLocation.line()));
+            convertToString(string, dict);
+
+            string.append(',');
+            convertToString(string, "id");
+            string.append(':');
+            string.append('\"');
+            string.append(sourceLocation.file_name());
+            string.append(':');
+            string.append(sourceLocation.line());
+            string.append('\"');
+        }
+    };
+
     using IsActive = std::true_type;
     using ArgumentType = typename TraceEvent::ArgumentType;
     using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;

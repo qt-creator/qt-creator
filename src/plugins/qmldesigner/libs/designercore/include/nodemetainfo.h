@@ -9,7 +9,7 @@
 #include <projectstorage/projectstorageinterface.h>
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorageids.h>
-#include <tracing/qmldesignertracingsourcelocation.h>
+#include <tracing/qmldesignertracing.h>
 
 #include <QList>
 #include <QString>

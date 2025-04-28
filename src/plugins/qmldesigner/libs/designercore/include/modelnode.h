@@ -6,7 +6,7 @@
 #include "abstractproperty.h"
 #include "auxiliarydata.h"
 
-#include <tracing/qmldesignertracingsourcelocation.h>
+#include <tracing/qmldesignertracing.h>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
