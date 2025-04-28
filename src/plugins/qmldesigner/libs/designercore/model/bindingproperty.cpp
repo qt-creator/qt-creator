@@ -8,6 +8,8 @@
 #include "model.h"
 #include "model_p.h"
 
+#include <qmldesignerutils/stringutils.h>
+
 using namespace Qt::StringLiterals;
 
 namespace QmlDesigner {
@@ -133,12 +135,10 @@ AbstractProperty BindingProperty::resolveToProperty() const
         return {};
 
     ModelNode node = parentModelNode();
-    auto lastElementBegin = std::ranges::find(binding | std::views::reverse, u'.').base();
-    QStringView lastElement{lastElementBegin, binding.end()};
-    if (binding.begin() != lastElementBegin) {
-        QStringView nodeBinding{binding.begin(), std::prev(lastElementBegin)};
+
+    auto [nodeBinding, lastElement] = StringUtils::split_last(binding, u'.');
+    if (nodeBinding.size())
         node = resolveBinding(nodeBinding, node);
-    }
 
     if (node.isValid() && !lastElement.contains(' '))
         return node.property(lastElement.toUtf8());

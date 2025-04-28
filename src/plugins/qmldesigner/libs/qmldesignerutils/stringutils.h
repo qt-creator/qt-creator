@@ -1,20 +1,24 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
 
 #include <QString>
+#include <QStringView>
 
-using namespace Qt::StringLiterals;
+#include <algorithm>
+#include <ranges>
 
-namespace QmlDesigner {
+namespace QmlDesigner::StringUtils {
 
 inline QString escape(const QString &value)
 {
-    QString result = value;
+    using namespace Qt::StringLiterals;
 
     if (value.length() == 6 && value.startsWith("\\u")) //Do not double escape unicode chars
         return value;
+
+    QString result = value;
 
     result.replace("\\"_L1, "\\\\"_L1);
     result.replace("\""_L1, "\\\""_L1);
@@ -27,10 +31,12 @@ inline QString escape(const QString &value)
 
 inline QString deescape(const QString &value)
 {
-    QString result = value;
+    using namespace Qt::StringLiterals;
 
     if (value.length() == 6 && value.startsWith("\\u")) //Ignore unicode chars
         return value;
+
+    QString result = value;
 
     result.replace("\\\\"_L1, "\\"_L1);
     result.replace("\\\""_L1, "\""_L1);
@@ -41,4 +47,19 @@ inline QString deescape(const QString &value)
     return result;
 }
 
-} // namespace QmlDesigner
+template<typename T>
+concept is_object = std::is_object_v<T>;
+
+std::pair<QStringView, QStringView> split_last(is_object auto &&, QChar c) = delete; // remove rvalue overload
+
+inline std::pair<QStringView, QStringView> split_last(QStringView text, QChar c)
+{
+    auto splitPoint = std::ranges::find(text | std::views::reverse, c).base();
+
+    if (splitPoint == text.begin())
+        return {{}, text};
+
+    return {{text.begin(), std::prev(splitPoint)}, {splitPoint, text.end()}};
+}
+
+} // namespace QmlDesigner::StringUtils

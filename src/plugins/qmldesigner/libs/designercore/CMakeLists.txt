@@ -239,7 +239,6 @@ extend_qtc_library(QmlDesignerCore
     rewritingexception.h
     signalhandlerproperty.h
     sourcepathids.h
-    stringutils.h
     synchronousimagecache.h
     variantproperty.h
     widgetregistration.h

@@ -14,11 +14,11 @@
 #include "qmlstate.h"
 #include "qmltimelinekeyframegroup.h"
 #include "qmlvisualnode.h"
-#include "stringutils.h"
 #include "variantproperty.h"
 
 #include <auxiliarydataproperties.h>
 #include <designersettings.h>
+#include <qmldesignerutils/stringutils.h>
 
 #include <qmltimeline.h>
 
@@ -255,7 +255,7 @@ QString QmlObjectNode::stripedTranslatableText(PropertyNameView name) const
         const QRegularExpressionMatch match = regularExpressionPattern.match(
                     modelNode().bindingProperty(name).expression());
         if (match.hasMatch())
-            return deescape(match.captured(2));
+            return StringUtils::deescape(match.captured(2));
         return instanceValue(name).toString();
     }
     return instanceValue(name).toString();
@@ -535,7 +535,7 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, PropertyNameVi
 QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &text,
                                                 const DesignerSettings &settings)
 {
-    const QString escapedText = escape(text);
+    const QString escapedText = StringUtils::escape(text);
 
     if (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
         switch (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
@@ -557,7 +557,7 @@ QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
                 QLatin1String("^qsTr(|Id|anslate)\\(\"(.*)\"\\)$"));
     const QRegularExpressionMatch match = regularExpressionPattern.match(text);
     if (match.hasMatch())
-        return deescape(match.captured(2));
+        return StringUtils::deescape(match.captured(2));
     return text;
 }
 

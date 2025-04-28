@@ -25,6 +25,7 @@
 #include <import.h>
 #include <modelutils.h>
 #include <projectstorage/modulescanner.h>
+#include <qmldesignerutils/stringutils.h>
 #include <rewritingexception.h>
 
 #include <enumeration.h>
@@ -215,9 +216,8 @@ bool isSignalPropertyName(QStringView signalName)
     if (signalName.isEmpty())
         return false;
     // see QmlCompiler::isSignalPropertyName
-    auto begin = std::ranges::find(signalName | std::views::reverse, u'.').base();
+    auto [dummy, pureSignalName] = QmlDesigner::StringUtils::split_last(signalName, u'.');
 
-    QStringView pureSignalName = {begin, signalName.end()};
     return pureSignalName.length() >= 3 && pureSignalName.startsWith(u"on")
            && pureSignalName.at(2).isLetter();
 }
@@ -1626,26 +1626,6 @@ void TextToModelMerger::syncArrayProperty(AbstractProperty &modelProperty,
     }
 }
 
-static QString fileForFullQrcPath(QStringView string)
-{
-    auto found = std::ranges::find(string | std::views::reverse, u'/');
-
-    if (found == string.rend())
-        return {};
-
-    return QStringView{found.base(), string.end()}.toString();
-}
-
-static QString removeFileFromQrcPath(const QStringView string)
-{
-    auto found = std::ranges::find(string | std::views::reverse, u'/');
-
-    if (found == string.rend())
-        return {};
-
-    return QStringView{string.begin(), std::prev(found.base())}.toString();
-}
-
 void TextToModelMerger::syncVariantProperty(AbstractProperty &modelProperty,
                                             const QVariant &astValue,
                                             const TypeName &astType,
@@ -2303,8 +2283,10 @@ void TextToModelMerger::populateQrcMapping(const QString &filePath)
     if (!filePath.startsWith(QLatin1String("qrc:")))
         return;
 
-    QString path = removeFileFromQrcPath(filePath);
-    const QString fileName = fileForFullQrcPath(filePath);
+    auto [pathView, fileNameView] = StringUtils::split_last(filePath, u'/');
+
+    QString path = pathView.toString();
+    const QString fileName = fileNameView.toString();
     path.remove(QLatin1String("qrc:"));
     QMap<QString,QStringList> map = ModelManagerInterface::instance()->filesInQrcPath(path);
     const QStringList qrcFilePaths = map.value(fileName, {});

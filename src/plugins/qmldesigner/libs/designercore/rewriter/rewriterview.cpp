@@ -23,6 +23,8 @@
 #include <signalhandlerproperty.h>
 #include <variantproperty.h>
 
+#include <qmldesignerutils/stringutils.h>
+
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljssimplereader.h>
@@ -964,12 +966,11 @@ QmlJS::Document::Ptr RewriterView::document() const
 
 QString RewriterView::convertTypeToImportAlias(QStringView type) const
 {
-    auto simplifiedTypeBegin = std::ranges::find(type | std::views::reverse, u'.').base();
-    const auto simplifiedType = QStringView{simplifiedTypeBegin, type.end()}.toString();
-    if (type.begin() == simplifiedTypeBegin)
-        return simplifiedType;
+    auto [url, simplifiedType] = StringUtils::split_last(type, u'.');
 
-    QStringView url{type.begin(), std::prev(simplifiedTypeBegin)};
+    if (url.isEmpty())
+        return simplifiedType.toString();
+
     auto &&imports = model()->imports();
     auto projection = [](auto &&import) {
         return import.isFileImport() ? import.file() : import.url();
@@ -977,12 +978,12 @@ QString RewriterView::convertTypeToImportAlias(QStringView type) const
     auto found = std::ranges::find(imports, url, projection);
 
     if (found == imports.end())
-        return simplifiedType;
+        return simplifiedType.toString();
 
     auto &&alias = found->alias();
 
     if (alias.isEmpty())
-        return simplifiedType;
+        return simplifiedType.toString();
 
     return alias + '.'_L1 + simplifiedType;
 }

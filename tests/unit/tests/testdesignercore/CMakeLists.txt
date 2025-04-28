@@ -209,7 +209,6 @@ extend_qtc_library(TestDesignerCore
     rewritingexception.h
     signalhandlerproperty.h
     sourcepathids.h
-    stringutils.h
     synchronousimagecache.h
     variantproperty.h
 )
