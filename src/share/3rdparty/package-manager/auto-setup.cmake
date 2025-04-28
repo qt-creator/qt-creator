@@ -356,3 +356,37 @@ macro(qtc_auto_setup_vcpkg)
   endif()
 endmacro()
 qtc_auto_setup_vcpkg()
+
+#
+# MaintenanceTool
+#
+if (QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER)
+  return()
+endif()
+
+option(QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER
+       "Skip Qt Creator's MaintenanceTool find_package provider" OFF)
+option(QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI
+       "Use CLI mode for Qt Creator's MaintenanceTool find_package provider" OFF)
+
+function(qtc_maintenance_provider_missing_variable_warning variable)
+  message(WARNING "Qt Creator: ${variable} was not set. "
+                  "Qt's MaintenanceTool find_package() provider will not be used. "
+                  "To disable this warning set QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER to ON.")
+endfunction()
+
+if (NOT QT_MAINTENANCE_TOOL)
+  qtc_maintenance_provider_missing_variable_warning(QT_MAINTENANCE_TOOL)
+  return()
+endif()
+if (NOT QT_QMAKE_EXECUTABLE)
+  qtc_maintenance_provider_missing_variable_warning(QT_QMAKE_EXECUTABLE)
+  return()
+endif()
+
+if (CMAKE_VERSION GREATER_EQUAL "3.24")
+  list(APPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/maintenance_tool_provider.cmake)
+else()
+  message(WARNING "Qt Creator: CMake version 3.24 is needed for MaintenanceTool find_package() provider. "
+                  "To disable this warning set QT_CREATOR_SKIP_MAINTENANCE_TOOL_PROVIDER to ON.")
+endif()

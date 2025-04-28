@@ -1,0 +1,191 @@
+function(qt_maintenance_tool_get_component_platform platform_dir component_platform)
+  # Mapping between platform file directory and component platform
+  set(map_llvm-mingw_64 win64_llvm_mingw)
+  set(map_mingw_64 win64_mingw)
+  set(map_msvc2019_64 win64_msvc2019_64)
+  set(map_msvc2022_64 win64_msvc2022_64)
+  set(map_msvc2022_arm64 win64_msvc2022_arm64)
+  set(map_gcc_64 linux_gcc_64)
+  set(map_gcc_arm64 linux_gcc_arm64)
+  set(map_ios ios)
+  set(map_macos clang_64)
+  set(map_android_arm64_v8a android)
+  set(map_android_armv7 android)
+  set(map_android_x86 android)
+  set(map_android_x86_64 android)
+  set(map_wasm_multithread wasm_multithread)
+  set(map_wasm_singlethread wasm_singlethread)
+
+  set(${component_platform} ${map_${platform_dir}} PARENT_SCOPE)
+endfunction()
+
+set(__qt_addons
+  qt3d
+  qt5compat
+  qtcharts
+  qtconnectivity
+  qtdatavis3d
+  qtgraphs
+  qtgrpc
+  qthttpserver
+  qtimageformats
+  qtlocation
+  qtlottie
+  qtmultimedia
+  qtnetworkauth
+  qtpositioning
+  qtquick3d
+  qtquick3dphysics
+  qtquickeffectmaker
+  qtquicktimeline
+  qtremoteobjects
+  qtscxml
+  qtsensors
+  qtserialbus
+  qtserialport
+  qtshadertools
+  qtspeech
+  qtvirtualkeyboard
+  qtwebchannel
+  qtwebsockets
+  qtwebview
+
+  # found in commercial version
+  qtinterfraceframework
+  qtmqtt
+  qtopcua
+)
+
+set(__qt_extensions
+  qtinsighttracker
+  qtpdf
+  qtwebengine
+)
+
+function(qt_maintenance_tool_install qt_major_version qt_package_name)
+  if (QT_QMAKE_EXECUTABLE MATCHES ".*/(.*)/(.*)/bin/qmake")
+    set(qt_version_number ${CMAKE_MATCH_1})
+    string(REPLACE "." "" qt_version_number_dotless ${qt_version_number})
+    set(qt_build_flavor ${CMAKE_MATCH_2})
+    string(TOLOWER "${qt_package_name}" qt_package_name_lowercase)
+
+    set(additional_addons "")
+    if (qt_version_number VERSION_LESS 6.8.0)
+      set(additional_addons ${__qt_extensions})
+    endif()
+
+    set(installer_component "")
+    qt_maintenance_tool_get_component_platform(${qt_build_flavor} component_platform)
+
+    # Is the package an addon?
+    set(install_addon FALSE)
+    foreach(addon IN LISTS __qt_addons additional_addons)
+      string(REGEX MATCH "${addon}" is_addon "qt${qt_package_name_lowercase}")
+      if (is_addon)
+        set(installer_component
+          "qt.qt${qt_major_version}.${qt_version_number_dotless}.addons.${addon}"
+        )
+        set(install_addon TRUE)
+        break()
+      endif()
+    endforeach()
+
+    if (NOT install_addon)
+      set(install_extension FALSE)
+      foreach(extension IN LISTS __qt_extensions)
+        string(REGEX MATCH "${extension}" is_extension "qt${qt_package_name_lowercase}")
+        if (is_extension)
+          set(installer_component
+            "extensions.${extension}.${qt_version_number_dotless}.${component_platform}"
+          )
+          set(install_extension TRUE)
+          break()
+        endif()
+      endforeach()
+
+      if (NOT install_extension)
+        # Install the Desktop package
+        set(installer_component
+          "qt.qt${qt_major_version}.${qt_version_number_dotless}.${component_platform}"
+        )
+      endif()
+    endif()
+
+    if (QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI)
+      message(STATUS "Qt Creator: Using MaintenanceTool in CLI Mode. "
+                     "Set QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI to OFF for GUI mode.")
+      execute_process(
+        COMMAND
+          "${QT_MAINTENANCE_TOOL}"
+          --accept-licenses
+          --default-answer
+          --confirm-command
+          install ${installer_component}
+        RESULT_VARIABLE result
+        OUTPUT_VARIABLE output
+        ERROR_VARIABLE output
+        ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
+        TIMEOUT 600
+      )
+      if (NOT result EQUAL 0)
+        message(WARNING "Qt MaintenanceTool returned an error.\n${output}")
+      endif()
+    else()
+      message(STATUS "Qt Creator: Using MaintenanceTool in GUI Mode. "
+                     "Set QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI to ON for CLI mode.")
+      set(ENV{QTC_MAINTENANCE_TOOL_COMPONENT} "${installer_component}")
+      execute_process(
+        COMMAND
+          "${QT_MAINTENANCE_TOOL}"
+          --script "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/maintenance_tool_provider.qs"
+          --verbose
+        RESULT_VARIABLE result
+        OUTPUT_VARIABLE output
+        ERROR_VARIABLE output
+        ECHO_OUTPUT_VARIABLE ECHO_ERROR_VARIABLE
+        TIMEOUT 600
+      )
+      if (NOT result EQUAL 0)
+        message(WARNING "Qt MaintenanceTool returned an error.\n${output}")
+      endif()
+
+    endif()
+  endif()
+endfunction()
+
+function(qt_maintenance_tool_dependency method package_name)
+  if (${package_name} MATCHES "^Qt([0-9])(.*)$")
+    set(qt_major_version ${CMAKE_MATCH_1})
+    set(qt_package_name ${CMAKE_MATCH_2})
+
+    cmake_parse_arguments(arg "REQUIRED" "" "COMPONENTS" ${ARGN})
+    if (arg_REQUIRED AND arg_COMPONENTS)
+      # Install missing COMPONENTS.
+      foreach(pkg IN LISTS arg_COMPONENTS)
+        find_package(Qt${qt_major_version}${pkg} BYPASS_PROVIDER QUIET)
+        if (NOT Qt${qt_major_version}${pkg}_FOUND)
+          qt_maintenance_tool_install(${qt_major_version} ${pkg})
+        endif()
+      endforeach()
+    elseif(arg_REQUIRED AND NOT qt_package_name)
+      # Install the Desktop package if Qt::Core is missing
+      find_package(Qt${qt_major_version}Core BYPASS_PROVIDER QUIET)
+      if (NOT Qt${qt_major_version}$Core_FOUND)
+        qt_maintenance_tool_install(${qt_major_version} core)
+      endif()
+    endif()
+
+    find_package(${package_name} ${ARGN} BYPASS_PROVIDER QUIET)
+    if (NOT ${package_name}_FOUND AND arg_REQUIRED)
+      qt_maintenance_tool_install(${qt_major_version} ${qt_package_name})
+      find_package(${package_name} ${ARGN} BYPASS_PROVIDER)
+    endif()
+  else()
+    find_package(${package_name} ${ARGN} BYPASS_PROVIDER)
+  endif()
+endfunction()
+
+cmake_language(
+    SET_DEPENDENCY_PROVIDER qt_maintenance_tool_dependency
+    SUPPORTED_METHODS FIND_PACKAGE
+)

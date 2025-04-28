@@ -1206,6 +1206,11 @@ static CommandLine defaultInitialCMakeCommand(
     // CMake should output colors by default
     cmd.addArg("-DCMAKE_COLOR_DIAGNOSTICS:BOOL=ON");
 
+    // Add MaintenanceTool
+    const QVariant maintananceTool = Core::ICore::settings()->value("Updater/MaintenanceTool");
+    if (maintananceTool.isValid())
+        cmd.addArg("-DQT_MAINTENANCE_TOOL:FILEPATH=" + maintananceTool.toString());
+
     cmd.addArgs(CMakeConfigurationKitAspect::toArgumentsList(k));
     cmd.addArgs(CMakeConfigurationKitAspect::additionalConfiguration(k), CommandLine::Raw);
 
