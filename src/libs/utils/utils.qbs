@@ -281,6 +281,8 @@ QtcLibrary {
         "qtcolorbutton.h",
         "qtcsettings.cpp",
         "qtcsettings.h",
+        "qtcwidgets.cpp",
+        "qtcwidgets.h",
         "ranges.h",
         "reloadpromptutils.cpp",
         "reloadpromptutils.h",

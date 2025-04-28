@@ -4,6 +4,7 @@
 #include "../common/themeselector.h"
 
 #include <utils/layoutbuilder.h>
+#include <utils/qtcwidgets.h>
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
 
@@ -16,7 +17,7 @@
 #include <QToolButton>
 
 using namespace Layouting;
-using CoreButton = Core::CoreButton;
+using QtcButton = Utils::QtcWidgets::Button;
 
 int main(int argc, char *argv[])
 {
@@ -106,41 +107,41 @@ int main(int argc, char *argv[])
         Label { text("Core Button:") },
         new ManualTest::ThemeSelector,
         Flow {
-            CoreButton {
+            QtcButton {
                 text("Large Primary"),
-                role(Core::Button::Role::LargePrimary)
+                role(Utils::QtcButton::Role::LargePrimary)
             },
-            CoreButton {
+            QtcButton {
                 text("Large Secondary"),
-                role(Core::Button::Role::LargeSecondary)
+                role(Utils::QtcButton::Role::LargeSecondary)
             },
-            CoreButton {
+            QtcButton {
                 text("Large Tertiary"),
-                role(Core::Button::Role::LargeTertiary)
+                role(Utils::QtcButton::Role::LargeTertiary)
             },
-            CoreButton {
+            QtcButton {
                 text("Small Primary"),
-                role(Core::Button::Role::SmallPrimary)
+                role(Utils::QtcButton::Role::SmallPrimary)
             },
-            CoreButton {
+            QtcButton {
                 text("Small Secondary"),
-                role(Core::Button::Role::SmallSecondary)
+                role(Utils::QtcButton::Role::SmallSecondary)
             },
-            CoreButton {
+            QtcButton {
                 text("Small Tertiary"),
-                role(Core::Button::Role::SmallTertiary)
+                role(Utils::QtcButton::Role::SmallTertiary)
             },
-            CoreButton {
+            QtcButton {
                 text("Small List"),
-                role(Core::Button::Role::SmallList)
+                role(Utils::QtcButton::Role::SmallList)
             },
-            CoreButton {
+            QtcButton {
                 text("Small Link"),
-                role(Core::Button::Role::SmallLink)
+                role(Utils::QtcButton::Role::SmallLink)
             },
-            CoreButton {
+            QtcButton {
                 text("Tag"),
-                role(Core::Button::Role::Tag)
+                role(Utils::QtcButton::Role::Tag)
             },
         },
         st

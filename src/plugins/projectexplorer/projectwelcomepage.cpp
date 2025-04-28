@@ -26,6 +26,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcwidgets.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -341,9 +342,9 @@ public:
         m_sessionType->setSizePolicy(m_sessionNameLabel->sizePolicy());
         m_sessionType->setTextInteractionFlags(Qt::NoTextInteraction);
 
-        m_clone = new Button(Tr::tr("Clone"), Button::SmallTertiary);
-        m_rename = new Button(Tr::tr("Rename"), Button::SmallTertiary);
-        m_delete = new Button(Tr::tr("Delete"), Button::SmallTertiary);
+        m_clone = new QtcButton(Tr::tr("Clone"), QtcButton::SmallTertiary);
+        m_rename = new QtcButton(Tr::tr("Rename"), QtcButton::SmallTertiary);
+        m_delete = new QtcButton(Tr::tr("Delete"), QtcButton::SmallTertiary);
 
         auto buttonGroup = new QButtonGroup;
         buttonGroup->addButton(m_clone, ActionClone);
@@ -728,8 +729,9 @@ public:
 
         auto sessions = new QWidget;
         {
-            auto sessionsLabel = new Core::Label(Tr::tr("Sessions"), Core::Label::Primary);
-            auto manageSessionsButton = new Button(Tr::tr("Manage..."), Button::LargeSecondary);
+            auto sessionsLabel = new QtcLabel(Tr::tr("Sessions"), QtcLabel::Primary);
+            auto manageSessionsButton = new QtcButton(Tr::tr("Manage..."),
+                                                      QtcButton::LargeSecondary);
             m_sessionList = new TreeView(this, "Sessions");
             m_sessionList->setModel(m_projectWelcomePage->m_sessionModel);
             m_sessionList->header()->setSectionHidden(1, true); // The "last modified" column.
@@ -748,7 +750,7 @@ public:
                 spacing(ExPaddingGapL),
                 customMargins(ExVPaddingGapXl, ExVPaddingGapXl, 0, 0),
             }.attachTo(sessions);
-            connect(manageSessionsButton, &Button::clicked,
+            connect(manageSessionsButton, &QtcButton::clicked,
                     this, &SessionManager::showSessionManager);
             connect(m_projectWelcomePage->m_sessionModel, &QAbstractItemModel::modelReset,
                     this, &SessionsPage::syncModelView);
@@ -756,7 +758,7 @@ public:
 
         auto projects = new QWidget;
         {
-            auto projectsLabel = new Core::Label(Tr::tr("Projects"), Core::Label::Primary);
+            auto projectsLabel = new QtcLabel(Tr::tr("Projects"), QtcLabel::Primary);
             auto projectsList = new TreeView(this, "Recent Projects");
             projectsList->setUniformRowHeights(true);
             projectsList->setModel(projectWelcomePage->m_projectModel);

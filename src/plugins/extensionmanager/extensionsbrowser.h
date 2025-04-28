@@ -7,10 +7,6 @@
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
 
-namespace Core::WelcomePageHelpers {
-class TextFormat;
-}
-
 namespace ExtensionManager::Internal {
 
 class ExtensionsModel;

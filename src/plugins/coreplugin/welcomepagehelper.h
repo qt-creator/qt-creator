@@ -33,145 +33,14 @@ namespace WelcomePageHelpers {
 
 constexpr QSize WelcomeThumbnailSize(214, 160);
 
-class CORE_EXPORT TextFormat
-{
-public:
-    QColor color() const
-    {
-        return Utils::creatorColor(themeColor);
-    }
-
-    QFont font(bool underlined = false) const
-    {
-        QFont result = Utils::StyleHelper::uiFont(uiElement);
-        result.setUnderline(underlined);
-        return result;
-    }
-
-    int lineHeight() const
-    {
-        return Utils::StyleHelper::uiFontLineHeight(uiElement);
-    }
-
-    const Utils::Theme::Color themeColor;
-    const Utils::StyleHelper::UiElement uiElement;
-    const int drawTextFlags = Qt::AlignLeft | Qt::AlignBottom | Qt::TextDontClip
-                              | Qt::TextShowMnemonic;
-};
-
 CORE_EXPORT void setBackgroundColor(QWidget *widget, Utils::Theme::Color colorRole);
 constexpr Utils::Theme::Color cardDefaultBackground = Utils::Theme::Token_Background_Muted;
 constexpr Utils::Theme::Color cardDefaultStroke = Utils::Theme::Token_Stroke_Subtle;
 constexpr Utils::Theme::Color cardHoverBackground = Utils::Theme::Token_Background_Subtle;
 constexpr Utils::Theme::Color cardHoverStroke = cardDefaultStroke;
 CORE_EXPORT QWidget *createRule(Qt::Orientation orientation, QWidget *parent = nullptr);
-CORE_EXPORT void applyTf(QLabel *label, const TextFormat &tf, bool singleLine = true);
 
 } // namespace WelcomePageHelpers
-
-class CORE_EXPORT Button : public QAbstractButton
-{
-    Q_OBJECT
-public:
-    enum Role {
-        LargePrimary,
-        LargeSecondary,
-        LargeTertiary,
-        SmallPrimary,
-        SmallSecondary,
-        SmallTertiary,
-        SmallList,
-        SmallLink,
-        Tag,
-    };
-    Q_ENUM(Role)
-
-    explicit Button(const QString &text, Role role, QWidget *parent = nullptr);
-
-    QSize minimumSizeHint() const override;
-
-    void setPixmap(const QPixmap &newPixmap);
-    void setRole(Role role);
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
-
-private:
-    void updateMargins();
-
-    Role m_role = LargePrimary;
-    QPixmap m_pixmap;
-};
-
-class CORE_EXPORT CoreButton : public Layouting::Widget
-{
-public:
-    using Implementation = Core::Button;
-    using I = Building::BuilderItem<CoreButton>;
-
-    CoreButton();
-    CoreButton(std::initializer_list<I> ps);
-
-    void setText(const QString &text);
-    void setIcon(const Utils::Icon &icon);
-    void setRole(Core::Button::Role role);
-};
-
-QTC_DEFINE_BUILDER_SETTER(role, setRole);
-
-class CORE_EXPORT Label : public QLabel
-{
-public:
-    enum Role {
-        Primary,
-        Secondary,
-    };
-
-    explicit Label(const QString &text, Role role, QWidget *parent = nullptr);
-
-private:
-    const Role m_role = Primary;
-};
-
-class CORE_EXPORT SearchBox : public Utils::FancyLineEdit
-{
-public:
-    explicit SearchBox(QWidget *parent = nullptr);
-
-    QSize minimumSizeHint() const override;
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
-    void enterEvent(QEnterEvent *event) override;
-    void leaveEvent(QEvent *event) override;
-};
-
-class CORE_EXPORT ComboBox : public QComboBox
-{
-public:
-    explicit ComboBox(QWidget *parent = nullptr);
-
-    QSize sizeHint() const override;
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
-
-protected:
-    void enterEvent(QEnterEvent *event) override;
-    void leaveEvent(QEvent *event) override;
-};
-
-class CORE_EXPORT Switch : public QAbstractButton
-{
-public:
-    explicit Switch(const QString &text, QWidget *parent = nullptr);
-
-    QSize sizeHint() const override;
-    QSize minimumSizeHint() const override;
-
-protected:
-    void paintEvent(QPaintEvent *event) override;
-};
 
 class CORE_EXPORT GridView : public QListView
 {

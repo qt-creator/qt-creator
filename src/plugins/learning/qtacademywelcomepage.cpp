@@ -15,6 +15,7 @@
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/qtcwidgets.h>
 
 #include <QApplication>
 #include <QDesktopServices>
@@ -114,7 +115,7 @@ class QtAcademyWelcomePageWidget final : public QWidget
 public:
     QtAcademyWelcomePageWidget()
     {
-        m_searcher = new SearchBox(this);
+        m_searcher = new QtcSearchBox(this);
         m_searcher->setPlaceholderText(Tr::tr("Search in Qt Academy Courses..."));
 
         m_model = new ListModel;
