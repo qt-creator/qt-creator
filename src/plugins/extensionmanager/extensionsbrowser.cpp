@@ -812,7 +812,7 @@ void ExtensionsBrowser::fetchExtensions()
 
     LoopList urlIterator(urls);
 
-    const auto setupDownloader = [&storage, urlIterator](Downloader &downloader) {
+    const auto setupDownloader = [storage, urlIterator](Downloader &downloader) {
         storage->setFileTemplate(
             QDir::tempPath() + "/extensionstore-XXXXXX." + urlIterator->completeSuffix());
         if (!storage->open())
