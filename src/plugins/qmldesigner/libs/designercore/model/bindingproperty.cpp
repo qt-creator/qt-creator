@@ -137,7 +137,7 @@ AbstractProperty BindingProperty::resolveToProperty() const
     QStringView lastElement{lastElementBegin, binding.end()};
     if (binding.begin() != lastElementBegin) {
         QStringView nodeBinding{binding.begin(), std::prev(lastElementBegin)};
-        node = resolveBinding(nodeBinding, parentModelNode());
+        node = resolveBinding(nodeBinding, node);
     }
 
     if (node.isValid() && !lastElement.contains(' '))
