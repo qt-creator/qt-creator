@@ -4,4 +4,5 @@ add_qtc_plugin(SafeRenderer
   SOURCES
     saferenderer.qrc
     saferenderer.h
+  SKIP_PCH
 )
