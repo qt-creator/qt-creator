@@ -414,8 +414,8 @@
             \li \c {--authentication <INT>}
             \li Authentication method:
                 \list
-                    \li 1 for all authentication methods
-                    \li 2 for SSH authentication using a public and private key
+                    \li 0 for all authentication methods
+                    \li 1 for SSH authentication using a public and private key
                         pair
                 \endlist
             \li
@@ -471,8 +471,8 @@
             \li \c {--origin <INT>}
             \li Whether the device was detected automatically:
                 \list
-                    \li 1 for a manually added device
-                    \li 2 for an automatically detected device
+                    \li 0 for a manually added device
+                    \li 1 for an automatically detected device
                 \endlist
             \li
         \row
@@ -508,8 +508,8 @@
             \li \c {--type <INT>}
             \li Device type:
                 \list
-                    \li 1 for a hardware device
-                    \li 2 for an emulator, simulator, or virtual device
+                    \li 0 for a hardware device
+                    \li 1 for an emulator, simulator, or virtual device
                 \endlist
             \li \inlineimage ok.png
         \row
@@ -533,12 +533,12 @@
     ./sdktool addDev \
         --id " LinuxDevice1" \
         --name "My Remote Linux Device" \
-        --type 1 \
-        --authentication 2 \
+        --type 0 \
+        --authentication 1 \
         --freePorts "10000-10100" \
         --host "10.10.10.15" \
         --keyFile "/usr/.ssh/qtc_id" \
-        --origin 1 \
+        --origin 0 \
         --osType "GenericLinuxOsType" \
         --sshPort 22 \
         --timeout 10 \
