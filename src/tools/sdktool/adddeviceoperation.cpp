@@ -59,7 +59,7 @@ QString AddDeviceOperation::argumentsHelpText() const
                          "    --dockerTag <STRING>                       Docker image tag.\n"
                          "    --dockerMappedPaths <STRING>               Docker mapped paths (semi-colon separated).\n"
                          "    --dockerClangdExecutable <STRING>          Path to clangd inside the docker.\n"
-                         "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
+                         "    <KEY> <TYPE:VALUE>                         extra key value pairs, key can be hierarchical with '/' as the separator\n");
 }
 
 bool AddDeviceOperation::setArguments(const QStringList &args)

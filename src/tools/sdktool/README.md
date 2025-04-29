@@ -5,11 +5,15 @@ There still is a lot of knowledge about Qt Creator internals required
 to use this tool!
 
 Note that some tool chains/Qt versions/kits may require settings not
-available via command line switches. All operations will add any parameter
-followed by another parameter in the form `<TYPE>:<VALUE>` to the
-configuration that they create.
+available via command line switches. All operations support adding arbitrary
+key-value pairs to the configuration that they create, by taking the key as a
+parameter, followed by another parameter in the form `<TYPE>:<VALUE>`.
+The key in this can be hierarchical with `/` as the separator, similar to the
+keys supported by QSettings.
 
-Currently supported types are int, bool, QString, QByteArray and QVariantList.
+The parent keys are created with the type `QVariantMap`. Currently supported
+types for the leaf keys are `int`, `bool`, `QString`, `QByteArray` and
+`QVariantList`.
 
 Dependencies:
 =============

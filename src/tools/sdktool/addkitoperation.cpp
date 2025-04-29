@@ -92,7 +92,7 @@ QString AddKitOperation::argumentsHelpText() const
         "                                               set a cmake generator.\n"
         "    --cmake-config <KEY:TYPE=VALUE>            set a cmake configuration value [may be "
         "repeated]\n"
-        "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
+        "    <KEY> <TYPE:VALUE>                         extra key value pairs, key can be hierarchical with '/' as the separator\n");
 }
 
 bool AddKitOperation::setArguments(const QStringList &args)
