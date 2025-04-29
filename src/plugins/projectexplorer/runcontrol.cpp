@@ -1243,13 +1243,6 @@ bool RunControl::isRunning() const
     return d->state == RunState::Running;
 }
 
-bool RunControl::isStarting() const
-{
-    if (d->isUsingTaskTree())
-        return false;
-    return d->state == RunState::Starting;
-}
-
 bool RunControl::isStopped() const
 {
     if (d->isUsingTaskTree())

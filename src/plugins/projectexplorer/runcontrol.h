@@ -146,7 +146,6 @@ public:
     void setDisplayName(const QString &displayName);
 
     bool isRunning() const;
-    bool isStarting() const;
     bool isStopped() const;
 
     void setIcon(const Utils::Icon &icon);
