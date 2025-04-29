@@ -1802,21 +1802,21 @@ QString EffectComposerModel::valueAsBinding(const Uniform &uniform)
         || uniform.type() == Uniform::Type::Color
         || uniform.type() == Uniform::Type::Channel
         || uniform.type() == Uniform::Type::Define) {
-        return "g_propertyData." + uniform.name();
+        return "GlobalPropertyData." + uniform.name();
     } else if (uniform.type() == Uniform::Type::Vec2) {
-        QString sx = QString("g_propertyData.%1.x").arg(uniform.name());
-        QString sy = QString("g_propertyData.%1.y").arg(uniform.name());
+        QString sx = QString("GlobalPropertyData.%1.x").arg(uniform.name());
+        QString sy = QString("GlobalPropertyData.%1.y").arg(uniform.name());
         return QString("Qt.point(%1, %2)").arg(sx, sy);
     } else if (uniform.type() == Uniform::Type::Vec3) {
-        QString sx = QString("g_propertyData.%1.x").arg(uniform.name());
-        QString sy = QString("g_propertyData.%1.y").arg(uniform.name());
-        QString sz = QString("g_propertyData.%1.z").arg(uniform.name());
+        QString sx = QString("GlobalPropertyData.%1.x").arg(uniform.name());
+        QString sy = QString("GlobalPropertyData.%1.y").arg(uniform.name());
+        QString sz = QString("GlobalPropertyData.%1.z").arg(uniform.name());
         return QString("Qt.vector3d(%1, %2, %3)").arg(sx, sy, sz);
     } else if (uniform.type() == Uniform::Type::Vec4) {
-        QString sx = QString("g_propertyData.%1.x").arg(uniform.name());
-        QString sy = QString("g_propertyData.%1.y").arg(uniform.name());
-        QString sz = QString("g_propertyData.%1.z").arg(uniform.name());
-        QString sw = QString("g_propertyData.%1.w").arg(uniform.name());
+        QString sx = QString("GlobalPropertyData.%1.x").arg(uniform.name());
+        QString sy = QString("GlobalPropertyData.%1.y").arg(uniform.name());
+        QString sz = QString("GlobalPropertyData.%1.z").arg(uniform.name());
+        QString sw = QString("GlobalPropertyData.%1.w").arg(uniform.name());
         return QString("Qt.vector4d(%1, %2, %3, %4)").arg(sx, sy, sz, sw);
     } else if (uniform.type() == Uniform::Type::Sampler) {
         return getImageElementName(uniform);
@@ -2449,7 +2449,7 @@ R"(
             if (localFiles) {
                 imagesString += QString("        source: rootItem.%1Url\n").arg(uniform->name());
             } else {
-                imagesString += QString("        source: g_propertyData.%1\n").arg(uniform->name());
+                imagesString += QString("        source: GlobalPropertyData.%1\n").arg(uniform->name());
 
                 if (uniform->enableMipmap())
                     imagesString += "        mipmap: true\n";
@@ -2802,7 +2802,8 @@ bool EffectComposerModel::hasCustomNode() const
 
 void EffectComposerModel::updateQmlComponent()
 {
-    m_qmlComponentString = getQmlComponentString(false);
+    m_qmlComponentString = "import EffectComposerPropertyData\n";
+    m_qmlComponentString.append(getQmlComponentString(false));
 }
 
 // Removes "file:" from the URL path.
