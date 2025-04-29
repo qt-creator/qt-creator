@@ -3779,28 +3779,12 @@ private:
     int m_index;
 };
 
-static void destroyLayout(QLayout *layout)
-{
-    if (layout) {
-        while (QLayoutItem *child = layout->takeAt(0)) {
-            delete child->widget();
-            destroyLayout(child->layout());
-        }
-        delete layout;
-    }
-}
-
 void AspectList::addToLayoutImpl(Layouting::Layout &parent)
 {
     using namespace Layouting;
     using namespace Utils::QtcWidgets;
 
-    QGroupBox *group = new QGroupBox;
-    group->setTitle(labelText());
-
-    auto fill = [this, group] {
-        destroyLayout(group->layout());
-
+    auto fill = [this] {
         const auto createRow = [this](const std::shared_ptr<BaseAspect> &item) {
             // clang-format off
             return Row {
@@ -3819,7 +3803,7 @@ void AspectList::addToLayoutImpl(Layouting::Layout &parent)
         };
 
         // clang-format off
-        Column {
+        return Column {
             Utils::transform(volatileItems(), createRow),
             Row {
                 noMargin,
@@ -3831,14 +3815,17 @@ void AspectList::addToLayoutImpl(Layouting::Layout &parent)
                     })
                 }
             }
-        }.attachTo(group);
+        };
         // clang-format on
     };
 
-    fill();
-    QObject::connect(this, &AspectList::volatileValueChanged, group, fill);
-
-    parent.addItem(group);
+    // clang-format off
+    parent.addItem(
+        Group {
+            replaceLayoutOn(this, &AspectList::volatileValueChanged, fill)
+        }
+    );
+    // clang-format on
 }
 
 StringSelectionAspect::StringSelectionAspect(AspectContainer *container)

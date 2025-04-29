@@ -1372,6 +1372,17 @@ void IconDisplay::setIcon(const Utils::Icon &icon)
     access(this)->setIcon(icon);
 }
 
+void destroyLayout(QLayout *layout)
+{
+    if (layout) {
+        while (QLayoutItem *child = layout->takeAt(0)) {
+            delete child->widget();
+            destroyLayout(child->layout());
+        }
+        delete layout;
+    }
+}
+
 // void createItem(LayoutItem *item, QWidget *t)
 // {
 //     if (auto l = qobject_cast<QLabel *>(t))

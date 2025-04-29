@@ -654,6 +654,43 @@ QTCREATOR_UTILS_EXPORT LayoutModifier stretch(int index, int stretch);
 
 QTCREATOR_UTILS_EXPORT QWidget *createHr(QWidget *parent = nullptr);
 
+// Dynamic layout replacement
+
+QTCREATOR_UTILS_EXPORT void destroyLayout(QLayout *layout);
+
+template<typename Sender, typename Signal, typename Widget, typename LayoutCreateFunc>
+void replaceLayoutOn(Sender *sender, Signal signal, Widget *widget, const LayoutCreateFunc &func)
+{
+    func().attachTo(widget);
+
+    QObject::connect(sender, signal, widget, [widget, func] {
+        destroyLayout(widget->layout());
+        func().attachTo(widget);
+    });
+}
+
+class ReplaceLayoutOnId {};
+
+template<typename Type>
+concept DerivedFromWidget = std::derived_from<Type, Layouting::Widget>;
+
+template<typename Interface, typename Sender, typename Signal, typename LayoutCreateFunc>
+    requires DerivedFromWidget<Interface>
+void doit(Interface *x, ReplaceLayoutOnId, const std::tuple<Sender *, Signal, LayoutCreateFunc> &arg)
+{
+    replaceLayoutOn(std::get<0>(arg), std::get<1>(arg), x->emerge(), std::get<2>(arg));
+}
+
+template<class FUNC>
+concept ReturnsLayout = std::derived_from<typename std::invoke_result<FUNC>::type, Layout>;
+
+template<typename Sender, typename Signal, typename LayoutCreateFunc>
+    requires ReturnsLayout<LayoutCreateFunc>
+auto replaceLayoutOn(Sender *sender, Signal signal, const LayoutCreateFunc &func)
+{
+    return Building::IdAndArg{ReplaceLayoutOnId{}, std::make_tuple(sender, signal, func)};
+}
+
 namespace Tools {
 
 template<typename X>

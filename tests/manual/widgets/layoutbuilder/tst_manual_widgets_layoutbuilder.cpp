@@ -19,6 +19,24 @@
 using namespace Layouting;
 using QtcButton = Utils::QtcWidgets::Button;
 
+// clang-format off
+class Counter : public QObject
+{
+    Q_OBJECT
+public:
+    Counter() : m_value(0) {}
+
+    void increment() { ++m_value; emit changed(); }
+    int value() const { return m_value; }
+
+signals:
+    void changed();
+
+protected:
+    int m_value;
+};
+// clang-format on
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -48,6 +66,26 @@ int main(int argc, char *argv[])
             }
         },
     }.emerge()->show();
+
+    Counter myCounter;
+
+    // clang-format off
+    Widget {
+        windowTitle("Counter with dynamic children"),
+        Row {
+            PushButton { text("Increment"), onClicked(qApp, [&myCounter](){myCounter.increment();})},
+            Widget {
+                replaceLayoutOn(&myCounter, &Counter::changed, [&myCounter] {
+                    return Row {
+                        Label {
+                            text(QString::number(myCounter.value()))
+                        }
+                    };
+                })
+            }
+        }
+    }.emerge()->show();
+    // clang-format on
 
     Group {
         windowTitle("Group without parent layout"),
@@ -156,3 +194,5 @@ int main(int argc, char *argv[])
     // clang-format on
     return app.exec();
 }
+
+#include "tst_manual_widgets_layoutbuilder.moc"
