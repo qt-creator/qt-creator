@@ -3,15 +3,19 @@
 
 #include "../common/themeselector.h"
 
+#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcwidgets.h>
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
+#include <utils/utilsicons.h>
+#include <utils/ranges.h>
 
 #include <coreplugin/welcomepagehelper.h>
 
 #include <QApplication>
 #include <QLineEdit>
+#include <QMetaEnum>
 #include <QStyle>
 #include <QTextEdit>
 #include <QToolButton>
@@ -145,42 +149,21 @@ int main(int argc, char *argv[])
         Label { text("Core Button:") },
         new ManualTest::ThemeSelector,
         Flow {
-            QtcButton {
-                text("Large Primary"),
-                role(Utils::QtcButton::Role::LargePrimary)
-            },
-            QtcButton {
-                text("Large Secondary"),
-                role(Utils::QtcButton::Role::LargeSecondary)
-            },
-            QtcButton {
-                text("Large Tertiary"),
-                role(Utils::QtcButton::Role::LargeTertiary)
-            },
-            QtcButton {
-                text("Small Primary"),
-                role(Utils::QtcButton::Role::SmallPrimary)
-            },
-            QtcButton {
-                text("Small Secondary"),
-                role(Utils::QtcButton::Role::SmallSecondary)
-            },
-            QtcButton {
-                text("Small Tertiary"),
-                role(Utils::QtcButton::Role::SmallTertiary)
-            },
-            QtcButton {
-                text("Small List"),
-                role(Utils::QtcButton::Role::SmallList)
-            },
-            QtcButton {
-                text("Small Link"),
-                role(Utils::QtcButton::Role::SmallLink)
-            },
-            QtcButton {
-                text("Tag"),
-                role(Utils::QtcButton::Role::Tag)
-            },
+            std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) -> QtcButton {
+                return QtcButton{
+                    text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
+                    role((Utils::QtcButton::Role) r),
+                    icon(Utils::Icons::PLUS)
+                };
+            })
+        },
+        Flow {
+            std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) -> QtcButton {
+                return QtcButton{
+                    text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
+                    role((Utils::QtcButton::Role) r)
+                };
+            })
         },
         st
     }.emerge();

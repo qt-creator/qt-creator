@@ -590,6 +590,13 @@ void addToLayout(Layout *layout, const QList<T> &inner)
         addToLayout(layout, i);
 }
 
+template<std::ranges::view T>
+void addToLayout(Layout *layout, T inner)
+{
+    for (const auto &i : inner)
+        addToLayout(layout, i);
+}
+
 // ... can be added to anywhere later to support "user types"
 
 QTCREATOR_UTILS_EXPORT void addToWidget(Widget *widget, const Layout &layout);
