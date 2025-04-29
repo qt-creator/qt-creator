@@ -3,6 +3,68 @@
 
 #pragma once
 
+#include <QMetaEnum>
+
+namespace Utils {
+namespace ranges {
+
+template<typename ENUMTYPE>
+struct MetaEnum
+{
+    struct Iterator
+    {
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = int;
+        using difference_type = std::ptrdiff_t;
+        using pointer = int *;
+        using reference = int &;
+
+        Iterator() = default;
+
+        Iterator(const QMetaEnum *e, int idx)
+            : m_enum(e)
+            , m_index(idx)
+        {}
+
+        int operator*() const { return m_enum->value(m_index); }
+        Iterator &operator++()
+        {
+            ++m_index;
+            return *this;
+        }
+        Iterator operator++(int) // post-incrementable, returns prev value
+        {
+            Iterator temp = *this;
+            ++*this;
+            return temp;
+        }
+
+        bool operator!=(const Iterator &other) const
+        {
+            return m_index != other.m_index && m_enum == other.m_enum;
+        }
+        bool operator==(const Iterator &other) const
+        {
+            return m_index == other.m_index && m_enum == other.m_enum;
+        }
+
+        const QMetaEnum *m_enum{nullptr};
+        int m_index{-1};
+    };
+
+    MetaEnum()
+        : m_enum(QMetaEnum::fromType<ENUMTYPE>())
+    {}
+    Iterator begin() const { return Iterator(&m_enum, 0); }
+    Iterator end() const { return Iterator(&m_enum, m_enum.keyCount()); }
+
+    QMetaEnum m_enum;
+};
+
+} // namespace ranges
+
+} // namespace Utils
+
 #if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 201911L
 #include <ranges>
 
