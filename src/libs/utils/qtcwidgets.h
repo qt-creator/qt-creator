@@ -33,6 +33,8 @@ QTCREATOR_UTILS_EXPORT void applyTf(QLabel *label, const TextFormat &tf, bool si
 
 class QTCREATOR_UTILS_EXPORT QtcButton : public QAbstractButton
 {
+    Q_OBJECT // Needed for the Q_ENUM(Role) to work
+
 public:
     enum Role {
         LargePrimary,
