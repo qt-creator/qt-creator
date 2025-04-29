@@ -169,8 +169,8 @@ local pushButton = {}
 function gui.PushButton(options) end
 
 
----@class CoreButton : Widget
-local CoreButton = {}
+---@class QtcButton : Widget
+local QtcButton = {}
 
 --- Enum representing text format types
 ---@enum Role
@@ -186,14 +186,14 @@ gui.Role = {
     Tag = 0,
 }
 
----@class CoreButtonOptions : BaseWidgetOptions
+---@class QtcButtonOptions : BaseWidgetOptions
 ---@field role? Role The role of the button. (default: "LargePrimary")
 ---@field text? string The text of the button.
 ---@field icon? IconFilePathOrString The icon of the button.
 
----@param options CoreButtonOptions
----@return CoreButton
-function gui.CoreButton(options) end
+---@param options QtcButtonOptions
+---@return QtcButton
+function gui.QtcButton(options) end
 
 ---@class Label : Widget
 ---@field text string Returns the content of the Label as string
