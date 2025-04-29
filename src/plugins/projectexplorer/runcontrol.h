@@ -51,8 +51,6 @@ public:
     void addStartDependency(RunWorker *dependency);
     void addStopDependency(RunWorker *dependency);
 
-    void setId(const QString &id);
-
 signals:
     void started();
     void stopped();
