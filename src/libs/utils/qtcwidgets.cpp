@@ -141,13 +141,22 @@ void QtcButton::paintEvent(QPaintEvent *event)
     // +----------------+---------------------------------+
     //
     // With pixmap
-    // +--------+------------+---------------------------------+
-    // |        |            |(VPadding[S|XS])|                |
-    // |        |            +----------------+                |
-    // |<pixmap>|(HGap[S|XS])|     <label>    |(HPadding[S|XS])|
-    // |        |            +----------------+                |
-    // |        |            |(VPadding[S|XS])|                |
-    // +--------+------------+----------------+----------------+
+    // +-------+--------+-------------------------+---------------------------------+
+    // |       |        |                         |(VPadding[S|XS])|                |
+    // |       |        |                         +----------------+                |
+    // |(HGapS)|<pixmap>|([ExPaddingGapM|HGapXxs])|     <label>    |(HPadding[S|XS])|
+    // |       |        |                         +----------------+                |
+    // |       |        |                         |(VPadding[S|XS])|                |
+    // +-------+--------+-------------------------+----------------+----------------+
+    //
+    // SmallLink with pixmap
+    // +--------+---------------+---------------------------------+
+    // |        |               |(VPadding[S|XS])|                |
+    // |        |               +----------------+                |
+    // |<pixmap>|(ExPaddingGapM)|     <label>    |(HPadding[S|XS])|
+    // |        |               +----------------+                |
+    // |        |               |(VPadding[S|XS])|                |
+    // +--------+---------------+----------------+----------------+
 
     const bool hovered = underMouse();
     const WidgetState state = isChecked() ? WidgetStateChecked : hovered ? WidgetStateHovered
@@ -211,9 +220,10 @@ void QtcButton::paintEvent(QPaintEvent *event)
     }
 
     if (!m_pixmap.isNull()) {
-        const int pixmapHeight = int(m_pixmap.deviceIndependentSize().height());
-        const int pixmapY = (bgR.height() - pixmapHeight) / 2;
-        p.drawPixmap(0, pixmapY, m_pixmap);
+        const QSizeF pixmapS = m_pixmap.deviceIndependentSize();
+        const int pixmapX = m_role == SmallLink ? 0 : HGapS;
+        const int pixmapY = (bgR.height() - pixmapS.height()) / 2;
+        p.drawPixmap(pixmapX, pixmapY, m_pixmap);
     }
 
     const int availableLabelWidth = event->rect().width() - margins.left() - margins.right();
@@ -247,10 +257,11 @@ void QtcButton::updateMargins()
     }
     const bool tokenSizeS = m_role == LargePrimary || m_role == LargeSecondary
                             || m_role == SmallList || m_role == SmallLink;
-    const int gap = tokenSizeS ? HGapS : HGapXs;
     const int hPaddingR = tokenSizeS ? HPaddingS : HPaddingXs;
     const int hPaddingL = m_pixmap.isNull() ? hPaddingR
-                                            : int(m_pixmap.deviceIndependentSize().width()) + gap;
+                                            : (m_role == SmallLink ? 0 : HGapS)
+                                                  + int(m_pixmap.deviceIndependentSize().width())
+                                                  + (tokenSizeS ? ExPaddingGapM : HGapXxs);
     const int vPadding = tokenSizeS ? VPaddingS : VPaddingXs;
     setContentsMargins(hPaddingL, vPadding, hPaddingR, vPadding);
 }
