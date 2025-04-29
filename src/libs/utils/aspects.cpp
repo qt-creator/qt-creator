@@ -3793,6 +3793,7 @@ static void destroyLayout(QLayout *layout)
 void AspectList::addToLayoutImpl(Layouting::Layout &parent)
 {
     using namespace Layouting;
+    using namespace Utils::QtcWidgets;
 
     QGroupBox *group = new QGroupBox;
     group->setTitle(labelText());
@@ -3801,7 +3802,6 @@ void AspectList::addToLayoutImpl(Layouting::Layout &parent)
         destroyLayout(group->layout());
 
         const auto createRow = [this](const std::shared_ptr<BaseAspect> &item) {
-            using namespace Utils::QtcWidgets;
             // clang-format off
             return Row {
                 *item,
@@ -3824,8 +3824,8 @@ void AspectList::addToLayoutImpl(Layouting::Layout &parent)
             Row {
                 noMargin,
                 st,
-                PushButton {
-                    text(Tr::tr("Add")),
+                IconButton {
+                    ::icon(Utils::Icons::PLUS),
                     onClicked(this, [this](){
                         addItem(d->createItem());
                     })
