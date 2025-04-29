@@ -53,15 +53,15 @@ public:
 
     void setId(const QString &id);
 
-    void initiateStart();
-    void initiateStop();
-
 signals:
     void started();
     void stopped();
     void canceled();
 
 private:
+    void initiateStart();
+    void initiateStop();
+
     friend class Internal::RunControlPrivate;
     friend class Internal::RunWorkerPrivate;
     const std::unique_ptr<Internal::RunWorkerPrivate> d;
