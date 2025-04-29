@@ -613,7 +613,9 @@ bool BaseSettings::isEnabledOnProject(Project *project) const
 
 Client *BaseSettings::createClient(BuildConfiguration *bc) const
 {
-    if (!isValidOnBuildConfiguration(bc) || !isEnabledOnProject(bc->project()))
+    if (!isValidOnBuildConfiguration(bc))
+        return nullptr;
+    if (bc && !isEnabledOnProject(bc->project()))
         return nullptr;
     BaseClientInterface *interface = createInterface(bc);
     QTC_ASSERT(interface, return nullptr);
