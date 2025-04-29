@@ -16,7 +16,6 @@
 #include <utils/qtcassert.h>
 
 #include <QHash>
-#include <QProcess> // FIXME: Remove
 #include <QVariant>
 
 #include <functional>

@@ -20,7 +20,6 @@
 #include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
-#include "utils/url.h"
 #include "windebuginterface.h"
 
 #include <coreplugin/icore.h>
@@ -34,16 +33,12 @@
 #include <utils/fileinprojectfinder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcprocess.h>
-#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/terminalinterface.h>
+#include <utils/url.h>
 #include <utils/utilsicons.h>
 
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-
 #include <QLoggingCategory>
-#include <QPushButton>
 #include <QTimer>
 
 #if defined (WITH_JOURNALD)
