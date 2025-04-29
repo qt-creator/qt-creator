@@ -426,17 +426,6 @@ public:
     }
 };
 
-class WorkspaceProjectRunWorkerFactory : public RunWorkerFactory
-{
-public:
-    WorkspaceProjectRunWorkerFactory()
-    {
-        setRecipeProducer([](RunControl *runControl) { return processRecipe(runControl); });
-        addSupportedRunMode(Constants::NORMAL_RUN_MODE);
-        addSupportedRunConfig(WORKSPACE_PROJECT_RUNCONFIG_ID);
-    }
-};
-
 class WorkspaceBuildConfiguration : public BuildConfiguration
 {
     Q_OBJECT
@@ -752,7 +741,7 @@ void setupWorkspaceProject(QObject *guard)
         });
 
     static WorkspaceProjectRunConfigurationFactory theRunConfigurationFactory;
-    static WorkspaceProjectRunWorkerFactory theRunWorkerFactory;
+    static ProcessRunnerFactory theRunWorkerFactory{{WORKSPACE_PROJECT_RUNCONFIG_ID}};
     static WorkspaceBuildConfigurationFactory theBuildConfigurationFactory;
 }
 
