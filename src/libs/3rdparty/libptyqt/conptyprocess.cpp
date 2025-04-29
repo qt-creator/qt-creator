@@ -969,6 +969,8 @@ bool ConPtyProcess::startProcess(const QString &executable,
                          // Do not respawn if the object is about to be destructed
                          if (!m_aboutToDestruct) {
                              ConptyClosePseudoConsole(m_ptyHandler);
+                             if (m_readThread)
+                                  m_readThread->wait(1000);
                              m_ptyHandler = INVALID_HANDLE_VALUE;
                              emit notifier() -> aboutToClose();
                           }
