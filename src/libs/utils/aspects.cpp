@@ -2567,7 +2567,7 @@ void IntegerAspect::addToLayoutImpl(Layouting::Layout &parent)
     d->m_spinBox->setSuffix(d->m_suffix);
     d->m_spinBox->setSingleStep(d->m_singleStep);
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
-    if (d->m_maximumValue && d->m_maximumValue)
+    if (d->m_minimumValue && d->m_maximumValue)
         d->m_spinBox->setRange(int(d->m_minimumValue.value() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.value() / d->m_displayScaleFactor));
     bufferToGui();
@@ -2668,7 +2668,7 @@ void DoubleAspect::addToLayoutImpl(Layout &builder)
     d->m_spinBox->setSuffix(d->m_suffix);
     d->m_spinBox->setSingleStep(d->m_singleStep);
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
-    if (d->m_maximumValue && d->m_maximumValue)
+    if (d->m_minimumValue && d->m_maximumValue)
         d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
     bufferToGui(); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
