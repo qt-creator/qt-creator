@@ -526,6 +526,52 @@ void QtcSwitch::paintEvent([[maybe_unused]] QPaintEvent *event)
     }
 }
 
+QtcIconButton::QtcIconButton(QWidget *parent)
+    : QAbstractButton(parent)
+{
+    setAttribute(Qt::WA_Hover);
+}
+
+void QtcIconButton::paintEvent(QPaintEvent *e)
+{
+    Q_UNUSED(e)
+
+    QPainter p(this);
+    QRect r(QPoint(), size());
+
+    if (m_containsMouse && isEnabled()) {
+        QColor c = creatorColor(Theme::TextColorDisabled);
+        c.setAlphaF(c.alphaF() * .5);
+        StyleHelper::drawPanelBgRect(&p, r, c);
+    }
+
+    icon().paint(&p, r, Qt::AlignCenter);
+}
+
+void QtcIconButton::enterEvent(QEnterEvent *e)
+{
+    m_containsMouse = true;
+    e->accept();
+    update();
+}
+
+void QtcIconButton::leaveEvent(QEvent *e)
+{
+    m_containsMouse = false;
+    e->accept();
+    update();
+}
+
+QSize QtcIconButton::sizeHint() const
+{
+    QSize s = icon().actualSize(QSize(32, 16)) + QSize(8, 8);
+
+    if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Relaxed)
+        s += QSize(5, 5);
+
+    return s;
+}
+
 namespace QtcWidgets {
 
 Button::Button()
@@ -552,6 +598,27 @@ void Button::setIcon(const Icon &icon)
 void Button::setRole(QtcButton::Role role)
 {
     Layouting::Tools::access(this)->setRole(role);
+}
+
+IconButton::IconButton()
+{
+    ptr = new Implementation(nullptr);
+}
+
+IconButton::IconButton(std::initializer_list<I> ps)
+{
+    ptr = new Implementation(nullptr);
+    Layouting::Tools::apply(this, ps);
+}
+
+void IconButton::setIcon(const Icon &icon)
+{
+    Layouting::Tools::access(this)->setIcon(icon.icon());
+}
+
+void IconButton::onClicked(QObject *guard, const std::function<void()> &func)
+{
+    QObject::connect(Layouting::Tools::access(this), &QtcIconButton::clicked, guard, func);
 }
 
 } // namespace QtcWidgets

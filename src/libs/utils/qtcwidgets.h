@@ -112,6 +112,21 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 };
 
+class QTCREATOR_UTILS_EXPORT QtcIconButton : public QAbstractButton
+{
+public:
+    QtcIconButton(QWidget *parent = nullptr);
+
+    void paintEvent(QPaintEvent *e) override;
+    void enterEvent(QEnterEvent *e) override;
+    void leaveEvent(QEvent *e) override;
+
+    QSize sizeHint() const override;
+
+private:
+    bool m_containsMouse{false};
+};
+
 namespace QtcWidgets {
 
 class QTCREATOR_UTILS_EXPORT Button : public Layouting::Widget
@@ -124,6 +139,17 @@ public:
     void setText(const QString &text);
     void setIcon(const Utils::Icon &icon);
     void setRole(QtcButton::Role role);
+};
+
+class QTCREATOR_UTILS_EXPORT IconButton : public Layouting::Widget
+{
+public:
+    using Implementation = QtcIconButton;
+    using I = Building::BuilderItem<IconButton>;
+    IconButton();
+    IconButton(std::initializer_list<I> ps);
+    void setIcon(const Utils::Icon &icon);
+    void onClicked(QObject *guard, const std::function<void()> &);
 };
 
 } // namespace QtcWidgets

@@ -8,7 +8,6 @@
 #include "environment.h"
 #include "fancylineedit.h"
 #include "guard.h"
-#include "iconbutton.h"
 #include "layoutbuilder.h"
 #include "macroexpander.h"
 #include "passworddialog.h"
@@ -17,6 +16,7 @@
 #include "qtcassert.h"
 #include "qtcolorbutton.h"
 #include "qtcsettings.h"
+#include "qtcwidgets.h"
 #include "stylehelper.h"
 #include "utilsicons.h"
 #include "utilstr.h"
@@ -3803,7 +3803,7 @@ void AspectList::addToLayoutImpl(Layouting::Layout &parent)
         Column column;
 
         for (const std::shared_ptr<BaseAspect> &item : volatileItems()) {
-            auto removeBtn = new IconButton;
+            auto removeBtn = new QtcIconButton;
             removeBtn->setIcon(Utils::Icons::EDIT_CLEAR.icon());
             removeBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             QObject::connect(removeBtn, &QPushButton::clicked, removeBtn, [this, item] {

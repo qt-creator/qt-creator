@@ -179,8 +179,6 @@ QtcLibrary {
         "htmldocextractor.h",
         "icon.cpp",
         "icon.h",
-        "iconbutton.cpp",
-        "iconbutton.h",
         "icondisplay.cpp",
         "icondisplay.h",
         "id.cpp",
