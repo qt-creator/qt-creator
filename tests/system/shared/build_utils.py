@@ -77,7 +77,7 @@ def checkCompile(expectToFail=False):
         return False
 
 def compileSucceeded(compileOutput):
-    return None != re.match(".*exited normally\.\n\d\d:\d\d:\d\d: Elapsed time: "
+    return None != re.match(".*finished successfully\.\n\d\d:\d\d:\d\d: Elapsed time: "
                             "(\d:)?\d{2}:\d\d\.$", str(compileOutput), re.S)
 
 def waitForCompile(timeout=60000):
