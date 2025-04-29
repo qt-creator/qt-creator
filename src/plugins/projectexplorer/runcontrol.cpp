@@ -385,12 +385,6 @@ void RunControl::start()
     ProjectExplorerPlugin::startRunControl(this);
 }
 
-void RunControl::resetDataForAttachToCore()
-{
-    d->m_workers.clear();
-    d->state = RunState::Initialized;
-}
-
 void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return);

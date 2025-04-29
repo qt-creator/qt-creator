@@ -126,7 +126,6 @@ public:
 
     void copyDataFromRunConfiguration(RunConfiguration *runConfig);
     void copyDataFromRunControl(RunControl *runControl);
-    void resetDataForAttachToCore();
 
     void setRunRecipe(const Tasking::Group &group);
 

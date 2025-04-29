@@ -656,7 +656,6 @@ void EnginesDriver::start()
             connect(engine, &DebuggerEngine::attachToCoreRequested, this, [this](const QString &coreFile) {
                 auto rc = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
                 rc->copyDataFromRunControl(m_runControl);
-                rc->resetDataForAttachToCore();
                 auto name = QString(Tr::tr("%1 - Snapshot %2").arg(m_runControl->displayName()).arg(++m_snapshotCounter));
                 DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(rc);
                 rp.setStartMode(AttachToCore);
