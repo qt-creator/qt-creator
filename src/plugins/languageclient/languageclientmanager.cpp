@@ -717,9 +717,14 @@ void LanguageClientManager::updateProject(BuildConfiguration *bc)
 
 void LanguageClientManager::buildConfigurationAdded(BuildConfiguration *bc)
 {
-    connect(bc->project(), &ProjectExplorer::Project::fileListChanged, this, [this, bc] {
-        updateProject(bc);
-    });
+    connect(
+        bc->project(),
+        &ProjectExplorer::Project::fileListChanged,
+        this,
+        [this, bc = QPointer<BuildConfiguration>(bc)] {
+            if (bc)
+                updateProject(bc);
+        });
     const QList<Client *> &clients = reachableClients();
     for (Client *client : clients)
         client->buildConfigurationOpened(bc);
