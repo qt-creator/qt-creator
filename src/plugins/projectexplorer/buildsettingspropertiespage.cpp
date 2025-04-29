@@ -299,7 +299,15 @@ void BuildSettingsWidget::cloneConfiguration()
         return;
 
     bc->setDisplayName(name);
-    const FilePath buildDirectory = bc->buildDirectory();
+    const FilePath buildDirectory = BuildConfiguration::buildDirectoryFromTemplate(
+        bc->project()->projectDirectory(),
+        bc->project()->projectFilePath(),
+        bc->project()->displayName(),
+        bc->kit(),
+        name,
+        bc->buildType(),
+        bc->project()->buildSystemName());
+    bc->setBuildDirectory(buildDirectory);
     if (buildDirectory != bc->project()->projectDirectory()) {
         const FilePathPredicate isBuildDirOk = [this](const FilePath &candidate) {
             if (candidate.exists())
