@@ -20,7 +20,7 @@ using EnumerationNameView = QByteArrayView;
 class Enumeration
 {
 public:
-    Enumeration() = default;
+    constexpr Enumeration() = default;
     Enumeration(EnumerationName enumerationName)
         : m_enumerationName{std::move(enumerationName)}
     {}

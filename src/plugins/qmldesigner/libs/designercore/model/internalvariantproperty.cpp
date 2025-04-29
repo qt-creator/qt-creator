@@ -11,7 +11,7 @@ InternalVariantProperty::InternalVariantProperty(PropertyNameView name, const In
 {
 }
 
-QVariant InternalVariantProperty::value() const
+const QVariant &InternalVariantProperty::value() const
 {
     return m_value;
 }
