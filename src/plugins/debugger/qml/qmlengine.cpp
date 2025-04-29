@@ -33,13 +33,11 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmldebug/qmldebugconnection.h>
 #include <qmldebug/qpacketprotocol.h>
-#include <qtsupport/baseqtversion.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 #include <utils/basetreeview.h>
-#include <utils/fileinprojectfinder.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
@@ -213,8 +211,6 @@ public:
     QmlDebug::QDebugMessageClient *msgClient = nullptr;
 
     QHash<int, QmlCallback> callbackForToken;
-
-    FileInProjectFinder fileFinder;
 
     bool skipFocusOnNextHandleFrame = false;
 
@@ -2459,16 +2455,7 @@ void QmlEnginePrivate::flushSendBuffer()
 
 FilePath QmlEngine::toFileInProject(const QUrl &fileUrl)
 {
-    // make sure file finder is properly initialized
-    const DebuggerRunParameters &rp = runParameters();
-    d->fileFinder.setProjectDirectory(rp.projectSourceDirectory());
-    d->fileFinder.setProjectFiles(rp.projectSourceFiles());
-    d->fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories());
-    d->fileFinder.setSysroot(rp.sysRoot());
-    if (BuildConfiguration *bc = activeBuildConfigForActiveProject())
-        QtSupport::QtVersion::populateQmlFileFinder(&d->fileFinder, bc);
-
-    const FilePaths paths =  d->fileFinder.findFile(fileUrl);
+    const FilePaths paths = runParameters().findQmlFile(fileUrl);
     return paths.isEmpty() ? FilePath() : paths.first();
 }
 

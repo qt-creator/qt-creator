@@ -19,6 +19,8 @@
 
 #include <remotelinux/remotelinux_constants.h>
 
+#include <qtsupport/baseqtversion.h>
+
 #include <solutions/tasking/barrier.h>
 #include <solutions/tasking/conditional.h>
 
@@ -280,6 +282,9 @@ ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
             [exec = runParameters.inferior().command.executable()] { return exec; });
 
         runControl->setDisplayName(runParameters.displayName());
+
+        if (runParameters.isQmlDebugging())
+            runParameters.populateQmlFileFinder(runControl);
 
         if (auto interpreterAspect = runControl->aspectData<FilePathAspect>()) {
             if (auto mainScriptAspect = runControl->aspectData<MainScriptAspect>()) {

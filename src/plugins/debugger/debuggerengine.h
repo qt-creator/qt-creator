@@ -16,6 +16,7 @@
 
 #include <texteditor/textmark.h>
 
+#include <utils/fileinprojectfinder.h>
 #include <utils/filepath.h>
 #include <utils/outputformat.h>
 #include <utils/processhandle.h>
@@ -270,6 +271,9 @@ public:
     void setAddQmlServerInferiorCmdArgIfNeeded(bool on) { m_addQmlServerInferiorCmdArgIfNeeded = on; }
     bool isAddQmlServerInferiorCmdArgIfNeeded() const { return m_addQmlServerInferiorCmdArgIfNeeded; }
 
+    Utils::FilePaths findQmlFile(const QUrl &url) const;
+    void populateQmlFileFinder(const ProjectExplorer::RunControl *runControl);
+
 private:
     DebuggerStartMode m_startMode = NoStartMode;
     DebuggerCloseMode m_closeMode = KillAtClose;
@@ -369,6 +373,8 @@ private:
     bool m_serverEssential = true;
     bool m_skipDebugServer = false;
     bool m_addQmlServerInferiorCmdArgIfNeeded = false;
+
+    Utils::FileInProjectFinder m_qmlFileFinder;
 };
 
 namespace Internal {
