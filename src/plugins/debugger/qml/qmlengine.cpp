@@ -25,6 +25,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 
@@ -32,6 +33,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmldebug/qmldebugconnection.h>
 #include <qmldebug/qpacketprotocol.h>
+#include <qtsupport/baseqtversion.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -2463,8 +2465,11 @@ FilePath QmlEngine::toFileInProject(const QUrl &fileUrl)
     d->fileFinder.setProjectFiles(rp.projectSourceFiles());
     d->fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories());
     d->fileFinder.setSysroot(rp.sysRoot());
+    if (BuildConfiguration *bc = activeBuildConfigForActiveProject())
+        QtSupport::QtVersion::populateQmlFileFinder(&d->fileFinder, bc);
 
-    return d->fileFinder.findFile(fileUrl).constFirst();
+    const FilePaths paths =  d->fileFinder.findFile(fileUrl);
+    return paths.isEmpty() ? FilePath() : paths.first();
 }
 
 DebuggerEngine *createQmlEngine()
