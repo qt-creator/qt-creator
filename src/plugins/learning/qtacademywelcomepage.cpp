@@ -4,6 +4,7 @@
 #include "qtacademywelcomepage.h"
 
 #include "learningtr.h"
+#include "utils/algorithm.h"
 
 #include <coreplugin/welcomepagehelper.h>
 
@@ -90,6 +91,27 @@ static QString courseId(const QJsonObject &courseObj)
     return QString::number(courseObj.value("id").toInt());
 }
 
+static bool courseIsValid(const QJsonObject &courseObj)
+{
+    const bool cataloged = courseObj.value("cataloged").toBool();
+    if (!cataloged)
+        return false;
+
+    const QStringList courseKeywords = courseTags(courseObj);
+    const bool keywordsValid = Utils::anyOf(courseKeywords, [](const QString &keyword) {
+        static const QStringList keywordWhiteList = {
+            "Qt Creator",
+            "Qt Widgets",
+            "Qt for MCUs",
+            "Embedded",
+            "Developer Tools",
+            "Qt Framework",
+        };
+        return keywordWhiteList.contains(keyword);
+    });
+    return keywordsValid;
+}
+
 static void setJson(const QByteArray &json, ListModel *model)
 {
     QJsonParseError error;
@@ -98,8 +120,11 @@ static void setJson(const QByteArray &json, ListModel *model)
     const QJsonArray courses = jsonObj.value("courses").toArray();
     QList<ListItem *> items;
     for (const auto course : courses) {
-        auto courseItem = new CourseItem;
         const QJsonObject courseObj = course.toObject();
+        if (!courseIsValid(courseObj))
+            continue;
+
+        auto courseItem = new CourseItem;
         courseItem->name = courseName(courseObj);
         courseItem->description = courseDescription(courseObj);
         courseItem->imageUrl = courseThumbnail(courseObj);
