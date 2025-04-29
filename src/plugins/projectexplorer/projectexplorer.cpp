@@ -659,7 +659,7 @@ public:
     FilesInAllProjectsFind m_filesInAllProjectsFind;
 
     CustomExecutableRunConfigurationFactory m_customExecutableRunConfigFactory;
-    CustomExecutableRunWorkerFactory m_customExecutableRunWorkerFactory;
+    ProcessRunnerFactory m_customExecutableRunWorkerFactory{{Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID}};
 
     ProjectFileWizardExtension m_projectFileWizardExtension;
 

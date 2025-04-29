@@ -38,10 +38,4 @@ public:
     CustomExecutableRunConfigurationFactory();
 };
 
-class CustomExecutableRunWorkerFactory : public RunWorkerFactory
-{
-public:
-    CustomExecutableRunWorkerFactory();
-};
-
 } // namespace ProjectExplorer
