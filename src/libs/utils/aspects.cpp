@@ -3784,7 +3784,7 @@ static void destroyLayout(QLayout *layout)
     if (layout) {
         while (QLayoutItem *child = layout->takeAt(0)) {
             delete child->widget();
-            delete child;
+            destroyLayout(child->layout());
         }
         delete layout;
     }
@@ -3800,35 +3800,39 @@ void AspectList::addToLayoutImpl(Layouting::Layout &parent)
     auto fill = [this, group] {
         destroyLayout(group->layout());
 
-        Column column;
-
-        for (const std::shared_ptr<BaseAspect> &item : volatileItems()) {
-            auto removeBtn = new QtcIconButton;
-            removeBtn->setIcon(Utils::Icons::EDIT_CLEAR.icon());
-            removeBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-            QObject::connect(removeBtn, &QPushButton::clicked, removeBtn, [this, item] {
-                removeItem(item);
-            });
-
+        const auto createRow = [this](const std::shared_ptr<BaseAspect> &item) {
+            using namespace Utils::QtcWidgets;
             // clang-format off
-            QWidget *rowWdgt = Row {
+            return Row {
                 *item,
-                removeBtn,
+                IconButton {
+                    ::icon(Utils::Icons::EDIT_CLEAR),
+                    sizePolicy(QSizePolicy{QSizePolicy::Fixed, QSizePolicy::Fixed}),
+                    onClicked(this, [this, item] {
+                        removeItem(item);
+                    })
+                },
                 spacing(5),
                 noMargin,
-            }.emerge();
+            };
             // clang-format on
-            column.addItem(rowWdgt);
-        }
+        };
 
-        auto add = new QPushButton(Tr::tr("Add"));
-        QObject::connect(add, &QPushButton::clicked, this, [this] {
-            addItem(d->createItem());
-        });
-
-        column.addItem(Row{st, add, noMargin}.emerge());
-
-        column.attachTo(group);
+        // clang-format off
+        Column {
+            Utils::transform(volatileItems(), createRow),
+            Row {
+                noMargin,
+                st,
+                PushButton {
+                    text(Tr::tr("Add")),
+                    onClicked(this, [this](){
+                        addItem(d->createItem());
+                    })
+                }
+            }
+        }.attachTo(group);
+        // clang-format on
     };
 
     fill();
