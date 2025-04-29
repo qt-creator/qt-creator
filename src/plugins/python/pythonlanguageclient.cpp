@@ -411,22 +411,29 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
             auto message = Tr::tr("Update Python language server (PyLS) for %1 (%2).")
                                .arg(pythonName(python), python.toUserOutput());
             InfoBarEntry info(updatePylsInfoBarId, message);
-            info.addCustomButton(Tr::tr("Always Update"), [this, python, document, state] {
-                document->infoBar()->removeInfo(updatePylsInfoBarId);
-                Core::ICore::settings()->setValue(alwaysUpdateKey, true);
-                InfoBar::globallySuppressInfo(updatePylsInfoBarId);
-                installPythonLanguageServer(python, document, state.pylsModulePath, false, true);
-            });
-            info.addCustomButton(Tr::tr("Update"), [this, python, document, state] {
-                document->infoBar()->removeInfo(updatePylsInfoBarId);
-                installPythonLanguageServer(python, document, state.pylsModulePath, false, true);
-            });
-            info.addCustomButton(Tr::tr("Never"), [document, python] {
-                document->infoBar()->removeInfo(updatePylsInfoBarId);
-                InfoBar::globallySuppressInfo(updatePylsInfoBarId);
-                if (auto client = clientForPython(python))
-                    LanguageClientManager::openDocumentWithClient(document, client);
-            });
+            info.addCustomButton(
+                Tr::tr("Always Update"),
+                [this, python, document, state] {
+                    Core::ICore::settings()->setValue(alwaysUpdateKey, true);
+                    installPythonLanguageServer(python, document, state.pylsModulePath, false, true);
+                },
+                {},
+                InfoBarEntry::ButtonAction::SuppressPersistently);
+            info.addCustomButton(
+                Tr::tr("Update"),
+                [this, python, document, state] {
+                    installPythonLanguageServer(python, document, state.pylsModulePath, false, true);
+                },
+                {},
+                InfoBarEntry::ButtonAction::Hide);
+            info.addCustomButton(
+                Tr::tr("Never"),
+                [document, python] {
+                    if (auto client = clientForPython(python))
+                        LanguageClientManager::openDocumentWithClient(document, client);
+                },
+                {},
+                InfoBarEntry::ButtonAction::SuppressPersistently);
             info.setCancelButtonInfo([python, document]{
                 if (auto client = clientForPython(python))
                     LanguageClientManager::openDocumentWithClient(document, client);

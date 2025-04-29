@@ -185,10 +185,11 @@ static void checkSystemForClangdSuitability()
         });
         return label;
     });
-    info.addCustomButton(Tr::tr("Enable Anyway"), [clangdWarningSetting] {
-        ClangdSettings::setUseClangdAndSave(true);
-        ICore::infoBar()->removeInfo(clangdWarningSetting);
-    });
+    info.addCustomButton(
+        Tr::tr("Enable Anyway"),
+        [] { ClangdSettings::setUseClangdAndSave(true); },
+        {},
+        InfoBarEntry::ButtonAction::Hide);
     ICore::infoBar()->addInfo(info);
 }
 

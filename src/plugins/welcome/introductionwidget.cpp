@@ -431,11 +431,11 @@ void askUserAboutIntroduction()
                     "select Help > UI Tour."),
              InfoBarEntry::GlobalSuppression::Enabled);
     info.setTitle(Tr::tr("UI Tour"));
-    info.addCustomButton(Tr::tr("Take UI Tour"), [infoBar] {
-        infoBar->removeInfo(kTakeTourSetting);
-        infoBar->globallySuppressInfo(kTakeTourSetting);
-        runUiTour();
-    });
+    info.addCustomButton(
+        Tr::tr("Take UI Tour"),
+        [] { runUiTour(); },
+        {},
+        InfoBarEntry::ButtonAction::SuppressPersistently);
     infoBar->addInfo(info);
 }
 

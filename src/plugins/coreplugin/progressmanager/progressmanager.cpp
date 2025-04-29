@@ -274,7 +274,9 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
         auto infoWidgetButton = new QToolButton;
         infoWidgetButton->setText(button.text);
         infoWidgetButton->setToolTip(button.tooltip);
-        connect(infoWidgetButton, &QAbstractButton::clicked, [button] { button.callback(); });
+        connect(infoWidgetButton, &QAbstractButton::clicked, [button, infoBar, id] {
+            infoBar->triggerButton(id, button);
+        });
         buttonLayout->addWidget(infoWidgetButton);
     }
 

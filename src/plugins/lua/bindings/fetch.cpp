@@ -233,18 +233,21 @@ void setupFetchModule()
                     list->setMargin(StyleHelper::SpacingTokens::ExPaddingGapS);
                     return list;
                 });
-                entry.addCustomButton(Tr::tr("Always Allow"), [mod, pluginName, fetch]() {
-                    mod->setAllowedToFetch(pluginName, Module::IsAllowed::Yes);
-                    ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
-                    fetch();
-                });
-                entry.addCustomButton(Tr::tr("Allow Once"), [pluginName, fetch]() {
-                    ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
-                    fetch();
-                });
+                entry.addCustomButton(
+                    Tr::tr("Always Allow"),
+                    [mod, pluginName, fetch]() {
+                        mod->setAllowedToFetch(pluginName, Module::IsAllowed::Yes);
+                        fetch();
+                    },
+                    {},
+                    InfoBarEntry::ButtonAction::Hide);
+                entry.addCustomButton(
+                    Tr::tr("Allow Once"),
+                    [pluginName, fetch]() { fetch(); },
+                    {},
+                    InfoBarEntry::ButtonAction::Hide);
 
                 entry.setCancelButtonInfo(Tr::tr("Deny"), [mod, notAllowed, pluginName]() {
-                    ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
                     mod->setAllowedToFetch(pluginName, Module::IsAllowed::No);
                     notAllowed();
                 });

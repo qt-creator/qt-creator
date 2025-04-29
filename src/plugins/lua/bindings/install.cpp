@@ -364,10 +364,11 @@ void setupInstallModule()
 
                     InfoBarEntry entry(infoBarId, msg, InfoBarEntry::GlobalSuppression::Enabled);
 
-                    entry.addCustomButton(Tr::tr("Install"), [install, infoBarId]() {
-                        install();
-                        ICore::infoBar()->removeInfo(infoBarId);
-                    });
+                    entry.addCustomButton(
+                        Tr::tr("Install"),
+                        [install]() { install(); },
+                        {},
+                        InfoBarEntry::ButtonAction::Hide);
 
                     entry.setCancelButtonInfo(denied);
 

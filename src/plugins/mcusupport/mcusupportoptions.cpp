@@ -268,12 +268,15 @@ void McuSupportOptions::displayKitCreationMessages(const MessagesList messages,
                              Tr::tr("Errors while creating Qt for MCUs kits"),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
 
-    info.addCustomButton(Tr::tr("Details"), [messages, &settingsHandler, qtMCUsPackage] {
-        auto popup = new McuKitCreationDialog(messages, settingsHandler, qtMCUsPackage);
-        popup->exec();
-        delete popup;
-        Core::ICore::infoBar()->removeInfo(mcuKitCreationErrorInfoId);
-    });
+    info.addCustomButton(
+        Tr::tr("Details"),
+        [messages, &settingsHandler, qtMCUsPackage] {
+            auto popup = new McuKitCreationDialog(messages, settingsHandler, qtMCUsPackage);
+            popup->exec();
+            delete popup;
+        },
+        {},
+        InfoBarEntry::ButtonAction::Hide);
 
     Core::ICore::infoBar()->addInfo(info);
 }

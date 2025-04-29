@@ -167,11 +167,10 @@ InfoBarEntry::GlobalSuppression InfoBarEntry::globalSuppression() const
     return m_globalSuppression;
 }
 
-void InfoBarEntry::addCustomButton(const QString &buttonText,
-                                   CallBack callBack,
-                                   const QString &tooltip)
+void InfoBarEntry::addCustomButton(
+    const QString &buttonText, CallBack callBack, const QString &tooltip, ButtonAction action)
 {
-    m_buttons.append({buttonText, callBack, tooltip});
+    m_buttons.append({buttonText, callBack, tooltip, action});
 }
 
 void InfoBarEntry::setCancelButtonInfo(CallBack callBack)
@@ -338,6 +337,26 @@ QList<InfoBarEntry> InfoBar::entries() const
     return m_infoBarEntries;
 }
 
+void InfoBar::triggerButton(const Id &entryId, const InfoBarEntry::Button &button)
+{
+    switch (button.action) {
+    case InfoBarEntry::ButtonAction::Hide:
+        removeInfo(entryId);
+        break;
+    case InfoBarEntry::ButtonAction::Suppress:
+        suppressInfo(entryId); // hiding is implicit
+        break;
+    case InfoBarEntry::ButtonAction::SuppressPersistently:
+        removeInfo(entryId);
+        globallySuppressInfo(entryId);
+        break;
+        break;
+    case InfoBarEntry::ButtonAction::None:
+        break;
+    }
+    button.callback();
+}
+
 void InfoBar::clearGloballySuppressed()
 {
     globallySuppressed.clear();
@@ -491,7 +510,9 @@ void InfoBarDisplay::update()
             auto infoWidgetButton = new QToolButton;
             infoWidgetButton->setText(button.text);
             infoWidgetButton->setToolTip(button.tooltip);
-            connect(infoWidgetButton, &QAbstractButton::clicked, [button] { button.callback(); });
+            connect(infoWidgetButton, &QAbstractButton::clicked, this, [button, this, id = info.id()] {
+                m_infoBar->triggerButton(id, button);
+            });
             hbox->addWidget(infoWidgetButton);
         }
 
