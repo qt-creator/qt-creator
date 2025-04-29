@@ -165,7 +165,7 @@ private:
     {
 #ifdef WITH_TESTS
         // Uncomment for testing with local json data.
-        // setJson(FileUtils::fetchQrc(":/learning/testdata/courses.json"), m_model); return;
+        // setJson(FileUtils::fetchQrc(":/learning/testdata/courses.json").toUtf8(), m_model); return;
 #endif // WITH_TESTS
 
         using namespace Tasking;
