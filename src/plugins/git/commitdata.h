@@ -20,7 +20,6 @@ namespace Git::Internal {
 class GitSubmitEditorPanelInfo
 {
 public:
-    void clear();
     Utils::FilePath repository;
     QString branch;
 };
@@ -34,15 +33,14 @@ enum PushAction {
 class GitSubmitEditorPanelData
 {
 public:
-    void clear();
     // Format as "John Doe <jdoe@foobar.com>"
     QString authorString() const;
 
     QString author;
     QString email;
-    bool bypassHooks;
-    PushAction pushAction;
-    bool signOff;
+    bool bypassHooks = false;
+    PushAction pushAction = NoPush;
+    bool signOff = false;
 };
 
 enum FileState {
