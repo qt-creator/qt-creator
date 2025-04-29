@@ -5,32 +5,12 @@
 
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
-#include <utils/result.h>
-
-#include <QProgressDialog>
-
-namespace Utils { class FilePath; }
+#include <utils/filepath.h>
 
 namespace RemoteLinux::Internal {
 
-class PublicKeyDeploymentDialogPrivate;
-
-class PublicKeyDeploymentDialog : public QProgressDialog
-{
-    Q_OBJECT
-public:
-    // Asks for public key and returns null if the file dialog is canceled.
-    static PublicKeyDeploymentDialog *createDialog(const ProjectExplorer::DeviceConstRef &device);
-
-    PublicKeyDeploymentDialog(const ProjectExplorer::DeviceConstRef &device,
-                              const Utils::FilePath &publicKeyFileName);
-
-    ~PublicKeyDeploymentDialog() override;
-
-private:
-    void handleDeploymentDone(const Utils::Result<> &result);
-
-    Internal::PublicKeyDeploymentDialogPrivate * const d;
-};
+// Asks for public key and returns true if the file dialog is not canceled.
+bool runPublicKeyDeploymentDialog(const ProjectExplorer::DeviceConstRef &device,
+                                  const Utils::FilePath &publicKeyFilePath = {});
 
 } // namespace RemoteLinux::Internal

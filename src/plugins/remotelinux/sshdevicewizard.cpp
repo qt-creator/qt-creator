@@ -110,9 +110,9 @@ public:
         m_keyFileChooser.setPromptDialogTitle(Tr::tr("Choose a Private Key File"));
         auto const deployButton = new QPushButton(Tr::tr("Deploy Public Key"), this);
         connect(deployButton, &QPushButton::clicked, this, [this] {
-            Internal::PublicKeyDeploymentDialog dlg(
+            const bool success = Internal::runPublicKeyDeploymentDialog(
                 m_device, m_keyFileChooser.filePath().stringAppended(".pub"));
-            m_iconLabel.setPixmap((dlg.exec() == QDialog::Accepted ? Icons::OK : Icons::BROKEN).pixmap());
+            m_iconLabel.setPixmap((success ? Icons::OK : Icons::BROKEN).pixmap());
         });
         auto const createButton = new QPushButton(Tr::tr("Create New Key Pair"), this);
         connect(createButton, &QPushButton::clicked, this, [this] {

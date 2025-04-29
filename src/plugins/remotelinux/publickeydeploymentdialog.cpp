@@ -17,49 +17,44 @@
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
+#include <QProgressDialog>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace RemoteLinux::Internal {
 
-class PublicKeyDeploymentDialogPrivate
+class PublicKeyDeploymentDialog : public QProgressDialog
 {
 public:
-    Process m_process;
-    bool m_done;
-};
+    PublicKeyDeploymentDialog(const DeviceConstRef &device, const FilePath &publicKeyFileName);
 
-PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(const DeviceConstRef &device)
-{
-    const FilePath dir = device.sshParameters().privateKeyFile().parentDir();
-    const FilePath publicKeyFileName = FileUtils::getOpenFilePath(
-        Tr::tr("Choose Public Key File"), dir,
-        Tr::tr("Public Key Files (*.pub);;All Files (*)"));
-    if (publicKeyFileName.isEmpty())
-        return nullptr;
-    return new PublicKeyDeploymentDialog(device, publicKeyFileName);
-}
+private:
+    void handleDeploymentDone(const Result<> &result);
+
+    Process m_process;
+    bool m_done = false;
+};
 
 PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &device,
                                                      const FilePath &publicKeyFileName)
-    : QProgressDialog(Core::ICore::dialogParent()), d(new PublicKeyDeploymentDialogPrivate)
+    : QProgressDialog(Core::ICore::dialogParent())
 {
     setAutoReset(false);
     setAutoClose(false);
     setMinimumDuration(0);
     setMaximum(1);
 
-    d->m_done = false;
     setLabelText(Tr::tr("Deploying..."));
     setValue(0);
     connect(this, &PublicKeyDeploymentDialog::canceled, this,
-            [this] { d->m_done ? accept() : reject(); });
-    connect(&d->m_process, &Process::done, this, [this] {
-        const bool succeeded = d->m_process.result() == ProcessResult::FinishedWithSuccess;
+            [this] { m_done ? accept() : reject(); });
+    connect(&m_process, &Process::done, this, [this] {
+        const bool succeeded = m_process.result() == ProcessResult::FinishedWithSuccess;
         Result<> result = ResultOk;
         if (!succeeded) {
-            const QString errorString = d->m_process.errorString();
-            const QString errorMessage = d->m_process.exitMessage(
+            const QString errorString = m_process.errorString();
+            const QString errorMessage = m_process.exitMessage(
                 Process::FailureMessageFormat::WithStdErr);
             result = ResultError(Utils::joinStrings({Tr::tr("Key deployment failed."),
                                                Utils::trimBack(errorMessage, '\n')}, '\n'));
@@ -84,7 +79,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
             && SshSettings::sshFilePath().toUrlishString().toLower().contains("/system32/");
     const bool useTimeout = (params.timeout() != 0) && !isWindows;
 
-    Utils::CommandLine cmd{SshSettings::sshFilePath()};
+    CommandLine cmd{SshSettings::sshFilePath()};
     QStringList args{"-q",
                      "-o", "StrictHostKeyChecking=" + hostKeyCheckingString,
                      "-o", "Port=" + QString::number(params.port())};
@@ -100,14 +95,9 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
     ProcessArgs::addArg(&execCommandString, command, OsType::OsTypeLinux);
     cmd.addArg(execCommandString);
 
-    d->m_process.setCommand(cmd);
-    SshParameters::setupSshEnvironment(&d->m_process);
-    d->m_process.start();
-}
-
-PublicKeyDeploymentDialog::~PublicKeyDeploymentDialog()
-{
-    delete d;
+    m_process.setCommand(cmd);
+    SshParameters::setupSshEnvironment(&m_process);
+    m_process.start();
 }
 
 void PublicKeyDeploymentDialog::handleDeploymentDone(const Result<> &result)
@@ -123,7 +113,23 @@ void PublicKeyDeploymentDialog::handleDeploymentDone(const Result<> &result)
         return;
 
     setValue(1);
-    d->m_done = true;
+    m_done = true;
+}
+
+bool runPublicKeyDeploymentDialog(const DeviceConstRef &device, const FilePath &publicKeyFilePath)
+{
+    FilePath keyPath = publicKeyFilePath;
+    if (keyPath.isEmpty()) {
+        const FilePath dir = device.sshParameters().privateKeyFile().parentDir();
+        keyPath = FileUtils::getOpenFilePath(
+            Tr::tr("Choose Public Key File"), dir,
+            Tr::tr("Public Key Files (*.pub);;All Files (*)"));
+    }
+    if (keyPath.isEmpty())
+        return false;
+
+    PublicKeyDeploymentDialog dialog(device, keyPath);
+    return dialog.exec() == QDialog::Accepted;
 }
 
 } // namespace RemoteLinux::Internal
