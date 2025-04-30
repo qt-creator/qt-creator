@@ -119,7 +119,7 @@ public:
     QHBoxLayout *m_pluginButtons = nullptr;
 };
 
-class WelcomeModeWidget final : public ResizeSignallingWidget
+class WelcomeModeWidget final : public QWidget
 {
 public:
     WelcomeModeWidget()
@@ -145,14 +145,6 @@ public:
         }.attachTo(this);
 
         IContext::attach(this, {}, "Qt Creator Manual");
-
-        connect(this, &ResizeSignallingWidget::resized,
-                this, [this] {
-            const QSize topAreaS = m_topArea->size();
-            const QSize mainWindowS = ICore::mainWindow()->size();
-            const bool showTopArea = topAreaS.height() < mainWindowS.height() / 8.85;
-            m_topArea->setVisible(showTopArea);
-        });
     }
 
     ~WelcomeModeWidget()
