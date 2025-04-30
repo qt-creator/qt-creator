@@ -13,6 +13,7 @@
 #include <coreplugin/manhattanstyle.h>
 
 using namespace Utils;
+using namespace Qt::StringLiterals;
 
 int main(int argc, char *argv[])
 {
@@ -111,13 +112,18 @@ int main(int argc, char *argv[])
     infoBarDisplay.setInfoBar(&infoBar);
     QList<InfoBarEntry*> infoBarEntries;
     for (auto label : labels) {
-        auto infoBarEntry = new InfoBarEntry(Id::generate(), label.text);
+        auto infoBarEntry = new InfoBarEntry(Id::generate(),
+                                             "%1 - %2 %2"_L1.arg(label.text).arg(label.tooltip));
         infoBarEntries.append(infoBarEntry);
         infoBarEntry->setInfoType(label.type);
+        infoBarEntry->addCustomButton("Button 1", []{});
+        infoBarEntry->addCustomButton("Button 2", []{});
+        if (label.type != InfoLabel::None)
+            infoBarEntry->setTitle(label.text);
         infoBar.addInfo(*infoBarEntry);
     }
 
-    widget->resize(350, 500);
+    widget->resize(600, 500);
     widget->show();
 
     const int returnCode = app.exec();

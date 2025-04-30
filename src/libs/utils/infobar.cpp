@@ -7,6 +7,7 @@
 #include "infolabel.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
+#include "stylehelper.h"
 #include "utilsicons.h"
 #include "utilstr.h"
 
@@ -19,10 +20,13 @@
 
 static const char C_SUPPRESSED_WARNINGS[] = "SuppressedWarnings";
 
+using namespace Qt::StringLiterals;
+
 namespace Utils {
 
 QSet<Id> InfoBar::globallySuppressed;
 QtcSettings *InfoBar::m_settings = nullptr;
+const int spacing = 6;
 
 Theme::Color foregroundThemeColor(InfoLabel::InfoType infoType)
 {
@@ -80,8 +84,14 @@ InfoBarWidget::InfoBarWidget(Qt::Edge edge, InfoLabel::InfoType infoType, QWidge
     , m_infoType(infoType)
 {
     const bool topEdge = m_edge == Qt::TopEdge;
-    const int leftMargin = m_infoType == InfoLabel::None ? 2 : 26;
-    setContentsMargins(leftMargin, topEdge ? 0 : 1, 0, topEdge ? 1 : 0);
+    int leftMargin = 2;
+    if (m_infoType != InfoLabel::None) {
+        const int iconSize = icon().pixmap().deviceIndependentSize().height();
+        const int iconAndMarginSize = spacing + iconSize + spacing;
+        setMinimumHeight(iconAndMarginSize);
+        leftMargin = iconAndMarginSize;
+    }
+    setContentsMargins(leftMargin, (topEdge ? 0 : 1), 0, (topEdge ? 1 : 0));
 }
 
 void InfoBarWidget::paintEvent(QPaintEvent *event)
@@ -92,7 +102,8 @@ void InfoBarWidget::paintEvent(QPaintEvent *event)
     if (m_infoType != InfoLabel::None) {
         const QPixmap pixmap = icon().pixmap();
         const int iconY = (height() - pixmap.deviceIndependentSize().height()) / 2;
-        p.drawPixmap(2, iconY, pixmap);
+        const int nudge = 1;
+        p.drawPixmap(spacing + nudge, iconY, pixmap);
     }
     const QRectF adjustedRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
     const bool topEdge = m_edge == Qt::TopEdge;
@@ -458,7 +469,19 @@ void InfoBarDisplay::update()
         vbox->setContentsMargins(0, 0, 0, 0);
         vbox->addLayout(hbox);
 
-        QLabel *infoWidgetLabel = new QLabel(info.text());
+        QLabel *infoWidgetLabel = new QLabel;
+        QString labelText = info.text();
+        if (const QString title = info.title(); !title.isEmpty()) {
+            const QString fontCSS =
+                StyleHelper::fontToCssProperties(StyleHelper::uiFont(StyleHelper::UiElementH5));
+            const QString colorName = creatorColor(foregroundThemeColor(info.infoType())).name();
+            const QString titleCss = fontCSS + ";color:" + colorName;
+            const QString titleHtml = "<span style=\"%1\">%2</span>&nbsp;&nbsp;"_L1
+                                          .arg(titleCss).arg(title);
+            labelText.prepend(titleHtml);
+            infoWidgetLabel->setTextFormat(Qt::RichText);
+        }
+        infoWidgetLabel->setText(labelText);
         infoWidgetLabel->setWordWrap(true);
         infoWidgetLabel->setOpenExternalLinks(true);
         hbox->addWidget(infoWidgetLabel, 1);
