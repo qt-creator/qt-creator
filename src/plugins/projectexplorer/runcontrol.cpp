@@ -115,7 +115,7 @@ void RunWorkerFactory::addSupportForLocalRunConfigs()
     addSupportedRunConfig(ProjectExplorer::Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
 }
 
-void RunWorkerFactory::cloneProduct(Id exitstingStepId, Id overrideId)
+void RunWorkerFactory::cloneProduct(Id exitstingStepId)
 {
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
         if (factory->m_id == exitstingStepId) {
@@ -123,15 +123,11 @@ void RunWorkerFactory::cloneProduct(Id exitstingStepId, Id overrideId)
             // Other bits are intentionally not copied as they are unlikely to be
             // useful in the cloner's context. The cloner can/has to finish the
             // setup on its own.
-            break;
+            return;
         }
     }
-    // Existence should be guaranteed by plugin dependencies. In case it fails,
-    // bark and keep the factory in a state where the invalid m_stepId keeps it
-    // inaction.
-    QTC_ASSERT(m_producer, return);
-    if (overrideId.isValid())
-        m_id = overrideId;
+    // Existence should be guaranteed by plugin dependencies. In case it fails, bark.
+    QTC_CHECK(false);
 }
 
 bool RunWorkerFactory::canCreate(Id runMode, Id deviceType, const QString &runConfigId) const
