@@ -21,7 +21,6 @@
 #include <QToolButton>
 
 using namespace Layouting;
-using QtcButton = Utils::QtcWidgets::Button;
 
 // clang-format off
 class Counter : public QObject
@@ -157,6 +156,7 @@ int main(int argc, char *argv[])
     flowlayouts->show();
 
     // clang-format off
+    using namespace Utils::QtcWidgets;
     Widget {
         windowTitle("Qtc Controls"),
 
@@ -165,8 +165,8 @@ int main(int argc, char *argv[])
             new ManualTest::ThemeSelector,
             Label { text("QtcButton:") },
             Flow {
-                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) -> QtcButton {
-                    return QtcButton{
+                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
+                    return Button{
                         text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
                         role((Utils::QtcButton::Role) r)
                     };
@@ -174,13 +174,20 @@ int main(int argc, char *argv[])
             },
             Label { text("QtcButton with Icons:") },
             Flow {
-                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) -> QtcButton {
-                    return QtcButton{
+                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
+                    return Button{
                         text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
                         role((Utils::QtcButton::Role) r),
                         icon(Utils::Icons::PLUS)
                     };
                 })
+            },
+            Row {
+                Switch {
+                    text("Switch:"),
+                    onClicked(qApp, []() { qDebug() << "Switch clicked"; })
+                },
+                st,
             },
         }
     }.emerge()->show();

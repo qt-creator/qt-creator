@@ -594,6 +594,21 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
+        gui.new_usertype<Utils::QtcWidgets::Switch>(
+            "QtcSwitch",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Utils::QtcWidgets::Switch>(children, guard);
+            }),
+            "setText",
+            &Utils::QtcWidgets::Switch::setText,
+            "setChecked",
+            &Utils::QtcWidgets::Switch::setChecked,
+            "onClicked",
+            &Utils::QtcWidgets::Switch::onClicked,
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
         gui.new_usertype<Label>(
             "Label",
             sol::call_constructor,

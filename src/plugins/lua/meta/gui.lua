@@ -195,6 +195,20 @@ gui.Role = {
 ---@return QtcButton
 function gui.QtcButton(options) end
 
+
+---@class QtcSwitch : Widget
+local QtcSwitch = {}
+
+---@class QtcSwitchOptions : BaseWidgetOptions
+---@field text? string The text of the switch.
+---@field checked? boolean Whether the switch is checked or not.
+---@field onClicked? function The function to be called when the switch is clicked.
+
+---@param options QtcSwitchOptions
+---@return QtcSwitch
+function gui.QtcSwitch(options) end
+
+
 ---@class Label : Widget
 ---@field text string Returns the content of the Label as string
 local label = {}

@@ -154,6 +154,18 @@ public:
     void onClicked(QObject *guard, const std::function<void()> &);
 };
 
+class QTCREATOR_UTILS_EXPORT Switch : public Layouting::Widget
+{
+public:
+    using Implementation = QtcSwitch;
+    using I = Building::BuilderItem<Switch>;
+    Switch();
+    Switch(std::initializer_list<I> ps);
+    void setText(const QString &text);
+    void setChecked(bool checked);
+    void onClicked(QObject *guard, const std::function<void()> &);
+};
+
 } // namespace QtcWidgets
 
 QTC_DEFINE_BUILDER_SETTER(role, setRole);
