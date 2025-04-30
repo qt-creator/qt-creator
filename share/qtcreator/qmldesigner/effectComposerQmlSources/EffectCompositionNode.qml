@@ -12,6 +12,7 @@ HelperWidgets.Section {
     id: root
 
     readonly property var backendModel: EffectComposerBackend.effectComposerModel
+    readonly property var rootView: EffectComposerBackend.rootView
     readonly property bool codeEditorOpen: root.backendModel.codeEditorIndex === root.modelIndex
 
     property int modelIndex: 0
@@ -315,7 +316,7 @@ HelperWidgets.Section {
                                                     uniformName, uniformDescription, uniformDefaultValue,
                                                     uniformMinValue, uniformMaxValue, uniformUserAdded)
                     }
-                    onOpenCodeEditor: root.backendModel.openCodeEditor(root.modelIndex)
+                    onOpenCodeEditor: root.rootView.openCodeEditor(root.modelIndex)
                 }
             }
 
@@ -393,7 +394,7 @@ HelperWidgets.Section {
 
                     onClicked: {
                         confirmForm.clear()
-                        root.backendModel.openCodeEditor(index)
+                        root.rootView.openCodeEditor(index)
                     }
                 }
 

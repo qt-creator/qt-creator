@@ -4,7 +4,7 @@
 #include "compositionnode.h"
 
 #include "effectcomposeruniformsmodel.h"
-#include "effectshaderscodeeditor.h"
+#include "effectcomposeruniformstablemodel.h"
 #include "effectutils.h"
 #include "propertyhandler.h"
 #include "uniform.h"
@@ -14,6 +14,9 @@
 #include <QJsonDocument>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QTextBlock>
+#include <QTextCursor>
+#include <QTextDocument>
 
 namespace {
 
@@ -93,7 +96,7 @@ CompositionNode::CompositionNode(const QString &effectName, const QString &qenPa
         &m_uniformsModel,
         &QAbstractItemModel::rowsRemoved,
         this,
-        &CompositionNode::rebakeRequested);
+        &CompositionNode::uniformsChanged);
 
     connect(
         &m_uniformsModel,
@@ -102,10 +105,7 @@ CompositionNode::CompositionNode(const QString &effectName, const QString &qenPa
         &CompositionNode::onUniformRenamed);
 }
 
-CompositionNode::~CompositionNode()
-{
-    EffectShadersCodeEditor::instance()->cleanFromData(m_shaderEditorData.get());
-};
+CompositionNode::~CompositionNode() = default;
 
 QString CompositionNode::fragmentCode() const
 {
@@ -127,7 +127,7 @@ QString CompositionNode::id() const
     return m_id;
 }
 
-QObject *CompositionNode::uniformsModel()
+EffectComposerUniformsModel *CompositionNode::uniformsModel()
 {
     return &m_uniformsModel;
 }
@@ -213,7 +213,7 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
         g_propertyData()->insert(uniform->name(), uniform->value());
         if (uniform->type() == Uniform::Type::Define) {
             // Changing defines requires rebaking the shaders
-            connect(uniform, &Uniform::uniformValueChanged, this, &CompositionNode::rebakeRequested);
+            connect(uniform, &Uniform::uniformValueChanged, this, &CompositionNode::uniformsChanged);
         }
     }
 
@@ -230,30 +230,6 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
                 m_requiredNodes << nodeId;
         }
     }
-}
-
-void CompositionNode::ensureCodeEditorData()
-{
-    using TextEditor::TextDocument;
-    if (m_shaderEditorData)
-        return;
-
-    m_shaderEditorData.reset(EffectShadersCodeEditor::instance()
-                                 ->createEditorData(fragmentCode(), vertexCode(), &m_uniformsModel));
-
-    connect(m_shaderEditorData->fragmentDocument.get(), &TextDocument::contentsChanged, this, [this] {
-        setFragmentCode(m_shaderEditorData->fragmentDocument->plainText());
-    });
-
-    connect(m_shaderEditorData->vertexDocument.get(), &TextDocument::contentsChanged, this, [this] {
-        setVertexCode(m_shaderEditorData->vertexDocument->plainText());
-    });
-}
-
-void CompositionNode::requestRebakeIfLiveUpdateMode()
-{
-    if (EffectShadersCodeEditor::instance()->liveUpdate())
-        emit rebakeRequested();
 }
 
 QList<Uniform *> CompositionNode::uniforms() const
@@ -299,8 +275,7 @@ void CompositionNode::setFragmentCode(const QString &fragmentCode)
     m_fragmentCode = fragmentCode;
     m_InUseCheckNeeded = true;
     emit fragmentCodeChanged();
-
-    requestRebakeIfLiveUpdateMode();
+    emit codeChanged();
 }
 
 void CompositionNode::setVertexCode(const QString &vertexCode)
@@ -311,8 +286,7 @@ void CompositionNode::setVertexCode(const QString &vertexCode)
     m_vertexCode = vertexCode;
     m_InUseCheckNeeded = true;
     emit vertexCodeChanged();
-
-    requestRebakeIfLiveUpdateMode();
+    emit codeChanged();
 }
 
 void CompositionNode::markAsSaved()
@@ -322,14 +296,6 @@ void CompositionNode::markAsSaved()
 
     m_shaderEditorData->fragmentDocument->document()->setModified(false);
     m_shaderEditorData->vertexDocument->document()->setModified(false);
-}
-
-void CompositionNode::openCodeEditor()
-{
-    auto editor = EffectShadersCodeEditor::instance();
-    ensureCodeEditorData();
-    editor->setupShader(m_shaderEditorData.get());
-    editor->showWidget();
 }
 
 void CompositionNode::addUniform(const QVariantMap &data)
@@ -381,6 +347,46 @@ void CompositionNode::updateAreUniformsInUse(bool force)
         }
         m_InUseCheckNeeded = false;
     }
+}
+
+bool CompositionNode::matchesEditorData(const ShaderEditorData *data) const
+{
+    return m_shaderEditorData && m_shaderEditorData.get() == data;
+}
+
+ShaderEditorData *CompositionNode::editorData(ShaderEditorData::Creator creatorCallBack)
+{
+    if (m_shaderEditorData)
+        return m_shaderEditorData.get();
+
+    using TextEditor::TextDocument;
+
+    m_shaderEditorData.reset(creatorCallBack(fragmentCode(), vertexCode()));
+
+    connect(m_shaderEditorData->fragmentDocument.get(), &TextDocument::contentsChanged, this, [this] {
+        setFragmentCode(m_shaderEditorData->fragmentDocument->plainText());
+    });
+
+    connect(m_shaderEditorData->vertexDocument.get(), &TextDocument::contentsChanged, this, [this] {
+        setVertexCode(m_shaderEditorData->vertexDocument->plainText());
+    });
+
+    m_shaderEditorData->tableModel
+        = new EffectComposerUniformsTableModel(&m_uniformsModel, &m_uniformsModel);
+
+    m_shaderEditorData->uniformsCallback
+        = [uniformsTable = m_shaderEditorData->tableModel]() -> QStringList {
+        if (!uniformsTable)
+            return {};
+
+        auto uniformsModel = uniformsTable->sourceModel();
+        if (!uniformsModel)
+            return {};
+
+        return uniformsModel->uniformNames();
+    };
+
+    return m_shaderEditorData.get();
 }
 
 void CompositionNode::onUniformRenamed(const QString &oldName, const QString &newName)

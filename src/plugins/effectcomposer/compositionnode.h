@@ -4,6 +4,7 @@
 #pragma once
 
 #include "effectcomposeruniformsmodel.h"
+#include "shadereditordata.h"
 
 #include <utils/uniqueobjectptr.h>
 
@@ -14,9 +15,6 @@
 
 namespace EffectComposer {
 
-class EffectShadersCodeEditor;
-struct ShaderEditorData;
-
 class CompositionNode : public QObject
 {
     Q_OBJECT
@@ -25,7 +23,7 @@ class CompositionNode : public QObject
     Q_PROPERTY(bool nodeEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(bool isDependency READ isDependency NOTIFY isDepencyChanged)
     Q_PROPERTY(bool isCustom READ isCustom NOTIFY isCustomChanged)
-    Q_PROPERTY(QObject *nodeUniformsModel READ uniformsModel NOTIFY uniformsModelChanged)
+    Q_PROPERTY(QObject *nodeUniformsModel READ uniformsModel CONSTANT)
     Q_PROPERTY(
         QString fragmentCode
         READ fragmentCode
@@ -48,7 +46,7 @@ public:
     QString description() const;
     QString id() const;
 
-    QObject *uniformsModel();
+    EffectComposerUniformsModel *uniformsModel();
 
     QStringList requiredNodes() const;
 
@@ -77,18 +75,21 @@ public:
 
     void markAsSaved();
 
-    void openCodeEditor();
     void addUniform(const QVariantMap &data);
     void updateUniform(int index, const QVariantMap &data);
     void updateAreUniformsInUse(bool force = false);
 
+    bool matchesEditorData(const ShaderEditorData *data) const;
+
+    ShaderEditorData *editorData(ShaderEditorData::Creator creatorCallBack);
+
 signals:
-    void uniformsModelChanged();
     void isEnabledChanged();
     void isDepencyChanged();
-    void rebakeRequested();
+    void uniformsChanged();
     void fragmentCodeChanged();
     void vertexCodeChanged();
+    void codeChanged();
     void nameChanged();
     void isCustomChanged();
 
@@ -97,8 +98,6 @@ private slots:
 
 private:
     void parse(const QString &effectName, const QString &qenPath, const QJsonObject &json);
-    void ensureCodeEditorData();
-    void requestRebakeIfLiveUpdateMode();
 
     QString m_name;
     NodeType m_type = CustomNode;

@@ -78,15 +78,12 @@ QModelIndex EffectComposerEditableNodesModel::proxyIndex(int sourceIndex) const
     return index(m_sourceToItemMap.value(sourceIndex, -1), 0, {});
 }
 
-void EffectComposerEditableNodesModel::openCodeEditor(int proxyIndex)
+int EffectComposerEditableNodesModel::sourceIndex(int proxyIndex)
 {
-    if (!m_sourceModel)
-        return;
+    if (!m_sourceModel || proxyIndex < 0 || proxyIndex >= m_data.size())
+        return INVALID_CODE_EDITOR_INDEX;
 
-    if (proxyIndex < 0 || proxyIndex >= m_data.size())
-        return;
-
-    m_sourceModel->openCodeEditor(m_data.at(proxyIndex).sourceId);
+    return m_data.at(proxyIndex).sourceId;
 }
 
 void EffectComposerEditableNodesModel::onSourceDataChanged(
@@ -139,7 +136,7 @@ void EffectComposerEditableNodesModel::reload()
         return;
     }
 
-    const int mainIdx = m_sourceModel->mainCodeEditorIndex();
+    const int mainIdx = MAIN_CODE_EDITOR_INDEX;
 
     m_data.append(Item{Tr::tr("Main"), mainIdx});
     m_sourceToItemMap.insert(mainIdx, 0);

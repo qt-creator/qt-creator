@@ -3,11 +3,13 @@
 
 #include "effectcomposerwidget.h"
 
+#include "compositionnode.h"
 #include "effectcomposercontextobject.h"
 #include "effectcomposermodel.h"
 #include "effectcomposernodesmodel.h"
 #include "effectcomposertr.h"
 #include "effectcomposerview.h"
+#include "effectshaderscodeeditor.h"
 #include "effectutils.h"
 #include "propertyhandler.h"
 
@@ -46,7 +48,6 @@ using namespace Core;
 namespace EffectComposer {
 
 constexpr char qmlEffectComposerContextId[] = "QmlDesigner::EffectComposer";
-
 static QString propertyEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
@@ -77,9 +78,13 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     : m_effectComposerModel{new EffectComposerModel(this)}
     , m_effectComposerView(view)
     , m_quickWidget{new StudioQuickWidget(this)}
+    , m_editor(Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(
+          Tr::tr("Shaders Code Editor"), Core::ICore::dialogParent()))
 {
     setWindowTitle(Tr::tr("Effect Composer", "Title of effect composer widget"));
     setMinimumWidth(400);
+
+    setupCodeEditor();
 
     // create the inner widget
     m_quickWidget->quickWidget()->setObjectName(QmlDesigner::Constants::OBJECT_NAME_EFFECT_COMPOSER);
@@ -142,6 +147,18 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
             this, [this] {
         QMetaObject::invokeMethod(quickWidget()->rootObject(), "storeExpandStates");
     });
+
+    connect(
+        m_effectComposerModel.data(),
+        &EffectComposerModel::modelReset,
+        this,
+        &EffectComposerWidget::updateCodeEditorIndex);
+
+    connect(
+        m_effectComposerModel.data(),
+        &EffectComposerModel::rowsMoved,
+        this,
+        &EffectComposerWidget::updateCodeEditorIndex);
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::aboutToSave, this, [this] {
         if (m_effectComposerModel->hasUnsavedChanges()) {
@@ -261,9 +278,89 @@ bool EffectComposerWidget::isMCUProject() const
     return QmlDesigner::DesignerMcuManager::instance().isMCUProject();
 }
 
+void EffectComposerWidget::openCodeEditor(int idx)
+{
+    ShaderEditorData *editorData = [&]() -> ShaderEditorData * {
+        auto creatorFunction
+            = std::bind_front(&EffectShadersCodeEditor::createEditorData, m_editor.get());
+
+        if (idx == MAIN_CODE_EDITOR_INDEX)
+            return effectComposerModel()->editorData(creatorFunction);
+        else if (auto node = effectComposerModel()->nodeAt(idx))
+            return node->editorData(creatorFunction);
+        return nullptr;
+    }();
+
+    if (!editorData)
+        return;
+
+    m_editor->setupShader(editorData);
+    m_editor->showWidget();
+
+    updateCodeEditorIndex();
+}
+
+void EffectComposerWidget::openNearestAvailableCodeEditor(int idx)
+{
+    int nearestIdx = idx;
+
+    if (int rows = m_effectComposerModel->rowCount(); nearestIdx >= rows)
+        nearestIdx = rows - 1;
+
+    while (nearestIdx >= 0) {
+        CompositionNode *node = m_effectComposerModel->nodeAt(nearestIdx);
+        if (!node->isDependency())
+            return openCodeEditor(nearestIdx);
+
+        --nearestIdx;
+    }
+
+    openCodeEditor(MAIN_CODE_EDITOR_INDEX);
+}
+
 QSize EffectComposerWidget::sizeHint() const
 {
     return {420, 420};
+}
+
+void EffectComposerWidget::setupCodeEditor()
+{
+    EffectShadersCodeEditor *editor = m_editor.get();
+    EffectComposerModel *model = m_effectComposerModel.get();
+
+    editor->setCompositionsModel(model);
+
+    connect(
+        editor,
+        &EffectShadersCodeEditor::liveUpdateChanged,
+        model,
+        &EffectComposerModel::setLiveUpdateMode);
+
+    connect(
+        editor,
+        &EffectShadersCodeEditor::rebakeRequested,
+        model,
+        &EffectComposerModel::startRebakeTimer);
+
+    connect(
+        editor,
+        &EffectShadersCodeEditor::openedChanged,
+        this,
+        &EffectComposerWidget::updateCodeEditorIndex);
+
+    connect(
+        model,
+        &EffectComposerModel::currentCompositionChanged,
+        editor,
+        &EffectShadersCodeEditor::close);
+
+    connect(
+        editor,
+        &EffectShadersCodeEditor::requestToOpenNode,
+        this,
+        &EffectComposerWidget::openCodeEditor);
+
+    model->setLiveUpdateMode(editor->liveUpdate());
 }
 
 QString EffectComposerWidget::qmlSourcesPath()
@@ -375,5 +472,16 @@ void EffectComposerWidget::handleImportScanTimer()
     }
 }
 
-} // namespace EffectComposer
+void EffectComposerWidget::updateCodeEditorIndex()
+{
+    if (m_editor->isOpened()) {
+        if (auto editorData = m_editor->currentEditorData())
+            m_effectComposerModel->updateCodeEditorIndex(editorData);
+        else
+            openNearestAvailableCodeEditor(m_effectComposerModel->codeEditorIndex());
+    } else {
+        m_effectComposerModel->updateCodeEditorIndex(nullptr);
+    }
+}
 
+} // namespace EffectComposer

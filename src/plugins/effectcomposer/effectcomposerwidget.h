@@ -7,6 +7,7 @@
 #include <qmldesigner/components/propertyeditor/qmlmodelnodeproxy.h>
 
 #include <coreplugin/icontext.h>
+#include <utils/uniqueobjectptr.h>
 
 #include <QFrame>
 #include <QFuture>
@@ -23,6 +24,7 @@ namespace EffectComposer {
 class EffectComposerView;
 class EffectComposerModel;
 class EffectComposerNodesModel;
+class EffectShadersCodeEditor;
 
 class EffectComposerWidget : public QFrame
 {
@@ -62,15 +64,22 @@ public:
     Q_INVOKABLE void updateCanBeAdded();
     Q_INVOKABLE bool isMCUProject() const;
 
+    Q_INVOKABLE void openCodeEditor(int idx);
+
+    void openNearestAvailableCodeEditor(int idx);
+
     QSize sizeHint() const override;
 
 private:
+    void setupCodeEditor();
     void reloadQmlSource();
     void handleImportScanTimer();
+    void updateCodeEditorIndex();
 
     QPointer<EffectComposerModel> m_effectComposerModel;
     QPointer<EffectComposerView> m_effectComposerView;
     QPointer<StudioQuickWidget> m_quickWidget;
+    Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_editor;
     QmlDesigner::QmlModelNodeProxy m_backendModelNode;
     QmlDesigner::QmlAnchorBindingProxy m_backendAnchorBinding;
 
