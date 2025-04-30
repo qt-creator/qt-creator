@@ -146,35 +146,46 @@ int main(int argc, char *argv[])
             PushButton { text("button3") },
             PushButton { text("button4") }
         },
-        Label { text("Core Button:") },
-        new ManualTest::ThemeSelector,
-        Flow {
-            std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) -> QtcButton {
-                return QtcButton{
-                    text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
-                    role((Utils::QtcButton::Role) r),
-                    icon(Utils::Icons::PLUS)
-                };
-            })
-        },
-        Flow {
-            std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) -> QtcButton {
-                return QtcButton{
-                    text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
-                    role((Utils::QtcButton::Role) r)
-                };
-            })
-        },
         st
     }.emerge();
     toolButton1->setDefaultAction(new QAction("tool button 1", toolButton1));
     toolButton2->setDefaultAction(new QAction("tool button 2", toolButton2));
-    toolButton3->setDefaultAction(new QAction(
-        qApp->style()->standardIcon(QStyle::SP_TitleBarCloseButton), "", toolButton2));
+    toolButton3->setDefaultAction(
+        new QAction(qApp->style()->standardIcon(QStyle::SP_TitleBarCloseButton), "", toolButton2));
     flowlayouts->setWindowTitle("Flow Layouts");
     flowlayouts->adjustSize();
     flowlayouts->show();
+
+    // clang-format off
+    Widget {
+        windowTitle("Qtc Controls"),
+
+        Column {
+            Label { text("Theme selector:") },
+            new ManualTest::ThemeSelector,
+            Label { text("QtcButton:") },
+            Flow {
+                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) -> QtcButton {
+                    return QtcButton{
+                        text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
+                        role((Utils::QtcButton::Role) r)
+                    };
+                })
+            },
+            Label { text("QtcButton with Icons:") },
+            Flow {
+                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) -> QtcButton {
+                    return QtcButton{
+                        text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
+                        role((Utils::QtcButton::Role) r),
+                        icon(Utils::Icons::PLUS)
+                    };
+                })
+            },
+        }
+    }.emerge()->show();
     // clang-format on
+
     return app.exec();
 }
 
