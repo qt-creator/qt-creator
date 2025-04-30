@@ -99,8 +99,7 @@ MetaInfo {
             libraryIcon: ":/qtquickplugin/images/mouse-area-icon.png"
             version: "2.0"
 
-            Property { name: "width"; type: "int"; value: 100; }
-            Property { name: "height"; type: "int"; value: 100; }
+            Property { name: "anchors.fill"; type: "enum"; value: parent; }
             toolTip: qsTr("An area with mouse functionality.")
         }
     }
