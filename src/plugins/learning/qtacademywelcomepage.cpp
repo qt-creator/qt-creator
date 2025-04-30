@@ -40,6 +40,15 @@ public:
     QString id;
 };
 
+static QString courseUrl(const CourseItem *item)
+{
+    // The catalog html page contains per-course anchors, based on the course title:
+    //   data-link="#the-course-title"
+    const QString anchor = item->name.toLower().replace(' ', '-');
+    const QString url = "https://www.qt.io/academy/course-catalog#" + anchor;
+    return url;
+}
+
 class CourseItemDelegate : public ListItemDelegate
 {
 public:
@@ -47,14 +56,15 @@ public:
     {
         QTC_ASSERT(item, return);
         auto courseItem = static_cast<const CourseItem *>(item);
-        const QUrl url(QString("https://academy.qt.io/catalog/courses/").append(courseItem->id));
+        const QUrl url(courseUrl(courseItem));
+        qCDebug(qtAcademyLog) << "QDesktopServices::openUrl" << url;
         QDesktopServices::openUrl(url);
     }
 };
 
 static QString courseName(const QJsonObject &courseObj)
 {
-    return courseObj.value("name").toString().trimmed();
+    return courseObj.value("name").toString();
 }
 
 static QString courseDescription(const QJsonObject &courseObj)
