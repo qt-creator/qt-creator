@@ -121,7 +121,7 @@ public:
 
     QTextCursor cursorForPosition(const QPoint &pos) const;
     QRect cursorRect(const QTextCursor &cursor) const;
-    QRect cursorRect() const;
+    Q_INVOKABLE QRect cursorRect() const; // Q_INVOKABLE needed for testing with Squish
 
     QString anchorAt(const QPoint &pos) const;
 

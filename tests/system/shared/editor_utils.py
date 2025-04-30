@@ -90,7 +90,7 @@ def widgetContainsPoint(widget, point):
 # this function simply opens the context menu inside the given editor
 # at the same position where the text cursor is located at
 def openContextMenuOnTextCursorPosition(editor):
-    rect = editor.cursorRect(textCursorForWidget(editor))
+    rect = editor.cursorRect()
     openContextMenu(editor, rect.x+rect.width/2, rect.y+rect.height/2, 0)
     menuInList = [None]
     waitFor("menuVisibleAtEditor(editor, menuInList)", 5000)
