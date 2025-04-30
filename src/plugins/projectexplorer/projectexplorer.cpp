@@ -2144,10 +2144,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     Command * const cmd = ActionManager::registerAction(parseIssuesAction,
                                                         "ProjectExplorer.ParseIssuesAction");
-    connect(parseIssuesAction, &QAction::triggered, this, [] {
-        ParseIssuesDialog dlg(ICore::dialogParent());
-        dlg.exec();
-    });
+    connect(parseIssuesAction, &QAction::triggered, this, &executeParseIssuesDialog);
     mtools->addAction(cmd);
 
     // Load devices immediately, as other plugins might want to use them

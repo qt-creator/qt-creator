@@ -3,24 +3,8 @@
 
 #pragma once
 
-#include <QDialog>
+namespace ProjectExplorer::Internal {
 
-namespace ProjectExplorer {
-namespace Internal {
+void executeParseIssuesDialog();
 
-class ParseIssuesDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    ParseIssuesDialog(QWidget *parent = nullptr);
-    ~ParseIssuesDialog() override;
-
-private:
-    void accept() override;
-
-    class Private;
-    Private * const d;
-};
-
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

@@ -213,10 +213,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     d->m_externalButton = new QToolButton;
     d->m_externalButton->setIcon(Utils::Icons::OPENFILE_TOOLBAR.icon());
     d->m_externalButton->setToolTip(Tr::tr("Create Issues From External Build Output..."));
-    connect(d->m_externalButton, &QToolButton::clicked, [] {
-        ParseIssuesDialog dlg(ICore::dialogParent());
-        dlg.exec();
-    });
+    connect(d->m_externalButton, &QToolButton::clicked, this, &executeParseIssuesDialog);
 
     d->m_categoriesButton = new QToolButton;
     d->m_categoriesButton->setIcon(Utils::Icons::FILTER.icon());
