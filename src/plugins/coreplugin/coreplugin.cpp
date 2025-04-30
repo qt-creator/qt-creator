@@ -421,12 +421,8 @@ void CorePlugin::extensionsInitialized()
     Find::extensionsInitialized();
     m_locator->extensionsInitialized();
     ICore::extensionsInitialized();
-    if (ExtensionSystem::PluginManager::hasError()) {
-        auto errorOverview = new ExtensionSystem::PluginErrorOverview(ICore::mainWindow());
-        errorOverview->setAttribute(Qt::WA_DeleteOnClose);
-        errorOverview->setModal(true);
-        errorOverview->show();
-    }
+    if (ExtensionSystem::PluginManager::hasError())
+        ExtensionSystem::showPluginErrorOverview();
     checkSettings();
     registerActionsForOptions();
 }

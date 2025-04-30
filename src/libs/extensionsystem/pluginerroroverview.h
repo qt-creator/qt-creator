@@ -5,14 +5,8 @@
 
 #include "extensionsystem_global.h"
 
-#include <QDialog>
-
 namespace ExtensionSystem {
 
-class EXTENSIONSYSTEM_EXPORT PluginErrorOverview : public QDialog
-{
-public:
-    explicit PluginErrorOverview(QWidget *parent = nullptr);
-};
+EXTENSIONSYSTEM_EXPORT void showPluginErrorOverview();
 
 } // ExtensionSystem
