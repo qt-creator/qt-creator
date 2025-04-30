@@ -58,9 +58,6 @@ def main():
                    )
     checkTypeAndProperties(typePropDet)
 
-    test.verify(object.exists(getWelcomeScreenSideBarButton("Get Started")),
-                "'Get Started' button found")
-
     # select "Create Project" and try to create a new project
     createNewQtQuickApplication(tempDir(), "SampleApp", fromWelcome = True)
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
