@@ -62,54 +62,60 @@ set(__qt_extensions
   qtwebengine
 )
 
-function(qt_maintenance_tool_install qt_major_version qt_package_name)
+function(qt_maintenance_tool_install qt_major_version qt_package_list)
   if (QT_QMAKE_EXECUTABLE MATCHES ".*/(.*)/(.*)/bin/qmake")
     set(qt_version_number ${CMAKE_MATCH_1})
     string(REPLACE "." "" qt_version_number_dotless ${qt_version_number})
     set(qt_build_flavor ${CMAKE_MATCH_2})
-    string(TOLOWER "${qt_package_name}" qt_package_name_lowercase)
 
     set(additional_addons "")
     if (qt_version_number VERSION_LESS 6.8.0)
       set(additional_addons ${__qt_extensions})
     endif()
 
-    set(installer_component "")
     qt_maintenance_tool_get_component_platform(${qt_build_flavor} component_platform)
 
-    # Is the package an addon?
-    set(install_addon FALSE)
-    foreach(addon IN LISTS __qt_addons additional_addons)
-      string(REGEX MATCH "${addon}" is_addon "qt${qt_package_name_lowercase}")
-      if (is_addon)
-        set(installer_component
-          "qt.qt${qt_major_version}.${qt_version_number_dotless}.addons.${addon}"
-        )
-        set(install_addon TRUE)
-        break()
-      endif()
-    endforeach()
+    set(installer_component_list "")
+    foreach (qt_package_name IN LISTS qt_package_list)
+      string(TOLOWER "${qt_package_name}" qt_package_name_lowercase)
 
-    if (NOT install_addon)
-      set(install_extension FALSE)
-      foreach(extension IN LISTS __qt_extensions)
-        string(REGEX MATCH "${extension}" is_extension "qt${qt_package_name_lowercase}")
-        if (is_extension)
-          set(installer_component
-            "extensions.${extension}.${qt_version_number_dotless}.${component_platform}"
+      # Is the package an addon?
+      set(install_addon FALSE)
+      foreach(addon IN LISTS __qt_addons additional_addons)
+        string(REGEX MATCH "${addon}" is_addon "qt${qt_package_name_lowercase}")
+        if (is_addon)
+          list(
+            APPEND installer_component_list
+            "qt.qt${qt_major_version}.${qt_version_number_dotless}.addons.${addon}"
           )
-          set(install_extension TRUE)
+          set(install_addon TRUE)
           break()
         endif()
       endforeach()
 
-      if (NOT install_extension)
-        # Install the Desktop package
-        set(installer_component
-          "qt.qt${qt_major_version}.${qt_version_number_dotless}.${component_platform}"
-        )
+      if (NOT install_addon)
+        set(install_extension FALSE)
+        foreach(extension IN LISTS __qt_extensions)
+          string(REGEX MATCH "${extension}" is_extension "qt${qt_package_name_lowercase}")
+          if (is_extension)
+            list(
+              APPEND installer_component_list
+              "extensions.${extension}.${qt_version_number_dotless}.${component_platform}"
+            )
+            set(install_extension TRUE)
+            break()
+          endif()
+        endforeach()
+
+        if (NOT install_extension)
+          # Install the Desktop package
+          list(
+            APPEND installer_component_list
+            "qt.qt${qt_major_version}.${qt_version_number_dotless}.${component_platform}"
+          )
+        endif()
       endif()
-    endif()
+    endforeach()
 
     if (QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI)
       message(STATUS "Qt Creator: Using MaintenanceTool in CLI Mode. "
@@ -120,7 +126,7 @@ function(qt_maintenance_tool_install qt_major_version qt_package_name)
           --accept-licenses
           --default-answer
           --confirm-command
-          install ${installer_component}
+          install ${installer_component_list}
         RESULT_VARIABLE result
         OUTPUT_VARIABLE output
         ERROR_VARIABLE output
@@ -133,7 +139,7 @@ function(qt_maintenance_tool_install qt_major_version qt_package_name)
     else()
       message(STATUS "Qt Creator: Using MaintenanceTool in GUI Mode. "
                      "Set QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI to ON for CLI mode.")
-      set(ENV{QTC_MAINTENANCE_TOOL_COMPONENT} "${installer_component}")
+      set(ENV{QTC_MAINTENANCE_TOOL_COMPONENT} "${installer_component_list}")
       execute_process(
         COMMAND
           "${QT_MAINTENANCE_TOOL}"
@@ -161,12 +167,16 @@ function(qt_maintenance_tool_dependency method package_name)
     cmake_parse_arguments(arg "REQUIRED" "" "COMPONENTS" ${ARGN})
     if (arg_REQUIRED AND arg_COMPONENTS)
       # Install missing COMPONENTS.
+      set(pkgs_to_install "")
       foreach(pkg IN LISTS arg_COMPONENTS)
         find_package(Qt${qt_major_version}${pkg} BYPASS_PROVIDER QUIET)
         if (NOT Qt${qt_major_version}${pkg}_FOUND)
-          qt_maintenance_tool_install(${qt_major_version} ${pkg})
+          list(APPEND pkgs_to_install ${pkg})
         endif()
       endforeach()
+      if (pkgs_to_install)
+        qt_maintenance_tool_install(${qt_major_version} "${pkgs_to_install}")
+      endif()
     elseif(arg_REQUIRED AND NOT qt_package_name)
       # Install the Desktop package if Qt::Core is missing
       find_package(Qt${qt_major_version}Core BYPASS_PROVIDER QUIET)

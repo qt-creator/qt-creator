@@ -1,7 +1,7 @@
 accountFieldsVisible = function()
 {
     var ifwVersion = installer.value("FrameworkVersion");
-    if (installer.versionMatches(ifwVersion, "<4.10.0"))
+    if (installer.versionMatches(ifwVersion, "=4.9.0"))
         gui.clickButton("submitButtonLogin");
     else
         gui.clickButton(buttons.NextButton);
@@ -17,7 +17,7 @@ Controller.prototype.CredentialsPageCallback = function()
     var page = gui.currentPageWidget();
     page.accountFieldsVisible.connect(accountFieldsVisible)
     var ifwVersion = installer.value("FrameworkVersion");
-    if (installer.versionMatches(ifwVersion, "<4.10.0"))
+    if (installer.versionMatches(ifwVersion, "=4.9.0"))
         page.usageStatisticVisible.connect(usageStatisticVisible);
 }
 
@@ -28,8 +28,11 @@ Controller.prototype.IntroductionPageCallback = function()
 
 Controller.prototype.ComponentSelectionPageCallback = function()
 {
-    var component = installer.environmentVariable("QTC_MAINTENANCE_TOOL_COMPONENT");
-    installer.selectComponent(component);
+    var componentString = installer.environmentVariable("QTC_MAINTENANCE_TOOL_COMPONENT");
+    var componentList = componentString.split(";");
+    for (var idx = 0; idx < componentList.length; idx++) {
+        installer.selectComponent(componentList[idx]);
+    }
     gui.clickButton(buttons.NextButton);
 }
 
