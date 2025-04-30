@@ -4,19 +4,19 @@
 #include "taskwindow.h"
 
 #include "itaskhandler.h"
+#include "parseissuesdialog.h"
 #include "projectexplorericons.h"
 #include "projectexplorertr.h"
 #include "task.h"
 #include "taskhub.h"
 #include "taskmodel.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
@@ -145,6 +145,7 @@ public:
     ITaskHandler *m_defaultHandler = nullptr;
     QToolButton *m_filterWarningsButton;
     QToolButton *m_categoriesButton;
+    QToolButton *m_externalButton = nullptr;
     QMenu *m_categoriesMenu;
     QList<QAction *> m_actions;
     int m_visibleIssuesCount = 0;
@@ -209,6 +210,14 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
                 Utils::Icons::WARNING_TOOLBAR.icon(),
                 Tr::tr("Show Warnings"), this, [this](bool show) { setShowWarnings(show); });
 
+    d->m_externalButton = new QToolButton;
+    d->m_externalButton->setIcon(Utils::Icons::OPENFILE_TOOLBAR.icon());
+    d->m_externalButton->setToolTip(Tr::tr("Create Issues From External Build Output..."));
+    connect(d->m_externalButton, &QToolButton::clicked, [] {
+        ParseIssuesDialog dlg(ICore::dialogParent());
+        dlg.exec();
+    });
+
     d->m_categoriesButton = new QToolButton;
     d->m_categoriesButton->setIcon(Utils::Icons::FILTER.icon());
     d->m_categoriesButton->setToolTip(Tr::tr("Filter by categories"));
@@ -258,6 +267,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 
 TaskWindow::~TaskWindow()
 {
+    delete d->m_externalButton;
     delete d->m_filterWarningsButton;
     delete d->m_filter;
     delete d->m_model;
@@ -298,7 +308,7 @@ void TaskWindow::delayedInitialization()
 
 QList<QWidget*> TaskWindow::toolBarWidgets() const
 {
-    return {d->m_filterWarningsButton, d->m_categoriesButton, filterWidget()};
+    return {d->m_externalButton, d->m_filterWarningsButton, d->m_categoriesButton, filterWidget()};
 }
 
 QWidget *TaskWindow::outputWidget(QWidget *)
