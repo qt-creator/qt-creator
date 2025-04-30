@@ -75,6 +75,8 @@ public:
 
     void setMinimumSizeHintFromContentMinimumSize(bool value);
 
+    bool isInitialized() const;
+
 signals:
     void navigationHistoryChanged();
     void initialized();
