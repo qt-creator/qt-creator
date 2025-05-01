@@ -31,3 +31,7 @@ add_qtc_library(qtcZLib
   PUBLIC_INCLUDES
     src
 )
+
+if (MSVC)
+  target_compile_options(qtcZLib PRIVATE /wd4996)
+endif()
