@@ -141,7 +141,7 @@ def verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, e
         placeCursorToLine(editor, line, True)
         for ty in additionalKeyPresses:
             type(editor, ty)
-        rect = editor.cursorRect(textCursorForWidget(editor))
+        rect = editor.cursorRect()
         expectedToolTip = "{type='QLabel' objectName='qcToolTip' visible='1'}"
         # wait for similar tooltips to disappear
         checkIfObjectExists(expectedToolTip, False, 1000, True)

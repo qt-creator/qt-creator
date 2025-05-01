@@ -162,10 +162,13 @@ def verifyBuildAndRun(expectCompileToFail=False):
     # check application output log
     appOutput = logApplicationOutput()
     if appOutput:
-        test.verify((re.search(".* exited with code \d+", str(appOutput)) or
-                     re.search(".* crashed\.", str(appOutput)) or
-                     re.search(".* was ended forcefully\.", str(appOutput))) and
-                    re.search('[Ss]tarting.*', str(appOutput)),
+        strOutput = str(appOutput)
+        test.verify((re.search(".* exited with code \d+", strOutput) or
+                     re.search(".* crashed\.", strOutput) or
+                     re.search(".* was ended forcefully\.", strOutput) or
+                     re.search(".* finished successfully\.", strOutput) or
+                     re.search(".* was canceled after \d+ ms\.", strOutput)) and
+                    re.search('[Ss]tarting.*', strOutput),
                     "Verifying if built app started and closed successfully.")
 
 # run project for debug and release
