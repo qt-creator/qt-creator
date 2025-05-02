@@ -193,7 +193,8 @@ function(qt_maintenance_tool_dependency method package_name)
       # Install missing COMPONENTS.
       set(pkgs_to_install "")
       foreach(pkg IN LISTS arg_COMPONENTS)
-        find_package(Qt${qt_major_version}${pkg} BYPASS_PROVIDER QUIET)
+        find_package(Qt${qt_major_version}${pkg}
+          PATHS ${CMAKE_PREFIX_PATH} ${CMAKE_MODULE_PATH} NO_DEFAULT_PATH BYPASS_PROVIDER QUIET)
         if (NOT Qt${qt_major_version}${pkg}_FOUND)
           list(APPEND pkgs_to_install ${pkg})
         endif()
@@ -203,13 +204,15 @@ function(qt_maintenance_tool_dependency method package_name)
       endif()
     elseif(arg_REQUIRED AND NOT qt_package_name)
       # Install the Desktop package if Qt::Core is missing
-      find_package(Qt${qt_major_version}Core BYPASS_PROVIDER QUIET)
+      find_package(Qt${qt_major_version}Core
+        PATHS ${CMAKE_PREFIX_PATH} ${CMAKE_MODULE_PATH} NO_DEFAULT_PATH BYPASS_PROVIDER QUIET)
       if (NOT Qt${qt_major_version}$Core_FOUND)
         qt_maintenance_tool_install(${qt_major_version} core)
       endif()
     endif()
 
-    find_package(${package_name} ${ARGN} BYPASS_PROVIDER QUIET)
+    find_package(${package_name} ${ARGN}
+      PATHS ${CMAKE_PREFIX_PATH} ${CMAKE_MODULE_PATH} NO_DEFAULT_PATH BYPASS_PROVIDER QUIET)
     if (NOT ${package_name}_FOUND AND arg_REQUIRED)
       qt_maintenance_tool_install(${qt_major_version} ${qt_package_name})
       find_package(${package_name} ${ARGN} BYPASS_PROVIDER)
