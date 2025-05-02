@@ -16,6 +16,11 @@ function(qt_maintenance_tool_get_component_platform platform_dir component_platf
   set(map_wasm_multithread wasm_multithread)
   set(map_wasm_singlethread wasm_singlethread)
 
+  if (platform_dir STREQUAL "msvc2022_arm64" AND QT_HOST_PATH)
+    set(${component_platform} "win64_msvc2022_arm64_cross_compiled" PARENT_SCOPE)
+    return()
+  endif()
+
   set(${component_platform} ${map_${platform_dir}} PARENT_SCOPE)
 endfunction()
 
