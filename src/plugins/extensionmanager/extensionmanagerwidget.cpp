@@ -3,17 +3,20 @@
 
 #include "extensionmanagerwidget.h"
 
+#include "extensionmanagerconstants.h"
 #include "extensionmanagersettings.h"
 #include "extensionmanagertr.h"
 #include "extensionsbrowser.h"
 #include "extensionsmodel.h"
 #include "remotespec.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwelcomepage.h>
+#include <coreplugin/minisplitter.h>
 #include <coreplugin/plugininstallwizard.h>
 #include <coreplugin/welcomepagehelper.h>
 
@@ -109,31 +112,6 @@ static void requestRestart()
         ICore::infoBar()->addInfo(info);
     }
 }
-
-class CollapsingWidget : public QWidget
-{
-public:
-    explicit CollapsingWidget(QWidget *parent = nullptr)
-        : QWidget(parent)
-    {
-        setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-    }
-
-    void setWidth(int width)
-    {
-        m_width = width;
-        setVisible(width > 0);
-        updateGeometry();
-    }
-
-    QSize sizeHint() const override
-    {
-        return {m_width, 0};
-    }
-
-private:
-    int m_width = 100;
-};
 
 class VersionSelector final : public QWidget
 {
@@ -570,9 +548,8 @@ private:
     ExtensionsModel *m_extensionModel;
     ExtensionsBrowser *m_extensionBrowser;
     QStackedWidget *m_detailsStack;
-    CollapsingWidget *m_secondaryDescriptionWidget;
+    QWidget *m_secondaryDetailsColumn;
     HeadingWidget *m_headingWidget;
-    QWidget *m_secondaryContent;
     MarkdownBrowser *m_description;
     QLabel *m_dateUpdatedTitle;
     QLabel *m_dateUpdated;
@@ -628,8 +605,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
 {
     m_extensionModel = new ExtensionsModel(this);
     m_extensionBrowser = new ExtensionsBrowser(m_extensionModel);
-    auto descriptionColumns = new QWidget;
-    m_secondaryDescriptionWidget = new CollapsingWidget;
 
     m_headingWidget = new HeadingWidget;
     m_description = new MarkdownBrowser;
@@ -641,6 +616,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_description->setPalette(browserPal);
     const int verticalPadding = SpacingTokens::ExVPaddingGapXl - SpacingTokens::VPaddingM;
     m_description->setMargins({verticalPadding, 0, verticalPadding, 0});
+    m_description->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 
     m_dateUpdatedTitle = sectionTitle(h6TF, Tr::tr("Last Update"));
     m_dateUpdated = new QLabel;
@@ -669,12 +645,35 @@ ExtensionManagerWidget::ExtensionManagerWidget()
 
     m_pluginStatus = new PluginStatusWidget;
 
-    auto secondary = new QWidget;
+    ActionBuilder(this, Core::Constants::TOGGLE_RIGHT_SIDEBAR)
+        .setCheckable(true)
+        .setChecked(true)
+        .setContext(Constants::C_EXTENSIONMANAGER)
+        .setText(Tr::tr("Toggle secondary details"))
+        .addOnTriggered(this, [this](bool c) { m_secondaryDetailsColumn->setVisible(c); });
+
+    auto primaryDetailsColumn = new QWidget;
+    auto secondaryDetails = new QWidget;
+    secondaryDetails->setMinimumWidth(100);
+    m_secondaryDetailsColumn = toScrollableColumn(secondaryDetails);
+
+    auto detailsSplitter = new MiniSplitter;
 
     using namespace Layouting;
     const auto spL = spacing(SpacingTokens::VPaddingL);
     const auto spXxs = spacing(SpacingTokens::VPaddingXxs);
     // clang-format off
+    Column {
+        Row {
+            m_headingWidget,
+            m_pluginStatus,
+            customMargins(SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl,
+                          SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl),
+        },
+        m_description,
+        noMargin, spacing(0),
+    }.attachTo(primaryDetailsColumn);
+
     Column {
         sectionTitle(h6CapitalTF, Tr::tr("Extension details")),
         Column {
@@ -687,32 +686,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         },
         st,
         noMargin, spacing(SpacingTokens::ExVPaddingGapXl),
-    }.attachTo(secondary);
-    m_secondaryContent = toScrollableColumn(secondary);
-
-    Row {
-        WelcomePageHelpers::createRule(Qt::Vertical),
-        Column {
-            m_secondaryContent,
-        },
-        noMargin, spacing(0),
-    }.attachTo(m_secondaryDescriptionWidget);
-
-    Row {
-        Row {
-            Column {
-                Row {
-                    m_headingWidget,
-                    m_pluginStatus,
-                    customMargins(SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl,
-                                  SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl),
-                },
-                m_description,
-            },
-        },
-        m_secondaryDescriptionWidget,
-        noMargin, spacing(0),
-    }.attachTo(descriptionColumns);
+    }.attachTo(secondaryDetails);
 
     Column {
         new StyledBar,
@@ -723,12 +697,15 @@ ExtensionManagerWidget::ExtensionManagerWidget()
             Stack {
                 bindTo(&m_detailsStack),
                 descriptionPlaceHolder(),
-                descriptionColumns,
+                detailsSplitter,
             },
         },
         noMargin, spacing(0),
     }.attachTo(this);
     // clang-format on
+
+    detailsSplitter->addWidget(primaryDetailsColumn);
+    detailsSplitter->addWidget(m_secondaryDetailsColumn);
 
     WelcomePageHelpers::setBackgroundColor(this, Theme::Token_Background_Default);
 
@@ -737,10 +714,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     connect(this, &ResizeSignallingWidget::resized, this, [this](const QSize &size) {
         const int intendedBrowserColumnWidth = size.width() / 3;
         m_extensionBrowser->adjustToWidth(intendedBrowserColumnWidth);
-        const int availableDescriptionWidth = size.width() - m_extensionBrowser->width();
-        const bool secondaryDescriptionVisible = availableDescriptionWidth > 1000;
-        const int secondaryDescriptionWidth = secondaryDescriptionVisible ? 264 : 0;
-        m_secondaryDescriptionWidget->setWidth(secondaryDescriptionWidth);
     });
 
     const auto installOrUpdate = [this](bool update) {
@@ -787,7 +760,13 @@ ExtensionManagerWidget::ExtensionManagerWidget()
 
 void ExtensionManagerWidget::updateView(const QModelIndex &current)
 {
-    if (current.isValid()) {
+    const bool currentIsValid = current.isValid();
+
+    Command *command = ActionManager::command(Core::Constants::TOGGLE_RIGHT_SIDEBAR);
+    QAction *action = command->actionForContext(Constants::C_EXTENSIONMANAGER);
+    action->setEnabled(currentIsValid);
+
+    if (currentIsValid) {
         m_detailsStack->setCurrentIndex(1);
     } else {
         m_detailsStack->setCurrentIndex(0);
