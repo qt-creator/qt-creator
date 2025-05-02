@@ -16,7 +16,7 @@
     To add or change custom output parsers, select \preferences >
     \uicontrol {Build & Run} > \uicontrol {Custom Output Parsers}.
 
-    \image qtcreator-custom-parser-list.png
+    \image {qtcreator-custom-parser-list.png} {Custom Output Parsers tab in Build & Run preferences}
 
     To edit the settings of a custom output parser, select it in the list, and
     then select \uicontrol Edit.
@@ -33,7 +33,7 @@
     \list 1
         \li Select \preferences > \uicontrol {Build & Run} >
             \uicontrol {Custom Output Parsers} > \uicontrol Add.
-            \image qtcreator-custom-parser-options.png "Custom Output Parsers preferences"
+            \image {qtcreator-custom-parser-options.png} {Custom Output Parsers tab in Build & Run preferences}
 
         \li In the \uicontrol {Error message capture pattern} field, specify
             a regular expression to define what is an error. The custom
@@ -78,7 +78,7 @@
     \list 1
         \li In the \uicontrol {Custom Output Parsers} section, select
             \uicontrol Details.
-            \image qtcreator-custom-parser.png
+            \image {qtcreator-custom-parser.png} {Custom Output Parsers}
         \li Select custom parsers to activate them for building or running
             the project.
     \endlist

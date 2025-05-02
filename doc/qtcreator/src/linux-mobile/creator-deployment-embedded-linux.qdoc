@@ -22,7 +22,7 @@
     Linux devices in the project configuration file and in \uicontrol Projects >
     \uicontrol {Run Settings} > \uicontrol Deployment.
 
-    \image qtcreator-embedded-linux-deployment-details.png "Deploy to remote Linux devices"
+    \image {qtcreator-embedded-linux-deployment-details.png} {Deployment to remote Linux devices}
 
     The files to be installed are listed in the \uicontrol {Deployment} step,
     the \uicontrol {Files to deploy} field. The \uicontrol {Source File Path}

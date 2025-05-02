@@ -31,13 +31,13 @@
     To specify connections to GitLab servers, go to \preferences >
     \uicontrol {Version Control} > \uicontrol GitLab:
 
-    \image qtcreator-gitlab-preferences.png {GitLab tab in Version Control Preferences}
+    \image {qtcreator-gitlab-preferences.png} {GitLab tab in Version Control preferences}
 
     To add GitLab servers:
 
     \list 1
         \li Select \uicontrol Add to open the \uicontrol {Add Server} dialog.
-            \image qtcreator-gitlab-preferences-add-server.png
+            \image {qtcreator-gitlab-preferences-add-server.png} {Add Server dialog}
         \li In \uicontrol Host, enter the host name of the GitLab server.
         \li In \uicontrol Description, enter a free-form text that is displayed
             in the GitLab settings of a linked project.
@@ -70,12 +70,12 @@
     \list 1
         \li Go to \uicontrol Tools > \uicontrol GitLab to view a list of
             connected GitLab servers and available projects in each server.
-            \image qtcreator-gitlab-project-list.png
+            \image {qtcreator-gitlab-project-list.png} {GitLab dialog}
         \li In \uicontrol Remote, select a GitLab server.
         \li In \uicontrol Projects, select the project to clone.
         \li Select \uicontrol Clone to open the \uicontrol {Clone Repository}
             dialog.
-            \image qtcreator-gitlab-clone-repository.png {Clone Repository dialog}
+            {\image qtcreator-gitlab-clone-repository.png} {Clone Repository dialog}
         \li In \uicontrol Repository, specify the URL of the repository.
         \li In \uicontrol Path, specify the path where to clone the repository.
         \li In \uicontrol Directory, specify the name of the directory for the
@@ -119,7 +119,7 @@
         \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol {GitLab} to view the GitLab settings for the currently
             active project.
-            \image qtcreator-gitlab-preferences-project.png {GitLab settings for a project}
+            \image {qtcreator-gitlab-preferences-project.png} {GitLab settings for a project}
         \li In \uicontrol Host, select the URL of the GitLab server.
         \li In \uicontrol {Linked GitLab configuration}, select the GitLab
             server settings to use.

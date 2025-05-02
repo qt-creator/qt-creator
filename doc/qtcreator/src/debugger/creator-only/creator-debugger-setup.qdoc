@@ -146,7 +146,7 @@
     Install Python and set the interpreter to use in \uicontrol Projects
     > \uicontrol Run.
 
-    \image qtcreator-run-settings-python.webp {Run settings for a Python project}
+    \image {qtcreator-run-settings-python.webp} {Run settings for a Python project}
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Kits}
 */

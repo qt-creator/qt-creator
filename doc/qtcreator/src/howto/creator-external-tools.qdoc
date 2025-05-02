@@ -31,9 +31,10 @@
     \section1 Configure external tools
 
     You can change the configuration of preconfigured tools and configure
-    additional tools in \QC \preferences.
+    additional tools in \preferences > \uicontrol {Environment} >
+    \uicontrol {External Tools}.
 
-    \image qtcreator-external-tools.webp {External Tools preferences}
+    \image {qtcreator-external-tools.webp} {External Tools tab in Environment preferences}
 
     \if defined(qtcreator)
     Select the \inlineimage icons/replace.png

@@ -54,14 +54,14 @@
             Beautifier because combining them can lead to unexpected results.
         \li Go to \preferences > \uicontrol Beautifier > \uicontrol General to
             select the tool to use.
-            \image qtcreator-preferences-beautifier-general.webp {General Beautifier preferences}
+            \image {qtcreator-preferences-beautifier-general.webp} {General tab in Beautifier preferences}
         \li Select \uicontrol {Automatic formatting on file save} to
             automatically beautify files when you save them using the tool you
             select in the \uicontrol Tool field.
         \li Go to \uicontrol {Artistic Style}, \uicontrol {ClangFormat}, or
             \uicontrol Uncrustify to set the path to the tool executable and
             to select the configuration file that defines the style to use.
-            \image beautifier_options.png {Uncrustify Beautifier preferences}
+            \image {beautifier_options.png} {Uncrustify tab in Beautifier preferences}
             \caption Beautifier Uncrustify preferences
     \endlist
 
@@ -123,7 +123,7 @@
             automatically beautify files when you save them using the tool you
             select in the \uicontrol Tool field.
 
-            \image qtcreator-preferences-beautifier-general.webp {General Beautifier preferences}
+            \image {qtcreator-preferences-beautifier-general.webp} {General tab in Beautifier preferences}
 
         \li In \uicontrol {Restrict to MIME types}, define the MIME
             types of the files to beautify, separated by semicolons. Leave the
@@ -141,7 +141,7 @@
             \uicontrol Uncrustify to specify settings for the tool you want to
             use.
 
-            \image beautifier_options.png {Uncrustify Beautifier preferences}
+            \image {beautifier_options.png} {Uncrustify tab in Beautifier preferences}
 
         \li In \uicontrol Configuration, specify the path to the
             tool executable in \uicontrol {Artistic Style command},
@@ -198,7 +198,7 @@
     To use a predefined ClangFormat style, go to \uicontrol {ClangFormat} and
     select a style in \uicontrol {Use predefined style}.
 
-    \image qtcreator-beautifier-options-clangformat.png {ClangFormat Beautifier preferences}
+    \image {qtcreator-beautifier-options-clangformat.png} {ClangFormat tab in Beautifier preferences}
 
     Select \uicontrol File to load the style configuration from the
     \c .clang-format or \c _clang-format file located in the same
@@ -217,7 +217,7 @@
     It offers syntax highlighting, auto-completion, and context-sensitive
     help.
 
-    \image beautifier_editor.png {Add Configuration dialog}
+    \image {beautifier_editor.png} {Add Configuration dialog}
 
     \sa {Beautify source code}, {Enable and disable plugins}
 */

@@ -14,7 +14,7 @@
     analyze applications on the device. The QNX Neutrino RTOS has additional
     command-line tools and services, as described in \l {Qt for QNX}.
 
-    \image qtcreator-devices-qnx.webp {QNX device preferences}
+    \image {qtcreator-devices-qnx.webp} {QNX device in the Devices tab in Devices preferences}
     \caption QNX device preferences
 
     \include qtcreator-add-linux-device.qdocinc {add linux device} {QNX Device}
@@ -29,6 +29,8 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-qnx
+    \ingroup creator-how-to-sdks
+    \ingroup creator-how-to-manage-kits
 
     \title Create kits for QNX Neutrino devices
 
@@ -43,7 +45,7 @@
         \li Go to \preferences > \uicontrol SDKs > \uicontrol QNX.
         \li Select \uicontrol {Create Kit} to create a kit for a particular
             platform.
-            \image qtcreator-preferences-qnx.webp {QNX Preferences}
+            \image {qtcreator-preferences-qnx.webp} {QNX tab in SDKs preferences}
         \li Activate the kit for your project.
     \endlist
 

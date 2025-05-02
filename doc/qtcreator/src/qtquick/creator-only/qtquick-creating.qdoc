@@ -26,7 +26,7 @@
         \li Go to \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}.
 
-            \image qtcreator-project-qt-quick.webp {New Project dialog}
+            \image {qtcreator-project-qt-quick.webp} {New Project dialog}
 
             \note To use \l qmake as the build system, develop with Qt 5,
             or add translations to the application, select
@@ -46,7 +46,7 @@
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.
 
-            \image qtcreator-project-qt-quick-details.webp {Define Project Details dialog}
+            \image {qtcreator-project-qt-quick-details.webp} {Define Project Details dialog}
 
 
         \li Select \uicontrol {Use Qt Virtual Keyboard} to add

@@ -70,7 +70,7 @@
 
     \list 1
         \li Go to \preferences > \uicontrol SDKs > \uicontrol Android.
-            \image qtcreator-preferences-android.webp {Android preferences}
+            \image {qtcreator-preferences-android.webp} {Android tab in SDKs preferences}
         \li In \uicontrol {JDK location}, set the path to the JDK.
             \QC checks the JDK installation and reports errors.
 
@@ -164,7 +164,7 @@
     To view the \l{Android NDK} versions that \QC installed, go to \preferences >
     \uicontrol SDKs > \uicontrol Android.
 
-    \image qtcreator-preferences-android.webp {Android preferences}
+    \image {qtcreator-preferences-android.webp} {Android tab in SDKs preferences}
 
     SDK Manager installed the locked items. You can modify them only
     in the \uicontrol {Android SDK Manager} dialog.
@@ -209,7 +209,7 @@
     To view the installed Android SDK packages, select \preferences >
     \uicontrol SDKs > \uicontrol Android > \uicontrol {SDK Manager}.
 
-    \image qtcreator-android-sdk-manager.webp {Android SDK Manager}
+    \image {qtcreator-android-sdk-manager.webp} {SDK Manager in the Android tab in SDKs preferences}
 
     \section1 Show SDK packages
 
@@ -242,7 +242,7 @@
         \li Select \uicontrol {Advanced Options}.
         \li In \uicontrol {SDK Manager arguments}, enter sdkmanager options from
             \uicontrol {Available arguments}.
-    \image qtcreator-android-sdk-manager-arguments.png {Android SDK Manager Arguments dialog}
+    \image {qtcreator-android-sdk-manager-arguments.png} {Android SDK Manager Arguments dialog}
     \endlist
 
     \sa {Android}{How To: Develop for Android}, {Developing for Android}
@@ -259,7 +259,7 @@
     To view and add Android Virtual Devices (AVD), go to \preferences >
     \uicontrol Devices.
 
-    \image qtcreator-android-avd-manager.webp {Android device in Devices}
+    \image {qtcreator-android-avd-manager.webp} {Android device in Devices preferences}
 
     Select an AVD in \uicontrol Device to see its status in
     \uicontrol {Current state}.
@@ -276,7 +276,7 @@
 
     To set preferences for starting an AVD, select \uicontrol {AVD Arguments}.
 
-    \image qtcreator-android-avd-arguments.png {Startup options for AVDs}
+    \image {qtcreator-android-avd-arguments.png} {Startup options for AVDs}
 
     Set the preferences in \uicontrol {Emulator command-line startup options}.
     For available options, see \l{Start the emulator from the command line}.
@@ -321,7 +321,7 @@
         \li Go to \preferences > \uicontrol Devices.
         \li Select \uicontrol Add > \uicontrol {Android Device} >
             \uicontrol {Start Wizard}.
-            \image qtcreator-android-create-avd.webp {Create New AVD dialog}
+            \image {qtcreator-android-create-avd.webp} {Create New AVD dialog}
         \li In \uicontrol Name, give the AVD a name.
         \li In \uicontrol {Target ABI / API}, select an Android system image
             architecture (ABI) and \l{What is API Level?}{API level} that you

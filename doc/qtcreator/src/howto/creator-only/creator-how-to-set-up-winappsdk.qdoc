@@ -22,7 +22,7 @@
 
     \list 1
         \li Go to \preferences > \uicontrol SDKs > \uicontrol {Windows App SDK}.
-            \image qtcreator-preferences-windows-app-sdk.webp {Win App SDK Preferences}
+            \image {qtcreator-preferences-windows-app-sdk.webp} {Win App SDK tab in SDKs preferences}
         \li In \uicontrol {Download location}, specify the path to a folder where
             NuGet and the SDK will be downloaded.
         \li In \uicontrol {NuGet location}, specify the path to NuGet, or

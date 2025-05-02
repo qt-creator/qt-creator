@@ -14,7 +14,7 @@
     To set general preferences that are common to all debuggers, go to
     \preferences > \uicontrol Debugger > \uicontrol General.
 
-    \image qtcreator-preferences-debugger-general.webp {Debugger General preferences}
+    \image {qtcreator-preferences-debugger-general.webp} {General tab in Debugger preferences}
 
     You can customize the appearance and behavior of the debug views and
     setting breakpoints, as well as map source paths to target paths.
@@ -96,7 +96,7 @@
     To specify preferences for managing the GDB process, go to \preferences >
     \uicontrol Debugger > \uicontrol GDB.
 
-    \image qtcreator-preferences-debugger-gdb.webp {GDB preferences}
+    \image {qtcreator-preferences-debugger-gdb.webp} {GDB tab in Debugger preferences}
 
     The following table summarizes the preferences.
 
@@ -225,7 +225,7 @@
     To set preferences for managing the CDB process, go to \preferences >
     \uicontrol Debugger > \uicontrol CDB.
 
-    \image qtcreator-preferences-debugger-cdb.webp {CDB preferences}
+    \image {qtcreator-preferences-debugger-cdb.webp} {CDB tab in Debugger preferences}
 
     The following table summarizes the preferences.
 
@@ -303,7 +303,7 @@
 
     \list 1
         \li Go to \preferences > \uicontrol Debugger > \uicontrol {CDB Paths}.
-            \image qtcreator-debugger-cdb-paths.png
+            \image {qtcreator-debugger-cdb-paths.png} {CDB Paths tab in Debugger preferences}
         \li In the \uicontrol {Symbol Paths} group, select \uicontrol Insert.
         \li Select the directory where you want to store the cached information.
             Use a subfolder in a temporary directory, such as

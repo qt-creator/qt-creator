@@ -22,7 +22,7 @@
     \list 1
         \li Select \preferences >
             \uicontrol Environment > \uicontrol Interface.
-            \image qtcreator-preferences-environment-interface.webp {Interface preferences}
+            \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
         \li In \uicontrol Theme, select a theme.
     \endlist
 */

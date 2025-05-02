@@ -21,12 +21,12 @@
 
     \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol VxWorks.
-            \image qtcreator-preferences-devices-vxworks.webp {VxWorks Preferences}
+            \image {qtcreator-preferences-devices-vxworks.webp} {VxWorks tab in Devices preferences}
         \li In \uicontrol {VxWorks installation folder}, select the directory
             where the WindRiver installer installed VxWorks.
         \li Select \uicontrol {Add Kit}.
         \li In \uicontrol {Kit name}, enter a name for the kit.
-            \image qtcreator-create-new-kit-vxworks.webp {Create New Kit dialog}
+            \image {qtcreator-create-new-kit-vxworks.webp} {Create New Kit dialog}
         \li In \uicontrol {Qt version}, select the folder that contains qmake for
             the Qt VxWorks build.
         \li In \uicontrol {VBS path}, enter the path to the VxWorks VSB directory.

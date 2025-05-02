@@ -59,7 +59,7 @@
 
     \section1 View changes
 
-    \image creator-diff-editor.png {Diff editor output in the Edit mode}
+    \image {creator-diff-editor.png} {Diff editor output in the Edit mode}
 
     View the changes in the \uicontrol Edit mode. Color coding is
     used to mark changed lines. By default, red indicates lines that contain

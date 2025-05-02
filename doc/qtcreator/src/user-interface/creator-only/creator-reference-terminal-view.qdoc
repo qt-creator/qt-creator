@@ -21,7 +21,7 @@
     On Linux and \macos, you can set the terminal to open by selecting
     \preferences > \uicontrol Environment > \uicontrol System.
 
-    \image qtcreator-output-terminal.webp {Terminal pane}
+    \image {qtcreator-output-terminal.webp} {Terminal pane}
 
     \list
         \li To clear the terminal, select \inlineimage icons/clean_pane_small.png
@@ -69,7 +69,7 @@
     \uicontrol Terminal, or select the \uicontrol Configure button in
     the \uicontrol Terminal pane.
 
-    \image qtcreator-preferences-terminal.webp {Terminal tab in Preferences}
+    \image {qtcreator-preferences-terminal.webp} {Terminal preferences}
 
     \table
     \header

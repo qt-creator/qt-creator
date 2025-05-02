@@ -648,6 +648,8 @@ void BookmarkManager::removeAllBookmarks()
 void BookmarkManager::deleteBookmark(Bookmark *bookmark)
 {
     int idx = m_bookmarksList.indexOf(bookmark);
+    if (idx < 0)
+        return;
     beginRemoveRows(QModelIndex(), idx, idx);
 
     m_bookmarksMap[bookmark->filePath()].removeAll(bookmark);

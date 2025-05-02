@@ -30,7 +30,7 @@
         \li Select \preferences > \uicontrol Kits >
             \uicontrol Debuggers > \uicontrol Add.
 
-            \image qtcreator-preferences-kits-debuggers.webp {Debuggers tab in Kits preferences}
+            \image {qtcreator-preferences-kits-debuggers.webp} {Debuggers tab in Kits preferences}
 
         \li In the \uicontrol Name field, give a descriptive name for the debugger.
 

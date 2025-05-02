@@ -182,7 +182,7 @@
     (\uicontrol Export) button in \l Navigator to export a component
     as a property:
 
-    \image qmldesigner-export-item.png
+    \image {qmldesigner-export-item.png} {Navigator view.}
 
     In the UI file where the component is used, you can use the \c button
     property alias to implement signal handlers, for example. In the

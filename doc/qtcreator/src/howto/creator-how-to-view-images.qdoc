@@ -16,7 +16,7 @@
 
     \QC opens image files in the image viewer.
 
-    \image qtcreator-image-viewer.png {Image viewer}
+    \image {qtcreator-image-viewer.png} {Image viewer}
 
     Use the toolbar buttons or \l{Keyboard Shortcuts}{keyboard shortcuts} to:
 

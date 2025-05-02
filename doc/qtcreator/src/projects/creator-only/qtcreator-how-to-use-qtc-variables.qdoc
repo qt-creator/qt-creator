@@ -21,7 +21,7 @@
     For more information about each variable, move the cursor over it in the
     list.
 
-    \image qtcreator-variables.png {Qt Creator Variables dialog showing a tooltip}
+    \image {qtcreator-variables.png} {Qt Creator Variables dialog showing a tooltip}
 
     The following syntax enables you to use environment variables as \QC
     variables: %{Env:VARNAME}.

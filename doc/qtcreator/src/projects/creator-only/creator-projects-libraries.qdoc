@@ -38,9 +38,9 @@
     \list 1
         \li In the \l Projects view, right-click the project name to open the
             context menu and select \uicontrol {Add Library}.
-            \image qtcreator-add-library-wizard.png {Add Library wizard}
+            \image {qtcreator-add-library-wizard.png} {Add Library wizard}
         \li Specify settings for the library.
-            \image qtcreator-add-library-external.webp {Adding an external library}
+            \image {qtcreator-add-library-external.webp} {Adding an external library}
             The settings depend on the library type.
     \endlist
 
@@ -129,7 +129,7 @@
         \li Select \uicontrol Choose to open the \uicontrol {Project Location}
             dialog.
 
-            \image qtcreator-add-library-internal-project-location.webp {Project Location dialog}
+            \image {qtcreator-add-library-internal-project-location.webp} {Project Location dialog}
 
         \li In \uicontrol Name, give a name for the library. For example,
             \e MyLibrary.
@@ -142,7 +142,7 @@
         \li Select \uicontrol Next or \uicontrol Continue to open the
             \uicontrol {Define Project Details} dialog.
 
-            \image qtcreator-add-library-internal-project-details.webp {Define Project Details dialog}
+            \image {qtcreator-add-library-internal-project-details.webp} {Define Project Details dialog}
 
         \li Select the library type and enter information about the classes for
             which you want to generate source code files: class name, Qt module,
@@ -168,7 +168,7 @@
             project or a library project against the selected library. Here, you
             add the library that you created above.
 
-            \image qtcreator-add-library-internal.webp {Adding an internal library}
+            \image {qtcreator-add-library-internal.webp} {Adding an internal library}
 
         \li In \uicontrol Library, select \e mylibrary, and then select
             \uicontrol Next.

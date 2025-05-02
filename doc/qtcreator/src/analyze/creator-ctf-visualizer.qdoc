@@ -60,7 +60,7 @@
     The \uicontrol Timeline view displays a graphical representation of trace
     events and a condensed view of all recorded events.
 
-    \image qtcreator-ctf-visualizer-timeline.webp {Timeline view}
+    \image {qtcreator-ctf-visualizer-timeline.webp} {Timeline view}
 
     Each category in the timeline describes a thread in the application. Move
     the cursor on an event (5) on a row to view its duration and event category.
@@ -100,7 +100,7 @@
 
     \section1 Viewing Statistics
 
-    \image qtcreator-ctf-visualizer-statistics.png
+    \image {qtcreator-ctf-visualizer-statistics.png} {Statistics view}
 
     The \uicontrol Statistics view displays the number of samples each function
     in the timeline was contained in, in total and when on the top of the

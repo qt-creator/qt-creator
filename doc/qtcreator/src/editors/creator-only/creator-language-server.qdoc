@@ -71,7 +71,7 @@
     \l{https://nodejs.org/en/learn/getting-started/an-introduction-to-the-npm-package-manager}
     {NPM} package manager on the computer.
 
-    \image qtcreator-language-server-json.webp {Prompt to install JSON language server}
+    \image {qtcreator-language-server-json.webp} {Prompt to install JSON language server}
 
     \l{Add a Java language server} for  \l{Developing for Android}
     {Android development}. For other languages,
@@ -80,7 +80,7 @@
     To add language servers, go to \preferences > \uicontrol {Language Client}
     and select \uicontrol Add.
 
-    \image qtcreator-preferences-language-client-qmlls.webp {Language Client General preferences}
+    \image {qtcreator-preferences-language-client-qmlls.webp} {General tab in Language Client preferences}
 
     To enable a language server, select the checkbox next to the language
     server name and set server preferences.
@@ -92,7 +92,7 @@
     \QC offers to update the Python language server when you open a Python
     file in the editor.
 
-    \image qtcreator-python-update-language-server.webp {Message about updating Python Language Server}
+    \image {qtcreator-python-update-language-server.webp} {Message about updating Python Language Server}
 
     To update the language server, select \uicontrol Update. To save your choice,
     select \uicontrol {Always Update}.
@@ -139,7 +139,7 @@
         \li Go to \preferences > \uicontrol {Language Client} >
             \uicontrol Add > \uicontrol {Generic StdIO Language Server}
             to add a generic language server.
-            \image qtcreator-language-server-generic-stdio.png
+            \image {qtcreator-language-server-generic-stdio.png} {Generic StdIO Language Server in the General tab in Language Client preferences}
         \li In the \uicontrol Name field, enter a name for the language server.
             Select the \inlineimage icons/replace.png
             (\uicontrol {Variables}) button to use a variable for the server
@@ -181,7 +181,7 @@
         \li Go to \preferences > \uicontrol {Language Client} >
             \uicontrol Add > \uicontrol {Java Language Server} to add
             a Java language server.
-            \image qtcreator-language-client-options-java.png {Java language server preferences}
+            \image {qtcreator-language-client-options-java.png} {Java language server in the General tab in Language Client preferences}
         \li In the \uicontrol Name field, enter a name for the language server.
             Select the \inlineimage icons/replace.png
             (\uicontrol {Variables}) button to use a variable for the server
@@ -211,9 +211,9 @@
         \li Go to \preferences> \uicontrol Python >
             \uicontrol {Language Server Configuration} to
             select the Python language server plugins to use.
-            \image qtcreator-python-plugins.png {Python Language Server Configuration}
+            \image {qtcreator-python-plugins.png} {Language Server Configuration in the Python preferences}
         \li Select \uicontrol Advanced to configure the plugins.
-            \image qtcreator-python-advanced.png {Python language server plugin configuration}
+            \image {qtcreator-python-advanced.png} {Python language server plugin configuration}
     \endlist
 
     For a complete list of configuration options, see
@@ -241,7 +241,7 @@
     \uicontrol {Language Client} > \uicontrol General and
     select \uicontrol {\QMLLS}.
 
-    \image qtcreator-preferences-language-client-qmlls.webp {QML Language Server in Language Client preferences}
+    \image {qtcreator-preferences-language-client-qmlls.webp} {General tab in Language Client preferences}
 
     \section1 Turn off \QMLLS for all projects
 
@@ -320,7 +320,7 @@
     You can view the \uicontrol Name, \uicontrol Value, and \uicontrol Type
     of the capability.
 
-    \image qtcreator-language-client-inspector-capabilities.webp {Language Client Inspector Capabilities tab}
+    \image {qtcreator-language-client-inspector-capabilities.webp} {Capabilities tab in the Language Client Inspector dialog}
 
     For some language servers, \uicontrol {Dynamic Capabilities} lists the
     \uicontrol Methods and \uicontrol Options available.
@@ -330,7 +330,7 @@
     For a clangd server, you can inspect the total amount of memory used by a
     particular component in \uicontrol {Memory Usage}.
 
-    \image qtcreator-language-client-inspector-memory-usage.webp {Language Client Inspector Memory Usage tab}
+    \image {qtcreator-language-client-inspector-memory-usage.webp} {Memory Usage tab in the Language Client Inspector dialog}
 
     \sa {Manage Language Servers}{How To: Manage Language Servers},
     {Language Servers}
@@ -349,7 +349,7 @@
     \uicontrol Projects > \uicontrol {Project Settings} >
     \uicontrol {Language Server}.
 
-    \image qtcreator-projects-settings-language-server.webp {Language Server settings for a project}
+    \image {qtcreator-projects-settings-language-server.webp} {Language Server settings for a project}
 
     To add language servers and change their preferences, select
     \uicontrol {Global settings}.

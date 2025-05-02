@@ -15,7 +15,7 @@
     in \uicontrol Projects > \uicontrol {Build & Run}
     > \uicontrol Build > \uicontrol {Build Settings}.
 
-    \image qtcreator-projectpane.webp {qmake build settings}
+    \image {qtcreator-projectpane.webp} {qmake build settings}
 
     \section1 Build Directory
 
@@ -82,12 +82,12 @@
     To specify settings for all qmake builds, select \preferences >
     \uicontrol {Build & Run} > \uicontrol Qmake.
 
-    \image qtcreator-preferences-build-run-qmake.png {Qmake tab in Build & Run Preferences}
+    \image {qtcreator-preferences-build-run-qmake.png} {Qmake tab in Build & Run preferences}
 
     To set the default build properties, select \preferences >
     \uicontrol {Build & Run} > \uicontrol {Default Build Properties}.
 
-    \image qtcreator-build-settings-default.webp {Default Build Properties tab in Build & Run Preferences}
+    \image {qtcreator-build-settings-default.webp} {Default Build Properties tab in Build & Run preferences}
 
     In the \uicontrol {Default build directory} field, you can use the variables
     that are listed when you select \inlineimage icons/replace.png, as well as
