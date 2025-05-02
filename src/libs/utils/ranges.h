@@ -226,8 +226,6 @@ public:
 template<typename Range>
 cache_latest_view(Range &&) -> cache_latest_view<std::views::all_t<Range>>;
 
-namespace views {
-namespace Internal {
 template<typename Type>
 concept can_cache_latest = requires { cache_latest_view(std::declval<Type>()); };
 
@@ -292,9 +290,10 @@ template<RangeAdaptorClosure FirstClosure, RangeAdaptorClosure SecondClosure>
     return Internal::pipeable(
         Internal::compose(std::forward<FirstClosure>(second), std::forward<SecondClosure>(first)));
 }
-} // namespace Internal
 
-struct CacheLatestFunctor : Internal::range_adaptor_closure<CacheLatestFunctor>
+namespace views {
+
+struct CacheLatestFunctor : range_adaptor_closure<CacheLatestFunctor>
 {
 #  if defined(__GNUC__) && !defined(__clang__) && __GNUC__ == 10 && __GNUC_MINOR__ < 5
     template<std::ranges::viewable_range Range>
@@ -304,7 +303,7 @@ struct CacheLatestFunctor : Internal::range_adaptor_closure<CacheLatestFunctor>
     }
 #  else
     template<std::ranges::viewable_range Range>
-        requires Internal::can_cache_latest<Range>
+        requires can_cache_latest<Range>
     constexpr auto operator() [[nodiscard]] (Range &&range) const
     {
         return cache_latest_view(std::forward<Range>(range));
