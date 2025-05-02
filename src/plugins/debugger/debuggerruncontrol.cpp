@@ -732,9 +732,9 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
         continueOnError,
         onGroupSetup(onSetup),
         Group {
+            fixupParamsRecipe(storage),
             coreFileRecipe(storage),
             When (terminalKicker) >> Do {
-                fixupParamsRecipe(storage),
                 When (debugServerKicker) >> Do {
                     startEnginesRecipe(storage)
                 }
