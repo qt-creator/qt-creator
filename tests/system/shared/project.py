@@ -212,7 +212,7 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
             available.discard(currentItem)
 
 def __getProjectFileName__(projectName, buildSystem):
-    if buildSystem is None or buildSystem == "CMake":
+    if buildSystem is None or buildSystem.startswith("CMake"):
         return "CMakeLists.txt"
     else:
         return projectName + (".pro" if buildSystem == "qmake" else ".qbs")

@@ -18,7 +18,7 @@ def main():
         return
     projectName = "DesignerTestApp"
     # explicitly chose new kit to avoid compiler issues on Windows
-    targets = createProject_Qt_GUI(tempDir(), projectName, buildSystem="CMake",
+    targets = createProject_Qt_GUI(tempDir(), projectName, buildSystem="CMake for Qt 5 and Qt 6",
                                    targets=[Targets.DESKTOP_6_2_4])
     if len(targets) != 1:
         earlyExit()
