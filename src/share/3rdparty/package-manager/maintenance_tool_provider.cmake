@@ -188,7 +188,17 @@ function(qt_maintenance_tool_dependency method package_name)
     set(qt_major_version ${CMAKE_MATCH_1})
     set(qt_package_name ${CMAKE_MATCH_2})
 
-    cmake_parse_arguments(arg "REQUIRED" "" "COMPONENTS" ${ARGN})
+    # https://cmake.org/cmake/help/latest/command/find_package.html
+    set(options
+      CONFIG NO_MODULE MODULE REQUIRED EXACT QUIET GLOBAL NO_POLICY_SCOPE NO_DEFAULT_PATH NO_PACKAGE_ROOT_PATH
+      NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_PACKAGE_REGISTRY
+      NO_CMAKE_SYSTEM_PATH NO_CMAKE_INSTALL_PREFIX NO_CMAKE_SYSTEM_PACKAGE_REGISTRY CMAKE_FIND_ROOT_PATH_BOTH
+      ONLY_CMAKE_FIND_ROOT_PATH NO_CMAKE_FIND_ROOT_PATH
+    )
+    set(oneValueArgs REGISTRY_VIEW)
+    set(multiValueArgs COMPONENTS OPTIONAL_COMPONENTS NAMES CONFIGS HINTS PATHS PATH_SUFFIXES)
+    cmake_parse_arguments(arg "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
     if (arg_REQUIRED AND arg_COMPONENTS)
       # Install missing COMPONENTS.
       set(pkgs_to_install "")
