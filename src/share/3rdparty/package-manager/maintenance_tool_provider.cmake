@@ -51,9 +51,13 @@ set(__qt_addons
   qtwebview
 
   # found in commercial version
+  qtapplicationmanager
   qtinterfraceframework
+  qtlanguageserver
   qtmqtt
+  qtstatemachine
   qtopcua
+  tqtc-qtvncserver
 )
 
 set(__qt_extensions
@@ -89,6 +93,12 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
     set(additional_addons "")
     if (qt_version_number VERSION_LESS 6.8.0)
       set(additional_addons ${__qt_extensions})
+    endif()
+    if (WIN32)
+      list(APPEND additional_addons qtactiveqt)
+    endif()
+    if (UNIX AND NOT APPLE)
+      list(APPEND additional_addons qtwayland)
     endif()
 
     qt_maintenance_tool_get_component_platform(${qt_build_flavor} component_platform)
