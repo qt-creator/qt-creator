@@ -42,9 +42,8 @@ public:
 private:
     struct PathMappingNode
     {
-        ~PathMappingNode();
         FilePath localPath;
-        QHash<QString, PathMappingNode *> children;
+        QHash<QString, PathMappingNode> children;
     };
 
     struct CacheEntry {
