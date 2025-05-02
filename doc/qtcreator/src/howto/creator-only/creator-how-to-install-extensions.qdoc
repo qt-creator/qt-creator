@@ -12,7 +12,7 @@
     In the experimental \uicontrol Extensions mode, you can install extensions
     from the computer or the web, as well as load and unload them.
 
-    \image qtcreator-extension-mode.webp {Extensions mode}
+    \image {qtcreator-extension-mode.webp} {Extensions mode}
 
     To find extensions, start typing in \uicontrol Search.
 
@@ -40,7 +40,7 @@
 
     \list 1
         \li Go to \uicontrol Extensions.
-            \image qtcreator-extension-mode.webp {Extensions mode}
+            \image {qtcreator-extension-mode.webp} {Extensions mode}
         \li Select an extension.
         \li Select \uicontrol {Load on start}.
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
@@ -55,7 +55,7 @@
 
     \list 1
         \li Go to \preferences > \uicontrol Extensions.
-            \image qtcreator-preferences-extensions.webp {Extensions in Preferences}
+            \image {qtcreator-preferences-extensions.webp} {Extensions preferences}
         \li Select \uicontrol {Use external repository}.
         \li In \uicontrol {Server URL} enter the URL of the external repository.
         \li Select \uicontrol {OK}.
@@ -76,7 +76,7 @@
 
     \list 1
         \li Go to \uicontrol Extensions.
-            \image qtcreator-extension-mode.webp {Extensions mode}
+            \image {qtcreator-extension-mode.webp} {Extensions mode}
         \li Select an extension.
         \li Select \uicontrol {Install}.
         \include creator-how-to-install-plugins.qdoc install-plugins

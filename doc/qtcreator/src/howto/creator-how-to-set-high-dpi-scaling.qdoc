@@ -36,7 +36,7 @@
         \list 1
             \li Select \preferences >
                 \uicontrol Environment > \uicontrol Interface.
-                \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
+                \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
             \li In \uicontrol {DPI rounding policy}, select an option to round
                 DPI up or down.
             \li Restart \QC to have the change take effect.

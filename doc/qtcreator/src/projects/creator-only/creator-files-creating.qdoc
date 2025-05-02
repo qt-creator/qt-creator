@@ -15,7 +15,7 @@
     To add files to projects, select \uicontrol File > \uicontrol {New File}, and
     then select the type of the file.
 
-    \image qtcreator-new-file.webp {New File wizard}
+    \image {qtcreator-new-file.webp} {New File wizard}
 
     \note You can also use the \c f locator filter to create a new
     file and open it in the editor. However, you must manually add
@@ -94,7 +94,7 @@
             \uicontrol {C++ Class Wizard} > \uicontrol Choose.
         \li Specify the class name, base class, and header and source files for
             the class.
-            \image qtcreator-cpp-class-wizard.png {Enter Class Name dialog}
+            \image {qtcreator-cpp-class-wizard.png} {Enter Class Name dialog}
     \endlist
 
     The wizard supports namespaces. To use a namespace, enter a qualified
@@ -122,7 +122,7 @@
     select \uicontrol Projects > \uicontrol {Project Settings} >
     \uicontrol {C++ File Naming}.
 
-    \image qtcreator-projects-settings-cpp-file-naming.webp {C++ File Naming settings for a project}
+    \image {qtcreator-projects-settings-cpp-file-naming.webp} {C++ File Naming settings for a project}
 
     In the \uicontrol {License template} field, enter
     \l{Using Variables in Wizards}{predefined wizard variables} to specify the
@@ -150,11 +150,11 @@
     \list 1
         \li Select \uicontrol File > \uicontrol {New File} > \uicontrol {Qt} >
             \uicontrol {Qt Resource File} > \uicontrol Choose.
-            \image qtcreator-new-file-qrc.webp {New File dialog}
+            \image {qtcreator-new-file-qrc.webp} {New File dialog}
         \li Follow the instructions of the wizard to create a resource
             collection file (.qrc).
         \li Open the resource file in the resource editor.
-            \image qtcreator-add-resource.png "Editing resource files"
+            \image {qtcreator-add-resource.png} {Editing resource files}
         \li Select \uicontrol {Add Files} to locate and add individual files.
     \endlist
 
@@ -189,7 +189,7 @@
     \uicontrol {Delete file permanently} check box to remove the file from
     the file system.
 
-    \image qtcreator-remove-file.webp {Remove File dialog}
+    \image {qtcreator-remove-file.webp} {Remove File dialog}
 
     To remove files that cannot be found in the file system,
     select \uicontrol {Remove Missing Files}.
@@ -221,7 +221,7 @@
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File} > \uicontrol {GLSL}.
-            \image qtcreator-new-opengl-file.png {New OpenGL file wizard}
+            \image {qtcreator-new-opengl-file.png} {New OpenGL file wizard}
         \li Select the type of the shader to create, and then select
             \uicontrol Choose.
         \li Follow the instructions of the wizard to create the shader file.

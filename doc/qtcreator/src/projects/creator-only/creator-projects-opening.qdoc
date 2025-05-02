@@ -29,7 +29,7 @@
         \li Select \uicontrol File > \uicontrol {Open File or Project}.
         \li In the \uicontrol Welcome mode, \uicontrol Projects tab, select
             \uicontrol {Open Project} (1).
-            \image qtcreator-welcome-open-projects.webp {Ways to open projects in the Welcome mode Projects tab}
+            \image {qtcreator-welcome-open-projects.webp} {Ways to open projects in the Welcome mode Projects tab}
         \li In the \uicontrol Projects tab, select a project in the list of
             recently opened projects (2).
         \li In the \l Projects view, right-click to open a context
@@ -95,7 +95,7 @@
         \li In \uicontrol {Configure Project}, select
             \l{Kits}{kits} for building
             and running your project.
-            \image qtcreator-configure-project.webp {Configure Project view}
+            \image {qtcreator-configure-project.webp} {Configure Project view}
         \li Select \uicontrol {Configure Project}.
     \endlist
 
@@ -135,7 +135,7 @@
     To show or hide detailed progress information, select
     \uicontrol {Toggle Progress Details} (1).
 
-    \image qtcreator-toggle-progress-bar.webp {Toggle Progress Details button}
+    \image {qtcreator-toggle-progress-bar.webp} {Toggle Progress Details button}
 
     You can drag the progress bar to another position. The position is saved for
     later. Select the \inlineimage icons/pin.png

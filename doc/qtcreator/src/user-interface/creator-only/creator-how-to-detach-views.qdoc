@@ -30,7 +30,7 @@
 
     To attach views, drag them to a highlighted dock area.
 
-    \image qtcreator-attach-views.webp {Attaching a view to a dock area}
+    \image {qtcreator-attach-views.webp} {Attaching a view to a dock area}
 
     \section1 Revert changes
 

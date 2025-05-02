@@ -12,8 +12,8 @@
     To create a connection to Squish Server:
 
     \list 1
-        \li Select \preferences > \uicontrol Squish.
-            \image qtcreator-squish-preferences.png {Squish general preferences}
+        \li Select \preferences > \uicontrol Squish > \uicontrol General.
+            \image {qtcreator-squish-preferences.png} {General tab in Squish preferences}
         \li In \uicontrol {Squish path}, specify the path to the Squish
             installation directory.
         \li In \uicontrol {License path}, specify the path to your
@@ -48,7 +48,7 @@
     To select applications to test using Squish, go to \uicontrol {Tools} >
     \uicontrol {Squish} > \uicontrol {Server Settings}.
 
-    \image qtcreator-squish-server-settings.png {Squish Server Settings}
+    \image {qtcreator-squish-server-settings.png} {Squish Server Settings dialog}
 
     When running test suites or cases, the Squish Runner instructs the Squish
     Server to start the application under test (AUT). The server can be running
@@ -97,7 +97,7 @@
     \uicontrol Add. In the \uicontrol {Add Attachable AUT} dialog, specify a
     connection to a running application to register an attachable AUT.
 
-    \image qtcreator-squish-server-settings-add-attachable-aut.png {Add Attachable AUT dialog}
+    \image {qtcreator-squish-server-settings-add-attachable-aut.png} {Add Attachable AUT dialog}
 
     To change the connection to the selected AUT, select \uicontrol {Edit}.
 
@@ -136,12 +136,12 @@
     Manage Squish test suites and cases in the \uicontrol Squish
     \l {Show and hide sidebars}{sidebar view}.
 
-    \image qtcreator-squish-view.png {Squish sidebar view}
+    \image {qtcreator-squish-view.png} {Squish sidebar view}
 
     To show existing test suites in \uicontrol {Test Suites}, select
     \uicontrol {Open Squish Suites} in the context menu.
 
-    \image qtcreator-squish-view-open-squish-suites.png {Open Squish Test Suites dialog}
+    \image {qtcreator-squish-view-open-squish-suites.png} {Open Squish Test Suites dialog}
 
     To open the \uicontrol {Squish Test Suite} wizard for creating a new
     test suite, select \uicontrol {Create New Test Suite} in the context
@@ -170,7 +170,7 @@
     application under test (AUT) that you selected for the test suite is
     displayed and you can start recording the test case.
 
-    \image qtcreator-squish-control-bar-record-test-case.png {Squish control bar for recording test cases}
+    \image {qtcreator-squish-control-bar-record-test-case.png} {Squish control bar for recording test cases}
 
     When you are done, select the \inlineimage icons/stop_small.png
     (\uicontrol {Stop}) button in the \uicontrol {Control Bar}.
@@ -178,7 +178,7 @@
     Edit recorded test scripts or copy parts of them into manually
     created test scripts.
 
-    \image qtcreator-squish-test-script-edit.png {A test script open in the editor}
+    \image {qtcreator-squish-test-script-edit.png} {A test script open in the editor}
 
     \section1 Run test suites
 
@@ -188,7 +188,7 @@
     To run a test case, select the \inlineimage icons/run_small.png
     (\uicontrol {Run}) button next to the test case in \uicontrol {Test Suites}.
 
-    \image qtcreator-squish-control-bar-run-test-case.png {Squish control bar for running test cases}
+    \image {qtcreator-squish-control-bar-run-test-case.png} {Squish control bar for running test cases}
 
     While the test is running, you can view test results as well as interrupt and
     stop tests in the \uicontrol {Control Bar}.
@@ -216,7 +216,7 @@
     (\uicontrol {Object Map}) button next to the test
     suite in \uicontrol {Test Suites}.
 
-    \image qtcreator-squish-symbolic-names.png {Symbolic Names view}
+    \image {qtcreator-squish-symbolic-names.png} {Symbolic Names view}
 
     You can filter the symbolic names in the \uicontrol {Symbolic Names} view.
     To edit a symbolic name or the names or values of its properties,
@@ -239,13 +239,13 @@
     inspect the contents of local variables in the \uicontrol {Squish Locals}
     view.
 
-    \image qtcreator-squish-locals.png {Squish Locals view}
+    \image {qtcreator-squish-locals.png} {Squish Locals view}
 
     Use the \uicontrol {Step Into}, \uicontrol {Step Over}, and
     \uicontrol {Step Out} buttons in the \uicontrol Squish debugging
     view to step through the code.
 
-    \image qtcreator-squish-debugging-view.png {Squish debugging view}
+    \image{ qtcreator-squish-debugging-view.png} {Squish debugging view}
 
     \sa {Connect to Squish Server}, {Create Squish test suites},
     {Enable and disable plugins}, {Select Squish AUTs}, {Squish}
@@ -265,24 +265,24 @@
         \li Go to \uicontrol File > \uicontrol {New Project}.
         \li Select \uicontrol {Squish} > \uicontrol {Squish Test Suite} >
             \uicontrol Choose.
-            \image qtcreator-squish-create-test-suite.png {Create Squish Test Suite wizard}
+            \image {qtcreator-squish-create-test-suite.png} {Create Squish Test Suite wizard}
         \li On the \uicontrol {Location} page, in \uicontrol {Test Suite Name},
             enter a name for the test suite.
-            \image qtcreator-squish-create-test-suite-location.png {Location page}
+            \image {qtcreator-squish-create-test-suite-location.png} {Location page}
         \li In \uicontrol {Test Suite folder's parent folder}, enter the path to
             the folder to create the test suite folder, and then select
             \uicontrol Next.
         \li On the \uicontrol Setup page, select the GUI toolkit used by the
             application under test (AUT), and then select \uicontrol Next.
-            \image qtcreator-squish-create-test-suite-setup.png {Setup page}
+            \image {qtcreator-squish-create-test-suite-setup.png} {Setup page}
             Currently, only desktop GUI toolkits are supported.
         \li On the \uicontrol {Script Language} page, select the scripting
             language to use for the test suite's test scripts, and then select
             \uicontrol Next.
-            \image qtcreator-squish-create-test-suite-language.png {Languages page}
+            \image {qtcreator-squish-create-test-suite-language.png} {Languages page}
         \li On the \uicontrol {AUT} page, select the AUT to test, and then select
             \uicontrol Next.
-            \image qtcreator-squish-create-test-suite-aut.png {AUT page}
+            \image {qtcreator-squish-create-test-suite-aut.png} {AUT page}
         \li On the \uicontrol {Summary} page, review the test suite settings, and
             then select \uicontrol Finish to create the test suite.
     \endlist
@@ -312,7 +312,7 @@
     To view the test log, go to the \uicontrol Squish output,
     \uicontrol {Test Results} tab.
 
-    \image qtcreator-squish-output-test-results.png {Test Results output}
+    \image {qtcreator-squish-output-test-results.png} {Test Results output}
 
     The \uicontrol Result column displays the time when each test run started
     and finished, log information and warnings, and test result status:
@@ -336,7 +336,7 @@
     To view the Squish Runner and Server logs, go to the \uicontrol Squish
     output, \uicontrol {Runner/Server Log} tab.
 
-    \image qtcreator-squish-output-runner-server-log.png {Runner and Server Log output}
+    \image {qtcreator-squish-output-runner-server-log.png} {Runner and Server Log output}
 
     \sa {Connect to Squish Server}, {Create Squish test suites},
     {Enable and disable plugins}, {Manage Squish test suites and cases},

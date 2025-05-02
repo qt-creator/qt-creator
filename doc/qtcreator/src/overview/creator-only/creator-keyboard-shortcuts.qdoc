@@ -21,7 +21,7 @@
     To view all \QC functions and their keyboard shortcuts, select
     \preferences > \uicontrol Environment > \uicontrol Keyboard.
 
-    \image qtcreator-keyboard-shortcuts.png
+    \image {qtcreator-keyboard-shortcuts.png} {Keyboard tab in Environment preferences}
 
     The tables in this topic list the default keyboard shortcuts. They are
     categorized by actions.
@@ -52,7 +52,7 @@
     in context menus} check box indicates whether the platform default value
     is \c on or \c off.
 
-    \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
+    \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
 
     \section1 Top 5 General Shortcuts
 

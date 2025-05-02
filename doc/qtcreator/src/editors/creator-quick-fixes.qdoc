@@ -57,7 +57,7 @@
     specify whether the member functions are generated inline or outside the
     class.
 
-    \image qtcreator-refactoring-member-function-implementations.png "Implement Member Functions dialog"
+    \image {qtcreator-refactoring-member-function-implementations.png} {Implement Member Functions dialog}
 
     \section2 Insert virtual functions
 
@@ -65,7 +65,7 @@
     quick fix to insert declarations and the corresponding definitions
     inside or outside the class or in an implementation file (if it exists).
 
-    \image qtcreator-refactoring-virtual-function-dialog.png "Insert Virtual Functions dialog"
+    \image {qtcreator-refactoring-virtual-function-dialog.png} {Insert Virtual Functions dialog}
 
     Select the functions to insert in the list of available functions.
     Filter the list and hide reimplemented functions from it.
@@ -79,7 +79,7 @@
     quick fix to create either both getter and setter member functions
     for member variables or only a getter or setter.
 
-    \image qtcreator-refactoring-getters-and-setters.png "Getters and Setters dialog"
+    \image {qtcreator-refactoring-getters-and-setters.png} {Getters and Setters dialog}
 
     \section2 Generate constructors
 
@@ -88,7 +88,7 @@
     class members to initialize in the constructor. Drag the parameters
     to specify their order in the constructor.
 
-    \image qtcreator-refactoring-constructor.png "Constructor dialog"
+    \image {qtcreator-refactoring-constructor.png} {Constructor dialog}
 
     \sa {Find symbols}, {Specify settings for quick fixes}, {Quick Fixes},
     {C++ Quick Fixes}
@@ -99,7 +99,7 @@
     Apply the \uicontrol {Move Class to a Dedicated Set of Source Files} quick
     fix to move a class to a separate set of header and implementation files.
 
-    \image qtcreator-move-class-to-separate-files.webp {Give names to header and implementation files}
+    \image {qtcreator-move-class-to-separate-files.webp} {Give names to header and implementation files}
 
     Specify paths and file names for the header and implementation file.
 
@@ -147,7 +147,7 @@
                 name and select whether properties are set for the new component
                 or for the original one.
 
-                \image qtcreator-move-component-into-separate-file.png
+                \image {qtcreator-move-component-into-separate-file.png} {Move Component into Separate File dialog}
 
             \li QML type name.
                 \if defined(qtdesignstudio)

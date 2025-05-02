@@ -64,8 +64,8 @@
     To specify settings for Qbs:
 
     \list 1
-        \li Select \preferences > \uicontrol Qbs.
-            \image qtcreator-options-qbs.png "Qbs preferences"
+        \li Select \preferences > \uicontrol Qbs > \uicontrol General.
+            \image {qtcreator-options-qbs.png} {General tab in Qbs preferences}
         \li Clear the \uicontrol {Use \QC settings directory for Qbs} check
             box to store Qbs profiles in the Qbs settings directory.
         \li In the \uicontrol {Path to qbs executable} field, you can view
@@ -76,7 +76,7 @@
             can view and change the Qbs installation directory.
         \li Select the \uicontrol Profiles tab to specify settings for Qbs
             profiles.
-            \image creator-qbs-profiles.png "Qbs Profiles tab"
+            \image {creator-qbs-profiles.png} {Profiles tab in Qbs preferences}
         \li In the \uicontrol Kit field, select a build and run kit to view
             the properties of the associated profile. To modify the properties,
             select \preferences > \uicontrol Kits.

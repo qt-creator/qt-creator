@@ -15,7 +15,7 @@
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
-    \image qtcreator-settings-run-desktop.webp {Run Settings for desktop devices}
+    \image {qtcreator-settings-run-desktop.webp} {Run Settings for desktop devices}
 
     \section1 Working Directory
 

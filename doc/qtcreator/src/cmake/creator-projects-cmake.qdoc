@@ -67,12 +67,12 @@
     view when you edit a \c CMakeLists.txt configuration file
     in a project. Also, refreshes project information when you build the project.
 
-    \image qtcreator-projects-view-edit.png {CMake project in Projects view}
+    \image {qtcreator-projects-view-edit.png} {CMake project in Projects view}
 
     To disable this behavior, go to \preferences > \uicontrol CMake >
     \uicontrol General and clear \uicontrol {Autorun CMake}.
 
-    \image qtcreator-preferences-cmake-general.webp {General tab in CMake Preferences}
+    \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
 
     \section1 Re-configure CMake projects
 
@@ -149,7 +149,7 @@
 
         \li Select \preferences > \uicontrol CMake > \uicontrol Tools.
 
-            \image qtcreator-preferences-cmake-tools.webp {Tools tab in CMake Preferences}
+            \image {qtcreator-preferences-cmake-tools.webp} {Tools tab in CMake preferences}
 
         \li The \uicontrol Name field displays a name for the CMake
             installation.
@@ -190,7 +190,7 @@
     The kit also specifies the CMake generator that is used for producing
     project files for \QC and the initial configuration parameters:
 
-    \image qtcreator-preferences-kits.webp {Kits preferences}
+    \image {qtcreator-preferences-kits.webp} {Kits preferences}
 
     \sa {Build applications on remote Linux devices}, {Build on Docker devices},
     {Build with CMake}{How To: Build with CMake},
@@ -295,7 +295,7 @@
 
     \list 1
         \li Select \preferences > \uicontrol CMake > \uicontrol Formatter.
-            \image qtcreator-preferences-cmake-formatter.webp {Formatter tab in CMake Preferences}
+            \image {qtcreator-preferences-cmake-formatter.webp} {Formatter tab in CMake preferences}
         \li In \uicontrol {CMakeFormat command}, enter the path to
             \c {cmake-format.exe}.
         \li Select \uicontrol {Automatic formatting on file save} to automatically

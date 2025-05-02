@@ -20,7 +20,7 @@
 
     \list 1
         \li Go to \preferences > \uicontrol Environment > \uicontrol System.
-            \image qtcreator-preferences-environment-system.webp {System preferences}
+            \image {qtcreator-preferences-environment-system.webp} {System tab in Environment preferences}
         \li Select \uicontrol {Enable crash reporting}.
     \endlist
 

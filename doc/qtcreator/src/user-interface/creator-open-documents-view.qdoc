@@ -23,9 +23,9 @@
     \endif
 
     \if defined(qtdesignstudio)
-    \image open-documents-view.webp {Open Documents view}
+    \image {open-documents-view.webp} {Open Documents view.}
     \else
-    \image qtcreator-open-documents-view.png {Open Documents view}
+    \image {qtcreator-open-documents-view.png} {Open Documents view}
     \endif
 
     You can use the context menu to apply some of the functions also available
@@ -54,7 +54,7 @@
     To set preferences for opening files and handling open files, select
     \preferences > \uicontrol Environment > \uicontrol System:
 
-    \image qtcreator-preferences-environment-system.webp {System tab in Environment preferences}
+    \image {qtcreator-preferences-environment-system.webp} {System tab in Environment preferences}
 
     \list
         \li In the \uicontrol {When files are externally modified} field,

@@ -22,7 +22,7 @@
     devices in the project configuration file and in \uicontrol Projects
     > \uicontrol {Run Settings} > \uicontrol Deployment.
 
-    \image qtcreator-qnx-deployment.png "Deploy to device"
+    \image {qtcreator-qnx-deployment.png} {Deploy to device}
 
     The deployment process is described in more detail in
     \l{Remote Linux Deploy Configuration}.

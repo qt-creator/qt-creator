@@ -34,7 +34,7 @@
     To set Subversion preferences, go to \preferences >
     \uicontrol {Version Control} > \uicontrol Subversion:
 
-   \image qtcreator-preferences-vcs-subversion.webp {Subversion preferences}
+   \image {qtcreator-preferences-vcs-subversion.webp} {Subversion tab in Version Control preferences}
 
     \list
         \li \uicontrol {Subversion command} specifies the path to the command

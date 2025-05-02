@@ -37,7 +37,7 @@
              \uicontrol Build > \uicontrol {Open Build and Run Kit Selector} to
              select the build and run kit or an \l{Manage AVDs}{Android device}.
 
-            \image qtcreator-kit-selector.webp {Kit selector}
+            \image {qtcreator-kit-selector.webp} {Kit selector}
 
         \li  Select \uicontrol Build > \uicontrol {Build Project} or press
              \key {Ctrl+B}.
@@ -119,7 +119,7 @@
     even though it takes more time. Go to \preferences > \uicontrol {Build & Run}
     > \uicontrol Qmake, and select \uicontrol {Run qmake on every build}.
 
-    \image qtcreator-preferences-build-run-qmake.png {Build & Run Qmake Preferences}
+    \image {qtcreator-preferences-build-run-qmake.png} {Qmake tab in Build & Run preferences}
 
     \sa {Build and Run}{How To: Build and Run}, {qmake Build Configuration}
 */

@@ -15,7 +15,7 @@
     \list 1
         \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol CMake.
-            \image qtcreator-project-settings-cmake.webp {CMake settings for a project}
+            \image {qtcreator-project-settings-cmake.webp} {CMake settings for a project}
         \li Clear \uicontrol {Use global settings}.
         \li Configure CMake for the project.
     \endlist

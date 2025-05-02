@@ -26,7 +26,7 @@
     To set editor font and colors, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
 
-    \image qtcreator-font-colors.png {Font & Colors tab in Text Editor preferences}
+    \image {qtcreator-font-colors.png} {Font & Colors tab in Text Editor preferences}
 
     \section1 Configuring Fonts
 
@@ -63,7 +63,7 @@
     You can select one of the predefined color schemes for the text editor
     or create customized color schemes.
 
-    \image qtcreator-font-colors.png {Font & Colors tab in Text Editor preferences}
+    \image {qtcreator-font-colors.png} {Font & Colors tab in Text Editor preferences}
 
     To create a color scheme:
 
@@ -107,7 +107,7 @@
     file to import. In the \uicontrol {Import Color Scheme} dialog, enter a name
     for the color scheme in \uicontrol {Color scheme name}:
 
-    \image qtcreator-import-color-scheme.png "Import Color Scheme dialog"
+    \image {qtcreator-import-color-scheme.png} {Import Color Scheme dialog}
 
     When you select \uicontrol OK, the color scheme is added to the list of
     color schemes in the \uicontrol {Font & Colors} tab.

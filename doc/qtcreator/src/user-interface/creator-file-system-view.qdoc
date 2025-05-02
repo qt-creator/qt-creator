@@ -27,9 +27,9 @@
     or almost anything else in your project. Use the \e {file system (f)} filter
     to open files from anywhere in the file system.
 
-    \image qtcreator-filesystem-view.webp {File System view in the sidebar}
+    \image {qtcreator-filesystem-view.webp} {File System view in the sidebar}
     \else
-    \image filesystem-view-design.webp {File System view}
+    \image {filesystem-view-design.webp} {File System view.}
     \endif
 
     To go to the root directory of the file system, select \uicontrol Computer
