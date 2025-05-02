@@ -16,7 +16,7 @@
     First, create a Qt for Python application project. Then, use the integrated
     \QD to design a widgets-based UI.
 
-    \image qtcreator-new-project-python-window-ui-ready.webp {A small Qt Widgets application}
+    \image {qtcreator-new-project-python-window-ui-ready.webp} {A small Qt Widgets application}
 
     For more examples of creating Qt for Python applications, see
     \l {https://doc.qt.io/qtforpython/tutorials/index.html}
@@ -32,14 +32,14 @@
         \li Select \uicontrol {Application (Qt for Python)} >
             \uicontrol {Window UI} > \uicontrol Choose to open the
             \uicontrol {Project Location} dialog.
-            \image qtcreator-new-project-python-window-ui.webp {Project Location dialog}
+            \image {qtcreator-new-project-python-window-ui.webp} {Project Location dialog}
         \li In \uicontrol {Name}, enter the project name. For example,
             \e {hello_world_ui}.
         \li In \uicontrol {Create in}, enter the path for the project files.
             For example, \c {C:\Examples}.
         \li Select \uicontrol{Next} (on Windows and Linux) or \uicontrol Continue
             (on \macos) to open the \uicontrol {Define Class} dialog.
-            \image qtcreator-new-project-python-window-ui-define-class.webp {Define Class dialog}
+            \image {qtcreator-new-project-python-window-ui-define-class.webp} {Define Class dialog}
         \li In \uicontrol {Class name}, select \b {MainWindow} as the class
             name.
         \li In \uicontrol {Base class}, select \b {QMainWindow} as the base class.
@@ -48,12 +48,12 @@
         \li In \uicontrol {Project file}, enter a name for the project file.
         \li Select \uicontrol{Next} or \uicontrol Continue to open the
             \uicontrol {Define Python Interpreter} dialog.
-            \image qtcreator-new-project-python-window-ui-define-python-interpreter.webp {Define Python Interpreter dialog}
+            \image {qtcreator-new-project-python-window-ui-define-python-interpreter.webp} {Define Python Interpreter dialog}
         \li In \uicontrol {PySide version}, select the PySide version of the
             generated code.
         \li Select \uicontrol {Next} or \uicontrol {Continue} to open the
             \uicontrol {Kit Selection} dialog.
-            \image qtcreator-new-project-qt-for-python-kit-selection.webp {Selecting a kit for a Python project}
+            \image {qtcreator-new-project-qt-for-python-kit-selection.webp} {Selecting a kit for a Python project}
         \li Select Python kits for building, deploying, and running the
             project. By default, this creates a virtual environment for the
             project inside the source directory. To use the global interpreter,
@@ -90,7 +90,7 @@
             \li \uicontrol {Check Box} (QCheckBox)
             \li \uicontrol {Push Button} (QPushButton)
         \endlist
-        \image qtcreator-new-project-python-window-ui-widgets.webp {Adding widgets to the UI}
+        \image {qtcreator-new-project-python-window-ui-widgets.webp} {Adding widgets to the UI}
         \note To easily locate the widgets, use the search box at the top of the
         \uicontrol {Widget Box}. For example, to find the \uicontrol {Text Edit}
         widget, start typing the word \b text.

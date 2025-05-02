@@ -38,7 +38,7 @@
         \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol {Code Style}.
 
-            \image qtcreator-code-style-clang-format-project.webp {Code Style settings in Projects mode}
+            \image {qtcreator-code-style-clang-format-project.webp} {Code Style settings in the Projects mode}
 
         \li In \uicontrol Language, select \uicontrol C++,
             \uicontrol {Qt Quick}, or \uicontrol Nim.

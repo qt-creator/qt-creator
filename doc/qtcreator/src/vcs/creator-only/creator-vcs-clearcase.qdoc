@@ -36,7 +36,7 @@
         \li Select \preferences > \uicontrol {Version Control} >
             \uicontrol ClearCase.
 
-            \image qtcreator-preferences-vcs-clearcase.webp {ClearCase preferences}
+            \image {qtcreator-preferences-vcs-clearcase.webp} {ClearCase tab in Version Control preferences}
 
         \li Select the \uicontrol External radio button. The radio button is
             disabled if \c diff is not in the PATH.

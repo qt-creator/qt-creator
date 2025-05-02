@@ -39,9 +39,9 @@
     and number of instances of the symbol in the current project.
 
     \if defined(qtcreator)
-    \image qtcreator-refactoring-replace.png
+    \image {qtcreator-refactoring-replace.png} {Rename Symbol Under Cursor}
     \else
-    \image qml-rename-symbol.png
+    \image {qml-rename-symbol.png} {Rename Symbol Under Cursor}
     \endif
 
     To replace all selected instances, enter the name of the new symbol

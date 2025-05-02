@@ -23,7 +23,7 @@
     \uicontrol \B2Q device type to build applications for and run them on
     the devices.
 
-    \image qtcreator-boot2qt-device-configurations.webp {Devices tab in Preferences}
+    \image {qtcreator-boot2qt-device-configurations.webp} {Devices tab in Devices preferences}
 
     \include linuxdev.qdoc openssh
 
@@ -58,7 +58,7 @@
             applications.
         \li Go to \uicontrol Tools > \uicontrol {Flash \B2Q}
             to flash the \B2Q image to an SD card with \B2Q Flashing Wizard.
-            \image qtcreator-boot2qt-flashing-wizard.png {\B2Q Flashing Wizard}
+            \image {qtcreator-boot2qt-flashing-wizard.png} {\B2Q Flashing Wizard}
         \li Follow the instructions of the wizard to flash the image to the SD
             card.
         \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
@@ -111,10 +111,10 @@
 
     \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
-            \image qtcreator-boot2qt-device-configurations.webp {Devices tab in Preferences}
+            \image {qtcreator-boot2qt-device-configurations.webp} {Devices tab in Devices preferences}
         \li Select \uicontrol Add > \uicontrol {Boot2Qt Device} to create
             a network connection to the device.
-            \image qtcreator-devices-boot2qt.png {Boot to Qt Network Device Setup wizard}
+            \image {qtcreator-devices-boot2qt.png} {Boot to Qt Network Device Setup wizard}
         \li In \uicontrol {Device name}, enter a name for the connection.
         \li In \uicontrol {Device address}, enter the host
             name or IP address of the device. This value becomes the value of the

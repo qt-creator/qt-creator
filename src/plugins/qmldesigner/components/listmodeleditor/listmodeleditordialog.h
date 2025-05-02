@@ -7,8 +7,8 @@
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
-class QTableView;
 class QModelIndex;
+class QTableView;
 QT_END_NAMESPACE
 
 namespace Ui {

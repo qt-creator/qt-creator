@@ -14,7 +14,7 @@
     \list
         \li Select \inlineimage icons/live-preview.png (\uicontrol {Live Preview})
             on the \l{Edit Mode}{editor} toolbar.
-            \image qtcreator-live-preview.webp {Application running on top of the editor view}
+            \image {qtcreator-live-preview.webp} {Application running on top of the editor view}
         \li Go to \uicontrol Build > \uicontrol {QML Preview}.
     \endlist
 

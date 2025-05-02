@@ -42,12 +42,12 @@
     \if defined(qtdesignstudio)
     The following image shows the context sensitive help in the \l Code view.
 
-    \image qds-help-in-code-view.webp {Context-sensitive help in the Code view.}
+    \image {qds-help-in-code-view.webp} {Context-sensitive help in the Code view.}
     \else
     The following image shows the context sensitive help in the \uicontrol Edit
     mode.
 
-    \image qtcreator-context-sensitive-help.webp {Context-sensitive help in Edit mode}
+    \image {qtcreator-context-sensitive-help.webp} {Context-sensitive help in Edit mode}
     \endif
 
     \section1 Change the font
@@ -56,7 +56,7 @@
     family, style, and size in \preferences > \uicontrol Help >
     \uicontrol General.
 
-    \image qtcreator-preferences-help-general.webp {General tab in Help preferences}
+    \image {qtcreator-preferences-help-general.webp} {General tab in Help preferences}
 
     Set the default zoom level in \uicontrol Zoom. When viewing help pages, use
     the mouse scroll wheel to zoom them. To turn off this feature, clear
@@ -83,7 +83,7 @@
 
     \list 1
         \li Go to \preferences > \uicontrol {Text Editor} > \uicontrol Behavior.
-        \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
+        \image {qtcreator-preferences-texteditor-behavior.webp} {Behavior tab in Text Editor preferences}
         \li In \uicontrol {Show help tooltips using the mouse}, select
             \uicontrol {On Shift+Mouseover}.
     \endlist
@@ -126,11 +126,11 @@
     \uicontrol {Qt Versions} and select an option in
     \uicontrol {Register documentation}.
 
-    \image qtcreator-qt-versions.png {Register documentation in Qt Versions preferences}
+    \image {qtcreator-qt-versions.png} {Register documentation in the Qt Versions tab in Kits preferences}
 
     \section1 Help mode sidebar views
 
-    \image qtcreator-sidebar-help-mode.webp {Sidebar views in the Help mode}
+    \image {qtcreator-sidebar-help-mode.webp} {Sidebar views in the Help mode}
 
     To find information in the documentation in the \uicontrol Help mode, select:
 
@@ -175,7 +175,7 @@
     bookmark or change it to any text. You can organize the bookmarks in
     folders in the view.
 
-    \image qtcreator-help-add-bookmark-dlg.png {Add Bookmark dialog}
+    \image {qtcreator-help-add-bookmark-dlg.png} {Add Bookmark dialog}
 
     To add a bookmark to an open help page:
 
@@ -221,7 +221,7 @@
     the number of search hits that the documents have. Select a document in
     the list to open it.
 
-    \image qtcreator-help-search.png {Help mode Search pane}
+    \image {qtcreator-help-search.png} {Help mode Search pane}
 
     The following are examples of common search patterns:
 
@@ -283,7 +283,7 @@
         \li To add the .qch file to \QC, go to \preferences >
             \uicontrol Help > \uicontrol Documentation > \uicontrol Add.
 
-            \image qtcreator-preferences-help-documentation.webp {Documentation tab in Help Preferences}
+            \image {qtcreator-preferences-help-documentation.webp} {Documentation tab in Help preferences}
 
     \endlist
 
@@ -309,15 +309,15 @@
     space, the help opens in the full-screen help mode.
 
     \if defined(qtdesignstudio)
-    \image qds-help-in-code-view.webp {Context-sensitive help in the Code view.}
+    \image {qds-help-in-code-view.webp} {Context-sensitive help in the Code view.}
     \else
-    \image qtcreator-context-sensitive-help.webp {Context-sensitive help in Edit mode}
+    \image {qtcreator-context-sensitive-help.webp} {Context-sensitive help in Edit mode}
     \endif
 
     To specify that the help always opens in full-screen mode or in an external
     window, go to \preferences > \uicontrol Help > \uicontrol General.
 
-    \image qtcreator-preferences-help-general.webp {General tab in Help preferences}
+    \image {qtcreator-preferences-help-general.webp} {General tab in Help preferences}
 
     Set preferences for viewing context-sensitive help
     in \uicontrol {On context help}. To detach the help window, select
@@ -346,7 +346,7 @@
     \preferences > \uicontrol Help > \uicontrol General and select
     \uicontrol {On help start}.
 
-    \image qtcreator-preferences-help-general.webp {General tab in Help preferences}
+    \image {qtcreator-preferences-help-general.webp} {General tab in Help preferences}
 
     \list
         \li To show the page and help views that were open when you exited the mode,
@@ -384,7 +384,7 @@
     contents of the \uicontrol Index and \uicontrol Contents
     view in the sidebar change accordingly.
 
-    \image qtcreator-help-filters.png {Filters on the Help mode toolbar}
+    \image {qtcreator-help-filters.png} {Filters on the Help mode toolbar}
 
     \section1 Add filters
 
@@ -397,7 +397,7 @@
 
         \li Go to \preferences > \uicontrol Help > \uicontrol Filters.
 
-            \image qtcreator-help-filter-attributes.png {Filters tab in Help preferences}
+            \image {qtcreator-help-filter-attributes.png} {Filters tab in Help preferences}
 
         \li Select \inlineimage icons/plus.png
             to add a new filter in the \uicontrol {Add Filter} dialog.

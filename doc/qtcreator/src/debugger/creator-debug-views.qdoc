@@ -24,7 +24,7 @@
     and line number of the corresponding source file. This data is shown in the
     \uicontrol Stack view.
 
-    \image qtcreator-debug-stack.png {Stack view}
+    \image {qtcreator-debug-stack.png} {Stack view}
 
     Since the call stack leading to the current position may originate or go
     through code for which no debug information is available, not all stack
@@ -110,7 +110,7 @@
     (\uicontrol {Unclaimed Breakpoint}) icon, when they refer to a position
     in code.
 
-    \image qtcreator-debugger-breakpoint-preset.webp {Breakpoint Preset view}
+    \image {qtcreator-debugger-breakpoint-preset.webp} {Breakpoint Preset view}
 
     When a debugger starts, the debugging backend identifies breakpoints
     from the set of unclaimed breakpoints that might be handled by the
@@ -139,7 +139,7 @@
     You can then examine the state of the interrupted application, or
     continue execution either line-by-line or continuously.
 
-    \image qtcreator-debug-breakpoints.webp {Breakpoints view}
+    \image {qtcreator-debug-breakpoints.webp} {Breakpoints view}
 
     \if defined(qtdesignstudio)
     For more information, see:
@@ -189,7 +189,7 @@
         \li In \uicontrol {Breakpoint type}, select the location in the
             application code where you want the application to stop.
 
-            \image qtcreator-add-breakpoint.webp {Add Breakpoints} dialog
+            \image {qtcreator-add-breakpoint.webp} {Add Breakpoints dialog}
     \endlist
 
     Clear \uicontrol Enabled to make the breakpoint temporarily
@@ -398,7 +398,7 @@
     The \uicontrol {Locals} view consists of the \uicontrol Locals pane and the
     \uicontrol {Return Value} pane (hidden when empty).
 
-    \image qtcreator-locals.png {Locals view}
+    \image {qtcreator-locals.png} {Locals view}
 
     Whenever an application stops under the control of the debugger, it retrieves
     information about the topmost stack frame and displays it in the
@@ -475,7 +475,7 @@
     You can also use Expression Evaluators as shortcuts to items that are
     nested deeply in the locals tree.
 
-    \image qtcreator-debugger-expressions.webp {Expressions view}
+    \image {qtcreator-debugger-expressions.webp} {Expressions view}
 
     \section1 Adding expression evaluators
 
@@ -493,7 +493,7 @@
 
     Enter the expression in the \uicontrol {New Evaluated Expression} dialog:
 
-    \image qtcreator-debugger-new-evaluated-expression.webp {New Evaluated Expression dialog}
+    \image {qtcreator-debugger-new-evaluated-expression.webp} {New Evaluated Expression dialog}
 
     \omit
     ## Visible in the context menu, but does not currently work.

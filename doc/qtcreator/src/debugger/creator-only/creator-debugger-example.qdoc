@@ -32,7 +32,7 @@
             border on the line where we change the cursor position to set a
             breakpoint.
 
-            \image qtcreator-setting-breakpoint1.png
+            \image {qtcreator-setting-breakpoint1.png} {Setting a breakpoint in the editor}
 
         \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Start Debugging of Startup Project} or select \key F5.
@@ -40,7 +40,7 @@
         \li To view information about the breakpoint, go to the
             \uicontrol Breakpoints view.
 
-            \image qtcreator-setting-breakpoint2.png
+            \image {qtcreator-setting-breakpoint2.png} {Viewing breakpoint details in the Breakpoints view}
 
         \li To remove a breakpoint, right-click it and select
             \uicontrol {Delete Breakpoint}.
@@ -49,7 +49,7 @@
         \li To view the base classes and data members of the TextFinder class,
             go to the \uicontrol Locals view.
 
-            \image qtcreator-watcher.png
+            \image {qtcreator-watcher.png} {Viewing the base classes and data members of a class}
 
     \endlist
 

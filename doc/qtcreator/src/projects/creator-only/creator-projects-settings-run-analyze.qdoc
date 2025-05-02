@@ -24,7 +24,7 @@
 
         \li Specify Valgrind settings for the project.
 
-            \image qtcreator-analyzer-settings.png {Valgrind Settings}
+            \image {qtcreator-analyzer-settings.png} {Valgrind Settings section in Run Settings}
 
         \li In \uicontrol {Valgrind executable}, specify the path to the
             Valgrind executable.

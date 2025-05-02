@@ -26,10 +26,14 @@ class QMLDESIGNERCORE_EXPORT VariantProperty final : public AbstractProperty
 
 public:
     void setValue(const QVariant &value);
-    QVariant value() const;
+    const QVariant &value() const;
+
+    const QVariant &operator->() const { return value(); }
+
+    const QVariant &operator*() const { return value(); }
 
     void setEnumeration(const EnumerationName &enumerationName);
-    Enumeration enumeration() const;
+    const Enumeration &enumeration() const;
     bool holdsEnumeration() const;
 
     void setDynamicTypeNameAndValue(const TypeName &type, const QVariant &value);

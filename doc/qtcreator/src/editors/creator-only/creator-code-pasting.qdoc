@@ -37,7 +37,7 @@
     \list 1
         \li Go to \uicontrol Tools > \uicontrol {Code Pasting} >
             \uicontrol {Paste Snippet} or select \key {Alt+C,Alt+P}.
-            \image qtcreator-send-to-codepaster.webp {Send to Codepaster dialog}
+            \image {qtcreator-send-to-codepaster.webp} {Send to Codepaster dialog}
         \li In \uicontrol Protocol, select the code pasting service to use.
         \li In \uicontrol {Expires after}, specify the time to keep
             the pasted snippet on the server.
@@ -72,7 +72,7 @@
 
     \list 1
         \li Go to \preferences > \uicontrol {Code Pasting} > \uicontrol General.
-            \image qtcreator-code-pasting-options.png {Code Pasting preferences}
+            \image {qtcreator-code-pasting-options.png} {General tab in Code Pasting preferences}
         \li In \uicontrol {Default protocol}, select a code pasting service to
             use by default.
         \li In \uicontrol Username, enter your username.

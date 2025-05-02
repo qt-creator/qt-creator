@@ -27,7 +27,7 @@
     To set Perforce preferences, select \preferences >
     \uicontrol {Version Control} > \uicontrol Perforce:
 
-    \image qtcreator-preferences-vcs-perforce.webp {Perforce preferences}
+    \image {qtcreator-preferences-vcs-perforce.webp} {Perforce tab in Version Control preferences}
 
     In \uicontrol {P4 command}, set the path to the command-line client
     executable.

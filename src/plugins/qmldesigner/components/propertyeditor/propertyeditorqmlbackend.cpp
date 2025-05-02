@@ -110,11 +110,12 @@ static bool isMaterialAuxiliaryKey(AuxiliaryDataKeyView key)
 
 PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyEditor,
                                                    AsynchronousImageCache &imageCache)
-    : m_view(Utils::makeUniqueObjectPtr<Quick2PropertyEditorView>(imageCache))
+    : m_contextObject(std::make_unique<PropertyEditorContextObject>())
+    , m_view(Utils::makeUniqueObjectPtr<Quick2PropertyEditorView>(imageCache))
     , m_propertyEditorTransaction(std::make_unique<PropertyEditorTransaction>(propertyEditor))
     , m_dummyPropertyEditorValue(std::make_unique<PropertyEditorValue>())
-    , m_contextObject(std::make_unique<PropertyEditorContextObject>(m_view.get()))
 {
+    m_contextObject->setQuickWidget(m_view.get());
     m_view->engine()->setOutputWarningsToStandardError(QmlDesignerPlugin::instance()
         ->settings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
 

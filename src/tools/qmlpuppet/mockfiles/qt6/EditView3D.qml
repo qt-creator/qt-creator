@@ -102,6 +102,14 @@ Item {
     property Node activeParticleSystem: null
     property bool shuttingDown: false
 
+    // Always normalized [0.0…1.0]
+    property real dividerX: 0.5       // Vertical split (left & right)
+    property real dividerY: 0.5       // Horizontal split (top & bottom)
+
+    // Only used in “3Left1Right”
+    property real dividerY1: 0.3333     // first horizontal in left column
+    property real dividerY2: 0.6667     // secnd horizontal in left column
+
     property real fps: 0
 
     signal selectionChanged(var selectedNodes)
@@ -436,7 +444,8 @@ Item {
             activePreset = toolStates.activePreset;
         else if (resetToDefault)
             activePreset = "Quad";
-        applyViewportPreset(activePreset)
+
+        applyViewportPreset(activePreset);
 
         if ("activeViewport" in toolStates)
             activeViewport = toolStates.activeViewport;
@@ -710,6 +719,15 @@ Item {
         cameraControls[activeViewport].moveCamera(amounts);
     }
 
+    function resetDividers()
+    {
+        dividerX = activePreset === "3Left1Right" ? 0.25 : 0.5
+        dividerY = 0.5
+
+        verticalResizer.x = dividerX * viewContainer.width
+        horizontalResizer.y = dividerY * viewContainer.height
+    }
+
     // Update viewports based on selected preset
     function applyViewportPreset(presetName)
     {
@@ -730,9 +748,91 @@ Item {
                 viewRects[i].visible = false;
             }
         }
+        resetDividers();
+        updateViewRects();
 
         //TODO: Do we need this here?
         cameraView.updateSnapping();
+    }
+
+    // Updates the position, size, and visibility of viewports based on the selected
+    // viewport preset and resizer(s) position.
+    function updateViewRects()
+    {
+        var w = viewContainer.width, h = viewContainer.height
+        switch (activePreset) {
+        case "Single":
+            viewRect0.width = w;
+            viewRect0.height = h;
+            viewRect1.visible = viewRect2.visible = viewRect3.visible = false;
+            break;
+
+        case "2Vertical":
+            viewRect0.width = dividerX * w;
+            viewRect0.height = h;
+            viewRect1.x = dividerX * w;
+            viewRect1.y = 0;
+            viewRect1.width = (1 - dividerX) * w;
+            viewRect1.height = h;
+            viewRect2.visible = viewRect3.visible = false;
+            break
+
+        case "2Horizontal":
+            viewRect0.width = w;
+            viewRect0.height = dividerY * h;
+            viewRect1.x = 0;
+            viewRect1.y = dividerY * h;
+            viewRect1.width = w;
+            viewRect1.height = (1 - dividerY) * h;
+            viewRect2.visible = viewRect3.visible = false;
+            break
+
+        case "Quad":
+            // top‑left
+            viewRect0.width = dividerX * w;
+            viewRect0.height = dividerY * h;
+            // top‑right
+            viewRect1.x = dividerX * w;
+            viewRect1.y = 0;
+            viewRect1.width = (1 - dividerX) * w;
+            viewRect1.height = dividerY * h;
+            // bottom‑left
+            viewRect2.x = 0;
+            viewRect2.y = dividerY * h;
+            viewRect2.width = dividerX * w;
+            viewRect2.height = (1 - dividerY) * h;
+            // bottom‑right
+            viewRect3.x = dividerX * w;
+            viewRect3.y = dividerY * h
+            viewRect3.width = (1 - dividerX) * w;
+            viewRect3.height = (1 - dividerY) * h;
+            break
+
+        case "3Left1Right":
+            // left column 3 rows
+            viewRect0.width = dividerX * w;
+            viewRect0.height = dividerY1 * h;
+
+            viewRect1.x = 0;
+            viewRect1.y = dividerY1 * h;
+            viewRect1.width = dividerX * w;
+            viewRect1.height = (dividerY2 - dividerY1) * h;
+
+            viewRect2.x = 0;
+            viewRect2.y = dividerY2 * h;
+            viewRect2.width = dividerX * w;
+            viewRect2.height = (1 - dividerY2) * h;
+
+            // big right view
+            viewRect3.x = dividerX * w;
+            viewRect3.y = 0;
+            viewRect3.width = (1 - dividerX) * w;
+            viewRect3.height = h;
+            break
+        }
+
+        // Request overlays to redraw
+        _generalHelper.requestOverlayUpdate();
     }
 
     Component.onCompleted: {
@@ -929,6 +1029,40 @@ Item {
                 border.color: "#57B9FC"
                 color: "transparent"
                 z: 1000 // Edge case to make sure selection rect drawn over everything
+            }
+
+            // Vertical divider (left/right)
+            ViewportResizer {
+                id: verticalResizer
+                orientation: Qt.Vertical
+                divider: dividerX
+                containerSize: viewContainer.width
+                y: 0
+                height: viewContainer.height
+                visible: viewRoot.activePreset === "2Vertical"
+                         || viewRoot.activePreset === "3Left1Right"
+                         || viewRoot.activePreset === "Quad"
+                onCurrentDividerChanged: (value) => {
+                    dividerX = value;
+                    updateViewRects();
+                }
+            }
+
+            // Horizontal divider (top/bottom)
+            ViewportResizer {
+                id: horizontalResizer
+
+                orientation: Qt.Horizontal
+                divider: dividerY
+                containerSize: viewContainer.height
+                x: 0
+                width: viewContainer.width
+                visible: viewRoot.activePreset === "2Horizontal"
+                         || viewRoot.activePreset === "Quad"
+                onCurrentDividerChanged: (value) => {
+                    dividerY = value;
+                    updateViewRects();
+                }
             }
 
             MouseArea {

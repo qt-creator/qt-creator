@@ -162,7 +162,6 @@ extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX tracing
   SOURCES
     qmldesignertracing.cpp qmldesignertracing.h
-    qmldesignertracingsourcelocation.h
 )
 
 extend_qtc_library(QmlDesignerCore

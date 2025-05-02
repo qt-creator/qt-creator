@@ -38,7 +38,7 @@
 
         \li In the \uicontrol Welcome mode, select \uicontrol Examples (1).
 
-            \image qtcreator-examples-open.webp {Selecting an example}
+            \image {qtcreator-examples-open.webp} {Selecting an example}
 
             If you cannot see any examples, check that the list of
             \l{Add Qt versions}{Qt versions} (2) is not empty. If
@@ -55,7 +55,7 @@
             \l{Kits}{kits} for building the example for the
             target platforms.
 
-            \image qtcreator-configure-project.webp {Configure Project view}
+            \image {qtcreator-configure-project.webp} {Configure Project view}
 
         \li Select \uicontrol {Configure Project}.
 
@@ -63,7 +63,7 @@
             device, select the \uicontrol {Kit Selector} and select the kit for
             the device.
 
-            \image qtcreator-examples-kit-selector.webp {Selecting a kit to build with}
+            \image {qtcreator-examples-kit-selector.webp} {Selecting a kit to build with}
 
             If you installed \QC as part of a Qt installation, it should have
             automatically detected the installed kit. If you cannot see any kits,

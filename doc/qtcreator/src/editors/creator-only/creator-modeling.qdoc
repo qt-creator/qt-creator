@@ -59,7 +59,7 @@
     diagrams. Add elements to the diagrams and specify properties for them. Use
     standard model elements or add your own elements with custom icons.
 
-    \image qtcreator-modeleditor.webp {Class diagram in the model editor}
+    \image {qtcreator-modeleditor.webp} {Class diagram in the model editor}
     \caption A class diagram in the model editor.
 
     Add elements to diagrams in the following ways:
@@ -173,7 +173,7 @@
     To use custom icons for the built-in elements, select an image file in
     \uicontrol {Image} in element properties.
 
-    \image qtcreator-model-editor-component-diagram.webp {Component properties}
+    \image {qtcreator-model-editor-component-diagram.webp} {Component properties}
     \caption The Image field in Component properties.
 
     \section2 Using Definition Files
@@ -253,7 +253,7 @@
         \li Drag model elements to the editor and select them to
             specify properties for them:
 
-            \image qtcreator-modeleditor-packages.webp {Package diagram in the model editor}
+            \image {qtcreator-modeleditor-packages.webp} {Package diagram in the model editor}
             \caption A package diagram in the model editor.
 
         \list 1
@@ -387,7 +387,7 @@
     Elements stacked on other elements of the same type are automatically drawn
     in a darker shade of the selected color.
 
-    \image qtcreator-modeleditor-packages.webp {Package diagram in the model editor}
+    \image {qtcreator-modeleditor-packages.webp} {Package diagram in the model editor}
     \caption A package diagram in the model editor.
 
     Right-click a package to open a context menu, and select
@@ -413,7 +413,7 @@
     classes, dependencies, inheritance, associations, aggregation, and
     composition to visualize a system in an object-oriented way.
 
-    \image qtcreator-modeleditor-classes.webp {Class diagram in the model editor}
+    \image {qtcreator-modeleditor-classes.webp} {Class diagram in the model editor}
     \caption A class diagram in the model editor.
 
     To create class diagrams:
@@ -577,7 +577,7 @@
         \li Select \uicontrol {Add Component}.
     \endlist
 
-    \image qtcreator-model-editor-component-diagram.webp {Component diagram in the model editor}
+    \image {qtcreator-model-editor-component-diagram.webp} {Component diagram in the model editor}
     \caption A component diagram in the model editor.
 
     To navigate from a component in a diagram to the source code, double-click

@@ -45,7 +45,7 @@
         \li Select \preferences > \uicontrol Kits.
         \li Select \uicontrol Add to start from an empty kit or \uicontrol Clone
             to clone the selected kit and edit its preferences.
-            \image qtcreator-preferences-kits.webp {Kits preferences}
+            \image {qtcreator-preferences-kits.webp} {Kits preferences}
         \li Set \l{Kits}{kit preferences} according to the build system and
             device type.
 
@@ -81,7 +81,7 @@
     \uicontrol Kits. For example, if you use CMake to build all your projects,
     you can hide Qbs and qmake preferences by default.
 
-    \image qtcreator-preferences-kits.webp {Kits preferences}
+    \image {qtcreator-preferences-kits.webp} {Kits preferences}
 
     \section1 Filtering Kit Preferences
 

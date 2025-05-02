@@ -532,8 +532,15 @@ void QmlDesignerPlugin::hideDesigner()
 
 void QmlDesignerPlugin::changeEditor()
 {
-    clearDesigner();
-    setupDesigner();
+    if (d->mainWidget.isInitialized()) {
+        // showDesigner was already already called
+        clearDesigner();
+        setupDesigner();
+    } else {
+        // we are already in Design mode, but showDesigner wasn't called yet,
+        // so we need to call that to set up the widgets
+        showDesigner();
+    }
 }
 
 void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()

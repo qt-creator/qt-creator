@@ -11,7 +11,7 @@
 
     The environment for a project is determined according to a settings hierarchy:
 
-    \image qtcreator-environment-settings-hierarchy.webp {Environment settings hierarchy}
+    \image {qtcreator-environment-settings-hierarchy.webp} {Environment settings hierarchy}
 
     By default, the environment in which \QC was started is used and modified
     to include the Qt version. Depending on the selected Qt version, \QC
@@ -37,7 +37,7 @@
     select \preferences > \uicontrol Environment > \uicontrol System, and then
     select \uicontrol Change in \uicontrol Environment.
 
-    \image qtcreator-preferences-environment-system.webp "Environment preferences System tab"
+    \image {qtcreator-preferences-environment-system.webp} {System tab in Environment preferences}
 
     \section1 Change the environment for a project
 
@@ -45,7 +45,7 @@
     \QC is started, select \uicontrol Projects > \uicontrol {Project Settings}
     > \uicontrol {Project Environment}.
 
-    \image qtcreator-projects-environment.webp {Project Environment view in Project Settings}
+    \image {qtcreator-projects-environment.webp} {Project Environment settings in Project Settings}
 
     You can edit existing environment variables or add, reset, unset, or
     temporarily disable variables.
@@ -55,7 +55,7 @@
     To specify the build environment to use for a kit, go to \uicontrol Projects
     > \uicontrol {Build Settings} and select \uicontrol {Build Environment}.
 
-    \image qtcreator-build-environment.webp {Build Environment section in Build Settings}
+    \image {qtcreator-build-environment.webp} {Build Environment section in Build Settings}
 
     To change the values of environment variables for the build environment,
     select the variable and then select \uicontrol Edit. Enter the new value
@@ -78,7 +78,7 @@
     or select another environment, go to \uicontrol Projects >
     \uicontrol {Run Settings} and select \uicontrol {Environment}.
 
-    \image qtcreator-run-environment.webp {Environment section in Run Settings}
+    \image {qtcreator-run-environment.webp} {Environment section in Run Settings}
 
     When running on the desktop, the \uicontrol {Build Environment} is used by
     default, but you can also use the \uicontrol {System Environment} without the
@@ -98,7 +98,7 @@
         \li Go to \preferences > \uicontrol {Build & Run} > \uicontrol General.
         \li Select \uicontrol Change in \uicontrol {Application environment}.
         \li Set environment variables in \uicontrol {Edit Environment}.
-            \image qtcreator-edit-environment.webp {Edit Environment dialog}
+            \image {qtcreator-edit-environment.webp} {Edit Environment dialog}
     \endlist
 
     For example, set \c QT_FORCE_STDERR_LOGGING=1 to see application output
@@ -141,7 +141,7 @@
             \uicontrol {Edit Run Environment} in \uicontrol {Environment}.
     \endlist
 
-    \image qtcreator-edit-environment.webp {Edit Environment dialog}
+    \image {qtcreator-edit-environment.webp} {Edit Environment dialog}
 
     Use the following syntax to enter environment variable names and values:
     \c {<VARIABLE>=<VALUE>}.

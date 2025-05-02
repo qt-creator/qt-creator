@@ -33,7 +33,7 @@
 
     When you open an .scxml file, it opens in the SCXML editor:
 
-    \image qtcreator-scxml-editor.webp {SCXML editor}
+    \image {qtcreator-scxml-editor.webp} {SCXML editor}
 
     Drag states from the \uicontrol {Common States} view (1) to
     the state editor (2). Select a state in the state editor and use the tool
@@ -187,7 +187,7 @@
     Use the toolbar buttons to align states in the state editor, to adjust
     their size, color, and fonts, and to change the default color scheme.
 
-    \image qtcreator-scxml-editor-state-toolbar.webp {Buttons for editing states}
+    \image {qtcreator-scxml-editor-state-toolbar.webp} {Buttons for editing states}
 
     Overlapping states are marked in red color.
 
@@ -292,7 +292,7 @@
     use the classes in the \l {Qt SCXML} module to embed state machines created
     from the files in Qt applications.
 
-    \image qtcreator-scxml-editor.webp {SCXML editor}
+    \image {qtcreator-scxml-editor.webp} {SCXML editor}
 
     To create a state chart:
 

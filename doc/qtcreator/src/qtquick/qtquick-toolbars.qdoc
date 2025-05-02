@@ -41,12 +41,12 @@
     to scale and tile the images, replace them with other images,
     preview them, and change the image margins.
 
-    \image qml-toolbar-image.png {Qt Quick Toolbar for images}
+    \image {qml-toolbar-image.png} {Qt Quick toolbar for images}
 
     To preview an image, double-click it on the toolbar. In the preview
     dialog, you can zoom the image. Drag the image margins to change them.
 
-    \image qml-toolbar-image-preview.png {Image preview dialog}
+    \image {qml-toolbar-image-preview.png} {Image preview dialog}
 
     \section1 Format text
 
@@ -60,7 +60,7 @@
     cannot use the toolbar to edit it. The button for editing the property
     is disabled.
 
-    \image qml-toolbar-text.png {Qt Quick Toolbar for text}
+    \image {qml-toolbar-text.png} {Qt Quick toolbar for text}
 
     By default, font size is specified as pixels. To use points, instead,
     change \uicontrol px to \uicontrol pt in the size field.
@@ -71,7 +71,7 @@
     to change the easing curve type and duration. For some curves, you can also
     specify amplitude, period, and overshoot values.
 
-    \image qml-toolbar-animation.png {Qt Quick Toolbar for animation}
+    \image {qml-toolbar-animation.png} {Qt Quick toolbar for animation}
 
     Select the play button to preview your changes.
 
@@ -85,7 +85,7 @@
     \endif
     items to change the fill and border colors and add gradients.
 
-    \image qml-toolbar-rectangle.png {Qt Quick Toolbar for rectangles}
+    \image {qml-toolbar-rectangle.png} {Qt Quick toolbar for rectangles}
 
     To add gradient stop points, click above the gradient bar. To remove
     stop points, drag them upwards.
@@ -96,7 +96,7 @@
     \preferences > \uicontrol {Qt Quick} >
     \uicontrol {QML/JS Editing} > \uicontrol {Always show Qt Quick Toolbar}.
 
-    \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
+    \image {qtcreator-qml-js-editing.webp} {QML/JS Editing tab in Qt Quick preferences}
 
     \section1 Pin toolbars
 

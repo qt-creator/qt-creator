@@ -132,7 +132,7 @@
             and then select \uicontrol {Create Repository}.
         \li To view local changes, go to \uicontrol Tools > \uicontrol Git >
             \uicontrol {Local Repository} and select \uicontrol {Diff}.
-            \image qtcreator-git-diff-repository.webp {Git Diff Repository view}
+            \image {qtcreator-git-diff-repository.webp} {Git Diff Repository view}
             \caption Git Diff Repository view
         \li Right-click a changed line and select \uicontrol {Stage Chunk} to add
             the \e {chunk} to the staging area or \uicontrol {Stage Selection}
@@ -140,7 +140,7 @@
         \li To commit the staged changes to the local repository, go to
             \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository}
             and select \uicontrol Commit.
-            \image qtcreator-git-commit.webp {Git Commit view}
+            \image {qtcreator-git-commit.webp} {Git Commit view}
             \caption Git Commit view
         \li Select the files to commit, and then select
             \uicontrol {Commit <n/m> File(s)} to commit the changes to the local
@@ -242,7 +242,7 @@
     can access the file, you can double-click a diff chunk to open an editor
     that displays the file and line.
 
-    \image qtcreator-git-diff-repository.webp {Git Diff Repository view}
+    \image {qtcreator-git-diff-repository.webp} {Git Diff Repository view}
     \caption Git Diff Repository view
 
     \section1 Toggle unified and side-by-side views
@@ -331,7 +331,7 @@
     The \uicontrol {Git Log} view shows the commit identifier, author, date, and
     commit message.
 
-    \image qtcreator-git-log.webp {Commit details in Git log}
+    \image {qtcreator-git-log.webp} {Commit details in Git log}
 
     To set the maximum number of log entries to show, go to \preferences >
     \uicontrol {Version Control} > \uicontrol Git > \uicontrol {Log count}.
@@ -465,7 +465,7 @@
     \uicontrol {Git Show} view, select \uicontrol {Describe Change <hash>} in the
     context menu.
 
-    \image qtcreator-vcs-show.png {Commit description in Git Show}
+    \image {qtcreator-vcs-show.png} {Commit description in Git Show}
 
     \if defined(qtcreator)
     \sa {Use Git}{How To: Use Git}, {Git}
@@ -488,7 +488,7 @@
     By default, each line is annotated in the editor when you move the cursor
     through a file. Hover over the annotation to view commit details.
 
-    \image qtcreator-git-instant-blame.webp {Instant blame in the code editor}
+    \image {qtcreator-git-instant-blame.webp} {Instant blame in the code editor}
     \caption Instant blame in the code editor
 
     When instant blame is off, you can go to \uicontrol Tools > \uicontrol Git >
@@ -501,7 +501,7 @@
     \uicontrol {Version Control} > \uicontrol Git and
     clear \uicontrol {Instant Blame}.
 
-    \image qtcreator-preferences-vcs-git.webp {Git Preferences}
+    \image {qtcreator-preferences-vcs-git.webp} {Git tab in Version Control preferences}
 
     \section1 View blame for the whole file
 
@@ -510,7 +510,7 @@
     select \uicontrol {Blame for <file>}. Before each line, you can see
     the identifier of the commit it originates from.
 
-    \image qtcreator-git-blame.webp {Git Blame view}
+    \image {qtcreator-git-blame.webp} {Git Blame view}
 
     To hide the date and time information in the view, select
     \uicontrol {Omit Date}.
@@ -672,7 +672,7 @@
     \list 1
         \li In the \uicontrol {Clean Repository} dialog, select the files to
             delete.
-            \image qtcreator-git-clean-repository.webp {Clean Repository dialog}
+            \image {qtcreator-git-clean-repository.webp} {Clean Repository dialog}
             By default, ignored files are not selected.
         \li Select \uicontrol Delete to remove the selected files.
     \endlist
@@ -751,7 +751,7 @@
     \list 1
         \li Go to \uicontrol Tools > \uicontrol Git >
             \uicontrol {Local Repository} and select \uicontrol Commit.
-            \image qtcreator-git-commit.webp {Git Commit view}
+            \image {qtcreator-git-commit.webp} {Git Commit view}
             \uicontrol {General Information} shows the names of the
             repository and branch for the commit.
         \li In \uicontrol {Commit Information}, check and edit information about
@@ -795,7 +795,7 @@
     \uicontrol Git > \uicontrol {Local Repository} >
     \uicontrol {Amend Last Commit}.
 
-    \image qtcreator-git-amend.webp {Amending a Git commit}
+    \image {qtcreator-git-amend.webp} {Amending a Git commit}
 
     To view the log of the current branch, select the branch name in
     \uicontrol Branch.
@@ -875,7 +875,7 @@
     as the differences between your local branches and their origin.
     The branch you checked out is shown in bold and underlined.
 
-    \image qtcreator-git-branches.webp {Git Branches view}
+    \image {qtcreator-git-branches.webp} {Git Branches view}
 
     \section1 Filter entries and tags
 
@@ -902,7 +902,7 @@
     To create a new tracking or non-tracking branch, select
     \inlineimage icons/plus.png.
 
-    \image qtcreator-git-add-branch.webp {Add Branch dialog}
+    \image {qtcreator-git-add-branch.webp} {Add Branch dialog}
 
     To check out the branch when creating it, select
     \uicontrol {Checkout new branch}.
@@ -1125,7 +1125,7 @@
     commits, go to \uicontrol Tools > \uicontrol Git >
     \uicontrol {Actions on Commits}.
 
-    \image creator-git-commit-actions.png {Select a Git Commit dialog}
+    \image {creator-git-commit-actions.png} {Select a Git Commit dialog}
 
     You can apply the following actions on commits:
 
@@ -1350,7 +1350,7 @@
     \uicontrol Git > \uicontrol {Remote Repository} >
     \uicontrol {Push to Gerrit}.
 
-    \image qtcreator-gerrit-push.png
+    \image {qtcreator-gerrit-push.png} {Push to Gerrit dialog}
 
     \section1 Push drafts to Gerrit
 
@@ -1365,7 +1365,7 @@
     web interface, go to \uicontrol Tools > \uicontrol Git >
     \uicontrol {Remote Repository} > \uicontrol Gerrit.
 
-    \image qtcreator-gerrit.png
+    \image {qtcreator-gerrit.png} {Gerrit view}
 
     \section1 View details of changes
 
@@ -1396,7 +1396,7 @@
     Select \uicontrol HTTPS to prepend \c https to the Gerrit URL
     if Gerrit does not add it.
 
-    \image qtcreator-preferences-vcs-gerrit.webp {Gerrit preferences}
+    \image {qtcreator-preferences-vcs-gerrit.webp} {Gerrit tab in Version Control preferences}
 
     \if defined(qtcreator)
     \sa {Use Git}{How To: Use Git}, {Git}

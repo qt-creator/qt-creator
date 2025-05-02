@@ -15,7 +15,7 @@
         \li Connect the device to the computer or to a network.
         \li Go to \preferences > \uicontrol Devices > \uicontrol Devices,
             and add a QNX device.
-            \image qtcreator-devices-qnx.webp {QNX device preferences}
+            \image {qtcreator-devices-qnx.webp} {QNX device in the Devices tab in Devices preferences}
         \li Make sure that your kit has your QNX device set.
         \li Select \inlineimage icons/run_small.png (\uicontrol Run).
     \endlist

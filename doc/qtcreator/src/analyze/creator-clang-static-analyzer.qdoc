@@ -43,7 +43,7 @@
 
         \li Select the files to apply the checks to.
 
-            \image qtcreator-files-to-analyze.webp {Files to Analyze dialog}
+            \image {qtcreator-files-to-analyze.webp} {Files to Analyze dialog}
 
         \li Select \uicontrol Analyze to start the checks.
 
@@ -53,7 +53,7 @@
 
     The \uicontrol {Clang-Tidy} or \uicontrol {Clazy} view shows the issues:
 
-    \image qtcreator-clang-tidy-view.webp {Clang-Tidy view}
+    \image {qtcreator-clang-tidy-view.webp} {Clang-Tidy view}
     \caption Diagnostics in the Clang-Tidy view.
 
     \note If you select \uicontrol Debug in the mode selector to open the
@@ -84,7 +84,7 @@
     \list 1
         \li Select \inlineimage icons/filtericon.png to open the
             \uicontrol {Filter Diagnostics} dialog.
-            \image qtcreator-clang-tools-filter-diagnostics.webp {Filter Diagnostics dialog}
+            \image {qtcreator-clang-tools-filter-diagnostics.webp} {Filter Diagnostics dialog}
         \li Select the diagnostics to view.
         \li Select \uicontrol OK.
     \endlist
@@ -139,7 +139,7 @@
     \list 1
         \li Select \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol {Clang Tools}.
-            \image qtcreator-clang-tools-settings.webp {Clang Tools customized settings}
+            \image {qtcreator-clang-tools-settings.webp} {Clang Tools customized settings}
         \li Clear \uicontrol {Use global settings}.
         \li Specify \uicontrol preferences for the project.
         \li In \uicontrol {Suppressed diagnostics}, you can view the suppression
@@ -176,7 +176,7 @@
         \li Select \preferences > \uicontrol Analyzer >
             \uicontrol {Clang Tools}.
 
-            \image qtcreator-preferences-analyzer-clang-tools.webp {Clang Tools preferences}
+            \image {qtcreator-preferences-analyzer-clang-tools.webp} {Clang Tools tab in Analyzer preferences}
 
         \li In the \uicontrol Clang-Tidy and \uicontrol Clazy-Standalone fields,
             set the paths to the executables to use.
@@ -226,14 +226,14 @@
         \li Select \preferences > \uicontrol Analyzer >
             \uicontrol {Clang Tools}.
 
-            \image qtcreator-preferences-analyzer-clang-tools.webp {Clang Tools preferences}
+            \image {qtcreator-preferences-analyzer-clang-tools.webp} {Clang Tools tab in Analyzer preferences}
 
         \li The \uicontrol {Diagnostic configuration} field shows the
             checks to perform. Select the value of the field to open the
             \uicontrol {Diagnostic Configurations} dialog, where you can
             select and edit the checks to perform.
 
-            \image qtcreator-clang-tools-diagnostics-configuration.png {Diagnostics Configuration dialog}
+            \image {qtcreator-clang-tools-diagnostics-configuration.png} {Diagnostic Configurations dialog}
 
             To perform checks from a Clang-Tidy configuration file instead,
             select \uicontrol {Prefer .clang-tidy file, if present} in the
@@ -241,7 +241,7 @@
 
         \li Select \uicontrol Copy to copy the selected diagnostics for editing.
 
-            \image qtcreator-clang-copy-diagnostic-configuration.png {Copy Diagnostic Configuration dialog}
+            \image {qtcreator-clang-copy-diagnostic-configuration.png} {Copy Diagnostic Configurations dialog}
 
         \li In the \uicontrol {Diagnostic configuration name} field, give the
             configuration a name, and then select \uicontrol OK.
@@ -257,7 +257,7 @@
             To filter the checks, enter a string in the
             \uicontrol {Filter by name} field.
 
-            \image qtcreator-clang-tidy.png {Clang-Tidy Checks tab}
+            \image {qtcreator-clang-tidy.png} {Clang-Tidy Checks tab in the Diagnostic Configurations dialog}
 
             For more information about the available checkers, see
             \l{https://clang-analyzer.llvm.org/available_checks.html}
@@ -269,7 +269,7 @@
         \li In the \uicontrol {Clazy Checks} tab, select the level of Clazy
             checks to perform.
 
-            \image qtcreator-clazy.webp {Clazy Checks tab}
+            \image {qtcreator-clazy.webp} {Clazy Checks tab in the Diagnostic Configurations dialog}
 
         \li To edit the selected checks as plain text, select
             \uicontrol {Edit Checks as String}.

@@ -10,7 +10,6 @@
 
 #include <QAbstractListModel>
 #include <QColor>
-#include <QFileSystemWatcher>
 #include <QMap>
 #include <QRegularExpression>
 #include <QSet>
@@ -264,12 +263,7 @@ private:
     QList<QUrl> defaultPreviewImages() const;
     QUrl defaultPreviewImage() const;
 
-    enum class FileType
-    {
-        Binary,
-        Text
-    };
-    bool writeToFile(const QByteArray &buf, const QString &filename, FileType fileType);
+    bool writeToFile(const QByteArray &buf, const QString &filename);
 
     QList<CompositionNode *> m_nodes;
     QPointer<EffectComposerNodesModel> m_effectComposerNodesModel;
@@ -303,7 +297,6 @@ private:
     // Used in preview QML, at ShaderEffect component of the file
     QString m_previewEffectPropertiesString;
     QString m_qmlComponentString;
-    bool m_loadComponentImages = true;
     bool m_isEnabled = true;
     bool m_hasValidTarget = false;
     QString m_currentComposition;

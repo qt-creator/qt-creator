@@ -13,7 +13,7 @@
     or go to \uicontrol File > \uicontrol {New File} and select
     \uicontrol {General} > \uicontrol {Markdown File} to create a new file.
 
-    \image qtcreator-markdown-editor.webp {Markdown file in Preview and Editor views}
+    \image {qtcreator-markdown-editor.webp} {Markdown file in Preview and Editor views}
 
     When you edit the file in the editor, you can see the changes in the preview.
 

@@ -18,7 +18,7 @@ public:
 
     bool isValid() const override;
 
-    QVariant value() const;
+    const QVariant &value() const;
     void setValue(const QVariant &value);
 
     void setDynamicValue(const TypeName &type, const QVariant &value);
