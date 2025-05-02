@@ -875,7 +875,7 @@ void extractComponent(const SelectionContext &selectionContext)
     AbstractView *contextView = selectionContext.view();
 
     // Get the path of the qml component
-    QString filePath = ModelUtils::componentFilePath(selectedNode);
+    Utils::FilePath filePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(selectedNode));
     if (filePath.isEmpty()) {
         qWarning() << "Qml file for component " << selectedNode.displayName() << "not found!";
         return;
@@ -883,9 +883,8 @@ void extractComponent(const SelectionContext &selectionContext)
 
     // Read the content of the qml component
     QString componentText;
-    Utils::FilePath path = Utils::FilePath::fromString(filePath);
     Utils::FileReader reader;
-    if (!reader.fetch(path)) {
+    if (!reader.fetch(filePath)) {
         qWarning() << "Cannot open component file " << filePath;
         return;
     }
@@ -928,13 +927,27 @@ void extractComponent(const SelectionContext &selectionContext)
     contextView->model()->attachView(&view);
     ModelNode originalNode = rewriterView.rootModelNode();
     view.executeInTransaction("DesignerActionManager::extractComponent", [=, &view]() {
-        Utils3D::ensureMaterialLibraryNode(&view);
-        ModelNode mainMaterialLib = Utils3D::materialLibraryNode(&view);
-
         // Move component's materials/textures to the main material library
-        const QList<ModelNode> allSubModelNodes = originalNode.allSubModelNodes();
-        for (ModelNode node : allSubModelNodes) {
+        QList<ModelNode> componentNodes = originalNode.allSubModelNodesAndThisNode();
+        Utils::FilePath compDir = filePath.parentDir();
+
+        for (ModelNode &node : componentNodes) {
+            // Correct node assets paths if needed
+            QString sourceValue = node.variantProperty("source").value().toString();
+            if (!sourceValue.isEmpty() && !sourceValue.startsWith("#")) {
+                Utils::FilePath assetPath = compDir.pathAppended(sourceValue); // full asset path
+                QString assetPathRelative = assetPath.relativePathFrom(DocumentManager::currentFilePath()).toFSPathString();
+                node.variantProperty("source").setValue(assetPathRelative);
+            }
+
+            // TODO: Move root node and its children to the main material library if root node is a material/texture
+            if (node.isRootNode())
+                continue;
+
             if (node.metaInfo().isQtQuick3DMaterial() || node.metaInfo().isQtQuick3DTexture()) {
+                Utils3D::ensureMaterialLibraryNode(&view);
+                ModelNode mainMaterialLib = Utils3D::materialLibraryNode(&view);
+
                 // Create copy of the node, reparent under main mat library, and delete the original
                 ModelNode matOrTexture = view.insertModel(node);
                 mainMaterialLib.defaultNodeListProperty().reparentHere(matOrTexture);
