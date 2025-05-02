@@ -62,6 +62,24 @@ set(__qt_extensions
   qtwebengine
 )
 
+function(qt_maintenance_tool_remove_installed_components components_list)
+  set(actual_components_list ${${components_list}})
+  execute_process(
+    COMMAND "${QT_MAINTENANCE_TOOL}" list
+    RESULT_VARIABLE result
+    OUTPUT_VARIABLE output
+    ERROR_VARIABLE output
+    TIMEOUT 600
+  )
+  foreach(component_name IN LISTS actual_components_list)
+    string(FIND "${output}" "<package name=\"${component_name}\"" found_component)
+    if (NOT found_component EQUAL -1)
+      list(REMOVE_ITEM ${components_list} ${component_name})
+    endif()
+  endforeach()
+  set(${components_list} ${${components_list}} PARENT_SCOPE)
+endfunction()
+
 function(qt_maintenance_tool_install qt_major_version qt_package_list)
   if (QT_QMAKE_EXECUTABLE MATCHES ".*/(.*)/(.*)/bin/qmake")
     set(qt_version_number ${CMAKE_MATCH_1})
@@ -116,6 +134,12 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
         endif()
       endif()
     endforeach()
+
+    qt_maintenance_tool_remove_installed_components(installer_component_list)
+    list(LENGTH installer_component_list installer_component_list_size)
+    if (installer_component_list_size EQUAL 0)
+      return()
+    endif()
 
     if (QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI)
       message(STATUS "Qt Creator: Using MaintenanceTool in CLI Mode. "
