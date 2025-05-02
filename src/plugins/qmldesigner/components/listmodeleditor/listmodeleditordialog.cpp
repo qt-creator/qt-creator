@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "listmodeleditordialog.h"
-#include "listmodeleditormodel.h"
 
-#include <theme.h>
+#include "listmodeleditormodel.h"
+#include "listmodeleditorpropertydialog.h"
+
 #include <qmldesignericons.h>
+#include <theme.h>
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -123,10 +125,14 @@ void ListModelEditorDialog::addRowBelow()
 
 void ListModelEditorDialog::openColumnDialog()
 {
-    bool ok;
-    QString columnName = QInputDialog::getText(
-        this, tr("Add Property"), tr("Property name:"), QLineEdit::Normal, "", &ok);
-    if (ok && !columnName.isEmpty())
+    ListModelEditorPropertyDialog propertyDialog{m_model->propertyNames()};
+    int result = propertyDialog.exec();
+
+    if (result != QDialog::Accepted)
+        return;
+
+    const QString columnName = propertyDialog.propertyName();
+    if (!columnName.isEmpty())
         m_model->addColumn(columnName);
 }
 

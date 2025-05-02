@@ -15,7 +15,7 @@
     \list 1
         \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol {Testing}.
-            \image qtcreator-projects-settings-testing.webp {Testing settings in Projects mode}
+            \image {qtcreator-projects-settings-testing.webp} {Testing settings in Projects mode}
         \li Clear \uicontrol {Use global settings} to select the tests to handle
             for the project.
         \li To automatically run all or selected tests after successfully

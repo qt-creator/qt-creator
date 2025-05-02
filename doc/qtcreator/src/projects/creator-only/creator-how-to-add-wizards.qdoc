@@ -15,7 +15,7 @@
     \c {templates/wizards/} directory in your \l{Locating Wizards}
     {user settings directory}.
 
-    \image qtcreator-cpp-class-wizard.png
+    \image {qtcreator-cpp-class-wizard.png} {Define Class view in the C++ Class wizard}
 
     To create a new wizard:
 

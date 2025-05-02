@@ -11,7 +11,7 @@
         \li Go to \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}.
 
-            \image qtcreator-project-qt-quick.webp {New Project dialog}
+            \image {qtcreator-project-qt-quick.webp} {New Project dialog}
 
         \li Select \uicontrol Choose to open the
             \uicontrol {Project Location} dialog.
@@ -26,7 +26,7 @@
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.
 
-            \image qtcreator-project-qt-quick-details.webp {Define Project Details dialog}
+            \image {qtcreator-project-qt-quick-details.webp} {Define Project Details dialog}
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection} dialog.
 

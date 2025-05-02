@@ -15,7 +15,7 @@
     {\B2Q} devices in the project configuration file and in \uicontrol Projects
     > \uicontrol {Run Settings} > \uicontrol Deployment.
 
-    \image qtcreator-boot2qt-deployment-steps.png {Boot to Qt deployment steps}
+    \image {qtcreator-boot2qt-deployment-steps.png} {Boot to Qt deployment steps in Run Settings}
 
     The deployment process is described in more detail in
     \l{Remote Linux Deploy Configuration}.

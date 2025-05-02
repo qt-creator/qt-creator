@@ -36,14 +36,13 @@ namespace QmlDesigner {
 
 static Q_LOGGING_CATEGORY(urlSpecifics, "qtc.propertyeditor.specifics", QtWarningMsg)
 
-PropertyEditorContextObject::PropertyEditorContextObject(QQuickWidget *widget, QObject *parent)
+PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent)
     : QObject(parent)
     , m_isBaseState(false)
     , m_selectionChanged(false)
     , m_backendValues(nullptr)
     , m_qmlComponent(nullptr)
     , m_qmlContext(nullptr)
-    , m_quickWidget(widget)
 {}
 
 QString PropertyEditorContextObject::convertColorToString(const QVariant &color)
@@ -597,6 +596,11 @@ void PropertyEditorContextObject::setHasAliasExport(bool hasAliasExport)
 
     m_aliasExport = hasAliasExport;
     emit hasAliasExportChanged();
+}
+
+void PropertyEditorContextObject::setQuickWidget(QQuickWidget *newQuickWidget)
+{
+    m_quickWidget = newQuickWidget;
 }
 
 void PropertyEditorContextObject::hideCursor()

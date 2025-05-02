@@ -20,7 +20,7 @@
     \QC automatically opens all .ui files in the integrated \QD, in \uicontrol Design
     mode.
 
-    \image qtcreator-formedit.png
+    \image {qtcreator-formedit.png} {Qt Widgets Designer open in the Design mode}
 
     Widgets and forms created with \QD are integrated seamlessly with
     programmed code by using the Qt signals and slots mechanism that
@@ -100,10 +100,10 @@
     \list 1
 
         \li \preferences > \uicontrol Designer.
-            \image qtdesigner-embedded-design.png "Qt Widgets Designer Embedded Design preferences"
+            \image {qtdesigner-embedded-design.png} {Qt Widgets Designer preferences}
         \li In \uicontrol {Embedded Design}, select \inlineimage icons/plus.png
             to open the \uicontrol {Add Profile} dialog.
-            \image qtdesigner-add-profile.png "Add Profile dialog"
+            \image {qtdesigner-add-profile.png} {Add Profile dialog}
         \li In \uicontrol Name, enter a name for the device. The name is
             displayed as an option in \uicontrol {Preview In}.
         \li In \uicontrol Family, select the font to use.

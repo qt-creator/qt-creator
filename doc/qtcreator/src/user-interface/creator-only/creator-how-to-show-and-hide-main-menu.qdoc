@@ -13,7 +13,7 @@
     screen. Select \uicontrol View, and clear the \uicontrol {Show Menu Bar}
     check box.
 
-    \image qtcreator-without-menubar.webp {Qt Creator without the main menu}
+    \image {qtcreator-without-menubar.webp} {Qt Creator without the main menu}
     \caption \QC without the main menu bar.
 
     To show the main menu again, select \key {Ctrl+Alt+M}.

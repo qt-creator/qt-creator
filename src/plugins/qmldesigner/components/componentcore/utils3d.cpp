@@ -561,9 +561,11 @@ void duplicateMaterial(AbstractView *view, const ModelNode &material)
 
 void openNodeInPropertyEditor(const ModelNode &node)
 {
+    using namespace Qt::StringLiterals;
     QTC_ASSERT(node, return);
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("PropertyEditor", true);
-    node.view()->emitCustomNotification("force_editing_node", {node}); // To PropertyEditor
+    const auto mainWidget = QmlDesignerPlugin::instance()->mainWidget();
+    mainWidget->showDockWidget("Properties"_L1);
+    mainWidget->viewManager().emitCustomNotification("force_editing_node", {node}, {});
 }
 
 bool hasImported3dType(AbstractView *view,

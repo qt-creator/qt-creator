@@ -49,7 +49,7 @@
     To view and remove saved macros, go to \preferences >
     \uicontrol {Text Editor} > \uicontrol Macros.
 
-    \image qtcreator-preferences-texteditor-macros.webp {Macros tab in Text Editor Preferences}
+    \image {qtcreator-preferences-texteditor-macros.webp} {Macros tab in Text Editor preferences}
 
     \section1 Assign keyboard shortcuts to macros
 

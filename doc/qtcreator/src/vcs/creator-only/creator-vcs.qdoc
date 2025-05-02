@@ -131,7 +131,7 @@
     executed, a timestamp, and the relevant output. Select \uicontrol View >
     \uicontrol Output > \uicontrol {Version Control} to open the view.
 
-    \image qtcreator-vcs-pane.png
+    \image {qtcreator-vcs-pane.png} {Version Control view}
 
     \section1 Add files
 
@@ -149,7 +149,7 @@
     repository and to display the differences. In \QC, a diff is displayed in a
     read-only editor.
 
-    \image qtcreator-git-diff-repository.webp {Git Diff Repository view}
+    \image {qtcreator-git-diff-repository.webp} {Git Diff Repository view}
     \caption Git Diff Repository view
 
     If the file is accessible, you can double-click on a

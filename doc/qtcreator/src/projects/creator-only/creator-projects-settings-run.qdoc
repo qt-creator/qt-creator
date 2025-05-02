@@ -20,7 +20,7 @@
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
-    \image qtcreator-settings-run-desktop.webp {Run Settings}
+    \image {qtcreator-settings-run-desktop.webp} {Run Settings in the Projects mode}
 
     The available build settings depend on the build system that you selected
     for the project and the device type:
@@ -119,7 +119,7 @@
 
         \list 1
         \li Select \uicontrol Add > \uicontrol {Custom Executable}.
-            \image qtcreator-run-settings-custom-executable.webp {Run settings for custom executables}
+            \image {qtcreator-run-settings-custom-executable.webp} {Run settings for custom executables}
         \li In \uicontrol Executable, specify the path to the executable.
         \li In \uicontrol {Command line arguments}, enter the path to the
             file to run.

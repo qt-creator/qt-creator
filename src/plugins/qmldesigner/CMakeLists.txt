@@ -496,6 +496,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     listmodeleditordialog.cpp listmodeleditordialog.h
     listmodeleditormodel.cpp listmodeleditormodel.h
+    listmodeleditorpropertydialog.cpp listmodeleditorpropertydialog.h
 )
 
 extend_qtc_plugin(QmlDesigner

@@ -21,7 +21,7 @@
         \li Select \uicontrol {Qt Test Project} > \uicontrol Choose.
         \li In the \uicontrol {Project and Test Information} dialog, specify
             settings for the project and test.
-            \image qtcreator-new-project-qt-test.webp {Project and Test Information - Qt Test}
+            \image {qtcreator-new-project-qt-test.webp} {Project and Test Information dialog in the Qt Test Project wizard}
         \li In \uicontrol {Test case name}, enter a name for the test case.
         \li Select \uicontrol {Requires \QApplication} to add the include
             statement for QApplication to the main.cpp file of the project.
@@ -61,7 +61,7 @@
         \li Select \uicontrol {Qt Quick Test Project} > \uicontrol Choose.
         \li In the \uicontrol {Project and Test Information} dialog, specify
             settings for the project and test.
-            \image qtcreator-new-project-qtquick-test.webp {Project and Test Information - Qt Quick Test}
+            \image {qtcreator-new-project-qtquick-test.webp} {Project and Test Information dialog in the Qt Quick Test Project wizard}
         \li In \uicontrol {Test case name}, enter a name for the test case.
         \li Select \uicontrol {Generate setup code} to execute C++
             code before running any of the QML tests. The testing
@@ -101,7 +101,7 @@
         \li In the \uicontrol {Project and Test Information} dialog, specify
             settings for the project and test:
 
-            \image qtcreator-new-project-google-test.webp {Project and Test Information - Google test}
+            \image {qtcreator-new-project-google-test.webp} {Project and Test Information dialog in the Google Test Project wizard}
 
             \list 1
 
@@ -166,7 +166,7 @@
             Boost test.
         \li In the \uicontrol {Project and Test Information} dialog, specify
             settings for the project and test:
-            \image qtcreator-new-project-boost-test.webp {Project and Test Information - Boost test}
+            \image {qtcreator-new-project-boost-test.webp} {Project and Test Information dialog in the Boost Test Project wizard}
             \list 1
                 \li In \uicontrol {Test framework}, select
                     \uicontrol {Boost Test (header only)} to include needed
@@ -219,7 +219,7 @@
             a project with boilerplate code for a Catch2 test.
         \li In the \uicontrol {Project and Test Information} dialog, specify
             settings for the project and test:
-            \image qtcreator-new-project-catch2-test.webp {Project and Test Information dialog - Catch2 test}
+            \image {qtcreator-new-project-catch2-test.webp} {Project and Test Information dialog in the Catch2 Test Project wizard}
             \list 1
                 \li In \uicontrol {Test framework}, select
                     \uicontrol {Catch2 v3 (shared libraries)} to link against
@@ -296,7 +296,7 @@
         \li In \uicontrol {Test framework}, select the test framework in use.
             This has to match the test framework you are using inside the project
             you want to add this file to.
-            \image qtcreator-new-file-test-case.webp {Test Information dialog}
+            \image {qtcreator-new-file-test-case.webp} {Test Information dialog in the Test Case wizard}
     \endlist
 
     The settings to specify depend on the selected test framework.
@@ -364,7 +364,7 @@
     The \uicontrol Tests view shows all the tests found for the currently active
     test frameworks in the current project. Select the test cases to run.
 
-    \image qtcreator-tests-view.png
+    \image {qtcreator-tests-view.png} {Tests view}
 
     If a Qt Quick test case does not have a name, it is marked
     \uicontrol Unnamed in the list. \uicontrol {Run All Tests} executes
@@ -442,7 +442,7 @@
     To set preferences for handling tests, go to
     \preferences > \uicontrol {Testing} > \uicontrol General.
 
-    \image qtcreator-preferences-testing-general.webp {General tab in Testing preferences}
+    \image {qtcreator-preferences-testing-general.webp} {General tab in Testing preferences}
 
     The following table summarizes the general testing preferences.
 
@@ -523,7 +523,7 @@
     To set preference for Qt tests, go to \preferences > \uicontrol {Testing} >
     \uicontrol {Qt Test}.
 
-    \image qtcreator-preferences-testing-qttest.webp {Qt Tests tab in Testing preferences}
+    \image {qtcreator-preferences-testing-qttest.webp} {Qt Test tab in Testing preferences}
 
     The code inside a benchmark test is measured, and possibly also repeated
     several times in order to get an accurate measurement. This depends on the
@@ -586,7 +586,7 @@
     To specify settings for running Google tests, go to \preferences >
     \uicontrol {Testing} > \uicontrol {Google Test}.
 
-    \image qtcreator-preferences-testing-googletest.webp {Gooble Test tab in Testing preferences}
+    \image {qtcreator-preferences-testing-googletest.webp} {Google Test tab in Testing preferences}
 
     The following table summarizes the Google test preferences.
 
@@ -634,7 +634,7 @@
     To specify settings for running Boost tests, go to \preferences >
     \uicontrol {Testing} > \uicontrol {Boost Test}.
 
-    \image qtcreator-preferences-testing-boosttest.webp {Boost Test tab in Testing preferences}
+    \image {qtcreator-preferences-testing-boosttest.webp} {Boost Test tab in Testing preferences}
 
     The following table summarizes the Boost test preferences.
 
@@ -673,7 +673,7 @@
     To specify settings for running Catch2 tests, go to \preferences >
     \uicontrol {Testing} > \uicontrol {Catch Test}.
 
-    \image qtcreator-preferences-testing-catchtest.webp {Catch Test tab in Testing preferences}
+    \image {qtcreator-preferences-testing-catchtest.webp} {Catch Test tab in Testing preferences}
 
     The following table summarizes the Catch2 test preferences.
 
@@ -720,7 +720,7 @@
     To specify settings for running CTest-based tests, go to \preferences >
     \uicontrol {Testing} > \uicontrol {CTest}.
 
-    \image qtcreator-preferences-testing-ctest.webp {CTest tab in Testing preferences}
+    \image {qtcreator-preferences-testing-ctest.webp} {CTest tab in Testing preferences}
 
     The following table summarizes the CTest preferences.
 
@@ -769,7 +769,7 @@
 
     View and filter test results in the \uicontrol{Test Results} view.
 
-    \image qtcreator-test-results.webp {Visual display in the Test Results view}
+    \image {qtcreator-test-results.webp} {Visual display in the Test Results view}
 
     The view shows test duration for the test frameworks that support it. To
     show and hide duration information, select \inlineimage icons/stopwatch.png.

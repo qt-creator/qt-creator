@@ -23,7 +23,7 @@
     \note You must have the \l{Qt Sensors} module from Qt 6.2 or later installed
     to be able to follow this tutorial.
 
-    \image creator_android_tutorial_ex_app.png
+    \image {creator_android_tutorial_ex_app.png} {Accelerate Bubble example}
 
     \section1 Set up the development environment
 
@@ -124,7 +124,7 @@
     an \e AndroidManifest.xml that you can generate in \QC. For more information,
     see \l{Editing Manifest Files}.
 
-    \image qtquick-mobile-tutorial-manifest.png {Accelbubble manifest file}
+    \image {qtquick-mobile-tutorial-manifest.png} {Accelbubble manifest file}
 
     To generate and use a manifest file, you must specify the Android package
     source directory, \c QT_ANDROID_PACKAGE_SOURCE_DIR in the \e CMakeLists.txt

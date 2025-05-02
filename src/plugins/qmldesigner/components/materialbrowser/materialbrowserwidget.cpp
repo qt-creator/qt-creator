@@ -115,20 +115,25 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                 QByteArray internalId;
 
                 if (isMaterial) {
-                    internalId.setNum(m_materialToDrag.internalId());
+                    qint32 internalIdVal = m_materialToDrag.internalId();
+                    internalId.setNum(internalIdVal);
+                    m_materialToDrag = {};
+                    m_textureToDrag = {};
                     mimeData->setData(Constants::MIME_TYPE_MATERIAL, internalId);
                     model->startDrag(std::move(mimeData),
                                      m_previewImageProvider->requestPixmap(
-                                         QString::number(m_materialToDrag.internalId()),
+                                         QString::number(internalIdVal),
                                          nullptr,
                                          {128, 128}),
                                      this);
                 } else {
+                    QString sourcePropVal = m_textureToDrag.variantProperty("source").value().toString();
                     internalId.setNum(m_textureToDrag.internalId());
+                    m_textureToDrag = {};
                     mimeData->setData(Constants::MIME_TYPE_TEXTURE, internalId);
                     QString iconPath = QLatin1String("%1/%2")
                                     .arg(DocumentManager::currentResourcePath().path(),
-                                         m_textureToDrag.variantProperty("source").value().toString());
+                                         sourcePropVal);
 
                     QPixmap pixmap;
                     const QString suffix = iconPath.split('.').last().toLower();
@@ -144,8 +149,6 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                             ":/propertyeditor/images/texture_default.png");
                     model->startDrag(std::move(mimeData), pixmap.scaled({128, 128}), this);
                 }
-                m_materialToDrag = {};
-                m_textureToDrag = {};
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {

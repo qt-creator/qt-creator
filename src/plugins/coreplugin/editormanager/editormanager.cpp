@@ -818,12 +818,11 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
                 .arg(filePath.fileName())
                 .arg(fileSizeInMB, 0, 'f', 2);
 
-        bool askAgain = true;
-        CheckableDecider decider(&askAgain);
+        auto shouldAskAgain = [] { return true; };
+        auto doNotAskAgain = [] { systemSettings().warnBeforeOpeningBigFiles.setValue(false); };
 
-        QMessageBox::StandardButton clickedButton
-            = CheckableMessageBox::question(title, text, decider);
-        systemSettings().warnBeforeOpeningBigFiles.setValue(askAgain);
+        QMessageBox::StandardButton clickedButton = CheckableMessageBox::question(
+            title, text, {shouldAskAgain, doNotAskAgain});
         return clickedButton != QMessageBox::Yes;
     }
 

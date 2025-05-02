@@ -47,7 +47,7 @@ void VariantProperty::setValue(const QVariant &value)
     privateModel()->setVariantProperty(internalNodeSharedPointer(), name(), value);
 }
 
-QVariant VariantProperty::value() const
+const QVariant &VariantProperty::value() const
 {
     if (isValid()) {
         auto property = internalNode()->variantProperty(name());
@@ -55,7 +55,9 @@ QVariant VariantProperty::value() const
             return property->value();
     }
 
-    return QVariant();
+    static const QVariant nullVariant;
+
+    return nullVariant;
 }
 
 void VariantProperty::setEnumeration(const EnumerationName &enumerationName)
@@ -63,9 +65,14 @@ void VariantProperty::setEnumeration(const EnumerationName &enumerationName)
     setValue(QVariant::fromValue(Enumeration(enumerationName)));
 }
 
-Enumeration VariantProperty::enumeration() const
+const Enumeration &VariantProperty::enumeration() const
 {
-    return value().value<Enumeration>();
+    if (auto enumeration = get_if<Enumeration>(&value()))
+        return *enumeration;
+
+    static constinit const Enumeration nullEnumeration;
+
+    return nullEnumeration;
 }
 
 bool VariantProperty::holdsEnumeration() const

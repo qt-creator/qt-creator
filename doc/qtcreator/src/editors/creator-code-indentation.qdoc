@@ -28,7 +28,7 @@
     \preferences > \uicontrol {Text Editor} > \uicontrol Behavior
     and clear \uicontrol {Auto detect}.
 
-    \image qtcreator-preferences-texteditor-behavior-indentation.webp {Text Editor Behavior indentation preferences}
+    \image {qtcreator-preferences-texteditor-behavior-indentation.webp} {Indentation in the Behavior tab in Text Editor preferences}
 
     \section1 Fix indentation in an open file
 
@@ -74,7 +74,7 @@
     \uicontrol {Skip clean whitespace for file types} to
     exclude the specified file types.
 
-    \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
+    \image {qtcreator-preferences-texteditor-behavior.webp} {Behavior tab in Text Editor preferences}
 
     \section1 Show whitespace in editor
 
@@ -86,7 +86,7 @@
     color of the visualization, change the value of the Visual Whitespace setting
     of the editor color scheme in \uicontrol {Font & Colors}.
 
-    \image qtcreator-options-text-editor-display.png {Text Editor Display preferences}
+    \image {qtcreator-options-text-editor-display.png} {Display tab in Text Editor preferences}
 
     \section1 Display right margin
 

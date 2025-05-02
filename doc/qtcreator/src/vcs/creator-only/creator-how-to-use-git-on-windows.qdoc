@@ -23,7 +23,7 @@
     set to \c %HOMEDRIVE%%HOMEPATH% when the Git executable is run and
     authorization works as it would with \c {git bash}.
 
-    \image qtcreator-preferences-vcs-git.webp {Git preferences}
+    \image {qtcreator-preferences-vcs-git.webp} {Git tab in Version Control preferences}
 
     \sa {Use Git}{How To: Use Git}, {Compare files},
     {Set up version control systems}, {Version Control Systems}

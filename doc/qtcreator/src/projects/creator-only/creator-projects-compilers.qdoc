@@ -26,7 +26,7 @@
     \l{Get and Install Qt}{\QOI} registers and lists them in
     \preferences > \uicontrol Kits > \uicontrol Compilers.
 
-    \image qtcreator-preferences-compilers.webp {Compilers in Kits preferences}
+    \image {qtcreator-preferences-compilers.webp} {Compilers tab in Kits preferences}
 
     \note On \macos, the \c ccache C/C++ compiler cache is detected
     automatically only if you installed it using Homebrew or MacPorts.
@@ -211,7 +211,7 @@
         \li In \uicontrol Name, enter a name for the compiler to
             identify it in \QC.
 
-            \image qtcreator-preferences-compilers-clang-cl.webp {Adding a clang-cl compiler}
+            \image {qtcreator-preferences-compilers-clang-cl.webp} {Adding a clang-cl compiler in the Compilers tab in Kits preferences}
             \caption Adding a clang-cl compiler.
 
         \li In \uicontrol {C compiler path}, enter the path to the
@@ -232,7 +232,7 @@
             \c {vcvarsall.bat} file for setting up the command
             prompt to use.
 
-            \image qtcreator-preferences-compilers-clang.webp {Adding a Clang compiler}
+            \image {qtcreator-preferences-compilers-clang.webp} {Adding a Clang compiler in the Compilers tab in Kits preferences}
             \caption Adding a Clang compiler.
 
         \li In \uicontrol {Platform codegen flags}, check the flags passed
@@ -251,7 +251,7 @@
             compiler, which is needed because Clang does not have its own
             standard library.
 
-            \image qtcreator-preferences-compilers-qcc.webp {Adding a QCC compiler}
+            \image {qtcreator-preferences-compilers-qcc.webp} {Adding a QCC compiler in the Compilers tab in Kits preferences}
             \caption Adding a QCC compiler.
 
         \li In \uicontrol {SDP path}, specify the path to the QNX
@@ -280,7 +280,7 @@
     \uicontrol Custom option. Specify the paths to the directories where the
     compiler and make tool are located and set preferences for the compiler.
 
-    \image qtcreator-preferences-compilers-custom.webp {Compilers in Kit Preferences}
+    \image {qtcreator-preferences-compilers-custom.webp} {Compilers tab in Kits preferences}
 
     To add other compilers:
 

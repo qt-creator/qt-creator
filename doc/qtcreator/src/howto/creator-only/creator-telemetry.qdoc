@@ -32,7 +32,7 @@
     \uicontrol Telemetry > \uicontrol {Usage Statistics}, and then select
     \uicontrol {Send pseudonymous usage statistics}.
 
-    \image qtcreator-preferences-telemetry-usage-statistics.webp {Usage Statistics}
+    \image {qtcreator-preferences-telemetry-usage-statistics.webp} {Usage Statistics tab in Telemetry preferences}
 
     \sa {Installation}
 */

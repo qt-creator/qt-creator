@@ -26,12 +26,12 @@
     automatic setup, select \preferences > \uicontrol CMake > \uicontrol General
     > \uicontrol {Package manager auto setup}.
 
-    \image qtcreator-preferences-cmake-general.webp {General tab in CMake Preferences}
+    \image {qtcreator-preferences-cmake-general.webp} {General tab in CMake preferences}
 
     To set the \uicontrol Path to the directory where you installed vcpkg, select
     \preferences > \uicontrol CMake > \uicontrol Vcpkg.
 
-    \image qtcreator-preferences-cmake-vcpkg.webp {Vcpkg tab in CMake Preferences}
+    \image {qtcreator-preferences-cmake-vcpkg.webp} {Vcpkg tab in CMake preferences}
 
     Select \inlineimage icons/online.png
     to download vcpkg if you have not installed it yet.
@@ -58,7 +58,7 @@
         \li In \uicontrol Path, enter the path for the manifest file.
         \li Select \uicontrol Next to open the
             \uicontrol {vcpkg.json Manifest File} dialog.
-            \image qtcreator-file-new-file-vcpkg-manifest-file.webp {vcpkg.json Manifest File dialog}
+            \image {qtcreator-file-new-file-vcpkg-manifest-file.webp} {vcpkg.json Manifest File dialog}
         \li In \uicontrol Name, enter a name for the manifest file.
         \li In \uicontrol {Version string}, enter a version number for the file.
         \li In \uicontrol Dependencies, enter the packages to manage.
@@ -85,7 +85,7 @@
 
     When you open a vcpkg.json file, it opens in the manifest file editor:
 
-    \image qtcreator-vcpkg-manifest-file-editor.webp {vcpkg.json file in the manifest file editor}
+    \image {qtcreator-vcpkg-manifest-file-editor.webp} {vcpkg.json file in the manifest file editor}
 
     \section1 Add packages to manage
 
@@ -95,7 +95,7 @@
         \li Select the \inlineimage icons/vcpkg.png
             (\uicontrol {Add vcpkg Package}) button on the manifest editor
             toolbar.
-            \image qtcreator-vcpkg-package-selector.webp {Add vcpkg Package dialog}
+            \image {qtcreator-vcpkg-package-selector.webp} {Add vcpkg Package dialog}
         \li Select the package to add to your project.
         \li Select \uicontrol OK to return to the editor.
         \li Repeat to add more packages.
@@ -108,7 +108,7 @@
     \list 1
         \li Select the \inlineimage icons/cmake.png (\uicontrol {CMake Code})
             button on the manifest editor toolbar.
-            \image qtcreator-vcpkg-cmake-config.webp {CMake Code dialog}
+            \image {qtcreator-vcpkg-cmake-config.webp} {CMake Code dialog}
         \li Select the example code you need and copy-paste it to the
             CMakeLists.txt file.
     \endlist

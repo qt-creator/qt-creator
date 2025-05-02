@@ -38,21 +38,21 @@
     that you need for that particular type of project and create the necessary
     files for you.
 
-    \image qtcreator-project-qt-quick.webp {New Project dialog}
+    \image {qtcreator-project-qt-quick.webp} {New Project dialog}
 
     You can add your own custom wizards to standardize the way of adding
     subprojects and classes to a project. In the \uicontrol {New Project} and
     \uicontrol {New File} dialogs you can see an icon (1), a display name (2),
     and a description (3) of the wizard.
 
-    \image qtcreator-custom-wizard.webp {Wizard details in the New File dialog}
+    \image {qtcreator-custom-wizard.webp} {Wizard details in the New File dialog}
 
     In most project wizards, you can choose the build system to use for
     building the project: qmake, CMake, Qbs, and possibly others, depending on
     which plugins you have installed. If you do not get to choose,
     the project usually uses CMake as the build system.
 
-    \image qtcreator-new-project-build-system.webp {Define Build System dialog}
+    \image {qtcreator-new-project-build-system.webp} {Define Build System dialog}
 
     You can use wizards also to create plain C or C++ projects that use
     qmake, Qbs, or CMake, but do not use the Qt library.
@@ -88,7 +88,7 @@
     In the first step, you select a template for the project. You can filter
     templates (1) to view only those that apply to a particular target platform.
 
-    \image qtcreator-new-project.webp {New Project dialog}
+    \image {qtcreator-new-project.webp} {New Project dialog}
 
     Next, you select a location for the project and specify settings for it.
 
@@ -268,7 +268,7 @@
         \li Right-click the project name in the \l Projects view to open the
             context menu, and select \uicontrol {New Subproject}.
         \li Follow the instructions of the wizard to create a subproject.
-            \image qtcreator-project-qt-quick.webp {New Project dialog}
+            \image {qtcreator-project-qt-quick.webp} {New Project dialog}
     \endlist
 
     \section1 Add existing projects as subprojects

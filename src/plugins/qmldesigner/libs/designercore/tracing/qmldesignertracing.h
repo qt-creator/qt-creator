@@ -40,6 +40,7 @@ constexpr NanotraceHR::Tracing tracingStatus()
 }
 
 using Category = NanotraceHR::StringCategory<tracingStatus()>;
+using SourceLocation = Category::SourceLocation;
 using AsynchronousToken = Category::AsynchronousTokenType;
 [[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
 

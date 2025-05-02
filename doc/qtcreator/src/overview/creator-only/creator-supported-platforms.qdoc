@@ -29,44 +29,43 @@
             \li \l Windows
         \row
             \li \l Android
-            \li \image ok.png
-            \li \image ok.png
-            \li \image ok.png
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
         \row
             \li \l{Bare Metal}
-            \li \image ok.png
-            \li \image ok.png
-            \li \image ok.png
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
         \row
-            \li \l {\B2Q}
-            \li \image ok.png
-            \li \image ok.png
-            \li \image ok.png
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
         \row
             \li \l iOS
             \li
-            \li \image ok.png
+            \li \image {ok.png} {The feature is supported on the platform}
             \li
         \row
             \li \l{MCUs}
-            \li \image ok.png
+            \li \image {ok.png} {The feature is supported on the platform}
             \li
-            \li \image ok.png
+            \li \image {ok.png} {The feature is supported on the platform}
         \row
             \li \l QNX
-            \li \image ok.png
-            \li \image ok.png
-            \li \inlineimage ok.png
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
         \row
             \li \l{Remote Linux}
-            \li \image ok.png
-            \li \image ok.png
-            \li \image ok.png
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
         \row
             \li \l{Build applications for the web}{WebAssembly}
-            \li \image ok.png
-            \li \image ok.png
-            \li \image ok.png
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
+            \li \image {ok.png} {The feature is supported on the platform}
     \endtable
 
     \note Deployment, running, and debugging on iOS 17 devices are not supported.

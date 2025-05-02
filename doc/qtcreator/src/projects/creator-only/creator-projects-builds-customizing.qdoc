@@ -18,7 +18,7 @@
     To configure how projects are built, deployed, and run, go to
     \preferences > \uicontrol {Build & Run} > \uicontrol General.
 
-    \image qtcreator-preferences-build-run-general.webp {Build & Run General preferences}
+    \image {qtcreator-preferences-build-run-general.webp} {General tab in Build & Run preferences}
 
     By default, \uicontrol {Always deploy project before running it} (1) and
     \uicontrol {Build the Whole Project} (2) are selected. Therefore, when

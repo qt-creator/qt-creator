@@ -39,7 +39,7 @@
     To set CVS preferences, select \preferences >
     \uicontrol {Version Control} > \uicontrol CVS:
 
-    \image qtcreator-preferences-vcs-cvs.webp {CVS preferences}
+    \image {qtcreator-preferences-vcs-cvs.webp} {CVS tab in Version Control preferences}
 
     \list
         \li \uicontrol {CVS Command} specifies the path to the command-line

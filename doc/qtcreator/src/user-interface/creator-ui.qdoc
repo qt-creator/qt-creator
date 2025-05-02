@@ -16,7 +16,7 @@
     \if defined(qtcreator)
     When you start \QC, it opens to the \uicontrol Welcome mode.
 
-    \image qtcreator-welcome.webp {Welcome mode}
+    \image {qtcreator-welcome.webp} {Welcome mode}
 
     \table
     \header
@@ -88,7 +88,7 @@
         \li View the \QDS \uicontrol {UI Tour}
     \endlist
 
-    \image studio-welcome-mode.webp {Welcome mode}
+    \image {studio-welcome-mode.webp} {Welcome mode.}
 
     \endif
 
@@ -107,7 +107,7 @@
       \li Clear the checkbox for the items that you want to be visible.
     \endlist
 
-    \image studio-menu-item-visibility.png
+    \image {studio-menu-item-visibility.png} {Setting the visibility of advanced menu items the Qt Design Studio Configuration tab.}
 
     You need to restart \QDS to apply changes made to these settings.
 

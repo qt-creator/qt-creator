@@ -624,7 +624,7 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                 if (!toolChain) {
                     toolChain = new GccToolchain(ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID,
                                                  GccToolchain::Clang);
-                    toolChain->setPriority(Toolchain::PriorityHigh);
+                    toolChain->setPriority(Toolchain::PriorityLow);
                     toolChain->setDetection(Toolchain::AutoDetection);
                     toolChain->setLanguage(l);
                     toolChain->setDisplayName(target.name);

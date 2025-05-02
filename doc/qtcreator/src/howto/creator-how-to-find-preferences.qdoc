@@ -31,14 +31,14 @@
     To sort the preference categories in alphabetic order, select the
     \uicontrol {Sort categories} check box.
 
-    \image qtcreator-preferences-sort.webp {Preference categories in alphabetic order}
+    \image {qtcreator-preferences-sort.webp} {Preference categories in alphabetic order}
 
     \section1 Filter preferences
 
     To find a particular preference, use the filter located at the top left of
     the \uicontrol Preferences dialog.
 
-    \image qtcreator-preferences.webp {Filtering preferences}
+    \image {qtcreator-preferences.webp} {Filtering preferences}
 
     \if defined(qtcreator)
     \section1 Go to tabs in Preferences
@@ -48,7 +48,7 @@
     to open the \uicontrol Interface tab, enter \c {t preferences interface}
     in the locator.
 
-    \image qtcreator-locator-filter-t.webp {Using the locator to open a tab in Preferences}
+    \image {qtcreator-locator-filter-t.webp} {Using the locator to open a tab in Preferences}
 
     \sa {Navigate with locator}
     \endif

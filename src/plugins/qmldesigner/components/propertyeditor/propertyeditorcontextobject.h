@@ -60,7 +60,7 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(bool has3DModelSelected READ has3DModelSelected NOTIFY has3DModelSelectedChanged)
 
 public:
-    PropertyEditorContextObject(QQuickWidget *widget, QObject *parent = nullptr);
+    PropertyEditorContextObject(QObject *parent = nullptr);
 
     QUrl specificsUrl() const {return m_specificsUrl; }
     QString specificQmlData() const {return m_specificQmlData; }
@@ -153,6 +153,8 @@ public:
     void setIsSelectionLocked(bool lock);
     bool isSelectionLocked() const;
 
+    void setQuickWidget(QQuickWidget *newQuickWidget);
+
 signals:
     void specificsUrlChanged();
     void specificQmlDataChanged();
@@ -225,7 +227,7 @@ private:
 
     QQmlComponent *m_qmlComponent;
     QQmlContext *m_qmlContext;
-    QQuickWidget *m_quickWidget = nullptr;
+    QPointer<QQuickWidget> m_quickWidget;
 
     QPoint m_lastPos;
 

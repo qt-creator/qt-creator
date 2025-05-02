@@ -22,7 +22,7 @@
     \uicontrol {IncrediBuild for Linux} or
     \uicontrol {IncrediBuild for Windows}.
 
-    \image qtcreator-incredibuild-build-steps-general.png
+    \image {qtcreator-incredibuild-build-steps-general.png} {IncrediBuild build steps}
 
     IncrediBuild automatically detects the build step by iterating over the
     build steps you already defined. The initial build step settings will
@@ -45,7 +45,7 @@
 
     \section2 Distribution Control Settings on Linux
 
-    \image qtcreator-incredibuild-build-steps-linux.png
+    \image {qtcreator-incredibuild-build-steps-linux.png} {IncrediBuild build steps for Linux}
 
     You can specify the following settings for Linux builds:
 
@@ -58,7 +58,7 @@
 
     \section2 Distribution Control Settings on Windows
 
-    \image qtcreator-incredibuild-build-steps-windows.png
+    \image {qtcreator-incredibuild-build-steps-windows.png} {IncrediBuild build steps for Windows}
 
     You can specify the following settings for Windows builds:
 

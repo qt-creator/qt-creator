@@ -37,7 +37,7 @@
     To use \QMLD, switch to the \uicontrol Design mode when a ui.qml or .qml
     file is open.
 
-    \image qtquick-designer.webp {Qt Quick Designer}
+    \image {qtquick-designer.webp} {Qt Quick Designer}
 
     For more information about \l{Qt Qml}, \l{Qt Quick}, and \l{All QML Types}
     {QML types}, see the Qt reference documentation available online and
