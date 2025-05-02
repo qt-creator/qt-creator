@@ -157,6 +157,7 @@ private:
                               IsInsideProject isInsideProject);
     void updateDirectoryChanged(Utils::SmallStringView directoryPath,
                                 Utils::SmallStringView annotationDirectoryPath,
+                                FileState directoryState,
                                 FileState qmldirState,
                                 FileState annotationDirectoryState,
                                 SourcePath qmldirSourcePath,
@@ -213,6 +214,7 @@ private:
                         const std::vector<Utils::PathString> &qmldirImports,
                         DirectoryPathId directoryId,
                         const QString &directoryPath,
+                        FileState directoryState,
                         ModuleId moduleId,
                         Storage::Synchronization::SynchronizationPackage &package,
                         NotUpdatedSourceIds &notUpdatedSourceIds,
@@ -233,6 +235,7 @@ private:
                             Storage::Synchronization::SynchronizationPackage &package,
                             NotUpdatedSourceIds &notUpdatedSourceIds,
                             WatchedSourceIds &WatchedSourceIds,
+                            FileState directoryState,
                             FileState qmldirState,
                             SourceId qmldirSourceId,
                             IsInsideProject isInsideProject);
@@ -243,6 +246,7 @@ private:
                            Storage::Synchronization::SynchronizationPackage &package,
                            NotUpdatedSourceIds &notUpdatedSourceIds,
                            WatchedSourceIds &WatchedSourceIds,
+                           FileState directoryState,
                            FileState qmldirState,
                            SourceId qmldirSourceId,
                            IsInsideProject isInsideProject);
