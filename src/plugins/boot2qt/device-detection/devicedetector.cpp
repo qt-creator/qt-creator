@@ -9,7 +9,6 @@
 #include "../qdbutils.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
 
@@ -84,10 +83,6 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
         QdbDevice::Ptr device = QdbDevice::create();
         device->setupId(IDevice::AutoDetected, deviceId);
         device->setDisplayName(name);
-        device->setType(Qdb::Constants::QdbLinuxOsType);
-        device->setMachineType(IDevice::Hardware);
-        device->setExtraData(ProjectExplorer::Constants::SUPPORTS_RSYNC, true);
-        device->setExtraData(ProjectExplorer::Constants::SUPPORTS_SFTP, true);
 
         const QString ipAddress = info["ipAddress"];
         device->setupDefaultNetworkSettings(ipAddress);

@@ -11,6 +11,7 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <remotelinux/linuxprocessinterface.h>
 
@@ -109,6 +110,10 @@ QdbDevice::QdbDevice()
 {
     setDisplayType(Tr::tr("Boot to Qt Device"));
     setType(Constants::QdbLinuxOsType);
+    setMachineType(IDevice::Hardware);
+    setExtraData(ProjectExplorer::Constants::SUPPORTS_RSYNC, true);
+    setExtraData(ProjectExplorer::Constants::SUPPORTS_SFTP, true);
+    sourceProfile.setDefaultValue(true);
 
     addDeviceAction({Tr::tr("Reboot Device"), [](const IDevice::Ptr &device) {
         (void) new DeviceApplicationObserver(device, CommandLine{device->filePath("reboot")});
@@ -141,6 +146,7 @@ void QdbDevice::setupDefaultNetworkSettings(const QString &host)
     parameters.setPort(22);
     parameters.setTimeout(10);
     parameters.setAuthenticationType(SshParameters::AuthenticationTypeAll);
+    parameters.setHostKeyCheckingMode(ProjectExplorer::SshHostKeyCheckingNone);
     setDefaultSshParameters(parameters);
 }
 
