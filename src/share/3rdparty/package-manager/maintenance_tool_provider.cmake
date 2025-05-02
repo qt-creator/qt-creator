@@ -102,6 +102,13 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
     endif()
 
     qt_maintenance_tool_get_component_platform(${qt_build_flavor} component_platform)
+    if (NOT component_platform)
+      message(STATUS
+        "Qt Creator: Could not find the component platform for '${qt_build_flavor}' "
+        "required by the MaintenanceTool. This can happen with a non Qt SDK installation "
+        "(e.g. system Linux or macOS homebrew).")
+      return()
+    endif()
 
     set(installer_component_list "")
     foreach (qt_package_name IN LISTS qt_package_list)
