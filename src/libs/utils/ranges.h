@@ -296,12 +296,20 @@ template<RangeAdaptorClosure FirstClosure, RangeAdaptorClosure SecondClosure>
 
 struct CacheLatestFunctor : Internal::range_adaptor_closure<CacheLatestFunctor>
 {
+#  if defined(__GNUC__) && !defined(__clang__) && __GNUC__ == 10 && __GNUC_MINOR__ < 5
+    template<std::ranges::viewable_range Range>
+    constexpr auto operator() [[nodiscard]] (Range &&range) const
+    {
+        return std::forward<Range>(range);
+    }
+#  else
     template<std::ranges::viewable_range Range>
         requires Internal::can_cache_latest<Range>
     constexpr auto operator() [[nodiscard]] (Range &&range) const
     {
         return cache_latest_view(std::forward<Range>(range));
     }
+#  endif
 };
 
 inline constexpr CacheLatestFunctor cache_latest;
