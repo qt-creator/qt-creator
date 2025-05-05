@@ -179,6 +179,20 @@ public:
     void onClicked(QObject *guard, const std::function<void()> &);
 };
 
+class QTCREATOR_UTILS_EXPORT SearchBox : public Layouting::Widget
+{
+public:
+    using Implementation = QtcSearchBox;
+    using I = Building::BuilderItem<SearchBox>;
+
+    SearchBox();
+    SearchBox(std::initializer_list<I> ps);
+
+    void setPlaceholderText(const QString &text);
+    void setText(const QString &text);
+    void onTextChanged(QObject *guard, const std::function<void(QString)> &);
+};
+
 } // namespace QtcWidgets
 
 QTC_DEFINE_BUILDER_SETTER(role, setRole);

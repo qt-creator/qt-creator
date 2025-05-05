@@ -194,7 +194,12 @@ int main(int argc, char *argv[])
                 Utils::QtcWidgets::Label { text("Primary label"), role(Utils::QtcLabel::Primary) },
                 Utils::QtcWidgets::Label { text("Secondary label"), role(Utils::QtcLabel::Secondary) },
                 st,
-            }
+            },
+            "QtcSearchBox:",
+            Utils::QtcWidgets::SearchBox {
+                placeholderText("Search example..."),
+                onTextChanged(qApp, [](const QString &text){ qDebug() << "Text:" << text; })
+            },
         }
     }.emerge()->show();
     // clang-format on

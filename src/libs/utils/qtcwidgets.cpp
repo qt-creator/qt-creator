@@ -684,6 +684,32 @@ void Label::setRole(QtcLabel::Role role)
     Layouting::Tools::access(this)->setRole(role);
 }
 
+SearchBox::SearchBox()
+{
+    ptr = new Implementation();
+}
+
+SearchBox::SearchBox(std::initializer_list<I> ps)
+{
+    ptr = new Implementation();
+    Layouting::Tools::apply(this, ps);
+}
+
+void SearchBox::setPlaceholderText(const QString &text)
+{
+    Layouting::Tools::access(this)->setPlaceholderText(text);
+}
+
+void SearchBox::setText(const QString &text)
+{
+    Layouting::Tools::access(this)->setText(text);
+}
+
+void SearchBox::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
+{
+    QObject::connect(Layouting::Tools::access(this), &QtcSearchBox::textChanged, guard, func);
+}
+
 } // namespace QtcWidgets
 
 } // namespace Utils
