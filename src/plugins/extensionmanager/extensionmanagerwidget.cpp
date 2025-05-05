@@ -53,6 +53,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QMetaEnum>
 #include <QScrollArea>
 
 using namespace Core;
@@ -892,11 +893,14 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
         storage->progressDialog->close();
 
         if (result != DoneWith::Success) {
+            const QNetworkReply::NetworkError error = query.reply()->error();
             QMessageBox::warning(
                 ICore::dialogParent(),
                 Tr::tr("Download Error"),
                 Tr::tr("Cannot download extension") + "\n\n" + storage->url.toString() + "\n\n"
-                    + Tr::tr("Code: %1.").arg(query.reply()->error()));
+                    + Tr::tr("Code: %1 (%2).")
+                          .arg(error)
+                          .arg(QMetaEnum::fromType<QNetworkReply::NetworkError>().key(error)));
             return DoneResult::Error;
         }
 
