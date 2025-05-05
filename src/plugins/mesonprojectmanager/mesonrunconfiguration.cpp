@@ -58,7 +58,6 @@ public:
             BuildTargetInfo bti = buildTargetInfo();
             terminal.setUseTerminalHint(bti.usesTerminal);
             executable.setExecutable(bti.targetFilePath);
-            workingDir.setDefaultWorkingDirectory(bti.workingDirectory);
             emit environment.environmentChanged();
         });
     }

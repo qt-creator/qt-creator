@@ -179,6 +179,9 @@ public:
 
     BuildSystem *buildSystem() const;
 
+    static void setupMacroExpander(
+        Utils::MacroExpander &exp, const RunConfiguration *rc, bool documentationOnly);
+
 protected:
     RunConfiguration(BuildConfiguration *bc, Utils::Id id);
 

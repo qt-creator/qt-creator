@@ -39,8 +39,6 @@ public:
             QTC_ASSERT(buildConfiguration, return);
             const QFileInfo outFileInfo = buildConfiguration->outFilePath().toFileInfo();
             executable.setExecutable(FilePath::fromString(outFileInfo.absoluteFilePath()));
-            const QString workingDirectory = outFileInfo.absoluteDir().absolutePath();
-            workingDir.setDefaultWorkingDirectory(FilePath::fromString(workingDirectory));
         });
         update();
     }

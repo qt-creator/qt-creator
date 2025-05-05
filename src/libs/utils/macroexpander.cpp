@@ -445,16 +445,20 @@ static QByteArray fullPrefix(const QByteArray &prefix)
  * The \a value \c PrefixFunction will be called and gets the full variable name
  * with the prefix stripped as input. It is displayed to users if \a visible is
  * \c true.
+ * Set \a availableForExpansion to \c false if the variable should only be documented,
+ * but not actually get expanded.
  *
  * \sa registerVariable(), registerIntVariable(), registerFileVariables()
  */
 void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &description,
-                                   const MacroExpander::PrefixFunction &value, bool visible)
+                                   const MacroExpander::PrefixFunction &value, bool visible,
+                                   bool availableForExpansion)
 {
     QByteArray tmp = fullPrefix(prefix);
     if (visible)
         d->m_descriptions.insert(tmp + "<value>", description);
-    d->m_prefixMap.insert(tmp, value);
+    if (availableForExpansion)
+        d->m_prefixMap.insert(tmp, value);
 }
 
 /*!

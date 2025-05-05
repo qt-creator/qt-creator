@@ -34,7 +34,6 @@ public:
             setDisplayName(bti.displayName);
             setDefaultDisplayName(bti.displayName);
             executable.setExecutable(bti.targetFilePath);
-            workingDir.setDefaultWorkingDirectory(bti.workingDirectory);
         });
         update();
     }

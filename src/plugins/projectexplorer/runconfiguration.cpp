@@ -208,23 +208,13 @@ RunConfiguration::RunConfiguration(BuildConfiguration *bc, Utils::Id id)
     expander.setDisplayName(Tr::tr("Run Settings"));
     expander.setAccumulating(true);
     expander.registerSubProvider([bc] { return bc->macroExpander(); });
-    expander.registerPrefix("RunConfig:Env", Tr::tr("Variables in the run environment."),
-                             [this](const QString &var) {
-        const auto envAspect = aspect<EnvironmentAspect>();
-        return envAspect ? envAspect->environment().expandedValueForKey(var) : QString();
-    });
+    setupMacroExpander(expander, this, false);
     expander.registerVariable("RunConfig:WorkingDir",
                                Tr::tr("The run configuration's working directory."),
                                [this] {
         const auto wdAspect = aspect<WorkingDirectoryAspect>();
         return wdAspect ? wdAspect->workingDirectory().toUrlishString() : QString();
     });
-    expander.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."),
-            [this] { return displayName(); });
-    expander.registerFileVariables("RunConfig:Executable",
-                                     Tr::tr("The run configuration's executable."),
-                                     [this] { return commandLine().executable(); });
-
 
     m_commandLineGetter = [this] {
         Launcher launcher;
@@ -347,6 +337,25 @@ AspectContainerData RunConfiguration::aspectData() const
 BuildSystem *RunConfiguration::buildSystem() const
 {
     return m_buildConfiguration->buildSystem();
+}
+
+void RunConfiguration::setupMacroExpander(
+    Utils::MacroExpander &exp, const RunConfiguration *rc, bool documentationOnly)
+{
+    exp.registerPrefix(
+        "RunConfig:Env", Tr::tr("Variables in the run environment."), [rc](const QString &var) {
+            if (!rc)
+                return QString();
+            const auto envAspect = rc->aspect<EnvironmentAspect>();
+            return envAspect ? envAspect->environment().expandedValueForKey(var) : QString();
+        }, true, !documentationOnly);
+    exp.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."), [rc] {
+        return rc ? rc->displayName() : QString();
+    }, true, !documentationOnly);
+    exp.registerFileVariables(
+        "RunConfig:Executable", Tr::tr("The run configuration's executable."), [rc] {
+            return rc ? rc->commandLine().executable() : Utils::FilePath();
+        }, true, !documentationOnly);
 }
 
 void RunConfiguration::setUpdater(const Updater &updater)

@@ -113,7 +113,8 @@ void DesktopRunConfiguration::updateTargetInformation()
         emit aspect<EnvironmentAspect>()->environmentChanged();
 
         auto wda = aspect<WorkingDirectoryAspect>();
-        wda->setDefaultWorkingDirectory(bti.workingDirectory);
+        if (!bti.workingDirectory.isEmpty())
+            wda->setDefaultWorkingDirectory(bti.workingDirectory);
 
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
 
@@ -124,12 +125,6 @@ void DesktopRunConfiguration::updateTargetInformation()
 
         aspect<ExecutableAspect>()->setExecutable(executable);
 
-        if (!executable.isEmpty()) {
-            const FilePath defaultWorkingDir = executable.absolutePath();
-            if (!defaultWorkingDir.isEmpty())
-                aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(defaultWorkingDir);
-        }
-
     } else if (m_kind == CMake) {
 
         if (bti.launchers.size() > 0) {
@@ -139,7 +134,8 @@ void DesktopRunConfiguration::updateTargetInformation()
             launcherAspect->updateLaunchers(bti.launchers);
         }
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-        aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
+        if (!bti.workingDirectory.isEmpty())
+            aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
 
         const QStringList argumentsList = bti.additionalData.toMap()["arguments"].toStringList();
         if (!argumentsList.isEmpty())

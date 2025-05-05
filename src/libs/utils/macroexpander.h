@@ -46,8 +46,12 @@ public:
     using FileFunction = std::function<FilePath()>;
     using IntFunction = std::function<int()>;
 
-    void registerPrefix(const QByteArray &prefix,
-        const QString &description, const PrefixFunction &value, bool visible = true);
+    void registerPrefix(
+        const QByteArray &prefix,
+        const QString &description,
+        const PrefixFunction &value,
+        bool visible = true,
+        bool availableForExpansion = true);
 
     void registerVariable(const QByteArray &variable,
         const QString &description, const StringFunction &value,

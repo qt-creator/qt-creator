@@ -6,6 +6,7 @@
 #include "buildconfiguration.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "runconfiguration.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -21,6 +22,13 @@ static QString defaultBuildDirectoryTemplate()
     return qtcEnvironmentVariable(
         Constants::QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE,
         "./build/%{Asciify:%{Kit:FileSystemName}-%{BuildConfig:Name}}");
+}
+
+static QString defaultWorkingDirectoryTemplate()
+{
+    return qtcEnvironmentVariable(
+        Constants::QTC_DEFAULT_WORKING_DIRECTORY_TEMPLATE,
+        "%{RunConfig:Executable:Path}");
 }
 
 BuildPropertiesSettings &buildPropertiesSettings()
@@ -43,6 +51,7 @@ BuildPropertiesSettings::BuildPropertiesSettings()
         return Column {
             Form {
                 buildDirectoryTemplate, br,
+                workingDirectoryTemplate, br,
                 separateDebugInfo, br,
                 qmlDebugging, br,
                 qtQuickCompiler
@@ -63,6 +72,21 @@ BuildPropertiesSettings::BuildPropertiesSettings()
     buildDirectoryTemplate.setUseResetButton();
     BuildConfiguration::setupBuildDirMacroExpander(
         *buildDirectoryTemplate.macroExpander(), {}, {}, {}, {}, {}, {}, true);
+
+    workingDirectoryTemplate.setDisplayStyle(StringAspect::LineEditDisplay);
+    workingDirectoryTemplate.setSettingsKey("Directories/WorkingDirectory.Template");
+    workingDirectoryTemplate.setDefaultValue(defaultWorkingDirectoryTemplate());
+    workingDirectoryTemplate.setLabelText(Tr::tr("Default working directory:"));
+    workingDirectoryTemplate.setToolTip(
+        Tr::tr(
+            "Template used to construct the default working directory of a run "
+            "configuration.<br><br>"
+            "The default value can be set using the environment variable <tt>%1</tt>.")
+            .arg(Constants::QTC_DEFAULT_WORKING_DIRECTORY_TEMPLATE));
+    workingDirectoryTemplate.setUseResetButton();
+    MacroExpander &wdExp = *workingDirectoryTemplate.macroExpander();
+    BuildConfiguration::setupBuildDirMacroExpander(wdExp, {}, {}, {}, {}, {}, {}, true);
+    RunConfiguration::setupMacroExpander(wdExp, nullptr, true);
 
     separateDebugInfo.setSettingsKey("ProjectExplorer/Settings/SeparateDebugInfo");
     separateDebugInfo.setLabelText(Tr::tr("Separate debug info:"));

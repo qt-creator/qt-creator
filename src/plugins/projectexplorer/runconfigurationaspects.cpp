@@ -4,6 +4,7 @@
 #include "runconfigurationaspects.h"
 
 #include "buildmanager.h"
+#include "buildpropertiessettings.h"
 #include "devicesupport/devicekitaspects.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
@@ -161,6 +162,8 @@ WorkingDirectoryAspect::WorkingDirectoryAspect(AspectContainer *container)
     setLabelText(Tr::tr("Working directory:"));
     setId("WorkingDirectoryAspect");
     setSettingsKey("RunConfiguration.WorkingDirectory");
+    setDefaultWorkingDirectory(
+        FilePath::fromUserInput(buildPropertiesSettings().workingDirectoryTemplate.value()));
 }
 
 void WorkingDirectoryAspect::setEnvironment(EnvironmentAspect *envAspect)

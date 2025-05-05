@@ -21,6 +21,7 @@ public:
     };
 
     Utils::StringAspect buildDirectoryTemplate{this};
+    Utils::StringAspect workingDirectoryTemplate{this};
     BuildTriStateAspect separateDebugInfo{this};
     BuildTriStateAspect qmlDebugging{this};
     BuildTriStateAspect qtQuickCompiler{this};

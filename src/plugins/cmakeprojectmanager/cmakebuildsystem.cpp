@@ -2308,7 +2308,6 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
             }
             bti.targetFilePath = ct.executable;
             bti.projectFilePath = ct.sourceDirectory.cleanPath();
-            bti.workingDirectory = ct.workingDirectory;
             bti.buildKey = buildKey;
             bti.usesTerminal = !ct.linksToQtGui;
             bti.isQtcRunnable = ct.qtcRunnable;

@@ -357,7 +357,6 @@ QList<BuildTargetInfo> MesonProjectParser::appsTargets() const
             bti.buildKey = target.name;
             bti.displayNameUniquifier = bti.buildKey;
             bti.targetFilePath = FilePath::fromString(target.fileName.first());
-            bti.workingDirectory = FilePath::fromString(target.fileName.first()).absolutePath();
             bti.projectFilePath = FilePath::fromString(target.definedIn);
             bti.usesTerminal = true;
             apps.append(bti);

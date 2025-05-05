@@ -165,7 +165,6 @@ void NimbleBuildSystem::updateProject()
         info.displayName = bin;
         info.targetFilePath = binDir.pathAppended(bin);
         info.projectFilePath = projectFilePath();
-        info.workingDirectory = binDir;
         info.buildKey = bin;
         return info;
     });

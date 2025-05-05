@@ -376,7 +376,8 @@ public:
         arguments.setSettingsKey("Workspace.RunConfiguration.Arguments");
 
         workingDirectory.setLabelText(Tr::tr("Working directory:"));
-        workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
+        if (!bti.workingDirectory.isEmpty())
+            workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
         workingDirectory.setSettingsKey("Workspace.RunConfiguration.WorkingDirectory");
 
         setCommandLineGetter([this] {
@@ -391,7 +392,8 @@ public:
             const BuildTargetInfo bti = buildTargetInfo();
             executable.setValue(bti.targetFilePath);
             arguments.setArguments(argumentsAsString());
-            workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
+            if (!bti.workingDirectory.isEmpty())
+                workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
         });
 
         auto enabledUpdater = [this] { setEnabled(enabled.value()); };

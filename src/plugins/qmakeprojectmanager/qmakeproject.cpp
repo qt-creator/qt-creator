@@ -1177,30 +1177,9 @@ void QmakeBuildSystem::updateBuildSystemData()
 
         const QStringList &config = node->variableValue(Variable::Config);
 
-        FilePath destDir = ti.destDir;
-        FilePath workingDir;
-        if (!destDir.isEmpty()) {
-            bool workingDirIsBaseDir = false;
-            if (destDir.path() == ti.buildTarget)
-                workingDirIsBaseDir = true;
-            if (QDir::isRelativePath(destDir.path()))
-                destDir = ti.buildDir / destDir.path();
-
-            if (workingDirIsBaseDir)
-                workingDir = ti.buildDir;
-            else
-                workingDir = destDir;
-        } else {
-            workingDir = ti.buildDir;
-        }
-
-        if (HostOsInfo::isMacHost() && config.contains("app_bundle"))
-            workingDir = workingDir / (ti.target + ".app/Contents/MacOS");
-
         BuildTargetInfo bti;
         bti.targetFilePath = executableFor(node->proFile());
         bti.projectFilePath = node->filePath();
-        bti.workingDirectory = workingDir;
         bti.displayName = node->proFile()->singleVariableValue(Variable::QmakeProjectName);
         if (bti.displayName.isEmpty())
             bti.displayName = bti.projectFilePath.completeBaseName();
