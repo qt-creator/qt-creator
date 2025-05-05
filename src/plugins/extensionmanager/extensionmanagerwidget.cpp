@@ -460,7 +460,7 @@ public:
             m_switch, empty, br,
         }.attachTo(this);
 
-        connect(m_switch, &QCheckBox::clicked, this, [this](bool checked) {
+        connect(m_switch, &QtcSwitch::clicked, this, [this](bool checked) {
             PluginSpec *spec = PluginManager::specById(m_pluginId);
             if (spec == nullptr)
                 return;
