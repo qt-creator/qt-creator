@@ -900,7 +900,8 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
                 Tr::tr("Cannot download extension") + "\n\n" + storage->url.toString() + "\n\n"
                     + Tr::tr("Code: %1 (%2).")
                           .arg(error)
-                          .arg(QMetaEnum::fromType<QNetworkReply::NetworkError>().key(error)));
+                          .arg(QString::fromUtf8(
+                                   QMetaEnum::fromType<QNetworkReply::NetworkError>().key(error))));
             return DoneResult::Error;
         }
 
