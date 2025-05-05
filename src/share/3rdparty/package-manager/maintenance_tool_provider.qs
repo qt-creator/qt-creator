@@ -1,10 +1,21 @@
 accountFieldsVisible = function()
 {
-    var ifwVersion = installer.value("FrameworkVersion");
-    if (installer.versionMatches(ifwVersion, "=4.9.0"))
-        gui.clickButton("submitButtonLogin");
-    else
-        gui.clickButton(buttons.NextButton);
+    var qtPackagesString = installer.environmentVariable("QTC_MAINTENANCE_TOOL_QT_PACKAGES").toString();
+    qtPackagesString = qtPackagesString.split(";").join(" ");
+
+    var result = QMessageBox.question("qtcreator.install.packages", "Qt Creator",
+                                      "CMake could not find: " + qtPackagesString + "<br><br>" +
+                                      "Do you want to install the missing packages?",
+                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes);
+    if (result == QMessageBox.No) {
+        gui.rejectWithoutPrompt();
+    } else {
+        var ifwVersion = installer.value("FrameworkVersion");
+        if (installer.versionMatches(ifwVersion, "=4.9.0"))
+            gui.clickButton("submitButtonLogin");
+        else
+            gui.clickButton(buttons.NextButton);
+    }
 }
 
 usageStatisticVisible = function()
@@ -28,10 +39,10 @@ Controller.prototype.IntroductionPageCallback = function()
 
 Controller.prototype.ComponentSelectionPageCallback = function()
 {
-    var componentString = installer.environmentVariable("QTC_MAINTENANCE_TOOL_COMPONENT");
-    var componentList = componentString.split(";");
-    for (var idx = 0; idx < componentList.length; idx++) {
-        installer.selectComponent(componentList[idx]);
+    var componentsString = installer.environmentVariable("QTC_MAINTENANCE_TOOL_COMPONENTS");
+    var componentsList = componentsString.split(";");
+    for (var idx = 0; idx < componentsList.length; idx++) {
+        installer.selectComponent(componentsList[idx]);
     }
     gui.clickButton(buttons.NextButton);
 }

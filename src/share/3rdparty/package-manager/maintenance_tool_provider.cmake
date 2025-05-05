@@ -172,11 +172,12 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
     list(TRANSFORM qt_package_list PREPEND "Qt${qt_major_version}")
     list(JOIN qt_package_list " " qt_packages_as_string)
     list(JOIN installer_component_list " " installer_components_as_string)
-    message(STATUS "Qt Creator: CMake could not find: ${qt_packages_as_string}. "
-                   "Now installing: ${installer_components_as_string} "
-                   "with the MaintenanceTool ...")
 
     if (QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI)
+      message(STATUS "Qt Creator: CMake could not find: ${qt_packages_as_string}. "
+                     "Now installing: ${installer_components_as_string} "
+                     "with the MaintenanceTool ...")
+
       message(STATUS "Qt Creator: Using MaintenanceTool in CLI Mode. "
                      "Set QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI to OFF for GUI mode.")
       execute_process(
@@ -198,7 +199,8 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
     else()
       message(STATUS "Qt Creator: Using MaintenanceTool in GUI Mode. "
                      "Set QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI to ON for CLI mode.")
-      set(ENV{QTC_MAINTENANCE_TOOL_COMPONENT} "${installer_component_list}")
+      set(ENV{QTC_MAINTENANCE_TOOL_COMPONENTS} "${installer_component_list}")
+      set(ENV{QTC_MAINTENANCE_TOOL_QT_PACKAGES} "${qt_package_list}")
       execute_process(
         COMMAND
           "${QT_MAINTENANCE_TOOL}"
