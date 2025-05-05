@@ -80,6 +80,12 @@ function(qt_maintenance_tool_remove_installed_components components_list)
     ERROR_VARIABLE output
     TIMEOUT 600
   )
+  if (NOT result EQUAL 0)
+    message(WARNING "Qt MaintenanceTool returned an error.\n${output}")
+    set(${components_list} "" PARENT_SCOPE)
+    return()
+  endif()
+
   foreach(component_name IN LISTS actual_components_list)
     string(FIND "${output}" "<package name=\"${component_name}\"" found_component)
     if (NOT found_component EQUAL -1)
