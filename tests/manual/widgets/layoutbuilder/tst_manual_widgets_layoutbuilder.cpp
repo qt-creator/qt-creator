@@ -161,9 +161,9 @@ int main(int argc, char *argv[])
         windowTitle("Qtc Controls"),
 
         Column {
-            Label { text("Theme selector:") },
+            "Theme selector:",
             new ManualTest::ThemeSelector,
-            Label { text("QtcButton:") },
+            "QtcButton:",
             Flow {
                 std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
                     return Button{
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
                     };
                 })
             },
-            Label { text("QtcButton with Icons:") },
+            "QtcButton with Icons:",
             Flow {
                 std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
                     return Button{
@@ -189,6 +189,12 @@ int main(int argc, char *argv[])
                 },
                 st,
             },
+            "QtcLabel:",
+            Row {
+                Utils::QtcWidgets::Label { text("Primary label"), role(Utils::QtcLabel::Primary) },
+                Utils::QtcWidgets::Label { text("Secondary label"), role(Utils::QtcLabel::Secondary) },
+                st,
+            }
         }
     }.emerge()->show();
     // clang-format on

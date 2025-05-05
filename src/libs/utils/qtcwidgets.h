@@ -66,15 +66,17 @@ private:
 
 class QTCREATOR_UTILS_EXPORT QtcLabel : public QLabel
 {
+    Q_OBJECT // Needed for the Q_ENUM(Role) to work
 public:
     enum Role {
         Primary,
         Secondary,
     };
+    Q_ENUM(Role)
+
     explicit QtcLabel(const QString &text, Role role, QWidget *parent = nullptr);
 
-private:
-    const Role m_role = Primary;
+    void setRole(Role role);
 };
 
 class QTCREATOR_UTILS_EXPORT QtcSearchBox : public Utils::FancyLineEdit
@@ -130,6 +132,17 @@ private:
 };
 
 namespace QtcWidgets {
+
+class QTCREATOR_UTILS_EXPORT Label : public Layouting::Widget
+{
+public:
+    using Implementation = QtcLabel;
+    using I = Building::BuilderItem<Label>;
+    Label();
+    Label(std::initializer_list<I> ps);
+    void setText(const QString &text);
+    void setRole(QtcLabel::Role role);
+};
 
 class QTCREATOR_UTILS_EXPORT Button : public Layouting::Widget
 {
