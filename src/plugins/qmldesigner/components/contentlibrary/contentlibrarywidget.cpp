@@ -232,8 +232,7 @@ void ContentLibraryWidget::createImporter()
 #endif
 
     connect(m_importer, &BundleImporter::unimportFinished, this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
-                Q_UNUSED(metaInfo)
+            [&](const QString &bundleId) {
                 setImporterRunning(false);
                 updateImportedState(bundleId);
     });

@@ -121,12 +121,14 @@ QString BundleImporter::importComponent(const QString &bundleDir,
 
     ImportData data;
     data.isImport = true;
-    data.type = type;
-    Import import = Import::createLibraryImport(module, "1.0");
 #ifdef QDS_USE_PROJECTSTORAGE
-    model->changeImports({import}, {});
     m_pendingFullReset = doReset;
+    data.simpleType = type.split('.').constLast();
+    data.moduleName = module;
+    data.module = model->module(module.toUtf8(), Storage::ModuleKind::QmlLibrary);
 #else
+    Import import = Import::createLibraryImport(module);
+    data.type = type;
     if (doScan)
         data.pathToScan = bundleImportPath;
     else
@@ -169,7 +171,7 @@ void BundleImporter::handleImportTimer()
             if (data.isImport)
                 emit importFinished({}, m_bundleId);
             else
-                emit unimportFinished({}, m_bundleId);
+                emit unimportFinished(m_bundleId);
         }
         m_bundleId.clear();
     };
@@ -183,16 +185,18 @@ void BundleImporter::handleImportTimer()
 
     const QList<TypeName> keys = m_pendingImports.keys();
     for (const TypeName &type : keys) {
-        ImportData &data = m_pendingImports[type];
+        const ImportData data = m_pendingImports.value(type);
         // Verify that code model has the new type fully available (or removed for unimport)
-        NodeMetaInfo metaInfo = model->metaInfo(type);
-        const bool typeComplete = metaInfo.isValid() && !metaInfo.prototypes().empty();
-        if (data.isImport == typeComplete) {
+        NodeMetaInfo metaInfo = model->metaInfo(data.module, data.simpleType);
+        if (data.isImport == metaInfo.isValid()) {
             m_pendingImports.remove(type);
-            if (data.isImport)
+            if (data.isImport) {
+                Import import = Import::createLibraryImport(data.moduleName);
+                model->changeImports({import}, {});
                 emit importFinished(type, m_bundleId);
-            else
-                emit unimportFinished(metaInfo, m_bundleId);
+            } else {
+                emit unimportFinished(m_bundleId);
+            }
         }
     }
 
@@ -226,7 +230,7 @@ void BundleImporter::handleImportTimer()
             if (data.isImport)
                 emit importFinished({}, m_bundleId);
             else
-                emit unimportFinished({}, m_bundleId);
+                emit unimportFinished(m_bundleId);
         }
         m_bundleId.clear();
     };
@@ -341,7 +345,7 @@ void BundleImporter::handleImportTimer()
                         if (data.isImport)
                             emit importFinished(metaInfo, m_bundleId);
                         else
-                            emit unimportFinished(metaInfo, m_bundleId);
+                            emit unimportFinished(m_bundleId);
                     }
                 }
             }
@@ -456,12 +460,15 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
     if (writeAssetRefs)
         writeAssetRefMap(bundleImportPath, assetRefMap);
 
+    auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+    Model *model = doc ? doc->currentModel() : nullptr;
+    if (!model)
+        return "Model not available, cannot remove import statement or update code model";
+
     // If the bundle module contains no .qml files after unimport, remove the import statement
     if (bundleImportPath.dirEntries({{"*.qml"}, QDir::Files}).isEmpty()) {
-        auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
-        Model *model = doc ? doc->currentModel() : nullptr;
         if (model) {
-            Import import = Import::createLibraryImport(module, "1.0");
+            Import import = Import::createLibraryImport(module);
             if (model->imports().contains(import))
                 model->changeImports({}, {import});
         }
@@ -469,8 +476,12 @@ QString BundleImporter::unimportComponent(const TypeName &type, const QString &q
 
     ImportData data;
     data.isImport = false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    data.simpleType = type.split('.').constLast();
+    data.moduleName = module;
+    data.module = model->module(module.toUtf8(), Storage::ModuleKind::QmlLibrary);
+#else
     data.type = type;
-#ifndef QDS_USE_PROJECTSTORAGE
     data.fullReset = true;
 #endif
     m_pendingImports.insert(type, data);

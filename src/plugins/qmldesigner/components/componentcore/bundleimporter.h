@@ -4,6 +4,7 @@
 #pragma once
 
 #include <modelfwd.h>
+#include <module.h>
 
 #include <utils/filepath.h>
 
@@ -39,7 +40,7 @@ signals:
 #else
     void importFinished(const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId);
 #endif
-    void unimportFinished(const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId);
+    void unimportFinished(const QString &bundleId);
     void aboutToUnimport(const TypeName &type, const QString &bundleId);
 
 private:
@@ -54,7 +55,9 @@ private:
     struct ImportData
     {
         bool isImport = true; // false = unimport
-        TypeName type;
+        TypeName simpleType;
+        QString moduleName;
+        Module module;
     };
     bool m_pendingFullReset = false; // Reset old QMLJS code model (it's used for code view warnings)
 #else
