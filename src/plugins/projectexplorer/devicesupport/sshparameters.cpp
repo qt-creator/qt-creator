@@ -262,8 +262,8 @@ SshParametersAspectContainer::SshParametersAspectContainer()
     hostKeyCheckingMode.setLabelText(Tr::tr("Host key check:"));
     hostKeyCheckingMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     hostKeyCheckingMode.addOption("None", Tr::tr("No host key checking"));
-    hostKeyCheckingMode.addOption("Allow No Match", Tr::tr("Allow host key checking"));
     hostKeyCheckingMode.addOption("Strict", Tr::tr("Strict host key checking"));
+    hostKeyCheckingMode.addOption("Allow No Match", Tr::tr("Allow host key checking"));
 
     host.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
     host.setPlaceHolderText(Tr::tr("Host name or IP address"));
