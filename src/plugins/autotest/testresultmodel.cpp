@@ -416,6 +416,18 @@ int TestResultModel::resultTypeCount(ResultType type) const
     return result;
 }
 
+static TestResultItem *findDirectParent(TreeItem *it, const std::function<bool (TreeItem *)> pred)
+{
+    if (auto lastChild = it->lastChild()) {
+        if (TestResultItem *found = findDirectParent(lastChild, pred))
+            return found;
+
+        if (pred(lastChild))
+            return static_cast<TestResultItem *>(lastChild);
+    }
+    return nullptr;
+}
+
 TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
                                                    const TestResultItem *startItem) const
 {
@@ -443,8 +455,8 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
         TestResultItem *currentItem = static_cast<TestResultItem *>(it);
         return currentItem->testResult().isDirectParentOf(result, &needsIntermediate);
     };
-    TestResultItem *parent = root->reverseFindAnyChild(predicate);
-    if (parent) {
+
+    if (TestResultItem *parent = findDirectParent(root, predicate)) {
         if (needsIntermediate) {
             // check if the intermediate is present already
             if (TestResultItem *intermediate = parent->intermediateFor(item))
