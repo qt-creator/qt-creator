@@ -35,6 +35,8 @@ public:
     Diagnostics diagnosticsAtLine(int lineNumber) const;
 
 private:
+    void showDiagnostics();
+    void hideDiagnostics();
     void scheduleRun();
     void run();
 
@@ -47,6 +49,7 @@ private:
     Core::IDocument *m_document = nullptr;
     Utils::TemporaryDirectory m_temporaryDir;
     QList<DiagnosticMark *> m_marks;
+    QList<ProjectExplorer::Task> m_tasks;
     FileInfo m_fileInfo;
     QMetaObject::Connection m_projectSettingsUpdate;
     QList<QPointer<TextEditor::TextEditorWidget>> m_editorsWithMarkers;

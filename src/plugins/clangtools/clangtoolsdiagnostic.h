@@ -8,6 +8,8 @@
 #include <QMetaType>
 #include <QString>
 
+namespace ProjectExplorer { class Task; }
+
 namespace ClangTools::Internal {
 
 class ExplainingStep
@@ -30,6 +32,7 @@ class Diagnostic
 public:
     bool isValid() const;
     QIcon icon() const;
+    ProjectExplorer::Task asTask() const;
 
     friend bool operator==(const Diagnostic &lhs, const Diagnostic &rhs);
     friend size_t qHash(const Diagnostic &diagnostic);

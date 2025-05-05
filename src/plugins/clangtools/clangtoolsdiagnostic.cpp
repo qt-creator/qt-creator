@@ -3,7 +3,12 @@
 
 #include "clangtoolsdiagnostic.h"
 
+#include "clangtoolsutils.h"
+
+#include <projectexplorer/task.h>
 #include <utils/utilsicons.h>
+
+using namespace ProjectExplorer;
 
 namespace ClangTools {
 namespace Internal {
@@ -38,6 +43,25 @@ QIcon Diagnostic::icon() const
     if (type == "fix-it")
         return Utils::Icons::CODEMODEL_FIXIT.icon();
     return {};
+}
+
+ProjectExplorer::Task Diagnostic::asTask() const
+{
+    const auto taskType = [&] {
+        if (type == "warning" || type == "fix-it")
+            return Task::Warning;
+        if (type == "error")
+            return Task::Error;
+        return Task::Unknown;
+    };
+    Task t(taskType(),
+          description,
+          location.targetFilePath,
+          location.targetLine,
+          taskCategory(),
+          icon());
+    t.column = location.targetColumn;
+    return t;
 }
 
 size_t qHash(const Diagnostic &diagnostic)

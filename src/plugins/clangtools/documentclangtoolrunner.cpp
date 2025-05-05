@@ -20,6 +20,7 @@
 #include <projectexplorer/buildtargettype.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <solutions/tasking/tasktree.h>
 
@@ -56,6 +57,17 @@ DocumentClangToolRunner::DocumentClangToolRunner(IDocument *document)
             this, &DocumentClangToolRunner::scheduleRun);
     connect(ClangToolsSettings::instance(), &ClangToolsSettings::changed,
             this, &DocumentClangToolRunner::scheduleRun);
+    connect(EditorManager::instance(), &EditorManager::currentEditorAboutToChange,
+            this, [this](IEditor *editor) {
+        if (editor && editor->document()->filePath() == filePath())
+            hideDiagnostics();
+    });
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
+            this, [this](IEditor *editor) {
+        if (editor && editor->document()->filePath() == filePath())
+            showDiagnostics();
+    });
+
     connect(&m_runTimer, &QTimer::timeout, this, &DocumentClangToolRunner::run);
     connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, &DocumentClangToolRunner::finalize);
     run();
@@ -83,6 +95,18 @@ Diagnostics DocumentClangToolRunner::diagnosticsAtLine(int lineNumber) const
     return diagnostics;
 }
 
+void DocumentClangToolRunner::showDiagnostics()
+{
+    for (const Task &t : std::as_const(m_tasks))
+        TaskHub::addTask(t);
+}
+
+void DocumentClangToolRunner::hideDiagnostics()
+{
+    for (const Task &t : std::as_const(m_tasks))
+        TaskHub::removeTask(t);
+}
+
 static void removeClangToolRefactorMarkers(TextEditor::TextEditorWidget *editor)
 {
     if (!editor)
@@ -94,6 +118,8 @@ void DocumentClangToolRunner::scheduleRun()
 {
     for (DiagnosticMark *mark : std::as_const(m_marks))
         mark->disable();
+    hideDiagnostics();
+    m_tasks.clear();
     for (TextEditor::TextEditorWidget *editor : std::as_const(m_editorsWithMarkers))
         removeClangToolRefactorMarkers(editor);
     m_runTimer.start();
@@ -323,6 +349,11 @@ void DocumentClangToolRunner::finalize()
     const auto [newMarks, toDelete] = Utils::partition(m_marks, &DiagnosticMark::enabled);
     m_marks = newMarks;
     qDeleteAll(toDelete);
+
+    m_tasks = Utils::transform(m_marks, [](const DiagnosticMark *mark) {
+        return mark->diagnostic().asTask();
+    });
+    showDiagnostics();
 }
 
 bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
