@@ -75,13 +75,13 @@ public:
     virtual SmallTypeIds<16> prototypeAndSelfIds(TypeId type) const = 0;
     virtual SmallTypeIds<16> prototypeIds(TypeId type) const = 0;
     virtual SmallTypeIds<64> heirIds(TypeId typeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
-    virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
 
     virtual FileStatus fetchFileStatus(SourceId sourceId) const = 0;
     virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(DirectoryPathId directoryId) const = 0;

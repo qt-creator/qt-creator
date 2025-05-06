@@ -163,6 +163,39 @@ public:
                    const NodeMetaInfo &metaInfo7,
                    SL sl = {}) const;
 
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo, SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1, const NodeMetaInfo &metaInfo2, SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1,
+                         const NodeMetaInfo &metaInfo2,
+                         const NodeMetaInfo &metaInfo3,
+                         SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1,
+                         const NodeMetaInfo &metaInfo2,
+                         const NodeMetaInfo &metaInfo3,
+                         const NodeMetaInfo &metaInfo4,
+                         SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1,
+                         const NodeMetaInfo &metaInfo2,
+                         const NodeMetaInfo &metaInfo3,
+                         const NodeMetaInfo &metaInfo4,
+                         const NodeMetaInfo &metaInfo5,
+                         SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1,
+                         const NodeMetaInfo &metaInfo2,
+                         const NodeMetaInfo &metaInfo3,
+                         const NodeMetaInfo &metaInfo4,
+                         const NodeMetaInfo &metaInfo5,
+                         const NodeMetaInfo &metaInfo6,
+                         SL sl = {}) const;
+    NodeMetaInfo basedOn(const NodeMetaInfo &metaInfo1,
+                         const NodeMetaInfo &metaInfo2,
+                         const NodeMetaInfo &metaInfo3,
+                         const NodeMetaInfo &metaInfo4,
+                         const NodeMetaInfo &metaInfo5,
+                         const NodeMetaInfo &metaInfo6,
+                         const NodeMetaInfo &metaInfo7,
+                         SL sl = {}) const;
+
     bool isAlias(SL sl = {}) const;
     bool isBool(SL sl = {}) const;
     bool isColor(SL sl = {}) const;

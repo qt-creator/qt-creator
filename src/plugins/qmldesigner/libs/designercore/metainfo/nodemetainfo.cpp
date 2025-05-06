@@ -2192,7 +2192,7 @@ bool isBasedOnCommonType(NotNullPointer<const ProjectStorageType> projectStorage
 
     auto base = projectStorage->commonTypeId<moduleName, typeName, moduleKind>();
 
-    return projectStorage->isBasedOn(typeId, base);
+    return bool(projectStorage->basedOn(typeId, base));
 }
 } // namespace
 
@@ -2513,11 +2513,8 @@ bool NodeMetaInfo::isSuitableForMouseAreaFill(SL sl) const
         auto controlsControlId = m_projectStorage->commonTypeId<QtQuick_Controls, Control>();
         auto templatesControlId = m_projectStorage->commonTypeId<QtQuick_Templates, Control>();
 
-        auto isSuitableForMouseAreaFill = m_projectStorage->isBasedOn(m_typeId,
-                                                                      itemId,
-                                                                      mouseAreaId,
-                                                                      controlsControlId,
-                                                                      templatesControlId);
+        auto isSuitableForMouseAreaFill = bool(m_projectStorage->basedOn(
+            m_typeId, itemId, mouseAreaId, controlsControlId, templatesControlId));
 
         tracer.end(keyValue("is suitable for mouse area fill", isSuitableForMouseAreaFill));
 
@@ -2543,7 +2540,7 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo, [[maybe_unused]] SL s
                                keyValue("meta info type id", metaInfo.m_typeId),
                                keyValue("caller location", sl)};
 
-    return m_projectStorage->isBasedOn(m_typeId, metaInfo.m_typeId);
+    return bool(m_projectStorage->basedOn(m_typeId, metaInfo.m_typeId));
 #else
     if (!isValid())
         return false;
@@ -2567,7 +2564,7 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
 
-    return m_projectStorage->isBasedOn(m_typeId, metaInfo1.m_typeId, metaInfo2.m_typeId);
+    return bool(m_projectStorage->basedOn(m_typeId, metaInfo1.m_typeId, metaInfo2.m_typeId));
 #else
     if (!isValid())
         return false;
@@ -2594,10 +2591,8 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
 
-    return m_projectStorage->isBasedOn(m_typeId,
-                                       metaInfo1.m_typeId,
-                                       metaInfo2.m_typeId,
-                                       metaInfo3.m_typeId);
+    return bool(
+        m_projectStorage->basedOn(m_typeId, metaInfo1.m_typeId, metaInfo2.m_typeId, metaInfo3.m_typeId));
 #else
     if (!isValid())
         return false;
@@ -2627,11 +2622,8 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
 
-    return m_projectStorage->isBasedOn(m_typeId,
-                                       metaInfo1.m_typeId,
-                                       metaInfo2.m_typeId,
-                                       metaInfo3.m_typeId,
-                                       metaInfo4.m_typeId);
+    return bool(m_projectStorage->basedOn(
+        m_typeId, metaInfo1.m_typeId, metaInfo2.m_typeId, metaInfo3.m_typeId, metaInfo4.m_typeId));
 #else
     return isValid()
            && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
@@ -2660,12 +2652,12 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
 
-    return m_projectStorage->isBasedOn(m_typeId,
-                                       metaInfo1.m_typeId,
-                                       metaInfo2.m_typeId,
-                                       metaInfo3.m_typeId,
-                                       metaInfo4.m_typeId,
-                                       metaInfo5.m_typeId);
+    return bool(m_projectStorage->basedOn(m_typeId,
+                                          metaInfo1.m_typeId,
+                                          metaInfo2.m_typeId,
+                                          metaInfo3.m_typeId,
+                                          metaInfo4.m_typeId,
+                                          metaInfo5.m_typeId));
 #else
     return isValid()
            && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
@@ -2696,13 +2688,13 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
 
-    return m_projectStorage->isBasedOn(m_typeId,
-                                       metaInfo1.m_typeId,
-                                       metaInfo2.m_typeId,
-                                       metaInfo3.m_typeId,
-                                       metaInfo4.m_typeId,
-                                       metaInfo5.m_typeId,
-                                       metaInfo6.m_typeId);
+    return bool(m_projectStorage->basedOn(m_typeId,
+                                          metaInfo1.m_typeId,
+                                          metaInfo2.m_typeId,
+                                          metaInfo3.m_typeId,
+                                          metaInfo4.m_typeId,
+                                          metaInfo5.m_typeId,
+                                          metaInfo6.m_typeId));
 #else
     return isValid()
            && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
@@ -2735,14 +2727,14 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
 
-    return m_projectStorage->isBasedOn(m_typeId,
-                                       metaInfo1.m_typeId,
-                                       metaInfo2.m_typeId,
-                                       metaInfo3.m_typeId,
-                                       metaInfo4.m_typeId,
-                                       metaInfo5.m_typeId,
-                                       metaInfo6.m_typeId,
-                                       metaInfo7.m_typeId);
+    return bool(m_projectStorage->basedOn(m_typeId,
+                                          metaInfo1.m_typeId,
+                                          metaInfo2.m_typeId,
+                                          metaInfo3.m_typeId,
+                                          metaInfo4.m_typeId,
+                                          metaInfo5.m_typeId,
+                                          metaInfo6.m_typeId,
+                                          metaInfo7.m_typeId));
 #else
     return isValid()
            && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
@@ -2754,6 +2746,189 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                || isSubclassOf(metaInfo7.typeName(),
                                metaInfo7.majorVersion(),
                                metaInfo7.minorVersion()));
+#endif
+}
+
+NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo,
+                                   [[maybe_unused]] SL sl) const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return {};
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"based on 1 node meta info",
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("meta info type id", metaInfo.m_typeId),
+                               keyValue("caller location", sl)};
+
+    return {m_projectStorage->basedOn(m_typeId, metaInfo.m_typeId), m_projectStorage};
+#else
+    return {};
+#endif
+}
+
+NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo1,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo2,
+                                   [[maybe_unused]] SL sl) const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return {};
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"based on 2 node meta infos",
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("caller location", sl)};
+
+    return {m_projectStorage->basedOn(m_typeId, metaInfo1.m_typeId, metaInfo2.m_typeId),
+            m_projectStorage};
+#else
+    return {};
+#endif
+}
+
+NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo1,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo2,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo3,
+                                   [[maybe_unused]] SL sl) const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return {};
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"based on 3 node meta infos",
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("caller location", sl)};
+
+    return {m_projectStorage->basedOn(m_typeId, metaInfo1.m_typeId, metaInfo2.m_typeId, metaInfo3.m_typeId),
+            m_projectStorage};
+#else
+    return {};
+#endif
+}
+
+NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo1,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo2,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo3,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo4,
+                                   [[maybe_unused]] SL sl) const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return {};
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"based on 4 node meta infos",
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("caller location", sl)};
+
+    return {m_projectStorage->basedOn(m_typeId,
+                                      metaInfo1.m_typeId,
+                                      metaInfo2.m_typeId,
+                                      metaInfo3.m_typeId,
+                                      metaInfo4.m_typeId),
+            m_projectStorage};
+#else
+    return {};
+#endif
+}
+
+NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo1,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo2,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo3,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo4,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo5,
+                                   [[maybe_unused]] SL sl) const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return {};
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"based on 5 node meta infos",
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("caller location", sl)};
+
+    return {m_projectStorage->basedOn(m_typeId,
+                                      metaInfo1.m_typeId,
+                                      metaInfo2.m_typeId,
+                                      metaInfo3.m_typeId,
+                                      metaInfo4.m_typeId,
+                                      metaInfo5.m_typeId),
+            m_projectStorage};
+#else
+    return {};
+#endif
+}
+
+NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo1,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo2,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo3,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo4,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo5,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo6,
+                                   [[maybe_unused]] SL sl) const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return {};
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"based on 6 node meta infos",
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("caller location", sl)};
+
+    return {m_projectStorage->basedOn(m_typeId,
+                                      metaInfo1.m_typeId,
+                                      metaInfo2.m_typeId,
+                                      metaInfo3.m_typeId,
+                                      metaInfo4.m_typeId,
+                                      metaInfo5.m_typeId,
+                                      metaInfo6.m_typeId),
+            m_projectStorage};
+#else
+    return {};
+#endif
+}
+
+NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo1,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo2,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo3,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo4,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo5,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo6,
+                                   [[maybe_unused]] const NodeMetaInfo &metaInfo7,
+                                   [[maybe_unused]] SL sl) const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return {};
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"based on 7 node meta infos",
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("caller location", sl)};
+
+    return {m_projectStorage->basedOn(m_typeId,
+                                      metaInfo1.m_typeId,
+                                      metaInfo2.m_typeId,
+                                      metaInfo3.m_typeId,
+                                      metaInfo4.m_typeId,
+                                      metaInfo5.m_typeId,
+                                      metaInfo6.m_typeId,
+                                      metaInfo7.m_typeId),
+            m_projectStorage};
+#else
+    return {};
 #endif
 }
 
@@ -2775,7 +2950,7 @@ bool NodeMetaInfo::isGraphicalItem(SL sl) const
         auto dialogId = m_projectStorage->commonTypeId<QtQuick_Dialogs, Dialog>();
         auto popupId = m_projectStorage->commonTypeId<QtQuick_Controls, Popup>();
 
-        return m_projectStorage->isBasedOn(m_typeId, itemId, windowId, dialogId, popupId);
+        return bool(m_projectStorage->basedOn(m_typeId, itemId, windowId, dialogId, popupId));
     } else {
         return isValid()
                && (isSubclassOf("QtQuick.Item") || isSubclassOf("QtQuick.Window.Window")
@@ -2839,7 +3014,7 @@ bool NodeMetaInfo::isLayoutable(SL sl) const
         auto layoutId = m_projectStorage->commonTypeId<QtQuick_Layouts, Layout>();
         auto splitViewId = m_projectStorage->commonTypeId<QtQuick_Controls, SplitView>();
 
-        return m_projectStorage->isBasedOn(m_typeId, positionerId, layoutId, splitViewId);
+        return bool(m_projectStorage->basedOn(m_typeId, positionerId, layoutId, splitViewId));
 
     } else {
         return isValid()
@@ -2883,7 +3058,7 @@ bool NodeMetaInfo::isView(SL sl) const
         auto listViewId = m_projectStorage->commonTypeId<QtQuick, ListView>();
         auto gridViewId = m_projectStorage->commonTypeId<QtQuick, GridView>();
         auto pathViewId = m_projectStorage->commonTypeId<QtQuick, PathView>();
-        return m_projectStorage->isBasedOn(m_typeId, listViewId, gridViewId, pathViewId);
+        return bool(m_projectStorage->basedOn(m_typeId, listViewId, gridViewId, pathViewId));
     } else {
         return isValid()
                && (isSubclassOf("QtQuick.ListView") || isSubclassOf("QtQuick.GridView")
@@ -3148,7 +3323,7 @@ bool NodeMetaInfo::isListOrGridView(SL sl) const
         using namespace Storage::Info;
         auto listViewId = m_projectStorage->commonTypeId<QtQuick, ListView>();
         auto gridViewId = m_projectStorage->commonTypeId<QtQuick, GridView>();
-        return m_projectStorage->isBasedOn(m_typeId, listViewId, gridViewId);
+        return bool(m_projectStorage->basedOn(m_typeId, listViewId, gridViewId));
     } else {
         return isValid() && (isSubclassOf("QtQuick.ListView") || isSubclassOf("QtQuick.GridView"));
     }
@@ -3946,7 +4121,7 @@ bool NodeMetaInfo::isFlowViewItem(SL sl) const
         auto flowItemId = m_projectStorage->commonTypeId<FlowView, FlowItem>();
         auto flowWildcardId = m_projectStorage->commonTypeId<FlowView, FlowWildcard>();
         auto flowDecisionId = m_projectStorage->commonTypeId<FlowView, FlowDecision>();
-        return m_projectStorage->isBasedOn(m_typeId, flowItemId, flowWildcardId, flowDecisionId);
+        return bool(m_projectStorage->basedOn(m_typeId, flowItemId, flowWildcardId, flowDecisionId));
     } else {
         return isValid()
                && (isSubclassOf("FlowView.FlowItem") || isSubclassOf("FlowView.FlowWildcard")
@@ -4702,9 +4877,9 @@ NodeMetaInfo PropertyMetaInfo::propertyType() const
                             nodeMetaInfoPrivateData()->propertyType(propertyName()),
                             -1,
                             -1};
-#endif
 
     return {};
+#endif
 }
 
 NodeMetaInfo PropertyMetaInfo::type() const

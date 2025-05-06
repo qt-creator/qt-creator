@@ -180,24 +180,24 @@ public:
     SmallTypeIds<64> heirIds(TypeId typeId) const override;
 
     template<typename... TypeIds>
-    bool isBasedOn_(TypeId typeId, TypeIds... baseTypeIds) const;
+    TypeId basedOn_(TypeId typeId, TypeIds... baseTypeIds) const;
 
-    bool isBasedOn(TypeId) const;
+    TypeId basedOn(TypeId) const;
 
-    bool isBasedOn(TypeId typeId, TypeId id1) const override;
+    TypeId basedOn(TypeId typeId, TypeId id1) const override;
 
-    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2) const override;
+    TypeId basedOn(TypeId typeId, TypeId id1, TypeId id2) const override;
 
-    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3) const override;
+    TypeId basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3) const override;
 
-    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4) const override;
+    TypeId basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4) const override;
 
-    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5) const override;
+    TypeId basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5) const override;
 
-    bool isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5, TypeId id6)
+    TypeId basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5, TypeId id6)
         const override;
 
-    bool isBasedOn(TypeId typeId,
+    TypeId basedOn(TypeId typeId,
                    TypeId id1,
                    TypeId id2,
                    TypeId id3,

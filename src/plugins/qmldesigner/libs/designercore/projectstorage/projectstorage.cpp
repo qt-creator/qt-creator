@@ -2073,46 +2073,46 @@ SmallTypeIds<64> ProjectStorage::heirIds(TypeId typeId) const
     return heirIds;
 }
 
-bool ProjectStorage::isBasedOn(TypeId) const
+TypeId ProjectStorage::basedOn(TypeId) const
 {
-    return false;
+    return TypeId{};
 }
 
-bool ProjectStorage::isBasedOn(TypeId typeId, TypeId id1) const
+TypeId ProjectStorage::basedOn(TypeId typeId, TypeId id1) const
 {
-    return isBasedOn_(typeId, id1);
+    return basedOn_(typeId, id1);
 }
 
-bool ProjectStorage::isBasedOn(TypeId typeId, TypeId id1, TypeId id2) const
+TypeId ProjectStorage::basedOn(TypeId typeId, TypeId id1, TypeId id2) const
 {
-    return isBasedOn_(typeId, id1, id2);
+    return basedOn_(typeId, id1, id2);
 }
 
-bool ProjectStorage::isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3) const
+TypeId ProjectStorage::basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3) const
 {
-    return isBasedOn_(typeId, id1, id2, id3);
+    return basedOn_(typeId, id1, id2, id3);
 }
 
-bool ProjectStorage::isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4) const
+TypeId ProjectStorage::basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4) const
 {
-    return isBasedOn_(typeId, id1, id2, id3, id4);
+    return basedOn_(typeId, id1, id2, id3, id4);
 }
 
-bool ProjectStorage::isBasedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5) const
+TypeId ProjectStorage::basedOn(TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5) const
 {
-    return isBasedOn_(typeId, id1, id2, id3, id4, id5);
+    return basedOn_(typeId, id1, id2, id3, id4, id5);
 }
 
-bool ProjectStorage::isBasedOn(
+TypeId ProjectStorage::basedOn(
     TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5, TypeId id6) const
 {
-    return isBasedOn_(typeId, id1, id2, id3, id4, id5, id6);
+    return basedOn_(typeId, id1, id2, id3, id4, id5, id6);
 }
 
-bool ProjectStorage::isBasedOn(
+TypeId ProjectStorage::basedOn(
     TypeId typeId, TypeId id1, TypeId id2, TypeId id3, TypeId id4, TypeId id5, TypeId id6, TypeId id7) const
 {
-    return isBasedOn_(typeId, id1, id2, id3, id4, id5, id6, id7);
+    return basedOn_(typeId, id1, id2, id3, id4, id5, id6, id7);
 }
 
 TypeId ProjectStorage::fetchTypeIdByExportedName(Utils::SmallStringView name) const
@@ -4901,8 +4901,22 @@ Storage::Synchronization::EnumerationDeclarations ProjectStorage::fetchEnumerati
     return enumerationDeclarations;
 }
 
+namespace {
 template<typename... TypeIds>
-bool ProjectStorage::isBasedOn_(TypeId typeId, TypeIds... baseTypeIds) const
+TypeId findTypeId(auto &&range, TypeIds... baseTypeIds)
+{
+    for (TypeId currentTypeId : range) {
+        if (((currentTypeId == baseTypeIds) || ...))
+            return currentTypeId;
+    }
+
+    return TypeId{};
+}
+
+} // namespace
+
+template<typename... TypeIds>
+TypeId ProjectStorage::basedOn_(TypeId typeId, TypeIds... baseTypeIds) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"is based on",
@@ -4914,18 +4928,16 @@ bool ProjectStorage::isBasedOn_(TypeId typeId, TypeIds... baseTypeIds) const
 
     if (((typeId == baseTypeIds) || ...)) {
         tracer.end(keyValue("is based on", true));
-        return true;
+        return typeId;
     }
 
     auto range = s->selectPrototypeAndExtensionIdsStatement.rangeWithTransaction<TypeId>(typeId);
 
-    auto isBasedOn = std::ranges::any_of(range, [&](TypeId currentTypeId) {
-        return ((currentTypeId == baseTypeIds) || ...);
-    });
+    auto foundTypeId = findTypeId(range, baseTypeIds...);
 
-    tracer.end(keyValue("is based on", isBasedOn));
+    tracer.end(keyValue("is based on", foundTypeId));
 
-    return isBasedOn;
+    return foundTypeId;
 }
 
 template<typename Id>

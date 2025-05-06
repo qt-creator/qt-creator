@@ -201,6 +201,27 @@ TEST_F(NodeMetaInfo, object_is_no_based_on_item)
     ASSERT_FALSE(isBasedOn);
 }
 
+TEST_F(NodeMetaInfo, item_based_on_object)
+{
+    auto base = itemMetaInfo.basedOn(objectMetaInfo);
+
+    ASSERT_THAT(base, objectMetaInfo);
+}
+
+TEST_F(NodeMetaInfo, item_based_on_item)
+{
+    auto base = itemMetaInfo.basedOn(itemMetaInfo);
+
+    ASSERT_THAT(base, itemMetaInfo);
+}
+
+TEST_F(NodeMetaInfo, object_no_based_on_item)
+{
+    auto base = objectMetaInfo.basedOn(itemMetaInfo);
+
+    ASSERT_THAT(base, testing::IsFalse());
+}
+
 TEST_F(NodeMetaInfo, object_is_not_file_component)
 {
     bool isFileComponent = objectMetaInfo.isFileComponent();

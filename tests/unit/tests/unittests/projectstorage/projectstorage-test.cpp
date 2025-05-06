@@ -7954,9 +7954,9 @@ TEST_F(ProjectStorage, is_based_on_for_direct_prototype)
     auto baseTypeId = fetchTypeId(sourceId1, "QObject");
     auto baseTypeId2 = fetchTypeId(sourceId1, "QObject3");
 
-    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId, baseTypeId2, TypeId{});
+    TypeId base = storage.basedOn(typeId, baseTypeId, baseTypeId2, TypeId{});
 
-    ASSERT_TRUE(isBasedOn);
+    ASSERT_THAT(base, baseTypeId);
 }
 
 TEST_F(ProjectStorage, is_based_on_for_indirect_prototype)
@@ -7966,9 +7966,9 @@ TEST_F(ProjectStorage, is_based_on_for_indirect_prototype)
     auto typeId = fetchTypeId(sourceId1, "QObject3");
     auto baseTypeId = fetchTypeId(sourceId1, "QObject");
 
-    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId);
+    TypeId base = storage.basedOn(typeId, baseTypeId);
 
-    ASSERT_TRUE(isBasedOn);
+    ASSERT_THAT(base, baseTypeId);
 }
 
 TEST_F(ProjectStorage, is_based_on_for_direct_extension)
@@ -7979,9 +7979,9 @@ TEST_F(ProjectStorage, is_based_on_for_direct_extension)
     auto typeId = fetchTypeId(sourceId1, "QObject2");
     auto baseTypeId = fetchTypeId(sourceId1, "QObject");
 
-    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId);
+    TypeId basedOn = storage.basedOn(typeId, baseTypeId);
 
-    ASSERT_TRUE(isBasedOn);
+    ASSERT_THAT(basedOn, baseTypeId);
 }
 
 TEST_F(ProjectStorage, is_based_on_for_indirect_extension)
@@ -7992,9 +7992,9 @@ TEST_F(ProjectStorage, is_based_on_for_indirect_extension)
     auto typeId = fetchTypeId(sourceId1, "QObject3");
     auto baseTypeId = fetchTypeId(sourceId1, "QObject");
 
-    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId);
+    TypeId base = storage.basedOn(typeId, baseTypeId);
 
-    ASSERT_TRUE(isBasedOn);
+    ASSERT_THAT(base, baseTypeId);
 }
 
 TEST_F(ProjectStorage, is_based_on_for_self)
@@ -8004,9 +8004,9 @@ TEST_F(ProjectStorage, is_based_on_for_self)
     auto typeId = fetchTypeId(sourceId1, "QObject2");
     auto baseTypeId = fetchTypeId(sourceId1, "QObject2");
 
-    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId);
+    TypeId base = storage.basedOn(typeId, baseTypeId);
 
-    ASSERT_TRUE(isBasedOn);
+    ASSERT_THAT(base, baseTypeId);
 }
 
 TEST_F(ProjectStorage, is_not_based_on)
@@ -8017,9 +8017,9 @@ TEST_F(ProjectStorage, is_not_based_on)
     auto baseTypeId = fetchTypeId(sourceId1, "QObject2");
     auto baseTypeId2 = fetchTypeId(sourceId1, "QObject3");
 
-    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId, baseTypeId2, TypeId{});
+    TypeId base = storage.basedOn(typeId, baseTypeId, baseTypeId2, TypeId{});
 
-    ASSERT_FALSE(isBasedOn);
+    ASSERT_THAT(base, IsNull());
 }
 
 TEST_F(ProjectStorage, is_not_based_on_if_no_base_type_is_given)
@@ -8028,9 +8028,9 @@ TEST_F(ProjectStorage, is_not_based_on_if_no_base_type_is_given)
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QObject");
 
-    bool isBasedOn = storage.isBasedOn(typeId);
+    TypeId base = storage.basedOn(typeId);
 
-    ASSERT_FALSE(isBasedOn);
+    ASSERT_THAT(base, IsNull());
 }
 
 TEST_F(ProjectStorage, get_imported_type_name_id_for_source_id)

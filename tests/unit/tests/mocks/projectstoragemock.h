@@ -259,25 +259,28 @@ public:
                 (QmlDesigner::TypeId type),
                 (const, override));
     MOCK_METHOD(QmlDesigner::SmallTypeIds<64>, heirIds, (QmlDesigner::TypeId type), (const, override));
-    MOCK_METHOD(bool, isBasedOn, (QmlDesigner::TypeId typeId, QmlDesigner::TypeId), (const, override));
-    MOCK_METHOD(bool,
-                isBasedOn,
+    MOCK_METHOD(QmlDesigner::TypeId,
+                basedOn,
+                (QmlDesigner::TypeId typeId, QmlDesigner::TypeId),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::TypeId,
+                basedOn,
                 (QmlDesigner::TypeId typeId, QmlDesigner::TypeId, QmlDesigner::TypeId),
                 (const, override));
-    MOCK_METHOD(bool,
-                isBasedOn,
+    MOCK_METHOD(QmlDesigner::TypeId,
+                basedOn,
                 (QmlDesigner::TypeId typeId, QmlDesigner::TypeId, QmlDesigner::TypeId, QmlDesigner::TypeId),
                 (const, override));
-    MOCK_METHOD(bool,
-                isBasedOn,
+    MOCK_METHOD(QmlDesigner::TypeId,
+                basedOn,
                 (QmlDesigner::TypeId typeId,
                  QmlDesigner::TypeId,
                  QmlDesigner::TypeId,
                  QmlDesigner::TypeId,
                  QmlDesigner::TypeId),
                 (const, override));
-    MOCK_METHOD(bool,
-                isBasedOn,
+    MOCK_METHOD(QmlDesigner::TypeId,
+                basedOn,
                 (QmlDesigner::TypeId typeId,
                  QmlDesigner::TypeId,
                  QmlDesigner::TypeId,
@@ -285,8 +288,8 @@ public:
                  QmlDesigner::TypeId,
                  QmlDesigner::TypeId),
                 (const, override));
-    MOCK_METHOD(bool,
-                isBasedOn,
+    MOCK_METHOD(QmlDesigner::TypeId,
+                basedOn,
                 (QmlDesigner::TypeId typeId,
                  QmlDesigner::TypeId,
                  QmlDesigner::TypeId,
@@ -295,8 +298,8 @@ public:
                  QmlDesigner::TypeId,
                  QmlDesigner::TypeId),
                 (const, override));
-    MOCK_METHOD(bool,
-                isBasedOn,
+    MOCK_METHOD(QmlDesigner::TypeId,
+                basedOn,
                 (QmlDesigner::TypeId typeId,
                  QmlDesigner::TypeId,
                  QmlDesigner::TypeId,

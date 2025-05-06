@@ -27,17 +27,19 @@ void incrementBasicId(BasicId &id)
     id = BasicId::create(id.internalId() + 1);
 }
 
-void setupIsBasedOn(ProjectStorageMock &mock)
+void setupBasedOn(ProjectStorageMock &mock)
 {
-    auto call = [&](TypeId typeId, auto... ids) -> bool {
-        return (mock.isBasedOn(typeId, ids) || ...);
+    auto call = [&](TypeId typeId, auto... ids) -> TypeId {
+        TypeId result;
+        ((result = mock.basedOn(typeId, ids)) || ...);
+        return result;
     };
-    ON_CALL(mock, isBasedOn(_, _, _)).WillByDefault(call);
-    ON_CALL(mock, isBasedOn(_, _, _, _)).WillByDefault(call);
-    ON_CALL(mock, isBasedOn(_, _, _, _, _)).WillByDefault(call);
-    ON_CALL(mock, isBasedOn(_, _, _, _, _, _)).WillByDefault(call);
-    ON_CALL(mock, isBasedOn(_, _, _, _, _, _, _)).WillByDefault(call);
-    ON_CALL(mock, isBasedOn(_, _, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _)).WillByDefault(call);
 }
 
 } // namespace
@@ -313,10 +315,10 @@ TypeId ProjectStorageMock::createType(ModuleId moduleId,
     ON_CALL(*this, defaultPropertyDeclarationId(Eq(typeId)))
         .WillByDefault(Return(defaultPropertyDeclarationId));
 
-    ON_CALL(*this, isBasedOn(Eq(typeId), Eq(typeId))).WillByDefault(Return(true));
+    ON_CALL(*this, basedOn(Eq(typeId), Eq(typeId))).WillByDefault(Return(typeId));
 
     for (TypeId baseTypeId : baseTypeIds)
-        ON_CALL(*this, isBasedOn(Eq(typeId), Eq(baseTypeId))).WillByDefault(Return(true));
+        ON_CALL(*this, basedOn(Eq(typeId), Eq(baseTypeId))).WillByDefault(Return(baseTypeId));
 
     QmlDesigner::SmallTypeIds<16> selfAndPrototypes;
     selfAndPrototypes.push_back(typeId);
@@ -406,7 +408,7 @@ ProjectStorageMock::ProjectStorageMock()
 
 void ProjectStorageMock::setupQtQuick()
 {
-    setupIsBasedOn(*this);
+    setupBasedOn(*this);
 
     auto qmlModuleId = createModule("QML", ModuleKind::QmlLibrary);
     auto qmlNativeModuleId = createModule("QML", ModuleKind::CppLibrary);
