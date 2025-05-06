@@ -247,6 +247,21 @@
         "MoveToolIcon": {
             "iconName": "move_medium"
         },
+        "MultiViewPort1Icon": {
+            "iconName": "multi_viewport_1_medium"
+        },
+        "MultiViewPort2hlIcon": {
+            "iconName": "multi_viewport_2hl_medium"
+        },
+        "MultiViewPort2vlIcon": {
+            "iconName": "multi_viewport_2vl_medium"
+        },
+        "MultiViewPort2x2Icon": {
+            "iconName": "multi_viewport_2x2_medium"
+        },
+        "MultiViewPort3plus1Icon": {
+            "iconName": "multi_viewport_3plus1_medium"
+        },
         "ParticlesAnimationIcon": {
             "iconName": "particleAnimation_medium"
         },
