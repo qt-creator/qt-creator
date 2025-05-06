@@ -954,7 +954,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
         QString blockText = block.text();
 
         if (removeTrailingWhitespace)
-            TabSettings::removeTrailingWhitespace(cursor, block);
+            TabSettings::removeTrailingWhitespace(block);
 
         const int indent = indentations[block.blockNumber()];
         if (cleanIndentation && !currentTabSettings.isIndentationClean(block, indent)) {
