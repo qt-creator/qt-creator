@@ -19,8 +19,7 @@ General
 * Updated icons
 * Improved support for extracting archives
   (QTAIASSIST-169)
-* Added a `Courses` tab to `Welcome` mode (via new `Learning` plugin,
-  disabled by default)
+* Added a `Courses` tab to `Welcome` mode
 * Added tab completion to the locator
 * Extensions
     * Moved the default plugin registry to
