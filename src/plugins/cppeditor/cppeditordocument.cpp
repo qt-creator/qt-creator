@@ -8,6 +8,7 @@
 #include "cppeditorconstants.h"
 #include "cppeditorlogging.h"
 #include "cppeditortr.h"
+#include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
@@ -16,6 +17,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/session.h>
+
+#include <cplusplus/ASTPath.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -221,6 +224,29 @@ void CppEditorDocument::slotCodeStyleSettingsChanged()
 {
     QtStyleCodeFormatter formatter;
     formatter.invalidateCache(document());
+}
+
+void CppEditorDocument::removeTrailingWhitespace(const QTextBlock &block)
+{
+    const auto baseImpl = [&] { TextDocument::removeTrailingWhitespace(block); };
+
+    CppEditorWidget * const editorWidget = CppEditorWidget::fromTextDocument(this);
+    QTC_ASSERT(editorWidget, return baseImpl());
+    if (!editorWidget->isSemanticInfoValidExceptLocalUses())
+        return baseImpl();
+    const CPlusPlus::Document::Ptr doc = editorWidget->semanticInfo().doc;
+    QTC_ASSERT(doc, return baseImpl());
+
+    QTextCursor cursor(block);
+    cursor.setPosition(block.position() + block.length() - 1);
+    const QList<CPlusPlus::AST*> astPath = CPlusPlus::ASTPath(doc)(cursor);
+    if (astPath.isEmpty())
+        return baseImpl();
+    const CPlusPlus::Token &tok = doc->translationUnit()->tokenAt(astPath.last()->firstToken());
+    if (tok.kind() < CPlusPlus::T_FIRST_RAW_STRING_LITERAL
+        || tok.kind() > CPlusPlus::T_LAST_RAW_STRING_LITERAL) {
+        baseImpl();
+    }
 }
 
 void CppEditorDocument::invalidateFormatterCache()

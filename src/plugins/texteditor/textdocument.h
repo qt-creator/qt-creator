@@ -168,6 +168,7 @@ protected:
     virtual void applyFontSettings();
     Utils::Result<> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
     virtual void slotCodeStyleSettingsChanged(); // Used in CppEditorDocumet
+    virtual void removeTrailingWhitespace(const QTextBlock &block);
 
 private:
     Utils::Result<> openImpl(const Utils::FilePath &filePath,
