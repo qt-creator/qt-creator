@@ -28,6 +28,10 @@ namespace ProjectExplorer {
 class Target;
 }
 
+namespace TextEditor {
+class TextEditorWidget;
+}
+
 namespace QmlDesigner {
 
 class ModelNode;
@@ -50,7 +54,7 @@ public:
     QString displayName() const;
     QString simplfiedDisplayName() const;
 
-    void loadDocument(Utils::PlainTextEdit *edit);
+    void loadDocument(TextEditor::TextEditorWidget *edit);
     void attachRewriterToModel();
     void close();
 #ifndef QDS_USE_PROJECTSTORAGE
@@ -77,7 +81,7 @@ public:
     Core::IEditor *editor() const;
 
     TextEditor::BaseTextEditor *textEditor() const;
-    Utils::PlainTextEdit *plainTextEdit() const;
+    TextEditor::TextEditorWidget *textEditorWidget() const;
     Utils::FilePath fileName() const;
     ProjectExplorer::Target *currentTarget() const;
     bool isDocumentLoaded() const;

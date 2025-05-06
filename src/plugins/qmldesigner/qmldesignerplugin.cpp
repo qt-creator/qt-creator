@@ -553,8 +553,8 @@ void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
     if (selectedNode.isValid()) {
         const int nodeOffset = rewriterView()->nodeOffset(selectedNode);
         if (nodeOffset > 0) {
-            const ModelNode currentSelectedNode = rewriterView()->
-                nodeAtTextCursorPosition(currentDesignDocument()->plainTextEdit()->textCursor().position());
+            const ModelNode currentSelectedNode = rewriterView()->nodeAtTextCursorPosition(
+                currentDesignDocument()->textEditorWidget()->textCursor().position());
             if (currentSelectedNode != selectedNode) {
                 int line, column;
                 currentDesignDocument()->textEditor()->convertPosition(nodeOffset, &line, &column);
@@ -567,7 +567,7 @@ void QmlDesignerPlugin::jumpTextCursorToSelectedModelNode()
 
 void QmlDesignerPlugin::selectModelNodeUnderTextCursor()
 {
-    const int cursorPosition = currentDesignDocument()->plainTextEdit()->textCursor().position();
+    const int cursorPosition = currentDesignDocument()->textEditorWidget()->textCursor().position();
     ModelNode modelNode = rewriterView()->nodeAtTextCursorPosition(cursorPosition);
     if (modelNode.isValid())
         rewriterView()->setSelectedModelNode(modelNode);
@@ -580,7 +580,7 @@ void QmlDesignerPlugin::activateAutoSynchronization()
 
     // text editor -> visual editor
     if (!currentDesignDocument()->isDocumentLoaded())
-        currentDesignDocument()->loadDocument(currentDesignDocument()->plainTextEdit());
+        currentDesignDocument()->loadDocument(currentDesignDocument()->textEditorWidget());
 
     currentDesignDocument()->updateActiveTarget();
     d->mainWidget.enableWidgets();

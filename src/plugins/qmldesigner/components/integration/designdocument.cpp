@@ -14,28 +14,29 @@
 #include <model/modelresourcemanagement.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
+#include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
 #include <rewritingexception.h>
+#include <svgpasteaction.h>
+#include <timelineactions.h>
 #include <utils3d.h>
 #include <variantproperty.h>
 #include <viewmanager.h>
-#include <qmldesignerplugin.h>
-#include <qmlobjectnode.h>
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <projectexplorer/buildsystem.h>
-#include <projectexplorer/projecttree.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/target.h>
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/texteditorwidget.h>
 #include <utils/algorithm.h>
-#include <timelineactions.h>
-#include <svgpasteaction.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -364,22 +365,25 @@ bool DesignDocument::isDocumentLoaded() const
 
 void DesignDocument::resetToDocumentModel()
 {
-    const Utils::PlainTextEdit *edit = plainTextEdit();
+    const TextEditor::TextEditorWidget *edit = textEditorWidget();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
     m_inFileComponentModel.reset();
 }
 
-void DesignDocument::loadDocument(Utils::PlainTextEdit *edit)
+void DesignDocument::loadDocument(TextEditor::TextEditorWidget *edit)
 {
     Q_CHECK_PTR(edit);
 
-    connect(edit, &Utils::PlainTextEdit::undoAvailable, this, &DesignDocument::undoAvailable);
-    connect(edit, &Utils::PlainTextEdit::redoAvailable, this, &DesignDocument::redoAvailable);
-    connect(edit, &Utils::PlainTextEdit::modificationChanged, this, &DesignDocument::dirtyStateChanged);
+    connect(edit, &TextEditor::TextEditorWidget::undoAvailable, this, &DesignDocument::undoAvailable);
+    connect(edit, &TextEditor::TextEditorWidget::redoAvailable, this, &DesignDocument::redoAvailable);
+    connect(edit,
+            &TextEditor::TextEditorWidget::modificationChanged,
+            this,
+            &DesignDocument::dirtyStateChanged);
 
-    m_documentTextModifier.reset(new BaseTextEditModifier(qobject_cast<TextEditor::TextEditorWidget *>(plainTextEdit())));
+    m_documentTextModifier.reset(new BaseTextEditModifier(edit));
 
     connect(m_documentTextModifier.get(),
             &TextModifier::textChanged,
@@ -402,7 +406,7 @@ void DesignDocument::changeToDocumentModel()
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
-    const Utils::PlainTextEdit *edit = plainTextEdit();
+    const TextEditor::TextEditorWidget *edit = textEditorWidget();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
@@ -449,7 +453,7 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
-    const Utils::PlainTextEdit *edit = plainTextEdit();
+    const TextEditor::TextEditorWidget *edit = textEditorWidget();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
@@ -516,23 +520,23 @@ void DesignDocument::attachRewriterToModel()
 
 bool DesignDocument::isUndoAvailable() const
 {
-    if (plainTextEdit())
-        return plainTextEdit()->document()->isUndoAvailable();
+    if (textEditorWidget())
+        return textEditorWidget()->document()->isUndoAvailable();
 
     return false;
 }
 
 bool DesignDocument::isRedoAvailable() const
 {
-    if (plainTextEdit())
-        return plainTextEdit()->document()->isRedoAvailable();
+    if (textEditorWidget())
+        return textEditorWidget()->document()->isRedoAvailable();
 
     return false;
 }
 
 void DesignDocument::clearUndoRedoStacks() const
 {
-    const Utils::PlainTextEdit *edit = plainTextEdit();
+    const TextEditor::TextEditorWidget *edit = textEditorWidget();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 }
@@ -776,7 +780,7 @@ TextEditor::BaseTextEditor *DesignDocument::textEditor() const
     return qobject_cast<TextEditor::BaseTextEditor*>(editor());
 }
 
-Utils::PlainTextEdit *DesignDocument::plainTextEdit() const
+TextEditor::TextEditorWidget *DesignDocument::textEditorWidget() const
 {
     if (TextEditor::BaseTextEditor *editor = textEditor())
         return editor->editorWidget();
@@ -791,7 +795,7 @@ ModelNode DesignDocument::rootModelNode() const
 void DesignDocument::undo()
 {
     if (rewriterView() && !rewriterView()->modificationGroupActive()) {
-        plainTextEdit()->undo();
+        textEditorWidget()->undo();
         rewriterView()->forceAmend();
     }
 
@@ -801,7 +805,7 @@ void DesignDocument::undo()
 void DesignDocument::redo()
 {
     if (rewriterView() && !rewriterView()->modificationGroupActive()) {
-        plainTextEdit()->redo();
+        textEditorWidget()->redo();
         rewriterView()->forceAmend();
     }
 
