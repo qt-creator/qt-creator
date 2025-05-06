@@ -77,6 +77,8 @@ public:
     QString m_initializationOptions;
     QString m_configuration;
     bool m_showInSettings = true;
+    // controlls whether the resulting client can be used for completions/highlight/outline etc.
+    bool m_activatable = true;
 
     QJsonObject initializationOptions() const;
     QJsonValue configuration() const;

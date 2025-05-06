@@ -169,7 +169,6 @@ PyLSClient *clientForPython(const FilePath &python)
     interface->setCommandLine({python, {"-m", "pylsp"}});
     auto client = new PyLSClient(interface);
     client->setName(Tr::tr("Python Language Server (%1)").arg(python.toUserOutput()));
-    client->setActivateDocumentAutomatically(true);
     client->updateConfiguration();
     LanguageFilter filter;
     filter.mimeTypes = QStringList() << Constants::C_PY_MIMETYPE << Constants::C_PY3_MIMETYPE;

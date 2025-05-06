@@ -398,7 +398,6 @@ ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDb
             CPP_HEADER_MIMETYPE, CPP_SOURCE_MIMETYPE, OBJECTIVE_CPP_SOURCE_MIMETYPE,
             OBJECTIVE_C_SOURCE_MIMETYPE, CUDA_SOURCE_MIMETYPE};
     setSupportedLanguage(langFilter);
-    setActivateDocumentAutomatically(true);
     setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
     setFunctionHintAssistProvider(new ClangdFunctionHintProvider(this));
     setQuickFixAssistProvider(new ClangdQuickFixProvider(this));

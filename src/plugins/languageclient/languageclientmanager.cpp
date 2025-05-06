@@ -487,6 +487,7 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
     if (!document)
         return;
     Client *currentClient = clientForDocument(document);
+    client = client && client->activeClient() ? client : nullptr;
     if (client == currentClient)
         return;
     const bool firstOpen = !managerInstance->m_clientForDocument.remove(document);
@@ -646,10 +647,11 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
                 if (!project->isKnownFile(filePath))
                     continue;
                 for (Target *target : project->targets()) {
+                    bool activateDocument = project->activeTarget() == target;
                     for (BuildConfiguration *bc : target->buildConfigurations()) {
                         // check whether we already have a client running for this project
-                        Client *clientForBc
-                            = Utils::findOrDefault(clients, Utils::equal(&Client::buildConfiguration, bc));
+                        Client *clientForBc = Utils::findOrDefault(
+                            clients, Utils::equal(&Client::buildConfiguration, bc));
 
                         // create a client only when valid on the current project
                         if (!clientForBc) {
@@ -659,7 +661,12 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
                         }
 
                         QTC_ASSERT(clientForBc, continue);
-                        openDocumentWithClient(textDocument, clientForBc);
+                        activateDocument |= clientForBc->activeClient()
+                                            && target->activeBuildConfiguration() == bc;
+                        if (activateDocument)
+                            openDocumentWithClient(textDocument, clientForBc);
+                        else
+                            clientForBc->openDocument(textDocument);
                         // Since we already opened the document in this client we remove the client
                         // from the list of clients that receive the openDocument call
                         clients.removeAll(clientForBc);
@@ -672,8 +679,9 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
         }
         allClients << clients;
     }
+
     for (auto client : std::as_const(allClients)) {
-        if (m_clientForDocument[textDocument])
+        if (m_clientForDocument[textDocument] || !client->activeClient())
             client->openDocument(textDocument);
         else
             openDocumentWithClient(textDocument, client);

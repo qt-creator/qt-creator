@@ -370,6 +370,7 @@ public:
     QJsonValue m_configuration;
     int m_completionResultsLimit = -1;
     const Utils::FilePath m_serverDeviceTemplate;
+    bool m_activatable = true;
 };
 
 Client::Client(BaseClientInterface *clientInterface, const Utils::Id &id)
@@ -736,14 +737,26 @@ void Client::openDocument(TextEditor::TextDocument *document)
                             d->m_documentVersions[filePath]);
     handleDocumentOpened(document);
 
-    const Client *currentClient = LanguageClientManager::clientForDocument(document);
-    if (currentClient == this) {
-        // this is the active client for the document so directly activate it
-        activateDocument(document);
-    } else if (d->m_activateDocAutomatically && currentClient == nullptr) {
-        // there is no client for this document so assign it to this server
-        LanguageClientManager::openDocumentWithClient(document, this);
+    if (d->m_activatable) {
+        const Client *currentClient = LanguageClientManager::clientForDocument(document);
+        if (currentClient == this) {
+            // this is the active client for the document so directly activate it
+            activateDocument(document);
+        } else if (currentClient == nullptr) {
+            // there is no client for this document so assign it to this server
+            LanguageClientManager::openDocumentWithClient(document, this);
+        }
     }
+}
+
+bool Client::activeClient() const
+{
+    return d->m_activatable;
+}
+
+void Client::setActivatable(bool activatable)
+{
+    d->m_activatable = activatable;
 }
 
 void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdates,
@@ -996,6 +1009,7 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
 
 void Client::activateDocument(TextEditor::TextDocument *document)
 {
+    QTC_ASSERT(d->m_activatable, return);
     const FilePath &filePath = document->filePath();
     if (d->m_diagnosticManager)
         d->m_diagnosticManager->showDiagnostics(filePath, d->m_documentVersions.value(filePath));
@@ -1570,11 +1584,6 @@ void Client::updateConfiguration(const QJsonValue &configuration)
 void Client::setSupportedLanguage(const LanguageFilter &filter)
 {
     d->m_languagFilter = filter;
-}
-
-void Client::setActivateDocumentAutomatically(bool enabled)
-{
-    d->m_activateDocAutomatically = enabled;
 }
 
 void Client::setInitializationOptions(const QJsonObject &initializationOptions)

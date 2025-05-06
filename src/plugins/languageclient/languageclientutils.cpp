@@ -255,6 +255,8 @@ void updateEditorToolBar(Core::IEditor *editor)
             auto clientsGroup = new QActionGroup(menu);
             clientsGroup->setExclusive(true);
             for (auto client : LanguageClientManager::clientsSupportingDocument(document, false)) {
+                if (!client->activeClient())
+                    continue;
                 auto action = clientsGroup->addAction(client->name());
                 auto reopen = [action, client = QPointer(client), document] {
                     if (!client)

@@ -627,7 +627,7 @@ Client *BaseSettings::createClient(BuildConfiguration *bc) const
 
     client->setSupportedLanguage(m_languageFilter);
     client->setInitializationOptions(initializationOptions());
-    client->setActivateDocumentAutomatically(true);
+    client->setActivatable(m_activatable);
     client->setCurrentBuildConfiguration(bc);
     client->updateConfiguration(m_configuration);
     return client;
