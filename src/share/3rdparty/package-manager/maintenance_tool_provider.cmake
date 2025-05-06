@@ -24,52 +24,60 @@ function(qt_maintenance_tool_get_component_platform platform_dir component_platf
   set(${component_platform} ${map_${platform_dir}} PARENT_SCOPE)
 endfunction()
 
-set(__qt_addons
-  qt3d
-  qt5compat
-  qtcharts
-  qtconnectivity
-  qtdatavis3d
-  qtgraphs
-  qtgrpc
-  qthttpserver
-  qtimageformats
-  qtlocation
-  qtlottie
-  qtmultimedia
-  qtnetworkauth
-  qtpositioning
-  qtquick3d
-  qtquick3dphysics
-  qtquickeffectmaker
-  qtquicktimeline
-  qtremoteobjects
-  qtscxml
-  qtsensors
-  qtserialbus
-  qtserialport
-  qtshadertools
-  qtspeech
-  qtvirtualkeyboard
-  qtwebchannel
-  qtwebsockets
-  qtwebview
+function(qt_maintenance_tool_get_addons addon_list)
+  set(${addon_list}
+    qt3d
+    qt5compat
+    qtcharts
+    qtconnectivity
+    qtdatavis3d
+    qtgraphs
+    qtgrpc
+    qthttpserver
+    qtimageformats
+    qtlocation
+    qtlottie
+    qtmultimedia
+    qtnetworkauth
+    qtpositioning
+    qtquick3d
+    qtquick3dphysics
+    qtquickeffectmaker
+    qtquicktimeline
+    qtremoteobjects
+    qtscxml
+    qtsensors
+    qtserialbus
+    qtserialport
+    qtshadertools
+    qtspeech
+    qtvirtualkeyboard
+    qtwebchannel
+    qtwebsockets
+    qtwebview
 
-  # found in commercial version
-  qtapplicationmanager
-  qtinterfraceframework
-  qtlanguageserver
-  qtmqtt
-  qtstatemachine
-  qtopcua
-  tqtc-qtvncserver
-)
+    # found in commercial version
+    qtapplicationmanager
+    qtinterfraceframework
+    qtlanguageserver
+    qtmqtt
+    qtstatemachine
+    qtopcua
+    tqtc-qtvncserver
 
-set(__qt_extensions
-  qtinsighttracker
-  qtpdf
-  qtwebengine
-)
+    PARENT_SCOPE
+  )
+endfunction()
+
+function(qt_maintenance_tool_get_extensions extensions)
+  set(${extensions}
+    qtinsighttracker
+    qtpdf
+    qtwebengine
+
+    PARENT_SCOPE
+  )
+endfunction()
 
 function(qt_maintenance_tool_remove_installed_components components_list)
   set(actual_components_list ${${components_list}})
@@ -102,6 +110,7 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
     set(qt_build_flavor ${CMAKE_MATCH_2})
 
     set(additional_addons "")
+    qt_maintenance_tool_get_extensions(__qt_extensions)
     if (qt_version_number VERSION_LESS 6.8.0)
       set(additional_addons ${__qt_extensions})
     endif()
@@ -125,6 +134,7 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
     foreach (qt_package_name IN LISTS qt_package_list)
       string(TOLOWER "${qt_package_name}" qt_package_name_lowercase)
 
+      qt_maintenance_tool_get_addons(__qt_addons)
       # Is the package an addon?
       set(install_addon FALSE)
       foreach(addon IN LISTS __qt_addons additional_addons)
@@ -220,54 +230,54 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
   endif()
 endfunction()
 
-function(qt_maintenance_tool_dependency method package_name)
+macro(qt_maintenance_tool_dependency method package_name)
   if (${package_name} MATCHES "^Qt([0-9])(.*)$")
-    set(qt_major_version ${CMAKE_MATCH_1})
-    set(qt_package_name ${CMAKE_MATCH_2})
+    set(__qt_dependency_qt_major_version ${CMAKE_MATCH_1})
+    set(__qt_dependency_qt_package_name ${CMAKE_MATCH_2})
 
     # https://cmake.org/cmake/help/latest/command/find_package.html
-    set(options
+    set(__qt_dependency_options
       CONFIG NO_MODULE MODULE REQUIRED EXACT QUIET GLOBAL NO_POLICY_SCOPE NO_DEFAULT_PATH NO_PACKAGE_ROOT_PATH
       NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_PACKAGE_REGISTRY
       NO_CMAKE_SYSTEM_PATH NO_CMAKE_INSTALL_PREFIX NO_CMAKE_SYSTEM_PACKAGE_REGISTRY CMAKE_FIND_ROOT_PATH_BOTH
       ONLY_CMAKE_FIND_ROOT_PATH NO_CMAKE_FIND_ROOT_PATH
     )
-    set(oneValueArgs REGISTRY_VIEW)
-    set(multiValueArgs COMPONENTS OPTIONAL_COMPONENTS NAMES CONFIGS HINTS PATHS PATH_SUFFIXES)
-    cmake_parse_arguments(arg "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    set(__qt_dependency_oneValueArgs REGISTRY_VIEW)
+    set(__qt_dependency_multiValueArgs COMPONENTS OPTIONAL_COMPONENTS NAMES CONFIGS HINTS PATHS PATH_SUFFIXES)
+    cmake_parse_arguments(__qt_dependency_arg "${__qt_dependency_options}" "${__qt_dependency_oneValueArgs}" "${__qt_dependency_multiValueArgs}" ${ARGN})
 
-    if (arg_REQUIRED AND arg_COMPONENTS)
+    if (__qt_dependency_arg_REQUIRED AND __qt_dependency_arg_COMPONENTS)
       # Install missing COMPONENTS.
-      set(pkgs_to_install "")
-      foreach(pkg IN LISTS arg_COMPONENTS)
-        find_package(Qt${qt_major_version}${pkg}
+      set(__qt_dependency_pkgs_to_install "")
+      foreach(pkg IN LISTS __qt_dependency_arg_COMPONENTS)
+        find_package(Qt${__qt_dependency_qt_major_version}${pkg}
           PATHS ${CMAKE_PREFIX_PATH} ${CMAKE_MODULE_PATH} NO_DEFAULT_PATH BYPASS_PROVIDER QUIET)
-        if (NOT Qt${qt_major_version}${pkg}_FOUND)
-          list(APPEND pkgs_to_install ${pkg})
+        if (NOT Qt${__qt_dependency_qt_major_version}${pkg}_FOUND)
+          list(APPEND __qt_dependency_pkgs_to_install ${pkg})
         endif()
       endforeach()
-      if (pkgs_to_install)
-        qt_maintenance_tool_install(${qt_major_version} "${pkgs_to_install}")
+      if (__qt_dependency_pkgs_to_install)
+        qt_maintenance_tool_install("${__qt_dependency_qt_major_version}" "${__qt_dependency_pkgs_to_install}")
       endif()
-    elseif(arg_REQUIRED AND NOT qt_package_name)
+    elseif(__qt_dependency_arg_REQUIRED AND NOT __qt_dependency_qt_package_name)
       # Install the Desktop package if Qt::Core is missing
-      find_package(Qt${qt_major_version}Core
+      find_package(Qt${__qt_dependency_qt_major_version}Core
         PATHS ${CMAKE_PREFIX_PATH} ${CMAKE_MODULE_PATH} NO_DEFAULT_PATH BYPASS_PROVIDER QUIET)
-      if (NOT Qt${qt_major_version}$Core_FOUND)
-        qt_maintenance_tool_install(${qt_major_version} core)
+      if (NOT Qt${__qt_dependency_qt_major_version}$Core_FOUND)
+        qt_maintenance_tool_install("${__qt_dependency_qt_major_version}" Core)
       endif()
     endif()
 
     find_package(${package_name} ${ARGN}
       PATHS ${CMAKE_PREFIX_PATH} ${CMAKE_MODULE_PATH} NO_DEFAULT_PATH BYPASS_PROVIDER QUIET)
-    if (NOT ${package_name}_FOUND AND arg_REQUIRED)
-      qt_maintenance_tool_install(${qt_major_version} ${qt_package_name})
+    if (NOT ${package_name}_FOUND AND __qt_dependency_arg_REQUIRED)
+      qt_maintenance_tool_install("${__qt_dependency_qt_major_version}" "${__qt_dependency_qt_package_name}")
       find_package(${package_name} ${ARGN} BYPASS_PROVIDER)
     endif()
   else()
     find_package(${package_name} ${ARGN} BYPASS_PROVIDER)
   endif()
-endfunction()
+endmacro()
 
 cmake_language(
     SET_DEPENDENCY_PROVIDER qt_maintenance_tool_dependency
