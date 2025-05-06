@@ -130,6 +130,7 @@ CREATE_HAS_FUNC(setWordWrap, bool())
 CREATE_HAS_FUNC(setTextFormat, Qt::TextFormat())
 CREATE_HAS_FUNC(setRightSideIconPath, Utils::FilePath())
 CREATE_HAS_FUNC(setPlaceHolderText, QString())
+CREATE_HAS_FUNC(setPlaceholderText, QString())
 CREATE_HAS_FUNC(setCompleter, nullptr)
 CREATE_HAS_FUNC(setMinimumHeight, int())
 CREATE_HAS_FUNC(onReturnPressed, nullptr, nullptr)
@@ -230,9 +231,17 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     }
 
     if constexpr (has_setPlaceHolderText<T>) {
-        const auto text = children.get<sol::optional<QString>>("placeHolderText"sv);
+        const auto compatText = children.get<sol::optional<QString>>("placeHolderText"sv);
+        if (compatText)
+            qWarning() << "placeHolderText is deprecated, use placeholderText instead.";
+        const QString text = children.get<sol::optional<QString>>("placeholderText"sv)
+                                 .value_or(compatText.value_or(QString{}));
+        if (!text.isEmpty())
+            item->setPlaceHolderText(text);
+    } else if constexpr (has_setPlaceholderText<T>) {
+        const auto text = children.get<sol::optional<QString>>("placeholderText"sv);
         if (text)
-            item->setPlaceHolderText(*text);
+            item->setPlaceholderText(*text);
     }
 
     if constexpr (has_setCompleter<T>) {
@@ -630,6 +639,19 @@ void setupGuiModule()
             &Utils::QtcWidgets::Label::setText,
             "setRole",
             &Utils::QtcWidgets::Label::setRole,
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        gui.new_usertype<Utils::QtcWidgets::SearchBox>(
+            "QtcSearchBox",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Utils::QtcWidgets::SearchBox>(children, guard);
+            }),
+            "setPlaceholderText",
+            &Utils::QtcWidgets::SearchBox::setPlaceholderText,
+            "setText",
+            &Utils::QtcWidgets::SearchBox::setText,
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 

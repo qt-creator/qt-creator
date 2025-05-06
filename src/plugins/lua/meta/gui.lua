@@ -237,15 +237,25 @@ local QtcSwitch = {}
 ---@return QtcSwitch
 function gui.QtcSwitch(options) end
 
+---@class QtcSearchBox : Widget
+
+---@class QtcSearchBoxOptions : BaseWidgetOptions
+---@field text? string The text of the search box.
+---@field onTextChanged? function The function to be called when the text is changed.
+---@field placeholderText? string The placeholder text of the search box.
+
+---@param options QtcSearchBoxOptions
+---@return QtcSearchBox
+function gui.QtcSearchBox(options) end
 
 ---@class Label : Widget
 ---@field text string Returns the content of the Label as string
 local label = {}
 
 ---@class (exact) LabelOptions : BaseWidgetOptions
----@param interactionFlags? TextInteractionFlag[]
----@param textFormat? TextFormat The text format enum
----@param wordWrap? boolean
+---@field interactionFlags? TextInteractionFlag[]
+---@field textFormat? TextFormat The text format enum
+---@field wordWrap? boolean
 
 gui.labelOptions = {}
 
