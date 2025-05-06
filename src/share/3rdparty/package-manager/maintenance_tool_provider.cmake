@@ -211,8 +211,19 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
                      "Set QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI to ON for CLI mode.")
       set(ENV{QTC_MAINTENANCE_TOOL_COMPONENTS} "${installer_component_list}")
       set(ENV{QTC_MAINTENANCE_TOOL_QT_PACKAGES} "${qt_package_list}")
+
+      if(CMAKE_HOST_WIN32)
+        # It's necessary to call actual test inside 'cmd.exe', because 'execute_process' uses
+        # SW_HIDE to avoid showing a console window, it affects other GUI as well.
+        # See https://gitlab.kitware.com/cmake/cmake/-/issues/17690 for details.
+        #
+        # Run the command using the proxy 'call' command to avoid issues related to invalid
+        # processing of quotes and spaces in cmd.exe arguments.
+        set(extra_runner cmd /d /c call)
+      endif()
+
       execute_process(
-        COMMAND
+        COMMAND ${extra_runner}
           "${QT_MAINTENANCE_TOOL}"
           --script "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/maintenance_tool_provider.qs"
           --verbose
