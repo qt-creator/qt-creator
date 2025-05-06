@@ -86,7 +86,7 @@ public:
     using ConstPtr = IDeviceConstPtr;
     template <class ...Args> using Continuation = std::function<void(Args...)>;
 
-    enum Origin { ManuallyAdded, AutoDetected };
+    enum Origin { ManuallyAdded, AutoDetected, AddedBySdk };
     enum MachineType { Hardware, Emulator };
 
     virtual ~IDevice();
@@ -115,6 +115,7 @@ public:
     void setType(Utils::Id type);
 
     bool isAutoDetected() const;
+    bool isFromSdk() const;
     Utils::Id id() const;
 
     virtual QList<Task> validate() const;
@@ -245,6 +246,7 @@ private:
     IDevice &operator=(const IDevice &) = delete;
 
     int version() const;
+    void setFromSdk();
 
     const std::unique_ptr<Internal::IDevicePrivate> d;
     friend class DeviceManager;

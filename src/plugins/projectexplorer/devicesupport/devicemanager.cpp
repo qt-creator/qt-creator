@@ -108,6 +108,8 @@ void DeviceManager::load()
     QList<IDevice::Ptr> sdkDevices;
     if (reader.load(systemSettingsFilePath("devices.xml")))
         sdkDevices = fromMap(storeFromVariant(reader.restoreValues().value(DeviceManagerKey)), &defaultDevices);
+    for (IDevice::Ptr &device : sdkDevices)
+        device->setFromSdk();
     // read devices file from user settings path
     QList<IDevice::Ptr> userDevices;
     if (reader.load(settingsFilePath("devices.xml")))
@@ -115,8 +117,19 @@ void DeviceManager::load()
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
     for (IDevice::Ptr device : std::as_const(userDevices)) {
+        // Make sure devices removed via the sdktool really disappear.
+        if (device->isFromSdk()) {
+            const bool stillPresent
+                = Utils::contains(sdkDevices, [id = device->id()](const IDevice::Ptr &sdkDev) {
+                      return sdkDev->id() == id;
+                  });
+            if (!stillPresent)
+                continue;
+        }
+
         for (const IDevice::Ptr &sdkDevice : std::as_const(sdkDevices)) {
             if (device->id() == sdkDevice->id() || device->rootPath() == sdkDevice->rootPath()) {
+                device->setFromSdk(); // For pre-17 settings.
                 if (device->version() < sdkDevice->version())
                     device = sdkDevice;
                 sdkDevices.removeOne(sdkDevice);

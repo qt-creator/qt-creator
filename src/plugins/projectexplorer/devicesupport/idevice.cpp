@@ -13,11 +13,8 @@
 #include "../projectexplorertr.h"
 #include "../target.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/commandline.h>
 #include <utils/devicefileaccess.h>
-#include <utils/displayname.h>
 #include <utils/environment.h>
 #include <utils/icon.h>
 #include <utils/portlist.h>
@@ -444,7 +441,16 @@ void IDevice::setType(Id type)
 
 bool IDevice::isAutoDetected() const
 {
-    return d->origin == AutoDetected;
+    return d->origin == AutoDetected || isFromSdk();
+}
+
+/*!
+    Returns \c true if the device has been added by the sdktool. This normally implies it was
+    set up by the installer aka Qt Maintenance tool.
+*/
+bool IDevice::isFromSdk() const
+{
+    return d->origin == AddedBySdk;
 }
 
 /*!
@@ -764,6 +770,11 @@ QVariant IDevice::extraData(Id kind) const
 int IDevice::version() const
 {
     return d->version;
+}
+
+void IDevice::setFromSdk()
+{
+    d->origin = AddedBySdk;
 }
 
 QString IDevice::defaultPrivateKeyFilePath()
