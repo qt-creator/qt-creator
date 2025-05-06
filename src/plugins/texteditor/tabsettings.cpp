@@ -216,7 +216,7 @@ int TabSettings::trailingWhitespaces(const QString &text)
     return i;
 }
 
-void TabSettings::removeTrailingWhitespace(QTextCursor cursor, QTextBlock &block)
+void TabSettings::removeTrailingWhitespace(QTextCursor cursor, const QTextBlock &block)
 {
     if (const int trailing = trailingWhitespaces(block.text())) {
         cursor.setPosition(block.position() + block.length() - 1);

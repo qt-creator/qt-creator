@@ -65,7 +65,7 @@ public:
     static int spacesLeftFromPosition(const QString &text, int position);
     static bool cursorIsAtBeginningOfLine(const QTextCursor &cursor);
     static int trailingWhitespaces(const QString &text);
-    static void removeTrailingWhitespace(QTextCursor cursor, QTextBlock &block);
+    static void removeTrailingWhitespace(QTextCursor cursor, const QTextBlock &block);
 
     bool m_autoDetect = true;
     TabPolicy m_tabPolicy = SpacesOnlyTabPolicy;
