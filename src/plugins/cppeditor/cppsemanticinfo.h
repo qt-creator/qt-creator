@@ -18,18 +18,18 @@ class CPPEDITOR_EXPORT SemanticInfo
 public:
     struct Source
     {
-        const QString fileName;
+        const Utils::FilePath filePath;
         const QByteArray code;
         const unsigned revision = 0;
         CPlusPlus::Snapshot snapshot;
         const bool force = false;
 
-        Source(const QString &fileName,
+        Source(const Utils::FilePath &filePath,
                const QByteArray &code,
                unsigned revision,
                const CPlusPlus::Snapshot &snapshot,
                bool force)
-            : fileName(fileName)
+            : filePath(filePath)
             , code(code)
             , revision(revision)
             , snapshot(snapshot)

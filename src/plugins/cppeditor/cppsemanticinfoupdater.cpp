@@ -59,8 +59,7 @@ static void doUpdate(QPromise<SemanticInfo> &promise, const SemanticInfo::Source
     newSemanticInfo.revision = source.revision;
     newSemanticInfo.snapshot = source.snapshot;
 
-    Document::Ptr doc = newSemanticInfo.snapshot.preprocessedDocument(
-        source.code, FilePath::fromString(source.fileName));
+    Document::Ptr doc = newSemanticInfo.snapshot.preprocessedDocument(source.code, source.filePath);
 
     FuturizedTopLevelDeclarationProcessor processor(QFuture<void>(promise.future()));
     doc->control()->setTopLevelDeclarationProcessor(&processor);
@@ -83,7 +82,7 @@ static std::optional<SemanticInfo> canReuseSemanticInfo(
             && currentSemanticInfo.revision == source.revision
             && currentSemanticInfo.doc
             && currentSemanticInfo.doc->translationUnit()->ast()
-            && currentSemanticInfo.doc->filePath().toUrlishString() == source.fileName
+            && currentSemanticInfo.doc->filePath() == source.filePath
             && !currentSemanticInfo.snapshot.isEmpty()
             && currentSemanticInfo.snapshot == source.snapshot) {
         SemanticInfo newSemanticInfo;
