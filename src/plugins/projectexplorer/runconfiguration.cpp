@@ -48,7 +48,7 @@ const char CUSTOMIZED_KEY[] = "ProjectExplorer.RunConfiguration.Customized";
 
 ///////////////////////////////////////////////////////////////////////
 //
-// IRunConfigurationAspect
+// GlobalOrProjectAspect
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -198,7 +198,7 @@ static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
 static QList<RunConfigurationFactory *> g_runConfigurationFactories;
 
-RunConfiguration::RunConfiguration(BuildConfiguration *bc, Utils::Id id)
+RunConfiguration::RunConfiguration(BuildConfiguration *bc, Id id)
     : ProjectConfiguration(bc->target(), id), m_buildConfiguration(bc)
 {
     forceDisplayNameSerialization();
@@ -245,12 +245,12 @@ RunConfiguration::RunConfiguration(BuildConfiguration *bc, Utils::Id id)
 
 RunConfiguration::~RunConfiguration() = default;
 
-QString RunConfiguration::disabledReason(Utils::Id) const
+QString RunConfiguration::disabledReason(Id) const
 {
     return buildSystem()->disabledReason(m_buildKey);
 }
 
-bool RunConfiguration::isEnabled(Utils::Id) const
+bool RunConfiguration::isEnabled(Id) const
 {
     return buildSystem()->hasParsingData();
 }
@@ -269,7 +269,7 @@ QWidget *RunConfiguration::createConfigurationWidget()
 
     VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
-    auto detailsWidget = new Utils::DetailsWidget;
+    auto detailsWidget = new DetailsWidget;
     detailsWidget->setState(DetailsWidget::NoSummary);
     detailsWidget->setWidget(widget);
     return detailsWidget;
@@ -340,7 +340,7 @@ BuildSystem *RunConfiguration::buildSystem() const
 }
 
 void RunConfiguration::setupMacroExpander(
-    Utils::MacroExpander &exp, const RunConfiguration *rc, bool documentationOnly)
+    MacroExpander &exp, const RunConfiguration *rc, bool documentationOnly)
 {
     exp.registerPrefix(
         "RunConfig:Env", Tr::tr("Variables in the run environment."), [rc](const QString &var) {
@@ -349,12 +349,14 @@ void RunConfiguration::setupMacroExpander(
             const auto envAspect = rc->aspect<EnvironmentAspect>();
             return envAspect ? envAspect->environment().expandedValueForKey(var) : QString();
         }, true, !documentationOnly);
+
     exp.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."), [rc] {
-        return rc ? rc->displayName() : QString();
-    }, true, !documentationOnly);
+            return rc ? rc->displayName() : QString();
+        }, true, !documentationOnly);
+
     exp.registerFileVariables(
         "RunConfig:Executable", Tr::tr("The run configuration's executable."), [rc] {
-            return rc ? rc->commandLine().executable() : Utils::FilePath();
+            return rc ? rc->commandLine().executable() : FilePath();
         }, true, !documentationOnly);
 }
 
@@ -471,9 +473,9 @@ void RunConfiguration::fromMap(const Store &map)
 }
 
 /*!
-    \class ProjectExplorer::IRunConfigurationAspect
+    \class ProjectExplorer::GlobalOrProjectAspect
 
-    \brief The IRunConfigurationAspect class provides an additional
+    \brief The GlobalOrProjectAspect class provides an additional
     configuration aspect.
 
     Aspects are a mechanism to add RunControl-specific options to a run
@@ -580,7 +582,7 @@ RunConfigurationFactory::~RunConfigurationFactory()
 QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, Kit *kit)
 {
     QString displayName = targetName;
-    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit);
+    Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit);
     if (devType != Constants::DESKTOP_DEVICE_TYPE) {
         if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit)) {
             if (displayName.isEmpty()) {
@@ -642,7 +644,7 @@ bool RunConfigurationFactory::supportsBuildKey(BuildConfiguration *bc, const QSt
     \sa addSupportedProjectType()
 */
 
-void RunConfigurationFactory::addSupportedTargetDeviceType(Utils::Id id)
+void RunConfigurationFactory::addSupportedTargetDeviceType(Id id)
 {
     m_supportedTargetDeviceTypes.append(id);
 }
@@ -664,7 +666,7 @@ void RunConfigurationFactory::setDecorateDisplayNames(bool on)
     \sa addSupportedTargetDeviceType()
 */
 
-void RunConfigurationFactory::addSupportedProjectType(Utils::Id id)
+void RunConfigurationFactory::addSupportedProjectType(Id id)
 {
     m_supportedProjectTypes.append(id);
 }
@@ -722,7 +724,7 @@ RunConfiguration *RunConfigurationFactory::restore(BuildConfiguration *bc, const
 {
     for (RunConfigurationFactory *factory : std::as_const(g_runConfigurationFactories)) {
         if (factory->canHandle(bc->target())) {
-            const Utils::Id id = idFromMap(map);
+            const Id id = idFromMap(map);
             if (id.name().startsWith(factory->m_runConfigurationId.name())) {
                 RunConfiguration *rc = factory->create(bc);
                 rc->fromMap(map);
