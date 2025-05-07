@@ -32,7 +32,8 @@ public:
     DiffFileInfo() = default;
     DiffFileInfo(const QString &file, const QString &type = {})
         : fileName(file), typeInfo(type) {}
-    QString fileName;
+
+    QString fileName; // This is local from the perspective of the git binary.
     QString typeInfo;
     PatchBehaviour patchBehaviour = PatchFile;
 };
