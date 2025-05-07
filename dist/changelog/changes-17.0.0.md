@@ -22,15 +22,16 @@ General
 * Added a `Courses` tab to `Welcome` mode
 * Added tab completion to the locator
 * Extensions
-    * Moved the default plugin registry to
+    * Moved the default extension registry to
       https://github.com/qt-creator/extension-registry
       (submissions not open to the public yet)
-    * Added the option to configure multiple plugin registries in
+    * Added the option to configure multiple extension registries in
       `Preferences > Extensions > Browser`
     * Added the dependencies and supported platforms of extensions that are not
       installed to their details
     * Added version selectors for extensions that are not installed
     * Added support for dropping extension archives onto `Extensions` mode
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-install-extensions.html))
 
 Editing
 -------
