@@ -154,18 +154,18 @@ DiffFilesController::DiffFilesController(IDocument *document)
     setReloadRecipe(recipe);
 }
 
-class DiffCurrentFileController : public DiffFilesController
+class DiffCurrentFileController final : public DiffFilesController
 {
 public:
-    DiffCurrentFileController(IDocument *document, const QString &fileName)
+    DiffCurrentFileController(IDocument *document, const FilePath &filePath)
         : DiffFilesController(document)
-        , m_fileName(fileName) {}
+        , m_filePath(filePath) {}
 
 protected:
     QList<ReloadInput> reloadInputList() const final;
 
 private:
-    const QString m_fileName;
+    const FilePath m_filePath;
 };
 
 QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
@@ -173,20 +173,20 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
     QList<ReloadInput> result;
 
     auto textDocument = qobject_cast<TextDocument *>(
-        DocumentModel::documentForFilePath(FilePath::fromString(m_fileName)));
+        DocumentModel::documentForFilePath(m_filePath));
 
     if (textDocument && textDocument->isModified()) {
         TextFileFormat format = textDocument->format();
 
         const TextFileFormat::ReadResult leftResult = format.readFile(
-            FilePath::fromString(m_fileName), format.codec());
+            m_filePath, format.codec());
 
         const QString rightText = textDocument->plainText();
 
         ReloadInput reloadInput;
         reloadInput.text = {leftResult.content, rightText};
-        reloadInput.fileInfo = {DiffFileInfo(m_fileName, Tr::tr("Saved")),
-                                DiffFileInfo(m_fileName, Tr::tr("Modified"))};
+        reloadInput.fileInfo = {DiffFileInfo(m_filePath.path(), Tr::tr("Saved")),
+                                DiffFileInfo(m_filePath.path(), Tr::tr("Modified"))};
         reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
         reloadInput.binaryFiles = (leftResult.code == TextFileFormat::ReadEncodingError);
 
@@ -483,13 +483,14 @@ void DiffEditorPlugin::diffCurrentFile()
     if (!textDocument)
         return;
 
-    const QString fileName = textDocument->filePath().toUrlishString();
-    if (fileName.isEmpty())
+    const FilePath filePath = textDocument->filePath();
+    if (filePath.isEmpty())
         return;
 
-    const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".Diff.") + fileName;
-    const QString title = Tr::tr("Diff \"%1\"").arg(fileName);
-    reload<DiffCurrentFileController>(documentId, title, fileName);
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".Diff.")
+            + filePath.toUrlishString();
+    const QString title = Tr::tr("Diff \"%1\"").arg(filePath.toUserOutput());
+    reload<DiffCurrentFileController>(documentId, title, filePath);
 }
 
 void DiffEditorPlugin::diffOpenFiles()
