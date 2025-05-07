@@ -38,13 +38,14 @@ class CourseItem : public ListItem
 {
 public:
     QString id;
+    QString rawName;
 };
 
 static QString courseUrl(const CourseItem *item)
 {
     // The catalog html page contains per-course anchors, based on the course title:
     //   data-link="#the-course-title"
-    const QString anchor = item->name.toLower().replace(' ', '-');
+    const QString anchor = item->rawName.toLower().replace(' ', '-');
     const QString url = "https://www.qt.io/academy/course-catalog#" + anchor;
     return url;
 }
@@ -135,7 +136,8 @@ static void setJson(const QByteArray &json, ListModel *model)
             continue;
 
         auto courseItem = new CourseItem;
-        courseItem->name = courseName(courseObj);
+        courseItem->name = courseName(courseObj).trimmed();
+        courseItem->rawName = courseName(courseObj);
         courseItem->description = courseDescription(courseObj);
         courseItem->imageUrl = courseThumbnail(courseObj);
         courseItem->tags = courseTags(courseObj);
