@@ -71,7 +71,7 @@ static QString courseDescription(const QJsonObject &courseObj)
     const QString elide = " ...";
     if (rawText.size() > maxTextLength - elide.size())
         rawText = rawText.left(maxTextLength) + elide;
-    const QStringList rawLines = rawText.split("\r\n");
+    const QStringList rawLines = rawText.split("\n");
     QStringList lines;
     for (bool prevLineEmpty = false; const QString &rawLine : rawLines) {
         const QString line = rawLine.trimmed();
