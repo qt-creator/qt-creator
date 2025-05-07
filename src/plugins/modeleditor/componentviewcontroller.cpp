@@ -31,16 +31,14 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
-using Utils::FilePath;
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
 class FindComponentFromFilePath :
         public qmt::MChildrenVisitor
 {
 public:
-    void setFilePath(const QString &filePath);
+    void setFilePath(const FilePath &filePath);
     qmt::MComponent *component() const { return m_bestComponent; }
     void visitMComponent(qmt::MComponent *component) final;
 
@@ -51,11 +49,10 @@ private:
     qmt::MComponent *m_bestComponent = nullptr;
 };
 
-void FindComponentFromFilePath::setFilePath(const QString &filePath)
+void FindComponentFromFilePath::setFilePath(const FilePath &filePath)
 {
-    m_elementName = qmt::NameController::convertFileNameToElementName(FilePath::fromString(filePath));
-    QFileInfo fileInfo(filePath);
-    m_elementsPath = qmt::NameController::buildElementsPath(FilePath::fromString(fileInfo.path()), false);
+    m_elementName = qmt::NameController::convertFileNameToElementName(filePath);
+    m_elementsPath = qmt::NameController::buildElementsPath(filePath.parentDir(), false);
 }
 
 void FindComponentFromFilePath::visitMComponent(qmt::MComponent *component)
@@ -110,14 +107,14 @@ private:
     QStringList findFilePathOfComponent(const qmt::MComponent *component);
     void collectElementPaths(const ProjectExplorer::FolderNode *folderNode, QMultiHash<QString,
                              Node> *filePathsMap);
-    qmt::MComponent *findComponentFromFilePath(const QString &filePath);
+    qmt::MComponent *findComponentFromFilePath(const FilePath &filePath);
 
 private:
     PackageViewController *m_packageViewController = nullptr;
     qmt::ModelController *m_modelController = nullptr;
     ModelUtilities *m_modelUtilities = nullptr;
     QMultiHash<QString, Node> m_filePaths;
-    QHash<QString, qmt::MComponent *> m_filePathComponentsMap;
+    QHash<FilePath, qmt::MComponent *> m_filePathComponentsMap;
 };
 
 void UpdateIncludeDependenciesVisitor::setPackageViewController(PackageViewController *packageViewController)
@@ -166,7 +163,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
                         includeFilePath = includes.at(0).resolvedFileName();
                     }
                 }
-                qmt::MComponent *includeComponent = findComponentFromFilePath(includeFilePath.toUrlishString());
+                qmt::MComponent *includeComponent = findComponentFromFilePath(includeFilePath);
                 if (includeComponent && includeComponent != component) {
                     // add dependency between components
                     if (!m_modelUtilities->haveDependency(component, includeComponent)) {
@@ -230,7 +227,7 @@ void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer
     });
 }
 
-qmt::MComponent *UpdateIncludeDependenciesVisitor::findComponentFromFilePath(const QString &filePath)
+qmt::MComponent *UpdateIncludeDependenciesVisitor::findComponentFromFilePath(const FilePath &filePath)
 {
     const auto it = m_filePathComponentsMap.constFind(filePath);
     if (it != m_filePathComponentsMap.cend())
@@ -355,5 +352,4 @@ void ComponentViewController::doCreateComponentModel(
         doCreateComponentModel(subdir, diagram, anchorFolder, scanHeaders);
 }
 
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal
