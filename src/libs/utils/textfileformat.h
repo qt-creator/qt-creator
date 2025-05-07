@@ -46,7 +46,8 @@ public:
         ReadResult(ReadResultCode code) : code(code) {}
         ReadResult(ReadResultCode code, const QString &error) : code(code), error(error) {}
 
-        ReadResultCode code;
+        ReadResultCode code = ReadSuccess;
+        QString content;
         QString error;
     };
 
@@ -57,13 +58,11 @@ public:
     bool decode(const QByteArray &data, QString *target) const;
 
     static ReadResult readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
-                               QString *plainText, TextFileFormat *format,
-                               QByteArray *decodingErrorSample = nullptr);
+                               TextFileFormat *format, QByteArray *decodingErrorSample = nullptr);
     static Utils::Result<> readFileUtf8(const FilePath &filePath, const QTextCodec *defaultCodec,
                                         QByteArray *plainText);
 
-    static tl::expected<QString, ReadResult> readFile(const FilePath &filePath,
-                                                      const QTextCodec *defaultCodec);
+    static ReadResult readFile(const FilePath &filePath, const QTextCodec *defaultCodec);
 
     Utils::Result<> writeFile(const FilePath &filePath, QString plainText) const;
 

@@ -138,13 +138,10 @@ void FixitsRefactoringFile::format(TextEditor::Indenter &indenter,
 QTextDocument *FixitsRefactoringFile::document(const FilePath &filePath) const
 {
     if (m_documents.find(filePath) == m_documents.end()) {
-        QString fileContents;
+        TextFileFormat::ReadResult result ;
         if (!filePath.isEmpty()) {
             QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
-            TextFileFormat::ReadResult result = TextFileFormat::readFile(filePath,
-                                                                         defaultCodec,
-                                                                         &fileContents,
-                                                                         &m_textFileFormat);
+            result = TextFileFormat::readFile(filePath, defaultCodec, &m_textFileFormat);
             if (result.code != TextFileFormat::ReadSuccess) {
                 qCDebug(fixitsLog)
                     << "ERROR: Could not read " << filePath.toUserOutput() << ":" << result.error;
@@ -152,7 +149,7 @@ QTextDocument *FixitsRefactoringFile::document(const FilePath &filePath) const
             }
         }
         // always make a QTextDocument to avoid excessive null checks
-        m_documents[filePath] = new QTextDocument(fileContents);
+        m_documents[filePath] = new QTextDocument(result.content);
     }
     return m_documents[filePath];
 }

@@ -25,12 +25,11 @@ static Result<QString> readTestFile(const QString &relativeFilePath)
 {
     const auto filePath = FilePath::fromUserInput(":/unittests/Python/" + relativeFilePath);
     Core::BaseTextDocument projectFile;
-    QString fileContent;
-    const Core::BaseTextDocument::ReadResult result = projectFile.read(filePath, &fileContent);
+    const Core::BaseTextDocument::ReadResult result = projectFile.read(filePath);
     if (result.code != TextFileFormat::ReadSuccess)
         return ResultError(result.error);
 
-    return fileContent;
+    return result.content;
 }
 
 void PyProjectTomlTest::testCorrectPyProjectParsing()

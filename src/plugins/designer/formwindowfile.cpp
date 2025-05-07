@@ -54,13 +54,12 @@ Result<> FormWindowFile::open(const FilePath &filePath, const FilePath &realFile
     if (filePath.isEmpty())
         return ResultError("File name is empty"); // FIXME: Use something better
 
-    QString contents;
-    TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath(), &contents);
+    TextFileFormat::ReadResult readResult = read(filePath.absoluteFilePath());
     if (readResult.code != TextFileFormat::ReadSuccess)
         return ResultError(readResult.error);
 
     form->setFileName(filePath.absoluteFilePath().toUrlishString());
-    const QByteArray contentsBA = contents.toUtf8();
+    const QByteArray contentsBA = readResult.content.toUtf8();
     QBuffer str;
     str.setData(contentsBA);
     str.open(QIODevice::ReadOnly);

@@ -773,8 +773,7 @@ Result<> TextDocument::openImpl(const FilePath &filePath,
     ReadResult readResult = TextFileFormat::ReadIOError;
 
     if (!filePath.isEmpty()) {
-        QString content;
-        readResult = read(realFilePath, &content);
+        readResult = read(realFilePath);
 
         // Don't call setUndoRedoEnabled(true) when reload is true and filenames are different,
         // since it will reset the undo's clear index
@@ -791,17 +790,17 @@ Result<> TextDocument::openImpl(const FilePath &filePath,
         }
 
         const int textChunkSize = 65536;
-        if (content.size() <= textChunkSize) {
-            c.insertText(content);
+        if (readResult.content.size() <= textChunkSize) {
+            c.insertText(readResult.content);
         } else {
-            const int chunks = content.size() / textChunkSize;
+            const int chunks = readResult.content.size() / textChunkSize;
             QFutureInterface<void> interface;
             interface.setProgressRange(0, chunks);
             ProgressManager::addTask(interface.future(), Tr::tr("Opening File"),
                                      Constants::TASK_OPEN_FILE);
             interface.reportStarted();
 
-            QStringView view(content);
+            QStringView view(readResult.content);
             for (int i = 0; !view.isEmpty(); ++i, view = view.mid(textChunkSize)) {
                 c.insertText(view.left(textChunkSize).toString());
                 interface.setProgressValue(i + 1);

@@ -106,16 +106,14 @@ static QByteArray getSource(const FilePath &fileName, const WorkingCopy &working
     if (const auto source = workingCopy.source(fileName))
         return *source;
 
-    QString fileContents;
     TextFileFormat format;
     QString error;
     QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
-    TextFileFormat::ReadResult result = TextFileFormat::readFile(
-                fileName, defaultCodec, &fileContents, &format);
+    TextFileFormat::ReadResult result = TextFileFormat::readFile(fileName, defaultCodec, &format);
     if (result.code != TextFileFormat::ReadSuccess)
         qWarning() << "Could not read " << fileName << ". Error: " << result.error;
 
-    return fileContents.toUtf8();
+    return result.content.toUtf8();
 }
 
 static QByteArray typeId(CPlusPlus::Symbol *symbol)

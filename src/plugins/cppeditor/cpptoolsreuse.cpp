@@ -383,10 +383,11 @@ SearchResultItems symbolOccurrencesInDeclarationComments(
                 doc = textDoc->document();
             } else {
                 std::unique_ptr<QTextDocument> newDoc = std::make_unique<QTextDocument>();
-                if (const auto content = TextFileFormat::readFile(
-                        filePath, Core::EditorManager::defaultTextCodec())) {
-                    newDoc->setPlainText(content.value());
-                }
+                const TextFileFormat::ReadResult result = TextFileFormat::readFile(
+                        filePath, Core::EditorManager::defaultTextCodec());
+                if (result.code == TextFileFormat::ReadSuccess)
+                    newDoc->setPlainText(result.content);
+
                 doc = newDoc.get();
                 docPool.push_back(std::move(newDoc));
             }

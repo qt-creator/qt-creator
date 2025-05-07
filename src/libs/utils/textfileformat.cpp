@@ -185,7 +185,7 @@ bool TextFileFormat::decode(const QByteArray &data, QString *target) const
 // Read text file contents to string
 static TextFileFormat::ReadResult readTextFile(
         const FilePath &filePath, const QTextCodec *defaultCodec,
-        QString *target, TextFileFormat *format,
+        TextFileFormat *format,
         QByteArray *decodingErrorSampleIn = nullptr)
 {
     if (decodingErrorSampleIn)
@@ -207,12 +207,13 @@ static TextFileFormat::ReadResult readTextFile(
     if (!format->codec())
         format->setCodec(defaultCodec ? defaultCodec : QTextCodec::codecForLocale());
 
-    if (!format->decode(data, target)) {
+    TextFileFormat::ReadResult result;
+    if (!format->decode(data, &result.content)) {
         if (decodingErrorSampleIn)
             *decodingErrorSampleIn = TextFileFormat::decodingErrorSample(data);
         return {TextFileFormat::ReadEncodingError, Tr::tr("An encoding error was encountered.")};
     }
-    return TextFileFormat::ReadSuccess;
+    return result;
 }
 
 /*!
@@ -226,15 +227,15 @@ static TextFileFormat::ReadResult readTextFile(
 
 TextFileFormat::ReadResult
     TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
-                             QString *plainText, TextFileFormat *format,
+                             TextFileFormat *format,
                              QByteArray *decodingErrorSample /* = 0 */)
 {
     const TextFileFormat::ReadResult result =
         readTextFile(filePath, defaultCodec,
-                     plainText, format, decodingErrorSample);
+                     format, decodingErrorSample);
     if (debug)
         qDebug().nospace() << Q_FUNC_INFO << filePath << ' ' << *format
-                           << " returns " << result.code << '/' << plainText->size() << " characters";
+                           << " returns " << result.code << '/' << result.content.size() << " characters";
     return result;
 }
 
@@ -268,16 +269,11 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
     return ResultOk;
 }
 
-tl::expected<QString, TextFileFormat::ReadResult>
+TextFileFormat::ReadResult
 TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec)
 {
-    QString plainText;
     TextFileFormat format;
-    const TextFileFormat::ReadResult result =
-        readTextFile(filePath, defaultCodec, &plainText, &format, nullptr);
-    if (result.code != TextFileFormat::ReadSuccess)
-        return tl::unexpected(result);
-    return plainText;
+    return readTextFile(filePath, defaultCodec, &format, nullptr);
 }
 
 /*!

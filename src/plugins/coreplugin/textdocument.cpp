@@ -129,12 +129,10 @@ bool BaseTextDocument::isUtf8Codec(const QByteArray &name)
     Returns whether the operation was successful.
 */
 
-BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath,
-                                                    QString *plainText)
+BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath)
 {
     d->m_readResult = TextFileFormat::readFile(filePath,
                                                codec(),
-                                               plainText,
                                                &d->m_format,
                                                &d->m_decodingErrorSample);
     return d->m_readResult;

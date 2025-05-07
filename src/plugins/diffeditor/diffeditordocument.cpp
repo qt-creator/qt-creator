@@ -269,14 +269,13 @@ Result<> DiffEditorDocument::open(const FilePath &filePath, const FilePath &real
 {
     QTC_CHECK(filePath == realFilePath); // does not support autosave
     beginReload();
-    QString patch;
-    ReadResult readResult = read(filePath, &patch);
+    ReadResult readResult = read(filePath);
     if (readResult.code == TextFileFormat::ReadIOError
         || readResult.code == TextFileFormat::ReadMemoryAllocationError) {
         return ResultError(readResult.error);
     }
 
-    const std::optional<QList<FileData>> fileDataList = DiffUtils::readPatch(patch);
+    const std::optional<QList<FileData>> fileDataList = DiffUtils::readPatch(readResult.content);
     bool ok = fileDataList.has_value();
     if (!ok) {
         readResult.error = Tr::tr("Could not parse patch file \"%1\". "

@@ -235,13 +235,12 @@ bool PythonBuildSystem::save()
 
     if (filePath.fileName() == "pyproject.toml") {
         Core::BaseTextDocument projectFile;
-        QString pyProjectTomlContent;
-        const BaseTextDocument::ReadResult result = projectFile.read(filePath, &pyProjectTomlContent);
+        const BaseTextDocument::ReadResult result = projectFile.read(filePath);
         if (result.code != TextFileFormat::ReadSuccess) {
             MessageManager::writeDisrupting(result.error);
             return false;
         }
-        auto newPyProjectToml = updatePyProjectTomlContent(pyProjectTomlContent, projectFiles);
+        auto newPyProjectToml = updatePyProjectTomlContent(result.content, projectFiles);
         if (!newPyProjectToml) {
             MessageManager::writeDisrupting(newPyProjectToml.error());
             return false;

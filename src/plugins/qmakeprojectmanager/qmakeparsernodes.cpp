@@ -738,33 +738,25 @@ bool QmakePriFile::ensureWriteableProFile(const QString &file)
 
 QPair<ProFile *, QStringList> QmakePriFile::readProFile()
 {
-    QStringList lines;
-    ProFile *includeFile = nullptr;
-    {
-        QString contents;
-        {
-            const TextFileFormat::ReadResult result =
-                TextFileFormat::readFile(filePath(),
-                                         Core::EditorManager::defaultTextCodec(),
-                                         &contents,
-                                         &m_textFormat);
-            if (result.code != TextFileFormat::ReadSuccess) {
-                QmakeBuildSystem::proFileParseError(result.error, filePath());
-                return {includeFile, lines};
-            }
-            lines = contents.split('\n');
-        }
-
-        QMakeVfs vfs;
-        QtSupport::ProMessageHandler handler;
-        QMakeParser parser(nullptr, &vfs, &handler);
-        includeFile = parser.parsedProBlock(deviceRoot(),
-                                            QStringView(contents),
-                                            0,
-                                            filePath().toUrlishString(),
-                                            1);
+    TextFileFormat::ReadResult result =
+            TextFileFormat::readFile(filePath(),
+                                     EditorManager::defaultTextCodec(),
+                                     &m_textFormat);
+    if (result.code != TextFileFormat::ReadSuccess) {
+        QmakeBuildSystem::proFileParseError(result.error, filePath());
+        return {nullptr, {}};
     }
-    return {includeFile, lines};
+
+    QMakeVfs vfs;
+    QtSupport::ProMessageHandler handler;
+    QMakeParser parser(nullptr, &vfs, &handler);
+    ProFile *includeFile = parser.parsedProBlock(deviceRoot(),
+                                                 QStringView(result.content),
+                                                 0,
+                                                 filePath().toUrlishString(),
+                                                 1);
+
+    return {includeFile, result.content.split('\n')};
 }
 
 bool QmakePriFile::prepareForChange()

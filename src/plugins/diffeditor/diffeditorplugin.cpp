@@ -178,14 +178,13 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
     if (textDocument && textDocument->isModified()) {
         TextFileFormat format = textDocument->format();
 
-        QString leftText;
         const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-            FilePath::fromString(m_fileName), format.codec(), &leftText, &format);
+            FilePath::fromString(m_fileName), format.codec(), &format);
 
         const QString rightText = textDocument->plainText();
 
         ReloadInput reloadInput;
-        reloadInput.text = {leftText, rightText};
+        reloadInput.text = {leftResult.content, rightText};
         reloadInput.fileInfo = {DiffFileInfo(m_fileName, Tr::tr("Saved")),
                                 DiffFileInfo(m_fileName, Tr::tr("Modified"))};
         reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
@@ -225,15 +224,14 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
             QString errorString;
             TextFileFormat format = textDocument->format();
 
-            QString leftText;
             const QString fileName = textDocument->filePath().toUrlishString();
             const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-                FilePath::fromString(fileName), format.codec(), &leftText, &format);
+                FilePath::fromString(fileName), format.codec(), &format);
 
             const QString rightText = textDocument->plainText();
 
             ReloadInput reloadInput;
-            reloadInput.text = {leftText, rightText};
+            reloadInput.text = {leftResult.content, rightText};
             reloadInput.fileInfo = {DiffFileInfo(fileName, Tr::tr("Saved")),
                                     DiffFileInfo(fileName, Tr::tr("Modified"))};
             reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
@@ -277,15 +275,14 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
             QString errorString;
             TextFileFormat format = textDocument->format();
 
-            QString leftText;
             const QString fileName = textDocument->filePath().toUrlishString();
             const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-                FilePath::fromString(fileName), format.codec(), &leftText, &format);
+                FilePath::fromString(fileName), format.codec(), &format);
 
             const QString rightText = textDocument->plainText();
 
             ReloadInput reloadInput;
-            reloadInput.text = {leftText, rightText};
+            reloadInput.text = {leftResult.content, rightText};
             reloadInput.fileInfo = {DiffFileInfo(fileName, Tr::tr("Saved")),
                                     DiffFileInfo(fileName, Tr::tr("Modified"))};
             reloadInput.fileInfo[RightSide].patchBehaviour = DiffFileInfo::PatchEditor;
@@ -327,16 +324,13 @@ QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
     TextFileFormat format;
     format.setCodecName(EditorManager::defaultTextCodecName());
 
-    QString leftText;
-    QString rightText;
-
     const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-        m_leftFilePath, format.codec(), &leftText, &format);
+        m_leftFilePath, format.codec(), &format);
     const TextFileFormat::ReadResult rightResult = TextFileFormat::readFile(
-        m_rightFilePath, format.codec(), &rightText, &format);
+        m_rightFilePath, format.codec(), &format);
 
     ReloadInput reloadInput;
-    reloadInput.text = {leftText, rightText};
+    reloadInput.text = {leftResult.content, rightResult.content};
     reloadInput.fileInfo[LeftSide].fileName = m_leftFilePath.toUrlishString();
     reloadInput.fileInfo[RightSide].fileName = m_rightFilePath.toUrlishString();
     reloadInput.binaryFiles = leftResult.code == TextFileFormat::ReadEncodingError
