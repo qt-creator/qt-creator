@@ -505,6 +505,8 @@ QtcLibrary {
             "plaintextedit.h",
             "widgettextcontrol.cpp",
             "widgettextcontrol.h",
+            "plaintexteditaccessibility.cpp",
+            "plaintexteditaccessibility.h",
         ]
     }
 

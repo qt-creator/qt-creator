@@ -17,12 +17,14 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/hostosinfo.h>
+#include <utils/plaintextedit/plaintexteditaccessibility.h>
 #include <utils/processreaper.h>
 #include <utils/qtcsettings.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/terminalcommand.h>
 
+#include <QAccessible>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -272,6 +274,11 @@ static void setupInstallSettings(QString &installSettingspath, bool redirect = t
         scope = QSettings::SystemScope; // UserScope only the first time we check
         ++count;
     } while (containsInstallSettingsKey && count < 3);
+}
+
+static void setupAccessibility()
+{
+    QAccessible::installFactory(&accessiblePlainTextEditFactory);
 }
 
 static QtcSettings *createUserSettings()
@@ -734,6 +741,7 @@ int main(int argc, char **argv)
     // Since we do not have a QApplication yet, we cannot rely on QApplication::applicationDirPath()
     // though. So we set up install settings with a educated guess here, and re-setup it later.
     setupInstallSettings(options.installSettingsPath);
+    setupAccessibility();
     setHighDpiEnvironmentVariable();
     setRHIOpenGLVariable();
 
