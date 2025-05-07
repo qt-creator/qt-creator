@@ -66,7 +66,8 @@ bool isCheckedByDefault(std::u16string_view property)
         u"Layout.rowSpan",
         u"Layout.topMargin",
         u"Layout.useDefaultSizePolicy",
-        u"Layout.verticalStretchFactor");
+        u"Layout.verticalStretchFactor",
+        u"materials");
 
     return std::ranges::binary_search(properitesCheckedByDefault, property);
 }
