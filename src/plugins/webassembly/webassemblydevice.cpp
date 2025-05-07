@@ -53,7 +53,8 @@ static void askUserAboutEmSdkSetup()
 {
     const char setupWebAssemblyEmSdk[] = "SetupWebAssemblyEmSdk";
 
-    if (!ICore::infoBar()->canInfoBeAdded(setupWebAssemblyEmSdk)
+    InfoBar *infoBar = ICore::infoBar();
+    if (!infoBar->canInfoBeAdded(setupWebAssemblyEmSdk)
             || !WebAssemblyQtVersion::isQtVersionInstalled()
             || areToolChainsRegistered())
         return;
@@ -67,7 +68,7 @@ static void askUserAboutEmSdkSetup()
         [] { QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); }); },
         {},
         InfoBarEntry::ButtonAction::Hide);
-    ICore::infoBar()->addInfo(info);
+    infoBar->addInfo(info);
 }
 
 class WebAssemblyDeviceFactory final : public IDeviceFactory

@@ -123,7 +123,8 @@ static bool isQtMCUsProject(ProjectExplorer::Project *p)
 
 static void askUserAboutMcuSupportKitsSetup()
 {
-    if (!ICore::infoBar()->canInfoBeAdded(setupMcuSupportKits)
+    InfoBar *infoBar = ICore::infoBar();
+    if (!infoBar->canInfoBeAdded(setupMcuSupportKits)
         || dd->m_options.qulDirFromSettings().isEmpty()
         || !McuKitManager::existingKits(nullptr).isEmpty())
         return;
@@ -138,7 +139,7 @@ static void askUserAboutMcuSupportKitsSetup()
         [] { QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); }); },
         {},
         InfoBarEntry::ButtonAction::Hide);
-    ICore::infoBar()->addInfo(info);
+    infoBar->addInfo(info);
 }
 
 static void askUserAboutRemovingUninstalledTargetsKits()
@@ -146,7 +147,8 @@ static void askUserAboutRemovingUninstalledTargetsKits()
     const char removeUninstalledKits[] = "RemoveUninstalledKits";
     QList<Kit *> uninstalledTargetsKits;
 
-    if (!ICore::infoBar()->canInfoBeAdded(removeUninstalledKits)
+    InfoBar *infoBar = ICore::infoBar();
+    if (!infoBar->canInfoBeAdded(removeUninstalledKits)
         || (uninstalledTargetsKits = McuKitManager::findUninstalledTargetsKits()).isEmpty())
         return;
 
@@ -169,7 +171,7 @@ static void askUserAboutRemovingUninstalledTargetsKits()
         {},
         InfoBarEntry::ButtonAction::Hide);
 
-    ICore::infoBar()->addInfo(info);
+    infoBar->addInfo(info);
 }
 
 class McuSupportPlugin final : public ExtensionSystem::IPlugin
@@ -241,7 +243,8 @@ void McuSupportPlugin::initialize()
         connect(ProjectManager::instance(),
                 &ProjectManager::projectFinishedParsing,
                 [&](ProjectExplorer::Project *p) {
-                    if (!isQtMCUsProject(p) || !ICore::infoBar()->canInfoBeAdded(qdsMcuDocInfoEntry))
+                    InfoBar *infoBar = ICore::infoBar();
+                    if (!isQtMCUsProject(p) || !infoBar->canInfoBeAdded(qdsMcuDocInfoEntry))
                         return;
                     Utils::InfoBarEntry docInfo(
                         qdsMcuDocInfoEntry,
@@ -255,7 +258,7 @@ void McuSupportPlugin::initialize()
                         },
                         {},
                         InfoBarEntry::ButtonAction::Suppress);
-                    ICore::infoBar()->addInfo(docInfo);
+                    infoBar->addInfo(docInfo);
                 });
     }
 

@@ -235,9 +235,10 @@ static void showUpdateInfo(const QList<Update> &updates,
             return scrollArea;
         });
     }
-    ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications
-    ICore::infoBar()->unsuppressInfo(InstallUpdates);
-    ICore::infoBar()->addInfo(info);
+    InfoBar *infoBar = ICore::infoBar();
+    infoBar->removeInfo(InstallUpdates); // remove any existing notifications
+    infoBar->unsuppressInfo(InstallUpdates);
+    infoBar->addInfo(info);
 }
 
 void UpdateInfoPlugin::checkForUpdatesFinished()

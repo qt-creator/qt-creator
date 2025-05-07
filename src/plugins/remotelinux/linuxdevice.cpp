@@ -1250,9 +1250,10 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
     if (!m_disconnected())
         return false;
 
-    QMetaObject::invokeMethod(Core::ICore::infoBar(), [id = q->id(), name = q->displayName()] {
+    InfoBar *infoBar = Core::ICore::infoBar();
+    QMetaObject::invokeMethod(infoBar, [id = q->id(), name = q->displayName(), infoBar] {
         const Id errorId = id.withPrefix("error_");
-        if (!Core::ICore::infoBar()->canInfoBeAdded(errorId))
+        if (!infoBar->canInfoBeAdded(errorId))
             return;
         const QString warnStr
             = Tr::tr("Device \"%1\" is currently marked as disconnected.").arg(name);
@@ -1269,7 +1270,7 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
             });
             return label;
         });
-        Core::ICore::infoBar()->addInfo(info);
+        infoBar->addInfo(info);
     });
     return true;
 }

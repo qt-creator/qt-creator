@@ -102,7 +102,8 @@ const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
 
 static void requestRestart()
 {
-    if (ICore::infoBar()->canInfoBeAdded(kRestartSetting)) {
+    InfoBar *infoBar = ICore::infoBar();
+    if (infoBar->canInfoBeAdded(kRestartSetting)) {
         Utils::InfoBarEntry
             info(kRestartSetting, Core::Tr::tr("Plugin changes will take effect after restart."));
         info.setTitle(Tr::tr("Restart Required"));
@@ -111,7 +112,7 @@ static void requestRestart()
             [] { QTimer::singleShot(0, ICore::instance(), &ICore::restart); },
             {},
             InfoBarEntry::ButtonAction::Hide);
-        ICore::infoBar()->addInfo(info);
+        infoBar->addInfo(info);
     }
 }
 

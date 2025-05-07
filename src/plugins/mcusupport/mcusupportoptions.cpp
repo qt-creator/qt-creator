@@ -261,7 +261,8 @@ void McuSupportOptions::displayKitCreationMessages(const MessagesList messages,
     if (messages.isEmpty() || !qtMCUsPackage->isValidStatus())
         return;
     static const char mcuKitCreationErrorInfoId[] = "ErrorWhileCreatingMCUKits";
-    if (!Core::ICore::infoBar()->canInfoBeAdded(mcuKitCreationErrorInfoId))
+    InfoBar *infoBar = Core::ICore::infoBar();
+    if (!infoBar->canInfoBeAdded(mcuKitCreationErrorInfoId))
         return;
 
     Utils::InfoBarEntry info(mcuKitCreationErrorInfoId,
@@ -278,7 +279,7 @@ void McuSupportOptions::displayKitCreationMessages(const MessagesList messages,
         {},
         InfoBarEntry::ButtonAction::Hide);
 
-    Core::ICore::infoBar()->addInfo(info);
+    infoBar->addInfo(info);
 }
 
 void McuSupportOptions::checkUpgradeableKits()

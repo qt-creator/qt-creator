@@ -507,7 +507,8 @@ static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settin
 {
     const char upgradeMcuSupportKits[] = "UpgradeMcuSupportKits";
 
-    if (!ICore::infoBar()->canInfoBeAdded(upgradeMcuSupportKits))
+    InfoBar *infoBar = ICore::infoBar();
+    if (!infoBar->canInfoBeAdded(upgradeMcuSupportKits))
         return;
 
     InfoBarEntry info(upgradeMcuSupportKits,
@@ -534,7 +535,7 @@ static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settin
         {},
         InfoBarEntry::ButtonAction::Hide);
 
-    ICore::infoBar()->addInfo(info);
+    infoBar->addInfo(info);
 }
 
 void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)

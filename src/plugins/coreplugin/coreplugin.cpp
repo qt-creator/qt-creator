@@ -501,7 +501,8 @@ void CorePlugin::checkSettings()
 
 void CorePlugin::warnAboutCrashReporing()
 {
-    if (!ICore::infoBar()->canInfoBeAdded(kWarnCrashReportingSetting))
+    InfoBar *infoBar = ICore::infoBar();
+    if (!infoBar->canInfoBeAdded(kWarnCrashReportingSetting))
         return;
 
     QString warnStr = ICore::settings()->value("CrashReportingEnabled", false).toBool()
@@ -537,7 +538,7 @@ void CorePlugin::warnAboutCrashReporing()
         label->setContentsMargins(0, 0, 0, 8);
         return label;
     });
-    ICore::infoBar()->addInfo(info);
+    infoBar->addInfo(info);
 }
 
 // static
