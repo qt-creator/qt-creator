@@ -55,7 +55,7 @@ QbsLanguageClient::QbsLanguageClient(const QString &serverPath, QbsBuildSystem *
 {
     d->buildSystem = buildSystem;
     setName(QString::fromLatin1("qbs@%1").arg(serverPath));
-    setCurrentProject(buildSystem->project());
+    setCurrentBuildConfiguration(buildSystem->buildConfiguration());
     LanguageFilter langFilter;
     langFilter.mimeTypes << Utils::Constants::QBS_MIMETYPE;
     setSupportedLanguage(langFilter);

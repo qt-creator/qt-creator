@@ -40,7 +40,6 @@ const char LastMaxQtVersionKey[] = "LastMaxQtVersion";
 const quint32 OneMinute = 60000;
 const quint32 OneHour = 3600000;
 const char InstallUpdates[] = "UpdateInfo.InstallUpdates";
-const char InstallQtUpdates[] = "UpdateInfo.InstallQtUpdates";
 const char M_MAINTENANCE_TOOL[] = "QtCreator.Menu.Tools.MaintenanceTool";
 
 using namespace Core;
@@ -195,20 +194,23 @@ static void showUpdateInfo(const QList<Update> &updates,
 {
     InfoBarEntry info(InstallUpdates, infoTitle(updates, newQt));
     info.setTitle(Tr::tr("Updates Available"));
-    info.addCustomButton(Tr::tr("Open Settings"), [] {
-        ICore::infoBar()->removeInfo(InstallQtUpdates);
-        ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID);
-    });
+    info.addCustomButton(
+        Tr::tr("Open Settings"),
+        [] { ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID); },
+        {},
+        InfoBarEntry::ButtonAction::Hide);
     if (newQt) {
-        info.addCustomButton(Tr::tr("Start Package Manager"), [startPackageManager] {
-            ICore::infoBar()->removeInfo(InstallQtUpdates);
-            startPackageManager();
-        });
+        info.addCustomButton(
+            Tr::tr("Start Package Manager"),
+            [startPackageManager] { startPackageManager(); },
+            {},
+            InfoBarEntry::ButtonAction::Hide);
     } else {
-        info.addCustomButton(Tr::tr("Start Update"), [startUpdater] {
-            ICore::infoBar()->removeInfo(InstallUpdates);
-            startUpdater();
-        });
+        info.addCustomButton(
+            Tr::tr("Start Update"),
+            [startUpdater] { startUpdater(); },
+            {},
+            InfoBarEntry::ButtonAction::Hide);
     }
     if (!updates.isEmpty()) {
         info.setDetailsWidgetCreator([updates, newQt] {

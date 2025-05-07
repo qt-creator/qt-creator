@@ -25,6 +25,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 
@@ -37,7 +38,6 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/basetreeview.h>
-#include <utils/fileinprojectfinder.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
@@ -211,8 +211,6 @@ public:
     QmlDebug::QDebugMessageClient *msgClient = nullptr;
 
     QHash<int, QmlCallback> callbackForToken;
-
-    FileInProjectFinder fileFinder;
 
     bool skipFocusOnNextHandleFrame = false;
 
@@ -2457,14 +2455,8 @@ void QmlEnginePrivate::flushSendBuffer()
 
 FilePath QmlEngine::toFileInProject(const QUrl &fileUrl)
 {
-    // make sure file finder is properly initialized
-    const DebuggerRunParameters &rp = runParameters();
-    d->fileFinder.setProjectDirectory(rp.projectSourceDirectory());
-    d->fileFinder.setProjectFiles(rp.projectSourceFiles());
-    d->fileFinder.setAdditionalSearchDirectories(rp.additionalSearchDirectories());
-    d->fileFinder.setSysroot(rp.sysRoot());
-
-    return d->fileFinder.findFile(fileUrl).constFirst();
+    const FilePaths paths = runParameters().findQmlFile(fileUrl);
+    return paths.isEmpty() ? FilePath() : paths.first();
 }
 
 DebuggerEngine *createQmlEngine()

@@ -524,12 +524,15 @@ static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settin
         selectedOption = selected.data.value<UpgradeOption>();
     });
 
-    info.addCustomButton(Tr::tr("Proceed"), [upgradeMcuSupportKits, settingsHandler] {
-        ICore::infoBar()->removeInfo(upgradeMcuSupportKits);
-        QTimer::singleShot(0, [settingsHandler]() {
-            McuKitManager::upgradeKitsByCreatingNewPackage(settingsHandler, selectedOption);
-        });
-    });
+    info.addCustomButton(
+        Tr::tr("Proceed"),
+        [settingsHandler] {
+            QTimer::singleShot(0, [settingsHandler]() {
+                McuKitManager::upgradeKitsByCreatingNewPackage(settingsHandler, selectedOption);
+            });
+        },
+        {},
+        InfoBarEntry::ButtonAction::Hide);
 
     ICore::infoBar()->addInfo(info);
 }

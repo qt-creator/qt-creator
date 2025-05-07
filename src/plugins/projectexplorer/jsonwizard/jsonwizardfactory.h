@@ -22,7 +22,7 @@ namespace Internal { class ProjectExplorerTest; }
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT JsonWizardFactory : public Core::IWizardFactory
 {
-    Q_OBJECT
+    Q_OBJECT // needed for qobject_cast
 
 public:
     // Add search paths for wizard.json files. All subdirs are going to be checked.

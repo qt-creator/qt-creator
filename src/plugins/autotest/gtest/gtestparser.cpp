@@ -86,7 +86,7 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     }
 
     const FilePath filePath = doc->filePath();
-    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
+    CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName, false);
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     GTestVisitor visitor(document);

@@ -19,6 +19,8 @@
 
 #include <remotelinux/remotelinux_constants.h>
 
+#include <qtsupport/baseqtversion.h>
+
 #include <solutions/tasking/barrier.h>
 #include <solutions/tasking/conditional.h>
 
@@ -280,6 +282,9 @@ ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
             [exec = runParameters.inferior().command.executable()] { return exec; });
 
         runControl->setDisplayName(runParameters.displayName());
+
+        if (runParameters.isQmlDebugging())
+            runParameters.populateQmlFileFinder(runControl);
 
         if (auto interpreterAspect = runControl->aspectData<FilePathAspect>()) {
             if (auto mainScriptAspect = runControl->aspectData<MainScriptAspect>()) {
@@ -656,7 +661,6 @@ void EnginesDriver::start()
             connect(engine, &DebuggerEngine::attachToCoreRequested, this, [this](const QString &coreFile) {
                 auto rc = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
                 rc->copyDataFromRunControl(m_runControl);
-                rc->resetDataForAttachToCore();
                 auto name = QString(Tr::tr("%1 - Snapshot %2").arg(m_runControl->displayName()).arg(++m_snapshotCounter));
                 DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(rc);
                 rp.setStartMode(AttachToCore);
@@ -728,9 +732,9 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
         continueOnError,
         onGroupSetup(onSetup),
         Group {
+            fixupParamsRecipe(storage),
             coreFileRecipe(storage),
             When (terminalKicker) >> Do {
-                fixupParamsRecipe(storage),
                 When (debugServerKicker) >> Do {
                     startEnginesRecipe(storage)
                 }
@@ -744,8 +748,8 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
 RunWorker *createDebuggerWorker(RunControl *runControl, const DebuggerRunParameters &initialParameters,
                                 const std::function<void(DebuggerRunParameters &)> &parametersModifier)
 {
-    return new RecipeRunner(runControl,
-                            debuggerRecipe(runControl, initialParameters, parametersModifier));
+    return new RunWorker(runControl,
+                         debuggerRecipe(runControl, initialParameters, parametersModifier));
 }
 
 class DebuggerRunWorkerFactory final : public RunWorkerFactory

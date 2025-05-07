@@ -44,11 +44,11 @@ public:
     NimRunConfigurationFactory nimRunConfigFactory;
     NimbleRunConfigurationFactory nimbleRunConfigFactory;
     NimbleTestConfigurationFactory nimbleTestConfigFactory;
-    ProcessRunnerFactory nimRunWorkerFactory{{nimRunConfigFactory.runConfigurationId()}};
-    ProcessRunnerFactory nimbleRunWorkerFactory{{nimbleRunConfigFactory.runConfigurationId()}};
-    SimpleDebugRunnerFactory nimDebugWorkerFactory{{nimRunConfigFactory.runConfigurationId()}};
-    SimpleDebugRunnerFactory nimbleDebugWorkerFactory{{nimbleRunConfigFactory.runConfigurationId()}};
-    ProcessRunnerFactory nimbleTestWorkerFactory{{nimbleTestConfigFactory.runConfigurationId()}};
+    ProcessRunnerFactory runWorkerFactory{{nimRunConfigFactory.runConfigurationId(),
+                                           nimbleRunConfigFactory.runConfigurationId(),
+                                           nimbleTestConfigFactory.runConfigurationId()}};
+    SimpleDebugRunnerFactory debugWorkerFactory{{nimRunConfigFactory.runConfigurationId(),
+                                                 nimbleRunConfigFactory.runConfigurationId()}};
     NimbleBuildStepFactory nimbleBuildStepFactory;
     NimbleTaskStepFactory nimbleTaskStepFactory;
     NimCompilerBuildStepFactory buildStepFactory;

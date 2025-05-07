@@ -13,10 +13,9 @@
 using namespace Utils;
 using namespace CPlusPlus;
 
-FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
+FastPreprocessor::FastPreprocessor(const Snapshot &snapshot, bool expandFunctionLikeMacros)
     : _snapshot(snapshot)
-    , _preproc(this, &_env)
-    , _addIncludesToCurrentDoc(false)
+    , _expandFunctionLikeMacros(expandFunctionLikeMacros)
 { }
 
 QByteArray FastPreprocessor::run(Document::Ptr newDoc,
@@ -28,6 +27,7 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
             && _currentDoc->unresolvedIncludes().isEmpty();
     const FilePath filePath = _currentDoc->filePath();
     _preproc.setKeepComments(true);
+    _preproc.setExpandFunctionlikeMacros(_expandFunctionLikeMacros);
 
     if (Document::Ptr doc = _snapshot.document(filePath)) {
         _merged.insert(filePath);

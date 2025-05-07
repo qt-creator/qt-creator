@@ -41,6 +41,7 @@
 #include <utils/mimeutils.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/progressdialog.h>
+#include <utils/qtcwidgets.h>
 #include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
@@ -55,12 +56,12 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QMessageBox>
+#include <QMetaEnum>
 #include <QScrollArea>
 
 using namespace Core;
 using namespace Utils;
 using namespace StyleHelper;
-using namespace WelcomePageHelpers;
 using namespace ExtensionSystem;
 
 namespace ExtensionManager::Internal {
@@ -105,10 +106,11 @@ static void requestRestart()
         Utils::InfoBarEntry
             info(kRestartSetting, Core::Tr::tr("Plugin changes will take effect after restart."));
         info.setTitle(Tr::tr("Restart Required"));
-        info.addCustomButton(Tr::tr("Restart Now"), [] {
-            ICore::infoBar()->removeInfo(kRestartSetting);
-            QTimer::singleShot(0, ICore::instance(), &ICore::restart);
-        });
+        info.addCustomButton(
+            Tr::tr("Restart Now"),
+            [] { QTimer::singleShot(0, ICore::instance(), &ICore::restart); },
+            {},
+            InfoBarEntry::ButtonAction::Hide);
         ICore::infoBar()->addInfo(info);
     }
 }
@@ -226,7 +228,7 @@ public:
 
         m_title = new ElidingLabel;
         applyTf(m_title, titleTF);
-        m_vendor = new Button({}, Button::SmallLink);
+        m_vendor = new QtcButton({}, QtcButton::SmallLink);
         m_vendor->setContentsMargins({});
         m_divider = new QLabel;
         m_divider->setFixedSize(1, dividerH);
@@ -240,7 +242,7 @@ public:
         m_dlCount->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
         m_details = new ElidingLabel;
         applyTf(m_details, detailsTF);
-        installButton = new Button(Tr::tr("Install..."), Button::LargePrimary);
+        installButton = new QtcButton(Tr::tr("Install..."), QtcButton::LargePrimary);
         installButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         installButton->hide();
         connect(
@@ -249,7 +251,7 @@ public:
             this,
             &HeadingWidget::pluginInstallationRequested);
 
-        removeButton = new Button(Tr::tr("Remove..."), Button::SmallSecondary);
+        removeButton = new QtcButton(Tr::tr("Remove..."), QtcButton::SmallSecondary);
         removeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         removeButton->hide();
         connect(removeButton, &QAbstractButton::pressed, this, [this]() {
@@ -257,7 +259,7 @@ public:
             requestRestart();
         });
 
-        updateButton = new Button(Tr::tr("Update..."), Button::LargePrimary);
+        updateButton = new QtcButton(Tr::tr("Update..."), QtcButton::LargePrimary);
         updateButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         updateButton->hide();
         connect(updateButton, &QAbstractButton::pressed, this, &HeadingWidget::pluginUpdateRequested);
@@ -405,7 +407,7 @@ signals:
 private:
     QLabel *m_icon;
     QLabel *m_title;
-    Button *m_vendor;
+    QtcButton *m_vendor;
     QLabel *m_divider;
     QLabel *m_dlIcon;
     QLabel *m_dlCount;
@@ -427,7 +429,7 @@ public:
     {
         m_label = new InfoLabel;
         m_label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        m_switch = new Switch(Tr::tr("Active"));
+        m_switch = new QtcSwitch(Tr::tr("Active"));
         m_pluginView.hide();
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 
@@ -437,7 +439,7 @@ public:
             m_switch, empty, br,
         }.attachTo(this);
 
-        connect(m_switch, &QCheckBox::clicked, this, [this](bool checked) {
+        connect(m_switch, &QtcSwitch::clicked, this, [this](bool checked) {
             PluginSpec *spec = PluginManager::specById(m_pluginId);
             if (spec == nullptr)
                 return;
@@ -494,7 +496,7 @@ private:
     }
 
     InfoLabel *m_label;
-    Switch *m_switch;
+    QtcSwitch *m_switch;
     QString m_pluginId;
     PluginView m_pluginView{this};
 };
@@ -513,7 +515,7 @@ public:
 
         if (!tags.empty()) {
             const auto tagToButton = [this](const QString &tag) {
-                auto btn = new Button(tag, Button::Tag);
+                auto btn = new QtcButton(tag, QtcButton::Tag);
                 connect(btn, &QAbstractButton::clicked, [tag, this] { emit tagSelected(tag); });
                 return btn;
             };
@@ -870,11 +872,15 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
         storage->progressDialog->close();
 
         if (result != DoneWith::Success) {
+            const QNetworkReply::NetworkError error = query.reply()->error();
             QMessageBox::warning(
                 ICore::dialogParent(),
                 Tr::tr("Download Error"),
                 Tr::tr("Cannot download extension") + "\n\n" + storage->url.toString() + "\n\n"
-                    + Tr::tr("Code: %1.").arg(query.reply()->error()));
+                    + Tr::tr("Code: %1 (%2).")
+                          .arg(error)
+                          .arg(QString::fromUtf8(
+                                   QMetaEnum::fromType<QNetworkReply::NetworkError>().key(error))));
             return DoneResult::Error;
         }
 

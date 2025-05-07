@@ -400,6 +400,7 @@ public:
 
     Document::Ptr preprocessedDocument(const QByteArray &source,
                                        const Utils::FilePath &filePath,
+                                       bool expandFunctionLikeMacros = true,
                                        int withDefinedMacrosFromDocumentUntilLine = -1) const;
 
     Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,

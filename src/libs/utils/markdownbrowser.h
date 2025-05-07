@@ -8,6 +8,7 @@
 #include "filepath.h"
 
 #include <QTextBrowser>
+#include <QTextFragment>
 
 QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;
@@ -41,6 +42,7 @@ public:
 protected:
     void changeEvent(QEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
     QMimeData *createMimeDataFromSelection() const override;
 
@@ -48,9 +50,11 @@ private:
     void handleAnchorClicked(const QUrl &link);
     void postProcessDocument(bool firstTime);
     void highlightCodeBlock(const QString &language, QTextBlock &block);
+    std::optional<std::pair<QTextFragment, QRectF>> findCopyButtonFragmentAt(const QPoint& viewportPos);
 
 private:
     bool m_enableCodeCopyButton = false;
+    std::optional<QRectF> m_cachedCopyRect;
 };
 
 } // namespace Utils

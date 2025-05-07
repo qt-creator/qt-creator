@@ -221,7 +221,7 @@ bool QmllsClient::supportsDocumentSymbols(const TextEditor::TextDocument *doc) c
         return false;
 
     // disable document symbols (outline feature) when the experimental checkbox is not set
-    if (qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(doc->filePath()))
+    if (qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(project(), doc->filePath()))
         return false;
     return Client::supportsDocumentSymbols(doc);
 }

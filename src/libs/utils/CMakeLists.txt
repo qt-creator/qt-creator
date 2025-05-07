@@ -82,7 +82,6 @@ add_qtc_library(Utils
     hostosinfo.cpp hostosinfo.h
     htmldocextractor.cpp htmldocextractor.h
     icon.cpp icon.h
-    iconbutton.cpp iconbutton.h
     icondisplay.h icondisplay.cpp
     id.cpp id.h
     indexedcontainerproxyconstiterator.h
@@ -140,6 +139,7 @@ add_qtc_library(Utils
     qtcolorbutton.cpp qtcolorbutton.h
     qtcprocess.cpp qtcprocess.h
     qtcsettings.cpp qtcsettings.h
+    qtcwidgets.cpp qtcwidgets.h
     ranges.h
     reloadpromptutils.cpp reloadpromptutils.h
     removefiledialog.cpp removefiledialog.h

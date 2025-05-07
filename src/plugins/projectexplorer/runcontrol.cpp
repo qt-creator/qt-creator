@@ -20,7 +20,6 @@
 #include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
-#include "utils/url.h"
 #include "windebuginterface.h"
 
 #include <coreplugin/icore.h>
@@ -34,16 +33,12 @@
 #include <utils/fileinprojectfinder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcprocess.h>
-#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/terminalinterface.h>
+#include <utils/url.h>
 #include <utils/utilsicons.h>
 
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-
 #include <QLoggingCategory>
-#include <QPushButton>
 #include <QTimer>
 
 #if defined (WITH_JOURNALD)
@@ -82,8 +77,9 @@ void RunWorkerFactory::setProducer(const WorkerCreator &producer)
 
 void RunWorkerFactory::setRecipeProducer(const RecipeCreator &producer)
 {
+    m_recipeCreator = producer;
     setProducer([producer](RunControl *runControl) {
-        return new RecipeRunner(runControl, producer(runControl));
+        return new RunWorker(runControl, producer(runControl));
     });
 }
 
@@ -119,7 +115,7 @@ void RunWorkerFactory::addSupportForLocalRunConfigs()
     addSupportedRunConfig(ProjectExplorer::Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
 }
 
-void RunWorkerFactory::cloneProduct(Id exitstingStepId, Id overrideId)
+void RunWorkerFactory::cloneProduct(Id exitstingStepId)
 {
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
         if (factory->m_id == exitstingStepId) {
@@ -127,15 +123,11 @@ void RunWorkerFactory::cloneProduct(Id exitstingStepId, Id overrideId)
             // Other bits are intentionally not copied as they are unlikely to be
             // useful in the cloner's context. The cloner can/has to finish the
             // setup on its own.
-            break;
+            return;
         }
     }
-    // Existence should be guaranteed by plugin dependencies. In case it fails,
-    // bark and keep the factory in a state where the invalid m_stepId keeps it
-    // inaction.
-    QTC_ASSERT(m_producer, return);
-    if (overrideId.isValid())
-        m_id = overrideId;
+    // Existence should be guaranteed by plugin dependencies. In case it fails, bark.
+    QTC_CHECK(false);
 }
 
 bool RunWorkerFactory::canCreate(Id runMode, Id deviceType, const QString &runConfigId) const
@@ -169,6 +161,11 @@ RunWorker *RunWorkerFactory::create(RunControl *runControl) const
 {
     QTC_ASSERT(m_producer, return nullptr);
     return m_producer(runControl);
+}
+
+Tasking::Group RunWorkerFactory::createRecipe(RunControl *runControl) const
+{
+    return m_recipeCreator ? m_recipeCreator(runControl) : runControl->noRecipeTask();
 }
 
 void RunWorkerFactory::dumpAll()
@@ -208,20 +205,24 @@ void RunWorkerFactory::dumpAll()
 
 namespace Internal {
 
-enum class RunWorkerState
+enum class RunState
 {
-    Initialized, Starting, Running, Stopping, Done
+    Initialized,      // Default value after creation.
+    Starting,         // Actual process/tool starts.
+    Running,          // All good and running.
+    Canceled,         // initiateStop() was called, stop application/tool
+    Done              // all good, but stopped. Can possibly be re-started
 };
 
-static QString stateName(RunWorkerState s)
+static QString stateName(RunState s)
 {
 #    define SN(x) case x: return QLatin1String(#x);
     switch (s) {
-        SN(RunWorkerState::Initialized)
-        SN(RunWorkerState::Starting)
-        SN(RunWorkerState::Running)
-        SN(RunWorkerState::Stopping)
-        SN(RunWorkerState::Done)
+        SN(RunState::Initialized)
+        SN(RunState::Starting)
+        SN(RunState::Running)
+        SN(RunState::Canceled)
+        SN(RunState::Done)
     }
     return QString("<unknown: %1>").arg(int(s));
 #    undef SN
@@ -230,41 +231,19 @@ static QString stateName(RunWorkerState s)
 class RunWorkerPrivate : public QObject
 {
 public:
-    RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl);
+    RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl, const Group &recipe);
 
     bool canStart() const;
     bool canStop() const;
 
     RunWorker *q;
-    RunWorkerState state = RunWorkerState::Initialized;
+    RunState state = RunState::Initialized;
     const QPointer<RunControl> runControl;
+    TaskTreeRunner taskTreeRunner;
+    const Group recipe;
     QList<RunWorker *> startDependencies;
     QList<RunWorker *> stopDependencies;
-    QString id;
 };
-
-enum class RunControlState
-{
-    Initialized,      // Default value after creation.
-    Starting,         // Actual process/tool starts.
-    Running,          // All good and running.
-    Stopping,         // initiateStop() was called, stop application/tool
-    Stopped           // all good, but stopped. Can possibly be re-started
-};
-
-static QString stateName(RunControlState s)
-{
-#    define SN(x) case x: return QLatin1String(#x);
-    switch (s) {
-        SN(RunControlState::Initialized)
-        SN(RunControlState::Starting)
-        SN(RunControlState::Running)
-        SN(RunControlState::Stopping)
-        SN(RunControlState::Stopped)
-    }
-    return QString("<unknown: %1>").arg(int(s));
-#    undef SN
-}
 
 class RunControlPrivateData
 {
@@ -292,7 +271,7 @@ public:
     ProcessHandle applicationProcessHandle;
 
     QList<QPointer<RunWorker>> m_workers;
-    RunControlState state = RunControlState::Initialized;
+    RunState state = RunState::Initialized;
     bool printEnvironment = false;
     bool m_supportsReRunning = true;
     std::optional<Group> m_runRecipe;
@@ -323,7 +302,7 @@ public:
 
     ~RunControlPrivate() override
     {
-        QTC_CHECK(state == RunControlState::Stopped || state == RunControlState::Initialized);
+        QTC_CHECK(state == RunState::Done || state == RunState::Initialized);
         disconnect();
         q = nullptr;
         qDeleteAll(m_workers);
@@ -332,10 +311,8 @@ public:
 
     void copyData(RunControlPrivateData *other) { RunControlPrivateData::operator=(*other); }
 
-    Q_ENUM(RunControlState)
-
-    void checkState(RunControlState expectedState);
-    void setState(RunControlState state);
+    void checkState(RunState expectedState);
+    void setState(RunState state);
 
     void debugMessage(const QString &msg) const;
 
@@ -354,7 +331,7 @@ public:
 
     void showError(const QString &msg);
 
-    static bool isAllowedTransition(RunControlState from, RunControlState to);
+    static bool isAllowedTransition(RunState from, RunState to);
     bool isUsingTaskTree() const { return bool(m_runRecipe); }
     void startTaskTree();
     void emitStopped();
@@ -384,15 +361,19 @@ void RunControl::copyDataFromRunControl(RunControl *runControl)
     d->copyData(runControl->d.get());
 }
 
+Group RunControl::noRecipeTask()
+{
+    const auto onSync = [this] {
+        postMessage(Tr::tr("No recipe producer."), ErrorMessageFormat);
+        return false;
+    };
+
+    return { Sync(onSync) };
+}
+
 void RunControl::start()
 {
     ProjectExplorerPlugin::startRunControl(this);
-}
-
-void RunControl::resetDataForAttachToCore()
-{
-    d->m_workers.clear();
-    d->state = RunControlState::Initialized;
 }
 
 void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
@@ -530,6 +511,16 @@ RunWorker *RunControl::createWorker(Id runMode)
     return nullptr;
 }
 
+Group RunControl::createRecipe(Id runMode)
+{
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->kit);
+    for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
+        if (factory->canCreate(runMode, deviceType, d->runConfigId.toString()))
+            return factory->createRecipe(this);
+    }
+    return noRecipeTask();
+}
+
 bool RunControl::createMainWorker()
 {
     const QList<RunWorkerFactory *> candidates
@@ -565,8 +556,8 @@ void RunControl::postMessage(const QString &msg, Utils::OutputFormat format, boo
 
 void RunControlPrivate::initiateStart()
 {
-    checkState(RunControlState::Initialized);
-    setState(RunControlState::Starting);
+    checkState(RunState::Initialized);
+    setState(RunState::Starting);
     debugMessage("Queue: Starting");
 
     startPortsGathererIfNeededAndContinueStart();
@@ -574,15 +565,15 @@ void RunControlPrivate::initiateStart()
 
 void RunControlPrivate::initiateReStart()
 {
-    checkState(RunControlState::Stopped);
+    checkState(RunState::Done);
 
     // Re-set worked on re-runs.
     for (RunWorker *worker : std::as_const(m_workers)) {
-        if (worker->d->state == RunWorkerState::Done)
-            worker->d->state = RunWorkerState::Initialized;
+        if (worker->d->state == RunState::Done)
+            worker->d->state = RunState::Initialized;
     }
 
-    setState(RunControlState::Starting);
+    setState(RunState::Starting);
     debugMessage("Queue: ReStarting");
 
     startPortsGathererIfNeededAndContinueStart();
@@ -659,6 +650,11 @@ QUrl RunControl::debugChannel() const
     return d->debugChannel;
 }
 
+void RunControl::setDebugChannel(const QUrl &channel)
+{
+    d->debugChannel = channel;
+}
+
 void RunControl::requestQmlChannel()
 {
     d->useQmlChannel = true;
@@ -721,37 +717,36 @@ void RunControl::showOutputPane()
 
 void RunControlPrivate::continueStart()
 {
-    checkState(RunControlState::Starting);
+    checkState(RunState::Starting);
     bool allDone = true;
     debugMessage("Looking for next worker");
     for (RunWorker *worker : std::as_const(m_workers)) {
         if (worker) {
-            const QString &workerId = worker->d->id;
-            debugMessage("  Examining worker " + workerId);
+            debugMessage("  Examining worker ");
             switch (worker->d->state) {
-                case RunWorkerState::Initialized:
-                    debugMessage("  " + workerId + " is not done yet.");
+                case RunState::Initialized:
+                    debugMessage("  is not done yet.");
                     if (worker->d->canStart()) {
-                        debugMessage("Starting " + workerId);
-                        worker->d->state = RunWorkerState::Starting;
+                        debugMessage("Starting");
+                        worker->d->state = RunState::Starting;
                         QTimer::singleShot(0, worker, &RunWorker::initiateStart);
                         return;
                     }
                     allDone = false;
-                    debugMessage("  " + workerId + " cannot start.");
+                    debugMessage("  cannot start.");
                     break;
-                case RunWorkerState::Starting:
-                    debugMessage("  " + workerId + " currently starting");
+                case RunState::Starting:
+                    debugMessage("  currently starting");
                     allDone = false;
                     break;
-                case RunWorkerState::Running:
-                    debugMessage("  " + workerId + " currently running");
+                case RunState::Running:
+                    debugMessage("  currently running");
                     break;
-                case RunWorkerState::Stopping:
-                    debugMessage("  " + workerId + " currently stopping");
+                case RunState::Canceled:
+                    debugMessage("  currently stopping");
                     continue;
-                case RunWorkerState::Done:
-                    debugMessage("  " + workerId + " was done before");
+                case RunState::Done:
+                    debugMessage("  was done before");
                     break;
             }
         } else {
@@ -759,15 +754,15 @@ void RunControlPrivate::continueStart()
         }
     }
     if (allDone)
-        setState(RunControlState::Running);
+        setState(RunState::Running);
 }
 
 void RunControlPrivate::initiateStop()
 {
-    if (state == RunControlState::Initialized)
+    if (state == RunState::Initialized)
         qDebug() << "Unexpected initiateStop() in state" << stateName(state);
 
-    setState(RunControlState::Stopping);
+    setState(RunState::Canceled);
     debugMessage("Queue: Stopping for all workers");
 
     continueStopOrFinish();
@@ -780,36 +775,35 @@ void RunControlPrivate::continueStopOrFinish()
     auto queueStop = [this](RunWorker *worker, const QString &message) {
         if (worker->d->canStop()) {
             debugMessage(message);
-            worker->d->state = RunWorkerState::Stopping;
+            worker->d->state = RunState::Canceled;
             QTimer::singleShot(0, worker, &RunWorker::initiateStop);
         } else {
-            debugMessage(" " + worker->d->id + " is waiting for dependent workers to stop");
+            debugMessage("  is waiting for dependent workers to stop");
         }
     };
 
     for (RunWorker *worker : std::as_const(m_workers)) {
         if (worker) {
-            const QString &workerId = worker->d->id;
-            debugMessage("  Examining worker " + workerId);
+            debugMessage("  Examining worker");
             switch (worker->d->state) {
-                case RunWorkerState::Initialized:
-                    debugMessage("  " + workerId + " was Initialized, setting to Done");
-                    worker->d->state = RunWorkerState::Done;
+                case RunState::Initialized:
+                    debugMessage("  was Initialized, setting to Done");
+                    worker->d->state = RunState::Done;
                     break;
-                case RunWorkerState::Stopping:
-                    debugMessage("  " + workerId + " was already Stopping. Keeping it that way");
+                case RunState::Canceled:
+                    debugMessage("  was already Stopping. Keeping it that way");
                     allDone = false;
                     break;
-                case RunWorkerState::Starting:
-                    queueStop(worker, "  " + workerId + " was Starting, queuing stop");
+                case RunState::Starting:
+                    queueStop(worker, "  was Starting, queuing stop");
                     allDone = false;
                     break;
-                case RunWorkerState::Running:
-                    queueStop(worker, "  " + workerId + " was Running, queuing stop");
+                case RunState::Running:
+                    queueStop(worker, "  was Running, queuing stop");
                     allDone = false;
                     break;
-                case RunWorkerState::Done:
-                    debugMessage("  " + workerId + " was Done. Good.");
+                case RunState::Done:
+                    debugMessage("  was Done. Good.");
                     break;
             }
         } else {
@@ -819,7 +813,7 @@ void RunControlPrivate::continueStopOrFinish()
 
     if (allDone) {
         debugMessage("All Stopped");
-        setState(RunControlState::Stopped);
+        setState(RunState::Done);
     } else {
         debugMessage("Not all workers Stopped. Waiting...");
     }
@@ -827,77 +821,74 @@ void RunControlPrivate::continueStopOrFinish()
 
 void RunControlPrivate::forceStop()
 {
-    if (state == RunControlState::Stopped) {
+    if (state == RunState::Done) {
         debugMessage("Was finished, too late to force Stop");
         return;
     }
     for (RunWorker *worker : std::as_const(m_workers)) {
         if (worker) {
-            const QString &workerId = worker->d->id;
-            debugMessage("  Examining worker " + workerId);
+            debugMessage("  Examining worker");
             switch (worker->d->state) {
-                case RunWorkerState::Initialized:
-                    debugMessage("  " + workerId + " was Initialized, setting to Done");
+                case RunState::Initialized:
+                    debugMessage("  was Initialized, setting to Done");
                     break;
-                case RunWorkerState::Stopping:
-                    debugMessage("  " + workerId + " was already Stopping. Set it forcefully to Done.");
+                case RunState::Canceled:
+                    debugMessage("  was already Stopping. Set it forcefully to Done.");
                     break;
-                case RunWorkerState::Starting:
-                    debugMessage("  " + workerId + " was Starting. Set it forcefully to Done.");
+                case RunState::Starting:
+                    debugMessage("  was Starting. Set it forcefully to Done.");
                     break;
-                case RunWorkerState::Running:
-                    debugMessage("  " + workerId + " was Running. Set it forcefully to Done.");
+                case RunState::Running:
+                    debugMessage("  was Running. Set it forcefully to Done.");
                     break;
-                case RunWorkerState::Done:
-                    debugMessage("  " + workerId + " was Done. Good.");
+                case RunState::Done:
+                    debugMessage("  was Done. Good.");
                     break;
             }
-            worker->d->state = RunWorkerState::Done;
+            worker->d->state = RunState::Done;
         } else {
             debugMessage("Found unknown deleted worker");
         }
     }
 
-    setState(RunControlState::Stopped);
+    setState(RunState::Done);
     debugMessage("All Stopped");
 }
 
 void RunControlPrivate::onWorkerStarted(RunWorker *worker)
 {
-    worker->d->state = RunWorkerState::Running;
+    worker->d->state = RunState::Running;
 
-    if (state == RunControlState::Starting) {
-        debugMessage(worker->d->id + " start succeeded");
+    if (state == RunState::Starting) {
+        debugMessage("start succeeded");
         continueStart();
         return;
     }
-    showError(Tr::tr("Unexpected run control state %1 when worker %2 started.")
-                  .arg(stateName(state))
-                  .arg(worker->d->id));
+    showError(Tr::tr("Unexpected run control state %1 when worker started.").arg(stateName(state)));
 }
 
 void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
 {
     if (worker)
-        worker->d->state = RunWorkerState::Done;
+        worker->d->state = RunState::Done;
 
     showError(msg);
     switch (state) {
-    case RunControlState::Initialized:
+    case RunState::Initialized:
         // FIXME 1: We don't have an output pane yet, so use some other mechanism for now.
         // FIXME 2: Translation...
         QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"),
              QString("Failure during startup. Aborting.") + "<p>" + msg);
         continueStopOrFinish();
         break;
-    case RunControlState::Starting:
-    case RunControlState::Running:
+    case RunState::Starting:
+    case RunState::Running:
         initiateStop();
         break;
-    case RunControlState::Stopping:
+    case RunState::Canceled:
         continueStopOrFinish();
         break;
-    case RunControlState::Stopped:
+    case RunState::Done:
         QTC_CHECK(false); // Should not happen.
         continueStopOrFinish();
         break;
@@ -906,43 +897,41 @@ void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
 
 void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 {
-    const QString &workerId = worker->d->id;
     switch (worker->d->state) {
-    case RunWorkerState::Running:
+    case RunState::Running:
         // That was a spontaneous stop.
-        worker->d->state = RunWorkerState::Done;
-        debugMessage(workerId + " stopped spontaneously.");
+        worker->d->state = RunState::Done;
+        debugMessage("stopped spontaneously.");
         break;
-    case RunWorkerState::Stopping:
-        worker->d->state = RunWorkerState::Done;
-        debugMessage(workerId + " stopped expectedly.");
+    case RunState::Canceled:
+        worker->d->state = RunState::Done;
+        debugMessage("stopped expectedly.");
         break;
-    case RunWorkerState::Done:
-        worker->d->state = RunWorkerState::Done;
-        debugMessage(workerId + " stopped twice. Huh? But harmless.");
+    case RunState::Done:
+        worker->d->state = RunState::Done;
+        debugMessage("stopped twice. Huh? But harmless.");
         return; // Sic!
     default:
-        debugMessage(workerId + " stopped unexpectedly in state"
-                     + stateName(worker->d->state));
-        worker->d->state = RunWorkerState::Done;
+        debugMessage("stopped unexpectedly in state" + stateName(worker->d->state));
+        worker->d->state = RunState::Done;
         break;
     }
 
-    if (state == RunControlState::Stopping) {
+    if (state == RunState::Canceled) {
         continueStopOrFinish();
         return;
     }
 
     for (RunWorker *dependent : std::as_const(worker->d->stopDependencies)) {
         switch (dependent->d->state) {
-        case RunWorkerState::Done:
+        case RunState::Done:
             break;
-        case RunWorkerState::Initialized:
-            dependent->d->state = RunWorkerState::Done;
+        case RunState::Initialized:
+            dependent->d->state = RunState::Done;
             break;
         default:
-            debugMessage("Killing " + dependent->d->id + " as it depends on stopped " + workerId);
-            dependent->d->state = RunWorkerState::Stopping;
+            debugMessage("Killing dependent worker");
+            dependent->d->state = RunState::Canceled;
             QTimer::singleShot(0, dependent, &RunWorker::initiateStop);
             break;
         }
@@ -952,26 +941,25 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
     bool allDone = true;
     for (RunWorker *worker : std::as_const(m_workers)) {
         if (worker) {
-            const QString &workerId = worker->d->id;
-            debugMessage("  Examining worker " + workerId);
+            debugMessage("  Examining worker ");
             switch (worker->d->state) {
-                case RunWorkerState::Initialized:
-                    debugMessage("  " + workerId + " was Initialized.");
+                case RunState::Initialized:
+                    debugMessage("  was Initialized.");
                     break;
-                case RunWorkerState::Starting:
-                    debugMessage("  " + workerId + " was Starting, waiting for its response");
+                case RunState::Starting:
+                    debugMessage("  was Starting, waiting for its response");
                     allDone = false;
                     break;
-                case RunWorkerState::Running:
-                    debugMessage("  " + workerId + " was Running, waiting for its response");
+                case RunState::Running:
+                    debugMessage("  was Running, waiting for its response");
                     allDone = false;
                     break;
-                case RunWorkerState::Stopping:
-                    debugMessage("  " + workerId + " was already Stopping. Keeping it that way");
+                case RunState::Canceled:
+                    debugMessage("  was already Stopping. Keeping it that way");
                     allDone = false;
                     break;
-                case RunWorkerState::Done:
-                    debugMessage("  " + workerId + " was Done. Good.");
+                case RunState::Done:
+                    debugMessage("  was Done. Good.");
                     break;
             }
         } else {
@@ -980,11 +968,11 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
     }
 
     if (allDone) {
-        if (state == RunControlState::Stopped) {
+        if (state == RunState::Done) {
             debugMessage("All workers stopped, but runControl was already stopped.");
         } else {
             debugMessage("All workers stopped. Set runControl to Stopped");
-            setState(RunControlState::Stopped);
+            setState(RunState::Done);
         }
     } else {
         debugMessage("Not all workers stopped. Waiting...");
@@ -1237,21 +1225,14 @@ bool RunControl::isRunning() const
 {
     if (d->isUsingTaskTree())
         return d->m_taskTreeRunner.isRunning();
-    return d->state == RunControlState::Running;
-}
-
-bool RunControl::isStarting() const
-{
-    if (d->isUsingTaskTree())
-        return false;
-    return d->state == RunControlState::Starting;
+    return d->state == RunState::Running;
 }
 
 bool RunControl::isStopped() const
 {
     if (d->isUsingTaskTree())
         return !d->m_taskTreeRunner.isRunning();
-    return d->state == RunControlState::Stopped;
+    return d->state == RunState::Done;
 }
 
 /*!
@@ -1295,31 +1276,31 @@ void RunControl::provideAskPassEntry(Environment &env)
         env.setFallback("SUDO_ASKPASS", askpass.toUserOutput());
 }
 
-bool RunControlPrivate::isAllowedTransition(RunControlState from, RunControlState to)
+bool RunControlPrivate::isAllowedTransition(RunState from, RunState to)
 {
     switch (from) {
-    case RunControlState::Initialized:
-        return to == RunControlState::Starting;
-    case RunControlState::Starting:
-        return to == RunControlState::Running || to == RunControlState::Stopping;
-    case RunControlState::Running:
-        return to == RunControlState::Stopping || to == RunControlState::Stopped;
-    case RunControlState::Stopping:
-        return to == RunControlState::Stopped;
-    case RunControlState::Stopped:
-        return to != RunControlState::Initialized;
+    case RunState::Initialized:
+        return to == RunState::Starting;
+    case RunState::Starting:
+        return to == RunState::Running || to == RunState::Canceled;
+    case RunState::Running:
+        return to == RunState::Canceled || to == RunState::Done;
+    case RunState::Canceled:
+        return to == RunState::Done;
+    case RunState::Done:
+        return to != RunState::Initialized;
     }
     return false;
 }
 
-void RunControlPrivate::checkState(RunControlState expectedState)
+void RunControlPrivate::checkState(RunState expectedState)
 {
     if (state != expectedState)
         qDebug() << "Unexpected run control state " << stateName(expectedState)
                  << " have: " << stateName(state);
 }
 
-void RunControlPrivate::setState(RunControlState newState)
+void RunControlPrivate::setState(RunState newState)
 {
     if (!isAllowedTransition(state, newState))
         qDebug() << "Invalid run control state transition from" << stateName(state)
@@ -1331,11 +1312,11 @@ void RunControlPrivate::setState(RunControlState newState)
 
     // Extra reporting.
     switch (state) {
-    case RunControlState::Running:
+    case RunState::Running:
         if (q)
             emit q->started();
         break;
-    case RunControlState::Stopped:
+    case RunState::Done:
         emitStopped();
         break;
     default:
@@ -1520,20 +1501,21 @@ Group processRecipe(RunControl *runControl,
     };
 }
 
-RunWorkerPrivate::RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl)
-    : q(runWorker), runControl(runControl)
+RunWorkerPrivate::RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl, const Group &recipe)
+    : q(runWorker)
+    , runControl(runControl)
+    , recipe(recipe)
 {
     runControl->d->m_workers.append(runWorker);
 }
 
 bool RunWorkerPrivate::canStart() const
 {
-    if (state != RunWorkerState::Initialized)
+    if (state != RunState::Initialized)
         return false;
     for (RunWorker *worker : startDependencies) {
         QTC_ASSERT(worker, continue);
-        if (worker->d->state != RunWorkerState::Done
-                && worker->d->state != RunWorkerState::Running)
+        if (worker->d->state != RunState::Done && worker->d->state != RunState::Running)
             return false;
     }
     return true;
@@ -1541,11 +1523,11 @@ bool RunWorkerPrivate::canStart() const
 
 bool RunWorkerPrivate::canStop() const
 {
-    if (state != RunWorkerState::Starting && state != RunWorkerState::Running)
+    if (state != RunState::Starting && state != RunState::Running)
         return false;
     for (RunWorker *worker : stopDependencies) {
         QTC_ASSERT(worker, continue);
-        if (worker->d->state != RunWorkerState::Done)
+        if (worker->d->state != RunState::Done)
             return false;
     }
     return true;
@@ -1588,8 +1570,8 @@ bool RunWorkerPrivate::canStop() const
     also calls \c initiateStop on the RunControl.
 */
 
-RunWorker::RunWorker(RunControl *runControl)
-    : d(std::make_unique<RunWorkerPrivate>(this, runControl))
+RunWorker::RunWorker(RunControl *runControl, const Group &recipe)
+    : d(std::make_unique<RunWorkerPrivate>(this, runControl, recipe))
 { }
 
 RunWorker::~RunWorker() = default;
@@ -1600,20 +1582,33 @@ RunWorker::~RunWorker() = default;
  */
 void RunWorker::initiateStart()
 {
-    d->runControl->d->debugMessage("Initiate start for " + d->id);
-    start();
-}
+    d->runControl->d->debugMessage("Initiate start");
+    QTC_CHECK(!d->taskTreeRunner.isRunning());
 
-/*!
- * This function has to be called by a RunWorker implementation
- * to notify its RunControl about the successful start of this RunWorker.
- *
- * The RunControl may start other RunWorkers in response.
- */
-void RunWorker::reportStarted()
-{
-    d->runControl->d->onWorkerStarted(this);
-    emit started();
+    const auto onSetup = [this] {
+        connect(this, &RunWorker::canceled,
+                runStorage().activeStorage(), &RunInterface::canceled);
+        connect(runStorage().activeStorage(), &RunInterface::started, this, [this] {
+            d->runControl->d->onWorkerStarted(this);
+            emit started();
+        });
+    };
+
+    const Group recipe {
+        runStorage(),
+        onGroupSetup(onSetup),
+        d->recipe
+    };
+
+    d->taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
+        if (result == DoneWith::Success) {
+            QTC_ASSERT(d && d->runControl && d->runControl->d, return);
+            d->runControl->d->onWorkerStopped(this);
+            emit stopped();
+        } else {
+            d->runControl->d->onWorkerFailed(this, {});
+        }
+    });
 }
 
 /*!
@@ -1624,71 +1619,8 @@ void RunWorker::reportStarted()
  */
 void RunWorker::initiateStop()
 {
-    d->runControl->d->debugMessage("Initiate stop for " + d->id);
-    emit stopping();
-    stop();
-}
-
-/*!
- * This function has to be called by a RunWorker implementation
- * to notify its RunControl about this RunWorker having stopped.
- *
- * The stop can be spontaneous, or in response to an initiateStop()
- * or an initiateFinish() call.
- *
- * The RunControl will adjust its global state in response.
- */
-void RunWorker::reportStopped()
-{
-    QTC_ASSERT(d && d->runControl && d->runControl->d, return);
-    d->runControl->d->onWorkerStopped(this);
-    emit stopped();
-}
-
-/*!
- * This function can be called by a RunWorker implementation for short-lived
- * tasks to notify its RunControl about this task being successful finished.
- * Dependent startup tasks can proceed, in cases of spontaneous or scheduled
- * stops, the effect is the same as \c reportStopped().
- *
- */
-void RunWorker::reportDone()
-{
-    switch (d->state) {
-        case RunWorkerState::Initialized:
-            QTC_CHECK(false);
-            d->state = RunWorkerState::Done;
-            break;
-        case RunWorkerState::Starting:
-            reportStarted();
-            reportStopped();
-            break;
-        case RunWorkerState::Running:
-        case RunWorkerState::Stopping:
-            reportStopped();
-            break;
-        case RunWorkerState::Done:
-            break;
-    }
-}
-
-/*!
- * This function can be called by a RunWorker implementation to
- * signal a problem in the operation in this worker. The
- * RunControl will start to ramp down through initiateStop().
- */
-void RunWorker::reportFailure(const QString &msg)
-{
-    d->runControl->d->onWorkerFailed(this, msg);
-}
-
-/*!
- * Appends a message in the specified \a format to
- * the owning RunControl's \uicontrol{Application Output} pane.
- */
-void RunWorker::appendMessage(const QString &msg, OutputFormat format, bool appendNewLine)
-{
-    d->runControl->postMessage(msg, format, appendNewLine);
+    d->runControl->d->debugMessage("Initiate stop");
+    emit canceled();
 }
 
 void RunWorker::addStartDependency(RunWorker *dependency)
@@ -1699,26 +1631,6 @@ void RunWorker::addStartDependency(RunWorker *dependency)
 void RunWorker::addStopDependency(RunWorker *dependency)
 {
     d->stopDependencies.append(dependency);
-}
-
-RunControl *RunWorker::runControl() const
-{
-    return d->runControl;
-}
-
-void RunWorker::setId(const QString &id)
-{
-    d->id = id;
-}
-
-void RunWorker::start()
-{
-    reportStarted();
-}
-
-void RunWorker::stop()
-{
-    reportStopped();
 }
 
 // Output parser factories
@@ -1758,36 +1670,6 @@ Storage<RunInterface> runStorage()
 Canceler canceler()
 {
     return [] { return std::make_pair(runStorage().activeStorage(), &RunInterface::canceled); };
-}
-
-void RecipeRunner::start()
-{
-    QTC_CHECK(!m_taskTreeRunner.isRunning());
-
-    const auto onSetup = [this] {
-        connect(this, &RecipeRunner::canceled,
-                runStorage().activeStorage(), &RunInterface::canceled);
-        connect(runStorage().activeStorage(), &RunInterface::started,
-                this, &RecipeRunner::reportStarted);
-    };
-
-    const Group recipe {
-        runStorage(),
-        onGroupSetup(onSetup),
-        m_recipe
-    };
-
-    m_taskTreeRunner.start(recipe, {}, [this](DoneWith result) {
-        if (result == DoneWith::Success)
-            reportStopped();
-        else
-            reportFailure();
-    });
-}
-
-void RecipeRunner::stop()
-{
-    emit canceled();
 }
 
 } // namespace ProjectExplorer

@@ -1291,6 +1291,12 @@ public:
         m_mainLayout->addRow(m_nameDisplayLabel);
         m_varsBatDisplayLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
         m_mainLayout->addRow(Tr::tr("Initialization:"), m_varsBatDisplayLabel);
+        if (g_availableMsvcToolchains.isEmpty()) {
+            setErrorMessage(
+                Tr::tr(
+                    "No MSVC toolchains were found. You need to install Visual Studio or the "
+                    "Visual Studio Build Tools."));
+        }
     }
 
 protected:
@@ -1833,11 +1839,11 @@ public:
         setSupportedToolchainType(Constants::MSVC_TOOLCHAIN_TYPEID);
         setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
         setToolchainConstructor([] { return new MsvcToolchain(Constants::MSVC_TOOLCHAIN_TYPEID); });
+        setUserCreatable(true);
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
 
-    bool canCreate() const final { return !g_availableMsvcToolchains.isEmpty(); }
     std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
         const ToolchainBundle &bundle) const override
     {
@@ -2208,6 +2214,7 @@ public:
         setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
         setSupportedToolchainType(Constants::CLANG_CL_TOOLCHAIN_TYPEID);
         setToolchainConstructor([] { return new ClangClToolchain; });
+        setUserCreatable(true);
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
@@ -2216,8 +2223,6 @@ public:
     {
         return std::make_unique<ClangClToolchainConfigWidget>(bundle);
     }
-
-    bool canCreate() const final { return !g_availableMsvcToolchains.isEmpty(); }
 };
 
 Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector) const

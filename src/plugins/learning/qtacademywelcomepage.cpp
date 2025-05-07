@@ -4,6 +4,7 @@
 #include "qtacademywelcomepage.h"
 
 #include "learningtr.h"
+#include "utils/algorithm.h"
 
 #include <coreplugin/welcomepagehelper.h>
 
@@ -15,6 +16,7 @@
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/qtcwidgets.h>
 
 #include <QApplication>
 #include <QDesktopServices>
@@ -36,7 +38,13 @@ class CourseItem : public ListItem
 {
 public:
     QString id;
+    QString rawName;
 };
+
+static QString courseUrl(const CourseItem *item)
+{
+    return QString("https://academy.qt.io/catalog/courses/%1").arg(item->id);
+}
 
 class CourseItemDelegate : public ListItemDelegate
 {
@@ -45,14 +53,15 @@ public:
     {
         QTC_ASSERT(item, return);
         auto courseItem = static_cast<const CourseItem *>(item);
-        const QUrl url(QString("https://academy.qt.io/catalog/courses/").append(courseItem->id));
+        const QUrl url(courseUrl(courseItem));
+        qCDebug(qtAcademyLog) << "QDesktopServices::openUrl" << url;
         QDesktopServices::openUrl(url);
     }
 };
 
 static QString courseName(const QJsonObject &courseObj)
 {
-    return courseObj.value("name").toString().trimmed();
+    return courseObj.value("name").toString();
 }
 
 static QString courseDescription(const QJsonObject &courseObj)
@@ -62,7 +71,7 @@ static QString courseDescription(const QJsonObject &courseObj)
     const QString elide = " ...";
     if (rawText.size() > maxTextLength - elide.size())
         rawText = rawText.left(maxTextLength) + elide;
-    const QStringList rawLines = rawText.split("\r\n");
+    const QStringList rawLines = rawText.split("\n");
     QStringList lines;
     for (bool prevLineEmpty = false; const QString &rawLine : rawLines) {
         const QString line = rawLine.trimmed();
@@ -71,7 +80,7 @@ static QString courseDescription(const QJsonObject &courseObj)
         prevLineEmpty = line.isEmpty();
         lines.append(line);
     }
-    return lines.join("\n");
+    return lines.join("\n").replace("&nbsp;", QChar(QChar::Nbsp));
 }
 
 static QString courseThumbnail(const QJsonObject &courseObj)
@@ -89,6 +98,27 @@ static QString courseId(const QJsonObject &courseObj)
     return QString::number(courseObj.value("id").toInt());
 }
 
+static bool courseIsValid(const QJsonObject &courseObj)
+{
+    const bool cataloged = courseObj.value("cataloged").toBool();
+    if (!cataloged)
+        return false;
+
+    const QStringList courseKeywords = courseTags(courseObj);
+    const bool keywordsValid = Utils::anyOf(courseKeywords, [](const QString &keyword) {
+        static const QStringList keywordWhiteList = {
+            "Qt Creator",
+            "Qt Widgets",
+            "Qt for MCUs",
+            "Embedded",
+            "Developer Tools",
+            "Qt Framework",
+        };
+        return keywordWhiteList.contains(keyword);
+    });
+    return keywordsValid;
+}
+
 static void setJson(const QByteArray &json, ListModel *model)
 {
     QJsonParseError error;
@@ -97,9 +127,13 @@ static void setJson(const QByteArray &json, ListModel *model)
     const QJsonArray courses = jsonObj.value("courses").toArray();
     QList<ListItem *> items;
     for (const auto course : courses) {
-        auto courseItem = new CourseItem;
         const QJsonObject courseObj = course.toObject();
-        courseItem->name = courseName(courseObj);
+        if (!courseIsValid(courseObj))
+            continue;
+
+        auto courseItem = new CourseItem;
+        courseItem->name = courseName(courseObj).trimmed();
+        courseItem->rawName = courseName(courseObj);
         courseItem->description = courseDescription(courseObj);
         courseItem->imageUrl = courseThumbnail(courseObj);
         courseItem->tags = courseTags(courseObj);
@@ -114,7 +148,7 @@ class QtAcademyWelcomePageWidget final : public QWidget
 public:
     QtAcademyWelcomePageWidget()
     {
-        m_searcher = new SearchBox(this);
+        m_searcher = new QtcSearchBox(this);
         m_searcher->setPlaceholderText(Tr::tr("Search in Qt Academy Courses..."));
 
         m_model = new ListModel;
@@ -164,7 +198,7 @@ private:
     {
 #ifdef WITH_TESTS
         // Uncomment for testing with local json data.
-        // setJson(FileUtils::fetchQrc(":/learning/testdata/courses.json"), m_model); return;
+        // setJson(FileUtils::fetchQrc(":/learning/testdata/courses.json").toUtf8(), m_model); return;
 #endif // WITH_TESTS
 
         using namespace Tasking;

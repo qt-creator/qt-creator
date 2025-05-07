@@ -92,7 +92,7 @@ private:
     void watchForExternalChanges();
     void watchForInternalChanges();
     void scheduleClientRestart(ClangdClient *client);
-    static ClangdClient *clientWithProject(const ProjectExplorer::Project *project);
+    static ClangdClient *clientWithBuildConfiguration(const ProjectExplorer::BuildConfiguration *bc);
 
     QList<QPointer<ClangdClient>> m_clientsToRestart;
     QTimer * const m_clientRestartTimer;

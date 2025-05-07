@@ -35,6 +35,13 @@ public:
         Disabled,
         Enabled
     };
+    enum class ButtonAction
+    {
+        None,
+        Hide,
+        Suppress,
+        SuppressPersistently
+    };
 
     InfoBarEntry() = default;
     InfoBarEntry(Id _id, const QString &_infoText, GlobalSuppression _globalSuppression = GlobalSuppression::Disabled);
@@ -52,8 +59,10 @@ public:
         QString text;
         CallBack callback;
         QString tooltip;
+        ButtonAction action = ButtonAction::None;
     };
-    void addCustomButton(const QString &_buttonText, CallBack callBack, const QString &tooltip = {});
+    void addCustomButton(const QString &_buttonText, CallBack callBack, const QString &tooltip = {},
+                         ButtonAction action = ButtonAction::None);
     void setCancelButtonInfo(CallBack callBack);
     void setCancelButtonInfo(const QString &_cancelButtonText, CallBack callBack);
     void removeCancelButton();
@@ -128,6 +137,9 @@ public:
     static QtcSettings *settings();
 
     QList<InfoBarEntry> entries() const;
+
+    // for InfoBarDisplay implementations
+    void triggerButton(const Id &entryId, const InfoBarEntry::Button &button);
 
 signals:
     void changed();

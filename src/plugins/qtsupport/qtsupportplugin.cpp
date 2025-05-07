@@ -166,10 +166,11 @@ static void askAboutQtInstallation()
             "this later, select Edit > Preferences > Kits > Qt Versions > Link with Qt."),
         Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.setTitle(Tr::tr("Link with Qt"));
-    info.addCustomButton(Tr::tr("Link with Qt"), [] {
-        ICore::infoBar()->removeInfo(kLinkWithQtInstallationSetting);
-        QTimer::singleShot(0, ICore::dialogParent(), &LinkWithQtSupport::linkWithQt);
-    });
+    info.addCustomButton(
+        Tr::tr("Link with Qt"),
+        [] { QTimer::singleShot(0, ICore::dialogParent(), &LinkWithQtSupport::linkWithQt); },
+        {},
+        InfoBarEntry::ButtonAction::Hide);
     ICore::infoBar()->addInfo(info);
 }
 

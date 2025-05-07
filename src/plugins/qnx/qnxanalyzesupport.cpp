@@ -35,7 +35,7 @@ public:
             auto worker = createProcessWorker(runControl, modifier);
             runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
 
-            auto slog2InfoRunner = new RecipeRunner(runControl, slog2InfoRecipe(runControl));
+            auto slog2InfoRunner = new RunWorker(runControl, slog2InfoRecipe(runControl));
 
             auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
             profiler->addStartDependency(worker);

@@ -10,21 +10,6 @@
 
 namespace Git::Internal {
 
-void GitSubmitEditorPanelInfo::clear()
-{
-    repository.clear();
-    branch.clear();
-}
-
-void GitSubmitEditorPanelData::clear()
-{
-    author.clear();
-    email.clear();
-    bypassHooks = false;
-    pushAction = NoPush;
-    signOff = false;
-}
-
 QString GitSubmitEditorPanelData::authorString() const
 {
     if (email.isEmpty())

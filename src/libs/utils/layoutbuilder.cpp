@@ -32,20 +32,9 @@
 #include <QToolBar>
 #include <QToolButton>
 
+using namespace Layouting::Tools;
+
 namespace Layouting {
-
-template <typename X>
-typename X::Implementation *access(const X *x)
-{
-    return static_cast<typename X::Implementation *>(x->ptr);
-}
-
-template <typename X>
-void apply(X *x, std::initializer_list<typename X::I> ps)
-{
-    for (auto && p : ps)
-        p.apply(x);
-}
 
 // FlowLayout
 
@@ -1381,6 +1370,17 @@ IconDisplay::IconDisplay(std::initializer_list<I> ps)
 void IconDisplay::setIcon(const Utils::Icon &icon)
 {
     access(this)->setIcon(icon);
+}
+
+void destroyLayout(QLayout *layout)
+{
+    if (layout) {
+        while (QLayoutItem *child = layout->takeAt(0)) {
+            delete child->widget();
+            destroyLayout(child->layout());
+        }
+        delete layout;
+    }
 }
 
 // void createItem(LayoutItem *item, QWidget *t)

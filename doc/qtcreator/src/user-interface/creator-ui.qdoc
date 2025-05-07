@@ -66,8 +66,13 @@
     To see where the above controls are in the UI, select
     \uicontrol Help > \uicontrol {UI Tour}.
 
+    \section1 Take courses at Qt Academy
+
     To learn more about the parts of the UI and the \uicontrol Welcome mode, take
     the \l{Qt Academy: Getting Started with \QC} course.
+
+    To enroll to a course, go to \uicontrol Courses, and then select a course in
+    the list.
 
     \section1 What's new?
 

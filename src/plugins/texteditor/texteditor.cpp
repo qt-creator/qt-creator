@@ -3950,10 +3950,11 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const HighlighterHelper::Defin
                           Tr::tr("A highlight definition was not found for this file. "
                                  "Would you like to download additional highlight definition files?"),
                           InfoBarEntry::GlobalSuppression::Enabled);
-        info.addCustomButton(Tr::tr("Download Definitions"), [missing, this]() {
-            m_document->infoBar()->removeInfo(missing);
-            HighlighterHelper::downloadDefinitions();
-        });
+        info.addCustomButton(
+            Tr::tr("Download Definitions"),
+            []() { HighlighterHelper::downloadDefinitions(); },
+            {},
+            InfoBarEntry::ButtonAction::Hide);
 
         infoBar->removeInfo(multiple);
         infoBar->addInfo(info);
@@ -3972,10 +3973,11 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const HighlighterHelper::Defin
             this->configureGenericHighlighter(HighlighterHelper::definitionForName(info.displayText));
         });
 
-        info.addCustomButton(Tr::tr("Remember My Choice"), [multiple, this]() {
-            m_document->infoBar()->removeInfo(multiple);
-            rememberCurrentSyntaxDefinition();
-        });
+        info.addCustomButton(
+            Tr::tr("Remember My Choice"),
+            [this]() { rememberCurrentSyntaxDefinition(); },
+            {},
+            InfoBarEntry::ButtonAction::Hide);
 
         infoBar->addInfo(info);
     }

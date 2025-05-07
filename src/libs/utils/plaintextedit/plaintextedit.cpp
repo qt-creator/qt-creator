@@ -1462,6 +1462,11 @@ QTextCursor PlainTextEdit::textCursor() const
     return d->control->textCursor();
 }
 
+QVariant PlainTextEdit::variantTextCursor() const // needed for testing with Squish
+{
+    return QVariant::fromValue(textCursor());
+}
+
 /*!
     Returns the reference of the anchor at position \a pos, or an
     empty string if no anchor exists at that point.

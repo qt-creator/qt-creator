@@ -217,6 +217,8 @@ void Target::addBuildConfiguration(BuildConfiguration *bc)
 
     if (!activeBuildConfiguration())
         setActiveBuildConfiguration(bc);
+
+    emit ProjectManager::instance()->buildConfigurationAdded(bc);
 }
 
 bool Target::removeBuildConfiguration(BuildConfiguration *bc)
@@ -240,6 +242,8 @@ bool Target::removeBuildConfiguration(BuildConfiguration *bc)
     emit removedBuildConfiguration(bc);
     ProjectExplorerPlugin::targetSelector()->removedBuildConfiguration(bc);
     d->m_buildConfigurationModel.removeProjectConfiguration(bc);
+
+    emit ProjectManager::instance()->buildConfigurationRemoved(bc);
 
     delete bc;
     return true;

@@ -3,6 +3,7 @@
 
 #include "subdirsprojectwizard.h"
 
+#include "qtprojectparameters.h"
 #include "subdirsprojectwizarddialog.h"
 #include "../qmakeprojectmanagerconstants.h"
 #include "../qmakeprojectmanagertr.h"
@@ -58,11 +59,10 @@ Core::GeneratedFiles SubdirsProjectWizard::generateFiles(const QWizard *w,
     return Core::GeneratedFiles() << profile;
 }
 
-bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &files,
-                                             QString *errorMessage) const
+Result<> SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &files) const
 {
     const auto *wizard = qobject_cast< const SubdirsProjectWizardDialog *>(w);
-    if (QtWizard::qt4ProjectPostGenerateFiles(wizard, files, errorMessage)) {
+    if (const Result<> res = QtWizard::qt4ProjectPostGenerateFiles(wizard, files)) {
         const QtProjectParameters params = wizard->parameters();
         const FilePath projectPath = params.projectPath();
         const FilePath profileName = Core::BaseFileWizardFactory::buildFileName(projectPath, params.fileName, profileSuffix());
@@ -80,9 +80,9 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
                                              wizard->parameters().projectPath(),
                                              map);
     } else {
-        return false;
+        return res;
     }
-    return true;
+    return ResultOk;
 }
 
 } // namespace Internal

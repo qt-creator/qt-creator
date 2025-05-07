@@ -657,7 +657,7 @@ void SshProcessInterfacePrivate::start()
     m_sshParameters = m_device->sshParameters();
 
     const Id linkDeviceId = Id::fromSetting(m_device->linkDevice.value());
-    if (const IDevice::ConstPtr linkDevice = DeviceManager::instance()->find(linkDeviceId)) {
+    if (const IDevice::ConstPtr linkDevice = DeviceManager::find(linkDeviceId)) {
         CommandLine cmd{linkDevice->filePath("ssh")};
         if (!m_sshParameters.userName().isEmpty()) {
             cmd.addArg("-l");
@@ -1041,10 +1041,7 @@ LinuxDevice::LinuxDevice()
     sourceProfile.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
     addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device) {
-        if (auto d = Internal::PublicKeyDeploymentDialog::createDialog(device)) {
-            d->exec();
-            delete d;
-        }
+        runPublicKeyDeploymentDialog(device);
     }});
 
     setOpenTerminal([this](const Environment &env,

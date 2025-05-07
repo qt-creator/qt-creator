@@ -1,15 +1,44 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "../common/themeselector.h"
+
+#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcwidgets.h>
+#include <utils/theme/theme.h>
+#include <utils/theme/theme_p.h>
+#include <utils/utilsicons.h>
+#include <utils/ranges.h>
+
+#include <coreplugin/welcomepagehelper.h>
 
 #include <QApplication>
 #include <QLineEdit>
+#include <QMetaEnum>
 #include <QStyle>
 #include <QTextEdit>
 #include <QToolButton>
 
 using namespace Layouting;
+
+// clang-format off
+class Counter : public QObject
+{
+    Q_OBJECT
+public:
+    Counter() : m_value(0) {}
+
+    void increment() { ++m_value; emit changed(); }
+    int value() const { return m_value; }
+
+signals:
+    void changed();
+
+protected:
+    int m_value;
+};
+// clang-format on
 
 int main(int argc, char *argv[])
 {
@@ -40,6 +69,26 @@ int main(int argc, char *argv[])
             }
         },
     }.emerge()->show();
+
+    Counter myCounter;
+
+    // clang-format off
+    Widget {
+        windowTitle("Counter with dynamic children"),
+        Row {
+            PushButton { text("Increment"), onClicked(qApp, [&myCounter](){myCounter.increment();})},
+            Widget {
+                replaceLayoutOn(&myCounter, &Counter::changed, [&myCounter] {
+                    return Row {
+                        Label {
+                            text(QString::number(myCounter.value()))
+                        }
+                    };
+                })
+            }
+        }
+    }.emerge()->show();
+    // clang-format on
 
     Group {
         windowTitle("Group without parent layout"),
@@ -100,11 +149,51 @@ int main(int argc, char *argv[])
     }.emerge();
     toolButton1->setDefaultAction(new QAction("tool button 1", toolButton1));
     toolButton2->setDefaultAction(new QAction("tool button 2", toolButton2));
-    toolButton3->setDefaultAction(new QAction(
-        qApp->style()->standardIcon(QStyle::SP_TitleBarCloseButton), "", toolButton2));
+    toolButton3->setDefaultAction(
+        new QAction(qApp->style()->standardIcon(QStyle::SP_TitleBarCloseButton), "", toolButton2));
     flowlayouts->setWindowTitle("Flow Layouts");
     flowlayouts->adjustSize();
     flowlayouts->show();
+
+    // clang-format off
+    using namespace Utils::QtcWidgets;
+    Widget {
+        windowTitle("Qtc Controls"),
+
+        Column {
+            Label { text("Theme selector:") },
+            new ManualTest::ThemeSelector,
+            Label { text("QtcButton:") },
+            Flow {
+                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
+                    return Button{
+                        text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
+                        role((Utils::QtcButton::Role) r)
+                    };
+                })
+            },
+            Label { text("QtcButton with Icons:") },
+            Flow {
+                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
+                    return Button{
+                        text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
+                        role((Utils::QtcButton::Role) r),
+                        icon(Utils::Icons::PLUS)
+                    };
+                })
+            },
+            Row {
+                Switch {
+                    text("Switch:"),
+                    onClicked(qApp, []() { qDebug() << "Switch clicked"; })
+                },
+                st,
+            },
+        }
+    }.emerge()->show();
     // clang-format on
+
     return app.exec();
 }
+
+#include "tst_manual_widgets_layoutbuilder.moc"

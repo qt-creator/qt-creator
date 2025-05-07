@@ -381,6 +381,20 @@ bool DebuggerRunParameters::isNativeMixedDebugging() const
     return m_nativeMixedEnabled && isCppDebugging() && m_isQmlDebugging;
 }
 
+FilePaths DebuggerRunParameters::findQmlFile(const QUrl &url) const
+{
+    return m_qmlFileFinder.findFile(url);
+}
+
+void DebuggerRunParameters::populateQmlFileFinder(const RunControl *runControl)
+{
+    m_qmlFileFinder.setProjectDirectory(projectSourceDirectory());
+    m_qmlFileFinder.setProjectFiles(projectSourceFiles());
+    m_qmlFileFinder.setAdditionalSearchDirectories(additionalSearchDirectories());
+    m_qmlFileFinder.setSysroot(sysRoot());
+    QtSupport::QtVersion::populateQmlFileFinder(&m_qmlFileFinder, runControl->buildConfiguration());
+}
+
 namespace Internal {
 
 static bool debuggerActionsEnabledHelper(DebuggerState state)

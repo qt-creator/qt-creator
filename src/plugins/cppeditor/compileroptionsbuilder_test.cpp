@@ -588,17 +588,19 @@ void CompilerOptionsBuilderTest::testBuildAllOptions()
             [](const QString &o) { return o.contains("wrappedQtHeaders"); });
     const QString wrappedQtCoreHeadersPath = Utils::findOrDefault(compilerOptionsBuilder.options(),
             [&t](const QString &o) { return o.contains(t.toNative("wrappedQtHeaders/QtCore")); });
-    QCOMPARE(compilerOptionsBuilder.options(),
-             (QStringList{"-nostdinc", "-nostdinc++", "-arch", "x86_64", "-fsyntax-only", "-m64",
-                          "--target=x86_64-apple-darwin10", "-x", "c++", "-std=c++17",
-                          "-DprojectFoo=projectBar",
-                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))",
-                          wrappedQtHeadersPath,         // contains -I already
-                          wrappedQtCoreHeadersPath,     // contains -I already
-                          "-I" + t.toNative("/tmp/path"),
-                          "-isystem", t.toNative("/tmp/system_path"),
-                          "-isystem", t.toNative("/dummy"),
-                          "-isystem", t.toNative("/tmp/builtin_path")}));
+    QStringList expectedOptions{"-nostdinc", "-nostdinc++", "-arch", "x86_64", "-fsyntax-only", "-m64",
+                                "--target=x86_64-apple-darwin10", "-x", "c++", "-std=c++17",
+                                "-DprojectFoo=projectBar",
+                                "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))",
+                                wrappedQtHeadersPath,         // contains -I already
+                                wrappedQtCoreHeadersPath,     // contains -I already
+                                "-I" + t.toNative("/tmp/path"),
+                                "-isystem", t.toNative("/tmp/system_path"),
+                                "-isystem", t.toNative("/dummy"),
+                                "-isystem", t.toNative("/tmp/builtin_path")};
+    if (Utils::HostOsInfo::isMacHost())
+        expectedOptions.insert(4, "-Wno-elaborated-enum-base");
+    QCOMPARE(compilerOptionsBuilder.options(), expectedOptions);
 }
 
 void CompilerOptionsBuilderTest::testBuildAllOptionsMsvc()
@@ -614,20 +616,22 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvc()
             [](const QString &o) { return o.contains("wrappedQtHeaders"); });
     const QString wrappedQtCoreHeadersPath = Utils::findOrDefault(compilerOptionsBuilder.options(),
             [&t](const QString &o) { return o.contains(t.toNative("wrappedQtHeaders/QtCore")); });
-    QCOMPARE(compilerOptionsBuilder.options(),
-             (QStringList{"-nostdinc", "-nostdinc++", "--driver-mode=cl", "/Zs", "-m64",
-                          "--target=x86_64-apple-darwin10", "/TP", "-clang:-std=c++17",
-                          "-fms-compatibility-version=19.00", "-DprojectFoo=projectBar",
-                          "-D__FUNCSIG__=\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"",
-                          "-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"",
-                          "-D__FUNCDNAME__=\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"",
-                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))",
-                          wrappedQtHeadersPath,         // contains -I already
-                          wrappedQtCoreHeadersPath,     // contains -I already
-                          "-I" + t.toNative("/tmp/path"),
-                          "/clang:-isystem", "/clang:" + t.toNative("/tmp/system_path"),
-                          "/clang:-isystem", "/clang:" + t.toNative("/dummy"),
-                          "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")}));
+    QStringList expectedOptions{"-nostdinc", "-nostdinc++", "--driver-mode=cl", "/Zs", "-m64",
+                                "--target=x86_64-apple-darwin10", "/TP", "-clang:-std=c++17",
+                                "-fms-compatibility-version=19.00", "-DprojectFoo=projectBar",
+                                "-D__FUNCSIG__=\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"",
+                                "-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"",
+                                "-D__FUNCDNAME__=\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"",
+                                "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))",
+                                wrappedQtHeadersPath,         // contains -I already
+                                wrappedQtCoreHeadersPath,     // contains -I already
+                                "-I" + t.toNative("/tmp/path"),
+                                "/clang:-isystem", "/clang:" + t.toNative("/tmp/system_path"),
+                                "/clang:-isystem", "/clang:" + t.toNative("/dummy"),
+                                "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")};
+    if (Utils::HostOsInfo::isMacHost())
+        expectedOptions.insert(3, "-Wno-elaborated-enum-base");
+    QCOMPARE(compilerOptionsBuilder.options(), expectedOptions);
 }
 
 void CompilerOptionsBuilderTest::testBuildAllOptionsMsvcWithExceptions()
@@ -644,21 +648,23 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvcWithExceptions()
             [](const QString &o) { return o.contains("wrappedQtHeaders"); });
     const QString wrappedQtCoreHeadersPath = Utils::findOrDefault(compilerOptionsBuilder.options(),
             [&t](const QString &o) { return o.contains(t.toNative("wrappedQtHeaders/QtCore")); });
-    QCOMPARE(compilerOptionsBuilder.options(),
-             (QStringList{"-nostdinc", "-nostdinc++", "--driver-mode=cl", "/Zs", "-m64",
-                          "--target=x86_64-apple-darwin10", "/TP", "-clang:-std=c++17", "-fcxx-exceptions",
-                          "-fexceptions", "-fms-compatibility-version=19.00",
-                          "-DprojectFoo=projectBar",
-                          "-D__FUNCSIG__=\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"",
-                          "-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"",
-                          "-D__FUNCDNAME__=\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"",
-                          "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))",
-                          wrappedQtHeadersPath,             // contains -I already
-                          wrappedQtCoreHeadersPath,         // contains -I already
-                          "-I" + t.toNative("/tmp/path"),
-                          "/clang:-isystem", "/clang:" + t.toNative("/tmp/system_path"),
-                          "/clang:-isystem", "/clang:" + t.toNative("/dummy"),
-                          "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")}));
+    QStringList expectedOptions{"-nostdinc", "-nostdinc++", "--driver-mode=cl", "/Zs", "-m64",
+                                "--target=x86_64-apple-darwin10", "/TP", "-clang:-std=c++17", "-fcxx-exceptions",
+                                "-fexceptions", "-fms-compatibility-version=19.00",
+                                "-DprojectFoo=projectBar",
+                                "-D__FUNCSIG__=\"void __cdecl someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580(void)\"",
+                                "-D__FUNCTION__=\"someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580\"",
+                                "-D__FUNCDNAME__=\"?someLegalAndLongishFunctionNameThatWorksAroundQTCREATORBUG-24580@@YAXXZ\"",
+                                "-DQT_ANNOTATE_FUNCTION(x)=__attribute__((annotate(#x)))",
+                                wrappedQtHeadersPath,             // contains -I already
+                                wrappedQtCoreHeadersPath,         // contains -I already
+                                "-I" + t.toNative("/tmp/path"),
+                                "/clang:-isystem", "/clang:" + t.toNative("/tmp/system_path"),
+                                "/clang:-isystem", "/clang:" + t.toNative("/dummy"),
+                                "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")};
+    if (Utils::HostOsInfo::isMacHost())
+        expectedOptions.insert(3, "-Wno-elaborated-enum-base");
+    QCOMPARE(compilerOptionsBuilder.options(), expectedOptions);
 }
 
 } // namespace CppEditor::Internal

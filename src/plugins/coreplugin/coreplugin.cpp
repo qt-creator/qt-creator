@@ -421,12 +421,8 @@ void CorePlugin::extensionsInitialized()
     Find::extensionsInitialized();
     m_locator->extensionsInitialized();
     ICore::extensionsInitialized();
-    if (ExtensionSystem::PluginManager::hasError()) {
-        auto errorOverview = new ExtensionSystem::PluginErrorOverview(ICore::mainWindow());
-        errorOverview->setAttribute(Qt::WA_DeleteOnClose);
-        errorOverview->setModal(true);
-        errorOverview->show();
-    }
+    if (ExtensionSystem::PluginManager::hasError())
+        ExtensionSystem::showPluginErrorOverview();
     checkSettings();
     registerActionsForOptions();
 }
@@ -526,11 +522,11 @@ void CorePlugin::warnAboutCrashReporing()
     Utils::InfoBarEntry info(kWarnCrashReportingSetting, warnStr,
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.setTitle(Tr::tr("Crash Reporting"));
-    info.addCustomButton(ICore::msgShowOptionsDialog(), [] {
-        ICore::infoBar()->removeInfo(kWarnCrashReportingSetting);
-        ICore::infoBar()->globallySuppressInfo(kWarnCrashReportingSetting);
-        ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM);
-    });
+    info.addCustomButton(
+        ICore::msgShowOptionsDialog(),
+        [] { ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM); },
+        {},
+        InfoBarEntry::ButtonAction::SuppressPersistently);
 
     info.setDetailsWidgetCreator([]() -> QWidget * {
         auto label = new QLabel;

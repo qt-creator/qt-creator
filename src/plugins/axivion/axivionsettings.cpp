@@ -233,7 +233,7 @@ AxivionSettings::AxivionSettings()
     axivionSuitePath.setSettingsKey("SuitePath");
     axivionSuitePath.setExpectedKind(PathChooser::ExistingDirectory);
     axivionSuitePath.setAllowPathFromDevice(false);
-    axivionSuitePath.setLabelText(Tr::tr("Axivion Suite Path:"));
+    axivionSuitePath.setLabelText(Tr::tr("Axivion Suite path:"));
 
     saveOpenFiles.setSettingsKey("SaveOpenFiles");
     saveOpenFiles.setLabelText(Tr::tr("Save all open files before starting an analysis"));

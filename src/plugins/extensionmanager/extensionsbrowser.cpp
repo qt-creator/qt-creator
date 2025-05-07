@@ -35,6 +35,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcprocess.h>
+#include <utils/qtcwidgets.h>
 #include <utils/stylehelper.h>
 #include <utils/unarchiver.h>
 #include <utils/utilsicons.h>
@@ -541,14 +542,14 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     auto titleLabel = new ElidingLabel(Tr::tr("Manage Extensions"));
     applyTf(titleLabel, titleTF);
 
-    auto externalRepoSwitch = new Switch("Use external repository");
+    auto externalRepoSwitch = new QtcSwitch("Use external repository");
     externalRepoSwitch->setEnabled(settings().useExternalRepo.isEnabled());
     if (settings().useExternalRepo.isEnabled())
         externalRepoSwitch->setToolTip("<html>" + externalRepoWarningNote());
     else
         externalRepoSwitch->setToolTip(settings().useExternalRepo.toolTip());
 
-    d->searchBox = new SearchBox;
+    d->searchBox = new QtcSearchBox;
     d->searchBox->setPlaceholderText(Tr::tr("Search"));
 
     d->searchProxyModel = new QSortFilterProxyModel(this);
@@ -812,7 +813,7 @@ void ExtensionsBrowser::fetchExtensions()
 
     LoopList urlIterator(urls);
 
-    const auto setupDownloader = [&storage, urlIterator](Downloader &downloader) {
+    const auto setupDownloader = [storage, urlIterator](Downloader &downloader) {
         storage->setFileTemplate(
             QDir::tempPath() + "/extensionstore-XXXXXX." + urlIterator->completeSuffix());
         if (!storage->open())

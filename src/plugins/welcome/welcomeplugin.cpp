@@ -26,6 +26,7 @@
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcwidgets.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -85,8 +86,8 @@ public:
         m_pluginButtons->setSpacing(VGapL);
         m_pluginButtons->setContentsMargins({});
 
-        auto newButton = new Button(Tr::tr("Create Project..."), Button::LargePrimary);
-        auto openButton = new Button(Tr::tr("Open Project..."), Button::LargeSecondary);
+        auto newButton = new QtcButton(Tr::tr("Create Project..."), QtcButton::LargePrimary);
+        auto openButton = new QtcButton(Tr::tr("Open Project..."), QtcButton::LargeSecondary);
 
         using namespace Layouting;
         Column {
@@ -105,11 +106,11 @@ public:
             noMargin, spacing(0),
         }.attachTo(this);
 
-        connect(openButton, &Button::clicked, this, [] {
+        connect(openButton, &QtcButton::clicked, this, [] {
             QAction *openAction = ActionManager::command(Core::Constants::OPEN)->action();
             openAction->trigger();
         });
-        connect(newButton, &Button::clicked, this, [] {
+        connect(newButton, &QtcButton::clicked, this, [] {
             QAction *openAction = ActionManager::command(Core::Constants::NEW)->action();
             openAction->trigger();
         });
@@ -118,7 +119,7 @@ public:
     QHBoxLayout *m_pluginButtons = nullptr;
 };
 
-class WelcomeModeWidget final : public ResizeSignallingWidget
+class WelcomeModeWidget final : public QWidget
 {
 public:
     WelcomeModeWidget()
@@ -144,14 +145,6 @@ public:
         }.attachTo(this);
 
         IContext::attach(this, {}, "Qt Creator Manual");
-
-        connect(this, &ResizeSignallingWidget::resized,
-                this, [this] {
-            const QSize topAreaS = m_topArea->size();
-            const QSize mainWindowS = ICore::mainWindow()->size();
-            const bool showTopArea = topAreaS.height() < mainWindowS.height() / 8.85;
-            m_topArea->setVisible(showTopArea);
-        });
     }
 
     ~WelcomeModeWidget()
@@ -189,7 +182,7 @@ public:
             if (m_pluginList.at(idx)->priority() >= pagePriority)
                 break;
         }
-        auto pageButton = new Button(page->title(), Button::SmallList, m_topArea);
+        auto pageButton = new QtcButton(page->title(), QtcButton::SmallList, m_topArea);
         auto pageId = page->id();
         pageButton->setText(page->title());
 
@@ -216,7 +209,7 @@ public:
             m_pageStack->setCurrentWidget(stackPage);
         };
 
-        connect(pageButton, &Button::clicked, this, onClicked);
+        connect(pageButton, &QtcButton::clicked, this, onClicked);
         if (pageId == m_activePage) {
             onClicked();
             pageButton->setChecked(true);

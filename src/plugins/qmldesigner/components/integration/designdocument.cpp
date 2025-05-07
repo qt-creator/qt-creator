@@ -47,7 +47,6 @@
 
 #include <QApplication>
 #include <QMessageBox>
-#include <QPlainTextEdit>
 #include <QRandomGenerator>
 #include <QClipboard>
 
@@ -365,20 +364,20 @@ bool DesignDocument::isDocumentLoaded() const
 
 void DesignDocument::resetToDocumentModel()
 {
-    const QPlainTextEdit *edit = plainTextEdit();
+    const Utils::PlainTextEdit *edit = plainTextEdit();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
     m_inFileComponentModel.reset();
 }
 
-void DesignDocument::loadDocument(QPlainTextEdit *edit)
+void DesignDocument::loadDocument(Utils::PlainTextEdit *edit)
 {
     Q_CHECK_PTR(edit);
 
-    connect(edit, &QPlainTextEdit::undoAvailable, this, &DesignDocument::undoAvailable);
-    connect(edit, &QPlainTextEdit::redoAvailable, this, &DesignDocument::redoAvailable);
-    connect(edit, &QPlainTextEdit::modificationChanged, this, &DesignDocument::dirtyStateChanged);
+    connect(edit, &Utils::PlainTextEdit::undoAvailable, this, &DesignDocument::undoAvailable);
+    connect(edit, &Utils::PlainTextEdit::redoAvailable, this, &DesignDocument::redoAvailable);
+    connect(edit, &Utils::PlainTextEdit::modificationChanged, this, &DesignDocument::dirtyStateChanged);
 
     m_documentTextModifier.reset(new BaseTextEditModifier(qobject_cast<TextEditor::TextEditorWidget *>(plainTextEdit())));
 
@@ -403,7 +402,7 @@ void DesignDocument::changeToDocumentModel()
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
-    const QPlainTextEdit *edit = plainTextEdit();
+    const Utils::PlainTextEdit *edit = plainTextEdit();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
@@ -450,7 +449,7 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
-    const QPlainTextEdit *edit = plainTextEdit();
+    const Utils::PlainTextEdit *edit = plainTextEdit();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
@@ -533,7 +532,7 @@ bool DesignDocument::isRedoAvailable() const
 
 void DesignDocument::clearUndoRedoStacks() const
 {
-    const QPlainTextEdit *edit = plainTextEdit();
+    const Utils::PlainTextEdit *edit = plainTextEdit();
     if (edit)
         edit->document()->clearUndoRedoStacks();
 }
@@ -777,11 +776,10 @@ TextEditor::BaseTextEditor *DesignDocument::textEditor() const
     return qobject_cast<TextEditor::BaseTextEditor*>(editor());
 }
 
-QPlainTextEdit *DesignDocument::plainTextEdit() const
+Utils::PlainTextEdit *DesignDocument::plainTextEdit() const
 {
-    if (editor())
-        return qobject_cast<QPlainTextEdit*>(editor()->widget());
-
+    if (TextEditor::BaseTextEditor *editor = textEditor())
+        return editor->editorWidget();
     return nullptr;
 }
 

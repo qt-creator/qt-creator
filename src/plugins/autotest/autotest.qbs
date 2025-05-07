@@ -123,10 +123,8 @@ QtcPlugin {
         ]
     }
 
-    Group {
-        name: "test data"
+    QtcTestResources {
         files: "unit_test/**/*"
-        fileTags: qtc.withPluginTests ? ["qt.core.resource_data"] : []
         Qt.core.resourcePrefix: ""
     }
 

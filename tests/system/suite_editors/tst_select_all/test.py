@@ -33,22 +33,24 @@ def main():
             type(editor, "<Home>")
             mouseClick(editor)
             invokeMenuItem("Edit", "Select All")
-            test.verify(waitFor("editor.textCursor().hasSelection()", 500),
+            test.verify(waitFor("textCursorForWidget(editor).hasSelection()", 500),
                         "verify selecting")
-            test.compare(editor.textCursor().selectionStart(), 0)
-            test.compare(editor.textCursor().selectionEnd(), size)
-            test.compare(editor.textCursor().position(), size)
+            textCursor = textCursorForWidget(editor)
+            test.compare(textCursor.selectionStart(), 0)
+            test.compare(textCursor.selectionEnd(), size)
+            test.compare(textCursor.position(), size)
             test.log("Pressing key: %s" % key.replace("<", "").replace(">", ""))
             type(editor, key)
-            test.verify(waitFor("not editor.textCursor().hasSelection()", 500),
+            test.verify(waitFor("not textCursorForWidget(editor).hasSelection()", 500),
                         "verify deselecting")
+            textCursor = textCursorForWidget(editor)
             if key == "<Up>":
-                test.compare(editor.textCursor().selectionStart(), editor.textCursor().selectionEnd())
+                test.compare(textCursor.selectionStart(), textCursor.selectionEnd())
             else:
                 pos = size
                 if key == "<Left>":
                     pos = 0
-                test.compare(editor.textCursor().selectionStart(), pos)
-                test.compare(editor.textCursor().selectionEnd(), pos)
-                test.compare(editor.textCursor().position(), pos)
+                test.compare(textCursor.selectionStart(), pos)
+                test.compare(textCursor.selectionEnd(), pos)
+                test.compare(textCursor.position(), pos)
     invokeMenuItem("File", "Exit")

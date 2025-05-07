@@ -71,11 +71,4 @@ CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory
         Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
 }
 
-CustomExecutableRunWorkerFactory::CustomExecutableRunWorkerFactory()
-{
-    setRecipeProducer([](RunControl *runControl) { return processRecipe(runControl); });
-    addSupportedRunMode(Constants::NORMAL_RUN_MODE);
-    addSupportedRunConfig(Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID);
-}
-
 } // namespace ProjectExplorer

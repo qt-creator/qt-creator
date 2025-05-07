@@ -12,6 +12,8 @@
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
+#include <qmlprojectmanager/qmlprojectconstants.h>
+
 #include <utils/qtcprocess.h>
 
 using namespace Debugger;
@@ -25,7 +27,7 @@ static const QList<Id> supportedRunConfigs()
     return {
         Constants::RunConfigId,
         Constants::CustomRunConfigId,
-        "QmlProjectManager.QmlRunConfiguration"
+        QmlProjectManager::Constants::QML_RUNCONFIG_ID
     };
 }
 

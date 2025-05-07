@@ -12,6 +12,8 @@
 
 #include <QTextDocument>
 
+using namespace Utils;
+
 namespace TextEditor {
 
 const char UCMANGLER_ID[] = "TextEditor::UppercaseMangler";
@@ -181,14 +183,11 @@ SnippetParseResult Snippet::parse(const QString &snippet)
 
     ParsedSnippet result;
 
-    QString errorMessage;
-    QString preprocessedSnippet
-            = Utils::TemplateEngine::processText(Utils::globalMacroExpander(), snippet,
-                                                 &errorMessage);
+    const Result<QString> res = TemplateEngine::processText(globalMacroExpander(), snippet);
+    if (!res)
+        return {SnippetParseError{res.error(), {}, -1}};
 
-    if (!errorMessage.isEmpty())
-        return {SnippetParseError{errorMessage, {}, -1}};
-
+    const QString preprocessedSnippet = *res;
     const int count = preprocessedSnippet.size();
     NameMangler *mangler = nullptr;
 

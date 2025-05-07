@@ -61,11 +61,12 @@ TabSettings TabSettings::autoDetect(const QTextDocument *document) const
     int totalIndentations = 0;
     int indentationWithTabs = 0;
     QMap<int, int> indentCount;
+    QMap<int, int> deltaCount;
 
     auto checkText =
         [this, document, &totalIndentations, &indentCount, &indentationWithTabs](const QTextBlock &block) {
             if (block.length() == 0)
-                return;
+                return 0;
             int pos = block.position();
             bool hasTabs = false;
             int indentation = 0;
@@ -87,36 +88,77 @@ TabSettings TabSettings::autoDetect(const QTextDocument *document) const
                     ++indentationWithTabs;
                 ++indentCount[indentation];
                 ++totalIndentations;
+                return indentation;
             }
+            return 0;
         };
 
     const int blockCount = document->blockCount();
     bool useDefault = true;
-    if (blockCount < 200) {
-        // check the indentation of all blocks if the document is shorter than 200 lines
-        for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next())
-            checkText(block);
+    if (blockCount < 400) {
+        // check the indentation of all blocks if the document is shorter than 400 lines
+        int previousIndentation = 0;
+        for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next()) {
+            const int indentation = checkText(block);
+            const int delta = indentation - previousIndentation;
+            if (delta != 0)
+                ++deltaCount[qAbs(delta)];
+            previousIndentation = indentation;
+        }
         // We checked all, so if we find any indented line, it makes sense to use it:
         useDefault = totalIndentations == 0;
     } else {
         // scanning the first and last 25 lines specifically since those most probably contain
         // different indentations
         const int startEndDelta = 25;
-        for (int delta = 0; delta < startEndDelta; ++delta) {
-            checkText(document->findBlockByNumber(delta));
-            checkText(document->findBlockByNumber(blockCount - 1 - delta));
+        int previousStartIndentation = 0;
+        int previousEndIndentation = 0;
+        for (int i = 0; i < startEndDelta; ++i) {
+            int indentation = checkText(document->findBlockByNumber(i));
+            int delta = indentation - previousStartIndentation;
+            if (delta != 0)
+                ++deltaCount[qAbs(delta)];
+            previousStartIndentation = indentation;
+            indentation = checkText(document->findBlockByNumber(blockCount - 1 - i));
+            delta = indentation - previousEndIndentation;
+            if (delta != 0)
+                ++deltaCount[qAbs(delta)];
+            previousEndIndentation = indentation;
         }
 
-        // scan random lines until we have 100 indentations or checked a maximum of 2000 lines
+        // scan random lines until we have 200 indentations or checked a maximum of 2000 lines
         // to limit the number of checks for large documents
-        QRandomGenerator gen(QDateTime::currentDateTime().toMSecsSinceEpoch());
+        QRandomGenerator gen(QDateTime::currentMSecsSinceEpoch());
         int checks = 0;
-        while (totalIndentations < 100) {
+        QMap<int, int> alreadyCheckedIndentations;
+        while (totalIndentations < 200) {
             ++checks;
             if (checks > 2000)
                 break;
-            const int blockNummer = gen.bounded(startEndDelta + 1, blockCount - startEndDelta - 2);
-            checkText(document->findBlockByNumber(blockNummer));
+            const int blockNumber = gen.bounded(startEndDelta + 1, blockCount - startEndDelta - 12);
+            auto it = alreadyCheckedIndentations.find(blockNumber);
+            bool alreadyChecked = it != alreadyCheckedIndentations.end();
+            if (!alreadyChecked) {
+                it = alreadyCheckedIndentations
+                         .insert(blockNumber, checkText(document->findBlockByNumber(blockNumber)));
+            };
+            int previousIndentation = it.value();
+            for (int i = 1; i <= 10; ++i) {
+                auto it = alreadyCheckedIndentations.find(blockNumber + i);
+                if (it != alreadyCheckedIndentations.end()) {
+                    if (alreadyChecked)
+                        continue;
+                    alreadyChecked = true;
+                } else {
+                    it = alreadyCheckedIndentations.insert(
+                        blockNumber + i, checkText(document->findBlockByNumber(blockNumber + i)));
+                }
+                const int indentation = it.value();
+                const int delta = indentation - previousIndentation;
+                if (delta != 0)
+                    ++deltaCount[qAbs(delta)];
+                previousIndentation = indentation;
+            }
         }
         // Don't determine indentation for the whole file from few actually indented lines that we
         // managed to find:
@@ -126,6 +168,16 @@ TabSettings TabSettings::autoDetect(const QTextDocument *document) const
     if (useDefault)
         return *this;
 
+    // find the most common delta
+    int mostCommonDelta = 0;
+    int mostCommonDeltaCount = 0;
+    for (auto it = deltaCount.cbegin(); it != deltaCount.cend(); ++it) {
+        if (const int count = it.value(); count > mostCommonDeltaCount) {
+            mostCommonDeltaCount = count;
+            mostCommonDelta = it.key();
+        }
+    }
+
     // find the most common indent
     int mostCommonIndent = 0;
     int mostCommonIndentCount = 0;
@@ -134,6 +186,16 @@ TabSettings TabSettings::autoDetect(const QTextDocument *document) const
             mostCommonIndentCount = count;
             mostCommonIndent = it.key();
         }
+    }
+
+    // check whether the most common delta is a fraction of the most common indent
+    if (mostCommonDeltaCount >= 4 && mostCommonIndent % mostCommonDelta == 0) {
+        TabSettings result = *this;
+        result.m_indentSize = mostCommonDelta;
+        double relativeTabCount = double(indentationWithTabs) / double(totalIndentations);
+        result.m_tabPolicy = relativeTabCount > 0.5 ? TabSettings::TabsOnlyTabPolicy
+                                                    : TabSettings::SpacesOnlyTabPolicy;
+        return result;
     }
 
     for (auto it = indentCount.cbegin(); it != indentCount.cend(); ++it) {

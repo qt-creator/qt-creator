@@ -74,14 +74,14 @@ protected:
 
     virtual Utils::Result<> writeFiles(const GeneratedFiles &files) const;
 
-    virtual bool postGenerateFiles(const QWizard *w, const GeneratedFiles &l, QString *errorMessage) const;
+    virtual Utils::Result<> postGenerateFiles(const QWizard *w, const GeneratedFiles &l) const;
 
     static QString preferredSuffix(const QString &mimeType);
 
     enum OverwriteResult { OverwriteOk,  OverwriteError,  OverwriteCanceled };
     static OverwriteResult promptOverwrite(GeneratedFiles *files,
                                            QString *errorMessage);
-    static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = nullptr);
+    static Utils::Result<> postGenerateOpenEditors(const GeneratedFiles &l);
 
 private:
     Utils::Wizard *runWizardImpl(const Utils::FilePath &path, Utils::Id platform,

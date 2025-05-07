@@ -16,7 +16,6 @@
 #include <utils/qtcassert.h>
 
 #include <QHash>
-#include <QProcess> // FIXME: Remove
 #include <QVariant>
 
 #include <functional>
@@ -40,45 +39,26 @@ class RunControlPrivate;
 class RunWorkerPrivate;
 } // Internal
 
-class PROJECTEXPLORER_EXPORT RunWorker : public QObject
+class PROJECTEXPLORER_EXPORT RunWorker final : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit RunWorker(RunControl *runControl);
+    explicit RunWorker(RunControl *runControl, const Tasking::Group &recipe);
     ~RunWorker() override;
-
-    RunControl *runControl() const;
 
     void addStartDependency(RunWorker *dependency);
     void addStopDependency(RunWorker *dependency);
 
-    void setId(const QString &id);
-
-    // Part of read-only interface of RunControl for convenience.
-    void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
-
-    // States
-    void initiateStart();
-    void reportStarted();
-
-    void initiateStop();
-    void reportStopped();
-
-    void reportDone();
-
-    void reportFailure(const QString &msg = QString());
-
 signals:
     void started();
-    void stopping();
     void stopped();
-
-protected:
-    void virtual start();
-    void virtual stop();
+    void canceled();
 
 private:
+    void initiateStart();
+    void initiateStop();
+
     friend class Internal::RunControlPrivate;
     friend class Internal::RunWorkerPrivate;
     const std::unique_ptr<Internal::RunWorkerPrivate> d;
@@ -96,8 +76,6 @@ public:
     static void dumpAll(); // For debugging only.
 
 protected:
-    template <typename Worker>
-    void setProduct() { setProducer([](RunControl *rc) { return new Worker(rc); }); }
     void setId(Utils::Id id) { m_id = id; }
     void setProducer(const WorkerCreator &producer);
     void setRecipeProducer(const RecipeCreator &producer);
@@ -106,14 +84,16 @@ protected:
     void addSupportedRunConfig(Utils::Id runConfig);
     void addSupportedDeviceType(Utils::Id deviceType);
     void addSupportForLocalRunConfigs();
-    void cloneProduct(Utils::Id exitstingStepId, Utils::Id overrideId = Utils::Id());
+    void cloneProduct(Utils::Id exitstingStepId);
 
 private:
     friend class RunControl;
     bool canCreate(Utils::Id runMode, Utils::Id deviceType, const QString &runConfigId) const;
     RunWorker *create(RunControl *runControl) const;
+    Tasking::Group createRecipe(RunControl *runControl) const;
 
     WorkerCreator m_producer;
+    RecipeCreator m_recipeCreator;
     QList<Utils::Id> m_supportedRunModes;
     QList<Utils::Id> m_supportedRunConfigurations;
     QList<Utils::Id> m_supportedDeviceTypes;
@@ -136,6 +116,8 @@ public:
     explicit RunControl(Utils::Id mode);
     ~RunControl() final;
 
+    Tasking::Group noRecipeTask();
+
     void start();
 
     void setBuildConfiguration(BuildConfiguration *bc);
@@ -143,7 +125,6 @@ public:
 
     void copyDataFromRunConfiguration(RunConfiguration *runConfig);
     void copyDataFromRunControl(RunControl *runControl);
-    void resetDataForAttachToCore();
 
     void setRunRecipe(const Tasking::Group &group);
 
@@ -163,7 +144,6 @@ public:
     void setDisplayName(const QString &displayName);
 
     bool isRunning() const;
-    bool isStarting() const;
     bool isStopped() const;
 
     void setIcon(const Utils::Icon &icon);
@@ -221,6 +201,7 @@ public:
     static void provideAskPassEntry(Utils::Environment &env);
 
     RunWorker *createWorker(Utils::Id runMode);
+    Tasking::Group createRecipe(Utils::Id runMode);
 
     bool createMainWorker();
     static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);
@@ -229,6 +210,8 @@ public:
     void requestDebugChannel();
     bool usesDebugChannel() const;
     QUrl debugChannel() const;
+    // FIXME: Don't use. Convert existing users to portsgatherer.
+    void setDebugChannel(const QUrl &channel);
 
     void requestQmlChannel();
     bool usesQmlChannel() const;
@@ -293,26 +276,6 @@ PROJECTEXPLORER_EXPORT Tasking::Storage<RunInterface> runStorage();
 using Canceler = std::function<std::pair<RunInterface *, void (RunInterface::*)()>()>;
 PROJECTEXPLORER_EXPORT Canceler canceler();
 
-class PROJECTEXPLORER_EXPORT RecipeRunner final : public RunWorker
-{
-    Q_OBJECT
-
-public:
-    RecipeRunner(RunControl *runControl, const Tasking::Group &recipe)
-        : RunWorker(runControl), m_recipe(recipe)
-    {}
-
-signals:
-    void canceled();
-
-private:
-    void start() final;
-    void stop() final;
-
-    Tasking::TaskTreeRunner m_taskTreeRunner;
-    const Tasking::Group m_recipe;
-};
-
 // Just a helper
 template <typename Result, typename Function, typename ...Args,
          typename DecayedFunction = std::decay_t<Function>>
@@ -336,13 +299,13 @@ RunWorker *createProcessWorker(RunControl *runControl,
                   "Process modifier needs to take (Process &) as an argument and has to return void or "
                   "SetupResult. The passed handler doesn't fulfill these requirements.");
     if constexpr (isR) {
-        return new RecipeRunner(runControl, processRecipe(runControl, startModifier, suppressDefaultStdOutHandling));
+        return new RunWorker(runControl, processRecipe(runControl, startModifier, suppressDefaultStdOutHandling));
     } else {
         const auto modifier = [startModifier](Utils::Process &process) {
             startModifier(process);
             return Tasking::SetupResult::Continue;
         };
-        return new RecipeRunner(runControl, processRecipe(runControl, modifier, suppressDefaultStdOutHandling));
+        return new RunWorker(runControl, processRecipe(runControl, modifier, suppressDefaultStdOutHandling));
     }
 }
 

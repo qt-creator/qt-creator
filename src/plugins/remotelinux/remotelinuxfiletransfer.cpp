@@ -122,7 +122,7 @@ private:
     {
         m_sshParameters = displayless(m_device.sshParameters());
         const Id linkDeviceId = m_device.linkDeviceId();
-        const auto linkDevice = DeviceManager::instance()->find(linkDeviceId);
+        const auto linkDevice = DeviceManager::find(linkDeviceId);
         const bool useConnectionSharing = !linkDevice && SshSettings::connectionSharingEnabled();
 
         if (useConnectionSharing) {
@@ -187,7 +187,7 @@ private:
 
         // This is a hack. We only test the last hop here.
         const Id linkDeviceId = device().linkDeviceId();
-        if (const auto linkDevice = DeviceManager::instance()->find(linkDeviceId))
+        if (const auto linkDevice = DeviceManager::find(linkDeviceId))
             sftpBinary = linkDevice->filePath(sftpBinary.fileName()).searchInPath();
 
         if (!sftpBinary.exists()) {

@@ -165,7 +165,7 @@ QList<ShellModelItem> ShellModel::remote() const
 {
     QList<ShellModelItem> result;
 
-    ProjectExplorer::DeviceManager::instance()->forEachDevice(
+    ProjectExplorer::DeviceManager::forEachDevice(
         [&result](const std::shared_ptr<const ProjectExplorer::IDevice> &device) {
             if (device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
                 result << ShellModelItem{device->displayName(), {CommandLine{device->rootPath()}}};

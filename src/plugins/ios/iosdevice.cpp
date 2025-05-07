@@ -259,25 +259,24 @@ IosDeviceManager::TranslationMap IosDeviceManager::translationMap()
 
 void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
 {
-    DeviceManager *devManager = DeviceManager::instance();
     Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
     Utils::Id devId = baseDevId.withSuffix(uid);
-    IDevice::Ptr dev = devManager->find(devId);
+    IDevice::Ptr dev = DeviceManager::find(devId);
     if (!dev) {
         auto newDev = IosDevice::make(uid);
         if (!name.isNull())
             newDev->setDisplayName(name);
         qCDebug(detectLog) << "adding ios device " << uid;
-        devManager->addDevice(newDev);
+        DeviceManager::addDevice(newDev);
     } else if (dev->deviceState() != IDevice::DeviceConnected &&
                dev->deviceState() != IDevice::DeviceReadyToUse) {
         qCDebug(detectLog) << "updating ios device " << uid;
 
         if (dev->type() == devType) // FIXME: Should that be a QTC_ASSERT?
-            devManager->addDevice(dev);
+            DeviceManager::addDevice(dev);
         else
-            devManager->addDevice(IosDevice::make(uid));
+            DeviceManager::addDevice(IosDevice::make(uid));
     }
     updateInfo(uid);
 }
@@ -288,21 +287,20 @@ void IosDeviceManager::deviceDisconnected(const QString &uid)
     // if an update is currently still running for the device being connected, cancel that
     // erasing deletes the unique_ptr which deletes the TaskTree which stops it
     m_updateTasks.erase(uid);
-    DeviceManager *devManager = DeviceManager::instance();
     Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
     Utils::Id devId = baseDevId.withSuffix(uid);
-    IDevice::ConstPtr dev = devManager->find(devId);
+    IDevice::ConstPtr dev = DeviceManager::find(devId);
     if (!dev || dev->type() != devType) {
         qCWarning(detectLog) << "ignoring disconnection of ios device " << uid; // should neve happen
     } else {
         auto iosDev = static_cast<const IosDevice *>(dev.get());
         if (iosDev->m_extraInfo.isEmpty()
             || iosDev->m_extraInfo.value(kDeviceName) == QLatin1String("*unknown*")) {
-            devManager->removeDevice(iosDev->id());
+            DeviceManager::removeDevice(iosDev->id());
         } else if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
             qCDebug(detectLog) << "disconnecting device " << iosDev->uniqueDeviceID();
-            devManager->setDeviceState(iosDev->id(), IDevice::DeviceDisconnected);
+            DeviceManager::setDeviceState(iosDev->id(), IDevice::DeviceDisconnected);
         }
     }
 }
@@ -378,11 +376,10 @@ void IosDeviceManager::deviceInfo(const QString &uid,
                                   const Ios::IosToolHandler::Dict &info)
 {
     qCDebug(detectLog) << "got device information:" << info;
-    DeviceManager *devManager = DeviceManager::instance();
     Utils::Id baseDevId(Constants::IOS_DEVICE_ID);
     Utils::Id devType(Constants::IOS_DEVICE_TYPE);
     Utils::Id devId = baseDevId.withSuffix(uid);
-    IDevice::Ptr dev = devManager->find(devId);
+    IDevice::Ptr dev = DeviceManager::find(devId);
     bool skipUpdate = false;
     IosDevice::Ptr newDev;
     if (dev && dev->type() == devType) {
@@ -406,16 +403,16 @@ void IosDeviceManager::deviceInfo(const QString &uid,
         newDev->m_handler = handler;
         qCDebug(detectLog) << "updated info of ios device " << uid;
         dev = newDev;
-        devManager->addDevice(dev);
+        DeviceManager::addDevice(dev);
     }
     QLatin1String devStatusKey = QLatin1String("developerStatus");
     if (info.contains(devStatusKey)) {
         QString devStatus = info.value(devStatusKey);
         if (devStatus == vDevelopment) {
-            devManager->setDeviceState(newDev->id(), IDevice::DeviceReadyToUse);
+            DeviceManager::setDeviceState(newDev->id(), IDevice::DeviceReadyToUse);
             m_userModeDeviceIds.removeOne(uid);
         } else {
-            devManager->setDeviceState(newDev->id(), IDevice::DeviceConnected);
+            DeviceManager::setDeviceState(newDev->id(), IDevice::DeviceConnected);
             bool shouldIgnore = newDev->m_ignoreDevice;
             newDev->m_ignoreDevice = true;
             if (devStatus == vOff) {
@@ -659,9 +656,8 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
     for (const QString &uid : devices)
         deviceConnected(uid);
 
-    DeviceManager *devManager = DeviceManager::instance();
-    for (int iDevice = 0; iDevice < devManager->deviceCount(); ++iDevice) {
-        IDevice::ConstPtr dev = devManager->deviceAt(iDevice);
+    for (int iDevice = 0; iDevice < DeviceManager::deviceCount(); ++iDevice) {
+        IDevice::ConstPtr dev = DeviceManager::deviceAt(iDevice);
         Utils::Id devType(Constants::IOS_DEVICE_TYPE);
         if (!dev || dev->type() != devType)
             continue;
@@ -670,7 +666,7 @@ void IosDeviceManager::updateAvailableDevices(const QStringList &devices)
             continue;
         if (iosDev->deviceState() != IDevice::DeviceDisconnected) {
             qCDebug(detectLog) << "disconnecting device " << iosDev->uniqueDeviceID();
-            devManager->setDeviceState(iosDev->id(), IDevice::DeviceDisconnected);
+            DeviceManager::setDeviceState(iosDev->id(), IDevice::DeviceDisconnected);
         }
     }
 }

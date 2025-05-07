@@ -882,53 +882,68 @@ void MarkdownBrowser::changeEvent(QEvent *event)
     QTextBrowser::changeEvent(event);
 }
 
-void MarkdownBrowser::mousePressEvent(QMouseEvent *event)
+std::optional<std::pair<QTextFragment, QRectF>> MarkdownBrowser::findCopyButtonFragmentAt(const QPoint& viewportPos)
 {
-    QTextCursor cursor = cursorForPosition(event->pos());
-    if (cursor.isNull()) {
-        QTextBrowser::mousePressEvent(event);
-        return;
-    }
+    QTextCursor cursor = cursorForPosition(viewportPos);
+    if (cursor.isNull())
+        return std::nullopt;
 
     const QTextCharFormat format = cursor.charFormat();
-    if (format.objectType() != CopyButtonHandler::objectId()) {
-        QTextBrowser::mousePressEvent(event);
-        return;
-    }
+    if (format.objectType() != CopyButtonHandler::objectId())
+        return std::nullopt;
 
     const QTextBlock block = cursor.block();
-    const QTextFragment fragment = copyButtonFragment(block);
-    if (!fragment.isValid()) {
+    QTextFragment fragment = copyButtonFragment(block);
+    if (!fragment.isValid())
+        return std::nullopt;
+
+    QPointF blockPos = blockBBoxTopLeftPosition(block);
+    QRectF fragmentRect = calculateFragmentBounds(block, fragment, blockPos);
+    fragmentRect.translate(-horizontalScrollBar()->value(), -verticalScrollBar()->value());
+
+    if (fragmentRect.contains(viewportPos))
+        return std::make_pair(fragment, fragmentRect);
+    else
+        return std::nullopt;
+}
+
+void MarkdownBrowser::mousePressEvent(QMouseEvent *event)
+{
+    auto result = findCopyButtonFragmentAt(event->pos());
+    if (result) {
+        QTextFragment fragment = result->first;
+        QTextCursor cursor(document());
+        cursor.setPosition(fragment.position());
+        cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
+
+        CopyButtonHandler::resetOtherCopyButtons(document(), fragment);
+        CopyButtonHandler::copyCodeAndUpdateButton(cursor, fragment.charFormat());
+
+        document()->documentLayout()->update();
+        event->accept();
+    } else
         QTextBrowser::mousePressEvent(event);
+}
+
+void MarkdownBrowser::mouseMoveEvent(QMouseEvent *event)
+{
+    const QPoint mousePos = event->pos();
+
+    if (m_cachedCopyRect && m_cachedCopyRect->contains(mousePos)) {
+        QTextBrowser::mouseMoveEvent(event);
         return;
     }
 
-    const QPointF blockPosition = blockBBoxTopLeftPosition(block);
-    const QRectF fragmentRect = calculateFragmentBounds(block, fragment, blockPosition);
+    m_cachedCopyRect.reset();
+    viewport()->unsetCursor();
 
-    auto isClickWithinFragment = [this, event, &fragmentRect]() {
-        const QPointF mousePos = event->pos();
-        const QPointF viewportOffset(horizontalScrollBar()->value(), verticalScrollBar()->value());
-        return fragmentRect.isValid() && fragmentRect.contains(mousePos + viewportOffset);
-    };
-
-    if (!isClickWithinFragment()) {
-        QTextBrowser::mousePressEvent(event);
-        return;
+    auto result = findCopyButtonFragmentAt(mousePos);
+    if (result) {
+        m_cachedCopyRect = result->second;
+        viewport()->setCursor(Qt::PointingHandCursor);
     }
 
-    CopyButtonHandler::resetOtherCopyButtons(document(), fragment);
-
-    cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
-    // If the user clicks the text, the cursor will be positioned after the object,
-    // so we have to move the cursor back to the object.
-    if (cursor.selectedText() == QChar::ParagraphSeparator)
-        cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, 2);
-
-    CopyButtonHandler::copyCodeAndUpdateButton(cursor, format);
-
-    document()->documentLayout()->update();
-    event->accept();
+    QTextBrowser::mouseMoveEvent(event);
 }
 
 QMimeData *MarkdownBrowser::createMimeDataFromSelection() const

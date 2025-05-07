@@ -1657,6 +1657,27 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const BuildCo
         }
     }
 
+    // HACK:
+    // Paths of .qml files go through several location before ending up in the binary
+    // (source directory, build directory, entries in .qrc files). The qml debug server
+    // side does not do any back-mapping to source directory files when reporting e.g.
+    // stack frames or breakpoint locations, so this file finder here is supposed to do
+    // the work, some deterministic, some by guessing. The most deterministic way is to
+    // read .qrc fils, but in modern Qt 6.x(?) CMake projects, .qrc files containing .qml
+    // file are typically on-the-fly and are not part of the project's sources anymore.
+    // On top of this, the heuristic to search for the files in the project directory
+    // which would normally help as fallback fails for in-source builds due to some
+    // unfortunate naming of build artifacts (for a "testprojects/untitled/Main.qml"
+    // source, a " testproject/untitled/untitled/Main.qml" build artifact will be
+    // generated /and/ found by the back-mapping heuristics using "prefixToIgnore" in
+    // FileInProjectFinder::checkProjectDirectory.
+    // To work around further, we add all .qrc files found in the project:
+    if (bc) {
+        const FileFilter filter = {{"*.qrc"},  QDir::Files|QDir::Hidden, QDirIterator::Subdirectories};
+        const FilePaths extraQrcs = bc->buildDirectory().dirEntries(filter);
+        sourceFiles += extraQrcs;
+    }
+
     // Finally, do populate m_projectFinder
     finder->setProjectDirectory(projectDirectory);
     finder->setProjectFiles(sourceFiles);

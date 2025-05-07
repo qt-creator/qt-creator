@@ -3,10 +3,8 @@
 
 source("../../shared/qtcreator.py")
 
-getStarted = 'Get Started'
 
 def clickItemVerifyHelpCombo(button, expectedHelpComboRegex, testDetails):
-    global getStarted
     mouseClick(button)
     helpCombo = waitForObject(":Qt Creator_HelpSelector_QComboBox")
     if not test.verify(waitFor('re.match(expectedHelpComboRegex, str(helpCombo.currentText))',
@@ -14,8 +12,9 @@ def clickItemVerifyHelpCombo(button, expectedHelpComboRegex, testDetails):
         test.log("Found %s" % str(helpCombo.currentText))
     # select "Welcome" page from left toolbar again
     switchViewTo(ViewConstants.WELCOME)
-    return test.verify(checkIfObjectExists(getWelcomeScreenSideBarButton(getStarted), timeout=1000),
-                       "Verifying: '%s' button is being displayed." % getStarted)
+
+    return test.verify(checkIfObjectExists(getWelcomeScreenSideBarButton('Projects'), timeout=1000),
+                       "Verifying: 'Projects' button is being displayed.")
 
 def buttonActive(button):
     return waitForObject(button).checked
@@ -46,7 +45,6 @@ def checkTableViewForContent(tableViewStr, expectedRegExTitle, section, atLeastO
         test.fail("Failed to get tableview to check content of Welcome page (%s)" % section)
 
 def main():
-    global getStarted
     # open Qt Creator
     startQC()
     if not startedWithoutPluginError():
@@ -72,38 +70,6 @@ def main():
             test.verify(not buttonActive(wsButton),
                         "Verifying whether '%s' button is inactive." % button)
 
-    wsButton = getWelcomeScreenSideBarButton(getStarted)
-    if test.verify(object.exists(wsButton),
-                   "Verifying: Qt Creator displays Welcome Page with '%s' button." % getStarted):
-        if clickItemVerifyHelpCombo(wsButton, "Getting Started \| Qt Creator Documentation",
-                                    "Verifying: Help with Creator Documentation is being opened."):
-
-            textUrls = {'Online Community':'https://forum.qt.io',
-                        'Blogs':'https://planet.qt.io',
-                        'Qt Account':'https://account.qt.io',
-                        'User Guide':'qthelp://org.qt-project.qtcreator/doc/index.html'
-                        }
-            for text, url in textUrls.items():
-                button = getWelcomeScreenSideBarButton(text)
-                if test.verify(object.exists(button),
-                               "Verifying whether link button (%s) exists." % text):
-                    test.compare(str(waitForObject(button).toolTip), url,
-                                 "Verifying URL for %s" % text)
-    wsButton = getWelcomeScreenSideBarButton(getStarted)
-    if object.exists(wsButton):
-        mouseClick(wsButton)
-        qcManualQModelIndexStr = getQModelIndexStr("text~='Qt Creator Documentation [0-9.]+'",
-                                                   ":Qt Creator_QHelpContentWidget")
-        if str(waitForObject(":Qt Creator_HelpSelector_QComboBox").currentText) == "(Untitled)":
-            mouseClick(qcManualQModelIndexStr)
-            test.warning("Clicking '%s' the second time showed blank page (Untitled)" % getStarted)
-    else:
-        test.fatal("Something's wrong - failed to find/click '%s' the second time." % getStarted)
-
-    # select "Welcome" page from left toolbar again
-    switchViewTo(ViewConstants.WELCOME)
-    test.verify(object.exists(getWelcomeScreenSideBarButton(getStarted)),
-                "Verifying: Getting Started topic is being displayed.")
     # select Examples and roughly check them
     switchToSubMode('Examples')
     test.verify(waitForButtonsState(False, True, False), "Buttons' states have changed.")

@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
@@ -588,18 +589,17 @@ bool BaseSettings::isValid() const
     return !m_name.isEmpty();
 }
 
-bool BaseSettings::isValidOnProject(ProjectExplorer::Project *) const
+bool BaseSettings::isValidOnBuildConfiguration(BuildConfiguration *) const
 {
     return isValid();
 }
 
 Client *BaseSettings::createClient() const
 {
-    return createClient(static_cast<ProjectExplorer::Project *>(nullptr));
+    return createClient(static_cast<BuildConfiguration *>(nullptr));
 }
 
-
-bool BaseSettings::isEnabledOnProject(ProjectExplorer::Project *project) const
+bool BaseSettings::isEnabledOnProject(Project *project) const
 {
     if (project) {
         LanguageClient::ProjectSettings settings(project);
@@ -611,11 +611,13 @@ bool BaseSettings::isEnabledOnProject(ProjectExplorer::Project *project) const
     return m_enabled;
 }
 
-Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
+Client *BaseSettings::createClient(BuildConfiguration *bc) const
 {
-    if (!isValidOnProject(project) || !isEnabledOnProject(project))
+    if (!isValidOnBuildConfiguration(bc))
         return nullptr;
-    BaseClientInterface *interface = createInterface(project);
+    if (bc && !isEnabledOnProject(bc->project()))
+        return nullptr;
+    BaseClientInterface *interface = createInterface(bc);
     QTC_ASSERT(interface, return nullptr);
     auto *client = createClient(interface);
     QTC_ASSERT(client, return nullptr);
@@ -625,8 +627,8 @@ Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
 
     client->setSupportedLanguage(m_languageFilter);
     client->setInitializationOptions(initializationOptions());
-    client->setActivateDocumentAutomatically(true);
-    client->setCurrentProject(project);
+    client->setActivatable(m_activatable);
+    client->setCurrentBuildConfiguration(bc);
     client->updateConfiguration(m_configuration);
     return client;
 }
@@ -845,12 +847,12 @@ Utils::CommandLine StdIOSettings::command() const
     return Utils::CommandLine(m_executable, arguments(), Utils::CommandLine::Raw);
 }
 
-BaseClientInterface *StdIOSettings::createInterface(ProjectExplorer::Project *project) const
+BaseClientInterface *StdIOSettings::createInterface(BuildConfiguration *bc) const
 {
     auto interface = new StdIOClientInterface;
     interface->setCommandLine(command());
-    if (project)
-        interface->setWorkingDirectory(project->projectDirectory());
+    if (bc)
+        interface->setWorkingDirectory(bc->project()->projectDirectory());
     return interface;
 }
 

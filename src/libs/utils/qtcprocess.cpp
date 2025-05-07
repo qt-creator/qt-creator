@@ -382,32 +382,6 @@ public:
             workingDir = workingDir.parentDir();
         if (!QTC_GUARD(workingDir.exists()))
             workingDir = workingDir.withNewPath({});
-        bool startResult = m_ptyProcess->startProcess(executable,
-                                                      HostOsInfo::isWindowsHost()
-                                                          ? QStringList{m_setup.m_nativeArguments}
-                                                                << arguments
-                                                          : arguments,
-                                                      workingDir.nativePath(),
-                                                      senv,
-                                                      m_setup.m_ptyData->size().width(),
-                                                      m_setup.m_ptyData->size().height());
-
-        if (!startResult) {
-            const ProcessResultData result = {-1,
-                                              QProcess::CrashExit,
-                                              QProcess::FailedToStart,
-                                              "Failed to start pty process: "
-                                                  + m_ptyProcess->lastError()};
-            emit done(result);
-            return;
-        }
-
-        if (!m_ptyProcess->lastError().isEmpty()) {
-            const ProcessResultData result
-                = {-1, QProcess::CrashExit, QProcess::FailedToStart, m_ptyProcess->lastError()};
-            emit done(result);
-            return;
-        }
 
         connect(m_ptyProcess->notifier(), &QIODevice::readyRead, this, [this] {
             if (m_setup.m_ptyData->ptyInputFlagsChangedHandler()
@@ -440,6 +414,32 @@ public:
             const ProcessResultData result = {0, QProcess::NormalExit, QProcess::UnknownError, {}};
             emit done(result);
         });
+
+        bool startResult = m_ptyProcess->startProcess(
+            executable,
+            HostOsInfo::isWindowsHost() ? QStringList{m_setup.m_nativeArguments} << arguments
+                                        : arguments,
+            workingDir.nativePath(),
+            senv,
+            m_setup.m_ptyData->size().width(),
+            m_setup.m_ptyData->size().height());
+
+        if (!startResult) {
+            const ProcessResultData result
+                = {-1,
+                   QProcess::CrashExit,
+                   QProcess::FailedToStart,
+                   "Failed to start pty process: " + m_ptyProcess->lastError()};
+            emit done(result);
+            return;
+        }
+
+        if (!m_ptyProcess->lastError().isEmpty()) {
+            const ProcessResultData result
+                = {-1, QProcess::CrashExit, QProcess::FailedToStart, m_ptyProcess->lastError()};
+            emit done(result);
+            return;
+        }
 
         emit started(m_ptyProcess->pid());
     }

@@ -20,13 +20,14 @@
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/guard.h>
 #include <utils/macroexpander.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 #include <utils/store.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
-#include <utils/shutdownguard.h>
 #include <utils/threadutils.h>
 
 #include <nanotrace/nanotrace.h>
@@ -95,7 +96,7 @@ public:
     QString m_sessionName = "default";
     bool m_isAutoRestoreLastSession = false;
     bool m_virginSession = true;
-    bool m_loadingSession = false;
+    Guard m_loadingSession;
 
     mutable QStringList m_sessions;
     mutable QHash<QString, QDateTime> m_sessionDateTimes;
@@ -209,7 +210,7 @@ bool SessionManager::isDefaultSession(const QString &session)
 
 bool SessionManager::isLoadingSession()
 {
-    return d->m_loadingSession;
+    return d->m_loadingSession.isLocked();
 }
 
 /*!
@@ -683,10 +684,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
         return true;
     }
 
-    struct SessionLoadingUpdater {
-        SessionLoadingUpdater() { d->m_loadingSession = true; }
-        ~SessionLoadingUpdater() { d->m_loadingSession = false; }
-    } sessionLoadingUpdater;
+    GuardLocker sessionLoadingGuard(d->m_loadingSession);
 
     // Allow everyone to set something in the session and before saving
     emit SessionManager::instance()->aboutToUnloadSession(d->m_sessionName);

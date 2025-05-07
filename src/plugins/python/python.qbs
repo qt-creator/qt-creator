@@ -29,7 +29,6 @@ QtcPlugin {
             "pythonbuildconfiguration.h",
             "pysideuicextracompiler.cpp",
             "pysideuicextracompiler.h",
-            "python.qrc",
             "pythonbuildsystem.cpp",
             "pythonbuildsystem.h",
             "pythonconstants.h",
@@ -61,12 +60,28 @@ QtcPlugin {
         ]
     }
 
+    Group {
+        name: "images"
+        prefix: "images/"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "qtforpython_neon.png",
+            "settingscategory_python.png",
+            "settingscategory_python@2x.png",
+        ]
+    }
+
     QtcTestFiles {
+        name: "tests"
         prefix: "tests/"
         files: [
             "pyprojecttoml_test.cpp",
             "pyprojecttoml_test.h",
-            "testfiles/testfiles.qrc",
         ]
+    }
+    QtcTestResources {
+        Qt.core.resourceSourceBase: product.sourceDirectory + "/tests/testfiles"
+        Qt.core.resourcePrefix: "/unittests/Python"
+        files: "tests/testfiles/*"
     }
 }

@@ -105,6 +105,12 @@
         \li Anthropic Claude 3.5 Sonnet (provided by Anthropic, remember that you
             need to have a token-based billing payment method configured for your
             Anthropic account: \l {https://console.anthropic.com/}{console.anthropic.com})
+        \li Anthropic Claude 3.7 Sonnet (provided by Anthropic, remember that you
+            need to have a token-based billing payment method configured for your
+            Anthropic account: \l {https://console.anthropic.com/}{console.anthropic.com})
+        \li DeepSeek V3 (provided by DeepSeek, remember that you
+            need to have a token-based billing payment method configured for your
+            DeepSeek account: \l {https://platform.deepseek.com/}{platform.deepseek.com})
         \li OpenAI GPT-4o (provided by OpenAI, remember that you need to have a
             token-based billing payment method configured for your OpenAI account:
             \l {https://platform.openai.com/}{platform.openai.com})

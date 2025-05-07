@@ -288,7 +288,7 @@ void QbsProjectManagerPlugin::initialize()
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &QbsProjectManagerPlugin::updateBuildActions);
 
-    connect(ProjectManager::instance(), &ProjectManager::targetRemoved,
+    connect(ProjectManager::instance(), &ProjectManager::buildConfigurationRemoved,
             this, &QbsProjectManagerPlugin::updateBuildActions);
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             this, &QbsProjectManagerPlugin::updateReparseQbsAction);

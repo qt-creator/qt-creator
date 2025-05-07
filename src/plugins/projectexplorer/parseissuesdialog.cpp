@@ -53,14 +53,14 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
         const FilePath filePath = FileUtils::getOpenFilePath(Tr::tr("Choose File"));
         if (filePath.isEmpty())
             return;
-        QFile file(filePath.toUrlishString());
-        if (!file.open(QIODevice::ReadOnly)) {
+        const Result<QByteArray> res = filePath.fileContents();
+        if (!res) {
             QMessageBox::critical(this, Tr::tr("Could Not Open File"),
                                   Tr::tr("Could not open file: \"%1\": %2")
-                                  .arg(filePath.toUserOutput(), file.errorString()));
+                                  .arg(filePath.toUserOutput(), res.error()));
             return;
         }
-        d->compileOutputEdit.setPlainText(QString::fromLocal8Bit(file.readAll()));
+        d->compileOutputEdit.setPlainText(QString::fromLocal8Bit(res.value()));
     });
 
     d->kitChooser.populate();

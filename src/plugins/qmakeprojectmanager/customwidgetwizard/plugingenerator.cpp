@@ -314,13 +314,14 @@ QString PluginGenerator::processTemplate(const QString &tmpl,
     QString cont = QString::fromUtf8(*res);
 
     // Expander needed to handle extra variable "Cpp:PragmaOnce"
-    Utils::MacroExpander *expander = Utils::globalMacroExpander();
-    cont = Utils::TemplateEngine::processText(expander, cont, errorMessage);
-    if (!errorMessage->isEmpty()) {
+    MacroExpander *expander = Utils::globalMacroExpander();
+    const Result<QString> processed = TemplateEngine::processText(expander, cont);
+    if (!processed) {
         qWarning("Error processing custom plugin file: %s\nFile:\n%s",
-                 qPrintable(*errorMessage), qPrintable(cont));
+                 qPrintable(processed.error()), qPrintable(cont));
         return {};
     }
+    cont = processed.value_or(QString());
 
     const QChar atChar = QLatin1Char('@');
     int offset = 0;

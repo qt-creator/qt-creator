@@ -7,10 +7,6 @@
 
 #include <projectexplorer/projectexplorer_export.h>
 
-#include <QObject>
-
-#include <memory>
-
 namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
@@ -21,31 +17,31 @@ class DeviceManagerPrivate;
 class DeviceSettingsWidget;
 } // namespace Internal
 
-class PROJECTEXPLORER_EXPORT DeviceManager : public QObject
+class PROJECTEXPLORER_EXPORT DeviceManager final : public QObject
 {
     Q_OBJECT
     friend class Internal::DeviceSettingsWidget;
     friend class IDevice;
 
 public:
-    ~DeviceManager() override;
+    ~DeviceManager() final;
 
     static DeviceManager *instance();
 
-    int deviceCount() const;
-    IDevice::Ptr deviceAt(int index) const;
+    static int deviceCount();
+    static IDevice::Ptr deviceAt(int index);
 
-    void forEachDevice(const std::function<void(const IDeviceConstPtr &)> &) const;
+    static void forEachDevice(const std::function<void(const IDeviceConstPtr &)> &);
 
-    IDevice::Ptr find(Utils::Id id) const;
-    IDevice::Ptr defaultDevice(Utils::Id deviceType) const;
-    bool hasDevice(const QString &name) const;
+    static IDevice::Ptr find(Utils::Id id);
+    static IDevice::Ptr defaultDevice(Utils::Id deviceType);
+    static bool hasDevice(const QString &name);
 
-    void addDevice(const IDevice::Ptr &device);
-    void removeDevice(Utils::Id id);
-    void setDeviceState(Utils::Id deviceId, IDevice::DeviceState deviceState);
+    static void addDevice(const IDevice::Ptr &device);
+    static void removeDevice(Utils::Id id);
+    static void setDeviceState(Utils::Id deviceId, IDevice::DeviceState deviceState);
 
-    bool isLoaded() const;
+    static bool isLoaded();
 
     static IDevice::ConstPtr deviceForPath(const Utils::FilePath &path);
     static IDevice::ConstPtr defaultDesktopDevice();
@@ -59,21 +55,16 @@ signals:
     void devicesLoaded(); // Emitted once load() is done
 
 private:
-    void save();
-
     DeviceManager();
 
-    void load();
-    QList<IDevice::Ptr> fromMap(const Utils::Store &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
-    Utils::Store toMap() const;
+    static void load();
+    static void save();
+    static QList<IDevice::Ptr> fromMap(const Utils::Store &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
+    static Utils::Store toMap();
 
     // For SettingsWidget.
-    IDevice::Ptr mutableDevice(Utils::Id id) const;
-    void setDefaultDevice(Utils::Id id);
-
-    const std::unique_ptr<Internal::DeviceManagerPrivate> d;
-
-    static DeviceManager *m_instance;
+    static IDevice::Ptr mutableDevice(Utils::Id id);
+    static void setDefaultDevice(Utils::Id id);
 
     friend class Internal::DeviceManagerPrivate;
     friend class ProjectExplorerPlugin;

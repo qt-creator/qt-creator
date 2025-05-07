@@ -168,30 +168,31 @@ void setupClangdConfigFile()
     }
 }
 
-std::optional<Utils::FilePath> clangdExecutableFromBuildDevice(Project *project)
+static std::optional<Utils::FilePath> clangdExecutableFromBuildDevice(Kit *kit)
 {
-    if (const ProjectExplorer::IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(
-            activeKit(project))) {
+    if (!kit)
+        return std::nullopt;
+
+    if (const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit))
         return buildDevice->clangdExecutable();
-    }
 
     return std::nullopt;
 }
 
-static BaseClientInterface *clientInterface(Project *project, const Utils::FilePath &jsonDbDir)
+static BaseClientInterface *clientInterface(BuildConfiguration *bc, const Utils::FilePath &jsonDbDir)
 {
     using CppEditor::ClangdSettings;
     QString indexingOption = "--background-index";
-    const ClangdSettings settings(CppEditor::ClangdProjectSettings(project).settings());
+    const ClangdSettings settings(CppEditor::ClangdProjectSettings(bc).settings());
     const ClangdSettings::IndexingPriority indexingPriority = settings.indexingPriority();
     const bool indexingEnabled = indexingPriority != ClangdSettings::IndexingPriority::Off;
     if (!indexingEnabled)
         indexingOption += "=0";
-    CppEditor::ClangdProjectSettings(project).unblockIndexing();
+    CppEditor::ClangdProjectSettings(bc).unblockIndexing();
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
     const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults());
-    const Utils::FilePath clangdExePath = clangdExecutableFromBuildDevice(project).value_or(
+    const Utils::FilePath clangdExePath = clangdExecutableFromBuildDevice(bc ? bc->kit() : nullptr).value_or(
         settings.clangdFilePath());
     Utils::CommandLine cmd{clangdExePath,
                            {indexingOption,
@@ -315,8 +316,9 @@ public:
 class ClangdClient::Private
 {
 public:
-    Private(ClangdClient *q, Project *project)
-        : q(q), settings(CppEditor::ClangdProjectSettings(project).settings()) {}
+    Private(ClangdClient *q, BuildConfiguration *bc)
+        : q(q), settings(CppEditor::ClangdProjectSettings(bc).settings())
+    {}
 
     void findUsages(TextDocument *document, const QTextCursor &cursor,
                     const QString &searchTerm, const std::optional<QString> &replacement,
@@ -386,8 +388,8 @@ static void addCompilationDb(QJsonObject &parentObject, const QJsonObject &cdb)
     parentObject.insert("compilationDatabaseChanges", cdb);
 }
 
-ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, const Id &id)
-    : Client(clientInterface(project, jsonDbDir), id), d(new Private(this, project))
+ClangdClient::ClangdClient(BuildConfiguration *bc, const Utils::FilePath &jsonDbDir, const Id &id)
+    : Client(clientInterface(bc, jsonDbDir), id), d(new Private(this, bc))
 {
     setName(Tr::tr("clangd"));
     LanguageFilter langFilter;
@@ -396,7 +398,6 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
             CPP_HEADER_MIMETYPE, CPP_SOURCE_MIMETYPE, OBJECTIVE_CPP_SOURCE_MIMETYPE,
             OBJECTIVE_C_SOURCE_MIMETYPE, CUDA_SOURCE_MIMETYPE};
     setSupportedLanguage(langFilter);
-    setActivateDocumentAutomatically(true);
     setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
     setFunctionHintAssistProvider(new ClangdFunctionHintProvider(this));
     setQuickFixAssistProvider(new ClangdQuickFixProvider(this));
@@ -404,7 +405,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     symbolSupport().setRenameResultsEnhancer([](const SearchResultItems &symbolOccurrencesInCode) {
         return CppEditor::symbolOccurrencesInDeclarationComments(symbolOccurrencesInCode);
     });
-    if (!project) {
+    if (!bc) {
         QJsonObject initOptions;
         const Utils::FilePath includeDir
                 = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
@@ -426,7 +427,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
                && c->state() != Client::Shutdown;
     };
     const QList<Client *> clients =
-        Utils::filtered(LanguageClientManager::clientsForProject(project), isRunningClangdClient);
+            Utils::filtered(LanguageClientManager::clientsForBuildConfiguration(bc), isRunningClangdClient);
     QTC_CHECK(clients.isEmpty());
     for (const Client *client : clients)
         qCWarning(clangdLog) << client->name() << client->stateString();
@@ -460,17 +461,17 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
     setAutoRequestCodeActions(false); // clangd sends code actions inside diagnostics
-    progressManager()->setTitleForToken(
-        indexingToken(), project ? Tr::tr("Indexing %1 with clangd").arg(project->displayName())
-                                 : Tr::tr("Indexing session with clangd"));
-    progressManager()->setCancelHandlerForToken(indexingToken(), [this, p = QPointer(project)]() {
-        if (!p)
+    progressManager()->setTitleForToken(indexingToken(),
+            bc ? Tr::tr("Indexing %1 with clangd").arg(bc->project()->displayName())
+               : Tr::tr("Indexing session with clangd"));
+    progressManager()->setCancelHandlerForToken(indexingToken(), [this, bc = QPointer(bc)] {
+        if (!bc)
             return;
-        CppEditor::ClangdProjectSettings projectSettings(p);
+        CppEditor::ClangdProjectSettings projectSettings(bc);
         projectSettings.blockIndexing();
         progressManager()->endProgressReport(indexingToken());
     });
-    setCurrentProject(project);
+    setCurrentBuildConfiguration(bc);
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);
     setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
                                     int version, bool force) {
@@ -486,14 +487,14 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     });
 
     connect(this, &Client::workDone, this,
-            [this, p = QPointer(project)](const ProgressToken &token) {
+            [this, bc = QPointer(bc)](const ProgressToken &token) {
         const QString * const val = std::get_if<QString>(&token);
         if (val && *val == indexingToken()) {
             d->isFullyIndexed = true;
             emit indexingFinished();
 #ifdef WITH_TESTS
-            if (p)
-                emit p->indexingFinished("Indexer.Clangd");
+            if (bc)
+                emit bc->project()->indexingFinished("Indexer.Clangd");
 #endif
         }
     });

@@ -50,7 +50,7 @@
         \li Enter the locator filter prefix followed by \key Space. The prefix
             is usually short, from one to three characters. Then enter the search
             string (for example, a filename or class name) or the command to
-            execute.
+            execute. Select \key {Tab} to complete the search string.
 
         \li Select a locator filter in the filter list to use it. Press
             the up and down arrow keys or select \key Ctrl+P and \key Ctrl+N

@@ -154,31 +154,23 @@ QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const IWizardFac
     return {m_context->page};
 }
 
-bool ProjectFileWizardExtension::processFiles(
-        const QList<GeneratedFile> &files,
-        bool *removeOpenProjectAttribute, QString *errorMessage)
+Result<> ProjectFileWizardExtension::processFiles(const QList<GeneratedFile> &files,
+                                                  bool *removeOpenProjectAttribute)
 {
-    if (!processProject(files, removeOpenProjectAttribute, errorMessage))
-        return false;
-    if (!m_context->page->runVersionControl(files, errorMessage)) {
-        QString message;
-        if (errorMessage) {
-            message = *errorMessage;
-            message.append(QLatin1String("\n\n"));
-            errorMessage->clear();
-        }
-        message.append(Tr::tr("Open project anyway?"));
+    if (const Result<> res = processProject(files, removeOpenProjectAttribute); !res)
+        return res;
+    if (const Result<> res = m_context->page->runVersionControl(files); !res) {
+        const QString message = res.error() + "\n\n" +  Tr::tr("Open project anyway?");
         if (QMessageBox::question(ICore::dialogParent(), Tr::tr("Version Control Failure"), message,
                                   QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
-            return false;
+            return ResultError(QString());
     }
-    return true;
+    return ResultOk;
 }
 
 // Add files to project && version control
-bool ProjectFileWizardExtension::processProject(
-        const QList<GeneratedFile> &files,
-        bool *removeOpenProjectAttribute, QString *errorMessage)
+Result<> ProjectFileWizardExtension::processProject(const QList<GeneratedFile> &files,
+                                                    bool *removeOpenProjectAttribute)
 {
     *removeOpenProjectAttribute = false;
 
@@ -186,24 +178,22 @@ bool ProjectFileWizardExtension::processProject(
 
     FolderNode *folder = m_context->page->currentNode();
     if (!folder)
-        return true;
+        return ResultOk;
     if (m_context->wizard->kind() == IWizardFactory::ProjectWizard) {
         if (!static_cast<ProjectNode *>(folder)->addSubProject(generatedProject)) {
-            *errorMessage = Tr::tr("Failed to add subproject \"%1\"\nto project \"%2\".")
-                            .arg(generatedProject.toUserOutput()).arg(folder->filePath().toUserOutput());
-            return false;
+            return ResultError(Tr::tr("Failed to add subproject \"%1\"\nto project \"%2\".")
+                            .arg(generatedProject.toUserOutput()).arg(folder->filePath().toUserOutput()));
         }
         *removeOpenProjectAttribute = true;
     } else {
         FilePaths filePaths = Utils::transform(files, &GeneratedFile::filePath);
         if (!folder->addFiles(filePaths)) {
-            *errorMessage = Tr::tr("Failed to add one or more files to project\n\"%1\" (%2).")
+            return ResultError(Tr::tr("Failed to add one or more files to project\n\"%1\" (%2).")
                     .arg(folder->filePath().toUserOutput())
-                    .arg(FilePath::formatFilePaths(filePaths, ","));
-            return false;
+                    .arg(FilePath::formatFilePaths(filePaths, ",")));
         }
     }
-    return true;
+    return ResultOk;
 }
 
 static ICodeStylePreferences *codeStylePreferences(Project *project, Id languageId)

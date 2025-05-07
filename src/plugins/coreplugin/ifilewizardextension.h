@@ -34,9 +34,8 @@ public:
     virtual QList<QWizardPage *> extensionPages(const IWizardFactory *wizard) = 0;
 
     /* Process the files using the extension parameters */
-    virtual bool processFiles(const QList<GeneratedFile> &files,
-                         bool *removeOpenProjectAttribute,
-                         QString *errorMessage) = 0;
+    virtual Utils::Result<> processFiles(const QList<GeneratedFile> &files,
+                                         bool *removeOpenProjectAttribute) = 0;
     /* Applies code style settings which may depend on the project to which
      * the files will be added.
      * This function is called before the files are actually written out,

@@ -8,7 +8,6 @@
 #include "environment.h"
 #include "fancylineedit.h"
 #include "guard.h"
-#include "iconbutton.h"
 #include "layoutbuilder.h"
 #include "macroexpander.h"
 #include "passworddialog.h"
@@ -17,6 +16,7 @@
 #include "qtcassert.h"
 #include "qtcolorbutton.h"
 #include "qtcsettings.h"
+#include "qtcwidgets.h"
 #include "stylehelper.h"
 #include "utilsicons.h"
 #include "utilstr.h"
@@ -2567,7 +2567,7 @@ void IntegerAspect::addToLayoutImpl(Layouting::Layout &parent)
     d->m_spinBox->setSuffix(d->m_suffix);
     d->m_spinBox->setSingleStep(d->m_singleStep);
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
-    if (d->m_maximumValue && d->m_maximumValue)
+    if (d->m_minimumValue && d->m_maximumValue)
         d->m_spinBox->setRange(int(d->m_minimumValue.value() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.value() / d->m_displayScaleFactor));
     bufferToGui();
@@ -2668,7 +2668,7 @@ void DoubleAspect::addToLayoutImpl(Layout &builder)
     d->m_spinBox->setSuffix(d->m_suffix);
     d->m_spinBox->setSingleStep(d->m_singleStep);
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
-    if (d->m_maximumValue && d->m_maximumValue)
+    if (d->m_minimumValue && d->m_maximumValue)
         d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
     bufferToGui(); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
@@ -3779,62 +3779,53 @@ private:
     int m_index;
 };
 
-static void destroyLayout(QLayout *layout)
-{
-    if (layout) {
-        while (QLayoutItem *child = layout->takeAt(0)) {
-            delete child->widget();
-            delete child;
-        }
-        delete layout;
-    }
-}
-
 void AspectList::addToLayoutImpl(Layouting::Layout &parent)
 {
     using namespace Layouting;
+    using namespace Utils::QtcWidgets;
 
-    QGroupBox *group = new QGroupBox;
-    group->setTitle(labelText());
-
-    auto fill = [this, group] {
-        destroyLayout(group->layout());
-
-        Column column;
-
-        for (const std::shared_ptr<BaseAspect> &item : volatileItems()) {
-            auto removeBtn = new IconButton;
-            removeBtn->setIcon(Utils::Icons::EDIT_CLEAR.icon());
-            removeBtn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-            QObject::connect(removeBtn, &QPushButton::clicked, removeBtn, [this, item] {
-                removeItem(item);
-            });
-
+    auto fill = [this] {
+        const auto createRow = [this](const std::shared_ptr<BaseAspect> &item) {
             // clang-format off
-            QWidget *rowWdgt = Row {
+            return Row {
                 *item,
-                removeBtn,
+                IconButton {
+                    ::icon(Utils::Icons::EDIT_CLEAR),
+                    sizePolicy(QSizePolicy{QSizePolicy::Fixed, QSizePolicy::Fixed}),
+                    onClicked(this, [this, item] {
+                        removeItem(item);
+                    })
+                },
                 spacing(5),
                 noMargin,
-            }.emerge();
+            };
             // clang-format on
-            column.addItem(rowWdgt);
-        }
+        };
 
-        auto add = new QPushButton(Tr::tr("Add"));
-        QObject::connect(add, &QPushButton::clicked, this, [this] {
-            addItem(d->createItem());
-        });
-
-        column.addItem(Row{st, add, noMargin}.emerge());
-
-        column.attachTo(group);
+        // clang-format off
+        return Column {
+            Utils::transform(volatileItems(), createRow),
+            Row {
+                noMargin,
+                st,
+                IconButton {
+                    ::icon(Utils::Icons::PLUS),
+                    onClicked(this, [this](){
+                        addItem(d->createItem());
+                    })
+                }
+            }
+        };
+        // clang-format on
     };
 
-    fill();
-    QObject::connect(this, &AspectList::volatileValueChanged, group, fill);
-
-    parent.addItem(group);
+    // clang-format off
+    parent.addItem(
+        Group {
+            replaceLayoutOn(this, &AspectList::volatileValueChanged, fill)
+        }
+    );
+    // clang-format on
 }
 
 StringSelectionAspect::StringSelectionAspect(AspectContainer *container)

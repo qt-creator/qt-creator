@@ -104,7 +104,6 @@ add_qtc_plugin(TextEditor
     textdocument.cpp textdocument.h
     textdocumentlayout.cpp textdocumentlayout.h
     texteditor.cpp texteditor.h
-    texteditor.qrc
     texteditor_global.h
     texteditorconstants.cpp texteditorconstants.h
     texteditoroverlay.cpp texteditoroverlay.h
@@ -128,6 +127,16 @@ extend_qtc_plugin(TextEditor
     highlighter_test.h
     texteditor_test.cpp
     texteditor_test.h
+)
+
+qtc_add_resources(TextEditor "images"
+  PREFIX "/texteditor"
+  BASE "."
+  FILES
+    images/finddocuments.png
+    images/settingscategory_texteditor.png
+    images/settingscategory_texteditor@2x.png
+    images/snippet.png
 )
 
 # from cmake 3.24 $<LINK_LIBRARY:WHOLE_ARCHIVE,TextEditorSupport> is supported which can be added to DEPENDS

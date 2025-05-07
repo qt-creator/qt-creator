@@ -80,9 +80,8 @@ void FileSystemAccessTest::initTestCase()
     if (DeviceManager::deviceForPath(filePath) == nullptr) {
         const IDevice::Ptr device = m_testLinuxDeviceFactory.create();
         QVERIFY(device);
-        DeviceManager *deviceManager = DeviceManager::instance();
-        deviceManager->addDevice(device);
-        m_device = deviceManager->find(device->id());
+        DeviceManager::addDevice(device);
+        m_device = DeviceManager::find(device->id());
         QVERIFY(m_device);
     }
     if (filePath.exists()) // Do initial cleanup after possible leftovers from previously failed test

@@ -15,11 +15,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    if not test.verify(object.exists(getWelcomeScreenSideBarButton('Get Started')),
-                       "Verifying: Qt Creator displays Welcome Page with Getting Started."):
-        test.fatal("Something's wrong - leaving test.")
-        invokeMenuItem("File", "Exit")
-        return
+
     # select "Tutorials"
     if not switchToSubMode('Tutorials'):
         test.fatal("Could not find Tutorials button - leaving test")

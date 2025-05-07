@@ -27,7 +27,7 @@
     the build system structure of the project and lists all files that
     are part of the project.
 
-    \image {qtcreator-projects-view-edit.png} {Projects view in the sidebar}
+    \image {qtcreator-projects-view.webp} {Projects view in the sidebar}
 
     \note Usually, \l{Navigate with locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,

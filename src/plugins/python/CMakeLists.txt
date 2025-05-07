@@ -8,7 +8,6 @@ add_qtc_plugin(Python
     pyside.cpp pyside.h
     pythonbuildconfiguration.cpp pythonbuildconfiguration.h
     pysideuicextracompiler.cpp pysideuicextracompiler.h
-    python.qrc
     pythonbuildsystem.cpp pythonbuildsystem.h
     pythonconstants.h
     pythoneditor.cpp pythoneditor.h
@@ -32,5 +31,20 @@ extend_qtc_plugin(Python
   SOURCES
     tests/pyprojecttoml_test.cpp
     tests/pyprojecttoml_test.h
-    tests/testfiles/testfiles.qrc
+)
+
+qtc_add_resources(Python "images"
+  PREFIX "/python"
+  BASE "."
+  FILES
+    images/qtforpython_neon.png
+    images/settingscategory_python.png
+    images/settingscategory_python@2x.png
+)
+file(GLOB_RECURSE test_cases RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/tests/testfiles tests/testfiles/*)
+qtc_add_resources(Python "testcases"
+  PREFIX "unittests/Python"
+  CONDITION WITH_TESTS
+  FILES_PREFIX "tests/testfiles"
+  FILES ${test_cases}
 )

@@ -25,7 +25,16 @@ def openQmakeProject(projectPath, targets=Targets.desktopTargetClasses(), fromWe
         clickButton(waitForObject("{text='Yes' type='QPushButton' unnamed='1' visible='1'}"))
     except:
         pass
-    __chooseTargets__(targets)
+
+    def additionalFunction():
+        # enable at least build configurations "Debug" and "Release"
+        configs = ['Debug', 'Release']
+        for checkbox in configs:
+            ensureChecked(waitForObject("{text='%s' type='QCheckBox' unnamed='1' visible='1' "
+                                        "window=':Qt Creator_Core::Internal::MainWindow'}"
+                                        % checkbox), True)
+
+    __chooseTargets__(targets, additionalFunc=additionalFunction)
     configureButton = waitForObject(":Qt Creator.Configure Project_QPushButton")
     clickButton(configureButton)
 
@@ -203,7 +212,7 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
             available.discard(currentItem)
 
 def __getProjectFileName__(projectName, buildSystem):
-    if buildSystem is None or buildSystem == "CMake":
+    if buildSystem is None or buildSystem.startswith("CMake"):
         return "CMakeLists.txt"
     else:
         return projectName + (".pro" if buildSystem == "qmake" else ".qbs")

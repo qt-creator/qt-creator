@@ -910,9 +910,8 @@ int main(int argc, char **argv)
         appOptions.insert(QLatin1String(CLIENT_OPTION), false);
         appOptions.insert(QLatin1String(PID_OPTION), true);
         appOptions.insert(QLatin1String(BLOCK_OPTION), false);
-        QString errorMessage;
-        if (!PluginManager::parseOptions(pluginArguments, appOptions, &foundAppOptions, &errorMessage)) {
-            displayError(errorMessage);
+        if (Result<> res = PluginManager::parseOptions(pluginArguments, appOptions, &foundAppOptions); !res) {
+            displayError(res.error());
             printHelp(QFileInfo(app.applicationFilePath()).baseName());
             return -1;
         }

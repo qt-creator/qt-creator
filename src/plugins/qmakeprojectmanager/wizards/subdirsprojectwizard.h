@@ -10,8 +10,6 @@ namespace Internal {
 
 class SubdirsProjectWizard : public QtWizard
 {
-    Q_OBJECT
-
 public:
     SubdirsProjectWizard();
 
@@ -19,8 +17,7 @@ private:
     Core::BaseFileWizard *create(const Core::WizardDialogParameters &parameters) const override;
 
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
-    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l,
-                           QString *errorMessage) const override;
+    Utils::Result<> postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l) const override;
 };
 
 } // namespace Internal

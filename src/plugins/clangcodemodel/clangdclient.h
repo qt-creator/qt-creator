@@ -46,7 +46,7 @@ class ClangdClient : public LanguageClient::Client
 {
     Q_OBJECT
 public:
-    ClangdClient(ProjectExplorer::Project *project,
+    ClangdClient(ProjectExplorer::BuildConfiguration *bc,
                  const Utils::FilePath &jsonDbDir,
                  const Utils::Id &id = {});
     ~ClangdClient() override;

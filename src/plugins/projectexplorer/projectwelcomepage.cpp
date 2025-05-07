@@ -26,6 +26,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcwidgets.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
@@ -341,9 +342,9 @@ public:
         m_sessionType->setSizePolicy(m_sessionNameLabel->sizePolicy());
         m_sessionType->setTextInteractionFlags(Qt::NoTextInteraction);
 
-        m_clone = new Button(Tr::tr("Clone"), Button::SmallTertiary);
-        m_rename = new Button(Tr::tr("Rename"), Button::SmallTertiary);
-        m_delete = new Button(Tr::tr("Delete"), Button::SmallTertiary);
+        m_clone = new QtcButton(Tr::tr("Clone"), QtcButton::SmallTertiary);
+        m_rename = new QtcButton(Tr::tr("Rename"), QtcButton::SmallTertiary);
+        m_delete = new QtcButton(Tr::tr("Delete"), QtcButton::SmallTertiary);
 
         auto buttonGroup = new QButtonGroup;
         buttonGroup->addButton(m_clone, ActionClone);
@@ -408,10 +409,18 @@ public:
         m_shortcut->setText(row <= 9 ? QString::number(row) : QString());
 
         m_sessionName = index.data(Qt::DisplayRole).toString();
-        m_sessionNameLabel->setText(m_sessionName);
+
+        const bool isLastSession = index.data(SessionModel::LastSessionRole).toBool();
+        const bool isDefaultVirgin = SessionManager::isDefaultVirgin();
+        const bool isActiveSession = index.data(SessionModel::ActiveSessionRole).toBool();
+        QString fullSessionName = m_sessionName;
+        if (isLastSession && isDefaultVirgin)
+                fullSessionName = Tr::tr("%1 (last session)").arg(fullSessionName);
+        if (isActiveSession && !isDefaultVirgin)
+                fullSessionName = Tr::tr("%1 (current session)").arg(fullSessionName);
+        m_sessionNameLabel->setText(fullSessionName);
 
         m_rename->setEnabled(!SessionManager::isDefaultSession(m_sessionName));
-        const bool isActiveSession = index.data(SessionModel::ActiveSessionRole).toBool();
         m_delete->setEnabled(m_rename->isEnabled() && !isActiveSession);
 
         const QString entryType = Tr::tr("session", "Appears in \"Open session <name>\"");
@@ -720,8 +729,9 @@ public:
 
         auto sessions = new QWidget;
         {
-            auto sessionsLabel = new Core::Label(Tr::tr("Sessions"), Core::Label::Primary);
-            auto manageSessionsButton = new Button(Tr::tr("Manage..."), Button::LargeSecondary);
+            auto sessionsLabel = new QtcLabel(Tr::tr("Sessions"), QtcLabel::Primary);
+            auto manageSessionsButton = new QtcButton(Tr::tr("Manage..."),
+                                                      QtcButton::LargeSecondary);
             m_sessionList = new TreeView(this, "Sessions");
             m_sessionList->setModel(m_projectWelcomePage->m_sessionModel);
             m_sessionList->header()->setSectionHidden(1, true); // The "last modified" column.
@@ -740,7 +750,7 @@ public:
                 spacing(ExPaddingGapL),
                 customMargins(ExVPaddingGapXl, ExVPaddingGapXl, 0, 0),
             }.attachTo(sessions);
-            connect(manageSessionsButton, &Button::clicked,
+            connect(manageSessionsButton, &QtcButton::clicked,
                     this, &SessionManager::showSessionManager);
             connect(m_projectWelcomePage->m_sessionModel, &QAbstractItemModel::modelReset,
                     this, &SessionsPage::syncModelView);
@@ -748,7 +758,7 @@ public:
 
         auto projects = new QWidget;
         {
-            auto projectsLabel = new Core::Label(Tr::tr("Projects"), Core::Label::Primary);
+            auto projectsLabel = new QtcLabel(Tr::tr("Projects"), QtcLabel::Primary);
             auto projectsList = new TreeView(this, "Recent Projects");
             projectsList->setUniformRowHeights(true);
             projectsList->setModel(projectWelcomePage->m_projectModel);

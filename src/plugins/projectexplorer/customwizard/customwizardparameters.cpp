@@ -32,6 +32,7 @@ enum { debug = 0 };
 
 using namespace Core;
 using namespace Utils;
+using namespace Utils::TemplateEngine;
 
 static const char customWizardElementC[] = "wizard";
 static const char iconElementC[] = "icon";
@@ -170,14 +171,13 @@ bool CustomWizardValidationRule::validate(QJSEngine &engine, const QMap<QString,
     // Apply parameters and evaluate using JavaScript
     QString cond = condition;
     CustomWizardContext::replaceFields(replacementMap, &cond);
-    bool valid = false;
-    QString errorMessage;
-    if (!Utils::TemplateEngine::evaluateBooleanJavaScriptExpression(engine, cond, &valid, &errorMessage)) {
+    Result<bool> res = TemplateEngine::evaluateBooleanJavaScriptExpression(engine, cond);
+    if (!res) {
         qWarning("Error in custom wizard validation expression '%s': %s",
-                 qPrintable(cond), qPrintable(errorMessage));
+                 qPrintable(cond), qPrintable(res.error()));
         return false;
     }
-    return valid;
+    return res.value();
 }
 
 void CustomWizardParameters::clear()
@@ -913,31 +913,27 @@ void CustomWizardContext::reset()
 
 QString CustomWizardContext::processFile(const FieldReplacementMap &fm, QString in)
 {
-
     if (in.isEmpty())
         return in;
 
     if (!fm.isEmpty())
         replaceFields(fm, &in);
 
-    QString out;
-
     // Expander needed to handle extra variable "Cpp:PragmaOnce"
-    QString errorMessage;
-    Utils::MacroExpander *expander = Utils::globalMacroExpander();
-    in = Utils::TemplateEngine::processText(expander, in, &errorMessage);
-    if (!errorMessage.isEmpty()) {
+    const Result<QString> processed = TemplateEngine::processText(globalMacroExpander(), in);
+    if (!processed) {
         qWarning("Error processing custom widget file: %s\nFile:\n%s",
-                 qPrintable(errorMessage), qPrintable(in));
+                 qPrintable(processed.error()), qPrintable(in));
         return {};
     }
 
-    if (!Utils::TemplateEngine::preprocessText(in, &out, &errorMessage)) {
+    const Result<QString> preprocessed = TemplateEngine::preprocessText(*processed);
+    if (!preprocessed) {
         qWarning("Error preprocessing custom widget file: %s\nFile:\n%s",
-                 qPrintable(errorMessage), qPrintable(in));
+                 qPrintable(preprocessed.error()), qPrintable(in));
         return {};
     }
-    return out;
+    return *preprocessed;
 }
 
 } // namespace Internal

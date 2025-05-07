@@ -67,7 +67,7 @@
     view when you edit a \c CMakeLists.txt configuration file
     in a project. Also, refreshes project information when you build the project.
 
-    \image {qtcreator-projects-view-edit.png} {CMake project in Projects view}
+    \image {qtcreator-projects-view.webp} {CMake project in Projects view}
 
     To disable this behavior, go to \preferences > \uicontrol CMake >
     \uicontrol General and clear \uicontrol {Autorun CMake}.

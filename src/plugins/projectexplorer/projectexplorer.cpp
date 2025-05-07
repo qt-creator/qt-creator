@@ -660,7 +660,7 @@ public:
     FilesInAllProjectsFind m_filesInAllProjectsFind;
 
     CustomExecutableRunConfigurationFactory m_customExecutableRunConfigFactory;
-    CustomExecutableRunWorkerFactory m_customExecutableRunWorkerFactory;
+    ProcessRunnerFactory m_customExecutableRunWorkerFactory{{Constants::CUSTOM_EXECUTABLE_RUNCONFIG_ID}};
 
     ProjectFileWizardExtension m_projectFileWizardExtension;
 
@@ -1956,7 +1956,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
              return Environment::systemEnvironment();
          }});
 
-    DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
+    DeviceManager::addDevice(IDevice::Ptr(new DesktopDevice));
 
     setupWorkspaceProject(this);
 
@@ -2151,7 +2151,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     mtools->addAction(cmd);
 
     // Load devices immediately, as other plugins might want to use them
-    DeviceManager::instance()->load();
+    DeviceManager::load();
 
     Core::ICore::setRelativePathToProjectFunction([](const FilePath &path)
     {
@@ -3747,7 +3747,7 @@ void ProjectExplorerPluginPrivate::removeProject()
         return;
     ProjectNode *projectNode = node->managingProject();
     if (projectNode) {
-        RemoveFileDialog removeFileDialog(node->filePath(), ICore::dialogParent());
+        RemoveFileDialog removeFileDialog(node->filePath());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
             projectNode->removeSubProject(node->filePath());
@@ -3888,7 +3888,7 @@ void ProjectExplorerPluginPrivate::removeFile()
     for (const Node * const n : ProjectTree::siblingsWithSameBaseName(currentNode))
         siblings.push_back({n, n->filePath()});
 
-    RemoveFileDialog removeFileDialog(filePath, ICore::dialogParent());
+    RemoveFileDialog removeFileDialog(filePath);
     if (removeFileDialog.exec() != QDialog::Accepted)
         return;
 
@@ -3922,8 +3922,7 @@ void ProjectExplorerPluginPrivate::removeFile()
         const FilePath &currentFilePath = file.second;
         const RemovedFilesFromProject status = folderNode->removeFiles({currentFilePath});
         const bool success = status == RemovedFilesFromProject::Ok
-                || (status == RemovedFilesFromProject::Wildcard
-                    && removeFileDialog.isDeleteFileChecked());
+                || (status == RemovedFilesFromProject::Wildcard && deleteFile);
         if (!success) {
             TaskHub::addTask(BuildSystemTask(Task::Error,
                     Tr::tr("Could not remove file \"%1\" from project \"%2\".")
@@ -3939,7 +3938,8 @@ void ProjectExplorerPluginPrivate::removeFile()
         changeGuards.emplace_back(std::make_unique<FileChangeBlocker>(file.second));
     }
 
-    Core::FileUtils::removeFiles(pathList, deleteFile);
+    if (deleteFile)
+        Core::FileUtils::removeFiles(pathList, deleteFile);
 }
 
 void ProjectExplorerPluginPrivate::duplicateFile()

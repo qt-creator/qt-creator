@@ -189,11 +189,10 @@ void JsonSummaryPage::triggerCommit(const JsonWizard::GeneratorFiles &files)
     GeneratedFiles coreFiles
             = Utils::transform(files, &JsonWizard::GeneratorFile::file);
 
-    QString errorMessage;
-    if (!runVersionControl(coreFiles, &errorMessage)) {
+    if (const Result<> res = runVersionControl(coreFiles); !res) {
         QMessageBox::critical(wizard(), Tr::tr("Failed to Commit to Version Control"),
                               Tr::tr("Error message from Version Control System: \"%1\".")
-                              .arg(errorMessage));
+                              .arg(res.error()));
     }
 }
 

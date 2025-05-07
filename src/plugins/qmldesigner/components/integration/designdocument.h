@@ -50,7 +50,7 @@ public:
     QString displayName() const;
     QString simplfiedDisplayName() const;
 
-    void loadDocument(QPlainTextEdit *edit);
+    void loadDocument(Utils::PlainTextEdit *edit);
     void attachRewriterToModel();
     void close();
 #ifndef QDS_USE_PROJECTSTORAGE
@@ -77,7 +77,7 @@ public:
     Core::IEditor *editor() const;
 
     TextEditor::BaseTextEditor *textEditor() const;
-    QPlainTextEdit *plainTextEdit() const;
+    Utils::PlainTextEdit *plainTextEdit() const;
     Utils::FilePath fileName() const;
     ProjectExplorer::Target *currentTarget() const;
     bool isDocumentLoaded() const;
