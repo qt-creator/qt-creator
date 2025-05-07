@@ -80,7 +80,7 @@ static QString courseDescription(const QJsonObject &courseObj)
         prevLineEmpty = line.isEmpty();
         lines.append(line);
     }
-    return lines.join("\n");
+    return lines.join("\n").replace("&nbsp;", QChar(QChar::Nbsp));
 }
 
 static QString courseThumbnail(const QJsonObject &courseObj)
