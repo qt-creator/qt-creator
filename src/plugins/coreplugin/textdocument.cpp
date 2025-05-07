@@ -121,27 +121,6 @@ bool BaseTextDocument::isUtf8Codec(const QByteArray &name)
 
 /*!
     Autodetects file format and reads the text file specified by \a filePath
-    into a list of strings specified by \a plainTextList.
-
-    If an error occurs while writing the file, \a errorString is set to the
-    error details.
-
-    Returns whether the operation was successful.
-*/
-
-BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath,
-                                                    QStringList *plainTextList)
-{
-    d->m_readResult = TextFileFormat::readFile(filePath,
-                                               codec(),
-                                               plainTextList,
-                                               &d->m_format,
-                                               &d->m_decodingErrorSample);
-    return d->m_readResult;
-}
-
-/*!
-    Autodetects file format and reads the text file specified by \a filePath
     into \a plainText.
 
     If an error occurs while writing the file, \a errorString is set to the

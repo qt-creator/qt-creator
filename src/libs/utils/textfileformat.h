@@ -55,11 +55,7 @@ public:
     static TextFileFormat detect(const QByteArray &data);
 
     bool decode(const QByteArray &data, QString *target) const;
-    bool decode(const QByteArray &data, QStringList *target) const;
 
-    static ReadResult readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
-                               QStringList *plainText, TextFileFormat *format,
-                               QByteArray *decodingErrorSample = nullptr);
     static ReadResult readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
                                QString *plainText, TextFileFormat *format,
                                QByteArray *decodingErrorSample = nullptr);

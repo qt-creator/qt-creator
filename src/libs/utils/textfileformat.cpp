@@ -131,16 +131,18 @@ static bool verifyDecodingError(const QString &text, const QTextCodec *codec,
 }
 
 // Decode a potentially large file in chunks and append it to target
-// using the append function passed on (fits QStringList and QString).
+// using the append function passed on.
 
-template<class Target>
-bool decodeTextFileContent(const QByteArray &dataBA, const TextFileFormat &format, Target *target)
+static bool decodeTextFileContent(const QByteArray &dataBA, const TextFileFormat &format, QString *target)
 {
     const QTextCodec *codec = format.codec();
     QTC_ASSERT(codec, return false);
 
     QTextCodec::ConverterState state;
     bool hasDecodingError = false;
+
+    target->clear();
+    target->reserve(dataBA.size()); // Upper bound.
 
     const char *start = dataBA.constData();
     const char *data = start;
@@ -172,34 +174,19 @@ bool decodeTextFileContent(const QByteArray &dataBA, const TextFileFormat &forma
 }
 
 /*!
-    Returns \a data decoded to a plain string, \a target.
+    Returns \a data decoded to a string, \a target.
 */
 
 bool TextFileFormat::decode(const QByteArray &data, QString *target) const
 {
-    target->clear();
     return decodeTextFileContent(data, *this, target);
 }
 
-/*!
-    Returns \a data decoded to a list of strings, \a target.
-
-    Intended for use with progress bars loading large files.
-*/
-
-bool TextFileFormat::decode(const QByteArray &data, QStringList *target) const
-{
-    target->clear();
-    if (data.size() > textChunkSize)
-        target->reserve(5 + data.size() / textChunkSize);
-    return decodeTextFileContent(data, *this, target);
-}
-
-// Read text file contents to string or stringlist.
-template <class Target>
-TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCodec *defaultCodec,
-                                        Target *target, TextFileFormat *format,
-                                        QByteArray *decodingErrorSampleIn = nullptr)
+// Read text file contents to string
+static TextFileFormat::ReadResult readTextFile(
+        const FilePath &filePath, const QTextCodec *defaultCodec,
+        QString *target, TextFileFormat *format,
+        QByteArray *decodingErrorSampleIn = nullptr)
 {
     if (decodingErrorSampleIn)
         decodingErrorSampleIn->clear();
@@ -226,28 +213,6 @@ TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCod
         return {TextFileFormat::ReadEncodingError, Tr::tr("An encoding error was encountered.")};
     }
     return TextFileFormat::ReadSuccess;
-}
-
-/*!
-    Reads a text file from \a filePath into a list of strings, \a plainTextList
-    using \a defaultCodec and text file format \a format.
-
-    Returns whether decoding was possible without errors. If an errors occur
-    \a errorString is set to the error message, and \a decodingErrorSample is
-    set to a snippet that failed to decode.
-*/
-
-TextFileFormat::ReadResult
-    TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
-                             QStringList *plainTextList, TextFileFormat *format,
-                             QByteArray *decodingErrorSample /* = 0 */)
-{
-    const TextFileFormat::ReadResult result =
-        readTextFile(filePath, defaultCodec, plainTextList, format, decodingErrorSample);
-    if (debug)
-        qDebug().nospace() << Q_FUNC_INFO << filePath << ' ' << *format
-                           << " returns " << result.code << '/' << plainTextList->size() << " chunks";
-    return result;
 }
 
 /*!
