@@ -760,6 +760,24 @@ ITargetItem *TargetGroupItem::currentTargetItem() const
     return targetItem(d->m_project->activeTarget());
 }
 
+TreeItem *TargetGroupItem::buildSettingsItem() const
+{
+    if (ITargetItem * const targetItem = currentTargetItem()) {
+        if (targetItem->childCount() == 2)
+            return targetItem->childAt(0);
+    }
+    return nullptr;
+}
+
+TreeItem *TargetGroupItem::runSettingsItem() const
+{
+    if (ITargetItem * const targetItem = currentTargetItem()) {
+        if (targetItem->hasChildren())
+            return targetItem->childAt(targetItem->childCount() - 1);
+    }
+    return nullptr;
+}
+
 ITargetItem *TargetGroupItem::targetItem(Target *target) const
 {
     if (target) {

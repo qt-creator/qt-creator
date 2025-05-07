@@ -491,6 +491,14 @@ void ArgumentsAspect::addToLayoutImpl(Layout &builder)
     addLabeledItem(builder, container);
 }
 
+void ArgumentsAspect::setFocusToInputField()
+{
+    if (m_chooser)
+        m_chooser->setFocus();
+    else if (m_multiLineChooser)
+        m_multiLineChooser->setFocus();
+}
+
 /*!
     \class ProjectExplorer::ExecutableAspect
     \inmodule QtCreator

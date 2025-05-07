@@ -92,6 +92,7 @@ public:
     explicit ArgumentsAspect(Utils::AspectContainer *container = nullptr);
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
+    void setFocusToInputField();
 
     QString operator()() const { return arguments(); }
     QString arguments() const;

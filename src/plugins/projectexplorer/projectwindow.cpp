@@ -595,6 +595,9 @@ public:
         });
     }
 
+    TreeItem *activeBuildSettingsItem() const { return m_targetsItem->buildSettingsItem(); }
+    TreeItem *activeRunSettingsItem() const { return m_targetsItem->runSettingsItem(); }
+
 private:
     QObject m_guard;
     int m_currentChildIndex = 0; // Start with Build & Run.
@@ -997,6 +1000,22 @@ ProjectWindow::ProjectWindow()
 void ProjectWindow::activateProjectPanel(Utils::Id panelId)
 {
     d->activateProjectPanel(panelId);
+}
+
+void ProjectWindow::activateBuildSettings()
+{
+    if (ProjectItem *projectItem = d->m_projectsModel.rootItem()->childAt(0)) {
+        if (TreeItem *item = projectItem->activeBuildSettingsItem())
+            d->itemActivated(item->index());
+    }
+}
+
+void ProjectWindow::activateRunSettings()
+{
+    if (ProjectItem *projectItem = d->m_projectsModel.rootItem()->childAt(0)) {
+        if (TreeItem *item = projectItem->activeRunSettingsItem())
+            d->itemActivated(item->index());
+    }
 }
 
 OutputWindow *ProjectWindow::buildSystemOutput() const

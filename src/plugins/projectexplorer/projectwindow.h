@@ -46,6 +46,8 @@ public:
     ~ProjectWindow() override;
 
     void activateProjectPanel(Utils::Id panelId);
+    void activateBuildSettings();
+    void activateRunSettings();
 
     Core::OutputWindow *buildSystemOutput() const;
 

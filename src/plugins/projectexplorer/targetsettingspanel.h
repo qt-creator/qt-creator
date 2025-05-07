@@ -30,6 +30,8 @@ public:
     Qt::ItemFlags flags(int) const override;
 
     ITargetItem *currentTargetItem() const;
+    Utils::TreeItem *buildSettingsItem() const;
+    Utils::TreeItem *runSettingsItem() const;
     ITargetItem *targetItem(Target *target) const;
 
 private:

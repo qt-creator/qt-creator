@@ -4,6 +4,7 @@
 #include "projectexplorer.h"
 
 #include "appoutputpane.h"
+#include "buildaspects.h"
 #include "buildpropertiessettings.h"
 #include "buildsystem.h"
 #include "compileoutputwindow.h"
@@ -1671,6 +1672,31 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
             dd->m_targetSelector, &MiniProjectTargetSelector::nextOrShow);
     cmd = ActionManager::registerAction(dd->m_projectSelectorActionQuick, Constants::SELECTTARGETQUICK);
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+T")));
+
+    ActionBuilder(this, "ProjectExplorer.EditActiveBuildConfig")
+        .setText(Tr::tr("Edit Active Build Configuration"))
+        .setDefaultKeySequence(Tr::tr("Ctrl+E, Ctrl+B"))
+        .addOnTriggered(this, [] {
+            ModeManager::activateMode(Constants::MODE_SESSION);
+            dd->m_proWindow->activateBuildSettings();
+            if (BuildConfiguration *const activeBc = activeBuildConfigForActiveProject()) {
+                if (const auto dirAspect = activeBc->aspect<BuildDirectoryAspect>()) {
+                    if (PathChooser *const chooser = dirAspect->pathChooser())
+                        chooser->setFocus();
+                }
+            }
+        });
+    ActionBuilder(this, "ProjectExplorer.EditActiveRunConfig")
+        .setText(Tr::tr("Edit Active Run Configuration"))
+        .setDefaultKeySequence(Tr::tr("Ctrl+E, Ctrl+R"))
+        .addOnTriggered(this, [] {
+            ModeManager::activateMode(Constants::MODE_SESSION);
+            dd->m_proWindow->activateRunSettings();
+            if (RunConfiguration * const activeRc = activeRunConfigForActiveProject()) {
+                if (const auto argsAspect = activeRc->aspect<ArgumentsAspect>())
+                    argsAspect->setFocusToInputField();
+            }
+        });
 
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             dd, &ProjectExplorerPluginPrivate::savePersistentSettings);
