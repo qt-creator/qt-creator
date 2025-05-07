@@ -43,11 +43,7 @@ public:
 
 static QString courseUrl(const CourseItem *item)
 {
-    // The catalog html page contains per-course anchors, based on the course title:
-    //   data-link="#the-course-title"
-    const QString anchor = item->rawName.toLower().replace(' ', '-');
-    const QString url = "https://www.qt.io/academy/course-catalog#" + anchor;
-    return url;
+    return QString("https://academy.qt.io/catalog/courses/%1").arg(item->id);
 }
 
 class CourseItemDelegate : public ListItemDelegate
