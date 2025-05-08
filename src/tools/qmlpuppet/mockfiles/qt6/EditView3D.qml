@@ -925,7 +925,7 @@ Item {
                 border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView0
-                    editView: viewRoot.editViews[0]
+                    viewportId: 0
                     viewRoot: viewRoot
                     importScene: overlayScene
 
@@ -950,7 +950,7 @@ Item {
                 border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView1
-                    editView: viewRoot.editViews[1]
+                    viewportId: 1
                     viewRoot: viewRoot
                     importScene: overlayScene
 
@@ -975,7 +975,7 @@ Item {
                 border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView2
-                    editView: viewRoot.editViews[2]
+                    viewportId: 2
                     viewRoot: viewRoot
                     importScene: overlayScene
 
@@ -1000,7 +1000,7 @@ Item {
                 border.color: viewportBorderColor
                 OverlayView3D {
                     id: overlayView3
-                    editView: viewRoot.editViews[3]
+                    viewportId: 3
                     viewRoot: viewRoot
                     importScene: overlayScene
 

@@ -14,8 +14,9 @@ View3D {
     property alias lightGizmo: lightGizmo
     property alias lookAtGizmo: lookAtGizmo
 
+    property int viewportId: 0
     property var viewRoot: null
-    property View3D editView: null
+    property View3D editView: viewRoot.editViews[overlayView.viewportId]
     property bool isActive: viewRoot.overlayViews[viewRoot.activeViewport] === overlayView
 
     property var lightIconGizmos: []
@@ -27,7 +28,7 @@ View3D {
     signal commitObjectProperty(var objects, var propNames)
     signal changeObjectProperty(var objects, var propNames)
 
-    camera: viewRoot.usePerspective ? overlayPerspectiveCamera : overlayOrthoCamera
+    camera: viewRoot.usePerspective[overlayView.viewportId] ? overlayPerspectiveCamera : overlayOrthoCamera
 
     anchors.fill: parent
     z: 2
