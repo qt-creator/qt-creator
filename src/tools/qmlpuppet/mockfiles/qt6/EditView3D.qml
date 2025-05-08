@@ -1293,7 +1293,10 @@ Item {
 
                 Connections {
                     target: viewRoot
-                    onActiveViewportChanged: cameraView.updateSnapping()
+                    function onActiveViewportChanged()
+                    {
+                        cameraView.updateSnapping()
+                    }
                 }
             }
         }
