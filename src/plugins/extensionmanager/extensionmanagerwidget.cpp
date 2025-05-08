@@ -107,6 +107,7 @@ static void requestRestart()
         Utils::InfoBarEntry
             info(kRestartSetting, Core::Tr::tr("Plugin changes will take effect after restart."));
         info.setTitle(Tr::tr("Restart Required"));
+        info.setInfoType(InfoLabel::Information);
         info.addCustomButton(
             Tr::tr("Restart Now"),
             [] { QTimer::singleShot(0, ICore::instance(), &ICore::restart); },

@@ -228,9 +228,10 @@ void PyDapEngine::setupEngine()
     if (missingModuleInstallation(interpreter, "debugpy")) {
         Utils::InfoBarEntry
             info(installDebugPyInfoBarId,
-                 Tr::tr(
-                     "Python debugging support is not available. Install the debugpy package."),
+                 Tr::tr("Install the debugpy package to turn on Python debugging support."),
                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
+        info.setTitle(Tr::tr("Python Debugging Is Not Available"));
+        info.setInfoType(InfoLabel::Warning);
         info.addCustomButton(
             Tr::tr("Install debugpy"),
             [this] {

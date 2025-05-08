@@ -194,6 +194,7 @@ static void showUpdateInfo(const QList<Update> &updates,
 {
     InfoBarEntry info(InstallUpdates, infoTitle(updates, newQt));
     info.setTitle(Tr::tr("Updates Available"));
+    info.setInfoType(InfoLabel::Information);
     info.addCustomButton(
         Tr::tr("Open Settings"),
         [] { ICore::showOptionsDialog(FILTER_OPTIONS_PAGE_ID); },

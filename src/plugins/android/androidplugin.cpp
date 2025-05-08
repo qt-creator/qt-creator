@@ -142,10 +142,12 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
 
         Utils::InfoBarEntry
             info(kSetupAndroidSetting,
-                 Tr::tr("Would you like to configure Android options? This will ensure "
-                        "Android kits can be usable and all essential packages are installed. "
-                        "To do it later, select Edit > Preferences > Devices > Android."),
+                 Tr::tr("Automatically create usable Android kits and install all essential "
+                        "packages. "
+                        "To do this later, select Edit > Preferences > Devices > Android."),
                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
+        info.setTitle(Tr::tr("Configure Android Options?"));
+        info.setInfoType(Utils::InfoLabel::Information);
         info.addCustomButton(
             Tr::tr("Configure Android"),
             [this] {

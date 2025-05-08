@@ -426,11 +426,11 @@ void askUserAboutIntroduction()
 
     InfoBarEntry
         info(kTakeTourSetting,
-             Tr::tr("Would you like to take a quick UI tour? This tour highlights important user "
-                    "interface elements and shows how they are used. To take the tour later, "
-                    "select Help > UI Tour."),
+             Tr::tr("See where the important UI elements are and how they are used. "
+                    "To take the tour later, select Help > UI Tour."),
              InfoBarEntry::GlobalSuppression::Enabled);
-    info.setTitle(Tr::tr("UI Tour"));
+    info.setTitle(Tr::tr("Take a UI Tour?"));
+    info.setInfoType(InfoLabel::Information);
     info.addCustomButton(
         Tr::tr("Take UI Tour"),
         [] { runUiTour(); },

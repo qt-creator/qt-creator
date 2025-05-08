@@ -171,6 +171,8 @@ static void checkSystemForClangdSuitability()
             "would be higher than what your system can handle.");
     const Id clangdWarningSetting("WarnAboutClangd");
     InfoBarEntry info(clangdWarningSetting, warnStr);
+    info.setTitle(Tr::tr("Clangd Disabled"));
+    info.setInfoType(InfoLabel::Warning);
     info.setDetailsWidgetCreator([] {
         const auto label = new QLabel(Tr::tr(
             "With clangd enabled, Qt Creator fully supports modern C++ "

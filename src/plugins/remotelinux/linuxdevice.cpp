@@ -1233,7 +1233,10 @@ void LinuxDevicePrivate::announceConnectionAttempt()
                                    "This might take a moment.").arg(q->displayName());
     qCDebug(linuxDeviceLog) << message;
     if (isMainThread()) {
-        Core::ICore::infoBar()->addInfo(InfoBarEntry(announceId(), message));
+        InfoBarEntry info(announceId(), message);
+        info.setTitle(Tr::tr("Establishing a Connection"));
+        info.setInfoType(InfoLabel::Ok);
+        Core::ICore::infoBar()->addInfo(info);
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents); // Yes, twice.
     }
@@ -1258,6 +1261,7 @@ bool LinuxDevicePrivate::checkDisconnectedWithWarning()
         const QString warnStr
             = Tr::tr("Device \"%1\" is currently marked as disconnected.").arg(name);
         InfoBarEntry info(errorId, warnStr, InfoBarEntry::GlobalSuppression::Enabled);
+        info.setTitle(Tr::tr("Device is Disconnected"));
         info.setDetailsWidgetCreator([] {
             const auto label = new QLabel(Tr::tr(
                 "The device was not available when trying to connect previously.<br>"

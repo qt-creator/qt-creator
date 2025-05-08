@@ -514,6 +514,7 @@ static void askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::Ptr &settin
     InfoBarEntry info(upgradeMcuSupportKits,
                       Tr::tr("New version of Qt for MCUs detected. Upgrade existing kits?"),
                       InfoBarEntry::GlobalSuppression::Enabled);
+    info.setInfoType(InfoLabel::Information);
     using McuKitManager::UpgradeOption;
     static UpgradeOption selectedOption = UpgradeOption::Keep;
 

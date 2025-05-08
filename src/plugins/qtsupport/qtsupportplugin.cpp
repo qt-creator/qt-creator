@@ -166,7 +166,8 @@ static void askAboutQtInstallation()
             "Link with a Qt installation to automatically register Qt versions and kits? To do "
             "this later, select Edit > Preferences > Kits > Qt Versions > Link with Qt."),
         Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.setTitle(Tr::tr("Link with Qt"));
+    info.setTitle(Tr::tr("Link with an Installed Qt?"));
+    info.setInfoType(InfoLabel::Information);
     info.addCustomButton(
         Tr::tr("Link with Qt"),
         [] { QTimer::singleShot(0, ICore::dialogParent(), &LinkWithQtSupport::linkWithQt); },

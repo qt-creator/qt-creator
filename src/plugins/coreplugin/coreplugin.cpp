@@ -523,6 +523,7 @@ void CorePlugin::warnAboutCrashReporing()
     Utils::InfoBarEntry info(kWarnCrashReportingSetting, warnStr,
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
     info.setTitle(Tr::tr("Crash Reporting"));
+    info.setInfoType(InfoLabel::Information);
     info.addCustomButton(
         ICore::msgShowOptionsDialog(),
         [] { ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM); },
