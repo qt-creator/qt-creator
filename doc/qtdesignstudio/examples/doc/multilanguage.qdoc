@@ -17,7 +17,7 @@
     translations from a JSON file.
 
     You need to download the starting project for this tutorial from
-    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/multi-language%20tutorial/Loginui2}{here}
+    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui2}{here}
     before you start.
 
     This project consists of a login page with a couple of text elements.
