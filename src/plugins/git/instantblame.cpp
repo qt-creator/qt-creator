@@ -495,17 +495,17 @@ bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
     m_workingDirectory = workingDirectory;
 
     const auto commitCodecHandler = [this, workingDirectory](const CommandResult &result) {
-        QTextCodec *codec = nullptr;
+        QByteArray codec;
 
         if (result.result() == ProcessResult::FinishedWithSuccess) {
             const QString codecName = result.cleanedStdOut().trimmed();
-            codec = QTextCodec::codecForName(codecName.toUtf8());
+            codec = codecName.toUtf8();
         } else {
             codec = gitClient().defaultCommitEncoding();
         }
 
         if (m_codec != codec) {
-            qCInfo(log) << "Setting new text codec:" << codec->name();
+            qCInfo(log) << "Setting new text codec:" << codec;
             m_codec = codec;
             force();
         }

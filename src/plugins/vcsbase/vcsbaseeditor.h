@@ -71,8 +71,8 @@ public:
     // the editor manager and the project managers (defaults to system codec).
     // The codec should be set on editors displaying diff or annotation
     // output.
-    static QTextCodec *getCodec(const Utils::FilePath &source);
-    static QTextCodec *getCodec(const Utils::FilePath &workingDirectory, const QStringList &files);
+    static QByteArray getCodec(const Utils::FilePath &source);
+    static QByteArray getCodec(const Utils::FilePath &workingDirectory, const QStringList &files);
 
     // Utility to return the widget from the IEditor returned by the editor
     // manager which is a BaseTextEditor.
@@ -174,8 +174,8 @@ public:
 
     void setHighlightingEnabled(bool e);
 
-    QTextCodec *codec() const;
-    void setCodec(QTextCodec *);
+    QByteArray codec() const;
+    void setCodec(const QByteArray &codec);
 
     // Base directory for diff views
     Utils::FilePath workingDirectory() const;

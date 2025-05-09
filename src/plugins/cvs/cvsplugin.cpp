@@ -48,7 +48,6 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
-#include <QTextCodec>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -232,10 +231,10 @@ private:
 
     bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
-                                      Id id, const FilePath &source, QTextCodec *codec);
+                                      Id id, const FilePath &source, const QByteArray &codec);
 
     CommandResult runCvs(const FilePath &workingDirectory, const QStringList &arguments,
-                         RunFlags flags = RunFlags::None, QTextCodec *outputCodec = nullptr,
+                         RunFlags flags = RunFlags::None, const QByteArray &outputCodec = {},
                          int timeoutMultiplier = 1) const;
 
     void annotate(const FilePath &workingDir, const QString &file,
@@ -953,7 +952,7 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
                                const QString &file,
                                bool enableAnnotationContextMenu)
 {
-    QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(file));
+    const QByteArray codec = VcsBaseEditor::getCodec(workingDir, QStringList(file));
     // no need for temp file
     const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file));
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
@@ -1089,7 +1088,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
                                 int lineNumber /* = -1 */)
 {
     const QStringList files(file);
-    QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, files);
+    const QByteArray codec = VcsBaseEditor::getCodec(workingDir, files);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files, revision);
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     QStringList args{"annotate"};
@@ -1244,11 +1243,11 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
 {
     // Collect logs
     QString output;
-    QTextCodec *codec = nullptr;
+    QByteArray codec;
     const QList<CvsLogEntry>::iterator lend = entries.end();
     for (QList<CvsLogEntry>::iterator it = entries.begin(); it != lend; ++it) {
         // Before fiddling file names, try to find codec
-        if (!codec)
+        if (codec.isEmpty())
             codec = VcsBaseEditor::getCodec(repositoryPath, QStringList(it->file));
         // Run log
         const QStringList args{"log", "-r", it->revisions.front().revision, it->file};
@@ -1304,7 +1303,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
 // the working directory (see above).
 CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
                                        const QStringList &arguments, RunFlags flags,
-                                       QTextCodec *outputCodec, int timeoutMultiplier) const
+                                       const QByteArray &outputCodec, int timeoutMultiplier) const
 {
     const FilePath executable = settings().binaryPath();
     if (executable.isEmpty())
@@ -1318,7 +1317,7 @@ CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
 
 IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QString &output,
                                               Utils::Id id, const FilePath &source,
-                                              QTextCodec *codec)
+                                              const QByteArray &codec)
 {
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
@@ -1331,7 +1330,7 @@ IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QStrin
     e->setForceReadOnly(true);
     if (!source.isEmpty())
         e->setSource(source);
-    if (codec)
+    if (!codec.isEmpty())
         e->setCodec(codec);
     return editor;
 }

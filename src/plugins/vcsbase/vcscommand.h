@@ -13,10 +13,6 @@
 
 #include <QObject>
 
-QT_BEGIN_NAMESPACE
-class QTextCodec;
-QT_END_NAMESPACE
-
 namespace Utils {
 class CommandLine;
 class Environment;
@@ -78,7 +74,7 @@ public:
 
     void addFlags(RunFlags f);
 
-    void setCodec(QTextCodec *codec);
+    void setCodec(const QByteArray &codecName);
 
     void setProgressParser(const Core::ProgressParser &parser);
 
@@ -87,7 +83,7 @@ public:
                                      const Utils::CommandLine &command,
                                      RunFlags flags,
                                      int timeoutS,
-                                     QTextCodec *codec);
+                                     const QByteArray &codec);
     void cancel();
 
     QString cleanedStdOut() const;

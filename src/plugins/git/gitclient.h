@@ -359,9 +359,9 @@ public:
     Author parseAuthor(const QString &authorInfo);
     Author getAuthor(const Utils::FilePath &workingDirectory);
 
-    QTextCodec *defaultCommitEncoding() const;
+    QByteArray defaultCommitEncoding() const;
     enum EncodingType { EncodingSource, EncodingLogOutput, EncodingCommit, EncodingDefault };
-    QTextCodec *encoding(EncodingType encodingType, const Utils::FilePath &source = {}) const;
+    QByteArray encoding(EncodingType encodingType, const Utils::FilePath &source = {}) const;
 
     void readConfigAsync(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                          const VcsBase::CommandHandler &handler) const;

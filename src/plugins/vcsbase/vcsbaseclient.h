@@ -17,7 +17,6 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QTextCodec;
 class QToolBar;
 QT_END_NAMESPACE
 
@@ -46,7 +45,8 @@ public:
                                         const Utils::Environment &environment);
 
     VcsBaseEditorWidget *createVcsEditor(Utils::Id kind, QString title,
-                                         const Utils::FilePath &source, QTextCodec *codec,
+                                         const Utils::FilePath &source,
+                                         const QByteArray &codecName,
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
 
@@ -76,18 +76,18 @@ public:
     // Fully synchronous VCS execution (QProcess-based)
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
                                      const QStringList &args, RunFlags flags = RunFlags::None,
-                                     int timeoutS = -1, QTextCodec *codec = nullptr) const;
+                                     int timeoutS = -1, const QByteArray &codec = {}) const;
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
                                      const Utils::CommandLine &cmdLine,
                                      RunFlags flags = RunFlags::None,
-                                     int timeoutS = -1, QTextCodec *codec = nullptr) const;
+                                     int timeoutS = -1, const QByteArray &codec = {}) const;
 
     void vcsExecWithHandler(const Utils::FilePath &workingDirectory,
                             const QStringList &arguments,
                             const QObject *context,
                             const CommandHandler &handler,
                             RunFlags additionalFlags = RunFlags::None,
-                            QTextCodec *codec = nullptr) const;
+                            const QByteArray codec = {}) const;
     void vcsExec(const Utils::FilePath &workingDirectory,
                  const QStringList &arguments,
                  RunFlags additionalFlags = RunFlags::None) const;

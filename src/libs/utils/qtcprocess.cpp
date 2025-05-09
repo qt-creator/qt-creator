@@ -1795,6 +1795,11 @@ void ChannelBuffer::handleRest()
     }
 }
 
+void Process::setCodec(const QByteArray &codecName)
+{
+    setCodec(QTextCodec::codecForName(codecName));
+}
+
 void Process::setCodec(const QTextCodec *codec)
 {
     QTC_ASSERT(codec, return);

@@ -82,7 +82,7 @@ public:
 
     CommitType commitType;
     QString amendHash;
-    QTextCodec *commitEncoding = nullptr;
+    QByteArray commitEncoding;
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
     bool enablePush = false;

@@ -833,17 +833,17 @@ void VcsBaseEditorWidget::setWorkingDirectory(const FilePath &wd)
     d->m_workingDirectory = wd;
 }
 
-QTextCodec *VcsBaseEditorWidget::codec() const
+QByteArray VcsBaseEditorWidget::codec() const
 {
-    return const_cast<QTextCodec *>(textDocument()->codec());
+    return textDocument()->codecName();
 }
 
-void VcsBaseEditorWidget::setCodec(QTextCodec *c)
+void VcsBaseEditorWidget::setCodec(const QByteArray &codec)
 {
-    if (c)
-        textDocument()->setCodec(c);
+    if (!codec.isEmpty())
+        textDocument()->setCodec(codec);
     else
-        qWarning("%s: Attempt to set 0 codec.", Q_FUNC_INFO);
+        qWarning("%s: Attempt to set no codec.", Q_FUNC_INFO);
 }
 
 EditorContentType VcsBaseEditorWidget::contentType() const
@@ -1248,22 +1248,24 @@ static QTextCodec *findProjectCodec(const FilePath &dirPath)
     return p ? QTextCodec::codecForName(p->editorConfiguration()->textCodec()) : nullptr;
 }
 
-QTextCodec *VcsBaseEditor::getCodec(const FilePath &source)
+QByteArray VcsBaseEditor::getCodec(const FilePath &source)
 {
     if (!source.isEmpty()) {
         // Check file
         if (source.isFile())
             if (QTextCodec *fc = findFileCodec(source))
-                return fc;
+                return fc->name();
         // Find by project via directory
         if (QTextCodec *pc = findProjectCodec(source.isFile() ? source.absolutePath() : source))
-            return pc;
+            return pc->name();
     }
-    QTextCodec *sys = QTextCodec::codecForLocale();
-    return sys;
+    if (QTextCodec *sys = QTextCodec::codecForLocale())
+        return sys->name();
+    QTC_CHECK(false);
+    return {};
 }
 
-QTextCodec *VcsBaseEditor::getCodec(const FilePath &workingDirectory, const QStringList &files)
+QByteArray VcsBaseEditor::getCodec(const FilePath &workingDirectory, const QStringList &files)
 {
     if (files.empty())
         return getCodec(workingDirectory);
