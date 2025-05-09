@@ -962,6 +962,12 @@ void Qt5InformationNodeInstanceServer::handleActiveViewportChange(int index)
                                                         index});
 }
 
+void Qt5InformationNodeInstanceServer::handleMouseCursorChange(int cursor)
+{
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::Edit3DMouseCursor,
+                                                        cursor});
+}
+
 void Qt5InformationNodeInstanceServer::handleToolStateChanged(const QString &sceneId,
                                                               const QString &tool,
                                                               const QVariant &toolState)
@@ -1968,6 +1974,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
                      this, SLOT(handleActiveSceneChange()));
     QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveViewportChange(int)),
                      this, SLOT(handleActiveViewportChange(int)));
+    QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyMouseCursorChange(int)),
+                     this, SLOT(handleMouseCursorChange(int)));
     QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
     QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,

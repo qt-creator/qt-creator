@@ -10,6 +10,8 @@ Item {
     property real divider
     property real containerSize
     property int orientation
+    readonly property alias containsMouse: mouseArea.containsMouse
+    readonly property alias dragActive: mouseArea.drag.active
 
     property real _dragMin: containerSize * 0.1
     property real _dragMax: containerSize * 0.9
@@ -31,6 +33,7 @@ Item {
         drag.minimumY: _dragMin
         drag.maximumY: _dragMax
         drag.smoothed: true
+        hoverEnabled: true
 
         onPositionChanged: {
             var deltaPx = (orientation === Qt.Vertical ? root.x : root.y) + grabSize;

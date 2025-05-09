@@ -87,6 +87,14 @@ void Edit3DView::checkImports()
     edit3DWidget()->showCanvas(model()->hasImport("QtQuick3D"));
 }
 
+void Edit3DView::setMouseCursor(int mouseCursor)
+{
+    if (mouseCursor < 0)
+        m_edit3DWidget->canvas()->unsetCursor();
+    else
+        m_edit3DWidget->canvas()->setCursor(QCursor(static_cast<Qt::CursorShape>(mouseCursor)));
+}
+
 WidgetInfo Edit3DView::widgetInfo()
 {
     if (!m_edit3DWidget)
@@ -129,6 +137,15 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
             return;
     } else {
         setActiveViewport(0);
+    }
+
+    const QString mouseCursorKey = QStringLiteral("mouseCursor");
+    if (sceneState.contains(mouseCursorKey)) {
+        setMouseCursor(sceneState[mouseCursorKey].toInt());
+        if (sceneState.size() == 1)
+            return;
+    } else {
+        setMouseCursor(-1);
     }
 
     const QString sceneKey              = QStringLiteral("sceneInstanceId");

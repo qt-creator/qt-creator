@@ -43,6 +43,7 @@ Item {
     property bool flyMode: false
     property bool showCameraSpeed: false
     property string cameraViewMode
+    property int mouseCursor: -1
 
     // The presets used to customize the display of the viewports
     property var viewportPresets: {
@@ -116,6 +117,7 @@ Item {
     signal changeObjectProperty(var objects, var propNames)
     signal notifyActiveSceneChange()
     signal notifyActiveViewportChange(int index)
+    signal notifyMouseCursorChange(int cursor)
 
     onUsePerspectiveChanged:      _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
     onShowEditLightChanged:       _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
@@ -132,6 +134,8 @@ Item {
     onTransformModeChanged:       _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
     onMaterialOverridesChanged:   _generalHelper.storeToolState(sceneId, "matOverride", materialOverrides);
     onShowWireframesChanged:      _generalHelper.storeToolState(sceneId, "showWireframe", showWireframes);
+    onMouseCursorChanged:         notifyMouseCursorChange(viewRoot.mouseCursor)
+
     onActivePresetChanged: {
         _generalHelper.storeToolState(sceneId, "activePreset", activePreset);
         _generalHelper.requestOverlayUpdate();
@@ -757,6 +761,7 @@ Item {
         updateSplitResizers();
 
         cameraView.updateSnapping();
+        viewRoot.updateMouseCursor();
     }
 
     // Updates the position, size, and visibility of viewports based on the selected
@@ -841,6 +846,16 @@ Item {
 
         // Request overlays to redraw
         _generalHelper.requestOverlayUpdate();
+    }
+
+    function updateMouseCursor()
+    {
+        if (verticalResizer.containsMouse || verticalResizer.dragActive)
+            viewRoot.mouseCursor = Qt.SplitHCursor
+        else if (horizontalResizer.containsMouse || horizontalResizer.dragActive)
+            viewRoot.mouseCursor = Qt.SplitVCursor
+        else
+            viewRoot.mouseCursor = -1
     }
 
     Component.onCompleted: {
@@ -1081,6 +1096,8 @@ Item {
                     dividerX = value;
                     updateViewRects();
                 }
+                onContainsMouseChanged: viewRoot.updateMouseCursor()
+                onDragActiveChanged: viewRoot.updateMouseCursor()
             }
 
             // Horizontal divider (top/bottom)
@@ -1098,6 +1115,8 @@ Item {
                     dividerY = value;
                     updateViewRects();
                 }
+                onContainsMouseChanged: viewRoot.updateMouseCursor()
+                onDragActiveChanged: viewRoot.updateMouseCursor()
             }
 
             MouseArea {

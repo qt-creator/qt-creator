@@ -1817,6 +1817,11 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         viewportState.insert("activeViewport", command.data());
         if (isAttached())
             model()->emitUpdateActiveScene3D(this, viewportState);
+    } else if (command.type() == PuppetToCreatorCommand::Edit3DMouseCursor) {
+        QVariantMap viewportState;
+        viewportState.insert("mouseCursor", command.data());
+        if (isAttached())
+            model()->emitUpdateActiveScene3D(this, viewportState);
     } else if (command.type() == PuppetToCreatorCommand::RenderModelNodePreviewImage) {
         ImageContainer container = qvariant_cast<ImageContainer>(command.data());
         QImage image = container.image();

@@ -155,6 +155,7 @@ private:
     void storeCurrentSceneEnvironment();
 
     void setActiveViewport(int viewportIndex);
+    void setMouseCursor(int mouseCursor);
 
     QPoint resolveToolbarPopupPos(Edit3DAction *action) const;
 
