@@ -133,7 +133,7 @@ void QdsNewDialog::setProjectName(const QString &name)
 
 void QdsNewDialog::setProjectLocation(const QString &location)
 {
-    m_qmlProjectLocation = Utils::FilePath::fromString(QDir::toNativeSeparators(location));
+    m_qmlProjectLocation = Utils::FilePath::fromString(location);
     m_wizard.setProjectLocation(m_qmlProjectLocation);
 }
 
@@ -238,8 +238,8 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
 
         updateScreenSizes();
 
-        setProjectName(m_qmlProjectName);
-        setProjectLocation(m_qmlProjectLocation.toUrlishString());
+        m_wizard.setProjectName(m_qmlProjectName);
+        m_wizard.setProjectLocation(m_qmlProjectLocation);
     }
 }
 
@@ -330,12 +330,9 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
         return; // TODO: some message box?
 
     const Core::IWizardFactory *first = factories.front();
-    Utils::FilePath projectLocation = first->runPath(defaultLocation);
-
-    m_qmlProjectName = uniqueProjectName(projectLocation.toUrlishString());
+    m_qmlProjectLocation = first->runPath(defaultLocation);
+    m_qmlProjectName = uniqueProjectName(m_qmlProjectLocation.toUrlishString());
     emit projectNameChanged(); // So that QML knows to update the field
-
-    m_qmlProjectLocation = Utils::FilePath::fromString(QDir::toNativeSeparators(projectLocation.toUrlishString()));
     emit projectLocationChanged(); // So that QML knows to update the field
 
     /* NOTE:
