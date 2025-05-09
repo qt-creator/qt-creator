@@ -182,14 +182,22 @@ bool TextFileFormat::decode(const QByteArray &data, QString *target) const
     return decodeTextFileContent(data, *this, target);
 }
 
-// Read text file contents to string
-static TextFileFormat::ReadResult readTextFile(
-        const FilePath &filePath, const QTextCodec *defaultCodec,
-        TextFileFormat *format,
-        QByteArray *decodingErrorSampleIn = nullptr)
+/*!
+    Reads a text file from \a filePath into a string, \a plainText using
+    \a defaultCodec and text file format \a format.
+
+    Returns whether decoding was possible without errors. If an errors occur
+    \a errorString is set to the error message, and \a decodingErrorSample is
+    set to a snippet that failed to decode.
+*/
+
+TextFileFormat::ReadResult
+TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
+                         TextFileFormat *format,
+                         QByteArray *decodingErrorSample /* = nullptr */)
 {
-    if (decodingErrorSampleIn)
-        decodingErrorSampleIn->clear();
+    if (decodingErrorSample)
+        decodingErrorSample->clear();
 
     QByteArray data;
     try {
@@ -209,33 +217,10 @@ static TextFileFormat::ReadResult readTextFile(
 
     TextFileFormat::ReadResult result;
     if (!format->decode(data, &result.content)) {
-        if (decodingErrorSampleIn)
-            *decodingErrorSampleIn = TextFileFormat::decodingErrorSample(data);
+        if (decodingErrorSample)
+            *decodingErrorSample = TextFileFormat::decodingErrorSample(data);
         return {TextFileFormat::ReadEncodingError, Tr::tr("An encoding error was encountered.")};
     }
-    return result;
-}
-
-/*!
-    Reads a text file from \a filePath into a string, \a plainText using
-    \a defaultCodec and text file format \a format.
-
-    Returns whether decoding was possible without errors. If an errors occur
-    \a errorString is set to the error message, and \a decodingErrorSample is
-    set to a snippet that failed to decode.
-*/
-
-TextFileFormat::ReadResult
-    TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
-                             TextFileFormat *format,
-                             QByteArray *decodingErrorSample /* = 0 */)
-{
-    const TextFileFormat::ReadResult result =
-        readTextFile(filePath, defaultCodec,
-                     format, decodingErrorSample);
-    if (debug)
-        qDebug().nospace() << Q_FUNC_INFO << filePath << ' ' << *format
-                           << " returns " << result.code << '/' << result.content.size() << " characters";
     return result;
 }
 
@@ -273,7 +258,7 @@ TextFileFormat::ReadResult
 TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec)
 {
     TextFileFormat format;
-    return readTextFile(filePath, defaultCodec, &format, nullptr);
+    return readFile(filePath, defaultCodec, &format, nullptr);
 }
 
 /*!
