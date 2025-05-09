@@ -15,7 +15,6 @@
 
 QT_BEGIN_NAMESPACE
 class QDebug;
-class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -145,7 +144,6 @@ public:
                      EventLoopMode eventLoopMode = EventLoopMode::Off);
 
     void setCodec(const QByteArray &codecName); // for stdOut and stdErr
-    void setCodec(const QTextCodec *codec); // for stdOut and stdErr
     void setUtf8Codec(); // for stdOut and stdErr
     void setUtf8StdOutCodec(); // for stdOut, stdErr uses executable.processStdErrCodec()
 
