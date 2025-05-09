@@ -1746,12 +1746,14 @@ void ChannelBuffer::append(const QByteArray &text)
     // Convert and append the new input to the buffer of incomplete lines
     incompleteLineBuffer.append(codec->toUnicode(text.constData(), text.size(), codecState.get()));
 
+    QStringView bufferView(incompleteLineBuffer);
+
     do {
-        // Any completed lines in the incompleteLineBuffer?
+        // Any completed lines in the bufferView?
         int pos = -1;
         if (emitSingleLines) {
-            const int posn = incompleteLineBuffer.indexOf('\n');
-            const int posr = incompleteLineBuffer.indexOf('\r');
+            const int posn = bufferView.indexOf('\n');
+            const int posr = bufferView.indexOf('\r');
             if (posn != -1) {
                 if (posr != -1) {
                     if (posn == posr + 1)
@@ -1765,16 +1767,16 @@ void ChannelBuffer::append(const QByteArray &text)
                 pos = posr; // Make sure internal '\r' triggers a line output
             }
         } else {
-            pos = qMax(incompleteLineBuffer.lastIndexOf('\n'),
-                       incompleteLineBuffer.lastIndexOf('\r'));
+            pos = qMax(bufferView.lastIndexOf('\n'),
+                       bufferView.lastIndexOf('\r'));
         }
 
         if (pos == -1)
             break;
 
         // Get completed lines and remove them from the incompleteLinesBuffer:
-        const QString line = Utils::normalizeNewlines(incompleteLineBuffer.left(pos + 1));
-        incompleteLineBuffer = incompleteLineBuffer.mid(pos + 1);
+        const QString line = Utils::normalizeNewlines(bufferView.left(pos + 1));
+        bufferView = bufferView.mid(pos + 1);
 
         QTC_ASSERT(outputCallback, return);
         outputCallback(line);
@@ -1782,6 +1784,7 @@ void ChannelBuffer::append(const QByteArray &text)
         if (!emitSingleLines)
             break;
     } while (true);
+    incompleteLineBuffer = bufferView.toString();
 }
 
 void ChannelBuffer::handleRest()

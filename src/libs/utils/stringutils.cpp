@@ -384,9 +384,9 @@ QTCREATOR_UTILS_EXPORT QStringView chopIfEndsWith(QStringView str, QChar c)
     return str;
 }
 
-QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text)
+QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QStringView &text)
 {
-    QString res = text;
+    QString res = text.toString();
     const auto newEnd = std::unique(res.rbegin(), res.rend(), [](const QChar c1, const QChar c2) {
         return c1 == '\n' && c2 == '\r'; // QTCREATORBUG-24556
     });
