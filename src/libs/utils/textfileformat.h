@@ -63,8 +63,6 @@ public:
     static Utils::Result<> readFileUtf8(const FilePath &filePath, const QTextCodec *defaultCodec,
                                         QByteArray *plainText);
 
-    static ReadResult readFile(const FilePath &filePath, const QTextCodec *defaultCodec);
-
     Utils::Result<> writeFile(const FilePath &filePath, QString plainText) const;
 
     static QByteArray decodingErrorSample(const QByteArray &data);

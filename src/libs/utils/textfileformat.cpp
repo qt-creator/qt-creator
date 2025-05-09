@@ -248,13 +248,6 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
     return ResultOk;
 }
 
-TextFileFormat::ReadResult
-TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec)
-{
-    TextFileFormat format;
-    return readFile(filePath, defaultCodec, &format);
-}
-
 /*!
     Writes out a text file to \a filePath into a string, \a plainText.
 
