@@ -421,23 +421,22 @@ Result<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath)
         Tr::tr("createTempFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
-Utils::Result<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(
-    const FilePath &path) const
+Result<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(const FilePath &path) const
 {
     Q_UNUSED(path)
     return ResultError(Tr::tr("watch is not implemented."));
 }
 
-QTextCodec *DeviceFileAccess::processStdOutCodec(const FilePath &executable) const
+QByteArray DeviceFileAccess::processStdOutCodec(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return QTextCodec::codecForName("UTF-8"); // Good default nowadays.
+    return "UTF-8"; // Good default nowadays.
 }
 
-QTextCodec *DeviceFileAccess::processStdErrCodec(const FilePath &executable) const
+QByteArray DeviceFileAccess::processStdErrCodec(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return QTextCodec::codecForName("UTF-8"); // Good default nowadays.
+    return "UTF-8"; // Good default nowadays.
 }
 
 // UnavailableDeviceFileAccess
@@ -1242,8 +1241,7 @@ Result<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &filePat
     return filePath.withNewPath(file.fileName());
 }
 
-Utils::Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(
-    const FilePath &path) const
+Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(const FilePath &path) const
 {
     auto watcher = std::make_unique<DesktopFilePathWatcher>(path);
     if (watcher->error().isEmpty())
@@ -1251,16 +1249,20 @@ Utils::Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(
     return ResultError(watcher->error());
 }
 
-QTextCodec *DesktopDeviceFileAccess::processStdOutCodec(const FilePath &executable) const
+QByteArray DesktopDeviceFileAccess::processStdOutCodec(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return QTextCodec::codecForLocale();
+    if (QTextCodec *codec = QTextCodec::codecForLocale())
+        return codec->name();
+    return {};
 }
 
-QTextCodec *DesktopDeviceFileAccess::processStdErrCodec(const FilePath &executable) const
+QByteArray DesktopDeviceFileAccess::processStdErrCodec(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return QTextCodec::codecForLocale();
+    if (QTextCodec *codec = QTextCodec::codecForLocale())
+        return codec->name();
+    return {};
 }
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const

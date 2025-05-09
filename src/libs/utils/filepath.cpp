@@ -2183,12 +2183,12 @@ QChar FilePath::pathListSeparator() const
     return osType() == OsTypeWindows ? u';' : u':';
 }
 
-QTextCodec *FilePath::processStdOutCodec() const
+QByteArray FilePath::processStdOutCodec() const
 {
     return fileAccess()->processStdOutCodec(*this);
 }
 
-QTextCodec *FilePath::processStdErrCodec() const
+QByteArray FilePath::processStdErrCodec() const
 {
     return fileAccess()->processStdErrCodec(*this);
 }

@@ -992,12 +992,12 @@ void ProcessPrivate::sendControlSignal(ControlSignal controlSignal)
 void ProcessPrivate::clearForRun()
 {
     if (!m_stdOutCodec)
-        m_stdOutCodec = m_setup.m_commandLine.executable().processStdOutCodec();
+        m_stdOutCodec = QTextCodec::codecForName(m_setup.m_commandLine.executable().processStdOutCodec());
     m_stdOut.clearForRun();
     m_stdOut.codec = m_stdOutCodec;
 
     if (!m_stdErrCodec)
-        m_stdErrCodec = m_setup.m_commandLine.executable().processStdErrCodec();
+        m_stdErrCodec = QTextCodec::codecForName(m_setup.m_commandLine.executable().processStdErrCodec());
     m_stdErr.clearForRun();
     m_stdErr.codec = m_stdErrCodec;
 

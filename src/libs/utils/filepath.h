@@ -198,8 +198,8 @@ public:
     QChar pathComponentSeparator() const;
     QChar pathListSeparator() const;
 
-    QTextCodec *processStdOutCodec() const;
-    QTextCodec *processStdErrCodec() const;
+    QByteArray processStdOutCodec() const;
+    QByteArray processStdErrCodec() const;
 
     void clear();
     bool isEmpty() const;
