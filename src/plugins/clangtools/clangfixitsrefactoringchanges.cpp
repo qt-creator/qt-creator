@@ -28,8 +28,7 @@ static Q_LOGGING_CATEGORY(fixitsLog, "qtc.clangtools.fixits", QtWarningMsg);
 using namespace TextEditor;
 using namespace Utils;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 int FixitsRefactoringFile::position(const FilePath &filePath, unsigned line, unsigned column) const
 {
@@ -140,8 +139,7 @@ QTextDocument *FixitsRefactoringFile::document(const FilePath &filePath) const
     if (m_documents.find(filePath) == m_documents.end()) {
         TextFileFormat::ReadResult result ;
         if (!filePath.isEmpty()) {
-            QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
-            result = TextFileFormat::readFile(filePath, defaultCodec, &m_textFileFormat);
+            result = m_textFileFormat.readFile(filePath, Core::EditorManager::defaultTextCodec());
             if (result.code != TextFileFormat::ReadSuccess) {
                 qCDebug(fixitsLog)
                     << "ERROR: Could not read " << filePath.toUserOutput() << ":" << result.error;
@@ -190,5 +188,4 @@ void FixitsRefactoringFile::shiftAffectedReplacements(const FilePath &filePath,
     }
 }
 
-} // namespace Internal
-} // namespace ClangTools
+} // namespace ClangTools::Internal

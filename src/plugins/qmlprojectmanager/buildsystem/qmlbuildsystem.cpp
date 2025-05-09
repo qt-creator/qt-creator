@@ -322,9 +322,7 @@ bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting,
 
     TextFileFormat textFileFormat;
     const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
-    const TextFileFormat::ReadResult readResult = TextFileFormat::readFile(qmlProjectFilePath,
-                                                                           codec,
-                                                                           &textFileFormat);
+    const TextFileFormat::ReadResult readResult = textFileFormat.readFile(qmlProjectFilePath, codec);
     if (readResult.code != TextFileFormat::ReadSuccess)
         qWarning() << "Failed to read file" << qmlProjectFilePath << ":" << readResult.error;
 
@@ -485,8 +483,7 @@ bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFil
 
     TextFileFormat textFileFormat;
     const QTextCodec *codec = QTextCodec::codecForName("UTF-8"); // qml files are defined to be utf-8
-    const TextFileFormat::ReadResult res =
-            TextFileFormat::readFile(mainFilePath(), codec, &textFileFormat);
+    const TextFileFormat::ReadResult res = textFileFormat.readFile(mainFilePath(), codec);
     if (res.code != TextFileFormat::ReadSuccess)
         qWarning() << "Failed to read file" << mainFilePath() << ":" << res.error;
 

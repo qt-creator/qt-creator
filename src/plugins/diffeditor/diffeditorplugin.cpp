@@ -178,8 +178,8 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
     if (textDocument && textDocument->isModified()) {
         TextFileFormat format = textDocument->format();
 
-        const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-            FilePath::fromString(m_fileName), format.codec(), &format);
+        const TextFileFormat::ReadResult leftResult = format.readFile(
+            FilePath::fromString(m_fileName), format.codec());
 
         const QString rightText = textDocument->plainText();
 
@@ -224,8 +224,7 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
             TextFileFormat format = textDocument->format();
 
             const FilePath filePath = textDocument->filePath();
-            const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-                filePath, format.codec(), &format);
+            const TextFileFormat::ReadResult leftResult = format.readFile(filePath, format.codec());
 
             const QString rightText = textDocument->plainText();
 
@@ -274,8 +273,7 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
             TextFileFormat format = textDocument->format();
 
             const FilePath filePath = textDocument->filePath();
-            const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-                filePath, format.codec(), &format);
+            const TextFileFormat::ReadResult leftResult = format.readFile(filePath, format.codec());
 
             const QString rightText = textDocument->plainText();
 
@@ -321,10 +319,8 @@ QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
     TextFileFormat format;
     format.setCodecName(EditorManager::defaultTextCodecName());
 
-    const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
-        m_leftFilePath, format.codec(), &format);
-    const TextFileFormat::ReadResult rightResult = TextFileFormat::readFile(
-        m_rightFilePath, format.codec(), &format);
+    const TextFileFormat::ReadResult leftResult = format.readFile(m_leftFilePath, format.codec());
+    const TextFileFormat::ReadResult rightResult = format.readFile(m_rightFilePath, format.codec());
 
     ReloadInput reloadInput;
     reloadInput.text = {leftResult.content, rightResult.content};

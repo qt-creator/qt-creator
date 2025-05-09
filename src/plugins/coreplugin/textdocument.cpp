@@ -130,7 +130,7 @@ bool BaseTextDocument::isUtf8Codec(const QByteArray &name)
 
 BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath)
 {
-    d->m_readResult = TextFileFormat::readFile(filePath, codec(), &d->m_format);
+    d->m_readResult = d->m_format.readFile(filePath, codec());
     return d->m_readResult;
 }
 

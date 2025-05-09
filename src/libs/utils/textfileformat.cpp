@@ -181,11 +181,14 @@ bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
 
     Returns whether decoding was possible without errors. If an errors occur
     it is returned together with a decoding error sample.
+
+    \note This function does \e{not} use the codec set by \l setCodec. Instead
+    it detects the codec to be used from BOM read file contents.
+    If none is present, it falls back using the provided \a defaultCodec.
 */
 
 TextFileFormat::ReadResult
-TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
-                         TextFileFormat *format)
+TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec)
 {
     QByteArray data;
     try {
@@ -198,13 +201,13 @@ TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCode
     }
 
     if (!data.isEmpty())
-        *format = TextFileFormat::detect(data);
+        operator=(TextFileFormat::detect(data));
 
-    if (!format->codec())
-        format->setCodec(defaultCodec ? defaultCodec : QTextCodec::codecForLocale());
+    if (!m_codec)
+        m_codec = defaultCodec ? defaultCodec : QTextCodec::codecForLocale();
 
     TextFileFormat::ReadResult result;
-    if (!format->decode(data, &result.content)) {
+    if (!decode(data, &result.content)) {
         result.decodingErrorSample = TextFileFormat::decodingErrorSample(data);
         return {TextFileFormat::ReadEncodingError, Tr::tr("An encoding error was encountered.")};
     }
