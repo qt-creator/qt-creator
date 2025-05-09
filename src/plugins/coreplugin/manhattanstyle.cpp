@@ -294,7 +294,8 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setContentsMargins(0, 0, 0, 0);
         }
     }
-    if (panelWidget(widget)) {
+    const bool isPanelWidget = panelWidget(widget);
+    if (isPanelWidget) {
 
         // Oxygen and possibly other styles override this
         if (qobject_cast<QDockWidget*>(widget))
@@ -338,6 +339,19 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setFixedHeight(height);
         }
     }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+    // QTCREATORBUG-32549: Design requires distinguishable QPalette::Highlight for QAbstractButton
+    if (!isPanelWidget && qobject_cast<QAbstractButton*>(widget)) {
+        QPalette pal = widget->palette();
+        const QColor highlight = pal.color(QPalette::Highlight);
+        const QColor accent = pal.color(QPalette::Accent);
+        if (highlight == creatorColor(Theme::Token_Foreground_Muted) && highlight != accent) {
+            pal.setColor(QPalette::Highlight, accent);
+            widget->setPalette(pal);
+        }
+    }
+#endif // >= Qt 6.6.0
 }
 
 void ManhattanStyle::unpolish(QWidget *widget)
