@@ -197,6 +197,8 @@ void ContentLibraryUserModel::addTextures(const Utils::FilePaths &paths, const U
 void ContentLibraryUserModel::reloadTextureCategory(const Utils::FilePath &dirPath)
 {
     int catIdx = bundlePathToIndex(dirPath);
+    QTC_ASSERT(catIdx > -1, return);
+
     UserTextureCategory *texCat = qobject_cast<UserTextureCategory *>(m_userCategories.at(catIdx));
     QTC_ASSERT(texCat, return);
 
@@ -267,6 +269,8 @@ void ContentLibraryUserModel::removeBundleDir(int catIdx)
 {
     auto texCat = qobject_cast<UserTextureCategory *>(m_userCategories.at(catIdx));
     QTC_ASSERT(texCat, return);
+
+    m_fileWatcher->removeDirectory(texCat->bundlePath());
 
     QString dirPath = texCat->bundlePath().toFSPathString();
 
