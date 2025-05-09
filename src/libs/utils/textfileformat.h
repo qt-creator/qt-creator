@@ -49,6 +49,7 @@ public:
         ReadResultCode code = ReadSuccess;
         QString content;
         QString error;
+        QByteArray decodingErrorSample;
     };
 
     TextFileFormat();
@@ -58,7 +59,7 @@ public:
     bool decode(const QByteArray &data, QString *target) const;
 
     static ReadResult readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
-                               TextFileFormat *format, QByteArray *decodingErrorSample = nullptr);
+                               TextFileFormat *format);
     static Utils::Result<> readFileUtf8(const FilePath &filePath, const QTextCodec *defaultCodec,
                                         QByteArray *plainText);
 

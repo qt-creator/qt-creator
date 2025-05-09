@@ -35,7 +35,6 @@ class TextDocumentPrivate
 public:
     TextFileFormat m_format;
     TextFileFormat::ReadResult m_readResult = TextFileFormat::ReadSuccess;
-    QByteArray m_decodingErrorSample;
     bool m_supportsUtf8Bom = true;
 };
 
@@ -60,7 +59,7 @@ bool BaseTextDocument::hasDecodingError() const
 
 QByteArray BaseTextDocument::decodingErrorSample() const
 {
-    return d->m_decodingErrorSample;
+    return d->m_readResult.decodingErrorSample;
 }
 
 /*!
@@ -131,10 +130,7 @@ bool BaseTextDocument::isUtf8Codec(const QByteArray &name)
 
 BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath)
 {
-    d->m_readResult = TextFileFormat::readFile(filePath,
-                                               codec(),
-                                               &d->m_format,
-                                               &d->m_decodingErrorSample);
+    d->m_readResult = TextFileFormat::readFile(filePath, codec(), &d->m_format);
     return d->m_readResult;
 }
 

@@ -187,18 +187,13 @@ bool TextFileFormat::decode(const QByteArray &data, QString *target) const
     \a defaultCodec and text file format \a format.
 
     Returns whether decoding was possible without errors. If an errors occur
-    \a errorString is set to the error message, and \a decodingErrorSample is
-    set to a snippet that failed to decode.
+    it is returned together with a decoding error sample.
 */
 
 TextFileFormat::ReadResult
 TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec,
-                         TextFileFormat *format,
-                         QByteArray *decodingErrorSample /* = nullptr */)
+                         TextFileFormat *format)
 {
-    if (decodingErrorSample)
-        decodingErrorSample->clear();
-
     QByteArray data;
     try {
         const Result<QByteArray> res = filePath.fileContents();
@@ -217,8 +212,7 @@ TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCode
 
     TextFileFormat::ReadResult result;
     if (!format->decode(data, &result.content)) {
-        if (decodingErrorSample)
-            *decodingErrorSample = TextFileFormat::decodingErrorSample(data);
+        result.decodingErrorSample = TextFileFormat::decodingErrorSample(data);
         return {TextFileFormat::ReadEncodingError, Tr::tr("An encoding error was encountered.")};
     }
     return result;
@@ -258,7 +252,7 @@ TextFileFormat::ReadResult
 TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec)
 {
     TextFileFormat format;
-    return readFile(filePath, defaultCodec, &format, nullptr);
+    return readFile(filePath, defaultCodec, &format);
 }
 
 /*!
