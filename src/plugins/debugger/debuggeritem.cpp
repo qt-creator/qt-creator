@@ -195,6 +195,7 @@ Result<DebuggerItem::TechnicalData> DebuggerItem::TechnicalData::extract(
 {
     Environment env = customEnvironment.value_or(fromExecutable.deviceEnvironment());
     DebuggerItem::addAndroidLldbPythonEnv(fromExecutable, env);
+    DebuggerItem::fixupAndroidLlldbPythonDylib(fromExecutable);
 
     if (qgetenv("QTC_ENABLE_NATIVE_DAP_DEBUGGERS").toInt() != 0) {
         for (const auto &dapServerSuffix : {QString{"-dap"}, QString{"-vscode"}}) {
@@ -359,6 +360,31 @@ bool DebuggerItem::addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils
         }
     }
     return false;
+}
+
+bool DebuggerItem::fixupAndroidLlldbPythonDylib(const FilePath &lldbCmd)
+{
+    if (!lldbCmd.baseName().contains("lldb")
+        || !lldbCmd.path().contains("/toolchains/llvm/prebuilt/") || !HostOsInfo::isMacHost())
+        return false;
+
+    const FilePath lldbBaseDir = lldbCmd.parentDir().parentDir();
+    const FilePath pythonLibDir = lldbBaseDir / "python3" / "lib";
+    if (!pythonLibDir.exists())
+        return false;
+
+    pythonLibDir.iterateDirectory(
+        [lldbBaseDir](const FilePath &file) {
+            if (file.fileName().startsWith("libpython3")) {
+                const FilePath lldbLibPython = lldbBaseDir / "lib" / file.fileName();
+                if (!lldbLibPython.exists())
+                    file.copyFile(lldbLibPython);
+                return IterationPolicy::Stop;
+            }
+            return IterationPolicy::Continue;
+        },
+        {{"*.dylib"}});
+    return true;
 }
 
 QString DebuggerItem::engineTypeName() const
