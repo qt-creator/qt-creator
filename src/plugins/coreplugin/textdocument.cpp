@@ -33,8 +33,10 @@ class TextDocumentPrivate
 {
 public:
     TextFileFormat m_format;
-    TextFileFormat::ReadResult m_readResult = TextFileFormat::ReadSuccess;
     bool m_supportsUtf8Bom = true;
+    bool m_hasDecodingError = false;
+    QByteArray m_decodingErrorSample;
+
 };
 
 } // namespace Internal
@@ -53,12 +55,12 @@ BaseTextDocument::~BaseTextDocument()
 
 bool BaseTextDocument::hasDecodingError() const
 {
-    return d->m_readResult.code == TextFileFormat::ReadEncodingError;
+    return d->m_hasDecodingError;
 }
 
 QByteArray BaseTextDocument::decodingErrorSample() const
 {
-    return d->m_readResult.decodingErrorSample;
+    return d->m_decodingErrorSample;
 }
 
 /*!
@@ -117,8 +119,10 @@ void BaseTextDocument::setLineTerminationMode(TextFileFormat::LineTerminationMod
 
 BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath)
 {
-    d->m_readResult = d->m_format.readFile(filePath, codec());
-    return d->m_readResult;
+    ReadResult res = d->m_format.readFile(filePath, codec());
+    d->m_hasDecodingError = res.code == TextFileFormat::ReadEncodingError;
+    d->m_decodingErrorSample = res.decodingErrorSample;
+    return res;
 }
 
 TextCodec BaseTextDocument::codec() const
