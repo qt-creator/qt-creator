@@ -55,7 +55,6 @@
     in the \uicontrol 3D view. From the context menu you can, for example:
     \list
       \li Create cameras, lights, and models.
-      \li Open \uicontrol {Material Editor} and edit materials.
       \li Delete components.
       \li Align camera views.
     \endlist

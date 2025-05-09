@@ -7,7 +7,7 @@
 
     \title Fresnel properties on materials
     \brief Illustrates how to work with Fresnel.
-    \sa {Material Editor and Browser}, {Setting image-based lighting}, {Directional Light},
+    \sa {Material Browser}, {Setting image-based lighting}, {Directional Light},
     {3D models}, {Content Library}
 
     \image fresnel-example.webp
@@ -133,7 +133,7 @@
 
     \list 1
       \li In \uicontrol {Material Browser}, double-click a material.
-      \li In \uicontrol {Material Editor}, find the properties under
+      \li In \uicontrol {Properties}, find the properties under
       \uicontrol {Clearcoat} and \uicontrol {Fresnel} respectively.
     \endlist
 
@@ -142,7 +142,7 @@
     To create a new material with Fresnel:
 
     \list 1
-      \li In \uicontrol {Material Editor}, select \imageplus.
+      \li In \uicontrol {Material Browser}, select \imageplus.
       \li Edit the properties under \uicontrol {Clearcoat} and \uicontrol {Fresnel} respectively.
     \endlist
 

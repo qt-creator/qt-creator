@@ -18,7 +18,7 @@
 
     A model component loads mesh data from a file. Modify how the
     component is shaded by using materials. For more information, see
-    \l {Materials and shaders} and \l {Material Editor and Browser}.
+    \l {Materials and shaders} and \l {Material Browser}.
 
     \section1 Using a primitive 3D model
 
