@@ -221,7 +221,6 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
         auto textDocument = qobject_cast<TextDocument *>(doc);
 
         if (textDocument && textDocument->isModified()) {
-            QString errorString;
             TextFileFormat format = textDocument->format();
 
             const QString fileName = textDocument->filePath().toUrlishString();
@@ -272,7 +271,6 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
             DocumentModel::documentForFilePath(filePath));
 
         if (textDocument && textDocument->isModified()) {
-            QString errorString;
             TextFileFormat format = textDocument->format();
 
             const QString fileName = textDocument->filePath().toUrlishString();
@@ -320,7 +318,6 @@ private:
 
 QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
 {
-    QString errorString;
     TextFileFormat format;
     format.setCodecName(EditorManager::defaultTextCodecName());
 
