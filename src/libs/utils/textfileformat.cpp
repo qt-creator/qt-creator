@@ -55,33 +55,31 @@ TextFileFormat::TextFileFormat() = default;
     Detects the format of text \a data.
 */
 
-TextFileFormat TextFileFormat::detect(const QByteArray &data)
+void TextFileFormat::detectFromData(const QByteArray &data)
 {
-    TextFileFormat result;
     if (data.isEmpty())
-        return result;
+        return;
     const int bytesRead = data.size();
     const auto buf = reinterpret_cast<const unsigned char *>(data.constData());
     // code taken from qtextstream
     if (bytesRead >= 4 && ((buf[0] == 0xff && buf[1] == 0xfe && buf[2] == 0 && buf[3] == 0)
                            || (buf[0] == 0 && buf[1] == 0 && buf[2] == 0xfe && buf[3] == 0xff))) {
-        result.m_codec = "UTF-32";
+        m_codec = "UTF-32";
     } else if (bytesRead >= 2 && ((buf[0] == 0xff && buf[1] == 0xfe)
                                   || (buf[0] == 0xfe && buf[1] == 0xff))) {
-        result.m_codec = "UTF-16";
+        m_codec = "UTF-16";
     } else if (bytesRead >= 3 && ((buf[0] == 0xef && buf[1] == 0xbb) && buf[2] == 0xbf)) {
-        result.m_codec = "UTF-8";
-        result.hasUtf8Bom = true;
+        m_codec = "UTF-8";
+        hasUtf8Bom = true;
     }
     // end code taken from qtextstream
     const int newLinePos = data.indexOf('\n');
     if (newLinePos == -1)
-        result.lineTerminationMode = NativeLineTerminator;
+        lineTerminationMode = NativeLineTerminator;
     else if (newLinePos == 0)
-        result.lineTerminationMode = LFLineTerminator;
+        lineTerminationMode = LFLineTerminator;
     else
-        result.lineTerminationMode = data.at(newLinePos - 1) == '\r' ? CRLFLineTerminator : LFLineTerminator;
-    return result;
+        lineTerminationMode = data.at(newLinePos - 1) == '\r' ? CRLFLineTerminator : LFLineTerminator;
 }
 
 /*!
@@ -191,8 +189,7 @@ TextFileFormat::readFile(const FilePath &filePath, const QByteArray &defaultCode
         return {TextFileFormat::ReadMemoryAllocationError, Tr::tr("Out of memory.")};
     }
 
-    if (!data.isEmpty())
-        operator=(TextFileFormat::detect(data));
+    detectFromData(data);
 
     if (m_codec.isEmpty())
         m_codec = defaultCodec;
@@ -223,13 +220,15 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
         return ResultError(Tr::tr("Out of memory."));
     }
 
-    TextFileFormat format = TextFileFormat::detect(data);
+    TextFileFormat format;
+    format.detectFromData(data);
     if (format.m_codec.isEmpty())
         format.m_codec = defaultCodec;
     if (format.m_codec.isEmpty()) {
         if (QTextCodec *codec = QTextCodec::codecForLocale())
             format.m_codec = codec->name();
     }
+
     QString target;
     if (format.m_codec == "UTF-8" || !format.decode(data, &target)) {
         if (format.hasUtf8Bom)

@@ -49,7 +49,7 @@ public:
 
     TextFileFormat();
 
-    static TextFileFormat detect(const QByteArray &data);
+    void detectFromData(const QByteArray &data);
 
     bool decode(const QByteArray &data, QString *target) const;
 

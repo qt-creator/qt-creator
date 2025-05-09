@@ -111,7 +111,7 @@ Result<> ResourceFile::load()
         }
         QByteArray data = file.readAll();
         // Detect line ending style
-        m_textFileFormat = TextFileFormat::detect(data);
+        m_textFileFormat.detectFromData(data);
         // we always write UTF-8 when saving
         m_textFileFormat.setCodec("UTF-8");
         file.close();

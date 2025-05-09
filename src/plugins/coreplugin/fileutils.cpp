@@ -190,12 +190,15 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
     const QByteArray data = headerFile.readAll();
     headerFile.close();
 
-    auto headerFileTextFormat = TextFileFormat::detect(data);
+    TextFileFormat headerFileTextFormat;
+    headerFileTextFormat.detectFromData(data);
     if (headerFileTextFormat.codec().isEmpty())
         headerFileTextFormat.setCodec(EditorManager::defaultTextCodecName());
+
     QString stringContent;
     if (!headerFileTextFormat.decode(data, &stringContent))
         return false;
+
     QTextStream inStream(&stringContent);
     int lineCounter = 0;
     QString line;
