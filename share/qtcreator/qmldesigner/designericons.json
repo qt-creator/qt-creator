@@ -316,8 +316,8 @@
         "SnappingConfIcon": {
             "iconName": "snapping_conf_medium"
         },
-        "SplitViewIcon": {
-            "iconName": "splitScreen_medium"
+        "MultiViewPortIcon": {
+            "iconName": "multi_viewport_2x2_medium"
         },
         "SyncIcon": {
             "iconName": "updateContent_medium"

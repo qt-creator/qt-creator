@@ -727,17 +727,16 @@ void Edit3DView::createSyncEnvBackgroundAction()
 void Edit3DView::createViewportPresetActions()
 {
     auto createViewportPresetAction = [this](std::unique_ptr<Edit3DAction> &targetAction,
-                                     const QByteArray &id,
-                                     const QString &label,
-                                     bool isChecked) {
-        auto operation = [this, &targetAction, label](const SelectionContext &) {
-            for (Edit3DAction *action : std::as_const(m_viewportPresetActions)) {
-                if (action->menuId() != targetAction->menuId())
-                    action->action()->setChecked(false);
-                else
-                    action->action()->setChecked(true);
-            }
-            emitView3DAction(View3DActionType::ViewportPreset, label);
+                                             const QByteArray &id,
+                                             const QString &label,
+                                             const QString &opCode,
+                                             const QIcon &icon,
+                                             bool isChecked) {
+        auto operation = [this, &targetAction, opCode](const SelectionContext &) {
+            for (Edit3DAction *action : std::as_const(m_viewportPresetActions))
+                action->action()->setChecked(action->menuId() == targetAction->menuId());
+
+            emitView3DAction(View3DActionType::ViewportPreset, opCode);
         };
 
         targetAction = std::make_unique<Edit3DAction>(
@@ -747,16 +746,21 @@ void Edit3DView::createViewportPresetActions()
             QKeySequence(),
             true,
             isChecked,
-            QIcon(),
+            icon,
             this,
             operation);
     };
 
-    createViewportPresetAction(m_viewportPresetSingleAction, Constants::EDIT3D_PRESET_SINGLE, "Single", true);
-    createViewportPresetAction(m_viewportPresetQuadAction, Constants::EDIT3D_PRESET_QUAD, "Quad", false);
-    createViewportPresetAction(m_viewportPreset3Left1RightAction, Constants::EDIT3D_PRESET_3LEFT1RIGHT, "3Left1Right", false);
-    createViewportPresetAction(m_viewportPreset2HorizontalAction, Constants::EDIT3D_PRESET_2HORIZONTAL, "2Horizontal", false);
-    createViewportPresetAction(m_viewportPreset2VerticalAction, Constants::EDIT3D_PRESET_2VERTICAL, "2Vertical", false);
+    createViewportPresetAction(m_viewportPresetSingleAction, Constants::EDIT3D_PRESET_SINGLE,
+                               Tr::tr("Single"), "Single", contextIcon(DesignerIcons::MultiViewPort1Icon), true);
+    createViewportPresetAction(m_viewportPresetQuadAction, Constants::EDIT3D_PRESET_QUAD,
+                               Tr::tr("Quad"), "Quad", contextIcon(DesignerIcons::MultiViewPort2x2Icon), false);
+    createViewportPresetAction(m_viewportPreset3Left1RightAction, Constants::EDIT3D_PRESET_3LEFT1RIGHT,
+                               Tr::tr("3 Left 1 Right"), "3Left1Right", contextIcon(DesignerIcons::MultiViewPort3plus1Icon), false);
+    createViewportPresetAction(m_viewportPreset2HorizontalAction, Constants::EDIT3D_PRESET_2HORIZONTAL,
+                               Tr::tr("2 Horizontal"), "2Horizontal", contextIcon(DesignerIcons::MultiViewPort2hlIcon), false);
+    createViewportPresetAction(m_viewportPreset2VerticalAction, Constants::EDIT3D_PRESET_2VERTICAL,
+                               Tr::tr("2 Vertical"), "2Vertical", contextIcon(DesignerIcons::MultiViewPort2vlIcon), false);
 
     m_viewportPresetActions << m_viewportPresetSingleAction.get();
     m_viewportPresetActions << m_viewportPresetQuadAction.get();
@@ -1395,7 +1399,7 @@ void Edit3DView::createEdit3DActions()
                                                        QKeySequence(),
                                                        false,
                                                        false,
-                                                       toolbarIcon(DesignerIcons::SplitViewIcon),
+                                                       toolbarIcon(DesignerIcons::MultiViewPortIcon),
                                                        this,
                                                        viewportPresetsActionTrigger);
 
