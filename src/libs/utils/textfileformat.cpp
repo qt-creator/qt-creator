@@ -130,13 +130,15 @@ static bool verifyDecodingError(const QString &text, const QTextCodec *codec,
                       minSize));
 }
 
-// Decode a potentially large file in chunks and append it to target
-// using the append function passed on.
+/*!
+    Decode a potentially large file in chunks and append it to \a target.
 
-static bool decodeTextFileContent(const QByteArray &dataBA, const TextFileFormat &format, QString *target)
+    Returns \a data decoded to a string, \a target.
+*/
+
+bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
 {
-    const QTextCodec *codec = format.codec();
-    QTC_ASSERT(codec, return false);
+    QTC_ASSERT(m_codec, return false);
 
     QTextCodec::ConverterState state;
     bool hasDecodingError = false;
@@ -153,33 +155,24 @@ static bool decodeTextFileContent(const QByteArray &dataBA, const TextFileFormat
     for (const char *data = start; data < end; ) {
         const char *chunkStart = data;
         const int chunkSize = qMin(int(textChunkSize), int(end - chunkStart));
-        QString text = codec->toUnicode(chunkStart, chunkSize, &state);
+        QString text = m_codec->toUnicode(chunkStart, chunkSize, &state);
         data += chunkSize;
         // Process until the end of the current multi-byte character. Remaining might
         // actually contain more than needed so try one-be-one. If EOF is reached with
         // and characters remain->encoding error.
         for ( ; state.remainingChars && data < end ; ++data)
-            text.append(codec->toUnicode(data, 1, &state));
+            text.append(m_codec->toUnicode(data, 1, &state));
         if (state.remainingChars)
             hasDecodingError = true;
         if (!hasDecodingError)
             hasDecodingError =
-                verifyDecodingError(text, codec, chunkStart, data - chunkStart,
+                verifyDecodingError(text, m_codec, chunkStart, data - chunkStart,
                                     chunkStart == start);
-        if (format.lineTerminationMode == TextFileFormat::CRLFLineTerminator)
+        if (lineTerminationMode == TextFileFormat::CRLFLineTerminator)
             text.remove(QLatin1Char('\r'));
-        target->push_back(text);
+        target->append(text);
     }
     return !hasDecodingError;
-}
-
-/*!
-    Returns \a data decoded to a string, \a target.
-*/
-
-bool TextFileFormat::decode(const QByteArray &data, QString *target) const
-{
-    return decodeTextFileContent(data, *this, target);
 }
 
 /*!
