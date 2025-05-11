@@ -87,7 +87,7 @@ const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
 static QByteArray debugCodec(const QByteArray &c)
 {
-    return !c.isEmpty() ? c : "Null codec";
+    return !c.isEmpty() ? c : QByteArray("Null codec");
 }
 
 // Parse "svn status" output for added/conflicted/deleted/modified files

@@ -108,7 +108,7 @@ const char DIFF_EDITOR_ID[]            = "ClearCase Diff Editor";
 
 static QByteArray debugCodec(const QByteArray &c)
 {
-    return !c.isEmpty() ? c : "Null codec";
+    return !c.isEmpty() ? c : QByteArray("Null codec");
 }
 
 class ClearCasePluginPrivate final : public VcsBase::VersionControlBase
@@ -2277,7 +2277,7 @@ QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QSt
 {
     Process process;
     process.setWorkingDirectory(workingDir);
-    process.setCodec(outputCodec.isEmpty() ? "UTF-8" : outputCodec);
+    process.setCodec(outputCodec.isEmpty() ? QByteArray("UTF-8") : outputCodec);
     process.setCommand({"diff", {m_settings.diffArgs.split(' ', Qt::SkipEmptyParts), arguments}});
     process.runBlocking(seconds(timeOutS), EventLoopMode::On);
     if (process.result() != ProcessResult::FinishedWithSuccess)
