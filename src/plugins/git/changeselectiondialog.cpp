@@ -139,7 +139,7 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     int tilde = commit.indexOf('~');
     if (tilde != -1)
         commit.truncate(tilde);
-    LogChangeDialog dialog(false, this);
+    LogChangeDialog dialog(LogChangeDialog::Select, this);
     dialog.setWindowTitle(Tr::tr("Select Commit"));
 
     dialog.runDialog(workingDir, commit, LogChangeWidget::IncludeRemotes);

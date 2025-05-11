@@ -233,11 +233,12 @@ const QStandardItem *LogChangeWidget::currentItem(int column) const
     return nullptr;
 }
 
-LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
+LogChangeDialog::LogChangeDialog(DialogType type, QWidget *parent) :
     QDialog(parent)
     , m_widget(new LogChangeWidget)
     , m_dialogButtonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this))
 {
+    const bool isReset = type == Reset;
     auto layout = new QVBoxLayout(this);
     layout->addWidget(new QLabel(isReset ? Tr::tr("Reset to:") : Tr::tr("Select change:"), this));
     layout->addWidget(m_widget);

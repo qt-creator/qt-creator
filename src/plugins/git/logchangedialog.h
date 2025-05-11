@@ -67,7 +67,11 @@ private:
 class LogChangeDialog : public QDialog
 {
 public:
-    LogChangeDialog(bool isReset, QWidget *parent);
+    enum DialogType {
+        Reset,
+        Select
+    };
+    LogChangeDialog(DialogType type, QWidget *parent);
 
     void setContiguousSelectionEnabled(bool enabled);
 

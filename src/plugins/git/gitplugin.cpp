@@ -1226,7 +1226,7 @@ void GitPluginPrivate::resetRepository()
     QTC_ASSERT(state.hasTopLevel(), return);
     FilePath topLevel = state.topLevel();
 
-    LogChangeDialog dialog(true, ICore::dialogParent());
+    LogChangeDialog dialog(LogChangeDialog::Reset, ICore::dialogParent());
     ResetItemDelegate delegate(dialog.widget());
     dialog.setWindowTitle(Tr::tr("Undo Changes to %1").arg(topLevel.toUserOutput()));
     if (dialog.runDialog(topLevel, {}, LogChangeWidget::IncludeRemotes))
@@ -1259,7 +1259,7 @@ void GitPluginPrivate::startRebaseFromCommit(const FilePath &workingDirectory, Q
         return;
 
     if (commit.isEmpty()) {
-        LogChangeDialog dialog(false, ICore::dialogParent());
+        LogChangeDialog dialog(LogChangeDialog::Select, ICore::dialogParent());
         RebaseItemDelegate delegate(dialog.widget());
         dialog.setWindowTitle(Tr::tr("Interactive Rebase"));
         if (!dialog.runDialog(workingDirectory))
@@ -1603,7 +1603,7 @@ void GitPluginPrivate::createPatchesFromCommits()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    LogChangeDialog dialog(false, Core::ICore::dialogParent());
+    LogChangeDialog dialog(LogChangeDialog::Select, Core::ICore::dialogParent());
     PatchItemDelegate delegate(dialog.widget());
     dialog.setContiguousSelectionEnabled(true);
     dialog.setWindowTitle(Tr::tr("Select commits for patch creation"));
