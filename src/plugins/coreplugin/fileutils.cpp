@@ -18,6 +18,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 #include <utils/terminalcommand.h>
 #include <utils/terminalhooks.h>
 #include <utils/textfileformat.h>
@@ -30,7 +31,6 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QTextStream>
-#include <QTextCodec>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
@@ -279,7 +279,7 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
 
         QFile tmpHeader(headerPath + ".tmp");
         if (tmpHeader.open(QFile::WriteOnly)) {
-            const auto lineEnd =
+            const QString lineEnd =
                     headerFileTextFormat.lineTerminationMode == TextFileFormat::LFLineTerminator
                     ? QStringLiteral("\n") : QStringLiteral("\r\n");
             // write into temporary string,
@@ -301,9 +301,7 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
                 }
                 lineCounter++;
             }
-            const QTextCodec *codec = QTextCodec::codecForName((headerFileTextFormat.codec()));
-            if (QTC_GUARD(codec))
-                tmpHeader.write(codec->fromUnicode(outString));
+            tmpHeader.write(fromUnicode(headerFileTextFormat.codec(), outString));
             tmpHeader.close();
         } else {
             // if opening the temp file failed report error
