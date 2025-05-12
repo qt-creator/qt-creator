@@ -261,9 +261,7 @@ Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) 
     if (!saver.hasError()) {
         if (hasUtf8Bom && m_codec == "UTF-8")
             saver.write({"\xef\xbb\xbf", 3});
-        const QTextCodec *codec = QTextCodec::codecForName(m_codec);
-        if (QTC_GUARD(codec))
-            saver.write(codec->fromUnicode(plainText));
+        saver.write(fromUnicode(m_codec, plainText));
     }
 
     const Result<> result = saver.finalize();
