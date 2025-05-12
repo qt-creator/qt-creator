@@ -347,7 +347,8 @@ void DesignerCustomObjectDataFork::populateResetHashes()
         if (binding) {
             m_resetBindingHash.insert(propertyName, binding);
         } else if (property.isWritable()) {
-            m_resetValueHash.insert(propertyName, property.read());
+            if (!QmlPrivateGate::useCrashQTBUG136735Workaround(property, Q_FUNC_INFO))
+                m_resetValueHash.insert(propertyName, property.read());
         }
     }
 }
@@ -992,6 +993,53 @@ void registerFixResourcePathsForObjectCallBack()
 
     if (!s_qrcEngineHandler)
         s_qrcEngineHandler = new QrcEngineHandler();
+}
+
+
+bool useCrashQTBUG136735Workaround(const QQmlProperty &property, const char *callerInfo)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 4)
+    Q_UNUSED(property)
+    Q_UNUSED(callerInfo)
+    return false; // fixed in Qt
+#else
+    if (!property.isValid())
+        return false;
+    auto coreMetaType = property.propertyMetaType();
+
+    // property.propertyTypeCategory() == QQmlProperty::PropertyTypeCategory::List
+    // for unknown reason the simple check is sometimes not working in the editor QMLPuppet
+    const bool listLike = coreMetaType.id() == QMetaType::QStringList
+                          || coreMetaType.id() == QMetaType::QVariantList
+                          || QtPrivate::hasRegisteredConverterFunctionToIterableMetaSequence(
+                              coreMetaType);
+
+    if (!listLike)
+        return false;
+
+    const QMetaObject *metaObject = property.object()->metaObject();
+    QString ownerClassName;
+
+    do {
+        bool isDirectProperty = property.property().enclosingMetaObject() == metaObject;
+        if (isDirectProperty) {
+            ownerClassName = QString::fromLatin1(metaObject->className());
+            break;
+        }
+    } while ((metaObject = metaObject->superClass()));
+
+    // is generated QML type
+    static const QRegularExpression
+        re(QStringLiteral(R"(_QML(?:TYPE)?_\d+$)"), QRegularExpression::CaseInsensitiveOption);
+    if (!re.match(ownerClassName).hasMatch())
+        return false;
+
+    QString debugString("skipped read() on %1::%2 (direct owned list<T> property, QTBUG-136735)");
+    qWarning().noquote() << callerInfo
+                         << qPrintable(debugString.arg(ownerClassName, property.name()))
+                         << QString("propertyCategory(%3)").arg(property.propertyTypeCategory());
+    return true;
+#endif
 }
 
 } // namespace QmlPrivateGate
