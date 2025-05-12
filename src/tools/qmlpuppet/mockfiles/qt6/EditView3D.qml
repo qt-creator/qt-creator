@@ -140,11 +140,13 @@ Item {
         _generalHelper.storeToolState(sceneId, "activePreset", activePreset);
         _generalHelper.requestOverlayUpdate();
         applyViewportPreset()
+        cameraView.updateSnapping()
     }
     onActiveViewportChanged: {
         _generalHelper.storeToolState(sceneId, "activeViewport", activeViewport);
         cameraControls[activeViewport].forceActiveFocus();
         notifyActiveViewportChange(activeViewport);
+        cameraView.updateSnapping()
     }
 
     onActiveSceneChanged: updateActiveScene()
@@ -760,7 +762,6 @@ Item {
         updateViewRects();
         updateSplitResizers();
 
-        cameraView.updateSnapping();
         viewRoot.updateMouseCursor();
     }
 
@@ -1078,7 +1079,7 @@ Item {
                 border.width: 2
                 border.color: "#57B9FC"
                 color: "transparent"
-                z: 1000 // Edge case to make sure selection rect drawn over everything
+                z: 500
             }
 
             // Vertical divider (left/right)
@@ -1335,21 +1336,25 @@ Item {
                 preferredCamera: _generalHelper.activeScenePreferredCamera
                 preferredSize: Qt.size(viewRoot.width * 0.3, viewRoot.height * 0.3)
                 viewPortSize: Qt.size(viewRoot.viewPortRect.width, viewRoot.viewPortRect.height)
+                z: 1000
 
                 function updateSnapping() {
-                    const rect = viewRoot.viewRects[viewRoot.activeViewport];
-                    if (!rect || !rect.visible)
-                        return;
-
-                    const centerX = rect.x + rect.width / 2;
-                    cameraView.snapLeft = centerX < viewContainer.width / 2;
-                }
-
-                Connections {
-                    target: viewRoot
-                    function onActiveViewportChanged()
-                    {
-                        cameraView.updateSnapping()
+                    switch (viewRoot.activePreset) {
+                    case "Single":
+                        cameraView.snapLeft = true
+                        break
+                    case "2Vertical":
+                        cameraView.snapLeft = viewRoot.activeViewport == 1
+                        break
+                    case "2Horizontal":
+                        cameraView.snapLeft = true
+                        break
+                    case "Quad":
+                        cameraView.snapLeft = viewRoot.activeViewport != 2
+                        break
+                    case "3Left1Right":
+                        cameraView.snapLeft = false
+                        break
                     }
                 }
             }
