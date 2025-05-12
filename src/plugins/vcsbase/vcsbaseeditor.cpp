@@ -1259,10 +1259,7 @@ QByteArray VcsBaseEditor::getCodec(const FilePath &source)
         if (QTextCodec *pc = findProjectCodec(source.isFile() ? source.absolutePath() : source))
             return pc->name();
     }
-    if (QTextCodec *sys = QTextCodec::codecForLocale())
-        return sys->name();
-    QTC_CHECK(false);
-    return {};
+    return codecForLocale();
 }
 
 QByteArray VcsBaseEditor::getCodec(const FilePath &workingDirectory, const QStringList &files)

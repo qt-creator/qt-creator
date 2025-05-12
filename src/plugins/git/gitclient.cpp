@@ -3542,14 +3542,8 @@ static QByteArray configFileCodec()
 {
     // Git for Windows always uses UTF-8 for configuration:
     // https://github.com/msysgit/msysgit/wiki/Git-for-Windows-Unicode-Support#convert-config-files
-    static const QByteArray codec = []() -> QByteArray {
-        if (HostOsInfo::isWindowsHost())
-            return "UTF-8";
-        if (QTextCodec *codec = QTextCodec::codecForLocale())
-            return codec->name();
-        QTC_CHECK(false);
-        return {};
-    }();
+    static const QByteArray codec =
+            HostOsInfo::isWindowsHost() ? QByteArray("UTF-8") : codecForLocale();
     return codec;
 }
 

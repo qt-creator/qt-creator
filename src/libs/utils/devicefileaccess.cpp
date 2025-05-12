@@ -11,6 +11,7 @@
 #include "hostosinfo.h"
 #include "osspecificaspects.h"
 #include "qtcassert.h"
+#include "stringutils.h"
 #include "utilstr.h"
 
 #ifndef UTILS_STATIC_LIBRARY
@@ -24,7 +25,6 @@
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QTemporaryFile>
-#include <QTextCodec>
 #include <QThread>
 
 #ifdef Q_OS_WIN
@@ -1252,17 +1252,13 @@ Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(const Fi
 QByteArray DesktopDeviceFileAccess::processStdOutCodec(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    if (QTextCodec *codec = QTextCodec::codecForLocale())
-        return codec->name();
-    return {};
+    return codecForLocale();
 }
 
 QByteArray DesktopDeviceFileAccess::processStdErrCodec(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    if (QTextCodec *codec = QTextCodec::codecForLocale())
-        return codec->name();
-    return {};
+    return codecForLocale();
 }
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const

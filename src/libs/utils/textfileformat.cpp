@@ -5,6 +5,7 @@
 
 #include "fileutils.h"
 #include "qtcassert.h"
+#include "stringutils.h"
 #include "utilstr.h"
 
 #include <QDebug>
@@ -193,10 +194,8 @@ TextFileFormat::readFile(const FilePath &filePath, const QByteArray &defaultCode
 
     if (m_codec.isEmpty())
         m_codec = defaultCodec;
-    if (m_codec.isEmpty()) {
-        if (QTextCodec *codec = QTextCodec::codecForLocale())
-            m_codec = codec->name();
-    }
+    if (m_codec.isEmpty())
+        m_codec = codecForLocale();
 
     TextFileFormat::ReadResult result;
     if (!decode(data, &result.content)) {
@@ -224,10 +223,8 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
     format.detectFromData(data);
     if (format.m_codec.isEmpty())
         format.m_codec = defaultCodec;
-    if (format.m_codec.isEmpty()) {
-        if (QTextCodec *codec = QTextCodec::codecForLocale())
-            format.m_codec = codec->name();
-    }
+    if (format.m_codec.isEmpty())
+        format.m_codec = codecForLocale();
 
     QString target;
     if (format.m_codec == "UTF-8" || !format.decode(data, &target)) {

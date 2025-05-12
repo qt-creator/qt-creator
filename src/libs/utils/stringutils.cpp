@@ -23,6 +23,7 @@
 #include <QPalette>
 #include <QRegularExpression>
 #include <QSet>
+#include <QTextCodec>
 #include <QTextDocument>
 #include <QTextList>
 #include <QTime>
@@ -601,6 +602,14 @@ QString ansiColoredText(const QString &text, const QColor &color)
 {
     static const QString formatString("\033[38;2;%1;%2;%3m%4\033[0m");
     return formatString.arg(color.red()).arg(color.green()).arg(color.blue()).arg(text);
+}
+
+QByteArray codecForLocale()
+{
+    if (QTextCodec *codec = QTextCodec::codecForLocale())
+        return codec->name();
+    QTC_CHECK(false);
+    return {};
 }
 
 } // namespace Utils
