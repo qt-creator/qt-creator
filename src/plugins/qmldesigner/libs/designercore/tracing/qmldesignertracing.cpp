@@ -55,13 +55,19 @@ StringEventQueue &stringEventQueue()
 namespace ModelTracing {
 namespace {
 
-thread_local Category category_{"model", Tracing::stringEventQueue(), category};
+thread_local Category category_{"model", Tracing::eventQueueWithStringArguments(), category};
+thread_local StringCategory stringCategory_{"model", Tracing::stringEventQueue(), stringCategory};
 
 } // namespace
 
 Category &category()
 {
     return category_;
+}
+
+StringCategory &stringCategory()
+{
+    return stringCategory_;
 }
 
 } // namespace ModelTracing

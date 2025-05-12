@@ -39,11 +39,12 @@ constexpr NanotraceHR::Tracing tracingStatus()
 #endif
 }
 
-using Category = NanotraceHR::StringCategory<tracingStatus()>;
+using Category = NanotraceHR::StringViewWithStringArgumentsCategory<tracingStatus()>;
+using StringCategory = NanotraceHR::StringCategory<tracingStatus()>;
 using SourceLocation = Category::SourceLocation;
-using AsynchronousToken = Category::AsynchronousTokenType;
+using AsynchronousToken = StringCategory::AsynchronousTokenType;
 [[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
-
+[[gnu::pure]] QMLDESIGNERCORE_EXPORT StringCategory &stringCategory();
 } // namespace ModelTracing
 
 namespace ProjectStorageTracing {
