@@ -168,9 +168,13 @@ InfoBarEntry::GlobalSuppression InfoBarEntry::globalSuppression() const
 }
 
 void InfoBarEntry::addCustomButton(
-    const QString &buttonText, CallBack callBack, const QString &tooltip, ButtonAction action)
+    const QString &buttonText,
+    CallBack callBack,
+    const QString &tooltip,
+    ButtonAction action,
+    bool enabled)
 {
-    m_buttons.append({buttonText, callBack, tooltip, action});
+    m_buttons.append({buttonText, callBack, tooltip, action, enabled});
 }
 
 void InfoBarEntry::setCancelButtonInfo(CallBack callBack)
@@ -510,6 +514,7 @@ void InfoBarDisplay::update()
             auto infoWidgetButton = new QToolButton;
             infoWidgetButton->setText(button.text);
             infoWidgetButton->setToolTip(button.tooltip);
+            infoWidgetButton->setEnabled(button.enabled);
             connect(infoWidgetButton, &QAbstractButton::clicked, this, [button, this, id = info.id()] {
                 m_infoBar->triggerButton(id, button);
             });

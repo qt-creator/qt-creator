@@ -17,6 +17,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/session.h>
 
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectwizardpage.h>
+
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/storagesettings.h>
 #include <texteditor/textdocumentlayout.h>
@@ -28,18 +33,52 @@
 #include <utils/minimizableinfobars.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
+#include <utils/wizard.h>
 
 #include <QApplication>
 #include <QScopeGuard>
 #include <QTextDocument>
 
+#include <memory>
+
 const char NO_PROJECT_CONFIGURATION[] = "NoProject";
 
+using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
 namespace CppEditor {
 namespace Internal {
+
+static InfoBarEntry createInfoBarEntry(const FilePath &filePath)
+{
+    InfoBarEntry infoBarEntry(
+        NO_PROJECT_CONFIGURATION,
+        Tr::tr(
+            "<b>Warning</b>: This file is not part of any project. "
+            "The code model might have issues parsing this file properly."));
+    InfoBarEntry::CallBack addToProject = [filePath] {
+        Wizard wizard;
+        const std::unique_ptr<ProjectWizardPage> wizardPage = std::make_unique<ProjectWizardPage>(
+            dialogParent());
+        wizard.setWindowTitle(Tr::tr("Add File to Project"));
+        wizard.setProperty(
+            ProjectExplorer::Constants::PROJECT_POINTER,
+            QVariant::fromValue(static_cast<void *>(ProjectManager::startupProject())));
+        wizard.addPage(wizardPage.get());
+        wizardPage->setFiles({filePath});
+        wizardPage->initializeVersionControls();
+        wizardPage->initializeProjectTree(
+            nullptr, {}, Core::IWizardFactory::FileWizard, ProjectExplorer::AddExistingFile, false);
+        if (wizard.exec() == QDialog::Accepted && wizardPage->currentNode())
+            ProjectExplorerPlugin::addExistingFiles(wizardPage->currentNode(), {filePath});
+    };
+    const bool enableAddToProjectButton = !ProjectManager::isAnyProjectParsing()
+                                          && !ProjectManager::isKnownFile(filePath);
+    infoBarEntry.addCustomButton(Tr::tr("Add to project..."), addToProject, {}, {},
+                                 enableAddToProjectButton);
+    return infoBarEntry;
+}
 
 enum { processDocumentIntervalInMs = 150 };
 
@@ -105,10 +144,15 @@ CppEditorDocument::CppEditorDocument()
             this, &CppEditorDocument::reparseWithPreferredParseContext);
 
     minimizableInfoBars()->setSettingsGroup(Constants::CPPEDITOR_SETTINGSGROUP);
-    minimizableInfoBars()->setPossibleInfoBarEntries(
-        {{NO_PROJECT_CONFIGURATION,
-          Tr::tr("<b>Warning</b>: This file is not part of any project. "
-                 "The code model might have issues parsing this file properly.")}});
+    minimizableInfoBars()->setPossibleInfoBarEntries({createInfoBarEntry(filePath())});
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
+            this, &CppEditorDocument::updateInfoBarEntryIfVisible);
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
+            this, &CppEditorDocument::updateInfoBarEntryIfVisible);
+    connect(ProjectManager::instance(), &ProjectManager::projectStartedParsing,
+            this, &CppEditorDocument::updateInfoBarEntryIfVisible);
+    connect(ProjectManager::instance(), &ProjectManager::projectFinishedParsing,
+            this, &CppEditorDocument::updateInfoBarEntryIfVisible);
 
     // See also onFilePathChanged() for more initialization
 }
@@ -464,6 +508,7 @@ BaseEditorDocumentProcessor *CppEditorDocument::processor()
                 [this](const ProjectPartInfo &info) {
                     const bool hasProjectPart = !(info.hints & ProjectPartInfo::IsFallbackMatch);
                     minimizableInfoBars()->setInfoVisible(NO_PROJECT_CONFIGURATION, !hasProjectPart);
+                    updateInfoBarEntryIfVisible();
                     m_parseContextModel.update(info);
                     const bool isAmbiguous = info.hints & ProjectPartInfo::IsAmbiguousMatch;
                     const bool isProjectFile = info.hints & ProjectPartInfo::IsFromProjectMatch;
@@ -596,6 +641,12 @@ void CppEditorDocument::onDiagnosticsChanged(const FilePath &fileName, const QSt
             delete *it;
         }
     }
+}
+
+void CppEditorDocument::updateInfoBarEntryIfVisible()
+{
+    if (minimizableInfoBars()->isShownInInfoBar(NO_PROJECT_CONFIGURATION))
+        minimizableInfoBars()->updateEntry(createInfoBarEntry(filePath()));
 }
 
 } // namespace Internal

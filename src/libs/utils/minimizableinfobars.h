@@ -30,10 +30,12 @@ public:
 
     void setSettingsGroup(const Key &settingsGroup);
     void setPossibleInfoBarEntries(const QList<InfoBarEntry> &entries);
+    void updateEntry(const InfoBarEntry &entry);
 
     void createShowInfoBarActions(const ActionCreator &actionCreator) const;
 
     void setInfoVisible(const Id &id, bool visible);
+    bool isShownInInfoBar(const Id &id) const;
 
 private:
     void createActions();

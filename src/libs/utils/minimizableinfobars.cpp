@@ -38,6 +38,14 @@ void MinimizableInfoBars::setSettingsGroup(const Key &settingsGroup)
     m_settingsGroup = settingsGroup;
 }
 
+void MinimizableInfoBars::updateEntry(const InfoBarEntry &entry)
+{
+    const auto it = m_infoEntries.find(entry.id());
+    QTC_ASSERT(it != m_infoEntries.end(), return);
+    it.value() = entry;
+    updateInfo(entry.id());
+}
+
 void MinimizableInfoBars::createActions()
 {
     QTC_CHECK(m_actions.isEmpty());
@@ -81,6 +89,11 @@ void MinimizableInfoBars::setInfoVisible(const Id &id, bool visible)
     QTC_CHECK(m_isInfoVisible.contains(id));
     m_isInfoVisible.insert(id, visible);
     updateInfo(id);
+}
+
+bool MinimizableInfoBars::isShownInInfoBar(const Id &id) const
+{
+    return m_isInfoVisible.value(id) && showInInfoBar(id);
 }
 
 void MinimizableInfoBars::updateInfo(const Id &id)

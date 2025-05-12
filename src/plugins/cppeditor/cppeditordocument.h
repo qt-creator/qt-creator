@@ -87,6 +87,7 @@ private:
     void onReloadFinished();
     void onDiagnosticsChanged(const Utils::FilePath &fileName, const QString &kind);
 
+    void updateInfoBarEntryIfVisible();
 
     void reparseWithPreferredParseContext(const QString &id);
 

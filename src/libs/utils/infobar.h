@@ -60,9 +60,10 @@ public:
         CallBack callback;
         QString tooltip;
         ButtonAction action = ButtonAction::None;
+        bool enabled = true;
     };
     void addCustomButton(const QString &_buttonText, CallBack callBack, const QString &tooltip = {},
-                         ButtonAction action = ButtonAction::None);
+                         ButtonAction action = ButtonAction::None, bool enabled = true);
     void setCancelButtonInfo(CallBack callBack);
     void setCancelButtonInfo(const QString &_cancelButtonText, CallBack callBack);
     void removeCancelButton();
