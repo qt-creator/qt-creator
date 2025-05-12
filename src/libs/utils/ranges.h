@@ -52,11 +52,14 @@ struct MetaEnum
         int m_index{-1};
     };
 
+    using value_type = int;
+
     MetaEnum()
         : m_enum(QMetaEnum::fromType<ENUMTYPE>())
     {}
     Iterator begin() const { return Iterator(&m_enum, 0); }
     Iterator end() const { return Iterator(&m_enum, m_enum.keyCount()); }
+    size_t size() const { return m_enum.keyCount(); }
 
     QMetaEnum m_enum;
 };

@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
             new ManualTest::ThemeSelector,
             "QtcButton:",
             Flow {
-                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
+                Utils::transform<QList>(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
                     return Button{
                         text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
                         role((Utils::QtcButton::Role) r)
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
             },
             "QtcButton with Icons:",
             Flow {
-                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
+                Utils::transform<QList>(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
                     return Button{
                         text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
                         role((Utils::QtcButton::Role) r),
