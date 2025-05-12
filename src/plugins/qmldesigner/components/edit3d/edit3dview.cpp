@@ -275,6 +275,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     else
         m_syncEnvBackgroundAction->action()->setChecked(false);
 
+    if (sceneState.contains(activePresetKey))
+        syncActivePresetCheckedState(sceneState[activePresetKey].toString());
+    else
+        syncActivePresetCheckedState("Single");
+
     // Selection context change updates visible and enabled states
     SelectionContext selectionContext(this);
     selectionContext.setUpdateMode(SelectionContext::UpdateMode::Fast);
@@ -731,6 +736,8 @@ void Edit3DView::createViewportPresetActions()
             for (Edit3DAction *action : std::as_const(m_viewportPresetActions)) {
                 if (action->menuId() != targetAction->menuId())
                     action->action()->setChecked(false);
+                else
+                    action->action()->setChecked(true);
             }
             emitView3DAction(View3DActionType::ViewportPreset, label);
         };
@@ -910,6 +917,15 @@ void Edit3DView::syncCameraSpeedToNewView()
     }
 
     setCameraSpeedAuxData(speed, multiplier);
+}
+
+void Edit3DView::syncActivePresetCheckedState(const QString &preset)
+{
+    m_viewportPresetSingleAction->action()->setChecked(preset == "Single");
+    m_viewportPresetQuadAction->action()->setChecked(preset == "Quad");
+    m_viewportPreset3Left1RightAction->action()->setChecked(preset == "3Left1Right");
+    m_viewportPreset2HorizontalAction->action()->setChecked(preset == "2Horizontal");
+    m_viewportPreset2VerticalAction->action()->setChecked(preset == "2Vertical");
 }
 
 QmlObjectNode Edit3DView::currentSceneEnv()

@@ -151,6 +151,7 @@ private:
     void createViewportPresetActions();
     void createSeekerSliderAction();
     void syncCameraSpeedToNewView();
+    void syncActivePresetCheckedState(const QString &preset);
     QmlObjectNode currentSceneEnv();
     void storeCurrentSceneEnvironment();
 
