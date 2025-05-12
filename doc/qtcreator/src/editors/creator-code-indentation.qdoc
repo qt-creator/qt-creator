@@ -105,5 +105,5 @@
     \sa {C++ Code Style}
     \endif
 
-    \sa {Behavior}, {Qt Quick Code Style}, {Keyboard Shortcuts}
+    \sa {Behavior}, {Specify Qt Quick code style}, {Keyboard Shortcuts}
 */

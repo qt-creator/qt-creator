@@ -6,15 +6,17 @@
     \if defined(qtdesignstudio)
     \previouspage qtquick-text-editor.html
     \else
-    \previouspage creator-reference.html
+    \previouspage creator-how-tos.html
     \endif
 
-    \ingroup creator-reference-preferences
-    \ingroup studio-preferences-code
+    \ingroup creator-how-to-edit
+    \ingroup studio-how-to-code
 
-    \title Qt Quick Code Style
+    \title Specify Qt Quick code style
 
-    \brief Set QML code style.
+    You can use the built-in code formatter (deprecated) or an external tool,
+    such as \l {qmlformat}, to automatically format QML files according to QML
+    coding conventions.
 
     To specify QML code style globally:
 
@@ -24,10 +26,10 @@
             modify, and then select \uicontrol Copy.
             \image {qtcreator-preferences-qtquick-code-style.webp} {Code Style tab in Qt Quick preferences}
         \li Give a name to the settings, and select \uicontrol OK.
-        \li Specify how to interpret the \key Tab key presses and how to align
-            continuation lines.
-        \li In \uicontrol {Line length}, set the maximum line length for
-            code lines.
+        \li In \uicontrol {Formatter Selection}, select the formatter to use.
+        \li For the built-in formatter, specify how to interpret the \key Tab key
+            presses and how to align continuation lines, as well as set the
+            maximum line length for code lines.
     \endlist
 
     To override the global preferences for a particular project, select
