@@ -346,7 +346,7 @@ public:
         m_rename = new QtcButton(Tr::tr("Rename"), QtcButton::SmallTertiary);
         m_delete = new QtcButton(Tr::tr("Delete"), QtcButton::SmallTertiary);
 
-        auto buttonGroup = new QButtonGroup;
+        auto buttonGroup = new QButtonGroup(this);
         buttonGroup->addButton(m_clone, ActionClone);
         buttonGroup->addButton(m_rename, ActionRename);
         buttonGroup->addButton(m_delete, ActionDelete);
