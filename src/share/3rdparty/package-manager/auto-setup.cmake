@@ -260,7 +260,7 @@ macro(qtc_auto_setup_vcpkg)
       PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/vcpkg.json")
 
     find_program(vcpkg_program vcpkg
-      PATHS $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg ${CMAKE_SOURCE_DIR}/3rdparty/vcpkg
+      PATHS ${CMAKE_SOURCE_DIR}/vcpkg ${CMAKE_SOURCE_DIR}/3rdparty/vcpkg $ENV{VCPKG_ROOT}
       NO_DEFAULT_PATH
     )
     if (NOT vcpkg_program)
