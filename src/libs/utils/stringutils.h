@@ -120,5 +120,7 @@ private:
 QTCREATOR_UTILS_EXPORT QString ansiColoredText(const QString &text, const QColor &color);
 
 QTCREATOR_UTILS_EXPORT QByteArray codecForLocale();
+QTCREATOR_UTILS_EXPORT QByteArray fromUnicode(const QByteArray &codec, QStringView data);
+QTCREATOR_UTILS_EXPORT QString toUnicode(const QByteArray &codec, const QByteArray &data);
 
 } // namespace Utils
