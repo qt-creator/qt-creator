@@ -128,6 +128,13 @@ void Edit3DView::renderImage3DChanged(const QImage &img)
 
 void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 {
+    const QString mouseCursorKey = QStringLiteral("mouseCursor");
+    if (sceneState.contains(mouseCursorKey)) {
+        setMouseCursor(sceneState[mouseCursorKey].toInt());
+        // Mouse cursor state is always reported separately, as we never want to persist this state
+        return;
+    }
+
     const QString activeViewportKey = QStringLiteral("activeViewport");
     if (sceneState.contains(activeViewportKey)) {
         setActiveViewport(sceneState[activeViewportKey].toInt());
@@ -137,15 +144,6 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
             return;
     } else {
         setActiveViewport(0);
-    }
-
-    const QString mouseCursorKey = QStringLiteral("mouseCursor");
-    if (sceneState.contains(mouseCursorKey)) {
-        setMouseCursor(sceneState[mouseCursorKey].toInt());
-        if (sceneState.size() == 1)
-            return;
-    } else {
-        setMouseCursor(-1);
     }
 
     const QString sceneKey              = QStringLiteral("sceneInstanceId");
