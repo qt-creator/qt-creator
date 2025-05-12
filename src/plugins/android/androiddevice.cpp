@@ -450,6 +450,7 @@ void AndroidDevice::fromMap(const Store &map)
     // Add Actions for Emulator and hardware if not added already.
     // This is needed because actions for Emulators and physical devices are not the same.
     addActionsIfNotFound();
+    setFreePorts(PortList::fromString("5555-5585"));
 }
 
 IDevice::Ptr AndroidDevice::create()

@@ -209,7 +209,7 @@ void VcpkgPackageSearchDialog::updatePackages()
         AsyncTask<VcpkgManifest>{
             [](Async<VcpkgManifest> &task) {
                 FilePath vcpkgRoot =
-                    settings(ProjectTree::currentProject()).vcpkgRoot.expandedValue();
+                    settings(ProjectTree::currentProject())->vcpkgRoot.expandedValue();
                 task.setConcurrentCallData(vcpkgManifests, vcpkgRoot);
             },
             [this](const Async<VcpkgManifest> &task) { m_allPackages = task.results(); }

@@ -101,6 +101,7 @@ public:
     void setGeneric(bool on);
 
     static bool addAndroidLldbPythonEnv(const Utils::FilePath &lldbCmd, Utils::Environment &env);
+    static bool fixupAndroidLlldbPythonDylib(const Utils::FilePath &lldbCmd);
 
 private:
     DebuggerItem(const QVariant &id);

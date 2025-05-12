@@ -81,6 +81,7 @@ public:
 
     bool childOf(BranchNode *node) const
     {
+        QTC_ASSERT(node, return false);
         if (this == node)
             return true;
         return parent ? parent->childOf(node) : false;
@@ -144,6 +145,7 @@ public:
 
     void insert(const QStringList &path, BranchNode *n)
     {
+        QTC_ASSERT(n, return);
         BranchNode *current = this;
         for (int i = 0; i < path.count(); ++i) {
             BranchNode *c = current->childOfName(path.at(i));
@@ -157,6 +159,7 @@ public:
 
     BranchNode *append(BranchNode *n)
     {
+        QTC_ASSERT(n, return nullptr);
         n->parent = this;
         children.append(n);
         return n;
@@ -164,6 +167,7 @@ public:
 
     BranchNode *prepend(BranchNode *n)
     {
+        QTC_ASSERT(n, return nullptr);
         n->parent = this;
         children.prepend(n);
         return n;
@@ -691,6 +695,7 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
 
 static int positionForName(BranchNode *node, const QString &name)
 {
+    QTC_ASSERT(node, return 0);
     int pos = 0;
     for (pos = 0; pos < node->count(); ++pos) {
         if (node->children.at(pos)->name >= name)

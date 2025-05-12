@@ -411,6 +411,7 @@ DeviceManager::~DeviceManager()
 {
     delete d->writer;
     m_instance = nullptr;
+    d.reset();
 }
 
 IDevice::Ptr DeviceManager::deviceAt(int idx)

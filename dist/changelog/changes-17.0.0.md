@@ -39,6 +39,7 @@ Editing
 
 * Updated prebuilt binaries to LLVM 20.1.3
 * Added refactoring actions for adding string literal operators to literals
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-reference-cpp-quick-fixes.html))
 * Fixed the indentation for function-like built-ins
   ([QTCREATORBUG-32667](https://bugreports.qt.io/browse/QTCREATORBUG-32667))
 * Fixed issues with function-like macros

@@ -569,6 +569,7 @@ QTC_DEFINE_BUILDER_SETTER(markdown, setMarkdown);
 QTC_DEFINE_BUILDER_SETTER(sizePolicy, setSizePolicy);
 QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
 QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
+QTC_DEFINE_BUILDER_SETTER(placeholderText, setPlaceholderText);
 
 // Nesting dispatchers
 

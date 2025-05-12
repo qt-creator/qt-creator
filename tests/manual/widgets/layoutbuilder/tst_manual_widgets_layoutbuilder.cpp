@@ -161,20 +161,20 @@ int main(int argc, char *argv[])
         windowTitle("Qtc Controls"),
 
         Column {
-            Label { text("Theme selector:") },
+            "Theme selector:",
             new ManualTest::ThemeSelector,
-            Label { text("QtcButton:") },
+            "QtcButton:",
             Flow {
-                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
+                Utils::transform<QList>(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
                     return Button{
                         text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
                         role((Utils::QtcButton::Role) r)
                     };
                 })
             },
-            Label { text("QtcButton with Icons:") },
+            "QtcButton with Icons:",
             Flow {
-                std::views::transform(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
+                Utils::transform<QList>(Utils::ranges::MetaEnum<Utils::QtcButton::Role>(), [](int r) {
                     return Button{
                         text(QMetaEnum::fromType<Utils::QtcButton::Role>().valueToKey(r)),
                         role((Utils::QtcButton::Role) r),
@@ -188,6 +188,17 @@ int main(int argc, char *argv[])
                     onClicked(qApp, []() { qDebug() << "Switch clicked"; })
                 },
                 st,
+            },
+            "QtcLabel:",
+            Row {
+                Utils::QtcWidgets::Label { text("Primary label"), role(Utils::QtcLabel::Primary) },
+                Utils::QtcWidgets::Label { text("Secondary label"), role(Utils::QtcLabel::Secondary) },
+                st,
+            },
+            "QtcSearchBox:",
+            Utils::QtcWidgets::SearchBox {
+                placeholderText("Search example..."),
+                onTextChanged(qApp, [](const QString &text){ qDebug() << "Text:" << text; })
             },
         }
     }.emerge()->show();

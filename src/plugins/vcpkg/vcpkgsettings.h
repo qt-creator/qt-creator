@@ -30,6 +30,6 @@ private:
     ProjectExplorer::Project *m_project{nullptr};
 };
 
-VcpkgSettings &settings(ProjectExplorer::Project *project);
+VcpkgSettings *settings(ProjectExplorer::Project *project);
 
 } // Vcpkg::Internal

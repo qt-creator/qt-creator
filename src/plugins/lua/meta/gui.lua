@@ -1,5 +1,4 @@
 ---@meta Gui
-
 local gui = {}
 
 ---The base class of all ui related classes.
@@ -169,12 +168,30 @@ local pushButton = {}
 function gui.PushButton(options) end
 
 
+---@class QtcLabel : Widget
+local QtcLabel = {}
+
+---Enum representing the QtcLabel types
+---@enum QtcLabel.Role
+QtcLabel.Role = {
+    Primary = 0,
+    Secondary = 0,
+}
+
+---@class QtcLabelOptions : BaseWidgetOptions
+---@field role? QtcLabel.Role e The role of the label. (default: "Primary")
+---@field text? string The text of the label.
+
+---@param options QtcLabelOptions
+---@return QtcLabel
+function gui.QtcLabel(options) end
+
 ---@class QtcButton : Widget
 local QtcButton = {}
 
---- Enum representing text format types
----@enum Role
-gui.Role = {
+--- Enum representing the QtcButton roles
+---@enum QtcButton.Role
+QtcButton.Role = {
     LargePrimary = 0,
     LargeSecondary = 0,
     LargeTertiary = 0,
@@ -187,7 +204,7 @@ gui.Role = {
 }
 
 ---@class QtcButtonOptions : BaseWidgetOptions
----@field role? Role The role of the button. (default: "LargePrimary")
+---@field role? QtcButton.Role The role of the button. (default: "LargePrimary")
 ---@field text? string The text of the button.
 ---@field icon? IconFilePathOrString The icon of the button.
 

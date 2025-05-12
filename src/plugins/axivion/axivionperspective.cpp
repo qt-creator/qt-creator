@@ -190,6 +190,7 @@ public:
     void updateUi(const QString &kind);
     void initDashboardList(const QString &preferredProject = {});
     void resetDashboard();
+    void leaveOrEnterDashboardMode();
     void updateNamedFilters();
 
     const std::optional<Dto::TableInfoDto> currentTableInfo() const { return m_currentTableInfo; }
@@ -229,6 +230,7 @@ private:
     QComboBox *m_ownerFilter = nullptr;
     QComboBox *m_versionStart = nullptr;
     QComboBox *m_versionEnd = nullptr;
+    QComboBox *m_localVersions = nullptr;
     QComboBox *m_namedFilters = nullptr;
     QToolButton *m_localBuild = nullptr;
     QToolButton *m_localDashBoard = nullptr;
@@ -238,6 +240,7 @@ private:
     QLabel *m_totalRows = nullptr;
     BaseTreeView *m_issuesView = nullptr;
     QStackedWidget *m_stack = nullptr;
+    QStackedWidget *m_versionsStack = nullptr;
     IssueHeaderView *m_headerView = nullptr;
     QPlainTextEdit *m_errorEdit = nullptr;
     DynamicListModel *m_issuesModel = nullptr;
@@ -341,6 +344,16 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         setAnalysisVersion(m_versionDates.at(index));
     });
 
+    m_localVersions = new QComboBox(this);
+    m_localVersions->setMinimumContentsLength(25);
+    m_localVersions->addItems({Tr::tr("Reference version"), Tr::tr("Locally changed issues"),
+                               Tr::tr("All local issues")});
+    connect(m_localVersions, &QComboBox::currentIndexChanged, this, [this] {
+        if (m_signalBlocker.isLocked())
+            return;
+        onSearchParameterChanged();
+    });
+
     m_addedFilter = new QPushButton(this);
     m_addedFilter->setIcon(trendIcon(1, 0));
     m_addedFilter->setText("0");
@@ -434,8 +447,15 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_stack->addWidget(m_issuesView);
     m_stack->addWidget(errorWidget);
 
+    Stack {
+        bindTo(&m_versionsStack),
+        Row { m_versionStart, m_versionEnd, noMargin },
+        Row { m_localVersions, st, noMargin }
+    };
+    m_versionsStack->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+
     Column {
-        Row { m_dashboards, m_dashboardProjects, empty, localLayout, st, m_typesLayout, st, m_versionStart, m_versionEnd, st },
+        Row { m_dashboards, m_dashboardProjects, empty, localLayout, empty, m_typesLayout, empty, m_versionsStack, st },
         Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter, m_namedFilters, m_showFilterHelp },
         m_stack,
         Row { st, m_totalRows }
@@ -498,6 +518,24 @@ void IssuesWidget::resetDashboard()
     m_dashboardProjects->clear();
     m_dashboards->clear();
     m_dashboardListUninitialized = true;
+}
+
+void IssuesWidget::leaveOrEnterDashboardMode()
+{
+    GuardLocker lock(m_signalBlocker);
+
+    switch (currentDashboardMode()) {
+    case DashboardMode::Global:
+        m_versionsStack->setCurrentIndex(int(DashboardMode::Global));
+        break;
+    case DashboardMode::Local:
+        m_localVersions->setCurrentIndex(1);
+        m_versionsStack->setCurrentIndex(int(DashboardMode::Local));
+        break;
+    }
+
+    IssueListSearch search = searchFromUi();
+    fetchIssues(search);
 }
 
 void IssuesWidget::updateNamedFilters()
@@ -789,6 +827,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         m_ownerFilter->clear();
         m_versionStart->clear();
         m_versionEnd->clear();
+        m_versionEnd->setVisible(true);
         m_pathGlobFilter->clear();
         m_namedFilters->clear();
 
@@ -890,6 +929,7 @@ void IssuesWidget::setFiltersEnabled(bool enabled)
     m_removedFilter->setEnabled(enabled);
     m_ownerFilter->setEnabled(enabled);
     m_versionStart->setEnabled(enabled);
+    m_localVersions->setEnabled(enabled);
     m_versionEnd->setEnabled(enabled);
     m_pathGlobFilter->setEnabled(enabled);
     m_namedFilters->setEnabled(enabled);
@@ -1016,9 +1056,11 @@ void IssuesWidget::switchDashboard(bool local)
 {
     if (local) {
         QTC_ASSERT(!m_currentProject.isEmpty(), return);
-        startLocalDashboard(m_currentProject, {});
+        auto callback = [] { switchDashboardMode(DashboardMode::Local); };
+        m_issuesView->showProgressIndicator();
+        startLocalDashboard(m_currentProject, callback);
     } else {
-        // TODO switch back
+        switchDashboardMode(DashboardMode::Global);
     }
 }
 
@@ -1123,6 +1165,8 @@ public:
     void setIssueDetailsHtml(const QString &html);
     void handleAnchorClicked(const QUrl &url);
     void updateNamedFilters();
+
+    void leaveOrEnterDashboardMode();
 
 private:
     IssuesWidget *m_issuesWidget = nullptr;
@@ -1295,6 +1339,11 @@ void AxivionPerspective::updateNamedFilters()
     m_issuesWidget->updateNamedFilters();
 }
 
+void AxivionPerspective::leaveOrEnterDashboardMode()
+{
+    m_issuesWidget->leaveOrEnterDashboardMode();
+}
+
 static AxivionPerspective *axivionPerspective()
 {
     static GuardedObject<AxivionPerspective> theAxivionPerspective;
@@ -1352,6 +1401,12 @@ void updateNamedFilters()
 {
     QTC_ASSERT(axivionPerspective(), return);
     axivionPerspective()->updateNamedFilters();
+}
+
+void leaveOrEnterDashboardMode()
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->leaveOrEnterDashboardMode();
 }
 
 void setupAxivionPerspective()

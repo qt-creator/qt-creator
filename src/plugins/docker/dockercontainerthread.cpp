@@ -73,6 +73,22 @@ private:
     {
         using namespace std::chrono_literals;
 
+        Process eventProcess;
+        // Start an docker event listener to listen for the container start event
+        eventProcess.setCommand(
+            {m_init.dockerBinaryPath,
+             {"events", "--filter", "event=start", "--filter", "container=" + m_containerId}});
+        eventProcess.setProcessMode(ProcessMode::Reader);
+        eventProcess.start();
+        if (!eventProcess.waitForStarted(5s)) {
+            if (eventProcess.state() == QProcess::NotRunning) {
+                return ResultError(
+                    Tr::tr("Failed starting Docker event listener. Exit code: %1, output: %2")
+                        .arg(eventProcess.exitCode())
+                        .arg(eventProcess.allOutput()));
+            }
+        }
+
         m_startProcess = new Process(this);
 
         m_startProcess->setCommand(
@@ -90,9 +106,31 @@ private:
             qCWarning(dockerThreadLog)
                 << "Docker container start process took more than 5 seconds to start.";
         }
-
         qCDebug(dockerThreadLog) << "Started container: " << m_startProcess->commandLine();
 
+        // Read a line from the eventProcess
+        while (true) {
+            if (!eventProcess.waitForReadyRead(5s)) {
+                m_startProcess->kill();
+                if (!m_startProcess->waitForFinished(5s)) {
+                    qCWarning(dockerThreadLog)
+                        << "Docker start process took more than 5 seconds to finish.";
+                }
+                return ResultError(
+                    Tr::tr("Failed starting Docker container. Exit code: %1, output: %2")
+                        .arg(eventProcess.exitCode())
+                        .arg(eventProcess.allOutput()));
+            }
+            if (!eventProcess.stdOutLines().isEmpty()) {
+                break;
+            }
+        }
+        qCDebug(dockerThreadLog) << "Started event received for container: " << m_containerId;
+        eventProcess.kill();
+        if (!eventProcess.waitForFinished(5s)) {
+            qCWarning(dockerThreadLog)
+                << "Docker event listener process took more than 5 seconds to finish.";
+        }
         return ResultOk;
     }
 
