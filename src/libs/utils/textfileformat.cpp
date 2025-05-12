@@ -18,9 +18,9 @@ QDebug operator<<(QDebug d, const TextFileFormat &format)
 {
     QDebug nsp = d.nospace();
     nsp << "TextFileFormat: ";
-    if (format.codec()) {
-        nsp << format.codecName();
-        const QList<QByteArray> aliases = format.codec()->aliases();
+    if (const QTextCodec *codec = QTextCodec::codecForName(format.codec())) {
+        nsp << format.codec();
+        const QList<QByteArray> aliases = codec->aliases();
         for (const QByteArray &alias : aliases)
             nsp << ' ' << alias;
     } else {
@@ -40,7 +40,7 @@ QDebug operator<<(QDebug d, const TextFileFormat &format)
 
     The format comprises
     \list
-    \li Encoding represented by a pointer to a QTextCodec
+    \li Encoding represented by a the name of a codec
     \li Presence of an UTF8 Byte Order Marker (BOM)
     \li Line feed storage convention
     \endlist
@@ -65,12 +65,12 @@ TextFileFormat TextFileFormat::detect(const QByteArray &data)
     // code taken from qtextstream
     if (bytesRead >= 4 && ((buf[0] == 0xff && buf[1] == 0xfe && buf[2] == 0 && buf[3] == 0)
                            || (buf[0] == 0 && buf[1] == 0 && buf[2] == 0xfe && buf[3] == 0xff))) {
-        result.m_codec = QTextCodec::codecForName("UTF-32");
+        result.m_codec = "UTF-32";
     } else if (bytesRead >= 2 && ((buf[0] == 0xff && buf[1] == 0xfe)
                                   || (buf[0] == 0xfe && buf[1] == 0xff))) {
-        result.m_codec = QTextCodec::codecForName("UTF-16");
+        result.m_codec = "UTF-16";
     } else if (bytesRead >= 3 && ((buf[0] == 0xef && buf[1] == 0xbb) && buf[2] == 0xbf)) {
-        result.m_codec = QTextCodec::codecForName("UTF-8");
+        result.m_codec = "UTF-8";
         result.hasUtf8Bom = true;
     }
     // end code taken from qtextstream
@@ -95,22 +95,12 @@ QByteArray TextFileFormat::decodingErrorSample(const QByteArray &data)
     return p < 0 ? data : data.left(p);
 }
 
-const QTextCodec *TextFileFormat::codec() const
+QByteArray TextFileFormat::codec() const
 {
     return m_codec;
 }
 
-QByteArray TextFileFormat::codecName() const
-{
-   return m_codec ? m_codec->name() : QByteArray();
-}
-
-void TextFileFormat::setCodecName(const QByteArray &codec)
-{
-    m_codec = QTextCodec::codecForName(codec);
-}
-
-void TextFileFormat::setCodec(const QTextCodec *codec)
+void TextFileFormat::setCodec(const QByteArray &codec)
 {
     m_codec = codec;
 }
@@ -138,7 +128,8 @@ static bool verifyDecodingError(const QString &text, const QTextCodec *codec,
 
 bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
 {
-    QTC_ASSERT(m_codec, return false);
+    const QTextCodec *codec = QTextCodec::codecForName(m_codec);
+    QTC_ASSERT(codec, return false);
 
     QTextCodec::ConverterState state;
     bool hasDecodingError = false;
@@ -155,18 +146,18 @@ bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
     for (const char *data = start; data < end; ) {
         const char *chunkStart = data;
         const int chunkSize = qMin(int(textChunkSize), int(end - chunkStart));
-        QString text = m_codec->toUnicode(chunkStart, chunkSize, &state);
+        QString text = codec->toUnicode(chunkStart, chunkSize, &state);
         data += chunkSize;
         // Process until the end of the current multi-byte character. Remaining might
         // actually contain more than needed so try one-be-one. If EOF is reached with
         // and characters remain->encoding error.
         for ( ; state.remainingChars && data < end ; ++data)
-            text.append(m_codec->toUnicode(data, 1, &state));
+            text.append(codec->toUnicode(data, 1, &state));
         if (state.remainingChars)
             hasDecodingError = true;
         if (!hasDecodingError)
             hasDecodingError =
-                verifyDecodingError(text, m_codec, chunkStart, data - chunkStart,
+                verifyDecodingError(text, codec, chunkStart, data - chunkStart,
                                     chunkStart == start);
         if (lineTerminationMode == TextFileFormat::CRLFLineTerminator)
             text.remove(QLatin1Char('\r'));
@@ -188,7 +179,7 @@ bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
 */
 
 TextFileFormat::ReadResult
-TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCodec)
+TextFileFormat::readFile(const FilePath &filePath, const QByteArray &defaultCodec)
 {
     QByteArray data;
     try {
@@ -203,8 +194,12 @@ TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCode
     if (!data.isEmpty())
         operator=(TextFileFormat::detect(data));
 
-    if (!m_codec)
-        m_codec = defaultCodec ? defaultCodec : QTextCodec::codecForLocale();
+    if (m_codec.isEmpty())
+        m_codec = defaultCodec;
+    if (m_codec.isEmpty()) {
+        if (QTextCodec *codec = QTextCodec::codecForLocale())
+            m_codec = codec->name();
+    }
 
     TextFileFormat::ReadResult result;
     if (!decode(data, &result.content)) {
@@ -215,7 +210,7 @@ TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCode
 }
 
 Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
-                                      const QTextCodec *defaultCodec,
+                                      const QByteArray &defaultCodec,
                                       QByteArray *plainText)
 {
     QByteArray data;
@@ -229,10 +224,14 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
     }
 
     TextFileFormat format = TextFileFormat::detect(data);
-    if (!format.m_codec)
-        format.m_codec = defaultCodec ? defaultCodec : QTextCodec::codecForLocale();
+    if (format.m_codec.isEmpty())
+        format.m_codec = defaultCodec;
+    if (format.m_codec.isEmpty()) {
+        if (QTextCodec *codec = QTextCodec::codecForLocale())
+            format.m_codec = codec->name();
+    }
     QString target;
-    if (format.m_codec->name() == "UTF-8" || !format.decode(data, &target)) {
+    if (format.m_codec == "UTF-8" || !format.decode(data, &target)) {
         if (format.hasUtf8Bom)
             data.remove(0, 3);
         if (format.lineTerminationMode == TextFileFormat::CRLFLineTerminator)
@@ -253,7 +252,7 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
 
 Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) const
 {
-    QTC_ASSERT(m_codec, return ResultError("No codec"));
+    QTC_ASSERT(!m_codec.isEmpty(), return ResultError("No codec"));
 
     // Does the user want CRLF? If that is native,
     // do not let QFile do the work, because it replaces the line ending after the text was encoded,
@@ -264,9 +263,11 @@ Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) 
 
     FileSaver saver(filePath, fileMode);
     if (!saver.hasError()) {
-        if (hasUtf8Bom && m_codec->name() == "UTF-8")
+        if (hasUtf8Bom && m_codec == "UTF-8")
             saver.write({"\xef\xbb\xbf", 3});
-        saver.write(m_codec->fromUnicode(plainText));
+        const QTextCodec *codec = QTextCodec::codecForName(m_codec);
+        if (QTC_GUARD(codec))
+            saver.write(codec->fromUnicode(plainText));
     }
 
     const Result<> result = saver.finalize();

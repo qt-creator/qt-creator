@@ -100,7 +100,7 @@ private:
     QSet<Utils::FilePath> m_processed;
     QHash<Utils::FilePath, Utils::FilePath> m_fileNameCache;
     int m_fileSizeLimitInMb = -1;
-    QTextCodec *m_defaultCodec;
+    QByteArray m_defaultCodec;
 };
 
 } // CppEditor::Internal

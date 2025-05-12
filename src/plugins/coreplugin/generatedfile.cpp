@@ -160,7 +160,7 @@ Result<> GeneratedFilePrivate::writeContents() const
     }
 
     TextFileFormat format;
-    format.setCodecName(EditorManager::defaultTextCodecName());
+    format.setCodec(EditorManager::defaultTextCodecName());
     format.lineTerminationMode = EditorManager::defaultLineEnding();
     return format.writeFile(path, QString::fromUtf8(contents));
 }

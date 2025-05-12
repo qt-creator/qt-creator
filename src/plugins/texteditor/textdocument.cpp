@@ -671,8 +671,8 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
     }
 
     // check if UTF8-BOM has to be added or removed
-    Utils::TextFileFormat saveFormat = format();
-    if (saveFormat.codecName() == "UTF-8" && supportsUtf8Bom()) {
+    TextFileFormat saveFormat = format();
+    if (saveFormat.codec() == "UTF-8" && supportsUtf8Bom()) {
         switch (d->m_extraEncodingSettings.m_utf8BomSetting) {
         case ExtraEncodingSettings::AlwaysAdd:
             saveFormat.hasUtf8Bom = true;

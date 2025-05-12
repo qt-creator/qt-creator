@@ -289,7 +289,7 @@ QStringList SymbolSupport::getFileContents(const FilePath &filePath)
     } else {
         TextFileFormat format;
         format.lineTerminationMode = TextFileFormat::LFLineTerminator;
-        const QTextCodec *codec = Core::EditorManager::defaultTextCodec();
+        const QByteArray codec = Core::EditorManager::defaultTextCodecName();
         const TextFileFormat::ReadResult result = format.readFile(filePath, codec);
         fileContent = result.content;
         if (result.code != TextFileFormat::ReadSuccess) {

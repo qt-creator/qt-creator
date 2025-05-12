@@ -739,7 +739,7 @@ bool QmakePriFile::ensureWriteableProFile(const QString &file)
 QPair<ProFile *, QStringList> QmakePriFile::readProFile()
 {
     TextFileFormat::ReadResult result =
-            m_textFormat.readFile(filePath(), EditorManager::defaultTextCodec());
+            m_textFormat.readFile(filePath(), EditorManager::defaultTextCodecName());
     if (result.code != TextFileFormat::ReadSuccess) {
         QmakeBuildSystem::proFileParseError(result.error, filePath());
         return {nullptr, {}};
@@ -903,7 +903,7 @@ bool QmakePriFile::setProVariable(const QString &var, const QStringList &values,
 void QmakePriFile::save(const QStringList &lines)
 {
     {
-        QTC_ASSERT(m_textFormat.codec(), return);
+        QTC_ASSERT(!m_textFormat.codec().isEmpty(), return);
         FileChangeBlocker changeGuard(filePath());
         if (const Result<> res = m_textFormat.writeFile(filePath(), lines.join('\n')); !res)
             QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("File Error"), res.error());

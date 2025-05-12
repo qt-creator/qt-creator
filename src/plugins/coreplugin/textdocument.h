@@ -24,7 +24,6 @@ public:
     Utils::TextFileFormat format() const;
     const QTextCodec *codec() const;
     QByteArray codecName() const;
-    void setCodec(const QTextCodec *);
     void setCodec(const QByteArray &name);
     virtual bool supportsCodec(const QByteArray &) const;
     void switchUtf8Bom();

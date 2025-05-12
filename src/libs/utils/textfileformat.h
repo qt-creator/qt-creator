@@ -8,11 +8,6 @@
 
 #include <QStringList>
 
-QT_BEGIN_NAMESPACE
-class QTextCodec;
-class QByteArray;
-QT_END_NAMESPACE
-
 namespace Utils {
 
 class FilePath;
@@ -58,8 +53,10 @@ public:
 
     bool decode(const QByteArray &data, QString *target) const;
 
-    ReadResult readFile(const FilePath &filePath, const QTextCodec *defaultCodec);
-    static Utils::Result<> readFileUtf8(const FilePath &filePath, const QTextCodec *defaultCodec,
+    ReadResult readFile(const FilePath &filePath, const QByteArray &defaultCodec);
+
+    static Utils::Result<> readFileUtf8(const FilePath &filePath,
+                                        const QByteArray &defaultCodec,
                                         QByteArray *plainText);
 
     Utils::Result<> writeFile(const FilePath &filePath, QString plainText) const;
@@ -69,15 +66,11 @@ public:
     LineTerminationMode lineTerminationMode = NativeLineTerminator;
     bool hasUtf8Bom = false;
 
-    QByteArray codecName() const;
-    void setCodecName(const QByteArray &codec);
-
-    // FIXME: Avoid.
-    const QTextCodec *codec() const;
-    void setCodec(const QTextCodec *codec);
+    QByteArray codec() const;
+    void setCodec(const QByteArray &codec);
 
 private:
-    const QTextCodec *m_codec = nullptr;
+    QByteArray m_codec;
 };
 
 } // namespace Utils

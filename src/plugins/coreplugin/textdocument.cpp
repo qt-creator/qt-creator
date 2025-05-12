@@ -40,10 +40,10 @@ public:
 
 } // namespace Internal
 
-BaseTextDocument::BaseTextDocument(QObject *parent) :
-    IDocument(parent), d(new Internal::TextDocumentPrivate)
+BaseTextDocument::BaseTextDocument(QObject *parent)
+    : IDocument(parent), d(new Internal::TextDocumentPrivate)
 {
-    setCodec(Core::EditorManager::defaultTextCodec());
+    setCodec(Core::EditorManager::defaultTextCodecName());
     setLineTerminationMode(Core::EditorManager::defaultLineEnding());
 }
 
@@ -130,26 +130,18 @@ bool BaseTextDocument::isUtf8Codec(const QByteArray &name)
 
 BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath)
 {
-    d->m_readResult = d->m_format.readFile(filePath, codec());
+    d->m_readResult = d->m_format.readFile(filePath, codecName());
     return d->m_readResult;
 }
 
 const QTextCodec *BaseTextDocument::codec() const
 {
-    return d->m_format.codec();
+    return QTextCodec::codecForName(d->m_format.codec());
 }
 
 QByteArray BaseTextDocument::codecName() const
 {
-    return d->m_format.codecName();
-}
-
-void BaseTextDocument::setCodec(const QTextCodec *codec)
-{
-    if (debug)
-        qDebug() << Q_FUNC_INFO << this << (codec ? codec->name() : QByteArray());
-    if (supportsCodec(codec ? codec->name() : QByteArray()))
-        d->m_format.setCodec(codec);
+    return d->m_format.codec();
 }
 
 void BaseTextDocument::setCodec(const QByteArray &name)
@@ -157,7 +149,7 @@ void BaseTextDocument::setCodec(const QByteArray &name)
     if (debug)
         qDebug() << Q_FUNC_INFO << this << name;
     if (supportsCodec(name))
-        d->m_format.setCodecName(name);
+        d->m_format.setCodec(name);
 }
 
 bool BaseTextDocument::supportsCodec(const QByteArray &) const

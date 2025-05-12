@@ -318,8 +318,8 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
         const FilePath file = FileUtils::getSaveFilePath(
             {}, FileUtils::homePath() / d->outputFileNameHint);
         if (!file.isEmpty()) {
-            Utils::TextFileFormat format;
-            format.setCodecName(EditorManager::defaultTextCodecName());
+            TextFileFormat format;
+            format.setCodec(EditorManager::defaultTextCodecName());
             format.lineTerminationMode = EditorManager::defaultLineEnding();
             if (const Result<> res = format.writeFile(file, toPlainText()); !res)
                 MessageManager::writeDisrupting(res.error());

@@ -191,8 +191,8 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
     headerFile.close();
 
     auto headerFileTextFormat = TextFileFormat::detect(data);
-    if (!headerFileTextFormat.codec())
-        headerFileTextFormat.setCodecName(EditorManager::defaultTextCodecName());
+    if (headerFileTextFormat.codec().isEmpty())
+        headerFileTextFormat.setCodec(EditorManager::defaultTextCodecName());
     QString stringContent;
     if (!headerFileTextFormat.decode(data, &stringContent))
         return false;
@@ -298,7 +298,9 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
                 }
                 lineCounter++;
             }
-            tmpHeader.write(headerFileTextFormat.codec()->fromUnicode(outString));
+            const QTextCodec *codec = QTextCodec::codecForName((headerFileTextFormat.codec()));
+            if (QTC_GUARD(codec))
+                tmpHeader.write(codec->fromUnicode(outString));
             tmpHeader.close();
         } else {
             // if opening the temp file failed report error

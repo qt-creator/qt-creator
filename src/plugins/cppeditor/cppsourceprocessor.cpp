@@ -90,7 +90,7 @@ CppSourceProcessor::CppSourceProcessor(const Snapshot &snapshot, DocumentCallbac
       m_documentFinished(documentFinished),
       m_preprocess(this, &m_env),
       m_languageFeatures(LanguageFeatures::defaultFeatures()),
-      m_defaultCodec(Core::EditorManager::defaultTextCodec())
+      m_defaultCodec(Core::EditorManager::defaultTextCodecName())
 {
     m_preprocess.setKeepComments(true);
 }
