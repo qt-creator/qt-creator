@@ -3,7 +3,7 @@
 
 /*!
     \page qtquick-effect-composer-view.html
-    \previouspage studio-qt-insight.html
+    \previouspage studio-design-tokens-view.html
     \nextpage studio-model-editor.html
 
     \sa {Effect Composer example}, {Using a shader from Shadertoy in Effect Composer},
