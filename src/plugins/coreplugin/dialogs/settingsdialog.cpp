@@ -9,6 +9,7 @@
 #include "../iwizardfactory.h"
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/fancylineedit.h>
 #include <utils/guiutils.h>
 #include <utils/hostosinfo.h>
@@ -253,16 +254,13 @@ protected:
 
 static bool categoryVisible([[maybe_unused]] const Id &id)
 {
-#ifdef QT_NO_DEBUG
+    if (!Utils::qtcEnvironmentVariableIsSet("QTC_SHOW_QTQUICKDESIGNER_DEVELOPER_UI")) {
+        static QStringList list
+            = Core::ICore::settings()->value("HideOptionCategories").toStringList();
 
-    static QStringList list
-        = Core::ICore::settings()->value("HideOptionCategories").toStringList();
-
-    if (anyOf(list, [id](const QString &str) { return id.toString().contains(str); }))
-        return false;
-#else
-    Q_UNUSED(id);
-#endif
+        if (anyOf(list, [id](const QString &str) { return id.toString().contains(str); }))
+            return false;
+    }
     return true;
 }
 
