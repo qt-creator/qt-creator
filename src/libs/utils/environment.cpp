@@ -546,7 +546,7 @@ const NameValueDictionary &Environment::resolved() const
             break;
         }
         case SetupEnglishOutput:
-            m_dict.set("LC_MESSAGES", "en_US.utf8");
+            m_dict.set("LC_MESSAGES", "en_US.UTF-8");
             m_dict.set("LANGUAGE", "en_US:en");
             break;
         }
