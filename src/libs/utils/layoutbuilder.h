@@ -411,6 +411,7 @@ public:
 
     void setLayout(const Layout &inner);
     void setFrameShape(QFrame::Shape shape);
+    void setFixSizeHintBug(bool fix);
 };
 
 class QTCREATOR_UTILS_EXPORT Stack : public Widget
@@ -611,6 +612,7 @@ QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
 QTC_DEFINE_BUILDER_SETTER(placeholderText, setPlaceholderText);
 QTC_DEFINE_BUILDER_SETTER(frameShape, setFrameShape);
 QTC_DEFINE_BUILDER_SETTER(paint, setPaintFunction);
+QTC_DEFINE_BUILDER_SETTER(fixSizeHintBug, setFixSizeHintBug);
 
 // Nesting dispatchers
 
