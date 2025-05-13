@@ -16,6 +16,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcprocess.h>
+#include <utils/textcodec.h>
 
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -25,7 +26,6 @@
 #include <QPointer>
 #include <QProgressBar>
 #include <QRegularExpression>
-#include <QTextCodec>
 
 namespace {
 Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
@@ -190,8 +190,7 @@ static GroupItem licensesRecipe(const Storage<DialogStorage> &dialogStorage)
         OutputData *outputPtr = outputStorage.activeStorage();
         QObject::connect(processPtr, &Process::readyReadStandardOutput, dialog,
                          [processPtr, outputPtr, dialog] {
-            QTextCodec *codec = QTextCodec::codecForLocale();
-            const QString stdOut = codec->toUnicode(processPtr->readAllRawStandardOutput());
+            const QString stdOut = processPtr->readAllStandardOutput();
             outputPtr->buffer += stdOut;
             dialog->appendMessage(stdOut, StdOutFormat);
             const auto progress = parseProgress(stdOut);
@@ -241,15 +240,13 @@ static void setupSdkProcess(const QStringList &args, Process *process,
                          args + AndroidConfig::sdkManagerToolArgs()});
     QObject::connect(process, &Process::readyReadStandardOutput, dialog,
                      [process, dialog, current, total] {
-        QTextCodec *codec = QTextCodec::codecForLocale();
-        const auto progress = parseProgress(codec->toUnicode(process->readAllRawStandardOutput()));
+        const auto progress = parseProgress(process->readAllStandardOutput());
         if (!progress)
             return;
         dialog->setProgress((current * 100.0 + *progress) / total);
     });
     QObject::connect(process, &Process::readyReadStandardError, dialog, [process, dialog] {
-        QTextCodec *codec = QTextCodec::codecForLocale();
-        dialog->appendMessage(codec->toUnicode(process->readAllRawStandardError()), StdErrFormat);
+        dialog->appendMessage(process->readAllStandardError(), StdErrFormat);
     });
 };
 
