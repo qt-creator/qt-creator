@@ -8,8 +8,10 @@
 
 #include <QEvent>
 #include <QGuiApplication>
+#include <QLayout>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QPainterPath>
 #include <QWidget>
 
 namespace Utils {
@@ -588,6 +590,59 @@ QSize QtcIconButton::sizeHint() const
     return s;
 }
 
+QtcRectangleWidget::QtcRectangleWidget(QWidget *parent)
+    : QWidget(parent)
+{}
+
+QSize QtcRectangleWidget::sizeHint() const
+{
+    if (layout())
+        return layout()->sizeHint() + QSize(m_radius * 2, m_radius * 2);
+    return QSize(m_radius * 2, m_radius * 2);
+}
+
+void QtcRectangleWidget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QPainter painter(this);
+    Utils::StyleHelper::drawCardBg(&painter, rect(), m_fillBrush, m_strokePen, m_radius);
+}
+
+int QtcRectangleWidget::radius() const
+{
+    return m_radius;
+}
+
+void QtcRectangleWidget::setRadius(int radius)
+{
+    if (m_radius != radius) {
+        m_radius = radius;
+        update();
+    }
+}
+
+void QtcRectangleWidget::setStrokePen(QPen pen)
+{
+    m_strokePen = pen;
+    update();
+}
+
+QPen QtcRectangleWidget::strokePen() const
+{
+    return m_strokePen;
+}
+
+void QtcRectangleWidget::setFillBrush(const QBrush &brush)
+{
+    m_fillBrush = brush;
+    update();
+}
+
+QBrush QtcRectangleWidget::fillBrush() const
+{
+    return m_fillBrush;
+}
+
 namespace QtcWidgets {
 
 Button::Button()
@@ -713,6 +768,27 @@ void SearchBox::setText(const QString &text)
 void SearchBox::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
 {
     QObject::connect(Layouting::Tools::access(this), &QtcSearchBox::textChanged, guard, func);
+}
+
+Rectangle::Rectangle(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    Layouting::Tools::apply(this, ps);
+}
+
+void Rectangle::setFillBrush(const QBrush &brush)
+{
+    Layouting::Tools::access(this)->setFillBrush(brush);
+}
+
+void Rectangle::setStrokePen(const QPen &pen)
+{
+    Layouting::Tools::access(this)->setStrokePen(pen);
+}
+
+void Rectangle::setRadius(int radius)
+{
+    Layouting::Tools::access(this)->setRadius(radius);
 }
 
 } // namespace QtcWidgets
