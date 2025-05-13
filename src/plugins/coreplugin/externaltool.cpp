@@ -531,7 +531,6 @@ bool ExternalTool::operator==(const ExternalTool &other) const
 ExternalToolRunner::ExternalToolRunner(const ExternalTool *tool)
     : m_tool(new ExternalTool(tool)),
       m_process(nullptr),
-      m_outputCodec(QTextCodec::codecForLocale()),
       m_hasError(false)
 {
     run();

@@ -20,7 +20,6 @@
 
 QT_BEGIN_NAMESPACE
 class QMenu;
-class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Utils { class SearchResultItem; }

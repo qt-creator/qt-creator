@@ -10,7 +10,6 @@
 #include <utils/id.h>
 
 #include <QObject>
-#include <QTextCodec>
 #include <QMetaType>
 
 namespace Utils { class Process; }
@@ -127,10 +126,6 @@ private:
     Utils::FilePath m_resolvedWorkingDirectory;
     Utils::Environment m_resolvedEnvironment;
     Utils::Process *m_process;
-    // TODO remove codec handling, that is done by Process now
-    QTextCodec *m_outputCodec;
-    QTextCodec::ConverterState m_outputCodecState;
-    QTextCodec::ConverterState m_errorCodecState;
     QString m_processOutput;
     Utils::FilePath m_expectedFilePath;
     bool m_hasError;
