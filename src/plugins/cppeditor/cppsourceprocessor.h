@@ -18,10 +18,6 @@
 
 #include <functional>
 
-QT_BEGIN_NAMESPACE
-class QTextCodec;
-QT_END_NAMESPACE
-
 namespace CppEditor::Internal {
 
 // Documentation inside.

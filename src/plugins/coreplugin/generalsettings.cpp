@@ -30,7 +30,6 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QStyleHints>
-#include <QTextCodec>
 
 using namespace Utils;
 using namespace Layouting;
@@ -358,7 +357,7 @@ void GeneralSettingsWidget::fillCodecBox() const
 {
     const QByteArray currentCodec = codecForLocale();
 
-    const QByteArrayList codecs = Utils::sorted(QTextCodec::availableCodecs());
+    const QByteArrayList codecs = Utils::sorted(TextCodec::availableCodecs());
     for (const QByteArray &codec : codecs) {
         m_codecBox->addItem(QString::fromLocal8Bit(codec));
         if (codec == currentCodec)
@@ -379,7 +378,7 @@ void GeneralSettingsWidget::setCodecForLocale(const QByteArray &codec)
 {
     QtcSettings *settings = ICore::settings();
     settings->setValueWithDefault(settingsKeyCodecForLocale, codec, {});
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName(codec));
+    TextCodec::setCodecForLocale(codec);
 }
 
 StyleHelper::ToolbarStyle toolbarStylefromSettings()

@@ -23,6 +23,7 @@
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/terminalcommand.h>
+#include <utils/textcodec.h>
 
 #include <QAccessible>
 #include <QDebug>
@@ -38,7 +39,6 @@
 #include <QStandardPaths>
 #include <QStyle>
 #include <QSurfaceFormat>
-#include <QTextCodec>
 #include <QTextStream>
 #include <QThreadPool>
 #include <QTranslator>
@@ -889,7 +889,7 @@ int main(int argc, char **argv)
 
     QByteArray overrideCodecForLocale = settings->value("General/OverrideCodecForLocale").toByteArray();
     if (!overrideCodecForLocale.isEmpty())
-        QTextCodec::setCodecForLocale(QTextCodec::codecForName(overrideCodecForLocale));
+        TextCodec::setCodecForLocale(overrideCodecForLocale);
 
     app.setDesktopFileName(IDE_APP_ID);
 

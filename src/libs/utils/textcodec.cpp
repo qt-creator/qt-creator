@@ -72,6 +72,11 @@ QList<int> TextCodec::availableMibs()
     return QTextCodec::availableMibs();
 }
 
+QList<QByteArray> TextCodec::availableCodecs()
+{
+    return QTextCodec::availableCodecs();
+}
+
 TextCodec TextCodec::utf8()
 {
     static TextCodec theUtf8Codec(QTextCodec::codecForName("UTF-8"));
@@ -94,6 +99,11 @@ TextCodec TextCodec::latin1()
 {
     static TextCodec theLatin1Codec(QTextCodec::codecForName("latin1"));
     return theLatin1Codec;
+}
+
+void TextCodec::setCodecForLocale(const QByteArray &codecName)
+{
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName(codecName));
 }
 
 QByteArray TextCodec::fromUnicode(QStringView data) const

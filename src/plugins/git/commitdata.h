@@ -11,10 +11,6 @@
 #include <QStringList>
 #include <QPair>
 
-QT_BEGIN_NAMESPACE
-class QTextCodec;
-QT_END_NAMESPACE
-
 namespace Git::Internal {
 
 // Read-only

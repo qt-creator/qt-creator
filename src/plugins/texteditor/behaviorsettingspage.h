@@ -5,10 +5,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-QT_BEGIN_NAMESPACE
-class QTextCodec;
-QT_END_NAMESPACE
-
 namespace TextEditor {
 
 class TabSettings;
@@ -33,7 +29,6 @@ public:
     const ExtraEncodingSettings &extraEncodingSettings() const;
 
 private:
-    QList<QTextCodec *> m_codecs;
     class BehaviorSettingsPagePrivate *d;
 };
 

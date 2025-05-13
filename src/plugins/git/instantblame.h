@@ -11,7 +11,6 @@
 
 QT_BEGIN_NAMESPACE
 class QLayout;
-class QTextCodec;
 class QTimer;
 QT_END_NAMESPACE
 

@@ -39,12 +39,16 @@ public:
 
     bool isUtf8() const;
     static bool isUtf8Codec(const QByteArray &codecName); // Also considers aliases
+
     static QList<int> availableMibs();
+    static QList<QByteArray> availableCodecs();
 
     static TextCodec utf8();
     static TextCodec utf16();
     static TextCodec utf32();
     static TextCodec latin1();
+
+    static void setCodecForLocale(const QByteArray &codecName);
 
 private:
     explicit TextCodec(QTextCodec *codec);

@@ -39,7 +39,6 @@
 #include <QPushButton>
 #include <QSplitter>
 #include <QStyledItemDelegate>
-#include <QTextCodec>
 #include <QTreeView>
 
 using namespace LanguageServerProtocol;
