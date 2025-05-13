@@ -2288,7 +2288,7 @@ void PlainTextEdit::inputMethodEvent(QInputMethodEvent *e)
 
 /*!\reimp
 */
-void PlainTextEdit::scrollContentsBy(int dx, int dy)
+void PlainTextEdit::scrollContentsBy(int dx, int /*dy*/)
 {
     int line = d->topLineForVScrollbarValue(d->vbar()->value());
     int scrollbarLineValue = d->vScrollbarValueForLine(line);
