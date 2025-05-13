@@ -9,7 +9,6 @@
 #include "utilstr.h"
 
 #include <QDebug>
-#include <QTextCodec>
 
 enum { debug = 0 };
 
@@ -98,11 +97,11 @@ void TextFileFormat::setCodec(const TextCodec &codec)
 
 enum { textChunkSize = 65536 };
 
-static bool verifyDecodingError(const QString &text, const QTextCodec *codec,
+static bool verifyDecodingError(const QString &text, const TextCodec codec,
                                 const char *data, const int dataSize,
                                 const bool possibleHeader)
 {
-    const QByteArray verifyBuf = codec->fromUnicode(text); // slow
+    const QByteArray verifyBuf = codec.fromUnicode(text); // slow
     // the minSize trick lets us ignore unicode headers
     const int minSize = qMin(verifyBuf.size(), dataSize);
     return (minSize < dataSize - (possibleHeader? 4 : 0)
@@ -119,10 +118,9 @@ static bool verifyDecodingError(const QString &text, const QTextCodec *codec,
 
 bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
 {
-    const QTextCodec *codec = m_codec.asQTextCodec();
-    QTC_ASSERT(codec, return false);
+    QTC_ASSERT(m_codec.isValid(), return false);
 
-    QTextCodec::ConverterState state;
+    TextCodec::ConverterState state;
     bool hasDecodingError = false;
 
     target->clear();
@@ -137,18 +135,18 @@ bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
     for (const char *data = start; data < end; ) {
         const char *chunkStart = data;
         const int chunkSize = qMin(int(textChunkSize), int(end - chunkStart));
-        QString text = codec->toUnicode(chunkStart, chunkSize, &state);
+        QString text = m_codec.toUnicode(chunkStart, chunkSize, &state);
         data += chunkSize;
         // Process until the end of the current multi-byte character. Remaining might
         // actually contain more than needed so try one-be-one. If EOF is reached with
         // and characters remain->encoding error.
         for ( ; state.remainingChars && data < end ; ++data)
-            text.append(codec->toUnicode(data, 1, &state));
+            text.append(m_codec.toUnicode(data, 1, &state));
         if (state.remainingChars)
             hasDecodingError = true;
         if (!hasDecodingError)
             hasDecodingError =
-                verifyDecodingError(text, codec, chunkStart, data - chunkStart,
+                verifyDecodingError(text, m_codec, chunkStart, data - chunkStart,
                                     chunkStart == start);
         if (lineTerminationMode == TextFileFormat::CRLFLineTerminator)
             text.remove(QLatin1Char('\r'));
