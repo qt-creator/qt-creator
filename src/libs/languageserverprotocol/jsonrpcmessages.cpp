@@ -8,13 +8,16 @@
 #include "lsputils.h"
 
 #include <utils/qtcassert.h>
+#include <utils/textcodec.h>
 
 #include <QCoreApplication>
 #include <QObject>
 #include <QJsonDocument>
-#include <QTextCodec>
+
+using namespace Utils;
 
 namespace LanguageServerProtocol {
+
 Q_LOGGING_CATEGORY(timingLog, "qtc.languageserverprotocol.timing", QtWarningMsg)
 
 constexpr const char CancelRequest::methodName[];
@@ -65,10 +68,10 @@ JsonRpcMessage::JsonRpcMessage(const BaseMessage &message)
     if (message.content.isEmpty())
         return;
     QByteArray content;
-    if (message.codec && message.codec->mibEnum() != utf8mib) {
-        QTextCodec *utf8 = QTextCodec::codecForMib(utf8mib);
-        if (utf8)
-            content = utf8->fromUnicode(message.codec->toUnicode(message.content));
+    if (message.codec.isValid() && message.codec.mibEnum() != utf8mib) {
+        const TextCodec utf8 = TextCodec::codecForMib(utf8mib);
+        if (utf8.isValid())
+            content = utf8.fromUnicode(message.codec.toUnicode(message.content));
     }
     if (content.isEmpty())
         content = message.content;

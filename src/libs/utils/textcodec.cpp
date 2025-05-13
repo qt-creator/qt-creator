@@ -42,6 +42,11 @@ bool TextCodec::isValid() const
     return m_codec;
 }
 
+int TextCodec::mibEnum() const
+{
+    return m_codec ? m_codec->mibEnum() : -1;
+}
+
 TextCodec TextCodec::codecForLocale()
 {
     if (QTextCodec *codec = QTextCodec::codecForLocale())

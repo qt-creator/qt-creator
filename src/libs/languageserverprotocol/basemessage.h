@@ -5,13 +5,14 @@
 
 #include "languageserverprotocol_global.h"
 
+#include <utils/textcodec.h>
+
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QLoggingCategory>
 
 QT_BEGIN_NAMESPACE
 class QBuffer;
-class QTextCodec;
 QT_END_NAMESPACE
 
 namespace LanguageServerProtocol {
@@ -23,13 +24,13 @@ class LANGUAGESERVERPROTOCOL_EXPORT BaseMessage
 public:
     BaseMessage();
     BaseMessage(const QByteArray &mimeType, const QByteArray &content,
-                int expectedLength, QTextCodec *codec);
+                int expectedLength, const Utils::TextCodec &codec);
     BaseMessage(const QByteArray &mimeType, const QByteArray &content);
 
     bool operator==(const BaseMessage &other) const;
 
     static void parse(QBuffer *data, QString &parseError, BaseMessage &message);
-    static QTextCodec *defaultCodec();
+    static Utils::TextCodec defaultCodec();
 
     bool isComplete() const;
     bool isValid() const;
@@ -38,7 +39,7 @@ public:
     QByteArray mimeType;
     QByteArray content;
     int contentLength = -1;
-    QTextCodec *codec = defaultCodec();
+    Utils::TextCodec codec = defaultCodec();
 
 private:
     QByteArray lengthHeader() const;

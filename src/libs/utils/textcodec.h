@@ -23,6 +23,7 @@ public:
 
     bool isValid() const;
 
+    int mibEnum() const;
     QByteArray name() const;
     QString displayName() const;
     QString fullDisplayName() const; // Includes aliases

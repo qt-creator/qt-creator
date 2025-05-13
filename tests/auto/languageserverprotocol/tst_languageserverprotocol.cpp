@@ -6,13 +6,14 @@
 #include <languageserverprotocol/jsonrpcmessages.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/textcodec.h>
 
-#include <QTextCodec>
 #include <QtTest>
 
 using namespace LanguageServerProtocol;
+using namespace Utils;
 
-Q_DECLARE_METATYPE(QTextCodec *)
+Q_DECLARE_METATYPE(TextCodec)
 Q_DECLARE_METATYPE(BaseMessage)
 Q_DECLARE_METATYPE(DocumentUri)
 Q_DECLARE_METATYPE(Range)
@@ -46,13 +47,13 @@ private slots:
 
 private:
     QByteArray defaultMimeType;
-    QTextCodec *defaultCodec = nullptr;
+    TextCodec defaultCodec;
 };
 
 void tst_LanguageServerProtocol::initTestCase()
 {
     defaultMimeType = JsonRpcMessage::jsonRpcMimeType();
-    defaultCodec = QTextCodec::codecForName("utf-8");
+    defaultCodec = TextCodec::utf8();
 }
 
 void tst_LanguageServerProtocol::baseMessageParse_data()
@@ -63,7 +64,7 @@ void tst_LanguageServerProtocol::baseMessageParse_data()
     QTest::addColumn<bool>("complete");
     QTest::addColumn<bool>("valid");
     QTest::addColumn<bool>("error");
-    QTest::addColumn<QTextCodec*>("codec");
+    QTest::addColumn<TextCodec>("codec");
     QTest::addColumn<BaseMessage>("partial");
 
     QTest::newRow("empty content")
@@ -180,7 +181,7 @@ void tst_LanguageServerProtocol::baseMessageParse_data()
             << true  // complete
             << true  // valid
             << false // errorMessage
-            << QTextCodec::codecForName("iso-8859-1")
+            << TextCodec::codecForName("iso-8859-1")
             << BaseMessage();
 
     QTest::newRow("data after message")
@@ -275,7 +276,7 @@ void tst_LanguageServerProtocol::baseMessageParse()
     QFETCH(QByteArray, content);
     QFETCH(bool, complete);
     QFETCH(bool, valid);
-    QFETCH(QTextCodec *, codec);
+    QFETCH(TextCodec, codec);
     QFETCH(bool, error);
     QFETCH(BaseMessage, partial);
 
@@ -291,9 +292,9 @@ void tst_LanguageServerProtocol::baseMessageParse()
     QCOMPARE(partial.isValid(), valid);
     QCOMPARE(partial.isComplete(), complete);
     QCOMPARE(partial.mimeType, mimeType);
-    QVERIFY(partial.codec != nullptr);
-    QVERIFY(codec != nullptr);
-    QCOMPARE(partial.codec->mibEnum(), codec->mibEnum());
+    QVERIFY(partial.codec.isValid());
+    QVERIFY(codec.isValid());
+    QCOMPARE(partial.codec.mibEnum(), codec.mibEnum());
 }
 
 void tst_LanguageServerProtocol::baseMessageToData_data()
@@ -318,7 +319,7 @@ void tst_LanguageServerProtocol::baseMessageToData_data()
                           "Content-Type: text/x-python; charset=UTF-8\r\n"
                           "\r\n");
 
-    QTextCodec *codec = QTextCodec::codecForName("iso-8859-1");
+    TextCodec codec = TextCodec::codecForName("iso-8859-1");
     QTest::newRow("custom mime type and codec")
             << BaseMessage("text/x-python", "", 0, codec)
             << QByteArray("Content-Length: 0\r\n"
@@ -360,7 +361,7 @@ void tst_LanguageServerProtocol::fromJsonValue()
 void tst_LanguageServerProtocol::toJsonObject_data()
 {
     QTest::addColumn<QByteArray>("content");
-    QTest::addColumn<QTextCodec *>("codec");
+    QTest::addColumn<TextCodec>("codec");
     QTest::addColumn<bool>("error");
     QTest::addColumn<QJsonObject>("expected");
 
@@ -391,7 +392,7 @@ void tst_LanguageServerProtocol::toJsonObject_data()
             << false
             << tstObject;
 
-    QTextCodec *codec = QTextCodec::codecForName("iso-8859-1");
+    const TextCodec codec = TextCodec::codecForName("iso-8859-1");
     QJsonObject tstCodecObject;
     tstCodecObject.insert("foo", QString::fromLatin1("b\xe4r"));
     QTest::newRow("object88591")
@@ -422,7 +423,7 @@ void tst_LanguageServerProtocol::toJsonObject_data()
 void tst_LanguageServerProtocol::toJsonObject()
 {
     QFETCH(QByteArray, content);
-    QFETCH(QTextCodec *, codec);
+    QFETCH(TextCodec, codec);
     QFETCH(bool, error);
     QFETCH(QJsonObject, expected);
 
