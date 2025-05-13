@@ -106,11 +106,6 @@ const char LOG_EDITOR_ID[]             = "ClearCase File Log Editor";
 const char ANNOTATION_EDITOR_ID[]      = "ClearCase Annotation Editor";
 const char DIFF_EDITOR_ID[]            = "ClearCase Diff Editor";
 
-static QByteArray debugCodec(const TextCodec &c)
-{
-    return c.isValid() ? c.name() : QByteArray("Null codec");
-}
-
 class ClearCasePluginPrivate final : public VcsBase::VersionControlBase
 {
     Q_OBJECT
@@ -1648,7 +1643,7 @@ IEditor *ClearCasePluginPrivate::showOutputInEditor(const QString& title, const 
 {
     if (Constants::debug)
         qDebug() << "ClearCasePlugin::showOutputInEditor" << title << id.name()
-                 <<  "Size= " << output.size() << debugCodec(codec);
+                 <<  "Size= " << output.size() << codec.displayName();
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     auto e = qobject_cast<ClearCaseEditorWidget*>(editor->widget());

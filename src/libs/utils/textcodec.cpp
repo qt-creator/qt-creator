@@ -20,6 +20,11 @@ QByteArray TextCodec::name() const
     return m_codec ? m_codec->name() : QByteArray();
 }
 
+QString TextCodec::displayName() const
+{
+    return m_codec ? QString::fromLatin1(m_codec->name()) : QString("Null codec");
+}
+
 bool TextCodec::isValid() const
 {
     return m_codec;

@@ -505,7 +505,7 @@ bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
         }
 
         if (m_codec != codec) {
-            qCInfo(log) << "Setting new text codec:" << codec.name();
+            qCInfo(log) << "Setting new text codec:" << codec.displayName();
             m_codec = codec;
             force();
         }

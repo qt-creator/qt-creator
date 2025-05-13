@@ -142,7 +142,7 @@ TextCodec BaseTextDocument::codec() const
 void BaseTextDocument::setCodec(const TextCodec &codec)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << this << codec.name();
+        qDebug() << Q_FUNC_INFO << this << codec.displayName();
     if (supportsCodec(codec.name()))
         d->m_format.setCodec(codec);
 }

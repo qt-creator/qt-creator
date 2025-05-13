@@ -20,6 +20,7 @@ public:
 
     bool isValid() const;
     QByteArray name() const;
+    QString displayName() const;
 
     QByteArray fromUnicode(QStringView data) const;
     QString toUnicode(const QByteArray &data) const;

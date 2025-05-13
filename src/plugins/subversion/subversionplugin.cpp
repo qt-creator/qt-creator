@@ -85,11 +85,6 @@ const char CMD_ID_UPDATE[]             = "Subversion.Update";
 const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
 const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-static QByteArray debugCodec(const TextCodec &c)
-{
-    return c.isValid() ? c.name() : QByteArray("Null codec");
-}
-
 // Parse "svn status" output for added/conflicted/deleted/modified files
 // "M<7blanks>file"
 using StatusList = QList<SubversionSubmitEditor::StatusFilePair>;
@@ -917,7 +912,7 @@ IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const
 {
     if (Subversion::Constants::debug)
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.toString()
-                 <<  "Size= " << output.size() <<  " Type=" << id << debugCodec(codec);
+                 <<  "Size= " << output.size() <<  " Type=" << id << codec.displayName();
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     auto e = qobject_cast<SubversionEditorWidget*>(editor->widget());
