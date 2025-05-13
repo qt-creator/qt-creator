@@ -293,7 +293,6 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
 
 DiagnosticItem::~DiagnosticItem()
 {
-    setFixitOperations(ReplacementOperations());
     delete m_mark;
 }
 
@@ -428,12 +427,6 @@ bool DiagnosticItem::scheduleOrUnscheduleFixit(FixitStatus status, bool updateUi
         return true;
     }
     return false;
-}
-
-void DiagnosticItem::setFixitOperations(const ReplacementOperations &replacements)
-{
-    qDeleteAll(m_fixitOperations);
-    m_fixitOperations = replacements;
 }
 
 bool DiagnosticItem::hasNewFixIts() const

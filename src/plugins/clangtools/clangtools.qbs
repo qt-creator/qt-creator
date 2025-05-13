@@ -24,8 +24,6 @@ QtcPlugin {
 
     files: [
         "clangfileinfo.h",
-        "clangfixitsrefactoringchanges.cpp",
-        "clangfixitsrefactoringchanges.h",
         "clangselectablefilesdialog.cpp",
         "clangselectablefilesdialog.h",
         "clangtool.cpp",

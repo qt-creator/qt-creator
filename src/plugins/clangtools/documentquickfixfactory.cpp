@@ -3,7 +3,6 @@
 
 #include "documentquickfixfactory.h"
 
-#include "clangfixitsrefactoringchanges.h"
 #include "clangtoolsdiagnostic.h"
 #include "documentclangtoolrunner.h"
 

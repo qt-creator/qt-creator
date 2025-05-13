@@ -16,7 +16,6 @@ add_qtc_plugin(ClangTools
   INCLUDES ${CLANG_INCLUDE_DIRS}
   SOURCES
     clangfileinfo.h
-    clangfixitsrefactoringchanges.cpp clangfixitsrefactoringchanges.h
     clangselectablefilesdialog.cpp clangselectablefilesdialog.h
     clangtool.cpp clangtool.h
     clangtoolrunner.cpp clangtoolrunner.h

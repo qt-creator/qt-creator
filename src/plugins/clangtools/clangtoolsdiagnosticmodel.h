@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "clangfixitsrefactoringchanges.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
@@ -53,8 +52,6 @@ public:
     bool scheduleOrUnscheduleFixit(FixitStatus status, bool updateUi);
 
     bool hasNewFixIts() const;
-    ReplacementOperations &fixitOperations() { return m_fixitOperations; }
-    void setFixitOperations(const ReplacementOperations &replacements);
 
     bool setData(int column, const QVariant &data, int role) override;
 
@@ -65,7 +62,6 @@ private:
 
 private:
     const Diagnostic m_diagnostic;
-    ReplacementOperations  m_fixitOperations;
     FixitStatus m_fixitStatus = FixitStatus::NotAvailable;
     TextEditor::TextMark *m_mark = nullptr;
 };
