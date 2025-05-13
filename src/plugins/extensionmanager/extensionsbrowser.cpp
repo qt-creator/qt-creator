@@ -43,6 +43,7 @@
 #include <QApplication>
 #include <QItemDelegate>
 #include <QLabel>
+#include <QLayout>
 #include <QListView>
 #include <QMessageBox>
 #include <QPaintEvent>
@@ -307,6 +308,7 @@ public:
             static const QPixmap iconInactive = Icon({{checkmarkMask, stateInactiveTF.themeColor}},
                                                      Icon::Tint).pixmap();
             m_installStateIcon->setPixmap(active ? iconActive : iconInactive);
+            m_installState->layout()->invalidate(); // QTCREATORBUG-32954
         }
 
         m_vendorLabel->setText(index.data(RoleVendor).toString());
