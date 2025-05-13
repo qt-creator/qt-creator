@@ -64,7 +64,7 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
     for (const Project *project : projects) {
         const EditorConfiguration *config = project->editorConfiguration();
         QByteArray projectCodec = config->useGlobalSettings()
-            ? Core::EditorManager::defaultTextCodecName()
+            ? Core::EditorManager::defaultTextCodec().name()
             : config->textCodec();
         const FilePaths filteredFiles = filterFiles(project->files(Project::SourceFiles));
         for (const FilePath &fileName : filteredFiles) {

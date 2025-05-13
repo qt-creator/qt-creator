@@ -74,7 +74,7 @@ public:
 
     void addFlags(RunFlags f);
 
-    void setCodec(const QByteArray &codecName);
+    void setCodec(const Utils::TextCodec &codec);
 
     void setProgressParser(const Core::ProgressParser &parser);
 
@@ -83,7 +83,7 @@ public:
                                      const Utils::CommandLine &command,
                                      RunFlags flags,
                                      int timeoutS,
-                                     const QByteArray &codec);
+                                     const Utils::TextCodec &codec);
     void cancel();
 
     QString cleanedStdOut() const;

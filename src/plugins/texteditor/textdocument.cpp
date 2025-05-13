@@ -281,7 +281,7 @@ QMap<FilePath, QByteArray> TextDocument::openedTextDocumentEncodings()
         if (!textEditorDocument)
             continue;
         const FilePath fileName = textEditorDocument->filePath();
-        workingCopy[fileName] = textEditorDocument->codecName();
+        workingCopy[fileName] = textEditorDocument->codec().name();
     }
     return workingCopy;
 }
@@ -672,7 +672,7 @@ Result<> TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
 
     // check if UTF8-BOM has to be added or removed
     TextFileFormat saveFormat = format();
-    if (saveFormat.codec() == "UTF-8" && supportsUtf8Bom()) {
+    if (saveFormat.codec().isUtf8() && supportsUtf8Bom()) {
         switch (d->m_extraEncodingSettings.m_utf8BomSetting) {
         case ExtraEncodingSettings::AlwaysAdd:
             saveFormat.hasUtf8Bom = true;

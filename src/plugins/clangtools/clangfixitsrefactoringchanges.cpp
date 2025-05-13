@@ -96,7 +96,7 @@ bool FixitsRefactoringFile::apply()
     }
 
     // Write file
-    if (m_textFileFormat.codec().isEmpty())
+    if (!m_textFileFormat.codec().isValid())
         return false; // Error reading file
 
     for (auto it = m_documents.begin(); it != m_documents.end(); ++it) {
@@ -139,11 +139,11 @@ QTextDocument *FixitsRefactoringFile::document(const FilePath &filePath) const
     if (m_documents.find(filePath) == m_documents.end()) {
         TextFileFormat::ReadResult result ;
         if (!filePath.isEmpty()) {
-            result = m_textFileFormat.readFile(filePath, Core::EditorManager::defaultTextCodecName());
+            result = m_textFileFormat.readFile(filePath, Core::EditorManager::defaultTextCodec());
             if (result.code != TextFileFormat::ReadSuccess) {
                 qCDebug(fixitsLog)
                     << "ERROR: Could not read " << filePath.toUserOutput() << ":" << result.error;
-                m_textFileFormat.setCodec(nullptr);
+                m_textFileFormat.setCodec({});
             }
         }
         // always make a QTextDocument to avoid excessive null checks

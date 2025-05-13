@@ -113,7 +113,7 @@ Result<> ResourceFile::load()
         // Detect line ending style
         m_textFileFormat.detectFromData(data);
         // we always write UTF-8 when saving
-        m_textFileFormat.setCodec("UTF-8");
+        m_textFileFormat.setCodec(TextCodec::utf8());
         file.close();
 
         QString error_msg;

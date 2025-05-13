@@ -11,6 +11,7 @@
 #include "hostosinfo.h"
 #include "qtcassert.h"
 #include "stringtable.h"
+#include "textcodec.h"
 #include "utilstr.h"
 
 #include <QByteArray>
@@ -2183,12 +2184,12 @@ QChar FilePath::pathListSeparator() const
     return osType() == OsTypeWindows ? u';' : u':';
 }
 
-QByteArray FilePath::processStdOutCodec() const
+TextCodec FilePath::processStdOutCodec() const
 {
     return fileAccess()->processStdOutCodec(*this);
 }
 
-QByteArray FilePath::processStdErrCodec() const
+TextCodec FilePath::processStdErrCodec() const
 {
     return fileAccess()->processStdErrCodec(*this);
 }

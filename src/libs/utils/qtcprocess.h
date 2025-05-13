@@ -143,7 +143,7 @@ public:
     void runBlocking(std::chrono::seconds timeout = std::chrono::seconds(10),
                      EventLoopMode eventLoopMode = EventLoopMode::Off);
 
-    void setCodec(const QByteArray &codecName); // for stdOut and stdErr
+    void setCodec(const TextCodec &codec); // for stdOut and stdErr
     void setUtf8Codec(); // for stdOut and stdErr
     void setUtf8StdOutCodec(); // for stdOut, stdErr uses executable.processStdErrCodec()
 

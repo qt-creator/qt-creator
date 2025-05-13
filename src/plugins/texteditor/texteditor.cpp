@@ -2054,7 +2054,7 @@ void TextEditorWidget::updateTextLineEndingLabel()
 
 void TextEditorWidget::updateTextCodecLabel()
 {
-    QString text = QString::fromLatin1(d->m_document->codec()->name());
+    QString text = QString::fromLatin1(d->m_document->codec().name());
     d->m_fileEncodingButton->setText(text);
 }
 
@@ -2097,7 +2097,7 @@ void TextEditorWidgetPrivate::updateCannotDecodeInfo()
             return;
         InfoBarEntry info(selectEncodingId,
             Tr::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
-                .arg(m_document->displayName(), QString::fromLatin1(m_document->codec()->name())));
+                .arg(m_document->displayName(), QString::fromLatin1(m_document->codec().name())));
         info.addCustomButton(Tr::tr("Select Encoding"), [this] { q->selectEncoding(); });
         infoBar->addInfo(info);
     } else {
@@ -9804,7 +9804,7 @@ void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
     if (Command *bomCmd = ActionManager::command(Constants::SWITCH_UTF8BOM)) {
         QAction *a = bomCmd->action();
         TextDocument *doc = textDocument();
-        if (doc->codec()->name() == QByteArray("UTF-8") && doc->supportsUtf8Bom()) {
+        if (doc->codec().isUtf8() && doc->supportsUtf8Bom()) {
             a->setVisible(true);
             a->setText(doc->format().hasUtf8Bom ? Tr::tr("Delete UTF-8 BOM on Save")
                                                 : Tr::tr("Add UTF-8 BOM on Save"));

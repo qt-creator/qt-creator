@@ -66,7 +66,6 @@ add_qtc_library(Utils
     filesystemwatcher.cpp filesystemwatcher.h
     fileutils.cpp fileutils.h
     filewizardpage.cpp filewizardpage.h
-
     fsengine/fsengine.cpp fsengine/fsengine.h
     fsengine/fileiconprovider.cpp fsengine/fileiconprovider.h
     futuresynchronizer.cpp futuresynchronizer.h
@@ -180,6 +179,7 @@ add_qtc_library(Utils
     terminalcommand.cpp terminalcommand.h
     terminalhooks.cpp terminalhooks.h
     terminalinterface.cpp terminalinterface.h
+    textcodec.cpp textcodec.h
     textfieldcheckbox.cpp textfieldcheckbox.h
     textfieldcombobox.cpp textfieldcombobox.h
     textfileformat.cpp textfileformat.h

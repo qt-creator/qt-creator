@@ -604,30 +604,4 @@ QString ansiColoredText(const QString &text, const QColor &color)
     return formatString.arg(color.red()).arg(color.green()).arg(color.blue()).arg(text);
 }
 
-QByteArray codecForLocale()
-{
-    if (QTextCodec *codec = QTextCodec::codecForLocale())
-        return codec->name();
-    QTC_CHECK(false);
-    return {};
-}
-
-QByteArray fromUnicode(const QByteArray &codecName, QStringView data)
-{
-    if (QTextCodec *codec = QTextCodec::codecForName(codecName))
-        return codec->fromUnicode(data);
-
-    QTC_CHECK(false);
-    return {};
-}
-
-QString toUnicode(const QByteArray &codecName, const QByteArray &data)
-{
-    if (QTextCodec *codec = QTextCodec::codecForName(codecName))
-        return codec->toUnicode(data);
-
-    QTC_CHECK(false);
-    return {};
-}
-
 } // namespace Utils

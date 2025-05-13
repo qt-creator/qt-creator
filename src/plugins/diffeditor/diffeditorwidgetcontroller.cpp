@@ -167,7 +167,7 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
             return;
 
         FileChangeBlocker fileChangeBlocker(absFilePath);
-        if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
+        if (PatchTool::runPatch(EditorManager::defaultTextCodec().fromUnicode(patch),
                                 workingDirectory, strip, patchAction))
             m_document->reload();
     } else { // PatchEditor
@@ -190,7 +190,7 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
         if (patch.isEmpty())
             return;
 
-        if (PatchTool::runPatch(EditorManager::defaultTextCodec()->fromUnicode(patch),
+        if (PatchTool::runPatch(EditorManager::defaultTextCodec().fromUnicode(patch),
                                 FilePath::fromString(contentsCopyDir), 0, patchAction)) {
             if (textDocument->reload(FilePath::fromString(contentsCopyFileName)))
                 m_document->reload();
@@ -300,7 +300,7 @@ void DiffEditorWidgetController::updateCannotDecodeInfo()
         InfoBarEntry info(selectEncodingId,
                                  Tr::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding.")
                                      .arg(m_document->displayName(),
-                                          QString::fromLatin1(m_document->codec()->name())));
+                                          QString::fromLatin1(m_document->codec().name())));
         info.addCustomButton(Tr::tr("Select Encoding"), [this] { m_document->selectEncoding(); });
         infoBar->addInfo(info);
     } else {

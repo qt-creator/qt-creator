@@ -65,7 +65,7 @@ private:
     void slotDocumentChanged();
 
     Utils::FilePath m_workingDirectory;
-    QByteArray m_codec;
+    Utils::TextCodec m_codec;
     Author m_author;
     int m_lastVisitedEditorLine = -1;
     Core::IDocument *m_document = nullptr;

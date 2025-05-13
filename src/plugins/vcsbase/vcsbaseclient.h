@@ -10,6 +10,7 @@
 
 #include <utils/id.h>
 #include <utils/processenums.h>
+#include <utils/textcodec.h>
 
 #include <QStringList>
 #include <QVariant>
@@ -46,7 +47,7 @@ public:
 
     VcsBaseEditorWidget *createVcsEditor(Utils::Id kind, QString title,
                                          const Utils::FilePath &source,
-                                         const QByteArray &codecName,
+                                         const Utils::TextCodec &codec,
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
 
@@ -76,18 +77,18 @@ public:
     // Fully synchronous VCS execution (QProcess-based)
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
                                      const QStringList &args, RunFlags flags = RunFlags::None,
-                                     int timeoutS = -1, const QByteArray &codec = {}) const;
+                                     int timeoutS = -1, const Utils::TextCodec &codec = {}) const;
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
                                      const Utils::CommandLine &cmdLine,
                                      RunFlags flags = RunFlags::None,
-                                     int timeoutS = -1, const QByteArray &codec = {}) const;
+                                     int timeoutS = -1, const Utils::TextCodec &codec = {}) const;
 
     void vcsExecWithHandler(const Utils::FilePath &workingDirectory,
                             const QStringList &arguments,
                             const QObject *context,
                             const CommandHandler &handler,
                             RunFlags additionalFlags = RunFlags::None,
-                            const QByteArray codec = {}) const;
+                            const Utils::TextCodec codec = {}) const;
     void vcsExec(const Utils::FilePath &workingDirectory,
                  const QStringList &arguments,
                  RunFlags additionalFlags = RunFlags::None) const;

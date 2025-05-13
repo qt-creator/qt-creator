@@ -12,6 +12,7 @@
 #include "processreaper.h"
 #include "stringutils.h"
 #include "terminalhooks.h"
+#include "textcodec.h"
 #include "threadutils.h"
 #include "utilstr.h"
 
@@ -992,12 +993,12 @@ void ProcessPrivate::sendControlSignal(ControlSignal controlSignal)
 void ProcessPrivate::clearForRun()
 {
     if (!m_stdOutCodec)
-        m_stdOutCodec = QTextCodec::codecForName(m_setup.m_commandLine.executable().processStdOutCodec());
+        m_stdOutCodec = m_setup.m_commandLine.executable().processStdOutCodec().asQTextCodec();
     m_stdOut.clearForRun();
     m_stdOut.codec = m_stdOutCodec;
 
     if (!m_stdErrCodec)
-        m_stdErrCodec = QTextCodec::codecForName(m_setup.m_commandLine.executable().processStdErrCodec());
+        m_stdErrCodec = m_setup.m_commandLine.executable().processStdErrCodec().asQTextCodec();
     m_stdErr.clearForRun();
     m_stdErr.codec = m_stdErrCodec;
 
@@ -1795,9 +1796,9 @@ void ChannelBuffer::handleRest()
     }
 }
 
-void Process::setCodec(const QByteArray &codecName)
+void Process::setCodec(const TextCodec &codec_)
 {
-    const QTextCodec *codec = QTextCodec::codecForName(codecName);
+    const QTextCodec *codec = codec_.asQTextCodec();
     QTC_ASSERT(codec, return);
     d->m_stdOutCodec = codec;
     d->m_stdErrCodec = codec;

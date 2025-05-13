@@ -37,7 +37,6 @@
 #include <QMenu>
 #include <QRadioButton>
 #include <QTextBlock>
-#include <QTextCodec>
 #include <QXmlStreamWriter>
 
 using namespace TextEditor;
@@ -395,16 +394,16 @@ void ClangFormat::formatAtPosition(const int pos, const int length)
     if (!widget)
         return;
 
-    const QTextCodec *codec = widget->textDocument()->codec();
-    if (!codec) {
+    const TextCodec codec = widget->textDocument()->codec();
+    if (!codec.isValid()) {
         formatCurrentFile(textCommand(pos, length));
         return;
     }
 
     const QString &text = widget->textAt(0, pos + length);
     const QStringView buffer(text);
-    const int encodedOffset = codec->fromUnicode(buffer.left(pos)).size();
-    const int encodedLength = codec->fromUnicode(buffer.mid(pos, length)).size();
+    const int encodedOffset = codec.fromUnicode(buffer.left(pos)).size();
+    const int encodedLength = codec.fromUnicode(buffer.mid(pos, length)).size();
     formatCurrentFile(textCommand(encodedOffset, encodedLength));
 }
 

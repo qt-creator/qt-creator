@@ -6,6 +6,7 @@
 #include "gitsettings.h" // CommitType
 
 #include <utils/filepath.h>
+#include <utils/textcodec.h>
 
 #include <QStringList>
 #include <QPair>
@@ -82,7 +83,7 @@ public:
 
     CommitType commitType;
     QString amendHash;
-    QByteArray commitEncoding;
+    Utils::TextCodec commitEncoding;
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
     bool enablePush = false;

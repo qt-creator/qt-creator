@@ -18,9 +18,9 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
-#include <utils/stringutils.h>
 #include <utils/terminalcommand.h>
 #include <utils/terminalhooks.h>
+#include <utils/textcodec.h>
 #include <utils/textfileformat.h>
 #include <utils/unixutils.h>
 
@@ -192,8 +192,8 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
 
     TextFileFormat headerFileTextFormat;
     headerFileTextFormat.detectFromData(data);
-    if (headerFileTextFormat.codec().isEmpty())
-        headerFileTextFormat.setCodec(EditorManager::defaultTextCodecName());
+    if (!headerFileTextFormat.codec().isValid())
+        headerFileTextFormat.setCodec(EditorManager::defaultTextCodec());
 
     QString stringContent;
     if (!headerFileTextFormat.decode(data, &stringContent))
@@ -301,7 +301,7 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
                 }
                 lineCounter++;
             }
-            tmpHeader.write(fromUnicode(headerFileTextFormat.codec(), outString));
+            tmpHeader.write(headerFileTextFormat.codec().fromUnicode(outString));
             tmpHeader.close();
         } else {
             // if opening the temp file failed report error

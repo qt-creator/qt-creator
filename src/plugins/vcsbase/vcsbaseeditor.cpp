@@ -833,14 +833,14 @@ void VcsBaseEditorWidget::setWorkingDirectory(const FilePath &wd)
     d->m_workingDirectory = wd;
 }
 
-QByteArray VcsBaseEditorWidget::codec() const
+TextCodec VcsBaseEditorWidget::codec() const
 {
-    return textDocument()->codecName();
+    return textDocument()->codec();
 }
 
-void VcsBaseEditorWidget::setCodec(const QByteArray &codec)
+void VcsBaseEditorWidget::setCodec(const TextCodec &codec)
 {
-    if (!codec.isEmpty())
+    if (codec.isValid())
         textDocument()->setCodec(codec);
     else
         qWarning("%s: Attempt to set no codec.", Q_FUNC_INFO);
@@ -1223,46 +1223,46 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
             unicode += QLatin1Char('\n');
         }
     }
-    const QTextCodec *cd = textDocument()->codec();
-    rc.chunk = cd ? cd->fromUnicode(unicode) : unicode.toLocal8Bit();
-    rc.header = cd ? cd->fromUnicode(header) : header.toLocal8Bit();
+    const TextCodec cd = textDocument()->codec();
+    rc.chunk = cd.isValid() ? cd.fromUnicode(unicode) : unicode.toLocal8Bit();
+    rc.header = cd.isValid() ? cd.fromUnicode(header) : header.toLocal8Bit();
     return rc;
 }
 
 // Find the codec used for a file querying the editor.
-static QTextCodec *findFileCodec(const FilePath &source)
+static TextCodec findFileCodec(const FilePath &source)
 {
     IDocument *document = DocumentModel::documentForFilePath(source);
     if (auto textDocument = qobject_cast<BaseTextDocument *>(document))
-        return const_cast<QTextCodec *>(textDocument->codec());
-    return nullptr;
+        return textDocument->codec();
+    return {};
 }
 
 // Find the codec by checking the projects (root dir of project file)
-static QTextCodec *findProjectCodec(const FilePath &dirPath)
+static TextCodec findProjectCodec(const FilePath &dirPath)
 {
     // Try to find a project under which file tree the file is.
     const auto projects = ProjectExplorer::ProjectManager::projects();
     const auto *p
         = findOrDefault(projects, equal(&ProjectExplorer::Project::projectDirectory, dirPath));
-    return p ? QTextCodec::codecForName(p->editorConfiguration()->textCodec()) : nullptr;
+    return p ? TextCodec::codecForName(p->editorConfiguration()->textCodec()) : TextCodec();
 }
 
-QByteArray VcsBaseEditor::getCodec(const FilePath &source)
+TextCodec VcsBaseEditor::getCodec(const FilePath &source)
 {
     if (!source.isEmpty()) {
         // Check file
         if (source.isFile())
-            if (QTextCodec *fc = findFileCodec(source))
-                return fc->name();
+            if (TextCodec fc = findFileCodec(source); fc.isValid())
+                return fc;
         // Find by project via directory
-        if (QTextCodec *pc = findProjectCodec(source.isFile() ? source.absolutePath() : source))
-            return pc->name();
+        if (TextCodec pc = findProjectCodec(source.isFile() ? source.absolutePath() : source); pc.isValid())
+            return pc;
     }
-    return codecForLocale();
+    return TextCodec::codecForLocale();
 }
 
-QByteArray VcsBaseEditor::getCodec(const FilePath &workingDirectory, const QStringList &files)
+TextCodec VcsBaseEditor::getCodec(const FilePath &workingDirectory, const QStringList &files)
 {
     if (files.empty())
         return getCodec(workingDirectory);

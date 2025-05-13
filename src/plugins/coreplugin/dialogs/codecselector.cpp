@@ -109,7 +109,7 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
         const QList<QByteArray> aliases = c->aliases();
         for (const QByteArray &alias : aliases)
             names += QLatin1String(" / ") + QString::fromLatin1(alias);
-        if (doc->codec() == c)
+        if (doc->codec().asQTextCodec() == c)
             currentIndex = encodings.count();
         encodings << names;
     }

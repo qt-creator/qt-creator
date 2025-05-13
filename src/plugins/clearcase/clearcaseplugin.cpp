@@ -106,9 +106,9 @@ const char LOG_EDITOR_ID[]             = "ClearCase File Log Editor";
 const char ANNOTATION_EDITOR_ID[]      = "ClearCase Annotation Editor";
 const char DIFF_EDITOR_ID[]            = "ClearCase Diff Editor";
 
-static QByteArray debugCodec(const QByteArray &c)
+static QByteArray debugCodec(const TextCodec &c)
 {
-    return !c.isEmpty() ? c : QByteArray("Null codec");
+    return c.isValid() ? c.name() : QByteArray("Null codec");
 }
 
 class ClearCasePluginPrivate final : public VcsBase::VersionControlBase
@@ -240,12 +240,12 @@ private:
     FilePath ccViewRoot(const FilePath &directory) const;
     FilePath findTopLevel(const FilePath &directory) const;
     IEditor *showOutputInEditor(const QString& title, const QString &output, Id id,
-                                const FilePath &source, const QByteArray &codec) const;
+                                const FilePath &source, const TextCodec &codec) const;
     CommandResult runCleartoolProc(const FilePath &workingDir,
                                    const QStringList &arguments) const;
     CommandResult runCleartool(const FilePath &workingDir, const QStringList &arguments,
                                VcsBase::RunFlags flags = VcsBase::RunFlags::None,
-                               const QByteArray &codec = {}, int timeoutMultiplier = 1) const;
+                               const TextCodec &codec = {}, int timeoutMultiplier = 1) const;
     static void sync(QPromise<void> &promise, FilePaths files);
 
     void history(const FilePath &workingDir,
@@ -262,7 +262,7 @@ private:
     QString diffExternal(QString file1, QString file2 = QString(), bool keep = false);
     QString getFile(const QString &nativeFile, const QString &prefix);
     QString runExtDiff(const FilePath &workingDir, const QStringList &arguments, int timeOutS,
-                       const QByteArray &outputCodec = {});
+                       const TextCodec &outputCodec = {});
     static FilePath getDriveLetterOfPath(FilePath directory);
 
     FileStatus::Status getFileStatus(const FilePath &fileName) const;
@@ -1187,7 +1187,7 @@ void ClearCasePluginPrivate::ccDiffWithPred(const FilePath &workingDir, const QS
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << files;
     const FilePath source = VcsBaseEditor::getSource(workingDir, files);
-    QByteArray codec = source.isEmpty() ? QByteArray() : VcsBaseEditor::getCodec(source);
+    const TextCodec codec = source.isEmpty() ? TextCodec() : VcsBaseEditor::getCodec(source);
 
     if ((m_settings.diffType == GraphicalDiff) && (files.count() == 1)) {
         const QString file = files.first();
@@ -1310,7 +1310,7 @@ void ClearCasePluginPrivate::diffActivity()
     m_diffPrefix.clear();
     const QString title = QString::fromLatin1("%1.patch").arg(activity);
     IEditor *editor = showOutputInEditor(title, result, DIFF_EDITOR_ID,
-                                         FilePath::fromString(activity), nullptr);
+                                         FilePath::fromString(activity), {});
     setWorkingDirectory(editor, topLevel);
 }
 
@@ -1444,7 +1444,7 @@ void ClearCasePluginPrivate::history(const FilePath &workingDir,
                                      const QStringList &files,
                                      bool enableAnnotationContextMenu)
 {
-    const QByteArray codec = VcsBaseEditor::getCodec(workingDir, files);
+    const TextCodec codec = VcsBaseEditor::getCodec(workingDir, files);
     // no need for temp file
     QStringList args(QLatin1String("lshistory"));
     if (m_settings.historyCount > 0)
@@ -1514,7 +1514,7 @@ void ClearCasePluginPrivate::ccUpdate(const FilePath &workingDir, const QStringL
     args << QLatin1String("-noverwrite");
     if (!relativePaths.isEmpty())
         args.append(relativePaths);
-    const CommandResult result = runCleartool(workingDir, args, RunFlags::ShowStdOut, nullptr, 10);
+    const CommandResult result = runCleartool(workingDir, args, RunFlags::ShowStdOut, {}, 10);
     if (result.result() == ProcessResult::FinishedWithSuccess)
         emit repositoryChanged(workingDir);
 }
@@ -1534,7 +1534,7 @@ void ClearCasePluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, const
         qDebug() << Q_FUNC_INFO << file;
 
     // FIXME: Should this be something like workingDir.resolvePath(file) ?
-    const QByteArray codec = VcsBaseEditor::getCodec(FilePath::fromString(file));
+    const TextCodec codec = VcsBaseEditor::getCodec(FilePath::fromString(file));
 
     // Determine id
     QString id = file;
@@ -1593,7 +1593,7 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
     const FilePath relPath = source.relativePathFromDir(topLevel);
     const QString id = QString::fromLatin1("%1@@%2").arg(relPath.toUserOutput(), changeNr);
 
-    const QByteArray codec = VcsBaseEditor::getCodec(source);
+    const TextCodec codec = VcsBaseEditor::getCodec(source);
     const CommandResult result = runCleartool(topLevel, {"describe", id}, RunFlags::None, codec);
     description = result.cleanedStdOut();
     if (m_settings.extDiffAvailable)
@@ -1631,7 +1631,7 @@ CommandResult ClearCasePluginPrivate::runCleartoolProc(const FilePath &workingDi
 CommandResult ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
                                                    const QStringList &arguments,
                                                    RunFlags flags,
-                                                   const QByteArray &codec,
+                                                   const TextCodec &codec,
                                                    int timeoutMultiplier) const
 {
     if (m_settings.ccBinaryPath.isEmpty())
@@ -1644,7 +1644,7 @@ CommandResult ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
 
 IEditor *ClearCasePluginPrivate::showOutputInEditor(const QString& title, const QString &output,
                                                     Id id, const FilePath &source,
-                                                    const QByteArray &codec) const
+                                                    const TextCodec &codec) const
 {
     if (Constants::debug)
         qDebug() << "ClearCasePlugin::showOutputInEditor" << title << id.name()
@@ -1661,7 +1661,7 @@ IEditor *ClearCasePluginPrivate::showOutputInEditor(const QString& title, const 
     e->textDocument()->setFallbackSaveAsFileName(s);
     if (!source.isEmpty())
         e->setSource(source);
-    if (!codec.isEmpty())
+    if (codec.isValid())
         e->setCodec(codec);
     return editor;
 }
@@ -1837,8 +1837,7 @@ bool ClearCasePluginPrivate::vcsCheckIn(const FilePath &messageFile, const QStri
         FCBPointer fcb(new FileChangeBlocker(m_checkInView.pathAppended(fileName).canonicalPath()));
         blockers.append(fcb);
     }
-    const CommandResult result = runCleartool(m_checkInView, args, RunFlags::ShowStdOut, nullptr,
-                                              10);
+    const CommandResult result = runCleartool(m_checkInView, args, RunFlags::ShowStdOut, {}, 10);
     static const QRegularExpression checkedIn("Checked in \\\"([^\"]*)\\\"");
     QRegularExpressionMatch match = checkedIn.match(result.cleanedStdOut());
     bool anySucceeded = false;
@@ -2209,7 +2208,7 @@ QString ClearCasePluginPrivate::getFile(const QString &nativeFile, const QString
 // runs external (GNU) diff, and returns the stdout result
 QString ClearCasePluginPrivate::diffExternal(QString file1, QString file2, bool keep)
 {
-    const QByteArray codec = VcsBaseEditor::getCodec(FilePath::fromString(file1));
+    const TextCodec codec = VcsBaseEditor::getCodec(FilePath::fromString(file1));
 
     // if file2 is empty, we should compare to predecessor
     if (file2.isEmpty()) {
@@ -2273,11 +2272,11 @@ void ClearCasePluginPrivate::diffGraphical(const QString &file1, const QString &
 }
 
 QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QStringList &arguments,
-                                           int timeOutS, const QByteArray &outputCodec)
+                                           int timeOutS, const TextCodec &outputCodec)
 {
     Process process;
     process.setWorkingDirectory(workingDir);
-    process.setCodec(outputCodec.isEmpty() ? QByteArray("UTF-8") : outputCodec);
+    process.setCodec(outputCodec.isValid() ? outputCodec : TextCodec::utf8());
     process.setCommand({"diff", {m_settings.diffArgs.split(' ', Qt::SkipEmptyParts), arguments}});
     process.runBlocking(seconds(timeOutS), EventLoopMode::On);
     if (process.result() != ProcessResult::FinishedWithSuccess)

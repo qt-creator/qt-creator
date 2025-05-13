@@ -385,7 +385,7 @@ SearchResultItems symbolOccurrencesInDeclarationComments(
                 std::unique_ptr<QTextDocument> newDoc = std::make_unique<QTextDocument>();
                 TextFileFormat format;
                 const TextFileFormat::ReadResult result = format.readFile(
-                        filePath, Core::EditorManager::defaultTextCodecName());
+                        filePath, Core::EditorManager::defaultTextCodec());
                 if (result.code == TextFileFormat::ReadSuccess)
                     newDoc->setPlainText(result.content);
 

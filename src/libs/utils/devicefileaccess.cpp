@@ -11,7 +11,7 @@
 #include "hostosinfo.h"
 #include "osspecificaspects.h"
 #include "qtcassert.h"
-#include "stringutils.h"
+#include "textcodec.h"
 #include "utilstr.h"
 
 #ifndef UTILS_STATIC_LIBRARY
@@ -427,16 +427,16 @@ Result<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(const FilePath 
     return ResultError(Tr::tr("watch is not implemented."));
 }
 
-QByteArray DeviceFileAccess::processStdOutCodec(const FilePath &executable) const
+TextCodec DeviceFileAccess::processStdOutCodec(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return "UTF-8"; // Good default nowadays.
+    return TextCodec::utf8(); // Good default nowadays.
 }
 
-QByteArray DeviceFileAccess::processStdErrCodec(const FilePath &executable) const
+TextCodec DeviceFileAccess::processStdErrCodec(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return "UTF-8"; // Good default nowadays.
+    return TextCodec::utf8(); // Good default nowadays.
 }
 
 // UnavailableDeviceFileAccess
@@ -1249,16 +1249,16 @@ Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(const Fi
     return ResultError(watcher->error());
 }
 
-QByteArray DesktopDeviceFileAccess::processStdOutCodec(const FilePath &executable) const
+TextCodec DesktopDeviceFileAccess::processStdOutCodec(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return codecForLocale();
+    return TextCodec::codecForLocale();
 }
 
-QByteArray DesktopDeviceFileAccess::processStdErrCodec(const FilePath &executable) const
+TextCodec DesktopDeviceFileAccess::processStdErrCodec(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return codecForLocale();
+    return TextCodec::codecForLocale();
 }
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const

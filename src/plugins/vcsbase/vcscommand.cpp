@@ -12,6 +12,7 @@
 #include <utils/globalfilechangeblocker.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/textcodec.h>
 #include <utils/threadutils.h>
 
 using namespace Core;
@@ -66,7 +67,7 @@ public:
     QString m_displayName;
     const FilePath m_defaultWorkingDirectory;
     Environment m_environment;
-    QByteArray m_codec;
+    TextCodec m_codec;
     ProgressParser m_progressParser = {};
     QList<Job> m_jobs;
 
@@ -104,7 +105,7 @@ void VcsCommandPrivate::setupProcess(Process *process, const Job &job)
     process->setEnvironment(environment());
     if (m_flags & RunFlags::MergeOutputChannels)
         process->setProcessChannelMode(QProcess::MergedChannels);
-    if (!m_codec.isEmpty())
+    if (m_codec.isValid())
         process->setCodec(m_codec);
     process->setUseCtrlCStub(true);
 
@@ -289,7 +290,7 @@ ProcessResult VcsCommand::result() const
 CommandResult VcsCommand::runBlocking(const FilePath &workingDirectory,
                                       const Environment &environment,
                                       const CommandLine &command, RunFlags flags,
-                                      int timeoutS, const QByteArray &codec)
+                                      int timeoutS, const TextCodec &codec)
 {
     VcsCommand vcsCommand(workingDirectory, environment);
     vcsCommand.addFlags(flags);
@@ -316,7 +317,7 @@ CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int time
     return CommandResult(process);
 }
 
-void VcsCommand::setCodec(const QByteArray &codec)
+void VcsCommand::setCodec(const TextCodec &codec)
 {
     d->m_codec = codec;
 }

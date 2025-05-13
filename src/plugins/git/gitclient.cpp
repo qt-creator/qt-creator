@@ -961,20 +961,20 @@ void GitClient::updateModificationInfos()
     }
 }
 
-QByteArray GitClient::defaultCommitEncoding() const
+TextCodec GitClient::defaultCommitEncoding() const
 {
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
-    return "UTF-8";
+    return TextCodec::utf8();
 }
 
-QByteArray GitClient::encoding(GitClient::EncodingType encodingType, const FilePath &source) const
+TextCodec GitClient::encoding(GitClient::EncodingType encodingType, const FilePath &source) const
 {
     auto codec = [this](const FilePath &workingDirectory, const QString &configVar) {
         const QString codecName = readConfigValue(workingDirectory, configVar).trimmed();
         if (codecName.isEmpty())
             return defaultCommitEncoding();
-        return codecName.toUtf8();
+        return TextCodec::codecForName(codecName.toUtf8());
     };
 
     switch (encodingType) {
@@ -985,7 +985,7 @@ QByteArray GitClient::encoding(GitClient::EncodingType encodingType, const FileP
     case EncodingCommit:
         return codec(source, "i18n.commitEncoding");
     default:
-        return QByteArray();
+        return {};
     }
 }
 
@@ -2697,16 +2697,14 @@ Result<CommitData> GitClient::enrichCommitData(const FilePath &repoDirectory,
     }
 
     CommitData commitData = commitDataIn;
-    QTextCodec *authorCodec = HostOsInfo::isWindowsHost()
-            ? QTextCodec::codecForName("UTF-8")
-            : QTextCodec::codecForName(commitData.commitEncoding);
+    const TextCodec authorCodec = HostOsInfo::isWindowsHost()
+            ? TextCodec::utf8()
+            : commitData.commitEncoding;
     QByteArray stdOut = result.rawStdOut();
     commitData.amendHash = QLatin1String(shiftLogLine(stdOut));
-    commitData.panelData.author = authorCodec->toUnicode(shiftLogLine(stdOut));
-    commitData.panelData.email = authorCodec->toUnicode(shiftLogLine(stdOut));
-    QTextCodec *commitCodec = QTextCodec::codecForName(commitData.commitEncoding);
-    if (QTC_GUARD(commitCodec))
-        commitData.commitTemplate = commitCodec->toUnicode(stdOut);
+    commitData.panelData.author = authorCodec.toUnicode(shiftLogLine(stdOut));
+    commitData.panelData.email = authorCodec.toUnicode(shiftLogLine(stdOut));
+    commitData.commitTemplate = commitData.commitEncoding.toUnicode(stdOut);
     return commitData;
 }
 
@@ -3553,12 +3551,12 @@ QString GitClient::readGitVar(const FilePath &workingDirectory, const QString &c
     return readOneLine(workingDirectory, {"var", configVar});
 }
 
-static QByteArray configFileCodec()
+static TextCodec configFileCodec()
 {
     // Git for Windows always uses UTF-8 for configuration:
     // https://github.com/msysgit/msysgit/wiki/Git-for-Windows-Unicode-Support#convert-config-files
-    static const QByteArray codec =
-            HostOsInfo::isWindowsHost() ? QByteArray("UTF-8") : codecForLocale();
+    static const TextCodec codec =
+            HostOsInfo::isWindowsHost() ? TextCodec::utf8() : TextCodec::codecForLocale();
     return codec;
 }
 
@@ -3877,7 +3875,7 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
         if (content.isEmpty())
             return nullptr;
         QByteArray fileContent;
-        if (TextFileFormat::readFileUtf8(path, nullptr, &fileContent)) {
+        if (TextFileFormat::readFileUtf8(path, {}, &fileContent)) {
             if (fileContent == content)
                 return nullptr; // open the file for read/write
         }

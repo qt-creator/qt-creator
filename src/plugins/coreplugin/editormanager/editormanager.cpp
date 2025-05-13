@@ -3794,28 +3794,24 @@ void EditorManager::hideEditorStatusBar(const QString &id)
 /*!
     Returns the default text codec as the user specified in the settings.
 */
-QTextCodec *EditorManager::defaultTextCodec()
+TextCodec EditorManager::defaultTextCodec()
 {
     QtcSettings *settings = ICore::settings();
     const QByteArray codecName =
             settings->value(Constants::SETTINGS_DEFAULTTEXTENCODING).toByteArray();
-    if (QTextCodec *candidate = QTextCodec::codecForName(codecName))
+    const TextCodec candidate = TextCodec::codecForName(codecName);
+    if (candidate.isValid())
         return candidate;
     // Qt5 doesn't return a valid codec when looking up the "System" codec, but will return
     // such a codec when asking for the codec for locale and no matching codec is available.
     // So check whether such a codec was saved to the settings.
-    QTextCodec *localeCodec = QTextCodec::codecForLocale();
-    if (codecName == localeCodec->name())
+    const TextCodec localeCodec = TextCodec::codecForLocale();
+    if (codecName == localeCodec.name())
         return localeCodec;
-    if (QTextCodec *defaultUTF8 = QTextCodec::codecForName("UTF-8"))
+    const TextCodec defaultUTF8 = TextCodec::utf8();
+    if (defaultUTF8.isValid())
         return defaultUTF8;
-    return QTextCodec::codecForLocale();
-}
-
-QByteArray EditorManager::defaultTextCodecName()
-{
-    QTextCodec *codec = defaultTextCodec();
-    return codec ? codec->name() : QByteArray();
+    return TextCodec::codecForLocale();
 }
 
 /*!

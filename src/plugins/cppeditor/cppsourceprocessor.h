@@ -9,6 +9,8 @@
 #include <cplusplus/PreprocessorEnvironment.h>
 #include <cplusplus/pp-engine.h>
 
+#include <utils/textcodec.h>
+
 #include <QHash>
 #include <QPointer>
 #include <QSet>
@@ -100,7 +102,7 @@ private:
     QSet<Utils::FilePath> m_processed;
     QHash<Utils::FilePath, Utils::FilePath> m_fileNameCache;
     int m_fileSizeLimitInMb = -1;
-    QByteArray m_defaultCodec;
+    Utils::TextCodec m_defaultCodec;
 };
 
 } // CppEditor::Internal

@@ -231,10 +231,10 @@ private:
 
     bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
-                                      Id id, const FilePath &source, const QByteArray &codec);
+                                      Id id, const FilePath &source, const TextCodec &codec);
 
     CommandResult runCvs(const FilePath &workingDirectory, const QStringList &arguments,
-                         RunFlags flags = RunFlags::None, const QByteArray &outputCodec = {},
+                         RunFlags flags = RunFlags::None, const TextCodec &outputCodec = {},
                          int timeoutMultiplier = 1) const;
 
     void annotate(const FilePath &workingDir, const QString &file,
@@ -918,12 +918,10 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
     editor->setStateList(statusOutput);
 }
 
-bool CvsPluginPrivate::commit(const QString &messageFile,
-                              const QStringList &fileList)
+bool CvsPluginPrivate::commit(const QString &messageFile, const QStringList &fileList)
 {
     const QStringList args{"commit", "-F", messageFile};
-    const auto response = runCvs(m_commitRepository, args + fileList, RunFlags::ShowStdOut, nullptr,
-                                 10);
+    const auto response = runCvs(m_commitRepository, args + fileList, RunFlags::ShowStdOut, {}, 10);
     return response.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -952,7 +950,7 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
                                const QString &file,
                                bool enableAnnotationContextMenu)
 {
-    const QByteArray codec = VcsBaseEditor::getCodec(workingDir, QStringList(file));
+    const TextCodec codec = VcsBaseEditor::getCodec(workingDir, QStringList(file));
     // no need for temp file
     const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file));
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
@@ -998,7 +996,7 @@ bool CvsPluginPrivate::update(const FilePath &topLevel, const QString &file)
     QStringList args{"update", "-dR"};
     if (!file.isEmpty())
         args.append(file);
-    const auto response = runCvs(topLevel, args, RunFlags::ShowStdOut, nullptr, 10);
+    const auto response = runCvs(topLevel, args, RunFlags::ShowStdOut, {}, 10);
     const bool ok = response.result() == ProcessResult::FinishedWithSuccess;
     if (ok)
         emit repositoryChanged(topLevel);
@@ -1088,7 +1086,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
                                 int lineNumber /* = -1 */)
 {
     const QStringList files(file);
-    const QByteArray codec = VcsBaseEditor::getCodec(workingDir, files);
+    const TextCodec codec = VcsBaseEditor::getCodec(workingDir, files);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files, revision);
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     QStringList args{"annotate"};
@@ -1127,7 +1125,7 @@ bool CvsPluginPrivate::status(const FilePath &topLevel, const QString &file, con
     const bool ok = response.result() == ProcessResult::FinishedWithSuccess;
     if (ok) {
         showOutputInEditor(title, response.cleanedStdOut(), CVS_COMMANDLOG_EDITOR_ID,
-                           topLevel, nullptr);
+                           topLevel, {});
     }
     return ok;
 }
@@ -1215,7 +1213,7 @@ bool CvsPluginPrivate::describe(const FilePath &toplevel, const QString &file,
         const QDate date = QDate::fromString(dateS, Qt::ISODate);
         const QString nextDayS = date.addDays(1).toString(Qt::ISODate);
         const QStringList args{"log", "-d", dateS + '<' + nextDayS};
-        const auto repoLogResponse = runCvs(toplevel, args, RunFlags::None, nullptr, 10);
+        const auto repoLogResponse = runCvs(toplevel, args, RunFlags::None, {}, 10);
         if (repoLogResponse.result() != ProcessResult::FinishedWithSuccess) {
             *errorMessage = repoLogResponse.exitMessage();
             return false;
@@ -1243,11 +1241,11 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
 {
     // Collect logs
     QString output;
-    QByteArray codec;
+    TextCodec codec;
     const QList<CvsLogEntry>::iterator lend = entries.end();
     for (QList<CvsLogEntry>::iterator it = entries.begin(); it != lend; ++it) {
         // Before fiddling file names, try to find codec
-        if (codec.isEmpty())
+        if (!codec.isValid())
             codec = VcsBaseEditor::getCodec(repositoryPath, QStringList(it->file));
         // Run log
         const QStringList args{"log", "-r", it->revisions.front().revision, it->file};
@@ -1303,7 +1301,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
 // the working directory (see above).
 CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
                                        const QStringList &arguments, RunFlags flags,
-                                       const QByteArray &outputCodec, int timeoutMultiplier) const
+                                       const TextCodec &outputCodec, int timeoutMultiplier) const
 {
     const FilePath executable = settings().binaryPath();
     if (executable.isEmpty())
@@ -1317,7 +1315,7 @@ CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
 
 IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QString &output,
                                               Utils::Id id, const FilePath &source,
-                                              const QByteArray &codec)
+                                              const TextCodec &codec)
 {
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
@@ -1330,7 +1328,7 @@ IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QStrin
     e->setForceReadOnly(true);
     if (!source.isEmpty())
         e->setSource(source);
-    if (!codec.isEmpty())
+    if (codec.isValid())
         e->setCodec(codec);
     return editor;
 }

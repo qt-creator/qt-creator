@@ -4,6 +4,7 @@
 #pragma once
 
 #include "result.h"
+#include "textcodec.h"
 #include "utils_global.h"
 
 #include <QStringList>
@@ -53,24 +54,24 @@ public:
 
     bool decode(const QByteArray &data, QString *target) const;
 
-    ReadResult readFile(const FilePath &filePath, const QByteArray &defaultCodec);
+    ReadResult readFile(const FilePath &filePath, const TextCodec &fallbackCodec);
 
-    static Utils::Result<> readFileUtf8(const FilePath &filePath,
-                                        const QByteArray &defaultCodec,
-                                        QByteArray *plainText);
+    static Result<> readFileUtf8(const FilePath &filePath,
+                                 const TextCodec &fallbackCodec,
+                                 QByteArray *plainText);
 
-    Utils::Result<> writeFile(const FilePath &filePath, QString plainText) const;
+    Result<> writeFile(const FilePath &filePath, QString plainText) const;
 
     static QByteArray decodingErrorSample(const QByteArray &data);
 
     LineTerminationMode lineTerminationMode = NativeLineTerminator;
     bool hasUtf8Bom = false;
 
-    QByteArray codec() const;
-    void setCodec(const QByteArray &codec);
+    TextCodec codec() const;
+    void setCodec(const TextCodec &codec);
 
 private:
-    QByteArray m_codec;
+    TextCodec m_codec;
 };
 
 } // namespace Utils

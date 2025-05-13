@@ -22,9 +22,9 @@ public:
     ~BaseTextDocument() override;
 
     Utils::TextFileFormat format() const;
-    const QTextCodec *codec() const;
-    QByteArray codecName() const;
-    void setCodec(const QByteArray &name);
+    Utils::TextCodec codec() const;
+    void setCodec(const QByteArray &name); // FIXME: Remove this overload.
+    void setCodec(const Utils::TextCodec &codec);
     virtual bool supportsCodec(const QByteArray &) const;
     void switchUtf8Bom();
     bool supportsUtf8Bom() const;

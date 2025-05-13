@@ -20,6 +20,7 @@
 
 QT_BEGIN_NAMESPACE
 class QMenu;
+class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Utils { class SearchResultItem; }
@@ -129,8 +130,7 @@ public:
 
     static bool autoSaveAfterRefactoring();
 
-    static QTextCodec *defaultTextCodec();
-    static QByteArray defaultTextCodecName();
+    static Utils::TextCodec defaultTextCodec();
 
     static Utils::TextFileFormat::LineTerminationMode defaultLineEnding();
 

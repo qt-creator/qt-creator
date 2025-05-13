@@ -72,7 +72,7 @@ FileContainerProvider FindInOpenFiles::fileContainerProvider() const
                 fileNames.append(fileName);
                 QByteArray codec = encodings.value(fileName);
                 if (codec.isEmpty())
-                    codec = Core::EditorManager::defaultTextCodecName();
+                    codec = Core::EditorManager::defaultTextCodec().name();
                 codecs.append(QTextCodec::codecForName(codec));
             }
         }

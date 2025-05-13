@@ -343,6 +343,8 @@ QtcLibrary {
         "terminalhooks.h",
         "terminalinterface.cpp",
         "terminalinterface.h",
+        "textcodec.cpp",
+        "textcodec.h",
         "textfieldcheckbox.cpp",
         "textfieldcheckbox.h",
         "textfieldcombobox.cpp",

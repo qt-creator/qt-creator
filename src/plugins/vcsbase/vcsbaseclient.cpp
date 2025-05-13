@@ -130,7 +130,8 @@ QString VcsBaseClientImpl::stripLastNewline(const QString &in)
 }
 
 CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
-              const QStringList &args, RunFlags flags, int timeoutS, const QByteArray &codec) const
+                                                    const QStringList &args, RunFlags flags,
+                                                    int timeoutS, const TextCodec &codec) const
 {
     return vcsSynchronousExec(workingDir, {vcsBinary(workingDir), args}, flags, timeoutS, codec);
 }
@@ -139,7 +140,7 @@ CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
                                                     const CommandLine &cmdLine,
                                                     RunFlags flags,
                                                     int timeoutS,
-                                                    const QByteArray &codec) const
+                                                    const TextCodec &codec) const
 {
     return VcsCommand::runBlocking(workingDir,
                                    processEnvironment(workingDir),
@@ -171,7 +172,7 @@ void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
                                            const QStringList &arguments,
                                            const QObject *context,
                                            const CommandHandler &handler,
-                                           RunFlags additionalFlags, const QByteArray codec) const
+                                           RunFlags additionalFlags, const TextCodec codec) const
 {
     VcsCommand *command = createCommand(workingDirectory);
     command->addFlags(additionalFlags);
@@ -221,7 +222,7 @@ VcsCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDi
 
 VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
                                                         const FilePath &source,
-                                                        const QByteArray &codecName,
+                                                        const TextCodec &codec,
                                                         const char *registerDynamicProperty,
                                                         const QString &dynamicPropertyValue) const
 {
@@ -243,8 +244,8 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
                 this, &VcsBaseClientImpl::annotateRevisionRequested);
         baseEditor->setSource(source);
         baseEditor->setDefaultLineNumber(1);
-        if (!codecName.isEmpty())
-            baseEditor->setCodec(codecName);
+        if (codec.isValid())
+            baseEditor->setCodec(codec);
     }
 
     baseEditor->setForceReadOnly(true);
@@ -383,7 +384,7 @@ void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files)
         args << editorConfig->arguments();
     args << files;
     VcsCommand *command = createCommand(workingDir, editor);
-    command->setCodec(source.isEmpty() ? QByteArray() : VcsBaseEditor::getCodec(source));
+    command->setCodec(source.isEmpty() ? TextCodec() : VcsBaseEditor::getCodec(source));
     enqueueJob(command, args, workingDir, exitCodeInterpreter(DiffCommand));
 }
 

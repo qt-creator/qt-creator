@@ -57,7 +57,7 @@ FileContainerProvider FilesInAllProjectsFind::fileContainerProvider() const
             return p->projectFilePath().parentDir();
         });
         return SubDirFileContainer(FilePaths(dirs.constBegin(), dirs.constEnd()), nameFilters,
-                                   exclusionFilters, Core::EditorManager::defaultTextCodec());
+                                   exclusionFilters, Core::EditorManager::defaultTextCodec().asQTextCodec());
     };
 }
 

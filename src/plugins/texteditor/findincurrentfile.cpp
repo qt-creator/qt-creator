@@ -72,7 +72,7 @@ FileContainerProvider FindInCurrentFile::fileContainerProvider() const
         const QMap<FilePath, QByteArray> encodings = TextDocument::openedTextDocumentEncodings();
         QByteArray codec = encodings.value(fileName);
         if (codec.isEmpty())
-            codec = Core::EditorManager::defaultTextCodecName();
+            codec = Core::EditorManager::defaultTextCodec().name();
         return FileListContainer({fileName}, {QTextCodec::codecForName(codec)});
     };
 }

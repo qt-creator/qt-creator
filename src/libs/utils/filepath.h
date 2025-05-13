@@ -24,7 +24,6 @@ QT_BEGIN_NAMESPACE
 class QDateTime;
 class QDebug;
 class QFileInfo;
-class QTextCodec;
 class QUrl;
 QT_END_NAMESPACE
 
@@ -35,6 +34,7 @@ namespace Utils {
 class DeviceFileAccess;
 class Environment;
 enum class FileStreamHandle;
+class TextCodec;
 
 template <class ...Args> using Continuation = std::function<void(Args...)>;
 using CopyContinuation = Continuation<const Result<> &>;
@@ -198,8 +198,8 @@ public:
     QChar pathComponentSeparator() const;
     QChar pathListSeparator() const;
 
-    QByteArray processStdOutCodec() const;
-    QByteArray processStdErrCodec() const;
+    TextCodec processStdOutCodec() const;
+    TextCodec processStdErrCodec() const;
 
     void clear();
     bool isEmpty() const;

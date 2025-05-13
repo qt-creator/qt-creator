@@ -44,7 +44,7 @@ struct EditorConfigurationPrivate
         m_storageSettings(globalStorageSettings()),
         m_behaviorSettings(globalBehaviorSettings()),
         m_extraEncodingSettings(globalExtraEncodingSettings()),
-        m_textCodec(Core::EditorManager::defaultTextCodecName())
+        m_textCodec(Core::EditorManager::defaultTextCodec().name())
     { }
 
     ICodeStylePreferences *m_defaultCodeStyle = nullptr;
@@ -110,7 +110,7 @@ void EditorConfiguration::cloneGlobalSettings()
     setBehaviorSettings(globalBehaviorSettings());
     setExtraEncodingSettings(globalExtraEncodingSettings());
     setMarginSettings(TextEditorSettings::marginSettings());
-    d->m_textCodec = Core::EditorManager::defaultTextCodecName();
+    d->m_textCodec = Core::EditorManager::defaultTextCodec().name();
 }
 
 QByteArray EditorConfiguration::textCodec() const
@@ -199,7 +199,7 @@ void EditorConfiguration::fromMap(const Store &map)
     const QByteArray &codecName = map.value(kCodec, d->m_textCodec).toByteArray();
     d->m_textCodec = codecName;
     if (d->m_textCodec.isEmpty())
-        d->m_textCodec = Core::EditorManager::defaultTextCodecName();
+        d->m_textCodec = Core::EditorManager::defaultTextCodec().name();
 
     const int codeStyleCount = map.value(kCodeStyleCount, 0).toInt();
     for (int i = 0; i < codeStyleCount; ++i) {

@@ -14,6 +14,7 @@ namespace Utils {
 
 class CommandLine;
 class RunResult;
+class TextCodec;
 
 // Base class including dummy implementation usable as fallback.
 class QTCREATOR_UTILS_EXPORT DeviceFileAccess
@@ -82,8 +83,8 @@ protected:
 
     virtual Utils::Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
 
-    virtual QByteArray processStdOutCodec(const FilePath &executable) const;
-    virtual QByteArray processStdErrCodec(const FilePath &executable) const;
+    virtual TextCodec processStdOutCodec(const FilePath &executable) const;
+    virtual TextCodec processStdErrCodec(const FilePath &executable) const;
 };
 
 class QTCREATOR_UTILS_EXPORT UnavailableDeviceFileAccess : public DeviceFileAccess
@@ -210,8 +211,8 @@ protected:
 
     Utils::Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
 
-    QByteArray processStdOutCodec(const FilePath &executable) const override;
-    QByteArray processStdErrCodec(const FilePath &executable) const override;
+    TextCodec processStdOutCodec(const FilePath &executable) const override;
+    TextCodec processStdErrCodec(const FilePath &executable) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT UnixDeviceFileAccess : public DeviceFileAccess

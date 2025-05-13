@@ -85,9 +85,9 @@ const char CMD_ID_UPDATE[]             = "Subversion.Update";
 const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
 const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-static QByteArray debugCodec(const QByteArray &c)
+static QByteArray debugCodec(const TextCodec &c)
 {
-    return !c.isEmpty() ? c : QByteArray("Null codec");
+    return c.isValid() ? c.name() : QByteArray("Null codec");
 }
 
 // Parse "svn status" output for added/conflicted/deleted/modified files
@@ -170,7 +170,7 @@ public:
     QString monitorFile(const FilePath &repository) const;
     QString synchronousTopic(const FilePath &repository) const;
     CommandResult runSvn(const FilePath &workingDir, const CommandLine &command,
-                         RunFlags flags = RunFlags::None, const QByteArray &outputCodec = {},
+                         RunFlags flags = RunFlags::None, const TextCodec &outputCodec = {},
                          int timeoutMutiplier = 1) const;
     void vcsAnnotateHelper(const FilePath &workingDir, const QString &file,
                            const QString &revision = {}, int lineNumber = -1);
@@ -205,7 +205,7 @@ private:
     inline bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
                                       Id id, const FilePath &source,
-                                      const QByteArray &codec);
+                                      const TextCodec &codec);
 
     void filelog(const FilePath &workingDir,
                  const QString &file = {},
@@ -801,7 +801,7 @@ void SubversionPluginPrivate::svnUpdate(const FilePath &workingDir, const QStrin
     args << Constants::NON_INTERACTIVE_OPTION;
     if (!relativePath.isEmpty())
         args << relativePath;
-    const auto response = runSvn(workingDir, args, RunFlags::ShowStdOut, nullptr, 10);
+    const auto response = runSvn(workingDir, args, RunFlags::ShowStdOut, {}, 10);
     if (response.result() == ProcessResult::FinishedWithSuccess)
         emit repositoryChanged(workingDir);
 }
@@ -818,7 +818,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
                                                 int lineNumber /* = -1 */)
 {
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
-    const QByteArray codec = VcsBaseEditor::getCodec(source);
+    const TextCodec codec = VcsBaseEditor::getCodec(source);
 
     CommandLine args{settings().binaryPath(), {"annotate"}};
     args << SubversionClient::AddAuthOptions();
@@ -902,7 +902,7 @@ void SubversionPluginPrivate::slotDescribe()
 
 CommandResult SubversionPluginPrivate::runSvn(const FilePath &workingDir,
                                               const CommandLine &command, RunFlags flags,
-                                              const QByteArray &outputCodec, int timeoutMutiplier) const
+                                              const TextCodec &outputCodec, int timeoutMutiplier) const
 {
     if (settings().binaryPath().isEmpty())
         return CommandResult(ProcessResult::StartFailed, Tr::tr("No subversion executable specified."));
@@ -913,7 +913,7 @@ CommandResult SubversionPluginPrivate::runSvn(const FilePath &workingDir,
 
 IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const QString &output,
                                                      Id id, const FilePath &source,
-                                                     const QByteArray &codec)
+                                                     const TextCodec &codec)
 {
     if (Subversion::Constants::debug)
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.toString()
@@ -930,7 +930,7 @@ IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const
     e->textDocument()->setFallbackSaveAsFileName(s);
     if (!source.isEmpty())
         e->setSource(source);
-    if (!codec.isEmpty())
+    if (codec.isValid())
         e->setCodec(codec);
     return editor;
 }
