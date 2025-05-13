@@ -271,16 +271,16 @@ QMap<FilePath, QString> TextDocument::openedTextDocumentContents()
     return workingCopy;
 }
 
-QMap<FilePath, QByteArray> TextDocument::openedTextDocumentEncodings()
+QMap<FilePath, TextCodec> TextDocument::openedTextDocumentEncodings()
 {
-    QMap<FilePath, QByteArray> workingCopy;
+    QMap<FilePath, TextCodec> workingCopy;
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents) {
         auto textEditorDocument = qobject_cast<TextDocument *>(document);
         if (!textEditorDocument)
             continue;
         const FilePath fileName = textEditorDocument->filePath();
-        workingCopy[fileName] = textEditorDocument->codec().name();
+        workingCopy[fileName] = textEditorDocument->codec();
     }
     return workingCopy;
 }

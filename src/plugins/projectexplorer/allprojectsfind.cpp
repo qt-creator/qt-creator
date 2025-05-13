@@ -57,7 +57,7 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
 {
     const FilterFilesFunction filterFiles
         = Utils::filterFilesFunction(nameFilters, exclusionFilters);
-    const QMap<FilePath, QByteArray> openEditorEncodings
+    const QMap<FilePath, TextCodec> openEditorEncodings
         = TextDocument::openedTextDocumentEncodings();
     QMap<FilePath, TextCodec> codecs;
     for (const Project *project : projects) {
@@ -67,7 +67,7 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
             : config->textCodec();
         const FilePaths filteredFiles = filterFiles(project->files(Project::SourceFiles));
         for (const FilePath &fileName : filteredFiles) {
-            TextCodec codec = TextCodec::codecForName(openEditorEncodings.value(fileName));
+            TextCodec codec = openEditorEncodings.value(fileName);
             if (!codec.isValid())
                 codec = projectCodec;
             codecs.insert(fileName, codec);

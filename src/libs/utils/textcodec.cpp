@@ -96,11 +96,6 @@ TextCodec TextCodec::latin1()
     return theLatin1Codec;
 }
 
-QTextCodec *TextCodec::asQTextCodec() const
-{
-    return m_codec;
-}
-
 QByteArray TextCodec::fromUnicode(QStringView data) const
 {
     if (m_codec)

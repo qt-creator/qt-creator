@@ -46,8 +46,6 @@ public:
     static TextCodec utf32();
     static TextCodec latin1();
 
-    QTextCodec *asQTextCodec() const; // FIXME: Avoid.
-
 private:
     explicit TextCodec(QTextCodec *codec);
 
