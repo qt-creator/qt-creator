@@ -41,6 +41,8 @@
 :Close Debugging Session_Utils::CheckableMessageBox	{type='Utils::CheckableMessageBox' unnamed='1' visible='1' windowTitle='Close Debugging Session'}
 :Compiler:_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':Compiler:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :Compiler:_QLabel	{container=':qt_tabwidget_stackedwidget_QWidget' text='C/C++:' type='QLabel' unnamed='1' visible='1'}
+:ComponentDialog.PropertiesLabel	{text?='Property assignments for *' type='QLabel' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
+:ComponentDialog.PropertiesListWidget	{aboveWidget=':ComponentDialog.PropertiesLabel' type='QListWidget' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
 :CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget_QScrollArea' name='Behavior' type='QGroupBox' visible='1'}
 :DebugModeWidget.Debugger Log_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='GlobalLogDockWidget' type='QDockWidget' visible='1'}
 :DebugModeWidget.Debugger.Docks.BreakDockWidget_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.BreakpointManagerDockWidget' type='QDockWidget' visible='1'}
