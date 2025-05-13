@@ -181,7 +181,7 @@ private slots:
         int filesCount = 0;
         {
             const FilePath root(FilePath::fromString(m_tempDir->path()));
-            FileContainer container = SubDirFileContainer({root}, {}, {});
+            FileContainer container = SubDirFileContainer({root});
             auto it = container.begin();
             const auto end = container.end();
             while (it != end) {

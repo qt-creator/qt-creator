@@ -53,7 +53,7 @@ FileContainerProvider FindInFiles::fileContainerProvider() const
     return [nameFilters = fileNameFilters(), exclusionFilters = fileExclusionFilters(),
             filePath = searchDir()] {
         return SubDirFileContainer({filePath}, nameFilters, exclusionFilters,
-                                   EditorManager::defaultTextCodec().asQTextCodec());
+                                   EditorManager::defaultTextCodec());
     };
 }
 

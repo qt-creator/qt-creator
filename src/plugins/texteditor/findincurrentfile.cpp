@@ -14,7 +14,6 @@
 #include <utils/shutdownguard.h>
 
 #include <QPointer>
-#include <QTextCodec>
 
 using namespace Utils;
 
@@ -73,7 +72,7 @@ FileContainerProvider FindInCurrentFile::fileContainerProvider() const
         QByteArray codec = encodings.value(fileName);
         if (codec.isEmpty())
             codec = Core::EditorManager::defaultTextCodec().name();
-        return FileListContainer({fileName}, {QTextCodec::codecForName(codec)});
+        return FileListContainer({fileName}, {TextCodec::codecForName(codec)});
     };
 }
 

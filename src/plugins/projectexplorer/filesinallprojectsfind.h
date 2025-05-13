@@ -5,8 +5,7 @@
 
 #include "allprojectsfind.h"
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class FilesInAllProjectsFind : public AllProjectsFind
 {
@@ -27,6 +26,5 @@ protected:
     QString label() const override;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal
 

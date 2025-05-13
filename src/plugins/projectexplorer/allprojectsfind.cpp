@@ -17,12 +17,11 @@
 #include <utils/qtcsettings.h>
 
 #include <QGridLayout>
-#include <QTextCodec>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
 using namespace Utils;
+
+namespace ProjectExplorer::Internal {
 
 AllProjectsFind::AllProjectsFind() :  m_configWidget(nullptr)
 {
@@ -60,7 +59,7 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
         = Utils::filterFilesFunction(nameFilters, exclusionFilters);
     const QMap<FilePath, QByteArray> openEditorEncodings
         = TextDocument::openedTextDocumentEncodings();
-    QMap<FilePath, QTextCodec *> encodings;
+    QMap<FilePath, TextCodec> codecs;
     for (const Project *project : projects) {
         const EditorConfiguration *config = project->editorConfiguration();
         TextCodec projectCodec = config->useGlobalSettings()
@@ -71,10 +70,10 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
             TextCodec codec = TextCodec::codecForName(openEditorEncodings.value(fileName));
             if (!codec.isValid())
                 codec = projectCodec;
-            encodings.insert(fileName, codec.asQTextCodec());
+            codecs.insert(fileName, codec);
         }
     }
-    return FileListContainer(encodings.keys(), encodings.values());
+    return FileListContainer(codecs.keys(), codecs.values());
 }
 
 QString AllProjectsFind::label() const
@@ -133,3 +132,5 @@ QByteArray AllProjectsFind::settingsKey() const
 {
     return "AllProjectsFind";
 }
+
+} // ProjectExplorer::Internal

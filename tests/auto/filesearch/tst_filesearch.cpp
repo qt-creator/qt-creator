@@ -3,7 +3,6 @@
 
 #include <utils/filesearch.h>
 
-#include <QTextCodec>
 #include <QtTest>
 
 using namespace Utils;
@@ -35,9 +34,9 @@ SearchResultItem searchResult(const FilePath &fileName, const QString &matchingL
 }
 
 void test_helper(const FilePath &filePath, const SearchResultItems &expectedResults,
-                 const QString &term, Utils::FindFlags flags = {})
+                 const QString &term, FindFlags flags = {})
 {
-    const FileListContainer container({filePath}, {QTextCodec::codecForLocale()});
+    const FileListContainer container({filePath}, {TextCodec::codecForLocale()});
     QFutureWatcher<SearchResultItems> watcher;
     QSignalSpy ready(&watcher, &QFutureWatcherBase::resultsReadyAt);
     watcher.setFuture(Utils::findInFiles(term, container, flags, {}));

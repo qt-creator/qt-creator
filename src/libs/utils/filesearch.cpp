@@ -13,7 +13,6 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QScopeGuard>
-#include <QTextCodec>
 
 Q_LOGGING_CATEGORY(searchLog, "qtc.utils.filesearch", QtWarningMsg)
 
@@ -212,19 +211,19 @@ void searchInContents(QPromise<SearchResultItems> &promise, const QString &searc
         promise.addResult(results);
 }
 
-static inline QString msgCanceled(const QString &searchTerm, int numMatches, int numFilesSearched)
+static QString msgCanceled(const QString &searchTerm, int numMatches, int numFilesSearched)
 {
     return Tr::tr("%1: canceled. %n occurrences found in %2 files.",
                   nullptr, numMatches).arg(searchTerm).arg(numFilesSearched);
 }
 
-static inline QString msgFound(const QString &searchTerm, int numMatches, int numFilesSearched)
+static QString msgFound(const QString &searchTerm, int numMatches, int numFilesSearched)
 {
     return Tr::tr("%1: %n occurrences found in %2 files.",
                   nullptr, numMatches).arg(searchTerm).arg(numFilesSearched);
 }
 
-static bool getFileContent(const FilePath &filePath, QTextCodec *encoding,
+static bool getFileContent(const FilePath &filePath, const TextCodec &codec,
                            QString *tempString, const QMap<FilePath, QString> &fileToContentsMap)
 {
     if (fileToContentsMap.contains(filePath)) {
@@ -233,8 +232,8 @@ static bool getFileContent(const FilePath &filePath, QTextCodec *encoding,
         const Result<QByteArray> content = filePath.fileContents();
         if (!content)
             return false;
-        *tempString = QTC_GUARD(encoding) ? encoding->toUnicode(*content)
-                                          : QTextCodec::codecForLocale()->toUnicode(*content);
+        *tempString = QTC_GUARD(codec.isValid()) ? codec.toUnicode(*content)
+                                                 : TextCodec::codecForLocale().toUnicode(*content);
     }
     return true;
 }
@@ -249,7 +248,7 @@ static void fileSearch(QPromise<SearchResultItems> &promise,
     promise.setProgressRange(0, 1);
     promise.setProgressValue(0);
     QString contents;
-    if (!getFileContent(item.filePath, item.encoding, &contents, fileToContentsMap)) {
+    if (!getFileContent(item.filePath, item.codec, &contents, fileToContentsMap)) {
         qCDebug(searchLog) << "- failed to get content for" << item.filePath;
         promise.future().cancel(); // failure
         return;
@@ -556,13 +555,13 @@ int FileContainerIterator::progressMaximum() const
 }
 
 static QList<FileContainerIterator::Item> toFileListCache(const FilePaths &fileList,
-                                                          const QList<QTextCodec *> &encodings)
+                                                          const QList<TextCodec> &codecs)
 {
     QList<FileContainerIterator::Item> items;
     items.reserve(fileList.size());
-    QTextCodec *defaultEncoding = QTextCodec::codecForLocale();
+    const TextCodec defaultCodec = TextCodec::codecForLocale();
     for (int i = 0; i < fileList.size(); ++i)
-        items.append({fileList.at(i), encodings.value(i, defaultEncoding)});
+        items.append({fileList.at(i), codecs.value(i, defaultCodec)});
     return items;
 }
 
@@ -583,15 +582,15 @@ static FileContainerIterator::Advancer fileListAdvancer(
 }
 
 static FileContainer::AdvancerProvider fileListAdvancerProvider(const FilePaths &fileList,
-    const QList<QTextCodec *> &encodings)
+    const QList<TextCodec> &codecs)
 {
-    const auto initialCache = toFileListCache(fileList, encodings);
+    const auto initialCache = toFileListCache(fileList, codecs);
     return [=] { return fileListAdvancer(initialCache); };
 }
 
-FileListContainer::FileListContainer(const FilePaths &fileList,
-                                     const QList<QTextCodec *> &encodings)
-    : FileContainer(fileListAdvancerProvider(fileList, encodings), fileList.size()) {}
+FileListContainer::FileListContainer(const FilePaths &fileList, const QList<TextCodec> &codecs)
+    : FileContainer(fileListAdvancerProvider(fileList, codecs), fileList.size())
+{}
 
 const int s_progressMaximum = 1000;
 
@@ -599,14 +598,14 @@ struct SubDirCache
 {
     SubDirCache(const FilePaths &directories, const QStringList &filters,
                 const QStringList &exclusionFilters,
-                const FilterFileFunction &filterFileFuntion, QTextCodec *encoding);
+                const FilterFileFunction &filterFileFuntion, const TextCodec &codec);
 
     std::optional<FileContainerIterator::Item> updateCache(int advanceIntoIndex,
                                                            const SubDirCache &initialCache);
 
     FilterFilesFunction m_filterFilesFunction;
     FilterFileFunction m_filterFileFunction;
-    QTextCodec *m_encoding = nullptr;
+    TextCodec m_codec;
     QStack<FilePath> m_dirs;
     QSet<FilePath> m_knownDirs;
     QStack<qreal> m_progressValues;
@@ -624,10 +623,11 @@ struct SubDirCache
 
 SubDirCache::SubDirCache(const FilePaths &directories, const QStringList &filters,
                          const QStringList &exclusionFilters,
-                         const FilterFileFunction &filterFileFuntion, QTextCodec *encoding)
+                         const FilterFileFunction &filterFileFuntion,
+                         const TextCodec &codec)
     : m_filterFilesFunction(filterFilesFunction(filters, exclusionFilters, filterFileFuntion))
     , m_filterFileFunction(filterFileFuntion)
-    , m_encoding(encoding == nullptr ? QTextCodec::codecForLocale() : encoding)
+    , m_codec(codec.isValid() ? codec : TextCodec::codecForLocale())
 {
     const qreal maxPer = qreal(s_progressMaximum) / directories.count();
     for (const FilePath &directoryEntry : directories) {
@@ -679,7 +679,7 @@ std::optional<FileContainerIterator::Item> SubDirCache::updateCache(int advanceI
                 const FilePaths filePaths = m_filterFilesFunction(allFilePaths);
                 m_items.reserve(m_items.size() + filePaths.size());
                 Utils::reverseForeach(filePaths, [this](const FilePath &file) {
-                    m_items.append({file, m_encoding});
+                    m_items.append({file, m_codec});
                 });
                 m_progress += dirProgressMax;
             } else {
@@ -726,23 +726,23 @@ static FileContainerIterator::Advancer subDirAdvancer(const SubDirCache &initial
 
 static FileContainer::AdvancerProvider subDirAdvancerProvider(const FilePaths &directories,
     const QStringList &filters, const QStringList &exclusionFilters,
-    const FilterFileFunction &filterFileFuntion, QTextCodec *encoding)
+    const FilterFileFunction &filterFileFuntion, const TextCodec &codec)
 {
     const SubDirCache initialCache(directories, filters, exclusionFilters, filterFileFuntion,
-                                   encoding);
+                                   codec);
     return [initialCache] { return subDirAdvancer(initialCache); };
 }
 
 SubDirFileContainer::SubDirFileContainer(const FilePaths &directories, const QStringList &filters,
-                                         const QStringList &exclusionFilters, QTextCodec *encoding)
-    : FileContainer(subDirAdvancerProvider(directories, filters, exclusionFilters, {}, encoding),
+                                         const QStringList &exclusionFilters, const TextCodec &codec)
+    : FileContainer(subDirAdvancerProvider(directories, filters, exclusionFilters, {}, codec),
                     s_progressMaximum)
 {}
 
 SubDirFileContainer::SubDirFileContainer(const FilePaths &directories,
                                          const FilterFileFunction &filterFileFuntion,
-                                         QTextCodec *encoding)
-    : FileContainer(subDirAdvancerProvider(directories, {}, {}, filterFileFuntion, encoding),
+                                         const TextCodec &codec)
+    : FileContainer(subDirAdvancerProvider(directories, {}, {}, filterFileFuntion, codec),
                     s_progressMaximum)
 {}
 

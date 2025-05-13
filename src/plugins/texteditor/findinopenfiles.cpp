@@ -13,8 +13,6 @@
 #include <utils/shutdownguard.h>
 #include <utils/qtcsettings.h>
 
-#include <QTextCodec>
-
 using namespace Utils;
 
 namespace TextEditor::Internal {
@@ -64,7 +62,7 @@ FileContainerProvider FindInOpenFiles::fileContainerProvider() const
     return [] {
         const QMap<FilePath, QByteArray> encodings = TextDocument::openedTextDocumentEncodings();
         FilePaths fileNames;
-        QList<QTextCodec *> codecs;
+        QList<TextCodec> codecs;
         const QList<Core::DocumentModel::Entry *> entries = Core::DocumentModel::entries();
         for (Core::DocumentModel::Entry *entry : entries) {
             const FilePath fileName = entry->filePath();
@@ -73,7 +71,7 @@ FileContainerProvider FindInOpenFiles::fileContainerProvider() const
                 QByteArray codec = encodings.value(fileName);
                 if (codec.isEmpty())
                     codec = Core::EditorManager::defaultTextCodec().name();
-                codecs.append(QTextCodec::codecForName(codec));
+                codecs.append(TextCodec::codecForName(codec));
             }
         }
         return FileListContainer(fileNames, codecs);
