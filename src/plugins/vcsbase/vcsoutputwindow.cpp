@@ -27,7 +27,6 @@
 #include <QTextBlock>
 #include <QTextBlockUserData>
 #include <QTextCharFormat>
-#include <QTextCodec>
 #include <QTextStream>
 #include <QTime>
 
@@ -336,7 +335,7 @@ void VcsOutputWindow::setText(const QString &text)
 
 void VcsOutputWindow::setData(const QByteArray &data)
 {
-    setText(QTextCodec::codecForLocale()->toUnicode(data));
+    setText(TextCodec::codecForLocale().toUnicode(data));
 }
 
 void VcsOutputWindow::appendSilently(const QString &text)
