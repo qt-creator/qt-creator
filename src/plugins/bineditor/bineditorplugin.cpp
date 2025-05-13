@@ -2122,7 +2122,7 @@ Result<> BinEditorDocument::openImpl(const FilePath &filePath, quint64 offset)
     const qint64 size = filePath.fileSize();
     if (size < 0) {
         // FIXME: Was: file.errorString(), but we don't have a file anymore.
-        return ResultError(Tr::tr("Cannot open %1: %2").arg(filePath.toUserOutput()));
+        return ResultError(Tr::tr("Cannot open \"%1\".").arg(filePath.toUserOutput()));
     }
 
     if (size == 0)
@@ -2133,7 +2133,7 @@ Result<> BinEditorDocument::openImpl(const FilePath &filePath, quint64 offset)
         return ResultError(Tr::tr("The file is too big for the Binary Editor (max. 32GB)."));
 
     if (offset >= quint64(size))
-        return ResultError(Tr::tr("File offset too large"));
+        return ResultError(Tr::tr("File offset too large."));
 
     setFilePath(filePath);
     setSizes(offset, size);

@@ -89,6 +89,7 @@ static QString msgQtStringLiteralDescription(const QString &replacement)
 
 static QString msgQtStringLiteralOperatorDescription(const QString &replacement)
 {
+    //: %1 = operator name like "QLatin1Char"
     return Tr::tr("Append %1 operator").arg(replacement);
 }
 
@@ -653,7 +654,7 @@ class WrapStringLiteral: public CppQuickFixFactory
                     actions = SingleQuoteAction | ConvertToLatin1CharLiteralOperatorAction
                               | objectiveCActions;
                     description = Tr::tr(
-                        "Convert to Character Literal and Append QLatin1Char operator");
+                        "Convert to Character Literal and Append QLatin1Char Operator");
                     result << new WrapStringLiteralOp(
                         interface, priority, actions, description, literal);
                 }

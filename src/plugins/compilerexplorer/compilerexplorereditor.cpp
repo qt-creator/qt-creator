@@ -384,7 +384,7 @@ Result<> JsonSettingsDocument::open(const FilePath &filePath,
                                     const FilePath &realFilePath)
 {
     if (!filePath.isReadableFile())
-        return ResultError(Tr::tr("File not readable"));
+        return ResultError(Tr::tr("File not readable."));
 
     Result<QByteArray> contents = realFilePath.fileContents();
     if (!contents)

@@ -262,7 +262,7 @@ IDevice::IDevice()
     freePortsAspect.setSettingsKey(PortsSpecKey);
     freePortsAspect.setLabelText(Tr::tr("Free ports:"));
     freePortsAspect.setToolTip(
-        Tr::tr("You can enter lists and ranges like this: '1024,1026-1028,1030'."));
+        Tr::tr("You can enter lists and ranges like this: \"1024,1026-1028,1030\"."));
     freePortsAspect.setHistoryCompleter("PortRange");
 }
 

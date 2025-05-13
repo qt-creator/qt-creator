@@ -328,7 +328,8 @@ private:
                        (m_where == CustomParsersSelectionWidget::InBuildConfig && s.buildDefault)
                     || (m_where == CustomParsersSelectionWidget::InRunConfig  && s.runDefault);
             if (projectDefault) {
-                checkBox->setText(Tr::tr("%1 (Project default)").arg(s.displayName));
+                //: %1 = parser display name
+                checkBox->setText(Tr::tr("%1 (project default)").arg(s.displayName));
                 if (!isSelected)
                      parsers.append(s.id);
             }

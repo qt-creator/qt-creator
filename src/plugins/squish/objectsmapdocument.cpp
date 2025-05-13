@@ -46,7 +46,7 @@ Result<> ObjectsMapDocument::saveImpl(const FilePath &filePath, bool autoSave)
 
     const bool writeOk = writeFile(filePath);
     if (!writeOk)
-        return ResultError(Tr::tr("Failed to write \"%1\"").arg(filePath.toUserOutput()));
+        return ResultError(Tr::tr("Failed to write \"%1\".").arg(filePath.toUserOutput()));
 
     if (!autoSave) {
         setModified(false);
@@ -98,7 +98,7 @@ Result<> ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
         const QString objectName = QString::fromUtf8(line.left(tabPosition).trimmed());
         if (!objectName.startsWith(ObjectsMapTreeItem::COLON)) {
             qDeleteAll(itemForName);
-            return ResultError(Tr::tr("Object name does not start with colon"));
+            return ResultError(Tr::tr("Object name does not start with colon."));
         }
 
         ObjectsMapTreeItem *item = new ObjectsMapTreeItem(objectName,
@@ -175,7 +175,7 @@ QByteArray ObjectsMapDocument::contents() const
 Result<> ObjectsMapDocument::openImpl(const FilePath &fileName, const FilePath &realFileName)
 {
     if (fileName.isEmpty())
-        return ResultError("File name is empty"); // FIXME: Find somethong better
+        return ResultError("File name is empty."); // FIXME: Find somethong better
 
     QByteArray text;
     if (realFileName.fileName() == "objects.map") {

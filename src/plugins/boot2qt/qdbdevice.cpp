@@ -161,7 +161,7 @@ public:
         setTitle(Tr::tr("Device Settings"));
 
         nameLineEdit = new QLineEdit(this);
-        nameLineEdit->setPlaceholderText(Tr::tr("A short, free-text description"));
+        nameLineEdit->setPlaceholderText(Tr::tr("A short, free-text description."));
 
         addressLineEdit = new QLineEdit(this);
         addressLineEdit->setPlaceholderText(Tr::tr("Host name or IP address"));

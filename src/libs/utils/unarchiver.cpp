@@ -164,7 +164,7 @@ static Result<> unarchive(
         const int filter = archive_filter_code(a.get(), 0);
 
         if (format == ARCHIVE_FORMAT_RAW && filter == ARCHIVE_FILTER_NONE)
-            return ResultError(Tr::tr("Not an archive"));
+            return ResultError(Tr::tr("Not an archive."));
 
         if (r == ARCHIVE_EOF)
             break;
@@ -232,7 +232,7 @@ void Unarchiver::start()
 Result<> Unarchiver::result() const
 {
     if (m_async.isCanceled())
-        return ResultError(Tr::tr("Canceled"));
+        return ResultError(Tr::tr("Canceled."));
     return m_async.result();
 }
 

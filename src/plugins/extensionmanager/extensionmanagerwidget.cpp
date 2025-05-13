@@ -180,7 +180,7 @@ public:
 
             QString versionStr = remoteSpec->version();
             if (!isCompatible)
-                versionStr += Tr::tr(" (Incompatible)");
+                versionStr += " " + Tr::tr("(Incompatible)");
             else if (initialIndex == -1)
                 initialIndex = i;
 
@@ -914,7 +914,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, bool update,
             QMessageBox::warning(
                 ICore::dialogParent(),
                 Tr::tr("Download Error"),
-                Tr::tr("Downloaded extension has invalid hash"));
+                Tr::tr("Downloaded extension has an invalid hash."));
             return DoneResult::Error;
         }
 

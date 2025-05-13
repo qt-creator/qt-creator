@@ -3638,7 +3638,7 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
     cancelButton->setToolTip(Tr::tr("Cancel %1.").arg(command));
 
     QPushButton *diffButton = msgBox.addButton(Tr::tr("Di&ff && Cancel"), QMessageBox::RejectRole);
-    diffButton->setToolTip(Tr::tr("Show a Diff of the local changes and cancel %1.").arg(command));
+    diffButton->setToolTip(Tr::tr("Show a diff of the local changes and cancel %1.").arg(command));
 
     msgBox.exec();
 
