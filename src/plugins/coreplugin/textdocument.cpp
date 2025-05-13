@@ -6,7 +6,6 @@
 #include "editormanager/editormanager.h"
 
 #include <QDebug>
-#include <QTextCodec>
 
 /*!
     \class Core::BaseTextDocument

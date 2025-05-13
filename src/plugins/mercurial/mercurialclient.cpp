@@ -24,8 +24,6 @@
 
 #include <QDateTime>
 #include <QDir>
-#include <QFileInfo>
-#include <QTextCodec>
 #include <QTextStream>
 #include <QVariant>
 

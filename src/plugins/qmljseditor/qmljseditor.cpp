@@ -75,7 +75,6 @@
 #include <QMetaMethod>
 #include <QPointer>
 #include <QScopedPointer>
-#include <QTextCodec>
 #include <QTimer>
 #include <QTreeView>
 #include <QDebug>

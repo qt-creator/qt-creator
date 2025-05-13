@@ -28,7 +28,6 @@
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QRegularExpression>
-#include <QTextCodec>
 #include <QTimer>
 
 using namespace Core;

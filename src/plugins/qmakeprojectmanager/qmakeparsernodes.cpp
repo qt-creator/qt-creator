@@ -39,7 +39,6 @@
 
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QTextCodec>
 #include <QXmlStreamWriter>
 
 using namespace Core;

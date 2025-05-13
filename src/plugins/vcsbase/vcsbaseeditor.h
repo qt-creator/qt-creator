@@ -9,7 +9,6 @@
 #include <texteditor/texteditor.h>
 
 #include <QSet>
-#include <QTextCodec>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;

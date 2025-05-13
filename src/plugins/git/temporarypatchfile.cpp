@@ -5,7 +5,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QTextCodec>
+#include <utils/textcodec.h>
 
 using namespace Utils;
 

@@ -29,7 +29,6 @@
 #include <QScopedPointer>
 #include <QSharedData>
 #include <QProcessEnvironment>
-#include <QTextCodec>
 #include <QTimer>
 
 using namespace Core;

@@ -24,7 +24,6 @@
 #include <utils/temporaryfile.h>
 
 #include <QMenu>
-#include <QTextCodec>
 
 using namespace Core;
 using namespace TextEditor;

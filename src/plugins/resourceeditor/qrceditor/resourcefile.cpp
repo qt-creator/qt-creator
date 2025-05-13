@@ -24,7 +24,6 @@
 #include <QIcon>
 #include <QImageReader>
 #include <QMimeData>
-#include <QTextCodec>
 #include <QTextStream>
 #include <QtAlgorithms>
 

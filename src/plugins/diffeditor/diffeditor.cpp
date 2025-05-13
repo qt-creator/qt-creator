@@ -41,7 +41,6 @@
 #include <QStackedWidget>
 #include <QStyle>
 #include <QTextBlock>
-#include <QTextCodec>
 #include <QTimer>
 #include <QToolBar>
 #include <QToolButton>

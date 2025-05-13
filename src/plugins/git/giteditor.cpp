@@ -25,7 +25,6 @@
 #include <QRegularExpression>
 #include <QSet>
 #include <QTextBlock>
-#include <QTextCodec>
 #include <QTextCursor>
 
 #define CHANGE_PATTERN "\\b[a-f0-9]{7,40}\\b"

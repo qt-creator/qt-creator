@@ -60,7 +60,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
-#include <QTextCodec>
 
 const char HEAD[] = "HEAD";
 const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";

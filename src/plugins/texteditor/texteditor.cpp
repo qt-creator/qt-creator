@@ -102,7 +102,6 @@
 #include <QStyle>
 #include <QStyleFactory>
 #include <QTextBlock>
-#include <QTextCodec>
 #include <QTextCursor>
 #include <QTextDocumentFragment>
 #include <QTextLayout>

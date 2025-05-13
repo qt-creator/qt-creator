@@ -26,7 +26,6 @@
 
 #include <QDebug>
 #include <QStringList>
-#include <QTextCodec>
 #include <QVariant>
 
 using namespace Core;

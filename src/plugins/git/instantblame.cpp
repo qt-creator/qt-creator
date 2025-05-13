@@ -30,7 +30,6 @@
 #include <QLayout>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QTextCodec>
 #include <QTimer>
 
 namespace Git::Internal {

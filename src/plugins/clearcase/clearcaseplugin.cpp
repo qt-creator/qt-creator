@@ -65,7 +65,6 @@
 #include <QMetaObject>
 #include <QMutex>
 #include <QRegularExpression>
-#include <QTextCodec>
 #include <QUuid>
 #include <QVBoxLayout>
 

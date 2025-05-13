@@ -18,7 +18,6 @@
 
 #include <QDebug>
 #include <QStringList>
-#include <QTextCodec>
 #include <QTimer>
 
 using namespace Utils;

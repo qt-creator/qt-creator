@@ -47,7 +47,6 @@
 #include <QRegularExpression>
 #include <QSet>
 #include <QTextBlock>
-#include <QTextCodec>
 #include <QTextCursor>
 #include <QTextEdit>
 #include <QUrl>

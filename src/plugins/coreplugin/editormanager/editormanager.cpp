@@ -71,7 +71,6 @@
 #include <QSet>
 #include <QSettings>
 #include <QSplitter>
-#include <QTextCodec>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -79,7 +78,6 @@
 #include <QTest>
 #endif
 
-#include <algorithm>
 #include <memory>
 
 enum { debugEditorManager=0 };

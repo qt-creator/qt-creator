@@ -15,7 +15,6 @@
 #include <QLibraryInfo>
 #include <QString>
 #include <QStringList>
-#include <QTextCodec>
 
 static void print(const QString &fileName, int lineNo, int type, const QString &msg)
 {

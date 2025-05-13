@@ -25,9 +25,6 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QTextCodec>
-
-#include <functional>
 
 namespace TextEditor {
 
