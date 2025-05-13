@@ -616,6 +616,11 @@ void Button::setRole(QtcButton::Role role)
     Layouting::Tools::access(this)->setRole(role);
 }
 
+void Button::onClicked(QObject *guard, const std::function<void()> &func)
+{
+    QObject::connect(Layouting::Tools::access(this), &QtcButton::clicked, guard, func);
+}
+
 IconButton::IconButton()
 {
     ptr = new Implementation(nullptr);

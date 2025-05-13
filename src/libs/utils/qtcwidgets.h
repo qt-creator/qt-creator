@@ -154,6 +154,7 @@ public:
     void setText(const QString &text);
     void setIcon(const Utils::Icon &icon);
     void setRole(QtcButton::Role role);
+    void onClicked(QObject *guard, const std::function<void()> &);
 };
 
 class QTCREATOR_UTILS_EXPORT IconButton : public Layouting::Widget
