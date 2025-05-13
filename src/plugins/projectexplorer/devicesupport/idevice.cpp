@@ -198,7 +198,7 @@ IDevice::IDevice()
     linkDevice.setSettingsKey(LinkDeviceKey);
     linkDevice.setLabelText(Tr::tr("Access via:"));
     linkDevice.setToolTip(Tr::tr("Select the device to connect through."));
-    linkDevice.setDefaultValue("Direct");
+    linkDevice.setDefaultValue("direct");
     linkDevice.setComboBoxEditable(false);
     linkDevice.setFillCallback([this](const StringSelectionAspect::ResultCallback &cb) {
         QList<QStandardItem *> items;
@@ -563,7 +563,8 @@ static void backwardsFromExtraData(IDevice *device, const Store &map)
 
 static void backwardsToExtraData(const IDevice *const device, Store &map)
 {
-    map.insert(LinkDevice, device->linkDevice());
+    if (device->linkDevice() != "direct")
+        map.insert(LinkDevice, QVariant::fromValue(device->linkDevice()));
     map.insert(SSH_FORWARD_DEBUGSERVER_PORT, device->sshForwardDebugServerPort());
 }
 
