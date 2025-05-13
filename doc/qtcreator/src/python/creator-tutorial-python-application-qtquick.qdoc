@@ -190,7 +190,7 @@
     }
     \endcode
 
-    You can also use \l{Qt Design Studio documentation}{\QDS} to design Qt Quick UIs.
+    You can also use \l{\QDS documentation}{\QDS} to design Qt Quick UIs.
 
     \section1 Run the application
 

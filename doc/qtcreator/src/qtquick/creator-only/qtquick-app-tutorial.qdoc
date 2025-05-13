@@ -27,7 +27,7 @@
     For more examples, see \l{Qt Quick Examples and Tutorials}.
 
     You can use a visual editor to develop Qt Quick applications in \QDS. For
-    more information, see \l{Qt Design Studio documentation}.
+    more information, see \l{\QDS documentation}.
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
