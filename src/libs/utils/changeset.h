@@ -111,7 +111,7 @@ private:
     bool hasOverlap(int pos, int length) const;
     QString textAt(int pos, int length);
 
-    void doReplace(const EditOp &replace, QList<EditOp> *replaceList);
+    void doReplace(const EditOp &replace);
     void convertToReplace(const EditOp &op, QList<EditOp> *replaceList);
 
     void apply_helper();
