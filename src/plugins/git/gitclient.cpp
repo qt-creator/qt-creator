@@ -1935,7 +1935,7 @@ bool GitClient::executeSynchronousStash(const FilePath &workingDirectory,
     if (unstagedOnly)
         arguments << "--keep-index";
     if (!message.isEmpty())
-        arguments << message;
+        arguments << "-m" << message;
     const RunFlags flags = RunFlags::ShowStdOut
                          | RunFlags::ExpectRepoChanges
                          | RunFlags::ShowSuccessMessage;

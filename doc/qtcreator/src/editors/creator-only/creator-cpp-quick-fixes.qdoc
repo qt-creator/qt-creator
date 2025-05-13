@@ -715,6 +715,26 @@
             \li Quick Fix
             \li Description
         \row
+            \li Convert to Character Literal
+            \li Converts a single-character string literal into a character
+                literal, with some special cases. For example,
+
+    \code
+    "a"
+    "'"
+    "\n"
+    "\""
+    \endcode
+
+                are converted to
+
+    \code
+    'a'
+    '\''
+    '\n'
+    '"'
+    \endcode
+        \row
             \li Convert to Objective-C String Literal
             \li Converts a string literal to an Objective-C string literal if
                 the file type is Objective-C(++). For example, rewrites the
@@ -730,6 +750,31 @@
 
     \code
     @"abcd"
+    \endcode
+        \row
+            \li Add Operator
+            \li Adds a string literal operator (\c {QByteArrayLiteral},
+                \c {QLatin1Char}, \c {QLatin1String}, or \c {QStringLiteral}),
+                such as \c {"_ba"} or \c {"_L1"} to a string literal.
+        \row
+            \li Convert to String Literal
+            \li Converts a character literal into a string literal, with some
+                special cases. For example,
+
+    \code
+    'a'
+    '\''
+    '\n'
+    '"'
+    \endcode
+
+                are converted to
+
+    \code
+    "a"
+    "'"
+    "\n"
+    "\""
     \endcode
         \row
             \li Enclose in QByteArrayLiteral()

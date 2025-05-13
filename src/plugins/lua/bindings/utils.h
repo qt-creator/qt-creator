@@ -43,12 +43,20 @@ inline std::shared_ptr<Utils::Icon> toIcon(const IconFilePathOrString &v)
         v);
 }
 
-inline void mirrorEnum(sol::table &target, QMetaEnum metaEnum, const QString &name = {})
+inline void mirrorEnum(sol::table &&target, QMetaEnum metaEnum, const QString &name = {})
 {
-    sol::table widgetAttributes = target.create(
+    sol::table luaEnumTable = target.create(
         name.isEmpty() ? QString::fromUtf8(metaEnum.name()) : name, metaEnum.keyCount());
     for (int i = 0; i < metaEnum.keyCount(); ++i)
-        widgetAttributes.set(metaEnum.key(i), metaEnum.value(i));
+        luaEnumTable.set(metaEnum.key(i), metaEnum.value(i));
+};
+
+inline void mirrorEnum(sol::table &target, QMetaEnum metaEnum, const QString &name = {})
+{
+    sol::table luaEnumTable = target.create(
+        name.isEmpty() ? QString::fromUtf8(metaEnum.name()) : name, metaEnum.keyCount());
+    for (int i = 0; i < metaEnum.keyCount(); ++i)
+        luaEnumTable.set(metaEnum.key(i), metaEnum.value(i));
 };
 
 template <typename E>

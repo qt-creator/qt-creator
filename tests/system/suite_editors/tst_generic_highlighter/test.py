@@ -46,8 +46,8 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
         if result == ['']:
             test.warning("MIME type '%s' seems to have no file patterns." % mimeType)
         return result
-    waitFor('model.rowCount() == 2', 2000)
-    if model.rowCount() == 2:
+    waitFor('model.rowCount() == 1', 2000)
+    if model.rowCount() == 1:
         test.log("Checking %s" % dumpItems(model)[0])
         patternsLineEd = clickTableGetPatternLineEdit(mimeTypeTable, dumpItems(model)[0])
         patterns = str(patternsLineEd.text)

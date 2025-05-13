@@ -2042,10 +2042,9 @@ void PluginManagerPrivate::installPluginsAfterRestart()
 {
     QTC_CHECK(pluginSpecs.isEmpty());
 
-    QList<QPair<FilePath, FilePath>> installList = readPluginInstallList(settings);
-    const Utils::FilePaths pluginPaths = PluginManager::pluginPaths();
+    const QList<QPair<FilePath, FilePath>> installList = readPluginInstallList(settings);
 
-    for (const auto &[src, dest] : std::as_const(installList)) {
+    for (const auto &[src, dest] : installList) {
         if (!src.exists()) {
             qCWarning(pluginLog()) << "Cannot install source " << src << ", it does not exist";
             continue;

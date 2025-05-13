@@ -268,15 +268,18 @@ void QtcButton::updateMargins()
 
 QtcLabel::QtcLabel(const QString &text, Role role, QWidget *parent)
     : QLabel(text, parent)
-    , m_role(role)
 {
-    static const TextFormat primaryTF
-        {Theme::Token_Text_Muted, StyleHelper::UiElement::UiElementH3};
-    static const TextFormat secondaryTF
-        {primaryTF.themeColor, StyleHelper::UiElement::UiElementH6Capital};
+    setRole(role);
+}
 
-    const TextFormat &tF = m_role == Primary ? primaryTF : secondaryTF;
-    const int vPadding = m_role == Primary ? ExPaddingGapM : VPaddingS;
+void QtcLabel::setRole(Role role)
+{
+    static const TextFormat primaryTF{Theme::Token_Text_Muted, StyleHelper::UiElement::UiElementH3};
+    static const TextFormat
+        secondaryTF{primaryTF.themeColor, StyleHelper::UiElement::UiElementH6Capital};
+
+    const TextFormat &tF = role == Primary ? primaryTF : secondaryTF;
+    const int vPadding = role == Primary ? ExPaddingGapM : VPaddingS;
 
     setFixedHeight(vPadding + tF.lineHeight() + vPadding);
     setFont(tF.font());
@@ -284,6 +287,8 @@ QtcLabel::QtcLabel(const QString &text, Role role, QWidget *parent)
     pal.setColor(QPalette::Active, QPalette::WindowText, tF.color());
     pal.setColor(QPalette::Disabled, QPalette::WindowText, creatorColor(Theme::Token_Text_Subtle));
     setPalette(pal);
+
+    update();
 }
 
 constexpr TextFormat searchBoxTextTF
@@ -656,6 +661,53 @@ void Switch::setChecked(bool checked)
 void Switch::onClicked(QObject *guard, const std::function<void()> &func)
 {
     QObject::connect(Layouting::Tools::access(this), &QtcSwitch::clicked, guard, func);
+}
+
+Label::Label()
+{
+    ptr = new Implementation("", QtcLabel::Primary, nullptr);
+}
+
+Label::Label(std::initializer_list<I> ps)
+{
+    ptr = new Implementation("", QtcLabel::Primary, nullptr);
+    Layouting::Tools::apply(this, ps);
+}
+
+void Label::setText(const QString &text)
+{
+    Layouting::Tools::access(this)->setText(text);
+}
+
+void Label::setRole(QtcLabel::Role role)
+{
+    Layouting::Tools::access(this)->setRole(role);
+}
+
+SearchBox::SearchBox()
+{
+    ptr = new Implementation();
+}
+
+SearchBox::SearchBox(std::initializer_list<I> ps)
+{
+    ptr = new Implementation();
+    Layouting::Tools::apply(this, ps);
+}
+
+void SearchBox::setPlaceholderText(const QString &text)
+{
+    Layouting::Tools::access(this)->setPlaceholderText(text);
+}
+
+void SearchBox::setText(const QString &text)
+{
+    Layouting::Tools::access(this)->setText(text);
+}
+
+void SearchBox::onTextChanged(QObject *guard, const std::function<void(QString)> &func)
+{
+    QObject::connect(Layouting::Tools::access(this), &QtcSearchBox::textChanged, guard, func);
 }
 
 } // namespace QtcWidgets

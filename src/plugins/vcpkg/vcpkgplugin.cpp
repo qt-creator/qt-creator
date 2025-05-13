@@ -34,13 +34,13 @@ public:
 
     void extensionsInitialized() final
     {
-        settings(nullptr).setVcpkgRootEnvironmentVariable();
+        settings(nullptr)->setVcpkgRootEnvironmentVariable();
 
         connect(
             ProjectManager::instance(),
             &ProjectManager::startupProjectChanged,
             this,
-            [](Project *project) { settings(project).setVcpkgRootEnvironmentVariable(); });
+            [](Project *project) { settings(project)->setVcpkgRootEnvironmentVariable(); });
     }
 };
 

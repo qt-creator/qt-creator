@@ -213,7 +213,7 @@ Qt::ItemFlags CustomParsersModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::NoItemFlags;
 
-    Qt::ItemFlags flags = Qt::ItemIsEnabled;
+    Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
     if (index.column() > 0)
         flags |= Qt::ItemIsUserCheckable;

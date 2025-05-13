@@ -28,7 +28,7 @@ using namespace Utils;
 
 namespace Vcpkg::Internal {
 
-static VcpkgSettings &projectSettings(Project *project)
+static VcpkgSettings *projectSettings(Project *project)
 {
     const Key key = "VcpkgProjectSettings";
     QVariant v = project->extraData(key);
@@ -36,18 +36,18 @@ static VcpkgSettings &projectSettings(Project *project)
         v = QVariant::fromValue(new VcpkgSettings(project, true));
         project->setExtraData(key, v);
     }
-    return *v.value<VcpkgSettings*>();
+    return v.value<VcpkgSettings *>();
 }
 
-VcpkgSettings &settings(Project *project)
+VcpkgSettings *settings(Project *project)
 {
     static VcpkgSettings theSettings{nullptr, false};
     if (!project)
-        return theSettings;
+        return &theSettings;
 
-    VcpkgSettings& projSettings = projectSettings(project);
-    if (projSettings.useGlobalSettings)
-        return theSettings;
+    VcpkgSettings *projSettings = projectSettings(project);
+    if (projSettings->useGlobalSettings)
+        return &theSettings;
 
     return projSettings;
 }
@@ -148,7 +148,7 @@ public:
         setId(Constants::Settings::GENERAL_ID);
         setDisplayName("Vcpkg");
         setCategory(Constants::Settings::CATEGORY);
-        setSettingsProvider([] { return &settings(nullptr); });
+        setSettingsProvider([] { return settings(nullptr); });
     }
 };
 
@@ -174,39 +174,37 @@ public:
         m_widget->setEnabled(!useGlobalSettings());
 
         if (project) {
-            VcpkgSettings& projSettings = projectSettings(project);
+            VcpkgSettings *projSettings = projectSettings(project);
 
-            connect(
-                this, &ProjectSettingsWidget::useGlobalSettingsChanged,
-                this, [this, &projSettings](bool useGlobal) {
-                    m_widget->setEnabled(!useGlobal);
-                    m_displayedSettings.useGlobalSettings = useGlobal;
-                    m_displayedSettings.copyFrom(
-                        useGlobal ? settings(nullptr) : projSettings);
+            connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
+                    this, [this, projSettings](bool useGlobal) {
+                m_widget->setEnabled(!useGlobal);
+                m_displayedSettings.useGlobalSettings = useGlobal;
+                m_displayedSettings.copyFrom(useGlobal ? *settings(nullptr) : *projSettings);
 
-                    projSettings.useGlobalSettings = useGlobal;
-                    projSettings.writeSettings();
-                    projSettings.setVcpkgRootEnvironmentVariable();
-                });
+                projSettings->useGlobalSettings = useGlobal;
+                projSettings->writeSettings();
+                projSettings->setVcpkgRootEnvironmentVariable();
+            });
 
             // React on Global settings changes
-            connect(&settings(nullptr), &AspectContainer::changed, this, [this] {
+            connect(settings(nullptr), &AspectContainer::changed, this, [this] {
                 if (m_displayedSettings.useGlobalSettings)
-                    m_displayedSettings.copyFrom(settings(nullptr));
+                    m_displayedSettings.copyFrom(*settings(nullptr));
             });
 
             // Reflect changes to the project settings in the displayed settings
-            connect(&projSettings, &AspectContainer::changed, this, [this, &projSettings] {
+            connect(projSettings, &AspectContainer::changed, this, [this, projSettings] {
                 if (!m_displayedSettings.useGlobalSettings)
-                    m_displayedSettings.copyFrom(projSettings);
+                    m_displayedSettings.copyFrom(*projSettings);
             });
 
             // React on displayed settings changes in the project settings
-            connect(&m_displayedSettings, &AspectContainer::changed, this, [this, &projSettings] {
+            connect(&m_displayedSettings, &AspectContainer::changed, this, [this, projSettings] {
                 if (!m_displayedSettings.useGlobalSettings) {
-                    projSettings.copyFrom(m_displayedSettings);
-                    projSettings.writeSettings();
-                    projSettings.setVcpkgRootEnvironmentVariable();
+                    projSettings->copyFrom(m_displayedSettings);
+                    projSettings->writeSettings();
+                    projSettings->setVcpkgRootEnvironmentVariable();
                 }
             });
         }

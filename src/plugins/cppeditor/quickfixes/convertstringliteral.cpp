@@ -89,7 +89,7 @@ static QString msgQtStringLiteralDescription(const QString &replacement)
 
 static QString msgQtStringLiteralOperatorDescription(const QString &replacement)
 {
-    return Tr::tr("Convert to %1 operator").arg(replacement);
+    return Tr::tr("Append %1 operator").arg(replacement);
 }
 
 static QString stringLiteralReplacement(unsigned actions)

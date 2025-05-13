@@ -103,6 +103,11 @@ void constructWidget(std::unique_ptr<T> &widget, const sol::table &children)
     template<class T> concept has_##name = requires { \
         { std::declval<T>().name(__VA_ARGS__) } -> std::same_as<void>; \
     };
+
+#define CREATE_HAS_FUNC_NAMED(name, hasFuncName, ...) \
+    template<class T> concept has_##hasFuncName = requires { \
+        { std::declval<T>().name(__VA_ARGS__) } -> std::same_as<void>; \
+    };
 // clang-format on
 
 CREATE_HAS_FUNC(onTextChanged, nullptr, nullptr)
@@ -139,7 +144,8 @@ CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
 CREATE_HAS_FUNC(setMinimumWidth, int());
 CREATE_HAS_FUNC(setEnableCodeCopyButton, bool());
 CREATE_HAS_FUNC(setDefaultAction, nullptr);
-CREATE_HAS_FUNC(setRole, QtcButton::Role());
+CREATE_HAS_FUNC_NAMED(setRole, setRoleButton, QtcButton::Role());
+CREATE_HAS_FUNC_NAMED(setRole, setRoleLabel, QtcLabel::Role());
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -375,9 +381,14 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         if (openExternalLinks)
             item->setOpenExternalLinks(*openExternalLinks);
     }
-    if constexpr (has_setRole<T>) {
+    if constexpr (has_setRoleButton<T>) {
         sol::optional<QtcButton::Role> role = children.get<sol::optional<QtcButton::Role>>(
             "role"sv);
+        if (role)
+            item->setRole(*role);
+    }
+    if constexpr (has_setRoleLabel<T>) {
+        sol::optional<QtcLabel::Role> role = children.get<sol::optional<QtcLabel::Role>>("role"sv);
         if (role)
             item->setRole(*role);
     }
@@ -579,7 +590,7 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
-        gui.new_usertype<Utils::QtcWidgets::Button>(
+        auto qtcButton = gui.new_usertype<Utils::QtcWidgets::Button>(
             "QtcButton",
             sol::call_constructor,
             sol::factories([](const sol::table &children) {
@@ -606,6 +617,19 @@ void setupGuiModule()
             &Utils::QtcWidgets::Switch::setChecked,
             "onClicked",
             &Utils::QtcWidgets::Switch::onClicked,
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        auto qtcLabel = gui.new_usertype<Utils::QtcWidgets::Label>(
+            "QtcLabel",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Utils::QtcWidgets::Label>(children, guard);
+            }),
+            "setText",
+            &Utils::QtcWidgets::Label::setText,
+            "setRole",
+            &Utils::QtcWidgets::Label::setRole,
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
@@ -660,7 +684,8 @@ void setupGuiModule()
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextInteractionFlag>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::CursorShape>());
-        mirrorEnum(gui, QMetaEnum::fromType<QtcButton::Role>());
+        mirrorEnum(gui.get<sol::table>("QtcButton"), QMetaEnum::fromType<QtcButton::Role>());
+        mirrorEnum(gui.get<sol::table>("QtcLabel"), QMetaEnum::fromType<QtcLabel::Role>());
 
         auto sizePolicy = gui.create_named("QSizePolicy");
         mirrorEnum(sizePolicy, QMetaEnum::fromType<QSizePolicy::Policy>());
