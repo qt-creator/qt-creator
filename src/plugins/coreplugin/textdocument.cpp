@@ -139,11 +139,6 @@ TextCodec BaseTextDocument::codec() const
     return d->m_format.codec();
 }
 
-void BaseTextDocument::setCodec(const QByteArray &name)
-{
-    setCodec(TextCodec::codecForName(name));
-}
-
 void BaseTextDocument::setCodec(const TextCodec &codec)
 {
     if (debug)

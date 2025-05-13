@@ -23,6 +23,7 @@ public:
 
     QByteArray fromUnicode(QStringView data) const;
     QString toUnicode(const QByteArray &data) const;
+    QString toUnicode(QByteArrayView data) const;
 
     static TextCodec codecForName(const QByteArray &codecName);
     static TextCodec codecForLocale();
@@ -32,6 +33,7 @@ public:
     static TextCodec utf8();
     static TextCodec utf16();
     static TextCodec utf32();
+    static TextCodec latin1();
 
     QTextCodec *asQTextCodec() const; // FIXME: Avoid.
 

@@ -5,7 +5,7 @@
 
 #include "../core_global.h"
 
-#include <QByteArray>
+#include <utils/textcodec.h>
 
 namespace Core {
 
@@ -13,7 +13,7 @@ struct CORE_EXPORT CodecSelectorResult
 {
     enum Action { Cancel, Reload, Save };
     Action action;
-    QByteArray codec;
+    Utils::TextCodec codec;
 };
 
 CORE_EXPORT CodecSelectorResult askForCodec(class BaseTextDocument *doc);

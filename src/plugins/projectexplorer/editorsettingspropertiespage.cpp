@@ -18,12 +18,12 @@
 #include <texteditor/typingsettings.h>
 
 #include <utils/layoutbuilder.h>
+#include <utils/textcodec.h>
 
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QPushButton>
 #include <QSpinBox>
-#include <QTextCodec>
 
 namespace ProjectExplorer::Internal {
 

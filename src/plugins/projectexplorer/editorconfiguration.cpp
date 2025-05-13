@@ -44,7 +44,7 @@ struct EditorConfigurationPrivate
         m_storageSettings(globalStorageSettings()),
         m_behaviorSettings(globalBehaviorSettings()),
         m_extraEncodingSettings(globalExtraEncodingSettings()),
-        m_textCodec(Core::EditorManager::defaultTextCodec().name())
+        m_textCodec(Core::EditorManager::defaultTextCodec())
     { }
 
     ICodeStylePreferences *m_defaultCodeStyle = nullptr;
@@ -54,7 +54,7 @@ struct EditorConfigurationPrivate
     bool m_useGlobal = true;
     ExtraEncodingSettings m_extraEncodingSettings;
     MarginSettings m_marginSettings;
-    QByteArray m_textCodec;
+    TextCodec m_textCodec;
 
     QMap<Utils::Id, ICodeStylePreferences *> m_languageCodeStylePreferences;
     QList<Core::IEditor *> m_editors;
@@ -110,10 +110,10 @@ void EditorConfiguration::cloneGlobalSettings()
     setBehaviorSettings(globalBehaviorSettings());
     setExtraEncodingSettings(globalExtraEncodingSettings());
     setMarginSettings(TextEditorSettings::marginSettings());
-    d->m_textCodec = Core::EditorManager::defaultTextCodec().name();
+    d->m_textCodec = Core::EditorManager::defaultTextCodec();
 }
 
-QByteArray EditorConfiguration::textCodec() const
+TextCodec EditorConfiguration::textCodec() const
 {
     return d->m_textCodec;
 }
@@ -168,7 +168,7 @@ Store EditorConfiguration::toMap() const
 {
     Store map = {
         {kUseGlobal, d->m_useGlobal},
-        {kCodec, d->m_textCodec},
+        {kCodec, d->m_textCodec.name()},
         {kCodeStyleCount, d->m_languageCodeStylePreferences.count()}
     };
 
@@ -196,10 +196,10 @@ Store EditorConfiguration::toMap() const
 
 void EditorConfiguration::fromMap(const Store &map)
 {
-    const QByteArray &codecName = map.value(kCodec, d->m_textCodec).toByteArray();
-    d->m_textCodec = codecName;
-    if (d->m_textCodec.isEmpty())
-        d->m_textCodec = Core::EditorManager::defaultTextCodec().name();
+    const QByteArray codecName = map.value(kCodec, d->m_textCodec.name()).toByteArray();
+    d->m_textCodec = TextCodec::codecForName(codecName);
+    if (!d->m_textCodec.isValid())
+        d->m_textCodec = Core::EditorManager::defaultTextCodec();
 
     const int codeStyleCount = map.value(kCodeStyleCount, 0).toInt();
     for (int i = 0; i < codeStyleCount; ++i) {
@@ -348,7 +348,7 @@ void EditorConfiguration::setMarginSettings(const MarginSettings &settings)
     }
 }
 
-void EditorConfiguration::setTextCodec(const QByteArray &textCodec)
+void EditorConfiguration::setTextCodec(const TextCodec &textCodec)
 {
     d->m_textCodec = textCodec;
 }

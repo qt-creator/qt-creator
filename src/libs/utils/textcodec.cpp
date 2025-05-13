@@ -56,6 +56,12 @@ TextCodec TextCodec::utf32()
     return theUtf32Codec;
 }
 
+TextCodec TextCodec::latin1()
+{
+    static TextCodec theLatin1Codec(QTextCodec::codecForName("latin1"));
+    return theLatin1Codec;
+}
+
 QTextCodec *TextCodec::asQTextCodec() const
 {
     return m_codec;
@@ -74,6 +80,15 @@ QString TextCodec::toUnicode(const QByteArray &data) const
 {
     if (m_codec)
         return m_codec->toUnicode(data);
+
+    QTC_CHECK(false);
+    return {};
+}
+
+QString TextCodec::toUnicode(QByteArrayView data) const
+{
+    if (m_codec)
+        return m_codec->toUnicode(data.constData(), data.size());
 
     QTC_CHECK(false);
     return {};

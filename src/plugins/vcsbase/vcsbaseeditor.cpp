@@ -1245,7 +1245,7 @@ static TextCodec findProjectCodec(const FilePath &dirPath)
     const auto projects = ProjectExplorer::ProjectManager::projects();
     const auto *p
         = findOrDefault(projects, equal(&ProjectExplorer::Project::projectDirectory, dirPath));
-    return p ? TextCodec::codecForName(p->editorConfiguration()->textCodec()) : TextCodec();
+    return p ? p->editorConfiguration()->textCodec() : TextCodec();
 }
 
 TextCodec VcsBaseEditor::getCodec(const FilePath &source)

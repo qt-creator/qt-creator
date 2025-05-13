@@ -38,7 +38,6 @@
 #include <QFutureInterface>
 #include <QScrollBar>
 #include <QStringList>
-#include <QTextCodec>
 
 using namespace Core;
 using namespace Utils;
@@ -830,9 +829,9 @@ Result<> TextDocument::openImpl(const FilePath &filePath,
     return ResultOk;
 }
 
-Result<> TextDocument::reload(const QByteArray &codec)
+Result<> TextDocument::reload(const TextCodec &codec)
 {
-    QTC_ASSERT(!codec.isEmpty(), return ResultError("No codec given"));
+    QTC_ASSERT(codec.isValid(), return ResultError("No codec given"));
     setCodec(codec);
     return reload();
 }

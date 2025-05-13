@@ -26,7 +26,11 @@ class MarginSettings;
 } // namespace TextEditor
 
 namespace Core { class IEditor; }
-namespace Utils { class FilePath; }
+
+namespace Utils {
+class FilePath;
+class TextCodec;
+};
 
 namespace ProjectExplorer {
 
@@ -46,7 +50,7 @@ public:
     void cloneGlobalSettings();
 
     // The default codec is returned in the case the project doesn't override it.
-    QByteArray textCodec() const;
+    Utils::TextCodec textCodec() const;
 
     const TextEditor::TypingSettings &typingSettings() const;
     const TextEditor::StorageSettings &storageSettings() const;
@@ -75,7 +79,7 @@ public:
     void setUseIndenter(bool onoff);
     void setWrapColumn(int column);
 
-    void setTextCodec(const QByteArray &textCodec);
+    void setTextCodec(const Utils::TextCodec &textCodec);
 
     void slotAboutToRemoveProject(ProjectExplorer::Project *project);
 

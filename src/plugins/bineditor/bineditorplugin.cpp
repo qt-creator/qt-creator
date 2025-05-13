@@ -55,7 +55,6 @@
 #include <QSet>
 #include <QStack>
 #include <QString>
-#include <QTextCodec>
 #include <QTextDocument>
 #include <QTextFormat>
 #include <QToolBar>
@@ -246,7 +245,7 @@ public:
     void copy(bool raw = false);
     void setMarkup(const QList<Markup> &markup);
     void setNewWindowRequestAllowed(bool c) { m_canRequestNewWindow = c; }
-    void setCodec(const QByteArray &codec);
+    void setCodec(const Utils::TextCodec &codec);
     QByteArray toByteArray(const QString &s) const;
 
     void clearMarkup() { m_markup.clear(); }
@@ -339,7 +338,7 @@ public:
     QList<Markup> m_markup;
 
     QLineEdit *m_addressEdit = nullptr;
-    QTextCodec *m_codec = nullptr;
+    TextCodec m_codec;
 };
 
 const QChar MidpointChar(u'\u00B7');
@@ -391,7 +390,7 @@ BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
 
     const QByteArray setting = ICore::settings()->value(C_ENCODING_SETTING).toByteArray();
     if (!setting.isEmpty())
-        setCodec(setting);
+        setCodec(TextCodec::codecForName(setting));
 
     m_addressEdit = new QLineEdit;
     auto addressValidator = new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{1,16}"), m_addressEdit);
@@ -768,9 +767,9 @@ QChar BinEditorWidget::displayChar(char ch) const
     const QChar qc = QLatin1Char(ch);
     if (qc.isPrint() && qc.unicode() < 128)
         return qc;
-    if (!m_codec || qc.unicode() < 32)
+    if (!m_codec.isValid() || qc.unicode() < 32)
         return MidpointChar;
-    const QString uc = m_codec->toUnicode(&ch, 1);
+    const QString uc = m_codec.toUnicode(QByteArrayView(&ch, 1));
     if (uc.isEmpty() || !uc.at(0).isLetterOrNumber())
         return MidpointChar;
     return uc.at(0);
@@ -1691,8 +1690,8 @@ void BinEditorWidget::copy(bool raw)
     QByteArray data = m_doc->dataMid(selStart, selectionLength);
     if (raw) {
         data.replace(0, ' ');
-        QTextCodec *codec = m_codec ? m_codec : QTextCodec::codecForName("latin1");
-        setClipboardAndSelection(codec->toUnicode(data));
+        const TextCodec codec = m_codec.isValid() ? m_codec : TextCodec::latin1();
+        setClipboardAndSelection(codec.toUnicode(data));
         return;
     }
     QString hexString;
@@ -1886,20 +1885,19 @@ void BinEditorWidget::jumpToAddress(quint64 address)
         m_doc->requestNewRange(address);
 }
 
-void BinEditorWidget::setCodec(const QByteArray &codecName)
+void BinEditorWidget::setCodec(const TextCodec &codec)
 {
-    QTextCodec *codec = QTextCodec::codecForName(codecName);
     if (codec == m_codec)
         return;
     m_codec = codec;
-    ICore::settings()->setValue(C_ENCODING_SETTING, codecName);
+    ICore::settings()->setValue(C_ENCODING_SETTING, codec.name());
     viewport()->update();
 }
 
 QByteArray BinEditorWidget::toByteArray(const QString &s) const
 {
-    if (m_codec)
-        return m_codec->fromUnicode(s);
+    if (m_codec.isValid())
+        return m_codec.fromUnicode(s);
     return s.toLatin1();
 }
 
@@ -2201,7 +2199,7 @@ public:
 
         const QVariant setting = ICore::settings()->value(C_ENCODING_SETTING);
         if (!setting.isNull())
-            codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
+            codecChooser->setAssignedCodec(TextCodec::codecForName(setting.toByteArray()));
 
         using namespace Layouting;
         auto w = Row {

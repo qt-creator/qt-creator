@@ -129,7 +129,7 @@ public:
     void resetSyntaxHighlighter(const SyntaxHighLighterCreator &creator);
     SyntaxHighlighter *syntaxHighlighter() const;
 
-    Utils::Result<> reload(const QByteArray &codec);
+    Utils::Result<> reload(const Utils::TextCodec &codec);
     void cleanWhitespace(const QTextCursor &cursor);
 
     virtual void triggerPendingUpdates();

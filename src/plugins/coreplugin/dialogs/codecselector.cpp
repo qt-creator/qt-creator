@@ -21,6 +21,8 @@
 #include <QScrollBar>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace Core {
 namespace Internal {
 
@@ -29,7 +31,7 @@ class CodecSelector : public QDialog
 public:
     explicit CodecSelector(BaseTextDocument *doc);
 
-    QByteArray selectedCodec() const;
+    TextCodec selectedCodec() const;
 
 private:
     void updateButtons();
@@ -136,12 +138,12 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
 
 void CodecSelector::updateButtons()
 {
-    bool hasCodec = (selectedCodec() != nullptr);
+    bool hasCodec = selectedCodec().isValid();
     m_reloadButton->setEnabled(!m_isModified && hasCodec);
     m_saveButton->setEnabled(!m_hasDecodingError && hasCodec);
 }
 
-QByteArray CodecSelector::selectedCodec() const
+TextCodec CodecSelector::selectedCodec() const
 {
     if (QListWidgetItem *item = m_listWidget->currentItem()) {
         if (!item->isSelected())
@@ -149,7 +151,7 @@ QByteArray CodecSelector::selectedCodec() const
         QString codecName = item->text();
         if (codecName.contains(QLatin1String(" / ")))
             codecName = codecName.left(codecName.indexOf(QLatin1String(" / ")));
-        return codecName.toLatin1();
+        return TextCodec::codecForName(codecName.toLatin1());
     }
     return {};
 }

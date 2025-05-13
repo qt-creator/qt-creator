@@ -23,7 +23,6 @@ public:
 
     Utils::TextFileFormat format() const;
     Utils::TextCodec codec() const;
-    void setCodec(const QByteArray &name); // FIXME: Remove this overload.
     void setCodec(const Utils::TextCodec &codec);
     virtual bool supportsCodec(const QByteArray &) const;
     void switchUtf8Bom();

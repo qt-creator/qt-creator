@@ -742,7 +742,7 @@ QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
             d, &Internal::QmlJSEditorDocumentPrivate::invalidateFormatterCache);
     resetSyntaxHighlighter([] { return new QmlJSHighlighter(); });
-    setCodec("UTF-8"); // qml files are defined to be utf-8
+    setCodec(TextCodec::utf8()); // qml files are defined to be utf-8
     setIndenter(createQmlJsIndenter(document()));
 }
 

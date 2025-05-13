@@ -63,15 +63,15 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
     QMap<FilePath, QTextCodec *> encodings;
     for (const Project *project : projects) {
         const EditorConfiguration *config = project->editorConfiguration();
-        QByteArray projectCodec = config->useGlobalSettings()
-            ? Core::EditorManager::defaultTextCodec().name()
+        TextCodec projectCodec = config->useGlobalSettings()
+            ? Core::EditorManager::defaultTextCodec()
             : config->textCodec();
         const FilePaths filteredFiles = filterFiles(project->files(Project::SourceFiles));
         for (const FilePath &fileName : filteredFiles) {
-            QByteArray codec = openEditorEncodings.value(fileName);
-            if (codec.isEmpty())
+            TextCodec codec = TextCodec::codecForName(openEditorEncodings.value(fileName));
+            if (!codec.isValid())
                 codec = projectCodec;
-            encodings.insert(fileName, QTextCodec::codecForName(codec));
+            encodings.insert(fileName, codec.asQTextCodec());
         }
     }
     return FileListContainer(encodings.keys(), encodings.values());

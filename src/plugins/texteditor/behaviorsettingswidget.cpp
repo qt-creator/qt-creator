@@ -316,11 +316,11 @@ void BehaviorSettingsWidget::setActive(bool active)
     d->groupBoxStorageSettings->setEnabled(active);
 }
 
-void BehaviorSettingsWidget::setAssignedCodec(const QByteArray &codec)
+void BehaviorSettingsWidget::setAssignedCodec(const Utils::TextCodec &codec)
 {
     const QString codecName = Core::ICore::settings()->value(
                 Core::Constants::SETTINGS_DEFAULTTEXTENCODING).toString();
-    d->encodingBox->setAssignedCodec(QTextCodec::codecForName(codec), codecName);
+    d->encodingBox->setAssignedCodec(codec, codecName);
 }
 
 QByteArray BehaviorSettingsWidget::assignedCodecName() const
