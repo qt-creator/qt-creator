@@ -896,6 +896,7 @@ R"(
 )";
             s += timeProp.arg(
                 Tr::tr("Time"),
+                //: do not translate "Running"
                 Tr::tr("This property allows explicit control of current animation time when "
                        "Running property is false."));
         }
@@ -924,6 +925,7 @@ R"(
 )";
             s += frameProp.arg(
                 Tr::tr("Frame"),
+                //: do not translate "Running"
                 Tr::tr("This property allows explicit control of current animation frame when "
                        "Running property is false."));
         }
@@ -1414,8 +1416,8 @@ QString EffectComposerModel::addNodeToLibraryNode(int idx)
 
     m_effectComposerNodesModel->loadCustomNodes();
 
-    QString action = update ? Tr::tr("updated in") : Tr::tr("added to");
-    return Tr::tr("Effect was %1 effect library.").arg(action);
+    return update ? Tr::tr("Effect was updated in effect library.")
+                  : Tr::tr("Effect was added to effect library.");
 }
 
 QVariant EffectComposerModel::valueLimit(const QString &type, bool max) const

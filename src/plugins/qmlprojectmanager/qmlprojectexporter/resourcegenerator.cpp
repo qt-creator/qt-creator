@@ -108,16 +108,16 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
 
         bool success = ResourceGenerator::createQrc(project, qrcFilePath);
         if (!success) {
-            Core::AsynchronousMessageBox::critical(
-                Tr::tr("Error"),
-                Tr::tr("Failed to generate QRC resource file\n %1").arg(qrcFilePath.toUserOutput()));
+            Core::AsynchronousMessageBox::critical(Tr::tr("Error"),
+                                                   Tr::tr("Failed to generate QRC resource file.")
+                                                       + "\n" + qrcFilePath.toUserOutput());
             return;
         }
 
-        Core::AsynchronousMessageBox::information(
-            Tr::tr("QmlDesigner::GenerateResource", "Success"),
-            Tr::tr("QmlDesigner::GenerateResource", "Successfully generated QRC resource file\n %1")
-                .arg(qrcFilePath.toUrlishString()));
+        Core::AsynchronousMessageBox::information(Tr::tr("Success"),
+                                                  Tr::tr(
+                                                      "Successfully generated QRC resource file.")
+                                                      + "\n" + qrcFilePath.toUrlishString());
     });
 
     // ToDo: move this to QtCreator and add tr to the string then
@@ -177,7 +177,7 @@ void ResourceGenerator::generateMenuEntry(QObject *parent)
 
         QMessageBox msgBox;
         msgBox.setWindowTitle(Tr::tr("Success"));
-        msgBox.setText(Tr::tr("Successfully generated deployable package"));
+        msgBox.setText(Tr::tr("Successfully generated deployable package."));
         msgBox.exec();
     });
 
@@ -221,7 +221,7 @@ bool ResourceGenerator::createQrc(const ProjectExplorer::Project *project,
 
     if (!qrcFile.open(QIODeviceBase::WriteOnly | QIODevice::Truncate)) {
         Core::MessageManager::writeDisrupting(
-            Tr::tr("Failed to open file to write QRC XML: %1").arg(qrcFilePath.toUserOutput()));
+            Tr::tr("Failed to open file \"%1\" to write QRC XML.").arg(qrcFilePath.toUserOutput()));
         return false;
     }
 
@@ -372,8 +372,7 @@ bool ResourceGenerator::runRcc(const FilePath &qmlrcFilePath,
     m_rccProcess.start();
     if (!m_rccProcess.waitForStarted()) {
         Core::MessageManager::writeDisrupting(
-            Tr::tr("QmlDesigner::GenerateResource", "Unable to generate resource file: %1")
-                .arg(qmlrcFilePath.toUrlishString()));
+            Tr::tr("Unable to generate resource file \"%1\".").arg(qmlrcFilePath.toUrlishString()));
         return false;
     }
 

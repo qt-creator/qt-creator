@@ -97,7 +97,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
                             ComponentCoreConstants::snappingCategory,
                             2);
 
-    m_snappingAction = layoutActionGroup->addAction(Tr::tr("Snap without Anchors"));
+    m_snappingAction = layoutActionGroup->addAction(Tr::tr("Snap Without Anchors"));
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
 
@@ -272,7 +272,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_zoomSelectionAction = new QAction(zoomSelectionIcon,
                                         Tr::tr("Zoom screen to fit current selection."),
                                         this);
-    m_zoomSelectionAction->setShortcut(QKeySequence(Tr::tr("Ctrl+Alt+i")));
+    m_zoomSelectionAction->setShortcut(QKeySequence(Tr::tr("Ctrl+Alt+I")));
     addAction(m_zoomSelectionAction.data());
     upperActions.append(m_zoomSelectionAction.data());
     m_toolBox->addRightSideAction(m_zoomSelectionAction.data());
