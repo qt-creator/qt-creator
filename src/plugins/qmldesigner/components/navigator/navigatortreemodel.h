@@ -90,6 +90,7 @@ public:
 
     bool isReferenceNodesVisible() const override;
     bool canBeReference(const ModelNode &modelNode) const override;
+    bool isReference(const QModelIndex &index) const;
 
 signals:
     void toolTipPixmapUpdated(const QString &id, const QPixmap &pixmap);
@@ -118,7 +119,6 @@ private:
     QList<ModelNode> referenceList(const QList<BindingProperty> &bindingProperties, const QList<ModelNode> &unwanted = {}) const;
     QModelIndex createReferenceIndex(int row, int column, const ReferenceData &referenceData) const;
     void resetReferences();
-    bool isReference(const QModelIndex &index) const;
     ModelNode referenceExtractCurrent(const QModelIndex &index) const;
     ModelNode referenceExtractOwner(const QModelIndex &index) const;
 

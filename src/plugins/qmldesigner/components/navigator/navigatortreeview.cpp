@@ -5,6 +5,7 @@
 
 #include <qmath.h>
 
+#include "modelnode.h"
 #include "navigatorview.h"
 #include "navigatortreemodel.h"
 #include "qproxystyle.h"
@@ -259,18 +260,41 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
 
 void NavigatorTreeView::mousePressEvent(QMouseEvent *event)
 {
-    const QModelIndex modelIndex = indexAt(event->pos());
-    if (static_cast<qint32>(modelIndex.internalId()) < 0) {
-        m_dragAllowed = false;
-        return; // Ignore mousePressEvent when item is reference node.
+    m_clickedIndex = indexAt(event->pos());
+    if (auto navModel = qobject_cast<NavigatorTreeModel *>(model())) {
+        if (navModel->isReference(m_clickedIndex)) {
+            m_dragAllowed = false;
+            event->accept();
+            return;
+        }
     }
 
     // Block drag from starting if press was on an item that is not draggable.
     // This is necessary as it is the selected items that are dragged and the pressed item may not
     // be a selected item, e.g. when pressing on locked item, leading to unexpected drags.
-    m_dragAllowed = model()->flags(modelIndex) & Qt::ItemIsDragEnabled;
+    m_dragAllowed = model()->flags(m_clickedIndex) & Qt::ItemIsDragEnabled;
 
     QTreeView::mousePressEvent(event);
+}
+
+void NavigatorTreeView::mouseReleaseEvent(QMouseEvent *event)
+{
+    const QModelIndex modelIndex = indexAt(event->pos());
+    if (m_clickedIndex == modelIndex) {
+        if (auto navModel = qobject_cast<NavigatorTreeModel *>(model())) {
+            if (navModel->isReference(modelIndex)) {
+                ModelNode referencedNode = navModel->modelNodeForIndex(modelIndex);
+                if (referencedNode && !referencedNode.locked()) {
+                    referencedNode.selectNode();
+                    event->accept();
+                    return;
+                }
+            }
+        }
+    }
+    m_clickedIndex = {};
+
+    QTreeView::mouseReleaseEvent(event);
 }
 
 void NavigatorTreeView::startDrag(Qt::DropActions supportedActions)
