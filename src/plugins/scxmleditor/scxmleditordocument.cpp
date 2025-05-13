@@ -122,7 +122,7 @@ Result<> ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
 
 bool ScxmlEditorDocument::supportsCodec(const QByteArray &codec) const
 {
-    return TextEditor::TextDocument::isUtf8Codec(codec);
+    return TextCodec::isUtf8Codec(codec);
 }
 
 QString ScxmlEditorDocument::designWidgetContents() const

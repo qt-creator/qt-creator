@@ -25,6 +25,7 @@ public:
 
     QByteArray name() const;
     QString displayName() const;
+    QString fullDisplayName() const; // Includes aliases
 
     QByteArray fromUnicode(QStringView data) const;
 
@@ -33,9 +34,12 @@ public:
     QString toUnicode(const char *data, int size, ConverterState *state) const;
 
     static TextCodec codecForName(const QByteArray &codecName);
+    static TextCodec codecForMib(int mib);
     static TextCodec codecForLocale();
 
     bool isUtf8() const;
+    static bool isUtf8Codec(const QByteArray &codecName); // Also considers aliases
+    static QList<int> availableMibs();
 
     static TextCodec utf8();
     static TextCodec utf16();

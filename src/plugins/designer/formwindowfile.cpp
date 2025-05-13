@@ -216,7 +216,7 @@ QString FormWindowFile::fallbackSaveAsFileName() const
 
 bool FormWindowFile::supportsCodec(const QByteArray &codec) const
 {
-    return TextEditor::TextDocument::isUtf8Codec(codec);
+    return TextCodec::isUtf8Codec(codec);
 }
 
 Result<> FormWindowFile::writeFile(const Utils::FilePath &filePath) const

@@ -17,7 +17,6 @@
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
-#include <QTextCodec>
 #include <QScrollBar>
 #include <QVBoxLayout>
 
@@ -82,7 +81,7 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
 
     QStringList encodings;
 
-    const QList<int> mibs = Utils::sorted(QTextCodec::availableMibs());
+    const QList<int> mibs = Utils::sorted(TextCodec::availableMibs());
     QList<int> sortedMibs;
     for (const int mib : mibs)
         if (mib >= 0)
@@ -93,13 +92,13 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
 
     int currentIndex = -1;
     for (const int mib : std::as_const(sortedMibs)) {
-        QTextCodec *c = QTextCodec::codecForMib(mib);
-        if (!doc->supportsCodec(c ? c->name() : QByteArray()))
+        const TextCodec codec = TextCodec::codecForMib(mib);
+        if (!doc->supportsCodec(codec.isValid() ? codec.name() : QByteArray()))
             continue;
         if (!buf.isEmpty()) {
 
             // slow, should use a feature from QTextCodec or QTextDecoder (but those are broken currently)
-            QByteArray verifyBuf = c->fromUnicode(c->toUnicode(buf));
+            QByteArray verifyBuf = codec.fromUnicode(codec.toUnicode(buf));
             // the minSize trick lets us ignore unicode headers
             int minSize = qMin(verifyBuf.size(), buf.size());
             if (minSize < buf.size() - 4
@@ -107,13 +106,9 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
                           buf.constData() + buf.size() - minSize, minSize))
                 continue;
         }
-        QString names = QString::fromLatin1(c->name());
-        const QList<QByteArray> aliases = c->aliases();
-        for (const QByteArray &alias : aliases)
-            names += QLatin1String(" / ") + QString::fromLatin1(alias);
-        if (doc->codec().asQTextCodec() == c)
+        if (doc->codec() == codec)
             currentIndex = encodings.count();
-        encodings << names;
+        encodings << codec.fullDisplayName();
     }
     m_listWidget->addItems(encodings);
     if (currentIndex >= 0)

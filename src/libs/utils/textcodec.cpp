@@ -25,6 +25,18 @@ QString TextCodec::displayName() const
     return m_codec ? QString::fromLatin1(m_codec->name()) : QString("Null codec");
 }
 
+QString TextCodec::fullDisplayName() const
+{
+    QString compoundName = displayName();
+    if (m_codec) {
+        for (const QByteArray &alias : m_codec->aliases()) {
+            compoundName += QLatin1String(" / ");
+            compoundName += QString::fromLatin1(alias);
+        }
+    }
+    return compoundName;
+}
+
 bool TextCodec::isValid() const
 {
     return m_codec;
@@ -41,6 +53,23 @@ TextCodec TextCodec::codecForLocale()
 bool TextCodec::isUtf8() const
 {
     return m_codec && m_codec->name() == "UTF-8";
+}
+
+bool TextCodec::isUtf8Codec(const QByteArray &name)
+{
+    static const auto utf8Codecs = []() -> QList<QByteArray> {
+        const TextCodec codec = TextCodec::utf8();
+        if (QTC_GUARD(codec.isValid()))
+            return QList<QByteArray>{codec.name()} + codec.m_codec->aliases();
+        return {"UTF-8"};
+    }();
+
+    return utf8Codecs.contains(name);
+}
+
+QList<int> TextCodec::availableMibs()
+{
+    return QTextCodec::availableMibs();
 }
 
 TextCodec TextCodec::utf8()
@@ -111,6 +140,11 @@ QString TextCodec::toUnicode(const char *data, int size, ConverterState *state) 
 TextCodec TextCodec::codecForName(const QByteArray &codecName)
 {
     return TextCodec(QTextCodec::codecForName(codecName));
+}
+
+TextCodec TextCodec::codecForMib(int mib)
+{
+    return TextCodec(QTextCodec::codecForMib(mib));
 }
 
 bool operator==(const TextCodec &left, const TextCodec &right)

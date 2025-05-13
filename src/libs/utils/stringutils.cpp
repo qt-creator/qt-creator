@@ -23,7 +23,6 @@
 #include <QPalette>
 #include <QRegularExpression>
 #include <QSet>
-#include <QTextCodec>
 #include <QTextDocument>
 #include <QTextList>
 #include <QTime>

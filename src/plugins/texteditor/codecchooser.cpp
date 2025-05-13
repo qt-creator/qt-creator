@@ -32,15 +32,9 @@ CodecChooser::CodecChooser(Filter filter)
     for (int mib : std::as_const(mibs)) {
         if (filter == Filter::SingleByte && !isSingleByte(mib))
             continue;
-        if (QTextCodec *codec = QTextCodec::codecForMib(mib)) {
-            QString compoundName = QLatin1String(codec->name());
-            const QList<QByteArray> aliases = codec->aliases();
-            for (const QByteArray &alias : aliases) {
-                compoundName += QLatin1String(" / ");
-                compoundName += QString::fromLatin1(alias);
-            }
-            addItem(compoundName);
-            m_codecs.append(TextCodec::codecForName(codec->name()));
+        if (const TextCodec codec = TextCodec::codecForMib(mib); codec.isValid()) {
+            addItem(codec.fullDisplayName());
+            m_codecs.append(codec);
         }
     }
     connect(this, &QComboBox::currentIndexChanged,

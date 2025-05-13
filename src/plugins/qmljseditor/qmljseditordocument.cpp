@@ -748,7 +748,7 @@ QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
 
 bool QmlJSEditorDocument::supportsCodec(const QByteArray &codec) const
 {
-    return TextEditor::TextDocument::isUtf8Codec(codec);
+    return TextCodec::isUtf8Codec(codec);
 }
 
 QmlJSEditorDocument::~QmlJSEditorDocument()

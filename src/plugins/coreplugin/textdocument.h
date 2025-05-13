@@ -40,8 +40,6 @@ public:
     void setSupportsUtf8Bom(bool value);
     void setLineTerminationMode(Utils::TextFileFormat::LineTerminationMode mode);
 
-    static bool isUtf8Codec(const QByteArray &name);
-
 private:
     Internal::TextDocumentPrivate *d;
 };

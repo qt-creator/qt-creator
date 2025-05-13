@@ -18,13 +18,8 @@ namespace Utils {
 QDebug operator<<(QDebug d, const TextFileFormat &format)
 {
     QDebug nsp = d.nospace();
-    nsp << "TextFileFormat: " << format.codec().displayName();
-    if (const QTextCodec *codec = format.codec().asQTextCodec()) {
-        const QList<QByteArray> aliases = codec->aliases();
-        for (const QByteArray &alias : aliases)
-            nsp << ' ' << alias;
-    }
-    nsp << " hasUtf8Bom=" << format.hasUtf8Bom
+    nsp << "TextFileFormat: " << format.codec().fullDisplayName()
+        << " hasUtf8Bom=" << format.hasUtf8Bom
         << (format.lineTerminationMode == TextFileFormat::LFLineTerminator ? " LF" : " CRLF");
     return d;
 }
