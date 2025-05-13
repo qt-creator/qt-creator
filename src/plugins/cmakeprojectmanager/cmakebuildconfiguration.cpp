@@ -105,8 +105,6 @@ const char CMAKE_CXX_FLAGS[] = "CMAKE_CXX_FLAGS";
 const char CMAKE_CXX_FLAGS_DEBUG[] = "CMAKE_CXX_FLAGS_DEBUG";
 const char CMAKE_CXX_FLAGS_RELWITHDEBINFO[] = "CMAKE_CXX_FLAGS_RELWITHDEBINFO";
 
-const char VXWORKS_DEVICE_TYPE[] = "VxWorks.Device.Type";
-
 namespace Internal {
 
 class CMakeBuildSettingsWidget : public QWidget
@@ -1154,7 +1152,7 @@ static bool isWebAssembly(const Kit *k)
 
 static bool isVxWorks(const Kit *k)
 {
-    return RunDeviceTypeKitAspect::deviceTypeId(k) == VXWORKS_DEVICE_TYPE;
+    return RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::VXWORKS_DEVICE_TYPE;
 }
 
 static bool isQnx(const Kit *k)
