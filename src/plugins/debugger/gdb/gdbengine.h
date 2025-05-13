@@ -16,9 +16,8 @@
 
 #include <utils/id.h>
 #include <utils/qtcprocess.h>
+#include <utils/textcodec.h>
 
-#include <QProcess>
-#include <QTextCodec>
 #include <QTimer>
 
 namespace Debugger::Internal {
@@ -92,8 +91,8 @@ private: ////////// General Interface //////////
     void readGdbStandardError();
     void readDebuggeeOutput(const QByteArray &ba);
 
-    QTextCodec *m_inferiorOutputCodec;
-    QTextCodec::ConverterState m_inferiorOutputCodecState;
+    Utils::TextCodec m_inferiorOutputCodec;
+    Utils::TextCodec::ConverterState m_inferiorOutputCodecState;
 
     QString m_inbuffer;
     bool m_busy = false;
