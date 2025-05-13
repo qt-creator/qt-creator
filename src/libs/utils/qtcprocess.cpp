@@ -26,7 +26,6 @@
 #include <QLoggingCategory>
 #include <QMutex>
 #include <QScopeGuard>
-#include <QTextCodec>
 #include <QThread>
 #include <QTimer>
 #include <QWaitCondition>
@@ -35,6 +34,7 @@
 // qmlpuppet does not use that.
 #include <QGuiApplication>
 #include <QMessageBox>
+#include <QStringConverterBase>
 #endif
 
 #include <algorithm>
@@ -198,15 +198,15 @@ public:
 
     QString readAllData()
     {
-        QString msg = codec->toUnicode(rawData.data(), rawData.size(), codecState.get());
+        QString msg = codec.toUnicode(rawData.data(), rawData.size(), &codecState);
         rawData.clear();
         return msg;
     }
 
     QByteArray rawData;
     QString incompleteLineBuffer; // lines not yet signaled
-    const QTextCodec *codec = nullptr; // Not owner
-    std::unique_ptr<QTextCodec::ConverterState> codecState;
+    TextCodec codec;
+    TextCodec::ConverterState codecState;
     std::function<void(const QString &lines)> outputCallback;
     TextChannelMode m_textChannelMode = TextChannelMode::Off;
 
@@ -732,8 +732,8 @@ public:
     qint64 m_applicationMainThreadId = 0;
     ProcessResultData m_resultData;
 
-    const QTextCodec *m_stdOutCodec = nullptr;
-    const QTextCodec *m_stdErrCodec = nullptr;
+    TextCodec m_stdOutCodec;
+    TextCodec m_stdErrCodec;
 
     ProcessResult m_result = ProcessResult::StartFailed;
     ChannelBuffer m_stdOut;
@@ -992,13 +992,13 @@ void ProcessPrivate::sendControlSignal(ControlSignal controlSignal)
 
 void ProcessPrivate::clearForRun()
 {
-    if (!m_stdOutCodec)
-        m_stdOutCodec = m_setup.m_commandLine.executable().processStdOutCodec().asQTextCodec();
+    if (!m_stdOutCodec.isValid())
+        m_stdOutCodec = m_setup.m_commandLine.executable().processStdOutCodec();
     m_stdOut.clearForRun();
     m_stdOut.codec = m_stdOutCodec;
 
-    if (!m_stdErrCodec)
-        m_stdErrCodec = m_setup.m_commandLine.executable().processStdErrCodec().asQTextCodec();
+    if (!m_stdErrCodec.isValid())
+        m_stdErrCodec = m_setup.m_commandLine.executable().processStdErrCodec();
     m_stdErr.clearForRun();
     m_stdErr.codec = m_stdErrCodec;
 
@@ -1673,15 +1673,15 @@ QByteArray Process::rawStdErr() const
 QString Process::stdOut() const
 {
     QTC_CHECK(d->m_stdOut.keepRawData);
-    QTC_ASSERT(d->m_stdOutCodec, return {}); // Process was not started
-    return d->m_stdOutCodec->toUnicode(d->m_stdOut.rawData);
+    QTC_ASSERT(d->m_stdOutCodec.isValid(), return {}); // Process was not started
+    return d->m_stdOutCodec.toUnicode(d->m_stdOut.rawData);
 }
 
 QString Process::stdErr() const
 {
     QTC_CHECK(d->m_stdErr.keepRawData);
-    QTC_ASSERT(d->m_stdErrCodec, return {}); // Process was not started
-    return d->m_stdErrCodec->toUnicode(d->m_stdErr.rawData);
+    QTC_ASSERT(d->m_stdErrCodec.isValid(), return {}); // Process was not started
+    return d->m_stdErrCodec.toUnicode(d->m_stdErr.rawData);
 }
 
 QString Process::cleanedStdOut() const
@@ -1726,7 +1726,7 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const Process &r)
 void ChannelBuffer::clearForRun()
 {
     rawData.clear();
-    codecState.reset(new QTextCodec::ConverterState);
+    codecState.reset();
     incompleteLineBuffer.clear();
 }
 
@@ -1745,7 +1745,7 @@ void ChannelBuffer::append(const QByteArray &text)
         return;
 
     // Convert and append the new input to the buffer of incomplete lines
-    incompleteLineBuffer.append(codec->toUnicode(text.constData(), text.size(), codecState.get()));
+    incompleteLineBuffer.append(codec.toUnicode(text.constData(), text.size(), &codecState));
 
     QStringView bufferView(incompleteLineBuffer);
 
@@ -1796,24 +1796,22 @@ void ChannelBuffer::handleRest()
     }
 }
 
-void Process::setCodec(const TextCodec &codec_)
+void Process::setCodec(const TextCodec &codec)
 {
-    const QTextCodec *codec = codec_.asQTextCodec();
-    QTC_ASSERT(codec, return);
+    QTC_ASSERT(codec.isValid(), return);
     d->m_stdOutCodec = codec;
     d->m_stdErrCodec = codec;
 }
 
 void Process::setUtf8Codec()
 {
-    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-    d->m_stdOutCodec = codec;
-    d->m_stdErrCodec = codec;
+    d->m_stdOutCodec = TextCodec::utf8();
+    d->m_stdErrCodec = TextCodec::utf8();
 }
 
 void Process::setUtf8StdOutCodec()
 {
-    d->m_stdOutCodec = QTextCodec::codecForName("UTF-8");
+    d->m_stdOutCodec = TextCodec::utf8();
 }
 
 void Process::setTimeOutMessageBoxEnabled(bool v)

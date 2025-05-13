@@ -6,6 +6,7 @@
 #include "utils_global.h"
 
 #include <QString>
+#include <QStringConverter>
 
 QT_BEGIN_NAMESPACE
 class QTextCodec;
@@ -16,15 +17,20 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT TextCodec final
 {
 public:
+    using ConverterState = QStringConverter::State;
+
     TextCodec();
 
     bool isValid() const;
+
     QByteArray name() const;
     QString displayName() const;
 
     QByteArray fromUnicode(QStringView data) const;
+
     QString toUnicode(const QByteArray &data) const;
     QString toUnicode(QByteArrayView data) const;
+    QString toUnicode(const char *data, int size, ConverterState *state) const;
 
     static TextCodec codecForName(const QByteArray &codecName);
     static TextCodec codecForLocale();

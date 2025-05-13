@@ -99,6 +99,15 @@ QString TextCodec::toUnicode(QByteArrayView data) const
     return {};
 }
 
+QString TextCodec::toUnicode(const char *data, int size, ConverterState *state) const
+{
+    if (m_codec)
+        return m_codec->toUnicode(data, size, state);
+
+    QTC_CHECK(false);
+    return {};
+}
+
 TextCodec TextCodec::codecForName(const QByteArray &codecName)
 {
     return TextCodec(QTextCodec::codecForName(codecName));
