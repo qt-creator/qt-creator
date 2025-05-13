@@ -25,6 +25,7 @@
 #include <uniquename.h>
 #include <utils3d.h>
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -749,7 +750,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
             return priorities.value(first) < priorities.value(second);
         });
 
-        QStringList filters{Tr::tr("All Files (%1)").arg("*.*")};
+        QStringList filters{Core::DocumentManager::allFilesFilterString()};
         QString filterTemplate = "%1 (%2)";
         for (const QString &key : std::as_const(sortedKeys)) {
             const QStringList values = map.values(key);

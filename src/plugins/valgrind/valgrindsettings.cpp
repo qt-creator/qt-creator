@@ -8,6 +8,7 @@
 #include "xmlprotocol/error.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/documentmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -57,11 +58,11 @@ void SuppressionAspect::addSuppressionFile(const FilePath &suppression)
 
 void SuppressionAspectPrivate::slotAddSuppression()
 {
-    const FilePaths files =
-            FileUtils::getOpenFilePaths(
-                      Tr::tr("Valgrind Suppression Files"),
-                      globalSettings().lastSuppressionDirectory(),
-                      Tr::tr("Valgrind Suppression File (*.supp);;All Files (*)"));
+    const FilePaths files = FileUtils::getOpenFilePaths(
+        Tr::tr("Valgrind Suppression Files"),
+        globalSettings().lastSuppressionDirectory(),
+        Tr::tr("Valgrind Suppression File (*.supp)") + ";;"
+            + Core::DocumentManager::allFilesFilterString());
     //dialog.setHistory(conf->lastSuppressionDialogHistory());
     if (!files.isEmpty()) {
         for (const FilePath &file : files)

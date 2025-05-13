@@ -5,6 +5,7 @@
 
 #include "remotelinuxtr.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -121,8 +122,10 @@ bool runPublicKeyDeploymentDialog(const DeviceConstRef &device, const FilePath &
     if (keyPath.isEmpty()) {
         const FilePath dir = device.sshParameters().privateKeyFile().parentDir();
         keyPath = FileUtils::getOpenFilePath(
-            Tr::tr("Choose Public Key File"), dir,
-            Tr::tr("Public Key Files (*.pub);;All Files (*)"));
+            Tr::tr("Choose Public Key File"),
+            dir,
+            Tr::tr("Public Key Files (*.pub)") + ";;"
+                + Core::DocumentManager::allFilesFilterString());
     }
     if (keyPath.isEmpty())
         return false;
