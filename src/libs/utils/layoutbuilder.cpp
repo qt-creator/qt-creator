@@ -1080,7 +1080,29 @@ void addToStack(Stack *stack, QWidget *inner)
     access(stack)->addWidget(inner);
 }
 
+void addToScrollArea(ScrollArea *scrollArea, QWidget *inner)
+{
+    access(scrollArea)->setWidget(inner);
+}
+
+void addToScrollArea(ScrollArea *scrollArea, const Layout &layout)
+{
+    access(scrollArea)->setWidget(layout.emerge());
+}
+
+void addToScrollArea(ScrollArea *scrollArea, const Widget &inner)
+{
+    access(scrollArea)->setWidget(inner.emerge());
+}
+
 // ScrollArea
+
+ScrollArea::ScrollArea(std::initializer_list<I> items)
+{
+    ptr = new Implementation;
+    apply(this, items);
+    access(this)->setWidgetResizable(true);
+}
 
 ScrollArea::ScrollArea(const Layout &inner)
 {
@@ -1092,6 +1114,11 @@ ScrollArea::ScrollArea(const Layout &inner)
 void ScrollArea::setLayout(const Layout &inner)
 {
     access(this)->setWidget(inner.emerge());
+}
+
+void ScrollArea::setFrameShape(QFrame::Shape shape)
+{
+    access(this)->setFrameShape(shape);
 }
 
 // Splitter

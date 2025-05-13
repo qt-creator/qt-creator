@@ -6,6 +6,7 @@
 #include "builderutils.h"
 
 #include <QAction>
+#include <QFrame>
 #include <QString>
 
 #include <initializer_list>
@@ -392,10 +393,13 @@ class QTCREATOR_UTILS_EXPORT ScrollArea : public Widget
 {
 public:
     using Implementation = QScrollArea;
+    using I = Building::BuilderItem<ScrollArea>;
 
+    ScrollArea(std::initializer_list<I> items);
     ScrollArea(const Layout &inner);
 
     void setLayout(const Layout &inner);
+    void setFrameShape(QFrame::Shape shape);
 };
 
 class QTCREATOR_UTILS_EXPORT Stack : public Widget
@@ -570,6 +574,7 @@ QTC_DEFINE_BUILDER_SETTER(sizePolicy, setSizePolicy);
 QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
 QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
 QTC_DEFINE_BUILDER_SETTER(placeholderText, setPlaceholderText);
+QTC_DEFINE_BUILDER_SETTER(frameShape, setFrameShape);
 
 // Nesting dispatchers
 
@@ -612,6 +617,10 @@ QTCREATOR_UTILS_EXPORT void addToStack(Stack *stack, QWidget *inner);
 QTCREATOR_UTILS_EXPORT void addToStack(Stack *stack, const Widget &inner);
 QTCREATOR_UTILS_EXPORT void addToStack(Stack *stack, const Layout &inner);
 
+QTCREATOR_UTILS_EXPORT void addToScrollArea(ScrollArea *scrollArea, QWidget *inner);
+QTCREATOR_UTILS_EXPORT void addToScrollArea(ScrollArea *scrollArea, const Widget &inner);
+QTCREATOR_UTILS_EXPORT void addToScrollArea(ScrollArea *scrollArea, const Layout &inner);
+
 template <class Inner>
 void doit_nested(Layout *outer, Inner && inner)
 {
@@ -636,6 +645,11 @@ void doit_nested(Stack *outer, auto inner)
 void doit_nested(Splitter *outer, auto inner)
 {
     addToSplitter(outer, inner);
+}
+
+void doit_nested(ScrollArea *outer, auto inner)
+{
+    addToScrollArea(outer, inner);
 }
 
 template <class Inner>
