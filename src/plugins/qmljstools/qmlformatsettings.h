@@ -4,11 +4,16 @@
 #pragma once
 
 #include "qmljstools_global.h"
-#include <utils/filepath.h>
 
 #include <qtsupport/qtversionmanager.h>
 
+#include <utils/filepath.h>
+
+#include <QTemporaryDir>
+
 namespace QmlJSTools {
+
+class QmlFormatProcess;
 
 class QMLJSTOOLS_EXPORT QmlFormatSettings : public QObject
 {
@@ -29,8 +34,12 @@ signals:
     void qmlformatIniCreated(Utils::FilePath iniFile);
 private:
     QmlFormatSettings();
+    ~QmlFormatSettings();
+
     Utils::FilePath m_latestQmlFormat;
     QVersionNumber m_latestVersion;
+    std::unique_ptr<QTemporaryDir> m_tempDir;
+    std::unique_ptr<QmlFormatProcess> m_qmlFormatProcess;
 };
 
 } // namespace QmlJSTools
