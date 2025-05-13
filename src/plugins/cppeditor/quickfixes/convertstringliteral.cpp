@@ -9,7 +9,7 @@
 #include "../cpprefactoringchanges.h"
 #include "cppquickfix.h"
 
-#include <QTextDecoder>
+#include <utils/textcodec.h>
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
@@ -302,15 +302,15 @@ public:
             return;
         }
 
-        QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");
-        QScopedPointer<QTextDecoder> decoder(utf8codec->makeDecoder());
+        const TextCodec utf8codec = TextCodec::utf8();
+        TextCodec::ConverterState converterState;
         ChangeSet changes;
 
         bool replace = true;
         for (const QByteArray &chunk : std::as_const(newContents)) {
-            const QString str = decoder->toUnicode(chunk);
+            const QString str = utf8codec.toUnicode(chunk.constData(), chunk.size(), &converterState);
             const QByteArray utf8buf = str.toUtf8();
-            if (!utf8codec->canEncode(str) || chunk != utf8buf)
+            if (!utf8codec.canEncode(str) || chunk != utf8buf)
                 return;
             if (replace)
                 changes.replace(startPos + 1, endPos - 1, str);

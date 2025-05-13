@@ -147,6 +147,11 @@ QString TextCodec::toUnicode(const char *data, int size, ConverterState *state) 
     return {};
 }
 
+bool TextCodec::canEncode(QStringView data) const
+{
+    return m_codec && m_codec->canEncode(data);
+}
+
 TextCodec TextCodec::codecForName(const QByteArray &codecName)
 {
     return TextCodec(QTextCodec::codecForName(codecName));
