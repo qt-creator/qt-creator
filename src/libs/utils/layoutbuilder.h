@@ -482,6 +482,30 @@ public:
     void setViewportMargins(int left, int top, int right, int bottom);
 };
 
+class QTCREATOR_UTILS_EXPORT CanvasWidget : public QWidget
+{
+public:
+    using PaintFunction = std::function<void(QPainter &painter)>;
+
+    void setPaintFunction(const PaintFunction &paintFunction);
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    PaintFunction m_paintFunction;
+};
+
+class QTCREATOR_UTILS_EXPORT Canvas : public Layouting::Widget
+{
+public:
+    using Implementation = CanvasWidget;
+    using I = Building::BuilderItem<Canvas>;
+
+    Canvas() = default;
+    Canvas(std::initializer_list<I> ps);
+
+    void setPaintFunction(const CanvasWidget::PaintFunction &paintFunction);
+};
+
 // Special
 
 class QTCREATOR_UTILS_EXPORT If
@@ -575,6 +599,7 @@ QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
 QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
 QTC_DEFINE_BUILDER_SETTER(placeholderText, setPlaceholderText);
 QTC_DEFINE_BUILDER_SETTER(frameShape, setFrameShape);
+QTC_DEFINE_BUILDER_SETTER(paint, setPaintFunction);
 
 // Nesting dispatchers
 

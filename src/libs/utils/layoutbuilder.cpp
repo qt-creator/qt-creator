@@ -17,6 +17,7 @@
 #include <QGroupBox>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QPainter>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSize>
@@ -1232,6 +1233,31 @@ void MarkdownBrowser::setEnableCodeCopyButton(bool enable)
 void MarkdownBrowser::setViewportMargins(int left, int top, int right, int bottom)
 {
     access(this)->setMargins(QMargins(left, top, right, bottom));
+}
+
+void CanvasWidget::setPaintFunction(const PaintFunction &paintFunction)
+{
+    m_paintFunction = std::move(paintFunction);
+}
+
+void CanvasWidget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    if (m_paintFunction) {
+        QPainter painter(this);
+        m_paintFunction(painter);
+    }
+}
+
+Canvas::Canvas(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void Canvas::setPaintFunction(const CanvasWidget::PaintFunction &paintFunction)
+{
+    access(this)->setPaintFunction(paintFunction);
 }
 
 // Special If
