@@ -93,8 +93,9 @@ Projects
   Qt classes to include the corresponding header and add the missing package
   dependency to the project file
 * Added the option to use custom output parsers for all build or run
-  configurations by default
+  configurations by default in `Preferences > Build & Run > Custom Output Parsers`
   ([QTCREATORBUG-32342](https://bugreports.qt.io/browse/QTCREATORBUG-32342))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-custom-output-parsers.html))
 * Added the option to select `qtpaths` instead of `qmake` when registering
   Qt versions
   ([QTCREATORBUG-32213](https://bugreports.qt.io/browse/QTCREATORBUG-32213))
