@@ -31,7 +31,7 @@
     between the host and devices. For more information, see
     \l{\B2Q: Documentation}.
 
-    If you have \l{Qt Design Studio documentation}{\QDS} installed, you can open
+    If you have \l{\QDS documentation}{\QDS} installed, you can open
     \QDS examples from \QC in \QDS.
 
     \list 1
@@ -88,5 +88,5 @@
 
     \sa {Manage Kits}{How To: Manage Kits}, {Open projects},
     {Developing for Android}, {Developing for iOS},
-    {Compile Output}, {\B2Q: Documentation}, {Qt Design Studio documentation}
+    {Compile Output}, {\B2Q: Documentation}, {\QDS documentation}
 */

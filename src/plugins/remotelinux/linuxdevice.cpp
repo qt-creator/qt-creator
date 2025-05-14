@@ -1313,15 +1313,28 @@ void LinuxDevice::checkOsType()
 
 IDevice::DeviceState LinuxDevice::deviceState() const
 {
+    QMutexLocker locker(&d->m_scriptAccess.m_shellMutex);
     if (isDisconnected())
         return DeviceDisconnected;
+    else if (d->m_cmdBridgeAccess)
+        return DeviceReadyToUse;
+    else if (d->m_scriptAccess.m_handler && d->m_scriptAccess.m_handler->isRunning(sshParameters()))
+        return DeviceConnected;
+
     return IDevice::deviceState();
 }
 
 QString LinuxDevice::deviceStateToString() const
 {
+    QMutexLocker locker(&d->m_scriptAccess.m_shellMutex);
+
     if (isDisconnected())
         return Tr::tr("Device is considered unconnected. Re-run device test to reset state.");
+    else if (d->m_cmdBridgeAccess)
+        return Tr::tr("Connected");
+    else if (d->m_scriptAccess.m_handler && d->m_scriptAccess.m_handler->isRunning(sshParameters()))
+        return Tr::tr("Connected (fallback)");
+
     return IDevice::deviceStateToString();
 }
 

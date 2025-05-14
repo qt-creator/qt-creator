@@ -13,7 +13,9 @@
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdialect.h>
@@ -316,7 +318,24 @@ void QuickTestParser::handleDirectoryChanged(const FilePath &directory)
 
 void QuickTestParser::doUpdateWatchPaths(const FilePaths &directories)
 {
+    FilePaths builddirs;
+    if (const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject()) {
+        for (const ProjectExplorer::Target *target : project->targets()) {
+            for (const ProjectExplorer::BuildConfiguration *bc : target->buildConfigurations()) {
+                FilePath builddir = bc->buildDirectory();
+                if (!builddir.isEmpty())
+                    builddirs.append(bc->buildDirectory());
+            }
+        }
+    }
+
     for (const FilePath &dir : directories) {
+        // do not watch any build dir or any of the content
+        if (Utils::anyOf(builddirs, [dir](const FilePath &builddir) {
+                return dir.isChildOf(builddir);
+            })) {
+            continue;
+        }
         m_directoryWatcher.addDirectory(dir, FileSystemWatcher::WatchAllChanges);
         m_watchedFiles[dir] = qmlFilesWithMTime(dir);
     }

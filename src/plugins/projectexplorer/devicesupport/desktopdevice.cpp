@@ -75,6 +75,36 @@ DesktopDevice::DesktopDevice()
 
         return {};
     });
+
+    struct DeployToolsAvailability
+    {
+        bool rsync;
+        bool sftp;
+    };
+
+    static auto hostDeployTools = []() -> DeployToolsAvailability
+    {
+        static auto check = [](const QString &tool) {
+            return FilePath::fromPathPart(tool).searchInPath().isExecutableFile();
+        };
+        return {check("rsync"), check("sftp")};
+    };
+
+    auto updateExtraData = [this](const DeployToolsAvailability &tools) {
+        setExtraData(Constants::SUPPORTS_RSYNC, tools.rsync);
+        setExtraData(Constants::SUPPORTS_SFTP, tools.sftp);
+    };
+
+    if (HostOsInfo::isWindowsHost()) {
+        QFutureWatcher<DeployToolsAvailability> *w = new QFutureWatcher<DeployToolsAvailability>(this);
+        connect(w, &QFutureWatcher<DeployToolsAvailability>::finished, this, [w, updateExtraData]() {
+            updateExtraData(w->result());
+            w->deleteLater();
+        });
+        w->setFuture(Utils::asyncRun([]() { return hostDeployTools(); }));
+    } else {
+        updateExtraData(hostDeployTools());
+    }
 }
 
 DesktopDevice::~DesktopDevice() = default;
@@ -130,39 +160,9 @@ FilePath DesktopDevice::rootPath() const
     return IDevice::rootPath();
 }
 
-struct DeployToolsAvailability
-{
-    bool rsync;
-    bool sftp;
-};
-
-static DeployToolsAvailability hostDeployTools()
-{
-    auto check = [](const QString &tool) {
-        return FilePath::fromPathPart(tool).searchInPath().isExecutableFile();
-    };
-    return {check("rsync"), check("sftp")};
-}
-
 void DesktopDevice::fromMap(const Store &map)
 {
     IDevice::fromMap(map);
-
-    auto updateExtraData = [this](const DeployToolsAvailability &tools) {
-        setExtraData(Constants::SUPPORTS_RSYNC, tools.rsync);
-        setExtraData(Constants::SUPPORTS_SFTP, tools.sftp);
-    };
-
-    if (HostOsInfo::isWindowsHost()) {
-        QFutureWatcher<DeployToolsAvailability> *w = new QFutureWatcher<DeployToolsAvailability>(this);
-        connect(w, &QFutureWatcher<DeployToolsAvailability>::finished, this, [w, updateExtraData]() {
-            updateExtraData(w->result());
-            w->deleteLater();
-        });
-        w->setFuture(Utils::asyncRun([]() { return hostDeployTools(); }));
-    } else {
-        updateExtraData(hostDeployTools());
-    }
 }
 
 } // namespace ProjectExplorer

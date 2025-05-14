@@ -257,13 +257,25 @@ __archive_mktempx(const char *tmpdir, wchar_t *template)
 	ws = NULL;
 	archive_string_init(&temp_name);
 
-	if (template == NULL) {
+    typedef DWORD(WINAPI * GetTempPathFuncPtr)(DWORD, LPWSTR);
+
+    // We try to resolve GetTempPath2 and use that, otherwise fall back to GetTempPath:
+    static GetTempPathFuncPtr getTempPathW = 0;
+    if (!getTempPathW) {
+        const HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
+        getTempPathW = (GetTempPathFuncPtr) GetProcAddress(kernel32, "GetTempPath2W");
+        if (!getTempPathW) {
+            getTempPathW = GetTempPathW;
+        }
+    }
+
+    if (template == NULL) {
 		/* Get a temporary directory. */
 		if (tmpdir == NULL) {
 			size_t l;
 			wchar_t *tmp;
 
-			l = GetTempPathW(0, NULL);
+			l = getTempPathW(0, NULL);
 			if (l == 0) {
 				la_dosmaperr(GetLastError());
 				goto exit_tmpfile;
@@ -273,7 +285,7 @@ __archive_mktempx(const char *tmpdir, wchar_t *template)
 				errno = ENOMEM;
 				goto exit_tmpfile;
 			}
-			GetTempPathW((DWORD)l, tmp);
+			getTempPathW((DWORD)l, tmp);
 			archive_wstrcpy(&temp_name, tmp);
 			free(tmp);
 		} else {

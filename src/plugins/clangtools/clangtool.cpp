@@ -17,6 +17,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -970,10 +971,10 @@ void ClangTool::initDiagnosticView()
 void ClangTool::loadDiagnosticsFromFiles()
 {
     // Ask user for files
-    const FilePaths filePaths
-        = FileUtils::getOpenFilePaths(Tr::tr("Select YAML Files with Diagnostics"),
-                                      FileUtils::homePath(),
-                                      Tr::tr("YAML Files (*.yml *.yaml);;All Files (*)"));
+    const FilePaths filePaths = FileUtils::getOpenFilePaths(
+        Tr::tr("Select YAML Files with Diagnostics"),
+        FileUtils::homePath(),
+        Tr::tr("YAML Files (*.yml *.yaml)") + ";;" + DocumentManager::allFilesFilterString());
     if (filePaths.isEmpty())
         return;
 

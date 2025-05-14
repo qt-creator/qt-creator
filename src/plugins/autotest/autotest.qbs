@@ -121,6 +121,7 @@ QtcPlugin {
             "loadprojectscenario.cpp",
             "loadprojectscenario.h",
         ]
+        cpp.defines: outer.concat([ 'QTCREATORDIR="' + project.ide_source_tree + '"' ])
     }
 
     QtcTestResources {

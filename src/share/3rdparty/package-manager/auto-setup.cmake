@@ -260,7 +260,7 @@ macro(qtc_auto_setup_vcpkg)
       PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/vcpkg.json")
 
     find_program(vcpkg_program vcpkg
-      PATHS $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg ${CMAKE_SOURCE_DIR}/3rdparty/vcpkg
+      PATHS ${CMAKE_SOURCE_DIR}/vcpkg ${CMAKE_SOURCE_DIR}/3rdparty/vcpkg $ENV{VCPKG_ROOT}
       NO_DEFAULT_PATH
     )
     if (NOT vcpkg_program)
@@ -317,7 +317,11 @@ macro(qtc_auto_setup_vcpkg)
             set(ENV{ANDROID_NDK_HOME} \"${ANDROID_NDK}\")
           ")
         elseif (WIN32)
-          set(vcpkg_triplet x64-mingw-static)
+          if ("$ENV{PROCESSOR_ARCHITECTURE}" STREQUAL "ARM64")
+            set(vcpkg_triplet arm64-mingw-static)
+          else()
+            set(vcpkg_triplet x64-mingw-static)
+          endif()
           if (CMAKE_CXX_COMPILER MATCHES ".*/(.*)/cl.exe")
             string(TOLOWER ${CMAKE_MATCH_1} host_arch_lowercase)
             set(vcpkg_triplet ${host_arch_lowercase}-windows)
@@ -334,7 +338,16 @@ macro(qtc_auto_setup_vcpkg)
             set(vcpkg_triplet x64-osx)
           endif()
         else()
-          set(vcpkg_triplet x64-linux)
+          # We're too early to use CMAKE_HOST_SYSTEM_PROCESSOR
+          execute_process(
+            COMMAND uname -m
+            OUTPUT_VARIABLE __linux_host_system_processor
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+          if (__linux_host_system_processor MATCHES "aarch64")
+            set(vcpkg_triplet arm64-linux)
+          else()
+            set(vcpkg_triplet x64-linux)
+          endif()
         endif()
       endif()
 

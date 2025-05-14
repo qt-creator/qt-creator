@@ -14,8 +14,10 @@ void reinitDashboard(const QString &projectName);
 void resetDashboard();
 void updateIssueDetails(const QString &html);
 void updateNamedFilters();
+void updateLocalBuildStateFor(const QString &projectName, const QString &state, int percent);
 
-void leaveOrEnterDashboardMode();
+void leaveOrEnterDashboardMode(bool byLocalBuildButton);
+bool currentIssueHasValidPathMapping();
 
 void setupAxivionPerspective();
 

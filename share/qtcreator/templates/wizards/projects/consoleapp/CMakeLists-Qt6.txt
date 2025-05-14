@@ -24,3 +24,11 @@ target_link_libraries(%{ProjectName}
     PRIVATE
         Qt::Core
 )
+
+include(GNUInstallDirs)
+
+install(TARGETS %{ProjectName}
+    BUNDLE  DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)

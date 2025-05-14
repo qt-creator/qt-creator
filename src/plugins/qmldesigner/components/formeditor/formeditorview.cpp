@@ -729,12 +729,11 @@ void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, Inf
         const QmlItemNode qmlItemNode(node);
         if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
             scene()->synchronizeTransformation(item);
-            auto nodeValues = informationChangedHash.values(node);
-            if (qmlItemNode.isRootModelNode()
-                && (informationChangedHash.values(node).contains(Size)
-                    || informationChangedHash.values(node).contains(ImplicitSize)))
-                setupRootItemSize();
-
+            if (qmlItemNode.isRootModelNode()) {
+                const auto nodeValues = informationChangedHash.values(node);
+                if (nodeValues.contains(Size) || nodeValues.contains(ImplicitSize))
+                    setupRootItemSize();
+            }
             changedItems.append(item);
         }
     }

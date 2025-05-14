@@ -5,6 +5,7 @@
 
 #include "remotelinuxtr.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -53,7 +54,6 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const DeviceConstRef &devic
         const bool succeeded = m_process.result() == ProcessResult::FinishedWithSuccess;
         Result<> result = ResultOk;
         if (!succeeded) {
-            const QString errorString = m_process.errorString();
             const QString errorMessage = m_process.exitMessage(
                 Process::FailureMessageFormat::WithStdErr);
             result = ResultError(Utils::joinStrings({Tr::tr("Key deployment failed."),
@@ -122,8 +122,10 @@ bool runPublicKeyDeploymentDialog(const DeviceConstRef &device, const FilePath &
     if (keyPath.isEmpty()) {
         const FilePath dir = device.sshParameters().privateKeyFile().parentDir();
         keyPath = FileUtils::getOpenFilePath(
-            Tr::tr("Choose Public Key File"), dir,
-            Tr::tr("Public Key Files (*.pub);;All Files (*)"));
+            Tr::tr("Choose Public Key File"),
+            dir,
+            Tr::tr("Public Key Files (*.pub)") + ";;"
+                + Core::DocumentManager::allFilesFilterString());
     }
     if (keyPath.isEmpty())
         return false;

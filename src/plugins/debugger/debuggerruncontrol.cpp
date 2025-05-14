@@ -614,12 +614,16 @@ Result<> EnginesDriver::checkBreakpoints() const
     if (unhandledIds.isEmpty())
         return ResultOk;
 
-    QString warningMessage = Tr::tr("Some breakpoints cannot be handled by the debugger "
-                                    "languages currently active, and will be ignored.<p>"
-                                    "Affected are breakpoints %1").arg(unhandledIds.join(", "));
+    QString warningMessage = Debugger::Tr::tr(
+                                 "Some breakpoints cannot be handled by the debugger "
+                                 "languages currently active, and will be ignored.<p>"
+                                 "Affected are breakpoints %1")
+                                 .arg(unhandledIds.join(", "));
     if (hasQmlBreakpoints) {
-        warningMessage += "<p>" + Tr::tr("QML debugging needs to be enabled both in the Build "
-                                         "and the Run settings.");
+        warningMessage += "<p>"
+                          + Debugger::Tr::tr(
+                              "QML debugging needs to be enabled both in the Build "
+                              "and the Run settings.");
     }
     return ResultError(warningMessage);
 }
@@ -646,11 +650,12 @@ void EnginesDriver::start()
             engine->prepareForRestart();
             if (--m_runningEngines == 0) {
                 const QString cmd = engine->runParameters().inferior().command.toUserOutput();
-                const QString msg = engine->runParameters().exitCode() // Main engine.
-                                        ? Tr::tr("Debugging of %1 has finished with exit code %2.")
-                                              .arg(cmd)
-                                              .arg(*engine->runParameters().exitCode())
-                                        : Tr::tr("Debugging of %1 has finished.").arg(cmd);
+                const QString msg
+                    = engine->runParameters().exitCode() // Main engine.
+                          ? Debugger::Tr::tr("Debugging of %1 has finished with exit code %2.")
+                                .arg(cmd)
+                                .arg(*engine->runParameters().exitCode())
+                          : Debugger::Tr::tr("Debugging of %1 has finished.").arg(cmd);
                 m_runControl->postMessage(msg, NormalMessageFormat);
                 emit done(engine->runParameters().exitCode() ? DoneResult::Error : DoneResult::Success);
             }
@@ -661,7 +666,10 @@ void EnginesDriver::start()
             connect(engine, &DebuggerEngine::attachToCoreRequested, this, [this](const QString &coreFile) {
                 auto rc = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
                 rc->copyDataFromRunControl(m_runControl);
-                auto name = QString(Tr::tr("%1 - Snapshot %2").arg(m_runControl->displayName()).arg(++m_snapshotCounter));
+                auto name = QString(
+                    Debugger::Tr::tr("%1 - Snapshot %2")
+                        .arg(m_runControl->displayName())
+                        .arg(++m_snapshotCounter));
                 DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(rc);
                 rp.setStartMode(AttachToCore);
                 rp.setCloseMode(DetachAtClose);

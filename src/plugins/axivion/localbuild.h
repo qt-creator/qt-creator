@@ -7,8 +7,20 @@
 
 namespace Axivion::Internal {
 
+struct LocalDashboardAccess
+{
+    QString user;
+    QString password;
+    QString url;
+};
+
 void checkForLocalBuildResults(const QString &projectName, const std::function<void()> &callback);
 void startLocalDashboard(const QString &projectName, const std::function<void()> &callback);
 bool shutdownAllLocalDashboards(const std::function<void()> &callback);
+
+std::optional<LocalDashboardAccess> localDashboardAccessFor(const QString &projectName);
+
+bool startLocalBuild(const QString &projectName);
+bool hasRunningLocalBuild(const QString &projectName);
 
 } // namespace Axivion::Internal

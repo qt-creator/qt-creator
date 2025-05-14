@@ -24,6 +24,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
@@ -1157,9 +1158,10 @@ void CallgrindTool::slotRequestDump()
 void CallgrindTool::loadExternalLogFile()
 {
     const FilePath filePath = FileUtils::getOpenFilePath(
-                Tr::tr("Open Callgrind Log File"),
-                {},
-                Tr::tr("Callgrind Output (callgrind.out*);;All Files (*)"));
+        Tr::tr("Open Callgrind Log File"),
+        {},
+        Tr::tr("Callgrind Output (callgrind.out*)") + ";;"
+            + Core::DocumentManager::allFilesFilterString());
     if (filePath.isEmpty())
         return;
 

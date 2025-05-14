@@ -3,6 +3,8 @@
 
 #include "widgettextcontrol.h"
 
+#include "../utilstr.h"
+
 #include <QAccessible>
 #include <QApplication>
 #include <QBasicTimer>
@@ -2444,18 +2446,18 @@ QMenu *WidgetTextControl::createStandardContextMenu(const QPointF &pos, QWidget 
     QAction *a;
 
     if (d->interactionFlags & Qt::TextEditable) {
-        a = menu->addAction(tr("&Undo") + ACCEL_KEY(QKeySequence::Undo), this, SLOT(undo()));
+        a = menu->addAction(Tr::tr("&Undo") + ACCEL_KEY(QKeySequence::Undo), this, SLOT(undo()));
         a->setEnabled(d->doc->isUndoAvailable());
         a->setObjectName(QStringLiteral("edit-undo"));
         setActionIcon(a, QStringLiteral("edit-undo"));
-        a = menu->addAction(tr("&Redo") + ACCEL_KEY(QKeySequence::Redo), this, SLOT(redo()));
+        a = menu->addAction(Tr::tr("&Redo") + ACCEL_KEY(QKeySequence::Redo), this, SLOT(redo()));
         a->setEnabled(d->doc->isRedoAvailable());
         a->setObjectName(QStringLiteral("edit-redo"));
         setActionIcon(a, QStringLiteral("edit-redo"));
         menu->addSeparator();
 
 #ifndef QT_NO_CLIPBOARD
-        a = menu->addAction(tr("Cu&t") + ACCEL_KEY(QKeySequence::Cut), this, SLOT(cut()));
+        a = menu->addAction(Tr::tr("Cu&t") + ACCEL_KEY(QKeySequence::Cut), this, SLOT(cut()));
         a->setEnabled(d->cursor.hasSelection());
         a->setObjectName(QStringLiteral("edit-cut"));
         setActionIcon(a, QStringLiteral("edit-cut"));
@@ -2464,7 +2466,7 @@ QMenu *WidgetTextControl::createStandardContextMenu(const QPointF &pos, QWidget 
 
 #ifndef QT_NO_CLIPBOARD
     if (showTextSelectionActions) {
-        a = menu->addAction(tr("&Copy") + ACCEL_KEY(QKeySequence::Copy), this, SLOT(copy()));
+        a = menu->addAction(Tr::tr("&Copy") + ACCEL_KEY(QKeySequence::Copy), this, SLOT(copy()));
         a->setEnabled(d->cursor.hasSelection());
         a->setObjectName(QStringLiteral("edit-copy"));
         setActionIcon(a, QStringLiteral("edit-copy"));
@@ -2472,8 +2474,7 @@ QMenu *WidgetTextControl::createStandardContextMenu(const QPointF &pos, QWidget 
 
     if ((d->interactionFlags & Qt::LinksAccessibleByKeyboard)
         || (d->interactionFlags & Qt::LinksAccessibleByMouse)) {
-
-        a = menu->addAction(tr("Copy &Link Location"), this, SLOT(_q_copyLink()));
+        a = menu->addAction(Tr::tr("Copy &Link Location"), this, SLOT(_q_copyLink()));
         a->setEnabled(!d->linkToCopy.isEmpty());
         a->setObjectName(QStringLiteral("link-copy"));
     }
@@ -2481,12 +2482,12 @@ QMenu *WidgetTextControl::createStandardContextMenu(const QPointF &pos, QWidget 
 
     if (d->interactionFlags & Qt::TextEditable) {
 #ifndef QT_NO_CLIPBOARD
-        a = menu->addAction(tr("&Paste") + ACCEL_KEY(QKeySequence::Paste), this, SLOT(paste()));
+        a = menu->addAction(Tr::tr("&Paste") + ACCEL_KEY(QKeySequence::Paste), this, SLOT(paste()));
         a->setEnabled(canPaste());
         a->setObjectName(QStringLiteral("edit-paste"));
         setActionIcon(a, QStringLiteral("edit-paste"));
 #endif
-        a = menu->addAction(tr("Delete"), this, SLOT(_q_deleteSelected()));
+        a = menu->addAction(Tr::tr("Delete"), this, SLOT(_q_deleteSelected()));
         a->setEnabled(d->cursor.hasSelection());
         a->setObjectName(QStringLiteral("edit-delete"));
         setActionIcon(a, QStringLiteral("edit-delete"));
@@ -2495,7 +2496,8 @@ QMenu *WidgetTextControl::createStandardContextMenu(const QPointF &pos, QWidget 
 
     if (showTextSelectionActions) {
         menu->addSeparator();
-        a = menu->addAction(tr("Select All") + ACCEL_KEY(QKeySequence::SelectAll), this, SLOT(selectAll()));
+        a = menu->addAction(
+            Tr::tr("Select All") + ACCEL_KEY(QKeySequence::SelectAll), this, SLOT(selectAll()));
         a->setEnabled(!d->doc->isEmpty());
         a->setObjectName(QStringLiteral("select-all"));
         setActionIcon(a, QStringLiteral("edit-select-all"));
@@ -3483,9 +3485,9 @@ const struct QUnicodeControlCharacter {
 UnicodeControlCharacterMenu::UnicodeControlCharacterMenu(QObject *_editWidget, QWidget *parent)
     : QMenu(parent), editWidget(_editWidget)
 {
-    setTitle(tr("Insert Unicode control character"));
+    setTitle(Tr::tr("Insert Unicode control character"));
     for (int i = 0; i < NUM_CONTROL_CHARACTERS; ++i) {
-        addAction(tr(qt_controlCharacters[i].text), this, SLOT(menuActionTriggered()));
+        addAction(Tr::tr(qt_controlCharacters[i].text), this, SLOT(menuActionTriggered()));
     }
 }
 

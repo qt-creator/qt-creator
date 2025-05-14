@@ -296,9 +296,6 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     setLayout(formLayout);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    if (dev->avdName().isEmpty())
-        return;
-
     formLayout->addRow(Tr::tr("Device name:"), new QLabel(dev->displayName()));
     formLayout->addRow(Tr::tr("Device type:"), new QLabel(dev->deviceTypeName()));
 

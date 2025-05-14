@@ -82,6 +82,8 @@ extend_qtc_plugin(AutoTest
   SOURCES
     autotestunittests.cpp autotestunittests.h
     loadprojectscenario.cpp loadprojectscenario.h
+  DEFINES
+    QTCREATORDIR="${PROJECT_SOURCE_DIR}"
 )
 
 file(GLOB_RECURSE images RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} images/*)

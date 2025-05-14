@@ -151,13 +151,12 @@ public:
         m_searcher = new QtcSearchBox(this);
         m_searcher->setPlaceholderText(Tr::tr("Search in Qt Academy Courses..."));
 
-        m_model = new ListModel;
-        m_model->setPixmapFunction([this](const QString &url) -> QPixmap {
+        m_model.setPixmapFunction([this](const QString &url) -> QPixmap {
             queueImageForDownload(url);
             return {};
         });
 
-        m_filteredModel = new ListModelFilter(m_model, this);
+        m_filteredModel = new ListModelFilter(&m_model, this);
 
         m_view = new GridView;
         m_view->setModel(m_filteredModel);
@@ -216,10 +215,10 @@ private:
             if (result == DoneWith::Success) {
                 qCDebug(qtAcademyLog).noquote() << "JSON response size:"
                                                 << QLocale::system().formattedDataSize(response.size());
-                setJson(response, m_model);
+                setJson(response, &m_model);
             } else {
                 qCWarning(qtAcademyLog).noquote() << response;
-                setJson({}, m_model);
+                setJson({}, &m_model);
             }
             m_spinner->hide();
         };
@@ -240,12 +239,11 @@ private:
 
     void updateModelIndexesForUrl(const QString &url)
     {
-        const QList<ListItem *> items = m_model->items();
+        const QList<ListItem *> items = m_model.items();
         for (int row = 0, end = items.size(); row < end; ++row) {
             if (items.at(row)->imageUrl == url) {
-                const QModelIndex index = m_model->index(row);
-                emit m_model->dataChanged(index, index, {ListModel::ItemImageRole,
-                                                         Qt::DisplayRole});
+                const QModelIndex index = m_model.index(row);
+                emit m_model.dataChanged(index, index, {ListModel::ItemImageRole, Qt::DisplayRole});
             }
         }
     }
@@ -308,7 +306,7 @@ private:
     }
 
     QLineEdit *m_searcher;
-    ListModel *m_model;
+    ListModel m_model;
     ListModelFilter *m_filteredModel;
     GridView *m_view;
     CourseItemDelegate m_delegate;

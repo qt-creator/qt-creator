@@ -20,6 +20,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
@@ -861,9 +862,9 @@ void MemcheckTool::loadShowXmlLogFile(const QString &filePath, const QString &ex
 void MemcheckTool::loadExternalXmlLogFile()
 {
     const FilePath filePath = FileUtils::getOpenFilePath(
-                Tr::tr("Open Memcheck XML Log File"),
-                {},
-                Tr::tr("XML Files (*.xml);;All Files (*)"));
+        Tr::tr("Open Memcheck XML Log File"),
+        {},
+        Tr::tr("XML Files (*.xml)") + ";;" + DocumentManager::allFilesFilterString());
     if (filePath.isEmpty())
         return;
 
