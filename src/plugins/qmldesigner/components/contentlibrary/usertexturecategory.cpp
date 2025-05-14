@@ -28,8 +28,10 @@ void UserTextureCategory::loadBundle(bool force)
 
     m_bundlePath.ensureWritableDir();
     m_bundlePath.pathAppended("icons").ensureWritableDir();
+    QStringList supportedImageSuffixes = Asset::supportedImageSuffixes();
+    supportedImageSuffixes.append("*.hdr");
 
-    addItems(m_bundlePath.dirEntries({Asset::supportedImageSuffixes(), QDir::Files}));
+    addItems(m_bundlePath.dirEntries({supportedImageSuffixes, QDir::Files}));
 
     m_bundleLoaded = true;
 }
