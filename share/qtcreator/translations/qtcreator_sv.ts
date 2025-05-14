@@ -45051,8 +45051,8 @@ Dessa filer behålls.</numerusform>
         <translation>Installerar PySide</translation>
     </message>
     <message>
-        <source>You can install PySide from PyPi (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
-        <translation>Du kan installera PySide från PyPi (Community OSS-version) eller från din Qt-installationsplats, om du använder Qt-installeraren och har en kommersiell licens.</translation>
+        <source>You can install PySide from PyPI (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
+        <translation>Du kan installera PySide från PyPI (Community OSS-version) eller från din Qt-installationsplats, om du använder Qt-installeraren och har en kommersiell licens.</translation>
     </message>
     <message>
         <source>Select which version to install:</source>

@@ -47289,7 +47289,7 @@ Choisissez un chemin différent.</translation>
         <translation>Installation de PySide</translation>
     </message>
     <message>
-        <source>You can install PySide from PyPi (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
+        <source>You can install PySide from PyPI (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
         <translation>Vous pouvez installer PySide depuis PyPI (version OSS communautaire) ou depuis votre installation de Qt, si vous utilisez l&apos;installateur Qt et que vous avez une licence commerciale.</translation>
     </message>
     <message>

@@ -148,10 +148,12 @@ void PySideInstaller::installPyside(const FilePath &python, const QString &pySid
         hlayout->addWidget(new QLabel("<b>" + Tr::tr("Installing PySide") + "</b>"));
         dialogLayout->addLayout(hlayout);
 
-        QLabel *installDescription = new QLabel(Tr::tr("You can install PySide "
-                                                       "from PyPi (Community OSS version) or from your Qt "
-                                                       "installation location, if you are using the Qt "
-                                                       "Installer and have a commercial license."));
+        QLabel *installDescription = new QLabel(
+            Tr::tr(
+                "You can install PySide "
+                "from PyPI (Community OSS version) or from your Qt "
+                "installation location, if you are using the Qt "
+                "Installer and have a commercial license."));
         installDescription->setWordWrap(true);
         dialogLayout->addWidget(installDescription);
 

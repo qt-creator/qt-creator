@@ -47208,7 +47208,7 @@ Wählen Sie einen anderen Pfad.</translation>
         <translation>Installiere PySide</translation>
     </message>
     <message>
-        <source>You can install PySide from PyPi (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
+        <source>You can install PySide from PyPI (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
         <translation>Sie können PySide von PyPI (Community OSS-Version) oder, falls Sie den Qt-Installer verwenden und eine kommerzielle Lizenz besitzen, von Ihrer Qt-Installation installieren.</translation>
     </message>
     <message>
