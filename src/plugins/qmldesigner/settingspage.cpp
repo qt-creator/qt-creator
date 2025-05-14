@@ -464,9 +464,9 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_askBeforeDeletingAssetCheckBox->setChecked(
         settings.value(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool());
 
-    const auto showDebugSettings = settings.value(DesignerSettingsKey::SHOW_DEBUG_SETTINGS,
-                                                  Utils::qtcEnvironmentVariableIsSet("QTC_SHOW_QTQUICKDESIGNER_DEVELOPER_UI")
-                                                  ).toBool();
+    const auto showDebugSettings = settings.value(DesignerSettingsKey::SHOW_DEBUG_SETTINGS).toBool()
+                                   || Utils::qtcEnvironmentVariableIsSet(
+                                       "QTC_SHOW_QTQUICKDESIGNER_DEVELOPER_UI");
 
     const bool showAdvancedFeatures = !Core::ICore::isQtDesignStudio() || showDebugSettings;
     m_qmlPuppetGroupBox->setVisible(showAdvancedFeatures);
