@@ -1566,11 +1566,12 @@ void CMakeBuildSystem::checkAndReportError(QString &errorMessage)
 
 static QSet<FilePath> projectFilesToWatch(const QSet<CMakeFileInfo> &cmakeFiles)
 {
-    return Utils::transform(Utils::filtered(cmakeFiles,
-                                            [](const CMakeFileInfo &info) {
-                                                return !info.isGenerated;
-                                            }),
-                            [](const CMakeFileInfo &info) { return info.path; });
+    QSet<FilePath> result;
+    for (const CMakeFileInfo &info : cmakeFiles) {
+        if (!info.isGenerated && !info.isCMake && !info.isExternal)
+            result.insert(info.path);
+    }
+    return result;
 }
 
 void CMakeBuildSystem::updateProjectData()
