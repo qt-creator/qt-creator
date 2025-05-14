@@ -102,7 +102,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
                                  "IncrediBuild behavior is to set it to 200."));
 
     profileXml.setSettingsKey("IncrediBuild.BuildConsole.ProfileXml");
-    profileXml.setLabelText(Tr::tr("Profile.xml:"));
+    profileXml.setLabelText("Profile.xml:");
     profileXml.setExpectedKind(PathChooser::Kind::File);
     profileXml.setBaseFileName(PathChooser::homePath());
     profileXml.setHistoryCompleter("IncrediBuild.BuildConsole.ProfileXml.History");
