@@ -11495,9 +11495,7 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <translation>XXXHDPI</translation>
     </message>
     <message>
-        <source>An image is used for the splashscreen. Qt Creator manages
-splashscreen by using a different method which requires changing
-the manifest file by overriding your settings. Allow override?</source>
+        <source>An image is used for the splashscreen. Qt Creator manages splashscreen by using a different method which requires changing the manifest file by overriding your settings. Allow override?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -46998,9 +46996,7 @@ The following files or directories are missing:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File created:
-
-%1</source>
+        <source>File created:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -275,8 +275,9 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
                 }
 
                 if (!json.isObject()) {
-                    verboseLog.append(Tr::tr("* Did not find a JSON object in \"%1\".\n")
-                                      .arg(configFile.fileName()));
+                    verboseLog.append(
+                        Tr::tr("* Did not find a JSON object in \"%1\".").arg(configFile.fileName())
+                        + "\n");
                     continue;
                 }
 

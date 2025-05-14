@@ -120,8 +120,8 @@ QString CocoCMakeSettings::saveButtonText() const
 QString CocoCMakeSettings::configChanges() const
 {
     return "<table><tbody>"
-           + tableRow(Tr::tr("Additional CMake options: "), maybeQuote(initialCacheOption()))
-           + tableRow(Tr::tr("Initial cache script: "), maybeQuote(featureFilePath()))
+           + tableRow(Tr::tr("Additional CMake options:"), maybeQuote(initialCacheOption()))
+           + tableRow(Tr::tr("Initial cache script:"), maybeQuote(featureFilePath()))
            + "</tbody></table>";
 }
 

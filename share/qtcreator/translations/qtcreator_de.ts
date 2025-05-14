@@ -13266,12 +13266,8 @@ Rufen Sie QtAndroid::hideSplashScreen() auf, um einen Startbildschirm zu verstec
         <translation>XXXHDPI</translation>
     </message>
     <message>
-        <source>An image is used for the splashscreen. Qt Creator manages
-splashscreen by using a different method which requires changing
-the manifest file by overriding your settings. Allow override?</source>
-        <translation>Für den Startbildschirm wird ein Bild verwendet. Qt Creator verwaltet
-Startbildschirme auf andere Weise, was eine Änderung der Manifest-Datei
-und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlauben?</translation>
+        <source>An image is used for the splashscreen. Qt Creator manages splashscreen by using a different method which requires changing the manifest file by overriding your settings. Allow override?</source>
+        <translation>Für den Startbildschirm wird ein Bild verwendet. Qt Creator verwaltet Startbildschirme auf andere Weise, was eine Änderung der Manifest-Datei und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlauben?</translation>
     </message>
     <message>
         <source>Convert</source>
@@ -19548,12 +19544,12 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <translation>Speichern &amp;&amp; neu konfigurieren</translation>
     </message>
     <message>
-        <source>Additional CMake options: </source>
-        <translation>Zusätzliche CMake-Optionen: </translation>
+        <source>Additional CMake options:</source>
+        <translation>Zusätzliche CMake-Optionen:</translation>
     </message>
     <message>
-        <source>Initial cache script: </source>
-        <translation>Skript für initialen Cache: </translation>
+        <source>Initial cache script:</source>
+        <translation>Skript für initialen Cache:</translation>
     </message>
     <message>
         <source>Overwrite file &quot;%1&quot;.</source>
@@ -19668,16 +19664,16 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <translation>Speichern</translation>
     </message>
     <message>
-        <source>Additional qmake arguments: </source>
-        <translation>Zusätzliche qmake-Argumente: </translation>
+        <source>Additional qmake arguments:</source>
+        <translation>Zusätzliche qmake-Argumente:</translation>
     </message>
     <message>
-        <source>Build environment: </source>
-        <translation>Build-Umgebung: </translation>
+        <source>Build environment:</source>
+        <translation>Build-Umgebung:</translation>
     </message>
     <message>
-        <source>Feature file: </source>
-        <translation>Feature-Datei: </translation>
+        <source>Feature file:</source>
+        <translation>Feature-Datei:</translation>
     </message>
     <message>
         <source>Error: Coco installation directory not set. (This can&apos;t happen.)</source>
@@ -35386,7 +35382,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <translation>Log des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Clean Project  Directory...</source>
+        <source>Clean Project Directory...</source>
         <extracomment>Avoid translating &quot;Clean&quot;</extracomment>
         <translation>Clean des Projektverzeichnisses...</translation>
     </message>
@@ -38148,12 +38144,8 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
         <translation>Installiere Paket</translation>
     </message>
     <message>
-        <source>The extension &quot;%1&quot; wants to install the following package(s):
-
-</source>
-        <translation>Die Erweiterung &quot;%1&quot; möchte folgende Pakete installieren:
-
-</translation>
+        <source>The extension &quot;%1&quot; wants to install the following package(s):</source>
+        <translation>Die Erweiterung &quot;%1&quot; möchte folgende Pakete installieren:</translation>
     </message>
     <message>
         <source>Install</source>
@@ -45184,12 +45176,6 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>* Konfiguration gefunden und ausgewertet.</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Konnte kein JSON-Objekt in &quot;%1&quot; finden.
-</translation>
-    </message>
-    <message>
         <source>* Version %1 not supported.</source>
         <translation>* Version %1 nicht unterstützt.</translation>
     </message>
@@ -52093,12 +52079,8 @@ Qt Design Studio benötigt zum Öffnen der .ui.qml-Datei ein .qmlproject-basiert
         <translation>Projektdatei erstellt</translation>
     </message>
     <message>
-        <source>File created:
-
-%1</source>
-        <translation>Datei erstellt:
-
-%1</translation>
+        <source>File created:</source>
+        <translation>Datei erstellt:</translation>
     </message>
     <message>
         <source>Select File Location</source>
@@ -53632,10 +53614,8 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
         <translation>Das Gerät war bei einem vorherigen Verbindungsversuch nicht erreichbar.&lt;br&gt;Es werden keine weiteren Verbindungsversuche unternommen, bis das Gerät manuell über einen erfolgreichen Verbindungstest in den &lt;a href=&quot;dummy&quot;&gt;Einstellungen&lt;/a&gt; zurückgesetzt wurde.</translation>
     </message>
     <message>
-        <source>Created directory: &quot;%1&quot;.
-</source>
-        <translation>Verzeichnis wurde erstellt: &quot;%1&quot;.
-</translation>
+        <source>Created directory: &quot;%1&quot;.</source>
+        <translation>Verzeichnis wurde erstellt: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Copied %1/%2: &quot;%3&quot; -&gt; &quot;%4&quot;.
@@ -63700,8 +63680,8 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Andere Elementattribute</translation>
     </message>
     <message>
-        <source>Number of matching elements: </source>
-        <translation>Anzahl der übereinstimmenden Elemente: </translation>
+        <source>Number of matching elements:</source>
+        <translation>Anzahl der übereinstimmenden Elemente:</translation>
     </message>
 </context>
 <context>
