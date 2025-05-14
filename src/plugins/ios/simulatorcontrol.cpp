@@ -532,8 +532,8 @@ void launchApp(QPromise<SimulatorControl::Response> &promise,
     response.inferiorPid = pIdStr.toLongLong(&validPid);
 
     if (!validPid) {
-        promise.addResult(
-            make_unexpected(Tr::tr("Failed to convert inferior pid. (%1)").arg(pIdStr)));
+        promise.addResult(make_unexpected(
+            Tr::tr("Failed to parse the inferior PID from simctl output (%1).").arg(pIdStr)));
         return;
     }
 
