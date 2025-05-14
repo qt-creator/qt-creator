@@ -319,7 +319,8 @@ void setupInstallModule()
                         auto tree = state.createTree();
 
                         auto progress = new TaskProgress(tree);
-                        progress->setDisplayName(Tr::tr("Installing package(s) %1").arg("..."));
+                        progress->setDisplayName(
+                            Tr::tr("Installing %n package(s)...", "", installOptionsList.size()));
 
                         tree->setRecipe(
                             installRecipe(pluginSpec->appDataPath, installOptionsList, callback));
@@ -338,8 +339,10 @@ void setupInstallModule()
 
                         const QString details
                             = Tr::tr(
-                                  "The extension \"%1\" wants to install the following "
-                                  "package(s):")
+                                  "The extension \"%1\" wants to install the following %n "
+                                  "package(s):",
+                                  "",
+                                  installOptionsList.size())
                                   .arg(pluginSpec->name)
                               + "\n\n"
                               + transform(installOptionsList, [](const InstallOptions &options) {
@@ -376,8 +379,10 @@ void setupInstallModule()
 
                     const QString details
                         = Tr::tr(
-                              "The extension \"%1\" wants to install the following "
-                              "package(s):")
+                              "The extension \"%1\" wants to install the following %n "
+                              "package(s):",
+                              "",
+                              installOptionsList.size())
                               .arg("**" + pluginSpec->name + "**") // markdown bold
                           + "\n\n"
                           + transform(installOptionsList, [](const InstallOptions &options) {
