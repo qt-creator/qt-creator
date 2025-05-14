@@ -1,8 +1,11 @@
-// Copyright (C) 2022 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// Copyright (C) 2025 Jarek Kobus
+// Copyright (C) 2025 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
 #include <tasking/barrier.h>
-#include <tasking/concurrentcall.h>
+#if QT_CONFIG(concurrent)
+#  include <tasking/concurrentcall.h>
+#endif
 #include <tasking/conditional.h>
 #include <tasking/tasktreerunner.h>
 
@@ -116,8 +119,10 @@ private slots:
     void runtimeCheck(); // checks done on runtime
     void testTree_data();
     void testTree();
+#if QT_CONFIG(concurrent)
     void testInThread_data();
     void testInThread();
+#endif
     void storageIO_data();
     void storageIO();
     void storageOperators();
@@ -353,7 +358,7 @@ void tst_Tasking::runtimeCheck()
     }
 }
 
-class TickAndDone : public QObject
+class TickAndDone final : public QObject
 {
     Q_OBJECT
 
@@ -4064,6 +4069,8 @@ void tst_Tasking::testTree()
     }
 }
 
+#if QT_CONFIG(concurrent)
+
 void tst_Tasking::testInThread_data()
 {
     QTest::addColumn<TestData>("testData");
@@ -4148,6 +4155,8 @@ void tst_Tasking::testInThread()
     QCOMPARE(CustomStorage::instanceCount(), 0);
     QCOMPARE(result, testData.result);
 }
+
+#endif // QT_CONFIG(concurrent)
 
 struct StorageIO
 {
@@ -4330,12 +4339,12 @@ void tst_Tasking::restart()
     QVERIFY(taskTree.isRunning());
 }
 
-class BrokenTaskAdapter : public TaskAdapter<int>
+class BrokenTaskAdapter final : public TaskAdapter<int>
 {
 public:
     // QTCREATORBUG-30204
     ~BrokenTaskAdapter() { emit done(DoneResult::Success); }
-    void start() {}
+    void start() final {}
 };
 
 using BrokenTask = CustomTask<BrokenTaskAdapter>;
