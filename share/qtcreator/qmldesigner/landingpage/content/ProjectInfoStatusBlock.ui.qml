@@ -53,14 +53,14 @@ Rectangle {
                 id: qtVersionText
                 width: parent.width
                 padding: Theme.Values.spacing
-                text: qsTranslate("QtC::QmlProjectManager", "Qt Version - ") + root.qtVersion
+                text: qsTranslate("QtC::QmlProjectManager", "Qt Version - %1").arg(root.qtVersion)
             }
 
             PageText {
                 id: qdsVersionText
                 width: parent.width
                 padding: Theme.Values.spacing
-                text: qsTranslate("QtC::QmlProjectManager", "Qt Design Studio Version - ") + root.qdsVersion
+                text: qsTranslate("QtC::QmlProjectManager", "Qt Design Studio Version - %1").arg(root.qdsVersion)
             }
         }
 
