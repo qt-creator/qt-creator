@@ -98,6 +98,7 @@ Projects
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-custom-output-parsers.html))
 * Added the option to select `qtpaths` instead of `qmake` when registering
   Qt versions
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-project-qmake.html))
   ([QTCREATORBUG-32213](https://bugreports.qt.io/browse/QTCREATORBUG-32213))
 * Fixed `Open Terminal Here` in run settings
   ([QTCREATORBUG-32841](https://bugreports.qt.io/browse/QTCREATORBUG-32841))
