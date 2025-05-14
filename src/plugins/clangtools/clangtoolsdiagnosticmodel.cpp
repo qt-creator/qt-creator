@@ -278,10 +278,9 @@ static QString fullText(const Diagnostic &diagnostic)
 DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
                                const OnFixitStatusChanged &onFixitStatusChanged,
                                bool generateMark,
-                               ClangToolsDiagnosticModel *parent)
+                               ClangToolsDiagnosticModel *model)
     : m_diagnostic(diag)
     , m_onFixitStatusChanged(onFixitStatusChanged)
-    , m_parentModel(parent)
     , m_mark(generateMark ? new DiagnosticMark(diag) : nullptr)
 {
     if (diag.hasFixits)
@@ -295,7 +294,7 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
     }
 
     if (!diag.explainingSteps.isEmpty())
-        m_parentModel->stepsToItemsCache[diag.explainingSteps].push_back(this);
+        model->stepsToItemsCache[diag.explainingSteps].push_back(this);
 
     for (int i = 0; i < diag.explainingSteps.size(); ++i )
         appendChild(new ExplainingStepItem(diag.explainingSteps[i], i));
@@ -393,6 +392,11 @@ QVariant DiagnosticItem::data(int column, int role) const
     return QVariant();
 }
 
+ClangToolsDiagnosticModel *DiagnosticItem::diagModel() const
+{
+    return qobject_cast<ClangToolsDiagnosticModel *>(model());
+}
+
 bool DiagnosticItem::setData(int column, const QVariant &data, int role)
 {
     if (column == DiagnosticView::DiagnosticColumn && role == Qt::CheckStateRole) {
@@ -404,7 +408,7 @@ bool DiagnosticItem::setData(int column, const QVariant &data, int role)
                                           : FixitStatus::NotScheduled;
 
         setFixItStatus(newStatus);
-        m_parentModel->updateItems(this);
+        diagModel()->updateItems(this);
         return true;
     }
 
@@ -435,7 +439,7 @@ bool DiagnosticItem::hasNewFixIts() const
     if (m_diagnostic.explainingSteps.empty())
         return false;
 
-    return m_parentModel->stepsToItemsCache[m_diagnostic.explainingSteps].front() == this;
+    return diagModel()->stepsToItemsCache[m_diagnostic.explainingSteps].front() == this;
 }
 
 ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step, int index)

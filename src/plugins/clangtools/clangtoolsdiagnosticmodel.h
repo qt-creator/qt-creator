@@ -48,7 +48,7 @@ public:
     DiagnosticItem(const Diagnostic &diag,
                    const OnFixitStatusChanged &onFixitStatusChanged,
                    bool generateMark,
-                   ClangToolsDiagnosticModel *parent);
+                   ClangToolsDiagnosticModel *model);
     ~DiagnosticItem() override;
 
     const Diagnostic &diagnostic() const { return m_diagnostic; }
@@ -66,6 +66,7 @@ public:
 private:
     Qt::ItemFlags flags(int column) const override;
     QVariant data(int column, int role) const override;
+    ClangToolsDiagnosticModel *diagModel() const;
 
 private:
     const Diagnostic m_diagnostic;
@@ -73,7 +74,6 @@ private:
 
     ReplacementOperations  m_fixitOperations;
     FixitStatus m_fixitStatus = FixitStatus::NotAvailable;
-    ClangToolsDiagnosticModel *m_parentModel = nullptr;
     TextEditor::TextMark *m_mark = nullptr;
 };
 
