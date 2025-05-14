@@ -49,6 +49,7 @@ struct Reviews
 class CourseItem : public ListItem
 {
 public:
+    bool isPath{false};
     QString id;
     QString rawName;
     std::optional<Reviews> reviews;
@@ -60,7 +61,10 @@ public:
 
 static QString courseUrl(const CourseItem *item)
 {
-    return QString("https://academy.qt.io/catalog/courses/%1").arg(item->id);
+    if (item->isPath)
+        return QString("https://academy.qt.io/catalog/learning-paths/%1").arg(item->id);
+    else
+        return QString("https://academy.qt.io/catalog/courses/%1").arg(item->id);
 }
 
 class CourseItemDelegate : public ListItemDelegate
@@ -194,27 +198,34 @@ static void setJson(const QByteArray &json, ListModel *model)
     const QJsonObject jsonObj = QJsonDocument::fromJson(json, &error).object();
     qCDebug(qtAcademyLog) << "QJsonParseError:" << error.errorString();
     const QJsonArray courses = jsonObj.value("courses").toArray();
-    QList<ListItem *> items;
-    for (const auto course : courses) {
-        const QJsonObject courseObj = course.toObject();
-        if (!courseIsValid(courseObj))
-            continue;
+    const QJsonArray learningPaths = jsonObj.value("learningPaths").toArray();
 
-        auto courseItem = new CourseItem;
-        courseItem->name = courseName(courseObj).trimmed();
-        courseItem->rawName = courseName(courseObj);
-        courseItem->description = courseDescription(courseObj);
-        courseItem->imageUrl = courseThumbnail(courseObj);
-        courseItem->tags = courseTags(courseObj);
-        courseItem->id = courseId(courseObj);
-        courseItem->reviews = courseReviews(courseObj);
-        courseItem->difficultyLevel = courseDifficultyLevel(courseObj);
-        courseItem->duration = courseDuration(courseObj);
-        courseItem->objectivesHtml = courseObjectivesHtml(courseObj);
-        courseItem->descriptionHtml = courseDescriptionHtml(courseObj);
-        items.append(courseItem);
-    }
-    model->appendItems(items);
+    auto createItemsFromArray = [](const QJsonArray &array, bool isPath = false) {
+        QList<ListItem *> items;
+        for (const auto course : array) {
+            const QJsonObject courseObj = course.toObject();
+            if (!courseIsValid(courseObj))
+                continue;
+
+            auto courseItem = new CourseItem;
+            courseItem->id = courseId(courseObj);
+            courseItem->name = courseName(courseObj).trimmed();
+            courseItem->rawName = courseName(courseObj);
+            courseItem->description = courseDescription(courseObj);
+            courseItem->imageUrl = courseThumbnail(courseObj);
+            courseItem->tags = courseTags(courseObj);
+            courseItem->reviews = courseReviews(courseObj);
+            courseItem->difficultyLevel = courseDifficultyLevel(courseObj);
+            courseItem->duration = courseDuration(courseObj);
+            courseItem->objectivesHtml = courseObjectivesHtml(courseObj);
+            courseItem->descriptionHtml = courseDescriptionHtml(courseObj);
+            courseItem->isPath = isPath;
+            items.append(courseItem);
+        }
+        return items;
+    };
+
+    model->appendItems(createItemsFromArray(courses) + createItemsFromArray(learningPaths, true));
 }
 
 static Layouting::Grid createDetailWidget(const CourseItem *course)
@@ -505,7 +516,6 @@ public:
                 m_filteredModel, &ListModelFilter::setSearchString);
         connect(&m_delegate, &CourseItemDelegate::tagClicked,
                 this, &QtAcademyWelcomePageWidget::onTagClicked);
-
 
         connect(&m_delegate, &CourseItemDelegate::clicked, this, [this](const ListItem *item) {
             QTC_ASSERT(item, return);
