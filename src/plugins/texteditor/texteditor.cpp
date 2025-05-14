@@ -191,7 +191,7 @@ void LineColumnButton::update()
     const Utils::MultiTextCursor &cursors = m_d->m_editor->multiTextCursor();
     QString text;
     if (cursors.hasMultipleCursors()) {
-        text = Tr::tr("Cursors: %2").arg(cursors.cursorCount());
+        text = Tr::tr("Cursors: %1").arg(cursors.cursorCount());
     } else {
         const QTextCursor cursor = cursors.mainCursor();
         const QTextBlock block = cursor.block();

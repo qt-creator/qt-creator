@@ -55259,8 +55259,8 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Översikt</translation>
     </message>
     <message>
-        <source>Cursors: %2</source>
-        <translation>Markörer: %2</translation>
+        <source>Cursors: %1</source>
+        <translation>Markörer: %1</translation>
     </message>
     <message>
         <source>Cursor position: %1</source>

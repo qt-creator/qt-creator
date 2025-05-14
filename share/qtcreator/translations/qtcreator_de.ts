@@ -57676,8 +57676,8 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
         <translation>Öffne Datei</translation>
     </message>
     <message>
-        <source>Cursors: %2</source>
-        <translation>Einfügemarken: %2</translation>
+        <source>Cursors: %1</source>
+        <translation>Einfügemarken: %1</translation>
     </message>
     <message>
         <source>Cursor position: %1</source>

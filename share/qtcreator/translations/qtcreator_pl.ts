@@ -53023,8 +53023,8 @@ Wpływa na wcięcia przeniesionych linii.
         <translation>Otwieranie pliku</translation>
     </message>
     <message>
-        <source>Cursors: %2</source>
-        <translation>Kursory: %2</translation>
+        <source>Cursors: %1</source>
+        <translation>Kursory: %1</translation>
     </message>
     <message>
         <source>Cursor position: %1</source>

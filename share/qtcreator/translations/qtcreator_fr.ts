@@ -58570,8 +58570,8 @@ Ne s’applique pas aux espaces blancs dans les commentaires et dans les chaîne
         <translation>Contour</translation>
     </message>
     <message>
-        <source>Cursors: %2</source>
-        <translation>Curseurs&#xa0;: %2</translation>
+        <source>Cursors: %1</source>
+        <translation>Curseurs&#xa0;: %1</translation>
     </message>
     <message>
         <source>Cursor position: %1</source>
