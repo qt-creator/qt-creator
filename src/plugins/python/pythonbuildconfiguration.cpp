@@ -413,7 +413,8 @@ public:
                 int i = 2;
                 while (venv.buildDirectory.exists())
                     venv.buildDirectory = venvBase.stringAppended('_' + QString::number(i++));
-                venv.displayName = python->name + Tr::tr(" Virtual Environment");
+                //: %1 = name of this Python as registered in QtC
+                venv.displayName = Tr::tr("%1 Virtual Environment").arg(python->name);
                 venv.typeName = venvTypeName();
                 venv.extraInfo = QVariantMap{{"createVenv", forSetup}};
                 return QList<BuildInfo>{base, venv};
