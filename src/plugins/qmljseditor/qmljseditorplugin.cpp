@@ -242,6 +242,7 @@ static FormatResult reformatByQmlFormat(QPointer<QmlJSEditorDocument> document)
     IEditor *currentEditor = EditorManager::currentEditor();
     IEditor *editor = editors.contains(currentEditor) ? currentEditor : editors.first();
     if (auto widget = TextEditor::TextEditorWidget::fromEditor(editor)) {
+        overrideTabSettings(document);
         TextEditor::formatEditor(widget, command);
         return FormatResult::Success;
     }
@@ -250,6 +251,12 @@ static FormatResult reformatByQmlFormat(QPointer<QmlJSEditorDocument> document)
 
 static FormatResult reformatByBuiltInFormatter(QPointer<QmlJSEditorDocument> document)
 {
+    if (!document)
+        return FormatResult::Failed;
+    auto *doc = document->document();
+    if (!doc)
+        return FormatResult::Failed;
+
     QmlJS::Document::Ptr documentPtr = document->semanticInfo().document;
     QmlJS::Snapshot snapshot = QmlJS::ModelManagerInterface::instance()->snapshot();
 
@@ -277,15 +284,27 @@ static FormatResult reformatByBuiltInFormatter(QPointer<QmlJSEditorDocument> doc
         tabSettings.m_indentSize,
         tabSettings.m_tabSize,
         codeStyle->currentCodeStyleSettings().lineLength);
+
+    QTextCursor tc(document->document());
     auto ed = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
     if (ed) {
         TextEditor::updateEditorText(ed->editorWidget(), newText);
     } else {
-        QTextCursor tc(document->document());
         tc.movePosition(QTextCursor::Start);
         tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
         tc.insertText(newText);
     }
+    // Rewrite doesn't respect tabs, only inserts spaces.
+    // Also use indenter to take tabs into account.
+    QTextBlock block = doc->firstBlock();
+    tc.beginEditBlock();
+    while (block.isValid()) {
+        if (auto *indenter = document->indenter()) {
+            indenter->indentBlock(block, QChar::Null, tabSettings);
+        }
+        block = block.next();
+    }
+    tc.endEditBlock();
     return FormatResult::Success;
 }
 
@@ -349,10 +368,12 @@ FormatResult QmlJSEditorPluginPrivate::reformatFile()
         return FormatResult::Failed;
     }
 
-    const QmlJSCodeStyleSettings settings
-        = QmlJSToolsSettings::globalCodeStyle()->currentCodeStyleSettings();
+    QmlJSTools::QmlJSCodeStylePreferences *codeStyle
+        = QmlJSTools::QmlJSToolsSettings::globalCodeStyle();
+    const QmlJSCodeStyleSettings settings = codeStyle->currentCodeStyleSettings();
 
-    const auto tryReformat = [this](auto formatterFunction) {
+    const auto tryReformat = [this, codeStyle](auto formatterFunction) {
+        m_currentDocument->setCodeStyle(codeStyle);
         const FormatResult result = formatterFunction(m_currentDocument);
         if (result != FormatResult::Success) {
             MessageManager::writeSilently(
@@ -364,8 +385,8 @@ FormatResult QmlJSEditorPluginPrivate::reformatFile()
     switch (settings.formatter) {
     case QmlJSCodeStyleSettings::Formatter::QmlFormat:
         return tryReformat([](auto doc) {
-            return reformatUsingLanguageServer(doc) == FormatResult::Success
-                       ? FormatResult::Success
+            return LanguageClient::LanguageClientManager::clientForDocument(doc)
+                       ? reformatUsingLanguageServer(doc)
                        : reformatByQmlFormat(doc);
         });
 
