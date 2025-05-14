@@ -49,7 +49,7 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
                 processFinished(exitCode, exitStatus, connection.name);
             });
     }
-
+    qDebug() << "Start QMLPuppets from: " << m_connections.at(0).qmlPuppetProcess.get()->program();
     const int second = 1000;
     for (Connection &connection : m_connections) {
         int waitConstant = 8 * second;
