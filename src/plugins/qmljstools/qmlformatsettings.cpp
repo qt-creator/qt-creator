@@ -103,7 +103,7 @@ QmlFormatSettings& QmlFormatSettings::instance()
 Utils::FilePath QmlFormatSettings::globalQmlFormatIniFile()
 {
     return Utils::FilePath::fromString(
-        QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/qmlformat.ini") ;
+        QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + "/.qmlformat.ini") ;
 }
 
 Utils::FilePath QmlFormatSettings::currentQmlFormatIniFile(const Utils::FilePath &path)
