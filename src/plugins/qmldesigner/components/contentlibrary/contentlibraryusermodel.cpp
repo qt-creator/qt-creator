@@ -156,6 +156,8 @@ void ContentLibraryUserModel::addBundleDir(const Utils::FilePath &dirPath)
         auto result = jsonFilePath.writeFileContents(QJsonDocument(m_customCatsRootObj).toJson());
         QTC_ASSERT_EXPECTED(result,);
     }
+
+    updateIsEmpty();
 }
 
 void ContentLibraryUserModel::addItem(const QString &bundleId, const QString &name,
@@ -289,6 +291,7 @@ void ContentLibraryUserModel::removeBundleDir(int catIdx)
     delete texCat;
     m_userCategories.removeAt(catIdx);
     endRemoveRows();
+    updateIsEmpty();
 }
 
 void ContentLibraryUserModel::removeItemByName(const QString &qmlFileName, const QString &bundleId)
