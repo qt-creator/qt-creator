@@ -85,6 +85,7 @@ Projects
 * Added `Clone into This` for copying the data of a different run configuration
   into the current run configuration
   ([QTCREATORBUG-26825](https://bugreports.qt.io/browse/QTCREATORBUG-26825))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-run-settings.html))
 * Added the `Add Project Dependency` refactoring action for missing included
   Qt files to add the missing package dependency to the project file
 * Added the `Add #include and Project Dependency` refactoring action for unknown

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -22,8 +22,7 @@
 
     \image {qtcreator-settings-run-desktop.webp} {Run Settings in the Projects mode}
 
-    The available build settings depend on the build system that you selected
-    for the project and the device type:
+    The available run settings depend on the type of the project and the device:
 
     \list
         \li \l {Android Run Settings}{Android}
@@ -37,14 +36,26 @@
     \section1 Manage run configurations
 
     The available run configurations are listed in the
-    \uicontrol {Run configuration} field.
-    To add run configurations for a project, select \uicontrol Add. To
-    add a run configuration that is based on the current one, select
+    \uicontrol {Run configuration} field. Each run configuration belongs to a
+    particular build configuration, so switching the active build configuration
+    also switches the set of available run configurations. You can specify run
+    settings, such as command line arguments or environments, separately for
+    each build configuration, such as \e {Debug} or \e {Release}.
+
+    To add run configurations for a build configuration, select \uicontrol Add.
+
+    To add a run configuration that is based on the current one, select
     \uicontrol Clone.
+
+    To copy the values from another run configuration into the current
+    one, even if it belongs to another build configuration, select
+    \uicontrol {Clone into This}.
 
     To rename the current run configuration, select \uicontrol Rename.
 
-    To remove the current run configuration, select \uicontrol Remove.
+    To remove the current run configuration, select \uicontrol Remove. To remove
+    all run configurations that belong to a build configuration, select
+    \uicontrol {Remove All}.
 
     \section2 qmake run configurations
 
