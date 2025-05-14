@@ -143,7 +143,7 @@ Item {
     Image {
         id: image
         anchors.fill: parent
-
+        fillMode: Image.PreserveAspectFit
         source: modelData.textureIcon
         visible: root.delegateVisible && root.downloadState != "downloading"
         cache: false
