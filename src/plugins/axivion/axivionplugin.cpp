@@ -1050,6 +1050,7 @@ Group projectInfoRecipe(DashboardMode dashboardMode, const QString &projectName)
                     setAnalysisVersion(dd->m_currentLocalProjectInfo->versions.back().date);
             }
             updateDashboard();
+            dd->handleOpenedDocs();
         };
 
         if (dashboardMode == DashboardMode::Global) {
