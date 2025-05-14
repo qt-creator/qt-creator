@@ -1545,9 +1545,9 @@ static const Id vsGeneratorId() { return "QMAKE_GENERATOR_VS"; }
 QList<QPair<Id, QString>> QmakeBuildSystem::generators() const
 {
     if (HostOsInfo::isMacHost())
-        return {{xcodeGeneratorId(), Tr::tr("Generate Xcode project (via qmake)")}};
+        return {{xcodeGeneratorId(), Tr::tr("Xcode Project (via qmake)")}};
     if (HostOsInfo::isWindowsHost())
-        return {{vsGeneratorId(), Tr::tr("Generate Visual Studio project (via qmake)")}};
+        return {{vsGeneratorId(), Tr::tr("Visual Studio Project (via qmake)")}};
     return {};
 }
 
