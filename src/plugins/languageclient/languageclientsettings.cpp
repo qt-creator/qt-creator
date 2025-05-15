@@ -331,6 +331,7 @@ public:
     LanguageClientSettingsPage();
 
     void init();
+    bool initialized() const { return m_initialized; }
 
     QList<BaseSettings *> settings() const;
     QList<BaseSettings *> changedSettings() const;
@@ -338,6 +339,7 @@ public:
     void enableSettings(const QString &id, bool enable = true);
 
 private:
+    bool m_initialized = false;
     LanguageClientSettingsModel m_model;
     QSet<QString> m_changedSettings;
 };
@@ -356,6 +358,7 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
 
 void LanguageClientSettingsPage::init()
 {
+    m_initialized = true;
     QList<BaseSettings *> newList = LanguageClientSettings::fromSettings(Core::ICore::settings());
     m_model.reset(newList);
     qDeleteAll(newList);
@@ -675,6 +678,11 @@ void LanguageClientSettings::init()
 {
     settingsPage().init();
     LanguageClientManager::applySettings();
+}
+
+bool LanguageClientSettings::initialized()
+{
+    return settingsPage().initialized();
 }
 
 QList<Utils::Store> LanguageClientSettings::storesBySettingsType(Utils::Id settingsTypeId)

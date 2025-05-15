@@ -97,7 +97,6 @@ static QmlJSEditorPluginPrivate *dd = nullptr;
 QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    setupQmllsClientSettings();
 
     // QML task updating manager
     connect(modelManager, &QmlJS::ModelManagerInterface::documentChangedOnDisk,
@@ -461,6 +460,7 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
     {
         dd = new QmlJSEditorPluginPrivate;
 
+        registerQmllsSettings();
         setupQmlJsOutline();
         setupQmlJSEditor();
         setupQmlJsEditingProjectPanel();
@@ -478,6 +478,12 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
                               Tr::tr("QML Analysis"),
                               Tr::tr("Issues that the QML static analyzer found."),
                               false});
+    }
+
+    bool delayedInitialize() final
+    {
+        setupQmllsClient();
+        return true;
     }
 };
 

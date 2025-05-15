@@ -45,6 +45,7 @@ protected:
 };
 
 QmllsClientSettings *qmllsSettings();
-void setupQmllsClientSettings();
+void registerQmllsSettings();
+void setupQmllsClient();
 
 } // namespace QmlJSEditor
