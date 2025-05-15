@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:25.10
 
 RUN apt-get update && \
     apt-get install -y \
@@ -29,4 +29,3 @@ RUN ln -s /usr/lib/llvm-14/lib/python3.10/dist-packages/lldb/* /usr/lib/python3/
 
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py && rm get-pip.py
 RUN pip install conan && conan --version && mkdir /.conan && chmod 777 /.conan
-

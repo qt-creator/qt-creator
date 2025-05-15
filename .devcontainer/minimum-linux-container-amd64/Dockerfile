@@ -1,10 +1,8 @@
-ARG platform=x86_64
-
-FROM ubuntu:25.10 AS base
+FROM ubuntu:22.04
 
 RUN apt-get update && \
     apt-get install -y \
-    g++-10 \
+    g++-10 gdb \
     libgl1-mesa-dev \
     clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python3-clang python3-lldb \
     cmake \
@@ -20,15 +18,5 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 30 && \
 
 RUN pip install aqtinstall
 
-
-FROM base AS arm64
-
-RUN aqt install-qt linux_arm64 desktop 6.7.0 linux_gcc_arm64 --modules qt5compat
-ENV PATH="/6.7.0/gcc_arm64/bin:$PATH"
-
-FROM base AS x86_64
-
 RUN aqt install-qt linux desktop 6.7.0 linux_gcc_64 --modules qt5compat
 ENV PATH="/6.7.0/gcc_64/bin:$PATH"
-
-FROM ${platform} AS final

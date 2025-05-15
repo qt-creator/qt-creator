@@ -1,0 +1,66 @@
+{
+    "name": "Minimum spec container (x86_64)",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "options": [
+            "--platform=linux/amd64"
+        ]
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "ms-vscode.cmake-tools",
+                "theqtcompany.qt"
+            ],
+            "settings": {
+                "qt-core.additionalQtPaths": [
+                    "/6.7.0/gcc_64/bin/qtpaths"
+                ],
+                "qt-core.qtInstallationRoot": "",
+                "launch": {
+                    "version": "0.2.0",
+                    "configurations": [
+                        {
+                            "name": "Debug Qt Application with cppdbg",
+                            "type": "cppdbg",
+                            "request": "launch",
+                            "program": "${command:cmake.launchTargetPath}",
+                            "stopAtEntry": false,
+                            "cwd": "${workspaceFolder}",
+                            "visualizerFile": "${command:qt-cpp.natvis}",
+                            "showDisplayString": true,
+                            "linux": {
+                                "MIMode": "gdb",
+                                "miDebuggerPath": "/usr/bin/gdb"
+                            },
+                            "osx": {
+                                "MIMode": "lldb"
+                            },
+                            "windows": {
+                                "environment": [
+                                    {
+                                        "name": "PATH",
+                                        "value": "${env:PATH};${command:qt-cpp.qtDir}"
+                                    },
+                                    {
+                                        "name": "QT_QPA_PLATFORM_PLUGIN_PATH",
+                                        "value": "${command:qt-cpp.QT_QPA_PLATFORM_PLUGIN_PATH}"
+                                    },
+                                    {
+                                        "name": "QML_IMPORT_PATH",
+                                        "value": "${command:qt-cpp.QML_IMPORT_PATH}"
+                                    }
+                                ],
+                                "MIMode": "gdb",
+                                "miDebuggerPath": "${command:qt-cpp.minGWgdb}"
+                            }
+                        }
+                    ],
+                    "compounds": []
+                }
+            }
+        }
+    }
+}
