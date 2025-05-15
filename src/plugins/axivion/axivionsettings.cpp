@@ -218,6 +218,14 @@ public:
         return {};
     }
 
+    FilePath localProjectForProjectName(const QString &projectName) const
+    {
+        QTC_ASSERT(!projectName.isEmpty(), return {});
+        return Utils::findOrDefault(m_pathMapping, [projectName](const PathMapping &pm) {
+            return pm.isValid() && projectName == pm.projectName;
+        }).localPath;
+    }
+
 private:
     QList<PathMapping> m_pathMapping;
 };
@@ -365,6 +373,11 @@ FilePath AxivionSettings::mappedFilePath(const FilePath &filePath,
                                          const QString &projectName) const
 {
     return pathMappingSettings().mappedFilePath(filePath, projectName);
+}
+
+Utils::FilePath AxivionSettings::localProjectForProjectName(const QString &projectName) const
+{
+    return pathMappingSettings().localProjectForProjectName(projectName);
 }
 
 

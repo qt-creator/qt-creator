@@ -8,6 +8,9 @@
 #include "axivionsettings.h"
 #include "axiviontr.h"
 
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/idocument.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <solutions/tasking/tasktreerunner.h>
@@ -505,6 +508,24 @@ static void setupEnvAndCommandLineFromUserInput(Environment *env, CommandLine *c
     }
 }
 
+static bool saveModifiedFiles(const QString &projectName)
+{
+    QList<Core::IDocument *> modifiedDocs = Core::DocumentManager::modifiedDocuments();
+    if (modifiedDocs.isEmpty())
+        return true;
+
+    // if we have a mapping, limit to docs of this project directory, otherwise save all
+    const FilePath projectBase = settings().localProjectForProjectName(projectName);
+    if (!projectBase.isEmpty()) {
+        modifiedDocs = Utils::filtered(modifiedDocs, [projectBase](Core::IDocument *doc) {
+                return doc->filePath().isChildOf(projectBase);
+        });
+    }
+    bool canceled = false;
+    bool success = Core::DocumentManager::saveModifiedDocumentsSilently(modifiedDocs, &canceled);
+    return success && !canceled;
+}
+
 bool LocalBuild::startLocalBuildFor(const QString &projectName)
 {
     if (ExtensionSystem::PluginManager::isShuttingDown())
@@ -519,6 +540,11 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     updateEnvironmentForLocalBuild(&env);
     if (!env.hasKey("AXIVION_LOCAL_BUILD"))
         return false;
+    if (settings().saveOpenFiles()) {
+        if (!saveModifiedFiles(projectName))
+            return false;
+    }
+
     const QString createdPassFile = env.value("AXIVION_PASSFILE");
     qCDebug(localDashLog) << "passfile:" << createdPassFile;
 
