@@ -394,6 +394,12 @@ void Layout::span(int cols, int rows)
     pendingItems.back().spanRows = rows;
 }
 
+void Layout::align(Qt::Alignment alignment)
+{
+    QTC_ASSERT(!pendingItems.empty(), return);
+    pendingItems.back().alignment = alignment;
+}
+
 void Layout::setAlignment(Qt::Alignment alignment)
 {
     access(this)->setAlignment(alignment);
@@ -578,7 +584,7 @@ void Layout::flush()
 
     if (QGridLayout *lt = asGrid()) {
         for (const LayoutItem &item : std::as_const(pendingItems)) {
-            Qt::Alignment a;
+            Qt::Alignment a = item.alignment;
             if (currentGridColumn == 0 && useFormAlignment) {
                 // if (auto widget = builder.stack.at(builder.stack.size() - 2).widget) {
                 //     a = widget->style()->styleHint(QStyle::SH_FormLayoutLabelAlignment);
@@ -1305,6 +1311,21 @@ void addToLayout(Layout *layout, const Span &inner)
     }
     layout->pendingItems.back().spanCols = inner.spanCols;
     layout->pendingItems.back().spanRows = inner.spanRows;
+}
+
+Align::Align(Qt::Alignment alignment, const Layout::I &item)
+    : item(item)
+    , alignment(alignment)
+{}
+
+void addToLayout(Layout *layout, const Align &inner)
+{
+    layout->addItem(inner.item);
+    if (layout->pendingItems.empty()) {
+        QTC_CHECK(inner.alignment == Qt::Alignment());
+        return;
+    }
+    layout->pendingItems.back().alignment = inner.alignment;
 }
 
 LayoutModifier spacing(int space)

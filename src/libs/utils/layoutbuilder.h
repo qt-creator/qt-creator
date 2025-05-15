@@ -105,6 +105,7 @@ public:
     int stretch = -1;
     int spanCols = 1;
     int spanRows = 1;
+    Qt::Alignment alignment = {};
     bool empty = false;
 };
 
@@ -118,6 +119,7 @@ public:
     Layout(Implementation *w) { ptr = w; }
 
     void span(int cols, int rows);
+    void align(Qt::Alignment alignment);
 
     void setAlignment(Qt::Alignment alignment);
     void setNoMargins();
@@ -231,6 +233,15 @@ public:
     Layout::I item;
     int spanCols = 1;
     int spanRows = 1;
+};
+
+class QTCREATOR_UTILS_EXPORT Align
+{
+public:
+    Align(Qt::Alignment alignment, const Layout::I &item);
+
+    Layout::I item;
+    Qt::Alignment alignment = {};
 };
 
 //
@@ -613,6 +624,7 @@ QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Space &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Stretch &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const If &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Span &inner);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Align &inner);
 
 template<class T>
 void addToLayout(Layout *layout, const QList<T> &inner)
