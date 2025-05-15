@@ -49,32 +49,21 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
                 processFinished(exitCode, exitStatus, connection.name);
             });
     }
-    qDebug() << "Start QMLPuppets from: " << m_connections.at(0).qmlPuppetProcess.get()->program();
+    if (!m_connections.empty() && m_connections.at(0).qmlPuppetProcess)
+        qDebug() << "Start QMLPuppets from: " << m_connections.at(0).qmlPuppetProcess.get()->program();
     const int second = 1000;
     for (Connection &connection : m_connections) {
-        int waitConstant = 8 * second;
-        if (!connection.qmlPuppetProcess->waitForStarted(waitConstant)) {
+        int waitConstant = 5 * second;
+
+        if (!connection.localServer->hasPendingConnections() && !connection.localServer->waitForNewConnection(waitConstant)) {
             closeSocketsAndKillProcesses();
             showCannotConnectToPuppetWarningAndSwitchToEditMode();
             return;
         }
-
-        waitConstant /= 2;
-
-        bool connectedToPuppet = true;
-        if (!connection.localServer->hasPendingConnections())
-            connectedToPuppet = connection.localServer->waitForNewConnection(waitConstant);
-
-        if (connectedToPuppet) {
-            connection.socket.reset(connection.localServer->nextPendingConnection());
-            QObject::connect(connection.socket.get(), &QIODevice::readyRead, this, [&] {
-                readDataStream(connection);
-            });
-        } else {
-            closeSocketsAndKillProcesses();
-            showCannotConnectToPuppetWarningAndSwitchToEditMode();
-            return;
-        }
+        connection.socket.reset(connection.localServer->nextPendingConnection());
+        QObject::connect(connection.socket.get(), &QIODevice::readyRead, this, [&] {
+            readDataStream(connection);
+        });
         connection.localServer->close();
     }
 }
