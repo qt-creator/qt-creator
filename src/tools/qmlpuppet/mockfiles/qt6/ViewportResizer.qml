@@ -7,7 +7,6 @@ import QtQuick
 Item {
     id: root
 
-    property real divider
     property real containerSize
     property int orientation
     readonly property alias containsMouse: mouseArea.containsMouse

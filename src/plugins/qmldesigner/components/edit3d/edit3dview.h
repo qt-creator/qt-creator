@@ -135,6 +135,14 @@ private:
         None
     };
 
+    enum class ViewPreset {
+        Single,
+        Quad,
+        ThreeLeftOneRight,
+        TwoHorizontal,
+        TwoVertical
+    };
+
     void registerEdit3DAction(Edit3DAction *action);
 
     void createEdit3DWidget();
@@ -151,7 +159,7 @@ private:
     void createViewportPresetActions();
     void createSeekerSliderAction();
     void syncCameraSpeedToNewView();
-    void syncActivePresetCheckedState(const QString &preset);
+    void syncActivePresetCheckedState(ViewPreset preset);
     QmlObjectNode currentSceneEnv();
     void storeCurrentSceneEnvironment();
 
