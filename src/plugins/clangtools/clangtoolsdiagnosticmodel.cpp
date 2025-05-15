@@ -156,7 +156,7 @@ void ClangToolsDiagnosticModel::onFileChanged(const FilePath &path)
 {
     forItemsAtLevel<2>([&](DiagnosticItem *item){
         if (item->diagnostic().location.targetFilePath == path)
-            item->setFixItStatus(FixitStatus::Invalidated);
+            item->setFixItStatus(FixitStatus::Invalidated, true);
     });
     m_filesWatcher->removeFile(path);
 }
@@ -394,10 +394,10 @@ bool DiagnosticItem::setData(int column, const QVariant &data, int role)
         const FixitStatus newStatus = data.value<Qt::CheckState>() == Qt::Checked
             ? FixitStatus::Scheduled
             : FixitStatus::NotScheduled;
-        if (scheduleOrUnscheduleFixit(newStatus)) {
+        if (scheduleOrUnscheduleFixit(newStatus, true)) {
             for (auto item : diagModel()->itemsWithSameFixits(this)) {
                 if (item != this)
-                    item->setFixItStatus(newStatus);
+                    item->setFixItStatus(newStatus, true);
             }
         }
         return false; // We already called update().
@@ -406,24 +406,25 @@ bool DiagnosticItem::setData(int column, const QVariant &data, int role)
     return Utils::TreeItem::setData(column, data, role);
 }
 
-void DiagnosticItem::setFixItStatus(const FixitStatus &status)
+void DiagnosticItem::setFixItStatus(const FixitStatus &status, bool updateUi)
 {
     const FixitStatus oldStatus = m_fixitStatus;
+    if (oldStatus == status)
+        return;
     m_fixitStatus = status;
-    update();
-    if (status != oldStatus)
-        emit diagModel()->fixitStatusChanged(index(), oldStatus, status);
+    updateColumn(DiagnosticView::DiagnosticColumn);
+    emit diagModel()->fixitStatusChanged(index(), oldStatus, status, updateUi);
     if (status == FixitStatus::Applied || status == FixitStatus::Invalidated) {
         delete m_mark;
         m_mark = nullptr;
     }
 }
 
-bool DiagnosticItem::scheduleOrUnscheduleFixit(FixitStatus status)
+bool DiagnosticItem::scheduleOrUnscheduleFixit(FixitStatus status, bool updateUi)
 {
     QTC_ASSERT(status == FixitStatus::Scheduled || status == FixitStatus::NotScheduled, return false);
     if (m_fixitStatus == FixitStatus::Scheduled || m_fixitStatus == FixitStatus::NotScheduled) {
-        setFixItStatus(status);
+        setFixItStatus(status, updateUi);
         return true;
     }
     return false;
@@ -524,21 +525,21 @@ DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
             });
     connect(this, &QAbstractItemModel::modelReset, this, [this] {
         reset();
-        emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
+        emit fixitCountersChanged();
     });
     connect(this, &QAbstractItemModel::rowsInserted,
             this, [this](const QModelIndex &parent, int first, int last) {
         const Counters counters = countDiagnostics(parent, first, last);
         m_diagnostics += counters.diagnostics;
-        m_fixitsScheduable += counters.fixits;
-        emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
+        m_fixitsSchedulable += counters.fixits;
+        emit fixitCountersChanged();
     });
     connect(this, &QAbstractItemModel::rowsAboutToBeRemoved,
             this, [this](const QModelIndex &parent, int first, int last) {
         const Counters counters = countDiagnostics(parent, first, last);
         m_diagnostics -= counters.diagnostics;
-        m_fixitsScheduable -= counters.fixits;
-        emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
+        m_fixitsSchedulable -= counters.fixits;
+        emit fixitCountersChanged();
     });
 }
 
@@ -573,7 +574,8 @@ void DiagnosticFilterModel::addSuppressedDiagnostic(const SuppressedDiagnostic &
 
 void DiagnosticFilterModel::onFixitStatusChanged(const QModelIndex &sourceIndex,
                                                  FixitStatus oldStatus,
-                                                 FixitStatus newStatus)
+                                                 FixitStatus newStatus,
+                                                 bool updateUi)
 {
     if (!mapFromSource(sourceIndex).isValid())
         return;
@@ -583,10 +585,11 @@ void DiagnosticFilterModel::onFixitStatusChanged(const QModelIndex &sourceIndex,
     else if (oldStatus == FixitStatus::Scheduled) {
         --m_fixitsScheduled;
         if (newStatus != FixitStatus::NotScheduled)
-            --m_fixitsScheduable;
+            --m_fixitsSchedulable;
     }
 
-    emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
+    if (updateUi)
+        emit fixitCountersChanged();
 }
 
 void DiagnosticFilterModel::reset()
@@ -594,7 +597,7 @@ void DiagnosticFilterModel::reset()
     m_filterOptions.reset();
 
     m_fixitsScheduled = 0;
-    m_fixitsScheduable = 0;
+    m_fixitsSchedulable = 0;
     m_diagnostics = 0;
 }
 

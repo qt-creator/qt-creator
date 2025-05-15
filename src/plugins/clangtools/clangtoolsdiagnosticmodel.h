@@ -49,8 +49,8 @@ public:
     void setTextMarkVisible(bool visible);
 
     FixitStatus fixItStatus() const { return m_fixitStatus; }
-    void setFixItStatus(const FixitStatus &status);
-    bool scheduleOrUnscheduleFixit(FixitStatus status);
+    void setFixItStatus(const FixitStatus &status, bool updateUI);
+    bool scheduleOrUnscheduleFixit(FixitStatus status, bool updateUi);
 
     bool hasNewFixIts() const;
     ReplacementOperations &fixitOperations() { return m_fixitOperations; }
@@ -105,7 +105,8 @@ public:
     const QList<DiagnosticItem *> &itemsWithSameFixits(const DiagnosticItem *item);
 
 signals:
-    void fixitStatusChanged(const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus);
+    void fixitStatusChanged(
+        const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus, bool updateUi);
 
 private:
     void connectFileWatcher();
@@ -142,15 +143,15 @@ public:
 
     void onFixitStatusChanged(const QModelIndex &sourceIndex,
                               FixitStatus oldStatus,
-                              FixitStatus newStatus);
+                              FixitStatus newStatus, bool updateUi);
 
     void reset();
     int diagnostics() const { return m_diagnostics; }
-    int fixitsScheduable() const { return m_fixitsScheduable; }
+    int fixitsSchedulable() const { return m_fixitsSchedulable; }
     int fixitsScheduled() const { return m_fixitsScheduled; }
 
 signals:
-    void fixitCountersChanged(int scheduled, int scheduableTotal);
+    void fixitCountersChanged();
 
 private:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
@@ -169,7 +170,7 @@ private:
     OptionalFilterOptions m_filterOptions;
 
     int m_diagnostics = 0;
-    int m_fixitsScheduable = 0;
+    int m_fixitsSchedulable = 0;
     int m_fixitsScheduled = 0;
 };
 

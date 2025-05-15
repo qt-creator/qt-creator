@@ -336,11 +336,11 @@ public:
 
             // Update DiagnosticItem state
             for (DiagnosticItem *diagnosticItem : std::as_const(itemsScheduled))
-                diagnosticItem->setFixItStatus(FixitStatus::Applied);
+                diagnosticItem->setFixItStatus(FixitStatus::Applied, false);
             for (DiagnosticItem *diagnosticItem : std::as_const(itemsFailedToApply))
-                diagnosticItem->setFixItStatus(FixitStatus::FailedToApply);
+                diagnosticItem->setFixItStatus(FixitStatus::FailedToApply, false);
             for (DiagnosticItem *diagnosticItem : std::as_const(itemsInvalidated))
-                diagnosticItem->setFixItStatus(FixitStatus::Invalidated);
+                diagnosticItem->setFixItStatus(FixitStatus::Invalidated, false);
         }
     }
 
@@ -521,21 +521,21 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
 
     connect(m_diagnosticModel, &ClangToolsDiagnosticModel::fixitStatusChanged,
             m_diagnosticFilterModel, &DiagnosticFilterModel::onFixitStatusChanged);
-    connect(m_diagnosticFilterModel, &DiagnosticFilterModel::fixitCountersChanged,
-            this,
-            [this](int scheduled, int scheduable){
-                m_selectFixitsCheckBox->setEnabled(scheduable > 0);
-                m_applyFixitsButton->setEnabled(scheduled > 0);
+    connect(m_diagnosticFilterModel, &DiagnosticFilterModel::fixitCountersChanged, this, [this] {
+        const int scheduled = m_diagnosticFilterModel->fixitsScheduled();
+        const int schedulable = m_diagnosticFilterModel->fixitsSchedulable();
+        m_selectFixitsCheckBox->setEnabled(schedulable > 0);
+        m_applyFixitsButton->setEnabled(scheduled > 0);
 
-                if (scheduled == 0)
-                    m_selectFixitsCheckBox->setCheckState(Qt::Unchecked);
-                else if (scheduled == scheduable)
-                    m_selectFixitsCheckBox->setCheckState(Qt::Checked);
-                else
-                    m_selectFixitsCheckBox->setCheckState(Qt::PartiallyChecked);
+        if (scheduled == 0)
+            m_selectFixitsCheckBox->setCheckState(Qt::Unchecked);
+        else if (scheduled == schedulable)
+            m_selectFixitsCheckBox->setCheckState(Qt::Checked);
+        else
+            m_selectFixitsCheckBox->setCheckState(Qt::PartiallyChecked);
 
-                updateForCurrentState();
-            });
+        updateForCurrentState();
+    });
     connect(m_applyFixitsButton, &QToolButton::clicked, this, [this] {
         QList<DiagnosticItem *> diagnosticItems;
         m_diagnosticModel->forItemsAtLevel<2>([&](DiagnosticItem *item){
@@ -543,6 +543,7 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
         });
 
         ApplyFixIts(diagnosticItems).apply();
+        emit m_diagnosticFilterModel->fixitCountersChanged();
     });
 
     // Open Project Settings
@@ -1367,7 +1368,7 @@ void ClangTool::updateForCurrentState()
     if (issuesFound) {
         diagText = Tr::tr("%1 diagnostics. %2 fixits, %3 selected.")
                    .arg(issuesVisible)
-                   .arg(m_diagnosticFilterModel->fixitsScheduable())
+                   .arg(m_diagnosticFilterModel->fixitsSchedulable())
                    .arg(m_diagnosticFilterModel->fixitsScheduled());
     } else if (m_state != State::AnalyzerRunning
                && m_state != State::Initial
