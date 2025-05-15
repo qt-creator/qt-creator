@@ -526,14 +526,18 @@ struct ProjectStorage::Statements
     mutable Sqlite::ReadStatement<1, 1> selectPrototypeAndExtensionIdsStatement{
         "WITH RECURSIVE "
         "  prototypes(typeId) AS (  "
-        "      SELECT prototypeId FROM types WHERE typeId=?1 "
+        "      SELECT prototypeId FROM types WHERE typeId=?1 AND prototypeId IS NOT NULL "
         "    UNION ALL "
-        "      SELECT extensionId FROM types WHERE typeId=?1 "
+        "      SELECT extensionId FROM types WHERE typeId=?1 AND extensionId IS NOT NULL "
         "    UNION ALL "
-        "      SELECT prototypeId FROM types JOIN prototypes USING(typeId) "
+        "      SELECT prototypeId "
+        "      FROM types JOIN prototypes USING(typeId) "
+        "      WHERE prototypeId IS NOT NULL "
         "    UNION ALL "
-        "      SELECT extensionId FROM types JOIN prototypes USING(typeId)) "
-        "SELECT typeId FROM prototypes WHERE typeId IS NOT NULL",
+        "      SELECT extensionId "
+        "      FROM types JOIN prototypes USING(typeId) "
+        "      WHERE extensionId IS NOT NULL) "
+        "SELECT typeId FROM prototypes",
         database};
     Sqlite::WriteStatement<3> updatePropertyDeclarationAliasIdAndTypeNameIdStatement{
         "UPDATE propertyDeclarations "
