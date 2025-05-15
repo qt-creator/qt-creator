@@ -415,8 +415,7 @@ public:
                            secondSourceId,
                            thirdSourceId,
                            qmltypes1SourceId,
-                           qmltypes2SourceId,
-                           itemLibraryPathSourceId});
+                           qmltypes2SourceId});
         setFilesNotExistsUnchanged({createDirectorySourceId("/path/designer"),
                                     createDirectorySourceId("/root/designer"),
                                     createDirectorySourceId("/path/one/designer"),
@@ -484,15 +483,7 @@ protected:
     SourceId qmlDocumentSourceId1 = sourcePathCache.sourceId("/path/First.qml");
     SourceId qmlDocumentSourceId2 = sourcePathCache.sourceId("/path/First2.qml");
     SourceId qmlDocumentSourceId3 = sourcePathCache.sourceId("/path/Second.qml");
-    const QString itemLibraryPath = QDir::cleanPath(
-        UNITTEST_DIR "/../../../../share/qtcreator/qmldesigner/itemLibrary/");
-    DirectoryPathId itemLibraryPathDirectoryPathId = sourcePathCache.directoryPathId(
-        Utils::PathString{itemLibraryPath});
-    SourceId itemLibraryPathSourceId = SourceId::create(itemLibraryPathDirectoryPathId, FileNameId{});
-    const QString qmlImportsPath = QDir::cleanPath(UNITTEST_DIR "/projectstorage/data/qml");
-    DirectoryPathId qmlImportsPathDirectoryPathId = sourcePathCache.directoryPathId(
-        Utils::PathString{itemLibraryPath});
-    SourceId qmlImportsPathSourceId = SourceId::create(qmlImportsPathDirectoryPathId, FileNameId{});
+
     ModuleId qmlModuleId{storage.moduleId("Qml", ModuleKind::QmlLibrary)};
     ModuleId qmlCppNativeModuleId{storage.moduleId("Qml", ModuleKind::CppLibrary)};
     ModuleId exampleModuleId{storage.moduleId("Example", ModuleKind::QmlLibrary)};
@@ -4593,17 +4584,52 @@ TEST_F(ProjectStorageUpdater_property_editor_panes, is_empty_if_directory_has_no
     updater.update(update);
 }
 
-TEST_F(ProjectStorageUpdater, update_type_annotations)
+class ProjectStorageUpdater_global_type_annotations : public BaseProjectStorageUpdater
 {
-    auto qtQuickSourceId = sourcePathCache.sourceId(
+public:
+    ProjectStorageUpdater_global_type_annotations()
+    {
+        ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
+            return FileStatus{sourceId, 1, 21};
+        });
+        ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
+            return FileStatus{sourceId, 1, 21};
+        });
+
+        ON_CALL(projectStorageMock, typeAnnotationDirectoryIds())
+            .WillByDefault(Return(QmlDesigner::SmallDirectoryPathIds<64>{
+                itemLibraryPathDirectoryPathId,
+            }));
+        ON_CALL(projectStorageMock, typeAnnotationSourceIds(itemLibraryPathDirectoryPathId))
+            .WillByDefault(
+                Return(QmlDesigner::SmallSourceIds<4>{qtQuickSourceId, qtQuickControlSourceId}));
+
+        itemTraits.canBeContainer = QmlDesigner::FlagIs::True;
+    }
+
+public:
+    const QString itemLibraryPath = QDir::cleanPath(
+        UNITTEST_DIR "/../../../../share/qtcreator/qmldesigner/itemLibrary/");
+    DirectoryPathId itemLibraryPathDirectoryPathId = sourcePathCache.directoryPathId(
+        Utils::PathString{itemLibraryPath});
+    SourceId itemLibraryPathSourceId = SourceId::create(itemLibraryPathDirectoryPathId, FileNameId{});
+    const QString qmlImportsPath = QDir::cleanPath(UNITTEST_DIR "/projectstorage/data/qml");
+    DirectoryPathId qmlImportsPathDirectoryPathId = sourcePathCache.directoryPathId(
+        Utils::PathString{itemLibraryPath});
+    SourceId qmlImportsPathSourceId = SourceId::create(qmlImportsPathDirectoryPathId, FileNameId{});
+    SourceId qtQuickSourceId = sourcePathCache.sourceId(
         QmlDesigner::SourcePath{itemLibraryPath + "/quick.metainfo"});
-    auto qtQuickControlSourceId = sourcePathCache.sourceId(
+    SourceId qtQuickControlSourceId = sourcePathCache.sourceId(
         QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
-    setFilesAdded({itemLibraryPathSourceId, qtQuickSourceId, qtQuickControlSourceId});
-    auto qtQuickModuleId = moduleId("QtQuick", ModuleKind::QmlLibrary);
-    auto qtQuickControlsModuleId = moduleId("QtQuick.Controls.Basic", ModuleKind::QmlLibrary);
+    ModuleId qtQuickModuleId = moduleId("QtQuick", ModuleKind::QmlLibrary);
+    ModuleId qtQuickControlsModuleId = moduleId("QtQuick.Controls.Basic", ModuleKind::QmlLibrary);
     QmlDesigner::Storage::TypeTraits itemTraits;
-    itemTraits.canBeContainer = QmlDesigner::FlagIs::True;
+    Update update = {.typeAnnotationPaths = {itemLibraryPath}};
+};
+
+TEST_F(ProjectStorageUpdater_global_type_annotations, update)
+{
+    setFilesAdded({itemLibraryPathSourceId, qtQuickSourceId, qtQuickControlSourceId});
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(AllOf(Field("SynchronizationPackage::typeAnnotations",
@@ -4628,21 +4654,13 @@ TEST_F(ProjectStorageUpdater, update_type_annotations)
                                         &SynchronizationPackage::updatedTypeAnnotationSourceIds,
                                         IsSupersetOf({qtQuickSourceId, qtQuickControlSourceId})))));
 
-    updater.update({.typeAnnotationPaths = {itemLibraryPath}});
+    updater.update(update);
 }
 
-TEST_F(ProjectStorageUpdater, update_added_type_annotation)
+TEST_F(ProjectStorageUpdater_global_type_annotations, add)
 {
-    auto qtQuickSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{itemLibraryPath + "/quick.metainfo"});
-    auto qtQuickControlSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
     setFilesUnchanged({itemLibraryPathSourceId});
     setFilesAdded({qtQuickSourceId, qtQuickControlSourceId});
-    auto qtQuickModuleId = moduleId("QtQuick", ModuleKind::QmlLibrary);
-    auto qtQuickControlsModuleId = moduleId("QtQuick.Controls.Basic", ModuleKind::QmlLibrary);
-    QmlDesigner::Storage::TypeTraits itemTraits;
-    itemTraits.canBeContainer = QmlDesigner::FlagIs::True;
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(AllOf(Field("SynchronizationPackage::typeAnnotations",
@@ -4667,21 +4685,13 @@ TEST_F(ProjectStorageUpdater, update_added_type_annotation)
                                         &SynchronizationPackage::updatedTypeAnnotationSourceIds,
                                         IsSupersetOf({qtQuickSourceId, qtQuickControlSourceId})))));
 
-    updater.update({.typeAnnotationPaths = {itemLibraryPath}});
+    updater.update(update);
 }
 
-TEST_F(ProjectStorageUpdater, update_changed_type_annotation)
+TEST_F(ProjectStorageUpdater_global_type_annotations, changed)
 {
-    auto qtQuickSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{itemLibraryPath + "/quick.metainfo"});
-    auto qtQuickControlSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
     setFilesUnchanged({itemLibraryPathSourceId});
     setFilesChanged({qtQuickSourceId, qtQuickControlSourceId});
-    auto qtQuickModuleId = moduleId("QtQuick", ModuleKind::QmlLibrary);
-    auto qtQuickControlsModuleId = moduleId("QtQuick.Controls.Basic", ModuleKind::QmlLibrary);
-    QmlDesigner::Storage::TypeTraits itemTraits;
-    itemTraits.canBeContainer = QmlDesigner::FlagIs::True;
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(AllOf(Field("SynchronizationPackage::typeAnnotations",
@@ -4706,15 +4716,11 @@ TEST_F(ProjectStorageUpdater, update_changed_type_annotation)
                                         &SynchronizationPackage::updatedTypeAnnotationSourceIds,
                                         IsSupersetOf({qtQuickSourceId, qtQuickControlSourceId})))));
 
-    updater.update({.typeAnnotationPaths = {itemLibraryPath}});
+    updater.update(update);
 }
 
-TEST_F(ProjectStorageUpdater, update_removed_type_annotations)
+TEST_F(ProjectStorageUpdater_global_type_annotations, remove)
 {
-    auto qtQuickSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{itemLibraryPath + "/quick.metainfo"});
-    auto qtQuickControlSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
     setFilesRemoved({itemLibraryPathSourceId, qtQuickSourceId, qtQuickControlSourceId});
 
     EXPECT_CALL(projectStorageMock,
@@ -4725,25 +4731,11 @@ TEST_F(ProjectStorageUpdater, update_removed_type_annotations)
                                         &SynchronizationPackage::updatedTypeAnnotationSourceIds,
                                         IsSupersetOf({qtQuickSourceId, qtQuickControlSourceId})))));
 
-    updater.update({.typeAnnotationPaths = {itemLibraryPath}});
+    updater.update(update);
 }
 
-TEST_F(ProjectStorageUpdater, update_type_annotations_removed_meta_info_file)
+TEST_F(ProjectStorageUpdater_global_type_annotations, removed_meta_info_file)
 {
-    ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
-        return FileStatus{sourceId, 1, 21};
-    });
-    ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
-        return FileStatus{sourceId, 1, 21};
-    });
-    auto qtQuickSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{itemLibraryPath + "/quick.metainfo"});
-    auto qtQuickControlSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
-    ON_CALL(projectStorageMock, typeAnnotationDirectoryIds())
-        .WillByDefault(Return(QmlDesigner::SmallDirectoryPathIds<64>{itemLibraryPathDirectoryPathId}));
-    ON_CALL(projectStorageMock, typeAnnotationSourceIds(itemLibraryPathDirectoryPathId))
-        .WillByDefault(Return(QmlDesigner::SmallSourceIds<4>{qtQuickSourceId, qtQuickControlSourceId}));
     setFilesChanged({itemLibraryPathSourceId});
     setFilesRemoved({qtQuickSourceId});
     setFilesUnchanged({qtQuickControlSourceId});
@@ -4757,27 +4749,11 @@ TEST_F(ProjectStorageUpdater, update_type_annotations_removed_meta_info_file)
                                         AllOf(IsSupersetOf({qtQuickSourceId}),
                                               Not(Contains(qtQuickControlSourceId)))))));
 
-    updater.update({.typeAnnotationPaths = {itemLibraryPath}});
+    updater.update(update);
 }
 
-TEST_F(ProjectStorageUpdater, update_type_annotations_removed_directory)
+TEST_F(ProjectStorageUpdater_global_type_annotations, removed_directory)
 {
-    ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
-        return FileStatus{sourceId, 1, 21};
-    });
-    ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
-        return FileStatus{sourceId, 1, 21};
-    });
-    auto qtQuickSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{itemLibraryPath + "/quick.metainfo"});
-    auto qtQuickControlSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
-    ON_CALL(projectStorageMock, typeAnnotationDirectoryIds())
-        .WillByDefault(Return(QmlDesigner::SmallDirectoryPathIds<64>{
-            itemLibraryPathDirectoryPathId,
-        }));
-    ON_CALL(projectStorageMock, typeAnnotationSourceIds(itemLibraryPathDirectoryPathId))
-        .WillByDefault(Return(QmlDesigner::SmallSourceIds<4>{qtQuickSourceId, qtQuickControlSourceId}));
     setFilesRemoved({itemLibraryPathSourceId, qtQuickSourceId, qtQuickControlSourceId});
 
     EXPECT_CALL(projectStorageMock,
