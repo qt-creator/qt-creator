@@ -781,19 +781,6 @@ struct ProjectStorage::Statements
         database};
     mutable Sqlite::ReadStatement<1, 1> selectDefaultPropertyDeclarationIdStatement{
         "SELECT defaultPropertyId FROM types WHERE typeId=?", database};
-    mutable Sqlite::ReadStatement<1, 1> selectPrototypeIdsForTypeIdInOrderStatement{
-        "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
-        "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  prototypes(typeId, level) AS ("
-        "       SELECT prototypeId, 0 FROM all_prototype_and_extension WHERE typeId=?"
-        "    UNION ALL "
-        "      SELECT prototypeId, p.level+1 FROM all_prototype_and_extension JOIN "
-        "        prototypes AS p USING(typeId)) "
-        "SELECT typeId FROM prototypes ORDER BY level",
-        database};
     Sqlite::WriteStatement<2> upsertPropertyEditorPathIdStatement{
         "INSERT INTO propertyEditorPaths(typeId, pathSourceId) VALUES(?1, ?2) ON CONFLICT DO "
         "UPDATE SET pathSourceId=excluded.pathSourceId WHERE pathSourceId IS NOT "
