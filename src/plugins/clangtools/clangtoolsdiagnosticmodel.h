@@ -50,6 +50,7 @@ public:
 
     FixitStatus fixItStatus() const { return m_fixitStatus; }
     void setFixItStatus(const FixitStatus &status);
+    bool scheduleOrUnscheduleFixit(FixitStatus status);
 
     bool hasNewFixIts() const;
     ReplacementOperations &fixitOperations() { return m_fixitOperations; }

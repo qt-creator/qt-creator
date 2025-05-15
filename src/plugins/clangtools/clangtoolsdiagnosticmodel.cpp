@@ -391,19 +391,16 @@ ClangToolsDiagnosticModel *DiagnosticItem::diagModel() const
 bool DiagnosticItem::setData(int column, const QVariant &data, int role)
 {
     if (column == DiagnosticView::DiagnosticColumn && role == Qt::CheckStateRole) {
-        if (m_fixitStatus != FixitStatus::Scheduled && m_fixitStatus != FixitStatus::NotScheduled)
-            return false;
-
         const FixitStatus newStatus = data.value<Qt::CheckState>() == Qt::Checked
-                                          ? FixitStatus::Scheduled
-                                          : FixitStatus::NotScheduled;
-
-        setFixItStatus(newStatus);
-        for (auto item : diagModel()->itemsWithSameFixits(this)) {
-            if (item != this)
-                item->setFixItStatus(newStatus);
+            ? FixitStatus::Scheduled
+            : FixitStatus::NotScheduled;
+        if (scheduleOrUnscheduleFixit(newStatus)) {
+            for (auto item : diagModel()->itemsWithSameFixits(this)) {
+                if (item != this)
+                    item->setFixItStatus(newStatus);
+            }
         }
-        return true;
+        return false; // We already called update().
     }
 
     return Utils::TreeItem::setData(column, data, role);
@@ -420,6 +417,16 @@ void DiagnosticItem::setFixItStatus(const FixitStatus &status)
         delete m_mark;
         m_mark = nullptr;
     }
+}
+
+bool DiagnosticItem::scheduleOrUnscheduleFixit(FixitStatus status)
+{
+    QTC_ASSERT(status == FixitStatus::Scheduled || status == FixitStatus::NotScheduled, return false);
+    if (m_fixitStatus == FixitStatus::Scheduled || m_fixitStatus == FixitStatus::NotScheduled) {
+        setFixItStatus(status);
+        return true;
+    }
+    return false;
 }
 
 void DiagnosticItem::setFixitOperations(const ReplacementOperations &replacements)

@@ -170,6 +170,7 @@ DiagnosticView::DiagnosticView(QWidget *parent)
 
 void DiagnosticView::scheduleAllFixits(bool schedule)
 {
+    const FixitStatus newStatus = schedule ? FixitStatus::Scheduled : FixitStatus::NotScheduled;
     const auto proxyModel = static_cast<QSortFilterProxyModel *>(model());
     for (int i = 0, count = proxyModel->rowCount(); i < count; ++i) {
         const QModelIndex filePathItemIndex = proxyModel->index(i, 0);
@@ -177,9 +178,7 @@ void DiagnosticView::scheduleAllFixits(bool schedule)
             const QModelIndex proxyIndex = proxyModel->index(j, 0, filePathItemIndex);
             const QModelIndex diagnosticItemIndex = proxyModel->mapToSource(proxyIndex);
             auto item = static_cast<DiagnosticItem *>(diagnosticItemIndex.internalPointer());
-            item->setData(DiagnosticView::DiagnosticColumn,
-                          schedule ? Qt::Checked : Qt::Unchecked,
-                          Qt::CheckStateRole);
+            item->scheduleOrUnscheduleFixit(newStatus);
         }
     }
 }
