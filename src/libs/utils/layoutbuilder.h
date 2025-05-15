@@ -107,6 +107,7 @@ public:
     int spanRows = 1;
     Qt::Alignment alignment = {};
     bool empty = false;
+    bool advancesCell = true;
 };
 
 class QTCREATOR_UTILS_EXPORT Layout : public Object
@@ -243,6 +244,16 @@ public:
 
     Layout::I item;
     Qt::Alignment alignment = {};
+};
+
+class QTCREATOR_UTILS_EXPORT GridCell
+{
+public:
+    GridCell(const std::initializer_list<Layout::I> &items)
+        : items(items)
+    {}
+
+    std::initializer_list<Layout::I> items;
 };
 
 //
@@ -635,6 +646,7 @@ QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Stretch &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const If &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Span &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Align &inner);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const GridCell &inner);
 
 template<class T>
 void addToLayout(Layout *layout, const QList<T> &inner)

@@ -593,12 +593,22 @@ void Layout::flush()
         return;
 
     if (QGridLayout *lt = asGrid()) {
+        int maxSpanCols = 0;
+        bool previousItemDidAdvanceCell = false;
+
         for (const LayoutItem &item : std::as_const(pendingItems)) {
+            if (!previousItemDidAdvanceCell && item.advancesCell) {
+                currentGridColumn += maxSpanCols;
+                maxSpanCols = 0;
+            }
+
             Qt::Alignment a = item.alignment;
+            // FIXME: Check whether this is needed
             if (currentGridColumn == 0 && useFormAlignment) {
                 // if (auto widget = builder.stack.at(builder.stack.size() - 2).widget) {
                 //     a = widget->style()->styleHint(QStyle::SH_FormLayoutLabelAlignment);
             }
+
             if (item.widget) {
                 lt->addWidget(
                     item.widget, currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
@@ -614,9 +624,13 @@ void Layout::flush()
                     item.spanCols,
                     a);
             }
-            currentGridColumn += item.spanCols;
-            // Intentionally not used, use 'br'/'empty' for vertical progress.
-            // currentGridRow += item.spanRows;
+            maxSpanCols = std::max(maxSpanCols, item.spanCols);
+            if (item.advancesCell) {
+                currentGridColumn += maxSpanCols;
+                maxSpanCols = 0;
+            }
+
+            previousItemDidAdvanceCell = item.advancesCell;
         }
         ++currentGridRow;
         currentGridColumn = 0;
@@ -1358,13 +1372,16 @@ Span::Span(int cols, int rows, const Layout::I &item)
 
 void addToLayout(Layout *layout, const Span &inner)
 {
+    size_t nPreviousItems = layout->pendingItems.size();
     layout->addItem(inner.item);
     if (layout->pendingItems.empty()) {
         QTC_CHECK(inner.spanCols == 1 && inner.spanRows == 1);
         return;
     }
-    layout->pendingItems.back().spanCols = inner.spanCols;
-    layout->pendingItems.back().spanRows = inner.spanRows;
+    for (size_t i = nPreviousItems; i < layout->pendingItems.size(); ++i) {
+        layout->pendingItems.at(i).spanCols = inner.spanCols;
+        layout->pendingItems.at(i).spanRows = inner.spanRows;
+    }
 }
 
 Align::Align(Qt::Alignment alignment, const Layout::I &item)
@@ -1374,12 +1391,22 @@ Align::Align(Qt::Alignment alignment, const Layout::I &item)
 
 void addToLayout(Layout *layout, const Align &inner)
 {
+    auto nPreviousItems = layout->pendingItems.size();
     layout->addItem(inner.item);
     if (layout->pendingItems.empty()) {
         QTC_CHECK(inner.alignment == Qt::Alignment());
         return;
     }
-    layout->pendingItems.back().alignment = inner.alignment;
+    for (auto i = nPreviousItems; i < layout->pendingItems.size(); ++i)
+        layout->pendingItems.at(i).alignment = inner.alignment;
+}
+
+void addToLayout(Layout *layout, const GridCell &inner)
+{
+    for (auto i : inner.items) {
+        i.apply(layout);
+        layout->pendingItems.back().advancesCell = false;
+    }
 }
 
 LayoutModifier spacing(int space)
