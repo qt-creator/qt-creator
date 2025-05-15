@@ -5,14 +5,13 @@
 
 #include <debugger/debugger_global.h>
 
-#include <QTreeView>
-#include <QStyledItemDelegate>
+#include <utils/itemviews.h>
 
 namespace Utils { class Link; }
 
 namespace Debugger {
 
-class DEBUGGER_EXPORT DetailedErrorView : public QTreeView
+class DEBUGGER_EXPORT DetailedErrorView : public Utils::TreeView
 {
 public:
     DetailedErrorView(QWidget *parent = nullptr);

@@ -25,7 +25,7 @@ using namespace Utils;
 namespace Debugger {
 
 DetailedErrorView::DetailedErrorView(QWidget *parent) :
-    QTreeView(parent),
+    TreeView(parent),
     m_copyAction(new QAction(this))
 {
     header()->setSectionResizeMode(QHeaderView::ResizeToContents);

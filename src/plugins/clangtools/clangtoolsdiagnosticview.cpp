@@ -18,7 +18,6 @@
 #include <cppeditor/cpprefactoringchanges.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
@@ -30,6 +29,7 @@
 #include <QHeaderView>
 #include <QPainter>
 #include <QSet>
+#include <QStyledItemDelegate>
 
 #include <set>
 
