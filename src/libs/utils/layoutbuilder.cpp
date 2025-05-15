@@ -487,6 +487,15 @@ void Layout::setColumnStretch(int column, int stretch)
     }
 }
 
+void Layout::setRowStretch(int row, int stretch)
+{
+    if (auto grid = qobject_cast<QGridLayout *>(access(this))) {
+        grid->setRowStretch(row, stretch);
+    } else {
+        QTC_CHECK(false);
+    }
+}
+
 void addToWidget(Widget *widget, const Layout &layout)
 {
     layout.flush_();
