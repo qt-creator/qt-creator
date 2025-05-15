@@ -2006,7 +2006,7 @@ void ProcessPrivate::handleDone(const ProcessResultData &data)
 
     switch (m_state) {
     case QProcess::NotRunning:
-        QTC_CHECK(false); // Can't happen
+        QTC_ASSERT(false, return); // Can't happen
         break;
     case QProcess::Starting:
         QTC_CHECK(m_resultData.m_error == QProcess::FailedToStart);
