@@ -413,7 +413,7 @@ void DiagnosticItem::setFixItStatus(const FixitStatus &status, bool updateUi)
         return;
     m_fixitStatus = status;
     updateColumn(DiagnosticView::DiagnosticColumn);
-    emit diagModel()->fixitStatusChanged(index(), oldStatus, status, updateUi);
+    emit diagModel()->fixitStatusChanged(this, oldStatus, status, updateUi);
     if (status == FixitStatus::Applied || status == FixitStatus::Invalidated) {
         delete m_mark;
         m_mark = nullptr;
@@ -572,12 +572,12 @@ void DiagnosticFilterModel::addSuppressedDiagnostic(const SuppressedDiagnostic &
     invalidate();
 }
 
-void DiagnosticFilterModel::onFixitStatusChanged(const QModelIndex &sourceIndex,
+void DiagnosticFilterModel::onFixitStatusChanged(const DiagnosticItem *item,
                                                  FixitStatus oldStatus,
                                                  FixitStatus newStatus,
                                                  bool updateUi)
 {
-    if (!mapFromSource(sourceIndex).isValid())
+    if (!filterAcceptsItem(item))
         return;
 
     if (newStatus == FixitStatus::Scheduled)
@@ -649,28 +649,9 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
     if (parentItem->level() == 1) {
         auto filePathItem = static_cast<FilePathItem *>(parentItem);
         auto diagnosticItem = static_cast<DiagnosticItem *>(filePathItem->childAt(sourceRow));
-        const Diagnostic &diag = diagnosticItem->diagnostic();
-
-        // Filtered out?
-        if (m_filterOptions && !m_filterOptions->checks.contains(diag.name)) {
-            diagnosticItem->setTextMarkVisible(false);
-            return false;
-        }
-
-        // Explicitly suppressed?
-        for (const SuppressedDiagnostic &d : std::as_const(m_suppressedDiagnostics)) {
-            if (d.description != diag.description)
-                continue;
-            Utils::FilePath filePath = d.filePath;
-            if (d.filePath.toFileInfo().isRelative())
-                filePath = m_lastProjectDirectory.resolvePath(filePath);
-            if (filePath == diag.location.targetFilePath) {
-                diagnosticItem->setTextMarkVisible(false);
-                return false;
-            }
-        }
-        diagnosticItem->setTextMarkVisible(true);
-        return true;
+        const bool accepted = filterAcceptsItem(diagnosticItem);
+        diagnosticItem->setTextMarkVisible(accepted);
+        return accepted;
     }
 
     return true; // ExplainingStepItem
@@ -723,6 +704,27 @@ void DiagnosticFilterModel::handleSuppressedDiagnosticsChanged()
     m_suppressedDiagnostics
             = ClangToolsProjectSettings::getSettings(m_project)->suppressedDiagnostics();
     invalidate();
+}
+
+bool DiagnosticFilterModel::filterAcceptsItem(const DiagnosticItem *item) const
+{
+    const Diagnostic &diag = item->diagnostic();
+
+    // Filtered out?
+    if (m_filterOptions && !m_filterOptions->checks.contains(diag.name))
+        return false;
+
+    // Explicitly suppressed?
+    for (const SuppressedDiagnostic &d : std::as_const(m_suppressedDiagnostics)) {
+        if (d.description != diag.description)
+            continue;
+        Utils::FilePath filePath = d.filePath;
+        if (d.filePath.isRelativePath())
+            filePath = m_lastProjectDirectory.resolvePath(filePath);
+        if (filePath == diag.location.targetFilePath)
+            return false;
+    }
+    return true;
 }
 
 OptionalFilterOptions DiagnosticFilterModel::filterOptions() const

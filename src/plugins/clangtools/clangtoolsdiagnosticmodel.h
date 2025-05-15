@@ -106,7 +106,7 @@ public:
 
 signals:
     void fixitStatusChanged(
-        const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus, bool updateUi);
+        const DiagnosticItem *item, FixitStatus oldStatus, FixitStatus newStatus, bool updateUi);
 
 private:
     void connectFileWatcher();
@@ -141,7 +141,7 @@ public:
     OptionalFilterOptions filterOptions() const;
     void setFilterOptions(const OptionalFilterOptions &filterOptions);
 
-    void onFixitStatusChanged(const QModelIndex &sourceIndex,
+    void onFixitStatusChanged(const DiagnosticItem *item,
                               FixitStatus oldStatus,
                               FixitStatus newStatus, bool updateUi);
 
@@ -162,6 +162,7 @@ private:
     };
     Counters countDiagnostics(const QModelIndex &parent, int first, int last) const;
     void handleSuppressedDiagnosticsChanged();
+    bool filterAcceptsItem(const DiagnosticItem *item) const;
 
     QPointer<ProjectExplorer::Project> m_project;
     Utils::FilePath m_lastProjectDirectory;
