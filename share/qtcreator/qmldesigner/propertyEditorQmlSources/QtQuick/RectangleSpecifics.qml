@@ -78,7 +78,7 @@ Column {
 
     CornerRadiusSection {
         id: cornerRadiusSection
-        property bool radiiAvailable: backendValues.topLeftRadius.isAvailable
+        property bool radiiAvailable: backendValues.topLeftRadius?.isAvailable ?? false
                                 // && backendValues.topRightRadius.isAvailable
                                 // && backendValues.bottomLeftRadius.isAvailable
                                 // && backendValues.bottomRightRadius.isAvailable
