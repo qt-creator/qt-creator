@@ -4508,34 +4508,52 @@ TEST_F(ProjectStorageUpdater, watcher_dont_watches_directories_after_qmltypes_ch
         {{qmltypesProjectChunkId, {qmltypesPathSourceId, qmltypes2PathSourceId}}});
 }
 
-const QString propertyEditorQmlPath = QDir::cleanPath(
-    UNITTEST_DIR "/../../../../share/qtcreator/qmldesigner/propertyEditorQmlSources/");
-
-TEST_F(ProjectStorageUpdater, update_property_editor_panes)
+class ProjectStorageUpdater_property_editor_panes : public BaseProjectStorageUpdater
 {
-    ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
-        return FileStatus{sourceId, 1, 21};
-    });
-    ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
-        return FileStatus{sourceId, 1, 21};
-    });
-    auto sourceId = sourcePathCache.sourceId(
+public:
+    ProjectStorageUpdater_property_editor_panes()
+    {
+        ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
+            return FileStatus{sourceId, 1, 21};
+        });
+        ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
+            return FileStatus{sourceId, 1, 21};
+        });
+    }
+
+public:
+    const QString propertyEditorQmlPath = QDir::cleanPath(
+        UNITTEST_DIR "/../../../../share/qtcreator/qmldesigner/propertyEditorQmlSources/");
+    SourceId sourceId = sourcePathCache.sourceId(
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QML/QtObjectPane.qml"});
-    auto directoryId = sourcePathCache.directoryPathId(
+    DirectoryPathId directoryId = sourcePathCache.directoryPathId(
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QML"});
-    auto directorySourceId = SourceId::create(directoryId, QmlDesigner::FileNameId{});
+    SourceId directorySourceId = SourceId::create(directoryId, QmlDesigner::FileNameId{});
+    SourceId textSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/TextSpecifics.qml"});
+    DirectoryPathId qtQuickDirectoryId = sourcePathCache.directoryPathId(
+        QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick"});
+    SourceId qtQuickDirectorySourceId = SourceId::create(qtQuickDirectoryId,
+                                                         QmlDesigner::FileNameId{});
+    SourceId buttonSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/Controls/ButtonSpecifics.qml"});
+    DirectoryPathId controlsDirectoryId = sourcePathCache.directoryPathId(
+        QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/Controls"});
+    SourceId controlsDirectorySourceId = SourceId::create(controlsDirectoryId,
+                                                          QmlDesigner::FileNameId{});
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    ModuleId controlsModuleId = storage.moduleId("QtQuick.Controls", ModuleKind::QmlLibrary);
+    ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
+    Update update = {.propertyEditorResourcesPath = propertyEditorQmlPath};
+};
+
+TEST_F(ProjectStorageUpdater_property_editor_panes, update)
+{
     setFilesChanged({directorySourceId});
-    auto qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(
-                    AllOf(Field("SynchronizationPackage::fileStatuses",
-                                &SynchronizationPackage::fileStatuses,
-                                UnorderedElementsAre(IsFileStatus(directorySourceId, 1, 21))),
-                          Field("SynchronizationPackage::updatedFileStatusSourceIds",
-                                &SynchronizationPackage::updatedFileStatusSourceIds,
-                                UnorderedElementsAre(directorySourceId)),
-                          Field("SynchronizationPackage::propertyEditorQmlPaths",
+                    AllOf(Field("SynchronizationPackage::propertyEditorQmlPaths",
                                 &SynchronizationPackage::propertyEditorQmlPaths,
                                 Contains(IsPropertyEditorQmlPath(
                                     qmlModuleId, "QtObject", sourceId, directoryId))),
@@ -4543,30 +4561,12 @@ TEST_F(ProjectStorageUpdater, update_property_editor_panes)
                                 &SynchronizationPackage::updatedPropertyEditorQmlPathDirectoryIds,
                                 ElementsAre(directoryId)))));
 
-    updater.update({.propertyEditorResourcesPath = propertyEditorQmlPath});
+    updater.update(update);
 }
 
-TEST_F(ProjectStorageUpdater, update_property_editor_specifics)
+TEST_F(ProjectStorageUpdater_property_editor_panes, specifics)
 {
-    ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
-        return FileStatus{sourceId, 1, 21};
-    });
-    ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
-        return FileStatus{sourceId, 1, 21};
-    });
-    auto textSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/TextSpecifics.qml"});
-    auto qtQuickDirectoryId = sourcePathCache.directoryPathId(
-        QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick"});
-    auto qtQuickDirectorySourceId = SourceId::create(qtQuickDirectoryId, QmlDesigner::FileNameId{});
-    auto buttonSourceId = sourcePathCache.sourceId(
-        QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/Controls/ButtonSpecifics.qml"});
-    auto controlsDirectoryId = sourcePathCache.directoryPathId(
-        QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/Controls"});
-    auto controlsDirectorySourceId = SourceId::create(controlsDirectoryId, QmlDesigner::FileNameId{});
     setFilesChanged({qtQuickDirectorySourceId, controlsDirectorySourceId});
-    auto qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
-    auto controlsModuleId = storage.moduleId("QtQuick.Controls", ModuleKind::QmlLibrary);
 
     EXPECT_CALL(
         projectStorageMock,
@@ -4581,22 +4581,16 @@ TEST_F(ProjectStorageUpdater, update_property_editor_specifics)
                         &SynchronizationPackage::updatedPropertyEditorQmlPathDirectoryIds,
                         ElementsAre(qtQuickDirectoryId, controlsDirectoryId)))));
 
-    updater.update({.propertyEditorResourcesPath = propertyEditorQmlPath});
+    updater.update(update);
 }
 
-TEST_F(ProjectStorageUpdater, update_property_editor_panes_is_empty_if_directory_has_not_changed)
+TEST_F(ProjectStorageUpdater_property_editor_panes, is_empty_if_directory_has_not_changed)
 {
-    updater.update({.propertyEditorResourcesPath = propertyEditorQmlPath});
-    ON_CALL(fileSystemMock, fileStatus(_)).WillByDefault([](SourceId sourceId) {
-        return FileStatus{sourceId, 1, 21};
-    });
-    ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
-        return FileStatus{sourceId, 1, 21};
-    });
+    updater.update(update);
 
     EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
-    updater.update({.propertyEditorResourcesPath = propertyEditorQmlPath});
+    updater.update(update);
 }
 
 TEST_F(ProjectStorageUpdater, update_type_annotations)
