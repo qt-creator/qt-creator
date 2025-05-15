@@ -156,6 +156,36 @@ private:
     QPen m_strokePen{Qt::NoPen};
 };
 
+class CachedImage;
+
+class QTCREATOR_UTILS_EXPORT QtcImage : public QWidget
+{
+public:
+    QtcImage(QWidget *parent = nullptr);
+
+    void setUrl(const QString &url);
+
+    void setRadius(int radius);
+    int radius() const;
+
+    void paintEvent(QPaintEvent *event) override;
+
+    QSize sizeForWidth(int width) const;
+
+    QSize sizeHint() const override;
+
+    int heightForWidth(int width) const override;
+
+private:
+    void setPixmap(const QPixmap &px);
+
+private:
+    CachedImage *m_cachedImage = nullptr;
+    QPixmap m_pixmap;
+    int m_radius = 0;
+};
+
+
 namespace QtcWidgets {
 
 class QTCREATOR_UTILS_EXPORT Label : public Layouting::Widget
@@ -232,11 +262,25 @@ public:
     void setStrokePen(const QPen &pen);
 };
 
+class QTCREATOR_UTILS_EXPORT Image : public Layouting::Widget
+{
+public:
+    using Implementation = QtcImage;
+    using I = Building::BuilderItem<Image>;
+
+    Image(std::initializer_list<I> ps);
+
+    void setUrl(const QString &url);
+    void setRadius(int radius);
+};
+
 } // namespace QtcWidgets
 
 QTC_DEFINE_BUILDER_SETTER(role, setRole);
 QTC_DEFINE_BUILDER_SETTER(fillBrush, setFillBrush);
 QTC_DEFINE_BUILDER_SETTER(strokePen, setStrokePen);
 QTC_DEFINE_BUILDER_SETTER(radius, setRadius);
+QTC_DEFINE_BUILDER_SETTER(url, setUrl)
+
 
 } // namespace Utils
