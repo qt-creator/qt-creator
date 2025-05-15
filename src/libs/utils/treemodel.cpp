@@ -615,8 +615,13 @@ TreeItem *TreeItem::childAt(int pos) const
 
 int TreeItem::indexOf(const TreeItem *item) const
 {
-    auto it = std::find(begin(), end(), item);
-    return it == end() ? -1 : it - begin();
+    // !!! Do not replace this loop without benchmarking !!!
+    // At the time of writing, std::find() is slower by a factor of 3.5.
+    // The same goes for QList::indexOf().
+    for (qsizetype i = 0, n = m_children.size(); i < n; ++i)
+        if (m_children.at(i) == item)
+            return int(i);
+    return -1;
 }
 
 QVariant TreeItem::data(int column, int role) const
