@@ -112,7 +112,7 @@ void DesignSystemWidget::reloadQmlSource()
             errorString += "\n" + error.toString();
 
         Core::AsynchronousMessageBox::warning(tr("Cannot Create QtQuick View"),
-                                              tr("StatesEditorWidget: %1 cannot be created.%2")
+                                              tr("DesignSystemWidget: %1 cannot be created.%2")
                                                   .arg(qmlSourcesPath(), errorString));
         return;
     }
