@@ -1255,7 +1255,8 @@ public:
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");
     DirectoryPathId directoryPathId = qmlDirPathSourceId.directoryPathId();
     SourceId directoryPathSourceId = SourceId::create(directoryPathId, QmlDesigner::FileNameId{});
-    SourceId annotationDirectorySourceId = createDirectorySourceId("/path/designer");
+    DirectoryPathId annotationDirectoryId = sourcePathCache.directoryPathId("/path/designer");
+    SourceId annotationDirectorySourceId = SourceId::create(annotationDirectoryId, FileNameId{});
     ModuleId qmlModuleId{storage.moduleId("Qml", ModuleKind::QmlLibrary)};
     ModuleId exampleModuleId{storage.moduleId("Example", ModuleKind::QmlLibrary)};
     ModuleId exampleCppNativeModuleId{storage.moduleId("Example", ModuleKind::CppLibrary)};
@@ -1268,7 +1269,7 @@ public:
                     {ExportedType{exampleModuleId, "Object"}, ExportedType{exampleModuleId, "Obj"}}};
 };
 
-using ChangeQmlTypesParameters = std::tuple<Update, FileState, FileState, FileState>;
+using ChangeQmlTypesParameters = std::tuple<Update, FileState, FileState, FileState, FileState>;
 
 class synchronize_changed_qml_types : public synchronize_qml_types,
                                       public testing::WithParamInterface<ChangeQmlTypesParameters>
@@ -1278,6 +1279,7 @@ public:
         : state{std::get<1>(GetParam())}
         , directoryState{std::get<2>(GetParam())}
         , qmldirState{std::get<3>(GetParam())}
+        , annotationDirectoryState{std::get<4>(GetParam())}
         , update{std::get<0>(GetParam())}
 
     {
@@ -1295,6 +1297,7 @@ public:
     FileState state;
     FileState directoryState;
     FileState qmldirState;
+    FileState annotationDirectoryState;
     const Update &update;
 };
 
@@ -1317,6 +1320,10 @@ auto change_qml_types_parameters_printer =
 
         name += "_qmldir";
 
+        name += toString(std::get<4>(info.param));
+
+        name += "_annotation";
+
         return name;
     };
 
@@ -1326,20 +1333,37 @@ INSTANTIATE_TEST_SUITE_P(ProjectStorageUpdater,
                                         Update{.projectDirectory = "/path"}),
                                  Values(FileState::Added, FileState::Changed),
                                  Values(FileState::Changed, FileState::Unchanged),
-                                 Values(FileState::Changed, FileState::Unchanged)),
+                                 Values(FileState::Changed, FileState::Unchanged),
+                                 Values(FileState::NotExistsUnchanged,
+                                        FileState::Added,
+                                        FileState::Unchanged,
+                                        FileState::Changed)),
                          change_qml_types_parameters_printer);
 
-TEST_P(synchronize_changed_qml_types, from_qt_directory_update_types)
+TEST_P(synchronize_changed_qml_types, from_qt_directory_update_imports)
 {
     setFiles(directoryState, {directoryPathSourceId});
+    setFiles(annotationDirectoryState, {annotationDirectorySourceId});
     setFiles(qmldirState, {qmlDirPathSourceId});
     setFiles(state, {qmltypesPathSourceId});
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(AllOf(Field("SynchronizationPackage::imports",
                                         &SynchronizationPackage::imports,
-                                        ElementsAre(import)),
-                                  Field("SynchronizationPackage::types",
+                                        ElementsAre(import)))));
+
+    updater.update(update);
+}
+
+TEST_P(synchronize_changed_qml_types, from_qt_directory_update_types)
+{
+    setFiles(directoryState, {directoryPathSourceId});
+    setFiles(annotationDirectoryState, {annotationDirectorySourceId});
+    setFiles(qmldirState, {qmlDirPathSourceId});
+    setFiles(state, {qmltypesPathSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field("SynchronizationPackage::types",
                                         &SynchronizationPackage::types,
                                         ElementsAre(Eq(objectType))),
                                   Field("SynchronizationPackage::updatedSourceIds",
@@ -1352,6 +1376,7 @@ TEST_P(synchronize_changed_qml_types, from_qt_directory_update_types)
 TEST_P(synchronize_changed_qml_types, from_qt_directory_update_file_status)
 {
     setFiles(directoryState, {directoryPathSourceId});
+    setFiles(annotationDirectoryState, {annotationDirectorySourceId});
     setFiles(qmldirState, {qmlDirPathSourceId});
     setFiles(state, {qmltypesPathSourceId});
 
@@ -1370,6 +1395,7 @@ TEST_P(synchronize_changed_qml_types, from_qt_directory_update_directory_infos)
 {
     bool directoryUnchanged = directoryState == FileState::Unchanged;
     setFiles(directoryState, {directoryPathSourceId});
+    setFiles(annotationDirectoryState, {annotationDirectorySourceId});
     setFiles(qmldirState, {qmlDirPathSourceId});
     setFiles(state, {qmltypesPathSourceId});
 
@@ -3347,6 +3373,10 @@ public:
     SourceId rootDirectoryPathSourceId = SourceId::create(rootDirectoryPathId,
                                                           QmlDesigner::FileNameId{});
     SourceId rootQmldirPathSourceId = sourcePathCache.sourceId("/root/qmldir");
+    DirectoryPathId designerDirectoryPathId = sourcePathCache.directoryPathId(
+        "/root/path/designer");
+    SourceId designerDirectoryPathSourceId = SourceId::create(designerDirectoryPathId,
+                                                              QmlDesigner::FileNameId{});
     QmlDesigner::ProjectPartId partId = std::get<0>(GetParam()).projectPartId;
     std::vector<IdPaths> idPaths;
     FileState state = std::get<1>(GetParam()).state;
@@ -3423,7 +3453,7 @@ public:
 
         setContent(u"/root/path/qmldir", qmldir);
         setQmlFileNames(u"/root/path", {"First.qml", "Second.qml"});
-        setFilesNotExistsUnchanged({createDirectorySourceId("/root/path/designer")});
+        setFilesNotExistsUnchanged({designerDirectoryPathSourceId});
 
         setFileSystemSubdirectories(u"/root", {"/root/path"});
         setStorageSubdirectories(rootDirectoryPathId, {directoryPathId});
@@ -3726,7 +3756,7 @@ public:
         }
 
         setContent(u"/root/path/qmldir", qmldir);
-        setFilesNotExistsUnchanged({createDirectorySourceId("/root/path/designer")});
+        setFilesNotExistsUnchanged({designerDirectoryPathSourceId});
 
         setFileSystemSubdirectories(u"/root", {"/root/path"});
         setStorageSubdirectories(rootDirectoryPathId, {directoryPathId});
@@ -3999,7 +4029,7 @@ public:
             setContent(u"/root/path/qmltypes1.qmltypes", qmltypes1Content);
             setContent(u"/root/path/qmltypes2.qmltypes", qmltypes2Content);
         }
-        setFilesNotExistsUnchanged({createDirectorySourceId("/root/path/designer")});
+        setFilesNotExistsUnchanged({designerDirectoryPathSourceId});
 
         setFileSystemSubdirectories(u"/root", {"/root/path"});
         setStorageSubdirectories(rootDirectoryPathId, {directoryPathId});
@@ -4301,7 +4331,7 @@ public:
         }
 
         setContent(u"/root/path/qmldir", qmldir);
-        setFilesNotExistsUnchanged({createDirectorySourceId("/root/path/designer")});
+        setFilesNotExistsUnchanged({designerDirectoryPathSourceId});
 
         setFileSystemSubdirectories(u"/root", {"/root/path"});
         setStorageSubdirectories(rootDirectoryPathId, {directoryPathId});
