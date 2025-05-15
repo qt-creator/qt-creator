@@ -15,7 +15,6 @@
 #include <QPointer>
 #include <QSortFilterProxyModel>
 
-#include <functional>
 #include <map>
 #include <memory>
 #include <optional>
@@ -43,12 +42,7 @@ class DiagnosticMark;
 class DiagnosticItem : public Utils::TreeItem
 {
 public:
-    using OnFixitStatusChanged
-        = std::function<void(const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus)>;
-    DiagnosticItem(const Diagnostic &diag,
-                   const OnFixitStatusChanged &onFixitStatusChanged,
-                   bool generateMark,
-                   ClangToolsDiagnosticModel *model);
+    DiagnosticItem(const Diagnostic &diag, bool generateMark, ClangToolsDiagnosticModel *model);
     ~DiagnosticItem() override;
 
     const Diagnostic &diagnostic() const { return m_diagnostic; }
@@ -70,8 +64,6 @@ private:
 
 private:
     const Diagnostic m_diagnostic;
-    OnFixitStatusChanged m_onFixitStatusChanged;
-
     ReplacementOperations  m_fixitOperations;
     FixitStatus m_fixitStatus = FixitStatus::NotAvailable;
     TextEditor::TextMark *m_mark = nullptr;

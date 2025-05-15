@@ -88,11 +88,6 @@ QDebug operator<<(QDebug debug, const Diagnostic &d)
 
 void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics, bool generateMarks)
 {
-    const auto onFixitStatusChanged =
-        [this](const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus) {
-            emit fixitStatusChanged(index, oldStatus, newStatus);
-        };
-
     for (const Diagnostic &d : diagnostics) {
         // Check for duplicates
         const int previousItemCount = m_diagnostics.count();
@@ -113,7 +108,7 @@ void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics, b
 
         // Add to file path item
         qCDebug(LOG) << "Adding diagnostic:" << d;
-        filePathItem->appendChild(new DiagnosticItem(d, onFixitStatusChanged, generateMarks, this));
+        filePathItem->appendChild(new DiagnosticItem(d, generateMarks, this));
     }
 }
 
@@ -276,11 +271,9 @@ static QString fullText(const Diagnostic &diagnostic)
 }
 
 DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
-                               const OnFixitStatusChanged &onFixitStatusChanged,
                                bool generateMark,
                                ClangToolsDiagnosticModel *model)
     : m_diagnostic(diag)
-    , m_onFixitStatusChanged(onFixitStatusChanged)
     , m_mark(generateMark ? new DiagnosticMark(diag) : nullptr)
 {
     if (diag.hasFixits)
@@ -420,8 +413,8 @@ void DiagnosticItem::setFixItStatus(const FixitStatus &status)
     const FixitStatus oldStatus = m_fixitStatus;
     m_fixitStatus = status;
     update();
-    if (m_onFixitStatusChanged && status != oldStatus)
-        m_onFixitStatusChanged(index(), oldStatus, status);
+    if (status != oldStatus)
+        emit diagModel()->fixitStatusChanged(index(), oldStatus, status);
     if (status == FixitStatus::Applied || status == FixitStatus::Invalidated) {
         delete m_mark;
         m_mark = nullptr;
