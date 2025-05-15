@@ -12,7 +12,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
-    Depends { name: "yaml-cpp" }
+    Depends { name: "YamlCpp" }
     Depends { name: "clang_defines" }
 
     Depends { name: "Qt.widgets" }

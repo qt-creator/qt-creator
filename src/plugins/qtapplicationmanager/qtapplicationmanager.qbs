@@ -15,7 +15,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
-    Depends { name: "yaml-cpp" }
+    Depends { name: "YamlCpp" }
 
     //Properties {
     //    condition: Boot2Qt.present
