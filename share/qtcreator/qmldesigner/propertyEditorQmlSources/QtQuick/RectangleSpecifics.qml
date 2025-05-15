@@ -75,4 +75,17 @@ Column {
             }
         }
     }
+<<<<<<< HEAD   (08c2c6 QmlDesigner: Fix shape rendering in 2D view)
+=======
+
+    CornerRadiusSection {
+        id: cornerRadiusSection
+        property bool radiiAvailable: backendValues.topLeftRadius?.isAvailable ?? false
+                                // && backendValues.topRightRadius.isAvailable
+                                // && backendValues.bottomLeftRadius.isAvailable
+                                // && backendValues.bottomRightRadius.isAvailable
+
+        visible: majorQtQuickVersion >= 6 && minorQtQuickVersion >= 7 && cornerRadiusSection.radiiAvailable
+    }
+>>>>>>> CHANGE (80dbdf QmlDesigner: Fix corner radii for older QtQick)
 }
