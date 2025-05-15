@@ -17,6 +17,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcolorbutton.h>
 #include <utils/stylehelper.h>
+#include <utils/textcodec.h>
 
 #include <QApplication>
 #include <QCheckBox>
