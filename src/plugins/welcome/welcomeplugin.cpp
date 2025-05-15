@@ -64,20 +64,6 @@ public:
 
         constexpr TextFormat welcomeTF {Theme::Token_Text_Default, StyleHelper::UiElementH2};
 
-        auto ideIconLabel = new QLabel;
-        {
-            const QPixmap logo = Core::Icons::QTCREATORLOGO_BIG.pixmap();
-            const int logoSize = logo.width();
-            const int margin = logoSize * 3.0 / 32.0;
-            const QRect cropR(margin, margin, logoSize - 2 * margin, logoSize - 2 * margin);
-            const QPixmap croppedLogo = logo.copy(cropR);
-            const QPixmap scaledCroppedLogo =
-                croppedLogo.scaledToHeight(40 * logo.devicePixelRatio(),
-                                           Qt::SmoothTransformation);
-            ideIconLabel->setPixmap(scaledCroppedLogo);
-            ideIconLabel->setFixedHeight(welcomeTF.lineHeight());
-        }
-
         auto welcomeLabel = new ElidingLabel(QGuiApplication::applicationDisplayName());
         applyTf(welcomeLabel, welcomeTF);
         welcomeLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
@@ -92,7 +78,6 @@ public:
         using namespace Layouting;
         Column {
             Row {
-                ideIconLabel,
                 welcomeLabel,
                 Space(HGapM),
                 m_pluginButtons,
