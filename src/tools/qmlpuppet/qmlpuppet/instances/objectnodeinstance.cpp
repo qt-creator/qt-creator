@@ -763,6 +763,10 @@ ObjectNodeInstance::Pointer ObjectNodeInstance::create(QObject *object)
 {
     Pointer instance(new ObjectNodeInstance(object));
 
+    QQmlParserStatus *qmlParserStatus = dynamic_cast<QQmlParserStatus *>(object);
+    if (qmlParserStatus)
+        qmlParserStatus->classBegin();
+
     instance->populateResetHashes();
 
     return instance;
