@@ -101,18 +101,19 @@ public:
 
     std::unique_ptr<InlineSuppressedDiagnostics> createInlineSuppressedDiagnostics();
 
+    const QList<DiagnosticItem *> &itemsWithSameFixits(const DiagnosticItem *item);
+
 signals:
     void fixitStatusChanged(const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus);
 
 private:
     void connectFileWatcher();
-    void updateItems(const DiagnosticItem *changedItem);
     void onFileChanged(const Utils::FilePath &path);
     void clearAndSetupCache();
 
     QHash<Utils::FilePath, FilePathItem *> m_filePathToItem;
     QSet<Diagnostic> m_diagnostics;
-    std::map<QList<ExplainingStep>, QList<DiagnosticItem *>> stepsToItemsCache;
+    std::map<QList<ExplainingStep>, QList<DiagnosticItem *>> m_stepsToItemsCache;
     std::unique_ptr<Utils::FileSystemWatcher> m_filesWatcher;
     const CppEditor::ClangToolType m_type;
 };

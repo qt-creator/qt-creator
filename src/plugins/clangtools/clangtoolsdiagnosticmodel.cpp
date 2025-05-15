@@ -137,14 +137,6 @@ void ClangToolsDiagnosticModel::clear()
     endResetModel();
 }
 
-void ClangToolsDiagnosticModel::updateItems(const DiagnosticItem *changedItem)
-{
-    for (auto item : std::as_const(stepsToItemsCache[changedItem->diagnostic().explainingSteps])) {
-        if (item != changedItem)
-            item->setFixItStatus(changedItem->fixItStatus());
-    }
-}
-
 void ClangToolsDiagnosticModel::connectFileWatcher()
 {
     connect(m_filesWatcher.get(),
@@ -157,7 +149,7 @@ void ClangToolsDiagnosticModel::clearAndSetupCache()
 {
     m_filesWatcher = std::make_unique<Utils::FileSystemWatcher>();
     connectFileWatcher();
-    stepsToItemsCache.clear();
+    m_stepsToItemsCache.clear();
 }
 
 void ClangToolsDiagnosticModel::onFileChanged(const FilePath &path)
@@ -188,6 +180,12 @@ std::unique_ptr<InlineSuppressedDiagnostics> ClangToolsDiagnosticModel::createIn
         return std::make_unique<InlineSuppressedClazyDiagnostics>();
     }
     QTC_ASSERT(false, return {});
+}
+
+const QList<DiagnosticItem *> &ClangToolsDiagnosticModel::itemsWithSameFixits(
+    const DiagnosticItem *item)
+{
+    return m_stepsToItemsCache[item->diagnostic().explainingSteps];
 }
 
 static QString lineColumnString(const Link &location)
@@ -287,7 +285,7 @@ DiagnosticItem::DiagnosticItem(const Diagnostic &diag,
     }
 
     if (!diag.explainingSteps.isEmpty())
-        model->stepsToItemsCache[diag.explainingSteps].push_back(this);
+        model->m_stepsToItemsCache[diag.explainingSteps].push_back(this);
 
     for (int i = 0; i < diag.explainingSteps.size(); ++i )
         appendChild(new ExplainingStepItem(diag.explainingSteps[i], i));
@@ -401,7 +399,10 @@ bool DiagnosticItem::setData(int column, const QVariant &data, int role)
                                           : FixitStatus::NotScheduled;
 
         setFixItStatus(newStatus);
-        diagModel()->updateItems(this);
+        for (auto item : diagModel()->itemsWithSameFixits(this)) {
+            if (item != this)
+                item->setFixItStatus(newStatus);
+        }
         return true;
     }
 
@@ -432,7 +433,7 @@ bool DiagnosticItem::hasNewFixIts() const
     if (m_diagnostic.explainingSteps.empty())
         return false;
 
-    return diagModel()->stepsToItemsCache[m_diagnostic.explainingSteps].front() == this;
+    return diagModel()->itemsWithSameFixits(this).front() == this;
 }
 
 ExplainingStepItem::ExplainingStepItem(const ExplainingStep &step, int index)
