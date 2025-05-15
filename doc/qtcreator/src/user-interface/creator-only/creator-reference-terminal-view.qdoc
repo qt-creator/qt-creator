@@ -95,6 +95,9 @@
         \li \uicontrol {Enable mouse tracking}
         \li Enable mouse tracking in the terminal.
     \row
+        \li \uicontrol {Enable live reflow}
+        \li Reflow the text when resizing the terminal view.
+    \row
         \li \uicontrol {Font}
         \li Select the \uicontrol {Font family} and \uicontrol Size for the text
             in the terminal. You can also use the \inlineimage icons/plus.png
