@@ -3,19 +3,14 @@
 
 #pragma once
 
-#include "projectexplorer_export.h"
-
 #include <utils/fancymainwindow.h>
 #include <utils/id.h>
 
 #include <memory>
 
-namespace Core {
-class OutputWindow;
-}
+namespace Core { class OutputWindow; }
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 enum {
     ContextMenuItemAdderRole // To augment a context menu, data has a QMenu*
@@ -39,7 +34,6 @@ class ProjectWindowPrivate;
 class ProjectWindow : public Utils::FancyMainWindow
 {
     friend class ProjectWindowPrivate;
-    Q_OBJECT
 
 public:
     ProjectWindow();
@@ -61,5 +55,4 @@ private:
     const std::unique_ptr<ProjectWindowPrivate> d;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal
