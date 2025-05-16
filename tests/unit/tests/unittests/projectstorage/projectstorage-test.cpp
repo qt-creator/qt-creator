@@ -881,7 +881,10 @@ protected:
         return package;
     }
 
-    auto createPackageWithProperties()
+    enum class ExchangePrototypeAndExtension { No, Yes };
+
+    auto createPackageWithProperties(
+        ExchangePrototypeAndExtension exchange = ExchangePrototypeAndExtension::No)
     {
         SynchronizationPackage package;
 
@@ -906,8 +909,12 @@ protected:
             {Storage::Synchronization::SignalDeclaration{"valuesChanged", {}}}});
         package.types.push_back(Storage::Synchronization::Type{
             "QObject2",
-            Storage::Synchronization::ImportedType{"Object"},
-            Storage::Synchronization::ImportedType{},
+            exchange == ExchangePrototypeAndExtension::No
+                ? Storage::Synchronization::ImportedType{"Object"}
+                : Storage::Synchronization::ImportedType{},
+            exchange == ExchangePrototypeAndExtension::Yes
+                ? Storage::Synchronization::ImportedType{"Object"}
+                : Storage::Synchronization::ImportedType{},
             TypeTraitsKind::Reference,
             sourceId1,
             {Storage::Synchronization::ExportedType{qmlModuleId, "Object2", Storage::Version{}}},
@@ -7159,22 +7166,15 @@ TEST_F(ProjectStorage, get_property_declaration_ids_over_prototype_chain)
                                      HasName("children3")));
 }
 
-TEST_F(ProjectStorage, get_property_declaration_ids_over_extension_chain)
+TEST_F(ProjectStorage, get_no_property_declaration_ids_over_extension_chain)
 {
-    auto package{createPackageWithProperties()};
-    std::swap(package.types[1].extension, package.types[1].prototype);
+    auto package{createPackageWithProperties(ExchangePrototypeAndExtension::Yes)};
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QObject3");
 
     auto propertyIds = storage.propertyDeclarationIds(typeId);
 
-    ASSERT_THAT(propertyIds,
-                UnorderedElementsAre(HasName("data"),
-                                     HasName("children"),
-                                     HasName("data2"),
-                                     HasName("children2"),
-                                     HasName("data3"),
-                                     HasName("children3")));
+    ASSERT_THAT(propertyIds, Not(AnyOf(Contains(HasName("data")), Contains(HasName("children")))));
 }
 
 TEST_F(ProjectStorage, get_property_declaration_ids_are_returned_sorted)
@@ -7249,8 +7249,7 @@ TEST_F(ProjectStorage, get_property_declaration_id_over_prototype_chain)
 
 TEST_F(ProjectStorage, get_property_declaration_id_over_extension_chain)
 {
-    auto package{createPackageWithProperties()};
-    std::swap(package.types[1].extension, package.types[1].prototype);
+    auto package{createPackageWithProperties(ExchangePrototypeAndExtension::Yes)};
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QObject3");
 
@@ -7416,8 +7415,7 @@ TEST_F(ProjectStorage, get_only_signal_declaration_names_from_up_into_the_protot
 
 TEST_F(ProjectStorage, get_only_signal_declaration_names_from_up_into_the_extension_chain)
 {
-    auto package{createPackageWithProperties()};
-    std::swap(package.types[1].extension, package.types[1].prototype);
+    auto package{createPackageWithProperties(ExchangePrototypeAndExtension::Yes)};
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QObject2");
 
@@ -7472,8 +7470,7 @@ TEST_F(ProjectStorage, get_only_function_declaration_names_from_up_into_the_prot
 
 TEST_F(ProjectStorage, get_only_function_declaration_names_from_up_into_the_extension_chain)
 {
-    auto package{createPackageWithProperties()};
-    std::swap(package.types[1].extension, package.types[1].prototype);
+    auto package{createPackageWithProperties(ExchangePrototypeAndExtension::Yes)};
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QObject2");
 
@@ -7893,17 +7890,15 @@ TEST_F(ProjectStorage, get_no_prototype_ids_for_no_prototype)
     ASSERT_THAT(prototypeIds, IsEmpty());
 }
 
-TEST_F(ProjectStorage, get_prototype_ids_with_extension)
+TEST_F(ProjectStorage, get_prototype_ids_without_extension)
 {
-    auto package{createPackageWithProperties()};
-    std::swap(package.types[1].extension, package.types[1].prototype);
+    auto package{createPackageWithProperties(ExchangePrototypeAndExtension::Yes)};
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QObject3");
 
     auto prototypeIds = storage.prototypeIds(typeId);
 
-    ASSERT_THAT(prototypeIds,
-                ElementsAre(fetchTypeId(sourceId1, "QObject2"), fetchTypeId(sourceId1, "QObject")));
+    ASSERT_THAT(prototypeIds, Not(Contains(fetchTypeId(sourceId1, "QObject")))) << package;
 }
 
 TEST_F(ProjectStorage, get_prototype_and_self_ids)
@@ -7933,17 +7928,13 @@ TEST_F(ProjectStorage, get_self_for_no_prototype_ids)
 
 TEST_F(ProjectStorage, get_prototype_and_self_ids_with_extension)
 {
-    auto package{createPackageWithProperties()};
-    std::swap(package.types[1].extension, package.types[1].prototype);
+    auto package{createPackageWithProperties(ExchangePrototypeAndExtension::Yes)};
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QObject3");
 
     auto prototypeAndSelfIds = storage.prototypeAndSelfIds(typeId);
 
-    ASSERT_THAT(prototypeAndSelfIds,
-                ElementsAre(fetchTypeId(sourceId1, "QObject3"),
-                            fetchTypeId(sourceId1, "QObject2"),
-                            fetchTypeId(sourceId1, "QObject")));
+    ASSERT_THAT(prototypeAndSelfIds, Not(Contains(fetchTypeId(sourceId1, "QObject"))));
 }
 
 TEST_F(ProjectStorage, is_based_on_for_direct_prototype)
@@ -7973,8 +7964,7 @@ TEST_F(ProjectStorage, is_based_on_for_indirect_prototype)
 
 TEST_F(ProjectStorage, is_based_on_for_direct_extension)
 {
-    auto package{createPackageWithProperties()};
-    std::swap(package.types[1].extension, package.types[1].prototype);
+    auto package{createPackageWithProperties(ExchangePrototypeAndExtension::Yes)};
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QObject2");
     auto baseTypeId = fetchTypeId(sourceId1, "QObject");
@@ -7986,8 +7976,7 @@ TEST_F(ProjectStorage, is_based_on_for_direct_extension)
 
 TEST_F(ProjectStorage, is_based_on_for_indirect_extension)
 {
-    auto package{createPackageWithProperties()};
-    std::swap(package.types[1].extension, package.types[1].prototype);
+    auto package{createPackageWithProperties(ExchangePrototypeAndExtension::Yes)};
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QObject3");
     auto baseTypeId = fetchTypeId(sourceId1, "QObject");
@@ -8987,9 +8976,7 @@ TEST_F(ProjectStorage, get_hair_ids)
 
     ASSERT_THAT(heirIds,
                 UnorderedElementsAre(fetchTypeId(sourceId1, "QObject2"),
-                                     fetchTypeId(sourceId1, "QObject3"),
-                                     fetchTypeId(sourceId1, "QObject4"),
-                                     fetchTypeId(sourceId1, "QObject5")));
+                                     fetchTypeId(sourceId1, "QObject3")));
 }
 
 TEST_F(ProjectStorage, get_no_hair_ids_for_invalid_type_id)
