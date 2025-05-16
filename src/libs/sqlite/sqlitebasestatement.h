@@ -576,7 +576,7 @@ public:
                                          const source_location &sourceLocation,
                                          const QueryTypes &...queryValues)
             : BaseSqliteResultRange<ResultType>{statement, sourceLocation}
-            , m_transaction{statement.database(), sourceLocation}
+            , m_transaction{statement.database()}
             , resetter{&statement}
             , sourceLocation{sourceLocation}
         {
@@ -586,14 +586,10 @@ public:
         ~SqliteResultRangeWithTransaction()
         {
             resetter.reset();
-
-            if (!std::uncaught_exceptions()) {
-                m_transaction.commit(sourceLocation);
-            }
         }
 
     private:
-        DeferredTransaction<typename BaseStatement::Database> m_transaction;
+        ImplicitTransaction<typename BaseStatement::Database> m_transaction;
         Resetter resetter;
         source_location sourceLocation;
     };
