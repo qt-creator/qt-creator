@@ -81,6 +81,7 @@ private:
     void clear();
     void removeItemAt(int pos);
     void propagateModel(BaseTreeModel *m);
+    void updateChildrenRecursively();
 
     TreeItem *m_parent = nullptr; // Not owned.
     BaseTreeModel *m_model = nullptr; // Not owned.

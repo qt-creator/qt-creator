@@ -615,9 +615,8 @@ TreeItem *TreeItem::childAt(int pos) const
 
 int TreeItem::indexOf(const TreeItem *item) const
 {
-    // !!! Do not replace this loop without benchmarking !!!
-    // At the time of writing, std::find() is slower by a factor of 3.5.
-    // The same goes for QList::indexOf().
+    // We use a handwritten loop here because QList::indexOf() is considerably slower
+    // in debug mode due to the use of iterators.
     for (qsizetype i = 0, n = m_children.size(); i < n; ++i)
         if (m_children.at(i) == item)
             return int(i);
@@ -760,12 +759,25 @@ void TreeItem::update()
 
 void TreeItem::updateAll()
 {
-    if (m_model) {
-        QModelIndex idx = index();
-        emit m_model->dataChanged(idx, idx.sibling(idx.row(), m_model->m_columnCount - 1));
-        for (TreeItem *item : *this)
-            item->updateAll();
-    }
+    update();
+    updateChildrenRecursively();
+}
+
+void TreeItem::updateChildrenRecursively()
+{
+    if (!m_model)
+        return;
+
+    const qsizetype rowCount = m_children.size();
+    if (rowCount == 0)
+        return;
+    const QModelIndex topLeft = m_model->createIndex(0, 0, m_children.first());
+    const QModelIndex bottomRight = rowCount == 1 && m_model->m_columnCount == 1
+        ? topLeft
+        : m_model->createIndex(m_children.size() - 1, m_model->m_columnCount - 1, m_children.last());
+    emit m_model->dataChanged(topLeft, bottomRight);
+    for (TreeItem * const item : std::as_const(m_children))
+        item->updateChildrenRecursively();
 }
 
 void TreeItem::updateColumn(int column)
