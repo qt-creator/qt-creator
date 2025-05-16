@@ -12,6 +12,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
+#include <coreplugin/messagebox.h>
 #include <coreplugin/modemanager.h>
 
 #include "projectexplorer/target.h"
@@ -290,14 +291,23 @@ public:
         QmlDesigner::QmlDesignerPlugin::emitUsageStatistics("exampleOpened:"
                                                             + exampleName);
 
-        const QString exampleFolder = examplePath + "/" + exampleName + "/";
+        const FilePath exampleFilePath = FilePath::fromString(examplePath) / exampleName;
 
-        QString projectFile = exampleFolder + exampleName + ".qmlproject";
+        FilePath projectFile = exampleFilePath / (exampleName + ".qmlproject");
 
         if (!explicitQmlproject.isEmpty())
-            projectFile = exampleFolder + explicitQmlproject;
+            projectFile = exampleFilePath / explicitQmlproject;
 
-        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(FilePath::fromString(projectFile));
+        if (!projectFile.exists()) {
+            Core::AsynchronousMessageBox::warning(
+                tr("Could not open %1").arg(exampleName),
+                tr("Project file %1 is missing. Try downloading the example again.")
+                    .arg(projectFile.nativePath()));
+
+            return;
+        }
+
+        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
     }
 
     Q_INVOKABLE void openExample(const QString &example,
