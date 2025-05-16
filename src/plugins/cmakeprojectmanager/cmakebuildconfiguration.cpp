@@ -677,6 +677,16 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
         }
     }
 
+    const QVariant maintananceTool = Core::ICore::settings()->value("Updater/MaintenanceTool");
+    if (maintananceTool.isValid()
+        && std::none_of(
+            initialList.constBegin(), initialList.constEnd(), [](const CMakeConfigItem &item) {
+                return item.key == "QT_MAINTENANCE_TOOL";
+            })) {
+        initialList.append(CMakeConfigItem(
+            "QT_MAINTENANCE_TOOL", CMakeConfigItem::FILEPATH, maintananceTool.toString().toUtf8()));
+    }
+
     for (const CMakeConfigItem &ci : m_buildConfig->cmakeBuildSystem()->configurationChanges()) {
         if (!ci.isInitial)
             continue;
