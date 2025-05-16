@@ -359,7 +359,7 @@ private:
         static_assert(isR || isV,
             "Group setup handler needs to take no arguments and has to return void or SetupResult. "
             "The passed handler doesn't fulfill these requirements.");
-        return [handler] {
+        return [handler = std::move(handler)] {
             if constexpr (isR)
                 return std::invoke(handler);
             std::invoke(handler);
@@ -381,7 +381,7 @@ private:
             "Group done handler needs to take (DoneWith) or (void) as an argument and has to "
             "return void, bool or DoneResult. Alternatively, it may be of DoneResult type. "
             "The passed handler doesn't fulfill these requirements.");
-        return [handler](DoneWith result) {
+        return [handler = std::move(handler)](DoneWith result) {
             if constexpr (isDoneResultType)
                 return handler;
             if constexpr (isRD)
@@ -565,7 +565,7 @@ private:
         static_assert(isR || isV,
             "Task setup handler needs to take (Task &) as an argument and has to return void or "
             "SetupResult. The passed handler doesn't fulfill these requirements.");
-        return [handler](TaskInterface &taskInterface) {
+        return [handler = std::move(handler)](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
             if constexpr (isR)
                 return std::invoke(handler, *adapter.task());
@@ -599,7 +599,7 @@ private:
             "(DoneWith) or (void) as arguments and has to return void, bool or DoneResult. "
             "Alternatively, it may be of DoneResult type. "
             "The passed handler doesn't fulfill these requirements.");
-        return [handler](const TaskInterface &taskInterface, DoneWith result) {
+        return [handler = std::move(handler)](const TaskInterface &taskInterface, DoneWith result) {
             if constexpr (isDoneResultType)
                 return handler;
             const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
@@ -700,8 +700,8 @@ Q_SIGNALS:
 
 private:
     void setupStorageHandler(const StorageBase &storage,
-                             StorageBase::StorageHandler setupHandler,
-                             StorageBase::StorageHandler doneHandler);
+                             const StorageBase::StorageHandler &setupHandler,
+                             const StorageBase::StorageHandler &doneHandler);
     template <typename StorageStruct, typename Handler>
     StorageBase::StorageHandler wrapHandler(Handler &&handler) {
         return [handler](void *voidStruct) {

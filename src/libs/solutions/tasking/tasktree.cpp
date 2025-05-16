@@ -1287,7 +1287,7 @@ const GroupItem finishAllAndSuccess = workflowPolicy(WorkflowPolicy::FinishAllAn
 const GroupItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
 
 // Keep below the above in order to avoid static initialization fiasco.
-const GroupItem nullItem = GroupItem({});
+const GroupItem nullItem = Group {};
 const ExecutableItem successItem = Group { finishAllAndSuccess };
 const ExecutableItem errorItem = Group { finishAllAndError };
 
@@ -1869,10 +1869,10 @@ public:
     void bumpAsyncCount();
     void advanceProgress(int byValue);
     void emitDone(DoneWith result);
-    void callSetupHandler(StorageBase storage, StoragePtr storagePtr) {
+    void callSetupHandler(const StorageBase &storage, StoragePtr storagePtr) {
         callStorageHandler(storage, storagePtr, &StorageHandler::m_setupHandler);
     }
-    void callDoneHandler(StorageBase storage, StoragePtr storagePtr) {
+    void callDoneHandler(const StorageBase &storage, StoragePtr storagePtr) {
         callStorageHandler(storage, storagePtr, &StorageHandler::m_doneHandler);
     }
     struct StorageHandler {
@@ -1880,7 +1880,7 @@ public:
         StorageBase::StorageHandler m_doneHandler = {};
     };
     typedef StorageBase::StorageHandler StorageHandler::*HandlerPtr; // ptr to class member
-    void callStorageHandler(StorageBase storage, StoragePtr storagePtr, HandlerPtr ptr)
+    void callStorageHandler(const StorageBase &storage, StoragePtr storagePtr, HandlerPtr ptr)
     {
         const auto it = m_storageHandlers.constFind(storage);
         if (it == m_storageHandlers.constEnd())
@@ -3525,8 +3525,8 @@ int TaskTree::progressValue() const
 */
 
 void TaskTree::setupStorageHandler(const StorageBase &storage,
-                                   StorageBase::StorageHandler setupHandler,
-                                   StorageBase::StorageHandler doneHandler)
+                                   const StorageBase::StorageHandler &setupHandler,
+                                   const StorageBase::StorageHandler &doneHandler)
 {
     auto it = d->m_storageHandlers.find(storage);
     if (it == d->m_storageHandlers.end()) {
