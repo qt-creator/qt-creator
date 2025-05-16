@@ -14,4 +14,5 @@ private:
     void populateParser() override;
     int startTestMode() override;
     void initQmlRunner() override;
+    void setupRandomCrash();
 };
