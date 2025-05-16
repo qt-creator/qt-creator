@@ -93,8 +93,11 @@ public:
     static bool isInProjectBuildDir(const Utils::FilePath &filePath, const Project &project);
     static bool isInProjectSourceDir(const Utils::FilePath &filePath, const Project &project);
     static Project *projectWithProjectFilePath(const Utils::FilePath &filePath);
+    static bool isKnownFile(const Utils::FilePath &filePath);
 
     static Utils::FilePaths projectsForSessionName(const QString &session);
+
+    static bool isAnyProjectParsing();
 
 signals:
     void projectAdded(ProjectExplorer::Project *project);
@@ -122,6 +125,7 @@ signals:
 
     void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 
+    void projectStartedParsing(ProjectExplorer::Project *project);
     void projectFinishedParsing(ProjectExplorer::Project *project);
 
 private:

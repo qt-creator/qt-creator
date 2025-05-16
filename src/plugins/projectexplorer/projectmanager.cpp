@@ -550,6 +550,18 @@ Project *ProjectManager::projectWithProjectFilePath(const FilePath &filePath)
             [&filePath](const Project *p) { return p->projectFilePath() == filePath; });
 }
 
+bool ProjectManager::isKnownFile(const Utils::FilePath &filePath)
+{
+    return Utils::anyOf(d->m_projects, [&filePath](const Project *p) {
+        return p->isKnownFile(filePath);
+    });
+}
+
+bool ProjectManager::isAnyProjectParsing()
+{
+    return Utils::anyOf(d->m_projects, &Project::isParsing);
+}
+
 void ProjectManager::configureEditor(IEditor *editor, const FilePath &filePath)
 {
     // Global settings are the default.

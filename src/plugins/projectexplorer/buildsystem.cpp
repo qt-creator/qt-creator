@@ -99,6 +99,7 @@ void BuildSystem::emitParsingStarted()
     d->m_isParsing = true;
     emit parsingStarted();
     emit project()->anyParsingStarted();
+    emit ProjectManager::instance()->projectStartedParsing(project());
     if (this == activeBuildSystemForActiveProject())
         emit ProjectManager::instance()->parsingStartedActive(this);
     if (this == activeBuildSystemForCurrentProject())

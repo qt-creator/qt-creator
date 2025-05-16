@@ -495,6 +495,13 @@ BuildSystem *Project::activeBuildSystem() const
     return activeTarget() ? activeTarget()->buildSystem() : nullptr;
 }
 
+bool Project::isParsing() const
+{
+    if (BuildSystem * const bs = activeBuildSystem())
+        return bs->isParsing() || bs->isWaitingForParse();
+    return false;
+}
+
 void Project::setIssuesGenerator(const std::function<Tasks(const Kit *)> &generator)
 {
     d->m_issuesGenerator = generator;

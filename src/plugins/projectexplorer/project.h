@@ -104,6 +104,7 @@ public:
     BuildConfiguration *activeBuildConfiguration() const;
     DeployConfiguration *activeDeployConfiguration() const;
     BuildSystem *activeBuildSystem() const;
+    bool isParsing() const;
 
     void setIssuesGenerator(const std::function<Tasks(const Kit *)> &generator);
     virtual Tasks projectIssues(const Kit *k) const;
