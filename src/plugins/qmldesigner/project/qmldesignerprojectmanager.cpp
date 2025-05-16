@@ -479,10 +479,6 @@ void QmlDesignerProjectManager::projectAdded(const ::ProjectExplorer::Project *p
     m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(
         m_previewImageCacheData->storage, project, m_data->pathCache, m_externalDependencies);
 
-    QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {
-        fileListChanged();
-    });
-
     QObject::connect(project, &::ProjectExplorer::Project::activeTargetChanged, [&](auto *target) {
         activeTargetChanged(target);
     });
@@ -553,11 +549,6 @@ QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCache
                          });
     });
     return m_imageCacheData.get();
-}
-
-void QmlDesignerProjectManager::fileListChanged()
-{
-    update();
 }
 
 void QmlDesignerProjectManager::activeTargetChanged(ProjectExplorer::Target *target)

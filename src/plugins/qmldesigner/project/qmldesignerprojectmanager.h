@@ -55,7 +55,6 @@ private:
     void generatePreview();
     ImageCacheData *imageCacheData();
 
-    void fileListChanged();
     void activeTargetChanged(::ProjectExplorer::Target *target);
     void aboutToRemoveTarget(::ProjectExplorer::Target *target);
     void kitChanged();
