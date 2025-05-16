@@ -37,6 +37,6 @@ Dialog {
     }
 
     Overlay.modal: Rectangle {
-        color: Color.transparent(Constants.currentDialogBackground, 0.5)
+        color: Qt.alpha(Constants.currentDialogBackground, 0.5)
     }
 }
