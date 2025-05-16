@@ -75,6 +75,7 @@ Item {
                 root.startDownload()
             } else if (downloadButton.alreadyDownloaded) {
                 root.clicked() // open example
+                extractor.probeTargetPath()
             }
         }
     }
