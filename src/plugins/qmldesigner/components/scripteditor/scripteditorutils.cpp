@@ -225,7 +225,7 @@ QVariant defaultValueForType(const TypeName &type)
     QVariant value;
     if (type == "int")
         value = 0;
-    else if (type == "real")
+    else if (type == "real" || type == "double")
         value = 0.0;
     else if (type == "color")
         value = QColor(255, 255, 255);
