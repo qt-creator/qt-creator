@@ -51,7 +51,6 @@ PanelsWidget::PanelsWidget(bool addStretch)
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(new Utils::StyledBar(this));
     layout->addWidget(scroller);
 
     //layout->addWidget(new FindToolBarPlaceHolder(this));

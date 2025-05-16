@@ -392,12 +392,14 @@ QVariant MiscSettingsPanelItem::data(int column, int role) const
 
     if (role == PanelWidgetRole) {
         if (!m_widget) {
-            ProjectSettingsWidget *widget = m_factory->createWidget(m_project);
-            m_widget = new PanelsWidget(m_factory->displayName(), widget);
-            m_widget->setFocusProxy(widget);
+            ProjectSettingsWidget *inner = m_factory->createWidget(m_project);
+            m_widget = new PanelsWidget(m_factory->displayName(), inner);
+            m_widget->setFocusProxy(inner);
         }
-
-        return QVariant::fromValue<QWidget *>(m_widget.data());
+        ProjectPanel panel;
+        panel.displayName = m_factory->displayName();
+        panel.widget = m_widget;
+        return QVariant::fromValue(QList{panel});
     }
 
     if (role == ActiveItemRole)  // We are the active one.
@@ -681,12 +683,57 @@ using ComboBoxModel = TreeModel<TypedTreeItem<ComboBoxItem>, ComboBoxItem>;
 // ProjectWindowPrivate
 //
 
+class CentralWidget : public QWidget
+{
+public:
+    explicit CentralWidget(QWidget *parent)
+        : QWidget(parent)
+    {
+        m_tabWidget = new QTabWidget(this);
+        m_tabWidget->setDocumentMode(true);
+
+        auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
+        layout->addWidget(new StyledBar(this));
+        layout->addWidget(m_tabWidget);
+    }
+
+    void setPanels(const ProjectPanels &panels, bool setFocus)
+    {
+        const int oldIndex = m_tabWidget->currentIndex();
+
+        while (m_tabWidget->count()) {
+            const int pos = m_tabWidget->count() - 1;
+            m_tabWidget->removeTab(pos);
+        }
+
+        for (const ProjectPanel &panel : panels) {
+            QTC_ASSERT(panel.widget, continue);
+            m_tabWidget->addTab(panel.widget, panel.displayName);
+        }
+
+        m_tabWidget->tabBar()->setVisible(panels.size() > 1);
+        m_tabWidget->setCurrentIndex(oldIndex);
+
+        if (QWidget *widget = m_tabWidget->currentWidget()) {
+            if (setFocus)
+                widget->setFocus();
+        }
+    }
+
+private:
+    QTabWidget *m_tabWidget = nullptr;
+};
+
 class ProjectWindowPrivate : public QObject
 {
 public:
     ProjectWindowPrivate(ProjectWindow *parent)
-        : q(parent)
+        : q(parent), m_centralWidget(new CentralWidget(q))
     {
+        q->setCentralWidget(m_centralWidget);
+
         m_projectsModel.setHeader({Tr::tr("Projects")});
 
         m_selectorTree = new SelectorTree;
@@ -809,7 +856,8 @@ public:
         ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
         if (!projectItem)
             return;
-        setPanel(projectItem->data(0, PanelWidgetRole).value<QWidget *>());
+
+        setPanels(projectItem->data(0, PanelWidgetRole).value<ProjectPanels>());
 
         QModelIndex activeIndex = projectItem->activeIndex();
         m_selectorTree->expandAll();
@@ -954,20 +1002,11 @@ public:
         }
     }
 
-    void setPanel(QWidget *panel)
+    void setPanels(const ProjectPanels &panels)
     {
-        q->savePersistentSettings();
-        if (QWidget *widget = q->centralWidget()) {
-            q->takeCentralWidget();
-            widget->hide(); // Don't delete.
-        }
-        if (panel) {
-            q->setCentralWidget(panel);
-            panel->show();
-            if (q->hasFocus()) // we get assigned focus from setFocusToCurrentMode, pass that on
-                panel->setFocus();
-        }
-        q->loadPersistentSettings();
+         q->savePersistentSettings();
+         m_centralWidget->setPanels(panels, q->hasFocus());
+         q->loadPersistentSettings();
     }
 
     ProjectWindow *q;
@@ -980,6 +1019,7 @@ public:
     QAction m_toggleRightSidebarAction;
     QDockWidget *m_outputDock;
     BuildSystemOutputWindow *m_buildSystemOutput;
+    CentralWidget *m_centralWidget;
 };
 
 //

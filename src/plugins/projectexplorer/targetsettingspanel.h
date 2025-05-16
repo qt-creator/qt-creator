@@ -5,7 +5,7 @@
 
 #include "projectpanelfactory.h"
 
-#include <QCoreApplication>
+#include <utils/treemodel.h>
 
 #include <memory>
 
@@ -17,6 +17,20 @@ namespace Internal {
 
 class ITargetItem;
 class TargetGroupItemPrivate;
+
+class ProjectPanel
+{
+public:
+    ProjectPanel() = default;
+    ProjectPanel(const QString &displayName, QWidget *widget)
+        : displayName(displayName), widget(widget)
+    {}
+
+    QString displayName;
+    QWidget *widget = nullptr;
+};
+
+using ProjectPanels = QList<ProjectPanel>;
 
 // Second level: Special case for the Build & Run item (with per-kit subItems)
 class TargetGroupItem : public Utils::TypedTreeItem<ITargetItem /*, ProjectItem */>
