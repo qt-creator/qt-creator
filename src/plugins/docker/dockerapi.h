@@ -44,6 +44,7 @@ public:
     QFuture<Utils::Result<QList<Network>>> networks();
 
     bool isContainerRunning(const QString &containerId);
+    bool imageExists(const QString &imageId);
 
 signals:
     void dockerDaemonAvailableChanged();
