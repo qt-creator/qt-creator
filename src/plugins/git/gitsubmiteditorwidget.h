@@ -64,10 +64,10 @@ private:
     void setPanelInfo(const GitSubmitEditorPanelInfo &info);
 
     PushAction m_pushAction = NoPush;
-    GitSubmitPanel *m_gitSubmitPanel;
+    GitSubmitPanel *m_gitSubmitPanel = nullptr;
     GitSubmitHighlighter *m_highlighter = nullptr;
     LogChangeWidget *m_logChangeWidget = nullptr;
-    QValidator *m_emailValidator;
+    QValidator *m_emailValidator = nullptr;
     QString m_originalAuthor;
     QString m_originalEmail;
     QStringList m_range;
