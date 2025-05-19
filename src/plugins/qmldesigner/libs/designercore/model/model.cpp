@@ -546,15 +546,16 @@ bool ModelPrivate::propertyNameIsValid(PropertyNameView propertyName)
     return true;
 }
 
-template<typename Callable>
-void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
+void ModelPrivate::notifyNodeInstanceViewLast(const std::invocable<AbstractView *> auto &call)
 {
     bool resetModel = false;
     QString description;
 
     try {
-        if (m_rewriterView && !m_rewriterView->isBlockingNotifications())
+        if (m_rewriterView && !m_rewriterView->isBlockingNotifications()) {
+            NanotraceHR::Tracer tracer{m_rewriterView->name(), ModelTracing::category()};
             call(m_rewriterView);
+        }
     } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
@@ -562,52 +563,62 @@ void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
 
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         try {
-            if (!view->isBlockingNotifications())
+            if (!view->isBlockingNotifications()) {
+                NanotraceHR::Tracer tracer{view->name(), ModelTracing::category()};
                 call(view.data());
+            }
         } catch (const Exception &e) {
             e.showException(tr("Exception thrown by view %1.").arg(view->widgetInfo().tabName));
         }
     }
 
-    if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
-        call(nodeInstanceView());
+    if (m_nodeInstanceView && !m_nodeInstanceView->isBlockingNotifications()) {
+        NanotraceHR::Tracer tracer{m_nodeInstanceView->name(), ModelTracing::category()};
+        call(m_nodeInstanceView);
+    }
 
     if (resetModel)
         resetModelByRewriter(description);
 }
 
-template<typename Callable>
-void ModelPrivate::notifyNormalViewsLast(Callable call)
+void ModelPrivate::notifyNormalViewsLast(const std::invocable<AbstractView *> auto &call)
 {
     bool resetModel = false;
     QString description;
 
     try {
-        if (m_rewriterView && !m_rewriterView->isBlockingNotifications())
+        if (m_rewriterView && !m_rewriterView->isBlockingNotifications()) {
+            NanotraceHR::Tracer tracer{m_rewriterView->name(), ModelTracing::category()};
             call(m_rewriterView);
+        }
     } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
     }
 
-    if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
-        call(nodeInstanceView());
+    if (m_nodeInstanceView && !m_nodeInstanceView->isBlockingNotifications()) {
+        NanotraceHR::Tracer tracer{m_nodeInstanceView->name(), ModelTracing::category()};
+        call(m_nodeInstanceView);
+    }
 
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
-        if (!view->isBlockingNotifications())
+        if (!view->isBlockingNotifications()) {
+            NanotraceHR::Tracer tracer{view->name(), ModelTracing::category()};
             call(view.data());
+        }
     }
 
     if (resetModel)
         resetModelByRewriter(description);
 }
 
-template<typename Callable>
-void ModelPrivate::notifyInstanceChanges(Callable call)
+void ModelPrivate::notifyInstanceChanges(const std::invocable<AbstractView *> auto &call)
 {
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
-        if (!view->isBlockingNotifications())
+        if (!view->isBlockingNotifications()) {
+            NanotraceHR::Tracer tracer{view->name(), ModelTracing::category()};
             call(view.data());
+        }
     }
 }
 
@@ -615,6 +626,7 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &node,
                                               AuxiliaryDataKeyView key,
                                               const QVariant &data)
 {
+    NanotraceHR::Tracer tracer{"notify auxiliary data changed", ModelTracing::category()};
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         ModelNode modelNode(node, m_model, view);
         view->auxiliaryDataChanged(modelNode, key, data);
@@ -809,8 +821,10 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView,
 void ModelPrivate::notifyCustomNotificationTo(AbstractView *view,
                                               const CustomNotificationPackage &package)
 {
-    if (view)
+    if (view) {
+        NanotraceHR::Tracer tracer{view->name(), ModelTracing::category()};
         view->customNotification(package);
+    }
 }
 
 void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPairList)
@@ -832,6 +846,8 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
 
     try {
         if (m_rewriterView) {
+            NanotraceHR::Tracer tracer{m_rewriterView->name(), ModelTracing::category()};
+
             QList<AbstractProperty> propertyList;
             for (InternalProperty *property : internalPropertyList) {
                 AbstractProperty newProperty(property->name(),
@@ -849,6 +865,7 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
     }
 
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
+        NanotraceHR::Tracer tracer{view->name(), ModelTracing::category()};
         QList<AbstractProperty> propertyList;
         Q_ASSERT(view != nullptr);
         for (auto property : internalPropertyList) {
@@ -864,14 +881,18 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
         }
     }
 
-    if (nodeInstanceView()) {
+    if (m_nodeInstanceView) {
+        NanotraceHR::Tracer tracer{m_nodeInstanceView->name(), ModelTracing::category()};
         QList<AbstractProperty> propertyList;
         for (auto property : internalPropertyList) {
-            AbstractProperty newProperty(property->name(), property->propertyOwner(), m_model, nodeInstanceView());
+            AbstractProperty newProperty(property->name(),
+                                         property->propertyOwner(),
+                                         m_model,
+                                         m_nodeInstanceView);
             propertyList.append(newProperty);
         }
 
-        nodeInstanceView()->propertiesAboutToBeRemoved(propertyList);
+        m_nodeInstanceView->propertiesAboutToBeRemoved(propertyList);
     }
 
     if (resetModel)

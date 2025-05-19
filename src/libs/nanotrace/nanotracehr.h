@@ -58,6 +58,10 @@ struct TracerLiteral
         : text{text}
     {}
 
+    consteval TracerLiteral(const char *text)
+        : text{text}
+    {}
+
     template<std::size_t size>
     consteval TracerLiteral(const char (&text)[size])
         : text{text}

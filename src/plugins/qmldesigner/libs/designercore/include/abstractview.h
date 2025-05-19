@@ -67,9 +67,11 @@ public:
     };
     Q_DECLARE_FLAGS(PropertyChangeFlags, PropertyChangeFlag)
 
-    AbstractView(ExternalDependenciesInterface &externalDependencies)
+    AbstractView(ExternalDependenciesInterface &externalDependencies,
+                 NanotraceHR::TracerLiteral functionName = __builtin_FUNCTION())
         : m_externalDependencies{externalDependencies}
         , m_action{Utils::makeUniqueObjectPtr<AbstractViewAction>(*this)}
+        , m_name(functionName)
     {}
 
     void setWidgetRegistration(WidgetRegistrationInterface *interface);
@@ -287,6 +289,14 @@ public:
         AbstractView *m_view;
     };
 
+    template<typename String>
+    friend void convertToString(String &string, const AbstractView *view)
+    {
+        convertToString(string, view->m_name);
+    }
+
+    const auto &name() const { return m_name; }
+
 protected:
     void setModel(Model *model);
     void removeModel();
@@ -310,6 +320,8 @@ private:
     bool m_isBlockingNotifications = false;
     Kind m_kind = Kind::Other;
     WidgetRegistrationInterface *m_widgetRegistration = nullptr;
+
+    NanotraceHR::TracerLiteral m_name;
 };
 
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(

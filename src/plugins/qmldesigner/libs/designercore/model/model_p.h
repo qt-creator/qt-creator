@@ -137,12 +137,9 @@ public:
     void detachView(AbstractView *view, bool notifyView);
     void detachAllViews();
 
-    template<typename Callable>
-    void notifyNodeInstanceViewLast(Callable call);
-    template<typename Callable>
-    void notifyNormalViewsLast(Callable call);
-    template<typename Callable>
-    void notifyInstanceChanges(Callable call);
+    void notifyNodeInstanceViewLast(const std::invocable<AbstractView *> auto &call);
+    void notifyNormalViewsLast(const std::invocable<AbstractView *> auto &call);
+    void notifyInstanceChanges(const std::invocable<AbstractView *> auto &call);
 
     void notifyNodeCreated(const InternalNodePointer &newNode);
     void notifyNodeAboutToBeReparent(const InternalNodePointer &node,
