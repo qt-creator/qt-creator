@@ -423,20 +423,9 @@ void InfoBarDisplay::infoBarDestroyed()
     // will delete the widgets itself) or setInfoBar() being called explicitly.
 }
 
-static void disconnectRecursively(QObject *obj)
-{
-    obj->disconnect();
-    for (QObject *child : obj->children())
-        disconnectRecursively(child);
-}
-
 void InfoBarDisplay::update()
 {
     for (QWidget *widget : std::as_const(m_infoWidgets)) {
-        // Make sure that we are no longer connect to anything (especially lambdas).
-        // Otherwise a lambda might live longer than the owner of the lambda.
-        disconnectRecursively(widget);
-
         widget->hide(); // Late deletion can cause duplicate infos. Hide immediately to prevent it.
         widget->deleteLater();
     }

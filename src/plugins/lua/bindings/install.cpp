@@ -15,6 +15,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/guardedcallback.h>
 #include <utils/infobar.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/stylehelper.h>
@@ -292,6 +293,7 @@ void setupInstallModule()
                     const sol::table &installOptions,
                     const sol::function &callback) {
                     QList<InstallOptions> installOptionsList;
+                    auto guard = pluginSpec->connectionGuard.get();
                     if (installOptions.size() > 0) {
                         for (const auto &pair : installOptions) {
                             const sol::object &value = pair.second;
@@ -353,7 +355,6 @@ void setupInstallModule()
 
                         msgBox->setDetailedText(details);
 
-                        auto guard = pluginSpec->connectionGuard.get();
                         QObject::connect(msgBox, &QMessageBox::accepted, guard, install);
                         QObject::connect(msgBox, &QMessageBox::rejected, guard, denied);
 
@@ -371,7 +372,7 @@ void setupInstallModule()
 
                     entry.addCustomButton(
                         Tr::tr("Install"),
-                        [install]() { install(); },
+                        guardedCallback(guard, [install]() { install(); }),
                         {},
                         InfoBarEntry::ButtonAction::Hide);
 
