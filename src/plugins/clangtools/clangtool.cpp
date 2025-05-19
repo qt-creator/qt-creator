@@ -45,8 +45,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
-#include <utils/fancylineedit.h>
-#include <utils/fancymainwindow.h>
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/progressindicator.h>
@@ -764,7 +762,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
                     // do not generate marks when we always analyze open files since marks from that
                     // analysis should be more up to date
                     const bool generateMarks = !runSettings.analyzeOpenFiles();
-                    onNewDiagnosticsAvailable(diagnostics, generateMarks);
+                    onNewDiagnosticsAvailable(diagnostics, generateMarks, RootItemUse::Existing);
                 }
             }
             updateForCurrentState();
@@ -963,7 +961,8 @@ void ClangTool::loadDiagnosticsFromFiles()
 
     // Show imported
     reset();
-    onNewDiagnosticsAvailable(diagnostics, /*generateMarks =*/ true);
+
+    onNewDiagnosticsAvailable(diagnostics, /*generateMarks =*/ true, RootItemUse::New);
     setState(State::ImportFinished);
 }
 
@@ -1220,7 +1219,8 @@ QSet<Diagnostic> ClangTool::diagnostics() const
     });
 }
 
-void ClangTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics, bool generateMarks)
+void ClangTool::onNewDiagnosticsAvailable(
+    const Diagnostics &diagnostics, bool generateMarks, RootItemUse rootItemUse)
 {
     const int oldLevel1RowCount = m_diagnosticModel->rowCount();
     const auto getOldLastLevel1Index = [&] {
@@ -1230,7 +1230,13 @@ void ClangTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics, bool g
         return oldLevel1RowCount == 0 ? -1 : m_diagnosticModel->rowCount(getOldLastLevel1Index());
     };
     const int oldLevel2RowCount = getLevel2RowCountForOldLastLevel1Index();
-    m_diagnosticModel->addDiagnostics(diagnostics, generateMarks);
+    TreeItem * const rootItem = rootItemUse == RootItemUse::New
+                                   ? m_diagnosticModel->createRootItem()
+                                   : m_diagnosticModel->rootItem();
+    m_diagnosticModel->addDiagnostics(diagnostics, generateMarks, rootItem);
+    if (rootItemUse == RootItemUse::New)
+        m_diagnosticModel->resetRootItem(rootItem);
+
     if (!m_expandCollapse->isChecked())
         return;
 

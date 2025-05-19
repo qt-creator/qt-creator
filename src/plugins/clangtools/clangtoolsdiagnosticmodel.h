@@ -79,7 +79,7 @@ class ClangToolsDiagnosticModel : public ClangToolsDiagnosticModelBase
 public:
     ClangToolsDiagnosticModel(CppEditor::ClangToolType type, QObject *parent = nullptr);
 
-    void addDiagnostics(const Diagnostics &diagnostics, bool generateMarks);
+    void addDiagnostics(const Diagnostics &diagnostics, bool generateMarks, Utils::TreeItem *rootItem);
     QSet<Diagnostic> diagnostics() const;
 
     enum ItemRole {
@@ -95,6 +95,8 @@ public:
     void clear();
     void removeWatchedPath(const Utils::FilePath &path);
     void addWatchedPath(const Utils::FilePath &path);
+    void resetRootItem(Utils::TreeItem *root) { setRootItem(root); };
+    Utils::TreeItem *createRootItem() const;
 
     std::unique_ptr<InlineSuppressedDiagnostics> createInlineSuppressedDiagnostics();
 

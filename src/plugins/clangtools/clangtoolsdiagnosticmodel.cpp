@@ -70,7 +70,7 @@ ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(CppEditor::ClangToolType ty
     , m_filesWatcher(std::make_unique<Utils::FileSystemWatcher>())
     , m_type(type)
 {
-    setRootItem(new Utils::StaticTreeItem(QString()));
+    setRootItem(createRootItem());
     connectFileWatcher();
 }
 
@@ -86,7 +86,8 @@ QDebug operator<<(QDebug debug, const Diagnostic &d)
                  ;
 }
 
-void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics, bool generateMarks)
+void ClangToolsDiagnosticModel::addDiagnostics(
+    const Diagnostics &diagnostics, bool generateMarks, TreeItem *rootItem)
 {
     for (const Diagnostic &d : diagnostics) {
         // Check for duplicates
@@ -102,7 +103,7 @@ void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics, b
         FilePathItem *&filePathItem = m_filePathToItem[filePath];
         if (!filePathItem) {
             filePathItem = new FilePathItem(filePath);
-            rootItem()->appendChild(filePathItem);
+            rootItem->appendChild(filePathItem);
             addWatchedPath(filePath);
         }
 
@@ -169,6 +170,11 @@ void ClangToolsDiagnosticModel::removeWatchedPath(const Utils::FilePath &path)
 void ClangToolsDiagnosticModel::addWatchedPath(const Utils::FilePath &path)
 {
     m_filesWatcher->addFile(path, Utils::FileSystemWatcher::WatchAllChanges);
+}
+
+TreeItem *ClangToolsDiagnosticModel::createRootItem() const
+{
+    return new StaticTreeItem(QString());
 }
 
 std::unique_ptr<InlineSuppressedDiagnostics> ClangToolsDiagnosticModel::createInlineSuppressedDiagnostics()
@@ -518,6 +524,9 @@ DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
             });
     connect(this, &QAbstractItemModel::modelReset, this, [this] {
         reset();
+        const Counters counters = countDiagnostics(QModelIndex(), 0, rowCount());
+        m_diagnostics = counters.diagnostics;
+        m_fixitsSchedulable = counters.fixits;
         emit fixitCountersChanged();
     });
     connect(this, &QAbstractItemModel::rowsInserted,

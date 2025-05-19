@@ -56,7 +56,9 @@ public:
 
     const QString &name() const;
 
-    void onNewDiagnosticsAvailable(const Diagnostics &diagnostics, bool generateMarks);
+    enum class RootItemUse { Existing, New };
+    void onNewDiagnosticsAvailable(
+        const Diagnostics &diagnostics, bool generateMarks, RootItemUse rootItemUse);
 
     QAction *startAction() const { return m_startAction; }
     QAction *startOnCurrentFileAction() const { return m_startOnCurrentFileAction; }
