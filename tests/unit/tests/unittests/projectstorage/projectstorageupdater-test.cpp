@@ -4797,11 +4797,42 @@ TEST_F(ProjectStorageUpdater_global_type_annotations, removed_directory)
     updater.update({.typeAnnotationPaths = {itemLibraryPath}});
 }
 
-TEST_F(ProjectStorageUpdater, synchronize_added_property_editor_qml_paths_directory)
+class ProjectStorageUpdater_added_property_editor_qml_paths : public BaseProjectStorageUpdater
 {
-    setFileSystemSubdirectories(u"/path/one", {"/path/one/designer"});
+public:
+    ProjectStorageUpdater_added_property_editor_qml_paths()
+    {
+        QString qmldir{R"(module Bar)"};
+        setContent(u"/path/one/qmldir", qmldir);
+
+        setFileNames(u"/path/one/designer",
+                     {"FooSpecifics.qml", "HuoSpecificsDynamic.qml", "CaoPane.qml"},
+                     {"*Pane.qml", "*Specifics.qml", "*SpecificsDynamic.qml"});
+    }
+
+public:
+    DirectoryPathId path1DirectoryPathId = sourcePathCache.directoryPathId("/path/one");
+    SourceId path1SourceId = SourceId::create(path1DirectoryPathId, QmlDesigner::FileNameId{});
+    DirectoryPathId path2DirectoryPathId = sourcePathCache.directoryPathId("/path/two");
+    SourceId path2SourceId = SourceId::create(path2DirectoryPathId, QmlDesigner::FileNameId{});
+    SourceId qmldir1SourceId = sourcePathCache.sourceId("/path/one/qmldir");
     DirectoryPathId designer1DirectoryId = sourcePathCache.directoryPathId("/path/one/designer");
     SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
+    DirectoryPathId designer2DirectoryId = sourcePathCache.directoryPathId("/path/two/designer");
+    SourceId designer2SourceId = SourceId::create(designer2DirectoryId, QmlDesigner::FileNameId{});
+    SourceId propertyEditorSpecificSourceId = sourcePathCache.sourceId(
+        "/path/one/designer/FooSpecifics.qml");
+    SourceId propertyEditorSpecificDynamicSourceId = sourcePathCache.sourceId(
+        "/path/one/designer/HuoSpecificsDynamic.qml");
+    SourceId propertyEditorPaneSourceId = sourcePathCache.sourceId(
+        "/path/one/designer/CaoPane.qml");
+    ModuleId barModuleId = storage.moduleId("Bar", ModuleKind::QmlLibrary);
+};
+
+TEST_F(ProjectStorageUpdater_added_property_editor_qml_paths,
+       synchronize_added_property_editor_qml_paths_directory)
+{
+    setFileSystemSubdirectories(u"/path/one", {"/path/one/designer"});
     setFilesUnchanged({path1SourceId});
     setFilesAdded({designer1SourceId});
 
@@ -4825,11 +4856,10 @@ TEST_F(ProjectStorageUpdater, synchronize_added_property_editor_qml_paths_direct
     updater.update({.projectDirectory = "/path/one"});
 }
 
-TEST_F(ProjectStorageUpdater, synchronize_changed_property_editor_qml_paths_directory)
+TEST_F(ProjectStorageUpdater_added_property_editor_qml_paths,
+       synchronize_changed_property_editor_qml_paths_directory)
 {
     setFileSystemSubdirectories(u"/path/one", {"/path/one/designer"});
-    DirectoryPathId designer1DirectoryId = sourcePathCache.directoryPathId("/path/one/designer");
-    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
     setFilesUnchanged({path1SourceId});
     setFilesChanged({designer1SourceId});
 
@@ -4853,11 +4883,10 @@ TEST_F(ProjectStorageUpdater, synchronize_changed_property_editor_qml_paths_dire
     updater.update({.projectDirectory = "/path/one"});
 }
 
-TEST_F(ProjectStorageUpdater, dont_synchronize_empty_property_editor_qml_paths_directory)
+TEST_F(ProjectStorageUpdater_added_property_editor_qml_paths,
+       dont_synchronize_empty_property_editor_qml_paths_directory)
 {
     setFileSystemSubdirectories(u"/path/two", {});
-    DirectoryPathId designer2DirectoryId = sourcePathCache.directoryPathId("/path/two/designer");
-    SourceId designer2SourceId = SourceId::create(designer2DirectoryId, QmlDesigner::FileNameId{});
     setFilesChanged({path2SourceId});
     setFilesNotExists({designer2SourceId});
 
@@ -4886,10 +4915,9 @@ TEST_F(ProjectStorageUpdater, dont_synchronize_empty_property_editor_qml_paths_d
     updater.update({.projectDirectory = "/path/two"});
 }
 
-TEST_F(ProjectStorageUpdater, remove_property_editor_qml_paths_if_designer_directory_is_removed)
+TEST_F(ProjectStorageUpdater_added_property_editor_qml_paths,
+       remove_property_editor_qml_paths_if_designer_directory_is_removed)
 {
-    DirectoryPathId designer1DirectoryId = sourcePathCache.directoryPathId("/path/one/designer");
-    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
     setFilesUnchanged({path1SourceId, qmldir1SourceId});
     setFilesRemoved({designer1SourceId});
 
@@ -4911,26 +4939,12 @@ TEST_F(ProjectStorageUpdater, remove_property_editor_qml_paths_if_designer_direc
     updater.update({.projectDirectory = "/path/one"});
 }
 
-TEST_F(ProjectStorageUpdater,
+TEST_F(ProjectStorageUpdater_added_property_editor_qml_paths,
        synchronize_property_editor_qml_paths_directory_if_designer_directory_is_changed)
 {
     setFileSystemSubdirectories(u"/path/one", {"/path/one/designer"});
-    QString qmldir{R"(module Bar)"};
-    setContent(u"/path/one/qmldir", qmldir);
-    DirectoryPathId designer1DirectoryId = sourcePathCache.directoryPathId("/path/one/designer");
-    SourceId propertyEditorSpecificSourceId = sourcePathCache.sourceId(
-        "/path/one/designer/FooSpecifics.qml");
-    SourceId propertyEditorSpecificDynamicSourceId = sourcePathCache.sourceId(
-        "/path/one/designer/HuoSpecificsDynamic.qml");
-    SourceId propertyEditorPaneSourceId = sourcePathCache.sourceId(
-        "/path/one/designer/CaoPane.qml");
-    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
     setFilesChanged({designer1SourceId});
     setFilesUnchanged({path1SourceId, qmldir1SourceId});
-    auto barModuleId = storage.moduleId("Bar", ModuleKind::QmlLibrary);
-    setFileNames(u"/path/one/designer",
-                 {"FooSpecifics.qml", "HuoSpecificsDynamic.qml", "CaoPane.qml"},
-                 {"*Pane.qml", "*Specifics.qml", "*SpecificsDynamic.qml"});
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(
@@ -4955,26 +4969,12 @@ TEST_F(ProjectStorageUpdater,
     updater.update({.projectDirectory = "/path/one"});
 }
 
-TEST_F(ProjectStorageUpdater,
+TEST_F(ProjectStorageUpdater_added_property_editor_qml_paths,
        synchronize_property_editor_qml_paths_directory_if_qml_directory_is_changed)
 {
     setFileSystemSubdirectories(u"/path/one", {"/path/one/designer"});
-    QString qmldir{R"(module Bar)"};
-    setContent(u"/path/one/qmldir", qmldir);
-    DirectoryPathId designer1DirectoryId = sourcePathCache.directoryPathId("/path/one/designer");
-    SourceId propertyEditorSpecificSourceId = sourcePathCache.sourceId(
-        "/path/one/designer/FooSpecifics.qml");
-    SourceId propertyEditorSpecificDynamicSourceId = sourcePathCache.sourceId(
-        "/path/one/designer/HuoSpecificsDynamic.qml");
-    SourceId propertyEditorPaneSourceId = sourcePathCache.sourceId(
-        "/path/one/designer/CaoPane.qml");
-    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
     setFilesChanged({path1SourceId});
     setFilesUnchanged({qmldir1SourceId, designer1SourceId});
-    auto barModuleId = storage.moduleId("Bar", ModuleKind::QmlLibrary);
-    setFileNames(u"/path/one/designer",
-                 {"FooSpecifics.qml", "HuoSpecificsDynamic.qml", "CaoPane.qml"},
-                 {"*Pane.qml", "*Specifics.qml", "*SpecificsDynamic.qml"});
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(
@@ -4999,25 +4999,12 @@ TEST_F(ProjectStorageUpdater,
     updater.update({.projectDirectory = "/path/one"});
 }
 
-TEST_F(ProjectStorageUpdater, synchronize_property_editor_qml_paths_directory_if_qmldir_is_changed)
+TEST_F(ProjectStorageUpdater_added_property_editor_qml_paths,
+       synchronize_property_editor_qml_paths_directory_if_qmldir_is_changed)
 {
     setFileSystemSubdirectories(u"/path/one", {"/path/one/designer"});
-    QString qmldir{R"(module Bar)"};
-    setContent(u"/path/one/qmldir", qmldir);
-    DirectoryPathId designer1DirectoryId = sourcePathCache.directoryPathId("/path/one/designer");
-    SourceId propertyEditorSpecificSourceId = sourcePathCache.sourceId(
-        "/path/one/designer/FooSpecifics.qml");
-    SourceId propertyEditorSpecificDynamicSourceId = sourcePathCache.sourceId(
-        "/path/one/designer/HuoSpecificsDynamic.qml");
-    SourceId propertyEditorPaneSourceId = sourcePathCache.sourceId(
-        "/path/one/designer/CaoPane.qml");
-    SourceId designer1SourceId = SourceId::create(designer1DirectoryId, QmlDesigner::FileNameId{});
-    setFilesChanged({qmldir1SourceId});
     setFilesUnchanged({path1SourceId, designer1SourceId});
-    auto barModuleId = storage.moduleId("Bar", ModuleKind::QmlLibrary);
-    setFileNames(u"/path/one/designer",
-                 {"FooSpecifics.qml", "HuoSpecificsDynamic.qml", "CaoPane.qml"},
-                 {"*Pane.qml", "*Specifics.qml", "*SpecificsDynamic.qml"});
+    setFilesChanged({qmldir1SourceId});
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(
