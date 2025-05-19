@@ -666,7 +666,7 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
                                             const DirectoryPathIds &subdirectoriesToIgnore,
                                             Storage::Synchronization::SynchronizationPackage &package,
                                             NotUpdatedSourceIds &notUpdatedSourceIds,
-                                            WatchedSourceIds &WatchedSourceIds,
+                                            WatchedSourceIds &watchedSourceIds,
                                             IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"update directory", category(), keyValue("directory", directoryPath)};
@@ -677,11 +677,11 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
 
     auto directoryState = fileState(directoryId, package, notUpdatedSourceIds);
     if (isExisting(directoryState))
-        WatchedSourceIds.directoryIds.push_back(SourceId::create(directoryId, FileNameId{}));
+        watchedSourceIds.directoryIds.push_back(SourceId::create(directoryId, FileNameId{}));
 
     auto qmldirState = fileState(qmldirSourceId, package, notUpdatedSourceIds);
     if (isExisting(qmldirState))
-        WatchedSourceIds.qmldirSourceIds.push_back(qmldirSourceId);
+        watchedSourceIds.qmldirSourceIds.push_back(qmldirSourceId);
 
     SourcePath annotationDirectoryPath{directoryPath + "/designer"};
     auto annotationDirectoryId = m_pathCache.directoryPathId(annotationDirectoryPath);
@@ -702,7 +702,7 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
                                annotationDirectoryId,
                                package,
                                notUpdatedSourceIds,
-                               WatchedSourceIds,
+                               watchedSourceIds,
                                isInsideProject,
                                tracer);
         break;
@@ -712,7 +712,7 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
         parseDirectoryInfos(m_projectStorage.fetchDirectoryInfos(directoryId),
                             package,
                             notUpdatedSourceIds,
-                            WatchedSourceIds,
+                            watchedSourceIds,
                             isInsideProject);
         break;
     case FileState::Removed: {
@@ -741,7 +741,7 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
                          subdirectoriesToIgnore,
                          package,
                          notUpdatedSourceIds,
-                         WatchedSourceIds,
+                         watchedSourceIds,
                          isInsideProject);
 
     tracer.end(keyValue("qmldir source path", qmldirPath),
