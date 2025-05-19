@@ -44,7 +44,7 @@ public:
     QModelIndex currentBranch() const;
     QString fullName(const QModelIndex &idx, bool includePrefix = false) const;
     QStringList localBranchNames() const;
-    QString sha(const QModelIndex &idx) const;
+    QString hash(const QModelIndex &idx) const;
     QDateTime dateTime(const QModelIndex &idx) const;
     bool isHead(const QModelIndex &idx) const;
     bool isLocal(const QModelIndex &idx) const;
@@ -69,7 +69,7 @@ private:
     void removeNode(const QModelIndex &idx);
     void updateUpstreamStatus(BranchNode *node);
 
-    QString toolTip(const QString &sha) const;
+    QString toolTip(const QString &hash) const;
 
     class Private;
     Private *d;

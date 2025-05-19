@@ -50,7 +50,7 @@
     \endlist
 
     To stop the synchronization between the editor and the
-    \uicontrol {File System} view, clear \inlineimage icons/linkicon.png
+    \uicontrol {File System} view, clear \inlineimage {icons/linkicon.png} {}
     (\uicontrol {Synchronize Root Directory with Editor}).
 
     The view displays the path to the active file as bread crumbs. You can move
@@ -75,7 +75,7 @@
         \li View file properties, such as name, path, MIME type, default editor,
             line endings, indentation, owner, size, last read and modified
             dates, and permissions.
-        \li Create new files. For more information, see {Create files}.
+        \li Create new files. For more information, see \l {Create files}.
         \li Rename existing files. To move the file to another directory, enter
             the relative or absolute path to its new location in addition to the
             new filename.
@@ -83,6 +83,8 @@
         \li Create new folders.
         \li Compare the selected file with the currently open file in the diff
             editor. For more information, see \l{Compare files}.
+        \li View the versioning history of a project directory. For more
+            information, see \l {git log}.
         \li Display the contents of a particular directory in the view.
         \li Collapse all open folders.
     \endlist
@@ -92,7 +94,7 @@
     The toolbar in the \uicontrol {File System} view has additional
     options.
 
-    To manage view contents, select \inlineimage icons/filtericon.png
+    To manage view contents, select \inlineimage {icons/filtericon.png} {}
     (\uicontrol Options):
 
     \list
@@ -104,7 +106,7 @@
     \endlist
 
     To stop the synchronization with the file currently open in the
-    editor, clear \inlineimage icons/linkicon.png
+    editor, clear \inlineimage {icons/linkicon.png} {}
     (\uicontrol {Synchronize with Editor}).
 
     \sa {View CMake project contents}, {Projects}

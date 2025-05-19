@@ -591,6 +591,12 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
         painter->drawPixmap(iconRect, iconPx);
         break;
     }
+    case QStyle::PE_PanelButtonTool: {
+        // QTCREATORBUG-32968 Only for the checked QToolButton
+        StyleHelper::drawCardBg(painter, option->rect.adjusted(1, 1, -1, -1),
+                                creatorColor(Theme::BackgroundColorSelected), frameColor, 2.5);
+        break;
+    }
     default:
         QTC_ASSERT_STRING("Unhandled QStyle::PrimitiveElement case");
         break;
@@ -610,7 +616,8 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                  || element == PE_FrameGroupBox
                  || element == PE_IndicatorRadioButton
                  || element == PE_IndicatorCheckBox
-                 || element == PE_IndicatorTabClose)
+                 || element == PE_IndicatorTabClose
+                 || (element == PE_PanelButtonTool && (option->state & State_On)))
                 && isDarkFusionStyle(baseStyle());
         if (tweakDarkTheme)
             drawPrimitiveTweakedForDarkTheme(element, option, painter, widget);

@@ -964,26 +964,15 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
 
 static void markCMakeModulesFromPrefixPathAsGenerated(FileApiQtcData &result)
 {
-    const QSet<FilePath> paths = [&result]() {
-        QSet<FilePath> paths;
-        for (const QByteArray var : {"CMAKE_PREFIX_PATH", "CMAKE_FIND_ROOT_PATH"}) {
-            const QStringList pathList = result.cache.stringValueOf(var).split(";");
-            for (const QString &path : pathList)
-                paths.insert(FilePath::fromUserInput(path));
-        }
-        return paths;
-    }();
-
     if (!result.rootProjectNode)
         return;
 
-    result.rootProjectNode->forEachGenericNode([&paths](Node *node) {
-        for (const FilePath &path : paths) {
-            if (node->path().isChildOf(path)) {
-                node->setIsGenerated(true);
-                break;
-            }
-        }
+    result.rootProjectNode->forEachGenericNode([&result](Node *node) {
+        CMakeFileInfo value;
+        value.path = node->path();
+        auto it = result.cmakeFiles.find(value);
+        if (it != result.cmakeFiles.end() && (it->isCMake || it->isExternal))
+            node->setIsGenerated(true);
     });
 }
 

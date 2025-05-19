@@ -77,7 +77,7 @@ Result<> ImageViewerFile::openImpl(const FilePath &filePath)
     cleanUp();
 
     if (!filePath.isReadableFile())
-        return ResultError(Tr::tr("File not readable"));
+        return ResultError(Tr::tr("File not readable."));
 
     const QString &fileName = filePath.toUrlishString();
     QByteArray format = QImageReader::imageFormat(fileName);

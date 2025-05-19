@@ -144,16 +144,22 @@ void QmlFormatSettings::generateQmlFormatIniContent()
     m_qmlFormatProcess->setWorkingDirectory(Utils::FilePath::fromString(m_tempDir->path()));
     m_qmlFormatProcess->setCommandLine(cmd);
 
-    connect(m_qmlFormatProcess.get(), &QmlFormatProcess::finished, [this](Utils::ProcessResultData result) {
-        Utils::FilePath qmlformatIniFile = Utils::FilePath::fromString(
-            m_tempDir->filePath(".qmlformat.ini"));
-        if (result.m_exitStatus == QProcess::NormalExit && result.m_exitCode == 0)
-            emit qmlformatIniCreated(qmlformatIniFile);
-        else
-            Core::MessageManager::writeSilently(Tr::tr("Failed to generate qmlformat.ini file."));
-        m_tempDir.reset();
-        m_qmlFormatProcess.release()->deleteLater();
-    });
+    connect(
+        m_qmlFormatProcess.get(),
+        &QmlFormatProcess::finished,
+        this,
+        [this](Utils::ProcessResultData result) {
+            QTC_ASSERT(m_tempDir, return);
+            Utils::FilePath qmlformatIniFile = Utils::FilePath::fromString(
+                m_tempDir->filePath(".qmlformat.ini"));
+            if (result.m_exitStatus == QProcess::NormalExit && result.m_exitCode == 0)
+                emit qmlformatIniCreated(qmlformatIniFile);
+            else
+                Core::MessageManager::writeSilently(
+                    Tr::tr("Failed to generate qmlformat.ini file."));
+            m_tempDir.reset();
+            m_qmlFormatProcess.release()->deleteLater();
+        });
 
     m_qmlFormatProcess->run();
 }

@@ -361,7 +361,8 @@ private:
             const Result<> result = async.result();
             if (result)
                 emit progress(
-                    Tr::tr("Created directory: \"%1\".\n").arg(iteratorParentDirs->toUserOutput()));
+                    Tr::tr("Created directory: \"%1\".").arg(iteratorParentDirs->toUserOutput())
+                    + "\n");
             else
                 emit progress(result.error());
         };

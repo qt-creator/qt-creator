@@ -8,6 +8,9 @@
 #include "axivionsettings.h"
 #include "axiviontr.h"
 
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/idocument.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <solutions/tasking/tasktreerunner.h>
@@ -65,15 +68,6 @@ struct LocalDashboard
     QByteArray pass;
 };
 
-enum class LocalBuildState { None, Started, Building, Analyzing, UpdatingDashboard, Finished };
-
-struct LocalBuildInfo
-{
-    LocalBuildState state = LocalBuildState::None;
-    QString buildOutput = {};
-    QString axivionOutput = {};
-};
-
 class LocalBuild
 {
 public:
@@ -92,10 +86,19 @@ public:
     bool shutdownAll(const std::function<void()> &callback);
 
     bool startLocalBuildFor(const QString &projectName);
+    void cancelLocalBuildFor(const QString &projectName);
+
     bool hasRunningBuildFor(const QString &projectName)
     {
         return m_runningLocalBuilds.contains(projectName);
     }
+
+    LocalBuildInfo localBuildInfoFor(const QString &projectName)
+    {
+        return m_localBuildInfos.value(projectName);
+    }
+
+    void removeFinishedLocalBuilds();
 
 private:
     void handleLocalBuildOutputFor(const QString &projectName, const QString &line);
@@ -505,6 +508,24 @@ static void setupEnvAndCommandLineFromUserInput(Environment *env, CommandLine *c
     }
 }
 
+static bool saveModifiedFiles(const QString &projectName)
+{
+    QList<Core::IDocument *> modifiedDocs = Core::DocumentManager::modifiedDocuments();
+    if (modifiedDocs.isEmpty())
+        return true;
+
+    // if we have a mapping, limit to docs of this project directory, otherwise save all
+    const FilePath projectBase = settings().localProjectForProjectName(projectName);
+    if (!projectBase.isEmpty()) {
+        modifiedDocs = Utils::filtered(modifiedDocs, [projectBase](Core::IDocument *doc) {
+                return doc->filePath().isChildOf(projectBase);
+        });
+    }
+    bool canceled = false;
+    bool success = Core::DocumentManager::saveModifiedDocumentsSilently(modifiedDocs, &canceled);
+    return success && !canceled;
+}
+
 bool LocalBuild::startLocalBuildFor(const QString &projectName)
 {
     if (ExtensionSystem::PluginManager::isShuttingDown())
@@ -519,6 +540,11 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     updateEnvironmentForLocalBuild(&env);
     if (!env.hasKey("AXIVION_LOCAL_BUILD"))
         return false;
+    if (settings().saveOpenFiles()) {
+        if (!saveModifiedFiles(projectName))
+            return false;
+    }
+
     const QString createdPassFile = env.value("AXIVION_PASSFILE");
     qCDebug(localDashLog) << "passfile:" << createdPassFile;
 
@@ -576,6 +602,24 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     return true;
 }
 
+void LocalBuild::cancelLocalBuildFor(const QString &projectName)
+{
+    TaskTreeRunner *runner = m_runningLocalBuilds.value(projectName);
+    if (runner)
+        runner->cancel();
+}
+
+void LocalBuild::removeFinishedLocalBuilds()
+{
+    auto it = m_localBuildInfos.begin();
+    while (it != m_localBuildInfos.end()) {
+        if (it->state == LocalBuildState::Finished)
+            it = m_localBuildInfos.erase(it);
+        else
+            ++it;
+    }
+}
+
 bool shutdownAllLocalDashboards(const std::function<void()> &callback)
 {
     return s_localBuildInstance.shutdownAll(callback);
@@ -591,9 +635,24 @@ bool startLocalBuild(const QString &projectName)
     return s_localBuildInstance.startLocalBuildFor(projectName);
 }
 
+void cancelLocalBuild(const QString &projectName)
+{
+    s_localBuildInstance.cancelLocalBuildFor(projectName);
+}
+
 bool hasRunningLocalBuild(const QString &projectName)
 {
     return s_localBuildInstance.hasRunningBuildFor(projectName);
+}
+
+LocalBuildInfo localBuildInfoFor(const QString &projectName)
+{
+    return s_localBuildInstance.localBuildInfoFor(projectName);
+}
+
+void removeFinishedLocalBuilds()
+{
+    s_localBuildInstance.removeFinishedLocalBuilds();
 }
 
 } // namespace Axivion::Internal

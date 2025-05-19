@@ -2590,11 +2590,18 @@ bool DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
         name = ' ' + Tr::tr("<Unknown>", "name") + ' ';
     if (meaning.isEmpty())
         meaning = ' ' + Tr::tr("<Unknown>", "meaning") + ' ';
-    const QString msg = Tr::tr("<p>The debugged process stopped because it received a "
-                           "signal from the operating system.<p>"
-                           "<table><tr><td>Signal name : </td><td>%1</td></tr>"
-                           "<tr><td>Signal meaning : </td><td>%2</td></tr></table>")
-            .arg(name, meaning);
+    const QString msg = QString("<p>%1</p>"
+                                "<table>"
+                                "<tr><td>%2</td><td>%3</td></tr>"
+                                "<tr><td>%4</td><td>%5</td></tr>"
+                                "</table>")
+                            .arg(
+                                Tr::tr("The debugged process stopped because it received a signal "
+                                       "from the operating system."),
+                                Tr::tr("Signal name:"),
+                                name,
+                                Tr::tr("Signal meaning:"),
+                                meaning);
 
     d->m_alertBox = AsynchronousMessageBox::information(Tr::tr("Signal Received"), msg);
     return true;
@@ -2602,9 +2609,9 @@ bool DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name
 
 void DebuggerEngine::showStoppedByExceptionMessageBox(const QString &description)
 {
-    const QString msg =
-        Tr::tr("<p>The debugged process stopped because it triggered an exception.<p>%1").
-                         arg(description);
+    const QString msg = "<p>"
+                        + Tr::tr("The debugged process stopped because it triggered an exception.")
+                        + "</p><p>" + description + "</p>";
     AsynchronousMessageBox::information(Tr::tr("Exception Triggered"), msg);
 }
 

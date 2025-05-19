@@ -253,7 +253,7 @@ GlobalSettingsPage::GlobalSettingsPage()
     : m_widget(nullptr)
 {
     setId(Constants::COCO_SETTINGS_PAGE_ID);
-    setDisplayName(QCoreApplication::translate("Coco", "Coco"));
+    setDisplayName(Tr::tr("Coco"));
     setCategory("I.Coco"); // Category I contains also the C++ settings.
 }
 

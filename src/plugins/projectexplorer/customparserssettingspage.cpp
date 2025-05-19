@@ -85,15 +85,15 @@ QVariant CustomParsersModel::headerData(int section, Qt::Orientation orientation
     case Qt::ToolTipRole:
         switch (section) {
         case 0:
-            result = Tr::tr("The name of the custom parser");
+            result = Tr::tr("The name of the custom parser.");
             break;
         case 1:
             result = Tr::tr("This custom parser is used by default for all build configurations of "
-                            "the project");
+                            "the project.");
             break;
         case 2:
             result = Tr::tr(
-                "This custom parser is used by default for all run configurations of the project");
+                "This custom parser is used by default for all run configurations of the project.");
             break;
         }
     }

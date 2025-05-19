@@ -17,8 +17,10 @@
 #include <QGroupBox>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QPainter>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QSize>
 #include <QSizePolicy>
 #include <QSpacerItem>
@@ -393,6 +395,12 @@ void Layout::span(int cols, int rows)
     pendingItems.back().spanRows = rows;
 }
 
+void Layout::align(Qt::Alignment alignment)
+{
+    QTC_ASSERT(!pendingItems.empty(), return);
+    pendingItems.back().alignment = alignment;
+}
+
 void Layout::setAlignment(Qt::Alignment alignment)
 {
     access(this)->setAlignment(alignment);
@@ -474,6 +482,15 @@ void Layout::setColumnStretch(int column, int stretch)
 {
     if (auto grid = qobject_cast<QGridLayout *>(access(this))) {
         grid->setColumnStretch(column, stretch);
+    } else {
+        QTC_CHECK(false);
+    }
+}
+
+void Layout::setRowStretch(int row, int stretch)
+{
+    if (auto grid = qobject_cast<QGridLayout *>(access(this))) {
+        grid->setRowStretch(row, stretch);
     } else {
         QTC_CHECK(false);
     }
@@ -576,12 +593,22 @@ void Layout::flush()
         return;
 
     if (QGridLayout *lt = asGrid()) {
+        int maxSpanCols = 0;
+        bool previousItemDidAdvanceCell = false;
+
         for (const LayoutItem &item : std::as_const(pendingItems)) {
-            Qt::Alignment a;
+            if (!previousItemDidAdvanceCell && item.advancesCell) {
+                currentGridColumn += maxSpanCols;
+                maxSpanCols = 0;
+            }
+
+            Qt::Alignment a = item.alignment;
+            // FIXME: Check whether this is needed
             if (currentGridColumn == 0 && useFormAlignment) {
                 // if (auto widget = builder.stack.at(builder.stack.size() - 2).widget) {
                 //     a = widget->style()->styleHint(QStyle::SH_FormLayoutLabelAlignment);
             }
+
             if (item.widget) {
                 lt->addWidget(
                     item.widget, currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
@@ -597,9 +624,13 @@ void Layout::flush()
                     item.spanCols,
                     a);
             }
-            currentGridColumn += item.spanCols;
-            // Intentionally not used, use 'br'/'empty' for vertical progress.
-            // currentGridRow += item.spanRows;
+            maxSpanCols = std::max(maxSpanCols, item.spanCols);
+            if (item.advancesCell) {
+                currentGridColumn += maxSpanCols;
+                maxSpanCols = 0;
+            }
+
+            previousItemDidAdvanceCell = item.advancesCell;
         }
         ++currentGridRow;
         currentGridColumn = 0;
@@ -875,6 +906,16 @@ void Widget::setMinimumHeight(int height)
     access(this)->setMinimumHeight(height);
 }
 
+void Widget::setMaximumWidth(int maxWidth)
+{
+    access(this)->setMaximumWidth(maxWidth);
+}
+
+void Widget::setMaximumHeight(int maxHeight)
+{
+    access(this)->setMaximumHeight(maxHeight);
+}
+
 void Widget::setSizePolicy(const QSizePolicy &policy)
 {
     access(this)->setSizePolicy(policy);
@@ -1080,11 +1121,61 @@ void addToStack(Stack *stack, QWidget *inner)
     access(stack)->addWidget(inner);
 }
 
+void addToScrollArea(ScrollArea *scrollArea, QWidget *inner)
+{
+    access(scrollArea)->setWidget(inner);
+}
+
+void addToScrollArea(ScrollArea *scrollArea, const Layout &layout)
+{
+    access(scrollArea)->setWidget(layout.emerge());
+}
+
+void addToScrollArea(ScrollArea *scrollArea, const Widget &inner)
+{
+    access(scrollArea)->setWidget(inner.emerge());
+}
+
 // ScrollArea
+
+// See QTBUG-136762
+class FixedScrollArea : public QScrollArea
+{
+public:
+    QSize sizeHint() const override
+    {
+        const int f = 2 * frameWidth();
+        QSize sz(f, f);
+        const int h = fontMetrics().height();
+        if (auto w = widget()) {
+            sz += w->sizeHint();
+        } else {
+            sz += QSize(12 * h, 8 * h);
+        }
+        if (verticalScrollBarPolicy() == Qt::ScrollBarAlwaysOn)
+            sz.setWidth(sz.width() + verticalScrollBar()->sizeHint().width());
+        if (horizontalScrollBarPolicy() == Qt::ScrollBarAlwaysOn)
+            sz.setHeight(sz.height() + horizontalScrollBar()->sizeHint().height());
+        if (!m_fixSizeHintBug)
+            return sz.boundedTo(QSize(36 * h, 24 * h));
+        return sz;
+    }
+
+    void setFixSizeHintBug(bool fix) { m_fixSizeHintBug = fix; }
+
+    bool m_fixSizeHintBug{false};
+};
+
+ScrollArea::ScrollArea(std::initializer_list<I> items)
+{
+    ptr = new FixedScrollArea;
+    apply(this, items);
+    access(this)->setWidgetResizable(true);
+}
 
 ScrollArea::ScrollArea(const Layout &inner)
 {
-    ptr = new Implementation;
+    ptr = new FixedScrollArea;
     access(this)->setWidget(inner.emerge());
     access(this)->setWidgetResizable(true);
 }
@@ -1092,6 +1183,17 @@ ScrollArea::ScrollArea(const Layout &inner)
 void ScrollArea::setLayout(const Layout &inner)
 {
     access(this)->setWidget(inner.emerge());
+}
+
+void ScrollArea::setFrameShape(QFrame::Shape shape)
+{
+    access(this)->setFrameShape(shape);
+}
+
+void ScrollArea::setFixSizeHintBug(bool fixBug)
+{
+    auto fixedScrollArea = static_cast<FixedScrollArea *>(access(this));
+    fixedScrollArea->setFixSizeHintBug(fixBug);
 }
 
 // Splitter
@@ -1207,6 +1309,31 @@ void MarkdownBrowser::setViewportMargins(int left, int top, int right, int botto
     access(this)->setMargins(QMargins(left, top, right, bottom));
 }
 
+void CanvasWidget::setPaintFunction(const PaintFunction &paintFunction)
+{
+    m_paintFunction = std::move(paintFunction);
+}
+
+void CanvasWidget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    if (m_paintFunction) {
+        QPainter painter(this);
+        m_paintFunction(painter);
+    }
+}
+
+Canvas::Canvas(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void Canvas::setPaintFunction(const CanvasWidget::PaintFunction &paintFunction)
+{
+    access(this)->setPaintFunction(paintFunction);
+}
+
 // Special If
 
 If::If(
@@ -1245,13 +1372,41 @@ Span::Span(int cols, int rows, const Layout::I &item)
 
 void addToLayout(Layout *layout, const Span &inner)
 {
+    size_t nPreviousItems = layout->pendingItems.size();
     layout->addItem(inner.item);
     if (layout->pendingItems.empty()) {
         QTC_CHECK(inner.spanCols == 1 && inner.spanRows == 1);
         return;
     }
-    layout->pendingItems.back().spanCols = inner.spanCols;
-    layout->pendingItems.back().spanRows = inner.spanRows;
+    for (size_t i = nPreviousItems; i < layout->pendingItems.size(); ++i) {
+        layout->pendingItems.at(i).spanCols = inner.spanCols;
+        layout->pendingItems.at(i).spanRows = inner.spanRows;
+    }
+}
+
+Align::Align(Qt::Alignment alignment, const Layout::I &item)
+    : item(item)
+    , alignment(alignment)
+{}
+
+void addToLayout(Layout *layout, const Align &inner)
+{
+    auto nPreviousItems = layout->pendingItems.size();
+    layout->addItem(inner.item);
+    if (layout->pendingItems.empty()) {
+        QTC_CHECK(inner.alignment == Qt::Alignment());
+        return;
+    }
+    for (auto i = nPreviousItems; i < layout->pendingItems.size(); ++i)
+        layout->pendingItems.at(i).alignment = inner.alignment;
+}
+
+void addToLayout(Layout *layout, const GridCell &inner)
+{
+    for (auto i : inner.items) {
+        i.apply(layout);
+        layout->pendingItems.back().advancesCell = false;
+    }
 }
 
 LayoutModifier spacing(int space)

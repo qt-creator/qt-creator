@@ -68,7 +68,9 @@ def main():
 
     magick = spawn.find_executable("magick")
     if magick is None:
-        sys.exit("ImageMagick was not found in Path.")
+        magick = spawn.find_executable("convert")
+        if magick is None:
+            sys.exit("ImageMagick was not found in Path.")
 
     optipng = spawn.find_executable("optipng")
     if optipng is None:

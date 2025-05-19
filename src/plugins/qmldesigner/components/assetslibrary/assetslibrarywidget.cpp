@@ -516,7 +516,7 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
                 m_assetsModel->updateExpandPath(src, dest);
         } else if (isDir) {
             Core::AsynchronousMessageBox::warning(
-                Tr::tr("Folder move failure"),
+                Tr::tr("Failed to Move Folder"),
                 Tr::tr("Failed to move folder \"%1\". The folder might contain subfolders or one "
                        "of its files is in use.")
                     .arg(src.fileName()));

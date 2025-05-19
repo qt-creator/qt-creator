@@ -14,10 +14,11 @@ installer dialog when ready.
 
 ## Reserving a Device
 
-Log into https://hw-controller.qt.io/ with your Qt Account. Choose the
-appropriate device hardware, select the Qt version that matches what you
-installed with the Qt Online Installer, state a reason for your device use,
-choose a reservation duration, and select `Reserve`.
+Log into https://hw-cloud.qt.io with your Qt Account. Select `Reserve a Device`,
+choose the appropriate device hardware, and select `Reserve` for it.
+Select the Qt version that matches what you installed with the Qt Online
+Installer, choose a reservation duration, state a reason for your device use,
+and select `Reserve device`.
 
 The device is then provisioned and booted. When ready, make note of the device
 IP address.

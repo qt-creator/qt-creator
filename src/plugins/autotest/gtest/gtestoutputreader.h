@@ -30,6 +30,7 @@ private:
     QString m_description;
     int m_iteration = 1;
     bool m_testSetStarted = false;
+    bool m_inSummary = false;
 };
 
 } // namespace Internal

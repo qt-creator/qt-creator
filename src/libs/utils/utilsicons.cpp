@@ -250,6 +250,7 @@ const Icon EXPAND_TOOLBAR({
         {":/utils/images/expand.png", Theme::IconsBaseColor}});
 const Icon COLLAPSE({
         {":/utils/images/collapse.png", Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon CLOCK_BLACK({{":/utils/images/clock.png", Theme::Token_Basic_Black}}, Icon::Tint);
 const Icon COLLAPSE_TOOLBAR({
         {":/utils/images/collapse.png", Theme::IconsBaseColor}});
 const Icon PAN_TOOLBAR({
@@ -322,6 +323,7 @@ static QHash<QString, Icon> s_nameToIcon = {
     MAKE_ENTRY(CODEMODEL_ERROR),
     MAKE_ENTRY(CODEMODEL_FIXIT),
     MAKE_ENTRY(CODEMODEL_WARNING),
+    MAKE_ENTRY(CLOCK_BLACK),
     MAKE_ENTRY(COLLAPSE_TOOLBAR),
     MAKE_ENTRY(COLLAPSE),
     MAKE_ENTRY(CONTINUE_SMALL_TOOLBAR),

@@ -112,11 +112,10 @@ GDB 32bit | Api             | Api             | NA              | Win32         
                     : QCoreApplication::applicationDirPath() + "/win64interrupt.exe";
             if (!QFileInfo::exists(executable)) {
                 *errorMessage = QString::fromLatin1(
-                                    "%1 does not exist. If you have built %2 "
-                                    "on your own, checkout "
-                                    "https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.")
-                                    .arg(QDir::toNativeSeparators(executable),
-                                         QGuiApplication::applicationDisplayName());
+                                    "%1 does not exist. Your %2 installation seems to be corrupt.")
+                                    .arg(
+                                        QDir::toNativeSeparators(executable),
+                                        QGuiApplication::applicationDisplayName());
                 break;
             }
             switch (QProcess::execute(executable, QStringList(QString::number(pID)))) {

@@ -128,9 +128,9 @@
         \li Select \uicontrol {Use customized static analyzer}.
             \image {qtcreator-preferences-qtquick-qmljs-editing.webp} {QML/JS Editing tab in Qt Quick preferences}
         \li In \uicontrol Enabled, select the messages that you want to see.
-        \li To disable messages for non-Qt Quick UI files, select them in
-            \uicontrol {Disabled for non Qt Quick UI}. You cannot
-            enable messages just for non-Qt Quick UI files.
+        \li To show particular messages only for Qt Quick UI files, select them in
+            \uicontrol {Only for Qt Quick UI}. You cannot enable messages just for non-Qt Quick UI
+            files.
     \endlist
 
     \section1 JavaScript and QML Error Codes

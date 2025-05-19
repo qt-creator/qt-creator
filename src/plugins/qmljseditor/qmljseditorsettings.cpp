@@ -233,9 +233,8 @@ public:
     {
         QmlJsEditingSettings &s = settings();
 
-        analyzerMessageModel.setHeader({Tr::tr("Enabled"),
-                                        Tr::tr("Disabled for non Qt Quick UI"),
-                                        Tr::tr("Message")});
+        analyzerMessageModel.setHeader(
+            {Tr::tr("Enabled"), Tr::tr("Only for Qt Quick UI"), Tr::tr("Message")});
         analyzerMessagesView = new QTreeView;
         analyzerMessagesView->setModel(&analyzerMessageModel);
         analyzerMessagesView->setEnabled(s.useCustomAnalyzer());

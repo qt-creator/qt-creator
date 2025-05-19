@@ -42,10 +42,10 @@ ExtensionManagerSettings::ExtensionManagerSettings()
     }
 
     repositoryUrls.setSettingsKey("RepositoryUrls");
-    repositoryUrls.setLabelText(Tr::tr("Repository Urls:"));
+    repositoryUrls.setLabelText(Tr::tr("Repository URLs:"));
     repositoryUrls.setToolTip(
-        Tr::tr("Repositories to query for Extensions. You can specify local paths or "
-               "http(s) urls that should be merged with the main repository."));
+        Tr::tr("Repositories to query for extensions. You can specify local paths or "
+               "HTTP(S) URLs that should be merged with the main repository."));
     repositoryUrls.setDefaultValue(
         {"https://github.com/qt-creator/extension-registry/archive/refs/heads/main.tar.gz"});
 

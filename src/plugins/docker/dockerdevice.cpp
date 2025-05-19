@@ -299,6 +299,7 @@ private:
     bool m_forwardStdout = false;
     bool m_forwardStderr = false;
     bool m_hasReceivedFirstOutput = false;
+    QString m_unexpectedStartupOutput;
 };
 
 DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePrivate *devicePrivate)
@@ -329,12 +330,8 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
                                  << firstLine;
 
         if (!firstLine.startsWith("__qtc")) {
-            emit done(ProcessResultData{
-                -1,
-                QProcess::ExitStatus::CrashExit,
-                QProcess::ProcessError::FailedToStart,
-                QString::fromUtf8(firstLine),
-            });
+            m_unexpectedStartupOutput = QString::fromUtf8(firstLine);
+            m_process.kill();
             return;
         }
 
@@ -344,12 +341,8 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
         if (ok)
             emit started(m_remotePID);
         else {
-            emit done(ProcessResultData{
-                -1,
-                QProcess::ExitStatus::CrashExit,
-                QProcess::ProcessError::FailedToStart,
-                QString::fromUtf8(firstLine),
-            });
+            m_unexpectedStartupOutput = QString::fromUtf8(firstLine);
+            m_process.kill();
             return;
         }
 
@@ -391,7 +384,9 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
 
         if (m_remotePID == 0 && !m_hasReceivedFirstOutput) {
             resultData.m_error = QProcess::FailedToStart;
-            qCWarning(dockerDeviceLog) << "Process failed to start:" << m_process.commandLine();
+            resultData.m_errorString = m_unexpectedStartupOutput;
+            qCWarning(dockerDeviceLog) << "Process failed to start:" << m_process.commandLine()
+                                       << ":" << m_unexpectedStartupOutput;
             QByteArray stdOut = m_process.readAllRawStandardOutput();
             QByteArray stdErr = m_process.readAllRawStandardError();
             if (!stdOut.isEmpty())

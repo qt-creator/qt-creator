@@ -64,6 +64,9 @@
 
     \section1 Set up new Qt versions
 
+    To register a Qt version, set the path to the directory that contains the
+    qmake or \c {qtpaths} executable for that Qt version.
+
     To add a Qt version:
 
         \list 1
@@ -74,15 +77,16 @@
                 To add a Qt version on a remote Linux device or in Docker,
                 select \key Shift and then select \uicontrol Add.
 
-            \li Select the qmake executable for the Qt version to add.
+            \li Select the qmake or \c {qtpaths} executable for the Qt version
+                to add.
 
             \li Select the Qt version to view and edit it.
 
             \li In the \uicontrol{Name} field, edit the name that \QC
                 suggests for the Qt version.
 
-            \li In the \uicontrol{qmake path} field, you can change the qmake
-                location.
+            \li In the \uicontrol{qmake path} field, you can change the location
+                of qmake or \c {qtpaths}.
 
             \li If the Qt version is for QNX, enter the path to the QNX SDK in the
                 \uicontrol{QNX SDK} field.

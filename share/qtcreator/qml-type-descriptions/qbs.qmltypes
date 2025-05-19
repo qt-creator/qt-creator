@@ -20,6 +20,7 @@ Module {
         prototype: "QQuickItem"
         Property { name: "condition"; type: "bool" }
         Property { name: "limitToSubProject"; type: "bool" }
+        Property { name: "minimal"; type: "bool" }
         Property { name: "multiplexConfigurationIds"; type: "string"; isList: true }
         Property { name: "name"; type: "string" }
         Property { name: "productTypes"; type: "string"; isList: true }

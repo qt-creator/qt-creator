@@ -12,6 +12,7 @@
 #include "localbuild.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -38,6 +39,7 @@
 #include <utils/utilsicons.h>
 #include <utils/overlaywidget.h>
 #include <utils/shutdownguard.h>
+#include <utils/treemodel.h>
 
 #include <QButtonGroup>
 #include <QClipboard>
@@ -54,6 +56,7 @@
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QStandardItemModel>
+#include <QStyledItemDelegate>
 #include <QTextBrowser>
 #include <QToolButton>
 #include <QUrlQuery>
@@ -67,8 +70,13 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
+// issue model
 constexpr int ListItemIdRole = Qt::UserRole + 2;
 constexpr int ListItemSourcePathRole = Qt::UserRole + 3; // only *retrieval* of first link if any
+
+// progress model
+constexpr int ProjectNameRole = Qt::UserRole + 20;
+constexpr int ProgressItemDataRole = Qt::UserRole + 21;
 
 static const Icon MARKER_ICON({{":/axivion/images/marker.png", Theme::IconsBaseColor}});
 static const Icon USER_ICON({{":/axivion/images/user.png", Theme::PanelTextColorDark}}, Icon::Tint);
@@ -92,6 +100,7 @@ struct LinkWithColumns
 };
 
 static bool issueListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
+static bool progressListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
 
 static std::optional<PathMapping> findPathMappingMatch(const QString &projectName,
                                                        const Link &link)
@@ -277,10 +286,12 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     setFrameStyle(QFrame::NoFrame);
     QWidget *widget = new QWidget(this);
     m_dashboards = new QComboBox(this);
-    m_dashboards->setMinimumContentsLength(15);
+    m_dashboards->setMinimumWidth(250);
+    m_dashboards->setMaximumWidth(250);
     connect(m_dashboards, &QComboBox::currentIndexChanged, this, [this] {
         if (m_signalBlocker.isLocked())
             return;
+        m_dashboards->setToolTip(m_dashboards->currentText());
         const QVariant data = m_dashboards->currentData();
         if (data.isValid()) {
             const AxivionServer server = data.value<AxivionServer>();
@@ -298,7 +309,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     });
 
     m_dashboardProjects = new QComboBox(this);
-    m_dashboardProjects->setMinimumContentsLength(25);
+    m_dashboardProjects->setMinimumWidth(250);
+    m_dashboardProjects->setMaximumWidth(250);
     connect(m_dashboardProjects, &QComboBox::currentIndexChanged, this, [this] {
         if (m_signalBlocker.isLocked())
             return;
@@ -309,6 +321,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         m_localBuild->setEnabled(false);
         m_localDashBoard->setEnabled(false);
 
+        m_dashboardProjects->setToolTip(m_dashboardProjects->currentText());
         if (currentDashboardMode() == DashboardMode::Local) {
             switchDashboardMode(DashboardMode::Global, false);
             return;
@@ -603,8 +616,6 @@ void IssuesWidget::updateNamedFilters()
 
 void IssuesWidget::updateLocalBuildState(const QString &projectName, int percent)
 {
-    // TODO update progress
-
     if (percent != 100 || projectName != m_currentProject)
         return;
     m_localBuild->setEnabled(true);
@@ -1202,6 +1213,7 @@ void IssuesWidget::onLocalBuildTriggered()
 
     m_localBuild->setEnabled(false);
     if (startLocalBuild(m_currentProject)) {
+        showLocalBuildProgress();
         m_localDashBoard->setEnabled(false);
         if (currentDashboardMode() == DashboardMode::Local)   // TODO maybe handle differently but
             switchDashboardMode(DashboardMode::Global, true); // for now avoid access while build
@@ -1299,6 +1311,202 @@ private:
     unsigned int m_cachedImagesSize = 0;
 };
 
+struct ProgressItemData
+{
+    QString projectName;
+    QString state;
+    int percent = 0;
+};
+
+class ProgressItem final : public TypedTreeItem<ProgressItem, ProgressItem>
+{
+public:
+    explicit ProgressItem(const ProgressItemData &data) : m_data(data) {}
+    bool setData(int column, const QVariant &data, int role) final;
+    QVariant data(int column, int role) const final;
+
+private:
+    ProgressItemData m_data;
+};
+
+bool ProgressItem::setData(int column, const QVariant &data, int role)
+{
+    if (role == ProjectNameRole) {
+        m_data.projectName = data.toString();
+        return true;
+    }
+    if (role == ProgressItemDataRole) {
+        m_data = data.value<ProgressItemData>();
+        return true;
+    }
+    if (role == BaseTreeView::ItemViewEventRole) {
+        ItemViewEvent ev = data.value<ItemViewEvent>();
+        if (ev.as<QContextMenuEvent>())
+            return progressListContextMenuEvent(ev);
+    }
+
+    return TreeItem::setData(column, data, role);
+}
+
+QVariant ProgressItem::data(int column, int role) const
+{
+    if (role == ProjectNameRole)
+        return m_data.projectName;
+    if (role == ProgressItemDataRole)
+        return QVariant::fromValue(m_data);
+    if (role == Qt::ToolTipRole)
+        return m_data.state;
+    return TreeItem::data(column, role);
+}
+
+class ProgressModel : public TreeModel<ProgressItem>
+{
+public:
+    explicit ProgressModel(QObject *parent)
+        : TreeModel<ProgressItem>(new ProgressItem({}), parent) {}
+
+    void addOrUpdateProgressItem(const QString &projectName, const ProgressItemData &data)
+    {
+        auto oldItem = findNonRootItem([projectName] (ProgressItem *it) {
+                return it->data(0, ProjectNameRole).toString() == projectName;
+        });
+        if (oldItem) {
+            oldItem->setData(0, QVariant::fromValue(data), ProgressItemDataRole);
+            emit dataChanged(oldItem->index(), oldItem->index());
+        } else {
+            rootItem()->appendChild(new ProgressItem(data));
+        }
+    }
+
+    void removeFinished()
+    {
+        QList<int> toBeRemoved;
+
+        forAllItems([&toBeRemoved](ProgressItem *it) {
+            if (it->data(0, ProgressItemDataRole).value<ProgressItemData>().percent == 100)
+                toBeRemoved.append(it->index().row());
+        });
+
+        for (auto row = toBeRemoved.crbegin(); row != toBeRemoved.crend(); ++row)
+            rootItem()->removeChildAt(*row);
+    }
+};
+
+class ProgressItemDelegate final : public QStyledItemDelegate
+{
+    static constexpr int ItemMargin = 3;
+    static constexpr int BarHeight = 6;
+    static constexpr int BarMargin = 5;
+public:
+    explicit ProgressItemDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const final;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const final;
+};
+
+QSize ProgressItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &) const
+{
+    QStyleOptionViewItem opt = option;
+    opt.initFrom(opt.widget);
+
+    const QFontMetrics fm(opt.font);
+    const int fontHeight = fm.height();
+    // 2x line of text, progress bar in between, margin before any of these and after the last one
+    return QSize(opt.rect.width(),
+                 2 * fontHeight + BarHeight + 4 * ItemMargin);
+}
+
+void ProgressItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                                 const QModelIndex &index) const
+{
+
+    QStyleOptionViewItem opt = option;
+    initStyleOption(&opt, index);
+
+    const QFontMetrics fm(opt.font);
+
+    const ProgressModel *model = static_cast<const ProgressModel *>(index.model());
+    if (!model)
+        return;
+    const ProgressItemData data = model->data(index, ProgressItemDataRole).value<ProgressItemData>();
+
+    QBrush background;
+    QColor foreground;
+    if (opt.state & QStyle::State_Selected) {
+        background = opt.palette.highlight().color();
+        foreground = opt.palette.highlightedText().color();
+    } else {
+        background = opt.palette.window().color();
+        foreground = opt.palette.text().color();
+    }
+    painter->save();
+    painter->setPen(opt.palette.alternateBase().color());
+    painter->setBrush(background);
+    painter->drawRect(opt.rect);
+    painter->setPen(foreground);
+
+    // texts get an additional pixel as margin
+    painter->drawText(ItemMargin + 1, opt.rect.bottom() - ItemMargin - fm.descent(), data.state);
+    QFont boldFont = opt.font;
+    boldFont.setBold(true);
+    painter->setFont(boldFont);
+    painter->drawText(ItemMargin + 1, opt.rect.top() + ItemMargin + fm.ascent(), data.projectName);
+
+    QColor progressBrush = creatorColor(Theme::ProgressBarColorFinished);
+    if (data.percent == 100 && data.state == Tr::tr("Failed"))
+        progressBrush = creatorColor(Theme::ProgressBarColorError);
+
+    painter->setPen(opt.palette.shadow().color());
+    painter->setBrush(creatorColor(Theme::ProgressBarBackgroundColor));
+    const int horizontalBarMargin = ItemMargin + BarMargin;
+    QRect bar(horizontalBarMargin,
+              opt.rect.bottom() - horizontalBarMargin - fm.height() - ItemMargin,
+              opt.rect.width() - 2 * horizontalBarMargin, BarHeight - 1);
+    painter->drawRect(bar);
+    bar.setWidth((opt.rect.width() - 2 * horizontalBarMargin) * data.percent / 100);
+    painter->fillRect(bar, progressBrush);
+
+    painter->restore();
+}
+
+class ProgressWidget : public QScrollArea
+{
+public:
+    explicit ProgressWidget(QWidget *parent = nullptr);
+
+    void addOrUpdateProgressItem(const QString &projectName, const ProgressItemData &data);
+    void removeFinishedItems();
+
+private:
+    ProgressModel *m_progressModel = nullptr;
+};
+
+ProgressWidget::ProgressWidget(QWidget *parent)
+    : QScrollArea(parent)
+{
+    setFrameStyle(QFrame::NoFrame);
+
+    BaseTreeView *view = new BaseTreeView(this);
+    view->setHeaderHidden(true);
+    view->header()->setStretchLastSection(true);
+    view->setRootIsDecorated(false);
+    view->setModel(m_progressModel = new ProgressModel(view));
+    view->setItemDelegate(new ProgressItemDelegate(view));
+    setWidget(view);
+}
+
+void ProgressWidget::addOrUpdateProgressItem(const QString &projectName,
+                                             const ProgressItemData &data)
+{
+    m_progressModel->addOrUpdateProgressItem(projectName, data);
+}
+
+void ProgressWidget::removeFinishedItems()
+{
+    m_progressModel->removeFinished();
+}
+
 class AxivionPerspective : public Perspective
 {
 public:
@@ -1310,6 +1518,7 @@ public:
     void reinitDashboardList(const QString &preferredProject);
     void resetDashboard();
     bool handleContextMenu(bool globalDashboard, const QString &issue, const ItemViewEvent &e);
+    bool handleProgressContextMenu(const ItemViewEvent &e);
     void setIssueDetailsHtml(const QString &html);
     void handleAnchorClicked(const QUrl &url);
     void updateNamedFilters();
@@ -1318,9 +1527,14 @@ public:
     void leaveOrEnterDashboardMode(bool byLocalBuildButton);
     bool currentIssueHasValidPathMapping() const;
 
+    void showProgressWidget();
+
 private:
+    void removeFinishedBuilds();
+
     IssuesWidget *m_issuesWidget = nullptr;
     LazyImageBrowser *m_issueDetails = nullptr;
+    ProgressWidget *m_progressWidget = nullptr;
 };
 
 AxivionPerspective::AxivionPerspective()
@@ -1344,6 +1558,10 @@ AxivionPerspective::AxivionPerspective()
     m_issueDetails->setOpenLinks(false);
     connect(m_issueDetails, &QTextBrowser::anchorClicked,
             this, &AxivionPerspective::handleAnchorClicked);
+
+    m_progressWidget = new ProgressWidget;
+    m_progressWidget->setObjectName("AxivionLocalBuildProgress");
+    m_progressWidget->setWindowTitle(Tr::tr("Local Build Progress"));
 
     auto reloadDataAct = new QAction(this);
     reloadDataAct->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
@@ -1379,6 +1597,7 @@ AxivionPerspective::AxivionPerspective()
 
     addWindow(m_issuesWidget, Perspective::SplitVertical, nullptr);
     addWindow(m_issueDetails, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
+    addWindow(m_progressWidget, Perspective::AddToTab, nullptr, false, Qt::RightDockWidgetArea);
 
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     QAction *action = new QAction(Tr::tr("Axivion"), this);
@@ -1454,6 +1673,54 @@ bool AxivionPerspective::handleContextMenu(bool globalDashboard, const QString &
     return true;
 }
 
+bool AxivionPerspective::handleProgressContextMenu(const ItemViewEvent &e)
+{
+    const QModelIndexList selectedIndices = e.selectedRows();
+    const QModelIndex first = selectedIndices.isEmpty() ? QModelIndex() : selectedIndices.first();
+
+    const QString project = first.isValid() ? first.data(ProjectNameRole).toString() : QString{};
+    const LocalBuildInfo localBuildInfo = project.isEmpty() ? LocalBuildInfo{}
+                                                            : localBuildInfoFor(project);
+    const bool selectedFinished = localBuildInfo.state == LocalBuildState::Finished;
+    QMenu *menu = new QMenu;
+    QAction *action = nullptr;
+    if (!selectedFinished && !project.isEmpty()) {
+        action = new QAction(Tr::tr("Cancel Local Build"), menu);
+        QObject::connect(action, &QAction::triggered,
+                         menu, [project] { cancelLocalBuild(project); });
+        menu->addAction(action);
+        menu->addSeparator();
+    }
+    action = new QAction(Tr::tr("See Axivion Log..."), menu);
+    action->setEnabled(selectedFinished);
+    QObject::connect(action, &QAction::triggered, menu, [project, localBuildInfo] {
+        QString title = QString("Axivion Local Build: Axivion Log (%1)").arg(project);
+        EditorManager::openEditorWithContents(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
+                                              &title, localBuildInfo.axivionOutput.toUtf8(),
+                                              "Axivion.LocalBuildLog");
+    });
+    menu->addAction(action);
+
+    action = new QAction(Tr::tr("See Build Log..."), menu);
+    action->setEnabled(selectedFinished);
+    QObject::connect(action, &QAction::triggered, menu, [project, localBuildInfo] {
+        QString title = QString("Axivion Local Build: Build Log (%1)").arg(project);
+        EditorManager::openEditorWithContents(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID,
+                                              &title, localBuildInfo.buildOutput.toUtf8(),
+                                              "Axivion.LocalBuildAxivionLog");
+    });
+    menu->addAction(action);
+
+    menu->addSeparator();
+    action = new QAction(Tr::tr("Remove All Finished"), menu);
+    QObject::connect(action, &QAction::triggered,
+                     this, &AxivionPerspective::removeFinishedBuilds);
+    menu->addAction(action);
+    QObject::connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
+    menu->popup(e.globalPos());
+    return true;
+}
+
 void AxivionPerspective::setIssueDetailsHtml(const QString &html)
 {
     m_issueDetails->setHtmlAfterCheckingCacheSize(html);
@@ -1491,10 +1758,11 @@ void AxivionPerspective::updateNamedFilters()
     m_issuesWidget->updateNamedFilters();
 }
 
-void AxivionPerspective::updateLocalBuildStateFor(const QString &projectName, const QString & /*state*/,
+void AxivionPerspective::updateLocalBuildStateFor(const QString &projectName, const QString &state,
                                                   int percent)
 {
     m_issuesWidget->updateLocalBuildState(projectName, percent);
+    m_progressWidget->addOrUpdateProgressItem(projectName, {projectName, state, percent});
 }
 
 void AxivionPerspective::leaveOrEnterDashboardMode(bool byLocalBuildButton)
@@ -1505,6 +1773,21 @@ void AxivionPerspective::leaveOrEnterDashboardMode(bool byLocalBuildButton)
 bool AxivionPerspective::currentIssueHasValidPathMapping() const
 {
     return m_issuesWidget->currentIssueHasValidMapping();
+}
+
+void AxivionPerspective::showProgressWidget()
+{
+    Command *cmd = ActionManager::command("Dock.AxivionLocalBuildProgress");
+    QTC_ASSERT(cmd, return);
+    if (cmd->action() && !cmd->action()->isChecked())
+        cmd->action()->trigger();
+    // TODO can we ensure the progress widget is uncollapsed?
+}
+
+void AxivionPerspective::removeFinishedBuilds()
+{
+    removeFinishedLocalBuilds();
+    m_progressWidget->removeFinishedItems();
 }
 
 static AxivionPerspective *axivionPerspective()
@@ -1540,6 +1823,12 @@ static bool issueListContextMenuEvent(const ItemViewEvent &ev)
         return false;
     const QString issue = first.data().toString();
     return axivionPerspective()->handleContextMenu(true, issue, ev);
+}
+
+static bool progressListContextMenuEvent(const ItemViewEvent &ev)
+{
+    QTC_ASSERT(axivionPerspective(), return false);
+    return axivionPerspective()->handleProgressContextMenu(ev);
 }
 
 void showFilterException(const QString &errorMessage)
@@ -1582,6 +1871,12 @@ bool currentIssueHasValidPathMapping()
 {
     QTC_ASSERT(axivionPerspective(), return false);
     return axivionPerspective()->currentIssueHasValidPathMapping();
+}
+
+void showLocalBuildProgress()
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->showProgressWidget();
 }
 
 void setupAxivionPerspective()

@@ -88,8 +88,8 @@ FakeVimSettings::FakeVimSettings()
                                   "Backspace",      "bs",  Tr::tr("Backspace:"));
     setup(&isKeyword,      "@,48-57,_,192-255,a-z,A-Z",
                                   "IsKeyword",      "isk", Tr::tr("Keyword characters:"));
-    setup(&clipboard,      {},    "Clipboard",      "cb",  Tr::tr(""));
-    setup(&formatOptions,  {},    "formatoptions",  "fo",  Tr::tr(""));
+    setup(&clipboard,      {},    "Clipboard",      "cb",  "");
+    setup(&formatOptions,  {},    "formatoptions",  "fo",  "");
 
     // Emulated plugins
     setup(&emulateVimCommentary, false, "commentary", {}, "vim-commentary");

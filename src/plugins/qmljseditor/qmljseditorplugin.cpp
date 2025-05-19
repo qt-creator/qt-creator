@@ -319,8 +319,7 @@ static FormatResult reformatByCustomFormatter(
     const FilePath &formatter = settings.customFormatterPath;
     const QStringList &args = settings.customFormatterArguments.split(" ", Qt::SkipEmptyParts);
     if (!formatter.isExecutableFile()) {
-        MessageManager::writeSilently(
-            Tr::tr("Custom Formatter path not found."));
+        MessageManager::writeSilently(Tr::tr("Custom formatter path not found."));
         return FormatResult::Failed;
     }
     const CommandLine commandLine(formatter, args);

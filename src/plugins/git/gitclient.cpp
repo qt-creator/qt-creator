@@ -1215,14 +1215,14 @@ void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
 }
 
 // Do not show "0000" or "^32ae4"
-static inline bool canShow(const QString &sha)
+static inline bool canShow(const QString &hash)
 {
-    return !sha.startsWith('^') && sha.count('0') != sha.size();
+    return !hash.startsWith('^') && hash.count('0') != hash.size();
 }
 
-static inline QString msgCannotShow(const QString &sha)
+static inline QString msgCannotShow(const QString &hash)
 {
-    return Tr::tr("Cannot describe \"%1\".").arg(sha);
+    return Tr::tr("Cannot describe \"%1\".").arg(hash);
 }
 
 void GitClient::show(const FilePath &source, const QString &id, const QString &name)
@@ -1712,7 +1712,7 @@ QString GitClient::synchronousShortDescription(const FilePath &workingDirectory,
     const QString defaultShortLogFormat = "%h (%aN " + quoteReplacement + "%s";
     const int maxShortLogLength = 120;
 
-    // Short SHA 1, author, subject
+    // Short hash, author, subject
     QString output = synchronousShortDescription(workingDirectory, revision, defaultShortLogFormat);
     output.replace(quoteReplacement, "\"");
     if (output != revision) {
@@ -1760,12 +1760,12 @@ bool GitClient::synchronousHeadRefs(const FilePath &workingDirectory, QStringLis
     }
 
     const QString stdOut = result.cleanedStdOut();
-    const QString headSha = stdOut.left(10);
+    const QString headHash = stdOut.left(10);
     QString rest = stdOut.mid(15);
 
-    const QStringList headShaLines = Utils::filtered(
-                rest.split('\n'), [&headSha](const QString &s) { return s.startsWith(headSha); });
-    *output = Utils::transform(headShaLines, [](const QString &s) { return s.mid(11); }); // sha + space
+    const QStringList headHashLines = Utils::filtered(
+                rest.split('\n'), [&headHash](const QString &s) { return s.startsWith(headHash); });
+    *output = Utils::transform(headHashLines, [](const QString &s) { return s.mid(11); }); // hash + space
 
     return true;
 }
@@ -2460,15 +2460,15 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
                                  RunFlags::SuppressStdErr | RunFlags::SuppressFailMessage);
     QStringList branches;
     branches << Tr::tr("<Detached HEAD>");
-    QString headSha;
+    QString headHash;
     // split "82bfad2f51d34e98b18982211c82220b8db049b<tab>refs/heads/master"
     bool headFound = false;
     bool branchFound = false;
     const QStringList lines = result.cleanedStdOut().split('\n');
     for (const QString &line : lines) {
         if (line.endsWith("\tHEAD")) {
-            QTC_CHECK(headSha.isNull());
-            headSha = line.left(line.indexOf('\t'));
+            QTC_CHECK(headHash.isNull());
+            headHash = line.left(line.indexOf('\t'));
             continue;
         }
 
@@ -2477,7 +2477,7 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
         if (pos != -1) {
             branchFound = true;
             const QString branchName = line.mid(pos + pattern.size());
-            if (!headFound && line.startsWith(headSha)) {
+            if (!headFound && line.startsWith(headHash)) {
                 branches[0] = branchName;
                 headFound = true;
             } else {
@@ -3646,7 +3646,7 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
     cancelButton->setToolTip(Tr::tr("Cancel %1.").arg(command));
 
     QPushButton *diffButton = msgBox.addButton(Tr::tr("Di&ff && Cancel"), QMessageBox::RejectRole);
-    diffButton->setToolTip(Tr::tr("Show a Diff of the local changes and cancel %1.").arg(command));
+    diffButton->setToolTip(Tr::tr("Show a diff of the local changes and cancel %1.").arg(command));
 
     msgBox.exec();
 

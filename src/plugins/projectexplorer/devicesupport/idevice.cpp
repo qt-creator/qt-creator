@@ -13,11 +13,8 @@
 #include "../projectexplorertr.h"
 #include "../target.h"
 
-#include <coreplugin/icore.h>
-
 #include <utils/commandline.h>
 #include <utils/devicefileaccess.h>
-#include <utils/displayname.h>
 #include <utils/environment.h>
 #include <utils/icon.h>
 #include <utils/portlist.h>
@@ -198,7 +195,7 @@ IDevice::IDevice()
     linkDevice.setSettingsKey(LinkDeviceKey);
     linkDevice.setLabelText(Tr::tr("Access via:"));
     linkDevice.setToolTip(Tr::tr("Select the device to connect through."));
-    linkDevice.setDefaultValue("Direct");
+    linkDevice.setDefaultValue("direct");
     linkDevice.setComboBoxEditable(false);
     linkDevice.setFillCallback([this](const StringSelectionAspect::ResultCallback &cb) {
         QList<QStandardItem *> items;
@@ -262,7 +259,7 @@ IDevice::IDevice()
     freePortsAspect.setSettingsKey(PortsSpecKey);
     freePortsAspect.setLabelText(Tr::tr("Free ports:"));
     freePortsAspect.setToolTip(
-        Tr::tr("You can enter lists and ranges like this: '1024,1026-1028,1030'."));
+        Tr::tr("You can enter lists and ranges like this: \"1024,1026-1028,1030\"."));
     freePortsAspect.setHistoryCompleter("PortRange");
 }
 
@@ -444,7 +441,16 @@ void IDevice::setType(Id type)
 
 bool IDevice::isAutoDetected() const
 {
-    return d->origin == AutoDetected;
+    return d->origin == AutoDetected || isFromSdk();
+}
+
+/*!
+    Returns \c true if the device has been added by the sdktool. This normally implies it was
+    set up by the installer aka Qt Maintenance tool.
+*/
+bool IDevice::isFromSdk() const
+{
+    return d->origin == AddedBySdk;
 }
 
 /*!
@@ -563,7 +569,8 @@ static void backwardsFromExtraData(IDevice *device, const Store &map)
 
 static void backwardsToExtraData(const IDevice *const device, Store &map)
 {
-    map.insert(LinkDevice, device->linkDevice());
+    if (device->linkDevice() != "direct")
+        map.insert(LinkDevice, QVariant::fromValue(device->linkDevice()));
     map.insert(SSH_FORWARD_DEBUGSERVER_PORT, device->sshForwardDebugServerPort());
 }
 
@@ -763,6 +770,11 @@ QVariant IDevice::extraData(Id kind) const
 int IDevice::version() const
 {
     return d->version;
+}
+
+void IDevice::setFromSdk()
+{
+    d->origin = AddedBySdk;
 }
 
 QString IDevice::defaultPrivateKeyFilePath()

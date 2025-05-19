@@ -1,4 +1,4 @@
-// Copyright (C) 2024 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -9,18 +9,19 @@
 
     \title Manage extensions
 
-    In the experimental \uicontrol Extensions mode, you can install extensions
-    from the computer or the web, as well as load and unload them.
+    In the \uicontrol Extensions mode, you can install extensions from the
+    \QC extension registry or from external repositories, as well as load and
+    unload them.
 
     \image {qtcreator-extension-mode.webp} {Extensions mode}
 
     To find extensions, start typing in \uicontrol Search.
 
-    You can sort extensions according to their name, vendor, popularity, or
-    update date.
+    You can sort extensions according to their name or update date.
 
-    To set preferences for loading extension from the web or to install
-    extensions, select \inlineimage icons/settings.png.
+    To add URLs for installing extensions from external registries
+    or to install extensions from installation packages, select
+    \inlineimage {icons/settings.png} {Settings button}.
 
     \sa {Enable and disable plugins}, {Install extensions}, {Load extensions}
 */
@@ -33,32 +34,17 @@
 
     \title Load extensions
 
-    In the experimental \uicontrol Extensions mode, you can load and unload
-    extensions from the computer or the web.
+    In the \uicontrol Extensions mode, you can load and unload extensions from
+    the computer.
 
     To load extensions when you start \QC:
 
     \list 1
         \li Go to \uicontrol Extensions.
-            \image {qtcreator-extension-mode.webp} {Extensions mode}
-        \li Select an extension.
-        \li Select \uicontrol {Load on start}.
+            \image {qtcreator-extension-activate.webp} {An extension that has not been loaded in Extensions mode}
+        \li Select an inactive extension.
+        \li Select \uicontrol {Active}.
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
-
-    \section1 Load extensions from the web
-
-    By default, the \uicontrol Extensions mode lists extensions installed on the
-    computer. You can also list extensions from external repositories in the web.
-
-    To load extensions from the web:
-
-    \list 1
-        \li Go to \preferences > \uicontrol Extensions.
-            \image {qtcreator-preferences-extensions.webp} {Extensions preferences}
-        \li Select \uicontrol {Use external repository}.
-        \li In \uicontrol {Server URL} enter the URL of the external repository.
-        \li Select \uicontrol {OK}.
     \endlist
 
     \sa {Install extensions}, {Manage extensions}
@@ -72,15 +58,40 @@
 
     \title Install extensions
 
-    To install extensions to \QC:
+    You can install compatible extensions either from the \QC extension registry
+    or from external repositories.
+
+    To install extensions from the extension registry:
 
     \list 1
         \li Go to \uicontrol Extensions.
             \image {qtcreator-extension-mode.webp} {Extensions mode}
         \li Select an extension.
         \li Select \uicontrol {Install}.
-        \include creator-how-to-install-plugins.qdoc install-plugins
+        \li Follow the instructions of the wizard to check the archive and to
+            accept the terms and conditions of the extension vendor.
+            \image {qtcreator-extension-check-archive.webp} {Check Archive page of the Install Plugin wizard}
     \endlist
+
+    If you have an installation package, you can drag it to the
+    \uicontrol {Extensions} mode to start the installation.
+
+    \section1 Install extensions from external repositories
+
+    To add URLs of external repositories:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Extensions.
+            \image {qtcreator-preferences-extensions.webp} {Extensions preferences}
+        \li Select \uicontrol {Use external repository}.
+        \li In \uicontrol {Repository URLs}, enter the URL of an external
+            repository.
+        \li Select \uicontrol {OK}.
+        \li In the \uicontrol {Extensions} mode, select
+            \uicontrol {Use external repository}.
+    \endlist
+
+    To add several repositories, select \uicontrol {Add}.
 
     \section1 Security considerations
 

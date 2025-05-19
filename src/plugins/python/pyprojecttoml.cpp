@@ -29,7 +29,7 @@ PyProjectTomlError PyProjectTomlError::TypeError(
 {
     return PyProjectTomlError(
         PyProjectTomlErrorType::TypeError,
-        Tr::tr("Type error: \"%1\" must be a \"%2\", not a \"%3\"")
+        Tr::tr("Type error: \"%1\" must be a \"%2\", not a \"%3\".")
             .arg(QString::fromUtf8(nodeName))
             .arg(QString::fromUtf8(expectedType))
             .arg(QString::fromUtf8(actualType)),
@@ -41,7 +41,7 @@ PyProjectTomlError PyProjectTomlError::MissingNodeError(
 {
     return PyProjectTomlError(
         PyProjectTomlErrorType::MissingNode,
-        Tr::tr("Missing node error: \"%1\" table must contain a \"%2\" node")
+        Tr::tr("Missing node error: \"%1\" table must contain a \"%2\" node.")
             .arg(QString::fromUtf8(nodeName))
             .arg(QString::fromUtf8(key)),
         line);
@@ -51,7 +51,7 @@ PyProjectTomlError PyProjectTomlError::EmptyNodeError(const std::string &nodeNam
 {
     return PyProjectTomlError(
         PyProjectTomlErrorType::EmptyNode,
-        Tr::tr("Node \"%1\" is empty").arg(QString::fromUtf8(nodeName)),
+        Tr::tr("Node \"%1\" is empty.").arg(QString::fromUtf8(nodeName)),
         line);
 }
 

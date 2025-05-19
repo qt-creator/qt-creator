@@ -261,10 +261,9 @@ void CMakeWriterV1::createDependencies(const Utils::FilePath &rootDir) const
                     cmakeFolderPath.pathAppended("qmlcomponents.cmake");
 
                 if (qmlComponentsFilePath.exists()) {
-
                     const QString warningMsg = Tr::tr(
                         "The project structure has changed.\n"
-                        "Please clean the build folder before rebuilding\n");
+                        "Please clean the build folder before rebuilding.\n");
 
                     CMakeGenerator::logIssue(
                         ProjectExplorer::Task::Warning, warningMsg, componentsPath);

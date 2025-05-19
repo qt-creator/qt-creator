@@ -29,8 +29,8 @@ public:
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
         selection.setSettingsKey("QdbMakeDefaultDeployStep.MakeDefault");
-        selection.addOption(Tr::tr("Set this application to start by default"));
-        selection.addOption(Tr::tr("Reset default application"));
+        selection.addOption(Tr::tr("Set This Application to Start by Default"));
+        selection.addOption(Tr::tr("Reset Default Application"));
 
         setInternalInitializer([this] { return isDeploymentPossible(); });
     }

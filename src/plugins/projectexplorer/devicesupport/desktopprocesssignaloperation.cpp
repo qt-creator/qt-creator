@@ -151,12 +151,13 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                     ? QLatin1String("/win32interrupt.exe")
                     : QLatin1String("/win64interrupt.exe");
             if (!QFileInfo::exists(executable)) {
-                result = appendCannotInterruptError(pid,
-                                         Tr::tr("%1 does not exist. If you built %2 "
-                                                "yourself, check out https://code.qt.io/cgit/"
-                                                "qt-creator/binary-artifacts.git/.")
-                                             .arg(QDir::toNativeSeparators(executable),
-                                                  QGuiApplication::applicationDisplayName()), result);
+                result = appendCannotInterruptError(
+                    pid,
+                    Tr::tr("%1 does not exist. Your %2 installation seems to be corrupt.")
+                        .arg(
+                            QDir::toNativeSeparators(executable),
+                            QGuiApplication::applicationDisplayName()),
+                    result);
             }
             switch (QProcess::execute(executable, QStringList(QString::number(pid)))) {
             case -2:

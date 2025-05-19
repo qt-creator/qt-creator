@@ -122,7 +122,7 @@ private:
 
             Core::AsynchronousMessageBox::warning(
                 Tr::tr("Cannot Create QtQuick View"),
-                Tr::tr("ConnectionsEditorWidget: %1 cannot be created.%2")
+                Tr::tr("ConnectionsEditorWidget: %1 cannot be created: %2")
                     .arg(connectionsEditorResourcesPath(), errorString));
             return;
         }

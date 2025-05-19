@@ -36,7 +36,7 @@ public:
         : CppQuickFixOperation(interface)
         , m_module(module)
     {
-        setDescription(Tr::tr("Add project dependency %1").arg(module));
+        setDescription(Tr::tr("Add Project Dependency %1").arg(module));
     }
 
     void perform() override
