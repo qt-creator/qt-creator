@@ -175,7 +175,7 @@ QByteArray ObjectsMapDocument::contents() const
 Result<> ObjectsMapDocument::openImpl(const FilePath &fileName, const FilePath &realFileName)
 {
     if (fileName.isEmpty())
-        return ResultError("File name is empty"); // FIXME: Find somethong better
+        return ResultError("File name is empty"); // FIXME: Find something better
 
     QByteArray text;
     if (realFileName.fileName() == "objects.map") {
