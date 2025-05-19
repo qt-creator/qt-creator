@@ -789,7 +789,13 @@ void QtcImage::paintEvent(QPaintEvent *event)
 
 QSize QtcImage::sizeForWidth(int width) const
 {
+    if (m_pixmap.size().width() == 0)
+        return QSize(width, width);
+
     const QSize orgImageSize = m_pixmap.deviceIndependentSize().toSize();
+
+    if (orgImageSize.width() == 0)
+        return QSize(width, width);
 
     const auto margins = this->contentsMargins();
     const QSize contentsMargin(margins.left() + margins.right(), margins.top() + margins.bottom());
