@@ -18,7 +18,7 @@ General
   ([QTCREATORBUG-32400](https://bugreports.qt.io/browse/QTCREATORBUG-32400))
 * Updated icons
 * Improved support for extracting archives
-  (QTAIASSIST-169)
+  ([QTAIASSIST-169](https://bugreports.qt.io/browse/QTAIASSIST-169))
 * Added a `Courses` tab to `Welcome` mode
 * Added tab completion to the locator
 * Extensions
@@ -35,6 +35,8 @@ General
 
 Editing
 -------
+
+* Enabled smooth per pixel scrolling
 
 ### C++
 
@@ -105,12 +107,20 @@ Projects
 * Fixed that cloning a build configuration did not re-apply the build directory
   template
   ([QTCREATORBUG-31062](https://bugreports.qt.io/browse/QTCREATORBUG-31062))
+* Fixed removing devices with `sdktool`
+  ([QTCREATORBUG-32872](https://bugreports.qt.io/browse/QTCREATORBUG-32872))
 
 ### CMake
 
 * Added the option to install missing Qt components with the Qt Online Installer
   when the CMake configuration fails with missing Qt packages
   ([QTCREATORBUG-32323](https://bugreports.qt.io/browse/QTCREATORBUG-32323))
+* Presets
+    * Fixed the run device type for non-desktop targets
+      ([QTCREATORBUG-32943](https://bugreports.qt.io/browse/QTCREATORBUG-32943))
+* vcpkg
+    * Fixed that project local `vcpkg` installations were not prioritized
+      ([QTCREATORBUG-32947](https://bugreports.qt.io/browse/QTCREATORBUG-32947))
 
 ### qmake
 
@@ -137,7 +147,7 @@ Debugging
 ### QML
 
 * Fixed QML debugging with `Run in Terminal` enabled
-  (QTCREATORBUG-32871)
+  ([QTCREATORBUG-32871](https://bugreports.qt.io/browse/QTCREATORBUG-32871))
 
 Analyzer
 --------
@@ -186,8 +196,22 @@ Version Control Systems
 * Fixed that numbers in file names were interpreted as commit IDs
   ([QTCREATORBUG-32740](https://bugreports.qt.io/browse/QTCREATORBUG-32740))
 
+Test Integration
+----------------
+
+* Added wizards for Qt 6 only CMake projects
+  ([QTCREATORBUG-32578](https://bugreports.qt.io/browse/QTCREATORBUG-32578))
+* Fixed test output parsing if that does not end in a newline
+  ([QTCREATORBUG-32768](https://bugreports.qt.io/browse/QTCREATORBUG-32768))
+
 Platforms
 ---------
+
+### Windows
+
+* Re-enabled all functionality of the debugger that calls functions on the
+  debugged items when using GDB from MinGW
+  ([QTCREATORBUG-30661](https://bugreports.qt.io/browse/QTCREATORBUG-30661))
 
 ### macOS
 
@@ -198,8 +222,11 @@ Platforms
 
 * Dropped support for GDB (LLDB is available for Qt 5.15.9 and later and Qt 6.2
   and later)
+* Worked around issues with LLDB from NDK 27 and later on macOS
 * Fixed that Valgrind actions were enabled
   ([QTCREATORBUG-32336](https://bugreports.qt.io/browse/QTCREATORBUG-32336))
+* Fixed more occurrences of the debugger breaking in unrelated code
+  ([QTCREATORBUG-32937](https://bugreports.qt.io/browse/QTCREATORBUG-32937))
 
 ### Docker
 
@@ -263,11 +290,13 @@ Rafal Stawarski
 Ralf Habacker  
 Robert Löhning  
 Sami Shalayel  
+Samuli Piippo  
 Semih Yavuz  
 Shrief Gabr  
 Sivert Krøvel  
 Teea Poldsam  
 Thiago Macieira  
+Thiemo van Engelen  
 Thomas Hartmann  
 Tian Shilin  
 Tim Jenßen  
