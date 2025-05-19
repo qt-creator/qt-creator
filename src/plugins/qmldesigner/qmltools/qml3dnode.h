@@ -3,15 +3,11 @@
 
 #pragma once
 
-#include "qmlobjectnode.h"
-#include "qmlstate.h"
 #include "qmlvisualnode.h"
-#include <modelnode.h>
-#include <qmldesigner_global.h>
 
-#include <QStringList>
-#include <QRectF>
-#include <QTransform>
+#include <modelnode.h>
+
+#include <QMatrix4x4>
 
 namespace QmlDesigner {
 
@@ -33,10 +29,18 @@ public:
     bool handleEulerRotation(PropertyNameView name);
     bool isBlocked(PropertyNameView propName) const;
 
+    void reparentWithTransform(NodeAbstractProperty &parentProperty);
+    bool hasAnimatedTransform();
+
     friend auto qHash(const Qml3DNode &node) { return qHash(node.modelNode()); }
 
 private:
     void handleEulerRotationSet();
+    QMatrix4x4 localTransform() const;
+    QMatrix4x4 sceneTransform() const;
+    void setLocalTransform(const QMatrix4x4 &newParentSceneTransform,
+                           const QMatrix4x4 &oldSceneTransform,
+                           bool adjustScale);
 };
 
 QMLDESIGNER_EXPORT QList<ModelNode> toModelNodeList(const QList<Qml3DNode> &fxItemNodeList);

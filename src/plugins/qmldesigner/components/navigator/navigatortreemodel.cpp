@@ -25,6 +25,7 @@
 #include <nodehints.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>
+#include <qml3dnode.h>
 #include <qmldesignerconstants.h>
 #include <qmlitemnode.h>
 #include <rewritingexception.h>
@@ -168,6 +169,15 @@ static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty
                         parentProperty.reparentHere(modelNode);
                         if (!scenePosition.isNull() && !qmlNode.isEffectItem())
                             setScenePosition(modelNode, scenePosition);
+                    }
+                } else if (modelNode.metaInfo().isQtQuick3DNode()) {
+                    Qml3DNode newParent3d(parentProperty.parentModelNode());
+                    Qml3DNode node3d(modelNode);
+                    if (!qApp->keyboardModifiers().testFlag(Qt::AltModifier)
+                        && !newParent3d.hasAnimatedTransform() && !node3d.hasAnimatedTransform()) {
+                        node3d.reparentWithTransform(parentProperty);
+                    } else {
+                        parentProperty.reparentHere(modelNode);
                     }
                 } else {
                     parentProperty.reparentHere(modelNode);
