@@ -276,20 +276,22 @@ public:
             QVector<DiagnosticItem *> itemsFailed;
             QVector<DiagnosticItem *> itemsInvalidated;
 
+            ChangeSet changeSet = fileInfo.file->changeSet();
+            changeSet.operationList().reserve(fileInfo.diagnosticItems.size());
+
             // Construct change set
             for (DiagnosticItem *diagnosticItem : fileInfo.diagnosticItems) {
                 const FixitStatus fixItStatus = diagnosticItem->fixItStatus();
                 if (fixItStatus == FixitStatus::Scheduled) {
-                    ChangeSet changeSet = fileInfo.file->changeSet();
                     if (addChanges(fileInfo.file, diagnosticItem->diagnostic(), changeSet))
                         itemsSucceeded += diagnosticItem;
                     else // Ops, some fixits might have overlapping ranges.
                         itemsFailed += diagnosticItem;
-                    fileInfo.file->setChangeSet(changeSet);
                 } else if (fileInfo.hasScheduledFixits && fixItStatus == FixitStatus::NotScheduled) {
                     itemsInvalidated += diagnosticItem;
                 }
             }
+            fileInfo.file->setChangeSet(changeSet);
 
             // Apply file
             if (!fileInfo.file->apply()) {
