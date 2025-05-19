@@ -87,7 +87,7 @@ class CppEditorDocumentHandleImpl : public CppEditorDocumentHandle
 public:
     CppEditorDocumentHandleImpl(CppEditorDocument *cppEditorDocument)
         : m_cppEditorDocument(cppEditorDocument)
-        , m_registrationFilePath(cppEditorDocument->filePath().toUrlishString())
+        , m_registrationFilePath(cppEditorDocument->filePath())
     {
         CppModelManager::registerCppEditorDocument(this);
     }
@@ -111,7 +111,7 @@ private:
     CppEditor::Internal::CppEditorDocument * const m_cppEditorDocument;
     // The file path of the editor document can change (e.g. by "Save As..."), so make sure
     // that un-registration happens with the path the document was registered.
-    const QString m_registrationFilePath;
+    const FilePath m_registrationFilePath;
 };
 
 CppEditorDocument::CppEditorDocument()

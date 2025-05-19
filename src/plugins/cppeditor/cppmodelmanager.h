@@ -147,7 +147,7 @@ public:
     static CppEditorDocumentHandle *cppEditorDocument(const Utils::FilePath &filePath);
     static BaseEditorDocumentProcessor *cppEditorDocumentProcessor(const Utils::FilePath &filePath);
     static void registerCppEditorDocument(CppEditorDocumentHandle *cppEditorDocument);
-    static void unregisterCppEditorDocument(const QString &filePath);
+    static void unregisterCppEditorDocument(const Utils::FilePath &filePath);
 
     static QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 

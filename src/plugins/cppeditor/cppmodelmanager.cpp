@@ -190,7 +190,7 @@ public:
 
     // Editor integration
     mutable QMutex m_cppEditorDocumentsMutex;
-    QMap<QString, CppEditorDocumentHandle *> m_cppEditorDocuments;
+    QMap<FilePath, CppEditorDocumentHandle *> m_cppEditorDocuments;
     QSet<AbstractEditorSupport *> m_extraEditorSupports;
 
     // Model Manager Supports for e.g. completion and highlighting
@@ -1179,7 +1179,7 @@ CppEditorDocumentHandle *CppModelManager::cppEditorDocument(const FilePath &file
         return nullptr;
 
     QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
-    return d->m_cppEditorDocuments.value(filePath.toUrlishString(), 0);
+    return d->m_cppEditorDocuments.value(filePath, 0);
 }
 
 BaseEditorDocumentProcessor *CppModelManager::cppEditorDocumentProcessor(const FilePath &filePath)
@@ -1195,11 +1195,11 @@ void CppModelManager::registerCppEditorDocument(CppEditorDocumentHandle *editorD
     QTC_ASSERT(!filePath.isEmpty(), return);
 
     QMutexLocker locker(&d->m_cppEditorDocumentsMutex);
-    QTC_ASSERT(d->m_cppEditorDocuments.value(filePath.toUrlishString(), 0) == 0, return);
-    d->m_cppEditorDocuments.insert(filePath.toUrlishString(), editorDocument);
+    QTC_ASSERT(d->m_cppEditorDocuments.value(filePath, 0) == 0, return);
+    d->m_cppEditorDocuments.insert(filePath, editorDocument);
 }
 
-void CppModelManager::unregisterCppEditorDocument(const QString &filePath)
+void CppModelManager::unregisterCppEditorDocument(const FilePath &filePath)
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
 
