@@ -399,159 +399,7 @@ protected:
                                                qtPartId};
 };
 
-class ProjectStorageUpdater : public BaseProjectStorageUpdater
-{
-public:
-    ProjectStorageUpdater()
-    {
-        setFilesChanged({qmltypesPathSourceId, qmlDirPathSourceId, qmlDocumentSourceId1});
-        setFilesAdded({qmltypes2PathSourceId, qmlDocumentSourceId2, qmlDocumentSourceId3});
-
-        setFilesUnchanged({directoryPathSourceId,
-                           path1SourceId,
-                           path2SourceId,
-                           path3SourceId,
-                           firstSourceId,
-                           secondSourceId,
-                           thirdSourceId,
-                           qmltypes1SourceId,
-                           qmltypes2SourceId});
-        setFilesNotExistsUnchanged({createDirectorySourceId("/path/designer"),
-                                    createDirectorySourceId("/root/designer"),
-                                    createDirectorySourceId("/path/one/designer"),
-                                    createDirectorySourceId("/path/two/designer"),
-                                    createDirectorySourceId("/path/three/designer")});
-
-        setFilesAdded({qmldir1SourceId, qmldir2SourceId, qmldir3SourceId});
-
-        setContent(u"/path/qmldir", qmldirContent);
-
-        setQmlFileNames(u"/path", {"First.qml", "First2.qml", "Second.qml"});
-
-        firstType.prototype = ImportedType{"Object"};
-        firstType.traits = TypeTraitsKind::Reference;
-        secondType.prototype = ImportedType{"Object2"};
-        secondType.traits = TypeTraitsKind::Reference;
-        thirdType.prototype = ImportedType{"Object3"};
-        thirdType.traits = TypeTraitsKind::Reference;
-
-        setContent(u"/path/First.qml", qmlDocument1);
-        setContent(u"/path/First2.qml", qmlDocument2);
-        setContent(u"/path/Second.qml", qmlDocument3);
-        setContent(u"/path/example.qmltypes", qmltypes1);
-        setContent(u"/path/example2.qmltypes", qmltypes2);
-        setContent(u"/path/one/First.qml", qmlDocument1);
-        setContent(u"/path/one/Second.qml", qmlDocument2);
-        setContent(u"/path/two/Third.qml", qmlDocument3);
-        setContent(u"/path/one/example.qmltypes", qmltypes1);
-        setContent(u"/path/two/example2.qmltypes", qmltypes2);
-
-        ON_CALL(qmlDocumentParserMock, parse(qmlDocument1, _, _, _, _))
-            .WillByDefault([&](auto, auto &imports, auto, auto, auto) {
-                imports.push_back(import1);
-                return firstType;
-            });
-        ON_CALL(qmlDocumentParserMock, parse(qmlDocument2, _, _, _, _))
-            .WillByDefault([&](auto, auto &imports, auto, auto, auto) {
-                imports.push_back(import2);
-                return secondType;
-            });
-        ON_CALL(qmlDocumentParserMock, parse(qmlDocument3, _, _, _, _))
-            .WillByDefault([&](auto, auto &imports, auto, auto, auto) {
-                imports.push_back(import3);
-                return thirdType;
-            });
-        ON_CALL(qmlTypesParserMock, parse(Eq(qmltypes1), _, _, _, _))
-            .WillByDefault([&](auto, auto &imports, auto &types, auto, auto) {
-                types.push_back(objectType);
-                imports.push_back(import4);
-            });
-        ON_CALL(qmlTypesParserMock, parse(Eq(qmltypes2), _, _, _, _))
-            .WillByDefault([&](auto, auto &imports, auto &types, auto, auto) {
-                types.push_back(itemType);
-                imports.push_back(import5);
-            });
-    }
-
-protected:
-    SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/path/example.qmltypes");
-    SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/path/example2.qmltypes");
-    SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");
-    DirectoryPathId directoryPathId = qmlDirPathSourceId.directoryPathId();
-    SourceId directoryPathSourceId = SourceId::create(directoryPathId, QmlDesigner::FileNameId{});
-    SourceId annotationDirectorySourceId = createDirectorySourceId("/path/designer");
-    SourceId qmlDocumentSourceId1 = sourcePathCache.sourceId("/path/First.qml");
-    SourceId qmlDocumentSourceId2 = sourcePathCache.sourceId("/path/First2.qml");
-    SourceId qmlDocumentSourceId3 = sourcePathCache.sourceId("/path/Second.qml");
-
-    ModuleId qmlModuleId{storage.moduleId("Qml", ModuleKind::QmlLibrary)};
-    ModuleId qmlCppNativeModuleId{storage.moduleId("Qml", ModuleKind::CppLibrary)};
-    ModuleId exampleModuleId{storage.moduleId("Example", ModuleKind::QmlLibrary)};
-    ModuleId exampleCppNativeModuleId{storage.moduleId("Example", ModuleKind::CppLibrary)};
-    ModuleId builtinModuleId{storage.moduleId("QML", ModuleKind::QmlLibrary)};
-    ModuleId builtinCppNativeModuleId{storage.moduleId("QML", ModuleKind::CppLibrary)};
-    ModuleId quickModuleId{storage.moduleId("Quick", ModuleKind::QmlLibrary)};
-    ModuleId quickCppNativeModuleId{storage.moduleId("Quick", ModuleKind::CppLibrary)};
-    ModuleId pathModuleId{storage.moduleId("/path", ModuleKind::PathLibrary)};
-    ModuleId subPathQmlModuleId{storage.moduleId("/path/qml", ModuleKind::PathLibrary)};
-    Type objectType{"QObject",
-                    ImportedType{},
-                    ImportedType{},
-                    Storage::TypeTraitsKind::Reference,
-                    qmltypesPathSourceId,
-                    {ExportedType{exampleModuleId, "Object"}, ExportedType{exampleModuleId, "Obj"}}};
-    Type itemType{"QItem",
-                  ImportedType{},
-                  ImportedType{},
-                  Storage::TypeTraitsKind::Reference,
-                  qmltypes2PathSourceId,
-                  {ExportedType{exampleModuleId, "Item"}}};
-    QString qmlDocument1{"First{}"};
-    QString qmlDocument2{"Second{}"};
-    QString qmlDocument3{"Third{}"};
-    Type firstType;
-    Type secondType;
-    Type thirdType;
-    Storage::Import import1{qmlModuleId, Storage::Version{2, 3}, qmlDocumentSourceId1};
-    Storage::Import import2{qmlModuleId, Storage::Version{}, qmlDocumentSourceId2};
-    Storage::Import import3{qmlModuleId, Storage::Version{2}, qmlDocumentSourceId3};
-    Storage::Import import4{qmlModuleId, Storage::Version{2, 3}, qmltypesPathSourceId};
-    Storage::Import import5{qmlModuleId, Storage::Version{2, 3}, qmltypes2PathSourceId};
-    QString qmldirContent{"module Example\ntypeinfo example.qmltypes\n"};
-    QString qmltypes1{"Module {\ndependencies: [module1]}"};
-    QString qmltypes2{"Module {\ndependencies: [module2]}"};
-    QStringList directories = {"/path"};
-    QStringList directories2 = {"/path/one", "/path/two"};
-    QStringList directories3 = {"/path/one", "/path/two", "/path/three"};
-    QmlDesigner::ProjectChunkId directoryProjectChunkId{qtPartId, QmlDesigner::SourceType::Directory};
-    QmlDesigner::ProjectChunkId qmldirProjectChunkId{qtPartId, QmlDesigner::SourceType::QmlDir};
-    QmlDesigner::ProjectChunkId qmlDocumentProjectChunkId{qtPartId, QmlDesigner::SourceType::Qml};
-    QmlDesigner::ProjectChunkId qmltypesProjectChunkId{qtPartId, QmlDesigner::SourceType::QmlTypes};
-    QmlDesigner::ProjectChunkId otherDirectoryProjectChunkId{otherProjectPartId,
-                                                             QmlDesigner::SourceType::Directory};
-    QmlDesigner::ProjectChunkId otherQmldirProjectChunkId{otherProjectPartId,
-                                                          QmlDesigner::SourceType::QmlDir};
-    QmlDesigner::ProjectChunkId otherQmlDocumentProjectChunkId{otherProjectPartId,
-                                                               QmlDesigner::SourceType::Qml};
-    QmlDesigner::ProjectChunkId otherQmltypesProjectChunkId{otherProjectPartId,
-                                                            QmlDesigner::SourceType::QmlTypes};
-    DirectoryPathId path1DirectoryPathId = sourcePathCache.directoryPathId("/path/one");
-    SourceId path1SourceId = SourceId::create(path1DirectoryPathId, QmlDesigner::FileNameId{});
-    DirectoryPathId path2DirectoryPathId = sourcePathCache.directoryPathId("/path/two");
-    SourceId path2SourceId = SourceId::create(path2DirectoryPathId, QmlDesigner::FileNameId{});
-    DirectoryPathId path3DirectoryPathId = sourcePathCache.directoryPathId("/path/three");
-    SourceId path3SourceId = SourceId::create(path3DirectoryPathId, QmlDesigner::FileNameId{});
-    SourceId qmldir1SourceId = sourcePathCache.sourceId("/path/one/qmldir");
-    SourceId qmldir2SourceId = sourcePathCache.sourceId("/path/two/qmldir");
-    SourceId qmldir3SourceId = sourcePathCache.sourceId("/path/three/qmldir");
-    SourceId firstSourceId = sourcePathCache.sourceId("/path/one/First.qml");
-    SourceId secondSourceId = sourcePathCache.sourceId("/path/one/Second.qml");
-    SourceId thirdSourceId = sourcePathCache.sourceId("/path/two/Third.qml");
-    SourceId qmltypes1SourceId = sourcePathCache.sourceId("/path/one/example.qmltypes");
-    SourceId qmltypes2SourceId = sourcePathCache.sourceId("/path/two/example2.qmltypes");
-};
-
-class ProjectStorageUpdater_get_content_for_qml_dir_paths : public ProjectStorageUpdater
+class ProjectStorageUpdater_get_content_for_qml_dir_paths : public BaseProjectStorageUpdater
 {
 public:
     ProjectStorageUpdater_get_content_for_qml_dir_paths()
@@ -564,6 +412,8 @@ public:
     SourceId qmlDir1PathSourceId = sourcePathCache.sourceId("/path/one/qmldir");
     SourceId qmlDir2PathSourceId = sourcePathCache.sourceId("/path/two/qmldir");
     SourceId qmlDir3PathSourceId = sourcePathCache.sourceId("/path/three/qmldir");
+    DirectoryPathId path3DirectoryPathId = sourcePathCache.directoryPathId("/path/three");
+    SourceId path3SourceId = SourceId::create(path3DirectoryPathId, QmlDesigner::FileNameId{});
 };
 
 TEST_F(ProjectStorageUpdater_get_content_for_qml_dir_paths, file_status_is_different)
@@ -3741,6 +3591,14 @@ TEST_P(watcher_document_changes, clear_id_paths_after_successful_commit)
     updater.pathsWithIdsChanged({});
 }
 
+TEST_P(watcher_document_changes, dont_change_watcher_for_document_changes_only)
+{
+    EXPECT_CALL(patchWatcherMock, updateContextIdPaths(_, _))
+        .Times(isDirectorAndQmldirUnchanged ? Exactly(0) : AnyNumber());
+
+    updater.pathsWithIdsChanged(idPaths);
+}
+
 class watcher_document_not_existing : public watcher_document
 {
 public:
@@ -4261,53 +4119,12 @@ TEST_P(watcher_qmltypes_changes, qml_document_parses_inside_or_project)
     updater.pathsWithIdsChanged(idPaths);
 }
 
-TEST_F(ProjectStorageUpdater, watcher_dont_watches_directories_after_qml_document_changes)
+TEST_P(watcher_qmltypes_changes, dont_change_watcher_for_qmltypes_changes_only)
 {
-    EXPECT_CALL(patchWatcherMock, updateContextIdPaths(_, _)).Times(0);
+    EXPECT_CALL(patchWatcherMock, updateContextIdPaths(_, _))
+        .Times(isDirectorAndQmldirUnchanged ? Exactly(0) : AnyNumber());
 
-    updater.pathsWithIdsChanged({{qmlDocumentProjectChunkId, {qmlDirPathSourceId}}});
-}
-
-TEST_F(ProjectStorageUpdater, watcher_dont_updates_qml_documents_for_other_projects)
-{
-    EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
-
-    updater.pathsWithIdsChanged(
-        {{otherQmlDocumentProjectChunkId, {qmlDocumentSourceId1, qmlDocumentSourceId2}}});
-}
-
-TEST_F(ProjectStorageUpdater, watcher_updates_qmltypes)
-{
-    setDirectoryInfos(directoryPathId,
-                      {{directoryPathId, qmltypesPathSourceId, exampleModuleId, FileType::QmlTypes},
-                       {directoryPathId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes}});
-    setFilesUnchanged(
-        {directoryPathSourceId, qmlDirPathSourceId, qmlDocumentSourceId1, qmlDocumentSourceId2});
-
-    EXPECT_CALL(projectStorageMock,
-                synchronize(
-                    AllOf(Field("SynchronizationPackage::imports",
-                                &SynchronizationPackage::imports,
-                                UnorderedElementsAre(import4, import5)),
-                          Field("SynchronizationPackage::types",
-                                &SynchronizationPackage::types,
-                                UnorderedElementsAre(Eq(objectType), Eq(itemType))),
-                          Field("SynchronizationPackage::updatedSourceIds",
-                                &SynchronizationPackage::updatedSourceIds,
-                                UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)),
-                          Field("SynchronizationPackage::fileStatuses",
-                                &SynchronizationPackage::fileStatuses,
-                                UnorderedElementsAre(IsFileStatus(qmltypesPathSourceId, 1, 21),
-                                                     IsFileStatus(qmltypes2PathSourceId, 1, 21))),
-                          Field("SynchronizationPackage::updatedFileStatusSourceIds",
-                                &SynchronizationPackage::updatedFileStatusSourceIds,
-                                UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)),
-                          Field("SynchronizationPackage::directoryInfos",
-                                &SynchronizationPackage::directoryInfos,
-                                IsEmpty()))));
-
-    updater.pathsWithIdsChanged(
-        {{qmltypesProjectChunkId, {qmltypesPathSourceId, qmltypes2PathSourceId}}});
+    updater.pathsWithIdsChanged(idPaths);
 }
 
 class watcher_qmltypes_not_existing : public watcher_qmltypes
@@ -4513,20 +4330,6 @@ TEST_P(watcher_qmltypes_not_existing, qml_document_parses_inside_or_project)
         .Times(isIgnoredPartId ? Exactly(0) : AnyNumber());
 
     updater.pathsWithIdsChanged(idPaths);
-}
-
-TEST_F(ProjectStorageUpdater, watcher_dont_watches_directories_after_qmltypes_changes)
-{
-    setDirectoryInfos(directoryPathId,
-                      {{directoryPathId, qmltypesPathSourceId, exampleModuleId, FileType::QmlTypes},
-                       {directoryPathId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes}});
-    setFilesUnchanged(
-        {directoryPathSourceId, qmlDirPathSourceId, qmlDocumentSourceId1, qmlDocumentSourceId2});
-
-    EXPECT_CALL(patchWatcherMock, updateContextIdPaths(_, _)).Times(0);
-
-    updater.pathsWithIdsChanged(
-        {{qmltypesProjectChunkId, {qmltypesPathSourceId, qmltypes2PathSourceId}}});
 }
 
 class ProjectStorageUpdater_property_editor_panes : public BaseProjectStorageUpdater
@@ -5003,8 +4806,8 @@ TEST_F(ProjectStorageUpdater_added_property_editor_qml_paths,
        synchronize_property_editor_qml_paths_directory_if_qmldir_is_changed)
 {
     setFileSystemSubdirectories(u"/path/one", {"/path/one/designer"});
-    setFilesUnchanged({path1SourceId, designer1SourceId});
     setFilesChanged({qmldir1SourceId});
+    setFilesUnchanged({path1SourceId, designer1SourceId});
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(
