@@ -1,4 +1,5 @@
 import qbs.File
+import qbs.Process
 import qbs.Probes
 
 Module {
@@ -51,23 +52,36 @@ Module {
             var arch = product.go.architecture;
             var plat = product.go.platform;
             var env = ["GOARCH=" + arch, "GOOS=" + plat];
-            var workDir = product.sourceDirectory;
             var args = ['build', '-ldflags',
                         '-s -w -X main.MagicPacketMarker=' + product.go.magicPacketMarker,
                         '-o', output.filePath];
             var cmd = new Command(product.go.goFilePath, args);
             cmd.environment = env;
-            cmd.workingDirectory = workDir;
+            cmd.workingDirectory = product.sourceDirectory;
             cmd.description = "building (with go) " + output.fileName;
             cmd.highlight = "compiler";
             commands.push(cmd);
             if ((product.go.upxFilePath !== undefined && File.exists(product.go.upxFilePath))
                     && (plat === 'linux' || (plat === 'windows' && arch === 'amd64'))) {
-                var upxCmd = new Command(product.go.upxFilePath, ['-9', output.filePath]);
+                var upxCmd = new JavaScriptCommand();
+                upxCmd.description = "compressing executable " + output.fileName;
+                upxCmd.highlight = "filegen";
                 upxCmd.environment = env;
-                upxCmd.workingDirectory = workDir;
-                upxCmd.description = "packaging executable " + output.fileName;
-                cmd.highlight = "filegen";
+                upxCmd.sourceCode = function() {
+                    var upxProc = new Process();
+                    upxProc.setWorkingDirectory(product.sourceDirectory);
+                    for (var envkey in environment)
+                        upxProc.setEnv(envkey, environment[envkey]);
+
+                    if (upxProc.exec(product.go.upxFilePath, ['-9', output.filePath]) == -1
+                            || (upxProc.exitCode() != 0 && upxProc.exitCode() != 2)) {
+                        var message = "Process '" + product.go.upxFilePath
+                                + "' failed with exit code " + upxProc.exitCode() + ".\n";
+                        message += "stdout was:\n" + upxProc.readStdOut() + "\n";
+                        message += "stderr was:\n" + upxProc.readStdErr() + "\n";
+                        throw message;
+                    }
+                };
                 commands.push(upxCmd);
             }
             return commands;
