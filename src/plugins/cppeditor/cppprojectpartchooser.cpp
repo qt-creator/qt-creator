@@ -109,7 +109,7 @@ private:
     ProjectPartInfo m_info;
 };
 
-ProjectPartInfo ProjectPartChooser::choose(const QString &filePath,
+ProjectPartInfo ProjectPartChooser::choose(const FilePath &filePath,
         const ProjectPartInfo &currentProjectPartInfo,
         const QString &preferredProjectPartId,
         const Utils::FilePath &activeProject,

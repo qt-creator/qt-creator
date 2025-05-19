@@ -86,7 +86,7 @@ protected:
     State state() const;
     void setState(const State &state);
 
-    static ProjectPartInfo determineProjectPart(const QString &filePath,
+    static ProjectPartInfo determineProjectPart(const Utils::FilePath &filePath,
             const QString &preferredProjectPartId,
             const ProjectPartInfo &currentProjectPartInfo,
             const Utils::FilePath &activeProject,

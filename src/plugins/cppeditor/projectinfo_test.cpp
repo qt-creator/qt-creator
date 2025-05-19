@@ -45,10 +45,10 @@ public:
         chooser.setFallbackProjectPart([&]() {
             return fallbackProjectPart;
         });
-        chooser.setProjectPartsForFile([&](const QString &) {
+        chooser.setProjectPartsForFile([&](const Utils::FilePath &) {
             return projectPartsForFile;
         });
-        chooser.setProjectPartsFromDependenciesForFile([&](const QString &) {
+        chooser.setProjectPartsFromDependenciesForFile([&](const Utils::FilePath &) {
             return projectPartsFromDependenciesForFile;
         });
     }
@@ -58,9 +58,13 @@ public:
         const Project * const project = projectMap.value(activeProject).get();
         const Utils::FilePath projectFilePath = project ? project->projectFilePath()
                                                         : Utils::FilePath();
-        return chooser.choose(filePath, currentProjectPartInfo, preferredProjectPartId,
-                              projectFilePath,
-                              languagePreference, projectsChanged);
+        return chooser.choose(
+            Utils::FilePath(),
+            currentProjectPartInfo,
+            preferredProjectPartId,
+            projectFilePath,
+            languagePreference,
+            projectsChanged);
     }
 
     static QList<ProjectPart::ConstPtr> createProjectPartsWithDifferentProjects()
@@ -101,7 +105,6 @@ public:
         return projectParts;
     }
 
-    QString filePath;
     ProjectPart::ConstPtr currentProjectPart = ProjectPart::create({});
     ProjectPartInfo currentProjectPartInfo{currentProjectPart,
                                            {currentProjectPart},

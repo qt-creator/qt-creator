@@ -99,23 +99,22 @@ BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const FilePath &file
     return BaseEditorDocumentParser::Ptr();
 }
 
-ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(const QString &filePath,
+ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(const FilePath &filePath,
         const QString &preferredProjectPartId,
         const ProjectPartInfo &currentProjectPartInfo,
-        const Utils::FilePath &activeProject,
-        Utils::Language languagePreference,
+        const FilePath &activeProject,
+        Language languagePreference,
         bool projectsUpdated)
 {
     Internal::ProjectPartChooser chooser;
     chooser.setFallbackProjectPart([](){
         return CppModelManager::fallbackProjectPart();
     });
-    chooser.setProjectPartsForFile([](const QString &filePath) {
+    chooser.setProjectPartsForFile([](const FilePath &filePath) {
         return CppModelManager::projectPart(filePath);
     });
-    chooser.setProjectPartsFromDependenciesForFile([&](const QString &filePath) {
-        const auto fileName = Utils::FilePath::fromString(filePath);
-        return CppModelManager::projectPartFromDependencies(fileName);
+    chooser.setProjectPartsFromDependenciesForFile([](const FilePath &filePath) {
+        return CppModelManager::projectPartFromDependencies(filePath);
     });
 
     const ProjectPartInfo chooserResult
