@@ -13466,12 +13466,8 @@ Pour cacher un écran de démarrage collant, appelez la fonction QtAndroid::hide
         <translation>XXXHDPI</translation>
     </message>
     <message>
-        <source>An image is used for the splashscreen. Qt Creator manages
-splashscreen by using a different method which requires changing
-the manifest file by overriding your settings. Allow override?</source>
-        <translation>Une image est utilisée comme écran de démarrage. Qt Creator gère
-l&apos;écran de démarrage en utilisant une méthode différente nécessitant de changer
-le fichier manifeste et d&apos;écraser vos paramètres. Accepter l&apos;écrasement&#xa0;?</translation>
+        <source>An image is used for the splashscreen. Qt Creator manages splashscreen by using a different method which requires changing the manifest file by overriding your settings. Allow override?</source>
+        <translation>Une image est utilisée comme écran de démarrage. Qt Creator gère l&apos;écran de démarrage en utilisant une méthode différente nécessitant de changer le fichier manifeste et d&apos;écraser vos paramètres. Accepter l&apos;écrasement&#xa0;?</translation>
     </message>
     <message>
         <source>Convert</source>
@@ -19662,12 +19658,12 @@ Oui :)</translatorcomment>
         <translation>Sauvegarder &amp;&amp; Reconfigurer</translation>
     </message>
     <message>
-        <source>Additional CMake options: </source>
-        <translation>Options CMake supplémentaires&#xa0;: </translation>
+        <source>Additional CMake options:</source>
+        <translation>Options CMake supplémentaires&#xa0;:</translation>
     </message>
     <message>
-        <source>Initial cache script: </source>
-        <translation>Cache de script initial&#xa0;: </translation>
+        <source>Initial cache script:</source>
+        <translation>Cache de script initial&#xa0;:</translation>
     </message>
     <message>
         <source>Overwrite file &quot;%1&quot;.</source>
@@ -19783,17 +19779,17 @@ Oui :)</translatorcomment>
         <translation>Enregistrer</translation>
     </message>
     <message>
-        <source>Additional qmake arguments: </source>
-        <translation>Arguments qmake supplémentaires&#xa0;: </translation>
+        <source>Additional qmake arguments:</source>
+        <translation>Arguments qmake supplémentaires&#xa0;:</translation>
     </message>
     <message>
-        <source>Build environment: </source>
-        <translation>Environnement de compilation&#xa0;: </translation>
+        <source>Build environment:</source>
+        <translation>Environnement de compilation&#xa0;:</translation>
     </message>
     <message>
-        <source>Feature file: </source>
+        <source>Feature file:</source>
         <translatorcomment>D&apos;après les sources, c&apos;est le fichier cocoplugin.prf, mais je n&apos;ai pas trouvé d&apos;info dans la doc.</translatorcomment>
-        <translation>Fichier de fonctionnalité&#xa0;: </translation>
+        <translation>Fichier de fonctionnalité&#xa0;:</translation>
     </message>
     <message>
         <source>Error: Coco installation directory not set. (This can&apos;t happen.)</source>
@@ -34532,7 +34528,7 @@ Valider maintenant&#xa0;?</translation>
         <translation>Log du répertoire du projet «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
-        <source>Clean Project  Directory...</source>
+        <source>Clean Project Directory...</source>
         <extracomment>Avoid translating &quot;Clean&quot;</extracomment>
         <translation>Clean du répertoire de projet…</translation>
     </message>
@@ -38302,12 +38298,8 @@ Voir la documentation spécifique au serveur de langage pour la liste des param�
         <translation>Installer le paquet</translation>
     </message>
     <message>
-        <source>The extension &quot;%1&quot; wants to install the following package(s):
-
-</source>
-        <translation>L&apos;extension «&#xa0;%1&#xa0;» souhaite installer le(s) paquet(s) suivant(s)&#xa0;:
-
-</translation>
+        <source>The extension &quot;%1&quot; wants to install the following package(s):</source>
+        <translation>L&apos;extension «&#xa0;%1&#xa0;» souhaite installer le(s) paquet(s) suivant(s)&#xa0;:</translation>
     </message>
     <message>
         <source>Install</source>
@@ -46447,12 +46439,6 @@ au projet «&#xa0;%2&#xa0;».</translation>
         <translation>* Échec de l’analyse de «&#xa0;%1&#xa0;»:%2:%3 : %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* N’a pas trouvé d’objet JSON dans «&#xa0;%1&#xa0;».
-</translation>
-    </message>
-    <message>
         <source>JsonWizard: &quot;%1&quot; not found.</source>
         <translation>Assistant Json&#xa0;: «&#xa0;%1&#xa0;» introuvable.</translation>
     </message>
@@ -47303,7 +47289,7 @@ Choisissez un chemin différent.</translation>
         <translation>Installation de PySide</translation>
     </message>
     <message>
-        <source>You can install PySide from PyPi (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
+        <source>You can install PySide from PyPI (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
         <translation>Vous pouvez installer PySide depuis PyPI (version OSS communautaire) ou depuis votre installation de Qt, si vous utilisez l&apos;installateur Qt et que vous avez une licence commerciale.</translation>
     </message>
     <message>
@@ -52255,12 +52241,8 @@ notamment lorsque plusieurs moteurs QML démarrent et s&apos;arrêtent au cours 
         <translation>Fichier de projet généré</translation>
     </message>
     <message>
-        <source>File created:
-
-%1</source>
-        <translation>Fichier créé :
-
-%1</translation>
+        <source>File created:</source>
+        <translation>Fichier créé :</translation>
     </message>
     <message>
         <source>Select File Location</source>
@@ -53560,10 +53542,8 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
         <translation>Le binaire «&#xa0;sftp&#xa0;» «&#xa0;%1&#xa0;» n&apos;existe pas.</translation>
     </message>
     <message>
-        <source>Created directory: &quot;%1&quot;.
-</source>
-        <translation>Le répertoire «&#xa0;%1&#xa0;» a été créé.
-</translation>
+        <source>Created directory: &quot;%1&quot;.</source>
+        <translation>Le répertoire «&#xa0;%1&#xa0;» a été créé.</translation>
     </message>
     <message>
         <source>Copied %1/%2: &quot;%3&quot; -&gt; &quot;%4&quot;.
@@ -58590,8 +58570,8 @@ Ne s’applique pas aux espaces blancs dans les commentaires et dans les chaîne
         <translation>Contour</translation>
     </message>
     <message>
-        <source>Cursors: %2</source>
-        <translation>Curseurs&#xa0;: %2</translation>
+        <source>Cursors: %1</source>
+        <translation>Curseurs&#xa0;: %1</translation>
     </message>
     <message>
         <source>Cursor position: %1</source>
@@ -63896,8 +63876,8 @@ Membres&#xa0;:</translation>
         <translation>Autres attributs d&apos;élément</translation>
     </message>
     <message>
-        <source>Number of matching elements: </source>
-        <translation>Nombre d&apos;éléments correspondants&#xa0;: </translation>
+        <source>Number of matching elements:</source>
+        <translation>Nombre d&apos;éléments correspondants&#xa0;:</translation>
     </message>
 </context>
 <context>

@@ -16,10 +16,13 @@
     To add or change custom output parsers, select \preferences >
     \uicontrol {Build & Run} > \uicontrol {Custom Output Parsers}.
 
-    \image {qtcreator-custom-parser-list.png} {Custom Output Parsers tab in Build & Run preferences}
+    \image {qtcreator-preferences-build-run-custom-output-parsers.webp} {Custom Output Parsers tab in Build & Run preferences}
 
     To edit the settings of a custom output parser, select it in the list, and
     then select \uicontrol Edit.
+
+    To use a custom output parser for all build or run configurations by default,
+    select \uicontrol {Build default} or \uicontrol {Run default}.
 
     To remove the selected parser, select \uicontrol Remove.
 
@@ -56,7 +59,8 @@
             descriptive than the default value.
     \endlist
 
-    \sa {Activate custom output parsers}
+    \sa {Activate custom output parsers}, {Configure projects for building},
+    {Configure projects for running}
 */
 
 /*!

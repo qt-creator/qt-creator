@@ -496,7 +496,7 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
     m_commandEdit->setValidationFunction([](const QString &text) -> Result<> {
         if (QRegularExpression(text).isValid())
             return ResultOk;
-        return ResultError(Tr::tr("The pattern \"%1\" is no valid regular expression").arg(text));
+        return ResultError(Tr::tr("The pattern \"%1\" is no valid regular expression.").arg(text));
     });
     auto resetButton = new QPushButton(Tr::tr("Reset"), m_commandBox);
     resetButton->setToolTip(Tr::tr("Reset to default."));

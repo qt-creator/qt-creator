@@ -32,17 +32,25 @@ function libarchiveLibDirSearchPaths(hostOs)
     return undefined;
 }
 
-function getLibSearchNames(hostOs)
+function getLibSearchNames(hostOs, toolchain)
 {
-    if (hostOs.contains("windows"))
-        return ["archive_static", "archive"];
+    if (hostOs.contains("windows")) {
+        if (toolchain.contains("mingw"))
+            return ["libarchive_static", "libarchive"]
+        else // msvc
+            return ["archive_static", "archive"];
+    }
     return ["archive"];
 }
 
-function getLibNameSuffixes(hostOs) // prefer static over dynamic
+function getLibNameSuffixes(hostOs, toolchain) // prefer static over dynamic
 {
-    if (hostOs.contains("windows"))
-        return [".lib", ".dll"];
+    if (hostOs.contains("windows")) {
+        if (toolchain.contains("mingw"))
+            return [".a", ".dll.a"]
+        else // msvc
+            return [".lib", ".dll"];
+    }
     if (hostOs.contains("macos"))
         return [".a", ".dylib"];
     return [".a", ".so"];

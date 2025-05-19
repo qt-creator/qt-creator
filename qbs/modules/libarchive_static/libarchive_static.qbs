@@ -5,8 +5,8 @@ import "functions.js" as LibArchiveFunctions
 Module {
     Probes.LibraryProbe {
         id: libProbe
-        names: LibArchiveFunctions.getLibSearchNames(qbs.hostOS)
-        nameSuffixes: LibArchiveFunctions.getLibNameSuffixes(qbs.hostOS)
+        names: LibArchiveFunctions.getLibSearchNames(qbs.hostOS, qbs.toolchain)
+        nameSuffixes: LibArchiveFunctions.getLibNameSuffixes(qbs.hostOS, qbs.toolchain)
         searchPaths: LibArchiveFunctions.libarchiveLibDirSearchPaths(qbs.hostOS)
     }
 

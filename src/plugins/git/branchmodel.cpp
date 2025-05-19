@@ -57,11 +57,11 @@ public:
         qCInfo(nodeLog) << "BranchNode created (ROOT)";
     }
 
-    BranchNode(const QString &n, const QString &s = QString(), const QString &t = QString(),
+    BranchNode(const QString &n, const QString &h = QString(), const QString &t = QString(),
                const QDateTime &dt = QDateTime()) :
-        name(n), sha(s), tracking(t), dateTime(dt)
+        name(n), hash(h), tracking(t), dateTime(dt)
     {
-        qCInfo(nodeLog) << "BranchNode created:" << name << sha << tracking << dateTime;
+        qCInfo(nodeLog) << "BranchNode created:" << name << hash << tracking << dateTime;
     }
 
     ~BranchNode()
@@ -164,7 +164,7 @@ public:
         }
 
         if (includePrefix)
-            fn.append(nodes.first()->sha);
+            fn.append(nodes.first()->hash);
         nodes.removeFirst();
 
         for (const BranchNode *n : std::as_const(nodes))
@@ -257,7 +257,7 @@ public:
     QList<BranchNode *> children;
 
     QString name;
-    QString sha;
+    QString hash;
     QString tracking;
     QDateTime dateTime;
     UpstreamStatus status;
@@ -291,7 +291,7 @@ public:
     BranchNode *rootNode = nullptr;
     BranchNode *currentBranch = nullptr;
     BranchNode *headNode = nullptr;
-    QString currentSha;
+    QString currentHash;
     QDateTime currentDateTime;
     QStringList obsoleteLocalBranches;
     TaskTreeRunner taskTreeRunner;
@@ -318,7 +318,7 @@ BranchModel::BranchModel(QObject *parent) :
     d(new Private(this))
 {
     qCInfo(modelLog) << "BranchModel constructed";
-    // Abuse the sha field for ref prefix
+    // Abuse the hash field for ref prefix
     d->rootNode->append(new BranchNode(Tr::tr("Local Branches"), "refs/heads"));
     d->rootNode->append(new BranchNode(Tr::tr("Remote Branches"), "refs/remotes"));
     connect(&d->taskTreeRunner, &TaskTreeRunner::done, this, &BranchModel::endResetModel);
@@ -436,7 +436,7 @@ QVariant BranchModel::data(const QModelIndex &index, int role) const
         if (!node->isLeaf())
             return {};
         if (node->toolTip.isEmpty())
-            node->toolTip = toolTip(node->sha);
+            node->toolTip = toolTip(node->hash);
         qCDebug(modelLog) << "data: ToolTipRole for node:" << node->name << "toolTip:" << node->toolTip;
         return node->toolTip;
     case Qt::FontRole:
@@ -511,7 +511,7 @@ void BranchModel::clear()
         d->rootNode->children.takeLast();
     }
 
-    d->currentSha.clear();
+    d->currentHash.clear();
     d->currentDateTime = {};
     d->currentBranch = nullptr;
     d->headNode = nullptr;
@@ -534,7 +534,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
 
     const GroupItem topRevisionProc = gitClient().topRevision(workingDirectory,
         [this](const QString &ref, const QDateTime &dateTime) {
-            d->currentSha = ref;
+            d->currentHash = ref;
             d->currentDateTime = dateTime;
         });
 
@@ -669,15 +669,15 @@ QStringList BranchModel::localBranchNames() const
     return names;
 }
 
-QString BranchModel::sha(const QModelIndex &idx) const
+QString BranchModel::hash(const QModelIndex &idx) const
 {
-    qCDebug(modelLog) << "sha() called: idx=" << idx;
+    qCDebug(modelLog) << "hash() called: idx=" << idx;
     if (!idx.isValid())
         return {};
     BranchNode *node = indexToNode(idx);
     QTC_ASSERT(node, return {});
-    qCDebug(modelLog) << "sha: node=" << node->name << "sha=" << node->sha;
-    return node->sha;
+    qCDebug(modelLog) << "hash: node=" << node->name << "hash=" << node->hash;
+    return node->hash;
 }
 
 QDateTime BranchModel::dateTime(const QModelIndex &idx) const
@@ -810,7 +810,7 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
     QString errorMessage;
     QString output;
 
-    if (!gitClient().synchronousBranchCmd(d->workingDirectory, {"-a", "--contains", sha(idx)},
+    if (!gitClient().synchronousBranchCmd(d->workingDirectory, {"-a", "--contains", hash(idx)},
                                           &output, &errorMessage)) {
         qCWarning(modelLog) << "branchIsMerged: git branch contains failed:" << errorMessage;
         VcsOutputWindow::appendError(errorMessage);
@@ -853,28 +853,28 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
 
     const QString trackedBranch = fullName(startPoint);
     const QString fullTrackedBranch = fullName(startPoint, true);
-    QString startSha;
+    QString startHash;
     QString errorMessage;
     QDateTime branchDateTime;
 
     QStringList args = {QLatin1String(track ? "--track" : "--no-track"), name};
     if (!fullTrackedBranch.isEmpty()) {
         args << fullTrackedBranch;
-        startSha = sha(startPoint);
+        startHash = hash(startPoint);
         branchDateTime = dateTime(startPoint);
-        qCDebug(modelLog) << "addBranch: tracking branch" << fullTrackedBranch << "sha=" << startSha << "dateTime=" << branchDateTime;
+        qCDebug(modelLog) << "addBranch: tracking branch" << fullTrackedBranch << "hash=" << startHash << "dateTime=" << branchDateTime;
     } else {
         const Result<QString> res = gitClient().synchronousLog(d->workingDirectory,
                                                                {"-n1", "--format=%H %ct"},
                                                                RunFlags::SuppressCommandLogging);
         if (res) {
             const QStringList values = res.value().split(' ');
-            startSha = values[0];
+            startHash = values[0];
             branchDateTime = QDateTime::fromSecsSinceEpoch(values[1].toLongLong());
-            qCDebug(modelLog) << "addBranch: fallback sha=" << startSha << "dateTime=" << branchDateTime;
+            qCDebug(modelLog) << "addBranch: fallback hash=" << startHash << "dateTime=" << branchDateTime;
         } else {
             errorMessage = res.error();
-            qCWarning(modelLog) << "addBranch: failed to get fallback sha:" << errorMessage;
+            qCWarning(modelLog) << "addBranch: failed to get fallback hash:" << errorMessage;
         }
     }
 
@@ -908,7 +908,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
     }
     int pos = positionForName(local, leafName);
     qCDebug(modelLog) << "addBranch: inserting new branch node:" << leafName << "at pos:" << pos;
-    auto newNode = new BranchNode(leafName, startSha, track ? trackedBranch : QString(),
+    auto newNode = new BranchNode(leafName, startHash, track ? trackedBranch : QString(),
                                   branchDateTime);
     if (!added)
         beginInsertRows(nodeToIndex(local, ColumnBranch), pos, pos);
@@ -983,12 +983,12 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
 
     // objectname, refname, upstream:short, *objectname, committerdate:raw, *committerdate:raw
     const QStringList lineParts = line.split('\t');
-    const QString shaDeref = lineParts.at(3);
-    const QString sha = shaDeref.isEmpty() ? lineParts.at(0) : shaDeref;
+    const QString hashDeref = lineParts.at(3);
+    const QString hash = hashDeref.isEmpty() ? lineParts.at(0) : hashDeref;
     const QString fullName = lineParts.at(1);
     const QString upstream = lineParts.at(2);
     QDateTime dateTime;
-    const bool current = (sha == currentSha);
+    const bool current = (hash == currentHash);
     QString strDateTime = lineParts.at(5);
     if (strDateTime.isEmpty())
         strDateTime = lineParts.at(4);
@@ -1076,8 +1076,8 @@ void BranchModel::Private::parseOutputLine(const QString &line, bool force)
     nameParts.removeLast();
 
     QTC_ASSERT(root, return);
-    auto newNode = new BranchNode(name, sha, upstream, dateTime);
-    qCDebug(modelLog) << "parseOutputLine: inserting node" << name << "sha=" << sha << "upstream=" << upstream << "dateTime=" << dateTime;
+    auto newNode = new BranchNode(name, hash, upstream, dateTime);
+    qCDebug(modelLog) << "parseOutputLine: inserting node" << name << "hash=" << hash << "upstream=" << upstream << "dateTime=" << dateTime;
     root->insert(nameParts, newNode);
     if (current) {
         qCDebug(modelLog) << "parseOutputLine: current branch set to" << name;
@@ -1205,11 +1205,11 @@ void BranchModel::Private::updateAllUpstreamStatus(BranchNode *node)
         updateAllUpstreamStatus(child);
 }
 
-QString BranchModel::toolTip(const QString &sha) const
+QString BranchModel::toolTip(const QString &hash) const
 {
-    qCDebug(modelLog) << "toolTip() called: sha=" << sha;
-    // Show the sha description excluding diff as toolTip
-    const Result<QString> res = gitClient().synchronousLog(d->workingDirectory, {"-n1", sha},
+    qCDebug(modelLog) << "toolTip() called: hash=" << hash;
+    // Show the hash description excluding diff as toolTip
+    const Result<QString> res = gitClient().synchronousLog(d->workingDirectory, {"-n1", hash},
                                                            RunFlags::SuppressCommandLogging);
     const QString result = res ? res.value() : res.error();
     qCDebug(modelLog) << "toolTip: result=" << result;

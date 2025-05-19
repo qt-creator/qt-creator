@@ -99,6 +99,7 @@ void BindingEditorDialog::setupUIComponents()
     m_comboBoxItem = new QComboBox(this);
     m_comboBoxProperty = new QComboBox(this);
     m_checkBoxNot = new QCheckBox(this);
+    //: boolean expression (probably better do not translate)
     m_checkBoxNot->setText(Tr::tr("NOT"));
     m_checkBoxNot->setVisible(false);
     m_checkBoxNot->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));

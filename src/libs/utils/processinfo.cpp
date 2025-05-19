@@ -38,11 +38,11 @@ static Result<QList<ProcessInfo>> getLocalProcessesUsingProc(const FilePath &dev
 {
     const FilePath procDir = devicePath.withNewPath("/proc");
     if (!procDir.exists())
-        return ResultError(Tr::tr("%1 does not exist").arg(procDir.toUserOutput()));
+        return ResultError(Tr::tr("\"%1\" does not exist.").arg(procDir.toUserOutput()));
 
     const FilePath find = devicePath.withNewPath("find").searchInPath();
     if (!find.isExecutableFile())
-        return ResultError(Tr::tr("find is not an existing executable"));
+        return ResultError(Tr::tr("\"find\" is not an existing executable"));
 
     static const QString execs = "-exec test -f {}/exe \\; "
                                  "-exec test -f {}/cmdline \\; "
@@ -144,7 +144,7 @@ static Result<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath &devic
 
     const FilePath ps = deviceRoot.withNewPath("ps").searchInPath();
     if (!ps.isExecutableFile())
-        return ResultError(Tr::tr("ps is not an existing executable"));
+        return ResultError(Tr::tr("\"ps\" is not an existing executable."));
 
     // cmdLines are full command lines, usually with absolute path,
     // exeNames only the file part of the executable's path.
@@ -179,7 +179,7 @@ static Result<QList<ProcessInfo>> getProcessesUsingPidin(const FilePath &deviceR
 {
     const FilePath pidin = deviceRoot.withNewPath("pidin").searchInPath();
     if (!pidin.isExecutableFile())
-        return ResultError(Tr::tr("pidin is not an existing executable"));
+        return ResultError(Tr::tr("\"pidin\" is not an existing executable."));
 
     Process process;
     process.setCommand({pidin, {"-F", "%a %A {/%n}"}});

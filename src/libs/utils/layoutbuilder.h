@@ -6,6 +6,7 @@
 #include "builderutils.h"
 
 #include <QAction>
+#include <QFrame>
 #include <QString>
 
 #include <initializer_list>
@@ -104,7 +105,9 @@ public:
     int stretch = -1;
     int spanCols = 1;
     int spanRows = 1;
+    Qt::Alignment alignment = {};
     bool empty = false;
+    bool advancesCell = true;
 };
 
 class QTCREATOR_UTILS_EXPORT Layout : public Object
@@ -117,12 +120,14 @@ public:
     Layout(Implementation *w) { ptr = w; }
 
     void span(int cols, int rows);
+    void align(Qt::Alignment alignment);
 
     void setAlignment(Qt::Alignment alignment);
     void setNoMargins();
     void setNormalMargins();
     void setContentsMargins(int left, int top, int right, int bottom);
     void setColumnStretch(int column, int stretch);
+    void setRowStretch(int row, int stretch);
     void setSpacing(int space);
     void setFieldGrowthPolicy(int policy);
     void setStretch(int index, int stretch);
@@ -232,6 +237,25 @@ public:
     int spanRows = 1;
 };
 
+class QTCREATOR_UTILS_EXPORT Align
+{
+public:
+    Align(Qt::Alignment alignment, const Layout::I &item);
+
+    Layout::I item;
+    Qt::Alignment alignment = {};
+};
+
+class QTCREATOR_UTILS_EXPORT GridCell
+{
+public:
+    GridCell(const std::initializer_list<Layout::I> &items)
+        : items(items)
+    {}
+
+    std::initializer_list<Layout::I> items;
+};
+
 //
 // Widgets
 //
@@ -270,6 +294,8 @@ public:
     void setCursor(Qt::CursorShape shape);
     void setMinimumWidth(int);
     void setMinimumHeight(int height);
+    void setMaximumWidth(int maxWidth);
+    void setMaximumHeight(int maxHeight);
 
     void activateWindow();
     void close();
@@ -392,10 +418,14 @@ class QTCREATOR_UTILS_EXPORT ScrollArea : public Widget
 {
 public:
     using Implementation = QScrollArea;
+    using I = Building::BuilderItem<ScrollArea>;
 
+    ScrollArea(std::initializer_list<I> items);
     ScrollArea(const Layout &inner);
 
     void setLayout(const Layout &inner);
+    void setFrameShape(QFrame::Shape shape);
+    void setFixSizeHintBug(bool fix);
 };
 
 class QTCREATOR_UTILS_EXPORT Stack : public Widget
@@ -478,6 +508,30 @@ public:
     void setViewportMargins(int left, int top, int right, int bottom);
 };
 
+class QTCREATOR_UTILS_EXPORT CanvasWidget : public QWidget
+{
+public:
+    using PaintFunction = std::function<void(QPainter &painter)>;
+
+    void setPaintFunction(const PaintFunction &paintFunction);
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    PaintFunction m_paintFunction;
+};
+
+class QTCREATOR_UTILS_EXPORT Canvas : public Layouting::Widget
+{
+public:
+    using Implementation = CanvasWidget;
+    using I = Building::BuilderItem<Canvas>;
+
+    Canvas() = default;
+    Canvas(std::initializer_list<I> ps);
+
+    void setPaintFunction(const CanvasWidget::PaintFunction &paintFunction);
+};
+
 // Special
 
 class QTCREATOR_UTILS_EXPORT If
@@ -543,6 +597,7 @@ void doit(Interface *x, IdId, auto p)
 QTC_DEFINE_BUILDER_SETTER(alignment, setAlignment)
 QTC_DEFINE_BUILDER_SETTER(childrenCollapsible, setChildrenCollapsible)
 QTC_DEFINE_BUILDER_SETTER(columnStretch, setColumnStretch)
+QTC_DEFINE_BUILDER_SETTER(rowStretch, setRowStretch)
 QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
 QTC_DEFINE_BUILDER_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy)
 QTC_DEFINE_BUILDER_SETTER(groupChecker, setGroupChecker)
@@ -570,6 +625,13 @@ QTC_DEFINE_BUILDER_SETTER(sizePolicy, setSizePolicy);
 QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
 QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
 QTC_DEFINE_BUILDER_SETTER(placeholderText, setPlaceholderText);
+QTC_DEFINE_BUILDER_SETTER(frameShape, setFrameShape);
+QTC_DEFINE_BUILDER_SETTER(paint, setPaintFunction);
+QTC_DEFINE_BUILDER_SETTER(fixSizeHintBug, setFixSizeHintBug);
+QTC_DEFINE_BUILDER_SETTER(maximumWidth, setMaximumWidth)
+QTC_DEFINE_BUILDER_SETTER(maximumHeight, setMaximumHeight)
+QTC_DEFINE_BUILDER_SETTER(minimumWidth, setMinimumWidth)
+QTC_DEFINE_BUILDER_SETTER(minimumHeight, setMinimumHeight)
 
 // Nesting dispatchers
 
@@ -583,6 +645,8 @@ QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Space &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Stretch &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const If &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Span &inner);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Align &inner);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const GridCell &inner);
 
 template<class T>
 void addToLayout(Layout *layout, const QList<T> &inner)
@@ -612,6 +676,10 @@ QTCREATOR_UTILS_EXPORT void addToStack(Stack *stack, QWidget *inner);
 QTCREATOR_UTILS_EXPORT void addToStack(Stack *stack, const Widget &inner);
 QTCREATOR_UTILS_EXPORT void addToStack(Stack *stack, const Layout &inner);
 
+QTCREATOR_UTILS_EXPORT void addToScrollArea(ScrollArea *scrollArea, QWidget *inner);
+QTCREATOR_UTILS_EXPORT void addToScrollArea(ScrollArea *scrollArea, const Widget &inner);
+QTCREATOR_UTILS_EXPORT void addToScrollArea(ScrollArea *scrollArea, const Layout &inner);
+
 template <class Inner>
 void doit_nested(Layout *outer, Inner && inner)
 {
@@ -636,6 +704,11 @@ void doit_nested(Stack *outer, auto inner)
 void doit_nested(Splitter *outer, auto inner)
 {
     addToSplitter(outer, inner);
+}
+
+void doit_nested(ScrollArea *outer, auto inner)
+{
+    addToScrollArea(outer, inner);
 }
 
 template <class Inner>

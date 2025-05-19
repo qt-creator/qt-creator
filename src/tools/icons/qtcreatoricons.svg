@@ -3873,6 +3873,29 @@
          id="path124"
          sodipodi:nodetypes="ccc" />
     </g>
+    <g
+       id="src/libs/utils/images/clock">
+      <use
+         style="display:inline"
+         transform="translate(2335,132)"
+         height="100%"
+         width="100%"
+         id="use132"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <circle
+         style="display:inline;fill:none;stroke:#000000"
+         id="path6227-9"
+         cx="2326.5"
+         cy="575.5"
+         r="7" />
+      <path
+         style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round"
+         d="m 2326.5,571.5 v 4 l 2,2"
+         id="path136"
+         sodipodi:nodetypes="ccc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

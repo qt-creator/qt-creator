@@ -204,6 +204,28 @@ public:
         return Utils::filtered(m_pathMapping, &PathMapping::isValid);
     }
 
+    FilePath mappedFilePath(const FilePath &filePath, const QString &projectName) const
+    {
+        QTC_ASSERT(!projectName.isEmpty(), return {});
+        QTC_ASSERT(filePath.exists(), return {});
+        for (const PathMapping &pm : m_pathMapping) {
+            if (pm.isValid() && projectName == pm.projectName) {
+                FilePath localPath = pm.localPath.pathAppended(pm.analysisPath.path());
+                if (filePath.isChildOf(localPath))
+                   return filePath.relativeChildPath(localPath);
+            }
+        }
+        return {};
+    }
+
+    FilePath localProjectForProjectName(const QString &projectName) const
+    {
+        QTC_ASSERT(!projectName.isEmpty(), return {});
+        return Utils::findOrDefault(m_pathMapping, [projectName](const PathMapping &pm) {
+            return pm.isValid() && projectName == pm.projectName;
+        }).localPath;
+    }
+
 private:
     QList<PathMapping> m_pathMapping;
 };
@@ -346,6 +368,18 @@ const QList<PathMapping> AxivionSettings::validPathMappings() const
 {
     return pathMappingSettings().validPathMappings();
 }
+
+FilePath AxivionSettings::mappedFilePath(const FilePath &filePath,
+                                         const QString &projectName) const
+{
+    return pathMappingSettings().mappedFilePath(filePath, projectName);
+}
+
+Utils::FilePath AxivionSettings::localProjectForProjectName(const QString &projectName) const
+{
+    return pathMappingSettings().localProjectForProjectName(projectName);
+}
+
 
 void AxivionSettings::validatePath()
 {

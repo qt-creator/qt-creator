@@ -143,9 +143,9 @@ void BundleHelper::importBundleToProject()
     bool bundleVersionOk = !bundleVersion.isEmpty() && bundleVersion == BUNDLE_VERSION;
     if (!bundleVersionOk) {
         QMessageBox::warning(m_widget,
-                             Tr::tr("Unsupported bundle file"),
+                             Tr::tr("Unsupported Bundle File"),
                              Tr::tr("The chosen bundle was created with an incompatible version"
-                                    " of Qt Design Studio"));
+                                    " of Qt Design Studio."));
         return;
     }
 
@@ -575,8 +575,8 @@ QString BundleHelper::getImportPath() const
     return QFileDialog::getOpenFileName(m_widget,
                                         Tr::tr("Import Component"),
                                         projectFP.toFSPathString(),
-                                        Tr::tr("Qt Design Studio Bundle Files (*.%1)")
-                                            .arg(Constants::BUNDLE_SUFFIX));
+                                        Tr::tr("Qt Design Studio Bundle Files")
+                                            + QString(" (*.%1)").arg(Constants::BUNDLE_SUFFIX));
 }
 
 QString BundleHelper::getExportPath(const ModelNode &node) const

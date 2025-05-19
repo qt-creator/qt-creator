@@ -696,14 +696,16 @@ GitPluginPrivate::GitPluginPrivate()
                         "Git.LogProjectDirectory", context, true,
                         &GitPluginPrivate::logProjectDirectory);
 
-    createProjectAction(currentProjectDirectoryMenu,
-                        //: Avoid translating "Clean"
-                        Tr::tr("Clean Project  Directory..."),
-                        //: Avoid translating "Clean"
-                        Tr::tr("Clean Directory of Project \"%1\"..."),
-                        "Git.CleanProjectDirectory", context, true,
-                        &GitPluginPrivate::cleanProjectDirectory);
-
+    createProjectAction(
+        currentProjectDirectoryMenu,
+        //: Avoid translating "Clean"
+        Tr::tr("Clean Project Directory..."),
+        //: Avoid translating "Clean"
+        Tr::tr("Clean Directory of Project \"%1\"..."),
+        "Git.CleanProjectDirectory",
+        context,
+        true,
+        &GitPluginPrivate::cleanProjectDirectory);
 
     /*  "Local Repository" menu */
     ActionContainer *localRepositoryMenu = ActionManager::createMenu("Git.LocalRepositoryMenu");

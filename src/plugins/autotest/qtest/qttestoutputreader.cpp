@@ -340,14 +340,14 @@ static QStringList extractFunctionInformation(const QString &testClassName,
 
 void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
 {
-    static const QRegularExpression start("^[*]{9} Start testing of (.*) [*]{9}$");
+    static const QRegularExpression start("^.*[*]{9} Start testing of (.*) [*]{9}$");
     static const QRegularExpression config("^Config: Using QtTest library (.*), "
                                            "(Qt (\\d+(\\.\\d+){2}) \\(.*\\))$");
     static const QRegularExpression summary("^Totals: (\\d+) passed, (\\d+) failed, "
                                             "(\\d+) skipped(, (\\d+) blacklisted)?(, (\\d+)ms)?$");
     static const QRegularExpression finish("^[*]{9} Finished testing of (.*) [*]{9}$");
 
-    static const QRegularExpression result("^(PASS   |FAIL!  |XFAIL  |XPASS  |SKIP   |RESULT "
+    static const QRegularExpression result("^.*(PASS   |FAIL!  |XFAIL  |XPASS  |SKIP   |RESULT "
                                            "|BPASS  |BFAIL  |BXPASS |BXFAIL "
                                            "|INFO   |QWARN  |WARNING|QDEBUG |QSYSTEM|QCRITICAL): (.*)$");
 

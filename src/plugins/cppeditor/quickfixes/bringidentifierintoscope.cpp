@@ -314,9 +314,10 @@ AddIncludeForUndefinedIdentifierOp::AddIncludeForUndefinedIdentifierOp(
     , m_include(include)
     , m_module(module)
 {
-    const QString desc = !m_module.isEmpty()
-        ? Tr::tr("Add #include %1 and project dependency %2").arg(m_include, m_module)
-        : Tr::tr("Add #include %1").arg(m_include);
+    const QString desc
+        = !m_module.isEmpty()
+              ? Tr::tr("Add #include %1 and Project Dependency %2").arg(m_include, m_module)
+              : Tr::tr("Add #include %1").arg(m_include);
     setDescription(desc);
 }
 

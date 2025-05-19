@@ -4124,6 +4124,7 @@ void ProjectExplorerPlugin::updateRunActions()
 
 void ProjectExplorerPlugin::updateVcsActions(const QString &vcsDisplayName)
 {
+    //: %1 = version control name
     dd->m_vcsLogAction->setText(Tr::tr("%1 Log Directory").arg(vcsDisplayName));
 }
 

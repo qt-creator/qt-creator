@@ -121,7 +121,8 @@ void QdbWatcher::forkHostServer()
         showMessage(Tr::tr("QDB host server started."), false);
     else
         showMessage(
-            Tr::tr("Could not start QDB host server in %1").arg(qdbFilePath.toUserOutput()), true);
+            Tr::tr("Could not start QDB host server in \"%1\".").arg(qdbFilePath.toUserOutput()),
+            true);
 }
 
 void QdbWatcher::retry()

@@ -27,20 +27,14 @@ BuiltinFormatterSettingsWidget::BuiltinFormatterSettingsWidget(QWidget *parent, 
     m_tabSettingsWidget->setParent(this);
 
     using namespace Layouting;
-    Column {
-        Group {
-            title(Tr::tr("Builtin Formatter Settings")),
-            Column {
-                m_tabSettingsWidget,
-                Group {
-                    title(Tr::tr("Other Settings")),
-                    Form {
-                        Tr::tr("Line Length:"), m_lineLength, br
-                    }
-                }
-            }
-        }
-    }.attachTo(this);
+    Column{Group{
+               title(Tr::tr("Built-in Formatter Settings")),
+               Column{
+                   m_tabSettingsWidget,
+                   Group{
+                       title(Tr::tr("Other Settings")),
+                       Form{Tr::tr("Line length:"), m_lineLength, br}}}}}
+        .attachTo(this);
 
     connect(
         &m_lineLength,

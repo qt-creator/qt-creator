@@ -252,13 +252,12 @@ SshParameters SshParametersAspectContainer::sshParameters() const
 SshParametersAspectContainer::SshParametersAspectContainer()
 {
     useKeyFile.setDefaultValue(SshParameters::AuthenticationTypeAll);
-    useKeyFile.setToolTip(
-      Tr::tr("Enable to specify a private key file to use for authentication, "
-             "otherwise the default mechanism is used for authentication "
-             "(password, .sshconfig and the default private key)"));
+    useKeyFile.setToolTip(Tr::tr("Enable to specify a private key file to use for authentication, "
+                                 "otherwise the default mechanism is used for authentication "
+                                 "(password, .sshconfig and the default private key)."));
     useKeyFile.setLabelText(Tr::tr("Use specific key:"));
 
-    hostKeyCheckingMode.setToolTip(Tr::tr("The device's SSH host key checking mode"));
+    hostKeyCheckingMode.setToolTip(Tr::tr("The device's SSH host key checking mode."));
     hostKeyCheckingMode.setLabelText(Tr::tr("Host key check:"));
     hostKeyCheckingMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     hostKeyCheckingMode.addOption("None", Tr::tr("No host key checking"));
@@ -267,30 +266,30 @@ SshParametersAspectContainer::SshParametersAspectContainer()
 
     host.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
     host.setPlaceHolderText(Tr::tr("Host name or IP address"));
-    host.setToolTip(Tr::tr("The device's host name or IP address"));
+    host.setToolTip(Tr::tr("The device's host name or IP address."));
     host.setHistoryCompleter("HostName");
     host.setLabelText(Tr::tr("Host name:"));
 
     userName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
     userName.setPlaceHolderText(Tr::tr("User name"));
-    userName.setToolTip(Tr::tr("The device's SSH user name"));
+    userName.setToolTip(Tr::tr("The device's SSH user name."));
     userName.setHistoryCompleter("UserName");
     userName.setLabelText(Tr::tr("User name:"));
 
     port.setDefaultValue(22);
     port.setRange(1, 65535);
-    port.setToolTip(Tr::tr("The device's SSH port number"));
+    port.setToolTip(Tr::tr("The device's SSH port number."));
     port.setLabelText(Tr::tr("SSH port:"));
 
     privateKeyFile.setPlaceHolderText(Tr::tr("Private key file"));
-    privateKeyFile.setToolTip(Tr::tr("The device's private key file"));
+    privateKeyFile.setToolTip(Tr::tr("The device's private key file."));
     privateKeyFile.setLabelText(Tr::tr("Private key file:"));
     privateKeyFile.setHistoryCompleter("KeyFile");
     privateKeyFile.setEnabler(&useKeyFile);
 
     timeout.setDefaultValue(10);
     timeout.setLabelText(Tr::tr("Timeout:"));
-    timeout.setToolTip(Tr::tr("The device's SSH connection timeout"));
+    timeout.setToolTip(Tr::tr("The device's SSH connection timeout."));
 }
 
 } // namespace ProjectExplorer

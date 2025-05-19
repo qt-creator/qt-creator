@@ -70,6 +70,38 @@ int main(int argc, char *argv[])
         },
     }.emerge()->show();
 
+    Grid {
+        "First Row", br,
+        "First Cell of second row",
+        GridCell({
+            ">These", ">    Should", ">    overlap"
+        })
+        , "This should be the third cell",
+        br,
+        "And another row",
+        br,
+        GridCell({
+            Row {
+                "Row> The first column ...", "Row> The second column ..."
+            },
+            Column {
+                "Column> The first row", br,
+                "Column> The second row",
+            }
+        }),
+        br,
+        "And another row", br,
+        Span(3,
+            GridCell({
+                Label {
+                    wordWrap(true),
+                    text("This should span three columns, its also quite long. So we can actually wrap a bit which allows to resize the windows. Otherwise it would be a bit boring.")
+                },
+                "Some overlapping text",
+            })
+        )
+    }.emerge()->show();
+
     Counter myCounter;
 
     // clang-format off

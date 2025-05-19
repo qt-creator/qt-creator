@@ -131,6 +131,61 @@ private:
     bool m_containsMouse{false};
 };
 
+class QTCREATOR_UTILS_EXPORT QtcRectangleWidget : public QWidget
+{
+public:
+    QtcRectangleWidget(QWidget *parent = nullptr);
+
+    QSize sizeHint() const override;
+
+    int radius() const;
+    void setRadius(int radius);
+
+    QBrush fillBrush() const;
+    void setFillBrush(const QBrush &brush);
+
+    void setStrokePen(QPen pen);
+    QPen strokePen() const;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    int m_radius{10};
+    QBrush m_fillBrush{Qt::black};
+    QPen m_strokePen{Qt::NoPen};
+};
+
+class CachedImage;
+
+class QTCREATOR_UTILS_EXPORT QtcImage : public QWidget
+{
+public:
+    QtcImage(QWidget *parent = nullptr);
+
+    void setUrl(const QString &url);
+
+    void setRadius(int radius);
+    int radius() const;
+
+    void paintEvent(QPaintEvent *event) override;
+
+    QSize sizeForWidth(int width) const;
+
+    QSize sizeHint() const override;
+
+    int heightForWidth(int width) const override;
+
+private:
+    void setPixmap(const QPixmap &px);
+
+private:
+    CachedImage *m_cachedImage = nullptr;
+    QPixmap m_pixmap;
+    int m_radius = 0;
+};
+
+
 namespace QtcWidgets {
 
 class QTCREATOR_UTILS_EXPORT Label : public Layouting::Widget
@@ -154,6 +209,7 @@ public:
     void setText(const QString &text);
     void setIcon(const Utils::Icon &icon);
     void setRole(QtcButton::Role role);
+    void onClicked(QObject *guard, const std::function<void()> &);
 };
 
 class QTCREATOR_UTILS_EXPORT IconButton : public Layouting::Widget
@@ -193,8 +249,38 @@ public:
     void onTextChanged(QObject *guard, const std::function<void(QString)> &);
 };
 
+class QTCREATOR_UTILS_EXPORT Rectangle : public Layouting::Widget
+{
+public:
+    using Implementation = QtcRectangleWidget;
+    using I = Building::BuilderItem<Rectangle>;
+
+    Rectangle(std::initializer_list<I> ps);
+
+    void setRadius(int radius);
+    void setFillBrush(const QBrush &brush);
+    void setStrokePen(const QPen &pen);
+};
+
+class QTCREATOR_UTILS_EXPORT Image : public Layouting::Widget
+{
+public:
+    using Implementation = QtcImage;
+    using I = Building::BuilderItem<Image>;
+
+    Image(std::initializer_list<I> ps);
+
+    void setUrl(const QString &url);
+    void setRadius(int radius);
+};
+
 } // namespace QtcWidgets
 
 QTC_DEFINE_BUILDER_SETTER(role, setRole);
+QTC_DEFINE_BUILDER_SETTER(fillBrush, setFillBrush);
+QTC_DEFINE_BUILDER_SETTER(strokePen, setStrokePen);
+QTC_DEFINE_BUILDER_SETTER(radius, setRadius);
+QTC_DEFINE_BUILDER_SETTER(url, setUrl)
+
 
 } // namespace Utils

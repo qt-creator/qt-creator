@@ -21,6 +21,19 @@ bool shutdownAllLocalDashboards(const std::function<void()> &callback);
 std::optional<LocalDashboardAccess> localDashboardAccessFor(const QString &projectName);
 
 bool startLocalBuild(const QString &projectName);
+void cancelLocalBuild(const QString &projectName);
 bool hasRunningLocalBuild(const QString &projectName);
+
+enum class LocalBuildState { None, Started, Building, Analyzing, UpdatingDashboard, Finished };
+
+struct LocalBuildInfo
+{
+    LocalBuildState state = LocalBuildState::None;
+    QString buildOutput = {};
+    QString axivionOutput = {};
+};
+
+LocalBuildInfo localBuildInfoFor(const QString &projectName);
+void removeFinishedLocalBuilds();
 
 } // namespace Axivion::Internal

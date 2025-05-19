@@ -27,18 +27,23 @@ GTestOutputReader::GTestOutputReader(Process *testApplication,
 
 void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
 {
+    static const QRegularExpression gtestMarker("\\[[ A-Z=-]{10}\\]");
     static const QRegularExpression newTestStarts("^\\[-{10}\\] \\d+ tests? from (.*)$");
     static const QRegularExpression testEnds("^\\[-{10}\\] \\d+ tests? from (.*) \\(((\\d+) .*)\\)$");
     static const QRegularExpression newTestSetStarts("^\\[ RUN      \\] (.*)$");
-    static const QRegularExpression testSetSuccess("^\\[       OK \\] (.*) \\((.*)\\)$");
-    static const QRegularExpression testSetFail("^\\[  FAILED  \\] (.*) \\(((\\d+) ms)\\)$");
-    static const QRegularExpression testDeath("^\\[  DEATH   \\] (.*)$");
-    static const QRegularExpression testSetSkipped("^\\[  SKIPPED \\] (.*) \\(((\\d+) ms)\\)$");
+    static const QRegularExpression testSetSuccess("^.*\\[       OK \\] (.*) \\((.*)\\)$");
+    static const QRegularExpression testSetFail("^.*\\[  FAILED  \\] (.*) \\(((\\d+) ms)\\)$");
+    static const QRegularExpression testDeath("^.*\\[  DEATH   \\] (.*)$");
+    static const QRegularExpression testSetSkipped("^.*\\[  SKIPPED \\] (.*) \\(((\\d+) ms)\\)$");
     static const QRegularExpression disabledTests("^  YOU HAVE (\\d+) DISABLED TESTS?$");
     static const QRegularExpression iterations("^Repeating all tests "
                                                "\\(iteration (\\d+)\\) \\. \\. \\.$");
-    static const QRegularExpression logging("^\\[( FATAL | ERROR |WARNING|  INFO )\\] "
+    static const QRegularExpression logging("^.*\\[( FATAL | ERROR |WARNING|  INFO )\\] "
                                             "(.*):(\\d+):: (.*)$");
+    static const QRegularExpression summary("^\\[==========\\] (\\d+) tests from \\d+ test suites? "
+                                            "ran\\. \\((\\d+) ms total\\)$");
+    static const QRegularExpression passed("^\\[  PASSED  \\] (\\d+) tests?\\.$");
+    static const QRegularExpression failed("^\\[  FAILED  \\] (\\d+) tests?, listed below:$");
 
     const QString line = removeCommandlineColors(QString::fromLatin1(outputLine));
     if (line.trimmed().isEmpty())
@@ -54,6 +59,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         m_description.append(line).append('\n');
         if (ExactMatch match = iterations.match(line)) {
             m_iteration = match.captured(1).toInt();
+            m_inSummary = false;
             m_description.clear();
         } else if (line.startsWith(QStringLiteral("Note:"))) {
             // notes contain insignificant information we fail to include properly into the
@@ -63,7 +69,8 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
             m_disabled = match.captured(1).toInt();
             m_description.clear();
         }
-        return;
+        if (!gtestMarker.match(line).hasMatch())
+            return;
     }
 
     if (ExactMatch match = testEnds.match(line)) {
@@ -152,6 +159,13 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
     } else if (ExactMatch match = testDeath.match(line)) {
         m_description.append(line);
         m_description.append('\n');
+    } else if (summary.match(line).hasMatch()) {
+        m_inSummary = true;
+    } else if (m_inSummary) {
+        if (ExactMatch match = passed.match(line))
+            m_summary[ResultType::Pass] += match.captured(1).toInt();
+        else if (ExactMatch match = failed.match(line))
+            m_summary[ResultType::Fail] += match.captured(1).toInt();
     }
 }
 

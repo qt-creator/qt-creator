@@ -48,19 +48,24 @@ QmllsClientSettings *qmllsSettings()
     return static_cast<QmllsClientSettings *>(qmllsSettings);
 }
 
-QmllsClientSettings::QmllsClientSettings()
+static const QStringList &supportedMimeTypes()
 {
-    m_name = "QML Language Server";
-
     using namespace Utils::Constants;
-    m_languageFilter.mimeTypes
+    static const QStringList mimeTypes
         = {QML_MIMETYPE,
            QMLUI_MIMETYPE,
            QBS_MIMETYPE,
            QMLPROJECT_MIMETYPE,
            QMLTYPES_MIMETYPE,
-           JS_MIMETYPE,
-           JSON_MIMETYPE};
+           JS_MIMETYPE};
+    return mimeTypes;
+}
+
+QmllsClientSettings::QmllsClientSettings()
+{
+    m_name = "QML Language Server";
+
+    m_languageFilter.mimeTypes = supportedMimeTypes();
 
     m_settingsTypeId = Constants::QMLLS_CLIENT_SETTINGS_ID;
     m_startBehavior = RequiresProject;
@@ -269,6 +274,7 @@ void QmllsClientSettings::toMap(Store &map) const
 void QmllsClientSettings::fromMap(const Store &map)
 {
     BaseSettings::fromMap(map);
+    m_languageFilter.mimeTypes = supportedMimeTypes();
 
     m_useLatestQmlls = map[useLatestQmllsKey].toBool();
     m_disableBuiltinCodemodel = map[disableBuiltinCodemodelKey].toBool();

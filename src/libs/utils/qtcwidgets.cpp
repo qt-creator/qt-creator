@@ -5,11 +5,17 @@
 
 #include "hostosinfo.h"
 #include "icon.h"
+#include "networkaccessmanager.h"
 
+#include <QCache>
 #include <QEvent>
 #include <QGuiApplication>
+#include <QLayout>
+#include <QNetworkReply>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QPainterPath>
+#include <QPixmapCache>
 #include <QWidget>
 
 namespace Utils {
@@ -588,6 +594,240 @@ QSize QtcIconButton::sizeHint() const
     return s;
 }
 
+QtcRectangleWidget::QtcRectangleWidget(QWidget *parent)
+    : QWidget(parent)
+{}
+
+QSize QtcRectangleWidget::sizeHint() const
+{
+    if (layout())
+        return layout()->sizeHint() + QSize(m_radius * 2, m_radius * 2);
+    return QSize(m_radius * 2, m_radius * 2);
+}
+
+void QtcRectangleWidget::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+    QPainter painter(this);
+    Utils::StyleHelper::drawCardBg(&painter, rect(), m_fillBrush, m_strokePen, m_radius);
+}
+
+int QtcRectangleWidget::radius() const
+{
+    return m_radius;
+}
+
+void QtcRectangleWidget::setRadius(int radius)
+{
+    if (m_radius != radius) {
+        m_radius = radius;
+        update();
+    }
+}
+
+void QtcRectangleWidget::setStrokePen(QPen pen)
+{
+    m_strokePen = pen;
+    update();
+}
+
+QPen QtcRectangleWidget::strokePen() const
+{
+    return m_strokePen;
+}
+
+void QtcRectangleWidget::setFillBrush(const QBrush &brush)
+{
+    m_fillBrush = brush;
+    update();
+}
+
+QBrush QtcRectangleWidget::fillBrush() const
+{
+    return m_fillBrush;
+}
+
+class CachedImage : public QObject
+{
+    Q_OBJECT
+public:
+    CachedImage(const QUrl &url)
+    {
+        // We have to make our own key here, cause other places might change the image before storing
+        // it in the cache.
+        const auto pixmapCacheKey = url.toString() + "CachedImage";
+        if (url.isLocalFile()) {
+            const QString filePath = url.toLocalFile();
+            if (QPixmapCache::find(pixmapCacheKey, &px))
+                return;
+            if (px.load(filePath)) {
+                QPixmapCache::insert(pixmapCacheKey, px);
+            }
+        } else {
+            QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(
+                QNetworkRequest(url));
+            connect(reply, &QNetworkReply::finished, this, [this, reply, pixmapCacheKey]() {
+                reply->deleteLater();
+
+                if (reply->error() == QNetworkReply::NoError) {
+                    const QByteArray data = reply->readAll();
+                    if (px.loadFromData(data)) {
+                        QPixmapCache::insert(pixmapCacheKey, px);
+                        emit imageReady();
+                        return;
+                    }
+                }
+                emit imageError();
+            });
+        }
+    }
+    QPixmap pixmap() const { return px; }
+
+signals:
+    void imageReady();
+    void imageError();
+
+private:
+    QPixmap px;
+};
+
+class ImageCache
+{
+public:
+    static ImageCache *instance()
+    {
+        static ImageCache instance;
+        return &instance;
+    }
+
+    CachedImage *get(const QUrl &url)
+    {
+        CachedImage *cachedImage = m_cache.object(url);
+        if (!cachedImage) {
+            cachedImage = new CachedImage(url);
+            bool ok = m_cache.insert(url, cachedImage);
+            QTC_ASSERT(ok, return nullptr);
+        }
+        return cachedImage;
+    }
+
+private:
+    QCache<QUrl, CachedImage> m_cache;
+};
+
+QtcImage::QtcImage(QWidget *parent)
+    : QWidget(parent)
+{
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    sizePolicy.setHeightForWidth(true);
+    setSizePolicy(sizePolicy);
+}
+
+void QtcImage::setUrl(const QString &url)
+{
+    update();
+    updateGeometry();
+
+    m_pixmap = QPixmap();
+    if (m_cachedImage)
+        m_cachedImage->disconnect(this);
+
+    m_cachedImage = ImageCache::instance()->get(QUrl(url));
+    QTC_ASSERT(m_cachedImage, return);
+
+    if (m_cachedImage->pixmap().isNull()) {
+        connect(m_cachedImage, &CachedImage::imageReady, this, [this]() {
+            setPixmap(m_cachedImage->pixmap());
+            update();
+            updateGeometry();
+        });
+        connect(m_cachedImage, &CachedImage::imageError, this, [this]() {
+            update();
+            updateGeometry();
+        });
+        return;
+    }
+
+    setPixmap(m_cachedImage->pixmap());
+    m_cachedImage = nullptr;
+}
+
+void QtcImage::setRadius(int radius)
+{
+    if (m_radius == radius)
+        return;
+    m_radius = radius;
+    update();
+}
+
+int QtcImage::radius() const
+{
+    return m_radius;
+}
+
+void QtcImage::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event)
+    QPainter p(this);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    if (m_pixmap.isNull())
+        return;
+
+    const QRect rect = contentsRect();
+
+    if (m_radius > 0) {
+        const qreal radius = m_radius;
+        QPainterPath path;
+        path.addRoundedRect(rect, radius, radius);
+        p.setClipPath(path);
+    }
+
+    p.drawPixmap(rect, m_pixmap);
+}
+
+QSize QtcImage::sizeForWidth(int width) const
+{
+    if (m_pixmap.size().width() == 0)
+        return QSize(width, width);
+
+    const QSize orgImageSize = m_pixmap.deviceIndependentSize().toSize();
+
+    if (orgImageSize.width() == 0)
+        return QSize(width, width);
+
+    const auto margins = this->contentsMargins();
+    const QSize contentsMargin(margins.left() + margins.right(), margins.top() + margins.bottom());
+
+    const QSize contentsSize(width, orgImageSize.height() * width / orgImageSize.width());
+    QSize hint
+        = QSize(contentsSize + contentsMargin).expandedTo(minimumSize()).boundedTo(maximumSize());
+    hint.setHeight(m_pixmap.size().height() * hint.width() / m_pixmap.size().width());
+    return hint;
+}
+
+QSize QtcImage::sizeHint() const
+{
+    return sizeForWidth(m_pixmap.deviceIndependentSize().width());
+}
+
+int QtcImage::heightForWidth(int width) const
+{
+    if (this->layout())
+        return QWidget::heightForWidth(width);
+
+    if (m_pixmap.isNull())
+        return 0;
+    return sizeForWidth(width).height();
+}
+
+void QtcImage::setPixmap(const QPixmap &px)
+{
+    m_pixmap = px;
+    update();
+}
+
 namespace QtcWidgets {
 
 Button::Button()
@@ -614,6 +854,11 @@ void Button::setIcon(const Icon &icon)
 void Button::setRole(QtcButton::Role role)
 {
     Layouting::Tools::access(this)->setRole(role);
+}
+
+void Button::onClicked(QObject *guard, const std::function<void()> &func)
+{
+    QObject::connect(Layouting::Tools::access(this), &QtcButton::clicked, guard, func);
 }
 
 IconButton::IconButton()
@@ -710,6 +955,45 @@ void SearchBox::onTextChanged(QObject *guard, const std::function<void(QString)>
     QObject::connect(Layouting::Tools::access(this), &QtcSearchBox::textChanged, guard, func);
 }
 
+Rectangle::Rectangle(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    Layouting::Tools::apply(this, ps);
+}
+
+void Rectangle::setFillBrush(const QBrush &brush)
+{
+    Layouting::Tools::access(this)->setFillBrush(brush);
+}
+
+void Rectangle::setStrokePen(const QPen &pen)
+{
+    Layouting::Tools::access(this)->setStrokePen(pen);
+}
+
+void Rectangle::setRadius(int radius)
+{
+    Layouting::Tools::access(this)->setRadius(radius);
+}
+
+Image::Image(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    Layouting::Tools::apply(this, ps);
+}
+
+void Image::setUrl(const QString &url)
+{
+    Layouting::Tools::access(this)->setUrl(url);
+}
+
+void Image::setRadius(int radius)
+{
+    Layouting::Tools::access(this)->setRadius(radius);
+}
+
 } // namespace QtcWidgets
 
 } // namespace Utils
+
+#include "qtcwidgets.moc"

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -76,7 +76,7 @@
     \endcode
 
     For more information about the CMake project settings in the \c vendor
-    section, see \l {Override CMake settings for a project}.
+    section, see \l {CMake Qt Vendor Presets}.
 
     \section1 MinGW Example
 
@@ -126,8 +126,8 @@
     To speed up the process on Windows, specify the \c CMAKE_C_COMPILER and
     \c CMAKE_CXX_COMPILER in the \c cacheVariables section.
 
-    For possible values of some of the \c debugger parameters, see
-    \l{Adding Debuggers}.
+    For possible values of some of the \c debugger preferences, see
+    \l {CMake Qt Vendor Presets}.
 
     \section1 Ninja Generator Example
 
@@ -300,5 +300,140 @@
     }
     \endcode
 
-    \sa {CMake Build Configuration}, {CMake}, {SDK Tool}
+    \sa {CMake Build Configuration}, {CMake}, {CMake Qt Vendor Presets},
+    {SDK Tool}
+*/
+
+/*!
+    \page creator-build-settings-cmake-presets-qt-vendor.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-configurations
+
+    \title CMake Qt Vendor Presets
+
+    \brief Summary of CMake Qt vendor presets.
+
+    Specify \QC preferences in the \c vendor section in \c CMakePresets.json and
+    \c CMakeUserPresets.json.
+
+    \section1 CMake configuration presets
+
+    The following table summarizes the available presets.
+
+    \table
+    \header
+        \li Preset
+        \li Description
+        \li Read More
+    \row
+        \li \c {AutorunCMake}
+        \li Runs CMake to refresh project information when you edit
+            a \c CMakeLists.txt configuration file in a project. Also,
+            refreshes project information when you build the project.
+        \li \l{View CMake project contents}
+    \row
+        \li \c {AskBeforePresetsReload}
+        \li Asks before acting when you select \uicontrol Build >
+            \uicontrol {Reload CMake Presets}.
+        \li \l{CMake Presets}
+    \row
+        \li \c {AskReConfigureInitialParams}
+        \li Asks before acting when you select
+            \uicontrol {Re-configure with Initial Variables}.
+        \li \l{Re-configuring with Initial Variables}
+    \row
+        \li \c {PackageManagerAutoSetup}
+        \li Sets up the \l {Conan Package Manager}{Conan} or
+            \l {vcpkg Package Manager}{vcpkg} package manager for use with CMake.
+        \li \l{Using CMake with Package Managers}
+    \row
+        \li \c {ShowAdvancedOptionsByDefault}
+        \li Shows all CMake variables by default in
+            \uicontrol {Initial Configuration} and
+            \uicontrol {Current Configuration}.
+        \li \l{Viewing Advanced Variables}
+    \row
+        \li \c {ShowSourceSubfolders}
+        \li Hides subfolder names and arranges the files according to their
+            source group in the \uicontrol Projects view.
+        \li \l{Hide subfolder names in Projects view}
+    \row
+        \li \c {UseJunctionsForSourceAndBuildDirectories}
+        \li On Windows, uses junction points for CMake configure, build, and
+            install operations.
+        \li \l{Using Junction Points on Windows}
+    \endtable
+
+    An example of CMake configuration presets:
+
+    \badcode
+    "vendor": {
+      "qt.io/QtCreator/1.0": {
+        "AskBeforePresetsReload": false,
+        "AskReConfigureInitialParams": false,
+        "AutorunCMake": false,
+        "PackageManagerAutoSetup": false,
+        "ShowAdvancedOptionsByDefault": true,
+        "ShowSourceSubFolders": false,
+        "UseJunctionsForSourceAndBuildDirectories": true
+      }
+    }
+    \endcode
+
+    \section1 Debugger presets
+
+    The following table summarizes the available presets.
+
+    For more information about debugger preferences, see \l{Add debuggers}.
+
+    \table
+        \header
+            \li Preset
+            \li Description
+        \row
+            \li \c {Abis}
+            \li Comma-separated list of system architecture definitions.
+        \row
+            \li \c {Binary}
+            \li Path to the debugger executable. Can be an absolute path, the
+                value \c auto, or an ABI. Finds the appropriate debugger for MSVC
+                toolchains where \QC does not know the binary path.
+        \row
+            \li \c {DisplayName}
+            \li Name of the debugger.
+        \row
+            \li \c {EngineType}
+            \li Debugger engine type:
+                \list
+                    \li 1 for GDB
+                    \li 4 for CDB
+                    \li 8 for PDB
+                    \li 256 for LLDB
+                    \li 512 for GDB DAP
+                    \li 1024 for LLDB DAP
+                    \li 4096 for uVision Debugger
+                \endlist
+        \row
+            \li \c {Version}
+            \li Version number of the debugger.
+    \endtable
+
+    An example of \QC debugger presets:
+
+    \badcode
+    "vendor": {
+      "qt.io/QtCreator/1.0": {
+        "debugger": {
+          "DisplayName": "GNU gdb 11.2.0 for MinGW 11.2.0 64-bit",
+          "Abis": ["x86-windows-msys-pe-64bit"],
+          "Binary": "C:/Qt/Tools/mingw1120_64/bin/gdb.exe",
+          "EngineType": 1,
+          "Version": "11.2.0"
+        }
+      }
+    }
+    \endcode
+
+    \sa {CMake Build Configuration}, {CMake}, {CMake Presets}, {SDK Tool}
 */
