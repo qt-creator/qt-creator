@@ -148,11 +148,13 @@ static Result<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath &devic
 
     // cmdLines are full command lines, usually with absolute path,
     // exeNames only the file part of the executable's path.
-    const auto exeNames = getLocalProcessDataUsingPs(ps, "comm");
+    using namespace Qt::Literals;
+    const QString exeNameColumn = deviceRoot.osType() == OsTypeMac ? "comm"_L1 : "exe"_L1;
+    const Result<QMap<qint64, QString>> exeNames = getLocalProcessDataUsingPs(ps, exeNameColumn);
     if (!exeNames)
         return ResultError(exeNames.error());
 
-    const auto cmdLines = getLocalProcessDataUsingPs(ps, "args");
+    const Result<QMap<qint64, QString>> cmdLines = getLocalProcessDataUsingPs(ps, "args");
     if (!cmdLines)
         return ResultError(cmdLines.error());
 
@@ -166,10 +168,7 @@ static Result<QList<ProcessInfo>> getLocalProcessesUsingPs(const FilePath &devic
         const QString exeName = it.value();
         if (exeName.isEmpty())
             continue;
-        const int pos = cmdLine.indexOf(exeName);
-        if (pos == -1)
-            continue;
-        processes.append({pid, cmdLine.left(pos + exeName.size()), cmdLine});
+        processes.append({pid, exeName, cmdLine});
     }
 
     return processes;
