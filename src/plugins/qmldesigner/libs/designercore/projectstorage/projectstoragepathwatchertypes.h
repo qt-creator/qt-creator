@@ -10,7 +10,7 @@
 
 namespace QmlDesigner {
 
-enum class SourceType : int { Qml, QmlUi, QmlTypes, QmlDir, Directory };
+enum class SourceType : int { Qml, QmlTypes, QmlDir, Directory };
 
 template<typename String>
 void convertToString(String &string, SourceType sourceType)
@@ -18,9 +18,6 @@ void convertToString(String &string, SourceType sourceType)
     switch (sourceType) {
     case SourceType::Qml:
         convertToString(string, "Qml");
-        break;
-    case SourceType::QmlUi:
-        convertToString(string, "QmlUi");
         break;
     case SourceType::QmlTypes:
         convertToString(string, "QmlTypes");

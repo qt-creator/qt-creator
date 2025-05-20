@@ -422,8 +422,6 @@ const char *sourceTypeToText(SourceType sourceType)
     switch (sourceType) {
     case SourceType::Qml:
         return "Qml";
-    case SourceType::QmlUi:
-        return "QmlUi";
     case SourceType::QmlDir:
         return "QmlDir";
     case SourceType::QmlTypes:

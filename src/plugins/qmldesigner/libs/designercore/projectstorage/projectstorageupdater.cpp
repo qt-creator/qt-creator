@@ -1015,7 +1015,6 @@ void appendProjectChunkSourceIds(ProjectChunkSourceIds &ids,
         ids.directory.insert(ids.directory.end(), sourceIds.begin(), sourceIds.end());
         break;
     case SourceType::Qml:
-    case SourceType::QmlUi:
         ids.qmlDocument.insert(ids.qmlDocument.end(), sourceIds.begin(), sourceIds.end());
         break;
     case SourceType::QmlTypes:

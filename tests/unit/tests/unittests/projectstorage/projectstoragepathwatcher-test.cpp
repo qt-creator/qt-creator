@@ -88,7 +88,7 @@ protected:
     Watcher watcher{pathCache, fileStatusCache, &notifier};
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();
     ProjectChunkId projectChunkId1{ProjectPartId::create(2), SourceType::Qml};
-    ProjectChunkId projectChunkId2{ProjectPartId::create(2), SourceType::QmlUi};
+    ProjectChunkId projectChunkId2{ProjectPartId::create(3), SourceType::Qml};
     ProjectChunkId projectChunkId3{ProjectPartId::create(3), SourceType::QmlTypes};
     ProjectChunkId projectChunkId4{ProjectPartId::create(4), SourceType::Qml};
     SourcePathView path1{"/path/path1"};
@@ -267,9 +267,9 @@ TEST_F(ProjectStoragePathWatcher, remove_entries_with_id)
                            {projectChunkId2, {sourceIds[0], sourceIds[1]}},
                            {projectChunkId3, {sourceIds[1], sourceIds[3]}}});
 
-    watcher.removeIds({ProjectPartId::create(2)});
+    watcher.removeIds({ProjectPartId::create(3)});
 
-    ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry5, watcherEntry8));
+    ASSERT_THAT(watcher.watchedEntries(), ElementsAre(watcherEntry1, watcherEntry3));
 }
 
 TEST_F(ProjectStoragePathWatcher, remove_no_paths_for_empty_ids)
@@ -286,7 +286,7 @@ TEST_F(ProjectStoragePathWatcher, remove_no_paths_for_one_id)
 
     EXPECT_CALL(mockQFileSytemWatcher, removePaths(_)).Times(0);
 
-    watcher.removeIds({projectChunkId3.id});
+    watcher.removeIds({projectChunkId4.id});
 }
 
 TEST_F(ProjectStoragePathWatcher, remove_path_for_one_id)
@@ -327,9 +327,9 @@ TEST_F(ProjectStoragePathWatcher, remove_one_path_for_two_id)
                            {projectChunkId2, {sourceIds[0], sourceIds[1]}},
                            {projectChunkId3, {sourceIds[3]}}});
 
-    EXPECT_CALL(mockQFileSytemWatcher, removePaths(ElementsAre(directoryPath)));
+    EXPECT_CALL(mockQFileSytemWatcher, removePaths(ElementsAre(directoryPath2)));
 
-    watcher.removeIds({projectChunkId1.id, projectChunkId2.id});
+    watcher.removeIds({projectChunkId2.id, projectChunkId3.id});
 }
 
 TEST_F(ProjectStoragePathWatcher, not_anymore_watched_entries_with_id)
