@@ -115,6 +115,7 @@ Projects
 * Added the option to install missing Qt components with the Qt Online Installer
   when the CMake configuration fails with missing Qt packages
   ([QTCREATORBUG-32323](https://bugreports.qt.io/browse/QTCREATORBUG-32323))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-edit-cmake-config-files.html))
 * Presets
     * Fixed the run device type for non-desktop targets
       ([QTCREATORBUG-32943](https://bugreports.qt.io/browse/QTCREATORBUG-32943))
