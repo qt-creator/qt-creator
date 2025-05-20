@@ -69,6 +69,7 @@ using QmlDesigner::IdPaths;
 using QmlDesigner::ModuleId;
 using QmlDesigner::SourceId;
 using QmlDesigner::SourceIds;
+using QmlDesigner::SourceType;
 using Storage::Import;
 using Storage::IsInsideProject;
 using Storage::ModuleKind;
@@ -198,6 +199,20 @@ auto IsPropertyEditorQmlPath(const ModuleIdMatcher &moduleIdMatcher,
 constexpr QmlDesigner::ProjectPartId projectPartId = QmlDesigner::ProjectPartId::create(1);
 constexpr QmlDesigner::ProjectPartId otherProjectPartId = QmlDesigner::ProjectPartId::create(2);
 constexpr QmlDesigner::ProjectPartId qtPartId = QmlDesigner::ProjectPartId::create(10);
+
+template<typename SourceIdMatcher>
+auto IsIdPaths(QmlDesigner::ProjectPartId projectPartId,
+               SourceType sourceType,
+               const SourceIdMatcher &sourceIdMatcher)
+{
+    using QmlDesigner::ProjectChunkId;
+    return AllOf(
+        Field("IdPaths::id",
+              &IdPaths::id,
+              AllOf(Field("ProjectChunkId::id", &ProjectChunkId::id, projectPartId),
+                    Field("ProjectChunkId::sourceType", &ProjectChunkId::sourceType, sourceType))),
+        Field("IdPaths::sourceIds", &IdPaths::sourceIds, sourceIdMatcher));
+}
 
 class BaseProjectStorageUpdater : public testing::Test
 {
@@ -3134,6 +3149,27 @@ struct Qmldir
 
 enum class Error { No, Parser, Synchronize, MergeEntries };
 
+[[maybe_unused]] std::ostream &operator<<(std::ostream &out, Error error)
+{
+    out << "Error::";
+    switch (error) {
+    case Error::No:
+        out << "No";
+        break;
+    case Error::Parser:
+        out << "Parser";
+        break;
+    case Error::Synchronize:
+        out << "Synchronize";
+        break;
+    case Error::MergeEntries:
+        out << "MergeEntries";
+        break;
+    }
+
+    return out;
+}
+
 using Parameters = std::tuple<ProjectPartId, State, Qmldir, Subdirectory, Error>;
 
 } // namespace Watcher
@@ -3236,7 +3272,8 @@ public:
     bool isDirectoryUnchanged = directoryState == FileState::Unchanged;
     bool isDirectoryRemoved = directoryState == FileState::Removed;
     bool isQmldirUnchanged = qmldirState == FileState::Unchanged;
-    bool isQmldirNotExisting = qmldirState == FileState::Unchanged;
+    bool isQmldirNotExisting = qmldirState == FileState::NotExists
+                               or qmldirState == FileState::NotExistsUnchanged;
     bool isQmldirRemoved = qmldirState == FileState::Removed;
     bool isDirectorAndQmldirUnchanged = isDirectoryUnchanged and isQmldirUnchanged;
     bool useSubdirectory = std::get<3>(GetParam()).rootSubdirectory;
@@ -3262,8 +3299,13 @@ public:
             idPaths.emplace_back(partId, SourceType::Directory, std::move(directorySourceIds));
         }
 
-        if (isChanged(qmldirState))
-            idPaths.emplace_back(partId, SourceType::QmlDir, SourceIds{qmlDirPathSourceId});
+        if (isChanged(qmldirState)) {
+            SourceIds qmldirSourceIds = {qmlDirPathSourceId};
+            if (useSubdirectory)
+                qmldirSourceIds.push_back(rootQmldirPathSourceId);
+
+            idPaths.emplace_back(partId, SourceType::QmlDir, std::move(qmldirSourceIds));
+        }
 
         if (isChanged(state)) {
             idPaths.emplace_back(partId,
@@ -3593,8 +3635,46 @@ TEST_P(watcher_document_changes, clear_id_paths_after_successful_commit)
 
 TEST_P(watcher_document_changes, dont_change_watcher_for_document_changes_only)
 {
+    setFiles(state, {qmlDocument1SourceId, qmlDocument2SourceId});
+    setFiles(directoryState, {rootDirectoryPathSourceId, directoryPathSourceId});
+    setFiles(qmldirState, {rootQmldirPathSourceId, qmlDirPathSourceId});
+    potentionallyThrowError();
+
     EXPECT_CALL(patchWatcherMock, updateContextIdPaths(_, _))
-        .Times(isDirectorAndQmldirUnchanged ? Exactly(0) : AnyNumber());
+        .Times(isDirectorAndQmldirUnchanged or isIgnoredPartId ? Exactly(0) : Exactly(1));
+
+    updater.pathsWithIdsChanged(idPaths);
+}
+
+TEST_P(watcher_document_changes, update_watcher)
+{
+    setFiles(state, {qmlDocument1SourceId, qmlDocument2SourceId});
+    setFiles(directoryState, {rootDirectoryPathSourceId, directoryPathSourceId});
+    setFiles(qmldirState, {rootQmldirPathSourceId, qmlDirPathSourceId});
+    potentionallyThrowError();
+
+    EXPECT_CALL(patchWatcherMock,
+                updateContextIdPaths(
+                    AllOf(Contains(IsIdPaths(partId,
+                                             SourceType::Directory,
+                                             Conditional(useSubdirectory,
+                                                         UnorderedElementsAre(rootDirectoryPathSourceId,
+                                                                              directoryPathSourceId),
+                                                         ElementsAre(directoryPathSourceId)))),
+                          Contains(IsIdPaths(partId,
+                                             SourceType::QmlDir,
+                                             Conditional(useSubdirectory,
+                                                         UnorderedElementsAre(rootQmldirPathSourceId,
+                                                                              qmlDirPathSourceId),
+                                                         ElementsAre(qmlDirPathSourceId)))),
+                          Contains(IsIdPaths(partId,
+                                             SourceType::Qml,
+                                             UnorderedElementsAre(qmlDocument1SourceId,
+                                                                  qmlDocument2SourceId)))),
+                    AllOf(Contains(directoryPathId).Times(isDirectorAndQmldirUnchanged ? 0 : 1),
+                          Contains(rootDirectoryPathId)
+                              .Times(!isDirectorAndQmldirUnchanged and useSubdirectory ? 1 : 0))))
+        .Times(isDirectorAndQmldirUnchanged or isIgnoredPartId ? Exactly(0) : Exactly(1));
 
     updater.pathsWithIdsChanged(idPaths);
 }
@@ -3654,11 +3734,7 @@ INSTANTIATE_TEST_SUITE_P(
                    Watcher::State{.state = FileState::Removed,
                                   .directoryState = FileState::Removed,
                                   .qmldirState = FileState::Removed,
-                                  .name = "file_removed_directory_removed_qmldir_removed"},
-                   Watcher::State{.state = FileState::NotExists,
-                                  .directoryState = FileState::Unchanged,
-                                  .qmldirState = FileState::Unchanged,
-                                  .name = "file_not_exists_directory_unchanged_qmldir_unchanged"}),
+                                  .name = "file_removed_directory_removed_qmldir_removed"}),
             Values(Watcher::Qmldir{.qmldir = R"(module Example
                                                 FirstType 1.0 First.qml
                                                 SecondType 2.2 Second.qml)",
@@ -3802,6 +3878,41 @@ TEST_P(watcher_document_not_existing, qml_document_parses_inside_or_project)
     updater.pathsWithIdsChanged(idPaths);
 }
 
+TEST_P(watcher_document_not_existing, update_watcher)
+{
+    setFiles(state, {qmlDocument1SourceId, qmlDocument2SourceId});
+    setFiles(directoryState, {rootDirectoryPathSourceId, directoryPathSourceId});
+    setFiles(qmldirState, {rootQmldirPathSourceId, qmlDirPathSourceId});
+    potentionallyThrowError();
+
+    EXPECT_CALL(patchWatcherMock,
+                updateContextIdPaths(
+                    AllOf(Contains(IsIdPaths(partId,
+                                             SourceType::Directory,
+                                             Conditional(useSubdirectory,
+                                                         UnorderedElementsAre(rootDirectoryPathSourceId,
+                                                                              directoryPathSourceId),
+                                                         ElementsAre(directoryPathSourceId))))
+                              .Times(isDirectoryRemoved ? 0 : 1),
+                          Contains(IsIdPaths(partId,
+                                             SourceType::QmlDir,
+                                             Conditional(useSubdirectory,
+                                                         UnorderedElementsAre(rootQmldirPathSourceId,
+                                                                              qmlDirPathSourceId),
+                                                         ElementsAre(qmlDirPathSourceId))))
+                              .Times(isQmldirNotExisting or isQmldirRemoved ? 0 : 1),
+                          Contains(IsIdPaths(partId,
+                                             SourceType::Qml,
+                                             UnorderedElementsAre(qmlDocument1SourceId,
+                                                                  qmlDocument2SourceId)))
+                              .Times(isDocumentNonExisting or isDocumentRemoved ? 0 : 1)),
+                    AllOf(Contains(directoryPathId),
+                          Contains(rootDirectoryPathId).Times(useSubdirectory ? 1 : 0))))
+        .Times(isIgnoredPartId ? Exactly(0) : Exactly(1));
+
+    updater.pathsWithIdsChanged(idPaths);
+}
+
 class watcher_qmltypes : public watcher
 {
 public:
@@ -3819,8 +3930,13 @@ public:
             idPaths.emplace_back(partId, SourceType::Directory, std::move(directorySourceIds));
         }
 
-        if (isChanged(qmldirState))
-            idPaths.emplace_back(partId, SourceType::QmlDir, SourceIds{qmlDirPathSourceId});
+        if (isChanged(qmldirState)) {
+            SourceIds qmldirSourceIds = {qmlDirPathSourceId};
+            if (useSubdirectory)
+                qmldirSourceIds.push_back(rootQmldirPathSourceId);
+
+            idPaths.emplace_back(partId, SourceType::QmlDir, std::move(qmldirSourceIds));
+        }
 
         if (isChanged(state)) {
             idPaths.emplace_back(partId,
@@ -4121,8 +4237,48 @@ TEST_P(watcher_qmltypes_changes, qml_document_parses_inside_or_project)
 
 TEST_P(watcher_qmltypes_changes, dont_change_watcher_for_qmltypes_changes_only)
 {
+    setFiles(state, {qmltypes1SourceId, qmltypes2SourceId});
+    setFiles(directoryState, {rootDirectoryPathSourceId, directoryPathSourceId});
+    setFiles(qmldirState, {rootQmldirPathSourceId, qmlDirPathSourceId});
+    potentionallyThrowError();
+
     EXPECT_CALL(patchWatcherMock, updateContextIdPaths(_, _))
-        .Times(isDirectorAndQmldirUnchanged ? Exactly(0) : AnyNumber());
+        .Times(isDirectorAndQmldirUnchanged or isIgnoredPartId ? Exactly(0) : Exactly(1));
+
+    updater.pathsWithIdsChanged(idPaths);
+}
+
+TEST_P(watcher_qmltypes_changes, update_watcher)
+{
+    setFiles(state, {qmltypes1SourceId, qmltypes2SourceId});
+    setFiles(directoryState, {rootDirectoryPathSourceId, directoryPathSourceId});
+    setFiles(qmldirState, {rootQmldirPathSourceId, qmlDirPathSourceId});
+    potentionallyThrowError();
+
+    EXPECT_CALL(patchWatcherMock,
+                updateContextIdPaths(
+                    AllOf(Contains(IsIdPaths(partId,
+                                             SourceType::Directory,
+                                             Conditional(useSubdirectory,
+                                                         UnorderedElementsAre(rootDirectoryPathSourceId,
+                                                                              directoryPathSourceId),
+                                                         ElementsAre(directoryPathSourceId)))),
+                          Contains(IsIdPaths(partId,
+                                             SourceType::QmlDir,
+                                             Conditional(useSubdirectory,
+                                                         UnorderedElementsAre(rootQmldirPathSourceId,
+                                                                              qmlDirPathSourceId),
+                                                         ElementsAre(qmlDirPathSourceId)))),
+                          Contains(IsIdPaths(partId,
+                                             SourceType::QmlTypes,
+                                             Conditional(noSecondTypeInQmldir,
+                                                         ElementsAre(qmltypes1SourceId),
+                                                         UnorderedElementsAre(qmltypes1SourceId,
+                                                                              qmltypes2SourceId))))),
+                    AllOf(Contains(directoryPathId).Times(isDirectorAndQmldirUnchanged ? 0 : 1),
+                          Contains(rootDirectoryPathId)
+                              .Times(!isDirectorAndQmldirUnchanged and useSubdirectory ? 1 : 0))))
+        .Times(isDirectorAndQmldirUnchanged or isIgnoredPartId ? Exactly(0) : Exactly(1));
 
     updater.pathsWithIdsChanged(idPaths);
 }
@@ -4188,11 +4344,7 @@ INSTANTIATE_TEST_SUITE_P(
                    Watcher::State{.state = FileState::Removed,
                                   .directoryState = FileState::Removed,
                                   .qmldirState = FileState::Removed,
-                                  .name = "file_removed_directory_removed_qmldir_removed"},
-                   Watcher::State{.state = FileState::NotExists,
-                                  .directoryState = FileState::Unchanged,
-                                  .qmldirState = FileState::Unchanged,
-                                  .name = "file_not_exists_directory_unchanged_qmldir_unchanged"}),
+                                  .name = "file_removed_directory_removed_qmldir_removed"}),
             Values(Watcher::Qmldir{.qmldir = R"(module Example
                                                 typeinfo qmltypes1.qmltypes
                                                 typeinfo qmltypes2.qmltypes)",
@@ -4328,6 +4480,40 @@ TEST_P(watcher_qmltypes_not_existing, qml_document_parses_inside_or_project)
 
     EXPECT_CALL(qmlDocumentParserMock, parse(_, _, _, _, isInsideProjectMatcher))
         .Times(isIgnoredPartId ? Exactly(0) : AnyNumber());
+
+    updater.pathsWithIdsChanged(idPaths);
+}
+
+TEST_P(watcher_qmltypes_not_existing, update_watcher)
+{
+    setFiles(state, {qmltypes1SourceId, qmltypes2SourceId});
+    setFiles(directoryState, {rootDirectoryPathSourceId, directoryPathSourceId});
+    setFiles(qmldirState, {rootQmldirPathSourceId, qmlDirPathSourceId});
+    potentionallyThrowError();
+
+    EXPECT_CALL(patchWatcherMock,
+                updateContextIdPaths(
+                    AllOf(Contains(IsIdPaths(partId,
+                                             SourceType::Directory,
+                                             Conditional(useSubdirectory,
+                                                         UnorderedElementsAre(rootDirectoryPathSourceId,
+                                                                              directoryPathSourceId),
+                                                         ElementsAre(directoryPathSourceId))))
+                              .Times(isDirectoryRemoved ? 0 : 1),
+                          Contains(IsIdPaths(partId,
+                                             SourceType::QmlDir,
+                                             Conditional(useSubdirectory,
+                                                         UnorderedElementsAre(rootQmldirPathSourceId,
+                                                                              qmlDirPathSourceId),
+                                                         ElementsAre(qmlDirPathSourceId))))
+                              .Times(isQmldirNotExisting or isQmldirRemoved ? 0 : 1),
+                          Contains(IsIdPaths(partId,
+                                             SourceType::Qml,
+                                             UnorderedElementsAre(qmltypes1SourceId, qmltypes2SourceId)))
+                              .Times(isQmltypesNonExisting or isQmltypesRemoved ? 0 : 1)),
+                    AllOf(Contains(directoryPathId),
+                          Contains(rootDirectoryPathId).Times(useSubdirectory ? 1 : 0))))
+        .Times(isIgnoredPartId ? Exactly(0) : Exactly(1));
 
     updater.pathsWithIdsChanged(idPaths);
 }
