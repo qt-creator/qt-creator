@@ -273,11 +273,7 @@ void UnstartedAppWatcherDialog::kitChanged()
 
 bool UnstartedAppWatcherDialog::checkExecutableString() const
 {
-    if (!m_pathChooser->filePath().toUrlishString().isEmpty()) {
-        QFileInfo fileInfo(m_pathChooser->filePath().toUrlishString());
-        return (fileInfo.exists() && fileInfo.isFile());
-    }
-    return false;
+    return m_pathChooser->filePath().isFile();
 }
 
 Kit *UnstartedAppWatcherDialog::currentKit() const
