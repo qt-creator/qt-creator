@@ -77,6 +77,8 @@ void CocoBuildStep::buildSystemUpdated()
 
 void CocoBuildStep::onButtonClicked()
 {
+    QTC_ASSERT(m_buildSettings, return);
+
     m_valid = !m_valid;
 
     setSummaryText(Tr::tr("Coco Code Coverage: Reconfiguring..."));
@@ -97,6 +99,8 @@ QWidget *CocoBuildStep::createConfigWidget()
 
 void CocoBuildStep::updateDisplay()
 {
+    QTC_ASSERT(m_buildSettings, return);
+
     if (!cocoSettings().isValid()) {
         setSummaryText("<i>" + Tr::tr("Coco Code Coverage: No working Coco installation.") + "</i>");
         emit setButtonState(false);
