@@ -34,6 +34,8 @@ public:
     void fixup(QString & input) const override;
     QValidator::State validate(QString & input, int & pos) const override;
 private:
+    bool hasSession(const QString &input) const;
+
     QStringList m_sessions;
 };
 
@@ -53,10 +55,15 @@ QValidator::State SessionValidator::validate(QString &input, int &pos) const
             || input.contains(QLatin1Char('*')))
         return QValidator::Invalid;
 
-    if (m_sessions.contains(input))
+    if (hasSession(input))
         return QValidator::Intermediate;
     else
         return QValidator::Acceptable;
+}
+
+bool SessionValidator::hasSession(const QString &input) const
+{
+    return m_sessions.contains(input, Qt::CaseInsensitive);
 }
 
 void SessionValidator::fixup(QString &input) const
@@ -66,7 +73,7 @@ void SessionValidator::fixup(QString &input) const
     do {
         copy = input + QLatin1String(" (") + QString::number(i) + QLatin1Char(')');
         ++i;
-    } while (m_sessions.contains(copy));
+    } while (hasSession(copy));
     input = copy;
 }
 
