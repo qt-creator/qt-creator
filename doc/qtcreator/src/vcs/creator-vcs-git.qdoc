@@ -368,7 +368,8 @@
             \li Learn More
         \row
             \li \uicontrol {Add Tag for <hash>}
-            \li Add a tag reference to the change.
+            \li Add a tag reference to the change. You can add an annotation to
+                the tag.
             \li
         \row
             \li \uicontrol {Checkout <hash>}
@@ -1170,7 +1171,8 @@
             \li Cherry-pick the selected change to the local repository.
         \row
             \li \uicontrol Revert
-            \li Revert back to the state of the last commit.
+            \li Revert the changes introduced by the commit. All other commits
+                remain unchanged.
         \row
             \li \uicontrol Show
             \li Show the commit in the diff editor.
