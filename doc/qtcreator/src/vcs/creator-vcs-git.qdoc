@@ -501,7 +501,8 @@
     \title git blame
 
     By default, each line is annotated in the editor when you move the cursor
-    through a file. Hover over the annotation to view commit details.
+    through a file. Hover over the annotation to view commit details and to apply
+    actions to the commit.
 
     \image {qtcreator-git-instant-blame.webp} {Instant blame in the code editor}
     \caption Instant blame in the code editor
@@ -616,11 +617,11 @@
     the next commit. Git allows you to revert back to the state of the last
     commit as well as to the state staged in the index.
 
-    \section1 Revert changes in the current file
+    \section1 Reset all uncommitted changes in the current file
 
-    To revert all changes and reset the current file to the state of the index,
-    go to \uicontrol Tools > \uicontrol Git > \uicontrol {Current File} and
-    select \uicontrol {Undo Unstaged Changes for <file>}.
+    To undo all unstaged changes and reset the current file to the state of the
+    index, go to \uicontrol Tools > \uicontrol Git > \uicontrol {Current File}
+    and select \uicontrol {Undo Unstaged Changes for <file>}.
 
     To return the current file to the state it was in right after the last
     commit, select \uicontrol {Undo Uncommitted Changes for <file>}. This reverts
@@ -649,6 +650,16 @@
     \endlist
 
     To recover removed files, select \uicontrol {Recover Deleted Files}.
+
+    \section1 Revert commits in the editor
+
+    To revert the commit you are currently hovering over, select
+    \uicontrol {Revert <hash>} in the annotation view.
+
+    \image {qtcreator-git-instant-blame.webp} {Instant blame in the code editor}
+    \caption Actions in the annotation view for instant blame
+
+    You are asked to confirm the reversion.
 
     \if defined(qtcreator)
     \sa {Use Git}{How To: Use Git}, {Git}

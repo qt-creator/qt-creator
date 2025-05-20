@@ -190,6 +190,7 @@ Version Control Systems
   ([QTCREATORBUG-32361](https://bugreports.qt.io/browse/QTCREATORBUG-32361))
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-git-diff.html))
 * Added `Revert` to the actions in the `Instant Blame` tooltip
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-git-reset.html))
 * Added the option to create annotated tags to the `Create Branch` dialog
 * Added a `Diff & Cancel` option to the `Uncommitted Changes Found` dialog
   ([QTCREATORBUG-25795](https://bugreports.qt.io/browse/QTCREATORBUG-25795))
