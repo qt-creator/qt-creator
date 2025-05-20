@@ -286,6 +286,21 @@
             \li Removes the selected lines from the staging area.
     \endtable
 
+    To view a diff of staged changes:
+
+    \list
+        \li To view staged changes in the current file, go to \uicontrol Tools >
+            \uicontrol Git > \uicontrol {Current File} and select
+            \uicontrol {Diff Staged Changes in <file>}.
+        \li To view staged changes in the current project directory, go to
+            \uicontrol Tools > \uicontrol Git >
+            \uicontrol {Current Project Directory} and select
+            \uicontrol {Diff Staged Directory of <project directory> Changes}.
+        \li To view staged changes in the local repository, go to
+            \uicontrol Tools > \uicontrol Git > \uicontrol {Local Repository} and
+            select \uicontrol {Diff Staged}.
+    \endlist
+
     \if defined(qtcreator)
     \sa {Use Git}{How To: Use Git}, {Git}
     \endif
