@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/contentlibrary">
+        <file>images/texture_ktx.png</file>
+    </qresource>
+</RCC>

@@ -456,6 +456,7 @@ extend_qtc_plugin(QmlDesigner
     usercategory.cpp usercategory.h
     useritemcategory.cpp useritemcategory.h
     usertexturecategory.cpp usertexturecategory.h
+    contentlibrary.qrc
 )
 
 extend_qtc_plugin(QmlDesigner

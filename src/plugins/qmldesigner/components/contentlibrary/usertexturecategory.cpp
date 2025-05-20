@@ -28,10 +28,8 @@ void UserTextureCategory::loadBundle(bool force)
 
     m_bundlePath.ensureWritableDir();
     m_bundlePath.pathAppended("icons").ensureWritableDir();
-    QStringList supportedImageSuffixes = Asset::supportedImageSuffixes();
-    supportedImageSuffixes.append("*.hdr");
 
-    addItems(m_bundlePath.dirEntries({supportedImageSuffixes, QDir::Files}));
+    addItems(m_bundlePath.dirEntries({Asset::supportedTexture3DSuffixes(), QDir::Files}));
 
     m_bundleLoaded = true;
 }
@@ -52,19 +50,25 @@ void UserTextureCategory::addItems(const Utils::FilePaths &paths)
 {
     for (const Utils::FilePath &filePath : paths) {
         QString suffix = '.' + filePath.suffix();
-        auto iconFileInfo = filePath.parentDir().pathAppended("icons/" + filePath.baseName() + ".png")
-                                .toFileInfo();
+
+        QFileInfo iconFileInfo = filePath.parentDir().pathAppended("icons/" + filePath.baseName() + ".png")
+                                     .toFileInfo();
+
         QPair<QSize, qint64> info = ImageUtils::imageInfo(filePath.path());
         QString dirPath = filePath.parentDir().toFSPathString();
         QSize imgDims = info.first;
         qint64 imgFileSize = info.second;
 
         if (!iconFileInfo.exists()) { // generate an icon if one doesn't exist
-            Asset asset{filePath.toFSPathString()};
-            QPixmap icon = asset.pixmap({120, 120});
-            bool iconSaved = icon.save(iconFileInfo.filePath());
-            if (!iconSaved)
-                qWarning() << __FUNCTION__ << "icon save failed";
+            if (suffix == ".ktx") {
+                QFile::copy(":/contentlibrary/images/texture_ktx.png", iconFileInfo.absoluteFilePath());
+            } else {
+                Asset asset{filePath.toFSPathString()};
+                QPixmap icon = asset.pixmap({120, 120});
+                bool iconSaved = icon.save(iconFileInfo.filePath());
+                if (!iconSaved)
+                    qWarning() << __FUNCTION__ << "icon save failed";
+            }
         }
 
         auto tex = new ContentLibraryTexture(this, iconFileInfo, dirPath, suffix, imgDims, imgFileSize);
