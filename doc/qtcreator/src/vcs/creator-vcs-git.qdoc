@@ -1223,7 +1223,40 @@
     To pull changes from a remote repository, go to \uicontrol Tools >
     \uicontrol Git > \uicontrol {Remote Repository} and select \uicontrol Pull.
 
-    If you have modified files, you are prompted to stash the changes.
+    If you have modified files, you are asked how to handle them.
+
+    \section1 Manage uncommitted changes
+
+    \image {qtcreator-git-uncommitted-changes-found.webp} {Uncommitted Changes Found dialog}
+
+    You can apply the following actions to uncommitted changes:
+
+    \table
+        \header
+            \li Menu Item
+            \li Description
+        \row
+            \li \uicontrol {Diff & Cancel}
+            \li View a diff of the changes and cancel \c {git pull}.
+        \row
+            \li \uicontrol {Discard}
+            \li Reset local changes and execute \c {git pull}. The changes will
+                be lost.
+        \row
+            \li \uicontrol {Ignore}
+            \li Execute \c {git pull} with local changes in the working
+                directory.
+        \row
+            \li \uicontrol {Show/Hide Details}
+            \li Show or hide details of the local changes.
+        \row
+            \li \uicontrol {Stash}
+            \li Stash the local changes and execute \c {git pull}.
+        \row
+            \li \uicontrol {Stash & Pop}
+            \li Stash the local changes, execute \c {git pull}, and then pop
+                the changes.
+    \endtable
 
     \section1 Pull with rebase
 

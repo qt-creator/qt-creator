@@ -195,6 +195,7 @@ Version Control Systems
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-git-log.html))
 * Added a `Diff & Cancel` option to the `Uncommitted Changes Found` dialog
   ([QTCREATORBUG-25795](https://bugreports.qt.io/browse/QTCREATORBUG-25795))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-git-pull.html))
 * Added a `.gitignore` file when creating a repository in an existing directory
   ([QTCREATORBUG-29776](https://bugreports.qt.io/browse/QTCREATORBUG-29776))
 * Fixed that numbers in file names were interpreted as commit IDs
