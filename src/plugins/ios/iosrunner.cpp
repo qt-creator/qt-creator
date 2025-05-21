@@ -285,6 +285,24 @@ static Group deviceCtlKicker(const SingleBarrier &barrier, RunControl *runContro
     };
 }
 
+static Group killApp(RunControl *runControl, const Storage<AppInfo> &appInfo)
+{
+    // If the app is already running, we should first kill it, then launch again.
+    // Usually deployment already kills the running app, but we support running without
+    // deployment. Restarting is then e.g. needed if the app arguments changed.
+    // Unfortunately the information about running processes only includes the path
+    // on device and processIdentifier.
+    // So we find out if the app is installed, and its path on device.
+    // Check if a process is running for that path, and get its processIdentifier.
+    // Try to kill that.
+    // Then launch the app (again).
+    return Group {
+        findApp(runControl, appInfo),
+        findProcess(runControl, appInfo),
+        killProcess(appInfo)
+    };
+}
+
 static Group deviceCtlKicker(const SingleBarrier &barrier, RunControl *runControl, bool startStopped)
 {
     const Storage<AppInfo> appInfo;
@@ -310,9 +328,7 @@ static Group deviceCtlKicker(const SingleBarrier &barrier, RunControl *runContro
         Group {
             initSetup(runControl, appInfo),
             Sync(onSetup),
-            findApp(runControl, appInfo),
-            findProcess(runControl, appInfo),
-            killProcess(appInfo)
+            killApp(runControl, appInfo),
         }.withCancel(canceler()),
         deviceCtlKicker(barrier, runControl, appInfo, tempFileStorage, startStopped)
     };
@@ -462,9 +478,7 @@ static Group deviceCtlPollingRecipe(RunControl *runControl)
         Group {
             initSetup(runControl, appInfo),
             Sync(onSetup),
-            findApp(runControl, appInfo),
-            findProcess(runControl, appInfo),
-            killProcess(appInfo)
+            killApp(runControl, appInfo),
         }.withCancel(canceler()),
         deviceCtlPollingTask(runControl, appInfo)
     };
