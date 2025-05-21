@@ -626,7 +626,9 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &node,
                                               AuxiliaryDataKeyView key,
                                               const QVariant &data)
 {
-    NanotraceHR::Tracer tracer{"notify auxiliary data changed", ModelTracing::category()};
+    NanotraceHR::Tracer tracer{"model private notify auxiliary data changed",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         ModelNode modelNode(node, m_model, view);
         view->auxiliaryDataChanged(modelNode, key, data);
@@ -636,6 +638,8 @@ void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &node,
 void ModelPrivate::notifyNodeSourceChanged(const InternalNodePointer &node,
                                            const QString &newNodeSource)
 {
+    NanotraceHR::Tracer tracer{"model private notify node source changed", ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         ModelNode ModelNode(node, m_model, view);
         view->nodeSourceChanged(ModelNode, newNodeSource);
@@ -644,12 +648,18 @@ void ModelPrivate::notifyNodeSourceChanged(const InternalNodePointer &node,
 
 void ModelPrivate::notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion)
 {
+    NanotraceHR::Tracer tracer{"model private notify root node type changed",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast(
         [&](AbstractView *view) { view->rootNodeTypeChanged(type, majorVersion, minorVersion); });
 }
 
 void ModelPrivate::notifyInstancePropertyChange(Utils::span<const QPair<ModelNode, PropertyName>> properties)
 {
+    NanotraceHR::Tracer tracer{"model private notify instance property change",
+                               ModelTracing::category()};
+
     notifyInstanceChanges([&](AbstractView *view) {
         using ModelNodePropertyPair = QPair<ModelNode, PropertyName>;
         QList<QPair<ModelNode, PropertyName>> adaptedPropertyList;
@@ -663,6 +673,8 @@ void ModelPrivate::notifyInstancePropertyChange(Utils::span<const QPair<ModelNod
 
 void ModelPrivate::notifyInstanceErrorChange(Utils::span<const qint32> instanceIds)
 {
+    NanotraceHR::Tracer tracer{"model private notify instance error change", ModelTracing::category()};
+
     notifyInstanceChanges([&](AbstractView *view) {
         QVector<ModelNode> errorNodeList;
         errorNodeList.reserve(std::ssize(instanceIds));
@@ -674,6 +686,8 @@ void ModelPrivate::notifyInstanceErrorChange(Utils::span<const qint32> instanceI
 
 void ModelPrivate::notifyInstancesCompleted(Utils::span<const ModelNode> modelNodes)
 {
+    NanotraceHR::Tracer tracer{"model private notify instances completed", ModelTracing::category()};
+
     auto internalNodes = toInternalNodeList(modelNodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
@@ -704,6 +718,9 @@ void ModelPrivate::notifyInstancesInformationsChange(
 
 void ModelPrivate::notifyInstancesRenderImageChanged(Utils::span<const ModelNode> nodes)
 {
+    NanotraceHR::Tracer tracer{"model private notify instance render image changed",
+                               ModelTracing::category()};
+
     auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
@@ -713,6 +730,9 @@ void ModelPrivate::notifyInstancesRenderImageChanged(Utils::span<const ModelNode
 
 void ModelPrivate::notifyInstancesPreviewImageChanged(Utils::span<const ModelNode> nodes)
 {
+    NanotraceHR::Tracer tracer{"model private notify instances preview image changed",
+                               ModelTracing::category()};
+
     auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
@@ -722,6 +742,9 @@ void ModelPrivate::notifyInstancesPreviewImageChanged(Utils::span<const ModelNod
 
 void ModelPrivate::notifyInstancesChildrenChanged(Utils::span<const ModelNode> nodes)
 {
+    NanotraceHR::Tracer tracer{"model private notify instances children changed",
+                               ModelTracing::category()};
+
     auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
@@ -731,6 +754,8 @@ void ModelPrivate::notifyInstancesChildrenChanged(Utils::span<const ModelNode> n
 
 void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"model private notify current state changed", ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->currentStateChanged(ModelNode(node.internalNode(), m_model, view));
     });
@@ -738,6 +763,9 @@ void ModelPrivate::notifyCurrentStateChanged(const ModelNode &node)
 
 void ModelPrivate::notifyCurrentTimelineChanged(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"model private notify current timeline changed",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->currentTimelineChanged(ModelNode(node.internalNode(), m_model, view));
     });
@@ -745,11 +773,17 @@ void ModelPrivate::notifyCurrentTimelineChanged(const ModelNode &node)
 
 void ModelPrivate::notifyRenderImage3DChanged(const QImage &image)
 {
+    NanotraceHR::Tracer tracer{"model private notify render image 3d changed",
+                               ModelTracing::category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->renderImage3DChanged(image); });
 }
 
 void ModelPrivate::notifyUpdateActiveScene3D(const QVariantMap &sceneState)
 {
+    NanotraceHR::Tracer tracer{"model private notify update active scene 3d",
+                               ModelTracing::category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->updateActiveScene3D(sceneState); });
 }
 
@@ -757,42 +791,62 @@ void ModelPrivate::notifyModelNodePreviewPixmapChanged(const ModelNode &node,
                                                        const QPixmap &pixmap,
                                                        const QByteArray &requestId)
 {
+    NanotraceHR::Tracer tracer{"model private notify model node preview pixmap changed",
+                               ModelTracing::category()};
+
     notifyInstanceChanges(
         [&](AbstractView *view) { view->modelNodePreviewPixmapChanged(node, pixmap, requestId); });
 }
 
 void ModelPrivate::notifyImport3DSupportChanged(const QVariantMap &supportMap)
 {
+    NanotraceHR::Tracer tracer{"model private notify import 3d support changed",
+                               ModelTracing::category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->updateImport3DSupport(supportMap); });
 }
 
 void ModelPrivate::notifyNodeAtPosResult(const ModelNode &modelNode, const QVector3D &pos3d)
 {
+    NanotraceHR::Tracer tracer{"model private notify node at result", ModelTracing::category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->nodeAtPosReady(modelNode, pos3d); });
 }
 
 void ModelPrivate::notifyView3DAction(View3DActionType type, const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"model private notify view 3d action", ModelTracing::category()};
+
     notifyNormalViewsLast([&](AbstractView *view) { view->view3DAction(type, value); });
 }
 
 void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
 {
+    NanotraceHR::Tracer tracer{"model private notify drag started", ModelTracing::category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->dragStarted(mimeData); });
 }
 
 void ModelPrivate::notifyDragEnded()
 {
+    NanotraceHR::Tracer tracer{"model private notify drag ended", ModelTracing::category()};
+
     notifyInstanceChanges([&](AbstractView *view) { view->dragEnded(); });
 }
 
 void ModelPrivate::notifyRewriterBeginTransaction()
 {
+    NanotraceHR::Tracer tracer{"model private notify rewriter begin transaction",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) { view->rewriterBeginTransaction(); });
 }
 
 void ModelPrivate::notifyRewriterEndTransaction()
 {
+    NanotraceHR::Tracer tracer{"model private notify rewriter end transaction",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) { view->rewriterEndTransaction(); });
 }
 
@@ -800,6 +854,8 @@ void ModelPrivate::notifyInstanceToken(const QString &token,
                                        int number,
                                        Utils::span<const ModelNode> nodes)
 {
+    NanotraceHR::Tracer tracer{"model private notify instance token", ModelTracing::category()};
+
     auto internalNodes = toInternalNodeList(nodes);
 
     notifyInstanceChanges([&](AbstractView *view) {
@@ -812,6 +868,8 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView,
                                             Utils::span<const ModelNode> nodes,
                                             const QList<QVariant> &data)
 {
+    NanotraceHR::Tracer tracer{"model private notify custom notification", ModelTracing::category()};
+
     auto internalList = toInternalNodeList(nodes);
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->customNotification(senderView, identifier, toModelNodeList(internalList, view), data);
@@ -821,6 +879,9 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView,
 void ModelPrivate::notifyCustomNotificationTo(AbstractView *view,
                                               const CustomNotificationPackage &package)
 {
+    NanotraceHR::Tracer tracer{"model private notify custom notification to",
+                               ModelTracing::category()};
+
     if (view) {
         NanotraceHR::Tracer tracer{view->name(), ModelTracing::category()};
         view->customNotification(package);
@@ -829,6 +890,8 @@ void ModelPrivate::notifyCustomNotificationTo(AbstractView *view,
 
 void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPairList)
 {
+    NanotraceHR::Tracer tracer{"model private notify properties removed", ModelTracing::category()};
+
     notifyNormalViewsLast([&](AbstractView *view) {
         QList<AbstractProperty> propertyList;
         propertyList.reserve(propertyPairList.size());
@@ -955,6 +1018,8 @@ void ModelPrivate::detachView(AbstractView *view, bool notifyView)
 
 void ModelPrivate::notifyNodeCreated(const InternalNodePointer &newInternalNodePointer)
 {
+    NanotraceHR::Tracer tracer{"model private notify node created", ModelTracing::category()};
+
     notifyNormalViewsLast([&](AbstractView *view) {
         view->nodeCreated(ModelNode{newInternalNodePointer, m_model, view});
     });
@@ -962,6 +1027,9 @@ void ModelPrivate::notifyNodeCreated(const InternalNodePointer &newInternalNodeP
 
 void ModelPrivate::notifyNodeAboutToBeRemoved(const InternalNodePointer &internalNodePointer)
 {
+    NanotraceHR::Tracer tracer{"model private notify node about to be removed",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->nodeAboutToBeRemoved(ModelNode{internalNodePointer, m_model, view});
     });
@@ -972,6 +1040,8 @@ void ModelPrivate::notifyNodeRemoved(const InternalNodePointer &removedNode,
                                      PropertyNameView parentPropertyName,
                                      AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify node removed", ModelTracing::category()};
+
     notifyNormalViewsLast([&](AbstractView *view) {
         view->nodeRemoved(ModelNode{removedNode, m_model, view},
                           NodeAbstractProperty{parentPropertyName, parentNode, m_model, view},
@@ -984,6 +1054,8 @@ void ModelPrivate::notifyNodeTypeChanged(const InternalNodePointer &node,
                                          int majorVersion,
                                          int minorVersion)
 {
+    NanotraceHR::Tracer tracer{"model private notify node type changed", ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->nodeTypeChanged(ModelNode{node, m_model, view},
                               type,
@@ -996,6 +1068,8 @@ void ModelPrivate::notifyNodeIdChanged(const InternalNodePointer &node,
                                        const QString &newId,
                                        const QString &oldId)
 {
+    NanotraceHR::Tracer tracer{"model private notify node id changed", ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->nodeIdChanged(ModelNode{node, m_model, view}, newId, oldId);
     });
@@ -1004,6 +1078,9 @@ void ModelPrivate::notifyNodeIdChanged(const InternalNodePointer &node,
 void ModelPrivate::notifyBindingPropertiesAboutToBeChanged(
     const QList<InternalBindingProperty *> &internalPropertyList)
 {
+    NanotraceHR::Tracer tracer{"model private notify binding properties about to be changed",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QList<BindingProperty> propertyList;
         propertyList.reserve(internalPropertyList.size());
@@ -1020,6 +1097,9 @@ void ModelPrivate::notifyBindingPropertiesAboutToBeChanged(
 void ModelPrivate::notifyBindingPropertiesChanged(const QList<InternalBindingProperty *> &internalPropertyList,
                                                   AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify binding properties changed",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QList<BindingProperty> propertyList;
         propertyList.reserve(internalPropertyList.size());
@@ -1037,6 +1117,9 @@ void ModelPrivate::notifySignalHandlerPropertiesChanged(
     const QVector<InternalSignalHandlerProperty *> &internalPropertyList,
     AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify signal handler properties changed",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QVector<SignalHandlerProperty> propertyList;
         propertyList.reserve(internalPropertyList.size());
@@ -1054,6 +1137,9 @@ void ModelPrivate::notifySignalDeclarationPropertiesChanged(
     const QVector<InternalSignalDeclarationProperty *> &internalPropertyList,
     AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify signal declaration properties changed",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QVector<SignalDeclarationProperty> propertyList;
         propertyList.reserve(internalPropertyList.size());
@@ -1070,6 +1156,9 @@ void ModelPrivate::notifySignalDeclarationPropertiesChanged(
 void ModelPrivate::notifyScriptFunctionsChanged(const InternalNodePointer &node,
                                                 const QStringList &scriptFunctionList)
 {
+    NanotraceHR::Tracer tracer{"model private notify script functions changed",
+                               ModelTracing::category()};
+
     notifyNormalViewsLast([&](AbstractView *view) {
         view->scriptFunctionsChanged(ModelNode{node, m_model, view}, scriptFunctionList);
     });
@@ -1079,6 +1168,9 @@ void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &nod
                                                   const PropertyNameViews &propertyNameViews,
                                                   AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify variant properties changed",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QList<VariantProperty> propertyList;
         propertyList.reserve(propertyNameViews.size());
@@ -1096,6 +1188,9 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
                                                PropertyNameView oldPropertyName,
                                                AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify node about to be reparent",
+                               ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         NodeAbstractProperty newProperty;
         NodeAbstractProperty oldProperty;
@@ -1121,6 +1216,8 @@ void ModelPrivate::notifyNodeReparent(const InternalNodePointer &node,
                                       PropertyNameView oldPropertyName,
                                       AbstractView::PropertyChangeFlags propertyChange)
 {
+    NanotraceHR::Tracer tracer{"model private notify node reparent", ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         NodeAbstractProperty newProperty;
         NodeAbstractProperty oldProperty;
@@ -1145,6 +1242,8 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListProperty *intern
                                           const InternalNodePointer &node,
                                           int oldIndex)
 {
+    NanotraceHR::Tracer tracer{"model private notify node order changed", ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         NodeListProperty nodeListProperty(internalListProperty->name(),
                                           internalListProperty->propertyOwner(),
@@ -1156,6 +1255,8 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListProperty *intern
 
 void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListProperty *internalListProperty)
 {
+    NanotraceHR::Tracer tracer{"model private notify node order changed", ModelTracing::category()};
+
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         NodeListProperty nodeListProperty(internalListProperty->name(),
                                           internalListProperty->propertyOwner(),
@@ -1280,6 +1381,8 @@ QList<std::tuple<InternalBindingProperty *, QString>> ModelPrivate::toInternalBi
 void ModelPrivate::changeSelectedNodes(const FewNodes &newSelectedNodeList,
                                        const FewNodes &oldSelectedNodeList)
 {
+    NanotraceHR::Tracer tracer{"model private change selected nodes", ModelTracing::category()};
+
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         Q_ASSERT(view != nullptr);
         view->selectedNodesChanged(toModelNodeList(newSelectedNodeList, view.data()),
