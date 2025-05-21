@@ -57,9 +57,10 @@ public slots:
 private:
     void runSessionNameInputDialog(Internal::SessionNameInputDialog *sessionInputDialog,
                                    std::function<void(const QString &)> createSession);
+    void sortImpl(int column, Qt::SortOrder order);
 
     QStringList m_sortedSessions;
-    int m_currentSortColumn = 0;
+    int m_currentSortColumn = -1;
     Qt::SortOrder m_currentSortOrder = Qt::AscendingOrder;
 };
 
