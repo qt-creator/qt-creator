@@ -245,6 +245,15 @@
 
     Warnings and errors are displayed in \l {Issues}.
 
+    \section1 Install missing Qt packages
+
+    If you add a Qt module in \c find_package that you did not install, \QC
+    asks whether you want to install it with \QOI.
+
+    \image {qtcreator-install-packages.webp} {Installing missing Qt packages}
+
+    Select \uicontrol {Yes} to install the package with \QOI.
+
     \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Completion},
     {Snippets}
 */
@@ -366,8 +375,8 @@
     highlighting as if the code were a part of the current project or the
     Qt library.
 
-    \QC detects the external libraries using the \l{CMake: find_package command}
-    command. Some libraries come with the CMake installation. You can find those
+    \QC detects the external libraries using the \l{CMake: find_package command}.
+    Some libraries come with the CMake installation. You can find those
     in the \c {Modules} directory of your CMake installation.
     For more information, see \l{CMake: cmake-packages(7)}.
 

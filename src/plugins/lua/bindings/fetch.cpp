@@ -10,6 +10,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/aspects.h>
+#include <utils/guardedcallback.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
@@ -237,22 +238,25 @@ void setupFetchModule()
                 });
                 entry.addCustomButton(
                     Tr::tr("Always Allow"),
-                    [mod, pluginName, fetch]() {
-                        mod->setAllowedToFetch(pluginName, Module::IsAllowed::Yes);
-                        fetch();
-                    },
+                    guardedCallback(
+                        guard,
+                        [mod, pluginName, fetch]() {
+                            mod->setAllowedToFetch(pluginName, Module::IsAllowed::Yes);
+                            fetch();
+                        }),
                     {},
                     InfoBarEntry::ButtonAction::Hide);
                 entry.addCustomButton(
                     Tr::tr("Allow Once"),
-                    [pluginName, fetch]() { fetch(); },
+                    guardedCallback(guard, [pluginName, fetch]() { fetch(); }),
                     {},
                     InfoBarEntry::ButtonAction::Hide);
 
-                entry.setCancelButtonInfo(Tr::tr("Deny"), [mod, notAllowed, pluginName]() {
-                    mod->setAllowedToFetch(pluginName, Module::IsAllowed::No);
-                    notAllowed();
-                });
+                entry.setCancelButtonInfo(
+                    Tr::tr("Deny"), guardedCallback(guard, [mod, notAllowed, pluginName]() {
+                        mod->setAllowedToFetch(pluginName, Module::IsAllowed::No);
+                        notAllowed();
+                    }));
                 ICore::infoBar()->addInfo(entry);
             };
 

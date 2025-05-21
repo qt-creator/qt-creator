@@ -75,6 +75,23 @@ bool DockerApi::isContainerRunning(const QString &containerId)
     return false;
 }
 
+bool DockerApi::imageExists(const QString &imageId)
+{
+    Process process;
+    FilePath dockerExe = dockerClient();
+    if (dockerExe.isEmpty() || !dockerExe.isExecutableFile())
+        return false;
+
+    process.setCommand(
+        CommandLine(dockerExe, QStringList{"image", "inspect", imageId, "--format", "{{.Id}}"}));
+    process.runBlocking();
+
+    if (process.exitCode() == 0)
+        return true;
+
+    return false;
+}
+
 void DockerApi::checkCanConnect(bool async)
 {
     if (async) {

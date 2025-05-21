@@ -5,6 +5,7 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
+#include "androiddevice.h"
 #include "androidrunner.h"
 #include "androidqtversion.h"
 #include "androidutils.h"
@@ -14,6 +15,7 @@
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
@@ -134,6 +136,10 @@ public:
                 rp.setUseExtendedRemote(true);
                 const QString devicePreferredAbi = apkDevicePreferredAbi(bc);
                 rp.setToolChainAbi(androidAbi2Abi(devicePreferredAbi));
+
+                const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
+                const AndroidDevice *androidDevice = static_cast<const AndroidDevice *>(device.get());
+                rp.modifyDebuggerEnvironment({{"ANDROID_SERIAL", androidDevice->serialNumber()}});
 
                 auto qt = static_cast<AndroidQtVersion *>(qtVersion);
                 const int minimumNdk = qt ? qt->minimumNDK() : 0;
