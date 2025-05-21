@@ -172,6 +172,7 @@ public:
     QDateTime lastModified() const;
     QFile::Permissions permissions() const;
     bool setPermissions(QFile::Permissions permissions) const;
+    bool makeWritable() const;
     OsType osType() const;
     Result<> removeFile() const;
     Result<> removeRecursively() const;

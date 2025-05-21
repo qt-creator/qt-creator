@@ -725,11 +725,6 @@ QString qmakeFriendlyName(const QString &name)
     return fileSystemFriendlyName(result);
 }
 
-bool makeWritable(const FilePath &path)
-{
-    return path.setPermissions(path.permissions() | QFile::WriteUser);
-}
-
 // makes sure that capitalization of directories is canonical on Windows and macOS.
 // This mimics the logic in QDeclarative_isFileCaseCorrect
 QString normalizedPathName(const QString &name)

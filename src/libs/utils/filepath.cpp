@@ -2012,6 +2012,11 @@ bool FilePath::setPermissions(QFile::Permissions permissions) const
     return fileAccess()->setPermissions(*this, permissions);
 }
 
+bool FilePath::makeWritable() const
+{
+    return setPermissions(permissions() | QFile::WriteUser);
+}
+
 OsType FilePath::osType() const
 {
     if (isLocal())

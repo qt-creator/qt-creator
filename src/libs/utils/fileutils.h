@@ -57,7 +57,6 @@ QTCREATOR_UTILS_EXPORT Result<> copyIfDifferent(const FilePath &srcFilePath,
 QTCREATOR_UTILS_EXPORT QString fileSystemFriendlyName(const QString &name);
 QTCREATOR_UTILS_EXPORT int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);
 QTCREATOR_UTILS_EXPORT QString qmakeFriendlyName(const QString &name);
-QTCREATOR_UTILS_EXPORT bool makeWritable(const FilePath &path);
 QTCREATOR_UTILS_EXPORT QString normalizedPathName(const QString &name);
 
 QTCREATOR_UTILS_EXPORT FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
