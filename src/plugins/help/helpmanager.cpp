@@ -29,6 +29,8 @@
 
 #include <QtHelp/QHelpLink>
 
+static Q_LOGGING_CATEGORY(helpLog, "qtc.help.helpmanager", QtWarningMsg)
+
 using namespace Core;
 using namespace Utils;
 
@@ -241,6 +243,10 @@ QMultiMap<QString, QUrl> HelpManager::linksForKeyword(QHelpEngineCore *engine,
         return links.find(it.key(), it.value()) != it;
     });
 
+    qCDebug(helpLog) << "Looking up help for keyword" << key
+                     << (filterName.has_value() ? "with filter" : "without filter")
+                     << " returned" << links.size() << "links";
+
     return links;
 }
 
@@ -249,7 +255,13 @@ QMultiMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
     QTC_ASSERT(!d->m_needsSetup, return {});
     if (key.isEmpty())
         return {};
-    return HelpManager::linksForKeyword(d->m_helpEngine, key, QString());
+
+    auto results = HelpManager::linksForKeyword(d->m_helpEngine, key, QString());
+
+    qCDebug(helpLog) << "Looking up help for keyword" << key
+                     << "returned" << results.size() << "links";
+
+    return results;
 }
 
 QMultiMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
@@ -261,6 +273,10 @@ QMultiMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
     const QList<QHelpLink> docs = d->m_helpEngine->documentsForIdentifier(id, QString());
     for (const auto &doc : docs)
         links.insert(doc.title, doc.url);
+
+    qCDebug(helpLog) << "Looking up help for id" << id
+                     << "returned" << links.size() << "links";
+
     return links;
 }
 
