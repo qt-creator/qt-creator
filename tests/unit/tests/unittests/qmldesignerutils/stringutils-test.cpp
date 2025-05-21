@@ -86,6 +86,13 @@ using ConvertFunction = QString (*)(QStringView);
 
 struct EscapeParameters
 {
+    EscapeParameters(QString input, QString output, std::string name, ConvertFunction convert)
+        : input{std::move(input)}
+        , output{std::move(output)}
+        , name{std::move(name)}
+        , convert{convert}
+    {}
+
     QString input;
     QString output;
     std::string name;
