@@ -7,6 +7,8 @@
 
 #include <utils/qtcprocess.h>
 
+#include <QCryptographicHash>
+
 using namespace Utils;
 
 namespace DevContainer {
@@ -72,9 +74,15 @@ static Group prepareContainerRecipe(
             containerConfig.context.value_or("."));
         const FilePath dockerFile = configFileDir.resolvePath(containerConfig.dockerfile);
 
+        const QString hash = QString::fromLatin1(
+            QCryptographicHash::hash(
+                instanceConfig.workspaceFolder.nativePath().toUtf8(), QCryptographicHash::Sha256)
+                .toHex());
+        const QString imageName = QString("qtc-devcontainer-%1").arg(hash);
+
         CommandLine buildCmdLine{
             instanceConfig.dockerCli,
-            {"build", "-f", dockerFile.nativePath(), contextPath.nativePath()}};
+            {"build", "-f", dockerFile.nativePath(), "-t", imageName, contextPath.nativePath()}};
         process.setCommand(buildCmdLine);
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
