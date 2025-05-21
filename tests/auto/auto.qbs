@@ -9,6 +9,7 @@ Project {
         "changeset/changeset.qbs",
         "cplusplus/cplusplus.qbs",
         "debugger/debugger.qbs",
+        "devcontainer/devcontainer.qbs",
         "diff/diff.qbs",
         "environment/environment.qbs",
         "examples/examples.qbs",

@@ -1,0 +1,105 @@
+// Copyright (C) 2016 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#include <devcontainer/devcontainerconfig.h>
+#include <utils/stringutils.h>
+
+#include <QtTest>
+
+class tst_DevContainer : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void readConfig();
+    void testCommands();
+};
+
+void tst_DevContainer::readConfig()
+{
+    static const QByteArray jsonData
+        = R"json(// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/alpine
+{
+    "name": "Minimum spec container (x86_64)",
+    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    "build": {
+        "dockerfile": "Dockerfile",
+        "options": [
+            "--platform=linux/amd64"
+        ]
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cmake-tools",
+                "theqtcompany.qt"
+            ],
+            "settings": {
+                "qt-core.additionalQtPaths": [
+                    "/6.7.0/gcc_64/bin/qtpaths"
+                ],
+                "qt-core.qtInstallationRoot": ""
+            }
+        }
+    },
+    "shutdownAction": "none"
+    // Features to add to the dev container. More info: https://containers.dev/features.
+    // "features": {},
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
+    // Use 'postCreateCommand' to run commands after the container is created.
+    // "postCreateCommand": "uname -a",
+    // Configure tool-specific properties.
+    // "customizations": {},
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    // "remoteUser": "root"
+}
+    )json";
+
+    Utils::Result<DevContainer::Config> devContainer = DevContainer::Config::fromJson(jsonData);
+    QVERIFY_RESULT(devContainer);
+    QVERIFY(devContainer->common.name);
+    QCOMPARE(*devContainer->common.name, "Minimum spec container (x86_64)");
+    QCOMPARE(devContainer->containerConfig.index(), 1);
+    auto dockerfileContainer = std::get<DevContainer::DockerfileContainer>(
+        devContainer->containerConfig);
+    qDebug() << "Parsed DevContainer:" << *devContainer;
+}
+
+void tst_DevContainer::testCommands()
+{
+    static const QByteArray jsonData = R"(
+    {
+        "initializeCommand": "echo hello",
+        "onCreateCommand": ["echo", "world"],
+        "updateContentCommand": {
+            "echo": "echo test",
+            "ls": ["ls", "-lach"]
+        }
+    })";
+
+    Utils::Result<DevContainer::Config> devContainer = DevContainer::Config::fromJson(jsonData);
+    QVERIFY_RESULT(devContainer);
+    QCOMPARE(devContainer->common.initializeCommand->index(), 0);
+    QCOMPARE(std::get<QString>(*devContainer->common.initializeCommand), "echo hello");
+    QCOMPARE(devContainer->common.onCreateCommand->index(), 1);
+    QCOMPARE(
+        std::get<QStringList>(*devContainer->common.onCreateCommand),
+        QStringList() << "echo" << "world");
+    QCOMPARE(devContainer->common.updateContentCommand->index(), 2);
+    auto commandMap = std::get<std::map<QString, std::variant<QString, QStringList>>>(
+        *devContainer->common.updateContentCommand);
+    QCOMPARE(commandMap.size(), 2);
+
+    QCOMPARE(commandMap["echo"].index(), 0);
+    QCOMPARE(std::get<QString>(commandMap["echo"]), "echo test");
+    QCOMPARE(commandMap["ls"].index(), 1);
+    QCOMPARE(std::get<QStringList>(commandMap["ls"]), QStringList() << "ls" << "-lach");
+
+    qDebug() << "Parsed DevContainer:" << *devContainer;
+}
+
+QTEST_GUILESS_MAIN(tst_DevContainer)
+
+#include "tst_devcontainer.moc"

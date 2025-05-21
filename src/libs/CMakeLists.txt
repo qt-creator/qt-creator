@@ -1,5 +1,6 @@
 add_subdirectory(3rdparty)
 
+add_subdirectory(devcontainer)
 add_subdirectory(nanotrace)
 add_subdirectory(advanceddockingsystem)
 add_subdirectory(aggregation)
