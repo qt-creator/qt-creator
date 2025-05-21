@@ -185,7 +185,6 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Fi
         const QList<Document::Ptr> docs = snapshot.documentsInDirectory(path);
         for (const Document::Ptr &doc : docs) {
             const FilePath fi = doc->fileName();
-            //const QFileInfo fi(doc->fileName());
             // using working copy above might provide no more existing files
             if (!fi.exists())
                 continue;
@@ -330,6 +329,8 @@ void QuickTestParser::doUpdateWatchPaths(const FilePaths &directories)
     }
 
     for (const FilePath &dir : directories) {
+        if (m_directoryWatcher.watchesDirectory(dir))
+            continue;
         // do not watch any build dir or any of the content
         if (Utils::anyOf(builddirs, [dir](const FilePath &builddir) {
                 return dir.isChildOf(builddir);
