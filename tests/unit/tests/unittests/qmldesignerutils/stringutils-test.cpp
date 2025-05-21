@@ -8,6 +8,7 @@ namespace {
 
 using namespace Qt::StringLiterals;
 
+using QmlDesigner::StringUtils::find_comment_end;
 using QmlDesigner::StringUtils::split_last;
 
 TEST(StringUtils_split_last, leaf_is_empty_for_empty_input)
@@ -220,6 +221,65 @@ TEST_P(escaping, skip_unicode)
     auto converted = convert(input);
 
     ASSERT_THAT(converted, input);
+}
+
+TEST(StringUtils, find_comment_end_empty)
+{
+    QStringView input{};
+
+    auto found = find_comment_end(input);
+
+    ASSERT_THAT(found, input.end());
+}
+
+TEST(StringUtils, find_comment_end_line_comment)
+{
+    QStringView input{u"//foo\n//bar\nbar"};
+
+    auto found = find_comment_end(input);
+
+    QStringView text{found, input.end()};
+    ASSERT_THAT(text, u"bar");
+}
+
+TEST(StringUtils, find_comment_end_block_comment)
+{
+    QStringView input{u"/*foo\n//bar*/foo\nbar"};
+
+    auto found = find_comment_end(input);
+
+    QStringView text{found, input.end()};
+    ASSERT_THAT(text, u"bar");
+}
+
+TEST(StringUtils, find_comment_end_block_and_line_comment)
+{
+    QStringView input{u"//foo\n/*bar*/foo\nbar"};
+
+    auto found = find_comment_end(input);
+
+    QStringView text{found, input.end()};
+    ASSERT_THAT(text, u"bar");
+}
+
+TEST(StringUtils, find_comment_end_line_comment_has_no_newline)
+{
+    QStringView input{u"//foobar"};
+
+    auto found = find_comment_end(input);
+
+    QStringView text{found, input.end()};
+    ASSERT_THAT(text, input.end());
+}
+
+TEST(StringUtils, find_comment_end_block_comment_has_no_newline)
+{
+    QStringView input{u"//foo\n/*bar*/foo"};
+
+    auto found = find_comment_end(input);
+
+    QStringView text{found, input.end()};
+    ASSERT_THAT(text, input.end());
 }
 
 } // namespace
