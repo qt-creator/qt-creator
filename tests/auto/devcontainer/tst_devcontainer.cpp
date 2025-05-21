@@ -1,7 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <devcontainer/devcontainer.h>
 #include <devcontainer/devcontainerconfig.h>
+
 #include <utils/stringutils.h>
 
 #include <QtTest>
@@ -13,6 +15,7 @@ class tst_DevContainer : public QObject
 private slots:
     void readConfig();
     void testCommands();
+    void upDockerfile();
 };
 
 void tst_DevContainer::readConfig()
@@ -98,6 +101,41 @@ void tst_DevContainer::testCommands()
     QCOMPARE(std::get<QStringList>(commandMap["ls"]), QStringList() << "ls" << "-lach");
 
     qDebug() << "Parsed DevContainer:" << *devContainer;
+}
+
+void tst_DevContainer::upDockerfile()
+{
+    QTemporaryFile dockerFile;
+    dockerFile.setFileTemplate(QDir::tempPath() + "/DockerfileXXXXXX");
+    QVERIFY(dockerFile.open());
+    dockerFile.write(R"(
+FROM alpine:latest
+    )");
+    dockerFile.flush();
+
+    DevContainer::Config config;
+    config.containerConfig = DevContainer::DockerfileContainer{
+        .dockerfile = dockerFile.fileName(),
+        .buildOptions = DevContainer::BuildOptions{
+            .target = "test",
+            .args = {{"arg1", "value1"}, {"arg2", "value2"}},
+            .cacheFrom = QStringList{"cache1", "cache2"},
+            .options = QStringList{"--option1", "--option2"},
+        },
+    };
+    config.common.name = "Test Dockerfile";
+
+    std::unique_ptr<DevContainer::Instance> instance = DevContainer::Instance::fromConfig(config);
+
+    DevContainer::InstanceConfig instanceConfig{
+        .dockerCli = "docker",
+        .dockerComposeCli = "docker-compose",
+        .workspaceFolder = Utils::FilePath::fromUserInput(QDir::tempPath()),
+        .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
+    };
+
+    auto recipe = instance->upRecipe(instanceConfig);
+    Tasking::TaskTree::runBlocking(recipe);
 }
 
 QTEST_GUILESS_MAIN(tst_DevContainer)
