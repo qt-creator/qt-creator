@@ -32,7 +32,95 @@ private slots:
     void testAsciify();
     void testNormalizeNewlinesInString();
     void testNormalizeNewlinesInByteArray();
+    void testRemoveCommentsFromJson();
+    void testRemoveCommentsFromJson_data();
 };
+
+void tst_StringUtils::testRemoveCommentsFromJson_data()
+{
+    QTest::addColumn<QByteArray>("json");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("single-line comments") << QByteArray(R"(
+        {
+            "key1": "value1", // comment
+            "key2": "value2",
+            "key3": "value3" // another comment
+        }
+    )") << QByteArray(R"(
+        {
+            "key1": "value1", 
+            "key2": "value2",
+            "key3": "value3" 
+        }
+    )");
+
+    QTest::newRow("multi-line comments") << QByteArray(R"(
+        {
+            "key1": "value1", /* comment */
+            "key2": "value2",
+            "key3": "value3" /* another comment */
+        }
+    )") << QByteArray(R"(
+        {
+            "key1": "value1", 
+            "key2": "value2",
+            "key3": "value3" 
+        }
+    )");
+
+    QTest::newRow("comment in string value") << QByteArray(R"(
+        {
+            "key1": "value1", // comment
+            "key2": "value2",
+            "key3": "value3 // another comment"
+        }
+    )") << QByteArray(R"(
+        {
+            "key1": "value1", 
+            "key2": "value2",
+            "key3": "value3 // another comment"
+        }
+    )");
+
+    QTest::newRow("comment after string value") << QByteArray(R"(
+        {
+            "key1": "value1", // comment
+            "key2": "value2",
+            "key3": "value3 // another comment" /* comment */
+        }
+    )") << QByteArray(R"(
+        {
+            "key1": "value1", 
+            "key2": "value2",
+            "key3": "value3 // another comment" 
+        }
+    )");
+
+    QTest::newRow("multi-line block comment") << QByteArray(R"(
+        {
+            "key1": "value1", /* comment
+            */
+            "key2": "value2",
+            "key3": "value3" /* another comment
+            and another line */
+        }
+    )") << QByteArray(R"(
+        {
+            "key1": "value1", 
+            "key2": "value2",
+            "key3": "value3" 
+        }
+    )");
+}
+
+void tst_StringUtils::testRemoveCommentsFromJson()
+{
+    QFETCH(QByteArray, json);
+    QFETCH(QByteArray, expected);
+
+    QCOMPARE(Utils::removeCommentsFromJson(json), expected);
+}
 
 void tst_StringUtils::testWithTildeHomePath()
 {

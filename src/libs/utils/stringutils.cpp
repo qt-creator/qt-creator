@@ -86,6 +86,56 @@ QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text)
     return res;
 }
 
+QTCREATOR_UTILS_EXPORT QByteArray removeCommentsFromJson(const QByteArray &input)
+{
+    QByteArray output;
+    bool inString = false;
+    bool inSingleLineComment = false;
+    bool inMultiLineComment = false;
+    char previousChar = '\0';
+
+    for (int i = 0; i < input.size(); ++i) {
+        char currentChar = input[i];
+        char nextChar = (i + 1 < input.size()) ? input[i + 1] : '\0';
+
+        if (inSingleLineComment) {
+            if (currentChar == '\n') {
+                inSingleLineComment = false;
+                output.append(currentChar); // Keep the newline
+            }
+            // Skip character
+        } else if (inMultiLineComment) {
+            if (currentChar == '*' && nextChar == '/') {
+                inMultiLineComment = false;
+                ++i; // Skip '/'
+            }
+            // Skip character
+        } else if (inString) {
+            if (currentChar == '"' && previousChar != '\\') {
+                inString = false;
+            }
+            output.append(currentChar);
+        } else {
+            if (currentChar == '/' && nextChar == '/') {
+                inSingleLineComment = true;
+                ++i; // Skip second '/'
+            } else if (currentChar == '/' && nextChar == '*') {
+                inMultiLineComment = true;
+                ++i; // Skip '*'
+            } else {
+                if (currentChar == '"') {
+                    inString = true;
+                }
+                output.append(currentChar);
+            }
+        }
+
+        previousChar = currentChar;
+    }
+
+    return output;
+}
+
 QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out)
 {
     QTC_ASSERT(out, return false);
