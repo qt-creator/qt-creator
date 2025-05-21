@@ -108,11 +108,15 @@ const ExtensionManagerSettingsPage settingsPage;
 QString externalRepoWarningNote()
 {
     return
-    Tr::tr("%1 does not check extensions from external vendors for security "
-           "flaws or malicious intent, so be careful when installing them, "
-           "as it might leave your computer vulnerable to attacks such as "
-           "hacking, malware, and phishing.")
-        .arg(QGuiApplication::applicationDisplayName());
+    Tr::tr("If you choose to link or connect an external repository, "
+           "you are acting at your own discretion and risk. "
+           "The Qt Company does not control, endorse, or maintain any "
+           "external repositories that you connect. Any changes, "
+           "unavailability or security issues in external repositories "
+           "are beyond The Qt Company's control and responsibility. "
+           "By linking or connecting external repositories, you "
+           "acknowledge these conditions and accept responsibility "
+           "for managing associated risks appropriately.");
 }
 
 } // ExtensionManager::Internal

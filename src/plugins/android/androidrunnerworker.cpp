@@ -153,6 +153,7 @@ public:
     RunnerInterface *m_glue = nullptr;
 
     QString m_packageName;
+    QString m_packageDir;
     QString m_intentName;
     QStringList m_beforeStartAdbCommands;
     QStringList m_afterFinishAdbCommands;
@@ -642,7 +643,7 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
 
     const auto onDebugSetupFinished = [storage] {
         storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-        emit storage->m_glue->started(storage->m_processPID);
+        emit storage->m_glue->started(storage->m_processPID, storage->m_packageDir);
     };
 
     return Group {
@@ -674,23 +675,22 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
         return storage->m_useCppDebugger ? SetupResult::Continue : SetupResult::StopWithSuccess;
     };
 
-    const Storage<QString> packageDirStorage;
     const Storage<QString> debugServerFileStorage;
 
     const auto onAppDirSetup = [storage](Process &process) {
         process.setCommand(storage->adbCommand({storage->packageArgs(), "/system/bin/sh", "-c", "pwd"}));
     };
-    const auto onAppDirDone = [storage, packageDirStorage](const Process &process, DoneWith result) {
+    const auto onAppDirDone = [storage](const Process &process, DoneWith result) {
         if (result == DoneWith::Success)
-            *packageDirStorage = process.stdOut();
+            storage->m_packageDir = process.stdOut().trimmed();
         else
             emit storage->m_glue->finished(Tr::tr("Failed to find application directory."));
     };
 
     // Add executable flag to package dir. Gdb can't connect to running server on device on
     // e.g. on Android 8 with NDK 10e
-    const auto onChmodSetup = [storage, packageDirStorage](Process &process) {
-        process.setCommand(storage->adbCommand({storage->packageArgs(), "chmod", "a+x", packageDirStorage->trimmed()}));
+    const auto onChmodSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand({storage->packageArgs(), "chmod", "a+x", storage->m_packageDir.trimmed()}));
     };
     const auto onServerPathCheck = [storage] {
         if (storage->m_debugServerPath.exists())
@@ -718,14 +718,19 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
         };
     };
 
-    const auto onDebugServerSetup = [storage, packageDirStorage, debugServerFileStorage](Process &process) {
+    const auto onRemoveDebugSocketSetup = [storage](Process &process) {
+        const QString serverSocket = storage->m_packageDir + "/debug-socket";
+        process.setCommand(storage->adbCommand({storage->packageArgs(), "rm", serverSocket}));
+    };
+
+    const auto onDebugServerSetup = [storage, debugServerFileStorage](Process &process) {
+         const QString serverSocket = storage->m_packageDir + "/debug-socket";
         process.setCommand(storage->adbCommand(
             {storage->packageArgs(), *debugServerFileStorage, "platform",
-             "--listen", QString("*:%1").arg(storage->debugPortString())}));
+             "--listen", QString("unix-abstract://%1").arg(serverSocket)}));
     };
 
     return Group {
-        packageDirStorage,
         debugServerFileStorage,
         onGroupSetup(onSetup),
         ProcessTask(onAppDirSetup, onAppDirDone),
@@ -733,6 +738,7 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
         Sync(onServerPathCheck),
         killAll("lldb-server"),
         uploadDebugServer("./lldb-server"),
+        ProcessTask(onRemoveDebugSocketSetup) || successItem,
         ProcessTask(onDebugServerSetup)
     };
 }
@@ -772,7 +778,7 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
                 qCDebug(androidRunWorkerLog) << "Process ID changed to:" << storage->m_processPID;
                 if (!storage->m_useCppDebugger) {
                     storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-                    emit storage->m_glue->started(storage->m_processPID);
+                    emit storage->m_glue->started(storage->m_processPID, storage->m_packageDir);
                 }
                 return DoneResult::Success;
             }

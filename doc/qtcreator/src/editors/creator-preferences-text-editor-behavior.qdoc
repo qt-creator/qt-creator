@@ -99,5 +99,5 @@
     \sa {Change text encoding}, {Find preferences}, {C++ Code Style}, {Nim}
     \endif
 
-    \sa {Indent text or code}, {Qt Quick Code Style}, {Font & Colors}
+    \sa {Indent text or code}, {Specify Qt Quick code style}, {Font & Colors}
 */

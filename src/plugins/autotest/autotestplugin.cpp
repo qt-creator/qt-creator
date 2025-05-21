@@ -100,6 +100,7 @@ public:
     TestTreeModel m_testTreeModel{&m_testCodeParser};
     TestRunner m_testRunner;
     DataTagLocatorFilter m_dataTagLocatorFilter;
+    QMetaObject::Connection m_testTreeModelConnection;
 #ifdef WITH_TESTS
     LoadProjectScenario m_loadProjectScenario{&m_testTreeModel};
 #endif
@@ -248,8 +249,8 @@ void AutotestPluginPrivate::initializeMenuEntries()
             this, &updateMenuItemsEnabledState);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             this, &updateMenuItemsEnabledState);
-    connect(&dd->m_testTreeModel, &TestTreeModel::testTreeModelChanged,
-            this, &updateMenuItemsEnabledState);
+    m_testTreeModelConnection = connect(&dd->m_testTreeModel, &TestTreeModel::testTreeModelChanged,
+                                        this, &updateMenuItemsEnabledState);
 }
 
 void AutotestPluginPrivate::onRunAllTriggered(TestRunMode mode)
@@ -579,7 +580,7 @@ public:
     ShutdownFlag aboutToShutdown() final
     {
         dd->m_testCodeParser.aboutToShutdown(true);
-        dd->m_testTreeModel.disconnect();
+        disconnect(dd->m_testTreeModelConnection);
         return SynchronousShutdown;
     }
 };

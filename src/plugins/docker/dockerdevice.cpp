@@ -247,6 +247,9 @@ public:
         if (DeviceFileAccess *fileAccess = m_fileAccess.readLocked()->get())
             return fileAccess;
 
+        if (!DockerApi::instance()->imageExists(q->repoAndTag()))
+            return nullptr;
+
         SynchronizedValue<std::unique_ptr<DeviceFileAccess>>::unique_lock fileAccess
             = m_fileAccess.writeLocked();
         if (*fileAccess)
@@ -1003,6 +1006,8 @@ Result<QString> DockerDevicePrivate::updateContainerAccess()
         return make_unexpected(Tr::tr("Device is shut down"));
     if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
         return make_unexpected(Tr::tr("Docker system is not reachable"));
+    if (!DockerApi::instance()->imageExists(q->repoAndTag()))
+        return make_unexpected(Tr::tr("Docker image \"%1\" not found.").arg(q->repoAndTag()));
 
     auto lockedThread = m_deviceThread.writeLocked();
     if (*lockedThread)

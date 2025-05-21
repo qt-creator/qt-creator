@@ -38,7 +38,7 @@ signals:
     void canceled();
 
     // business logic -> GUI
-    void started(qint64 pid);
+    void started(qint64 pid, const QString &packageDir);
     void finished(const QString &errorMessage);
 
 private:

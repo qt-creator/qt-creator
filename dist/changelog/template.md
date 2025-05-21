@@ -55,6 +55,8 @@ Projects
 
 ### CMake
 
+* vcpkg
+
 ### qmake
 
 ### Qbs
@@ -66,8 +68,6 @@ Projects
 ### Autotools
 
 ### Meson
-
-### vcpkg
 
 ### Qt Safe Renderer
 
@@ -117,6 +117,8 @@ Test Integration
 ### Boost
 
 ### Catch2
+
+### GoogleTest
 
 ### CTest
 
