@@ -480,6 +480,51 @@ bool QmlBuildSystem::setMainUiFileInProjectFile(const Utils::FilePath &newMainUi
            && setFileSettingInProjectFile("mainUiFile", newMainUiFilePath, m_projectItem->mainUiFile());
 }
 
+static void addImport(const Utils::FilePath &mainFilePath,
+                      const Utils::FilePath &mainUiFilePath,
+                      QString &fileContent)
+{
+    auto commonPath = Utils::FileUtils::commonPath({mainFilePath, mainUiFilePath});
+    auto path = mainUiFilePath.parentDir().prefixRemoved(commonPath.path());
+
+    if (!path)
+        return;
+
+    const QChar pathSeparator = path->pathComponentSeparator();
+
+    QString importPath;
+
+    if (path->pathView().startsWith(pathSeparator))
+        importPath = path->pathView().mid(1).toString();
+
+    if (importPath.isEmpty())
+        return;
+
+    static const QRegularExpression rx(
+        "^import\\s+(?:(?:\"(?<path>[^\"]+)\"|(?<module>[\\w.]+))(?:\\s+(?<version>\\d+(?:"
+        "\\."
+        "\\d+)?)?)?(?:\\s+as\\s+(?<qualifier>\\w+))?)?\\s*$");
+
+    QStringList fileContentLines = fileContent.split('\n');
+    unsigned lastImportIndex = 0;
+
+    for (unsigned i = 0; i != fileContentLines.size(); ++i) {
+        QRegularExpressionMatch match = rx.match(fileContentLines[i]);
+
+        if (match.hasMatch()) {
+            auto pathCaptured = match.capturedView("path");
+            if (!pathCaptured.isEmpty() && pathCaptured == importPath)
+                return;
+
+            lastImportIndex = i;
+        }
+    }
+
+    fileContentLines.insert(lastImportIndex + 1, QString("import \"%1\"").arg(importPath));
+
+    fileContent = fileContentLines.join("\n");
+}
+
 bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFilePath)
 {
     Core::FileChangeBlocker fileChangeBlocker(mainFilePath());
@@ -503,6 +548,8 @@ bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFil
 
     const QString currentMain = QString("%1 {").arg(mainUiFilePath().baseName());
     const QString newMain = QString("%1 {").arg(newMainUiFilePath.baseName());
+
+    addImport(mainFilePath(), newMainUiFilePath, fileContent);
 
     if (fileContent.contains(currentMain))
         fileContent.replace(currentMain, newMain);
