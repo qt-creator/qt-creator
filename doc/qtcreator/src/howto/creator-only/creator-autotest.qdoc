@@ -29,8 +29,9 @@
         \li Select \uicontrol {Generate initialization and cleanup code}
             to add functions to your test that the testing framework
             executes to initialize and clean up the test.
-        \li In \uicontrol {Build system}, select the build system to use
-           for building the project: CMake, qmake, or Qbs.
+        \li In \uicontrol {Build system}, select the build system to use for building
+            the project: CMake, qmake, or Qbs. To build with CMake when developing with
+            Qt 5 or Qt 6.4 or earlier, select \uicontrol {CMake for Qt 5 and Qt 6}.
     \endlist
 
     \QC creates the test in the specified project directory. Edit the .cpp file
@@ -70,8 +71,9 @@
         \li Select \uicontrol {Generate initialization and cleanup code}
             to add functions to your test that the testing framework
             executes to initialize and clean up the test.
-        \li In \uicontrol {Build system}, select the build system to use
-            for building the project: CMake, qmake, or Qbs.
+        \li In \uicontrol {Build system}, select the build system to use for building
+            the project: CMake, qmake, or Qbs. To build with CMake when developing with
+            Qt 5 or Qt 6.4 or earlier, select \uicontrol {CMake for Qt 5 and Qt 6}.
     \endlist
 
     \QC creates the test in the specified project directory. Edit the .cpp file
