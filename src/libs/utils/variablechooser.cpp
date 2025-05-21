@@ -113,7 +113,7 @@ public:
     FancyLineEdit *m_variableFilter;
     VariableTreeView *m_variableTree;
     QLabel *m_variableDescription;
-    QSortFilterProxyModel *m_sortModel;
+    QSortFilterProxyModel m_sortModel;
     QString m_defaultDescription;
     QByteArray m_currentVariableName; // Prevent recursive insertion of currently expanded item
 };
@@ -259,12 +259,11 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
 
     m_variableFilter->setFiltering(true);
 
-    m_sortModel = new VariableSortFilterProxyModel(this);
-    m_sortModel->setSourceModel(&m_model);
-    m_sortModel->sort(0);
-    m_sortModel->setFilterKeyColumn(0);
-    m_sortModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_variableTree->setModel(m_sortModel);
+    m_sortModel.setSourceModel(&m_model);
+    m_sortModel.sort(0);
+    m_sortModel.setFilterKeyColumn(0);
+    m_sortModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_variableTree->setModel(&m_sortModel);
 
     m_variableDescription->setText(m_defaultDescription);
     m_variableDescription->setMinimumSize(QSize(0, 60));
@@ -433,7 +432,7 @@ void VariableChooser::addSupportForChildWidgets(QWidget *parent, MacroExpander *
 void VariableChooserPrivate::updateDescription(const QModelIndex &index)
 {
     if (m_variableDescription)
-        m_variableDescription->setText(m_model.data(m_sortModel->mapToSource(index),
+        m_variableDescription->setText(m_model.data(m_sortModel.mapToSource(index),
                                                     CurrentValueDisplayRole).toString());
 }
 
@@ -541,7 +540,7 @@ void VariableChooserPrivate::updatePositionAndShow(bool)
 void VariableChooserPrivate::updateFilter(const QString &filterText)
 {
     const QString pattern = QRegularExpression::escape(filterText);
-    m_sortModel->setFilterRegularExpression(
+    m_sortModel.setFilterRegularExpression(
                 QRegularExpression(pattern, QRegularExpression::CaseInsensitiveOption));
     m_variableTree->expandAll();
 }
@@ -563,7 +562,7 @@ QWidget *VariableChooserPrivate::currentWidget() const
  */
 void VariableChooserPrivate::handleItemActivated(const QModelIndex &index)
 {
-    QString text = m_model.data(m_sortModel->mapToSource(index), UnexpandedTextRole).toString();
+    QString text = m_model.data(m_sortModel.mapToSource(index), UnexpandedTextRole).toString();
     if (!text.isEmpty())
         insertText(text);
 }
