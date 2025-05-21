@@ -42,6 +42,7 @@
 using namespace QmlJS;
 using namespace QmlJSTools;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace QmlJSEditor {
 
@@ -620,7 +621,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::performAsync()
         if (contextFinder.isInImport()) {
             QStringList patterns;
             patterns << QLatin1String("*.qml") << QLatin1String("*.js");
-            if (completeFileName(document->path().toUrlishString(), literalText, patterns))
+            if (completeFileName(document->path(), literalText, patterns))
                 return createContentProposal();
             return nullptr;
         }
@@ -630,7 +631,7 @@ IAssistProposal *QmlJSCompletionAssistProcessor::performAsync()
         if (!value) {
             // do nothing
         } else if (value->asUrlValue()) {
-            if (completeUrl(document->path().toUrlishString(), literalText))
+            if (completeUrl(document->path(), literalText))
                 return createContentProposal();
         }
 
@@ -651,7 +652,8 @@ IAssistProposal *QmlJSCompletionAssistProcessor::performAsync()
             expressionUnderCursor(tc);
             QString libVersion = contextFinder.libVersionImport();
             if (!libVersion.isNull()) {
-                QStringList completions=platform.supportedImports().complete(libVersion, QString(), PersistentTrie::LookupFlags(PersistentTrie::CaseInsensitive|PersistentTrie::SkipChars|PersistentTrie::SkipSpaces));
+                QStringList completions = platform.supportedImports().complete(libVersion, QString(),
+                    PersistentTrie::LookupFlags(PersistentTrie::CaseInsensitive|PersistentTrie::SkipChars|PersistentTrie::SkipSpaces));
                 completions = PersistentTrie::matchStrengthSort(libVersion, completions);
 
                 int toSkip = qMax(libVersion.lastIndexOf(QLatin1Char(' '))
@@ -900,36 +902,29 @@ bool QmlJSCompletionAssistProcessor::acceptsIdleEditor() const
     return false;
 }
 
-bool QmlJSCompletionAssistProcessor::completeFileName(const QString &relativeBasePath,
+bool QmlJSCompletionAssistProcessor::completeFileName(const FilePath &relativeBasePath,
                                                       const QString &fileName,
                                                       const QStringList &patterns)
 {
-    const QFileInfo fileInfo(fileName);
-    QString directoryPrefix;
-    if (fileInfo.isRelative())
-        directoryPrefix = relativeBasePath + QLatin1Char('/') + fileInfo.path();
-    else
-        directoryPrefix = fileInfo.path();
-    if (!QFileInfo::exists(directoryPrefix))
+    FilePath directoryPrefix = relativeBasePath.resolvePath(fileName);
+    if (!fileName.endsWith('/'))
+        directoryPrefix = directoryPrefix.parentDir();
+
+    if (!directoryPrefix.exists())
         return false;
 
-    QDirIterator dirIterator(directoryPrefix,
-                             patterns,
-                             QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
-    while (dirIterator.hasNext()) {
-        dirIterator.next();
-        const QString fileName = dirIterator.fileName();
-
+    directoryPrefix.iterateDirectory([this](const FilePath &filePath) {
         AssistProposalItem *item = new QmlJSAssistProposalItem;
-        item->setText(fileName);
+        item->setText(filePath.fileName());
         item->setIcon(QmlJSCompletionAssistInterface::fileNameIcon());
         m_completions.append(item);
-    }
+        return IterationPolicy::Continue;
+    }, {patterns, QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot});
 
     return !m_completions.isEmpty();
 }
 
-bool QmlJSCompletionAssistProcessor::completeUrl(const QString &relativeBasePath, const QString &urlString)
+bool QmlJSCompletionAssistProcessor::completeUrl(const FilePath &relativeBasePath, const QString &urlString)
 {
     const QUrl url(urlString);
     QString fileName;

@@ -67,10 +67,10 @@ private:
 
     bool acceptsIdleEditor() const;
 
-    bool completeUrl(const QString &relativeBasePath, const QString &urlString);
-    bool completeFileName(const QString &relativeBasePath,
+    bool completeUrl(const Utils::FilePath &relativeBasePath, const QString &urlString);
+    bool completeFileName(const Utils::FilePath &relativeBasePath,
                           const QString &fileName,
-                          const QStringList &patterns = QStringList());
+                          const QStringList &patterns = {});
 
     int m_startPosition;
     QList<TextEditor::AssistProposalItemInterface *> m_completions;
