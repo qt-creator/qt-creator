@@ -79,6 +79,17 @@ function(qt_maintenance_tool_get_extensions extensions)
   )
 endfunction()
 
+function(qt_maintenance_tool_get_standalone_addons standalone_addons_list)
+  set(${standalone_addons_list}
+    qtquick3d
+    qt5compat
+    qtshadertools
+    qtquicktimeline
+
+    PARENT_SCOPE
+  )
+endfunction()
+
 function(qt_maintenance_tool_remove_installed_components components_list)
   set(actual_components_list ${${components_list}})
   execute_process(
@@ -135,6 +146,13 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
       string(TOLOWER "${qt_package_name}" qt_package_name_lowercase)
 
       qt_maintenance_tool_get_addons(__qt_addons)
+      if (qt_version_number VERSION_LESS 6.8.0)
+        qt_maintenance_tool_get_standalone_addons(__standalone_addons)
+        foreach(standalone_addon IN LISTS __standalone_addons)
+          list(REMOVE_ITEM __qt_addons ${standalone_addon})
+        endforeach()
+      endif()
+
       # Is the package an addon?
       set(install_addon FALSE)
       foreach(addon IN LISTS __qt_addons additional_addons)
@@ -164,11 +182,26 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
         endforeach()
 
         if (NOT install_extension)
-          # Install the Desktop package
-          list(
-            APPEND installer_component_list
-            "qt.qt${qt_major_version}.${qt_version_number_dotless}.${component_platform}"
-          )
+          set(install_standalone_addon FALSE)
+          foreach(standalone_addon IN LISTS __standalone_addons)
+            string(REGEX MATCH "${standalone_addon}" is_standalone_addon "qt${qt_package_name_lowercase}")
+            if (is_standalone_addon)
+              list(
+                APPEND installer_component_list
+                "qt.qt${qt_major_version}.${qt_version_number_dotless}.${standalone_addon}"
+              )
+              set(install_standalone_addon TRUE)
+              break()
+            endif()
+          endforeach()
+
+          if(NOT install_standalone_addon)
+            # Install the Desktop package
+            list(
+              APPEND installer_component_list
+              "qt.qt${qt_major_version}.${qt_version_number_dotless}.${component_platform}"
+            )
+          endif()
         endif()
       endif()
     endforeach()
@@ -183,11 +216,11 @@ function(qt_maintenance_tool_install qt_major_version qt_package_list)
     list(JOIN qt_package_list " " qt_packages_as_string)
     list(JOIN installer_component_list " " installer_components_as_string)
 
-    if (QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI)
-      message(STATUS "Qt Creator: CMake could not find: ${qt_packages_as_string}. "
-                     "Now installing: ${installer_components_as_string} "
-                     "with the MaintenanceTool ...")
+    message(STATUS "Qt Creator: CMake could not find: ${qt_packages_as_string}. "
+                   "Now installing: ${installer_components_as_string} "
+                   "with the MaintenanceTool ...")
 
+    if (QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI)
       message(STATUS "Qt Creator: Using MaintenanceTool in CLI Mode. "
                      "Set QT_CREATOR_MAINTENANCE_TOOL_PROVIDER_USE_CLI to OFF for GUI mode.")
       execute_process(
