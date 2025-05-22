@@ -4209,6 +4209,7 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         forceUpdateScrollbarSize();
     });
     connect(q->document()->documentLayout(), &QAbstractTextDocumentLayout::update, carrier, position);
+    connect(q->verticalScrollBar(), &QScrollBar::valueChanged, carrier, position);
     connect(result.get(), &EmbeddedWidgetInterface::resized, carrier, [position, this]() {
         position();
         forceUpdateScrollbarSize();
