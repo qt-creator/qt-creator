@@ -245,18 +245,6 @@ void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex, bool ref
         emit dataChanged(index(catIdx), index(catIdx));
         updateIsEmpty();
     }
-
-    const QString bundlePathStr = itemCat->bundlePath().toFSPathString();
-    if (m_customCatsObj.contains(bundlePathStr)) {
-        m_customCatsObj.remove(bundlePathStr);
-
-        m_customCatsRootObj["items"] = m_customCatsObj;
-
-        auto userBundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User");
-        auto jsonFilePath = userBundlePath.pathAppended(Constants::CUSTOM_BUNDLES_JSON_FILENAME);
-        auto result = jsonFilePath.writeFileContents(QJsonDocument(m_customCatsRootObj).toJson());
-        QTC_ASSERT_EXPECTED(result,);
-    }
 }
 
 void ContentLibraryUserModel::removeFromContentLib(QObject *item)
