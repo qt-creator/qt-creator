@@ -256,7 +256,7 @@ void handleInactiveRegions(LanguageClient::Client *client, const JsonRpcMessage 
         params->uri().toFilePath(client->hostPathMapper()));
     if (!doc)
         return;
-    const auto editorWidget = CppEditor::CppEditorWidget::fromTextDocument(doc);
+    const auto editorWidget = CppEditor::CppEditorWidget::editorWidgetsForDocument(doc).value(0);
     if (!editorWidget)
         return;
 

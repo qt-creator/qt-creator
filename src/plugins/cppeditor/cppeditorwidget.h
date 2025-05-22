@@ -38,7 +38,7 @@ public:
     CppEditorWidget();
     ~CppEditorWidget() override;
 
-    static CppEditorWidget *fromTextDocument(TextEditor::TextDocument *doc);
+    static const QList<CppEditorWidget *> editorWidgetsForDocument(TextEditor::TextDocument *doc);
 
     Internal::CppEditorDocument *cppEditorDocument() const;
 

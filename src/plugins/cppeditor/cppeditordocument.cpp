@@ -230,12 +230,16 @@ void CppEditorDocument::removeTrailingWhitespace(const QTextBlock &block)
 {
     const auto baseImpl = [&] { TextDocument::removeTrailingWhitespace(block); };
 
-    CppEditorWidget * const editorWidget = CppEditorWidget::fromTextDocument(this);
-    QTC_ASSERT(editorWidget, return baseImpl());
-    if (!editorWidget->isSemanticInfoValidExceptLocalUses())
+    CPlusPlus::Document::Ptr doc;
+    for (CppEditorWidget * const editorWidget : CppEditorWidget::editorWidgetsForDocument(this)) {
+        if (editorWidget->isSemanticInfoValidExceptLocalUses()) {
+            doc = editorWidget->semanticInfo().doc;
+            QTC_ASSERT(doc, continue);
+            break;
+        }
+    }
+    if (!doc)
         return baseImpl();
-    const CPlusPlus::Document::Ptr doc = editorWidget->semanticInfo().doc;
-    QTC_ASSERT(doc, return baseImpl());
 
     QTextCursor cursor(block);
     cursor.setPosition(block.position() + block.length() - 1);

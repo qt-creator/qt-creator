@@ -423,14 +423,13 @@ CppEditorWidget::CppEditorWidget()
     qRegisterMetaType<SemanticInfo>("SemanticInfo");
 }
 
-CppEditorWidget *CppEditorWidget::fromTextDocument(TextEditor::TextDocument *doc)
+const QList<CppEditorWidget *> CppEditorWidget::editorWidgetsForDocument(
+    TextEditor::TextDocument *doc)
 {
     const QList<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);
-    for (BaseTextEditor * const editor : editors) {
-        if (const auto editorWidget = qobject_cast<CppEditorWidget *>(editor->editorWidget()))
-            return editorWidget;
-    }
-    return nullptr;
+    const QList<TextEditorWidget *> editorWidgets
+        = Utils::transform(editors, &BaseTextEditor::editorWidget);
+    return Utils::qobject_container_cast<CppEditorWidget *>(editorWidgets);
 }
 
 void CppEditorWidget::finalizeInitialization()
