@@ -4,4 +4,5 @@ extend_qtc_test(unittest
   SOURCES
     version-test.cpp
     stringutils-test.cpp
+    importutils-test.cpp
 )

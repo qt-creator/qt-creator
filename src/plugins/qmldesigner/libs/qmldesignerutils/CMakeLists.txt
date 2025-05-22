@@ -18,6 +18,7 @@ add_qtc_library(QmlDesignerUtils STATIC
     version.cpp version.h
     maputils.h
     stringutils.cpp stringutils.h
+    importutils.cpp importutils.h
 )
 
 extend_qtc_library(QmlDesignerUtils
