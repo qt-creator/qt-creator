@@ -94,9 +94,40 @@ static Group prepareContainerRecipe(
 static Group prepareContainerRecipe(
     const ImageContainer &config, const InstanceConfig &instanceConfig)
 {
-    Q_UNUSED(config);
-    Q_UNUSED(instanceConfig);
-    return Group{};
+    const auto setupPull = [config, instanceConfig](Process &process) {
+        connectProcessToLog(process, instanceConfig, "Pull Image");
+
+        CommandLine pullCmdLine{instanceConfig.dockerCli, {"pull", config.image}};
+        process.setCommand(pullCmdLine);
+        process.setWorkingDirectory(instanceConfig.workspaceFolder);
+
+        instanceConfig.logFunction(
+            QString("Pulling Image: %1").arg(process.commandLine().toUserOutput()));
+    };
+
+    const auto setupTag = [config, instanceConfig](Process &process) {
+        connectProcessToLog(process, instanceConfig, "Tag Image");
+
+        const QString hash = QString::fromLatin1(
+            QCryptographicHash::hash(
+                instanceConfig.workspaceFolder.nativePath().toUtf8(), QCryptographicHash::Sha256)
+                .toHex());
+        const QString imageName = QString("qtc-devcontainer-%1").arg(hash);
+
+        CommandLine tagCmdLine{instanceConfig.dockerCli, {"tag", config.image, imageName}};
+        process.setCommand(tagCmdLine);
+        process.setWorkingDirectory(instanceConfig.workspaceFolder);
+
+        instanceConfig.logFunction(
+            QString("Tagging Image: %1").arg(process.commandLine().toUserOutput()));
+    };
+
+    // clang-format off
+    return Group {
+        ProcessTask(setupPull),
+        ProcessTask(setupTag)
+    };
+    // clang-format on
 }
 
 static Group prepareContainerRecipe(
