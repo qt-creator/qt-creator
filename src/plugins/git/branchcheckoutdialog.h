@@ -37,11 +37,11 @@ private:
     bool m_foundStashForNextBranch = false;
     bool m_hasLocalChanges = true;
 
-    QGroupBox *m_localChangesGroupBox;
-    QRadioButton *m_makeStashRadioButton;
-    QRadioButton *m_moveChangesRadioButton;
-    QRadioButton *m_discardChangesRadioButton;
-    QCheckBox *m_popStashCheckBox;
+    QGroupBox *m_localChangesGroupBox = nullptr;
+    QRadioButton *m_makeStashRadioButton = nullptr;
+    QRadioButton *m_moveChangesRadioButton = nullptr;
+    QRadioButton *m_discardChangesRadioButton = nullptr;
+    QCheckBox *m_popStashCheckBox = nullptr;
 };
 
 } // Git::Internal
