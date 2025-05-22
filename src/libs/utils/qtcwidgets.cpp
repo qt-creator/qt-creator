@@ -828,6 +828,67 @@ void QtcImage::setPixmap(const QPixmap &px)
     update();
 }
 
+constexpr TextFormat TabBarTf
+    {Theme::Token_Text_Muted, StyleHelper::UiElementLabelMedium};
+constexpr TextFormat TabBarTfActive
+    {Theme::Token_Text_Default, TabBarTf.uiElement};
+
+QtcTabBar::QtcTabBar(QWidget *parent)
+    : QTabBar(parent)
+{
+    setExpanding(false);
+    setMouseTracking(true);
+}
+
+void QtcTabBar::paintEvent([[maybe_unused]] QPaintEvent *event)
+{
+    // +------------+------------+------------+
+    // |            |(VPaddingXs)|            |
+    // |            +------------+            |
+    // |(HPaddingXs)|   <text>   |(HPaddingXs)|
+    // |            +------------+            |
+    // |            |(VPaddingXs)|            |
+    // +------------+------------+------------+
+
+    QPainter p(this);
+    p.setFont(TabBarTf.font());
+    for (int tabIndex = 0; tabIndex < count(); tabIndex++) {
+        QStyleOptionTab opt;
+        initStyleOption(&opt, tabIndex);
+        const bool selected = opt.state & QStyle::State_Selected;
+        if (selected) {
+            QRect rect = opt.rect;
+            rect.moveTop(rect.height() - 2); // Same height as the active mode highlight marker
+            const QColor color = creatorColor(isEnabled() ? Theme::Token_Accent_Default
+                                                          : Theme::Token_Foreground_Subtle);
+            p.fillRect(rect, color);
+        } else if (opt.rect.contains(mapFromGlobal(QCursor::pos()))) {
+            p.fillRect(opt.rect, creatorColor(Theme::Token_Foreground_Muted));
+        }
+        const QColor textColor = isEnabled() ? (selected ? TabBarTfActive : TabBarTf).color()
+                                             : creatorColor(Theme::Token_Text_Subtle);
+        p.setPen(textColor);
+        p.drawText(opt.rect, Qt::AlignCenter, opt.text);
+    }
+}
+
+bool QtcTabBar::event(QEvent *event)
+{
+    if (event->type() == QEvent::MouseMove || event->type() == QEvent::Leave)
+        repaint();
+    return QTabBar::event(event);
+}
+
+QSize QtcTabBar::minimumTabSizeHint(int index) const
+{
+    const QString text = tabText(index);
+    const QFontMetrics fm(TabBarTf.font());
+    const int textWidth = fm.boundingRect(text).width();
+
+    return {ExPaddingGapL + textWidth + textWidth,
+            VPaddingXxs + TabBarTf.lineHeight() + VPaddingXxs};
+}
+
 namespace QtcWidgets {
 
 Button::Button()

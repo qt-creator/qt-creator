@@ -23,6 +23,11 @@ QWidget *widgets()
     auto switchOff = new QtcSwitch("Qt::LeftToRight");
     switchOff->setLayoutDirection(Qt::LeftToRight);
 
+    auto tabBar = new QtcTabBar;
+    tabBar->addTab("Tab number 1");
+    tabBar->addTab("2");
+    tabBar->addTab("3");
+
     using namespace Layouting;
     Column {
         Group {
@@ -63,6 +68,12 @@ QWidget *widgets()
             Column {
                 switchOn,
                 switchOff,
+            },
+        },
+        Group {
+            title("TabBar"),
+            Row {
+                tabBar,
             },
         },
     }.attachTo(widget);

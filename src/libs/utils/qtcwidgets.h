@@ -185,6 +185,17 @@ private:
     int m_radius = 0;
 };
 
+class QTCREATOR_UTILS_EXPORT QtcTabBar : public QTabBar
+{
+public:
+    QtcTabBar(QWidget *parent = nullptr);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+    bool event(QEvent *event) override;
+    QSize minimumTabSizeHint(int index) const override;
+};
+
 
 namespace QtcWidgets {
 
