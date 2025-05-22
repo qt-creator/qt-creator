@@ -318,6 +318,28 @@
          result="composite2"
          id="feComposite7110" />
     </filter>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient13822"
+       id="linearGradient13745"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.1428153,0,0,1,2352.4289,568)"
+       x1="2.25"
+       y1="8"
+       x2="12.75"
+       y2="2" />
+    <linearGradient
+       id="linearGradient13822"
+       inkscape:collect="always">
+      <stop
+         id="stop13818"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1" />
+      <stop
+         id="stop13820"
+         offset="1"
+         style="stop-color:#000000;stop-opacity:0.2" />
+    </linearGradient>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -3895,6 +3917,223 @@
          d="m 2326.5,571.5 v 4 l 2,2"
          id="path136"
          sodipodi:nodetypes="ccc" />
+    </g>
+    <g
+       id="src/plugins/scxmleditor/common/images/navigator">
+      <use
+         style="display:inline"
+         transform="translate(2352,132)"
+         height="100%"
+         width="100%"
+         id="use133"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <rect
+         style="fill:none;stroke:#000000"
+         id="rect13720-6"
+         width="13"
+         height="12"
+         x="2337.5"
+         y="569.5" />
+      <path
+         id="rect13722-6-1"
+         style="fill:#b4b4b4;fill-rule:evenodd;stroke:#000000;stroke-width:0.494018;stroke-linecap:square"
+         d="m 2338.75,571.75 h 4.5 l 0,3.5 h -4.5 z m 6,3 h 4.5 l 0,3.5 h -4.5 z m -5,2 h 4.5 l 0,3.5 h -4.5 z"
+         sodipodi:nodetypes="ccccccccccccccc" />
+    </g>
+    <g
+       id="src/plugins/scxmleditor/common/images/navigator_fill">
+      <use
+         style="display:inline"
+         transform="translate(2369,132)"
+         height="100%"
+         width="100%"
+         id="use137"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="rect13720"
+         style="display:inline;fill:url(#linearGradient13745)"
+         d="m 2355,570 v 11 h 12 v -11 z m 1,2 h 4 v 3 h -4 z m 6,3 h 4 v 3 h -4 z m -5,2 h 4 v 3 h -4 z"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="scxmleditor_navigator_preview">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/plugins/scxmleditor/common/images/navigator"
+         id="use145"
+         transform="translate(0,16)"
+         style="opacity:0.5;mix-blend-mode:darken" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/plugins/scxmleditor/common/images/navigator_fill"
+         id="use146"
+         transform="translate(-17,16)"
+         style="opacity:0.5;mix-blend-mode:darken" />
+    </g>
+    <g
+       id="src/plugins/scxmleditor/common/images/colorthemes">
+      <use
+         style="display:inline"
+         transform="translate(2386,132)"
+         height="100%"
+         width="100%"
+         id="use138"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path1-5"
+         style="fill:none;stroke:#000000"
+         d="m 2381.5,575.5 v -3 h -7 v 7 h 3 m 7,-4 h -7 v 7 h 7 z m -6,-3 v -3 h -7 v 7 h 3" />
+    </g>
+    <g
+       id="src/plugins/scxmleditor/common/images/theme1_fill">
+      <use
+         style="display:inline"
+         transform="translate(2403,132)"
+         height="100%"
+         width="100%"
+         id="use139"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         style="fill:#000000"
+         d="m 2389,570 h 6 v 2 h -4 v 4 h -2 z"
+         id="path17" />
+    </g>
+    <g
+       id="src/plugins/scxmleditor/common/images/theme2_fill">
+      <use
+         style="display:inline"
+         transform="translate(2420,132)"
+         height="100%"
+         width="100%"
+         id="use140"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         style="fill:#000000"
+         d="m 2409,573 h 6 v 2 h -4 v 4 h -2 z"
+         id="path17-9" />
+    </g>
+    <g
+       id="src/plugins/scxmleditor/common/images/theme3_fill">
+      <use
+         style="display:inline"
+         transform="translate(2437,132)"
+         height="100%"
+         width="100%"
+         id="use141"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         style="fill:#000000"
+         d="m 2429,576 h 6 v 6 h -6 z"
+         id="path17-2" />
+    </g>
+    <g
+       id="scxmleditor_colorthemes_preview">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/plugins/scxmleditor/common/images/colorthemes"
+         id="use148"
+         transform="translate(0,16)"
+         style="opacity:0.5;mix-blend-mode:darken" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/plugins/scxmleditor/common/images/theme1_fill"
+         id="use136"
+         transform="translate(-17,16)"
+         style="opacity:0.5;mix-blend-mode:darken" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/plugins/scxmleditor/common/images/theme2_fill"
+         id="use147"
+         transform="translate(-34,16)"
+         style="opacity:0.5;mix-blend-mode:darken" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/plugins/scxmleditor/common/images/theme3_fill"
+         id="use149"
+         transform="translate(-51,16)"
+         style="opacity:0.5;mix-blend-mode:darken" />
+    </g>
+    <g
+       id="src/plugins/scxmleditor/common/images/statistics">
+      <use
+         style="display:inline"
+         transform="translate(2454,132)"
+         height="100%"
+         width="100%"
+         id="use142"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         id="path27-4"
+         style="fill:#b3b3b3;stroke:#000000;stroke-width:0.5"
+         d="m 2447.75,575.25 v 6.5 h -3.5 v -6.5 z m 5,3 v 3.5 h -3.5 v -3.5 z m -10,-9 v 12.5 h -3.5 v -12.5 z" />
+    </g>
+    <g
+       id="src/plugins/scxmleditor/common/images/fill">
+      <use
+         style="display:inline"
+         transform="translate(2471,132)"
+         height="100%"
+         width="100%"
+         id="use143"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#scxmleditor_fill"
+         inkscape:transform-center-x="-0.66353281"
+         id="use150"
+         style="display:inline"
+         transform="rotate(45,2483.1924,581)"
+         inkscape:transform-center-y="-0.30998152" />
+      <path
+         d="m 2467.5,575.5 c -0.5,1.5 -1.5,2 -1.5,3 0,1 0.75,1.5 1.5,1.5 0.75,0 1.5,-0.5 1.5,-1.5 0,-1 -1,-1.5 -1.5,-3 z"
+         id="path48"
+         sodipodi:nodetypes="cszsc" />
+    </g>
+    <path
+       id="scxmleditor_fill"
+       style="fill:#ffffff;stroke:#000000;stroke-linecap:round;stroke-linejoin:round"
+       d="m 2467.5,587.5 c -1,0 -2,1 -2,2.5 v 3 c 0,0.831 -0.669,1.5 -1.5,1.5 h -3 c -0.831,0 -1.5,-0.669 -1.5,-1.5 v -5.5 h 8"
+       sodipodi:nodetypes="ccsssscc"
+       inkscape:transform-center-x="-0.5" />
+    <g
+       id="src/plugins/scxmleditor/common/images/font_color">
+      <use
+         style="display:inline"
+         transform="translate(2488,132)"
+         height="100%"
+         width="100%"
+         id="use144"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         sodipodi:nodetypes="ccccssasccczccccccccc"
+         id="path9323-8"
+         d="m 2480.21,568.96 -4.47,9.41 c -0.28,0.2 -0.39,0.19 -0.67,0.4 -0.1,0.1 -0.07,0.23 0.04,0.23 h 2.12 c 0.23,0 0.16,-0.11 0.18,-0.13 -0.13,-0.13 -0.28,-0.13 -0.35,-0.25 0,0 -0.03,-0.19 0.01,-0.26 l 0.67,-1.36 h 3.38 l 0.57,1.4 c -0.13,0.26 -0.52,0.33 -0.65,0.44 -0.13,0.12 0,0.16 0.11,0.16 h 4.13 c 0.23,0 0.17,-0.22 0.05,-0.28 -0.22,-0.13 -0.45,-0.23 -0.68,-0.34 z m 0.53,7.04 h -2.55 l 1.3772,-3.09172 z"
+         style="fill:#000000" />
     </g>
   </g>
   <g
