@@ -446,6 +446,8 @@ bool BranchView::checkout()
             }
         };
         m_model->checkoutBranch(selected, this, commandHandler);
+    } else if (branchCheckoutDialog.diffRequested()) {
+        gitClient().diffRepository(m_repository, {}, {});
     }
 
     if (QTC_GUARD(m_branchView))

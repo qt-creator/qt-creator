@@ -8,6 +8,7 @@
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QGroupBox;
+class QPushButton;
 class QRadioButton;
 QT_END_NAMESPACE
 
@@ -30,18 +31,21 @@ public:
 
     bool hasStashForNextBranch();
     bool hasLocalChanges();
+    bool diffRequested() const;
 
 private:
     void updatePopStashCheckBox(bool moveChangesChecked);
 
     bool m_foundStashForNextBranch = false;
     bool m_hasLocalChanges = true;
+    bool m_diffRequested = false;
 
     QGroupBox *m_localChangesGroupBox = nullptr;
     QRadioButton *m_makeStashRadioButton = nullptr;
     QRadioButton *m_moveChangesRadioButton = nullptr;
     QRadioButton *m_discardChangesRadioButton = nullptr;
     QCheckBox *m_popStashCheckBox = nullptr;
+    QPushButton *m_diffButton = nullptr;
 };
 
 } // Git::Internal

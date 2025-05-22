@@ -11,6 +11,7 @@
 #include <QDialogButtonBox>
 #include <QGroupBox>
 #include <QRadioButton>
+#include <QPushButton>
 
 namespace Git::Internal {
 
@@ -44,6 +45,7 @@ BranchCheckoutDialog::BranchCheckoutDialog(QWidget *parent,
     }
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    m_diffButton = buttonBox->addButton(Tr::tr("&Diff && Cancel"), QDialogButtonBox::ActionRole);
 
     using namespace Layouting;
 
@@ -65,6 +67,10 @@ BranchCheckoutDialog::BranchCheckoutDialog(QWidget *parent,
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(m_diffButton, &QPushButton::clicked, this, [this] {
+        m_diffRequested = true;
+        reject();
+    });
 }
 
 BranchCheckoutDialog::~BranchCheckoutDialog() = default;
@@ -73,6 +79,7 @@ void BranchCheckoutDialog::foundNoLocalChanges()
 {
     m_discardChangesRadioButton->setChecked(true);
     m_localChangesGroupBox->setEnabled(false);
+    m_diffButton->setEnabled(false);
     m_hasLocalChanges = false;
 }
 
@@ -80,6 +87,7 @@ void BranchCheckoutDialog::foundStashForNextBranch()
 {
     m_popStashCheckBox->setChecked(true);
     m_popStashCheckBox->setEnabled(true);
+    m_diffButton->setEnabled(true);
     m_foundStashForNextBranch = true;
 }
 
@@ -111,6 +119,11 @@ bool BranchCheckoutDialog::hasStashForNextBranch()
 bool BranchCheckoutDialog::hasLocalChanges()
 {
     return m_hasLocalChanges;
+}
+
+bool BranchCheckoutDialog::diffRequested() const
+{
+    return m_diffRequested;
 }
 
 void BranchCheckoutDialog::updatePopStashCheckBox(bool moveChangesChecked)
