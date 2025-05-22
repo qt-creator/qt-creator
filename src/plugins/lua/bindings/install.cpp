@@ -226,7 +226,7 @@ static Group installRecipe(
         },
         onGroupDone([emitResult](DoneWith result) {
             if (result == DoneWith::Cancel)
-                emitResult(Tr::tr("Installation was canceled"));
+                emitResult(Tr::tr("Installation was canceled."));
             else if (result == DoneWith::Success)
                 emitResult();
         }),

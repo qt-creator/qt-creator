@@ -383,7 +383,7 @@ static Layouting::Grid createDetailWidget(const CourseItem *course)
         Span {
             hasObjectives ? 1 : 2,
             Column {
-                heading(Tr::tr("Course description")),
+                heading(Tr::tr("Course Description")),
                 Label {
                     wordWrap(true),
                     text(course->descriptionHtml),
@@ -440,7 +440,7 @@ public:
     QtAcademyWelcomePageWidget()
     {
         m_searcher = new QtcSearchBox(this);
-        m_searcher->setPlaceholderText(Tr::tr("Search in Qt Academy Courses..."));
+        m_searcher->setPlaceholderText(Tr::tr("Search for Qt Academy courses..."));
 
         m_model.setPixmapFunction([this](const QString &url) -> QPixmap {
             queueImageForDownload(url);

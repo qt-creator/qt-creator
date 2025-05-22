@@ -302,7 +302,7 @@ public:
                ICore::crashReportsPath() / "pending",
                ICore::crashReportsPath() / "new"};
 
-        auto openLocationAction = new QAction(Tr::tr("Go to crash reports"));
+        auto openLocationAction = new QAction(Tr::tr("Go to Crash Reports"));
         connect(openLocationAction, &QAction::triggered, this, [reportsPaths] {
             const FilePath path = reportsPaths.first().parentDir();
             if (!QDesktopServices::openUrl(path.toUrl())) {
@@ -311,7 +311,7 @@ public:
         });
         crashReportsMenu->addAction(openLocationAction);
 
-        auto clearAction = new QAction(Tr::tr("Clear crash reports"));
+        auto clearAction = new QAction(Tr::tr("Clear Crash Reports"));
         crashReportsMenu->addAction(clearAction);
 
         const auto updateClearCrashWidgets = [this, reportsPaths] {

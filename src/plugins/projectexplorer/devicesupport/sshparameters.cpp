@@ -260,9 +260,9 @@ SshParametersAspectContainer::SshParametersAspectContainer()
     hostKeyCheckingMode.setToolTip(Tr::tr("The device's SSH host key checking mode."));
     hostKeyCheckingMode.setLabelText(Tr::tr("Host key check:"));
     hostKeyCheckingMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    hostKeyCheckingMode.addOption("None", Tr::tr("No host key checking"));
-    hostKeyCheckingMode.addOption("Strict", Tr::tr("Strict host key checking"));
-    hostKeyCheckingMode.addOption("Allow No Match", Tr::tr("Allow host key checking"));
+    hostKeyCheckingMode.addOption(Tr::tr("None"), Tr::tr("No host key checking."));
+    hostKeyCheckingMode.addOption(Tr::tr("Strict"), Tr::tr("Strict host key checking."));
+    hostKeyCheckingMode.addOption(Tr::tr("Allow No Match"), Tr::tr("Allow host key checking."));
 
     host.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
     host.setPlaceHolderText(Tr::tr("Host name or IP address"));
