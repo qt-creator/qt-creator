@@ -353,6 +353,9 @@
 
     \title Debug on Android devices
 
+    You can use LLDB to debug applications on Android devices that you develop
+    with Qt 5.15.9 or later and Qt 6.2 or later.
+
     You enable debugging in different ways on different Android devices.
     Look for \uicontrol {USB Debugging} under \uicontrol {Developer Options}.
     Tap \uicontrol {Build number} in \uicontrol Settings > \uicontrol About

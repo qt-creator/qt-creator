@@ -62,12 +62,6 @@ public:
     {
         setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
-        constexpr TextFormat welcomeTF {Theme::Token_Text_Default, StyleHelper::UiElementH2};
-
-        auto welcomeLabel = new ElidingLabel(QGuiApplication::applicationDisplayName());
-        applyTf(welcomeLabel, welcomeTF);
-        welcomeLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-
         m_pluginButtons = new QHBoxLayout;
         m_pluginButtons->setSpacing(VGapL);
         m_pluginButtons->setContentsMargins({});
@@ -78,8 +72,6 @@ public:
         using namespace Layouting;
         Column {
             Row {
-                welcomeLabel,
-                Space(HGapM),
                 m_pluginButtons,
                 st,
                 newButton,

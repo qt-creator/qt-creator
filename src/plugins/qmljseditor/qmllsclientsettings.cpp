@@ -63,7 +63,7 @@ static const QStringList &supportedMimeTypes()
 
 QmllsClientSettings::QmllsClientSettings()
 {
-    m_name = "QML Language Server";
+    m_name = Constants::QMLLS_NAME;
 
     m_languageFilter.mimeTypes = supportedMimeTypes();
 
@@ -327,26 +327,25 @@ static void portFromOldSettings(QmllsClientSettings* qmllsClientSettings)
     portSetting(baseKey + USE_QMLLS_SEMANTIC_HIGHLIGHTING, &qmllsClientSettings->m_useQmllsSemanticHighlighting);
 }
 
-void setupQmllsClientSettings()
+void registerQmllsSettings()
 {
-    using namespace LanguageClient;
-    QmllsClientSettings *clientSettings = new QmllsClientSettings();
+    const ClientType type{Constants::QMLLS_CLIENT_SETTINGS_ID,
+                          Constants::QMLLS_NAME,
+                          []() { return new QmllsClientSettings; },
+                          false};
 
-    const ClientType type{
-        Constants::QMLLS_CLIENT_SETTINGS_ID,
-        clientSettings->m_name,
-        []() { return new QmllsClientSettings; },
-        false};
-
-    const QList<Utils::Store> savedSettings = LanguageClientSettings::storesBySettingsType(type.id);
-
-    if (!savedSettings.isEmpty())
-        clientSettings->fromMap(savedSettings.first());
-    else
-        portFromOldSettings(clientSettings);
-
-    LanguageClientManager::registerClientSettings(clientSettings);
     LanguageClientSettings::registerClientType(type);
+}
+
+void setupQmllsClient()
+{
+    if (!Utils::anyOf(LanguageClientManager::currentSettings(), [](const BaseSettings *settings) {
+            return settings->m_settingsTypeId == Constants::QMLLS_CLIENT_SETTINGS_ID;
+        })) {
+        QmllsClientSettings *clientSettings = new QmllsClientSettings();
+        portFromOldSettings(clientSettings);
+        LanguageClientManager::registerClientSettings(clientSettings);
+    }
 }
 
 QmllsClientSettingsWidget::QmllsClientSettingsWidget(

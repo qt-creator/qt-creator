@@ -3,6 +3,7 @@
 
 #include "qmljsfunctionfilter.h"
 
+#include "qmljsmodelmanager.h"
 #include "qmljstoolstr.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
@@ -77,7 +78,9 @@ LocatorData::LocatorData()
             &ModelManagerInterface::projectInfoUpdated,
             [manager](const ModelManagerInterface::ProjectInfo &info) {
                 FilePaths files;
-                for (const FilePath &f : info.project->files(ProjectExplorer::Project::SourceFiles))
+                ProjectExplorer::Project *project = projectFromProjectInfo(info);
+                QTC_ASSERT(project, return);
+                for (const FilePath &f : project->files(ProjectExplorer::Project::SourceFiles))
                     files << f;
                 manager->updateSourceFiles(files, true);
             });

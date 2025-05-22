@@ -290,6 +290,8 @@ QList<Client *> LanguageClientManager::clientsSupportingDocument(
 
 void LanguageClientManager::writeSettings()
 {
+    // do not write settings before they have been initialized
+    QTC_ASSERT(LanguageClientSettings::initialized(), return);
     LanguageClientSettings::toSettings(Core::ICore::settings(), managerInstance->m_currentSettings);
 }
 

@@ -36,7 +36,6 @@ class EditorManager;
 namespace Internal {
 
 class EditorWindow;
-class MainWindow;
 class OpenEditorsWindow;
 
 enum MakeWritableResult { OpenedWithVersionControl, MadeWritable, SavedAs, Failed };

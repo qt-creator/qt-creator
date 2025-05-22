@@ -19,6 +19,9 @@ public:
     void setModel(QAbstractItemModel *model) override;
     void setCloseButtonVisible(bool visible);
 
+    void mousePressEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+
 signals:
     void closeActivated(const QModelIndex &index);
 

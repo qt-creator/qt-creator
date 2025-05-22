@@ -144,6 +144,8 @@ class LANGUAGECLIENT_EXPORT LanguageClientSettings
 {
 public:
     static void init();
+    static bool initialized();
+
     static QList<BaseSettings *> fromSettings(Utils::QtcSettings *settings);
     static QList<BaseSettings *> pageSettings();
     static QList<BaseSettings *> changedSettings();

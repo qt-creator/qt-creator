@@ -163,9 +163,6 @@
             automatically detects available debuggers and displays a
             suitable debugger in the field. You can add debuggers to the list.
             For more information, see \l{Add debuggers}.
-
-            For Android kits, the \uicontrol {Android GDB server} field will
-            display the path to GDB server executable.
     \row
         \li \uicontrol Sysroot
         \li Directory where the device image is located. If you are not

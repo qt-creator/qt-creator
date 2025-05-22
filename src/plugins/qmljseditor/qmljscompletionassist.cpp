@@ -16,8 +16,8 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/parser/qmljsast_p.h>
@@ -29,7 +29,9 @@
 #include <qmljs/qmljscompletioncontextfinder.h>
 #include <qmljs/qmljsbundle.h>
 #include <qmljs/qmljsscopebuilder.h>
-#include <projectexplorer/projecttree.h>
+
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QFile>
 #include <QFileInfo>
