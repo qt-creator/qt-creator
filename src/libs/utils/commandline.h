@@ -115,12 +115,18 @@ public:
         ArgRef(const char *arg) : m_arg(arg) {}
         ArgRef(const QString &arg) : m_arg(arg) {}
         ArgRef(const QStringList &args) : m_arg(args) {}
+        ArgRef(std::initializer_list<QString> args)
+            : m_arg(QStringList(args))
+        {}
 
     private:
         friend class CommandLine;
-        const std::variant<const char *,
-                           std::reference_wrapper<const QString>,
-                           std::reference_wrapper<const QStringList>> m_arg;
+        const std::variant<
+            const char *,
+            std::reference_wrapper<const QString>,
+            std::reference_wrapper<const QStringList>,
+            QStringList>
+            m_arg;
     };
 
     explicit CommandLine(const FilePath &executable);

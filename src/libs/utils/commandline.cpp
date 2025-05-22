@@ -1423,6 +1423,8 @@ CommandLine::CommandLine(const FilePath &exe, std::initializer_list<ArgRef> args
             addArg(*ptr);
         else if (const auto ptr = std::get_if<std::reference_wrapper<const QStringList>>(&arg.m_arg))
             addArgs(*ptr);
+        else if (const auto ptr = std::get_if<QStringList>(&arg.m_arg))
+            addArgs(*ptr);
     }
 }
 

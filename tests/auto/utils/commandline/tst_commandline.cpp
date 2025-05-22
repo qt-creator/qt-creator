@@ -293,6 +293,12 @@ private slots:
         QCOMPARE(cmdLine.executable().path(), executable);
         QCOMPARE(cmdLine.arguments(), arguments);
     }
+
+    void testNestedInitializer()
+    {
+        CommandLine cmd(self, {{"foo", "bar"}, {"baz", "blizz"}});
+        QCOMPARE(cmd.arguments(), "foo bar baz blizz");
+    }
 };
 
 int main(int argc, char *argv[])
