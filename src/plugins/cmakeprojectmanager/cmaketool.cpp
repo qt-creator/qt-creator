@@ -251,7 +251,7 @@ CMakeKeywords CMakeTool::keywords()
         findCMakeRoot.writeFileContents("message(${CMAKE_ROOT})");
 
         FilePath cmakeRoot;
-        runCMake(proc, {"-P", findCMakeRoot.nativePath()}, 5);
+        runCMake(proc, {"-P", findCMakeRoot.nativePath()});
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
             QStringList output = filtered(proc.allOutput().split('\n'),
                                           std::not_fn(&QString::isEmpty));
