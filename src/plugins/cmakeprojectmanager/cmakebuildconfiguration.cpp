@@ -116,7 +116,7 @@ public:
     void setError(const QString &message);
     void setWarning(const QString &message);
 
-    void updateInitialCMakeArguments();
+    void updateInitialCMakeArguments(bool fromReconfigure = false);
 
 private:
     void updateButtonState();
@@ -621,7 +621,7 @@ void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
     if (reply != QMessageBox::Yes)
         return;
 
-    updateInitialCMakeArguments();
+    updateInitialCMakeArguments(true);
 
     m_buildConfig->cmakeBuildSystem()->clearCMakeCache();
 
@@ -663,7 +663,7 @@ static bool isGenerateQmllsSettingsEnabled()
     QTC_ASSERT(false, return false);
 }
 
-void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
+void CMakeBuildSettingsWidget::updateInitialCMakeArguments(bool fromReconfigure)
 {
     QTC_ASSERT(m_buildConfig, return);
     QTC_ASSERT(m_buildConfig->cmakeBuildSystem(), return);
@@ -713,11 +713,13 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
 
     m_buildConfig->initialCMakeArguments.setCMakeConfiguration(initialList);
 
-    // value() will contain only the unknown arguments (the non -D/-U arguments)
-    // As the user would expect to have e.g. "--preset" from "Initial Configuration"
-    // to "Current Configuration" as additional parameters
-    m_buildConfig->setAdditionalCMakeArguments(ProcessArgs::splitArgs(
-        m_buildConfig->initialCMakeArguments(), HostOsInfo::hostOs()));
+    if (fromReconfigure) {
+        // value() will contain only the unknown arguments (the non -D/-U arguments)
+        // As the user would expect to have e.g. "--preset" from "Initial Configuration"
+        // to "Current Configuration" as additional parameters
+        m_buildConfig->setAdditionalCMakeArguments(ProcessArgs::splitArgs(
+            m_buildConfig->initialCMakeArguments(), HostOsInfo::hostOs()));
+    }
 }
 
 void CMakeBuildSettingsWidget::kitCMakeConfiguration()
@@ -1879,7 +1881,7 @@ QWidget *CMakeBuildConfiguration::createConfigWidget()
 void CMakeBuildConfiguration::updateInitialCMakeArguments()
 {
     Q_ASSERT(m_configWidget);
-    m_configWidget->updateInitialCMakeArguments();
+    m_configWidget->updateInitialCMakeArguments(true);
 }
 
 QStringList CMakeBuildConfiguration::initialCMakeOptions() const
