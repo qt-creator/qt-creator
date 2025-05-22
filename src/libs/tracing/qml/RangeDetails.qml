@@ -70,7 +70,7 @@ Item {
             font.bold: true
             verticalAlignment: Text.AlignVCenter
             anchors.left: parent.left
-            anchors.right: closeIcon.left
+            anchors.right: editIcon.left
             anchors.leftMargin: rangeDetails.outerMargin
             anchors.rightMargin: rangeDetails.innerMargin
             anchors.top: parent.top
