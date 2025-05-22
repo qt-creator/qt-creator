@@ -16,7 +16,7 @@
     for \l{Optimizing your 3D Scene}{optimizing the graphics performance of your 3D scene}
     and \l{Best practices for 3D scenes based on use cases}.
 
-    \section1 The Optimal 3D Scene example
+    \section1 Optimal 3D Scene example
 
     The \l {Optimal 3D Scene}
     example features four versions of the same kitchen
@@ -30,7 +30,7 @@
 
     \image studio-kitchen-navigators.png "Navigators for the four scenes in the Optimal 3D Scene."
 
-    \section2 The High Scene
+    \section2 High Scene
 
     \image studio-kitchen-high.png "The High Scene in the Optimal 3D Scene"
 
@@ -38,14 +38,14 @@
     similar to the Low scene, but has more details and animated components, such
     as cabinet doors that can be opened and a latch for the oven.
 
-    \section2 The Low Scene
+    \section2 Low Scene
 
     \image studio-kitchen-low.png "The Low Scene in the Optimal 3D Scene"
 
     The Low scene (2) includes a total of 12 objects. Each model, for example
     cabinets, lamps, plates, and the sink, are separate meshes.
 
-    \section2 The Combined Scene
+    \section2 Combined Scene
 
     \image studio-kitchen-combined.png "The Combined Scene in the Optimal 3D Scene"
 

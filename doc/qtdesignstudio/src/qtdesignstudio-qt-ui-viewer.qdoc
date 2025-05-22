@@ -89,7 +89,7 @@
             \image studio-devicemanager-remove-device.webp Remove a device from Device Manager.
       \endlist
 
-    \section1 The scope of \QUV
+    \section1 Scope of \QUV
 
     \QUV is an Android application for viewing \QDS projects on an Android
     device. However, it doesn't support editing a \QDS project from an

@@ -32,7 +32,7 @@
     To run the example in \QDS, go to the \uicontrol Welcome screen and select the example
     from the \uicontrol Examples tab.
 
-    \section1 The effects
+    \section1 Effects
 
     The following table introduces the effects in this example.
 
@@ -54,7 +54,7 @@
         \li A weather effect, a combination of a rain effect and a thunder effect.
     \endtable
 
-    \section1 The structure of the example
+    \section1 Structure of the example
 
     In addition to the effects, the example project also includes the following components:
 

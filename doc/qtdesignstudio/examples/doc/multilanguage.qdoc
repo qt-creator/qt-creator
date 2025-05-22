@@ -27,7 +27,7 @@
 
     \include run-tutorial-project.qdocinc
 
-    \section1 The JSON translation file
+    \section1 JSON translation file
 
     The JSON translation file you are using in this project has the following
     structure:

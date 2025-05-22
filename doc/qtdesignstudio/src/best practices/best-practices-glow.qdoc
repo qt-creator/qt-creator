@@ -42,7 +42,7 @@
     \note When setting up or experimenting with the glow effect, use the \l {Blend Modes}{Replace}
     blend mode to see the effect more clearly.
 
-    \section1 The Flashlight Example project
+    \section1 Flashlight Example project
 
     The flashlight example used in this documentation is available from the \uicontrol Examples
     section of the \QDS \uicontrol Welcome page.

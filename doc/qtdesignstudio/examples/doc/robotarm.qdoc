@@ -23,7 +23,7 @@
     To complete this tutorial, you need experience in using \QDS and Qt Creator as well as knowledge
     in C++ programming.
 
-    \section1 The designer-developer workflow
+    \section1 Designer-developer workflow
 
     This section describes the high-level steps for creating the robot arm example.
 
