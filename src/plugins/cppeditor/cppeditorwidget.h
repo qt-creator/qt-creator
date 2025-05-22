@@ -20,11 +20,11 @@ class IAssistProvider;
 }
 
 namespace CppEditor {
-class SemanticInfo;
+class CppEditorDocument;
 class ProjectPart;
+class SemanticInfo;
 
 namespace Internal {
-class CppEditorDocument;
 class CppEditorOutline;
 class CppEditorWidgetPrivate;
 class FunctionDeclDefLink;
@@ -40,7 +40,7 @@ public:
 
     static const QList<CppEditorWidget *> editorWidgetsForDocument(TextEditor::TextDocument *doc);
 
-    Internal::CppEditorDocument *cppEditorDocument() const;
+    CppEditorDocument *cppEditorDocument() const;
 
     bool isSemanticInfoValidExceptLocalUses() const;
     bool isSemanticInfoValid() const;

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "cppeditor_global.h"
 #include "cppsemanticinfo.h"
 
 #include <cplusplus/CppDocument.h>
@@ -14,15 +15,15 @@
 
 namespace CppEditor {
 
+namespace Internal {
+class OutlineModel;
+class ParseContextModel;
+}
+
 class CursorInfo;
 class CursorInfoParams;
 
-namespace Internal {
-
-class OutlineModel;
-class ParseContextModel;
-
-class CppEditorDocument : public TextEditor::TextDocument
+class CPPEDITOR_EXPORT CppEditorDocument : public TextEditor::TextDocument
 {
     Q_OBJECT
 
@@ -48,8 +49,8 @@ public:
 
     void scheduleProcessDocument();
 
-    ParseContextModel &parseContextModel();
-    OutlineModel &outlineModel();
+    Internal::ParseContextModel &parseContextModel();
+    Internal::OutlineModel &outlineModel();
     void updateOutline();
 
     QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params);
@@ -91,5 +92,4 @@ private:
     Private * const d;
 };
 
-} // namespace Internal
 } // namespace CppEditor

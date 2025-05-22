@@ -54,7 +54,8 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace CppEditor {
-namespace Internal {
+
+using namespace Internal;
 
 static InfoBarEntry createInfoBarEntry(const FilePath &filePath)
 {
@@ -776,5 +777,4 @@ QList<BlockRange> CppEditorDocument::ifdefedOutBlocks() const
 
 #endif
 
-} // namespace Internal
 } // namespace CppEditor
