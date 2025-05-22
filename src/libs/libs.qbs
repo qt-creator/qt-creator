@@ -9,6 +9,7 @@ Project {
         "advanceddockingsystem/advanceddockingsystem.qbs",
         "aggregation/aggregation.qbs",
         "cplusplus/cplusplus.qbs",
+        "devcontainer/devcontainer.qbs",
         "extensionsystem/extensionsystem.qbs",
         "glsl/glsl.qbs",
         "gocmdbridge/gocmdbridge.qbs",
