@@ -111,6 +111,7 @@ class CMakeBuildSettingsWidget : public QWidget
 {
 public:
     explicit CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
+    ~CMakeBuildSettingsWidget();
 
     void setError(const QString &message);
     void setWarning(const QString &message);
@@ -518,10 +519,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         if (bc->isEnabled())
             setError(QString());
     });
-    connect(this, &QObject::destroyed, this, [this] {
-        updateInitialCMakeArguments();
-    });
-
     connect(m_buildConfig->project(), &Project::aboutToSaveSettings, this, [this] {
         updateInitialCMakeArguments();
     });
@@ -546,6 +543,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     updateSelection();
     updateConfigurationStateSelection();
+}
+
+CMakeBuildSettingsWidget::~CMakeBuildSettingsWidget()
+{
+    updateInitialCMakeArguments();
 }
 
 void CMakeBuildSettingsWidget::batchEditConfiguration()
