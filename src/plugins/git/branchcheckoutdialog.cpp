@@ -91,32 +91,32 @@ void BranchCheckoutDialog::foundStashForNextBranch()
     m_foundStashForNextBranch = true;
 }
 
-bool BranchCheckoutDialog::makeStashOfCurrentBranch()
+bool BranchCheckoutDialog::makeStashOfCurrentBranch() const
 {
     return m_makeStashRadioButton->isChecked();
 }
 
-bool BranchCheckoutDialog::moveLocalChangesToNextBranch()
+bool BranchCheckoutDialog::moveLocalChangesToNextBranch() const
 {
     return m_moveChangesRadioButton->isChecked();
 }
 
-bool BranchCheckoutDialog::discardLocalChanges()
+bool BranchCheckoutDialog::discardLocalChanges() const
 {
     return m_discardChangesRadioButton->isChecked() && m_localChangesGroupBox->isEnabled();
 }
 
-bool BranchCheckoutDialog::popStashOfNextBranch()
+bool BranchCheckoutDialog::popStashOfNextBranch() const
 {
     return m_popStashCheckBox->isChecked();
 }
 
-bool BranchCheckoutDialog::hasStashForNextBranch()
+bool BranchCheckoutDialog::hasStashForNextBranch() const
 {
     return m_foundStashForNextBranch;
 }
 
-bool BranchCheckoutDialog::hasLocalChanges()
+bool BranchCheckoutDialog::hasLocalChanges() const
 {
     return m_hasLocalChanges;
 }

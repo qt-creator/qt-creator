@@ -24,13 +24,13 @@ public:
     void foundNoLocalChanges();
     void foundStashForNextBranch();
 
-    bool makeStashOfCurrentBranch();
-    bool moveLocalChangesToNextBranch();
-    bool discardLocalChanges();
-    bool popStashOfNextBranch();
+    bool makeStashOfCurrentBranch() const;
+    bool moveLocalChangesToNextBranch() const;
+    bool discardLocalChanges() const;
+    bool popStashOfNextBranch() const;
 
-    bool hasStashForNextBranch();
-    bool hasLocalChanges();
+    bool hasStashForNextBranch() const;
+    bool hasLocalChanges() const;
     bool diffRequested() const;
 
 private:
