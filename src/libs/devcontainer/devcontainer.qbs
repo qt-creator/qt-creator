@@ -4,6 +4,10 @@ QtcLibrary {
     Depends { name: "Tasking" }
     Depends { name: "Qt.core" }
 
+    cpp.defines: base.concat([
+        "DEVCONTAINER_LIBRARY"
+    ])
+
     files: [
         "devcontainer_global.h",
         "devcontainer.cpp",
