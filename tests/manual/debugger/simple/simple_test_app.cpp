@@ -2173,15 +2173,13 @@ namespace plugin {
     void testPlugin()
     {
         QString dir = QApplication::applicationDirPath();
-    #ifdef Q_OS_LINUX
-        QLibrary lib(dir + "/libsimple_test_plugin.so");
-    #endif
     #ifdef Q_OS_MAC
         dir = QFileInfo(dir + "/../..").canonicalPath();
         QLibrary lib(dir + "/libsimple_test_plugin.dylib");
-    #endif
-    #ifdef Q_OS_WIN
+    #elif defined(Q_OS_WIN)
         QLibrary lib(dir + "/simple_test_plugin.dll");
+    #elif defined(Q_OS_UNIX)
+        QLibrary lib(dir + "/libsimple_test_plugin.so");
     #endif
         BREAK_HERE;
         // CheckType dir QString.
