@@ -11,78 +11,20 @@
 
 #include <QNetworkReply>
 
-#include <variant>
+namespace Axivion::Internal {
 
-namespace Axivion::Internal
-{
+QString networkErrorMessage(const QUrl &replyUrl,
+                            QNetworkReply::NetworkError networkError,
+                            const QString &networkErrorString);
 
-class CommunicationError
-{
-public:
-    QUrl replyUrl;
+QString httpErrorMessage(const QUrl &replyUrl,
+                         int httpStatusCode,
+                         const QString &httpReasonPhrase,
+                         const QString &body);
 
-    CommunicationError(QUrl replyUrl);
-};
-
-class GeneralError : public CommunicationError
-{
-public:
-    QString message;
-
-    GeneralError(QUrl replyUrl, QString message);
-};
-
-class NetworkError : public CommunicationError
-{
-public:
-    QNetworkReply::NetworkError networkError;
-    QString networkErrorString;
-
-    NetworkError(QUrl replyUrl, QNetworkReply::NetworkError networkError, QString networkErrorString);
-};
-
-class HttpError : public CommunicationError
-{
-public:
-    int httpStatusCode;
-    QString httpReasonPhrase;
-    QString body;
-
-    HttpError(QUrl replyUrl, int httpStatusCode, QString httpReasonPhrase, QString body);
-};
-
-class DashboardError : public CommunicationError
-{
-public:
-    int httpStatusCode;
-    QString httpReasonPhrase;
-    std::optional<QString> dashboardVersion;
-    QString type;
-    QString message;
-
-    DashboardError(QUrl replyUrl, int httpStatusCode, QString httpReasonPhrase, Dto::ErrorDto error);
-};
-
-class Error
-{
-public:
-    Error(GeneralError error);
-
-    Error(NetworkError error);
-
-    Error(HttpError error);
-
-    Error(DashboardError error);
-
-    QString message() const;
-
-    bool isInvalidCredentialsError();
-
-private:
-    std::variant<GeneralError,
-                 NetworkError,
-                 HttpError,
-                 DashboardError> m_error;
-};
+QString dashboardErrorMessage(const QUrl &replyUrl,
+                              int httpStatusCode,
+                              const QString &httpReasonPhrase,
+                              const Dto::ErrorDto &error);
 
 } // namespace Axivion::Internal

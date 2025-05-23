@@ -653,18 +653,17 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
                     showFilterException(error->message);
                     return DoneResult::Error;
                 }
-                errorString = Error(DashboardError(reply->url(), statusCode,
-                    reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
-                                     *error)).message();
+                errorString = dashboardErrorMessage(reply->url(), statusCode,
+                    reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(), *error);
             } else {
                 errorString = error.error();
             }
         } else if (statusCode != 0) {
-            errorString = Error(HttpError(reply->url(), statusCode,
+            errorString = httpErrorMessage(reply->url(), statusCode,
                 reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
-                                 QString::fromUtf8(reply->readAll()))).message(); // encoding?
+                                 QString::fromUtf8(reply->readAll())); // encoding?
         } else {
-            errorString = Error(NetworkError(reply->url(), error, reply->errorString())).message();
+            errorString = networkErrorMessage(reply->url(), error, reply->errorString());
         }
 
         showErrorMessage(errorString);

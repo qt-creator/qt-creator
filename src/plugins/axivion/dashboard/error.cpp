@@ -7,106 +7,34 @@
 
 #include "dashboard/error.h"
 
-#include <utils/overloaded.h>
+namespace Axivion::Internal {
 
-#include <type_traits>
-#include <utility>
-
-namespace Axivion::Internal
+QString networkErrorMessage(const QUrl &replyUrl,
+                            QNetworkReply::NetworkError networkError,
+                            const QString &networkErrorString)
 {
-
-CommunicationError::CommunicationError(QUrl replyUrl)
-    : replyUrl(std::move(replyUrl))
-{
+    return QStringLiteral("NetworkError (%1) %2: %3")
+        .arg(replyUrl.toString()).arg(networkError).arg(networkErrorString);
 }
 
-GeneralError::GeneralError(QUrl replyUrl, QString message)
-    : CommunicationError(replyUrl),
-    message(std::move(message))
+QString httpErrorMessage(const QUrl &replyUrl,
+                         int httpStatusCode,
+                         const QString &httpReasonPhrase,
+                         const QString &body)
 {
+    return QStringLiteral("HttpError (%1) %2: %3\n%4")
+        .arg(replyUrl.toString()).arg(httpStatusCode)
+        .arg(httpReasonPhrase, body);
 }
 
-NetworkError::NetworkError(QUrl replyUrl,
-                           QNetworkReply::NetworkError networkError,
-                           QString networkErrorString)
-    : CommunicationError(std::move(replyUrl)),
-      networkError(std::move(networkError)),
-      networkErrorString(std::move(networkErrorString))
+QString dashboardErrorMessage(const QUrl &replyUrl,
+                              int httpStatusCode,
+                              const QString &httpReasonPhrase,
+                              const Dto::ErrorDto &error)
 {
-}
-
-HttpError::HttpError(QUrl replyUrl, int httpStatusCode, QString httpReasonPhrase, QString body)
-    : CommunicationError(std::move(replyUrl)),
-      httpStatusCode(httpStatusCode),
-      httpReasonPhrase(std::move(httpReasonPhrase)),
-      body(std::move(body))
-{
-}
-
-DashboardError::DashboardError(QUrl replyUrl, int httpStatusCode, QString httpReasonPhrase, Dto::ErrorDto error)
-    : CommunicationError(std::move(replyUrl)),
-      httpStatusCode(httpStatusCode),
-      httpReasonPhrase(std::move(httpReasonPhrase)),
-      dashboardVersion(std::move(error.dashboardVersionNumber)),
-      type(std::move(error.type)),
-      message(std::move(error.message))
-{
-}
-
-Error::Error(GeneralError error) : m_error(std::move(error))
-{
-}
-
-Error::Error(NetworkError error) : m_error(std::move(error))
-{
-}
-
-Error::Error(HttpError error) : m_error(std::move(error))
-{
-}
-
-Error::Error(DashboardError error) : m_error(std::move(error))
-{
-}
-
-QString Error::message() const
-{
-    return std::visit(
-        Utils::overloaded{
-            [](const GeneralError &error) {
-                return QStringLiteral("GeneralError (%1) %2")
-                    .arg(error.replyUrl.toString(),
-                         error.message);
-            },
-            [](const NetworkError &error) {
-                return QStringLiteral("NetworkError (%1) %2: %3")
-                    .arg(error.replyUrl.toString(),
-                         QString::number(error.networkError),
-                         error.networkErrorString);
-            },
-            [](const HttpError &error) {
-                return QStringLiteral("HttpError (%1) %2: %3\n%4")
-                    .arg(error.replyUrl.toString(),
-                         QString::number(error.httpStatusCode),
-                         error.httpReasonPhrase,
-                         error.body);
-            },
-            [](const DashboardError &error) {
-                return QStringLiteral("DashboardError (%1) [%2 %3] %4: %5")
-                    .arg(error.replyUrl.toString(),
-                         QString::number(error.httpStatusCode),
-                         error.httpReasonPhrase,
-                         error.type,
-                         error.message);
-            },
-        }, this->m_error);
-}
-
-bool Error::isInvalidCredentialsError()
-{
-    DashboardError *dashboardError = std::get_if<DashboardError>(&this->m_error);
-    return dashboardError != nullptr
-           && dashboardError->type == QLatin1String("InvalidCredentialsException");
+    return QStringLiteral("DashboardError (%1) [%2 %3] %4: %5")
+        .arg(replyUrl.toString()).arg(httpStatusCode)
+        .arg(httpReasonPhrase, error.type, error.message);
 }
 
 } // namespace Axivion::Internal
