@@ -15,6 +15,8 @@ class NodeInstanceView;
 
 class QMLDESIGNER_EXPORT QmlModelNodeFacade
 {
+    using SL = ModelTracing::SourceLocation;
+
 public:
     operator ModelNode() const { return m_modelNode; }
 
@@ -23,8 +25,8 @@ public:
     ModelNode &modelNode() { return m_modelNode; }
 
     bool hasModelNode() const;
-    static bool isValidQmlModelNodeFacade(const ModelNode &modelNode);
-    bool isValid() const;
+    static bool isValidQmlModelNodeFacade(const ModelNode &modelNode, SL sl = {});
+    bool isValid(SL sl = {}) const;
     explicit operator bool() const { return isValid(); }
     QmlModelNodeFacade() = default;
 
@@ -33,7 +35,7 @@ public:
     NodeMetaInfo metaInfo() const { return m_modelNode.metaInfo(); }
     static const NodeInstanceView *nodeInstanceView(const ModelNode &modelNode);
     const NodeInstanceView *nodeInstanceView() const;
-    bool isRootNode() const;
+    bool isRootNode(SL sl = {}) const;
 
     bool operator==(const QmlModelNodeFacade &other) const
     {
@@ -45,6 +47,12 @@ public:
     auto operator<=>(const QmlModelNodeFacade &other) const
     {
         return m_modelNode <=> other.m_modelNode;
+    }
+
+    template<typename String>
+    friend void convertToString(String &string, const QmlModelNodeFacade &node)
+    {
+        convertToString(string, node.m_modelNode);
     }
 
 protected:

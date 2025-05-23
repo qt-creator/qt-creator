@@ -6,6 +6,8 @@
 
 namespace QmlDesigner {
 
+static auto category = ModelTracing::category;
+
 AbstractView *QmlModelNodeFacade::view() const
 {
     return m_modelNode.view();
@@ -39,20 +41,38 @@ bool QmlModelNodeFacade::hasModelNode() const
     return m_modelNode.isValid();
 }
 
-bool QmlModelNodeFacade::isValid() const
+bool QmlModelNodeFacade::isValid(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is valid qml model node facade",
+                               category(),
+                               keyValue("model node", m_modelNode),
+                               keyValue("caller location", sl)};
+
     return isValidQmlModelNodeFacade(m_modelNode);
 }
 
-bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
+bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is valid qml model node facade",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     return modelNode.isValid() && nodeInstanceView(modelNode)
            && nodeInstanceView(modelNode)->hasInstanceForModelNode(modelNode)
            && nodeInstanceView(modelNode)->instanceForModelNode(modelNode).isValid();
 }
 
-bool QmlModelNodeFacade::isRootNode() const
+bool QmlModelNodeFacade::isRootNode(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is root node",
+                               category(),
+                               keyValue("model node", m_modelNode),
+                               keyValue("caller location", sl)};
+
     return m_modelNode.isRootNode();
 }
 
