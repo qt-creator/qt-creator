@@ -848,15 +848,15 @@ public:
     explicit PropertyDeclaration(::Utils::SmallStringView name,
                                  ImportedTypeName typeName,
                                  PropertyDeclarationTraits traits,
+                                 PropertyKind kind,
                                  ::Utils::SmallStringView aliasPropertyName,
                                  ::Utils::SmallStringView aliasPropertyNameTail = {})
         : name{name}
         , typeName{std::move(typeName)}
         , aliasPropertyName{aliasPropertyName}
         , aliasPropertyNameTail{aliasPropertyNameTail}
-
         , traits{traits}
-        , kind{PropertyKind::Property}
+        , kind{kind}
     {}
 
     explicit PropertyDeclaration(::Utils::SmallStringView name,

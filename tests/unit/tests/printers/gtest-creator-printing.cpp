@@ -923,13 +923,28 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
                << ",\n\t\t\tdefault: " << type.defaultPropertyName << "\n\t\t\t)";
 }
 
+std::ostream &operator<<(std::ostream &out, PropertyKind kind)
+
+{
+    switch (kind) {
+    case PropertyKind::Property:
+        out << "Property";
+        break;
+    case PropertyKind::Alias:
+        out << "Alias";
+        break;
+    }
+
+    return out;
+}
+
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration)
 {
     using Utils::operator<<;
     return out << "(\"" << propertyDeclaration.name << "\", " << propertyDeclaration.typeName
                << ", " << propertyDeclaration.typeId << ", " << propertyDeclaration.traits << ", "
                << propertyDeclaration.propertyTypeId << ", \""
-               << propertyDeclaration.aliasPropertyName << "\")";
+               << propertyDeclaration.aliasPropertyName << "\", " << propertyDeclaration.kind << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const FunctionDeclaration &functionDeclaration)

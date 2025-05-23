@@ -240,6 +240,7 @@ void addPropertyDeclarations(Storage::Synchronization::Type &type,
                 type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
                                                        std::move(importedTypeName),
                                                        traits,
+                                                       Synchronization::PropertyKind::Alias,
                                                        aliasPropertyName,
                                                        aliasPropertyNameTail);
             }

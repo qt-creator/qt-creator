@@ -50,8 +50,8 @@ MATCHER_P4(IsAliasPropertyDeclaration,
            traits,
            aliasPropertyName,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(
-                   Synchronization::PropertyDeclaration{name, typeName, traits, aliasPropertyName}))
+               + PrintToString(Synchronization::PropertyDeclaration{
+                   name, typeName, traits, Synchronization::PropertyKind::Alias, aliasPropertyName, {}}))
 {
     const Synchronization::PropertyDeclaration &propertyDeclaration = arg;
 
@@ -59,7 +59,8 @@ MATCHER_P4(IsAliasPropertyDeclaration,
            && Synchronization::ImportedTypeName{typeName} == propertyDeclaration.typeName
            && propertyDeclaration.traits == traits
            && propertyDeclaration.aliasPropertyName == aliasPropertyName
-           && propertyDeclaration.aliasPropertyNameTail.empty();
+           && propertyDeclaration.aliasPropertyNameTail.empty()
+           && propertyDeclaration.kind == Synchronization::PropertyKind::Alias;
 }
 
 MATCHER_P5(IsAliasPropertyDeclaration,
@@ -69,8 +70,12 @@ MATCHER_P5(IsAliasPropertyDeclaration,
            aliasPropertyName,
            aliasPropertyNameTail,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(
-                   Synchronization::PropertyDeclaration{name, typeName, traits, aliasPropertyName}))
+               + PrintToString(Synchronization::PropertyDeclaration{name,
+                                                                    typeName,
+                                                                    traits,
+                                                                    Synchronization::PropertyKind::Alias,
+                                                                    aliasPropertyName,
+                                                                    aliasPropertyNameTail}))
 {
     const Synchronization::PropertyDeclaration &propertyDeclaration = arg;
 
@@ -78,7 +83,8 @@ MATCHER_P5(IsAliasPropertyDeclaration,
            && Synchronization::ImportedTypeName{typeName} == propertyDeclaration.typeName
            && propertyDeclaration.traits == traits
            && propertyDeclaration.aliasPropertyName == aliasPropertyName
-           && propertyDeclaration.aliasPropertyNameTail == aliasPropertyNameTail;
+           && propertyDeclaration.aliasPropertyNameTail == aliasPropertyNameTail
+           && propertyDeclaration.kind == Synchronization::PropertyKind::Alias;
 }
 
 MATCHER_P2(IsFunctionDeclaration,
