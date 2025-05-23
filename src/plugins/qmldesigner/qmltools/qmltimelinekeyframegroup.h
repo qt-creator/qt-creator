@@ -15,57 +15,62 @@ class QmlTimeline;
 class QMLDESIGNER_EXPORT QmlTimelineKeyframeGroup final : public QmlModelNodeFacade
 {
 public:
-    QmlTimelineKeyframeGroup();
-    QmlTimelineKeyframeGroup(const ModelNode &modelNode);
+    QmlTimelineKeyframeGroup() = default;
 
-    bool isValid() const;
+    QmlTimelineKeyframeGroup(const ModelNode &modelNode)
+        : QmlModelNodeFacade(modelNode)
+    {}
+
+    bool isValid(SL sl = {}) const;
     explicit operator bool() const { return isValid(); }
-    static bool isValidQmlTimelineKeyframeGroup(const ModelNode &modelNode);
-    void destroy();
 
-    ModelNode target() const;
-    void setTarget(const ModelNode &target);
+    static bool isValidQmlTimelineKeyframeGroup(const ModelNode &modelNode, SL sl = {});
+    void destroy(SL sl = {});
 
-    PropertyName propertyName() const;
-    void setPropertyName(PropertyNameView propertyName);
+    ModelNode target(SL sl = {}) const;
+    void setTarget(const ModelNode &target, SL sl = {});
 
-    void setValue(const QVariant &value, qreal frame);
-    QVariant value(qreal frame) const;
+    PropertyName propertyName(SL sl = {}) const;
+    void setPropertyName(PropertyNameView propertyName, SL sl = {});
 
-    NodeMetaInfo valueType() const;
+    void setValue(const QVariant &value, qreal frame, SL sl = {});
+    QVariant value(qreal frame, SL sl = {}) const;
 
-    qreal currentFrame() const;
+    NodeMetaInfo valueType(SL sl = {}) const;
 
-    bool hasKeyframe(qreal frame);
+    qreal currentFrame(SL sl = {}) const;
 
-    qreal minActualKeyframe() const;
-    qreal maxActualKeyframe() const;
+    bool hasKeyframe(qreal frame, SL sl = {});
 
-    ModelNode keyframe(qreal position) const;
+    qreal minActualKeyframe(SL sl = {}) const;
+    qreal maxActualKeyframe(SL sl = {}) const;
 
-    QList<ModelNode> keyframes() const;
+    ModelNode keyframe(qreal position, SL sl = {}) const;
 
-    QList<ModelNode> keyframePositions() const;
+    QList<ModelNode> keyframes(SL sl = {}) const;
 
-    static bool isValidKeyframe(const ModelNode &node);
-    static bool checkKeyframesType(const ModelNode &node);
-    static QmlTimelineKeyframeGroup keyframeGroupForKeyframe(const ModelNode &node);
-    static QList<QmlTimelineKeyframeGroup> allInvalidTimelineKeyframeGroups(AbstractView *view);
+    QList<ModelNode> keyframePositions(SL sl = {}) const;
 
-    void moveAllKeyframes(qreal offset);
-    void scaleAllKeyframes(qreal factor);
-    int getSupposedTargetIndex(qreal newFrame) const;
+    static bool isValidKeyframe(const ModelNode &node, SL sl = {});
+    static bool checkKeyframesType(const ModelNode &node, SL sl = {});
+    static QmlTimelineKeyframeGroup keyframeGroupForKeyframe(const ModelNode &node, SL sl = {});
+    static QList<QmlTimelineKeyframeGroup> allInvalidTimelineKeyframeGroups(AbstractView *view,
+                                                                            SL sl = {});
 
-    int indexOfKeyframe(const ModelNode &frame) const;
-    void slideKeyframe(int sourceIndex, int targetIndex);
+    void moveAllKeyframes(qreal offset, SL sl = {});
+    void scaleAllKeyframes(qreal factor, SL sl = {});
+    int getSupposedTargetIndex(qreal newFrame, SL sl = {}) const;
 
-    bool isRecording() const;
-    void toogleRecording(bool b) const;
+    int indexOfKeyframe(const ModelNode &frame, SL sl = {}) const;
+    void slideKeyframe(int sourceIndex, int targetIndex, SL sl = {});
 
-    QmlTimeline timeline() const;
+    bool isRecording(SL sl = {}) const;
+    void toogleRecording(bool b, SL sl = {}) const;
 
-    static bool isDangling(const ModelNode &node);
-    bool isDangling() const;
+    QmlTimeline timeline(SL sl = {}) const;
+
+    static bool isDangling(const ModelNode &node, SL sl = {});
+    bool isDangling(SL sl = {}) const;
 };
 
 } // namespace QmlDesigner
