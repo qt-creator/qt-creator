@@ -114,6 +114,7 @@ add_qtc_library(Utils
     outputformat.h
     outputformatter.cpp outputformatter.h
     overlaywidget.cpp overlaywidget.h
+    overloaded.h
     overridecursor.cpp overridecursor.h
     passworddialog.cpp passworddialog.h
     pathchooser.cpp pathchooser.h

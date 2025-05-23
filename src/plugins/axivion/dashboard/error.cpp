@@ -7,6 +7,8 @@
 
 #include "dashboard/error.h"
 
+#include <utils/overloaded.h>
+
 #include <type_traits>
 #include <utility>
 
@@ -67,14 +69,10 @@ Error::Error(DashboardError error) : m_error(std::move(error))
 {
 }
 
-// https://www.cppstories.com/2018/09/visit-variants/
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>; // line not needed in C++20...
-
 QString Error::message() const
 {
     return std::visit(
-        overloaded{
+        Utils::overloaded{
             [](const GeneralError &error) {
                 return QStringLiteral("GeneralError (%1) %2")
                     .arg(error.replyUrl.toString(),

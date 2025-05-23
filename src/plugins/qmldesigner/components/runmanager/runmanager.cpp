@@ -9,27 +9,18 @@
 #include <qmldesigner/qmldesignerplugin.h>
 #include <qmldesignertr.h>
 
+#include <utils/overloaded.h>
+
 #include <devicesharing/device.h>
 
 #include <coreplugin/icore.h>
 #include <utils/checkablemessagebox.h>
 
+using namespace Utils;
+
 namespace QmlDesigner {
 
 Q_LOGGING_CATEGORY(runManagerLog, "qtc.designer.runManager", QtWarningMsg)
-
-namespace {
-// helper type for the visitor
-template<class... Ts>
-struct overloaded : Ts...
-{
-    using Ts::operator()...;
-};
-
-template<class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
-
-} // namespace
 
 DeviceShare::DeviceManager *s_deviceManager = nullptr;
 

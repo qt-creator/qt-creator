@@ -234,6 +234,7 @@ QtcLibrary {
         "outputformatter.h",
         "overlaywidget.cpp",
         "overlaywidget.h",
+        "overloaded.h",
         "overridecursor.cpp",
         "overridecursor.h",
         "passworddialog.cpp",
