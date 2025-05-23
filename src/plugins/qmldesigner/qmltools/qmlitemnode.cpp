@@ -32,6 +32,34 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
 {
     auto metaInfo = modelNode.metaInfo();
     auto model = modelNode.model();
+#ifdef QDS_USE_PROJECTSTORAGE
+
+    auto qtQuickitem = model->qtQuickItemMetaInfo();
+    auto flowViewFlowDecision = model->flowViewFlowDecisionMetaInfo();
+    auto flowViewFlowWildcard = model->flowViewFlowWildcardMetaInfo();
+    auto qtQuickWindowWindow = model->qtQuickWindowWindowMetaInfo();
+    auto qtQuickDialogsDialog = model->qtQuickDialogsDialogMetaInfo();
+    auto qtQuickControlsPopup = model->qtQuickControlsPopupMetaInfo();
+
+    auto matched = metaInfo.basedOn(qtQuickitem,
+                                    flowViewFlowDecision,
+                                    flowViewFlowWildcard,
+                                    qtQuickWindowWindow,
+                                    qtQuickDialogsDialog,
+                                    qtQuickControlsPopup);
+
+    if (!matched)
+        return false;
+
+    if (matched == qtQuickWindowWindow or matched == qtQuickDialogsDialog
+        or matched == qtQuickControlsPopup)
+        return modelNode.isRootNode();
+
+    return true;
+#else
+    auto qtQuickitem = model->qtQuickItemMetaInfo();
+    auto flowViewFlowDecision = model->flowViewFlowDecisionMetaInfo();
+    auto flowViewFlowWildcard = model->flowViewFlowWildcardMetaInfo();
 
     if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo(),
                            model->flowViewFlowDecisionMetaInfo(),
@@ -43,6 +71,7 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
         return true;
 
     return false;
+#endif
 }
 
 QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view,

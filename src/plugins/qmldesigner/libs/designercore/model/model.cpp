@@ -3095,6 +3095,36 @@ NodeMetaInfo Model::qtQuickTransistionMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuickWindowWindowMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick_Window, Window>();
+    } else {
+        return metaInfo("QtQuick.Window.Window");
+    }
+}
+
+NodeMetaInfo Model::qtQuickDialogsDialogMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick_Dialogs, Dialog>();
+    } else {
+        return metaInfo("QtQuick.Dialogs.Dialog");
+    }
+}
+
+NodeMetaInfo Model::qtQuickControlsPopupMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick_Controls, Popup>();
+    } else {
+        return metaInfo("QtQuick.Controls.Popup");
+    }
+}
+
 NodeMetaInfo Model::qtQmlConnectionsMetaInfo() const
 {
     if constexpr (useProjectStorage()) {

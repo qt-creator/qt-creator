@@ -221,6 +221,9 @@ public:
     NodeMetaInfo qtQuickTimelineKeyframeGroupMetaInfo() const;
     NodeMetaInfo qtQuickTimelineTimelineMetaInfo() const;
     NodeMetaInfo qtQuickTransistionMetaInfo() const;
+    NodeMetaInfo qtQuickWindowWindowMetaInfo() const;
+    NodeMetaInfo qtQuickDialogsDialogMetaInfo() const;
+    NodeMetaInfo qtQuickControlsPopupMetaInfo() const;
     NodeMetaInfo vector2dMetaInfo() const;
     NodeMetaInfo vector3dMetaInfo() const;
     NodeMetaInfo vector4dMetaInfo() const;
