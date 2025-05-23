@@ -19,8 +19,12 @@ SignalHandlerProperty::SignalHandlerProperty(const SignalHandlerProperty &proper
 {
 }
 
-void SignalHandlerProperty::setSource(const QString &source)
+void SignalHandlerProperty::setSource(const QString &source, SL sl)
 {
+    NanotraceHR::Tracer tracer{"signal handler property set source",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     Internal::WriteLocker locker(model());
     if (!isValid())
         return;
@@ -44,8 +48,12 @@ void SignalHandlerProperty::setSource(const QString &source)
     privateModel()->setSignalHandlerProperty(internalNodeSharedPointer(), name(), source);
 }
 
-QString SignalHandlerProperty::source() const
+QString SignalHandlerProperty::source(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"signal handler property source",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -55,13 +63,21 @@ QString SignalHandlerProperty::source() const
     return QString();
 }
 
-QString SignalHandlerProperty::sourceNormalizedWithBraces() const
+QString SignalHandlerProperty::sourceNormalizedWithBraces(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"signal handler property source normalized with braces",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     return normalizedSourceWithBraces(source());
 }
 
-bool SignalHandlerProperty::useNewFunctionSyntax()
+bool SignalHandlerProperty::useNewFunctionSyntax(SL sl)
 {
+    NanotraceHR::Tracer tracer{"signal handler property use new function syntax",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (name().contains('.'))
         return false;
 
@@ -74,8 +90,12 @@ bool SignalHandlerProperty::useNewFunctionSyntax()
     return parentModelNode().metaInfo().isQtQmlConnections();
 }
 
-PropertyName SignalHandlerProperty::prefixAdded(PropertyNameView propertyName)
+PropertyName SignalHandlerProperty::prefixAdded(PropertyNameView propertyName, SL sl)
 {
+    NanotraceHR::Tracer tracer{"signal handler property prefix added",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     QString nameAsString = QString::fromUtf8(propertyName);
     if (propertyName.startsWith("on"))
         return propertyName.toByteArray();
@@ -87,8 +107,12 @@ PropertyName SignalHandlerProperty::prefixAdded(PropertyNameView propertyName)
     return nameAsString.toLatin1();
 }
 
-PropertyName SignalHandlerProperty::prefixRemoved(PropertyNameView propertyName)
+PropertyName SignalHandlerProperty::prefixRemoved(PropertyNameView propertyName, SL sl)
 {
+    NanotraceHR::Tracer tracer{"signal handler property prefix removed",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     QString nameAsString = QString::fromUtf8(propertyName);
     if (!nameAsString.startsWith("on"))
         return propertyName.toByteArray();
@@ -100,8 +124,12 @@ PropertyName SignalHandlerProperty::prefixRemoved(PropertyNameView propertyName)
     return nameAsString.toLatin1();
 }
 
-QString SignalHandlerProperty::normalizedSourceWithBraces(const QString &source)
+QString SignalHandlerProperty::normalizedSourceWithBraces(const QString &source, SL sl)
 {
+    NanotraceHR::Tracer tracer{"signal handler property normalized source with braces",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     static const QRegularExpression reg("^\\{(\\s*?.*?)*?\\}$");
 
     const QString trimmed = source.trimmed();
@@ -120,8 +148,12 @@ SignalDeclarationProperty::SignalDeclarationProperty(const SignalDeclarationProp
     : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
 {}
 
-void SignalDeclarationProperty::setSignature(const QString &signature)
+void SignalDeclarationProperty::setSignature(const QString &signature, SL sl)
 {
+    NanotraceHR::Tracer tracer{"signal declaration property set signature",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     Internal::WriteLocker locker(model());
     if (!isValid())
         return;
@@ -145,8 +177,12 @@ void SignalDeclarationProperty::setSignature(const QString &signature)
     privateModel()->setSignalDeclarationProperty(internalNodeSharedPointer(), name(), signature);
 }
 
-QString SignalDeclarationProperty::signature() const
+QString SignalDeclarationProperty::signature(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"signal declaration property signature",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 

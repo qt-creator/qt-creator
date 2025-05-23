@@ -19,8 +19,12 @@ VariantProperty::VariantProperty(const VariantProperty &property, AbstractView *
 
 }
 
-void VariantProperty::setValue(const QVariant &value)
+void VariantProperty::setValue(const QVariant &value, SL sl)
 {
+    NanotraceHR::Tracer tracer{"variant property set value",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -47,8 +51,12 @@ void VariantProperty::setValue(const QVariant &value)
     privateModel()->setVariantProperty(internalNodeSharedPointer(), name(), value);
 }
 
-const QVariant &VariantProperty::value() const
+const QVariant &VariantProperty::value(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"variant property value",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (isValid()) {
         auto property = internalNode()->variantProperty(name());
         if (property)
@@ -60,13 +68,21 @@ const QVariant &VariantProperty::value() const
     return nullVariant;
 }
 
-void VariantProperty::setEnumeration(const EnumerationName &enumerationName)
+void VariantProperty::setEnumeration(const EnumerationName &enumerationName, SL sl)
 {
+    NanotraceHR::Tracer tracer{"variant property set enumeration",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     setValue(QVariant::fromValue(Enumeration(enumerationName)));
 }
 
-const Enumeration &VariantProperty::enumeration() const
+const Enumeration &VariantProperty::enumeration(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"variant property enumeration",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (auto enumeration = get_if<Enumeration>(&value()))
         return *enumeration;
 
@@ -75,13 +91,21 @@ const Enumeration &VariantProperty::enumeration() const
     return nullEnumeration;
 }
 
-bool VariantProperty::holdsEnumeration() const
+bool VariantProperty::holdsEnumeration(SL sl) const
 {
+    NanotraceHR::Tracer tracer{"variant property holds enumeration",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     return value().canConvert<Enumeration>();
 }
 
-void VariantProperty::setDynamicTypeNameAndValue(const TypeName &type, const QVariant &value)
+void VariantProperty::setDynamicTypeNameAndValue(const TypeName &type, const QVariant &value, SL sl)
 {
+    NanotraceHR::Tracer tracer{"variant property set dtnamic type name and value",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -104,8 +128,14 @@ void VariantProperty::setDynamicTypeNameAndValue(const TypeName &type, const QVa
     privateModel()->setDynamicVariantProperty(internalNodeSharedPointer(), name(), type, value);
 }
 
-void VariantProperty::setDynamicTypeNameAndEnumeration(const TypeName &type, const EnumerationName &enumerationName)
+void VariantProperty::setDynamicTypeNameAndEnumeration(const TypeName &type,
+                                                       const EnumerationName &enumerationName,
+                                                       SL sl)
 {
+    NanotraceHR::Tracer tracer{"variant property set dynamic type name and enumeration",
+                               ModelTracing::category(),
+                               keyValue("caller location", sl)};
+
     setDynamicTypeNameAndValue(type, QVariant::fromValue(Enumeration(enumerationName)));
 }
 

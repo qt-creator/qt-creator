@@ -16,12 +16,16 @@ class QMLDESIGNERCORE_EXPORT NodeProperty final : public NodeAbstractProperty
     friend Internal::ModelPrivate;
     friend AbstractProperty;
 
-public:
-    void setModelNode(const ModelNode &modelNode);
-    ModelNode modelNode() const;
+    using SL = ModelTracing::SourceLocation;
 
-    void reparentHere(const ModelNode &modelNode);
-    void setDynamicTypeNameAndsetModelNode(const TypeName &typeName, const ModelNode &modelNode);
+public:
+    void setModelNode(const ModelNode &modelNode, SL sl = {});
+    ModelNode modelNode(SL sl = {}) const;
+
+    void reparentHere(const ModelNode &modelNode, SL sl = {});
+    void setDynamicTypeNameAndsetModelNode(const TypeName &typeName,
+                                           const ModelNode &modelNode,
+                                           SL sl = {});
 
     NodeProperty();
 

@@ -157,6 +157,8 @@ class QMLDESIGNERCORE_EXPORT NodeListProperty final : public NodeAbstractPropert
     friend AbstractProperty;
     friend Internal::ModelPrivate;
 
+    using SL = ModelTracing::SourceLocation;
+
 public:
     using value_type = ModelNode;
     using iterator = Internal::NodeListPropertyIterator;
@@ -173,26 +175,28 @@ public:
                      AbstractView *view)
         : NodeAbstractProperty(propertyName, internalNode, model, view)
     {}
-    QList<ModelNode> toModelNodeList() const;
-    void slide(int, int) const;
-    void swap(int, int) const;
-    void reparentHere(const ModelNode &modelNode);
-    ModelNode at(int index) const;
-    void iterSwap(iterator &first, iterator &second);
-    iterator rotate(iterator first, iterator newFirst, iterator last);
+
+    QList<ModelNode> toModelNodeList(SL sl = {}) const;
+    void slide(int, int, SL sl = {}) const;
+    void swap(int, int, SL sl = {}) const;
+    void reparentHere(const ModelNode &modelNode, SL sl = {});
+    ModelNode at(int index, SL sl = {}) const;
+    void iterSwap(iterator &first, iterator &second, SL sl = {});
+    iterator rotate(iterator first, iterator newFirst, iterator last, SL sl = {});
     template<typename Range>
     iterator rotate(Range &range, iterator newFirst)
     {
         return rotate(range.begin(), newFirst, range.end());
     }
-    void reverse(iterator first, iterator last);
+
+    void reverse(iterator first, iterator last, SL sl = {});
     template<typename Range>
     void reverse(Range &range)
     {
         reverse(range.begin(), range.end());
     }
 
-    static void reverseModelNodes(const QList<ModelNode> &nodes);
+    static void reverseModelNodes(const QList<ModelNode> &nodes, SL sl = {});
 
     iterator begin();
     iterator end();
