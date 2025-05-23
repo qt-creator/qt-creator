@@ -1304,7 +1304,7 @@ void ModelPrivate::setSelectedNodes(const FewNodes &selectedNodeList)
                             }));
     }
 
-    changeSelectedNodes(sortedSelectedList, lastSelectedNodeList);
+    notifySelectedNodesChanged(sortedSelectedList, lastSelectedNodeList);
 }
 
 void ModelPrivate::clearSelectedNodes()
@@ -1313,7 +1313,7 @@ void ModelPrivate::clearSelectedNodes()
 
     auto lastSelectedNodeList = m_selectedInternalNodes;
     m_selectedInternalNodes.clear();
-    changeSelectedNodes(m_selectedInternalNodes, lastSelectedNodeList);
+    notifySelectedNodesChanged(m_selectedInternalNodes, lastSelectedNodeList);
 }
 
 void ModelPrivate::removeAuxiliaryData(const InternalNodePointer &node, const AuxiliaryDataKeyView &key)
@@ -1378,21 +1378,15 @@ QList<std::tuple<InternalBindingProperty *, QString>> ModelPrivate::toInternalBi
     return internalProperties;
 }
 
-void ModelPrivate::changeSelectedNodes(const FewNodes &newSelectedNodeList,
-                                       const FewNodes &oldSelectedNodeList)
+void ModelPrivate::notifySelectedNodesChanged(const FewNodes &newSelectedNodeList,
+                                              const FewNodes &oldSelectedNodeList)
 {
     NanotraceHR::Tracer tracer{"model private change selected nodes", ModelTracing::category()};
 
-    for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
-        Q_ASSERT(view != nullptr);
-        view->selectedNodesChanged(toModelNodeList(newSelectedNodeList, view.data()),
-                                   toModelNodeList(oldSelectedNodeList, view.data()));
-    }
-
-    if (nodeInstanceView()) {
-        nodeInstanceView()->selectedNodesChanged(toModelNodeList(newSelectedNodeList, nodeInstanceView()),
-                                                 toModelNodeList(oldSelectedNodeList, nodeInstanceView()));
-    }
+    notifyNodeInstanceViewLast([&](AbstractView *view) {
+        view->selectedNodesChanged(toModelNodeList(newSelectedNodeList, view),
+                                   toModelNodeList(oldSelectedNodeList, view));
+    });
 }
 
 const ModelPrivate::FewNodes &ModelPrivate::selectedNodes() const

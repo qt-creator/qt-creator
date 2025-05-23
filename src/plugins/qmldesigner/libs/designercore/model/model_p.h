@@ -231,7 +231,8 @@ public:
     const FewNodes &selectedNodes() const;
     void selectNode(const InternalNodePointer &node);
     void deselectNode(const InternalNodePointer &node);
-    void changeSelectedNodes(const FewNodes &newSelectedNodeList, const FewNodes &oldSelectedNodeList);
+    void notifySelectedNodesChanged(const FewNodes &newSelectedNodeList,
+                                    const FewNodes &oldSelectedNodeList);
 
     void setAuxiliaryData(const InternalNodePointer &node,
                           const AuxiliaryDataKeyView &key,
