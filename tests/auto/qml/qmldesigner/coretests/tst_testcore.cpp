@@ -238,7 +238,6 @@ tst_TestCore::~tst_TestCore() = default;
 
 void tst_TestCore::initTestCase()
 {
-    QmlModelNodeFacade::enableUglyWorkaroundForIsValidQmlModelNodeFacadeInTests();
 #ifndef QDS_USE_PROJECTSTORAGE
     MetaInfo::disableParseItemLibraryDescriptionsUgly();
 #endif

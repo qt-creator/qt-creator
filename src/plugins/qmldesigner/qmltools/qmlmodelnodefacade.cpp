@@ -8,10 +8,7 @@ namespace QmlDesigner {
 
 AbstractView *QmlModelNodeFacade::view() const
 {
-    if (modelNode().isValid())
-        return modelNode().view();
-    else
-        return nullptr;
+    return m_modelNode.view();
 }
 
 Model *QmlModelNodeFacade::model() const
@@ -56,7 +53,7 @@ bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
 
 bool QmlModelNodeFacade::isRootNode() const
 {
-    return modelNode().isRootNode();
+    return m_modelNode.isRootNode();
 }
 
 } //QmlDesigner
