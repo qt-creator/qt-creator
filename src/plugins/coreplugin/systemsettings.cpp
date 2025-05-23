@@ -401,6 +401,8 @@ public:
 
         connect(VcsManager::instance(), &VcsManager::configurationChanged,
                 this, &SystemSettingsWidget::updatePath);
+
+        setOnCancel([] { systemSettings().cancel(); });
     }
 
 private:
