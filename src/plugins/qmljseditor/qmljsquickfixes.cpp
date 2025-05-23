@@ -61,6 +61,16 @@ public:
             if (UiObjectMember *member = it->member) {
                 const SourceLocation loc = member->firstSourceLocation();
 
+                if (auto *binding = dynamic_cast<UiScriptBinding *>(member)) {
+                    if (auto *expressionStatement = dynamic_cast<ExpressionStatement *>(binding->statement)) {
+                        const SourceLocation semiColonToken = expressionStatement->semicolonToken;
+                        if (semiColonToken.isValid()) {
+                            const int semiColonPosition = currentFile->startOf(semiColonToken);
+                            changes.remove(semiColonPosition, semiColonPosition + semiColonToken.length);
+                        }
+                    }
+                }
+
                 // insert a newline at the beginning of this binding
                 changes.insert(currentFile->startOf(loc), QLatin1String("\n"));
             }
