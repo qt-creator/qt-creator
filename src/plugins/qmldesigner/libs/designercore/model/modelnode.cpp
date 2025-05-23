@@ -71,8 +71,7 @@ QString ModelNode::id(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node id",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->id;
@@ -85,8 +84,7 @@ void ModelNode::ensureIdExists(SL sl) const
 
     NanotraceHR::Tracer tracer{"model node ensure id exists",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 }
 
@@ -94,8 +92,7 @@ QString ModelNode::validId(SL sl) const
 {
     NanotraceHR::Tracer tracer{"model node valid id",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     ensureIdExists(sl);
@@ -143,8 +140,7 @@ bool ModelNode::hasId(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has id",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return !m_internalNode->id.isEmpty();
@@ -158,8 +154,7 @@ void ModelNode::setIdWithRefactoring(const QString &id, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set id with refactoring",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (model()->rewriterView() && !id.isEmpty()
@@ -179,8 +174,7 @@ void ModelNode::setIdWithoutRefactoring(const QString &id, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set id without refactoring",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (!isValidId(id))
@@ -206,8 +200,7 @@ TypeName ModelNode::type(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->typeName;
@@ -224,8 +217,7 @@ int ModelNode::minorVersion(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node minor version",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->minorVersion;
@@ -242,8 +234,7 @@ int ModelNode::majorVersion(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node major version",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->majorVersion;
@@ -258,8 +249,7 @@ QString ModelNode::simplifiedTypeName(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node simplified type name",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return QString::fromUtf8(type().split('.').constLast());
@@ -269,8 +259,7 @@ QString ModelNode::displayName(SL sl) const
 {
     NanotraceHR::Tracer tracer{"model node display name",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return hasId() ? id() : simplifiedTypeName();
@@ -303,8 +292,7 @@ bool ModelNode::isInHierarchy(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node is in hierarchy",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (isRootNode())
@@ -331,8 +319,7 @@ NodeAbstractProperty ModelNode::parentProperty(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node parent property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (!m_internalNode->parentProperty())
@@ -370,8 +357,7 @@ void ModelNode::setParentProperty(NodeAbstractProperty parent, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set parent property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (!parent.parentModelNode().isValid())
@@ -394,8 +380,7 @@ void ModelNode::changeType(const TypeName &typeName, int majorVersion, int minor
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node change type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     model()->d->changeNodeType(m_internalNode, typeName, majorVersion, minorVersion);
@@ -405,8 +390,7 @@ void ModelNode::setParentProperty(const ModelNode &newParentNode, const Property
 {
     NanotraceHR::Tracer tracer{"model node set parent property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     setParentProperty(newParentNode.nodeAbstractProperty(propertyName), sl);
@@ -424,8 +408,7 @@ bool ModelNode::hasParentProperty(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has parent property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (!m_internalNode->parentProperty())
@@ -451,8 +434,7 @@ BindingProperty ModelNode::bindingProperty(PropertyNameView name, SL sl) const
 
     NanotraceHR::Tracer tracer{"model node binding property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return BindingProperty(name, m_internalNode, model(), view());
@@ -466,8 +448,7 @@ SignalHandlerProperty ModelNode::signalHandlerProperty(PropertyNameView name, SL
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node signal handler property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return SignalHandlerProperty(name, m_internalNode, model(), view());
@@ -481,8 +462,7 @@ SignalDeclarationProperty ModelNode::signalDeclarationProperty(PropertyNameView 
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node signal declaration property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return SignalDeclarationProperty(name, m_internalNode, model(), view());
@@ -506,8 +486,7 @@ NodeProperty ModelNode::nodeProperty(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return NodeProperty(name, m_internalNode, model(), view());
@@ -531,8 +510,7 @@ NodeListProperty ModelNode::nodeListProperty(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node list property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return NodeListProperty(name, m_internalNode, model(), view());
@@ -546,8 +524,7 @@ NodeAbstractProperty ModelNode::nodeAbstractProperty(PropertyNameView name, SL s
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node abstract property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return NodeAbstractProperty(name, m_internalNode, model(), view());
@@ -557,8 +534,7 @@ NodeAbstractProperty ModelNode::defaultNodeAbstractProperty(SL sl) const
 {
     NanotraceHR::Tracer tracer{"model node default node abstract property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return nodeAbstractProperty(metaInfo().defaultPropertyName());
@@ -568,8 +544,7 @@ NodeListProperty ModelNode::defaultNodeListProperty(SL sl) const
 {
     NanotraceHR::Tracer tracer{"model node default node list property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return nodeListProperty(metaInfo().defaultPropertyName());
@@ -579,8 +554,7 @@ NodeProperty ModelNode::defaultNodeProperty(SL sl) const
 {
     NanotraceHR::Tracer tracer{"model node default node property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return nodeProperty(metaInfo().defaultPropertyName());
@@ -603,8 +577,7 @@ VariantProperty ModelNode::variantProperty(PropertyNameView name, SL sl) const
 
     NanotraceHR::Tracer tracer{"model node variant property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return VariantProperty(name, m_internalNode, model(), view());
@@ -618,8 +591,7 @@ AbstractProperty ModelNode::property(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return AbstractProperty(name, m_internalNode, model(), view());
@@ -648,8 +620,7 @@ QList<AbstractProperty> ModelNode::properties(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node properties",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     QList<AbstractProperty> propertyList;
@@ -674,8 +645,7 @@ QList<VariantProperty> ModelNode::variantProperties(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node variant property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return properties<VariantProperty>(PropertyType::Variant);
@@ -686,8 +656,7 @@ QList<NodeAbstractProperty> ModelNode::nodeAbstractProperties(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node abstract property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return properties<NodeAbstractProperty>(PropertyType::Node, PropertyType::NodeList);
@@ -698,8 +667,7 @@ QList<NodeProperty> ModelNode::nodeProperties(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return properties<NodeProperty>(PropertyType::Node);
@@ -710,8 +678,7 @@ QList<NodeListProperty> ModelNode::nodeListProperties(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node list property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return properties<NodeListProperty>(PropertyType::NodeList);
@@ -728,8 +695,7 @@ QList<BindingProperty> ModelNode::bindingProperties(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node binding property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return properties<BindingProperty>(PropertyType::Binding);
@@ -740,8 +706,7 @@ QList<SignalHandlerProperty> ModelNode::signalProperties(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node signal handler property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return properties<SignalHandlerProperty>(PropertyType::SignalHandler);
@@ -755,8 +720,7 @@ QList<AbstractProperty> ModelNode::dynamicProperties(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node dynamic property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     QList<AbstractProperty> properties;
@@ -787,8 +751,7 @@ void ModelNode::removeProperty(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (!model()->d->propertyNameIsValid(name))
@@ -835,8 +798,7 @@ void ModelNode::destroy(SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node destroy",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (isRootNode())
@@ -881,8 +843,7 @@ QList<ModelNode> ModelNode::directSubModelNodes(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node direct sub model nodes",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return toModelNodeList(m_internalNode->allDirectSubNodes(), model(), view());
@@ -893,8 +854,7 @@ QList<ModelNode> ModelNode::directSubModelNodesOfType(const NodeMetaInfo &type, 
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node direct sub model nodes of type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return Utils::filtered(directSubModelNodes(), [&](const ModelNode &node) {
@@ -907,8 +867,7 @@ QList<ModelNode> ModelNode::subModelNodesOfType(const NodeMetaInfo &type, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node sub model nodes of type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return Utils::filtered(allSubModelNodes(), [&](const ModelNode &node) {
@@ -931,8 +890,7 @@ QList<ModelNode> ModelNode::allSubModelNodes(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node all sub model nodes",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return toModelNodeList(internalNode()->allSubNodes(), model(), view());
@@ -943,8 +901,7 @@ QList<ModelNode> ModelNode::allSubModelNodesAndThisNode(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node all sub model nodes and this node",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     QList<ModelNode> modelNodeList;
@@ -965,8 +922,7 @@ bool ModelNode::hasAnySubModelNodes(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has any sub model nodes",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return !nodeAbstractProperties().isEmpty();
@@ -981,8 +937,7 @@ NodeMetaInfo ModelNode::metaInfo([[maybe_unused]] SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node meta info",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return NodeMetaInfo(m_internalNode->typeId, m_model->projectStorage());
@@ -1002,8 +957,7 @@ bool ModelNode::hasMetaInfo(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has meta info",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return model()->hasNodeMetaInfo(type(), majorVersion(), minorVersion());
@@ -1020,8 +974,7 @@ bool ModelNode::isSelected(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node is selected",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return model()->d->selectedNodes().contains(internalNode());
@@ -1038,8 +991,7 @@ bool ModelNode::isRootNode(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node is root node",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_model->d->rootNode() == m_internalNode;
@@ -1060,8 +1012,7 @@ PropertyNameList ModelNode::propertyNames(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node property names",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->propertyNameList();
@@ -1097,8 +1048,7 @@ bool ModelNode::hasProperty(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return isValid() && m_internalNode->property(name);
@@ -1109,8 +1059,7 @@ bool ModelNode::hasVariantProperty(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has variant property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return hasProperty(name, PropertyType::Variant);
@@ -1121,8 +1070,7 @@ bool ModelNode::hasBindingProperty(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has binding property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return hasProperty(name, PropertyType::Binding);
@@ -1133,8 +1081,7 @@ bool ModelNode::hasSignalHandlerProperty(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has signal handler property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return hasProperty(name, PropertyType::SignalHandler);
@@ -1148,8 +1095,7 @@ bool ModelNode::hasNodeAbstractProperty(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has node abstract property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (auto property = m_internalNode->property(name))
@@ -1163,8 +1109,7 @@ bool ModelNode::hasDefaultNodeAbstractProperty(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has default node abstract property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     auto defaultPropertyName = metaInfo().defaultPropertyName();
@@ -1176,8 +1121,7 @@ bool ModelNode::hasDefaultNodeListProperty(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has default node list property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     auto defaultPropertyName = metaInfo().defaultPropertyName();
@@ -1189,8 +1133,7 @@ bool ModelNode::hasDefaultNodeProperty(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has default node property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     auto defaultPropertyName = metaInfo().defaultPropertyName();
@@ -1202,8 +1145,7 @@ bool ModelNode::hasNodeProperty(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has node property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return hasProperty(name, PropertyType::Node);
@@ -1214,8 +1156,7 @@ bool ModelNode::hasNodeListProperty(PropertyNameView name, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has node list property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return hasProperty(name, PropertyType::NodeList);
@@ -1229,8 +1170,7 @@ bool ModelNode::hasProperty(PropertyNameView name, PropertyType propertyType, SL
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has property",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (auto property = m_internalNode->property(name))
@@ -1258,8 +1198,7 @@ bool ModelNode::isAncestorOf(const ModelNode &node, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node is ancestor of",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return recursiveAncestor(*this, node);
@@ -1298,8 +1237,7 @@ void ModelNode::selectNode(SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node select node",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     QList<ModelNode> selectedNodeList;
@@ -1316,8 +1254,7 @@ void ModelNode::deselectNode(SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node deselect node",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     auto selectedNodes = model()->d->selectedNodes();
@@ -1335,8 +1272,7 @@ QVariant ModelNode::toVariant(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node to variant",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return QVariant::fromValue(*this);
@@ -1350,8 +1286,7 @@ std::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataKeyView key, SL sl
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->auxiliaryData(key);
@@ -1367,8 +1302,7 @@ std::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataType type,
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with name",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return auxiliaryData({type, name});
@@ -1384,8 +1318,7 @@ QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataType type,
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with default 1",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return auxiliaryDataWithDefault({type, name});
@@ -1399,8 +1332,7 @@ QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataKeyView key, SL sl) co
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with default 2",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     auto data = m_internalNode->auxiliaryData(key);
@@ -1419,8 +1351,7 @@ QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataKeyDefaultValue key, S
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with default 3",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     auto data = m_internalNode->auxiliaryData(key);
@@ -1439,8 +1370,7 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataType type,
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set auxiliary data with type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     setAuxiliaryData({type, name}, data);
@@ -1454,8 +1384,7 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data,
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set auxiliary data with key",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (key.type == AuxiliaryDataType::Persistent)
@@ -1472,8 +1401,7 @@ void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataKeyView key, const QVar
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set auxiliary data without lock with key",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (key.type == AuxiliaryDataType::Persistent)
@@ -1493,8 +1421,7 @@ void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataType type,
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set auxiliary data without lock with type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (type == AuxiliaryDataType::Persistent)
@@ -1511,8 +1438,7 @@ void ModelNode::removeAuxiliaryData(AuxiliaryDataKeyView key, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove auxiliary data with key",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (key.type == AuxiliaryDataType::Persistent)
@@ -1527,8 +1453,7 @@ void ModelNode::removeAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringVi
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove auxiliary data with type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     removeAuxiliaryData({type, name});
@@ -1542,8 +1467,7 @@ bool ModelNode::hasAuxiliaryData(AuxiliaryDataKeyView key, SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has auxiliary data with key",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->hasAuxiliaryData(key);
@@ -1554,8 +1478,7 @@ bool ModelNode::hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView 
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has auxiliary data with type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return hasAuxiliaryData({type, name});
@@ -1569,7 +1492,7 @@ bool ModelNode::hasAuxiliaryData(AuxiliaryDataType type) const
     // using NanotraceHR::keyValue;
     // NanotraceHR::Tracer tracer{"model node has auxiliary data with type",
     //                            category(),
-    //                            keyValue("node id", reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+    //                            keyValue("model node", *this),
     //                            keyValue("caller location", sl)};
 
     return m_internalNode->hasAuxiliaryData(type);
@@ -1583,8 +1506,7 @@ AuxiliaryDatasForType ModelNode::auxiliaryData(AuxiliaryDataType type, SL sl) co
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->auxiliaryData(type);
@@ -1598,8 +1520,7 @@ AuxiliaryDatasView ModelNode::auxiliaryData(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with sl",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->auxiliaryData();
@@ -1612,8 +1533,7 @@ QString ModelNode::customId(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node custom id",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (data)
@@ -1627,8 +1547,7 @@ bool ModelNode::hasCustomId(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has custom id",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return hasAuxiliaryData(customIdProperty);
@@ -1639,8 +1558,7 @@ void ModelNode::setCustomId(const QString &str, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set custom id",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     setAuxiliaryData(customIdProperty, QVariant::fromValue(str));
@@ -1651,8 +1569,7 @@ void ModelNode::removeCustomId(SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove custom id",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     removeAuxiliaryData(customIdProperty);
@@ -1663,8 +1580,7 @@ QVector<Comment> ModelNode::comments(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node comments",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return annotation().comments();
@@ -1675,8 +1591,7 @@ bool ModelNode::hasComments(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has comments",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return annotation().hasComments();
@@ -1687,8 +1602,7 @@ void ModelNode::setComments(const QVector<Comment> &coms, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set comments",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     Annotation anno = annotation();
@@ -1702,8 +1616,7 @@ void ModelNode::addComment(const Comment &com, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node add comment",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     Annotation anno = annotation();
@@ -1717,8 +1630,7 @@ bool ModelNode::updateComment(const Comment &com, int position, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node update comment",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     bool result = false;
@@ -1739,8 +1651,7 @@ Annotation ModelNode::annotation(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node annotation",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     auto data = auxiliaryData(annotationProperty);
@@ -1756,8 +1667,7 @@ bool ModelNode::hasAnnotation(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has annotation",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return hasAuxiliaryData(annotationProperty);
@@ -1768,8 +1678,7 @@ void ModelNode::setAnnotation(const Annotation &annotation, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set annotation",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     setAuxiliaryData(annotationProperty, QVariant::fromValue(annotation.toQString()));
@@ -1780,8 +1689,7 @@ void ModelNode::removeAnnotation(SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove annotation",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     removeAuxiliaryData(annotationProperty);
@@ -1792,8 +1700,7 @@ Annotation ModelNode::globalAnnotation(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node global annotation",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     Annotation result;
@@ -1812,8 +1719,7 @@ bool ModelNode::hasGlobalAnnotation(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has global annotation",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_model->rootModelNode().hasAuxiliaryData(globalAnnotationProperty);
@@ -1824,8 +1730,7 @@ void ModelNode::setGlobalAnnotation(const Annotation &annotation, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set global annotation",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
     m_model->rootModelNode().setAuxiliaryData(globalAnnotationProperty,
                                               QVariant::fromValue(annotation.toQString()));
@@ -1836,8 +1741,7 @@ void ModelNode::removeGlobalAnnotation(SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove global annotation",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     m_model->rootModelNode().removeAuxiliaryData(globalAnnotationProperty);
@@ -1848,8 +1752,7 @@ GlobalAnnotationStatus ModelNode::globalStatus(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node global status",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     GlobalAnnotationStatus result;
@@ -1868,8 +1771,7 @@ bool ModelNode::hasGlobalStatus(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has global status",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_model->rootModelNode().hasAuxiliaryData(globalAnnotationStatus);
@@ -1880,8 +1782,7 @@ void ModelNode::setGlobalStatus(const GlobalAnnotationStatus &status, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set global status",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     m_model->rootModelNode().setAuxiliaryData(globalAnnotationStatus,
@@ -1893,8 +1794,7 @@ void ModelNode::removeGlobalStatus(SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove global status",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (hasGlobalStatus()) {
@@ -1907,8 +1807,7 @@ bool ModelNode::locked(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node locked",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     auto data = auxiliaryData(lockedProperty);
@@ -1924,8 +1823,7 @@ bool ModelNode::hasLocked(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has locked",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return hasAuxiliaryData(lockedProperty, sl);
@@ -1936,8 +1834,7 @@ void ModelNode::setLocked(bool value, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set locked",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (value) {
@@ -1961,8 +1858,7 @@ void ModelNode::setScriptFunctions(const QStringList &scriptFunctionList, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set script functions",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     model()->d->setScriptFunctions(m_internalNode, scriptFunctionList);
@@ -1976,8 +1872,7 @@ QStringList ModelNode::scriptFunctions(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node script functions",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->scriptFunctions;
@@ -1991,8 +1886,7 @@ qint32 ModelNode::internalId(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node internal id",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->internalId;
@@ -2008,8 +1902,7 @@ void ModelNode::setNodeSource(const QString &newNodeSource, SL sl)
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set node source",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (m_internalNode->nodeSource == newNodeSource)
@@ -2028,8 +1921,7 @@ void ModelNode::setNodeSource(const QString &newNodeSource, NodeSourceType type,
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set node source with type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (m_internalNode->nodeSourceType == type && m_internalNode->nodeSource == newNodeSource)
@@ -2047,8 +1939,7 @@ QString ModelNode::nodeSource(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node source",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->nodeSource;
@@ -2062,8 +1953,7 @@ QString ModelNode::convertTypeToImportAlias(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node convert type to import alias",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (model()->rewriterView())
@@ -2080,8 +1970,7 @@ ModelNode::NodeSourceType ModelNode::nodeSourceType(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node source type",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return static_cast<ModelNode::NodeSourceType>(m_internalNode->nodeSourceType);
@@ -2095,8 +1984,7 @@ bool ModelNode::isComponent(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node is component",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (!metaInfo().isValid())
@@ -2159,8 +2047,7 @@ QIcon ModelNode::typeIcon([[maybe_unused]] SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node type icon",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     if (auto iconPath = metaInfo().iconPath(); iconPath.size())
@@ -2192,8 +2079,7 @@ QString ModelNode::behaviorPropertyName(SL sl) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node behavior property name",
                                category(),
-                               keyValue("node id",
-                                        reinterpret_cast<std::uintptr_t>(m_internalNode.get())),
+                               keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
     return m_internalNode->behaviorPropertyName;
