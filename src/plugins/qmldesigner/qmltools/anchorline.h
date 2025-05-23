@@ -11,11 +11,14 @@ namespace QmlDesigner {
 
 class QMLDESIGNER_EXPORT AnchorLine
 {
+protected:
+    using SL = ModelTracing::SourceLocation;
+
 public:
     AnchorLine();
     AnchorLine(const QmlItemNode &qmlItemNode, AnchorLineType type);
     AnchorLineType type() const;
-    bool isValid() const;
+    bool isValid(SL sl = {}) const;
 
     static bool isHorizontalAnchorLine(AnchorLineType anchorline);
     static bool isVerticalAnchorLine(AnchorLineType anchorline);
