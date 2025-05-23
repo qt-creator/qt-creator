@@ -467,8 +467,8 @@ int NavigatorTreeModel::rowCount(const QModelIndex &parent) const
 
     int rows = 0;
 
-    if (modelNode.defaultNodeListProperty().isValid()) {
-        const QList<ModelNode> list = filteredList(modelNode.defaultNodeListProperty(),
+    if (auto defaultNodeListProperty = modelNode.defaultNodeListProperty()) {
+        const QList<ModelNode> list = filteredList(defaultNodeListProperty,
                                                    m_showOnlyVisibleItems,
                                                    m_reverseItemOrder);
         rows = list.size();
