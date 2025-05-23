@@ -202,6 +202,8 @@ GeneralSettingsWidget::GeneralSettingsWidget()
             &QAbstractButton::clicked,
             this,
             &GeneralSettingsWidget::resetWarnings);
+
+    setOnCancel([] { generalSettings().cancel(); });
 }
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)
