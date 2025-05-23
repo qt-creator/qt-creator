@@ -213,6 +213,7 @@ macro.imagerangeslidericon16                                 = "\\inlineimage ic
 macro.imagerecordfill                                        = "\\inlineimage icons/recordfill.png {the Record Fill button}"
 macro.imagerecticon16                                        = "\\inlineimage rect-icon16.png {the Rectangle component}"
 macro.imagerecursiveblur16px                                 = "\\inlineimage icons/recursive-blur-16px.png {the Recursive Blur component}"
+macro.imagereferencenode                                     = "\\inlineimage icons/reference_node.png {the reference node icon}"
 macro.imagerepeller16px                                      = "\\inlineimage icons/repeller-16px.png {the Repeller component}"
 macro.imagereset                                             = "\\inlineimage icons/reset.png {the Reset button}"
 macro.imagereverseorder                                      = "\\inlineimage icons/reverse_order.png {the Reverse Order button}"

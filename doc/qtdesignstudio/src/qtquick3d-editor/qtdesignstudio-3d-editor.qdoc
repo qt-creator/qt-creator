@@ -33,7 +33,7 @@
     connection between them.
 
     \note To avoid transforming components by mistake while editing your scene,
-    use the \l {Showing and hiding components}{showing and hiding} or the
+    use the \l {Showing and hiding other components}{showing and hiding} or the
     \l {Locking Components}{locking} features in \l Navigator.
 
     To refresh the contents of the \uicontrol{3D} view, select \key P or
