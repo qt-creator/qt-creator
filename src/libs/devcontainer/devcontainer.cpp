@@ -5,6 +5,8 @@
 
 #include "devcontainertr.h"
 
+#include <utils/algorithm.h>
+#include <utils/overloaded.h>
 #include <utils/qtcprocess.h>
 
 #include <QCryptographicHash>
@@ -63,6 +65,15 @@ static void connectProcessToLog(
         });
 }
 
+static QString imageName(const InstanceConfig &instanceConfig)
+{
+    const QString hash = QString::fromLatin1(
+        QCryptographicHash::hash(
+            instanceConfig.workspaceFolder.nativePath().toUtf8(), QCryptographicHash::Sha256)
+            .toHex());
+    return QString("qtc-devcontainer-%1").arg(hash);
+}
+
 static Group prepareContainerRecipe(
     const DockerfileContainer &containerConfig, const InstanceConfig &instanceConfig)
 {
@@ -74,15 +85,12 @@ static Group prepareContainerRecipe(
             containerConfig.context.value_or("."));
         const FilePath dockerFile = configFileDir.resolvePath(containerConfig.dockerfile);
 
-        const QString hash = QString::fromLatin1(
-            QCryptographicHash::hash(
-                instanceConfig.workspaceFolder.nativePath().toUtf8(), QCryptographicHash::Sha256)
-                .toHex());
-        const QString imageName = QString("qtc-devcontainer-%1").arg(hash);
-
         CommandLine buildCmdLine{
             instanceConfig.dockerCli,
-            {"build", "-f", dockerFile.nativePath(), "-t", imageName, contextPath.nativePath()}};
+            {"build",
+             {"-f", dockerFile.nativePath()},
+             {"-t", imageName(instanceConfig)},
+             contextPath.nativePath()}};
         process.setCommand(buildCmdLine);
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
@@ -108,13 +116,8 @@ static Group prepareContainerRecipe(
     const auto setupTag = [config, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, "Tag Image");
 
-        const QString hash = QString::fromLatin1(
-            QCryptographicHash::hash(
-                instanceConfig.workspaceFolder.nativePath().toUtf8(), QCryptographicHash::Sha256)
-                .toHex());
-        const QString imageName = QString("qtc-devcontainer-%1").arg(hash);
-
-        CommandLine tagCmdLine{instanceConfig.dockerCli, {"tag", config.image, imageName}};
+        CommandLine
+            tagCmdLine{instanceConfig.dockerCli, {"tag", config.image, imageName(instanceConfig)}};
         process.setCommand(tagCmdLine);
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
 
@@ -133,8 +136,48 @@ static Group prepareContainerRecipe(
 static Group prepareContainerRecipe(
     const ComposeContainer &config, const InstanceConfig &instanceConfig)
 {
-    Q_UNUSED(config);
-    Q_UNUSED(instanceConfig);
+    const auto setupComposeUp = [config, instanceConfig](Process &process) {
+        connectProcessToLog(process, instanceConfig, "Compose Up");
+
+        const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
+
+        QStringList composeFiles = std::visit(
+            overloaded{
+                [](const QString &file) { return QStringList{file}; },
+                [](const QStringList &files) { return files; }},
+            config.dockerComposeFile);
+
+        composeFiles
+            = Utils::transform(composeFiles, [&configFileDir](const QString &relativeComposeFile) {
+                  return configFileDir.resolvePath(relativeComposeFile).nativePath();
+              });
+
+        QStringList composeFilesWithFlag;
+        for (const QString &file : composeFiles) {
+            composeFilesWithFlag.append("-f");
+            composeFilesWithFlag.append(file);
+        }
+
+        QStringList runServices = config.runServices.value_or(QStringList{});
+        QSet<QString> services = {config.service};
+        services.unite({runServices.begin(), runServices.end()});
+
+        CommandLine composeCmdLine{
+            instanceConfig.dockerComposeCli,
+            {"up",
+             composeFilesWithFlag,
+             {
+                 "--build",
+                 "--detach",
+             },
+             services.values()}};
+        process.setCommand(composeCmdLine);
+        process.setWorkingDirectory(instanceConfig.workspaceFolder);
+
+        instanceConfig.logFunction(
+            QString("Compose Up: %1").arg(process.commandLine().toUserOutput()));
+    };
+
     return Group{};
 }
 
