@@ -47,16 +47,8 @@ bool QmlModelNodeFacade::isValid() const
     return isValidQmlModelNodeFacade(m_modelNode);
 }
 
-namespace {
-bool workaroundForIsValidQmlModelNodeFacadeInTests = false;
-}
-
 bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
 {
-    if (workaroundForIsValidQmlModelNodeFacadeInTests) {
-        return modelNode.isValid();
-    }
-
     return modelNode.isValid() && nodeInstanceView(modelNode)
            && nodeInstanceView(modelNode)->hasInstanceForModelNode(modelNode)
            && nodeInstanceView(modelNode)->instanceForModelNode(modelNode).isValid();
@@ -67,8 +59,4 @@ bool QmlModelNodeFacade::isRootNode() const
     return modelNode().isRootNode();
 }
 
-void QmlModelNodeFacade::enableUglyWorkaroundForIsValidQmlModelNodeFacadeInTests()
-{
-    workaroundForIsValidQmlModelNodeFacadeInTests = true;
-}
 } //QmlDesigner

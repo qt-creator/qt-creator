@@ -21,7 +21,7 @@
 namespace QmlDesigner {
 using namespace QmlDesigner::Internal;
 
-auto category = ModelTracing::category;
+static auto category = ModelTracing::category;
 
 /*!
 \class QmlDesigner::ModelNode

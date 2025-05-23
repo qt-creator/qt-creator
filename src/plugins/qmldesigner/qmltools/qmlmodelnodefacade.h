@@ -35,8 +35,6 @@ public:
     const NodeInstanceView *nodeInstanceView() const;
     bool isRootNode() const;
 
-    static void enableUglyWorkaroundForIsValidQmlModelNodeFacadeInTests();
-
     friend bool operator==(const QmlModelNodeFacade &firstNode, const QmlModelNodeFacade &secondNode)
     {
         return firstNode.m_modelNode == secondNode.m_modelNode;
