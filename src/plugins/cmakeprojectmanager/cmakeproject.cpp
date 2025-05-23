@@ -53,7 +53,7 @@ CMakeProject::CMakeProject(const FilePath &fileName)
 {
     setId(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setDisplayName(projectDirectory().fileName());
+    setDisplayName(projectDisplayName(projectFilePath()));
     setCanBuildProducts();
     setBuildSystemCreator<CMakeBuildSystem>("cmake");
 
@@ -253,6 +253,29 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
                       .environment;
         }
     }
+}
+
+QString CMakeProject::projectDisplayName(const Utils::FilePath &projectFilePath)
+{
+    const QString fallbackDisplayName = projectFilePath.absolutePath().fileName();
+
+    Result<QByteArray> fileContent = projectFilePath.fileContents();
+    cmListFile cmakeListFile;
+    std::string errorString;
+    if (fileContent) {
+        fileContent = fileContent->replace("\r\n", "\n");
+        if (!cmakeListFile.ParseString(
+                fileContent->toStdString(), projectFilePath.fileName().toStdString(), errorString)) {
+            return fallbackDisplayName;
+        }
+    }
+
+    for (const auto &func : cmakeListFile.Functions) {
+        if (func.LowerCaseName() == "project" && func.Arguments().size() > 0)
+            return QString::fromUtf8(func.Arguments()[0].Value);
+    }
+
+    return fallbackDisplayName;
 }
 
 Internal::CMakeSpecificSettings &CMakeProject::settings()
