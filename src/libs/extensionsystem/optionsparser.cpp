@@ -195,7 +195,8 @@ bool OptionsParser::checkForNoLoadOption()
             } else {
                 spec->setForceDisabled(true);
                 // recursively disable all plugins that require this plugin
-                for (PluginSpec *dependantSpec : PluginManager::pluginsRequiringPlugin(spec))
+                for (PluginSpec *dependantSpec :
+                     PluginManager::pluginsThatIndirectlyEnablePlugin(spec))
                     dependantSpec->setForceDisabled(true);
                 m_isDependencyRefreshNeeded = true;
             }
