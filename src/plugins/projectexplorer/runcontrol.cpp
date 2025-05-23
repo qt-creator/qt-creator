@@ -273,7 +273,6 @@ public:
     QList<QPointer<RunWorker>> m_workers;
     RunState state = RunState::Initialized;
     bool printEnvironment = false;
-    bool m_supportsReRunning = true;
     std::optional<Group> m_runRecipe;
 
     bool useDebugChannel = false;
@@ -1195,16 +1194,6 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
 void RunControl::setPromptToStop(const std::function<bool (bool *)> &promptToStop)
 {
     d->promptToStop = promptToStop;
-}
-
-void RunControl::setSupportsReRunning(bool reRunningSupported)
-{
-    d->m_supportsReRunning = reRunningSupported;
-}
-
-bool RunControl::supportsReRunning() const
-{
-    return d->m_supportsReRunning;
 }
 
 void RunControlPrivate::startTaskTree()

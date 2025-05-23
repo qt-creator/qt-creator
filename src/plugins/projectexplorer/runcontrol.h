@@ -136,10 +136,6 @@ public:
     bool promptToStop(bool *optionalPrompt = nullptr) const;
     void setPromptToStop(const std::function<bool(bool *)> &promptToStop);
 
-    // Note: Works only in the task tree mode
-    void setSupportsReRunning(bool reRunningSupported);
-    bool supportsReRunning() const;
-
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 

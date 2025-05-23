@@ -246,10 +246,6 @@ ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
             return false;
         }
 
-        // QML and/or mixed are not prepared for it.
-        // runControl->setSupportsReRunning(!q->m_runParameters.isQmlDebugging);
-        runControl->setSupportsReRunning(false); // FIXME: Broken in general.
-
         // FIXME: Disabled due to Android. Make Android device report available ports instead.
         // int neededPorts = 0;
         // if (useQmlDebugger())

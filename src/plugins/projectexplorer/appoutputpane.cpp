@@ -730,7 +730,7 @@ void AppOutputPane::enableButtons(const RunControl *rc)
 {
     if (rc) {
         const bool isRunning = rc->isRunning();
-        m_reRunButton->setEnabled(rc->isStopped() && rc->supportsReRunning());
+        m_reRunButton->setEnabled(rc->isStopped());
         m_reRunButton->setIcon(rc->icon().icon());
         m_stopAction->setEnabled(isRunning);
         if (isRunning && debuggerPlugin() && rc->applicationProcessHandle().isValid()) {
