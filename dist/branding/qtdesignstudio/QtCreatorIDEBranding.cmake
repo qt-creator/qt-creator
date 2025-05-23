@@ -51,6 +51,7 @@ set(DESIGNSTUDIO_PLUGINS
     QtSupport
     RemoteLinux
     ResourceEditor
+    ScxmlEditor
     StudioPlugin
     StudioWelcome
     Texteditor
