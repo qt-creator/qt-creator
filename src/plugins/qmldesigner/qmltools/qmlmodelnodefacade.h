@@ -15,6 +15,7 @@ class NodeInstanceView;
 
 class QMLDESIGNER_EXPORT QmlModelNodeFacade
 {
+protected:
     using SL = ModelTracing::SourceLocation;
 
 public:

@@ -29,8 +29,16 @@
 
 namespace QmlDesigner {
 
-void QmlObjectNode::setVariantProperty(PropertyNameView name, const QVariant &value)
+static auto category = ModelTracing::category;
+
+void QmlObjectNode::setVariantProperty(PropertyNameView name, const QVariant &value, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node set variant property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -76,8 +84,14 @@ void QmlObjectNode::setVariantProperty(PropertyNameView name, const QVariant &va
     }
 }
 
-void QmlObjectNode::setBindingProperty(PropertyNameView name, const QString &expression)
+void QmlObjectNode::setBindingProperty(PropertyNameView name, const QString &expression, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node set binding property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -95,24 +109,42 @@ void QmlObjectNode::setBindingProperty(PropertyNameView name, const QString &exp
     }
 }
 
-QmlModelState QmlObjectNode::currentState() const
+QmlModelState QmlObjectNode::currentState(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node current state",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (isValid())
         return QmlModelState(view()->currentStateNode());
     else
         return QmlModelState();
 }
 
-QmlTimeline QmlObjectNode::currentTimeline() const
+QmlTimeline QmlObjectNode::currentTimeline(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node current timeline",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (isValid())
         return view()->currentTimelineNode();
 
     return {};
 }
 
-bool QmlObjectNode::isRootModelNode() const
+bool QmlObjectNode::isRootModelNode(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node is root model node",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().isRootNode();
 }
 
@@ -122,13 +154,25 @@ bool QmlObjectNode::isRootModelNode() const
     actual instance. The return value is not the value in the model, but the
     value of a real instantiated instance of this object.
 */
-QVariant QmlObjectNode::instanceValue(PropertyNameView name) const
+QVariant QmlObjectNode::instanceValue(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node instance value",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().property(name);
 }
 
-bool QmlObjectNode::hasProperty(PropertyNameView name) const
+bool QmlObjectNode::hasProperty(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node has property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -141,8 +185,14 @@ bool QmlObjectNode::hasProperty(PropertyNameView name) const
     return modelNode().hasProperty(name);
 }
 
-bool QmlObjectNode::hasBindingProperty(PropertyNameView name) const
+bool QmlObjectNode::hasBindingProperty(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node has binding property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -155,33 +205,69 @@ bool QmlObjectNode::hasBindingProperty(PropertyNameView name) const
     return modelNode().hasBindingProperty(name);
 }
 
-NodeAbstractProperty QmlObjectNode::nodeAbstractProperty(PropertyNameView name) const
+NodeAbstractProperty QmlObjectNode::nodeAbstractProperty(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node node abstract property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().nodeAbstractProperty(name);
 }
 
-NodeAbstractProperty QmlObjectNode::defaultNodeAbstractProperty() const
+NodeAbstractProperty QmlObjectNode::defaultNodeAbstractProperty(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node default node abstract property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().defaultNodeAbstractProperty();
 }
 
-NodeProperty QmlObjectNode::nodeProperty(PropertyNameView name) const
+NodeProperty QmlObjectNode::nodeProperty(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node node property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().nodeProperty(name);
 }
 
-NodeListProperty QmlObjectNode::nodeListProperty(PropertyNameView name) const
+NodeListProperty QmlObjectNode::nodeListProperty(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node node list property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().nodeListProperty(name);
 }
 
-bool QmlObjectNode::instanceHasValue(PropertyNameView name) const
+bool QmlObjectNode::instanceHasValue(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node instance has value",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().hasProperty(name);
 }
 
-bool QmlObjectNode::propertyAffectedByCurrentState(PropertyNameView name) const
+bool QmlObjectNode::propertyAffectedByCurrentState(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node property affected by current state",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -197,8 +283,14 @@ bool QmlObjectNode::propertyAffectedByCurrentState(PropertyNameView name) const
     return currentState().propertyChanges(modelNode()).modelNode().hasProperty(name);
 }
 
-QVariant QmlObjectNode::modelValue(PropertyNameView name) const
+QVariant QmlObjectNode::modelValue(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node model value",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return false;
 
@@ -231,8 +323,14 @@ QVariant QmlObjectNode::modelValue(PropertyNameView name) const
     return propertyChanges.modelNode().variantProperty(name).value();
 }
 
-bool QmlObjectNode::isTranslatableText(PropertyNameView name) const
+bool QmlObjectNode::isTranslatableText(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node is translatable text",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name)
         && modelNode().metaInfo().property(name).propertyType().isString()) {
         if (modelNode().hasBindingProperty(name)) {
@@ -247,8 +345,14 @@ bool QmlObjectNode::isTranslatableText(PropertyNameView name) const
     return false;
 }
 
-QString QmlObjectNode::stripedTranslatableText(PropertyNameView name) const
+QString QmlObjectNode::stripedTranslatableText(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node stroped translatable text",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (modelNode().hasBindingProperty(name)) {
         static QRegularExpression regularExpressionPattern(
                     QLatin1String("^qsTr(|Id|anslate)\\(\"(.*)\"\\)$"));
@@ -261,8 +365,14 @@ QString QmlObjectNode::stripedTranslatableText(PropertyNameView name) const
     return instanceValue(name).toString();
 }
 
-BindingProperty QmlObjectNode::bindingProperty(PropertyNameView name) const
+BindingProperty QmlObjectNode::bindingProperty(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node binding property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -280,34 +390,64 @@ BindingProperty QmlObjectNode::bindingProperty(PropertyNameView name) const
     return propertyChanges.modelNode().bindingProperty(name);
 }
 
-QString QmlObjectNode::expression(PropertyNameView name) const
+QString QmlObjectNode::expression(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node expression",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return bindingProperty(name).expression();
 }
 
 /*!
     Returns \c true if the ObjectNode is in the BaseState.
 */
-bool QmlObjectNode::isInBaseState() const
+bool QmlObjectNode::isInBaseState(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node is in base state",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return currentState().isBaseState();
 }
 
-bool QmlObjectNode::timelineIsActive() const
+bool QmlObjectNode::timelineIsActive(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node timeline is active",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return currentTimeline().isValid();
 }
 
-bool QmlObjectNode::instanceCanReparent() const
+bool QmlObjectNode::instanceCanReparent(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node instance can reparent",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (auto qmlItemNode = QmlItemNode{modelNode()})
         return qmlItemNode.instanceCanReparent();
     else
         return isInBaseState();
 }
 
-QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState() const
+QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node property change for current state",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -325,13 +465,25 @@ QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState() const
     Everything that belongs to this Object, the ModelNode, and ChangeOperations
     is deleted from the model.
 */
-void QmlObjectNode::destroy()
+void QmlObjectNode::destroy(SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node destroy",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     modelNode().destroy();
 }
 
-void QmlObjectNode::ensureAliasExport()
+void QmlObjectNode::ensureAliasExport(SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node ensure alias export",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -343,17 +495,22 @@ void QmlObjectNode::ensureAliasExport()
     }
 }
 
-bool QmlObjectNode::isAliasExported() const
+bool QmlObjectNode::isAliasExported(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node is alias exported",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
 
     if (modelNode().isValid() && !modelNode().id().isEmpty()) {
-         PropertyName modelNodeId = modelNode().id().toUtf8();
-         ModelNode rootModelNode = view()->rootModelNode();
-         Q_ASSERT(rootModelNode.isValid());
-         if (rootModelNode.hasBindingProperty(modelNodeId)
-                 && rootModelNode.bindingProperty(modelNodeId).isDynamic()
-                 && rootModelNode.bindingProperty(modelNodeId).expression() == modelNode().id())
-             return true;
+        PropertyName modelNodeId = modelNode().id().toUtf8();
+        ModelNode rootModelNode = view()->rootModelNode();
+        Q_ASSERT(rootModelNode.isValid());
+        if (rootModelNode.hasBindingProperty(modelNodeId)
+            && rootModelNode.bindingProperty(modelNodeId).isDynamic()
+            && rootModelNode.bindingProperty(modelNodeId).expression() == modelNode().id())
+            return true;
     }
 
     return false;
@@ -363,8 +520,14 @@ bool QmlObjectNode::isAliasExported() const
     Returns a list of states the affect this object.
 */
 
-QList<QmlModelState> QmlObjectNode::allAffectingStates() const
+QList<QmlModelState> QmlObjectNode::allAffectingStates(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node all affecting states",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -382,8 +545,14 @@ QList<QmlModelState> QmlObjectNode::allAffectingStates() const
     Returns a list of all state operations that affect this object.
 */
 
-QList<QmlModelStateOperation> QmlObjectNode::allAffectingStatesOperations() const
+QList<QmlModelStateOperation> QmlObjectNode::allAffectingStatesOperations(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node all affecting states operations",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -414,8 +583,14 @@ static QList<QmlVisualNode> allQmlVisualNodesRecursive(const QmlVisualNode &qmlI
     return qmlVisualNodeList;
 }
 
-QList<QmlModelState> QmlObjectNode::allDefinedStates() const
+QList<QmlModelState> QmlObjectNode::allDefinedStates(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node all defined states",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -438,8 +613,14 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
     return returnList;
 }
 
-QList<QmlModelStateOperation> QmlObjectNode::allInvalidStateOperations() const
+QList<QmlModelStateOperation> QmlObjectNode::allInvalidStateOperations(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node all invalid state operations",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QList<QmlModelStateOperation> result;
 
     const auto allStates =  allDefinedStates();
@@ -448,16 +629,28 @@ QList<QmlModelStateOperation> QmlObjectNode::allInvalidStateOperations() const
     return result;
 }
 
-QmlModelStateGroup QmlObjectNode::states() const
+QmlModelStateGroup QmlObjectNode::states(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node states",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (isValid())
         return QmlModelStateGroup(modelNode());
     else
         return QmlModelStateGroup();
 }
 
-QList<ModelNode> QmlObjectNode::allTimelines() const
+QList<ModelNode> QmlObjectNode::allTimelines(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node all timelines",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QList<ModelNode> timelineNodes;
     const auto allNodes = view()->allModelNodes();
     for (const auto &timelineNode : allNodes) {
@@ -468,8 +661,14 @@ QList<ModelNode> QmlObjectNode::allTimelines() const
     return timelineNodes;
 }
 
-QList<ModelNode> QmlObjectNode::getAllConnections() const
+QList<ModelNode> QmlObjectNode::getAllConnections(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node get all connections",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return {};
 
@@ -485,8 +684,14 @@ QList<ModelNode> QmlObjectNode::getAllConnections() const
     model.
 */
 
-void QmlObjectNode::removeProperty(PropertyNameView name)
+void QmlObjectNode::removeProperty(PropertyNameView name, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node remove property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -521,20 +726,37 @@ QList<QmlObjectNode> toQmlObjectNodeList(const QList<ModelNode> &modelNodeList)
     return qmlObjectNodeList;
 }
 
-bool QmlObjectNode::isAncestorOf(const QmlObjectNode &objectNode) const
+bool QmlObjectNode::isAncestorOf(const QmlObjectNode &objectNode, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node is ancestor of",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().isAncestorOf(objectNode.modelNode());
 }
 
-QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, PropertyNameView name)
+QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, PropertyNameView name, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node instance value",
+                               category(),
+                               keyValue("caller location", sl)};
+
     Q_ASSERT(nodeInstanceView(modelNode)->hasInstanceForModelNode(modelNode));
     return nodeInstanceView(modelNode)->instanceForModelNode(modelNode).property(name);
 }
 
 QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &text,
-                                                const DesignerSettings &settings)
+                                                const DesignerSettings &settings,
+                                                SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node generate translatable text",
+                               category(),
+                               keyValue("caller location", sl)};
+
     const QString escapedText = StringUtils::escape(text);
 
     if (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
@@ -551,10 +773,15 @@ QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &
     return QStringView(u"qsTr(\"%1\")").arg(escapedText);
 }
 
-QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
+QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node striped translatable text function",
+                               category(),
+                               keyValue("caller location", sl)};
+
     const QRegularExpression regularExpressionPattern(
-                QLatin1String("^qsTr(|Id|anslate)\\(\"(.*)\"\\)$"));
+        QLatin1String("^qsTr(|Id|anslate)\\(\"(.*)\"\\)$"));
     const QRegularExpressionMatch match = regularExpressionPattern.match(text);
     if (match.hasMatch())
         return StringUtils::deescape(match.captured(2));
@@ -562,18 +789,36 @@ QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
 }
 
 QString QmlObjectNode::convertToCorrectTranslatableFunction(const QString &text,
-                                                            const DesignerSettings &designerSettings)
+                                                            const DesignerSettings &designerSettings,
+                                                            SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node convert to correct translatable function",
+                               category(),
+                               keyValue("caller location", sl)};
+
     return generateTranslatableText(stripedTranslatableTextFunction(text), designerSettings);
 }
 
-TypeName QmlObjectNode::instanceType(PropertyNameView name) const
+TypeName QmlObjectNode::instanceType(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node instance type",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().instanceType(name);
 }
 
-bool QmlObjectNode::instanceHasBinding(PropertyNameView name) const
+bool QmlObjectNode::instanceHasBinding(PropertyNameView name, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node instance has binding",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().hasBindingForProperty(name);
 }
 
@@ -592,13 +837,25 @@ QmlItemNode QmlObjectNode::itemForInstance(const NodeInstance &instance) const
     return QmlItemNode(ModelNode(instance.modelNode(), view()));
 }
 
-bool QmlObjectNode::isValidQmlObjectNode(const ModelNode &modelNode)
+bool QmlObjectNode::isValidQmlObjectNode(const ModelNode &modelNode, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is valid qml object node",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     return isValidQmlModelNodeFacade(modelNode);
 }
 
-bool QmlObjectNode::isValid() const
+bool QmlObjectNode::isValid(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node is valid",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return isValidQmlObjectNode(modelNode());
 }
 
@@ -618,58 +875,111 @@ QString QmlObjectNode::error() const
     return QString();
 }
 
-bool QmlObjectNode::hasNodeParent() const
+bool QmlObjectNode::hasNodeParent(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node has node parent",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().hasParentProperty();
 }
 
-bool QmlObjectNode::hasInstanceParent() const
+bool QmlObjectNode::hasInstanceParent(SL sl) const
 {
-    return nodeInstance().parentId() >= 0 && nodeInstanceView()->hasInstanceForId(nodeInstance().parentId());
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node has instance parent",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return nodeInstance().parentId() >= 0
+           && nodeInstanceView()->hasInstanceForId(nodeInstance().parentId());
 }
 
-bool QmlObjectNode::hasInstanceParentItem() const
+bool QmlObjectNode::hasInstanceParentItem(SL sl) const
 {
-    return isValid()
-           && nodeInstance().parentId() >= 0
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node has instance parent item",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return isValid() && nodeInstance().parentId() >= 0
            && nodeInstanceView()->hasInstanceForId(nodeInstance().parentId())
            && QmlItemNode::isItemOrWindow(view()->modelNodeForInternalId(nodeInstance().parentId()));
 }
 
-
-void QmlObjectNode::setParentProperty(const NodeAbstractProperty &parentProeprty)
+void QmlObjectNode::setParentProperty(const NodeAbstractProperty &parentProeprty, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node set parent property",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().setParentProperty(parentProeprty);
 }
 
-QmlObjectNode QmlObjectNode::instanceParent() const
+QmlObjectNode QmlObjectNode::instanceParent(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node instance parent",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (hasInstanceParent())
         return nodeForInstance(nodeInstanceView()->instanceForId(nodeInstance().parentId()));
 
     return QmlObjectNode();
 }
 
-QmlItemNode QmlObjectNode::instanceParentItem() const
+QmlItemNode QmlObjectNode::instanceParentItem(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node instance parent item",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (hasInstanceParentItem())
         return itemForInstance(nodeInstanceView()->instanceForId(nodeInstance().parentId()));
 
     return QmlItemNode();
 }
 
-QmlItemNode QmlObjectNode::modelParentItem() const
+QmlItemNode QmlObjectNode::modelParentItem(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node instance parent item",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().parentProperty().parentModelNode();
 }
 
-void QmlObjectNode::setId(const QString &id)
+void QmlObjectNode::setId(const QString &id, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node set id",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     modelNode().setIdWithRefactoring(id);
 }
 
-void QmlObjectNode::setNameAndId(const QString &newName, const QString &fallbackId)
+void QmlObjectNode::setNameAndId(const QString &newName, const QString &fallbackId, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node set name and id",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (!isValid())
         return;
 
@@ -687,49 +997,103 @@ void QmlObjectNode::setNameAndId(const QString &newName, const QString &fallback
     }
 }
 
-QString QmlObjectNode::id() const
+QString QmlObjectNode::id(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node id",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().id();
 }
 
-QString QmlObjectNode::validId()
+QString QmlObjectNode::validId(SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node valid id",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().validId();
 }
 
-bool QmlObjectNode::hasDefaultPropertyName() const
+bool QmlObjectNode::hasDefaultPropertyName(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node has default property name",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().metaInfo().hasDefaultProperty();
 }
 
-PropertyName QmlObjectNode::defaultPropertyName() const
+PropertyName QmlObjectNode::defaultPropertyName(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node default property name",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().metaInfo().defaultPropertyName();
 }
 
-void QmlObjectNode::setParent(const QmlObjectNode &newParent)
+void QmlObjectNode::setParent(const QmlObjectNode &newParent, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node set parent",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     if (newParent.hasDefaultPropertyName())
         newParent.modelNode().defaultNodeAbstractProperty().reparentHere(modelNode());
 }
 
-QmlItemNode QmlObjectNode::toQmlItemNode() const
+QmlItemNode QmlObjectNode::toQmlItemNode(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node to qml item node",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return QmlItemNode(modelNode());
 }
 
-QmlVisualNode QmlObjectNode::toQmlVisualNode() const
+QmlVisualNode QmlObjectNode::toQmlVisualNode(SL sl) const
 {
-     return QmlVisualNode(modelNode());
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node to qml visual node",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    return QmlVisualNode(modelNode());
 }
 
-QString QmlObjectNode::simplifiedTypeName() const
+QString QmlObjectNode::simplifiedTypeName(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node simplified type name",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return modelNode().simplifiedTypeName();
 }
 
-QStringList QmlObjectNode::allStateNames() const
+QStringList QmlObjectNode::allStateNames(SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml model node all state names",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     return nodeInstance().allStateNames();
 }
 
