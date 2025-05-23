@@ -247,6 +247,26 @@ bool LineColumnButton::event(QEvent *event)
     addRow(Tr::tr("Selection length:"),
            [](const QTextCursor &c) { return c.selectionEnd() - c.selectionStart(); });
 
+    addRow(Tr::tr("Selected lines:"), [](const QTextCursor &c) {
+        if (!c.hasSelection())
+            return 1;
+
+        QTextCursor startCursor = c;
+        startCursor.setPosition(c.selectionStart());
+        QTextCursor endCursor = c;
+        endCursor.setPosition(c.selectionEnd());
+
+        const int startBlock = startCursor.blockNumber();
+        const int endBlock = endCursor.blockNumber();
+        int selectedLines = endBlock - startBlock + 1;
+
+        // When selection ends at the start of a line, don't count that line
+        if (endBlock > startBlock && endCursor.positionInBlock() == 0)
+            --selectedLines;
+
+        return selectedLines;
+    });
+
     addRow(Tr::tr("Position in document:"), [](const QTextCursor &c) { return c.position(); });
 
     addRow(Tr::tr("Anchor:"), [](const QTextCursor &c) { return c.anchor(); });
