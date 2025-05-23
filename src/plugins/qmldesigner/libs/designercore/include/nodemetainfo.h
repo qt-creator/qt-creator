@@ -94,10 +94,10 @@ public:
     FlagIs hideInNavigator() const;
     FlagIs visibleInLibrary(SL sl = {}) const;
 
-    bool hasProperty(::Utils::SmallStringView propertyName) const;
+    bool hasProperty(::Utils::SmallStringView propertyName, SL sl = {}) const;
     PropertyMetaInfos properties(SL sl = {}) const;
     PropertyMetaInfos localProperties(SL sl = {}) const;
-    PropertyMetaInfo property(PropertyNameView propertyName) const;
+    PropertyMetaInfo property(PropertyNameView propertyName, SL sl = {}) const;
     PropertyNameList signalNames(SL sl = {}) const;
     PropertyNameList slotNames(SL sl = {}) const;
     PropertyName defaultPropertyName(SL sl = {}) const;

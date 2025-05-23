@@ -1885,12 +1885,6 @@ namespace {
                                  TypeId typeId,
                                  Utils::SmallStringView propertyName)
 {
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"node meta info get combound property id",
-                               category(),
-                               keyValue("type id", typeId),
-                               keyValue("property name", propertyName)};
-
     auto begin = propertyName.begin();
     const auto end = propertyName.end();
 
@@ -1906,30 +1900,25 @@ namespace {
 
             if (propertyId && found != end) {
                 begin = std::next(found);
-                auto id = projectStorage.propertyDeclarationId(propertyTypeId, {begin, end});
-
-                tracer.end(keyValue("property id", id));
-
-                return id;
+                return projectStorage.propertyDeclarationId(propertyTypeId, {begin, end});
             }
         }
     }
-
-    tracer.end(keyValue("property id", propertyId));
 
     return propertyId;
 }
 
 } // namespace
 
-bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName) const
+bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName, SL sl) const
 {
     if constexpr (useProjectStorage()) {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info has property",
                                    category(),
                                    keyValue("type id", m_typeId),
-                                   keyValue("property name", propertyName)};
+                                   keyValue("property name", propertyName),
+                                   keyValue("caller location", sl)};
 
         if (!isValid())
             return false;
@@ -2001,7 +1990,7 @@ PropertyMetaInfos NodeMetaInfo::localProperties(SL sl) const
     }
 }
 
-PropertyMetaInfo NodeMetaInfo::property(PropertyNameView propertyName) const
+PropertyMetaInfo NodeMetaInfo::property(PropertyNameView propertyName, SL sl) const
 {
     if (!isValid())
         return {};
@@ -2011,7 +2000,8 @@ PropertyMetaInfo NodeMetaInfo::property(PropertyNameView propertyName) const
         NanotraceHR::Tracer tracer{"node meta info get property",
                                    category(),
                                    keyValue("type id", m_typeId),
-                                   keyValue("property name", propertyName)};
+                                   keyValue("property name", propertyName),
+                                   keyValue("caller location", sl)};
 
         return {propertyId(*m_projectStorage, m_typeId, propertyName), m_projectStorage};
     } else {
