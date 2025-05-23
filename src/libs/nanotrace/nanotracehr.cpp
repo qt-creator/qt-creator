@@ -169,12 +169,6 @@ void flushEvents(const Utils::span<TraceEvent> events,
     }
 }
 
-template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringViewTraceEvent> events,
-                                           std::thread::id threadId,
-                                           EnabledEventQueue<StringViewTraceEvent> &eventQueue);
-template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringTraceEvent> events,
-                                           std::thread::id threadId,
-                                           EnabledEventQueue<StringTraceEvent> &eventQueue);
 template NANOTRACE_EXPORT void flushEvents(
     const Utils::span<StringViewWithStringArgumentsTraceEvent> events,
     std::thread::id threadId,
@@ -226,8 +220,6 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
     eventQueue.eventsIndex = 0;
 }
 
-template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringViewTraceEvent> &eventQueue);
-template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringTraceEvent> &eventQueue);
 template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
@@ -273,8 +265,6 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
     }
 }
 
-template class NANOTRACE_EXPORT_TEMPLATE EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
-template class NANOTRACE_EXPORT_TEMPLATE EventQueue<StringTraceEvent, Tracing::IsEnabled>;
 template class NANOTRACE_EXPORT_TEMPLATE
     EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
 

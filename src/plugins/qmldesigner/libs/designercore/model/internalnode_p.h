@@ -59,7 +59,7 @@ public:
                           int majorVersion,
                           int minorVersion,
                           qint32 internalId,
-                          ModelTracing::StringCategory::FlowTokenType flowTraceToken)
+                          ModelTracing::Category::FlowTokenType flowTraceToken)
         : typeName(typeName.toByteArray())
         , majorVersion(majorVersion)
         , minorVersion(minorVersion)

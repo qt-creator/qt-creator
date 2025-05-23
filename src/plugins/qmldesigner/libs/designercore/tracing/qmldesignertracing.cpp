@@ -26,14 +26,6 @@ auto &traceFile()
 }
 } // namespace
 
-EventQueue &eventQueue()
-{
-    thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent, tracingStatus()>
-        stringViewEventQueue(traceFile());
-
-    return stringViewEventQueue;
-}
-
 EventQueueWithStringArguments &eventQueueWithStringArguments()
 {
     thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewWithStringArgumentsTraceEvent, tracingStatus()>
@@ -42,32 +34,18 @@ EventQueueWithStringArguments &eventQueueWithStringArguments()
     return stringViewWithStringArgumentsEventQueue;
 }
 
-StringEventQueue &stringEventQueue()
-{
-    thread_local NanotraceHR::EventQueue<NanotraceHR::StringTraceEvent, tracingStatus()> eventQueue(
-        traceFile());
-
-    return eventQueue;
-}
-
 } // namespace Tracing
 
 namespace ModelTracing {
 namespace {
 
 thread_local Category category_{"model", Tracing::eventQueueWithStringArguments(), category};
-thread_local StringCategory stringCategory_{"model", Tracing::stringEventQueue(), stringCategory};
 
 } // namespace
 
 Category &category()
 {
     return category_;
-}
-
-StringCategory &stringCategory()
-{
-    return stringCategory_;
 }
 
 } // namespace ModelTracing

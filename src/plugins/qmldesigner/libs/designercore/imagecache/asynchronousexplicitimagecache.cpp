@@ -60,7 +60,10 @@ void AsynchronousExplicitImageCache::requestImage(Utils::SmallStringView name,
                                                   ImageCache::AbortCallback abortCallback,
                                                   Utils::SmallStringView extraId)
 {
-    m_taskQueue.addTask(name,
+    auto [traceToken, flowToken] = ImageCache::category().beginDurationWithFlow(
+        "request image in asynchronous explicit image cache");
+    m_taskQueue.addTask(traceToken.createToken(),
+                        name,
                         extraId,
                         std::move(captureCallback),
                         std::move(abortCallback),
@@ -72,7 +75,10 @@ void AsynchronousExplicitImageCache::requestMidSizeImage(Utils::SmallStringView 
                                                          ImageCache::AbortCallback abortCallback,
                                                          Utils::SmallStringView extraId)
 {
-    m_taskQueue.addTask(name,
+    auto [traceToken, flowToken] = ImageCache::category().beginDurationWithFlow(
+        "request mid size image in asynchronous explicit image cache");
+    m_taskQueue.addTask(traceToken.createToken(),
+                        name,
                         extraId,
                         std::move(captureCallback),
                         std::move(abortCallback),
@@ -84,7 +90,10 @@ void AsynchronousExplicitImageCache::requestSmallImage(Utils::SmallStringView na
                                                        ImageCache::AbortCallback abortCallback,
                                                        Utils::SmallStringView extraId)
 {
-    m_taskQueue.addTask(name,
+    auto [traceToken, flowtoken] = ImageCache::category().beginDurationWithFlow(
+        "request small size image in asynchronous explicit image cache");
+    m_taskQueue.addTask(traceToken.createToken(),
+                        name,
                         extraId,
                         std::move(captureCallback),
                         std::move(abortCallback),

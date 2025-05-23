@@ -417,9 +417,7 @@ struct alignas(4096) TraceEvent
     ArgumentsString arguments;
 };
 
-using StringViewTraceEvent = TraceEvent<std::string_view, std::string_view>;
 using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, ArgumentsString>;
-using StringTraceEvent = TraceEvent<Utils::SmallString, ArgumentsString>;
 
 enum class IsEnabled { No, Yes };
 
@@ -433,20 +431,12 @@ template<typename TraceEvent>
 void flushEvents(const Utils::span<TraceEvent> events,
                  std::thread::id threadId,
                  EnabledEventQueue<TraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringViewTraceEvent> events,
-                                                  std::thread::id threadId,
-                                                  EnabledEventQueue<StringViewTraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringTraceEvent> events,
-                                                  std::thread::id threadId,
-                                                  EnabledEventQueue<StringTraceEvent> &eventQueue);
 extern template NANOTRACE_EXPORT void flushEvents(
     const Utils::span<StringViewWithStringArgumentsTraceEvent> events,
     std::thread::id threadId,
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 template<typename TraceEvent>
 void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringViewTraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringTraceEvent> &eventQueue);
 extern template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
@@ -606,14 +596,8 @@ public:
 };
 
 template<Tracing isEnabled>
-using StringViewEventQueue = EventQueue<StringViewTraceEvent, isEnabled>;
-template<Tracing isEnabled>
 using StringViewWithStringArgumentsEventQueue = EventQueue<StringViewWithStringArgumentsTraceEvent, isEnabled>;
-template<Tracing isEnabled>
-using StringEventQueue = EventQueue<StringTraceEvent, isEnabled>;
 
-extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
-extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringTraceEvent, Tracing::IsEnabled>;
 extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE
     EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
 
@@ -792,13 +776,10 @@ template<typename TraceEvent, Tracing isEnabled>
 class Category;
 
 template<Tracing isEnabled>
-using StringViewCategory = Category<StringViewTraceEvent, isEnabled>;
-template<Tracing isEnabled>
-using StringCategory = Category<StringTraceEvent, isEnabled>;
-template<Tracing isEnabled>
 using StringViewWithStringArgumentsCategory = Category<StringViewWithStringArgumentsTraceEvent, isEnabled>;
 
-using DisabledToken = Token<StringViewCategory<Tracing::IsDisabled>, Tracing::IsDisabled>;
+template<typename Category>
+using DisabledToken = Token<Category, Tracing::IsDisabled>;
 
 template<typename Category, Tracing isEnabled>
 class AsynchronousToken : public BasicDisabledToken
@@ -842,9 +823,6 @@ public:
 
     static constexpr bool categoryIsActive() { return Category::isActive(); }
 };
-
-using DisabledAsynchronousToken = AsynchronousToken<StringViewCategory<Tracing::IsDisabled>,
-                                                    Tracing::IsDisabled>;
 
 template<typename Category, Tracing isEnabled>
 class FlowToken;
@@ -1441,10 +1419,6 @@ private:
     CategoryFunctionPointer m_self;
 };
 
-template<Tracing isEnabled>
-using StringViewCategory = Category<StringViewTraceEvent, isEnabled>;
-template<Tracing isEnabled>
-using StringCategory = Category<StringTraceEvent, isEnabled>;
 template<Tracing isEnabled>
 using StringViewWithStringArgumentsCategory = Category<StringViewWithStringArgumentsTraceEvent, isEnabled>;
 

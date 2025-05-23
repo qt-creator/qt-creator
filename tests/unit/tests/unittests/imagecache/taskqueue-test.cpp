@@ -26,6 +26,9 @@ auto IsTask(Matcher matcher)
 
 class TaskQueue : public testing::Test
 {
+    using TraceEvent = NanotraceHR::TraceEvent<std::string_view, std::string_view>;
+    using Category = NanotraceHR::Category<TraceEvent, NanotraceHR::Tracing::IsDisabled>;
+
 protected:
     Notification notification;
     Notification waitInThread;
@@ -34,6 +37,7 @@ protected:
     using Queue = QmlDesigner::TaskQueue<Task,
                                          decltype(mockDispatchCallback.AsStdFunction()),
                                          decltype(mockCleanCallback.AsStdFunction())>;
+    NanotraceHR::Token<Category, NanotraceHR::Tracing::IsDisabled> dummyToken;
 };
 
 TEST_F(TaskQueue, add_task_dispatches_task)
@@ -44,7 +48,7 @@ TEST_F(TaskQueue, add_task_dispatches_task)
         notification.notify();
     });
 
-    queue.addTask(22);
+    queue.addTask(dummyToken, 22);
     notification.wait();
 }
 
@@ -58,8 +62,8 @@ TEST_F(TaskQueue, depatches_task_in_order)
         notification.notify();
     });
 
-    queue.addTask(22);
-    queue.addTask(32);
+    queue.addTask(dummyToken, 22);
+    queue.addTask(dummyToken, 32);
     notification.wait();
 }
 
@@ -75,8 +79,8 @@ TEST_F(TaskQueue, cleanup_at_destruction)
 
     {
         Queue queue{mockDispatchCallback.AsStdFunction(), mockCleanCallback.AsStdFunction()};
-        queue.addTask(22);
-        queue.addTask(32);
+        queue.addTask(dummyToken, 22);
+        queue.addTask(dummyToken, 32);
         notification.wait();
         waitInThread.notify();
     }
@@ -90,8 +94,8 @@ TEST_F(TaskQueue, clean_task_in_queue)
         waitInThread.wait();
     });
     Queue queue{mockDispatchCallback.AsStdFunction(), mockCleanCallback.AsStdFunction()};
-    queue.addTask(22);
-    queue.addTask(32);
+    queue.addTask(dummyToken, 22);
+    queue.addTask(dummyToken, 32);
 
     EXPECT_CALL(mockCleanCallback, Call(IsTask(32))).WillRepeatedly([&](Task) {});
 
@@ -106,7 +110,7 @@ TEST_F(TaskQueue, sleeping_queue_is_recovering)
     EXPECT_CALL(mockDispatchCallback, Call(IsTask(5))).WillRepeatedly([&](Task) {
         notification.notify();
     });
-    queue.addTask(5);
+    queue.addTask(dummyToken, 5);
     notification.wait();
     queue.putThreadToSleep();
 
@@ -114,7 +118,7 @@ TEST_F(TaskQueue, sleeping_queue_is_recovering)
         notification.notify();
     });
 
-    queue.addTask(22);
+    queue.addTask(dummyToken, 22);
     notification.wait();
 }
 

@@ -38,12 +38,6 @@ public:
         m_condition.notify_all();
     }
 
-    template<typename... Arguments>
-    void addTask(Arguments &&...arguments)
-    {
-        addTask(NanotraceHR::DisabledToken{}, std::forward<Arguments>(arguments)...);
-    }
-
     void clean()
     {
         Tasks oldTasks;
