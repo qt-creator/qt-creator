@@ -14,24 +14,45 @@
 
 namespace QmlDesigner {
 
-bool Qml3DNode::isValid() const
+static auto category = ModelTracing::category;
+
+bool Qml3DNode::isValid(SL sl) const
 {
-    return isValidQml3DNode(modelNode());
+    return isValidQml3DNode(modelNode(), sl);
 }
 
-bool Qml3DNode::isValidQml3DNode(const ModelNode &modelNode)
+bool Qml3DNode::isValidQml3DNode(const ModelNode &modelNode, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml 3d node is valid Qml 3D node",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     return isValidQmlObjectNode(modelNode) && (modelNode.metaInfo().isQtQuick3DNode());
 }
 
-bool Qml3DNode::isValidVisualRoot(const ModelNode &modelNode)
+bool Qml3DNode::isValidVisualRoot(const ModelNode &modelNode, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml 3d node is valid visual root",
+                               category(),
+                               keyValue("model node", modelNode),
+                               keyValue("caller location", sl)};
+
     return isValidQmlObjectNode(modelNode)
            && (modelNode.metaInfo().isQtQuick3DNode() || modelNode.metaInfo().isQtQuick3DMaterial());
 }
 
-bool Qml3DNode::handleEulerRotation(PropertyNameView name)
+bool Qml3DNode::handleEulerRotation(PropertyNameView name, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"1ml 3d node handle euler rotation",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("property name", name),
+                               keyValue("caller location", sl)};
+
     if (isBlocked(name))
         return false;
 
@@ -41,8 +62,15 @@ bool Qml3DNode::handleEulerRotation(PropertyNameView name)
     return true;
 }
 
-bool Qml3DNode::isBlocked(PropertyNameView propName) const
+bool Qml3DNode::isBlocked(PropertyNameView propName, SL sl) const
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml 3d node is blocked",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("property name", propName),
+                               keyValue("caller location", sl)};
+
     if (modelNode().isValid() && propName.startsWith("eulerRotation"))
         return modelNode().auxiliaryDataWithDefault(rotBlockProperty).toBool();
 
@@ -335,8 +363,14 @@ static bool transformHasScalingAndRotation(const QMatrix4x4 &transform)
     return !hasUniformScale && hasRotation;
 }
 
-bool Qml3DNode::hasAnimatedTransform()
+bool Qml3DNode::hasAnimatedTransform(SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml 3d node has animated transform",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     QmlTimeline timeline = currentTimeline();
     if (!timeline)
         return false;
@@ -416,8 +450,14 @@ void Qml3DNode::setLocalTransform(const QMatrix4x4 &newParentSceneTransform,
     setProp("eulerRotation.z", eulerRotation.z(), 0.f);
 }
 
-void Qml3DNode::reparentWithTransform(NodeAbstractProperty &parentProperty)
+void Qml3DNode::reparentWithTransform(NodeAbstractProperty &parentProperty, SL sl)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"qml 3d node reparent with transform",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
     Qml3DNode oldParent3d;
     if (modelNode().hasParentProperty())
         oldParent3d = modelNode().parentProperty().parentModelNode();

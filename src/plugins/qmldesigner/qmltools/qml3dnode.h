@@ -19,18 +19,25 @@ class QMLDESIGNER_EXPORT Qml3DNode : public QmlVisualNode
 {
     friend class QmlAnchors;
 public:
-    Qml3DNode() : QmlVisualNode() {}
-    Qml3DNode(const ModelNode &modelNode)  : QmlVisualNode(modelNode) {}
-    bool isValid() const;
+    Qml3DNode()
+        : QmlVisualNode()
+    {}
+
+    Qml3DNode(const ModelNode &modelNode)
+        : QmlVisualNode(modelNode)
+    {}
+
+    bool isValid(SL sl = {}) const;
     explicit operator bool() const { return isValid(); }
-    static bool isValidQml3DNode(const ModelNode &modelNode);
-    static bool isValidVisualRoot(const ModelNode &modelNode);
 
-    bool handleEulerRotation(PropertyNameView name);
-    bool isBlocked(PropertyNameView propName) const;
+    static bool isValidQml3DNode(const ModelNode &modelNode, SL sl = {});
+    static bool isValidVisualRoot(const ModelNode &modelNode, SL sl = {});
 
-    void reparentWithTransform(NodeAbstractProperty &parentProperty);
-    bool hasAnimatedTransform();
+    bool handleEulerRotation(PropertyNameView name, SL sl = {});
+    bool isBlocked(PropertyNameView propName, SL sl = {}) const;
+
+    void reparentWithTransform(NodeAbstractProperty &parentProperty, SL sl = {});
+    bool hasAnimatedTransform(SL sl = {});
 
     friend auto qHash(const Qml3DNode &node) { return qHash(node.modelNode()); }
 
@@ -43,7 +50,9 @@ private:
                            bool adjustScale);
 };
 
-QMLDESIGNER_EXPORT QList<ModelNode> toModelNodeList(const QList<Qml3DNode> &fxItemNodeList);
-QMLDESIGNER_EXPORT QList<Qml3DNode> toQml3DNodeList(const QList<ModelNode> &modelNodeList);
+QMLDESIGNER_EXPORT QList<ModelNode> toModelNodeList(const QList<Qml3DNode> &fxItemNodeList,
+                                                    ModelTracing::SourceLocation sl = {});
+QMLDESIGNER_EXPORT QList<Qml3DNode> toQml3DNodeList(const QList<ModelNode> &modelNodeList,
+                                                    ModelTracing::SourceLocation sl = {});
 
 } //QmlDesigner
