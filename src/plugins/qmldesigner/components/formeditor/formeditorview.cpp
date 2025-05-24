@@ -721,9 +721,10 @@ void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, Inf
 {
     QList<FormEditorItem *> changedItems;
 
-    QList<ModelNode> informationChangedNodes = Utils::filtered(
-        informationChangedHash.keys(),
-        [](const ModelNode &node) { return QmlItemNode::isValidQmlItemNode(node); });
+    QList<ModelNode> informationChangedNodes = Utils::filtered(informationChangedHash.keys(),
+                                                               [](const ModelNode &node) {
+                                                                   return node.isValid();
+                                                               });
 
     for (const ModelNode &node : informationChangedNodes) {
         const QmlItemNode qmlItemNode(node);
