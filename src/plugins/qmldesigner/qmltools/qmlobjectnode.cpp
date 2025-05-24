@@ -117,8 +117,8 @@ QmlModelState QmlObjectNode::currentState(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    if (isValid())
-        return QmlModelState(view()->currentStateNode());
+    if (auto view = this->view())
+        return QmlModelState(view->currentStateNode());
     else
         return QmlModelState();
 }
@@ -193,11 +193,7 @@ bool QmlObjectNode::hasBindingProperty(PropertyNameView name, SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    if (!isValid())
-        return false;
-
-    if (currentState().hasPropertyChanges(modelNode())) {
-        QmlPropertyChanges propertyChanges = currentState().propertyChanges(modelNode());
+    if (QmlPropertyChanges propertyChanges = currentState().propertyChanges(modelNode())) {
         if (propertyChanges.modelNode().hasBindingProperty(name))
             return true;
     }

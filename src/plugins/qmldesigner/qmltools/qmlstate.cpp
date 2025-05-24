@@ -172,9 +172,6 @@ QList<QmlModelStateOperation> QmlModelState::allInvalidStateOperations(SL sl) co
 
 void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
 {
-    if (!isValid())
-        return;
-
     if (!hasPropertyChanges(node)) {
         ModelNode newChangeSet;
 
