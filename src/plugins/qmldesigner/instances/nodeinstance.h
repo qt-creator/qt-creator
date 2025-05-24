@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QSharedPointer>
 #include <QTransform>
 #include <QPointF>
 #include <QSizeF>
@@ -11,6 +10,8 @@
 
 #include "commondefines.h"
 #include "nodeinstanceglobal.h"
+
+#include <memory>
 
 namespace QmlDesigner {
 
@@ -24,13 +25,15 @@ class NodeInstance
 
 public:
     static NodeInstance create(const ModelNode &node);
-    NodeInstance();
+    constexpr NodeInstance() = default;
     ~NodeInstance();
     NodeInstance(const NodeInstance &other);
     NodeInstance& operator=(const NodeInstance &other);
 
     ModelNode modelNode() const;
     bool isValid() const;
+
+    explicit operator bool() const { return isValid(); }
     void makeInvalid();
     QRectF boundingRect() const;
     QRectF contentItemBoundingRect() const;
@@ -71,6 +74,8 @@ public:
     bool hasError() const;
     QStringList allStateNames() const;
 
+    static NodeInstance &null();
+
 protected:
     void setProperty(PropertyNameView name, const QVariant &value);
     InformationName setInformation(InformationName name,
@@ -107,10 +112,10 @@ protected:
     void setParentId(qint32 instanceId);
     void setRenderPixmap(const QImage &image);
     bool setError(const QString &errorMessage);
-    NodeInstance(ProxyNodeInstanceData *d);
+    NodeInstance(const ModelNode &node);
 
 private:
-    QSharedPointer<ProxyNodeInstanceData> d;
+    std::shared_ptr<ProxyNodeInstanceData> d;
 };
 
 bool operator ==(const NodeInstance &first, const NodeInstance &second);

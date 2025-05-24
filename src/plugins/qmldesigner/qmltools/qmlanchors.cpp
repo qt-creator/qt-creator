@@ -458,9 +458,6 @@ bool QmlAnchors::instanceHasAnchor(AnchorLineType sourceAnchorLine, SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    if (!qmlItemNode().isValid())
-        return false;
-
     const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLine);
 
     if (sourceAnchorLine & AnchorLineFill)

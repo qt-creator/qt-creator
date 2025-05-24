@@ -104,7 +104,8 @@ void MoveManipulator::setDirectUpdateInNodeInstances(bool directUpdate)
     const auto allFormEditorItems = m_view->scene()->allFormEditorItems();
     for (FormEditorItem *item : std::as_const(m_itemList)) {
         if (item && allFormEditorItems.contains(item) && item->qmlItemNode().isValid())
-            item->qmlItemNode().nodeInstance().setDirectUpdate(directUpdate);
+            if (auto instance = item->qmlItemNode().nodeInstance())
+                instance.setDirectUpdate(directUpdate);
     }
 }
 

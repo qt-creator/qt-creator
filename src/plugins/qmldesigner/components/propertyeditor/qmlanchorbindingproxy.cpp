@@ -274,7 +274,7 @@ bool QmlAnchorBindingProxy::executeInTransaction(const QByteArray &identifier, c
 
 bool QmlAnchorBindingProxy::hasParent() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.hasNodeParent();
+    return m_qmlItemNode.hasNodeParent();
 }
 
 bool QmlAnchorBindingProxy::isInLayout() const
@@ -284,41 +284,36 @@ bool QmlAnchorBindingProxy::isInLayout() const
 
 bool QmlAnchorBindingProxy::isFilled() const
 {
-    return m_qmlItemNode.isValid()
-            && hasAnchors()
-            && topAnchored()
-            && bottomAnchored()
-            && leftAnchored()
-            && rightAnchored()
-            && (m_qmlItemNode.instanceValue("anchors.topMargin").toInt() == 0)
-            && (m_qmlItemNode.instanceValue("anchors.bottomMargin").toInt() == 0)
-            && (m_qmlItemNode.instanceValue("anchors.leftMargin").toInt() == 0)
-            && (m_qmlItemNode.instanceValue("anchors.rightMargin").toInt() == 0);
+    return hasAnchors() && topAnchored() && bottomAnchored() && leftAnchored() && rightAnchored()
+           && (m_qmlItemNode.instanceValue("anchors.topMargin").toInt() == 0)
+           && (m_qmlItemNode.instanceValue("anchors.bottomMargin").toInt() == 0)
+           && (m_qmlItemNode.instanceValue("anchors.leftMargin").toInt() == 0)
+           && (m_qmlItemNode.instanceValue("anchors.rightMargin").toInt() == 0);
 }
 
 bool QmlAnchorBindingProxy::topAnchored() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineTop);
+    return m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineTop);
 }
 
 bool QmlAnchorBindingProxy::bottomAnchored() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineBottom);
+    return m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineBottom);
 }
 
 bool QmlAnchorBindingProxy::leftAnchored() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineLeft);
+    return m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineLeft);
 }
 
 bool QmlAnchorBindingProxy::rightAnchored() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineRight);
+    return m_qmlItemNode.anchors().instanceHasAnchor(AnchorLineRight);
 }
 
 bool QmlAnchorBindingProxy::hasAnchors() const
 {
-    return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchors();
+    return m_qmlItemNode.anchors().instanceHasAnchors();
 }
 
 

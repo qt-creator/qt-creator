@@ -20,7 +20,10 @@ namespace QmlDesigner {
 class ProxyNodeInstanceData
 {
 public:
-    ProxyNodeInstanceData()
+    ProxyNodeInstanceData() = default;
+
+    ProxyNodeInstanceData(const ModelNode &node)
+        : modelNode{node}
     {}
 
     qint32 parentInstanceId{-1};
@@ -58,20 +61,14 @@ public:
     QStringList allStates;
 };
 
-NodeInstance::NodeInstance() = default;
-
-NodeInstance::NodeInstance(ProxyNodeInstanceData *dPointer)
-    : d(dPointer)
+NodeInstance::NodeInstance(const ModelNode &node)
+    : d(std::make_shared<ProxyNodeInstanceData>(node))
 {
 }
 
 NodeInstance NodeInstance::create(const ModelNode &node)
 {
-    auto d = new ProxyNodeInstanceData;
-
-    d->modelNode = node;
-
-    return NodeInstance(d);
+    return NodeInstance{node};
 }
 
 NodeInstance::~NodeInstance() = default;
@@ -141,17 +138,33 @@ bool NodeInstance::hasAnchors() const
 
 QString NodeInstance::error() const
 {
-    return d->errorMessage;
+    if (d)
+        return d->errorMessage;
+
+    return {};
 }
 
 bool NodeInstance::hasError() const
 {
-    return !d->errorMessage.isEmpty();
+    if (d)
+        return !d->errorMessage.isEmpty();
+
+    return false;
 }
 
 QStringList NodeInstance::allStateNames() const
 {
-    return d->allStates;
+    if (d)
+        return d->allStates;
+
+    return {};
+}
+
+static constinit NodeInstance nullInstance;
+
+NodeInstance &NodeInstance::null()
+{
+    return nullInstance;
 }
 
 bool NodeInstance::isValid() const
@@ -405,7 +418,7 @@ qint32 NodeInstance::parentId() const
     if (isValid())
         return d->parentInstanceId;
     else
-        return false;
+        return -1;
 }
 
 bool NodeInstance::hasAnchor(PropertyNameView name) const
@@ -489,11 +502,17 @@ void NodeInstance::setProperty(PropertyNameView name, const QVariant &value)
 
 QPixmap NodeInstance::renderPixmap() const
 {
-    return d->renderPixmap;
+    if (isValid())
+        return d->renderPixmap;
+
+    return {};
 }
 
 QPixmap NodeInstance::blurredRenderPixmap() const
 {
+    if (!isValid())
+        return {};
+
     if (d->blurredRenderPixmap.isNull()) {
         d->blurredRenderPixmap = QPixmap(d->renderPixmap.size());
         QPainter blurPainter(&d->blurredRenderPixmap);

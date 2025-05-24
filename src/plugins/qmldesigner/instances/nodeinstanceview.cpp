@@ -777,12 +777,21 @@ QList<NodeInstance> NodeInstanceView::instances() const
 
     \sa NodeInstance
 */
-NodeInstance NodeInstanceView::instanceForModelNode(const ModelNode &node) const
+const NodeInstance &NodeInstanceView::instanceForModelNode(const ModelNode &node) const
+{
+    return const_cast<NodeInstanceView &>(*this).instanceForModelNode(node);
+}
+
+NodeInstance &NodeInstanceView::instanceForModelNode(const ModelNode &node)
 {
     Q_ASSERT(node.isValid());
     Q_ASSERT(m_nodeInstanceHash.contains(node));
     Q_ASSERT(m_nodeInstanceHash.value(node).modelNode() == node);
-    return m_nodeInstanceHash.value(node);
+    auto found = m_nodeInstanceHash.find(node);
+    if (found != m_nodeInstanceHash.end())
+        return *found;
+
+    return NodeInstance::null();
 }
 
 bool NodeInstanceView::hasInstanceForModelNode(const ModelNode &node) const

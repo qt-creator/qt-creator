@@ -102,7 +102,8 @@ public:
     void sceneCreated(const SceneCreatedCommand &command) override;
 
     QList<NodeInstance> instances() const;
-    NodeInstance instanceForModelNode(const ModelNode &node) const ;
+    const NodeInstance &instanceForModelNode(const ModelNode &node) const;
+    NodeInstance &instanceForModelNode(const ModelNode &node);
     bool hasInstanceForModelNode(const ModelNode &node) const;
 
     NodeInstance instanceForId(qint32 id) const;

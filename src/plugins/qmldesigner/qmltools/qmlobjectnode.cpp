@@ -822,9 +822,12 @@ bool QmlObjectNode::instanceHasBinding(PropertyNameView name, SL sl) const
     return nodeInstance().hasBindingForProperty(name);
 }
 
-NodeInstance QmlObjectNode::nodeInstance() const
+const NodeInstance &QmlObjectNode::nodeInstance() const
 {
-    return nodeInstanceView()->instanceForModelNode(modelNode());
+    if (auto view = nodeInstanceView())
+        return view->instanceForModelNode(modelNode());
+
+    return NodeInstance::null();
 }
 
 QmlObjectNode QmlObjectNode::nodeForInstance(const NodeInstance &instance) const

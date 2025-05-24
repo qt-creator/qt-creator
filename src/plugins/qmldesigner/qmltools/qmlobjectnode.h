@@ -127,7 +127,7 @@ public:
     QList<ModelNode> getAllConnections(SL sl = {}) const;
 
 protected:
-    NodeInstance nodeInstance() const;
+    const NodeInstance &nodeInstance() const;
     QmlObjectNode nodeForInstance(const NodeInstance &instance) const;
     QmlItemNode itemForInstance(const NodeInstance &instance) const;
 };
