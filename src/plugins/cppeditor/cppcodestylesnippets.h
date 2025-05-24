@@ -30,6 +30,12 @@ void bar(int i)
     counter += i;
     }
 
+void aFunctionWithManyParametersOverManyLines(int a,
+    int b,
+    int c)
+    {
+    }
+
 namespace Foo
     {
     namespace Bar
