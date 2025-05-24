@@ -72,9 +72,9 @@ static bool cleverColorCompare(const QVariant &value1, const QVariant &value2)
 
 // "red" is the same color as "#ff0000"
 // To simplify editing we convert all explicit color names in the hash format
-static void fixAmbigousColorNames(const ModelNode &modelNode, PropertyNameView name, QVariant *value)
+static void fixAmbigousColorNames(const NodeMetaInfo &metaInfo, QVariant *value)
 {
-    if (auto metaInfo = modelNode.metaInfo(); metaInfo.property(name).propertyType().isColor()) {
+    if (metaInfo.isColor()) {
         if (value->typeId() == QMetaType::QColor) {
             QColor color = value->value<QColor>();
             int alpha = color.alpha();
@@ -87,9 +87,9 @@ static void fixAmbigousColorNames(const ModelNode &modelNode, PropertyNameView n
     }
 }
 
-static void fixUrl(const ModelNode &modelNode, PropertyNameView name, QVariant *value)
+static void fixUrl(const NodeMetaInfo &metaInfo, QVariant *value)
 {
-    if (auto metaInfo = modelNode.metaInfo(); metaInfo.property(name).propertyType().isUrl()) {
+    if (metaInfo.isUrl()) {
         if (!value->isValid())
             *value = QStringLiteral("");
     }
@@ -132,8 +132,9 @@ void PropertyEditorValue::setValue(const QVariant &value)
     if (!compareVariants(m_value, value) && !cleverDoubleCompare(value, m_value) && !colorsEqual)
         m_value = value;
 
-    fixAmbigousColorNames(modelNode(), name(), &m_value);
-    fixUrl(modelNode(), name(), &m_value);
+    auto propertyTypeMetaInfo = modelNode().metaInfo().property(name()).propertyType();
+    fixAmbigousColorNames(propertyTypeMetaInfo, &m_value);
+    fixUrl(propertyTypeMetaInfo, &m_value);
 
     if (!colorsEqual)
         emit valueChangedQml();
