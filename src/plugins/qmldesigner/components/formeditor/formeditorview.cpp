@@ -705,7 +705,8 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
     const bool isFlow = QmlItemNode(rootModelNode()).isFlowView();
     QList<FormEditorItem*> itemNodeList;
     for (const ModelNode &node : completedNodeList) {
-        if (const QmlItemNode qmlItemNode = (node)) {
+        if (node) {
+            const QmlItemNode qmlItemNode = node;
             if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
                 scene()->synchronizeParent(qmlItemNode);
                 itemNodeList.append(item);
@@ -873,7 +874,7 @@ void FormEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Proper
     for (auto &nodePropertyPair : propertyList) {
         const QmlItemNode qmlItemNode(nodePropertyPair.first);
         const PropertyName propertyName = nodePropertyPair.second;
-        if (qmlItemNode.isValid()) {
+        if (qmlItemNode.modelNode().isValid()) {
             if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
                 static const PropertyNameList skipList({"x", "y", "width", "height"});
                 if (!skipList.contains(propertyName)) {
