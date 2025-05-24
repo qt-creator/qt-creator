@@ -9,13 +9,19 @@
 #include "gittr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/fileutils.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <utils/async.h>
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
+
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <QApplication>
+#include <QClipboard>
 #include <QDebug>
 #include <QStringList>
 #include <QTimer>
@@ -78,8 +84,8 @@ GitSubmitEditor::GitSubmitEditor() :
     connect(this, &VcsBaseSubmitEditor::diffSelectedRows, this, &GitSubmitEditor::slotDiffSelected);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::showRequested, this, &GitSubmitEditor::showCommit);
     connect(submitEditorWidget(), &GitSubmitEditorWidget::logRequested, this, &GitSubmitEditor::showLog);
-    connect(submitEditorWidget(), &GitSubmitEditorWidget::revertFileRequested,
-            this, &GitSubmitEditor::revertFile);
+    connect(submitEditorWidget(), &GitSubmitEditorWidget::fileActionRequested,
+            this, &GitSubmitEditor::performFileAction);
     connect(versionControl(), &Core::IVersionControl::repositoryChanged,
             this, &GitSubmitEditor::forceUpdateFileModel);
     connect(&m_fetchWatcher, &QFutureWatcher<Result<CommitData>>::finished,
@@ -194,21 +200,69 @@ void GitSubmitEditor::showLog(const QStringList &range)
         gitClient().log(m_workingDirectory, {}, false, range);
 }
 
-void GitSubmitEditor::revertFile(const Utils::FilePath &filePath, RevertType type)
+void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAction action)
 {
-    if (!m_workingDirectory.isEmpty()) {
+    if (m_workingDirectory.isEmpty())
+        return;
+
+    bool refresh = false;
+    const FilePath fullPath = m_workingDirectory.pathAppended(filePath.toUrlishString());
+
+    switch (action) {
+    case FileRevertAll:
+    case FileRevertUnstaged:
+    case FileRevertDeletion: {
         const QStringList files = {filePath.toUrlishString()};
-        const bool revertStaging = type != RevertUnstaged;
+        const bool revertStaging = action != FileRevertUnstaged;
         const bool success = gitClient().synchronousCheckoutFiles(m_workingDirectory, files,
                                                                   {}, nullptr, revertStaging);
         if (success) {
-            const QString message = (type == RevertDeletion)
+            const QString message = (action == FileRevertDeletion)
                 ? Tr::tr("File \"%1\" recovered.\n").arg(filePath.toUserOutput())
                 : Tr::tr("File \"%1\" reverted.\n").arg(filePath.toUserOutput());
             VcsOutputWindow::append(message, VcsOutputWindow::Message);
-            QTimer::singleShot(10, this, &GitSubmitEditor::updateFileModel);
+            refresh = true;
         }
+        break;
     }
+
+    case FileCopyClipboard:
+        QApplication::clipboard()->setText(filePath.toUserOutput());
+        break;
+
+    case FileCopyFullClipboard:
+        QApplication::clipboard()->setText(fullPath.toUserOutput());
+        break;
+
+    case FileOpenEditor:
+        Core::EditorManager::openEditor(fullPath);
+        break;
+
+    case FileOpenGraphicalShell:
+        Core::FileUtils::showInGraphicalShell(fullPath);
+        break;
+
+    case FileShowFileSystem:
+        Core::FileUtils::showInFileSystemView(fullPath);
+        break;
+
+    case FileOpenTerminal:
+        Core::FileUtils::openTerminal(fullPath, {});
+        break;
+
+    case FileStage:
+        gitClient().addFile(m_workingDirectory, filePath.toUrlishString());
+        refresh = true;
+        break;
+
+    case FileUnstage:
+        gitClient().synchronousReset(m_workingDirectory, {filePath.toUrlishString()});
+        refresh = true;
+        break;
+    }
+
+    if (refresh)
+        QTimer::singleShot(10, this, &GitSubmitEditor::updateFileModel);
 }
 
 void GitSubmitEditor::updateFileModel()

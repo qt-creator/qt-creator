@@ -10,6 +10,7 @@
 #include "logchangedialog.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/fileutils.h>
 
 #include <utils/completingtextedit.h>
 #include <utils/filepath.h>
@@ -274,35 +275,52 @@ void GitSubmitEditorWidget::addFileContextMenuActions(QMenu *menu, const QModelI
     const FileStates state = static_cast<FileStates>(model->extraData(index.row()).toInt());
 
     menu->addSeparator();
+    const auto addAction =
+        [this,
+         menu,
+         filePath](const QString &title, FileAction action, const QString &revertPrompt = {}) {
+            QAction *act = menu->addAction(title);
+            connect(act, &QAction::triggered, this, [=, this] {
+                if (!revertPrompt.isEmpty()) {
+                    const int result = QMessageBox::question(
+                        this,
+                        Tr::tr("Revert File"),
+                        revertPrompt,
+                        QMessageBox::Yes | QMessageBox::No);
+                    if (result != QMessageBox::Yes)
+                        return;
+                }
+                emit fileActionRequested(filePath, action);
+            });
+        };
+    addAction(Tr::tr("Copy \"%1\"").arg(filePath.toUserOutput()), FileCopyClipboard);
+    addAction(Tr::tr("Copy Full Path"), FileCopyFullClipboard);
+    menu->addSeparator();
+    addAction(Tr::tr("Open \"%1\" in Editor").arg(filePath.toUserOutput()), FileOpenEditor);
+    addAction(Core::FileUtils::msgGraphicalShellAction(), FileOpenGraphicalShell);
+    addAction(Core::FileUtils::msgFileSystemAction(), FileShowFileSystem);
+    addAction(Core::FileUtils::msgTerminalHereAction(), FileOpenTerminal);
+    menu->addSeparator();
     if (state & DeletedFile) {
-        QAction *recover = menu->addAction(Tr::tr("Recover File \"%1\"").arg(filePath.toUserOutput()));
-        connect(recover, &QAction::triggered, this, [this, filePath] {
-            emit revertFileRequested(filePath, RevertDeletion);
-        });
+        addAction(Tr::tr("Recover \"%1\"").arg(filePath.toUserOutput()), FileRevertDeletion);
     } else if (state == (StagedFile | ModifiedFile)) {
-        QAction *revert = menu->addAction(Tr::tr("Revert All Changes to File \"%1\"")
-                                              .arg(filePath.toUserOutput()));
-        connect(revert, &QAction::triggered, this, [this, filePath] {
-            const QString question = Tr::tr("<p>Undo <b>all</b> changes to the file \"%1\"?</p>"
-                                            "<p>Note: These changes will be lost.</p>")
-                                         .arg(filePath.toUserOutput());
-            const int result = QMessageBox::question(this, Tr::tr("Revert File"), question,
-                                                     QMessageBox::Yes | QMessageBox::No);
-            if (result == QMessageBox::Yes)
-                emit revertFileRequested(filePath, RevertAll);
-        });
+        addAction(Tr::tr("Unstage \"%1\"").arg(filePath.toUserOutput()), FileUnstage);
+        menu->addSeparator();
+        addAction(
+            Tr::tr("Revert All Changes to \"%1\"").arg(filePath.toUserOutput()),
+            FileRevertAll,
+            Tr::tr("<p>Undo <b>all</b> changes to the file \"%1\"?</p>"
+                   "<p>Note: These changes will be lost.</p>")
+                .arg(filePath.toUserOutput()));
     } else if (state == ModifiedFile) {
-        QAction *revert = menu->addAction(Tr::tr("Revert Unstaged Changes to File \"%1\"")
-                                              .arg(filePath.toUserOutput()));
-        connect(revert, &QAction::triggered, this, [this, filePath] {
-            const QString question = Tr::tr("<p>Undo unstaged changes to the file \"%1\"?</p>"
-                                            "<p>Note: These changes will be lost.</p>")
-                                         .arg(filePath.toUserOutput());
-            const int result = QMessageBox::question(this, Tr::tr("Revert File"), question,
-                                                     QMessageBox::Yes | QMessageBox::No);
-            if (result == QMessageBox::Yes)
-                emit revertFileRequested(filePath, RevertUnstaged);
-        });
+        addAction(Tr::tr("Stage \"%1\"").arg(filePath.toUserOutput()), FileStage);
+        menu->addSeparator();
+        addAction(
+            Tr::tr("Revert Unstaged Changes to \"%1\"").arg(filePath.toUserOutput()),
+            FileRevertUnstaged,
+            Tr::tr("<p>Undo unstaged changes to the file \"%1\"?</p>"
+                   "<p>Note: These changes will be lost.</p>")
+                .arg(filePath.toUserOutput()));
     }
 }
 

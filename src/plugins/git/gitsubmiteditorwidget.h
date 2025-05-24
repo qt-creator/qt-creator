@@ -53,7 +53,7 @@ protected:
 signals:
     void showRequested(const QString &commit);
     void logRequested(const QStringList &range);
-    void revertFileRequested(const Utils::FilePath &filePath, RevertType type);
+    void fileActionRequested(const Utils::FilePath &filePath, FileAction action);
 
 private:
     void authorInformationChanged();

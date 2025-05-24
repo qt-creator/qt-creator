@@ -21,10 +21,18 @@ public:
     QString branch;
 };
 
-enum RevertType {
-    RevertAll,
-    RevertUnstaged,
-    RevertDeletion
+enum FileAction {
+    FileRevertAll,
+    FileRevertUnstaged,
+    FileRevertDeletion,
+    FileCopyClipboard,
+    FileCopyFullClipboard,
+    FileOpenEditor,
+    FileOpenGraphicalShell,
+    FileShowFileSystem,
+    FileOpenTerminal,
+    FileStage,
+    FileUnstage
 };
 
 enum PushAction {
