@@ -909,55 +909,70 @@ void GitClient::monitorDirectory(const Utils::FilePath &path)
 
 void GitClient::updateModificationInfos()
 {
-    using IVCF = IVersionControl::FileState;
     for (const ModificationInfo &infoTemp : std::as_const(m_modifInfos)) {
         const FilePath path = infoTemp.rootPath;
-
-        const auto command = [path, this](const CommandResult &result) {
-            if (!m_modifInfos.contains(path))
-                return;
-
-            ModificationInfo &info = m_modifInfos[path];
-
-            const QStringList res = result.cleanedStdOut().split("\n", Qt::SkipEmptyParts);
-            QHash<QString, IVCF> modifiedFiles;
-            for (const QString &line : res) {
-                if (line.size() <= 3)
-                    continue;
-
-                static const QHash<QChar, IVCF> gitStates {
-                    {'M', IVCF::ModifiedState},
-                    {'A', IVCF::AddedState},
-                    {'R', IVCF::RenamedState},
-                    {'D', IVCF::DeletedState},
-                    {'?', IVCF::UnmanagedState},
-                };
-
-                const IVCF modification = std::max(gitStates.value(line.at(0), IVCF::NoModification),
-                         gitStates.value(line.at(1), IVCF::NoModification));
-
-                if (modification != IVCF::NoModification)
-                    modifiedFiles.insert(line.mid(3).trimmed(), modification);
-            }
-
-            const QHash<QString, IVCF> oldfiles = info.modifiedFiles;
-            info.modifiedFiles = modifiedFiles;
-
-            QStringList newList = modifiedFiles.keys();
-            QStringList list = oldfiles.keys();
-            newList.sort();
-            list.sort();
-            QStringList statusChangedFiles;
-
-            std::set_symmetric_difference(std::begin(list), std::end(list),
-                                          std::begin(newList), std::end(newList),
-                                          std::back_inserter(statusChangedFiles));
-
-            emitFileStatusChanged(info.rootPath, statusChangedFiles);
-        };
-        vcsExecWithHandler(path, {"status", "-s", "--porcelain", "--ignore-submodules"},
-                           this, command, RunFlags::NoOutput);
+        m_statusUpdateQueue.append(path);
     }
+    updateNextModificationInfo();
+}
+
+void GitClient::updateNextModificationInfo()
+{
+    using IVCF = IVersionControl::FileState;
+
+    if (m_statusUpdateQueue.isEmpty()) {
+        m_timer->start();
+        return;
+    }
+
+    const FilePath path = m_statusUpdateQueue.dequeue();
+
+    const auto command = [path, this](const CommandResult &result) {
+        updateNextModificationInfo();
+
+        if (!m_modifInfos.contains(path))
+            return;
+
+        ModificationInfo &info = m_modifInfos[path];
+
+        const QStringList res = result.cleanedStdOut().split("\n", Qt::SkipEmptyParts);
+        QHash<QString, IVCF> modifiedFiles;
+        for (const QString &line : res) {
+            if (line.size() <= 3)
+                continue;
+
+            static const QHash<QChar, IVCF> gitStates {
+                                                      {'M', IVCF::ModifiedState},
+                                                      {'A', IVCF::AddedState},
+                                                      {'R', IVCF::RenamedState},
+                                                      {'D', IVCF::DeletedState},
+                                                      {'?', IVCF::UnmanagedState},
+                                                      };
+
+            const IVCF modification = std::max(gitStates.value(line.at(0), IVCF::NoModification),
+                                               gitStates.value(line.at(1), IVCF::NoModification));
+
+            if (modification != IVCF::NoModification)
+                modifiedFiles.insert(line.mid(3).trimmed(), modification);
+        }
+
+        const QHash<QString, IVCF> oldfiles = info.modifiedFiles;
+        info.modifiedFiles = modifiedFiles;
+
+        QStringList newList = modifiedFiles.keys();
+        QStringList list = oldfiles.keys();
+        newList.sort();
+        list.sort();
+        QStringList statusChangedFiles;
+
+        std::set_symmetric_difference(std::begin(list), std::end(list),
+                                      std::begin(newList), std::end(newList),
+                                      std::back_inserter(statusChangedFiles));
+
+        emitFileStatusChanged(info.rootPath, statusChangedFiles);
+    };
+    vcsExecWithHandler(path, {"status", "-s", "--porcelain", "--ignore-submodules"},
+                       this, command, RunFlags::NoOutput);
 }
 
 TextCodec GitClient::defaultCommitEncoding() const
@@ -3911,6 +3926,7 @@ void GitClient::setupTimer()
     connect(m_timer.get(), &QTimer::timeout, this, &GitClient::updateModificationInfos);
     using namespace std::chrono_literals;
     m_timer->setInterval(10s);
+    m_timer->setSingleShot(true);
     m_timer->start();
 }
 

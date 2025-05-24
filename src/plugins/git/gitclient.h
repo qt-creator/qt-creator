@@ -14,6 +14,7 @@
 
 #include <vcsbase/vcsbaseclient.h>
 
+#include <QQueue>
 #include <QStringList>
 #include <QWidget>
 
@@ -401,6 +402,7 @@ private:
     bool cleanList(const Utils::FilePath &workingDirectory, const QString &modulePath,
                    const QString &flag, QStringList *files, QString *errorMessage);
     void updateModificationInfos();
+    void updateNextModificationInfo();
 
     enum ContinueCommandMode {
         ContinueOnly,
@@ -418,6 +420,7 @@ private:
     QString m_gitQtcEditor;
     QMap<Utils::FilePath, StashInfo> m_stashInfo;
     QHash<Utils::FilePath, ModificationInfo> m_modifInfos;
+    QQueue<Utils::FilePath> m_statusUpdateQueue;
     std::unique_ptr<QTimer> m_timer;
     QString m_diffCommit;
     Utils::FilePaths m_updatedSubmodules;
