@@ -3,7 +3,9 @@
 
 #include "selectionindicator.h"
 
-#include "annotation.h"
+#include "formeditortracing.h"
+
+#include <annotation.h>
 #include <designeractionmanager.h>
 #include <formeditorannotationicon.h>
 
@@ -20,18 +22,25 @@
 
 namespace QmlDesigner {
 
+static auto category = FormEditorTracing::category;
+
 SelectionIndicator::SelectionIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)
 {
+    NanotraceHR::Tracer tracer{"selection indicator constructor", category()};
 }
 
 SelectionIndicator::~SelectionIndicator()
 {
+    NanotraceHR::Tracer tracer{"selection indicator destructor", category()};
+
     clear();
 }
 
 void SelectionIndicator::show()
 {
+    NanotraceHR::Tracer tracer{"selection indicator show", category()};
+
     for (QGraphicsPolygonItem *item : std::as_const(m_indicatorShapeHash))
         item->show();
     if (m_labelItem)
@@ -40,6 +49,8 @@ void SelectionIndicator::show()
 
 void SelectionIndicator::hide()
 {
+    NanotraceHR::Tracer tracer{"selection indicator hide", category()};
+
     for (QGraphicsPolygonItem *item : std::as_const(m_indicatorShapeHash))
         item->hide();
     if (m_labelItem)
@@ -48,6 +59,8 @@ void SelectionIndicator::hide()
 
 void SelectionIndicator::clear()
 {
+    NanotraceHR::Tracer tracer{"selection indicator clear", category()};
+
     if (m_layerItem) {
         for (QGraphicsPolygonItem *item : std::as_const(m_indicatorShapeHash)) {
             m_layerItem->scene()->removeItem(item);
@@ -76,6 +89,8 @@ const int labelHeight = 18;
 
 void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"selection indicator set items", category()};
+
     clear();
 
     static QColor selectionColor = Utils::creatorColor(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
@@ -156,6 +171,8 @@ void SelectionIndicator::setItems(const QList<FormEditorItem*> &itemList)
 
 void SelectionIndicator::updateItems(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"selection indicator update items", category()};
+
     for (FormEditorItem *item : itemList) {
         if (m_indicatorShapeHash.contains(item)) {
             QGraphicsPolygonItem *indicatorGraphicsItem =  m_indicatorShapeHash.value(item);
@@ -183,6 +200,8 @@ void SelectionIndicator::updateItems(const QList<FormEditorItem*> &itemList)
 
 void SelectionIndicator::setCursor(const QCursor &cursor)
 {
+    NanotraceHR::Tracer tracer{"selection indicator set cursor", category()};
+
     m_cursor = cursor;
 
     for (QGraphicsItem  *item : std::as_const(m_indicatorShapeHash))
@@ -191,6 +210,8 @@ void SelectionIndicator::setCursor(const QCursor &cursor)
 
 void SelectionIndicator::adjustAnnotationPosition(const QRectF &itemRect, const QRectF &labelRect, qreal scaleFactor)
 {
+    NanotraceHR::Tracer tracer{"selection indicator adjust annotation position", category()};
+
     if (!m_annotationItem) return;
 
     const qreal iconWShift = m_annotationItem->iconWidth() * 0.5;

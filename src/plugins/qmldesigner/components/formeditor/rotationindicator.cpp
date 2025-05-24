@@ -4,6 +4,7 @@
 #include "rotationindicator.h"
 
 #include "formeditoritem.h"
+#include "formeditortracing.h"
 
 #include <designermcumanager.h>
 #include <nodehints.h>
@@ -11,31 +12,43 @@
 
 namespace QmlDesigner {
 
+static auto category = FormEditorTracing::category;
+
 RotationIndicator::RotationIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)
 {
+    NanotraceHR::Tracer tracer{"resize indicator constructor", category()};
+
     Q_ASSERT(layerItem);
 }
 
 RotationIndicator::~RotationIndicator()
 {
+    NanotraceHR::Tracer tracer{"resize indicator destructor", category()};
+
     m_itemControllerHash.clear();
 }
 
 void RotationIndicator::show()
 {
+    NanotraceHR::Tracer tracer{"resize indicator show", category()};
+
     for (RotationController controller : std::as_const(m_itemControllerHash))
         controller.show();
 }
 
 void RotationIndicator::hide()
 {
+    NanotraceHR::Tracer tracer{"resize indicator hide", category()};
+
     for (RotationController controller : std::as_const(m_itemControllerHash))
         controller.hide();
 }
 
 void RotationIndicator::clear()
 {
+    NanotraceHR::Tracer tracer{"resize indicator clear", category()};
+
     m_itemControllerHash.clear();
 }
 namespace {
@@ -89,6 +102,8 @@ bool itemIsRotatable(const QmlItemNode &qmlItemNode)
 
 void RotationIndicator::setItems(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"resize indicator set items", category()};
+
     clear();
 
     for (FormEditorItem *item : itemList) {
@@ -101,6 +116,8 @@ void RotationIndicator::setItems(const QList<FormEditorItem*> &itemList)
 
 void RotationIndicator::updateItems(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"resize indicator update items", category()};
+
     for (FormEditorItem *item : itemList) {
         if (m_itemControllerHash.contains(item)) {
             if (!item || !itemIsRotatable(item->qmlItemNode())) {

@@ -3,14 +3,14 @@
 
 #include "transitiontool.h"
 
-#include <formeditorscene.h>
-#include <formeditorview.h>
-#include <formeditorwidget.h>
-#include <itemutilfunctions.h>
-#include <formeditoritem.h>
-#include <layeritem.h>
-
-#include <resizehandleitem.h>
+#include "formeditoritem.h"
+#include "formeditorscene.h"
+#include "formeditortracing.h"
+#include "formeditorview.h"
+#include "formeditorwidget.h"
+#include "itemutilfunctions.h"
+#include "layeritem.h"
+#include "resizehandleitem.h"
 
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>
@@ -35,6 +35,8 @@
 #include <QGraphicsSceneMouseEvent>
 
 namespace QmlDesigner {
+
+static auto category = FormEditorTracing::category;
 
 static bool isTransitionSource(const ModelNode &node)
 {
@@ -137,6 +139,8 @@ void static setToBoundingRect(QGraphicsRectItem *rect, FormEditorItem *item)
 TransitionTool::TransitionTool()
     : QObject(), AbstractCustomTool()
 {
+    NanotraceHR::Tracer tracer{"transition tool constructor", category()};
+
     TransitionToolAction *transitionToolAction = new TransitionToolAction("AddTransition",
                                                                           tr("Add Transition"));
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(transitionToolAction);
@@ -201,10 +205,13 @@ TransitionTool::TransitionTool()
 
 TransitionTool::~TransitionTool()
 {
+    NanotraceHR::Tracer tracer{"transition tool destructor", category()};
 }
 
 void TransitionTool::clear()
 {
+    NanotraceHR::Tracer tracer{"transition tool clear", category()};
+
     m_lineItem.reset(nullptr);
     m_rectangleItem1.reset(nullptr);
     m_rectangleItem2.reset(nullptr);
@@ -215,6 +222,8 @@ void TransitionTool::clear()
 void TransitionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
                                             QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"transition tool mouse press event", category()};
+
     if (m_blockEvents)
         return;
 
@@ -228,6 +237,8 @@ void TransitionTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
 void TransitionTool::mouseMoveEvent(const QList<QGraphicsItem*> & itemList,
                               QGraphicsSceneMouseEvent * event)
 {
+    NanotraceHR::Tracer tracer{"transition tool mouse move event", category()};
+
     if (!m_lineItem)
         return;
 
@@ -254,6 +265,8 @@ void TransitionTool::mouseMoveEvent(const QList<QGraphicsItem*> & itemList,
 void TransitionTool::hoverMoveEvent(const QList<QGraphicsItem*> & itemList,
                         QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"transition tool hover move event", category()};
+
     mouseMoveEvent(itemList, event);
 }
 
@@ -263,6 +276,8 @@ void TransitionTool::keyPressEvent(QKeyEvent * /*keyEvent*/)
 
 void TransitionTool::keyReleaseEvent(QKeyEvent * /*keyEvent*/)
 {
+    NanotraceHR::Tracer tracer{"transition tool key release event", category()};
+
     view()->changeToSelectionTool();
 }
 
@@ -277,6 +292,8 @@ void  TransitionTool::dragMoveEvent(const QList<QGraphicsItem*> &/*itemList*/, Q
 void TransitionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
                                  QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"transition tool mouse press event", category()};
+
     if (m_blockEvents)
         return;
 
@@ -294,16 +311,22 @@ void TransitionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
 
 void TransitionTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &itemList, QGraphicsSceneMouseEvent *event)
 {
+    NanotraceHR::Tracer tracer{"transition tool mouse double click event", category()};
+
     AbstractFormEditorTool::mouseDoubleClickEvent(itemList, event);
 }
 
 void TransitionTool::itemsAboutToRemoved(const QList<FormEditorItem*> &)
 {
+    NanotraceHR::Tracer tracer{"transition tool items about to removed", category()};
+
     view()->changeCurrentToolTo(this);
 }
 
 void TransitionTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 {
+    NanotraceHR::Tracer tracer{"transition tool selected items changed", category()};
+
     if (!itemList.isEmpty()) {
         createItems();
 
@@ -330,6 +353,8 @@ void TransitionTool::formEditorItemsChanged(const QList<FormEditorItem*> & /*ite
 
 int TransitionTool::wantHandleItem(const ModelNode &modelNode) const
 {
+    NanotraceHR::Tracer tracer{"transition tool want handle item", category()};
+
     if (isTransitionSource(modelNode))
         return 10;
 
@@ -343,38 +368,53 @@ QString TransitionTool::name() const
 
 void TransitionTool::activateTool()
 {
+    NanotraceHR::Tracer tracer{"transition tool activate", category()};
+
     view()->changeToCustomTool();
 }
 
 void TransitionTool::unblock()
 {
+    NanotraceHR::Tracer tracer{"transition tool unblock", category()};
+
     m_blockEvents = false;
 }
 
 QGraphicsLineItem *TransitionTool::lineItem()
 {
+    NanotraceHR::Tracer tracer{"transition tool line item", category()};
+
     return m_lineItem.get();
 }
 
 QGraphicsRectItem *TransitionTool::rectangleItem1()
 {
+    NanotraceHR::Tracer tracer{"transition tool rectangle item 1", category()};
+
     return m_rectangleItem1.get();
 }
 
 QGraphicsRectItem *TransitionTool::rectangleItem2()
 {
+    NanotraceHR::Tracer tracer{"transition tool rectangle item 2", category()};
+
     return m_rectangleItem2.get();
 }
 
 FormEditorItem *TransitionTool::currentFormEditorItem() const
 {
+    NanotraceHR::Tracer tracer{"transition tool current form editor item", category()};
+
     if (scene()->items().contains(m_formEditorItem))
         return m_formEditorItem;
 
     return nullptr;
 }
 
-void TransitionTool::createItems() {
+void TransitionTool::createItems()
+{
+    NanotraceHR::Tracer tracer{"transition tool create items", category()};
+
     m_blockEvents = true;
     QTimer::singleShot(200, this, [this](){ unblock(); });
 
@@ -406,6 +446,8 @@ void TransitionTool::createItems() {
 
 void TransitionTool::createTransition(FormEditorItem *source, FormEditorItem *target)
 {
+    NanotraceHR::Tracer tracer{"transition tool create transition", category()};
+
     QmlFlowTargetNode sourceNode(source->qmlItemNode().modelNode());
     QmlFlowTargetNode targetNode(target->qmlItemNode().modelNode());
 

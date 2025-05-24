@@ -3,6 +3,7 @@
 
 #include "formeditoritem.h"
 #include "formeditorscene.h"
+#include "formeditortracing.h"
 
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
@@ -32,6 +33,10 @@
 #include <cmath>
 
 namespace QmlDesigner {
+
+using NanotraceHR::keyValue;
+
+static auto category = FormEditorTracing::category;
 
 const int flowBlockSize = 200;
 const int blockRadius = 18;
@@ -73,12 +78,18 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
     m_snappingLineCreator(this),
     m_qmlItemNode(qmlItemNode)
 {
+    NanotraceHR::Tracer tracer{"form editor item constructor",
+                               category(),
+                               keyValue("qmlItemNode", qmlItemNode.id())};
+
     setCacheMode(QGraphicsItem::NoCache);
     setup();
 }
 
 void FormEditorItem::setup()
 {
+    NanotraceHR::Tracer tracer{"form editor item setup", category()};
+
     setAcceptedMouseButtons(Qt::NoButton);
     const auto &itemNode = qmlItemNode();
 
@@ -109,6 +120,8 @@ void FormEditorItem::setup()
 
 QRectF FormEditorItem::boundingRect() const
 {
+    NanotraceHR::Tracer tracer{"form editor item bounding rect", category()};
+
     // Corner case: painting outside the bounding rectangle (boundingRec < paintedBoundingRect), which can be set in the Text items, for example.
     // QGraphicsItem needs valid painting boundaries returned by boundingRect(). Returning a bounding rectangle that is too small will cause artefacts in the view.
     return m_paintedBoundingRect;
@@ -116,6 +129,8 @@ QRectF FormEditorItem::boundingRect() const
 
 QPainterPath FormEditorItem::shape() const
 {
+    NanotraceHR::Tracer tracer{"form editor item shape", category()};
+
     QPainterPath painterPath;
     painterPath.addRect(m_selectionBoundingRect);
 
@@ -124,11 +139,15 @@ QPainterPath FormEditorItem::shape() const
 
 bool FormEditorItem::contains(const QPointF &point) const
 {
+    NanotraceHR::Tracer tracer{"form editor item contains", category()};
+
     return m_selectionBoundingRect.contains(point);
 }
 
 void FormEditorItem::updateGeometry()
 {
+    NanotraceHR::Tracer tracer{"form editor item update geometry", category()};
+
     prepareGeometryChange();
     const auto &itemNode = qmlItemNode();
 
@@ -152,6 +171,10 @@ FormEditorView *FormEditorItem::formEditorView() const
 
 void FormEditorItem::setHighlightBoundingRect(bool highlight)
 {
+    NanotraceHR::Tracer tracer{"form editor item set highlight bounding rect",
+                               category(),
+                               keyValue("highlight", highlight)};
+
     if (m_highlightBoundingRect != highlight) {
         m_highlightBoundingRect = highlight;
         update();
@@ -160,6 +183,10 @@ void FormEditorItem::setHighlightBoundingRect(bool highlight)
 
 void FormEditorItem::blurContent(bool blurContent)
 {
+    NanotraceHR::Tracer tracer{"form editor item blur content",
+                               category(),
+                               keyValue("blur content", blurContent)};
+
     if (!scene())
         return;
 
@@ -171,6 +198,10 @@ void FormEditorItem::blurContent(bool blurContent)
 
 void FormEditorItem::setContentVisible(bool visible)
 {
+    NanotraceHR::Tracer tracer{"form editor item set content visible",
+                               category(),
+                               keyValue("visible", visible)};
+
     if (visible == m_isContentVisible)
         return;
 
@@ -180,6 +211,8 @@ void FormEditorItem::setContentVisible(bool visible)
 
 bool FormEditorItem::isContentVisible() const
 {
+    NanotraceHR::Tracer tracer{"form editor item is content visible", category()};
+
     if (parentItem())
         return parentItem()->isContentVisible() && m_isContentVisible;
 
@@ -188,11 +221,17 @@ bool FormEditorItem::isContentVisible() const
 
 QPointF FormEditorItem::center() const
 {
+    NanotraceHR::Tracer tracer{"form editor item center", category()};
+
     return mapToScene(qmlItemNode().instanceBoundingRect().center());
 }
 
 qreal FormEditorItem::selectionWeigth(const QPointF &point, int iteration)
 {
+    NanotraceHR::Tracer tracer{"form editor item selection weight",
+                               category(),
+                               keyValue("iteration", iteration)};
+
     const auto &itemNode = qmlItemNode();
 
     if (!itemNode.isValid())
@@ -212,6 +251,10 @@ qreal FormEditorItem::selectionWeigth(const QPointF &point, int iteration)
 
 void FormEditorItem::synchronizeOtherProperty(PropertyNameView propertyName)
 {
+    NanotraceHR::Tracer tracer{"form editor item synchronize other property",
+                               category(),
+                               keyValue("propertyName", propertyName)};
+
     const auto &itemNode = qmlItemNode();
 
     if (propertyName == "opacity")
@@ -233,52 +276,73 @@ void FormEditorItem::synchronizeOtherProperty(PropertyNameView propertyName)
 
 void FormEditorItem::setDataModelPosition(const QPointF &position)
 {
+    NanotraceHR::Tracer tracer{"form editor item set data model position", category()};
     qmlItemNode().setPosition(position);
 }
 
 void FormEditorItem::setDataModelPositionInBaseState(const QPointF &position)
 {
+    NanotraceHR::Tracer tracer{"form editor item set data model position in base state", category()};
+
     qmlItemNode().setPostionInBaseState(position);
 }
 
 QPointF FormEditorItem::instancePosition() const
 {
+    NanotraceHR::Tracer tracer{"form editor item instance position", category()};
+
     return qmlItemNode().instancePosition();
 }
 
 QTransform FormEditorItem::instanceSceneTransform() const
 {
+    NanotraceHR::Tracer tracer{"form editor item instance scene transform", category()};
+
     return qmlItemNode().instanceSceneTransform();
 }
 
 QTransform FormEditorItem::instanceSceneContentItemTransform() const
 {
+    NanotraceHR::Tracer tracer{"form editor item instance scene content item transform", category()};
+
     return qmlItemNode().instanceSceneContentItemTransform();
 }
 
 bool FormEditorItem::flowHitTest(const QPointF & ) const
 {
+    NanotraceHR::Tracer tracer{"form editor item flow hit test", category()};
+
     return false;
 }
 
 void FormEditorItem::setFrameColor(const QColor &color)
 {
+    NanotraceHR::Tracer tracer{"form editor item set frame color", category()};
+
     m_frameColor = color;
     update();
 }
 
 void FormEditorItem::setHasEffect(bool hasEffect)
 {
+    NanotraceHR::Tracer tracer{"form editor item set has effect",
+                               category(),
+                               keyValue("hasEffect", hasEffect)};
+
     m_hasEffect = hasEffect;
 }
 
 bool FormEditorItem::hasEffect() const
 {
+    NanotraceHR::Tracer tracer{"form editor item has effect", category()};
+
     return m_hasEffect;
 }
 
 bool FormEditorItem::parentHasEffect() const
 {
+    NanotraceHR::Tracer tracer{"form editor item parent has effect", category()};
+
     FormEditorItem *pi = parentItem();
     while (pi) {
         if (pi->hasEffect())
@@ -290,12 +354,16 @@ bool FormEditorItem::parentHasEffect() const
 
 FormEditorItem::~FormEditorItem()
 {
+    NanotraceHR::Tracer tracer{"form editor item destructor", category()};
+
     scene()->removeItemFromHash(this);
 }
 
 /* \brief returns the parent item skipping all proxyItem*/
 FormEditorItem *FormEditorItem::parentItem() const
 {
+    NanotraceHR::Tracer tracer{"form editor item parent item", category()};
+
     return qgraphicsitem_cast<FormEditorItem*> (QGraphicsItem::parentItem());
 }
 
@@ -306,6 +374,8 @@ FormEditorItem* FormEditorItem::fromQGraphicsItem(QGraphicsItem *graphicsItem)
 
 void FormEditorItem::paintBoundingRect(QPainter *painter) const
 {
+    NanotraceHR::Tracer tracer{"form editor item paint bounding rect", category()};
+
     if (!m_boundingRect.isValid()
         || (QGraphicsItem::parentItem() == scene()->formLayerItem() && qFuzzyIsNull(m_borderWidth)))
           return;
@@ -395,6 +465,8 @@ void paintDecorationInPlaceHolderForInvisbleItem(QPainter *painter, const QRectF
 
 void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
 {
+    NanotraceHR::Tracer tracer{"form editor item paint place holder for invisible item", category()};
+
     painter->save();
     paintDecorationInPlaceHolderForInvisbleItem(painter, m_boundingRect);
     const auto &itemNode = qmlItemNode();
@@ -407,13 +479,17 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
 
 void FormEditorItem::paintComponentContentVisualisation(QPainter *painter, const QRectF &clippinRectangle) const
 {
+    NanotraceHR::Tracer tracer{"form editor item paint component content visualisation", category()};
+
     painter->setBrush(QColor(0, 0, 0, 150));
     painter->fillRect(clippinRectangle, Qt::BDiagPattern);
 }
 
 QList<FormEditorItem *> FormEditorItem::offspringFormEditorItemsRecursive(const FormEditorItem *formEditorItem) const
 {
-    QList<FormEditorItem*> formEditorItemList;
+    NanotraceHR::Tracer tracer{"form editor item  offsprint form editor items recursive", category()};
+
+    QList<FormEditorItem *> formEditorItemList;
 
     for (QGraphicsItem *item : formEditorItem->childItems()) {
         FormEditorItem *formEditorItem = fromQGraphicsItem(item);
@@ -427,6 +503,8 @@ QList<FormEditorItem *> FormEditorItem::offspringFormEditorItemsRecursive(const 
 
 void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
+    NanotraceHR::Tracer tracer{"form editor item paint", category()};
+
     if (!painter->isActive())
         return;
 
@@ -481,51 +559,71 @@ AbstractFormEditorTool* FormEditorItem::tool() const
 
 SnapLineMap FormEditorItem::topSnappingLines() const
 {
+    NanotraceHR::Tracer tracer{"form editor item top snapping lines", category()};
+
     return m_snappingLineCreator.topLines();
 }
 
 SnapLineMap FormEditorItem::bottomSnappingLines() const
 {
+    NanotraceHR::Tracer tracer{"form editor item bottom snapping lines", category()};
+
     return m_snappingLineCreator.bottomLines();
 }
 
 SnapLineMap FormEditorItem::leftSnappingLines() const
 {
+    NanotraceHR::Tracer tracer{"form editor item left snapping lines", category()};
+
     return m_snappingLineCreator.leftLines();
 }
 
 SnapLineMap FormEditorItem::rightSnappingLines() const
 {
+    NanotraceHR::Tracer tracer{"form editor item right snapping lines", category()};
+
     return m_snappingLineCreator.rightLines();
 }
 
 SnapLineMap FormEditorItem::horizontalCenterSnappingLines() const
 {
+    NanotraceHR::Tracer tracer{"form editor item horizontal center snapping lines", category()};
+
     return m_snappingLineCreator.horizontalCenterLines();
 }
 
 SnapLineMap FormEditorItem::verticalCenterSnappingLines() const
 {
+    NanotraceHR::Tracer tracer{"form editor item vertical center snapping lines", category()};
+
     return m_snappingLineCreator.verticalCenterLines();
 }
 
 SnapLineMap FormEditorItem::topSnappingOffsets() const
 {
+    NanotraceHR::Tracer tracer{"form editor item top snapping offsets", category()};
+
     return m_snappingLineCreator.topOffsets();
 }
 
 SnapLineMap FormEditorItem::bottomSnappingOffsets() const
 {
+    NanotraceHR::Tracer tracer{"form editor item bottom snapping offsets", category()};
+
     return m_snappingLineCreator.bottomOffsets();
 }
 
 SnapLineMap FormEditorItem::leftSnappingOffsets() const
 {
+    NanotraceHR::Tracer tracer{"form editor item left snapping offsets", category()};
+
     return m_snappingLineCreator.leftOffsets();
 }
 
 SnapLineMap FormEditorItem::rightSnappingOffsets() const
 {
+    NanotraceHR::Tracer tracer{"form editor item right snapping offsets", category()};
+
     return m_snappingLineCreator.rightOffsets();
 }
 
@@ -533,12 +631,16 @@ SnapLineMap FormEditorItem::rightSnappingOffsets() const
 void FormEditorItem::updateSnappingLines(const QList<FormEditorItem*> &exceptionList,
                                          FormEditorItem *transformationSpaceItem)
 {
+    NanotraceHR::Tracer tracer{"form editor item update snapping lines", category()};
+
     m_snappingLineCreator.update(exceptionList, transformationSpaceItem, this);
 }
 
 QList<FormEditorItem*> FormEditorItem::childFormEditorItems() const
 {
-    QList<FormEditorItem*> formEditorItemList;
+    NanotraceHR::Tracer tracer{"form editor item child form editor items", category()};
+
+    QList<FormEditorItem *> formEditorItemList;
 
     for (QGraphicsItem *item : childItems()) {
         FormEditorItem *formEditorItem = fromQGraphicsItem(item);
@@ -551,11 +653,15 @@ QList<FormEditorItem*> FormEditorItem::childFormEditorItems() const
 
 QList<FormEditorItem *> FormEditorItem::offspringFormEditorItems() const
 {
+    NanotraceHR::Tracer tracer{"form editor item offspring form editor items", category()};
+
     return offspringFormEditorItemsRecursive(this);
 }
 
 bool FormEditorItem::isContainer() const
 {
+    NanotraceHR::Tracer tracer{"form editor item is container", category()};
+
     NodeMetaInfo nodeMetaInfo = qmlItemNode().modelNode().metaInfo();
 
     if (nodeMetaInfo.isValid())
@@ -566,11 +672,15 @@ bool FormEditorItem::isContainer() const
 
 void FormEditorFlowItem::synchronizeOtherProperty(PropertyNameView)
 {
+    NanotraceHR::Tracer tracer{"form editor flow item synchronize other property", category()};
+
     setContentVisible(true);
 }
 
 void FormEditorFlowItem::setDataModelPosition(const QPointF &position)
 {
+    NanotraceHR::Tracer tracer{"form editor flow item set data model position", category()};
+
     qmlItemNode().setFlowItemPosition(position);
     updateGeometry();
 
@@ -588,11 +698,16 @@ void FormEditorFlowItem::setDataModelPosition(const QPointF &position)
 
 void FormEditorFlowItem::setDataModelPositionInBaseState(const QPointF &position)
 {
+    NanotraceHR::Tracer tracer{"form editor flow item set data model position in base state",
+                               category()};
+
     setDataModelPosition(position);
 }
 
 void FormEditorFlowItem::updateGeometry()
 {
+    NanotraceHR::Tracer tracer{"form editor flow item update geometry", category()};
+
     FormEditorItem::updateGeometry();
 
     const auto &itemNode = qmlItemNode();
@@ -619,6 +734,8 @@ void FormEditorFlowItem::updateGeometry()
 
 void FormEditorFlowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    NanotraceHR::Tracer tracer{"form editor flow item paint", category()};
+
     FormEditorItem::paint(painter, option, widget);
 
     if (!painter->isActive())
@@ -680,11 +797,15 @@ void FormEditorFlowItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
 QPointF FormEditorFlowItem::instancePosition() const
 {
+    NanotraceHR::Tracer tracer{"form editor flow item instance position", category()};
+
     return qmlItemNode().flowPosition();
 }
 
 void FormEditorFlowActionItem::setDataModelPosition(const QPointF &position)
 {
+    NanotraceHR::Tracer tracer{"form editor flow action item set data model position", category()};
+
     qmlItemNode().setPosition(position);
     updateGeometry();
 
@@ -702,12 +823,17 @@ void FormEditorFlowActionItem::setDataModelPosition(const QPointF &position)
 
 void FormEditorFlowActionItem::setDataModelPositionInBaseState(const QPointF &position)
 {
+    NanotraceHR::Tracer tracer{"form editor flow action item set data model position in base state",
+                               category()};
+
     qmlItemNode().setPostionInBaseState(position);
     updateGeometry();
 }
 
 void FormEditorFlowActionItem::updateGeometry()
 {
+    NanotraceHR::Tracer tracer{"form editor flow action item update geometry", category()};
+
     FormEditorItem::updateGeometry();
 
     const auto &itemNode = qmlItemNode();
@@ -732,6 +858,8 @@ void FormEditorFlowActionItem::updateGeometry()
 
 void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
+    NanotraceHR::Tracer tracer{"form editor flow action item paint", category()};
+
     if (!painter->isActive())
         return;
 
@@ -795,16 +923,23 @@ void FormEditorFlowActionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
 QTransform FormEditorFlowActionItem::instanceSceneTransform() const
 {
+    NanotraceHR::Tracer tracer{"form editor flow action item instance scene transform", category()};
+
     return sceneTransform();
 }
 
 QTransform FormEditorFlowActionItem::instanceSceneContentItemTransform() const
 {
+    NanotraceHR::Tracer tracer{"form editor flow action item instance scene content item transform",
+                               category()};
+
     return sceneTransform();
 }
 
 void FormEditorTransitionItem::synchronizeOtherProperty(PropertyNameView)
 {
+    NanotraceHR::Tracer tracer{"form editor transition item synchronize other property", category()};
+
     setContentVisible(true);
 }
 
@@ -1409,6 +1544,8 @@ static int normalizeAngle(int angle)
 
 void FormEditorTransitionItem::updateGeometry()
 {
+    NanotraceHR::Tracer tracer{"form editor transition item update geometry", category()};
+
     FormEditorItem::updateGeometry();
 
     ResolveConnection resolved(qmlItemNode());
@@ -1491,11 +1628,15 @@ void FormEditorTransitionItem::updateGeometry()
 
 QPointF FormEditorTransitionItem::instancePosition() const
 {
+    NanotraceHR::Tracer tracer{"form editor transition item instance position", category()};
+
     return qmlItemNode().flowPosition();
 }
 
 void FormEditorTransitionItem::drawLabels(QPainter *painter, const Connection &connection)
 {
+    NanotraceHR::Tracer tracer{"form editor transition item draw labels", category()};
+
     drawSingleLabel(painter, connection);
     drawSelectionLabel(painter, connection);
     drawGeneralLabel(painter, connection);
@@ -1503,6 +1644,8 @@ void FormEditorTransitionItem::drawLabels(QPainter *painter, const Connection &c
 
 void FormEditorTransitionItem::drawGeneralLabel(QPainter *painter, const Connection &connection)
 {
+    NanotraceHR::Tracer tracer{"form editor transition item draw general label", category()};
+
     if (connection.config.label.isEmpty())
         return;
 
@@ -1527,6 +1670,8 @@ void FormEditorTransitionItem::drawGeneralLabel(QPainter *painter, const Connect
 
 void FormEditorTransitionItem::drawSingleLabel(QPainter *painter, const Connection &connection)
 {
+    NanotraceHR::Tracer tracer{"form editor transition item draw single label", category()};
+
     const auto &connections = QmlFlowViewNode::getAssociatedConnections(qmlItemNode().modelNode());
     const QString events = connection.config.events;
 
@@ -1661,6 +1806,8 @@ void FormEditorTransitionItem::drawSingleLabel(QPainter *painter, const Connecti
 
 void FormEditorTransitionItem::drawSelectionLabel(QPainter *painter, const Connection &connection)
 {
+    NanotraceHR::Tracer tracer{"form editor transition item draw selection label", category()};
+
     if (!connection.config.isSelected)
         return;
 
@@ -1806,6 +1953,8 @@ static void drawArrow(QPainter *painter,
 
 void FormEditorTransitionItem::paintConnection(QPainter *painter, const Connection &connection)
 {
+    NanotraceHR::Tracer tracer{"form editor transition item paint connection", category()};
+
     const int arrowSize = 12 * getLineScaleFactor();
 
     painter->save();
@@ -1864,6 +2013,8 @@ void FormEditorTransitionItem::paintConnection(QPainter *painter, const Connecti
 
 void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
+    NanotraceHR::Tracer tracer{"form editor transition item paint", category()};
+
     if (!painter->isActive())
         return;
 
@@ -1971,6 +2122,8 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
 
 bool FormEditorTransitionItem::flowHitTest(const QPointF &point) const
 {
+    NanotraceHR::Tracer tracer{"form editor transition item flow hit test", category()};
+
     QImage image(boundingRect().size().toSize(), QImage::Format_ARGB32);
     image.fill(QColor("black"));
 
@@ -1986,6 +2139,8 @@ bool FormEditorTransitionItem::flowHitTest(const QPointF &point) const
 
 QTransform FormEditorItem::viewportTransform() const
 {
+    NanotraceHR::Tracer tracer{"form editor transition item viewport transform", category()};
+
     QTC_ASSERT(scene(), return {});
     QTC_ASSERT(!scene()->views().isEmpty(), return {});
 
@@ -1994,21 +2149,29 @@ QTransform FormEditorItem::viewportTransform() const
 
 qreal FormEditorItem::getItemScaleFactor() const
 {
+    NanotraceHR::Tracer tracer{"form editor item get item scale factor", category()};
+
     return 1.0 / viewportTransform().m11();
 }
 
 qreal FormEditorItem::getLineScaleFactor() const
 {
+    NanotraceHR::Tracer tracer{"form editor item get line scale factor", category()};
+
     return 2 / qSqrt(viewportTransform().m11());
 }
 
 qreal FormEditorItem::getTextScaleFactor() const
 {
+    NanotraceHR::Tracer tracer{"form editor item get text scale factor", category()};
+
     return 2 / qSqrt(viewportTransform().m11());
 }
 
 void FormEditorFlowDecisionItem::updateGeometry()
 {
+    NanotraceHR::Tracer tracer{"form editor item update geometry", category()};
+
     prepareGeometryChange();
 
     const auto &itemNode = qmlItemNode();
@@ -2095,6 +2258,8 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter,
                                        [[maybe_unused]] const QStyleOptionGraphicsItem *option,
                                        [[maybe_unused]] QWidget *widget)
 {
+    NanotraceHR::Tracer tracer{"form editor flow decision item paint", category()};
+
     if (!painter->isActive())
         return;
 
@@ -2238,16 +2403,22 @@ void FormEditorFlowDecisionItem::paint(QPainter *painter,
 
 bool FormEditorFlowDecisionItem::flowHitTest([[maybe_unused]] const QPointF &point) const
 {
+    NanotraceHR::Tracer tracer{"form editor flow decision item flow hit test", category()};
+
     return true;
 }
 
 void FormEditorFlowWildcardItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    NanotraceHR::Tracer tracer{"form editor flow wildcard item paint", category()};
+
     FormEditorFlowDecisionItem::paint(painter, option, widget);
 }
 
 void FormEditor3dPreview::updateGeometry()
 {
+    NanotraceHR::Tracer tracer{"form editor 3d preview update geometry", category()};
+
     prepareGeometryChange();
 
     m_boundingRect = qmlItemNode().instanceBoundingRect();
@@ -2260,6 +2431,8 @@ void FormEditor3dPreview::updateGeometry()
 
 QPointF FormEditor3dPreview::instancePosition() const
 {
+    NanotraceHR::Tracer tracer{"form editor 3d preview instance position", category()};
+
     return QPointF(0, 0);
 }
 
@@ -2267,6 +2440,8 @@ void FormEditor3dPreview::paint(QPainter *painter,
                                 [[maybe_unused]] const QStyleOptionGraphicsItem *option,
                                 [[maybe_unused]] QWidget *widget)
 {
+    NanotraceHR::Tracer tracer{"form editor 3d preview paint", category()};
+
     if (!painter->isActive())
         return;
 

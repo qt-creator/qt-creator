@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formeditortoolbutton.h"
+#include "formeditortracing.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
@@ -14,10 +15,14 @@
 
 namespace QmlDesigner {
 
+static auto category = FormEditorTracing::category;
+
 const int toolButtonSize = 14;
 
 FormEditorToolButton::FormEditorToolButton(QAction *action, QGraphicsItem *parent)  : QGraphicsWidget(parent), m_action(action)
 {
+    NanotraceHR::Tracer tracer{"form editor tool button constructor", category()};
+
     resize(toolButtonSize, toolButtonSize + 2);
     setPreferredSize(toolButtonSize, toolButtonSize + 2);
     setAcceptHoverEvents(true);
@@ -36,6 +41,8 @@ FormEditorToolButton::FormEditorToolButton(QAction *action, QGraphicsItem *paren
 
 void FormEditorToolButton::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
+    NanotraceHR::Tracer tracer{"form editor tool button paint", category()};
+
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
 
@@ -62,11 +69,15 @@ void FormEditorToolButton::paint(QPainter *painter, const QStyleOptionGraphicsIt
 
 QRectF FormEditorToolButton::boundingRect() const
 {
+    NanotraceHR::Tracer tracer{"form editor tool button bounding rect", category()};
+
     return QRectF(0, 0, toolButtonSize, toolButtonSize + 2);
 }
 
 void FormEditorToolButton::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 {
+    NanotraceHR::Tracer tracer{"form editor tool button hover enter event", category()};
+
     m_state = Hovered;
 
     QGraphicsObject::hoverEnterEvent(event);
@@ -76,6 +87,8 @@ void FormEditorToolButton::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
 
 void FormEditorToolButton::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 {
+    NanotraceHR::Tracer tracer{"form editor tool button hover leave event", category()};
+
     m_state = Normal;
 
     QGraphicsWidget::hoverLeaveEvent(event);
@@ -85,11 +98,15 @@ void FormEditorToolButton::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
 
 void FormEditorToolButton::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
 {
+    NanotraceHR::Tracer tracer{"form editor tool button hover move event", category()};
+
     QGraphicsWidget::hoverMoveEvent(event);
 }
 
 void FormEditorToolButton::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
+    NanotraceHR::Tracer tracer{"form editor tool button mouse press event", category()};
+
     m_state = Pressed;
     event->accept();
     update();
@@ -97,6 +114,8 @@ void FormEditorToolButton::mousePressEvent(QGraphicsSceneMouseEvent * event)
 
 void FormEditorToolButton::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
 {
+    NanotraceHR::Tracer tracer{"form editor tool button mouse release event", category()};
+
     m_state = Hovered;
 
     event->accept();

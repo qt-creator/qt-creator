@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include "formeditortracing.h"
+
 #include <qmldesignercomponents_global.h>
 
 #include <abstractview.h>
@@ -39,6 +41,8 @@ class QmlItemNode;
 class QMLDESIGNERCOMPONENTS_EXPORT FormEditorView : public AbstractView
 {
     Q_OBJECT
+
+    using SL = FormEditorTracing::SourceLocation;
 
 public:
     FormEditorView(ExternalDependenciesInterface &externalDependencies);

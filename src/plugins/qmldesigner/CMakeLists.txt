@@ -32,6 +32,11 @@ env_with_default("QDS_DESIGNVIEWER_USE_STAGING" ENV_QDS_DESIGNVIEWER_USE_STAGING
 option(QDS_DESIGNVIEWER_USE_STAGING "Use staging API URL for Design Viewer" ${ENV_QDS_DESIGNVIEWER_USE_STAGING})
 add_feature_info("Use staging API URL for Design Viewer" ${QDS_DESIGNVIEWER_USE_STAGING} "")
 
+
+env_with_default("QTC_ENABLE_FORM_EDITOR_TRACING" ENV_QTC_ENABLE_FORM_EDITOR_TRACING OFF)
+option(ENABLE_FORM_EDITOR_TRACING "Enable form editor tracing" ${ENV_QTC_ENABLE_FORM_EDITOR_TRACING})
+add_feature_info("Model tracing" ${ENABLE_FORM_EDITOR_TRACING} "")
+
 if(QDS_DESIGNVIEWER_USE_STAGING)
   add_definitions(-DQDS_DESIGNVIEWER_USE_STAGING)
 endif()
@@ -275,6 +280,8 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/formeditor
   PUBLIC_INCLUDES components/formeditor
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_FORM_EDITOR_TRACING}>:ENABLE_FORM_EDITOR_TRACING>
   SOURCES
     abstractcustomtool.cpp abstractcustomtool.h
     abstractformeditortool.cpp abstractformeditortool.h
@@ -290,6 +297,7 @@ extend_qtc_plugin(QmlDesigner
     formeditorgraphicsview.cpp formeditorgraphicsview.h
     formeditoritem.cpp formeditoritem.h
     formeditorscene.cpp formeditorscene.h
+    formeditortracing.cpp formeditortracing.h
     formeditorsubwindow.h
     formeditortoolbutton.cpp formeditortoolbutton.h
     formeditorview.cpp formeditorview.h
