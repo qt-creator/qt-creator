@@ -297,7 +297,7 @@ bool QmlModelState::isValidQmlModelState(const ModelNode &modelNode, SL sl)
                                keyValue("caller location", sl)};
 
     return isValidQmlModelNodeFacade(modelNode)
-           && (modelNode.metaInfo().isQtQuickState() || isBaseState(modelNode));
+           && (isBaseState(modelNode) || modelNode.metaInfo().isQtQuickState());
 }
 
 /**
