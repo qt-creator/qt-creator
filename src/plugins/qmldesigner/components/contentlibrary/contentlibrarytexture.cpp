@@ -12,7 +12,7 @@
 namespace QmlDesigner {
 
 ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo,
-                                             const QString &dirPath, const QString &suffix,
+                                             const QString &dirPath, const QString &completeSuffix,
                                              const QSize &dimensions, const qint64 sizeInBytes,
                                              const QString &key, const QString &textureUrl,
                                              const QString &iconUrl, bool hasUpdate, bool isNew)
@@ -22,7 +22,7 @@ ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &i
     , m_textureUrl(textureUrl)
     , m_iconUrl(iconUrl)
     , m_baseName{iconFileInfo.baseName()}
-    , m_suffix(suffix)
+    , m_completeSuffix(completeSuffix)
     , m_textureKey(key)
     , m_icon(QUrl::fromLocalFile(iconFileInfo.absoluteFilePath()))
     , m_dimensions(dimensions)
@@ -53,7 +53,7 @@ QString ContentLibraryTexture::iconPath() const
     return m_iconPath;
 }
 
-QString ContentLibraryTexture::resolveSuffix()
+QString ContentLibraryTexture::resolveCompleteSuffix()
 {
     const QFileInfoList files = QDir(m_dirPath).entryInfoList(QDir::Files);
     const QFileInfoList textureFiles = Utils::filtered(files, [this](const QFileInfo &fi) {
@@ -73,7 +73,7 @@ QString ContentLibraryTexture::resolveSuffix()
 
 QString ContentLibraryTexture::resolveToolTipText()
 {
-    if (m_suffix.isEmpty())
+    if (m_completeSuffix.isEmpty())
         return m_baseName; // empty suffix means we have just the icon and no other data
 
     QString texFileName = fileName();
@@ -111,14 +111,10 @@ void ContentLibraryTexture::setDownloaded()
 
 void ContentLibraryTexture::doSetDownloaded()
 {
-    if (m_suffix.isEmpty() || !QFileInfo::exists(texturePath())) {
-        m_suffix = resolveSuffix();
+    if (m_completeSuffix.isEmpty())
+        m_completeSuffix = resolveCompleteSuffix();
 
-        // recheck existence as texturePath() might have been reevaluated
-        m_isDownloaded = QFileInfo::exists(texturePath());
-    } else {
-        m_isDownloaded = true;
-    }
+    m_isDownloaded = QFileInfo::exists(texturePath());
 
     m_toolTip = resolveToolTipText();
 }
@@ -140,7 +136,7 @@ QString ContentLibraryTexture::textureKey() const
 
 QString ContentLibraryTexture::fileName() const
 {
-    return m_baseName + m_suffix;
+    return m_baseName + m_completeSuffix;
 }
 
 void ContentLibraryTexture::setHasUpdate(bool value)

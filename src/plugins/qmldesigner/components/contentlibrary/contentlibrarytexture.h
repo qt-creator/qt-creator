@@ -28,7 +28,7 @@ class ContentLibraryTexture : public QObject
 
 public:
     ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo, const QString &dirPath,
-                          const QString &suffix, const QSize &dimensions, const qint64 sizeInBytes,
+                          const QString &completeSuffix, const QSize &dimensions, const qint64 sizeInBytes,
                           const QString &key = {}, const QString &textureUrl = {},
                           const QString &iconUrl = {}, bool hasUpdate = false, bool isNew = false);
 
@@ -55,7 +55,7 @@ signals:
     void hasUpdateChanged();
 
 private:
-    QString resolveSuffix();
+    QString resolveCompleteSuffix();
     QString resolveToolTipText();
     void doSetDownloaded();
 
@@ -65,7 +65,7 @@ private:
     QString m_iconUrl;
     QString m_toolTip;
     QString m_baseName;
-    QString m_suffix;
+    QString m_completeSuffix;
     QString m_textureKey;
     QUrl m_icon;
     QSize m_dimensions;

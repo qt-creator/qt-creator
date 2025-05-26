@@ -49,7 +49,7 @@ void UserTextureCategory::filter(const QString &searchText)
 void UserTextureCategory::addItems(const Utils::FilePaths &paths)
 {
     for (const Utils::FilePath &filePath : paths) {
-        QString suffix = '.' + filePath.suffix();
+        QString completeSuffix = "." + filePath.completeSuffix();
 
         QFileInfo iconFileInfo = filePath.parentDir().pathAppended("icons/" + filePath.baseName() + ".png")
                                      .toFileInfo();
@@ -60,7 +60,7 @@ void UserTextureCategory::addItems(const Utils::FilePaths &paths)
         qint64 imgFileSize = info.second;
 
         if (!iconFileInfo.exists()) { // generate an icon if one doesn't exist
-            if (suffix == ".ktx") {
+            if (completeSuffix.endsWith(".ktx")) {
                 QFile::copy(":/contentlibrary/images/texture_ktx.png", iconFileInfo.absoluteFilePath());
             } else {
                 Asset asset{filePath.toFSPathString()};
@@ -71,7 +71,7 @@ void UserTextureCategory::addItems(const Utils::FilePaths &paths)
             }
         }
 
-        auto tex = new ContentLibraryTexture(this, iconFileInfo, dirPath, suffix, imgDims, imgFileSize);
+        auto tex = new ContentLibraryTexture(this, iconFileInfo, dirPath, completeSuffix, imgDims, imgFileSize);
         m_items.append(tex);
     }
 
