@@ -294,17 +294,6 @@ public:
             return true;
         }
 
-        if (role == ItemActivatedFromBelowRole) {
-            // I.e. 'Build' and 'Run' items were present and user clicked on them.
-            int child = indexOf(data.value<TreeItem *>());
-            QTC_ASSERT(child != -1, return false);
-            m_project->setActiveTarget(target(), SetActive::Cascade);
-            // Propagate Build/Run selection up.
-            parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)),
-                              ItemActivatedFromBelowRole);
-            return true;
-        }
-
         if (role == ItemActivatedFromAboveRole) {
             // Usually programmatic activation, e.g. after opening the Project mode.
             m_project->setActiveTarget(target(), SetActive::Cascade);
