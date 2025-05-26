@@ -67,6 +67,7 @@ Suggested NDK and Debugger version per Qt version:
 |                  | 6.4       | 23.1.7779620  | 8.3.0  | 12.0.8 |
 |                  | 6.5 - 6.6 | 25.1.8937393  |        | 14.0.6 |
 |                  | 6.7 - 6.9 | 26.1.10909125 |        | 17.0.2 |
+|                  | 6.10      | 27.2.12479018 |        | 18.0.3 |
 
 < Qt 6.5: Mapping read from sdk_definitions.json
 >= Qt 6.5: Mapping read from <QtDir>/modules/Core.json

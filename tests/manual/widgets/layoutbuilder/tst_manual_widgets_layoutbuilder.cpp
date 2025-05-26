@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
         }),
         br,
         "And another row", br,
-        Span(3,
+        SpanAll(3,
             GridCell({
                 Label {
                     wordWrap(true),

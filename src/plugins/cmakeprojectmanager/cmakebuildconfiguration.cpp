@@ -111,6 +111,7 @@ class CMakeBuildSettingsWidget : public QWidget
 {
 public:
     explicit CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
+    ~CMakeBuildSettingsWidget();
 
     void setError(const QString &message);
     void setWarning(const QString &message);
@@ -518,10 +519,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         if (bc->isEnabled())
             setError(QString());
     });
-    connect(this, &QObject::destroyed, this, [this] {
-        updateInitialCMakeArguments();
-    });
-
     connect(m_buildConfig->project(), &Project::aboutToSaveSettings, this, [this] {
         updateInitialCMakeArguments();
     });
@@ -546,6 +543,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     updateSelection();
     updateConfigurationStateSelection();
+}
+
+CMakeBuildSettingsWidget::~CMakeBuildSettingsWidget()
+{
+    updateInitialCMakeArguments();
 }
 
 void CMakeBuildSettingsWidget::batchEditConfiguration()
@@ -663,6 +665,9 @@ static bool isGenerateQmllsSettingsEnabled()
 
 void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
 {
+    QTC_ASSERT(m_buildConfig, return);
+    QTC_ASSERT(m_buildConfig->cmakeBuildSystem(), return);
+
     CMakeConfig initialList = m_buildConfig->initialCMakeArguments.cmakeConfiguration();
 
     // set QT_QML_GENERATE_QMLLS_INI if it is enabled via the settings checkbox and if its not part

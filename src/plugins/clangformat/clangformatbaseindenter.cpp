@@ -45,7 +45,11 @@ static void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
                                           ReplacementsToKeep replacementsToKeep)
 {
     style.MaxEmptyLinesToKeep = 100;
+#if LLVM_VERSION_MAJOR > 20
+    style.SortIncludes = {.Enabled = false};
+#else
     style.SortIncludes = clang::format::FormatStyle::SI_Never;
+#endif
 #if LLVM_VERSION_MAJOR >= 16
     style.SortUsingDeclarations = clang::format::FormatStyle::SUD_Never;
 #else

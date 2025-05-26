@@ -34,12 +34,8 @@ function libarchiveLibDirSearchPaths(hostOs)
 
 function getLibSearchNames(hostOs, toolchain)
 {
-    if (hostOs.contains("windows")) {
-        if (toolchain.contains("mingw"))
-            return ["libarchive_static", "libarchive"]
-        else // msvc
-            return ["archive_static", "archive"];
-    }
+    if (hostOs.contains("windows"))
+        return ["archive_static", "archive"];
     return ["archive"];
 }
 

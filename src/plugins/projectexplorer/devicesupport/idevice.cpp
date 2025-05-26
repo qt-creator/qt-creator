@@ -186,8 +186,8 @@ IDevice::IDevice()
     sshForwardDebugServerPort.setSettingsKey(SshForwardDebugServerPortKey);
     sshForwardDebugServerPort.setLabelText(Tr::tr("Use SSH port forwarding for debugging"));
     sshForwardDebugServerPort.setToolTip(
-        Tr::tr("Enable debugging on remote targets which cannot expose gdbserver ports.\n"
-               "The ssh tunneling is used to map the remote gdbserver port to localhost.\n"
+        Tr::tr("Enable debugging on remote targets that cannot expose GDB server ports.\n"
+               "The SSH tunneling is used to map the remote GDB server port to localhost.\n"
                "The local and remote ports are determined automatically."));
     sshForwardDebugServerPort.setDefaultValue(false);
     sshForwardDebugServerPort.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
@@ -259,7 +259,7 @@ IDevice::IDevice()
     freePortsAspect.setSettingsKey(PortsSpecKey);
     freePortsAspect.setLabelText(Tr::tr("Free ports:"));
     freePortsAspect.setToolTip(
-        Tr::tr("You can enter lists and ranges like this: \"1024,1026-1028,1030\"."));
+        Tr::tr("Enter lists and ranges like this: \"1024,1026-1028,1030\"."));
     freePortsAspect.setHistoryCompleter("PortRange");
 }
 
@@ -829,7 +829,7 @@ void DeviceProcessKiller::start()
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_processPath);
     if (!device) {
-        m_result = ResultError(Tr::tr("No device for given path: \"%1\".")
+        m_result = ResultError(Tr::tr("No device for the path: \"%1\".")
                                      .arg(m_processPath.toUserOutput()));
         emit done(DoneResult::Error);
         return;
@@ -837,7 +837,7 @@ void DeviceProcessKiller::start()
 
     m_signalOperation = device->signalOperation();
     if (!m_signalOperation) {
-        m_result = ResultError(Tr::tr("Device for path \"%1\" does not support killing processes.")
+        m_result = ResultError(Tr::tr("Device for the path \"%1\" does not support killing processes.")
                                      .arg(m_processPath.toUserOutput()));
         emit done(DoneResult::Error);
         return;

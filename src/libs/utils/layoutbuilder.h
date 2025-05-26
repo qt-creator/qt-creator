@@ -237,6 +237,18 @@ public:
     int spanRows = 1;
 };
 
+// Unlike Span, this class sets the span on all of its items.
+class QTCREATOR_UTILS_EXPORT SpanAll
+{
+public:
+    SpanAll(int cols, const Layout::I &item);
+    SpanAll(int cols, int rows, const Layout::I &item);
+
+    Layout::I item;
+    int spanCols = 1;
+    int spanRows = 1;
+};
+
 class QTCREATOR_UTILS_EXPORT Align
 {
 public:
@@ -645,6 +657,7 @@ QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Space &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Stretch &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const If &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Span &inner);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const SpanAll &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const Align &inner);
 QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const GridCell &inner);
 

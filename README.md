@@ -290,6 +290,13 @@ You can also point Qt Creator to a separate installation of `perfparser` by
 setting the `PERFPROFILER_PARSER_FILEPATH` environment variable to the full
 path to the executable.
 
+### Build with AddressSanitizer
+
+Set the following CMake definitions to configure and build Qt Creator with AddressSanitizer.
+```
+-DWITH_SANITIZE:BOOL=ON
+-DSANITIZE_FLAGS:STRING=address
+```
 ### Partial building of executables and plugins
 
 Set the following CMake definitions in order to configure and build only
