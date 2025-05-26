@@ -80,6 +80,7 @@ public:
     Utils::StringAspect extraArgs{this};
     DockerDeviceEnvironmentAspect environment{this};
     PortMappings portMappings{this};
+    Utils::BoolAspect mountCmdBridge{this};
 
     Utils::TextDisplay containerStatus{this};
 

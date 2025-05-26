@@ -176,6 +176,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             dockerDevice->useLocalUidGid, br,
             dockerDevice->keepEntryPoint, br,
             dockerDevice->enableLldbFlags, br,
+            dockerDevice->mountCmdBridge, br,
             dockerDevice->clangdExecutableAspect, br,
             dockerDevice->network, br,
             dockerDevice->extraArgs, br,

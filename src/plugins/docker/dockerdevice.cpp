@@ -216,7 +216,8 @@ public:
 
     bool isImageAvailable() const;
 
-    Result<std::unique_ptr<DeviceFileAccess>> createBridgeFileAccess()
+    Result<std::unique_ptr<DeviceFileAccess>> createBridgeFileAccess(
+        SynchronizedValue<std::unique_ptr<DeviceFileAccess>>::unique_lock &fileAccess)
     {
         Result<FilePath> cmdBridgePath = getCmdBridgePath();
 
@@ -229,13 +230,24 @@ public:
             return ResultError(result.error());
 
         Result<> initResult = ResultOk;
-        if (cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath())) {
+        if (q->mountCmdBridge()
+            && cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath())) {
             initResult = fAccess->init(
                 q->rootPath().withNewPath("/tmp/_qtc_cmdbridge"), q->environment(), false);
         } else {
+            // Prepare a fallback access so we can deploy the CmdBridge ...
+            *fileAccess = std::make_unique<DockerFallbackFileAccess>(q->rootPath());
+            // We have to unlock here so that recursive calls to getFileAccess() will not deadlock.
+            fileAccess.unlock();
+
+            // ... and then deploy the CmdBridge.
             initResult
                 = fAccess->deployAndInit(Core::ICore::libexecPath(), q->rootPath(), q->environment());
+
+            // Dont forget to re-lock.
+            fileAccess.lock();
         }
+
         if (!initResult)
             return ResultError(initResult.error());
 
@@ -255,7 +267,7 @@ public:
         if (*fileAccess)
             return fileAccess->get();
 
-        Result<std::unique_ptr<DeviceFileAccess>> fAccess = createBridgeFileAccess();
+        Result<std::unique_ptr<DeviceFileAccess>> fAccess = createBridgeFileAccess(fileAccess);
 
         if (fAccess) {
             *fileAccess = std::move(*fAccess);
@@ -699,6 +711,16 @@ DockerDevice::DockerDevice()
 
     portMappings.setSettingsKey("Ports");
 
+    mountCmdBridge.setSettingsKey("MountCmdBridge");
+    mountCmdBridge.setLabelText(Tr::tr("Mount Command Bridge:"));
+    mountCmdBridge.setDefaultValue(true);
+    mountCmdBridge.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+    mountCmdBridge.setToolTip(
+        Tr::tr("The Command Bridge facilitates communication between Qt Creator and the running "
+               "Container. It is mounted into the Container by default. If your Docker server does "
+               "not have access to the folder where Qt Creator is installed this can fail. In that "
+               "case you can disable this option for a slower workaround."));
+
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeLinux);
     setupId(IDevice::ManuallyAdded);
@@ -923,16 +945,18 @@ Result<FilePath> DockerDevicePrivate::getCmdBridgePath() const
 
 QStringList DockerDevicePrivate::createMountArgs() const
 {
-    const Utils::Result<Utils::FilePath> cmdBridgePath = getCmdBridgePath();
-    QTC_CHECK_RESULT(cmdBridgePath);
-
     QStringList cmds;
     QList<MountPair> mounts;
     for (const FilePath &m : q->mounts())
         mounts.append({m, m});
 
-    if (cmdBridgePath && cmdBridgePath->isSameDevice(settings().dockerBinaryPath()))
-        mounts.append({*cmdBridgePath, FilePath("/tmp/_qtc_cmdbridge")});
+    if (q->mountCmdBridge()) {
+        const Utils::Result<Utils::FilePath> cmdBridgePath = getCmdBridgePath();
+        QTC_CHECK_RESULT(cmdBridgePath);
+
+        if (cmdBridgePath && cmdBridgePath->isSameDevice(settings().dockerBinaryPath()))
+            mounts.append({*cmdBridgePath, FilePath("/tmp/_qtc_cmdbridge")});
+    }
 
     for (const MountPair &mi : mounts) {
         if (isValidMountInfo(mi))
