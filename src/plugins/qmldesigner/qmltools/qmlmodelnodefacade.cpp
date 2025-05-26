@@ -6,6 +6,8 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
 static auto category = ModelTracing::category;
 
 AbstractView *QmlModelNodeFacade::view() const
@@ -43,7 +45,6 @@ bool QmlModelNodeFacade::hasModelNode() const
 
 bool QmlModelNodeFacade::isValid(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"is valid qml model node facade",
                                category(),
                                keyValue("model node", m_modelNode),
@@ -54,7 +55,6 @@ bool QmlModelNodeFacade::isValid(SL sl) const
 
 bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"is valid qml model node facade",
                                category(),
                                keyValue("model node", modelNode),
@@ -67,7 +67,6 @@ bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode, S
 
 bool QmlModelNodeFacade::isRootNode(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"is root node",
                                category(),
                                keyValue("model node", m_modelNode),

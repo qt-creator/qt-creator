@@ -15,11 +15,12 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
 static auto category = ModelTracing::category;
 
 QmlPropertyChanges QmlModelState::propertyChanges(const ModelNode &node, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state property changes",
                                category(),
                                keyValue("model node", *this),
@@ -44,7 +45,6 @@ QmlPropertyChanges QmlModelState::propertyChanges(const ModelNode &node, SL sl)
 
 QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &node, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state state operations",
                                category(),
                                keyValue("model node", *this),
@@ -70,7 +70,6 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &no
 
 QList<QmlPropertyChanges> QmlModelState::propertyChanges(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state property changes",
                                category(),
                                keyValue("model node", *this),
@@ -92,7 +91,6 @@ QList<QmlPropertyChanges> QmlModelState::propertyChanges(SL sl) const
 
 bool QmlModelState::hasPropertyChanges(const ModelNode &node, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state has property changes",
                                category(),
                                keyValue("model node", *this),
@@ -112,7 +110,6 @@ bool QmlModelState::hasPropertyChanges(const ModelNode &node, SL sl) const
 
 bool QmlModelState::hasStateOperation(const ModelNode &node, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state has state operation",
                                category(),
                                keyValue("model node", *this),
@@ -131,7 +128,6 @@ bool QmlModelState::hasStateOperation(const ModelNode &node, SL sl) const
 
 QList<QmlModelStateOperation> QmlModelState::stateOperations(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state state operations",
                                category(),
                                keyValue("model node", *this),
@@ -154,7 +150,6 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations(SL sl) const
 
 QList<QmlModelStateOperation> QmlModelState::allInvalidStateOperations(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state all invalid state operations",
                                category(),
                                keyValue("model node", *this),
@@ -196,7 +191,6 @@ void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
 
 void QmlModelState::removePropertyChanges(const ModelNode &node, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state remove property changes",
                                category(),
                                keyValue("model node", *this),
@@ -220,7 +214,6 @@ void QmlModelState::removePropertyChanges(const ModelNode &node, SL sl)
 */
 bool QmlModelState::affectsModelNode(const ModelNode &node, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state affects model node",
                                category(),
                                keyValue("model node", *this),
@@ -238,7 +231,6 @@ bool QmlModelState::affectsModelNode(const ModelNode &node, SL sl) const
 
 QList<QmlObjectNode> QmlModelState::allAffectedNodes(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state all affected nodes",
                                category(),
                                keyValue("model node", *this),
@@ -258,7 +250,6 @@ QList<QmlObjectNode> QmlModelState::allAffectedNodes(SL sl) const
 
 QString QmlModelState::name(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state name",
                                category(),
                                keyValue("model node", *this),
@@ -272,7 +263,6 @@ QString QmlModelState::name(SL sl) const
 
 void QmlModelState::setName(const QString &name, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state set name",
                                category(),
                                keyValue("model node", *this),
@@ -290,7 +280,6 @@ bool QmlModelState::isValid(SL sl) const
 
 bool QmlModelState::isValidQmlModelState(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"is valid qml model state",
                                category(),
                                keyValue("model node", modelNode),
@@ -305,7 +294,6 @@ bool QmlModelState::isValidQmlModelState(const ModelNode &modelNode, SL sl)
   */
 void QmlModelState::destroy(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state destroy",
                                category(),
                                keyValue("model node", *this),
@@ -320,7 +308,6 @@ void QmlModelState::destroy(SL sl)
 
 bool QmlModelState::isBaseState(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state is base state",
                                category(),
                                keyValue("model node", *this),
@@ -331,7 +318,6 @@ bool QmlModelState::isBaseState(SL sl) const
 
 bool QmlModelState::isBaseState(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"is base state",
                                category(),
                                keyValue("model node", modelNode),
@@ -342,7 +328,6 @@ bool QmlModelState::isBaseState(const ModelNode &modelNode, SL sl)
 
 QmlModelState QmlModelState::duplicate(const QString &name, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state duplicate",
                                category(),
                                keyValue("model node", *this),
@@ -387,7 +372,6 @@ QmlModelState QmlModelState::duplicate(const QString &name, SL sl) const
 
 QmlModelStateGroup QmlModelState::stateGroup(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state state group",
                                category(),
                                keyValue("model node", *this),
@@ -399,7 +383,6 @@ QmlModelStateGroup QmlModelState::stateGroup(SL sl) const
 
 ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListType &propertyList, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state create",
                                category(),
                                keyValue("view", view),
@@ -423,7 +406,6 @@ ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListTy
 
 void QmlModelState::setAsDefault(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state set as default",
                                category(),
                                keyValue("model node", *this),
@@ -436,7 +418,6 @@ void QmlModelState::setAsDefault(SL sl)
 
 bool QmlModelState::isDefault(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state is default",
                                category(),
                                keyValue("model node", *this),
@@ -453,7 +434,6 @@ bool QmlModelState::isDefault(SL sl) const
 
 void QmlModelState::setAnnotation(const Annotation &annotation, const QString &id, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state set annotation",
                                category(),
                                keyValue("model node", *this),
@@ -468,7 +448,6 @@ void QmlModelState::setAnnotation(const Annotation &annotation, const QString &i
 
 Annotation QmlModelState::annotation(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state annotation",
                                category(),
                                keyValue("model node", *this),
@@ -481,7 +460,6 @@ Annotation QmlModelState::annotation(SL sl) const
 
 QString QmlModelState::annotationName(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state annotation name",
                                category(),
                                keyValue("model node", *this),
@@ -494,7 +472,6 @@ QString QmlModelState::annotationName(SL sl) const
 
 bool QmlModelState::hasAnnotation(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state has annotation",
                                category(),
                                keyValue("model node", *this),
@@ -507,7 +484,6 @@ bool QmlModelState::hasAnnotation(SL sl) const
 
 void QmlModelState::removeAnnotation(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state remove annotation",
                                category(),
                                keyValue("model node", *this),
@@ -521,7 +497,6 @@ void QmlModelState::removeAnnotation(SL sl)
 
 QString QmlModelState::extend(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state extend",
                                category(),
                                keyValue("model node", *this),
@@ -535,7 +510,6 @@ QString QmlModelState::extend(SL sl) const
 
 void QmlModelState::setExtend(const QString &name, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state set extend",
                                category(),
                                keyValue("model node", *this),
@@ -548,7 +522,6 @@ void QmlModelState::setExtend(const QString &name, SL sl)
 
 bool QmlModelState::hasExtend(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state has extend",
                                category(),
                                keyValue("model node", *this),
@@ -562,7 +535,6 @@ bool QmlModelState::hasExtend(SL sl) const
 
 QmlModelState QmlModelState::createBaseState(const AbstractView *view, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state create base state",
                                category(),
                                keyValue("view", view),

@@ -28,11 +28,12 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
 static auto category = ModelTracing::category;
 
 bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node is item or window",
                                category(),
                                keyValue("model node", modelNode),
@@ -88,7 +89,6 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view,
                                            QmlItemNode parentQmlItemNode,
                                            SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node create qml item node",
                                category(),
                                keyValue("caller location", sl)};
@@ -103,7 +103,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view,
                                                     bool executeInTransaction,
                                                     SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node create qml item node from image",
                                category(),
                                keyValue("caller location", sl)};
@@ -127,7 +126,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view,
                                                     bool executeInTransaction,
                                                     SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node create qml item node from image",
                                category(),
                                keyValue("caller location", sl)};
@@ -195,7 +193,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
                                                    bool executeInTransaction,
                                                    SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node create qml item node from font",
                                category(),
                                keyValue("caller location", sl)};
@@ -216,7 +213,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
                                                    bool executeInTransaction,
                                                    SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node create qml item node from font",
                                category(),
                                keyValue("caller location", sl)};
@@ -260,7 +256,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
                                                     bool isLayerEffect,
                                                     SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node create qml item node for effect",
                                category(),
                                keyValue("caller location", sl)};
@@ -281,7 +276,6 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
                                                     bool isLayerEffect,
                                                     SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node create qml item node for effect",
                                category(),
                                keyValue("caller location", sl)};
@@ -317,7 +311,6 @@ void QmlItemNode::placeEffectNode(NodeAbstractProperty &parentProperty,
                                   bool isLayerEffect,
                                   SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node place effect node",
                                category(),
                                keyValue("caller location", sl)};
@@ -349,7 +342,6 @@ void QmlItemNode::placeEffectNode(NodeAbstractProperty &parentProperty,
 
 bool QmlItemNode::isValid(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node is valid",
                                category(),
                                keyValue("model node", *this),
@@ -360,7 +352,6 @@ bool QmlItemNode::isValid(SL sl) const
 
 bool QmlItemNode::isValidQmlItemNode(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node is valid qml item node",
                                category(),
                                keyValue("model node", modelNode),
@@ -372,7 +363,6 @@ bool QmlItemNode::isValidQmlItemNode(const ModelNode &modelNode, SL sl)
 
 QList<QmlItemNode> QmlItemNode::children(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node children",
                                category(),
                                keyValue("model node", *this),
@@ -399,7 +389,6 @@ QList<QmlItemNode> QmlItemNode::children(SL sl) const
 
 QList<QmlObjectNode> QmlItemNode::resources(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node resources",
                                category(),
                                keyValue("model node", *this),
@@ -426,7 +415,6 @@ QList<QmlObjectNode> QmlItemNode::resources(SL sl) const
 
 QList<QmlObjectNode> QmlItemNode::allDirectSubNodes(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node all direct sub nodes",
                                category(),
                                keyValue("model node", *this),
@@ -437,7 +425,6 @@ QList<QmlObjectNode> QmlItemNode::allDirectSubNodes(SL sl) const
 
 QmlAnchors QmlItemNode::anchors(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node anchors",
                                category(),
                                keyValue("model node", *this),
@@ -448,7 +435,6 @@ QmlAnchors QmlItemNode::anchors(SL sl) const
 
 bool QmlItemNode::hasChildren(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node has children",
                                category(),
                                keyValue("model node", *this),
@@ -462,7 +448,6 @@ bool QmlItemNode::hasChildren(SL sl) const
 
 bool QmlItemNode::hasResources(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node has resources",
                                category(),
                                keyValue("model node", *this),
@@ -476,7 +461,6 @@ bool QmlItemNode::hasResources(SL sl) const
 
 bool QmlItemNode::instanceHasAnchor(AnchorLineType sourceAnchorLineType, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance has anchor",
                                category(),
                                keyValue("model node", *this),
@@ -487,7 +471,6 @@ bool QmlItemNode::instanceHasAnchor(AnchorLineType sourceAnchorLineType, SL sl) 
 
 bool QmlItemNode::instanceHasAnchors(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance has anchors",
                                category(),
                                keyValue("model node", *this),
@@ -498,7 +481,6 @@ bool QmlItemNode::instanceHasAnchors(SL sl) const
 
 bool QmlItemNode::instanceHasShowContent(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance has show content",
                                category(),
                                keyValue("model node", *this),
@@ -509,7 +491,6 @@ bool QmlItemNode::instanceHasShowContent(SL sl) const
 
 bool QmlItemNode::instanceCanReparent(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance can reparent",
                                category(),
                                keyValue("model node", *this),
@@ -520,7 +501,6 @@ bool QmlItemNode::instanceCanReparent(SL sl) const
 
 bool QmlItemNode::instanceIsAnchoredBySibling(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance is anchored by sibling",
                                category(),
                                keyValue("model node", *this),
@@ -531,7 +511,6 @@ bool QmlItemNode::instanceIsAnchoredBySibling(SL sl) const
 
 bool QmlItemNode::instanceIsAnchoredByChildren(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance is anchored by children",
                                category(),
                                keyValue("model node", *this),
@@ -542,7 +521,6 @@ bool QmlItemNode::instanceIsAnchoredByChildren(SL sl) const
 
 bool QmlItemNode::instanceIsMovable(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance is movable",
                                category(),
                                keyValue("model node", *this),
@@ -558,7 +536,6 @@ bool QmlItemNode::instanceIsMovable(SL sl) const
 
 bool QmlItemNode::instanceIsResizable(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance is resizable",
                                category(),
                                keyValue("model node", *this),
@@ -569,7 +546,6 @@ bool QmlItemNode::instanceIsResizable(SL sl) const
 
 bool QmlItemNode::instanceIsInLayoutable(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance is in layoutable",
                                category(),
                                keyValue("model node", *this),
@@ -580,7 +556,6 @@ bool QmlItemNode::instanceIsInLayoutable(SL sl) const
 
 bool QmlItemNode::instanceHasScaleOrRotationTransform(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance has scale or rotation transform",
                                category(),
                                keyValue("model node", *this),
@@ -607,7 +582,6 @@ static bool itemIsResizable(const ModelNode &modelNode)
 
 bool QmlItemNode::modelIsMovable(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node model is movable",
                                category(),
                                keyValue("model node", *this),
@@ -619,7 +593,6 @@ bool QmlItemNode::modelIsMovable(SL sl) const
 
 bool QmlItemNode::modelIsResizable(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node model is resizable",
                                category(),
                                keyValue("model node", *this),
@@ -631,7 +604,6 @@ bool QmlItemNode::modelIsResizable(SL sl) const
 
 bool QmlItemNode::modelIsInLayout(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node model is in layout",
                                category(),
                                keyValue("model node", *this),
@@ -651,7 +623,6 @@ bool QmlItemNode::modelIsInLayout(SL sl) const
 
 bool QmlItemNode::hasFormEditorItem(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node has form editor item",
                                category(),
                                keyValue("model node", *this),
@@ -662,7 +633,6 @@ bool QmlItemNode::hasFormEditorItem(SL sl) const
 
 QRectF QmlItemNode::instanceBoundingRect(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance bounding rect",
                                category(),
                                keyValue("model node", *this),
@@ -673,7 +643,6 @@ QRectF QmlItemNode::instanceBoundingRect(SL sl) const
 
 QRectF QmlItemNode::instanceSceneBoundingRect(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance scene bounding rect",
                                category(),
                                keyValue("model node", *this),
@@ -684,7 +653,6 @@ QRectF QmlItemNode::instanceSceneBoundingRect(SL sl) const
 
 QRectF QmlItemNode::instancePaintedBoundingRect(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance painted bounding rect",
                                category(),
                                keyValue("model node", *this),
@@ -695,7 +663,6 @@ QRectF QmlItemNode::instancePaintedBoundingRect(SL sl) const
 
 QRectF QmlItemNode::instanceContentItemBoundingRect(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance content item bounding rect",
                                category(),
                                keyValue("model node", *this),
@@ -706,7 +673,6 @@ QRectF QmlItemNode::instanceContentItemBoundingRect(SL sl) const
 
 QTransform QmlItemNode::instanceTransform(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance transform",
                                category(),
                                keyValue("model node", *this),
@@ -717,7 +683,6 @@ QTransform QmlItemNode::instanceTransform(SL sl) const
 
 QTransform QmlItemNode::instanceTransformWithContentTransform(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance transform with content transform",
                                category(),
                                keyValue("model node", *this),
@@ -728,7 +693,6 @@ QTransform QmlItemNode::instanceTransformWithContentTransform(SL sl) const
 
 QTransform QmlItemNode::instanceTransformWithContentItemTransform(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance transform with content item transform",
                                category(),
                                keyValue("model node", *this),
@@ -739,7 +703,6 @@ QTransform QmlItemNode::instanceTransformWithContentItemTransform(SL sl) const
 
 QTransform QmlItemNode::instanceSceneTransform(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance scene transform",
                                category(),
                                keyValue("model node", *this),
@@ -750,7 +713,6 @@ QTransform QmlItemNode::instanceSceneTransform(SL sl) const
 
 QTransform QmlItemNode::instanceSceneContentItemTransform(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance scene content item transform",
                                category(),
                                keyValue("model node", *this),
@@ -761,7 +723,6 @@ QTransform QmlItemNode::instanceSceneContentItemTransform(SL sl) const
 
 QPointF QmlItemNode::instanceScenePosition(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance scene position",
                                category(),
                                keyValue("model node", *this),
@@ -777,7 +738,6 @@ QPointF QmlItemNode::instanceScenePosition(SL sl) const
 
 QPointF QmlItemNode::instancePosition(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance position",
                                category(),
                                keyValue("model node", *this),
@@ -788,7 +748,6 @@ QPointF QmlItemNode::instancePosition(SL sl) const
 
 QSizeF QmlItemNode::instanceSize(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance size",
                                category(),
                                keyValue("model node", *this),
@@ -799,7 +758,6 @@ QSizeF QmlItemNode::instanceSize(SL sl) const
 
 int QmlItemNode::instancePenWidth(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance pen width",
                                category(),
                                keyValue("model node", *this),
@@ -810,7 +768,6 @@ int QmlItemNode::instancePenWidth(SL sl) const
 
 bool QmlItemNode::instanceIsRenderPixmapNull(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance is render pixmap null",
                                category(),
                                keyValue("model node", *this),
@@ -821,7 +778,6 @@ bool QmlItemNode::instanceIsRenderPixmapNull(SL sl) const
 
 bool QmlItemNode::instanceIsVisible(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance is visible",
                                category(),
                                keyValue("model node", *this),
@@ -832,7 +788,6 @@ bool QmlItemNode::instanceIsVisible(SL sl) const
 
 QPixmap QmlItemNode::instanceRenderPixmap(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance render pixmap",
                                category(),
                                keyValue("model node", *this),
@@ -843,7 +798,6 @@ QPixmap QmlItemNode::instanceRenderPixmap(SL sl) const
 
 QPixmap QmlItemNode::instanceBlurredRenderPixmap(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node instance blurred render pixmap",
                                category(),
                                keyValue("model node", *this),
@@ -887,7 +841,6 @@ QList<QmlItemNode> toQmlItemNodeListKeppInvalid(const QList<ModelNode> &modelNod
 
 const QList<QmlItemNode> QmlItemNode::allDirectSubModelNodes(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node all direct sub model nodes",
                                category(),
                                keyValue("model node", *this),
@@ -898,7 +851,6 @@ const QList<QmlItemNode> QmlItemNode::allDirectSubModelNodes(SL sl) const
 
 const QList<QmlItemNode> QmlItemNode::allSubModelNodes(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node all sub model nodes",
                                category(),
                                keyValue("model node", *this),
@@ -909,7 +861,6 @@ const QList<QmlItemNode> QmlItemNode::allSubModelNodes(SL sl) const
 
 bool QmlItemNode::hasAnySubModelNodes(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node has any sub model nodes",
                                category(),
                                keyValue("model node", *this),
@@ -920,7 +871,6 @@ bool QmlItemNode::hasAnySubModelNodes(SL sl) const
 
 void QmlItemNode::setPosition(const QPointF &position, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node set position",
                                category(),
                                keyValue("model node", *this),
@@ -938,7 +888,6 @@ void QmlItemNode::setPosition(const QPointF &position, SL sl)
 
 void QmlItemNode::setPostionInBaseState(const QPointF &position, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node set position in base state",
                                category(),
                                keyValue("model node", *this),
@@ -955,7 +904,6 @@ constexpr AuxiliaryDataKeyView flowYProperty{AuxiliaryDataType::Document, "flowY
 
 void QmlItemNode::setFlowItemPosition(const QPointF &position, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node set flow item position",
                                category(),
                                keyValue("model node", *this),
@@ -967,7 +915,6 @@ void QmlItemNode::setFlowItemPosition(const QPointF &position, SL sl)
 
 QPointF QmlItemNode::flowPosition(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node flow position",
                                category(),
                                keyValue("model node", *this),
@@ -982,7 +929,6 @@ QPointF QmlItemNode::flowPosition(SL sl) const
 
 bool QmlItemNode::isInLayout(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node is in layout",
                                category(),
                                keyValue("model node", *this),
@@ -1000,7 +946,6 @@ bool QmlItemNode::isInLayout(SL sl) const
 
 bool QmlItemNode::canBereparentedTo(const ModelNode &potentialParent, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node can be reparented to",
                                category(),
                                keyValue("model node", *this),
@@ -1014,7 +959,6 @@ bool QmlItemNode::canBereparentedTo(const ModelNode &potentialParent, SL sl) con
 
 bool QmlItemNode::isInStackedContainer(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node is in stacked container",
                                category(),
                                keyValue("model node", *this),
@@ -1027,7 +971,6 @@ bool QmlItemNode::isInStackedContainer(SL sl) const
 
 bool QmlItemNode::isFlowView(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node is flow view",
                                category(),
                                keyValue("model node", *this),
@@ -1038,7 +981,6 @@ bool QmlItemNode::isFlowView(SL sl) const
 
 bool QmlItemNode::isFlowItem(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node is flow item",
                                category(),
                                keyValue("model node", *this),
@@ -1049,7 +991,6 @@ bool QmlItemNode::isFlowItem(SL sl) const
 
 bool QmlItemNode::isFlowActionArea(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node is flow action area",
                                category(),
                                keyValue("model node", *this),
@@ -1060,7 +1001,6 @@ bool QmlItemNode::isFlowActionArea(SL sl) const
 
 ModelNode QmlItemNode::rootModelNode(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node root model node",
                                category(),
                                keyValue("model node", *this),
@@ -1073,7 +1013,6 @@ ModelNode QmlItemNode::rootModelNode(SL sl) const
 
 bool QmlItemNode::isEffectItem(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node is effect item",
                                category(),
                                keyValue("model node", *this),
@@ -1084,7 +1023,6 @@ bool QmlItemNode::isEffectItem(SL sl) const
 
 void QmlItemNode::setSize(const QSizeF &size, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node set size",
                                category(),
                                keyValue("model node", *this),
@@ -1102,7 +1040,6 @@ void QmlItemNode::setSize(const QSizeF &size, SL sl)
 
 void QmlItemNode::setRotation(const qreal &angle, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node set rotation",
                                category(),
                                keyValue("model node", *this),
@@ -1114,7 +1051,6 @@ void QmlItemNode::setRotation(const qreal &angle, SL sl)
 
 qreal QmlItemNode::rotation(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node rotation",
                                category(),
                                keyValue("model node", *this),
@@ -1129,7 +1065,6 @@ qreal QmlItemNode::rotation(SL sl) const
 
 QVariant QmlItemNode::transformOrigin(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml item node transform origin",
                                category(),
                                keyValue("model node", *this),

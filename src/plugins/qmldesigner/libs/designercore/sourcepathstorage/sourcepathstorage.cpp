@@ -9,6 +9,8 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
 using SourcePathStorageTracing::category;
 
 struct SourcePathStorage::Statements
@@ -90,7 +92,6 @@ SourcePathStorage::~SourcePathStorage() = default;
 
 DirectoryPathId SourcePathStorage::fetchDirectoryPathIdUnguarded(Utils::SmallStringView directoryPath)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source context id unguarded", category()};
 
     auto directoryPathId = readDirectoryPathId(directoryPath);
@@ -100,7 +101,6 @@ DirectoryPathId SourcePathStorage::fetchDirectoryPathIdUnguarded(Utils::SmallStr
 
 DirectoryPathId SourcePathStorage::fetchDirectoryPathId(Utils::SmallStringView directoryPath)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source context id",
                                category(),
                                keyValue("source context path", directoryPath)};
@@ -121,7 +121,6 @@ DirectoryPathId SourcePathStorage::fetchDirectoryPathId(Utils::SmallStringView d
 
 Utils::PathString SourcePathStorage::fetchDirectoryPath(DirectoryPathId directoryPathId) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source context path",
                                category(),
                                keyValue("source context id", directoryPathId)};
@@ -150,7 +149,6 @@ Cache::DirectoryPaths SourcePathStorage::fetchAllDirectoryPaths() const
 
 FileNameId SourcePathStorage::fetchFileNameId(Utils::SmallStringView fileName)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source id", category(), keyValue("source name", fileName)};
 
     auto fileNameId = Sqlite::withDeferredTransaction(database, [&] {
@@ -164,7 +162,6 @@ FileNameId SourcePathStorage::fetchFileNameId(Utils::SmallStringView fileName)
 
 Utils::SmallString SourcePathStorage::fetchFileName(FileNameId fileNameId) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source name and source context id",
                                category(),
                                keyValue("source name id", fileNameId)};
@@ -197,7 +194,6 @@ Cache::FileNames SourcePathStorage::fetchAllFileNames() const
 
 FileNameId SourcePathStorage::fetchFileNameIdUnguarded(Utils::SmallStringView fileName)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch source id unguarded",
                                category(),
                                keyValue("source name", fileName)};
@@ -214,7 +210,6 @@ FileNameId SourcePathStorage::fetchFileNameIdUnguarded(Utils::SmallStringView fi
 
 DirectoryPathId SourcePathStorage::readDirectoryPathId(Utils::SmallStringView directoryPath)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"read source context id",
                                category(),
                                keyValue("source context path", directoryPath)};
@@ -229,7 +224,6 @@ DirectoryPathId SourcePathStorage::readDirectoryPathId(Utils::SmallStringView di
 
 DirectoryPathId SourcePathStorage::writeDirectoryPathId(Utils::SmallStringView directoryPath)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"write source context id",
                                category(),
                                keyValue("source context path", directoryPath)};
@@ -245,7 +239,6 @@ DirectoryPathId SourcePathStorage::writeDirectoryPathId(Utils::SmallStringView d
 
 FileNameId SourcePathStorage::writeFileNameId(Utils::SmallStringView fileName)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"write source id", category(), keyValue("source name", fileName)};
 
     s->insertIntoSourcesStatement.write(fileName);
@@ -259,7 +252,6 @@ FileNameId SourcePathStorage::writeFileNameId(Utils::SmallStringView fileName)
 
 FileNameId SourcePathStorage::readFileNameId(Utils::SmallStringView fileName)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"read source id", category(), keyValue("source name", fileName)};
 
     auto fileNameId = s->selectFileNameIdFromFileNamesByFileNameStatement.value<FileNameId>(

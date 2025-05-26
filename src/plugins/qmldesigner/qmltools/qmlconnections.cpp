@@ -9,6 +9,8 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
 static auto category = ModelTracing::category;
 
 bool QmlConnections::isValid(SL sl) const
@@ -18,7 +20,6 @@ bool QmlConnections::isValid(SL sl) const
 
 bool QmlConnections::isValidQmlConnections(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml connection is valid qml connections",
                                category(),
                                keyValue("model node", modelNode),
@@ -33,7 +34,6 @@ bool QmlConnections::isValidQmlConnections(const ModelNode &modelNode, SL sl)
 */
 void QmlConnections::destroy(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml connection destroy",
                                category(),
                                keyValue("model node", *this),
@@ -43,7 +43,6 @@ void QmlConnections::destroy(SL sl)
 
 QString QmlConnections::target(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml connections target",
                                category(),
                                keyValue("model node", *this),
@@ -60,7 +59,6 @@ QString QmlConnections::target(SL sl) const
 
 void QmlConnections::setTarget(const QString &target, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml connections set target",
                                category(),
                                keyValue("model node", *this),
@@ -72,7 +70,6 @@ void QmlConnections::setTarget(const QString &target, SL sl)
 
 ModelNode QmlConnections::getTargetNode(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml connections get target node",
                                category(),
                                keyValue("model node", *this),
@@ -111,7 +108,6 @@ ModelNode QmlConnections::getTargetNode(SL sl) const
 
 QList<SignalHandlerProperty> QmlConnections::signalProperties(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml connections signal properties",
                                category(),
                                keyValue("model node", *this),
@@ -122,7 +118,6 @@ QList<SignalHandlerProperty> QmlConnections::signalProperties(SL sl) const
 
 ModelNode QmlConnections::createQmlConnections(AbstractView *view, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml connections create qml connections",
                                category(),
                                keyValue("view", view),

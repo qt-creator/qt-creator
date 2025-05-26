@@ -14,6 +14,8 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
 static auto category = ModelTracing::category;
 
 bool Qml3DNode::isValid(SL sl) const
@@ -23,7 +25,6 @@ bool Qml3DNode::isValid(SL sl) const
 
 bool Qml3DNode::isValidQml3DNode(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml 3d node is valid Qml 3D node",
                                category(),
                                keyValue("model node", modelNode),
@@ -34,7 +35,6 @@ bool Qml3DNode::isValidQml3DNode(const ModelNode &modelNode, SL sl)
 
 bool Qml3DNode::isValidVisualRoot(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml 3d node is valid visual root",
                                category(),
                                keyValue("model node", modelNode),
@@ -46,7 +46,6 @@ bool Qml3DNode::isValidVisualRoot(const ModelNode &modelNode, SL sl)
 
 bool Qml3DNode::handleEulerRotation(PropertyNameView name, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"1ml 3d node handle euler rotation",
                                category(),
                                keyValue("model node", *this),
@@ -64,7 +63,6 @@ bool Qml3DNode::handleEulerRotation(PropertyNameView name, SL sl)
 
 bool Qml3DNode::isBlocked(PropertyNameView propName, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml 3d node is blocked",
                                category(),
                                keyValue("model node", *this),
@@ -365,7 +363,6 @@ static bool transformHasScalingAndRotation(const QMatrix4x4 &transform)
 
 bool Qml3DNode::hasAnimatedTransform(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml 3d node has animated transform",
                                category(),
                                keyValue("model node", *this),
@@ -452,7 +449,6 @@ void Qml3DNode::setLocalTransform(const QMatrix4x4 &newParentSceneTransform,
 
 void Qml3DNode::reparentWithTransform(NodeAbstractProperty &parentProperty, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml 3d node reparent with transform",
                                category(),
                                keyValue("model node", *this),

@@ -36,6 +36,7 @@ namespace QmlDesigner {
 
 namespace {
 
+using NanotraceHR::keyValue;
 using Storage::ModuleKind;
 
 auto category = ModelTracing::category;
@@ -1488,7 +1489,6 @@ MetaInfoType NodeMetaInfo::type(SL sl) const
 {
     if constexpr (useProjectStorage()) {
         if (isValid()) {
-            using NanotraceHR::keyValue;
             NanotraceHR::Tracer tracer{"node meta info get type",
                                        category(),
                                        keyValue("type id", m_typeId),
@@ -1518,7 +1518,6 @@ bool NodeMetaInfo::isFileComponent(SL sl) const
         if (!isValid())
             return {};
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is file component",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1541,7 +1540,6 @@ bool NodeMetaInfo::isSingleton(SL sl) const
         if (!isValid())
             return {};
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is singleton",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1564,7 +1562,6 @@ bool NodeMetaInfo::isInsideProject(SL sl) const
         if (!isValid())
             return {};
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is inside project",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1587,7 +1584,6 @@ FlagIs NodeMetaInfo::canBeContainer(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info can be container",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1609,7 +1605,6 @@ FlagIs NodeMetaInfo::forceClip(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info force clip",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1631,7 +1626,6 @@ FlagIs NodeMetaInfo::doesLayoutChildren(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info does layout children",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1653,7 +1647,6 @@ FlagIs NodeMetaInfo::canBeDroppedInFormEditor(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info can be dropped in form editor",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1675,7 +1668,6 @@ FlagIs NodeMetaInfo::canBeDroppedInNavigator(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info can be dropped in navigator",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1697,7 +1689,6 @@ FlagIs NodeMetaInfo::canBeDroppedInView3D(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info can be dropped in view3d",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1719,7 +1710,6 @@ FlagIs NodeMetaInfo::isMovable(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is movable",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1741,7 +1731,6 @@ FlagIs NodeMetaInfo::isResizable(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is resizable",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1763,7 +1752,6 @@ FlagIs NodeMetaInfo::hasFormEditorItem(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info has form editor item",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1785,7 +1773,6 @@ FlagIs NodeMetaInfo::isStackedContainer(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is stacked container",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1807,7 +1794,6 @@ FlagIs NodeMetaInfo::takesOverRenderingOfChildren(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info takes over rendering of children",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1829,7 +1815,6 @@ FlagIs NodeMetaInfo::visibleInNavigator(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info visible in navigator",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1863,7 +1848,6 @@ FlagIs NodeMetaInfo::visibleInLibrary(SL sl) const
         if (!isValid())
             return FlagIs::False;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info visible in library",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1913,7 +1897,6 @@ namespace {
 bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName, SL sl) const
 {
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info has property",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1939,7 +1922,6 @@ PropertyMetaInfos NodeMetaInfo::properties(SL sl) const
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get properties",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1967,7 +1949,6 @@ PropertyMetaInfos NodeMetaInfo::localProperties(SL sl) const
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get local properties",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -1996,7 +1977,6 @@ PropertyMetaInfo NodeMetaInfo::property(PropertyNameView propertyName, SL sl) co
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get property",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2018,7 +1998,6 @@ PropertyNameList NodeMetaInfo::signalNames(SL sl) const
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get signal names",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2038,7 +2017,6 @@ PropertyNameList NodeMetaInfo::slotNames(SL sl) const
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get slot names",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2056,7 +2034,6 @@ PropertyName NodeMetaInfo::defaultPropertyName(SL sl) const
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get default property name",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2079,7 +2056,6 @@ PropertyMetaInfo NodeMetaInfo::defaultProperty(SL sl) const
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get default property",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2101,7 +2077,6 @@ bool NodeMetaInfo::hasDefaultProperty(SL sl) const
         return false;
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info has default property",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2121,7 +2096,7 @@ std::vector<NodeMetaInfo> NodeMetaInfo::selfAndPrototypes([[maybe_unused]] SL sl
         return {};
 
 #ifdef QDS_USE_PROJECTSTORAGE
-    using NanotraceHR::keyValue;
+
     NanotraceHR::Tracer tracer{"node meta info get self and prototypes",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2151,7 +2126,7 @@ NodeMetaInfos NodeMetaInfo::prototypes([[maybe_unused]] SL sl) const
         return {};
 
 #ifdef QDS_USE_PROJECTSTORAGE
-    using NanotraceHR::keyValue;
+
     NanotraceHR::Tracer tracer{"node meta info get prototypes",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2255,7 +2230,6 @@ Storage::Info::ExportedTypeNames NodeMetaInfo::allExportedTypeNames(SL sl) const
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get all exported type names",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2273,7 +2247,6 @@ Storage::Info::ExportedTypeNames NodeMetaInfo::exportedTypeNamesForSourceId(Sour
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get exported type names for source id",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2291,7 +2264,6 @@ Storage::Info::TypeHints NodeMetaInfo::typeHints(SL sl) const
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get type hints",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2313,7 +2285,6 @@ Utils::PathString NodeMetaInfo::iconPath(SL sl) const
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get icon path",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2335,7 +2306,6 @@ Storage::Info::ItemLibraryEntries NodeMetaInfo::itemLibrariesEntries(SL sl) cons
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get item library entries",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2357,7 +2327,6 @@ SourceId NodeMetaInfo::sourceId(SL sl) const
         return SourceId{};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get source id",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2417,7 +2386,6 @@ SourceId NodeMetaInfo::propertyEditorPathId(SL sl) const
         return SourceId{};
 
     if (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get property editor path id",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2493,7 +2461,6 @@ bool NodeMetaInfo::isSuitableForMouseAreaFill(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is suitable for mouse area fill",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2525,7 +2492,6 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo, [[maybe_unused]] SL s
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is based on 1 node meta info",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2550,7 +2516,6 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is based on 2 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2577,7 +2542,6 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is based on 3 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2608,7 +2572,6 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is based on 4 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2638,7 +2601,6 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is based on 5 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2674,7 +2636,6 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is based on 6 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2713,7 +2674,6 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is based on 7 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2748,7 +2708,6 @@ NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"based on 1 node meta info",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2769,7 +2728,6 @@ NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"based on 2 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2791,7 +2749,6 @@ NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"based on 3 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2814,7 +2771,6 @@ NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"based on 4 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2842,7 +2798,6 @@ NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"based on 5 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2872,7 +2827,6 @@ NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"based on 6 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2904,7 +2858,6 @@ NodeMetaInfo NodeMetaInfo::basedOn([[maybe_unused]] const NodeMetaInfo &metaInfo
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"based on 7 node meta infos",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2930,7 +2883,6 @@ bool NodeMetaInfo::isGraphicalItem(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is graphical item",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2957,7 +2909,6 @@ bool NodeMetaInfo::isQtObject(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is Qt object",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -2976,7 +2927,6 @@ bool NodeMetaInfo::isQtQmlConnections([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is Qt Qml connections",
                                category(),
                                keyValue("type id", m_typeId),
@@ -2995,7 +2945,6 @@ bool NodeMetaInfo::isLayoutable(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is layoutable",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3021,7 +2970,6 @@ bool NodeMetaInfo::isQtQuickLayoutsLayout(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Layouts.Layout",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3040,7 +2988,6 @@ bool NodeMetaInfo::isView(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is view",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3064,7 +3011,6 @@ bool NodeMetaInfo::usesCustomParser([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info uses custom parser",
                                category(),
                                keyValue("type id", m_typeId),
@@ -3099,7 +3045,6 @@ bool NodeMetaInfo::isVector2D(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is vector2d",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3123,7 +3068,6 @@ bool NodeMetaInfo::isVector3D(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is vector3d",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3147,7 +3091,6 @@ bool NodeMetaInfo::isVector4D(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is vector4d",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3171,7 +3114,6 @@ bool NodeMetaInfo::isQtQuickPropertyChanges(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.PropertyChanges",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3191,7 +3133,6 @@ bool NodeMetaInfo::isQtSafeRendererSafeRendererPicture(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is Qt.SafeRenderer.SafeRendererPicture",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3210,7 +3151,6 @@ bool NodeMetaInfo::isQtSafeRendererSafePicture(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is Qt.SafeRenderer.SafePicture",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3229,7 +3169,6 @@ bool NodeMetaInfo::isQtQuickTimelineKeyframe(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Timeline.Keyframe",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3249,7 +3188,6 @@ bool NodeMetaInfo::isQtQuickTimelineTimelineAnimation(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Timeline.TimelineAnimation",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3268,7 +3206,6 @@ bool NodeMetaInfo::isQtQuickTimelineTimeline(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Timeline.Timeline",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3287,7 +3224,6 @@ bool NodeMetaInfo::isQtQuickTimelineKeyframeGroup(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Timeline.KeyframeGroup",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3306,7 +3242,6 @@ bool NodeMetaInfo::isListOrGridView(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is list or grid view",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3327,7 +3262,6 @@ bool NodeMetaInfo::isNumber(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is number",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3355,7 +3289,6 @@ bool NodeMetaInfo::isQtQuickExtrasPicture(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Extras.Picture",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3375,7 +3308,6 @@ bool NodeMetaInfo::isQtQuickGradient([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is QtQuick.Gradient",
                                category(),
                                keyValue("type id", m_typeId),
@@ -3394,7 +3326,6 @@ bool NodeMetaInfo::isQtQuickImage([[maybe_unused]] SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Image",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3414,7 +3345,6 @@ bool NodeMetaInfo::isQtQuickBorderImage([[maybe_unused]] SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.BorderImage",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3434,7 +3364,6 @@ bool NodeMetaInfo::isAlias(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is alias",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3452,7 +3381,6 @@ bool NodeMetaInfo::isQtQuickPositioner(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Positioner",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3472,7 +3400,6 @@ bool NodeMetaInfo::isQtQuickPropertyAnimation(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.PropertyAnimation",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3492,7 +3419,6 @@ bool NodeMetaInfo::isQtQuickRectangle([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is QtQuick.Rectange",
                                category(),
                                keyValue("type id", m_typeId),
@@ -3511,7 +3437,6 @@ bool NodeMetaInfo::isQtQuickRepeater(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Repeater",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3530,7 +3455,6 @@ bool NodeMetaInfo::isQtQuickShapesShape(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Shapes.Shape",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3549,7 +3473,6 @@ bool NodeMetaInfo::isQtQuickControlsTabBar(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Controls.TabBar",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3568,7 +3491,6 @@ bool NodeMetaInfo::isQtQuickControlsLabel([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is QtQuick.Controls.SwipeView",
                                category(),
                                keyValue("type id", m_typeId),
@@ -3587,7 +3509,6 @@ bool NodeMetaInfo::isQtQuickControlsSwipeView(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Controls.SwipeView",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3606,7 +3527,6 @@ bool NodeMetaInfo::isQtQuick3DCamera(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Camera",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3625,7 +3545,6 @@ bool NodeMetaInfo::isQtQuick3DBakedLightmap(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.BakedLightmap",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3644,7 +3563,6 @@ bool NodeMetaInfo::isQtQuick3DBuffer(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Buffer",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3663,7 +3581,6 @@ bool NodeMetaInfo::isQtQuick3DInstanceListEntry(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.InstanceListEntry",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3682,7 +3599,6 @@ bool NodeMetaInfo::isQtQuick3DLight(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Light",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3701,7 +3617,6 @@ bool NodeMetaInfo::isQtQmlModelsListElement(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQml.Models.ListElement",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3720,7 +3635,6 @@ bool NodeMetaInfo::isQtQuickListModel(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.ListModel",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3739,7 +3653,6 @@ bool NodeMetaInfo::isQtQuickListView(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.ListView",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3758,7 +3671,6 @@ bool QmlDesigner::NodeMetaInfo::isQtQuickGridView(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.GridView",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3777,7 +3689,6 @@ bool NodeMetaInfo::isQtQuick3DInstanceList(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.InstanceList",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3796,7 +3707,6 @@ bool NodeMetaInfo::isQtQuick3DParticles3DParticle3D(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Particles3D.Particle3D",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3815,7 +3725,6 @@ bool NodeMetaInfo::isQtQuick3DParticles3DParticleEmitter3D(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Particles3D.ParticleEmitter3D",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3835,7 +3744,6 @@ bool NodeMetaInfo::isQtQuick3DParticles3DAttractor3D(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Particles3D.Attractor3D",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3854,7 +3762,6 @@ bool NodeMetaInfo::isQtQuick3DParticlesAbstractShape(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Particles3D.AbstractShape",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3874,7 +3781,6 @@ bool NodeMetaInfo::isQtQuickItem(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Item",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3893,7 +3799,6 @@ bool NodeMetaInfo::isQtQuickPath(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Path",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3912,7 +3817,6 @@ bool NodeMetaInfo::isQtQuickPauseAnimation(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.PauseAnimation",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3931,7 +3835,6 @@ bool NodeMetaInfo::isQtQuickTransition(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Transition",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3950,7 +3853,6 @@ bool NodeMetaInfo::isQtQuickWindowWindow(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Window.Window",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3969,7 +3871,6 @@ bool NodeMetaInfo::isQtQuickLoader(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Loader",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -3988,7 +3889,6 @@ bool NodeMetaInfo::isQtQuickState(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.State",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4007,7 +3907,6 @@ bool NodeMetaInfo::isQtQuickStateGroup(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.StateGroup",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4026,7 +3925,6 @@ bool NodeMetaInfo::isQtQuickStateOperation(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.StateOperation",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4046,7 +3944,6 @@ bool NodeMetaInfo::isQtQuickStudioComponentsArcItem(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Studio.Components.ArcItem",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4065,7 +3962,6 @@ bool NodeMetaInfo::isQtQuickText(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Text",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4084,7 +3980,6 @@ bool NodeMetaInfo::isQtMultimediaSoundEffect(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtMultimedia.SoundEffect",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4103,7 +3998,6 @@ bool NodeMetaInfo::isFlowViewItem(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is FlowView.ViewItem",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4127,7 +4021,6 @@ bool NodeMetaInfo::isFlowViewFlowItem(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is FlowView.FlowItem",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4146,7 +4039,6 @@ bool NodeMetaInfo::isFlowViewFlowView(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is FlowView.FlowView",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4175,7 +4067,6 @@ bool NodeMetaInfo::isFlowViewFlowTransition(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is FlowView.FlowTransition",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4194,7 +4085,6 @@ bool NodeMetaInfo::isFlowViewFlowDecision(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is FlowView.FlowDecision",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4213,7 +4103,6 @@ bool NodeMetaInfo::isFlowViewFlowWildcard(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is FlowView.FlowWildcard",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4232,7 +4121,6 @@ bool NodeMetaInfo::isQtQuickStudioComponentsGroupItem(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Studio.Components.GroupItem",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4251,7 +4139,6 @@ bool NodeMetaInfo::isQtQuickStudioComponentsSvgPathItem(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Studio.Components.SvgPathItem",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4270,7 +4157,6 @@ bool NodeMetaInfo::isQtQuickStudioUtilsJsonListModel(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick.Studio.Utils.JsonListModel",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4290,7 +4176,6 @@ bool NodeMetaInfo::isQmlComponent([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is QML.Component",
                                category(),
                                keyValue("type id", m_typeId),
@@ -4314,7 +4199,6 @@ bool NodeMetaInfo::isFont([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is font",
                                category(),
                                keyValue("type id", m_typeId),
@@ -4333,7 +4217,6 @@ bool NodeMetaInfo::isColor([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is color",
                                category(),
                                keyValue("type id", m_typeId),
@@ -4357,7 +4240,6 @@ bool NodeMetaInfo::isBool([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is bool",
                                category(),
                                keyValue("type id", m_typeId),
@@ -4381,7 +4263,6 @@ bool NodeMetaInfo::isInteger([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is integer",
                                category(),
                                keyValue("type id", m_typeId),
@@ -4405,7 +4286,6 @@ bool NodeMetaInfo::isFloat([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is float",
                                category(),
                                keyValue("type id", m_typeId),
@@ -4432,7 +4312,6 @@ bool NodeMetaInfo::isVariant([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is variant",
                                category(),
                                keyValue("type id", m_typeId),
@@ -4456,7 +4335,6 @@ bool NodeMetaInfo::isString([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is string",
                                category(),
                                keyValue("type id", m_typeId),
@@ -4480,7 +4358,6 @@ bool NodeMetaInfo::isUrl([[maybe_unused]] SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info is url",
                                category(),
                                keyValue("type id", m_typeId),
@@ -4504,7 +4381,6 @@ bool NodeMetaInfo::isQtQuick3DTexture(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Texture",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4524,7 +4400,6 @@ bool NodeMetaInfo::isQtQuick3DShader(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Shader",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4543,7 +4418,6 @@ bool NodeMetaInfo::isQtQuick3DPass(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Pass",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4562,7 +4436,6 @@ bool NodeMetaInfo::isQtQuick3DCommand(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Command",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4581,7 +4454,6 @@ bool NodeMetaInfo::isQtQuick3DDefaultMaterial(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.DefaultMaterial",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4610,7 +4482,6 @@ bool NodeMetaInfo::isQtQuick3DModel(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Model",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4629,7 +4500,6 @@ bool NodeMetaInfo::isQtQuick3DNode(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Node",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4648,7 +4518,6 @@ bool NodeMetaInfo::isQtQuick3DObject3D(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"is QtQuick3D.Object3D",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4667,7 +4536,6 @@ bool NodeMetaInfo::isQtQuick3DParticles3DAffector3D(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Particles3D.Affector3D",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4686,7 +4554,6 @@ bool NodeMetaInfo::isQtQuick3DView3D(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.View3D",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4705,7 +4572,6 @@ bool NodeMetaInfo::isQtQuick3DPrincipledMaterial(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.PrincipledMaterial",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4724,7 +4590,6 @@ bool NodeMetaInfo::isQtQuick3DSpecularGlossyMaterial(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.SpecularGlossyMaterial",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4743,7 +4608,6 @@ bool NodeMetaInfo::isQtQuick3DParticles3DSpriteParticle3D(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Particles3D.SpriteParticle3D",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4763,7 +4627,6 @@ bool NodeMetaInfo::isQtQuick3DTextureInput(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.TextureInput",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4782,7 +4645,6 @@ bool NodeMetaInfo::isQtQuick3DCubeMapTexture(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.CubeMapTexture",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4803,7 +4665,6 @@ bool NodeMetaInfo::isQtQuick3DSceneEnvironment(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.SceneEnvironment",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4822,7 +4683,6 @@ bool NodeMetaInfo::isQtQuick3DEffect(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is QtQuick3D.Effect",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4841,7 +4701,6 @@ bool NodeMetaInfo::isEnumeration(SL sl) const
         if (!isValid())
             return false;
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is enumeration",
                                    category(),
                                    keyValue("type id", m_typeId),
@@ -4876,7 +4735,6 @@ NodeMetaInfo PropertyMetaInfo::propertyType() const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info get property type",
                                category(),
                                keyValue("property declaration id", m_id)};
@@ -4899,7 +4757,6 @@ NodeMetaInfo PropertyMetaInfo::type() const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"node meta info get property owner type ",
                                category(),
                                keyValue("property declaration id", m_id)};
@@ -4916,7 +4773,6 @@ PropertyName PropertyMetaInfo::name() const
         return {};
 
     if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info get property name",
                                    category(),
                                    keyValue("property declaration id", m_id)};
@@ -4933,7 +4789,6 @@ bool PropertyMetaInfo::isWritable() const
         if (!isValid())
             return {};
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is property writable",
                                    category(),
                                    keyValue("property declaration id", m_id)};
@@ -4950,7 +4805,6 @@ bool PropertyMetaInfo::isReadOnly() const
         if (!isValid())
             return {};
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is property read only",
                                    category(),
                                    keyValue("property declaration id", m_id)};
@@ -4967,7 +4821,6 @@ bool PropertyMetaInfo::isListProperty() const
         if (!isValid())
             return {};
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is list property",
                                    category(),
                                    keyValue("property declaration id", m_id)};
@@ -4984,7 +4837,6 @@ bool PropertyMetaInfo::isEnumType() const
         if (!isValid())
             return {};
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is enum type",
                                    category(),
                                    keyValue("property has enumeration type", m_id)};
@@ -5001,7 +4853,6 @@ bool PropertyMetaInfo::isPrivate() const
         if (!isValid())
             return {};
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is private property",
                                    category(),
                                    keyValue("property declaration id", m_id)};
@@ -5018,7 +4869,6 @@ bool PropertyMetaInfo::isPointer() const
         if (!isValid())
             return {};
 
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info is pointer property",
                                    category(),
                                    keyValue("property declaration id", m_id)};
@@ -5043,7 +4893,6 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         return {};
 
     if constexpr (!useProjectStorage()) {
-        using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"node meta info cast value",
                                    category(),
                                    keyValue("property declaration id", m_id)};

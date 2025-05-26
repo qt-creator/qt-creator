@@ -17,6 +17,8 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
 static auto category = ModelTracing::category;
 
 bool QmlTimeline::isValid(SL sl) const
@@ -26,7 +28,6 @@ bool QmlTimeline::isValid(SL sl) const
 
 bool QmlTimeline::isValidQmlTimeline(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline is valid",
                                category(),
                                keyValue("model node", modelNode),
@@ -37,7 +38,6 @@ bool QmlTimeline::isValidQmlTimeline(const ModelNode &modelNode, SL sl)
 
 void QmlTimeline::destroy(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline destroy",
                                category(),
                                keyValue("model node", *this),
@@ -49,7 +49,6 @@ QmlTimelineKeyframeGroup QmlTimeline::keyframeGroup(const ModelNode &node,
                                                     PropertyNameView propertyName,
                                                     SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline keyframe group",
                                category(),
                                keyValue("model node", *this),
@@ -76,7 +75,6 @@ QmlTimelineKeyframeGroup QmlTimeline::keyframeGroup(const ModelNode &node,
 
 bool QmlTimeline::hasTimeline(const ModelNode &node, PropertyNameView propertyName, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline has timeline",
                                category(),
                                keyValue("model node", *this),
@@ -102,7 +100,6 @@ bool QmlTimeline::hasTimeline(const ModelNode &node, PropertyNameView propertyNa
 
 qreal QmlTimeline::startKeyframe(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline start keyframe",
                                category(),
                                keyValue("model node", *this),
@@ -115,7 +112,6 @@ qreal QmlTimeline::startKeyframe(SL sl) const
 
 qreal QmlTimeline::endKeyframe(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline end keyframe",
                                category(),
                                keyValue("model node", *this),
@@ -128,7 +124,6 @@ qreal QmlTimeline::endKeyframe(SL sl) const
 
 qreal QmlTimeline::currentKeyframe(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline current keyframe",
                                category(),
                                keyValue("model node", *this),
@@ -141,7 +136,6 @@ qreal QmlTimeline::currentKeyframe(SL sl) const
 
 qreal QmlTimeline::duration(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline duration",
                                category(),
                                keyValue("model node", *this),
@@ -152,7 +146,6 @@ qreal QmlTimeline::duration(SL sl) const
 
 bool QmlTimeline::isEnabled(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline is enabled",
                                category(),
                                keyValue("model node", *this),
@@ -163,7 +156,6 @@ bool QmlTimeline::isEnabled(SL sl) const
 
 qreal QmlTimeline::minActualKeyframe(const ModelNode &target, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline min actual keyframe",
                                category(),
                                keyValue("model node", *this),
@@ -183,7 +175,6 @@ qreal QmlTimeline::minActualKeyframe(const ModelNode &target, SL sl) const
 
 qreal QmlTimeline::maxActualKeyframe(const ModelNode &target, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline max actual keyframe",
                                category(),
                                keyValue("model node", *this),
@@ -203,7 +194,6 @@ qreal QmlTimeline::maxActualKeyframe(const ModelNode &target, SL sl) const
 
 void QmlTimeline::moveAllKeyframes(const ModelNode &target, qreal offset, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline move all keyframes",
                                category(),
                                keyValue("model node", *this),
@@ -218,7 +208,6 @@ void QmlTimeline::moveAllKeyframes(const ModelNode &target, qreal offset, SL sl)
 
 void QmlTimeline::scaleAllKeyframes(const ModelNode &target, qreal factor, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline scale all keyframes",
                                category(),
                                keyValue("model node", *this),
@@ -232,7 +221,6 @@ void QmlTimeline::scaleAllKeyframes(const ModelNode &target, qreal factor, SL sl
 
 QList<ModelNode> QmlTimeline::allTargets(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline all targets",
                                category(),
                                keyValue("model node", *this),
@@ -252,7 +240,6 @@ QList<ModelNode> QmlTimeline::allTargets(SL sl) const
 
 QList<QmlTimelineKeyframeGroup> QmlTimeline::keyframeGroupsForTarget(const ModelNode &target, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline keyframe groups for target",
                                category(),
                                keyValue("model node", *this),
@@ -274,7 +261,6 @@ QList<QmlTimelineKeyframeGroup> QmlTimeline::keyframeGroupsForTarget(const Model
 
 void QmlTimeline::destroyKeyframesForTarget(const ModelNode &target, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline destroy keyframes for target",
                                category(),
                                keyValue("model node", *this),
@@ -289,7 +275,6 @@ void QmlTimeline::removeKeyframesForTargetAndProperty(const ModelNode &target,
                                                       PropertyNameView propertyName,
                                                       SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline remove keyframes for target and property",
                                category(),
                                keyValue("model node", *this),
@@ -305,7 +290,6 @@ void QmlTimeline::removeKeyframesForTargetAndProperty(const ModelNode &target,
 
 bool QmlTimeline::hasActiveTimeline(AbstractView *view, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline has active timeline",
                                category(),
                                keyValue("view", view),
@@ -323,7 +307,6 @@ bool QmlTimeline::hasActiveTimeline(AbstractView *view, SL sl)
 
 bool QmlTimeline::isRecording(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline is recording",
                                category(),
                                keyValue("model node", *this),
@@ -336,7 +319,6 @@ bool QmlTimeline::isRecording(SL sl) const
 
 void QmlTimeline::toogleRecording(bool record, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline toggle recording",
                                category(),
                                keyValue("model node", *this),
@@ -356,7 +338,6 @@ void QmlTimeline::toogleRecording(bool record, SL sl) const
 
 void QmlTimeline::resetGroupRecording(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline reset group recording",
                                category(),
                                keyValue("model node", *this),
@@ -392,7 +373,6 @@ void QmlTimeline::addKeyframeGroupIfNotExists(const ModelNode &node, PropertyNam
 
 bool QmlTimeline::hasKeyframeGroup(const ModelNode &node, PropertyNameView propertyName, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline has keyframe group",
                                category(),
                                keyValue("model node", *this),
@@ -412,7 +392,6 @@ bool QmlTimeline::hasKeyframeGroup(const ModelNode &node, PropertyNameView prope
 
 bool QmlTimeline::hasKeyframeGroupForTarget(const ModelNode &node, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline has keyframe group for target",
                                category(),
                                keyValue("model node", *this),
@@ -432,7 +411,6 @@ bool QmlTimeline::hasKeyframeGroupForTarget(const ModelNode &node, SL sl) const
 
 void QmlTimeline::insertKeyframe(const ModelNode &target, PropertyNameView propertyName, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml timeline insert keyframe",
                                category(),
                                keyValue("model node", *this),

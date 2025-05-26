@@ -11,11 +11,12 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
 static auto category = ModelTracing::category;
 
 ModelNode QmlModelStateOperation::target(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state operation target",
                                category(),
                                keyValue("model node", *this),
@@ -29,7 +30,6 @@ ModelNode QmlModelStateOperation::target(SL sl) const
 
 void QmlModelStateOperation::setTarget(const ModelNode &target, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state operation set target",
                                category(),
                                keyValue("model node", *this),
@@ -41,7 +41,6 @@ void QmlModelStateOperation::setTarget(const ModelNode &target, SL sl)
 
 bool QmlModelStateOperation::explicitValue(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state operation explicit value",
                                category(),
                                keyValue("model node", *this),
@@ -55,7 +54,6 @@ bool QmlModelStateOperation::explicitValue(SL sl) const
 
 void QmlModelStateOperation::setExplicitValue(bool value, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state operation set explicit value",
                                category(),
                                keyValue("model node", *this),
@@ -67,7 +65,6 @@ void QmlModelStateOperation::setExplicitValue(bool value, SL sl)
 
 bool QmlModelStateOperation::restoreEntryValues(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state operation restore entry values",
                                category(),
                                keyValue("model node", *this),
@@ -81,7 +78,6 @@ bool QmlModelStateOperation::restoreEntryValues(SL sl) const
 
 void QmlModelStateOperation::setRestoreEntryValues(bool value, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state operation set restore entry values",
                                category(),
                                keyValue("model node", *this),
@@ -93,7 +89,6 @@ void QmlModelStateOperation::setRestoreEntryValues(bool value, SL sl)
 
 QList<AbstractProperty> QmlModelStateOperation::targetProperties(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state operation target properties",
                                category(),
                                keyValue("model node", *this),
@@ -112,7 +107,6 @@ bool QmlPropertyChanges::isValid(SL sl) const
 
 bool QmlPropertyChanges::isValidQmlPropertyChanges(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"is valid qml property changes",
                                category(),
                                keyValue("model node", modelNode),
@@ -128,7 +122,6 @@ bool QmlModelStateOperation::isValid(SL sl) const
 
 bool QmlModelStateOperation::isValidQmlModelStateOperation(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"is valid qml model state operation",
                                category(),
                                keyValue("model node", modelNode),
@@ -139,7 +132,6 @@ bool QmlModelStateOperation::isValidQmlModelStateOperation(const ModelNode &mode
 
 void QmlPropertyChanges::removeProperty(PropertyNameView name, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml property changes remove property",
                                category(),
                                keyValue("model node", *this),

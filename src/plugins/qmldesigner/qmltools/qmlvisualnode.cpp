@@ -29,13 +29,14 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
 static auto category = ModelTracing::category;
 
 static char imagePlaceHolder[] = "qrc:/qtquickplugin/images/template_image.png";
 
 bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node is item or 3D node",
                                category(),
                                keyValue("model node", modelNode),
@@ -60,7 +61,6 @@ bool QmlVisualNode::isValid(SL sl) const
 
 bool QmlVisualNode::isValidQmlVisualNode(const ModelNode &modelNode, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node is valid",
                                category(),
                                keyValue("model node", modelNode),
@@ -79,7 +79,6 @@ bool QmlVisualNode::isValidQmlVisualNode(const ModelNode &modelNode, SL sl)
 
 bool QmlVisualNode::isRootNode(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node is root node",
                                category(),
                                keyValue("model node", *this),
@@ -90,7 +89,6 @@ bool QmlVisualNode::isRootNode(SL sl) const
 
 QList<QmlVisualNode> QmlVisualNode::children(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node children",
                                category(),
                                keyValue("model node", *this),
@@ -116,7 +114,6 @@ QList<QmlVisualNode> QmlVisualNode::children(SL sl) const
 
 QList<QmlObjectNode> QmlVisualNode::resources(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node resources",
                                category(),
                                keyValue("model node", *this),
@@ -142,7 +139,6 @@ QList<QmlObjectNode> QmlVisualNode::resources(SL sl) const
 
 QList<QmlObjectNode> QmlVisualNode::allDirectSubNodes(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node all direct sub nodes",
                                category(),
                                keyValue("model node", *this),
@@ -153,7 +149,6 @@ QList<QmlObjectNode> QmlVisualNode::allDirectSubNodes(SL sl) const
 
 bool QmlVisualNode::hasChildren(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node has children",
                                category(),
                                keyValue("model node", *this),
@@ -167,7 +162,6 @@ bool QmlVisualNode::hasChildren(SL sl) const
 
 bool QmlVisualNode::hasResources(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node has resources",
                                category(),
                                keyValue("model node", *this),
@@ -181,7 +175,6 @@ bool QmlVisualNode::hasResources(SL sl) const
 
 const QList<QmlVisualNode> QmlVisualNode::allDirectSubModelNodes(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node all direct sub model nodes",
                                category(),
                                keyValue("model node", *this),
@@ -192,7 +185,6 @@ const QList<QmlVisualNode> QmlVisualNode::allDirectSubModelNodes(SL sl) const
 
 const QList<QmlVisualNode> QmlVisualNode::allSubModelNodes(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node all sub model nodes",
                                category(),
                                keyValue("model node", *this),
@@ -203,7 +195,6 @@ const QList<QmlVisualNode> QmlVisualNode::allSubModelNodes(SL sl) const
 
 bool QmlVisualNode::hasAnySubModelNodes(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node has any sub model nodes",
                                category(),
                                keyValue("model node", *this),
@@ -214,7 +205,6 @@ bool QmlVisualNode::hasAnySubModelNodes(SL sl) const
 
 void QmlVisualNode::setVisibilityOverride(bool visible, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node set visibility override",
                                category(),
                                keyValue("model node", *this),
@@ -228,7 +218,6 @@ void QmlVisualNode::setVisibilityOverride(bool visible, SL sl)
 
 bool QmlVisualNode::visibilityOverride(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node visibility override",
                                category(),
                                keyValue("model node", *this),
@@ -241,7 +230,6 @@ bool QmlVisualNode::visibilityOverride(SL sl) const
 
 void QmlVisualNode::scatter(const ModelNode &targetNode, const std::optional<int> &offset, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node scatter",
                                category(),
                                keyValue("model node", *this),
@@ -289,7 +277,6 @@ void QmlVisualNode::scatter(const ModelNode &targetNode, const std::optional<int
 
 void QmlVisualNode::translate(const QVector3D &vector, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node translate",
                                category(),
                                keyValue("model node", *this),
@@ -309,7 +296,6 @@ void QmlVisualNode::setDoubleProperty(PropertyNameView name, double value)
 
 void QmlVisualNode::setPosition(const QmlVisualNode::Position &position, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node set position",
                                category(),
                                keyValue("model node", *this),
@@ -333,7 +319,6 @@ void QmlVisualNode::setPosition(const QmlVisualNode::Position &position, SL sl)
 
 QmlVisualNode::Position QmlVisualNode::position(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node position",
                                category(),
                                keyValue("model node", *this),
@@ -358,7 +343,6 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  QmlVisualNode parentQmlItemNode,
                                                  SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node create qml object node",
                                category(),
                                keyValue("caller location", sl)};
@@ -460,7 +444,6 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  bool createInTransaction,
                                                  SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node create qml object node",
                                category(),
                                keyValue("create in transaction", createInTransaction),
@@ -600,7 +583,6 @@ QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
                                              bool createInTransaction,
                                              SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node create qml 3D node",
                                category(),
                                keyValue("caller location", sl)};
@@ -622,7 +604,6 @@ QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
                                              bool createInTransaction,
                                              SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node create qml 3D node",
                                category(),
                                keyValue("caller location", sl)};
@@ -673,7 +654,6 @@ QmlVisualNode QmlVisualNode::createQml3DNode(AbstractView *view,
 
 NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32 sceneRootId, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node find scene node property",
                                category(),
                                keyValue("caller location", sl)};
@@ -690,7 +670,6 @@ NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32
 
 bool QmlVisualNode::isFlowTransition(const ModelNode &node, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node is flow transition",
                                category(),
                                keyValue("model node", node),
@@ -701,7 +680,6 @@ bool QmlVisualNode::isFlowTransition(const ModelNode &node, SL sl)
 
 bool QmlVisualNode::isFlowDecision(const ModelNode &node, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node is flow decision",
                                category(),
                                keyValue("model node", node),
@@ -712,7 +690,6 @@ bool QmlVisualNode::isFlowDecision(const ModelNode &node, SL sl)
 
 bool QmlVisualNode::isFlowWildcard(const ModelNode &node, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node is flow wildcard",
                                category(),
                                keyValue("model node", node),
@@ -723,7 +700,6 @@ bool QmlVisualNode::isFlowWildcard(const ModelNode &node, SL sl)
 
 bool QmlVisualNode::isFlowTransition(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node is flow transition",
                                category(),
                                keyValue("model node", *this),
@@ -734,7 +710,6 @@ bool QmlVisualNode::isFlowTransition(SL sl) const
 
 bool QmlVisualNode::isFlowDecision(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node is flow decision",
                                category(),
                                keyValue("model node", *this),
@@ -745,7 +720,6 @@ bool QmlVisualNode::isFlowDecision(SL sl) const
 
 bool QmlVisualNode::isFlowWildcard(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml visual node is flow wildcard",
                                category(),
                                keyValue("model node", *this),
@@ -778,7 +752,6 @@ QList<QmlVisualNode> toQmlVisualNodeList(const QList<ModelNode> &modelNodeList)
 
 QStringList QmlModelStateGroup::names(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state group names",
                                category(),
                                keyValue("model node", m_modelNode),
@@ -800,7 +773,6 @@ QStringList QmlModelStateGroup::names(SL sl) const
 
 QList<QmlModelState> QmlModelStateGroup::allStates(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state group all states",
                                category(),
                                keyValue("model node", m_modelNode),
@@ -822,7 +794,6 @@ QList<QmlModelState> QmlModelStateGroup::allStates(SL sl) const
 
 QmlModelState QmlModelStateGroup::addState(const QString &name, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state group add state",
                                category(),
                                keyValue("name", name),
@@ -841,7 +812,6 @@ QmlModelState QmlModelStateGroup::addState(const QString &name, SL sl)
 
 void QmlModelStateGroup::removeState(const QString &name, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state group remove state",
                                category(),
                                keyValue("name", name),
@@ -857,7 +827,6 @@ void QmlModelStateGroup::removeState(const QString &name, SL sl)
 
 QmlModelState QmlModelStateGroup::state(const QString &name, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml model state group state",
                                category(),
                                keyValue("name", name),

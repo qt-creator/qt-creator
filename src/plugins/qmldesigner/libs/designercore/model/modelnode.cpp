@@ -20,6 +20,7 @@
 
 namespace QmlDesigner {
 using namespace QmlDesigner::Internal;
+using NanotraceHR::keyValue;
 
 static auto category = ModelTracing::category;
 
@@ -68,7 +69,6 @@ QString ModelNode::id(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node id",
                                category(),
                                keyValue("model node", *this),
@@ -137,7 +137,6 @@ bool ModelNode::hasId(SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has id",
                                category(),
                                keyValue("model node", *this),
@@ -151,7 +150,6 @@ void ModelNode::setIdWithRefactoring(const QString &id, SL sl) const
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set id with refactoring",
                                category(),
                                keyValue("model node", *this),
@@ -171,7 +169,6 @@ void ModelNode::setIdWithoutRefactoring(const QString &id, SL sl) const
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set id without refactoring",
                                category(),
                                keyValue("model node", *this),
@@ -197,7 +194,6 @@ TypeName ModelNode::type(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node type",
                                category(),
                                keyValue("model node", *this),
@@ -214,7 +210,6 @@ int ModelNode::minorVersion(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node minor version",
                                category(),
                                keyValue("model node", *this),
@@ -231,7 +226,6 @@ int ModelNode::majorVersion(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node major version",
                                category(),
                                keyValue("model node", *this),
@@ -246,7 +240,6 @@ QString ModelNode::simplifiedTypeName(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node simplified type name",
                                category(),
                                keyValue("model node", *this),
@@ -289,7 +282,6 @@ bool ModelNode::isInHierarchy(SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node is in hierarchy",
                                category(),
                                keyValue("model node", *this),
@@ -316,7 +308,6 @@ NodeAbstractProperty ModelNode::parentProperty(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node parent property",
                                category(),
                                keyValue("model node", *this),
@@ -354,7 +345,6 @@ void ModelNode::setParentProperty(NodeAbstractProperty parent, SL sl)
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set parent property",
                                category(),
                                keyValue("model node", *this),
@@ -377,7 +367,6 @@ void ModelNode::changeType(const TypeName &typeName, int majorVersion, int minor
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node change type",
                                category(),
                                keyValue("model node", *this),
@@ -405,7 +394,6 @@ bool ModelNode::hasParentProperty(SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has parent property",
                                category(),
                                keyValue("model node", *this),
@@ -445,7 +433,6 @@ SignalHandlerProperty ModelNode::signalHandlerProperty(PropertyNameView name, SL
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node signal handler property",
                                category(),
                                keyValue("model node", *this),
@@ -459,7 +446,6 @@ SignalDeclarationProperty ModelNode::signalDeclarationProperty(PropertyNameView 
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node signal declaration property",
                                category(),
                                keyValue("model node", *this),
@@ -483,7 +469,6 @@ NodeProperty ModelNode::nodeProperty(PropertyNameView name, SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node property",
                                category(),
                                keyValue("model node", *this),
@@ -507,7 +492,6 @@ NodeListProperty ModelNode::nodeListProperty(PropertyNameView name, SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node list property",
                                category(),
                                keyValue("model node", *this),
@@ -521,7 +505,6 @@ NodeAbstractProperty ModelNode::nodeAbstractProperty(PropertyNameView name, SL s
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node abstract property",
                                category(),
                                keyValue("model node", *this),
@@ -588,7 +571,6 @@ AbstractProperty ModelNode::property(PropertyNameView name, SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node property",
                                category(),
                                keyValue("model node", *this),
@@ -617,7 +599,6 @@ QList<AbstractProperty> ModelNode::properties(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node properties",
                                category(),
                                keyValue("model node", *this),
@@ -642,7 +623,6 @@ The list of all properties containing just an atomic value.
 */
 QList<VariantProperty> ModelNode::variantProperties(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node variant property",
                                category(),
                                keyValue("model node", *this),
@@ -653,7 +633,6 @@ QList<VariantProperty> ModelNode::variantProperties(SL sl) const
 
 QList<NodeAbstractProperty> ModelNode::nodeAbstractProperties(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node abstract property",
                                category(),
                                keyValue("model node", *this),
@@ -664,7 +643,6 @@ QList<NodeAbstractProperty> ModelNode::nodeAbstractProperties(SL sl) const
 
 QList<NodeProperty> ModelNode::nodeProperties(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node property",
                                category(),
                                keyValue("model node", *this),
@@ -675,7 +653,6 @@ QList<NodeProperty> ModelNode::nodeProperties(SL sl) const
 
 QList<NodeListProperty> ModelNode::nodeListProperties(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node list property",
                                category(),
                                keyValue("model node", *this),
@@ -692,7 +669,6 @@ The list of all properties containing an expression.
 */
 QList<BindingProperty> ModelNode::bindingProperties(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node binding property",
                                category(),
                                keyValue("model node", *this),
@@ -703,7 +679,6 @@ QList<BindingProperty> ModelNode::bindingProperties(SL sl) const
 
 QList<SignalHandlerProperty> ModelNode::signalProperties(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node signal handler property",
                                category(),
                                keyValue("model node", *this),
@@ -717,7 +692,6 @@ QList<AbstractProperty> ModelNode::dynamicProperties(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node dynamic property",
                                category(),
                                keyValue("model node", *this),
@@ -748,7 +722,6 @@ void ModelNode::removeProperty(PropertyNameView name, SL sl) const
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove property",
                                category(),
                                keyValue("model node", *this),
@@ -795,7 +768,6 @@ void ModelNode::destroy(SL sl)
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node destroy",
                                category(),
                                keyValue("model node", *this),
@@ -840,7 +812,6 @@ QList<ModelNode> ModelNode::directSubModelNodes(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node direct sub model nodes",
                                category(),
                                keyValue("model node", *this),
@@ -851,7 +822,6 @@ QList<ModelNode> ModelNode::directSubModelNodes(SL sl) const
 
 QList<ModelNode> ModelNode::directSubModelNodesOfType(const NodeMetaInfo &type, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node direct sub model nodes of type",
                                category(),
                                keyValue("model node", *this),
@@ -864,7 +834,6 @@ QList<ModelNode> ModelNode::directSubModelNodesOfType(const NodeMetaInfo &type, 
 
 QList<ModelNode> ModelNode::subModelNodesOfType(const NodeMetaInfo &type, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node sub model nodes of type",
                                category(),
                                keyValue("model node", *this),
@@ -887,7 +856,6 @@ QList<ModelNode> ModelNode::allSubModelNodes(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node all sub model nodes",
                                category(),
                                keyValue("model node", *this),
@@ -898,7 +866,6 @@ QList<ModelNode> ModelNode::allSubModelNodes(SL sl) const
 
 QList<ModelNode> ModelNode::allSubModelNodesAndThisNode(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node all sub model nodes and this node",
                                category(),
                                keyValue("model node", *this),
@@ -919,7 +886,6 @@ QList<ModelNode> ModelNode::allSubModelNodesAndThisNode(SL sl) const
 
 bool ModelNode::hasAnySubModelNodes(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has any sub model nodes",
                                category(),
                                keyValue("model node", *this),
@@ -934,7 +900,7 @@ NodeMetaInfo ModelNode::metaInfo([[maybe_unused]] SL sl) const
         return {};
 
 #ifdef QDS_USE_PROJECTSTORAGE
-    using NanotraceHR::keyValue;
+
     NanotraceHR::Tracer tracer{"model node meta info",
                                category(),
                                keyValue("model node", *this),
@@ -954,7 +920,6 @@ bool ModelNode::hasMetaInfo(SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has meta info",
                                category(),
                                keyValue("model node", *this),
@@ -971,7 +936,6 @@ bool ModelNode::isSelected(SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node is selected",
                                category(),
                                keyValue("model node", *this),
@@ -988,7 +952,6 @@ bool ModelNode::isRootNode(SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node is root node",
                                category(),
                                keyValue("model node", *this),
@@ -1009,7 +972,6 @@ PropertyNameList ModelNode::propertyNames(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node property names",
                                category(),
                                keyValue("model node", *this),
@@ -1045,7 +1007,6 @@ QList<Type> ModelNode::properties(PropertyType... type) const
 */
 bool ModelNode::hasProperty(PropertyNameView name, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has property",
                                category(),
                                keyValue("model node", *this),
@@ -1056,7 +1017,6 @@ bool ModelNode::hasProperty(PropertyNameView name, SL sl) const
 
 bool ModelNode::hasVariantProperty(PropertyNameView name, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has variant property",
                                category(),
                                keyValue("model node", *this),
@@ -1067,7 +1027,6 @@ bool ModelNode::hasVariantProperty(PropertyNameView name, SL sl) const
 
 bool ModelNode::hasBindingProperty(PropertyNameView name, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has binding property",
                                category(),
                                keyValue("model node", *this),
@@ -1078,7 +1037,6 @@ bool ModelNode::hasBindingProperty(PropertyNameView name, SL sl) const
 
 bool ModelNode::hasSignalHandlerProperty(PropertyNameView name, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has signal handler property",
                                category(),
                                keyValue("model node", *this),
@@ -1092,7 +1050,6 @@ bool ModelNode::hasNodeAbstractProperty(PropertyNameView name, SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has node abstract property",
                                category(),
                                keyValue("model node", *this),
@@ -1106,7 +1063,6 @@ bool ModelNode::hasNodeAbstractProperty(PropertyNameView name, SL sl) const
 
 bool ModelNode::hasDefaultNodeAbstractProperty(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has default node abstract property",
                                category(),
                                keyValue("model node", *this),
@@ -1118,7 +1074,6 @@ bool ModelNode::hasDefaultNodeAbstractProperty(SL sl) const
 
 bool ModelNode::hasDefaultNodeListProperty(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has default node list property",
                                category(),
                                keyValue("model node", *this),
@@ -1130,7 +1085,6 @@ bool ModelNode::hasDefaultNodeListProperty(SL sl) const
 
 bool ModelNode::hasDefaultNodeProperty(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has default node property",
                                category(),
                                keyValue("model node", *this),
@@ -1142,7 +1096,6 @@ bool ModelNode::hasDefaultNodeProperty(SL sl) const
 
 bool ModelNode::hasNodeProperty(PropertyNameView name, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has node property",
                                category(),
                                keyValue("model node", *this),
@@ -1153,7 +1106,6 @@ bool ModelNode::hasNodeProperty(PropertyNameView name, SL sl) const
 
 bool ModelNode::hasNodeListProperty(PropertyNameView name, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has node list property",
                                category(),
                                keyValue("model node", *this),
@@ -1167,7 +1119,6 @@ bool ModelNode::hasProperty(PropertyNameView name, PropertyType propertyType, SL
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has property",
                                category(),
                                keyValue("model node", *this),
@@ -1195,7 +1146,6 @@ static bool recursiveAncestor(const ModelNode &possibleAncestor, const ModelNode
 
 bool ModelNode::isAncestorOf(const ModelNode &node, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node is ancestor of",
                                category(),
                                keyValue("model node", *this),
@@ -1234,7 +1184,6 @@ void ModelNode::selectNode(SL sl)
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node select node",
                                category(),
                                keyValue("model node", *this),
@@ -1251,7 +1200,6 @@ void ModelNode::deselectNode(SL sl)
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node deselect node",
                                category(),
                                keyValue("model node", *this),
@@ -1269,7 +1217,6 @@ int ModelNode::variantTypeId()
 
 QVariant ModelNode::toVariant(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node to variant",
                                category(),
                                keyValue("model node", *this),
@@ -1283,7 +1230,6 @@ std::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataKeyView key, SL sl
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data",
                                category(),
                                keyValue("model node", *this),
@@ -1299,7 +1245,6 @@ std::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataType type,
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with name",
                                category(),
                                keyValue("model node", *this),
@@ -1315,7 +1260,6 @@ QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataType type,
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with default 1",
                                category(),
                                keyValue("model node", *this),
@@ -1329,7 +1273,6 @@ QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataKeyView key, SL sl) co
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with default 2",
                                category(),
                                keyValue("model node", *this),
@@ -1348,7 +1291,6 @@ QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataKeyDefaultValue key, S
     if (!isValid())
         return toQVariant(key.defaultValue);
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with default 3",
                                category(),
                                keyValue("model node", *this),
@@ -1367,7 +1309,6 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataType type,
                                  const QVariant &data,
                                  SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set auxiliary data with type",
                                category(),
                                keyValue("model node", *this),
@@ -1381,7 +1322,6 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data,
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set auxiliary data with key",
                                category(),
                                keyValue("model node", *this),
@@ -1398,7 +1338,6 @@ void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataKeyView key, const QVar
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set auxiliary data without lock with key",
                                category(),
                                keyValue("model node", *this),
@@ -1418,7 +1357,6 @@ void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataType type,
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set auxiliary data without lock with type",
                                category(),
                                keyValue("model node", *this),
@@ -1435,7 +1373,6 @@ void ModelNode::removeAuxiliaryData(AuxiliaryDataKeyView key, SL sl) const
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove auxiliary data with key",
                                category(),
                                keyValue("model node", *this),
@@ -1450,7 +1387,6 @@ void ModelNode::removeAuxiliaryData(AuxiliaryDataKeyView key, SL sl) const
 
 void ModelNode::removeAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove auxiliary data with type",
                                category(),
                                keyValue("model node", *this),
@@ -1464,7 +1400,6 @@ bool ModelNode::hasAuxiliaryData(AuxiliaryDataKeyView key, SL sl) const
     if (!isValid())
         return false;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has auxiliary data with key",
                                category(),
                                keyValue("model node", *this),
@@ -1475,7 +1410,6 @@ bool ModelNode::hasAuxiliaryData(AuxiliaryDataKeyView key, SL sl) const
 
 bool ModelNode::hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has auxiliary data with type",
                                category(),
                                keyValue("model node", *this),
@@ -1489,7 +1423,7 @@ bool ModelNode::hasAuxiliaryData(AuxiliaryDataType type) const
     if (!isValid())
         return false;
 
-    // using NanotraceHR::keyValue;
+    //
     // NanotraceHR::Tracer tracer{"model node has auxiliary data with type",
     //                            category(),
     //                            keyValue("model node", *this),
@@ -1503,7 +1437,6 @@ AuxiliaryDatasForType ModelNode::auxiliaryData(AuxiliaryDataType type, SL sl) co
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with type",
                                category(),
                                keyValue("model node", *this),
@@ -1517,7 +1450,6 @@ AuxiliaryDatasView ModelNode::auxiliaryData(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node auxiliary data with sl",
                                category(),
                                keyValue("model node", *this),
@@ -1530,7 +1462,6 @@ QString ModelNode::customId(SL sl) const
 {
     auto data = auxiliaryData(customIdProperty);
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node custom id",
                                category(),
                                keyValue("model node", *this),
@@ -1544,7 +1475,6 @@ QString ModelNode::customId(SL sl) const
 
 bool ModelNode::hasCustomId(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has custom id",
                                category(),
                                keyValue("model node", *this),
@@ -1555,7 +1485,6 @@ bool ModelNode::hasCustomId(SL sl) const
 
 void ModelNode::setCustomId(const QString &str, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set custom id",
                                category(),
                                keyValue("model node", *this),
@@ -1566,7 +1495,6 @@ void ModelNode::setCustomId(const QString &str, SL sl)
 
 void ModelNode::removeCustomId(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove custom id",
                                category(),
                                keyValue("model node", *this),
@@ -1577,7 +1505,6 @@ void ModelNode::removeCustomId(SL sl)
 
 QVector<Comment> ModelNode::comments(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node comments",
                                category(),
                                keyValue("model node", *this),
@@ -1588,7 +1515,6 @@ QVector<Comment> ModelNode::comments(SL sl) const
 
 bool ModelNode::hasComments(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has comments",
                                category(),
                                keyValue("model node", *this),
@@ -1599,7 +1525,6 @@ bool ModelNode::hasComments(SL sl) const
 
 void ModelNode::setComments(const QVector<Comment> &coms, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set comments",
                                category(),
                                keyValue("model node", *this),
@@ -1613,7 +1538,6 @@ void ModelNode::setComments(const QVector<Comment> &coms, SL sl)
 
 void ModelNode::addComment(const Comment &com, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node add comment",
                                category(),
                                keyValue("model node", *this),
@@ -1627,7 +1551,6 @@ void ModelNode::addComment(const Comment &com, SL sl)
 
 bool ModelNode::updateComment(const Comment &com, int position, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node update comment",
                                category(),
                                keyValue("model node", *this),
@@ -1648,7 +1571,6 @@ bool ModelNode::updateComment(const Comment &com, int position, SL sl)
 
 Annotation ModelNode::annotation(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node annotation",
                                category(),
                                keyValue("model node", *this),
@@ -1664,7 +1586,6 @@ Annotation ModelNode::annotation(SL sl) const
 
 bool ModelNode::hasAnnotation(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has annotation",
                                category(),
                                keyValue("model node", *this),
@@ -1675,7 +1596,6 @@ bool ModelNode::hasAnnotation(SL sl) const
 
 void ModelNode::setAnnotation(const Annotation &annotation, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set annotation",
                                category(),
                                keyValue("model node", *this),
@@ -1686,7 +1606,6 @@ void ModelNode::setAnnotation(const Annotation &annotation, SL sl)
 
 void ModelNode::removeAnnotation(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove annotation",
                                category(),
                                keyValue("model node", *this),
@@ -1697,7 +1616,6 @@ void ModelNode::removeAnnotation(SL sl)
 
 Annotation ModelNode::globalAnnotation(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node global annotation",
                                category(),
                                keyValue("model node", *this),
@@ -1716,7 +1634,6 @@ Annotation ModelNode::globalAnnotation(SL sl) const
 
 bool ModelNode::hasGlobalAnnotation(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has global annotation",
                                category(),
                                keyValue("model node", *this),
@@ -1727,7 +1644,6 @@ bool ModelNode::hasGlobalAnnotation(SL sl) const
 
 void ModelNode::setGlobalAnnotation(const Annotation &annotation, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set global annotation",
                                category(),
                                keyValue("model node", *this),
@@ -1738,7 +1654,6 @@ void ModelNode::setGlobalAnnotation(const Annotation &annotation, SL sl)
 
 void ModelNode::removeGlobalAnnotation(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove global annotation",
                                category(),
                                keyValue("model node", *this),
@@ -1749,7 +1664,6 @@ void ModelNode::removeGlobalAnnotation(SL sl)
 
 GlobalAnnotationStatus ModelNode::globalStatus(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node global status",
                                category(),
                                keyValue("model node", *this),
@@ -1768,7 +1682,6 @@ GlobalAnnotationStatus ModelNode::globalStatus(SL sl) const
 
 bool ModelNode::hasGlobalStatus(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has global status",
                                category(),
                                keyValue("model node", *this),
@@ -1779,7 +1692,6 @@ bool ModelNode::hasGlobalStatus(SL sl) const
 
 void ModelNode::setGlobalStatus(const GlobalAnnotationStatus &status, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set global status",
                                category(),
                                keyValue("model node", *this),
@@ -1791,7 +1703,6 @@ void ModelNode::setGlobalStatus(const GlobalAnnotationStatus &status, SL sl)
 
 void ModelNode::removeGlobalStatus(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node remove global status",
                                category(),
                                keyValue("model node", *this),
@@ -1804,7 +1715,6 @@ void ModelNode::removeGlobalStatus(SL sl)
 
 bool ModelNode::locked(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node locked",
                                category(),
                                keyValue("model node", *this),
@@ -1820,7 +1730,6 @@ bool ModelNode::locked(SL sl) const
 
 bool ModelNode::hasLocked(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node has locked",
                                category(),
                                keyValue("model node", *this),
@@ -1831,7 +1740,6 @@ bool ModelNode::hasLocked(SL sl) const
 
 void ModelNode::setLocked(bool value, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set locked",
                                category(),
                                keyValue("model node", *this),
@@ -1855,7 +1763,6 @@ void ModelNode::setScriptFunctions(const QStringList &scriptFunctionList, SL sl)
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set script functions",
                                category(),
                                keyValue("model node", *this),
@@ -1869,7 +1776,6 @@ QStringList ModelNode::scriptFunctions(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node script functions",
                                category(),
                                keyValue("model node", *this),
@@ -1883,7 +1789,6 @@ qint32 ModelNode::internalId(SL sl) const
     if (!m_internalNode)
         return -1;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node internal id",
                                category(),
                                keyValue("model node", *this),
@@ -1899,7 +1804,6 @@ void ModelNode::setNodeSource(const QString &newNodeSource, SL sl)
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set node source",
                                category(),
                                keyValue("model node", *this),
@@ -1918,7 +1822,6 @@ void ModelNode::setNodeSource(const QString &newNodeSource, NodeSourceType type,
     if (!isValid())
         return;
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node set node source with type",
                                category(),
                                keyValue("model node", *this),
@@ -1936,7 +1839,6 @@ QString ModelNode::nodeSource(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node source",
                                category(),
                                keyValue("model node", *this),
@@ -1950,7 +1852,6 @@ QString ModelNode::convertTypeToImportAlias(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node convert type to import alias",
                                category(),
                                keyValue("model node", *this),
@@ -1967,7 +1868,6 @@ ModelNode::NodeSourceType ModelNode::nodeSourceType(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node node source type",
                                category(),
                                keyValue("model node", *this),
@@ -1981,7 +1881,6 @@ bool ModelNode::isComponent(SL sl) const
     if (!isValid())
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node is component",
                                category(),
                                keyValue("model node", *this),
@@ -2044,7 +1943,6 @@ QIcon ModelNode::typeIcon([[maybe_unused]] SL sl) const
     if (!isValid())
         return QIcon(QStringLiteral(":/ItemLibrary/images/item-invalid-icon.png"));
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node type icon",
                                category(),
                                keyValue("model node", *this),
@@ -2076,7 +1974,6 @@ QString ModelNode::behaviorPropertyName(SL sl) const
     if (!m_internalNode)
         return {};
 
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"model node behavior property name",
                                category(),
                                keyValue("model node", *this),

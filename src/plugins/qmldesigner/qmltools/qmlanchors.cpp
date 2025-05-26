@@ -9,6 +9,8 @@
 
 namespace QmlDesigner {
 
+using NanotraceHR::keyValue;
+
 static auto category = ModelTracing::category;
 
 static PropertyName lineTypeToString(AnchorLineType lineType)
@@ -118,7 +120,6 @@ QmlItemNode QmlAnchors::qmlItemNode() const
 
 bool QmlAnchors::modelHasAnchors(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors has anchors",
                                category(),
                                keyValue("model node", *this),
@@ -132,7 +133,6 @@ bool QmlAnchors::modelHasAnchors(SL sl) const
 
 bool QmlAnchors::modelHasAnchor(AnchorLineType sourceAnchorLineType, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors has anchor",
                                category(),
                                keyValue("model node", *this),
@@ -151,7 +151,6 @@ bool QmlAnchors::modelHasAnchor(AnchorLineType sourceAnchorLineType, SL sl) cons
 
 AnchorLine QmlAnchors::modelAnchor(AnchorLineType sourceAnchorLineType, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors get anchor",
                                category(),
                                keyValue("model node", *this),
@@ -192,7 +191,6 @@ AnchorLine QmlAnchors::modelAnchor(AnchorLineType sourceAnchorLineType, SL sl) c
 
 bool QmlAnchors::isValid(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors is valid",
                                category(),
                                keyValue("model node", *this),
@@ -206,7 +204,6 @@ void QmlAnchors::setAnchor(AnchorLineType sourceAnchorLine,
                            AnchorLineType targetAnchorLine,
                            SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors set anchor",
                                category(),
                                keyValue("model node", *this),
@@ -315,7 +312,6 @@ static bool detectVerticalCycle(const ModelNode &node, QList<ModelNode> knownNod
 
 bool QmlAnchors::canAnchor(const QmlItemNode &targetModelNode, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors can anchor",
                                category(),
                                keyValue("model node", *this),
@@ -337,7 +333,6 @@ AnchorLineType QmlAnchors::possibleAnchorLines(AnchorLineType sourceAnchorLineTy
                                                const QmlItemNode &targetQmlItemNode,
                                                SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors possible anchor lines",
                                category(),
                                keyValue("model node", *this),
@@ -361,7 +356,6 @@ AnchorLineType QmlAnchors::possibleAnchorLines(AnchorLineType sourceAnchorLineTy
 
 AnchorLine QmlAnchors::instanceAnchor(AnchorLineType sourceAnchorLine, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors get instance anchor",
                                category(),
                                keyValue("model node", *this),
@@ -391,7 +385,6 @@ AnchorLine QmlAnchors::instanceAnchor(AnchorLineType sourceAnchorLine, SL sl) co
 
 void QmlAnchors::removeAnchor(AnchorLineType sourceAnchorLine, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors remove anchor",
                                category(),
                                keyValue("model node", *this),
@@ -422,7 +415,6 @@ void QmlAnchors::removeAnchor(AnchorLineType sourceAnchorLine, SL sl)
 
 void QmlAnchors::removeAnchors(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors remove anchors",
                                category(),
                                keyValue("model node", *this),
@@ -452,7 +444,6 @@ void QmlAnchors::removeAnchors(SL sl)
 
 bool QmlAnchors::instanceHasAnchor(AnchorLineType sourceAnchorLine, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance has anchor",
                                category(),
                                keyValue("model node", *this),
@@ -472,7 +463,6 @@ bool QmlAnchors::instanceHasAnchor(AnchorLineType sourceAnchorLine, SL sl) const
 
 bool QmlAnchors::instanceHasAnchors(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance has anchors",
                                category(),
                                keyValue("model node", *this),
@@ -492,7 +482,6 @@ static QRectF contentRect(const NodeInstance &nodeInstance)
 
 double QmlAnchors::instanceLeftAnchorLine(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance left anchor line",
                                category(),
                                keyValue("model node", *this),
@@ -503,7 +492,6 @@ double QmlAnchors::instanceLeftAnchorLine(SL sl) const
 
 double QmlAnchors::instanceTopAnchorLine(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance top anchor line",
                                category(),
                                keyValue("model node", *this),
@@ -514,7 +502,6 @@ double QmlAnchors::instanceTopAnchorLine(SL sl) const
 
 double QmlAnchors::instanceRightAnchorLine(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance right anchor line",
                                category(),
                                keyValue("model node", *this),
@@ -526,7 +513,6 @@ double QmlAnchors::instanceRightAnchorLine(SL sl) const
 
 double QmlAnchors::instanceBottomAnchorLine(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance bottom anchor line",
                                category(),
                                keyValue("model node", *this),
@@ -538,7 +524,6 @@ double QmlAnchors::instanceBottomAnchorLine(SL sl) const
 
 double QmlAnchors::instanceHorizontalCenterAnchorLine(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance horizontal center anchor line",
                                category(),
                                keyValue("model node", *this),
@@ -549,7 +534,6 @@ double QmlAnchors::instanceHorizontalCenterAnchorLine(SL sl) const
 
 double QmlAnchors::instanceVerticalCenterAnchorLine(SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance vertical center anchor line",
                                category(),
                                keyValue("model node", *this),
@@ -560,7 +544,6 @@ double QmlAnchors::instanceVerticalCenterAnchorLine(SL sl) const
 
 double QmlAnchors::instanceAnchorLine(AnchorLineType anchorLine, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance anchor line",
                                category(),
                                keyValue("model node", *this),
@@ -579,7 +562,6 @@ double QmlAnchors::instanceAnchorLine(AnchorLineType anchorLine, SL sl) const
 
 void QmlAnchors::setMargin(AnchorLineType sourceAnchorLineType, double margin, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors set margin",
                                category(),
                                keyValue("model node", *this),
@@ -591,7 +573,6 @@ void QmlAnchors::setMargin(AnchorLineType sourceAnchorLineType, double margin, S
 
 bool QmlAnchors::instanceHasMargin(AnchorLineType sourceAnchorLineType, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance has margin",
                                category(),
                                keyValue("model node", *this),
@@ -657,7 +638,6 @@ static bool checkForVerticalCycleRecusive(const QmlAnchors &anchors, QList<QmlIt
 
 bool QmlAnchors::checkForHorizontalCycle(const QmlItemNode &sourceItem, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors check for horizontal cycle",
                                category(),
                                keyValue("model node", *this),
@@ -671,7 +651,6 @@ bool QmlAnchors::checkForHorizontalCycle(const QmlItemNode &sourceItem, SL sl) c
 
 bool QmlAnchors::checkForVerticalCycle(const QmlItemNode &sourceItem, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors check for vertical cycle",
                                category(),
                                keyValue("model node", *this),
@@ -685,7 +664,6 @@ bool QmlAnchors::checkForVerticalCycle(const QmlItemNode &sourceItem, SL sl) con
 
 double QmlAnchors::instanceMargin(AnchorLineType sourceAnchorLineType, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors instance margin",
                                category(),
                                keyValue("model node", *this),
@@ -696,7 +674,6 @@ double QmlAnchors::instanceMargin(AnchorLineType sourceAnchorLineType, SL sl) co
 
 void QmlAnchors::removeMargin(AnchorLineType sourceAnchorLineType, SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors remove margin",
                                category(),
                                keyValue("model node", *this),
@@ -710,7 +687,6 @@ void QmlAnchors::removeMargin(AnchorLineType sourceAnchorLineType, SL sl)
 
 void QmlAnchors::removeMargins(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors remove margins",
                                category(),
                                keyValue("model node", *this),
@@ -728,7 +704,6 @@ void QmlAnchors::removeMargins(SL sl)
 
 void QmlAnchors::fill(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors fill",
                                category(),
                                keyValue("model node", *this),
@@ -742,7 +717,6 @@ void QmlAnchors::fill(SL sl)
 
 void QmlAnchors::centerIn(SL sl)
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors center in",
                                category(),
                                keyValue("model node", *this),
@@ -756,7 +730,6 @@ void QmlAnchors::centerIn(SL sl)
 
 bool QmlAnchors::checkForCycle(AnchorLineType anchorLineTyp, const QmlItemNode &sourceItem, SL sl) const
 {
-    using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"qml anchors check for cycle",
                                category(),
                                keyValue("model node", *this),
