@@ -183,6 +183,7 @@ class RunSettingsWidget : public QWidget
 {
 public:
     explicit RunSettingsWidget(Target *target);
+    ~RunSettingsWidget() = default;
 
 private:
     void currentRunConfigurationChanged(int index);
@@ -213,9 +214,9 @@ private:
 
     void updateEnabledState();
 
-    Target *m_target;
-    QWidget *m_runConfigurationWidget = nullptr;
-    RunConfiguration *m_runConfiguration = nullptr;
+    QPointer<Target> m_target;
+    QPointer<QWidget> m_runConfigurationWidget;
+    QPointer<RunConfiguration> m_runConfiguration;
     QVBoxLayout *m_runLayout = nullptr;
     QWidget *m_deployConfigurationWidget = nullptr;
     QVBoxLayout *m_deployLayout = nullptr;

@@ -787,7 +787,7 @@ public:
     void rebuildContents();
 
     TargetGroupItem * const q;
-    Project * const m_project;
+    const QPointer<Project> m_project;
     bool m_rebuildScheduled = false;
 
     QList<QMetaObject::Connection> m_connections;

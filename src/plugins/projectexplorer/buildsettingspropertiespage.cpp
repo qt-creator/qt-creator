@@ -38,6 +38,7 @@ class BuildSettingsWidget final : public QWidget
 {
 public:
     explicit BuildSettingsWidget(Target *target);
+    ~BuildSettingsWidget() = default;
 
 private:
     void clearWidgets();
@@ -56,8 +57,8 @@ private:
     void deleteConfiguration(BuildConfiguration *toDelete);
     QString uniqueName(const QString &name, bool allowCurrentName);
 
-    Target *m_target = nullptr;
-    BuildConfiguration *m_buildConfiguration = nullptr;
+    QPointer<Target> m_target;
+    QPointer<BuildConfiguration> m_buildConfiguration;
 
     QPushButton *m_addButton = nullptr;
     QPushButton *m_removeButton = nullptr;
