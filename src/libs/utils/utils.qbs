@@ -10,8 +10,11 @@ QtcLibrary {
         condition: qbs.targetOS.contains("windows")
         cpp.dynamicLibraries: {
             var winLibs = ["user32", "iphlpapi", "ws2_32", "shell32", "ole32"];
-            if (qbs.toolchain.contains("mingw"))
+            if (qbs.toolchain.contains("mingw")) {
                 winLibs.push("uuid");
+                if (libarchive_static.present)
+                    winLibs.push("bcrypt");
+            }
             if (qbs.toolchain.contains("msvc"))
                 winLibs.push("dbghelp");
             return winLibs;
