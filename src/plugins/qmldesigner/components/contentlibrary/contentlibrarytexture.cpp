@@ -111,10 +111,15 @@ void ContentLibraryTexture::setDownloaded()
 
 void ContentLibraryTexture::doSetDownloaded()
 {
-    if (m_suffix.isEmpty())
+    if (m_suffix.isEmpty() || !QFileInfo::exists(texturePath())) {
         m_suffix = resolveSuffix();
 
-    m_isDownloaded = QFileInfo::exists(texturePath());
+        // recheck existence as texturePath() might have been reevaluated
+        m_isDownloaded = QFileInfo::exists(texturePath());
+    } else {
+        m_isDownloaded = true;
+    }
+
     m_toolTip = resolveToolTipText();
 }
 
