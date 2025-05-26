@@ -418,7 +418,7 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
             -1,
             QProcess::ExitStatus::CrashExit,
             QProcess::ProcessError::UnknownError,
-            Tr::tr("Device is shut down"),
+            Tr::tr("Device is shut down."),
         });
     });
 }
@@ -605,7 +605,7 @@ DockerDevice::DockerDevice()
     tag.setReadOnly(true);
 
     environment.setSettingsKey(DockerDeviceEnvironment);
-    environment.setLabelText(Tr::tr("Container Environment:"));
+    environment.setLabelText(Tr::tr("Container environment:"));
     connect(&environment, &DockerDeviceEnvironmentAspect::fetchRequested, this, [this] {
         const Result<Environment> result = d->fetchEnvironment();
         if (!result) {
@@ -642,7 +642,7 @@ DockerDevice::DockerDevice()
     extraArgs.setDisplayStyle(StringAspect::LineEditDisplay);
 
     clangdExecutableAspect.setSettingsKey(DockerDeviceClangDExecutable);
-    clangdExecutableAspect.setLabelText(Tr::tr("Clangd Executable:"));
+    clangdExecutableAspect.setLabelText(Tr::tr("Clangd executable:"));
     clangdExecutableAspect.setAllowPathFromDevice(true);
 
     network.setSettingsKey("Network");
@@ -1027,9 +1027,9 @@ CommandLine DockerDevicePrivate::createCommandLine()
 Result<QString> DockerDevicePrivate::updateContainerAccess()
 {
     if (m_isShutdown)
-        return make_unexpected(Tr::tr("Device is shut down"));
+        return make_unexpected(Tr::tr("Device is shut down."));
     if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
-        return make_unexpected(Tr::tr("Docker system is not reachable"));
+        return make_unexpected(Tr::tr("Docker system is not reachable."));
     if (!DockerApi::instance()->imageExists(q->repoAndTag()))
         return make_unexpected(Tr::tr("Docker image \"%1\" not found.").arg(q->repoAndTag()));
 
@@ -1204,7 +1204,7 @@ public:
         m_model.setHeader({"Repository", "Tag", "Image", "Size"});
 
         m_view = new TreeView;
-        QCheckBox *showUnnamedContainers = new QCheckBox(Tr::tr("Show Unnamed Images"));
+        QCheckBox *showUnnamedContainers = new QCheckBox(Tr::tr("Show unnamed images"));
         QLabel *statusLabel = new QLabel();
         statusLabel->setText(Tr::tr("Loading ..."));
         statusLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -1481,24 +1481,24 @@ PortMapping::PortMapping()
 {
     ip.setSettingsKey("HostIp");
     ip.setDefaultValue("0.0.0.0");
-    ip.setToolTip(Tr::tr("Host IP"));
+    ip.setToolTip(Tr::tr("Host IP address."));
     ip.setLabelText(Tr::tr("Host IP:"));
     ip.setDisplayStyle(StringAspect::LineEditDisplay);
 
     hostPort.setSettingsKey("HostPort");
-    hostPort.setToolTip(Tr::tr("Host Port"));
+    hostPort.setToolTip(Tr::tr("Host port number."));
     hostPort.setRange(1, 65535);
     hostPort.setDefaultValue(8080);
-    hostPort.setLabelText(Tr::tr("Host Port:"));
+    hostPort.setLabelText(Tr::tr("Host port:"));
 
     containerPort.setSettingsKey("ContainerPort");
-    containerPort.setToolTip(Tr::tr("Container Port"));
+    containerPort.setToolTip(Tr::tr("Container port number."));
     containerPort.setRange(1, 65535);
     containerPort.setDefaultValue(8080);
-    containerPort.setLabelText(Tr::tr("Container Port:"));
+    containerPort.setLabelText(Tr::tr("Container port:"));
 
     protocol.setSettingsKey("Protocol");
-    protocol.setToolTip(Tr::tr("Protocol"));
+    protocol.setToolTip(Tr::tr("Protocol to use."));
     protocol.addOption("tcp", "TCP");
     protocol.addOption("udp", "UDP");
     protocol.setDefaultValue("tcp");
@@ -1528,7 +1528,7 @@ PortMappings::PortMappings(Utils::AspectContainer *container)
         connect(mapping.get(), &PortMapping::changed, this, &AspectContainer::changed);
         return mapping;
     });
-    setLabelText(Tr::tr("Port Mappings:"));
+    setLabelText(Tr::tr("Port mappings:"));
 }
 
 QStringList PortMappings::createArguments() const

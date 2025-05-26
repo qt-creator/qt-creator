@@ -356,7 +356,7 @@ public:
         fileOrCommand.setExpectedKind(PathChooser::Any);
         fileOrCommand.setAllowPathFromDevice(false);
         fileOrCommand.setHistoryCompleter("LocalBuildHistory");
-        buildType.setLabelText(Tr::tr("Build Type:"));
+        buildType.setLabelText(Tr::tr("Build type:"));
         buildType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
         buildType.setToolTip(Tr::tr("Clean Build: Set environment variable AXIVION_CLEAN_BUILD=1\n"
                                     "Incremental Build: Set environment variable AXIVION_INCREMENTAL_BUILD=1"));
@@ -370,7 +370,7 @@ public:
         warn1->setPixmap(Icons::WARNING.pixmap());
         warn1->setAlignment(Qt::AlignTop);
         auto warnText1 = new QLabel(Tr::tr("Warning: Modifying source files during the local build may "
-                                           "produce unexpected warnings, errors, and/or wrong results."),
+                                           "produce unexpected warnings, errors, or wrong results."),
                                     widget);
         warnText1->setAlignment(Qt::AlignLeft);
         warnText1->setWordWrap(true);
@@ -397,12 +397,12 @@ public:
                    },
                    Space(20),
                    Tr::tr("Choose the same Axivion Suite version as your CI build uses "
-                          "- otherwise the results may differ.")
+                          "or the results may differ.")
                 }, st
             }, st,
-            Row { Tr::tr("Axivion Suite Installation Directory:") },
+            Row { Tr::tr("Axivion Suite installation directory:") },
             Row { bauhausSuite },
-            Row { Tr::tr("Please enter the command which will be used to build %1:").arg(projectName) },
+            Row { Tr::tr("Enter the command for building %1:").arg(projectName) },
             Row { fileOrCommand },
             Row { buildType, st },
             st

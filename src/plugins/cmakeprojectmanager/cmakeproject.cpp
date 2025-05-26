@@ -57,6 +57,9 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setCanBuildProducts();
     setBuildSystemCreator<CMakeBuildSystem>("cmake");
 
+    // Allow presets to check if being run under Qt Creator
+    Environment::modifySystemEnvironment({{"QTC_RUN", "1"}});
+
     // This only influences whether 'Install into temporary host directory'
     // will show up by default enabled in some remote deploy configurations.
     // We rely on staging via the actual cmake build step.

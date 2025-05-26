@@ -1062,8 +1062,8 @@ void PluginManagerPrivate::readSettings()
     if (settings) {
         disabledPlugins = toLower(settings->value(C_IGNORED_PLUGINS).toStringList());
         forceEnabledPlugins = toLower(settings->value(C_FORCEENABLED_PLUGINS).toStringList());
-        pluginsWithAcceptedTermsAndConditions
-            = settings->value(C_TANDCACCEPTED_PLUGINS).toStringList();
+        pluginsWithAcceptedTermsAndConditions = filteredUnique(
+            settings->value(C_TANDCACCEPTED_PLUGINS).toStringList());
     }
 }
 
@@ -2306,7 +2306,8 @@ void PluginManager::setAcceptTermsAndConditionsCallback(
 
 void PluginManager::setTermsAndConditionsAccepted(PluginSpec *spec)
 {
-    if (spec->termsAndConditions()) {
+    if (spec->termsAndConditions()
+        && !d->pluginsWithAcceptedTermsAndConditions.contains(spec->id())) {
         d->pluginsWithAcceptedTermsAndConditions.append(spec->id());
         if (d->settings)
             d->settings->setValue(C_TANDCACCEPTED_PLUGINS, d->pluginsWithAcceptedTermsAndConditions);

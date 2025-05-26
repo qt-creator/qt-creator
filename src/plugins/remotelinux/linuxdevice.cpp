@@ -1036,7 +1036,7 @@ LinuxDevice::LinuxDevice()
 
     sourceProfile.setSettingsKey("SourceProfile");
     sourceProfile.setDefaultValue(true);
-    sourceProfile.setToolTip(Tr::tr("Source profile before executing commands"));
+    sourceProfile.setToolTip(Tr::tr("Source profile before executing commands."));
     sourceProfile.setLabelText(Tr::tr("Source %1 and %2").arg("/etc/profile").arg("$HOME/.profile"));
     sourceProfile.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 

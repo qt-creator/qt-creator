@@ -1372,6 +1372,28 @@ Span::Span(int cols, int rows, const Layout::I &item)
 
 void addToLayout(Layout *layout, const Span &inner)
 {
+    layout->addItem(inner.item);
+    if (layout->pendingItems.empty()) {
+        QTC_CHECK(inner.spanCols == 1 && inner.spanRows == 1);
+        return;
+    }
+    layout->pendingItems.back().spanCols = inner.spanCols;
+    layout->pendingItems.back().spanRows = inner.spanRows;
+}
+
+SpanAll::SpanAll(int cols, const Layout::I &item)
+    : item(item)
+    , spanCols(cols)
+{}
+
+SpanAll::SpanAll(int cols, int rows, const Layout::I &item)
+    : item(item)
+    , spanCols(cols)
+    , spanRows(rows)
+{}
+
+void addToLayout(Layout *layout, const SpanAll &inner)
+{
     size_t nPreviousItems = layout->pendingItems.size();
     layout->addItem(inner.item);
     if (layout->pendingItems.empty()) {

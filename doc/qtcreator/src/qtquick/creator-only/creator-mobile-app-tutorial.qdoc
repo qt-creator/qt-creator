@@ -185,6 +185,9 @@
     For more information about the CMakeLists.txt file, see
     \l{Getting started with CMake}.
 
+    \note If you have not installed all the Qt modules listed in
+    \c find_package(), \QC asks whether you want to install them with \QOI.
+
     \section1 Run the application
 
     You can now deploy the application to a device:

@@ -3485,7 +3485,7 @@ const struct QUnicodeControlCharacter {
 UnicodeControlCharacterMenu::UnicodeControlCharacterMenu(QObject *_editWidget, QWidget *parent)
     : QMenu(parent), editWidget(_editWidget)
 {
-    setTitle(Tr::tr("Insert Unicode control character"));
+    setTitle(Tr::tr("Insert Unicode Control Character"));
     for (int i = 0; i < NUM_CONTROL_CHARACTERS; ++i) {
         addAction(Tr::tr(qt_controlCharacters[i].text), this, SLOT(menuActionTriggered()));
     }

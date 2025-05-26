@@ -145,7 +145,11 @@ clang::format::FormatStyle calculateQtcStyle()
 #else
     style.ReflowComments = false;
 #endif
+#if LLVM_VERSION_MAJOR > 20
+    style.SortIncludes = {.Enabled = true, .IgnoreCase = false};
+#else
     style.SortIncludes = FormatStyle::SI_CaseSensitive;
+#endif
 #if LLVM_VERSION_MAJOR >= 16
     style.SortUsingDeclarations = FormatStyle::SUD_Lexicographic;
 #else
