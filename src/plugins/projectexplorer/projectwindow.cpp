@@ -55,6 +55,7 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QStyledItemDelegate>
 #include <QTimer>
 #include <QToolButton>
@@ -496,8 +497,7 @@ public:
     {
         QTC_ASSERT(m_project, return);
         appendChild(m_targetsItem = new TargetGroupItem(Tr::tr("Build & Run"), m_project));
-        if (!m_project->vanishedTargets().isEmpty())
-            appendChild(m_vanishedTargetsItem = new VanishedTargetsGroupItem(m_project));
+        appendChild(m_vanishedTargetsItem = new VanishedTargetsGroupItem(m_project));
         appendChild(m_miscItem = new MiscSettingsGroupItem(m_project));
         QObject::connect(
             m_project,
@@ -616,25 +616,28 @@ public:
     SelectorDelegate() = default;
 
     QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const final;
-
-    void paint(QPainter *painter,
-               const QStyleOptionViewItem &option,
-               const QModelIndex &index) const final;
+                   const QModelIndex &index) const final
+    {
+        QSize s = QStyledItemDelegate::sizeHint(option, index);
+        return QSize(s.width(), s.height() * 1.2);
+    }
 };
 
 //
 // SelectorTree
 //
 
-class SelectorTree : public BaseTreeView
+class SelectorTree : public TreeView
 {
 public:
     SelectorTree()
     {
         setWindowTitle("Project Kit Selector");
-
-        header()->hide();
+        setSizeAdjustPolicy(QAbstractItemView::SizeAdjustPolicy::AdjustToContents);
+        setFrameStyle(QFrame::NoFrame);
+        setItemDelegate(&m_selectorDelegate);
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         setExpandsOnDoubleClick(false);
         setHeaderHidden(true);
         setItemsExpandable(false); // No user interaction.
@@ -646,6 +649,17 @@ public:
         setActivationMode(SingleClickActivation);
         setObjectName("ProjectNavigation");
         setContextMenuPolicy(Qt::CustomContextMenu);
+    }
+
+    QSize minimumSizeHint() const final
+    {
+        return {10, 10};
+    }
+
+    void updateSize()
+    {
+        resizeColumnToContents(0);
+        updateGeometry();
     }
 
 private:
@@ -661,6 +675,8 @@ private:
         // causing unwanted kit activation (QTCREATORBUG-24156). Let's suppress these.
         return HostOsInfo::isWindowsHost() && e->button() == Qt::RightButton;
     }
+
+    SelectorDelegate m_selectorDelegate;
 };
 
 class ComboBoxItem : public TreeItem
@@ -736,14 +752,58 @@ public:
 
         m_projectsModel.setHeader({Tr::tr("Projects")});
 
-        m_selectorTree = new SelectorTree;
-        m_selectorTree->setModel(&m_projectsModel);
-        m_selectorTree->setItemDelegate(&m_selectorDelegate);
-        m_selectorTree->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(m_selectorTree, &QAbstractItemView::activated,
+        m_targetsView = new SelectorTree;
+        m_targetsView->setModel(&m_projectsModel);
+        m_targetsView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(m_targetsView, &QAbstractItemView::activated,
                 this, &ProjectWindowPrivate::itemActivated);
-        connect(m_selectorTree, &QWidget::customContextMenuRequested,
+        connect(m_targetsView, &QWidget::customContextMenuRequested,
                 this, &ProjectWindowPrivate::openContextMenu);
+
+        m_vanishedTargetsView = new SelectorTree;
+        m_vanishedTargetsView->setModel(&m_projectsModel);
+        m_vanishedTargetsView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(m_vanishedTargetsView, &QAbstractItemView::activated,
+                this, &ProjectWindowPrivate::itemActivated);
+        connect(m_vanishedTargetsView, &QWidget::customContextMenuRequested,
+                this, &ProjectWindowPrivate::openContextMenu);
+
+        m_projectSettingsView = new SelectorTree;
+        m_projectSettingsView->setModel(&m_projectsModel);
+        m_projectSettingsView->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(m_projectSettingsView, &QAbstractItemView::activated,
+                this, &ProjectWindowPrivate::itemActivated);
+        connect(m_projectSettingsView, &QWidget::customContextMenuRequested,
+                this, &ProjectWindowPrivate::openContextMenu);
+
+        const QFont labelFont = StyleHelper::uiFont(StyleHelper::UiElementH4);
+
+        auto targetsLabel = new QLabel(Tr::tr("Build & Run"));
+        targetsLabel->setFont(labelFont);
+
+        m_vanishedTargetsLabel = new QLabel(Tr::tr("Vanished Targets"));
+        m_vanishedTargetsLabel->setFont(labelFont);
+
+        auto projectSettingsLabel = new QLabel(Tr::tr("Project Settings"));
+        projectSettingsLabel->setFont(labelFont);
+
+        auto scrolledWidget = new QWidget;
+        auto scrolledLayout = new QVBoxLayout(scrolledWidget);
+        scrolledLayout->setSizeConstraint(QLayout::SetFixedSize);
+        scrolledLayout->setSpacing(18);
+        scrolledLayout->addWidget(targetsLabel);
+        scrolledLayout->addWidget(m_targetsView);
+        scrolledLayout->addWidget(m_vanishedTargetsLabel);
+        scrolledLayout->addWidget(m_vanishedTargetsView);
+        scrolledLayout->addWidget(projectSettingsLabel);
+        scrolledLayout->addWidget(m_projectSettingsView);
+
+        m_scrollArea = new QScrollArea;
+        m_scrollArea->setFrameStyle(QFrame::NoFrame);
+        m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        m_scrollArea->setWidgetResizable(true);
+        m_scrollArea->setWidget(scrolledWidget);
 
         m_projectSelection = new QComboBox;
         m_projectSelection->setModel(&m_comboBoxModel);
@@ -804,7 +864,7 @@ public:
         innerLayout->addWidget(activeLabel);
         innerLayout->addWidget(m_projectSelection);
         innerLayout->addWidget(m_importBuild);
-        innerLayout->addWidget(m_selectorTree);
+        innerLayout->addWidget(m_scrollArea);
 
         auto selectorLayout = new QVBoxLayout(selectorView);
         selectorLayout->setContentsMargins(0, 0, 0, 0);
@@ -860,9 +920,12 @@ public:
         setPanels(projectItem->data(0, PanelWidgetRole).value<ProjectPanels>());
 
         QModelIndex activeIndex = projectItem->activeIndex();
-        m_selectorTree->expandAll();
-        m_selectorTree->selectionModel()->clear();
-        m_selectorTree->selectionModel()->select(activeIndex, QItemSelectionModel::Select);
+        m_targetsView->selectionModel()->clear();
+        m_targetsView->selectionModel()->select(activeIndex, QItemSelectionModel::Select);
+
+        m_targetsView->updateSize();
+        m_vanishedTargetsView->updateSize();
+        m_projectSettingsView->updateSize();
     }
 
     void registerProject(Project *project)
@@ -906,8 +969,17 @@ public:
         QTC_ASSERT(comboboxItem, return);
         m_projectsModel.rootItem()->appendChild(comboboxItem->m_projectItem);
         m_projectSelection->setCurrentIndex(comboboxItem->indexInParent());
-        m_selectorTree->expandAll();
-        m_selectorTree->setRootIndex(m_projectsModel.index(0, 0, QModelIndex()));
+
+        const QModelIndex root = m_projectsModel.index(0, 0, QModelIndex());
+        m_targetsView->setRootIndex(m_projectsModel.index(0, 0, root));
+        m_vanishedTargetsView->setRootIndex(m_projectsModel.index(1, 0, root));
+        m_projectSettingsView->setRootIndex(m_projectsModel.index(2, 0, root));
+
+        const QModelIndex vanishedTargetsRoot = m_projectsModel.index(1, 0, root);
+        const bool hasVanishedTargets = m_projectsModel.hasChildren(vanishedTargetsRoot);
+        m_vanishedTargetsLabel->setVisible(hasVanishedTargets);
+        m_vanishedTargetsView->setVisible(hasVanishedTargets);
+
         updatePanel();
     }
 
@@ -932,7 +1004,7 @@ public:
         ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
         Project *project = projectItem ? projectItem->project() : nullptr;
 
-        QModelIndex index = m_selectorTree->indexAt(pos);
+        QModelIndex index = m_targetsView->indexAt(pos);
         TreeItem *item = m_projectsModel.itemForIndex(index);
         if (item)
             item->setData(0, QVariant::fromValue(&menu), ContextMenuItemAdderRole);
@@ -944,7 +1016,7 @@ public:
         importBuild->setEnabled(project && project->projectImporter());
         QAction *manageKits = menu.addAction(Tr::tr("Manage Kits..."));
 
-        QAction *act = menu.exec(m_selectorTree->mapToGlobal(pos));
+        QAction *act = menu.exec(m_targetsView->mapToGlobal(pos));
 
         if (act == importBuild)
             handleImportBuild();
@@ -954,7 +1026,7 @@ public:
 
     void handleManageKits()
     {
-        const QModelIndexList selected = m_selectorTree->selectionModel()->selectedIndexes();
+        const QModelIndexList selected = m_targetsView->selectionModel()->selectedIndexes();
         if (!selected.isEmpty()) {
             TreeItem *treeItem = m_projectsModel.itemForIndex(selected.front());
             while (treeItem) {
@@ -1012,9 +1084,12 @@ public:
     ProjectWindow *q;
     ProjectsModel m_projectsModel;
     ComboBoxModel m_comboBoxModel;
-    SelectorDelegate m_selectorDelegate;
     QComboBox *m_projectSelection;
-    SelectorTree *m_selectorTree;
+    QLabel *m_vanishedTargetsLabel;
+    SelectorTree *m_targetsView;
+    SelectorTree *m_vanishedTargetsView;
+    SelectorTree *m_projectSettingsView;
+    QScrollArea *m_scrollArea;
     QPushButton *m_importBuild;
     QAction m_toggleRightSidebarAction;
     QDockWidget *m_outputDock;
@@ -1097,41 +1172,6 @@ void ProjectWindow::loadPersistentSettings()
     restoreSettings(settings);
     settings->endGroup();
     d->m_toggleRightSidebarAction.setChecked(d->m_outputDock->isVisible());
-}
-
-QSize SelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    QSize s = QStyledItemDelegate::sizeHint(option, index);
-    auto model = static_cast<const ProjectsModel *>(index.model());
-    if (TreeItem *item = model->itemForIndex(index)) {
-        switch (item->level()) {
-        case 2:
-            s = QSize(s.width(), 3 * s.height());
-            break;
-        case 3:
-        case 4:
-            s = QSize(s.width(), s.height() * 1.2);
-            break;
-        }
-    }
-    return s;
-}
-
-void SelectorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    auto model = static_cast<const ProjectsModel *>(index.model());
-    QStyleOptionViewItem opt = option;
-    if (TreeItem *item = model->itemForIndex(index)) {
-        switch (item->level()) {
-        case 2: {
-            QColor col = creatorColor(Theme::TextColorNormal);
-            opt.palette.setColor(QPalette::Text, col);
-            opt.font = StyleHelper::uiFont(StyleHelper::UiElementH4);
-            break;
-            }
-        }
-    }
-    QStyledItemDelegate::paint(painter, opt, index);
 }
 
 } // namespace ProjectExplorer::Internal
