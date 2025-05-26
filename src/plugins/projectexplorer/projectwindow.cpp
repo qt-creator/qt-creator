@@ -349,8 +349,6 @@ public:
     {
         Q_UNUSED(column)
         switch (role) {
-        case Qt::DisplayRole:
-            return Tr::tr("Vanished Targets");
         case Qt::ToolTipRole:
             return msgOptionsForRestoringSettings();
         }
@@ -451,9 +449,6 @@ public:
     QVariant data(int column, int role) const override
     {
         switch (role) {
-        case Qt::DisplayRole:
-            return Tr::tr("Project Settings");
-
         case PanelWidgetRole:
         case ActiveItemRole:
             if (0 <= m_currentPanelIndex && m_currentPanelIndex < childCount())
@@ -497,7 +492,7 @@ public:
         : m_project(project), m_changeListener(changeListener)
     {
         QTC_ASSERT(m_project, return);
-        appendChild(m_targetsItem = new TargetGroupItem(Tr::tr("Build & Run"), m_project));
+        appendChild(m_targetsItem = new TargetGroupItem(m_project));
         appendChild(m_vanishedTargetsItem = new VanishedTargetsGroupItem(m_project));
         appendChild(m_miscItem = new MiscSettingsGroupItem(m_project));
         QObject::connect(

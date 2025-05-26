@@ -161,7 +161,6 @@ public:
 
     TargetGroupItem * const q;
     Project * const m_project;
-    QString m_displayName;
     bool m_rebuildScheduled = false;
 
     QList<QMetaObject::Connection> m_connections;
@@ -451,11 +450,9 @@ public:
 // Also third level:
 //
 
-TargetGroupItem::TargetGroupItem(const QString &displayName, Project *project)
+TargetGroupItem::TargetGroupItem(Project *project)
     : d(std::make_unique<TargetGroupItemPrivate>(this, project))
-{
-    d->m_displayName = displayName;
-}
+{}
 
 TargetGroupItem::~TargetGroupItem()
 {
@@ -499,9 +496,6 @@ TargetGroupItemPrivate::~TargetGroupItemPrivate()
 
 QVariant TargetGroupItem::data(int column, int role) const
 {
-    if (role == Qt::DisplayRole)
-        return d->m_displayName;
-
     if (role == ActiveItemRole) {
         if (TargetItem *item = currentTargetItem())
             return item->data(column, role);
@@ -626,7 +620,7 @@ void TargetGroupItemPrivate::handleTargetAdded()
 
 void TargetGroupItemPrivate::handleTargetRemoved()
 {
-    QTC_ASSERT(q->parent(), qDebug() << m_displayName; return);
+    QTC_ASSERT(q->parent(), return);
     q->parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)),
                          ItemDeactivatedFromBelowRole);
 }

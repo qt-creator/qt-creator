@@ -9,11 +9,9 @@
 
 #include <memory>
 
-namespace ProjectExplorer {
+namespace ProjectExplorer { class Target; }
 
-class Target;
-
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class TargetGroupItemPrivate;
 class TargetItem;
@@ -36,7 +34,7 @@ using ProjectPanels = QList<ProjectPanel>;
 class TargetGroupItem : public Utils::TypedTreeItem<TargetItem /*, ProjectItem */>
 {
 public:
-    TargetGroupItem(const QString &displayName, Project *project);
+    explicit TargetGroupItem(Project *project);
     ~TargetGroupItem() override;
 
     QVariant data(int column, int role) const override;
@@ -54,5 +52,4 @@ private:
     const std::unique_ptr<TargetGroupItemPrivate> d;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal
