@@ -1059,15 +1059,21 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
     d->resetAssistProviders(document);
     document->setFormatter(nullptr);
     d->m_tokenSupport.deactivateDocument(document);
-    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
-        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
-            TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
-            widget->removeHoverHandler(&d->m_hoverHandler);
-            widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
-            widget->clearRefactorMarkers(id());
-            updateEditorToolBar(editor);
-        }
-    }
+    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document))
+        deactivateEditor(editor);
+}
+
+void Client::deactivateEditor(Core::IEditor *editor)
+{
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+    if (!textEditor)
+        return;
+
+    TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+    widget->removeHoverHandler(&d->m_hoverHandler);
+    widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
+    widget->clearRefactorMarkers(id());
+    updateEditorToolBar(editor);
 }
 
 void ClientPrivate::documentClosed(Core::IDocument *document)

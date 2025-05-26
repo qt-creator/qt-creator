@@ -124,6 +124,8 @@ public:
     virtual void activateDocument(TextEditor::TextDocument *document);
     void activateEditor(Core::IEditor *editor);
     virtual void deactivateDocument(TextEditor::TextDocument *document);
+    void deactivateEditor(Core::IEditor *editor);
+
     bool documentOpen(const TextEditor::TextDocument *document) const;
     TextEditor::TextDocument *documentForFilePath(const Utils::FilePath &file) const;
     void setShadowDocument(const Utils::FilePath &filePath, const QString &contents);
