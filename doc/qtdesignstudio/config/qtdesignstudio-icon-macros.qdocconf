@@ -40,6 +40,7 @@ macro.imageborderimageicon16                                 = "\\inlineimage bo
 macro.imageboundingrect                                      = "\\inlineimage icons/boundingrect.png {the Bound button}"
 macro.imagebrightnesscontrast16px                            = "\\inlineimage icons/brightness-contrast-16px.png {the Brightness Contrast component}"
 macro.imagebrowsebutton                                      = "\\inlineimage icons/browse-button.png {the Browse button}"
+macro.imagebuild                                             = "\\inlineimage icons/build.png {the Build icon}"
 macro.imagebuild32x32                                        = "\\inlineimage icons/build-32x32.png {the Build icon}"
 macro.imagebusyindicatoricon16                               = "\\inlineimage icons/busyindicator-icon16.png {the Busy Indicator component}"
 macro.imagebuttonicon16                                      = "\\inlineimage icons/button-icon16.png {the Button component}"
