@@ -943,7 +943,8 @@ void ProjectStorageUpdater::updatePropertyEditorFilePath(
                                keyValue("directory id", directoryId)};
 
     QRegularExpression regex{R"xo((.+)\/(\w+)(Specifics|Pane).qml)xo"};
-    auto match = regex.match(QStringView{path}.mid(pathOffset));
+    auto typePath = QStringView{path}.mid(pathOffset);
+    auto match = regex.matchView(typePath);
     QString oldModuleName;
     ModuleId moduleId;
     if (match.hasMatch()) {
