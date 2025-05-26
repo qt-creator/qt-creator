@@ -3,20 +3,24 @@
 
 #pragma once
 
-#include "baseeditordocumentprocessor.h"
-#include "cppcompletionassistprovider.h"
-#include "cppoutlinemodel.h"
-#include "cppparsecontext.h"
 #include "cppsemanticinfo.h"
-#include "editordocumenthandle.h"
 
+#include <cplusplus/CppDocument.h>
+
+#include <texteditor/refactoroverlay.h>
 #include <texteditor/textdocument.h>
 
-#include <QMutex>
-#include <QTimer>
+#include <QTextEdit>
 
 namespace CppEditor {
+
+class CursorInfo;
+class CursorInfoParams;
+
 namespace Internal {
+
+class OutlineModel;
+class ParseContextModel;
 
 class CppEditorDocument : public TextEditor::TextDocument
 {
@@ -26,6 +30,7 @@ class CppEditorDocument : public TextEditor::TextDocument
 
 public:
     explicit CppEditorDocument();
+    ~CppEditorDocument() override;
 
     bool isObjCEnabled() const;
     void setCompletionAssistProvider(TextEditor::CompletionAssistProvider *provider) override;
@@ -53,13 +58,13 @@ public:
     bool usesClangd() const;
 
 #ifdef WITH_TESTS
-    QList<TextEditor::BlockRange> ifdefedOutBlocks() const { return m_ifdefedOutBlocks; }
+    QList<TextEditor::BlockRange> ifdefedOutBlocks() const;
 #endif
 
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
                              const QList<QTextEdit::ExtraSelection> selections,
-                             const TextEditor::RefactorMarkers &refactorMarkers);
+                             const QList<TextEditor::RefactorMarker> &refactorMarkers);
 
     void ifdefedOutBlocksUpdated(unsigned contentsRevision,
                                  const QList<TextEditor::BlockRange> ifdefedOutBlocks);
@@ -80,55 +85,10 @@ protected:
     void removeTrailingWhitespace(const QTextBlock &block) override;
 
 private:
-    void invalidateFormatterCache();
-    void onFilePathChanged(const Utils::FilePath &oldPath, const Utils::FilePath &newPath);
-    void onMimeTypeChanged();
-
-    void onAboutToReload();
-    void onReloadFinished();
-    void onDiagnosticsChanged(const Utils::FilePath &fileName, const QString &kind);
-
-    void updateInfoBarEntryIfVisible();
-
-    void reparseWithPreferredParseContext(const QString &id);
-
     void processDocument();
 
-    QByteArray contentsText() const;
-    unsigned contentsRevision() const;
-
-    BaseEditorDocumentProcessor *processor();
-    void resetProcessor();
-    void applyPreferredParseContextFromSettings();
-    void applyExtraPreprocessorDirectivesFromSettings();
-    void releaseResources();
-
-    void showHideInfoBarAboutMultipleParseContexts(bool show);
-    void applyIfdefedOutBlocks();
-
-    void initializeTimer();
-
-private:
-    bool m_fileIsBeingReloaded = false;
-    bool m_isObjCEnabled = false;
-
-    // Caching contents
-    mutable QMutex m_cachedContentsLock;
-    mutable QByteArray m_cachedContents;
-    mutable int m_cachedContentsRevision = -1;
-
-    unsigned m_processorRevision = 0;
-    QTimer m_processorTimer;
-    QScopedPointer<BaseEditorDocumentProcessor> m_processor;
-
-    CppCompletionAssistProvider *m_completionAssistProvider = nullptr;
-
-    // (Un)Registration in CppModelManager
-    QScopedPointer<CppEditorDocumentHandle> m_editorDocumentHandle;
-
-    ParseContextModel m_parseContextModel;
-    OutlineModel m_overviewModel;
-    QList<TextEditor::BlockRange> m_ifdefedOutBlocks;
+    class Private;
+    Private * const d;
 };
 
 } // namespace Internal

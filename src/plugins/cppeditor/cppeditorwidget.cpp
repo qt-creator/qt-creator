@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppeditorwidget.h"
+#include "cppparsecontext.h"
 
 #include "cppcodeformatter.h"
 #include "cppcompletionassistprovider.h"

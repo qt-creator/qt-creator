@@ -5,12 +5,12 @@
 
 #include "baseeditordocumentprocessor.h"
 #include "cppcodemodelinspectordumper.h"
-#include "cppeditordocument.h"
-#include "cppeditorwidget.h"
 #include "cppeditortr.h"
+#include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
+#include "editordocumenthandle.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>

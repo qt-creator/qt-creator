@@ -9,6 +9,7 @@
 #include "../cpprefactoringchanges.h"
 #include "cppquickfix.h"
 
+#include <cplusplus/Overview.h>
 #include <utils/textcodec.h>
 
 #ifdef WITH_TESTS
