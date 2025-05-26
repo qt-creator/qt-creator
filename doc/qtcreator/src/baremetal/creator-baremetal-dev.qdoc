@@ -327,7 +327,7 @@
     To add a kit for building applications and running them on bare metal
     devices, go to \preferences > \uicontrol Kits and select \uicontrol Add.
 
-    \image {qtcreator-baremetal-kit.png} {Bare Metal selected in Kits preferences}
+    \image {qtcreator-preferences-kits-baremetal.webp} {Bare Metal device selected in Kits preferences}
 
     Build applications for and run them on bare metal devices
     in same way as for and on the desktop.
