@@ -192,7 +192,10 @@ void parseDiagnostics(QPromise<Result<Diagnostics>> &promise,
 
     try {
         YAML::Node document = YAML::Load(*localFileContents);
-        for (const auto &diagNode : document["Diagnostics"]) {
+        const auto &diagNodes = document["Diagnostics"];
+        if (diagNodes.IsDefined())
+            diagnostics.reserve(diagNodes.size());
+        for (const auto &diagNode : diagNodes) {
             if (promise.isCanceled())
                 return;
             // Since llvm/clang 9.0 the diagnostic items are wrapped in a "DiagnosticMessage" node.
@@ -213,6 +216,8 @@ void parseDiagnostics(QPromise<Result<Diagnostics>> &promise,
 
             // Process fixits/replacements
             const YAML::Node &replacementsNode = node["Replacements"];
+            if (replacementsNode.IsDefined())
+                diag.explainingSteps.reserve(replacementsNode.size());
             for (const YAML::Node &replacementNode : replacementsNode) {
                 ExplainingStep step;
                 step.isFixIt = true;
@@ -227,6 +232,8 @@ void parseDiagnostics(QPromise<Result<Diagnostics>> &promise,
 
             // Process notes
             const auto notesNode = diagNode["Notes"];
+            if (notesNode.IsDefined())
+                diag.explainingSteps.reserve(diag.explainingSteps.size() + notesNode.size());
             for (const YAML::Node &noteNode : notesNode) {
                 Location loc(noteNode, fileCache);
                 // Ignore a note like
