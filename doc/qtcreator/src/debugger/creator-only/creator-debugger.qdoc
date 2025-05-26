@@ -1056,7 +1056,11 @@
 
     To force a plain C-like display of structures, go to \preferences >
     \uicontrol Debugger > \uicontrol {Locals & Expressions}, and then clear
-    \uicontrol {Use Debugging Helpers}. This still uses the
+    \uicontrol {Use Debugging Helpers}.
+
+    \image {qtcreator-debugging-helper-options.webp} {Locals & Expressions tab in Debugger preferences}
+
+    This still uses the
     Python scripts, but generates more basic output. To force the plain display
     for a single object or for all objects of a given type, select
     \uicontrol {Change Value Display Format} > \uicontrol Raw in the context
@@ -1097,8 +1101,6 @@
     objects connected to this object's slots with Qt's signals and slots
     mechanism. Go to \preferences > \uicontrol {Debugger} >
     \uicontrol {Locals & Expressions} > \uicontrol {Use Debugging Helpers}.
-
-    \image {qtcreator-debugging-helper-options.webp} {Locals & Expressions tab in Debugger preferences}
 
     In the \uicontrol Locals view, expand the object's entry and open the slot
     in the \e slots subitem. The view shows the objects connected to this slot

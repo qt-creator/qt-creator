@@ -20,7 +20,7 @@
     In the \uicontrol Debug mode, switch between tools by selecting them in the
     menu on the debugger toolbar.
 
-    \image {qtcreator-performance-analyzer-toolbar.png} {Performance Analyzer in Debug mode}
+    \image {qtcreator-performance-analyzer-toolbar.webp} {Performance Analyzer in Debug mode}
 
     Drag the views in the \uicontrol Debug mode to new
     positions on the screen. The size and position of views are saved for future

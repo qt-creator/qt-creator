@@ -37,7 +37,7 @@
             (\uicontrol Start) to start the application from the
             \uicontrol {Performance Analyzer}.
 
-            \image {qtcreator-performance-analyzer-toolbar.png} {Performance Analyzer toolbar}
+            \image {qtcreator-performance-analyzer-toolbar.webp} {Performance Analyzer toolbar}
 
     \endlist
 
@@ -128,7 +128,7 @@
     drop down menu next to \inlineimage icons/recordfill.png on the
     Performance Analyzer toolbar.
 
-    \image {qtcreator-performance-analyzer-toolbar.png} {Performance Analyzer toolbar}
+    \image {qtcreator-performance-analyzer-toolbar.webp} {Performance Analyzer toolbar}
 
     \section1 Choosing Event Types
 

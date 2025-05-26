@@ -17,6 +17,8 @@
 
     You can specify another file to execute in the run settings of the project.
 
+    \image {qtcreator-python-run-settings.webp } {Python run settings}
+
     \sa {Configure projects for running}, {Create Qt for Python applications},
     {Develop Qt for Python applications}, {Python Run Settings}
 */
