@@ -1,3 +1,2 @@
 add_subdirectory(designercore)
-add_subdirectory(qmldesignerutils)
 add_subdirectory(designsystem)

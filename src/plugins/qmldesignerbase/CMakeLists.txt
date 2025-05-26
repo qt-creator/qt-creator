@@ -67,3 +67,5 @@ else ()
     target_link_libraries(QmlDesignerBase PRIVATE -Wl,--whole-archive $<TARGET_LINKER_FILE:QmlDesignerSettings> -Wl,--no-whole-archive)
   endif ()
 endif ()
+
+add_subdirectory(libs)
