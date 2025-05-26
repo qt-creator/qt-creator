@@ -101,7 +101,7 @@
     \uicontrol {Text Editor} > \uicontrol Display and select
     \uicontrol {Display folding markers}. This option is enabled by default.
 
-    \image {qtcreator-options-text-editor-display.png} {Display tab in Text Editor preferences}
+    \image {qtcreator-preferences-text-editor-display.webp} {Display tab in Text Editor preferences}
 
     \if defined(qtcreator)
     \section1 Fold all comment blocks

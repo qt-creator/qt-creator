@@ -79,7 +79,7 @@
     between lines can be useful if there is usually not enough space to
     display annotations next to the text.
 
-    \image {qtcreator-options-text-editor-display.png} {Display tab Text Editor preferences}
+    \image {qtcreator-preferences-text-editor-display.webp} {Display tab Text Editor preferences}
 
     If you hide the annotations, you can move the mouse pointer over an icon to
     view them.

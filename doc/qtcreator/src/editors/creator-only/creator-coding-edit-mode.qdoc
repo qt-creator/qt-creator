@@ -99,7 +99,7 @@
         \li \l{Select line ending style}
     \row
         \li \inlineimage {numbers/04.png} {4}
-        \li Change the text encoding.
+        \li Change the file encoding.
         \li \l{Change text encoding}
     \row
         \li \inlineimage {icons/languageclient.png} {Language Client}
@@ -127,8 +127,21 @@
             indicator shows information about the current cursor positions,
             including the length of the selection for selected text.
         \li
+    \row
+        \li \inlineimage {numbers/06.png} {6}
+        \li Select commands to automatically indent the current selection and to
+            change the indentation settings.
+        \li \l{Specifying Tab Settings}
 
     \endtable
+
+    \section2 Hiding Options
+
+    To show or hide the file encoding, line ending, and tab size fields
+    on the editor toolbar, go to \preferences > \uicontrol {Text Editor} >
+    \uicontrol Display.
+
+    \image {qtcreator-preferences-text-editor-display.webp} {Display tab in Text Editor preferences}
 
     \section1 Adding Space Around Toolbar Items
 
@@ -374,7 +387,7 @@
     shortcuts for opening link targets in the next split are used
     to open them in the current split.
 
-    \image {qtcreator-options-text-editor-display.png} {Display tab in Text Editor preferences}
+    \image {qtcreator-preferences-text-editor-display.webp} {Display tab in Text Editor preferences}
 
     \section1 Open resource files for editing
 
@@ -402,7 +415,7 @@
     the \uicontrol Edit mode, go to \preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Display file encoding}.
 
-    \image {qtcreator-options-text-editor-display.png} {Display tab in Text Editor preferences}
+    \image {qtcreator-preferences-text-editor-display.webp} {Display tab in Text Editor preferences}
 
     To change the text encoding, select it on the toolbar, and then select new
     encoding in the \uicontrol {Text Encoding} dialog:
