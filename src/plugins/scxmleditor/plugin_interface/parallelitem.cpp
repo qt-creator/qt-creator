@@ -15,8 +15,8 @@ ParallelItem::ParallelItem(const QPointF &pos, BaseItem *parent)
 
     const QPixmap pixmap = Utils::Icon({{":/scxmleditor/images/parallel_icon.png",
                                          Utils::Theme::TextColorNormal}}).pixmap();
-    m_pixmap = pixmap.copy(QRect(pixmap.width() / 4, pixmap.height() / 4,
-                                 pixmap.width() / 2, pixmap.height() / 2));
+    const qreal dpr = pixmap.devicePixelRatio();
+    m_pixmap = pixmap.copy(QRect(28 * dpr, 28 * dpr, 68 * dpr, 68 * dpr));
     updatePolygon();
 }
 

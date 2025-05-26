@@ -10073,6 +10073,158 @@
          x="757"
          y="53" />
     </g>
+    <g
+       id="scxmleditor_history">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use155"
+         transform="translate(2588,-380)" />
+      <path
+         id="path28821-3"
+         style="fill:none;stroke:#000000;stroke-width:2"
+         d="m 2576,10 v 13 m -8,-13 v 13 m 0,-7 h 8"
+         sodipodi:nodetypes="cccccc" />
+    </g>
+    <g
+       id="scxmleditor_parallel_icon">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use155-38"
+         transform="translate(2588,-347)" />
+      <path
+         id="path157"
+         style="fill:none;stroke:#000000;stroke-linejoin:round"
+         d="m 2568,48.5 h 8 m 0,-6 h -4.5 v 12 h 4.5"
+         sodipodi:nodetypes="cccccc" />
+      <rect
+         style="fill:#000000"
+         id="rect157"
+         width="4"
+         height="5"
+         x="2564"
+         y="46"
+         ry="1" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect157"
+         id="use157"
+         transform="translate(12,-6)" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect157"
+         id="use157-4"
+         transform="translate(12)" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#rect157"
+         id="use157-7"
+         transform="translate(12,6)" />
+    </g>
+    <g
+       id="scxmleditor_innerFill">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use155-4"
+         transform="translate(2588,-314)" />
+      <circle
+         style="fill:#000000"
+         id="path19848"
+         cx="2572"
+         cy="82"
+         r="13" />
+    </g>
+    <g
+       id="scxmleditor_midRing">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use155-3"
+         transform="translate(2588,-281)" />
+      <circle
+         style="fill:none;stroke:#000000;stroke-width:2"
+         id="path19848-2"
+         cx="2572"
+         cy="115"
+         r="12" />
+    </g>
+    <g
+       id="scxmleditor_outerRing">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use155-1"
+         transform="translate(2588,-248)" />
+      <circle
+         style="fill:none;stroke:#000000"
+         id="path9235"
+         cx="2572"
+         cy="148"
+         r="13.5" />
+    </g>
+    <g
+       id="scxmleditor_state">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use155-41"
+         transform="translate(2588,-215)" />
+      <rect
+         style="fill:#000000;fill-opacity:0.03;stroke:#000000"
+         id="rect161"
+         width="25"
+         height="25"
+         x="2559.5"
+         y="168.5"
+         ry="5" />
+    </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#scxmleditor_history"
+       id="src/plugins/scxmleditor/common/images/history"
+       transform="matrix(4,0,0,4,-7635,0)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#scxmleditor_parallel_icon"
+       id="src/plugins/scxmleditor/common/images/parallel_icon"
+       transform="matrix(4,0,0,4,-7506,-132)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#scxmleditor_innerFill"
+       id="src/plugins/scxmleditor/common/images/innerFill"
+       transform="matrix(4,0,0,4,-7377,-264)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#scxmleditor_midRing"
+       id="src/plugins/scxmleditor/common/images/midRing"
+       transform="matrix(4,0,0,4,-7635,-267)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#scxmleditor_outerRing"
+       id="src/plugins/scxmleditor/common/images/outerRing"
+       transform="matrix(4,0,0,4,-7506,-399)" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#scxmleditor_state"
+       id="src/plugins/scxmleditor/common/images/state"
+       transform="matrix(4,0,0,4,-7377,-531)" />
   </g>
   <g
      id="src/plugins/vcsbase/images/submit_arrow">
