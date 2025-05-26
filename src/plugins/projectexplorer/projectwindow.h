@@ -12,23 +12,6 @@ namespace Core { class OutputWindow; }
 
 namespace ProjectExplorer::Internal {
 
-enum {
-    ContextMenuItemAdderRole // To augment a context menu, data has a QMenu*
-        = Qt::UserRole + 1,
-
-    ProjectDisplayNameRole,       // Shown in the project selection combobox
-    ItemActivatedDirectlyRole,    // This item got activated through user interaction and
-                                  // is now responsible for the central widget.
-    ItemActivatedFromBelowRole,   // A subitem gots activated and gives us the opportunity to adjust
-    ItemActivatedFromAboveRole,   // A parent item gots activated and makes us its active child.
-    ItemDeactivatedFromBelowRole, // A subitem got deactivated and gives us the opportunity to adjust
-    ItemUpdatedFromBelowRole,     // A subitem got updated, re-expansion is necessary.
-    ActiveItemRole,               // The index of the currently selected item in the tree view
-    KitIdRole,                    // The kit id in case the item is associated with a kit.
-    PanelWidgetRole,              // This item's widget to be shown as central widget.
-    IsShowMoreRole                // This item is a "show more" item.
-};
-
 class ProjectWindowPrivate;
 
 class ProjectWindow : public Utils::FancyMainWindow

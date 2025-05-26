@@ -136,7 +136,6 @@ QtcPlugin {
             "simpleprojectwizard.cpp", "simpleprojectwizard.h",
             "sysrootkitaspect.cpp", "sysrootkitaspect.h",
             "target.cpp", "target.h",
-            "targetsettingspanel.cpp", "targetsettingspanel.h",
             "targetsetuppage.cpp", "targetsetuppage.h",
             "targetsetupwidget.cpp", "targetsetupwidget.h",
             "task.cpp", "task.h",
