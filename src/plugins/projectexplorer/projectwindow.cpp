@@ -244,7 +244,6 @@ void BuildSystemOutputWindow::updateFilter()
 }
 
 
-class TargetGroupItemPrivate;
 class TargetItem;
 
 class ProjectPanel
@@ -261,8 +260,13 @@ public:
 
 using ProjectPanels = QList<ProjectPanel>;
 
-// Second level: Special case for the Build & Run item (with per-kit subItems)
-class TargetGroupItem : public Utils::TypedTreeItem<TargetItem /*, ProjectItem */>
+// Second level
+
+//
+// TargetGroupItem
+//
+
+class TargetGroupItem : public TypedTreeItem<TargetItem /*, ProjectItem */>
 {
 public:
     explicit TargetGroupItem(Project *project);
@@ -273,14 +277,19 @@ public:
     Qt::ItemFlags flags(int) const override;
 
     TargetItem *currentTargetItem() const;
-    Utils::TreeItem *buildSettingsItem() const;
-    Utils::TreeItem *runSettingsItem() const;
+    TreeItem *buildSettingsItem() const;
+    TreeItem *runSettingsItem() const;
     TargetItem *targetItem(Target *target) const;
 
+    void scheduleRebuildContents();
     void rebuildContents();
 
 private:
-    const std::unique_ptr<TargetGroupItemPrivate> d;
+    const QPointer<Project> m_project;
+    bool m_rebuildScheduled = false;
+
+    mutable QPointer<PanelsWidget> m_targetSetupPage;
+    QObject m_guard;
 };
 
 class VanishedTargetPanelItem : public TreeItem
@@ -768,33 +777,6 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
 }
 
 //
-// TargetGroupItem
-//
-
-class TargetGroupItemPrivate : public QObject
-{
-public:
-    TargetGroupItemPrivate(TargetGroupItem *q, Project *project);
-    ~TargetGroupItemPrivate() override;
-
-    void handleAddedKit(Kit *kit);
-
-    void handleTargetAdded();
-    void handleTargetRemoved();
-    void handleTargetChanged();
-
-    void scheduleRebuildContents();
-    void rebuildContents();
-
-    TargetGroupItem * const q;
-    const QPointer<Project> m_project;
-    bool m_rebuildScheduled = false;
-
-    QList<QMetaObject::Connection> m_connections;
-    QPointer<QWidget> m_targetSetupPage;
-};
-
-//
 // Third level: The per-kit entries
 //
 class TargetItem : public TypedTreeItem<TreeItem, TargetGroupItem>
@@ -1067,47 +1049,47 @@ public:
 //
 
 TargetGroupItem::TargetGroupItem(Project *project)
-    : d(std::make_unique<TargetGroupItemPrivate>(this, project))
-{}
-
-TargetGroupItem::~TargetGroupItem()
+    : m_project(project)
 {
-    delete d->m_targetSetupPage;
-}
+    QObject::connect(project, &Project::addedTarget, &m_guard, [this] { update(); });
 
-TargetGroupItemPrivate::TargetGroupItemPrivate(TargetGroupItem *q, Project *project)
-    : q(q), m_project(project)
-{
-    m_connections << QObject::connect(project, &Project::addedTarget,
-                                      this, &TargetGroupItemPrivate::handleTargetAdded);
-    m_connections << QObject::connect(project, &Project::removedTarget,
-                                      this, &TargetGroupItemPrivate::handleTargetRemoved);
-    m_connections << QObject::connect(project, &Project::activeTargetChanged,
-                                      this, &TargetGroupItemPrivate::handleTargetChanged);
+    QObject::connect(project, &Project::removedTarget, &m_guard, [this] {
+        QTC_ASSERT(parent(), return);
+        parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)),
+                             ItemDeactivatedFromBelowRole);
+    });
+
+    QObject::connect(project, &Project::activeTargetChanged, &m_guard, [this] {
+        setData(0, QVariant(), ItemActivatedFromBelowRole);
+    });
 
     // force a signal since the index has changed
-    m_connections << connect(KitManager::instance(), &KitManager::kitAdded,
-                             this, &TargetGroupItemPrivate::handleAddedKit);
-    m_connections << connect(KitManager::instance(), &KitManager::kitRemoved,
-                             this, &TargetGroupItemPrivate::scheduleRebuildContents);
-    m_connections << connect(KitManager::instance(), &KitManager::kitUpdated,
-                             this, &TargetGroupItemPrivate::scheduleRebuildContents);
-    m_connections << connect(KitManager::instance(), &KitManager::kitsLoaded,
-                             this, &TargetGroupItemPrivate::scheduleRebuildContents);
-    m_connections << connect(
-        ProjectExplorerPlugin::instance(),
-        &ProjectExplorerPlugin::settingsChanged,
-        this,
-        &TargetGroupItemPrivate::scheduleRebuildContents);
+    QObject::connect(KitManager::instance(), &KitManager::kitAdded, &m_guard, [this](Kit *kit) {
+        appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
+        scheduleRebuildContents();
+    });
+
+    QObject::connect(KitManager::instance(), &KitManager::kitRemoved, &m_guard, [this] {
+         scheduleRebuildContents();
+    });
+    QObject::connect(KitManager::instance(), &KitManager::kitUpdated, &m_guard, [this] {
+         scheduleRebuildContents();
+    });
+    QObject::connect(KitManager::instance(), &KitManager::kitsLoaded, &m_guard, [this] {
+         scheduleRebuildContents();
+    });
+
+    QObject::connect(ProjectExplorerPlugin::instance(),
+                     &ProjectExplorerPlugin::settingsChanged, &m_guard, [this] {
+        scheduleRebuildContents();
+    });
 
     rebuildContents();
 }
 
-TargetGroupItemPrivate::~TargetGroupItemPrivate()
+TargetGroupItem::~TargetGroupItem()
 {
-    disconnect();
-    for (const QMetaObject::Connection & c : std::as_const(m_connections))
-        disconnect(c);
+    delete m_targetSetupPage;
 }
 
 QVariant TargetGroupItem::data(int column, int role) const
@@ -1122,15 +1104,15 @@ QVariant TargetGroupItem::data(int column, int role) const
         if (TargetItem *item = currentTargetItem())
             return item->data(column, role);
 
-        if (!d->m_targetSetupPage) {
-            auto inner = new TargetSetupPageWrapper(d->m_project);
-            d->m_targetSetupPage = new PanelsWidget(Tr::tr("Configure Project"), inner, false);
-            d->m_targetSetupPage->setFocusProxy(inner);
+        if (!m_targetSetupPage) {
+            auto inner = new TargetSetupPageWrapper(m_project);
+            m_targetSetupPage = new PanelsWidget(Tr::tr("Configure Project"), inner, false);
+            m_targetSetupPage->setFocusProxy(inner);
         }
 
         ProjectPanel panel;
         panel.displayName = Tr::tr("Configure Project");
-        panel.widget = d->m_targetSetupPage;
+        panel.widget = m_targetSetupPage;
 
         return QVariant::fromValue<ProjectPanels>(QList{panel});
     }
@@ -1157,7 +1139,7 @@ Qt::ItemFlags TargetGroupItem::flags(int) const
 
 TargetItem *TargetGroupItem::currentTargetItem() const
 {
-    return targetItem(d->m_project->activeTarget());
+    return targetItem(m_project->activeTarget());
 }
 
 TreeItem *TargetGroupItem::buildSettingsItem() const
@@ -1187,26 +1169,15 @@ TargetItem *TargetGroupItem::targetItem(Target *target) const
     return nullptr;
 }
 
-void TargetGroupItem::rebuildContents()
-{
-    d->rebuildContents();
-}
-
-void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
-{
-    q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
-    scheduleRebuildContents();
-}
-
-void TargetGroupItemPrivate::scheduleRebuildContents()
+void TargetGroupItem::scheduleRebuildContents()
 {
     if (m_rebuildScheduled)
         return;
     m_rebuildScheduled = true;
-    QMetaObject::invokeMethod(this, &TargetGroupItemPrivate::rebuildContents, Qt::QueuedConnection);
+    QMetaObject::invokeMethod(&m_guard, [this] { rebuildContents(); }, Qt::QueuedConnection);
 }
 
-void TargetGroupItemPrivate::rebuildContents()
+void TargetGroupItem::rebuildContents()
 {
     m_rebuildScheduled = false;
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
@@ -1214,37 +1185,24 @@ void TargetGroupItemPrivate::rebuildContents()
     bool isAnyKitNotEnabled = std::any_of(sortedKits.begin(), sortedKits.end(), [this](Kit *kit) {
         return kit && m_project->target(kit->id()) != nullptr;
     });
-    q->removeChildren();
+    removeChildren();
 
     for (Kit *kit : sortedKits) {
         if (!isAnyKitNotEnabled || projectExplorerSettings().showAllKits || m_project->target(kit->id()) != nullptr)
-            q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
+            appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
     }
 
-    if (q->parent()) {
-        q->parent()
-            ->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)), ItemUpdatedFromBelowRole);
+    if (parent()) {
+        parent()
+            ->setData(0, QVariant::fromValue(static_cast<TreeItem *>(this)), ItemUpdatedFromBelowRole);
     }
 
     QGuiApplication::restoreOverrideCursor();
 }
 
-void TargetGroupItemPrivate::handleTargetAdded()
-{
-    q->update();
-}
-
-void TargetGroupItemPrivate::handleTargetRemoved()
-{
-    QTC_ASSERT(q->parent(), return);
-    q->parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)),
-                         ItemDeactivatedFromBelowRole);
-}
-
-void TargetGroupItemPrivate::handleTargetChanged()
-{
-    q->setData(0, QVariant(), ItemActivatedFromBelowRole);
-}
+//
+// SelectorTree
+//
 
 class SelectorDelegate : public QStyledItemDelegate
 {
@@ -1258,10 +1216,6 @@ public:
         return QSize(s.width(), s.height() * 1.2);
     }
 };
-
-//
-// SelectorTree
-//
 
 class SelectorTree : public TreeView
 {
@@ -1393,7 +1347,7 @@ public:
         settings->setValue(ProjectExplorer::Constants::SHOW_ALL_KITS_SETTINGS_KEY, newShowAllKits);
         updateText();
         m_projectsModel->rootItem()->forFirstLevelChildren([](ProjectItem *item) {
-            item->targetsItem()->rebuildContents();
+            item->targetsItem()->scheduleRebuildContents();
         });
     }
 
