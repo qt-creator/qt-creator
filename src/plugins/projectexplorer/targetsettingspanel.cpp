@@ -10,7 +10,6 @@
 #include "panelswidget.h"
 #include "project.h"
 #include "projectexplorer.h"
-#include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "projectimporter.h"
@@ -48,8 +47,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class TargetSetupPageWrapper : public QWidget
 {
@@ -160,19 +158,6 @@ public:
 
     void scheduleRebuildContents();
     void rebuildContents();
-    void ensureShowMoreItem();
-
-    void setShowAllKits(bool showAllKits)
-    {
-        QtcSettings *settings = Core::ICore::settings();
-        settings->setValue(ProjectExplorer::Constants::SHOW_ALL_KITS_SETTINGS_KEY, showAllKits);
-        mutableProjectExplorerSettings().showAllKits = showAllKits;
-        rebuildContents();
-    }
-    bool showAllKits() const
-    {
-        return projectExplorerSettings().showAllKits;
-    }
 
     TargetGroupItem * const q;
     Project * const m_project;
@@ -183,85 +168,14 @@ public:
     QPointer<QWidget> m_targetSetupPage;
 };
 
-class ITargetItem : public TypedTreeItem<TreeItem, TargetGroupItem>
-{
-public:
-    ITargetItem(Project *project, Id kitId, const Tasks &issues)
-        : m_project(project)
-        , m_kitId(kitId)
-        , m_kitIssues(issues)
-    {}
-
-    virtual Target *target() const = 0;
-    virtual void addToContextMenu(QMenu *menu, bool isSelectable) = 0;
-
-    bool isEnabled() const { return target() != nullptr; }
-
-public:
-    QPointer<Project> m_project; // Not owned.
-
-    Id m_kitId;
-    bool m_kitErrorsForProject = false;
-    bool m_kitWarningForProject = false;
-    Tasks m_kitIssues;
-};
-
-class ShowMoreItem : public ITargetItem
-{
-public:
-    ShowMoreItem(TargetGroupItemPrivate *p)
-        : ITargetItem(nullptr, Id(), Tasks())
-        , m_p(p)
-    {}
-
-    QVariant data(int column, int role) const override
-    {
-        Q_UNUSED(column)
-        if (role == Qt::DisplayRole) {
-            return !m_p->showAllKits() ? Tr::tr("Show All Kits") : Tr::tr("Hide Inactive Kits");
-        }
-
-        if (role == IsShowMoreRole)
-            return true;
-
-        return {};
-    }
-
-    bool setData(int column, const QVariant &data, int role) override
-    {
-        Q_UNUSED(column)
-        Q_UNUSED(data)
-        if (role == ItemActivatedDirectlyRole) {
-            m_p->setShowAllKits(!m_p->showAllKits());
-            return true;
-        }
-        return false;
-    }
-
-    Qt::ItemFlags flags(int) const override
-    {
-        return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
-    }
-
-    // ITargetItem
-    Target *target() const override {
-        return nullptr;
-    }
-    void addToContextMenu(QMenu *, bool) override {}
-
-private:
-    TargetGroupItemPrivate *m_p;
-};
-
-
 //
-// Third level: The per-kit entries (inactive or with a 'Build' and a 'Run' subitem)
+// Third level: The per-kit entries
 //
-class TargetItem : public ITargetItem
+class TargetItem : public TypedTreeItem<TreeItem, TargetGroupItem>
 {
 public:
     TargetItem(Project *project, Id kitId, const Tasks &issues)
-        : ITargetItem(project, kitId, issues)
+        : m_project(project), m_kitId(kitId), m_kitIssues(issues)
     {
         m_kitWarningForProject = containsType(m_kitIssues, Task::TaskType::Warning);
         m_kitErrorsForProject = containsType(m_kitIssues, Task::TaskType::Error);
@@ -273,7 +187,7 @@ public:
         delete m_runSettingsWidget;
     }
 
-    Target *target() const override
+    Target *target() const
     {
         return m_project->target(m_kitId);
     }
@@ -315,7 +229,7 @@ public:
 
         case Qt::FontRole: {
             QFont font = parent()->data(column, role).value<QFont>();
-            if (ITargetItem *targetItem = parent()->currentTargetItem()) {
+            if (TargetItem *targetItem = parent()->currentTargetItem()) {
                 Target *t = targetItem->target();
                 if (t && t->id() == m_kitId && m_project == ProjectManager::startupProject())
                     font.setBold(true);
@@ -400,7 +314,7 @@ public:
         return false;
     }
 
-    void addToContextMenu(QMenu *menu, bool isSelectable) override
+    void addToContextMenu(QMenu *menu, bool isSelectable)
     {
         Kit *kit = KitManager::kit(m_kitId);
         QTC_ASSERT(kit, return);
@@ -519,6 +433,16 @@ private:
         return result;
     }
 
+    bool isEnabled() const { return target() != nullptr; }
+
+public:
+    QPointer<Project> m_project; // Not owned.
+
+    Id m_kitId;
+    bool m_kitErrorsForProject = false;
+    bool m_kitWarningForProject = false;
+    Tasks m_kitIssues;
+
     mutable QPointer<QWidget> m_buildSettingsWidget;
     mutable QPointer<QWidget> m_runSettingsWidget;
 };
@@ -579,13 +503,13 @@ QVariant TargetGroupItem::data(int column, int role) const
         return d->m_displayName;
 
     if (role == ActiveItemRole) {
-        if (ITargetItem *item = currentTargetItem())
+        if (TargetItem *item = currentTargetItem())
             return item->data(column, role);
         return QVariant::fromValue<TreeItem *>(const_cast<TargetGroupItem *>(this));
     }
 
     if (role == PanelWidgetRole) {
-        if (ITargetItem *item = currentTargetItem())
+        if (TargetItem *item = currentTargetItem())
             return item->data(column, role);
 
         if (!d->m_targetSetupPage) {
@@ -621,14 +545,14 @@ Qt::ItemFlags TargetGroupItem::flags(int) const
     return Qt::NoItemFlags;
 }
 
-ITargetItem *TargetGroupItem::currentTargetItem() const
+TargetItem *TargetGroupItem::currentTargetItem() const
 {
     return targetItem(d->m_project->activeTarget());
 }
 
 TreeItem *TargetGroupItem::buildSettingsItem() const
 {
-    if (ITargetItem * const targetItem = currentTargetItem()) {
+    if (TargetItem * const targetItem = currentTargetItem()) {
         if (targetItem->childCount() == 2)
             return targetItem->childAt(0);
     }
@@ -637,34 +561,31 @@ TreeItem *TargetGroupItem::buildSettingsItem() const
 
 TreeItem *TargetGroupItem::runSettingsItem() const
 {
-    if (ITargetItem * const targetItem = currentTargetItem()) {
+    if (TargetItem * const targetItem = currentTargetItem()) {
         if (targetItem->hasChildren())
             return targetItem->childAt(targetItem->childCount() - 1);
     }
     return nullptr;
 }
 
-ITargetItem *TargetGroupItem::targetItem(Target *target) const
+TargetItem *TargetGroupItem::targetItem(Target *target) const
 {
     if (target) {
         Id needle = target->id(); // Unconfigured project have no active target.
-        return findFirstLevelChild([needle](ITargetItem *item) { return item->m_kitId == needle; });
+        return findFirstLevelChild([needle](TargetItem *item) { return item->m_kitId == needle; });
     }
     return nullptr;
+}
+
+void TargetGroupItem::rebuildContents()
+{
+    d->rebuildContents();
 }
 
 void TargetGroupItemPrivate::handleAddedKit(Kit *kit)
 {
     q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
     scheduleRebuildContents();
-}
-
-void TargetGroupItemPrivate::ensureShowMoreItem()
-{
-    if (q->findAnyChild([](TreeItem *item) { return item->data(0, IsShowMoreRole).toBool(); }))
-        return;
-
-    q->appendChild(new ShowMoreItem(this));
 }
 
 void TargetGroupItemPrivate::scheduleRebuildContents()
@@ -686,12 +607,9 @@ void TargetGroupItemPrivate::rebuildContents()
     q->removeChildren();
 
     for (Kit *kit : sortedKits) {
-        if (!isAnyKitNotEnabled || showAllKits() || m_project->target(kit->id()) != nullptr)
+        if (!isAnyKitNotEnabled || projectExplorerSettings().showAllKits || m_project->target(kit->id()) != nullptr)
             q->appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
     }
-
-    if (isAnyKitNotEnabled)
-        ensureShowMoreItem();
 
     if (q->parent()) {
         q->parent()
@@ -703,13 +621,11 @@ void TargetGroupItemPrivate::rebuildContents()
 
 void TargetGroupItemPrivate::handleTargetAdded()
 {
-    ensureShowMoreItem();
     q->update();
 }
 
 void TargetGroupItemPrivate::handleTargetRemoved()
 {
-    ensureShowMoreItem();
     QTC_ASSERT(q->parent(), qDebug() << m_displayName; return);
     q->parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)),
                          ItemDeactivatedFromBelowRole);
@@ -717,9 +633,7 @@ void TargetGroupItemPrivate::handleTargetRemoved()
 
 void TargetGroupItemPrivate::handleTargetChanged()
 {
-    ensureShowMoreItem();
     q->setData(0, QVariant(), ItemActivatedFromBelowRole);
 }
 
-} // Internal
-} // ProjectExplorer
+} // ProjectExplorer::Internal

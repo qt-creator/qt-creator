@@ -12,6 +12,7 @@
 #include "panelswidget.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "projectimporter.h"
 #include "projectmanager.h"
@@ -599,6 +600,8 @@ public:
     TreeItem *activeBuildSettingsItem() const { return m_targetsItem->buildSettingsItem(); }
     TreeItem *activeRunSettingsItem() const { return m_targetsItem->runSettingsItem(); }
 
+    TargetGroupItem *targetsItem() const { return m_targetsItem; }
+
 private:
     QObject m_guard;
     int m_currentChildIndex = 0; // Start with Build & Run.
@@ -742,6 +745,33 @@ private:
     QTabWidget *m_tabWidget = nullptr;
 };
 
+class ShowAllKitsButton final : public QLabel
+{
+public:
+    ShowAllKitsButton(ProjectsModel *projectsModel)
+        : m_projectsModel(projectsModel)
+    {}
+
+    void mouseReleaseEvent(QMouseEvent *) final
+    {
+        const bool newShowAllKits = !projectExplorerSettings().showAllKits;
+        mutableProjectExplorerSettings().showAllKits = newShowAllKits;
+        QtcSettings *settings = Core::ICore::settings();
+        settings->setValue(ProjectExplorer::Constants::SHOW_ALL_KITS_SETTINGS_KEY, newShowAllKits);
+        updateText();
+        m_projectsModel->rootItem()->forFirstLevelChildren([](ProjectItem *item) {
+            item->targetsItem()->rebuildContents();
+        });
+    }
+
+    void updateText()
+    {
+        setText(projectExplorerSettings().showAllKits ? Tr::tr("Hide Inactive Kits") : Tr::tr("Show All Kits"));
+    }
+
+    ProjectsModel *m_projectsModel;
+};
+
 class ProjectWindowPrivate : public QObject
 {
 public:
@@ -751,6 +781,8 @@ public:
         q->setCentralWidget(m_centralWidget);
 
         m_projectsModel.setHeader({Tr::tr("Projects")});
+
+        m_showAllKitsButton = new ShowAllKitsButton(&m_projectsModel);
 
         m_targetsView = new SelectorTree;
         m_targetsView->setModel(&m_projectsModel);
@@ -787,15 +819,23 @@ public:
         auto projectSettingsLabel = new QLabel(Tr::tr("Project Settings"));
         projectSettingsLabel->setFont(labelFont);
 
+        const int space = 18;
         auto scrolledWidget = new QWidget;
         auto scrolledLayout = new QVBoxLayout(scrolledWidget);
         scrolledLayout->setSizeConstraint(QLayout::SetFixedSize);
-        scrolledLayout->setSpacing(18);
+        scrolledLayout->setSpacing(0);
         scrolledLayout->addWidget(targetsLabel);
+        scrolledLayout->addSpacing(space);
         scrolledLayout->addWidget(m_targetsView);
+        scrolledLayout->addSpacing(6);
+        scrolledLayout->addWidget(m_showAllKitsButton);
+        scrolledLayout->addSpacing(space);
         scrolledLayout->addWidget(m_vanishedTargetsLabel);
+        scrolledLayout->addSpacing(space);
         scrolledLayout->addWidget(m_vanishedTargetsView);
+        scrolledLayout->addSpacing(space);
         scrolledLayout->addWidget(projectSettingsLabel);
+        scrolledLayout->addSpacing(space);
         scrolledLayout->addWidget(m_projectSettingsView);
 
         m_scrollArea = new QScrollArea;
@@ -926,6 +966,8 @@ public:
         m_targetsView->updateSize();
         m_vanishedTargetsView->updateSize();
         m_projectSettingsView->updateSize();
+
+        m_showAllKitsButton->updateText();
     }
 
     void registerProject(Project *project)
@@ -1089,6 +1131,7 @@ public:
     SelectorTree *m_targetsView;
     SelectorTree *m_vanishedTargetsView;
     SelectorTree *m_projectSettingsView;
+    ShowAllKitsButton *m_showAllKitsButton;
     QScrollArea *m_scrollArea;
     QPushButton *m_importBuild;
     QAction m_toggleRightSidebarAction;

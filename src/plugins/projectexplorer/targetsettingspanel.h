@@ -15,8 +15,8 @@ class Target;
 
 namespace Internal {
 
-class ITargetItem;
 class TargetGroupItemPrivate;
+class TargetItem;
 
 class ProjectPanel
 {
@@ -33,7 +33,7 @@ public:
 using ProjectPanels = QList<ProjectPanel>;
 
 // Second level: Special case for the Build & Run item (with per-kit subItems)
-class TargetGroupItem : public Utils::TypedTreeItem<ITargetItem /*, ProjectItem */>
+class TargetGroupItem : public Utils::TypedTreeItem<TargetItem /*, ProjectItem */>
 {
 public:
     TargetGroupItem(const QString &displayName, Project *project);
@@ -43,10 +43,12 @@ public:
     bool setData(int column, const QVariant &data, int role) override;
     Qt::ItemFlags flags(int) const override;
 
-    ITargetItem *currentTargetItem() const;
+    TargetItem *currentTargetItem() const;
     Utils::TreeItem *buildSettingsItem() const;
     Utils::TreeItem *runSettingsItem() const;
-    ITargetItem *targetItem(Target *target) const;
+    TargetItem *targetItem(Target *target) const;
+
+    void rebuildContents();
 
 private:
     const std::unique_ptr<TargetGroupItemPrivate> d;
