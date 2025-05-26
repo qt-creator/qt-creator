@@ -4135,6 +4135,51 @@
          d="m 2480.21,568.96 -4.47,9.41 c -0.28,0.2 -0.39,0.19 -0.67,0.4 -0.1,0.1 -0.07,0.23 0.04,0.23 h 2.12 c 0.23,0 0.16,-0.11 0.18,-0.13 -0.13,-0.13 -0.28,-0.13 -0.35,-0.25 0,0 -0.03,-0.19 0.01,-0.26 l 0.67,-1.36 h 3.38 l 0.57,1.4 c -0.13,0.26 -0.52,0.33 -0.65,0.44 -0.13,0.12 0,0.16 0.11,0.16 h 4.13 c 0.23,0 0.17,-0.22 0.05,-0.28 -0.22,-0.13 -0.45,-0.23 -0.68,-0.34 z m 0.53,7.04 h -2.55 l 1.3772,-3.09172 z"
          style="fill:#000000" />
     </g>
+    <g
+       id="src/plugins/axivion/images/dashboard">
+      <use
+         transform="translate(2505,132)"
+         height="100%"
+         width="100%"
+         id="use151"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <rect
+         style="display:inline;fill:none;stroke:#000000"
+         id="rect61-6"
+         width="9"
+         height="10"
+         x="2492.5"
+         y="571.5" />
+      <rect
+         style="fill:#ffffff;stroke:#000000"
+         id="rect12"
+         width="5"
+         height="2"
+         x="2494.5"
+         y="570.5" />
+      <path
+         id="path12990-2"
+         style="fill:none;stroke:#000000;stroke-width:0.5"
+         d="m 2493.5,576.5 1,1.5 1.5,-2 m -2.5,-1.5 1,1.5 1.5,-2 m 1,5.25 h 3 m -3,-2 h 3 m -3,-2 h 3" />
+    </g>
+    <g
+       id="src/plugins/axivion/images/local">
+      <use
+         transform="translate(2522,132)"
+         height="100%"
+         width="100%"
+         id="use152"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <path
+         style="fill:#c0c0c0;stroke:#000000"
+         d="m 2517.5,577.5 -2,2 -1.25,1.25 L 2515.5,579.5 v 3 h 4 v -3 l 1.25,1.25 z"
+         id="path17569"
+         sodipodi:nodetypes="ccccccccc" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
