@@ -86,7 +86,6 @@ enum {
     ContextMenuItemAdderRole // To augment a context menu, data has a QMenu*
         = Qt::UserRole + 1,
 
-    ProjectDisplayNameRole,       // Shown in the project selection combobox
     ItemActivatedDirectlyRole,    // This item got activated through user interaction and
                                   // is now responsible for the central widget.
     ItemActivatedFromBelowRole,   // A subitem gots activated and gives us the opportunity to adjust
@@ -588,7 +587,6 @@ public:
     {
         switch (role) {
         case Qt::DisplayRole:
-        case ProjectDisplayNameRole:
             return m_project->displayName();
 
         case Qt::FontRole: {
