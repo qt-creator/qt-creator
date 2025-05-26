@@ -489,7 +489,7 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
     if (!document)
         return;
     Client *currentClient = clientForDocument(document);
-    client = client && client->activeClient() ? client : nullptr;
+    client = client && client->activatable() ? client : nullptr;
     if (client == currentClient)
         return;
     const bool firstOpen = !managerInstance->m_clientForDocument.remove(document);
@@ -663,7 +663,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
                         }
 
                         QTC_ASSERT(clientForBc, continue);
-                        activateDocument |= clientForBc->activeClient()
+                        activateDocument |= clientForBc->activatable()
                                             && target->activeBuildConfiguration() == bc;
                         if (activateDocument)
                             openDocumentWithClient(textDocument, clientForBc);
@@ -683,7 +683,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
     }
 
     for (auto client : std::as_const(allClients)) {
-        if (m_clientForDocument[textDocument] || !client->activeClient())
+        if (m_clientForDocument[textDocument] || !client->activatable())
             client->openDocument(textDocument);
         else
             openDocumentWithClient(textDocument, client);

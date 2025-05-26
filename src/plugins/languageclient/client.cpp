@@ -749,7 +749,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
     }
 }
 
-bool Client::activeClient() const
+bool Client::activatable() const
 {
     return d->m_activatable;
 }
