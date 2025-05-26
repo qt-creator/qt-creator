@@ -12,7 +12,7 @@ QtcAutotest {
     cpp.dynamicLibraries: {
         var libs = [];
         if (!libarchive_static.libarchiveStatic)
-            libs.push(libarchive_static.libarchiveNames);
+            libs = libs.concat(libarchive_static.libarchiveNames);
         if (qbs.toolchain.contains("mingw"))
             libs.push("bcrypt");
         return libs;
