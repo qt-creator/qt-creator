@@ -1064,30 +1064,26 @@ static Group memcheckRecipe(RunControl *runControl)
     const Storage<QHostAddress> hostStorage(QHostAddress::LocalHost);
     const Storage<ProcessHandle> pidStorage;
 
-    const auto valgrindKicker = [storage, hostStorage, pidStorage, runControl](const SingleBarrier &barrier) {
-        const auto onValgrindSetup = [storage, hostStorage, pidStorage, runControl, barrier](ValgrindProcess &process) {
-            dd->setupSuppressionFiles(storage->suppressions());
-            QObject::connect(&process, &ValgrindProcess::error, dd, &MemcheckTool::parserError);
-            QObject::connect(&process, &ValgrindProcess::valgrindStarted, &process,
-                             [processHandle = pidStorage.activeStorage(), barrier = barrier->barrier()](qint64 pid) {
-                *processHandle = ProcessHandle(pid);
-                barrier->advance();
+    const auto onValgrindSetup = [storage, hostStorage, pidStorage, runControl](ValgrindProcess &process) {
+        dd->setupSuppressionFiles(storage->suppressions());
+        QObject::connect(&process, &ValgrindProcess::error, dd, &MemcheckTool::parserError);
+        QObject::connect(&process, &ValgrindProcess::valgrindStarted, &process,
+                         [processHandle = pidStorage.activeStorage()](qint64 pid) {
+            *processHandle = ProcessHandle(pid);
+        });
+
+        if (runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE) {
+            QObject::connect(&process, &ValgrindProcess::logMessageReceived,
+                             runControl, [runControl](const QByteArray &data) {
+                runControl->postMessage(QString::fromUtf8(data), Utils::StdOutFormat);
             });
+        } else {
+            QObject::connect(&process, &ValgrindProcess::internalError,
+                             dd, &MemcheckTool::internalParserError);
+        }
 
-            if (runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE) {
-                QObject::connect(&process, &ValgrindProcess::logMessageReceived,
-                                 runControl, [runControl](const QByteArray &data) {
-                    runControl->postMessage(QString::fromUtf8(data), Utils::StdOutFormat);
-                });
-            } else {
-                QObject::connect(&process, &ValgrindProcess::internalError,
-                                 dd, &MemcheckTool::internalParserError);
-            }
-
-            setupValgrindProcess(&process, runControl, memcheckCommand(runControl, *storage));
-            process.setLocalServerAddress(*hostStorage);
-        };
-        return ValgrindProcessTask(onValgrindSetup);
+        setupValgrindProcess(&process, runControl, memcheckCommand(runControl, *storage));
+        process.setLocalServerAddress(*hostStorage);
     };
 
     const auto onDone = [runControl] {
@@ -1100,7 +1096,7 @@ static Group memcheckRecipe(RunControl *runControl)
         pidStorage,
         initValgrindRecipe(storage, runControl),
         hostAddressRecipe(hostStorage, runControl),
-        When (valgrindKicker) >> Do {
+        When (ValgrindProcessTask(onValgrindSetup), &ValgrindProcess::valgrindStarted) >> Do {
             debuggerRecipe(pidStorage, runControl)
         },
         onGroupDone(onDone)
