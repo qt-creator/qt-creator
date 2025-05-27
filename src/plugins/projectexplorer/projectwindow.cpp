@@ -1056,9 +1056,7 @@ TargetGroupItem::TargetGroupItem(Project *project)
 {
     QObject::connect(project, &Project::addedTarget, &m_guard, [this] { update(); });
 
-    // force a signal since the index has changed
-    QObject::connect(KitManager::instance(), &KitManager::kitAdded, &m_guard, [this](Kit *kit) {
-        appendChild(new TargetItem(m_project, kit->id(), m_project->projectIssues(kit)));
+    QObject::connect(KitManager::instance(), &KitManager::kitAdded, &m_guard, [this] {
         scheduleRebuildContents();
     });
 
