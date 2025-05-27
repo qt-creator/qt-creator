@@ -282,7 +282,7 @@ public:
     virtual void itemUpdatedFromBelow() {}
 
     // The index of the currently selected item in the tree view.
-    virtual ProjectItemBase *activeItem() { return nullptr; }
+    virtual ProjectItemBase *activeItem() { return this; }
 
     // The kit id in case the item is associated with a kit.
     virtual Id kitId() const { return {}; }
@@ -563,13 +563,6 @@ public:
         return Qt::NoItemFlags;
     }
 
-    ProjectPanels panelWidgets() const final
-    {
-        if (0 <= m_currentPanelIndex && m_currentPanelIndex < childCount())
-            return childAt(m_currentPanelIndex)->panelWidgets();
-        return {};
-    }
-
     ProjectItemBase *activeItem() final
     {
         if (0 <= m_currentPanelIndex && m_currentPanelIndex < childCount())
@@ -635,13 +628,6 @@ public:
         }
         }
 
-        return {};
-    }
-
-    ProjectPanels panelWidgets() const final
-    {
-        if (ProjectItemBase *child = childAt(m_currentChildIndex))
-            return child->panelWidgets();
         return {};
     }
 
@@ -1108,9 +1094,6 @@ ProjectItemBase *TargetGroupItem::activeItem()
 
 ProjectPanels TargetGroupItem::panelWidgets() const
 {
-    if (TargetItem *item = currentTargetItem())
-        return item->panelWidgets();
-
     if (!m_targetSetupPage) {
         auto inner = new TargetSetupPageWrapper(m_project);
         m_targetSetupPage = new PanelsWidget(inner, false);
@@ -1554,13 +1537,15 @@ public:
         if (!projectItem)
             return;
 
-        setPanels(projectItem->panelWidgets());
-
         m_targetsView->selectionModel()->clear();
         QModelIndex sel;
-        if (ProjectItemBase *active = projectItem->activeItem())
+        ProjectPanels panels;
+        if (ProjectItemBase *active = projectItem->activeItem()) {
             sel = active->index();
+            panels = active->panelWidgets();
+        }
         m_targetsView->selectionModel()->select(sel, QItemSelectionModel::Select);
+        setPanels(panels);
 
         m_targetsView->updateSize();
         m_vanishedTargetsView->updateSize();
