@@ -679,12 +679,6 @@ public:
 
     Project *project() const { return m_project; }
 
-    QModelIndex activeIndex()
-    {
-        ProjectItemBase *active = activeItem();
-        return active ? active->index() : QModelIndex();
-    }
-
     TreeItem *itemForProjectPanel(Utils::Id panelId)
     {
         return m_miscItem->findChildAtLevel(1, [panelId](const TreeItem *item){
@@ -1564,9 +1558,11 @@ public:
 
         setPanels(projectItem->panelWidgets());
 
-        QModelIndex activeIndex = projectItem->activeIndex();
         m_targetsView->selectionModel()->clear();
-        m_targetsView->selectionModel()->select(activeIndex, QItemSelectionModel::Select);
+        QModelIndex sel;
+        if (ProjectItemBase *active = projectItem->activeItem())
+            sel = active->index();
+        m_targetsView->selectionModel()->select(sel, QItemSelectionModel::Select);
 
         m_targetsView->updateSize();
         m_vanishedTargetsView->updateSize();
