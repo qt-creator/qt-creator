@@ -2677,6 +2677,16 @@ NodeMetaInfo Model::doubleMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::floatMetaInfo() const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    using namespace Storage::Info;
+    return {d->projectStorage->builtinTypeId<float>(), d->projectStorage};
+#else
+    return {};
+#endif
+}
+
 template<const auto &moduleName, const auto &typeName>
 NodeMetaInfo Model::createNodeMetaInfo() const
 {

@@ -176,6 +176,7 @@ public:
 
     NodeMetaInfo boolMetaInfo() const;
     NodeMetaInfo doubleMetaInfo() const;
+    NodeMetaInfo floatMetaInfo() const;
     NodeMetaInfo flowViewFlowActionAreaMetaInfo() const;
     NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
     NodeMetaInfo flowViewFlowItemMetaInfo() const;

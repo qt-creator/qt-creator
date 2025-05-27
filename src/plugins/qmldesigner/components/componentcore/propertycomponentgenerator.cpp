@@ -184,8 +184,12 @@ std::optional<PropertyComponentGenerator::Entry> createEntry(QmlJS::SimpleReader
     auto typeName = getProperty<QByteArray>(node, "typeNames");
 
     auto type = model->metaInfo(module, typeName);
-    if (!type)
-        return {};
+    if (!type) {
+        if (typeName == "float")
+            type = model->floatMetaInfo();
+        else
+            return {};
+    }
 
     auto path = getProperty<QString>(node, "sourceFile");
     if (path.isEmpty())

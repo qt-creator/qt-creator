@@ -379,4 +379,16 @@ TEST_F(PropertyComponentGenerator, after_refresh_meta_infos_type_was_added)
     ASSERT_THAT(generator.create(xProperty), IsBasicProperty(StrippedStringEq(expected)));
 }
 
+TEST_F(PropertyComponentGenerator, generate_float_property_component)
+{
+    QString expected = getExpectedContent("float", "floatProp", "floatProp");
+    QmlDesigner::NodeMetaInfo floatMetaInfo = model.floatMetaInfo();
+    projectStorageMock.createProperty(itemMetaInfo.id(), "floatProp", floatMetaInfo.id());
+    auto floatProperty = itemMetaInfo.property("floatProp");
+
+    auto propertyComponent = generator.create(floatProperty);
+
+    ASSERT_THAT(propertyComponent, IsBasicProperty(StrippedStringEq(expected)));
+}
+
 } // namespace
