@@ -34,15 +34,16 @@ std::optional<QStringView::iterator> find_import_location(QStringView text, QStr
 
     auto endLine = std::ranges::find(importRange.begin().base(), headerEnd, u'\n');
 
-    QRegularExpression regex{uR"(^import\s+")"_s + directory + uR"("\s+(?!as))"_s};
+    if (endLine != text.end())
+        endLine = std::ranges::next(endLine);
+
+    QRegularExpression regex{uR"(^import\s+")"_s + directory + uR"("\s+(?!as))"_s,
+                             QRegularExpression::MultilineOption};
 
     if (regex.matchView({begin, endLine}).hasMatch())
         return {};
 
-    if (endLine == text.end())
-        return {text.end()};
-
-    return std::make_optional<QStringView::iterator>(std::ranges::next(endLine));
+    return std::make_optional<QStringView::iterator>(endLine);
 }
 
 } // namespace QmlDesigner::ImportUtils
