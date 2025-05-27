@@ -407,7 +407,7 @@ const QSet<PluginSpec *> PluginManager::pluginsRequiringPlugin(PluginSpec *spec)
 /*!
     Returns all plugins that \a spec requires to be loaded. Recurses into dependencies.
  */
-const QSet<PluginSpec *> PluginManager::pluginsRequiredByPlugin(PluginSpec *spec)
+const QSet<PluginSpec *> PluginManager::pluginsToEnableForPlugin(PluginSpec *spec)
 {
     QSet<PluginSpec *> recursiveDependencies;
     recursiveDependencies.insert(spec);
@@ -416,6 +416,7 @@ const QSet<PluginSpec *> PluginManager::pluginsRequiredByPlugin(PluginSpec *spec
     while (!queue.empty()) {
         PluginSpec *checkSpec = queue.front();
         queue.pop();
+        // add dependencies
         const QHash<PluginDependency, PluginSpec *> deps = checkSpec->dependencySpecs();
         for (auto depIt = deps.cbegin(), end = deps.cend(); depIt != end; ++depIt) {
             if (depIt.key().type != PluginDependency::Required)
@@ -423,6 +424,13 @@ const QSet<PluginSpec *> PluginManager::pluginsRequiredByPlugin(PluginSpec *spec
             PluginSpec *depSpec = depIt.value();
             if (Utils::insert(recursiveDependencies, depSpec))
                 queue.push(depSpec);
+        }
+        // add recommended plugins
+        // (e.g. when enabling qmldesigner, also enable isoiconbrowser)
+        const QSet<PluginSpec *> recommends = checkSpec->recommendsSpecs();
+        for (PluginSpec *rec : recommends) {
+            if (Utils::insert(recursiveDependencies, rec))
+                queue.push(rec);
         }
     }
     recursiveDependencies.remove(spec);
@@ -1747,7 +1755,7 @@ std::optional<QSet<PluginSpec *>> PluginManager::askForEnablingPlugins(
     QSet<PluginSpec *> additionalPlugins;
     if (enable) {
         for (PluginSpec *spec : plugins) {
-            for (PluginSpec *other : PluginManager::pluginsRequiredByPlugin(spec)) {
+            for (PluginSpec *other : PluginManager::pluginsToEnableForPlugin(spec)) {
                 if (!other->isEnabledBySettings())
                     additionalPlugins.insert(other);
             }

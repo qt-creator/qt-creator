@@ -201,6 +201,7 @@ public:
     QString license;
     QString revision;
     QString copyright;
+    QStringList recommends;
     QStringList arguments;
     QRegularExpression platformSpecification;
     std::optional<TermsAndConditions> termsAndConditions;
@@ -225,6 +226,7 @@ public:
 
     PluginSpec::State state;
     QHash<PluginDependency, PluginSpec *> dependencySpecs;
+    QSet<PluginSpec *> recommendsSpecs;
 
     QJsonObject metaData;
 
@@ -367,6 +369,15 @@ QString PluginSpec::url() const
 QString PluginSpec::documentationUrl() const
 {
     return d->documentationUrl;
+}
+
+/*!
+    Returns the list of IDs of plugins that a user is recommended to enable if this one is enabled.
+    This is valid after the PluginSpec::Read state is reached.
+*/
+QStringList PluginSpec::recommends() const
+{
+    return d->recommends;
 }
 
 /*!
@@ -690,6 +701,17 @@ QHash<PluginDependency, PluginSpec *> PluginSpec::dependencySpecs() const
 }
 
 /*!
+    Returns the list of recommended plugins, already resolved to existing plugin specs.
+    Valid if PluginSpec::Resolved state is reached.
+
+    \sa PluginSpec::recommends()
+*/
+QSet<PluginSpec *> PluginSpec::recommendsSpecs() const
+{
+    return d->recommendsSpecs;
+}
+
+/*!
     Returns whether the plugin requires any of the plugins specified by
     \a plugins.
 */
@@ -776,6 +798,7 @@ namespace {
     const char LONGDESCRIPTION[] = "LongDescription";
     const char URL[] = "Url";
     const char DOCUMENTATIONURL[] = "DocumentationUrl";
+    const char RECOMMENDS[] = "Recommends";
     const char CATEGORY[] = "Category";
     const char PLATFORM[] = "Platform";
     const char DEPENDENCIES[] = "Dependencies";
@@ -935,8 +958,9 @@ Utils::Result<> PluginSpecPrivate::readMetaData(const QJsonObject &data)
         else {
             constexpr bool isBool = std::is_assignable<decltype(member), bool>::value;
             constexpr bool isString = std::is_assignable<decltype(member), QString>::value;
+            constexpr bool isStringList = std::is_assignable<decltype(member), QStringList>::value;
 
-            static_assert(isString || isBool, "Unsupported type");
+            static_assert(isString || isBool || isStringList, "Unsupported type");
 
             if constexpr (isString) {
                 if (!value.isString())
@@ -946,6 +970,21 @@ Utils::Result<> PluginSpecPrivate::readMetaData(const QJsonObject &data)
                 if (!value.isBool())
                     return ResultError(msgValueIsNotABool(fieldName));
                 member = value.toBool();
+            } else if constexpr (isStringList) {
+                if (value.isString())
+                    member = QStringList(value.toString());
+                else if (!value.isArray())
+                    return ResultError(msgValueIsNotAMultilineString(fieldName));
+                else {
+                    const QJsonArray array = value.toArray();
+                    QStringList result;
+                    for (const QJsonValue &v : array) {
+                        if (!v.isString())
+                            return ResultError(msgValueIsNotAMultilineString(fieldName));
+                        result.append(v.toString());
+                    }
+                    member = result;
+                }
             }
         }
         return {};
@@ -1026,6 +1065,9 @@ Utils::Result<> PluginSpecPrivate::readMetaData(const QJsonObject &data)
         return reportError(r.error());
 
     if (auto r = assignOr(documentationUrl, DOCUMENTATIONURL, QString{}); !r.has_value())
+        return reportError(r.error());
+
+    if (auto r = assignOr(recommends, RECOMMENDS, QStringList()); !r.has_value())
         return reportError(r.error());
 
     if (auto r = assignOr(category, CATEGORY, QString{}); !r.has_value())
@@ -1253,10 +1295,32 @@ bool PluginSpec::resolveDependencies(const PluginSpecs &specs)
         }
         resolvedDependencies.insert(dependency, found);
     }
+    QSet<PluginSpec *> resolvedRecommends;
+    for (const QString &recommendedId : std::as_const(d->recommends)) {
+        PluginSpec *found = findOrDefault(specs, [this, recommendedId](PluginSpec *spec) {
+            if (spec->id() != recommendedId)
+                return false;
+            // check if this plugin is a dependency and if actually provides it
+            const QList<PluginDependency> dependencies = spec->dependencies();
+            for (const PluginDependency &dependency : dependencies) {
+                if (dependency.id == d->id) {
+                    // this plugin is a dependency of spec, check if it would work
+                    // (e.g. wrt required version)
+                    if (!spec->provides(this, dependency))
+                        return false;
+                }
+            }
+            return true;
+        });
+        if (found)
+            resolvedRecommends.insert(found);
+    }
+
     if (hasError())
         return false;
 
     d->dependencySpecs = resolvedDependencies;
+    d->recommendsSpecs = resolvedRecommends;
 
     d->state = PluginSpec::Resolved;
 

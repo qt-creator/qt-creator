@@ -111,6 +111,7 @@ public:
     virtual QString longDescription() const;
     virtual QString url() const;
     virtual QString documentationUrl() const;
+    virtual QStringList recommends() const;
     virtual QString category() const;
     virtual QString revision() const;
     virtual QRegularExpression platformSpecification() const;
@@ -141,6 +142,7 @@ public:
     virtual void setArguments(const QStringList &arguments);
     virtual void addArgument(const QString &argument);
     virtual QHash<PluginDependency, PluginSpec *> dependencySpecs() const;
+    virtual QSet<PluginSpec *> recommendsSpecs() const;
 
     virtual bool provides(PluginSpec *spec, const PluginDependency &dependency) const;
     virtual bool requiresAny(const QSet<PluginSpec *> &plugins) const;

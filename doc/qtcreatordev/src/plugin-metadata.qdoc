@@ -145,6 +145,13 @@
             \li String
             \li Link to online documentation for the plugin, like
                 \c{https://www.mycompany-online.com/docs/greatplugin/manual.html}.
+        \row
+            \li Recommends
+            \li String or array of strings
+            \li A list of plugin IDs that are enabled (if they are installed) when this plugin is
+                enabled. This can be useful when a plugin that is disabled by default is extended
+                by other pre-installed plugins (that are also disabled by default, since they would
+                indirectly enable this plugin otherwise).
     \endtable
 
     \section2 Dependencies
