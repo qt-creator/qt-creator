@@ -609,18 +609,8 @@ public:
             m_project,
             &Project::vanishedTargetsChanged,
             &m_guard,
-            [this] { rebuildVanishedTargets(); },
+            [this] { m_vanishedTargetsItem->rebuild(); },
             Qt::QueuedConnection /* this is triggered by a child item, so queue */);
-    }
-
-    void rebuildVanishedTargets()
-    {
-        if (m_vanishedTargetsItem) {
-            if (m_project->vanishedTargets().isEmpty())
-                removeChildAt(indexOf(m_vanishedTargetsItem));
-            else
-                m_vanishedTargetsItem->rebuild();
-        }
     }
 
     QVariant data(int column, int role) const final
