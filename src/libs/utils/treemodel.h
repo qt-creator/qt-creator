@@ -92,10 +92,12 @@ private:
 };
 
 // A TreeItem with children all of the same type.
-template <class ChildType, class ParentType = TreeItem>
-class TypedTreeItem : public TreeItem
+template <class ChildType, class ParentType = TreeItem, class BaseType = TreeItem>
+class TypedTreeItem : public BaseType
 {
 public:
+    using BaseType::BaseType;
+
     ChildType *childAt(int index) const { return childItemCast(TreeItem::childAt(index)); }
 
     void sortChildren(const std::function<bool(const ChildType *, const ChildType *)> &lessThan)
@@ -110,7 +112,7 @@ public:
     using size_type = int;
 
     ChildType *operator[](int index) const { return childAt(index); }
-    int size() const { return childCount(); }
+    int size() const { return BaseType::childCount(); }
     const_iterator begin() const { return const_iterator(*this, 0); }
     const_iterator end() const { return const_iterator(*this, size()); }
 
