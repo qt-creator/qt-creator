@@ -390,21 +390,14 @@ const QStringList PluginManager::allErrors()
 }
 
 /*!
-    Returns all plugins that require \a spec to be loaded, in the sense that they would indirectly
-    force-enable \a spec when they are enabled.
-
-    A plugin indirectly force-enables a dependency if the dependency is
-    \l{PluginDependency::Required}{required} and not
-    \l{PluginSpec::isEnabledByDefault}{disabled by default}.
-
-    Recurses into dependencies.
+    Returns all plugins that require \a spec to be loaded. Recurses into dependencies.
  */
-const QSet<PluginSpec *> PluginManager::pluginsThatIndirectlyEnablePlugin(PluginSpec *spec)
+const QSet<PluginSpec *> PluginManager::pluginsRequiringPlugin(PluginSpec *spec)
 {
     QSet<PluginSpec *> dependingPlugins({spec});
     // recursively add plugins that depend on plugins that.... that depend on spec
     for (PluginSpec *spec : d->loadQueue()) {
-        if (spec->indirectlyEnablesAny(dependingPlugins))
+        if (spec->requiresAny(dependingPlugins))
             dependingPlugins.insert(spec);
     }
     dependingPlugins.remove(spec);
@@ -412,8 +405,7 @@ const QSet<PluginSpec *> PluginManager::pluginsThatIndirectlyEnablePlugin(Plugin
 }
 
 /*!
-    Returns all plugins that \a spec requires to be loaded to load itself. That are all
-    \l{PluginDependency::Required}{required} dependencies of the plugin. Recurses into dependencies.
+    Returns all plugins that \a spec requires to be loaded. Recurses into dependencies.
  */
 const QSet<PluginSpec *> PluginManager::pluginsRequiredByPlugin(PluginSpec *spec)
 {
@@ -426,11 +418,11 @@ const QSet<PluginSpec *> PluginManager::pluginsRequiredByPlugin(PluginSpec *spec
         queue.pop();
         const QHash<PluginDependency, PluginSpec *> deps = checkSpec->dependencySpecs();
         for (auto depIt = deps.cbegin(), end = deps.cend(); depIt != end; ++depIt) {
-            if (depIt.key().isRequired()) {
-                PluginSpec *depSpec = depIt.value();
-                if (Utils::insert(recursiveDependencies, depSpec))
-                    queue.push(depSpec);
-            }
+            if (depIt.key().type != PluginDependency::Required)
+                continue;
+            PluginSpec *depSpec = depIt.value();
+            if (Utils::insert(recursiveDependencies, depSpec))
+                queue.push(depSpec);
         }
     }
     recursiveDependencies.remove(spec);
@@ -1669,8 +1661,7 @@ void PluginManagerPrivate::checkForProblematicPlugins()
     if (pluginId) {
         PluginSpec *spec = pluginById(*pluginId);
         if (spec && !spec->isRequired()) {
-            const QSet<PluginSpec *> dependents = PluginManager::pluginsThatIndirectlyEnablePlugin(
-                spec);
+            const QSet<PluginSpec *> dependents = PluginManager::pluginsRequiringPlugin(spec);
             auto dependentsNames = Utils::transform<QStringList>(dependents, &PluginSpec::name);
             std::sort(dependentsNames.begin(), dependentsNames.end());
             const QString dependentsList = dependentsNames.join(", ");
@@ -1776,7 +1767,7 @@ std::optional<QSet<PluginSpec *>> PluginManager::askForEnablingPlugins(
         }
     } else {
         for (PluginSpec *spec : plugins) {
-            for (PluginSpec *other : PluginManager::pluginsThatIndirectlyEnablePlugin(spec)) {
+            for (PluginSpec *other : PluginManager::pluginsRequiringPlugin(spec)) {
                 if (other->isEnabledBySettings())
                     additionalPlugins.insert(other);
             }
@@ -1873,7 +1864,7 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     if (!spec->isSoftLoadable()) {
         const QHash<PluginDependency, PluginSpec *> deps = spec->dependencySpecs();
         for (auto it = deps.cbegin(), end = deps.cend(); it != end; ++it) {
-            if (!it.key().isRequired())
+            if (it.key().type != PluginDependency::Required)
                 continue;
             PluginSpec *depSpec = it.value();
             if (depSpec->state() != destState) {

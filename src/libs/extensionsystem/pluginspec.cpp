@@ -145,11 +145,6 @@ size_t qHash(const PluginDependency &value)
 /*!
     \internal
 */
-bool PluginDependency::isRequired() const
-{
-    return type == Required;
-}
-
 bool PluginDependency::operator==(const PluginDependency &other) const
 {
     return id == other.id && version == other.version && type == other.type;
@@ -472,16 +467,14 @@ bool PluginSpec::isEffectivelyEnabled() const
         return false;
     if (isForceEnabled() || isEnabledIndirectly())
         return true;
-    if (!areDependenciesThatAreOffByDefaultEnabled())
-        return false;
     if (isForceDisabled())
         return false;
     return isEnabledBySettings();
 }
 
 /*!
-    Returns if this plugin was only enabled because it is a \l{PluginDependency::Required}{required}
-    dependency of another plugin.
+    Returns \c true if loading was not done due to user unselecting this
+    plugin or its dependencies.
 */
 bool PluginSpec::isEnabledIndirectly() const
 {
@@ -698,29 +691,12 @@ QHash<PluginDependency, PluginSpec *> PluginSpec::dependencySpecs() const
 
 /*!
     Returns whether the plugin requires any of the plugins specified by
-    \a plugins, in the sense that it would indirectly force-enable it.
-    That is all plugins that the plugin has a \l{PluginDependency::Required}{required} dependency on
-    and that are not \l{isEnabledByDefault}{disabled by default}.
-*/
-bool PluginSpec::indirectlyEnablesAny(const QSet<PluginSpec *> &plugins) const
-{
-    for (auto it = d->dependencySpecs.cbegin(); it != d->dependencySpecs.cend(); ++it) {
-        if (it.value()->isEnabledByDefault() && it.key().isRequired() && plugins.contains(*it))
-            return true;
-    }
-    return false;
-}
-
-/*!
-    Returns whether the plugin needs any of the plugins specified by
-    \a plugins to be loaded, to load itself.
-    That are all plugins that this plugin has a \l{PluginDependency::Required}{required} dependency
-    on.
+    \a plugins.
 */
 bool PluginSpec::requiresAny(const QSet<PluginSpec *> &plugins) const
 {
     for (auto it = d->dependencySpecs.cbegin(); it != d->dependencySpecs.cend(); ++it) {
-        if (it.key().isRequired() && plugins.contains(*it))
+        if (it.key().type == PluginDependency::Required && plugins.contains(*it))
             return true;
     }
     return false;
@@ -765,7 +741,7 @@ PluginSpecs PluginSpec::enableDependenciesIndirectly(bool enableTestDependencies
 
     PluginSpecs enabled;
     for (auto it = d->dependencySpecs.cbegin(), end = d->dependencySpecs.cend(); it != end; ++it) {
-        if (!it.key().isRequired()
+        if (it.key().type != PluginDependency::Required
             && (!enableTestDependencies || it.key().type != PluginDependency::Test))
             continue;
 
@@ -776,17 +752,6 @@ PluginSpecs PluginSpec::enableDependenciesIndirectly(bool enableTestDependencies
         }
     }
     return enabled;
-}
-
-bool PluginSpec::areDependenciesThatAreOffByDefaultEnabled() const
-{
-    for (auto it = d->dependencySpecs.cbegin(), end = d->dependencySpecs.cend(); it != end; ++it) {
-        // TODO this recursion into the dependencies' isEffectivelyEnabled isn't great
-        if (it.key().isRequired() && !it.value()->isEnabledByDefault()
-            && !it.value()->isEffectivelyEnabled())
-            return false;
-    }
-    return true;
 }
 
 //==========PluginSpecPrivate==================
@@ -1275,7 +1240,7 @@ bool PluginSpec::resolveDependencies(const PluginSpecs &specs)
             return provides(spec, dependency);
         });
         if (!found) {
-            if (dependency.isRequired()) {
+            if (dependency.type == PluginDependency::Required) {
                 const QString error = ::ExtensionSystem::Tr::tr(
                                           "Could not resolve dependency '%1(%2)'")
                                           .arg(dependency.id, dependency.version);

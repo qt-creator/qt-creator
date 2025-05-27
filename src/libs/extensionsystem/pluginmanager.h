@@ -76,7 +76,7 @@ public:
     static QHash<QString, QList<PluginSpec *>> pluginCollections();
     static bool hasError();
     static const QStringList allErrors();
-    static const QSet<PluginSpec *> pluginsThatIndirectlyEnablePlugin(PluginSpec *spec);
+    static const QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
     static const QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
     static void checkForProblematicPlugins();
     static PluginSpec *specForPlugin(IPlugin *plugin);

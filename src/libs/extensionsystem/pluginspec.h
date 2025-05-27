@@ -49,8 +49,6 @@ struct EXTENSIONSYSTEM_EXPORT PluginDependency
         , type(type)
     {}
 
-    bool isRequired() const;
-
     QString id;
     QString version;
     Type type;
@@ -145,10 +143,8 @@ public:
     virtual QHash<PluginDependency, PluginSpec *> dependencySpecs() const;
 
     virtual bool provides(PluginSpec *spec, const PluginDependency &dependency) const;
-    virtual bool indirectlyEnablesAny(const QSet<PluginSpec *> &plugins) const;
     virtual bool requiresAny(const QSet<PluginSpec *> &plugins) const;
     virtual PluginSpecs enableDependenciesIndirectly(bool enableTestDependencies);
-    virtual bool areDependenciesThatAreOffByDefaultEnabled() const;
     virtual bool resolveDependencies(const PluginSpecs &pluginSpecs);
 
     virtual IPlugin *plugin() const = 0;
