@@ -142,10 +142,8 @@ FROM alpine:latest
             .options = QStringList{"--option1", "--option2"},
         },
     };
-    dockerFileConfig.appPort = QList<std::variant<int, QString>>{8080, "80:9090"}; // Example port
     config.containerConfig = dockerFileConfig;
     config.common.name = "Test Dockerfile";
-    config.common.forwardPorts = {8080, "127.0.0.1:9090"};
 
     qDebug() << "DevContainer Config:" << config;
 
@@ -158,9 +156,15 @@ FROM alpine:latest
         .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
     };
 
+    using namespace std::chrono_literals;
+
     Utils::Result<Tasking::Group> recipe = instance->upRecipe(instanceConfig);
     QVERIFY_RESULT(recipe);
-    Tasking::TaskTree::runBlocking(*recipe);
+    QCOMPARE(Tasking::TaskTree::runBlocking((*recipe).withTimeout(5s)), Tasking::DoneWith::Success);
+
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(instanceConfig);
+    QVERIFY_RESULT(downRecipe);
+    QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
 }
 
 QTEST_GUILESS_MAIN(tst_DevContainer)

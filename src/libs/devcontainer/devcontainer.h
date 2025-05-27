@@ -36,10 +36,10 @@ public:
     ~Instance();
 
     Utils::Result<> up(const InstanceConfig &instanceConfig); // Create and start the container
-    Utils::Result<> down();                                   // Stop and remove the container
+    Utils::Result<> down(const InstanceConfig &instanceConfig); // Stop and remove the container
 
     Utils::Result<Tasking::Group> upRecipe(const InstanceConfig &instanceConfig) const;
-    Utils::Result<Tasking::Group> downRecipe() const;
+    Utils::Result<Tasking::Group> downRecipe(const InstanceConfig &instanceConfig) const;
 
 private:
     std::unique_ptr<InstancePrivate> d;
