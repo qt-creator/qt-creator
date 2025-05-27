@@ -74,12 +74,6 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
 
     createDependencies(node->dir);
 
-    const Utils::FilePath sharedFile = node->dir.pathAppended("CMakeLists.txt.shared");
-    if (!sharedFile.exists()) {
-        const QString sharedTemplate = readTemplate(":/templates/cmake_shared");
-        writeFile(sharedFile, sharedTemplate);
-    }
-
     const Utils::FilePath file = node->dir.pathAppended("CMakeLists.txt");
     if (!file.exists()) {
         const QString appName = parent()->projectName() + "App";
