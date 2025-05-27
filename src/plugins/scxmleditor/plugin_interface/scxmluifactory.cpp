@@ -64,7 +64,7 @@ bool ScxmlUiFactory::isActive(const QString &type, const QObject *obj) const
 void ScxmlUiFactory::initPlugins()
 {
     // First init general plugin
-    m_plugins << new GenericScxmlPlugin;
+    m_plugins << new GenericScxmlPlugin(this);
 
     // Get additional plugins
     QDir pluginDir(QCoreApplication::applicationDirPath() + QDir::separator() + "SCEPlugins");
