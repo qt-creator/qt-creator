@@ -243,11 +243,15 @@ public:
 using ProjectPanels = QList<ProjectPanel>;
 
 // Overall structure:
-// All items are derived from ProjectItemBase
+//
+// All items are derived from ProjectItemBase.
+// First level are ProjectItems for all projects.
+// Second level are the three fixed group items.
+// Third level are the individual items in the group.
 //
 // ProjectModel
 //    ProjectModel::rootItem()
-//       ProjectItem (one!)
+//       ProjectItem
 //           TargetGroupItem
 //               TargetItem
 //               ...
@@ -257,6 +261,13 @@ using ProjectPanels = QList<ProjectPanel>;
 //           MiscSettingsGroupItem
 //               MiscSettingsPanelItem
 //               ...
+//       ProjectItem
+//           ...
+//       ...
+//
+// The first level is shown in the project selection combobox.
+// The second level is nowhere shown.
+// The third level items are shown in the three treeviews in the left column.
 
 class ProjectItemBase : public TreeItem
 {
@@ -609,6 +620,15 @@ public:
         });
     }
 
+    ~ProjectItem()
+    {
+        // Actual deletion of the items below happens in the base destructor,
+        // this here just removes some later dangling pointers for better debugging.
+        m_targetsItem = nullptr;
+        m_vanishedTargetsItem = nullptr;
+        m_miscItem = nullptr;
+    }
+
     QVariant data(int column, int role) const final
     {
         Q_UNUSED(column);
@@ -671,7 +691,7 @@ public:
     TreeItem *itemForProjectPanel(Utils::Id panelId)
     {
         return m_miscItem->findChildAtLevel(1, [panelId](const TreeItem *item){
-            return static_cast<const MiscSettingsPanelItem *>(item)->factory()->id() == panelId;
+            return dynamic_cast<const MiscSettingsPanelItem *>(item)->factory()->id() == panelId;
         });
     }
 
@@ -679,6 +699,8 @@ public:
     TreeItem *activeRunSettingsItem() const { return m_targetsItem->runSettingsItem(); }
 
     TargetGroupItem *targetsItem() const { return m_targetsItem; }
+    VanishedTargetsGroupItem *vanishedTargetsItem() const { return m_vanishedTargetsItem; }
+    MiscSettingsGroupItem *miscSettingsItem() const { return m_miscItem; }
 
 private:
     QObject m_guard;
@@ -847,7 +869,7 @@ public:
 
         case Qt::FontRole: {
             QFont font = parent()->data(column, role).value<QFont>();
-            if (TargetItem *targetItem = static_cast<TargetGroupItem *>(parent())->currentTargetItem()) {
+            if (TargetItem *targetItem = dynamic_cast<TargetGroupItem *>(parent())->currentTargetItem()) {
                 Target *t = targetItem->target();
                 if (t && t->id() == m_kitId && m_project == ProjectManager::startupProject())
                     font.setBold(true);
@@ -1141,8 +1163,11 @@ TargetItem *TargetGroupItem::targetItem(Target *target) const
         const Id needle = target->id(); // Unconfigured project have no active target.
         for (int i = 0, n = childCount(); i != n; ++i) {
             ProjectItemBase *child = childAt(i);
-            if (child->kitId() == needle)
-                return static_cast<TargetItem *>(child);
+            if (child->kitId() == needle) {
+                auto targetItem = dynamic_cast<TargetItem *>(child);
+                QTC_CHECK(targetItem);
+                return targetItem;
+            }
         }
     }
     return nullptr;
@@ -1244,21 +1269,7 @@ private:
     SelectorDelegate m_selectorDelegate;
 };
 
-class ComboBoxItem : public TreeItem
-{
-public:
-    ComboBoxItem(ProjectItem *item) : m_projectItem(item) {}
-
-    QVariant data(int column, int role) const final
-    {
-        return m_projectItem ? m_projectItem->data(column, role) : QVariant();
-    }
-
-    ProjectItem *m_projectItem;
-};
-
 using ProjectsModel = TreeModel<TypedTreeItem<ProjectItem>, ProjectItem>;
-using ComboBoxModel = TreeModel<TypedTreeItem<ComboBoxItem>, ComboBoxItem>;
 
 //
 // ProjectWindowPrivate
@@ -1420,7 +1431,7 @@ public:
         m_scrollArea->setWidget(scrolledWidget);
 
         m_projectSelection = new QComboBox;
-        m_projectSelection->setModel(&m_comboBoxModel);
+        m_projectSelection->setModel(&m_projectsModel);
         connect(m_projectSelection, &QComboBox::activated,
                 this, &ProjectWindowPrivate::projectSelected, Qt::QueuedConnection);
 
@@ -1523,11 +1534,25 @@ public:
                     m_toggleRightSidebarAction.setToolTip(toolTipText(checked));
                     m_outputDock->setVisible(checked);
                 });
+
+        connect(m_projectSelection, &QComboBox::currentIndexChanged, this, [this] {
+            updateProjectBase();
+        });
+    }
+
+    ProjectItem *currentProjectItem() const
+    {
+        const QModelIndex index = m_projectsModel.index(m_projectSelection->currentIndex(), 0, QModelIndex());
+        if (!index.isValid())
+            return nullptr;
+        auto projectItem = dynamic_cast<ProjectItem *>(m_projectsModel.itemForIndex(index));
+        QTC_CHECK(projectItem);
+        return projectItem;
     }
 
     void updatePanel()
     {
-        ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
+        ProjectItem *projectItem = currentProjectItem();
         if (!projectItem)
             return;
 
@@ -1552,58 +1577,58 @@ public:
     {
         QTC_ASSERT(itemForProject(project) == nullptr, return);
         auto projectItem = new ProjectItem(project, [this] { updatePanel(); });
-        m_comboBoxModel.rootItem()->appendChild(new ComboBoxItem(projectItem));
+        m_projectsModel.rootItem()->appendChild(projectItem);
     }
 
     void deregisterProject(Project *project)
     {
-        ComboBoxItem *item = itemForProject(project);
+        ProjectItem *item = itemForProject(project);
         QTC_ASSERT(item, return);
-        if (item->m_projectItem->parent())
-            m_projectsModel.takeItem(item->m_projectItem);
-        delete item->m_projectItem;
-        item->m_projectItem = nullptr;
-        m_comboBoxModel.destroyItem(item);
+        m_projectsModel.destroyItem(item);
     }
 
     void projectSelected(int index)
     {
-        Project *project = m_comboBoxModel.rootItem()->childAt(index)->m_projectItem->project();
+        Project *project = m_projectsModel.rootItem()->childAt(index)->project();
         ProjectManager::setStartupProject(project);
     }
 
-    ComboBoxItem *itemForProject(Project *project) const
+    ProjectItem *itemForProject(Project *project) const
     {
-        return m_comboBoxModel.findItemAtLevel<1>([project](ComboBoxItem *item) {
-            return item->m_projectItem->project() == project;
+        return m_projectsModel.findItemAtLevel<1>([project](ProjectItem *item) {
+            return item->project() == project;
         });
     }
 
     ProjectItemBase *projectItemForIndex(const QModelIndex &index)
     {
-        return static_cast<ProjectItemBase *>(m_projectsModel.itemForIndex(index));
+        return dynamic_cast<ProjectItemBase *>(m_projectsModel.itemForIndex(index));
     }
 
     void startupProjectChanged(Project *project)
     {
-        if (ProjectItem *current = m_projectsModel.rootItem()->childAt(0))
-            m_projectsModel.takeItem(current); // Keep item as such alive.
         if (!project) // Shutting down.
             return;
-        ComboBoxItem *comboboxItem = itemForProject(project);
-        QTC_ASSERT(comboboxItem, return);
-        m_projectsModel.rootItem()->appendChild(comboboxItem->m_projectItem);
-        m_projectSelection->setCurrentIndex(comboboxItem->indexInParent());
+        ProjectItem *projectItem = itemForProject(project);
+        QTC_ASSERT(projectItem, return);
+        m_projectSelection->setCurrentIndex(projectItem->indexInParent());
+    }
 
-        const QModelIndex root = m_projectsModel.index(0, 0, QModelIndex());
-        m_targetsView->setRootIndex(m_projectsModel.index(0, 0, root));
-        m_vanishedTargetsView->setRootIndex(m_projectsModel.index(1, 0, root));
-        m_projectSettingsView->setRootIndex(m_projectsModel.index(2, 0, root));
+    void updateProjectBase()
+    {
+        if (ProjectItem *projectItem = currentProjectItem()) {
+            m_targetsView->setRootIndex(m_projectsModel.indexForItem(projectItem->targetsItem()));
+            m_vanishedTargetsView->setRootIndex(m_projectsModel.indexForItem(projectItem->vanishedTargetsItem()));
+            m_projectSettingsView->setRootIndex(m_projectsModel.indexForItem(projectItem->miscSettingsItem()));
 
-        const QModelIndex vanishedTargetsRoot = m_projectsModel.index(1, 0, root);
-        const bool hasVanishedTargets = m_projectsModel.hasChildren(vanishedTargetsRoot);
-        m_vanishedTargetsLabel->setVisible(hasVanishedTargets);
-        m_vanishedTargetsView->setVisible(hasVanishedTargets);
+            const bool hasVanishedTargets = projectItem->vanishedTargetsItem()->hasChildren();
+            m_vanishedTargetsLabel->setVisible(hasVanishedTargets);
+            m_vanishedTargetsView->setVisible(hasVanishedTargets);
+        } else {
+            m_targetsView->setRootIndex(QModelIndex());
+            m_vanishedTargetsView->setRootIndex(QModelIndex());
+            m_projectSettingsView->setRootIndex(QModelIndex());
+        }
 
         updatePanel();
     }
@@ -1616,7 +1641,7 @@ public:
 
     void activateProjectPanel(Utils::Id panelId)
     {
-        if (ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0)) {
+        if (ProjectItem *projectItem = currentProjectItem()) {
             if (TreeItem *item = projectItem->itemForProjectPanel(panelId))
                 itemActivated(item->index());
         }
@@ -1626,7 +1651,7 @@ public:
     {
         QMenu menu;
 
-        ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0);
+        ProjectItem *projectItem = currentProjectItem();
         Project *project = projectItem ? projectItem->project() : nullptr;
 
         QModelIndex index = m_targetsView->indexAt(pos);
@@ -1666,7 +1691,7 @@ public:
 
     void handleImportBuild()
     {
-        ProjectItem *projectItem = static_cast<ProjectItem *>(m_projectsModel.rootItem()->childAt(0));
+        ProjectItem *projectItem = currentProjectItem();
         Project *project = projectItem ? projectItem->project() : nullptr;
         ProjectImporter *projectImporter = project ? project->projectImporter() : nullptr;
         QTC_ASSERT(projectImporter, return);
@@ -1706,7 +1731,6 @@ public:
 
     ProjectWindow *q;
     ProjectsModel m_projectsModel;
-    ComboBoxModel m_comboBoxModel;
     QComboBox *m_projectSelection;
     QLabel *m_vanishedTargetsLabel;
     SelectorTree *m_targetsView;
@@ -1742,7 +1766,7 @@ void ProjectWindow::activateProjectPanel(Utils::Id panelId)
 
 void ProjectWindow::activateBuildSettings()
 {
-    if (ProjectItem *projectItem = d->m_projectsModel.rootItem()->childAt(0)) {
+    if (ProjectItem *projectItem = d->currentProjectItem()) {
         if (TreeItem *item = projectItem->activeBuildSettingsItem())
             d->itemActivated(item->index());
     }
@@ -1750,7 +1774,7 @@ void ProjectWindow::activateBuildSettings()
 
 void ProjectWindow::activateRunSettings()
 {
-    if (ProjectItem *projectItem = d->m_projectsModel.rootItem()->childAt(0)) {
+    if (ProjectItem *projectItem = d->currentProjectItem()) {
         if (TreeItem *item = projectItem->activeRunSettingsItem())
             d->itemActivated(item->index());
     }
