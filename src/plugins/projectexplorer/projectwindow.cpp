@@ -49,6 +49,7 @@
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
+#include <utils/qtcwidgets.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/treemodel.h>
@@ -1289,14 +1290,25 @@ using ComboBoxModel = TreeModel<TypedTreeItem<ComboBoxItem>, ComboBoxItem>;
 // ProjectWindowPrivate
 //
 
+class ProjectWindowTabWidget : public QTabWidget
+{
+public:
+    ProjectWindowTabWidget(QWidget *parent = nullptr)
+        : QTabWidget(parent)
+    {
+        setTabBar(new QtcTabBar); // Must be the first called setter!
+        setDocumentMode(true);
+        setTabBarAutoHide(true);
+    }
+};
+
 class CentralWidget : public QWidget
 {
 public:
     explicit CentralWidget(QWidget *parent)
         : QWidget(parent)
     {
-        m_tabWidget = new QTabWidget(this);
-        m_tabWidget->setDocumentMode(true);
+        m_tabWidget = new ProjectWindowTabWidget(this);
 
         auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
@@ -1319,7 +1331,6 @@ public:
             m_tabWidget->addTab(panel.widget, panel.displayName);
         }
 
-        m_tabWidget->tabBar()->setVisible(panels.size() > 1);
         m_tabWidget->setCurrentIndex(oldIndex);
 
         if (QWidget *widget = m_tabWidget->currentWidget()) {
