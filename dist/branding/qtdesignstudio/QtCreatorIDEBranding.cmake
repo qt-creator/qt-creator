@@ -27,6 +27,7 @@ set(DESIGNSTUDIO_PLUGINS
     CMakeProjectManager
     CodePaster
     Core
+    Copilot
     CppEditor
     Debugger
     Designer
