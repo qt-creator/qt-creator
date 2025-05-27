@@ -611,6 +611,14 @@ public:
             &m_guard,
             [this] { m_vanishedTargetsItem->rebuild(); },
             Qt::QueuedConnection /* this is triggered by a child item, so queue */);
+
+        QObject::connect(project, &Project::removedTarget, &m_guard, [this] {
+            announceChange();
+        });
+
+        QObject::connect(project, &Project::activeTargetChanged, &m_guard, [this] {
+            announceChange();
+        });
     }
 
     QVariant data(int column, int role) const final
@@ -1061,15 +1069,6 @@ TargetGroupItem::TargetGroupItem(Project *project)
     : m_project(project)
 {
     QObject::connect(project, &Project::addedTarget, &m_guard, [this] { update(); });
-
-    QObject::connect(project, &Project::removedTarget, &m_guard, [this] {
-        QTC_ASSERT(parent(), return);
-        parent()->itemDeactivatedFromBelow();
-    });
-
-    QObject::connect(project, &Project::activeTargetChanged, &m_guard, [this] {
-        parent()->itemActivatedFromBelow(this);
-    });
 
     // force a signal since the index has changed
     QObject::connect(KitManager::instance(), &KitManager::kitAdded, &m_guard, [this](Kit *kit) {
