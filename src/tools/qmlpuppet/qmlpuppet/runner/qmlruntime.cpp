@@ -21,18 +21,6 @@
 #define FILE_OPEN_EVENT_WAIT_TIME 3000 // ms
 #define QSL QStringLiteral
 
-static void registerFonts(const QDir &projectDir)
-{
-    // Autoregister all fonts found inside the project
-    QDirIterator it{projectDir.absolutePath(),
-                    {"*.ttf", "*.otf"},
-                    QDir::Files,
-                    QDirIterator::Subdirectories};
-    while (it.hasNext()) {
-        QFontDatabase::addApplicationFont(it.next());
-    }
-}
-
 static QDir findProjectFolder(const QDir &currentDir, int ret = 0)
 {
     if (ret > 2)
@@ -161,12 +149,9 @@ void QmlRuntime::initCoreApp()
 
 void QmlRuntime::initQmlRunner()
 {
-    registerFonts(findProjectFolder(QDir::current()));
+    QmlBase::initQmlRunner();
 
-    if (const QString mcuFontsFolder = qEnvironmentVariable(QmlBase::QMLPUPPET_ENV_MCU_FONTS_DIR);
-        !mcuFontsFolder.isEmpty()) {
-        registerFonts(mcuFontsFolder);
-    }
+    registerFonts(findProjectFolder(QDir::current()));
 
     m_qmlEngine.reset(new QQmlApplicationEngine());
 

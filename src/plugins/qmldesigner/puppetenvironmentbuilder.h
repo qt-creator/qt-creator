@@ -51,6 +51,7 @@ private:
     void addCustomFileSelectors() const;
     void addDisableDeferredProperties() const;
     void addResolveUrlsOnAssignment() const;
+    void addMcuItems() const;
     void addMcuFonts() const;
 
 private:

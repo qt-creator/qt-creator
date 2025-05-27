@@ -11,6 +11,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 #include <qmlprojectmanager/qmlproject.h>
@@ -55,7 +56,7 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
     addCustomFileSelectors();
     addDisableDeferredProperties();
     addResolveUrlsOnAssignment();
-    addMcuFonts();
+    addMcuItems();
 
     qCInfo(puppetEnvirmentBuild) << "Puppet environment:" << m_environment.toStringList();
 
@@ -254,6 +255,19 @@ void PuppetEnvironmentBuilder::addResolveUrlsOnAssignment() const
     m_environment.set("QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT", "true");
 }
 
+void PuppetEnvironmentBuilder::addMcuItems() const
+{
+    if (QmlDesigner::DesignerMcuManager::instance().isMCUProject()) {
+        addMcuFonts();
+
+        const Utils::FilePath projectRoot = ProjectExplorer::ProjectManager::startupProject()
+                                                ->projectFilePath()
+                                                .parentDir();
+        m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_PROJECT_ROOT,
+                          projectRoot.toUserOutput());
+    }
+}
+
 void PuppetEnvironmentBuilder::addMcuFonts() const
 {
     const Utils::expected_str<Utils::FilePath> mcuFontsDir = QmlProjectManager::mcuFontsDir();
@@ -265,11 +279,9 @@ void PuppetEnvironmentBuilder::addMcuFonts() const
 
     m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_MCU_FONTS_DIR,
                       mcuFontsDir->toUserOutput());
-    if (QmlDesigner::DesignerMcuManager::instance().isMCUProject()) {
-        const QString defaultFontFamily = DesignerMcuManager::defaultFontFamilyMCU();
-        m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_DEFAULT_FONT_FAMILY,
-                          defaultFontFamily);
-    }
+    const QString defaultFontFamily = DesignerMcuManager::defaultFontFamilyMCU();
+    m_environment.set(QmlProjectManager::Constants::QMLPUPPET_ENV_DEFAULT_FONT_FAMILY,
+                      defaultFontFamily);
 }
 
 PuppetType PuppetEnvironmentBuilder::determinePuppetType() const

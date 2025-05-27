@@ -702,14 +702,19 @@ Utils::EnvironmentItems QmlBuildSystem::environment() const
 {
     Utils::EnvironmentItems env = m_projectItem->environment();
 
-    Utils::expected_str<Utils::FilePath> fontsDir = mcuFontsDir();
-    if (!fontsDir) {
-        qWarning() << "Failed to locate MCU installation." << fontsDir.error();
-        return env;
-    }
-
-    env.append({Constants::QMLPUPPET_ENV_MCU_FONTS_DIR, fontsDir->toUserOutput()});
     if (qtForMCUs()) {
+        const Utils::FilePath projectRoot = ProjectExplorer::ProjectManager::startupProject()
+                                                ->projectFilePath()
+                                                .parentDir();
+        env.append({Constants::QMLPUPPET_ENV_PROJECT_ROOT, projectRoot.toUserOutput()});
+
+        Utils::expected_str<Utils::FilePath> fontsDir = mcuFontsDir();
+        if (!fontsDir) {
+            qWarning() << "Failed to locate MCU installation." << fontsDir.error();
+            return env;
+        }
+
+        env.append({Constants::QMLPUPPET_ENV_MCU_FONTS_DIR, fontsDir->toUserOutput()});
         env.append({Constants::QMLPUPPET_ENV_DEFAULT_FONT_FAMILY, defaultFontFamilyMCU()});
     }
 

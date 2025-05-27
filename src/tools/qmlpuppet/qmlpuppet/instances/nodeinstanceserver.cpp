@@ -313,10 +313,6 @@ void NodeInstanceServer::stopRenderTimer()
 void NodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
     initializeView();
-    if (const QString mcuFontsFolder = qEnvironmentVariable(QmlBase::QMLPUPPET_ENV_MCU_FONTS_DIR);
-        !mcuFontsFolder.isEmpty()) {
-        registerFonts(QUrl::fromLocalFile(mcuFontsFolder));
-    }
     registerFonts(command.resourceUrl);
     setTranslationLanguage(command.language);
 
@@ -1581,11 +1577,7 @@ void NodeInstanceServer::registerFonts(const QUrl &resourceUrl) const
     if (!resourceUrl.isValid())
         return;
 
-    // Autoregister all fonts found inside the project
-    QDirIterator it {QFileInfo(resourceUrl.toLocalFile()).absoluteFilePath(),
-                     {"*.ttf", "*.otf"}, QDir::Files, QDirIterator::Subdirectories};
-    while (it.hasNext())
-        QFontDatabase::addApplicationFont(it.next());
+    QmlBase::registerFonts(resourceUrl.toLocalFile());
 }
 
 bool NodeInstanceServer::isInformationServer() const

@@ -90,6 +90,8 @@ QString crashReportsPath()
 
 void QmlPuppet::initQmlRunner()
 {
+    QmlBase::initQmlRunner();
+
     if (m_coreApp->arguments().count() < 2
         || (m_argParser.isSet("readcapturedstream") && m_coreApp->arguments().count() < 3)
         || (m_argParser.isSet("import3dAsset") && m_coreApp->arguments().count() < 6)

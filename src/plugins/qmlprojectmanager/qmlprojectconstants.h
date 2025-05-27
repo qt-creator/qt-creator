@@ -46,5 +46,6 @@ constexpr char FALLBACK_MCU_FONT_FAMILY[] = "DejaVu Sans";
 // These constants should be kept in sync with their counterparts in qmlbase.h
 constexpr char QMLPUPPET_ENV_MCU_FONTS_DIR[] = "QMLPUPPET_MCU_FONTS_DIR";
 constexpr char QMLPUPPET_ENV_DEFAULT_FONT_FAMILY[] = "QMLPUPPET_DEFAULT_FONT_FAMILY";
+constexpr char QMLPUPPET_ENV_PROJECT_ROOT[] = "QMLPUPPET_PROJECT_ROOT";
 
 } // QmlProjectManager::Constants
