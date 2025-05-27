@@ -10,11 +10,8 @@ QtcLibrary {
         condition: qbs.targetOS.contains("windows")
         cpp.dynamicLibraries: {
             var winLibs = ["user32", "iphlpapi", "ws2_32", "shell32", "ole32"];
-            if (qbs.toolchain.contains("mingw")) {
+            if (qbs.toolchain.contains("mingw"))
                 winLibs.push("uuid");
-                if (libarchive_static.present)
-                    winLibs.push("bcrypt");
-            }
             if (qbs.toolchain.contains("msvc"))
                 winLibs.push("dbghelp");
             return winLibs;
@@ -44,17 +41,7 @@ QtcLibrary {
     Depends { name: "Spinner" }
     Depends { name: "Tasking" }
     Depends { name: "ptyqt" }
-    Depends { name: "libarchive_static"; required: false} // in fact it's a hard dependency
-
-    Properties {
-        condition: libarchive_static.present
-        cpp.includePaths: libarchive_static.libarchiveIncludeDir
-        cpp.libraryPaths: libarchive_static.libarchiveLibDir
-        cpp.staticLibraries: libarchive_static.libarchiveStatic
-                             ? libarchive_static.libarchiveNames : []
-        cpp.dynamicLibraries: !libarchive_static.libarchiveStatic
-                              ? libarchive_static.libarchiveNames : []
-    }
+    Depends { name: "qtcLibArchive" }
 
     files: [
         "action.cpp",

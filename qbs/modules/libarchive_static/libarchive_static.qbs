@@ -3,6 +3,8 @@ import qbs.Probes
 import "functions.js" as LibArchiveFunctions
 
 Module {
+    Depends { name: "cpp" }
+
     Probes.LibraryProbe {
         id: libProbe
         names: LibArchiveFunctions.getLibSearchNames(qbs.hostOS, qbs.toolchain)
