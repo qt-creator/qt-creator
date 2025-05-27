@@ -1,4 +1,4 @@
-add_qtc_library(Tasking OBJECT
+add_qtc_library(Tasking
 # Never add dependencies to non-Qt libraries for this library
   DEPENDS Qt::Concurrent Qt::Core Qt::Network
   SOURCES

@@ -1,9 +1,9 @@
 add_qtc_library(Utils
-  DEPENDS Tasking Qt::Qml Qt::Xml Spinner QtCLibArchive
+  DEPENDS Qt::Qml Qt::Xml Spinner QtCLibArchive
   PUBLIC_DEPENDS
     Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets Qt::PrintSupport
     Qt::Core5Compat
-    $<$<BOOL:${QTC_STATIC_BUILD}>:Tasking>
+    Tasking
     $<$<BOOL:${QTC_STATIC_BUILD}>:Spinner>
   SOURCES
     ../3rdparty/span/span.hpp
