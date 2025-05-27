@@ -5196,11 +5196,15 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
 
 void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block, const PaintEventData &data) const
 {
-    if (!m_displaySettings.m_highlightSelection || m_cursors.hasMultipleCursors())
+    if (!m_displaySettings.m_highlightSelection || m_cursors.isNull())
         return;
-    const QString selection = m_cursors.selectedText();
+    const QString selection = m_cursors.mainCursor().selectedText();
     if (selection.trimmed().isEmpty())
         return;
+    for (auto cursor : m_cursors) {
+        if (cursor.selectedText() != selection)
+            return;
+    }
 
     const int blockPosition = block.position();
 
@@ -5305,12 +5309,15 @@ void TextEditorWidgetPrivate::updateCursorSelections()
         return;
     m_highlightScrollBarController->removeHighlights(Constants::SCROLL_BAR_SELECTION);
 
-    if (!m_displaySettings.m_highlightSelection || m_cursors.hasMultipleCursors())
+    if (!m_displaySettings.m_highlightSelection || m_cursors.isNull())
         return;
-
-    const QString txt = m_cursors.selectedText();
+    const QString txt = m_cursors.mainCursor().selectedText();
     if (txt.trimmed().isEmpty())
         return;
+    for (auto cursor : m_cursors) {
+        if (cursor.selectedText() != txt)
+            return;
+    }
 
     m_selectionHighlightFuture = Utils::asyncRun(Utils::searchInContents,
                                                  txt,
@@ -5717,12 +5724,6 @@ void TextEditorWidgetPrivate::paintSearchResultOverlay(const PaintEventData &dat
 void TextEditorWidgetPrivate::paintSelectionOverlay(const PaintEventData &data,
                                                     QPainter &painter) const
 {
-    if (m_cursors.hasMultipleCursors())
-        return;
-    const QString expr = m_cursors.selectedText();
-    if (expr.isEmpty())
-        return;
-
     const int margin = 5;
     QTextBlock block = data.block;
     QPointF offset = data.offset;
