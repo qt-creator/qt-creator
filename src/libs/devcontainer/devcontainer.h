@@ -8,6 +8,7 @@
 #include <tasking/tasktree.h>
 
 #include <utils/filepath.h>
+#include <utils/result.h>
 
 #include <memory>
 
@@ -34,11 +35,11 @@ public:
     static std::unique_ptr<Instance> fromConfig(const Config &config);
     ~Instance();
 
-    void up(const InstanceConfig &instanceConfig); // Create and start the container
-    void down();                                   // Stop and remove the container
+    Utils::Result<> up(const InstanceConfig &instanceConfig); // Create and start the container
+    Utils::Result<> down();                                   // Stop and remove the container
 
-    Tasking::Group upRecipe(const InstanceConfig &instanceConfig) const;
-    Tasking::Group downRecipe() const;
+    Utils::Result<Tasking::Group> upRecipe(const InstanceConfig &instanceConfig) const;
+    Utils::Result<Tasking::Group> downRecipe() const;
 
 private:
     std::unique_ptr<InstancePrivate> d;

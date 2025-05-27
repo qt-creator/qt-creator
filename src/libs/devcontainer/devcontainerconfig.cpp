@@ -12,11 +12,7 @@ using namespace Utils;
 namespace DevContainer {
 
 template<typename... Ts>
-inline QDebug operator<<(QDebug debug, const std::variant<Ts...> &value)
-{
-    std::visit([&debug](const auto &v) { debug << v; }, value);
-    return debug;
-}
+inline QDebug operator<<(QDebug debug, const std::variant<Ts...> &value);
 
 template<typename... Ts>
 inline QDebug operator<<(QDebug debug, const QList<std::variant<Ts...>> &value)
@@ -29,6 +25,13 @@ inline QDebug operator<<(QDebug debug, const QList<std::variant<Ts...>> &value)
         first = false;
     }
 
+    return debug;
+}
+
+template<typename... Ts>
+inline QDebug operator<<(QDebug debug, const std::variant<Ts...> &value)
+{
+    std::visit([&debug](const auto &v) { debug << v; }, value);
     return debug;
 }
 
@@ -329,7 +332,7 @@ Result<> NonComposeBase::fromJson(const QJsonObject &json)
         } else if (json["appPort"].isString()) {
             appPort = json["appPort"].toString();
         } else if (json["appPort"].isArray()) {
-            QVariantList ports;
+            QList<std::variant<int, QString>> ports;
             QJsonArray portsArray = json["appPort"].toArray();
             for (const QJsonValue &value : portsArray) {
                 if (value.isDouble())
@@ -678,21 +681,24 @@ QDebug operator<<(QDebug debug, const DevContainer::Config &value)
     debug << "Common: " << value.common << "\n";
 
     debug << "Container: ";
-    if (std::holds_alternative<std::monostate>(value.containerConfig)) {
+    if (!value.containerConfig) {
         debug << "None (Common properties only)";
-    } else if (std::holds_alternative<DevContainer::DockerfileContainer>(value.containerConfig)) {
-        const auto &dockerfile = std::get<DevContainer::DockerfileContainer>(value.containerConfig);
-        debug << "Dockerfile Container\n";
-        debug << "  Dockerfile: " << dockerfile << "\n";
-        debug << "  Base: " << (NonComposeBase) dockerfile;
-    } else if (std::holds_alternative<DevContainer::ImageContainer>(value.containerConfig)) {
-        const auto image = std::get<DevContainer::ImageContainer>(value.containerConfig);
-        debug << "Image Container\n";
-        debug << "  Image: " << image << "\n";
-        debug << "  Base: " << (NonComposeBase) image;
-    } else if (std::holds_alternative<DevContainer::ComposeContainer>(value.containerConfig)) {
-        debug << "Compose Container\n";
-        debug << "  " << std::get<DevContainer::ComposeContainer>(value.containerConfig);
+    } else {
+        if (std::holds_alternative<DevContainer::DockerfileContainer>(*value.containerConfig)) {
+            const auto &dockerfile = std::get<DevContainer::DockerfileContainer>(
+                *value.containerConfig);
+            debug << "Dockerfile Container\n";
+            debug << "  Dockerfile: " << dockerfile << "\n";
+            debug << "  Base: " << (NonComposeBase) dockerfile;
+        } else if (std::holds_alternative<DevContainer::ImageContainer>(*value.containerConfig)) {
+            const auto image = std::get<DevContainer::ImageContainer>(*value.containerConfig);
+            debug << "Image Container\n";
+            debug << "  Image: " << image << "\n";
+            debug << "  Base: " << (NonComposeBase) image;
+        } else if (std::holds_alternative<DevContainer::ComposeContainer>(*value.containerConfig)) {
+            debug << "Compose Container\n";
+            debug << "  " << std::get<DevContainer::ComposeContainer>(*value.containerConfig);
+        }
     }
 
     debug << "\n)";
@@ -734,7 +740,7 @@ QDebug operator<<(QDebug debug, const DevContainer::DevContainerCommon &value)
     }
 
     if (value.forwardPorts)
-        debug << "  forwardPorts=" << *value.forwardPorts << "\n";
+        debug << "  forwardPorts=[" << *value.forwardPorts << "]\n";
 
     if (!value.portsAttributes.empty()) {
         debug << "  portsAttributes={\n";
@@ -1087,21 +1093,20 @@ QDebug operator<<(QDebug debug, const DevContainer::BuildOptions &value)
         debug << "}";
     }
 
-    if (std::holds_alternative<QString>(value.cacheFrom)) {
-        debug << ((value.target || !value.args.empty()) ? ", " : "")
-              << "cacheFrom=" << std::get<QString>(value.cacheFrom);
-    } else if (std::holds_alternative<QStringList>(value.cacheFrom)) {
-        debug << ((value.target || !value.args.empty()) ? ", " : "")
-              << "cacheFrom=" << std::get<QStringList>(value.cacheFrom);
-    }
+    if (value.cacheFrom)
+        debug << "cacheFrom=" << *value.cacheFrom;
+
+    //if (std::holds_alternative<QString>(value.cacheFrom)) {
+    //    debug << ((value.target || !value.args.empty()) ? ", " : "")
+    //          << "cacheFrom=" << std::get<QString>(value.cacheFrom);
+    //} else if (std::holds_alternative<QStringList>(value.cacheFrom)) {
+    //    debug << ((value.target || !value.args.empty()) ? ", " : "")
+    //          << "cacheFrom=" << std::get<QStringList>(*value.cacheFrom);
+    //}
 
     if (!value.options.isEmpty()) {
-        debug
-            << ((value.target || !value.args.empty()
-                 || !std::holds_alternative<std::monostate>(value.cacheFrom))
-                    ? ", "
-                    : "")
-            << "options=" << value.options;
+        debug << ((value.target || !value.args.empty() || value.cacheFrom) ? ", " : "")
+              << "options=" << value.options;
     }
 
     debug << ")";
@@ -1162,17 +1167,8 @@ QDebug operator<<(QDebug debug, const DevContainer::NonComposeBase &value)
     QDebugStateSaver saver(debug);
     debug.nospace() << "NonComposeBase(";
 
-    if (!std::holds_alternative<std::monostate>(value.appPort)) {
-        debug << "appPort=";
-    } else {
-        if (std::holds_alternative<int>(value.appPort))
-            debug << std::get<int>(value.appPort);
-        else if (std::holds_alternative<QString>(value.appPort))
-            debug << std::get<QString>(value.appPort);
-        else if (std::holds_alternative<QVariantList>(value.appPort))
-            debug << std::get<QVariantList>(value.appPort);
-        debug << ", ";
-    }
+    if (value.appPort)
+        debug << "appPort=[" << *value.appPort << "], ";
 
     if (value.runArgs)
         debug << "runArgs=" << *value.runArgs << ", ";

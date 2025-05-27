@@ -64,9 +64,8 @@ void tst_DevContainer::readConfig()
     QVERIFY_RESULT(devContainer);
     QVERIFY(devContainer->common.name);
     QCOMPARE(*devContainer->common.name, "Minimum spec container (x86_64)");
-    QCOMPARE(devContainer->containerConfig.index(), 1);
-    auto dockerfileContainer = std::get<DevContainer::DockerfileContainer>(
-        devContainer->containerConfig);
+    QVERIFY(devContainer->containerConfig);
+    QCOMPARE(devContainer->containerConfig->index(), 0);
     qDebug() << "Parsed DevContainer:" << *devContainer;
 }
 
@@ -114,8 +113,10 @@ FROM alpine:latest
     dockerFile.flush();
 
     DevContainer::Config config;
-    config.containerConfig = DevContainer::DockerfileContainer{
+    DevContainer::DockerfileContainer dockerFileConfig {
+        //.appPort = 10,
         .dockerfile = dockerFile.fileName(),
+        .context = std::nullopt,
         .buildOptions = DevContainer::BuildOptions{
             .target = "test",
             .args = {{"arg1", "value1"}, {"arg2", "value2"}},
@@ -123,7 +124,12 @@ FROM alpine:latest
             .options = QStringList{"--option1", "--option2"},
         },
     };
+    dockerFileConfig.appPort = QList<std::variant<int, QString>>{8080, "80:9090"}; // Example port
+    config.containerConfig = dockerFileConfig;
     config.common.name = "Test Dockerfile";
+    config.common.forwardPorts = {8080, "127.0.0.1:9090"};
+
+    qDebug() << "DevContainer Config:" << config;
 
     std::unique_ptr<DevContainer::Instance> instance = DevContainer::Instance::fromConfig(config);
 
@@ -134,8 +140,9 @@ FROM alpine:latest
         .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
     };
 
-    auto recipe = instance->upRecipe(instanceConfig);
-    Tasking::TaskTree::runBlocking(recipe);
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe(instanceConfig);
+    QVERIFY_RESULT(recipe);
+    Tasking::TaskTree::runBlocking(*recipe);
 }
 
 QTEST_GUILESS_MAIN(tst_DevContainer)

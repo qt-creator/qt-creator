@@ -116,7 +116,7 @@ struct DEVCONTAINER_EXPORT BuildOptions
 {
     std::optional<QString> target;
     std::map<QString, QString> args;
-    std::variant<std::monostate, QString, QStringList> cacheFrom;
+    std::optional<std::variant<QString, QStringList>> cacheFrom;
     QStringList options;
 
     static BuildOptions fromJson(const QJsonObject &json);
@@ -125,7 +125,7 @@ struct DEVCONTAINER_EXPORT BuildOptions
 // Non-compose base structure
 struct DEVCONTAINER_EXPORT NonComposeBase
 {
-    std::variant<std::monostate, int, QString, QVariantList> appPort;
+    std::optional<std::variant<int, QString, QList<std::variant<int, QString>>>> appPort;
     std::optional<QStringList> runArgs;
     ShutdownAction shutdownAction = ShutdownAction::StopContainer;
     std::optional<bool> overrideCommand;
@@ -213,7 +213,7 @@ struct DEVCONTAINER_EXPORT Config
 {
     DevContainerCommon common;
 
-    std::variant<std::monostate, DockerfileContainer, ImageContainer, ComposeContainer>
+    std::optional<std::variant<DockerfileContainer, ImageContainer, ComposeContainer>>
         containerConfig;
 
     static Utils::Result<Config> fromJson(const QJsonObject &json);

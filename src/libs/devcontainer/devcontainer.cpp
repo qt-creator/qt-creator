@@ -74,10 +74,12 @@ static QString imageName(const InstanceConfig &instanceConfig)
     return QString("qtc-devcontainer-%1").arg(hash);
 }
 
-static Group prepareContainerRecipe(
-    const DockerfileContainer &containerConfig, const InstanceConfig &instanceConfig)
+static Result<Group> prepareContainerRecipe(
+    const DockerfileContainer &containerConfig,
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig)
 {
-    return Group{ProcessTask([containerConfig, instanceConfig](Process &process) {
+    const auto setupBuild = [containerConfig, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, Tr::tr("Build Dockerfile"));
 
         const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
@@ -96,11 +98,38 @@ static Group prepareContainerRecipe(
 
         instanceConfig.logFunction(
             QString(Tr::tr("Building Dockerfile: %1")).arg(process.commandLine().toUserOutput()));
-    })};
+    };
+
+    const auto setupCreate = [commonConfig, containerConfig, instanceConfig](Process &process) {
+        connectProcessToLog(process, instanceConfig, Tr::tr("Create Container"));
+
+        QStringList containerEnvArgs;
+
+        for (auto &[key, value] : commonConfig.containerEnv)
+            containerEnvArgs << "-e" << QString("%1=%2").arg(key, value);
+
+        CommandLine createCmdLine{
+            instanceConfig.dockerCli,
+            {"create",
+             {"--name", imageName(instanceConfig) + "-container"},
+             containerEnvArgs,
+             //             {"-v", containerConfig.volumeMounts.join(" -v ")},
+             //             {"-p", containerConfig.portMappings.createArguments()},
+             imageName(instanceConfig)}};
+        process.setCommand(createCmdLine);
+        process.setWorkingDirectory(instanceConfig.workspaceFolder);
+
+        instanceConfig.logFunction(
+            QString(Tr::tr("Creating Container: %1")).arg(process.commandLine().toUserOutput()));
+    };
+
+    return Group{ProcessTask(setupBuild)};
 }
 
-static Group prepareContainerRecipe(
-    const ImageContainer &config, const InstanceConfig &instanceConfig)
+static Result<Group> prepareContainerRecipe(
+    const ImageContainer &config,
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig)
 {
     const auto setupPull = [config, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, "Pull Image");
@@ -133,8 +162,10 @@ static Group prepareContainerRecipe(
     // clang-format on
 }
 
-static Group prepareContainerRecipe(
-    const ComposeContainer &config, const InstanceConfig &instanceConfig)
+static Result<Group> prepareContainerRecipe(
+    const ComposeContainer &config,
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig)
 {
     const auto setupComposeUp = [config, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, "Compose Up");
@@ -178,40 +209,46 @@ static Group prepareContainerRecipe(
             QString("Compose Up: %1").arg(process.commandLine().toUserOutput()));
     };
 
-    return Group{};
+    return ResultError("Docker Compose is not yet supported in DevContainer.");
 }
 
-static Group prepareContainerRecipe(const std::monostate &, const InstanceConfig &instanceConfig)
-{
-    Q_UNUSED(instanceConfig);
-    return {};
-}
-
-static Group prepareRecipe(const Config &config, const InstanceConfig &instanceConfig)
+static Result<Group> prepareRecipe(const Config &config, const InstanceConfig &instanceConfig)
 {
     return std::visit(
-        [&instanceConfig](const auto &containerConfig) {
-            return prepareContainerRecipe(containerConfig, instanceConfig);
+        [&instanceConfig, commonConfig = config.common](const auto &containerConfig) {
+            return prepareContainerRecipe(containerConfig, commonConfig, instanceConfig);
         },
-        config.containerConfig);
+        *config.containerConfig);
 }
 
-void Instance::up(const InstanceConfig &instanceConfig)
+Result<> Instance::up(const InstanceConfig &instanceConfig)
 {
-    d->taskTree.setRecipe(upRecipe(instanceConfig));
+    if (!d->config.containerConfig)
+        return ResultOk;
+
+    const Utils::Result<Tasking::Group> recipeResult = upRecipe(instanceConfig);
+    if (!recipeResult)
+        return ResultError(recipeResult.error());
+
+    d->taskTree.setRecipe(std::move(*recipeResult));
     d->taskTree.start();
+
+    return ResultOk;
 }
 
-void Instance::down() {}
+Result<> Instance::down()
+{
+    return ResultError(Tr::tr("Down operation is not implemented yet."));
+}
 
-Tasking::Group Instance::upRecipe(const InstanceConfig &instanceConfig) const
+Result<Tasking::Group> Instance::upRecipe(const InstanceConfig &instanceConfig) const
 {
     return prepareRecipe(d->config, instanceConfig);
 }
 
-Tasking::Group Instance::downRecipe() const
+Result<Tasking::Group> Instance::downRecipe() const
 {
-    return Group{};
+    return ResultError(Tr::tr("Down recipe is not implemented yet."));
 }
 
 } // namespace DevContainer
