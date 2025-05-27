@@ -11,6 +11,27 @@ using namespace Utils;
 
 namespace DevContainer {
 
+template<typename... Ts>
+inline QDebug operator<<(QDebug debug, const std::variant<Ts...> &value)
+{
+    std::visit([&debug](const auto &v) { debug << v; }, value);
+    return debug;
+}
+
+template<typename... Ts>
+inline QDebug operator<<(QDebug debug, const QList<std::variant<Ts...>> &value)
+{
+    bool first = true;
+    for (const auto &val : value) {
+        if (!first)
+            debug << ", ";
+        debug << val;
+        first = false;
+    }
+
+    return debug;
+}
+
 // Helper for parsing enum values
 template<typename EnumType>
 Result<EnumType> parseEnum(
@@ -141,7 +162,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
     }
 
     if (json.contains("forwardPorts") && json["forwardPorts"].isArray()) {
-        QVariantList ports;
+        QList<std::variant<int, QString>> ports;
         QJsonArray portsArray = json["forwardPorts"].toArray();
         for (const QJsonValue &value : portsArray) {
             if (value.isDouble())

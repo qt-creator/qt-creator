@@ -180,7 +180,7 @@ struct DEVCONTAINER_EXPORT DevContainerCommon
     std::map<QString, QJsonValue> features;
     std::optional<QStringList> overrideFeatureInstallOrder;
     std::map<QString, SecretMetadata> secrets;
-    std::optional<QVariantList> forwardPorts;
+    std::optional<QList<std::variant<int, QString>>> forwardPorts;
     std::map<QString, PortAttributes> portsAttributes;
     std::optional<PortAttributes> otherPortsAttributes;
     std::optional<bool> updateRemoteUserUID;
