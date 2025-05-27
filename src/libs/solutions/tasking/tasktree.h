@@ -294,6 +294,7 @@ private:
     friend class TaskNode;
     friend class TaskTreePrivate;
     friend class ParallelLimitFunctor;
+    friend class When;
     friend class WorkflowPolicyFunctor;
     Type m_type = Type::Group;
     GroupItems m_children;
@@ -320,9 +321,9 @@ protected:
 private:
     TASKING_EXPORT friend Group operator!(const ExecutableItem &item);
     TASKING_EXPORT friend Group operator&&(const ExecutableItem &first,
-                                                    const ExecutableItem &second);
+                                           const ExecutableItem &second);
     TASKING_EXPORT friend Group operator||(const ExecutableItem &first,
-                                                    const ExecutableItem &second);
+                                           const ExecutableItem &second);
     TASKING_EXPORT friend Group operator&&(const ExecutableItem &item, DoneResult result);
     TASKING_EXPORT friend Group operator||(const ExecutableItem &item, DoneResult result);
 
@@ -331,6 +332,7 @@ private:
         const GroupItems &postCancelRecipe) const;
     Group withAcceptImpl(
         const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;
+    friend class When;
 };
 
 class TASKING_EXPORT Group : public ExecutableItem
@@ -527,6 +529,7 @@ protected:
     const Task *task() const { return m_task.get(); }
 
 private:
+    friend class When;
     using TaskType = Task;
     using DeleterType = Deleter;
     template <typename Adapter> friend class CustomTask;
@@ -553,6 +556,7 @@ public:
     {}
 
 private:
+    friend class When;
     static Adapter *createAdapter() { return new Adapter; }
 
     template <typename Handler>

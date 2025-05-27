@@ -2452,6 +2452,24 @@ void tst_Tasking::testTree_data()
 
         QTest::newRow("BarrierWhenDo")
             << TestData{storage, rootWhenDo, log2, 4, DoneWith::Success, 4};
+
+        const auto onTickSetup = [storage](TickAndDone &tickAndDone) {
+            tickAndDone.setInterval(1ms);
+            storage->m_log.append({1, Handler::Setup});
+        };
+
+        const Group rootWhenSignalDo {
+            storage,
+            When (TickAndDoneTask(onTickSetup), &TickAndDone::tick) >> Do {
+                groupSetup(2),
+                Sync([storage] { storage->m_log.append({1, Handler::BarrierAdvance}); }),
+                createSuccessTask(2),
+                createSuccessTask(3)
+            }
+        };
+
+        QTest::newRow("BarrierWhenSignalDo")
+            << TestData{storage, rootWhenSignalDo, log2, 4, DoneWith::Success, 4};
     }
 
     {

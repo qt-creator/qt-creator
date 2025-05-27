@@ -102,6 +102,23 @@ class TASKING_EXPORT When final
 public:
     explicit When(const BarrierKickerGetter &kicker) : m_barrierKicker(kicker) {}
 
+    template <typename Adapter, typename Signal>
+    When(const CustomTask<Adapter> &customTask, Signal signal)
+    {
+        m_barrierKicker = [taskHandler = customTask.m_taskHandler, signal](const SingleBarrier &barrier) {
+            auto handler = std::move(taskHandler);
+            const auto wrappedSetupHandler = [originalSetupHandler = std::move(handler.m_setupHandler),
+                                              barrier, signal](TaskInterface &taskInterface) {
+                const SetupResult setupResult = std::invoke(originalSetupHandler, taskInterface);
+                Adapter &adapter = static_cast<Adapter &>(taskInterface);
+                QObject::connect(adapter.task(), signal, barrier->barrier(), &Barrier::advance);
+                return setupResult;
+            };
+            handler.m_setupHandler = std::move(wrappedSetupHandler);
+            return ExecutableItem(std::move(handler));
+        };
+    }
+
 private:
     TASKING_EXPORT friend Group operator>>(const When &whenItem, const Do &doItem);
 
