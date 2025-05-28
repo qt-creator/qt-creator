@@ -270,9 +270,24 @@ QString CMakeProject::projectDisplayName(const Utils::FilePath &projectFilePath)
         }
     }
 
+    QHash<QString, QString> setVariables;
     for (const auto &func : cmakeListFile.Functions) {
-        if (func.LowerCaseName() == "project" && func.Arguments().size() > 0)
-            return QString::fromUtf8(func.Arguments()[0].Value);
+        if (func.LowerCaseName() == "set" && func.Arguments().size() == 2)
+            setVariables.insert(
+                QString::fromUtf8(func.Arguments()[0].Value),
+                QString::fromUtf8(func.Arguments()[1].Value));
+
+        if (func.LowerCaseName() == "project" && func.Arguments().size() > 0) {
+            const QString projectName = QString::fromUtf8(func.Arguments()[0].Value);
+            if (projectName.startsWith("${") && projectName.endsWith("}")) {
+                const QString projectVar = projectName.mid(2, projectName.size() - 3);
+                if (setVariables.contains(projectVar))
+                    return setVariables.value(projectVar);
+                else
+                    return fallbackDisplayName;
+            }
+            return projectName;
+        }
     }
 
     return fallbackDisplayName;
