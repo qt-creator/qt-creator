@@ -356,6 +356,8 @@ public:
         fileOrCommand.setExpectedKind(PathChooser::Any);
         fileOrCommand.setAllowPathFromDevice(false);
         fileOrCommand.setHistoryCompleter("LocalBuildHistory");
+        if (!settings().lastLocalBuildCommand().isEmpty())
+            fileOrCommand.setValue(settings().lastLocalBuildCommand());
         buildType.setLabelText(Tr::tr("Build type:"));
         buildType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
         buildType.setToolTip(Tr::tr("Clean Build: Set environment variable AXIVION_CLEAN_BUILD=1\n"
@@ -535,6 +537,8 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     if (dia.exec() != QDialog::Accepted)
         return false;
 
+    settings().lastLocalBuildCommand.setValue(dia.fileOrCommand());
+    settings().writeSettings();
 
     Environment env = Environment::systemEnvironment();
     updateEnvironmentForLocalBuild(&env);

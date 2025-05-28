@@ -81,6 +81,7 @@ public:
     Utils::FilePathAspect axivionSuitePath{this};
     Utils::FilePathAspect bauhausPython{this};
     Utils::FilePathAspect javaHome{this};
+    Utils::FilePathAspect lastLocalBuildCommand{this};
 
 signals:
     void serversChanged();
