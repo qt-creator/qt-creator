@@ -321,8 +321,6 @@ public:
     void itemUpdatedFromBelow() final;
 
     TargetItem *currentTargetItem() const;
-    TreeItem *buildSettingsItem() const;
-    TreeItem *runSettingsItem() const;
     TargetItem *targetItem(Target *target) const;
 
     void scheduleRebuildContents();
@@ -685,9 +683,6 @@ public:
             return dynamic_cast<const MiscSettingsPanelItem *>(item)->factory()->id() == panelId;
         });
     }
-
-    TreeItem *activeBuildSettingsItem() const { return m_targetsItem->buildSettingsItem(); }
-    TreeItem *activeRunSettingsItem() const { return m_targetsItem->runSettingsItem(); }
 
     TargetGroupItem *targetsItem() const { return m_targetsItem; }
     VanishedTargetsGroupItem *vanishedTargetsItem() const { return m_vanishedTargetsItem; }
@@ -1130,24 +1125,6 @@ TargetItem *TargetGroupItem::currentTargetItem() const
     return targetItem(m_project->activeTarget());
 }
 
-TreeItem *TargetGroupItem::buildSettingsItem() const
-{
-    if (TargetItem * const targetItem = currentTargetItem()) {
-        if (targetItem->childCount() == 2)
-            return targetItem->childAt(0);
-    }
-    return nullptr;
-}
-
-TreeItem *TargetGroupItem::runSettingsItem() const
-{
-    if (TargetItem * const targetItem = currentTargetItem()) {
-        if (targetItem->hasChildren())
-            return targetItem->childAt(targetItem->childCount() - 1);
-    }
-    return nullptr;
-}
-
 TargetItem *TargetGroupItem::targetItem(Target *target) const
 {
     if (target) {
@@ -1290,6 +1267,11 @@ public:
         layout->setSpacing(0);
         layout->addWidget(new StyledBar(this));
         layout->addWidget(m_tabWidget);
+    }
+
+    void setCurrentIndex(int index)
+    {
+        m_tabWidget->setCurrentIndex(index);
     }
 
     void setPanels(const ProjectPanels &panels, bool setFocus)
@@ -1630,11 +1612,21 @@ public:
             item->itemActivatedDirectly();
     }
 
-    void activateProjectPanel(Utils::Id panelId)
+    void activateProjectPanel(Id panelId)
     {
         if (ProjectItem *projectItem = currentProjectItem()) {
             if (TreeItem *item = projectItem->itemForProjectPanel(panelId))
                 itemActivated(item->index());
+        }
+    }
+
+    void activateTargetTab(int index)
+    {
+        if (ProjectItem *projectItem = currentProjectItem()) {
+            if (TargetItem *targetItem = projectItem->targetsItem()->currentTargetItem()) {
+                targetItem->itemActivatedDirectly();
+                m_centralWidget->setCurrentIndex(index);
+            }
         }
     }
 
@@ -1757,18 +1749,12 @@ void ProjectWindow::activateProjectPanel(Utils::Id panelId)
 
 void ProjectWindow::activateBuildSettings()
 {
-    if (ProjectItem *projectItem = d->currentProjectItem()) {
-        if (TreeItem *item = projectItem->activeBuildSettingsItem())
-            d->itemActivated(item->index());
-    }
+    d->activateTargetTab(0);
 }
 
 void ProjectWindow::activateRunSettings()
 {
-    if (ProjectItem *projectItem = d->currentProjectItem()) {
-        if (TreeItem *item = projectItem->activeRunSettingsItem())
-            d->itemActivated(item->index());
-    }
+    d->activateTargetTab(1);
 }
 
 OutputWindow *ProjectWindow::buildSystemOutput() const
