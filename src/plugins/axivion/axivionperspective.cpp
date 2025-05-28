@@ -101,6 +101,7 @@ struct LinkWithColumns
 
 static bool issueListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
 static bool progressListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
+static void resetFocusToIssuesTable(); // impl at bottom
 
 static std::optional<PathMapping> findPathMappingMatch(const QString &projectName,
                                                        const Link &link)
@@ -181,8 +182,10 @@ public:
                 if (!computedPath.exists())
                     targetFilePath = mappedPathForLink(link);
                 link.targetFilePath = targetFilePath.isEmpty() ? computedPath : targetFilePath;
-                if (link.targetFilePath.exists())
+                if (link.targetFilePath.exists()) {
                     EditorManager::openEditorAt(link);
+                    resetFocusToIssuesTable();
+                }
             }
             return true;
         } else if (role == BaseTreeView::ItemViewEventRole && !m_id.isEmpty()) {
@@ -221,6 +224,8 @@ public:
     void showErrorMessage(const QString &message);
 
     bool currentIssueHasValidMapping() const;
+
+    void requestFocusForIssuesTable();
 
 protected:
     void showEvent(QShowEvent *event) override;
@@ -1196,6 +1201,11 @@ bool IssuesWidget::currentIssueHasValidMapping() const
     return true;
 }
 
+void IssuesWidget::requestFocusForIssuesTable()
+{
+    m_issuesView->setFocus();
+}
+
 void IssuesWidget::switchDashboard(bool local)
 {
     if (local) {
@@ -1538,6 +1548,8 @@ public:
 
     void showProgressWidget();
 
+    void requestFocusForIssuesTable();
+
 private:
     void removeFinishedBuilds();
 
@@ -1793,6 +1805,11 @@ void AxivionPerspective::showProgressWidget()
     // TODO can we ensure the progress widget is uncollapsed?
 }
 
+void AxivionPerspective::requestFocusForIssuesTable()
+{
+    m_issuesWidget->requestFocusForIssuesTable();
+}
+
 void AxivionPerspective::removeFinishedBuilds()
 {
     removeFinishedLocalBuilds();
@@ -1838,6 +1855,12 @@ static bool progressListContextMenuEvent(const ItemViewEvent &ev)
 {
     QTC_ASSERT(axivionPerspective(), return false);
     return axivionPerspective()->handleProgressContextMenu(ev);
+}
+
+static void resetFocusToIssuesTable()
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->requestFocusForIssuesTable();
 }
 
 void showFilterException(const QString &errorMessage)
