@@ -1199,7 +1199,6 @@ class SelectorTree : public TreeView
 public:
     SelectorTree()
     {
-        setWindowTitle("Project Kit Selector");
         setSizeAdjustPolicy(QAbstractItemView::SizeAdjustPolicy::AdjustToContents);
         setFrameStyle(QFrame::NoFrame);
         setItemDelegate(&m_selectorDelegate);
@@ -1209,7 +1208,6 @@ public:
         setHeaderHidden(true);
         setItemsExpandable(false); // No user interaction.
         setRootIsDecorated(false);
-        setUniformRowHeights(false); // sic!
         setSelectionMode(QAbstractItemView::SingleSelection);
         setSelectionBehavior(QAbstractItemView::SelectRows);
         setEditTriggers(QAbstractItemView::NoEditTriggers);
