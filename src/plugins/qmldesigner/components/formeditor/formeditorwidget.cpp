@@ -236,6 +236,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
                 if (FormEditorItem *item = m_formEditorView->scene()->itemForQmlItemNode(node))
                     boundingRect |= item->sceneBoundingRect();
             }
+            boundingRect |= m_formEditorView->scene()->manipulatorLayerItem()->boundingRect();
             m_graphicsView->frame(boundingRect);
             zoomOut();
         }
