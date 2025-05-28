@@ -243,6 +243,7 @@ private:
     void onLocalBuildTriggered();
     void hideOverlays();
     void openFilterHelp();
+    void checkForLocalBuildAndUpdate();
 
     QString m_currentPrefix;
     QString m_currentProject;
@@ -356,7 +357,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         const bool enable = info && !info->versionNumber.isEmpty()
                 && !hasRunningLocalBuild(m_currentProject);
         m_localBuild->setEnabled(enable);
-        checkForLocalBuildResults(m_currentProject, [this] { m_localDashBoard->setEnabled(true); });
+        checkForLocalBuildAndUpdate();
     });
     connect(m_localDashBoard, &QToolButton::clicked, this, &IssuesWidget::switchDashboard);
     m_typesButtonGroup = new QButtonGroup(this);
@@ -619,7 +620,7 @@ void IssuesWidget::updateLocalBuildState(const QString &projectName, int percent
     if (percent != 100 || projectName != m_currentProject)
         return;
     m_localBuild->setEnabled(true);
-    checkForLocalBuildResults(m_currentProject, [this] { m_localDashBoard->setEnabled(true); });
+    checkForLocalBuildAndUpdate();
 }
 
 void IssuesWidget::initDashboardList(const QString &preferredProject)
@@ -959,7 +960,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     std::optional<AxivionVersionInfo> suiteVersionInfo = settings().versionInfo();
     m_localBuild->setEnabled(!m_currentProject.isEmpty()
                              && suiteVersionInfo && !suiteVersionInfo->versionNumber.isEmpty());
-    checkForLocalBuildResults(m_currentProject, [this] { m_localDashBoard->setEnabled(true); });
+    checkForLocalBuildAndUpdate();
 }
 
 void IssuesWidget::updateVersionsFromProjectInfo(const std::optional<Dto::ProjectInfoDto> &info)
@@ -1234,6 +1235,14 @@ void IssuesWidget::openFilterHelp()
     const std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
     if (projInfo && projInfo->issueFilterHelp)
         QDesktopServices::openUrl(resolveDashboardInfoUrl(DashboardMode::Global, *projInfo->issueFilterHelp));
+}
+
+void IssuesWidget::checkForLocalBuildAndUpdate()
+{
+    checkForLocalBuildResults(m_currentProject, [this] {
+        m_localBuild->setEnabled(true);
+        m_localDashBoard->setEnabled(true);
+    });
 }
 
 static void loadImage(QPromise<QImage> &promise, const QByteArray &data)
