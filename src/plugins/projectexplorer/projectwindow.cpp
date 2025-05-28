@@ -55,12 +55,10 @@
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
-#include <QApplication>
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QDialogButtonBox>
 #include <QDockWidget>
-#include <QFileDialog>
 #include <QHeaderView>
 #include <QLabel>
 #include <QMenu>
@@ -70,20 +68,13 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QStyledItemDelegate>
-#include <QTimer>
 #include <QToolButton>
-#include <QToolTip>
-#include <QTreeView>
 #include <QVBoxLayout>
-
-#include <cmath>
 
 using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer::Internal {
-
-class MiscSettingsGroupItem;
 
 const char kBuildSystemOutputContext[] = "ProjectsMode.BuildSystemOutput";
 const char kRegExpActionId[] = "OutputFilter.RegularExpressions.BuildSystemOutput";
@@ -126,9 +117,9 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
     m_filterActionRegexp.setCheckable(true);
     m_filterActionRegexp.setText(Tr::tr("Use Regular Expressions"));
     connect(&m_filterActionRegexp, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
-    Core::ActionManager::registerAction(&m_filterActionRegexp,
-                                        kRegExpActionId,
-                                        Context(Constants::C_PROJECTEXPLORER));
+    ActionManager::registerAction(&m_filterActionRegexp,
+                                  kRegExpActionId,
+                                  Context(Constants::C_PROJECTEXPLORER));
 
     m_filterActionCaseSensitive.setCheckable(true);
     m_filterActionCaseSensitive.setText(Tr::tr("Case Sensitive"));
@@ -136,16 +127,16 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
             &QAction::toggled,
             this,
             &BuildSystemOutputWindow::updateFilter);
-    Core::ActionManager::registerAction(&m_filterActionCaseSensitive,
-                                        kCaseSensitiveActionId,
-                                        Context(Constants::C_PROJECTEXPLORER));
+    ActionManager::registerAction(&m_filterActionCaseSensitive,
+                                  kCaseSensitiveActionId,
+                                  Context(Constants::C_PROJECTEXPLORER));
 
     m_invertFilterAction.setCheckable(true);
     m_invertFilterAction.setText(Tr::tr("Show Non-matching Lines"));
     connect(&m_invertFilterAction, &QAction::toggled, this, &BuildSystemOutputWindow::updateFilter);
-    Core::ActionManager::registerAction(&m_invertFilterAction,
-                                        kInvertActionId,
-                                        Context(Constants::C_PROJECTEXPLORER));
+    ActionManager::registerAction(&m_invertFilterAction,
+                                  kInvertActionId,
+                                  Context(Constants::C_PROJECTEXPLORER));
 
     connect(TextEditor::TextEditorSettings::instance(),
             &TextEditor::TextEditorSettings::fontSettingsChanged,
@@ -190,10 +181,10 @@ QWidget *BuildSystemOutputWindow::toolBar()
                 this,
                 &BuildSystemOutputWindow::updateFilter);
         connect(m_filterOutputLineEdit, &FancyLineEdit::leftButtonClicked, this, [this] {
-            auto popup = new Core::OptionsPopup(m_filterOutputLineEdit,
-                                                {kRegExpActionId,
-                                                 kCaseSensitiveActionId,
-                                                 kInvertActionId});
+            auto popup = new OptionsPopup(m_filterOutputLineEdit,
+                                          {kRegExpActionId,
+                                           kCaseSensitiveActionId,
+                                           kInvertActionId});
             popup->show();
         });
 
@@ -750,7 +741,7 @@ private:
         m_targetSetupPage->setupProject(m_project);
         m_targetSetupPage->deleteLater();
         m_targetSetupPage = nullptr;
-        Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
+        ModeManager::activateMode(Core::Constants::MODE_EDIT);
     }
 
     void completeChanged()
@@ -1340,7 +1331,7 @@ public:
             return;
         const bool newShowAllKits = !projectExplorerSettings().showAllKits;
         mutableProjectExplorerSettings().showAllKits = newShowAllKits;
-        QtcSettings *settings = Core::ICore::settings();
+        QtcSettings *settings = ICore::settings();
         settings->setValue(ProjectExplorer::Constants::SHOW_ALL_KITS_SETTINGS_KEY, newShowAllKits);
         updateText();
         m_projectsModel->rootItem()->forFirstLevelChildren([](ProjectItem *item) {
@@ -1474,7 +1465,7 @@ public:
         innerLayout->setContentsMargins(PanelsWidget::PanelVMargin, innerLayout->spacing(),
                                         PanelsWidget::PanelVMargin, 0);
 #ifdef QT_NO_DEBUG
-        const QStringList list = Core::ICore::settings()->value("HideOptionCategories").toStringList();
+        const QStringList list = ICore::settings()->value("HideOptionCategories").toStringList();
 #else
         const QStringList list;
 #endif
