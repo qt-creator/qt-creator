@@ -515,7 +515,7 @@ ProjectPanels MiscSettingsPanelItem::panelWidgets() const
 {
     if (!m_widget) {
         ProjectSettingsWidget *inner = m_factory->createWidget(m_project);
-        m_widget = new PanelsWidget(m_factory->displayName(), inner);
+        m_widget = new PanelsWidget(inner);
         m_widget->setFocusProxy(inner);
     }
     ProjectPanel panel;
@@ -896,9 +896,9 @@ public:
     ProjectPanels panelWidgets() const final
     {
         if (!m_buildSettingsWidget)
-            m_buildSettingsWidget = new PanelsWidget(Tr::tr("Build Settings"), createBuildSettingsWidget(target()));
+            m_buildSettingsWidget = new PanelsWidget(createBuildSettingsWidget(target()));
         if (!m_runSettingsWidget)
-            m_runSettingsWidget = new PanelsWidget(Tr::tr("Run Settings"), createRunSettingsWidget(target()));
+            m_runSettingsWidget = new PanelsWidget(createRunSettingsWidget(target()));
 
         return {
             ProjectPanel(Tr::tr("Build Settings"), m_buildSettingsWidget),
@@ -1113,7 +1113,7 @@ ProjectPanels TargetGroupItem::panelWidgets() const
 
     if (!m_targetSetupPage) {
         auto inner = new TargetSetupPageWrapper(m_project);
-        m_targetSetupPage = new PanelsWidget(Tr::tr("Configure Project"), inner, false);
+        m_targetSetupPage = new PanelsWidget(inner, false);
         m_targetSetupPage->setFocusProxy(inner);
     }
 
@@ -1298,7 +1298,6 @@ public:
     {
         setTabBar(new QtcTabBar); // Must be the first called setter!
         setDocumentMode(true);
-        setTabBarAutoHide(true);
     }
 };
 

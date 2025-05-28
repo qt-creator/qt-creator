@@ -56,45 +56,20 @@ PanelsWidget::PanelsWidget(bool addStretch)
     //layout->addWidget(new FindToolBarPlaceHolder(this));
 }
 
-PanelsWidget::PanelsWidget(const QString &displayName, QWidget *widget, bool addStretch)
+PanelsWidget::PanelsWidget(QWidget *widget, bool addStretch)
     : PanelsWidget(addStretch)
 {
-    addPropertiesPanel(displayName);
     addWidget(widget);
 }
 
-PanelsWidget::PanelsWidget(const QString &displayName, ProjectSettingsWidget *widget)
+PanelsWidget::PanelsWidget(ProjectSettingsWidget *widget)
     : PanelsWidget(!widget->expanding())
 {
-    addPropertiesPanel(displayName);
     addGlobalSettingsProperties(widget);
     addWidget(widget);
 }
 
 PanelsWidget::~PanelsWidget() = default;
-
-/*
- * Add a widget with heading information into the layout of the PanelsWidget.
- *
- *     ...
- * +------------+ ABOVE_HEADING_MARGIN
- * | name       |
- * +------------+
- * | line       |
- * +------------+ ABOVE_CONTENTS_MARGIN
- * | widget     |
- * +------------+ BELOW_CONTENTS_MARGIN
- */
-void PanelsWidget::addPropertiesPanel(const QString &displayName)
-{
-    // name:
-    auto nameLabel = new QLabel(m_root);
-    nameLabel->setText(displayName);
-    nameLabel->setContentsMargins(0, ABOVE_HEADING_MARGIN, 0, 0);
-    nameLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
-    m_layout->addWidget(nameLabel);
-    m_layout->addWidget(Layouting::createHr());
-}
 
 void PanelsWidget::addWidget(QWidget *widget)
 {

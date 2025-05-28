@@ -13,17 +13,16 @@ namespace ProjectExplorer::Internal {
 
 class PanelsWidget final : public QWidget
 {
-    explicit PanelsWidget(bool addStretch);
-
 public:
-    PanelsWidget(const QString &displayName, QWidget *widget, bool addStretch = true);
-    PanelsWidget(const QString &displayName, ProjectSettingsWidget *widget);
+    PanelsWidget(QWidget *widget, bool addStretch = true);
+    PanelsWidget(ProjectSettingsWidget *widget);
     ~PanelsWidget() final;
 
     static int constexpr PanelVMargin = 14;
 
 private:
-    void addPropertiesPanel(const QString &displayName);
+    explicit PanelsWidget(bool addStretch);
+
     void addGlobalSettingsProperties(ProjectSettingsWidget *widget);
     void addWidget(QWidget *widget);
 
