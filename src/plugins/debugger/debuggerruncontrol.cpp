@@ -297,13 +297,9 @@ ExecutableItem fixupParamsRecipe(const Storage<DebuggerData> &storage)
     });
 }
 
-ExecutableItem debugServerRecipe(const Storage<DebuggerData> &storage, const SingleBarrier &barrier)
+ProcessTask debugServerTask(const Storage<DebuggerData> &storage)
 {
-    const auto useDebugServer = [storage] {
-        return storage->runControl->usesDebugChannel() && !storage->runParameters.skipDebugServer();
-    };
-
-    const auto onSetup = [storage, barrier](Process &process) {
+    const auto onSetup = [storage](Process &process) {
         process.setUtf8Codec();
         DebuggerRunParameters &runParameters = storage->runParameters;
         RunControl *runControl = storage->runControl;
@@ -411,8 +407,6 @@ ExecutableItem debugServerRecipe(const Storage<DebuggerData> &storage, const Sin
             runControl->postMessage(process->readAllStandardError(), StdErrFormat, false);
         });
 
-        QObject::connect(&process, &Process::started, barrier->barrier(), &Barrier::advance);
-
         return SetupResult::Continue;
     };
 
@@ -420,13 +414,7 @@ ExecutableItem debugServerRecipe(const Storage<DebuggerData> &storage, const Sin
         storage->runControl->postMessage(process.errorString(), ErrorMessageFormat);
     };
 
-    return Group {
-        If (useDebugServer) >> Then {
-            ProcessTask(onSetup, onDone, CallDoneIf::Error)
-        } >> Else {
-            Sync([barrier] { barrier->barrier()->advance(); })
-        }
-    };
+    return ProcessTask(onSetup, onDone, CallDoneIf::Error);
 }
 
 static ExecutableItem doneAwaiter(const Storage<DebuggerData> &storage)
@@ -720,16 +708,18 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
         return terminalRecipe(storage, barrier);
     };
 
-    const auto debugServerKicker = [storage](const SingleBarrier &barrier) {
-        return debugServerRecipe(storage, barrier);
-    };
-
     const auto onDone = [storage] {
         if (storage->tempCoreFile.exists())
             storage->tempCoreFile.removeFile();
         if (storage->runParameters.isSnapshot() && !storage->runParameters.coreFile().isEmpty())
             storage->runParameters.coreFile().removeFile();
     };
+
+    const auto useDebugServer = [storage] {
+        return storage->runControl->usesDebugChannel() && !storage->runParameters.skipDebugServer();
+    };
+
+    const ExecutableItem enginesRecipe = startEnginesRecipe(storage);
 
     return {
         storage,
@@ -739,8 +729,12 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
             fixupParamsRecipe(storage),
             coreFileRecipe(storage),
             When (terminalKicker) >> Do {
-                When (debugServerKicker) >> Do {
-                    startEnginesRecipe(storage)
+                If (useDebugServer) >> Then {
+                    When (debugServerTask(storage), &Process::started) >> Do {
+                        enginesRecipe
+                    }
+                } >> Else {
+                    enginesRecipe
                 }
             }
         }.withCancel(canceler()),
