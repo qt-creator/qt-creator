@@ -16155,7 +16155,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Unarchiving error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entpacken: %1</translation>
     </message>
     <message>
         <source>Automatically download Android SDK Tools to selected location.
@@ -18912,11 +18912,11 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Qt Test Data Tags</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Test Data Tags</translation>
     </message>
     <message>
         <source>Locates Qt Test data tags inside the active project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet Qt Test Data Tags im aktiven Projekt.</translation>
     </message>
 </context>
 <context>
@@ -21563,7 +21563,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Anwenden</translation>
+        <translation>Anwenden</translation>
     </message>
     <message>
         <source>Run CMake with configuration changes?</source>
@@ -21803,11 +21803,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Qt Creator installation is missing the package-manager directory. It was expected here: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis package-manager fehlt in der Qt Creator-Installation. Es wurde hier erwartet: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Failed to copy package-manager folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>Das package-manager Verzeichnis konnte nicht kopiert werden:</translation>
     </message>
     <message>
         <source>Running %1 in %2.</source>
@@ -23810,7 +23810,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Coco</source>
-        <translation type="unfinished"></translation>
+        <translation>Coco</translation>
     </message>
     <message>
         <source>Coco Code Coverage: Reconfiguring...</source>
@@ -41808,11 +41808,11 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Failed to get a local debugger port for QML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte kein lokaler Debugger-Port für QML erhalten werden.</translation>
     </message>
     <message>
         <source>Could not get necessary ports for the QML debugger connection.</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf die für die QML-Debugger-Verbindung notwendigen Ports konnte nicht zugegriffen werden.</translation>
     </message>
     <message>
         <source>Run ended.</source>
@@ -42021,7 +42021,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Failed to parse the inferior PID from simctl output (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung der PID des zu debuggenden Prozesses aus der Ausgabe von simctl ist fehlgeschlagen (%1).</translation>
     </message>
 </context>
 <context>
@@ -42531,20 +42531,20 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     <message>
         <source>h</source>
         <comment>hours</comment>
-        <translation type="unfinished"></translation>
+        <translation>h</translation>
     </message>
     <message>
         <source>min</source>
         <comment>minutes</comment>
-        <translation type="unfinished">min</translation>
+        <translation>min</translation>
     </message>
     <message>
         <source>Search for Qt Academy courses...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche nach Qt Academy-Kursen...</translation>
     </message>
     <message>
         <source>Courses</source>
-        <translation type="unfinished"></translation>
+        <translation>Kurse</translation>
     </message>
 </context>
 <context>
@@ -43228,7 +43228,7 @@ sind ungültige Pfade vorhanden.</translation>
     </message>
     <message>
         <source>Optional</source>
-        <translation type="unfinished"></translation>
+        <translation>Optional</translation>
     </message>
     <message>
         <source>Automatically create kits for all available targets on start</source>
@@ -43303,7 +43303,7 @@ sind ungültige Pfade vorhanden.</translation>
     </message>
     <message>
         <source>Read about using Qt Design Studio for Qt for MCUs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Über die Verwendung von Qt für MCUs in Qt Design Studio informieren.</translation>
     </message>
     <message>
         <source>Go to the Documentation</source>
@@ -52500,7 +52500,7 @@ Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>Failed to update files in Qbs project: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Aktualisieren der Dateien im Qbs-Projekt: %1.</translation>
     </message>
     <message>
         <source>The qbs session is not in a valid state.</source>
@@ -53309,11 +53309,11 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Xcode Project (via qmake)</source>
-        <translation type="unfinished"></translation>
+        <translation>Xcode-Projekt (mittels qmake)</translation>
     </message>
     <message>
         <source>Visual Studio Project (via qmake)</source>
-        <translation type="unfinished"></translation>
+        <translation>Visual Studio-Projekt (mittels qmake)</translation>
     </message>
     <message>
         <source>qmake generator failed: %1.</source>
@@ -53479,7 +53479,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>qmake not found for Qt version.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für die Qt-Version wurde kein qmake gefunden.</translation>
     </message>
     <message>
         <source>mkspec</source>
@@ -60064,11 +60064,11 @@ Zeile: %4, Spalte: %5
     </message>
     <message>
         <source>Failed to write &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Object name does not start with colon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Objektname startet nicht mit einem Doppelpunkt.</translation>
     </message>
     <message>
         <source>Incomplete Squish settings. Missing Squish installation path.</source>
@@ -61143,15 +61143,15 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Close Tab</source>
-        <translation type="unfinished">Reiter schließen</translation>
+        <translation>Reiter schließen</translation>
     </message>
     <message>
         <source>Close All Tabs</source>
-        <translation type="unfinished">Alle schließen</translation>
+        <translation>Alle schließen</translation>
     </message>
     <message>
         <source>Close Other Tabs</source>
-        <translation type="unfinished">Andere Reiter schließen</translation>
+        <translation>Andere Reiter schließen</translation>
     </message>
     <message>
         <source>Devices</source>
@@ -61263,11 +61263,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Enable live reflow (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Live Reflow aktivieren (experimentell)</translation>
     </message>
     <message>
         <source>Wraps and reflows text when resizing the terminal. Note that this does not work properly with all shells and prompts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bricht Text um und passt den Textfluss an, wenn die Größe des Terminals verändert wird. Beachten Sie, dass dies nicht mit allen Shell-Anwendungen und Prompts korrekt funktioniert.</translation>
     </message>
     <message>
         <source>Load Theme...</source>
@@ -66292,7 +66292,7 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
     </message>
     <message>
         <source>Valgrind Suppression File (*.supp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Valgrind-Ausschlussdatei (*.supp)</translation>
     </message>
     <message>
         <source>Valgrind arguments:</source>
@@ -66433,7 +66433,7 @@ Mit Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
     <message>
         <source>Callgrind dumped profiling info.</source>
-        <translation type="unfinished"></translation>
+        <translation>Callgrind hat die Profiling-Information ausgeschrieben.</translation>
     </message>
     <message>
         <source>Failed opening temp file...</source>
@@ -66853,11 +66853,11 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Callgrind paused.</source>
-        <translation type="unfinished"></translation>
+        <translation>Callgrind pausiert.</translation>
     </message>
     <message>
         <source>Callgrind Output (callgrind.out*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Callgrind-Ausgabe (callgrind.out*)</translation>
     </message>
     <message>
         <source>Remove template parameter lists when displaying function names.</source>
@@ -66981,7 +66981,7 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>XML Files (*.xml)</source>
-        <translation type="unfinished"></translation>
+        <translation>XML-Dateien (*.xml)</translation>
     </message>
     <message>
         <source>New</source>
@@ -67186,23 +67186,23 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Start Remote Analysis</source>
-        <translation type="unfinished">Entfernte Analyse starten</translation>
+        <translation>Entfernte Analyse starten</translation>
     </message>
     <message>
         <source>Kit:</source>
-        <translation type="unfinished">Kit:</translation>
+        <translation>Kit:</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Working directory:</source>
-        <translation type="unfinished">Arbeitsverzeichnis:</translation>
+        <translation>Arbeitsverzeichnis:</translation>
     </message>
 </context>
 <context>
