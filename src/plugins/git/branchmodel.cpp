@@ -1181,8 +1181,10 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
             node->setUpstreamStatus(UpstreamStatus(split.at(0).toInt(), split.at(1).toInt()));
         }
         const QModelIndex idx = nodeToIndex(node, ColumnBranch);
-        emit dataChanged(idx, idx);
-        qCDebug(modelLog) << "updateUpstreamStatus: dataChanged emitted for node" << node->name;
+        if (idx.isValid()) {
+            emit dataChanged(idx, idx, {Qt::DisplayRole});
+            qCDebug(modelLog) << "updateUpstreamStatus: dataChanged emitted for node" << node->name;
+        }
     });
     process->start();
     qCDebug(modelLog) << "updateUpstreamStatus: process started";
