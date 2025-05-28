@@ -176,6 +176,7 @@ int activeArgumenForPrefix(const QString &prefix)
 {
     int argnr = 0;
     int parcount = 0;
+    int braceCount = 0;
     SimpleLexer tokenize;
     Tokens tokens = tokenize(prefix);
     for (int i = 0; i < tokens.count(); ++i) {
@@ -184,11 +185,15 @@ int activeArgumenForPrefix(const QString &prefix)
             ++parcount;
         else if (tk.is(T_RPAREN))
             --parcount;
-        else if (!parcount && tk.is(T_COMMA))
+        else if (tk.is(T_LBRACE))
+            ++braceCount;
+        else if (tk.is(T_RBRACE))
+            --braceCount;
+        else if (!parcount && !braceCount && tk.is(T_COMMA))
             ++argnr;
     }
 
-    if (parcount < 0)
+    if (parcount < 0 || braceCount < 0)
         return -1;
 
     return argnr;
