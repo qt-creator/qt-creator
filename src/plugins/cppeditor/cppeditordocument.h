@@ -67,9 +67,6 @@ signals:
                              const QList<QTextEdit::ExtraSelection> selections,
                              const QList<TextEditor::RefactorMarker> &refactorMarkers);
 
-    void ifdefedOutBlocksUpdated(unsigned contentsRevision,
-                                 const QList<TextEditor::BlockRange> ifdefedOutBlocks);
-
     void cppDocumentUpdated(const CPlusPlus::Document::Ptr document);    // TODO: Remove me
     void semanticInfoUpdated(const SemanticInfo semanticInfo); // TODO: Remove me
 

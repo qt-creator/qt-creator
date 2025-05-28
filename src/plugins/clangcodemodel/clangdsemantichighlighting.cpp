@@ -9,6 +9,7 @@
 #include "clangmodelmanagersupport.h"
 #include "tasktimers.h"
 
+#include <cppeditor/cppeditordocument.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/semantichighlighter.h>
 #include <languageclient/languageclientmanager.h>
@@ -252,12 +253,9 @@ void handleInactiveRegions(LanguageClient::Client *client, const JsonRpcMessage 
     const auto params = InactiveRegionsNotification(msg.toJsonObject()).params();
     if (!params)
         return;
-    TextDocument * const doc = client->documentForFilePath(
-        params->uri().toFilePath(client->hostPathMapper()));
+    auto *const doc = qobject_cast<CppEditor::CppEditorDocument *>(
+        client->documentForFilePath(params->uri().toFilePath(client->hostPathMapper())));
     if (!doc)
-        return;
-    const auto editorWidget = CppEditor::CppEditorWidget::editorWidgetsForDocument(doc).value(0);
-    if (!editorWidget)
         return;
 
     const QList<Range> inactiveRegions = params->inactiveRegions();
@@ -267,7 +265,7 @@ void handleInactiveRegions(LanguageClient::Client *client, const JsonRpcMessage 
         const int endPos = r.end().toPositionInDocument(doc->document()) + 1;
         ifdefedOutBlocks.emplaceBack(startPos, endPos);
     }
-    editorWidget->setIfdefedOutBlocks(ifdefedOutBlocks);
+    doc->setIfdefedOutBlocks(ifdefedOutBlocks);
 }
 
 QString inactiveRegionsMethodName()

@@ -12,6 +12,7 @@
 #include <cplusplus/FindUsages.h>
 
 #include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/cppeditordocument.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cpptoolstestcase.h>
@@ -114,7 +115,7 @@ protected:
 
     ClangdClient *client() const { return m_client; }
     Utils::FilePath filePath(const QString &fileName) const;
-    TextEditor::TextDocument *document(const QString &fileName) const {
+    CppEditor::CppEditorDocument *document(const QString &fileName) const {
         return m_sourceDocuments.value(fileName);
     }
     ProjectExplorer::Project *project() const { return m_project; }
@@ -127,7 +128,7 @@ private:
     CppEditor::Tests::TemporaryCopiedDir *m_projectDir = nullptr;
     QString m_projectFileName;
     QStringList m_sourceFileNames;
-    QHash<QString, TextEditor::TextDocument *> m_sourceDocuments;
+    QHash<QString, CppEditor::CppEditorDocument *> m_sourceDocuments;
     ProjectExplorer::Kit *m_kit = nullptr;
     ProjectExplorer::Project *m_project = nullptr;
     ClangdClient *m_client = nullptr;
@@ -215,7 +216,7 @@ void ClangdTest::initTestCase()
         QVERIFY2(sourceFilePath.exists(), qPrintable(sourceFilePath.toUserOutput()));
         IEditor * const editor = EditorManager::openEditor(sourceFilePath);
         QVERIFY(editor);
-        const auto doc = qobject_cast<TextEditor::TextDocument *>(editor->document());
+        const auto doc = qobject_cast<CppEditor::CppEditorDocument *>(editor->document());
         QVERIFY(doc);
         QVERIFY2(m_client->documentForFilePath(sourceFilePath) == doc,
                  qPrintable(sourceFilePath.toUserOutput()));
@@ -867,31 +868,41 @@ private slots:
     void testIfdefedOutBlocks();
 
 private:
-    TextEditor::HighlightingResults m_results;
-    QList<TextEditor::BlockRange> m_ifdefedOutBlocks;
+    std::optional<TextEditor::HighlightingResults> m_results;
+    std::optional<QList<TextEditor::BlockRange>> m_ifdefedOutBlocks;
 };
 
 void ClangdTestHighlighting::initTestCase()
 {
     ClangdTest::initTestCase();
 
-    using CppEditor::CppEditorWidget;
-    connect(CppEditorWidget::editorWidgetsForDocument(document("highlighting.cpp")).value(0),
-            &CppEditorWidget::ifdefedOutBlocksChanged, this,
-            [this](const QList<BlockRange> &ranges) { m_ifdefedOutBlocks = ranges; });
     QTimer timer;
     timer.setSingleShot(true);
     QEventLoop loop;
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-    const auto handler = [this, &loop](const TextEditor::HighlightingResults &results) {
-        m_results = results;
-        loop.quit();
+
+    using CppEditor::CppEditorDocument;
+    CppEditorDocument *const doc = document("highlighting.cpp");
+    const auto handleIfdefedOutBlocks = [&] {
+        m_ifdefedOutBlocks = doc->ifdefedOutBlocks();
+        if (m_results.has_value())
+            loop.quit();
     };
-    connect(client(), &ClangdClient::highlightingResultsReady, &loop, handler);
+    connect(doc, &CppEditorDocument::ifdefedOutBlocksApplied, &loop, handleIfdefedOutBlocks);
+
+    const auto handleHighlighting = [&](const TextEditor::HighlightingResults &results) {
+        m_results = results;
+        if (m_ifdefedOutBlocks.has_value())
+            loop.quit();
+    };
+    connect(client(), &ClangdClient::highlightingResultsReady, &loop, handleHighlighting);
+
     timer.start(10000);
     loop.exec();
+
     QVERIFY(timer.isActive());
-    QVERIFY(!m_results.isEmpty());
+    QVERIFY(m_results && !m_results->isEmpty());
+    QVERIFY(m_ifdefedOutBlocks && !m_ifdefedOutBlocks->isEmpty());
 }
 
 void ClangdTestHighlighting::test_data()
@@ -1514,10 +1525,10 @@ void ClangdTestHighlighting::test()
     };
     const auto findResults = [this, endPos, lessThan, doc] {
         TextEditor::HighlightingResults results;
-        auto it = std::lower_bound(m_results.cbegin(), m_results.cend(), 0, lessThan);
-        if (it == m_results.cend())
+        auto it = std::lower_bound(m_results->cbegin(), m_results->cend(), 0, lessThan);
+        if (it == m_results->cend())
             return results;
-        while (it != m_results.cend()) {
+        while (it != m_results->cend()) {
             const int resultEndPos = Text::positionInText(doc->document(), it->line,
                                                                  it->column) + it->length;
             if (resultEndPos > endPos)
@@ -1562,13 +1573,13 @@ void ClangdTestHighlighting::test()
 
 void ClangdTestHighlighting::testIfdefedOutBlocks()
 {
-    QCOMPARE(m_ifdefedOutBlocks.size(), 3);
-    QCOMPARE(m_ifdefedOutBlocks.at(0).first(), 12056);
-    QCOMPARE(m_ifdefedOutBlocks.at(0).last(), 12073);
-    QCOMPARE(m_ifdefedOutBlocks.at(1).first(), 13374);
-    QCOMPARE(m_ifdefedOutBlocks.at(1).last(), 13387);
-    QCOMPARE(m_ifdefedOutBlocks.at(2).first(), 13413);
-    QCOMPARE(m_ifdefedOutBlocks.at(2).last(), 13425);
+    QCOMPARE(m_ifdefedOutBlocks->size(), 3);
+    QCOMPARE(m_ifdefedOutBlocks->at(0).first(), 12056);
+    QCOMPARE(m_ifdefedOutBlocks->at(0).last(), 12073);
+    QCOMPARE(m_ifdefedOutBlocks->at(1).first(), 13374);
+    QCOMPARE(m_ifdefedOutBlocks->at(1).last(), 13387);
+    QCOMPARE(m_ifdefedOutBlocks->at(2).first(), 13413);
+    QCOMPARE(m_ifdefedOutBlocks->at(2).last(), 13425);
 }
 
 

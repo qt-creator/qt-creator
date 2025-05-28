@@ -445,8 +445,6 @@ void CppEditorWidget::finalizeInitialization()
 
     connect(d->m_cppEditorDocument, &CppEditorDocument::codeWarningsUpdated,
             this, &CppEditorWidget::onCodeWarningsUpdated);
-    connect(d->m_cppEditorDocument, &CppEditorDocument::ifdefedOutBlocksUpdated,
-            this, &CppEditorWidget::onIfdefedOutBlocksUpdated);
     connect(d->m_cppEditorDocument, &CppEditorDocument::semanticInfoUpdated,
             this, [this](const SemanticInfo &info) { updateSemanticInfo(info); });
 
@@ -601,14 +599,6 @@ void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,
     setExtraSelections(TextEditorWidget::CodeWarningsSelection,
                        unselectLeadingWhitespace(selections));
     setRefactorMarkers(refactorMarkers, Constants::CPP_CLANG_FIXIT_AVAILABLE_MARKER_ID);
-}
-
-void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
-                                                const QList<BlockRange> ifdefedOutBlocks)
-{
-    if (revision != documentRevision())
-        return;
-    setIfdefedOutBlocks(ifdefedOutBlocks);
 }
 
 void CppEditorWidget::findUsages()
@@ -1490,14 +1480,6 @@ const QList<QTextEdit::ExtraSelection> CppEditorWidget::unselectLeadingWhitespac
         filtered << splitSelections;
     }
     return filtered;
-}
-
-void CppEditorWidget::setIfdefedOutBlocks(const QList<TextEditor::BlockRange> &blocks)
-{
-    cppEditorDocument()->setIfdefedOutBlocks(blocks);
-#ifdef WITH_TESTS
-    emit ifdefedOutBlocksChanged(blocks);
-#endif
 }
 
 bool CppEditorWidget::isInTestMode() const { return d->inTestMode; }

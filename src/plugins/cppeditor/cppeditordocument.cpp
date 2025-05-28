@@ -639,8 +639,14 @@ BaseEditorDocumentProcessor *CppEditorDocument::Private::processor()
                        const TextEditor::RefactorMarkers &refactorMarkers) {
             emit q->codeWarningsUpdated(revision, selections, refactorMarkers);
         });
-        connect(m_processor.data(), &BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
-                q, &CppEditorDocument::ifdefedOutBlocksUpdated);
+        connect(
+            m_processor.data(),
+            &BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
+            q,
+            [this](unsigned revision, const QList<TextEditor::BlockRange> &ifdefedOutBlocks) {
+                if (int(revision) == document()->revision())
+                    q->setIfdefedOutBlocks(ifdefedOutBlocks);
+            });
         connect(m_processor.data(), &BaseEditorDocumentProcessor::cppDocumentUpdated, q,
                 [this](const CPlusPlus::Document::Ptr document) {
                     // Update syntax highlighter

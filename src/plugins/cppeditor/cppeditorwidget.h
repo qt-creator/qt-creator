@@ -86,8 +86,6 @@ public:
     static const QList<QTextEdit::ExtraSelection>
     unselectLeadingWhitespace(const QList<QTextEdit::ExtraSelection> &selections);
 
-    void setIfdefedOutBlocks(const QList<TextEditor::BlockRange> &blocks);
-
     bool isInTestMode() const;
     void setProposals(const TextEditor::IAssistProposal *immediateProposal,
                       const TextEditor::IAssistProposal *finalProposal);
@@ -96,7 +94,6 @@ public:
 signals:
     void proposalsReady(const TextEditor::IAssistProposal *immediateProposal,
                         const TextEditor::IAssistProposal *finalProposal);
-    void ifdefedOutBlocksChanged(const QList<TextEditor::BlockRange> &blocks);
 #endif
 
 protected:
@@ -124,8 +121,6 @@ private:
     void onCodeWarningsUpdated(unsigned revision,
                                const QList<QTextEdit::ExtraSelection> selections,
                                const TextEditor::RefactorMarkers &refactorMarkers);
-    void onIfdefedOutBlocksUpdated(unsigned revision,
-                                   const QList<TextEditor::BlockRange> ifdefedOutBlocks);
 
     void updateSemanticInfo(const SemanticInfo &semanticInfo,
                             bool updateUseSelectionSynchronously = false);
