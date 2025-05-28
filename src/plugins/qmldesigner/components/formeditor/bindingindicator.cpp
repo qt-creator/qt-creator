@@ -142,7 +142,7 @@ void BindingIndicator::updateItems(const QList<FormEditorItem *> &itemList)
         if (formEditorItem == m_formEditorItem) {
             const QmlItemNode qmlItemNode = m_formEditorItem->qmlItemNode();
 
-            if (!qmlItemNode.isValid())
+            if (!qmlItemNode.modelNode().isValid())
                 continue;
 
             if (qmlItemNode.hasBindingProperty("x")) {
