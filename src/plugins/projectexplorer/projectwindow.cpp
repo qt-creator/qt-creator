@@ -550,9 +550,8 @@ class MiscSettingsGroupItem : public ProjectItemBase
 {
 public:
     explicit MiscSettingsGroupItem(Project *project)
-        : m_project(project)
     {
-        QTC_ASSERT(m_project, return);
+        QTC_ASSERT(project, return);
         const QList<ProjectPanelFactory *> factories = ProjectPanelFactory::factories();
         for (ProjectPanelFactory *factory : factories)
             appendChild(new MiscSettingsPanelItem(factory, project));
@@ -577,12 +576,8 @@ public:
         parent()->itemActivatedFromBelow(this);
     }
 
-    Project *project() const { return m_project; }
-
 private:
     int m_currentPanelIndex = -1;
-
-    const QPointer<Project> m_project;
 };
 
 // The first tree level, i.e. projects.
