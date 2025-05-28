@@ -75,8 +75,6 @@ Column {
             }
         }
     }
-<<<<<<< HEAD   (08c2c6 QmlDesigner: Fix shape rendering in 2D view)
-=======
 
     CornerRadiusSection {
         id: cornerRadiusSection
@@ -87,5 +85,4 @@ Column {
 
         visible: majorQtQuickVersion >= 6 && minorQtQuickVersion >= 7 && cornerRadiusSection.radiiAvailable
     }
->>>>>>> CHANGE (80dbdf QmlDesigner: Fix corner radii for older QtQick)
 }

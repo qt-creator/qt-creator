@@ -68,3 +68,4 @@ TextInputSection 2.0 TextInputSection.qml
 ToolTipArea 2.0 ToolTipArea.qml
 UrlChooser 2.0 UrlChooser.qml
 VerticalScrollBar 2.0 VerticalScrollBar.qml
+CornerRadiusSection 2.0 CornerRadiusSection.qml
