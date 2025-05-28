@@ -25020,7 +25020,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     <message>
         <source>Built on %1 %2 based on Qt %3 (%4, %5)</source>
         <extracomment>Built on &lt;date&gt; &lt;time&gt; based on Qt &lt;version&gt; (&lt;compiler&gt;, &lt;arch&gt;)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt am %1 um %2, basierend auf Qt %3 (%4, %5)</translation>
     </message>
     <message>
         <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, axivion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
@@ -26254,7 +26254,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Show Details...</source>
-        <translation type="unfinished"></translation>
+        <translation>Details anzeigen...</translation>
     </message>
     <message>
         <source>Toggle Progress Details</source>
@@ -26904,11 +26904,11 @@ Möchten Sie es beenden?</translation>
     <message>
         <source>%1 uses %2 for collecting crashes and sending them to Sentry for processing. %2 may capture arbitrary contents from crashed process’ memory, including user sensitive information, URLs, and whatever other content users have trusted %1 with. The collected crash reports are however only used for the sole purpose of fixing bugs.</source>
         <extracomment>%1 = application name, %2 crash backend name (Google Crashpad or Google Breakpad)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 verwendet %2, um Absturzberichte zu sammeln und diese zur Verarbeitung an Sentry zu senden. %2 kann beliebige Inhalte des Speichers des abgestürzten Prozesses erfassen. Dies kann persönliche Daten, URLs und andere Inhalte, die der Benutzer %1 anvertraut hat, beinhalten. Die gesammelten Absturzberichte werden allerdings nur zum Zweck der Fehlerbehebung verwendet.</translation>
     </message>
     <message>
         <source>%1 Overview</source>
-        <translation type="unfinished"></translation>
+        <translation>Übersicht über %1</translation>
     </message>
     <message>
         <source>Create Folder</source>
@@ -27356,11 +27356,11 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Go to Crash Reports</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Absturzberichten gehen</translation>
     </message>
     <message>
         <source>Clear Crash Reports</source>
-        <translation type="unfinished"></translation>
+        <translation>Absturzberichte löschen</translation>
     </message>
     <message>
         <source>Ask for confirmation before exiting</source>
@@ -27425,7 +27425,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Manage</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwalten</translation>
     </message>
     <message>
         <source>Command line arguments used for &quot;Run in terminal&quot;.</source>
@@ -27606,7 +27606,7 @@ provided they were unmodified before the refactoring.</source>
     <message>
         <source>Based on Qt %1 (%2, %3)</source>
         <extracomment>Based on Qt &lt;version&gt; (&lt;compiler&gt;, &lt;arch&gt;)</extracomment>
-        <translation>Auf Qt %1 (%2, %3) beruhend</translation>
+        <translation>Auf Qt %1 (%2, %3) basierend</translation>
     </message>
     <message>
         <source>Empty search term.</source>
@@ -27831,11 +27831,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Archive extracted successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Archiv wurde erfolgreich ausgepackt.</translation>
     </message>
     <message>
         <source>There was an error while unarchiving: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Entpacken ist ein Fehler aufgetreten: %1</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -28030,7 +28030,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>%1 Log Directory</source>
         <extracomment>%1 = version control name</extracomment>
-        <translation type="unfinished">%1 Log des Verzeichnisses</translation>
+        <translation>%1 Log des Verzeichnisses</translation>
     </message>
     <message>
         <source>Remove Folder</source>
@@ -36320,7 +36320,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Restart Required</source>
-        <translation type="unfinished">Neustart erforderlich</translation>
+        <translation>Neustart erforderlich</translation>
     </message>
     <message>
         <source>Restart Now</source>
@@ -36328,7 +36328,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>(Incompatible)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Inkompatibel)</translation>
     </message>
     <message>
         <source>Remove...</source>
@@ -36340,7 +36340,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Cannot install extension: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterung kann nicht installiert werden: %1</translation>
     </message>
     <message>
         <source>Error</source>
@@ -36388,11 +36388,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Code: %1 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Code: %1 (%2).</translation>
     </message>
     <message>
         <source>Downloaded extension has an invalid hash.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die heruntergeladene Erweiterung hat eine ungültige Prüfsumme.</translation>
     </message>
     <message>
         <source>Download Extension</source>
@@ -36465,15 +36465,15 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>SSL support is not available.</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL-Unterstützung ist nicht verfügbar.</translation>
     </message>
     <message>
         <source>Repository URLs:</source>
-        <translation type="unfinished"></translation>
+        <translation>Repository-URLs:</translation>
     </message>
     <message>
         <source>Repositories to query for extensions. You can specify local paths or HTTP(S) URLs that should be merged with the main repository.</source>
-        <translation type="unfinished"></translation>
+        <translation>Repositories von denen Erweiterungen abgefragt werden. Sie können lokale Pfade oder HTTP(S)-URLs angeben, die mit dem Haupt-Repository zusammengeführt werden sollen.</translation>
     </message>
     <message>
         <source>Use External Repository</source>
@@ -36493,7 +36493,9 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>If you choose to link or connect an external repository, you are acting at your own discretion and risk. The Qt Company does not control, endorse, or maintain any external repositories that you connect. Any changes, unavailability or security issues in external repositories are beyond The Qt Company&apos;s control and responsibility. By linking or connecting external repositories, you acknowledge these conditions and accept responsibility for managing associated risks appropriately.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie sich entscheiden, externe Repositories zu verknüpfen oder zuzugreifen, handeln Sie nach eigenem Ermessen und auf eigene Verantwortung. The Qt Company kontrolliert, unterstützt oder wartet von Ihnen zugegriffene externe Repositories in keiner Weise. Jegliche Veränderungen, Verfügbarkeit oder Sicherheitsprobleme von externen Repositories sind außerhalb der Kontrolle und Verantwortung der The Qt Company. Indem Sie externe Repositories verknüpfen oder zugreifen, erkennen Sie diese Bedingungen an und akzeptieren die Verantwortung dafür, die damit verbundenen Risiken angemessen zu verwalten.
+
+If you choose to link or connect an external repository, you are acting at your own discretion and risk. The Qt Company does not control, endorse, or maintain any external repositories that you connect. Any changes, unavailability or security issues in external repositories are beyond The Qt Company&apos;s control and responsibility. By linking or connecting external repositories, you acknowledge these conditions and accept responsibility for managing associated risks appropriately.</translation>
     </message>
     <message>
         <source>Documentation</source>
@@ -36505,7 +36507,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Platform agnostic</source>
-        <translation type="unfinished"></translation>
+        <translation>Plattformunabhängig</translation>
     </message>
     <message>
         <source>New</source>
@@ -42617,20 +42619,20 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Installation was canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installation wurde abgebrochen.</translation>
     </message>
     <message numerus="yes">
         <source>Installing %n package(s)...</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Installiere ein Paket...</numerusform>
+            <numerusform>Installiere %n Pakete...</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>The extension &quot;%1&quot; wants to install the following %n package(s):</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Die Erweiterung &quot;%1&quot; möchte folgendes Paket installieren:</numerusform>
+            <numerusform>Die Erweiterung &quot;%1&quot; möchte folgende %n Pakete installieren:</numerusform>
         </translation>
     </message>
     <message>
@@ -64758,7 +64760,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Updates Available</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisierungen verfügbar</translation>
     </message>
     <message>
         <source>Start Update</source>
@@ -64788,7 +64790,7 @@ Die Trace-Daten sind verloren.</translation>
     <message>
         <source>Update Details</source>
         <extracomment>in the sense &quot;details of the update&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisierungsdetails</translation>
     </message>
     <message>
         <source>No updates found.</source>
