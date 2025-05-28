@@ -1401,6 +1401,7 @@ public:
         auto scrolledWidget = new QWidget;
         auto scrolledLayout = new QVBoxLayout(scrolledWidget);
         scrolledLayout->setSizeConstraint(QLayout::SetFixedSize);
+        scrolledLayout->setContentsMargins(0, 0, 0, 0);
         scrolledLayout->setSpacing(0);
         scrolledLayout->addWidget(targetsLabel);
         scrolledLayout->addSpacing(space);
