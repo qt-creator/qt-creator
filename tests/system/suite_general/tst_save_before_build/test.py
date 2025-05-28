@@ -29,7 +29,7 @@ def main():
     if not startedWithoutPluginError():
         return
     verifySaveBeforeBuildChecked(False)
-    projectName = "SampleApp-CMake"
+    projectName = "SampleApp_CMake"
     ensureSaveBeforeBuildChecked(False)
     # create qt quick application
     createNewQtQuickApplication(tempDir(), projectName)
