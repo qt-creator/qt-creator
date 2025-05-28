@@ -333,15 +333,10 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
     struct TransferStorage { QPointer<FileStreamWriter> writer; };
     Storage<TransferStorage> storage;
 
-    const auto barrierKicker = [storage, destination](const SingleBarrier &barrier) {
-        const auto onWriterSetup = [barrier, storage, destination](FileStreamWriter &writer) {
-            writer.setFilePath(destination);
-            QObject::connect(&writer, &FileStreamWriter::started,
-                             barrier->barrier(), &Barrier::advance);
-            QTC_CHECK(storage->writer == nullptr);
-            storage->writer = &writer;
-        };
-        return FileStreamWriterTask(onWriterSetup);
+    const auto onWriterSetup = [storage, destination](FileStreamWriter &writer) {
+        writer.setFilePath(destination);
+        QTC_CHECK(storage->writer == nullptr);
+        storage->writer = &writer;
     };
 
     const auto onReaderSetup = [storage, source](FileStreamReader &reader) {
@@ -357,7 +352,7 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
 
     return {
         storage,
-        When (barrierKicker) >> Do {
+        When (FileStreamWriterTask(onWriterSetup), &FileStreamWriter::started) >> Do {
             FileStreamReaderTask(onReaderSetup, onReaderDone)
         }
     };
