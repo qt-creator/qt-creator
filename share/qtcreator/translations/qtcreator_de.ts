@@ -19009,23 +19009,23 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Local Build...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokaler Build...</translation>
     </message>
     <message>
         <source>Local Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokales Dashboard</translation>
     </message>
     <message>
         <source>Reference version</source>
-        <translation type="unfinished"></translation>
+        <translation>Referenzversion</translation>
     </message>
     <message>
         <source>Locally changed issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokal geänderte Probleme</translation>
     </message>
     <message>
         <source>All local issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle lokalen Probleme</translation>
     </message>
     <message>
         <source>Show All</source>
@@ -19041,11 +19041,11 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Failed</source>
-        <translation type="unfinished">Fehlgeschlagen</translation>
+        <translation>Fehlgeschlagen</translation>
     </message>
     <message>
         <source>Local Build Progress</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokaler Build-Fortschritt</translation>
     </message>
     <message>
         <source>Show Issues in Editor</source>
@@ -19065,19 +19065,19 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Cancel Local Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalen Build abbrechen</translation>
     </message>
     <message>
         <source>See Axivion Log...</source>
-        <translation type="unfinished"></translation>
+        <translation>Axivion-Log ansehen...</translation>
     </message>
     <message>
         <source>See Build Log...</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Log ansehen...</translation>
     </message>
     <message>
         <source>Remove All Finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Beendeten entfernen</translation>
     </message>
     <message>
         <source>Show Issue Properties</source>
@@ -19141,7 +19141,7 @@ Benutzer: %2</translation>
     </message>
     <message>
         <source>Fetching local DashboardInfo error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Abrufen der lokalen DashboardInfo.</translation>
     </message>
     <message>
         <source>The activated link appears to be external.
@@ -19167,20 +19167,21 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Axivion Suite path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zur Axivion Suite:</translation>
     </message>
     <message>
         <source>Save all open files before starting an analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle geöffnete Dateien vor dem Start einer Analyse speichern</translation>
     </message>
     <message>
         <source>Path to python executable.
 Set it to overwrite global environment or if Axivion fails to find python in PATH.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zur ausführbaren Datei von python.
+Setzen Sie dies, um die globale Umgebung zu überschreiben oder wenn Axivion python nicht im PATH findet.</translation>
     </message>
     <message>
         <source>Set it to overwrite global environment or if Axivion fails to find java in PATH.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzen Sie dies, um die globale Umgebung zu überschreiben oder wenn Axivion java nicht im PATH findet.</translation>
     </message>
     <message>
         <source>Axivion: Deleting API token for %1 as respective dashboard server was removed.</source>
@@ -19224,19 +19225,19 @@ Set it to overwrite global environment or if Axivion fails to find python in PAT
     </message>
     <message>
         <source>Local Analyses</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokale Analysen</translation>
     </message>
     <message>
         <source>Version:</source>
-        <translation type="unfinished">Version:</translation>
+        <translation>Version:</translation>
     </message>
     <message>
         <source>Build date:</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Datum:</translation>
     </message>
     <message>
         <source>Contact support@axivion.com if you need assistance.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontaktieren Sie support@axivion.com, wenn Sie Hilfe benötigen.</translation>
     </message>
     <message>
         <source>Misc Options</source>
@@ -19344,76 +19345,77 @@ a entspricht Problemen, deren Wert den Buchstaben &apos;a&apos; enthält
     </message>
     <message>
         <source>Failed to start local dashboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokales Dashboard konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Build type:</source>
-        <translation type="unfinished">Build-Typ:</translation>
+        <translation>Build-Typ:</translation>
     </message>
     <message>
         <source>Clean Build: Set environment variable AXIVION_CLEAN_BUILD=1
 Incremental Build: Set environment variable AXIVION_INCREMENTAL_BUILD=1</source>
-        <translation type="unfinished"></translation>
+        <translation>Vor dem Build bereinigen: Setzt die Umgebungsvariable AXIVION_CLEAN_BUILD=1
+Inkrementeller Build: Setzt die Umgebungsvariable AXIVION_INCREMENTAL_BUILD=1</translation>
     </message>
     <message>
         <source>Clean Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Vor dem Build bereinigen</translation>
     </message>
     <message>
         <source>Incremental Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Inkrementeller Build</translation>
     </message>
     <message>
         <source>Warning: Modifying source files during the local build may produce unexpected warnings, errors, or wrong results.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung: Das Verändern der Quelldateien während des lokalen Builds kann zu unerwarteten Warnungen, Fehlern oder falschen Ergebnissen führen.</translation>
     </message>
     <message>
         <source>Warning: If your build is not configured for local build, you may overwrite output files of your native compiler when starting a local build.</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung: Wenn Ihr Build nicht für lokale Builds konfiguriert ist, kann dies beim Start eines lokalen Builds zum Überschreiben der Ausgabedateien des nativen Compilers führen.</translation>
     </message>
     <message>
         <source>Start Local Build</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokalen Build starten</translation>
     </message>
     <message>
         <source>Choose the same Axivion Suite version as your CI build uses or the results may differ.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie dieselbe Version der Axivion Suite, die Ihr CI-Build verwendet, da die Ergebnisse sonst unterschiedlich ausfallen können.</translation>
     </message>
     <message>
         <source>Axivion Suite installation directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Installationsverzeichnis der Axivion Suite:</translation>
     </message>
     <message>
         <source>Enter the command for building %1:</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie das Kommando für das Erstellen von %1 ein:</translation>
     </message>
     <message>
         <source>Local Build Command: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokales Build-Kommando: %1</translation>
     </message>
     <message>
         <source>Started</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestartet</translation>
     </message>
     <message>
         <source>Building</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle</translation>
     </message>
     <message>
         <source>Analyzing</source>
-        <translation type="unfinished">Analysiere</translation>
+        <translation>Analysiere</translation>
     </message>
     <message>
         <source>Updating Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisiere Dashboard</translation>
     </message>
     <message>
         <source>Finished</source>
-        <translation type="unfinished"></translation>
+        <translation>Beendet</translation>
     </message>
     <message>
         <source>Starting</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte</translation>
     </message>
 </context>
 <context>
