@@ -540,16 +540,6 @@ struct ProjectStorage::Statements
         "      WHERE extensionId IS NOT NULL) "
         "SELECT typeId FROM prototypes",
         database};
-    mutable Sqlite::ReadStatement<1, 1> selectPrototypeIdsStatement{
-        "WITH RECURSIVE "
-        "  prototypes(typeId) AS (  "
-        "      SELECT prototypeId FROM types WHERE typeId=?1 AND prototypeId IS NOT NULL "
-        "    UNION ALL "
-        "      SELECT prototypeId "
-        "      FROM types JOIN prototypes USING(typeId) "
-        "      WHERE prototypeId IS NOT NULL) "
-        "SELECT typeId FROM prototypes",
-        database};
     Sqlite::WriteStatement<3> updatePropertyDeclarationAliasIdAndTypeNameIdStatement{
         "UPDATE propertyDeclarations "
         "SET aliasPropertyDeclarationId=?2, "
@@ -886,17 +876,7 @@ struct ProjectStorage::Statements
         "SELECT p.value FROM json_each(?1) AS p", database};
     mutable Sqlite::ReadStatement<1, 1> selectTypeIdsByModuleIdStatement{
         "SELECT DISTINCT typeId FROM exportedTypeNames WHERE moduleId=?", database};
-    mutable Sqlite::ReadStatement<1, 1> selectLegitimateHeirTypeIdsStatement{
-        "WITH RECURSIVE "
-        "  typeSelection(typeId) AS ("
-        "      SELECT typeId FROM types WHERE prototypeId=?1"
-        "    UNION ALL "
-        "      SELECT t.typeId "
-        "      FROM types AS t JOIN typeSelection AS ts "
-        "      WHERE prototypeId=ts.typeId)"
-        "SELECT typeId FROM typeSelection",
-        database};
-    mutable Sqlite::ReadStatement<1, 1> selectAllHeirTypeIdsStatement{
+    mutable Sqlite::ReadStatement<1, 1> selectHeirTypeIdsStatement{
         "WITH RECURSIVE "
         "  typeSelection(typeId) AS ("
         "      SELECT typeId FROM types WHERE prototypeId=?1 OR extensionId=?1"
@@ -2017,7 +1997,8 @@ SmallTypeIds<16> ProjectStorage::prototypeIds(TypeId type) const
 {
     NanotraceHR::Tracer tracer{"get prototypes", projectStorageCategory(), keyValue("type id", type)};
 
-    auto prototypeIds = s->selectPrototypeIdsStatement.valuesWithTransaction<SmallTypeIds<16>>(type);
+    auto prototypeIds = s->selectPrototypeAndExtensionIdsStatement
+                            .valuesWithTransaction<SmallTypeIds<16>>(type);
 
     tracer.end(keyValue("type ids", prototypeIds));
 
@@ -2031,7 +2012,7 @@ SmallTypeIds<16> ProjectStorage::prototypeAndSelfIds(TypeId typeId) const
     SmallTypeIds<16> prototypeAndSelfIds;
     prototypeAndSelfIds.push_back(typeId);
 
-    s->selectPrototypeIdsStatement.readToWithTransaction(prototypeAndSelfIds, typeId);
+    s->selectPrototypeAndExtensionIdsStatement.readToWithTransaction(prototypeAndSelfIds, typeId);
 
     tracer.end(keyValue("type ids", prototypeAndSelfIds));
 
@@ -2042,8 +2023,7 @@ SmallTypeIds<64> ProjectStorage::heirIds(TypeId typeId) const
 {
     NanotraceHR::Tracer tracer{"get heirs", projectStorageCategory()};
 
-    auto heirIds = s->selectLegitimateHeirTypeIdsStatement.valuesWithTransaction<SmallTypeIds<64>>(
-        typeId);
+    auto heirIds = s->selectHeirTypeIdsStatement.valuesWithTransaction<SmallTypeIds<64>>(typeId);
 
     tracer.end(keyValue("type ids", heirIds));
 
@@ -3469,7 +3449,7 @@ QVarLengthArray<PropertyDeclarationId, 128> ProjectStorage::fetchPropertyDeclara
 
     s->selectLocalPropertyDeclarationIdsForTypeStatement.readTo(propertyDeclarationIds, baseTypeId);
 
-    auto range = s->selectPrototypeIdsStatement.range<TypeId>(baseTypeId);
+    auto range = s->selectPrototypeAndExtensionIdsStatement.range<TypeId>(baseTypeId);
 
     for (TypeId prototype : range) {
         s->selectLocalPropertyDeclarationIdsForTypeStatement.readTo(propertyDeclarationIds, prototype);
