@@ -54,31 +54,28 @@ ColorPaletteBackend::~ColorPaletteBackend()
 
 void ColorPaletteBackend::readPalettes()
 {
-    QHash<QString, Palette>::iterator i = m_data.begin();
-    while (i != m_data.end()) {
-        i.value().read();
-        ++i;
-    }
+    for (auto &palette : m_data)
+        palette.read();
 }
 
 void ColorPaletteBackend::writePalettes()
 {
-    QHash<QString, Palette>::iterator i = m_data.begin();
-    while (i != m_data.end()) {
-        i.value().write();
-        ++i;
-    }
+    for (auto &palette : m_data)
+        palette.write();
 }
 
-void ColorPaletteBackend::addColor(const QString &color, const QString &palette)
+void ColorPaletteBackend::addColor(const QString &color, const QString &paletteName)
 {
-    if (!m_data.contains(palette)) {
-        qWarning() << Q_FUNC_INFO << "Unknown palette: " << palette;
+    auto found = m_data.find(paletteName);
+    if (found == m_data.end()) {
+        qWarning() << Q_FUNC_INFO << "Unknown palette: " << paletteName;
         return;
     }
 
+    auto palette = *found;
+
     // If palette is currently active palette also add it to the local color list
-    if (palette == m_currentPalette) {
+    if (paletteName == m_currentPalette) {
         if (m_currentPaletteColors.size() + 1 > g_maxPaletteSize)
             m_currentPaletteColors.removeLast();
 
@@ -86,27 +83,30 @@ void ColorPaletteBackend::addColor(const QString &color, const QString &palette)
         emit currentPaletteColorsChanged();
     }
 
-    if (m_data[palette].m_colors.size() + 1 > g_maxPaletteSize)
-        m_data[palette].m_colors.removeLast();
+    if (palette.m_colors.size() + 1 > g_maxPaletteSize)
+        palette.m_colors.removeLast();
 
-    m_data[palette].m_colors.prepend(color);
-    m_data[palette].write();
+    palette.m_colors.prepend(color);
+    palette.write();
 }
 
-void ColorPaletteBackend::removeColor(int id, const QString &palette)
+void ColorPaletteBackend::removeColor(int id, const QString &paletteName)
 {
-    if (!m_data.contains(palette)) {
-        qWarning() << Q_FUNC_INFO << "Unknown palette: " << palette;
+    auto found = m_data.find(paletteName);
+
+    if (found == m_data.end()) {
+        qWarning() << Q_FUNC_INFO << "Unknown palette: " << paletteName;
         return;
     }
+    auto palette = *found;
 
-    if (id >= m_data[palette].m_colors.size()) {
-        qWarning() << Q_FUNC_INFO << "Id(" << id << ") is out of bounds for palette " << palette;
+    if (id >= palette.m_colors.size()) {
+        qWarning() << Q_FUNC_INFO << "Id(" << id << ") is out of bounds for palette " << paletteName;
         return;
     }
 
     // If palette is currently active palette also add it to the local color list
-    if (palette == m_currentPalette) {
+    if (paletteName == m_currentPalette) {
         m_currentPaletteColors.removeAt(id);
 
         // Fill up with empty strings
@@ -116,8 +116,8 @@ void ColorPaletteBackend::removeColor(int id, const QString &palette)
         emit currentPaletteColorsChanged();
     }
 
-    m_data[palette].m_colors.removeAt(id);
-    m_data[palette].write();
+    palette.m_colors.removeAt(id);
+    palette.write();
 }
 
 void ColorPaletteBackend::addRecentColor(const QString &item)
