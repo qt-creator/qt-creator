@@ -74,11 +74,11 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
     : AbstractView(externalDependencies)
     , m_imageCache(imageCache)
     , m_updateShortcut(nullptr)
+    , m_dynamicPropertiesModel(std::make_unique<DynamicPropertiesModel>(true, this))
     , m_stackedWidget(new PropertyEditorWidget())
     , m_qmlBackEndForCurrentType(nullptr)
     , m_propertyComponentGenerator{PropertyEditorQmlBackend::propertyEditorResourcesPath(), model()}
     , m_locked(false)
-    , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
@@ -313,7 +313,7 @@ void PropertyEditorView::refreshMetaInfos(const TypeIds &deletedTypeIds)
 
 DynamicPropertiesModel *PropertyEditorView::dynamicPropertiesModel() const
 {
-    return m_dynamicPropertiesModel;
+    return m_dynamicPropertiesModel.get();
 }
 
 void PropertyEditorView::setExpressionOnObjectNode(const QmlObjectNode &constObjectNode,

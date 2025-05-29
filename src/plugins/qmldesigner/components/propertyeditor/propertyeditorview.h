@@ -158,6 +158,7 @@ private: //variables
     AsynchronousImageCache &m_imageCache;
     ModelNode m_activeNode;
     QShortcut *m_updateShortcut;
+    std::unique_ptr<DynamicPropertiesModel> m_dynamicPropertiesModel;
     PropertyEditorWidget* m_stackedWidget;
     QString m_qmlDir;
     QHash<QString, PropertyEditorQmlBackend *> m_qmlBackendHash;
@@ -167,7 +168,6 @@ private: //variables
     bool m_locked;
     bool m_textureAboutToBeRemoved = false;
     bool m_isSelectionLocked = false;
-    DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 
     friend class PropertyEditorDynamicPropertiesProxyModel;
 };
