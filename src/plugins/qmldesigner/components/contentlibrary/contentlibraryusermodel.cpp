@@ -16,13 +16,17 @@
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 
+#include <QCheckBox>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QMessageBox>
 #include <QUrl>
 
 namespace QmlDesigner {
@@ -230,6 +234,26 @@ void ContentLibraryUserModel::removeTextures(const QStringList &fileNames, const
 
 void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex, bool refresh)
 {
+    bool askBeforeDelete = QmlDesignerPlugin::settings()
+                               .value(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE)
+                               .toBool();
+
+    if (askBeforeDelete) {
+        QMessageBox msgBox(QMessageBox::Question,
+                           tr("Confirm texture deletion"),
+                           tr("The selected texture might be in use. Delete anyway?"),
+                           QMessageBox::Yes | QMessageBox::No,
+                           m_widget);
+        QCheckBox *dontAskAgain = new QCheckBox(tr("Don't ask again"), &msgBox);
+        msgBox.setCheckBox(dontAskAgain);
+
+        if (msgBox.exec() == QMessageBox::No)
+            return;
+
+        if (dontAskAgain->isChecked())
+            QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE, false);
+    }
+
     // remove resources
     Utils::FilePath::fromString(tex->texturePath()).removeFile();
     Utils::FilePath::fromString(tex->iconPath()).removeFile();

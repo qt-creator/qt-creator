@@ -82,6 +82,7 @@ private:
     QRadioButton *m_useQsTranslateFunctionRadioButton;
     QCheckBox *m_designerAlwaysDesignModeCheckBox;
     QCheckBox *m_askBeforeDeletingAssetCheckBox;
+    QCheckBox *m_askBeforeDeletingContentLibFileCheckBox;
     QCheckBox *m_alwaysAutoFormatUICheckBox;
     QCheckBox *m_featureTimelineEditorCheckBox;
     QCheckBox *m_featureDockWidgetContentMinSize;
@@ -186,6 +187,8 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
         Tr::tr("Always open ui.qml files in Design mode"));
     m_askBeforeDeletingAssetCheckBox = new QCheckBox(
         Tr::tr("Ask for confirmation before deleting asset"));
+    m_askBeforeDeletingContentLibFileCheckBox = new QCheckBox(
+        Tr::tr("Ask for confirmation before deleting content library files"));
     m_alwaysAutoFormatUICheckBox = new QCheckBox(
         Tr::tr("Always auto-format ui.qml files in Design mode"));
     m_featureTimelineEditorCheckBox = new QCheckBox(Tr::tr("Enable Timeline editor"));
@@ -267,6 +270,8 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
                       m_alwaysAutoFormatUICheckBox,
                       br,
                       m_askBeforeDeletingAssetCheckBox,
+                      m_askBeforeDeletingContentLibFileCheckBox,
+                      br,
                       m_featureTimelineEditorCheckBox,
                       br,
                       m_featureDockWidgetContentMinSize}},
@@ -383,6 +388,8 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
                     m_designerAlwaysDesignModeCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET,
                     m_askBeforeDeletingAssetCheckBox->isChecked());
+    settings.insert(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE,
+                    m_askBeforeDeletingContentLibFileCheckBox->isChecked());
     settings.insert(DesignerSettingsKey::SMOOTH_RENDERING, m_smoothRendering->isChecked());
 
     settings.insert(DesignerSettingsKey::REFORMAT_UI_QML_FILES,
@@ -463,6 +470,8 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
 
     m_askBeforeDeletingAssetCheckBox->setChecked(
         settings.value(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool());
+    m_askBeforeDeletingContentLibFileCheckBox->setChecked(
+        settings.value(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE).toBool());
 
     const auto showDebugSettings = settings.value(DesignerSettingsKey::SHOW_DEBUG_SETTINGS).toBool()
                                    || Utils::qtcEnvironmentVariableIsSet(

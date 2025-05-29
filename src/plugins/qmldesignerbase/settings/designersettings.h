@@ -65,6 +65,7 @@ inline constexpr char COLOR_PALETTE_FAVORITE[] = "ColorPaletteFavorite";
 inline constexpr char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";
 inline constexpr char DISABLE_ITEM_LIBRARY_UPDATE_TIMER[] = "DisableItemLibraryUpdateTimer";
 inline constexpr char ASK_BEFORE_DELETING_ASSET[] = "AskBeforeDeletingAsset";
+inline constexpr char ASK_BEFORE_DELETING_CONTENTLIB_FILE[] = "AskBeforeDeletingContentLibFile";
 inline constexpr char SMOOTH_RENDERING[] = "SmoothRendering";
 inline constexpr char EDITOR_ZOOM_FACTOR[] = "EditorZoomFactor";
 inline constexpr char ACTIONS_MERGE_TEMPLATE_ENABLED[] = "ActionsMergeTemplateEnabled";
