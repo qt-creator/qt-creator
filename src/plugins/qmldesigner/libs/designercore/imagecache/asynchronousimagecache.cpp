@@ -21,7 +21,8 @@ namespace ImageCache {
 namespace {
 
 thread_local Category category_{"image cache",
-                                QmlDesigner::Tracing::eventQueueWithStringArguments(),
+                                Tracing::eventQueueWithStringArguments(),
+                                Tracing::eventQueueWithoutArguments(),
                                 category};
 } // namespace
 

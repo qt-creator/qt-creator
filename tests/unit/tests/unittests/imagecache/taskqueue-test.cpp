@@ -15,7 +15,7 @@ struct Task
 
     int i = 5;
 
-    friend bool operator==(Task first, Task second) { return first.i == second.i; }
+    auto operator<=>(const Task &) const = default;
 };
 
 template<typename Matcher>
@@ -26,8 +26,7 @@ auto IsTask(Matcher matcher)
 
 class TaskQueue : public testing::Test
 {
-    using TraceEvent = NanotraceHR::TraceEvent<std::string_view, std::string_view>;
-    using Category = NanotraceHR::Category<TraceEvent, NanotraceHR::Tracing::IsDisabled>;
+    using Category = NanotraceHR::StringViewWithStringArgumentsCategory<NanotraceHR::Tracing::IsDisabled>;
 
 protected:
     Notification notification;

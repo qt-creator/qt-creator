@@ -14,23 +14,30 @@ TraceFile &traceFile()
 
 namespace {
 
-thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewWithStringArgumentsTraceEvent,
-                                     sqliteTracingStatus()>
-    eventQueue(traceFile());
+thread_local NanotraceHR::StringViewWithStringArgumentsEventQueue<sqliteTracingStatus()> eventQueue(
+    traceFile());
+thread_local NanotraceHR::EventQueueWithoutArguments<sqliteTracingStatus()> eventQueueWithoutArguments(
+    traceFile());
 
 } // namespace
 
 NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteLowLevelCategory()
 {
     thread_local NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()>
-        sqliteLowLevelCategory_{"sqlite low level", eventQueue, sqliteLowLevelCategory};
+        sqliteLowLevelCategory_{"sqlite low level",
+                                eventQueue,
+                                eventQueueWithoutArguments,
+                                sqliteLowLevelCategory};
     return sqliteLowLevelCategory_;
 }
 
 NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteHighLevelCategory()
 {
     thread_local NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()>
-        sqliteHighLevelCategory_{"sqlite high level", eventQueue, sqliteHighLevelCategory};
+        sqliteHighLevelCategory_{"sqlite high level",
+                                 eventQueue,
+                                 eventQueueWithoutArguments,
+                                 sqliteHighLevelCategory};
 
     return sqliteHighLevelCategory_;
 }

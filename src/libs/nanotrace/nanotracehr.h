@@ -74,6 +74,8 @@ struct TracerLiteral
 
     operator Utils::SmallString() const { return text; }
 
+    std::string_view view() const { return text; }
+
 private:
     std::string_view text;
 };
@@ -392,32 +394,34 @@ inline bool operator&(IsFlow first, IsFlow second)
            & static_cast<std::underlying_type_t<IsFlow>>(second);
 }
 
-template<typename String, typename ArgumentsString>
-struct alignas(4096) TraceEvent
+struct TraceEventWithoutArguments
 {
-    using StringType = String;
-    using ArgumentType = std::conditional_t<std::is_same_v<String, std::string_view>, TracerLiteral, String>;
-    using ArgumentsStringType = ArgumentsString;
+    TraceEventWithoutArguments() = default;
+    TraceEventWithoutArguments(const TraceEventWithoutArguments &) = delete;
+    TraceEventWithoutArguments(TraceEventWithoutArguments &&) = delete;
+    TraceEventWithoutArguments &operator=(const TraceEventWithoutArguments &) = delete;
+    TraceEventWithoutArguments &operator=(TraceEventWithoutArguments &&) = delete;
+    ~TraceEventWithoutArguments() = default;
 
-    TraceEvent() = default;
-    TraceEvent(const TraceEvent &) = delete;
-    TraceEvent(TraceEvent &&) = delete;
-    TraceEvent &operator=(const TraceEvent &) = delete;
-    TraceEvent &operator=(TraceEvent &&) = delete;
-    ~TraceEvent() = default;
-
-    String name;
-    String category;
+    std::string_view name;
+    std::string_view category;
     TimePoint time;
     Duration duration;
     std::size_t id = 0;
     std::size_t bindId = 0;
     IsFlow flow = IsFlow::No;
     char type = ' ';
+};
+
+template<typename ArgumentsString>
+struct alignas(4096) TraceEvent : public TraceEventWithoutArguments
+{
+    using ArgumentsStringType = ArgumentsString;
+
     ArgumentsString arguments;
 };
 
-using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, ArgumentsString>;
+using StringViewWithStringArgumentsTraceEvent = TraceEvent<ArgumentsString>;
 
 enum class IsEnabled { No, Yes };
 
@@ -427,6 +431,8 @@ class EventQueue;
 template<typename TraceEvent>
 using EnabledEventQueue = EventQueue<TraceEvent, Tracing::IsEnabled>;
 
+using EnabledEventQueueWithoutArguments = EventQueue<TraceEventWithoutArguments, Tracing::IsEnabled>;
+
 template<typename TraceEvent>
 void flushEvents(const Utils::span<TraceEvent> events,
                  std::thread::id threadId,
@@ -435,10 +441,17 @@ extern template NANOTRACE_EXPORT void flushEvents(
     const Utils::span<StringViewWithStringArgumentsTraceEvent> events,
     std::thread::id threadId,
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
+extern template NANOTRACE_EXPORT void flushEvents(
+    const Utils::span<TraceEventWithoutArguments> events,
+    std::thread::id threadId,
+    EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
+
 template<typename TraceEvent>
 void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue);
 extern template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
+extern template NANOTRACE_EXPORT void flushInThread(
+    EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
 
 template<Tracing isEnabled>
 class TraceFile;
@@ -598,8 +611,13 @@ public:
 template<Tracing isEnabled>
 using StringViewWithStringArgumentsEventQueue = EventQueue<StringViewWithStringArgumentsTraceEvent, isEnabled>;
 
+template<Tracing isEnabled>
+using EventQueueWithoutArguments = EventQueue<TraceEventWithoutArguments, isEnabled>;
+
 extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE
     EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
+extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE
+    EventQueue<TraceEventWithoutArguments, Tracing::IsEnabled>;
 
 template<typename TraceEvent>
 TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
@@ -655,7 +673,6 @@ template<typename Category, Tracing isEnabled>
 class Token : public BasicDisabledToken
 {
 public:
-    using ArgumentType = typename Category::ArgumentType;
     using FlowTokenType = typename Category::FlowTokenType;
     using AsynchronousTokenType = typename Category::AsynchronousTokenType;
     using TracerType = typename Category::TracerType;
@@ -664,26 +681,26 @@ public:
 
     ~Token() {}
 
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, KeyValue auto &&...)
+    [[nodiscard]] AsynchronousTokenType beginAsynchronous(TracerLiteral, KeyValue auto &&...)
     {
         return {};
     }
 
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
-        ArgumentType, KeyValue auto &&...)
+        TracerLiteral, KeyValue auto &&...)
     {
         return {};
     }
 
-    [[nodiscard]] TracerType beginDuration(ArgumentType, KeyValue auto &&...) { return {}; }
+    [[nodiscard]] TracerType beginDuration(TracerLiteral, KeyValue auto &&...) { return {}; }
 
-    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(ArgumentType,
+    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(TracerLiteral,
                                                                              KeyValue auto &&...)
     {
         return {};
     }
 
-    void tick(ArgumentType, KeyValue auto &&...) {}
+    void tick(TracerLiteral, KeyValue auto &&...) {}
 };
 
 template<typename Category>
@@ -700,7 +717,6 @@ class Token<Category, Tracing::IsEnabled> : public BasicEnabledToken
     using PrivateTag = typename Category::PrivateTag;
 
 public:
-    using ArgumentType = typename Category::ArgumentType;
     using FlowTokenType = typename Category::FlowTokenType;
     using AsynchronousTokenType = typename Category::AsynchronousTokenType;
     using TracerType = typename Category::TracerType;
@@ -715,7 +731,7 @@ public:
     ~Token() {}
 
     template<KeyValue... Arguments>
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType name, Arguments &&...arguments)
+    [[nodiscard]] AsynchronousTokenType beginAsynchronous(TracerLiteral name, Arguments &&...arguments)
     {
         if (m_id)
             m_category().begin('b', m_id, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
@@ -725,7 +741,7 @@ public:
 
     template<KeyValue... Arguments>
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
-        ArgumentType name, Arguments &&...arguments)
+        TracerLiteral name, Arguments &&...arguments)
     {
         std::size_t bindId = 0;
 
@@ -741,13 +757,13 @@ public:
     }
 
     template<KeyValue... Arguments>
-    [[nodiscard]] TracerType beginDuration(ArgumentType traceName, Arguments &&...arguments)
+    [[nodiscard]] TracerType beginDuration(TracerLiteral traceName, Arguments &&...arguments)
     {
         return {traceName, m_category, std::forward<Arguments>(arguments)...};
     }
 
     template<KeyValue... Arguments>
-    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(ArgumentType traceName,
+    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(TracerLiteral traceName,
                                                                              Arguments &&...arguments)
     {
         std::size_t bindId = m_category().createBindId();
@@ -763,7 +779,7 @@ public:
     }
 
     template<KeyValue... Arguments>
-    void tick(ArgumentType name, Arguments &&...arguments)
+    void tick(TracerLiteral name, Arguments &&...arguments)
     {
         m_category().begin('i', 0, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
     }
@@ -775,9 +791,6 @@ private:
 template<typename TraceEvent, Tracing isEnabled>
 class Category;
 
-template<Tracing isEnabled>
-using StringViewWithStringArgumentsCategory = Category<StringViewWithStringArgumentsTraceEvent, isEnabled>;
-
 template<typename Category>
 using DisabledToken = Token<Category, Tracing::IsDisabled>;
 
@@ -785,7 +798,6 @@ template<typename Category, Tracing isEnabled>
 class AsynchronousToken : public BasicDisabledToken
 {
 public:
-    using ArgumentType = typename Category::ArgumentType;
     using FlowTokenType = typename Category::FlowTokenType;
     using TokenType = typename Category::TokenType;
 
@@ -800,24 +812,24 @@ public:
 
     [[nodiscard]] TokenType createToken() { return {}; }
 
-    [[nodiscard]] AsynchronousToken begin(ArgumentType, KeyValue auto &&...) { return {}; }
+    [[nodiscard]] AsynchronousToken begin(TracerLiteral, KeyValue auto &&...) { return {}; }
 
-    [[nodiscard]] AsynchronousToken begin(const FlowTokenType &, ArgumentType, KeyValue auto &&...)
+    [[nodiscard]] AsynchronousToken begin(const FlowTokenType &, TracerLiteral, KeyValue auto &&...)
     {
         return {};
     }
 
-    [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(ArgumentType,
+    [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(TracerLiteral,
                                                                             KeyValue auto &&...)
     {
         return {};
     }
 
-    void tick(ArgumentType, KeyValue auto &&...) {}
+    void tick(TracerLiteral, KeyValue auto &&...) {}
 
-    void tick(const FlowTokenType &, ArgumentType, KeyValue auto &&...) {}
+    void tick(const FlowTokenType &, TracerLiteral, KeyValue auto &&...) {}
 
-    FlowTokenType tickWithFlow(ArgumentType, KeyValue auto &&...) { return {}; }
+    FlowTokenType tickWithFlow(TracerLiteral, KeyValue auto &&...) { return {}; }
 
     void end(KeyValue auto &&...) {}
 
@@ -841,8 +853,6 @@ class AsynchronousToken<Category, Tracing::IsEnabled> : public BasicEnabledToken
     using PrivateTag = typename Category::PrivateTag;
 
 public:
-    using StringType = typename Category::StringType;
-    using ArgumentType = typename Category::ArgumentType;
     using FlowTokenType = typename Category::FlowTokenType;
     using TokenType = typename Category::TokenType;
 
@@ -881,7 +891,7 @@ public:
     [[nodiscard]] TokenType createToken() { return {m_id, m_category}; }
 
     template<KeyValue... Arguments>
-    [[nodiscard]] AsynchronousToken begin(ArgumentType name, Arguments &&...arguments)
+    [[nodiscard]] AsynchronousToken begin(TracerLiteral name, Arguments &&...arguments)
     {
         if (m_id)
             m_category().begin('b', m_id, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
@@ -891,7 +901,7 @@ public:
 
     template<KeyValue... Arguments>
     [[nodiscard]] AsynchronousToken begin(const FlowTokenType &flowToken,
-                                          ArgumentType name,
+                                          TracerLiteral name,
                                           Arguments &&...arguments)
     {
         if (m_id)
@@ -906,7 +916,7 @@ public:
     }
 
     template<KeyValue... Arguments>
-    [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(ArgumentType name,
+    [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(TracerLiteral name,
                                                                             Arguments &&...arguments)
     {
         std::size_t bindId = 0;
@@ -923,7 +933,7 @@ public:
     }
 
     template<KeyValue... Arguments>
-    void tick(ArgumentType name, Arguments &&...arguments)
+    void tick(TracerLiteral name, Arguments &&...arguments)
     {
         if (m_id) {
             m_category().tick(
@@ -932,7 +942,7 @@ public:
     }
 
     template<KeyValue... Arguments>
-    void tick(const FlowTokenType &flowToken, ArgumentType name, Arguments &&...arguments)
+    void tick(const FlowTokenType &flowToken, TracerLiteral name, Arguments &&...arguments)
     {
         if (m_id) {
             m_category().tick('n',
@@ -945,7 +955,7 @@ public:
     }
 
     template<KeyValue... Arguments>
-    FlowTokenType tickWithFlow(ArgumentType name, Arguments &&...arguments)
+    FlowTokenType tickWithFlow(TracerLiteral name, Arguments &&...arguments)
     {
         std::size_t bindId = 0;
 
@@ -970,7 +980,7 @@ public:
     static constexpr bool categoryIsActive() { return Category::isActive(); }
 
 private:
-    StringType m_name;
+    std::string_view m_name;
     std::size_t m_id = 0;
     CategoryFunctionPointer m_category = nullptr;
 };
@@ -981,7 +991,6 @@ class FlowToken : public BasicDisabledToken
 public:
     FlowToken() = default;
     using AsynchronousTokenType = typename Category::AsynchronousTokenType;
-    using ArgumentType = typename Category::ArgumentType;
     using TracerType = typename Category::TracerType;
     using TokenType = typename Category::TokenType;
 
@@ -997,28 +1006,28 @@ public:
 
     ~FlowToken() {}
 
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, KeyValue auto &&...)
+    [[nodiscard]] AsynchronousTokenType beginAsynchronous(TracerLiteral, KeyValue auto &&...)
     {
         return {};
     }
 
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowToken> beginAsynchronousWithFlow(
-        ArgumentType, KeyValue auto &&...)
+        TracerLiteral, KeyValue auto &&...)
     {
         return {};
     }
 
     void connectTo(const AsynchronousTokenType &, KeyValue auto &&...) {}
 
-    [[nodiscard]] TracerType beginDuration(ArgumentType, KeyValue auto &&...) { return {}; }
+    [[nodiscard]] TracerType beginDuration(TracerLiteral, KeyValue auto &&...) { return {}; }
 
-    [[nodiscard]] std::pair<TracerType, FlowToken> beginDurationWithFlow(ArgumentType,
+    [[nodiscard]] std::pair<TracerType, FlowToken> beginDurationWithFlow(TracerLiteral,
                                                                          KeyValue auto &&...)
     {
         return std::pair<TracerType, FlowToken>();
     }
 
-    void tick(ArgumentType, KeyValue auto &&...) {}
+    void tick(TracerLiteral, KeyValue auto &&...) {}
 };
 
 template<typename Category>
@@ -1036,9 +1045,7 @@ public:
         , m_category{category}
     {}
 
-    using StringType = typename Category::StringType;
     using AsynchronousTokenType = typename Category::AsynchronousTokenType;
-    using ArgumentType = typename Category::ArgumentType;
     using TracerType = typename Category::TracerType;
     using TokenType = typename Category::TokenType;
 
@@ -1055,7 +1062,7 @@ public:
     ~FlowToken() {}
 
     template<KeyValue... Arguments>
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType name, Arguments &&...arguments)
+    [[nodiscard]] AsynchronousTokenType beginAsynchronous(TracerLiteral name, Arguments &&...arguments)
     {
         std::size_t id = 0;
 
@@ -1070,7 +1077,7 @@ public:
 
     template<KeyValue... Arguments>
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowToken> beginAsynchronousWithFlow(
-        ArgumentType name, Arguments &&...arguments)
+        TracerLiteral name, Arguments &&...arguments)
     {
         std::size_t id = 0;
         std::size_t bindId = 0;
@@ -1101,13 +1108,13 @@ public:
     }
 
     template<KeyValue... Arguments>
-    [[nodiscard]] TracerType beginDuration(ArgumentType traceName, Arguments &&...arguments)
+    [[nodiscard]] TracerType beginDuration(TracerLiteral traceName, Arguments &&...arguments)
     {
         return {m_bindId, IsFlow::In, traceName, m_category, std::forward<Arguments>(arguments)...};
     }
 
     template<KeyValue... Arguments>
-    [[nodiscard]] std::pair<TracerType, FlowToken> beginDurationWithFlow(ArgumentType traceName,
+    [[nodiscard]] std::pair<TracerType, FlowToken> beginDurationWithFlow(TracerLiteral traceName,
                                                                          Arguments &&...arguments)
     {
         return {std::piecewise_construct,
@@ -1121,7 +1128,7 @@ public:
     }
 
     template<KeyValue... Arguments>
-    void tick(ArgumentType name, Arguments &&...arguments)
+    void tick(TracerLiteral name, Arguments &&...arguments)
     {
         m_category().tick('i', 0, name, m_bindId, IsFlow::In, std::forward<Arguments>(arguments)...);
     }
@@ -1129,7 +1136,7 @@ public:
     std::size_t bindId() const { return m_bindId; }
 
 private:
-    StringType m_name;
+    std::string_view m_name;
     std::size_t m_bindId = 0;
     CategoryFunctionPointer m_category = nullptr;
 };
@@ -1147,7 +1154,6 @@ public:
     };
 
     using IsActive = std::false_type;
-    using ArgumentType = typename TraceEvent::ArgumentType;
     using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
     using AsynchronousTokenType = AsynchronousToken<Category, Tracing::IsDisabled>;
     using FlowTokenType = FlowToken<Category, Tracing::IsDisabled>;
@@ -1155,37 +1161,44 @@ public:
     using TokenType = Token<Category, Tracing::IsDisabled>;
     using CategoryFunctionPointer = Category &(*) ();
 
-    Category(ArgumentType, EventQueue<TraceEvent, Tracing::IsDisabled> &, CategoryFunctionPointer)
+    Category(TracerLiteral,
+             EventQueue<TraceEvent, Tracing::IsDisabled> &,
+             EventQueueWithoutArguments<Tracing::IsDisabled> &,
+             CategoryFunctionPointer)
     {}
 
-    Category(ArgumentType, EventQueue<TraceEvent, Tracing::IsEnabled> &, CategoryFunctionPointer) {}
+    Category(TracerLiteral,
+             EventQueue<TraceEvent, Tracing::IsEnabled> &,
+             EventQueueWithoutArguments<Tracing::IsEnabled> &,
+             CategoryFunctionPointer)
+    {}
 
     template<typename... Arguments>
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, Arguments &&...)
+    [[nodiscard]] AsynchronousTokenType beginAsynchronous(TracerLiteral, Arguments &&...)
     {
         return {};
     }
 
     template<typename... Arguments>
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
-        ArgumentType, Arguments &&...)
+        TracerLiteral, Arguments &&...)
     {}
 
     template<typename... Arguments>
-    [[nodiscard]] TracerType beginDuration(ArgumentType, Arguments &&...)
+    [[nodiscard]] TracerType beginDuration(TracerLiteral, Arguments &&...)
     {
         return {};
     }
 
     template<typename... Arguments>
-    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(ArgumentType,
+    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(TracerLiteral,
                                                                              Arguments &&...)
     {
         return std::pair<TracerType, FlowTokenType>();
     }
 
     template<typename... Arguments>
-    void threadEvent(ArgumentType, Arguments &&...)
+    void threadEvent(TracerLiteral, Arguments &&...)
     {}
 
     static constexpr bool isActive() { return false; }
@@ -1231,9 +1244,7 @@ public:
     };
 
     using IsActive = std::true_type;
-    using ArgumentType = typename TraceEvent::ArgumentType;
     using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
-    using StringType = typename TraceEvent::StringType;
     using AsynchronousTokenType = AsynchronousToken<Category, Tracing::IsEnabled>;
     using FlowTokenType = FlowToken<Category, Tracing::IsEnabled>;
     using TracerType = Tracer<Category, std::true_type>;
@@ -1246,9 +1257,13 @@ public:
     friend TracerType;
 
     template<typename EventQueue>
-    Category(ArgumentType name, EventQueue &queue, CategoryFunctionPointer self)
+    Category(TracerLiteral name,
+             EventQueue &queue,
+             EnabledEventQueueWithoutArguments &eventQueueWithoutArguments,
+             CategoryFunctionPointer self)
         : m_name{std::move(name)}
         , m_eventQueue{queue}
+        , m_eventQueueWithoutArguments{eventQueueWithoutArguments}
         , m_self{self}
     {
         static_assert(std::is_same_v<typename EventQueue::IsActive, std::true_type>,
@@ -1261,7 +1276,7 @@ public:
     Category &operator=(const Category &) = delete;
 
     template<typename... Arguments>
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType traceName,
+    [[nodiscard]] AsynchronousTokenType beginAsynchronous(TracerLiteral traceName,
                                                           Arguments &&...arguments)
     {
         std::size_t id = createId();
@@ -1273,7 +1288,7 @@ public:
 
     template<typename... Arguments>
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
-        ArgumentType traceName, Arguments &&...arguments)
+        TracerLiteral traceName, Arguments &&...arguments)
     {
         std::size_t id = createId();
         std::size_t bindId = createBindId();
@@ -1286,13 +1301,13 @@ public:
     }
 
     template<typename... Arguments>
-    [[nodiscard]] TracerType beginDuration(ArgumentType traceName, Arguments &&...arguments)
+    [[nodiscard]] TracerType beginDuration(TracerLiteral traceName, Arguments &&...arguments)
     {
         return {traceName, m_self, std::forward<Arguments>(arguments)...};
     }
 
     template<typename... Arguments>
-    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(ArgumentType traceName,
+    [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(TracerLiteral traceName,
                                                                              Arguments &&...arguments)
     {
         std::size_t bindId = createBindId();
@@ -1308,12 +1323,12 @@ public:
     }
 
     template<typename... Arguments>
-    void threadEvent(ArgumentType traceName, Arguments &&...arguments)
+    void threadEvent(TracerLiteral traceName, Arguments &&...arguments)
     {
         if (isEnabled == IsEnabled::No)
             return;
 
-        auto &traceEvent = getTraceEvent(m_eventQueue);
+        auto &traceEvent = getTraceEvent(eventQueue(arguments...));
 
         traceEvent.time = Clock::now();
         traceEvent.name = std::move(traceName);
@@ -1322,10 +1337,17 @@ public:
         traceEvent.id = 0;
         traceEvent.bindId = 0;
         traceEvent.flow = IsFlow::No;
-        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
+        if constexpr (sizeof...(arguments))
+            Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
     }
 
-    EnabledEventQueue<TraceEvent> &eventQueue() const { return m_eventQueue; }
+    EnabledEventQueueWithoutArguments &eventQueue() const { return m_eventQueueWithoutArguments; }
+
+    template<typename Arguments>
+    EnabledEventQueue<TraceEvent> &eventQueue(const Arguments &...) const
+    {
+        return m_eventQueue;
+    }
 
     std::string_view name() const { return m_name; }
 
@@ -1342,7 +1364,7 @@ private:
     template<typename... Arguments>
     void begin(char type,
                std::size_t id,
-               StringType traceName,
+               std::string_view traceName,
                std::size_t bindId,
                IsFlow flow,
                Arguments &&...arguments)
@@ -1350,7 +1372,7 @@ private:
         if (isEnabled == IsEnabled::No)
             return;
 
-        auto &traceEvent = getTraceEvent(m_eventQueue);
+        auto &traceEvent = getTraceEvent(eventQueue(arguments...));
 
         traceEvent.name = std::move(traceName);
         traceEvent.category = m_name;
@@ -1358,14 +1380,15 @@ private:
         traceEvent.id = id;
         traceEvent.bindId = bindId;
         traceEvent.flow = flow;
-        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
+        if constexpr (sizeof...(arguments))
+            Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
         traceEvent.time = Clock::now();
     }
 
     template<typename... Arguments>
     void tick(char type,
               std::size_t id,
-              StringType traceName,
+              std::string_view traceName,
               std::size_t bindId,
               IsFlow flow,
               Arguments &&...arguments)
@@ -1375,7 +1398,7 @@ private:
 
         auto time = Clock::now();
 
-        auto &traceEvent = getTraceEvent(m_eventQueue);
+        auto &traceEvent = getTraceEvent(eventQueue(arguments...));
 
         traceEvent.name = std::move(traceName);
         traceEvent.category = m_name;
@@ -1384,18 +1407,19 @@ private:
         traceEvent.id = id;
         traceEvent.bindId = bindId;
         traceEvent.flow = flow;
-        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
+        if constexpr (sizeof...(arguments))
+            Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
     }
 
     template<typename... Arguments>
-    void end(char type, std::size_t id, StringType traceName, Arguments &&...arguments)
+    void end(char type, std::size_t id, std::string_view traceName, Arguments &&...arguments)
     {
         if (isEnabled == IsEnabled::No)
             return;
 
         auto time = Clock::now();
 
-        auto &traceEvent = getTraceEvent(m_eventQueue);
+        auto &traceEvent = getTraceEvent(eventQueue(arguments...));
 
         traceEvent.name = std::move(traceName);
         traceEvent.category = m_name;
@@ -1404,14 +1428,16 @@ private:
         traceEvent.id = id;
         traceEvent.bindId = 0;
         traceEvent.flow = IsFlow::No;
-        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
+        if constexpr (sizeof...(arguments))
+            Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
     }
 
     CategoryFunctionPointer self() { return m_self; }
 
 private:
-    StringType m_name;
+    std::string_view m_name;
     EnabledEventQueue<TraceEvent> &m_eventQueue;
+    EnabledEventQueueWithoutArguments &m_eventQueueWithoutArguments;
     inline static std::atomic<std::size_t> m_globalIdCounter;
     std::size_t m_idCounter;
     inline static std::atomic<std::size_t> m_globalBindIdCounter;
@@ -1427,7 +1453,6 @@ class Tracer
 {
 public:
     Tracer() = default;
-    using ArgumentType = typename Category::ArgumentType;
     using TokenType = typename Category::TokenType;
     using FlowTokenType = typename Category::FlowTokenType;
 
@@ -1435,7 +1460,7 @@ public:
     friend FlowTokenType;
     friend Category;
 
-    [[nodiscard]] Tracer(ArgumentType, Category &, KeyValue auto &&...) {}
+    [[nodiscard]] Tracer(TracerLiteral, Category &, KeyValue auto &&...) {}
 
     Tracer(const Tracer &) = delete;
     Tracer &operator=(const Tracer &) = delete;
@@ -1444,9 +1469,9 @@ public:
 
     TokenType createToken() { return {}; }
 
-    Tracer beginDuration(ArgumentType, KeyValue auto &&...) { return {}; }
+    Tracer beginDuration(TracerLiteral, KeyValue auto &&...) { return {}; }
 
-    void tick(ArgumentType, KeyValue auto &&...) {}
+    void tick(TracerLiteral, KeyValue auto &&...) {}
 
     void end(KeyValue auto &&...) {}
 
@@ -1456,8 +1481,6 @@ public:
 template<typename Category>
 class Tracer<Category, std::true_type>
 {
-    using ArgumentType = typename Category::ArgumentType;
-    using StringType = typename Category::StringType;
     using ArgumentsStringType = typename Category::ArgumentsStringType;
     using TokenType = typename Category::TokenType;
     using FlowTokenType = typename Category::FlowTokenType;
@@ -1471,7 +1494,7 @@ class Tracer<Category, std::true_type>
     template<KeyValue... Arguments>
     [[nodiscard]] Tracer(std::size_t bindId,
                          IsFlow flow,
-                         ArgumentType name,
+                         TracerLiteral name,
                          CategoryFunctionPointer category,
                          Arguments &&...arguments)
         : m_name{name}
@@ -1488,14 +1511,14 @@ public:
     [[nodiscard]] Tracer(PrivateTag,
                          std::size_t bindId,
                          IsFlow flow,
-                         ArgumentType name,
+                         TracerLiteral name,
                          CategoryFunctionPointer category,
                          Arguments &&...arguments)
         : Tracer{bindId, flow, std::move(name), category, std::forward<Arguments>(arguments)...}
     {}
 
     template<KeyValue... Arguments>
-    [[nodiscard]] Tracer(ArgumentType name, CategoryFunctionPointer category, Arguments &&...arguments)
+    [[nodiscard]] Tracer(TracerLiteral name, CategoryFunctionPointer category, Arguments &&...arguments)
         : m_name{name}
         , m_category{category}
     {
@@ -1504,7 +1527,7 @@ public:
     }
 
     template<KeyValue... Arguments>
-    [[nodiscard]] Tracer(ArgumentType name, Category &category, Arguments &&...arguments)
+    [[nodiscard]] Tracer(TracerLiteral name, Category &category, Arguments &&...arguments)
         : Tracer(std::move(name), category.self(), std::forward<Arguments>(arguments)...)
     {}
 
@@ -1518,13 +1541,13 @@ public:
     ~Tracer() { sendEndTrace(); }
 
     template<KeyValue... Arguments>
-    Tracer beginDuration(ArgumentType name, Arguments &&...arguments)
+    Tracer beginDuration(TracerLiteral name, Arguments &&...arguments)
     {
         return {std::move(name), m_category, std::forward<Arguments>(arguments)...};
     }
 
     template<KeyValue... Arguments>
-    void tick(ArgumentType name, Arguments &&...arguments)
+    void tick(TracerLiteral name, Arguments &&...arguments)
     {
         m_category().begin('i', 0, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
     }
@@ -1542,14 +1565,16 @@ private:
     {
         auto &category = m_category();
         if (category.isEnabled == IsEnabled::Yes) {
-            auto &traceEvent = getTraceEvent(category.eventQueue());
+            auto &traceEvent = getTraceEvent(category.eventQueue(arguments...));
             traceEvent.name = m_name;
             traceEvent.category = category.name();
             traceEvent.bindId = m_bindId;
             traceEvent.flow = flow;
             traceEvent.type = 'B';
-            Internal::setArguments<ArgumentsStringType>(traceEvent.arguments,
-                                                        std::forward<Arguments>(arguments)...);
+            if constexpr (sizeof...(arguments)) {
+                Internal::setArguments<ArgumentsStringType>(traceEvent.arguments,
+                                                            std::forward<Arguments>(arguments)...);
+            }
             traceEvent.time = Clock::now();
         }
     }
@@ -1561,29 +1586,30 @@ private:
             auto &category = m_category();
             if (category.isEnabled == IsEnabled::Yes) {
                 auto end = Clock::now();
-                auto &traceEvent = getTraceEvent(category.eventQueue());
+                auto &traceEvent = getTraceEvent(category.eventQueue(arguments...));
                 traceEvent.name = std::move(m_name);
                 traceEvent.category = category.name();
                 traceEvent.time = end;
                 traceEvent.bindId = m_bindId;
                 traceEvent.flow = flow;
                 traceEvent.type = 'E';
-                Internal::setArguments<ArgumentsStringType>(traceEvent.arguments,
-                                                            std::forward<Arguments>(arguments)...);
+                if constexpr (sizeof...(arguments)) {
+                    Internal::setArguments<ArgumentsStringType>(traceEvent.arguments,
+                                                                std::forward<Arguments>(arguments)...);
+                }
             }
         }
     }
 
 private:
-    StringType m_name;
+    std::string_view m_name;
     std::size_t m_bindId = 0;
     IsFlow flow = IsFlow::No;
     CategoryFunctionPointer m_category;
 };
 
 template<typename Category, KeyValue... Arguments>
-Tracer(typename Category::ArgumentType name,
-       Category &category,
-       Arguments &&...) -> Tracer<Category, typename Category::IsActive>;
+Tracer(TracerLiteral name, Category &category, Arguments &&...)
+    -> Tracer<Category, typename Category::IsActive>;
 
 } // namespace NanotraceHR

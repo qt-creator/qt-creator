@@ -51,6 +51,11 @@ constexpr bool isArgumentValid(const StaticString<capacity> &string)
     return string.isValid() && string.size();
 }
 
+constexpr bool isArgumentValid(const std::identity &)
+{
+    return false;
+}
+
 template<typename String>
 constexpr bool isArgumentValid(const String &string)
 {
@@ -79,8 +84,10 @@ void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, st
             out << R"(,"flow_in":true)";
     }
 
-    if (isArgumentValid(event.arguments)) {
-        out << R"(,"args":)" << event.arguments;
+    if constexpr (!std::is_same_v<TraceEvent, TraceEventWithoutArguments>) {
+        if (isArgumentValid(event.arguments)) {
+            out << R"(,"args":)" << event.arguments;
+        }
     }
 
     out << "}";
@@ -174,6 +181,10 @@ template NANOTRACE_EXPORT void flushEvents(
     std::thread::id threadId,
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
+template NANOTRACE_EXPORT void flushEvents(const Utils::span<TraceEventWithoutArguments> events,
+                                           std::thread::id threadId,
+                                           EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
+
 void openFile(EnabledTraceFile &file)
 {
     std::lock_guard lock{file.fileMutex};
@@ -222,6 +233,7 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
 
 template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
+template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
 
 template<typename TraceEvent>
 EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile &file)
@@ -230,7 +242,7 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile &file)
 {
     setEventsSpans(*eventArrayOne.get(), *eventArrayTwo.get());
     Internal::EventQueueTracker<TraceEvent>::get().addQueue(this);
-    if (auto thread = QThread::currentThread()) {
+    if (QThread::currentThread()) {
         auto name = getThreadName();
         if (name.size()) {
             writeMetaEvent(file, "thread_name", name);
@@ -267,5 +279,6 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
 
 template class NANOTRACE_EXPORT_TEMPLATE
     EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
+template class NANOTRACE_EXPORT_TEMPLATE EventQueue<TraceEventWithoutArguments, Tracing::IsEnabled>;
 
 } // namespace NanotraceHR

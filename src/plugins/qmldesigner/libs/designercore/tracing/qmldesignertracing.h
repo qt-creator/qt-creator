@@ -20,8 +20,10 @@ constexpr NanotraceHR::Tracing tracingStatus()
 }
 
 using EventQueueWithStringArguments = NanotraceHR::StringViewWithStringArgumentsEventQueue<tracingStatus()>;
+using EventQueueWithoutArguments = NanotraceHR::EventQueueWithoutArguments<tracingStatus()>;
 
 [[gnu::pure]] QMLDESIGNERCORE_EXPORT EventQueueWithStringArguments &eventQueueWithStringArguments();
+[[gnu::pure]] QMLDESIGNERCORE_EXPORT EventQueueWithoutArguments &eventQueueWithoutArguments();
 
 } // namespace Tracing
 

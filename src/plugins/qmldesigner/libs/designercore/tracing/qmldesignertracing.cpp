@@ -28,10 +28,17 @@ auto &traceFile()
 
 EventQueueWithStringArguments &eventQueueWithStringArguments()
 {
-    thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewWithStringArgumentsTraceEvent, tracingStatus()>
-        stringViewWithStringArgumentsEventQueue(traceFile());
+    thread_local NanotraceHR::StringViewWithStringArgumentsEventQueue<tracingStatus()> eventQueue(
+        traceFile());
 
-    return stringViewWithStringArgumentsEventQueue;
+    return eventQueue;
+}
+
+EventQueueWithoutArguments &eventQueueWithoutArguments()
+{
+    thread_local NanotraceHR::EventQueueWithoutArguments<tracingStatus()> eventQueue(traceFile());
+
+    return eventQueue;
 }
 
 } // namespace Tracing
@@ -39,7 +46,10 @@ EventQueueWithStringArguments &eventQueueWithStringArguments()
 namespace ModelTracing {
 namespace {
 
-thread_local Category category_{"model", Tracing::eventQueueWithStringArguments(), category};
+thread_local Category category_{"model",
+                                Tracing::eventQueueWithStringArguments(),
+                                Tracing::eventQueueWithoutArguments(),
+                                category};
 
 } // namespace
 
@@ -56,6 +66,7 @@ Category &projectStorageCategory()
 {
     thread_local Category category{"project storage",
                                    Tracing::eventQueueWithStringArguments(),
+                                   Tracing::eventQueueWithoutArguments(),
                                    projectStorageCategory};
 
     return category;
@@ -65,6 +76,7 @@ Category &projectStorageUpdaterCategory()
 {
     thread_local Category category{"project storage updater",
                                    Tracing::eventQueueWithStringArguments(),
+                                   Tracing::eventQueueWithoutArguments(),
                                    projectStorageCategory};
 
     return category;
@@ -77,6 +89,7 @@ Category &category()
 {
     thread_local Category category_{"project storage updater",
                                     Tracing::eventQueueWithStringArguments(),
+                                    Tracing::eventQueueWithoutArguments(),
                                     category};
 
     return category_;
