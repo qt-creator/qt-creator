@@ -27,7 +27,7 @@ QmlPropertyChanges QmlModelState::propertyChanges(const ModelNode &node, SL sl)
                                keyValue("node", node),
                                keyValue("caller location", sl)};
 
-    if (isValid() && !isBaseState()) {
+    if (!isBaseState() && isValid()) {
         addChangeSetIfNotExists(node);
 
         const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
