@@ -41,7 +41,7 @@ signals:
     void modelChanged();
 
 private:
-    FileResourcesModel *m_resourceModel;
+    std::unique_ptr<FileResourcesModel> m_resourceModel;
 };
 
 QML_DECLARE_TYPE(FontResourcesModel)

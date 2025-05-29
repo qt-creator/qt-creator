@@ -110,7 +110,7 @@ QVariant FontResourcesModel::modelNodeBackend()
 
 FontResourcesModel::FontResourcesModel(QObject *parent)
     : QObject{parent}
-    , m_resourceModel{new FileResourcesModel{this}}
+    , m_resourceModel{std::make_unique<FileResourcesModel>()}
 {
     m_resourceModel->setFilter(fontFilesFilterList().join(' '));
 }
