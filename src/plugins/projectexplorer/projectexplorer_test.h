@@ -80,6 +80,13 @@ private slots:
     void testProject_parsingSuccess();
     void testProject_parsingFail();
     void testProject_projectTree();
+    void testProject_renameFile();
+    void testProject_renameFile_NullNode();
+    void testProject_renameMultipleFiles();
+    void testProject_renameFile_BuildSystemRejectsAll();
+    void testProject_renameFile_BuildSystemRejectsPartial();
+    void testProject_renameFile_QmlCrashSimulation();
+
     void testProject_multipleBuildConfigs();
 
     void testSourceToBinaryMapping();
@@ -87,7 +94,6 @@ private slots:
 
     void testSessionSwitch();
 
-private:
     friend class ::ProjectExplorer::ProjectExplorerPlugin;
 };
 

@@ -412,6 +412,8 @@ void FlatModel::parsingStateChanged(Project *project)
 
 void FlatModel::updateSubtree(FolderNode *node)
 {
+    if (!node)
+        return;
     // FIXME: This is still excessive, should be limited to the affected subtree.
     while (FolderNode *parent = node->parentFolderNode())
         node = parent;
