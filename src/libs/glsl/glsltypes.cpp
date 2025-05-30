@@ -341,6 +341,41 @@ bool Struct::isLessThan(const Type *other) const
     return false;
 }
 
+QList<Symbol *> InterfaceBlock::members() const
+{
+    QList<Symbol *> m;
+    for (Symbol *s : _members) {
+        if (! s->name().isEmpty())
+            m.append(s);
+    }
+    return m;
+}
+
+void InterfaceBlock::add(Symbol *member)
+{
+    _members.append(member);
+}
+
+Symbol *InterfaceBlock::find(const QString &name) const
+{
+    for (Symbol *s : _members) {
+        if (s->name() == name)
+            return s;
+    }
+    return nullptr;
+}
+
+bool InterfaceBlock::isEqualTo(const Type *other) const
+{
+    Q_UNUSED(other)
+    return false;
+}
+
+bool InterfaceBlock::isLessThan(const Type *other) const
+{
+    Q_UNUSED(other)
+    return false;
+}
 
 QString Function::toString() const
 {

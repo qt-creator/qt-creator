@@ -185,6 +185,27 @@ private:
     QVector<Symbol *> _members;
 };
 
+class GLSL_EXPORT InterfaceBlock : public Type, public Scope
+{
+public:
+    InterfaceBlock(Scope *scope = nullptr)
+        : Scope(scope) {}
+
+    QList<Symbol *> members() const override;
+    void add(Symbol *member) override;
+    Symbol *find(const QString &name) const override;
+
+    QString toString() const override { return name(); }
+    const InterfaceBlock *asInterfaceBlockType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
+
+    InterfaceBlock *asInterfaceBlock() override { return this; }
+    const Type *type() const override { return this; }
+private:
+    QVector<Symbol *> _members;
+};
+
 class GLSL_EXPORT Function: public Type, public Scope
 {
 public:

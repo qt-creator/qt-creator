@@ -48,6 +48,7 @@ class Block;
 class Variable;
 class OverloadSet;
 class Namespace;
+class InterfaceBlock;
 
 class AST;
 class TranslationUnitAST;

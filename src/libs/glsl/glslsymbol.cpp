@@ -44,10 +44,24 @@ Symbol *Scope::lookup(const QString &name) const
 {
     if (Symbol *s = find(name))
         return s;
-    else if (Scope *s = scope())
-        return s->lookup(name);
-    else
+
+    Scope *sc = scope();
+    if (!sc)
         return nullptr;
+
+    if (!sc->scope()) { // limit interface block lookups to global lookup
+        const QList<Symbol *> members = sc->members();
+        for (auto member : members) {
+            if (member->asInterfaceBlock()) { // can't use InterfaceBlock directly, so use as Scope!
+                if (Scope *interfaceAsScope = member->asScope()) {
+                    if (Symbol *s = interfaceAsScope->find(name))
+                        return s;
+                }
+            }
+        }
+    }
+    // normal lookup
+    return sc->lookup(name);
 }
 
 QList<Symbol *> Scope::members() const

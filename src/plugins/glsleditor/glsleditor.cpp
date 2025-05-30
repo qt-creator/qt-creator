@@ -8,6 +8,7 @@
 #include "glslcompletionassist.h"
 #include "glslindenter.h"
 
+#include <glsl/glslastdump.h>
 #include <glsl/glsllexer.h>
 #include <glsl/glslparser.h>
 #include <glsl/glslengine.h>
@@ -342,6 +343,11 @@ void GlslEditorWidget::updateDocumentNow()
         CreateRanges createRanges(document(), doc);
         createRanges(ast);
 
+#if 0
+        QTextStream qout(stdout, QIODevice::WriteOnly);
+        GLSL::ASTDump dump(qout);
+        dump(ast);
+#endif
         const TextEditor::FontSettings &fontSettings = TextEditor::TextEditorSettings::fontSettings();
 
         QTextCharFormat warningFormat = fontSettings.toTextCharFormat(TextEditor::C_WARNING);

@@ -128,6 +128,10 @@ public:
 
     virtual bool visit(FunctionDeclarationAST *) { return true; }
     virtual void endVisit(FunctionDeclarationAST *) {}
+
+    virtual bool visit(InterfaceBlockAST *) { return true; }
+    virtual void endVisit(InterfaceBlockAST *) {}
+
 };
 
 } // namespace GLSL

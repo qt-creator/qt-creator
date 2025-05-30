@@ -407,3 +407,21 @@ void FunctionDeclarationAST::accept0(Visitor *visitor)
     }
     visitor->endVisit(this);
 }
+
+void InterfaceBlockAST::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(fields, visitor);
+    visitor->endVisit(this);
+}
+
+TypeAST::Precision InterfaceBlockAST::precision() const
+{
+    return PrecNotValid;
+}
+
+bool InterfaceBlockAST::setPrecision(Precision)
+{
+    // interface blocks cannot have a precision set.
+    return false;
+}

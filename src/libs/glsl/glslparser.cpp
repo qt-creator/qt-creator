@@ -1,5 +1,5 @@
 
-#line 405 "./glsl.g"
+#line 421 "./glsl.g"
 
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
@@ -207,137 +207,137 @@ AST *Parser::parse(int startToken)
     return nullptr;
 }
 
-#line 615 "./glsl.g"
+#line 631 "./glsl.g"
 
 void Parser::reduce(int ruleno)
 {
 switch(ruleno) {
 
-#line 624 "./glsl.g"
+#line 640 "./glsl.g"
 
 case 0: {
     ast(1) = makeAstNode<IdentifierExpressionAST>(string(1));
 }   break;
 
-#line 631 "./glsl.g"
+#line 647 "./glsl.g"
 
 case 1: {
     ast(1) = makeAstNode<LiteralExpressionAST>(string(1));
 }   break;
 
-#line 638 "./glsl.g"
+#line 654 "./glsl.g"
 
 case 2: {
     ast(1) = makeAstNode<LiteralExpressionAST>(_engine->identifier("true", 4));
 }   break;
 
-#line 645 "./glsl.g"
+#line 661 "./glsl.g"
 
 case 3: {
     ast(1) = makeAstNode<LiteralExpressionAST>(_engine->identifier("false", 5));
 }   break;
 
-#line 652 "./glsl.g"
+#line 668 "./glsl.g"
 
 case 4: {
     // nothing to do.
 }   break;
 
-#line 659 "./glsl.g"
+#line 675 "./glsl.g"
 
 case 5: {
     ast(1) = ast(2);
 }   break;
 
-#line 666 "./glsl.g"
+#line 682 "./glsl.g"
 
 case 6: {
     // nothing to do.
 }   break;
 
-#line 673 "./glsl.g"
+#line 689 "./glsl.g"
 
 case 7: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_ArrayAccess, expression(1), expression(3));
 }   break;
 
-#line 680 "./glsl.g"
+#line 696 "./glsl.g"
 
 case 8: {
     // nothing to do.
 }   break;
 
-#line 687 "./glsl.g"
+#line 703 "./glsl.g"
 
 case 9: {
     ast(1) = makeAstNode<MemberAccessExpressionAST>(expression(1), string(3));
 }   break;
 
-#line 694 "./glsl.g"
+#line 710 "./glsl.g"
 
 case 10: {
     ast(1) = makeAstNode<UnaryExpressionAST>(AST::Kind_PostIncrement, expression(1));
 }   break;
 
-#line 701 "./glsl.g"
+#line 717 "./glsl.g"
 
 case 11: {
     ast(1) = makeAstNode<UnaryExpressionAST>(AST::Kind_PostDecrement, expression(1));
 }   break;
 
-#line 708 "./glsl.g"
+#line 724 "./glsl.g"
 
 case 12: {
     // nothing to do.
 }   break;
 
-#line 715 "./glsl.g"
+#line 731 "./glsl.g"
 
 case 13: {
     // nothing to do.
 }   break;
 
-#line 722 "./glsl.g"
+#line 738 "./glsl.g"
 
 case 14: {
     ast(1) = makeAstNode<FunctionCallExpressionAST>
         (sym(1).function.id, sym(1).function.arguments);
 }   break;
 
-#line 730 "./glsl.g"
+#line 746 "./glsl.g"
 
 case 15: {
     ast(1) = makeAstNode<FunctionCallExpressionAST>
         (expression(1), sym(3).function.id, sym(3).function.arguments);
 }   break;
 
-#line 738 "./glsl.g"
+#line 754 "./glsl.g"
 
 case 16: {
     // nothing to do.
 }   break;
 
-#line 745 "./glsl.g"
+#line 761 "./glsl.g"
 
 case 17: {
     // nothing to do.
 }   break;
 
-#line 752 "./glsl.g"
+#line 768 "./glsl.g"
 
 case 18: {
     sym(1).function.id = sym(1).function_identifier;
     sym(1).function.arguments = nullptr;
 }   break;
 
-#line 760 "./glsl.g"
+#line 776 "./glsl.g"
 
 case 19: {
     sym(1).function.id = sym(1).function_identifier;
     sym(1).function.arguments = nullptr;
 }   break;
 
-#line 768 "./glsl.g"
+#line 784 "./glsl.g"
 
 case 20: {
     sym(1).function.id = sym(1).function_identifier;
@@ -345,7 +345,7 @@ case 20: {
         makeAstNode< List<ExpressionAST *> >(expression(2));
 }   break;
 
-#line 777 "./glsl.g"
+#line 793 "./glsl.g"
 
 case 21: {
     sym(1).function.arguments =
@@ -353,445 +353,497 @@ case 21: {
             (sym(1).function.arguments, expression(3));
 }   break;
 
-#line 786 "./glsl.g"
+#line 802 "./glsl.g"
 
 case 22: {
     // nothing to do.
 }   break;
 
-#line 793 "./glsl.g"
+#line 809 "./glsl.g"
 
 case 23: {
     ast(1) = makeAstNode<FunctionIdentifierAST>(type(1));
 }   break;
 
-#line 800 "./glsl.g"
+#line 816 "./glsl.g"
 
 case 24: {
     ast(1) = makeAstNode<FunctionIdentifierAST>(string(1));
 }   break;
 
-#line 807 "./glsl.g"
+#line 823 "./glsl.g"
 
 case 25: {
     // nothing to do.
 }   break;
 
-#line 814 "./glsl.g"
+#line 830 "./glsl.g"
 
 case 26: {
     ast(1) = makeAstNode<UnaryExpressionAST>(AST::Kind_PreIncrement, expression(2));
 }   break;
 
-#line 821 "./glsl.g"
+#line 837 "./glsl.g"
 
 case 27: {
     ast(1) = makeAstNode<UnaryExpressionAST>(AST::Kind_PreDecrement, expression(2));
 }   break;
 
-#line 828 "./glsl.g"
+#line 844 "./glsl.g"
 
 case 28: {
     ast(1) = makeAstNode<UnaryExpressionAST>(sym(1).kind, expression(2));
 }   break;
 
-#line 835 "./glsl.g"
+#line 851 "./glsl.g"
 
 case 29: {
     sym(1).kind = AST::Kind_UnaryPlus;
 }   break;
 
-#line 842 "./glsl.g"
+#line 858 "./glsl.g"
 
 case 30: {
     sym(1).kind = AST::Kind_UnaryMinus;
 }   break;
 
-#line 849 "./glsl.g"
+#line 865 "./glsl.g"
 
 case 31: {
     sym(1).kind = AST::Kind_LogicalNot;
 }   break;
 
-#line 856 "./glsl.g"
+#line 872 "./glsl.g"
 
 case 32: {
     sym(1).kind = AST::Kind_BitwiseNot;
 }   break;
 
-#line 863 "./glsl.g"
+#line 879 "./glsl.g"
 
 case 33: {
     // nothing to do.
 }   break;
 
-#line 870 "./glsl.g"
+#line 886 "./glsl.g"
 
 case 34: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_Multiply, expression(1), expression(3));
 }   break;
 
-#line 877 "./glsl.g"
+#line 893 "./glsl.g"
 
 case 35: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_Divide, expression(1), expression(3));
 }   break;
 
-#line 884 "./glsl.g"
+#line 900 "./glsl.g"
 
 case 36: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_Modulus, expression(1), expression(3));
 }   break;
 
-#line 891 "./glsl.g"
+#line 907 "./glsl.g"
 
 case 37: {
     // nothing to do.
 }   break;
 
-#line 898 "./glsl.g"
+#line 914 "./glsl.g"
 
 case 38: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_Plus, expression(1), expression(3));
 }   break;
 
-#line 905 "./glsl.g"
+#line 921 "./glsl.g"
 
 case 39: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_Minus, expression(1), expression(3));
 }   break;
 
-#line 912 "./glsl.g"
+#line 928 "./glsl.g"
 
 case 40: {
     // nothing to do.
 }   break;
 
-#line 919 "./glsl.g"
+#line 935 "./glsl.g"
 
 case 41: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_ShiftLeft, expression(1), expression(3));
 }   break;
 
-#line 926 "./glsl.g"
+#line 942 "./glsl.g"
 
 case 42: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_ShiftRight, expression(1), expression(3));
 }   break;
 
-#line 933 "./glsl.g"
+#line 949 "./glsl.g"
 
 case 43: {
     // nothing to do.
 }   break;
 
-#line 940 "./glsl.g"
+#line 956 "./glsl.g"
 
 case 44: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_LessThan, expression(1), expression(3));
 }   break;
 
-#line 947 "./glsl.g"
+#line 963 "./glsl.g"
 
 case 45: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_GreaterThan, expression(1), expression(3));
 }   break;
 
-#line 954 "./glsl.g"
+#line 970 "./glsl.g"
 
 case 46: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_LessEqual, expression(1), expression(3));
 }   break;
 
-#line 961 "./glsl.g"
+#line 977 "./glsl.g"
 
 case 47: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_GreaterEqual, expression(1), expression(3));
 }   break;
 
-#line 968 "./glsl.g"
+#line 984 "./glsl.g"
 
 case 48: {
     // nothing to do.
 }   break;
 
-#line 975 "./glsl.g"
+#line 991 "./glsl.g"
 
 case 49: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_Equal, expression(1), expression(3));
 }   break;
 
-#line 982 "./glsl.g"
+#line 998 "./glsl.g"
 
 case 50: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_NotEqual, expression(1), expression(3));
 }   break;
 
-#line 989 "./glsl.g"
+#line 1005 "./glsl.g"
 
 case 51: {
     // nothing to do.
 }   break;
 
-#line 996 "./glsl.g"
+#line 1012 "./glsl.g"
 
 case 52: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_BitwiseAnd, expression(1), expression(3));
 }   break;
 
-#line 1003 "./glsl.g"
+#line 1019 "./glsl.g"
 
 case 53: {
     // nothing to do.
 }   break;
 
-#line 1010 "./glsl.g"
+#line 1026 "./glsl.g"
 
 case 54: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_BitwiseXor, expression(1), expression(3));
 }   break;
 
-#line 1017 "./glsl.g"
+#line 1033 "./glsl.g"
 
 case 55: {
     // nothing to do.
 }   break;
 
-#line 1024 "./glsl.g"
+#line 1040 "./glsl.g"
 
 case 56: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_BitwiseOr, expression(1), expression(3));
 }   break;
 
-#line 1031 "./glsl.g"
+#line 1047 "./glsl.g"
 
 case 57: {
     // nothing to do.
 }   break;
 
-#line 1038 "./glsl.g"
+#line 1054 "./glsl.g"
 
 case 58: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_LogicalAnd, expression(1), expression(3));
 }   break;
 
-#line 1045 "./glsl.g"
+#line 1061 "./glsl.g"
 
 case 59: {
     // nothing to do.
 }   break;
 
-#line 1052 "./glsl.g"
+#line 1068 "./glsl.g"
 
 case 60: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_LogicalXor, expression(1), expression(3));
 }   break;
 
-#line 1059 "./glsl.g"
+#line 1075 "./glsl.g"
 
 case 61: {
     // nothing to do.
 }   break;
 
-#line 1066 "./glsl.g"
+#line 1082 "./glsl.g"
 
 case 62: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_LogicalOr, expression(1), expression(3));
 }   break;
 
-#line 1073 "./glsl.g"
+#line 1089 "./glsl.g"
 
 case 63: {
     // nothing to do.
 }   break;
 
-#line 1080 "./glsl.g"
+#line 1096 "./glsl.g"
 
 case 64: {
     ast(1) = makeAstNode<TernaryExpressionAST>(AST::Kind_Conditional, expression(1), expression(3), expression(5));
 }   break;
 
-#line 1087 "./glsl.g"
+#line 1103 "./glsl.g"
 
 case 65: {
     // nothing to do.
 }   break;
 
-#line 1094 "./glsl.g"
+#line 1110 "./glsl.g"
 
 case 66: {
     ast(1) = makeAstNode<AssignmentExpressionAST>(sym(2).kind, expression(1), expression(3));
 }   break;
 
-#line 1101 "./glsl.g"
+#line 1117 "./glsl.g"
 
 case 67: {
     sym(1).kind = AST::Kind_Assign;
 }   break;
 
-#line 1108 "./glsl.g"
+#line 1124 "./glsl.g"
 
 case 68: {
     sym(1).kind = AST::Kind_AssignMultiply;
 }   break;
 
-#line 1115 "./glsl.g"
+#line 1131 "./glsl.g"
 
 case 69: {
     sym(1).kind = AST::Kind_AssignDivide;
 }   break;
 
-#line 1122 "./glsl.g"
+#line 1138 "./glsl.g"
 
 case 70: {
     sym(1).kind = AST::Kind_AssignModulus;
 }   break;
 
-#line 1129 "./glsl.g"
+#line 1145 "./glsl.g"
 
 case 71: {
     sym(1).kind = AST::Kind_AssignPlus;
 }   break;
 
-#line 1136 "./glsl.g"
+#line 1152 "./glsl.g"
 
 case 72: {
     sym(1).kind = AST::Kind_AssignMinus;
 }   break;
 
-#line 1143 "./glsl.g"
+#line 1159 "./glsl.g"
 
 case 73: {
     sym(1).kind = AST::Kind_AssignShiftLeft;
 }   break;
 
-#line 1150 "./glsl.g"
+#line 1166 "./glsl.g"
 
 case 74: {
     sym(1).kind = AST::Kind_AssignShiftRight;
 }   break;
 
-#line 1157 "./glsl.g"
+#line 1173 "./glsl.g"
 
 case 75: {
     sym(1).kind = AST::Kind_AssignAnd;
 }   break;
 
-#line 1164 "./glsl.g"
+#line 1180 "./glsl.g"
 
 case 76: {
     sym(1).kind = AST::Kind_AssignXor;
 }   break;
 
-#line 1171 "./glsl.g"
+#line 1187 "./glsl.g"
 
 case 77: {
     sym(1).kind = AST::Kind_AssignOr;
 }   break;
 
-#line 1178 "./glsl.g"
+#line 1194 "./glsl.g"
 
 case 78: {
     // nothing to do.
 }   break;
 
-#line 1185 "./glsl.g"
+#line 1201 "./glsl.g"
 
 case 79: {
     ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_Comma, expression(1), expression(3));
 }   break;
 
-#line 1192 "./glsl.g"
+#line 1208 "./glsl.g"
 
 case 80: {
     // nothing to do.
 }   break;
 
-#line 1199 "./glsl.g"
+#line 1215 "./glsl.g"
 
 case 81: {
     // nothing to do.
 }   break;
 
-#line 1206 "./glsl.g"
+#line 1222 "./glsl.g"
 
 case 82: {
     ast(1) = makeAstNode<InitDeclarationAST>(sym(1).declaration_list);
 }   break;
 
-#line 1213 "./glsl.g"
+#line 1229 "./glsl.g"
 
 case 83: {
     ast(1) = makeAstNode<PrecisionDeclarationAST>(sym(2).precision, type(3));
 }   break;
 
-#line 1220 "./glsl.g"
+#line 1236 "./glsl.g"
 
 case 84: {
-    if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
-        // TODO: issue an error if the qualifier is not "struct".
+    const int qualifier = sym(1).type_qualifier.qualifier;
+    if ((qualifier & QualifiedTypeAST::Struct) == 0) {
+        if (!isInterfaceBlockStorageIdentifier(qualifier)) {
+            int loc = location(1);
+            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
+                error(lineno, "Missing storage qualifier.");
+            else
+                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+        }
+        TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        ast(1) = makeAstNode<TypeDeclarationAST>(type);
+    } else {
+        TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        ast(1) = makeAstNode<TypeDeclarationAST>(type);
     }
-    TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
-    ast(1) = makeAstNode<TypeDeclarationAST>(type);
 }   break;
 
-#line 1231 "./glsl.g"
+#line 1258 "./glsl.g"
 
 case 85: {
-    if ((sym(1).type_qualifier.qualifier & QualifiedTypeAST::Struct) == 0) {
-        // TODO: issue an error if the qualifier does not contain "struct".
+    const int qualifier = sym(1).type_qualifier.qualifier;
+    if ((qualifier & QualifiedTypeAST::Struct) == 0) {
+        if (!isInterfaceBlockStorageIdentifier(qualifier)) {
+            int loc = location(1);
+            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
+                error(lineno, "Missing storage qualifier.");
+            else
+                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+        }
+        TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>(type, string(6)));
+    } else {
+        TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        TypeAST *qualtype = type;
+        if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
+            qualtype = makeAstNode<QualifiedTypeAST>
+                (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
+                 sym(1).type_qualifier.layout_list);
+        }
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>(qualtype, string(6)));
     }
-    TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
-    TypeAST *qualtype = type;
-    if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
-        qualtype = makeAstNode<QualifiedTypeAST>
-            (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
-             sym(1).type_qualifier.layout_list);
-    }
-    ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
-        (makeAstNode<TypeDeclarationAST>(type),
-         makeAstNode<VariableDeclarationAST>(qualtype, string(6)));
-}   break;
-
-#line 1250 "./glsl.g"
-
-case 86: {
-    if ((sym(1).type_qualifier.qualifier & QualifiedTypeAST::Struct) == 0) {
-        // TODO: issue an error if the qualifier does not contain "struct".
-    }
-    TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
-    TypeAST *qualtype = type;
-    if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
-        qualtype = makeAstNode<QualifiedTypeAST>
-            (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
-             sym(1).type_qualifier.layout_list);
-    }
-    ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
-        (makeAstNode<TypeDeclarationAST>(type),
-         makeAstNode<VariableDeclarationAST>
-            (makeAstNode<ArrayTypeAST>(qualtype), string(6)));
-}   break;
-
-#line 1270 "./glsl.g"
-
-case 87: {
-    if ((sym(1).type_qualifier.qualifier & QualifiedTypeAST::Struct) == 0) {
-        // TODO: issue an error if the qualifier does not contain "struct".
-    }
-    TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
-    TypeAST *qualtype = type;
-    if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
-        qualtype = makeAstNode<QualifiedTypeAST>
-            (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
-             sym(1).type_qualifier.layout_list);
-    }
-    ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
-        (makeAstNode<TypeDeclarationAST>(type),
-         makeAstNode<VariableDeclarationAST>
-            (makeAstNode<ArrayTypeAST>(qualtype, expression(8)), string(6)));
 }   break;
 
 #line 1290 "./glsl.g"
+
+case 86: {
+    const int qualifier = sym(1).type_qualifier.qualifier;
+    if ((qualifier & QualifiedTypeAST::Struct) == 0) {
+        if (!isInterfaceBlockStorageIdentifier(qualifier)) {
+            int loc = location(1);
+            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
+                error(lineno, "Missing storage qualifier.");
+            else
+                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+        }
+        TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>
+                (makeAstNode<ArrayTypeAST>(type), string(6)));
+    } else {
+        TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        TypeAST *qualtype = type;
+        if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
+            qualtype = makeAstNode<QualifiedTypeAST>
+                (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
+                 sym(1).type_qualifier.layout_list);
+        }
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>
+                (makeAstNode<ArrayTypeAST>(qualtype), string(6)));
+    }
+}   break;
+
+#line 1324 "./glsl.g"
+
+case 87: {
+    const int qualifier = sym(1).type_qualifier.qualifier;
+    if ((qualifier & QualifiedTypeAST::Struct) == 0) {
+        if (!isInterfaceBlockStorageIdentifier(qualifier)) {
+            int loc = location(1);
+            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
+                error(lineno, "Missing storage qualifier.");
+            else
+                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+        }
+        TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>
+                (makeAstNode<ArrayTypeAST>(type, expression(8)), string(6)));
+    } else {
+        TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        TypeAST *qualtype = type;
+        if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
+            qualtype = makeAstNode<QualifiedTypeAST>
+                (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
+                 sym(1).type_qualifier.layout_list);
+        }
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>
+                (makeAstNode<ArrayTypeAST>(qualtype, expression(8)), string(6)));
+    }
+}   break;
+
+#line 1358 "./glsl.g"
 
 case 88: {
     TypeAST *type = makeAstNode<QualifiedTypeAST>
@@ -800,59 +852,59 @@ case 88: {
     ast(1) = makeAstNode<TypeDeclarationAST>(type);
 }   break;
 
-#line 1300 "./glsl.g"
+#line 1368 "./glsl.g"
 
 case 89: {
     function(1)->finishParams();
 }   break;
 
-#line 1307 "./glsl.g"
+#line 1375 "./glsl.g"
 
 case 90: {
     // nothing to do.
 }   break;
 
-#line 1314 "./glsl.g"
+#line 1382 "./glsl.g"
 
 case 91: {
     // nothing to do.
 }   break;
 
-#line 1321 "./glsl.g"
+#line 1389 "./glsl.g"
 
 case 92: {
     function(1)->params = makeAstNode< List<ParameterDeclarationAST *> >
         (sym(2).param_declaration);
 }   break;
 
-#line 1329 "./glsl.g"
+#line 1397 "./glsl.g"
 
 case 93: {
     function(1)->params = makeAstNode< List<ParameterDeclarationAST *> >
         (function(1)->params, sym(3).param_declaration);
 }   break;
 
-#line 1337 "./glsl.g"
+#line 1405 "./glsl.g"
 
 case 94: {
     function(1) = makeAstNode<FunctionDeclarationAST>(type(1), string(2));
 }   break;
 
-#line 1344 "./glsl.g"
+#line 1412 "./glsl.g"
 
 case 95: {
     sym(1).param_declarator.type = type(1);
     sym(1).param_declarator.name = string(2);
 }   break;
 
-#line 1352 "./glsl.g"
+#line 1420 "./glsl.g"
 
 case 96: {
     sym(1).param_declarator.type = makeAstNode<ArrayTypeAST>(type(1), expression(4));
     sym(1).param_declarator.name = string(2);
 }   break;
 
-#line 1360 "./glsl.g"
+#line 1428 "./glsl.g"
 
 case 97: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
@@ -863,7 +915,7 @@ case 97: {
          sym(3).param_declarator.name);
 }   break;
 
-#line 1372 "./glsl.g"
+#line 1440 "./glsl.g"
 
 case 98: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
@@ -872,7 +924,7 @@ case 98: {
          sym(2).param_declarator.name);
 }   break;
 
-#line 1382 "./glsl.g"
+#line 1450 "./glsl.g"
 
 case 99: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
@@ -882,7 +934,7 @@ case 99: {
          (const QString *)nullptr);
 }   break;
 
-#line 1393 "./glsl.g"
+#line 1461 "./glsl.g"
 
 case 100: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
@@ -890,44 +942,44 @@ case 100: {
          (const QString *)nullptr);
 }   break;
 
-#line 1402 "./glsl.g"
+#line 1470 "./glsl.g"
 
 case 101: {
     sym(1).qualifier = ParameterDeclarationAST::In;
 }   break;
 
-#line 1409 "./glsl.g"
+#line 1477 "./glsl.g"
 
 case 102: {
     sym(1).qualifier = ParameterDeclarationAST::In;
 }   break;
 
-#line 1416 "./glsl.g"
+#line 1484 "./glsl.g"
 
 case 103: {
     sym(1).qualifier = ParameterDeclarationAST::Out;
 }   break;
 
-#line 1423 "./glsl.g"
+#line 1491 "./glsl.g"
 
 case 104: {
     sym(1).qualifier = ParameterDeclarationAST::InOut;
 }   break;
 
-#line 1430 "./glsl.g"
+#line 1498 "./glsl.g"
 
 case 105: {
     // nothing to do.
 }   break;
 
-#line 1437 "./glsl.g"
+#line 1505 "./glsl.g"
 
 case 106: {
     sym(1).declaration_list = makeAstNode< List<DeclarationAST *> >
         (sym(1).declaration);
 }   break;
 
-#line 1445 "./glsl.g"
+#line 1513 "./glsl.g"
 
 case 107: {
     TypeAST *type = VariableDeclarationAST::declarationType(sym(1).declaration_list);
@@ -936,7 +988,7 @@ case 107: {
             (sym(1).declaration_list, decl);
 }   break;
 
-#line 1455 "./glsl.g"
+#line 1523 "./glsl.g"
 
 case 108: {
     TypeAST *type = VariableDeclarationAST::declarationType(sym(1).declaration_list);
@@ -946,7 +998,7 @@ case 108: {
             (sym(1).declaration_list, decl);
 }   break;
 
-#line 1466 "./glsl.g"
+#line 1534 "./glsl.g"
 
 case 109: {
     TypeAST *type = VariableDeclarationAST::declarationType(sym(1).declaration_list);
@@ -956,7 +1008,7 @@ case 109: {
             (sym(1).declaration_list, decl);
 }   break;
 
-#line 1477 "./glsl.g"
+#line 1545 "./glsl.g"
 
 case 110: {
     TypeAST *type = VariableDeclarationAST::declarationType(sym(1).declaration_list);
@@ -967,7 +1019,7 @@ case 110: {
             (sym(1).declaration_list, decl);
 }   break;
 
-#line 1489 "./glsl.g"
+#line 1557 "./glsl.g"
 
 case 111: {
     TypeAST *type = VariableDeclarationAST::declarationType(sym(1).declaration_list);
@@ -978,7 +1030,7 @@ case 111: {
             (sym(1).declaration_list, decl);
 }   break;
 
-#line 1501 "./glsl.g"
+#line 1569 "./glsl.g"
 
 case 112: {
     TypeAST *type = VariableDeclarationAST::declarationType(sym(1).declaration_list);
@@ -988,40 +1040,40 @@ case 112: {
             (sym(1).declaration_list, decl);
 }   break;
 
-#line 1512 "./glsl.g"
+#line 1580 "./glsl.g"
 
 case 113: {
     ast(1) = makeAstNode<TypeDeclarationAST>(type(1));
 }   break;
 
-#line 1519 "./glsl.g"
+#line 1587 "./glsl.g"
 
 case 114: {
     ast(1) = makeAstNode<VariableDeclarationAST>(type(1), string(2));
 }   break;
 
-#line 1526 "./glsl.g"
+#line 1594 "./glsl.g"
 
 case 115: {
     ast(1) = makeAstNode<VariableDeclarationAST>
         (makeAstNode<ArrayTypeAST>(type(1)), string(2));
 }   break;
 
-#line 1534 "./glsl.g"
+#line 1602 "./glsl.g"
 
 case 116: {
     ast(1) = makeAstNode<VariableDeclarationAST>
         (makeAstNode<ArrayTypeAST>(type(1), expression(4)), string(2));
 }   break;
 
-#line 1542 "./glsl.g"
+#line 1610 "./glsl.g"
 
 case 117: {
     ast(1) = makeAstNode<VariableDeclarationAST>
         (makeAstNode<ArrayTypeAST>(type(1)), string(2), expression(6));
 }   break;
 
-#line 1550 "./glsl.g"
+#line 1618 "./glsl.g"
 
 case 118: {
     ast(1) = makeAstNode<VariableDeclarationAST>
@@ -1029,26 +1081,26 @@ case 118: {
          string(2), expression(7));
 }   break;
 
-#line 1559 "./glsl.g"
+#line 1627 "./glsl.g"
 
 case 119: {
     ast(1) = makeAstNode<VariableDeclarationAST>
         (type(1), string(2), expression(4));
 }   break;
 
-#line 1567 "./glsl.g"
+#line 1635 "./glsl.g"
 
 case 120: {
     ast(1) = makeAstNode<InvariantDeclarationAST>(string(2));
 }   break;
 
-#line 1574 "./glsl.g"
+#line 1642 "./glsl.g"
 
 case 121: {
     ast(1) = makeAstNode<QualifiedTypeAST>(0, type(1), (List<LayoutQualifierAST *> *)nullptr);
 }   break;
 
-#line 1581 "./glsl.g"
+#line 1649 "./glsl.g"
 
 case 122: {
     ast(1) = makeAstNode<QualifiedTypeAST>
@@ -1056,207 +1108,207 @@ case 122: {
          sym(1).type_qualifier.layout_list);
 }   break;
 
-#line 1590 "./glsl.g"
+#line 1658 "./glsl.g"
 
 case 123: {
     sym(1).qualifier = QualifiedTypeAST::Invariant;
 }   break;
 
-#line 1597 "./glsl.g"
+#line 1665 "./glsl.g"
 
 case 124: {
     sym(1).qualifier = QualifiedTypeAST::Smooth;
 }   break;
 
-#line 1604 "./glsl.g"
+#line 1672 "./glsl.g"
 
 case 125: {
     sym(1).qualifier = QualifiedTypeAST::Flat;
 }   break;
 
-#line 1611 "./glsl.g"
+#line 1679 "./glsl.g"
 
 case 126: {
     sym(1).qualifier = QualifiedTypeAST::NoPerspective;
 }   break;
 
-#line 1618 "./glsl.g"
+#line 1686 "./glsl.g"
 
 case 127: {
     sym(1) = sym(3);
 }   break;
 
-#line 1625 "./glsl.g"
+#line 1693 "./glsl.g"
 
 case 128: {
     sym(1).layout_list = makeAstNode< List<LayoutQualifierAST *> >(sym(1).layout);
 }   break;
 
-#line 1632 "./glsl.g"
+#line 1700 "./glsl.g"
 
 case 129: {
     sym(1).layout_list = makeAstNode< List<LayoutQualifierAST *> >(sym(1).layout_list, sym(3).layout);
 }   break;
 
-#line 1639 "./glsl.g"
+#line 1707 "./glsl.g"
 
 case 130: {
     sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)nullptr);
 }   break;
 
-#line 1646 "./glsl.g"
+#line 1714 "./glsl.g"
 
 case 131: {
     sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), string(3));
 }   break;
 
-#line 1653 "./glsl.g"
+#line 1721 "./glsl.g"
 
 case 132: {
     sym(1).qualifier = QualifiedTypeAST::Const;
 }   break;
 
-#line 1660 "./glsl.g"
+#line 1728 "./glsl.g"
 
 case 133: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier;
     sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
-#line 1668 "./glsl.g"
+#line 1736 "./glsl.g"
 
 case 134: {
     sym(1).type_qualifier.layout_list = sym(1).layout_list;
     sym(1).type_qualifier.qualifier = 0;
 }   break;
 
-#line 1676 "./glsl.g"
+#line 1744 "./glsl.g"
 
 case 135: {
     sym(1).type_qualifier.layout_list = sym(1).layout_list;
     sym(1).type_qualifier.qualifier = sym(2).qualifier;
 }   break;
 
-#line 1684 "./glsl.g"
+#line 1752 "./glsl.g"
 
 case 136: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier;
     sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
-#line 1692 "./glsl.g"
+#line 1760 "./glsl.g"
 
 case 137: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier;
     sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
-#line 1700 "./glsl.g"
+#line 1768 "./glsl.g"
 
 case 138: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier;
     sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
-#line 1708 "./glsl.g"
+#line 1776 "./glsl.g"
 
 case 139: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier | sym(3).qualifier;
     sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
-#line 1716 "./glsl.g"
+#line 1784 "./glsl.g"
 
 case 140: {
     sym(1).type_qualifier.qualifier = QualifiedTypeAST::Invariant;
     sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 
-#line 1724 "./glsl.g"
+#line 1792 "./glsl.g"
 
 case 141: {
     sym(1).qualifier = QualifiedTypeAST::Const;
 }   break;
 
-#line 1731 "./glsl.g"
+#line 1799 "./glsl.g"
 
 case 142: {
     sym(1).qualifier = QualifiedTypeAST::Attribute;
 }   break;
 
-#line 1738 "./glsl.g"
+#line 1806 "./glsl.g"
 
 case 143: {
     sym(1).qualifier = QualifiedTypeAST::Varying;
 }   break;
 
-#line 1745 "./glsl.g"
+#line 1813 "./glsl.g"
 
 case 144: {
     sym(1).qualifier = QualifiedTypeAST::CentroidVarying;
 }   break;
 
-#line 1752 "./glsl.g"
+#line 1820 "./glsl.g"
 
 case 145: {
     sym(1).qualifier = QualifiedTypeAST::In;
 }   break;
 
-#line 1759 "./glsl.g"
+#line 1827 "./glsl.g"
 
 case 146: {
     sym(1).qualifier = QualifiedTypeAST::Out;
 }   break;
 
-#line 1766 "./glsl.g"
+#line 1834 "./glsl.g"
 
 case 147: {
     sym(1).qualifier = QualifiedTypeAST::CentroidIn;
 }   break;
 
-#line 1773 "./glsl.g"
+#line 1841 "./glsl.g"
 
 case 148: {
     sym(1).qualifier = QualifiedTypeAST::CentroidOut;
 }   break;
 
-#line 1780 "./glsl.g"
+#line 1848 "./glsl.g"
 
 case 149: {
     sym(1).qualifier = QualifiedTypeAST::PatchIn;
 }   break;
 
-#line 1787 "./glsl.g"
+#line 1855 "./glsl.g"
 
 case 150: {
     sym(1).qualifier = QualifiedTypeAST::PatchOut;
 }   break;
 
-#line 1794 "./glsl.g"
+#line 1862 "./glsl.g"
 
 case 151: {
     sym(1).qualifier = QualifiedTypeAST::SampleIn;
 }   break;
 
-#line 1801 "./glsl.g"
+#line 1869 "./glsl.g"
 
 case 152: {
     sym(1).qualifier = QualifiedTypeAST::SampleOut;
 }   break;
 
-#line 1808 "./glsl.g"
+#line 1876 "./glsl.g"
 
 case 153: {
     sym(1).qualifier = QualifiedTypeAST::Uniform;
 }   break;
 
-#line 1815 "./glsl.g"
+#line 1883 "./glsl.g"
 
 case 154: {
     // nothing to do.
 }   break;
 
-#line 1822 "./glsl.g"
+#line 1890 "./glsl.g"
 
 case 155: {
     if (!type(2)->setPrecision(sym(1).precision)) {
@@ -1265,799 +1317,799 @@ case 155: {
     ast(1) = type(2);
 }   break;
 
-#line 1832 "./glsl.g"
+#line 1900 "./glsl.g"
 
 case 156: {
     // nothing to do.
 }   break;
 
-#line 1839 "./glsl.g"
+#line 1907 "./glsl.g"
 
 case 157: {
     ast(1) = makeAstNode<ArrayTypeAST>(type(1));
 }   break;
 
-#line 1846 "./glsl.g"
+#line 1914 "./glsl.g"
 
 case 158: {
     ast(1) = makeAstNode<ArrayTypeAST>(type(1), expression(3));
 }   break;
 
-#line 1853 "./glsl.g"
+#line 1921 "./glsl.g"
 
 case 159: {
     ast(1) = makeBasicType(T_VOID);
 }   break;
 
-#line 1860 "./glsl.g"
+#line 1928 "./glsl.g"
 
 case 160: {
     ast(1) = makeBasicType(T_FLOAT);
 }   break;
 
-#line 1867 "./glsl.g"
+#line 1935 "./glsl.g"
 
 case 161: {
     ast(1) = makeBasicType(T_DOUBLE);
 }   break;
 
-#line 1874 "./glsl.g"
+#line 1942 "./glsl.g"
 
 case 162: {
     ast(1) = makeBasicType(T_INT);
 }   break;
 
-#line 1881 "./glsl.g"
+#line 1949 "./glsl.g"
 
 case 163: {
     ast(1) = makeBasicType(T_UINT);
 }   break;
 
-#line 1888 "./glsl.g"
+#line 1956 "./glsl.g"
 
 case 164: {
     ast(1) = makeBasicType(T_ATOMIC_UINT);
 } break;
 
-#line 1895 "./glsl.g"
+#line 1963 "./glsl.g"
 
 case 165: {
     ast(1) = makeBasicType(T_BOOL);
 }   break;
 
-#line 1902 "./glsl.g"
+#line 1970 "./glsl.g"
 
 case 166: {
     ast(1) = makeBasicType(T_VEC2);
 }   break;
 
-#line 1909 "./glsl.g"
+#line 1977 "./glsl.g"
 
 case 167: {
     ast(1) = makeBasicType(T_VEC3);
 }   break;
 
-#line 1916 "./glsl.g"
+#line 1984 "./glsl.g"
 
 case 168: {
     ast(1) = makeBasicType(T_VEC4);
 }   break;
 
-#line 1923 "./glsl.g"
+#line 1991 "./glsl.g"
 
 case 169: {
     ast(1) = makeBasicType(T_DVEC2);
 }   break;
 
-#line 1930 "./glsl.g"
+#line 1998 "./glsl.g"
 
 case 170: {
     ast(1) = makeBasicType(T_DVEC3);
 }   break;
 
-#line 1937 "./glsl.g"
+#line 2005 "./glsl.g"
 
 case 171: {
     ast(1) = makeBasicType(T_DVEC4);
 }   break;
 
-#line 1944 "./glsl.g"
+#line 2012 "./glsl.g"
 
 case 172: {
     ast(1) = makeBasicType(T_BVEC2);
 }   break;
 
-#line 1951 "./glsl.g"
+#line 2019 "./glsl.g"
 
 case 173: {
     ast(1) = makeBasicType(T_BVEC3);
 }   break;
 
-#line 1958 "./glsl.g"
+#line 2026 "./glsl.g"
 
 case 174: {
     ast(1) = makeBasicType(T_BVEC4);
 }   break;
 
-#line 1965 "./glsl.g"
+#line 2033 "./glsl.g"
 
 case 175: {
     ast(1) = makeBasicType(T_IVEC2);
 }   break;
 
-#line 1972 "./glsl.g"
+#line 2040 "./glsl.g"
 
 case 176: {
     ast(1) = makeBasicType(T_IVEC3);
 }   break;
 
-#line 1979 "./glsl.g"
+#line 2047 "./glsl.g"
 
 case 177: {
     ast(1) = makeBasicType(T_IVEC4);
 }   break;
 
-#line 1986 "./glsl.g"
+#line 2054 "./glsl.g"
 
 case 178: {
     ast(1) = makeBasicType(T_UVEC2);
 }   break;
 
-#line 1993 "./glsl.g"
+#line 2061 "./glsl.g"
 
 case 179: {
     ast(1) = makeBasicType(T_UVEC3);
 }   break;
 
-#line 2000 "./glsl.g"
+#line 2068 "./glsl.g"
 
 case 180: {
     ast(1) = makeBasicType(T_UVEC4);
 }   break;
 
-#line 2007 "./glsl.g"
+#line 2075 "./glsl.g"
 
 case 181: {
     ast(1) = makeBasicType(T_MAT2);
 }   break;
 
-#line 2014 "./glsl.g"
+#line 2082 "./glsl.g"
 
 case 182: {
     ast(1) = makeBasicType(T_MAT3);
 }   break;
 
-#line 2021 "./glsl.g"
+#line 2089 "./glsl.g"
 
 case 183: {
     ast(1) = makeBasicType(T_MAT4);
 }   break;
 
-#line 2028 "./glsl.g"
+#line 2096 "./glsl.g"
 
 case 184: {
     ast(1) = makeBasicType(T_MAT2);
 }   break;
 
-#line 2035 "./glsl.g"
+#line 2103 "./glsl.g"
 
 case 185: {
     ast(1) = makeBasicType(T_MAT2X3);
 }   break;
 
-#line 2042 "./glsl.g"
+#line 2110 "./glsl.g"
 
 case 186: {
     ast(1) = makeBasicType(T_MAT2X4);
 }   break;
 
-#line 2049 "./glsl.g"
+#line 2117 "./glsl.g"
 
 case 187: {
     ast(1) = makeBasicType(T_MAT3X2);
 }   break;
 
-#line 2056 "./glsl.g"
+#line 2124 "./glsl.g"
 
 case 188: {
     ast(1) = makeBasicType(T_MAT3);
 }   break;
 
-#line 2063 "./glsl.g"
+#line 2131 "./glsl.g"
 
 case 189: {
     ast(1) = makeBasicType(T_MAT3X4);
 }   break;
 
-#line 2070 "./glsl.g"
+#line 2138 "./glsl.g"
 
 case 190: {
     ast(1) = makeBasicType(T_MAT4X2);
 }   break;
 
-#line 2077 "./glsl.g"
+#line 2145 "./glsl.g"
 
 case 191: {
     ast(1) = makeBasicType(T_MAT4X3);
 }   break;
 
-#line 2084 "./glsl.g"
+#line 2152 "./glsl.g"
 
 case 192: {
     ast(1) = makeBasicType(T_MAT4);
 }   break;
 
-#line 2091 "./glsl.g"
+#line 2159 "./glsl.g"
 
 case 193: {
     ast(1) = makeBasicType(T_DMAT2);
 }   break;
 
-#line 2098 "./glsl.g"
+#line 2166 "./glsl.g"
 
 case 194: {
     ast(1) = makeBasicType(T_DMAT3);
 }   break;
 
-#line 2105 "./glsl.g"
+#line 2173 "./glsl.g"
 
 case 195: {
     ast(1) = makeBasicType(T_DMAT4);
 }   break;
 
-#line 2112 "./glsl.g"
+#line 2180 "./glsl.g"
 
 case 196: {
     ast(1) = makeBasicType(T_DMAT2);
 }   break;
 
-#line 2119 "./glsl.g"
+#line 2187 "./glsl.g"
 
 case 197: {
     ast(1) = makeBasicType(T_DMAT2X3);
 }   break;
 
-#line 2126 "./glsl.g"
+#line 2194 "./glsl.g"
 
 case 198: {
     ast(1) = makeBasicType(T_DMAT2X4);
 }   break;
 
-#line 2133 "./glsl.g"
+#line 2201 "./glsl.g"
 
 case 199: {
     ast(1) = makeBasicType(T_DMAT3X2);
 }   break;
 
-#line 2140 "./glsl.g"
+#line 2208 "./glsl.g"
 
 case 200: {
     ast(1) = makeBasicType(T_DMAT3);
 }   break;
 
-#line 2147 "./glsl.g"
+#line 2215 "./glsl.g"
 
 case 201: {
     ast(1) = makeBasicType(T_DMAT3X4);
 }   break;
 
-#line 2154 "./glsl.g"
+#line 2222 "./glsl.g"
 
 case 202: {
     ast(1) = makeBasicType(T_DMAT4X2);
 }   break;
 
-#line 2161 "./glsl.g"
+#line 2229 "./glsl.g"
 
 case 203: {
     ast(1) = makeBasicType(T_DMAT4X3);
 }   break;
 
-#line 2168 "./glsl.g"
+#line 2236 "./glsl.g"
 
 case 204: {
     ast(1) = makeBasicType(T_DMAT4);
 }   break;
 
-#line 2175 "./glsl.g"
+#line 2243 "./glsl.g"
 
 case 205: {
     ast(1) = makeBasicType(T_SAMPLER1D);
 }   break;
 
-#line 2182 "./glsl.g"
+#line 2250 "./glsl.g"
 
 case 206: {
     ast(1) = makeBasicType(T_SAMPLER2D);
 }   break;
 
-#line 2189 "./glsl.g"
+#line 2257 "./glsl.g"
 
 case 207: {
     ast(1) = makeBasicType(T_SAMPLER3D);
 }   break;
 
-#line 2196 "./glsl.g"
+#line 2264 "./glsl.g"
 
 case 208: {
     ast(1) = makeBasicType(T_SAMPLERCUBE);
 }   break;
 
-#line 2203 "./glsl.g"
+#line 2271 "./glsl.g"
 
 case 209: {
     ast(1) = makeBasicType(T_SAMPLER1DSHADOW);
 }   break;
 
-#line 2210 "./glsl.g"
+#line 2278 "./glsl.g"
 
 case 210: {
     ast(1) = makeBasicType(T_SAMPLER2DSHADOW);
 }   break;
 
-#line 2217 "./glsl.g"
+#line 2285 "./glsl.g"
 
 case 211: {
     ast(1) = makeBasicType(T_SAMPLERCUBESHADOW);
 }   break;
 
-#line 2224 "./glsl.g"
+#line 2292 "./glsl.g"
 
 case 212: {
     ast(1) = makeBasicType(T_SAMPLER1DARRAY);
 }   break;
 
-#line 2231 "./glsl.g"
+#line 2299 "./glsl.g"
 
 case 213: {
     ast(1) = makeBasicType(T_SAMPLER2DARRAY);
 }   break;
 
-#line 2238 "./glsl.g"
+#line 2306 "./glsl.g"
 
 case 214: {
     ast(1) = makeBasicType(T_SAMPLER1DARRAYSHADOW);
 }   break;
 
-#line 2245 "./glsl.g"
+#line 2313 "./glsl.g"
 
 case 215: {
     ast(1) = makeBasicType(T_SAMPLER2DARRAYSHADOW);
 }   break;
 
-#line 2252 "./glsl.g"
+#line 2320 "./glsl.g"
 
 case 216: {
     ast(1) = makeBasicType(T_SAMPLERCUBEARRAY);
 }   break;
 
-#line 2259 "./glsl.g"
+#line 2327 "./glsl.g"
 
 case 217: {
     ast(1) = makeBasicType(T_SAMPLERCUBEARRAYSHADOW);
 }   break;
 
-#line 2266 "./glsl.g"
+#line 2334 "./glsl.g"
 
 case 218: {
     ast(1) = makeBasicType(T_ISAMPLER1D);
 }   break;
 
-#line 2273 "./glsl.g"
+#line 2341 "./glsl.g"
 
 case 219: {
     ast(1) = makeBasicType(T_ISAMPLER2D);
 }   break;
 
-#line 2280 "./glsl.g"
+#line 2348 "./glsl.g"
 
 case 220: {
     ast(1) = makeBasicType(T_ISAMPLER3D);
 }   break;
 
-#line 2287 "./glsl.g"
+#line 2355 "./glsl.g"
 
 case 221: {
     ast(1) = makeBasicType(T_ISAMPLERCUBE);
 }   break;
 
-#line 2294 "./glsl.g"
+#line 2362 "./glsl.g"
 
 case 222: {
     ast(1) = makeBasicType(T_ISAMPLER1DARRAY);
 }   break;
 
-#line 2301 "./glsl.g"
+#line 2369 "./glsl.g"
 
 case 223: {
     ast(1) = makeBasicType(T_ISAMPLER2DARRAY);
 }   break;
 
-#line 2308 "./glsl.g"
+#line 2376 "./glsl.g"
 
 case 224: {
     ast(1) = makeBasicType(T_ISAMPLERCUBEARRAY);
 }   break;
 
-#line 2315 "./glsl.g"
+#line 2383 "./glsl.g"
 
 case 225: {
     ast(1) = makeBasicType(T_USAMPLER1D);
 }   break;
 
-#line 2322 "./glsl.g"
+#line 2390 "./glsl.g"
 
 case 226: {
     ast(1) = makeBasicType(T_USAMPLER2D);
 }   break;
 
-#line 2329 "./glsl.g"
+#line 2397 "./glsl.g"
 
 case 227: {
     ast(1) = makeBasicType(T_USAMPLER3D);
 }   break;
 
-#line 2336 "./glsl.g"
+#line 2404 "./glsl.g"
 
 case 228: {
     ast(1) = makeBasicType(T_USAMPLERCUBE);
 }   break;
 
-#line 2343 "./glsl.g"
+#line 2411 "./glsl.g"
 
 case 229: {
     ast(1) = makeBasicType(T_USAMPLER1DARRAY);
 }   break;
 
-#line 2350 "./glsl.g"
+#line 2418 "./glsl.g"
 
 case 230: {
     ast(1) = makeBasicType(T_USAMPLER2DARRAY);
 }   break;
 
-#line 2357 "./glsl.g"
+#line 2425 "./glsl.g"
 
 case 231: {
     ast(1) = makeBasicType(T_USAMPLERCUBEARRAY);
 }   break;
 
-#line 2364 "./glsl.g"
+#line 2432 "./glsl.g"
 
 case 232: {
     ast(1) = makeBasicType(T_SAMPLER2DRECT);
 }   break;
 
-#line 2371 "./glsl.g"
+#line 2439 "./glsl.g"
 
 case 233: {
     ast(1) = makeBasicType(T_SAMPLER2DRECTSHADOW);
 }   break;
 
-#line 2378 "./glsl.g"
+#line 2446 "./glsl.g"
 
 case 234: {
     ast(1) = makeBasicType(T_ISAMPLER2DRECT);
 }   break;
 
-#line 2385 "./glsl.g"
+#line 2453 "./glsl.g"
 
 case 235: {
     ast(1) = makeBasicType(T_USAMPLER2DRECT);
 }   break;
 
-#line 2392 "./glsl.g"
+#line 2460 "./glsl.g"
 
 case 236: {
     ast(1) = makeBasicType(T_SAMPLERBUFFER);
 }   break;
 
-#line 2399 "./glsl.g"
+#line 2467 "./glsl.g"
 
 case 237: {
     ast(1) = makeBasicType(T_ISAMPLERBUFFER);
 }   break;
 
-#line 2406 "./glsl.g"
+#line 2474 "./glsl.g"
 
 case 238: {
     ast(1) = makeBasicType(T_USAMPLERBUFFER);
 }   break;
 
-#line 2413 "./glsl.g"
+#line 2481 "./glsl.g"
 
 case 239: {
     ast(1) = makeBasicType(T_SAMPLER2DMS);
 }   break;
 
-#line 2420 "./glsl.g"
+#line 2488 "./glsl.g"
 
 case 240: {
     ast(1) = makeBasicType(T_ISAMPLER2DMS);
 }   break;
 
-#line 2427 "./glsl.g"
+#line 2495 "./glsl.g"
 
 case 241: {
     ast(1) = makeBasicType(T_USAMPLER2DMS);
 }   break;
 
-#line 2434 "./glsl.g"
+#line 2502 "./glsl.g"
 
 case 242: {
     ast(1) = makeBasicType(T_SAMPLER2DMSARRAY);
 }   break;
 
-#line 2441 "./glsl.g"
+#line 2509 "./glsl.g"
 
 case 243: {
     ast(1) = makeBasicType(T_ISAMPLER2DMSARRAY);
 }   break;
 
-#line 2448 "./glsl.g"
+#line 2516 "./glsl.g"
 
 case 244: {
     ast(1) = makeBasicType(T_USAMPLER2DMSARRAY);
 }   break;
 
-#line 2455 "./glsl.g"
+#line 2523 "./glsl.g"
 
 case 245: {
     ast(1) = makeBasicType(T_IIMAGE1D);
 } break;
 
-#line 2462 "./glsl.g"
+#line 2530 "./glsl.g"
 
 case 246: {
     ast(1) = makeBasicType(T_IIMAGE1DARRAY);
 } break;
 
-#line 2469 "./glsl.g"
+#line 2537 "./glsl.g"
 
 case 247: {
     ast(1) = makeBasicType(T_IIMAGE2D);
 } break;
 
-#line 2476 "./glsl.g"
+#line 2544 "./glsl.g"
 
 case 248: {
     ast(1) = makeBasicType(T_IIMAGE2DARRAY);
 } break;
 
-#line 2483 "./glsl.g"
+#line 2551 "./glsl.g"
 
 case 249: {
     ast(1) = makeBasicType(T_IIMAGE2DMS);
 } break;
 
-#line 2490 "./glsl.g"
+#line 2558 "./glsl.g"
 
 case 250: {
     ast(1) = makeBasicType(T_IIMAGE2DMSARRAY);
 } break;
 
-#line 2497 "./glsl.g"
+#line 2565 "./glsl.g"
 
 case 251: {
     ast(1) = makeBasicType(T_IIMAGE2DRECT);
 } break;
 
-#line 2504 "./glsl.g"
+#line 2572 "./glsl.g"
 
 case 252: {
     ast(1) = makeBasicType(T_IIMAGE3D);
 } break;
 
-#line 2511 "./glsl.g"
+#line 2579 "./glsl.g"
 
 case 253: {
     ast(1) = makeBasicType(T_IIMAGEBUFFER);
 } break;
 
-#line 2518 "./glsl.g"
+#line 2586 "./glsl.g"
 
 case 254: {
     ast(1) = makeBasicType(T_IIMAGECUBE);
 } break;
 
-#line 2525 "./glsl.g"
+#line 2593 "./glsl.g"
 
 case 255: {
     ast(1) = makeBasicType(T_IIMAGECUBEARRAY);
 } break;
 
-#line 2532 "./glsl.g"
+#line 2600 "./glsl.g"
 
 case 256: {
     ast(1) = makeBasicType(T_IMAGE1D);
 } break;
 
-#line 2539 "./glsl.g"
+#line 2607 "./glsl.g"
 
 case 257: {
     ast(1) = makeBasicType(T_IMAGE1DARRAY);
 } break;
 
-#line 2546 "./glsl.g"
+#line 2614 "./glsl.g"
 
 case 258: {
     ast(1) = makeBasicType(T_IMAGE2D);
 } break;
 
-#line 2553 "./glsl.g"
+#line 2621 "./glsl.g"
 
 case 259: {
     ast(1) = makeBasicType(T_IMAGE2DARRAY);
 } break;
 
-#line 2560 "./glsl.g"
+#line 2628 "./glsl.g"
 
 case 260: {
     ast(1) = makeBasicType(T_IMAGE2DMS);
 } break;
 
-#line 2567 "./glsl.g"
+#line 2635 "./glsl.g"
 
 case 261: {
     ast(1) = makeBasicType(T_IMAGE2DMSARRAY);
 } break;
 
-#line 2574 "./glsl.g"
+#line 2642 "./glsl.g"
 
 case 262: {
     ast(1) = makeBasicType(T_IMAGE2DRECT);
 } break;
 
-#line 2581 "./glsl.g"
+#line 2649 "./glsl.g"
 
 case 263: {
     ast(1) = makeBasicType(T_IMAGE3D);
 } break;
 
-#line 2588 "./glsl.g"
+#line 2656 "./glsl.g"
 
 case 264: {
     ast(1) = makeBasicType(T_IMAGEBUFFER);
 } break;
 
-#line 2595 "./glsl.g"
+#line 2663 "./glsl.g"
 
 case 265: {
     ast(1) = makeBasicType(T_IMAGECUBE);
 } break;
 
-#line 2602 "./glsl.g"
+#line 2670 "./glsl.g"
 
 case 266: {
     ast(1) = makeBasicType(T_IMAGECUBEARRAY);
 } break;
 
-#line 2609 "./glsl.g"
+#line 2677 "./glsl.g"
 
 case 267: {
     ast(1) = makeBasicType(T_UIMAGE1D);
 } break;
 
-#line 2616 "./glsl.g"
+#line 2684 "./glsl.g"
 
 case 268: {
     ast(1) = makeBasicType(T_UIMAGE1DARRAY);
 } break;
 
-#line 2623 "./glsl.g"
+#line 2691 "./glsl.g"
 
 case 269: {
     ast(1) = makeBasicType(T_UIMAGE2D);
 } break;
 
-#line 2630 "./glsl.g"
+#line 2698 "./glsl.g"
 
 case 270: {
     ast(1) = makeBasicType(T_UIMAGE2DARRAY);
 } break;
 
-#line 2637 "./glsl.g"
+#line 2705 "./glsl.g"
 
 case 271: {
     ast(1) = makeBasicType(T_UIMAGE2DMS);
 } break;
 
-#line 2644 "./glsl.g"
+#line 2712 "./glsl.g"
 
 case 272: {
     ast(1) = makeBasicType(T_UIMAGE2DMSARRAY);
 } break;
 
-#line 2651 "./glsl.g"
+#line 2719 "./glsl.g"
 
 case 273: {
     ast(1) = makeBasicType(T_UIMAGE2DRECT);
 } break;
 
-#line 2658 "./glsl.g"
+#line 2726 "./glsl.g"
 
 case 274: {
     ast(1) = makeBasicType(T_UIMAGE3D);
 } break;
 
-#line 2665 "./glsl.g"
+#line 2733 "./glsl.g"
 
 case 275: {
     ast(1) = makeBasicType(T_UIMAGEBUFFER);
 } break;
 
-#line 2672 "./glsl.g"
+#line 2740 "./glsl.g"
 
 case 276: {
     ast(1) = makeBasicType(T_UIMAGECUBE);
 } break;
 
-#line 2679 "./glsl.g"
+#line 2747 "./glsl.g"
 
 case 277: {
     ast(1) = makeBasicType(T_UIMAGECUBEARRAY);
 } break;
 
-#line 2686 "./glsl.g"
+#line 2754 "./glsl.g"
 
 case 278: {
     // nothing to do.
 }   break;
 
-#line 2693 "./glsl.g"
+#line 2761 "./glsl.g"
 
 case 279: {
     ast(1) = makeAstNode<NamedTypeAST>(string(1));
 }   break;
 
-#line 2700 "./glsl.g"
+#line 2768 "./glsl.g"
 
 case 280: {
     sym(1).precision = TypeAST::Highp;
 }   break;
 
-#line 2707 "./glsl.g"
+#line 2775 "./glsl.g"
 
 case 281: {
     sym(1).precision = TypeAST::Mediump;
 }   break;
 
-#line 2714 "./glsl.g"
+#line 2782 "./glsl.g"
 
 case 282: {
     sym(1).precision = TypeAST::Lowp;
 }   break;
 
-#line 2721 "./glsl.g"
+#line 2789 "./glsl.g"
 
 case 283: {
     ast(1) = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
 }   break;
 
-#line 2728 "./glsl.g"
+#line 2796 "./glsl.g"
 
 case 284: {
     ast(1) = makeAstNode<StructTypeAST>(sym(3).field_list);
 }   break;
 
-#line 2735 "./glsl.g"
+#line 2803 "./glsl.g"
 
 case 285: {
     // nothing to do.
 }   break;
 
-#line 2742 "./glsl.g"
+#line 2810 "./glsl.g"
 
 case 286: {
     sym(1).field_list = appendLists(sym(1).field_list, sym(2).field_list);
 }   break;
 
-#line 2749 "./glsl.g"
+#line 2817 "./glsl.g"
 
 case 287: {
     sym(1).field_list = StructTypeAST::fixInnerTypes(type(1), sym(2).field_list);
 }   break;
 
-#line 2756 "./glsl.g"
+#line 2824 "./glsl.g"
 
 case 288: {
     sym(1).field_list = StructTypeAST::fixInnerTypes
@@ -2066,106 +2118,106 @@ case 288: {
              sym(1).type_qualifier.layout_list), sym(3).field_list);
 }   break;
 
-#line 2766 "./glsl.g"
+#line 2834 "./glsl.g"
 
 case 289: {
     // nothing to do.
     sym(1).field_list = makeAstNode< List<StructTypeAST::Field *> >(sym(1).field);
 }   break;
 
-#line 2774 "./glsl.g"
+#line 2842 "./glsl.g"
 
 case 290: {
     sym(1).field_list = makeAstNode< List<StructTypeAST::Field *> >(sym(1).field_list, sym(3).field);
 }   break;
 
-#line 2781 "./glsl.g"
+#line 2849 "./glsl.g"
 
 case 291: {
     sym(1).field = makeAstNode<StructTypeAST::Field>(string(1));
 }   break;
 
-#line 2788 "./glsl.g"
+#line 2856 "./glsl.g"
 
 case 292: {
     sym(1).field = makeAstNode<StructTypeAST::Field>
         (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)nullptr));
 }   break;
 
-#line 2796 "./glsl.g"
+#line 2864 "./glsl.g"
 
 case 293: {
     sym(1).field = makeAstNode<StructTypeAST::Field>
         (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)nullptr, expression(3)));
 }   break;
 
-#line 2804 "./glsl.g"
+#line 2872 "./glsl.g"
 
 case 294: {
     // nothing to do.
 }   break;
 
-#line 2811 "./glsl.g"
+#line 2879 "./glsl.g"
 
 case 295: {
     ast(1) = makeAstNode<DeclarationStatementAST>(sym(1).declaration);
 }   break;
 
-#line 2818 "./glsl.g"
+#line 2886 "./glsl.g"
 
 case 296: {
     // nothing to do.
 }   break;
 
-#line 2825 "./glsl.g"
+#line 2893 "./glsl.g"
 
 case 297: {
     // nothing to do.
 }   break;
 
-#line 2832 "./glsl.g"
+#line 2900 "./glsl.g"
 
 case 298: {
     // nothing to do.
 }   break;
 
-#line 2839 "./glsl.g"
+#line 2907 "./glsl.g"
 
 case 299: {
     // nothing to do.
 }   break;
 
-#line 2846 "./glsl.g"
+#line 2914 "./glsl.g"
 
 case 300: {
     // nothing to do.
 }   break;
 
-#line 2853 "./glsl.g"
+#line 2921 "./glsl.g"
 
 case 301: {
     // nothing to do.
 }   break;
 
-#line 2860 "./glsl.g"
+#line 2928 "./glsl.g"
 
 case 302: {
     // nothing to do.
 }   break;
 
-#line 2867 "./glsl.g"
+#line 2935 "./glsl.g"
 
 case 303: {
     // nothing to do.
 }   break;
 
-#line 2874 "./glsl.g"
+#line 2942 "./glsl.g"
 
 case 304: {
     // nothing to do.
 }   break;
 
-#line 2881 "./glsl.g"
+#line 2949 "./glsl.g"
 
 case 305: {
     CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>();
@@ -2174,7 +2226,7 @@ case 305: {
     ast(1) = stmt;
 }   break;
 
-#line 2891 "./glsl.g"
+#line 2959 "./glsl.g"
 
 case 306: {
     CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>(sym(2).statement_list);
@@ -2183,19 +2235,19 @@ case 306: {
     ast(1) = stmt;
 }   break;
 
-#line 2901 "./glsl.g"
+#line 2969 "./glsl.g"
 
 case 307: {
     // nothing to do.
 }   break;
 
-#line 2908 "./glsl.g"
+#line 2976 "./glsl.g"
 
 case 308: {
     // nothing to do.
 }   break;
 
-#line 2915 "./glsl.g"
+#line 2983 "./glsl.g"
 
 case 309: {
     CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>();
@@ -2204,7 +2256,7 @@ case 309: {
     ast(1) = stmt;
 }   break;
 
-#line 2925 "./glsl.g"
+#line 2993 "./glsl.g"
 
 case 310: {
     CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>(sym(2).statement_list);
@@ -2213,186 +2265,186 @@ case 310: {
     ast(1) = stmt;
 }   break;
 
-#line 2935 "./glsl.g"
+#line 3003 "./glsl.g"
 
 case 311: {
     sym(1).statement_list = makeAstNode< List<StatementAST *> >(sym(1).statement);
 }   break;
 
-#line 2942 "./glsl.g"
+#line 3010 "./glsl.g"
 
 case 312: {
     sym(1).statement_list = makeAstNode< List<StatementAST *> >(sym(1).statement_list, sym(2).statement);
 }   break;
 
-#line 2949 "./glsl.g"
+#line 3017 "./glsl.g"
 
 case 313: {
     ast(1) = makeAstNode<CompoundStatementAST>();  // Empty statement
 }   break;
 
-#line 2956 "./glsl.g"
+#line 3024 "./glsl.g"
 
 case 314: {
     ast(1) = makeAstNode<ExpressionStatementAST>(expression(1));
 }   break;
 
-#line 2963 "./glsl.g"
+#line 3031 "./glsl.g"
 
 case 315: {
     ast(1) = makeAstNode<IfStatementAST>(expression(3), sym(5).ifstmt.thenClause, sym(5).ifstmt.elseClause);
 }   break;
 
-#line 2970 "./glsl.g"
+#line 3038 "./glsl.g"
 
 case 316: {
     sym(1).ifstmt.thenClause = statement(1);
     sym(1).ifstmt.elseClause = statement(3);
 }   break;
 
-#line 2978 "./glsl.g"
+#line 3046 "./glsl.g"
 
 case 317: {
     sym(1).ifstmt.thenClause = statement(1);
     sym(1).ifstmt.elseClause = nullptr;
 }   break;
 
-#line 2986 "./glsl.g"
+#line 3054 "./glsl.g"
 
 case 318: {
     // nothing to do.
 }   break;
 
-#line 2993 "./glsl.g"
+#line 3061 "./glsl.g"
 
 case 319: {
     ast(1) = makeAstNode<DeclarationExpressionAST>
         (type(1), string(2), expression(4));
 }   break;
 
-#line 3001 "./glsl.g"
+#line 3069 "./glsl.g"
 
 case 320: {
     ast(1) = makeAstNode<SwitchStatementAST>(expression(3), statement(6));
 }   break;
 
-#line 3008 "./glsl.g"
+#line 3076 "./glsl.g"
 
 case 321: {
     ast(1) = makeAstNode<CompoundStatementAST>();
 }   break;
 
-#line 3015 "./glsl.g"
+#line 3083 "./glsl.g"
 
 case 322: {
     ast(1) = makeAstNode<CompoundStatementAST>(sym(1).statement_list);
 }   break;
 
-#line 3022 "./glsl.g"
+#line 3090 "./glsl.g"
 
 case 323: {
     ast(1) = makeAstNode<CaseLabelStatementAST>(expression(2));
 }   break;
 
-#line 3029 "./glsl.g"
+#line 3097 "./glsl.g"
 
 case 324: {
     ast(1) = makeAstNode<CaseLabelStatementAST>();
 }   break;
 
-#line 3036 "./glsl.g"
+#line 3104 "./glsl.g"
 
 case 325: {
     ast(1) = makeAstNode<WhileStatementAST>(expression(3), statement(5));
 }   break;
 
-#line 3043 "./glsl.g"
+#line 3111 "./glsl.g"
 
 case 326: {
     ast(1) = makeAstNode<DoStatementAST>(statement(2), expression(5));
 }   break;
 
-#line 3050 "./glsl.g"
+#line 3118 "./glsl.g"
 
 case 327: {
     ast(1) = makeAstNode<ForStatementAST>(statement(3), sym(4).forstmt.condition, sym(4).forstmt.increment, statement(6));
 }   break;
 
-#line 3057 "./glsl.g"
+#line 3125 "./glsl.g"
 
 case 328: {
     // nothing to do.
 }   break;
 
-#line 3064 "./glsl.g"
+#line 3132 "./glsl.g"
 
 case 329: {
     // nothing to do.
 }   break;
 
-#line 3071 "./glsl.g"
+#line 3139 "./glsl.g"
 
 case 330: {
     // nothing to do.
 }   break;
 
-#line 3078 "./glsl.g"
+#line 3146 "./glsl.g"
 
 case 331: {
     // nothing to do.
 }   break;
 
-#line 3085 "./glsl.g"
+#line 3153 "./glsl.g"
 
 case 332: {
     sym(1).forstmt.condition = expression(1);
     sym(1).forstmt.increment = nullptr;
 }   break;
 
-#line 3093 "./glsl.g"
+#line 3161 "./glsl.g"
 
 case 333: {
     sym(1).forstmt.condition = expression(1);
     sym(1).forstmt.increment = expression(3);
 }   break;
 
-#line 3101 "./glsl.g"
+#line 3169 "./glsl.g"
 
 case 334: {
     ast(1) = makeAstNode<JumpStatementAST>(AST::Kind_Continue);
 }   break;
 
-#line 3108 "./glsl.g"
+#line 3176 "./glsl.g"
 
 case 335: {
     ast(1) = makeAstNode<JumpStatementAST>(AST::Kind_Break);
 }   break;
 
-#line 3115 "./glsl.g"
+#line 3183 "./glsl.g"
 
 case 336: {
     ast(1) = makeAstNode<ReturnStatementAST>();
 }   break;
 
-#line 3122 "./glsl.g"
+#line 3190 "./glsl.g"
 
 case 337: {
     ast(1) = makeAstNode<ReturnStatementAST>(expression(2));
 }   break;
 
-#line 3129 "./glsl.g"
+#line 3197 "./glsl.g"
 
 case 338: {
     ast(1) = makeAstNode<JumpStatementAST>(AST::Kind_Discard);
 }   break;
 
-#line 3136 "./glsl.g"
+#line 3204 "./glsl.g"
 
 case 339: {
     ast(1) = makeAstNode<TranslationUnitAST>(sym(1).declaration_list);
 }   break;
 
-#line 3143 "./glsl.g"
+#line 3211 "./glsl.g"
 
 case 340: {
     if (sym(1).declaration) {
@@ -2403,7 +2455,7 @@ case 340: {
     }
 }   break;
 
-#line 3155 "./glsl.g"
+#line 3223 "./glsl.g"
 
 case 341: {
     if (sym(1).declaration_list && sym(2).declaration) {
@@ -2419,49 +2471,49 @@ case 341: {
     }
 }   break;
 
-#line 3172 "./glsl.g"
+#line 3240 "./glsl.g"
 
 case 342: {
     // nothing to do.
 }   break;
 
-#line 3179 "./glsl.g"
+#line 3247 "./glsl.g"
 
 case 343: {
     // nothing to do.
 }   break;
 
-#line 3186 "./glsl.g"
+#line 3254 "./glsl.g"
 
 case 344: {
     ast(1) = nullptr;
 }   break;
 
-#line 3193 "./glsl.g"
+#line 3261 "./glsl.g"
 
 case 345: {
     function(1)->body = statement(2);
 }   break;
 
-#line 3200 "./glsl.g"
+#line 3268 "./glsl.g"
 
 case 346: {
     ast(1) = nullptr;
 }   break;
 
-#line 3208 "./glsl.g"
+#line 3276 "./glsl.g"
 
 case 347: {
     ast(1) = ast(2);
 }   break;
 
-#line 3215 "./glsl.g"
+#line 3283 "./glsl.g"
 
 case 348: {
     ast(1) = ast(2);
 }   break;
 
-#line 3221 "./glsl.g"
+#line 3289 "./glsl.g"
 
 } // end switch
 } // end Parser::reduce()

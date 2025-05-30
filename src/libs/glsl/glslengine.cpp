@@ -241,6 +241,13 @@ Function *Engine::newFunction(Scope *scope)
     return s;
 }
 
+InterfaceBlock *Engine::newInterfaceBlock(Scope *scope)
+{
+    InterfaceBlock *iBlock = new InterfaceBlock(scope);
+    _symbols.append(iBlock);
+    return iBlock;
+}
+
 Argument *Engine::newArgument(Function *function, const QString &name, const Type *type)
 {
     Argument *a = new Argument(function);

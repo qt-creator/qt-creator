@@ -61,6 +61,7 @@ public:
         } param_declarator;
         ParameterDeclarationAST *param_declaration;
         FunctionDeclarationAST *function_declaration;
+        InterfaceBlockAST *interface_block;
     };
 
     Parser(Engine *engine, const char *source, unsigned size, int variant);
@@ -116,6 +117,21 @@ private:
     void error(int line, const QString &message)
     {
         _engine->error(line, message);
+    }
+
+    static bool isInterfaceBlockStorageIdentifier(int qualifier)
+    {
+        // TODO Buffer
+        qualifier = qualifier & QualifiedTypeAST::StorageMask;
+        return (qualifier == QualifiedTypeAST::In
+                || qualifier == QualifiedTypeAST::Out
+                || qualifier == QualifiedTypeAST::Uniform
+                || qualifier == QualifiedTypeAST::CentroidIn
+                || qualifier == QualifiedTypeAST::CentroidOut
+                || qualifier == QualifiedTypeAST::PatchIn
+                || qualifier == QualifiedTypeAST::PatchOut
+                || qualifier == QualifiedTypeAST::SampleIn
+                || qualifier == QualifiedTypeAST::SampleOut);
     }
 
     template <typename T>

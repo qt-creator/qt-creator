@@ -360,6 +360,9 @@ IAssistProposal *GlslCompletionAssistProcessor::performAsync()
                     } else if (const GLSL::Struct *structTy = exprTy.type->asStructType()) {
                         members = structTy->members();
 
+                    } else if (const GLSL::InterfaceBlock *interfaceBlockTy = exprTy.type->asInterfaceBlockType()) {
+                        members += interfaceBlockTy->members();
+
                     } else {
                         // some other type
                     }
@@ -393,6 +396,15 @@ IAssistProposal *GlslCompletionAssistProcessor::performAsync()
             // add the members from the scope chain
             for (; currentScope; currentScope = currentScope->scope())
                 members += currentScope->members();
+
+            // add interface block fields
+            if (auto globalScope = doc->globalScope()) {
+                const QList<GLSL::Symbol *> globalMembers = globalScope->members();
+                for (GLSL::Symbol *sym : globalMembers) {
+                    if (GLSL::InterfaceBlock *iBlock = sym->asInterfaceBlock())
+                        members += iBlock->members();
+                }
+            }
 
             // if this is the global scope, then add some standard Qt attribute
             // and uniform names for autocompleting variable declarations

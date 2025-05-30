@@ -273,6 +273,11 @@ bool Semantic::visit(MemberAccessExpressionAST *ast)
                 _expr.type = s->type();
             else
                 _engine->error(ast->lineno, QString::fromLatin1("`%1' has no member named `%2'").arg(structTy->name()).arg(*ast->field));
+        } else if (const InterfaceBlock *interfaceBlockTy = expr.type->asInterfaceBlockType()) {
+            if (Symbol *s = interfaceBlockTy->find(*ast->field))
+                _expr.type = s->type();
+            else
+                _engine->error(ast->lineno, QString::fromLatin1("`%1' has no member named `%2'").arg(interfaceBlockTy->name()).arg(*ast->field));
         } else {
             _engine->error(ast->lineno, QString::fromLatin1("Requested for member `%1', in a non class or vec instance").arg(*ast->field));
         }
@@ -480,7 +485,6 @@ bool Semantic::visit(DeclarationStatementAST *ast)
     declaration(ast->decl);
     return false;
 }
-
 
 // types
 bool Semantic::visit(BasicTypeAST *ast)
@@ -757,6 +761,10 @@ bool Semantic::visit(NamedTypeAST *ast)
                 _type = ty;
                 return false;
             }
+            if (InterfaceBlock *ty = s->asInterfaceBlock()) {
+                _type = ty;
+                return false;
+            }
         }
         _engine->error(ast->lineno, QString::fromLatin1("Undefined type `%1'").arg(*ast->name));
     }
@@ -802,6 +810,23 @@ bool Semantic::visit(QualifiedTypeAST *ast)
     return false;
 }
 
+bool Semantic::visit(InterfaceBlockAST *ast)
+{
+    InterfaceBlock *iBlock = _engine->newInterfaceBlock(_scope);
+    _type = iBlock->type();
+    if (ast->name)
+        iBlock->setName(*ast->name);
+    if (Scope *e = iBlock->scope())
+        e->add(iBlock);
+    Scope *previousScope = switchScope(iBlock);
+    for (List<StructTypeAST::Field *> *it = ast->fields; it; it = it->next) {
+        StructTypeAST::Field *f = it->value;
+        if (Symbol *member = field(f))
+            iBlock->add(member);
+    }
+    (void) switchScope(previousScope);
+    return false;
+}
 
 // declarations
 bool Semantic::visit(PrecisionDeclarationAST *ast)

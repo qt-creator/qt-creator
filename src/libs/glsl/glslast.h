@@ -50,6 +50,7 @@ class TypeAndVariableDeclarationAST;
 class InvariantDeclarationAST;
 class InitDeclarationAST;
 class FunctionDeclarationAST;
+class InterfaceBlockAST;
 class Visitor;
 
 template <typename T>
@@ -196,7 +197,8 @@ public:
         Kind_TypeAndVariableDeclaration,
         Kind_InvariantDeclaration,
         Kind_InitDeclaration,
-        Kind_FunctionDeclaration
+        Kind_FunctionDeclaration,
+        Kind_InterfaceDeclaration,
     };
 
     virtual TranslationUnitAST *asTranslationUnit() { return 0; }
@@ -243,6 +245,7 @@ public:
     virtual InvariantDeclarationAST *asInvariantDeclaration() { return 0; }
     virtual InitDeclarationAST *asInitDeclaration() { return 0; }
     virtual FunctionDeclarationAST *asFunctionDeclaration() { return 0; }
+    virtual InterfaceBlockAST *asInterfaceBlockDeclaration() { return 0; }
 
     void accept(Visitor *visitor);
     static void accept(AST *ast, Visitor *visitor);
@@ -966,6 +969,25 @@ public: // attributes
     const QString *name;
     List<ParameterDeclarationAST *> *params;
     StatementAST *body;
+};
+
+class GLSL_EXPORT InterfaceBlockAST : public TypeAST
+{
+public:
+    InterfaceBlockAST(const QString *_name, List<StructTypeAST::Field *> *_fields)
+        : TypeAST(Kind_InterfaceDeclaration), name(_name) , fields(finish(_fields))
+    {}
+
+    InterfaceBlockAST *asInterfaceBlockDeclaration() override { return this; }
+
+    void accept0(Visitor *visitor) override;
+
+    Precision precision() const override;
+    bool setPrecision(Precision precision) override;
+
+public: // attributes
+    const QString *name;
+    List<StructTypeAST::Field *> *fields;
 };
 
 } // namespace GLSL

@@ -280,6 +280,7 @@ public:
         } param_declarator;
         ParameterDeclarationAST *param_declaration;
         FunctionDeclarationAST *function_declaration;
+        InterfaceBlockAST *interface_block;
     };
 
     Parser(Engine *engine, const char *source, unsigned size, int variant);
@@ -335,6 +336,21 @@ private:
     void error(int line, const QString &message)
     {
         _engine->error(line, message);
+    }
+
+    static bool isInterfaceBlockStorageIdentifier(int qualifier)
+    {
+        // TODO Buffer
+        qualifier = qualifier & QualifiedTypeAST::StorageMask;
+        return (qualifier == QualifiedTypeAST::In
+                || qualifier == QualifiedTypeAST::Out
+                || qualifier == QualifiedTypeAST::Uniform
+                || qualifier == QualifiedTypeAST::CentroidIn
+                || qualifier == QualifiedTypeAST::CentroidOut
+                || qualifier == QualifiedTypeAST::PatchIn
+                || qualifier == QualifiedTypeAST::PatchOut
+                || qualifier == QualifiedTypeAST::SampleIn
+                || qualifier == QualifiedTypeAST::SampleOut);
     }
 
     template <typename T>
@@ -1219,70 +1235,122 @@ case $rule_number: {
 declaration ::= type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE SEMICOLON ;
 /.
 case $rule_number: {
-    if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
-        // TODO: issue an error if the qualifier is not "struct".
+    const int qualifier = sym(1).type_qualifier.qualifier;
+    if ((qualifier & QualifiedTypeAST::Struct) == 0) {
+        if (!isInterfaceBlockStorageIdentifier(qualifier)) {
+            int loc = location(1);
+            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
+                error(lineno, "Missing storage qualifier.");
+            else
+                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+        }
+        TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        ast(1) = makeAstNode<TypeDeclarationAST>(type);
+    } else {
+        TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        ast(1) = makeAstNode<TypeDeclarationAST>(type);
     }
-    TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
-    ast(1) = makeAstNode<TypeDeclarationAST>(type);
 }   break;
 ./
 
 declaration ::= type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE IDENTIFIER SEMICOLON ;
 /.
 case $rule_number: {
-    if ((sym(1).type_qualifier.qualifier & QualifiedTypeAST::Struct) == 0) {
-        // TODO: issue an error if the qualifier does not contain "struct".
+    const int qualifier = sym(1).type_qualifier.qualifier;
+    if ((qualifier & QualifiedTypeAST::Struct) == 0) {
+        if (!isInterfaceBlockStorageIdentifier(qualifier)) {
+            int loc = location(1);
+            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
+                error(lineno, "Missing storage qualifier.");
+            else
+                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+        }
+        TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>(type, string(6)));
+    } else {
+        TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        TypeAST *qualtype = type;
+        if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
+            qualtype = makeAstNode<QualifiedTypeAST>
+                (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
+                 sym(1).type_qualifier.layout_list);
+        }
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>(qualtype, string(6)));
     }
-    TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
-    TypeAST *qualtype = type;
-    if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
-        qualtype = makeAstNode<QualifiedTypeAST>
-            (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
-             sym(1).type_qualifier.layout_list);
-    }
-    ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
-        (makeAstNode<TypeDeclarationAST>(type),
-         makeAstNode<VariableDeclarationAST>(qualtype, string(6)));
 }   break;
 ./
 
 declaration ::= type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE IDENTIFIER LEFT_BRACKET RIGHT_BRACKET SEMICOLON ;
 /.
 case $rule_number: {
-    if ((sym(1).type_qualifier.qualifier & QualifiedTypeAST::Struct) == 0) {
-        // TODO: issue an error if the qualifier does not contain "struct".
+    const int qualifier = sym(1).type_qualifier.qualifier;
+    if ((qualifier & QualifiedTypeAST::Struct) == 0) {
+        if (!isInterfaceBlockStorageIdentifier(qualifier)) {
+            int loc = location(1);
+            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
+                error(lineno, "Missing storage qualifier.");
+            else
+                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+        }
+        TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>
+                (makeAstNode<ArrayTypeAST>(type), string(6)));
+    } else {
+        TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        TypeAST *qualtype = type;
+        if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
+            qualtype = makeAstNode<QualifiedTypeAST>
+                (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
+                 sym(1).type_qualifier.layout_list);
+        }
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>
+                (makeAstNode<ArrayTypeAST>(qualtype), string(6)));
     }
-    TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
-    TypeAST *qualtype = type;
-    if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
-        qualtype = makeAstNode<QualifiedTypeAST>
-            (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
-             sym(1).type_qualifier.layout_list);
-    }
-    ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
-        (makeAstNode<TypeDeclarationAST>(type),
-         makeAstNode<VariableDeclarationAST>
-            (makeAstNode<ArrayTypeAST>(qualtype), string(6)));
 }   break;
 ./
 
 declaration ::= type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET SEMICOLON ;
 /.
 case $rule_number: {
-    if ((sym(1).type_qualifier.qualifier & QualifiedTypeAST::Struct) == 0) {
-        // TODO: issue an error if the qualifier does not contain "struct".
+    const int qualifier = sym(1).type_qualifier.qualifier;
+    if ((qualifier & QualifiedTypeAST::Struct) == 0) {
+        if (!isInterfaceBlockStorageIdentifier(qualifier)) {
+            int loc = location(1);
+            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
+                error(lineno, "Missing storage qualifier.");
+            else
+                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+        }
+        TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>
+                (makeAstNode<ArrayTypeAST>(type, expression(8)), string(6)));
+    } else {
+        TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        TypeAST *qualtype = type;
+        if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
+            qualtype = makeAstNode<QualifiedTypeAST>
+                (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
+                 sym(1).type_qualifier.layout_list);
+        }
+        ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>
+                (makeAstNode<ArrayTypeAST>(qualtype, expression(8)), string(6)));
     }
-    TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
-    TypeAST *qualtype = type;
-    if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
-        qualtype = makeAstNode<QualifiedTypeAST>
-            (sym(1).type_qualifier.qualifier & ~QualifiedTypeAST::Struct, qualtype,
-             sym(1).type_qualifier.layout_list);
-    }
-    ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
-        (makeAstNode<TypeDeclarationAST>(type),
-         makeAstNode<VariableDeclarationAST>
-            (makeAstNode<ArrayTypeAST>(qualtype, expression(8)), string(6)));
 }   break;
 ./
 
