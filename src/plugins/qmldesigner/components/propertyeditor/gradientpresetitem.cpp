@@ -32,8 +32,6 @@ GradientPresetItem::GradientPresetItem(const Preset value)
     , m_presetName(getNameByPreset(value))
 {}
 
-GradientPresetItem::~GradientPresetItem() = default;
-
 QVariant GradientPresetItem::getProperty(GradientPresetItem::Property id) const
 {
     QVariant out;
