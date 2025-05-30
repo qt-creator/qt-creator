@@ -53,10 +53,6 @@ extend_qtc_library(QmlDesignerCore
   PUBLIC_DEPENDS Nanotrace
   PUBLIC_DEFINES
     ENABLE_QMLDESIGNER_TRACING
-    $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
-    $<$<BOOL:${ENABLE_SOURCE_PATH_STORAGE_TRACING}>:ENABLE_SOURCE_PATH_STORAGE_TRACING>
-    $<$<BOOL:${ENABLE_IMAGE_CACHE_TRACING}>:ENABLE_IMAGE_CACHE_TRACING>
-    $<$<BOOL:${ENABLE_MODEL_TRACING}>:ENABLE_MODEL_TRACING>
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -131,6 +127,8 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   INCLUDES imagecache
   SOURCES_PREFIX imagecache
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_IMAGE_CACHE_TRACING}>:ENABLE_IMAGE_CACHE_TRACING>
   SOURCES
     asynchronousexplicitimagecache.cpp
     asynchronousimagecache.cpp
@@ -269,6 +267,8 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   INCLUDES model
   SOURCES_PREFIX model
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_MODEL_TRACING}>:ENABLE_MODEL_TRACING>
   SOURCES
     abstractproperty.cpp
     abstractview.cpp
@@ -347,6 +347,8 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX sourcepathstorage
   PUBLIC_INCLUDES sourcepathstorage
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_SOURCE_PATH_STORAGE_TRACING}>:ENABLE_SOURCE_PATH_STORAGE_TRACING>
   SOURCES_PROPERTIES SKIP_AUTOGEN ON
   SOURCES
     nonlockingmutex.h
@@ -377,6 +379,8 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX projectstorage
   PUBLIC_INCLUDES projectstorage
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
   SOURCES_PROPERTIES SKIP_AUTOGEN ON
   SOURCES
     commontypecache.h
