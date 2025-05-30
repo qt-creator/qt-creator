@@ -44,6 +44,10 @@ env_with_default("QTC_ENABLE_NAVIGATOR_TRACING" ENV_QTC_ENABLE_NAVIGATOR_TRACING
 option(ENABLE_NAVIGATOR_TRACING "Enable navigator tracing" ${ENV_QTC_ENABLE_NAVIGATOR_TRACING})
 add_feature_info("Navigator tracing" ${ENABLE_NAVIGATOR_TRACING} "")
 
+env_with_default("QTC_ENABLE_ITEM_LIBRARY_TRACING" ENV_QTC_ENABLE_ITEM_LIBRARY_TRACING OFF)
+option(ENABLE_ITEM_LIBRARY_TRACING "Enable item library tracing" ${ENV_QTC_ENABLE_ITEM_LIBRARY_TRACING})
+add_feature_info("Item library tracing" ${ENABLE_ITEM_LIBRARY_TRACING} "")
+
 if(QDS_DESIGNVIEWER_USE_STAGING)
   add_definitions(-DQDS_DESIGNVIEWER_USE_STAGING)
 endif()
@@ -354,6 +358,8 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/itemlibrary
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_ITEM_LIBRARY_TRACING}>:ENABLE_ITEM_LIBRARY_TRACING>
   SOURCES
     itemlibrary.qrc
     itemlibraryconstants.h
@@ -362,6 +368,7 @@ extend_qtc_plugin(QmlDesigner
     itemlibrarymodel.cpp itemlibrarymodel.h
     itemlibrarycategory.cpp itemlibrarycategory.h
     itemlibraryitemsmodel.cpp itemlibraryitemsmodel.h
+    itemlibrarytracing.cpp itemlibrarytracing.h
     itemlibraryview.cpp itemlibraryview.h
     itemlibrarywidget.cpp itemlibrarywidget.h
     itemlibraryiconimageprovider.cpp itemlibraryiconimageprovider.h

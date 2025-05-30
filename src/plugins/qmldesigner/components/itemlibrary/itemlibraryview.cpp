@@ -2,14 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "itemlibraryview.h"
+#include "itemlibrarytracing.h"
 #include "itemlibrarywidget.h"
-#include "metainfo.h"
+
 #include <asynchronousimagecache.h>
 #include <bindingproperty.h>
 #include <componentcore_constants.h>
 #include <coreplugin/icore.h>
 #include <customnotifications.h>
 #include <import.h>
+#include <metainfo.h>
 #include <nodelistproperty.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
@@ -24,23 +26,32 @@
 
 namespace QmlDesigner {
 
+static auto category = ItemLibraryTracing::category;
+
 ItemLibraryView::ItemLibraryView(AsynchronousImageCache &imageCache,
                                  ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
     , m_imageCache(imageCache)
-{}
+{
+    NanotraceHR::Tracer tracer{"item library view constructor", category()};
+}
 
 ItemLibraryView::~ItemLibraryView()
 {
+    NanotraceHR::Tracer tracer{"item library view destructor", category()};
 }
 
 bool ItemLibraryView::hasWidget() const
 {
+    NanotraceHR::Tracer tracer{"item library view has widget", category()};
+
     return true;
 }
 
 WidgetInfo ItemLibraryView::widgetInfo()
 {
+    NanotraceHR::Tracer tracer{"item library view widget info", category()};
+
     if (m_widget.isNull())
         m_widget = new ItemLibraryWidget{m_imageCache};
 
@@ -53,6 +64,8 @@ WidgetInfo ItemLibraryView::widgetInfo()
 
 void ItemLibraryView::modelAttached(Model *model)
 {
+    NanotraceHR::Tracer tracer{"item library view model attached", category()};
+
     AbstractView::modelAttached(model);
 
     m_widget->clearSearchFilter();
@@ -67,6 +80,8 @@ void ItemLibraryView::modelAttached(Model *model)
 
 void ItemLibraryView::modelAboutToBeDetached(Model *model)
 {
+    NanotraceHR::Tracer tracer{"item library view model about to be detached", category()};
+
     AbstractView::modelAboutToBeDetached(model);
 
     m_widget->setModel(nullptr);
@@ -74,22 +89,30 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
 
 void ItemLibraryView::importsChanged(const Imports &, const Imports &)
 {
+    NanotraceHR::Tracer tracer{"item library view imports changed", category()};
+
     updateImports();
     m_widget->updatePossibleImports(model()->possibleImports());
 }
 
 void ItemLibraryView::possibleImportsChanged(const Imports &possibleImports)
 {
+    NanotraceHR::Tracer tracer{"item library view possible imports changed", category()};
+
     m_widget->updatePossibleImports(possibleImports);
 }
 
 void ItemLibraryView::usedImportsChanged(const Imports &usedImports)
 {
+    NanotraceHR::Tracer tracer{"item library view used imports changed", category()};
+
     m_widget->updateUsedImports(usedImports);
 }
 
 void ItemLibraryView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)
 {
+    NanotraceHR::Tracer tracer{"item library view document messages changed", category()};
+
     if (m_hasErrors && errors.isEmpty())
         updateImports();
 
@@ -98,6 +121,8 @@ void ItemLibraryView::documentMessagesChanged(const QList<DocumentMessage> &erro
 
 void ItemLibraryView::updateImports()
 {
+    NanotraceHR::Tracer tracer{"item library view update imports", category()};
+
     m_widget->delayedUpdateModel();
 }
 
@@ -106,6 +131,8 @@ void ItemLibraryView::customNotification(const AbstractView *view,
                                          const QList<ModelNode> &nodeList,
                                          const QList<QVariant> &data)
 {
+    NanotraceHR::Tracer tracer{"item library view custom notification", category()};
+
     if (identifier == UpdateItemlibrary)
         updateImports();
     else

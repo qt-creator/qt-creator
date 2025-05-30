@@ -6,16 +6,17 @@
 #include "itemlibraryconstants.h"
 #include "itemlibraryiconimageprovider.h"
 #include "itemlibraryimport.h"
+#include "itemlibrarytracing.h"
 
 #include <theme.h>
 
-#include "modelnodeoperations.h"
 #include <designeractionmanager.h>
 #include <designermcumanager.h>
 #include <documentmanager.h>
 #include <itemlibraryaddimportmodel.h>
 #include <itemlibraryentry.h>
 #include <itemlibraryimageprovider.h>
+#include <modelnodeoperations.h>
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include <itemlibraryinfo.h>
 #endif
@@ -65,6 +66,8 @@
 
 namespace QmlDesigner {
 
+static auto category = ItemLibraryTracing::category;
+
 static QString propertyEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
@@ -76,6 +79,8 @@ static QString propertyEditorResourcesPath()
 
 bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 {
+    NanotraceHR::Tracer tracer{"item library widget event filter", category()};
+
     auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
     Model *model = document ? document->documentModel() : nullptr;
 
@@ -123,6 +128,8 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
 void ItemLibraryWidget::resizeEvent(QResizeEvent *event)
 {
+    NanotraceHR::Tracer tracer{"item library widget resize event", category()};
+
     isHorizontalLayout = event->size().width() >= HORIZONTAL_LAYOUT_WIDTH_LIMIT;
 }
 
@@ -133,6 +140,8 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     , m_itemsWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>())
     , m_imageCache{imageCache}
 {
+    NanotraceHR::Tracer tracer{"item library widget constructor", category()};
+
     m_compressionTimer.setInterval(1000);
     m_compressionTimer.setSingleShot(true);
     ItemLibraryModel::registerQmlTypes();
@@ -149,7 +158,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
 
     m_itemsWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
     m_itemsWidget->engine()->addImageProvider(QStringLiteral("qmldesigner_itemlibrary"),
-                                                      new Internal::ItemLibraryImageProvider);
+                                              new Internal::ItemLibraryImageProvider);
     Theme::setupTheme(m_itemsWidget->engine());
     m_itemsWidget->quickWidget()->installEventFilter(this);
 
@@ -169,7 +178,7 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     connect(&m_compressionTimer, &QTimer::timeout, this, &ItemLibraryWidget::updateModel);
 
     m_itemsWidget->engine()->addImageProvider("itemlibrary_preview",
-                                                      new ItemLibraryIconImageProvider{m_imageCache});
+                                              new ItemLibraryIconImageProvider{m_imageCache});
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_ITEMLIBRARY_TIME);
 
@@ -189,7 +198,10 @@ ItemLibraryWidget::ItemLibraryWidget(AsynchronousImageCache &imageCache)
     reloadQmlSource();
 }
 
-ItemLibraryWidget::~ItemLibraryWidget() = default;
+ItemLibraryWidget::~ItemLibraryWidget()
+{
+    NanotraceHR::Tracer tracer{"item library widget destructor", category()};
+}
 
 #ifndef QDS_USE_PROJECTSTORAGE
 void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
@@ -212,12 +224,16 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
 
 QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
 {
+    NanotraceHR::Tracer tracer{"item library widget create toolbar widgets", category()};
+
     return {};
 }
 
 
 void ItemLibraryWidget::handleSearchFilterChanged(const QString &filterText)
 {
+    NanotraceHR::Tracer tracer{"item library widget handle search filter changed", category()};
+
     if (filterText != m_filterText) {
         m_filterText = filterText;
         updateSearch();
@@ -226,6 +242,8 @@ void ItemLibraryWidget::handleSearchFilterChanged(const QString &filterText)
 
 QString ItemLibraryWidget::getDependencyImport(const Import &import)
 {
+    NanotraceHR::Tracer tracer{"item library widget get dependency import", category()};
+
     static QStringList prefixDependencies = {"QtQuick3D"};
 
     const QStringList splitImport = import.url().split('.');
@@ -240,6 +258,8 @@ QString ItemLibraryWidget::getDependencyImport(const Import &import)
 
 void ItemLibraryWidget::handleAddImport(int index)
 {
+    NanotraceHR::Tracer tracer{"item library widget handle add import", category()};
+
     Import import = m_addModuleModel->getImportAt(index);
     if (import.isLibraryImport() && (import.url().startsWith("QtQuick")
                                      || import.url().startsWith("SimulinkConnector"))) {
@@ -273,12 +293,18 @@ void ItemLibraryWidget::handleAddImport(int index)
 
 void ItemLibraryWidget::goIntoComponent(const QString &source)
 {
+    NanotraceHR::Tracer tracer{"item library widget go into component", category()};
+
     DocumentManager::goIntoComponent(source);
 }
 
 void ItemLibraryWidget::delayedUpdateModel()
 {
-    static bool disableTimer = QmlDesignerPlugin::settings().value(DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER).toBool();
+    NanotraceHR::Tracer tracer{"item library widget delayed update model", category()};
+
+    static bool disableTimer = QmlDesignerPlugin::settings()
+                                   .value(DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER)
+                                   .toBool();
     if (disableTimer)
         updateModel();
     else
@@ -287,6 +313,8 @@ void ItemLibraryWidget::delayedUpdateModel()
 
 void ItemLibraryWidget::setModel(Model *model)
 {
+    NanotraceHR::Tracer tracer{"item library widget set model", category()};
+
     m_model = model;
     if (!model) {
         m_itemToDrag = {};
@@ -310,6 +338,8 @@ void ItemLibraryWidget::setModel(Model *model)
 
 QString ItemLibraryWidget::qmlSourcesPath()
 {
+    NanotraceHR::Tracer tracer{"item library widget qml sources path", category()};
+
 #ifdef SHARE_QML_PATH
     if (::Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/itemLibraryQmlSources";
@@ -319,16 +349,22 @@ QString ItemLibraryWidget::qmlSourcesPath()
 
 void ItemLibraryWidget::clearSearchFilter()
 {
+    NanotraceHR::Tracer tracer{"item library widget clear search filter", category()};
+
     QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "clearSearchFilter");
 }
 
 void ItemLibraryWidget::switchToComponentsView()
 {
+    NanotraceHR::Tracer tracer{"item library widget switch to components view", category()};
+
     QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "switchToComponentsView");
 }
 
 void ItemLibraryWidget::reloadQmlSource()
 {
+    NanotraceHR::Tracer tracer{"item library widget reload qml source", category()};
+
     const QString itemLibraryQmlPath = qmlSourcesPath() + "/ItemsView.qml";
     QTC_ASSERT(QFileInfo::exists(itemLibraryQmlPath), return);
     m_itemsWidget->setSource(QUrl::fromLocalFile(itemLibraryQmlPath));
@@ -336,6 +372,8 @@ void ItemLibraryWidget::reloadQmlSource()
 
 void ItemLibraryWidget::updateModel()
 {
+    NanotraceHR::Tracer tracer{"item library widget update model", category()};
+
     QTC_ASSERT(m_itemLibraryModel, return);
 
     if (m_compressionTimer.isActive()) {
@@ -356,17 +394,23 @@ void ItemLibraryWidget::updateModel()
 
 void ItemLibraryWidget::updatePossibleImports(const Imports &possibleImports)
 {
+    NanotraceHR::Tracer tracer{"item library widget update possible imports", category()};
+
     m_addModuleModel->update(set_difference(possibleImports, m_model->imports()));
     delayedUpdateModel();
 }
 
 void ItemLibraryWidget::updateUsedImports(const Imports &usedImports)
 {
+    NanotraceHR::Tracer tracer{"item library widget update used imports", category()};
+
     m_itemLibraryModel->updateUsedImports(usedImports);
 }
 
 void ItemLibraryWidget::updateSearch()
 {
+    NanotraceHR::Tracer tracer{"item library widget update search", category()};
+
     m_itemLibraryModel->setSearchText(m_filterText);
     m_itemsWidget->update();
     m_addModuleModel->setSearchText(m_filterText);
@@ -374,6 +418,8 @@ void ItemLibraryWidget::updateSearch()
 
 void ItemLibraryWidget::setIsDragging(bool val)
 {
+    NanotraceHR::Tracer tracer{"item library widget set is dragging", category()};
+
     if (m_isDragging != val) {
         m_isDragging = val;
         emit isDraggingChanged();
@@ -382,6 +428,8 @@ void ItemLibraryWidget::setIsDragging(bool val)
 
 void ItemLibraryWidget::startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos)
 {
+    NanotraceHR::Tracer tracer{"item library widget start drag and drop", category()};
+
     // Actual drag is created after mouse has moved to avoid a QDrag bug that causes drag to stay
     // active (and blocks mouse release) if mouse is released at the same spot of the drag start.
     m_itemToDrag = itemLibEntry;
@@ -391,16 +439,22 @@ void ItemLibraryWidget::startDragAndDrop(const QVariant &itemLibEntry, const QPo
 
 bool ItemLibraryWidget::subCompEditMode() const
 {
+    NanotraceHR::Tracer tracer{"item library widget sub component edit mode", category()};
+
     return m_subCompEditMode;
 }
 
 void ItemLibraryWidget::setFlowMode(bool b)
 {
+    NanotraceHR::Tracer tracer{"item library widget set flow mode", category()};
+
     m_itemLibraryModel->setFlowMode(b);
 }
 
 void ItemLibraryWidget::removeImport(const QString &importUrl)
 {
+    NanotraceHR::Tracer tracer{"item library widget remove import", category()};
+
     QTC_ASSERT(m_model, return);
 
     ItemLibraryImport *importSection = m_itemLibraryModel->importByUrl(importUrl);
@@ -412,6 +466,8 @@ void ItemLibraryWidget::removeImport(const QString &importUrl)
 
 void ItemLibraryWidget::addImportForItem(const QString &importUrl)
 {
+    NanotraceHR::Tracer tracer{"item library widget add import for item", category()};
+
     QTC_ASSERT(m_itemLibraryModel, return);
     QTC_ASSERT(m_model, return);
 
