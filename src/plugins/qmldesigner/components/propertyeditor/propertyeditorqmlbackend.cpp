@@ -221,11 +221,24 @@ QVariant properDefaultInsightAttachedProperties(const QmlObjectNode &qmlObjectNo
 void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor)
 {
     if (QmlItemNode(qmlObjectNode).isInLayout()) {
-
-        static const PropertyNameList propertyNames =
-            {"alignment", "column", "columnSpan", "fillHeight", "fillWidth", "maximumHeight", "maximumWidth",
-                "minimumHeight", "minimumWidth", "preferredHeight", "preferredWidth", "row", "rowSpan",
-                "topMargin", "bottomMargin", "leftMargin", "rightMargin", "margins"};
+        static constexpr PropertyNameView propertyNames[] = {"alignment",
+                                                             "column",
+                                                             "columnSpan",
+                                                             "fillHeight",
+                                                             "fillWidth",
+                                                             "maximumHeight",
+                                                             "maximumWidth",
+                                                             "minimumHeight",
+                                                             "minimumWidth",
+                                                             "preferredHeight",
+                                                             "preferredWidth",
+                                                             "row",
+                                                             "rowSpan",
+                                                             "topMargin",
+                                                             "bottomMargin",
+                                                             "leftMargin",
+                                                             "rightMargin",
+                                                             "margins"};
 
         for (PropertyNameView propertyName : propertyNames) {
             createPropertyEditorValue(qmlObjectNode,
