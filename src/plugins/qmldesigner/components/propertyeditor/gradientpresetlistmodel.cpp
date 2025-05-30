@@ -77,11 +77,8 @@ const QList<GradientPresetItem> &GradientPresetListModel::items() const
 
 void GradientPresetListModel::sortItems()
 {
-    auto itemSort = [](const GradientPresetItem &first, const GradientPresetItem &second) {
-        return (static_cast<int>(first.presetID()) < static_cast<int>(second.presetID()));
-    };
 
-    std::sort(m_items.begin(), m_items.end(), itemSort);
+    std::ranges::sort(m_items, {}, &GradientPresetItem::presetID);
 }
 
 void GradientPresetListModel::registerDeclarativeType()
