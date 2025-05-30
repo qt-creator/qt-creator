@@ -40,7 +40,9 @@ env_with_default("QTC_ENABLE_FORM_EDITOR_TRACING" ENV_QTC_ENABLE_FORM_EDITOR_TRA
 option(ENABLE_FORM_EDITOR_TRACING "Enable form editor tracing" ${ENV_QTC_ENABLE_FORM_EDITOR_TRACING})
 add_feature_info("Form editor tracing" ${ENABLE_FORM_EDITOR_TRACING} "")
 
-
+env_with_default("QTC_ENABLE_NAVIGATOR_TRACING" ENV_QTC_ENABLE_NAVIGATOR_TRACING OFF)
+option(ENABLE_NAVIGATOR_TRACING "Enable navigator tracing" ${ENV_QTC_ENABLE_NAVIGATOR_TRACING})
+add_feature_info("Navigator tracing" ${ENABLE_NAVIGATOR_TRACING} "")
 
 if(QDS_DESIGNVIEWER_USE_STAGING)
   add_definitions(-DQDS_DESIGNVIEWER_USE_STAGING)
@@ -396,12 +398,15 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/navigator
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_NAVIGATOR_TRACING}>:ENABLE_NAVIGATOR_TRACING>
   SOURCES
     iconcheckboxitemdelegate.cpp iconcheckboxitemdelegate.h
     nameitemdelegate.cpp nameitemdelegate.h
     navigator.qrc
     navigatormodelinterface.h
     navigatorsearchwidget.cpp navigatorsearchwidget.h
+    navigatortracing.cpp navigatortracing.h
     navigatortreemodel.cpp navigatortreemodel.h
     navigatortreeview.cpp navigatortreeview.h
     navigatorview.cpp navigatorview.h
