@@ -59,6 +59,8 @@ public:
 
     void handleInstancePropertyChanged(const ModelNode &modelNode, PropertyNameView propertyName);
 
+    bool isCallbackToModelBlocked() const { return m_blockCallbackToModel; }
+
 protected:
     QHash<int, QByteArray> roleNames() const override;
 
@@ -87,6 +89,8 @@ private:
     // TODO: Remove.
     QList<ModelNode> m_selectedNodes = {};
     bool m_explicitSelection = false;
+
+    bool m_blockCallbackToModel = false;
 };
 
 class DynamicPropertiesModelBackendDelegate : public QObject

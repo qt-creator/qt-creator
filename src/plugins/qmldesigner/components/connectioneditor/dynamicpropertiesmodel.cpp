@@ -151,6 +151,8 @@ void DynamicPropertiesModel::updateItem(const AbstractProperty &property)
     if (!property.isDynamic() && !property.isSignalDeclarationProperty())
         return;
 
+    m_blockCallbackToModel = true;
+
     if (auto *item = itemForProperty(property)) {
         item->updateProperty(property);
     } else {
@@ -160,6 +162,8 @@ void DynamicPropertiesModel::updateItem(const AbstractProperty &property)
             setCurrentProperty(property);
         }
     }
+
+    m_blockCallbackToModel = false;
 }
 
 void DynamicPropertiesModel::removeItem(const AbstractProperty &property)

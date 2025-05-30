@@ -428,6 +428,9 @@ void DynamicPropertyRow::commitExpression(const QString &expression)
 
 void DynamicPropertyRow::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &, const QList<int> &)
 {
+    if (m_model->dynamicPropertiesModel()->isCallbackToModelBlocked())
+        return;
+
     if (topLeft.row() == m_row)
         setupBackendValue();
 }
