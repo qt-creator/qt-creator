@@ -24,6 +24,40 @@ namespace Utils {
 QSet<Id> InfoBar::globallySuppressed;
 QtcSettings *InfoBar::m_settings = nullptr;
 
+Theme::Color foregroundThemeColor(InfoLabel::InfoType infoType)
+{
+    switch (infoType) {
+    case InfoLabel::Information:
+        return Theme::Token_Notification_Neutral_Default;
+    case InfoLabel::Warning:
+        return Theme::Token_Notification_Alert_Default;
+    case InfoLabel::Error:
+    case InfoLabel::NotOk:
+        return Theme::Token_Notification_Danger_Default;
+    case InfoLabel::Ok:
+        return Theme::Token_Notification_Success_Default;
+    default:
+        return Theme::Token_Text_Default;
+    }
+}
+
+Theme::Color backgroundThemeColor(InfoLabel::InfoType infoType)
+{
+    switch (infoType) {
+    case InfoLabel::Information:
+        return Theme::Token_Notification_Neutral_Subtle;
+    case InfoLabel::Warning:
+        return Theme::Token_Notification_Alert_Subtle;
+    case InfoLabel::Error:
+    case InfoLabel::NotOk:
+        return Theme::Token_Notification_Danger_Subtle;
+    case InfoLabel::Ok:
+        return Theme::Token_Notification_Success_Subtle;
+    default:
+        return Theme::InfoBarBackground;
+    }
+}
+
 class InfoBarWidget : public QWidget
 {
 public:
@@ -34,7 +68,6 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    QColor backgroundColor() const;
     const Utils::Icon &icon() const;
 
     const Qt::Edge m_edge;
@@ -55,7 +88,7 @@ void InfoBarWidget::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
     QPainter p(this);
-    p.fillRect(rect(), backgroundColor());
+    p.fillRect(rect(), creatorColor(backgroundThemeColor(m_infoType)));
     if (m_infoType != InfoLabel::None) {
         const QPixmap pixmap = icon().pixmap();
         const int iconY = (height() - pixmap.deviceIndependentSize().height()) / 2;
@@ -68,55 +101,31 @@ void InfoBarWidget::paintEvent(QPaintEvent *event)
                       topEdge ? adjustedRect.bottomRight() : adjustedRect.topRight()));
 }
 
-QColor InfoBarEntry::backgroundColor(InfoLabel::InfoType infoType)
-{
-    Theme::Color color = Theme::InfoBarBackground;
-    switch (infoType) {
-    case InfoLabel::Information:
-        color = Theme::Token_Notification_Neutral_Subtle; break;
-    case InfoLabel::Warning:
-        color = Theme::Token_Notification_Alert_Subtle; break;
-    case InfoLabel::Error:
-    case InfoLabel::NotOk:
-        color = Theme::Token_Notification_Danger_Subtle; break;
-    case InfoLabel::Ok:
-        color = Theme::Token_Notification_Success_Subtle; break;
-    default:
-        color = Theme::InfoBarBackground; break;
-    }
-    return creatorColor(color);
-}
-
-QColor InfoBarWidget::backgroundColor() const
-{
-    return InfoBarEntry::backgroundColor(m_infoType);
-}
-
 const Icon &InfoBarEntry::icon(InfoLabel::InfoType infoType)
 {
     switch (infoType) {
     case InfoLabel::Information: {
         const static Utils::Icon icon(
-            {{":/utils/images/infolarge.png", Theme::Token_Notification_Neutral_Default}},
+            {{":/utils/images/infolarge.png", foregroundThemeColor(infoType)}},
             Icon::Tint);
         return icon;
     }
     case InfoLabel::Warning: {
         const static Utils::Icon icon(
-            {{":/utils/images/warninglarge.png", Theme::Token_Notification_Alert_Default}},
+            {{":/utils/images/warninglarge.png", foregroundThemeColor(infoType)}},
             Icon::Tint);
         return icon;
     }
     case InfoLabel::Error:
     case InfoLabel::NotOk: {
         const static Utils::Icon icon(
-            {{":/utils/images/errorlarge.png", Theme::Token_Notification_Danger_Default}},
+            {{":/utils/images/errorlarge.png", foregroundThemeColor(infoType)}},
             Icon::Tint);
         return icon;
     }
     case InfoLabel::Ok: {
         const static Utils::Icon icon(
-            {{":/utils/images/oklarge.png", Theme::Token_Notification_Success_Default}},
+            {{":/utils/images/oklarge.png", foregroundThemeColor(infoType)}},
             Icon::Tint);
         return icon;
     }

@@ -100,7 +100,6 @@ public:
     void setInfoType(InfoLabel::InfoType infoType);
     InfoLabel::InfoType infoType() const;
 
-    static QColor backgroundColor(InfoLabel::InfoType infoType);
     static const Icon &icon(InfoLabel::InfoType infoType);
 
 private:
