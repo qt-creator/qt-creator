@@ -112,6 +112,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
             }
 
             addLibAssets(paths, bundlePath);
+            model()->endDrag();
         });
 
         connect(m_widget, &ContentLibraryWidget::acceptTexturesDrop, this,
@@ -125,6 +126,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
                     paths.append(path);
             }
             addLibAssets(paths, bundlePath);
+            model()->endDrag();
         });
 
         connect(m_widget, &ContentLibraryWidget::acceptMaterialDrop, this,
@@ -132,10 +134,11 @@ WidgetInfo ContentLibraryView::widgetInfo()
             ModelNode matNode = QmlDesignerPlugin::instance()->viewManager()
                                 .view()->modelNodeForInternalId(internalId.toInt());
             addLibItem(matNode);
+            model()->endDrag();
         });
 
         connect(m_widget, &ContentLibraryWidget::accept3DDrop, this,
-                &ContentLibraryView::decodeAndAddToContentLib);
+                &ContentLibraryView::decodeAndDropToContentLib);
 
         connect(m_widget,
                 &ContentLibraryWidget::addTextureRequested,
@@ -829,7 +832,7 @@ void ContentLibraryView::saveIconToBundle(const auto &image, const QString &icon
     }
 }
 
-void ContentLibraryView::decodeAndAddToContentLib(const QByteArray &data)
+void ContentLibraryView::decodeAndDropToContentLib(const QByteArray &data)
 {
     QByteArray encodedData = data;
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
@@ -853,6 +856,8 @@ void ContentLibraryView::decodeAndAddToContentLib(const QByteArray &data)
         else
             addLibItem(node3D);
     }
+
+    model()->endDrag();
 };
 
 void ContentLibraryView::importBundleToContentLib()
