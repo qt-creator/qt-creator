@@ -82,9 +82,14 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     NanotraceHR::Tracer tracer{"item library widget event filter", category()};
 
     if (event->type() == QEvent::FocusOut) {
-        if (obj == m_itemsWidget->quickWidget())
+        tracer.tick("focus out");
+        if (obj == m_itemsWidget->quickWidget()) {
+            tracer.tick("close context menue");
             QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "closeContextMenu");
+        }
     } else if (event->type() == QMouseEvent::MouseMove) {
+        tracer.tick("mouse move");
+
         if (m_itemToDrag.isValid()) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 10) {
@@ -107,6 +112,8 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 #endif
 
                 if (m_model) {
+                    tracer.tick("start drag");
+
                     m_model->startDrag(m_itemLibraryModel->getMimeData(entry),
                                        ::Utils::StyleHelper::dpiSpecificImageFile(
                                            entry.libraryEntryIconPath()),
@@ -115,6 +122,7 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
+        tracer.tick("mouse release");
         m_itemToDrag = {};
 
         setIsDragging(false);
