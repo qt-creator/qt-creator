@@ -81,9 +81,6 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 {
     NanotraceHR::Tracer tracer{"item library widget event filter", category()};
 
-    auto document = QmlDesignerPlugin::instance()->currentDesignDocument();
-    Model *model = document ? document->documentModel() : nullptr;
-
     if (event->type() == QEvent::FocusOut) {
         if (obj == m_itemsWidget->quickWidget())
             QMetaObject::invokeMethod(m_itemsWidget->rootObject(), "closeContextMenu");
@@ -109,11 +106,11 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 }
 #endif
 
-                if (model) {
-                    model->startDrag(m_itemLibraryModel->getMimeData(entry),
-                                     ::Utils::StyleHelper::dpiSpecificImageFile(
-                                         entry.libraryEntryIconPath()),
-                                     this);
+                if (m_model) {
+                    m_model->startDrag(m_itemLibraryModel->getMimeData(entry),
+                                       ::Utils::StyleHelper::dpiSpecificImageFile(
+                                           entry.libraryEntryIconPath()),
+                                       this);
                 }
             }
         }
