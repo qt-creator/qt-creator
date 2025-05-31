@@ -434,19 +434,6 @@ using EnabledEventQueue = EventQueue<TraceEvent, Tracing::IsEnabled>;
 using EnabledEventQueueWithoutArguments = EventQueue<TraceEventWithoutArguments, Tracing::IsEnabled>;
 
 template<typename TraceEvent>
-void flushEvents(const Utils::span<TraceEvent> events,
-                 std::thread::id threadId,
-                 EnabledEventQueue<TraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushEvents(
-    const Utils::span<StringViewWithStringArgumentsTraceEvent> events,
-    std::thread::id threadId,
-    EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
-extern template NANOTRACE_EXPORT void flushEvents(
-    const Utils::span<TraceEventWithoutArguments> events,
-    std::thread::id threadId,
-    EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
-
-template<typename TraceEvent>
 void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue);
 extern template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
@@ -501,7 +488,9 @@ class EventQueue
 public:
     using IsActive = std::false_type;
 
-    template<typename TraceFile> EventQueue(TraceFile &) {}
+    template<typename TraceFile>
+    EventQueue(std::shared_ptr<TraceFile>)
+    {}
 };
 
 namespace Internal {
@@ -583,7 +572,7 @@ class EventQueue<TraceEvent, Tracing::IsEnabled>
 public:
     using IsActive = std::true_type;
 
-    EventQueue(EnabledTraceFile &file);
+    EventQueue(std::shared_ptr<EnabledTraceFile> file);
 
     ~EventQueue();
 
@@ -596,7 +585,7 @@ public:
     EventQueue &operator=(const EventQueue &) = delete;
     EventQueue &operator=(EventQueue &&) = delete;
 
-    EnabledTraceFile &file;
+    std::shared_ptr<EnabledTraceFile> file;
     std::unique_ptr<TraceEvents> eventArrayOne = std::make_unique<TraceEvents>();
     std::unique_ptr<TraceEvents> eventArrayTwo = std::make_unique<TraceEvents>();
     TraceEventsSpan eventsOne;

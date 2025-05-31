@@ -51,11 +51,6 @@ constexpr bool isArgumentValid(const StaticString<capacity> &string)
     return string.isValid() && string.size();
 }
 
-constexpr bool isArgumentValid(const std::identity &)
-{
-    return false;
-}
-
 template<typename String>
 constexpr bool isArgumentValid(const String &string)
 {
@@ -159,13 +154,13 @@ template NANOTRACE_EXPORT void convertToString(ArgumentsString &string, const QI
 template<typename TraceEvent>
 void flushEvents(const Utils::span<TraceEvent> events,
                  std::thread::id threadId,
-                 EnabledEventQueue<TraceEvent> &eventQueue)
+                 std::shared_ptr<EnabledTraceFile> file)
 {
     if (events.empty())
         return;
 
-    std::lock_guard lock{eventQueue.file.fileMutex};
-    auto &out = eventQueue.file.out;
+    std::lock_guard lock{file->fileMutex};
+    auto &out = file->out;
 
     if (out.is_open()) {
         auto processId = QCoreApplication::applicationPid();
@@ -176,14 +171,13 @@ void flushEvents(const Utils::span<TraceEvent> events,
     }
 }
 
-template NANOTRACE_EXPORT void flushEvents(
-    const Utils::span<StringViewWithStringArgumentsTraceEvent> events,
-    std::thread::id threadId,
-    EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
+template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringViewWithStringArgumentsTraceEvent> events,
+                                           std::thread::id threadId,
+                                           std::shared_ptr<EnabledTraceFile> file);
 
 template NANOTRACE_EXPORT void flushEvents(const Utils::span<TraceEventWithoutArguments> events,
                                            std::thread::id threadId,
-                                           EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
+                                           std::shared_ptr<EnabledTraceFile> file);
 
 void openFile(EnabledTraceFile &file)
 {
@@ -214,17 +208,18 @@ void finalizeFile(EnabledTraceFile &file)
 template<typename TraceEvent>
 void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
 {
-    if (eventQueue.file.processing.valid())
-        eventQueue.file.processing.wait();
+    if (eventQueue.file->processing.valid())
+        eventQueue.file->processing.wait();
 
-    auto flush = [&](const Utils::span<TraceEvent> &events, std::thread::id threadId) {
-        flushEvents(events, threadId, eventQueue);
-    };
+    auto flush = [](const Utils::span<TraceEvent> &events,
+                    std::thread::id threadId,
+                    std::shared_ptr<EnabledTraceFile> file) { flushEvents(events, threadId, file); };
 
-    eventQueue.file.processing = std::async(std::launch::async,
-                                            flush,
-                                            eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
-                                            eventQueue.threadId);
+    eventQueue.file->processing = std::async(std::launch::async,
+                                             flush,
+                                             eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
+                                             eventQueue.threadId,
+                                             eventQueue.file);
     eventQueue.currentEvents = eventQueue.currentEvents.data() == eventQueue.eventsOne.data()
                                    ? eventQueue.eventsTwo
                                    : eventQueue.eventsOne;
@@ -236,8 +231,8 @@ template NANOTRACE_EXPORT void flushInThread(
 template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
 
 template<typename TraceEvent>
-EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile &file)
-    : file{file}
+EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(std::shared_ptr<EnabledTraceFile> file)
+    : file{std::move(file)}
     , threadId{std::this_thread::get_id()}
 {
     setEventsSpans(*eventArrayOne.get(), *eventArrayTwo.get());
@@ -245,7 +240,7 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile &file)
     if (QThread::currentThread()) {
         auto name = getThreadName();
         if (name.size()) {
-            writeMetaEvent(file, "thread_name", name);
+            writeMetaEvent(*this->file, "thread_name", name);
         }
     }
 }
@@ -272,9 +267,10 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
 {
     std::lock_guard lock{mutex};
     if (isEnabled == IsEnabled::Yes && eventsIndex > 0) {
-        flushEvents(currentEvents.subspan(0, eventsIndex), threadId, *this);
+        flushEvents(currentEvents.subspan(0, eventsIndex), threadId, file);
         eventsIndex = 0;
     }
+    file.reset();
 }
 
 template class NANOTRACE_EXPORT_TEMPLATE

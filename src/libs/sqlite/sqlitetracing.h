@@ -5,6 +5,8 @@
 
 #include <nanotrace/nanotracehr.h>
 
+#include <memory>
+
 namespace Sqlite {
 using namespace NanotraceHR::Literals;
 
@@ -19,7 +21,7 @@ constexpr NanotraceHR::Tracing sqliteTracingStatus()
 
 using TraceFile = NanotraceHR::TraceFile<sqliteTracingStatus()>;
 
-SQLITE_EXPORT TraceFile &traceFile();
+SQLITE_EXPORT std::shared_ptr<TraceFile> traceFile();
 
 NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteLowLevelCategory();
 

@@ -5,9 +5,9 @@
 
 namespace Sqlite {
 
-TraceFile &traceFile()
+std::shared_ptr<TraceFile> traceFile()
 {
-    static TraceFile traceFile{"tracing.json"};
+    static auto traceFile = std::make_shared<TraceFile>("tracing.json");
 
     return traceFile;
 }

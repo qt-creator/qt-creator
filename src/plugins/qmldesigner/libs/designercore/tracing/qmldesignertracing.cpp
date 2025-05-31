@@ -15,12 +15,12 @@ namespace {
 
 using TraceFile = NanotraceHR::TraceFile<tracingStatus()>;
 
-auto &traceFile()
+auto traceFile()
 {
     if constexpr (std::is_same_v<Sqlite::TraceFile, TraceFile>) {
         return Sqlite::traceFile();
     } else {
-        static TraceFile traceFile{"tracing.json"};
+        static auto traceFile = std::make_shared<TraceFile>("tracing.json");
         return traceFile;
     }
 }
