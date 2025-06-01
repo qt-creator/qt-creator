@@ -45,8 +45,7 @@ unsigned int getUnsignedIntegerHash(std::thread::id id)
     return static_cast<unsigned int>(std::hash<std::thread::id>{}(id) & 0xFFFFFFFF);
 }
 
-template<std::size_t capacity>
-constexpr bool isArgumentValid(const StaticString<capacity> &string)
+constexpr bool isArgumentValid(const ArgumentsString &string)
 {
     return string.isValid() && string.size();
 }
@@ -171,7 +170,7 @@ void flushEvents(const Utils::span<TraceEvent> events,
     }
 }
 
-template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringViewWithStringArgumentsTraceEvent> events,
+template NANOTRACE_EXPORT void flushEvents(const Utils::span<TraceEventWithArguments> events,
                                            std::thread::id threadId,
                                            std::shared_ptr<EnabledTraceFile> file);
 
@@ -226,8 +225,7 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
     eventQueue.eventsIndex = 0;
 }
 
-template NANOTRACE_EXPORT void flushInThread(
-    EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
+template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEventWithArguments> &eventQueue);
 template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
 
 template<typename TraceEvent>
@@ -273,8 +271,7 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
     file.reset();
 }
 
-template class NANOTRACE_EXPORT_TEMPLATE
-    EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
+template class NANOTRACE_EXPORT_TEMPLATE EventQueue<TraceEventWithArguments, Tracing::IsEnabled>;
 template class NANOTRACE_EXPORT_TEMPLATE EventQueue<TraceEventWithoutArguments, Tracing::IsEnabled>;
 
 } // namespace NanotraceHR

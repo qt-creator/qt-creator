@@ -11,10 +11,9 @@ using namespace NanotraceHR::Literals;
 using NanotraceHR::keyValue;
 
 namespace {
-auto &category()
-{
-    return ProjectStorageTracing::projectStorageCategory();
-}
+
+auto category = ProjectStorageTracing::projectStorageCategory;
+
 } // namespace
 
 TypeHasInvalidSourceId::TypeHasInvalidSourceId(const Sqlite::source_location &location)

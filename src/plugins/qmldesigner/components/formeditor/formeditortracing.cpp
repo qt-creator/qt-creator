@@ -9,9 +9,12 @@
 
 namespace QmlDesigner::FormEditorTracing {
 using namespace NanotraceHR::Literals;
+
+#ifdef ENABLE_FORM_EDITOR_TRACING
+
 namespace {
 
-thread_local Category category_{"model",
+thread_local Category category_{"form editor",
                                 Tracing::eventQueueWithStringArguments(),
                                 Tracing::eventQueueWithoutArguments(),
                                 category};
@@ -22,5 +25,7 @@ Category &category()
 {
     return category_;
 }
+
+#endif
 
 } // namespace QmlDesigner::FormEditorTracing

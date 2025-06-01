@@ -5,6 +5,8 @@
 
 namespace Sqlite {
 
+#ifdef ENABLE_SQLITE_TRACING
+
 std::shared_ptr<TraceFile> traceFile()
 {
     static auto traceFile = std::make_shared<TraceFile>("tracing.json");
@@ -14,32 +16,30 @@ std::shared_ptr<TraceFile> traceFile()
 
 namespace {
 
-thread_local NanotraceHR::StringViewWithStringArgumentsEventQueue<sqliteTracingStatus()> eventQueue(
-    traceFile());
-thread_local NanotraceHR::EventQueueWithoutArguments<sqliteTracingStatus()> eventQueueWithoutArguments(
-    traceFile());
+thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueue(traceFile());
+thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueueWithoutArguments(traceFile());
 
 } // namespace
 
-NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteLowLevelCategory()
+NanotraceHR::EnabledCategory &sqliteLowLevelCategory()
 {
-    thread_local NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()>
-        sqliteLowLevelCategory_{"sqlite low level",
-                                eventQueue,
-                                eventQueueWithoutArguments,
-                                sqliteLowLevelCategory};
+    thread_local NanotraceHR::EnabledCategory sqliteLowLevelCategory_{"sqlite low level",
+                                                                      eventQueue,
+                                                                      eventQueueWithoutArguments,
+                                                                      sqliteLowLevelCategory};
     return sqliteLowLevelCategory_;
 }
 
-NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteHighLevelCategory()
+NanotraceHR::EnabledCategory &sqliteHighLevelCategory()
 {
-    thread_local NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()>
-        sqliteHighLevelCategory_{"sqlite high level",
-                                 eventQueue,
-                                 eventQueueWithoutArguments,
-                                 sqliteHighLevelCategory};
+    thread_local NanotraceHR::EnabledCategory sqliteHighLevelCategory_{"sqlite high level",
+                                                                       eventQueue,
+                                                                       eventQueueWithoutArguments,
+                                                                       sqliteHighLevelCategory};
 
     return sqliteHighLevelCategory_;
 }
+
+#endif
 
 } // namespace Sqlite

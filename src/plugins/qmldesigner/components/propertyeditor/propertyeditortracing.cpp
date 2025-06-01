@@ -9,9 +9,12 @@
 
 namespace QmlDesigner::PropertyEditorTracing {
 using namespace NanotraceHR::Literals;
+
+#ifdef ENABLE_PROPERTY_EDITOR_TRACING
+
 namespace {
 
-thread_local Category category_{"model",
+thread_local Category category_{"property editor",
                                 Tracing::eventQueueWithStringArguments(),
                                 Tracing::eventQueueWithoutArguments(),
                                 category};
@@ -22,5 +25,7 @@ Category &category()
 {
     return category_;
 }
+
+#endif
 
 } // namespace QmlDesigner::PropertyEditorTracing

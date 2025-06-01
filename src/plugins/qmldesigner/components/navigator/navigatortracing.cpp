@@ -9,9 +9,12 @@
 
 namespace QmlDesigner::NavigatorTracing {
 using namespace NanotraceHR::Literals;
+
+#ifdef ENABLE_NAVIGATOR_TRACING
+
 namespace {
 
-thread_local Category category_{"model",
+thread_local Category category_{"navigator",
                                 Tracing::eventQueueWithStringArguments(),
                                 Tracing::eventQueueWithoutArguments(),
                                 category};
@@ -22,5 +25,7 @@ Category &category()
 {
     return category_;
 }
+
+#endif
 
 } // namespace QmlDesigner::NavigatorTracing

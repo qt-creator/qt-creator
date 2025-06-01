@@ -9,34 +9,35 @@ namespace QmlDesigner {
 
 using namespace NanotraceHR::Literals;
 
+#ifdef ENABLE_QMLDESIGNER_TRACING
+
 namespace Tracing {
 
 namespace {
 
-using TraceFile = NanotraceHR::TraceFile<tracingStatus()>;
+using TraceFile = NanotraceHR::EnabledTraceFile;
 
 auto traceFile()
 {
-    if constexpr (std::is_same_v<Sqlite::TraceFile, TraceFile>) {
-        return Sqlite::traceFile();
-    } else {
-        static auto traceFile = std::make_shared<TraceFile>("tracing.json");
-        return traceFile;
-    }
+#  ifdef ENABLE_SQLITE_TRACING
+    return Sqlite::traceFile();
+#  else
+    static auto traceFile = std::make_shared<TraceFile>("tracing.json");
+    return traceFile;
+#  endif
 }
 } // namespace
 
 EventQueueWithStringArguments &eventQueueWithStringArguments()
 {
-    thread_local NanotraceHR::StringViewWithStringArgumentsEventQueue<tracingStatus()> eventQueue(
-        traceFile());
+    thread_local NanotraceHR::EnabledEventQueueWithArguments eventQueue(traceFile());
 
     return eventQueue;
 }
 
 EventQueueWithoutArguments &eventQueueWithoutArguments()
 {
-    thread_local NanotraceHR::EventQueueWithoutArguments<tracingStatus()> eventQueue(traceFile());
+    thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueue(traceFile());
 
     return eventQueue;
 }
@@ -44,6 +45,9 @@ EventQueueWithoutArguments &eventQueueWithoutArguments()
 } // namespace Tracing
 
 namespace ModelTracing {
+
+#  ifdef ENABLE_MODEL_TRACING
+
 namespace {
 
 thread_local Category category_{"model",
@@ -58,9 +62,13 @@ Category &category()
     return category_;
 }
 
+#  endif
+
 } // namespace ModelTracing
 
 namespace ProjectStorageTracing {
+
+#  ifdef ENABLE_PROJECT_STORAGE_TRACING
 
 Category &projectStorageCategory()
 {
@@ -82,17 +90,28 @@ Category &projectStorageUpdaterCategory()
     return category;
 }
 
+#  endif
+
 } // namespace ProjectStorageTracing
 
 namespace SourcePathStorageTracing {
+
+#  ifdef ENABLE_SOURCE_PATH_STORAGE_TRACING
+
 Category &category()
 {
-    thread_local Category category_{"project storage updater",
+    thread_local Category category_{"source path storage",
                                     Tracing::eventQueueWithStringArguments(),
                                     Tracing::eventQueueWithoutArguments(),
                                     category};
 
     return category_;
 }
+
+#  endif
+
 } // namespace SourcePathStorageTracing
+
+#endif
+
 } // namespace QmlDesigner

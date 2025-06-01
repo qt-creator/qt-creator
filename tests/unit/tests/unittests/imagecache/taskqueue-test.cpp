@@ -26,7 +26,7 @@ auto IsTask(Matcher matcher)
 
 class TaskQueue : public testing::Test
 {
-    using Category = NanotraceHR::StringViewWithStringArgumentsCategory<NanotraceHR::Tracing::IsDisabled>;
+    using Category = NanotraceHR::DisabledCategory;
 
 protected:
     Notification notification;

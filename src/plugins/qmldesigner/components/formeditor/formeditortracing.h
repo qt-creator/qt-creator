@@ -9,18 +9,22 @@
 
 namespace QmlDesigner::FormEditorTracing {
 
-constexpr NanotraceHR::Tracing tracingStatus()
-{
 #ifdef ENABLE_FORM_EDITOR_TRACING
-    return NanotraceHR::Tracing::IsEnabled;
-#else
-    return NanotraceHR::Tracing::IsDisabled;
-#endif
-}
 
-using Category = NanotraceHR::StringViewWithStringArgumentsCategory<tracingStatus()>;
+using Category = NanotraceHR::EnabledCategory;
 using SourceLocation = Category::SourceLocation;
 
 [[gnu::pure]] QMLDESIGNERCOMPONENTS_EXPORT Category &category();
 
+#else
+
+using Category = NanotraceHR::DisabledCategory;
+using SourceLocation = Category::SourceLocation;
+
+inline Category category()
+{
+    return {};
+}
+
+#endif
 } // namespace QmlDesigner::FormEditorTracing
