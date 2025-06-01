@@ -20,7 +20,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 const int s_startDragDistance = 20;
 const int s_startDragTime = 50;

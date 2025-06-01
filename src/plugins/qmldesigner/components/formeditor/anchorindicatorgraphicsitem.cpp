@@ -13,7 +13,7 @@ const int AngleDegree = 16;
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 AnchorIndicatorGraphicsItem::AnchorIndicatorGraphicsItem(QGraphicsItem *parent) :
     QGraphicsObject(parent)

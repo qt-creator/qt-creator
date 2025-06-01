@@ -31,7 +31,7 @@
 
 namespace QmlDesigner {
 
-static auto category = NavigatorTracing::category;
+static const auto category = NavigatorTracing::category;
 
 int NameItemDelegate::iconOffset = 0;
 

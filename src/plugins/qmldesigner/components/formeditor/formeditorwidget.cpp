@@ -51,7 +51,7 @@ namespace {
 constexpr AuxiliaryDataKeyView formeditorZoomProperty{AuxiliaryDataType::NodeInstancePropertyOverwrite,
                                                       "formeditorZoom"};
 
-auto category = FormEditorTracing::category;
+const auto category = FormEditorTracing::category;
 }
 
 FormEditorWidget::FormEditorWidget(FormEditorView *view)

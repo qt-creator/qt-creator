@@ -33,7 +33,7 @@ namespace QmlDesigner {
 
 namespace {
 
-auto category = NavigatorTracing::category;
+const auto category = NavigatorTracing::category;
 
 // This style basically allows us to span the entire row
 // including the arrow indicators which would otherwise not be

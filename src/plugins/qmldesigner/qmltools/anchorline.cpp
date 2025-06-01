@@ -5,7 +5,7 @@
 
 namespace QmlDesigner {
 
-static auto category = ModelTracing::category;
+static const auto category = ModelTracing::category;
 
 AnchorLine::AnchorLine()
     : m_qmlItemNode(QmlItemNode())

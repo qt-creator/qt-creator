@@ -10,7 +10,7 @@
 #include <QtDebug>
 
 namespace QmlDesigner {
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 SnappingLineCreator::SnappingLineCreator(FormEditorItem *formEditorItem)
     : m_formEditorItem(formEditorItem),

@@ -9,7 +9,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 RotationHandleItem::RotationHandleItem(QGraphicsItem *parent, const RotationController &rotationController)
     : QGraphicsItem(parent)

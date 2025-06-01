@@ -8,7 +8,7 @@
 
 namespace QmlDesigner {
 
-static auto category = ItemLibraryTracing::category;
+static const auto category = ItemLibraryTracing::category;
 
 ItemLibraryItem::ItemLibraryItem(const ItemLibraryEntry &itemLibraryEntry, bool isUsable, QObject *parent)
     : QObject(parent)

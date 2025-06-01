@@ -7,7 +7,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 AbstractCustomTool::AbstractCustomTool()
     : AbstractFormEditorTool(nullptr)

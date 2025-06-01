@@ -23,7 +23,7 @@ namespace QmlDesigner {
 
 QPointer<ColorPaletteBackend> ColorPaletteBackend::m_instance = nullptr;
 
-static auto category = PropertyEditorTracing::category;
+static const auto category = PropertyEditorTracing::category;
 
 ColorPaletteBackend::ColorPaletteBackend()
     : m_currentPalette()

@@ -6,7 +6,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 ScaleManipulator::ScaleManipulator(LayerItem *layerItem, FormEditorItem *formEditorItem)
         : m_layerItem(layerItem),

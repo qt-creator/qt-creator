@@ -11,7 +11,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 SingleSelectionManipulator::SingleSelectionManipulator(FormEditorView *editorView)
     : m_editorView(editorView),

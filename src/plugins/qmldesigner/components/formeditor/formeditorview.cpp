@@ -49,7 +49,7 @@ using NanotraceHR::keyValue;
 namespace {
 constexpr AuxiliaryDataKeyView autoSizeProperty{AuxiliaryDataType::Temporary, "autoSize"};
 
-auto category = FormEditorTracing::category;
+const auto category = FormEditorTracing::category;
 }
 
 FormEditorView::FormEditorView(ExternalDependenciesInterface &externalDependencies)

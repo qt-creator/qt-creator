@@ -8,7 +8,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 BindingIndicatorGraphicsItem::BindingIndicatorGraphicsItem(QGraphicsItem *parent) :
     QGraphicsObject(parent)

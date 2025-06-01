@@ -66,7 +66,7 @@
 
 namespace QmlDesigner {
 
-static auto category = ItemLibraryTracing::category;
+static const auto category = ItemLibraryTracing::category;
 
 static QString propertyEditorResourcesPath()
 {

@@ -11,7 +11,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 SelectionRectangle::SelectionRectangle(LayerItem *layerItem)
     : m_controlShape(new QGraphicsRectItem(layerItem)),

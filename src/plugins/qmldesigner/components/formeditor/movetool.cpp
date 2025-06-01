@@ -20,7 +20,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 MoveTool::MoveTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView)

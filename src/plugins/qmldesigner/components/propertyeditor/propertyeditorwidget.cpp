@@ -10,7 +10,7 @@
 
 namespace QmlDesigner {
 
-static auto category = PropertyEditorTracing::category;
+static const auto category = PropertyEditorTracing::category;
 
 PropertyEditorWidget::PropertyEditorWidget(QWidget *parent) : QStackedWidget(parent)
 {

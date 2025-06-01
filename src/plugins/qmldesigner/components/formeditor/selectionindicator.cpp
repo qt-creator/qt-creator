@@ -22,7 +22,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 SelectionIndicator::SelectionIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)

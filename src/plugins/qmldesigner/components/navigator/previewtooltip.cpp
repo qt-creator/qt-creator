@@ -12,7 +12,7 @@
 
 namespace QmlDesigner {
 
-static auto category = NavigatorTracing::category;
+static const auto category = NavigatorTracing::category;
 
 PreviewToolTip::PreviewToolTip(QWidget *parent)
     : QWidget(parent)

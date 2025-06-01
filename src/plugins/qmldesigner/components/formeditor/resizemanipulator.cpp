@@ -16,7 +16,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 ResizeManipulator::ResizeManipulator(LayerItem *layerItem, FormEditorView *view)
     : m_view(view),

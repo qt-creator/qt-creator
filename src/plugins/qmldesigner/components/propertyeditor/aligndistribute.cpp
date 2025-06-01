@@ -25,7 +25,7 @@ using namespace Utils;
 
 namespace QmlDesigner {
 
-static auto category = PropertyEditorTracing::category;
+static const auto category = PropertyEditorTracing::category;
 
 AlignDistribute::AlignDistribute(QObject *parent)
     : QObject(parent)

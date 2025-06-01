@@ -9,7 +9,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 LineEditAction::LineEditAction(const QString &placeHolderText, QObject *parent) :
     QWidgetAction(parent),

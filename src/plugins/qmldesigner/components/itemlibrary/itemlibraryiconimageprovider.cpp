@@ -15,7 +15,7 @@
 
 namespace QmlDesigner {
 
-static auto category = ItemLibraryTracing::category;
+static const auto category = ItemLibraryTracing::category;
 
 QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QString &id,
                                                                         const QSize &)

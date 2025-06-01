@@ -11,7 +11,7 @@ namespace QmlDesigner {
 
 using NanotraceHR::keyValue;
 
-static auto category = ModelTracing::category;
+static const auto category = ModelTracing::category;
 
 bool QmlConnections::isValid(SL sl) const
 {

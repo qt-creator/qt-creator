@@ -36,7 +36,7 @@ namespace QmlDesigner {
 
 using NanotraceHR::keyValue;
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 const int flowBlockSize = 200;
 const int blockRadius = 18;

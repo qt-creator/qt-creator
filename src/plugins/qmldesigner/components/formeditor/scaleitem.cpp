@@ -8,7 +8,7 @@
 
 namespace QmlDesigner {
 
-static auto category = FormEditorTracing::category;
+static const auto category = FormEditorTracing::category;
 
 ScaleItem::ScaleItem(LayerItem *layerItem, ScaleIndicator *indicator)
     : QGraphicsRectItem(layerItem),
