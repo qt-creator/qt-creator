@@ -28,14 +28,16 @@ namespace ModelTracing {
 
 using Category = NanotraceHR::EnabledCategory;
 using SourceLocation = Category::SourceLocation;
-using AsynchronousToken = Category::AsynchronousTokenType;
+using AsynchronousToken = NanotraceHR::EnabledAsynchronousToken;
+using FlowToken = NanotraceHR::EnabledFlowToken;
 [[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
 
 #else
 
 using Category = NanotraceHR::DisabledCategory;
 using SourceLocation = Category::SourceLocation;
-using AsynchronousToken = Category::AsynchronousTokenType;
+using AsynchronousToken = NanotraceHR::DisabledAsynchronousToken;
+using FlowToken = NanotraceHR::DisabledFlowToken;
 
 inline Category category()
 {

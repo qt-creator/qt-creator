@@ -25,8 +25,8 @@ public:
 
     ~TaskQueue() { destroy(); }
 
-    template<typename TraceEvent, NanotraceHR::Tracing isEnabled, typename... Arguments>
-    void addTask(NanotraceHR::Token<TraceEvent, isEnabled> traceToken, Arguments &&...arguments)
+    template<typename Category, typename... Arguments>
+    void addTask(NanotraceHR::Token<Category> traceToken, Arguments &&...arguments)
     {
         {
             std::unique_lock lock{m_mutex};

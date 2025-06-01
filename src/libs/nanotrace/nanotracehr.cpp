@@ -50,12 +50,6 @@ constexpr bool isArgumentValid(const ArgumentsString &string)
     return string.isValid() && string.size();
 }
 
-template<typename String>
-constexpr bool isArgumentValid(const String &string)
-{
-    return string.size();
-}
-
 template<typename TraceEvent>
 void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, std::thread::id threadId)
 {

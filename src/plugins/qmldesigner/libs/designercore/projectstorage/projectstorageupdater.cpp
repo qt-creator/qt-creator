@@ -30,7 +30,7 @@
 namespace QmlDesigner {
 constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
-using Tracer = ProjectStorageTracing::Category::TracerType;
+using Tracer = NanotraceHR::Tracer<ProjectStorageTracing::Category>;
 
 template<typename String>
 void convertToString(String &string, const ProjectStorageUpdater::FileState &state)

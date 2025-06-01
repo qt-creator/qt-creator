@@ -9,9 +9,9 @@ namespace QmlDesigner {
 
 using namespace NanotraceHR::Literals;
 
-#ifdef ENABLE_QMLDESIGNER_TRACING
-
 namespace Tracing {
+
+#ifdef ENABLE_QMLDESIGNER_TRACING
 
 namespace {
 
@@ -42,11 +42,13 @@ EventQueueWithoutArguments &eventQueueWithoutArguments()
     return eventQueue;
 }
 
+#endif
+
 } // namespace Tracing
 
 namespace ModelTracing {
 
-#  ifdef ENABLE_MODEL_TRACING
+#ifdef ENABLE_MODEL_TRACING
 
 namespace {
 
@@ -62,13 +64,13 @@ Category &category()
     return category_;
 }
 
-#  endif
+#endif
 
 } // namespace ModelTracing
 
 namespace ProjectStorageTracing {
 
-#  ifdef ENABLE_PROJECT_STORAGE_TRACING
+#ifdef ENABLE_PROJECT_STORAGE_TRACING
 
 Category &projectStorageCategory()
 {
@@ -90,13 +92,13 @@ Category &projectStorageUpdaterCategory()
     return category;
 }
 
-#  endif
+#endif
 
 } // namespace ProjectStorageTracing
 
 namespace SourcePathStorageTracing {
 
-#  ifdef ENABLE_SOURCE_PATH_STORAGE_TRACING
+#ifdef ENABLE_SOURCE_PATH_STORAGE_TRACING
 
 Category &category()
 {
@@ -108,10 +110,8 @@ Category &category()
     return category_;
 }
 
-#  endif
+#endif
 
 } // namespace SourcePathStorageTracing
-
-#endif
 
 } // namespace QmlDesigner

@@ -168,7 +168,7 @@ private:
                                 NotUpdatedSourceIds &notUpdatedSourceIds,
                                 WatchedSourceIds &WatchedSourceIds,
                                 IsInsideProject isInsideProject,
-                                ProjectStorageTracing::Category::TracerType &tracer);
+                                NanotraceHR::Tracer<ProjectStorageTracing::Category> &tracer);
     void annotationDirectoryChanged(Utils::SmallStringView directoryPath,
                                     DirectoryPathId directoryId,
                                     DirectoryPathId annotationDirectoryId,

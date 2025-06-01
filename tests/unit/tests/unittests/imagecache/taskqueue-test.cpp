@@ -26,8 +26,6 @@ auto IsTask(Matcher matcher)
 
 class TaskQueue : public testing::Test
 {
-    using Category = NanotraceHR::DisabledCategory;
-
 protected:
     Notification notification;
     Notification waitInThread;
@@ -36,7 +34,7 @@ protected:
     using Queue = QmlDesigner::TaskQueue<Task,
                                          decltype(mockDispatchCallback.AsStdFunction()),
                                          decltype(mockCleanCallback.AsStdFunction())>;
-    NanotraceHR::Token<Category, NanotraceHR::Tracing::IsDisabled> dummyToken;
+    NanotraceHR::DisabledToken dummyToken;
 };
 
 TEST_F(TaskQueue, add_task_dispatches_task)

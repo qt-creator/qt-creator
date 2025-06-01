@@ -28,7 +28,7 @@ namespace QmlDesigner {
 constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
 using Storage::IsInsideProject;
-using Tracer = ProjectStorageTracing::Category::TracerType;
+using Tracer = NanotraceHR::Tracer<ProjectStorageTracing::Category>;
 using Storage::ModuleKind;
 namespace QmlDom = QQmlJS::Dom;
 

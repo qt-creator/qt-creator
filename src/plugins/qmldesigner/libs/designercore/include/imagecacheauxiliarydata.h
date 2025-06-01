@@ -20,17 +20,17 @@ namespace ImageCache {
 #ifdef ENABLE_IMAGE_CACHE_TRACING
 
 using Category = NanotraceHR::EnabledCategory;
-using TraceToken = Category::FlowTokenType;
-using FlowToken = Category::FlowTokenType;
-using Token = Category::TokenType;
+using TraceToken = NanotraceHR::EnabledFlowToken;
+using FlowToken = NanotraceHR::EnabledFlowToken;
+using Token = NanotraceHR::EnabledToken;
 [[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
 
 #else
 
 using Category = NanotraceHR::DisabledCategory;
-using TraceToken = Category::FlowTokenType;
-using FlowToken = Category::FlowTokenType;
-using Token = Category::TokenType;
+using TraceToken = NanotraceHR::DisabledFlowToken;
+using FlowToken = NanotraceHR::DisabledFlowToken;
+using Token = NanotraceHR::DisabledToken;
 
 inline Category category()
 {

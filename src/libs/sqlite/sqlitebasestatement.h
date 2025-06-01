@@ -543,10 +543,10 @@ public:
         using TracerCategory = std::decay_t<decltype(sqliteHighLevelCategory())>;
         StatementImplementation &m_statement;
         const source_location &m_sourceLocation;
-        NanotraceHR::Tracer<TracerCategory, typename TracerCategory::IsActive> tracer{
-            "range",
-            sqliteHighLevelCategory(),
-            NanotraceHR::keyValue("sqlite statement", m_statement.handle())};
+        NanotraceHR::Tracer<TracerCategory> tracer{"range",
+                                                   sqliteHighLevelCategory(),
+                                                   NanotraceHR::keyValue("sqlite statement",
+                                                                         m_statement.handle())};
     };
 
     template<typename ResultType>
