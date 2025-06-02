@@ -172,7 +172,7 @@ bool isValidIdentifier(const QString &s)
     return true;
 }
 
-int activeArgumenForPrefix(const QString &prefix)
+int activeArgumentForPrefix(const QString &prefix)
 {
     int argnr = 0;
     int parcount = 0;

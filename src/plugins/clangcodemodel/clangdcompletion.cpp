@@ -188,7 +188,7 @@ public:
 private:
     int activeArgument(const QString &prefix) const override
     {
-        const int arg = activeArgumenForPrefix(prefix);
+        const int arg = activeArgumentForPrefix(prefix);
         if (arg < 0)
             return -1;
         m_currentArg = arg;
