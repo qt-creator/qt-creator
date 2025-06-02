@@ -22185,43 +22185,43 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Diff Project Directory</source>
-        <translation type="unfinished">Diff des Projektverzeichnisses</translation>
+        <translation>Diff des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Diff Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished">Diff des Projektverzeichnisses von &quot;%1&quot;</translation>
+        <translation>Diff des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Project Directory Status</source>
-        <translation type="unfinished">Status des Projektverzeichnisses</translation>
+        <translation>Status des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Status of Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished">Status des Projektverzeichnisses von &quot;%1&quot;</translation>
+        <translation>Status des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Project Directory</source>
-        <translation type="unfinished">Log des Projektverzeichnisses</translation>
+        <translation>Log des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Log Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished">Log des Projektverzeichnisses von &quot;%1&quot;</translation>
+        <translation>Log des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Update Project Directory</source>
-        <translation type="unfinished">Projektverzeichnis aktualisieren</translation>
+        <translation>Projektverzeichnis aktualisieren</translation>
     </message>
     <message>
         <source>Update Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished">Projektverzeichnis von &quot;%1&quot; aktualisieren</translation>
+        <translation>Projektverzeichnis von &quot;%1&quot; aktualisieren</translation>
     </message>
     <message>
         <source>Commit Project Directory</source>
-        <translation type="unfinished">Commit des Projektverzeichnisses</translation>
+        <translation>Commit des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Commit Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished">Commit des Projektverzeichnisses von &quot;%1&quot;</translation>
+        <translation>Commit des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Update Directory</source>
@@ -38166,15 +38166,15 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Git Diff Staged Project Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Diff der vorgemerkten Änderungen für das Projekt</translation>
     </message>
     <message>
         <source>Git Diff Staged Repository Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Diff der vorgemerkten Änderungen für das Repository</translation>
     </message>
     <message>
         <source>Git Diff Staged &quot;%1&quot; Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Git Diff der vorgemerkten Änderungen für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Git Diff &quot;%1&quot;</source>
@@ -38305,15 +38305,15 @@ Möchten Sie den Branch &quot;%1&quot; im entfernten Repository erzeugen und ihn
     </message>
     <message>
         <source>Cancel %1.</source>
-        <translation>%1 Abbrechen.</translation>
+        <translation>%1 abbrechen.</translation>
     </message>
     <message>
         <source>Di&amp;ff &amp;&amp; Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Di&amp;ff &amp;&amp; abbrechen</translation>
     </message>
     <message>
         <source>Show a diff of the local changes and cancel %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt ein Diff der lokalen Änderungen und bricht %1 ab.</translation>
     </message>
     <message>
         <source>Create &amp;Branch from %1...</source>
@@ -38906,11 +38906,11 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>Annotation:</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotation:</translation>
     </message>
     <message>
         <source>Annotation (Optional)</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotation (Optional)</translation>
     </message>
     <message>
         <source>Add Branch</source>
@@ -39726,7 +39726,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Access git config variables.</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf Git Konfigurationsvariablen zugreifen.</translation>
     </message>
     <message>
         <source>Triggers a Git version control operation.</source>
@@ -39761,12 +39761,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Diff Staged Current File Changes</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diff der vorgemerkten Änderungen für die aktuelle Datei</translation>
     </message>
     <message>
         <source>Diff Staged Changes in &quot;%1&quot;</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diff der vorgemerkten Änderungen für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Current File</source>
@@ -39883,12 +39883,12 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Diff Staged Project Directory Changes</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diff der vorgemerkten Änderungen für das Projektverzeichnis</translation>
     </message>
     <message>
         <source>Diff Staged Directory of Project &quot;%1&quot; Changes</source>
         <extracomment>Avoid translating &quot;Diff&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Diff der vorgemerkten Änderungen für das Projektverzeichnis von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Project Directory</source>
