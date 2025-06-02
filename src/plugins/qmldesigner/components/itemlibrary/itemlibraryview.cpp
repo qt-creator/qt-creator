@@ -139,4 +139,9 @@ void ItemLibraryView::customNotification(const AbstractView *view,
         AbstractView::customNotification(view, identifier, nodeList, data);
 }
 
+void ItemLibraryView::exportedTypeNamesChanged(const ExportedTypeNames &, const ExportedTypeNames &)
+{
+    m_widget->delayedUpdateModel();
+}
+
 } // namespace QmlDesigner
