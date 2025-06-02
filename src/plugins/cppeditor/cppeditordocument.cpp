@@ -767,10 +767,14 @@ void CppEditorDocument::Private::updateInfoBarEntryIfVisible()
         q->minimizableInfoBars()->updateEntry(createInfoBarEntry(filePath()));
 }
 
+#ifdef WITH_TESTS
+
 QList<BlockRange> CppEditorDocument::ifdefedOutBlocks() const
 {
     return d->m_ifdefedOutBlocks;
 }
+
+#endif
 
 } // namespace Internal
 } // namespace CppEditor
