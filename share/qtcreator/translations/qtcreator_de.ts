@@ -31206,7 +31206,7 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Use asynchronous mode to control the debugged process</source>
-        <translation type="unfinished"></translation>
+        <translation>Asynchronen Modus zur Steuerung des zu debuggenden Prozesses verwenden</translation>
     </message>
     <message>
         <source>GDB commands entered here will be executed after GDB has been started, but before the debugged program is started or attached, and before the debugging helpers are initialized.</source>
@@ -31360,11 +31360,11 @@ Sie haben die Wahl zu warten oder das Debuggen abzubrechen.</numerusform>
     </message>
     <message>
         <source>Cannot Execute Python Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann keinen Python-Code ausführen</translation>
     </message>
     <message>
         <source>Python 3.2 or later is required, so update GDB to a version that uses it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wird Python 3.2 oder neuer benötigt. Aktualisieren Sie GDB auf eine Version, die dies verwendet.</translation>
     </message>
     <message>
         <source>The selected build of GDB supports Python scripting, but the used version %1.%2 is not sufficient for %3. Python %4 or later is required.</source>
@@ -33003,11 +33003,11 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>Copy Selected Items to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Elemente in Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Copy Selected Items to New Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählte Elemente in neuen Editor kopieren</translation>
     </message>
     <message>
         <source>Attach to Running Application...</source>
@@ -34369,24 +34369,25 @@ Für dieses Binärformat wären GDB oder LLDB besser als Debugger geeignet.</tra
     </message>
     <message>
         <source>The debugged process stopped because it received a signal from the operating system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der zu debuggende Prozess wurde wegen eines Signals vom Betriebssystems angehalten.</translation>
     </message>
     <message>
         <source>Signal name:</source>
-        <translation type="unfinished">Signal-Name:</translation>
+        <translation>Signalname:</translation>
     </message>
     <message>
         <source>Signal meaning:</source>
-        <translation type="unfinished"></translation>
+        <translation>Signalbedeutung:</translation>
     </message>
     <message>
         <source>The debugged process stopped because it triggered an exception.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der zu debuggende Prozess wurde angehalten, da er eine Ausnahme ausgelöst hat.</translation>
     </message>
     <message>
         <source>The executable uses the Portable Executable format.
 Selecting %1 as debugger would improve the debugging experience for this binary format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei verwendet das Portable Executable-Format.
+Für dieses Binärformat wäre %1 besser als Debugger geeignet.</translation>
     </message>
     <message>
         <source>Found.</source>
@@ -35734,7 +35735,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed to retrieve docker networks: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Netzwerke konnten nicht abgerufen werden: %1</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; is not a directory or does not exist.</source>
@@ -35746,11 +35747,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed creating Docker container: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Container konnte nicht erstellt werden: %1</translation>
     </message>
     <message>
         <source>Failed starting Docker event listener. Exit code: %1, output: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Eventlistener konnte nicht gestartet werden. Rückgabewert: %1, Ausgabe: %2</translation>
     </message>
     <message>
         <source>Failed starting Docker container. Exit code: %1, output: %2</source>
@@ -35766,11 +35767,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Device is shut down.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät ist heruntergefahren.</translation>
     </message>
     <message>
         <source>Container environment:</source>
-        <translation type="unfinished"></translation>
+        <translation>Container-Umgebung:</translation>
     </message>
     <message>
         <source>Do not modify entry point:</source>
@@ -35790,7 +35791,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Clangd executable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Clangd:</translation>
     </message>
     <message>
         <source>Network:</source>
@@ -35798,51 +35799,51 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Docker system is not reachable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-System ist nicht erreichbar.</translation>
     </message>
     <message>
         <source>Docker image &quot;%1&quot; not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Image &quot;%1&quot; wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>Show unnamed images</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbenannte Images anzeigen</translation>
     </message>
     <message>
         <source>Host IP address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Host IP-Adresse.</translation>
     </message>
     <message>
         <source>Host IP:</source>
-        <translation type="unfinished"></translation>
+        <translation>Host IP:</translation>
     </message>
     <message>
         <source>Host port number.</source>
-        <translation type="unfinished"></translation>
+        <translation>Host Portnummer.</translation>
     </message>
     <message>
         <source>Host port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostport:</translation>
     </message>
     <message>
         <source>Container port number.</source>
-        <translation type="unfinished"></translation>
+        <translation>Container Portnummer.</translation>
     </message>
     <message>
         <source>Container port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Containerport:</translation>
     </message>
     <message>
         <source>Protocol to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu verwendendes Protokoll.</translation>
     </message>
     <message>
         <source>Protocol:</source>
-        <translation type="unfinished">Protokoll:</translation>
+        <translation>Protokoll:</translation>
     </message>
     <message>
         <source>Port mappings:</source>
-        <translation type="unfinished"></translation>
+        <translation>Port-Zuordnungen:</translation>
     </message>
     <message>
         <source>Error</source>
@@ -35870,7 +35871,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Environment could not be captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Umgebung konnte nicht abgerufen werden.</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
@@ -36038,7 +36039,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Fetch Environment</source>
-        <translation type="unfinished"></translation>
+        <translation>Umgebung abrufen</translation>
     </message>
 </context>
 <context>
@@ -58151,7 +58152,7 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Public Key Files (*.pub)</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffentliche Schlüsseldateien (*.pub)</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -58555,7 +58556,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Source profile before executing commands.</source>
-        <translation type="unfinished"></translation>
+        <translation>Profil vor dem Ausführen von Kommandos einbinden.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -58575,11 +58576,11 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Connected</source>
-        <translation type="unfinished">Verbunden</translation>
+        <translation>Verbunden</translation>
     </message>
     <message>
         <source>Connected (fallback)</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbunden (Fallback)</translation>
     </message>
     <message>
         <source>Created directory: &quot;%1&quot;.</source>
