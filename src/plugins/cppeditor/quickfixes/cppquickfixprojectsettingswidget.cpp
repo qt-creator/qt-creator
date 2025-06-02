@@ -10,7 +10,6 @@
 
 #include <projectexplorer/projectpanelfactory.h>
 
-#include <QFile>
 #include <QGridLayout>
 #include <QPushButton>
 
@@ -95,7 +94,7 @@ void CppQuickFixProjectSettingsWidget::buttonCustomClicked()
 {
     if (useGlobalSettings()) {
         // delete file
-        QFile::remove(m_projectSettings->filePathOfSettingsFile().toUrlishString());
+        m_projectSettings->filePathOfSettingsFile().removeFile();
         m_pushButton->setVisible(false);
     } else /*Custom*/ {
         m_projectSettings->resetOwnSettingsToGlobal();
