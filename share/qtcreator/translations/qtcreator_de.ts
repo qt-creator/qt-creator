@@ -45880,15 +45880,15 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Clone From Run Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Von Ausführungskonfiguration klonen</translation>
     </message>
     <message>
         <source>There are no other run configurations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es gibt keine anderen Ausführungskonfigurationen.</translation>
     </message>
     <message>
         <source>Clone into This...</source>
-        <translation type="unfinished"></translation>
+        <translation>Hier hinein klonen...</translation>
     </message>
     <message>
         <source>Remove Run Configurations?</source>
@@ -47410,7 +47410,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>&amp;Restore</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiede&amp;rherstellen</translation>
     </message>
     <message>
         <source>Yes (id is &quot;%1&quot;)</source>
@@ -47442,25 +47442,27 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>Use SSH port forwarding for debugging</source>
-        <translation type="unfinished">SSH-Portweiterleitung zum Debuggen verwenden</translation>
+        <translation>SSH-Portweiterleitung zum Debuggen verwenden</translation>
     </message>
     <message>
         <source>Enable debugging on remote targets that cannot expose GDB server ports.
 The SSH tunneling is used to map the remote GDB server port to localhost.
 The local and remote ports are determined automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ermöglicht Debuggen auf entfernten Zielen, die gdbserver-Ports nicht direkt bereitstellen können.
+Es wird SSH-Tunneling verwendet, um die entfernten GDB-Server-Ports auf localhost abzubilden.
+Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>Access via:</source>
-        <translation type="unfinished">Zugriff über:</translation>
+        <translation>Zugriff über:</translation>
     </message>
     <message>
         <source>Select the device to connect through.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie das Gerät, über das verbunden werden soll.</translation>
     </message>
     <message>
         <source>Direct</source>
-        <translation type="unfinished">Direkt</translation>
+        <translation>Direkt</translation>
     </message>
     <message>
         <source>The device name cannot be empty.</source>
@@ -47472,27 +47474,27 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>GDB server executable:</source>
-        <translation type="unfinished">Ausführbare Datei des GDB-Servers:</translation>
+        <translation>Ausführbare Datei des GDB-Servers:</translation>
     </message>
     <message>
         <source>The GDB server executable to use on the device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei des GDB-Servers, der auf dem Gerät verwendet werden soll.</translation>
     </message>
     <message>
         <source>Leave empty to look up executable in $PATH</source>
-        <translation type="unfinished">Wenn der Wert leer ist, wird die ausführbare Datei in $PATH gesucht</translation>
+        <translation>Wenn der Wert leer ist, wird die ausführbare Datei in $PATH gesucht</translation>
     </message>
     <message>
         <source>QML runtime executable:</source>
-        <translation type="unfinished">Ausführbare Datei der QML-Runtime:</translation>
+        <translation>Ausführbare Datei der QML-Runtime:</translation>
     </message>
     <message>
         <source>The QML runtime executable to use on the device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei der QML-Runtime, die auf dem Gerät verwendet werden soll.</translation>
     </message>
     <message>
         <source>Enter lists and ranges like this: &quot;1024,1026-1028,1030&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie Listen und Bereiche wie folgt ein: &quot;1024,1026-1028,1030&quot;.</translation>
     </message>
     <message>
         <source>Opening a terminal is not supported.</source>
@@ -47524,11 +47526,11 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>No device for the path: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Gerät für den Pfad: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Device for the path &quot;%1&quot; does not support killing processes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Beenden von Prozessen wird vom Gerät für den Pfad &quot;%1&quot; nicht unterstützt.</translation>
     </message>
     <message>
         <source>Filter</source>
@@ -47568,7 +47570,7 @@ The local and remote ports are determined automatically.</source>
     </message>
     <message>
         <source>Failed to fetch process list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozessliste konnte nicht abgerufen werden.</translation>
     </message>
     <message>
         <source>Remote Error</source>
@@ -47933,7 +47935,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>%1 does not exist. Your %2 installation seems to be corrupt.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 existiert nicht. Ihre %2-Installation scheint beschädigt zu sein.</translation>
     </message>
     <message>
         <source>Cannot start %1. Check src\tools\win64interrupt\win64interrupt.c for more information.</source>
@@ -48832,7 +48834,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Project name must use only letters, digits, or underscores.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektname darf nur Buchstaben, Ziffern und Unterstriche enthalten.</translation>
     </message>
     <message>
         <source>Creates a header file that you can add to a C/C++ project.</source>
@@ -48880,7 +48882,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>CMake for Qt 5 and Qt 6</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake für Qt 5 und Qt 6</translation>
     </message>
     <message>
         <source>Shared Library</source>
@@ -48984,47 +48986,47 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Request passthrough</source>
-        <translation type="unfinished"></translation>
+        <translation>Passthrough anfordern</translation>
     </message>
     <message>
         <source>Request permissions for passthrough mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaubnis für Passthrough-Modus anfordern.</translation>
     </message>
     <message>
         <source>Request hand tracking</source>
-        <translation type="unfinished"></translation>
+        <translation>Hand-Tracking anfordern</translation>
     </message>
     <message>
         <source>Request permissions for hand tracking.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaubnis für Hand-Tracking anfordern.</translation>
     </message>
     <message>
         <source>Request spatial anchors</source>
-        <translation type="unfinished"></translation>
+        <translation>Spatial Anchors anfordern</translation>
     </message>
     <message>
         <source>Request permissions for anchors API.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erlaubnis für die Anchors-API anfordern.</translation>
     </message>
     <message>
         <source>XR Features</source>
-        <translation type="unfinished"></translation>
+        <translation>XR-Funktionen</translation>
     </message>
     <message>
         <source>Features</source>
-        <translation type="unfinished">Zusatzfunktionen</translation>
+        <translation>Funktionen</translation>
     </message>
     <message>
         <source>Kit Selection: For Apple Vision Pro, select any kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit-Auswahl: Wählen Sie ein beliebiges Kit für Apple Vision Pro.</translation>
     </message>
     <message>
         <source>Creates a Qt Quick 3D XR application with QML and C++ code. You can build and deploy the application to desktop VR and standalone XR platforms. For the Apple Vision Pro, you can develop in Qt Creator but must deploy the CMake project with XCode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt Quick 3D XR-Anwendung mit QML- und C++-Code. Das Bauen und Deployment der Anwendung ist für Desktop-VR und eigenständige XR-Plattformen möglich. Sie können in Qt Creator für Apple Vision Pro entwickeln, doch dafür müssen Sie das Deployment des CMake-Projekts mit Xcode durchführen.</translation>
     </message>
     <message>
         <source>XR Application</source>
-        <translation type="unfinished"></translation>
+        <translation>XR-Anwendung</translation>
     </message>
     <message>
         <source>Create a project that you can open in Qt Design Studio</source>
@@ -49212,7 +49214,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>CMake for Qt5 and Qt 6</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake für Qt 5 und Qt 6</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Qt Test. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
@@ -50244,7 +50246,7 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>Docker Image &quot;%1&quot; (%2)</source>
-        <translation type="unfinished">Docker Image &quot;%1&quot; (%2)</translation>
+        <translation>Docker Image &quot;%1&quot; (%2)</translation>
     </message>
     <message>
         <source>Requesting process to stop ....</source>
@@ -50256,11 +50258,11 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>No recipe producer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Produzent eines Rezepts.</translation>
     </message>
     <message>
         <source>Unexpected run control state %1 when worker started.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwarteter Zustand %1 der Ausführungskonfiguration beim Starten des Workers.</translation>
     </message>
     <message>
         <source>Process unexpectedly did not finish.</source>
@@ -50904,7 +50906,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>No MSVC toolchains were found. You need to install Visual Studio or the Visual Studio Build Tools.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden keine MSVC-Toolchains gefunden. Sie müssen Visual Studio oder die Visual Studio Build Tools installieren.</translation>
     </message>
     <message>
         <source>&lt;empty&gt;</source>
@@ -51185,23 +51187,23 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Build default</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe (Erstellen)</translation>
     </message>
     <message>
         <source>Run default</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe (Ausführen)</translation>
     </message>
     <message>
         <source>The name of the custom parser.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name des benutzerdefinierten Parsers.</translation>
     </message>
     <message>
         <source>This custom parser is used by default for all build configurations of the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser benutzerdefinierte Parser wird standardmäßig für alle Build-Konfigurationen des Projekts verwendet.</translation>
     </message>
     <message>
         <source>This custom parser is used by default for all run configurations of the project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser benutzerdefinierte Parser wird standardmäßig für alle Ausführungskonfigurationen des Projekts verwendet.</translation>
     </message>
     <message>
         <source>Custom output parsers defined here can be enabled individually in the project&apos;s build or run settings.</source>
@@ -51278,7 +51280,7 @@ Was soll %1 tun?</translation>
     <message>
         <source>%1 (project default)</source>
         <extracomment>%1 = parser display name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 (Projektvoreinstellung)</translation>
     </message>
     <message>
         <source>There are no custom parsers active</source>
@@ -51677,91 +51679,91 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Enable to specify a private key file to use for authentication, otherwise the default mechanism is used for authentication (password, .sshconfig and the default private key).</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie dies, um einen privaten Schlüssel für die Authentifizierung anzugeben. Anderenfalls wird der Standardmechanismus für die Authentifizierung verwendet (Passwort, sshconfig und der voreingestellte private Schlüssel).</translation>
     </message>
     <message>
         <source>Use specific key:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählten Schlüssel verwenden:</translation>
     </message>
     <message>
         <source>The device&apos;s SSH host key checking mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prüfmodus für den SSH-Hostkey des Geräts.</translation>
     </message>
     <message>
         <source>Host key check:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostkey-Prüfung:</translation>
     </message>
     <message>
         <source>No host key checking.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Hostkey-Prüfung.</translation>
     </message>
     <message>
         <source>Strict</source>
-        <translation type="unfinished"></translation>
+        <translation>Strikt</translation>
     </message>
     <message>
         <source>Strict host key checking.</source>
-        <translation type="unfinished"></translation>
+        <translation>Strikte Hostkey-Prüfung.</translation>
     </message>
     <message>
         <source>Allow No Match</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Übereinstimmung zulassen</translation>
     </message>
     <message>
         <source>Allow host key checking.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostkey-Prüfung erlauben.</translation>
     </message>
     <message>
         <source>Host name or IP address</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostname oder IP-Adresse</translation>
     </message>
     <message>
         <source>The device&apos;s host name or IP address.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostname oder IP-Adresse des Geräts.</translation>
     </message>
     <message>
         <source>Host name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Hostname:</translation>
     </message>
     <message>
         <source>User name</source>
-        <translation type="unfinished">Benutzername</translation>
+        <translation>Benutzername</translation>
     </message>
     <message>
         <source>The device&apos;s SSH user name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der SSH-Benutzername des Geräts.</translation>
     </message>
     <message>
         <source>User name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzername:</translation>
     </message>
     <message>
         <source>The device&apos;s SSH port number.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der SSH-Port des Geräts.</translation>
     </message>
     <message>
         <source>SSH port:</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-Port:</translation>
     </message>
     <message>
         <source>Private key file</source>
-        <translation type="unfinished"></translation>
+        <translation>Private Schlüsseldatei</translation>
     </message>
     <message>
         <source>The device&apos;s private key file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die private Schlüsseldatei des Geräts.</translation>
     </message>
     <message>
         <source>Private key file:</source>
-        <translation type="unfinished">Private Schlüsseldatei:</translation>
+        <translation>Private Schlüsseldatei:</translation>
     </message>
     <message>
         <source>Timeout:</source>
-        <translation type="unfinished">Zeitlimit:</translation>
+        <translation>Zeitlimit:</translation>
     </message>
     <message>
         <source>The device&apos;s SSH connection timeout.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitlimit für die SSH-Verbindung des Geräts.</translation>
     </message>
 </context>
 <context>
