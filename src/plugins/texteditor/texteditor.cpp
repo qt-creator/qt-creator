@@ -977,7 +977,7 @@ public:
     QString m_findText;
     FindFlags m_findFlags;
     void highlightSearchResults(const QTextBlock &block, const PaintEventData &data) const;
-    void highlightSelection(const QTextBlock &block) const;
+    void highlightSelection(const QTextBlock &block, const PaintEventData &data) const;
     QTimer m_delayedUpdateTimer;
 
     void setExtraSelections(Utils::Id kind, const QList<QTextEdit::ExtraSelection> &selections);
@@ -5175,7 +5175,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
     }
 }
 
-void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block) const
+void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block, const PaintEventData &data) const
 {
     if (!m_displaySettings.m_highlightSelection || m_cursors.hasMultipleCursors())
         return;
@@ -5189,11 +5189,44 @@ void TextEditorWidgetPrivate::highlightSelection(const QTextBlock &block) const
     text.replace(QChar::Nbsp, QLatin1Char(' '));
     const int l = selection.length();
 
+    const int left = data.viewportRect.left() - int(data.offset.x());
+    const int right = data.viewportRect.right() - int(data.offset.x());
+    const int top = data.viewportRect.top() - int(data.offset.y());
+    const int bottom = data.viewportRect.bottom() - int(data.offset.y());
+
     for (int idx = text.indexOf(selection, 0, Qt::CaseInsensitive);
          idx >= 0;
          idx = text.indexOf(selection, idx + 1, Qt::CaseInsensitive)) {
         const int start = blockPosition + idx;
         const int end = start + l;
+
+        // check if the result is inside the visible area for long blocks
+        const QTextLine &startLine = block.layout()->lineForTextPosition(idx);
+        const QTextLine &endLine = block.layout()->lineForTextPosition(idx + l);
+
+        if (startLine.isValid() && endLine.isValid()
+            && startLine.lineNumber() == endLine.lineNumber()) {
+            const int lineY = int(endLine.y() + q->blockBoundingGeometry(block).y());
+            if (startLine.cursorToX(idx) > right) { // result is behind the visible area
+                if (endLine.lineNumber() >= block.lineCount() - 1)
+                    break; // this is the last line in the block, nothing more to add
+
+                // skip to the start of the next line
+                idx = block.layout()->lineAt(endLine.lineNumber() + 1).textStart();
+                continue;
+            } else if (endLine.cursorToX(idx + l, QTextLine::Trailing) < left) { // result is in front of the visible area skip it
+                continue;
+            } else if (lineY + endLine.height() < top) {
+                if (endLine.lineNumber() >= block.lineCount() - 1)
+                    break; // this is the last line in the block, nothing more to add
+                // before visible area, skip to the start of the next line
+                idx = block.layout()->lineAt(endLine.lineNumber() + 1).textStart();
+                continue;
+            } else if (lineY > bottom) {
+                break; // under the visible area, nothing more to add
+            }
+        }
+
         if (!Utils::contains(m_selectionHighlightOverlay->selections(),
                              [&](const OverlaySelection &selection) {
                                  return selection.m_cursor_begin.position() == start
@@ -5679,7 +5712,7 @@ void TextEditorWidgetPrivate::paintSelectionOverlay(const PaintEventData &data,
 
         if (blockBoundingRect.bottom() >= data.eventRect.top() - margin
             && blockBoundingRect.top() <= data.eventRect.bottom() + margin) {
-            highlightSelection(block);
+            highlightSelection(block, data);
         }
         offset.ry() += blockBoundingRect.height();
 
