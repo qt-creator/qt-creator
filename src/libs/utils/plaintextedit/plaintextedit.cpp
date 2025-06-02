@@ -1035,13 +1035,21 @@ void PlainTextEditPrivate::pageUpDown(QTextCursor::MoveOperation op, QTextCursor
     }
 }
 
+// QFontMetrics::lineSpacing() returns a rounded value for fonts with a franctional line spacing,
+// but in the layout process the height is rounded up since eef8a57daf0bf6e6142470db1a08970d5020e07d
+// in qtbase.
+static int expectedBlockBoundingRectHeight(const QFont &f)
+{
+    return qCeil(QFontMetricsF(f).lineSpacing());
+}
+
 #if QT_CONFIG(scrollbar)
 
 int PlainTextEditPrivate::vScrollbarValueForLine(int topLineNumber)
 {
     int value = 0;
     QTextDocument *doc = control->document();
-    const int lineSpacing = QFontMetrics(doc->defaultFont()).lineSpacing();
+    const int lineSpacing = expectedBlockBoundingRectHeight(doc->defaultFont());
     if (lineWrap == PlainTextEdit::NoWrap)
         return lineSpacing * topLineNumber;
     QTextBlock block = doc->firstBlock();
@@ -1075,7 +1083,7 @@ int PlainTextEditPrivate::vScrollbarValueForLine(int topLineNumber)
 int PlainTextEditPrivate::topLineForVScrollbarValue(int scrollbarValue)
 {
     QTextDocument *doc = control->document();
-    const int lineSpacing = QFontMetrics(doc->defaultFont()).lineSpacing();
+    const int lineSpacing = expectedBlockBoundingRectHeight(doc->defaultFont());
     if (lineWrap == PlainTextEdit::NoWrap)
         return scrollbarValue / lineSpacing;
     QTextBlock block = doc->firstBlock();
@@ -1109,7 +1117,7 @@ int PlainTextEditPrivate::topLineForVScrollbarValue(int scrollbarValue)
 void PlainTextEditPrivate::adjustScrollbars()
 {
     QTextDocument *doc = control->document();
-    const int lineSpacing = QFontMetrics(doc->defaultFont()).lineSpacing();
+    const int lineSpacing = expectedBlockBoundingRectHeight(doc->defaultFont());
     PlainTextDocumentLayout *documentLayout = qobject_cast<PlainTextDocumentLayout*>(doc->documentLayout());
     Q_ASSERT(documentLayout);
     bool documentSizeChangedBlocked = documentLayout->d->blockDocumentSizeChanged;
@@ -1139,8 +1147,7 @@ void PlainTextEditPrivate::adjustScrollbars()
         visualTopLine = firstVisibleBlock.firstLineNumber() + topLine;
 
     vbar()->setValue(vScrollbarValueForLine(visualTopLine));
-    QFontMetrics fm(doc->defaultFont());
-    vbar()->setSingleStep(fm.lineSpacing());
+    vbar()->setSingleStep(expectedBlockBoundingRectHeight(doc->defaultFont()));
 
     hbar()->setRange(0, (int)documentSize.width() - viewport()->width());
     hbar()->setPageStep(viewport()->width());
