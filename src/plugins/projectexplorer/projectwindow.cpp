@@ -330,7 +330,7 @@ private:
     const QPointer<Project> m_project;
     bool m_rebuildScheduled = false;
 
-    mutable QPointer<PanelsWidget> m_targetSetupPage;
+    mutable QPointer<QWidget> m_targetSetupPage;
     QObject m_guard;
 };
 
@@ -515,8 +515,11 @@ ProjectPanels MiscSettingsPanelItem::panelWidgets() const
 {
     if (!m_widget) {
         ProjectSettingsWidget *inner = m_factory->createWidget(m_project);
-        m_widget = new PanelsWidget(inner);
-        m_widget->setFocusProxy(inner);
+        auto panel = new PanelsWidget(true);
+        panel->addGlobalSettingsProperties(inner);
+        panel->addWidget(inner);
+        panel->setFocusProxy(inner);
+        m_widget = panel;
     }
     ProjectPanel panel;
     panel.displayName = m_factory->displayName();
@@ -885,9 +888,9 @@ public:
     ProjectPanels panelWidgets() const final
     {
         if (!m_buildSettingsWidget)
-            m_buildSettingsWidget = new PanelsWidget(createBuildSettingsWidget(target()));
+            m_buildSettingsWidget = createBuildSettingsWidget(target());
         if (!m_runSettingsWidget)
-            m_runSettingsWidget = new PanelsWidget(createRunSettingsWidget(target()));
+            m_runSettingsWidget = createRunSettingsWidget(target());
 
         return {
             ProjectPanel(Tr::tr("Build Settings"), m_buildSettingsWidget),
@@ -1097,8 +1100,10 @@ ProjectPanels TargetGroupItem::panelWidgets() const
 {
     if (!m_targetSetupPage) {
         auto inner = new TargetSetupPageWrapper(m_project);
-        m_targetSetupPage = new PanelsWidget(inner, false);
-        m_targetSetupPage->setFocusProxy(inner);
+        auto panel = new PanelsWidget(false);
+        panel->addWidget(inner);
+        panel->setFocusProxy(inner);
+        m_targetSetupPage = panel;
     }
 
     ProjectPanel panel;

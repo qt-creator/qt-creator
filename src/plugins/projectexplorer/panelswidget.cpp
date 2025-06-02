@@ -56,19 +56,6 @@ PanelsWidget::PanelsWidget(bool addStretch)
     //layout->addWidget(new FindToolBarPlaceHolder(this));
 }
 
-PanelsWidget::PanelsWidget(QWidget *widget, bool addStretch)
-    : PanelsWidget(addStretch)
-{
-    addWidget(widget);
-}
-
-PanelsWidget::PanelsWidget(ProjectSettingsWidget *widget)
-    : PanelsWidget(!widget->expanding())
-{
-    addGlobalSettingsProperties(widget);
-    addWidget(widget);
-}
-
 PanelsWidget::~PanelsWidget() = default;
 
 void PanelsWidget::addWidget(QWidget *widget)

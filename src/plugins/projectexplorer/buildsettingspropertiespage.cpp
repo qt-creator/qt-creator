@@ -6,6 +6,7 @@
 #include "buildconfiguration.h"
 #include "buildinfo.h"
 #include "buildmanager.h"
+#include "panelswidget.h"
 #include "project.h"
 #include "projectconfigurationmodel.h"
 #include "projectexplorertr.h"
@@ -355,7 +356,9 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
 
 QWidget *createBuildSettingsWidget(Target *target)
 {
-    return new BuildSettingsWidget(target);
+    auto panel = new PanelsWidget(true);
+    panel->addWidget(new BuildSettingsWidget(target));
+    return panel;
 }
 
 } // ProjectExplorer::Internal

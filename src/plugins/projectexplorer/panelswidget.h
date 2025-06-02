@@ -14,18 +14,15 @@ namespace ProjectExplorer::Internal {
 class PanelsWidget final : public QWidget
 {
 public:
-    PanelsWidget(QWidget *widget, bool addStretch = true);
-    PanelsWidget(ProjectSettingsWidget *widget);
+    explicit PanelsWidget(bool addStretch);
     ~PanelsWidget() final;
 
     static int constexpr PanelVMargin = 14;
 
-private:
-    explicit PanelsWidget(bool addStretch);
-
     void addGlobalSettingsProperties(ProjectSettingsWidget *widget);
     void addWidget(QWidget *widget);
 
+private:
     QVBoxLayout *m_layout;
     QWidget *m_root;
 };
