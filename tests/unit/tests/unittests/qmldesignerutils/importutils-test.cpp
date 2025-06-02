@@ -34,10 +34,23 @@ TEST(ImportUtils, begin_for_imports_after_last_import)
     ASSERT_THAT(rest, u"\nItem {}\n");
 }
 
-TEST(ImportUtils, skip_already_existing_directory_import)
+TEST(ImportUtils, skip_already_existing_directory_import_as_first_import)
 {
     auto content = QStringView{u"import \"foo\"\n"
                                u"import bar\n"
+                               u"\n"
+                               u"Item {}\n"};
+    QStringView directory = u"foo";
+
+    auto found = find_import_location(content, directory);
+
+    ASSERT_THAT(found, std::nullopt);
+}
+
+TEST(ImportUtils, skip_already_existing_directory_import_as_last_import)
+{
+    auto content = QStringView{u"import bar\n"
+                               u"import \"foo\"\n"
                                u"\n"
                                u"Item {}\n"};
     QStringView directory = u"foo";

@@ -45,6 +45,29 @@ bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode, SL sl)
     auto metaInfo = modelNode.metaInfo();
     auto model = modelNode.model();
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto qtQuickItem = model->qtQuickItemMetaInfo();
+    auto qtQuick3dnode = model->qtQuick3DNodeMetaInfo();
+    auto qtQuickWindowWindow = model->qtQuickWindowMetaInfo();
+    auto qtQuickDialogsDialog = model->qtQuickDialogsAbstractDialogMetaInfo();
+    auto qtQuickControlsPopup = model->qtQuickTemplatesPopupMetaInfo();
+
+    auto matched = metaInfo.basedOn(qtQuickItem,
+                                    qtQuick3dnode,
+                                    qtQuickWindowWindow,
+                                    qtQuickDialogsDialog,
+                                    qtQuickControlsPopup);
+
+    if (!matched)
+        return false;
+
+    if (matched == qtQuickWindowWindow or matched == qtQuickDialogsDialog
+        or matched == qtQuickControlsPopup) {
+        return modelNode.isRootNode();
+    }
+    return true;
+#else
+
     if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo(), model->qtQuick3DNodeMetaInfo()))
         return true;
 
@@ -52,6 +75,7 @@ bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode, SL sl)
         return true;
 
     return false;
+#endif
 }
 
 bool QmlVisualNode::isValid(SL sl) const
@@ -69,12 +93,7 @@ bool QmlVisualNode::isValidQmlVisualNode(const ModelNode &modelNode, SL sl)
     if (!isValidQmlObjectNode(modelNode))
         return false;
 
-    auto metaInfo = modelNode.metaInfo();
-    auto model = modelNode.model();
-
-    return isItemOr3DNode(modelNode) || metaInfo.isBasedOn(model->flowViewFlowTransitionMetaInfo(),
-                              model->flowViewFlowDecisionMetaInfo(),
-                              model->flowViewFlowWildcardMetaInfo());
+    return isItemOr3DNode(modelNode);
 }
 
 bool QmlVisualNode::isRootNode(SL sl) const
@@ -675,7 +694,7 @@ bool QmlVisualNode::isFlowTransition(const ModelNode &node, SL sl)
                                keyValue("model node", node),
                                keyValue("caller location", sl)};
 
-    return node.isValid() && node.metaInfo().isFlowViewFlowTransition();
+    return false;
 }
 
 bool QmlVisualNode::isFlowDecision(const ModelNode &node, SL sl)
@@ -685,7 +704,7 @@ bool QmlVisualNode::isFlowDecision(const ModelNode &node, SL sl)
                                keyValue("model node", node),
                                keyValue("caller location", sl)};
 
-    return node.isValid() && node.metaInfo().isFlowViewFlowDecision();
+    return false;
 }
 
 bool QmlVisualNode::isFlowWildcard(const ModelNode &node, SL sl)
@@ -695,7 +714,7 @@ bool QmlVisualNode::isFlowWildcard(const ModelNode &node, SL sl)
                                keyValue("model node", node),
                                keyValue("caller location", sl)};
 
-    return node.isValid() && node.metaInfo().isFlowViewFlowWildcard();
+    return false;
 }
 
 bool QmlVisualNode::isFlowTransition(SL sl) const
@@ -705,7 +724,7 @@ bool QmlVisualNode::isFlowTransition(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return isFlowTransition(modelNode());
+    return false;
 }
 
 bool QmlVisualNode::isFlowDecision(SL sl) const
@@ -715,7 +734,7 @@ bool QmlVisualNode::isFlowDecision(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return isFlowDecision(modelNode());
+    return false;
 }
 
 bool QmlVisualNode::isFlowWildcard(SL sl) const
@@ -725,7 +744,7 @@ bool QmlVisualNode::isFlowWildcard(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return isFlowWildcard(modelNode());
+    return false;
 }
 
 QList<ModelNode> toModelNodeList(const QList<QmlVisualNode> &qmlVisualNodeList)

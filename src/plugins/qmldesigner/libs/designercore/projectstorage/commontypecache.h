@@ -6,6 +6,7 @@
 #include "projectstoragetypes.h"
 
 #include <modelfwd.h>
+#include <tracing/qmldesignertracing.h>
 
 #include <algorithm>
 #include <tuple>
@@ -38,17 +39,10 @@ inline constexpr char Connections[] = "Connections";
 inline constexpr char Control[] = "Control";
 inline constexpr char CubeMapTexture[] = "CubeMapTexture";
 inline constexpr char DefaultMaterial[] = "DefaultMaterial";
-inline constexpr char Dialog[] = "Dialog";
 inline constexpr char DirectionalLight[] = "DirectionalLight";
 inline constexpr char DoubleType[] = "double";
 inline constexpr char Effect[] = "Effect";
 inline constexpr char FloatType[] = "float";
-inline constexpr char FlowActionArea[] = "FlowActionArea";
-inline constexpr char FlowDecision[] = "FlowDecision";
-inline constexpr char FlowItem[] = "FlowItem";
-inline constexpr char FlowTransition[] = "FlowTransition";
-inline constexpr char FlowView[] = "FlowView";
-inline constexpr char FlowWildcard[] = "FlowWildcard";
 inline constexpr char Gradient[] = "Gradient";
 inline constexpr char GridView[] = "GridView";
 inline constexpr char GroupItem[] = "GroupItem";
@@ -89,6 +83,7 @@ inline constexpr char PropertyAnimation[] = "PropertyAnimation";
 inline constexpr char PropertyChanges[] = "PropertyChanges";
 inline constexpr char QML[] = "QML";
 inline constexpr char QQuick3DParticleAbstractShape[] = "QQuick3DParticleAbstractShape";
+inline constexpr char QQuickAbstractDialog[] = "QQuickAbstractDialog";
 inline constexpr char QQuickStateOperation[] = "QQuickStateOperation";
 inline constexpr char QtMultimedia[] = "QtMultimedia";
 inline constexpr char QtObject[] = "QtObject";
@@ -98,15 +93,12 @@ inline constexpr char QtQml_XmlListModel[] = "QtQml.XmlListModel";
 inline constexpr char QtQuick3D[] = "QtQuick3D";
 inline constexpr char QtQuick3D_Particles3D[] = "QtQuick3D.Particles3D";
 inline constexpr char QtQuick[] = "QtQuick";
-inline constexpr char QtQuick_Controls[] = "QtQuick.Controls";
 inline constexpr char QtQuick_Dialogs[] = "QtQuick.Dialogs";
-inline constexpr char QtQuick_Extras[] = "QtQuick.Extras";
 inline constexpr char QtQuick_Layouts[] = "QtQuick.Layouts";
 inline constexpr char QtQuick_Shapes[] = "QtQuick.Shapes";
 inline constexpr char QtQuick_Studio_Components[] = "QtQuick.Studio.Components";
 inline constexpr char QtQuick_Templates[] = "QtQuick.Templates";
 inline constexpr char QtQuick_Timeline[] = "QtQuick.Timeline";
-inline constexpr char QtQuick_Window[] = "QtQuick.Window";
 inline constexpr char Qt_SafeRenderer[] = "Qt.SafeRenderer";
 inline constexpr char Rectangle[] = "Rectangle";
 inline constexpr char Repeater[] = "Repeater";
@@ -162,12 +154,6 @@ template<typename ProjectStorage>
 class CommonTypeCache
 {
     using CommonTypes = std::tuple<
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowActionArea>,
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowDecision>,
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowItem>,
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowTransition>,
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowView>,
-        CacheType<FlowView, ModuleKind::QmlLibrary, FlowWildcard>,
         CacheType<QML, ModuleKind::CppLibrary, FloatType>,
         CacheType<QML, ModuleKind::CppLibrary, UIntType>,
         CacheType<QML, ModuleKind::QmlLibrary, BoolType>,
@@ -244,15 +230,7 @@ class CommonTypeCache
         CacheType<QtQuick3D_Particles3D, ModuleKind::QmlLibrary, ParticleEmitter3D>,
         CacheType<QtQuick3D_Particles3D, ModuleKind::QmlLibrary, SpriteParticle3D>,
         CacheType<QtQuick3D_Particles3D, ModuleKind::CppLibrary, QQuick3DParticleAbstractShape>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, Control>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, Label>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, Popup>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, SplitView>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, SwipeView>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, TabBar>,
-        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, TextArea>,
-        CacheType<QtQuick_Dialogs, ModuleKind::QmlLibrary, Dialog>,
-        CacheType<QtQuick_Extras, ModuleKind::QmlLibrary, Picture>,
+        CacheType<QtQuick_Dialogs, ModuleKind::CppLibrary, QQuickAbstractDialog>,
         CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, Layout>,
         CacheType<QtQuick_Shapes, ModuleKind::QmlLibrary, Shape>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, ArcItem>,
@@ -260,6 +238,12 @@ class CommonTypeCache
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, JsonListModel>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, SvgPathItem>,
         CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, Control>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, Label>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, Popup>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, SplitView>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, SwipeView>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, TabBar>,
+        CacheType<QtQuick_Templates, ModuleKind::QmlLibrary, TextArea>,
         CacheType<QtQuick_Timeline, ModuleKind::QmlLibrary, Keyframe>,
         CacheType<QtQuick_Timeline, ModuleKind::QmlLibrary, KeyframeGroup>,
         CacheType<QtQuick_Timeline, ModuleKind::QmlLibrary, Timeline>,
@@ -267,12 +251,14 @@ class CommonTypeCache
         CacheType<QtQuick, ModuleKind::CppLibrary, QQuickStateOperation>,
         CacheType<Qt_SafeRenderer, ModuleKind::QmlLibrary, SafePicture>,
         CacheType<Qt_SafeRenderer, ModuleKind::QmlLibrary, SafeRendererPicture>,
-        CacheType<QtQuick_Window, ModuleKind::QmlLibrary, Window>>;
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Window>>;
 
 public:
     CommonTypeCache(const ProjectStorage &projectStorage)
         : m_projectStorage{projectStorage}
     {
+        NanotraceHR::Tracer tracer{"common type cache constructor", ModelTracing::category()};
+
         m_typesWithoutProperties.fill(TypeId{});
     }
 
@@ -283,6 +269,8 @@ public:
 
     void resetTypeIds()
     {
+        NanotraceHR::Tracer tracer{"common type cache type ids reset", ModelTracing::category()};
+
         std::apply([](auto &...type) { ((type.typeId = QmlDesigner::TypeId{}), ...); }, m_types);
 
         updateTypeIdsWithoutProperties();
@@ -290,6 +278,9 @@ public:
 
     void clearForTestsOnly()
     {
+        NanotraceHR::Tracer tracer{"common type cache type ids clear for tests only",
+                                   ModelTracing::category()};
+
         std::apply([](auto &...type) { ((type.typeId = QmlDesigner::TypeId{}), ...); }, m_types);
         std::fill(std::begin(m_typesWithoutProperties), std ::end(m_typesWithoutProperties), TypeId{});
     }
@@ -297,6 +288,11 @@ public:
     template<const char *moduleName, const char *typeName, ModuleKind moduleKind = ModuleKind::QmlLibrary>
     TypeId typeId() const
     {
+        NanotraceHR::Tracer tracer{"common type cache type id for module and type name",
+                                   ModelTracing::category(),
+                                   NanotraceHR::keyValue("module", moduleName),
+                                   NanotraceHR::keyValue("type", typeName)};
+
         auto &type = std::get<CacheType<moduleName, moduleKind, typeName>>(m_types);
         if (type.typeId)
             return type.typeId;
@@ -307,12 +303,17 @@ public:
     template<const char *typeName>
     TypeId builtinTypeId() const
     {
+        NanotraceHR::Tracer tracer{"common type cache type id for built-in type",
+                                   ModelTracing::category()};
         return typeId<QML, typeName>();
     }
 
     template<typename Type>
     TypeId builtinTypeId() const
     {
+        NanotraceHR::Tracer tracer{"common type cache type id for built-in type",
+                                   ModelTracing::category()};
+
         if constexpr (std::is_same_v<Type, double>)
             return typeId<QML, DoubleType>();
         else if constexpr (std::is_same_v<Type, int>)
@@ -355,10 +356,15 @@ private:
                           ModuleKind moduleKind,
                           ::Utils::SmallStringView typeName) const
     {
+        NanotraceHR::Tracer tracer{"common type cache refresh type it", ModelTracing::category()};
+
         if (!type.moduleId)
             type.moduleId = m_projectStorage.moduleId(moduleName, moduleKind);
 
         type.typeId = m_projectStorage.typeId(type.moduleId, typeName, Storage::Version{});
+
+        tracer.end(NanotraceHR::keyValue("module id", type.moduleId),
+                   NanotraceHR::keyValue("type id", type.typeId));
 
         return type.typeId;
     }
@@ -368,6 +374,9 @@ private:
                                             ::Utils::SmallStringView typeName,
                                             ModuleKind moduleKind) const
     {
+        NanotraceHR::Tracer tracer{"common type cache refresh type it without transaction",
+                                   ModelTracing::category()};
+
         if (!type.moduleId)
             type.moduleId = m_projectStorage.fetchModuleIdUnguarded(moduleName, moduleKind);
 
@@ -379,6 +388,9 @@ private:
     template<std::size_t size>
     void setupTypeIdsWithoutProperties(const TypeId (&typeIds)[size])
     {
+        NanotraceHR::Tracer tracer{"common type cache setup type ids without properties",
+                                   ModelTracing::category()};
+
         static_assert(size == std::tuple_size_v<TypeIdsWithoutProperties>,
                       "array size must match type id count!");
         std::copy(std::begin(typeIds), std::end(typeIds), std::begin(m_typesWithoutProperties));
@@ -387,6 +399,9 @@ private:
     template<const char *moduleName, const char *typeName, ModuleKind moduleKind = ModuleKind::QmlLibrary>
     TypeId typeIdWithoutTransaction() const
     {
+        NanotraceHR::Tracer tracer{"common type cache type id without transaction",
+                                   ModelTracing::category()};
+
         auto &type = std::get<CacheType<moduleName, moduleKind, typeName>>(m_types);
         if (type.typeId)
             return type.typeId;
@@ -396,6 +411,9 @@ private:
 
     void updateTypeIdsWithoutProperties()
     {
+        NanotraceHR::Tracer tracer{"common type cache type ids without properties update",
+                                   ModelTracing::category()};
+
         setupTypeIdsWithoutProperties(
             {typeIdWithoutTransaction<QML, BoolType>(),
              typeIdWithoutTransaction<QML, IntType>(),

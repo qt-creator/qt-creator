@@ -5223,7 +5223,7 @@ void tst_TestCore::testQtQuickControls2()
     QVERIFY(rootModelNode.isValid());
 
     QVERIFY(rootModelNode.metaInfo().isGraphicalItem());
-    QVERIFY(rootModelNode.metaInfo().isQtQuickWindowWindow());
+    QVERIFY(rootModelNode.metaInfo().isQtQuickWindow());
 
     QVERIFY(!contains(rootModelNode.metaInfo().localProperties(), "visible"));
     QVERIFY(contains(rootModelNode.metaInfo().properties(), "visible"));

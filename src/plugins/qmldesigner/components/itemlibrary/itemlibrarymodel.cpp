@@ -385,11 +385,6 @@ void ItemLibraryModel::update(Model *model)
         bool forceVisibility = valid
                                && NodeHints::fromItemLibraryEntry(entry, model).visibleInLibrary();
 
-        if (m_flowMode) {
-            isItem = metaInfo.isFlowViewItem();
-            forceVisibility = isItem;
-        }
-
         bool blocked = false;
         const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
         if (mcuManager.isMCUProject()) {

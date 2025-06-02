@@ -200,13 +200,6 @@ public:
     bool isBool(SL sl = {}) const;
     bool isColor(SL sl = {}) const;
     bool isFloat(SL sl = {}) const;
-    bool isFlowViewFlowActionArea() const;
-    bool isFlowViewFlowDecision(SL sl = {}) const;
-    bool isFlowViewFlowItem(SL sl = {}) const;
-    bool isFlowViewFlowTransition(SL sl = {}) const;
-    bool isFlowViewFlowView(SL sl = {}) const;
-    bool isFlowViewFlowWildcard(SL sl = {}) const;
-    bool isFlowViewItem(SL sl = {}) const;
     bool isFont(SL sl = {}) const;
     bool isGraphicalItem(SL sl = {}) const;
     bool isInteger(SL sl = {}) const;
@@ -250,10 +243,9 @@ public:
     bool isQtQuick3DCubeMapTexture(SL sl = {}) const;
     bool isQtQuick3DView3D(SL sl = {}) const;
     bool isQtQuickBorderImage(SL sl = {}) const;
-    bool isQtQuickControlsLabel(SL sl = {}) const;
-    bool isQtQuickControlsSwipeView(SL sl = {}) const;
-    bool isQtQuickControlsTabBar(SL sl = {}) const;
-    bool isQtQuickExtrasPicture(SL sl = {}) const;
+    bool isQtQuickTemplatesLabel(SL sl = {}) const;
+    bool isQtQuickTemplatesSwipeView(SL sl = {}) const;
+    bool isQtQuickTemplatesTabBar(SL sl = {}) const;
     bool isQtQuickGradient(SL sl = {}) const;
     bool isQtQuickImage(SL sl = {}) const;
     bool isQtQuickItem(SL sl = {}) const;
@@ -280,7 +272,7 @@ public:
     bool isQtQuickTimelineTimeline(SL sl = {}) const;
     bool isQtQuickTimelineTimelineAnimation(SL sl = {}) const;
     bool isQtQuickTransition(SL sl = {}) const;
-    bool isQtQuickWindowWindow(SL sl = {}) const;
+    bool isQtQuickWindow(SL sl = {}) const;
     bool isQtSafeRendererSafePicture(SL sl = {}) const;
     bool isQtSafeRendererSafeRendererPicture(SL sl = {}) const;
     bool isString(SL sl = {}) const;

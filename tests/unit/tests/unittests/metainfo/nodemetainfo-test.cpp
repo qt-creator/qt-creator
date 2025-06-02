@@ -851,12 +851,12 @@ TEST_F(NodeMetaInfo, has_no_default_property_if_node_is_invalid)
 
 TEST_F(NodeMetaInfo, self_and_prototypes)
 {
-    auto metaInfo = model.flowViewFlowActionAreaMetaInfo();
+    auto metaInfo = model.qtQuickTextMetaInfo();
 
     auto prototypes = metaInfo.selfAndPrototypes();
 
     ASSERT_THAT(prototypes,
-                ElementsAre(model.flowViewFlowActionAreaMetaInfo(),
+                ElementsAre(model.qtQuickTextMetaInfo(),
                             model.qtQuickItemMetaInfo(),
                             model.qmlQtObjectMetaInfo()));
 }
@@ -872,7 +872,7 @@ TEST_F(NodeMetaInfo, self_and_prototypes_returns_empty_container_for_default)
 
 TEST_F(NodeMetaInfo, prototypes)
 {
-    auto metaInfo = model.flowViewFlowActionAreaMetaInfo();
+    auto metaInfo = model.qtQuickTextMetaInfo();
 
     auto prototypes = metaInfo.prototypes();
 
@@ -909,7 +909,7 @@ TEST_F(NodeMetaInfo, heirs_returns_empty_container_for_default)
 
 TEST_F(NodeMetaInfo, common_base_is_root)
 {
-    auto metaInfo = model.flowViewFlowActionAreaMetaInfo();
+    auto metaInfo = model.qtQuickTextMetaInfo();
 
     auto commonBase = metaInfo.commonBase(model.qtQuickPropertyAnimationMetaInfo());
 
@@ -920,14 +920,14 @@ TEST_F(NodeMetaInfo, common_base_is_first_leaf)
 {
     auto metaInfo = model.qtQuickItemMetaInfo();
 
-    auto commonBase = metaInfo.commonBase(model.flowViewFlowActionAreaMetaInfo());
+    auto commonBase = metaInfo.commonBase(model.qtQuickTextMetaInfo());
 
     ASSERT_THAT(commonBase, model.qtQuickItemMetaInfo());
 }
 
 TEST_F(NodeMetaInfo, common_base_is_second_leaf)
 {
-    auto metaInfo = model.flowViewFlowActionAreaMetaInfo();
+    auto metaInfo = model.qtQuickTextMetaInfo();
 
     auto commonBase = metaInfo.commonBase(model.qtQuickItemMetaInfo());
 
@@ -947,14 +947,14 @@ TEST_F(NodeMetaInfo, first_input_is_invalid_for_common_base_returns_invalid)
 {
     auto metaInfo = QmlDesigner::NodeMetaInfo();
 
-    auto commonBase = metaInfo.commonBase(model.flowViewFlowActionAreaMetaInfo());
+    auto commonBase = metaInfo.commonBase(model.qtQuickTextMetaInfo());
 
     ASSERT_THAT(commonBase, IsFalse());
 }
 
 TEST_F(NodeMetaInfo, second_input_is_invalid_for_common_base_returns_invalid)
 {
-    auto metaInfo = model.flowViewFlowActionAreaMetaInfo();
+    auto metaInfo = model.qtQuickTextMetaInfo();
 
     auto commonBase = metaInfo.commonBase(QmlDesigner::NodeMetaInfo());
 
@@ -1045,150 +1045,6 @@ TEST_F(NodeMetaInfo, default_is_not_float)
     ASSERT_THAT(isType, IsFalse());
 }
 
-TEST_F(NodeMetaInfo, is_FlowView_FlowActionArea)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("FlowView", ModuleKind::QmlLibrary, "FlowActionArea");
-
-    bool isType = metaInfo.isFlowViewFlowActionArea();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, default_is_not_FlowView_FlowActionArea)
-{
-    QmlDesigner::NodeMetaInfo metaInfo;
-
-    bool isType = metaInfo.isFlowViewFlowActionArea();
-
-    ASSERT_THAT(isType, IsFalse());
-}
-
-TEST_F(NodeMetaInfo, is_FlowView_FlowDecision)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("FlowView", ModuleKind::QmlLibrary, "FlowDecision");
-
-    bool isType = metaInfo.isFlowViewFlowDecision();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, default_is_not_FlowView_FlowDecision)
-{
-    QmlDesigner::NodeMetaInfo metaInfo;
-
-    bool isType = metaInfo.isFlowViewFlowDecision();
-
-    ASSERT_THAT(isType, IsFalse());
-}
-
-TEST_F(NodeMetaInfo, is_FlowView_FlowItem)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("FlowView", ModuleKind::QmlLibrary, "FlowItem");
-
-    bool isType = metaInfo.isFlowViewFlowItem();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, default_is_not_FlowView_FlowItem)
-{
-    QmlDesigner::NodeMetaInfo metaInfo;
-
-    bool isType = metaInfo.isFlowViewFlowItem();
-
-    ASSERT_THAT(isType, IsFalse());
-}
-
-TEST_F(NodeMetaInfo, is_FlowView_FlowTransition)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("FlowView", ModuleKind::QmlLibrary, "FlowTransition");
-
-    bool isType = metaInfo.isFlowViewFlowTransition();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, default_is_not_FlowView_FlowTransition)
-{
-    QmlDesigner::NodeMetaInfo metaInfo;
-
-    bool isType = metaInfo.isFlowViewFlowTransition();
-
-    ASSERT_THAT(isType, IsFalse());
-}
-
-TEST_F(NodeMetaInfo, is_FlowView_FlowView)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("FlowView", ModuleKind::QmlLibrary, "FlowView");
-
-    bool isType = metaInfo.isFlowViewFlowView();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, default_is_not_FlowView_FlowView)
-{
-    QmlDesigner::NodeMetaInfo metaInfo;
-
-    bool isType = metaInfo.isFlowViewFlowView();
-
-    ASSERT_THAT(isType, IsFalse());
-}
-
-TEST_F(NodeMetaInfo, is_FlowView_FlowWildcard)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("FlowView", ModuleKind::QmlLibrary, "FlowWildcard");
-
-    bool isType = metaInfo.isFlowViewFlowWildcard();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, default_is_not_FlowView_FlowWildcard)
-{
-    QmlDesigner::NodeMetaInfo metaInfo;
-
-    bool isType = metaInfo.isFlowViewFlowWildcard();
-
-    ASSERT_THAT(isType, IsFalse());
-}
-
-TEST_F(NodeMetaInfo, FlowItem_is_FlowView_item)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("FlowView", ModuleKind::QmlLibrary, "FlowItem");
-
-    bool isType = metaInfo.isFlowViewItem();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, FlowWildcard_is_FlowView_item)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("FlowView", ModuleKind::QmlLibrary, "FlowWildcard");
-
-    bool isType = metaInfo.isFlowViewItem();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, FlowDecision_is_FlowView_item)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("FlowView", ModuleKind::QmlLibrary, "FlowDecision");
-
-    bool isType = metaInfo.isFlowViewItem();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, default_is_not_FlowView_Item)
-{
-    QmlDesigner::NodeMetaInfo metaInfo;
-
-    bool isType = metaInfo.isFlowViewItem();
-
-    ASSERT_THAT(isType, IsFalse());
-}
-
 TEST_F(NodeMetaInfo, is_font)
 {
     auto metaInfo = createMetaInfo(qtQuickModuleId, "font");
@@ -1216,9 +1072,9 @@ TEST_F(NodeMetaInfo, QtQuick_Item_is_graphical_item)
     ASSERT_THAT(isType, IsTrue());
 }
 
-TEST_F(NodeMetaInfo, QtQuickWindow_Window_is_graphical_item)
+TEST_F(NodeMetaInfo, QtQuick_Window_is_graphical_item)
 {
-    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Window", ModuleKind::QmlLibrary, "Window");
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick", ModuleKind::QmlLibrary, "Window");
 
     bool isType = metaInfo.isGraphicalItem();
 
@@ -1227,16 +1083,18 @@ TEST_F(NodeMetaInfo, QtQuickWindow_Window_is_graphical_item)
 
 TEST_F(NodeMetaInfo, QtQuickDialogs_Dialogs_is_graphical_item)
 {
-    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Dialogs", ModuleKind::QmlLibrary, "Dialog");
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Dialogs",
+                                               ModuleKind::CppLibrary,
+                                               "QQuickAbstractDialog");
 
     bool isType = metaInfo.isGraphicalItem();
 
     ASSERT_THAT(isType, IsTrue());
 }
 
-TEST_F(NodeMetaInfo, QtQuickControls_Popup_is_graphical_item)
+TEST_F(NodeMetaInfo, QtQuickTemplates_Popup_is_graphical_item)
 {
-    auto metaInfo = createMetaInfo("QtQuick.Controls", ModuleKind::QmlLibrary, "Popup");
+    auto metaInfo = createMetaInfo("QtQuick.Templates", ModuleKind::QmlLibrary, "Popup");
 
     bool isType = metaInfo.isGraphicalItem();
 
@@ -1290,7 +1148,7 @@ TEST_F(NodeMetaInfo, QtQuick_Layouts_Layout_is_layoutable)
 
 TEST_F(NodeMetaInfo, QtQuick_Controls_SplitView_is_layoutable)
 {
-    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Controls", ModuleKind::QmlLibrary, "SplitView");
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Templates", ModuleKind::QmlLibrary, "SplitView");
 
     bool isType = metaInfo.isLayoutable();
 
@@ -1891,56 +1749,38 @@ TEST_F(NodeMetaInfo, default_is_not_QtQuick_BorderImage)
     ASSERT_THAT(isType, IsFalse());
 }
 
-TEST_F(NodeMetaInfo, is_QtQuickControls_SwipeView)
+TEST_F(NodeMetaInfo, is_QtQuickTemplates_SwipeView)
 {
-    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Controls", ModuleKind::QmlLibrary, "SwipeView");
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Templates", ModuleKind::QmlLibrary, "SwipeView");
 
-    bool isType = metaInfo.isQtQuickControlsSwipeView();
+    bool isType = metaInfo.isQtQuickTemplatesSwipeView();
 
     ASSERT_THAT(isType, IsTrue());
 }
 
-TEST_F(NodeMetaInfo, default_is_not_QtQuickControls_SwipeView)
+TEST_F(NodeMetaInfo, default_is_not_QtQuickTemplates_SwipeView)
 {
     QmlDesigner::NodeMetaInfo metaInfo;
 
-    bool isType = metaInfo.isQtQuickControlsSwipeView();
+    bool isType = metaInfo.isQtQuickTemplatesSwipeView();
 
     ASSERT_THAT(isType, IsFalse());
 }
 
-TEST_F(NodeMetaInfo, is_QtQuickControls_TabBar)
+TEST_F(NodeMetaInfo, is_QtQuickTemplates_TabBar)
 {
-    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Controls", ModuleKind::QmlLibrary, "TabBar");
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Templates", ModuleKind::QmlLibrary, "TabBar");
 
-    bool isType = metaInfo.isQtQuickControlsTabBar();
+    bool isType = metaInfo.isQtQuickTemplatesTabBar();
 
     ASSERT_THAT(isType, IsTrue());
 }
 
-TEST_F(NodeMetaInfo, default_is_not_QtQuickControls_TabBar)
+TEST_F(NodeMetaInfo, default_is_not_QtQuickTemplates_TabBar)
 {
     QmlDesigner::NodeMetaInfo metaInfo;
 
-    bool isType = metaInfo.isQtQuickControlsTabBar();
-
-    ASSERT_THAT(isType, IsFalse());
-}
-
-TEST_F(NodeMetaInfo, is_QtQuickExtras_Picture)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Extras", ModuleKind::QmlLibrary, "Picture");
-
-    bool isType = metaInfo.isQtQuickExtrasPicture();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, default_is_not_QtQuickExtras_Picture)
-{
-    QmlDesigner::NodeMetaInfo metaInfo;
-
-    bool isType = metaInfo.isQtQuickExtrasPicture();
+    bool isType = metaInfo.isQtQuickTemplatesTabBar();
 
     ASSERT_THAT(isType, IsFalse());
 }
@@ -2371,20 +2211,20 @@ TEST_F(NodeMetaInfo, default_is_not_QtQuick_Transition)
     ASSERT_THAT(isType, IsFalse());
 }
 
-TEST_F(NodeMetaInfo, is_QtQuickWindow_Window)
+TEST_F(NodeMetaInfo, is_QtQuick_Window)
 {
-    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Window", ModuleKind::QmlLibrary, "Window");
+    auto metaInfo = createDerivedDummyMetaInfo("QtQuick", ModuleKind::QmlLibrary, "Window");
 
-    bool isType = metaInfo.isQtQuickWindowWindow();
+    bool isType = metaInfo.isQtQuickWindow();
 
     ASSERT_THAT(isType, IsTrue());
 }
 
-TEST_F(NodeMetaInfo, default_is_not_QtQuickWindow_Window)
+TEST_F(NodeMetaInfo, default_is_not_QtQuick_Window)
 {
     QmlDesigner::NodeMetaInfo metaInfo;
 
-    bool isType = metaInfo.isQtQuickWindowWindow();
+    bool isType = metaInfo.isQtQuickWindow();
 
     ASSERT_THAT(isType, IsFalse());
 }
@@ -2457,15 +2297,6 @@ TEST_F(NodeMetaInfo, QtQuick_Item_is_suitable_for_MouseArea_fill)
 TEST_F(NodeMetaInfo, QtQuick_MouseArea_is_suitable_for_MouseArea_fill)
 {
     auto metaInfo = createDerivedDummyMetaInfo("QtQuick", ModuleKind::QmlLibrary, "MouseArea");
-
-    bool isType = metaInfo.isSuitableForMouseAreaFill();
-
-    ASSERT_THAT(isType, IsTrue());
-}
-
-TEST_F(NodeMetaInfo, QtQuickControls_Control_is_suitable_for_MouseArea_fill)
-{
-    auto metaInfo = createDerivedDummyMetaInfo("QtQuick.Controls", ModuleKind::QmlLibrary, "Control");
 
     bool isType = metaInfo.isSuitableForMouseAreaFill();
 

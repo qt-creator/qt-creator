@@ -177,11 +177,6 @@ public:
     NodeMetaInfo boolMetaInfo() const;
     NodeMetaInfo doubleMetaInfo() const;
     NodeMetaInfo floatMetaInfo() const;
-    NodeMetaInfo flowViewFlowActionAreaMetaInfo() const;
-    NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
-    NodeMetaInfo flowViewFlowItemMetaInfo() const;
-    NodeMetaInfo flowViewFlowTransitionMetaInfo() const;
-    NodeMetaInfo flowViewFlowWildcardMetaInfo() const;
     NodeMetaInfo fontMetaInfo() const;
     NodeMetaInfo qmlQtObjectMetaInfo() const;
     NodeMetaInfo qtQmlConnectionsMetaInfo() const;
@@ -207,8 +202,8 @@ public:
     NodeMetaInfo qtQuick3DTextureInputMetaInfo() const;
     NodeMetaInfo qtQuick3DView3DMetaInfo() const;
     NodeMetaInfo qtQuickBorderImageMetaInfo() const;
-    NodeMetaInfo qtQuickControlsLabelMetaInfo() const;
-    NodeMetaInfo qtQuickControlsTextAreaMetaInfo() const;
+    NodeMetaInfo qtQuickTemplatesLabelMetaInfo() const;
+    NodeMetaInfo qtQuickTemplatesTextAreaMetaInfo() const;
     NodeMetaInfo qtQuickGradientMetaInfo() const;
     NodeMetaInfo qtQuickImageMetaInfo() const;
     NodeMetaInfo qtQuickItemMetaInfo() const;
@@ -222,9 +217,9 @@ public:
     NodeMetaInfo qtQuickTimelineKeyframeGroupMetaInfo() const;
     NodeMetaInfo qtQuickTimelineTimelineMetaInfo() const;
     NodeMetaInfo qtQuickTransistionMetaInfo() const;
-    NodeMetaInfo qtQuickWindowWindowMetaInfo() const;
-    NodeMetaInfo qtQuickDialogsDialogMetaInfo() const;
-    NodeMetaInfo qtQuickControlsPopupMetaInfo() const;
+    NodeMetaInfo qtQuickWindowMetaInfo() const;
+    NodeMetaInfo qtQuickDialogsAbstractDialogMetaInfo() const;
+    NodeMetaInfo qtQuickTemplatesPopupMetaInfo() const;
     NodeMetaInfo vector2dMetaInfo() const;
     NodeMetaInfo vector3dMetaInfo() const;
     NodeMetaInfo vector4dMetaInfo() const;
@@ -382,7 +377,7 @@ public:
     void emitRewriterEndTransaction(SL sl = {});
 
 private:
-    template<const auto &moduleName, const auto &typeName>
+    template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
     NodeMetaInfo createNodeMetaInfo() const;
     void detachAllViews();
 

@@ -1080,8 +1080,7 @@ static QByteArray getPackage(const QByteArray &name)
     return nameComponents.join('.');
 }
 
-
-QList<TypeName> qtObjectTypes()
+static QList<TypeName> qtObjectTypes()
 {
     static QList<TypeName> typeNames = {"QML.QtObject", "QtQml.QtObject", "<cpp>.QObject"};
 
@@ -2469,11 +2468,10 @@ bool NodeMetaInfo::isSuitableForMouseAreaFill(SL sl) const
         using namespace Storage::Info;
         auto itemId = m_projectStorage->commonTypeId<QtQuick, Item>();
         auto mouseAreaId = m_projectStorage->commonTypeId<QtQuick, MouseArea>();
-        auto controlsControlId = m_projectStorage->commonTypeId<QtQuick_Controls, Control>();
         auto templatesControlId = m_projectStorage->commonTypeId<QtQuick_Templates, Control>();
 
-        auto isSuitableForMouseAreaFill = bool(m_projectStorage->basedOn(
-            m_typeId, itemId, mouseAreaId, controlsControlId, templatesControlId));
+        auto isSuitableForMouseAreaFill = bool(
+            m_projectStorage->basedOn(m_typeId, itemId, mouseAreaId, templatesControlId));
 
         tracer.end(keyValue("is suitable for mouse area fill", isSuitableForMouseAreaFill));
 
@@ -2890,9 +2888,10 @@ bool NodeMetaInfo::isGraphicalItem(SL sl) const
 
         using namespace Storage::Info;
         auto itemId = m_projectStorage->commonTypeId<QtQuick, Item>();
-        auto windowId = m_projectStorage->commonTypeId<QtQuick_Window, Window>();
-        auto dialogId = m_projectStorage->commonTypeId<QtQuick_Dialogs, Dialog>();
-        auto popupId = m_projectStorage->commonTypeId<QtQuick_Controls, Popup>();
+        auto windowId = m_projectStorage->commonTypeId<QtQuick, Window>();
+        auto dialogId = m_projectStorage
+                            ->commonTypeId<QtQuick_Dialogs, QQuickAbstractDialog, ModuleKind::CppLibrary>();
+        auto popupId = m_projectStorage->commonTypeId<QtQuick_Templates, Popup>();
 
         return bool(m_projectStorage->basedOn(m_typeId, itemId, windowId, dialogId, popupId));
     } else {
@@ -2953,7 +2952,7 @@ bool NodeMetaInfo::isLayoutable(SL sl) const
         using namespace Storage::Info;
         auto positionerId = m_projectStorage->commonTypeId<QtQuick, Positioner>();
         auto layoutId = m_projectStorage->commonTypeId<QtQuick_Layouts, Layout>();
-        auto splitViewId = m_projectStorage->commonTypeId<QtQuick_Controls, SplitView>();
+        auto splitViewId = m_projectStorage->commonTypeId<QtQuick_Templates, SplitView>();
 
         return bool(m_projectStorage->basedOn(m_typeId, positionerId, layoutId, splitViewId));
 
@@ -3283,24 +3282,6 @@ bool NodeMetaInfo::isNumber(SL sl) const
     }
 }
 
-bool NodeMetaInfo::isQtQuickExtrasPicture(SL sl) const
-{
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
-
-        NanotraceHR::Tracer tracer{"node meta info is QtQuick.Extras.Picture",
-                                   category(),
-                                   keyValue("type id", m_typeId),
-                                   keyValue("caller location", sl)};
-
-        using namespace Storage::Info;
-        return isBasedOnCommonType<QtQuick_Extras, Picture>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && isSubclassOf("QtQuick.Extras.Picture");
-    }
-}
-
 bool NodeMetaInfo::isQtQuickGradient([[maybe_unused]] SL sl) const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -3467,7 +3448,7 @@ bool NodeMetaInfo::isQtQuickShapesShape(SL sl) const
     }
 }
 
-bool NodeMetaInfo::isQtQuickControlsTabBar(SL sl) const
+bool NodeMetaInfo::isQtQuickTemplatesTabBar(SL sl) const
 {
     if constexpr (useProjectStorage()) {
         if (!isValid())
@@ -3479,43 +3460,43 @@ bool NodeMetaInfo::isQtQuickControlsTabBar(SL sl) const
                                    keyValue("caller location", sl)};
 
         using namespace Storage::Info;
-        return isBasedOnCommonType<QtQuick_Controls, TabBar>(m_projectStorage, m_typeId);
+        return isBasedOnCommonType<QtQuick_Templates, TabBar>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtQuick.Controls.TabBar");
     }
 }
 
-bool NodeMetaInfo::isQtQuickControlsLabel([[maybe_unused]] SL sl) const
+bool NodeMetaInfo::isQtQuickTemplatesLabel([[maybe_unused]] SL sl) const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
     if (!isValid())
         return false;
 
-    NanotraceHR::Tracer tracer{"node meta info is QtQuick.Controls.SwipeView",
+    NanotraceHR::Tracer tracer{"node meta info is QtQuick.Templates.SwipeView",
                                category(),
                                keyValue("type id", m_typeId),
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
-    return isBasedOnCommonType<QtQuick_Controls, Label>(m_projectStorage, m_typeId);
+    return isBasedOnCommonType<QtQuick_Templates, Label>(m_projectStorage, m_typeId);
 #else
     return isValid() && isSubclassOf("QtQuick.Controls.Label");
 #endif
 }
 
-bool NodeMetaInfo::isQtQuickControlsSwipeView(SL sl) const
+bool NodeMetaInfo::isQtQuickTemplatesSwipeView(SL sl) const
 {
     if constexpr (useProjectStorage()) {
         if (!isValid())
             return false;
 
-        NanotraceHR::Tracer tracer{"node meta info is QtQuick.Controls.SwipeView",
+        NanotraceHR::Tracer tracer{"node meta info is QtQuick.Templates.SwipeView",
                                    category(),
                                    keyValue("type id", m_typeId),
                                    keyValue("caller location", sl)};
 
         using namespace Storage::Info;
-        return isBasedOnCommonType<QtQuick_Controls, SwipeView>(m_projectStorage, m_typeId);
+        return isBasedOnCommonType<QtQuick_Templates, SwipeView>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtQuick.Controls.SwipeView");
     }
@@ -3847,7 +3828,7 @@ bool NodeMetaInfo::isQtQuickTransition(SL sl) const
     }
 }
 
-bool NodeMetaInfo::isQtQuickWindowWindow(SL sl) const
+bool NodeMetaInfo::isQtQuickWindow(SL sl) const
 {
     if constexpr (useProjectStorage()) {
         if (!isValid())
@@ -3859,7 +3840,7 @@ bool NodeMetaInfo::isQtQuickWindowWindow(SL sl) const
                                    keyValue("caller location", sl)};
 
         using namespace Storage::Info;
-        return isBasedOnCommonType<QtQuick_Window, Window>(m_projectStorage, m_typeId);
+        return isBasedOnCommonType<QtQuick, Window>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtQuick.Window.Window");
     }
@@ -3989,129 +3970,6 @@ bool NodeMetaInfo::isQtMultimediaSoundEffect(SL sl) const
         return isBasedOnCommonType<QtMultimedia, SoundEffect>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtMultimedia.SoundEffect");
-    }
-}
-
-bool NodeMetaInfo::isFlowViewItem(SL sl) const
-{
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
-
-        NanotraceHR::Tracer tracer{"node meta info is FlowView.ViewItem",
-                                   category(),
-                                   keyValue("type id", m_typeId),
-                                   keyValue("caller location", sl)};
-
-        using namespace Storage::Info;
-        auto flowItemId = m_projectStorage->commonTypeId<FlowView, FlowItem>();
-        auto flowWildcardId = m_projectStorage->commonTypeId<FlowView, FlowWildcard>();
-        auto flowDecisionId = m_projectStorage->commonTypeId<FlowView, FlowDecision>();
-        return bool(m_projectStorage->basedOn(m_typeId, flowItemId, flowWildcardId, flowDecisionId));
-    } else {
-        return isValid()
-               && (isSubclassOf("FlowView.FlowItem") || isSubclassOf("FlowView.FlowWildcard")
-                   || isSubclassOf("FlowView.FlowDecision"));
-    }
-}
-
-bool NodeMetaInfo::isFlowViewFlowItem(SL sl) const
-{
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
-
-        NanotraceHR::Tracer tracer{"node meta info is FlowView.FlowItem",
-                                   category(),
-                                   keyValue("type id", m_typeId),
-                                   keyValue("caller location", sl)};
-
-        using namespace Storage::Info;
-        return isBasedOnCommonType<FlowView, FlowItem>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && isSubclassOf("FlowView.FlowItem");
-    }
-}
-
-bool NodeMetaInfo::isFlowViewFlowView(SL sl) const
-{
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
-
-        NanotraceHR::Tracer tracer{"node meta info is FlowView.FlowView",
-                                   category(),
-                                   keyValue("type id", m_typeId),
-                                   keyValue("caller location", sl)};
-
-        using namespace Storage::Info;
-        return isBasedOnCommonType<FlowView, FlowView>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && isSubclassOf("FlowView.FlowView");
-    }
-}
-
-bool NodeMetaInfo::isFlowViewFlowActionArea() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return isBasedOnCommonType<FlowView, FlowActionArea>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && isSubclassOf("FlowView.FlowActionArea");
-    }
-}
-
-bool NodeMetaInfo::isFlowViewFlowTransition(SL sl) const
-{
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
-
-        NanotraceHR::Tracer tracer{"node meta info is FlowView.FlowTransition",
-                                   category(),
-                                   keyValue("type id", m_typeId),
-                                   keyValue("caller location", sl)};
-
-        using namespace Storage::Info;
-        return isBasedOnCommonType<FlowView, FlowTransition>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && isSubclassOf("FlowView.FlowTransition");
-    }
-}
-
-bool NodeMetaInfo::isFlowViewFlowDecision(SL sl) const
-{
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
-
-        NanotraceHR::Tracer tracer{"node meta info is FlowView.FlowDecision",
-                                   category(),
-                                   keyValue("type id", m_typeId),
-                                   keyValue("caller location", sl)};
-
-        using namespace Storage::Info;
-        return isBasedOnCommonType<FlowView, FlowDecision>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && isSubclassOf("FlowView.FlowDecision");
-    }
-}
-
-bool NodeMetaInfo::isFlowViewFlowWildcard(SL sl) const
-{
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
-
-        NanotraceHR::Tracer tracer{"node meta info is FlowView.FlowWildcard",
-                                   category(),
-                                   keyValue("type id", m_typeId),
-                                   keyValue("caller location", sl)};
-
-        using namespace Storage::Info;
-        return isBasedOnCommonType<FlowView, FlowWildcard>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && isSubclassOf("FlowView.FlowWildcard");
     }
 }
 
@@ -4762,9 +4620,9 @@ NodeMetaInfo PropertyMetaInfo::type() const
                                keyValue("property declaration id", m_id)};
 
     return NodeMetaInfo(propertyData().typeId, m_projectStorage);
-#endif
-
+#else
     return {};
+#endif
 }
 
 PropertyName PropertyMetaInfo::name() const

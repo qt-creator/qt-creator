@@ -459,6 +459,8 @@ void ProjectStorageMock::setupQtQuick()
     createProperty(itemId, "x", doubleId);
     createProperty(itemId, "font", fontId);
 
+    createObject(qtQuickModuleId, "Text", {itemId, qtObjectId});
+
     auto inputDeviceId = createObject(qtQuickModuleId, "InputDevice", {qtObjectId});
     createProperty(inputDeviceId, "seatName", stringId);
 
@@ -491,28 +493,6 @@ void ProjectStorageMock::setupQtQuick()
     auto qtQuickTimelineModuleId = createModule("QtQuick.Timeline", ModuleKind::QmlLibrary);
     createObject(qtQuickTimelineModuleId, "KeyframeGroup", {qtObjectId});
     createObject(qtQuickTimelineModuleId, "Keyframe", {qtObjectId});
-
-    auto flowViewModuleId = createModule("FlowView", ModuleKind::QmlLibrary);
-    createObject(flowViewModuleId,
-                 "FlowActionArea",
-                 "data",
-                 PropertyDeclarationTraits::IsList,
-                 qtObjectId,
-                 {itemId, qtObjectId});
-    createObject(flowViewModuleId,
-                 "FlowWildcard",
-                 "data",
-                 PropertyDeclarationTraits::IsList,
-                 qtObjectId,
-                 {qtObjectId});
-    createObject(flowViewModuleId, "FlowDecision", {qtObjectId});
-    createObject(flowViewModuleId, "FlowTransition", {qtObjectId});
-    createObject(flowViewModuleId,
-                 "FlowItem",
-                 "data",
-                 PropertyDeclarationTraits::IsList,
-                 qtObjectId,
-                 {qtObjectId, itemId});
 }
 
 void ProjectStorageMock::setupQtQuickImportedTypeNameIds(QmlDesigner::SourceId sourceId)
@@ -522,7 +502,6 @@ void ProjectStorageMock::setupQtQuickImportedTypeNameIds(QmlDesigner::SourceId s
     auto qtQuickModuleId = moduleId("QtQuick", ModuleKind::QmlLibrary);
     auto qtQuickNativeModuleId = moduleId("QtQuick", ModuleKind::CppLibrary);
     auto qtQuickTimelineModuleId = moduleId("QtQuick.Timeline", ModuleKind::QmlLibrary);
-    auto flowViewModuleId = moduleId("FlowView", ModuleKind::QmlLibrary);
 
     createImportedTypeNameId(sourceId, "int", qmlModuleId);
     createImportedTypeNameId(sourceId, "QtObject", qmlModuleId);
@@ -539,11 +518,6 @@ void ProjectStorageMock::setupQtQuickImportedTypeNameIds(QmlDesigner::SourceId s
     createImportedTypeNameId(sourceId, "PropertyChanges", qtQuickModuleId);
     createImportedTypeNameId(sourceId, "KeyframeGroup", qtQuickTimelineModuleId);
     createImportedTypeNameId(sourceId, "Keyframe", qtQuickTimelineModuleId);
-    createImportedTypeNameId(sourceId, "FlowActionArea", flowViewModuleId);
-    createImportedTypeNameId(sourceId, "FlowWildcard", flowViewModuleId);
-    createImportedTypeNameId(sourceId, "FlowDecision", flowViewModuleId);
-    createImportedTypeNameId(sourceId, "FlowTransition", flowViewModuleId);
-    createImportedTypeNameId(sourceId, "FlowItem", flowViewModuleId);
 }
 
 void ProjectStorageMock::setupCommonTypeCache()

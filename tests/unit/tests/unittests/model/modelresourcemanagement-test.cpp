@@ -282,9 +282,7 @@ INSTANTIATE_TEST_SUITE_P(
     ForTarget,
     testing::Values(TargetData{"QtQuick.Item", "QtQuick.PropertyChanges", "target"},
                     TargetData{"QtQuick.Item", "QtQuick.Timeline.KeyframeGroup", "target"},
-                    TargetData{"QtQuick.Item", "QtQuick.PropertyAnimation", "target"},
-                    TargetData{"FlowView.FlowItem", "FlowView.FlowTransition", "to"},
-                    TargetData{"FlowView.FlowItem", "FlowView.FlowTransition", "from"}));
+                    TargetData{"QtQuick.Item", "QtQuick.PropertyAnimation", "target"}));
 
 TEST_P(ForTarget, remove)
 {
@@ -356,9 +354,7 @@ protected:
 INSTANTIATE_TEST_SUITE_P(
     ModelResourceManagement,
     ForTargets,
-    testing::Values(TargetData{"FlowView.FlowTransition", "FlowView.FlowDecision", "targets"},
-                    TargetData{"FlowView.FlowTransition", "FlowView.FlowWildcard", "targets"},
-                    TargetData{"QtQuick.Item", "QtQuick.PropertyAnimation", "targets"}));
+    testing::Values(TargetData{"QtQuick.Item", "QtQuick.PropertyAnimation", "targets"}));
 
 TEST_P(ForTargets, remove)
 {

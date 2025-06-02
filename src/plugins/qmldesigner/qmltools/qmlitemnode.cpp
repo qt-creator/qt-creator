@@ -44,15 +44,12 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode, SL sl)
 #ifdef QDS_USE_PROJECTSTORAGE
 
     auto qtQuickitem = model->qtQuickItemMetaInfo();
-    auto flowViewFlowDecision = model->flowViewFlowDecisionMetaInfo();
-    auto flowViewFlowWildcard = model->flowViewFlowWildcardMetaInfo();
-    auto qtQuickWindowWindow = model->qtQuickWindowWindowMetaInfo();
-    auto qtQuickDialogsDialog = model->qtQuickDialogsDialogMetaInfo();
-    auto qtQuickControlsPopup = model->qtQuickControlsPopupMetaInfo();
+    auto qtQuickWindowWindow = model->qtQuickWindowMetaInfo();
+    auto qtQuickDialogsDialog = model->qtQuickDialogsAbstractDialogMetaInfo();
+    auto qtQuickControlsPopup = model->qtQuickTemplatesPopupMetaInfo();
 
     auto matched = metaInfo.basedOn(qtQuickitem,
-                                    flowViewFlowDecision,
-                                    flowViewFlowWildcard,
+
                                     qtQuickWindowWindow,
                                     qtQuickDialogsDialog,
                                     qtQuickControlsPopup);
@@ -67,12 +64,8 @@ bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode, SL sl)
     return true;
 #else
     auto qtQuickitem = model->qtQuickItemMetaInfo();
-    auto flowViewFlowDecision = model->flowViewFlowDecisionMetaInfo();
-    auto flowViewFlowWildcard = model->flowViewFlowWildcardMetaInfo();
 
-    if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo(),
-                           model->flowViewFlowDecisionMetaInfo(),
-                           model->flowViewFlowWildcardMetaInfo())) {
+    if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo())) {
         return true;
     }
 
@@ -526,11 +519,6 @@ bool QmlItemNode::instanceIsMovable(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    auto metaInfo = modelNode().metaInfo();
-    auto m = model();
-    if (metaInfo.isBasedOn(m->flowViewFlowDecisionMetaInfo(), m->flowViewFlowWildcardMetaInfo()))
-        return true;
-
     return nodeInstance().isMovable();
 }
 
@@ -976,7 +964,7 @@ bool QmlItemNode::isFlowView(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return modelNode().isValid() && modelNode().metaInfo().isFlowViewFlowView();
+    return false;
 }
 
 bool QmlItemNode::isFlowItem(SL sl) const
@@ -986,7 +974,7 @@ bool QmlItemNode::isFlowItem(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return modelNode().isValid() && modelNode().metaInfo().isFlowViewFlowItem();
+    return false;
 }
 
 bool QmlItemNode::isFlowActionArea(SL sl) const
@@ -996,7 +984,7 @@ bool QmlItemNode::isFlowActionArea(SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    return modelNode().isValid() && modelNode().metaInfo().isFlowViewFlowActionArea();
+    return false;
 }
 
 ModelNode QmlItemNode::rootModelNode(SL sl) const
@@ -1084,7 +1072,7 @@ bool QmlFlowItemNode::isValid() const
 
 bool QmlFlowItemNode::isValidQmlFlowItemNode(const ModelNode &modelNode)
 {
-    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isFlowViewFlowItem();
+    return isValidQmlObjectNode(modelNode);
 }
 
 QList<QmlFlowActionAreaNode> QmlFlowItemNode::flowActionAreas() const
@@ -1110,7 +1098,7 @@ bool QmlFlowActionAreaNode::isValid() const
 
 bool QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(const ModelNode &modelNode)
 {
-    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isFlowViewFlowActionArea();
+    return isValidQmlObjectNode(modelNode);
 }
 
 ModelNode QmlFlowActionAreaNode::targetTransition() const
@@ -1164,8 +1152,7 @@ bool QmlFlowViewNode::isValid() const
 
 bool QmlFlowViewNode::isValidQmlFlowViewNode(const ModelNode &modelNode)
 {
-    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid()
-           && modelNode.metaInfo().isFlowViewFlowView();
+    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid();
 }
 
 QList<QmlFlowItemNode> QmlFlowViewNode::flowItems() const

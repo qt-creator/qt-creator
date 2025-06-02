@@ -2687,10 +2687,10 @@ NodeMetaInfo Model::floatMetaInfo() const
 #endif
 }
 
-template<const auto &moduleName, const auto &typeName>
+template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind>
 NodeMetaInfo Model::createNodeMetaInfo() const
 {
-    auto typeId = d->projectStorage->commonTypeCache().typeId<moduleName, typeName>();
+    auto typeId = d->projectStorage->commonTypeCache().typeId<moduleName, typeName, moduleKind>();
 
     return {typeId, d->projectStorage};
 }
@@ -2825,56 +2825,6 @@ NodeMetaInfo Model::qtQuickPropertyChangesMetaInfo() const
     }
 }
 
-NodeMetaInfo Model::flowViewFlowActionAreaMetaInfo() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<FlowView, FlowActionArea>();
-    } else {
-        return metaInfo("FlowView.FlowActionArea");
-    }
-}
-
-NodeMetaInfo Model::flowViewFlowDecisionMetaInfo() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<FlowView, FlowDecision>();
-    } else {
-        return metaInfo("FlowView.FlowDecision");
-    }
-}
-
-NodeMetaInfo Model::flowViewFlowItemMetaInfo() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<FlowView, FlowItem>();
-    } else {
-        return metaInfo("FlowView.FlowItem");
-    }
-}
-
-NodeMetaInfo Model::flowViewFlowWildcardMetaInfo() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<FlowView, FlowWildcard>();
-    } else {
-        return metaInfo("FlowView.FlowWildcard");
-    }
-}
-
-NodeMetaInfo Model::flowViewFlowTransitionMetaInfo() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return createNodeMetaInfo<FlowView, FlowTransition>();
-    } else {
-        return metaInfo("FlowView.FlowTransition");
-    }
-}
-
 NodeMetaInfo Model::qtQuickTextEditMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2885,21 +2835,21 @@ NodeMetaInfo Model::qtQuickTextEditMetaInfo() const
     }
 }
 
-NodeMetaInfo Model::qtQuickControlsLabelMetaInfo() const
+NodeMetaInfo Model::qtQuickTemplatesLabelMetaInfo() const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
     using namespace Storage::Info;
-    return createNodeMetaInfo<QtQuick_Controls, Label>();
+    return createNodeMetaInfo<QtQuick_Templates, Label>();
 #else
     return metaInfo("QtQuick.Controls.Label");
 #endif
 }
 
-NodeMetaInfo Model::qtQuickControlsTextAreaMetaInfo() const
+NodeMetaInfo Model::qtQuickTemplatesTextAreaMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Controls, TextArea>();
+        return createNodeMetaInfo<QtQuick_Templates, TextArea>();
     } else {
         return metaInfo("QtQuick.Controls.TextArea");
     }
@@ -3105,31 +3055,31 @@ NodeMetaInfo Model::qtQuickTransistionMetaInfo() const
     }
 }
 
-NodeMetaInfo Model::qtQuickWindowWindowMetaInfo() const
+NodeMetaInfo Model::qtQuickWindowMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Window, Window>();
+        return createNodeMetaInfo<QtQuick, Window>();
     } else {
         return metaInfo("QtQuick.Window.Window");
     }
 }
 
-NodeMetaInfo Model::qtQuickDialogsDialogMetaInfo() const
+NodeMetaInfo Model::qtQuickDialogsAbstractDialogMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Dialogs, Dialog>();
+        return createNodeMetaInfo<QtQuick_Dialogs, QQuickAbstractDialog, Storage::ModuleKind::CppLibrary>();
     } else {
         return metaInfo("QtQuick.Dialogs.Dialog");
     }
 }
 
-NodeMetaInfo Model::qtQuickControlsPopupMetaInfo() const
+NodeMetaInfo Model::qtQuickTemplatesPopupMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
-        return createNodeMetaInfo<QtQuick_Controls, Popup>();
+        return createNodeMetaInfo<QtQuick_Templates, Popup>();
     } else {
         return metaInfo("QtQuick.Controls.Popup");
     }
