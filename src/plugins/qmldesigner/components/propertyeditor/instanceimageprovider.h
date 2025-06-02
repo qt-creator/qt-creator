@@ -47,7 +47,7 @@ private:
 
     QPixmap m_receivedImage;
 
-    QTimer *m_delayTimer = nullptr;
+    std::unique_ptr<QTimer> m_delayTimer;
 };
 
 } // namespace QmlDesigner

@@ -32,10 +32,15 @@ env_with_default("QDS_DESIGNVIEWER_USE_STAGING" ENV_QDS_DESIGNVIEWER_USE_STAGING
 option(QDS_DESIGNVIEWER_USE_STAGING "Use staging API URL for Design Viewer" ${ENV_QDS_DESIGNVIEWER_USE_STAGING})
 add_feature_info("Use staging API URL for Design Viewer" ${QDS_DESIGNVIEWER_USE_STAGING} "")
 
+env_with_default("QTC_ENABLE_PROPERTY_EDITOR_TRACING" ENV_QTC_ENABLE_PROPERTY_EDITOR_TRACING OFF)
+option(ENABLE_PROPERTY_EDITOR_TRACING "Enable property editor tracing" ${ENV_QTC_ENABLE_PROPERTY_EDITOR_TRACING})
+add_feature_info("Property editor tracing" ${ENABLE_PROPERTY_EDITOR_TRACING} "")
 
 env_with_default("QTC_ENABLE_FORM_EDITOR_TRACING" ENV_QTC_ENABLE_FORM_EDITOR_TRACING OFF)
 option(ENABLE_FORM_EDITOR_TRACING "Enable form editor tracing" ${ENV_QTC_ENABLE_FORM_EDITOR_TRACING})
-add_feature_info("Model tracing" ${ENABLE_FORM_EDITOR_TRACING} "")
+add_feature_info("Form editor tracing" ${ENABLE_FORM_EDITOR_TRACING} "")
+
+
 
 if(QDS_DESIGNVIEWER_USE_STAGING)
   add_definitions(-DQDS_DESIGNVIEWER_USE_STAGING)
@@ -409,7 +414,9 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/propertyeditor
-  PUBLIC_INCLUDES components/propertyeditor
+  PUBLIC_INCLUDES components/propertyeditor  
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_PROPERTY_EDITOR_TRACING}>:ENABLE_PROPERTY_EDITOR_TRACING>
   SOURCES
     aligndistribute.cpp aligndistribute.h
     assetimageprovider.cpp assetimageprovider.h
@@ -430,6 +437,7 @@ extend_qtc_plugin(QmlDesigner
     propertyeditorcontextobject.cpp propertyeditorcontextobject.h
     propertyeditordynamicpropertiesproxymodel.cpp propertyeditordynamicpropertiesproxymodel.h
     propertyeditorqmlbackend.cpp propertyeditorqmlbackend.h
+    propertyeditortracing.cpp propertyeditortracing.h
     propertyeditortransaction.cpp propertyeditortransaction.h
     propertyeditorvalue.cpp propertyeditorvalue.h
     propertyeditorview.cpp propertyeditorview.h

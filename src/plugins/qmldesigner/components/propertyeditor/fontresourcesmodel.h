@@ -30,8 +30,8 @@ public:
     void refreshModel();
 
     Q_INVOKABLE void openFileDialog(const QString &customPath = {});
-    Q_INVOKABLE [[nodiscard]] QString resolve(const QString &relative) const;
-    Q_INVOKABLE [[nodiscard]] bool isLocal(const QString &path) const;
+    [[nodiscard]] Q_INVOKABLE QString resolve(const QString &relative) const;
+    [[nodiscard]] Q_INVOKABLE bool isLocal(const QString &path) const;
 
 signals:
     void fileNameChanged(const QUrl &fileName);

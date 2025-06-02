@@ -3,20 +3,22 @@
 
 #include "propertyeditorvalue.h"
 
-#include "abstractview.h"
-#include "bindingproperty.h"
-#include "createtexture.h"
-#include "designermcumanager.h"
-#include "designmodewidget.h"
-#include "nodemetainfo.h"
-#include "nodeproperty.h"
+#include "propertyeditortracing.h"
 #include "propertyeditorutils.h"
 #include "propertyeditorview.h"
-#include "qmldesignerplugin.h"
-#include "qmlitemnode.h"
-#include "qmlobjectnode.h"
-#include "rewritertransaction.h"
-#include "rewritingexception.h"
+
+#include <abstractview.h>
+#include <bindingproperty.h>
+#include <createtexture.h>
+#include <designermcumanager.h>
+#include <designmodewidget.h>
+#include <nodemetainfo.h>
+#include <nodeproperty.h>
+#include <qmldesignerplugin.h>
+#include <qmlitemnode.h>
+#include <qmlobjectnode.h>
+#include <rewritertransaction.h>
+#include <rewritingexception.h>
 
 #include <enumeration.h>
 #include <utils3d.h>
@@ -28,14 +30,19 @@
 
 namespace QmlDesigner {
 
+static auto category = QmlDesigner::PropertyEditorTracing::category;
+
 PropertyEditorValue::PropertyEditorValue(QObject *parent)
     : QObject(parent),
       m_complexNode(new PropertyEditorNodeWrapper(this))
 {
+    NanotraceHR::Tracer tracer{"property editor value constructor", category()};
 }
 
 QVariant PropertyEditorValue::value() const
 {
+    NanotraceHR::Tracer tracer{"property editor value value", category()};
+
     QVariant returnValue = m_value;
     if (auto metaInfo = modelNode().metaInfo(); metaInfo.property(name()).propertyType().isUrl())
         returnValue = returnValue.toUrl().toString();
@@ -107,6 +114,8 @@ static bool compareVariants(const QVariant &value1, const QVariant &value2)
 
 void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"property editor value set value with emit", category()};
+
     if (!compareVariants(value, m_value) || isBound()) {
         QVariant newValue = value;
         if (auto metaInfo = modelNode().metaInfo(); metaInfo.property(name()).propertyType().isUrl())
@@ -127,6 +136,8 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 
 void PropertyEditorValue::setValue(const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"property editor value set value", category()};
+
     const bool colorsEqual = cleverColorCompare(value, m_value);
 
     if (!compareVariants(m_value, value) && !cleverDoubleCompare(value, m_value) && !colorsEqual)
@@ -145,16 +156,22 @@ void PropertyEditorValue::setValue(const QVariant &value)
 
 QString PropertyEditorValue::enumeration() const
 {
+    NanotraceHR::Tracer tracer{"property editor value enumeration", category()};
+
     return m_value.value<Enumeration>().nameToString();
 }
 
 QString PropertyEditorValue::expression() const
 {
+    NanotraceHR::Tracer tracer{"property editor value expression", category()};
+
     return m_expression;
 }
 
 void PropertyEditorValue::setExpressionWithEmit(const QString &expression)
 {
+    NanotraceHR::Tracer tracer{"property editor value set expression with emit", category()};
+
     if (m_expression != expression) {
         setExpression(expression);
         m_value.clear();
@@ -166,7 +183,9 @@ void PropertyEditorValue::setExpressionWithEmit(const QString &expression)
 
 void PropertyEditorValue::setExpression(const QString &expression)
 {
-    if ( m_expression != expression) {
+    NanotraceHR::Tracer tracer{"property editor value set expression", category()};
+
+    if (m_expression != expression) {
         m_expression = expression;
         emit expressionChanged(QString());
     }
@@ -174,11 +193,15 @@ void PropertyEditorValue::setExpression(const QString &expression)
 
 QString PropertyEditorValue::valueToString() const
 {
+    NanotraceHR::Tracer tracer{"property editor value value to string", category()};
+
     return value().toString();
 }
 
 bool PropertyEditorValue::isInSubState() const
 {
+    NanotraceHR::Tracer tracer{"property editor value is in sub state", category()};
+
     const QmlObjectNode objectNode(modelNode());
     return objectNode.isValid() && objectNode.currentState().isValid()
            && objectNode.propertyAffectedByCurrentState(name());
@@ -186,42 +209,58 @@ bool PropertyEditorValue::isInSubState() const
 
 bool PropertyEditorValue::isBound() const
 {
+    NanotraceHR::Tracer tracer{"property editor value is bound", category()};
+
     const QmlObjectNode objectNode(modelNode());
     return m_forceBound || (objectNode.isValid() && objectNode.hasBindingProperty(name()));
 }
 
 bool PropertyEditorValue::isInModel() const
 {
+    NanotraceHR::Tracer tracer{"property editor value is in model", category()};
+
     return modelNode().hasProperty(name());
 }
 
 PropertyNameView PropertyEditorValue::name() const
 {
+    NanotraceHR::Tracer tracer{"property editor value name", category()};
+
     return m_name;
 }
 
 QString PropertyEditorValue::nameAsQString() const
 {
+    NanotraceHR::Tracer tracer{"property editor value name as QString", category()};
+
     return QString::fromUtf8(m_name);
 }
 
 void PropertyEditorValue::setName(PropertyNameView name)
 {
+    NanotraceHR::Tracer tracer{"property editor value set name", category()};
+
     m_name = name;
 }
 
 bool PropertyEditorValue::isValid() const
 {
+    NanotraceHR::Tracer tracer{"property editor value is valid", category()};
+
     return m_isValid;
 }
 
 void PropertyEditorValue::setIsValid(bool valid)
 {
+    NanotraceHR::Tracer tracer{"property editor value set is valid", category()};
+
     m_isValid = valid;
 }
 
 bool PropertyEditorValue::isTranslated() const
 {
+    NanotraceHR::Tracer tracer{"property editor value is translated", category()};
+
     if (modelNode().isValid()) {
         auto metaInfo = modelNode().metaInfo();
         auto isString = metaInfo.isValid() && metaInfo.hasProperty(name())
@@ -249,11 +288,15 @@ bool PropertyEditorValue::isTranslated() const
 
 bool PropertyEditorValue::hasActiveDrag() const
 {
+    NanotraceHR::Tracer tracer{"property editor value has active drag", category()};
+
     return m_hasActiveDrag;
 }
 
 void PropertyEditorValue::setHasActiveDrag(bool val)
 {
+    NanotraceHR::Tracer tracer{"property editor value set has active drag", category()};
+
     if (m_hasActiveDrag != val) {
         m_hasActiveDrag = val;
         emit hasActiveDragChanged();
@@ -272,6 +315,8 @@ static bool isAllowedSubclassType(const QString &type, const NodeMetaInfo &metaI
 
 bool PropertyEditorValue::isAvailable() const
 {
+    NanotraceHR::Tracer tracer{"property editor value is available", category()};
+
     if (!m_modelNode.isValid())
         return true;
 
@@ -322,11 +367,15 @@ bool PropertyEditorValue::isAvailable() const
 
 ModelNode PropertyEditorValue::modelNode() const
 {
+    NanotraceHR::Tracer tracer{"property editor value model node", category()};
+
     return m_modelNode;
 }
 
 void PropertyEditorValue::setModelNode(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"property editor value set model node", category()};
+
     if (modelNode != m_modelNode) {
         m_modelNode = modelNode;
         m_complexNode->update();
@@ -336,11 +385,15 @@ void PropertyEditorValue::setModelNode(const ModelNode &modelNode)
 
 PropertyEditorNodeWrapper *PropertyEditorValue::complexNode()
 {
+    NanotraceHR::Tracer tracer{"property editor value complex node", category()};
+
     return m_complexNode;
 }
 
 void PropertyEditorValue::resetValue()
 {
+    NanotraceHR::Tracer tracer{"property editor value reset value", category()};
+
     if (m_value.isValid() || !m_expression.isEmpty() || isBound()) {
         m_value = QVariant();
         m_isBound = false;
@@ -353,6 +406,8 @@ void PropertyEditorValue::resetValue()
 
 void PropertyEditorValue::setEnumeration(const QString &scope, const QString &name)
 {
+    NanotraceHR::Tracer tracer{"property editor value set enumeration", category()};
+
     Enumeration newEnumeration(scope.toUtf8(), name.toUtf8());
 
     setValueWithEmit(QVariant::fromValue(newEnumeration));
@@ -360,11 +415,15 @@ void PropertyEditorValue::setEnumeration(const QString &scope, const QString &na
 
 void PropertyEditorValue::exportPropertyAsAlias()
 {
+    NanotraceHR::Tracer tracer{"property editor value export property as alias", category()};
+
     emit exportPropertyAsAliasRequested(nameAsQString());
 }
 
 bool PropertyEditorValue::hasPropertyAlias() const
 {
+    NanotraceHR::Tracer tracer{"property editor value has property alias", category()};
+
     if (!modelNode().isValid())
         return false;
 
@@ -387,16 +446,22 @@ bool PropertyEditorValue::hasPropertyAlias() const
 
 bool PropertyEditorValue::isAttachedProperty() const
 {
+    NanotraceHR::Tracer tracer{"property editor value is attached property", category()};
+
     return !nameAsQString().isEmpty() && nameAsQString().at(0).isUpper();
 }
 
 void PropertyEditorValue::removeAliasExport()
 {
+    NanotraceHR::Tracer tracer{"property editor value remove alias export", category()};
+
     emit removeAliasExportRequested(nameAsQString());
 }
 
 QString PropertyEditorValue::getTranslationContext() const
 {
+    NanotraceHR::Tracer tracer{"property editor value get translation context", category()};
+
     if (modelNode().isValid()) {
         if (auto metaInfo = modelNode().metaInfo();
             metaInfo.isValid() && metaInfo.hasProperty(name())
@@ -416,7 +481,10 @@ QString PropertyEditorValue::getTranslationContext() const
 
 bool PropertyEditorValue::isIdList() const
 {
-    if (modelNode().isValid() && modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name())) {
+    NanotraceHR::Tracer tracer{"property editor value is id list", category()};
+
+    if (modelNode().isValid() && modelNode().metaInfo().isValid()
+        && modelNode().metaInfo().hasProperty(name())) {
         const QmlObjectNode objectNode(modelNode());
         if (objectNode.hasBindingProperty(name())) {
             static const QRegularExpression rx(QRegularExpression::anchoredPattern(
@@ -436,11 +504,15 @@ bool PropertyEditorValue::isIdList() const
 
 QStringList PropertyEditorValue::getExpressionAsList() const
 {
+    NanotraceHR::Tracer tracer{"property editor value get expression as list", category()};
+
     return generateStringList(expression());
 }
 
 QVector<double> PropertyEditorValue::getExpressionAsVector() const
 {
+    NanotraceHR::Tracer tracer{"property editor value get expression as vector", category()};
+
     const QRegularExpression rx(
         QRegularExpression::anchoredPattern("Qt.vector(2|3|4)d\\((.*?)\\)"));
     const QRegularExpressionMatch match = rx.match(expression());
@@ -469,6 +541,8 @@ QVector<double> PropertyEditorValue::getExpressionAsVector() const
 
 bool PropertyEditorValue::idListAdd(const QString &value)
 {
+    NanotraceHR::Tracer tracer{"property editor value id list add", category()};
+
     const QmlObjectNode objectNode(modelNode());
     if (!isIdList() && objectNode.isValid() && objectNode.hasProperty(name()))
         return false;
@@ -487,6 +561,8 @@ bool PropertyEditorValue::idListAdd(const QString &value)
 
 bool PropertyEditorValue::idListRemove(int idx)
 {
+    NanotraceHR::Tracer tracer{"property editor value id list remove", category()};
+
     QTC_ASSERT(isIdList(), return false);
 
     auto stringList = generateStringList(expression());
@@ -505,6 +581,8 @@ bool PropertyEditorValue::idListRemove(int idx)
 
 bool PropertyEditorValue::idListReplace(int idx, const QString &value)
 {
+    NanotraceHR::Tracer tracer{"property editor value id list replace", category()};
+
     QTC_ASSERT(isIdList(), return false);
 
     static const QRegularExpression rx(QRegularExpression::anchoredPattern(
@@ -525,6 +603,8 @@ bool PropertyEditorValue::idListReplace(int idx, const QString &value)
 
 void PropertyEditorValue::commitDrop(const QString &dropData)
 {
+    NanotraceHR::Tracer tracer{"property editor value commit drop", category()};
+
     if (m_modelNode.metaInfo().property(m_name).propertyType().isQtQuick3DTexture()) {
         m_modelNode.view()->executeInTransaction(__FUNCTION__, [&] {
             ModelNode texture = m_modelNode.view()->modelNodeForInternalId(dropData.toInt());
@@ -548,6 +628,8 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
 
 void PropertyEditorValue::editMaterial(int idx)
 {
+    NanotraceHR::Tracer tracer{"property editor value edit material", category()};
+
     if (ModelNode material = Utils3D::getMaterialOfModel(m_modelNode, idx)) {
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Properties", true);
         material.selectNode();
@@ -556,6 +638,8 @@ void PropertyEditorValue::editMaterial(int idx)
 
 void PropertyEditorValue::setForceBound(bool b)
 {
+    NanotraceHR::Tracer tracer{"property editor value set force bound", category()};
+
     if (m_forceBound == b)
         return;
     m_forceBound = b;
@@ -565,6 +649,8 @@ void PropertyEditorValue::setForceBound(bool b)
 
 void PropertyEditorValue::insertKeyframe()
 {
+    NanotraceHR::Tracer tracer{"property editor value insert keyframe", category()};
+
     if (!m_modelNode.isValid())
         return;
 
@@ -582,6 +668,8 @@ void PropertyEditorValue::insertKeyframe()
 
 QStringList PropertyEditorValue::generateStringList(const QString &string) const
 {
+    NanotraceHR::Tracer tracer{"property editor value generate string list", category()};
+
     QString copy = string;
     copy = copy.remove("[").remove("]");
 
@@ -594,6 +682,8 @@ QStringList PropertyEditorValue::generateStringList(const QString &string) const
 
 QString PropertyEditorValue::generateString(const QStringList &stringList) const
 {
+    NanotraceHR::Tracer tracer{"property editor value generate string", category()};
+
     if (stringList.size() > 1)
         return "[" + stringList.join(",") + "]";
     else if (stringList.isEmpty())
@@ -604,6 +694,8 @@ QString PropertyEditorValue::generateString(const QStringList &stringList) const
 
 void PropertyEditorValue::registerDeclarativeTypes()
 {
+    NanotraceHR::Tracer tracer{"property editor value register declarative types", category()};
+
     qmlRegisterType<PropertyEditorValue>("HelperWidgets", 2, 0, "PropertyEditorValue");
     qmlRegisterType<PropertyEditorNodeWrapper>("HelperWidgets", 2, 0, "PropertyEditorNodeWrapper");
     qmlRegisterType<QQmlPropertyMap>("HelperWidgets", 2, 0, "QQmlPropertyMap");
@@ -613,6 +705,8 @@ PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue *parent
     : QObject(parent),
       m_valuesPropertyMap(this)
 {
+    NanotraceHR::Tracer tracer{"property editor value node wrapper constructor", category()};
+
     m_editorValue = parent;
     connect(m_editorValue, &PropertyEditorValue::modelNodeChanged, this, &PropertyEditorNodeWrapper::update);
 }
@@ -620,35 +714,48 @@ PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue *parent
 PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(QObject *parent)
     : QObject(parent)
 {
+    NanotraceHR::Tracer tracer{"property editor node wrapper constructor", category()};
 }
 
 bool PropertyEditorNodeWrapper::exists() const
 {
+    NanotraceHR::Tracer tracer{"property editor node wrapper exists", category()};
+
     return m_editorValue && m_editorValue->modelNode().isValid() && m_modelNode.isValid();
 }
 
 QString PropertyEditorNodeWrapper::type() const
 {
+    NanotraceHR::Tracer tracer{"property editor node wrapper type", category()};
+
     return m_modelNode.simplifiedTypeName();
 }
 
 ModelNode PropertyEditorNodeWrapper::parentModelNode() const
 {
-    return  m_editorValue->modelNode();
+    NanotraceHR::Tracer tracer{"property editor node wrapper parent model node", category()};
+
+    return m_editorValue->modelNode();
 }
 
 PropertyNameView PropertyEditorNodeWrapper::propertyName() const
 {
+    NanotraceHR::Tracer tracer{"property editor node wrapper property name", category()};
+
     return m_editorValue->name();
 }
 
 QQmlPropertyMap *PropertyEditorNodeWrapper::properties()
 {
+    NanotraceHR::Tracer tracer{"property editor node wrapper properties", category()};
+
     return &m_valuesPropertyMap;
 }
 
 void PropertyEditorNodeWrapper::add(const QString &type)
 {
+    NanotraceHR::Tracer tracer{"property editor node wrapper add", category()};
+
     TypeName propertyType = type.toUtf8();
 
     if ((m_editorValue && m_editorValue->modelNode().isValid())) {
@@ -683,6 +790,8 @@ void PropertyEditorNodeWrapper::add(const QString &type)
 
 void PropertyEditorNodeWrapper::remove()
 {
+    NanotraceHR::Tracer tracer{"property editor node wrapper remove", category()};
+
     if ((m_editorValue && m_editorValue->modelNode().isValid())) {
         QmlObjectNode(m_modelNode).destroy();
         m_editorValue->modelNode().removeProperty(m_editorValue->name());
@@ -701,6 +810,8 @@ void PropertyEditorNodeWrapper::remove()
 
 void PropertyEditorNodeWrapper::changeValue(const QString &propertyName)
 {
+    NanotraceHR::Tracer tracer{"property editor node wrapper change value", category()};
+
     const PropertyName name = propertyName.toUtf8();
 
     if (name.isNull())
@@ -718,6 +829,8 @@ void PropertyEditorNodeWrapper::changeValue(const QString &propertyName)
 
 void PropertyEditorNodeWrapper::setup()
 {
+    NanotraceHR::Tracer tracer{"property editor node wrapper setup", category()};
+
     Q_ASSERT(m_editorValue);
     Q_ASSERT(m_editorValue->modelNode().isValid());
 
@@ -748,6 +861,8 @@ void PropertyEditorNodeWrapper::setup()
 
 void PropertyEditorNodeWrapper::update()
 {
+    NanotraceHR::Tracer tracer{"property editor node wrapper update", category()};
+
     if (!m_editorValue || !m_editorValue->modelNode().isValid())
         return;
 
@@ -763,6 +878,8 @@ void PropertyEditorNodeWrapper::update()
 
 QQmlPropertyMap *PropertyEditorSubSelectionWrapper::properties()
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper properties", category()};
+
     return &m_valuesPropertyMap;
 }
 
@@ -778,6 +895,9 @@ void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjec
                                                                   PropertyNameView name,
                                                                   const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper create property editor value",
+                               category()};
+
     Utils::SmallString propertyName = name.toByteArray();
     propertyName.replace('.', '_');
 
@@ -816,6 +936,9 @@ void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjec
 
 void PropertyEditorSubSelectionWrapper::exportPropertyAsAlias(const QString &name)
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper export property as alias",
+                               category()};
+
     if (name.isNull())
         return;
 
@@ -831,6 +954,9 @@ void PropertyEditorSubSelectionWrapper::exportPropertyAsAlias(const QString &nam
 
 void PropertyEditorSubSelectionWrapper::removeAliasExport(const QString &name)
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper remove alias export",
+                               category()};
+
     if (name.isNull())
         return;
 
@@ -846,12 +972,16 @@ void PropertyEditorSubSelectionWrapper::removeAliasExport(const QString &name)
 
 bool PropertyEditorSubSelectionWrapper::locked() const
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper locked", category()};
+
     return m_locked;
 }
 
 PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const ModelNode &modelNode)
     : m_modelNode(modelNode)
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper constructor", category()};
+
     QmlObjectNode qmlObjectNode(modelNode);
 
     QTC_ASSERT(qmlObjectNode.isValid(), return );
@@ -867,11 +997,15 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
 
 ModelNode PropertyEditorSubSelectionWrapper::modelNode() const
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper model node", category()};
+
     return m_modelNode;
 }
 
 void PropertyEditorSubSelectionWrapper::deleteModelNode()
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper delete model node", category()};
+
     QmlObjectNode objectNode(m_modelNode);
 
     view()->executeInTransaction("PropertyEditorView::changeExpression", [&] {
@@ -882,7 +1016,9 @@ void PropertyEditorSubSelectionWrapper::deleteModelNode()
 
 void PropertyEditorSubSelectionWrapper::changeValue(const QString &name)
 {
-    QTC_ASSERT(m_modelNode.isValid(), return );
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper change value", category()};
+
+    QTC_ASSERT(m_modelNode.isValid(), return);
 
     if (name.isNull())
         return;
@@ -919,6 +1055,9 @@ void PropertyEditorSubSelectionWrapper::changeValue(const QString &name)
 
 void PropertyEditorSubSelectionWrapper::setValueFromModel(PropertyNameView name, const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper set value from model",
+                               category()};
+
     m_locked = true;
 
     QmlObjectNode qmlObjectNode(m_modelNode);
@@ -934,6 +1073,8 @@ void PropertyEditorSubSelectionWrapper::setValueFromModel(PropertyNameView name,
 
 void PropertyEditorSubSelectionWrapper::resetValue(PropertyNameView name)
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper reset value", category()};
+
     auto propertyValue = qobject_cast<PropertyEditorValue *>(
         variantToQObject(m_valuesPropertyMap.value(QString::fromUtf8(name))));
     if (propertyValue)
@@ -942,12 +1083,17 @@ void PropertyEditorSubSelectionWrapper::resetValue(PropertyNameView name)
 
 bool PropertyEditorSubSelectionWrapper::isRelevantModelNode(const ModelNode &modelNode) const
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper is relevant model node",
+                               category()};
+
     QmlObjectNode objectNode(m_modelNode);
     return modelNode == m_modelNode || objectNode.propertyChangeForCurrentState() == modelNode;
 }
 
 void PropertyEditorSubSelectionWrapper::changeExpression(const QString &propertyName)
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper change expression", category()};
+
     PropertyName name = propertyName.toUtf8();
 
     QTC_ASSERT(m_modelNode.isValid(), return );
@@ -981,6 +1127,9 @@ void PropertyEditorSubSelectionWrapper::changeExpression(const QString &property
 
 void PropertyEditorSubSelectionWrapper::removePropertyFromModel(PropertyNameView propertyName)
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper remove property from model",
+                               category()};
+
     QTC_ASSERT(m_modelNode.isValid(), return );
 
     m_locked = true;
@@ -1000,6 +1149,9 @@ void PropertyEditorSubSelectionWrapper::removePropertyFromModel(PropertyNameView
 void PropertyEditorSubSelectionWrapper::commitVariantValueToModel(PropertyNameView propertyName,
                                                                   const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{
+        "property editor sub selection wrapper commit variant value to model", category()};
+
     QTC_ASSERT(m_modelNode.isValid(), return );
 
     try {
@@ -1016,6 +1168,7 @@ void PropertyEditorSubSelectionWrapper::commitVariantValueToModel(PropertyNameVi
 
 AbstractView *PropertyEditorSubSelectionWrapper::view() const
 {
+    NanotraceHR::Tracer tracer{"property editor sub selection wrapper view", category()};
     QTC_CHECK(m_modelNode.isValid());
 
     return m_modelNode.view();

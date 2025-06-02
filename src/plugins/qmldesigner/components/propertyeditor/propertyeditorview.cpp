@@ -4,6 +4,7 @@
 #include "propertyeditorview.h"
 
 #include "propertyeditorqmlbackend.h"
+#include "propertyeditortracing.h"
 #include "propertyeditortransaction.h"
 #include "propertyeditorvalue.h"
 #include "propertyeditorwidget.h"
@@ -50,6 +51,8 @@ enum {
 
 namespace QmlDesigner {
 
+static auto category = PropertyEditorTracing::category;
+
 constexpr QStringView quick3dImport{u"QtQuick3D"};
 
 static bool propertyIsAttachedLayoutProperty(PropertyNameView propertyName)
@@ -80,6 +83,8 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
     , m_propertyComponentGenerator{PropertyEditorQmlBackend::propertyEditorResourcesPath(), model()}
     , m_locked(false)
 {
+    NanotraceHR::Tracer tracer{"property editor view constructor", category()};
+
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
     if (Utils::HostOsInfo::isMacHost())
@@ -101,11 +106,15 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
 
 PropertyEditorView::~PropertyEditorView()
 {
+    NanotraceHR::Tracer tracer{"property editor view destructor", category()};
+
     qDeleteAll(m_qmlBackendHash);
 }
 
 void PropertyEditorView::changeValue(const QString &name)
 {
+    NanotraceHR::Tracer tracer{"property editor view change value", category()};
+
     PropertyName propertyName = name.toUtf8();
 
     if (propertyName.isNull())
@@ -231,6 +240,8 @@ static bool isTrueFalseLiteral(const QString &expression)
 
 void PropertyEditorView::changeExpression(const QString &propertyName)
 {
+    NanotraceHR::Tracer tracer{"property editor view change expression", category()};
+
     PropertyName name = propertyName.toUtf8();
 
     if (name.isNull())
@@ -268,6 +279,8 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
 
 void PropertyEditorView::exportPropertyAsAlias(const QString &name)
 {
+    NanotraceHR::Tracer tracer{"property editor view export property as alias", category()};
+
     if (name.isNull())
         return;
 
@@ -283,6 +296,8 @@ void PropertyEditorView::exportPropertyAsAlias(const QString &name)
 
 void PropertyEditorView::removeAliasExport(const QString &name)
 {
+    NanotraceHR::Tracer tracer{"property editor view remove alias export", category()};
+
     if (name.isNull())
         return;
 
@@ -298,21 +313,30 @@ void PropertyEditorView::removeAliasExport(const QString &name)
 
 bool PropertyEditorView::locked() const
 {
+    NanotraceHR::Tracer tracer{"property editor view locked", category()};
+
     return m_locked;
 }
 
 void PropertyEditorView::currentTimelineChanged(const ModelNode &)
 {
-    m_qmlBackEndForCurrentType->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
+    NanotraceHR::Tracer tracer{"property editor view current timeline changed", category()};
+
+    m_qmlBackEndForCurrentType->contextObject()->setHasActiveTimeline(
+        QmlTimeline::hasActiveTimeline(this));
 }
 
 void PropertyEditorView::refreshMetaInfos(const TypeIds &deletedTypeIds)
 {
+    NanotraceHR::Tracer tracer{"property editor view refresh meta infos", category()};
+
     m_propertyComponentGenerator.refreshMetaInfos(deletedTypeIds);
 }
 
 DynamicPropertiesModel *PropertyEditorView::dynamicPropertiesModel() const
 {
+    NanotraceHR::Tracer tracer{"property editor view dynamic properties model", category()};
+
     return m_dynamicPropertiesModel.get();
 }
 
@@ -320,6 +344,8 @@ void PropertyEditorView::setExpressionOnObjectNode(const QmlObjectNode &constObj
                                                    PropertyNameView name,
                                                    const QString &newExpression)
 {
+    NanotraceHR::Tracer tracer{"property editor view set expression on object node", category()};
+
     auto qmlObjectNode = constObjectNode;
     auto expression = newExpression;
     if (auto property = qmlObjectNode.modelNode().metaInfo().property(name)) {
@@ -374,7 +400,9 @@ void PropertyEditorView::setExpressionOnObjectNode(const QmlObjectNode &constObj
 
 void PropertyEditorView::generateAliasForProperty(const ModelNode &modelNode, const QString &name)
 {
-    QTC_ASSERT(modelNode.isValid(), return );
+    NanotraceHR::Tracer tracer{"property editor view generate alias for property", category()};
+
+    QTC_ASSERT(modelNode.isValid(), return);
 
     auto view = modelNode.view();
 
@@ -400,7 +428,9 @@ void PropertyEditorView::generateAliasForProperty(const ModelNode &modelNode, co
 
 void PropertyEditorView::removeAliasForProperty(const ModelNode &modelNode, const QString &propertyName)
 {
-    QTC_ASSERT(modelNode.isValid(), return );
+    NanotraceHR::Tracer tracer{"property editor view remove alias for property", category()};
+
+    QTC_ASSERT(modelNode.isValid(), return);
 
     auto view = modelNode.view();
 
@@ -420,6 +450,8 @@ void PropertyEditorView::removeAliasForProperty(const ModelNode &modelNode, cons
 
 PropertyEditorView *PropertyEditorView::instance()
 {
+    NanotraceHR::Tracer tracer{"property editor view instance", category()};
+
     static PropertyEditorView *s_instance = nullptr;
 
     if (s_instance)
@@ -438,6 +470,8 @@ PropertyEditorView *PropertyEditorView::instance()
 
 NodeMetaInfo PropertyEditorView::findCommonAncestor(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"property editor view find common ancestor", category()};
+
     if (!node.isValid())
         return node.metaInfo();
 
@@ -458,6 +492,8 @@ NodeMetaInfo PropertyEditorView::findCommonAncestor(const ModelNode &node)
 
 void PropertyEditorView::updateSize()
 {
+    NanotraceHR::Tracer tracer{"property editor view update size", category()};
+
     if (!m_qmlBackEndForCurrentType)
         return;
     auto frame = m_qmlBackEndForCurrentType->widget()->findChild<QWidget *>("propertyEditorFrame");
@@ -467,6 +503,8 @@ void PropertyEditorView::updateSize()
 
 void PropertyEditorView::resetView()
 {
+    NanotraceHR::Tracer tracer{"property editor view reset view", category()};
+
     if (model() == nullptr)
         return;
 
@@ -498,6 +536,8 @@ void PropertyEditorView::resetView()
 
 void PropertyEditorView::setIsSelectionLocked(bool locked)
 {
+    NanotraceHR::Tracer tracer{"property editor view set is selection locked", category()};
+
     if (m_isSelectionLocked != locked) {
         m_isSelectionLocked = locked;
         for (PropertyEditorQmlBackend *qmlBackend : std::as_const(m_qmlBackendHash))
@@ -555,6 +595,8 @@ PropertyEditorQmlBackend *getQmlBackend(QHash<QString, PropertyEditorQmlBackend 
                                         PropertyEditorWidget *stackedWidget,
                                         PropertyEditorView *propertyEditorView)
 {
+    NanotraceHR::Tracer tracer{"property editor view get Qml Backend", category()};
+
     auto qmlFileName = qmlFileUrl.toString();
     PropertyEditorQmlBackend *currentQmlBackend = qmlBackendHash.value(qmlFileName);
 
@@ -649,20 +691,24 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
 
 void PropertyEditorView::handleToolBarAction(int action)
 {
+    NanotraceHR::Tracer tracer{"property editor view handle toolbar action", category()};
+
     switch (action) {
-        case PropertyEditorContextObject::SelectionLock: {
-            setIsSelectionLocked(true);
-            break;
-        }
+    case PropertyEditorContextObject::SelectionLock: {
+        setIsSelectionLocked(true);
+        break;
+    }
         case PropertyEditorContextObject::SelectionUnlock: {
             setIsSelectionLocked(false);
             break;
         }
-    }
+        }
 }
 
 void PropertyEditorView::setupQmlBackend()
 {
+    NanotraceHR::Tracer tracer{"property editor view setup Qml Backend", category()};
+
 #ifdef QDS_USE_PROJECTSTORAGE
     const NodeMetaInfo commonAncestor = findCommonAncestor(activeNode());
     auto selfAndPrototypes = commonAncestor.selfAndPrototypes();
@@ -740,6 +786,8 @@ void PropertyEditorView::setupQmlBackend()
 
 void PropertyEditorView::commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"property editor view commit variant value to model", category()};
+
     m_locked = true;
     try {
         RewriterTransaction transaction = beginRewriterTransaction("PropertyEditorView::commitVariantValueToMode");
@@ -759,6 +807,8 @@ void PropertyEditorView::commitVariantValueToModel(PropertyNameView propertyName
 
 void PropertyEditorView::commitAuxValueToModel(PropertyNameView propertyName, const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"property editor view commit aux value to model", category()};
+
     m_locked = true;
 
     PropertyNameView name = propertyName;
@@ -782,6 +832,8 @@ void PropertyEditorView::commitAuxValueToModel(PropertyNameView propertyName, co
 
 void PropertyEditorView::removePropertyFromModel(PropertyNameView propertyName)
 {
+    NanotraceHR::Tracer tracer{"property editor view remove property from model", category()};
+
     m_locked = true;
     try {
         RewriterTransaction transaction = beginRewriterTransaction("PropertyEditorView::removePropertyFromModel");
@@ -802,22 +854,30 @@ void PropertyEditorView::removePropertyFromModel(PropertyNameView propertyName)
 
 bool PropertyEditorView::noValidSelection() const
 {
+    NanotraceHR::Tracer tracer{"property editor view no valid selection", category()};
+
     QTC_ASSERT(m_qmlBackEndForCurrentType, return true);
     return !QmlObjectNode::isValidQmlObjectNode(activeNode());
 }
 
 ModelNode PropertyEditorView::activeNode() const
 {
+    NanotraceHR::Tracer tracer{"property editor view active node", category()};
+
     return m_activeNode;
 }
 
 void PropertyEditorView::setActiveNode(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"property editor view set active node", category()};
+
     m_activeNode = node;
 }
 
 QList<ModelNode> PropertyEditorView::currentNodes() const
 {
+    NanotraceHR::Tracer tracer{"property editor view current nodes", category()};
+
     if (m_isSelectionLocked)
         return {m_activeNode};
 
@@ -827,6 +887,8 @@ QList<ModelNode> PropertyEditorView::currentNodes() const
 void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &,
                                           const QList<ModelNode> &)
 {
+    NanotraceHR::Tracer tracer{"property editor view selected nodes changed", category()};
+
     if (!m_isSelectionLocked)
         select();
 
@@ -837,6 +899,8 @@ void PropertyEditorView::selectedNodesChanged(const QList<ModelNode> &,
 
 bool PropertyEditorView::isNodeOrChildSelected(const ModelNode &node) const
 {
+    NanotraceHR::Tracer tracer{"property editor view is node or child selected", category()};
+
     if (activeNode().isValid() && node.isValid()) {
         const ModelNodes &nodeList = node.allSubModelNodesAndThisNode();
         return nodeList.contains(activeNode());
@@ -846,12 +910,16 @@ bool PropertyEditorView::isNodeOrChildSelected(const ModelNode &node) const
 
 void PropertyEditorView::resetSelectionLocked()
 {
+    NanotraceHR::Tracer tracer{"property editor view reset selection locked", category()};
+
     if (m_isSelectionLocked)
         setIsSelectionLocked(false);
 }
 
 void PropertyEditorView::resetIfNodeIsRemoved(const ModelNode &removedNode)
 {
+    NanotraceHR::Tracer tracer{"property editor view reset if node is removed", category()};
+
     if (isNodeOrChildSelected(removedNode)) {
         resetSelectionLocked();
         select();
@@ -860,6 +928,8 @@ void PropertyEditorView::resetIfNodeIsRemoved(const ModelNode &removedNode)
 
 void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
+    NanotraceHR::Tracer tracer{"property editor view node about to be removed", category()};
+
     resetIfNodeIsRemoved(removedNode);
 
     const ModelNodes &allRemovedNodes = removedNode.allSubModelNodesAndThisNode();
@@ -880,6 +950,8 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
 void PropertyEditorView::nodeRemoved(const ModelNode &, const NodeAbstractProperty &, PropertyChangeFlags)
 {
+    NanotraceHR::Tracer tracer{"property editor view node removed", category()};
+
     if (m_qmlBackEndForCurrentType && m_textureAboutToBeRemoved)
         m_qmlBackEndForCurrentType->refreshBackendModel();
 
@@ -888,6 +960,8 @@ void PropertyEditorView::nodeRemoved(const ModelNode &, const NodeAbstractProper
 
 void PropertyEditorView::modelAttached(Model *model)
 {
+    NanotraceHR::Tracer tracer{"property editor view model attached", category()};
+
     AbstractView::modelAttached(model);
 
     if constexpr (useProjectStorage())
@@ -902,6 +976,8 @@ void PropertyEditorView::modelAttached(Model *model)
 
 void PropertyEditorView::modelAboutToBeDetached(Model *model)
 {
+    NanotraceHR::Tracer tracer{"property editor view model about to be detached", category()};
+
     AbstractView::modelAboutToBeDetached(model);
     m_qmlBackEndForCurrentType->propertyEditorTransaction()->end();
 
@@ -911,6 +987,8 @@ void PropertyEditorView::modelAboutToBeDetached(Model *model)
 
 void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
+    NanotraceHR::Tracer tracer{"property editor view properties removed", category()};
+
     if (noValidSelection())
         return;
 
@@ -985,12 +1063,16 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
 
 void PropertyEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
 {
+    NanotraceHR::Tracer tracer{"property editor view properties about to be removed", category()};
+
     for (const auto &property : propertyList)
         m_dynamicPropertiesModel->removeItem(property);
 }
 
 void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
+    NanotraceHR::Tracer tracer{"property editor view variant properties changed", category()};
+
     if (noValidSelection())
         return;
 
@@ -1042,6 +1124,8 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
 void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
                                                   PropertyChangeFlags /*propertyChange*/)
 {
+    NanotraceHR::Tracer tracer{"property editor view binding properties changed", category()};
+
     if (noValidSelection())
         return;
 
@@ -1085,6 +1169,8 @@ void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node,
                                               [[maybe_unused]] AuxiliaryDataKeyView key,
                                               const QVariant &data)
 {
+    NanotraceHR::Tracer tracer{"property editor view auxiliary data changed", category()};
+
     if (noValidSelection())
         return;
 
@@ -1114,12 +1200,17 @@ void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node,
 void PropertyEditorView::signalDeclarationPropertiesChanged(
     const QVector<SignalDeclarationProperty> &propertyList, PropertyChangeFlags /* propertyChange */)
 {
+    NanotraceHR::Tracer tracer{"property editor view signal declaration properties changed",
+                               category()};
+
     for (const SignalDeclarationProperty &property : propertyList)
         m_dynamicPropertiesModel->updateItem(property);
 }
 
 void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
 {
+    NanotraceHR::Tracer tracer{"property editor view instance informations changed", category()};
+
     if (noValidSelection())
         return;
 
@@ -1133,6 +1224,8 @@ void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode,
 
 void PropertyEditorView::nodeIdChanged(const ModelNode &node, const QString &newId, const QString &oldId)
 {
+    NanotraceHR::Tracer tracer{"property editor view node id changed", category()};
+
     if (noValidSelection())
         return;
 
@@ -1156,6 +1249,8 @@ void PropertyEditorView::nodeIdChanged(const ModelNode &node, const QString &new
 
 void PropertyEditorView::select()
 {
+    NanotraceHR::Tracer tracer{"property editor view select", category()};
+
     if (m_qmlBackEndForCurrentType)
         m_qmlBackEndForCurrentType->emitSelectionToBeChanged();
 
@@ -1164,6 +1259,8 @@ void PropertyEditorView::select()
 
 void PropertyEditorView::setActiveNodeToSelection()
 {
+    NanotraceHR::Tracer tracer{"property editor view set active node to selection", category()};
+
     const auto selectedNodeList = currentNodes();
 
     setActiveNode(ModelNode());
@@ -1179,6 +1276,8 @@ void PropertyEditorView::setActiveNodeToSelection()
 
 void PropertyEditorView::forceSelection(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"property editor view force selection", category()};
+
     if (node == activeNode())
         return;
 
@@ -1191,11 +1290,15 @@ void PropertyEditorView::forceSelection(const ModelNode &node)
 
 bool PropertyEditorView::hasWidget() const
 {
+    NanotraceHR::Tracer tracer{"property editor view has widget", category()};
+
     return true;
 }
 
 WidgetInfo PropertyEditorView::widgetInfo()
 {
+    NanotraceHR::Tracer tracer{"property editor view widget info", category()};
+
     return createWidgetInfo(m_stackedWidget,
                             QStringLiteral("Properties"),
                             WidgetInfo::RightPane,
@@ -1205,6 +1308,8 @@ WidgetInfo PropertyEditorView::widgetInfo()
 
 void PropertyEditorView::currentStateChanged(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"property editor view current state changed", category()};
+
     QmlModelState newQmlModelState(node);
     Q_ASSERT(newQmlModelState.isValid());
     if (debug)
@@ -1214,6 +1319,8 @@ void PropertyEditorView::currentStateChanged(const ModelNode &node)
 
 void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList)
 {
+    NanotraceHR::Tracer tracer{"property editor view instance property changed", category()};
+
     if (!activeNode().isValid())
         return;
 
@@ -1251,13 +1358,17 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
 
 void PropertyEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
+    NanotraceHR::Tracer tracer{"property editor view root node type changed", category()};
+
     resetView();
 }
 
 void PropertyEditorView::nodeTypeChanged(const ModelNode &node, const TypeName &, int, int)
 {
-     if (node == activeNode())
-         resetView();
+    NanotraceHR::Tracer tracer{"property editor view node type changed", category()};
+
+    if (node == activeNode())
+        resetView();
 }
 
 void PropertyEditorView::nodeReparented(const ModelNode &node,
@@ -1265,6 +1376,8 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
                                         const NodeAbstractProperty & /*oldPropertyParent*/,
                                         AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
+    NanotraceHR::Tracer tracer{"property editor view node reparented", category()};
+
     if (node == activeNode())
         m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(activeNode()));
 
@@ -1285,6 +1398,8 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
 
 void PropertyEditorView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
+    NanotraceHR::Tracer tracer{"property editor view imports changed", category()};
+
     if (!m_qmlBackEndForCurrentType)
         return;
 
@@ -1299,6 +1414,8 @@ void PropertyEditorView::customNotification([[maybe_unused]] const AbstractView 
                                             const QList<ModelNode> &nodeList,
                                             [[maybe_unused]] const QList<QVariant> &data)
 {
+    NanotraceHR::Tracer tracer{"property editor view custom notification", category()};
+
     if (identifier == "force_editing_node") {
         if (!nodeList.isEmpty())
             forceSelection(nodeList.first());
@@ -1309,6 +1426,8 @@ void PropertyEditorView::modelNodePreviewPixmapChanged(const ModelNode &node,
                                                        const QPixmap &pixmap,
                                                        const QByteArray &requestId)
 {
+    NanotraceHR::Tracer tracer{"property editor view model node preview pixmap changed", category()};
+
     if (node != activeNode())
         return;
 
@@ -1318,6 +1437,8 @@ void PropertyEditorView::modelNodePreviewPixmapChanged(const ModelNode &node,
 
 void PropertyEditorView::highlightTextureProperties(bool highlight)
 {
+    NanotraceHR::Tracer tracer{"property editor view highlight texture properties", category()};
+
     NodeMetaInfo metaInfo = activeNode().metaInfo();
     QTC_ASSERT(metaInfo.isValid(), return);
 
@@ -1334,6 +1455,8 @@ void PropertyEditorView::highlightTextureProperties(bool highlight)
 
 void PropertyEditorView::dragStarted(QMimeData *mimeData)
 {
+    NanotraceHR::Tracer tracer{"property editor view drag started", category()};
+
     if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
         const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS))
                                       .split(',')[0];
@@ -1354,6 +1477,8 @@ void PropertyEditorView::dragStarted(QMimeData *mimeData)
 
 void PropertyEditorView::dragEnded()
 {
+    NanotraceHR::Tracer tracer{"property editor view drag ended", category()};
+
     m_qmlBackEndForCurrentType->contextObject()->setActiveDragSuffix("");
     highlightTextureProperties(false);
 }
@@ -1362,6 +1487,8 @@ void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode,
                                   PropertyNameView name,
                                   const QVariant &value)
 {
+    NanotraceHR::Tracer tracer{"property editor view set value", category()};
+
     m_locked = true;
     m_qmlBackEndForCurrentType->setValue(qmlObjectNode, name, value);
     m_locked = false;
@@ -1369,6 +1496,8 @@ void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode,
 
 bool PropertyEditorView::eventFilter(QObject *obj, QEvent *event)
 {
+    NanotraceHR::Tracer tracer{"property editor view event filter", category()};
+
     if (event->type() == QEvent::FocusOut) {
         if (m_qmlBackEndForCurrentType && m_qmlBackEndForCurrentType->widget() == obj)
             QMetaObject::invokeMethod(m_qmlBackEndForCurrentType->widget()->rootObject(), "closeContextMenu");
@@ -1378,6 +1507,8 @@ bool PropertyEditorView::eventFilter(QObject *obj, QEvent *event)
 
 void PropertyEditorView::reloadQml()
 {
+    NanotraceHR::Tracer tracer{"property editor view reload Qml", category()};
+
     m_qmlBackendHash.clear();
     while (QWidget *widget = m_stackedWidget->widget(0)) {
         m_stackedWidget->removeWidget(widget);

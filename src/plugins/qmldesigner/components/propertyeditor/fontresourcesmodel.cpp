@@ -3,6 +3,7 @@
 
 #include "fontresourcesmodel.h"
 #include "fileresourcesmodel.h"
+#include "propertyeditortracing.h"
 
 #include <cmakeprojectmanager/cmakekitaspect.h>
 #include <designermcumanager.h>
@@ -31,6 +32,8 @@
 using namespace Qt::Literals::StringLiterals;
 
 namespace {
+
+auto category = QmlDesigner::PropertyEditorTracing::category;
 
 QStringList makeFontFilesFilterList()
 {
@@ -100,11 +103,15 @@ QSet<QString> systemFonts()
 
 void FontResourcesModel::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"font resources model register declarative type", category()};
+
     qmlRegisterType<FontResourcesModel>("HelperWidgets", 2, 0, "FontResourcesModel");
 }
 
 QVariant FontResourcesModel::modelNodeBackend()
 {
+    NanotraceHR::Tracer tracer{"font resources model model node backend", category()};
+
     return {};
 }
 
@@ -112,16 +119,22 @@ FontResourcesModel::FontResourcesModel(QObject *parent)
     : QObject{parent}
     , m_resourceModel{std::make_unique<FileResourcesModel>()}
 {
+    NanotraceHR::Tracer tracer{"font resources model constructor", category()};
+
     m_resourceModel->setFilter(fontFilesFilterList().join(' '));
 }
 
 void FontResourcesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 {
+    NanotraceHR::Tracer tracer{"file resources model set model node backend", category()};
+
     m_resourceModel->setModelNodeBackend(modelNodeBackend);
 }
 
 QStringList FontResourcesModel::model() const
 {
+    NanotraceHR::Tracer tracer{"file resources model model", category()};
+
     QSet<QString> fonts;
     for (const auto &item : m_resourceModel->model()) {
         fonts.insert(fontFamily(item.absoluteFilePath()));
@@ -137,20 +150,28 @@ QStringList FontResourcesModel::model() const
 
 void FontResourcesModel::refreshModel()
 {
+    NanotraceHR::Tracer tracer{"file resources model refresh model", category()};
+
     m_resourceModel->refreshModel();
 }
 
 void FontResourcesModel::openFileDialog(const QString &customPath)
 {
+    NanotraceHR::Tracer tracer{"file resources model open file dialog", category()};
+
     m_resourceModel->openFileDialog(customPath);
 }
 
 QString FontResourcesModel::resolve(const QString &relative) const
 {
+    NanotraceHR::Tracer tracer{"file resources model resolve", category()};
+
     return m_resourceModel->resolve(relative);
 }
 
 bool FontResourcesModel::isLocal(const QString &path) const
 {
+    NanotraceHR::Tracer tracer{"file resources model is local", category()};
+
     return m_resourceModel->isLocal(path);
 }

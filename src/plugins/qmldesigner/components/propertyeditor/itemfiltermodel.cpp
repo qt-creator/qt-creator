@@ -3,6 +3,8 @@
 
 #include "itemfiltermodel.h"
 
+#include "propertyeditortracing.h"
+
 #include <abstractview.h>
 #include <model.h>
 #include <nodemetainfo.h>
@@ -15,6 +17,8 @@
 
 using namespace QmlDesigner;
 
+static auto category = QmlDesigner::PropertyEditorTracing::category;
+
 ItemFilterModel::ItemFilterModel(QObject *parent)
     : QAbstractListModel(parent)
     , m_typeFilter("QtQuick.Item")
@@ -23,7 +27,9 @@ ItemFilterModel::ItemFilterModel(QObject *parent)
 
 void ItemFilterModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 {
-    auto modelNodeBackendObject = modelNodeBackend.value<QObject*>();
+    NanotraceHR::Tracer tracer{"item filter model set model node backend", category()};
+
+    auto modelNodeBackendObject = modelNodeBackend.value<QObject *>();
 
     const auto backendObjectCasted =
             qobject_cast<const QmlModelNodeProxy *>(modelNodeBackendObject);
@@ -44,6 +50,8 @@ void ItemFilterModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 
 void ItemFilterModel::setTypeFilter(const QString &filter)
 {
+    NanotraceHR::Tracer tracer{"item filter model set type filter", category()};
+
     if (m_typeFilter == filter)
         return;
 
@@ -54,6 +62,8 @@ void ItemFilterModel::setTypeFilter(const QString &filter)
 
 void ItemFilterModel::setSelectionOnly(bool value)
 {
+    NanotraceHR::Tracer tracer{"item filter model set selection only", category()};
+
     if (m_selectionOnly == value)
         return;
 
@@ -64,12 +74,16 @@ void ItemFilterModel::setSelectionOnly(bool value)
 
 void ItemFilterModel::setSelectedItems(const QStringList &selectedItems)
 {
+    NanotraceHR::Tracer tracer{"item filter model set selected items", category()};
+
     m_selectedItems = selectedItems;
     emit selectedItemsChanged();
 }
 
 void ItemFilterModel::setValidationRoles(const QStringList &validationRoles)
 {
+    NanotraceHR::Tracer tracer{"item filter model set validation roles", category()};
+
     auto tmp = validationRoles;
     tmp.removeDuplicates();
 
@@ -83,21 +97,29 @@ void ItemFilterModel::setValidationRoles(const QStringList &validationRoles)
 
 QString ItemFilterModel::typeFilter() const
 {
+    NanotraceHR::Tracer tracer{"item filter model type filter", category()};
+
     return m_typeFilter;
 }
 
 bool ItemFilterModel::selectionOnly() const
 {
+    NanotraceHR::Tracer tracer{"item filter model selection only", category()};
+
     return m_selectionOnly;
 }
 
 QStringList ItemFilterModel::selectedItems() const
 {
+    NanotraceHR::Tracer tracer{"item filter model selected items", category()};
+
     return m_selectedItems;
 }
 
 QStringList ItemFilterModel::itemModel() const
 {
+    NanotraceHR::Tracer tracer{"item filter model item model", category()};
+
     AbstractView *view = m_modelNode.view();
     if (!view || !view->model())
         return {};
@@ -111,16 +133,22 @@ QStringList ItemFilterModel::itemModel() const
 
 QStringList ItemFilterModel::validationRoles() const
 {
+    NanotraceHR::Tracer tracer{"item filter model validation roles", category()};
+
     return m_validationRoles;
 }
 
 QStringList ItemFilterModel::validationItems() const
 {
+    NanotraceHR::Tracer tracer{"item filter model validation items", category()};
+
     return m_validationItems;
 }
 
 QVariant ItemFilterModel::modelItemData(int row) const
 {
+    NanotraceHR::Tracer tracer{"item filter model model item data", category()};
+
     QModelIndex idx = index(row, 0, {});
     if (!idx.isValid())
         return {};
@@ -141,6 +169,8 @@ QVariant ItemFilterModel::modelItemData(int row) const
 
 int ItemFilterModel::indexFromId(const QString &id) const
 {
+    NanotraceHR::Tracer tracer{"item filter model index from id", category()};
+
     AbstractView *view = m_modelNode.view();
     if (!view || !view->model())
         return -1;
@@ -156,16 +186,22 @@ int ItemFilterModel::indexFromId(const QString &id) const
 
 void ItemFilterModel::registerDeclarativeType()
 {
+    NanotraceHR::Tracer tracer{"item filter model register declarative type", category()};
+
     qmlRegisterType<ItemFilterModel>("HelperWidgets", 2, 0, "ItemFilterModel");
 }
 
 int ItemFilterModel::rowCount(const QModelIndex &) const
 {
+    NanotraceHR::Tracer tracer{"item filter model row count", category()};
+
     return m_modelInternalIds.size();
 }
 
 QVariant ItemFilterModel::data(const QModelIndex &index, int role) const
 {
+    NanotraceHR::Tracer tracer{"item filter model data", category()};
+
     if (!index.isValid() || index.row() >= rowCount())
         return {};
 
@@ -188,6 +224,8 @@ QVariant ItemFilterModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> ItemFilterModel::roleNames() const
 {
+    NanotraceHR::Tracer tracer{"item filter model role names", category()};
+
     static QHash<int, QByteArray> roleNames{{IdRole, "id"},
                                             {NameRole, "name"},
                                             {IdAndNameRole, "idAndName"},
@@ -198,11 +236,15 @@ QHash<int, QByteArray> ItemFilterModel::roleNames() const
 
 QVariant ItemFilterModel::modelNodeBackend() const
 {
+    NanotraceHR::Tracer tracer{"item filter model model node backend", category()};
+
     return {};
 }
 
 ModelNode ItemFilterModel::modelNodeForRow(const int &row) const
 {
+    NanotraceHR::Tracer tracer{"item filter model model node for row", category()};
+
     if (row < 0 || row >= m_modelInternalIds.size())
         return {};
 
@@ -215,6 +257,8 @@ ModelNode ItemFilterModel::modelNodeForRow(const int &row) const
 
 void ItemFilterModel::setupModel()
 {
+    NanotraceHR::Tracer tracer{"item filter model setup model", category()};
+
     if (!m_modelNode.isValid() || !m_modelNode.view()->isAttached())
         return;
 
@@ -238,6 +282,8 @@ void ItemFilterModel::setupModel()
 
 void ItemFilterModel::setupValidationItems()
 {
+    NanotraceHR::Tracer tracer{"item filter model setup validation items", category()};
+
     QStringList validationItems;
 
     for (const QString &role : m_validationRoles) {

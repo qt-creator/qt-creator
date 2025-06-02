@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "instanceimageprovider.h"
+#include "propertyeditortracing.h"
 
 #include <abstractview.h>
 #include <QTimer>
+
+static auto category = QmlDesigner::PropertyEditorTracing::category;
 
 static const char INSTANCE_IMAGE_REQUEST_ID[] = "PropertyEditor.InstanceImage";
 
@@ -12,8 +15,10 @@ namespace QmlDesigner {
 
 InstanceImageProvider::InstanceImageProvider()
     : QQuickImageProvider(Pixmap)
-    , m_delayTimer(new QTimer(this))
+    , m_delayTimer(std::make_unique<QTimer>())
 {
+    NanotraceHR::Tracer tracer{"instance image provider constructor", category()};
+
     m_delayTimer->setInterval(500);
     m_delayTimer->setSingleShot(true);
     m_delayTimer->callOnTimeout([this] { requestOne(); });
@@ -30,6 +35,8 @@ InstanceImageProvider::InstanceImageProvider()
  */
 QPixmap InstanceImageProvider::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
+    NanotraceHR::Tracer tracer{"instance image provider request pixmap", category()};
+
     using namespace Qt::StringLiterals;
     static const QPixmap defaultImage = QPixmap::fromImage(
         QImage(":/propertyeditor/images/defaultmaterialpreview.png"));
@@ -69,6 +76,8 @@ bool InstanceImageProvider::feedImage(const ModelNode &node,
                                       const QPixmap &pixmap,
                                       const QByteArray &requestId)
 {
+    NanotraceHR::Tracer tracer{"instance image provider feed image", category()};
+
     if (!requestId.startsWith(INSTANCE_IMAGE_REQUEST_ID))
         return false;
 
@@ -83,16 +92,22 @@ bool InstanceImageProvider::feedImage(const ModelNode &node,
 
 void InstanceImageProvider::setModelNode(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"instance image provider set model node", category()};
+
     m_requestedNode = node;
 }
 
 bool InstanceImageProvider::hasPendingRequest() const
 {
+    NanotraceHR::Tracer tracer{"instance image provider has pending request", category()};
+
     return !m_pendingRequest.isEmpty();
 }
 
 void InstanceImageProvider::requestOne()
 {
+    NanotraceHR::Tracer tracer{"instance image provider request one", category()};
+
     if (!m_requestedNode)
         return;
 
@@ -109,18 +124,24 @@ void InstanceImageProvider::requestOne()
 
 void InstanceImageProvider::requestOne(QSize size)
 {
+    NanotraceHR::Tracer tracer{"instance image provider request one with size", category()};
+
     prepareRequest(size);
     requestOne();
 }
 
 void InstanceImageProvider::postponeRequest(QSize size)
 {
+    NanotraceHR::Tracer tracer{"instance image provider postpone request", category()};
+
     prepareRequest(size);
-    QMetaObject::invokeMethod(m_delayTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+    QMetaObject::invokeMethod(m_delayTimer.get(), static_cast<void (QTimer::*)()>(&QTimer::start));
 }
 
 void InstanceImageProvider::prepareRequest(QSize size)
 {
+    NanotraceHR::Tracer tracer{"instance image provider prepare request", category()};
+
     m_requestedSize = size;
 }
 
@@ -131,16 +152,22 @@ void InstanceImageProvider::prepareRequest(QSize size)
  */
 bool InstanceImageProvider::dataAvailable(const ModelNode &node, QSize size)
 {
+    NanotraceHR::Tracer tracer{"instance image provider data available", category()};
+
     return !m_resetRequest && node == m_receivedNode && size == m_receivedImage.size();
 }
 
 void InstanceImageProvider::invalidate()
 {
+    NanotraceHR::Tracer tracer{"instance image provider invalidate", category()};
+
     m_resetRequest = true;
 }
 
 QPixmap InstanceImageProvider::getScaledImage(QSize size)
 {
+    NanotraceHR::Tracer tracer{"instance image provider get scaled image", category()};
+
     if (size == m_receivedImage.size())
         return m_receivedImage;
     else
