@@ -38,24 +38,34 @@ void RemoteLinuxSignalOperation::run(const QString &command)
     m_process->start();
 }
 
-// TODO: check if used?
-static QString signalProcessGroupByNameCommandLine(const QString &filePath, int signal)
-{
-    return QString::fromLatin1(
-                "cd /proc; for pid in `ls -d [0123456789]*`; "
-                "do "
-                "if [ \"`readlink /proc/$pid/exe`\" = \"%1\" ]; then "
-                "    kill -%2 -$pid $pid;"
-                "fi; "
-                "done").arg(filePath).arg(signal);
-}
-
 QString RemoteLinuxSignalOperation::killProcessByNameCommandLine(const QString &filePath) const
 {
-    return QString::fromLatin1("%1; sleep %2; %3")
-        .arg(signalProcessGroupByNameCommandLine(filePath, 15))
-        .arg(projectExplorerSettings().reaperTimeoutInSeconds)
-        .arg(signalProcessGroupByNameCommandLine(filePath, 9));
+    return QString::fromLatin1(R"(
+        pid=
+        cd /proc
+        for p in `ls -d [0123456789]*`
+        do
+          if [ "`readlink /proc/$p/exe`" = "%1" ]
+          then
+            pid=$p
+            break
+          fi
+        done
+        if [ -n "$pid" ]
+        then
+          kill -15 -$pid $pid
+          i=0
+          while ps -p $pid
+          do
+            sleep 1
+            test $i -lt %2 || break
+            i=$((i+1))
+          done
+          ps -p $pid && kill -9 -$pid $pid
+          true
+        else
+          false
+        fi)").arg(filePath).arg(projectExplorerSettings().reaperTimeoutInSeconds);
 }
 
 void RemoteLinuxSignalOperation::killProcess(qint64 pid)
