@@ -1323,8 +1323,10 @@ public:
         : m_projectsModel(projectsModel)
     {}
 
-    void mouseReleaseEvent(QMouseEvent *) final
+    void mouseReleaseEvent(QMouseEvent *ev) final
     {
+        if (ev->button() != Qt::LeftButton)
+            return;
         const bool newShowAllKits = !projectExplorerSettings().showAllKits;
         mutableProjectExplorerSettings().showAllKits = newShowAllKits;
         QtcSettings *settings = Core::ICore::settings();
