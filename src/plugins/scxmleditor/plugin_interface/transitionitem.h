@@ -126,6 +126,8 @@ private:
     QPointF calculateTargetFactor(ConnectableItem *item, const QPointF &pos);
     QPointF sceneTargetPoint(TransitionPoint p);
     QPointF findIntersectionPoint(ConnectableItem *item, const QLineF &line, const QPointF &defaultPoint);
+    static QRectF adjustedSceneBoundingRect(const BaseItem &item);
+
     QList<CornerGrabberItem*> m_cornerGrabbers;
     CornerGrabberItem *m_selectedCornerGrabber = nullptr;
 

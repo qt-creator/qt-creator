@@ -761,7 +761,7 @@ void TransitionItem::savePoint(const QPointF &p, const QString &name)
 QPointF TransitionItem::calculateTargetFactor(ConnectableItem *item, const QPointF &pos)
 {
     if (item) {
-        QRectF r = item->sceneBoundingRect().adjusted(-8, -8, 8, 8);
+        QRectF r = adjustedSceneBoundingRect(*item);
         QPointF pixelFactorPoint = pos - r.topLeft();
         QPointF normalizedPoint(qBound(0.0, pixelFactorPoint.x() / r.width(), 1.0), qBound(0.0, pixelFactorPoint.y() / r.height(), 1.0));
 
@@ -794,7 +794,7 @@ QPointF TransitionItem::sceneTargetPoint(TransitionPoint p)
 
     QRectF r;
     if (item)
-        r = item->sceneBoundingRect();
+        r = adjustedSceneBoundingRect(*item);
 
     return r.topLeft() + QPointF(factorPoint.x() * r.width(), factorPoint.y() * r.height());
 }
@@ -826,6 +826,11 @@ QPointF TransitionItem::findIntersectionPoint(ConnectableItem *item, const QLine
     }
 
     return defaultPoint;
+}
+
+QRectF TransitionItem::adjustedSceneBoundingRect(const BaseItem &item)
+{
+    return item.sceneBoundingRect().adjusted(-8, -8, 8, 8);
 }
 
 void TransitionItem::updateComponents()
