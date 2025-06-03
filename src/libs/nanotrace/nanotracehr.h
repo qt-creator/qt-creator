@@ -1024,7 +1024,7 @@ class Tracer<EnabledCategory>
         : m_name{name}
         , m_bindId{bindId}
         , flow{flow}
-        , m_category{category}
+        , m_category{category()}
     {
         if (category().isEnabled == IsEnabled::Yes)
             sendBeginTrace(std::forward<decltype(arguments)>(arguments)...);
@@ -1040,18 +1040,18 @@ public:
         : Tracer{bindId, flow, std::move(name), category, std::forward<decltype(arguments)>(arguments)...}
     {}
 
-    [[nodiscard]] Tracer(TracerLiteral name,
-                         CategoryFunctionPointer category,
-                         KeyValue auto &&...arguments)
+    [[nodiscard]] Tracer(TracerLiteral name, EnabledCategory &category, KeyValue auto &&...arguments)
         : m_name{name}
         , m_category{category}
     {
-        if (category().isEnabled == IsEnabled::Yes)
+        if (m_category.isEnabled == IsEnabled::Yes)
             sendBeginTrace(std::forward<decltype(arguments)>(arguments)...);
     }
 
-    [[nodiscard]] Tracer(TracerLiteral name, EnabledCategory &category, KeyValue auto &&...arguments)
-        : Tracer(std::move(name), category.self(), std::forward<decltype(arguments)>(arguments)...)
+    [[nodiscard]] Tracer(TracerLiteral name,
+                         CategoryFunctionPointer category,
+                         KeyValue auto &&...arguments)
+        : Tracer{name, category(), std::forward<decltype(arguments)>(arguments)...}
     {}
 
     Tracer(const Tracer &) = delete;
@@ -1059,7 +1059,7 @@ public:
     Tracer(Tracer &&other) noexcept = delete;
     Tracer &operator=(Tracer &&other) noexcept = delete;
 
-    EnabledToken createToken() { return {0, m_category}; }
+    EnabledToken createToken() { return {0, m_category.self()}; }
 
     ~Tracer() { sendEndTrace(); }
 
@@ -1070,7 +1070,7 @@ public:
 
     void tick(TracerLiteral name, KeyValue auto &&...arguments)
     {
-        m_category().begin('i', 0, name, 0, IsFlow::No, std::forward<decltype(arguments)>(arguments)...);
+        m_category.begin('i', 0, name, 0, IsFlow::No, std::forward<decltype(arguments)>(arguments)...);
     }
 
     void end(KeyValue auto &&...arguments)
@@ -1082,12 +1082,11 @@ public:
 private:
     void sendBeginTrace(KeyValue auto &&...arguments)
     {
-        auto &category = m_category();
-        if (category.isEnabled == IsEnabled::Yes) {
+        if (m_category.isEnabled == IsEnabled::Yes) {
             auto &traceEvent = getTraceEvent(
-                category.eventQueue(std::forward<decltype(arguments)>(arguments)...));
+                m_category.eventQueue(std::forward<decltype(arguments)>(arguments)...));
             traceEvent.name = m_name;
-            traceEvent.category = category.name();
+            traceEvent.category = m_category.name();
             traceEvent.bindId = m_bindId;
             traceEvent.flow = flow;
             traceEvent.type = 'B';
@@ -1102,13 +1101,12 @@ private:
     void sendEndTrace(KeyValue auto &&...arguments)
     {
         if (m_name.size()) {
-            auto &category = m_category();
-            if (category.isEnabled == IsEnabled::Yes) {
+            if (m_category.isEnabled == IsEnabled::Yes) {
                 auto end = Clock::now();
                 auto &traceEvent = getTraceEvent(
-                    category.eventQueue(std::forward<decltype(arguments)>(arguments)...));
+                    m_category.eventQueue(std::forward<decltype(arguments)>(arguments)...));
                 traceEvent.name = std::move(m_name);
-                traceEvent.category = category.name();
+                traceEvent.category = m_category.name();
                 traceEvent.time = end;
                 traceEvent.bindId = m_bindId;
                 traceEvent.flow = flow;
@@ -1126,7 +1124,7 @@ private:
     std::string_view m_name;
     std::size_t m_bindId = 0;
     IsFlow flow = IsFlow::No;
-    CategoryFunctionPointer m_category;
+    EnabledCategory &m_category;
 };
 
 template<typename Category, KeyValue... Arguments>
