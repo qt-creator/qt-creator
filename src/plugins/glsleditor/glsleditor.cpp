@@ -497,6 +497,12 @@ int languageVariant(const QString &type)
         isVertex = true;
     } else if (type == QLatin1String(Utils::Constants::GLSL_ES_FRAG_MIMETYPE)) {
         isFragment = true;
+    } else if (type == QLatin1String(Utils::Constants::GLSL_COMP_MIMETYPE)) {
+        isFragment = true; // not really, but we define the respective variables/functions there
+    } else if (type == QLatin1String(Utils::Constants::GLSL_TESS_MIMETYPE)) {
+        isVertex = true; // not really, but we define the respective variables/functions there
+    } else if (type == QLatin1String(Utils::Constants::GLSL_GEOM_MIMETYPE)) {
+        isVertex = true; // not really, but we define the respective variables/functions there
     }
     if (isDesktop)
         variant |= Lexer::Variant_GLSL_120;
@@ -536,6 +542,9 @@ public:
         addMimeType(Utils::Constants::GLSL_FRAG_MIMETYPE);
         addMimeType(Utils::Constants::GLSL_ES_VERT_MIMETYPE);
         addMimeType(Utils::Constants::GLSL_ES_FRAG_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_COMP_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_TESS_MIMETYPE);
+        addMimeType(Utils::Constants::GLSL_GEOM_MIMETYPE);
 
         setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
         setEditorWidgetCreator([]() { return new GlslEditorWidget; });

@@ -66,6 +66,10 @@ public:
                                                          GLSL_ES_VERT_MIMETYPE);
         FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
                                                          GLSL_ES_FRAG_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                         GLSL_COMP_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                         GLSL_TESS_MIMETYPE);
     }
 };
 

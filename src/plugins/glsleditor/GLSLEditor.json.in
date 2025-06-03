@@ -64,8 +64,21 @@
         "        <sub-class-of type='text/x-glsl'/>",
         "        <comment>GLSL/ES Geometry Shader file</comment>",
         "        <glob pattern='*.gsh'/>",
+        "        <glob pattern='*.geom'/>",
         "    </mime-type>",
 
+        "    <mime-type type='text/x-glsl-compute'>",
+        "        <sub-class-of type='text/x-glsl'/>",
+        "        <comment>GLSL Compute Shader file</comment>",
+        "        <glob pattern='*.comp'/>",
+        "    </mime-type>",
+
+        "    <mime-type type='text/x-glsl-tessellation'>",
+        "        <sub-class-of type='text/x-glsl'/>",
+        "        <comment>GLSL Tessellation Shader file</comment>",
+        "        <glob pattern='*.tesc'/>",
+        "        <glob pattern='*.tese'/>",
+        "    </mime-type>",
         "</mime-info>"
     ]
 }
