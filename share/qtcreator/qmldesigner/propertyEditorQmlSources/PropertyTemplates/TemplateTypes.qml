@@ -88,19 +88,19 @@ AutoTypes {
 
     Type {
         typeNames: ["vector2d"]
-        module: "QtQuick3D"
+        module: "QtQuick"
         sourceFile: "Vector2dEditorTemplate.template"
     }
 
     Type {
         typeNames: ["vector3d"]
-        module: "QtQuick3D"
+        module: "QtQuick"
         sourceFile: "Vector3dEditorTemplate.template"
     }
 
     Type {
         typeNames: ["vector4d"]
-        module: "QtQuick3D"
+        module: "QtQuick"
         sourceFile: "Vector4dEditorTemplate.template"
     }
 }
