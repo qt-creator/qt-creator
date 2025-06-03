@@ -5,6 +5,8 @@
 #include "endpuppetcommand.h"
 #include "puppetstarter.h"
 
+#include <qmldesigner/qmldesignerplugin.h>
+
 #include <externaldependenciesinterface.h>
 #include <abstractview.h>
 
@@ -93,12 +95,14 @@ void ConnectionManager::processFinished(int exitCode, QProcess::ExitStatus exitS
     qWarning() << "Process" << connectionName <<(exitStatus == QProcess::CrashExit ? "crashed:" : "finished:")
                << "with exitCode:" << exitCode;
 
-    writeCommand(QVariant::fromValue(EndPuppetCommand()));
+    if (QmlDesignerPlugin::settings().value(DesignerSettingsKey::DEBUG_PUPPET).toString().isEmpty()) {
+        writeCommand(QVariant::fromValue(EndPuppetCommand()));
 
-    closeSocketsAndKillProcesses();
+        closeSocketsAndKillProcesses();
 
-    if (exitStatus == QProcess::CrashExit)
-        callCrashCallback();
+        if (exitStatus == QProcess::CrashExit)
+            callCrashCallback();
+    }
 }
 
 void ConnectionManager::closeSocketsAndKillProcesses()
