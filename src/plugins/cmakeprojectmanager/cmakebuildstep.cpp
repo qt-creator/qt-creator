@@ -65,7 +65,7 @@ const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMakeProjectManager.MakeStep.ClearS
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMakeProjectManager.MakeStep.UserEnvironmentChanges";
 const char BUILD_PRESET_KEY[] = "CMakeProjectManager.MakeStep.BuildPreset";
 
-class ProjectParserTaskAdapter : public TaskAdapter<QPointer<BuildSystem>>
+class ProjectParserTaskAdapter final : public TaskAdapter<QPointer<BuildSystem>>
 {
 public:
     void start() final {

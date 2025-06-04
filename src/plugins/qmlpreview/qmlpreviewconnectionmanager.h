@@ -61,7 +61,7 @@ private:
     QmlDebugTranslationClientFactoryFunction m_createDebugTranslationClientMethod;
 };
 
-class QmlPreviewConnectionManagerTaskAdapter : public Tasking::TaskAdapter<QmlPreviewConnectionManager>
+class QmlPreviewConnectionManagerTaskAdapter final : public Tasking::TaskAdapter<QmlPreviewConnectionManager>
 {
 public:
     QmlPreviewConnectionManagerTaskAdapter()

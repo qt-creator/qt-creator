@@ -70,7 +70,7 @@ private:
 };
 
 template <typename ResultType>
-class ConcurrentCallTaskAdapter : public TaskAdapter<ConcurrentCall<ResultType>>
+class ConcurrentCallTaskAdapter final : public TaskAdapter<ConcurrentCall<ResultType>>
 {
 public:
     ~ConcurrentCallTaskAdapter() {

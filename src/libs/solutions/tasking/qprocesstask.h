@@ -48,7 +48,7 @@ public:
     void operator()(QProcess *process);
 };
 
-class TASKING_EXPORT QProcessAdapter : public TaskAdapter<QProcess, QProcessDeleter>
+class TASKING_EXPORT QProcessAdapter final : public TaskAdapter<QProcess, QProcessDeleter>
 {
 private:
     void start() final {

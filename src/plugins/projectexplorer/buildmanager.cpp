@@ -153,7 +153,7 @@ private:
     QPointer<TaskWindow> m_taskWindow;
 };
 
-class ParserAwaiterTaskAdapter : public TaskAdapter<QSet<BuildSystem *>>
+class ParserAwaiterTaskAdapter final : public TaskAdapter<QSet<BuildSystem *>>
 {
 private:
     void start() final { checkParsing(); }

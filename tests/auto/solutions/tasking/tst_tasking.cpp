@@ -3048,7 +3048,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        class CustomTaskAdapter : public TaskAdapter<bool> // bool is dummy
+        class CustomTaskAdapter final : public TaskAdapter<bool> // bool is dummy
         {
         private:
             void start() final { emit done(DoneResult::Error); }

@@ -73,7 +73,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol", QtWarningMsg)
 
 namespace ClangTools::Internal {
 
-class ProjectBuilderTaskAdapter : public TaskAdapter<QPointer<RunControl>>
+class ProjectBuilderTaskAdapter final : public TaskAdapter<QPointer<RunControl>>
 {
 public:
     void start() final {

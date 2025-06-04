@@ -333,7 +333,7 @@ private:
     friend class When;
 };
 
-class TASKING_EXPORT Group : public ExecutableItem
+class TASKING_EXPORT Group final : public ExecutableItem
 {
 public:
     Group(const GroupItems &children) { addChildren(children); }
@@ -715,7 +715,7 @@ private:
     TaskTreePrivate *d;
 };
 
-class TASKING_EXPORT TaskTreeTaskAdapter : public TaskAdapter<TaskTree>
+class TASKING_EXPORT TaskTreeTaskAdapter final : public TaskAdapter<TaskTree>
 {
 public:
     TaskTreeTaskAdapter();
@@ -724,7 +724,7 @@ private:
     void start() final;
 };
 
-class TASKING_EXPORT TimeoutTaskAdapter : public TaskAdapter<std::chrono::milliseconds>
+class TASKING_EXPORT TimeoutTaskAdapter final : public TaskAdapter<std::chrono::milliseconds>
 {
 public:
     TimeoutTaskAdapter();
