@@ -238,7 +238,7 @@ QVariant TransitionItem::itemChange(GraphicsItemChange change, const QVariant &v
     return retValue;
 }
 
-void TransitionItem::snapToAnyPoint(int id, const QPointF &newPoint, int diff)
+bool TransitionItem::snapToAnyPoint(int id, const QPointF &newPoint, int diff)
 {
     // Check snap to grid
     bool snappedX = false;
@@ -261,6 +261,8 @@ void TransitionItem::snapToAnyPoint(int id, const QPointF &newPoint, int diff)
 
     if (!snappedY)
         m_cornerPoints[id].setY(newPoint.y());
+
+    return snappedX || snappedY;
 }
 
 void TransitionItem::snapPointToPoint(int idSnap, const QPointF &p, int diff)
@@ -524,7 +526,7 @@ bool TransitionItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
                 }
 
                 if (cid >= 0 && cid < m_cornerPoints.count())
-                    snapToAnyPoint(cid, m_cornerPoints[cid] - movingPoint);
+                    m_moveSnapped = snapToAnyPoint(cid, m_cornerPoints[cid] - movingPoint);
 
                 updateComponents();
             }
@@ -534,7 +536,10 @@ bool TransitionItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
                 if (cid == 0 || (cid == m_cornerPoints.count() - 1)) {
                     m_movingFirstPoint = false;
                     m_movingLastPoint = false;
-                    connectToTopItem(watched->mapToScene(mouseEvent->pos()), cid == 0 ? Start : End, UnknownType);
+                    const QPointF pos = m_moveSnapped
+                                            ? m_cornerPoints[cid]
+                                            : watched->mapToScene(mouseEvent->pos());
+                    connectToTopItem(pos, cid == 0 ? Start : End, UnknownType);
                 }
                 removeUnnecessaryPoints();
             } else

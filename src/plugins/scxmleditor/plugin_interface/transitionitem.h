@@ -119,7 +119,7 @@ private:
     void removeGrabbers();
     void updateGrabberPositions();
     void removeTransition(TransitionPoint p);
-    void snapToAnyPoint(int index, const QPointF &newPoint, int diff = 8);
+    bool snapToAnyPoint(int index, const QPointF &newPoint, int diff = 8);
     void snapPointToPoint(int index, const QPointF &newPoint, int diff = 8);
     QPointF loadPoint(const QString &name);
     void savePoint(const QPointF &p, const QString &name);
@@ -143,6 +143,7 @@ private:
     QPen m_pen;
     QPen m_highlightPen;
     bool m_lineSelected = false;
+    bool m_moveSnapped = false;
 
     TagTextItem *m_eventTagItem;
     TagTextItem *m_condTagItem;
