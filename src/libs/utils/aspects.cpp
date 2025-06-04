@@ -3240,7 +3240,8 @@ void AspectContainer::registerAspect(BaseAspect *aspect, bool takeOwnership)
     if (takeOwnership)
         d->m_ownedItems.append(aspect);
 
-    connect(aspect, &BaseAspect::changed, this, [this]() { emit changed(); });
+    connect(aspect, &BaseAspect::changed, this, &BaseAspect::changed);
+    connect(aspect, &BaseAspect::volatileValueChanged, this, &BaseAspect::volatileValueChanged);
 }
 
 void AspectContainer::registerAspects(const AspectContainer &aspects)
@@ -3605,16 +3606,7 @@ void AspectList::fromMap(const Utils::Store &map)
 {
     QTC_ASSERT(!settingsKey().isEmpty(), return);
 
-    const QVariantList list = map[settingsKey()].toList();
-    d->volatileItems.clear();
-    for (const QVariant &entry : list) {
-        auto item = d->createItem();
-        item->setAutoApply(isAutoApply());
-        item->setUndoStack(undoStack());
-        item->fromMap(Utils::storeFromVariant(entry));
-        d->volatileItems.append(item);
-    }
-    d->items = d->volatileItems;
+    setVariantValue(map[settingsKey()], BeQuiet);
 }
 
 QVariantList AspectList::toList(bool v) const
@@ -3727,6 +3719,20 @@ void AspectList::apply()
     emit changed();
 }
 
+void AspectList::cancel()
+{
+    d->volatileItems = d->items;
+    forEachItem<BaseAspect>([](const std::shared_ptr<BaseAspect> &aspect) { aspect->cancel(); });
+    emit volatileValueChanged();
+}
+
+void AspectList::setAutoApply(bool on)
+{
+    BaseAspect::setAutoApply(on);
+    forEachItem<BaseAspect>(
+                [on](const std::shared_ptr<BaseAspect> &aspect) { aspect->setAutoApply(on); });
+}
+
 void AspectList::setCreateItemFunction(CreateItem createItem)
 {
     d->createItem = createItem;
@@ -3756,6 +3762,22 @@ bool AspectList::isDirty()
             return true;
     }
     return false;
+}
+
+void AspectList::setVariantValue(const QVariant &value, Announcement howToAnnounce)
+{
+    const QVariantList list = value.toList();
+    d->volatileItems.clear();
+    for (const QVariant &entry : list) {
+        auto item = d->createItem();
+        item->setAutoApply(isAutoApply());
+        item->setUndoStack(undoStack());
+        item->fromMap(Utils::storeFromVariant(entry));
+        d->volatileItems.append(item);
+    }
+    d->items = d->volatileItems;
+    if (howToAnnounce == DoEmit)
+        emit changed();
 }
 
 class ColoredRow : public QWidget

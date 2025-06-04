@@ -46,6 +46,8 @@ QtcPlugin {
             "coreplugintr.h",
             "credentialquery.cpp",
             "credentialquery.h",
+            "customlanguagemodels.cpp",
+            "customlanguagemodels.h",
             "designmode.cpp",
             "designmode.h",
             "diffservice.cpp",

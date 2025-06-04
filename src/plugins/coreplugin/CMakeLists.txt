@@ -31,6 +31,8 @@ add_qtc_plugin(Core
     coreplugintr.h
     credentialquery.cpp
     credentialquery.h
+    customlanguagemodels.cpp
+    customlanguagemodels.h
     designmode.cpp
     designmode.h
     dialogs/addtovcsdialog.cpp

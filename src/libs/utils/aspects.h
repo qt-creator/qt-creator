@@ -1144,6 +1144,8 @@ public:
     void clear();
 
     void apply() override;
+    void cancel() override;
+    void setAutoApply(bool on) override;
 
     void setCreateItemFunction(CreateItem createItem);
 
@@ -1184,7 +1186,9 @@ public:
     qsizetype size() const;
     bool isDirty() override;
 
-    QVariant volatileVariantValue() const override { return {}; }
+    QVariant variantValue() const override { return toList(false); }
+    void setVariantValue(const QVariant &value, Announcement howToAnnounce = DoEmit) override;
+    QVariant volatileVariantValue() const override { return {}; } // ??
 
     void addToLayoutImpl(Layouting::Layout &parent) override;
 

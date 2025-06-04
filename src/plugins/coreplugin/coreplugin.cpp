@@ -3,6 +3,7 @@
 
 #include "coreplugin.h"
 #include "coreplugintr.h"
+#include "customlanguagemodels.h"
 #include "designmode.h"
 #include "dialogs/ioptionspage.h"
 #include "editmode.h"
@@ -283,6 +284,8 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     // Shared by Help and ScreenRecorder
     IOptionsPage::registerCategory(
         Constants::HELP_CATEGORY, Tr::tr("Help"), ":/core/images/settingscategory_help.png");
+
+    setupCustomLanguageModels();
 
     IWizardFactory::initialize();
 

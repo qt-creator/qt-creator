@@ -15,6 +15,6 @@ const char COPILOT_REQUEST_SUGGESTION[] = "Copilot.RequestSuggestion";
 const char COPILOT_NEXT_SUGGESTION[] = "Copilot.NextSuggestion";
 const char COPILOT_PREVIOUS_SUGGESTION[] = "Copilot.PreviousSuggestion";
 
-const char COPILOT_GENERAL_OPTIONS_ID[] = "Copilot.General";
+const char COPILOT_GENERAL_OPTIONS_ID[] = "AI.Copilot";
 
 } // namespace Copilot::Constants
