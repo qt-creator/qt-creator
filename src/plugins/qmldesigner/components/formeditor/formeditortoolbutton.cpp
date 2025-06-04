@@ -6,8 +6,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 
-#include <utils/theme/theme.h>
 #include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 #include <QAction>
 #include <QCursor>
@@ -16,14 +16,19 @@ namespace QmlDesigner {
 
 const int toolButtonSize = 14;
 
-FormEditorToolButton::FormEditorToolButton(QAction *action, QGraphicsItem *parent)  : QGraphicsWidget(parent), m_action(action)
+FormEditorToolButton::FormEditorToolButton(QAction *action, QGraphicsItem *parent)
+    : QGraphicsWidget(parent)
+    , m_action(action)
 {
     resize(toolButtonSize, toolButtonSize + 2);
     setPreferredSize(toolButtonSize, toolButtonSize + 2);
     setAcceptHoverEvents(true);
-    connect(action, &QAction::changed, this, [this](){
+    connect(action, &QAction::changed, this, [this]() {
         setEnabled(m_action->isEnabled());
         setVisible(m_action->isVisible());
+        // Reset to Normal. When action isn't enabled anymore and therefor the button too, it
+        // doesn't receives events anymore, which leaves the state in Hover.
+        m_state = Normal;
         update();
     });
 
@@ -39,10 +44,14 @@ void FormEditorToolButton::paint(QPainter *painter, const QStyleOptionGraphicsIt
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
 
-    QRectF adjustedRect(size().width() - toolButtonSize, size().height() - toolButtonSize, toolButtonSize, toolButtonSize);
+    QRectF adjustedRect(size().width() - toolButtonSize,
+                        size().height() - toolButtonSize,
+                        toolButtonSize,
+                        toolButtonSize);
     painter->setPen(Qt::NoPen);
 
-    static QColor selectionColor = Utils::creatorColor(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
+    static QColor selectionColor = Utils::creatorColor(
+        Utils::Theme::QmlDesigner_FormEditorSelectionColor);
 
     if (m_state == Hovered)
         painter->setBrush(selectionColor.lighter(110));
@@ -53,9 +62,11 @@ void FormEditorToolButton::paint(QPainter *painter, const QStyleOptionGraphicsIt
         painter->drawRoundedRect(adjustedRect, 1, 1, Qt::AbsoluteSize);
 
     if (!isEnabled())
-        setOpacity(0.5);
+        painter->setOpacity(0.5);
 
-    painter->drawPixmap(size().width() - toolButtonSize, size().height() - toolButtonSize, m_action->icon().pixmap(toolButtonSize, toolButtonSize));
+    painter->drawPixmap(size().width() - toolButtonSize,
+                        size().height() - toolButtonSize,
+                        m_action->icon().pixmap(toolButtonSize, toolButtonSize));
 
     painter->restore();
 }
@@ -65,7 +76,7 @@ QRectF FormEditorToolButton::boundingRect() const
     return QRectF(0, 0, toolButtonSize, toolButtonSize + 2);
 }
 
-void FormEditorToolButton::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
+void FormEditorToolButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     m_state = Hovered;
 
@@ -74,7 +85,7 @@ void FormEditorToolButton::hoverEnterEvent(QGraphicsSceneHoverEvent * event)
     update();
 }
 
-void FormEditorToolButton::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
+void FormEditorToolButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     m_state = Normal;
 
@@ -83,19 +94,19 @@ void FormEditorToolButton::hoverLeaveEvent(QGraphicsSceneHoverEvent * event)
     update();
 }
 
-void FormEditorToolButton::hoverMoveEvent(QGraphicsSceneHoverEvent * event)
+void FormEditorToolButton::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
     QGraphicsWidget::hoverMoveEvent(event);
 }
 
-void FormEditorToolButton::mousePressEvent(QGraphicsSceneMouseEvent * event)
+void FormEditorToolButton::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     m_state = Pressed;
     event->accept();
     update();
 }
 
-void FormEditorToolButton::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
+void FormEditorToolButton::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     m_state = Hovered;
 
@@ -103,4 +114,4 @@ void FormEditorToolButton::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
     emit clicked();
 }
 
-} //QmlDesigner
+} // namespace QmlDesigner
