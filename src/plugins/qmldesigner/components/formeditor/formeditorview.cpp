@@ -181,7 +181,6 @@ static void deleteWithoutChildren(const QList<FormEditorItem*> &items)
 static bool isFlowNonItem(const QmlItemNode &itemNode)
 {
     return itemNode.isFlowTransition()
-            || itemNode.isFlowWildcard()
             || itemNode.isFlowWildcard();
 }
 
