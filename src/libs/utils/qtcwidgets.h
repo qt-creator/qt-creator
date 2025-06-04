@@ -193,7 +193,6 @@ public:
 protected:
     void paintEvent(QPaintEvent *event) override;
     bool event(QEvent *event) override;
-    QSize minimumTabSizeHint(int index) const override;
 };
 
 
