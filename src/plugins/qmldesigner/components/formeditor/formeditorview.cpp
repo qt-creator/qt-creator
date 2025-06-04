@@ -175,23 +175,21 @@ void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
     QList<FormEditorItem*> removedItemList;
 
     if (qmlItemNode.isValid()) {
-        QList<QmlItemNode> nodeList;
-        nodeList.append(qmlItemNode.allSubModelNodes());
+        QList<QmlItemNode> nodeList = qmlItemNode.allSubModelNodes();
         nodeList.append(qmlItemNode);
-
         removedItemList.append(scene()->itemsForQmlItemNodes(nodeList));
+    } else if (isFlowNonItem(qmlItemNode)) {
+        removedItemList.append(scene()->itemsForQmlItemNodes({qmlItemNode}));
+    }
+
+    if (!removedItemList.isEmpty()) {
+        m_currentTool->itemsAboutToRemoved(removedItemList);
 
         //The destructor of QGraphicsItem does delete all its children.
         //We have to keep the children if they are not children in the model anymore.
         //Otherwise we delete the children explicitly anyway.
         deleteWithoutChildren(removedItemList);
-    } else if (isFlowNonItem(qmlItemNode)) {
-        removedItemList.append(scene()->itemsForQmlItemNodes({qmlItemNode}));
-        deleteWithoutChildren(removedItemList);
     }
-
-    if (!removedItemList.isEmpty())
-        m_currentTool->itemsAboutToRemoved(removedItemList);
 }
 
 void FormEditorView::createFormEditorWidget()
