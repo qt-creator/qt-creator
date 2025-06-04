@@ -55232,7 +55232,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>Arbitrary functions and function calls outside of a Connections or ScriptAction objects are not supported in a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>Beliebige Funktionen und Funktionsaufrufe außerhalb eines Connections- und ScriptAction-Objektes werden in einer UI-Datei (.ui.qml) nicht unterstützt.</translation>
     </message>
     <message>
         <source>A when condition cannot contain an object.</source>
@@ -55529,11 +55529,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Ctrl+Shift+;</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+;</translation>
     </message>
     <message>
         <source>Reformat Document</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokument neu formatieren</translation>
     </message>
     <message>
         <source>Inspect API for Element Under Cursor</source>
@@ -55541,19 +55541,19 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>QmlFormat not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>QmlFormat nicht gefunden.</translation>
     </message>
     <message>
         <source>Custom formatter path not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad des benutzerdefinierten Formatierers nicht gefunden.</translation>
     </message>
     <message>
         <source>Error: No current document to format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Kein aktuelles Dokument zum Formatieren.</translation>
     </message>
     <message>
         <source>Error: Formatting failed with the selected formatter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Formatieren mit dem gewählten Formatierer ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Issues that the QML code parser found.</source>
@@ -55733,15 +55733,15 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Only for Qt Quick UI</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur für Qt Quick UI</translation>
     </message>
     <message>
         <source>Formatting</source>
-        <translation type="unfinished"></translation>
+        <translation>Formatierung</translation>
     </message>
     <message>
         <source>Set the path to the Qt Design Studio application to enable the &quot;Open in Qt Design Studio&quot; feature. If you have Qt Design Studio installed alongside Qt Creator with the Qt Online Installer, it is used as the default. Use &lt;a href=&quot;linwithqt&quot;&gt;&quot;Link with Qt&quot;&lt;/a&gt; to link an offline installation of Qt Creator to a Qt Online Installer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt den Pfad zur Qt Design Studio-Anwendung, um die Funktion &quot;In Qt Design Studio öffnen&quot; zu aktivieren. Wenn Sie Qt Design Studio über den Qt Online Installer zusammen mit Qt Creator installiert haben, wird dies standardmäßig verwendet. Verwenden Sie &lt;a href=&quot;linwithqt&quot;&gt;&quot;Mit Qt verknüpfen&lt;/a&gt;, um eine Offline-Installation von Qt Creator mit einem Qt Online Installer zu verknüpfen.</translation>
     </message>
     <message>
         <source>Open Language Server preferences...</source>
@@ -55861,59 +55861,59 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>No qmlformat executable found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für qmlformat nicht gefunden.</translation>
     </message>
     <message>
         <source>Failed to generate qmlformat.ini file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Generieren der qmlformat.ini-Datei ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Global qmlformat Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Globale qmlformat-Konfiguration</translation>
     </message>
     <message>
         <source>Built-in Formatter Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen des integrierten Formatierers</translation>
     </message>
     <message>
         <source>Other Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Weitere Einstellungen</translation>
     </message>
     <message>
         <source>Line length:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilenlänge:</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Custom Formatter Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfiguration für benutzerdefinierten Formatierer</translation>
     </message>
     <message>
         <source>Built-In Formatter [Deprecated]</source>
-        <translation type="unfinished"></translation>
+        <translation>Integrierter Formatierer [veraltet]</translation>
     </message>
     <message>
         <source>QmlFormat [LSP]</source>
-        <translation type="unfinished"></translation>
+        <translation>QmlFormat [LSP]</translation>
     </message>
     <message>
         <source>Custom Formatter [Must be qmlformat compatible]</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefinierter Formatierer [Muss qmlformat-kompatibel sein]</translation>
     </message>
     <message>
         <source>Formatter</source>
-        <translation type="unfinished">Formatter</translation>
+        <translation>Formatierer</translation>
     </message>
     <message>
         <source>Formatter Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Formatiererauswahl</translation>
     </message>
 </context>
 <context>
@@ -56840,11 +56840,13 @@ Speichern fehlgeschlagen.</translation>
         <source>Open the document in Qt Design Studio.
 
 Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &gt; QML/JS Editing.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Dokument in Qt Design Studio öffnen.
+
+Qt Design Studio ist nicht konfiguriert. Konfigurieren Sie es in Einstellungen &gt; Qt Quick &gt; QML/JS-Bearbeitung.</translation>
     </message>
     <message>
         <source>Open the document in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Dokument in Qt Design Studio öffnen.</translation>
     </message>
     <message>
         <source>Kit has no device.</source>
@@ -56929,7 +56931,7 @@ Qt Design Studio is not configured. Configure it in Preferences &gt; Qt Quick &g
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Vorgabe</translation>
+        <translation>Vorgabe</translation>
     </message>
     <message>
         <source>No Qt Design Studio installation found</source>
@@ -57089,7 +57091,7 @@ Sind Sie sicher?</translation>
     </message>
     <message>
         <source>Compiling the project as a library requires Qt Design Studio 4.8 or later.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kompilieren des Projekts als Bibliothek benötigt Qt Design Studio 4.8 oder neuer.</translation>
     </message>
     <message>
         <source>The project was created with a Qt Design Studio version earlier than Qt Design Studio 4.5. Due to limitations of the project structure in earlier Qt Design Studio versions, the resulting application might not display all the assets. Referring to assets between different QML modules does not work in the compiled application.&lt;br&gt;&lt;a href=&quot;https://doc.qt.io/qtdesignstudio/studio-designer-developer-workflow.html&quot;&gt;See the documentation for details.&lt;/a&gt;</source>
@@ -57099,90 +57101,95 @@ Sind Sie sicher?</translation>
         <source>The project structure has changed.
 Please clean the build folder before rebuilding.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Die Projektstruktur hat sich geändert.
+Bereinigen Sie bitte vor dem erneuten Erstellen das Build-Verzeichnis.
+</translation>
     </message>
     <message>
         <source>Failed to remove the qmlcomponents.cmake file.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Das Entfernen der qmlcomponents.cmake-Datei ist fehlgeschlagen.
+</translation>
     </message>
     <message>
         <source>&quot;%1&quot; failed (exit code %2).</source>
-        <translation type="unfinished">&quot;%1&quot; schlug fehl (Rückgabewert %2).</translation>
+        <translation>&quot;%1&quot; schlug fehl (Rückgabewert %2).</translation>
     </message>
     <message>
         <source>Failed to generate deployable package!</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment-Paket konnte nicht generiert werden!</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
-        <translation type="unfinished">&quot;%1&quot; ist abgestürzt.</translation>
+        <translation>&quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
         <source>Generate QRC Resource File...</source>
-        <translation type="unfinished"></translation>
+        <translation>QRC Ressourcen-Datei generieren...</translation>
     </message>
     <message>
         <source>Save Project as QRC File</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt als QRC-Datei speichern</translation>
     </message>
     <message>
         <source>QML Resource File (*.qrc)</source>
-        <translation type="unfinished"></translation>
+        <translation>QML Ressourcen-Datei (*.qrc)</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Failed to generate QRC resource file.</source>
-        <translation type="unfinished"></translation>
+        <translation>QRC Ressourcen-Datei konnte nicht generiert werden.</translation>
     </message>
     <message>
         <source>Success</source>
-        <translation type="unfinished"></translation>
+        <translation>Erfolg</translation>
     </message>
     <message>
         <source>Successfully generated QRC resource file.</source>
-        <translation type="unfinished"></translation>
+        <translation>QRC Ressourcen-Datei erfolgreich generiert.</translation>
     </message>
     <message>
         <source>Generate Deployable Package...</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment-Paket generieren...</translation>
     </message>
     <message>
         <source>Save Project as Resource</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt als Ressource speichern</translation>
     </message>
     <message>
         <source>Generating deployable package. Please wait...</source>
-        <translation type="unfinished"></translation>
+        <translation>Generiere Deployment-Paket. Bitte warten...</translation>
     </message>
     <message>
         <source>Failed to generate deployable package!
 
 Please check the output pane for more information.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment-Paket konnte nicht generiert werden!
+
+Bitte überprüfen Sie die Allgemeinen Ausgaben für weitere Informationen.</translation>
     </message>
     <message>
         <source>Successfully generated deployable package.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment-Paket erfolgreich generiert.</translation>
     </message>
     <message>
         <source>Failed to open file &quot;%1&quot; to write QRC XML.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;%1&quot; konnte nicht zum Schreiben der QRC XML-Daten geöffnet werden.</translation>
     </message>
     <message>
         <source>Resource generator is already running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ressourcen-Generator läuft bereits.</translation>
     </message>
     <message>
         <source>Unable to generate resource file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ressourcen-Datei &quot;%1&quot; konnte nicht generiert werden.</translation>
     </message>
     <message>
         <source>A timeout occurred running &quot;%1&quot;.</source>
-        <translation type="unfinished">Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
     </message>
 </context>
 <context>
