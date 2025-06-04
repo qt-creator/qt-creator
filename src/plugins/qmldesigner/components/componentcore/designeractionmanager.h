@@ -129,8 +129,6 @@ public:
     void addAddActionCallback(ActionAddedInterface callback);
 
 private:
-    void addTransitionEffectAction(const TypeName &typeName);
-    void addCustomTransitionEffectAction();
     void setupIcons();
     QString designerIconResourcesPath() const;
 

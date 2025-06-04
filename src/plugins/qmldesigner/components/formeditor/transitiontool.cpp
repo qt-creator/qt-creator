@@ -96,25 +96,6 @@ private:
     QByteArray m_menuId;
 };
 
-class TransitionCustomAction : public TransitionToolAction
-{
-public:
-    TransitionCustomAction(const QByteArray &menuId, const QString &name)
-        : TransitionToolAction(menuId, name)
-    {}
-
-    QByteArray category() const override
-    {
-        return ComponentCoreConstants::flowCategory;
-    }
-
-    SelectionContext selectionContext() const
-    {
-        return AbstractAction::selectionContext();
-    }
-
-};
-
 static QRectF paintedBoundingRect(FormEditorItem *item)
 {
     QRectF boundingRect = item->qmlItemNode().instanceBoundingRect();
@@ -140,67 +121,6 @@ TransitionTool::TransitionTool()
     : QObject(), AbstractCustomTool()
 {
     NanotraceHR::Tracer tracer{"transition tool constructor", category()};
-
-    TransitionToolAction *transitionToolAction = new TransitionToolAction("AddTransition",
-                                                                          tr("Add Transition"));
-    QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(transitionToolAction);
-
-    connect(transitionToolAction->action(), &QAction::triggered,
-            this, &TransitionTool::activateTool);
-
-    TransitionCustomAction *removeAction = new TransitionCustomAction("RemoveTransition",
-                                                                      tr("Remove Transitions"));
-    QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(removeAction);
-
-    connect(removeAction->action(), &QAction::triggered,
-            this, [removeAction](){
-
-        SelectionContext context = removeAction->selectionContext();
-        QmlFlowTargetNode node = QmlFlowTargetNode(context.currentSingleSelectedNode());
-
-        context.view()->executeInTransaction("Remove Transitions", [&node](){
-            if (node.isValid())
-                node.removeTransitions();
-        });
-    });
-
-    TransitionCustomAction *removeAllTransitionsAction = new TransitionCustomAction(
-        "RemoveAllTransitions", tr("Remove All Transitions"));
-    QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(removeAllTransitionsAction);
-
-    connect(removeAllTransitionsAction->action(), &QAction::triggered,
-            this, [removeAllTransitionsAction](){
-
-        if (QMessageBox::question(Core::ICore::dialogParent(),
-                                  tr("Remove All Transitions"),
-                                  tr("Do you really want to remove all transitions?"),
-                                  QMessageBox::Yes | QMessageBox::No) !=  QMessageBox::Yes)
-            return;
-
-        SelectionContext context = removeAllTransitionsAction->selectionContext();
-        QmlFlowTargetNode node = QmlFlowTargetNode(context.currentSingleSelectedNode());
-
-        context.view()->executeInTransaction("Remove All Transitions", [&node](){
-            if (node.isValid() && node.flowView().isValid())
-                node.flowView().removeAllTransitions();
-        });
-    });
-
-    TransitionCustomAction *removeDanglingTransitionAction = new TransitionCustomAction(
-        "RemoveDanglindTransitions", tr("Remove Dangling Transitions"));
-    QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(removeDanglingTransitionAction);
-
-    connect(removeDanglingTransitionAction->action(), &QAction::triggered,
-            this, [removeDanglingTransitionAction](){
-
-        SelectionContext context = removeDanglingTransitionAction->selectionContext();
-        QmlFlowTargetNode node = QmlFlowTargetNode(context.currentSingleSelectedNode());
-
-        context.view()->executeInTransaction("Remove Dangling Transitions", [&node](){
-            if (node.isValid() && node.flowView().isValid())
-                node.flowView().removeDanglingTransitions();
-        });
-    });
 }
 
 TransitionTool::~TransitionTool()

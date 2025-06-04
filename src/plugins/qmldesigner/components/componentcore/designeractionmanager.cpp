@@ -947,88 +947,6 @@ public:
     }
 };
 
-bool flowOptionVisible(const SelectionContext &context)
-{
-    return QmlFlowViewNode::isValidQmlFlowViewNode(context.rootNode());
-}
-
-bool isFlowItem(const SelectionContext &context)
-{
-    return context.singleNodeIsSelected()
-           && QmlFlowItemNode::isValidQmlFlowItemNode(context.currentSingleSelectedNode());
-}
-
-bool isFlowTarget(const SelectionContext &context)
-{
-    return context.singleNodeIsSelected()
-           && QmlFlowTargetNode::isFlowEditorTarget(context.currentSingleSelectedNode());
-}
-
-bool isFlowTransitionItem(const SelectionContext &context)
-{
-    return context.singleNodeIsSelected()
-           && QmlFlowItemNode::isFlowTransition(context.currentSingleSelectedNode());
-}
-
-bool isFlowTransitionItemWithEffect(const SelectionContext &context)
-{
-    if (!isFlowTransitionItem(context))
-        return false;
-
-    ModelNode node = context.currentSingleSelectedNode();
-
-    return node.hasNodeProperty("effect");
-}
-
-bool isFlowActionItemItem(const SelectionContext &context)
-{
-    const ModelNode selectedNode = context.currentSingleSelectedNode();
-
-    return context.singleNodeIsSelected()
-            && (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(selectedNode)
-                || QmlVisualNode::isFlowDecision(selectedNode)
-                || QmlVisualNode::isFlowWildcard(selectedNode));
-}
-
-bool isFlowTargetOrTransition(const SelectionContext &context)
-{
-    return isFlowTarget(context) || isFlowTransitionItem(context);
-}
-
-class FlowActionConnectAction : public ActionGroup
-{
-public:
-    FlowActionConnectAction(const QString &displayName, const QByteArray &menuId, const QIcon &icon, int priority) :
-        ActionGroup(displayName, menuId, icon, priority,
-                    &isFlowActionItemItem, &flowOptionVisible)
-
-    {}
-
-    void updateContext() override
-    {
-        menu()->clear();
-        if (selectionContext().isValid()) {
-            action()->setEnabled(isEnabled(selectionContext()));
-            action()->setVisible(isVisible(selectionContext()));
-        } else {
-            return;
-        }
-        if (action()->isEnabled()) {
-            for (const QmlFlowItemNode &node : QmlFlowViewNode(selectionContext().rootNode()).flowItems()) {
-                if (node != selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode()) {
-                    QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect: %1")).arg(captionForModelNode(node));
-                    ActionTemplate *connectionAction = new ActionTemplate("CONNECT", what, &ModelNodeOperations::addTransition);
-
-                    SelectionContext nodeSelectionContext = selectionContext();
-                    nodeSelectionContext.setTargetNode(node);
-                    connectionAction->setSelectionContext(nodeSelectionContext);
-
-                    menu()->addAction(connectionAction);
-                }
-            }
-        }
-    }
-};
 namespace {
 const char xProperty[] = "x";
 const char yProperty[] = "y";
@@ -1780,83 +1698,12 @@ void DesignerActionManager::createDefaultDesignerActions()
                           {},
                           Priorities::Group));
 
-    addDesignerAction(new ActionGroup(
-                          flowCategoryDisplayName,
-                          flowCategory,
-                          {},
-                          Priorities::FlowCategory,
-                          &isFlowTargetOrTransition,
-                          &flowOptionVisible));
-
-
-    auto effectMenu = new ActionGroup(
-                flowEffectCategoryDisplayName,
-                flowEffectCategory,
-                {},
-                Priorities::FlowCategory,
-                &isFlowTransitionItem,
-                &flowOptionVisible);
-
-    effectMenu->setCategory(flowCategory);
-    addDesignerAction(effectMenu);
-
-    addDesignerAction(new ModelNodeFormEditorAction(
-                          createFlowActionAreaCommandId,
-                          createFlowActionAreaDisplayName,
-                          addIcon.icon(),
-                          addFlowActionToolTip,
-                          flowCategory,
-                          {},
-                          1,
-                          &createFlowActionArea,
-                          &isFlowItem,
-                          &flowOptionVisible));
-
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          setFlowStartCommandId,
-                          setFlowStartDisplayName,
-                          {},
-                          flowCategory,
-                          {},
-                          2,
-                          &setFlowStartItem,
-                          &isFlowItem,
-                          &flowOptionVisible));
-
-    addDesignerAction(new FlowActionConnectAction(
-                          flowConnectionCategoryDisplayName,
-                          flowConnectionCategory,
-                          {},
-                          Priorities::FlowCategory));
-
-
-    const QList<TypeName> transitionTypes = {"FlowFadeEffect",
-                                   "FlowPushEffect",
-                                   "FlowMoveEffect",
-                                   "None"};
-
-    for (const TypeName &typeName : transitionTypes)
-        addTransitionEffectAction(typeName);
-
-    addCustomTransitionEffectAction();
-
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          selectFlowEffectCommandId,
-                          selectEffectDisplayName,
-                          {},
-                          flowCategory,
-                          {},
-                          2,
-                          &selectFlowEffect,
-                          &isFlowTransitionItemWithEffect));
-
-    addDesignerAction(new ActionGroup(
-                          stackedContainerCategoryDisplayName,
-                          stackedContainerCategory,
-                          addIcon.icon(),
-                          Priorities::StackedContainerCategory,
-                          &isStackedContainer,
-                          &isStackedContainer));
+    addDesignerAction(new ActionGroup(stackedContainerCategoryDisplayName,
+                                      stackedContainerCategory,
+                                      addIcon.icon(),
+                                      Priorities::StackedContainerCategory,
+                                      &isStackedContainer,
+                                      &isStackedContainer));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           removePositionerCommandId,
@@ -2341,33 +2188,6 @@ DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designer
 }
 
 DesignerActionManager::~DesignerActionManager() = default;
-
-void DesignerActionManager::addTransitionEffectAction(const TypeName &typeName)
-{
-    addDesignerAction(new ModelNodeContextMenuAction(
-        QByteArray(ComponentCoreConstants::flowAssignEffectCommandId) + typeName,
-        QLatin1String(ComponentCoreConstants::flowAssignEffectDisplayName) + typeName,
-        {},
-        ComponentCoreConstants::flowEffectCategory,
-        {},
-        typeName == "None" ? 11 : 1,
-        [typeName](const SelectionContext &context)
-        { ModelNodeOperations::addFlowEffect(context, typeName); },
-    &isFlowTransitionItem));
-}
-
-void DesignerActionManager::addCustomTransitionEffectAction()
-{
-    addDesignerAction(new ModelNodeContextMenuAction(
-        QByteArray(ComponentCoreConstants::flowAssignEffectCommandId),
-        ComponentCoreConstants::flowAssignCustomEffectDisplayName,
-        {},
-        ComponentCoreConstants::flowEffectCategory,
-        {},
-        21,
-        &ModelNodeOperations::addCustomFlowEffect,
-    &isFlowTransitionItem));
-}
 
 void DesignerActionManager::setupIcons()
 {
