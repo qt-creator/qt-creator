@@ -293,9 +293,7 @@ private:
     friend class ContainerNode;
     friend class TaskNode;
     friend class TaskTreePrivate;
-    friend class ParallelLimitFunctor;
     friend class When;
-    friend class WorkflowPolicyFunctor;
     Type m_type = Type::Group;
     GroupItems m_children;
     GroupData m_groupData;
