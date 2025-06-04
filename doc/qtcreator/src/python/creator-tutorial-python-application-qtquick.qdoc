@@ -57,8 +57,8 @@
     The wizard generates the following files:
 
     \list
-        \li \c {hello_world_quick.pyproject}, which lists the files in the Python
-            project.
+        \li \c {pyproject.toml}, which lists the files in the Python
+            project and other configurations.
         \li \c {main.py}, which has some boilerplate code.
         \li \c {main.qml}, which imports Qt Quick controls.
         \li \c {requirements.txt}, which stores the PySide version of the
