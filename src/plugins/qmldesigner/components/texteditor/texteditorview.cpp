@@ -63,8 +63,9 @@ void TextEditorView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
+    DesignDocument *designDocument = QmlDesignerPlugin::instance()->currentDesignDocument();
     auto textEditor = Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor>(
-        QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate());
+        designDocument->textEditor()->duplicate());
     static constexpr char qmlTextEditorContextId[] = "QmlDesigner::TextEditor";
     IContext::attach(textEditor->widget(),
                      Context(qmlTextEditorContextId, Constants::qtQuickToolsMenuContextId),
@@ -72,6 +73,12 @@ void TextEditorView::modelAttached(Model *model)
                          m_widget->contextHelp(callback);
                      });
     m_widget->setTextEditor(std::move(textEditor));
+
+    disconnect(m_designDocumentConnection);
+    m_designDocumentConnection = connect(designDocument,
+                                         &DesignDocument::designDocumentClosed,
+                                         m_widget,
+                                         [this] { m_widget->setTextEditor(nullptr); });
 }
 
 void TextEditorView::modelAboutToBeDetached(Model *model)
@@ -80,6 +87,7 @@ void TextEditorView::modelAboutToBeDetached(Model *model)
 
     if (m_widget)
         m_widget->setTextEditor(nullptr);
+    disconnect(m_designDocumentConnection);
 }
 
 void TextEditorView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)

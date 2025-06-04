@@ -78,6 +78,7 @@ public:
 
 private:
     QPointer<TextEditorWidget> m_widget;
+    QMetaObject::Connection m_designDocumentConnection;
     bool m_errorState = false;
 };
 
