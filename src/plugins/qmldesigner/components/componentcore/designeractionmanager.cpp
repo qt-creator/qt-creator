@@ -25,6 +25,7 @@
 #include <nodeproperty.h>
 #include <qmldesignertr.h>
 #include <theme.h>
+#include <variantproperty.h>
 
 #include <formeditortoolbutton.h>
 
@@ -1161,6 +1162,38 @@ bool isStackedContainer(const SelectionContext &context)
     return NodeHints::fromModelNode(currentSelectedNode).isStackedContainer();
 }
 
+bool isStackedContainerAndIndexIsVariantOrResolvableBinding(const SelectionContext &context)
+{
+    if (!isStackedContainer(context))
+        return false;
+
+    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
+
+    const PropertyName propertyName = ModelNodeOperations::getIndexPropertyName(currentSelectedNode);
+
+    QTC_ASSERT(currentSelectedNode.metaInfo().hasProperty(propertyName), return false);
+
+    QmlItemNode containerItemNode(currentSelectedNode);
+
+    QTC_ASSERT(containerItemNode.isValid(), return false);
+
+    if (containerItemNode.hasBindingProperty(propertyName)) {
+        const AbstractProperty resolvedProperty = containerItemNode.bindingProperty(propertyName)
+                                                      .resolveToProperty();
+        if (resolvedProperty.isValid() && resolvedProperty.isVariantProperty()) {
+            auto variantProperty = resolvedProperty.toVariantProperty();
+            if (!variantProperty.isValid())
+                return false;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    return containerItemNode.modelNode().hasVariantProperty(propertyName);
+}
+
 bool isStackedContainerWithoutTabBar(const SelectionContext &context)
 {
     if (!isStackedContainer(context))
@@ -1196,11 +1229,38 @@ bool isStackedContainerAndIndexCanBeDecreased(const SelectionContext &context)
     QTC_ASSERT(currentSelectedNode.metaInfo().hasProperty(propertyName), return false);
 
     QmlItemNode containerItemNode(currentSelectedNode);
+
     QTC_ASSERT(containerItemNode.isValid(), return false);
 
-    const int value = containerItemNode.instanceValue(propertyName).toInt();
+    auto isMoreThan = [](const QVariant &variant, int min) -> bool {
+        if (!variant.isValid())
+            return false;
 
-    return value > 0;
+        bool ok = false;
+        int value = variant.toInt(&ok);
+        return ok && value > min;
+    };
+
+    if (currentSelectedNode.hasBindingProperty(propertyName)) {
+        const AbstractProperty resolvedProperty = currentSelectedNode.bindingProperty(propertyName)
+                                                      .resolveToProperty();
+        if (resolvedProperty.isValid() && resolvedProperty.isVariantProperty()) {
+            const auto variantProperty = resolvedProperty.toVariantProperty();
+            if (!variantProperty.isValid())
+                return false;
+
+            if (isMoreThan(variantProperty.value(), 0))
+                return true;
+        }
+
+        return false;
+    }
+
+    QVariant modelValue = containerItemNode.modelValue(propertyName);
+    if (isMoreThan(modelValue, 0))
+        return true;
+
+    return false;
 }
 
 bool isStackedContainerAndIndexCanBeIncreased(const SelectionContext &context)
@@ -1215,13 +1275,40 @@ bool isStackedContainerAndIndexCanBeIncreased(const SelectionContext &context)
     QTC_ASSERT(currentSelectedNode.metaInfo().hasProperty(propertyName), return false);
 
     QmlItemNode containerItemNode(currentSelectedNode);
+
     QTC_ASSERT(containerItemNode.isValid(), return false);
 
-    const int value = containerItemNode.instanceValue(propertyName).toInt();
+    auto isLessThan = [](const QVariant &variant, int max) -> bool {
+        if (!variant.isValid())
+            return false;
+
+        bool ok = false;
+        int value = variant.toInt(&ok);
+        return ok && value < max;
+    };
 
     const int maxValue = currentSelectedNode.directSubModelNodes().size() - 1;
 
-    return value < maxValue;
+    if (currentSelectedNode.hasBindingProperty(propertyName)) {
+        const AbstractProperty resolvedProperty = currentSelectedNode.bindingProperty(propertyName)
+                                                      .resolveToProperty();
+        if (resolvedProperty.isValid() && resolvedProperty.isVariantProperty()) {
+            const auto variantProperty = resolvedProperty.toVariantProperty();
+            if (!variantProperty.isValid())
+                return false;
+
+            if (isLessThan(variantProperty.value(), maxValue))
+                return true;
+        }
+
+        return false;
+    }
+
+    QVariant modelValue = containerItemNode.modelValue(propertyName);
+    if (isLessThan(modelValue, maxValue))
+        return true;
+
+    return false;
 }
 
 bool isGroup(const SelectionContext &context)
@@ -1851,40 +1938,38 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isStackedContainer,
                           &isStackedContainer));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          addTabBarToStackedContainerCommandId,
-                          addTabBarToStackedContainerDisplayName,
-                          {},
-                          stackedContainerCategory,
-                          QKeySequence("Ctrl+Shift+t"),
-                          2,
-                          &addTabBarToStackedContainer,
-                          &isStackedContainerWithoutTabBar,
-                          &isStackedContainer));
+    addDesignerAction(new ModelNodeContextMenuAction(addTabBarToStackedContainerCommandId,
+                                                     addTabBarToStackedContainerDisplayName,
+                                                     {},
+                                                     stackedContainerCategory,
+                                                     QKeySequence("Ctrl+Shift+t"),
+                                                     2,
+                                                     &addTabBarToStackedContainer,
+                                                     &isStackedContainerWithoutTabBar,
+                                                     &isStackedContainer));
 
-    addDesignerAction(new ModelNodeFormEditorAction(
-                          decreaseIndexOfStackedContainerCommandId,
-                          decreaseIndexToStackedContainerDisplayName,
-                          prevIcon.icon(),
-                          decreaseIndexOfStackedContainerToolTip,
-                          stackedContainerCategory,
-                          QKeySequence("Ctrl+Shift+Left"),
-                          3,
-                          &decreaseIndexOfStackedContainer,
-                          &isStackedContainerAndIndexCanBeDecreased,
-                          &isStackedContainer));
-
-    addDesignerAction(new ModelNodeFormEditorAction(
-                          increaseIndexOfStackedContainerCommandId,
-                          increaseIndexToStackedContainerDisplayName,
-                          nextIcon.icon(),
-                          increaseIndexOfStackedContainerToolTip,
-                          stackedContainerCategory,
-                          QKeySequence("Ctrl+Shift+Right"),
-                          4,
-                          &increaseIndexOfStackedContainer,
-                          &isStackedContainerAndIndexCanBeIncreased,
-                          &isStackedContainer));
+    addDesignerAction(
+        new ModelNodeFormEditorAction(decreaseIndexOfStackedContainerCommandId,
+                                      decreaseIndexToStackedContainerDisplayName,
+                                      prevIcon.icon(),
+                                      decreaseIndexOfStackedContainerToolTip,
+                                      stackedContainerCategory,
+                                      QKeySequence("Ctrl+Shift+Left"),
+                                      3,
+                                      &decreaseIndexOfStackedContainer,
+                                      &isStackedContainerAndIndexCanBeDecreased,
+                                      &isStackedContainerAndIndexIsVariantOrResolvableBinding));
+    addDesignerAction(
+        new ModelNodeFormEditorAction(increaseIndexOfStackedContainerCommandId,
+                                      increaseIndexToStackedContainerDisplayName,
+                                      nextIcon.icon(),
+                                      increaseIndexOfStackedContainerToolTip,
+                                      stackedContainerCategory,
+                                      QKeySequence("Ctrl+Shift+Right"),
+                                      4,
+                                      &increaseIndexOfStackedContainer,
+                                      &isStackedContainerAndIndexCanBeIncreased,
+                                      &isStackedContainerAndIndexIsVariantOrResolvableBinding));
 
     addDesignerAction(
         new ModelNodeAction(layoutRowLayoutCommandId,

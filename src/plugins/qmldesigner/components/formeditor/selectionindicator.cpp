@@ -74,8 +74,8 @@ void SelectionIndicator::clear()
 
 static QPolygonF boundingRectInLayerItemSpaceForItem(FormEditorItem *item, QGraphicsItem *layerItem)
 {
-     QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect()));
-     return layerItem->mapFromScene(boundingRectInSceneSpace);
+    QPolygonF boundingRectInSceneSpace(item->mapToScene(item->qmlItemNode().instanceBoundingRect()));
+    return layerItem->mapFromScene(boundingRectInSceneSpace);
 }
 
 static bool checkSingleSelection(const QList<FormEditorItem*> &itemList)
@@ -204,7 +204,7 @@ void SelectionIndicator::setCursor(const QCursor &cursor)
 
     m_cursor = cursor;
 
-    for (QGraphicsItem  *item : std::as_const(m_indicatorShapeHash))
+    for (QGraphicsItem *item : std::as_const(m_indicatorShapeHash))
         item->setCursor(cursor);
 }
 
@@ -212,23 +212,23 @@ void SelectionIndicator::adjustAnnotationPosition(const QRectF &itemRect, const 
 {
     NanotraceHR::Tracer tracer{"selection indicator adjust annotation position", category()};
 
-    if (!m_annotationItem) return;
+    if (!m_annotationItem)
+        return;
 
     const qreal iconWShift = m_annotationItem->iconWidth() * 0.5;
-    const qreal iconHShift = (m_annotationItem->iconHeight() * 0.45)/scaleFactor;
+    const qreal iconHShift = (m_annotationItem->iconHeight() * 0.45) / scaleFactor;
     qreal iconX = 0.0;
     qreal iconY = -(iconHShift);
 
-    if (((labelRect.width() + iconWShift)/scaleFactor) > itemRect.width())
-        iconY -= labelRect.height()/scaleFactor;
+    if (((labelRect.width() + iconWShift) / scaleFactor) > itemRect.width())
+        iconY -= labelRect.height() / scaleFactor;
 
-    if ((iconWShift/scaleFactor) > itemRect.width())
+    if ((iconWShift / scaleFactor) > itemRect.width())
         iconX = 0.0;
     else
-        iconX = (itemRect.width()) - (iconWShift/scaleFactor);
+        iconX = (itemRect.width()) - (iconWShift / scaleFactor);
 
-    m_annotationItem->setPos(iconX*scaleFactor, iconY*scaleFactor);
+    m_annotationItem->setPos(iconX * scaleFactor, iconY * scaleFactor);
 }
-
 }
 

@@ -1132,6 +1132,46 @@ static void setIndexProperty(const AbstractProperty &property, const QVariant &v
     Core::AsynchronousMessageBox::warning(title, description);
 }
 
+static std::optional<int> getIndexProperty(const AbstractProperty &property)
+{
+    if (property.isBindingProperty()) {
+        const AbstractProperty resolvedProperty = property.toBindingProperty().resolveToProperty();
+        if (resolvedProperty.isValid() && resolvedProperty.isVariantProperty()) {
+            const auto variantProperty = resolvedProperty.toVariantProperty();
+            if (!variantProperty.isValid())
+                return std::nullopt;
+
+            auto variant = variantProperty.value();
+            if (!variant.isValid())
+                return std::nullopt;
+
+            bool ok = false;
+            int value = variant.toInt(&ok);
+            if (!ok)
+                return std::nullopt;
+
+            return value;
+        }
+    } else {
+        QmlItemNode itemNode(property.parentModelNode());
+        if (!itemNode.isValid())
+            return std::nullopt;
+
+        QVariant modelValue(itemNode.modelValue(property.name()));
+        if (!modelValue.isValid())
+            return std::nullopt;
+
+        bool ok = false;
+        int value = modelValue.toInt(&ok);
+        if (!ok)
+            return std::nullopt;
+
+        return value;
+    }
+
+    return std::nullopt;
+}
+
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext)
 {
     AbstractView *view = selectionContext.view();
@@ -1144,17 +1184,16 @@ void increaseIndexOfStackedContainer(const SelectionContext &selectionContext)
     const PropertyName propertyName = getIndexPropertyName(container);
     QTC_ASSERT(container.metaInfo().hasProperty(propertyName), return);
 
-    QmlItemNode containerItemNode(container);
-    QTC_ASSERT(containerItemNode.isValid(), return);
+    std::optional<int> value = getIndexProperty(container.property(propertyName));
+    QTC_ASSERT(value, return);
 
-    int value = containerItemNode.instanceValue(propertyName).toInt();
-    ++value;
+    ++*value;
 
     const int maxValue = container.directSubModelNodes().size();
 
     QTC_ASSERT(value < maxValue, return);
 
-    setIndexProperty(container.property(propertyName), value);
+    setIndexProperty(container.property(propertyName), *value);
 }
 
 void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext)
@@ -1169,15 +1208,14 @@ void decreaseIndexOfStackedContainer(const SelectionContext &selectionContext)
     const PropertyName propertyName = getIndexPropertyName(container);
     QTC_ASSERT(container.metaInfo().hasProperty(propertyName), return);
 
-    QmlItemNode containerItemNode(container);
-    QTC_ASSERT(containerItemNode.isValid(), return);
+    std::optional<int> value = getIndexProperty(container.property(propertyName));
+    QTC_ASSERT(value, return);
 
-    int value = containerItemNode.instanceValue(propertyName).toInt();
-    --value;
+    --*value;
 
     QTC_ASSERT(value > -1, return);
 
-    setIndexProperty(container.property(propertyName), value);
+    setIndexProperty(container.property(propertyName), *value);
 }
 
 void addTabBarToStackedContainer(const SelectionContext &selectionContext)
