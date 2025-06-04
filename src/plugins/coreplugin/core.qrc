@@ -12,5 +12,7 @@
         <file>images/qtlogo@2x.png</file>
         <file>images/settingscategory_help.png</file>
         <file>images/settingscategory_help@2x.png</file>
+        <file>images/settingscategory_ai.png</file>
+        <file>images/settingscategory_ai@2x.png</file>
     </qresource>
 </RCC>

@@ -16,7 +16,5 @@ const char COPILOT_NEXT_SUGGESTION[] = "Copilot.NextSuggestion";
 const char COPILOT_PREVIOUS_SUGGESTION[] = "Copilot.PreviousSuggestion";
 
 const char COPILOT_GENERAL_OPTIONS_ID[] = "Copilot.General";
-const char COPILOT_GENERAL_OPTIONS_CATEGORY[] = "ZY.Copilot";
-const char COPILOT_GENERAL_OPTIONS_DISPLAY_CATEGORY[] = "Copilot";
 
 } // namespace Copilot::Constants

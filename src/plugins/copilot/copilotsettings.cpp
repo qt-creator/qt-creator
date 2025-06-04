@@ -7,12 +7,12 @@
 #include "copilotconstants.h"
 #include "copilottr.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <projectexplorer/project.h>
 
 #include <utils/algorithm.h>
-#include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 
@@ -285,7 +285,7 @@ public:
     {
         setId(Constants::COPILOT_GENERAL_OPTIONS_ID);
         setDisplayName("Copilot");
-        setCategory(Constants::COPILOT_GENERAL_OPTIONS_CATEGORY);
+        setCategory(Core::Constants::SETTINGS_CATEGORY_AI);
         setSettingsProvider([] { return &settings(); });
     }
 };

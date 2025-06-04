@@ -275,6 +275,10 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
         Constants::SETTINGS_CATEGORY_CORE,
         Tr::tr("Environment"),
         ":/core/images/settingscategory_core.png");
+    IOptionsPage::registerCategory(
+        Constants::SETTINGS_CATEGORY_AI,
+        Tr::tr("AI"),
+        ":/core/images/settingscategory_ai.png");
 
     // Shared by Help and ScreenRecorder
     IOptionsPage::registerCategory(

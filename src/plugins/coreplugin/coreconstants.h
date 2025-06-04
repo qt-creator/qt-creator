@@ -209,6 +209,7 @@ const char WIZARD_KIND_PROJECT[] = "project";
 const char WIZARD_KIND_FILE[] = "file";
 
 const char SETTINGS_CATEGORY_CORE[] = "B.Core";
+const char SETTINGS_CATEGORY_AI[] = "ZY.AI";
 const char SETTINGS_ID_INTERFACE[] = "A.Interface";
 const char SETTINGS_ID_SYSTEM[] = "B.Core.System";
 const char SETTINGS_ID_SHORTCUTS[] = "C.Keyboard";
