@@ -162,15 +162,9 @@ private:
         for (BuildSystem *buildSystem : buildSystems) {
             if (!buildSystem || !buildSystem->isParsing())
                 continue;
-            connect(buildSystem, &BuildSystem::parsingFinished,
-                    this, [this, buildSystem](bool success) {
-                disconnect(buildSystem, &BuildSystem::parsingFinished, this, nullptr);
-                if (!success) {
-                    emit done(DoneResult::Error);
-                    return;
-                }
-                checkParsing();
-            });
+            connect(buildSystem, &BuildSystem::parsingFinished, this, [this](bool success) {
+                success ? checkParsing() : emit done(DoneResult::Error);
+            }, Qt::SingleShotConnection);
             return;
         }
         emit done(DoneResult::Success);
