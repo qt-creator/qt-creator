@@ -183,7 +183,27 @@ QVariant FileResourcesModel::modelNodeBackend() const
     return QVariant();
 }
 
+<<<<<<< HEAD   (a2c8a1 Core: fix rare crash in GeneralSettingsWidget::apply())
 bool filterMetaIcons(const QString &fileName)
+=======
+static bool checkIgnoreFile(const QString &fileName)
+{
+    QFileInfo info(fileName);
+
+    QDir currentDir = info.dir();
+
+    while (!currentDir.isRoot() && currentDir.path().contains("Dependencies")) {
+        if (QFileInfo(currentDir.absoluteFilePath("ignore-in-qds")).exists())
+            return true;
+
+        currentDir.cdUp();
+    }
+
+    return false;
+}
+
+static bool filterMetaIcons(const QString &fileName)
+>>>>>>> CHANGE (1a3998 QmlDesigner: Skip Dependencies folder for resources)
 {
     QFileInfo info(fileName);
 
@@ -219,6 +239,10 @@ void FileResourcesModel::refreshModel()
         QDirIterator it(dirPath.absolutePath(), filterList, QDir::Files, QDirIterator::Subdirectories);
         while (it.hasNext()) {
             const QString absolutePath = it.next();
+
+            if (checkIgnoreFile(absolutePath))
+                continue;
+
             if (filterMetaIcons(absolutePath)) {
                 const QString relativeFilePath = m_docPath.relativeFilePath(absolutePath);
                 m_model.append(
