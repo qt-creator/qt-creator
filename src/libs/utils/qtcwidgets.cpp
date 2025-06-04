@@ -63,7 +63,7 @@ enum WidgetState {
 static const TextFormat &buttonTF(QtcButton::Role role, WidgetState state)
 {
     static const TextFormat largePrimaryTF
-        {Theme::Token_Basic_White, StyleHelper::UiElement::UiElementButtonMedium,
+        {Theme::Token_Text_On_Accent, StyleHelper::UiElement::UiElementButtonMedium,
          Qt::AlignCenter | Qt::TextDontClip | Qt::TextShowMnemonic};
     static const TextFormat largeSecondaryTF
         {Theme::Token_Text_Default, largePrimaryTF.uiElement, largePrimaryTF.drawTextFlags};
@@ -506,7 +506,7 @@ void QtcSwitch::paintEvent([[maybe_unused]] QPaintEvent *event)
         StyleHelper::drawCardBg(&p, trackR, fill, outline, trackRounding);
     }
     { // track label
-        const QColor color = creatorColor(isEnabled() ? (isChecked() ? Theme::Token_Basic_White
+        const QColor color = creatorColor(isEnabled() ? (isChecked() ? Theme::Token_Text_On_Accent
                                                                      : Theme::Token_Text_Muted)
                                                       : Theme::Token_Text_Subtle);
         const int labelS = 6;

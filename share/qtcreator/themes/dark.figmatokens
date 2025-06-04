@@ -23,6 +23,7 @@ Token_Text_Default=Primitive-Neutral-150
 Token_Text_Muted=Primitive-Neutral-350
 Token_Text_Subtle=Primitive-Neutral-550
 Token_Text_Accent=Primitive-Neon-500
+Token_Text_On_Accent=Primitive-Neutral-100
 
 Token_Stroke_Strong=Primitive-Neutral-200
 Token_Stroke_Muted=Primitive-Neutral-450
