@@ -12,8 +12,6 @@ namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT GnuMakeParser : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     explicit GnuMakeParser();
 

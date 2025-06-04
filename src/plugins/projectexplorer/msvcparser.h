@@ -12,8 +12,6 @@ namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT MsvcParser :  public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     MsvcParser();
 
@@ -31,8 +29,6 @@ private:
 
 class PROJECTEXPLORER_EXPORT ClangClParser :  public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     ClangClParser();
 

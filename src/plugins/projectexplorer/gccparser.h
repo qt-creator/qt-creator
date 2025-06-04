@@ -13,8 +13,6 @@ namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT GccParser : public OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     GccParser();
 

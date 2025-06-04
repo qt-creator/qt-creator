@@ -14,8 +14,6 @@ namespace QtSupport {
 
 class QTSUPPORT_EXPORT QtParser : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     QtParser();
 

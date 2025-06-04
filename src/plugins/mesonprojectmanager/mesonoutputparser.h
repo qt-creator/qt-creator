@@ -6,17 +6,13 @@
 #include <projectexplorer/ioutputparser.h>
 
 #include <utils/outputformatter.h>
-#include <utils/fileutils.h>
 
 #include <QRegularExpression>
-
-#include <array>
 
 namespace MesonProjectManager::Internal {
 
 class MesonOutputParser final : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
     const QRegularExpression m_errorFileLocRegex{R"((^.*meson.build):(\d+):(\d+): ERROR)"};
     const QRegularExpression m_errorOptionRegex{R"!(ERROR: Value)!"};
     int m_remainingLines = 0;

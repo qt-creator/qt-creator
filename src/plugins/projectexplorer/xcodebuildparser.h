@@ -18,7 +18,6 @@ class ProjectExplorerTest;
 
 class PROJECTEXPLORER_EXPORT XcodebuildParser : public OutputTaskParser
 {
-    Q_OBJECT
 public:
     enum XcodebuildStatus {
         InXcodebuild,

@@ -9,8 +9,6 @@ namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT OsParser : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     OsParser();
 

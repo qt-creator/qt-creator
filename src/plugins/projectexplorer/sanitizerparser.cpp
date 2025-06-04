@@ -24,7 +24,6 @@ namespace ProjectExplorer::Internal {
 
 class SanitizerParser final : public OutputTaskParser
 {
-private:
     Result handleLine(const QString &line, OutputFormat format) final;
     void flush() final;
 

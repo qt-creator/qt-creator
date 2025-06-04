@@ -14,8 +14,6 @@ namespace CMakeProjectManager {
 
 class CMAKE_EXPORT CMakeAutogenParser : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     explicit CMakeAutogenParser();
 

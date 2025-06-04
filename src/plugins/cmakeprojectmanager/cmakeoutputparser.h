@@ -18,8 +18,6 @@ namespace CMakeProjectManager {
 
 class CMAKE_EXPORT CMakeOutputParser : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     explicit CMakeOutputParser();
     void setSourceDirectory(const Utils::FilePath &sourceDir);

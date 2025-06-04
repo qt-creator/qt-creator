@@ -10,8 +10,6 @@ namespace QtSupport::Internal {
 
 class QtTestParser : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
     void flush() override { emitCurrentTask(); }
 

@@ -13,8 +13,6 @@ namespace QmakeProjectManager {
 
 class QMAKEPROJECTMANAGER_EXPORT QMakeParser : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     QMakeParser();
 

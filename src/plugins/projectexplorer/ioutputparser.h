@@ -13,7 +13,6 @@ class Task;
 
 class PROJECTEXPLORER_EXPORT OutputTaskParser : public Utils::OutputLineParser
 {
-    Q_OBJECT
 public:
     OutputTaskParser();
     ~OutputTaskParser() override;

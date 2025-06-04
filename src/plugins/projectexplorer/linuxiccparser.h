@@ -11,8 +11,6 @@ namespace ProjectExplorer {
 
 class LinuxIccParser : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     LinuxIccParser();
 

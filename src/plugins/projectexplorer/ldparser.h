@@ -11,8 +11,6 @@ namespace ProjectExplorer::Internal {
 
 class LdParser : public ProjectExplorer::OutputTaskParser
 {
-    Q_OBJECT
-
 public:
     LdParser();
 private:
