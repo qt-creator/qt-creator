@@ -173,7 +173,6 @@ public:
     NodeMetaInfo qtQuick3DMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DModelMetaInfo() const;
     NodeMetaInfo qtQuick3DNodeMetaInfo() const;
-    NodeMetaInfo qtQuick3DObject3DMetaInfo() const;
     NodeMetaInfo qtQuick3DOrthographicCameraMetaInfo() const;
     NodeMetaInfo qtQuick3DParticles3DSpriteParticle3DMetaInfo() const;
     NodeMetaInfo qtQuick3DPerspectiveCameraMetaInfo() const;

@@ -189,7 +189,6 @@ public:
     bool isQtQuickListView() const;
     bool isQtQuickGridView() const;
     bool isQtQuick3DMaterial() const;
-<<<<<<< HEAD   (8777d4 qds: increase version to 4.7.2)
     bool isQtQuick3DModel() const;
     bool isQtQuick3DNode() const;
     bool isQtQuick3DParticlesAbstractShape() const;
@@ -250,69 +249,6 @@ public:
     bool isVector4D() const;
     bool isView() const;
     bool usesCustomParser() const;
-=======
-    bool isQtQuick3DModel(SL sl = {}) const;
-    bool isQtQuick3DNode(SL sl = {}) const;
-    bool isQtQuick3DObject3D(SL sl = {}) const;
-    bool isQtQuick3DParticlesAbstractShape(SL sl = {}) const;
-    bool isQtQuick3DParticles3DAffector3D(SL sl = {}) const;
-    bool isQtQuick3DParticles3DAttractor3D(SL sl = {}) const;
-    bool isQtQuick3DParticles3DParticle3D(SL sl = {}) const;
-    bool isQtQuick3DParticles3DParticleEmitter3D(SL sl = {}) const;
-    bool isQtQuick3DParticles3DSpriteParticle3D(SL sl = {}) const;
-    bool isQtQuick3DPass(SL sl = {}) const;
-    bool isQtQuick3DPrincipledMaterial(SL sl = {}) const;
-    bool isQtQuick3DSpecularGlossyMaterial(SL sl = {}) const;
-    bool isQtQuick3DSceneEnvironment(SL sl = {}) const;
-    bool isQtQuick3DShader(SL sl = {}) const;
-    bool isQtQuick3DTexture(SL sl = {}) const;
-    bool isQtQuick3DTextureInput(SL sl = {}) const;
-    bool isQtQuick3DCubeMapTexture(SL sl = {}) const;
-    bool isQtQuick3DView3D(SL sl = {}) const;
-    bool isQtQuickBorderImage(SL sl = {}) const;
-    bool isQtQuickControlsLabel(SL sl = {}) const;
-    bool isQtQuickControlsSwipeView(SL sl = {}) const;
-    bool isQtQuickControlsTabBar(SL sl = {}) const;
-    bool isQtQuickExtrasPicture(SL sl = {}) const;
-    bool isQtQuickGradient(SL sl = {}) const;
-    bool isQtQuickImage(SL sl = {}) const;
-    bool isQtQuickItem(SL sl = {}) const;
-    bool isQtQuickLayoutsLayout(SL sl = {}) const;
-    bool isQtQuickLoader(SL sl = {}) const;
-    bool isQtQuickPath(SL sl = {}) const;
-    bool isQtQuickPauseAnimation(SL sl = {}) const;
-    bool isQtQuickPositioner(SL sl = {}) const;
-    bool isQtQuickPropertyAnimation(SL sl = {}) const;
-    bool isQtQuickPropertyChanges(SL sl = {}) const;
-    bool isQtQuickRectangle(SL sl = {}) const;
-    bool isQtQuickRepeater(SL sl = {}) const;
-    bool isQtQuickShapesShape(SL sl = {}) const;
-    bool isQtQuickState(SL sl = {}) const;
-    bool isQtQuickStateGroup(SL sl = {}) const;
-    bool isQtQuickStateOperation(SL sl = {}) const;
-    bool isQtQuickStudioComponentsArcItem(SL sl = {}) const;
-    bool isQtQuickStudioComponentsGroupItem(SL sl = {}) const;
-    bool isQtQuickStudioComponentsSvgPathItem(SL sl = {}) const;
-    bool isQtQuickStudioUtilsJsonListModel(SL sl = {}) const;
-    bool isQtQuickText(SL sl = {}) const;
-    bool isQtQuickTimelineKeyframe(SL sl = {}) const;
-    bool isQtQuickTimelineKeyframeGroup(SL sl = {}) const;
-    bool isQtQuickTimelineTimeline(SL sl = {}) const;
-    bool isQtQuickTimelineTimelineAnimation(SL sl = {}) const;
-    bool isQtQuickTransition(SL sl = {}) const;
-    bool isQtQuickWindowWindow(SL sl = {}) const;
-    bool isQtSafeRendererSafePicture(SL sl = {}) const;
-    bool isQtSafeRendererSafeRendererPicture(SL sl = {}) const;
-    bool isString(SL sl = {}) const;
-    bool isSuitableForMouseAreaFill(SL sl = {}) const;
-    bool isUrl(SL sl = {}) const;
-    bool isVariant(SL sl = {}) const;
-    bool isVector2D(SL sl = {}) const;
-    bool isVector3D(SL sl = {}) const;
-    bool isVector4D(SL sl = {}) const;
-    bool isView(SL sl = {}) const;
-    bool usesCustomParser(SL sl = {}) const;
->>>>>>> CHANGE (472b88 QmlDesigner: Fix drag & drop 3D components into 2D/3D view)
 
     bool isEnumeration() const;
 #ifndef QDS_USE_PROJECTSTORAGE
