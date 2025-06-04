@@ -296,7 +296,7 @@ bool QmllsClientSettings::useQmllsWithBuiltinCodemodelOnProject(Project *project
         return false;
 
     // disableBuitinCodemodel only makes sense when qmlls is enabled
-    return isEnabledOnProject(project) && project->isKnownFile(file);
+    return project && isEnabledOnProject(project) && project->isKnownFile(file);
 }
 
 // first time initialization: port old settings from the QmlJsEditingSettings AspectContainer

@@ -85,7 +85,6 @@ public:
                                  QmllsStatus::Source::EmbeddedCodeModel,
                                  QmllsStatus::Source::EmbeddedCodeModel,
                                  {}};
-    TextEditor::TabSettings m_tabSettings;
 };
 
 } // Internal

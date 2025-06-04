@@ -53,7 +53,7 @@ CMakeProject::CMakeProject(const FilePath &fileName)
 {
     setId(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setDisplayName(projectDirectory().fileName());
+    setDisplayName(projectDisplayName(projectFilePath()));
     setCanBuildProducts();
     setBuildSystemCreator<CMakeBuildSystem>("cmake");
 
@@ -253,6 +253,44 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
                       .environment;
         }
     }
+}
+
+QString CMakeProject::projectDisplayName(const Utils::FilePath &projectFilePath)
+{
+    const QString fallbackDisplayName = projectFilePath.absolutePath().fileName();
+
+    Result<QByteArray> fileContent = projectFilePath.fileContents();
+    cmListFile cmakeListFile;
+    std::string errorString;
+    if (fileContent) {
+        fileContent = fileContent->replace("\r\n", "\n");
+        if (!cmakeListFile.ParseString(
+                fileContent->toStdString(), projectFilePath.fileName().toStdString(), errorString)) {
+            return fallbackDisplayName;
+        }
+    }
+
+    QHash<QString, QString> setVariables;
+    for (const auto &func : cmakeListFile.Functions) {
+        if (func.LowerCaseName() == "set" && func.Arguments().size() == 2)
+            setVariables.insert(
+                QString::fromUtf8(func.Arguments()[0].Value),
+                QString::fromUtf8(func.Arguments()[1].Value));
+
+        if (func.LowerCaseName() == "project" && func.Arguments().size() > 0) {
+            const QString projectName = QString::fromUtf8(func.Arguments()[0].Value);
+            if (projectName.startsWith("${") && projectName.endsWith("}")) {
+                const QString projectVar = projectName.mid(2, projectName.size() - 3);
+                if (setVariables.contains(projectVar))
+                    return setVariables.value(projectVar);
+                else
+                    return fallbackDisplayName;
+            }
+            return projectName;
+        }
+    }
+
+    return fallbackDisplayName;
 }
 
 Internal::CMakeSpecificSettings &CMakeProject::settings()

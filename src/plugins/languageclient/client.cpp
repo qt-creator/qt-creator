@@ -189,18 +189,9 @@ public:
         // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
         for (TextDocument *document : m_resetAssistProvider.keys())
             resetAssistProviders(document);
-        if (!ExtensionSystem::PluginManager::isShuttingDown()) {
-            // prevent accessing deleted editors on Creator shutdown
-            const QList<Core::IEditor *> &editors = Core::DocumentModel::editorsForOpenedDocuments();
-            for (Core::IEditor *editor : editors) {
-                if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
-                    TextEditorWidget *widget = textEditor->editorWidget();
-                    widget->clearRefactorMarkers(m_id);
-                    widget->removeHoverHandler(&m_hoverHandler);
-                }
-            }
-            updateOpenedEditorToolBars();
-        }
+        for (auto activeEditor : m_activeEditors)
+            q->deactivateEditor(activeEditor);
+
         for (IAssistProcessor *processor : std::as_const(m_runningAssistProcessors))
             processor->setAsyncProposalAvailable(nullptr);
         qDeleteAll(m_documentHighlightsTimer);
@@ -352,6 +343,7 @@ public:
     DiagnosticManager *m_diagnosticManager = nullptr;
     DocumentSymbolCache m_documentSymbolCache;
     HoverHandler m_hoverHandler;
+    QSet<TextEditor::BaseTextEditor *> m_activeEditors;
     QHash<LanguageServerProtocol::DocumentUri, TextEditor::HighlightingResults> m_highlights;
     QPointer<BuildConfiguration> m_bc;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
@@ -749,7 +741,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
     }
 }
 
-bool Client::activeClient() const
+bool Client::activatable() const
 {
     return d->m_activatable;
 }
@@ -1033,6 +1025,7 @@ void Client::activateEditor(Core::IEditor *editor)
         TextEditor::IOutlineWidgetFactory::updateOutline();
     if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
         TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+        QTC_ASSERT(widget, return);
         widget->addHoverHandler(&d->m_hoverHandler);
         d->requestDocumentHighlights(widget);
         uint optionalActions = widget->optionalActions();
@@ -1049,6 +1042,10 @@ void Client::activateEditor(Core::IEditor *editor)
         if (supportsTypeHierarchy(this, textEditor->document()))
             optionalActions |= TextEditor::OptionalActions::TypeHierarchy;
         widget->setOptionalActions(optionalActions);
+        d->m_activeEditors.insert(textEditor);
+        connect(textEditor, &QObject::destroyed, this, [this, textEditor]() {
+            d->m_activeEditors.remove(textEditor);
+        });
     }
 }
 
@@ -1059,15 +1056,24 @@ void Client::deactivateDocument(TextEditor::TextDocument *document)
     d->resetAssistProviders(document);
     document->setFormatter(nullptr);
     d->m_tokenSupport.deactivateDocument(document);
-    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
-        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
-            TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
-            widget->removeHoverHandler(&d->m_hoverHandler);
-            widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
-            widget->clearRefactorMarkers(id());
-            updateEditorToolBar(editor);
-        }
-    }
+    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document))
+        deactivateEditor(editor);
+}
+
+void Client::deactivateEditor(Core::IEditor *editor)
+{
+    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+    if (!textEditor)
+        return;
+
+    d->m_activeEditors.remove(textEditor);
+
+    TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+    QTC_ASSERT(widget, return);
+    widget->removeHoverHandler(&d->m_hoverHandler);
+    widget->setExtraSelections(TextEditor::TextEditorWidget::CodeSemanticsSelection, {});
+    widget->clearRefactorMarkers(id());
+    updateEditorToolBar(editor);
 }
 
 void ClientPrivate::documentClosed(Core::IDocument *document)

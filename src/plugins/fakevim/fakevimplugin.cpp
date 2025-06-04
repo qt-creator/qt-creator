@@ -1308,9 +1308,14 @@ void FakeVimPlugin::moveSomewhere(FakeVimHandler *handler, DistFunction f, int c
 {
     QTC_ASSERT(handler, return);
     QWidget *w = handler->widget();
-    auto pe = qobject_cast<QPlainTextEdit *>(w);
-    QTC_ASSERT(pe, return);
-    QRect rc = pe->cursorRect();
+    QRect rc;
+    if (auto pe = qobject_cast<QPlainTextEdit *>(w)) {
+        rc = pe->cursorRect();
+    } else if (auto pe = qobject_cast<PlainTextEdit *>(w)) {
+        rc = pe->cursorRect();
+    } else {
+        QTC_ASSERT(false, return);
+    }
     QRect cursorRect(w->mapToGlobal(rc.topLeft()), w->mapToGlobal(rc.bottomRight()));
     //qDebug() << "\nCURSOR: " << cursorRect;
 

@@ -181,6 +181,7 @@
 
                     \list
                         \li Double-click the empty part of the view.
+                            \image {qtcreator-debugger-breakpoint-preset.webp} {Breakpoint Preset view}
                         \li Right-click the view, and select
                             \uicontrol {Add Breakpoint} in the context menu.
                     \endlist
@@ -278,6 +279,7 @@
              \uicontrol Breakpoints view, select
              \uicontrol {Edit Selected Breakpoints}, and set the
              line number in \uicontrol {Line number}.
+            \image {qtcreator-add-breakpoint.webp} {Breakpoint options}
     \endlist
 
     \section1 Delete breakpoints
@@ -355,6 +357,7 @@
 
         \li In the \uicontrol {Breakpoint Preset} or \uicontrol Breakpoints
             view, select \uicontrol {Add Breakpoint} in the context menu.
+            \image {qtcreator-add-breakpoint.webp} {Add Breakpoints dialog}
 
         \li In \uicontrol {Breakpoint type}, select
             \uicontrol {Break on data access at fixed address}.

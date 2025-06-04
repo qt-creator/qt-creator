@@ -37,6 +37,7 @@ public:
     QList<ProjectExplorer::Kit *> oldPresetKits() const;
 
     Internal::CMakeSpecificSettings &settings();
+    static QString projectDisplayName(const Utils::FilePath &projectFilePath);
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;

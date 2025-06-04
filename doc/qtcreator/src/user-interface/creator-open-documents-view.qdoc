@@ -25,7 +25,7 @@
     \if defined(qtdesignstudio)
     \image {open-documents-view.webp} {Open Documents view.}
     \else
-    \image {qtcreator-open-documents-view.png} {Open Documents view}
+    \image {qtcreator-open-documents-view.webp} {Open Documents view}
     \endif
 
     You can use the context menu to apply some of the functions also available

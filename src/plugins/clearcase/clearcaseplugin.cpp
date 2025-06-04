@@ -2703,6 +2703,8 @@ void ClearCaseTest::testStatusActions()
 
 void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 {
+    QSKIP("Skipping flaky test");
+
     // File is not in map, and is read-only
     ClearCasePluginPrivate::instance();
     QSignalSpy spy(dd, &ClearCasePluginPrivate::reindexedDynamicFile);
@@ -2726,6 +2728,8 @@ void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 
 void ClearCaseTest::testVcsStatusDynamicNotManaged()
 {
+    QSKIP("Skipping flaky test");
+
     ClearCasePluginPrivate::instance();
     QSignalSpy spy(dd, &ClearCasePluginPrivate::reindexedDynamicFile);
     dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);

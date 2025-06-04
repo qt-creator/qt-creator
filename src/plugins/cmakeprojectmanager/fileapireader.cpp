@@ -93,11 +93,10 @@ void FileApiReader::parse(bool forceCMakeRun,
     startState();
 
     QStringList args = (forceInitialConfiguration ? m_parameters.initialCMakeArguments
-                                                        : QStringList())
-                             + (forceExtraConfiguration
-                                    ? (m_parameters.configurationChangesArguments
-                                       + m_parameters.additionalCMakeArguments)
-                                    : QStringList());
+                                                  : QStringList())
+                       + (forceExtraConfiguration ? m_parameters.configurationChangesArguments
+                                                  : QStringList())
+                       + (forceCMakeRun ? m_parameters.additionalCMakeArguments : QStringList());
     if (debugging) {
         if (TemporaryDirectory::masterDirectoryFilePath().osType() == Utils::OsType::OsTypeWindows) {
             args << "--debugger"

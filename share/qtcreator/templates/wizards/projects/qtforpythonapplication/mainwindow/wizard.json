@@ -13,8 +13,8 @@
     "options":
     [
         { "key": "MainPyFileName", "value": "%{ProjectDirectory}/%{SrcFileName}" },
-        { "key": "PyProjectFile", "value": "%{ProjectFileName}" },
-        { "key": "ProjectFilePath", "value": "%{ProjectDirectory}/%{PyProjectFile}" }
+        { "key": "PyProjectTomlFile", "value": "%{ProjectDirectory}/pyproject.toml" },
+        { "key": "ProjectFilePath", "value": "%{ProjectDirectory}/%{PyProjectTomlFile}" }
     ],
 
     "pages":
@@ -58,13 +58,6 @@
                     "trDisplayName": "Source file:",
                     "mandatory": true,
                     "data": { "text": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-python'))}" }
-                },
-                {
-                    "name": "ProjectFileName",
-                    "type": "LineEdit",
-                    "trDisplayName": "Project file:",
-                    "mandatory": true,
-                    "data": { "text": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" }
                 }
             ]
         },
@@ -116,8 +109,8 @@
             "data":
             [
                 {
-                    "source": "../main.pyproject",
-                    "target": "%{PyProjectFile}",
+                    "source": "../pyproject.toml",
+                    "target": "%{PyProjectTomlFile}",
                     "openAsProject": true
                 },
                 {

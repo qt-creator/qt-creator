@@ -37,6 +37,8 @@ Editing
 -------
 
 * Enabled smooth per pixel scrolling
+* Fixed the selection behavior in `Open Documents`
+  ([QTCREATORBUG-32586](https://bugreports.qt.io/browse/QTCREATORBUG-32586))
 
 ### C++
 
@@ -63,6 +65,8 @@ Editing
   ([QTCREATORBUG-32843](https://bugreports.qt.io/browse/QTCREATORBUG-32843))
 * Fixed an issue with `Move Component into Separate File`
   ([QTCREATORBUG-32033](https://bugreports.qt.io/browse/QTCREATORBUG-32033))
+* Fixed the handling of tabs versus spaces when formatting
+  ([QTCREATORBUG-32951](https://bugreports.qt.io/browse/QTCREATORBUG-32951))
 
 ### Language Server Protocol
 
@@ -116,6 +120,14 @@ Projects
   when the CMake configuration fails with missing Qt packages
   ([QTCREATORBUG-32323](https://bugreports.qt.io/browse/QTCREATORBUG-32323))
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-edit-cmake-config-files.html))
+* Added the `QTC_RUN` environment variable when parsing presets
+  ([QTCREATORBUG-33003](https://bugreports.qt.io/browse/QTCREATORBUG-33003))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-build-settings-cmake.html#qtc-run-environment-variable))
+* Improved the performance for projects with many QML modules
+  ([QTCREATORBUG-32209](https://bugreports.qt.io/browse/QTCREATORBUG-32209))
+* Fixed that the project name in the `Projects` tree was only available
+  after parsing
+  ([QTCREATORBUG-32996](https://bugreports.qt.io/browse/QTCREATORBUG-32996))
 * Presets
     * Fixed the run device type for non-desktop targets
       ([QTCREATORBUG-32943](https://bugreports.qt.io/browse/QTCREATORBUG-32943))
@@ -209,6 +221,10 @@ Test Integration
 * Fixed test output parsing if that does not end in a newline
   ([QTCREATORBUG-32768](https://bugreports.qt.io/browse/QTCREATORBUG-32768))
 
+* Qt Test
+    * Fixed issues with parsing localized output
+      ([QTCREATORBUG-32969](https://bugreports.qt.io/browse/QTCREATORBUG-32969))
+
 Platforms
 ---------
 
@@ -236,6 +252,7 @@ Platforms
 ### Docker
 
 * Added the `Port Mappings` device setting
+* Improved performance when Docker images are missing
 * Fixed that the environment from the container entrypoint was not used even
   with `Do not modify entry point` checked
   ([QTCREATORBUG-32135](https://bugreports.qt.io/browse/QTCREATORBUG-32135))
@@ -306,4 +323,5 @@ Thomas Hartmann
 Tian Shilin  
 Tim Jenßen  
 Vikas Pachdha  
+Ville Lavonius  
 Zoltan Gera  

@@ -77,7 +77,7 @@ public:
     static bool hasError();
     static const QStringList allErrors();
     static const QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
-    static const QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
+    static const QSet<PluginSpec *> pluginsToEnableForPlugin(PluginSpec *spec);
     static void checkForProblematicPlugins();
     static PluginSpec *specForPlugin(IPlugin *plugin);
     static PluginSpec *specById(const QString &id);

@@ -217,6 +217,7 @@ void QmlJSCodeStylePreferencesWidget::qmlformatPreview()
     if (!command.isValid())
         return;
     TextEditor::TabSettings tabSettings;
+    tabSettings.m_tabSize = 4;
     QSettings settings(
         QmlJSTools::QmlFormatSettings::globalQmlFormatIniFile().toUrlishString(),
         QSettings::IniFormat);

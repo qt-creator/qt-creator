@@ -88,7 +88,7 @@ void BaseFileWizard::accept()
     // Run the extensions
     for (IFileWizardExtension *ex : std::as_const(g_fileWizardExtensions)) {
         bool remove;
-        if (const Result<> res = ex->processFiles(m_files, &remove)) {
+        if (const Result<> res = ex->processFiles(m_files, &remove); !res) {
             if (!res.error().isEmpty())
                 QMessageBox::critical(parentWidget(), Tr::tr("File Generation Failure"), res.error());
             reject();

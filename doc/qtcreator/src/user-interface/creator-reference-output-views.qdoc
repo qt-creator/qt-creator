@@ -144,8 +144,8 @@
     \list
         \li To clear the search results, select
             \inlineimage icons/clean_pane_small.png (\uicontrol Clear).
-        \li To move between instances, select \inlineimage icons/next.png
-            (\uicontrol {Next Item}) and \inlineimage icons/prev.png
+        \li To move between instances, select \inlineimage icons/arrowdown.png
+            (\uicontrol {Next Item}) and \inlineimage icons/arrowup.png
             (\uicontrol {Previous Item}).
         \li To expand and collapse the search results, select
             \inlineimage icons/qtcreator-expand.png (\uicontrol {Expand All}).

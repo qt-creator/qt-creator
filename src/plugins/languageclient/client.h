@@ -119,11 +119,13 @@ public:
     virtual void openDocument(TextEditor::TextDocument *document);
     void closeDocument(TextEditor::TextDocument *document,
                        const std::optional<Utils::FilePath> &overwriteFilePath = {});
-    bool activeClient() const;
+    bool activatable() const;
     void setActivatable(bool active);
     virtual void activateDocument(TextEditor::TextDocument *document);
     void activateEditor(Core::IEditor *editor);
     virtual void deactivateDocument(TextEditor::TextDocument *document);
+    void deactivateEditor(Core::IEditor *editor);
+
     bool documentOpen(const TextEditor::TextDocument *document) const;
     TextEditor::TextDocument *documentForFilePath(const Utils::FilePath &file) const;
     void setShadowDocument(const Utils::FilePath &filePath, const QString &contents);

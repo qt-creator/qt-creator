@@ -155,6 +155,7 @@ void PopupInfoBarDisplay::update()
         m_layout->addWidget(widget);
         m_infoWidgets.append(widget);
     }
+    setVisible(!entries.empty());
 }
 
 InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)

@@ -35,6 +35,22 @@
     To override the global preferences for a particular project, select
     \uicontrol Projects > \uicontrol {Code Style}.
 
+    \section1 Qmlformat global configuration
+
+    When you select \l {qmlformat} as the formatter, you can configure it globally
+    by editing the \uicontrol {Qmlformat global configuration} field. This field uses
+    the same format as a \c .qmlformat.ini file and overrides the \c .qmlformat.ini
+    file in the generic configuration location (\l{QStandardPaths::GenericConfigLocation}).
+
+    The \l {qmlformat} tool searches for a \c .qmlformat.ini file in the same directory as the
+    file being formatted. If it is not found, it searches the parent directories up to
+    the root directory. If no \c .qmlformat.ini file is found, the global configuration
+    is used. For information about configuring QML formatting options, see the
+    \l{qtqml-tooling-qmlformat.html#qmlformat-settings}{qmlformat configuration settings}.
+
+    \note If a custom \c .qmlformat.ini file exists in the project directory or any
+    parent directory, it takes precedence over the global configuration.
+
     \sa {Automatically format QML/JS files}, {Indent text or code}
 
     \if defined(qtcreator)

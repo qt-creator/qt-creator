@@ -221,7 +221,7 @@
 
         \li In the mode selector, select \uicontrol Debug > \uicontrol Callgrind.
 
-            \image {qtcreator-valgrind-callgrind-toolbar.png} {Callgrind view toolbar}
+            \image {qtcreator-valgrind-callgrind-toolbar.webp} {Callgrind view toolbar}
 
         \li Select \inlineimage icons/qtcreator-analyze-start-button.png
             to start the application.

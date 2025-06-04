@@ -146,7 +146,7 @@ public:
 private:
     void updateToolBar();
     QWidget *createModeWidget();
-    EditorToolBar *createMainToolBar();
+    EditorToolBar *createMainToolBar(QWidget *parent);
 
     Context m_contexts;
     QWidget *m_modeWidget = nullptr;
@@ -199,8 +199,8 @@ void ScxmlEditorData::fullInit()
     // Create widget-stack, toolbar, mainToolbar and whole design-mode widget
     m_widgetStack = new ScxmlEditorStack;
     m_widgetToolBar = new QToolBar;
-    m_mainToolBar = createMainToolBar();
     m_modeWidget = createModeWidget();
+    m_mainToolBar = createMainToolBar(m_modeWidget);
 
     // Create undo/redo group/actions
     m_undoGroup = new QUndoGroup(m_widgetToolBar);
@@ -276,9 +276,9 @@ void ScxmlEditorData::updateToolBar()
     }
 }
 
-EditorToolBar *ScxmlEditorData::createMainToolBar()
+EditorToolBar *ScxmlEditorData::createMainToolBar(QWidget *parent)
 {
-    auto toolBar = new EditorToolBar;
+    auto toolBar = new EditorToolBar(parent);
     toolBar->setToolbarCreationFlags(EditorToolBar::FlagsStandalone);
     toolBar->setNavigationVisible(false);
     toolBar->addCenterToolBar(m_widgetToolBar);

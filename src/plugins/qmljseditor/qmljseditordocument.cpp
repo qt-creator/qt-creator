@@ -24,7 +24,6 @@
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
 
-#include <texteditor/tabsettings.h>
 
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
@@ -467,7 +466,6 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
     : q(parent)
     , m_semanticHighlighter(new SemanticHighlighter(parent))
     , m_outlineModel(new QmlOutlineModel(parent))
-    , m_tabSettings(parent->TextDocument::tabSettings())
 {
     ModelManagerInterface *modelManager = ModelManagerInterface::instance();
 
@@ -840,17 +838,6 @@ void QmlJSEditorDocument::setSourcesWithCapabilities(
     d->setSourcesWithCapabilities(cap);
 }
 
-TextEditor::TabSettings QmlJSEditorDocument::tabSettings() const
-{
-    return d->m_tabSettings;
-}
 
-void QmlJSEditorDocument::setTabSettings(const TextEditor::TabSettings &tabSettings)
-{
-    if (tabSettings != d->m_tabSettings) {
-        d->m_tabSettings = tabSettings;
-        emit tabSettingsChanged();
-    }
-}
 
 } // QmlJSEditor
