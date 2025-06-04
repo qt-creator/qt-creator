@@ -297,7 +297,8 @@ void GeneralSettingsWidget::apply()
         setDpiPolicy(selectedPolicy);
     }
     currentIndex = m_codecBox->currentIndex();
-    setCodecForLocale(m_codecBox->itemText(currentIndex).toLocal8Bit());
+    if (currentIndex != -1)
+        setCodecForLocale(m_codecBox->itemText(currentIndex).toLocal8Bit());
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_colorButton->color());
     m_themeChooser->apply();
