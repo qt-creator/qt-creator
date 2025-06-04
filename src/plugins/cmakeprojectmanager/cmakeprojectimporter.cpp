@@ -546,8 +546,11 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
         find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 
         if (CMAKE_CROSSCOMPILING)
+            if (CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+               set(qmake_script_suffix ".bat")
+            endif()
             find_program(qmake_binary
-                NAMES qmake qmake.bat
+                NAMES qmake${qmake_script_suffix}
                 PATHS "${Qt${QT_VERSION_MAJOR}_DIR}/../../../bin"
                 NO_DEFAULT_PATH)
             file(WRITE "${CMAKE_SOURCE_DIR}/qmake-location.txt" "${qmake_binary}")
