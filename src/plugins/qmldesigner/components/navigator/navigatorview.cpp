@@ -70,8 +70,13 @@ inline static void moveNodesUp(const QList<QmlDesigner::ModelNode> &nodes)
             index--;
             if (index < 0)
                 index = node.parentProperty().count() - 1; //wrap around
-            if (oldIndex != index)
-                node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+            if (oldIndex != index) {
+                try {
+                    node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+                } catch (QmlDesigner::Exception &exception) {
+                    exception.showException();
+                }
+            }
         }
     }
 }
@@ -85,8 +90,13 @@ inline static void moveNodesDown(const QList<QmlDesigner::ModelNode> &nodes)
             index++;
             if (index >= node.parentProperty().count())
                 index = 0; //wrap around
-            if (oldIndex != index)
-                node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+            if (oldIndex != index) {
+                try {
+                    node.parentProperty().toNodeListProperty().slide(oldIndex, index);
+                } catch (QmlDesigner::Exception &exception) {
+                    exception.showException();
+                }
+            }
         }
     }
 }
