@@ -54,7 +54,6 @@ public:
 
     void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
 
-    void nodeCreated(const ModelNode &createdNode) override;
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty,
                      PropertyChangeFlags propertyChange) override;
@@ -66,12 +65,6 @@ public:
 
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
-
-    void variantPropertiesChanged(const QList<VariantProperty> &propertyList,
-                                  PropertyChangeFlags propertyChange) override;
-
-    void bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
-                                  PropertyChangeFlags propertyChange) override;
 
     void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
 

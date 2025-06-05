@@ -99,65 +99,7 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
     if (!qmlItemNode.hasFormEditorItem())
         return;
 
-    if (qmlItemNode.isFlowTransition()) {
-        m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::FlowTransition);
-        if (qmlItemNode.hasNodeParent())
-            m_scene->reparentItem(qmlItemNode, qmlItemNode.modelParentItem());
-        m_scene->synchronizeTransformation(m_scene->itemForQmlItemNode(qmlItemNode));
-    } else if (qmlItemNode.isFlowDecision()) {
-        m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::FlowDecision);
-        if (qmlItemNode.hasNodeParent())
-            m_scene->reparentItem(qmlItemNode, qmlItemNode.modelParentItem());
-        m_scene->synchronizeTransformation(m_scene->itemForQmlItemNode(qmlItemNode));
-    } else if (qmlItemNode.isFlowWildcard()) {
-        m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::FlowWildcard);
-        if (qmlItemNode.hasNodeParent())
-            m_scene->reparentItem(qmlItemNode, qmlItemNode.modelParentItem());
-        m_scene->synchronizeTransformation(m_scene->itemForQmlItemNode(qmlItemNode));
-    } else if (qmlItemNode.isFlowActionArea()) {
-        m_scene->addFormEditorItem(qmlItemNode.toQmlItemNode(), FormEditorScene::FlowAction);
-        m_scene->synchronizeParent(qmlItemNode.toQmlItemNode());
-    } else if (qmlItemNode.isFlowItem() && !qmlItemNode.isRootNode()) {
-        m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::Flow);
-        m_scene->synchronizeParent(qmlItemNode);
-        m_scene->synchronizeTransformation(m_scene->itemForQmlItemNode(qmlItemNode));
-        for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes())
-            if (QmlItemNode::isValidQmlItemNode(nextNode) && nextNode.toQmlItemNode().isFlowActionArea()) {
-                setupFormEditorItemTree(nextNode.toQmlItemNode());
-            }
-    } else if (qmlItemNode.isFlowView() && qmlItemNode.isRootNode()) {
-        FormEditorItem *rootItem = m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::Flow);
-
-        ModelNode node = qmlItemNode.modelNode();
-        if (!node.hasAuxiliaryData(widthProperty) && !node.hasAuxiliaryData(heightProperty)) {
-            node.setAuxiliaryData(widthProperty, 10000);
-            node.setAuxiliaryData(heightProperty, 10000);
-        }
-
-        m_scene->synchronizeTransformation(rootItem);
-        formEditorWidget()->setRootItemRect(qmlItemNode.instanceBoundingRect());
-
-        const QList<QmlObjectNode> allDirectSubNodes = qmlItemNode.allDirectSubNodes();
-        for (const QmlObjectNode &childNode : allDirectSubNodes) {
-            if (QmlItemNode::isValidQmlItemNode(childNode)
-                && childNode.toQmlItemNode().isFlowItem()) {
-                setupFormEditorItemTree(childNode.toQmlItemNode());
-            }
-        }
-
-        for (const QmlObjectNode &childNode : allDirectSubNodes) {
-            if (QmlVisualNode::isValidQmlVisualNode(childNode)
-                && childNode.toQmlVisualNode().isFlowTransition()) {
-                setupFormEditorItemTree(childNode.toQmlItemNode());
-            } else if (QmlVisualNode::isValidQmlVisualNode(childNode)
-                       && childNode.toQmlVisualNode().isFlowDecision()) {
-                setupFormEditorItemTree(childNode.toQmlItemNode());
-            } else if (QmlVisualNode::isValidQmlVisualNode(childNode)
-                       && childNode.toQmlVisualNode().isFlowWildcard()) {
-                setupFormEditorItemTree(childNode.toQmlItemNode());
-            }
-        }
-    } else if (!qmlItemNode.isEffectItem()) {
+    if (!qmlItemNode.isEffectItem()) {
         m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::Default);
         for (const QmlObjectNode &nextNode : qmlItemNode.allDirectSubNodes()) //TODO instance children
             //If the node has source for components/custom parsers we ignore it.
@@ -178,12 +120,6 @@ static void deleteWithoutChildren(const QList<FormEditorItem*> &items)
     }
 }
 
-static bool isFlowNonItem(const QmlItemNode &itemNode)
-{
-    return itemNode.isFlowTransition()
-            || itemNode.isFlowWildcard();
-}
-
 void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
 {
     NanotraceHR::Tracer tracer{"form editor view remove node from scene",
@@ -196,8 +132,6 @@ void FormEditorView::removeNodeFromScene(const QmlItemNode &qmlItemNode)
         QList<QmlItemNode> nodeList = qmlItemNode.allSubModelNodes();
         nodeList.append(qmlItemNode);
         removedItemList.append(scene()->itemsForQmlItemNodes(nodeList));
-    } else if (isFlowNonItem(qmlItemNode)) {
-        removedItemList.append(scene()->itemsForQmlItemNodes({qmlItemNode}));
     }
 
     if (!removedItemList.isEmpty()) {
@@ -248,16 +182,6 @@ void FormEditorView::temporaryBlockView(int duration)
         if (m_formEditorWidget && m_formEditorWidget->graphicsView())
             m_formEditorWidget->graphicsView()->setUpdatesEnabled(true);
     });
-}
-
-void FormEditorView::nodeCreated(const ModelNode &node)
-{
-    NanotraceHR::Tracer tracer{"form editor view node created",
-                               category(),
-                               keyValue("model node", node)};
-
-    if (QmlVisualNode::isFlowTransition(node))
-        setupFormEditorItemTree(QmlItemNode(node));
 }
 
 void FormEditorView::cleanupToolsAndScene()
@@ -366,11 +290,6 @@ void FormEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty>& p
                         removedItems.append(item);
                         delete item;
                     }
-                } else if (isFlowNonItem(qmlItemNode)) {
-                    if (FormEditorItem *item = m_scene->itemForQmlItemNode(qmlItemNode)) {
-                        removedItems.append(item);
-                        delete item;
-                    }
                 }
             }
         }
@@ -470,75 +389,6 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
         m_formEditorWidget->zoomSelectionAction()->setEnabled(false);
     else
         m_formEditorWidget->zoomSelectionAction()->setEnabled(true);
-
-    for (const ModelNode &node : lastSelectedNodeList) { /*Set Z to 0 for unselected items */
-        QmlVisualNode visualNode(node); /* QmlVisualNode extends ModelNode with extra methods for "visual nodes" */
-        if (visualNode.isFlowTransition()) { /* Check if a QmlVisualNode Transition */
-            if (FormEditorItem *item = m_scene->itemForQmlItemNode(visualNode.toQmlItemNode())) { /* Get the form editor item from the form editor */
-                item->setZValue(0);
-            }
-        }
-   }
-   for (const ModelNode &node : selectedNodeList) {
-       QmlVisualNode visualNode(node);
-       if (visualNode.isFlowTransition()) {
-           if (FormEditorItem *item = m_scene->itemForQmlItemNode(visualNode.toQmlItemNode())) {
-               item->setZValue(11);
-           }
-       }
-   }
-}
-
-void FormEditorView::variantPropertiesChanged(
-    const QList<VariantProperty> &propertyList,
-    [[maybe_unused]] AbstractView::PropertyChangeFlags propertyChange)
-{
-    NanotraceHR::Tracer tracer{"form editor view variant properties changed", category()};
-
-    for (const VariantProperty &property : propertyList) {
-        QmlVisualNode node(property.parentModelNode());
-        if (node.isFlowTransition() || node.isFlowDecision()) {
-            if (FormEditorItem *item = m_scene->itemForQmlItemNode(node.toQmlItemNode())) {
-                if (property.name() == "question" || property.name() == "dialogTitle")
-                    item->updateGeometry();
-            }
-        }
-    }
-}
-
-void FormEditorView::bindingPropertiesChanged(
-    const QList<BindingProperty> &propertyList,
-    [[maybe_unused]] AbstractView::PropertyChangeFlags propertyChange)
-{
-    NanotraceHR::Tracer tracer{"form editor view binding properties changed", category()};
-
-    for (const BindingProperty &property : propertyList) {
-        QmlVisualNode node(property.parentModelNode());
-        if (node.isFlowTransition()) {
-            if (FormEditorItem *item = m_scene->itemForQmlItemNode(node.toQmlItemNode())) {
-                if (property.name() == "condition" || property.name() == "question")
-                    item->updateGeometry();
-
-                if (node.hasNodeParent()) {
-                    m_scene->reparentItem(node.toQmlItemNode(), node.toQmlItemNode().modelParentItem());
-                    m_scene->synchronizeTransformation(item);
-                    item->update();
-                }
-            }
-        } else if (QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(property.parentModelNode())) {
-            const QmlVisualNode target = property.resolveToModelNode();
-            if (target.isFlowTransition()) {
-                FormEditorItem *item = m_scene->itemForQmlItemNode(target.toQmlItemNode());
-                if (item) {
-                    const QmlItemNode itemNode = node.toQmlItemNode();
-                    if (itemNode.hasNodeParent())
-                        m_scene->reparentItem(itemNode, itemNode.modelParentItem());
-                    m_scene->synchronizeTransformation(item);
-                    item->update();
-                }
-            }
-        }
-    }
 }
 
 void FormEditorView::documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &)
@@ -744,32 +594,6 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node,
             if (isInvisible)
                 newNode.deselectNode();
         }
-    } else if (item.isFlowTransition() || item.isFlowActionArea() || item.isFlowDecision()
-               || item.isFlowWildcard()) {
-        if (FormEditorItem *editorItem = m_scene->itemForQmlItemNode(item)) {
-            // Update the geomtry if one of the following auxiliary properties has changed
-            auto updateGeometryPropertyNames = std::make_tuple(breakPointProperty,
-                                                               bezierProperty,
-                                                               transitionBezierProperty,
-                                                               typeProperty,
-                                                               transitionTypeProperty,
-                                                               radiusProperty,
-                                                               transitionRadiusProperty,
-                                                               labelPositionProperty,
-                                                               labelFlipSideProperty,
-                                                               inOffsetProperty,
-                                                               outOffsetProperty,
-                                                               blockSizeProperty,
-                                                               blockRadiusProperty,
-                                                               showDialogLabelProperty,
-                                                               dialogLabelPositionProperty);
-            if (contains(updateGeometryPropertyNames, key))
-                editorItem->updateGeometry();
-
-            editorItem->update();
-        }
-    } else if (item.isFlowView() || item.isFlowItem()) {
-        scene()->update();
     } else if (key == annotationProperty || key == customIdProperty) {
         if (FormEditorItem *editorItem = scene()->itemForQmlItemNode(item)) {
             editorItem->update();
@@ -785,18 +609,6 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node,
         m_formEditorWidget->setBackgoundImage(data.value<QImage>());
 }
 
-static void updateTransitions(FormEditorScene *scene, const QmlItemNode &qmlItemNode)
-{
-    QmlFlowTargetNode flowItem(qmlItemNode);
-    if (flowItem.isValid() && flowItem.flowView().isValid()) {
-        const auto nodes = flowItem.flowView().transitions();
-        for (const ModelNode &node : nodes) {
-            if (FormEditorItem *item = scene->itemForQmlItemNode(node))
-                item->updateGeometry();
-        }
-    };
-}
-
 void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeList)
 {
     NanotraceHR::Tracer tracer{"form editor view instances completed", category()};
@@ -809,7 +621,6 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
         }
     }
 
-    const bool isFlow = QmlItemNode(rootModelNode()).isFlowView();
     QList<FormEditorItem*> itemNodeList;
     for (const ModelNode &node : completedNodeList) {
         if (node) {
@@ -817,8 +628,6 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
             if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
                 scene()->synchronizeParent(qmlItemNode);
                 itemNodeList.append(item);
-                if (isFlow && qmlItemNode.isFlowItem())
-                    updateTransitions(scene(), qmlItemNode);
             }
         }
     }
