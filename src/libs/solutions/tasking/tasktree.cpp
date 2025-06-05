@@ -1303,6 +1303,7 @@ Group operator>>(const When &whenItem, const Do &doItem)
     return {
         barrier,
         parallel,
+        workflowPolicy(whenItem.m_workflowPolicy),
         whenItem.m_barrierKicker(barrier),
         Group {
             waitForBarrierTask(barrier),

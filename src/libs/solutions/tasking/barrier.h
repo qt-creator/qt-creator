@@ -100,10 +100,16 @@ using BarrierKickerGetter = std::function<ExecutableItem(const SingleBarrier &)>
 class TASKING_EXPORT When final
 {
 public:
-    explicit When(const BarrierKickerGetter &kicker) : m_barrierKicker(kicker) {}
+    explicit When(const BarrierKickerGetter &kicker,
+                  WorkflowPolicy policy = WorkflowPolicy::StopOnError)
+        : m_barrierKicker(kicker)
+        , m_workflowPolicy(policy)
+    {}
 
     template <typename Adapter, typename Signal>
-    When(const CustomTask<Adapter> &customTask, Signal signal)
+    When(const CustomTask<Adapter> &customTask, Signal signal,
+         WorkflowPolicy policy = WorkflowPolicy::StopOnError)
+        : m_workflowPolicy(policy)
     {
         m_barrierKicker = [taskHandler = customTask.m_taskHandler, signal](const SingleBarrier &barrier) {
             auto handler = std::move(taskHandler);
@@ -123,6 +129,7 @@ private:
     TASKING_EXPORT friend Group operator>>(const When &whenItem, const Do &doItem);
 
     BarrierKickerGetter m_barrierKicker;
+    WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
 };
 
 } // namespace Tasking

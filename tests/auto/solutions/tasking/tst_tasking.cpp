@@ -2470,6 +2470,35 @@ void tst_Tasking::testTree_data()
 
         QTest::newRow("BarrierWhenSignalDo")
             << TestData{storage, rootWhenSignalDo, log2, 4, DoneWith::Success, 4};
+
+        const auto onTickSetupWithPolicy = [storage](TickAndDone &tickAndDone) {
+            tickAndDone.setInterval(s_endlessTime);
+            storage->m_log.append({1, Handler::Setup});
+        };
+
+        const Group rootWhenSignalDoWithPolicy {
+            storage,
+            When (TickAndDoneTask(onTickSetupWithPolicy, setupDone(1)), &TickAndDone::tick, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+                groupSetup(2),
+                Sync([storage] { storage->m_log.append({1, Handler::BarrierAdvance}); }),
+                createSuccessTask(2),
+                createSuccessTask(3)
+            }
+        };
+
+        const Log logWhenSignalDoWithPolicy {
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {1, Handler::BarrierAdvance},
+            {2, Handler::Setup},
+            {2, Handler::Success},
+            {3, Handler::Setup},
+            {3, Handler::Success},
+            {1, Handler::Canceled}
+        };
+
+        QTest::newRow("BarrierWhenSignalDoWithPolicy")
+            << TestData{storage, rootWhenSignalDoWithPolicy, logWhenSignalDoWithPolicy, 4, DoneWith::Success, 3};
     }
 
     {
