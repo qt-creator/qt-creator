@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Layouts
 import HelperWidgets
+import ".."
 
 Column {
     width: parent.width

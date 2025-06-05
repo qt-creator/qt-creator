@@ -13,232 +13,246 @@ Column {
         width: parent.width
         caption: qsTr("Instance List Entry")
 
-        ColumnLayout {
-            spacing: StudioTheme.Values.transform3DSectionSpacing
-
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Color")
-                    tooltip: qsTr("Sets the color for the instance.")
-                }
-
-                ColorEditor {
-                    backendValue: backendValues.color
-                    supportGradient: false
-                }
+        SectionLayout {
+            PropertyLabel {
+                id: colorLabel
+                text: qsTr("Color")
+                tooltip: qsTr("Sets the color for the instance.")
             }
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Position")
-                    tooltip: qsTr("Sets the position for the instance.")
-                }
-
-                SecondColumnLayout {
-                    SpinBox {
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                        + StudioTheme.Values.actionIndicatorWidth
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.position_x
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                        + StudioTheme.Values.actionIndicatorWidth
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.position_y
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                        + StudioTheme.Values.actionIndicatorWidth
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.position_z
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
-                }
+            ColorEditor {
+                backendValue: backendValues.color
+                supportGradient: false
             }
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Scale")
-                    tooltip: qsTr("Sets the scale for the instance.")
-                }
+            Spacer {
+                height: StudioTheme.Values.transform3DSectionSpacing
+                visible: colorLabel.visible
+            }
+        }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                        + StudioTheme.Values.actionIndicatorWidth
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.scale_x
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                        + StudioTheme.Values.actionIndicatorWidth
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.scale_y
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-
-                PropertyLabel {}
-
-                SecondColumnLayout {
-                    SpinBox {
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                        + StudioTheme.Values.actionIndicatorWidth
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.scale_z
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
-                }
+        SectionLayout {
+            PropertyLabel {
+                id: positionLabel
+                text: qsTr("Position")
+                tooltip: qsTr("Sets the position for the instance.")
             }
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Rotation")
-                    tooltip: qsTr("Sets the rotation for the instance.")
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                    + StudioTheme.Values.actionIndicatorWidth
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.position_x
                 }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                        + StudioTheme.Values.actionIndicatorWidth
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.eulerRotation_x
-                    }
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
                 }
 
-                PropertyLabel {}
+                ExpandingSpacer {}
+            }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                        + StudioTheme.Values.actionIndicatorWidth
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.eulerRotation_y
-                    }
+            PropertyLabel {}
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                    + StudioTheme.Values.actionIndicatorWidth
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.position_y
                 }
 
-                PropertyLabel {}
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                        + StudioTheme.Values.actionIndicatorWidth
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.eulerRotation_z
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
                 }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                    + StudioTheme.Values.actionIndicatorWidth
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.position_z
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            Spacer {
+                height: StudioTheme.Values.transform3DSectionSpacing
+                visible: positionLabel.visible
+            }
+        }
+
+        SectionLayout {
+            PropertyLabel {
+                id: scaleLabel
+                text: qsTr("Scale")
+                tooltip: qsTr("Sets the scale for the instance.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                    + StudioTheme.Values.actionIndicatorWidth
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.scale_x
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                    + StudioTheme.Values.actionIndicatorWidth
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.scale_y
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                    + StudioTheme.Values.actionIndicatorWidth
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.scale_z
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            Spacer {
+                height: StudioTheme.Values.transform3DSectionSpacing
+                visible: scaleLabel.visible
+            }
+        }
+
+        SectionLayout {
+            PropertyLabel {
+                text: qsTr("Rotation")
+                tooltip: qsTr("Sets the rotation for the instance.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                    + StudioTheme.Values.actionIndicatorWidth
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.eulerRotation_x
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "X"
+                    color: StudioTheme.Values.theme3DAxisXColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                    + StudioTheme.Values.actionIndicatorWidth
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.eulerRotation_y
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Y"
+                    color: StudioTheme.Values.theme3DAxisYColor
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                    + StudioTheme.Values.actionIndicatorWidth
+                    minimumValue: -9999999
+                    maximumValue: 9999999
+                    decimals: 2
+                    backendValue: backendValues.eulerRotation_z
+                }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: "Z"
+                    color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
             }
         }
     }

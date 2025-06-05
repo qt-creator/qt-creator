@@ -135,96 +135,92 @@ Column {
         caption: qsTr("Emissive")
         width: parent.width
 
-        ColumnLayout {
-            spacing: StudioTheme.Values.transform3DSectionSpacing
+        SectionLayout {
+            PropertyLabel {
+                text: qsTr("Factor")
+                tooltip: qsTr("Sets the color of self-illumination.\nThe default value (0, 0, 0) means no self-illumination.")
+            }
 
-            SectionLayout {
-                PropertyLabel {
-                    text: qsTr("Factor")
-                    tooltip: qsTr("Sets the color of self-illumination.\nThe default value (0, 0, 0) means no self-illumination.")
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 1
+                    decimals: 2
+                    stepSize: 0.01
+                    backendValue: backendValues.emissiveFactor_x
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: 0
-                        maximumValue: 1
-                        decimals: 2
-                        stepSize: 0.01
-                        backendValue: backendValues.emissiveFactor_x
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: qsTr("R")
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-
-                    ExpandingSpacer {}
+                ControlLabel {
+                    text: qsTr("R")
+                    color: StudioTheme.Values.theme3DAxisXColor
                 }
 
-                PropertyLabel {}
+                ExpandingSpacer {}
+            }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: 0
-                        maximumValue: 1
-                        decimals: 2
-                        stepSize: 0.01
-                        backendValue: backendValues.emissiveFactor_y
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+            PropertyLabel {}
 
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: qsTr("G")
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    ExpandingSpacer {}
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 1
+                    decimals: 2
+                    stepSize: 0.01
+                    backendValue: backendValues.emissiveFactor_y
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
 
-                PropertyLabel {}
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        minimumValue: 0
-                        maximumValue: 1
-                        decimals: 2
-                        stepSize: 0.01
-                        backendValue: backendValues.emissiveFactor_z
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
-
-                    ControlLabel {
-                        text: qsTr("B")
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    ExpandingSpacer {}
-                }
-                PropertyLabel {
-                    text: qsTr("Map")
-                    tooltip: qsTr("Sets a texture to define the intensity of the emissive color.")
+                ControlLabel {
+                    text: qsTr("G")
+                    color: StudioTheme.Values.theme3DAxisYColor
                 }
 
-                SecondColumnLayout {
-                    ItemFilterComboBox {
-                        typeFilter: "QtQuick3D.Texture"
-                        backendValue: backendValues.emissiveMap
-                        implicitWidth: StudioTheme.Values.singleControlColumnWidth
-                                       + StudioTheme.Values.actionIndicatorWidth
-                    }
+                ExpandingSpacer {}
+            }
 
-                    ExpandingSpacer {}
+            PropertyLabel {}
+
+            SecondColumnLayout {
+                SpinBox {
+                    minimumValue: 0
+                    maximumValue: 1
+                    decimals: 2
+                    stepSize: 0.01
+                    backendValue: backendValues.emissiveFactor_z
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
                 }
+
+                Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+                ControlLabel {
+                    text: qsTr("B")
+                    color: StudioTheme.Values.theme3DAxisZColor
+                }
+
+                ExpandingSpacer {}
+            }
+            PropertyLabel {
+                text: qsTr("Map")
+                tooltip: qsTr("Sets a texture to define the intensity of the emissive color.")
+            }
+
+            SecondColumnLayout {
+                ItemFilterComboBox {
+                    typeFilter: "QtQuick3D.Texture"
+                    backendValue: backendValues.emissiveMap
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                }
+
+                ExpandingSpacer {}
             }
         }
     }

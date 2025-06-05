@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Layouts
 import HelperWidgets
 import StudioTheme as StudioTheme
+import ".."
 
 Column {
     width: parent.width
