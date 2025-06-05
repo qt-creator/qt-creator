@@ -96,7 +96,8 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath,
                            JournalMode journalMode,
                            const source_location &sourceLocation)
 {
-    checkCanOpenDatabase(databaseFilePath, sourceLocation);
+    if (journalMode != JournalMode::Memory)
+        checkCanOpenDatabase(databaseFilePath, sourceLocation);
 
     sqlite3 *handle = m_databaseHandle.get();
     int resultCode = sqlite3_open_v2(std::string(databaseFilePath).c_str(),

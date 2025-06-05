@@ -67,6 +67,7 @@ public:
     void open(LockingMode lockingMode = LockingMode::Default,
               const source_location &sourceLocation = source_location::current());
     void open(Utils::PathString &&databaseFilePath,
+              JournalMode journalMode,
               LockingMode lockingMode = LockingMode::Default,
               const source_location &sourceLocation = source_location::current());
     void close(const source_location &sourceLocation = source_location::current());
