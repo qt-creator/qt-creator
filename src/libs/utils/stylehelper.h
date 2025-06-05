@@ -44,35 +44,49 @@ constexpr char C_TOOLBAR_ACTIONWIDGET[] = "toolbar_actionWidget";
 constexpr char C_QT_SCALE_FACTOR_ROUNDING_POLICY[] = "QT_SCALE_FACTOR_ROUNDING_POLICY";
 
 namespace SpacingTokens {
-    constexpr int VPaddingXxs = 4;   // Top and bottom padding within the component
-    constexpr int HPaddingXxs = 4;   // Left and right padding within the component
-    constexpr int VGapXxs = 4;       // Vertical Space between TEXT LINE within the Component
-    constexpr int HGapXxs = 4;       // Horizontal Space between elements within the Component
+    constexpr int PrimitiveXxs = 2;
+    constexpr int PrimitiveXs = 4;
+    constexpr int PrimitiveS = 6;
+    constexpr int PrimitiveM = 8;
+    constexpr int PrimitiveL = 12;
+    constexpr int PrimitiveXl = 16;
+    constexpr int PrimitiveXxl = 24;
 
-    constexpr int VPaddingXs = 8;
-    constexpr int HPaddingXs = 8;
-    constexpr int VGapXs = 4;
-    constexpr int HGapXs = 8;
+    // Top and bottom padding within the component
+    constexpr int PaddingVXxs = PrimitiveXxs;
+    constexpr int PaddingVXs = PrimitiveXs;
+    constexpr int PaddingVS = PrimitiveS;
+    constexpr int PaddingVM = PrimitiveM;
+    constexpr int PaddingVL = PrimitiveL;
+    constexpr int PaddingVXl = PrimitiveXl;
+    constexpr int PaddingVXxl = PrimitiveXxl;
 
-    constexpr int VPaddingS = 8;
-    constexpr int HPaddingS = 16;
-    constexpr int VGapS = 4;
-    constexpr int HGapS = 8;
+    // Left and right padding within the component
+    constexpr int PaddingHXxs = PrimitiveXxs;
+    constexpr int PaddingHXs = PrimitiveXs;
+    constexpr int PaddingHS = PrimitiveS;
+    constexpr int PaddingHM = PrimitiveM;
+    constexpr int PaddingHL = PrimitiveL;
+    constexpr int PaddingHXl = PrimitiveXl;
+    constexpr int PaddingHXxl = PrimitiveXxl;
 
-    constexpr int VPaddingM = 16;
-    constexpr int HPaddingM = 24;
-    constexpr int VGapM = 4;
-    constexpr int HGapM = 16;
+    // Gap between vertically (on top of each other) positioned elements
+    constexpr int GapVXxs = PrimitiveXxs;
+    constexpr int GapVXs = PrimitiveXs;
+    constexpr int GapVS = PrimitiveS;
+    constexpr int GapVM = PrimitiveM;
+    constexpr int GapVL = PrimitiveL;
+    constexpr int GapVXl = PrimitiveXl;
+    constexpr int GapVXxl = PrimitiveXxl;
 
-    constexpr int VPaddingL = 16;
-    constexpr int HPaddingL = 24;
-    constexpr int VGapL = 8;
-    constexpr int HGapL = 16;
-
-    constexpr int ExPaddingGapS = 2;
-    constexpr int ExPaddingGapM = 6;
-    constexpr int ExPaddingGapL = 12;
-    constexpr int ExVPaddingGapXl = 24;
+    // Gap between horizontally (from left to right) positioned elements
+    constexpr int GapHXxs = PrimitiveXxs;
+    constexpr int GapHXs = PrimitiveXs;
+    constexpr int GapHS = PrimitiveS;
+    constexpr int GapHM = PrimitiveM;
+    constexpr int GapHL = PrimitiveL;
+    constexpr int GapHXl = PrimitiveXl;
+    constexpr int GapHXxl = PrimitiveXxl;
 }
 
 enum class ToolbarStyle {

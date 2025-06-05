@@ -498,7 +498,7 @@ public:
         Column {
             Row {
                 m_searcher,
-                customMargins(0, 0, ExVPaddingGapXl, 0),
+                customMargins(0, 0, PaddingVXxl, 0),
             },
             Grid {
                 GridCell({
@@ -507,8 +507,8 @@ public:
                     Align(Qt::AlignCenter, detailWdgt),
                 }),
             },
-            spacing(ExVPaddingGapXl),
-            customMargins(ExVPaddingGapXl, ExVPaddingGapXl, 0, 0),
+            spacing(GapVXxl),
+            customMargins(PaddingHXxl, PaddingVXxl, 0, 0),
         }.attachTo(this);
         // clang-format on
 

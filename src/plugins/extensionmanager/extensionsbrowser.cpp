@@ -64,7 +64,7 @@ namespace ExtensionManager::Internal {
 
 Q_LOGGING_CATEGORY(browserLog, "qtc.extensionmanager.browser", QtWarningMsg)
 
-constexpr int gapSize = HGapL;
+constexpr int gapSize = GapHXl;
 constexpr int itemWidth = 330;
 constexpr int cellWidth = itemWidth + gapSize;
 
@@ -84,22 +84,22 @@ public:
 protected:
     void paintEvent([[maybe_unused]] QPaintEvent *event) override
     {
-        // +------------+------+---------+---------------+------------+
-        // |            |      |         |  (VPaddingXs) |            |
-        // |            |      |         +---------------+            |
-        // |(HPaddingXs)|(icon)|(HGapXxs)|<template%item>|(HPaddingXs)|
-        // |            |      |         +---------------+            |
-        // |            |      |         |  (VPaddingXs) |            |
-        // +------------+------+---------+---------------+------------+
+        // +-----------+------+--------+---------------+-----------+
+        // |           |      |        |  (PaddingVM)  |           |
+        // |           |      |        +---------------+           |
+        // |(PaddingHM)|(icon)|(GapHXs)|<template%item>|(PaddingHM)|
+        // |           |      |        +---------------+           |
+        // |           |      |        |  (PaddingVM)  |           |
+        // +-----------+------+--------+---------------+-----------+
 
         const bool active = currentIndex() > 0;
         const bool hover = underMouse();
         const TextFormat &tF = (active || hover) ? m_itemActiveTf : m_itemDefaultTf;
 
-        const QRect iconRect(HPaddingXs, 0, m_iconSize.width(), height());
-        const int textX = iconRect.right() + 1 + HGapXxs;
-        const QRect textRect(textX, VPaddingXs,
-                             width() - HPaddingXs - textX, tF.lineHeight());
+        const QRect iconRect(PaddingHM, 0, m_iconSize.width(), height());
+        const int textX = iconRect.right() + 1 + GapHXs;
+        const QRect textRect(textX, PaddingVM,
+                             width() - PaddingHM - textX, tF.lineHeight());
 
         QPainter p(this);
         (active ? m_iconActive : m_iconDefault).paint(&p, iconRect);
@@ -107,7 +107,7 @@ protected:
         p.setFont(tF.font());
         const QString elidedText = p.fontMetrics().elidedText(currentFormattedText(),
                                                               Qt::ElideRight,
-                                                              textRect.width() + HPaddingXs);
+                                                              textRect.width() + PaddingHM);
         p.drawText(textRect, tF.drawTextFlags, elidedText);
     }
 
@@ -129,15 +129,15 @@ private:
         const QFontMetrics fm(m_itemDefaultTf.font());
         const int textWidth = fm.horizontalAdvance(currentFormattedText());
         const int width =
-            HPaddingXs
+            PaddingHM
             + m_iconSize.width()
-            + HGapXxs
+            + GapHXs
             + textWidth
-            + HPaddingXs;
+            + PaddingHM;
         const int height =
-            VPaddingXs
+            PaddingVM
             + m_itemDefaultTf.lineHeight()
-            + VPaddingXs;
+            + PaddingVM;
         return {width, height};
     }
 
@@ -195,23 +195,23 @@ public:
     ExtensionItemWidget(QWidget *parent = nullptr)
         : QWidget(parent)
     {
-        // +---------------+-------+---------------+-----------------------------------------------------------------------------------+---------------+---------+
-        // |               |       |               |                                  (ExPaddingGapL)                                  |               |         |
-        // |               |       |               +----------+---------+---------------+---------+--------------+---------+-----------+               |         |
-        // |               |       |               |<itemName>|(HGapXxs)|<releaseStatus>|(HGapXxs)|<installState>|(HGapXxs)|<checkmark>|               |         |
-        // |               |       |               +----------+---------+---------------+---------+--------------+---------+-----------+               |         |
-        // |               |       |               |                                     (VGapXxs)                                     |               |         |
-        // |               |       |               +---------------------+--------+--------------+--------+--------+---------+---------+               |         |
-        // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|       <vendor>      |(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(gapSize)|
-        // |               |(50x50)|               +---------------------+--------+--------------+--------+--------+---------+---------+               |         |
-        // |               |       |               |                                     (VGapXxs)                                     |               |         |
-        // |               |       |               +-----------------------------------------------------------------------------------+               |         |
-        // |               |       |               |                                 <shortDescription>                                |               |         |
-        // |               |       |               +-----------------------------------------------------------------------------------+               |         |
-        // |               |       |               |                                  (ExPaddingGapL)                                  |               |         |
-        // +---------------+-------+---------------+-----------------------------------------------------------------------------------+---------------+---------+
-        // |                                                                      (gapSize)                                                                      |
-        // +-----------------------------------------------------------------------------------------------------------------------------------------------------+
+        // +-----------+-------+-------+--------------------------------------------------------------------------------+-----------+---------+
+        // |           |       |       |                                   (PaddingVL)                                  |           |         |
+        // |           |       |       +----------+--------+---------------+--------+--------------+--------+-----------+           |         |
+        // |           |       |       |<itemName>|(GapHXs)|<releaseStatus>|(GapHXs)|<installState>|(GapHXs)|<checkmark>|           |         |
+        // |           |       |       +----------+--------+---------------+--------+--------------+--------+-----------+           |         |
+        // |           |       |       |                                    (GapVXs)                                    |           |         |
+        // |           |       |       +---------------------+-------+--------------+-------+--------+--------+---------+           |         |
+        // |(PaddingHL)|<icon> |(GapHL)|       <vendor>      |(GapHM)|<divider>(h16)|(GapHM)|<dlIcon>|(GapHXs)|<dlCount>|(PaddingHL)|(gapSize)|
+        // |           |(50x50)|       +---------------------+-------+--------------+-------+--------+--------+---------+           |         |
+        // |           |       |       |                                    (GapVXs)                                    |           |         |
+        // |           |       |       +--------------------------------------------------------------------------------+           |         |
+        // |           |       |       |                               <shortDescription>                               |           |         |
+        // |           |       |       +--------------------------------------------------------------------------------+           |         |
+        // |           |       |       |                                   (PaddingVL)                                  |           |         |
+        // +-----------+-------+-------+--------------------------------------------------------------------------------+-----------+---------+
+        // |                                                             (gapSize)                                                            |
+        // +----------------------------------------------------------------------------------------------------------------------------------+
 
         m_iconLabel = new QLabel;
         m_iconLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -249,11 +249,11 @@ public:
                         Row {
                             m_installStateLabel,
                             m_installStateIcon,
-                            spacing(HGapXxs),
+                            spacing(GapHXs),
                             noMargin,
                         },
                     },
-                    spacing(HGapXxs),
+                    spacing(GapHXs),
                 },
                 Row {
                     m_vendorLabel,
@@ -261,21 +261,21 @@ public:
                         bindTo(&m_downloads),
                         Row {
                             m_downloadDividerLabel,
-                            Space(HGapXs),
+                            Space(GapHM),
                             m_downloadIconLabel,
-                            Space(HGapXxs),
+                            Space(GapHXs),
                             m_downloadCountLabel,
                             tight,
                         },
                     },
-                    spacing(HGapXs),
+                    spacing(GapHM),
                 },
                 m_shortDescriptionLabel,
                 noMargin,
-                spacing(VGapXxs),
+                spacing(GapVXs),
             },
-            customMargins(ExPaddingGapL, ExPaddingGapL, ExPaddingGapL, ExPaddingGapL),
-            spacing(ExPaddingGapL),
+            customMargins(PaddingHL, PaddingVL, PaddingHL, PaddingVL),
+            spacing(GapHL),
         }.attachTo(this);
 
         setFixedWidth(itemWidth);
@@ -523,7 +523,7 @@ static QWidget *extensionViewPlaceHolder()
     using namespace Layouting;
     // clang-format off
     return Column {
-        Space(SpacingTokens::ExVPaddingGapXl),
+        Space(SpacingTokens::PaddingVXxl),
         text,
         st,
         noMargin,
@@ -595,14 +595,14 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
         Row {
             titleLabel,
             settingsToolButton,
-            customMargins(0, VPaddingM, rightMargin, 0),
+            customMargins(0, PaddingVXl, rightMargin, 0),
         },
         Row {
             Column {
                 Row{ st, externalRepoSwitch },
                 d->searchBox,
             },
-            customMargins(0, VPaddingM, rightMargin, VPaddingM),
+            customMargins(0, PaddingVXl, rightMargin, PaddingVXl),
         },
         Row {
             d->filterChooser,
@@ -702,7 +702,7 @@ QSize ExtensionsBrowser::sizeHint() const
 int ExtensionsBrowser::extraListViewWidth() const
 {
     // TODO: Investigate "transient" scrollbar, just for this list view.
-    constexpr int extraPadding = qMax(0, ExVPaddingGapXl - gapSize);
+    constexpr int extraPadding = qMax(0, PaddingHXxl - gapSize);
     return d->extensionsView->style()->pixelMetric(QStyle::PM_ScrollBarExtent)
            + extraPadding
            + 1; // Needed
@@ -934,8 +934,8 @@ QPixmap itemBadge(const QModelIndex &index, [[maybe_unused]] Size size)
 
     const QFont font = badgeTF.font();
     const int textWidth = QFontMetrics(font).horizontalAdvance(badgeText);
-    const QSize badgeS(ExPaddingGapM + textWidth + ExPaddingGapM,
-                       ExPaddingGapS + badgeTF.lineHeight() + ExPaddingGapS);
+    const QSize badgeS(PaddingHS + textWidth + PaddingHS,
+                       PaddingVXxs + badgeTF.lineHeight() + PaddingVXxs);
     const QRect badgeR(QPoint(), badgeS);
     const qreal dpr = qApp->devicePixelRatio();
     QPixmap pixmap(badgeS * dpr);

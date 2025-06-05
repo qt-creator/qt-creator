@@ -63,7 +63,7 @@ public:
         setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
         m_pluginButtons = new QHBoxLayout;
-        m_pluginButtons->setSpacing(VGapL);
+        m_pluginButtons->setSpacing(GapVM);
         m_pluginButtons->setContentsMargins({});
 
         auto newButton = new QtcButton(Tr::tr("Create Project..."), QtcButton::LargePrimary);
@@ -76,8 +76,8 @@ public:
                 st,
                 newButton,
                 openButton,
-                spacing(HGapM),
-                customMargins(HPaddingM, VPaddingM, HPaddingM, VPaddingM),
+                spacing(GapHXl),
+                customMargins(PaddingHXxl, PaddingVXl, PaddingHXxl, PaddingVXl),
             },
             createRule(Qt::Horizontal),
             noMargin, spacing(0),

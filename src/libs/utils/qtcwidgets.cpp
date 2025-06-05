@@ -138,31 +138,31 @@ QSize QtcButton::minimumSizeHint() const
 void QtcButton::paintEvent(QPaintEvent *event)
 {
     // Without pixmap
-    // +----------------+----------------+----------------+
-    // |                |(VPadding[S|XS])|                |
-    // |                +----------------+----------------+
-    // |(HPadding[S|XS])|     <label>    |(HPadding[S|XS])|
-    // |                +----------------+----------------+
-    // |                |(VPadding[S|XS])|                |
-    // +----------------+---------------------------------+
+    // +------------------------+-----------+------------------------+
+    // |                        |(PaddingVM)|                        |
+    // |                        +-----------+                        |
+    // |([PaddingHXL|PaddingHM])|  <label>  |([PaddingHXL|PaddingHM])|
+    // |                        +-----------+                        |
+    // |                        |(PaddingVM)|                        |
+    // +------------------------+-----------+------------------------+
     //
     // With pixmap
-    // +-------+--------+-------------------------+---------------------------------+
-    // |       |        |                         |(VPadding[S|XS])|                |
-    // |       |        |                         +----------------+                |
-    // |(HGapS)|<pixmap>|([ExPaddingGapM|HGapXxs])|     <label>    |(HPadding[S|XS])|
-    // |       |        |                         +----------------+                |
-    // |       |        |                         |(VPadding[S|XS])|                |
-    // +-------+--------+-------------------------+----------------+----------------+
+    // +-----------+--------+----------------+-----------+------------------------+
+    // |           |        |                |(PaddingVM)|                        |
+    // |           |        |                +-----------+                        |
+    // |(PaddingHM)|<pixmap>|([GapHS|GapHXs])|  <label>  |([PaddingHXL|PaddingHM])|
+    // |           |        |                +-----------+                        |
+    // |           |        |                |(PaddingVM)|                        |
+    // +-----------+--------+----------------+-----------+------------------------+
     //
     // SmallLink with pixmap
-    // +--------+---------------+---------------------------------+
-    // |        |               |(VPadding[S|XS])|                |
-    // |        |               +----------------+                |
-    // |<pixmap>|(ExPaddingGapM)|     <label>    |(HPadding[S|XS])|
-    // |        |               +----------------+                |
-    // |        |               |(VPadding[S|XS])|                |
-    // +--------+---------------+----------------+----------------+
+    // +--------+-------+-----------+------------------------+
+    // |        |       |(PaddingVM)|                        |
+    // |        |       +-----------+                        |
+    // |<pixmap>|(GapHS)|  <label>  |([PaddingHXl|PaddingHM])|
+    // |        |       +-----------+                        |
+    // |        |       |(PaddingVM)|                        |
+    // +--------+-------+-----------+------------------------+
 
     const bool hovered = underMouse();
     const WidgetState state = isChecked() ? WidgetStateChecked : hovered ? WidgetStateHovered
@@ -227,7 +227,7 @@ void QtcButton::paintEvent(QPaintEvent *event)
 
     if (!m_pixmap.isNull()) {
         const QSizeF pixmapS = m_pixmap.deviceIndependentSize();
-        const int pixmapX = m_role == SmallLink ? 0 : HGapS;
+        const int pixmapX = m_role == SmallLink ? 0 : PaddingHM;
         const int pixmapY = (bgR.height() - pixmapS.height()) / 2;
         p.drawPixmap(pixmapX, pixmapY, m_pixmap);
     }
@@ -258,18 +258,17 @@ void QtcButton::setRole(Role role)
 void QtcButton::updateMargins()
 {
     if (m_role == Tag) {
-        setContentsMargins(HPaddingXs, VPaddingXxs, HPaddingXs, VPaddingXxs);
+        setContentsMargins(PaddingHM, PaddingVXs, PaddingHM, PaddingVXs);
         return;
     }
     const bool tokenSizeS = m_role == LargePrimary || m_role == LargeSecondary
                             || m_role == SmallList || m_role == SmallLink;
-    const int hPaddingR = tokenSizeS ? HPaddingS : HPaddingXs;
+    const int hPaddingR = tokenSizeS ? PaddingHXl : PaddingHM;
     const int hPaddingL = m_pixmap.isNull() ? hPaddingR
-                                            : (m_role == SmallLink ? 0 : HGapS)
+                                            : (m_role == SmallLink ? 0 : PaddingHM)
                                                   + int(m_pixmap.deviceIndependentSize().width())
-                                                  + (tokenSizeS ? ExPaddingGapM : HGapXxs);
-    const int vPadding = tokenSizeS ? VPaddingS : VPaddingXs;
-    setContentsMargins(hPaddingL, vPadding, hPaddingR, vPadding);
+                                                  + (tokenSizeS ? GapHS : GapHXs);
+    setContentsMargins(hPaddingL, PaddingVM, hPaddingR, PaddingVM);
 }
 
 QtcLabel::QtcLabel(const QString &text, Role role, QWidget *parent)
@@ -285,7 +284,7 @@ void QtcLabel::setRole(Role role)
         secondaryTF{primaryTF.themeColor, StyleHelper::UiElement::UiElementH6Capital};
 
     const TextFormat &tF = role == Primary ? primaryTF : secondaryTF;
-    const int vPadding = role == Primary ? ExPaddingGapM : VPaddingS;
+    const int vPadding = role == Primary ? PaddingVS : PaddingVM;
 
     setFixedHeight(vPadding + tF.lineHeight() + vPadding);
     setFont(tF.font());
@@ -326,8 +325,8 @@ QtcSearchBox::QtcSearchBox(QWidget *parent)
     pal.setColor(QPalette::Text, searchBoxTextTF.color());
     setPalette(pal);
 
-    setContentsMargins({HPaddingXs, ExPaddingGapM, 0, ExPaddingGapM});
-    setFixedHeight(ExPaddingGapM + searchBoxTextTF.lineHeight() + ExPaddingGapM);
+    setContentsMargins({PaddingHM, PaddingVS, 0, PaddingVS});
+    setFixedHeight(PaddingVS + searchBoxTextTF.lineHeight() + PaddingVS);
     setFiltering(true);
 }
 
@@ -366,13 +365,13 @@ static void paintCommonBackground(QPainter *p, const QRectF &rect, const QWidget
 
 void QtcSearchBox::paintEvent(QPaintEvent *event)
 {
-    // +------------+---------------+------------+------+------------+
-    // |            |(ExPaddingGapM)|            |      |            |
-    // |            +---------------+            |      |            |
-    // |(HPaddingXs)|  <lineEdit>   |(HPaddingXs)|<icon>|(HPaddingXs)|
-    // |            +---------------+            |      |            |
-    // |            |(ExPaddingGapM)|            |      |            |
-    // +------------+---------------+------------+------+------------+
+    // +-----------+-----------+-------+------+-----------+
+    // |           |(PaddingVS)|       |      |           |
+    // |           +-----------+       |      |           |
+    // |(PaddingHM)| <lineEdit>|(GapHM)|<icon>|(PaddingHM)|
+    // |           +-----------+       |      |           |
+    // |           |(PaddingVS)|       |      |           |
+    // +-----------+-----------+-------+------+-----------+
 
     QPainter p(this);
 
@@ -380,7 +379,7 @@ void QtcSearchBox::paintEvent(QPaintEvent *event)
     if (text().isEmpty()) {
         const QPixmap icon = searchBoxIcon();
         const QSize iconS = icon.deviceIndependentSize().toSize();
-        const QPoint iconPos(width() - HPaddingXs - iconS.width(), (height() - iconS.height()) / 2);
+        const QPoint iconPos(width() - PaddingHM - iconS.width(), (height() - iconS.height()) / 2);
         if (!isEnabled())
             p.setOpacity(disabledIconOpacity);
         p.drawPixmap(iconPos, icon);
@@ -407,8 +406,8 @@ QtcComboBox::QtcComboBox(QWidget *parent)
     setMouseTracking(true);
 
     const QSize iconSize = comboBoxIcon().deviceIndependentSize().toSize();
-    setContentsMargins({HPaddingXs, VPaddingXs,
-                        HGapXxs + iconSize.width() + HPaddingXs, VPaddingXs});
+    setContentsMargins({PaddingHM, PaddingVM,
+                        GapHXs + iconSize.width() + PaddingHM, PaddingVM});
 }
 
 QSize QtcComboBox::sizeHint() const
@@ -433,13 +432,13 @@ void QtcComboBox::leaveEvent(QEvent *event)
 
 void QtcComboBox::paintEvent(QPaintEvent *)
 {
-    // +------------+-------------+---------+-------+------------+
-    // |            | (VPaddingXs)|         |       |            |
-    // |            +-------------+         |       |            |
-    // |(HPaddingXs)|<currentItem>|(HGapXxs)|<arrow>|(HPaddingXs)|
-    // |            +-------------+         |       |            |
-    // |            | (VPaddingXs)|         |       |            |
-    // +------------+-------------+---------+-------+------------+
+    // +-----------+-------------+--------+-------+-----------+
+    // |           | (PaddingVM) |        |       |           |
+    // |           +-------------+        |       |           |
+    // |(PaddingHM)|<currentItem>|(GapHXs)|<arrow>|(PaddingHM)|
+    // |           +-------------+        |       |           |
+    // |           | (PaddingVM) |        |       |           |
+    // +-----------+-------------+--------+-------+-----------+
 
     QPainter p(this);
     paintCommonBackground(&p, rect(), this);
@@ -454,7 +453,7 @@ void QtcComboBox::paintEvent(QPaintEvent *)
 
     const QPixmap icon = comboBoxIcon();
     const QSize iconS = icon.deviceIndependentSize().toSize();
-    const QPoint iconPos(width() - HPaddingXs - iconS.width(), (height() - iconS.height()) / 2);
+    const QPoint iconPos(width() - PaddingHM - iconS.width(), (height() - iconS.height()) / 2);
     if (!isEnabled())
         p.setOpacity(disabledIconOpacity);
     p.drawPixmap(iconPos, icon);
@@ -477,8 +476,8 @@ QSize QtcSwitch::sizeHint() const
 {
     const QFontMetrics fm(SwitchLabelTf.font());
     const int textWidth = fm.size(Qt::TextShowMnemonic, text()).width();
-    const int width = switchTrackS.width() + HGapS + textWidth;
-    return {width, ExPaddingGapM + SwitchLabelTf.lineHeight() + ExPaddingGapM};
+    const int width = switchTrackS.width() + GapHM + textWidth;
+    return {width, PaddingVS + SwitchLabelTf.lineHeight() + PaddingVS};
 }
 
 QSize QtcSwitch::minimumSizeHint() const
@@ -537,7 +536,7 @@ void QtcSwitch::paintEvent([[maybe_unused]] QPaintEvent *event)
         StyleHelper::drawCardBg(&p, thumbR, fill, outline, thumbRounding);
     }
     { // switch text label
-        const int switchAndGapWidth = switchTrackS.width() + HGapS;
+        const int switchAndGapWidth = switchTrackS.width() + GapHM;
         const QRect textR(ltr ? switchAndGapWidth : 0, 0, width() - switchAndGapWidth,
                           trackY + switchTrackS.height());
         p.setFont(SwitchLabelTf.font());

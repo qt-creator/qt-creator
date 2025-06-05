@@ -398,7 +398,7 @@ void setupInstallModule()
                         QLabel *list = new QLabel();
                         list->setTextFormat(Qt::TextFormat::MarkdownText);
                         list->setText(details);
-                        list->setMargin(StyleHelper::SpacingTokens::ExPaddingGapS);
+                        list->setMargin(StyleHelper::SpacingTokens::PaddingVXxs);
                         return list;
                     });
                     ICore::infoBar()->addInfo(entry);

@@ -409,7 +409,7 @@ constexpr QSize thumbnailAreaSize =
     WelcomeThumbnailSize.grownBy({thumbnailAreaBorderWidth, thumbnailAreaBorderWidth,
                                   thumbnailAreaBorderWidth, thumbnailAreaBorderWidth});
 constexpr int tagsRowsCount = 1;
-constexpr int tagsHGap = ExPaddingGapM;
+constexpr int tagsHGap = GapHS;
 
 constexpr QEasingCurve::Type hoverEasing = QEasingCurve::OutCubic;
 constexpr std::chrono::milliseconds hoverDuration(300);
@@ -420,80 +420,80 @@ QSize ListItemDelegate::itemSize()
 {
     const int tagsTfLineHeight = tagsTF.lineHeight();
     const int width =
-        ExPaddingGapL
+        PaddingHL
         + thumbnailAreaSize.width()
-        + ExPaddingGapL;
+        + PaddingHL;
     const int height =
-        ExPaddingGapL
+        PaddingVL
         + thumbnailAreaSize.height()
-        + VGapL
+        + GapVM
         + titleTF.lineHeight()
-        + VGapL
+        + GapVM
         + tagsTfLineHeight
-        + (tagsTfLineHeight + ExPaddingGapS) * (tagsRowsCount - 1) // If more than one row
-        + ExPaddingGapL;
-    return {width + ExVPaddingGapXl, height + ExVPaddingGapXl};
+        + (tagsTfLineHeight + PaddingVXxs) * (tagsRowsCount - 1) // If more than one row
+        + PaddingVL;
+    return {width + GapHXxl, height + GapVXxl};
 }
 
 void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                              const QModelIndex &index) const
 {
     // Unhovered tile
-    // +---------------+------------------+---------------+-----------------+
-    // |               |  (ExPaddingGapL) |               |                 |
-    // |               +------------------+               |                 |
-    // |               |    <thumbnail>   |               |                 |
-    // |               +------------------+               |                 |
-    // |               |      (VGapL)     |               |                 |
-    // |               +------------------+               |                 |
-    // |(ExPaddingGapL)|      <title>     |(ExPaddingGapL)|(ExVPaddingGapXs)|
-    // |               +------------------+               |                 |
-    // |               |      (VGapL)     |               |                 |
-    // |               +-----------+------+               |                 |
-    // |               |<tagsLabel>|<tags>|               |                 |
-    // |               +-----------+------+               |                 |
-    // |               |  (ExPaddingGapL) |               |                 |
-    // +---------------+------------------+---------------+-----------------+
-    // |                          (ExVPaddingGapXs)                         |
-    // +--------------------------------------------------------------------+
+    // +-----------+------------------+-----------+---------+
+    // |           |    (PaddingVL)   |           |         |
+    // |           +------------------+           |         |
+    // |           |    <thumbnail>   |           |         |
+    // |           +------------------+           |         |
+    // |           |      (GapVM)     |           |         |
+    // |           +------------------+           |         |
+    // |(PaddingHL)|      <title>     |(PaddingHL)|(GapHXxl)|
+    // |           +------------------+           |         |
+    // |           |      (GapVM)     |           |         |
+    // |           +-----------+------+           |         |
+    // |           |<tagsLabel>|<tags>|           |         |
+    // |           +-----------+------+           |         |
+    // |           |    (PaddingVL)   |           |         |
+    // +-----------+------------------+-----------+---------+
+    // |                      (GapVXxl)                     |
+    // +----------------------------------------------------+
     //
     // Hovered, final animation state of the are above tagsLabel
-    // +---------------+------------------+---------------+
-    // |               |  (ExPaddingGapL) |               |
-    // |               +------------------+               |
-    // |               |      <title>     |               |
-    // |               +------------------+               |
-    // |               |  (ExPaddingGapS) |               |
-    // |(ExPaddingGapL)+------------------+(ExPaddingGapL)| ...
-    // |               |       <hr>       |               |
-    // |               +------------------+               |
-    // |               |  (ExPaddingGapS) |               |
-    // |               +------------------+               |
-    // |               |   <description>  |               |
-    // +---------------+------------------+---------------+
-    //                          ...
+    // +-----------+-------------+-----------+
+    // |           | (PaddingVL) |           |
+    // |           +-------------+           |
+    // |           |   <title>   |           |
+    // |           +-------------+           |
+    // |           |  (GapVXxs)  |           |
+    // |(PaddingHL)+-------------+(PaddingHL)| ...
+    // |           |     <hr>    |           |
+    // |           +-------------+           |
+    // |           |  (GapVXxs)  |           |
+    // |           +-------------+           |
+    // |           |<description>|           |
+    // +-----------+-------------+-----------+
+    //                   ...
 
     const ListItem *item = index.data(ListModel::ItemRole).value<Core::ListItem *>();
 
     const QFont tagsLabelFont = tagsLabelTF.font();
     const QFontMetrics tagsLabelFM(tagsLabelFont);
 
-    const QRect bgRGlobal = option.rect.adjusted(0, 0, -ExVPaddingGapXl, -ExVPaddingGapXl);
+    const QRect bgRGlobal = option.rect.adjusted(0, 0, -PaddingHXxl, -PaddingVXxl);
     const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
-    const QRect thumbnailAreaR(bgR.left() + ExPaddingGapL, bgR.top() + ExPaddingGapL,
+    const QRect thumbnailAreaR(bgR.left() + PaddingHL, bgR.top() + PaddingVL,
                                thumbnailAreaSize.width(), thumbnailAreaSize.height());
-    const QRect titleR(thumbnailAreaR.left(), thumbnailAreaR.bottom() + VGapL + 1,
+    const QRect titleR(thumbnailAreaR.left(), thumbnailAreaR.bottom() + GapVM + 1,
                        thumbnailAreaR.width(), titleTF.lineHeight());
     const QString tagsLabelText = Tr::tr("Tags:");
     const int tagsLabelTextWidth = tagsLabelFM.horizontalAdvance(tagsLabelText);
-    const QRect tagsLabelR(titleR.left(), titleR.bottom() + VGapL + 1,
+    const QRect tagsLabelR(titleR.left(), titleR.bottom() + GapVM + 1,
                            tagsLabelTextWidth, tagsTF.lineHeight());
     const QRect tagsR(tagsLabelR.right() + 1 + tagsHGap, tagsLabelR.top(),
-                      bgR.right() - ExPaddingGapL - tagsLabelR.right() - tagsHGap,
+                      bgR.right() - PaddingHL - tagsLabelR.right() - tagsHGap,
                       tagsLabelR.height()
-                          + (tagsLabelR.height() + ExPaddingGapS) * (tagsRowsCount - 1));
-    QTC_CHECK(option.rect.height() == tagsR.bottom() + 1 + ExPaddingGapL + ExVPaddingGapXl);
-    QTC_CHECK(option.rect.width() == tagsR.right() + 1 + ExPaddingGapL + ExVPaddingGapXl);
+                          + (tagsLabelR.height() + PaddingVXxs) * (tagsRowsCount - 1));
+    QTC_CHECK(option.rect.height() == tagsR.bottom() + 1 + GapVL + PaddingVXxl);
+    QTC_CHECK(option.rect.width() == tagsR.right() + 1 + GapHL + PaddingHXxl);
 
     QTextOption wrapTO;
     wrapTO.setWrapMode(QTextOption::WordWrap);
@@ -604,11 +604,11 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         painter->setOpacity(animationProgress); // "fade in" separator line and description
 
         // The separator line below the example title.
-        const QRect hrR(titleR.x(), titleR.bottom() + 1 + ExPaddingGapS, thumbnailAreaR.width(), 1);
+        const QRect hrR(titleR.x(), titleR.bottom() + 1 + GapVXxs, thumbnailAreaR.width(), 1);
         painter->fillRect(hrR, themeColor(Theme::Token_Stroke_Muted));
 
         // The description text.
-        const QRect descriptionR(hrR.x(), hrR.bottom() + 1 + ExPaddingGapS,
+        const QRect descriptionR(hrR.x(), hrR.bottom() + 1 + GapVXxs,
                                  thumbnailAreaR.width(), shiftY);
         painter->setPen(descriptionTF.color());
         painter->setFont(descriptionTF.font());
@@ -846,8 +846,8 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
         createTitleLabel(section.name),
         st,
         seeAllLink,
-        Space(ExVPaddingGapXl),
-        customMargins(0, ExPaddingGapM, 0, ExPaddingGapM),
+        Space(GapHXxl),
+        customMargins(0, PaddingVS, 0, PaddingVS),
     }.emerge();
     m_sectionLabels.append(sectionLabel);
     auto scrollArea = qobject_cast<QScrollArea *>(widget(0));
@@ -917,8 +917,8 @@ void SectionedGridView::zoomInSection(const Section &section)
         createTitleLabel(section.name),
         st,
         backLink,
-        Space(ExVPaddingGapXl),
-        customMargins(0, ExPaddingGapM, 0, ExPaddingGapM),
+        Space(GapHXxl),
+        customMargins(0, PaddingVS, 0, PaddingVS),
     }.emerge();
 
     auto gridView = new GridView(zoomedInWidget);

@@ -233,7 +233,7 @@ void setupFetchModule()
                     QLabel *list = new QLabel();
                     list->setTextFormat(Qt::TextFormat::MarkdownText);
                     list->setText(markdown);
-                    list->setMargin(StyleHelper::SpacingTokens::ExPaddingGapS);
+                    list->setMargin(StyleHelper::SpacingTokens::PaddingVXxs);
                     return list;
                 });
                 entry.addCustomButton(

@@ -252,7 +252,7 @@ protected:
             painter->setCompositionMode(QPainter::CompositionMode_Difference);
             painter->setPen(Qt::white);
             painter->drawText(
-                currentPixmapRect.translated(0, -StyleHelper::SpacingTokens::VPaddingXxs),
+                currentPixmapRect.translated(0, -StyleHelper::SpacingTokens::PaddingVXs),
                 exampleItem->videoLength, Qt::AlignBottom | Qt::AlignHCenter);
             painter->restore();
             static const QPixmap playOverlay =
@@ -280,8 +280,8 @@ public:
         using namespace StyleHelper::SpacingTokens;
         using namespace Layouting;
         Row titleRow {
-            customMargins(0, 0, ExVPaddingGapXl, 0),
-            spacing(ExVPaddingGapXl),
+            customMargins(0, 0, PaddingHXxl, 0),
+            spacing(GapHXxl),
         };
 
         m_searcher = new QtcSearchBox;
@@ -291,7 +291,7 @@ public:
             auto exampleSetSelector = new QtcComboBox;
             exampleSetSelector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
             exampleSetSelector->setMinimumWidth(ListItemDelegate::itemSize().width()
-                                                - ExVPaddingGapXl);
+                                                - PaddingVXxl);
             exampleSetSelector->setModel(s_exampleSetModel);
             exampleSetSelector->setCurrentIndex(s_exampleSetModel->selectedExampleSet());
             titleRow.addItem(exampleSetSelector);
@@ -317,8 +317,8 @@ public:
         Column {
             titleRow,
             gridView,
-            spacing(ExVPaddingGapXl),
-            customMargins(ExVPaddingGapXl, ExVPaddingGapXl, 0, 0),
+            spacing(GapVXxl),
+            customMargins(PaddingHXxl, PaddingVXxl, 0, 0),
         }.attachTo(this);
 
         connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,

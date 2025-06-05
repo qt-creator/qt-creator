@@ -647,9 +647,9 @@ void MarkdownBrowser::highlightCodeBlock(const QString &language, QTextBlock &bl
     QTextFrameFormat frameFormat;
     frameFormat.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
     frameFormat.setBackground(creatorColor(Theme::Token_Background_Muted));
-    frameFormat.setPadding(SpacingTokens::ExPaddingGapM);
-    frameFormat.setLeftMargin(SpacingTokens::VGapM);
-    frameFormat.setRightMargin(SpacingTokens::VGapM);
+    frameFormat.setPadding(SpacingTokens::PaddingVS);
+    frameFormat.setLeftMargin(SpacingTokens::PaddingVXs);
+    frameFormat.setRightMargin(SpacingTokens::PaddingVXs);
 
     QTextFrame *frame = cursor.insertFrame(frameFormat);
     QTextCursor frameCursor(frame);
@@ -837,8 +837,8 @@ void MarkdownBrowser::postProcessDocument(bool firstTime)
         };
 
         if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
-            blockFormat.setTopMargin(SpacingTokens::ExVPaddingGapXl * fontScale);
-            blockFormat.setBottomMargin(SpacingTokens::VGapL * fontScale);
+            blockFormat.setTopMargin(SpacingTokens::PaddingVXxl * fontScale);
+            blockFormat.setBottomMargin(SpacingTokens::GapVM * fontScale);
         } else {
             blockFormat
                 .setLineHeight(lineHeight(contentTF) * fontScale, QTextBlockFormat::FixedHeight);

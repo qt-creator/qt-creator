@@ -47,7 +47,7 @@ VersionDialog::VersionDialog()
 
     auto logoLabel = new QLabel;
     logoLabel->setPixmap(Icons::QTCREATORLOGO_BIG.pixmap());
-    const int margin = Utils::StyleHelper::SpacingTokens::ExPaddingGapL;
+    const int margin = Utils::StyleHelper::SpacingTokens::PaddingVL;
     logoLabel->setContentsMargins({margin, margin, margin, margin});
 
     auto copyRightLabel = new QLabel(ICore::aboutInformationHtml());

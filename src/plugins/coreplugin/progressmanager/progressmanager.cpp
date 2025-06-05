@@ -124,7 +124,7 @@ void PopupInfoBarDisplay::paintEvent(QPaintEvent *)
     const QRect r = rect().adjusted(0, layout()->contentsMargins().top(), 0, 0);
     StyleHelper::drawCardBg(&p, r, creatorColor(Theme::Token_Background_Muted),
                             creatorColor(Theme::Token_Stroke_Subtle),
-                            StyleHelper::SpacingTokens::HPaddingXs);
+                            StyleHelper::SpacingTokens::PaddingHM);
 }
 
 static void disconnectRecursively(QObject *obj)
@@ -188,7 +188,7 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
             Column {
                 Layouting::IconDisplay { icon(InfoBarEntry::icon(infoType)) },
                 st,
-                customMargins(0, 0, StyleHelper::SpacingTokens::ExPaddingGapS, 0),
+                customMargins(0, 0, StyleHelper::SpacingTokens::PaddingHXxs, 0),
             },
             Column {
                 Row {
@@ -201,12 +201,12 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
                 }
             }
         },
-        Space(StyleHelper::SpacingTokens::HGapS),
+        Space(StyleHelper::SpacingTokens::GapHM),
         Flow{ bindTo(&buttonLayout), alignment(Qt::AlignRight) },
-        customMargins(StyleHelper::SpacingTokens::HPaddingS,
-                      StyleHelper::SpacingTokens::ExPaddingGapL,
-                      StyleHelper::SpacingTokens::HPaddingS,
-                      StyleHelper::SpacingTokens::ExPaddingGapL),
+        customMargins(StyleHelper::SpacingTokens::PaddingHXl,
+                      StyleHelper::SpacingTokens::PaddingVL,
+                      StyleHelper::SpacingTokens::PaddingHXl,
+                      StyleHelper::SpacingTokens::PaddingVL),
     }.attachTo(this);
     // clang-format on
 
@@ -298,8 +298,8 @@ void InfoWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     p.setPen(creatorColor(Theme::Token_Stroke_Subtle));
-    p.drawLine(Utils::StyleHelper::SpacingTokens::HPaddingXs, 0,
-               width() - Utils::StyleHelper::SpacingTokens::HPaddingXs - 1, 0);
+    p.drawLine(Utils::StyleHelper::SpacingTokens::PaddingHM, 0,
+               width() - Utils::StyleHelper::SpacingTokens::PaddingHM - 1, 0);
 }
 
 class ProgressTimer : public QObject

@@ -2129,7 +2129,7 @@ void BoolAspect::addToLayoutHelper(Layouting::Layout &parent, QAbstractButton *b
         ttLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementLabelSmall));
         auto lt = new QVBoxLayout;
         lt->setContentsMargins({});
-        lt->setSpacing(StyleHelper::SpacingTokens::VGapXxs);
+        lt->setSpacing(StyleHelper::SpacingTokens::GapVXs);
         lt->addWidget(button);
         lt->addWidget(ttLabel);
         parent.addItem(lt);

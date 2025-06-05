@@ -83,7 +83,7 @@ ExtensionManagerSettings::ExtensionManagerSettings()
                 st,
             },
             st,
-            spacing(Utils::StyleHelper::SpacingTokens::ExVPaddingGapXl),
+            spacing(Utils::StyleHelper::SpacingTokens::GapVXxl),
         };
     });
     // clang-format on

@@ -85,8 +85,8 @@ static QLabel *sectionTitle(const TextFormat &tf, const QString &title)
 
 static QWidget *toScrollableColumn(QWidget *widget)
 {
-    widget->setContentsMargins(SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl,
-                               SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl);
+    widget->setContentsMargins(SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXxl,
+                               SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXxl);
     widget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
 
     auto scrollArea = new QScrollArea;
@@ -285,11 +285,11 @@ public:
                     Widget {
                         bindTo(&m_dlCountItems),
                         Row {
-                            Space(SpacingTokens::HGapXs),
+                            Space(SpacingTokens::GapHM),
                             m_divider,
-                            Space(SpacingTokens::HGapXs),
+                            Space(SpacingTokens::GapHM),
                             m_dlIcon,
-                            Space(SpacingTokens::HGapXxs),
+                            Space(SpacingTokens::GapHXs),
                             m_dlCount,
                             noMargin, spacing(0),
                         },
@@ -306,7 +306,7 @@ public:
                 m_versionSelector,
                 st,
             },
-            noMargin, spacing(SpacingTokens::ExPaddingGapL),
+            noMargin, spacing(SpacingTokens::GapHL),
         }.attachTo(this);
         // clang-format on
 
@@ -526,7 +526,7 @@ public:
             // clang-format off
             Flow {
                 noMargin,
-                spacing(SpacingTokens::HGapXs),
+                spacing(SpacingTokens::GapHM),
                 Utils::transform(tags, tagToButton)
             }.attachTo(this);
             // clang-format on
@@ -594,7 +594,7 @@ static QWidget *descriptionPlaceHolder()
             WelcomePageHelpers::createRule(Qt::Horizontal),
             text,
             Stretch(3),
-            spacing(SpacingTokens::ExPaddingGapL),
+            spacing(SpacingTokens::GapVL),
         },
         st,
         noMargin,
@@ -618,7 +618,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     QPalette browserPal = m_description->palette();
     browserPal.setColor(QPalette::Base, creatorColor(Theme::Token_Background_Default));
     m_description->setPalette(browserPal);
-    const int verticalPadding = SpacingTokens::ExVPaddingGapXl - SpacingTokens::VPaddingM;
+    const int verticalPadding = SpacingTokens::PaddingVXxl - SpacingTokens::PaddingVXl;
     m_description->setMargins({verticalPadding, 0, verticalPadding, 0});
     m_description->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
 
@@ -664,15 +664,14 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     auto detailsSplitter = new MiniSplitter;
 
     using namespace Layouting;
-    const auto spL = spacing(SpacingTokens::VPaddingL);
-    const auto spXxs = spacing(SpacingTokens::VPaddingXxs);
+    const auto spXxs = spacing(SpacingTokens::GapVXs);
     // clang-format off
     Column {
         Row {
             m_headingWidget,
             m_pluginStatus,
-            customMargins(SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl,
-                          SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl),
+            customMargins(SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXxl,
+                          SpacingTokens::PaddingHXxl, SpacingTokens::PaddingVXxl),
         },
         m_description,
         noMargin, spacing(0),
@@ -686,16 +685,16 @@ ExtensionManagerWidget::ExtensionManagerWidget()
             Column { m_platformsTitle, m_platforms, spXxs },
             Column { m_dependenciesTitle, m_dependencies, spXxs },
             Column { m_packExtensionsTitle, m_packExtensions, spXxs },
-            spacing(SpacingTokens::VPaddingL),
+            spacing(SpacingTokens::GapVXl),
         },
         st,
-        noMargin, spacing(SpacingTokens::ExVPaddingGapXl),
+        noMargin, spacing(SpacingTokens::GapVXxl),
     }.attachTo(secondaryDetails);
 
     Column {
         new StyledBar,
         Row {
-            Space(SpacingTokens::ExVPaddingGapXl),
+            Space(SpacingTokens::GapHXxl),
             m_extensionBrowser,
             WelcomePageHelpers::createRule(Qt::Vertical),
             Stack {
@@ -788,7 +787,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
 
     const QString description = current.data(RoleDescriptionLong).toString();
     m_description->setMarkdown(description);
-    m_description->document()->setDocumentMargin(SpacingTokens::VPaddingM);
+    m_description->document()->setDocumentMargin(SpacingTokens::PaddingVXl);
 
     auto idToDisplayName = [this](const QString &id) {
         const QModelIndex dependencyIndex = m_extensionModel->indexOfId(id);

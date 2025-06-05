@@ -63,8 +63,8 @@ constexpr TextFormat shortcutNumberTF {Theme::Token_Text_Default,
                                       StyleHelper::UiElementCaptionStrong,
                                       Qt::AlignCenter | Qt::TextDontClip};
 constexpr int shortcutNumberWidth = 6;
-constexpr int sessionScrollBarGap = HPaddingXs;
-const int itemSpacing = VGapL;
+constexpr int sessionScrollBarGap = PaddingHM;
+const int itemSpacing = GapVM;
 
 static FilePaths pathsForSession(const QString &session, QString *title = nullptr)
 {
@@ -313,7 +313,7 @@ public:
     {
         m_shortcut = new QLabel;
         applyTf(m_shortcut, shortcutNumberTF, false);
-        const int shortcutWidth = HPaddingXs + shortcutNumberWidth + HGapXs;
+        const int shortcutWidth = PaddingHM + shortcutNumberWidth + GapHM;
         m_shortcut->setMinimumWidth(shortcutWidth);
 
         static const QPixmap icon = pixmap("session", Theme::Token_Text_Muted);
@@ -328,8 +328,8 @@ public:
         m_sessionNameLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
         m_sessionNameLabel->setTextInteractionFlags(Qt::NoTextInteraction);
 
-        const int collapsedHeight = VPaddingXs + std::max(16, sessionNameTF.lineHeight())
-                                    + VPaddingXs;
+        const int collapsedHeight = PaddingVM + std::max(16, sessionNameTF.lineHeight())
+                                    + PaddingVM;
         m_shortcut->setMinimumHeight(collapsedHeight);
         iconLabel->setMinimumHeight(collapsedHeight);
 
@@ -338,7 +338,7 @@ public:
 
         m_sessionType = new ElidingLabel;
         applyTf(m_sessionType, sessionTypeTF);
-        m_sessionType->setFixedHeight(m_sessionType->height() + VGapXs);
+        m_sessionType->setFixedHeight(m_sessionType->height() + GapVXs);
         m_sessionType->setSizePolicy(m_sessionNameLabel->sizePolicy());
         m_sessionType->setTextInteractionFlags(Qt::NoTextInteraction);
 
@@ -353,15 +353,15 @@ public:
 
         auto space = [] {
             auto sp = new QWidget;
-            sp->setFixedSize(HGapXs, VGapXs);
+            sp->setFixedSize(GapHM, GapVXs);
             return sp;
         };
 
         using namespace Layouting;
         Column paths {
             m_sessionType,
-            spacing(ExPaddingGapS),
-            customMargins(0, 0, HPaddingXs, 0),
+            spacing(GapVXxs),
+            customMargins(0, 0, PaddingHM, 0),
         };
         for (int i = 0; i < kMaxPathsDisplay + 1; ++i) {
             auto pathLine = new ElidingLabel;
@@ -387,10 +387,10 @@ public:
                     createRule(Qt::Vertical),
                     m_delete,
                     st,
-                    spacing(ExPaddingGapM),
+                    spacing(GapHS),
                     noMargin,
                 },
-                customMargins(0, VPaddingXs, 0, VPaddingXs),
+                customMargins(0, PaddingVM, 0, PaddingVM),
             },
             customMargins(0, 0, sessionScrollBarGap, itemSpacing),
             spacing(0),
@@ -542,7 +542,7 @@ public:
     {
         m_shortcut = new QLabel;
         applyTf(m_shortcut, shortcutNumberTF, false);
-        const int shortcutWidth = HPaddingXs + shortcutNumberWidth + HGapXs;
+        const int shortcutWidth = PaddingHM + shortcutNumberWidth + GapHM;
         m_shortcut->setMinimumWidth(shortcutWidth);
 
         const QPixmap icon = pixmap("project", Theme::Token_Text_Muted);
@@ -564,14 +564,14 @@ public:
         Row {
             m_shortcut,
             iconLabel,
-            Space(HGapXs),
+            Space(GapHM),
             Column {
                 m_projectName,
                 m_projectPath,
-                customMargins(0, VPaddingXs, 0, VPaddingXs),
-                spacing(VGapXs),
+                customMargins(0, PaddingVM, 0, PaddingVM),
+                spacing(GapVXs),
             },
-            customMargins(0, 0, HPaddingXs, 0),
+            customMargins(0, 0, PaddingHM, 0),
             spacing(0),
         }.attachTo(this);
 
@@ -599,7 +599,7 @@ public:
         const bool hovered = option.widget->isActiveWindow()
                              && option.state & QStyle::State_MouseOver;
 
-        const QRect bgRGlobal = option.rect.adjusted(0, 0, -HPaddingXs, -itemSpacing);
+        const QRect bgRGlobal = option.rect.adjusted(0, 0, -PaddingHM, -itemSpacing);
         const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
 
         QFont projectNameFont = m_projectName->font();
@@ -744,11 +744,11 @@ public:
                     sessionsLabel,
                     st,
                     manageSessionsButton,
-                    customMargins(HPaddingS, 0, sessionScrollBarGap, 0),
+                    customMargins(PaddingHXl, 0, sessionScrollBarGap, 0),
                 },
                 m_sessionList,
-                spacing(ExPaddingGapL),
-                customMargins(ExVPaddingGapXl, ExVPaddingGapXl, 0, 0),
+                spacing(GapVL),
+                customMargins(PaddingHXxl, PaddingVXxl, 0, 0),
             }.attachTo(sessions);
             connect(manageSessionsButton, &QtcButton::clicked,
                     this, &SessionManager::showSessionManager);
@@ -770,11 +770,11 @@ public:
             Column {
                 Row {
                     projectsLabel,
-                    customMargins(HPaddingS, 0, 0, 0),
+                    customMargins(PaddingHXl, 0, 0, 0),
                 },
                 projectsList,
-                spacing(ExPaddingGapL),
-                customMargins(ExVPaddingGapXl - sessionScrollBarGap, ExVPaddingGapXl, 0, 0),
+                spacing(GapVL),
+                customMargins(PaddingHXxl - sessionScrollBarGap, PaddingVXxl, 0, 0),
             }.attachTo(projects);
         }
 
