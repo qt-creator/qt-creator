@@ -12,7 +12,6 @@ inline constexpr QStringView priorityImports[] = {u"QtQuick.Controls",
                                                   u"QtQuick.Studio.MultiText",
                                                   u"QtQuick.Studio.LogicHelper",
                                                   u"Qt.SafeRenderer",
-                                                  u"QtQuick3D",
-                                                  u"FlowView"}; // have to be sorted
+                                                  u"QtQuick3D"}; // have to be sorted
 
 } // namespace QmlDesigner

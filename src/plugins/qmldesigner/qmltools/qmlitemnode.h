@@ -135,9 +135,6 @@ public:
 
     void setPosition(const QPointF &position, SL sl = {});
     void setPostionInBaseState(const QPointF &position, SL sl = {});
-    void setFlowItemPosition(const QPointF &position, SL sl = {});
-    QPointF flowPosition(SL sl = {}) const;
-
     void setSize(const QSizeF &size, SL sl = {});
     bool isInLayout(SL sl = {}) const;
     bool canBereparentedTo(const ModelNode &potentialParent, SL sl = {}) const;

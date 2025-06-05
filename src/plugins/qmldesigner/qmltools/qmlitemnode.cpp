@@ -885,36 +885,6 @@ void QmlItemNode::setPostionInBaseState(const QPointF &position, SL sl)
     modelNode().variantProperty("y").setValue(qRound(position.y()));
 }
 
-namespace {
-constexpr AuxiliaryDataKeyView flowXProperty{AuxiliaryDataType::Document, "flowX"};
-constexpr AuxiliaryDataKeyView flowYProperty{AuxiliaryDataType::Document, "flowY"};
-} // namespace
-
-void QmlItemNode::setFlowItemPosition(const QPointF &position, SL sl)
-{
-    NanotraceHR::Tracer tracer{"qml item node set flow item position",
-                               category(),
-                               keyValue("model node", *this),
-                               keyValue("caller location", sl)};
-
-    modelNode().setAuxiliaryData(flowXProperty, position.x());
-    modelNode().setAuxiliaryData(flowYProperty, position.y());
-}
-
-QPointF QmlItemNode::flowPosition(SL sl) const
-{
-    NanotraceHR::Tracer tracer{"qml item node flow position",
-                               category(),
-                               keyValue("model node", *this),
-                               keyValue("caller location", sl)};
-
-    if (!isValid())
-        return QPointF();
-
-    return QPointF(modelNode().auxiliaryDataWithDefault(flowXProperty).toInt(),
-                   modelNode().auxiliaryDataWithDefault(flowYProperty).toInt());
-}
-
 bool QmlItemNode::isInLayout(SL sl) const
 {
     NanotraceHR::Tracer tracer{"qml item node is in layout",

@@ -1379,39 +1379,6 @@ AddFilesResult addVideoToProject(const QStringList &fileNames, const QString &de
     return addFilesToProject(fileNames, getAssetDefaultDirectory("videos", defaultDir), showDialog);
 }
 
-void createFlowActionArea(const SelectionContext &selectionContext)
-{
-    AbstractView *view = selectionContext.view();
-
-    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
-    ModelNode container = selectionContext.currentSingleSelectedNode();
-    QTC_ASSERT(container.isValid(), return);
-    QTC_ASSERT(container.metaInfo().isValid(), return);
-
-    NodeMetaInfo actionAreaMetaInfo = view->model()->metaInfo("FlowView.FlowActionArea", -1, -1);
-    QTC_ASSERT(actionAreaMetaInfo.isValid(), return);
-
-    const QPointF pos = selectionContext.scenePosition().isNull() ? QPointF() : selectionContext.scenePosition() - QmlItemNode(container).flowPosition();
-
-    view->executeInTransaction("DesignerActionManager:createFlowActionArea", [&]() {
-#ifdef QDS_USE_PROJECTSTORAGE
-        ModelNode flowActionNode = view->createModelNode("FlowActionArea");
-#else
-            ModelNode flowActionNode = view->createModelNode("FlowView.FlowActionArea",
-                                                             actionAreaMetaInfo.majorVersion(),
-                                                             actionAreaMetaInfo.minorVersion());
-#endif
-        if (!pos.isNull()) {
-            flowActionNode.variantProperty("x").setValue(pos.x());
-            flowActionNode.variantProperty("y").setValue(pos.y());
-        }
-
-        container.defaultNodeListProperty().reparentHere(flowActionNode);
-        view->setSelectedModelNode(flowActionNode);
-    });
-}
-
-
 static bool hasStudioComponentsImport(const SelectionContext &context)
 {
     if (context.view() && context.view()->model()) {
@@ -1504,86 +1471,6 @@ static QString baseDirectory(const QUrl &url)
 {
     QString filePath = url.toLocalFile();
     return QFileInfo(filePath).absoluteDir().path();
-}
-
-static void getTypeAndImport(const SelectionContext &selectionContext,
-                             QString &type,
-                             QString &import)
-{
-    static QString s_lastBrowserPath;
-    QString path = s_lastBrowserPath;
-
-    if (path.isEmpty())
-        path = baseDirectory(selectionContext.view()->model()->fileUrl());
-
-    QString newFile = QFileDialog::getOpenFileName(Core::ICore::dialogParent(),
-                                                   ComponentCoreConstants::addCustomEffectDialogDisplayString,
-                                                   path,
-                                                   "*.qml");
-
-    if (!newFile.isEmpty()) {
-        QFileInfo file(newFile);
-
-        type = file.fileName();
-        type.remove(".qml");
-
-        s_lastBrowserPath = file.absolutePath();
-
-        import = QFileInfo(s_lastBrowserPath).baseName();
-    }
-}
-
-void addCustomFlowEffect(const SelectionContext &selectionContext)
-{
-    TypeName typeName;
-
-    QString typeString;
-    QString importString;
-
-    getTypeAndImport(selectionContext, typeString, importString);
-
-    typeName = typeString.toUtf8();
-
-    if (typeName.isEmpty())
-        return;
-
-    AbstractView *view = selectionContext.view();
-
-    view->executeInTransaction("DesignerActionManager:addFlowEffect", [view, importString]() {
-        const Import import = Import::createFileImport("FlowEffects");
-
-        if (!importString.isEmpty() && !view->model()->hasImport(import, true, true)) {
-            view->model()->changeImports({import}, {});
-        }
-    });
-
-    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
-    ModelNode container = selectionContext.currentSingleSelectedNode();
-    QTC_ASSERT(container.isValid(), return);
-    QTC_ASSERT(container.metaInfo().isValid(), return);
-
-#ifndef QDS_USE_PROJECTSTORAGE
-    NodeMetaInfo effectMetaInfo = view->model()->metaInfo(typeName, -1, -1);
-    QTC_ASSERT(typeName == "None" || effectMetaInfo.isValid(), return);
-#endif
-    view->executeInTransaction("DesignerActionManager:addFlowEffect", [&]() {
-        if (container.hasProperty("effect"))
-            container.removeProperty("effect");
-
-#ifdef QDS_USE_PROJECTSTORAGE
-        ModelNode effectNode = view->createModelNode(typeName);
-        container.nodeProperty("effect").reparentHere(effectNode);
-        view->setSelectedModelNode(effectNode);
-#else
-        if (effectMetaInfo.isValid()) {
-            ModelNode effectNode = view->createModelNode(effectMetaInfo.typeName(),
-                                                         effectMetaInfo.majorVersion(),
-                                                         effectMetaInfo.minorVersion());
-            container.nodeProperty("effect").reparentHere(effectNode);
-            view->setSelectedModelNode(effectNode);
-        }
-#endif
-    });
 }
 
 static QString fromCamelCase(const QString &s)
