@@ -67,9 +67,6 @@ void SingleSelectionManipulator::select(SelectionType selectionType)
     if (formEditorItem && formEditorItem->qmlItemNode().isValid())
         selectedNode = formEditorItem->qmlItemNode();
 
-    if (formEditorItem && formEditorItem->qmlItemNode().isFlowTransition())
-        selectedNode = formEditorItem->qmlItemNode();
-
     QList<QmlItemNode> nodeList;
 
     switch (selectionType) {
