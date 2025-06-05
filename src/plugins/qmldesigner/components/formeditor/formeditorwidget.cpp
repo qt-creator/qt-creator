@@ -213,22 +213,8 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     auto frameAll = [this, zoomOut]() {
         if (m_graphicsView) {
-            QRectF bounds;
-
             QmlItemNode qmlItemNode(m_formEditorView->rootModelNode());
-            if (qmlItemNode.isFlowView()) {
-                for (QGraphicsItem *item : m_formEditorView->scene()->items()) {
-                    if (auto *fitem = FormEditorItem::fromQGraphicsItem(item)) {
-                        if (!fitem->qmlItemNode().modelNode().isRootNode()
-                            && !fitem->sceneBoundingRect().isNull())
-                            bounds |= fitem->sceneBoundingRect();
-                    }
-                }
-            } else {
-                bounds = qmlItemNode.instanceBoundingRect();
-            }
-
-            m_graphicsView->frame(bounds);
+            m_graphicsView->frame(qmlItemNode.instanceBoundingRect());
             zoomOut();
         }
     };
