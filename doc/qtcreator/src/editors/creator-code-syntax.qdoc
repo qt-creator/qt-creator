@@ -800,19 +800,5 @@
     To only format files that belong to the current project, select
     \uicontrol {Restrict to files contained in the current project}.
 
-    \section1 Format using an external tool
-
-    To use an external tool, such as \l {qmlformat}, which automatically
-    formats QML files according to QML coding conventions:
-
-    \list 1
-        \li Go to \preferences > \uicontrol {Qt Quick} > \uicontrol {Code Style}.
-            \image {qtcreator-preferences-qtquick-code-style-custom-formatter.webp}{Custom formatter preferences in the Code Style tab in Qt Quick preferences}
-        \li In \uicontrol {Formatter Selection}, select
-            \uicontrol {Custom formatter}.
-        \li In \uicontrol Command, enter the path to the tool.
-        \li In \uicontrol Arguments, enter options for running the tool.
-    \endlist
-
     \sa {Check code syntax}, {Specify Qt Quick code style}
 */
