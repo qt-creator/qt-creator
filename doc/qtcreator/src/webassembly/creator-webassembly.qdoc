@@ -33,9 +33,9 @@
             you installed \c emsdk.
         \li \QC configures the \uicontrol {Emscripten SDK environment} for you
             if your Qt for WebAssembly version supports the \c emsdk.
-            \image {qtcreator-webassembly-options.png} {WebAssembly tab in SDKs preferences}
+            \image {qtcreator-preferences-sdks-webassembly.webp} {WebAssembly tab in SDKs preferences}
         \li Go to \preferences > \uicontrol Kits.
-            \image qtcreator-kit-webassembly.webp {Qt for WebAssembly kit in the Kits tab in Kits preferences}
+            \image {qtcreator-kit-webassembly.webp} {Qt for WebAssembly kit in the Kits tab in Kits preferences}
         \li In \uicontrol {Build device}, select \uicontrol Desktop as the device
             type.
         \li In \uicontrol {Run device}, select \uicontrol {WebAssembly Runtime}
