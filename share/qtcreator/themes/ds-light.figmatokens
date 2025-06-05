@@ -32,9 +32,9 @@ Token_Notification_Alert_Default=Primitive-Yellow-600
 Token_Notification_Alert_Muted=Primitive-Yellow-500
 Token_Notification_Alert_Subtle=Primitive-Yellow-100
 
-Token_Notification_Neutral_Default=Primitive-Blue-600
-Token_Notification_Neutral_Muted=Primitive-Blue-400
-Token_Notification_Neutral_Subtle=Primitive-Blue-100
+Token_Notification_Neutral_Default=Primitive-Midnight-600
+Token_Notification_Neutral_Muted=Primitive-Midnight-400
+Token_Notification_Neutral_Subtle=Primitive-Midnight-100
 
 Token_Notification_Danger_Default=Primitive-Red-600
 Token_Notification_Danger_Muted=Primitive-Red-500
