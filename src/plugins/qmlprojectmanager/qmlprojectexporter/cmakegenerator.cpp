@@ -194,6 +194,8 @@ bool CMakeGenerator::checkUri(const QString& uri, const Utils::FilePath &path) c
 
     Utils::FilePath relative = path.relativeChildPath(m_root->dir);
     QList<QStringView> pathComponents = relative.pathView().split('/', Qt::SkipEmptyParts);
+    if (pathComponents.isEmpty())
+        return false;
 
     for (const auto& import : buildSystem()->allImports()) {
         Utils::FilePath importPath = Utils::FilePath::fromUserInput(import);
