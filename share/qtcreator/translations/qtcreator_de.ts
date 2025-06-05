@@ -65189,7 +65189,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>No executable specified.</source>
-        <translation type="unfinished">Es wurde keine ausführbare Datei angegeben.</translation>
+        <translation>Es wurde keine ausführbare Datei angegeben.</translation>
     </message>
     <message>
         <source>Failed to create process interface for &quot;%1&quot;.</source>
@@ -65229,7 +65229,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Either the invoked program is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entweder fehlt das auszuführende Programm oder Sie haben vielleicht nicht die benötigten Berechtigungen zum Ausführen des Programms.</translation>
     </message>
     <message>
         <source>The command &quot;%1&quot; was canceled after %2 ms.</source>
@@ -65237,11 +65237,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Standard error output was:</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardfehlerausgabe war:</translation>
     </message>
     <message>
         <source>Standard output was:</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardausgabe war:</translation>
     </message>
     <message>
         <source>Invalid command</source>
@@ -66006,109 +66006,111 @@ Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</trans
     </message>
     <message>
         <source>Copied</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiert</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished">&amp;Rückgängig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type="unfinished">&amp;Wiederholen</translation>
+        <translation>&amp;Wiederholen</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type="unfinished">&amp;Ausschneiden</translation>
+        <translation>&amp;Ausschneiden</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Kopieren</translation>
+        <translation>&amp;Kopieren</translation>
     </message>
     <message>
         <source>Copy &amp;Link Location</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Link-Adresse kopieren</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type="unfinished">&amp;Einfügen</translation>
+        <translation>&amp;Einfügen</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles auswählen</translation>
     </message>
     <message>
         <source>Insert Unicode Control Character</source>
-        <translation type="unfinished"></translation>
+        <translation>Unicode-Kontrollzeichen einfügen</translation>
     </message>
     <message>
         <source>&quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">&quot;%1&quot; existiert nicht.</translation>
+        <translation>&quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>&quot;find&quot; is not an existing executable</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;find&quot; ist keine ausführbare Datei</translation>
     </message>
     <message>
         <source>Failed to run %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 konnte nicht ausgeführt werden: %2</translation>
     </message>
     <message>
         <source>&quot;ps&quot; is not an existing executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;ps&quot; ist keine ausführbare Datei.</translation>
     </message>
     <message>
         <source>&quot;pidin&quot; is not an existing executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;pidin&quot; ist keine ausführbare Datei.</translation>
     </message>
     <message>
         <source>Failed to run ps: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>ps konnte nicht ausgeführt werden: %1</translation>
     </message>
     <message>
         <source>Failed to run pidin: %1
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>pidin konnte nicht ausgeführt werden: %1
+%2</translation>
     </message>
     <message>
         <source>Failed to check /proc: %1
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>/proc konnte nicht überprüft werden: %1
+%2</translation>
     </message>
     <message>
         <source>Failed to create snapshot: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Snapshot konnte nicht erstellt werden: %1</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Internal error: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: %1.</translation>
     </message>
     <message>
         <source>Not implemented error: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler: Nicht implementiert: %1.</translation>
     </message>
     <message>
         <source>Unknown error: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler: %1.</translation>
     </message>
     <message>
         <source>Unknown reason.</source>
-        <translation type="unfinished"></translation>
+        <translation>Grund unbekannt.</translation>
     </message>
     <message>
         <source>Not an archive.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Archiv.</translation>
     </message>
     <message>
         <source>Canceled.</source>
-        <translation type="unfinished">Abgebrochen.</translation>
+        <translation>Abgebrochen.</translation>
     </message>
 </context>
 <context>
