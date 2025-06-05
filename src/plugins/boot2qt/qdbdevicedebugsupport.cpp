@@ -5,6 +5,8 @@
 
 #include "qdbconstants.h"
 
+#include <debugger/debuggerruncontrol.h>
+
 #include <perfprofiler/perfprofilerconstants.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -14,7 +16,7 @@
 
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
-#include <debugger/debuggerruncontrol.h>
+#include <solutions/tasking/barrier.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
@@ -22,13 +24,14 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Qdb::Internal {
 
-static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
-                                                QmlDebugServicesPreset qmlServices,
-                                                bool suppressDefaultStdOutHandling = false)
+static ProcessTask qdbDeviceInferiorProcess(RunControl *runControl,
+                                            QmlDebugServicesPreset qmlServices,
+                                            bool suppressDefaultStdOutHandling = false)
 {
     const auto modifier = [runControl, qmlServices](Process &process) {
         CommandLine cmd{runControl->device()->filePath(Constants::AppcontrollerFilepath)};
@@ -81,7 +84,15 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
         process.setEnvironment(runControl->environment());
         return Tasking::SetupResult::Continue;
     };
-    return createProcessWorker(runControl, modifier, suppressDefaultStdOutHandling);
+    return processTaskWithModifier(runControl, modifier, suppressDefaultStdOutHandling);
+}
+
+static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
+                                                QmlDebugServicesPreset qmlServices,
+                                                bool suppressDefaultStdOutHandling = false)
+{
+    return new RunWorker(runControl, { processRecipe(qdbDeviceInferiorProcess(
+                                         runControl, qmlServices, suppressDefaultStdOutHandling)) });
 }
 
 class QdbRunWorkerFactory final : public RunWorkerFactory
@@ -122,13 +133,13 @@ public:
             rp.addSolibSearchDir("%{sysroot}/system/lib");
             rp.setSkipDebugServer(true);
 
-            auto debugger = createDebuggerWorker(runControl, rp);
-
-            auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
-            debugger->addStartDependency(debuggee);
-            debuggee->addStopDependency(debugger);
-
-            return debugger;
+            const ProcessTask processTask(qdbDeviceInferiorProcess(runControl, QmlDebuggerServices));
+            const Group recipe {
+                When (processTask, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+                    debuggerRecipe(runControl, rp)
+                }
+            };
+            return new RunWorker(runControl, recipe);
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
