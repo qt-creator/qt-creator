@@ -63,14 +63,15 @@ struct ProjectStorage::Statements
     Sqlite::Database &database;
     Sqlite::ReadWriteStatement<1, 2> insertTypeStatement{
         "INSERT OR IGNORE INTO types(sourceId, name) VALUES(?1, ?2) RETURNING typeId", database};
-    Sqlite::WriteStatement<5> updatePrototypeAndExtensionStatement{
+    Sqlite::ReadWriteStatement<1, 5> updatePrototypeAndExtensionStatement{
         "UPDATE types "
         "SET prototypeId=?2, prototypeNameId=?3, extensionId=?4, extensionNameId=?5 "
         "WHERE typeId=?1 AND ( "
         "  prototypeId IS NOT ?2 "
         "  OR extensionId IS NOT ?3 "
         "  OR prototypeId IS NOT ?4 "
-        "  OR extensionNameId IS NOT ?5)",
+        "  OR extensionNameId IS NOT ?5) "
+        "RETURNING typeId",
         database};
     mutable Sqlite::ReadStatement<1, 1> selectTypeIdByExportedNameStatement{
         "SELECT typeId FROM exportedTypeNames WHERE name=?1", database};
@@ -131,19 +132,36 @@ struct ProjectStorage::Statements
         database};
     Sqlite::WriteStatement<2> updateTypeTraitStatement{
         "UPDATE types SET traits = ?2 WHERE typeId=?1", database};
-    Sqlite::WriteStatement<2> updateTypeAnnotationTraitStatement{
+    Sqlite::ReadWriteStatement<1, 2> updateTypeAnnotationTraitsStatement{
         "WITH RECURSIVE "
-        "  typeSelection(typeId) AS ("
+        "  heirs(typeId) AS ("
         "      VALUES(?1) "
         "    UNION ALL "
         "      SELECT t.typeId "
-        "      FROM types AS t JOIN typeSelection AS ts "
-        "      WHERE prototypeId=ts.typeId "
+        "      FROM types AS t JOIN heirs AS h "
+        "      WHERE prototypeId=h.typeId "
         "        AND t.typeId NOT IN (SELECT typeId FROM typeAnnotations)) "
         "UPDATE types AS t "
         "SET annotationTraits = ?2 "
-        "FROM typeSelection ts "
-        "WHERE t.typeId=ts.typeId",
+        "FROM heirs h "
+        "WHERE t.typeId=h.typeId "
+        "RETURNING typeId",
+        database};
+    Sqlite::ReadStatement<2, 1> selectTypeAnnotationTraitsFromPrototypeStatement{
+        "WITH RECURSIVE "
+        "  prototypes(typeId, prototypeId, traits) AS ( "
+        "      SELECT typeId, prototypeId, NULL "
+        "      FROM types "
+        "      WHERE typeId IN carray(?1) AND prototypeId IS NOT NULL "
+        "    UNION ALL "
+        "      SELECT p.typeId, "
+        "             iif(ta.typeId, NULL, t.prototypeId), "
+        "             iif(ta.typeId, t.annotationTraits, NULL) "
+        "      FROM types AS t JOIN prototypes AS p LEFT JOIN typeAnnotations AS ta USING(typeId) "
+        "      WHERE t.typeId=p.prototypeId) "
+        "SELECT typeId, traits "
+        "FROM prototypes "
+        "WHERE traits IS NOT NULL",
         database};
     Sqlite::ReadStatement<1, 2> selectNotUpdatedTypesInSourcesStatement{
         "SELECT DISTINCT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN "
@@ -289,7 +307,8 @@ struct ProjectStorage::Statements
         "json_each(functionDeclarations.signature) WHERE functionDeclarationId=?",
         database};
     Sqlite::WriteStatement<4> insertFunctionDeclarationStatement{
-        "INSERT INTO functionDeclarations(typeId, name, returnTypeName, signature) VALUES(?1, ?2, "
+        "INSERT INTO functionDeclarations(typeId, name, returnTypeName, signature) VALUES(?1, "
+        "?2, "
         "?3, ?4)",
         database};
     Sqlite::WriteStatement<3> updateFunctionDeclarationStatement{
@@ -300,7 +319,8 @@ struct ProjectStorage::Statements
     Sqlite::WriteStatement<1> deleteFunctionDeclarationStatement{
         "DELETE FROM functionDeclarations WHERE functionDeclarationId=?", database};
     mutable Sqlite::ReadStatement<3, 1> selectSignalDeclarationsForTypeIdStatement{
-        "SELECT name, signature, signalDeclarationId FROM signalDeclarations WHERE typeId=? ORDER "
+        "SELECT name, signature, signalDeclarationId FROM signalDeclarations WHERE typeId=? "
+        "ORDER "
         "BY name, signature",
         database};
     mutable Sqlite::ReadStatement<2, 1> selectSignalDeclarationsForTypeIdWithoutSignatureStatement{
@@ -322,16 +342,19 @@ struct ProjectStorage::Statements
         "enumerationDeclarations WHERE typeId=? ORDER BY name",
         database};
     mutable Sqlite::ReadStatement<2, 1> selectEnumerationDeclarationsForTypeIdWithoutEnumeratorDeclarationsStatement{
-        "SELECT name, enumerationDeclarationId FROM enumerationDeclarations WHERE typeId=? ORDER "
+        "SELECT name, enumerationDeclarationId FROM enumerationDeclarations WHERE typeId=? "
+        "ORDER "
         "BY name",
         database};
     mutable Sqlite::ReadStatement<3, 1> selectEnumeratorDeclarationStatement{
         "SELECT json_each.key, json_each.value, json_each.type!='null' FROM "
-        "enumerationDeclarations, json_each(enumerationDeclarations.enumeratorDeclarations) WHERE "
+        "enumerationDeclarations, json_each(enumerationDeclarations.enumeratorDeclarations) "
+        "WHERE "
         "enumerationDeclarationId=?",
         database};
     Sqlite::WriteStatement<3> insertEnumerationDeclarationStatement{
-        "INSERT INTO enumerationDeclarations(typeId, name, enumeratorDeclarations) VALUES(?1, ?2, "
+        "INSERT INTO enumerationDeclarations(typeId, name, enumeratorDeclarations) VALUES(?1, "
+        "?2, "
         "?3)",
         database};
     Sqlite::WriteStatement<2> updateEnumerationDeclarationStatement{
@@ -395,36 +418,42 @@ struct ProjectStorage::Statements
     Sqlite::WriteStatement<2> updateAliasPropertyDeclarationByAliasPropertyDeclarationIdStatement{
         "UPDATE propertyDeclarations SET propertyTypeId=new.propertyTypeId, "
         "propertyTraits=new.propertyTraits, aliasPropertyDeclarationId=?1 FROM (SELECT "
-        "propertyTypeId, propertyTraits FROM propertyDeclarations WHERE propertyDeclarationId=?1) "
+        "propertyTypeId, propertyTraits FROM propertyDeclarations WHERE "
+        "propertyDeclarationId=?1) "
         "AS new WHERE aliasPropertyDeclarationId=?2",
         database};
     Sqlite::WriteStatement<1> updateAliasPropertyDeclarationToNullStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=NULL, propertyTypeId=NULL, "
-        "propertyTraits=NULL WHERE propertyDeclarationId=? AND (aliasPropertyDeclarationId IS NOT "
+        "propertyTraits=NULL WHERE propertyDeclarationId=? AND (aliasPropertyDeclarationId IS "
+        "NOT "
         "NULL OR propertyTypeId IS NOT NULL OR propertyTraits IS NOT NULL)",
         database};
     Sqlite::ReadStatement<5, 1> selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement{
-        "SELECT alias.typeId, alias.propertyDeclarationId, alias.aliasPropertyImportedTypeNameId, "
+        "SELECT alias.typeId, alias.propertyDeclarationId, "
+        "alias.aliasPropertyImportedTypeNameId, "
         "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
         "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
         "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
         "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
         "WHERE alias.propertyTypeId=?1 "
         "UNION ALL "
-        "SELECT alias.typeId, alias.propertyDeclarationId, alias.aliasPropertyImportedTypeNameId, "
+        "SELECT alias.typeId, alias.propertyDeclarationId, "
+        "alias.aliasPropertyImportedTypeNameId, "
         "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
         "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
         "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
         "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
         "WHERE target.typeId=?1 "
         "UNION ALL "
-        "SELECT alias.typeId, alias.propertyDeclarationId, alias.aliasPropertyImportedTypeNameId, "
+        "SELECT alias.typeId, alias.propertyDeclarationId, "
+        "alias.aliasPropertyImportedTypeNameId, "
         "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
         "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
         "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
         "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
         "WHERE  alias.aliasPropertyImportedTypeNameId IN "
-        "  (SELECT importedTypeNameId FROM exportedTypeNames JOIN importedTypeNames USING(name) "
+        "  (SELECT importedTypeNameId FROM exportedTypeNames JOIN importedTypeNames "
+        "USING(name) "
         "   WHERE typeId=?1)",
         database};
     Sqlite::ReadStatement<3, 1> selectAliasPropertiesDeclarationForPropertiesWithAliasIdStatement{
@@ -436,7 +465,8 @@ struct ProjectStorage::Statements
         "        aliasPropertyDeclarationId=?1"
         "    UNION ALL "
         "      SELECT pd.propertyDeclarationId, pd.propertyImportedTypeNameId, pd.typeId, "
-        "        pd.aliasPropertyDeclarationId FROM propertyDeclarations AS pd JOIN properties AS "
+        "        pd.aliasPropertyDeclarationId FROM propertyDeclarations AS pd JOIN properties "
+        "AS "
         "        p ON pd.aliasPropertyDeclarationId=p.propertyDeclarationId)"
         "SELECT propertyDeclarationId, propertyImportedTypeNameId, aliasPropertyDeclarationId "
         "  FROM properties",
@@ -578,11 +608,13 @@ struct ProjectStorage::Statements
     mutable Sqlite::ReadStatement<3> selectAllFileStatusesStatement{
         "SELECT sourceId, size, lastModified FROM fileStatuses ORDER BY sourceId", database};
     mutable Sqlite::ReadStatement<3, 1> selectFileStatusesForSourceIdsStatement{
-        "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId IN carray(?1) ORDER "
+        "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId IN carray(?1) "
+        "ORDER "
         "BY sourceId",
         database};
     mutable Sqlite::ReadStatement<3, 1> selectFileStatusesForSourceIdStatement{
-        "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId=?1 ORDER BY sourceId",
+        "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId=?1 ORDER BY "
+        "sourceId",
         database};
     Sqlite::WriteStatement<3> insertFileStatusStatement{
         "INSERT INTO fileStatuses(sourceId, size, lastModified) VALUES(?1, ?2, ?3)", database};
@@ -593,7 +625,8 @@ struct ProjectStorage::Statements
     Sqlite::ReadStatement<1, 1> selectTypeIdBySourceIdStatement{
         "SELECT typeId FROM types WHERE sourceId=?", database};
     mutable Sqlite::ReadStatement<1, 3> selectImportedTypeNameIdStatement{
-        "SELECT importedTypeNameId FROM importedTypeNames WHERE kind=?1 AND importOrSourceId=?2 "
+        "SELECT importedTypeNameId FROM importedTypeNames WHERE kind=?1 AND "
+        "importOrSourceId=?2 "
         "AND name=?3 LIMIT 1",
         database};
     mutable Sqlite::ReadWriteStatement<1, 3> insertImportedTypeNameIdStatement{
@@ -601,7 +634,8 @@ struct ProjectStorage::Statements
         "RETURNING importedTypeNameId",
         database};
     mutable Sqlite::ReadStatement<1, 2> selectImportIdBySourceIdAndModuleIdStatement{
-        "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND majorVersion "
+        "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND "
+        "majorVersion "
         "IS NULL AND minorVersion IS NULL LIMIT 1",
         database};
     mutable Sqlite::ReadStatement<1, 3> selectImportIdBySourceIdAndModuleIdAndMajorVersionStatement{
@@ -618,12 +652,14 @@ struct ProjectStorage::Statements
         "SELECT name FROM importedTypeNames WHERE importedTypeNameId=?1", database};
     mutable Sqlite::ReadStatement<1, 1> selectTypeIdForQualifiedImportedTypeNameNamesStatement{
         "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
-        "importOrSourceId=di.importId JOIN documentImports AS di2 ON di.sourceId=di2.sourceId AND "
+        "importOrSourceId=di.importId JOIN documentImports AS di2 ON di.sourceId=di2.sourceId "
+        "AND "
         "di.moduleId=di2.sourceModuleId "
         "JOIN exportedTypeNames AS etn ON di2.moduleId=etn.moduleId WHERE "
         "itn.kind=2 AND importedTypeNameId=?1 AND itn.name=etn.name AND "
         "(di.majorVersion IS NULL OR (di.majorVersion=etn.majorVersion AND (di.minorVersion IS "
-        "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY etn.majorVersion DESC NULLS FIRST, "
+        "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY etn.majorVersion DESC NULLS "
+        "FIRST, "
         "etn.minorVersion DESC NULLS FIRST LIMIT 1",
         database};
     mutable Sqlite::ReadStatement<1, 1> selectTypeIdForImportedTypeNameNamesStatement{
@@ -638,12 +674,14 @@ struct ProjectStorage::Statements
         "  JOIN exportedTypeNames AS etn USING(moduleId, name) "
         "WHERE (itn.majorVersion IS NULL OR (itn.majorVersion=etn.majorVersion "
         "  AND (itn.minorVersion IS NULL OR itn.minorVersion>=etn.minorVersion))) "
-        "ORDER BY itn.kind, etn.majorVersion DESC NULLS FIRST, etn.minorVersion DESC NULLS FIRST "
+        "ORDER BY itn.kind, etn.majorVersion DESC NULLS FIRST, etn.minorVersion DESC NULLS "
+        "FIRST "
         "LIMIT 1",
         database};
     mutable Sqlite::ReadStatement<6, 1> selectExportedTypesForSourceIdsStatement{
         "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1), typeId, "
-        "exportedTypeNameId FROM exportedTypeNames WHERE typeId in carray(?1) ORDER BY moduleId, "
+        "exportedTypeNameId FROM exportedTypeNames WHERE typeId in carray(?1) ORDER BY "
+        "moduleId, "
         "name, majorVersion, minorVersion",
         database};
     Sqlite::WriteStatement<5> insertExportedTypeNamesWithVersionStatement{
@@ -671,7 +709,8 @@ struct ProjectStorage::Statements
     Sqlite::WriteStatement<2> deleteDirectoryInfoStatement{
         "DELETE FROM directoryInfos WHERE directoryId=?1 AND sourceId=?2", database};
     Sqlite::WriteStatement<4> updateDirectoryInfoStatement{
-        "UPDATE directoryInfos SET moduleId=?3, fileType=?4 WHERE directoryId=?1 AND sourceId=?2",
+        "UPDATE directoryInfos SET moduleId=?3, fileType=?4 WHERE directoryId=?1 AND "
+        "sourceId=?2",
         database};
     mutable Sqlite::ReadStatement<4, 1> selectDirectoryInfosForDirectoryIdStatement{
         "SELECT directoryId, sourceId, moduleId, fileType FROM directoryInfos WHERE "
@@ -800,7 +839,8 @@ struct ProjectStorage::Statements
         "ORDER BY typeId",
         database};
     Sqlite::WriteStatement<3> insertPropertyEditorPathStatement{
-        "INSERT INTO propertyEditorPaths(typeId, pathSourceId, directoryId) VALUES (?1, ?2, ?3)",
+        "INSERT INTO propertyEditorPaths(typeId, pathSourceId, directoryId) VALUES (?1, ?2, "
+        "?3)",
         database};
     Sqlite::WriteStatement<3> updatePropertyEditorPathsStatement{
         "UPDATE propertyEditorPaths "
@@ -1307,6 +1347,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
         PropertyDeclarations relinkablePropertyDeclarations;
         Prototypes relinkablePrototypes;
         Prototypes relinkableExtensions;
+        SmallTypeIds<256> updatedPrototypeTypes;
 
         TypeIds updatedTypeIds;
         updatedTypeIds.reserve(package.types.size());
@@ -1334,8 +1375,11 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
                          exportedTypesChanged,
                          removedExportedTypeNames,
                          addedExportedTypeNames,
-                         package.updatedSourceIds);
-        synchronizeTypeAnnotations(package.typeAnnotations, package.updatedTypeAnnotationSourceIds);
+                         package.updatedSourceIds,
+                         updatedPrototypeTypes);
+        auto updatedAnnotationTypes = synchronizeTypeAnnotations(package.typeAnnotations,
+                                                                 package.updatedTypeAnnotationSourceIds);
+        updateAnnotationsTypeTraitsFromPrototypes(updatedAnnotationTypes, updatedPrototypeTypes);
         synchronizePropertyEditorQmlPaths(package.propertyEditorQmlPaths,
                                           package.updatedPropertyEditorQmlPathDirectoryIds);
 
@@ -2395,14 +2439,23 @@ void ProjectStorage::unique(SourceIds &sourceIds)
     sourceIds.erase(removed.begin(), removed.end());
 }
 
-void ProjectStorage::synchronizeTypeTraits(TypeId typeId, Storage::TypeTraits traits)
+void ProjectStorage::updateAnnotationTypeTraitsFromPrototypes(TypeId typeId)
+{
+    NanotraceHR::Tracer tracer{"update annotation type traits from prototypes",
+                               projectStorageCategory(),
+                               keyValue("type id", typeId)};
+}
+
+void ProjectStorage::updateAnnotationTypeTraitsInHeirs(TypeId typeId,
+                                                       Storage::TypeTraits traits,
+                                                       SmallTypeIds<256> &updatedTypes)
 {
     NanotraceHR::Tracer tracer{"synchronize type traits",
                                projectStorageCategory(),
                                keyValue("type id", typeId),
                                keyValue("type traits", traits)};
 
-    s->updateTypeAnnotationTraitStatement.write(typeId, traits.annotation);
+    s->updateTypeAnnotationTraitsStatement.readTo(updatedTypes, typeId, traits.annotation);
 }
 
 void ProjectStorage::updateTypeIdInTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations)
@@ -2417,8 +2470,32 @@ void ProjectStorage::updateTypeIdInTypeAnnotations(Storage::Synchronization::Typ
     std::erase_if(typeAnnotations, is_null(&TypeAnnotation::typeId));
 }
 
-void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations,
-                                                const SourceIds &updatedTypeAnnotationSourceIds)
+void ProjectStorage::updateAnnotationsTypeTraitsFromPrototypes(SmallTypeIds<256> &alreadyUpdatedTypes,
+                                                               SmallTypeIds<256> &updatedPrototypeTypes)
+{
+    NanotraceHR::Tracer tracer{"update annotations type traits from prototypes",
+                               projectStorageCategory()};
+
+    std::ranges::sort(updatedPrototypeTypes);
+    std::ranges::sort(alreadyUpdatedTypes);
+
+    SmallTypeIds<256> typesToUpdate;
+
+    std::ranges::set_difference(updatedPrototypeTypes,
+                                alreadyUpdatedTypes,
+                                std::back_inserter(typesToUpdate));
+
+    auto callback = [&](TypeId typeId, long long traits) {
+        s->updateTypeAnnotationTraitsStatement.write(typeId, traits);
+    };
+
+    s->selectTypeAnnotationTraitsFromPrototypeStatement.readCallback(callback,
+                                                                     Sqlite::toIntegers(typesToUpdate));
+}
+
+SmallTypeIds<256> ProjectStorage::synchronizeTypeAnnotations(
+    Storage::Synchronization::TypeAnnotations &typeAnnotations,
+    const SourceIds &updatedTypeAnnotationSourceIds)
 {
     NanotraceHR::Tracer tracer{"synchronize type annotations", projectStorageCategory()};
 
@@ -2430,6 +2507,8 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
 
     auto range = s->selectTypeAnnotationsForSourceIdsStatement.range<TypeAnnotationView>(
         Sqlite::toIntegers(updatedTypeAnnotationSourceIds));
+
+    SmallTypeIds<256> updatedTypes;
 
     auto insert = [&](const TypeAnnotation &annotation) {
         if (!annotation.sourceId)
@@ -2449,7 +2528,7 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
                                                createEmptyAsNull(annotation.itemLibraryJson),
                                                createEmptyAsNull(annotation.hintsJson));
 
-        synchronizeTypeTraits(annotation.typeId, annotation.traits);
+        updateAnnotationTypeTraitsInHeirs(annotation.typeId, annotation.traits, updatedTypes);
     };
 
     auto update = [&](const TypeAnnotationView &annotationFromDatabase,
@@ -2472,12 +2551,12 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
                                                    createEmptyAsNull(annotation.itemLibraryJson),
                                                    createEmptyAsNull(annotation.hintsJson));
 
-            synchronizeTypeTraits(annotation.typeId, annotation.traits);
+            updateAnnotationTypeTraitsInHeirs(annotation.typeId, annotation.traits, updatedTypes);
 
             return Sqlite::UpdateChange::Update;
         }
 
-        synchronizeTypeTraits(annotation.typeId, annotation.traits);
+        updateAnnotationTypeTraitsInHeirs(annotation.typeId, annotation.traits, updatedTypes);
 
         return Sqlite::UpdateChange::No;
     };
@@ -2492,11 +2571,13 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
                                              .value<long long>(annotationFromDatabase.typeId);
         s->deleteTypeAnnotationStatement.write(annotationFromDatabase.typeId);
 
-        s->updateTypeAnnotationTraitStatement.write(annotationFromDatabase.typeId,
-                                                    prototypeAnnotationTraits);
+        s->updateTypeAnnotationTraitsStatement.write(annotationFromDatabase.typeId,
+                                                     prototypeAnnotationTraits);
     };
 
     Sqlite::insertUpdateDelete(range, typeAnnotations, compareKey, insert, update, remove);
+
+    return updatedTypes;
 }
 
 void ProjectStorage::synchronizeTypeTrait(const Storage::Synchronization::Type &type)
@@ -2517,7 +2598,8 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
                                       ExportedTypesChanged &exportedTypesChanged,
                                       Storage::Info::ExportedTypeNames &removedExportedTypeNames,
                                       Storage::Info::ExportedTypeNames &addedExportedTypeNames,
-                                      const SourceIds &updatedSourceIds)
+                                      const SourceIds &updatedSourceIds,
+                                      SmallTypeIds<256> &updatedPrototypeTypes)
 {
     NanotraceHR::Tracer tracer{"synchronize types", projectStorageCategory()};
 
@@ -2563,7 +2645,7 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
                              removedExportedTypeNames,
                              addedExportedTypeNames);
 
-    syncPrototypesAndExtensions(types, relinkablePrototypes, relinkableExtensions);
+    syncPrototypesAndExtensions(types, relinkablePrototypes, relinkableExtensions, updatedPrototypeTypes);
     resetDefaultPropertiesIfChanged(types);
     resetRemovedAliasPropertyDeclarationsToNull(types, relinkableAliasPropertyDeclarations);
     syncDeclarations(types, aliasPropertyDeclarationsToLink, relinkablePropertyDeclarations);
@@ -4497,7 +4579,9 @@ std::pair<TypeId, ImportedTypeNameId> ProjectStorage::fetchImportedTypeNameIdAnd
     return {typeId, typeNameId};
 }
 
-void ProjectStorage::syncPrototypeAndExtension(Storage::Synchronization::Type &type, TypeIds &typeIds)
+void ProjectStorage::syncPrototypeAndExtension(Storage::Synchronization::Type &type,
+                                               TypeIds &typeIds,
+                                               SmallTypeIds<256> &updatedTypeIds)
 {
     if (type.changeLevel == Storage::Synchronization::ChangeLevel::Minimal)
         return;
@@ -4514,11 +4598,12 @@ void ProjectStorage::syncPrototypeAndExtension(Storage::Synchronization::Type &t
     auto [extensionId, extensionTypeNameId] = fetchImportedTypeNameIdAndTypeId(type.extension,
                                                                                type.sourceId);
 
-    s->updatePrototypeAndExtensionStatement.write(type.typeId,
-                                                  prototypeId,
-                                                  prototypeTypeNameId,
-                                                  extensionId,
-                                                  extensionTypeNameId);
+    s->updatePrototypeAndExtensionStatement.readTo(updatedTypeIds,
+                                                   type.typeId,
+                                                   prototypeId,
+                                                   prototypeTypeNameId,
+                                                   extensionId,
+                                                   extensionTypeNameId);
 
     if (prototypeId || extensionId)
         checkForPrototypeChainCycle(type.typeId);
@@ -4533,7 +4618,8 @@ void ProjectStorage::syncPrototypeAndExtension(Storage::Synchronization::Type &t
 
 void ProjectStorage::syncPrototypesAndExtensions(Storage::Synchronization::Types &types,
                                                  Prototypes &relinkablePrototypes,
-                                                 Prototypes &relinkableExtensions)
+                                                 Prototypes &relinkableExtensions,
+                                                 SmallTypeIds<256> &updatedTypes)
 {
     NanotraceHR::Tracer tracer{"synchronize prototypes and extensions", projectStorageCategory()};
 
@@ -4541,7 +4627,7 @@ void ProjectStorage::syncPrototypesAndExtensions(Storage::Synchronization::Types
     typeIds.reserve(types.size());
 
     for (auto &type : types)
-        syncPrototypeAndExtension(type, typeIds);
+        syncPrototypeAndExtension(type, typeIds, updatedTypes);
 
     removeRelinkableEntries(relinkablePrototypes, typeIds, &Prototype::typeId);
     removeRelinkableEntries(relinkableExtensions, typeIds, &Prototype::typeId);

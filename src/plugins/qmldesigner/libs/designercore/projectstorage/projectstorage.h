@@ -509,7 +509,10 @@ private:
 
     void unique(SourceIds &sourceIds);
 
-    void synchronizeTypeTraits(TypeId typeId, Storage::TypeTraits traits);
+    void updateAnnotationTypeTraitsInHeirs(TypeId typeId,
+                                           Storage::TypeTraits traits,
+                                           SmallTypeIds<256> &updatedTypes);
+    void updateAnnotationTypeTraitsFromPrototypes(TypeId typeId);
 
     class TypeAnnotationView
     {
@@ -559,9 +562,11 @@ private:
         return Sqlite::ValueView{};
     }
 
-    void synchronizeTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations,
-                                    const SourceIds &updatedTypeAnnotationSourceIds);
+    SmallTypeIds<256> synchronizeTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations,
+                                                 const SourceIds &updatedTypeAnnotationSourceIds);
 
+    void updateAnnotationsTypeTraitsFromPrototypes(SmallTypeIds<256> &alreadyUpdatedTypes,
+                                                   SmallTypeIds<256> &updatedPrototypeTypes);
     void synchronizeTypeTrait(const Storage::Synchronization::Type &type);
 
     void synchronizeTypes(Storage::Synchronization::Types &types,
@@ -574,7 +579,8 @@ private:
                           ExportedTypesChanged &exportedTypesChanged,
                           Storage::Info::ExportedTypeNames &removedExportedTypeNames,
                           Storage::Info::ExportedTypeNames &addedExportedTypeNames,
-                          const SourceIds &updatedSourceIds);
+                          const SourceIds &updatedSourceIds,
+                          SmallTypeIds<256> &updatedPrototypeTypes);
 
     void synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
                                    const DirectoryPathIds &updatedDirectoryInfoDirectoryIds);
@@ -904,11 +910,14 @@ private:
     std::pair<TypeId, ImportedTypeNameId> fetchImportedTypeNameIdAndTypeId(
         const Storage::Synchronization::ImportedTypeName &typeName, SourceId sourceId);
 
-    void syncPrototypeAndExtension(Storage::Synchronization::Type &type, TypeIds &typeIds);
+    void syncPrototypeAndExtension(Storage::Synchronization::Type &type,
+                                   TypeIds &typeIds,
+                                   SmallTypeIds<256> &updatedTypeIds);
 
     void syncPrototypesAndExtensions(Storage::Synchronization::Types &types,
                                      Prototypes &relinkablePrototypes,
-                                     Prototypes &relinkableExtensions);
+                                     Prototypes &relinkableExtensions,
+                                     SmallTypeIds<256> &updatedTypes);
 
     ImportId fetchImportId(SourceId sourceId, const Storage::Import &import) const;
 

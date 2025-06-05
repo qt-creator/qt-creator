@@ -8396,6 +8396,28 @@ TEST_F(ProjectStorage, synchronize_type_annotation_type_traits_for_prototype_hei
     ASSERT_THAT(storage.type(fetchTypeId(sourceId1, "QQuickItem"))->traits, traits);
 }
 
+TEST_F(ProjectStorage, synchronize_type_annotation_type_traits_from_prototypes)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.typeAnnotations = createTypeAnnotions();
+    package.typeAnnotations.pop_back();
+    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.canBeContainer = FlagIs::True;
+    traits.visibleInLibrary = FlagIs::True;
+    auto type = package.types.front();
+    package.types.erase(package.types.begin());
+    storage.synchronize(package);
+    package.typeAnnotations.clear();
+    package.updatedTypeAnnotationSourceIds.clear();
+    package.types.push_back(type);
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.type(fetchTypeId(sourceId1, "QQuickItem"))->traits, traits);
+}
+
 TEST_F(ProjectStorage, synchronize_updates_type_annotation_type_traits)
 {
     auto package{createSimpleSynchronizationPackage()};
