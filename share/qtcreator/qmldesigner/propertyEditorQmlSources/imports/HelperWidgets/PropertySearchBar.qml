@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
@@ -104,21 +105,38 @@ Rectangle {
                 if (!child.visible)
                     return;
 
-                if (child.__isPropertyLabel) {
+                if (child instanceof HelperWidgets.PropertyLabel) {
                     const propertyLabel = child;
                     const text = propertyLabel.text.toLowerCase();
-                    if (!text.includes(searchText)) {
-                        internal.disableSearchNoMatchAction(propertyLabel);
-                        const action = propertyLabel.__inDynamicPropertiesSection ? internal.disableVisibleAction
-                                                                                  : internal.disableSearchNoMatchAction;
-                        const nextItem = arr[index + 1];
-                        action(nextItem);
-                    } else {
-                        hideSection = false;
+                    // Some complex properties include empty labels for layout purposes, ignore those
+                    if (text !== "") {
+                        if (!text.includes(searchText)) {
+                            internal.disableSearchNoMatchAction(propertyLabel);
+                            let nextIndex = index;
+                            let nextItem = arr[++nextIndex];
+                            if (nextItem instanceof HelperWidgets.SecondColumnLayout)
+                                internal.disableSearchNoMatchAction(nextItem)
+                            else
+                                internal.disableVisibleAction(nextItem)
+
+                            while (nextIndex < arr.length - 1) {
+                                nextItem = arr[++nextIndex];
+                                if ((nextItem instanceof HelperWidgets.PropertyLabel && nextItem.text !== "")
+                                    || nextItem instanceof HelperWidgets.Section) {
+                                    break;
+                                }
+                                if (nextItem instanceof HelperWidgets.SecondColumnLayout
+                                    || nextItem instanceof HelperWidgets.PropertyLabel) {
+                                    internal.disableSearchNoMatchAction(nextItem);
+                                }
+                            }
+                        } else {
+                            hideSection = false;
+                        }
                     }
                 }
                 hideSection &= internal.traverse(child, searchText);
-                if (child.__isSection) {
+                if (child instanceof HelperWidgets.Section) {
                     const action = hideSection ? internal.enableSearchHideAction
                                                : internal.expandSectionAction;
                     action(child);

@@ -507,8 +507,6 @@ Section {
                 }
 
                 PropertyLabel {
-                    readonly property bool __inDynamicPropertiesSection: true
-
                     text: propertyName
                     tooltip: propertyType
                     Layout.alignment: Qt.AlignTop

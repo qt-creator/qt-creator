@@ -10,8 +10,6 @@ import StudioTheme as StudioTheme
 Item {
     id: section
 
-    readonly property bool __isSection: true // used by property search logic
-
     property string caption: "Title"
     property string captionTooltip: ""
     property color labelColor: StudioTheme.Values.themeTextColor
