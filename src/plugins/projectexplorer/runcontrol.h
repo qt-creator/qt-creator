@@ -282,9 +282,9 @@ static constexpr bool isModifierInvocable()
 }
 
 template <typename Modifier>
-RunWorker *createProcessWorker(RunControl *runControl,
-                               const Modifier &startModifier = {},
-                               bool suppressDefaultStdOutHandling = false)
+Utils::ProcessTask processTaskWithModifier(RunControl *runControl,
+                                           const Modifier &startModifier = {},
+                                           bool suppressDefaultStdOutHandling = false)
 {
     // R, V stands for: Setup[R]esult, [V]oid
     static constexpr bool isR = isModifierInvocable<Tasking::SetupResult, Modifier, Utils::Process &>();
@@ -293,14 +293,22 @@ RunWorker *createProcessWorker(RunControl *runControl,
                   "Process modifier needs to take (Process &) as an argument and has to return void or "
                   "SetupResult. The passed handler doesn't fulfill these requirements.");
     if constexpr (isR) {
-        return new RunWorker(runControl, { processTask(runControl, startModifier, suppressDefaultStdOutHandling) });
+        return processTask(runControl, startModifier, suppressDefaultStdOutHandling);
     } else {
         const auto modifier = [startModifier](Utils::Process &process) {
             startModifier(process);
             return Tasking::SetupResult::Continue;
         };
-        return new RunWorker(runControl, { processTask(runControl, modifier, suppressDefaultStdOutHandling) });
+        return processTask(runControl, modifier, suppressDefaultStdOutHandling);
     }
+}
+
+template <typename Modifier>
+RunWorker *createProcessWorker(RunControl *runControl,
+                               const Modifier &startModifier = {},
+                               bool suppressDefaultStdOutHandling = false)
+{
+    return new RunWorker(runControl, { processTaskWithModifier(runControl, startModifier, suppressDefaultStdOutHandling) });
 }
 
 } // namespace ProjectExplorer
