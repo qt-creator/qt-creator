@@ -39,13 +39,6 @@
                         {
                             "PySideVersion": "PySide6"
                         }
-                    },
-                    {
-                        "trKey": "PySide 2",
-                        "value":
-                        {
-                            "PySideVersion": "PySide2"
-                        }
                     }
                 ]
             }
