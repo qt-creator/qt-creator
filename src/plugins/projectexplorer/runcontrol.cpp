@@ -1409,7 +1409,7 @@ ProcessTask processTask(RunControl *runControl,
         process.setForceDefaultErrorModeOnWindows(true);
 
         QObject::connect(&process, &Process::started, runStorage().activeStorage(),
-                         [runControl, process = &process, iface = runStorage().activeStorage()] {
+                         [runControl, process = &process] {
             const bool isDesktop = process->commandLine().executable().isLocal();
             if (isDesktop) {
                 // Console processes only know their pid after being started
@@ -1417,7 +1417,6 @@ ProcessTask processTask(RunControl *runControl,
                 runControl->setApplicationProcessHandle(pid);
                 pid.activate();
             }
-            emit iface->started();
         });
         QObject::connect(&process, &Process::readyReadStandardError, runControl, [runControl, process = &process] {
             runControl->postMessage(process->readAllStandardError(), StdErrFormat, false);
@@ -1626,7 +1625,7 @@ void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target
 
 ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
 {
-    setRecipeProducer([](RunControl *runControl) { return Group { processTask(runControl) }; });
+    setRecipeProducer([](RunControl *runControl) { return processRecipe(processTask(runControl)); });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     setSupportedRunConfigs(runConfigs);
 }
@@ -1640,6 +1639,15 @@ Storage<RunInterface> runStorage()
 Canceler canceler()
 {
     return [] { return std::make_pair(runStorage().activeStorage(), &RunInterface::canceled); };
+}
+
+Group processRecipe(const ProcessTask &processTask)
+{
+    return {
+        When (processTask, &Process::started) >> Do {
+            Sync([] { emit runStorage()->started(); })
+        }
+    };
 }
 
 } // namespace ProjectExplorer

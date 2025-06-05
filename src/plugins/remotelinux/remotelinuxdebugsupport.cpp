@@ -37,7 +37,7 @@ class RemoteLinuxRunWorkerFactory final : public RunWorkerFactory
 public:
     RemoteLinuxRunWorkerFactory()
     {
-        setRecipeProducer([](RunControl *runControl) { return Group { processTask(runControl) }; });
+        setRecipeProducer([](RunControl *runControl) { return processRecipe(processTask(runControl)); });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
         setSupportedRunConfigs(supportedRunConfigs());

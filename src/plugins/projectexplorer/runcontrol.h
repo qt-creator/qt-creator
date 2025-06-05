@@ -272,7 +272,7 @@ PROJECTEXPLORER_EXPORT Canceler canceler();
 
 // Just a helper
 template <typename Result, typename Function, typename ...Args,
-         typename DecayedFunction = std::decay_t<Function>>
+          typename DecayedFunction = std::decay_t<Function>>
 static constexpr bool isModifierInvocable()
 {
     // Note, that std::is_invocable_r_v doesn't check Result type properly.
@@ -303,12 +303,16 @@ Utils::ProcessTask processTaskWithModifier(RunControl *runControl,
     }
 }
 
+// This recipe notifies the RunControl when process is started.
+PROJECTEXPLORER_EXPORT Tasking::Group processRecipe(const Utils::ProcessTask &processTask);
+
 template <typename Modifier>
 RunWorker *createProcessWorker(RunControl *runControl,
                                const Modifier &startModifier = {},
                                bool suppressDefaultStdOutHandling = false)
 {
-    return new RunWorker(runControl, { processTaskWithModifier(runControl, startModifier, suppressDefaultStdOutHandling) });
+    return new RunWorker(runControl, processRecipe(
+        processTaskWithModifier(runControl, startModifier, suppressDefaultStdOutHandling)));
 }
 
 } // namespace ProjectExplorer
