@@ -23,12 +23,15 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
+#include <solutions/tasking/barrier.h>
+
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace BareMetal::Internal {
@@ -38,12 +41,12 @@ class BareMetalDebugSupportFactory final : public RunWorkerFactory
 public:
     BareMetalDebugSupportFactory()
     {
-        setProducer([](RunControl *runControl) -> RunWorker * {
+        setRecipeProducer([](RunControl *runControl) -> Group {
             const auto dev = std::static_pointer_cast<const BareMetalDevice>(runControl->device());
             if (!dev) {
                 // TODO: reportFailure won't work from RunWorker's c'tor.
                 runControl->postMessage(Tr::tr("Cannot debug: Kit has no device."), ErrorMessageFormat);
-                return nullptr;
+                return {};
             }
 
             const QString providerId = dev->debugServerProviderId();
@@ -52,19 +55,23 @@ public:
                 // TODO: reportFailure won't work from RunWorker's c'tor.
                 runControl->postMessage(Tr::tr("No debug server provider found for %1").arg(providerId),
                                         ErrorMessageFormat);
-                return nullptr;
+                return {};
             }
 
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
             if (Result<> res = p->setupDebuggerRunParameters(rp, runControl); !res) {
                 runControl->postMessage(res.error(), ErrorMessageFormat); // TODO: reportFailure won't work from RunWorker's c'tor.
-                return nullptr;
+                return {};
             }
-            auto debugger = createDebuggerWorker(runControl, rp);
-            if (RunWorker *runner = p->targetRunner(runControl))
-                debugger->addStartDependency(runner);
+            const std::optional<ProcessTask> targetRunner = p->targetProcess(runControl);
+            if (!targetRunner)
+                return debuggerRecipe(runControl, rp);
 
-            return debugger;
+            return {
+                When (*targetRunner, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+                    debuggerRecipe(runControl, rp)
+                }
+            };
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);

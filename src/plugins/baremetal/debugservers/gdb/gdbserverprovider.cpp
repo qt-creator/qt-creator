@@ -135,7 +135,7 @@ bool GdbServerProvider::isValid() const
 }
 
 Result<> GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
-                                                     RunControl *runControl) const
+                                                       RunControl *runControl) const
 {
     Q_UNUSED(runControl)
     const CommandLine cmd = rp.inferior().command;
@@ -166,15 +166,15 @@ Result<> GdbServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp
     return ResultOk;
 }
 
-RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
+std::optional<ProcessTask> GdbServerProvider::targetProcess(RunControl *runControl) const
 {
     const CommandLine cmd = command();
     if (m_startupMode != GdbServerProvider::StartupOnNetwork || cmd.isEmpty())
-        return nullptr;
+        return {};
 
     // Command arguments are in host OS style as the bare metal's GDB servers are launched
     // on the host, not on that target.
-    return createProcessWorker(runControl, [cmd](Process &process) {
+    return processTaskWithModifier(runControl, [cmd](Process &process) {
         // Baremetal's GDB servers are launched on the host, not on the target.
         process.setCommand(cmd.toLocal());
     });

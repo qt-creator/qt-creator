@@ -8,8 +8,9 @@
 #include <projectexplorer/abi.h>
 
 #include <utils/filepath.h>
-#include <utils/store.h>
+#include <utils/qtcprocess.h>
 #include <utils/result.h>
+#include <utils/store.h>
 
 #include <QSet>
 #include <QUrl>
@@ -69,8 +70,8 @@ public:
     virtual void fromMap(const Utils::Store &data);
 
     virtual Utils::Result<> setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
-                                                     ProjectExplorer::RunControl *runControl) const = 0;
-    virtual ProjectExplorer::RunWorker *targetRunner(
+            ProjectExplorer::RunControl *runControl) const = 0;
+    virtual std::optional<Utils::ProcessTask> targetProcess(
             ProjectExplorer::RunControl *runControl) const = 0;
 
     virtual bool isValid() const = 0;

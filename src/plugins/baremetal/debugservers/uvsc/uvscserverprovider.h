@@ -48,8 +48,9 @@ public:
     void toMap(Utils::Store &map) const override;
 
     Utils::Result<> setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
-                                             ProjectExplorer::RunControl *runControl) const final;
-    ProjectExplorer::RunWorker *targetRunner(ProjectExplorer::RunControl *runControl) const final;
+        ProjectExplorer::RunControl *runControl) const final;
+    std::optional<Utils::ProcessTask> targetProcess(
+        ProjectExplorer::RunControl *runControl) const final;
 
     bool isValid() const override;
 

@@ -155,7 +155,7 @@ bool UvscServerProvider::isValid() const
 }
 
 Result<> UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &rp,
-                                                      RunControl *runControl) const
+                                                        RunControl *runControl) const
 {
     const FilePath bin = rp.inferior().command.executable();
     if (bin.isEmpty()) {
@@ -190,9 +190,9 @@ Result<> UvscServerProvider::setupDebuggerRunParameters(DebuggerRunParameters &r
     return ResultOk;
 }
 
-ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runControl) const
+std::optional<ProcessTask> UvscServerProvider::targetProcess(RunControl *runControl) const
 {
-    return createProcessWorker(runControl, [this, runControl](Process &process) {
+    return processTaskWithModifier(runControl, [this, runControl](Process &process) {
         process.setCommand({DebuggerKitAspect::runnable(runControl->kit()).command.executable(),
                             {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}});
     });

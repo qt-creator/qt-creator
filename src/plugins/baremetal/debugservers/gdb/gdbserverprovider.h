@@ -38,9 +38,9 @@ public:
     virtual Utils::CommandLine command() const;
 
     Utils::Result<> setupDebuggerRunParameters(Debugger::DebuggerRunParameters &rp,
-                                             ProjectExplorer::RunControl *runControl) const final;
-    ProjectExplorer::RunWorker *targetRunner(
-            ProjectExplorer::RunControl *runControl) const override;
+        ProjectExplorer::RunControl *runControl) const final;
+    std::optional<Utils::ProcessTask> targetProcess(
+        ProjectExplorer::RunControl *runControl) const final;
 
     bool isValid() const override;
     virtual QSet<StartupMode> supportedStartupModes() const = 0;
