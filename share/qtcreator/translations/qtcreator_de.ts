@@ -20919,11 +20919,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Cannot open &quot;%1&quot;.</source>
-        <translation type="unfinished">&quot;%1&quot; kann nicht geöffnet werden.</translation>
+        <translation>&quot;%1&quot; kann nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>File offset too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei-Offset ist zu groß.</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
@@ -22388,11 +22388,11 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Compilation Database for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompilierungsdatenbank für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Compilation Database</source>
-        <translation type="unfinished">Kompilierungsdatenbank</translation>
+        <translation>Kompilierungsdatenbank</translation>
     </message>
     <message>
         <source>Generate Compilation Database</source>
@@ -22931,7 +22931,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>YAML Files (*.yml *.yaml)</source>
-        <translation type="unfinished"></translation>
+        <translation>YAML-Dateien (*.yml *.yaml)</translation>
     </message>
     <message>
         <source>All Files</source>
@@ -24255,7 +24255,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>File not readable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei nicht lesbar.</translation>
     </message>
     <message>
         <source>Add Source Code</source>
@@ -28397,7 +28397,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Append %1 operator</source>
         <extracomment>%1 = operator name like &quot;QLatin1Char&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1-Operator anhängen</translation>
     </message>
     <message>
         <source>Convert to String Literal</source>
@@ -28413,7 +28413,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Convert to Character Literal and Append QLatin1Char Operator</source>
-        <translation type="unfinished"></translation>
+        <translation>In Zeichenliteral umwandeln und QLatin1Char-Operator anhängen</translation>
     </message>
     <message>
         <source>Mark as Translatable</source>
@@ -28449,7 +28449,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Add #include %1 and Project Dependency %2</source>
-        <translation type="unfinished"></translation>
+        <translation>#include %1 und Projektabhängigkeit %2 hinzufügen</translation>
     </message>
     <message>
         <source>Add #include %1</source>
@@ -29318,7 +29318,7 @@ Lassen Sie dies leer, um Heuristiken anwenden zu lassen.</translation>
     </message>
     <message>
         <source>Test with example name:</source>
-        <translation type="unfinished"></translation>
+        <translation>Test mit Beispielname:</translation>
     </message>
     <message>
         <source>Missing Namespace Handling</source>
@@ -29330,7 +29330,7 @@ Lassen Sie dies leer, um Heuristiken anwenden zu lassen.</translation>
     </message>
     <message>
         <source>The content of the &lt;b&gt;name&lt;/b&gt; parameter in the fields above, that is, the &quot;semantic name&quot; without any prefix or suffix.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Inhalt des &lt;b&gt;name&lt;/b&gt;-Parameters in den Eingabefeldern oben, das heißt der &quot;semantische Name&quot; ohne jegliche Prefixe oder Suffixe.</translation>
     </message>
     <message>
         <source>Add &quot;using namespace ...&quot;</source>
@@ -30184,35 +30184,35 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Import Code Format</source>
-        <translation type="unfinished">Code-Format importieren</translation>
+        <translation>Code-Format importieren</translation>
     </message>
     <message>
         <source>ClangFormat (*clang-format*);;All files (*)</source>
-        <translation type="unfinished">ClangFormat (*clang-format*);;All files (*)</translation>
+        <translation>ClangFormat (*clang-format*);;All files (*)</translation>
     </message>
     <message>
         <source>Import Code Style</source>
-        <translation type="unfinished">Coding Style importieren</translation>
+        <translation>Coding Style importieren</translation>
     </message>
     <message>
         <source>Enter a name for the imported code style:</source>
-        <translation type="unfinished">Geben Sie einen Namen für den importierten Coding Style ein:</translation>
+        <translation>Geben Sie einen Namen für den importierten Coding Style ein:</translation>
     </message>
     <message>
         <source>Cannot import code style from &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Coding Style kann nicht von &quot;%1&quot; importiert werden.</translation>
     </message>
     <message>
         <source>Export Code Format</source>
-        <translation type="unfinished">Code-Format exportieren</translation>
+        <translation>Code-Format exportieren</translation>
     </message>
     <message>
         <source>Add Project Dependency %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektabhängigkeit %1 hinzufügen</translation>
     </message>
     <message>
         <source>Cannot open &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht geöffnet werden</translation>
     </message>
 </context>
 <context>
@@ -35699,7 +35699,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>File not found: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei nicht gefunden: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Send Chunk to CodePaster...</source>
@@ -37376,7 +37376,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>The pattern &quot;%1&quot; is no valid regular expression.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; ist kein zulässiger regulärer Ausdruck.</translation>
     </message>
     <message>
         <source>Invalid regular expression.</source>
@@ -41168,7 +41168,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>File not readable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei nicht lesbar.</translation>
     </message>
     <message>
         <source>Image format not supported.</source>
@@ -51964,7 +51964,7 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Installing &quot;%1&quot; failed:</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Installation von &quot;%1&quot; ist fehlgeschlagen:</translation>
     </message>
     <message>
         <source>Run PySide6 project tool</source>
@@ -52001,7 +52001,7 @@ Wählen Sie einen anderen Pfad.</translation>
     <message>
         <source>%1 Virtual Environment</source>
         <extracomment>%1 = name of this Python as registered in QtC</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Umgebung von %1</translation>
     </message>
     <message>
         <source>REPL</source>
@@ -52101,7 +52101,7 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>No Python set up.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Python eingerichtet.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; not found.</source>
@@ -52133,23 +52133,23 @@ Wählen Sie einen anderen Pfad.</translation>
     </message>
     <message>
         <source>Parsing error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler bei Auswertung: %1</translation>
     </message>
     <message>
         <source>Type error: &quot;%1&quot; must be a &quot;%2&quot;, not a &quot;%3&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Typfehler: Der Typ von &quot;%1&quot; muss &quot;%2&quot; sein, nicht &quot;%3&quot;.</translation>
     </message>
     <message>
         <source>Missing node error: &quot;%1&quot; table must contain a &quot;%2&quot; node.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler - fehlender Knoten: Die Tabelle &quot;%1&quot; muss einen &quot;%2&quot;-Knoten enthalten.</translation>
     </message>
     <message>
         <source>Node &quot;%1&quot; is empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Knoten &quot;%1&quot; ist leer.</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Datei &quot;%1&quot; existiert nicht.</translation>
+        <translation>Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
 </context>
 <context>
@@ -64422,11 +64422,11 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Revert Commit?</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit rückgängig machen?</translation>
     </message>
     <message>
         <source>Revert the commit %1?</source>
-        <translation type="unfinished"></translation>
+        <translation>Den Commit %1 rückgängig machen?</translation>
     </message>
     <message>
         <source>Blame %1</source>
@@ -64442,7 +64442,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Revert %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 rückgängig machen</translation>
     </message>
     <message>
         <source>Log for line %1</source>
