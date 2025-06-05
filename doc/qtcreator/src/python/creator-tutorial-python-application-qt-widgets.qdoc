@@ -68,8 +68,8 @@
     The wizard generates the following files:
 
     \list
-        \li \c {hello_world.pyproject}, which lists the files in the Python
-            project.
+        \li \c {pyproject.toml}, which lists the files in the Python
+            project and other configurations.
         \li \c {mywidget.py}, which has some boilerplate code for a class.
         \li \c {requirements.txt}, which stores the PySide version of the
             generated code. You can use this file to install the required PySide version

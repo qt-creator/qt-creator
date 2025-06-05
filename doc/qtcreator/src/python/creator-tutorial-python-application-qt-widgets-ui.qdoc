@@ -69,8 +69,8 @@
 
     \list
         \li \c {form.ui}, which is the UI file for the window UI.
-        \li \c {hello_world_ui.pyproject}, which lists the files in the Python
-            project.
+        \li \c {pyproject.toml}, which lists the files in the Python
+            project and other configurations.
         \li \c {mainwindow.py}, which has some boilerplate code for a class.
         \li \c {requirements.txt}, which stores the PySide version of the
             generated code. You can use this file to install the required PySide
