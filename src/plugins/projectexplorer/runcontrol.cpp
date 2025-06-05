@@ -32,7 +32,6 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/outputformatter.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/terminalinterface.h>
 #include <utils/url.h>
@@ -1322,9 +1321,9 @@ namespace Internal {
 
 } // Internal
 
-Group processRecipe(RunControl *runControl,
-                    const std::function<SetupResult(Process &)> &startModifier,
-                    bool suppressDefaultStdOutHandling)
+ProcessTask processTask(RunControl *runControl,
+                        const std::function<SetupResult(Process &)> &startModifier,
+                        bool suppressDefaultStdOutHandling)
 {
     const auto onSetup = [runControl, startModifier, suppressDefaultStdOutHandling](Process &process) {
         process.setProcessChannelMode(appOutputPane().settings().mergeChannels
@@ -1469,7 +1468,7 @@ Group processRecipe(RunControl *runControl,
         runControl->postMessage(process.exitMessage(), NormalMessageFormat);
     };
 
-    return { ProcessTask(onSetup, onDone) };
+    return ProcessTask(onSetup, onDone);
 }
 
 RunWorkerPrivate::RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl, const Group &recipe)
@@ -1627,7 +1626,7 @@ void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target
 
 ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
 {
-    setRecipeProducer([](RunControl *runControl) { return processRecipe(runControl); });
+    setRecipeProducer([](RunControl *runControl) { return Group { processTask(runControl) }; });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     setSupportedRunConfigs(runConfigs);
 }

@@ -18,6 +18,7 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace RemoteLinux::Internal {
@@ -36,7 +37,7 @@ class RemoteLinuxRunWorkerFactory final : public RunWorkerFactory
 public:
     RemoteLinuxRunWorkerFactory()
     {
-        setRecipeProducer([](RunControl *runControl) { return processRecipe(runControl); });
+        setRecipeProducer([](RunControl *runControl) { return Group { processTask(runControl) }; });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
         setSupportedRunConfigs(supportedRunConfigs());

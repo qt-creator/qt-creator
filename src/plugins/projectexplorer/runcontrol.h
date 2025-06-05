@@ -12,8 +12,8 @@
 #include <utils/environment.h>
 #include <utils/outputformatter.h>
 #include <utils/processhandle.h>
-#include <utils/processenums.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QHash>
 #include <QVariant>
@@ -25,8 +25,6 @@ namespace Utils {
 class Icon;
 class MacroExpander;
 class OutputLineParser;
-class ProcessRunData;
-class Process;
 } // Utils
 
 namespace ProjectExplorer {
@@ -244,7 +242,7 @@ private:
     const std::unique_ptr<Internal::RunControlPrivate> d;
 };
 
-PROJECTEXPLORER_EXPORT Tasking::Group processRecipe(RunControl *runControl,
+PROJECTEXPLORER_EXPORT Utils::ProcessTask processTask(RunControl *runControl,
     const std::function<Tasking::SetupResult(Utils::Process &)> &startModifier = {},
     bool suppressDefaultStdOutHandling = false);
 
@@ -295,13 +293,13 @@ RunWorker *createProcessWorker(RunControl *runControl,
                   "Process modifier needs to take (Process &) as an argument and has to return void or "
                   "SetupResult. The passed handler doesn't fulfill these requirements.");
     if constexpr (isR) {
-        return new RunWorker(runControl, processRecipe(runControl, startModifier, suppressDefaultStdOutHandling));
+        return new RunWorker(runControl, { processTask(runControl, startModifier, suppressDefaultStdOutHandling) });
     } else {
         const auto modifier = [startModifier](Utils::Process &process) {
             startModifier(process);
             return Tasking::SetupResult::Continue;
         };
-        return new RunWorker(runControl, processRecipe(runControl, modifier, suppressDefaultStdOutHandling));
+        return new RunWorker(runControl, { processTask(runControl, modifier, suppressDefaultStdOutHandling) });
     }
 }
 
