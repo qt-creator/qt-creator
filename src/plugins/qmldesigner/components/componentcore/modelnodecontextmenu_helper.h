@@ -50,9 +50,7 @@ inline bool inBaseState(const SelectionContext &selectionState)
 
 inline bool isFileComponent(const SelectionContext &selectionContext)
 {
-    //TODO: FLAG to hide/show the action until it's completed
-    bool shouldShowAction = false;
-    if (shouldShowAction && selectionContext.isValid() && selectionContext.singleNodeIsSelected()) {
+    if (selectionContext.isValid() && selectionContext.singleNodeIsSelected()) {
         ModelNode node = selectionContext.currentSingleSelectedNode();
         if (node.hasMetaInfo()) {
             NodeMetaInfo nodeInfo = node.metaInfo();
