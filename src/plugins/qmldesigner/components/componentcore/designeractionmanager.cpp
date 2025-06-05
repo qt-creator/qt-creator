@@ -1526,7 +1526,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           contextIcon(DesignerIcons::VisibilityIcon), // TODO: placeholder icon
                           isolateNodesToolTip,
                           rootCategory,
-                          QKeySequence("shift+h"),
+                          QKeySequence("shift+b"),
                           Priorities::IsolateSelection,
                           &isolateSelectedNodes,
                           &selectionNot2D3DMix));
@@ -1537,7 +1537,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           contextIcon(DesignerIcons::VisibilityIcon), // TODO: placeholder icon
                           showAllToolTip,
                           rootCategory,
-                          QKeySequence("alt+h"),
+                          QKeySequence("alt+b"),
                           Priorities::ShowAllNodes,
                           &showAllNodes,
                           &always));
