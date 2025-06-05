@@ -47,6 +47,10 @@ using namespace ProjectExplorer;
 // nmake/jom messages.
 static Task handleNmakeJomMessage(const QString &line)
 {
+    static const QRegularExpression qmllint(
+        "^(Warning|Error): ((.*):(\\d+):(\\d+)): .* ([[].*[]])$");
+    if (qmllint.match(line).hasMatch())
+        return {};
     Task::TaskType type = Task::Unknown;
     int matchLength = 0;
     if (line.startsWith("Error:")) {
