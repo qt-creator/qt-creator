@@ -94,21 +94,7 @@ void DragTool::createQmlItemNode(const ItemLibraryEntry &itemLibraryEntry,
     const QPointF positonInItemSpace = parentItem->qmlItemNode().instanceSceneContentItemTransform().inverted().map(scenePosition);
     QPointF itemPos = positonInItemSpace;
 
-    const bool rootIsFlow = QmlItemNode(view()->rootModelNode()).isFlowView();
-
-    QmlItemNode adjustedParentNode = parentNode;
-
-    if (rootIsFlow) {
-        itemPos = QPointF();
-        adjustedParentNode = view()->rootModelNode();
-    }
-
-    m_dragNodes.append(QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, itemPos, adjustedParentNode));
-
-    if (rootIsFlow) {
-        for (QmlItemNode &dragNode : m_dragNodes)
-            dragNode.setFlowItemPosition(positonInItemSpace);
-    }
+    m_dragNodes.append(QmlItemNode::createQmlItemNode(view(), itemLibraryEntry, itemPos, parentNode));
 
     m_selectionIndicator.setItems(scene()->itemsForQmlItemNodes(m_dragNodes));
 }
@@ -294,8 +280,7 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
             for (QmlItemNode &node : m_dragNodes) {
                 if (node.isValid()) {
                     if ((node.instanceParentItem().isValid()
-                         && node.instanceParent().modelNode().metaInfo().isLayoutable())
-                            || node.isFlowItem()) {
+                         && node.instanceParent().modelNode().metaInfo().isLayoutable())) {
                         node.removeProperty("x");
                         node.removeProperty("y");
                         resetPuppet = true;
