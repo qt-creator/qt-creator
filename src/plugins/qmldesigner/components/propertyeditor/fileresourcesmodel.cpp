@@ -183,9 +183,6 @@ QVariant FileResourcesModel::modelNodeBackend() const
     return QVariant();
 }
 
-<<<<<<< HEAD   (a2c8a1 Core: fix rare crash in GeneralSettingsWidget::apply())
-bool filterMetaIcons(const QString &fileName)
-=======
 static bool checkIgnoreFile(const QString &fileName)
 {
     QFileInfo info(fileName);
@@ -203,7 +200,6 @@ static bool checkIgnoreFile(const QString &fileName)
 }
 
 static bool filterMetaIcons(const QString &fileName)
->>>>>>> CHANGE (1a3998 QmlDesigner: Skip Dependencies folder for resources)
 {
     QFileInfo info(fileName);
 
