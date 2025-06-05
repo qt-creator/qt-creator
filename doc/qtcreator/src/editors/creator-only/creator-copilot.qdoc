@@ -46,8 +46,8 @@
             The button turns into a \uicontrol {Sign Out} button.
         \li In \uicontrol {Node.js path}, enter the full path to the
             Node.js executable.
-        \li In \uicontrol {Path to agent.js}, enter the path to
-            agent.js in the Copilot Neovim plugin installation folder.
+        \li In \uicontrol {Path to language-server.js}, enter the path to
+            language-server.js in the Copilot Neovim plugin installation folder.
         \li Select \uicontrol {Auto request} to receive suggestions
             for the current text cursor position when you make changes.
         \li Select \uicontrol {Use proxy} to use a proxy server to
