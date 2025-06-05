@@ -753,7 +753,7 @@ void PlainTextEditPrivate::setTopBlock(int blockNumber, int lineNumber, int dx, 
         topLine = lineNumber;
 
         if (dx) {
-            viewport()->scroll(q->isRightToLeft() ? -dx : dx, topLineOffset);
+            viewport()->scroll(q->isRightToLeft() ? -dx : dx, 0);
             QGuiApplication::inputMethod()->update(Qt::ImCursorRectangle | Qt::ImAnchorRectangle);
         } else {
             viewport()->update();
