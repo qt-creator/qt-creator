@@ -71,6 +71,7 @@ inline constexpr char Material[] = "Material";
 inline constexpr char Model[] = "Model";
 inline constexpr char MouseArea[] = "MouseArea";
 inline constexpr char Node[] = "Node";
+inline constexpr char Object3D[] = "Object3D";
 inline constexpr char OrthographicCamera[] = "OrthographicCamera";
 inline constexpr char Particle3D[] = "Particle3D";
 inline constexpr char ParticleEmitter3D[] = "ParticleEmitter3D";
@@ -223,6 +224,7 @@ class CommonTypeCache
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Material>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Model>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Node>,
+        CacheType<QtQuick3D, ModuleKind::QmlLibrary, Object3D>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, OrthographicCamera>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, Pass>,
         CacheType<QtQuick3D, ModuleKind::QmlLibrary, PerspectiveCamera>,

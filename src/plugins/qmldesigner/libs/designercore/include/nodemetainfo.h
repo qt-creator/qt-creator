@@ -191,6 +191,7 @@ public:
     bool isQtQuick3DMaterial() const;
     bool isQtQuick3DModel() const;
     bool isQtQuick3DNode() const;
+    bool isQtQuick3DObject3D() const;
     bool isQtQuick3DParticlesAbstractShape() const;
     bool isQtQuick3DParticles3DAffector3D() const;
     bool isQtQuick3DParticles3DAttractor3D() const;

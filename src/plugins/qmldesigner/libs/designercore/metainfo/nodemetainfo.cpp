@@ -4156,6 +4156,22 @@ bool NodeMetaInfo::isQtQuick3DNode() const
     }
 }
 
+bool NodeMetaInfo::isQtQuick3DObject3D() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Object3D", category(), keyValue("type id", m_typeId)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick3D, Object3D>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick3D.Object3D");
+    }
+}
+
 bool NodeMetaInfo::isQtQuick3DParticles3DAffector3D() const
 {
     if constexpr (useProjectStorage()) {
