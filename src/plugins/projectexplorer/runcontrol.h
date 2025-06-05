@@ -34,6 +34,7 @@ class Target;
 
 namespace Internal {
 class RunControlPrivate;
+class RunWorkerConflictTest;
 class RunWorkerPrivate;
 } // Internal
 
@@ -86,6 +87,7 @@ protected:
 
 private:
     friend class RunControl;
+    friend class Internal::RunWorkerConflictTest;
     bool canCreate(Utils::Id runMode, Utils::Id deviceType, const QString &runConfigId) const;
     RunWorker *create(RunControl *runControl) const;
     Tasking::Group createRecipe(RunControl *runControl) const;
@@ -314,5 +316,9 @@ RunWorker *createProcessWorker(RunControl *runControl,
     return new RunWorker(runControl, processRecipe(
         processTaskWithModifier(runControl, startModifier, suppressDefaultStdOutHandling)));
 }
+
+#ifdef WITH_TESTS
+namespace Internal { QObject *createRunWorkerConflictTest(); }
+#endif
 
 } // namespace ProjectExplorer

@@ -1652,4 +1652,68 @@ Group processRecipe(const ProcessTask &processTask)
 
 } // namespace ProjectExplorer
 
+
+#ifdef WITH_TESTS
+
+#include <QTest>
+
+namespace ProjectExplorer::Internal {
+
+class RunWorkerConflictTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+
+    /*
+      This needs to be run with all potentially conflicting factories loaded, i.e.
+      something like
+
+      bin/qtcreator -load RemoteLinux -load Qnx -load QmlProfiler -load Debugger -load Android \
+        -load Docker -load PerfProfiler -load QtApplicationManagerIntegration -load Boot2Qt \
+        -load McuSupport -load QmlPreview \
+        -test ProjectExplorer,testConflict
+    */
+
+    void testConflict()
+    {
+        bool ok = true;
+        const QList<Id> devices =
+            transform(IDeviceFactory::allDeviceFactories(), &IDeviceFactory::deviceType);
+
+        for (Id runMode : std::as_const(g_runModes)) {
+            for (Id device : devices) {
+                for (Id runConfig : std::as_const(g_runConfigs)) {
+                    // qDebug() << "MODE:" << runMode << device << runConfig;
+                    const auto check = std::bind(&RunWorkerFactory::canCreate,
+                                                 std::placeholders::_1,
+                                                 runMode,
+                                                 device,
+                                                 runConfig.toString());
+                    QList<RunWorkerFactory *> creators;
+                    for (RunWorkerFactory *factory : g_runWorkerFactories) {
+                        if (factory->canCreate(runMode, device, runConfig.toString()))
+                            creators.append(factory);
+                    }
+                    if (creators.size() > 1) {
+                        qDebug() << "CONFLICT FOR" << runMode << device << runConfig
+                                 << " FACTORIES " << creators;
+                        ok = false;
+                    }
+                }
+            }
+        }
+        QVERIFY(ok);
+    }
+};
+
+QObject *createRunWorkerConflictTest()
+{
+    return new RunWorkerConflictTest;
+}
+
+} // ProjectExplorer::Internal
+
+#endif // WITH_TESTS
+
 #include "runcontrol.moc"

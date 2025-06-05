@@ -1962,6 +1962,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 
 #ifdef WITH_TESTS
     addTestCreator(&createSanitizerOutputParserTest);
+    addTestCreator(&createRunWorkerConflictTest);
 #endif
     return ResultOk;
 }
