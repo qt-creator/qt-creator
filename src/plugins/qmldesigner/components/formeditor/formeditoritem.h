@@ -138,26 +138,6 @@ private: // variables
     bool m_hasEffect = false;
 };
 
-class FormEditorFlowItem : public FormEditorItem
-{
-    friend FormEditorScene;
-
-public:
-    void synchronizeOtherProperty(PropertyNameView propertyName) override;
-    void setDataModelPosition(const QPointF &position) override;
-    void setDataModelPositionInBaseState(const QPointF &position) override;
-    void updateGeometry() override;
-    QPointF instancePosition() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-protected:
-    FormEditorFlowItem(const QmlItemNode &qmlItemNode, FormEditorScene *scene)
-        : FormEditorItem(qmlItemNode, scene)
-    {}
-private:
-    QPointF m_oldPos;
-};
-
 class FormEditor3dPreview : public FormEditorItem
 {
     friend FormEditorScene;
@@ -172,90 +152,6 @@ protected:
         : FormEditorItem(qmlItemNode, scene)
     {
         setHighlightBoundingRect(true);
-    }
-};
-
-class FormEditorFlowActionItem : public FormEditorItem
-{
-    friend FormEditorScene;
-
-public:
-    void setDataModelPosition(const QPointF &position) override;
-    void setDataModelPositionInBaseState(const QPointF &position) override;
-    void updateGeometry() override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    QTransform instanceSceneTransform() const override;
-    QTransform instanceSceneContentItemTransform() const override;
-
-protected:
-    FormEditorFlowActionItem(const QmlItemNode &qmlItemNode, FormEditorScene *scene)
-        : FormEditorItem(qmlItemNode, scene)
-    {}
-private:
-    QPointF m_oldPos;
-};
-
-class FormEditorTransitionItem : public FormEditorItem
-{
-    friend FormEditorScene;
-
-public:
-    void synchronizeOtherProperty(PropertyNameView propertyName) override;
-    void setDataModelPosition(const QPointF &position) override;
-    void setDataModelPositionInBaseState(const QPointF &position) override;
-    void updateGeometry() override;
-    QPointF instancePosition() const override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    bool flowHitTest(const QPointF &point) const override;
-protected:
-    FormEditorTransitionItem(const QmlItemNode &qmlItemNode, FormEditorScene *scene)
-        : FormEditorItem(qmlItemNode, scene)
-    {}
-    void paintConnection(QPainter *painter, const Connection &connection);
-    void drawLabels(QPainter *painter, const Connection &connection);
-
-    void drawGeneralLabel(QPainter *painter, const Connection &connection);
-    void drawSingleLabel(QPainter *painter, const Connection &connection);
-    void drawSelectionLabel(QPainter *painter, const Connection &connection);
-
-private:
-    mutable bool m_hitTest = false;
-};
-
-class FormEditorFlowDecisionItem : FormEditorFlowItem
-{
-    friend FormEditorScene;
-
-public:
-    void updateGeometry() override;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-    bool flowHitTest(const QPointF &point) const override;
-
-protected:
-    enum IconType {
-        DecisionIcon,
-        WildcardIcon
-    };
-
-    FormEditorFlowDecisionItem(const QmlItemNode &qmlItemNode,
-                               FormEditorScene *scene,
-                               IconType iconType = DecisionIcon)
-        : FormEditorFlowItem(qmlItemNode, scene), m_iconType(iconType)
-    {}
-    IconType m_iconType;
-};
-
-class FormEditorFlowWildcardItem : FormEditorFlowDecisionItem
-{
-    friend FormEditorScene;
-
-public:
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
-
-protected:
-    FormEditorFlowWildcardItem(const QmlItemNode &qmlItemNode, FormEditorScene *scene)
-        : FormEditorFlowDecisionItem(qmlItemNode, scene, WildcardIcon)
-    {
     }
 };
 
