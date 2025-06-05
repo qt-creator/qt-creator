@@ -93,9 +93,8 @@ bool modelIsRotatable(const QmlItemNode &itemNode)
 
 bool itemIsRotatable(const QmlItemNode &qmlItemNode)
 {
-    return qmlItemNode.isValid() && qmlItemNode.instanceIsResizable()
-           && qmlItemNode.modelIsMovable() && modelIsRotatable(qmlItemNode)
-           && !qmlItemNode.instanceIsInLayoutable() && !qmlItemNode.isFlowItem();
+    return qmlItemNode.isValid() && qmlItemNode.instanceIsResizable() && qmlItemNode.modelIsMovable()
+           && modelIsRotatable(qmlItemNode) && !qmlItemNode.instanceIsInLayoutable();
 }
 
 } // namespace
