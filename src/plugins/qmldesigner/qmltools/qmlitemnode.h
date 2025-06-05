@@ -148,89 +148,11 @@ public:
 
     bool isInStackedContainer(SL sl = {}) const;
 
-    bool isFlowView(SL sl = {}) const;
-    bool isFlowItem(SL sl = {}) const;
-    bool isFlowActionArea(SL sl = {}) const;
     ModelNode rootModelNode(SL sl = {}) const;
 
     bool isEffectItem(SL sl = {}) const;
 
     friend auto qHash(const QmlItemNode &node) { return qHash(node.modelNode()); }
-};
-
-class QmlFlowItemNode;
-class QmlFlowViewNode;
-
-class QMLDESIGNER_EXPORT QmlFlowTargetNode final : public QmlItemNode
-{
-public:
-    QmlFlowTargetNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
-    bool isValid() const;
-    explicit operator bool() const { return isValid(); }
-
-    void assignTargetItem(const QmlFlowTargetNode &node);
-    void destroyTargets();
-    ModelNode targetTransition() const;
-    QmlFlowViewNode flowView() const;
-    ModelNode findSourceForDecisionNode() const;
-    static bool isFlowEditorTarget(const ModelNode &modelNode);
-    void removeTransitions();
-};
-
-class QMLDESIGNER_EXPORT QmlFlowActionAreaNode final : public QmlItemNode
-{
-public:
-    QmlFlowActionAreaNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
-    bool isValid() const;
-    explicit operator bool() const { return isValid(); }
-    static bool isValidQmlFlowActionAreaNode(const ModelNode &modelNode);
-    ModelNode targetTransition() const;
-    void assignTargetFlowItem(const QmlFlowTargetNode &flowItem);
-    QmlFlowItemNode flowItemParent() const;
-private:
-    void destroyTarget();
-};
-
-class QMLDESIGNER_EXPORT QmlFlowItemNode final : public QmlItemNode
-{
-public:
-    QmlFlowItemNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
-    bool isValid() const;
-    explicit operator bool() const { return isValid(); }
-    static bool isValidQmlFlowItemNode(const ModelNode &modelNode);
-    QList<QmlFlowActionAreaNode> flowActionAreas() const;
-    QmlFlowViewNode flowView() const;
-
-    static ModelNode decisionNodeForTransition(const ModelNode &transition);
-};
-
-class QMLDESIGNER_EXPORT QmlFlowViewNode final : public QmlItemNode
-{
-public:
-    QmlFlowViewNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
-    bool isValid() const;
-    explicit operator bool() const { return isValid(); }
-    static bool isValidQmlFlowViewNode(const ModelNode &modelNode);
-    QList<QmlFlowItemNode> flowItems() const;
-    ModelNode addTransition(const QmlFlowTargetNode &from, const QmlFlowTargetNode &to);
-    QList<ModelNode> transitions() const;
-    QList<ModelNode> wildcards() const;
-    QList<ModelNode> decicions() const;
-    QList<ModelNode> transitionsForTarget(const ModelNode &modelNode);
-    QList<ModelNode> transitionsForSource(const ModelNode &modelNode);
-    void removeDanglingTransitions();
-    void removeAllTransitions();
-    void setStartFlowItem(const QmlFlowItemNode &flowItem);
-    ModelNode createTransition();
-
-    static QList<QmlConnections> getAssociatedConnections(const ModelNode &node);
-    static const PropertyNameList &mouseSignals() { return s_mouseSignals; }
-
-protected:
-    QList<ModelNode> transitionsForProperty(PropertyNameView propertyName, const ModelNode &modelNode);
-
-private:
-    static PropertyNameList s_mouseSignals;
 };
 
 QMLDESIGNER_EXPORT QList<ModelNode> toModelNodeList(const QList<QmlItemNode> &fxItemNodeList);

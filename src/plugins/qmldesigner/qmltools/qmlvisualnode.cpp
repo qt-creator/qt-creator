@@ -687,66 +687,6 @@ NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32
     return node.defaultNodeListProperty();
 }
 
-bool QmlVisualNode::isFlowTransition(const ModelNode &node, SL sl)
-{
-    NanotraceHR::Tracer tracer{"qml visual node is flow transition",
-                               category(),
-                               keyValue("model node", node),
-                               keyValue("caller location", sl)};
-
-    return false;
-}
-
-bool QmlVisualNode::isFlowDecision(const ModelNode &node, SL sl)
-{
-    NanotraceHR::Tracer tracer{"qml visual node is flow decision",
-                               category(),
-                               keyValue("model node", node),
-                               keyValue("caller location", sl)};
-
-    return false;
-}
-
-bool QmlVisualNode::isFlowWildcard(const ModelNode &node, SL sl)
-{
-    NanotraceHR::Tracer tracer{"qml visual node is flow wildcard",
-                               category(),
-                               keyValue("model node", node),
-                               keyValue("caller location", sl)};
-
-    return false;
-}
-
-bool QmlVisualNode::isFlowTransition(SL sl) const
-{
-    NanotraceHR::Tracer tracer{"qml visual node is flow transition",
-                               category(),
-                               keyValue("model node", *this),
-                               keyValue("caller location", sl)};
-
-    return false;
-}
-
-bool QmlVisualNode::isFlowDecision(SL sl) const
-{
-    NanotraceHR::Tracer tracer{"qml visual node is flow decision",
-                               category(),
-                               keyValue("model node", *this),
-                               keyValue("caller location", sl)};
-
-    return false;
-}
-
-bool QmlVisualNode::isFlowWildcard(SL sl) const
-{
-    NanotraceHR::Tracer tracer{"qml visual node is flow wildcard",
-                               category(),
-                               keyValue("model node", *this),
-                               keyValue("caller location", sl)};
-
-    return false;
-}
-
 QList<ModelNode> toModelNodeList(const QList<QmlVisualNode> &qmlVisualNodeList)
 {
     QList<ModelNode> modelNodeList;

@@ -105,14 +105,6 @@ public:
 
     static NodeListProperty findSceneNodeProperty(AbstractView *view, qint32 sceneRootId, SL sl = {});
 
-    static bool isFlowTransition(const ModelNode &node, SL sl = {});
-    static bool isFlowDecision(const ModelNode &node, SL sl = {});
-    static bool isFlowWildcard(const ModelNode &node, SL sl = {});
-
-    bool isFlowTransition(SL sl = {}) const;
-    bool isFlowDecision(SL sl = {}) const;
-    bool isFlowWildcard(SL sl = {}) const;
-
 private:
     void setDoubleProperty(PropertyNameView name, double value);
 };
