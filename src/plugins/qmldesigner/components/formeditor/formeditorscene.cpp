@@ -211,16 +211,6 @@ FormEditorItem *FormEditorScene::addFormEditorItem(const QmlItemNode &qmlItemNod
 
     if (type == Preview3d)
         formEditorItem = new FormEditor3dPreview(qmlItemNode, this);
-    else if (type == Flow)
-        formEditorItem = new FormEditorFlowItem(qmlItemNode, this);
-    else if (type == FlowAction)
-        formEditorItem = new FormEditorFlowActionItem(qmlItemNode, this);
-    else if (type == FlowTransition)
-        formEditorItem = new FormEditorTransitionItem(qmlItemNode, this);
-    else if (type == FlowDecision)
-        formEditorItem = new FormEditorFlowDecisionItem(qmlItemNode, this);
-    else if (type == FlowWildcard)
-        formEditorItem = new FormEditorFlowWildcardItem(qmlItemNode, this);
     else
         formEditorItem = new FormEditorItem(qmlItemNode, this);
 
