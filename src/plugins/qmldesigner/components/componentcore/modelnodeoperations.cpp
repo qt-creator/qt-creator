@@ -1411,72 +1411,6 @@ void createFlowActionArea(const SelectionContext &selectionContext)
     });
 }
 
-void addTransition(const SelectionContext &selectionContext)
-{
-    if (selectionContext.view()) {
-        AbstractView *view = selectionContext.view();
-        QmlFlowTargetNode targetNode = selectionContext.targetNode();
-        QmlFlowTargetNode sourceNode = selectionContext.currentSingleSelectedNode();
-
-        QTC_ASSERT(targetNode.isValid(), return);
-        QTC_ASSERT(sourceNode.isValid(), return);
-
-
-
-        view->executeInTransaction("DesignerActionManager:addTransition",
-                                   [targetNode, &sourceNode](){
-                                       sourceNode.assignTargetItem(targetNode);
-                                   });
-    }
-}
-
-void addFlowEffect(const SelectionContext &selectionContext, const TypeName &typeName)
-{
-   AbstractView *view = selectionContext.view();
-
-   QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
-   ModelNode container = selectionContext.currentSingleSelectedNode();
-   QTC_ASSERT(container.isValid(), return);
-   QTC_ASSERT(container.metaInfo().isValid(), return);
-   QTC_ASSERT(QmlItemNode::isFlowTransition(container), return);
-
-   NodeMetaInfo effectMetaInfo = view->model()->metaInfo("FlowView." + typeName, -1, -1);
-   QTC_ASSERT(typeName == "None" || effectMetaInfo.isValid(), return);
-
-   view->executeInTransaction("DesignerActionManager:addFlowEffect", [&]() {
-       if (container.hasProperty("effect"))
-           container.removeProperty("effect");
-
-       if (effectMetaInfo.isQtObject()) {
-#ifdef QDS_USE_PROJECTSTORAGE
-           ModelNode effectNode = view->createModelNode(typeName);
-#else
-           ModelNode effectNode = view->createModelNode(effectMetaInfo.typeName(),
-                                                        effectMetaInfo.majorVersion(),
-                                                        effectMetaInfo.minorVersion());
-#endif
-           container.nodeProperty("effect").reparentHere(effectNode);
-           view->setSelectedModelNode(effectNode);
-       }
-   });
-}
-
-void setFlowStartItem(const SelectionContext &selectionContext)
-{
-    AbstractView *view = selectionContext.view();
-
-    QTC_ASSERT(view && selectionContext.hasSingleSelectedModelNode(), return);
-    ModelNode node = selectionContext.currentSingleSelectedNode();
-    QTC_ASSERT(node.isValid(), return);
-    QTC_ASSERT(node.metaInfo().isValid(), return);
-    QmlFlowItemNode flowItem(node);
-    QTC_ASSERT(flowItem.isValid(), return);
-    QTC_ASSERT(flowItem.flowView().isValid(), return);
-    view->executeInTransaction("DesignerActionManager:setFlowStartItem",
-                               [&flowItem](){
-        flowItem.flowView().setStartFlowItem(flowItem);
-    });
-}
 
 static bool hasStudioComponentsImport(const SelectionContext &context)
 {
@@ -1566,22 +1500,6 @@ void addToGroupItem(const SelectionContext &selectionContext)
     }
 }
 
-void selectFlowEffect(const SelectionContext &selectionContext)
-{
-    if (!selectionContext.singleNodeIsSelected())
-        return;
-
-    ModelNode node = selectionContext.currentSingleSelectedNode();
-    QmlVisualNode transition(node);
-
-    QTC_ASSERT(transition.isValid(), return);
-    QTC_ASSERT(transition.isFlowTransition(), return);
-
-    if (node.hasNodeProperty("effect")) {
-        selectionContext.view()->setSelectedModelNode(node.nodeProperty("effect").modelNode());
-    }
-}
-
 static QString baseDirectory(const QUrl &url)
 {
     QString filePath = url.toLocalFile();
@@ -1643,7 +1561,6 @@ void addCustomFlowEffect(const SelectionContext &selectionContext)
     ModelNode container = selectionContext.currentSingleSelectedNode();
     QTC_ASSERT(container.isValid(), return);
     QTC_ASSERT(container.metaInfo().isValid(), return);
-    QTC_ASSERT(QmlItemNode::isFlowTransition(container), return);
 
 #ifndef QDS_USE_PROJECTSTORAGE
     NodeMetaInfo effectMetaInfo = view->model()->metaInfo(typeName, -1, -1);
