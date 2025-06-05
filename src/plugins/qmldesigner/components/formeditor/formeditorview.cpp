@@ -376,7 +376,7 @@ void FormEditorView::nodeIdChanged(const ModelNode& node, const QString &/*newId
 }
 
 void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
-                                          const QList<ModelNode> &lastSelectedNodeList)
+                                          const QList<ModelNode> &)
 {
     NanotraceHR::Tracer tracer{"form editor view selected nodes changed", category()};
 
