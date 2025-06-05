@@ -24,7 +24,6 @@
 #include <designeractionmanager.h>
 #include <designsystemview/designsystemview.h>
 #include <eventlist/eventlistpluginview.h>
-#include <formeditor/transitiontool.h>
 #include <formeditor/view3dtool.h>
 #include <studioquickwidget.h>
 #ifndef QDS_USE_PROJECTSTORAGE
@@ -690,7 +689,6 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     d->viewManager.registerFormEditorTool(std::make_unique<ColorTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<TextTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<PathTool>(d->externalDependencies));
-    d->viewManager.registerFormEditorTool(std::make_unique<TransitionTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<View3DTool>());
 
     if (Core::ICore::isQtDesignStudio()) {

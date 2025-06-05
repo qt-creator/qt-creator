@@ -340,7 +340,6 @@ extend_qtc_plugin(QmlDesigner
     snapper.cpp snapper.h
     snappinglinecreator.cpp snappinglinecreator.h
     toolbox.cpp toolbox.h
-    transitiontool.cpp transitiontool.h
     view3dtool.cpp view3dtool.h
 )
 
