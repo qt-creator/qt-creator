@@ -1326,9 +1326,7 @@ Group processRecipe(RunControl *runControl,
                     const std::function<SetupResult(Process &)> &startModifier,
                     bool suppressDefaultStdOutHandling)
 {
-    const Storage<bool> isLocalStorage{true};
-
-    const auto onSetup = [isLocalStorage, runControl, startModifier, suppressDefaultStdOutHandling](Process &process) {
+    const auto onSetup = [runControl, startModifier, suppressDefaultStdOutHandling](Process &process) {
         process.setProcessChannelMode(appOutputPane().settings().mergeChannels
                                           ? QProcess::MergedChannels : QProcess::SeparateChannels);
         process.setCommand(runControl->commandLine());
@@ -1411,8 +1409,6 @@ Group processRecipe(RunControl *runControl,
         process.setExtraData(extraData);
         process.setForceDefaultErrorModeOnWindows(true);
 
-        *isLocalStorage = cmdLine.executable().isLocal();
-
         QObject::connect(&process, &Process::started, runStorage().activeStorage(),
                          [runControl, process = &process, iface = runStorage().activeStorage()] {
             const bool isDesktop = process->commandLine().executable().isLocal();
@@ -1454,9 +1450,17 @@ Group processRecipe(RunControl *runControl,
             });
         }
         QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, &process,
-                         [runControl, process = &process] {
+                         [runControl, process = &process, isLocal = cmdLine.executable().isLocal()] {
             runControl->postMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
             process->stop();
+            QTimer::singleShot(2 * std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds),
+                               process, [runControl, process, isLocal] {
+                runControl->postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
+                if (!isLocal)
+                    runControl->postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
+                process->kill();
+                emit process->done();
+            });
         });
         return SetupResult::Continue;
     };
@@ -1465,29 +1469,7 @@ Group processRecipe(RunControl *runControl,
         runControl->postMessage(process.exitMessage(), NormalMessageFormat);
     };
 
-    const auto onCancelSetup = [](Barrier &barrier) {
-        QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, &barrier, &Barrier::advance);
-    };
-
-    const auto onTimeoutDone = [runControl, isLocalStorage](DoneWith result) {
-        if (result == DoneWith::Cancel)
-            return;
-        runControl->postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
-        if (*isLocalStorage == false)
-            runControl->postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
-    };
-
-    return {
-        parallel,
-        stopOnSuccessOrError,
-        isLocalStorage,
-        ProcessTask(onSetup, onDone),
-        Group {
-            BarrierTask(onCancelSetup),
-            timeoutTask(2 * std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds)),
-            onGroupDone(onTimeoutDone)
-        }
-    };
+    return { ProcessTask(onSetup, onDone) };
 }
 
 RunWorkerPrivate::RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl, const Group &recipe)
