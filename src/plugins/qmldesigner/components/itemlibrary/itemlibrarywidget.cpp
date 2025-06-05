@@ -449,13 +449,6 @@ bool ItemLibraryWidget::subCompEditMode() const
     return m_subCompEditMode;
 }
 
-void ItemLibraryWidget::setFlowMode(bool b)
-{
-    NanotraceHR::Tracer tracer{"item library widget set flow mode", category()};
-
-    m_itemLibraryModel->setFlowMode(b);
-}
-
 void ItemLibraryWidget::removeImport(const QString &importUrl)
 {
     NanotraceHR::Tracer tracer{"item library widget remove import", category()};

@@ -75,7 +75,6 @@ void ItemLibraryView::modelAttached(Model *model)
     if (model)
         m_widget->updatePossibleImports(set_difference(model->possibleImports(), model->imports()));
     m_hasErrors = !rewriterView()->errors().isEmpty();
-    m_widget->setFlowMode(QmlItemNode(rootModelNode()).isFlowView());
 }
 
 void ItemLibraryView::modelAboutToBeDetached(Model *model)

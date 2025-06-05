@@ -250,13 +250,6 @@ void ItemLibraryModel::showAllHiddenCategories()
     categoryVisibleStateHash.clear();
 }
 
-void ItemLibraryModel::setFlowMode(bool b)
-{
-    NanotraceHR::Tracer tracer{"item library model set flow mode", category()};
-
-    m_flowMode = b;
-}
-
 ItemLibraryModel::ItemLibraryModel(QObject *parent)
     : QAbstractListModel(parent)
 {
