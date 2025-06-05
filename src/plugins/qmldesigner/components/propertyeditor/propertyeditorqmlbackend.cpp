@@ -294,62 +294,7 @@ void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qml
 
     constexpr auto commonProperties = std::make_tuple(customIdProperty);
 
-    if (itemNode.isFlowTransition()) {
-        constexpr auto properties = std::make_tuple(colorProperty,
-                                                    widthProperty,
-                                                    inOffsetProperty,
-                                                    dashProperty,
-                                                    breakPointProperty,
-                                                    typeProperty,
-                                                    radiusProperty,
-                                                    bezierProperty,
-                                                    labelPositionProperty,
-                                                    labelFlipSideProperty);
-        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
-    } else if (itemNode.isFlowItem()) {
-        constexpr auto properties = std::make_tuple(colorProperty,
-                                                    widthProperty,
-                                                    inOffsetProperty,
-                                                    outOffsetProperty,
-                                                    joinConnectionProperty);
-        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
-    } else if (itemNode.isFlowActionArea()) {
-        constexpr auto properties = std::make_tuple(colorProperty,
-                                                    widthProperty,
-                                                    fillColorProperty,
-                                                    outOffsetProperty,
-                                                    dashProperty);
-        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
-    } else if (itemNode.isFlowDecision()) {
-        constexpr auto properties = std::make_tuple(colorProperty,
-                                                    widthProperty,
-                                                    fillColorProperty,
-                                                    dashProperty,
-                                                    blockSizeProperty,
-                                                    blockRadiusProperty,
-                                                    showDialogLabelProperty,
-                                                    dialogLabelPositionProperty);
-        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
-    } else if (itemNode.isFlowWildcard()) {
-        constexpr auto properties = std::make_tuple(colorProperty,
-                                                    widthProperty,
-                                                    fillColorProperty,
-                                                    dashProperty,
-                                                    blockSizeProperty,
-                                                    blockRadiusProperty);
-        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
-    } else if (itemNode.isFlowView()) {
-        constexpr auto properties = std::make_tuple(transitionColorProperty,
-                                                    areaColorProperty,
-                                                    areaFillColorProperty,
-                                                    blockColorProperty,
-                                                    transitionTypeProperty,
-                                                    transitionRadiusProperty,
-                                                    transitionBezierProperty);
-        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
-    } else {
-        std::apply(createProperty, commonProperties);
-    }
+    std::apply(createProperty, commonProperties);
 }
 
 void PropertyEditorQmlBackend::handleInstancePropertyChangedInModelNodeProxy(
