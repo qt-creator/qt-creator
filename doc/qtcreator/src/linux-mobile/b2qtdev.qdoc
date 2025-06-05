@@ -143,6 +143,6 @@
     \uicontrol {Restore Default App}.
 
     \sa {Enable and disable plugins}, {\B2Q}{How To: Develop for \B2Q},
-    {Developing for \B2Q Devices},
+    {Debug remotely with GDB}, {Developing for \B2Q Devices},
     {\B2Q: Setting Up USB Access to Embedded Devices}
 */

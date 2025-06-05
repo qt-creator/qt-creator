@@ -529,6 +529,9 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-debug
+    \ingroup creator-how-to-b2qt
+    \ingroup creator-how-to-remote-linux
+    \ingroup creator-how-to-qnx
 
     \title Debug remotely with GDB
 
