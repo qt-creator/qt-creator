@@ -9,8 +9,8 @@
 
     \title Turn on crash reports
 
-    \QC uses Google Crashpad to collect information about crashes and to send it
-    to \l{Sentry: Security & Compliance}{Sentry} for processing. Crashpad might
+    \QC uses \l{Google Breakpad} to collect information about crashes and to send it
+    to \l{Sentry: Security & Compliance}{Sentry} for processing. Breakpad might
     capture arbitrary contents from the memory of the crashed process, including
     user-sensitive information, URLs, and other content users have trusted
     \QC with. However, the crash reports are used for the sole purpose of fixing
@@ -42,7 +42,7 @@
     select \uicontrol {Clear Local Crash Reports}. You can see the
     size of the crash reports next to the button.
 
-    Select \uicontrol ? to view more information about Crashpad and the security
+    Select \uicontrol ? to view more information about Breakpad and the security
     policy.
 
     \note The best way to report a crash is to create a bug report where you

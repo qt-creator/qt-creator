@@ -297,3 +297,7 @@
     \externalpage https://www.gerritcodereview.com/
     \title Gerrit Code Review
 */
+/*!
+    \externalpage https://chromium.googlesource.com/breakpad/breakpad/+/HEAD/docs/client_design.md
+    \title Google Breakpad
+*/
