@@ -14,6 +14,8 @@
 
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
+#include <solutions/tasking/barrier.h>
+
 #include <utils/qtcprocess.h>
 
 using namespace Debugger;
@@ -78,10 +80,8 @@ class RemoteLinuxQmlToolingWorkerFactory final : public ProjectExplorer::RunWork
 public:
     RemoteLinuxQmlToolingWorkerFactory()
     {
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
-
-            auto runworker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
 
             const auto modifier = [runControl](Process &process) {
                 QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
@@ -90,10 +90,12 @@ public:
                 cmd.addArg(qmlDebugTcpArguments(services, runControl->qmlChannel()));
                 process.setCommand(cmd);
             };
-            auto worker = createProcessWorker(runControl, modifier);
-            runworker->addStartDependency(worker);
-            worker->addStopDependency(runworker);
-            return worker;
+            const ProcessTask processTask(processTaskWithModifier(runControl, modifier));
+            return Group {
+                When (processTask, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+                    runControl->createRecipe(runnerIdForRunMode(runControl->runMode()))
+                }
+            };
         });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
