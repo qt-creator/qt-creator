@@ -153,15 +153,15 @@ class QdbQmlToolingWorkerFactory final : public RunWorkerFactory
 public:
     QdbQmlToolingWorkerFactory()
     {
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
-            const QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
-            auto worker = createQdbDeviceInferiorWorker(runControl, services);
-
-            auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
-            extraWorker->addStartDependency(worker);
-            worker->addStopDependency(extraWorker);
-            return worker;
+            const ProcessTask inferior(qdbDeviceInferiorProcess(
+                runControl, servicesForRunMode(runControl->runMode())));
+            return Group {
+                When (inferior, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+                    runControl->createRecipe(runnerIdForRunMode(runControl->runMode()))
+                }
+            };
         });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
