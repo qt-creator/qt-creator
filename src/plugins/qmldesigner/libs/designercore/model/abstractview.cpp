@@ -168,6 +168,10 @@ The default implementation is setting the reference of the model to the view.
 */
 void AbstractView::modelAttached(Model *model)
 {
+    NanotraceHR::Tracer tracer{"abstract view model attached",
+                               ModelTracing::category(),
+                               keyValue("widget id", widgetInfo().uniqueId)};
+
     setModel(model);
 }
 
@@ -182,6 +186,9 @@ is removing the reference to the model from the view.
 */
 void AbstractView::modelAboutToBeDetached(Model *)
 {
+    NanotraceHR::Tracer tracer{"abstract view model about to be detached",
+                               ModelTracing::category(),
+                               keyValue("widget id", widgetInfo().uniqueId)};
     removeModel();
 }
 
@@ -408,6 +415,8 @@ void AbstractView::dragEnded() {}
 
 QList<ModelNode> AbstractView::toModelNodeList(Utils::span<const Internal::InternalNode::Pointer> nodes) const
 {
+    NanotraceHR::Tracer tracer{"abstract view to model node list", ModelTracing::category()};
+
     return QmlDesigner::toModelNodeList(nodes, m_model, const_cast<AbstractView *>(this));
 }
 
@@ -415,6 +424,8 @@ QList<ModelNode> toModelNodeList(Utils::span<const Internal::InternalNode::Point
                                  Model *model,
                                  AbstractView *view)
 {
+    NanotraceHR::Tracer tracer{"abstract view to model node list", ModelTracing::category()};
+
     QList<ModelNode> newNodeList;
     newNodeList.reserve(std::ssize(nodes));
     for (const Internal::InternalNode::Pointer &node : nodes)
@@ -429,11 +440,15 @@ QList<ModelNode> toModelNodeList(Utils::span<const Internal::InternalNode::Point
 */
 void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeList)
 {
+    NanotraceHR::Tracer tracer{"abstract view set selected model nodes", ModelTracing::category()};
+
     model()->setSelectedModelNodes(selectedNodeList);
 }
 
 void AbstractView::setSelectedModelNode(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"abstract view set selected model node", ModelTracing::category()};
+
     if (ModelUtils::isThisOrAncestorLocked(modelNode)) {
         clearSelectedModelNodes();
         return;
@@ -443,6 +458,8 @@ void AbstractView::setSelectedModelNode(const ModelNode &modelNode)
 
 void AbstractView::clearSelectedModelNodes()
 {
+    NanotraceHR::Tracer tracer{"abstract view clear selected model nodes", ModelTracing::category()};
+
     model()->d->clearSelectedNodes();
 }
 
@@ -458,16 +475,22 @@ bool AbstractView::hasSingleSelectedModelNode() const
 
 bool AbstractView::isSelectedModelNode(const ModelNode &modelNode) const
 {
+    NanotraceHR::Tracer tracer{"abstract view is selected model node", ModelTracing::category()};
+
     return model()->d->selectedNodes().contains(modelNode.internalNode());
 }
 
 QList<ModelNode> AbstractView::selectedModelNodes() const
 {
+    NanotraceHR::Tracer tracer{"abstract view selected model nodes", ModelTracing::category()};
+
     return toModelNodeList(model()->d->selectedNodes());
 }
 
 ModelNode AbstractView::firstSelectedModelNode() const
 {
+    NanotraceHR::Tracer tracer{"abstract view first selected model node", ModelTracing::category()};
+
     if (hasSelectedModelNodes())
         return ModelNode(model()->d->selectedNodes().front(), model(), this);
 
@@ -476,6 +499,8 @@ ModelNode AbstractView::firstSelectedModelNode() const
 
 ModelNode AbstractView::singleSelectedModelNode() const
 {
+    NanotraceHR::Tracer tracer{"abstract view single selected model node", ModelTracing::category()};
+
     if (hasSingleSelectedModelNode())
         return ModelNode(model()->d->selectedNodes().front(), model(), this);
 
@@ -484,6 +509,8 @@ ModelNode AbstractView::singleSelectedModelNode() const
 
 void AbstractView::selectModelNode(const ModelNode &modelNode)
 {
+    NanotraceHR::Tracer tracer{"abstract view select model node", ModelTracing::category()};
+
     QTC_ASSERT(modelNode.isInHierarchy(), return);
     model()->d->selectNode(modelNode.internalNode());
 }
@@ -495,6 +522,8 @@ void AbstractView::deselectModelNode(const ModelNode &node)
 
 ModelNode AbstractView::modelNodeForId(const QString &id)
 {
+    NanotraceHR::Tracer tracer{"abstract view model node for id", ModelTracing::category()};
+
     return ModelNode(model()->d->nodeForId(id), model(), this);
 }
 
@@ -505,16 +534,23 @@ bool AbstractView::hasId(const QString &id) const
 
 ModelNode AbstractView::modelNodeForInternalId(qint32 internalId) const
 {
-     return ModelNode(model()->d->nodeForInternalId(internalId), model(), this);
+    NanotraceHR::Tracer tracer{"abstract view model node for internal id", ModelTracing::category()};
+
+    return ModelNode(model()->d->nodeForInternalId(internalId), model(), this);
 }
 
 bool AbstractView::hasModelNodeForInternalId(qint32 internalId) const
 {
+    NanotraceHR::Tracer tracer{"abstract view has model node for internal id",
+                               ModelTracing::category()};
+
     return model()->d->hasNodeForInternalId(internalId);
 }
 
 const AbstractView *AbstractView::nodeInstanceView() const
 {
+    NanotraceHR::Tracer tracer{"abstract view node instance view", ModelTracing::category()};
+
     if (isAttached())
         return model()->d->nodeInstanceView();
 
@@ -523,6 +559,8 @@ const AbstractView *AbstractView::nodeInstanceView() const
 
 RewriterView *AbstractView::rewriterView() const
 {
+    NanotraceHR::Tracer tracer{"abstract view rewriter view", ModelTracing::category()};
+
     if (model())
         return model()->d->rewriterView();
 
@@ -531,6 +569,8 @@ RewriterView *AbstractView::rewriterView() const
 
 void AbstractView::resetView()
 {
+    NanotraceHR::Tracer tracer{"abstract view reset view", ModelTracing::category()};
+
     if (!model())
         return;
 
@@ -542,6 +582,8 @@ void AbstractView::resetView()
 
 void AbstractView::resetPuppet()
 {
+    NanotraceHR::Tracer tracer{"abstract view reset puppet", ModelTracing::category()};
+
     QTC_ASSERT(isAttached(), return);
     emitCustomNotification(QStringLiteral("reset QmlPuppet"));
 }
@@ -558,12 +600,16 @@ WidgetInfo AbstractView::widgetInfo()
 
 void AbstractView::disableWidget()
 {
+    NanotraceHR::Tracer tracer{"abstract view disable widget", ModelTracing::category()};
+
     if (hasWidget() && widgetInfo().widgetFlags == DesignerWidgetFlags::DisableOnError)
         widgetInfo().widget->setEnabled(false);
 }
 
 void AbstractView::enableWidget()
 {
+    NanotraceHR::Tracer tracer{"abstract view enable widget", ModelTracing::category()};
+
     if (hasWidget()) {
         if (auto info = widgetInfo(); info.widgetFlags == DesignerWidgetFlags::DisableOnError)
             info.widget->setEnabled(true);
@@ -572,6 +618,8 @@ void AbstractView::enableWidget()
 
 QString AbstractView::contextHelpId() const
 {
+    NanotraceHR::Tracer tracer{"abstract view context help id", ModelTracing::category()};
+
     QString id = const_cast<AbstractView *>(this)->widgetInfo().uniqueId;
 
     if (!selectedModelNodes().isEmpty()) {
@@ -584,6 +632,8 @@ QString AbstractView::contextHelpId() const
 
 bool AbstractView::executeInTransaction(const QByteArray &identifier, const OperationBlock &lambda)
 {
+    NanotraceHR::Tracer tracer{"abstract view execute in transaction", ModelTracing::category()};
+
     try {
         RewriterTransaction transaction = beginRewriterTransaction(identifier);
         lambda();
@@ -598,29 +648,39 @@ bool AbstractView::executeInTransaction(const QByteArray &identifier, const Oper
 
 QList<ModelNode> AbstractView::allModelNodes() const
 {
+    NanotraceHR::Tracer tracer{"abstract view all model nodes", ModelTracing::category()};
+
     QTC_ASSERT(model(), return {});
     return toModelNodeList(model()->d->allNodesOrdered());
 }
 
 QList<ModelNode> AbstractView::allModelNodesUnordered() const
 {
+    NanotraceHR::Tracer tracer{"abstract view all model nodes unordered", ModelTracing::category()};
+
     return toModelNodeList(model()->d->allNodesUnordered());
 }
 
 QList<ModelNode> AbstractView::allModelNodesOfType(const NodeMetaInfo &type) const
 {
+    NanotraceHR::Tracer tracer{"abstract view all model nodes of type", ModelTracing::category()};
+
     return Utils::filtered(allModelNodes(),
                            [&](const ModelNode &node) { return node.metaInfo().isBasedOn(type); });
 }
 
 void AbstractView::setCurrentStateNode(const ModelNode &node)
 {
+    NanotraceHR::Tracer tracer{"abstract view set current state node", ModelTracing::category()};
+
     if (m_model)
         m_model->setCurrentStateNode(node);
 }
 
 void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion)
 {
+    NanotraceHR::Tracer tracer{"abstract view change root node type", ModelTracing::category()};
+
     Internal::WriteLocker locker(m_model.data());
 
     m_model.data()->d->changeRootNodeType(type, majorVersion, minorVersion);
@@ -628,6 +688,8 @@ void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, in
 
 ModelNode AbstractView::currentStateNode() const
 {
+    NanotraceHR::Tracer tracer{"abstract view current state node", ModelTracing::category()};
+
     if (m_model)
         return m_model->currentStateNode(const_cast<AbstractView *>(this));
 
@@ -636,6 +698,8 @@ ModelNode AbstractView::currentStateNode() const
 
 ModelNode AbstractView::currentTimelineNode() const
 {
+    NanotraceHR::Tracer tracer{"abstract view current timeline node", ModelTracing::category()};
+
     if (isAttached()) {
         return ModelNode(m_model.data()->d->currentTimelineNode(),
                          m_model.data(),
@@ -698,6 +762,8 @@ static int getMinorVersionFromNode(const ModelNode &modelNode)
 
 int AbstractView::majorQtQuickVersion() const
 {
+    NanotraceHR::Tracer tracer{"abstract view major qt quick version", ModelTracing::category()};
+
     int majorVersionFromImport = getMajorVersionFromImport(model());
     if (majorVersionFromImport >= 0)
         return majorVersionFromImport;
@@ -711,6 +777,8 @@ int AbstractView::majorQtQuickVersion() const
 
 int AbstractView::minorQtQuickVersion() const
 {
+    NanotraceHR::Tracer tracer{"abstract view minor qt quick version", ModelTracing::category()};
+
     int minorVersionFromImport = getMinorVersionFromImport(model());
     if (minorVersionFromImport >= 0)
         return minorVersionFromImport;

@@ -31,7 +31,9 @@ class TextToModelMerger
     TextToModelMerger &operator=(const TextToModelMerger&);
 
 public:
-    static QmlJS::Document::MutablePtr createParsedDocument(const QUrl &url, const QString &data, QList<DocumentMessage> *errors);
+    static QmlJS::Document::MutablePtr createParsedDocument(const QUrl &url,
+                                                            const QString &data,
+                                                            QList<DocumentMessage> *errors);
 
     TextToModelMerger(RewriterView *reWriterView);
     bool isActive() const;

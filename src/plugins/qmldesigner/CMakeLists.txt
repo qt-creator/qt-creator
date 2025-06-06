@@ -48,6 +48,14 @@ env_with_default("QTC_ENABLE_ITEM_LIBRARY_TRACING" ENV_QTC_ENABLE_ITEM_LIBRARY_T
 option(ENABLE_ITEM_LIBRARY_TRACING "Enable item library tracing" ${ENV_QTC_ENABLE_ITEM_LIBRARY_TRACING})
 add_feature_info("Item library tracing" ${ENABLE_ITEM_LIBRARY_TRACING} "")
 
+env_with_default("QTC_ENABLE_REWRITER_TRACING" ENV_QTC_ENABLE_REWRITER_TRACING OFF)
+option(ENABLE_REWRITER_TRACING "Enable rewriter tracing" ${ENV_QTC_ENABLE_REWRITER_TRACING})
+add_feature_info("Rewriter tracing" ${ENABLE_REWRITER_TRACING} "")
+
+env_with_default("QTC_ENABLE_PROJECT_MANAGER_TRACING" ENV_QTC_ENABLE_PROJECT_MANAGER_TRACING OFF)
+option(ENABLE_PROJECT_MANAGER_TRACING "Enable project manager tracing" ${ENV_QTC_ENABLE_PROJECT_MANAGER_TRACING})
+add_feature_info("Project manager tracing" ${ENABLE_PROJECT_MANAGER_TRACING} "")
+
 if(QDS_DESIGNVIEWER_USE_STAGING)
   add_definitions(-DQDS_DESIGNVIEWER_USE_STAGING)
 endif()
@@ -425,7 +433,7 @@ extend_qtc_plugin(QmlDesigner
 
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/propertyeditor
-  PUBLIC_INCLUDES components/propertyeditor  
+  PUBLIC_INCLUDES components/propertyeditor
   PUBLIC_DEFINES
     $<$<BOOL:${ENABLE_PROPERTY_EDITOR_TRACING}>:ENABLE_PROPERTY_EDITOR_TRACING>
   SOURCES

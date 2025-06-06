@@ -49,7 +49,7 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
-  CONDITION ENABLE_PROJECT_STORAGE_TRACING OR ENABLE_SOURCE_PATH_STORAGE_TRACING OR ENABLE_IMAGE_CACHE_TRACING OR ENABLE_MODEL_TRACING OR ENABLE_FORM_EDITOR_TRACING OR ENABLE_PROPERTY_EDITOR_TRACING OR ENABLE_NAVIGATOR_TRACING OR ENABLE_ITEM_LIBRARY_TRACING
+  CONDITION ENABLE_PROJECT_STORAGE_TRACING OR ENABLE_SOURCE_PATH_STORAGE_TRACING OR ENABLE_IMAGE_CACHE_TRACING OR ENABLE_MODEL_TRACING OR ENABLE_FORM_EDITOR_TRACING OR ENABLE_PROPERTY_EDITOR_TRACING OR ENABLE_NAVIGATOR_TRACING OR ENABLE_ITEM_LIBRARY_TRACING OR ENABLE_REWRITER_TRACING OR ENABLE_PROJECT_MANAGER_TRACING
   PUBLIC_DEPENDS Nanotrace
   PUBLIC_DEFINES
     ENABLE_QMLDESIGNER_TRACING
@@ -158,6 +158,8 @@ extend_qtc_library(QmlDesignerCore
 
 extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX tracing
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_PROJECT_MANAGER_TRACING}>:ENABLE_PROJECT_MANAGER_TRACING>
   SOURCES
     qmldesignertracing.cpp qmldesignertracing.h
 )
@@ -309,6 +311,8 @@ extend_qtc_library(QmlDesignerCore
 extend_qtc_library(QmlDesignerCore
   INCLUDES rewriter
   SOURCES_PREFIX rewriter
+  PUBLIC_DEFINES
+    $<$<BOOL:${ENABLE_REWRITER_TRACING}>:ENABLE_REWRITER_TRACING>
   SOURCES
     componenttextmodifier.cpp
     modelnodepositionrecalculator.cpp
@@ -328,6 +332,8 @@ extend_qtc_library(QmlDesignerCore
     rewriteactioncompressor.cpp
     rewriteactioncompressor.h
     rewritertransaction.cpp
+    rewritertracing.h
+    rewritertracing.cpp
     rewriterview.cpp
     textmodifier.cpp
     texttomodelmerger.cpp

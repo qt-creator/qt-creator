@@ -68,4 +68,19 @@ Category &category()
 
 } // namespace ModelTracing
 
+namespace ProjectManagerTracing {
+#ifdef ENABLE_PROJECT_MANAGER_TRACING
+
+Category &category()
+{
+    thread_local Category category_{"project manager",
+                                    Tracing::eventQueueWithStringArguments(),
+                                    Tracing::eventQueueWithoutArguments(),
+                                    category};
+
+    return category_;
+}
+#endif
+
+} // namespace ProjectManagerTracing
 } // namespace QmlDesigner

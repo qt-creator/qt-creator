@@ -48,4 +48,21 @@ inline Category category()
 
 } // namespace ModelTracing
 
+namespace ProjectManagerTracing {
+
+#ifdef ENABLE_PROJECT_MANAGER_TRACING
+using Category = NanotraceHR::EnabledCategory;
+
+[[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
+#else
+
+using Category = NanotraceHR::DisabledCategory;
+
+inline Category category()
+{
+    return {};
+}
+
+#endif
+} // namespace ProjectManagerTracing
 } // namespace QmlDesigner
