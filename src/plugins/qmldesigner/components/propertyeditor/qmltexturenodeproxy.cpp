@@ -74,7 +74,7 @@ void QmlTextureNodeProxy::handlePropertyChanged(const AbstractProperty &property
         return;
 
     if (property.name() == "materials"_L1
-        && (selectedNode == node || selectedNode.propertyChangeForCurrentState() == node)) {
+        && (selectedNode == node || selectedNode.ensurePropertyChangeForCurrentState() == node)) {
         updateSelectionDetails();
     }
 }

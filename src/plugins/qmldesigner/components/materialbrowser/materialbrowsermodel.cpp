@@ -419,7 +419,7 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
             validProps.insert(baseProp);
 
         if (!mat.isInBaseState()) {
-            QmlPropertyChanges changes = mat.propertyChangeForCurrentState();
+            QmlPropertyChanges changes = mat.ensurePropertyChangeForCurrentState();
             if (changes.isValid()) {
                 const QList<AbstractProperty> changedProps = changes.targetProperties();
                 for (const auto &changedProp : changedProps)

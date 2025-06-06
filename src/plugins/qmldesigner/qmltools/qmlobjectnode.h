@@ -73,7 +73,7 @@ public:
     QString expression(PropertyNameView name, SL sl = {}) const;
     bool isInBaseState(SL sl = {}) const;
     bool timelineIsActive(SL sl = {}) const;
-    QmlPropertyChanges propertyChangeForCurrentState(SL sl = {}) const;
+    QmlPropertyChanges ensurePropertyChangeForCurrentState(SL sl = {}) const;
 
     bool instanceCanReparent(SL sl = {}) const;
 

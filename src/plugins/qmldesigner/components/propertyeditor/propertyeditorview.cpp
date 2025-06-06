@@ -1003,7 +1003,8 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
         if (node.isRootNode() && !activeNode().isRootNode())
             m_qmlBackEndForCurrentType->contextObject()->setHasAliasExport(QmlObjectNode(activeNode()).isAliasExported());
 
-        if (node == activeNode() || QmlObjectNode(activeNode()).propertyChangeForCurrentState() == node) {
+        if (node == activeNode()
+            || QmlObjectNode(activeNode()).ensurePropertyChangeForCurrentState() == node) {
             m_locked = true;
             changed = true;
 
@@ -1096,7 +1097,8 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
             m_qmlBackEndForCurrentType->setValueforInsightAttachedProperties(activeNode(),
                                                                              property.name());
 
-        if (node == activeNode() || QmlObjectNode(activeNode()).propertyChangeForCurrentState() == node) {
+        if (node == activeNode()
+            || QmlObjectNode(activeNode()).ensurePropertyChangeForCurrentState() == node) {
             if (property.isDynamic())
                 m_dynamicPropertiesModel->updateItem(property);
             if ( QmlObjectNode(activeNode()).modelNode().property(property.name()).isBindingProperty())
@@ -1146,7 +1148,8 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
         if (property.isAliasExport())
             m_qmlBackEndForCurrentType->contextObject()->setHasAliasExport(QmlObjectNode(activeNode()).isAliasExported());
 
-        if (node == activeNode() || QmlObjectNode(activeNode()).propertyChangeForCurrentState() == node) {
+        if (node == activeNode()
+            || QmlObjectNode(activeNode()).ensurePropertyChangeForCurrentState() == node) {
             if (property.isDynamic())
                 m_dynamicPropertiesModel->updateItem(property);
             if (property.name().contains("anchor"))

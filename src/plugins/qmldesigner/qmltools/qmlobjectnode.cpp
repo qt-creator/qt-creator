@@ -416,9 +416,9 @@ bool QmlObjectNode::instanceCanReparent(SL sl) const
         return isInBaseState();
 }
 
-QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState(SL sl) const
+QmlPropertyChanges QmlObjectNode::ensurePropertyChangeForCurrentState(SL sl) const
 {
-    NanotraceHR::Tracer tracer{"qml model node property change for current state",
+    NanotraceHR::Tracer tracer{"qml model node ensure property change for current state",
                                category(),
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};

@@ -136,7 +136,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                                 mat.removeProperty(propName);
                         }
                     } else {
-                        QmlPropertyChanges changes = mat.propertyChangeForCurrentState();
+                        QmlPropertyChanges changes = mat.ensurePropertyChangeForCurrentState();
                         if (changes.isValid()) {
                             PropertyNameViews propNames;
                             const QList<AbstractProperty> changedProps = changes.targetProperties();
@@ -323,7 +323,7 @@ void MaterialBrowserView::updatePropertyList(const QList<T> &propertyList)
                 const ModelNodes textures = m_widget->materialBrowserTexturesModel()->textures();
                 for (const ModelNode &textureNode : textures) {
                     const QmlObjectNode textureQmlNode{textureNode};
-                    if (textureQmlNode.propertyChangeForCurrentState() == node)
+                    if (textureQmlNode.ensurePropertyChangeForCurrentState() == node)
                         m_widget->materialBrowserTexturesModel()->updateTextureSource(textureQmlNode);
                 }
             }
