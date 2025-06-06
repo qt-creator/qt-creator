@@ -99,6 +99,8 @@ const char TR_HIDE_LEFT_SIDEBAR[] = QT_TRANSLATE_NOOP("QtC::Core", "Hide Left Si
 const char TR_SHOW_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("QtC::Core", "Show Right Sidebar");
 const char TR_HIDE_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("QtC::Core", "Hide Right Sidebar");
 
+const char TR_CYCLE_NEXT_EDITOR[] = QT_TRANSLATE_NOOP("QtC::Core", "Cycle to Next Editor");
+
 const char MINIMIZE_WINDOW[]       = "QtCreator.MinimizeWindow";
 const char ZOOM_WINDOW[]           = "QtCreator.ZoomWindow";
 const char CLOSE_WINDOW[]           = "QtCreator.CloseWindow";
@@ -131,6 +133,7 @@ const char CHANGE_LOG[]            = "QtCreator.ChangeLog";
 const char S_RETURNTOEDITOR[]      = "QtCreator.ReturnToEditor";
 const char SHOWINGRAPHICALSHELL[]  = "QtCreator.ShowInGraphicalShell";
 const char SHOWINFILESYSTEMVIEW[]  = "QtCreator.ShowInFileSystemView";
+const char CYCLE_NEXT_EDITOR[]     = "QtCreator.CycleToNextEditor";
 
 const char OUTPUTPANE_CLEAR[] = "Coreplugin.OutputPane.clear";
 

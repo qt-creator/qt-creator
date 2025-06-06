@@ -157,6 +157,7 @@ public slots:
     static void removeAllSplits();
     static void gotoPreviousSplit();
     static void gotoNextSplit();
+    static void cycleToNextEditor(const Utils::FilePath &filePath);
 
     static void reopenLastClosedDocument();
 
@@ -258,6 +259,7 @@ private:
     QAction *m_removeAllSplitsAction = nullptr;
     QAction *m_gotoPreviousSplitAction = nullptr;
     QAction *m_gotoNextSplitAction = nullptr;
+    QAction *m_cycleNextEditorAction = nullptr;
 
     QAction *m_openGraphicalShellAction = nullptr;
     QAction *m_showInFileSystemViewAction = nullptr;

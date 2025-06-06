@@ -690,6 +690,18 @@ void EditorManagerPrivate::init()
     gotoNextSplit.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
     gotoNextSplit.addOnTriggered(this, &EditorManagerPrivate::gotoNextSplit);
 
+    ActionBuilder cycleToNextEditorAction(this, Constants::CYCLE_NEXT_EDITOR);
+    cycleToNextEditorAction.setText(Tr::tr(Constants::TR_CYCLE_NEXT_EDITOR));
+    cycleToNextEditorAction.bindContextAction(&m_cycleNextEditorAction);
+    cycleToNextEditorAction.setContext(editManagerContext);
+    cycleToNextEditorAction.addOnTriggered(this, [] {
+        if (!EditorManager::currentDocument())
+            return;
+        const FilePath fp = EditorManager::currentDocument()->filePath();
+        if (!fp.isEmpty())
+            cycleToNextEditor(fp);
+    });
+
     // other setup
     auto mainEditorArea = new EditorArea();
     // assign parent to avoid failing updates (e.g. windowTitle) before it is displayed first time
@@ -2355,6 +2367,38 @@ void EditorManagerPrivate::gotoPreviousSplit()
         activateView(prevView);
 }
 
+void EditorManagerPrivate::cycleToNextEditor(const Utils::FilePath &filePath)
+{
+    IDocument *document = DocumentModel::documentForFilePath(filePath);
+
+    if (!document)
+        return;
+
+    const Id currentEditorId = document->id();
+    EditorFactories factories = IEditorFactory::preferredEditorTypes(filePath);
+    factories.removeIf([](const IEditorFactory *editorType) {
+        return editorType && editorType->isExternalEditor();
+    });
+
+    if (factories.isEmpty())
+        return;
+
+    const int currentIndex = Utils::indexOf(factories, Utils::equal(&IEditorFactory::id, currentEditorId));
+    if (currentIndex < 0)
+        return;
+
+    Id newEditorId;
+
+    if (currentIndex < factories.count() - 1)
+        newEditorId = factories[currentIndex + 1]->id();
+    else
+        newEditorId = factories[0]->id();
+
+    QMetaObject::invokeMethod(EditorManagerPrivate::instance(), [filePath, newEditorId] {
+        EditorManagerPrivate::openEditorWith(filePath, newEditorId);
+    }, Qt::QueuedConnection);
+}
+
 void EditorManagerPrivate::addClosedDocumentToCloseHistory(IEditor *editor)
 {
     EditorView *view = EditorManagerPrivate::viewForEditor(editor);
@@ -3142,6 +3186,17 @@ void EditorManagerPrivate::populateOpenWithMenu(
                 },
                 Qt::QueuedConnection);
         }
+        menu->addSeparator();
+        QAction *action = menu->addAction(Tr::tr(Constants::TR_CYCLE_NEXT_EDITOR));
+        action->setEnabled(DocumentModel::documentForFilePath(filePath) != nullptr);
+        connect(
+            action,
+            &QAction::triggered,
+            d,
+            [filePath] {
+                cycleToNextEditor(filePath);
+            },
+            Qt::QueuedConnection);
     }
     menu->setEnabled(anyMatches);
 }
