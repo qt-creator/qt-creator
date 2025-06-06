@@ -117,8 +117,9 @@
                 many target platforms (desktop, mobile, and embedded).
         \row
             \li Library or plugin
-            \li Create a shared or static C++ library, a C++ plugin for Qt Quick
-                application extensions, or a \QC plugin.
+            \li Create a shared or static C++ library, C++ plugin for Qt Quick
+                application extensions, \l {Creating Plugins}{C++ plugin}, or
+                \l{Extending \QC with Lua}{Lua plugin}.
         \row
             \li Other project
             \li Create custom \l{\QD} widgets or widget collections,
