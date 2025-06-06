@@ -544,11 +544,11 @@ QmlTimeline TimelineView::timelineForState(const ModelNode &state) const
 
     for (const auto &timeline : timelines) {
         if (modelState.affectsModelNode(timeline)) {
-            QmlPropertyChanges propertyChanges(modelState.ensurePropertyChangesForTarget(timeline));
-
-            if (propertyChanges.isValid() && propertyChanges.modelNode().hasProperty("enabled")
-                && propertyChanges.modelNode().variantProperty("enabled").value().toBool())
-                return timeline;
+            if (QmlPropertyChanges propertyChanges = modelState.ensurePropertyChangesForTarget(
+                    timeline)) {
+                if (propertyChanges.modelNode().variantProperty("enabled").value().toBool())
+                    return timeline;
+            }
         }
     }
     return QmlTimeline();
