@@ -28,7 +28,7 @@ public:
         : QmlModelNodeFacade(modelNode)
     {}
 
-    QmlPropertyChanges propertyChanges(const ModelNode &node, SL sl = {});
+    QmlPropertyChanges ensurePropertyChangesForTarget(const ModelNode &node, SL sl = {});
     QList<QmlModelStateOperation> stateOperations(const ModelNode &node, SL sl = {}) const;
     QList<QmlPropertyChanges> propertyChanges(SL sl = {}) const;
     QList<QmlModelStateOperation> stateOperations(SL sl = {}) const;

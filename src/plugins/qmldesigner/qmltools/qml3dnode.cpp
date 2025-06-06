@@ -83,7 +83,7 @@ void Qml3DNode::handleEulerRotationSet()
     // remove the rotation property if eulerRotation is set.
     if (node.isValid() && node.metaInfo().isQtQuick3DNode()) {
         if (!isInBaseState()) {
-            QmlPropertyChanges changeSet(currentState().propertyChanges(node));
+            QmlPropertyChanges changeSet(currentState().ensurePropertyChangesForTarget(node));
             Q_ASSERT(changeSet.isValid());
             node = changeSet.modelNode();
         }

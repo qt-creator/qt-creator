@@ -188,7 +188,7 @@ static std::optional<int> propertyValueForState(const ModelNode &modelNode,
     }
 
     if (state.hasPropertyChanges(modelNode)) {
-        QmlPropertyChanges propertyChanges(state.propertyChanges(modelNode));
+        QmlPropertyChanges propertyChanges(state.ensurePropertyChangesForTarget(modelNode));
         if (propertyChanges.modelNode().hasVariantProperty(propertyName))
             return propertyChanges.modelNode().variantProperty(propertyName).value().toInt();
     }
@@ -259,7 +259,7 @@ ModelNode TimelineSettingsModel::animationForTimelineAndState(const QmlTimeline 
 
     for (const auto &animation : animations) {
         if (modelState.affectsModelNode(animation)) {
-            QmlPropertyChanges propertyChanges(modelState.propertyChanges(animation));
+            QmlPropertyChanges propertyChanges(modelState.ensurePropertyChangesForTarget(animation));
 
             if (propertyChanges.isValid() && propertyChanges.modelNode().hasProperty("running")
                 && propertyChanges.modelNode().variantProperty("running").value().toBool())
@@ -285,7 +285,8 @@ void TimelineSettingsModel::updateTimeline(int row)
                 timeline.modelNode().variantProperty("enabled").setValue(true);
         } else {
             if (oldTimeline.isValid() && modelState.affectsModelNode(oldTimeline)) {
-                QmlPropertyChanges propertyChanges(modelState.propertyChanges(oldTimeline));
+                QmlPropertyChanges propertyChanges(
+                    modelState.ensurePropertyChangesForTarget(oldTimeline));
                 if (propertyChanges.isValid() && propertyChanges.modelNode().hasProperty("enabled"))
                     propertyChanges.modelNode().removeProperty("enabled");
             }
@@ -293,13 +294,14 @@ void TimelineSettingsModel::updateTimeline(int row)
             QmlTimeline baseTimeline(timelineForRow(0));
 
             if (baseTimeline.isValid()) {
-                QmlPropertyChanges propertyChanges(modelState.propertyChanges(baseTimeline));
+                QmlPropertyChanges propertyChanges(
+                    modelState.ensurePropertyChangesForTarget(baseTimeline));
                 if (propertyChanges.isValid())
                     propertyChanges.modelNode().variantProperty("enabled").setValue(false);
             }
 
             if (timeline.isValid()) { /* If timeline is invalid 'none' was selected */
-                QmlPropertyChanges propertyChanges(modelState.propertyChanges(timeline));
+                QmlPropertyChanges propertyChanges(modelState.ensurePropertyChangesForTarget(timeline));
                 if (propertyChanges.isValid())
                     propertyChanges.modelNode().variantProperty("enabled").setValue(true);
             }
@@ -324,18 +326,21 @@ void TimelineSettingsModel::updateAnimation(int row)
             timeline.modelNode().removeProperty("currentFrame");
         } else {
             if (modelState.affectsModelNode(oldAnimation)) {
-                QmlPropertyChanges propertyChanges(modelState.propertyChanges(oldAnimation));
+                QmlPropertyChanges propertyChanges(
+                    modelState.ensurePropertyChangesForTarget(oldAnimation));
                 propertyChanges.modelNode().removeProperty("running");
             }
 
             if (ModelNode baseAnimation = animationForRow(0)) {
-                QmlPropertyChanges propertyChanges(modelState.propertyChanges(baseAnimation));
+                QmlPropertyChanges propertyChanges(
+                    modelState.ensurePropertyChangesForTarget(baseAnimation));
                 propertyChanges.modelNode().variantProperty("running").setValue(false);
                 propertyChanges.modelNode().removeProperty("currentFrame");
             }
 
             if (animation.isValid()) { /* If animation is invalid 'none' was selected */
-                QmlPropertyChanges propertyChanges(modelState.propertyChanges(animation));
+                QmlPropertyChanges propertyChanges(
+                    modelState.ensurePropertyChangesForTarget(animation));
                 propertyChanges.modelNode().variantProperty("running").setValue(true);
             }
         }
@@ -358,12 +363,13 @@ void TimelineSettingsModel::updateFixedFrameRow(int row)
             timeline.modelNode().variantProperty("currentFrame").setValue(fixedFrame);
         } else {
             if (modelState.affectsModelNode(animation)) {
-                QmlPropertyChanges propertyChanges(modelState.propertyChanges(animation));
+                QmlPropertyChanges propertyChanges(
+                    modelState.ensurePropertyChangesForTarget(animation));
                 if (propertyChanges.modelNode().hasProperty("running"))
                     propertyChanges.modelNode().removeProperty("running");
             }
 
-            QmlPropertyChanges propertyChanges(modelState.propertyChanges(timeline));
+            QmlPropertyChanges propertyChanges(modelState.ensurePropertyChangesForTarget(timeline));
             propertyChanges.modelNode().variantProperty("currentFrame").setValue(fixedFrame);
         }
 

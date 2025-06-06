@@ -19,9 +19,9 @@ using NanotraceHR::keyValue;
 
 static const auto category = ModelTracing::category;
 
-QmlPropertyChanges QmlModelState::propertyChanges(const ModelNode &node, SL sl)
+QmlPropertyChanges QmlModelState::ensurePropertyChangesForTarget(const ModelNode &node, SL sl)
 {
-    NanotraceHR::Tracer tracer{"qml model state property changes",
+    NanotraceHR::Tracer tracer{"qml model state ensure property changes for target",
                                category(),
                                keyValue("model node", *this),
                                keyValue("node", node),
@@ -201,7 +201,7 @@ void QmlModelState::removePropertyChanges(const ModelNode &node, SL sl)
         return;
 
     if (!isBaseState()) {
-        QmlPropertyChanges changeSet(propertyChanges(node));
+        QmlPropertyChanges changeSet(ensurePropertyChangesForTarget(node));
         if (changeSet.isValid())
             changeSet.modelNode().destroy();
     }

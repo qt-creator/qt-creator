@@ -298,7 +298,7 @@ void enableInCurrentState(
     if (!stateName.isEmpty()) {
         for (auto& state : getAllStates(view)) {
             if (state.isValid()) {
-                QmlPropertyChanges propertyChanges(state.propertyChanges(node));
+                QmlPropertyChanges propertyChanges(state.ensurePropertyChangesForTarget(node));
                 if (state.name() == stateName)
                     propertyChanges.modelNode().variantProperty(propertyName).setValue(true);
                 else
@@ -544,7 +544,7 @@ QmlTimeline TimelineView::timelineForState(const ModelNode &state) const
 
     for (const auto &timeline : timelines) {
         if (modelState.affectsModelNode(timeline)) {
-            QmlPropertyChanges propertyChanges(modelState.propertyChanges(timeline));
+            QmlPropertyChanges propertyChanges(modelState.ensurePropertyChangesForTarget(timeline));
 
             if (propertyChanges.isValid() && propertyChanges.modelNode().hasProperty("enabled")
                 && propertyChanges.modelNode().variantProperty("enabled").value().toBool())

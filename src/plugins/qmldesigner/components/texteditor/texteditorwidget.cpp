@@ -156,7 +156,7 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
             jumpToModelNode(selectedNode);
         } else {
             if (currentState.affectsModelNode(selectedNode)) {
-                auto propertyChanges = currentState.propertyChanges(selectedNode);
+                auto propertyChanges = currentState.ensurePropertyChangesForTarget(selectedNode);
                 jumpToModelNode(propertyChanges.modelNode());
             } else {
                 jumpToModelNode(currentState.modelNode());

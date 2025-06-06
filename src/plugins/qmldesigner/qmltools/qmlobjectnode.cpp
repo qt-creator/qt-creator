@@ -79,7 +79,7 @@ void QmlObjectNode::setVariantProperty(PropertyNameView name, const QVariant &va
     } else {
         modelNode().ensureIdExists();
 
-        QmlPropertyChanges changeSet(currentState().propertyChanges(modelNode()));
+        QmlPropertyChanges changeSet(currentState().ensurePropertyChangesForTarget(modelNode()));
         Q_ASSERT(changeSet.isValid());
         changeSet.modelNode().variantProperty(name).setValue(value);
     }
@@ -103,7 +103,7 @@ void QmlObjectNode::setBindingProperty(PropertyNameView name, const QString &exp
     } else {
         modelNode().ensureIdExists();
 
-        QmlPropertyChanges changeSet(currentState().propertyChanges(modelNode()));
+        QmlPropertyChanges changeSet(currentState().ensurePropertyChangesForTarget(modelNode()));
         Q_ASSERT(changeSet.isValid());
         changeSet.modelNode().bindingProperty(name).setExpression(expression);
     }
@@ -172,7 +172,7 @@ bool QmlObjectNode::hasProperty(PropertyNameView name, SL sl) const
         return false;
 
     if (currentState().hasPropertyChanges(modelNode())) {
-        QmlPropertyChanges propertyChanges = currentState().propertyChanges(modelNode());
+        QmlPropertyChanges propertyChanges = currentState().ensurePropertyChangesForTarget(modelNode());
         if (propertyChanges.modelNode().hasProperty(name))
             return true;
     }
@@ -187,7 +187,8 @@ bool QmlObjectNode::hasBindingProperty(PropertyNameView name, SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    if (QmlPropertyChanges propertyChanges = currentState().propertyChanges(modelNode())) {
+    if (QmlPropertyChanges propertyChanges = currentState().ensurePropertyChangesForTarget(
+            modelNode())) {
         if (propertyChanges.modelNode().hasBindingProperty(name))
             return true;
     }
@@ -264,7 +265,7 @@ bool QmlObjectNode::propertyAffectedByCurrentState(PropertyNameView name, SL sl)
     if (!currentState().hasPropertyChanges(modelNode()))
         return false;
 
-    return currentState().propertyChanges(modelNode()).modelNode().hasProperty(name);
+    return currentState().ensurePropertyChangesForTarget(modelNode()).modelNode().hasProperty(name);
 }
 
 QVariant QmlObjectNode::modelValue(PropertyNameView name, SL sl) const
@@ -298,7 +299,7 @@ QVariant QmlObjectNode::modelValue(PropertyNameView name, SL sl) const
     if (!currentState().hasPropertyChanges(modelNode()))
         return modelNode().variantProperty(name).value();
 
-    QmlPropertyChanges propertyChanges(currentState().propertyChanges(modelNode()));
+    QmlPropertyChanges propertyChanges(currentState().ensurePropertyChangesForTarget(modelNode()));
 
     if (!propertyChanges.modelNode().hasProperty(name))
         return modelNode().variantProperty(name).value();
@@ -362,7 +363,7 @@ BindingProperty QmlObjectNode::bindingProperty(PropertyNameView name, SL sl) con
     if (!currentState().hasPropertyChanges(modelNode()))
         return modelNode().bindingProperty(name);
 
-    QmlPropertyChanges propertyChanges(currentState().propertyChanges(modelNode()));
+    QmlPropertyChanges propertyChanges(currentState().ensurePropertyChangesForTarget(modelNode()));
 
     if (!propertyChanges.modelNode().hasProperty(name))
         return modelNode().bindingProperty(name);
@@ -432,7 +433,7 @@ QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState(SL sl) const
     if (!currentState().hasPropertyChanges(modelNode()))
         return QmlPropertyChanges();
 
-    return currentState().propertyChanges(modelNode());
+    return currentState().ensurePropertyChangesForTarget(modelNode());
 }
 
 /*!
@@ -662,7 +663,7 @@ void QmlObjectNode::removeProperty(PropertyNameView name, SL sl)
     if (isInBaseState()) {
         modelNode().removeProperty(name); //basestate
     } else {
-        QmlPropertyChanges changeSet(currentState().propertyChanges(modelNode()));
+        QmlPropertyChanges changeSet(currentState().ensurePropertyChangesForTarget(modelNode()));
         Q_ASSERT(changeSet.isValid());
         changeSet.removeProperty(name);
     }

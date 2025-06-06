@@ -188,7 +188,7 @@ QmlTimeline CurveEditorView::activeTimeline() const
 
     for (const ModelNode &node : allModelNodesOfType(model()->qtQuickTimelineTimelineMetaInfo())) {
         if (QmlTimeline::isValidQmlTimeline(node) && state.affectsModelNode(node)) {
-            QmlPropertyChanges propertyChanges(state.propertyChanges(node));
+            QmlPropertyChanges propertyChanges(state.ensurePropertyChangesForTarget(node));
             if (!propertyChanges.isValid())
                 continue;
 
