@@ -264,7 +264,7 @@ bool QmlObjectNode::propertyAffectedByCurrentState(PropertyNameView name, SL sl)
     if (!currentState().hasPropertyChanges(modelNode()))
         return false;
 
-    return currentState().ensurePropertyChangesForTarget(modelNode()).modelNode().hasProperty(name);
+    return currentState().propertyChangesForTarget(modelNode()).modelNode().hasProperty(name);
 }
 
 QVariant QmlObjectNode::modelValue(PropertyNameView name, SL sl) const
