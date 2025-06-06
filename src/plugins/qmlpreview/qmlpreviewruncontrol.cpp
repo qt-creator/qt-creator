@@ -91,7 +91,6 @@ static Group qmlPreviewRecipe(RunControl *runControl)
 
     return Group {
         parallel,
-        onGroupSetup([] { emit runStorage()->started(); }),
         AsyncTask<void>(onTranslationSetup),
         QmlPreviewConnectionManagerTask(onPreviewSetup),
         onGroupDone(onDone)
@@ -100,18 +99,21 @@ static Group qmlPreviewRecipe(RunControl *runControl)
 
 QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory()
 {
-    setRecipeProducer(qmlPreviewRecipe);
+    setRecipeProducer([](RunControl *runControl) {
+        return Group {
+            parallel,
+            qmlPreviewRecipe(runControl),
+            Sync([] { emit runStorage()->started(); })
+        };
+    });
     addSupportedRunMode(Constants::QML_PREVIEW_RUNNER);
 }
 
 LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
 {
     setId(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
-    setProducer([](RunControl *runControl) {
+    setRecipeProducer([](RunControl *runControl) {
         runControl->setQmlChannel(Utils::urlFromLocalSocket());
-
-        // Create QmlPreviewRunner
-        RunWorker *preview = runControl->createWorker(ProjectExplorer::Constants::QML_PREVIEW_RUNNER);
 
         const auto modifier = [runControl](Process &process) {
             CommandLine cmd = runControl->commandLine();
@@ -139,10 +141,13 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
             process.setCommand(cmd.toLocal());
             return SetupResult::Continue;
         };
-        auto worker = createProcessWorker(runControl, modifier);
-        worker->addStopDependency(preview);
-        worker->addStartDependency(preview);
-        return worker;
+
+        return Group {
+            parallel,
+            stopOnSuccessOrError,
+            qmlPreviewRecipe(runControl),
+            processRecipe(processTaskWithModifier(runControl, modifier))
+        };
     });
     addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
