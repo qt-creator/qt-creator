@@ -26,9 +26,7 @@ add_qtc_plugin(ProjectExplorer
     clangparser.cpp clangparser.h
     codestylesettingspropertiespage.cpp codestylesettingspropertiespage.h
     compileoutputwindow.cpp compileoutputwindow.h
-    configtaskhandler.cpp configtaskhandler.h
     copystep.cpp copystep.h
-    copytaskhandler.cpp copytaskhandler.h
     currentprojectfilter.cpp currentprojectfilter.h
     currentprojectfind.cpp currentprojectfind.h
     customexecutablerunconfiguration.cpp customexecutablerunconfiguration.h
@@ -87,7 +85,6 @@ add_qtc_plugin(ProjectExplorer
     headerpath.h
     importwidget.cpp importwidget.h
     ioutputparser.cpp ioutputparser.h
-    itaskhandler.h
     jsonwizard/jsonfieldpage.cpp jsonwizard/jsonfieldpage.h jsonwizard/jsonfieldpage_p.h
     jsonwizard/jsonfilepage.cpp jsonwizard/jsonfilepage.h
     jsonwizard/jsonkitspage.cpp jsonwizard/jsonkitspage.h
@@ -150,14 +147,12 @@ add_qtc_plugin(ProjectExplorer
     projectwizardpage.cpp projectwizardpage.h
     qmldebugcommandlinearguments.cpp qmldebugcommandlinearguments.h
     rawprojectpart.cpp rawprojectpart.h
-    removetaskhandler.cpp removetaskhandler.h
     runconfiguration.cpp runconfiguration.h
     runconfigurationaspects.cpp runconfigurationaspects.h
     runcontrol.cpp runcontrol.h
     runsettingspropertiespage.cpp runsettingspropertiespage.h
     sanitizerparser.cpp sanitizerparser.h
     selectablefilesmodel.cpp selectablefilesmodel.h
-    showineditortaskhandler.cpp showineditortaskhandler.h
     showoutputtaskhandler.cpp showoutputtaskhandler.h
     simpleprojectwizard.cpp simpleprojectwizard.h
     sysrootkitaspect.cpp sysrootkitaspect.h
@@ -166,6 +161,7 @@ add_qtc_plugin(ProjectExplorer
     targetsetupwidget.cpp targetsetupwidget.h
     task.cpp task.h
     taskfile.cpp taskfile.h
+    taskhandlers.cpp taskhandlers.h
     taskhub.cpp taskhub.h
     taskmodel.cpp taskmodel.h
     taskwindow.cpp taskwindow.h
@@ -178,7 +174,6 @@ add_qtc_plugin(ProjectExplorer
     toolchainsettingsaccessor.cpp toolchainsettingsaccessor.h
     treescanner.cpp treescanner.h
     userfileaccessor.cpp userfileaccessor.h
-    vcsannotatetaskhandler.cpp vcsannotatetaskhandler.h
     waitforstopdialog.cpp waitforstopdialog.h
     windebuginterface.cpp windebuginterface.h
     windowsappsdksettings.cpp windowsappsdksettings.h

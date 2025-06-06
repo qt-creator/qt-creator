@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <projectexplorer/itaskhandler.h>
+#include <projectexplorer/taskhandlers.h>
 
 QT_BEGIN_NAMESPACE
 class QUrl;

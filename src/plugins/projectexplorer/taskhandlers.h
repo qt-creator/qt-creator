@@ -19,8 +19,6 @@ namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT ITaskHandler : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit ITaskHandler(bool isMultiHandler = false);
     ~ITaskHandler() override;
@@ -37,5 +35,7 @@ public:
 private:
     const bool m_isMultiHandler;
 };
+
+namespace Internal { void setupTaskHandlers(); }
 
 } // namespace ProjectExplorer

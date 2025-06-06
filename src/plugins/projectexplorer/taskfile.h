@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "itaskhandler.h"
+#include "taskhandlers.h"
 
 #include <coreplugin/idocument.h>
 

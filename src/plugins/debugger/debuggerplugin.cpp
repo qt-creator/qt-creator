@@ -58,8 +58,6 @@
 #include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
-#include <projectexplorer/devicesupport/sshparameters.h>
-#include <projectexplorer/itaskhandler.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
@@ -82,7 +80,6 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
-#include <utils/appmainwindow.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fancymainwindow.h>
@@ -93,7 +90,6 @@
 #include <utils/qtcassert.h>
 #include <utils/statuslabel.h>
 #include <utils/stringutils.h>
-#include <utils/styledbar.h>
 #include <utils/temporarydirectory.h>
 #include <utils/utilsicons.h>
 #include <utils/winutils.h>
@@ -122,8 +118,6 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QVariant>
-
-#include <climits>
 
 #define DEBUG_STATE 1
 #ifdef DEBUG_STATE

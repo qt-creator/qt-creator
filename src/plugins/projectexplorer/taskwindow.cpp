@@ -3,7 +3,7 @@
 
 #include "taskwindow.h"
 
-#include "itaskhandler.h"
+#include "taskhandlers.h"
 #include "parseissuesdialog.h"
 #include "projectexplorericons.h"
 #include "projectexplorertr.h"

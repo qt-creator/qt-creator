@@ -8,7 +8,6 @@
 #include "buildpropertiessettings.h"
 #include "buildsystem.h"
 #include "compileoutputwindow.h"
-#include "configtaskhandler.h"
 #include "copystep.h"
 #include "customexecutablerunconfiguration.h"
 #include "customparserssettingspage.h"
@@ -28,7 +27,6 @@
 #include "buildconfiguration.h"
 #include "buildmanager.h"
 #include "codestylesettingspropertiespage.h"
-#include "copytaskhandler.h"
 #include "currentprojectfilter.h"
 #include "currentprojectfind.h"
 #include "customtoolchain.h"
@@ -70,17 +68,15 @@
 #include "projectpanelfactory.h"
 #include "projecttreewidget.h"
 #include "projectwindow.h"
-#include "removetaskhandler.h"
 #include "sanitizerparser.h"
 #include "selectablefilesmodel.h"
-#include "showineditortaskhandler.h"
 #include "simpleprojectwizard.h"
 #include "target.h"
 #include "taskfile.h"
+#include "taskhandlers.h"
 #include "taskhub.h"
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
-#include "vcsannotatetaskhandler.h"
 #include "windowsappsdksettings.h"
 #include "workspaceproject.h"
 
@@ -636,12 +632,6 @@ public:
 
     ProjectsMode m_projectsMode;
 
-    CopyTaskHandler m_copyTaskHandler;
-    ShowInEditorTaskHandler m_showInEditorTaskHandler;
-    VcsAnnotateTaskHandler m_vcsAnnotateTaskHandler;
-    RemoveTaskHandler m_removeTaskHandler;
-    ConfigTaskHandler m_configTaskHandler{Task::compilerMissingTask(), Constants::KITS_SETTINGS_PAGE_ID};
-
     ProjectManager m_sessionManager;
     ProjectTree m_projectTree;
 
@@ -832,6 +822,8 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     setupCurrentProjectFind();
 
     setupSanitizerOutputParser();
+
+    setupTaskHandlers();
 
     setupJsonWizardPages();
     setupJsonWizardFileGenerator();
