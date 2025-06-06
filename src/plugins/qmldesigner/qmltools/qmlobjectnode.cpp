@@ -298,7 +298,7 @@ QVariant QmlObjectNode::modelValue(PropertyNameView name, SL sl) const
     if (!currentState().hasPropertyChanges(modelNode()))
         return modelNode().variantProperty(name).value();
 
-    QmlPropertyChanges propertyChanges(currentState().ensurePropertyChangesForTarget(modelNode()));
+    QmlPropertyChanges propertyChanges(currentState().propertyChangesForTarget(modelNode()));
 
     if (!propertyChanges.modelNode().hasProperty(name))
         return modelNode().variantProperty(name).value();
