@@ -1087,7 +1087,7 @@ bool PropertyEditorSubSelectionWrapper::isRelevantModelNode(const ModelNode &mod
                                category()};
 
     QmlObjectNode objectNode(m_modelNode);
-    return modelNode == m_modelNode || objectNode.ensurePropertyChangeForCurrentState() == modelNode;
+    return modelNode == m_modelNode || objectNode.propertyChangeForCurrentState() == modelNode;
 }
 
 void PropertyEditorSubSelectionWrapper::changeExpression(const QString &propertyName)
