@@ -1098,7 +1098,7 @@ void PropertyEditorView::variantPropertiesChanged(const QList<VariantProperty>& 
                                                                              property.name());
 
         if (node == activeNode()
-            || QmlObjectNode(activeNode()).ensurePropertyChangeForCurrentState() == node) {
+            || QmlObjectNode(activeNode()).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
                 m_dynamicPropertiesModel->updateItem(property);
             if ( QmlObjectNode(activeNode()).modelNode().property(property.name()).isBindingProperty())
