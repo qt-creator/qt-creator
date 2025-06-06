@@ -487,7 +487,13 @@ void ExampleSetModel::updateQtVersionList()
 {
     QtVersions versions = QtVersionManager::sortVersions(
         QtVersionManager::versions([](const QtVersion *v) {
-            return v->qmakeFilePath().isLocal() && (v->hasExamples() || v->hasDemos());
+            const bool consider = v->qmakeFilePath().isLocal()
+                                  && (v->hasExamples() || v->hasDemos());
+            if (!consider)
+                qCDebug(log) << "Skipping" << v->displayName()
+                             << "because it either is remote, or its QT_INSTALL_EXAMPLES and "
+                                "QT_INSTALL_DEMOS paths are not readable directories.";
+            return consider;
         }));
 
     // prioritize default qt version
