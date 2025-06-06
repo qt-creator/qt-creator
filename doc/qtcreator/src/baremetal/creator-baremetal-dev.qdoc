@@ -308,13 +308,15 @@
 
         \list 1
 
-           \li Go to \preferences > \uicontrol Devices.
+           \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
                \image {qtcreator-baremetal-devices.png} {Bare Metal tab in Devices preferences}
            \li Select \uicontrol Add > \uicontrol {Bare Metal Device} >
                 \uicontrol {Start Wizard}.
 
            \li In \uicontrol {Debug server provider}, select a debug
                server provider.
+
+            \li Select \uicontrol Finish to return to > \uicontrol Devices.
 
             \li Select \uicontrol Apply to add the device.
 
