@@ -187,10 +187,9 @@ static std::optional<int> propertyValueForState(const ModelNode &modelNode,
         return {};
     }
 
-    if (state.hasPropertyChanges(modelNode)) {
-        QmlPropertyChanges propertyChanges(state.ensurePropertyChangesForTarget(modelNode));
-        if (propertyChanges.modelNode().hasVariantProperty(propertyName))
-            return propertyChanges.modelNode().variantProperty(propertyName).value().toInt();
+    if (QmlPropertyChanges propertyChanges = state.propertyChangesForTarget(modelNode)) {
+        if (auto property = propertyChanges.modelNode().variantProperty(propertyName))
+            return property.value().toInt();
     }
 
     return {};
