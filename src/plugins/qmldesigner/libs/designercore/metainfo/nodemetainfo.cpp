@@ -837,8 +837,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
 
                 m_objectValue = getObjectValue();
                 m_defaultPropertyName = context()->defaultPropertyName(objectValue).toUtf8();
-                if (m_objectValue)
-                    m_isValid = true;
+                m_isValid = true;
                 setupPrototypes();
             }
         }
