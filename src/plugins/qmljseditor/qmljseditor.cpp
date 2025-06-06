@@ -878,6 +878,30 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
     link.targetLine = line;
     link.targetColumn = column - 1; // adjust the column
 
+    auto processPotentialCppLink = [&]() -> bool {
+        if (!value->asCppComponentValue() || !projectRootNode) {
+            processLinkCallback(link);
+            return true;
+        }
+
+        const ProjectExplorer::Node * const nodeForPath = projectRootNode->findNode(
+            [&fileName](ProjectExplorer::Node *n) {
+                const auto fileNode = n->asFileNode();
+                if (!fileNode)
+                    return false;
+                Utils::FilePath filePath = n->filePath();
+                return filePath.endsWith(fileName.toUserOutput());
+            });
+        if (nodeForPath) {
+            link.targetFilePath = nodeForPath->filePath();
+            processLinkCallback(link);
+            return true;
+        }
+
+        // else we will process an empty link below to avoid an error dialog
+        return false;
+    };
+
     if (auto q = AST::cast<const AST::UiQualifiedId *>(node)) {
         for (const AST::UiQualifiedId *tail = q; tail; tail = tail->next) {
             if (tail->next || !(cursorPosition <= tail->identifierToken.end())) {
@@ -887,31 +911,17 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
             link.linkTextStart = tail->identifierToken.begin();
             link.linkTextEnd = tail->identifierToken.end();
 
-            if (!value->asCppComponentValue() || !projectRootNode) {
-                processLinkCallback(link);
+            if (processPotentialCppLink()) {
                 return;
             }
-
-            const ProjectExplorer::Node * const nodeForPath = projectRootNode->findNode(
-                [&fileName](ProjectExplorer::Node *n) {
-                    const auto fileNode = n->asFileNode();
-                    if (!fileNode)
-                        return false;
-                    Utils::FilePath filePath = n->filePath();
-                    return filePath.endsWith(fileName.toUserOutput());
-                });
-            if (nodeForPath) {
-                link.targetFilePath = nodeForPath->filePath();
-                processLinkCallback(link);
-                return;
-            }
-            // else we will process an empty link below to avoid an error dialog
         }
     } else if (auto id = AST::cast<const AST::IdentifierExpression *>(node)) {
         link.linkTextStart = id->firstSourceLocation().begin();
         link.linkTextEnd = id->lastSourceLocation().end();
-        processLinkCallback(link);
-        return;
+
+        if (processPotentialCppLink()) {
+            return;
+        }
 
     } else if (auto mem = AST::cast<const AST::FieldMemberExpression *>(node)) {
         link.linkTextStart = mem->lastSourceLocation().begin();
