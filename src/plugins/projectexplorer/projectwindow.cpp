@@ -55,8 +55,8 @@
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
+#include <QApplication>
 #include <QComboBox>
-#include <QCoreApplication>
 #include <QDialogButtonBox>
 #include <QDockWidget>
 #include <QHeaderView>
