@@ -40,8 +40,8 @@ using namespace Utils;
 
 namespace AppManager::Internal {
 
-static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices,
-                                       bool suppressDefaultStdOutHandling = false)
+static ProcessTask inferiorProcess(RunControl *runControl, QmlDebugServicesPreset qmlServices,
+                                   bool suppressDefaultStdOutHandling)
 {
     const auto modifier = [runControl, qmlServices](Process &process) {
         FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
@@ -96,7 +96,14 @@ static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesP
         runControl->postMessage(Tr::tr("Starting Application Manager debugging..."), NormalMessageFormat);
         runControl->postMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
     };
-    return createProcessWorker(runControl, modifier, suppressDefaultStdOutHandling);
+    return processTaskWithModifier(runControl, modifier, suppressDefaultStdOutHandling);
+}
+
+static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices,
+                                       bool suppressDefaultStdOutHandling = false)
+{
+    return new RunWorker(runControl, processRecipe(inferiorProcess(
+                                         runControl, qmlServices, suppressDefaultStdOutHandling)));
 }
 
 class AppManagerRunWorkerFactory final : public RunWorkerFactory
