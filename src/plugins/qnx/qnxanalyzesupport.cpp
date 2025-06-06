@@ -11,9 +11,12 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 
+#include <solutions/tasking/barrier.h>
+
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Qnx::Internal {
@@ -23,7 +26,7 @@ class QnxQmlProfilerWorkerFactory final : public RunWorkerFactory
 public:
     QnxQmlProfilerWorkerFactory()
     {
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
 
             const auto modifier = [runControl](Process &process) {
@@ -32,16 +35,14 @@ public:
                 process.setCommand(cmd);
             };
 
-            auto worker = createProcessWorker(runControl, modifier);
-            runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
-
-            auto slog2InfoRunner = new RunWorker(runControl, slog2InfoRecipe(runControl));
-
-            auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
-            profiler->addStartDependency(worker);
-            worker->addStartDependency(slog2InfoRunner);
-            worker->addStopDependency(profiler);
-            return worker;
+            const ProcessTask processTask(processTaskWithModifier(runControl, modifier));
+            return Group {
+                parallel,
+                slog2InfoRecipe(runControl),
+                When (processTask, &Process::started) >> Do {
+                    runControl->createRecipe(ProjectExplorer::Constants::QML_PROFILER_RUNNER)
+                }
+            };
         });
         // FIXME: Shouldn't this use the run mode id somehow?
         addSupportedRunConfig(Constants::QNX_RUNCONFIG_ID);

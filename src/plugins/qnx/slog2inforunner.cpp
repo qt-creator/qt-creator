@@ -86,7 +86,6 @@ Group slog2InfoRecipe(RunControl *runControl)
 
     return Group {
         storage,
-        onGroupSetup([] { emit runStorage()->started(); }),
         ProcessTask(onTestSetup, onTestDone, CallDoneIf::Error),
         ProcessTask(onLaunchTimeSetup, onLaunchTimeDone, CallDoneIf::Success),
         ProcessTask(onLogSetup, onLogError, CallDoneIf::Error),
