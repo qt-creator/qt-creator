@@ -782,31 +782,31 @@ struct ProjectStorage::Statements
         database};
     mutable Sqlite::ReadStatement<1, 1> selectSignalDeclarationNamesForTypeStatement{
         "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "  prototypes(typeId) AS (  "
+        "      VALUES(?1) "
         "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  typeChain(typeId) AS ("
-        "      VALUES(?1)"
+        "      SELECT prototypeId "
+        "      FROM types JOIN prototypes USING(typeId) "
+        "      WHERE prototypeId IS NOT NULL "
         "    UNION ALL "
-        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeChain "
-        "        USING(typeId)) "
-        "SELECT name FROM typeChain JOIN signalDeclarations "
-        "  USING(typeId) ORDER BY name",
+        "      SELECT extensionId "
+        "      FROM types JOIN prototypes USING(typeId) "
+        "      WHERE extensionId IS NOT NULL) "
+        "SELECT name FROM prototypes JOIN signalDeclarations USING(typeId) ORDER BY name",
         database};
     mutable Sqlite::ReadStatement<1, 1> selectFuncionDeclarationNamesForTypeStatement{
         "WITH RECURSIVE "
-        "  all_prototype_and_extension(typeId, prototypeId) AS ("
-        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "  prototypes(typeId) AS (  "
+        "      VALUES(?1) "
         "    UNION ALL "
-        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  typeChain(typeId) AS ("
-        "      VALUES(?1)"
+        "      SELECT prototypeId "
+        "      FROM types JOIN prototypes USING(typeId) "
+        "      WHERE prototypeId IS NOT NULL "
         "    UNION ALL "
-        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeChain "
-        "        USING(typeId))"
-        "SELECT name FROM typeChain JOIN functionDeclarations "
-        "  USING(typeId) ORDER BY name",
+        "      SELECT extensionId "
+        "      FROM types JOIN prototypes USING(typeId) "
+        "      WHERE extensionId IS NOT NULL) "
+        "SELECT name FROM prototypes JOIN functionDeclarations USING(typeId) ORDER BY name",
         database};
     mutable Sqlite::ReadStatement<2> selectTypesWithDefaultPropertyStatement{
         "SELECT typeId, defaultPropertyId FROM types ORDER BY typeId", database};
