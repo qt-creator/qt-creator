@@ -187,8 +187,7 @@ bool QmlObjectNode::hasBindingProperty(PropertyNameView name, SL sl) const
                                keyValue("model node", *this),
                                keyValue("caller location", sl)};
 
-    if (QmlPropertyChanges propertyChanges = currentState().ensurePropertyChangesForTarget(
-            modelNode())) {
+    if (QmlPropertyChanges propertyChanges = currentState().propertyChangesForTarget(modelNode())) {
         if (propertyChanges.modelNode().hasBindingProperty(name))
             return true;
     }

@@ -43,6 +43,27 @@ QmlPropertyChanges QmlModelState::ensurePropertyChangesForTarget(const ModelNode
     return QmlPropertyChanges(); //not found
 }
 
+QmlPropertyChanges QmlModelState::propertyChangesForTarget(const ModelNode &node, SL sl)
+{
+    NanotraceHR::Tracer tracer{"qml model state property changes for target",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("node", node),
+                               keyValue("caller location", sl)};
+
+    if (!isBaseState() && isValid()) {
+        const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
+        for (const ModelNode &childNode : nodes) {
+            if (QmlPropertyChanges::isValidQmlPropertyChanges(childNode)
+                && QmlPropertyChanges(childNode).target().isValid()
+                && QmlPropertyChanges(childNode).target() == node)
+                return QmlPropertyChanges(childNode); //### exception if not valid(childNode);
+        }
+    }
+
+    return QmlPropertyChanges(); //not found
+}
+
 QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &node, SL sl) const
 {
     NanotraceHR::Tracer tracer{"qml model state state operations",
@@ -201,7 +222,7 @@ void QmlModelState::removePropertyChanges(const ModelNode &node, SL sl)
         return;
 
     if (!isBaseState()) {
-        QmlPropertyChanges changeSet(ensurePropertyChangesForTarget(node));
+        QmlPropertyChanges changeSet(propertyChangesForTarget(node));
         if (changeSet.isValid())
             changeSet.modelNode().destroy();
     }
