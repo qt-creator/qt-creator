@@ -74,6 +74,7 @@ public:
     bool isInBaseState(SL sl = {}) const;
     bool timelineIsActive(SL sl = {}) const;
     QmlPropertyChanges ensurePropertyChangeForCurrentState(SL sl = {}) const;
+    QmlPropertyChanges propertyChangeForCurrentState(SL sl = {}) const;
 
     bool instanceCanReparent(SL sl = {}) const;
 

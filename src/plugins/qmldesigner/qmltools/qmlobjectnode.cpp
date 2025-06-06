@@ -435,6 +435,25 @@ QmlPropertyChanges QmlObjectNode::ensurePropertyChangeForCurrentState(SL sl) con
     return currentState().ensurePropertyChangesForTarget(modelNode());
 }
 
+QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState(SL sl) const
+{
+    NanotraceHR::Tracer tracer{"qml model node property change for current state",
+                               category(),
+                               keyValue("model node", *this),
+                               keyValue("caller location", sl)};
+
+    if (!isValid())
+        return {};
+
+    if (currentState().isBaseState())
+        return QmlPropertyChanges();
+
+    if (!currentState().hasPropertyChanges(modelNode()))
+        return QmlPropertyChanges();
+
+    return currentState().propertyChangesForTarget(modelNode());
+}
+
 /*!
     Deletes this object's node and its dependencies from the model.
     Everything that belongs to this Object, the ModelNode, and ChangeOperations
