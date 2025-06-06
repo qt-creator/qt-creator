@@ -28,6 +28,8 @@
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 
+#include <solutions/tasking/barrier.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
@@ -36,12 +38,13 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace AppManager::Internal {
 
 static ProcessTask inferiorProcess(RunControl *runControl, QmlDebugServicesPreset qmlServices,
-                                   bool suppressDefaultStdOutHandling)
+                                   bool suppressDefaultStdOutHandling = false)
 {
     const auto modifier = [runControl, qmlServices](Process &process) {
         FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
@@ -159,7 +162,7 @@ class AppManagerDebugWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerDebugWorkerFactory()
     {
-        setProducer([](RunControl *runControl) -> RunWorker * {
+        setRecipeProducer([](RunControl *runControl) -> Group {
             BuildConfiguration *bc = runControl->buildConfiguration();
 
             const Internal::TargetInformation targetInformation(bc);
@@ -167,7 +170,7 @@ public:
                 // TODO: reportFailure won't work from RunWorker's c'tor.
                 runControl->postMessage(Tr::tr("Cannot debug: Invalid target information."),
                                         ErrorMessageFormat);
-                return nullptr;
+                return {};
             }
 
             FilePath symbolFile;
@@ -186,16 +189,14 @@ public:
                 // TODO: reportFailure won't work from RunWorker's c'tor.
                 runControl->postMessage(Tr::tr("Cannot debug: Only QML and native applications are supported."),
                                         ErrorMessageFormat);
-                return nullptr;
+                return {};
             }
             if (symbolFile.isEmpty()) {
                 // TODO: reportFailure won't work from RunWorker's c'tor.
                 runControl->postMessage(Tr::tr("Cannot debug: Local executable is not set."),
                                         ErrorMessageFormat);
-                return nullptr;
+                return {};
             }
-
-            auto debuggee = createInferiorRunner(runControl, QmlDebuggerServices);
 
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
             rp.setupPortsGatherer(runControl);
@@ -221,12 +222,12 @@ public:
                     rp.setSysRoot(sysroot);
             }
 
-            auto debugger = createDebuggerWorker(runControl, rp);
-            debugger->addStartDependency(debuggee);
-            debugger->addStopDependency(debuggee);
-            debuggee->addStopDependency(debugger);
-
-            return debugger;
+            const ProcessTask inferior(inferiorProcess(runControl, QmlDebuggerServices));
+            return {
+                When (inferior, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+                    debuggerRecipe(runControl, rp)
+                }
+            };
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
