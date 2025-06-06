@@ -2181,11 +2181,6 @@ bool NodeMetaInfo::defaultPropertyIsComponent() const
     }
 }
 
-QString NodeMetaInfo::displayName() const
-{
-    return {};
-}
-
 #ifndef QDS_USE_PROJECTSTORAGE
 TypeName NodeMetaInfo::typeName() const
 {

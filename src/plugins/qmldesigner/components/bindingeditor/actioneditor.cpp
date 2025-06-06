@@ -323,7 +323,7 @@ void ActionEditor::prepareConnections()
                 }
 
                 if (!singelton.properties.isEmpty()) {
-                    singelton.item = metaInfo.displayName();
+                    singelton.item = model->exportedTypeNameForMetaInfo(metaInfo).name.toQString();
                     singletons.append(singelton);
                 }
             }

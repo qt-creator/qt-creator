@@ -1907,11 +1907,17 @@ ModuleIds Model::moduleIds(SL sl) const
     return {};
 }
 
-Storage::Info::ExportedTypeName Model::exportedTypeNameForMetaInfo(const NodeMetaInfo &, SL sl) const
+Storage::Info::ExportedTypeName Model::exportedTypeNameForMetaInfo(const NodeMetaInfo &metaInfo,
+                                                                   SL sl) const
 {
     NanotraceHR::Tracer tracer{"model exported type name for meta info",
                                ModelTracing::category(),
                                keyValue("caller location", sl)};
+
+    auto exportedTypeNames = metaInfo.exportedTypeNamesForSourceId(d->m_sourceId);
+
+    if (exportedTypeNames.size())
+        return exportedTypeNames.front();
 
     return {};
 }

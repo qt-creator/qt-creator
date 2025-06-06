@@ -1057,9 +1057,8 @@ TypeName createQualifiedTypeName(const ModelNode &node)
 
 #ifdef QDS_USE_PROJECTSTORAGE
     auto model = node.model();
-    auto exportedTypes = node.metaInfo().exportedTypeNamesForSourceId(model->fileUrlSourceId());
-    if (exportedTypes.size()) {
-        const auto &exportedType = exportedTypes.front();
+    auto exportedType = model->exportedTypeNameForMetaInfo(node.metaInfo());
+    if (exportedType.name.size()) {
         using Storage::ModuleKind;
         auto module = model->projectStorage()->module(exportedType.moduleId);
         Utils::PathString typeName;

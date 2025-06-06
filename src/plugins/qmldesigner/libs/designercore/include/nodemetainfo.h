@@ -111,7 +111,6 @@ public:
 
     bool defaultPropertyIsComponent() const;
 
-    QString displayName() const;
 #ifndef QDS_USE_PROJECTSTORAGE
     TypeName typeName() const;
     TypeName simplifiedTypeName() const;
