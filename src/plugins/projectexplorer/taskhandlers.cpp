@@ -8,13 +8,19 @@
 #include "taskhub.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/customlanguagemodels.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/vcsmanager.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
+#include <QTimer>
+
 using namespace Core;
+using namespace Utils;
 
 namespace ProjectExplorer::Internal {
 namespace {
@@ -22,7 +28,7 @@ namespace {
 class ConfigTaskHandler : public ITaskHandler
 {
 public:
-    ConfigTaskHandler(const Task &pattern, Utils::Id page)
+    ConfigTaskHandler(const Task &pattern, Id page)
         : m_pattern(pattern)
         , m_targetPage(page)
     {}
@@ -48,7 +54,7 @@ private:
 
 private:
     const Task m_pattern;
-    const Utils::Id m_targetPage;
+    const Id m_targetPage;
 };
 
 class CopyTaskHandler : public ITaskHandler
@@ -77,10 +83,10 @@ private:
             lines << task.file.toUserOutput() + ':' + QString::number(task.line)
                          + ": " + type + task.description();
         }
-        Utils::setClipboardAndSelection(lines.join('\n'));
+        setClipboardAndSelection(lines.join('\n'));
     }
 
-    Utils::Id actionManagerId() const override { return Utils::Id(Core::Constants::COPY); }
+    Id actionManagerId() const override { return Id(Core::Constants::COPY); }
     QAction *createAction(QObject *parent) const override { return new QAction(parent); }
 };
 
@@ -165,6 +171,72 @@ class VcsAnnotateTaskHandler : public ITaskHandler
     }
 };
 
+// FIXME: There should be one handler per LLM, but the ITaskHandler infrastructure is
+// currently static. Alternatively, we could somehow multiplex from here, perhaps via a submenu.
+class ExplainWithAiHandler : public ITaskHandler
+{
+    bool canHandle(const Task &task) const override
+    {
+        Q_UNUSED(task)
+        return !availableLanguageModels().isEmpty();
+    }
+
+    void handle(const Task &task) override
+    {
+        const QStringList llms = availableLanguageModels();
+        QTC_ASSERT(!llms.isEmpty(), return);
+
+        QString prompt;
+        if (task.origin.isEmpty())
+            prompt += "A software tool has emitted a diagnostic. ";
+        else
+            prompt += QString("The tool \"%1\" has emitted a diagnostic. ").arg(task.origin);
+        prompt += "Please explain what it is about. "
+                  "Be as concise and concrete as possible and try to name the root cause."
+                  "If you don't know the answer, just say so."
+                  "If possible, also provide a solution. "
+                  "Do not think for more than a minute. "
+                  "Here is the error: ###%1##";
+        prompt = prompt.arg(task.description());
+        if (task.file.exists()) {
+            if (const auto contents = task.file.fileContents()) {
+                prompt.append('\n').append(
+                    "Ideally, provide your solution in the form of a diff."
+                    "Here are the contents of the file that the tool complained about: ###%1###."
+                    "The path to the file is ###%2###.");
+                prompt = prompt.arg(QString::fromUtf8(*contents), task.file.toUserOutput());
+            }
+        }
+        const auto process = new Process;
+        process->setCommand(commandLineForLanguageModel(llms.first()));
+        process->setProcessMode(ProcessMode::Writer);
+        process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
+        process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
+        connect(process, &Process::textOnStandardOutput,
+                [](const QString &text) { MessageManager::writeFlashing(text); });
+        connect(process, &Process::textOnStandardError,
+                [](const QString &text) { MessageManager::writeFlashing(text); });
+        connect(process, &Process::done, [process] {
+            MessageManager::writeSilently(process->exitMessage());
+            process->deleteLater();
+        });
+        connect(process, &Process::started, [process, prompt] {
+            process->write(prompt);
+            process->closeWriteChannel();
+        });
+        QTimer::singleShot(60000, process, [process] { process->kill(); });
+        MessageManager::writeDisrupting(Tr::tr("Querying LLM..."));
+        process->start();
+    }
+
+    QAction *createAction(QObject *parent) const override
+    {
+        const auto action = new QAction(Tr::tr("Get help from AI"), parent);
+        action->setToolTip(Tr::tr("Ask an AI to help with this issue."));
+        return action;
+    }
+};
+
 } // namespace
 
 void setupTaskHandlers()
@@ -175,6 +247,7 @@ void setupTaskHandlers()
     static const RemoveTaskHandler removeTaskHandler;
     static const ShowInEditorTaskHandler showInEditorTaskHandler;
     static const VcsAnnotateTaskHandler vcsAnnotateTaskHandler;
+    static const ExplainWithAiHandler explainWithAiHandler;
 }
 
 } // namespace ProjectExplorer::Internal

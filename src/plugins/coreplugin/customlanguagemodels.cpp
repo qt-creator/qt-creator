@@ -30,7 +30,7 @@ public:
     static const CustomLanguageModel &fromBaseAspect(const std::shared_ptr<BaseAspect> &aspect);
 
     CustomLanguageModel();
-    CommandLine commandLine(const QString &prompt);
+    CommandLine commandLine();
 
     StringAspect name{this};
     FilePathAspect executable{this};
@@ -73,16 +73,6 @@ public:
     LanguageModelsListModel listModel{models};
 };
 
-class PromptMacroExpander : public MacroExpander
-{
-public:
-    PromptMacroExpander(const QString &prompt)
-    {
-        registerVariable("Prompt", Tr::tr("The prompt to query the model with"),
-                         [prompt] { return prompt; });
-    }
-};
-
 CustomLanguageModels &customLanguageModels()
 {
     static CustomLanguageModels models;
@@ -101,14 +91,9 @@ public:
     }
 };
 
-CommandLine CustomLanguageModel::commandLine(const QString &prompt)
+CommandLine CustomLanguageModel::commandLine()
 {
-    MacroExpander * const exp = arguments.macroExpander();
-    PromptMacroExpander expander(prompt);
-    arguments.setMacroExpander(&expander);
-    CommandLine cmdLine(executable.effectiveBinary(), arguments.expandedValue(), CommandLine::Raw);
-    arguments.setMacroExpander(exp);
-    return cmdLine;
+    return CommandLine(executable.effectiveBinary(), arguments.expandedValue(), CommandLine::Raw);
 }
 
 CustomLanguageModel &CustomLanguageModel::fromBaseAspect(BaseAspect &aspect)
@@ -136,11 +121,7 @@ CustomLanguageModel::CustomLanguageModel()
     arguments.setSettingsKey("Arguments");
     arguments.setDisplayName(Tr::tr("Arguments"));
     arguments.setLabelText(Tr::tr("Arguments:"));
-    arguments.setDefaultValue({"%{Prompt}"});
     arguments.setDisplayStyle(StringAspect::LineEditDisplay);
-
-    static PromptMacroExpander expander({});
-    arguments.setMacroExpander(&expander);
 
     using namespace Layouting;
     setLayouter([this] { return Form{name, br, executable, br, arguments}; });
@@ -271,11 +252,11 @@ QStringList availableLanguageModels()
         });
 }
 
-CommandLine commandLineForLanguageModel(const QString &model, const QString &prompt)
+CommandLine commandLineForLanguageModel(const QString &model)
 {
     for (const auto &l = customLanguageModels().models.items(); const auto &i : l) {
         if (auto &m = CustomLanguageModel::fromBaseAspect(*i); m.name() == model)
-            return m.commandLine(prompt);
+            return m.commandLine();
     }
     return {};
 }

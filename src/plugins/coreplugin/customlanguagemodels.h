@@ -9,8 +9,7 @@
 namespace Core {
 
 CORE_EXPORT QStringList availableLanguageModels();
-CORE_EXPORT Utils::CommandLine commandLineForLanguageModel(
-    const QString &model, const QString &prompt);
+CORE_EXPORT Utils::CommandLine commandLineForLanguageModel(const QString &model);
 
 namespace Internal {
 
