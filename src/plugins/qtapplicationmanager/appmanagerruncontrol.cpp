@@ -102,13 +102,6 @@ static ProcessTask inferiorProcess(RunControl *runControl, QmlDebugServicesPrese
     return processTaskWithModifier(runControl, modifier, suppressDefaultStdOutHandling);
 }
 
-static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices,
-                                       bool suppressDefaultStdOutHandling = false)
-{
-    return new RunWorker(runControl, processRecipe(inferiorProcess(
-                                         runControl, qmlServices, suppressDefaultStdOutHandling)));
-}
-
 class AppManagerRunWorkerFactory final : public RunWorkerFactory
 {
 public:
@@ -239,15 +232,15 @@ class AppManagerQmlToolingWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerQmlToolingWorkerFactory()
     {
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
-            auto worker = createInferiorRunner(runControl, servicesForRunMode(runControl->runMode()));
-
-            auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
-            extraWorker->addStartDependency(worker);
-            // Make sure the QML Profiler is stopped before the appman-controller
-            worker->addStopDependency(extraWorker);
-            return worker;
+            const ProcessTask inferior(inferiorProcess(runControl,
+                                                       servicesForRunMode(runControl->runMode())));
+            return Group {
+                When (inferior, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
+                    runControl->createRecipe(runnerIdForRunMode(runControl->runMode()))
+                }
+            };
         });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
@@ -262,7 +255,8 @@ public:
     {
         setProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return createInferiorRunner(runControl, NoQmlDebugServices, true);
+            return new RunWorker(runControl, processRecipe(inferiorProcess(
+                                                 runControl, NoQmlDebugServices, true)));
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
