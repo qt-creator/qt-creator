@@ -1004,7 +1004,7 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
             m_qmlBackEndForCurrentType->contextObject()->setHasAliasExport(QmlObjectNode(activeNode()).isAliasExported());
 
         if (node == activeNode()
-            || QmlObjectNode(activeNode()).ensurePropertyChangeForCurrentState() == node) {
+            || QmlObjectNode(activeNode()).propertyChangeForCurrentState() == node) {
             m_locked = true;
             changed = true;
 
