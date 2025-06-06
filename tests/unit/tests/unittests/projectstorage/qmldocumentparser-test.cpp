@@ -17,11 +17,12 @@ namespace {
 
 namespace Storage = QmlDesigner::Storage;
 namespace Synchronization = Storage::Synchronization;
-using QmlDesigner::ModuleId;
 using QmlDesigner::DirectoryPathId;
+using QmlDesigner::ModuleId;
 using QmlDesigner::SourceId;
 using QmlDesigner::Storage::ModuleKind;
 using Storage::TypeTraits;
+using Synchronization::PropertyKind;
 
 MATCHER_P(HasPrototype, prototype, std::string(negation ? "isn't " : "is ") + PrintToString(prototype))
 {
@@ -61,6 +62,11 @@ MATCHER_P4(IsAliasPropertyDeclaration,
            && propertyDeclaration.aliasPropertyName == aliasPropertyName
            && propertyDeclaration.aliasPropertyNameTail.empty()
            && propertyDeclaration.kind == Synchronization::PropertyKind::Alias;
+}
+
+auto IsPropertyDeclarationKind(PropertyKind kind)
+{
+    return Field("PropertyDeclaration::kind", &Synchronization::PropertyDeclaration::kind, kind);
 }
 
 MATCHER_P5(IsAliasPropertyDeclaration,
@@ -455,9 +461,11 @@ TEST_F(QmlDocumentParser, alias_item_properties)
                              Storage::IsInsideProject::No);
 
     ASSERT_THAT(type.propertyDeclarations,
-                UnorderedElementsAre(IsPropertyDeclaration("delegate",
-                                                           Synchronization::ImportedType{"Item"},
-                                                           Storage::PropertyDeclarationTraits::None)));
+                UnorderedElementsAre(
+                    AllOf(IsPropertyDeclaration("delegate",
+                                                Synchronization::ImportedType{"Item"},
+                                                Storage::PropertyDeclarationTraits::None),
+                          IsPropertyDeclarationKind(PropertyKind::Property))));
 }
 
 TEST_F(QmlDocumentParser, alias_properties)
@@ -563,9 +571,10 @@ TEST_F(QmlDocumentParser, alias_on_list_property)
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
-                    IsPropertyDeclaration("foos",
-                                          Synchronization::ImportedType{"Foo"},
-                                          Storage::PropertyDeclarationTraits::IsList)));
+                    AllOf(IsPropertyDeclaration("foos",
+                                                Synchronization::ImportedType{"Foo"},
+                                                Storage::PropertyDeclarationTraits::IsList),
+                          IsPropertyDeclarationKind(PropertyKind::Property))));
 }
 
 TEST_F(QmlDocumentParser, qualified_list_property)

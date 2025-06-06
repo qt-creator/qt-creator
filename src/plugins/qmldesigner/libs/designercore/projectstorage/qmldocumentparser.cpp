@@ -230,12 +230,19 @@ void addPropertyDeclarations(Storage::Synchronization::Type &type,
                                 .field(QmlDom::Fields::value);
             auto resolvedAlias = rootObject.resolveAlias(rootObjectItem,
                                                          property.ownerAs<QmlDom::ScriptExpression>());
-            if (resolvedAlias.valid()) {
+            if (!resolvedAlias.valid())
+                continue;
+
+            auto [importedTypeName, traits] = createImportedTypeNameAndTypeTraits(resolvedAlias.typeName,
+                                                                                  qualifiedImports);
+
+            if (resolvedAlias.accessedPath.empty()) {
+                type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
+                                                       std::move(importedTypeName),
+                                                       traits);
+            } else {
                 auto [aliasPropertyName, aliasPropertyNameTail] = createAccessPaths(
                     resolvedAlias.accessedPath);
-
-                auto [importedTypeName, traits] = createImportedTypeNameAndTypeTraits(
-                    resolvedAlias.typeName, qualifiedImports);
 
                 type.propertyDeclarations.emplace_back(Utils::SmallString{propertyDeclaration.name},
                                                        std::move(importedTypeName),
