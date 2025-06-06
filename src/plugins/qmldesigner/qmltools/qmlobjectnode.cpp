@@ -362,7 +362,7 @@ BindingProperty QmlObjectNode::bindingProperty(PropertyNameView name, SL sl) con
     if (!currentState().hasPropertyChanges(modelNode()))
         return modelNode().bindingProperty(name);
 
-    QmlPropertyChanges propertyChanges(currentState().ensurePropertyChangesForTarget(modelNode()));
+    QmlPropertyChanges propertyChanges(currentState().propertyChangesForTarget(modelNode()));
 
     if (!propertyChanges.modelNode().hasProperty(name))
         return modelNode().bindingProperty(name);
