@@ -327,7 +327,11 @@ QStringList availableSources(AbstractView *view)
     QStringList sourceNodes;
 
     for (const auto &metaInfo : view->model()->singletonMetaInfos())
-        sourceNodes.push_back(metaInfo.displayName());
+        for (auto &exportedType :
+             metaInfo.exportedTypeNamesForSourceId(view->model()->fileUrlSourceId())) {
+            sourceNodes.push_back(exportedType.name.toQString());
+            break;
+        }
 
     for (const ModelNode &modelNode : view->allModelNodes()) {
         if (auto id = modelNode.id(); !id.isEmpty())
