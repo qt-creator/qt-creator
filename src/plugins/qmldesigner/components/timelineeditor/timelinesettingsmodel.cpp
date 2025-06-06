@@ -283,25 +283,23 @@ void TimelineSettingsModel::updateTimeline(int row)
                 timeline.modelNode().variantProperty("enabled").setValue(true);
         } else {
             if (oldTimeline.isValid() && modelState.affectsModelNode(oldTimeline)) {
-                QmlPropertyChanges propertyChanges(
-                    modelState.ensurePropertyChangesForTarget(oldTimeline));
-                if (propertyChanges.isValid() && propertyChanges.modelNode().hasProperty("enabled"))
+                if (QmlPropertyChanges propertyChanges = modelState.propertyChangesForTarget(
+                        oldTimeline))
                     propertyChanges.modelNode().removeProperty("enabled");
             }
 
             QmlTimeline baseTimeline(timelineForRow(0));
 
             if (baseTimeline.isValid()) {
-                QmlPropertyChanges propertyChanges(
-                    modelState.ensurePropertyChangesForTarget(baseTimeline));
-                if (propertyChanges.isValid())
-                    propertyChanges.modelNode().variantProperty("enabled").setValue(false);
+                QmlPropertyChanges propertyChanges = modelState.ensurePropertyChangesForTarget(
+                    baseTimeline);
+                propertyChanges.modelNode().variantProperty("enabled").setValue(false);
             }
 
             if (timeline.isValid()) { /* If timeline is invalid 'none' was selected */
-                QmlPropertyChanges propertyChanges(modelState.ensurePropertyChangesForTarget(timeline));
-                if (propertyChanges.isValid())
-                    propertyChanges.modelNode().variantProperty("enabled").setValue(true);
+                QmlPropertyChanges propertyChanges = modelState.ensurePropertyChangesForTarget(
+                    timeline);
+                propertyChanges.modelNode().variantProperty("enabled").setValue(true);
             }
         }
     });
