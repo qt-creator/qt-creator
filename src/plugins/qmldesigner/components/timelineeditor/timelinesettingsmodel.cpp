@@ -259,11 +259,10 @@ ModelNode TimelineSettingsModel::animationForTimelineAndState(const QmlTimeline 
 
     for (const auto &animation : animations) {
         if (modelState.affectsModelNode(animation)) {
-            QmlPropertyChanges propertyChanges(modelState.ensurePropertyChangesForTarget(animation));
-
-            if (propertyChanges.isValid() && propertyChanges.modelNode().hasProperty("running")
-                && propertyChanges.modelNode().variantProperty("running").value().toBool())
-                return animation;
+            if (QmlPropertyChanges propertyChanges = modelState.propertyChangesForTarget(animation)) {
+                if (propertyChanges.modelNode().variantProperty("running").value().toBool())
+                    return animation;
+            }
         }
     }
     return ModelNode();
