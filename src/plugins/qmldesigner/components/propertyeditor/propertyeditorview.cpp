@@ -1149,7 +1149,7 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
             m_qmlBackEndForCurrentType->contextObject()->setHasAliasExport(QmlObjectNode(activeNode()).isAliasExported());
 
         if (node == activeNode()
-            || QmlObjectNode(activeNode()).ensurePropertyChangeForCurrentState() == node) {
+            || QmlObjectNode(activeNode()).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
                 m_dynamicPropertiesModel->updateItem(property);
             if (property.name().contains("anchor"))
