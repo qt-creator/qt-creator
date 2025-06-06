@@ -82,6 +82,14 @@ public:
     virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
     virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
     virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
+    virtual TypeId basedOn(
+        TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const
+        = 0;
+    virtual TypeId basedOn(
+        TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const
+        = 0;
 
     virtual FileStatus fetchFileStatus(SourceId sourceId) const = 0;
     virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(DirectoryPathId directoryId) const = 0;

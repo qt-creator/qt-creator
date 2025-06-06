@@ -33,6 +33,8 @@ inline constexpr char BoolType[] = "bool";
 inline constexpr char BorderImage[] = "BorderImage";
 inline constexpr char Buffer[] = "Buffer";
 inline constexpr char Camera[] = "Camera";
+inline constexpr char ColumnLayout[] = "ColumnLayout";
+inline constexpr char Column[] = "Column";
 inline constexpr char Command[] = "Command";
 inline constexpr char Component[] = "Component";
 inline constexpr char Connections[] = "Connections";
@@ -43,8 +45,11 @@ inline constexpr char DirectionalLight[] = "DirectionalLight";
 inline constexpr char DoubleType[] = "double";
 inline constexpr char Effect[] = "Effect";
 inline constexpr char FloatType[] = "float";
+inline constexpr char Flow[] = "Flow";
 inline constexpr char Gradient[] = "Gradient";
+inline constexpr char GridLayout[] = "GridLayout";
 inline constexpr char GridView[] = "GridView";
+inline constexpr char Grid[] = "Grid";
 inline constexpr char GroupItem[] = "GroupItem";
 inline constexpr char Image[] = "Image";
 inline constexpr char InstanceListEntry[] = "InstanceListEntry";
@@ -102,6 +107,8 @@ inline constexpr char QtQuick_Timeline[] = "QtQuick.Timeline";
 inline constexpr char Qt_SafeRenderer[] = "Qt.SafeRenderer";
 inline constexpr char Rectangle[] = "Rectangle";
 inline constexpr char Repeater[] = "Repeater";
+inline constexpr char RowLayout[] = "RowLayout";
+inline constexpr char Row[] = "Row";
 inline constexpr char SafePicture[] = "SafePicture";
 inline constexpr char SafeRendererPicture[] = "SafeRendererPicture";
 inline constexpr char SceneEnvironment[] = "SceneEnvironment";
@@ -171,8 +178,11 @@ class CommonTypeCache
         CacheType<QtQml_Models, ModuleKind::QmlLibrary, ListModel>,
         CacheType<QtQml_XmlListModel, ModuleKind::QmlLibrary, XmlListModelRole>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, BorderImage>,
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Column>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Gradient>,
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Grid>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, GridView>,
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Flow>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Image>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Item>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, ListView>,
@@ -186,6 +196,7 @@ class CommonTypeCache
         CacheType<QtQuick, ModuleKind::QmlLibrary, PropertyChanges>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Rectangle>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Repeater>,
+        CacheType<QtQuick, ModuleKind::QmlLibrary, Row>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, State>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, StateGroup>,
         CacheType<QtQuick, ModuleKind::QmlLibrary, Text>,
@@ -231,7 +242,10 @@ class CommonTypeCache
         CacheType<QtQuick3D_Particles3D, ModuleKind::QmlLibrary, SpriteParticle3D>,
         CacheType<QtQuick3D_Particles3D, ModuleKind::CppLibrary, QQuick3DParticleAbstractShape>,
         CacheType<QtQuick_Dialogs, ModuleKind::CppLibrary, QQuickAbstractDialog>,
+        CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, ColumnLayout>,
+        CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, GridLayout>,
         CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, Layout>,
+        CacheType<QtQuick_Layouts, ModuleKind::QmlLibrary, RowLayout>,
         CacheType<QtQuick_Shapes, ModuleKind::QmlLibrary, Shape>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, ArcItem>,
         CacheType<QtQuick_Studio_Components, ModuleKind::QmlLibrary, GroupItem>,

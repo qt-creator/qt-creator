@@ -2952,10 +2952,29 @@ bool NodeMetaInfo::isLayoutable(SL sl) const
 
         using namespace Storage::Info;
         auto positionerId = m_projectStorage->commonTypeId<QtQuick, Positioner>();
+        auto flowId = m_projectStorage->commonTypeId<QtQuick, Flow>();
+        auto rowId = m_projectStorage->commonTypeId<QtQuick, Row>();
+        auto columnId = m_projectStorage->commonTypeId<QtQuick, Column>();
+        auto gridId = m_projectStorage->commonTypeId<QtQuick, Grid>();
+        auto repeaterId = m_projectStorage->commonTypeId<QtQuick, Repeater>();
         auto layoutId = m_projectStorage->commonTypeId<QtQuick_Layouts, Layout>();
+        auto columnLayoutId = m_projectStorage->commonTypeId<QtQuick_Layouts, ColumnLayout>();
+        auto gridLayoutId = m_projectStorage->commonTypeId<QtQuick_Layouts, GridLayout>();
+        auto rowLayoutId = m_projectStorage->commonTypeId<QtQuick_Layouts, RowLayout>();
         auto splitViewId = m_projectStorage->commonTypeId<QtQuick_Templates, SplitView>();
 
-        return bool(m_projectStorage->basedOn(m_typeId, positionerId, layoutId, splitViewId));
+        return bool(m_projectStorage->basedOn(m_typeId,
+                                              positionerId,
+                                              flowId,
+                                              rowId,
+                                              columnId,
+                                              gridId,
+                                              repeaterId,
+                                              layoutId,
+                                              columnLayoutId,
+                                              gridLayoutId,
+                                              rowLayoutId,
+                                              splitViewId));
 
     } else {
         return isValid()

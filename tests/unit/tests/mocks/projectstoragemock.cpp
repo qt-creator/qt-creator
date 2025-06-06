@@ -40,6 +40,10 @@ void setupBasedOn(ProjectStorageMock &mock)
     ON_CALL(mock, basedOn(_, _, _, _, _, _)).WillByDefault(call);
     ON_CALL(mock, basedOn(_, _, _, _, _, _, _)).WillByDefault(call);
     ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _, _, _, _)).WillByDefault(call);
+    ON_CALL(mock, basedOn(_, _, _, _, _, _, _, _, _, _, _, _)).WillByDefault(call);
 }
 
 } // namespace
