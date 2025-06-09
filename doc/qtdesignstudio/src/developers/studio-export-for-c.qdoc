@@ -18,7 +18,7 @@
 
         To export a \QDS project for Qt Creator:
         \list 1
-            \li \l Create or open a \QDS project with \QDS 4.5 or above.
+            \li \l {Creating projects} {Create} or open a \QDS project with \QDS 4.5 or above.
 
                 \note If you are creating a new project in \QDS, select a
                     \uicontrol {Target Qt Version} that is not higher than the Qt version
