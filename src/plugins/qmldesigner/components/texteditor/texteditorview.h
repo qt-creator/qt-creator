@@ -77,6 +77,8 @@ public:
     void jumpToModelNode(const ModelNode &modelNode);
 
 private:
+    void createTextEditor();
+
     QPointer<TextEditorWidget> m_widget;
     QMetaObject::Connection m_designDocumentConnection;
     bool m_errorState = false;

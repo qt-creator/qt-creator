@@ -63,22 +63,7 @@ void TextEditorView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-    DesignDocument *designDocument = QmlDesignerPlugin::instance()->currentDesignDocument();
-    auto textEditor = Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor>(
-        designDocument->textEditor()->duplicate());
-    static constexpr char qmlTextEditorContextId[] = "QmlDesigner::TextEditor";
-    IContext::attach(textEditor->widget(),
-                     Context(qmlTextEditorContextId, Constants::qtQuickToolsMenuContextId),
-                     [this](const IContext::HelpCallback &callback) {
-                         m_widget->contextHelp(callback);
-                     });
-    m_widget->setTextEditor(std::move(textEditor));
-
-    disconnect(m_designDocumentConnection);
-    m_designDocumentConnection = connect(designDocument,
-                                         &DesignDocument::designDocumentClosed,
-                                         m_widget,
-                                         [this] { m_widget->setTextEditor(nullptr); });
+    createTextEditor();
 }
 
 void TextEditorView::modelAboutToBeDetached(Model *model)
@@ -284,6 +269,10 @@ void TextEditorView::reformatFile()
         if (currentDocument->source() == newText)
             return;
 
+        const bool hasEditor = m_widget->textEditor();
+        if (!hasEditor)
+            createTextEditor();
+
         QTextCursor tc = m_widget->textEditor()->textCursor();
         int pos = m_widget->textEditor()->textCursor().position();
 
@@ -296,6 +285,9 @@ void TextEditorView::reformatFile()
         tc.endEditBlock();
 
         m_widget->textEditor()->setTextCursor(tc);
+
+        if (!hasEditor)
+            m_widget->setTextEditor(nullptr);
     }
 }
 
@@ -306,6 +298,26 @@ void TextEditorView::jumpToModelNode(const ModelNode &modelNode)
     m_widget->window()->windowHandle()->requestActivate();
     m_widget->textEditor()->widget()->setFocus();
     m_widget->textEditor()->editorWidget()->updateFoldingHighlight(QTextCursor());
+}
+
+void TextEditorView::createTextEditor()
+{
+    DesignDocument *designDocument = QmlDesignerPlugin::instance()->currentDesignDocument();
+    auto textEditor = Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor>(
+        designDocument->textEditor()->duplicate());
+    static constexpr char qmlTextEditorContextId[] = "QmlDesigner::TextEditor";
+    IContext::attach(textEditor->widget(),
+                     Context(qmlTextEditorContextId, Constants::qtQuickToolsMenuContextId),
+                     [this](const IContext::HelpCallback &callback) {
+                         m_widget->contextHelp(callback);
+                     });
+    m_widget->setTextEditor(std::move(textEditor));
+
+    disconnect(m_designDocumentConnection);
+    m_designDocumentConnection = connect(designDocument,
+                                         &DesignDocument::designDocumentClosed,
+                                         m_widget,
+                                         [this] { m_widget->setTextEditor(nullptr); });
 }
 
 void TextEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
