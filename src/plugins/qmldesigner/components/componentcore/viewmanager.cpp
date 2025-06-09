@@ -518,7 +518,29 @@ const DesignerActionManager &ViewManager::designerActionManager() const
 
 void ViewManager::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const
 {
-    d->textEditorView.qmlJSEditorContextHelp(callback);
+    if (!view()->isAttached())
+        callback({});
+
+    ModelNode selectedNode = view()->firstSelectedModelNode();
+    if (!selectedNode)
+        selectedNode = view()->rootModelNode();
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    Core::HelpItem helpItem("QML." + selectedNode.simplifiedTypeName(),
+#else
+    Core::HelpItem helpItem({QString::fromUtf8("QML." + selectedNode.type()),
+                             "QML." + selectedNode.simplifiedTypeName()},
+#endif
+                            {},
+                            {},
+                            Core::HelpItem::QmlComponent);
+
+    if (!helpItem.isValid()) {
+        helpItem = Core::HelpItem(
+            QUrl("qthelp://org.qt-project.qtdesignstudio/doc/quick-preset-components.html"));
+    }
+
+    callback(helpItem);
 }
 
 Model *ViewManager::currentModel() const

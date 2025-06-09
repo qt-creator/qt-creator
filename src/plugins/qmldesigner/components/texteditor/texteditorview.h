@@ -43,8 +43,6 @@ public:
     bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
 
-    void qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const;
-
     TextEditor::BaseTextEditor *textEditor();
 
     bool changeToMoveTool();
