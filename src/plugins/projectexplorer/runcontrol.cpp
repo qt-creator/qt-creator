@@ -1684,12 +1684,6 @@ private slots:
         for (Id runMode : std::as_const(g_runModes)) {
             for (Id device : devices) {
                 for (Id runConfig : std::as_const(g_runConfigs)) {
-                    // qDebug() << "MODE:" << runMode << device << runConfig;
-                    const auto check = std::bind(&RunWorkerFactory::canCreate,
-                                                 std::placeholders::_1,
-                                                 runMode,
-                                                 device,
-                                                 runConfig.toString());
                     QList<RunWorkerFactory *> creators;
                     for (RunWorkerFactory *factory : g_runWorkerFactories) {
                         if (factory->canCreate(runMode, device, runConfig.toString()))
