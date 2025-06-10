@@ -3,6 +3,7 @@
 
 #include "utils3d.h"
 
+#include <auxiliarydataproperties.h>
 #include <designmodewidget.h>
 #include <itemlibraryentry.h>
 #include <modelutils.h>

@@ -14,6 +14,7 @@
 #include "contentlibrarywidget.h"
 
 #include <asset.h>
+#include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <bundlehelper.h>
 #include <bundleimporter.h>
@@ -508,7 +509,7 @@ void ContentLibraryView::auxiliaryDataChanged(const ModelNode &,
                                               AuxiliaryDataKeyView type,
                                               const QVariant &data)
 {
-    if (type == Utils3D::active3dSceneProperty)
+    if (type == active3dSceneProperty)
         active3DSceneChanged(data.toInt());
 }
 

@@ -13,8 +13,6 @@ class NodeMetaInfo;
 
 namespace Utils3D {
 
-inline constexpr AuxiliaryDataKeyView active3dSceneProperty{AuxiliaryDataType::Temporary,
-                                                            "active3dScene"};
 ModelNode active3DSceneNode(AbstractView *view);
 qint32 active3DSceneId(Model *model);
 

@@ -168,7 +168,6 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
         edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
-        setActive3DSceneId(newActiveScene);
         updateAlignActionStates();
     }
 
@@ -307,6 +306,8 @@ void Edit3DView::modelAttached(Model *model)
         m_previousCameraMultiplier = -1.;
     }
 
+    edit3DWidget()->canvas()->updateActiveScene(Utils3D::active3DSceneId(model));
+
     syncSnapAuxPropsToSettings();
 
     rootModelNode().setAuxiliaryData(edit3dGridColorProperty,
@@ -420,11 +421,6 @@ void Edit3DView::updateAlignActionStates()
 
     m_alignCamerasAction->action()->setEnabled(enabled);
     m_alignViewAction->action()->setEnabled(enabled);
-}
-
-void Edit3DView::setActive3DSceneId(qint32 sceneId)
-{
-    rootModelNode().setAuxiliaryData(Utils3D::active3dSceneProperty, sceneId);
 }
 
 void Edit3DView::emitView3DAction(View3DActionType type, const QVariant &value)

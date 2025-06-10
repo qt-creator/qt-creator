@@ -1817,9 +1817,15 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         if (!container.image().isNull() && isAttached())
             model()->emitRenderImage3DChanged(this, container.image());
     } else if (command.type() == PuppetToCreatorCommand::ActiveSceneChanged) {
-        const auto sceneState = qvariant_cast<QVariantMap>(command.data());
-        if (isAttached())
+        if (isAttached()) {
+            const auto sceneState = qvariant_cast<QVariantMap>(command.data());
+            const QString sceneKey = "sceneInstanceId";
+            if (sceneState.contains(sceneKey)) {
+                qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
+                rootModelNode().setAuxiliaryData(active3dSceneProperty, newActiveScene);
+            }
             model()->emitUpdateActiveScene3D(this, sceneState);
+        }
     } else if (command.type() == PuppetToCreatorCommand::ActiveViewportChanged) {
         // Active viewport change is a special case of active scene change
         QVariantMap viewportState;
