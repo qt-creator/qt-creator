@@ -119,6 +119,7 @@ void RunWorkerFactory::cloneProduct(Id exitstingStepId)
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
         if (factory->m_id == exitstingStepId) {
             m_producer = factory->m_producer;
+            m_recipeCreator = factory->m_recipeCreator;
             // Other bits are intentionally not copied as they are unlikely to be
             // useful in the cloner's context. The cloner can/has to finish the
             // setup on its own.
