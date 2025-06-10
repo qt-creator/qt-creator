@@ -923,6 +923,8 @@ struct ProjectStorage::Statements
         "WHERE di.sourceId=?1 AND "
             + createSingletonTraitsExpression(),
         database};
+    mutable Sqlite::ReadStatement<1> selectMaxTypeIdStatement{"SELECT max(typeId) FROM types",
+                                                              database};
 };
 
 class ProjectStorage::Initializer
@@ -1401,6 +1403,8 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
                                           package.updatedPropertyEditorQmlPathDirectoryIds);
 
         synchronizeDirectoryInfos(package.directoryInfos, package.updatedDirectoryInfoDirectoryIds);
+
+        resetBasesCache();
 
         commonTypeCache_.resetTypeIds();
     });
@@ -4923,6 +4927,15 @@ Storage::Synchronization::EnumerationDeclarations ProjectStorage::fetchEnumerati
     return enumerationDeclarations;
 }
 
+void ProjectStorage::resetBasesCache()
+{
+    NanotraceHR::Tracer tracer{"reset bases cache", projectStorageCategory()};
+
+    basesCache.clear();
+    auto maxSize = s->selectMaxTypeIdStatement.value<long long>();
+    basesCache.resize(static_cast<std::size_t>(maxSize));
+}
+
 namespace {
 template<typename... TypeIds>
 TypeId findTypeId(auto &&range, TypeIds... baseTypeIds)
@@ -4952,9 +4965,13 @@ TypeId ProjectStorage::basedOn_(TypeId typeId, TypeIds... baseTypeIds) const
         return typeId;
     }
 
-    auto range = s->selectPrototypeAndExtensionIdsStatement.rangeWithTransaction<TypeId>(typeId);
+    auto &cache = basesCache[static_cast<std::size_t>(typeId.internalId() - 1)];
+    if (!cache) {
+        cache.emplace(
+            s->selectPrototypeAndExtensionIdsStatement.valuesWithTransaction<SmallTypeIds<12>>(typeId));
+    }
 
-    auto foundTypeId = findTypeId(range, baseTypeIds...);
+    auto foundTypeId = findTypeId(*cache, baseTypeIds...);
 
     tracer.end(keyValue("is based on", foundTypeId));
 

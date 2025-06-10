@@ -1014,6 +1014,8 @@ private:
 
     Storage::Synchronization::EnumerationDeclarations fetchEnumerationDeclarations(TypeId typeId);
 
+    void resetBasesCache();
+
     class Initializer;
 
     struct Statements;
@@ -1026,6 +1028,7 @@ public:
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
     Storage::Info::CommonTypeCache<ProjectStorageType> commonTypeCache_{*this};
     QVarLengthArray<ProjectStorageObserver *, 24> observers;
+    mutable std::vector<std::optional<SmallTypeIds<12>>> basesCache;
     std::unique_ptr<Statements> s;
 };
 
