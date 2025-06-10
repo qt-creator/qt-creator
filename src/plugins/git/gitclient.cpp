@@ -2221,6 +2221,7 @@ Environment GitClient::processEnvironment(const FilePath &appliedTo) const
         environment.set("HOME", homePath);
     }
     environment.set("GIT_EDITOR", m_disableEditor ? "true" : m_gitQtcEditor);
+    environment.set("GIT_OPTIONAL_LOCKS", "0");
     return environment.appliedToEnvironment(appliedTo.deviceEnvironment());
 }
 
