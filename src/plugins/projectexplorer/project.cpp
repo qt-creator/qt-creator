@@ -320,6 +320,8 @@ bool Project::removeTarget(Target *target)
         return false;
 
     target->markAsShuttingDown();
+    for (BuildConfiguration * const bc : target->buildConfigurations())
+        emit ProjectManager::instance()->aboutToRemoveBuildConfiguration(bc);
     emit aboutToRemoveTarget(target);
     auto keep = take(d->m_targets, target);
     if (target == d->m_activeTarget) {

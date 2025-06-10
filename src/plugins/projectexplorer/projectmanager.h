@@ -105,6 +105,7 @@ signals:
     void startupProjectChanged(ProjectExplorer::Project *project);
 
     void buildConfigurationAdded(ProjectExplorer::BuildConfiguration *bc);
+    void aboutToRemoveBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void buildConfigurationRemoved(ProjectExplorer::BuildConfiguration *bc);
     // bc == activeBuildConfigForActiveProject()
     void activeBuildConfigurationChanged(BuildConfiguration *bc);
