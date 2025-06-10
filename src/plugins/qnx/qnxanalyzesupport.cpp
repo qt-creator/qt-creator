@@ -26,6 +26,7 @@ class QnxQmlProfilerWorkerFactory final : public RunWorkerFactory
 public:
     QnxQmlProfilerWorkerFactory()
     {
+        setId("QnxQmlProfilerWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
 

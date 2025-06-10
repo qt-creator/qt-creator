@@ -39,6 +39,7 @@ class RemoteLinuxRunWorkerFactory final : public RunWorkerFactory
 public:
     RemoteLinuxRunWorkerFactory()
     {
+        setId("RemoteLinuxRunWorkerFactory");
         setRecipeProducer([](RunControl *runControl) { return processRecipe(processTask(runControl)); });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
@@ -51,6 +52,7 @@ class RemoteLinuxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFac
 public:
     RemoteLinuxDebugWorkerFactory()
     {
+        setId("RemoteLinuxDebugWorkerFactory");
         setProducer([](RunControl *runControl) {
             runControl->requestDebugChannel();
 
@@ -80,6 +82,7 @@ class RemoteLinuxQmlToolingWorkerFactory final : public ProjectExplorer::RunWork
 public:
     RemoteLinuxQmlToolingWorkerFactory()
     {
+        setId("RemoteLinuxQmlToolingWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
 

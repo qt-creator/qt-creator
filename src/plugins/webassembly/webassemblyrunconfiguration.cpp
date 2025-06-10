@@ -209,6 +209,7 @@ class EmrunRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 public:
     EmrunRunWorkerFactory()
     {
+        setId("EmrunRunWorkerFactory");
         setProducer([](RunControl *runControl) {
             runControl->requestWorkerChannel();
 

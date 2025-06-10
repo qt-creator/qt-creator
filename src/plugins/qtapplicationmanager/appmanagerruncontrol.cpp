@@ -107,6 +107,7 @@ class AppManagerRunWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerRunWorkerFactory()
     {
+        setId("AppManagerRunWorkerFactory");
         setProducer([](RunControl *runControl) {
             const auto modifier = [runControl](Process &process) {
                 FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
@@ -155,6 +156,7 @@ class AppManagerDebugWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerDebugWorkerFactory()
     {
+        setId("AppManagerDebugWorkerFactory");
         setRecipeProducer([](RunControl *runControl) -> Group {
             BuildConfiguration *bc = runControl->buildConfiguration();
 
@@ -223,6 +225,7 @@ class AppManagerQmlToolingWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerQmlToolingWorkerFactory()
     {
+        setId("AppManagerQmlToolingWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
             const ProcessTask inferior(inferiorProcess(runControl,
@@ -244,6 +247,7 @@ class AppManagerPerfProfilerWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerPerfProfilerWorkerFactory()
     {
+        setId("AppManagerPerfProfilerWorkerFactory");
         setProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
             return new RunWorker(runControl, processRecipe(inferiorProcess(

@@ -168,6 +168,7 @@ class QnxDebugWorkerFactory final : public RunWorkerFactory
 public:
     QnxDebugWorkerFactory()
     {
+        setId("QnxDebugWorkerFactory");
         setProducer([](RunControl *runControl) {
             runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
 

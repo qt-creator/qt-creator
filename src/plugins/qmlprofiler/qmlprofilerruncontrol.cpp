@@ -108,6 +108,7 @@ class QmlProfilerRunWorkerFactory final : public RunWorkerFactory
 public:
     QmlProfilerRunWorkerFactory()
     {
+        setId("QmlProfilerRunWorkerFactory");
         setRecipeProducer(qmlProfilerRecipe);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
     }

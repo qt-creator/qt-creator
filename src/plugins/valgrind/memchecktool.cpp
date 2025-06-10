@@ -236,6 +236,7 @@ class MemcheckToolRunnerFactory final : public RunWorkerFactory
 public:
     MemcheckToolRunnerFactory()
     {
+        setId("MemcheckToolRunnerFactory");
         setRecipeProducer(memcheckRecipe);
         addSupportedRunMode(MEMCHECK_RUN_MODE);
         addSupportedRunMode(MEMCHECK_WITH_GDB_RUN_MODE);

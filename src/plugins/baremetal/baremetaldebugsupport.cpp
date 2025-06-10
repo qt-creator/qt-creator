@@ -41,6 +41,7 @@ class BareMetalDebugSupportFactory final : public RunWorkerFactory
 public:
     BareMetalDebugSupportFactory()
     {
+        setId("BareMetalDebugSupportFactory");
         setRecipeProducer([](RunControl *runControl) -> Group {
             const auto dev = std::static_pointer_cast<const BareMetalDevice>(runControl->device());
             if (!dev)

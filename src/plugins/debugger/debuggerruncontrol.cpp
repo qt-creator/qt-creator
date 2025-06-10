@@ -755,10 +755,10 @@ class DebuggerRunWorkerFactory final : public RunWorkerFactory
 public:
     DebuggerRunWorkerFactory()
     {
+        setId(Constants::DEBUGGER_RUN_FACTORY);
         setProducer([](RunControl *runControl) {
             return createDebuggerWorker(runControl, DebuggerRunParameters::fromRunControl(runControl));
         });
-        setId(Constants::DEBUGGER_RUN_FACTORY);
 
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE);

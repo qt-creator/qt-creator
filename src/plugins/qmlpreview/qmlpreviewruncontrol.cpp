@@ -99,6 +99,7 @@ static Group qmlPreviewRecipe(RunControl *runControl)
 
 QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory()
 {
+    setId("QmlPreviewRunWorkerFactory");
     setRecipeProducer([](RunControl *runControl) {
         return Group {
             parallel,

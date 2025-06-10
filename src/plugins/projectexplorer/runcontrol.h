@@ -73,6 +73,7 @@ public:
     ~RunWorkerFactory();
 
     static void dumpAll(); // For debugging only.
+    Utils::Id id() const { return m_id; }
 
 protected:
     void setId(Utils::Id id) { m_id = id; }

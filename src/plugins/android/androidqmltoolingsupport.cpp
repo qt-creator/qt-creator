@@ -18,6 +18,7 @@ class AndroidQmlToolingSupportFactory final : public RunWorkerFactory
 public:
     AndroidQmlToolingSupportFactory()
     {
+        setId("AndroidQmlToolingSupportFactory");
         setProducer([](RunControl *runControl) {
             auto androidRunner = new RunWorker(runControl, androidRecipe(runControl));
 

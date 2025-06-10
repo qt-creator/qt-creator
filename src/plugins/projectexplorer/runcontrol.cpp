@@ -1626,6 +1626,7 @@ void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target
 
 ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
 {
+    setId("ProcessRunnerFactory");
     setRecipeProducer([](RunControl *runControl) { return processRecipe(processTask(runControl)); });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     setSupportedRunConfigs(runConfigs);
@@ -1695,10 +1696,10 @@ private slots:
         for (Id runMode : std::as_const(g_runModes)) {
             for (Id device : devices) {
                 for (Id runConfig : std::as_const(g_runConfigs)) {
-                    QList<RunWorkerFactory *> creators;
+                    QList<Id> creators;
                     for (RunWorkerFactory *factory : g_runWorkerFactories) {
                         if (factory->canCreate(runMode, device, runConfig.toString()))
-                            creators.append(factory);
+                            creators.append(factory->id());
                     }
                     if (creators.size() > 1) {
                         qDebug() << "CONFLICT FOR" << runMode << device << runConfig

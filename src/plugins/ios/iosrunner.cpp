@@ -704,6 +704,7 @@ static Result<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
 
 IosRunWorkerFactory::IosRunWorkerFactory()
 {
+    setId("IosRunWorkerFactory");
     setProducer([](RunControl *runControl) -> RunWorker * {
         IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
         if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl) {
@@ -864,6 +865,7 @@ static RunWorker *createDebugWorker(RunControl *runControl)
 
 IosDebugWorkerFactory::IosDebugWorkerFactory()
 {
+    setId("IosDebugWorkerFactory");
     setProducer([](RunControl *runControl) { return createDebugWorker(runControl); });
     addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
@@ -871,6 +873,7 @@ IosDebugWorkerFactory::IosDebugWorkerFactory()
 
 IosQmlProfilerWorkerFactory::IosQmlProfilerWorkerFactory()
 {
+    setId("IosQmlProfilerWorkerFactory");
     setProducer([](RunControl *runControl) {
         auto runner = new RunWorker(runControl, iosToolRecipe(runControl, {QmlProfilerServices}));
         runControl->requestQmlChannel();

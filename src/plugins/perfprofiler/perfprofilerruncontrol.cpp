@@ -98,6 +98,7 @@ class PerfRecordWorkerFactory final : public RunWorkerFactory
 public:
     PerfRecordWorkerFactory()
     {
+        setId("PerfRecordWorkerFactory");
         setProducer([](RunControl *runControl) {
             const auto modifier = [runControl](Process &process) {
                 const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
@@ -129,6 +130,7 @@ class PerfProfilerRunWorkerFactory final : public RunWorkerFactory
 public:
     PerfProfilerRunWorkerFactory()
     {
+        setId("PerfProfilerRunWorkerFactory");
         setProducer([](RunControl *runControl) {
             // The following RunWorkerFactories react to that:
             // 1. AppManagerPerfProfilerWorkerFactory

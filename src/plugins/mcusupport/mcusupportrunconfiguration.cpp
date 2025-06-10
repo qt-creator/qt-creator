@@ -79,6 +79,7 @@ McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
 
 FlashRunWorkerFactory::FlashRunWorkerFactory()
 {
+    setId("FlashRunWorkerFactory");
     setProducer([](RunControl *runControl) {
         const auto modifier = [runControl](Process &process) {
             const BuildConfiguration *bc = runControl->buildConfiguration();

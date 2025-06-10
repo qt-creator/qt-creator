@@ -100,6 +100,7 @@ class QdbRunWorkerFactory final : public RunWorkerFactory
 public:
     QdbRunWorkerFactory()
     {
+        setId("QdbRunWorkerFactory");
         setProducer([](RunControl *runControl) {
             const auto modifier = [runControl](Process &process) {
                 const CommandLine remoteCommand = runControl->commandLine();
@@ -123,6 +124,7 @@ class QdbDebugWorkerFactory final : public RunWorkerFactory
 public:
     QdbDebugWorkerFactory()
     {
+        setId("QdbDebugWorkerFactory");
         setProducer([](RunControl *runControl) {
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
             rp.setupPortsGatherer(runControl);
@@ -153,6 +155,7 @@ class QdbQmlToolingWorkerFactory final : public RunWorkerFactory
 public:
     QdbQmlToolingWorkerFactory()
     {
+        setId("QdbQmlToolingWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
             const ProcessTask inferior(qdbDeviceInferiorProcess(
@@ -176,6 +179,7 @@ class QdbPerfProfilerWorkerFactory final : public RunWorkerFactory
 public:
     QdbPerfProfilerWorkerFactory()
     {
+        setId("QdbPerfProfilerWorkerFactory");
         setProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
             return createQdbDeviceInferiorWorker(runControl, NoQmlDebugServices, true);

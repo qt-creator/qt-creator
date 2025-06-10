@@ -104,6 +104,7 @@ class AndroidRunWorkerFactory final : public RunWorkerFactory
 public:
     AndroidRunWorkerFactory()
     {
+        setId("AndroidRunWorkerFactory");
         setRecipeProducer(androidRecipe);
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);

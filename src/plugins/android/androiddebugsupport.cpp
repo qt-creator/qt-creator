@@ -89,6 +89,7 @@ class AndroidDebugWorkerFactory final : public RunWorkerFactory
 public:
     AndroidDebugWorkerFactory()
     {
+        setId("AndroidDebugWorkerFactory");
         setProducer([](RunControl *runControl) {
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
             rp.setupPortsGatherer(runControl);

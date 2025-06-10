@@ -164,6 +164,7 @@ class CallgrindToolRunnerFactory final : public RunWorkerFactory
 public:
     CallgrindToolRunnerFactory()
     {
+        setId("CallgrindToolRunnerFactory");
         setRecipeProducer(callgrindRecipe);
         addSupportedRunMode(CALLGRIND_RUN_MODE);
 

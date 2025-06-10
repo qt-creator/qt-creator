@@ -223,6 +223,7 @@ class SimpleQmlProfilerRunnerFactory final : public RunWorkerFactory
 public:
     explicit SimpleQmlProfilerRunnerFactory(const QList<Id> &runConfigs)
     {
+        setId("SimpleQmlProfilerRunnerFactory");
         cloneProduct(ProjectExplorer::Constants::QML_PROFILER_RUN_FACTORY);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         setSupportedRunConfigs(runConfigs);
@@ -234,6 +235,7 @@ class SimplePreviewRunnerFactory final : public RunWorkerFactory
 public:
     explicit SimplePreviewRunnerFactory(const QList<Id> &runConfigs)
     {
+        setId("SimplePreviewRunnerFactory");
         cloneProduct(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
         setSupportedRunConfigs(runConfigs);

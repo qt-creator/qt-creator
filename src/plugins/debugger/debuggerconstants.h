@@ -14,7 +14,7 @@ const char MODE_DEBUG[]             = "Mode.Debug";
 // Debug mode context
 const char C_DEBUGMODE[]            = "Debugger.DebugMode";
 
-const char DEBUGGER_RUN_FACTORY[]   = "RunWorkerFactory.DebuggerRunWorkerFactory";
+const char DEBUGGER_RUN_FACTORY[]   = "DebuggerRunWorkerFactory";
 
 // Analyze menu
 const char M_DEBUG_ANALYZER[]        = "Analyzer.Menu.StartAnalyzer";
