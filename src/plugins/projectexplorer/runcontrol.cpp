@@ -130,26 +130,13 @@ void RunWorkerFactory::cloneProduct(Id exitstingStepId)
     QTC_CHECK(false);
 }
 
-bool RunWorkerFactory::canCreate(Id runMode, Id deviceType, const QString &runConfigId) const
+bool RunWorkerFactory::canCreate(Id runMode, Id deviceType, Id runConfigId) const
 {
     if (!m_supportedRunModes.contains(runMode))
         return false;
 
-    if (!m_supportedRunConfigurations.isEmpty()) {
-        // FIXME: That's to be used after mangled ids are gone.
-        //if (!m_supportedRunConfigurations.contains(runConfigId)
-        // return false;
-        bool ok = false;
-        for (const Id &id : m_supportedRunConfigurations) {
-            if (runConfigId.startsWith(id.toString())) {
-                ok = true;
-                break;
-            }
-        }
-
-        if (!ok)
-            return false;
-    }
+    if (!m_supportedRunConfigurations.isEmpty() && !m_supportedRunConfigurations.contains(runConfigId))
+        return false;
 
     if (!m_supportedDeviceTypes.isEmpty())
         return m_supportedDeviceTypes.contains(deviceType);
@@ -181,7 +168,7 @@ void RunWorkerFactory::dumpAll()
                                              std::placeholders::_1,
                                              runMode,
                                              device,
-                                             runConfig.toString());
+                                             runConfig);
                 const auto factory = findOrDefault(g_runWorkerFactories, check);
                 qDebug() << "MODE:" << runMode << device << runConfig << factory;
             }
@@ -504,7 +491,7 @@ RunWorker *RunControl::createWorker(Id runMode)
 {
     const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->kit);
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canCreate(runMode, deviceType, d->runConfigId.toString()))
+        if (factory->canCreate(runMode, deviceType, d->runConfigId))
             return factory->create(this);
     }
     return nullptr;
@@ -514,7 +501,7 @@ Group RunControl::createRecipe(Id runMode)
 {
     const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->kit);
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canCreate(runMode, deviceType, d->runConfigId.toString()))
+        if (factory->canCreate(runMode, deviceType, d->runConfigId))
             return factory->createRecipe(this);
     }
     return noRecipeTask();
@@ -526,7 +513,7 @@ bool RunControl::createMainWorker()
         = filtered(g_runWorkerFactories, [this](RunWorkerFactory *factory) {
               return factory->canCreate(d->runMode,
                                         RunDeviceTypeKitAspect::deviceTypeId(d->kit),
-                                        d->runConfigId.toString());
+                                        d->runConfigId);
           });
 
     // There might be combinations that cannot run. But that should have been checked
@@ -542,7 +529,7 @@ bool RunControl::createMainWorker()
 bool RunControl::canRun(Id runMode, Id deviceType, Utils::Id runConfigId)
 {
     for (const RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canCreate(runMode, deviceType, runConfigId.toString()))
+        if (factory->canCreate(runMode, deviceType, runConfigId))
             return true;
     }
     return false;
@@ -1700,7 +1687,7 @@ private slots:
                 for (Id runConfig : std::as_const(g_runConfigs)) {
                     QList<Id> creators;
                     for (RunWorkerFactory *factory : g_runWorkerFactories) {
-                        if (factory->canCreate(runMode, device, runConfig.toString()))
+                        if (factory->canCreate(runMode, device, runConfig))
                             creators.append(factory->id());
                     }
                     if (!creators.isEmpty())

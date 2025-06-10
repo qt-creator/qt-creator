@@ -89,7 +89,7 @@ protected:
 private:
     friend class RunControl;
     friend class Internal::RunWorkerConflictTest;
-    bool canCreate(Utils::Id runMode, Utils::Id deviceType, const QString &runConfigId) const;
+    bool canCreate(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId) const;
     RunWorker *create(RunControl *runControl) const;
     Tasking::Group createRecipe(RunControl *runControl) const;
 
