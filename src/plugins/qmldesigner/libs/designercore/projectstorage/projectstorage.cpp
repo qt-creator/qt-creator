@@ -1376,11 +1376,6 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
                          addedExportedTypeNames,
                          package.updatedSourceIds,
                          updatedPrototypeId);
-        auto updatedAnnotationTypes = synchronizeTypeAnnotations(package.typeAnnotations,
-                                                                 package.updatedTypeAnnotationSourceIds);
-        updateAnnotationsTypeTraitsFromPrototypes(updatedAnnotationTypes, updatedPrototypeId);
-        synchronizePropertyEditorQmlPaths(package.propertyEditorQmlPaths,
-                                          package.updatedPropertyEditorQmlPathDirectoryIds);
 
         deleteNotUpdatedTypes(updatedTypeIds,
                               package.updatedSourceIds,
@@ -1398,6 +1393,12 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
         repairBrokenAliasPropertyDeclarations();
 
         linkAliases(aliasPropertyDeclarationsToLink, RaiseError::Yes);
+
+        auto updatedAnnotationTypes = synchronizeTypeAnnotations(package.typeAnnotations,
+                                                                 package.updatedTypeAnnotationSourceIds);
+        updateAnnotationsTypeTraitsFromPrototypes(updatedAnnotationTypes, updatedPrototypeId);
+        synchronizePropertyEditorQmlPaths(package.propertyEditorQmlPaths,
+                                          package.updatedPropertyEditorQmlPathDirectoryIds);
 
         synchronizeDirectoryInfos(package.directoryInfos, package.updatedDirectoryInfoDirectoryIds);
 
