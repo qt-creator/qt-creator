@@ -20,13 +20,14 @@ using namespace ProjectExplorer::Constants;
 
 namespace ProjectExplorer::Internal {
 
+enum class Kind { QMake, Qbs, CMake };
+
+template <Kind K>
 class DesktopRunConfiguration : public RunConfiguration
 {
-protected:
-    enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
-
-    DesktopRunConfiguration(BuildConfiguration *bc, Id id, Kind kind)
-        : RunConfiguration(bc, id), m_kind(kind)
+public:
+    DesktopRunConfiguration(BuildConfiguration *bc, Id id)
+        : RunConfiguration(bc, id), m_kind(K)
     {
         environment.setSupportForBuildEnvironment(bc);
 
@@ -90,7 +91,8 @@ private:
     RunAsRootAspect runAsRoot{this};
 };
 
-void DesktopRunConfiguration::updateTargetInformation()
+template <Kind K>
+void DesktopRunConfiguration<K>::updateTargetInformation()
 {
     QTC_ASSERT(buildSystem(), return);
 
@@ -102,7 +104,7 @@ void DesktopRunConfiguration::updateTargetInformation()
     auto launcherAspect = aspect<LauncherAspect>();
     launcherAspect->setVisible(false);
 
-    if (m_kind == Qmake) {
+    if (m_kind == Kind::QMake) {
 
         FilePath profile = FilePath::fromString(buildKey());
         if (profile.isEmpty())
@@ -118,14 +120,14 @@ void DesktopRunConfiguration::updateTargetInformation()
 
         aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
 
-    }  else if (m_kind == Qbs) {
+    }  else if (m_kind == Kind::Qbs) {
 
         setDefaultDisplayName(bti.displayName);
         const FilePath executable = executableToRun(bti);
 
         aspect<ExecutableAspect>()->setExecutable(executable);
 
-    } else if (m_kind == CMake) {
+    } else if (m_kind == Kind::CMake) {
 
         if (bti.launchers.size() > 0) {
             launcherAspect->setVisible(true);
@@ -146,7 +148,8 @@ void DesktopRunConfiguration::updateTargetInformation()
     }
 }
 
-FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetInfo) const
+template <Kind K>
+FilePath DesktopRunConfiguration<K>::executableToRun(const BuildTargetInfo &targetInfo) const
 {
     const FilePath appInBuildDir = targetInfo.targetFilePath;
     const DeploymentData deploymentData = buildSystem()->deploymentData();
@@ -164,38 +167,12 @@ FilePath DesktopRunConfiguration::executableToRun(const BuildTargetInfo &targetI
 
 // Factories
 
-// FIXME: These three would not be needed if registerRunConfiguration took parameter pack args
-
-class DesktopQmakeRunConfiguration final : public DesktopRunConfiguration
-{
-public:
-    DesktopQmakeRunConfiguration(BuildConfiguration *bc, Id id)
-        : DesktopRunConfiguration(bc, id, Qmake)
-    {}
-};
-
-class QbsRunConfiguration final : public DesktopRunConfiguration
-{
-public:
-    QbsRunConfiguration(BuildConfiguration *bc, Id id)
-        : DesktopRunConfiguration(bc, id, Qbs)
-    {}
-};
-
-class CMakeRunConfiguration final : public DesktopRunConfiguration
-{
-public:
-    CMakeRunConfiguration(BuildConfiguration *bc, Id id)
-        : DesktopRunConfiguration(bc, id, CMake)
-    {}
-};
-
 class CMakeRunConfigurationFactory final : public RunConfigurationFactory
 {
 public:
     CMakeRunConfigurationFactory()
     {
-        registerRunConfiguration<CMakeRunConfiguration>(Constants::CMAKE_RUNCONFIG_ID);
+        registerRunConfiguration<DesktopRunConfiguration<Kind::CMake>>(Constants::CMAKE_RUNCONFIG_ID);
         addSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
@@ -207,7 +184,7 @@ class QbsRunConfigurationFactory final : public RunConfigurationFactory
 public:
     QbsRunConfigurationFactory()
     {
-        registerRunConfiguration<QbsRunConfiguration>(Constants::QBS_RUNCONFIG_ID);
+        registerRunConfiguration<DesktopRunConfiguration<Kind::Qbs>>(Constants::QBS_RUNCONFIG_ID);
         addSupportedProjectType(QbsProjectManager::Constants::PROJECT_ID);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
@@ -219,7 +196,7 @@ class DesktopQmakeRunConfigurationFactory final : public RunConfigurationFactory
 public:
     DesktopQmakeRunConfigurationFactory()
     {
-        registerRunConfiguration<DesktopQmakeRunConfiguration>(Constants::QMAKE_RUNCONFIG_ID);
+        registerRunConfiguration<DesktopRunConfiguration<Kind::QMake>>(Constants::QMAKE_RUNCONFIG_ID);
         addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
         addSupportedTargetDeviceType(ProjectExplorer::Constants::DOCKER_DEVICE_TYPE);
