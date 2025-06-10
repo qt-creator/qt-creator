@@ -512,31 +512,32 @@ private:
 
     using PropertyDeclarations = std::vector<PropertyDeclaration>;
 
-    class Prototype
+    class Base
     {
     public:
-        explicit Prototype(TypeId typeId, ImportedTypeNameId prototypeNameId)
+        explicit Base(TypeId typeId,
+                      ImportedTypeNameId prototypeNameId,
+                      ImportedTypeNameId extensionNameId)
             : typeId{typeId}
             , prototypeNameId{std::move(prototypeNameId)}
+            , extensionNameId{std::move(extensionNameId)}
         {}
 
-        friend std::weak_ordering operator<=>(Prototype first, Prototype second)
+        friend std::weak_ordering operator<=>(Base first, Base second)
         {
             return first.typeId <=> second.typeId;
         }
 
-        friend bool operator==(Prototype first, Prototype second)
-        {
-            return first.typeId == second.typeId;
-        }
+        friend bool operator==(Base first, Base second) { return first.typeId == second.typeId; }
 
         template<typename String>
-        friend void convertToString(String &string, const Prototype &prototype)
+        friend void convertToString(String &string, const Base &prototype)
         {
             using NanotraceHR::dictonary;
             using NanotraceHR::keyValue;
             auto dict = dictonary(keyValue("type id", prototype.typeId),
-                                  keyValue("prototype name id", prototype.prototypeNameId));
+                                  keyValue("prototype name id", prototype.prototypeNameId),
+                                  keyValue("extension name id", prototype.extensionNameId));
 
             convertToString(string, dict);
         }
@@ -544,9 +545,10 @@ private:
     public:
         TypeId typeId;
         ImportedTypeNameId prototypeNameId;
+        ImportedTypeNameId extensionNameId;
     };
 
-    using Prototypes = std::vector<Prototype>;
+    using Bases = std::vector<Base>;
 
     SourceIds filterSourceIdsWithoutType(const SourceIds &updatedSourceIds,
                                          SourceIds &sourceIdsOfTypes);
@@ -620,8 +622,7 @@ private:
                           AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
                           AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                           PropertyDeclarations &relinkablePropertyDeclarations,
-                          Prototypes &relinkablePrototypes,
-                          Prototypes &relinkableExtensions,
+                          Bases &relinkableBases,
                           ExportedTypesChanged &exportedTypesChanged,
                           Storage::Info::ExportedTypeNames &removedExportedTypeNames,
                           Storage::Info::ExportedTypeNames &addedExportedTypeNames,
@@ -639,8 +640,7 @@ private:
                             const SourceIds &updatedModuleDependencySourceIds,
                             Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
                             const ModuleIds &updatedModuleIds,
-                            Prototypes &relinkablePrototypes,
-                            Prototypes &relinkableExtensions);
+                            Bases &relinkableBases);
 
     void synchromizeModuleExportedImports(
         Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
@@ -664,20 +664,14 @@ private:
         Utils::SmallStringView exportedTypeName,
         TypeId typeId,
         AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
-    void handlePrototypes(TypeId prototypeId, Prototypes &relinkablePrototypes);
-    void handlePrototypesWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
-                                                       TypeId typeId,
-                                                       Prototypes &relinkablePrototypes);
-
-    void handleExtensions(TypeId extensionId, Prototypes &relinkableExtensions);
-    void handleExtensionsWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
-                                                       TypeId typeId,
-                                                       Prototypes &relinkableExtensions);
+    void handleBases(TypeId baseId, Bases &relinkableBases);
+    void handleBasesWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
+                                                  TypeId typeId,
+                                                  Bases &relinkableBases);
     void deleteType(TypeId typeId,
                     AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                     PropertyDeclarations &relinkablePropertyDeclarations,
-                    Prototypes &relinkablePrototypes,
-                    Prototypes &relinkableExtensions);
+                    Bases &relinkableBases);
 
     void relinkAliasPropertyDeclarations(AliasPropertyDeclarations &aliasPropertyDeclarations,
                                          const TypeIds &deletedTypeIds);
@@ -685,24 +679,19 @@ private:
     void relinkPropertyDeclarations(PropertyDeclarations &relinkablePropertyDeclaration,
                                     const TypeIds &deletedTypeIds);
 
-    template<typename Callable>
-    void relinkPrototypes(Prototypes &relinkablePrototypes,
-                          const TypeIds &deletedTypeIds,
-                          Callable updateStatement);
+    void relinkBases(Bases &relinkablePrototypes, const TypeIds &deletedTypeIds);
 
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
                                const SourceIds &updatedSourceIds,
                                const TypeIds &typeIdsToBeDeleted,
                                AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                PropertyDeclarations &relinkablePropertyDeclarations,
-                               Prototypes &relinkablePrototypes,
-                               Prototypes &relinkableExtensions,
+                               Bases &relinkableBases,
                                TypeIds &deletedTypeIds);
 
     void relink(AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                 PropertyDeclarations &relinkablePropertyDeclarations,
-                Prototypes &relinkablePrototypes,
-                Prototypes &relinkableExtensions,
+                Bases &relinkableBases,
                 TypeIds &deletedTypeIds);
 
     PropertyDeclarationId fetchAliasId(TypeId aliasTypeId,
@@ -725,8 +714,7 @@ private:
                                   Storage::Synchronization::ExportedTypes &exportedTypes,
                                   AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                   PropertyDeclarations &relinkablePropertyDeclarations,
-                                  Prototypes &relinkablePrototypes,
-                                  Prototypes &relinkableExtensions,
+                                  Bases &relinkableBases,
                                   ExportedTypesChanged &exportedTypesChanged,
                                   Storage::Info::ExportedTypeNames &removedExportedTypeNames,
                                   Storage::Info::ExportedTypeNames &addedExportedTypeNames);
@@ -807,32 +795,21 @@ private:
         Storage::Synchronization::Types &types,
         AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
 
-    void handlePrototypesWithSourceIdAndPrototypeId(SourceId sourceId,
-                                                    TypeId prototypeId,
-                                                    Prototypes &relinkablePrototypes);
-    void handlePrototypesAndExtensionsWithSourceId(SourceId sourceId,
-                                                   TypeId prototypeId,
-                                                   TypeId extensionId,
-                                                   Prototypes &relinkablePrototypes,
-                                                   Prototypes &relinkableExtensions);
-    void handleExtensionsWithSourceIdAndExtensionId(SourceId sourceId,
-                                                    TypeId extensionId,
-                                                    Prototypes &relinkableExtensions);
+    void handleBasesWithSourceIdAndBaseId(SourceId sourceId, TypeId baseId, Bases &relinkableBases);
+    void handleBasesWithSourceId(SourceId sourceId, Bases &relinkableBases);
 
     ImportId insertDocumentImport(const Storage::Import &import,
                                   Storage::Synchronization::ImportKind importKind,
                                   ModuleId sourceModuleId,
                                   ImportId parentImportId,
                                   Relink forceRelink,
-                                  Prototypes &relinkablePrototypes,
-                                  Prototypes &relinkableExtensions);
+                                  Bases &relinkableBases);
 
     void synchronizeDocumentImports(Storage::Imports &imports,
                                     const SourceIds &updatedSourceIds,
                                     Storage::Synchronization::ImportKind importKind,
                                     Relink forceRelink,
-                                    Prototypes &relinkablePrototypes,
-                                    Prototypes &relinkableExtensions);
+                                    Bases &relinkableBases);
 
     static Utils::PathString createJson(const Storage::Synchronization::ParameterDeclarations &parameters);
 
@@ -958,12 +935,14 @@ private:
 
     void syncPrototypeAndExtension(Storage::Synchronization::Type &type,
                                    TypeIds &typeIds,
-                                   SmallTypeIds<256> &updatedTypeIds);
+                                   SmallTypeIds<256> &updatedPrototypeIds);
+
+    bool updateBases(TypeId type, TypeId prototypeId, TypeId extensionId);
+    bool updatePrototypes(TypeId type, TypeId prototypeId);
 
     void syncPrototypesAndExtensions(Storage::Synchronization::Types &types,
-                                     Prototypes &relinkablePrototypes,
-                                     Prototypes &relinkableExtensions,
-                                     SmallTypeIds<256> &updatedTypes);
+                                     Bases &relinkableBases,
+                                     SmallTypeIds<256> &updatedPrototypeIds);
 
     ImportId fetchImportId(SourceId sourceId, const Storage::Import &import) const;
 
@@ -1023,6 +1002,8 @@ private:
     PropertyDeclarationId fetchPropertyDeclarationIdByTypeIdAndNameUngarded(TypeId typeId,
                                                                             Utils::SmallStringView name);
 
+    TypeId fetchPrototypeId(TypeId typeId);
+    TypeId fetchExtensionId(TypeId typeId);
     Storage::Synchronization::ExportedTypes fetchExportedTypes(TypeId typeId);
 
     Storage::Synchronization::PropertyDeclarations fetchPropertyDeclarations(TypeId typeId);

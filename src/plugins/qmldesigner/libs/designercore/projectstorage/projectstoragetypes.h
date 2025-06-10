@@ -1029,16 +1029,12 @@ public:
     {}
 
     explicit Type(::Utils::SmallStringView typeName,
-                  TypeId prototypeId,
-                  TypeId extensionId,
                   long long typeTraits,
                   long long typeAnnotationTraits,
                   SourceId sourceId)
         : typeName{typeName}
         , traits{typeTraits, typeAnnotationTraits}
         , sourceId{sourceId}
-        , prototypeId{prototypeId}
-        , extensionId{extensionId}
     {}
 
     explicit Type(::Utils::SmallStringView typeName,
@@ -1081,8 +1077,6 @@ public:
     explicit Type(SourceId sourceId,
                   ::Utils::SmallStringView typeName,
                   TypeId typeId,
-                  TypeId prototypeId,
-                  TypeId extensionId,
                   long long typeTraits,
                   long long typeAnnotationTraits,
                   ::Utils::SmallStringView defaultPropertyName)
@@ -1091,8 +1085,6 @@ public:
         , traits{typeTraits, typeAnnotationTraits}
         , sourceId{sourceId}
         , typeId{typeId}
-        , prototypeId{prototypeId}
-        , extensionId{extensionId}
     {}
 
     friend bool operator==(const Type &first, const Type &second) noexcept
