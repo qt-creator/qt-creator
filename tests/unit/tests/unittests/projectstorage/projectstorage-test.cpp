@@ -7901,7 +7901,7 @@ TEST_F(ProjectStorage, get_no_prototype_ids_for_no_prototype)
     ASSERT_THAT(prototypeIds, IsEmpty());
 }
 
-TEST_F(ProjectStorage, get_prototype_ids_with_extension)
+TEST_F(ProjectStorage, get_no_prototype_ids_with_extension)
 {
     auto package{createPackageWithProperties(ExchangePrototypeAndExtension::Yes)};
     storage.synchronize(package);
@@ -7909,8 +7909,7 @@ TEST_F(ProjectStorage, get_prototype_ids_with_extension)
 
     auto prototypeIds = storage.prototypeIds(typeId);
 
-    ASSERT_THAT(prototypeIds,
-                ElementsAre(fetchTypeId(sourceId1, "QObject2"), fetchTypeId(sourceId1, "QObject")));
+    ASSERT_THAT(prototypeIds, ElementsAre(fetchTypeId(sourceId1, "QObject2")));
 }
 
 TEST_F(ProjectStorage, get_prototype_and_self_ids)
@@ -7938,7 +7937,7 @@ TEST_F(ProjectStorage, get_self_for_no_prototype_ids)
     ASSERT_THAT(prototypeAndSelfIds, ElementsAre(fetchTypeId(sourceId1, "QObject")));
 }
 
-TEST_F(ProjectStorage, get_prototype_and_self_ids_with_extension)
+TEST_F(ProjectStorage, get_no_prototype_and_self_ids_with_extension)
 {
     auto package{createPackageWithProperties(ExchangePrototypeAndExtension::Yes)};
     storage.synchronize(package);
@@ -7947,9 +7946,7 @@ TEST_F(ProjectStorage, get_prototype_and_self_ids_with_extension)
     auto prototypeAndSelfIds = storage.prototypeAndSelfIds(typeId);
 
     ASSERT_THAT(prototypeAndSelfIds,
-                ElementsAre(fetchTypeId(sourceId1, "QObject3"),
-                            fetchTypeId(sourceId1, "QObject2"),
-                            fetchTypeId(sourceId1, "QObject")));
+                ElementsAre(fetchTypeId(sourceId1, "QObject3"), fetchTypeId(sourceId1, "QObject2")));
 }
 
 TEST_F(ProjectStorage, is_based_on_for_direct_prototype)

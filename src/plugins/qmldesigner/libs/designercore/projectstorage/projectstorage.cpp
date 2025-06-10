@@ -545,6 +545,15 @@ struct ProjectStorage::Statements
         "      FROM bases JOIN prototypes USING(typeId)) "
         "SELECT typeId FROM prototypes",
         database};
+    mutable Sqlite::ReadStatement<1, 1> selectPrototypeIdsStatement{
+        "WITH RECURSIVE "
+        "  typeChain(typeId) AS ( "
+        "      SELECT prototypeId FROM prototypes WHERE typeId=?1 "
+        "    UNION ALL "
+        "      SELECT prototypeId "
+        "      FROM prototypes JOIN typeChain USING(typeId)) "
+        "SELECT typeId FROM typeChain",
+        database};
     Sqlite::WriteStatement<3> updatePropertyDeclarationAliasIdAndTypeNameIdStatement{
         "UPDATE propertyDeclarations "
         "SET aliasPropertyDeclarationId=?2, "
@@ -2024,8 +2033,7 @@ SmallTypeIds<16> ProjectStorage::prototypeIds(TypeId type) const
 {
     NanotraceHR::Tracer tracer{"get prototypes", projectStorageCategory(), keyValue("type id", type)};
 
-    auto prototypeIds = s->selectPrototypeAndExtensionIdsStatement
-                            .valuesWithTransaction<SmallTypeIds<16>>(type);
+    auto prototypeIds = s->selectPrototypeIdsStatement.valuesWithTransaction<SmallTypeIds<16>>(type);
 
     tracer.end(keyValue("type ids", prototypeIds));
 
@@ -2039,7 +2047,7 @@ SmallTypeIds<16> ProjectStorage::prototypeAndSelfIds(TypeId typeId) const
     SmallTypeIds<16> prototypeAndSelfIds;
     prototypeAndSelfIds.push_back(typeId);
 
-    s->selectPrototypeAndExtensionIdsStatement.readToWithTransaction(prototypeAndSelfIds, typeId);
+    s->selectPrototypeIdsStatement.readToWithTransaction(prototypeAndSelfIds, typeId);
 
     tracer.end(keyValue("type ids", prototypeAndSelfIds));
 
