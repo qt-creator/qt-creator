@@ -7,22 +7,6 @@
 
 namespace Ios::Internal {
 
-class IosRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    IosRunWorkerFactory();
-};
-
-class IosDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    IosDebugWorkerFactory();
-};
-
-class IosQmlProfilerWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    IosQmlProfilerWorkerFactory();
-};
+void setupIosFactories();
 
 } // Ios::Internal

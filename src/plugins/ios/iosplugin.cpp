@@ -49,9 +49,6 @@ public:
     IosDeployStepFactory deployStepFactory;
     IosDsymBuildStepFactory dsymBuildStepFactory;
     IosDeployConfigurationFactory deployConfigurationFactory;
-    IosRunWorkerFactory runWorkerFactory;
-    IosDebugWorkerFactory debugWorkerFactory;
-    IosQmlProfilerWorkerFactory qmlProfilerWorkerFactory;
 };
 
 class IosPlugin final : public ExtensionSystem::IPlugin
@@ -79,6 +76,7 @@ class IosPlugin final : public ExtensionSystem::IPlugin
         setupIosSettingsPage();
 
         d = new IosPluginPrivate;
+        setupIosFactories();
     }
 
     IosPluginPrivate *d = nullptr;

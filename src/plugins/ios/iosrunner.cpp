@@ -702,26 +702,30 @@ static Result<FilePath> findDeviceSdk(IosDevice::ConstPtr dev)
 
 // Factories
 
-IosRunWorkerFactory::IosRunWorkerFactory()
+class IosRunWorkerFactory final : public RunWorkerFactory
 {
-    setId("IosRunWorkerFactory");
-    setProducer([](RunControl *runControl) -> RunWorker * {
-        IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
-        if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl) {
-            if (IosDeviceManager::isDeviceCtlOutputSupported())
-                return new RunWorker(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ false));
-            // TODO Remove the polling runner when we decide not to support iOS 17+ devices
-            // with Xcode < 16 at all
-            return new RunWorker(runControl, deviceCtlPollingRecipe(runControl));
-        }
-        runControl->setIcon(Icons::RUN_SMALL_TOOLBAR);
-        runControl->setDisplayName(QString("Run on %1")
-                                       .arg(iosdevice ? iosdevice->displayName() : QString()));
-        return new RunWorker(runControl, iosToolRecipe(runControl));
-    });
-    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
-    addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
-}
+public:
+    IosRunWorkerFactory()
+    {
+        setId("IosRunWorkerFactory");
+        setProducer([](RunControl *runControl) -> RunWorker * {
+            IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
+            if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl) {
+                if (IosDeviceManager::isDeviceCtlOutputSupported())
+                    return new RunWorker(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ false));
+                // TODO Remove the polling runner when we decide not to support iOS 17+ devices
+                // with Xcode < 16 at all
+                return new RunWorker(runControl, deviceCtlPollingRecipe(runControl));
+            }
+            runControl->setIcon(Icons::RUN_SMALL_TOOLBAR);
+            runControl->setDisplayName(QString("Run on %1")
+                                           .arg(iosdevice ? iosdevice->displayName() : QString()));
+            return new RunWorker(runControl, iosToolRecipe(runControl));
+        });
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
+    }
+};
 
 static void parametersModifier(RunControl *runControl, DebuggerRunParameters &rp)
 {
@@ -863,26 +867,41 @@ static RunWorker *createDebugWorker(RunControl *runControl)
     return new RunWorker(runControl, recipe);
 }
 
-IosDebugWorkerFactory::IosDebugWorkerFactory()
+class IosDebugWorkerFactory final : public RunWorkerFactory
 {
-    setId("IosDebugWorkerFactory");
-    setProducer([](RunControl *runControl) { return createDebugWorker(runControl); });
-    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
-}
+public:
+    IosDebugWorkerFactory()
+    {
+        setId("IosDebugWorkerFactory");
+        setProducer([](RunControl *runControl) { return createDebugWorker(runControl); });
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
+    }
+};
 
-IosQmlProfilerWorkerFactory::IosQmlProfilerWorkerFactory()
+class IosQmlProfilerWorkerFactory final : public RunWorkerFactory
 {
-    setId("IosQmlProfilerWorkerFactory");
-    setProducer([](RunControl *runControl) {
-        auto runner = new RunWorker(runControl, iosToolRecipe(runControl, {QmlProfilerServices}));
-        runControl->requestQmlChannel();
-        auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
-        profiler->addStartDependency(runner);
-        return profiler;
-    });
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
+public:
+    IosQmlProfilerWorkerFactory()
+    {
+        setId("IosQmlProfilerWorkerFactory");
+        setProducer([](RunControl *runControl) {
+            auto runner = new RunWorker(runControl, iosToolRecipe(runControl, {QmlProfilerServices}));
+            runControl->requestQmlChannel();
+            auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
+            profiler->addStartDependency(runner);
+            return profiler;
+        });
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+        addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
+    }
+};
+
+void setupIosFactories()
+{
+    static IosRunWorkerFactory theRunWorkerFactory;
+    static IosDebugWorkerFactory theDebugWorkerFactory;
+    static IosQmlProfilerWorkerFactory theQmlProfilerWorkerFactory;
 }
 
 } // Ios::Internal
