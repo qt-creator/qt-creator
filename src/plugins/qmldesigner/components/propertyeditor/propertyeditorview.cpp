@@ -67,9 +67,9 @@ static bool propertyIsAttachedInsightProperty(PropertyNameView propertyName)
 
 static NodeMetaInfo findCommonSuperClass(const NodeMetaInfo &first, const NodeMetaInfo &second)
 {
-    auto commonBase = first.commonBase(second);
+    auto commonPrototype = first.commonPrototype(second);
 
-    return commonBase.isValid() ? commonBase : first;
+    return commonPrototype.isValid() ? commonPrototype : first;
 }
 
 PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,

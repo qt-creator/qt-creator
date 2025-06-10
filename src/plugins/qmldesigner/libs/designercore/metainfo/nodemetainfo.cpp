@@ -4903,7 +4903,7 @@ const PropertyName &PropertyMetaInfo::propertyName() const
 #endif
 }
 
-NodeMetaInfo NodeMetaInfo::commonBase(const NodeMetaInfo &metaInfo) const
+NodeMetaInfo NodeMetaInfo::commonPrototype(const NodeMetaInfo &metaInfo) const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
     if (isValid() && metaInfo) {

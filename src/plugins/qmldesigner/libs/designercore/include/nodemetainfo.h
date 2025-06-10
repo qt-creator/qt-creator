@@ -107,7 +107,7 @@ public:
     NodeMetaInfos selfAndPrototypes(SL sl = {}) const;
     NodeMetaInfos prototypes(SL sl = {}) const;
     NodeMetaInfos heirs() const;
-    NodeMetaInfo commonBase(const NodeMetaInfo &metaInfo) const;
+    NodeMetaInfo commonPrototype(const NodeMetaInfo &metaInfo) const;
 
     bool defaultPropertyIsComponent() const;
 

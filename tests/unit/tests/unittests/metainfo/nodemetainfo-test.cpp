@@ -907,58 +907,58 @@ TEST_F(NodeMetaInfo, heirs_returns_empty_container_for_default)
     ASSERT_THAT(heirs, IsEmpty());
 }
 
-TEST_F(NodeMetaInfo, common_base_is_root)
+TEST_F(NodeMetaInfo, common_prototype_is_root)
 {
     auto metaInfo = model.qtQuickTextMetaInfo();
 
-    auto commonBase = metaInfo.commonBase(model.qtQuickPropertyAnimationMetaInfo());
+    auto commonPrototype = metaInfo.commonPrototype(model.qtQuickPropertyAnimationMetaInfo());
 
-    ASSERT_THAT(commonBase, model.qmlQtObjectMetaInfo());
+    ASSERT_THAT(commonPrototype, model.qmlQtObjectMetaInfo());
 }
 
-TEST_F(NodeMetaInfo, common_base_is_first_leaf)
+TEST_F(NodeMetaInfo, common_prototype_is_first_leaf)
 {
     auto metaInfo = model.qtQuickItemMetaInfo();
 
-    auto commonBase = metaInfo.commonBase(model.qtQuickTextMetaInfo());
+    auto commonPrototype = metaInfo.commonPrototype(model.qtQuickTextMetaInfo());
 
-    ASSERT_THAT(commonBase, model.qtQuickItemMetaInfo());
+    ASSERT_THAT(commonPrototype, model.qtQuickItemMetaInfo());
 }
 
-TEST_F(NodeMetaInfo, common_base_is_second_leaf)
+TEST_F(NodeMetaInfo, common_prototype_is_second_leaf)
 {
     auto metaInfo = model.qtQuickTextMetaInfo();
 
-    auto commonBase = metaInfo.commonBase(model.qtQuickItemMetaInfo());
+    auto commonPrototype = metaInfo.commonPrototype(model.qtQuickItemMetaInfo());
 
-    ASSERT_THAT(commonBase, model.qtQuickItemMetaInfo());
+    ASSERT_THAT(commonPrototype, model.qtQuickItemMetaInfo());
 }
 
-TEST_F(NodeMetaInfo, there_is_no_common_base)
+TEST_F(NodeMetaInfo, there_is_no_common_prototype)
 {
     auto metaInfo = model.metaInfo("int");
 
-    auto commonBase = metaInfo.commonBase(model.qtQuickItemMetaInfo());
+    auto commonPrototype = metaInfo.commonPrototype(model.qtQuickItemMetaInfo());
 
-    ASSERT_THAT(commonBase, IsFalse());
+    ASSERT_THAT(commonPrototype, IsFalse());
 }
 
-TEST_F(NodeMetaInfo, first_input_is_invalid_for_common_base_returns_invalid)
+TEST_F(NodeMetaInfo, first_input_is_invalid_for_common_prototype_returns_invalid)
 {
     auto metaInfo = QmlDesigner::NodeMetaInfo();
 
-    auto commonBase = metaInfo.commonBase(model.qtQuickTextMetaInfo());
+    auto commonPrototype = metaInfo.commonPrototype(model.qtQuickTextMetaInfo());
 
-    ASSERT_THAT(commonBase, IsFalse());
+    ASSERT_THAT(commonPrototype, IsFalse());
 }
 
-TEST_F(NodeMetaInfo, second_input_is_invalid_for_common_base_returns_invalid)
+TEST_F(NodeMetaInfo, second_input_is_invalid_for_common_prototype_returns_invalid)
 {
     auto metaInfo = model.qtQuickTextMetaInfo();
 
-    auto commonBase = metaInfo.commonBase(QmlDesigner::NodeMetaInfo());
+    auto commonPrototype = metaInfo.commonPrototype(QmlDesigner::NodeMetaInfo());
 
-    ASSERT_THAT(commonBase, IsFalse());
+    ASSERT_THAT(commonPrototype, IsFalse());
 }
 
 TEST_F(NodeMetaInfo, source_id)
