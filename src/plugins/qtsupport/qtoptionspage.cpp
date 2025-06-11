@@ -989,26 +989,22 @@ static FilePaths qtversionFilesToCheck()
     return Utils::transform(kSubdirsToCheck, [](const QString &dir) { return qtVersionsFile(dir); });
 }
 
-static std::optional<FilePath> settingsDirForQtDir(const FilePath &baseDirectory,
-                                                   const FilePath &qtDir)
+static FilePath settingsDirForQtDir(const FilePath &baseDirectory, const FilePath &qtDir)
 {
     const FilePaths dirsToCheck = Utils::transform(kSubdirsToCheck, [qtDir](const QString &dir) {
         return qtDir / dir;
     });
-    const FilePath validDir = Utils::findOrDefault(dirsToCheck, [baseDirectory](const FilePath &dir) {
+    return Utils::findOrDefault(dirsToCheck, [baseDirectory](const FilePath &dir) {
         return settingsFile(baseDirectory.resolvePath(dir).path()).exists()
             || qtVersionsFile(baseDirectory.resolvePath(dir).path()).exists();
     });
-    if (!validDir.isEmpty())
-        return validDir;
-    return {};
 }
 
 static FancyLineEdit::AsyncValidationResult validateQtInstallDir(const QString &input,
                                                                  const FilePath &baseDirectory)
 {
     const FilePath qtDir = FilePath::fromUserInput(input);
-    if (!settingsDirForQtDir(baseDirectory, qtDir)) {
+    if (!settingsDirForQtDir(baseDirectory, qtDir).isEmpty()) {
         const FilePaths filesToCheck = settingsFilesToCheck() + qtversionFilesToCheck();
         return make_unexpected(
             "<html><body>"
@@ -1097,12 +1093,12 @@ void QtSettingsPageWidget::linkWithQt()
     dialog.setMinimumWidth(520);
     dialog.exec();
     if (dialog.result() == QDialog::Accepted) {
-        const std::optional<FilePath> settingsDir = settingsDirForQtDir(pathInput->baseDirectory(),
-                                                                        pathInput->unexpandedFilePath());
-        if (QTC_GUARD(settingsDir)) {
+        const FilePath settingsDir = settingsDirForQtDir(pathInput->baseDirectory(),
+                                                         pathInput->unexpandedFilePath());
+        if (QTC_GUARD(!settingsDir.isEmpty())) {
             const FilePath settingsFilePath = settingsFile(ICore::resourcePath().path());
             QSettings settings(settingsFilePath.toFSPathString(), QSettings::IniFormat);
-            settings.setValue(kInstallSettingsKey, settingsDir->toVariant());
+            settings.setValue(kInstallSettingsKey, settingsDir.toVariant());
             settings.sync();
             if (settings.status() == QSettings::AccessError) {
                 QMessageBox::critical(ICore::dialogParent(),
