@@ -1693,6 +1693,7 @@ private slots:
         const QList<Id> devices =
             transform(IDeviceFactory::allDeviceFactories(), &IDeviceFactory::deviceType);
 
+        int supported = 0;
         for (Id runMode : std::as_const(g_runModes)) {
             for (Id device : devices) {
                 for (Id runConfig : std::as_const(g_runConfigs)) {
@@ -1701,6 +1702,8 @@ private slots:
                         if (factory->canCreate(runMode, device, runConfig.toString()))
                             creators.append(factory->id());
                     }
+                    if (!creators.isEmpty())
+                        ++supported;
                     if (creators.size() > 1) {
                         qDebug() << "CONFLICT FOR" << runMode << device << runConfig
                                  << " FACTORIES " << creators;
@@ -1709,6 +1712,7 @@ private slots:
                 }
             }
         }
+        qDebug() << "SUPPORTED COMBINATIONS: " << supported;
         QVERIFY(ok);
     }
 };
