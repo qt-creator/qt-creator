@@ -28,6 +28,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/filepath.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
@@ -1829,8 +1830,24 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
 
     // These paths should not be checked for existence, to ensure consistent include path lists
     // before and after building.
-    const QString mocDir = mocDirPath(reader, buildDir);
-    const QString uiDir = uiDirPath(reader, buildDir);
+    const FilePath mocDir = FilePath::fromString(mocDirPath(reader, buildDir));
+    const FilePath uiDir = FilePath::fromString(uiDirPath(reader, buildDir));
+
+    /* We need to make a full valid Utils::FilePath to make sure that remote paths are compared
+     * correctly. E.g. we may need to compare paths:
+     *   "/C/Users/Admin/DEV/project/build"
+     * and
+     *   "C:/__qtc_devices__/docker/builder_container.latest/C/Users/Admin/DEV/project/build"
+     * Due to buildDir being remote we are sure that the first path of these two must have the same
+     * device but it does not. In such cases device from buildDir is added to the path.
+     */
+    auto createFullFilePath = [&buildDir](QString path) ->FilePath {
+        FilePath result = FilePath::fromString(path);
+        if (!buildDir.isLocal() && result.isLocal()){
+            result.setParts(buildDir.scheme(), buildDir.host(), result.path());
+        }
+        return result;
+    };
 
     const QList<ProFileEvaluator::SourceFile> elList = reader->fixifiedValues(
                 QLatin1String("INCLUDEPATH"), projectDir, buildDir.path(), false);
@@ -1838,9 +1855,10 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
         const QString sysrootifiedPath = sysrootify(el.fileName, sysroot.path(),
                                                     projectDir,
                                                     buildDir.path());
-        if (IoUtils::isAbsolutePath({}, sysrootifiedPath)
-                && (IoUtils::exists({}, sysrootifiedPath) || sysrootifiedPath == mocDir
-                    || sysrootifiedPath == uiDir)) {
+        const FilePath sysrootifiedFilePath = createFullFilePath(sysrootifiedPath);
+        if (sysrootifiedFilePath.isAbsolutePath()
+                && (sysrootifiedFilePath.exists() || sysrootifiedFilePath == mocDir
+                    || sysrootifiedFilePath == uiDir)) {
             paths << sysrootifiedPath;
         } else {
             tryUnfixified = true;
@@ -1854,7 +1872,8 @@ QStringList QmakeProFile::includePaths(QtSupport::ProFileReader *reader, const F
         for (const QString &p : rawValues) {
             const QString sysrootifiedPath = sysrootify(QDir::cleanPath(p), sysroot.toUrlishString(),
                                                         projectDir, buildDir.toUrlishString());
-            if (IoUtils::isAbsolutePath({}, sysrootifiedPath) && IoUtils::exists({}, sysrootifiedPath))
+            const FilePath sysrootifiedFilePath = createFullFilePath(sysrootifiedPath);
+            if (sysrootifiedFilePath.isAbsolutePath() && sysrootifiedFilePath.exists())
                 paths << sysrootifiedPath;
         }
     }
