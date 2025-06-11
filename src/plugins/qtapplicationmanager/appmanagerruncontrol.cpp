@@ -159,12 +159,8 @@ public:
             BuildConfiguration *bc = runControl->buildConfiguration();
 
             const Internal::TargetInformation targetInformation(bc);
-            if (!targetInformation.isValid()) {
-                // TODO: reportFailure won't work from RunWorker's c'tor.
-                runControl->postMessage(Tr::tr("Cannot debug: Invalid target information."),
-                                        ErrorMessageFormat);
-                return {};
-            }
+            if (!targetInformation.isValid())
+                return errorTask(runControl, Tr::tr("Cannot debug: Invalid target information."));
 
             FilePath symbolFile;
 
@@ -179,16 +175,11 @@ public:
                                                              || ti.projectFilePath.toUrlishString() == targetInformation.manifest.code;
                                                   }).targetFilePath;
             } else {
-                // TODO: reportFailure won't work from RunWorker's c'tor.
-                runControl->postMessage(Tr::tr("Cannot debug: Only QML and native applications are supported."),
-                                        ErrorMessageFormat);
-                return {};
+                return errorTask(runControl,
+                    Tr::tr("Cannot debug: Only QML and native applications are supported."));
             }
             if (symbolFile.isEmpty()) {
-                // TODO: reportFailure won't work from RunWorker's c'tor.
-                runControl->postMessage(Tr::tr("Cannot debug: Local executable is not set."),
-                                        ErrorMessageFormat);
-                return {};
+                return errorTask(runControl, Tr::tr("Cannot debug: Local executable is not set."));
             }
 
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
