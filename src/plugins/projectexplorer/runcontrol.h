@@ -272,6 +272,8 @@ PROJECTEXPLORER_EXPORT Tasking::Storage<RunInterface> runStorage();
 using Canceler = std::function<std::pair<RunInterface *, void (RunInterface::*)()>()>;
 PROJECTEXPLORER_EXPORT Canceler canceler();
 
+PROJECTEXPLORER_EXPORT Tasking::Group errorTask(RunControl *runControl, const QString &message);
+
 // Just a helper
 template <typename Result, typename Function, typename ...Args,
           typename DecayedFunction = std::decay_t<Function>>

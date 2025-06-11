@@ -1642,6 +1642,16 @@ Canceler canceler()
     return [] { return std::make_pair(runStorage().activeStorage(), &RunInterface::canceled); };
 }
 
+Group errorTask(RunControl *runControl, const QString &message)
+{
+    return {
+        Sync([runControl, message] {
+            runControl->postMessage(message, ErrorMessageFormat);
+            return DoneResult::Error;
+        })
+    };
+}
+
 Group processRecipe(const ProcessTask &processTask)
 {
     return {
