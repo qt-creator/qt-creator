@@ -12,8 +12,7 @@ namespace Tasking { class Group; }
 namespace QmlProfiler::Internal {
 
 Tasking::Group qmlProfilerRecipe(ProjectExplorer::RunControl *runControl);
-
-ProjectExplorer::RunWorker *createLocalQmlProfilerWorker(ProjectExplorer::RunControl *runControl);
+Tasking::Group localQmlProfilerRecipe(ProjectExplorer::RunControl *runControl);
 
 void setupQmlProfilerRunning();
 

@@ -69,9 +69,8 @@ Group qmlProfilerRecipe(RunControl *runControl)
     return { BarrierTask(onSetup, onDone) };
 }
 
-RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
+Group localQmlProfilerRecipe(RunControl *runControl)
 {
-    auto profiler = new RunWorker(runControl, qmlProfilerRecipe(runControl));
     runControl->requestQmlChannel();
 
     const auto modifier = [runControl](Process &process) {
@@ -90,14 +89,46 @@ RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
         CommandLine cmd = runControl->commandLine();
         cmd.prependArgs(arguments, CommandLine::Raw);
         process.setCommand(cmd.toLocal());
+
+        QmlProfilerTool::instance()->finalizeRunControl(runControl);
+        QmlProfilerClientManager *clientManager = QmlProfilerTool::instance()->clientManager();
+
+        const auto handleDone = [runControl, process = &process] {
+            if (QmlProfilerTool::instance()) {
+                QmlProfilerTool::instance()->handleStop();
+                QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
+                if (stateManager && stateManager->currentState() == QmlProfilerStateManager::AppRunning)
+                    stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
+            }
+            handleProcessCancellation(runControl, process);
+        };
+
+        QObject::connect(clientManager, &QmlProfilerClientManager::connectionFailed,
+                         &process, [handleDone] { handleDone(); });
+        QObject::connect(clientManager, &QmlProfilerClientManager::connectionClosed,
+                         &process, [handleDone] { handleDone(); });
+        RunInterface *iface = runStorage().activeStorage();
+        QObject::connect(iface, &RunInterface::canceled, &process, [handleDone, process = &process] {
+            QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
+            if (QmlProfilerTool::instance() == nullptr || stateManager == nullptr) {
+                handleDone();
+                return;
+            }
+            if (stateManager->currentState() == QmlProfilerStateManager::AppRunning)
+                stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
+            QObject::connect(stateManager, &QmlProfilerStateManager::stateChanged,
+                             process, [handleDone, stateManager] {
+                if (stateManager->currentState() == QmlProfilerStateManager::Idle) {
+                    QmlProfilerTool::instance()->handleStop();
+                    handleDone();
+                }
+            });
+        });
+        clientManager->setServer(runControl->qmlChannel());
+        clientManager->connectToServer();
     };
 
-    auto worker = createProcessWorker(runControl, modifier);
-    worker->addStopDependency(profiler);
-    // We need to open the local server before the application tries to connect.
-    // In the TCP case, it doesn't hurt either to start the profiler before.
-    worker->addStartDependency(profiler);
-    return worker;
+    return { processRecipe(runControl, modifier, {false, false}) };
 }
 
 // Factories
@@ -121,7 +152,7 @@ public:
     LocalQmlProfilerRunWorkerFactory()
     {
         setId(ProjectExplorer::Constants::QML_PROFILER_RUN_FACTORY);
-        setProducer(&createLocalQmlProfilerWorker);
+        setRecipeProducer(&localQmlProfilerRecipe);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 

@@ -27,6 +27,11 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 {
 }
 
+static RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
+{
+    return new RunWorker(runControl, localQmlProfilerRecipe(runControl));
+}
+
 void LocalQmlProfilerRunnerTest::testRunner()
 {
     std::unique_ptr<RunControl> runControl;
