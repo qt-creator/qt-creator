@@ -1694,6 +1694,7 @@ private slots:
             transform(IDeviceFactory::allDeviceFactories(), &IDeviceFactory::deviceType);
 
         int supported = 0;
+        int conflicts = 0;
         for (Id runMode : std::as_const(g_runModes)) {
             for (Id device : devices) {
                 for (Id runConfig : std::as_const(g_runConfigs)) {
@@ -1708,11 +1709,13 @@ private slots:
                         qDebug() << "CONFLICT FOR" << runMode << device << runConfig
                                  << " FACTORIES " << creators;
                         ok = false;
+                        ++conflicts;
                     }
                 }
             }
         }
         qDebug() << "SUPPORTED COMBINATIONS: " << supported;
+        qDebug() << "CONFLICTING COMBINATIONS: " << conflicts;
         QVERIFY(ok);
     }
 };
