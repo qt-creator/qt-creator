@@ -80,7 +80,7 @@ McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
 FlashRunWorkerFactory::FlashRunWorkerFactory()
 {
     setId("FlashRunWorkerFactory");
-    setProducer([](RunControl *runControl) {
+    setRecipeProducer([](RunControl *runControl) {
         const auto modifier = [runControl](Process &process) {
             const BuildConfiguration *bc = runControl->buildConfiguration();
             process.setCommand({cmakeFilePath(bc->kit()),
@@ -97,7 +97,7 @@ FlashRunWorkerFactory::FlashRunWorkerFactory()
             FlashAndRunConfiguration::disabled = false;
             ProjectExplorerPlugin::updateRunActions();
         });
-        return createProcessWorker(runControl, modifier);
+        return processRecipe(runControl, modifier);
     });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     addSupportedRunConfig(Constants::RUNCONFIGURATION);
