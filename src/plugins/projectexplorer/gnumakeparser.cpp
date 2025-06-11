@@ -16,9 +16,19 @@ using namespace Utils;
 namespace ProjectExplorer {
 
 namespace {
-    // optional full path, make executable name, optional exe extension, optional number in square brackets, colon space
-    const char * const MAKEEXEC_PATTERN("^(.*?[/\\\\])?(mingw(32|64)-|g)?make(.exe)?(\\[\\d+\\])?:\\s");
-    const char * const MAKEFILE_PATTERN("^((.*?[/\\\\])?[Mm]akefile(\\.[a-zA-Z]+)?):(\\d+):\\s");
+class MakeTask : public BuildSystemTask
+{
+public:
+    MakeTask(TaskType type, const QString &description, const Utils::FilePath &file = {},
+             int line = -1) : BuildSystemTask(type, description, file, line)
+    {
+        origin = "make";
+    }
+};
+
+// optional full path, make executable name, optional exe extension, optional number in square brackets, colon space
+const char * const MAKEEXEC_PATTERN("^(.*?[/\\\\])?(mingw(32|64)-|g)?make(.exe)?(\\[\\d+\\])?:\\s");
+const char * const MAKEFILE_PATTERN("^((.*?[/\\\\])?[Mm]akefile(\\.[a-zA-Z]+)?):(\\d+):\\s");
 }
 
 GnuMakeParser::GnuMakeParser()
@@ -104,7 +114,7 @@ OutputLineParser::Result GnuMakeParser::handleLine(const QString &line, OutputFo
             const FilePath file = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
             const int lineNo = match.captured(4).toInt();
             addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineNo, -1, match, 1);
-            emitTask(BuildSystemTask(res.type, res.description, file, lineNo));
+            emitTask(MakeTask(res.type, res.description, file, lineNo));
         }
         return {Status::Done, linkSpecs};
     }
@@ -114,7 +124,7 @@ OutputLineParser::Result GnuMakeParser::handleLine(const QString &line, OutputFo
         if (res.isFatal)
             ++m_fatalErrorCount;
         if (!m_suppressIssues)
-            emitTask(BuildSystemTask(res.type, res.description));
+            emitTask(MakeTask(res.type, res.description));
         return Status::Done;
     }
 
@@ -216,7 +226,7 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Error,
+                << MakeTask(Task::Error,
                                    "No rule to make target `hello.c', needed by `hello.o'.  Stop."))
             << QStringList();
 
@@ -228,7 +238,7 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Error,
+                << MakeTask(Task::Error,
                                    "[.obj/debug-shared/gnumakeparser.o] Error 1"))
             << QStringList();
 
@@ -238,7 +248,7 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Error,
+                << MakeTask(Task::Error,
                                    "missing separator (did you mean TAB instead of 8 spaces?). Stop.",
                                    Utils::FilePath::fromUserInput("Makefile"), 360))
             << QStringList();
@@ -250,7 +260,7 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Error,
+                << MakeTask(Task::Error,
                                    "[debug/qplotaxis.o] Error 1"))
             << QStringList();
 
@@ -260,7 +270,7 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Error,
+                << MakeTask(Task::Error,
                                    "[dynlib.inst] Error -1073741819"))
             << QStringList();
 
@@ -270,7 +280,7 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Warning,
+                << MakeTask(Task::Warning,
                                    "jobserver unavailable: using -j1. Add `+' to parent make rule."))
             << QStringList();
 
@@ -288,7 +298,7 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Error,
+                << MakeTask(Task::Error,
                                    "[sis] Error 2"))
             << QStringList();
 
@@ -298,7 +308,7 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Error,
+                << MakeTask(Task::Error,
                                    "g++: Command not found"))
             << QStringList();
 
@@ -308,7 +318,7 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Warning,
+                << MakeTask(Task::Warning,
                                    "overriding commands for target `xxxx.app/Contents/Info.plist'",
                                    "Makefile", 794))
             << QStringList();
@@ -371,7 +381,7 @@ void ProjectExplorerTest::testGnuMakeParserTaskMangling()
     testbench.testParsing(
         fi.fileName() + ":360: *** missing separator (did you mean TAB instead of 8 spaces?). Stop.",
         OutputParserTester::STDERR,
-        {BuildSystemTask(Task::Error,
+        {MakeTask(Task::Error,
                          "missing separator (did you mean TAB instead of 8 spaces?). Stop.",
                          FilePath::fromString(theMakeFile.fileName()), 360)},
         {}, {});

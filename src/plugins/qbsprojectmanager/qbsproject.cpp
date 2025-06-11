@@ -179,7 +179,9 @@ QbsBuildSystem::QbsBuildSystem(BuildConfiguration *bc)
     });
     connect(m_session, &QbsSession::errorOccurred, this, [](QbsSession::Error e) {
         const QString msg = Tr::tr("Fatal qbs error: %1").arg(QbsSession::errorString(e));
-        TaskHub::addTask(BuildSystemTask(Task::Error, msg));
+        BuildSystemTask t(Task::Error, msg);
+        t.origin = "qbs";
+        TaskHub::addTask(t);
     });
     connect(m_session, &QbsSession::fileListUpdated, this, &QbsBuildSystem::delayParsing);
 

@@ -22,8 +22,22 @@ private:
     const QRegularExpression m_error;
 };
 
+namespace Internal {
+
+class QmakeTask : public ProjectExplorer::BuildSystemTask
+{
+public:
+    QmakeTask(TaskType type, const QString &description, const Utils::FilePath &file = {},
+              int line = -1)
+        : ProjectExplorer::BuildSystemTask(type, description, file, line)
+    {
+        origin = "qmake";
+    }
+};
+
 #ifdef WITH_TESTS
-namespace Internal { QObject *createQmakeOutputParserTest(); }
+QObject *createQmakeOutputParserTest();
 #endif
 
+} // namespace Internal
 } // namespace QmakeProjectManager

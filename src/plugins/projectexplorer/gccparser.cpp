@@ -118,6 +118,7 @@ private:
 GccParser::GccParser()
 {
     setObjectName(QLatin1String("GCCParser"));
+    setOrigin("GCC compiler");
 
     m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + filePattern()
                                 + QLatin1String("(\\d+)(:\\d+)?[,:]?$"));

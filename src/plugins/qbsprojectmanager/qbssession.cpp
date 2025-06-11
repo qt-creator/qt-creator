@@ -723,8 +723,11 @@ QString ErrorInfo::toString() const
 
 void ErrorInfo::generateTasks(ProjectExplorer::Task::TaskType type) const
 {
-    for (const ErrorInfoItem &item : items)
-        TaskHub::addTask(BuildSystemTask(type, item.description, item.filePath, item.line));
+    for (const ErrorInfoItem &item : items) {
+        BuildSystemTask t(type, item.description, item.filePath, item.line);
+        t.origin = "qbs";
+        TaskHub::addTask(t);
+    }
 }
 
 void forAllProducts(const QJsonObject &project, const WorkerFunction &productFunction)

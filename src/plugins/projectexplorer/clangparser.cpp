@@ -32,6 +32,7 @@ ClangParser::ClangParser() :
     m_expectSnippet(false)
 {
     setObjectName(QLatin1String("ClangParser"));
+    setOrigin("Clang compiler");
 }
 
 QList<OutputLineParser *> ClangParser::clangParserSuite()

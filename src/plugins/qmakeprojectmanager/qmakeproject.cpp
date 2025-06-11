@@ -6,6 +6,7 @@
 #include "qmakebuildconfiguration.h"
 #include "qmakenodes.h"
 #include "qmakenodetreebuilder.h"
+#include "qmakeparser.h"
 #include "qmakeprojectimporter.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagertr.h"
@@ -18,7 +19,6 @@
 
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/generatedcodemodelsupport.h>
-#include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
@@ -831,7 +831,7 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
 
 void QmakeBuildSystem::proFileParseError(const QString &errorMessage, const FilePath &filePath)
 {
-    TaskHub::addTask(BuildSystemTask(Task::Error, errorMessage, filePath));
+    TaskHub::addTask(QmakeTask(Task::Error, errorMessage, filePath));
 }
 
 QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFile *qmakeProFile)

@@ -4,7 +4,6 @@
 #include "linuxiccparser.h"
 #include "ldparser.h"
 #include "lldparser.h"
-#include "projectexplorerconstants.h"
 
 #include <utils/qtcassert.h>
 
@@ -15,6 +14,8 @@ namespace ProjectExplorer {
 LinuxIccParser::LinuxIccParser()
 {
     setObjectName(QLatin1String("LinuxIccParser"));
+    setOrigin("ICC compiler");
+
     // main.cpp(53): error #308: function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible
 
     m_firstLine.setPattern(QLatin1String("^([^\\(\\)]+?)"    // filename (cap 1)

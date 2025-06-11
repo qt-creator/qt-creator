@@ -77,6 +77,8 @@ static Task::TaskType taskType(const QString &category)
 MsvcParser::MsvcParser()
 {
     setObjectName("MsvcParser");
+    setOrigin("MSVC compiler");
+
     m_compileRegExp.setPattern(QString(FILE_POS_PATTERN)
                                + ".*(?:(warning|error) ([A-Z]+\\d{4} ?: )|note: )(.*)$");
     QTC_CHECK(m_compileRegExp.isValid());

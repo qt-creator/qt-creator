@@ -40,6 +40,7 @@ void IarParser::newTask(const Task &task)
 {
     flush();
     m_lastTask = task;
+    m_lastTask.origin = "IAR compiler";
     m_lines = 1;
 }
 

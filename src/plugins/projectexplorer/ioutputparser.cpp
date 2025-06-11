@@ -60,6 +60,7 @@ public:
     QList<TaskInfo> scheduledTasks;
     Task currentTask;
     LinkSpecs linkSpecs;
+    QString origin;
     int lineCount = 0;
     bool targetLinkFixed = false;
 };
@@ -140,6 +141,7 @@ void OutputTaskParser::createOrAmendTask(
         flush();
         d->currentTask = CompileTask(type, description, file, line, column);
         d->currentTask.details.append(originalLine);
+        d->currentTask.origin = d->origin;
         d->linkSpecs = linkSpecs;
         d->lineCount = 1;
         return;
@@ -212,4 +214,10 @@ void OutputTaskParser::flush()
     d->lineCount = 0;
     d->targetLinkFixed = false;
 }
+
+void OutputTaskParser::setOrigin(const QString &source)
+{
+    d->origin = source;
+}
+
 } // namespace ProjectExplorer

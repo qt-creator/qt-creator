@@ -3,16 +3,14 @@
 
 #pragma once
 
-#include "cmake_global.h"
-
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
 #include <QRegularExpression>
 
-namespace CMakeProjectManager {
+namespace CMakeProjectManager::Internal {
 
-class CMAKE_EXPORT CMakeAutogenParser : public ProjectExplorer::OutputTaskParser
+class CMakeAutogenParser : public ProjectExplorer::OutputTaskParser
 {
 public:
     explicit CMakeAutogenParser();
@@ -33,9 +31,7 @@ private:
 };
 
 #ifdef WITH_TESTS
-namespace Internal {
 QObject *createCMakeAutogenParserTest();
-}
 #endif
 
-} // namespace CMakeProjectManager
+} // namespace CMakeProjectManager::Internal

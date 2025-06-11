@@ -20,6 +20,7 @@ namespace ProjectExplorer::Internal {
 LdParser::LdParser()
 {
     setObjectName(QLatin1String("LdParser"));
+    setOrigin("ld linker");
 }
 
 OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat type)

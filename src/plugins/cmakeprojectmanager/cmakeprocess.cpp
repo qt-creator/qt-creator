@@ -17,18 +17,11 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
-#include <projectexplorer/kitchooser.h>
-
-#include <extensionsystem/invoker.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/macroexpander.h>
-#include <utils/processinfo.h>
-#include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
-#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 using namespace Core;
@@ -154,7 +147,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         if (m_process->result() != ProcessResult::FinishedWithSuccess) {
             const QString message = m_process->exitMessage();
             BuildSystem::appendBuildSystemOutput(addCMakePrefix({{}, message}).join('\n'));
-            TaskHub::addTask(BuildSystemTask(Task::Error, message));
+            TaskHub::addTask(CMakeTask(Task::Error, message));
         }
 
         emit finished(m_process->exitCode());

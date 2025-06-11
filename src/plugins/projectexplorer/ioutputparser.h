@@ -30,6 +30,7 @@ public:
 protected:
     void flush() override;
 
+    void setOrigin(const QString &source);
     void scheduleTask(const Task &task, int outputLines, int skippedLines = 0);
     void setDetailsFormat(Task &task, const LinkSpecs &linkSpecs = {});
     void fixTargetLink();

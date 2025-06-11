@@ -2,16 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakeautogenparser.h"
+#include "cmakeoutputparser.h"
 
-#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
+#ifdef WITH_TESTS
+#include <projectexplorer/outputparser_test.h>
+#include <QTest>
+#endif
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CMakeProjectManager {
+namespace CMakeProjectManager::Internal {
 
 const char COMMON_ERROR_PATTERN[] = "^(AutoMoc|AUTOMOC|AutoUic).*error.*$";
 const char COMMON_WARNING_PATTERN[] = "^(AutoMoc|AUTOMOC|AutoUic).*warning.*$";
@@ -37,7 +40,7 @@ OutputLineParser::Result CMakeAutogenParser::handleLine(const QString &line, Out
     case NONE: {
         match = m_commonError.match(trimmedLine);
         if (match.hasMatch()) {
-            m_lastTask = BuildSystemTask(Task::Error, match.captured());
+            m_lastTask = CMakeTask(Task::Error, match.captured());
             m_lines = 1;
 
             m_expectedState = LINE_SEPARATOR;
@@ -45,7 +48,7 @@ OutputLineParser::Result CMakeAutogenParser::handleLine(const QString &line, Out
         }
         match = m_commonWarning.match(trimmedLine);
         if (match.hasMatch()) {
-            m_lastTask = BuildSystemTask(Task::Warning, match.captured());
+            m_lastTask = CMakeTask(Task::Warning, match.captured());
             m_lines = 1;
 
             m_expectedState = LINE_SEPARATOR;
@@ -93,15 +96,7 @@ void CMakeAutogenParser::flush()
     m_lines = 0;
 }
 
-} // namespace CMakeProjectManager
-
 #ifdef WITH_TESTS
-
-#include <projectexplorer/outputparser_test.h>
-
-#include <QTest>
-
-namespace CMakeProjectManager::Internal {
 
 class CMakeAutogenParserTest final : public QObject
 {
@@ -137,7 +132,7 @@ Consider to
   - add #include "main.moc"
   - enable SKIP_AUTOMOC for this file)"
                                    << OutputParserTester::STDERR << QStringList() << QStringList()
-                                   << (Tasks() << BuildSystemTask(
+                                   << (Tasks() << CMakeTask(
                                            Task::Error,
                                            R"(AutoMoc error
 "SRC:/main.cpp"
@@ -156,7 +151,7 @@ included by
   "BIN:/src/quickcontrols/basic/impl/qtquickcontrols2basicstyleimplplugin_QtQuickControls2BasicStyleImplPlugin.cpp"
 Process failed with return value 1)" << OutputParserTester::STDERR
                                               << QStringList() << QStringList()
-                                              << (Tasks() << BuildSystemTask(
+                                              << (Tasks() << CMakeTask(
                                                       Task::Error,
                                                       R"(AutoMoc subprocess error
 The moc process failed to compile
@@ -174,7 +169,7 @@ moc on "/home/alex/src/CMake/tests/solid.orig/solid/solid/device_p.h" !
 Include "moc_device_p.cpp" for compatibility with strict mode (see
 CMAKE_AUTOMOC_RELAXED_MODE).)" << OutputParserTester::STDERR
                                        << QStringList() << QStringList()
-                                       << (Tasks() << BuildSystemTask(
+                                       << (Tasks() << CMakeTask(
                                                Task::Warning,
                                                R"(AUTOMOC: warning:
 /home/alex/src/CMake/tests/solid.orig/solid/solid/device.cpp: The file
@@ -188,7 +183,7 @@ CMAKE_AUTOMOC_RELAXED_MODE).)"));
 "SRC:/src/main.cpp"
 includes the moc file "main.moc", but does not contain a Q_OBJECT, Q_GADGET, Q_NAMESPACE, Q_NAMESPACE_EXPORT, Q_GADGET_EXPORT, Q_ENUM_NS, K_PLUGIN_FACTORY, K_PLUGIN_CLASS, K_PLUGIN_FACTORY_WITH_JSON or K_PLUGIN_CLASS_WITH_JSON macro.)"
                                      << OutputParserTester::STDERR << QStringList() << QStringList()
-                                     << (Tasks() << BuildSystemTask(
+                                     << (Tasks() << CMakeTask(
                                              Task::Warning,
                                              R"(AutoMoc warning
 "SRC:/src/main.cpp"
@@ -202,7 +197,7 @@ but the user interface file "global.ui"
 could not be found in the following directories
   "SRC:/monitor/ui")" << OutputParserTester::STDERR
                                    << QStringList() << QStringList()
-                                   << (Tasks() << BuildSystemTask(
+                                   << (Tasks() << CMakeTask(
                                            Task::Error,
                                            R"(AutoUic error
 "SRC:/monitor/ui/LiveBoard.h"
@@ -230,8 +225,8 @@ QObject *createCMakeAutogenParserTest()
     return new CMakeAutogenParserTest;
 }
 
-} // namespace CMakeProjectManager::Internal
-
 #endif
+
+} // namespace CMakeProjectManager::Internal
 
 #include "cmakeautogenparser.moc"

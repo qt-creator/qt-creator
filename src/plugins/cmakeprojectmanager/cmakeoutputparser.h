@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "cmake_global.h"
-
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
@@ -14,9 +12,9 @@
 
 #include <optional>
 
-namespace CMakeProjectManager {
+namespace CMakeProjectManager::Internal {
 
-class CMAKE_EXPORT CMakeOutputParser : public ProjectExplorer::OutputTaskParser
+class CMakeOutputParser : public ProjectExplorer::OutputTaskParser
 {
 public:
     explicit CMakeOutputParser();
@@ -52,8 +50,19 @@ private:
     CallStackLine m_errorOrWarningLine;
 };
 
+class CMakeTask : public ProjectExplorer::BuildSystemTask
+{
+public:
+    CMakeTask(TaskType type, const QString &description, const Utils::FilePath &file = {},
+              int line = -1)
+        : ProjectExplorer::BuildSystemTask(type, description, file, line)
+    {
+        origin = "CMake";
+    }
+};
+
 #ifdef WITH_TESTS
-namespace Internal { QObject *createCMakeOutputParserTest(); }
+QObject *createCMakeOutputParserTest();
 #endif
 
-} // CMakeProjectManager
+} // namespace CMakeProjectManager::Internal

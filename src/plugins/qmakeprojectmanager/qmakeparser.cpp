@@ -11,6 +11,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace QmakeProjectManager {
+using namespace Internal;
 
 QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+?):(\\d+?):\\s(.+?)$"))
 {
@@ -43,7 +44,7 @@ OutputLineParser::Result QMakeParser::handleLine(const QString &line, OutputForm
         else if (description.startsWith(QLatin1String("error:"), Qt::CaseInsensitive))
             type = Task::Error;
 
-        BuildSystemTask t(type, description, absoluteFilePath(FilePath::fromUserInput(fileName)),
+        QmakeTask t(type, description, absoluteFilePath(FilePath::fromUserInput(fileName)),
                           match.captured(2).toInt() /* line */);
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(linkSpecs, t.file, t.line, t.column, fileNameOffset,
@@ -54,13 +55,13 @@ OutputLineParser::Result QMakeParser::handleLine(const QString &line, OutputForm
     if (lne.startsWith(QLatin1String("Project ERROR: "))
             || lne.startsWith(QLatin1String("ERROR: "))) {
         const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
-        scheduleTask(BuildSystemTask(Task::Error, description), 1);
+        scheduleTask(QmakeTask(Task::Error, description), 1);
         return Status::Done;
     }
     if (lne.startsWith(QLatin1String("Project WARNING: "))
             || lne.startsWith(QLatin1String("WARNING: "))) {
         const QString description = lne.mid(lne.indexOf(QLatin1Char(':')) + 2);
-        scheduleTask(BuildSystemTask(Task::Warning, description), 1);
+        scheduleTask(QmakeTask(Task::Warning, description), 1);
         return Status::Done;
     }
     return Status::NotHandled;
@@ -109,7 +110,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Error,
+                << QmakeTask(Task::Error,
                                    "undefined file"));
 
     QTest::newRow("qMake Parse Error")
@@ -117,7 +118,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Error,
+                << QmakeTask(Task::Error,
                                    "Parse Error ('sth odd')",
                                    FilePath::fromUserInput("e:\\project.pro"),
                                    14));
@@ -127,7 +128,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Warning,
+                << QmakeTask(Task::Warning,
                                    "bearer module might require ReadUserData capability"));
 
     QTest::newRow("qMake warning 2")
@@ -135,7 +136,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Warning,
+                << QmakeTask(Task::Warning,
                                    "Failure to find: blackberrycreatepackagestepconfigwidget.cpp"));
 
     QTest::newRow("qMake warning with location")
@@ -143,7 +144,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Warning,
+                << QmakeTask(Task::Warning,
                                    "Unescaped backslashes are deprecated.",
                                    FilePath::fromUserInput("e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl"), 1));
 
@@ -152,7 +153,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                << BuildSystemTask(Task::Unknown,
+                << QmakeTask(Task::Unknown,
                         "Note: No relevant classes found. No output generated.",
                         FilePath::fromUserInput("/home/qtwebkithelpviewer.h"), -1));
 }

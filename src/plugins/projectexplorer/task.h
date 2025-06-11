@@ -71,6 +71,7 @@ public:
     int movedLine = -1; // contains a line number if the line was moved in the editor
     int column = 0;
     Utils::Id category;
+    QString origin;
 
     // Having a container of QTextLayout::FormatRange in Task isn't that great
     // It would be cleaner to split up the text into
