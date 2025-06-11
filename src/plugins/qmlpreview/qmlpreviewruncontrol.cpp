@@ -147,7 +147,7 @@ LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
             parallel,
             stopOnSuccessOrError,
             qmlPreviewRecipe(runControl),
-            processRecipe(processTaskWithModifier(runControl, modifier))
+            processRecipe(runControl, modifier)
         };
     });
     addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);

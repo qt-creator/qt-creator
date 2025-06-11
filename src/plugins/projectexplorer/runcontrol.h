@@ -320,6 +320,15 @@ RunWorker *createProcessWorker(RunControl *runControl,
         processTaskWithModifier(runControl, startModifier, suppressDefaultStdOutHandling)));
 }
 
+template <typename Modifier>
+Tasking::Group processRecipe(RunControl *runControl,
+                             const Modifier &startModifier = {},
+                             bool suppressDefaultStdOutHandling = false)
+{
+    return processRecipe(processTaskWithModifier(runControl, startModifier, suppressDefaultStdOutHandling));
+}
+
+
 #ifdef WITH_TESTS
 namespace Internal { QObject *createRunWorkerConflictTest(); }
 #endif
