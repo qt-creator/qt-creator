@@ -10,7 +10,7 @@ add_feature_info("Qml Designer Lite" ${QTC_USE_QML_DESIGNER_LITE} "")
 
 option(USE_PROJECTSTORAGE "Use ProjectStorage" ${BUILD_DESIGNSTUDIO})
 add_feature_info("Use project storage" ${USE_PROJECTSTORAGE} "")
-option(DETACH_DISABLED_VIEWS "Detach disabled views" OFF)
+option(DETACH_DISABLED_VIEWS "Detach disabled views" ${BUILD_DESIGNSTUDIO})
 
 env_with_default("QTC_ENABLE_PROJECT_STORAGE_TRACING" ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING OFF)
 option(ENABLE_PROJECT_STORAGE_TRACING "Enable project storage tracing" ${ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING})
