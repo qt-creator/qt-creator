@@ -118,7 +118,7 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
     , m_propertyEditorTransaction(std::make_unique<PropertyEditorTransaction>(propertyEditor))
     , m_dummyPropertyEditorValue(std::make_unique<PropertyEditorValue>())
 {
-    NanotraceHR::Tracer tracer{"property editor backend constructor", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend constructor", category()};
 
     m_contextObject->setQuickWidget(m_view.get());
     m_view->engine()->setOutputWarningsToStandardError(QmlDesignerPlugin::instance()
@@ -140,7 +140,7 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
 
 PropertyEditorQmlBackend::~PropertyEditorQmlBackend()
 {
-    NanotraceHR::Tracer tracer{"property editor backend destructor", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend destructor", category()};
 }
 
 void PropertyEditorQmlBackend::setupPropertyEditorValue(PropertyNameView name,
@@ -184,8 +184,8 @@ QVariant properDefaultAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
 QVariant properDefaultLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode,
                                                PropertyNameView propertyName)
 {
-    NanotraceHR::Tracer tracer{"property editor backend proper default layout attached properties",
-                               category()};
+    NanotraceHR::Tracer tracer{
+        "property editor qml backend proper default layout attached properties", category()};
     const QVariant value = qmlObjectNode.modelValue("Layout."_sv + propertyName);
     QVariant marginsValue = qmlObjectNode.modelValue("Layout.margins");
 
@@ -232,7 +232,8 @@ QVariant properDefaultInsightAttachedProperties(const QmlObjectNode &qmlObjectNo
 
 void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor)
 {
-    NanotraceHR::Tracer tracer{"property editor backend setup layout attached properties", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend setup layout attached properties",
+                               category()};
 
     if (QmlItemNode(qmlObjectNode).isInLayout()) {
         static constexpr PropertyNameView propertyNames[] = {"alignment",
@@ -267,7 +268,7 @@ void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode
 void PropertyEditorQmlBackend::setupInsightAttachedProperties(const QmlObjectNode &qmlObjectNode,
                                                               PropertyEditorView *propertyEditor)
 {
-    NanotraceHR::Tracer tracer{"property editor backend setup insight attached properties",
+    NanotraceHR::Tracer tracer{"property editor qml backend setup insight attached properties",
                                category()};
 
     const PropertyName propertyName = "category";
@@ -280,7 +281,7 @@ void PropertyEditorQmlBackend::setupInsightAttachedProperties(const QmlObjectNod
 void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
                                                         PropertyEditorView *propertyEditor)
 {
-    NanotraceHR::Tracer tracer{"property editor backend setup auxiliary properties", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend setup auxiliary properties", category()};
 
     const QmlItemNode itemNode(qmlObjectNode);
 
@@ -300,7 +301,8 @@ void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qml
 void PropertyEditorQmlBackend::handleInstancePropertyChangedInModelNodeProxy(
     const ModelNode &modelNode, PropertyNameView propertyName)
 {
-    NanotraceHR::Tracer tracer{"property editor backend handle instance property changed", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend handle instance property changed",
+                               category()};
 
     m_backendModelNode.handleInstancePropertyChanged(modelNode, propertyName);
 }
@@ -308,7 +310,8 @@ void PropertyEditorQmlBackend::handleInstancePropertyChangedInModelNodeProxy(
 void PropertyEditorQmlBackend::handleAuxiliaryDataChanges(const QmlObjectNode &qmlObjectNode,
                                                           AuxiliaryDataKeyView key)
 {
-    NanotraceHR::Tracer tracer{"property editor backend handle auxiliary data changes", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend handle auxiliary data changes",
+                               category()};
 
     if (qmlObjectNode.isRootModelNode() && isMaterialAuxiliaryKey(key)) {
         m_backendMaterialNode.handleAuxiliaryPropertyChanges();
@@ -318,7 +321,8 @@ void PropertyEditorQmlBackend::handleAuxiliaryDataChanges(const QmlObjectNode &q
 
 void PropertyEditorQmlBackend::handleVariantPropertyChangedInModelNodeProxy(const VariantProperty &property)
 {
-    NanotraceHR::Tracer tracer{"property editor backend handle variant property changed", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend handle variant property changed",
+                               category()};
 
     m_backendModelNode.handleVariantPropertyChanged(property);
     updateInstanceImage();
@@ -326,7 +330,8 @@ void PropertyEditorQmlBackend::handleVariantPropertyChangedInModelNodeProxy(cons
 
 void PropertyEditorQmlBackend::handleBindingPropertyChangedInModelNodeProxy(const BindingProperty &property)
 {
-    NanotraceHR::Tracer tracer{"property editor backend handle binding property changed", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend handle binding property changed",
+                               category()};
 
     m_backendModelNode.handleBindingPropertyChanged(property);
     m_backendTextureNode.handleBindingPropertyChanged(property);
@@ -336,8 +341,8 @@ void PropertyEditorQmlBackend::handleBindingPropertyChangedInModelNodeProxy(cons
 void PropertyEditorQmlBackend::handleBindingPropertyInModelNodeProxyAboutToChange(
     const BindingProperty &property)
 {
-    NanotraceHR::Tracer tracer{"property editor backend handle binding property about to change",
-                               category()};
+    NanotraceHR::Tracer tracer{
+        "property editor qml backend handle binding property about to change", category()};
 
     if (m_backendMaterialNode.materialNode()) {
         ModelNode expressionNode = property.resolveToModelNode();
@@ -349,7 +354,7 @@ void PropertyEditorQmlBackend::handleBindingPropertyInModelNodeProxyAboutToChang
 
 void PropertyEditorQmlBackend::handlePropertiesRemovedInModelNodeProxy(const AbstractProperty &property)
 {
-    NanotraceHR::Tracer tracer{"property editor backend handle properties removed", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend handle properties removed", category()};
 
     m_backendModelNode.handlePropertiesRemoved(property);
     m_backendTextureNode.handlePropertiesRemoved(property);
@@ -372,7 +377,7 @@ void PropertyEditorQmlBackend::handleModelNodePreviewPixmapChanged(const ModelNo
 
 void PropertyEditorQmlBackend::handleModelSelectedNodesChanged(PropertyEditorView *propertyEditor)
 {
-    NanotraceHR::Tracer tracer{"property editor backend handle model selected nodes changed",
+    NanotraceHR::Tracer tracer{"property editor qml backend handle model selected nodes changed",
                                category()};
 
     contextObject()->setHas3DModelSelected(!Utils3D::getSelectedModels(propertyEditor).isEmpty());
@@ -384,7 +389,7 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
                                                          const QVariant &value,
                                                          PropertyEditorView *propertyEditor)
 {
-    NanotraceHR::Tracer tracer{"property editor backend create property editor value", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend create property editor value", category()};
 
     PropertyName propertyName(name.toByteArray());
     propertyName.replace('.', '_');
@@ -423,7 +428,7 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode &,
                                         PropertyNameView name,
                                         const QVariant &value)
 {
-    NanotraceHR::Tracer tracer{"property editor backend set value", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend set value", category()};
 
     // Vector*D values need to be split into their subcomponents
     if (value.typeId() == QMetaType::QVector2D) {
@@ -471,7 +476,7 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode &,
 
 void PropertyEditorQmlBackend::setExpression(PropertyNameView propName, const QString &exp)
 {
-    NanotraceHR::Tracer tracer{"property editor backend set expression", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend set expression", category()};
 
     PropertyEditorValue *propertyValue = propertyValueForName(QString::fromUtf8(propName));
     if (propertyValue)
@@ -480,28 +485,28 @@ void PropertyEditorQmlBackend::setExpression(PropertyNameView propName, const QS
 
 QQmlContext *PropertyEditorQmlBackend::context()
 {
-    NanotraceHR::Tracer tracer{"property editor backend context", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend context", category()};
 
     return m_view->rootContext();
 }
 
 PropertyEditorContextObject *PropertyEditorQmlBackend::contextObject()
 {
-    NanotraceHR::Tracer tracer{"property editor backend context object", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend context object", category()};
 
     return m_contextObject.get();
 }
 
 QQuickWidget *PropertyEditorQmlBackend::widget()
 {
-    NanotraceHR::Tracer tracer{"property editor backend widget", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend widget", category()};
 
     return m_view.get();
 }
 
 void PropertyEditorQmlBackend::setSource(const QUrl &url)
 {
-    NanotraceHR::Tracer tracer{"property editor backend set source", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend set source", category()};
 
     m_view->setSource(url);
 
@@ -515,28 +520,28 @@ void PropertyEditorQmlBackend::setSource(const QUrl &url)
 
 QmlAnchorBindingProxy &PropertyEditorQmlBackend::backendAnchorBinding()
 {
-    NanotraceHR::Tracer tracer{"property editor backend backend anchor binding", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend backend anchor binding", category()};
 
     return m_backendAnchorBinding;
 }
 
 DesignerPropertyMap &PropertyEditorQmlBackend::backendValuesPropertyMap()
 {
-    NanotraceHR::Tracer tracer{"property editor backend backend values property map", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend backend values property map", category()};
 
     return m_backendValuesPropertyMap;
 }
 
 PropertyEditorTransaction *PropertyEditorQmlBackend::propertyEditorTransaction()
 {
-    NanotraceHR::Tracer tracer{"property editor backend property editor transaction", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend property editor transaction", category()};
 
     return m_propertyEditorTransaction.get();
 }
 
 PropertyEditorValue *PropertyEditorQmlBackend::propertyValueForName(const QString &propertyName)
 {
-    NanotraceHR::Tracer tracer{"property editor backend property value for name", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend property value for name", category()};
 
     return qobject_cast<PropertyEditorValue *>(
         variantToQObject(backendValuesPropertyMap().value(propertyName)));
@@ -544,7 +549,8 @@ PropertyEditorValue *PropertyEditorQmlBackend::propertyValueForName(const QStrin
 
 void QmlDesigner::PropertyEditorQmlBackend::createPropertyEditorValues(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor)
 {
-    NanotraceHR::Tracer tracer{"property editor backend create property editor values", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend create property editor values",
+                               category()};
 
 #ifndef QDS_USE_PROJECTSTORAGE
     for (const auto &property : PropertyEditorUtils::filteredProperties(qmlObjectNode.metaInfo())) {
@@ -570,7 +576,7 @@ PropertyEditorValue *PropertyEditorQmlBackend::insertValue(const QString &name,
                                                            const QVariant &value,
                                                            const ModelNode &modelNode)
 {
-    NanotraceHR::Tracer tracer{"property editor backend insert value", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend insert value", category()};
 
     auto valueObject = qobject_cast<PropertyEditorValue *>(
         variantToQObject(m_backendValuesPropertyMap.value(name)));
@@ -595,7 +601,7 @@ PropertyEditorValue *PropertyEditorQmlBackend::insertValue(const QString &name,
 
 void PropertyEditorQmlBackend::updateInstanceImage()
 {
-    NanotraceHR::Tracer tracer{"property editor backend update instance image", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend update instance image", category()};
 
     m_view->instanceImageProvider()->invalidate();
     refreshPreview();
@@ -606,7 +612,7 @@ void PropertyEditorQmlBackend::setup(const ModelNodes &editorNodes,
                                      const QUrl &qmlSpecificsFile,
                                      PropertyEditorView *propertyEditor)
 {
-    NanotraceHR::Tracer tracer{"property editor backend setup", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend setup", category()};
 
     QmlObjectNode qmlObjectNode(editorNodes.isEmpty() ? ModelNode{} : editorNodes.first());
     if (!qmlObjectNode.isValid()) {
@@ -707,14 +713,16 @@ void PropertyEditorQmlBackend::setup(const ModelNodes &editorNodes,
 
 QString PropertyEditorQmlBackend::propertyEditorResourcesPath()
 {
-    NanotraceHR::Tracer tracer{"property editor backend property editor resources path", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend property editor resources path",
+                               category()};
 
     return resourcesPath("propertyEditorQmlSources");
 }
 
 QString PropertyEditorQmlBackend::scriptsEditorResourcesPath()
 {
-    NanotraceHR::Tracer tracer{"property editor backend scripts editor resources path", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend scripts editor resources path",
+                               category()};
 
     return resourcesPath("scriptseditor");
 }
@@ -985,7 +993,7 @@ QUrl PropertyEditorQmlBackend::getQmlFileUrl(const TypeName &relativeTypeName, c
 
 TypeName PropertyEditorQmlBackend::fixTypeNameForPanes(const TypeName &typeName)
 {
-    NanotraceHR::Tracer tracer{"property editor backend fix type name for panes", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend fix type name for panes", category()};
 
     TypeName fixedTypeName = typeName;
     fixedTypeName.replace('.', '/');
@@ -994,7 +1002,7 @@ TypeName PropertyEditorQmlBackend::fixTypeNameForPanes(const TypeName &typeName)
 
 QString PropertyEditorQmlBackend::resourcesPath(const QString &dir)
 {
-    NanotraceHR::Tracer tracer{"property editor backend resources path", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend resources path", category()};
 
 #ifdef SHARE_QML_PATH
     if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
@@ -1005,14 +1013,14 @@ QString PropertyEditorQmlBackend::resourcesPath(const QString &dir)
 
 void PropertyEditorQmlBackend::refreshBackendModel()
 {
-    NanotraceHR::Tracer tracer{"property editor backend refresh backend model", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend refresh backend model", category()};
 
     m_backendModelNode.refresh();
 }
 
 void PropertyEditorQmlBackend::refreshPreview()
 {
-    NanotraceHR::Tracer tracer{"property editor backend refresh preview", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend refresh preview", category()};
 
     auto qmlPreview = widget()->rootObject();
 
@@ -1022,7 +1030,7 @@ void PropertyEditorQmlBackend::refreshPreview()
 
 void PropertyEditorQmlBackend::setupContextProperties()
 {
-    NanotraceHR::Tracer tracer{"property editor backend setup context properties", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend setup context properties", category()};
 
     context()->setContextProperties({
         {"modelNodeBackend", QVariant::fromValue(&m_backendModelNode)},
@@ -1044,7 +1052,7 @@ TypeName PropertyEditorQmlBackend::qmlFileName(const NodeMetaInfo &nodeInfo)
 
 QUrl PropertyEditorQmlBackend::fileToUrl(const QString &filePath)
 {
-    NanotraceHR::Tracer tracer{"property editor backend file to url", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend file to url", category()};
 
     QUrl fileUrl;
 
@@ -1065,14 +1073,14 @@ QUrl PropertyEditorQmlBackend::fileToUrl(const QString &filePath)
 
 QUrl PropertyEditorQmlBackend::emptyPaneUrl()
 {
-    NanotraceHR::Tracer tracer{"property editor backend empty pane url", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend empty pane url", category()};
 
     return fileToUrl(QDir(propertyEditorResourcesPath()).filePath("QtQuick/emptyPane.qml"_L1));
 }
 
 QString PropertyEditorQmlBackend::fileFromUrl(const QUrl &url)
 {
-    NanotraceHR::Tracer tracer{"property editor backend file from url", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend file from url", category()};
 
     if (url.scheme() == QStringLiteral("qrc")) {
         const QString &path = url.path();
@@ -1084,7 +1092,7 @@ QString PropertyEditorQmlBackend::fileFromUrl(const QUrl &url)
 
 bool PropertyEditorQmlBackend::checkIfUrlExists(const QUrl &url)
 {
-    NanotraceHR::Tracer tracer{"property editor backend check if url exists", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend check if url exists", category()};
 
     const QString &file = fileFromUrl(url);
     return !file.isEmpty() && QFileInfo::exists(file);
@@ -1092,14 +1100,14 @@ bool PropertyEditorQmlBackend::checkIfUrlExists(const QUrl &url)
 
 void PropertyEditorQmlBackend::emitSelectionToBeChanged()
 {
-    NanotraceHR::Tracer tracer{"property editor backend emit selection to be changed", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend emit selection to be changed", category()};
 
     m_backendModelNode.emitSelectionToBeChanged();
 }
 
 void PropertyEditorQmlBackend::emitSelectionChanged()
 {
-    NanotraceHR::Tracer tracer{"property editor backend emit selection changed", category()};
+    NanotraceHR::Tracer tracer{"property editor qml backend emit selection changed", category()};
 
     m_backendModelNode.emitSelectionChanged();
 }
@@ -1107,8 +1115,8 @@ void PropertyEditorQmlBackend::emitSelectionChanged()
 void PropertyEditorQmlBackend::setValueforLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode,
                                                                    PropertyNameView name)
 {
-    NanotraceHR::Tracer tracer{"property editor backend set value for layout attached properties",
-                               category()};
+    NanotraceHR::Tracer tracer{
+        "property editor qml backend set value for layout attached properties", category()};
 
     PropertyName propertyName = name.toByteArray();
     propertyName.replace("Layout.", "");
@@ -1126,8 +1134,8 @@ void PropertyEditorQmlBackend::setValueforLayoutAttachedProperties(const QmlObje
 void PropertyEditorQmlBackend::setValueforInsightAttachedProperties(const QmlObjectNode &qmlObjectNode,
                                                                     PropertyNameView name)
 {
-    NanotraceHR::Tracer tracer{"property editor backend set value for insight attached properties",
-                               category()};
+    NanotraceHR::Tracer tracer{
+        "property editor qml backend set value for insight attached properties", category()};
 
     PropertyName propertyName = name.toByteArray();
     propertyName.replace("InsightCategory.", "");
@@ -1137,7 +1145,7 @@ void PropertyEditorQmlBackend::setValueforInsightAttachedProperties(const QmlObj
 void PropertyEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
                                                               AuxiliaryDataKeyView key)
 {
-    NanotraceHR::Tracer tracer{"property editor backend set value for auxiliary properties",
+    NanotraceHR::Tracer tracer{"property editor qml backend set value for auxiliary properties",
                                category()};
 
     const PropertyName propertyName = auxNamePostFix(key.name);
