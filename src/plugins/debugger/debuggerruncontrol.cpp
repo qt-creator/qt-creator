@@ -756,8 +756,8 @@ public:
     DebuggerRunWorkerFactory()
     {
         setId(Constants::DEBUGGER_RUN_FACTORY);
-        setProducer([](RunControl *runControl) {
-            return createDebuggerWorker(runControl, DebuggerRunParameters::fromRunControl(runControl));
+        setRecipeProducer([](RunControl *runControl) {
+            return debuggerRecipe(runControl, DebuggerRunParameters::fromRunControl(runControl));
         });
 
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
