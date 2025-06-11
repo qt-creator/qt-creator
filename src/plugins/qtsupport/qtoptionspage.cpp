@@ -867,26 +867,28 @@ void QtSettingsPageWidget::updateWidgets()
     m_editPathPushButton->setEnabled(enabled && !isAutodetected);
 }
 
-static QString settingsFile(const QString &baseDir)
+static FilePath settingsFile(const QString &baseDir)
 {
-    return baseDir + (baseDir.isEmpty() ? "" : "/") + QCoreApplication::organizationName() + '/'
-           + QCoreApplication::applicationName() + ".ini";
+    return FilePath::fromString(baseDir + (baseDir.isEmpty() ? "" : "/")
+                                + QCoreApplication::organizationName() + '/'
+                                + QCoreApplication::applicationName() + ".ini");
 }
 
-static QString qtVersionsFile(const QString &baseDir)
+static FilePath qtVersionsFile(const QString &baseDir)
 {
-    return baseDir + (baseDir.isEmpty() ? "" : "/") + QCoreApplication::organizationName() + '/'
-           + QCoreApplication::applicationName() + '/' + "qtversion.xml";
+    return FilePath::fromString(baseDir + (baseDir.isEmpty() ? "" : "/")
+                                + QCoreApplication::organizationName() + '/'
+                                + QCoreApplication::applicationName() + '/' + "qtversion.xml");
 }
 
 static std::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
 {
-    const QString installSettingsFilePath = settingsFile(ICore::resourcePath().toUrlishString());
-    const bool installSettingsExist = QFileInfo::exists(installSettingsFilePath);
+    const FilePath installSettingsFilePath = settingsFile(ICore::resourcePath().path());
+    const bool installSettingsExist = installSettingsFilePath.exists();
     if (hasInstallSettings)
         *hasInstallSettings = installSettingsExist;
     if (installSettingsExist) {
-        const QVariant value = QSettings(installSettingsFilePath, QSettings::IniFormat)
+        const QVariant value = QSettings(installSettingsFilePath.toFSPathString(), QSettings::IniFormat)
                                    .value(kInstallSettingsKey);
         if (value.isValid())
             return FilePath::fromSettings(value);
@@ -977,12 +979,12 @@ const QStringList kSubdirsToCheck = {"",
                                      "Tools/QtCreator/share/qtcreator",
                                      "share/qtcreator"};
 
-static QStringList settingsFilesToCheck()
+static FilePaths settingsFilesToCheck()
 {
     return Utils::transform(kSubdirsToCheck, [](const QString &dir) { return settingsFile(dir); });
 }
 
-static QStringList qtversionFilesToCheck()
+static FilePaths qtversionFilesToCheck()
 {
     return Utils::transform(kSubdirsToCheck, [](const QString &dir) { return qtVersionsFile(dir); });
 }
@@ -994,8 +996,8 @@ static std::optional<FilePath> settingsDirForQtDir(const FilePath &baseDirectory
         return qtDir / dir;
     });
     const FilePath validDir = Utils::findOrDefault(dirsToCheck, [baseDirectory](const FilePath &dir) {
-        return QFileInfo::exists(settingsFile(baseDirectory.resolvePath(dir).toUrlishString()))
-               || QFileInfo::exists(qtVersionsFile(baseDirectory.resolvePath(dir).toUrlishString()));
+        return settingsFile(baseDirectory.resolvePath(dir).path()).exists()
+            || qtVersionsFile(baseDirectory.resolvePath(dir).path()).exists();
     });
     if (!validDir.isEmpty())
         return validDir;
@@ -1007,12 +1009,13 @@ static FancyLineEdit::AsyncValidationResult validateQtInstallDir(const QString &
 {
     const FilePath qtDir = FilePath::fromUserInput(input);
     if (!settingsDirForQtDir(baseDirectory, qtDir)) {
-        const QStringList filesToCheck = settingsFilesToCheck() + qtversionFilesToCheck();
+        const FilePaths filesToCheck = settingsFilesToCheck() + qtversionFilesToCheck();
         return make_unexpected(
             "<html><body>"
             + ::QtSupport::Tr::tr("Qt installation information was not found in \"%1\". "
                                   "Choose a directory that contains one of the files %2")
-                  .arg(qtDir.toUserOutput(), "<pre>" + filesToCheck.join('\n') + "</pre>"));
+                  .arg(qtDir.toUserOutput(), "<pre>" +
+                            FilePath::formatFilePaths(filesToCheck, "\n") + "</pre>"));
     }
     return input;
 }
@@ -1036,7 +1039,7 @@ void QtSettingsPageWidget::linkWithQt()
     auto pathLabel = new QLabel(Tr::tr("Qt installation path:"));
     pathLabel->setToolTip(
         Tr::tr("Choose the Qt installation directory, or a directory that contains \"%1\".")
-            .arg(settingsFile("")));
+            .arg(settingsFile("").toUserOutput()));
     auto pathInput = new PathChooser;
     pathInput->setExpectedKind(PathChooser::ExistingDirectory);
     pathInput->setBaseDirectory(FilePath::fromString(QCoreApplication::applicationDirPath()));
@@ -1076,15 +1079,15 @@ void QtSettingsPageWidget::linkWithQt()
     unlinkButton->setEnabled(currentLink.has_value());
     connect(unlinkButton, &QPushButton::clicked, &dialog, [&dialog, &askForRestart] {
         bool removeSettingsFile = false;
-        const QString filePath = settingsFile(ICore::resourcePath().toUrlishString());
+        const FilePath filePath = settingsFile(ICore::resourcePath().path());
         {
-            QSettings installSettings(filePath, QSettings::IniFormat);
+            QSettings installSettings(filePath.toFSPathString(), QSettings::IniFormat);
             installSettings.remove(kInstallSettingsKey);
             if (installSettings.allKeys().isEmpty())
                 removeSettingsFile = true;
         }
         if (removeSettingsFile)
-            QFile::remove(filePath);
+            filePath.removeFile();
         askForRestart = true;
         dialog.reject();
     });
@@ -1097,14 +1100,15 @@ void QtSettingsPageWidget::linkWithQt()
         const std::optional<FilePath> settingsDir = settingsDirForQtDir(pathInput->baseDirectory(),
                                                                         pathInput->unexpandedFilePath());
         if (QTC_GUARD(settingsDir)) {
-            const QString settingsFilePath = settingsFile(ICore::resourcePath().toUrlishString());
-            QSettings settings(settingsFilePath, QSettings::IniFormat);
+            const FilePath settingsFilePath = settingsFile(ICore::resourcePath().path());
+            QSettings settings(settingsFilePath.toFSPathString(), QSettings::IniFormat);
             settings.setValue(kInstallSettingsKey, settingsDir->toVariant());
             settings.sync();
             if (settings.status() == QSettings::AccessError) {
                 QMessageBox::critical(ICore::dialogParent(),
                                       Tr::tr("Error Linking With Qt"),
-                                      Tr::tr("Could not write to \"%1\".").arg(settingsFilePath));
+                                      Tr::tr("Could not write to \"%1\".")
+                                        .arg(settingsFilePath.toUserOutput()));
                 return;
             }
 
