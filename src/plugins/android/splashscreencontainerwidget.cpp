@@ -840,8 +840,8 @@ void SplashScreenContainerWidget::createSplashscreenThemes()
             }
         }
         else {
-            QFile::remove(splashscreenThemeFile.toFSPathString());
-            QFile::remove(splashscreenDrawableFile.toFSPathString());
+            splashscreenThemeFile.removeFile();
+            splashscreenDrawableFile.removeFile();
         }
     }
 }
