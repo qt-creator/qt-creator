@@ -34,7 +34,7 @@
 // qmlpuppet does not use that.
 #include <QGuiApplication>
 #include <QMessageBox>
-#include <QStringConverterBase>
+#include <QStringConverter>
 #endif
 
 #include <algorithm>
