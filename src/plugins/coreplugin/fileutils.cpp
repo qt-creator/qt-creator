@@ -349,7 +349,7 @@ void updateHeaderFileGuardIfApplicable(const FilePath &oldFilePath,
 {
     if (handleGuards == HandleIncludeGuards::No)
         return;
-    const bool headerUpdateSuccess = updateHeaderFileGuardAfterRename(newFilePath.toUrlishString(),
+    const bool headerUpdateSuccess = updateHeaderFileGuardAfterRename(newFilePath.toFSPathString(),
                                                                       oldFilePath.baseName());
     if (headerUpdateSuccess)
         return;
