@@ -109,10 +109,8 @@ private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    PropertyNameView name,
                                    const QVariant &value,
-                                   PropertyEditorView *propertyEditor);
-    void setupPropertyEditorValue(PropertyNameView name,
-                                  PropertyEditorView *propertyEditor,
-                                  const NodeMetaInfo &type);
+                                   PropertyEditorView *propertyEditor,
+                                   const PropertyMetaInfo &propertyMetaInfo = {});
     void createPropertyEditorValues(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor);
 
     PropertyEditorValue *insertValue(const QString &name,

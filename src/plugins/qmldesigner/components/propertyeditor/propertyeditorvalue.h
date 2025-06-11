@@ -3,8 +3,11 @@
 
 #pragma once
 
-#include "modelnode.h"
 #include "qmldesigner_global.h"
+
+#include <modelnode.h>
+#include <nodemetainfo.h>
+#include <propertymetainfo.h>
 
 #include <QObject>
 #include <QQmlPropertyMap>
@@ -147,10 +150,13 @@ public:
 
     PropertyNameView name() const;
     QString nameAsQString() const;
-    void setName(PropertyNameView name);
 
     ModelNode modelNode() const;
-    void setModelNode(const ModelNode &modelNode);
+    void setModelNodeAndProperty(const ModelNode &modelNode,
+                                 PropertyNameView name,
+                                 const PropertyMetaInfo &propertyMetaInfo = {});
+
+    NodeMetaInfo propertyType() const { return m_propertyType; }
 
     PropertyEditorNodeWrapper *complexNode();
 
@@ -207,6 +213,8 @@ private:
     QString generateString(const QStringList &stringList) const;
 
     ModelNode m_modelNode;
+    NodeMetaInfo m_propertyType;
+    PropertyMetaInfo m_propertyMetaInfo;
     QVariant m_value;
     QString m_expression;
     Utils::SmallString m_name;

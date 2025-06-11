@@ -143,27 +143,6 @@ PropertyEditorQmlBackend::~PropertyEditorQmlBackend()
     NanotraceHR::Tracer tracer{"property editor qml backend destructor", category()};
 }
 
-void PropertyEditorQmlBackend::setupPropertyEditorValue(PropertyNameView name,
-                                                        PropertyEditorView *propertyEditor,
-                                                        const NodeMetaInfo &type)
-{
-    NanotraceHR::Tracer tracer{"property editor backend setup property editor value", category()};
-
-    QmlDesigner::PropertyName propertyName(name.toByteArray());
-    propertyName.replace('.', '_');
-    auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(backendValuesPropertyMap().value(QString::fromUtf8(propertyName))));
-    if (!valueObject) {
-        valueObject = new PropertyEditorValue(&backendValuesPropertyMap());
-        QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
-        QObject::connect(valueObject, &PropertyEditorValue::expressionChanged, propertyEditor, &PropertyEditorView::changeExpression);
-        backendValuesPropertyMap().insert(QString::fromUtf8(propertyName), QVariant::fromValue(valueObject));
-    }
-    valueObject->setName(propertyName);
-    if (type.isColor())
-        valueObject->setValue(QVariant(QLatin1String("#000000")));
-    else
-        valueObject->setValue(QVariant(1));
-}
 namespace {
 PropertyName auxNamePostFix(Utils::SmallStringView propertyName)
 {
@@ -387,23 +366,24 @@ void PropertyEditorQmlBackend::handleModelSelectedNodesChanged(PropertyEditorVie
 void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                                          PropertyNameView name,
                                                          const QVariant &value,
-                                                         PropertyEditorView *propertyEditor)
+                                                         PropertyEditorView *propertyEditor,
+                                                         const PropertyMetaInfo &propertyMetaInfo)
 {
     NanotraceHR::Tracer tracer{"property editor qml backend create property editor value", category()};
 
-    PropertyName propertyName(name.toByteArray());
+    QString propertyName = QString::fromUtf8(name);
     propertyName.replace('.', '_');
-    auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(backendValuesPropertyMap().value(QString::fromUtf8(propertyName))));
+    auto valueObject = qobject_cast<PropertyEditorValue *>(
+        variantToQObject(backendValuesPropertyMap().value(propertyName)));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(&backendValuesPropertyMap());
         QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
         QObject::connect(valueObject, &PropertyEditorValue::expressionChanged, propertyEditor, &PropertyEditorView::changeExpression);
         QObject::connect(valueObject, &PropertyEditorValue::exportPropertyAsAliasRequested, propertyEditor, &PropertyEditorView::exportPropertyAsAlias);
         QObject::connect(valueObject, &PropertyEditorValue::removeAliasExportRequested, propertyEditor, &PropertyEditorView::removeAliasExport);
-        backendValuesPropertyMap().insert(QString::fromUtf8(propertyName), QVariant::fromValue(valueObject));
+        backendValuesPropertyMap().insert(propertyName, QVariant::fromValue(valueObject));
     }
-    valueObject->setName(name);
-    valueObject->setModelNode(qmlObjectNode);
+    valueObject->setModelNodeAndProperty(qmlObjectNode, name, propertyMetaInfo);
 
     if (qmlObjectNode.propertyAffectedByCurrentState(name)
         && !(qmlObjectNode.hasBindingProperty(name)))
@@ -412,10 +392,9 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
     else
         valueObject->setValue(value);
 
-    if (propertyName != "id" &&
-        qmlObjectNode.currentState().isBaseState() &&
-        qmlObjectNode.modelNode().property(propertyName).isBindingProperty()) {
-        valueObject->setExpression(qmlObjectNode.modelNode().bindingProperty(propertyName).expression());
+    if (name != "id" && qmlObjectNode.currentState().isBaseState()
+        && qmlObjectNode.modelNode().property(name).isBindingProperty()) {
+        valueObject->setExpression(qmlObjectNode.modelNode().bindingProperty(name).expression());
     } else {
         if (qmlObjectNode.hasBindingProperty(name))
             valueObject->setExpression(qmlObjectNode.expression(name));
@@ -567,7 +546,8 @@ void QmlDesigner::PropertyEditorQmlBackend::createPropertyEditorValues(const Qml
         createPropertyEditorValue(qmlObjectNode,
                                   propertyName,
                                   qmlObjectNode.instanceValue(propertyName),
-                                  propertyEditor);
+                                  propertyEditor,
+                                  property.property);
     }
 #endif
 }
@@ -582,10 +562,9 @@ PropertyEditorValue *PropertyEditorQmlBackend::insertValue(const QString &name,
         variantToQObject(m_backendValuesPropertyMap.value(name)));
     if (!valueObject)
         valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
-    valueObject->setName(name.toLatin1());
 
     if (modelNode)
-        valueObject->setModelNode(modelNode);
+        valueObject->setModelNodeAndProperty(modelNode, name.toUtf8());
 
     if (value.isValid())
         valueObject->setValue(value);

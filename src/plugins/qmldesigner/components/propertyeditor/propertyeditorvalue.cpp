@@ -44,7 +44,7 @@ QVariant PropertyEditorValue::value() const
     NanotraceHR::Tracer tracer{"property editor value value", category()};
 
     QVariant returnValue = m_value;
-    if (auto metaInfo = modelNode().metaInfo(); metaInfo.property(name()).propertyType().isUrl())
+    if (m_propertyType.isUrl())
         returnValue = returnValue.toUrl().toString();
 
     return returnValue;
@@ -118,7 +118,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
 
     if (!compareVariants(value, m_value) || isBound()) {
         QVariant newValue = value;
-        if (auto metaInfo = modelNode().metaInfo(); metaInfo.property(name()).propertyType().isUrl())
+        if (m_propertyType.isUrl())
             newValue = QUrl(newValue.toString());
 
         if (cleverDoubleCompare(newValue, m_value) || cleverColorCompare(newValue, m_value))
@@ -143,9 +143,8 @@ void PropertyEditorValue::setValue(const QVariant &value)
     if (!compareVariants(m_value, value) && !cleverDoubleCompare(value, m_value) && !colorsEqual)
         m_value = value;
 
-    auto propertyTypeMetaInfo = modelNode().metaInfo().property(name()).propertyType();
-    fixAmbigousColorNames(propertyTypeMetaInfo, &m_value);
-    fixUrl(propertyTypeMetaInfo, &m_value);
+    fixAmbigousColorNames(m_propertyType, &m_value);
+    fixUrl(m_propertyType, &m_value);
 
     if (!colorsEqual)
         emit valueChangedQml();
@@ -236,13 +235,6 @@ QString PropertyEditorValue::nameAsQString() const
     return QString::fromUtf8(m_name);
 }
 
-void PropertyEditorValue::setName(PropertyNameView name)
-{
-    NanotraceHR::Tracer tracer{"property editor value set name", category()};
-
-    m_name = name;
-}
-
 bool PropertyEditorValue::isValid() const
 {
     NanotraceHR::Tracer tracer{"property editor value is valid", category()};
@@ -262,15 +254,11 @@ bool PropertyEditorValue::isTranslated() const
     NanotraceHR::Tracer tracer{"property editor value is translated", category()};
 
     if (modelNode().isValid()) {
-        auto metaInfo = modelNode().metaInfo();
-        auto isString = metaInfo.isValid() && metaInfo.hasProperty(name())
-                        && metaInfo.property(name()).propertyType().isString();
-
         auto property = modelNode().property(name());
         auto isDynamicString = property.isValid() && property.isDynamic()
                                && property.dynamicTypeName() == TypeNameView("string");
 
-        if (isString || isDynamicString) {
+        if (isDynamicString || m_propertyType.isString()) {
             const QmlObjectNode objectNode(modelNode());
             if (objectNode.hasBindingProperty(name())) {
                 const QRegularExpression rx(
@@ -372,14 +360,24 @@ ModelNode PropertyEditorValue::modelNode() const
     return m_modelNode;
 }
 
-void PropertyEditorValue::setModelNode(const ModelNode &modelNode)
+void PropertyEditorValue::setModelNodeAndProperty(const ModelNode &modelNode,
+                                                  PropertyNameView name,
+                                                  const PropertyMetaInfo &propertyMetaInfo)
 {
-    NanotraceHR::Tracer tracer{"property editor value set model node", category()};
+    NanotraceHR::Tracer tracer{"property editor value set model node and name", category()};
+
+    m_name = name;
 
     if (modelNode != m_modelNode) {
         m_modelNode = modelNode;
+
         m_complexNode->update();
         emit modelNodeChanged();
+    }
+
+    if (propertyMetaInfo != m_propertyMetaInfo) {
+        m_propertyMetaInfo = propertyMetaInfo;
+        m_propertyType = m_propertyMetaInfo.propertyType();
     }
 }
 
@@ -462,20 +460,17 @@ QString PropertyEditorValue::getTranslationContext() const
 {
     NanotraceHR::Tracer tracer{"property editor value get translation context", category()};
 
-    if (modelNode().isValid()) {
-        if (auto metaInfo = modelNode().metaInfo();
-            metaInfo.isValid() && metaInfo.hasProperty(name())
-            && metaInfo.property(name()).propertyType().isString()) {
-            const QmlObjectNode objectNode(modelNode());
-            if (objectNode.hasBindingProperty(name())) {
-                const QRegularExpression rx(QRegularExpression::anchoredPattern(
-                    "qsTranslate\\(\"(.*)\"\\s*,\\s*\".*\"\\s*\\)"));
-                const QRegularExpressionMatch match = rx.match(expression());
-                if (match.hasMatch())
-                    return match.captured(1);
-            }
+    if (m_propertyType.isString()) {
+        const QmlObjectNode objectNode(modelNode());
+        if (objectNode.hasBindingProperty(name())) {
+            const QRegularExpression rx(QRegularExpression::anchoredPattern(
+                "qsTranslate\\(\"(.*)\"\\s*,\\s*\".*\"\\s*\\)"));
+            const QRegularExpressionMatch match = rx.match(expression());
+            if (match.hasMatch())
+                return match.captured(1);
         }
     }
+
     return QString();
 }
 
@@ -483,8 +478,7 @@ bool PropertyEditorValue::isIdList() const
 {
     NanotraceHR::Tracer tracer{"property editor value is id list", category()};
 
-    if (modelNode().isValid() && modelNode().metaInfo().isValid()
-        && modelNode().metaInfo().hasProperty(name())) {
+    if (m_propertyType) {
         const QmlObjectNode objectNode(modelNode());
         if (objectNode.hasBindingProperty(name())) {
             static const QRegularExpression rx(QRegularExpression::anchoredPattern(
@@ -605,7 +599,7 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
 {
     NanotraceHR::Tracer tracer{"property editor value commit drop", category()};
 
-    if (m_modelNode.metaInfo().property(m_name).propertyType().isQtQuick3DTexture()) {
+    if (m_propertyType.isQtQuick3DTexture()) {
         m_modelNode.view()->executeInTransaction(__FUNCTION__, [&] {
             ModelNode texture = m_modelNode.view()->modelNodeForInternalId(dropData.toInt());
             if (!texture || !texture.metaInfo().isQtQuick3DTexture()) {
@@ -762,7 +756,7 @@ void PropertyEditorNodeWrapper::add(const QString &type)
 #ifdef QDS_USE_PROJECTSTORAGE
         if (propertyType.isEmpty()) {
             auto node = m_editorValue->modelNode();
-            auto metaInfo = node.metaInfo().property(m_editorValue->name()).propertyType();
+            auto metaInfo = m_editorValue->propertyType();
             auto exportedTypeName = node.model()->exportedTypeNameForMetaInfo(metaInfo);
             propertyType = exportedTypeName.name.toQByteArray();
         }
@@ -846,7 +840,7 @@ void PropertyEditorNodeWrapper::setup()
             for (const auto &property : props) {
                 const auto &propertyName = property.name();
                 auto valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
-                valueObject->setName(propertyName);
+                valueObject->setModelNodeAndProperty(m_modelNode, propertyName);
                 valueObject->setValue(qmlObjectNode.instanceValue(propertyName));
                 connect(valueObject, &PropertyEditorValue::valueChanged, &m_valuesPropertyMap, &QQmlPropertyMap::valueChanged);
                 m_valuesPropertyMap.insert(QString::fromUtf8(propertyName), QVariant::fromValue(valueObject));
@@ -898,23 +892,20 @@ void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjec
     NanotraceHR::Tracer tracer{"property editor sub selection wrapper create property editor value",
                                category()};
 
-    Utils::SmallString propertyName = name.toByteArray();
+    QString propertyName = QString::fromUtf8(name);
     propertyName.replace('.', '_');
 
-    const QString propertyNameQString = QString::fromUtf8(propertyName);
-
     auto valueObject = qobject_cast<PropertyEditorValue *>(
-        variantToQObject(m_valuesPropertyMap.value(propertyNameQString)));
+        variantToQObject(m_valuesPropertyMap.value(propertyName)));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
         QObject::connect(valueObject, &PropertyEditorValue::valueChanged, this, &PropertyEditorSubSelectionWrapper::changeValue);
         QObject::connect(valueObject, &PropertyEditorValue::expressionChanged, this, &PropertyEditorSubSelectionWrapper::changeExpression);
         QObject::connect(valueObject, &PropertyEditorValue::exportPropertyAsAliasRequested, this, &PropertyEditorSubSelectionWrapper::exportPropertyAsAlias);
         QObject::connect(valueObject, &PropertyEditorValue::removeAliasExportRequested, this, &PropertyEditorSubSelectionWrapper::removeAliasExport);
-        m_valuesPropertyMap.insert(propertyNameQString, QVariant::fromValue(valueObject));
+        m_valuesPropertyMap.insert(propertyName, QVariant::fromValue(valueObject));
     }
-    valueObject->setName(name);
-    valueObject->setModelNode(qmlObjectNode);
+    valueObject->setModelNodeAndProperty(qmlObjectNode, name);
 
     if (qmlObjectNode.propertyAffectedByCurrentState(name) && !(qmlObjectNode.modelNode().property(name).isBindingProperty()))
         valueObject->setValue(qmlObjectNode.modelValue(name));
@@ -922,10 +913,9 @@ void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjec
     else
         valueObject->setValue(value);
 
-    if (propertyName != "id" &&
-        qmlObjectNode.currentState().isBaseState() &&
-        qmlObjectNode.modelNode().property(propertyName).isBindingProperty()) {
-        valueObject->setExpression(qmlObjectNode.modelNode().bindingProperty(propertyName).expression());
+    if (name != "id" && qmlObjectNode.currentState().isBaseState()
+        && qmlObjectNode.modelNode().property(name).isBindingProperty()) {
+        valueObject->setExpression(qmlObjectNode.modelNode().bindingProperty(name).expression());
     } else {
         if (qmlObjectNode.hasBindingProperty(name))
             valueObject->setExpression(qmlObjectNode.expression(name));

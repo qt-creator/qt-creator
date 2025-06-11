@@ -342,12 +342,8 @@ void DynamicPropertyRow::setupBackendValue()
     if (!property.isValid())
         return;
 
-    if (m_backendValue->name() != property.name())
-        m_backendValue->setName(property.name());
-
     ModelNode node = property.parentModelNode();
-    if (node != m_backendValue->modelNode())
-        m_backendValue->setModelNode(node);
+    m_backendValue->setModelNodeAndProperty(node, property.name());
 
     m_backendValue->setValue({});
 
