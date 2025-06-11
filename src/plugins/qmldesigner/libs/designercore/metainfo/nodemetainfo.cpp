@@ -3282,10 +3282,10 @@ bool NodeMetaInfo::isNumber(SL sl) const
                                    keyValue("caller location", sl)};
 
         using namespace Storage::Info;
-        auto intId = m_projectStorage->builtinTypeId<int>();
-        auto uintId = m_projectStorage->builtinTypeId<uint>();
-        auto floatId = m_projectStorage->builtinTypeId<float>();
-        auto doubleId = m_projectStorage->builtinTypeId<double>();
+        auto intId = m_projectStorage->commonTypeId<QML, IntType>();
+        auto uintId = m_projectStorage->commonTypeId<QML, UIntType, ModuleKind::CppLibrary>();
+        auto floatId = m_projectStorage->commonTypeId<QML, FloatType, ModuleKind::CppLibrary>();
+        auto doubleId = m_projectStorage->commonTypeId<QML, DoubleType>();
 
         return isTypeId(m_typeId, intId, uintId, floatId, doubleId);
     } else {
@@ -4096,7 +4096,7 @@ bool NodeMetaInfo::isColor([[maybe_unused]] SL sl) const
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
-    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QColor>());
+    return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, color>());
 #else
     if (!isValid())
         return false;
@@ -4119,7 +4119,7 @@ bool NodeMetaInfo::isBool([[maybe_unused]] SL sl) const
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
-    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<bool>());
+    return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QML, BoolType>());
 #else
     if (!isValid())
         return false;
@@ -4142,7 +4142,7 @@ bool NodeMetaInfo::isInteger([[maybe_unused]] SL sl) const
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
-    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<int>());
+    return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QML, IntType>());
 #else
     if (!isValid())
         return false;
@@ -4165,8 +4165,8 @@ bool NodeMetaInfo::isFloat([[maybe_unused]] SL sl) const
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
-    auto floatId = m_projectStorage->builtinTypeId<float>();
-    auto doubleId = m_projectStorage->builtinTypeId<double>();
+    auto floatId = m_projectStorage->commonTypeId<QML, FloatType, ModuleKind::CppLibrary>();
+    auto doubleId = m_projectStorage->commonTypeId<QML, DoubleType>();
 
     return isTypeId(m_typeId, floatId, doubleId);
 #else
@@ -4191,7 +4191,7 @@ bool NodeMetaInfo::isVariant([[maybe_unused]] SL sl) const
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
-    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QVariant>());
+    return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QML, var>());
 #else
     if (!isValid())
         return false;
@@ -4214,7 +4214,7 @@ bool NodeMetaInfo::isString([[maybe_unused]] SL sl) const
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
-    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QString>());
+    return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QML, string>());
 #else
     if (!isValid())
         return false;
@@ -4237,7 +4237,7 @@ bool NodeMetaInfo::isUrl([[maybe_unused]] SL sl) const
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
-    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QUrl>());
+    return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QML, url>());
 #else
     if (!isValid())
         return false;
@@ -4823,43 +4823,45 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         static constexpr auto qUrlType = QMetaType::fromType<QUrl>();
         static constexpr auto qColorType = QMetaType::fromType<QColor>();
 
+        using namespace Storage::Info;
+
         if (value.typeId() == QMetaType::User && value.typeId() == ModelNode::variantTypeId()) {
             return value;
-        } else if (typeId == m_projectStorage->builtinTypeId<QVariant>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QML, var>()) {
             return value;
-        } else if (typeId == m_projectStorage->builtinTypeId<double>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QML, DoubleType>()) {
             return value.toDouble();
-        } else if (typeId == m_projectStorage->builtinTypeId<float>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QML, FloatType, ModuleKind::CppLibrary>()) {
             return value.toFloat();
-        } else if (typeId == m_projectStorage->builtinTypeId<int>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QML, IntType>()) {
             return value.toInt();
-        } else if (typeId == m_projectStorage->builtinTypeId<bool>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QML, BoolType>()) {
             return isType(value.metaType(), boolType, intType, longType, longLongType, floatType, doubleType)
                    && value.toBool();
-        } else if (typeId == m_projectStorage->builtinTypeId<QString>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QML, string>()) {
             if (isType(value.metaType(), qStringType))
                 return value;
             else
                 return QString{};
-        } else if (typeId == m_projectStorage->builtinTypeId<QDateTime>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QML, date>()) {
             return value.toDateTime();
-        } else if (typeId == m_projectStorage->builtinTypeId<QUrl>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QML, url>()) {
             if (isType(value.metaType(), qUrlType))
                 return value;
             else if (isType(value.metaType(), qStringType))
                 return value.toUrl();
             else
                 return QUrl{};
-        } else if (typeId == m_projectStorage->builtinTypeId<QColor>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QtQuick, color>()) {
             if (isType(value.metaType(), qColorType))
                 return value;
             else
                 return QColor{};
-        } else if (typeId == m_projectStorage->builtinTypeId<QVector2D>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QtQuick, vector2d>()) {
             return value.value<QVector2D>();
-        } else if (typeId == m_projectStorage->builtinTypeId<QVector3D>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QtQuick, vector3d>()) {
             return value.value<QVector3D>();
-        } else if (typeId == m_projectStorage->builtinTypeId<QVector4D>()) {
+        } else if (typeId == m_projectStorage->commonTypeId<QtQuick, vector4d>()) {
             return value.value<QVector4D>();
         }
     }

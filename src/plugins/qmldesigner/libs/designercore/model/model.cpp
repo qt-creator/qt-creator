@@ -2687,7 +2687,10 @@ NodeMetaInfo Model::floatMetaInfo() const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
     using namespace Storage::Info;
-    return {d->projectStorage->builtinTypeId<float>(), d->projectStorage};
+    using Storage::ModuleKind;
+
+    return {d->projectStorage->commonTypeId<QML, FloatType, ModuleKind::CppLibrary>(),
+            d->projectStorage};
 #else
     return {};
 #endif
