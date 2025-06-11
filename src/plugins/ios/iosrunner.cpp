@@ -708,19 +708,19 @@ public:
     IosRunWorkerFactory()
     {
         setId("IosRunWorkerFactory");
-        setProducer([](RunControl *runControl) -> RunWorker * {
+        setRecipeProducer([](RunControl *runControl) {
             IosDevice::ConstPtr iosdevice = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
             if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl) {
                 if (IosDeviceManager::isDeviceCtlOutputSupported())
-                    return new RunWorker(runControl, deviceCtlRecipe(runControl, /*startStopped=*/ false));
+                    return deviceCtlRecipe(runControl, /*startStopped=*/ false);
                 // TODO Remove the polling runner when we decide not to support iOS 17+ devices
                 // with Xcode < 16 at all
-                return new RunWorker(runControl, deviceCtlPollingRecipe(runControl));
+                return deviceCtlPollingRecipe(runControl);
             }
             runControl->setIcon(Icons::RUN_SMALL_TOOLBAR);
             runControl->setDisplayName(QString("Run on %1")
                                            .arg(iosdevice ? iosdevice->displayName() : QString()));
-            return new RunWorker(runControl, iosToolRecipe(runControl));
+            return iosToolRecipe(runControl);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
@@ -766,7 +766,7 @@ static QString msgOnlyCppDebuggingSupported()
     return Tr::tr("Only C++ debugging is supported for devices with iOS 17 and later.");
 };
 
-static RunWorker *createDebugWorker(RunControl *runControl)
+static Group debugRecipe(RunControl *runControl)
 {
     IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(runControl->device());
     const bool isIosDeviceType = runControl->device()->type() == Ios::Constants::IOS_DEVICE_TYPE;
@@ -857,14 +857,12 @@ static RunWorker *createDebugWorker(RunControl *runControl)
             parametersModifier(runControl, rp);
     };
 
-    const Group recipe {
+    return {
         onGroupSetup(onSetup),
         When (kicker) >> Do {
             debuggerRecipe(runControl, rp, modifier)
         }
     };
-
-    return new RunWorker(runControl, recipe);
 }
 
 class IosDebugWorkerFactory final : public RunWorkerFactory
@@ -873,7 +871,7 @@ public:
     IosDebugWorkerFactory()
     {
         setId("IosDebugWorkerFactory");
-        setProducer([](RunControl *runControl) { return createDebugWorker(runControl); });
+        setRecipeProducer([](RunControl *runControl) { return debugRecipe(runControl); });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
     }
