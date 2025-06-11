@@ -87,21 +87,13 @@ static ProcessTask qdbDeviceInferiorProcess(RunControl *runControl,
     return processTaskWithModifier(runControl, modifier, suppressDefaultStdOutHandling);
 }
 
-static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
-                                                QmlDebugServicesPreset qmlServices,
-                                                bool suppressDefaultStdOutHandling = false)
-{
-    return new RunWorker(runControl, { processRecipe(qdbDeviceInferiorProcess(
-                                         runControl, qmlServices, suppressDefaultStdOutHandling)) });
-}
-
 class QdbRunWorkerFactory final : public RunWorkerFactory
 {
 public:
     QdbRunWorkerFactory()
     {
         setId("QdbRunWorkerFactory");
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             const auto modifier = [runControl](Process &process) {
                 const CommandLine remoteCommand = runControl->commandLine();
                 const FilePath remoteExe = remoteCommand.executable();
@@ -110,7 +102,7 @@ public:
                 cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
                 process.setCommand(cmd);
             };
-            return createProcessWorker(runControl, modifier);
+            return processRecipe(runControl, modifier);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
@@ -125,7 +117,7 @@ public:
     QdbDebugWorkerFactory()
     {
         setId("QdbDebugWorkerFactory");
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
             rp.setupPortsGatherer(runControl);
             rp.setStartMode(Debugger::AttachToRemoteServer);
@@ -136,12 +128,11 @@ public:
             rp.setSkipDebugServer(true);
 
             const ProcessTask processTask(qdbDeviceInferiorProcess(runControl, QmlDebuggerServices));
-            const Group recipe {
+            return Group {
                 When (processTask, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
                     debuggerRecipe(runControl, rp)
                 }
             };
-            return new RunWorker(runControl, recipe);
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
@@ -180,9 +171,9 @@ public:
     QdbPerfProfilerWorkerFactory()
     {
         setId("QdbPerfProfilerWorkerFactory");
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return createQdbDeviceInferiorWorker(runControl, NoQmlDebugServices, true);
+            return processRecipe(qdbDeviceInferiorProcess(runControl, NoQmlDebugServices, true));
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
