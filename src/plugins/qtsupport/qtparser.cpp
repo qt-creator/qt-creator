@@ -120,7 +120,7 @@ class QtOutputParserTest final : public QObject
 {
     Q_OBJECT
 
-public slots:
+private slots:
     void testQtOutputParser_data();
     void testQtOutputParser();
 };
@@ -135,11 +135,11 @@ void QtOutputParserTest::testQtOutputParser_data()
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QStringList("Sometext\n") << QStringList()
+            << QStringList("Sometext") << QStringList()
             << Tasks();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QStringList() << QStringList("Sometext\n")
+            << QStringList() << QStringList("Sometext")
             << Tasks();
     QTest::newRow("pass-through gcc infos")
             << QString::fromLatin1("/temp/test/untitled8/main.cpp: In function `int main(int, char**)':\n"
@@ -153,7 +153,7 @@ void QtOutputParserTest::testQtOutputParser_data()
                            "../../scriptbug/main.cpp: At global scope:",
                            "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:",
                            "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]",
-                           "../../scriptbug/main.cpp:22: instantiated from here\n"}
+                           "../../scriptbug/main.cpp:22: instantiated from here"}
             << Tasks();
     QTest::newRow("qdoc warning")
             << QString::fromLatin1("/home/user/dev/qt5/qtscript/src/script/api/qscriptengine.cpp:295: warning: Can't create link to 'Object Trees & Ownership'")
@@ -222,7 +222,7 @@ void QtOutputParserTest::testQtOutputParser_data()
     QTest::newRow("qmlsc/qmllint warning") // QTCREATORBUG-28720
             << QString::fromLatin1("Warning: Main.qml:4:1: Warnings occurred while importing module "
                                    "\"QtQuick.Controls\": [import]\"")
-            << OutputParserTester::STDERR << QString() << QString()
+            << OutputParserTester::STDERR << QStringList() << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "Warnings occurred while importing module \"QtQuick.Controls\": [import]\"",
                                        Utils::FilePath::fromUserInput("Main.qml"), 4, 1));
