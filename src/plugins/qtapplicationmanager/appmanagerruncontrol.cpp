@@ -108,7 +108,7 @@ public:
     AppManagerRunWorkerFactory()
     {
         setId("AppManagerRunWorkerFactory");
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             const auto modifier = [runControl](Process &process) {
                 FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
                 QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
@@ -143,7 +143,7 @@ public:
                     cmd.addArg(documentUrl);
                 process.setCommand(cmd);
             };
-            return createProcessWorker(runControl, modifier);
+            return processRecipe(runControl, modifier);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
@@ -248,10 +248,9 @@ public:
     AppManagerPerfProfilerWorkerFactory()
     {
         setId("AppManagerPerfProfilerWorkerFactory");
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return new RunWorker(runControl, processRecipe(inferiorProcess(
-                                                 runControl, NoQmlDebugServices, true)));
+            return processRecipe(inferiorProcess(runControl, NoQmlDebugServices, true));
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
