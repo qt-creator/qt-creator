@@ -81,9 +81,8 @@ void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, st
     out << "}";
 }
 
-void writeMetaEvent(TraceFile<Tracing::IsEnabled> &file, std::string_view key, std::string_view value)
+void writeMetaEvent(EnabledTraceFile &file, std::string_view key, std::string_view value)
 {
-    std::lock_guard lock{file.fileMutex};
     auto &out = file.out;
 
     if (out.is_open()) {
@@ -145,15 +144,12 @@ void convertToString(String &string, const QImage &image)
 template NANOTRACE_EXPORT void convertToString(ArgumentsString &string, const QImage &image);
 
 template<typename TraceEvent>
-void flushEvents(const Utils::span<TraceEvent> events,
-                 std::thread::id threadId,
-                 std::shared_ptr<EnabledTraceFile> file)
+void flushEvents(const Utils::span<TraceEvent> events, std::thread::id threadId, EnabledTraceFile &file)
 {
     if (events.empty())
         return;
 
-    std::lock_guard lock{file->fileMutex};
-    auto &out = file->out;
+    auto &out = file.out;
 
     if (out.is_open()) {
         auto processId = QCoreApplication::applicationPid();
@@ -164,18 +160,16 @@ void flushEvents(const Utils::span<TraceEvent> events,
     }
 }
 
-template NANOTRACE_EXPORT void flushEvents(const Utils::span<TraceEventWithArguments> events,
-                                           std::thread::id threadId,
-                                           std::shared_ptr<EnabledTraceFile> file);
+template void flushEvents(const Utils::span<TraceEventWithArguments> events,
+                          std::thread::id threadId,
+                          EnabledTraceFile &file);
 
-template NANOTRACE_EXPORT void flushEvents(const Utils::span<TraceEventWithoutArguments> events,
-                                           std::thread::id threadId,
-                                           std::shared_ptr<EnabledTraceFile> file);
+template void flushEvents(const Utils::span<TraceEventWithoutArguments> events,
+                          std::thread::id threadId,
+                          EnabledTraceFile &file);
 
 void openFile(EnabledTraceFile &file)
 {
-    std::lock_guard lock{file.fileMutex};
-
     if (file.out = std::ofstream{file.filePath, std::ios::trunc}; file.out.good()) {
         file.out << std::fixed << std::setprecision(3) << R"({"traceEvents": [)";
         file.out << R"({"name":"process_name","ph":"M", "pid":)"
@@ -184,9 +178,59 @@ void openFile(EnabledTraceFile &file)
     }
 }
 
+void startDispatcher(EnabledTraceFile &file)
+{
+    auto dispatcher = [&]() {
+        std::unique_lock<std::mutex> lock{file.tasksMutex};
+
+        auto newWork = [&] {
+            return not file.isRunning or not file.tasksWithoutArguments.empty()
+                   or not file.tasksWithArguments.empty() or not file.metaData.empty();
+        };
+
+        while (file.isRunning) {
+            file.condition.wait(lock, newWork);
+
+            if (not file.isRunning)
+                break;
+
+            while (not file.tasksWithoutArguments.empty()) {
+                auto task = std::move(file.tasksWithoutArguments.back());
+                file.tasksWithoutArguments.pop_back();
+                lock.unlock();
+                flushEvents(task.data, task.threadId, file);
+                lock.lock();
+            }
+
+            while (not file.tasksWithArguments.empty()) {
+                auto task = std::move(file.tasksWithArguments.back());
+                file.tasksWithArguments.pop_back();
+                lock.unlock();
+                flushEvents(task.data, task.threadId, file);
+                lock.lock();
+            }
+
+            while (not file.metaData.empty()) {
+                auto task = std::move(file.metaData.back());
+                file.metaData.pop_back();
+                lock.unlock();
+                writeMetaEvent(file, task.key, task.value);
+                lock.lock();
+            }
+        }
+    };
+
+    file.thread = std::thread{dispatcher};
+}
+
 void finalizeFile(EnabledTraceFile &file)
 {
-    std::lock_guard lock{file.fileMutex};
+    {
+        std::unique_lock<std::mutex> lock{file.tasksMutex};
+        file.isRunning = false;
+    }
+    file.condition.notify_all();
+    file.thread.join();
     auto &out = file.out;
 
     if (out.is_open()) {
@@ -201,22 +245,29 @@ void finalizeFile(EnabledTraceFile &file)
 template<typename TraceEvent>
 void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
 {
-    if (eventQueue.file->processing.valid())
-        eventQueue.file->processing.wait();
+    std::unique_lock taskLock{eventQueue.mutex};
+    std::unique_lock tasksLock{eventQueue.file->tasksMutex};
 
-    auto flush = [](const Utils::span<TraceEvent> &events,
-                    std::thread::id threadId,
-                    std::shared_ptr<EnabledTraceFile> file) { flushEvents(events, threadId, file); };
+    if constexpr (std::same_as<TraceEvent, TraceEventWithArguments>) {
+        eventQueue.file->tasksWithArguments
+            .emplace_back(std::move(taskLock),
+                          eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
+                          eventQueue.threadId);
+    } else {
+        eventQueue.file->tasksWithoutArguments
+            .emplace_back(std::move(taskLock),
+                          eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
+                          eventQueue.threadId);
+    }
 
-    eventQueue.file->processing = std::async(std::launch::async,
-                                             flush,
-                                             eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
-                                             eventQueue.threadId,
-                                             eventQueue.file);
     eventQueue.currentEvents = eventQueue.currentEvents.data() == eventQueue.eventsOne.data()
                                    ? eventQueue.eventsTwo
                                    : eventQueue.eventsOne;
     eventQueue.eventsIndex = 0;
+
+    tasksLock.unlock();
+
+    eventQueue.file->condition.notify_all();
 }
 
 template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEventWithArguments> &eventQueue);
@@ -232,7 +283,13 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(std::shared_ptr<EnabledTr
     if (QThread::currentThread()) {
         auto name = getThreadName();
         if (name.size()) {
-            writeMetaEvent(*this->file, "thread_name", name);
+            {
+                std::unique_lock taskLock{mutex};
+                std::lock_guard _{this->file->tasksMutex};
+
+                this->file->metaData.emplace_back(std::move(taskLock), "thread_name", name);
+            }
+            this->file->condition.notify_all();
         }
     }
 }
@@ -243,6 +300,8 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::~EventQueue()
     Internal::EventQueueTracker<TraceEvent>::get().removeQueue(this);
 
     flush();
+
+    std::lock_guard _{mutex};
 }
 
 template<typename TraceEvent>
@@ -257,11 +316,9 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::setEventsSpans(TraceEventsSpan 
 template<typename TraceEvent>
 void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
 {
-    std::lock_guard lock{mutex};
-    if (isEnabled == IsEnabled::Yes && eventsIndex > 0) {
-        flushEvents(currentEvents.subspan(0, eventsIndex), threadId, file);
-        eventsIndex = 0;
-    }
+    if (isEnabled == IsEnabled::Yes)
+        flushInThread(*this);
+
     file.reset();
 }
 

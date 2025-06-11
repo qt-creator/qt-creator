@@ -22,12 +22,13 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <exception>
 #include <fstream>
-#include <future>
 #include <mutex>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <tuple>
 
 namespace NanotraceHR {
@@ -441,6 +442,7 @@ class TraceFile;
 using EnabledTraceFile = TraceFile<Tracing::IsEnabled>;
 
 NANOTRACE_EXPORT void openFile(EnabledTraceFile &file);
+NANOTRACE_EXPORT void startDispatcher(EnabledTraceFile &file);
 NANOTRACE_EXPORT void finalizeFile(EnabledTraceFile &file);
 
 template<Tracing isEnabled>
@@ -458,10 +460,32 @@ class TraceFile<Tracing::IsEnabled>
 public:
     using IsActive = std::true_type;
 
+    struct TaskWithArguments
+    {
+        std::unique_lock<std::mutex> lock;
+        Utils::span<TraceEventWithArguments> data;
+        std::thread::id threadId;
+    };
+
+    struct TaskWithoutArguments
+    {
+        std::unique_lock<std::mutex> lock;
+        Utils::span<TraceEventWithoutArguments> data;
+        std::thread::id threadId;
+    };
+
+    struct MetaData
+    {
+        std::unique_lock<std::mutex> lock;
+        std::string key;
+        std::string value;
+    };
+
     TraceFile([[maybe_unused]] std::string_view filePath)
         : filePath{filePath}
     {
         openFile(*this);
+        startDispatcher(*this);
     }
 
     TraceFile(const TraceFile &) = delete;
@@ -472,8 +496,13 @@ public:
     ~TraceFile() { finalizeFile(*this); }
 
     std::string filePath;
-    std::mutex fileMutex;
-    std::future<void> processing;
+    std::mutex tasksMutex;
+    std::condition_variable condition;
+    bool isRunning = true;
+    std::thread thread;
+    QVarLengthArray<TaskWithArguments, 1024> tasksWithArguments;
+    QVarLengthArray<TaskWithoutArguments, 1024> tasksWithoutArguments;
+    QVarLengthArray<MetaData, 32> metaData;
     std::ofstream out;
 };
 
