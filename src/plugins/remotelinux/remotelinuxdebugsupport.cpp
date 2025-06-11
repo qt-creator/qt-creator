@@ -53,7 +53,7 @@ public:
     RemoteLinuxDebugWorkerFactory()
     {
         setId("RemoteLinuxDebugWorkerFactory");
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             runControl->requestDebugChannel();
 
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
@@ -69,7 +69,7 @@ public:
                 rp.setLldbPlatform("remote-macosx");
             else
                 rp.setLldbPlatform("remote-linux");
-            return createDebuggerWorker(runControl, rp);
+            return debuggerRecipe(runControl, rp);
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
