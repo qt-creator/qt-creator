@@ -420,23 +420,17 @@ SearchResultItems symbolOccurrencesInDeclarationComments(
     // Collect comment blocks associated with replace locations.
     for (const SearchResultItem &item : symbolOccurrencesInCode) {
         const FilePath filePath = FilePath::fromUserInput(item.path().last());
-        auto &[doc, content, cppDoc, allCommentTokens] = fileData(filePath);
+        auto &[doc, _, cppDoc, allCommentTokens] = fileData(filePath);
         const Text::Range &range = item.mainRange();
-        if (symbolName.isEmpty()) {
-            const int symbolStartPos = Utils::Text::positionInText(doc, range.begin.line,
-                                                                   range.begin.column + 1);
-            const int symbolEndPos = Utils::Text::positionInText(doc, range.end.line,
-                                                                 range.end.column + 1);
-            symbolName = content.mid(symbolStartPos, symbolEndPos - symbolStartPos);
-        }
+        if (symbolName.isEmpty())
+            symbolName = range.text(doc);
         const QList<Token> commentTokens = commentsForDeclaration(symbolName, range.begin,
                                                                   *doc, cppDoc);
         for (const Token &tok : commentTokens)
             addToken(allCommentTokens, tok);
 
         if (!classInfo) {
-            QTextCursor cursor(doc);
-            cursor.setPosition(Text::positionInText(doc, range.begin.line, range.begin.column + 1));
+            QTextCursor cursor = range.begin.toTextCursor(doc);
             Internal::CanonicalSymbol cs(cppDoc, snapshot);
             Symbol * const canonicalSymbol = cs(cursor);
             if (canonicalSymbol) {

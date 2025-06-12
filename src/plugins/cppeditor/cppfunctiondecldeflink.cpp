@@ -908,10 +908,8 @@ ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targetOffse
                     const QList<Text::Range> ranges = symbolOccurrencesInText(
                         *targetFile->document(), tokenView, tokenStartPos, paramName);
                     for (const Text::Range &r : ranges) {
-                        const int startPos = Text::positionInText(
-                            targetFile->document(), r.begin.line, r.begin.column + 1);
-                        const int endPos = Text::positionInText(
-                            targetFile->document(), r.end.line, r.end.column + 1);
+                        const int startPos = r.begin.toPositionInDocument(targetFile->document());
+                        const int endPos = r.end.toPositionInDocument(targetFile->document());
                         changes.replace(startPos, endPos, it.value());
                     }
                 }
