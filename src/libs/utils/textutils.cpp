@@ -163,6 +163,11 @@ QTextCursor Range::toTextCursor(QTextDocument *doc) const
     return cursor;
 }
 
+QString Range::text(QTextDocument *doc) const
+{
+    return toTextCursor(doc).selectedText().replace(QChar(QChar::ParagraphSeparator), '\n');
+}
+
 bool convertPosition(const QTextDocument *document, int pos, int *line, int *column)
 {
     QTextBlock block = document->findBlock(pos);

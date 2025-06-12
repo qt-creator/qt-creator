@@ -56,6 +56,7 @@ public:
     bool contains(const Position &pos) const;
 
     QTextCursor toTextCursor(QTextDocument *doc) const;
+    QString text(QTextDocument *doc) const;
 };
 
 // line is 1-based, column is 0-based
