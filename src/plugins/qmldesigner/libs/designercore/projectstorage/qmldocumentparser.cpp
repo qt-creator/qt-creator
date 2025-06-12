@@ -340,10 +340,12 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
     Storage::Synchronization::Type type;
 
     using Option = QmlDom::DomEnvironment::Option;
+    using DomCreationOption = QQmlJS::Dom::DomCreationOption;
 
     auto environment = QmlDom::DomEnvironment::create({},
                                                       Option::SingleThreaded | Option::NoDependencies
-                                                          | Option::WeakLoad);
+                                                          | Option::WeakLoad,
+                                                      DomCreationOption::Minimal);
 
     QmlDom::DomItem items;
 
