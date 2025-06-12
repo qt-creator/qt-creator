@@ -135,11 +135,6 @@ public:
         return QStringList{"shell", "run-as", m_packageName} + userArgs();
     }
 
-    QString debugPortString() const
-    {
-        return QString::number(m_glue->runControl()->debugChannel().port());
-    }
-
     void appendStdOut(const QString &data)
     {
         m_glue->runControl()->postMessage(data, StdOutFormat);
