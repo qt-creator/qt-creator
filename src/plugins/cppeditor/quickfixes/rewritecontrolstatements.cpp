@@ -12,6 +12,8 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
+#include <functional>
+
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
 #endif
@@ -111,8 +113,81 @@ private:
     const int m_elseToken;
 };
 
-template<typename Statement>
-bool checkControlStatementsHelper(const CppQuickFixInterface &interface, QuickFixOperations &result)
+template<typename Statement> class RemoveBracesFromControlStatementOp : public CppQuickFixOperation
+{
+public:
+    RemoveBracesFromControlStatementOp(const CppQuickFixInterface &interface,
+                                       const QList<Statement *> &statements,
+                                       StatementAST *elseStatement,
+                                       int elseToken)
+        : CppQuickFixOperation(interface, 0)
+        , m_statements(statements), m_elseStatement(elseStatement)
+    {
+        Q_UNUSED(elseToken)
+
+        setDescription(Tr::tr("Remove Curly Braces"));
+    }
+
+    void perform() override
+    {
+        ChangeSet changes;
+        const auto findNewline = [&](int bracePos, int diff, int &newlinePos, int *nextNonSpacePos) {
+            for (int i = bracePos + diff; true; i += diff) {
+                const QChar &c = currentFile()->charAt(i);
+                if (c == '\n' || c == QChar::ParagraphSeparator) {
+                    newlinePos = i;
+                    break;
+                }
+                if (!c.isSpace())
+                    break;
+                if (nextNonSpacePos)
+                    ++*nextNonSpacePos;
+            }
+        };
+        const auto removeBraceAndPossiblyLine = [&](int braceToken, bool removeTrailingSpace) {
+            const int bracePos = currentFile()->startOf(braceToken);
+            int prevNewline = -1;
+            int nextNewline = -1;
+            int start = bracePos;
+            int end = bracePos + 1;
+            findNewline(bracePos, -1, prevNewline, nullptr);
+            findNewline(bracePos, 1, nextNewline, removeTrailingSpace ? &end : nullptr);
+            if (prevNewline != -1 && nextNewline != -1) {
+                start = prevNewline;
+                end = nextNewline;
+            }
+            changes.remove(start, end);
+        };
+        const auto apply = [&](const CompoundStatementAST *stmt) {
+            QTC_ASSERT(stmt, return);
+            removeBraceAndPossiblyLine(stmt->lbrace_token, false);
+            removeBraceAndPossiblyLine(stmt->rbrace_token,
+                                       std::is_same_v<Statement, DoStatementAST>
+                                       || std::is_same_v<Statement, IfStatementAST>);
+            if (!stmt->statement_list)
+                changes.insert(currentFile()->endOf(stmt), "\n;");
+
+        };
+        for (Statement * const statement : m_statements)
+            apply(statement->statement->asCompoundStatement());
+        if (m_elseStatement)
+            apply(m_elseStatement->asCompoundStatement());
+
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
+    }
+
+private:
+    const QList<Statement *> m_statements;
+    StatementAST * const m_elseStatement;
+};
+
+using StmtConstraint = std::function<bool(AST *, bool &)>;
+template<template<typename> typename Op, typename Statement>
+bool checkControlStatementsHelper(
+    const CppQuickFixInterface &interface,
+    const StmtConstraint &constraint,
+    QuickFixOperations &result)
 {
     Statement * const statement = asControlStatement<Statement>(interface.path().last());
     if (!statement)
@@ -122,8 +197,11 @@ bool checkControlStatementsHelper(const CppQuickFixInterface &interface, QuickFi
     if (!Utils::anyOf(triggerTokens(statement), [&](int tok) { return interface.isCursorOn(tok); }))
         return false;
 
-    if (statement->statement && !statement->statement->asCompoundStatement())
+    bool abort = false;
+    if (statement->statement && constraint(statement->statement, abort))
         statements << statement;
+    if (abort)
+        return false;
 
     StatementAST *elseStmt = nullptr;
     int elseToken = 0;
@@ -132,24 +210,33 @@ bool checkControlStatementsHelper(const CppQuickFixInterface &interface, QuickFi
         for (elseStmt = currentIfStmt->else_statement, elseToken = currentIfStmt->else_token;
              elseStmt && (currentIfStmt = elseStmt->asIfStatement());
              elseStmt = currentIfStmt->else_statement, elseToken = currentIfStmt->else_token) {
-            if (currentIfStmt->statement && !currentIfStmt->statement->asCompoundStatement())
+            if (currentIfStmt->statement && constraint(currentIfStmt->statement, abort))
                 statements << currentIfStmt;
+            if (abort)
+                return false;
         }
-        if (elseStmt && (elseStmt->asIfStatement() || elseStmt->asCompoundStatement())) {
+        if (elseStmt && (elseStmt->asIfStatement() || !constraint(elseStmt, abort))) {
+            if (abort)
+                return false;
             elseStmt = nullptr;
             elseToken = 0;
         }
     }
 
-    if (!statements.isEmpty() || elseStmt)
-        result << new AddBracesToControlStatementOp(interface, statements, elseStmt, elseToken);
+    if (!statements.isEmpty() || elseStmt) {
+        result << new Op<Statement>(interface, statements, elseStmt, elseToken);
+        return false;
+    }
     return true;
 }
 
-template<typename ...Statements>
-void checkControlStatements(const CppQuickFixInterface &interface, QuickFixOperations &result)
+template<template<typename> typename Op, typename... Statements>
+void checkControlStatements(
+    const CppQuickFixInterface &interface,
+    const StmtConstraint &constraint,
+    QuickFixOperations &result)
 {
-    (... || checkControlStatementsHelper<Statements>(interface, result));
+    (... || checkControlStatementsHelper<Op, Statements>(interface, constraint, result));
 }
 
 class MoveDeclarationOutOfIfOp: public CppQuickFixOperation
@@ -574,11 +661,53 @@ class AddBracesToControlStatement : public CppQuickFixFactory
     {
         if (interface.path().isEmpty())
             return;
-        checkControlStatements<IfStatementAST,
+        const auto constraint = [](AST *ast, bool &) { return !ast->asCompoundStatement(); };
+        checkControlStatements<AddBracesToControlStatementOp,
+                               IfStatementAST,
                                WhileStatementAST,
                                ForStatementAST,
                                RangeBasedForStatementAST,
-                               DoStatementAST>(interface, result);
+                               DoStatementAST>(interface, constraint, result);
+    }
+};
+
+/*!
+ * The reverse of AddBracesToControlStatement
+ */
+class RemoveBracesFromControlStatement : public CppQuickFixFactory
+{
+    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override
+    {
+        if (interface.path().isEmpty())
+            return;
+        const auto constraint = [&](AST *ast, bool &abort) {
+            if (const auto compoundStmt = ast->asCompoundStatement()) {
+                if (!compoundStmt->statement_list || !compoundStmt->statement_list->value)
+                    return true;  // No statements.
+                if (compoundStmt->statement_list->next) {
+                    abort = true;
+                    return false; // More than one statement.
+                }
+
+                // We have exactly one statement. Check whether it spans more than one line.
+                const CppRefactoringFilePtr file = interface.currentFile();
+                const ChangeSet::Range stmtRange = file->range(compoundStmt->statement_list->value);
+                int startLine, startColumn, endLine, endColumn;
+                file->lineAndColumn(stmtRange.start, &startLine, &startColumn);
+                file->lineAndColumn(stmtRange.end, &endLine, &endColumn);
+                if (startLine == endLine)
+                    return true;
+                abort = true;
+                return false;
+            }
+            return false;
+        };
+        checkControlStatements<RemoveBracesFromControlStatementOp,
+                               IfStatementAST,
+                               WhileStatementAST,
+                               ForStatementAST,
+                               RangeBasedForStatementAST,
+                               DoStatementAST>(interface, constraint, result);
     }
 };
 
@@ -676,6 +805,12 @@ class AddBracesToControlStatementTest : public Tests::CppQuickFixTestObject
 public:
     using CppQuickFixTestObject::CppQuickFixTestObject;
 };
+class RemoveBracesFromControlStatementTest : public Tests::CppQuickFixTestObject
+{
+    Q_OBJECT
+public:
+    using CppQuickFixTestObject::CppQuickFixTestObject;
+};
 class MoveDeclarationOutOfIfTest : public Tests::CppQuickFixTestObject
 {
     Q_OBJECT
@@ -701,6 +836,7 @@ public:
 void registerRewriteControlStatementQuickfixes()
 {
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(AddBracesToControlStatement);
+    REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(RemoveBracesFromControlStatement);
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(MoveDeclarationOutOfIf);
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(MoveDeclarationOutOfWhile);
     REGISTER_QUICKFIX_FACTORY_WITH_STANDARD_TEST(OptimizeForLoop);
