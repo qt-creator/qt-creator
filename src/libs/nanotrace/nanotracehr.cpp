@@ -245,27 +245,27 @@ void finalizeFile(EnabledTraceFile &file)
 template<typename TraceEvent>
 void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
 {
-    std::unique_lock taskLock{eventQueue.mutex};
-    std::unique_lock tasksLock{eventQueue.file->tasksMutex};
+    {
+        std::unique_lock taskLock{eventQueue.mutex};
+        std::unique_lock tasksLock{eventQueue.file->tasksMutex};
 
-    if constexpr (std::same_as<TraceEvent, TraceEventWithArguments>) {
-        eventQueue.file->tasksWithArguments
-            .emplace_back(std::move(taskLock),
-                          eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
-                          eventQueue.threadId);
-    } else {
-        eventQueue.file->tasksWithoutArguments
-            .emplace_back(std::move(taskLock),
-                          eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
-                          eventQueue.threadId);
+        if constexpr (std::same_as<TraceEvent, TraceEventWithArguments>) {
+            eventQueue.file->tasksWithArguments
+                .emplace_back(std::move(taskLock),
+                              eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
+                              eventQueue.threadId);
+        } else {
+            eventQueue.file->tasksWithoutArguments
+                .emplace_back(std::move(taskLock),
+                              eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
+                              eventQueue.threadId);
+        }
     }
 
     eventQueue.currentEvents = eventQueue.currentEvents.data() == eventQueue.eventsOne.data()
                                    ? eventQueue.eventsTwo
                                    : eventQueue.eventsOne;
     eventQueue.eventsIndex = 0;
-
-    tasksLock.unlock();
 
     eventQueue.file->condition.notify_all();
 }
