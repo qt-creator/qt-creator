@@ -4752,7 +4752,7 @@ std::tuple<ImportedTypeNameId, Storage::Synchronization::TypeNameKind> ProjectSt
 
 TypeId ProjectStorage::fetchTypeId(ImportedTypeNameId typeNameId) const
 {
-    NanotraceHR::Tracer tracer{"fetch type id with type name kind",
+    NanotraceHR::Tracer tracer{"fetch type id",
                                projectStorageCategory(),
                                keyValue("type name id", typeNameId)};
 
@@ -4779,7 +4779,7 @@ SourceId ProjectStorage::fetchTypeSourceId(TypeId typeId) const
 TypeId ProjectStorage::fetchTypeId(ImportedTypeNameId typeNameId,
                                    Storage::Synchronization::TypeNameKind kind) const
 {
-    NanotraceHR::Tracer tracer{"fetch type id",
+    NanotraceHR::Tracer tracer{"fetch type id with type name kind",
                                projectStorageCategory(),
                                keyValue("type name id", typeNameId),
                                keyValue("type name kind", kind)};
