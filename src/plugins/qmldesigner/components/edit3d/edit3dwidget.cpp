@@ -647,6 +647,7 @@ void Edit3DWidget::showCanvas(bool show)
         m_onboardingLabel->setVisible(false);
     else
         showOnboardingLabel();
+    m_toolBox->setVisible(show);
 }
 
 QMenu *Edit3DWidget::visibilityTogglesMenu() const
