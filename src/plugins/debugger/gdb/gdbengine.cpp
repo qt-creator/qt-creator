@@ -131,8 +131,6 @@ GdbEngine::GdbEngine()
     setObjectName("GdbEngine");
     setDebuggerName("GDB");
 
-    m_inferiorOutputCodec = TextCodec::codecForLocale();
-
     m_commandTimer.setSingleShot(true);
     connect(&m_commandTimer, &QTimer::timeout,
             this, &GdbEngine::commandTimeout);
@@ -617,9 +615,7 @@ void GdbEngine::readGdbStandardError()
 
 void GdbEngine::readDebuggeeOutput(const QByteArray &ba)
 {
-    const QString msg = m_inferiorOutputCodec.toUnicode(ba.constData(), ba.size(),
-                                                        &m_inferiorOutputCodecState);
-
+    const QString msg = m_inferiorOutputDecoder.decode(ba);
     if (msg.startsWith("&\"") && isMostlyHarmlessMessage(QStringView{msg}.mid(2, msg.size() - 4)))
         showMessage("Mostly harmless terminal warning suppressed.", LogWarning);
     else

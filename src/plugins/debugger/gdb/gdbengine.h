@@ -91,8 +91,7 @@ private: ////////// General Interface //////////
     void readGdbStandardError();
     void readDebuggeeOutput(const QByteArray &ba);
 
-    Utils::TextCodec m_inferiorOutputCodec;
-    Utils::TextCodec::ConverterState m_inferiorOutputCodecState;
+    QStringDecoder m_inferiorOutputDecoder{Utils::TextCodec::encodingForLocale().name()};
 
     QString m_inbuffer;
     bool m_busy = false;
