@@ -448,32 +448,40 @@ struct ProjectStorage::Statements
         "NULL OR propertyTypeId IS NOT NULL OR propertyTraits IS NOT NULL)",
         database};
     Sqlite::ReadStatement<5, 1> selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement{
-        "SELECT alias.typeId, alias.propertyDeclarationId, "
-        "alias.aliasPropertyImportedTypeNameId, "
-        "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
-        "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
-        "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
-        "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
-        "WHERE alias.propertyTypeId=?1 "
+        "  SELECT alias.typeId, "
+        "         alias.propertyDeclarationId, "
+        "         alias.aliasPropertyImportedTypeNameId, "
+        "         alias.aliasPropertyDeclarationId, "
+        "         alias.aliasPropertyDeclarationTailId "
+        "  FROM propertyDeclarations AS alias "
+        "    JOIN propertyDeclarations AS target "
+        "      ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId "
+        "         OR alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
+        "  WHERE alias.propertyTypeId=?1 "
         "UNION ALL "
-        "SELECT alias.typeId, alias.propertyDeclarationId, "
-        "alias.aliasPropertyImportedTypeNameId, "
-        "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
-        "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
-        "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
-        "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
-        "WHERE target.typeId=?1 "
+        "  SELECT alias.typeId, "
+        "         alias.propertyDeclarationId, "
+        "         alias.aliasPropertyImportedTypeNameId, "
+        "         alias.aliasPropertyDeclarationId, "
+        "         alias.aliasPropertyDeclarationTailId "
+        "  FROM propertyDeclarations AS alias "
+        "    JOIN propertyDeclarations AS target "
+        "      ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId "
+        "         OR alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
+        "  WHERE target.typeId=?1 "
         "UNION ALL "
-        "SELECT alias.typeId, alias.propertyDeclarationId, "
-        "alias.aliasPropertyImportedTypeNameId, "
-        "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
-        "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
-        "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
-        "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
-        "WHERE  alias.aliasPropertyImportedTypeNameId IN "
-        "  (SELECT importedTypeNameId FROM exportedTypeNames JOIN importedTypeNames "
-        "USING(name) "
-        "   WHERE typeId=?1)",
+        "  SELECT alias.typeId, "
+        "         alias.propertyDeclarationId, "
+        "         alias.aliasPropertyImportedTypeNameId, "
+        "         alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
+        "  FROM propertyDeclarations AS alias "
+        "    JOIN propertyDeclarations AS target "
+        "      ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId "
+        "         OR alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
+        "  WHERE alias.aliasPropertyImportedTypeNameId IN "
+        "    (SELECT importedTypeNameId "
+        "     FROM exportedTypeNames JOIN importedTypeNames USING(name) "
+        "     WHERE typeId=?1)",
         database};
     Sqlite::ReadStatement<3, 1> selectAliasPropertiesDeclarationForPropertiesWithAliasIdStatement{
         "WITH RECURSIVE "
@@ -614,7 +622,8 @@ struct ProjectStorage::Statements
         "AND name=?3 LIMIT 1",
         database};
     mutable Sqlite::ReadWriteStatement<1, 3> insertImportedTypeNameIdStatement{
-        "INSERT INTO importedTypeNames(kind, importOrSourceId, name) VALUES (?1, ?2, ?3) "
+        "INSERT INTO importedTypeNames(kind, importOrSourceId, name) "
+        "VALUES (?1, ?2, ?3) "
         "RETURNING importedTypeNameId",
         database};
     mutable Sqlite::ReadStatement<1, 2> selectImportIdBySourceIdAndModuleIdStatement{
@@ -3525,7 +3534,7 @@ void ProjectStorage::synchronizePropertyDeclarationsInsertAlias(
                                projectStorageCategory(),
                                keyValue("property declaration", value)};
 
-    auto propertyImportedTypeNameId = fetchImportedTypeNameId(value.typeName, sourceId);
+    auto [propertyImportedTypeNameId, _] = fetchImportedTypeNameId(value.typeName, sourceId);
 
     auto callback = [&](PropertyDeclarationId propertyDeclarationId) {
         aliasPropertyDeclarationsToLink.emplace_back(typeId,
@@ -3622,8 +3631,9 @@ void ProjectStorage::synchronizePropertyDeclarationsInsertProperty(
                                projectStorageCategory(),
                                keyValue("property declaration", value)};
 
-    auto propertyImportedTypeNameId = fetchImportedTypeNameId(value.typeName, sourceId);
-    auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId);
+    auto [propertyImportedTypeNameId, typeNameKind] = fetchImportedTypeNameId(value.typeName,
+                                                                              sourceId);
+    auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId, typeNameKind);
 
     if (!propertyTypeId) {
         auto typeName = std::visit([](auto &&importedTypeName) { return importedTypeName.name; },
@@ -3655,9 +3665,11 @@ void ProjectStorage::synchronizePropertyDeclarationsUpdateAlias(
                                keyValue("property declaration", value),
                                keyValue("property declaration view", view)};
 
+    auto [importedTypeName, _] = fetchImportedTypeNameId(value.typeName, sourceId);
+
     aliasPropertyDeclarationsToLink.emplace_back(view.propertyTypeId,
                                                  view.id,
-                                                 fetchImportedTypeNameId(value.typeName, sourceId),
+                                                 importedTypeName,
                                                  value.aliasPropertyName,
                                                  value.aliasPropertyNameTail,
                                                  sourceId,
@@ -3675,9 +3687,10 @@ Sqlite::UpdateChange ProjectStorage::synchronizePropertyDeclarationsUpdateProper
                                keyValue("property declaration", value),
                                keyValue("property declaration view", view)};
 
-    auto propertyImportedTypeNameId = fetchImportedTypeNameId(value.typeName, sourceId);
+    auto [propertyImportedTypeNameId, typeNameKind] = fetchImportedTypeNameId(value.typeName,
+                                                                              sourceId);
 
-    auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId);
+    auto propertyTypeId = fetchTypeId(propertyImportedTypeNameId, typeNameKind);
 
     if (!propertyTypeId) {
         auto typeName = std::visit([](auto &&importedTypeName) { return importedTypeName.name; },
@@ -4519,12 +4532,14 @@ std::pair<TypeId, ImportedTypeNameId> ProjectStorage::fetchImportedTypeNameIdAnd
 
     TypeId typeId;
     ImportedTypeNameId typeNameId;
+    Storage::Synchronization::TypeNameKind typeNameKind;
+
     auto typeName = std::visit([](auto &&importedTypeName) { return importedTypeName.name; },
                                importedTypeName);
     if (!typeName.empty()) {
-        typeNameId = fetchImportedTypeNameId(importedTypeName, sourceId);
+        std::tie(typeNameId, typeNameKind) = fetchImportedTypeNameId(importedTypeName, sourceId);
 
-        typeId = fetchTypeId(typeNameId);
+        typeId = fetchTypeId(typeNameId, typeNameKind);
 
         tracer.end(keyValue("type id", typeId), keyValue("type name id", typeNameId));
 
@@ -4689,9 +4704,10 @@ ImportId ProjectStorage::fetchImportId(SourceId sourceId, const Storage::Import 
     return importId;
 }
 
-ImportedTypeNameId ProjectStorage::fetchImportedTypeNameId(
+std::tuple<ImportedTypeNameId, Storage::Synchronization::TypeNameKind> ProjectStorage::fetchImportedTypeNameId(
     const Storage::Synchronization::ImportedTypeName &name, SourceId sourceId)
 {
+    using Storage::Synchronization::TypeNameKind;
     struct Inspect
     {
         auto operator()(const Storage::Synchronization::ImportedType &importedType)
@@ -4702,9 +4718,10 @@ ImportedTypeNameId ProjectStorage::fetchImportedTypeNameId(
                                        keyValue("source id", sourceId),
                                        keyValue("type name kind", "exported"sv)};
 
-            return storage.fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind::Exported,
-                                                   sourceId,
-                                                   importedType.name);
+            return std::tuple(storage.fetchImportedTypeNameId(TypeNameKind::Exported,
+                                                              sourceId,
+                                                              importedType.name),
+                              TypeNameKind::Exported);
         }
 
         auto operator()(const Storage::Synchronization::QualifiedImportedType &importedType)
@@ -4717,12 +4734,13 @@ ImportedTypeNameId ProjectStorage::fetchImportedTypeNameId(
 
             ImportId importId = storage.fetchImportId(sourceId, importedType.import);
 
-            auto importedTypeNameId = storage.fetchImportedTypeNameId(
-                Storage::Synchronization::TypeNameKind::QualifiedExported, importId, importedType.name);
+            auto importedTypeNameId = storage.fetchImportedTypeNameId(TypeNameKind::QualifiedExported,
+                                                                      importId,
+                                                                      importedType.name);
 
             tracer.end(keyValue("import id", importId), keyValue("source id", sourceId));
 
-            return importedTypeNameId;
+            return std::tuple(importedTypeNameId, TypeNameKind::QualifiedExported);
         }
 
         ProjectStorage &storage;

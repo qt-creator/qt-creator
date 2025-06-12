@@ -946,8 +946,8 @@ private:
 
     ImportId fetchImportId(SourceId sourceId, const Storage::Import &import) const;
 
-    ImportedTypeNameId fetchImportedTypeNameId(const Storage::Synchronization::ImportedTypeName &name,
-                                               SourceId sourceId);
+    std::tuple<ImportedTypeNameId, Storage::Synchronization::TypeNameKind> fetchImportedTypeNameId(
+        const Storage::Synchronization::ImportedTypeName &name, SourceId sourceId);
 
     template<typename Id>
     ImportedTypeNameId fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind kind,
