@@ -150,9 +150,16 @@ bool Range::contains(const Position &pos) const
 
 QTextCursor Range::toTextCursor(QTextDocument *doc) const
 {
+    int anchor = begin.toPositionInDocument(doc);
+    if (anchor < 0)
+        return {};
+    int pos = end.toPositionInDocument(doc);
+    if (pos < 0)
+        return {};
+    QTC_ASSERT(anchor <= pos, std::swap(anchor, pos));
     QTextCursor cursor(doc);
-    cursor.setPosition(begin.toPositionInDocument(doc));
-    cursor.setPosition(end.toPositionInDocument(doc), QTextCursor::KeepAnchor);
+    cursor.setPosition(anchor);
+    cursor.setPosition(pos, QTextCursor::KeepAnchor);
     return cursor;
 }
 
