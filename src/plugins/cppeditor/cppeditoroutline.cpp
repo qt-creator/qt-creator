@@ -158,11 +158,8 @@ void CppEditorOutline::updateIndexNow()
 
     m_updateIndexTimer->stop();
 
-    int line = 0, column = 0;
-    m_editorWidget->convertPosition(m_editorWidget->position(), &line, &column);
-    QModelIndex comboIndex = m_model->indexForPosition(line, column);
-
-    if (comboIndex.isValid()) {
+    if (QModelIndex comboIndex = m_model->indexForPosition(m_editorWidget->lineColumn());
+        comboIndex.isValid()) {
         QSignalBlocker blocker(m_combo);
         m_combo->setCurrentIndex(m_proxyModel->mapFromSource(comboIndex));
         updateToolTip();

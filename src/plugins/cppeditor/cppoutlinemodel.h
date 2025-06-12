@@ -47,8 +47,8 @@ public:
     Utils::Text::Position positionFromIndex(const QModelIndex &sourceIndex) const;
     Utils::Text::Range rangeFromIndex(const QModelIndex &sourceIndex) const;
 
-    // line is 1-based and column is 0-based
-    QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = {}) const;
+    QModelIndex indexForPosition(
+        const Utils::Text::Position &pos, const QModelIndex &rootIndex = {}) const;
 
 private:
     void rebuild();
