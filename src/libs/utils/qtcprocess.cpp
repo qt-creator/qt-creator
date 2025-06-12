@@ -198,15 +198,14 @@ public:
 
     QString readAllData()
     {
-        QString msg = codec.toUnicode(rawData.data(), rawData.size(), &codecState);
+        QString msg = decoder.decode(rawData);
         rawData.clear();
         return msg;
     }
 
     QByteArray rawData;
     QString incompleteLineBuffer; // lines not yet signaled
-    TextCodec codec;
-    TextCodec::ConverterState codecState;
+    QStringDecoder decoder;
     std::function<void(const QString &lines)> outputCallback;
     TextChannelMode m_textChannelMode = TextChannelMode::Off;
 
@@ -732,8 +731,8 @@ public:
     qint64 m_applicationMainThreadId = 0;
     ProcessResultData m_resultData;
 
-    TextCodec m_stdOutCodec;
-    TextCodec m_stdErrCodec;
+    std::optional<TextEncoding> m_stdOutEncoding;
+    std::optional<TextEncoding> m_stdErrEncoding;
 
     ProcessResult m_result = ProcessResult::StartFailed;
     ChannelBuffer m_stdOut;
@@ -992,15 +991,15 @@ void ProcessPrivate::sendControlSignal(ControlSignal controlSignal)
 
 void ProcessPrivate::clearForRun()
 {
-    if (!m_stdOutCodec.isValid())
-        m_stdOutCodec = m_setup.m_commandLine.executable().processStdOutCodec();
+    if (!m_stdOutEncoding)
+        m_stdOutEncoding = m_setup.m_commandLine.executable().processStdOutEncoding();
     m_stdOut.clearForRun();
-    m_stdOut.codec = m_stdOutCodec;
+    m_stdOut.decoder = QStringDecoder(m_stdOutEncoding->name());
 
-    if (!m_stdErrCodec.isValid())
-        m_stdErrCodec = m_setup.m_commandLine.executable().processStdErrCodec();
+    if (!m_stdErrEncoding)
+        m_stdErrEncoding = m_setup.m_commandLine.executable().processStdErrEncoding();
     m_stdErr.clearForRun();
-    m_stdErr.codec = m_stdErrCodec;
+    m_stdErr.decoder = QStringDecoder(m_stdErrEncoding->name());
 
     m_result = ProcessResult::StartFailed;
     m_startTimestamp = {};
@@ -1673,15 +1672,15 @@ QByteArray Process::rawStdErr() const
 QString Process::stdOut() const
 {
     QTC_CHECK(d->m_stdOut.keepRawData);
-    QTC_ASSERT(d->m_stdOutCodec.isValid(), return {}); // Process was not started
-    return d->m_stdOutCodec.toUnicode(d->m_stdOut.rawData);
+    QTC_ASSERT(d->m_stdOutEncoding, return {}); // Process was not started
+    return d->m_stdOut.decoder.decode(d->m_stdOut.rawData);
 }
 
 QString Process::stdErr() const
 {
     QTC_CHECK(d->m_stdErr.keepRawData);
-    QTC_ASSERT(d->m_stdErrCodec.isValid(), return {}); // Process was not started
-    return d->m_stdErrCodec.toUnicode(d->m_stdErr.rawData);
+    QTC_ASSERT(d->m_stdOutEncoding, return {}); // Process was not started
+    return d->m_stdOut.decoder.decode(d->m_stdErr.rawData);
 }
 
 QString Process::cleanedStdOut() const
@@ -1726,7 +1725,6 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const Process &r)
 void ChannelBuffer::clearForRun()
 {
     rawData.clear();
-    codecState.reset();
     incompleteLineBuffer.clear();
 }
 
@@ -1745,7 +1743,7 @@ void ChannelBuffer::append(const QByteArray &text)
         return;
 
     // Convert and append the new input to the buffer of incomplete lines
-    incompleteLineBuffer.append(codec.toUnicode(text.constData(), text.size(), &codecState));
+    incompleteLineBuffer.append(decoder.decode(text));
 
     QStringView bufferView(incompleteLineBuffer);
 
@@ -1796,27 +1794,21 @@ void ChannelBuffer::handleRest()
     }
 }
 
-void Process::setCodec(const TextCodec &codec)
-{
-    QTC_ASSERT(codec.isValid(), return);
-    d->m_stdOutCodec = codec;
-    d->m_stdErrCodec = codec;
-}
-
 void Process::setEncoding(const TextEncoding &encoding)
 {
-    setCodec(TextCodec::codecForName(encoding));
+    d->m_stdOutEncoding = encoding;
+    d->m_stdErrEncoding = encoding;
 }
 
 void Process::setUtf8Codec()
 {
-    d->m_stdOutCodec = TextCodec::utf8();
-    d->m_stdErrCodec = TextCodec::utf8();
+    d->m_stdOutEncoding = QStringDecoder::Utf8;
+    d->m_stdErrEncoding = QStringDecoder::Utf8;
 }
 
 void Process::setUtf8StdOutCodec()
 {
-    d->m_stdOutCodec = TextCodec::utf8();
+    d->m_stdOutEncoding = QStringDecoder::Utf8;
 }
 
 void Process::setTimeOutMessageBoxEnabled(bool v)

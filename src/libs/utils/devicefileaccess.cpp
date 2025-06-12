@@ -427,16 +427,16 @@ Result<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(const FilePath 
     return ResultError(Tr::tr("watch is not implemented."));
 }
 
-TextCodec DeviceFileAccess::processStdOutCodec(const FilePath &executable) const
+TextEncoding DeviceFileAccess::processStdOutEncoding(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return TextCodec::utf8(); // Good default nowadays.
+    return TextEncoding::Utf8; // Good default nowadays.
 }
 
-TextCodec DeviceFileAccess::processStdErrCodec(const FilePath &executable) const
+TextEncoding DeviceFileAccess::processStdErrEncoding(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return TextCodec::utf8(); // Good default nowadays.
+    return TextEncoding::Utf8; // Good default nowadays.
 }
 
 // UnavailableDeviceFileAccess
@@ -1249,16 +1249,16 @@ Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(const Fi
     return ResultError(watcher->error());
 }
 
-TextCodec DesktopDeviceFileAccess::processStdOutCodec(const FilePath &executable) const
+TextEncoding DesktopDeviceFileAccess::processStdOutEncoding(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return TextCodec::codecForLocale();
+    return TextCodec::encodingForLocale();
 }
 
-TextCodec DesktopDeviceFileAccess::processStdErrCodec(const FilePath &executable) const
+TextEncoding DesktopDeviceFileAccess::processStdErrEncoding(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return TextCodec::codecForLocale();
+    return TextCodec::encodingForLocale();
 }
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const

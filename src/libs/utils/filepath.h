@@ -34,7 +34,7 @@ namespace Utils {
 class DeviceFileAccess;
 class Environment;
 enum class FileStreamHandle;
-class TextCodec;
+class TextEncoding;
 
 template <class ...Args> using Continuation = std::function<void(Args...)>;
 using CopyContinuation = Continuation<const Result<> &>;
@@ -199,8 +199,8 @@ public:
     QChar pathComponentSeparator() const;
     QChar pathListSeparator() const;
 
-    TextCodec processStdOutCodec() const;
-    TextCodec processStdErrCodec() const;
+    TextEncoding processStdOutEncoding() const;
+    TextEncoding processStdErrEncoding() const;
 
     void clear();
     bool isEmpty() const;

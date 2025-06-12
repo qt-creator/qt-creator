@@ -14,7 +14,7 @@ namespace Utils {
 
 class CommandLine;
 class RunResult;
-class TextCodec;
+class TextEncoding;
 
 // Base class including dummy implementation usable as fallback.
 class QTCREATOR_UTILS_EXPORT DeviceFileAccess
@@ -83,8 +83,8 @@ protected:
 
     virtual Utils::Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
 
-    virtual TextCodec processStdOutCodec(const FilePath &executable) const;
-    virtual TextCodec processStdErrCodec(const FilePath &executable) const;
+    virtual TextEncoding processStdOutEncoding(const FilePath &executable) const;
+    virtual TextEncoding processStdErrEncoding(const FilePath &executable) const;
 };
 
 class QTCREATOR_UTILS_EXPORT UnavailableDeviceFileAccess : public DeviceFileAccess
@@ -209,10 +209,10 @@ protected:
 
     Result<FilePath> createTempFile(const FilePath &filePath) override;
 
-    Utils::Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
+    Result<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
 
-    TextCodec processStdOutCodec(const FilePath &executable) const override;
-    TextCodec processStdErrCodec(const FilePath &executable) const override;
+    TextEncoding processStdOutEncoding(const FilePath &executable) const override;
+    TextEncoding processStdErrEncoding(const FilePath &executable) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT UnixDeviceFileAccess : public DeviceFileAccess

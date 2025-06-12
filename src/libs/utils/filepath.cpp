@@ -2189,14 +2189,14 @@ QChar FilePath::pathListSeparator() const
     return osType() == OsTypeWindows ? u';' : u':';
 }
 
-TextCodec FilePath::processStdOutCodec() const
+TextEncoding FilePath::processStdOutEncoding() const
 {
-    return fileAccess()->processStdOutCodec(*this);
+    return fileAccess()->processStdOutEncoding(*this);
 }
 
-TextCodec FilePath::processStdErrCodec() const
+TextEncoding FilePath::processStdErrEncoding() const
 {
-    return fileAccess()->processStdErrCodec(*this);
+    return fileAccess()->processStdErrEncoding(*this);
 }
 
 /*!

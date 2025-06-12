@@ -21,6 +21,12 @@ public:
     TextEncoding(const QByteArray &name);
     TextEncoding(QStringEncoder::Encoding encoding);
 
+    static const QStringConverter::Encoding Utf8 = QStringConverter::Encoding::Utf8;
+    static const QStringConverter::Encoding Utf16 = QStringConverter::Encoding::Utf16;
+    static const QStringConverter::Encoding Utf32 = QStringConverter::Encoding::Utf32;
+    static const QStringConverter::Encoding Latin1 = QStringConverter::Encoding::Latin1;
+    static const QStringConverter::Encoding System = QStringConverter::Encoding::System;
+
     operator QByteArray() const { return m_name; }
     QByteArray name() const { return m_name; }
 

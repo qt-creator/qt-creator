@@ -28,6 +28,7 @@ class ProcessInterface;
 class ProcessResultData;
 class ProcessRunData;
 class TextEncoding;
+class TextCodec;
 
 class QTCREATOR_UTILS_EXPORT Process final : public QObject
 {
@@ -144,7 +145,6 @@ public:
     void runBlocking(std::chrono::seconds timeout = std::chrono::seconds(10),
                      EventLoopMode eventLoopMode = EventLoopMode::Off);
 
-    void setCodec(const TextCodec &codec); // for stdOut and stdErr
     void setEncoding(const TextEncoding &encoding); // for stdOut and stdErr
     void setUtf8Codec(); // for stdOut and stdErr
     void setUtf8StdOutCodec(); // for stdOut, stdErr uses executable.processStdErrCodec()
