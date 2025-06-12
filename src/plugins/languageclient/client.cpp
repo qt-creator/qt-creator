@@ -345,7 +345,6 @@ public:
     SymbolSupport m_symbolSupport;
     MessageId m_runningFindLinkRequest;
     ProgressManager m_progressManager;
-    bool m_activateDocAutomatically = false;
     SemanticTokenSupport m_tokenSupport;
     QString m_serverName;
     QString m_serverVersion;
