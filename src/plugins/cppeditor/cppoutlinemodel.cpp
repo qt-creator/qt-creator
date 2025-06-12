@@ -287,17 +287,6 @@ void OutlineModel::buildTree(SymbolItem *root, bool isRoot)
     }
 }
 
-static bool contains(const Utils::Text::Range &range, int line, int column)
-{
-    if (line < range.begin.line || line > range.end.line)
-        return false;
-    if (line == range.begin.line && column < range.begin.column)
-        return false;
-    if (line == range.end.line && column > range.end.column)
-        return false;
-    return true;
-}
-
 QModelIndex OutlineModel::indexForPosition(int line, int column,
                                            const QModelIndex &rootIndex) const
 {
@@ -309,7 +298,7 @@ QModelIndex OutlineModel::indexForPosition(int line, int column,
         if (range.begin.line > line)
             break;
         // Skip ranges that do not include current line and column.
-        if (range.end != range.begin && !contains(range, line, column))
+        if (range.end != range.begin && !range.contains(Utils::Text::Position{line, column}))
             continue;
         lastIndex = index;
     }
