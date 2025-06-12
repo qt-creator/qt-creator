@@ -685,17 +685,11 @@ void QmakeBuildSystem::asyncUpdate()
 
     m_asyncUpdateFutureInterface->reportStarted();
     const auto watcher = new QFutureWatcher<void>(this);
-    connect(watcher, &QFutureWatcher<void>::canceled, this, [this, watcher] {
-        if (!m_qmakeGlobals)
-            return;
-        m_qmakeGlobals->killProcesses();
-        watcher->disconnect();
-        watcher->deleteLater();
+    connect(watcher, &QFutureWatcher<void>::canceled, this, [this] {
+        if (m_qmakeGlobals)
+            m_qmakeGlobals->killProcesses();
     });
-    connect(watcher, &QFutureWatcher<void>::finished, this, [watcher] {
-        watcher->disconnect();
-        watcher->deleteLater();
-    });
+    connect(watcher, &QFutureWatcher<void>::finished, watcher, &QObject::deleteLater);
     watcher->setFuture(m_asyncUpdateFutureInterface->future());
 
     const Kit *const k = kit();
