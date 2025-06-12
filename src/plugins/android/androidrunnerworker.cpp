@@ -167,8 +167,9 @@ public:
 static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
 {
     storage->m_glue = glue;
-    auto aspect = glue->runControl()->aspectData<Debugger::DebuggerRunConfigurationAspect>();
-    const Id runMode = glue->runControl()->runMode();
+    RunControl *runControl = glue->runControl();
+    auto aspect = runControl->aspectData<Debugger::DebuggerRunConfigurationAspect>();
+    const Id runMode = runControl->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     storage->m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
     if (debuggingMode && aspect->useQmlDebugger)
@@ -192,27 +193,27 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
         qCDebug(androidRunWorkerLog) << "QML server:" << storage->m_qmlServer.toDisplayString();
     }
 
-    BuildConfiguration *bc = glue->runControl()->buildConfiguration();
+    BuildConfiguration *bc = runControl->buildConfiguration();
     storage->m_packageName = packageName(bc);
     storage->m_intentName = storage->m_packageName + '/' + activityName(bc);
     qCDebug(androidRunWorkerLog) << "Intent name:" << storage->m_intentName
                                  << "Package name:" << storage->m_packageName;
     qCDebug(androidRunWorkerLog) << "Device API:" << glue->apiLevel();
 
-    storage->m_extraEnvVars = glue->runControl()->aspectData<EnvironmentAspect>()->environment;
+    storage->m_extraEnvVars = runControl->aspectData<EnvironmentAspect>()->environment;
     qCDebug(androidRunWorkerLog).noquote() << "Environment variables for the app"
                                            << storage->m_extraEnvVars.toStringList();
 
     if (bc->buildType() != BuildConfiguration::BuildType::Release)
-        storage->m_extraAppParams = glue->runControl()->commandLine().arguments();
+        storage->m_extraAppParams = runControl->commandLine().arguments();
 
-    if (const Store sd = glue->runControl()->settingsData(Constants::ANDROID_AM_START_ARGS);
+    if (const Store sd = runControl->settingsData(Constants::ANDROID_AM_START_ARGS);
         !sd.isEmpty()) {
         QTC_CHECK(sd.first().typeId() == QMetaType::QString);
         storage->m_amStartExtraArgs = sd.first().toString();
     }
 
-    if (const Store sd = glue->runControl()->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
+    if (const Store sd = runControl->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
         !sd.isEmpty()) {
         const QVariant &first = sd.first();
         QTC_CHECK(first.typeId() == QMetaType::QStringList);
@@ -221,7 +222,7 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
             storage->m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
 
-    if (const Store sd = glue->runControl()->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
+    if (const Store sd = runControl->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
         !sd.isEmpty()) {
         const QVariant &first = sd.first();
         QTC_CHECK(first.typeId() == QMetaType::QStringList);
