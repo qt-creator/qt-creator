@@ -881,6 +881,9 @@ void extractComponent(const SelectionContext &selectionContext)
         return;
     }
 
+    // Store properties to reset extracted comp properties later to their original values
+    QList<VariantProperty> originalProperties = selectedNode.variantProperties();
+
     // Read the content of the qml component
     QString componentText;
     Utils::FileReader reader;
@@ -930,6 +933,10 @@ void extractComponent(const SelectionContext &selectionContext)
         // Move component's materials/textures to the main material library
         QList<ModelNode> componentNodes = originalNode.allSubModelNodesAndThisNode();
         Utils::FilePath compDir = filePath.parentDir();
+
+        // Reset root node to its original properties
+        for (VariantProperty prop : originalProperties)
+            originalNode.variantProperty(prop.name()).setValue(prop.value());
 
         for (ModelNode &node : componentNodes) {
             // Correct node assets paths if needed
