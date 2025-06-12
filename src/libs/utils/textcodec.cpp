@@ -9,6 +9,19 @@
 
 namespace Utils {
 
+// TextEncoding
+
+TextEncoding::TextEncoding(const QByteArray &name)
+    : m_name(name)
+{}
+
+TextEncoding::TextEncoding(QStringConverter::Encoding encoding)
+    : m_name(QStringConverter::nameForEncoding(encoding))
+{}
+
+
+// TextCodec
+
 TextCodec::TextCodec() = default;
 
 TextCodec::TextCodec(QTextCodec *codec)
@@ -106,9 +119,17 @@ TextCodec TextCodec::latin1()
     return theLatin1Codec;
 }
 
+static TextEncoding theEncodingForLocale = TextEncoding(QStringEncoder::System);
+
 void TextCodec::setCodecForLocale(const QByteArray &codecName)
 {
     QTextCodec::setCodecForLocale(QTextCodec::codecForName(codecName));
+    theEncodingForLocale = codecName;
+}
+
+TextEncoding TextCodec::encodingForLocale()
+{
+    return theEncodingForLocale;
 }
 
 QByteArray TextCodec::fromUnicode(QStringView data) const

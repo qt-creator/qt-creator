@@ -14,6 +14,19 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+class QTCREATOR_UTILS_EXPORT TextEncoding
+{
+public:
+    TextEncoding(const QByteArray &name);
+    TextEncoding(QStringEncoder::Encoding encoding);
+
+    operator QByteArray() const { return m_name; }
+    QByteArray name() const { return m_name; }
+
+private:
+    QByteArray m_name;
+};
+
 class QTCREATOR_UTILS_EXPORT TextCodec final
 {
 public:
@@ -52,6 +65,7 @@ public:
     static TextCodec latin1();
 
     static void setCodecForLocale(const QByteArray &codecName);
+    static TextEncoding encodingForLocale();
 
 private:
     explicit TextCodec(QTextCodec *codec);
