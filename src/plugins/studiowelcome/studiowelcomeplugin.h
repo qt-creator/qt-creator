@@ -26,9 +26,11 @@ public:
     void initialize() override;
     void extensionsInitialized() override;
     bool delayedInitialize() override;
+    void setTelemetryEnabled(bool value);
 
 private:
     class WelcomeMode *m_welcomeMode = nullptr;
+    bool m_telemetryEnabled = false;
 };
 
 } // namespace Internal

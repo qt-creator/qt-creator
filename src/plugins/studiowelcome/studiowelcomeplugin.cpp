@@ -91,7 +91,7 @@ static void openOpenProjectDialog()
 constexpr char LAST_QDS_VERSION_ENTRY[] = "QML/Designer/lastQDSVersion";
 const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
-const char TELEMETRY_INSIGHT_SETTING[] = "Telemetry";
+const char TELEMETRY_INSIGHT_SETTING[] = "UsageStatistic/TrackingEnabled";
 const char CRASH_REPORTER_SETTING[] = "CrashReportingEnabled";
 
 QPointer<QQuickView> s_viewWindow = nullptr;
@@ -172,7 +172,7 @@ public:
 
         bool restartPending = ICore::askForRestart(tr("The change will take effect after restart."));
 
-        ICore::settings()->setValue(TELEMETRY_INSIGHT_SETTING, b);
+        s_pluginInstance->setTelemetryEnabled(b);
         ICore::settings()->setValue(CRASH_REPORTER_SETTING, b);
 
         if (restartPending)
@@ -567,6 +567,12 @@ StudioWelcomePlugin::StudioWelcomePlugin()
 
 StudioWelcomePlugin::~StudioWelcomePlugin()
 {
+    /* Setting Telemetry value in destructor to properly overwrite settings written by
+     * the Aspect in UsageStatisticPlugin::aboutToShutdown
+     */
+    if (m_telemetryEnabled)
+        ICore::settings()->setValue(TELEMETRY_INSIGHT_SETTING, true);
+
     delete m_welcomeMode;
 }
 
@@ -749,6 +755,11 @@ bool StudioWelcomePlugin::delayedInitialize()
     });
 
     return true;
+}
+
+void StudioWelcomePlugin::setTelemetryEnabled(bool value)
+{
+    m_telemetryEnabled = value;
 }
 
 WelcomeMode::WelcomeMode()
