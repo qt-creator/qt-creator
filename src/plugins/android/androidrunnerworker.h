@@ -30,6 +30,9 @@ public:
     int apiLevel() const { return m_apiLevel; }
     bool wasCancelled() const { return m_wasCancelled; };
 
+    // business logic -> GUI
+    void setStartData(const QUrl &qmlChannel, qint64 pid, const QString &packageDir);
+
     // GUI -> business logic
     void cancel();
 
@@ -38,7 +41,7 @@ signals:
     void canceled();
 
     // business logic -> GUI
-    void started(qint64 pid, const QString &packageDir);
+    void started();
     void finished(const QString &errorMessage);
 
 private:

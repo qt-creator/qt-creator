@@ -78,12 +78,7 @@ Group androidRecipe(RunControl *runControl)
 
         auto iface = runStorage().activeStorage();
         QObject::connect(iface, &RunInterface::canceled, glue, &RunnerInterface::cancel);
-
-        QObject::connect(glue, &RunnerInterface::started, runControl, [runControl, iface](qint64 pid, const QString &packageDir) {
-            runControl->setAttachPid(ProcessHandle(pid));
-            runControl->setDebugChannel(QString("unix-abstract-connect://%1/debug-socket").arg(packageDir));
-            emit iface->started();
-        });
+        QObject::connect(glue, &RunnerInterface::started, iface, &RunInterface::started);
         QObject::connect(glue, &RunnerInterface::finished, runControl, [runControl](const QString &errorString) {
             runControl->postMessage(errorString, Utils::NormalMessageFormat);
             if (runControl->isRunning())

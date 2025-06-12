@@ -638,8 +638,8 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
     };
 
     const auto onDebugSetupFinished = [storage] {
-        storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-        emit storage->m_glue->started(storage->m_processPID, storage->m_packageDir);
+        storage->m_glue->setStartData(storage->m_qmlServer, storage->m_processPID,
+                                      storage->m_packageDir);
     };
 
     return Group {
@@ -773,8 +773,8 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
                 storage->m_processUser = processUser;
                 qCDebug(androidRunWorkerLog) << "Process ID changed to:" << storage->m_processPID;
                 if (!storage->m_useCppDebugger) {
-                    storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-                    emit storage->m_glue->started(storage->m_processPID, storage->m_packageDir);
+                    storage->m_glue->setStartData(storage->m_qmlServer, storage->m_processPID,
+                                                  storage->m_packageDir);
                 }
                 return DoneResult::Success;
             }
@@ -828,6 +828,14 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
         }
     };
     // clang-format on
+}
+
+void RunnerInterface::setStartData(const QUrl &qmlChannel, qint64 pid, const QString &packageDir)
+{
+    m_runControl->setQmlChannel(qmlChannel);
+    m_runControl->setAttachPid(ProcessHandle(pid));
+    m_runControl->setDebugChannel(QString("unix-abstract-connect://%1/debug-socket").arg(packageDir));
+    emit started();
 }
 
 void RunnerInterface::cancel()
