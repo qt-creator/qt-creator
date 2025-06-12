@@ -193,11 +193,10 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         for (int i = 0; i < 4; ++i)
             m_viewportToolStates[i].isPerspective = i < showList.size() ? showList[i].toBool() : i == 0;
     } else {
-        for (int i = 0; i < 4; ++i) {
-            ViewportToolState &state = m_viewportToolStates[i];
-            state.isPerspective = i == 0;
-        }
+        for (int i = 0; i < 4; ++i)
+            m_viewportToolStates[i].isPerspective = i == 0;
     }
+    m_cameraModeAction->action()->setChecked(m_viewportToolStates[m_activeViewport].isPerspective);
 
     if (sceneState.contains(orientationKey))
         m_orientationModeAction->action()->setChecked(sceneState[orientationKey].toBool());
@@ -291,7 +290,6 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 void Edit3DView::setActiveViewport(int viewport)
 {
     m_activeViewport = viewport;
-    m_cameraModeAction->action()->setChecked(m_viewportToolStates[m_activeViewport].isPerspective);
 }
 
 void Edit3DView::modelAttached(Model *model)
@@ -308,6 +306,7 @@ void Edit3DView::modelAttached(Model *model)
 
     edit3DWidget()->canvas()->updateActiveScene(Utils3D::active3DSceneId(model));
 
+    updateAlignActionStates();
     syncSnapAuxPropsToSettings();
 
     rootModelNode().setAuxiliaryData(edit3dGridColorProperty,
@@ -341,6 +340,9 @@ void Edit3DView::modelAttached(Model *model)
             &Edit3DView::onEntriesChanged,
             Qt::UniqueConnection);
 #endif
+
+    model->sendCustomNotificationToNodeInstanceView(
+        Request3DSceneToolStates{Utils3D::active3DSceneNode(this).id()});
 }
 
 void Edit3DView::onEntriesChanged()

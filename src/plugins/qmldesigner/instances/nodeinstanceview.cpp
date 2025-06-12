@@ -721,6 +721,10 @@ void NodeInstanceView::customNotification(const CustomNotificationPackage &packa
                                        preview->renderNode,
                                        preview->size,
                                        preview->requestId);
+    } else if (auto request = std::get_if<Request3DSceneToolStates>(&package)) {
+        const auto sceneStates = m_edit3DToolStates.value(model()->fileUrl()).value(request->sceneId);
+        if (!sceneStates.isEmpty())
+            model()->emitUpdateActiveScene3D(this, sceneStates);
     }
 }
 
