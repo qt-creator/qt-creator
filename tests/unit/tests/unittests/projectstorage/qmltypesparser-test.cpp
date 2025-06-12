@@ -457,21 +457,26 @@ TEST_F(QmlTypesParser, functions)
     parser.parse(source, imports, types, directoryInfo, Storage::IsInsideProject::No);
 
     ASSERT_THAT(types,
-                ElementsAre(Field(
-                    &Synchronization::Type::functionDeclarations,
-                    UnorderedElementsAre(
-                        AllOf(IsFunctionDeclaration("advance", ""),
-                              Field("Synchronization::FunctionDeclaration::parameters", &Synchronization::FunctionDeclaration::parameters,
-                                    UnorderedElementsAre(IsParameter("frames", "int"),
-                                                         IsParameter("fps", "double")))),
-                        AllOf(IsFunctionDeclaration("isImageLoading", "bool"),
-                              Field("Synchronization::FunctionDeclaration::parameters", &Synchronization::FunctionDeclaration::parameters,
-                                    UnorderedElementsAre(IsParameter("url", "QUrl")))),
-                        AllOf(IsFunctionDeclaration("getContext", ""),
-                              Field("Synchronization::FunctionDeclaration::parameters", &Synchronization::FunctionDeclaration::parameters,
-                                    UnorderedElementsAre(IsParameter("args", "QQmlV4Function")))),
-                        AllOf(IsFunctionDeclaration("movieUpdate", ""),
-                              Field("Synchronization::FunctionDeclaration::parameters", &Synchronization::FunctionDeclaration::parameters, IsEmpty()))))));
+                ElementsAre(
+                    Field(&Synchronization::Type::functionDeclarations,
+                          UnorderedElementsAre(
+                              AllOf(IsFunctionDeclaration("advance", "void"),
+                                    Field("Synchronization::FunctionDeclaration::parameters",
+                                          &Synchronization::FunctionDeclaration::parameters,
+                                          UnorderedElementsAre(IsParameter("frames", "int"),
+                                                               IsParameter("fps", "double")))),
+                              AllOf(IsFunctionDeclaration("isImageLoading", "bool"),
+                                    Field("Synchronization::FunctionDeclaration::parameters",
+                                          &Synchronization::FunctionDeclaration::parameters,
+                                          UnorderedElementsAre(IsParameter("url", "QUrl")))),
+                              AllOf(IsFunctionDeclaration("getContext", "void"),
+                                    Field("Synchronization::FunctionDeclaration::parameters",
+                                          &Synchronization::FunctionDeclaration::parameters,
+                                          UnorderedElementsAre(IsParameter("args", "QQmlV4Function")))),
+                              AllOf(IsFunctionDeclaration("movieUpdate", "void"),
+                                    Field("Synchronization::FunctionDeclaration::parameters",
+                                          &Synchronization::FunctionDeclaration::parameters,
+                                          IsEmpty()))))));
 }
 
 TEST_F(QmlTypesParser, skip_java_script_functions)
@@ -509,10 +514,12 @@ TEST_F(QmlTypesParser, functions_with_qualified_types)
 
     ASSERT_THAT(types,
                 Contains(
-                    Field("Synchronization::Type::functionDeclarations", &Synchronization::Type::functionDeclarations,
+                    Field("Synchronization::Type::functionDeclarations",
+                          &Synchronization::Type::functionDeclarations,
                           UnorderedElementsAre(AllOf(
-                              IsFunctionDeclaration("values", ""),
-                              Field("Synchronization::FunctionDeclaration::parameters", &Synchronization::FunctionDeclaration::parameters,
+                              IsFunctionDeclaration("values", "void"),
+                              Field("Synchronization::FunctionDeclaration::parameters",
+                                    &Synchronization::FunctionDeclaration::parameters,
                                     UnorderedElementsAre(IsParameter("values", "Qt::Vector"),
                                                          IsParameter("items", "Qt::List"),
                                                          IsParameter("values2", "Qt::Vector"))))))));

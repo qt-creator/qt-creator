@@ -195,11 +195,22 @@ Sqlite::JournalMode projectStorageJournalMode()
 
 [[maybe_unused]] QString qmlPath(::ProjectExplorer::Target *target)
 {
-    if (auto path = qEnvironmentVariable("QDS_QML_DUMMY_DIRECTORY"); path.size())
-        return path;
+    const QString envPath = QString::fromLocal8Bit(qgetenv("QDS_QML_IMPORT_OVERRIDE")).trimmed();
+    if (!envPath.isEmpty()) {
+        qDebug() << "Using QDS_QML_IMPORT_OVERRIDE:" << envPath;
+        return envPath;
+    }
 
-    auto qt = QtSupport::QtKitAspect::qtVersion(target->kit());
-    if (qt)
+#ifdef USE_QML_IMPORT_OVERRIDE
+    const QString internalOverridePath = Core::ICore::resourcePath(
+                                             "qmldesigner/qml-import-override")
+                                             .path();
+
+    qDebug() << "Using internal QDS_QML_IMPORT_OVERRIDE:" << internalOverridePath;
+    return internalOverridePath;
+#endif
+
+    if (const auto qt = QtSupport::QtKitAspect::qtVersion(target->kit()))
         return qt->qmlPath().cleanPath().path();
 
     return QLibraryInfo::path(QLibraryInfo::QmlImportsPath);

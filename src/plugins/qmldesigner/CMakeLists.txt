@@ -12,6 +12,25 @@ option(USE_PROJECTSTORAGE "Use ProjectStorage" ${BUILD_DESIGNSTUDIO})
 add_feature_info("Use project storage" ${USE_PROJECTSTORAGE} "")
 option(DETACH_DISABLED_VIEWS "Detach disabled views" ${BUILD_DESIGNSTUDIO})
 
+# temporary workaround for broken QML imports in Qt -> Qt 6.9.2 should work without this
+env_with_default(QTC_USE_QML_IMPORT_OVERRIDE ENV_QTC_USE_QML_IMPORT_OVERRIDE ${BUILD_DESIGNSTUDIO})
+option(USE_QML_IMPORT_OVERRIDE "Use Qml import override from resource path." ${ENV_QTC_USE_QML_IMPORT_OVERRIDE})
+
+if(USE_QML_IMPORT_OVERRIDE)
+  include(FetchContent)
+  FetchContent_Declare(qds_qml_import_override
+      GIT_REPOSITORY https://git.qt.io/design-studio/qds-qml-import-override.git
+      GIT_TAG        dev
+      SOURCE_DIR     "${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}/qmldesigner/qml-import-override"
+  )
+  FetchContent_MakeAvailable(qds_qml_import_override)
+  install(DIRECTORY "${qds_qml_import_override_SOURCE_DIR}/"
+          DESTINATION "${IDE_DATA_PATH}/qmldesigner/qml-import-override"
+          PATTERN ".git" EXCLUDE
+          PATTERN ".gitignore" EXCLUDE
+          PATTERN ".gitattributes" EXCLUDE)
+endif()
+
 env_with_default("QTC_ENABLE_PROJECT_STORAGE_TRACING" ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING OFF)
 option(ENABLE_PROJECT_STORAGE_TRACING "Enable project storage tracing" ${ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING})
 add_feature_info("Project storage tracing" ${ENABLE_PROJECT_STORAGE_TRACING} "")
@@ -90,6 +109,7 @@ add_qtc_plugin(QmlDesigner
     $<$<BOOL:${DETACH_DISABLED_VIEWS}>:DETACH_DISABLED_VIEWS>
   PUBLIC_DEFINES
     $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
+    $<$<BOOL:${USE_QML_IMPORT_OVERRIDE}>:USE_QML_IMPORT_OVERRIDE>
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/libs
     ${CMAKE_CURRENT_LIST_DIR}/components
