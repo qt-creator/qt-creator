@@ -19,6 +19,8 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <webassembly/webassemblyconstants.h>
+
 #include <QDir>
 #include <QRegularExpression>
 #include <QtGlobal>
@@ -418,6 +420,7 @@ void CompilerOptionsBuilder::addProjectMacros()
 
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::CUSTOM_TOOLCHAIN_TYPEID
         || m_projectPart.toolchainType == Qnx::Constants::QNX_TOOLCHAIN_ID
+        || m_projectPart.toolchainType == WebAssembly::Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID
         || m_projectPart.toolchainType.name().contains("BareMetal") || useMacros) {
         addMacros(m_projectPart.toolchainMacros);
     }
