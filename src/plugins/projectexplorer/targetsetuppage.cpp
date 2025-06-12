@@ -164,7 +164,6 @@ QList<Id> TargetSetupPage::selectedKits() const
 
 TargetSetupPage::~TargetSetupPage()
 {
-    disconnect();
     d->reset();
     delete d->spacer;
     delete d;
