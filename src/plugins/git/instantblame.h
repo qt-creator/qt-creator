@@ -64,7 +64,7 @@ private:
     void slotDocumentChanged();
 
     Utils::FilePath m_workingDirectory;
-    Utils::TextCodec m_codec;
+    Utils::TextEncoding m_encoding;
     Author m_author;
     int m_lastVisitedEditorLine = -1;
     Core::IDocument *m_document = nullptr;

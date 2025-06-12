@@ -231,10 +231,10 @@ private:
 
     bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
-                                      Id id, const FilePath &source, const TextCodec &codec);
+                                      Id id, const FilePath &source, const TextEncoding &codec);
 
     CommandResult runCvs(const FilePath &workingDirectory, const QStringList &arguments,
-                         RunFlags flags = RunFlags::None, const TextCodec &outputCodec = {},
+                         RunFlags flags = RunFlags::None, const TextEncoding &outputCodec = {},
                          int timeoutMultiplier = 1) const;
 
     void annotate(const FilePath &workingDir, const QString &file,
@@ -950,14 +950,14 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
                                const QString &file,
                                bool enableAnnotationContextMenu)
 {
-    const TextCodec codec = VcsBaseEditor::getCodec(workingDir, QStringList(file));
+    const TextEncoding encoding = VcsBaseEditor::getEncoding(workingDir, QStringList(file));
     // no need for temp file
     const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file));
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     QStringList args = {"log"};
     if (!file.isEmpty())
         args.append(file);
-    const auto response = runCvs(workingDir, args, RunFlags::None, codec);
+    const auto response = runCvs(workingDir, args, RunFlags::None, encoding);
     if (response.result() != ProcessResult::FinishedWithSuccess)
         return;
 
@@ -970,7 +970,7 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
     } else {
         const QString title = QString::fromLatin1("cvs log %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, response.cleanedStdOut(),
-                                                CVS_FILELOG_EDITOR_ID, source, codec);
+                                                CVS_FILELOG_EDITOR_ID, source, encoding);
         VcsBaseEditor::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
             VcsBaseEditor::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
@@ -1086,14 +1086,14 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
                                 int lineNumber /* = -1 */)
 {
     const QStringList files(file);
-    const TextCodec codec = VcsBaseEditor::getCodec(workingDir, files);
+    const TextEncoding encoding = VcsBaseEditor::getEncoding(workingDir, files);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files, revision);
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     QStringList args{"annotate"};
     if (!revision.isEmpty())
         args << "-r" << revision;
     args << file;
-    const auto response = runCvs(workingDir, args, RunFlags::None, codec);
+    const auto response = runCvs(workingDir, args, RunFlags::None, encoding);
     if (response.result() != ProcessResult::FinishedWithSuccess)
         return;
 
@@ -1110,7 +1110,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
     } else {
         const QString title = QString::fromLatin1("cvs annotate %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, response.cleanedStdOut(),
-                                                CVS_ANNOTATION_EDITOR_ID, source, codec);
+                                                CVS_ANNOTATION_EDITOR_ID, source, encoding);
         VcsBaseEditor::tagEditor(newEditor, tag);
         VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
@@ -1241,12 +1241,12 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
 {
     // Collect logs
     QString output;
-    TextCodec codec;
+    TextEncoding codec;
     const QList<CvsLogEntry>::iterator lend = entries.end();
     for (QList<CvsLogEntry>::iterator it = entries.begin(); it != lend; ++it) {
         // Before fiddling file names, try to find codec
         if (!codec.isValid())
-            codec = VcsBaseEditor::getCodec(repositoryPath, QStringList(it->file));
+            codec = VcsBaseEditor::getEncoding(repositoryPath, QStringList(it->file));
         // Run log
         const QStringList args{"log", "-r", it->revisions.front().revision, it->file};
         const auto logResponse = runCvs(repositoryPath, args);
@@ -1301,7 +1301,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
 // the working directory (see above).
 CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
                                        const QStringList &arguments, RunFlags flags,
-                                       const TextCodec &outputCodec, int timeoutMultiplier) const
+                                       const TextEncoding &outputCodec, int timeoutMultiplier) const
 {
     const FilePath executable = settings().binaryPath();
     if (executable.isEmpty())
@@ -1315,7 +1315,7 @@ CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
 
 IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QString &output,
                                               Utils::Id id, const FilePath &source,
-                                              const TextCodec &codec)
+                                              const TextEncoding &encoding)
 {
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
@@ -1328,8 +1328,8 @@ IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QStrin
     e->setForceReadOnly(true);
     if (!source.isEmpty())
         e->setSource(source);
-    if (codec.isValid())
-        e->setCodec(codec);
+    if (encoding.isValid())
+        e->setEncoding(encoding);
     return editor;
 }
 

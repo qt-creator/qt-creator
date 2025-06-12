@@ -1803,6 +1803,11 @@ void Process::setCodec(const TextCodec &codec)
     d->m_stdErrCodec = codec;
 }
 
+void Process::setEncoding(const TextEncoding &encoding)
+{
+    setCodec(TextCodec::codecForName(encoding));
+}
+
 void Process::setUtf8Codec()
 {
     d->m_stdOutCodec = TextCodec::utf8();

@@ -17,6 +17,7 @@ namespace Utils {
 class CommandLine;
 class Environment;
 class Process;
+class TextEncoding;
 }
 
 namespace VcsBase {
@@ -74,7 +75,7 @@ public:
 
     void addFlags(RunFlags f);
 
-    void setCodec(const Utils::TextCodec &codec);
+    void setEncoding(const Utils::TextEncoding &codec);
 
     void setProgressParser(const Core::ProgressParser &parser);
 
@@ -83,7 +84,7 @@ public:
                                      const Utils::CommandLine &command,
                                      RunFlags flags,
                                      int timeoutS,
-                                     const Utils::TextCodec &codec);
+                                     const Utils::TextEncoding &codec);
     void cancel();
 
     QString cleanedStdOut() const;

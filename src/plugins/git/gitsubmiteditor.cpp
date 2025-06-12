@@ -330,7 +330,7 @@ QByteArray GitSubmitEditor::fileContents() const
     // Do the encoding convert, When use user-defined encoding
     // e.g. git config --global i18n.commitencoding utf-8
     if (m_commitEncoding.isValid())
-        return m_commitEncoding.fromUnicode(text);
+        return TextCodec::codecForName(m_commitEncoding).fromUnicode(text);
 
     // Using utf-8 as the default encoding
     return text.toUtf8();

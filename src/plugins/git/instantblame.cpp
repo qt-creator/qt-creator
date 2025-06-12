@@ -211,7 +211,7 @@ void BlameMark::addNewLine(const QString &newLine)
 
 InstantBlame::InstantBlame()
 {
-    m_codec = gitClient().defaultCommitEncoding();
+    m_encoding = gitClient().defaultCommitEncoding();
     m_cursorPositionChangedTimer = new QTimer(this);
     m_cursorPositionChangedTimer->setSingleShot(true);
     connect(m_cursorPositionChangedTimer, &QTimer::timeout, this, &InstantBlame::perform);
@@ -460,7 +460,7 @@ void InstantBlame::perform()
 
         qCDebug(log) << "Running git" << lineDiffOptions.join(' ');
         gitClient().vcsExecWithHandler(topLevel, lineDiffOptions, this,
-                                       lineDiffHandler, RunFlags::NoOutput, m_codec);
+                                       lineDiffHandler, RunFlags::NoOutput, m_encoding);
     };
     QStringList options = {"blame", "-p"};
     if (settings().instantBlameIgnoreSpaceChanges())
@@ -470,7 +470,7 @@ void InstantBlame::perform()
     options.append({"-L", lineString, "--", filePath.toUrlishString()});
     qCDebug(log) << "Running git" << options.join(' ');
     gitClient().vcsExecWithHandler(workingDirectory, options, this,
-                                   commandHandler, RunFlags::NoOutput, m_codec);
+                                   commandHandler, RunFlags::NoOutput, m_encoding);
 }
 
 void InstantBlame::stop()
@@ -494,18 +494,18 @@ bool InstantBlame::refreshWorkingDirectory(const FilePath &workingDirectory)
     m_workingDirectory = workingDirectory;
 
     const auto commitCodecHandler = [this, workingDirectory](const CommandResult &result) {
-        TextCodec codec;
+        TextEncoding encoding;
 
         if (result.result() == ProcessResult::FinishedWithSuccess) {
             const QString codecName = result.cleanedStdOut().trimmed();
-            codec = TextCodec::codecForName(codecName.toUtf8());
+            encoding = codecName.toUtf8();
         } else {
-            codec = gitClient().defaultCommitEncoding();
+            encoding = gitClient().defaultCommitEncoding();
         }
 
-        if (m_codec != codec) {
-            qCInfo(log) << "Setting new text codec:" << codec.displayName();
-            m_codec = codec;
+        if (m_encoding != encoding) {
+            qCInfo(log) << "Setting new text codec:" << encoding.name();
+            m_encoding = encoding;
             force();
         }
     };

@@ -11,6 +11,8 @@ namespace Utils {
 
 // TextEncoding
 
+TextEncoding::TextEncoding() = default;
+
 TextEncoding::TextEncoding(const QByteArray &name)
     : m_name(name)
 {}
@@ -19,6 +21,20 @@ TextEncoding::TextEncoding(QStringConverter::Encoding encoding)
     : m_name(QStringConverter::nameForEncoding(encoding))
 {}
 
+bool TextEncoding::isValid() const
+{
+    return !m_name.isEmpty();
+}
+
+bool operator==(const TextEncoding &left, const TextEncoding &right)
+{
+    return left.name() == right.name();
+}
+
+bool operator!=(const TextEncoding &left, const TextEncoding &right)
+{
+    return left.name() != right.name();
+}
 
 // TextCodec
 

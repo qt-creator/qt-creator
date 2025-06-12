@@ -362,9 +362,9 @@ public:
     Author parseAuthor(const QString &authorInfo);
     Author getAuthor(const Utils::FilePath &workingDirectory);
 
-    Utils::TextCodec defaultCommitEncoding() const;
+    Utils::TextEncoding defaultCommitEncoding() const;
     enum EncodingType { EncodingSource, EncodingLogOutput, EncodingCommit, EncodingDefault };
-    Utils::TextCodec encoding(EncodingType encodingType, const Utils::FilePath &source = {}) const;
+    Utils::TextEncoding encoding(EncodingType encodingType, const Utils::FilePath &source = {}) const;
 
     void readConfigAsync(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                          const VcsBase::CommandHandler &handler) const;

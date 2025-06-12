@@ -67,7 +67,7 @@ public:
     QString m_displayName;
     const FilePath m_defaultWorkingDirectory;
     Environment m_environment;
-    TextCodec m_codec;
+    TextEncoding m_encoding;
     ProgressParser m_progressParser = {};
     QList<Job> m_jobs;
 
@@ -105,8 +105,8 @@ void VcsCommandPrivate::setupProcess(Process *process, const Job &job)
     process->setEnvironment(environment());
     if (m_flags & RunFlags::MergeOutputChannels)
         process->setProcessChannelMode(QProcess::MergedChannels);
-    if (m_codec.isValid())
-        process->setCodec(m_codec);
+    if (m_encoding.isValid())
+        process->setEncoding(m_encoding);
     process->setUseCtrlCStub(true);
 
     installStdCallbacks(process);
@@ -290,11 +290,11 @@ ProcessResult VcsCommand::result() const
 CommandResult VcsCommand::runBlocking(const FilePath &workingDirectory,
                                       const Environment &environment,
                                       const CommandLine &command, RunFlags flags,
-                                      int timeoutS, const TextCodec &codec)
+                                      int timeoutS, const TextEncoding &codec)
 {
     VcsCommand vcsCommand(workingDirectory, environment);
     vcsCommand.addFlags(flags);
-    vcsCommand.setCodec(codec);
+    vcsCommand.setEncoding(codec);
     return vcsCommand.runBlockingHelper(command, timeoutS);
 }
 
@@ -317,9 +317,9 @@ CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int time
     return CommandResult(process);
 }
 
-void VcsCommand::setCodec(const TextCodec &codec)
+void VcsCommand::setEncoding(const TextEncoding &codec)
 {
-    d->m_codec = codec;
+    d->m_encoding = codec;
 }
 
 void VcsCommand::setProgressParser(const ProgressParser &parser)

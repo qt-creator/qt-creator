@@ -27,6 +27,7 @@ class DeviceProcessHooks;
 class ProcessInterface;
 class ProcessResultData;
 class ProcessRunData;
+class TextEncoding;
 
 class QTCREATOR_UTILS_EXPORT Process final : public QObject
 {
@@ -144,6 +145,7 @@ public:
                      EventLoopMode eventLoopMode = EventLoopMode::Off);
 
     void setCodec(const TextCodec &codec); // for stdOut and stdErr
+    void setEncoding(const TextEncoding &encoding); // for stdOut and stdErr
     void setUtf8Codec(); // for stdOut and stdErr
     void setUtf8StdOutCodec(); // for stdOut, stdErr uses executable.processStdErrCodec()
 

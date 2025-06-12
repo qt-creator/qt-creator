@@ -130,23 +130,23 @@ QString VcsBaseClientImpl::stripLastNewline(const QString &in)
 
 CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
                                                     const QStringList &args, RunFlags flags,
-                                                    int timeoutS, const TextCodec &codec) const
+                                                    int timeoutS, const TextEncoding &encoding) const
 {
-    return vcsSynchronousExec(workingDir, {vcsBinary(workingDir), args}, flags, timeoutS, codec);
+    return vcsSynchronousExec(workingDir, {vcsBinary(workingDir), args}, flags, timeoutS, encoding);
 }
 
 CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
                                                     const CommandLine &cmdLine,
                                                     RunFlags flags,
                                                     int timeoutS,
-                                                    const TextCodec &codec) const
+                                                    const TextEncoding &encoding) const
 {
     return VcsCommand::runBlocking(workingDir,
                                    processEnvironment(workingDir),
                                    cmdLine,
                                    flags,
                                    timeoutS > 0 ? timeoutS : vcsTimeoutS(),
-                                   codec);
+                                   encoding);
 }
 
 void VcsBaseClientImpl::resetCachedVcsInfo(const FilePath &workingDir)
@@ -171,11 +171,11 @@ void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
                                            const QStringList &arguments,
                                            const QObject *context,
                                            const CommandHandler &handler,
-                                           RunFlags additionalFlags, const TextCodec codec) const
+                                           RunFlags additionalFlags, const TextEncoding &encoding) const
 {
     VcsCommand *command = createCommand(workingDirectory);
     command->addFlags(additionalFlags);
-    command->setCodec(codec);
+    command->setEncoding(encoding);
     command->addJob({vcsBinary(workingDirectory), arguments}, vcsTimeoutS());
     if (handler) {
         const QObject *actualContext = context ? context : this;
@@ -201,7 +201,7 @@ void VcsBaseClientImpl::vcsExecWithEditor(const Utils::FilePath &workingDirector
                                           VcsBaseEditorWidget *editor) const
 {
     VcsCommand *command = createCommand(workingDirectory, editor);
-    command->setCodec(editor->codec());
+    command->setEncoding(editor->encoding().name());
     command->addJob({vcsBinary(workingDirectory), arguments}, vcsTimeoutS());
     command->start();
 }
@@ -221,7 +221,7 @@ VcsCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDi
 
 VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
                                                         const FilePath &source,
-                                                        const TextCodec &codec,
+                                                        const TextEncoding &encoding,
                                                         const char *registerDynamicProperty,
                                                         const QString &dynamicPropertyValue) const
 {
@@ -243,8 +243,8 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
                 this, &VcsBaseClientImpl::annotateRevisionRequested);
         baseEditor->setSource(source);
         baseEditor->setDefaultLineNumber(1);
-        if (codec.isValid())
-            baseEditor->setCodec(codec);
+        if (encoding.isValid())
+            baseEditor->setEncoding(encoding);
     }
 
     baseEditor->setForceReadOnly(true);
@@ -344,7 +344,7 @@ void VcsBaseClient::annotate(const Utils::FilePath &workingDir, const QString &f
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
 
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
-                                                  VcsBaseEditor::getCodec(source),
+                                                  VcsBaseEditor::getEncoding(source),
                                                   vcsCmdString.toLatin1().constData(), id);
 
     VcsCommand *cmd = createCommand(workingDir, editor);
@@ -360,7 +360,7 @@ void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files)
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
-                                                  VcsBaseEditor::getCodec(source),
+                                                  VcsBaseEditor::getEncoding(source),
                                                   vcsCmdString.toLatin1().constData(), id);
     editor->setWorkingDirectory(workingDir);
 
@@ -383,7 +383,7 @@ void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files)
         args << editorConfig->arguments();
     args << files;
     VcsCommand *command = createCommand(workingDir, editor);
-    command->setCodec(source.isEmpty() ? TextCodec() : VcsBaseEditor::getCodec(source));
+    command->setEncoding(source.isEmpty() ? TextEncoding() : VcsBaseEditor::getEncoding(source));
     enqueueJob(command, args, workingDir, exitCodeInterpreter(DiffCommand));
 }
 
@@ -399,7 +399,7 @@ void VcsBaseClient::log(const FilePath &workingDir,
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
-                                                  VcsBaseEditor::getCodec(source),
+                                                  VcsBaseEditor::getEncoding(source),
                                                   vcsCmdString.toLatin1().constData(), id);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
@@ -535,7 +535,7 @@ void VcsBaseClient::view(const FilePath &source,
     const QString title = vcsEditorTitle(vcsCommandString(LogCommand), id);
 
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
-                                                  VcsBaseEditor::getCodec(source), "view", id);
+                                                  VcsBaseEditor::getEncoding(source), "view", id);
 
     const FilePath workingDirPath = source.isFile() ? source.absolutePath() : source;
     enqueueJob(createCommand(workingDirPath, editor), args, source);

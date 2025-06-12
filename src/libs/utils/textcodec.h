@@ -17,13 +17,19 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT TextEncoding
 {
 public:
+    TextEncoding();
     TextEncoding(const QByteArray &name);
     TextEncoding(QStringEncoder::Encoding encoding);
 
     operator QByteArray() const { return m_name; }
     QByteArray name() const { return m_name; }
 
+    bool isValid() const;
+
 private:
+    QTCREATOR_UTILS_EXPORT friend bool operator==(const TextEncoding &left, const TextEncoding &right);
+    QTCREATOR_UTILS_EXPORT friend bool operator!=(const TextEncoding &left, const TextEncoding &right);
+
     QByteArray m_name;
 };
 

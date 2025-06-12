@@ -674,7 +674,7 @@ void FossilClient::annotate(const FilePath &workingDir, const QString &file, int
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
 
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
-                                                  VcsBaseEditor::getCodec(source),
+                                                  VcsBaseEditor::getEncoding(source),
                                                   vcsCmdString.toLatin1().constData(), id);
 
     auto fossilEditor = qobject_cast<VcsBaseEditorWidget *>(editor);
@@ -790,7 +790,7 @@ void FossilClient::view(const FilePath &source, const QString &id, const QString
     const QString title = vcsEditorTitle(vcsCommandString(DiffCommand), id);
 
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
-                                                  VcsBaseEditor::getCodec(source), "view", id);
+                                                  VcsBaseEditor::getEncoding(source), "view", id);
     editor->setWorkingDirectory(workingDirectory);
 
     enqueueJob(createCommand(workingDirectory, editor), args + extraOptions, source);
@@ -863,7 +863,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
-                                                  VcsBaseEditor::getCodec(source),
+                                                  VcsBaseEditor::getEncoding(source),
                                                   vcsCmdString.toLatin1().constData(), id);
 
     auto fossilEditor = qobject_cast<VcsBaseEditorWidget *>(editor);
@@ -919,7 +919,7 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
-                                                  VcsBaseEditor::getCodec(source),
+                                                  VcsBaseEditor::getEncoding(source),
                                                   vcsCmdString.toLatin1().constData(), id);
 
     auto fossilEditor = qobject_cast<VcsBaseEditorWidget *>(editor);

@@ -47,7 +47,7 @@ public:
 
     VcsBaseEditorWidget *createVcsEditor(Utils::Id kind, QString title,
                                          const Utils::FilePath &source,
-                                         const Utils::TextCodec &codec,
+                                         const Utils::TextEncoding &encoding,
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
 
@@ -77,18 +77,18 @@ public:
     // Fully synchronous VCS execution (QProcess-based)
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
                                      const QStringList &args, RunFlags flags = RunFlags::None,
-                                     int timeoutS = -1, const Utils::TextCodec &codec = {}) const;
+                                     int timeoutS = -1, const Utils::TextEncoding &encoding = {}) const;
     CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
                                      const Utils::CommandLine &cmdLine,
                                      RunFlags flags = RunFlags::None,
-                                     int timeoutS = -1, const Utils::TextCodec &codec = {}) const;
+                                     int timeoutS = -1, const Utils::TextEncoding &encoding = {}) const;
 
     void vcsExecWithHandler(const Utils::FilePath &workingDirectory,
                             const QStringList &arguments,
                             const QObject *context,
                             const CommandHandler &handler,
                             RunFlags additionalFlags = RunFlags::None,
-                            const Utils::TextCodec codec = {}) const;
+                            const Utils::TextEncoding &encoding = {}) const;
     void vcsExec(const Utils::FilePath &workingDirectory,
                  const QStringList &arguments,
                  RunFlags additionalFlags = RunFlags::None) const;

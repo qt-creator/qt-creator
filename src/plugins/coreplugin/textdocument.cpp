@@ -138,6 +138,16 @@ void BaseTextDocument::setCodec(const TextCodec &codec)
         d->m_format.setCodec(codec);
 }
 
+void BaseTextDocument::setEncoding(const TextEncoding &encoding)
+{
+    setCodec(TextCodec::codecForName(encoding));
+}
+
+TextEncoding BaseTextDocument::encoding() const
+{
+    return codec().name();
+}
+
 bool BaseTextDocument::supportsCodec(const QByteArray &) const
 {
     return true;

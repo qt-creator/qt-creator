@@ -48,7 +48,7 @@ private:
     inline const GitSubmitEditorWidget *submitEditorWidget() const;
 
     VcsBase::SubmitFileModel *m_model = nullptr;
-    Utils::TextCodec m_commitEncoding;
+    Utils::TextEncoding m_commitEncoding;
     CommitType m_commitType = SimpleCommit;
     QString m_amenHash;
     Utils::FilePath m_workingDirectory;

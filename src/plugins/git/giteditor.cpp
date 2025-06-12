@@ -265,7 +265,7 @@ void GitEditorWidget::aboutToOpen(const FilePath &filePath, const FilePath &real
             || editorId == Git::Constants::GIT_REBASE_EDITOR_ID) {
         const FilePath gitPath = filePath.absolutePath();
         setSource(gitPath);
-        textDocument()->setCodec(gitClient().encoding(GitClient::EncodingCommit, gitPath));
+        textDocument()->setCodec(TextCodec::codecForName(gitClient().encoding(GitClient::EncodingCommit, gitPath)));
     }
 }
 

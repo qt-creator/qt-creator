@@ -832,17 +832,17 @@ void VcsBaseEditorWidget::setWorkingDirectory(const FilePath &wd)
     d->m_workingDirectory = wd;
 }
 
-TextCodec VcsBaseEditorWidget::codec() const
+TextEncoding VcsBaseEditorWidget::encoding() const
 {
-    return textDocument()->codec();
+    return textDocument()->encoding();
 }
 
-void VcsBaseEditorWidget::setCodec(const TextCodec &codec)
+void VcsBaseEditorWidget::setEncoding(const TextEncoding &encoding)
 {
-    if (codec.isValid())
-        textDocument()->setCodec(codec);
+    if (encoding.isValid())
+        textDocument()->setEncoding(encoding);
     else
-        qWarning("%s: Attempt to set no codec.", Q_FUNC_INFO);
+        qWarning("%s: Attempt to set invalid encoding.", Q_FUNC_INFO);
 }
 
 EditorContentType VcsBaseEditorWidget::contentType() const
@@ -1229,43 +1229,43 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
 }
 
 // Find the codec used for a file querying the editor.
-static TextCodec findFileCodec(const FilePath &source)
+static TextEncoding findFileCodec(const FilePath &source)
 {
     IDocument *document = DocumentModel::documentForFilePath(source);
     if (auto textDocument = qobject_cast<BaseTextDocument *>(document))
-        return textDocument->codec();
+        return textDocument->codec().name();
     return {};
 }
 
 // Find the codec by checking the projects (root dir of project file)
-static TextCodec findProjectCodec(const FilePath &dirPath)
+static TextEncoding findProjectCodec(const FilePath &dirPath)
 {
     // Try to find a project under which file tree the file is.
     const auto projects = ProjectExplorer::ProjectManager::projects();
     const auto *p
         = findOrDefault(projects, equal(&ProjectExplorer::Project::projectDirectory, dirPath));
-    return p ? p->editorConfiguration()->textCodec() : TextCodec();
+    return p ? TextEncoding(p->editorConfiguration()->textCodec().name()) : TextEncoding();
 }
 
-TextCodec VcsBaseEditor::getCodec(const FilePath &source)
+TextEncoding VcsBaseEditor::getEncoding(const FilePath &source)
 {
     if (!source.isEmpty()) {
         // Check file
         if (source.isFile())
-            if (TextCodec fc = findFileCodec(source); fc.isValid())
+            if (TextEncoding fc = findFileCodec(source); fc.isValid())
                 return fc;
         // Find by project via directory
-        if (TextCodec pc = findProjectCodec(source.isFile() ? source.absolutePath() : source); pc.isValid())
+        if (TextEncoding pc = findProjectCodec(source.isFile() ? source.absolutePath() : source); pc.isValid())
             return pc;
     }
-    return TextCodec::codecForLocale();
+    return QStringConverter::System;
 }
 
-TextCodec VcsBaseEditor::getCodec(const FilePath &workingDirectory, const QStringList &files)
+TextEncoding VcsBaseEditor::getEncoding(const FilePath &workingDirectory, const QStringList &files)
 {
     if (files.empty())
-        return getCodec(workingDirectory);
-    return getCodec(workingDirectory / files.front());
+        return getEncoding(workingDirectory);
+    return getEncoding(workingDirectory / files.front());
 }
 
 VcsBaseEditorWidget *VcsBaseEditor::getVcsBaseEditor(const IEditor *editor)

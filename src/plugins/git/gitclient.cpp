@@ -239,7 +239,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
     const Storage<QString> diffInputStorage;
 
     const auto onDiffSetup = [this, leftCommit, rightCommit, extraArgs](Process &process) {
-        process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), {}));
+        process.setEncoding(VcsBaseEditor::getEncoding(workingDirectory(), {}));
         setupCommand(process, {addConfigurationArguments(diffArgs(leftCommit, rightCommit, extraArgs))});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
@@ -305,7 +305,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
     const auto onStagedSetup = [this, stagedFiles](Process &process) {
         if (stagedFiles.isEmpty())
             return SetupResult::StopWithError;
-        process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), stagedFiles));
+        process.setEncoding(VcsBaseEditor::getEncoding(workingDirectory(), stagedFiles));
         setupCommand(process, addConfigurationArguments(
                               QStringList({"diff", "--cached", "--"}) + stagedFiles));
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
@@ -318,7 +318,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
     const auto onUnstagedSetup = [this, unstagedFiles](Process &process) {
         if (unstagedFiles.isEmpty())
             return SetupResult::StopWithError;
-        process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), unstagedFiles));
+        process.setEncoding(VcsBaseEditor::getEncoding(workingDirectory(), unstagedFiles));
         setupCommand(process, addConfigurationArguments(
                               QStringList({"diff", "--"}) + unstagedFiles));
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
@@ -394,7 +394,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
     };
 
     const auto onDescriptionSetup = [this, id](Process &process) {
-        process.setCodec(gitClient().encoding(GitClient::EncodingCommit, workingDirectory()));
+        process.setEncoding(gitClient().encoding(GitClient::EncodingCommit, workingDirectory()));
         const ColorNames colors = GitClient::colorNames();
 
         const QString showFormat = QStringLiteral(
@@ -975,29 +975,29 @@ void GitClient::updateNextModificationInfo()
                        this, command, RunFlags::NoOutput);
 }
 
-TextCodec GitClient::defaultCommitEncoding() const
+TextEncoding GitClient::defaultCommitEncoding() const
 {
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
-    return TextCodec::utf8();
+    return QStringConverter::Utf8;
 }
 
-TextCodec GitClient::encoding(GitClient::EncodingType encodingType, const FilePath &source) const
+TextEncoding GitClient::encoding(GitClient::EncodingType encodingType, const FilePath &source) const
 {
-    auto codec = [this](const FilePath &workingDirectory, const QString &configVar) {
+    auto encoding = [this](const FilePath &workingDirectory, const QString &configVar) {
         const QString codecName = readConfigValue(workingDirectory, configVar).trimmed();
         if (codecName.isEmpty())
             return defaultCommitEncoding();
-        return TextCodec::codecForName(codecName.toUtf8());
+        return TextEncoding(codecName.toUtf8());
     };
 
     switch (encodingType) {
     case EncodingSource:
-        return source.isFile() ? VcsBaseEditor::getCodec(source) : codec(source, "gui.encoding");
+        return source.isFile() ? VcsBaseEditor::getEncoding(source) : encoding(source, "gui.encoding");
     case EncodingLogOutput:
-        return codec(source, "i18n.logOutputEncoding");
+        return encoding(source, "i18n.logOutputEncoding");
     case EncodingCommit:
-        return codec(source, "i18n.commitEncoding");
+        return encoding(source, "i18n.commitEncoding");
     default:
         return {};
     }
@@ -2711,14 +2711,15 @@ Result<CommitData> GitClient::enrichCommitData(const FilePath &repoDirectory,
     }
 
     CommitData commitData = commitDataIn;
-    const TextCodec authorCodec = HostOsInfo::isWindowsHost()
-            ? TextCodec::utf8()
+    const TextEncoding authorEncoding = HostOsInfo::isWindowsHost()
+            ? QStringConverter::Utf8
             : commitData.commitEncoding;
+    const TextCodec authorCodec = TextCodec::codecForName(authorEncoding);
     QByteArray stdOut = result.rawStdOut();
     commitData.amendHash = QLatin1String(shiftLogLine(stdOut));
     commitData.panelData.author = authorCodec.toUnicode(shiftLogLine(stdOut));
     commitData.panelData.email = authorCodec.toUnicode(shiftLogLine(stdOut));
-    commitData.commitTemplate = commitData.commitEncoding.toUnicode(stdOut);
+    commitData.commitTemplate = TextCodec::codecForName(commitData.commitEncoding).toUnicode(stdOut);
     return commitData;
 }
 
@@ -3565,20 +3566,20 @@ QString GitClient::readGitVar(const FilePath &workingDirectory, const QString &c
     return readOneLine(workingDirectory, {"var", configVar});
 }
 
-static TextCodec configFileCodec()
+static TextEncoding configFileEncoding()
 {
     // Git for Windows always uses UTF-8 for configuration:
     // https://github.com/msysgit/msysgit/wiki/Git-for-Windows-Unicode-Support#convert-config-files
-    static const TextCodec codec =
-            HostOsInfo::isWindowsHost() ? TextCodec::utf8() : TextCodec::codecForLocale();
-    return codec;
+    static const TextEncoding encoding =
+            HostOsInfo::isWindowsHost() ? QStringConverter::Utf8 : TextCodec::encodingForLocale();
+    return encoding;
 }
 
 QString GitClient::readOneLine(const FilePath &workingDirectory, const QStringList &arguments) const
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments,
                                                     RunFlags::NoOutput, vcsTimeoutS(),
-                                                    configFileCodec());
+                                                    configFileEncoding());
     if (result.result() == ProcessResult::FinishedWithSuccess)
         return result.cleanedStdOut().trimmed();
     return {};
@@ -3588,7 +3589,7 @@ void GitClient::readConfigAsync(const FilePath &workingDirectory, const QStringL
                                 const CommandHandler &handler) const
 {
     vcsExecWithHandler(workingDirectory, arguments, this, handler, RunFlags::NoOutput,
-                       configFileCodec());
+                       configFileEncoding());
 }
 
 QString GitClient::styleColorName(TextEditor::TextStyle style)

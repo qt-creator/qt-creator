@@ -165,7 +165,7 @@ public:
     QString monitorFile(const FilePath &repository) const;
     QString synchronousTopic(const FilePath &repository) const;
     CommandResult runSvn(const FilePath &workingDir, const CommandLine &command,
-                         RunFlags flags = RunFlags::None, const TextCodec &outputCodec = {},
+                         RunFlags flags = RunFlags::None, const TextEncoding &encoding = {},
                          int timeoutMutiplier = 1) const;
     void vcsAnnotateHelper(const FilePath &workingDir, const QString &file,
                            const QString &revision = {}, int lineNumber = -1);
@@ -200,7 +200,7 @@ private:
     inline bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
                                       Id id, const FilePath &source,
-                                      const TextCodec &codec);
+                                      const TextEncoding &encoding);
 
     void filelog(const FilePath &workingDir,
                  const QString &file = {},
@@ -813,7 +813,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
                                                 int lineNumber /* = -1 */)
 {
     const FilePath source = VcsBaseEditor::getSource(workingDir, file);
-    const TextCodec codec = VcsBaseEditor::getCodec(source);
+    const TextEncoding encoding = VcsBaseEditor::getEncoding(source);
 
     CommandLine args{settings().binaryPath(), {"annotate"}};
     args << SubversionClient::AddAuthOptions();
@@ -823,7 +823,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
         args << "-r" << revision;
     args << "-v" << QDir::toNativeSeparators(SubversionClient::escapeFile(file));
 
-    const auto response = runSvn(workingDir, args, RunFlags::ForceCLocale, codec);
+    const auto response = runSvn(workingDir, args, RunFlags::ForceCLocale, encoding);
     if (response.result() != ProcessResult::FinishedWithSuccess)
         return;
 
@@ -842,7 +842,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
     } else {
         const QString title = QString::fromLatin1("svn annotate %1").arg(id);
         IEditor *newEditor = showOutputInEditor(title, response.cleanedStdOut(),
-                                            Constants::SUBVERSION_BLAME_EDITOR_ID, source, codec);
+                                            Constants::SUBVERSION_BLAME_EDITOR_ID, source, encoding);
         VcsBaseEditor::tagEditor(newEditor, tag);
         VcsBaseEditor::gotoLineOfEditor(newEditor, lineNumber);
     }
@@ -897,22 +897,22 @@ void SubversionPluginPrivate::slotDescribe()
 
 CommandResult SubversionPluginPrivate::runSvn(const FilePath &workingDir,
                                               const CommandLine &command, RunFlags flags,
-                                              const TextCodec &outputCodec, int timeoutMutiplier) const
+                                              const TextEncoding &encoding, int timeoutMutiplier) const
 {
     if (settings().binaryPath().isEmpty())
         return CommandResult(ProcessResult::StartFailed, Tr::tr("No subversion executable specified."));
 
     const int timeoutS = settings().timeout() * timeoutMutiplier;
-    return subversionClient().vcsSynchronousExec(workingDir, command, flags, timeoutS, outputCodec);
+    return subversionClient().vcsSynchronousExec(workingDir, command, flags, timeoutS, encoding);
 }
 
 IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const QString &output,
                                                      Id id, const FilePath &source,
-                                                     const TextCodec &codec)
+                                                     const TextEncoding &encoding)
 {
     if (Subversion::Constants::debug)
         qDebug() << "SubversionPlugin::showOutputInEditor" << title << id.toString()
-                 <<  "Size= " << output.size() <<  " Type=" << id << codec.displayName();
+                 <<  "Size= " << output.size() <<  " Type=" << id << encoding.name();
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     auto e = qobject_cast<SubversionEditorWidget*>(editor->widget());
@@ -925,8 +925,8 @@ IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const
     e->textDocument()->setFallbackSaveAsFileName(s);
     if (!source.isEmpty())
         e->setSource(source);
-    if (codec.isValid())
-        e->setCodec(codec);
+    if (encoding.isValid())
+        e->setEncoding(encoding);
     return editor;
 }
 

@@ -205,7 +205,7 @@ void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &re
     const QString title = Tr::tr("Hg incoming %1").arg(id);
 
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
-                                                  VcsBaseEditor::getCodec(repositoryRoot),
+                                                  VcsBaseEditor::getEncoding(repositoryRoot),
                                                   "incoming", id);
     enqueueJob(createCommand(FilePath::fromString(repository), editor), args, repositoryRoot);
 }
@@ -218,7 +218,7 @@ void MercurialClient::outgoing(const FilePath &repositoryRoot)
     const QString title = Tr::tr("Hg outgoing %1").arg(repositoryRoot.toUserOutput());
 
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
-                                                  VcsBaseEditor::getCodec(repositoryRoot),
+                                                  VcsBaseEditor::getEncoding(repositoryRoot),
                                                   "outgoing", repositoryRoot.toUrlishString());
     enqueueJob(createCommand(repositoryRoot, editor), args, repositoryRoot);
 }
