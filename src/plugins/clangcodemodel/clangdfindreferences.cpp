@@ -209,7 +209,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, const Link &lin
         const QString contents = QString::fromUtf8(*std::move(fileContents));
         QTextDocument doc(contents);
         QTextCursor cursor(&doc);
-        cursor.setPosition(Text::positionInText(&doc, link.targetLine, link.targetColumn + 1));
+        cursor.setPosition(Text::positionInText(&doc, link.targetLine, link.targetColumn));
         cursor.select(QTextCursor::WordUnderCursor);
         d->searchTerm = cursor.selectedText();
         client->openExtraFile(targetFilePath, contents);
@@ -814,7 +814,7 @@ void ClangdFindLocalReferences::Private::handleReferences(const QList<Location> 
         if (editorWidget && document) {
             QTextCursor cursor(document->document());
             cursor.setPosition(Text::positionInText(document->document(), pos.line() + 1,
-                                                    pos.character() + 1));
+                                                    pos.character()));
             const QList<Text::Range> occurrencesInComments
                 = symbolOccurrencesInDeclarationComments(editorWidget, cursor);
             for (const Text::Range &range : occurrencesInComments) {

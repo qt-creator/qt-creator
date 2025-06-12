@@ -320,7 +320,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
             QTextCursor cursor(doc->document());
             cursor.setPosition(Text::positionInText(doc->document(),
                                                     diagnostic.location.targetLine,
-                                                    diagnostic.location.targetColumn + 1));
+                                                    diagnostic.location.targetColumn));
             cursor.movePosition(QTextCursor::EndOfLine);
             marker.cursor = cursor;
             marker.type = Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID;

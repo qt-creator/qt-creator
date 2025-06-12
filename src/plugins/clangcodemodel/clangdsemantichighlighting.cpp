@@ -107,7 +107,7 @@ void doSemanticHighlighting(
             styles.mainStyle = token.modifiers.contains(QLatin1String("readonly"))
                     ? C_PARAMETER : C_TYPE;
         } else if (token.type == "operator") {
-            const int pos = Utils::Text::positionInText(&doc, token.line, token.column);
+            const int pos = Utils::Text::positionInText(&doc, token.line, token.column - 1);
             QTC_ASSERT(pos >= 0 || pos < docContents.size(), return HighlightingResult());
             const QChar firstChar = docContents.at(pos);
             if (firstChar.isLetter())
@@ -132,7 +132,7 @@ void doSemanticHighlighting(
         } else if (token.type == "bracket") {
             styles.mainStyle = C_PUNCTUATION;
             HighlightingResult result(token.line, token.column, token.length, styles);
-            const int pos = Utils::Text::positionInText(&doc, token.line, token.column);
+            const int pos = Utils::Text::positionInText(&doc, token.line, token.column - 1);
             QTC_ASSERT(pos >= 0 || pos < docContents.size(), return HighlightingResult());
             const char symbol = docContents.at(pos).toLatin1();
             QTC_ASSERT(symbol == '<' || symbol == '>', return HighlightingResult());
@@ -212,13 +212,13 @@ void ExtraHighlightingResultsCollector::collect()
         const HighlightingResult res = m_results.at(i);
         if (res.textStyles.mainStyle != TextEditor::C_MACRO || res.length != 10)
             continue;
-        const int pos = Utils::Text::positionInText(m_doc, res.line, res.column);
+        const int pos = Utils::Text::positionInText(m_doc, res.line, res.column - 1);
         if (subViewLen(m_docContent, pos, 10) != QLatin1String("Q_PROPERTY"))
             continue;
         int endPos;
         if (i < m_results.length() - 1) {
             const HighlightingResult nextRes = m_results.at(i + 1);
-            endPos = Utils::Text::positionInText(m_doc, nextRes.line, nextRes.column);
+            endPos = Utils::Text::positionInText(m_doc, nextRes.line, nextRes.column - 1);
         } else {
             endPos = m_docContent.length();
         }

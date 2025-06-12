@@ -428,7 +428,7 @@ static ChangeSet convertReplacements(const QTextDocument *doc,
             continue;
 
         lineColUtf16.column = std::min(lineColUtf16.column, int(lineText.length()));
-        int utf16Offset = Text::positionInText(doc, lineColUtf16.line, lineColUtf16.column + 1);
+        int utf16Offset = Text::positionInText(doc, lineColUtf16.line, lineColUtf16.column);
         int utf16Length = QString::fromUtf8(
                               utf8Buffer.mid(static_cast<int>(replacement.getOffset()),
                                              static_cast<int>(replacement.getLength())))

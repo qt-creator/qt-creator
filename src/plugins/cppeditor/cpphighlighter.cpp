@@ -736,8 +736,8 @@ private slots:
         QFETCH(int, lastColumn);
         QFETCH(TextStyle, style);
 
-        const int startPos = Utils::Text::positionInText(&m_doc, line, column);
-        const int lastPos = Utils::Text::positionInText(&m_doc, lastLine, lastColumn);
+        const int startPos = Utils::Text::positionInText(&m_doc, line, column - 1);
+        const int lastPos = Utils::Text::positionInText(&m_doc, lastLine, lastColumn - 1);
         const auto getActualFormat = [&](int pos) -> QTextCharFormat {
             const QTextBlock block = m_doc.findBlock(pos);
             if (!block.isValid())

@@ -583,12 +583,12 @@ void ClangdClient::findUsages(const CppEditor::CursorInEditor &cursor,
                 cursor.cursor().position(),
                 [&cursor](const ExpandedSemanticToken &token, int pos) {
                     const int startPos = Utils::Text::positionInText(
-                        cursor.textDocument()->document(), token.line, token.column);
+                        cursor.textDocument()->document(), token.line, token.column - 1);
                     return startPos + token.length < pos;
                 });
             if (candidate != highlightingData->previousTokens.first.cend()) {
                 const int startPos = Utils::Text::positionInText(
-                    cursor.textDocument()->document(), candidate->line, candidate->column);
+                    cursor.textDocument()->document(), candidate->line, candidate->column - 1);
                 if (startPos <= cursor.cursor().position()) {
                     if (candidate->type == "namespace") {
                         CppEditor::CppModelManager::globalRename(

@@ -185,9 +185,9 @@ bool convertPosition(const QTextDocument *document, int pos, int *line, int *col
 
 int positionInText(const QTextDocument *textDocument, int line, int column)
 {
-    // Deduct 1 from line and column since they are 1-based.
+    // Deduct 1 from line since it is 1-based.
     // Column should already be converted from UTF-8 byte offset to the TextEditor column.
-    return textDocument->findBlockByNumber(line - 1).position() + column - 1;
+    return textDocument->findBlockByNumber(line - 1).position() + column;
 }
 
 QString textAt(QTextDocument *textDocument, int pos, int length)
@@ -213,7 +213,7 @@ QTextCursor selectAt(QTextCursor textCursor, int line, int column, uint length)
     if (column < 0)
         column = 0;
 
-    const int anchorPosition = positionInText(textCursor.document(), line, column + 1);
+    const int anchorPosition = positionInText(textCursor.document(), line, column);
     textCursor.setPosition(anchorPosition);
     textCursor.setPosition(anchorPosition + int(length), QTextCursor::KeepAnchor);
 

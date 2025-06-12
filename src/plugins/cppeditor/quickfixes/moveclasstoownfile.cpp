@@ -257,8 +257,7 @@ private:
             if (!link.hasValidTarget())
                 return;
             if (symbol->filePath() == link.targetFilePath) {
-                const int linkPos = Text::positionInText(doc, link.targetLine,
-                                                         link.targetColumn + 1);
+                const int linkPos = Text::positionInText(doc, link.targetLine, link.targetColumn);
                 if (linkPos == symbolPos)
                     return;
             }

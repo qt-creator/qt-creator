@@ -974,7 +974,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
     LinkHandler callbackWrapper = [start = c.selectionStart(), end = c.selectionEnd(),
             doc = QPointer(cursor.document()), callback = processLinkCallback,
             filePath](const Link &link) {
-        const int linkPos = doc ? Text::positionInText(doc, link.targetLine, link.targetColumn + 1)
+        const int linkPos = doc ? Text::positionInText(doc, link.targetLine, link.targetColumn)
                                 : -1;
         if (link.targetFilePath == filePath && linkPos >= start && linkPos < end) {
             const QString fileName = filePath.fileName();

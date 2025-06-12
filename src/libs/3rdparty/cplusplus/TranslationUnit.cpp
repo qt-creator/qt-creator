@@ -453,7 +453,7 @@ int TranslationUnit::getTokenPositionInDocument(const Token token,
 {
     int line, column;
     getTokenPosition(token, &line, &column);
-    return Utils::Text::positionInText(doc, line, column);
+    return Utils::Text::positionInText(doc, line, column - 1);
 }
 
 int TranslationUnit::getTokenEndPositionInDocument(const Token &token,
@@ -461,7 +461,7 @@ int TranslationUnit::getTokenEndPositionInDocument(const Token &token,
 {
     int line, column;
     getTokenEndPosition(token, &line, &column);
-    return Utils::Text::positionInText(doc, line, column);
+    return Utils::Text::positionInText(doc, line, column - 1);
 }
 
 std::pair<int, int> TranslationUnit::getExpansionPosition(int tokenIndex) const

@@ -485,7 +485,7 @@ void ClangdTestFollowSymbol::test()
         loop.quit();
     };
     QTextCursor cursor(doc->document());
-    const int pos = Text::positionInText(doc->document(), sourceLine, sourceColumn);
+    const int pos = Text::positionInText(doc->document(), sourceLine, sourceColumn - 1);
     cursor.setPosition(pos);
     client()->followSymbol(doc, cursor, nullptr, handler, true,
                            goToType ? FollowTo::SymbolType : FollowTo::SymbolDef, false);
@@ -510,7 +510,7 @@ void ClangdTestFollowSymbol::testFollowSymbolInHandler()
     timer.setSingleShot(true);
     QEventLoop loop;
     QTextCursor cursor(doc->document());
-    const int pos = Text::positionInText(doc->document(), 48, 9);
+    const int pos = Text::positionInText(doc->document(), 48, 8);
     cursor.setPosition(pos);
     QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
 
@@ -648,7 +648,7 @@ void ClangdTestLocalReferences::test()
     };
 
     QTextCursor cursor(doc->document());
-    const int pos = Text::positionInText(doc->document(), sourceLine, sourceColumn);
+    const int pos = Text::positionInText(doc->document(), sourceLine, sourceColumn - 1);
     cursor.setPosition(pos);
     client()->findLocalUsages(editorWidget, cursor, std::move(handler));
     timer.start(10000);
@@ -704,7 +704,7 @@ void ClangdTestTooltips::testTooltipFromIndex()
     connect(client(), &ClangdClient::helpItemGathered, &loop, handler);
 
     QTextCursor cursor(doc->document());
-    const int pos = Text::positionInText(doc->document(), 5, 5);
+    const int pos = Text::positionInText(doc->document(), 5, 4);
     cursor.setPosition(pos);
     editor->editorWidget()->processTooltipRequest(cursor);
 
@@ -831,7 +831,7 @@ void ClangdTestTooltips::test()
     connect(client(), &ClangdClient::helpItemGathered, &loop, handler);
 
     QTextCursor cursor(doc->document());
-    const int pos = Text::positionInText(doc->document(), line, column);
+    const int pos = Text::positionInText(doc->document(), line, column - 1);
     cursor.setPosition(pos);
     editor->editorWidget()->processTooltipRequest(cursor);
 
@@ -1517,11 +1517,11 @@ void ClangdTestHighlighting::test()
 
     const TextEditor::TextDocument * const doc = document("highlighting.cpp");
     QVERIFY(doc);
-    const int startPos = Text::positionInText(doc->document(), firstLine, startColumn);
-    const int endPos = Text::positionInText(doc->document(), lastLine, endColumn);
+    const int startPos = Text::positionInText(doc->document(), firstLine, startColumn - 1);
+    const int endPos = Text::positionInText(doc->document(), lastLine, endColumn - 1);
 
     const auto lessThan = [=](const TextEditor::HighlightingResult &r, int) {
-        return Text::positionInText(doc->document(), r.line, r.column) < startPos;
+        return Text::positionInText(doc->document(), r.line, r.column - 1) < startPos;
     };
     const auto findResults = [this, endPos, lessThan, doc] {
         TextEditor::HighlightingResults results;
@@ -1529,8 +1529,8 @@ void ClangdTestHighlighting::test()
         if (it == m_results->cend())
             return results;
         while (it != m_results->cend()) {
-            const int resultEndPos = Text::positionInText(doc->document(), it->line,
-                                                                 it->column) + it->length;
+            const int resultEndPos = Text::positionInText(doc->document(), it->line, it->column - 1)
+                                     + it->length;
             if (resultEndPos > endPos)
                 break;
             results << *it++;
