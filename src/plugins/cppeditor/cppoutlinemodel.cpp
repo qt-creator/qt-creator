@@ -249,7 +249,7 @@ Utils::Text::Position OutlineModel::positionFromIndex(const QModelIndex &sourceI
     return lineColumn;
 }
 
-OutlineModel::Range OutlineModel::rangeFromIndex(const QModelIndex &sourceIndex) const
+Utils::Text::Range OutlineModel::rangeFromIndex(const QModelIndex &sourceIndex) const
 {
     Utils::Text::Position lineColumn = positionFromIndex(sourceIndex);
     return {lineColumn, lineColumn};
@@ -287,13 +287,13 @@ void OutlineModel::buildTree(SymbolItem *root, bool isRoot)
     }
 }
 
-static bool contains(const OutlineModel::Range &range, int line, int column)
+static bool contains(const Utils::Text::Range &range, int line, int column)
 {
-    if (line < range.first.line || line > range.second.line)
+    if (line < range.begin.line || line > range.end.line)
         return false;
-    if (line == range.first.line && column < range.first.column)
+    if (line == range.begin.line && column < range.begin.column)
         return false;
-    if (line == range.second.line && column > range.second.column)
+    if (line == range.end.line && column > range.end.column)
         return false;
     return true;
 }
@@ -305,11 +305,11 @@ QModelIndex OutlineModel::indexForPosition(int line, int column,
     const int rowCount = this->rowCount(rootIndex);
     for (int row = 0; row < rowCount; ++row) {
         const QModelIndex index = this->index(row, 0, rootIndex);
-        const OutlineModel::Range range = rangeFromIndex(index);
-        if (range.first.line > line)
+        const Utils::Text::Range range = rangeFromIndex(index);
+        if (range.begin.line > line)
             break;
         // Skip ranges that do not include current line and column.
-        if (range.second != range.first && !contains(range, line, column))
+        if (range.end != range.begin && !contains(range, line, column))
             continue;
         lastIndex = index;
     }
