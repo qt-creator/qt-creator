@@ -23,12 +23,6 @@ public:
     int line = 0; // 1-based
     int column = -1; // 0-based
 
-    bool operator<(const Position &other) const
-    { return line < other.line || (line == other.line && column < other.column); }
-    bool operator==(const Position &other) const;
-
-    bool operator!=(const Position &other) const { return !(operator==(other)); }
-
     bool isValid() const { return line > 0 && column >= 0; }
 
     int toPositionInDocument(const QTextDocument *doc) const;
@@ -38,6 +32,13 @@ public:
     static Position fromPositionInDocument(const QTextDocument *document, int pos);
     static Position fromCursor(const QTextCursor &cursor);
 };
+
+QTCREATOR_UTILS_EXPORT bool operator<(const Position &left, const Position &right);
+QTCREATOR_UTILS_EXPORT bool operator<=(const Position &left, const Position &right);
+QTCREATOR_UTILS_EXPORT bool operator>(const Position &left, const Position &right);
+QTCREATOR_UTILS_EXPORT bool operator>=(const Position &left, const Position &right);
+QTCREATOR_UTILS_EXPORT bool operator==(const Position &left, const Position &right);
+QTCREATOR_UTILS_EXPORT bool operator!=(const Position &left, const Position &right);
 
 class QTCREATOR_UTILS_EXPORT Range
 {
@@ -51,6 +52,8 @@ public:
     bool operator==(const Range &other) const;
 
     bool operator!=(const Range &other) const { return !(operator==(other)); }
+
+    bool contains(const Position &pos) const;
 
     QTextCursor toTextCursor(QTextDocument *doc) const;
 };

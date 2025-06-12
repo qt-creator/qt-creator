@@ -11,11 +11,6 @@
 
 namespace Utils::Text {
 
-bool Position::operator==(const Position &other) const
-{
-    return line == other.line && column == other.column;
-}
-
 QTextCursor Position::toTextCursor(QTextDocument *doc) const
 {
     QTextCursor result(doc);
@@ -85,6 +80,36 @@ int Position::toPositionInDocument(const QTextDocument *document) const
     return -1;
 }
 
+bool operator==(const Position &left, const Position &right)
+{
+    return left.line == right.line && left.column == right.column;
+}
+
+bool operator!=(const Position &left, const Position &right)
+{
+    return !(left == right);
+}
+
+bool operator>=(const Position &left, const Position &right)
+{
+    return !(left < right);
+}
+
+bool operator>(const Position &left, const Position &right)
+{
+    return !(left <= right);
+}
+
+bool operator<=(const Position &left, const Position &right)
+{
+    return left.line < right.line || (left.line == right.line && left.column <= right.column);
+}
+
+bool operator<(const Position &left, const Position &right)
+{
+    return left.line < right.line || (left.line == right.line && left.column < right.column);
+}
+
 int Range::length(const QString &text) const
 {
     if (end.line < begin.line)
@@ -116,6 +141,11 @@ int Range::length(const QString &text) const
 bool Range::operator==(const Range &other) const
 {
     return begin == other.begin && end == other.end;
+}
+
+bool Range::contains(const Position &pos) const
+{
+    return pos >= begin && pos <= end;
 }
 
 QTextCursor Range::toTextCursor(QTextDocument *doc) const
