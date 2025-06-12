@@ -103,8 +103,8 @@ void applyTextEdit(TextEditorWidget *editorWidget, const TextEdit &edit, bool ne
 {
     const Range range = edit.range();
     const QTextDocument *doc = editorWidget->document();
-    const int start = Text::positionInText(doc, range.start().line() + 1, range.start().character() + 1);
-    const int end = Text::positionInText(doc, range.end().line() + 1, range.end().character() + 1);
+    const int start = range.start().toPositionInDocument(doc);
+    const int end = range.end().toPositionInDocument(doc);
     if (newTextIsSnippet) {
         editorWidget->replace(start, end - start, {});
         editorWidget->insertCodeSnippet(start, edit.newText(), &parseSnippet);

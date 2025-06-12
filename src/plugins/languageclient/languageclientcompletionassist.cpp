@@ -201,9 +201,9 @@ bool LanguageClientCompletionItem::isPerfectMatch(int pos, QTextDocument *doc) c
     if (isSnippet())
         return false;
     if (auto edit = m_item.textEdit()) {
-        auto range = edit->range();
-        const int start = positionInText(doc, range.start().line() + 1, range.start().character() + 1);
-        const int end = positionInText(doc, range.end().line() + 1, range.end().character() + 1);
+        const auto range = edit->range();
+        const int start = range.start().toPositionInDocument(doc);
+        const int end = range.end().toPositionInDocument(doc);
         auto text = textAt(doc, start, end - start);
         return text == edit->newText();
     }
