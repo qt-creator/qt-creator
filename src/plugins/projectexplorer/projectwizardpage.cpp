@@ -379,7 +379,8 @@ void ProjectWizardPage::initializeVersionControls()
     // 2) Directory is managed and VCS does not support "Add" -> None available
     // 3) Directory is not managed -> Offer all VCS that support "CreateRepository"
 
-    m_addToVersionControlComboBox->disconnect();
+    disconnect(m_addToVersionControlComboBox, &QComboBox::currentIndexChanged,
+               this, &ProjectWizardPage::versionControlChanged);
     QList<IVersionControl *> versionControls = VcsManager::versionControls();
     if (versionControls.isEmpty())
         setVersionControlUiElementsVisible(false);
@@ -462,7 +463,8 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &pa
                                               IWizardFactory::WizardKind kind,
                                               ProjectAction action, bool limitToSubproject)
 {
-    m_projectComboBox->disconnect();
+    disconnect(m_projectComboBox, &QComboBox::currentIndexChanged,
+               this, &ProjectWizardPage::projectChanged);
     Internal::BestNodeSelector selector(m_commonDirectory, paths);
     Project *parentProject = static_cast<Project *>(
                 wizard()->property(Constants::PROJECT_POINTER).value<void *>());
