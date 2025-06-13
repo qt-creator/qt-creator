@@ -253,24 +253,23 @@ bool PropertyEditorValue::isTranslated() const
 {
     NanotraceHR::Tracer tracer{"property editor value is translated", category()};
 
-    if (modelNode().isValid()) {
-        auto property = modelNode().property(name());
-        auto isDynamicString = property.isValid() && property.isDynamic()
-                               && property.dynamicTypeName() == TypeNameView("string");
+    auto isDynamicString = [&] {
+        return modelNode().property(name()).dynamicTypeName() == TypeNameView("string");
+    };
 
-        if (isDynamicString || m_propertyType.isString()) {
-            const QmlObjectNode objectNode(modelNode());
-            if (objectNode.hasBindingProperty(name())) {
-                const QRegularExpression rx(
-                    QRegularExpression::anchoredPattern("qsTr(|Id|anslate)\\(\".*\"\\)"));
-                //qsTr()
-                if (objectNode.propertyAffectedByCurrentState(name()))
-                    return m_expression.contains(rx);
-                else
-                    return modelNode().bindingProperty(name()).expression().contains(rx);
-            }
+    if (m_propertyType.isString() || isDynamicString()) {
+        const QmlObjectNode objectNode(modelNode());
+        if (objectNode.hasBindingProperty(name())) {
+            const QRegularExpression rx(
+                QRegularExpression::anchoredPattern("qsTr(|Id|anslate)\\(\".*\"\\)"));
+            //qsTr()
+            if (objectNode.propertyAffectedByCurrentState(name()))
+                return m_expression.contains(rx);
+            else
+                return modelNode().bindingProperty(name()).expression().contains(rx);
         }
     }
+
     return false;
 }
 
