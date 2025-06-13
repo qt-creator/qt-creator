@@ -4,13 +4,11 @@
 source("../../shared/qtcreator.py")
 
 def verifyProjectsMode(expectedKits):
-    treeView = waitForObject(":Projects.ProjectNavigationTreeView")
-    bAndRIndex = getQModelIndexStr("text='Build & Run'",
-                                   ":Projects.ProjectNavigationTreeView")
-    foundKits = dumpItems(treeView.model(), waitForObject(bAndRIndex))
-    # ignore Python kits and non-kit item
-    excludes = ('Python', 'Hide Inactive Kits', 'Show All Kits')
-    relevantKits = list(filter(lambda x: all(ex not in x for ex in excludes), foundKits))
+    kitIndices = kitIndicesFromProjectsMode()
+    foundKits = list(map(lambda t: str(t.data(0)), kitIndices))
+
+    # ignore Python kits
+    relevantKits = list(filter(lambda x: 'Python' not in x, foundKits))
     test.compare(len(relevantKits), len(expectedKits), "Verify number of listed kits.")
     test.compare(set(relevantKits), set(expectedKits), "Verify if expected kits are listed.")
     hasKits = len(expectedKits) > 0

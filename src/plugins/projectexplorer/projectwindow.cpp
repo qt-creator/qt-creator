@@ -1254,7 +1254,9 @@ public:
     ProjectWindowTabWidget(QWidget *parent = nullptr)
         : QTabWidget(parent)
     {
-        setTabBar(new QtcTabBar); // Must be the first called setter!
+        auto tabBar = new QtcTabBar;
+        setTabBar(tabBar); // Must be the first called setter!
+        tabBar->setObjectName("ProjectConfigurationTabBar"); // used by Squish
         setDocumentMode(true);
     }
 };
@@ -1409,6 +1411,7 @@ public:
         m_scrollArea->setWidget(scrolledWidget);
 
         m_projectSelection = new QComboBox;
+        m_projectSelection->setObjectName("ProjectSelection"); // used by Squish
         m_projectSelection->setModel(&m_projectsModel);
         connect(m_projectSelection, &QComboBox::activated,
                 this, &ProjectWindowPrivate::projectSelected, Qt::QueuedConnection);

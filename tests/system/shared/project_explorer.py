@@ -15,18 +15,33 @@ def __kitIsActivated__(kit):
     return not ("<h3>Click to activate</h3>" in str(kit.toolTip)
                 or "<h3>Kit is unsuited for project</h3>" in str(kit.toolTip))
 
+
+# helper function - assumes to be already in Projects mode
+def kitIndicesFromProjectsMode():
+    treeView = waitForObject(":Projects.ProjectNavigationTreeView")
+    projectCombo = waitForObject(":ProjectSelectionComboBox")
+    currentProject = str(projectCombo.currentText)
+    allIndices = dumpIndices(treeView.model())
+    projectIndex = None
+    for idx in allIndices:
+        if str(idx.data(0)) == currentProject:
+            projectIndex = idx
+            break
+    test.verify(projectIndex is not None, "Found the project index.")
+    secondLevelIndices = dumpIndices(treeView.model(), projectIndex)
+    test.compare(3, len(secondLevelIndices), "Verify expected count of secondary level.")
+    kitIndices = dumpIndices(treeView.model(), secondLevelIndices[0])
+    return kitIndices
+
+
 # returns a list of the IDs (see class Targets) of all kits
 #        which are currently configured for the active project
 # Creator must be in projects mode when calling
 def iterateConfiguredKits():
-    treeView = waitForObject(":Projects.ProjectNavigationTreeView")
-    bAndRIndex = getQModelIndexStr("text='Build & Run'", ":Projects.ProjectNavigationTreeView")
-    kitIndices = dumpIndices(treeView.model(), waitForObject(bAndRIndex))
+    kitIndices = kitIndicesFromProjectsMode()
     configuredKitNames = map(lambda t: str(t.data(0)),
                              filter(__kitIsActivated__, kitIndices))
-    # Remove hide/show entries which are in tree but not kits
-    configuredKitNames = filter(lambda n: n != "Hide Inactive Kits" and n != "Show All Kits",
-                                configuredKitNames)
+
     return map(Targets.getIdForTargetName, configuredKitNames)
 
 
@@ -40,15 +55,14 @@ def iterateConfiguredKits():
 #                       ProjectSettings.BUILD or ProjectSettings.RUN)
 def switchToBuildOrRunSettingsFor(wantedKit, projectSettings):
     treeView = waitForObject(":Projects.ProjectNavigationTreeView")
-    bAndRIndex = getQModelIndexStr("text='Build & Run'", ":Projects.ProjectNavigationTreeView")
     wantedKitName = Targets.getStringForTarget(wantedKit)
-    wantedKitIndexString = getQModelIndexStr("text='%s'" % wantedKitName, bAndRIndex)
+    wantedKitIndexString = getQModelIndexStr("text='%s'" % wantedKitName, ":Projects.ProjectNavigationTreeView")
     if not test.verify(__kitIsActivated__(findObject(wantedKitIndexString)),
                        "Verifying target '%s' is enabled." % wantedKitName):
         raise Exception("Kit '%s' is not activated in the project." % wantedKitName)
     index = waitForObject(wantedKitIndexString)
-    projectAlreadySelected = index.font.bold
-    if projectAlreadySelected:
+    kitAlreadySelected = index.font.bold
+    if kitAlreadySelected:
         test.log("Kit '%s' is already selected." % wantedKitName)
     else:
         test.log("Selecting kit '%s'..." % wantedKitName)
@@ -56,14 +70,14 @@ def switchToBuildOrRunSettingsFor(wantedKit, projectSettings):
         mouseClick(index)
 
     if projectSettings == ProjectSettings.BUILD:
-        settingsIndex = getQModelIndexStr("text='Build'", wantedKitIndexString)
+        settingsText = "Build Settings"
     elif projectSettings == ProjectSettings.RUN:
-        settingsIndex = getQModelIndexStr("text='Run'", wantedKitIndexString)
+        settingsText = "Run Settings"
     else:
         raise Exception("Unexpected projectSettings parameter (%s), needs to be BUILD or RUN."
                         % str(projectSettings))
-    mouseClick(waitForObject(settingsIndex))
-    return not projectAlreadySelected
+    clickOnTab(":ProjectConfigurationTabBar", settingsText)
+    return not kitAlreadySelected
 
 # this function switches "Run in terminal" on or off in a project's run settings
 # param wantedKit specifies the ID of the kit to edit (see class Targets)
