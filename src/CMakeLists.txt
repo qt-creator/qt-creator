@@ -41,9 +41,12 @@ set(configure_package_config_file_input_path "${PROJECT_SOURCE_DIR}/cmake/QtCrea
 set(common_configure_package_config_file_options
   NO_SET_AND_CHECK_MACRO
   NO_CHECK_REQUIRED_COMPONENTS_MACRO
+  PATH_VARS
+    QTCREATOR_RELOCATABLE_INSTALL_PREFIX
 )
 
 # Build-tree Config file, used in super build projects that call add_subdirectory(qtcreator).
+set(QTCREATOR_RELOCATABLE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}")
 configure_package_config_file(
   "${configure_package_config_file_input_path}"
   "${CMAKE_BINARY_DIR}/cmake/QtCreatorConfig.cmake"
@@ -53,6 +56,7 @@ configure_package_config_file(
 )
 
 # Install-tree Config file, used in non-super build projects.
+set(QTCREATOR_RELOCATABLE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 configure_package_config_file(
   "${configure_package_config_file_input_path}"
   # This is generated into a different directory on purpose, so it doesn't collide with the
