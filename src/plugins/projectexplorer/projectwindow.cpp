@@ -91,6 +91,7 @@ public:
     explicit ProjectPanel(QWidget *inner, bool addGlobalSettings, bool addStretch)
     {
         setWindowTitle(inner->windowTitle());
+        setFocusProxy(inner);
 
         auto root = new QWidget(nullptr);
         root->setFocusPolicy(Qt::NoFocus);
@@ -102,17 +103,10 @@ public:
         scroller->setWidgetResizable(true);
         scroller->setFocusPolicy(Qt::NoFocus);
 
-        // The layout holding the individual panels:
+        // The layout holding the panel.
         auto topLayout = new QVBoxLayout(root);
         topLayout->setContentsMargins(PanelVMargin, 0, PanelVMargin, 0);
         topLayout->setSpacing(0);
-
-        m_layout = new QVBoxLayout;
-        m_layout->setSpacing(0);
-
-        topLayout->addLayout(m_layout);
-        if (addStretch)
-            topLayout->addStretch(1);
 
         auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
@@ -125,7 +119,6 @@ public:
             auto widget = dynamic_cast<ProjectSettingsWidget *>(inner);
             if (QTC_GUARD(widget)) {
                 if (widget->isUseGlobalSettingsCheckBoxVisible() || widget->isUseGlobalSettingsLabelVisible()) {
-                    m_layout->setContentsMargins(0, 0, 0, 0);
                     const auto useGlobalSettingsCheckBox = new QCheckBox;
                     useGlobalSettingsCheckBox->setChecked(widget->useGlobalSettings());
                     useGlobalSettingsCheckBox->setEnabled(widget->isUseGlobalSettingsCheckBoxEnabled());
@@ -161,21 +154,19 @@ public:
                         });
                     }
                     horizontalLayout->addStretch(1);
-                    m_layout->addLayout(horizontalLayout);
-                    m_layout->addWidget(Layouting::createHr());
+                    topLayout->addLayout(horizontalLayout);
+                    topLayout->addWidget(Layouting::createHr());
                 }
             }
         }
 
         inner->setContentsMargins(0, CONTENTS_MARGIN, 0, BELOW_CONTENTS_MARGIN);
         inner->setParent(root);
-        m_layout->addWidget(inner);
+        topLayout->addWidget(inner);
 
-        setFocusProxy(inner);
+        if (addStretch)
+            topLayout->addStretch(1);
     }
-
-private:
-    QVBoxLayout *m_layout;
 };
 
 
