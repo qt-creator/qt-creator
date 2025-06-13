@@ -5,16 +5,54 @@
 
 #include "qtcassert.h"
 
+#include <QHash>
 #include <QTextCodec>
 
 namespace Utils {
 
 // TextEncoding
 
+static QByteArray canonicalName(const QByteArray &input)
+{
+    // Avoid construction of too many QStringDecoders to get canonical names.
+    static QHash<QByteArray, QByteArray> s_canonicalNames {
+        // FIXME: We can save a few more cycles by pre-populatong the well-known ones
+        // here once the transition off QTextCodec is finished. For now leave it in
+        // to exercise the code paths below for better test coverage.
+        // {"utf-8", "UTF-8" },
+        // {"UTF-8", "UTF-8" },
+        // {"iso-8859-1", "ISO-8859-1"},
+        // {"ISO-8859-1", "ISO-8859-1"},
+    };
+
+    const auto it = s_canonicalNames.find(input);
+    if (it != s_canonicalNames.end())
+        return *it;
+
+    const QStringDecoder builtinDecoder(input);
+    if (builtinDecoder.isValid()) {
+        const QByteArray builtinCanonicalized = builtinDecoder.name();
+        if (!builtinCanonicalized.isEmpty()) {
+            s_canonicalNames.insert(input, builtinCanonicalized);
+            return builtinCanonicalized;
+        }
+        QTC_CHECK(false);
+    }
+
+    const QStringDecoder icuDecoder(input, QStringDecoder::Flag::UsesIcu);
+    QTC_ASSERT(icuDecoder.isValid(), return {});
+
+    const QByteArray icuCanonicalized = icuDecoder.name();
+    QTC_ASSERT(!icuCanonicalized.isEmpty(), return {});
+
+    s_canonicalNames.insert(input, icuCanonicalized);
+    return icuCanonicalized;
+}
+
 TextEncoding::TextEncoding() = default;
 
 TextEncoding::TextEncoding(const QByteArray &name)
-    : m_name(name)
+    : m_name(canonicalName(name))
 {}
 
 TextEncoding::TextEncoding(QStringConverter::Encoding encoding)
@@ -24,6 +62,16 @@ TextEncoding::TextEncoding(QStringConverter::Encoding encoding)
 bool TextEncoding::isValid() const
 {
     return !m_name.isEmpty();
+}
+
+bool TextEncoding::isUtf8() const
+{
+    return m_name == "UTF-8";
+}
+
+int TextEncoding::mibEnum() const
+{
+    return QTextCodec::codecForName(m_name)->mibEnum();
 }
 
 bool operator==(const TextEncoding &left, const TextEncoding &right)

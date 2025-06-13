@@ -28,7 +28,6 @@ class ProcessInterface;
 class ProcessResultData;
 class ProcessRunData;
 class TextEncoding;
-class TextCodec;
 
 class QTCREATOR_UTILS_EXPORT Process final : public QObject
 {

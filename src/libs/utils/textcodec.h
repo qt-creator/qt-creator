@@ -27,10 +27,13 @@ public:
     static const QStringConverter::Encoding Latin1 = QStringConverter::Encoding::Latin1;
     static const QStringConverter::Encoding System = QStringConverter::Encoding::System;
 
+    bool isValid() const;
+
     operator QByteArray() const { return m_name; }
     QByteArray name() const { return m_name; }
 
-    bool isValid() const;
+    bool isUtf8() const;
+    int mibEnum() const;
 
 private:
     QTCREATOR_UTILS_EXPORT friend bool operator==(const TextEncoding &left, const TextEncoding &right);

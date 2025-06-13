@@ -24,13 +24,13 @@ class LANGUAGESERVERPROTOCOL_EXPORT BaseMessage
 public:
     BaseMessage();
     BaseMessage(const QByteArray &mimeType, const QByteArray &content,
-                int expectedLength, const Utils::TextCodec &codec);
+                int expectedLength, const Utils::TextEncoding &codec);
     BaseMessage(const QByteArray &mimeType, const QByteArray &content);
 
     bool operator==(const BaseMessage &other) const;
 
     static void parse(QBuffer *data, QString &parseError, BaseMessage &message);
-    static Utils::TextCodec defaultCodec();
+    static Utils::TextEncoding defaultEncoding();
 
     bool isComplete() const;
     bool isValid() const;
@@ -39,7 +39,7 @@ public:
     QByteArray mimeType;
     QByteArray content;
     int contentLength = -1;
-    Utils::TextCodec codec = defaultCodec();
+    Utils::TextEncoding encoding = defaultEncoding();
 
 private:
     QByteArray lengthHeader() const;

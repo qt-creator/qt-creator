@@ -48,8 +48,6 @@ JsonRpcMessage::JsonRpcMessage()
     m_jsonObject[jsonRpcVersionKey] = "2.0";
 }
 
-constexpr int utf8mib = 106;
-
 static QString docType(const QJsonDocument &doc)
 {
     if (doc.isArray())
@@ -68,10 +66,9 @@ JsonRpcMessage::JsonRpcMessage(const BaseMessage &message)
     if (message.content.isEmpty())
         return;
     QByteArray content;
-    if (message.codec.isValid() && message.codec.mibEnum() != utf8mib) {
-        const TextCodec utf8 = TextCodec::codecForMib(utf8mib);
-        if (utf8.isValid())
-            content = utf8.fromUnicode(message.codec.toUnicode(message.content));
+    if (message.encoding.isValid() && !message.encoding.isUtf8()) {
+        const QString data = QStringDecoder(message.encoding.name()).decode(message.content);
+        content = QStringEncoder(QStringEncoder::Utf8).encode(data);
     }
     if (content.isEmpty())
         content = message.content;
