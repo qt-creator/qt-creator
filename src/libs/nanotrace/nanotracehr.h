@@ -461,6 +461,14 @@ public:
 
     struct TaskWithArguments
     {
+        TaskWithArguments(std::unique_lock<std::mutex> lock,
+                          Utils::span<TraceEventWithArguments> data,
+                          std::thread::id threadId)
+            : lock{std::move(lock)}
+            , data{data}
+            , threadId{threadId}
+        {}
+
         std::unique_lock<std::mutex> lock;
         Utils::span<TraceEventWithArguments> data;
         std::thread::id threadId;
@@ -468,6 +476,14 @@ public:
 
     struct TaskWithoutArguments
     {
+        TaskWithoutArguments(std::unique_lock<std::mutex> lock,
+                             Utils::span<TraceEventWithoutArguments> data,
+                             std::thread::id threadId)
+            : lock{std::move(lock)}
+            , data{data}
+            , threadId{threadId}
+        {}
+
         std::unique_lock<std::mutex> lock;
         Utils::span<TraceEventWithoutArguments> data;
         std::thread::id threadId;
@@ -475,6 +491,12 @@ public:
 
     struct MetaData
     {
+        MetaData(std::unique_lock<std::mutex> lock, std::string key, std::string value)
+            : lock{std::move(lock)}
+            , key{std::move(key)}
+            , value{std::move(value)}
+        {}
+
         std::unique_lock<std::mutex> lock;
         std::string key;
         std::string value;
