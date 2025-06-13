@@ -64,7 +64,7 @@ private:
     BuildSystem *m_buildSystem;
     QString m_buildKey;
     FilePath m_directory;
-    bool m_copyGradleTemplates;
+    bool m_copyGradleTemplates = false;
 };
 
 class NoApplicationTargetPage : public QWizardPage
@@ -169,7 +169,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
         auto checkBox = new QCheckBox(this);
         connect(checkBox, &QCheckBox::toggled,
                 wizard, &CreateAndroidManifestWizard::setCopyGradleTemplates);
-        checkBox->setChecked(false);
+        checkBox->setChecked(wizard->copyGradleTemplates());
         checkBox->setText(Tr::tr("Copy the Gradle files to Android directory"));
         checkBox->setToolTip(Tr::tr("It is highly recommended if you are planning to extend "
                                     "the Java side of your Qt application."));
