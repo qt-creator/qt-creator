@@ -1130,7 +1130,14 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
 
         m_changedIdPaths.clear();
 
+    } catch (const Sqlite::Exception &exception) {
+        tracer.tick("sqlite exception thrown",
+                    keyValue("what", exception.what()),
+                    keyValue("location", exception.location()));
+    } catch (const std::exception &exception) {
+        tracer.tick("standard exception thrown", keyValue("what", exception.what()));
     } catch (...) {
+        tracer.tick("unkown exception thrown");
     }
 }
 
