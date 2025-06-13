@@ -3096,7 +3096,7 @@ void ProjectStorage::handleBasesWithExportedTypeNameAndTypeId(Utils::SmallString
                                                               TypeId typeId,
                                                               Bases &relinkableBases)
 {
-    NanotraceHR::Tracer tracer{"handle invalid bases",
+    NanotraceHR::Tracer tracer{"handle invalid bases with exported type name and type id",
                                projectStorageCategory(),
                                keyValue("type id", exportedTypeName)};
 
