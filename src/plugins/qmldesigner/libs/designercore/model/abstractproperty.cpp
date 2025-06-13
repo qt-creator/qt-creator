@@ -354,7 +354,13 @@ bool AbstractProperty::isDynamic(SL sl) const
                                ModelTracing::category(),
                                keyValue("caller location", sl)};
 
-    return !dynamicTypeName(sl).isEmpty();
+    if (!isValid())
+        return false;
+
+    if (auto property = internalNode()->property(name()))
+        return not property->dynamicTypeName().isEmpty();
+
+    return false;
 }
 
 TypeName AbstractProperty::dynamicTypeName(SL sl) const
