@@ -7,7 +7,6 @@
 
 #include "staticstring.h"
 
-#include <sqlite/sourcelocation.h>
 #include <utils/smallstring.h>
 #include <utils/span.h>
 #include <utils/utility.h>
@@ -753,34 +752,47 @@ class EnabledCategory
     {};
 
 public:
-    class SourceLocation : public Sqlite::source_location
+    struct SourceLocation
     {
     public:
         consteval SourceLocation(const char *fileName = __builtin_FILE(),
                                  const char *functionName = __builtin_FUNCTION(),
                                  const uint_least32_t line = __builtin_LINE())
-            : Sqlite::source_location(Sqlite::source_location::current(fileName, functionName, line))
+            : m_fileName{fileName}
+            , m_functionName{functionName}
+            , m_line{line}
         {}
+
+        constexpr std::uint_least32_t line() const noexcept { return m_line; }
+
+        constexpr const char *file_name() const noexcept { return m_fileName; }
+
+        constexpr const char *function_name() const noexcept { return m_functionName; }
 
         template<typename String>
         friend void convertToString(String &string, SourceLocation sourceLocation)
         {
             using NanotraceHR::dictonary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("file", sourceLocation.file_name()),
-                                  keyValue("function", sourceLocation.function_name()),
-                                  keyValue("line", sourceLocation.line()));
+            auto dict = dictonary(keyValue("file", sourceLocation.m_fileName),
+                                  keyValue("function", sourceLocation.m_functionName),
+                                  keyValue("line", sourceLocation.m_line));
             convertToString(string, dict);
 
             string.append(',');
             convertToString(string, "id");
             string.append(':');
             string.append('\"');
-            string.append(sourceLocation.file_name());
+            string.append(sourceLocation.m_functionName);
             string.append(':');
-            string.append(sourceLocation.line());
+            string.append(sourceLocation.m_line);
             string.append('\"');
         }
+
+    private:
+        const char *m_fileName = "";
+        const char *m_functionName = "";
+        std::uint_least32_t m_line = 0;
     };
 
     using CategoryFunctionPointer = EnabledCategory &(*) ();
