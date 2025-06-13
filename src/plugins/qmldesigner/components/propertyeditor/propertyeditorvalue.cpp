@@ -974,7 +974,16 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
     QmlObjectNode qmlObjectNode(modelNode);
 
     QTC_ASSERT(qmlObjectNode.isValid(), return );
-
+#ifdef QDS_USE_PROJECTSTORAGE
+    for (const auto &property : MetaInfoUtils::addInflatedValueAndReadOnlyProperties(
+             qmlObjectNode.modelNode().metaInfo().properties())) {
+        auto propertyName = property.name();
+        createPropertyEditorValue(qmlObjectNode,
+                                  propertyName,
+                                  qmlObjectNode.instanceValue(propertyName),
+                                  property.property);
+    }
+#else
     for (const auto &property :
          PropertyEditorUtils::filteredProperties(qmlObjectNode.modelNode().metaInfo())) {
         auto propertyName = property.name();
@@ -983,6 +992,7 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
                                   qmlObjectNode.instanceValue(propertyName),
                                   property);
     }
+#endif
 }
 
 ModelNode PropertyEditorSubSelectionWrapper::modelNode() const
