@@ -38,7 +38,7 @@ std::optional<LineColumnInfo> byteOffsetInUtf8TextToLineColumn(const char *text,
 
         // Advance to column
         if (c - text == offset) {
-            int columnCounter = 1;
+            int columnCounter = 0;
             c = lineStart;
             while (c < text + offset && Utils::Text::utf8AdvanceCodePoint(c))
                 ++columnCounter;
@@ -148,7 +148,7 @@ public:
         // Convert
         OptionalLineColumnInfo info = byteOffsetInUtf8TextToLineColumn(data, fileOffset, startLine);
         if (!info)
-            return {m_filePath, 1, 1};
+            return {m_filePath, 1, 0};
 
         // Save/update lookup
         int lineStartOffset = info->lineStartOffset;

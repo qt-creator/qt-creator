@@ -485,10 +485,8 @@ void DiagnosticView::openEditorForCurrentIndex()
 {
     const QVariant v = model()->data(currentIndex(), Debugger::DetailedErrorView::LocationRole);
     Link loc = v.value<Link>();
-    if (loc.hasValidTarget()) {
-        --loc.targetColumn; // FIXME: Move this to the model side.
+    if (loc.hasValidTarget())
         Core::EditorManager::openEditorAt(loc);
-    }
 }
 
 } // namespace Internal

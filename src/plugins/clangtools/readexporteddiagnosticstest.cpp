@@ -186,7 +186,7 @@ void ReadExportedDiagnosticsTest::testOffsetStartOfFirstLine()
     const auto info = byteOffsetInUtf8TextToLineColumn(asciiWord, 0);
     QVERIFY(info);
     QCOMPARE(info->line, 1);
-    QCOMPARE(info->column, 1);
+    QCOMPARE(info->column, 0);
 }
 
 void ReadExportedDiagnosticsTest::testOffsetEndOfFirstLine()
@@ -194,7 +194,7 @@ void ReadExportedDiagnosticsTest::testOffsetEndOfFirstLine()
     const auto info = byteOffsetInUtf8TextToLineColumn(asciiWord, 2);
     QVERIFY(info);
     QCOMPARE(info->line, 1);
-    QCOMPARE(info->column, 3);
+    QCOMPARE(info->column, 2);
 }
 
 // The invocation
@@ -220,7 +220,7 @@ void ReadExportedDiagnosticsTest::testOffsetOffsetPointingToLineSeparator_unix()
     const auto info = byteOffsetInUtf8TextToLineColumn(asciiMultiLine, 3);
     QVERIFY(info);
     QCOMPARE(info->line, 1);
-    QCOMPARE(info->column, 4);
+    QCOMPARE(info->column, 3);
 }
 
 // For a file with dos style line endings ("\r\n"), clang-tidy points to '\r'.
@@ -229,7 +229,7 @@ void ReadExportedDiagnosticsTest::testOffsetOffsetPointingToLineSeparator_dos()
     const auto info = byteOffsetInUtf8TextToLineColumn(asciiMultiLine_dos, 3);
     QVERIFY(info);
     QCOMPARE(info->line, 1);
-    QCOMPARE(info->column, 4);
+    QCOMPARE(info->column, 3);
 }
 
 void ReadExportedDiagnosticsTest::testOffsetStartOfSecondLine()
@@ -237,7 +237,7 @@ void ReadExportedDiagnosticsTest::testOffsetStartOfSecondLine()
     const auto info = byteOffsetInUtf8TextToLineColumn(asciiMultiLine, 4);
     QVERIFY(info);
     QCOMPARE(info->line, 2);
-    QCOMPARE(info->column, 1);
+    QCOMPARE(info->column, 0);
 }
 
 void ReadExportedDiagnosticsTest::testOffsetMultiByteCodePoint1()
@@ -245,7 +245,7 @@ void ReadExportedDiagnosticsTest::testOffsetMultiByteCodePoint1()
     const auto info = byteOffsetInUtf8TextToLineColumn(nonAsciiMultiLine, 3);
     QVERIFY(info);
     QCOMPARE(info->line, 2);
-    QCOMPARE(info->column, 1);
+    QCOMPARE(info->column, 0);
 }
 
 void ReadExportedDiagnosticsTest::testOffsetMultiByteCodePoint2()
@@ -253,7 +253,7 @@ void ReadExportedDiagnosticsTest::testOffsetMultiByteCodePoint2()
     const auto info = byteOffsetInUtf8TextToLineColumn(nonAsciiMultiLine, 11);
     QVERIFY(info);
     QCOMPARE(info->line, 3);
-    QCOMPARE(info->column, 2);
+    QCOMPARE(info->column, 1);
 }
 
 // Replace FILE_PATH with a real absolute file path in the *.yaml files.

@@ -31,7 +31,7 @@ namespace Internal {
 
 static QString lineColumnString(const Link &link)
 {
-    return QString("%1:%2").arg(link.targetLine).arg(link.targetColumn);
+    return QString("%1:%2").arg(link.targetLine).arg(link.targetColumn + 1);
 }
 
 static QString fixitStatus(FixitStatus status)

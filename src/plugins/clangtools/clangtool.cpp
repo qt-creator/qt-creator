@@ -255,8 +255,8 @@ public:
             const Link start = step.ranges.first();
             const Link end = step.ranges.last();
             const bool operationAdded = changeSet.replace(
-                file->position(start.targetLine, start.targetColumn),
-                file->position(end.targetLine, end.targetColumn),
+                file->position(start.targetLine, start.targetColumn + 1),
+                file->position(end.targetLine, end.targetColumn + 1),
                 step.message);
             if (!operationAdded)
                 return false;

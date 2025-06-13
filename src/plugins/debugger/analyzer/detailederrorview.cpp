@@ -44,10 +44,8 @@ DetailedErrorView::DetailedErrorView(QWidget *parent) :
     connect(this, &QAbstractItemView::clicked, [](const QModelIndex &index) {
         if (index.column() == LocationColumn) {
             Link loc = index.model()->data(index, DetailedErrorView::LocationRole).value<Link>();
-            if (loc.hasValidTarget()) {
-                --loc.targetColumn; // FIXME: Move adjustment to model side.
+            if (loc.hasValidTarget())
                 Core::EditorManager::openEditorAt(loc);
-            }
         }
     });
 
@@ -106,7 +104,7 @@ QVariant DetailedErrorView::locationData(int role, const Link &location)
         return location.hasValidTarget() ? QString::fromLatin1("%1:%2:%3")
                                .arg(location.targetFilePath.fileName())
                                .arg(location.targetLine)
-                               .arg(location.targetColumn)
+                               .arg(location.targetColumn + 1)
                          : QString();
     case Qt::ToolTipRole:
         return location.targetFilePath.isEmpty()

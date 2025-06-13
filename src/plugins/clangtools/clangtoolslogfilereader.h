@@ -28,7 +28,7 @@ Utils::Result<Diagnostics> readExportedDiagnostics(
 // Exposed for tests
 struct LineColumnInfo {
     int line = 1; // 1-based
-    int column = 1; // 1-based
+    int column = 0; // 0-based
     int lineStartOffset = 0; // for optimiation/caching purposes
 };
 using OptionalLineColumnInfo = std::optional<LineColumnInfo>;

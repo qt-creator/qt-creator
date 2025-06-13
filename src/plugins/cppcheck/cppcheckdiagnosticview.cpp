@@ -81,10 +81,8 @@ void DiagnosticView::openEditorForCurrentIndex()
 {
     const QVariant v = model()->data(currentIndex(), Debugger::DetailedErrorView::LocationRole);
     Link loc = v.value<Link>();
-    if (loc.hasValidTarget()) {
-        --loc.targetColumn; // FIXME: Move adjustment to model side.
+    if (loc.hasValidTarget())
         Core::EditorManager::openEditorAt(loc);
-    }
 }
 
 void DiagnosticView::mouseDoubleClickEvent(QMouseEvent *event)

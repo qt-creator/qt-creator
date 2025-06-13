@@ -196,7 +196,7 @@ const QList<DiagnosticItem *> &ClangToolsDiagnosticModel::itemsWithSameFixits(
 
 static QString lineColumnString(const Link &location)
 {
-    return QString("%1:%2").arg(location.targetLine).arg(location.targetColumn);
+    return QString("%1:%2").arg(location.targetLine).arg(location.targetColumn + 1);
 }
 
 static QString createExplainingStepToolTipString(const ExplainingStep &step)
