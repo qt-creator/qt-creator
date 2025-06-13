@@ -160,9 +160,23 @@ function(add_translation_targets file_prefix)
     return()
   endif()
 
-  cmake_parse_arguments(_arg ""
-    "OUTPUT_DIRECTORY;INSTALL_DESTINATION;TS_TARGET_PREFIX;QM_TARGET_PREFIX;ALL_QM_TARGET"
-    "TS_LANGUAGES;QM_LANGUAGES;TARGETS;SOURCES;INCLUDES" ${ARGN})
+  set(opt_args "")
+  set(single_args
+    OUTPUT_DIRECTORY
+    INSTALL_DESTINATION
+    TS_TARGET_PREFIX
+    QM_TARGET_PREFIX
+    ALL_QM_TARGET
+  )
+  set(multi_args
+    TS_LANGUAGES
+    QM_LANGUAGES
+    TARGETS
+    SOURCES
+    INCLUDES
+  )
+
+  cmake_parse_arguments(_arg "${opt_args}" "${single_args}" "${multi_args}" ${ARGN})
   if (_arg_UNPARSED_ARGUMENTS)
     message(FATAL_ERROR "Invalid parameters to add_translation_targets: ${_arg_UNPARSED_ARGUMENTS}.")
   endif()
