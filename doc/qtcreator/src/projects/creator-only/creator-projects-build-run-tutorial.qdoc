@@ -48,7 +48,7 @@
         \li Select an example in the list of examples.
 
             You can also use tags (3) to filter examples. For instance, enter
-            the \uicontrol \B2Q tag (commercial only) in the search field
+            the \uicontrol {\B2Q} tag (commercial only) in the search field
             (4) to list examples that you can run on \B2Q devices.
 
         \li In \uicontrol {Configure Project}, select
