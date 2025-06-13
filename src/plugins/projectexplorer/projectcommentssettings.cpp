@@ -99,6 +99,7 @@ public:
         : m_settings(project)
     {
         setGlobalSettingsId(TextEditor::Constants::TEXT_EDITOR_COMMENTS_SETTINGS);
+
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         layout->addWidget(&m_widget);

@@ -245,6 +245,8 @@ private:
 RunSettingsWidget::RunSettingsWidget(Target *target)
     : m_target(target)
 {
+    setWindowTitle(Tr::tr("Run Settings"));
+
     m_deployConfigurationCombo = new QComboBox(this);
     setWheelScrollingWithoutFocusBlocked(m_deployConfigurationCombo);
     m_addDeployToolButton = new QPushButton(Tr::tr("Add"), this);

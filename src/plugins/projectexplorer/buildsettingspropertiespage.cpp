@@ -74,6 +74,8 @@ private:
 BuildSettingsWidget::BuildSettingsWidget(Target *target)
     : m_target(target)
 {
+    setWindowTitle(Tr::tr("Build Settings"));
+
     auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 

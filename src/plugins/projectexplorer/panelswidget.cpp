@@ -60,6 +60,7 @@ PanelsWidget::~PanelsWidget() = default;
 
 void PanelsWidget::addWidget(QWidget *widget)
 {
+    setWindowTitle(widget->windowTitle());
     widget->setContentsMargins(0, CONTENTS_MARGIN, 0, BELOW_CONTENTS_MARGIN);
     widget->setParent(m_root);
     m_layout->addWidget(widget);

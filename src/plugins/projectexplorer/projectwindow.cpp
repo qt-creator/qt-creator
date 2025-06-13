@@ -219,19 +219,7 @@ void BuildSystemOutputWindow::updateFilter()
                            0 /* after context */);
 }
 
-class ProjectPanel
-{
-public:
-    ProjectPanel() = default;
-    ProjectPanel(const QString &displayName, QWidget *widget)
-        : displayName(displayName), widget(widget)
-    {}
-
-    QString displayName;
-    QWidget *widget = nullptr;
-};
-
-using ProjectPanels = QList<ProjectPanel>;
+using ProjectPanels = QList<QWidget *>;
 
 // Overall structure:
 //
@@ -519,12 +507,10 @@ ProjectPanels MiscSettingsPanelItem::panelWidgets() const
         panel->addGlobalSettingsProperties(inner);
         panel->addWidget(inner);
         panel->setFocusProxy(inner);
+        panel->setWindowTitle(m_factory->displayName());
         m_widget = panel;
     }
-    ProjectPanel panel;
-    panel.displayName = m_factory->displayName();
-    panel.widget = m_widget;
-    return QList{panel};
+    return {m_widget.get()};
 }
 
 ProjectItemBase *MiscSettingsPanelItem::activeItem()
@@ -756,6 +742,8 @@ private:
 TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     : m_project(project)
 {
+    setWindowTitle(Tr::tr("Configure Project"));
+
     auto box = new QDialogButtonBox(this);
 
     m_configureButton = new QPushButton(this);
@@ -892,10 +880,7 @@ public:
         if (!m_runSettingsWidget)
             m_runSettingsWidget = createRunSettingsWidget(target());
 
-        return {
-            ProjectPanel(Tr::tr("Build Settings"), m_buildSettingsWidget),
-            ProjectPanel(Tr::tr("Run Settings"), m_runSettingsWidget)
-        };
+        return { m_buildSettingsWidget.get(), m_runSettingsWidget.get() };
     }
 
     void addToMenu(QMenu *menu) const final
@@ -1106,11 +1091,7 @@ ProjectPanels TargetGroupItem::panelWidgets() const
         m_targetSetupPage = panel;
     }
 
-    ProjectPanel panel;
-    panel.displayName = Tr::tr("Configure Project");
-    panel.widget = m_targetSetupPage;
-
-    return {panel};
+    return {m_targetSetupPage.get()};
 }
 
 void TargetGroupItem::itemActivatedFromBelow(const ProjectItemBase *)
@@ -1290,9 +1271,9 @@ public:
             m_tabWidget->removeTab(pos);
         }
 
-        for (const ProjectPanel &panel : panels) {
-            QTC_ASSERT(panel.widget, continue);
-            m_tabWidget->addTab(panel.widget, panel.displayName);
+        for (QWidget *panel : panels) {
+            QTC_ASSERT(panel, continue);
+            m_tabWidget->addTab(panel, panel->windowTitle());
         }
 
         m_tabWidget->setCurrentIndex(oldIndex);
