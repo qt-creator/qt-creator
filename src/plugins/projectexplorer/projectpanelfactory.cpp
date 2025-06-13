@@ -5,7 +5,6 @@
 
 #include "project.h"
 #include "projectsettingswidget.h"
-#include "projectwindow.h"
 
 #include <utils/layoutbuilder.h>
 

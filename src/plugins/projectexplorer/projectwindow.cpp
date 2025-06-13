@@ -10,7 +10,6 @@
 #include "kit.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
-#include "panelswidget.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -56,6 +55,7 @@
 #include <utils/utilsicons.h>
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QDockWidget>
@@ -80,6 +80,105 @@ const char kBuildSystemOutputContext[] = "ProjectsMode.BuildSystemOutput";
 const char kRegExpActionId[] = "OutputFilter.RegularExpressions.BuildSystemOutput";
 const char kCaseSensitiveActionId[] = "OutputFilter.CaseSensitive.BuildSystemOutput";
 const char kInvertActionId[] = "OutputFilter.Invert.BuildSystemOutput";
+
+const int CONTENTS_MARGIN = 5;
+const int BELOW_CONTENTS_MARGIN = 16;
+const int PanelVMargin = 14;
+
+class ProjectPanel final : public QWidget
+{
+public:
+    explicit ProjectPanel(QWidget *inner, bool addGlobalSettings, bool addStretch)
+    {
+        setWindowTitle(inner->windowTitle());
+
+        auto root = new QWidget(nullptr);
+        root->setFocusPolicy(Qt::NoFocus);
+        root->setContentsMargins(0, 0, 0, 0);
+
+        const auto scroller = new QScrollArea(this);
+        scroller->setWidget(root);
+        scroller->setFrameStyle(QFrame::NoFrame);
+        scroller->setWidgetResizable(true);
+        scroller->setFocusPolicy(Qt::NoFocus);
+
+        // The layout holding the individual panels:
+        auto topLayout = new QVBoxLayout(root);
+        topLayout->setContentsMargins(PanelVMargin, 0, PanelVMargin, 0);
+        topLayout->setSpacing(0);
+
+        m_layout = new QVBoxLayout;
+        m_layout->setSpacing(0);
+
+        topLayout->addLayout(m_layout);
+        if (addStretch)
+            topLayout->addStretch(1);
+
+        auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->setSpacing(0);
+        layout->addWidget(scroller);
+
+        //layout->addWidget(new FindToolBarPlaceHolder(this));
+
+        if (addGlobalSettings) {
+            auto widget = dynamic_cast<ProjectSettingsWidget *>(inner);
+            if (QTC_GUARD(widget)) {
+                if (widget->isUseGlobalSettingsCheckBoxVisible() || widget->isUseGlobalSettingsLabelVisible()) {
+                    m_layout->setContentsMargins(0, 0, 0, 0);
+                    const auto useGlobalSettingsCheckBox = new QCheckBox;
+                    useGlobalSettingsCheckBox->setChecked(widget->useGlobalSettings());
+                    useGlobalSettingsCheckBox->setEnabled(widget->isUseGlobalSettingsCheckBoxEnabled());
+
+                    const QString labelText = widget->isUseGlobalSettingsCheckBoxVisible()
+                            ? QStringLiteral("Use <a href=\"dummy\">global settings</a>")
+                            : QStringLiteral("<a href=\"dummy\">Global settings</a>");
+                    const auto settingsLabel = new QLabel(labelText);
+                    settingsLabel->setEnabled(widget->isUseGlobalSettingsCheckBoxEnabled());
+
+                    const auto horizontalLayout = new QHBoxLayout;
+                    horizontalLayout->setContentsMargins(0, CONTENTS_MARGIN, 0, CONTENTS_MARGIN);
+                    horizontalLayout->setSpacing(CONTENTS_MARGIN);
+
+                    if (widget->isUseGlobalSettingsCheckBoxVisible()) {
+                        horizontalLayout->addWidget(useGlobalSettingsCheckBox);
+
+                        connect(widget, &ProjectSettingsWidget::useGlobalSettingsCheckBoxEnabledChanged,
+                                this, [useGlobalSettingsCheckBox, settingsLabel](bool enabled) {
+                            useGlobalSettingsCheckBox->setEnabled(enabled);
+                            settingsLabel->setEnabled(enabled);
+                        });
+                        connect(useGlobalSettingsCheckBox, &QCheckBox::stateChanged,
+                                widget, &ProjectSettingsWidget::setUseGlobalSettings);
+                        connect(widget, &ProjectSettingsWidget::useGlobalSettingsChanged,
+                                useGlobalSettingsCheckBox, &QCheckBox::setChecked);
+                    }
+
+                    if (widget->isUseGlobalSettingsLabelVisible()) {
+                        horizontalLayout->addWidget(settingsLabel);
+                        connect(settingsLabel, &QLabel::linkActivated, this, [widget] {
+                            Core::ICore::showOptionsDialog(widget->globalSettingsId());
+                        });
+                    }
+                    horizontalLayout->addStretch(1);
+                    m_layout->addLayout(horizontalLayout);
+                    m_layout->addWidget(Layouting::createHr());
+                }
+            }
+        }
+
+        inner->setContentsMargins(0, CONTENTS_MARGIN, 0, BELOW_CONTENTS_MARGIN);
+        inner->setParent(root);
+        m_layout->addWidget(inner);
+
+        setFocusProxy(inner);
+    }
+
+private:
+    QVBoxLayout *m_layout;
+};
+
+
 
 class BuildSystemOutputWindow : public OutputWindow
 {
@@ -502,13 +601,8 @@ QVariant MiscSettingsPanelItem::data(int column, int role) const
 ProjectPanels MiscSettingsPanelItem::panelWidgets() const
 {
     if (!m_widget) {
-        ProjectSettingsWidget *inner = m_factory->createWidget(m_project);
-        auto panel = new PanelsWidget(true);
-        panel->addGlobalSettingsProperties(inner);
-        panel->addWidget(inner);
-        panel->setFocusProxy(inner);
-        panel->setWindowTitle(m_factory->displayName());
-        m_widget = panel;
+        m_widget = new ProjectPanel(m_factory->createWidget(m_project), true, false);
+        m_widget->setWindowTitle(m_factory->displayName());
     }
     return {m_widget.get()};
 }
@@ -876,9 +970,9 @@ public:
     ProjectPanels panelWidgets() const final
     {
         if (!m_buildSettingsWidget)
-            m_buildSettingsWidget = createBuildSettingsWidget(target());
+            m_buildSettingsWidget = new ProjectPanel(createBuildSettingsWidget(target()), false, true);
         if (!m_runSettingsWidget)
-            m_runSettingsWidget = createRunSettingsWidget(target());
+            m_runSettingsWidget = new ProjectPanel(createRunSettingsWidget(target()), false, true);
 
         return { m_buildSettingsWidget.get(), m_runSettingsWidget.get() };
     }
@@ -1083,13 +1177,8 @@ ProjectItemBase *TargetGroupItem::activeItem()
 
 ProjectPanels TargetGroupItem::panelWidgets() const
 {
-    if (!m_targetSetupPage) {
-        auto inner = new TargetSetupPageWrapper(m_project);
-        auto panel = new PanelsWidget(false);
-        panel->addWidget(inner);
-        panel->setFocusProxy(inner);
-        m_targetSetupPage = panel;
-    }
+    if (!m_targetSetupPage)
+        m_targetSetupPage = new ProjectPanel(new TargetSetupPageWrapper(m_project), false, false);
 
     return {m_targetSetupPage.get()};
 }
@@ -1433,8 +1522,7 @@ public:
 
         auto innerLayout = new QVBoxLayout;
         innerLayout->setSpacing(10);
-        innerLayout->setContentsMargins(PanelsWidget::PanelVMargin, innerLayout->spacing(),
-                                        PanelsWidget::PanelVMargin, 0);
+        innerLayout->setContentsMargins(PanelVMargin, innerLayout->spacing(), PanelVMargin, 0);
 #ifdef QT_NO_DEBUG
         const QStringList list = ICore::settings()->value("HideOptionCategories").toStringList();
 #else

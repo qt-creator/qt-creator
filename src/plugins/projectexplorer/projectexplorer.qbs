@@ -88,7 +88,6 @@ QtcPlugin {
             "msvcparser.cpp", "msvcparser.h",
             "msvctoolchain.cpp", "msvctoolchain.h",
             "osparser.cpp", "osparser.h",
-            "panelswidget.cpp", "panelswidget.h",
             "parseissuesdialog.cpp", "parseissuesdialog.h",
             "processparameters.cpp", "processparameters.h",
             "processstep.cpp", "processstep.h",

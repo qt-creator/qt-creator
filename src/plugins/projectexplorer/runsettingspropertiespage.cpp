@@ -7,7 +7,6 @@
 #include "buildmanager.h"
 #include "buildstepspage.h"
 #include "deployconfiguration.h"
-#include "panelswidget.h"
 #include "project.h"
 #include "projectconfigurationmodel.h"
 #include "projectexplorerconstants.h"
@@ -793,9 +792,7 @@ void RunSettingsWidget::updateEnabledState()
 
 QWidget *createRunSettingsWidget(Target *target)
 {
-    auto panel = new PanelsWidget(true);
-    panel->addWidget(new RunSettingsWidget(target));
-    return panel;
+    return new RunSettingsWidget(target);
 }
 
 } // ProjectExplorer::Internal
