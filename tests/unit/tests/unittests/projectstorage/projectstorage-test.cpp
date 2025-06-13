@@ -1506,7 +1506,6 @@ TEST_F(ProjectStorage,
        synchronize_types_updates_extension_to_unresolved_after_exported_type_name_is_removed)
 {
     auto package{createSimpleSynchronizationPackage()};
-    package.types[0].prototype = {};
     package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
     package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
     storage.synchronize(package);
@@ -1537,7 +1536,6 @@ TEST_F(ProjectStorage,
        synchronize_types_updates_invalid_extension_indirectly_after_exported_type_name_is_removed)
 {
     auto package{createSimpleSynchronizationPackage()};
-    package.types[0].prototype = {};
     package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
     package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
     storage.synchronize(package);
@@ -1554,7 +1552,6 @@ TEST_F(ProjectStorage,
        synchronize_types_updates_extension_indirectly_to_unresolved_after_exported_type_name_is_removed_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSimpleSynchronizationPackage()};
-    package.types[0].prototype = {};
     package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
     package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
     storage.synchronize(package);
@@ -1577,6 +1574,19 @@ TEST_F(ProjectStorage, synchronize_types_adds_extension_which_notifies_about_unr
     storage.synchronize(std::move(package));
 }
 
+TEST_F(ProjectStorage,
+       synchronize_types_updates_unresolved_extension_and_protype_after_exported_type_name_is_added)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"Objec"};
+    package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
+    storage.synchronize(package);
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
+}
 
 TEST_F(ProjectStorage, synchronize_types_adds_new_types_with_missing_module)
 {

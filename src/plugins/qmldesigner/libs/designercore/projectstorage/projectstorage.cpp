@@ -70,8 +70,8 @@ struct ProjectStorage::Statements
         database};
     Sqlite::WriteStatement<2> insertBasesStatement{
         "INSERT INTO bases(typeId, baseId) VALUES(?1, ?2)", database};
-    Sqlite::WriteStatement<2> updateBasesStatement{"UPDATE bases SET baseId=?2 WHERE typeId=?1",
-                                                   database};
+    Sqlite::WriteStatement<3> updateBasesStatement{
+        "UPDATE bases SET baseId=?2 WHERE typeId=?1 AND baseId=?3", database};
     Sqlite::WriteStatement<2> deleteBasesStatement{
         "DELETE FROM bases WHERE typeId=?1 and baseId=?2", database};
     Sqlite::WriteStatement<2> upsertPrototypesStatement{
@@ -3216,6 +3216,10 @@ void ProjectStorage::relinkBases(Bases &relinkableBases, const TypeIds &deletedT
         relinkableBases,
         deletedTypeIds,
         [&](const Base &base) {
+            NanotraceHR::Tracer tracer{"relink base",
+                                       projectStorageCategory(),
+                                       keyValue("type id", base.typeId)};
+
             auto getBaseId = [&](ImportedTypeNameId baseNameId) {
                 if (baseNameId) {
                     TypeId baseId = fetchTypeId(baseNameId);
@@ -3236,6 +3240,7 @@ void ProjectStorage::relinkBases(Bases &relinkableBases, const TypeIds &deletedT
 
             if (changeBases)
                 checkForPrototypeChainCycle(base.typeId);
+            tracer.end(keyValue("prototype id", prototypeId), keyValue("extension id", extensionId));
         },
         {},
         &Base::typeId);
@@ -4554,12 +4559,18 @@ std::pair<TypeId, ImportedTypeNameId> ProjectStorage::fetchImportedTypeNameIdAnd
 
 bool ProjectStorage::updateBases(TypeId typeId, TypeId prototypeId, TypeId extensionId)
 {
+    NanotraceHR::Tracer tracer{"update bases",
+                               projectStorageCategory(),
+                               keyValue("type id", typeId),
+                               keyValue("prototype id", prototypeId),
+                               keyValue("extension id", extensionId)};
+
     QVarLengthArray<TypeId, 2> baseIds;
 
     if (not prototypeId.isNull())
         baseIds.push_back(prototypeId);
 
-    if (not extensionId.isNull())
+    if (not extensionId.isNull() and prototypeId.internalId() != extensionId.internalId())
         baseIds.push_back(extensionId);
 
     std::ranges::sort(baseIds);
@@ -4587,7 +4598,7 @@ bool ProjectStorage::updateBases(TypeId typeId, TypeId prototypeId, TypeId exten
                                    keyValue("base id", baseId)};
 
         if (viewBaseId != baseId) {
-            s->updateBasesStatement.write(typeId, baseId);
+            s->updateBasesStatement.write(typeId, baseId, viewBaseId);
 
             tracer.end(keyValue("updated", "yes"));
 
@@ -4615,6 +4626,11 @@ bool ProjectStorage::updateBases(TypeId typeId, TypeId prototypeId, TypeId exten
 
 bool ProjectStorage::updatePrototypes(TypeId typeId, TypeId prototypeId)
 {
+    NanotraceHR::Tracer tracer{"update prototypes",
+                               projectStorageCategory(),
+                               keyValue("type id", typeId),
+                               keyValue("prototype id", prototypeId)};
+
     QVarLengthArray<TypeId, 2> baseIds;
 
     if (not prototypeId.isNull())
