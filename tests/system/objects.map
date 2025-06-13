@@ -113,7 +113,9 @@
 :PasteSelectDialog.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':PasteSelectDialog_CodePaster::PasteSelectDialog'}
 :PasteSelectDialog_CodePaster::PasteSelectDialog	{name='CodePaster.PasteSelectDialog' type='QDialog' visible='1'}
 :Path.Utils_BaseValidatingLineEdit	{container=':qt_tabwidget_stackedwidget_QWidget' name='LineEdit' type='Utils::FancyLineEdit' visible='1'}
-:Projects.ProjectNavigationTreeView	{container=':*Qt Creator.ProjectSelectorDockWidget_QDockWidget' name='ProjectNavigation' type='Utils::BaseTreeView' visible='1'}
+:ProjectConfigurationTabBar	{name='ProjectConfigurationTabBar' type='QTabBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:ProjectSelectionComboBox	{container=':*Qt Creator.ProjectSelectorDockWidget_QDockWidget' name='ProjectSelection' type='QComboBox' visible='1'}
+:Projects.ProjectNavigationTreeView	{container=':*Qt Creator.ProjectSelectorDockWidget_QDockWidget' name='ProjectNavigation' type='QTreeView' visible='1'}
 :QML Debugging.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':QML Debugging_QMessageBox'}
 :QML Debugging_QMessageBox	{text='The option will only take effect if the project is recompiled. Do you want to recompile now?' type='QMessageBox' unnamed='1' visible='1'}
 :Qt Creator.Add Bookmark_QToolButton	{text='Add Bookmark' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
