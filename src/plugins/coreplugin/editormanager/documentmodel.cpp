@@ -11,6 +11,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -428,7 +429,9 @@ DocumentModel::Entry *DocumentModelPrivate::removeEditor(IEditor *editor)
     const auto it = d->m_editors.find(document);
     QTC_ASSERT(it != d->m_editors.end(), return nullptr);
     it->removeAll(editor);
-    DocumentModel::Entry *entry = DocumentModel::entryForDocument(document);
+    const std::optional<int> idx = d->indexOfDocument(document);
+    QTC_ASSERT(idx, return nullptr);
+    DocumentModel::Entry *entry = d->m_entries.at(*idx);
     QTC_ASSERT(entry, return nullptr);
     if (it->isEmpty()) {
         d->m_editors.erase(it);
@@ -438,6 +441,8 @@ DocumentModel::Entry *DocumentModelPrivate::removeEditor(IEditor *editor)
         entry->document->setUniqueDisplayName(document->uniqueDisplayName());
         entry->document->setId(document->id());
         entry->isSuspended = true;
+        const QModelIndex midx = d->index(*idx + 1 /*<no document>*/, 0);
+        emit d->dataChanged(midx, midx);
     }
     return entry;
 }
@@ -522,6 +527,8 @@ Utils::FilePath DocumentModel::Entry::filePath() const
 
 QString DocumentModel::Entry::displayName() const
 {
+    if (isSuspended && qtcEnvironmentVariableIsSet("QTC_DEBUG_DOCUMENTMODEL"))
+        return document->displayName() + " (s)";
     return document->displayName();
 }
 
