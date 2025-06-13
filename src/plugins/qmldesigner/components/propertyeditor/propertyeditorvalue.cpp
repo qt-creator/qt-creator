@@ -886,7 +886,8 @@ static QObject *variantToQObject(const QVariant &value)
 
 void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                                                   PropertyNameView name,
-                                                                  const QVariant &value)
+                                                                  const QVariant &value,
+                                                                  const PropertyMetaInfo &property)
 {
     NanotraceHR::Tracer tracer{"property editor sub selection wrapper create property editor value",
                                category()};
@@ -904,11 +905,10 @@ void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjec
         QObject::connect(valueObject, &PropertyEditorValue::removeAliasExportRequested, this, &PropertyEditorSubSelectionWrapper::removeAliasExport);
         m_valuesPropertyMap.insert(propertyName, QVariant::fromValue(valueObject));
     }
-    valueObject->setModelNodeAndProperty(qmlObjectNode, name);
+    valueObject->setModelNodeAndProperty(qmlObjectNode, name, property);
 
     if (qmlObjectNode.propertyAffectedByCurrentState(name) && !(qmlObjectNode.modelNode().property(name).isBindingProperty()))
         valueObject->setValue(qmlObjectNode.modelValue(name));
-
     else
         valueObject->setValue(value);
 
@@ -980,7 +980,8 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
         auto propertyName = property.name();
         createPropertyEditorValue(qmlObjectNode,
                                   propertyName,
-                                  qmlObjectNode.instanceValue(propertyName));
+                                  qmlObjectNode.instanceValue(propertyName),
+                                  property);
     }
 }
 

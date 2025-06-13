@@ -44,7 +44,8 @@ private:
     void changeExpression(const QString &propertyName);
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    PropertyNameView name,
-                                   const QVariant &value);
+                                   const QVariant &value,
+                                   const PropertyMetaInfo &property);
     void exportPropertyAsAlias(const QString &name);
     void removeAliasExport(const QString &name);
     bool locked() const;
