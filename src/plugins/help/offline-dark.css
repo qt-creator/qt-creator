@@ -460,6 +460,10 @@ table, pre, .LegaleseLeft {
      margin: 0px
  }
 
+table.qmlname {
+    width: 75%;
+}
+
 .LegaleseLeft {
     font-family: monospace;
     white-space: pre-wrap;
