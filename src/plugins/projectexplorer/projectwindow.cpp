@@ -85,33 +85,26 @@ const int CONTENTS_MARGIN = 5;
 const int BELOW_CONTENTS_MARGIN = 16;
 const int PanelVMargin = 14;
 
-class ProjectPanel final : public QWidget
+class ProjectPanel final : public QScrollArea
 {
 public:
     explicit ProjectPanel(QWidget *inner, bool addGlobalSettings, bool addStretch)
     {
         setWindowTitle(inner->windowTitle());
         setFocusProxy(inner);
+        setFrameStyle(QFrame::NoFrame);
+        setWidgetResizable(true);
+        setFocusPolicy(Qt::NoFocus);
 
-        auto root = new QWidget(nullptr);
+        auto root = new QWidget;
         root->setFocusPolicy(Qt::NoFocus);
         root->setContentsMargins(0, 0, 0, 0);
-
-        const auto scroller = new QScrollArea(this);
-        scroller->setWidget(root);
-        scroller->setFrameStyle(QFrame::NoFrame);
-        scroller->setWidgetResizable(true);
-        scroller->setFocusPolicy(Qt::NoFocus);
+        setWidget(root);
 
         // The layout holding the panel.
         auto topLayout = new QVBoxLayout(root);
         topLayout->setContentsMargins(PanelVMargin, 0, PanelVMargin, 0);
         topLayout->setSpacing(0);
-
-        auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->setSpacing(0);
-        layout->addWidget(scroller);
 
         //layout->addWidget(new FindToolBarPlaceHolder(this));
 
@@ -168,8 +161,6 @@ public:
             topLayout->addStretch(1);
     }
 };
-
-
 
 class BuildSystemOutputWindow : public OutputWindow
 {
