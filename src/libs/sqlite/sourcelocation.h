@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <nanotrace/nanotracehr.h>
+
 #include <cstdint>
 
 namespace Sqlite {
@@ -24,6 +26,26 @@ public:
     constexpr const char *file_name() const noexcept { return m_fileName; }
 
     constexpr const char *function_name() const noexcept { return m_functionName; }
+
+    template<typename String>
+    friend void convertToString(String &string, source_location sourceLocation)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("file", sourceLocation.m_fileName),
+                              keyValue("function", sourceLocation.m_functionName),
+                              keyValue("line", sourceLocation.m_line));
+        convertToString(string, dict);
+
+        string.append(',');
+        convertToString(string, "id");
+        string.append(':');
+        string.append('\"');
+        string.append(sourceLocation.m_functionName);
+        string.append(':');
+        string.append(sourceLocation.m_line);
+        string.append('\"');
+    }
 
 private:
     consteval source_location(const char *fileName, const char *functionName, const uint_least32_t line)
