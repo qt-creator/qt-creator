@@ -7,6 +7,7 @@
 
 #include <utils/id.h>
 
+#include <QBoxLayout>
 #include <QWidget>
 
 namespace ProjectExplorer {
@@ -14,6 +15,7 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT ProjectSettingsWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit ProjectSettingsWidget(QWidget *parent = nullptr);
 
@@ -21,14 +23,10 @@ public:
     bool useGlobalSettings() const;
 
     void setUseGlobalSettingsCheckBoxEnabled(bool enadled);
-    bool isUseGlobalSettingsCheckBoxEnabled() const;
 
-    bool isUseGlobalSettingsCheckBoxVisible() const;
-    bool isUseGlobalSettingsLabelVisible() const;
-    Utils::Id globalSettingsId() const;
-
-    bool expanding() const;
     void setExpanding(bool expanding);
+
+    void addToLayout(QBoxLayout *layout);
 
 protected:
     void setUseGlobalSettingsCheckBoxVisible(bool visible);
