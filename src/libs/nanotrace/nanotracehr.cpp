@@ -183,10 +183,24 @@ void startDispatcher(EnabledTraceFile &file)
     auto dispatcher = [&]() {
         std::unique_lock<std::mutex> lock{file.tasksMutex};
 
-        auto newWork = [&] {
-            return not file.isRunning or not file.tasksWithoutArguments.empty()
-                   or not file.tasksWithArguments.empty() or not file.metaData.empty();
+        auto newWork = [&] { return not file.isRunning or not file.tasks.empty(); };
+
+        struct Dispatcher
+        {
+            void operator()(const TaskWithArguments &task)
+            {
+                flushEvents(task.data, task.threadId, file);
+            }
+            void operator()(const TaskWithoutArguments &task)
+            {
+                flushEvents(task.data, task.threadId, file);
+            }
+            void operator()(const MetaData &task) { writeMetaEvent(file, task.key, task.value); }
+
+            EnabledTraceFile &file;
         };
+
+        Dispatcher dispatcher{file};
 
         while (file.isRunning) {
             file.condition.wait(lock, newWork);
@@ -194,27 +208,11 @@ void startDispatcher(EnabledTraceFile &file)
             if (not file.isRunning)
                 break;
 
-            while (not file.tasksWithoutArguments.empty()) {
-                auto task = std::move(file.tasksWithoutArguments.back());
-                file.tasksWithoutArguments.pop_back();
+            while (not file.tasks.empty()) {
+                auto task = std::move(file.tasks.front());
+                file.tasks.erase(file.tasks.begin());
                 lock.unlock();
-                flushEvents(task.data, task.threadId, file);
-                lock.lock();
-            }
-
-            while (not file.tasksWithArguments.empty()) {
-                auto task = std::move(file.tasksWithArguments.back());
-                file.tasksWithArguments.pop_back();
-                lock.unlock();
-                flushEvents(task.data, task.threadId, file);
-                lock.lock();
-            }
-
-            while (not file.metaData.empty()) {
-                auto task = std::move(file.metaData.back());
-                file.metaData.pop_back();
-                lock.unlock();
-                writeMetaEvent(file, task.key, task.value);
+                std::visit(dispatcher, task);
                 lock.lock();
             }
         }
@@ -249,17 +247,10 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
         std::unique_lock taskLock{eventQueue.mutex};
         std::unique_lock tasksLock{eventQueue.file->tasksMutex};
 
-        if constexpr (std::same_as<TraceEvent, TraceEventWithArguments>) {
-            eventQueue.file->tasksWithArguments
-                .emplace_back(std::move(taskLock),
-                              eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
-                              eventQueue.threadId);
-        } else {
-            eventQueue.file->tasksWithoutArguments
-                .emplace_back(std::move(taskLock),
-                              eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
-                              eventQueue.threadId);
-        }
+        eventQueue.file->tasks.emplace_back(std::in_place_type<typename TraceEvent::Task>,
+                                            std::move(taskLock),
+                                            eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
+                                            eventQueue.threadId);
     }
 
     eventQueue.currentEvents = eventQueue.currentEvents.data() == eventQueue.eventsOne.data()
@@ -287,7 +278,10 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(std::shared_ptr<EnabledTr
                 std::unique_lock taskLock{mutex};
                 std::lock_guard _{this->file->tasksMutex};
 
-                this->file->metaData.emplace_back(std::move(taskLock), "thread_name", name);
+                this->file->tasks.emplace_back(std::in_place_type<MetaData>,
+                                               std::move(taskLock),
+                                               "thread_name",
+                                               name);
             }
             this->file->condition.notify_all();
         }

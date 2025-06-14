@@ -29,6 +29,7 @@
 #include <string_view>
 #include <thread>
 #include <tuple>
+#include <variant>
 
 namespace NanotraceHR {
 using Clock = std::chrono::steady_clock;
@@ -392,8 +393,56 @@ inline bool operator&(IsFlow first, IsFlow second)
            & static_cast<std::underlying_type_t<IsFlow>>(second);
 }
 
+struct TraceEventWithoutArguments;
+struct TraceEventWithArguments;
+
+struct TaskWithArguments
+{
+    TaskWithArguments(std::unique_lock<std::mutex> lock,
+                      Utils::span<TraceEventWithArguments> data,
+                      std::thread::id threadId)
+        : lock{std::move(lock)}
+        , data{data}
+        , threadId{threadId}
+    {}
+
+    std::unique_lock<std::mutex> lock;
+    Utils::span<TraceEventWithArguments> data;
+    std::thread::id threadId;
+};
+
+struct TaskWithoutArguments
+{
+    TaskWithoutArguments(std::unique_lock<std::mutex> lock,
+                         Utils::span<TraceEventWithoutArguments> data,
+                         std::thread::id threadId)
+        : lock{std::move(lock)}
+        , data{data}
+        , threadId{threadId}
+    {}
+
+    std::unique_lock<std::mutex> lock;
+    Utils::span<TraceEventWithoutArguments> data;
+    std::thread::id threadId;
+};
+
+struct MetaData
+{
+    MetaData(std::unique_lock<std::mutex> lock, std::string key, std::string value)
+        : lock{std::move(lock)}
+        , key{std::move(key)}
+        , value{std::move(value)}
+    {}
+
+    std::unique_lock<std::mutex> lock;
+    std::string key;
+    std::string value;
+};
+
 struct TraceEventWithoutArguments
 {
+    using Task = TaskWithoutArguments;
+
     TraceEventWithoutArguments() = default;
     TraceEventWithoutArguments(const TraceEventWithoutArguments &) = delete;
     TraceEventWithoutArguments(TraceEventWithoutArguments &&) = delete;
@@ -413,6 +462,8 @@ struct TraceEventWithoutArguments
 
 struct alignas(4096) TraceEventWithArguments : public TraceEventWithoutArguments
 {
+    using Task = TaskWithArguments;
+
     ArgumentsString arguments;
 };
 
@@ -459,48 +510,7 @@ class TraceFile<Tracing::IsEnabled>
 public:
     using IsActive = std::true_type;
 
-    struct TaskWithArguments
-    {
-        TaskWithArguments(std::unique_lock<std::mutex> lock,
-                          Utils::span<TraceEventWithArguments> data,
-                          std::thread::id threadId)
-            : lock{std::move(lock)}
-            , data{data}
-            , threadId{threadId}
-        {}
-
-        std::unique_lock<std::mutex> lock;
-        Utils::span<TraceEventWithArguments> data;
-        std::thread::id threadId;
-    };
-
-    struct TaskWithoutArguments
-    {
-        TaskWithoutArguments(std::unique_lock<std::mutex> lock,
-                             Utils::span<TraceEventWithoutArguments> data,
-                             std::thread::id threadId)
-            : lock{std::move(lock)}
-            , data{data}
-            , threadId{threadId}
-        {}
-
-        std::unique_lock<std::mutex> lock;
-        Utils::span<TraceEventWithoutArguments> data;
-        std::thread::id threadId;
-    };
-
-    struct MetaData
-    {
-        MetaData(std::unique_lock<std::mutex> lock, std::string key, std::string value)
-            : lock{std::move(lock)}
-            , key{std::move(key)}
-            , value{std::move(value)}
-        {}
-
-        std::unique_lock<std::mutex> lock;
-        std::string key;
-        std::string value;
-    };
+    using Task = std::variant<TaskWithArguments, TaskWithoutArguments, MetaData>;
 
     TraceFile([[maybe_unused]] std::string_view filePath)
         : filePath{filePath}
@@ -521,9 +531,7 @@ public:
     std::condition_variable condition;
     bool isRunning = true;
     std::thread thread;
-    QVarLengthArray<TaskWithArguments, 1024> tasksWithArguments;
-    QVarLengthArray<TaskWithoutArguments, 1024> tasksWithoutArguments;
-    QVarLengthArray<MetaData, 32> metaData;
+    QVarLengthArray<Task, 1024> tasks;
     std::ofstream out;
 };
 
