@@ -384,8 +384,11 @@ struct ProjectStorage::Statements
         "DELETE FROM enumerationDeclarations WHERE enumerationDeclarationId=?", database};
     mutable Sqlite::ReadStatement<1, 2> selectModuleIdByNameStatement{
         "SELECT moduleId FROM modules WHERE kind=?1 AND name=?2 LIMIT 1", database};
-    mutable Sqlite::ReadWriteStatement<1, 2> insertModuleNameStatement{
-        "INSERT INTO modules(kind, name) VALUES(?1, ?2) RETURNING moduleId", database};
+    mutable Sqlite::ReadWriteStatement<1, 2> upsertModuleNameStatement{
+        "INSERT INTO modules(kind, name) VALUES(?1, ?2) "
+        "ON CONFLICT DO UPDATE SET kind=?1, name=?2 "
+        "RETURNING moduleId",
+        database};
     mutable Sqlite::ReadStatement<2, 1> selectModuleStatement{
         "SELECT name, kind FROM modules WHERE moduleId =?1", database};
     mutable Sqlite::ReadStatement<3> selectAllModulesStatement{
@@ -2422,7 +2425,7 @@ ModuleId ProjectStorage::fetchModuleId(Utils::SmallStringView moduleName,
                                keyValue("module name", moduleName),
                                keyValue("module kind", moduleKind)};
 
-    auto moduleId = Sqlite::withDeferredTransaction(database, [&] {
+    auto moduleId = Sqlite::withImplicitTransaction(database, [&] {
         return fetchModuleIdUnguarded(moduleName, moduleKind);
     });
 
@@ -2930,10 +2933,7 @@ ModuleId ProjectStorage::fetchModuleIdUnguarded(Utils::SmallStringView name,
                                keyValue("module name", name),
                                keyValue("module kind", kind)};
 
-    auto moduleId = s->selectModuleIdByNameStatement.value<ModuleId>(kind, name);
-
-    if (!moduleId)
-        moduleId = s->insertModuleNameStatement.value<ModuleId>(kind, name);
+    auto moduleId = s->upsertModuleNameStatement.value<ModuleId>(kind, name);
 
     tracer.end(keyValue("module id", moduleId));
 
