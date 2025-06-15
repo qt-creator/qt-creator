@@ -82,7 +82,7 @@ namespace SourcePathStorageTracing {
 
 using Category = NanotraceHR::EnabledCategory;
 
-[[gnu::pure]] Category &category();
+[[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
 #else
 
 using Category = NanotraceHR::DisabledCategory;

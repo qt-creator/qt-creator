@@ -320,11 +320,30 @@ private:
     class ModuleStorageAdapter
     {
     public:
-        auto fetchId(ModuleView module) { return storage.fetchModuleId(module.name, module.kind); }
+        auto fetchId(ModuleView module)
+        {
+            NanotraceHR::Tracer tracer{"module stoeage adapter fetch id",
+                                       projectStorageCategory(),
+                                       NanotraceHR::keyValue("module name", module.name),
+                                       NanotraceHR::keyValue("module kind", module.kind)};
+            return storage.fetchModuleId(module.name, module.kind);
+        }
 
-        auto fetchValue(ModuleId id) { return storage.fetchModule(id); }
+        auto fetchValue(ModuleId id)
+        {
+            NanotraceHR::Tracer tracer{"module stoeage adapter fetch value",
+                                       projectStorageCategory(),
+                                       NanotraceHR::keyValue("module id", id)};
 
-        auto fetchAll() { return storage.fetchAllModules(); }
+            return storage.fetchModule(id);
+        }
+
+        auto fetchAll()
+        {
+            NanotraceHR::Tracer tracer{"module stoeage adapter fetch all", projectStorageCategory()};
+
+            return storage.fetchAllModules();
+        }
 
         ProjectStorage &storage;
     };
