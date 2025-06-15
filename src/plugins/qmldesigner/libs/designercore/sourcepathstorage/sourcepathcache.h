@@ -168,22 +168,11 @@ private:
         Storage &storage;
     };
 
-    struct FileNameLess
+    struct Less
     {
         bool operator()(Utils::SmallStringView first, Utils::SmallStringView second) const noexcept
         {
             return first < second;
-        }
-    };
-
-    struct DirectoryPathLess
-    {
-        bool operator()(Utils::SmallStringView first, Utils::SmallStringView second) const noexcept
-        {
-            return std::ranges::lexicographical_compare(first.rbegin(),
-                                                        first.rend(),
-                                                        second.rbegin(),
-                                                        second.rend());
         }
     };
 
@@ -192,15 +181,15 @@ private:
                                             DirectoryPathId,
                                             DirectoryPathStorageAdapter,
                                             Mutex,
-                                            DirectoryPathLess,
+                                            Less,
                                             Cache::DirectoryPath>;
     using FileNameCache = StorageCache<Utils::SmallString,
-                                         Utils::SmallStringView,
-                                         FileNameId,
-                                         FileNameStorageAdapter,
-                                         Mutex,
-                                         FileNameLess,
-                                         Cache::FileName>;
+                                       Utils::SmallStringView,
+                                       FileNameId,
+                                       FileNameStorageAdapter,
+                                       Mutex,
+                                       Less,
+                                       Cache::FileName>;
 
 private:
     DirectoryPathStorageAdapter m_directoryPathStorageAdapter;
