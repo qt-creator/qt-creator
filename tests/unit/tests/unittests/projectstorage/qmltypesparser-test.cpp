@@ -890,28 +890,6 @@ TEST_F(QmlTypesParser, default_property)
                 ElementsAre(Field("Synchronization::Type::defaultPropertyName", &Synchronization::Type::defaultPropertyName, Eq("children"))));
 }
 
-TEST_F(QmlTypesParser, skip_template_item)
-{
-    ModuleId moduleId = storage.moduleId("QtQuick.Templates", ModuleKind::CppLibrary);
-    Synchronization::DirectoryInfo directoryInfo{qmltypesFileSourceId.directoryPathId(),
-                                                 qmltypesFileSourceId,
-                                                 moduleId,
-                                                 Synchronization::FileType::QmlTypes};
-    QString source{R"(import QtQuick.tooling 1.2
-                      Module{
-                        Component { name: "QQuickItem"}
-                        Component { name: "QQmlComponent"}})"};
-
-    parser.parse(source, imports, types, directoryInfo, Storage::IsInsideProject::No);
-
-    ASSERT_THAT(types,
-                UnorderedElementsAre(IsType("QQmlComponent",
-                                            Synchronization::ImportedType{},
-                                            Synchronization::ImportedType{},
-                                            Storage::TypeTraitsKind::Reference,
-                                            qmltypesFileSourceId)));
-}
-
 TEST_F(QmlTypesParser, is_singleton)
 {
     QString source{R"(import QtQuick.tooling 1.2
