@@ -140,23 +140,39 @@ Storage::Version createVersion(QTypeRevision qmlVersion)
     return Storage::Version{qmlVersion.majorVersion(), qmlVersion.minorVersion()};
 }
 
+ModuleId getQmlModuleId(const QString &name,
+                        QmlTypesParser::ProjectStorage &storage,
+                        Internal::LastModule &lastQmlModule)
+{
+    if (lastQmlModule.name == name)
+        return lastQmlModule.id;
+
+    ModuleId moduleId = storage.moduleId(Utils::PathString{name}, ModuleKind::QmlLibrary);
+
+    lastQmlModule.name = name;
+    lastQmlModule.id = moduleId;
+
+    return moduleId;
+}
+
 Storage::Synchronization::ExportedTypes createExports(const QList<QQmlJSScope::Export> &qmlExports,
-                                                      Utils::SmallStringView interanalName,
+                                                      Utils::SmallStringView internalName,
                                                       QmlTypesParser::ProjectStorage &storage,
-                                                      ModuleId cppModuleId)
+                                                      ModuleId cppModuleId,
+                                                      Internal::LastModule &lastQmlModule)
 {
     Storage::Synchronization::ExportedTypes exportedTypes;
     exportedTypes.reserve(Utils::usize(qmlExports));
 
     for (const QQmlJSScope::Export &qmlExport : qmlExports) {
         TypeNameString exportedTypeName{qmlExport.type()};
-        exportedTypes.emplace_back(storage.moduleId(Utils::SmallString{qmlExport.package()},
-                                                    ModuleKind::QmlLibrary),
+
+        exportedTypes.emplace_back(getQmlModuleId(qmlExport.package(), storage, lastQmlModule),
                                    std::move(exportedTypeName),
                                    createVersion(qmlExport.version()));
     }
 
-    TypeNameString cppExportedTypeName{interanalName};
+    TypeNameString cppExportedTypeName{internalName};
     exportedTypes.emplace_back(cppModuleId, cppExportedTypeName);
 
     return exportedTypes;
@@ -447,7 +463,8 @@ void addType(Storage::Synchronization::Types &types,
              const QQmlJSExportedScope &exportScope,
              QmlTypesParser::ProjectStorage &storage,
              const ComponentWithoutNamespaces &componentNameWithoutNamespace,
-             IsInsideProject isInsideProject)
+             IsInsideProject isInsideProject,
+             Internal::LastModule &lastQmlModule)
 {
     NanotraceHR::Tracer tracer{"add type",
                                category(),
@@ -472,7 +489,7 @@ void addType(Storage::Synchronization::Types &types,
                          component.isSingleton(),
                          isInsideProject),
         sourceId,
-        createExports(exports, typeName, storage, cppModuleId),
+        createExports(exports, typeName, storage, cppModuleId, lastQmlModule),
         createProperties(component.ownProperties(), enumerationTypes, componentNameWithoutNamespace),
         std::move(functionsDeclarations),
         std::move(signalDeclarations),
@@ -504,6 +521,8 @@ Utils::span<const QLatin1StringView> getSkipList(const Storage::Module &module)
 
 bool skipType(const QQmlJSExportedScope &object, Utils::span<const QLatin1StringView> skipList)
 {
+    NanotraceHR::Tracer tracer{"skip types", category()};
+
     return std::any_of(skipList.begin(), skipList.end(), [&](const QLatin1StringView skip) {
         return object.scope->internalName() == skip;
     });
@@ -514,7 +533,8 @@ void addTypes(Storage::Synchronization::Types &types,
               const QList<QQmlJSExportedScope> &objects,
               QmlTypesParser::ProjectStorage &storage,
               const ComponentWithoutNamespaces &componentNameWithoutNamespaces,
-              IsInsideProject isInsideProject)
+              IsInsideProject isInsideProject,
+              Internal::LastModule &lastQmlModule)
 {
     NanotraceHR::Tracer tracer{"add types", category()};
     types.reserve(Utils::usize(objects) + types.size());
@@ -531,7 +551,8 @@ void addTypes(Storage::Synchronization::Types &types,
                 object,
                 storage,
                 componentNameWithoutNamespaces,
-                isInsideProject);
+                isInsideProject,
+                lastQmlModule);
     }
 }
 
@@ -545,6 +566,9 @@ void QmlTypesParser::parse(const QString &sourceContent,
 {
     NanotraceHR::Tracer tracer{"qmltypes parser parse", category()};
 
+    lastQmlModule.name.clear();
+    lastQmlModule.id = ModuleId{};
+
     QQmlJSTypeDescriptionReader reader({}, sourceContent);
     QList<QQmlJSExportedScope> components;
     QStringList dependencies;
@@ -555,7 +579,13 @@ void QmlTypesParser::parse(const QString &sourceContent,
     auto componentNameWithoutNamespaces = createComponentNameWithoutNamespaces(components);
 
     addImports(imports, directoryInfo.sourceId, dependencies, m_storage, directoryInfo.moduleId);
-    addTypes(types, directoryInfo, components, m_storage, componentNameWithoutNamespaces, isInsideProject);
+    addTypes(types,
+             directoryInfo,
+             components,
+             m_storage,
+             componentNameWithoutNamespaces,
+             isInsideProject,
+             lastQmlModule);
 }
 
 #else

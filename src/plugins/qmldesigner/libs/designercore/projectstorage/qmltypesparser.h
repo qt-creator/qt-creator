@@ -18,6 +18,14 @@ namespace QmlDesigner {
 template<typename ProjectStorage, typename Mutex>
 class SourcePathCache;
 
+namespace Internal {
+struct LastModule
+{
+    QString name;
+    ModuleId id;
+};
+} // namespace Internal
+
 class QMLDESIGNERCORE_EXPORT QmlTypesParser final : public QmlTypesParserInterface
 {
 public:
@@ -39,6 +47,7 @@ public:
 private:
 #ifdef QDS_BUILD_QMLPARSER
     ProjectStorage &m_storage;
+    Internal::LastModule lastQmlModule;
 #endif
 };
 
