@@ -2151,7 +2151,9 @@ NodeMetaInfos NodeMetaInfo::prototypes([[maybe_unused]] SL sl) const
 }
 
 namespace {
-template<const char *moduleName, const char *typeName, ModuleKind moduleKind = ModuleKind::QmlLibrary>
+template<Storage::Info::StaticString moduleName,
+         Storage::Info::StaticString typeName,
+         ModuleKind moduleKind = ModuleKind::QmlLibrary>
 bool isBasedOnCommonType(NotNullPointer<const ProjectStorageType> projectStorage, TypeId typeId)
 {
     if (!typeId)

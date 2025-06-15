@@ -72,6 +72,8 @@ protected:
     {
         auto typeId = projectStorageMock.createType(moduleId, typeName, {});
 
+        projectStorageMock.typeCache.refreshTypeIds();
+
         return createDerivedDummyMetaInfo(typeId);
     }
 
@@ -82,6 +84,8 @@ protected:
         auto moduleId = projectStorageMock.createModule(moduleName, moduleKind);
         auto typeId = projectStorageMock.createType(moduleId, typeName, {});
 
+        projectStorageMock.typeCache.refreshTypeIds();
+
         return createDerivedDummyMetaInfo(typeId);
     }
 
@@ -90,6 +94,8 @@ protected:
                                              QmlDesigner::Storage::TypeTraits typeTraits = {})
     {
         auto typeId = projectStorageMock.createType(moduleId, typeName, typeTraits);
+
+        projectStorageMock.typeCache.refreshTypeIds();
 
         return QmlDesigner::NodeMetaInfo{typeId, &projectStorageMock};
     }
@@ -101,6 +107,8 @@ protected:
     {
         auto moduleId = projectStorageMock.createModule(moduleName, moduleKind);
         auto typeId = projectStorageMock.createType(moduleId, typeName, typeTraits);
+
+        projectStorageMock.typeCache.refreshTypeIds();
 
         return QmlDesigner::NodeMetaInfo{typeId, &projectStorageMock};
     }

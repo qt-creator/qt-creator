@@ -38,6 +38,8 @@ protected:
         auto moduleId = projectStorageMock.createModule(moduleName, moduleKind);
         auto typeId = projectStorageMock.createType(moduleId, typeName, typeTraits);
 
+        projectStorageMock.typeCache.refreshTypeIds();
+
         return QmlDesigner::NodeMetaInfo{typeId, &projectStorageMock};
     }
 

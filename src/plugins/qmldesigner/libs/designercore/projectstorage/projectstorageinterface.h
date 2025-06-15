@@ -103,7 +103,9 @@ public:
     virtual SourceId propertyEditorPathId(TypeId typeId) const = 0;
     virtual const Storage::Info::CommonTypeCache<ProjectStorageType> &commonTypeCache() const = 0;
 
-    template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
+    template<Storage::Info::StaticString moduleName,
+             Storage::Info::StaticString typeName,
+             Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
     TypeId commonTypeId() const
     {
         return commonTypeCache().template typeId<moduleName, typeName, moduleKind>();

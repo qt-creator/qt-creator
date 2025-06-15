@@ -382,11 +382,11 @@ struct ProjectStorage::Statements
         database};
     Sqlite::WriteStatement<1> deleteEnumerationDeclarationStatement{
         "DELETE FROM enumerationDeclarations WHERE enumerationDeclarationId=?", database};
-    mutable Sqlite::ReadStatement<1, 2> selectModuleIdByNameStatement{
-        "SELECT moduleId FROM modules WHERE kind=?1 AND name=?2 LIMIT 1", database};
+    mutable Sqlite::ReadStatement<1, 2> selectModuleNameStatement{
+        "SELECT moduleId FROM modules WHERE name=?1 AND kind=?2", database};
     mutable Sqlite::ReadWriteStatement<1, 2> upsertModuleNameStatement{
-        "INSERT INTO modules(kind, name) VALUES(?1, ?2) "
-        "ON CONFLICT DO UPDATE SET kind=?1, name=?2 "
+        "INSERT INTO modules(name, kind) VALUES(?1, ?2) "
+        "ON CONFLICT DO UPDATE SET name=?1, kind=?2 "
         "RETURNING moduleId",
         database};
     mutable Sqlite::ReadStatement<2, 1> selectModuleStatement{
@@ -1176,10 +1176,11 @@ public:
         auto &modelIdColumn = table.addColumn("moduleId",
                                               Sqlite::StrictColumnType::Integer,
                                               {Sqlite::PrimaryKey{}});
-        auto &kindColumn = table.addColumn("kind", Sqlite::StrictColumnType::Integer);
         auto &nameColumn = table.addColumn("name", Sqlite::StrictColumnType::Text);
+        auto &kindColumn = table.addColumn("kind", Sqlite::StrictColumnType::Integer);
 
-        table.addUniqueIndex({kindColumn, nameColumn});
+        table.addUniqueIndex({nameColumn, kindColumn});
+        table.addIndex({kindColumn});
 
         table.initialize(database);
 
@@ -1418,7 +1419,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
 
         resetBasesCache();
 
-        commonTypeCache_.resetTypeIds();
+        commonTypeCache_.refreshTypeIds();
     });
 
     callRefreshMetaInfoCallback(deletedTypeIds,
@@ -2933,7 +2934,10 @@ ModuleId ProjectStorage::fetchModuleIdUnguarded(Utils::SmallStringView name,
                                keyValue("module name", name),
                                keyValue("module kind", kind)};
 
-    auto moduleId = s->upsertModuleNameStatement.value<ModuleId>(kind, name);
+    auto moduleId = s->selectModuleNameStatement.value<ModuleId>(name, kind);
+
+    if (not moduleId)
+        moduleId = s->upsertModuleNameStatement.value<ModuleId>(name, kind);
 
     tracer.end(keyValue("module id", moduleId));
 
@@ -4724,6 +4728,7 @@ std::tuple<ImportedTypeNameId, Storage::Synchronization::TypeNameKind> ProjectSt
     const Storage::Synchronization::ImportedTypeName &name, SourceId sourceId)
 {
     using Storage::Synchronization::TypeNameKind;
+
     struct Inspect
     {
         auto operator()(const Storage::Synchronization::ImportedType &importedType)

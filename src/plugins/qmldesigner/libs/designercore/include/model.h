@@ -377,7 +377,9 @@ public:
     void emitRewriterEndTransaction(SL sl = {});
 
 private:
-    template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
+    template<Storage::Info::StaticString moduleName,
+             Storage::Info::StaticString typeName,
+             Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
     NodeMetaInfo createNodeMetaInfo() const;
     void detachAllViews();
 

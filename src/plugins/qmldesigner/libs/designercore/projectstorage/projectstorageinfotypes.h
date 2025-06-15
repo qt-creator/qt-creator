@@ -305,6 +305,17 @@ public:
 
 namespace QmlDesigner::Storage::Info {
 
+template<std::size_t size>
+struct StaticString
+{
+    char data[size];
+
+    operator Utils::SmallStringView() const { return {data, size - 1}; }
+};
+
+template<std::size_t size>
+StaticString(const char (&)[size]) -> StaticString<size>;
+
 struct TypeHint
 {
     TypeHint(Utils::SmallStringView name, Utils::SmallStringView expression)

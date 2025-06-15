@@ -2696,7 +2696,7 @@ NodeMetaInfo Model::floatMetaInfo() const
 #endif
 }
 
-template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind>
+template<Storage::Info::StaticString moduleName, Storage::Info::StaticString typeName, Storage::ModuleKind moduleKind>
 NodeMetaInfo Model::createNodeMetaInfo() const
 {
     auto typeId = d->projectStorage->commonTypeCache().typeId<moduleName, typeName, moduleKind>();

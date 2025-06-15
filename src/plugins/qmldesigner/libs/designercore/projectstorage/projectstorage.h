@@ -129,7 +129,9 @@ public:
         return commonTypeCache_;
     }
 
-    template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
+    template<Storage::Info::StaticString moduleName,
+             Storage::Info::StaticString typeName,
+             Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
     TypeId commonTypeId() const
     {
         using NanotraceHR::keyValue;
@@ -159,7 +161,7 @@ public:
         return typeId;
     }
 
-    template<const char *builtinType>
+    template<Storage::Info::StaticString builtinType>
     TypeId builtinTypeId() const
     {
         using NanotraceHR::keyValue;

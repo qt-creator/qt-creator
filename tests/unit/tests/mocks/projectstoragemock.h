@@ -445,5 +445,6 @@ public:
         setupQtQuick();
         setupQtQuickImportedTypeNameIds(sourceId);
         setupCommonTypeCache();
+        typeCache.refreshTypeIds();
     }
 };
