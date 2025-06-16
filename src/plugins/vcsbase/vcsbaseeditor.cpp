@@ -1222,9 +1222,15 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
             unicode += QLatin1Char('\n');
         }
     }
-    const TextCodec cd = textDocument()->codec();
-    rc.chunk = cd.isValid() ? cd.fromUnicode(unicode) : unicode.toLocal8Bit();
-    rc.header = cd.isValid() ? cd.fromUnicode(header) : header.toLocal8Bit();
+    const TextEncoding encoding = textDocument()->encoding();
+    if (encoding.isValid()) {
+        QStringEncoder encoder(encoding);
+        rc.chunk = encoder.encode(unicode);
+        rc.header = encoder.encode(header);
+    } else {
+        rc.chunk = unicode.toLocal8Bit();
+        rc.header = header.toLocal8Bit();
+    }
     return rc;
 }
 
@@ -1238,7 +1244,7 @@ static TextEncoding findFileCodec(const FilePath &source)
 }
 
 // Find the codec by checking the projects (root dir of project file)
-static TextEncoding findProjectCodec(const FilePath &dirPath)
+static TextEncoding findProjectEncoding(const FilePath &dirPath)
 {
     // Try to find a project under which file tree the file is.
     const auto projects = ProjectExplorer::ProjectManager::projects();
@@ -1255,7 +1261,7 @@ TextEncoding VcsBaseEditor::getEncoding(const FilePath &source)
             if (TextEncoding fc = findFileCodec(source); fc.isValid())
                 return fc;
         // Find by project via directory
-        if (TextEncoding pc = findProjectCodec(source.isFile() ? source.absolutePath() : source); pc.isValid())
+        if (TextEncoding pc = findProjectEncoding(source.isFile() ? source.absolutePath() : source); pc.isValid())
             return pc;
     }
     return QStringConverter::System;
