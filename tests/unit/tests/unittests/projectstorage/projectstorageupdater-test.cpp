@@ -89,6 +89,7 @@ using Storage::Synchronization::Type;
 using Storage::TypeTraits;
 using Storage::TypeTraitsKind;
 using Storage::Version;
+using Storage::VersionNumber;
 using FileState = QmlDesigner::ProjectStorageUpdater::FileState;
 using Update = QmlDesigner::ProjectStorageUpdater::Update;
 using IsInsideProject = QmlDesigner::QmlDocumentParserInterface::IsInsideProject;
@@ -1806,36 +1807,44 @@ TEST_P(synchronize_changed_qml_documents, types)
     EXPECT_CALL(
         projectStorageMock,
         synchronize(AllOf(
-            Field(
-                &SynchronizationPackage::types,
-                UnorderedElementsAre(
-                    AllOf(IsStorageType("First.qml",
-                                        ImportedType{"Object"},
-                                        TypeTraitsKind::Reference,
-                                        qmlDocument1SourceId,
-                                        ChangeLevel::Full),
-                          Field("Type::exportedTypes",
-                                &Type::exportedTypes,
-                                UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0),
-                                                     IsExportedType(pathModuleId, "First", -1, -1)))),
-                    AllOf(IsStorageType("First2.qml",
-                                        ImportedType{"Object2"},
-                                        TypeTraitsKind::Reference,
-                                        qmlDocument1_2SourceId,
-                                        ChangeLevel::Full),
-                          Field("Type::exportedTypes",
-                                &Type::exportedTypes,
-                                UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 2, 2),
-                                                     IsExportedType(pathModuleId, "First2", -1, -1)))),
-                    AllOf(IsStorageType("Second.qml",
-                                        ImportedType{"Object3"},
-                                        TypeTraitsKind::Reference,
-                                        qmlDocument2SourceId,
-                                        ChangeLevel::Full),
-                          Field("Type::exportedTypes",
-                                &Type::exportedTypes,
-                                UnorderedElementsAre(IsExportedType(exampleModuleId, "SecondType", 2, 2),
-                                                     IsExportedType(pathModuleId, "Second", -1, -1)))))),
+            Field(&SynchronizationPackage::types,
+                  UnorderedElementsAre(
+                      AllOf(IsStorageType("First.qml",
+                                          ImportedType{"Object"},
+                                          TypeTraitsKind::Reference,
+                                          qmlDocument1SourceId,
+                                          ChangeLevel::Full),
+                            Field("Type::exportedTypes",
+                                  &Type::exportedTypes,
+                                  UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1U, 0U),
+                                                       IsExportedType(pathModuleId,
+                                                                      "First",
+                                                                      VersionNumber::noVersion,
+                                                                      VersionNumber::noVersion)))),
+                      AllOf(IsStorageType("First2.qml",
+                                          ImportedType{"Object2"},
+                                          TypeTraitsKind::Reference,
+                                          qmlDocument1_2SourceId,
+                                          ChangeLevel::Full),
+                            Field("Type::exportedTypes",
+                                  &Type::exportedTypes,
+                                  UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 2U, 2U),
+                                                       IsExportedType(pathModuleId,
+                                                                      "First2",
+                                                                      VersionNumber::noVersion,
+                                                                      VersionNumber::noVersion)))),
+                      AllOf(IsStorageType("Second.qml",
+                                          ImportedType{"Object3"},
+                                          TypeTraitsKind::Reference,
+                                          qmlDocument2SourceId,
+                                          ChangeLevel::Full),
+                            Field("Type::exportedTypes",
+                                  &Type::exportedTypes,
+                                  UnorderedElementsAre(IsExportedType(exampleModuleId, "SecondType", 2U, 2U),
+                                                       IsExportedType(pathModuleId,
+                                                                      "Second",
+                                                                      VersionNumber::noVersion,
+                                                                      VersionNumber::noVersion)))))),
             Field("SynchronizationPackage::updatedSourceIds",
                   &SynchronizationPackage::updatedSourceIds,
                   IsSupersetOf({qmlDocument1SourceId, qmlDocument1_2SourceId, qmlDocument2SourceId})))));
@@ -2091,24 +2100,28 @@ TEST_P(synchronize_changed_qml_documents, types_in_qmldir_only)
     }
     setQmlFileNames(u"/path", {"First.qml"});
 
-    EXPECT_CALL(projectStorageMock,
-                synchronize(
-                    AllOf(Field("SynchronizationPackage::types",
-                                &SynchronizationPackage::types,
-                                AllOf(Contains(AllOf(
-                                    IsStorageType("First.qml",
-                                                  ImportedType{},
-                                                  TypeTraitsKind::None,
-                                                  qmlDocument1SourceId,
-                                                  ChangeLevel::Minimal),
-                                    Field("Type::exportedTypes",
-                                          &Type::exportedTypes,
-                                          UnorderedElementsAre(
-                                              IsExportedType(pathModuleId, "First", -1, -1),
-                                              IsExportedType(exampleModuleId, "FirstType", 1, 0))))))),
-                          Field("SynchronizationPackage::updatedSourceIds",
-                                &SynchronizationPackage::updatedSourceIds,
-                                Contains(qmlDocument1SourceId)))));
+    EXPECT_CALL(
+        projectStorageMock,
+        synchronize(
+            AllOf(Field("SynchronizationPackage::types",
+                        &SynchronizationPackage::types,
+                        AllOf(Contains(
+                            AllOf(IsStorageType("First.qml",
+                                                ImportedType{},
+                                                TypeTraitsKind::None,
+                                                qmlDocument1SourceId,
+                                                ChangeLevel::Minimal),
+                                  Field("Type::exportedTypes",
+                                        &Type::exportedTypes,
+                                        UnorderedElementsAre(
+                                            IsExportedType(pathModuleId,
+                                                           "First",
+                                                           VersionNumber::noVersion,
+                                                           VersionNumber::noVersion),
+                                            IsExportedType(exampleModuleId, "FirstType", 1U, 0U))))))),
+                  Field("SynchronizationPackage::updatedSourceIds",
+                        &SynchronizationPackage::updatedSourceIds,
+                        Contains(qmlDocument1SourceId)))));
 
     updater.update(update);
 }
@@ -2196,24 +2209,27 @@ TEST_P(synchronize_changed_qml_documents, types_without_qmldir)
 
     EXPECT_CALL(
         projectStorageMock,
-        synchronize(
-            AllOf(Field("SynchronizationPackage::types",
-                        &SynchronizationPackage::types,
-                        AllOf(Not(Contains(Field("Type::typeName", &Type::typeName, "First.qml"))),
-                              Contains(AllOf(IsStorageType("First2.qml",
-                                                           ImportedType{"Object2"},
-                                                           TypeTraitsKind::Reference,
-                                                           qmlDocument1_2SourceId,
-                                                           changeLevel),
-                                             Field("Type::exportedTypes",
-                                                   &Type::exportedTypes,
-                                                   Conditional(isAdded,
-                                                               UnorderedElementsAre(IsExportedType(
-                                                                   pathModuleId, "First2", -1, -1)),
-                                                               IsEmpty())))))),
-                  Field("SynchronizationPackage::updatedSourceIds",
-                        &SynchronizationPackage::updatedSourceIds,
-                        AllOf(Not(Contains(qmlDocument1SourceId)), Contains(qmlDocument1_2SourceId))))));
+        synchronize(AllOf(
+            Field("SynchronizationPackage::types",
+                  &SynchronizationPackage::types,
+                  AllOf(Not(Contains(Field("Type::typeName", &Type::typeName, "First.qml"))),
+                        Contains(AllOf(IsStorageType("First2.qml",
+                                                     ImportedType{"Object2"},
+                                                     TypeTraitsKind::Reference,
+                                                     qmlDocument1_2SourceId,
+                                                     changeLevel),
+                                       Field("Type::exportedTypes",
+                                             &Type::exportedTypes,
+                                             Conditional(isAdded,
+                                                         UnorderedElementsAre(
+                                                             IsExportedType(pathModuleId,
+                                                                            "First2",
+                                                                            VersionNumber::noVersion,
+                                                                            VersionNumber::noVersion)),
+                                                         IsEmpty())))))),
+            Field("SynchronizationPackage::updatedSourceIds",
+                  &SynchronizationPackage::updatedSourceIds,
+                  AllOf(Not(Contains(qmlDocument1SourceId)), Contains(qmlDocument1_2SourceId))))));
 
     updater.update(update);
 }
@@ -2480,45 +2496,55 @@ TEST_P(synchronize_not_existing_qml_documents, types_in_qmldir_only)
 
     EXPECT_CALL(
         projectStorageMock,
-        synchronize(AllOf(
-            Field("SynchronizationPackage::types",
-                  &SynchronizationPackage::types,
-                  Conditional(isRemoved,
-                              UnorderedElementsAre(
-                                  AllOf(IsStorageType("First.qml",
-                                                      ImportedType{},
-                                                      TypeTraits{},
-                                                      qmlDocument1SourceId,
-                                                      ChangeLevel::Minimal),
-                                        Field("Type::exportedTypes",
-                                              &Type::exportedTypes,
-                                              UnorderedElementsAre(
-                                                  IsExportedType(pathModuleId, "First", -1, -1)))),
-                                  AllOf(IsStorageType("First2.qml",
-                                                      ImportedType{},
-                                                      TypeTraits{},
-                                                      qmlDocument1_2SourceId,
-                                                      ChangeLevel::Minimal),
-                                        Field("Type::exportedTypes",
-                                              &Type::exportedTypes,
-                                              UnorderedElementsAre(
-                                                  IsExportedType(pathModuleId, "First2", -1, -1)))),
-                                  AllOf(IsStorageType("Second.qml",
-                                                      ImportedType{},
-                                                      TypeTraits{},
-                                                      qmlDocument2SourceId,
-                                                      ChangeLevel::Minimal),
-                                        Field("Type::exportedTypes",
-                                              &Type::exportedTypes,
-                                              UnorderedElementsAre(
-                                                  IsExportedType(pathModuleId, "Second", -1, -1))))),
-                              IsEmpty())),
-            Field("SynchronizationPackage::updatedSourceIds",
-                  &SynchronizationPackage::updatedSourceIds,
-                  Conditional(isRemoved,
-                              IsSupersetOf(
-                                  {qmlDocument1SourceId, qmlDocument1_2SourceId, qmlDocument2SourceId}),
-                              IsEmpty())))));
+        synchronize(
+            AllOf(Field("SynchronizationPackage::types",
+                        &SynchronizationPackage::types,
+                        Conditional(isRemoved,
+                                    UnorderedElementsAre(
+                                        AllOf(IsStorageType("First.qml",
+                                                            ImportedType{},
+                                                            TypeTraits{},
+                                                            qmlDocument1SourceId,
+                                                            ChangeLevel::Minimal),
+                                              Field("Type::exportedTypes",
+                                                    &Type::exportedTypes,
+                                                    UnorderedElementsAre(
+                                                        IsExportedType(pathModuleId,
+                                                                       "First",
+                                                                       VersionNumber::noVersion,
+                                                                       VersionNumber::noVersion)))),
+                                        AllOf(IsStorageType("First2.qml",
+                                                            ImportedType{},
+                                                            TypeTraits{},
+                                                            qmlDocument1_2SourceId,
+                                                            ChangeLevel::Minimal),
+                                              Field("Type::exportedTypes",
+                                                    &Type::exportedTypes,
+                                                    UnorderedElementsAre(
+                                                        IsExportedType(pathModuleId,
+                                                                       "First2",
+                                                                       VersionNumber::noVersion,
+                                                                       VersionNumber::noVersion)))),
+                                        AllOf(IsStorageType("Second.qml",
+                                                            ImportedType{},
+                                                            TypeTraits{},
+                                                            qmlDocument2SourceId,
+                                                            ChangeLevel::Minimal),
+                                              Field("Type::exportedTypes",
+                                                    &Type::exportedTypes,
+                                                    UnorderedElementsAre(
+                                                        IsExportedType(pathModuleId,
+                                                                       "Second",
+                                                                       VersionNumber::noVersion,
+                                                                       VersionNumber::noVersion))))),
+                                    IsEmpty())),
+                  Field("SynchronizationPackage::updatedSourceIds",
+                        &SynchronizationPackage::updatedSourceIds,
+                        Conditional(isRemoved,
+                                    IsSupersetOf({qmlDocument1SourceId,
+                                                  qmlDocument1_2SourceId,
+                                                  qmlDocument2SourceId}),
+                                    IsEmpty())))));
 
     updater.update(update);
 }
@@ -2683,7 +2709,7 @@ TEST_P(synchronize_not_existing_qml_documents, without_parsed_type_if_qml_docume
                                       Contains(Field("Type::exportedTypes",
                                                      &Type::exportedTypes,
                                                      UnorderedElementsAre(IsExportedType(
-                                                         exampleModuleId, "FirstType", 1, 0)))),
+                                                         exampleModuleId, "FirstType", 1U, 0U)))),
                                       IsEmpty())),
                     Field("SynchronizationPackage::updatedSourceIds",
                           &SynchronizationPackage::updatedSourceIds,
@@ -2759,10 +2785,13 @@ TEST_F(ProjectStorageUpdater_synchronize_qml_documents,
                   UnorderedElementsAre(
                       Field("Type::exportedTypes",
                             &Type::exportedTypes,
-                            UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0),
-                                                 IsExportedType(exampleModuleId, "FirstType", 1, 1),
-                                                 IsExportedType(exampleModuleId, "FirstType", 6, 0),
-                                                 IsExportedType(pathModuleId, "First", -1, -1))))))));
+                            UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1U, 0U),
+                                                 IsExportedType(exampleModuleId, "FirstType", 1U, 1U),
+                                                 IsExportedType(exampleModuleId, "FirstType", 6U, 0U),
+                                                 IsExportedType(pathModuleId,
+                                                                "First",
+                                                                VersionNumber::noVersion,
+                                                                VersionNumber::noVersion))))))));
 
     updater.update({.projectDirectory = "/path"});
 }
@@ -2785,9 +2814,12 @@ TEST_F(ProjectStorageUpdater_synchronize_qml_documents,
                   UnorderedElementsAre(
                       Field("Type::exportedTypes",
                             &Type::exportedTypes,
-                            UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0),
-                                                 IsExportedType(exampleModuleId, "FirstType2", 1, 0),
-                                                 IsExportedType(pathModuleId, "First", -1, -1))))))));
+                            UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1U, 0U),
+                                                 IsExportedType(exampleModuleId, "FirstType2", 1U, 0U),
+                                                 IsExportedType(pathModuleId,
+                                                                "First",
+                                                                VersionNumber::noVersion,
+                                                                VersionNumber::noVersion))))))));
 
     updater.update({.projectDirectory = "/path"});
 }
@@ -2806,7 +2838,7 @@ TEST_F(ProjectStorageUpdater_synchronize_qml_documents, dont_synchronize_selecto
                     &SynchronizationPackage::types,
                     Contains(Field("Type::exportedTypes",
                                    &Type::exportedTypes,
-                                   Contains(IsExportedType(exampleModuleId, "FirstType", 1, 0))))))));
+                                   Contains(IsExportedType(exampleModuleId, "FirstType", 1U, 0U))))))));
 
     updater.update({.qtDirectories = {"/path"}});
 }
@@ -3499,8 +3531,11 @@ TEST_P(watcher_document_changes, types)
                                       Conditional(isDirectorAndQmldirUnchanged,
                                                   IsEmpty(),
                                                   UnorderedElementsAre(
-                                                      IsExportedType(exampleModuleId, "FirstType", 1, 0),
-                                                      IsExportedType(pathModuleId, "First", -1, -1))))),
+                                                      IsExportedType(exampleModuleId, "FirstType", 1U, 0U),
+                                                      IsExportedType(pathModuleId,
+                                                                     "First",
+                                                                     VersionNumber::noVersion,
+                                                                     VersionNumber::noVersion))))),
                           AllOf(Conditional(isDocumentUnchanged,
                                             IsStorageType("Second.qml",
                                                           ImportedType{},
@@ -3520,10 +3555,16 @@ TEST_P(watcher_document_changes, types)
                                           Conditional(
                                               noSecondTypeInQmldir,
                                               UnorderedElementsAre(
-                                                  IsExportedType(pathModuleId, "Second", -1, -1)),
+                                                  IsExportedType(pathModuleId,
+                                                                 "Second",
+                                                                 VersionNumber::noVersion,
+                                                                 VersionNumber::noVersion)),
                                               UnorderedElementsAre(
-                                                  IsExportedType(exampleModuleId, "SecondType", 2, 2),
-                                                  IsExportedType(pathModuleId, "Second", -1, -1))))))))),
+                                                  IsExportedType(exampleModuleId, "SecondType", 2U, 2U),
+                                                  IsExportedType(pathModuleId,
+                                                                 "Second",
+                                                                 VersionNumber::noVersion,
+                                                                 VersionNumber::noVersion))))))))),
             Field("SynchronizationPackage::updatedSourceIds",
                   &SynchronizationPackage::updatedSourceIds,
                   Conditional(isIgnoredPartId,
@@ -3786,7 +3827,7 @@ TEST_P(watcher_document_not_existing, types)
                                                    Field("Type::exportedTypes",
                                                          &Type::exportedTypes,
                                                          UnorderedElementsAre(IsExportedType(
-                                                             exampleModuleId, "FirstType", 1, 0))))),
+                                                             exampleModuleId, "FirstType", 1U, 0U))))),
                                     Contains(AllOf(IsStorageType("Second.qml",
                                                                  ImportedType{},
                                                                  TypeTraitsKind::None,
@@ -3795,7 +3836,7 @@ TEST_P(watcher_document_not_existing, types)
                                                    Field("Type::exportedTypes",
                                                          &Type::exportedTypes,
                                                          UnorderedElementsAre(IsExportedType(
-                                                             exampleModuleId, "SecondType", 2, 2)))))
+                                                             exampleModuleId, "SecondType", 2U, 2U)))))
                                         .Times(noSecondTypeInQmldir ? 0 : 1)))),
             Field("SynchronizationPackage::updatedSourceIds",
                   &SynchronizationPackage::updatedSourceIds,

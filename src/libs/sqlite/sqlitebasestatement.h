@@ -649,6 +649,11 @@ private:
 
         operator long() const { return statement.fetchLongValue(column); }
 
+        operator unsigned int() const
+        {
+            return static_cast<unsigned int>(statement.fetchLongLongValue(column));
+        }
+
         operator long long() const { return statement.fetchLongLongValue(column); }
 
         operator double() const { return statement.fetchDoubleValue(column); }

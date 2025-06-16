@@ -130,7 +130,7 @@ struct ProjectStorage::Statements
         "WHERE t.typeId=?",
         database};
     mutable Sqlite::ReadStatement<5, 1> selectExportedTypesByTypeIdStatement{
-        "SELECT moduleId, typeId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) "
+        "SELECT moduleId, typeId, name, majorVersion, minorVersion "
         "FROM exportedTypeNames "
         "WHERE typeId=?",
         database};
@@ -138,8 +138,8 @@ struct ProjectStorage::Statements
         "SELECT etn.moduleId, "
         "  typeId, "
         "  name, "
-        "  ifnull(etn.majorVersion, -1), "
-        "  ifnull(etn.minorVersion, -1) "
+        "  etn.majorVersion, "
+        "  etn.minorVersion "
         "FROM exportedTypeNames AS etn "
         "JOIN documentImports USING(moduleId) "
         "WHERE typeId=?1 AND sourceId=?2",
@@ -186,7 +186,7 @@ struct ProjectStorage::Statements
         "SELECT DISTINCT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN "
         "carray(?2))",
         database};
-    Sqlite::WriteStatement<1> deleteTypeNamesByTypeIdStatement{
+    Sqlite::WriteStatement<1> deleteExportedTypeNamesByTypeIdStatement{
         "DELETE FROM exportedTypeNames WHERE typeId=?", database};
     Sqlite::WriteStatement<1> deleteEnumerationDeclarationByTypeIdStatement{
         "DELETE FROM enumerationDeclarations WHERE typeId=?", database};
@@ -630,13 +630,16 @@ struct ProjectStorage::Statements
         "RETURNING importedTypeNameId",
         database};
     mutable Sqlite::ReadStatement<1, 2> selectImportIdBySourceIdAndModuleIdStatement{
-        "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND "
-        "majorVersion "
-        "IS NULL AND minorVersion IS NULL LIMIT 1",
+        "SELECT importId "
+        "FROM documentImports "
+        "WHERE sourceId=?1 AND moduleId=?2 AND majorVersion=0xFFFFFFFF AND minorVersion=0xFFFFFFFF "
+        "LIMIT 1",
         database};
     mutable Sqlite::ReadStatement<1, 3> selectImportIdBySourceIdAndModuleIdAndMajorVersionStatement{
-        "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND "
-        "majorVersion=?3 AND minorVersion IS NULL LIMIT 1",
+        "SELECT importId "
+        "FROM documentImports "
+        "WHERE sourceId=?1 AND moduleId=?2 AND majorVersion=?3 AND minorVersion=0xFFFFFFFF "
+        "LIMIT 1",
         database};
     mutable Sqlite::ReadStatement<1, 4> selectImportIdBySourceIdAndModuleIdAndVersionStatement{
         "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND "
@@ -647,53 +650,57 @@ struct ProjectStorage::Statements
     mutable Sqlite::ReadStatement<1, 1> selectNameFromImportedTypeNamesStatement{
         "SELECT name FROM importedTypeNames WHERE importedTypeNameId=?1", database};
     mutable Sqlite::ReadStatement<1, 1> selectTypeIdForQualifiedImportedTypeNameNamesStatement{
-        "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
-        "importOrSourceId=di.importId JOIN documentImports AS di2 ON di.sourceId=di2.sourceId "
-        "AND "
-        "di.moduleId=di2.sourceModuleId "
-        "JOIN exportedTypeNames AS etn ON di2.moduleId=etn.moduleId WHERE "
-        "itn.kind=2 AND importedTypeNameId=?1 AND itn.name=etn.name AND "
-        "(di.majorVersion IS NULL OR (di.majorVersion=etn.majorVersion AND (di.minorVersion IS "
-        "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY etn.majorVersion DESC NULLS "
-        "FIRST, "
-        "etn.minorVersion DESC NULLS FIRST LIMIT 1",
-        database};
-    mutable Sqlite::ReadStatement<1, 1> selectTypeIdForImportedTypeNameNamesStatement{
-        "WITH "
-        "  importTypeNames(moduleId, name, kind, majorVersion, minorVersion) AS ( "
-        "    SELECT moduleId, name, di.kind, majorVersion, minorVersion "
-        "    FROM importedTypeNames AS itn JOIN documentImports AS di ON "
-        "      importOrSourceId=sourceId "
-        "    WHERE "
-        "      importedTypeNameId=?1 AND itn.kind=1) "
-        "SELECT typeId FROM importTypeNames AS itn "
-        "  JOIN exportedTypeNames AS etn USING(moduleId, name) "
-        "WHERE (itn.majorVersion IS NULL OR (itn.majorVersion=etn.majorVersion "
-        "  AND (itn.minorVersion IS NULL OR itn.minorVersion>=etn.minorVersion))) "
-        "ORDER BY itn.kind, etn.majorVersion DESC NULLS FIRST, etn.minorVersion DESC NULLS "
-        "FIRST "
+        "SELECT typeId "
+        "FROM importedTypeNames AS itn "
+        "  JOIN documentImports AS di ON importOrSourceId=di.importId "
+        "  JOIN documentImports AS di2 ON di.sourceId=di2.sourceId "
+        "    AND di.moduleId=di2.sourceModuleId "
+        "  JOIN exportedTypeNames AS etn ON di2.moduleId=etn.moduleId "
+        "WHERE itn.kind=2 "
+        "  AND importedTypeNameId=?1 "
+        "  AND itn.name=etn.name "
+        "  AND (di.majorVersion=0xFFFFFFFF "
+        "    OR (di.majorVersion=etn.majorVersion "
+        "      AND (di.minorVersion=0xFFFFFFFF OR di.minorVersion>=etn.minorVersion))) "
+        "ORDER BY etn.majorVersion DESC, etn.minorVersion DESC "
         "LIMIT 1",
         database};
-    mutable Sqlite::ReadStatement<6, 1> selectExportedTypesForSourceIdsStatement{
-        "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1), typeId, "
-        "exportedTypeNameId FROM exportedTypeNames WHERE typeId in carray(?1) ORDER BY "
-        "moduleId, "
-        "name, majorVersion, minorVersion",
+    mutable Sqlite::ReadStatement<1, 1> selectTypeIdForImportedTypeNameNamesStatement{
+        "SELECT typeId FROM importedTypeNames AS itn "
+        "  JOIN exportedTypeNames AS etn USING(name) "
+        "  JOIN documentImports AS di ON importOrSourceId=sourceId "
+        "WHERE  importedTypeNameId=?1 "
+        "  AND itn.kind=1 "
+        "  AND etn.moduleId=di.moduleId "
+        "  AND (di.majorVersion=0xFFFFFFFF "
+        "    OR (di.majorVersion=etn.majorVersion "
+        "      AND (di.minorVersion=0xFFFFFFFF OR di.minorVersion>=etn.minorVersion))) "
+        "ORDER BY di.kind, etn.majorVersion DESC, etn.minorVersion DESC "
+        "LIMIT 1",
         database};
-    Sqlite::WriteStatement<5> insertExportedTypeNamesWithVersionStatement{
+    mutable Sqlite::ReadStatement<5, 1> selectExportedTypesForSourceIdsStatement{
+        "SELECT moduleId, "
+        "       name, "
+        "       majorVersion, "
+        "       minorVersion, "
+        "       typeId "
+        "FROM exportedTypeNames "
+        "WHERE typeId in carray(?1) "
+        "ORDER BY name, moduleId, majorVersion, minorVersion",
+        database};
+    Sqlite::WriteStatement<5> insertExportedTypeNamesStatement{
         "INSERT INTO exportedTypeNames(moduleId, name, majorVersion, minorVersion, typeId) "
         "VALUES(?1, ?2, ?3, ?4, ?5)",
         database};
-    Sqlite::WriteStatement<4> insertExportedTypeNamesWithMajorVersionStatement{
-        "INSERT INTO exportedTypeNames(moduleId, name, majorVersion, typeId) "
-        "VALUES(?1, ?2, ?3, ?4)",
+    Sqlite::WriteStatement<4> deleteExportedTypeNameStatement{
+        "DELETE FROM exportedTypeNames "
+        "WHERE name=?2 AND moduleId=?1 AND majorVersion=?3 AND minorVersion=?4",
         database};
-    Sqlite::WriteStatement<3> insertExportedTypeNamesWithoutVersionStatement{
-        "INSERT INTO exportedTypeNames(moduleId, name, typeId) VALUES(?1, ?2, ?3)", database};
-    Sqlite::WriteStatement<1> deleteExportedTypeNameStatement{
-        "DELETE FROM exportedTypeNames WHERE exportedTypeNameId=?", database};
-    Sqlite::WriteStatement<2> updateExportedTypeNameTypeIdStatement{
-        "UPDATE exportedTypeNames SET typeId=?2 WHERE exportedTypeNameId=?1", database};
+    Sqlite::WriteStatement<5> updateExportedTypeNameTypeIdStatement{
+        "UPDATE exportedTypeNames "
+        "SET typeId=?5 "
+        "WHERE name=?2 AND moduleId=?1 AND majorVersion=?3 AND minorVersion=?4",
+        database};
     mutable Sqlite::ReadStatement<4, 1> selectDirectoryInfosForDirectoryIdsStatement{
         "SELECT directoryId, sourceId, moduleId, fileType FROM directoryInfos WHERE "
         "directoryId IN carray(?1) ORDER BY directoryId, sourceId",
@@ -725,17 +732,15 @@ struct ProjectStorage::Statements
     mutable Sqlite::ReadStatement<1, 1> selectTypeIdsForSourceIdsStatement{
         "SELECT typeId FROM types WHERE sourceId IN carray(?1)", database};
     mutable Sqlite::ReadStatement<6, 1> selectModuleExportedImportsForSourceIdStatement{
-        "SELECT moduleExportedImportId, moduleId, exportedModuleId, ifnull(majorVersion, -1), "
-        "ifnull(minorVersion, -1), isAutoVersion FROM moduleExportedImports WHERE moduleId IN "
-        "carray(?1) ORDER BY moduleId, exportedModuleId",
-        database};
-    Sqlite::WriteStatement<3> insertModuleExportedImportWithoutVersionStatement{
-        "INSERT INTO moduleExportedImports(moduleId, exportedModuleId, isAutoVersion) "
-        "VALUES (?1, ?2, ?3)",
-        database};
-    Sqlite::WriteStatement<4> insertModuleExportedImportWithMajorVersionStatement{
-        "INSERT INTO moduleExportedImports(moduleId, exportedModuleId, isAutoVersion, "
-        "majorVersion) VALUES (?1, ?2, ?3, ?4)",
+        "SELECT moduleExportedImportId, "
+        "       moduleId, "
+        "       exportedModuleId, "
+        "       majorVersion, "
+        "       minorVersion, "
+        "       isAutoVersion "
+        "FROM moduleExportedImports "
+        "WHERE moduleId IN carray(?1) "
+        "ORDER BY moduleId, exportedModuleId",
         database};
     Sqlite::WriteStatement<5> insertModuleExportedImportWithVersionStatement{
         "INSERT INTO moduleExportedImports(moduleId, exportedModuleId, isAutoVersion, "
@@ -757,7 +762,7 @@ struct ProjectStorage::Statements
         "             iif(mei.isAutoVersion=1, i.minorVersion, mei.minorVersion), "
         "             mei.moduleExportedImportId "
         "        FROM moduleExportedImports AS mei JOIN imports AS i USING(moduleId)) "
-        "SELECT DISTINCT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1) "
+        "SELECT DISTINCT moduleId, majorVersion, minorVersion "
         "FROM imports",
         database};
     mutable Sqlite::ReadStatement<1, 1> selectLocalPropertyDeclarationIdsForTypeStatement{
@@ -1072,28 +1077,21 @@ public:
     {
         Sqlite::StrictTable table;
         table.setUseIfNotExists(true);
+        table.setUseWithoutRowId(true);
         table.setName("exportedTypeNames");
-        table.addColumn("exportedTypeNameId",
-                        Sqlite::StrictColumnType::Integer,
-                        {Sqlite::PrimaryKey{}});
+        auto &nameColumn = table.addColumn("name", Sqlite::StrictColumnType::Text);
         auto &moduleIdColumn = table.addForeignKeyColumn("moduleId",
                                                          foreignModuleIdColumn,
                                                          Sqlite::ForeignKeyAction::NoAction,
                                                          Sqlite::ForeignKeyAction::NoAction);
-        auto &nameColumn = table.addColumn("name", Sqlite::StrictColumnType::Text);
         auto &typeIdColumn = table.addColumn("typeId", Sqlite::StrictColumnType::Integer);
         auto &majorVersionColumn = table.addColumn("majorVersion", Sqlite::StrictColumnType::Integer);
         auto &minorVersionColumn = table.addColumn("minorVersion", Sqlite::StrictColumnType::Integer);
 
-        table.addUniqueIndex({nameColumn, moduleIdColumn},
-                             "majorVersion IS NULL AND minorVersion IS NULL");
-        table.addUniqueIndex({nameColumn, moduleIdColumn, majorVersionColumn},
-                             "majorVersion IS NOT NULL AND minorVersion IS NULL");
-        table.addUniqueIndex({nameColumn, moduleIdColumn, majorVersionColumn, minorVersionColumn},
-                             "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
+        table.addPrimaryKeyContraint(
+            {nameColumn, moduleIdColumn, majorVersionColumn, minorVersionColumn});
 
         table.addIndex({typeIdColumn});
-        table.addIndex({nameColumn, moduleIdColumn});
         table.addIndex({moduleIdColumn});
 
         table.initialize(database);
@@ -1236,24 +1234,13 @@ public:
         auto &parentImportIdColumn = table.addColumn("parentImportId",
                                                      Sqlite::StrictColumnType::Integer);
 
-        table.addUniqueIndex(
-            {sourceIdColumn, moduleIdColumn, kindColumn, sourceModuleIdColumn, parentImportIdColumn},
-            "majorVersion IS NULL AND minorVersion IS NULL");
-        table.addUniqueIndex({sourceIdColumn,
-                              moduleIdColumn,
-                              kindColumn,
-                              sourceModuleIdColumn,
-                              majorVersionColumn,
-                              parentImportIdColumn},
-                             "majorVersion IS NOT NULL AND minorVersion IS NULL");
         table.addUniqueIndex({sourceIdColumn,
                               moduleIdColumn,
                               kindColumn,
                               sourceModuleIdColumn,
                               majorVersionColumn,
                               minorVersionColumn,
-                              parentImportIdColumn},
-                             "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
+                              parentImportIdColumn});
 
         table.addIndex({sourceIdColumn, kindColumn});
 
@@ -2891,22 +2878,11 @@ void ProjectStorage::synchromizeModuleExportedImports(
                                    keyValue("module id", import.moduleId)};
         tracer.tick("exported module", keyValue("module id", import.exportedModuleId));
 
-        if (import.version.minor) {
-            s->insertModuleExportedImportWithVersionStatement.write(import.moduleId,
-                                                                    import.exportedModuleId,
-                                                                    import.isAutoVersion,
-                                                                    import.version.major.value,
-                                                                    import.version.minor.value);
-        } else if (import.version.major) {
-            s->insertModuleExportedImportWithMajorVersionStatement.write(import.moduleId,
-                                                                         import.exportedModuleId,
-                                                                         import.isAutoVersion,
-                                                                         import.version.major.value);
-        } else {
-            s->insertModuleExportedImportWithoutVersionStatement.write(import.moduleId,
-                                                                       import.exportedModuleId,
-                                                                       import.isAutoVersion);
-        }
+        s->insertModuleExportedImportWithVersionStatement.write(import.moduleId,
+                                                                import.exportedModuleId,
+                                                                import.isAutoVersion,
+                                                                import.version.major.value,
+                                                                import.version.minor.value);
     };
 
     auto update = [](const Storage::Synchronization::ModuleExportedImportView &,
@@ -3125,7 +3101,7 @@ void ProjectStorage::deleteType(TypeId typeId,
     handlePropertyDeclarationWithPropertyType(typeId, relinkablePropertyDeclarations);
     handleAliasPropertyDeclarationsWithPropertyType(typeId, relinkableAliasPropertyDeclarations);
     handleBases(typeId, relinkableBases);
-    s->deleteTypeNamesByTypeIdStatement.write(typeId);
+    s->deleteExportedTypeNamesByTypeIdStatement.write(typeId);
     s->deleteEnumerationDeclarationByTypeIdStatement.write(typeId);
     s->deletePropertyDeclarationByTypeIdStatement.write(typeId);
     s->deleteFunctionDeclarationByTypeIdStatement.write(typeId);
@@ -3418,19 +3394,8 @@ void ProjectStorage::synchronizeExportedTypes(
     addedExportedTypeNames.reserve(exportedTypes.size());
 
     std::ranges::sort(exportedTypes, [](auto &&first, auto &&second) {
-        if (first.moduleId < second.moduleId)
-            return true;
-        else if (first.moduleId > second.moduleId)
-            return false;
-
-        auto nameCompare = Sqlite::compare(first.name, second.name);
-
-        if (nameCompare < 0)
-            return true;
-        else if (nameCompare > 0)
-            return false;
-
-        return first.version < second.version;
+        return std::tie(first.name, first.moduleId, first.version.major, first.version.minor)
+               < std::tie(second.name, second.moduleId, second.version.major, second.version.minor);
     });
 
     auto range = s->selectExportedTypesForSourceIdsStatement
@@ -3439,8 +3404,8 @@ void ProjectStorage::synchronizeExportedTypes(
 
     auto compareKey = [](const Storage::Synchronization::ExportedTypeView &view,
                          const Storage::Synchronization::ExportedType &type) {
-        return std::tie(view.moduleId, view.name, view.version.major.value, view.version.minor.value)
-               <=> std::tie(type.moduleId, type.name, type.version.major.value, type.version.minor.value);
+        return std::tie(view.name, view.moduleId, view.version.major.value, view.version.minor.value)
+               <=> std::tie(type.name, type.moduleId, type.version.major.value, type.version.minor.value);
     };
 
     auto insert = [&](const Storage::Synchronization::ExportedType &type) {
@@ -3453,23 +3418,12 @@ void ProjectStorage::synchronizeExportedTypes(
             throw QmlDesigner::ModuleDoesNotExists{};
 
         try {
-            if (type.version) {
-                s->insertExportedTypeNamesWithVersionStatement.write(type.moduleId,
-                                                                     type.name,
-                                                                     type.version.major.value,
-                                                                     type.version.minor.value,
-                                                                     type.typeId);
+            s->insertExportedTypeNamesStatement.write(type.moduleId,
+                                                      type.name,
+                                                      type.version.major.value,
+                                                      type.version.minor.value,
+                                                      type.typeId);
 
-            } else if (type.version.major) {
-                s->insertExportedTypeNamesWithMajorVersionStatement.write(type.moduleId,
-                                                                          type.name,
-                                                                          type.version.major.value,
-                                                                          type.typeId);
-            } else {
-                s->insertExportedTypeNamesWithoutVersionStatement.write(type.moduleId,
-                                                                        type.name,
-                                                                        type.typeId);
-            }
         } catch (const Sqlite::ConstraintPreventsModification &) {
             throw QmlDesigner::ExportedTypeCannotBeInserted{type.name};
         }
@@ -3501,7 +3455,11 @@ void ProjectStorage::synchronizeExportedTypes(
             handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
                                                             relinkableAliasPropertyDeclarations);
             handleBases(view.typeId, relinkableBases);
-            s->updateExportedTypeNameTypeIdStatement.write(view.exportedTypeNameId, type.typeId);
+            s->updateExportedTypeNameTypeIdStatement.write(view.moduleId,
+                                                           view.name,
+                                                           view.version.major.value,
+                                                           view.version.minor.value,
+                                                           type.typeId);
             exportedTypesChanged = ExportedTypesChanged::Yes;
 
             addedExportedTypeNames.emplace_back(type.moduleId, type.typeId, type.name, type.version);
@@ -3524,7 +3482,10 @@ void ProjectStorage::synchronizeExportedTypes(
                                                         relinkableAliasPropertyDeclarations);
         handleBases(view.typeId, relinkableBases);
 
-        s->deleteExportedTypeNameStatement.write(view.exportedTypeNameId);
+        s->deleteExportedTypeNameStatement.write(view.moduleId,
+                                                 view.name,
+                                                 view.version.major.value,
+                                                 view.version.minor.value);
 
         removedExportedTypeNames.emplace_back(view.moduleId, view.typeId, view.name, view.version);
 
@@ -3901,28 +3862,13 @@ ImportId ProjectStorage::insertDocumentImport(const Storage::Import &import,
         handleBasesWithSourceId(import.sourceId, relinkableBases);
     }
 
-    if (import.version.minor) {
-        return s->insertDocumentImportWithVersionStatement.value<ImportId>(import.sourceId,
-                                                                           import.moduleId,
-                                                                           sourceModuleId,
-                                                                           importKind,
-                                                                           import.version.major.value,
-                                                                           import.version.minor.value,
-                                                                           parentImportId);
-    } else if (import.version.major) {
-        return s->insertDocumentImportWithMajorVersionStatement.value<ImportId>(import.sourceId,
-                                                                                import.moduleId,
-                                                                                sourceModuleId,
-                                                                                importKind,
-                                                                                import.version.major.value,
-                                                                                parentImportId);
-    } else {
-        return s->insertDocumentImportWithoutVersionStatement.value<ImportId>(import.sourceId,
-                                                                              import.moduleId,
-                                                                              sourceModuleId,
-                                                                              importKind,
-                                                                              parentImportId);
-    }
+    return s->insertDocumentImportWithVersionStatement.value<ImportId>(import.sourceId,
+                                                                       import.moduleId,
+                                                                       sourceModuleId,
+                                                                       importKind,
+                                                                       import.version.major.value,
+                                                                       import.version.minor.value,
+                                                                       parentImportId);
 }
 
 void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
@@ -3959,7 +3905,9 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
 
         auto importId = insertDocumentImport(
             import, importKind, import.moduleId, ImportId{}, relink, relinkableBases);
-        auto callback = [&](ModuleId exportedModuleId, int majorVersion, int minorVersion) {
+        auto callback = [&](ModuleId exportedModuleId,
+                            unsigned int majorVersion,
+                            unsigned int minorVersion) {
             Storage::Import additionImport{exportedModuleId,
                                            Storage::Version{majorVersion, minorVersion},
                                            import.sourceId};

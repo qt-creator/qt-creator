@@ -37,15 +37,9 @@ namespace {
 
 using QualifiedImports = std::map<QString, Storage::Import>;
 
-int convertVersionNumber(qint32 versionNumber)
-{
-    return versionNumber < 0 ? -1 : versionNumber;
-}
-
 Storage::Version convertVersion(QmlDom::Version version)
 {
-    return Storage::Version{convertVersionNumber(version.majorVersion),
-                                             convertVersionNumber(version.minorVersion)};
+    return Storage::Version::convertFromSignedInteger(version.majorVersion, version.minorVersion);
 }
 
 Utils::PathString createNormalizedPath(Utils::SmallStringView directoryPath,

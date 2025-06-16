@@ -21,19 +21,24 @@ namespace QmlDesigner::Storage {
 class Import
 {
 public:
-    explicit Import() = default;
+    Import() = default;
 
-    explicit Import(ModuleId moduleId, Storage::Version version, SourceId sourceId)
+    Import(ModuleId moduleId, Storage::Version version, SourceId sourceId)
         : version{version}
         , moduleId{moduleId}
         , sourceId{sourceId}
     {}
 
-    explicit Import(ModuleId moduleId, int majorVersion, int minorVersion, SourceId sourceId)
+    Import(ModuleId moduleId, unsigned int majorVersion, unsigned int minorVersion, SourceId sourceId)
         : version{majorVersion, minorVersion}
         , moduleId{moduleId}
         , sourceId{sourceId}
     {}
+
+    static Import fromSignedInteger(ModuleId moduleId, int majorVersion, int minorVersion, SourceId sourceId)
+    {
+        return {moduleId, Version::convertFromSignedInteger(majorVersion, minorVersion), sourceId};
+    }
 
     friend bool operator==(const Import &first, const Import &second)
     {
@@ -157,8 +162,11 @@ class ImportView
 public:
     explicit ImportView() = default;
 
-    explicit ImportView(
-        ImportId importId, SourceId sourceId, ModuleId moduleId, int majorVersion, int minorVersion)
+    explicit ImportView(ImportId importId,
+                        SourceId sourceId,
+                        ModuleId moduleId,
+                        unsigned int majorVersion,
+                        unsigned int minorVersion)
         : importId{importId}
         , sourceId{sourceId}
         , moduleId{moduleId}
@@ -267,8 +275,8 @@ public:
     explicit ModuleExportedImportView(ModuleExportedImportId moduleExportedImportId,
                                       ModuleId moduleId,
                                       ModuleId exportedModuleId,
-                                      int majorVersion,
-                                      int minorVersion,
+                                      unsigned int majorVersion,
+                                      unsigned int minorVersion,
                                       IsAutoVersion isAutoVersion)
         : moduleExportedImportId{moduleExportedImportId}
         , version{majorVersion, minorVersion}
@@ -395,8 +403,8 @@ public:
     explicit ExportedType(ModuleId moduleId,
                           TypeId typeId,
                           ::Utils::SmallStringView name,
-                          int majorVersion,
-                          int minorVersion)
+                          unsigned int majorVersion,
+                          unsigned int minorVersion)
         : name{name}
         , version{majorVersion, minorVersion}
         , typeId{typeId}
@@ -445,17 +453,16 @@ public:
         , version{version}
         , moduleId{moduleId}
     {}
+
     explicit ExportedTypeView(ModuleId moduleId,
                               ::Utils::SmallStringView name,
-                              int majorVersion,
-                              int minorVersion,
-                              TypeId typeId,
-                              ExportedTypeNameId exportedTypeNameId)
+                              unsigned int majorVersion,
+                              unsigned int minorVersion,
+                              TypeId typeId)
         : name{name}
         , version{majorVersion, minorVersion}
         , typeId{typeId}
         , moduleId{moduleId}
-        , exportedTypeNameId{exportedTypeNameId}
     {}
 
     template<typename String>
@@ -466,8 +473,7 @@ public:
         auto dict = dictonary(keyValue("name", exportedType.name),
                               keyValue("module id", exportedType.moduleId),
                               keyValue("type id", exportedType.typeId),
-                              keyValue("version", exportedType.version),
-                              keyValue("version", exportedType.exportedTypeNameId));
+                              keyValue("version", exportedType.version));
 
         convertToString(string, dict);
     }
@@ -477,7 +483,6 @@ public:
     Storage::Version version;
     TypeId typeId;
     ModuleId moduleId;
-    ExportedTypeNameId exportedTypeNameId;
 };
 
 using ImportedTypeName = std::variant<ImportedType, QualifiedImportedType>;

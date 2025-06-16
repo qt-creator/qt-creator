@@ -19,21 +19,22 @@
 
 namespace {
 
+using QmlDesigner::DirectoryPathId;
+using QmlDesigner::DirectoryPathIds;
+using QmlDesigner::FileNameId;
 using QmlDesigner::FileStatus;
 using QmlDesigner::FileStatuses;
 using QmlDesigner::FlagIs;
 using QmlDesigner::ModuleId;
 using QmlDesigner::PropertyDeclarationId;
-using QmlDesigner::DirectoryPathId;
-using QmlDesigner::DirectoryPathIds;
 using QmlDesigner::SourceId;
 using QmlDesigner::SourceIds;
-using QmlDesigner::FileNameId;
 using QmlDesigner::Storage::ModuleKind;
 using QmlDesigner::Storage::Synchronization::SynchronizationPackage;
 using QmlDesigner::Storage::Synchronization::TypeAnnotations;
 using QmlDesigner::Storage::TypeTraits;
 using QmlDesigner::Storage::TypeTraitsKind;
+using QmlDesigner::Storage::VersionNumber;
 using QmlDesigner::TypeId;
 
 namespace Storage = QmlDesigner::Storage;
@@ -5772,7 +5773,7 @@ TEST_F(ProjectStorage, minimal_updates)
                                         TypeTraitsKind::Reference),
                           Field("Type::exportedTypes",
                                 &Storage::Synchronization::Type::exportedTypes,
-                                UnorderedElementsAre(IsExportedType(qtQuickModuleId, "Item", 2, 0),
+                                UnorderedElementsAre(IsExportedType(qtQuickModuleId, "Item", 2U, 0U),
                                                      IsExportedType(qtQuickNativeModuleId,
                                                                     "QQuickItem"))),
                           Field("Type::propertyDeclarations",
@@ -8224,9 +8225,14 @@ TEST_F(ProjectStorage, get_exported_type_names)
     auto exportedTypeNames = storage.exportedTypeNames(typeId);
 
     ASSERT_THAT(exportedTypeNames,
-                UnorderedElementsAre(IsInfoExportTypeName(qmlModuleId, typeId, "Object", 2, -1),
-                                     IsInfoExportTypeName(qmlModuleId, typeId, "Obj", 2, -1),
-                                     IsInfoExportTypeName(qmlNativeModuleId, typeId, "QObject", -1, -1)));
+                UnorderedElementsAre(
+                    IsInfoExportTypeName(qmlModuleId, typeId, "Object", 2U, VersionNumber::noVersion),
+                    IsInfoExportTypeName(qmlModuleId, typeId, "Obj", 2U, VersionNumber::noVersion),
+                    IsInfoExportTypeName(qmlNativeModuleId,
+                                         typeId,
+                                         "QObject",
+                                         VersionNumber::noVersion,
+                                         VersionNumber::noVersion)));
 }
 
 TEST_F(ProjectStorage, get_no_exported_type_names_if_type_id_is_invalid)
@@ -8250,8 +8256,9 @@ TEST_F(ProjectStorage, get_exported_type_names_for_source_id)
     auto exportedTypeNames = storage.exportedTypeNames(typeId, sourceId3);
 
     ASSERT_THAT(exportedTypeNames,
-                UnorderedElementsAre(IsInfoExportTypeName(qmlModuleId, typeId, "Object", 2, -1),
-                                     IsInfoExportTypeName(qmlModuleId, typeId, "Obj", 2, -1)));
+                UnorderedElementsAre(
+                    IsInfoExportTypeName(qmlModuleId, typeId, "Object", 2U, VersionNumber::noVersion),
+                    IsInfoExportTypeName(qmlModuleId, typeId, "Obj", 2U, VersionNumber::noVersion)));
 }
 
 TEST_F(ProjectStorage, get_no_exported_type_names_for_source_id_for_invalid_type_id)

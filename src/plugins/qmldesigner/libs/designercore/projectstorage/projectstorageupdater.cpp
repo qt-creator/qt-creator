@@ -158,8 +158,15 @@ void addSourceIds(SourceIds &sourceIds,
 
 Storage::Version convertVersion(QTypeRevision version)
 {
-    return Storage::Version{version.hasMajorVersion() ? version.majorVersion() : -1,
-                            version.hasMinorVersion() ? version.minorVersion() : -1};
+    using Storage::Version;
+    using Storage::VersionNumber;
+
+    return Version{version.hasMajorVersion()
+                       ? VersionNumber::convertFromSignedInteger(version.majorVersion())
+                       : VersionNumber::noVersionNumber(),
+                   version.hasMinorVersion()
+                       ? VersionNumber::convertFromSignedInteger(version.minorVersion())
+                       : VersionNumber::noVersionNumber()};
 }
 
 Storage::Synchronization::IsAutoVersion convertToIsAutoVersion(QQmlDirParser::Import::Flags flags,
@@ -1431,7 +1438,8 @@ Storage::Synchronization::ExportedTypes createExportedTypes(ProjectStorageUpdate
     for (const ProjectStorageUpdater::Component &component : components) {
         exportedTypes.emplace_back(component.moduleId,
                                    Utils::SmallString{component.typeName},
-                                   Storage::Version{component.majorVersion, component.minorVersion});
+                                   Storage::Version::convertFromSignedInteger(component.majorVersion,
+                                                                              component.minorVersion));
     }
 
     removeDuplicates(exportedTypes);

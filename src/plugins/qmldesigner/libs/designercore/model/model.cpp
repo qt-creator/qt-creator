@@ -387,8 +387,8 @@ ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView typeN
                                                            : ModuleKind::PathLibrary;
                 ModuleId moduleId = projectStorage->moduleId(Utils::PathString{found->url()},
                                                              moduleKind);
-                ImportId importId = projectStorage->importId(
-                    Storage::Import{moduleId, found->majorVersion(), found->minorVersion(), m_sourceId});
+                ImportId importId = projectStorage->importId(Storage::Import::fromSignedInteger(
+                    moduleId, found->majorVersion(), found->minorVersion(), m_sourceId));
                 return projectStorage->importedTypeNameId(importId, shortTypeName);
             }
         }
