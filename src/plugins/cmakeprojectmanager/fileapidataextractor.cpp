@@ -528,7 +528,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                                                  && !isUnityFile(buildDirectory, filePath);
                                          });
 
-            rpp.setFiles(Utils::transform(filtered, &FilePath::toFSPathString),
+            rpp.setFiles(filtered,
                          {},
                          [headerMimeType](const QString &path) {
                              if (CppEditor::ProjectFile::isAmbiguousHeader(path))

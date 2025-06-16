@@ -57,12 +57,16 @@ public:
     // FileIsActive and GetMimeType must be thread-safe.
     using FileIsActive = std::function<bool(const QString &filePath)>;
     using GetMimeType = std::function<QString(const QString &filePath)>;
+    void setFiles(const Utils::FilePaths &files,
+                  const FileIsActive &fileIsActive = {},
+                  const GetMimeType &getMimeType = {});
     void setFiles(const QStringList &files,
                   const FileIsActive &fileIsActive = {},
                   const GetMimeType &getMimeType = {});
     static HeaderPath frameworkDetectionHeuristic(const HeaderPath &header);
     void setHeaderPaths(const HeaderPaths &headerPaths);
     void setIncludePaths(const QStringList &includePaths);
+    void setPreCompiledHeaders(const Utils::FilePaths &preCompiledHeaders);
     void setPreCompiledHeaders(const QStringList &preCompiledHeaders);
     void setIncludedFiles(const QStringList &files);
 

@@ -167,7 +167,7 @@ static RawProjectPart makeRawProjectPart(
     rpp.setProjectFileLocation(projectFile);
     rpp.setBuildSystemTarget(workingDir.path());
     rpp.setDisplayName(filePath.fileName());
-    rpp.setFiles({filePath.toFSPathString()});
+    rpp.setFiles({filePath});
 
     rpp.setHeaderPaths(headerPaths);
     rpp.setMacros(macros);

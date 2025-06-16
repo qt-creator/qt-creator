@@ -16,11 +16,13 @@
 
 #include <utils/algorithm.h>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 RawProjectPartFlags::RawProjectPartFlags(const Toolchain *toolChain,
                                          const QStringList &commandLineFlags,
-                                         const Utils::FilePath &includeFileBaseDir)
+                                         const FilePath &includeFileBaseDir)
 {
     // Keep the following cheap/non-blocking for the ui thread. Expensive
     // operations are encapsulated in ToolchainInfo as "runners".
@@ -29,13 +31,20 @@ RawProjectPartFlags::RawProjectPartFlags(const Toolchain *toolChain,
         warningFlags = toolChain->warningFlags(commandLineFlags);
         languageExtensions = toolChain->languageExtensions(commandLineFlags);
         includedFiles = Utils::transform(toolChain->includedFiles(commandLineFlags, includeFileBaseDir),
-                                         &Utils::FilePath::toFSPathString);
+                                         &FilePath::toFSPathString);
     }
 }
 
 void RawProjectPart::setDisplayName(const QString &displayName)
 {
     this->displayName = displayName;
+}
+
+void RawProjectPart::setFiles(const FilePaths &files,
+                              const FileIsActive &fileIsActive,
+                              const GetMimeType &getMimeType)
+{
+    setFiles(Utils::transform(files, &FilePath::toFSPathString), fileIsActive, getMimeType);
 }
 
 void RawProjectPart::setFiles(const QStringList &files,
@@ -65,7 +74,7 @@ HeaderPath RawProjectPart::frameworkDetectionHeuristic(const HeaderPath &header)
     return header;
 }
 
-void RawProjectPart::setProjectFileLocation(const Utils::FilePath &projectFile, int line, int column)
+void RawProjectPart::setProjectFileLocation(const FilePath &projectFile, int line, int column)
 {
     this->projectFile = projectFile;
     projectFileLine = line;
@@ -87,7 +96,7 @@ void RawProjectPart::setCallGroupId(const QString &id)
     callGroupId = id;
 }
 
-void RawProjectPart::setQtVersion(Utils::QtMajorVersion qtVersion)
+void RawProjectPart::setQtVersion(QtMajorVersion qtVersion)
 {
     this->qtVersion = qtVersion;
 }
@@ -107,6 +116,11 @@ void RawProjectPart::setIncludePaths(const QStringList &includePaths)
     this->headerPaths = Utils::transform<QList>(includePaths, [](const QString &path) {
         return RawProjectPart::frameworkDetectionHeuristic(HeaderPath::makeUser(path));
     });
+}
+
+void RawProjectPart::setPreCompiledHeaders(const FilePaths &preCompiledHeaders)
+{
+    this->precompiledHeaders = Utils::transform(preCompiledHeaders, &FilePath::toFSPathString);
 }
 
 void RawProjectPart::setPreCompiledHeaders(const QStringList &preCompiledHeaders)
@@ -158,8 +172,8 @@ bool KitInfo::isValid() const
 }
 
 ToolchainInfo::ToolchainInfo(const Toolchain *toolChain,
-                             const Utils::FilePath &sysRootPath,
-                             const Utils::Environment &env)
+                             const FilePath &sysRootPath,
+                             const Environment &env)
 {
     if (toolChain) {
         // Keep the following cheap/non-blocking for the ui thread...
@@ -188,7 +202,7 @@ void provideCppSettingsRetriever(const CppSettingsRetriever &retriever)
 
 ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
                                      const KitInfo &kitInfo,
-                                     const Utils::Environment &env,
+                                     const Environment &env,
                                      const RawProjectParts &rawProjectParts,
                                      const RppGenerator &rppGenerator)
     : rawProjectParts(rawProjectParts)
@@ -210,7 +224,7 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
 void addTargetFlagForIos(QStringList &cFlags, QStringList &cxxFlags, const BuildSystem *bs,
                          const std::function<QString ()> &getDeploymentTarget)
 {
-    const Utils::Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(bs->kit());
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(bs->kit());
     if (deviceType != Ios::Constants::IOS_DEVICE_TYPE
             && deviceType != Ios::Constants::IOS_SIMULATOR_TYPE) {
         return;
