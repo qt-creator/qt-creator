@@ -13,9 +13,12 @@ namespace Internal {
 class StopMonitoringHandler : public ITaskHandler
 {
 public:
+    StopMonitoringHandler() : ITaskHandler(createAction()) {}
+
+private:
     bool canHandle(const ProjectExplorer::Task &) const override;
     void handle(const ProjectExplorer::Task &) override;
-    QAction *createAction(QObject *parent) const override;
+    QAction *createAction() const;
 };
 
 class TaskFile : public Core::IDocument

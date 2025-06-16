@@ -15,9 +15,13 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-ShowOutputTaskHandler::ShowOutputTaskHandler(Core::IOutputPane *window, const QString &text,
-                                             const QString &tooltip, const QString &shortcut)
-    : m_window(window), m_text(text), m_tooltip(tooltip), m_shortcut(shortcut)
+ShowOutputTaskHandler::ShowOutputTaskHandler(
+    Core::IOutputPane *window, const QString &text, const QString &tooltip, const QString &shortcut)
+    : ITaskHandler(createAction(text, tooltip, shortcut))
+    , m_window(window)
+    , m_text(text)
+    , m_tooltip(tooltip)
+    , m_shortcut(shortcut)
 {
     QTC_CHECK(m_window);
     QTC_CHECK(!m_text.isEmpty());
@@ -44,13 +48,14 @@ void ShowOutputTaskHandler::handle(const Task &task)
     }
 }
 
-QAction *ShowOutputTaskHandler::createAction(QObject *parent) const
+QAction *ShowOutputTaskHandler::createAction(const QString &text, const QString &tooltip,
+                                             const QString &shortcut)
 {
-    QAction * const outputAction = new QAction(m_text, parent);
-    if (!m_tooltip.isEmpty())
-        outputAction->setToolTip(m_tooltip);
-    if (!m_shortcut.isEmpty())
-        outputAction->setShortcut(QKeySequence(m_shortcut));
+    QAction * const outputAction = new QAction(text);
+    if (!tooltip.isEmpty())
+        outputAction->setToolTip(tooltip);
+    if (!shortcut.isEmpty())
+        outputAction->setShortcut(QKeySequence(shortcut));
     outputAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     return outputAction;
 }

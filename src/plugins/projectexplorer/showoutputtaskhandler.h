@@ -18,11 +18,12 @@ public:
     explicit ShowOutputTaskHandler(Core::IOutputPane *window, const QString &text,
                                    const QString &tooltip, const QString &shortcut);
 
+private:
     bool canHandle(const Task &) const override;
     void handle(const Task &task) override;
-    QAction *createAction(QObject *parent) const override;
+    static QAction *createAction(const QString &text, const QString &tooltip,
+                                 const QString &shortcut);
 
-private:
     Core::IOutputPane * const m_window;
     const QString m_text;
     const QString m_tooltip;

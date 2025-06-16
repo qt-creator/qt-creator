@@ -7,29 +7,105 @@
 #include "projectexplorertr.h"
 #include "taskhub.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/customlanguagemodels.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/vcsmanager.h>
+#include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
+#include <QHash>
 #include <QTimer>
 
 using namespace Core;
 using namespace Utils;
 
-namespace ProjectExplorer::Internal {
+namespace ProjectExplorer {
+namespace {
+static QObject *g_actionParent = nullptr;
+static Core::Context g_cmdContext;
+static Internal::RegisterHandlerAction g_onCreateAction;
+static Internal::GetHandlerTasks g_getTasks;
+static QList<ITaskHandler *> g_toRegister;
+static QList<ITaskHandler *> g_taskHandlers;
+} // namespace
+
+ITaskHandler::ITaskHandler(QAction *action, const Id &actionId, bool isMultiHandler)
+    : m_action(action), m_actionId(actionId), m_isMultiHandler(isMultiHandler)
+{
+    if (g_actionParent)
+        registerHandler();
+    else
+        g_toRegister << this;
+}
+
+ITaskHandler::~ITaskHandler()
+{
+    g_toRegister.removeOne(this);
+    deregisterHandler();
+    delete m_action;
+}
+
+void ITaskHandler::handle(const Task &task)
+{
+    QTC_ASSERT(m_isMultiHandler, return);
+    handle(Tasks{task});
+}
+
+void ITaskHandler::handle(const Tasks &tasks)
+{
+    QTC_ASSERT(canHandle(tasks), return);
+    QTC_ASSERT(!m_isMultiHandler, return);
+    handle(tasks.first());
+}
+
+bool ITaskHandler::canHandle(const Tasks &tasks) const
+{
+    if (tasks.isEmpty())
+        return false;
+    if (m_isMultiHandler)
+        return true;
+    if (tasks.size() > 1)
+        return false;
+    return canHandle(tasks.first());
+}
+
+void ITaskHandler::registerHandler()
+{
+    g_taskHandlers.append(this);
+
+    m_action->setParent(g_actionParent);
+    QAction *action = m_action;
+    connect(m_action, &QAction::triggered, this, [this] { handle(g_getTasks()); });
+    if (m_actionId.isValid()) {
+        Core::Command *cmd =
+            Core::ActionManager::registerAction(m_action, m_actionId, g_cmdContext, true);
+        action = cmd->action();
+    }
+    g_onCreateAction(action);
+}
+
+void ITaskHandler::deregisterHandler()
+{
+    g_taskHandlers.removeOne(this);
+}
+
+namespace Internal {
 namespace {
 
 class ConfigTaskHandler : public ITaskHandler
 {
 public:
     ConfigTaskHandler(const Task &pattern, Id page)
-        : m_pattern(pattern)
+        : ITaskHandler(createAction())
+        , m_pattern(pattern)
         , m_targetPage(page)
     {}
 
@@ -45,9 +121,9 @@ private:
         ICore::showOptionsDialog(m_targetPage);
     }
 
-    QAction *createAction(QObject *parent) const override
+    QAction *createAction() const
     {
-        auto action = new QAction(ICore::msgShowOptionsDialog(), parent);
+        auto action = new QAction(ICore::msgShowOptionsDialog());
         action->setToolTip(ICore::msgShowOptionsDialogToolTip());
         return action;
     }
@@ -60,7 +136,7 @@ private:
 class CopyTaskHandler : public ITaskHandler
 {
 public:
-    CopyTaskHandler() : ITaskHandler(true) {}
+    CopyTaskHandler() : ITaskHandler(new Action, Core::Constants::COPY, true) {}
 
 private:
     void handle(const Tasks &tasks) override
@@ -85,15 +161,12 @@ private:
         }
         setClipboardAndSelection(lines.join('\n'));
     }
-
-    Id actionManagerId() const override { return Id(Core::Constants::COPY); }
-    QAction *createAction(QObject *parent) const override { return new QAction(parent); }
 };
 
 class RemoveTaskHandler : public ITaskHandler
 {
 public:
-    RemoveTaskHandler() : ITaskHandler(true) {}
+    RemoveTaskHandler() : ITaskHandler(createAction(), {}, true) {}
 
 private:
     void handle(const Tasks &tasks) override
@@ -102,10 +175,10 @@ private:
             TaskHub::removeTask(task);
     }
 
-    QAction *createAction(QObject *parent) const override
+    QAction *createAction() const
     {
         QAction *removeAction = new QAction(
-            Tr::tr("Remove", "Name of the action triggering the removetaskhandler"), parent);
+            Tr::tr("Remove", "Name of the action triggering the removetaskhandler"));
         removeAction->setToolTip(Tr::tr("Remove task from the task list."));
         removeAction->setShortcuts({QKeySequence::Delete, QKeySequence::Backspace});
         removeAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -115,6 +188,10 @@ private:
 
 class ShowInEditorTaskHandler : public ITaskHandler
 {
+public:
+    ShowInEditorTaskHandler() : ITaskHandler(createAction()) {}
+
+private:
     bool isDefaultHandler() const override { return true; }
 
     bool canHandle(const Task &task) const override
@@ -132,9 +209,9 @@ class ShowInEditorTaskHandler : public ITaskHandler
             {task.file, task.movedLine, column}, {}, EditorManager::SwitchSplitIfAlreadyVisible);
     }
 
-    QAction *createAction(QObject *parent ) const override
+    QAction *createAction() const
     {
-        QAction *showAction = new QAction(Tr::tr("Show in Editor"), parent);
+        QAction *showAction = new QAction(Tr::tr("Show in Editor"));
         showAction->setToolTip(Tr::tr("Show task location in an editor."));
         showAction->setShortcut(QKeySequence(Qt::Key_Return));
         showAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -144,6 +221,10 @@ class ShowInEditorTaskHandler : public ITaskHandler
 
 class VcsAnnotateTaskHandler : public ITaskHandler
 {
+public:
+    VcsAnnotateTaskHandler() : ITaskHandler(createAction()) {}
+
+private:
     bool canHandle(const Task &task) const override
     {
         QFileInfo fi(task.file.toFileInfo());
@@ -163,18 +244,21 @@ class VcsAnnotateTaskHandler : public ITaskHandler
         vc->vcsAnnotate(task.file.absoluteFilePath(), task.movedLine);
     }
 
-    QAction *createAction(QObject *parent) const override
+    QAction *createAction() const
     {
-        QAction *vcsannotateAction = new QAction(Tr::tr("&Annotate"), parent);
+        QAction *vcsannotateAction = new QAction(Tr::tr("&Annotate"));
         vcsannotateAction->setToolTip(Tr::tr("Annotate using version control system."));
         return vcsannotateAction;
     }
 };
 
-// FIXME: There should be one handler per LLM, but the ITaskHandler infrastructure is
-// currently static. Alternatively, we could somehow multiplex from here, perhaps via a submenu.
+// FIXME: There should be one handler per LLM
 class ExplainWithAiHandler : public ITaskHandler
 {
+public:
+    ExplainWithAiHandler() : ITaskHandler(createAction()) {}
+
+private:
     bool canHandle(const Task &task) const override
     {
         Q_UNUSED(task)
@@ -229,9 +313,9 @@ class ExplainWithAiHandler : public ITaskHandler
         process->start();
     }
 
-    QAction *createAction(QObject *parent) const override
+    QAction *createAction() const
     {
-        const auto action = new QAction(Tr::tr("Get help from AI"), parent);
+        const auto action = new QAction(Tr::tr("Get help from AI"));
         action->setToolTip(Tr::tr("Ask an AI to help with this issue."));
         return action;
     }
@@ -239,8 +323,17 @@ class ExplainWithAiHandler : public ITaskHandler
 
 } // namespace
 
-void setupTaskHandlers()
+void setupTaskHandlers(
+    QObject *actionParent,
+    const Core::Context &cmdContext,
+    const RegisterHandlerAction &onCreateAction,
+    const GetHandlerTasks &getTasks)
 {
+    g_actionParent = actionParent;
+    g_cmdContext = cmdContext;
+    g_onCreateAction = onCreateAction;
+    g_getTasks = getTasks;
+
     static const ConfigTaskHandler
         configTaskHandler(Task::compilerMissingTask(), Constants::KITS_SETTINGS_PAGE_ID);
     static const CopyTaskHandler copyTaskHandler;
@@ -248,6 +341,35 @@ void setupTaskHandlers()
     static const ShowInEditorTaskHandler showInEditorTaskHandler;
     static const VcsAnnotateTaskHandler vcsAnnotateTaskHandler;
     static const ExplainWithAiHandler explainWithAiHandler;
+
+    registerQueuedTaskHandlers();
 }
 
-} // namespace ProjectExplorer::Internal
+ITaskHandler *taskHandlerForAction(QAction *action)
+{
+    return Utils::findOrDefault(g_taskHandlers,
+                                [action](ITaskHandler *h) { return h->action() == action; });
+}
+
+void updateTaskHandlerActionsState()
+{
+    const Tasks tasks = g_getTasks();
+    for (ITaskHandler * const h : g_taskHandlers)
+        h->action()->setEnabled(h->canHandle(tasks));
+}
+
+ITaskHandler *defaultTaskHandler()
+{
+    return Utils::findOrDefault(g_taskHandlers,
+                                [](ITaskHandler *h) { return h->isDefaultHandler(); });
+}
+
+void registerQueuedTaskHandlers()
+{
+    for (ITaskHandler * const h : std::as_const(g_toRegister))
+        h->registerHandler();
+    g_toRegister.clear();
+}
+
+} // namespace Internal
+} // namespace ProjectExplorer

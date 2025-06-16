@@ -73,7 +73,6 @@
 #include "simpleprojectwizard.h"
 #include "target.h"
 #include "taskfile.h"
-#include "taskhandlers.h"
 #include "taskhub.h"
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
@@ -822,8 +821,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     setupCurrentProjectFind();
 
     setupSanitizerOutputParser();
-
-    setupTaskHandlers();
 
     setupJsonWizardPages();
     setupJsonWizardFileGenerator();

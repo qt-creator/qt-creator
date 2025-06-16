@@ -11,8 +11,8 @@
 #include "taskhub.h"
 #include "taskmodel.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icontext.h>
@@ -48,42 +48,6 @@ const char SESSION_FILTER_CATEGORIES[] = "TaskWindow.Categories";
 const char SESSION_FILTER_WARNINGS[] = "TaskWindow.IncludeWarnings";
 
 namespace ProjectExplorer {
-
-static QList<ITaskHandler *> g_taskHandlers;
-
-ITaskHandler::ITaskHandler(bool isMultiHandler) : m_isMultiHandler(isMultiHandler)
-{
-    g_taskHandlers.append(this);
-}
-
-ITaskHandler::~ITaskHandler()
-{
-    g_taskHandlers.removeOne(this);
-}
-
-void ITaskHandler::handle(const Task &task)
-{
-    QTC_ASSERT(m_isMultiHandler, return);
-    handle(Tasks{task});
-}
-
-void ITaskHandler::handle(const Tasks &tasks)
-{
-    QTC_ASSERT(canHandle(tasks), return);
-    QTC_ASSERT(!m_isMultiHandler, return);
-    handle(tasks.first());
-}
-
-bool ITaskHandler::canHandle(const Tasks &tasks) const
-{
-    if (tasks.isEmpty())
-        return false;
-    if (m_isMultiHandler)
-        return true;
-    if (tasks.size() > 1)
-        return false;
-    return canHandle(tasks.first());
-}
 
 namespace Internal {
 
@@ -131,18 +95,10 @@ private:
 class TaskWindowPrivate
 {
 public:
-    ITaskHandler *handler(QAction *action)
-    {
-        ITaskHandler *handler = m_actionToHandlerMap.value(action, nullptr);
-        return g_taskHandlers.contains(handler) ? handler : nullptr;
-    }
-
     Internal::TaskModel *m_model;
     Internal::TaskFilterModel *m_filter;
     TaskView m_treeView;
     const Core::Context m_taskWindowContext{Core::Context(Core::Constants::C_PROBLEM_PANE)};
-    QHash<QAction *, ITaskHandler *> m_actionToHandlerMap;
-    ITaskHandler *m_defaultHandler = nullptr;
     QToolButton *m_filterWarningsButton;
     QToolButton *m_categoriesButton;
     QToolButton *m_externalButton = nullptr;
@@ -195,14 +151,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     connect(&d->m_treeView, &QAbstractItemView::activated,
             this, &TaskWindow::triggerDefaultHandler);
     connect(d->m_treeView.selectionModel(), &QItemSelectionModel::selectionChanged,
-            this, [this] {
-        const Tasks tasks = d->m_filter->tasks(d->m_treeView.selectionModel()->selectedIndexes());
-        for (auto it = d->m_actionToHandlerMap.cbegin(); it != d->m_actionToHandlerMap.cend(); ++it) {
-            ITaskHandler * const h = it.value();
-            QTC_ASSERT(g_taskHandlers.contains(h), continue);
-            it.key()->setEnabled(h && h->canHandle(tasks));
-        }
-    });
+            this, [] { updateTaskHandlerActionsState(); });
 
     d->m_treeView.setContextMenuPolicy(Qt::ActionsContextMenu);
 
@@ -278,28 +227,15 @@ void TaskWindow::delayedInitialization()
 
     alreadyDone = true;
 
-    for (ITaskHandler *h : std::as_const(g_taskHandlers)) {
-        if (h->isDefaultHandler() && !d->m_defaultHandler)
-            d->m_defaultHandler = h;
-
-        QAction *action = h->createAction(this);
+    const auto registerTaskHandlerAction = [this](QAction *action) {
+        action->setParent(this);
         action->setEnabled(false);
-        QTC_ASSERT(action, continue);
-        d->m_actionToHandlerMap.insert(action, h);
-        connect(action, &QAction::triggered, this, [this, action] {
-            ITaskHandler *h = d->handler(action);
-            if (h)
-                h->handle(d->m_filter->tasks(d->m_treeView.selectionModel()->selectedIndexes()));
-        });
-
-        Id id = h->actionManagerId();
-        if (id.isValid()) {
-            Core::Command *cmd =
-                Core::ActionManager::registerAction(action, id, d->m_taskWindowContext, true);
-            action = cmd->action();
-        }
         d->m_treeView.addAction(action);
-    }
+    };
+    const auto getTasksForHandler = [this] {
+        return d->m_filter->tasks(d->m_treeView.selectionModel()->selectedIndexes());
+    };
+    setupTaskHandlers(this, d->m_taskWindowContext, registerTaskHandlerAction, getTasksForHandler);
 }
 
 QList<QWidget*> TaskWindow::toolBarWidgets() const
@@ -429,7 +365,8 @@ void TaskWindow::openTask(const Task &task)
 
 void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
 {
-    if (!index.isValid() || !d->m_defaultHandler)
+    ITaskHandler * const defaultHandler = defaultTaskHandler();
+    if (!index.isValid() || !defaultHandler)
         return;
 
     QModelIndex taskIndex = index;
@@ -450,8 +387,8 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
         }
     }
 
-    if (d->m_defaultHandler->canHandle(task)) {
-        d->m_defaultHandler->handle(task);
+    if (defaultHandler->canHandle(task)) {
+        defaultHandler->handle(task);
     } else {
         if (!task.file.exists())
             d->m_model->setFileNotFound(taskIndex, true);
