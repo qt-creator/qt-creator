@@ -2973,6 +2973,11 @@ bool PlainTextEdit::find(const QRegularExpression &exp, QTextDocument::FindFlags
 }
 #endif
 
+void PlainTextEdit::setTopBlock(const QTextBlock &block)
+{
+    d->setTopBlock(block.firstLineNumber(), 0, 0);
+}
+
 /*!
     \fn void PlainTextEdit::copyAvailable(bool yes)
 
