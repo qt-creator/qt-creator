@@ -131,7 +131,7 @@ private:
 class TaskWindowPrivate
 {
 public:
-    ITaskHandler *handler(const QAction *action)
+    ITaskHandler *handler(QAction *action)
     {
         ITaskHandler *handler = m_actionToHandlerMap.value(action, nullptr);
         return g_taskHandlers.contains(handler) ? handler : nullptr;
@@ -141,13 +141,12 @@ public:
     Internal::TaskFilterModel *m_filter;
     TaskView m_treeView;
     const Core::Context m_taskWindowContext{Core::Context(Core::Constants::C_PROBLEM_PANE)};
-    QHash<const QAction *, ITaskHandler *> m_actionToHandlerMap;
+    QHash<QAction *, ITaskHandler *> m_actionToHandlerMap;
     ITaskHandler *m_defaultHandler = nullptr;
     QToolButton *m_filterWarningsButton;
     QToolButton *m_categoriesButton;
     QToolButton *m_externalButton = nullptr;
     QMenu *m_categoriesMenu;
-    QList<QAction *> m_actions;
     int m_visibleIssuesCount = 0;
 };
 
@@ -198,9 +197,10 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     connect(d->m_treeView.selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this] {
         const Tasks tasks = d->m_filter->tasks(d->m_treeView.selectionModel()->selectedIndexes());
-        for (QAction * const action : std::as_const(d->m_actions)) {
-            ITaskHandler * const h = d->handler(action);
-            action->setEnabled(h && h->canHandle(tasks));
+        for (auto it = d->m_actionToHandlerMap.cbegin(); it != d->m_actionToHandlerMap.cend(); ++it) {
+            ITaskHandler * const h = it.value();
+            QTC_ASSERT(g_taskHandlers.contains(h), continue);
+            it.key()->setEnabled(h && h->canHandle(tasks));
         }
     });
 
@@ -291,7 +291,6 @@ void TaskWindow::delayedInitialization()
             if (h)
                 h->handle(d->m_filter->tasks(d->m_treeView.selectionModel()->selectedIndexes()));
         });
-        d->m_actions << action;
 
         Id id = h->actionManagerId();
         if (id.isValid()) {
