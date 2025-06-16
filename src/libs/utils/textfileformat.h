@@ -74,7 +74,7 @@ public:
     void setEncoding(const TextEncoding &encoding);
 
 private:
-    TextCodec m_codec;
+    TextEncoding m_encoding;
 };
 
 } // namespace Utils

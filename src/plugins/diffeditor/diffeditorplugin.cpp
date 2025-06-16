@@ -317,7 +317,7 @@ private:
 QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
 {
     TextFileFormat format;
-    format.setCodec(EditorManager::defaultTextCodec());
+    format.setEncoding(EditorManager::defaultTextEncoding());
 
     const TextFileFormat::ReadResult leftResult = format.readFile(m_leftFilePath, format.encoding());
     const TextFileFormat::ReadResult rightResult = format.readFile(m_rightFilePath, format.encoding());

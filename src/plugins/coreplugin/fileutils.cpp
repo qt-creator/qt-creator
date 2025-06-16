@@ -193,7 +193,7 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
     TextFileFormat headerFileTextFormat;
     headerFileTextFormat.detectFromData(data);
     if (!headerFileTextFormat.codec().isValid())
-        headerFileTextFormat.setCodec(EditorManager::defaultTextCodec());
+        headerFileTextFormat.setEncoding(EditorManager::defaultTextEncoding());
 
     QString stringContent;
     if (!headerFileTextFormat.decode(data, &stringContent))

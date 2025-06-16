@@ -315,7 +315,7 @@ void DocumentManager::goIntoComponent(const QString &fileName)
 bool DocumentManager::createFile(const QString &filePath, const QString &contents)
 {
     TextFileFormat textFileFormat;
-    textFileFormat.setCodec(Core::EditorManager::defaultTextCodec());
+    textFileFormat.setEncoding(Core::EditorManager::defaultTextEncoding());
 
     return textFileFormat.writeFile(FilePath::fromString(filePath), contents).has_value();
 }

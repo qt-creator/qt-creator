@@ -56,12 +56,12 @@ void TextFileFormat::detectFromData(const QByteArray &data)
     // code taken from qtextstream
     if (bytesRead >= 4 && ((buf[0] == 0xff && buf[1] == 0xfe && buf[2] == 0 && buf[3] == 0)
                            || (buf[0] == 0 && buf[1] == 0 && buf[2] == 0xfe && buf[3] == 0xff))) {
-        m_codec = TextCodec::utf32();
+        m_encoding = TextEncoding::Utf32;
     } else if (bytesRead >= 2 && ((buf[0] == 0xff && buf[1] == 0xfe)
                                   || (buf[0] == 0xfe && buf[1] == 0xff))) {
-        m_codec = TextCodec::utf16();
+        m_encoding = TextEncoding::Utf16;
     } else if (bytesRead >= 3 && ((buf[0] == 0xef && buf[1] == 0xbb) && buf[2] == 0xbf)) {
-        m_codec = TextCodec::utf8();
+        m_encoding = TextEncoding::Utf8;
         hasUtf8Bom = true;
     }
     // end code taken from qtextstream
@@ -87,22 +87,22 @@ QByteArray TextFileFormat::decodingErrorSample(const QByteArray &data)
 
 TextCodec TextFileFormat::codec() const
 {
-    return m_codec;
+    return TextCodec::codecForName(m_encoding);
 }
 
 void TextFileFormat::setCodec(const TextCodec &codec)
 {
-    m_codec = codec;
+    m_encoding = codec.name();
 }
 
 TextEncoding TextFileFormat::encoding() const
 {
-    return m_codec.name();
+    return m_encoding;
 }
 
 void TextFileFormat::setEncoding(const TextEncoding &encoding)
 {
-    m_codec = TextCodec::codecForName(encoding.name());
+    m_encoding = encoding;
 }
 
 enum { textChunkSize = 65536 };
@@ -128,7 +128,7 @@ static bool verifyDecodingError(const QString &text, const TextCodec codec,
 
 bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
 {
-    QTC_ASSERT(m_codec.isValid(), return false);
+    QTC_ASSERT(m_encoding.isValid(), return false);
 
     TextCodec::ConverterState state;
     bool hasDecodingError = false;
@@ -142,21 +142,22 @@ bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
     // Process chunkwise as QTextCodec allocates too much memory when doing it in one
     // go. An alternative to the code below would be creating a decoder from the codec,
     // but its failure detection does not seem be working reliably.
+    TextCodec codec = TextCodec::codecForName(m_encoding);
     for (const char *data = start; data < end; ) {
         const char *chunkStart = data;
         const int chunkSize = qMin(int(textChunkSize), int(end - chunkStart));
-        QString text = m_codec.toUnicode(chunkStart, chunkSize, &state);
+        QString text = codec.toUnicode(chunkStart, chunkSize, &state);
         data += chunkSize;
         // Process until the end of the current multi-byte character. Remaining might
         // actually contain more than needed so try one-be-one. If EOF is reached with
         // and characters remain->encoding error.
         for ( ; state.remainingChars && data < end ; ++data)
-            text.append(m_codec.toUnicode(data, 1, &state));
+            text.append(codec.toUnicode(data, 1, &state));
         if (state.remainingChars)
             hasDecodingError = true;
         if (!hasDecodingError)
             hasDecodingError =
-                verifyDecodingError(text, m_codec, chunkStart, data - chunkStart,
+                verifyDecodingError(text, codec, chunkStart, data - chunkStart,
                                     chunkStart == start);
         if (lineTerminationMode == TextFileFormat::CRLFLineTerminator)
             text.remove(QLatin1Char('\r'));
@@ -179,7 +180,7 @@ bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
 */
 
 TextFileFormat::ReadResult
-TextFileFormat::readFile(const FilePath &filePath, const TextEncoding &fallbackCodec)
+TextFileFormat::readFile(const FilePath &filePath, const TextEncoding &fallbackEncoding)
 {
     QByteArray data;
     try {
@@ -193,10 +194,10 @@ TextFileFormat::readFile(const FilePath &filePath, const TextEncoding &fallbackC
 
     detectFromData(data);
 
-    if (!m_codec.isValid())
-        m_codec = TextCodec::codecForName(fallbackCodec.name());
-    if (!m_codec.isValid())
-        m_codec = TextCodec::codecForLocale();
+    if (!m_encoding.isValid())
+        m_encoding = fallbackEncoding;
+    if (!m_encoding.isValid())
+        m_encoding = TextEncoding::encodingForLocale();
 
     TextFileFormat::ReadResult result;
     if (!decode(data, &result.content)) {
@@ -222,13 +223,13 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
 
     TextFileFormat format;
     format.detectFromData(data);
-    if (!format.m_codec.isValid())
-        format.m_codec = TextCodec::codecForName(fallbackEncoding.name());
-    if (!format.m_codec.isValid())
-        format.m_codec = TextCodec::codecForLocale();
+    if (!format.m_encoding.isValid())
+        format.m_encoding = fallbackEncoding;
+    if (!format.m_encoding.isValid())
+        format.m_encoding = TextEncoding::encodingForLocale();
 
     QString target;
-    if (format.m_codec.isUtf8() || !format.decode(data, &target)) {
+    if (format.m_encoding.isUtf8() || !format.decode(data, &target)) {
         if (format.hasUtf8Bom)
             data.remove(0, 3);
         if (format.lineTerminationMode == TextFileFormat::CRLFLineTerminator)
@@ -249,7 +250,7 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
 
 Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) const
 {
-    QTC_ASSERT(m_codec.isValid(), return ResultError("No codec"));
+    QTC_ASSERT(m_encoding.isValid(), return ResultError("No codec"));
 
     // Does the user want CRLF? If that is native,
     // do not let QFile do the work, because it replaces the line ending after the text was encoded,
@@ -260,9 +261,9 @@ Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) 
 
     FileSaver saver(filePath, fileMode);
     if (!saver.hasError()) {
-        if (hasUtf8Bom && m_codec.isUtf8())
+        if (hasUtf8Bom && m_encoding.isUtf8())
             saver.write({"\xef\xbb\xbf", 3});
-        saver.write(m_codec.fromUnicode(plainText));
+        saver.write(TextCodec::codecForName(m_encoding).fromUnicode(plainText));
     }
 
     const Result<> result = saver.finalize();

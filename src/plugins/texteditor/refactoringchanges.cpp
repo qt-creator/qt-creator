@@ -72,7 +72,7 @@ bool RefactoringFile::create(const QString &contents, bool reindent, bool openIn
 
     // Write the file to disk:
     TextFileFormat format;
-    format.setCodec(EditorManager::defaultTextCodec());
+    format.setEncoding(EditorManager::defaultTextEncoding());
     const Result<> saveOk = format.writeFile(m_filePath, m_document->toPlainText());
     delete m_document;
     m_document = nullptr;
@@ -114,7 +114,7 @@ QTextDocument *RefactoringFile::mutableDocument() const
             result = m_textFileFormat.readFile(m_filePath, EditorManager::defaultTextEncoding());
             if (result.code != TextFileFormat::ReadSuccess) {
                 qWarning() << "Could not read " << m_filePath << ". Error: " << result.error;
-                m_textFileFormat.setCodec({});
+                m_textFileFormat.setEncoding({});
             }
         }
         // always make a QTextDocument to avoid excessive null checks

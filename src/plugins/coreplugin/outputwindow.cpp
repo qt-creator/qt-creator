@@ -319,7 +319,7 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
             {}, FileUtils::homePath() / d->outputFileNameHint);
         if (!file.isEmpty()) {
             TextFileFormat format;
-            format.setCodec(EditorManager::defaultTextCodec());
+            format.setEncoding(EditorManager::defaultTextEncoding());
             format.lineTerminationMode = EditorManager::defaultLineEnding();
             if (const Result<> res = format.writeFile(file, toPlainText()); !res)
                 MessageManager::writeDisrupting(res.error());
