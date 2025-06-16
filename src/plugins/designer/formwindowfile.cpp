@@ -216,10 +216,10 @@ QString FormWindowFile::fallbackSaveAsFileName() const
 
 bool FormWindowFile::supportsEncoding(const TextEncoding &encoding) const
 {
-    return TextCodec::isUtf8Codec(encoding);
+    return encoding.isUtf8();
 }
 
-Result<> FormWindowFile::writeFile(const Utils::FilePath &filePath) const
+Result<> FormWindowFile::writeFile(const FilePath &filePath) const
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << this->filePath() << filePath;

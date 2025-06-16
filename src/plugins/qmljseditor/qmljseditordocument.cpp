@@ -746,7 +746,7 @@ QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
 
 bool QmlJSEditorDocument::supportsEncoding(const TextEncoding &encoding) const
 {
-    return TextCodec::isUtf8Codec(encoding);
+    return encoding.isUtf8();
 }
 
 QmlJSEditorDocument::~QmlJSEditorDocument()

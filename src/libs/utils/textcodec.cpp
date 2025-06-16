@@ -151,23 +151,6 @@ TextCodec TextCodec::codecForLocale()
     return {};
 }
 
-bool TextCodec::isUtf8() const
-{
-    return m_codec && m_codec->name() == "UTF-8";
-}
-
-bool TextCodec::isUtf8Codec(const QByteArray &name)
-{
-    static const auto utf8Codecs = []() -> QList<QByteArray> {
-        const TextCodec codec = TextCodec::utf8();
-        if (QTC_GUARD(codec.isValid()))
-            return QList<QByteArray>{codec.name()} + codec.m_codec->aliases();
-        return {"UTF-8"};
-    }();
-
-    return utf8Codecs.contains(name);
-}
-
 QList<int> TextCodec::availableMibs()
 {
     return QTextCodec::availableMibs();

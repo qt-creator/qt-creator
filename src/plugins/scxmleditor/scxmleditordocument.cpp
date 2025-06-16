@@ -122,7 +122,7 @@ Result<> ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
 
 bool ScxmlEditorDocument::supportsEncoding(const TextEncoding &encoding) const
 {
-    return TextCodec::isUtf8Codec(encoding);
+    return encoding.isUtf8();
 }
 
 QString ScxmlEditorDocument::designWidgetContents() const

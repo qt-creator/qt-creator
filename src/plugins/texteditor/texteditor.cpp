@@ -9861,7 +9861,7 @@ void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
     if (Command *bomCmd = ActionManager::command(Constants::SWITCH_UTF8BOM)) {
         QAction *a = bomCmd->action();
         TextDocument *doc = textDocument();
-        if (doc->codec().isUtf8() && doc->supportsUtf8Bom()) {
+        if (doc->encoding().isUtf8() && doc->supportsUtf8Bom()) {
             a->setVisible(true);
             a->setText(doc->format().hasUtf8Bom ? Tr::tr("Delete UTF-8 BOM on Save")
                                                 : Tr::tr("Add UTF-8 BOM on Save"));

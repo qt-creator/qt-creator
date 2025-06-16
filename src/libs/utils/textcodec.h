@@ -73,9 +73,6 @@ public:
     static TextCodec codecForMib(int mib);
     static TextCodec codecForLocale();
 
-    bool isUtf8() const;
-    static bool isUtf8Codec(const QByteArray &codecName); // Also considers aliases
-
     static QList<int> availableMibs();
     static QList<QByteArray> availableCodecs();
 
