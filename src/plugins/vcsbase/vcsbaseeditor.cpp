@@ -1224,7 +1224,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     }
     const TextEncoding encoding = textDocument()->encoding();
     if (encoding.isValid()) {
-        QStringEncoder encoder(encoding);
+        QStringEncoder encoder(encoding.name());
         rc.chunk = encoder.encode(unicode);
         rc.header = encoder.encode(header);
     } else {

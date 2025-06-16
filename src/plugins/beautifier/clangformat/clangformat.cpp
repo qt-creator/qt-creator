@@ -402,7 +402,7 @@ void ClangFormat::formatAtPosition(const int pos, const int length)
 
     const QString &text = widget->textAt(0, pos + length);
     const QStringView buffer(text);
-    QStringEncoder encoder(encoding);
+    QStringEncoder encoder(encoding.name());
     const int encodedOffset = QByteArray(encoder.encode(buffer.left(pos))).size();
     const int encodedLength = QByteArray(encoder.encode(buffer.mid(pos, length))).size();
     formatCurrentFile(textCommand(encodedOffset, encodedLength));
