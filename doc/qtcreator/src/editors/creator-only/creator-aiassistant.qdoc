@@ -99,7 +99,7 @@
         \li Code Llama 13B QML (for Qt 6, running in a cloud deployment of your choice)
         \li Code Llama 13B (for Qt 5, running in a cloud deployment of your choice)
         \li Codestral (provided by Mistral)
-        \li Llama 3.3 70B QML (running in a cloud deployment of your choice)
+        \li Llama 3.3 70B (running in a cloud deployment of your choice)
         \li Claude 3.7 Sonnet (provided by Anthropic, remember that you
             need to have a token-based billing payment method configured for your
             Anthropic account: \l {https://console.anthropic.com/}{console.anthropic.com})
@@ -150,11 +150,13 @@
     To close the code completion bar, select the \key Esc key or move the cursor
     to another position.
 
-    To turn auto-completion of code on or off globally for all projects, go to
-    \preferences > \uicontrol {AI Assistant}. Qt AI Assistant consumes a
-    significant number of tokens from the LLM. To cut costs, disable the
-    auto-completion feature when not needed, and use keyboard shortcuts for
-    code completion.
+    To select the model for code completion, go to \preferences >
+    \uicontrol {AI Assistant} > \uicontrol General.
+
+    In \uicontrol General, you can also turn auto-completion of code on or off
+    globally for all projects. Qt AI Assistant consumes a significant number of
+    tokens from the LLM. To cut costs, turn off the auto-completion feature when
+    not needed, and use keyboard shortcuts for code completion.
 
     \section1 Complete code from the keyboard
 
@@ -172,7 +174,8 @@
     \inlineimage icons/close.png.
 
     To go to Qt AI Assistant preferences from the inline prompt window, select
-    \inlineimage icons/settings.png.
+    \inlineimage icons/settings.png. There, you can set the model to use for
+    prompts and code reviews.
 
     \section2 Request suggestions using human language
 
@@ -193,7 +196,8 @@
     \endlist
 
     Qt AI Assistant reviews the code and suggests improvements. It uses
-    \l {qmllint}{QML Lint} to review QML code.
+    \l {qmllint}{QML Lint} to review QML code if \uicontrol {Enable QML linter}
+    is on in \preferences > \uicontrol {AI Assistant} > \uicontrol General.
 
     \section2 Request test cases in Qt Test syntax
 
