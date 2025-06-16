@@ -394,16 +394,17 @@ void ClangFormat::formatAtPosition(const int pos, const int length)
     if (!widget)
         return;
 
-    const TextCodec codec = widget->textDocument()->codec();
-    if (!codec.isValid()) {
+    const TextEncoding encoding = widget->textDocument()->encoding();
+    if (!encoding.isValid()) {
         formatCurrentFile(textCommand(pos, length));
         return;
     }
 
     const QString &text = widget->textAt(0, pos + length);
     const QStringView buffer(text);
-    const int encodedOffset = codec.fromUnicode(buffer.left(pos)).size();
-    const int encodedLength = codec.fromUnicode(buffer.mid(pos, length)).size();
+    QStringEncoder encoder(encoding);
+    const int encodedOffset = QByteArray(encoder.encode(buffer.left(pos))).size();
+    const int encodedLength = QByteArray(encoder.encode(buffer.mid(pos, length))).size();
     formatCurrentFile(textCommand(encodedOffset, encodedLength));
 }
 
