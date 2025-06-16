@@ -90,7 +90,7 @@ CppSourceProcessor::CppSourceProcessor(const Snapshot &snapshot, DocumentCallbac
       m_documentFinished(documentFinished),
       m_preprocess(this, &m_env),
       m_languageFeatures(LanguageFeatures::defaultFeatures()),
-      m_defaultCodec(Core::EditorManager::defaultTextCodec())
+      m_defaultEncoding(Core::EditorManager::defaultTextEncoding())
 {
     m_preprocess.setKeepComments(true);
 }
@@ -193,7 +193,7 @@ bool CppSourceProcessor::getFileContents(const FilePath &absoluteFilePath,
     // Get from file
     *revision = 0;
     const Result<> result =
-            TextFileFormat::readFileUtf8(absoluteFilePath, m_defaultCodec, contents);
+            TextFileFormat::readFileUtf8(absoluteFilePath, m_defaultEncoding, contents);
     if (!result) {
         qWarning("Error reading file \"%s\": \"%s\".", qPrintable(absoluteFilePath.toUserOutput()),
                  qPrintable(result.error()));

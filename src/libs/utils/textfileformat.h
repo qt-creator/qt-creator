@@ -54,10 +54,10 @@ public:
 
     bool decode(const QByteArray &data, QString *target) const;
 
-    ReadResult readFile(const FilePath &filePath, const TextCodec &fallbackCodec);
+    ReadResult readFile(const FilePath &filePath, const TextEncoding &fallbackEncoding);
 
     static Result<> readFileUtf8(const FilePath &filePath,
-                                 const TextCodec &fallbackCodec,
+                                 const TextEncoding &fallbackEncoding,
                                  QByteArray *plainText);
 
     Result<> writeFile(const FilePath &filePath, QString plainText) const;

@@ -119,7 +119,7 @@ void BaseTextDocument::setLineTerminationMode(TextFileFormat::LineTerminationMod
 
 BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath)
 {
-    ReadResult res = d->m_format.readFile(filePath, codec());
+    ReadResult res = d->m_format.readFile(filePath, encoding());
     d->m_hasDecodingError = res.code == TextFileFormat::ReadEncodingError;
     d->m_decodingErrorSample = res.decodingErrorSample;
     return res;

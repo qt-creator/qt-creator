@@ -102,7 +102,7 @@ TextEncoding TextFileFormat::encoding() const
 
 void TextFileFormat::setEncoding(const TextEncoding &encoding)
 {
-    m_codec = TextCodec::codecForName(encoding);
+    m_codec = TextCodec::codecForName(encoding.name());
 }
 
 enum { textChunkSize = 65536 };
@@ -175,11 +175,11 @@ bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
     \note This function does \e{not} use the codec set by \l setCodec. Instead
     it detects the codec to be used from BOM read file contents.
     If none is present, it falls back using the provided \a fallbackCodec.
-    If this still doesn't exist, it uses \l TextCodec::codecForLocale()
+    If this still doesn't exist, it uses \l TextEncoding::encodingForLocale()
 */
 
 TextFileFormat::ReadResult
-TextFileFormat::readFile(const FilePath &filePath, const TextCodec &fallbackCodec)
+TextFileFormat::readFile(const FilePath &filePath, const TextEncoding &fallbackCodec)
 {
     QByteArray data;
     try {
@@ -194,7 +194,7 @@ TextFileFormat::readFile(const FilePath &filePath, const TextCodec &fallbackCode
     detectFromData(data);
 
     if (!m_codec.isValid())
-        m_codec = fallbackCodec;
+        m_codec = TextCodec::codecForName(fallbackCodec.name());
     if (!m_codec.isValid())
         m_codec = TextCodec::codecForLocale();
 
@@ -207,7 +207,7 @@ TextFileFormat::readFile(const FilePath &filePath, const TextCodec &fallbackCode
 }
 
 Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
-                                      const TextCodec &fallbackCodec,
+                                      const TextEncoding &fallbackEncoding,
                                       QByteArray *plainText)
 {
     QByteArray data;
@@ -223,7 +223,7 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
     TextFileFormat format;
     format.detectFromData(data);
     if (!format.m_codec.isValid())
-        format.m_codec = fallbackCodec;
+        format.m_codec = TextCodec::codecForName(fallbackEncoding.name());
     if (!format.m_codec.isValid())
         format.m_codec = TextCodec::codecForLocale();
 

@@ -179,7 +179,7 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
         TextFileFormat format = textDocument->format();
 
         const TextFileFormat::ReadResult leftResult = format.readFile(
-            m_filePath, format.codec());
+            m_filePath, format.encoding());
 
         const QString rightText = textDocument->plainText();
 
@@ -224,7 +224,7 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
             TextFileFormat format = textDocument->format();
 
             const FilePath filePath = textDocument->filePath();
-            const TextFileFormat::ReadResult leftResult = format.readFile(filePath, format.codec());
+            const TextFileFormat::ReadResult leftResult = format.readFile(filePath, format.encoding());
 
             const QString rightText = textDocument->plainText();
 
@@ -273,7 +273,7 @@ QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
             TextFileFormat format = textDocument->format();
 
             const FilePath filePath = textDocument->filePath();
-            const TextFileFormat::ReadResult leftResult = format.readFile(filePath, format.codec());
+            const TextFileFormat::ReadResult leftResult = format.readFile(filePath, format.encoding());
 
             const QString rightText = textDocument->plainText();
 
@@ -319,8 +319,8 @@ QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
     TextFileFormat format;
     format.setCodec(EditorManager::defaultTextCodec());
 
-    const TextFileFormat::ReadResult leftResult = format.readFile(m_leftFilePath, format.codec());
-    const TextFileFormat::ReadResult rightResult = format.readFile(m_rightFilePath, format.codec());
+    const TextFileFormat::ReadResult leftResult = format.readFile(m_leftFilePath, format.encoding());
+    const TextFileFormat::ReadResult rightResult = format.readFile(m_rightFilePath, format.encoding());
 
     ReloadInput reloadInput;
     reloadInput.text = {leftResult.content, rightResult.content};

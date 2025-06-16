@@ -289,8 +289,8 @@ QStringList SymbolSupport::getFileContents(const FilePath &filePath)
     } else {
         TextFileFormat format;
         format.lineTerminationMode = TextFileFormat::LFLineTerminator;
-        const TextCodec codec = Core::EditorManager::defaultTextCodec();
-        const TextFileFormat::ReadResult result = format.readFile(filePath, codec);
+        const TextEncoding encoding = Core::EditorManager::defaultTextEncoding();
+        const TextFileFormat::ReadResult result = format.readFile(filePath, encoding);
         fileContent = result.content;
         if (result.code != TextFileFormat::ReadSuccess) {
             qDebug() << "Failed to read file" << filePath << ":" << result.error;

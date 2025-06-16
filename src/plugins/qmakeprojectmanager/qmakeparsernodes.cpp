@@ -739,7 +739,7 @@ bool QmakePriFile::ensureWriteableProFile(const QString &file)
 QPair<ProFile *, QStringList> QmakePriFile::readProFile()
 {
     TextFileFormat::ReadResult result =
-            m_textFormat.readFile(filePath(), EditorManager::defaultTextCodec());
+            m_textFormat.readFile(filePath(), EditorManager::defaultTextEncoding());
     if (result.code != TextFileFormat::ReadSuccess) {
         QmakeBuildSystem::proFileParseError(result.error, filePath());
         return {nullptr, {}};
