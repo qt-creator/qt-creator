@@ -42,17 +42,7 @@ BaseMessage::BaseMessage(const QByteArray &mimeType, const QByteArray &content)
 
 bool BaseMessage::operator==(const BaseMessage &other) const
 {
-    if (mimeType != other.mimeType || content != other.content)
-        return false;
-    if (encoding.isValid()) {
-        if (other.encoding.isValid())
-            return encoding.mibEnum() == other.encoding.mibEnum();
-        return encoding.mibEnum() == defaultEncoding().mibEnum();
-    }
-    if (other.encoding.isValid())
-        return other.encoding.mibEnum() == defaultEncoding().mibEnum();
-
-    return true;
+    return mimeType == other.mimeType && content == other.content && encoding == other.encoding;
 }
 
 static QPair<QByteArray, QByteArray> splitHeaderFieldLine(const QByteArray &headerFieldLine)
