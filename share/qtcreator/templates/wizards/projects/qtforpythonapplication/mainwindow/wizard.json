@@ -13,7 +13,7 @@
     "options":
     [
         { "key": "MainPyFileName", "value": "%{ProjectDirectory}/%{SrcFileName}" },
-        { "key": "PyProjectTomlFile", "value": "%{ProjectDirectory}/pyproject.toml" },
+        { "key": "PyProjectTomlFile", "value": "pyproject.toml" },
         { "key": "ProjectFilePath", "value": "%{ProjectDirectory}/%{PyProjectTomlFile}" }
     ],
 
