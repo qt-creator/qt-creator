@@ -287,8 +287,8 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
     connect(d->utf8BomBox, &QComboBox::currentIndexChanged,
             this, &BehaviorSettingsWidget::slotExtraEncodingChanged);
-    connect(d->encodingBox, &CodecChooser::codecChanged,
-            this, &BehaviorSettingsWidget::textCodecChanged);
+    connect(d->encodingBox, &CodecChooser::encodingChanged,
+            this, &BehaviorSettingsWidget::textEncodingChanged);
     connect(d->constrainTooltipsBox, &QComboBox::currentIndexChanged,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
     connect(d->keyboardTooltips, &QAbstractButton::clicked,
@@ -313,11 +313,11 @@ void BehaviorSettingsWidget::setActive(bool active)
     d->groupBoxStorageSettings->setEnabled(active);
 }
 
-void BehaviorSettingsWidget::setAssignedCodec(const Utils::TextCodec &codec)
+void BehaviorSettingsWidget::setAssignedEncoding(const Utils::TextEncoding &encoding)
 {
     const QString codecName = Core::ICore::settings()->value(
                 Core::Constants::SETTINGS_DEFAULTTEXTENCODING).toString();
-    d->encodingBox->setAssignedCodec(codec, codecName);
+    d->encodingBox->setAssignedEncoding(encoding, codecName);
 }
 
 QByteArray BehaviorSettingsWidget::assignedCodecName() const

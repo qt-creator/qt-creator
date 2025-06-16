@@ -245,7 +245,7 @@ public:
     void copy(bool raw = false);
     void setMarkup(const QList<Markup> &markup);
     void setNewWindowRequestAllowed(bool c) { m_canRequestNewWindow = c; }
-    void setCodec(const Utils::TextCodec &codec);
+    void setEncoding(const Utils::TextEncoding &encoding);
     QByteArray toByteArray(const QString &s) const;
 
     void clearMarkup() { m_markup.clear(); }
@@ -338,7 +338,7 @@ public:
     QList<Markup> m_markup;
 
     QLineEdit *m_addressEdit = nullptr;
-    TextCodec m_codec;
+    TextEncoding m_encoding;
 };
 
 const QChar MidpointChar(u'\u00B7');
@@ -390,7 +390,7 @@ BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
 
     const QByteArray setting = ICore::settings()->value(C_ENCODING_SETTING).toByteArray();
     if (!setting.isEmpty())
-        setCodec(TextCodec::codecForName(setting));
+        setEncoding(setting);
 
     m_addressEdit = new QLineEdit;
     auto addressValidator = new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{1,16}"), m_addressEdit);
@@ -764,12 +764,13 @@ QRect BinEditorWidget::cursorRect() const
 
 QChar BinEditorWidget::displayChar(char ch) const
 {
+    // FIXME: We should perhaps handle more then plain 8bit encodings.
     const QChar qc = QLatin1Char(ch);
     if (qc.isPrint() && qc.unicode() < 128)
         return qc;
-    if (!m_codec.isValid() || qc.unicode() < 32)
+    if (!m_encoding.isValid() || qc.unicode() < 32)
         return MidpointChar;
-    const QString uc = m_codec.toUnicode(QByteArrayView(&ch, 1));
+    const QString uc = m_encoding.decode(QByteArrayView(&ch, 1));
     if (uc.isEmpty() || !uc.at(0).isLetterOrNumber())
         return MidpointChar;
     return uc.at(0);
@@ -1690,8 +1691,8 @@ void BinEditorWidget::copy(bool raw)
     QByteArray data = m_doc->dataMid(selStart, selectionLength);
     if (raw) {
         data.replace(0, ' ');
-        const TextCodec codec = m_codec.isValid() ? m_codec : TextCodec::latin1();
-        setClipboardAndSelection(codec.toUnicode(data));
+        const TextEncoding encoding = m_encoding.isValid() ? m_encoding : TextEncoding(TextEncoding::Latin1);
+        setClipboardAndSelection(encoding.decode(data));
         return;
     }
     QString hexString;
@@ -1885,19 +1886,19 @@ void BinEditorWidget::jumpToAddress(quint64 address)
         m_doc->requestNewRange(address);
 }
 
-void BinEditorWidget::setCodec(const TextCodec &codec)
+void BinEditorWidget::setEncoding(const TextEncoding &encoding)
 {
-    if (codec == m_codec)
+    if (encoding == m_encoding)
         return;
-    m_codec = codec;
-    ICore::settings()->setValue(C_ENCODING_SETTING, codec.name());
+    m_encoding = encoding;
+    ICore::settings()->setValue(C_ENCODING_SETTING, encoding.name());
     viewport()->update();
 }
 
 QByteArray BinEditorWidget::toByteArray(const QString &s) const
 {
-    if (m_codec.isValid())
-        return m_codec.fromUnicode(s);
+    if (m_encoding.isValid())
+        return m_encoding.encode(s);
     return s.toLatin1();
 }
 
@@ -2193,13 +2194,13 @@ public:
 
         auto codecChooser = new CodecChooser(CodecChooser::Filter::All);
         codecChooser->prependNone();
-        connect(codecChooser, &CodecChooser::codecChanged,
-                m_widget, &BinEditorWidget::setCodec);
-        m_widget->setCodec(codecChooser->currentCodec());
+        connect(codecChooser, &CodecChooser::encodingChanged,
+                m_widget, &BinEditorWidget::setEncoding);
+        m_widget->setEncoding(codecChooser->currentEncoding());
 
         const QVariant setting = ICore::settings()->value(C_ENCODING_SETTING);
         if (!setting.isNull())
-            codecChooser->setAssignedCodec(TextCodec::codecForName(setting.toByteArray()));
+            codecChooser->setAssignedEncoding(setting.toByteArray());
 
         using namespace Layouting;
         auto w = Row {
@@ -2244,7 +2245,7 @@ public:
         auto binEditorFind = new BinEditorFind(m_widget);
         connect(
             codecChooser,
-            &CodecChooser::codecChanged,
+            &CodecChooser::encodingChanged,
             binEditorFind,
             &BinEditorFind::rehighlightAll);
 

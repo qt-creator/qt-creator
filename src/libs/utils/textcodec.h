@@ -35,8 +35,8 @@ public:
     bool isUtf8() const;
     int mibEnum() const;
 
-    QString decode(const QByteArray &encoded) const;
-    QByteArray encode(const QString &decoded) const;
+    QString decode(QByteArrayView encoded) const;
+    QByteArray encode(QStringView decoded) const;
 
     static TextEncoding encodingForLocale();
 

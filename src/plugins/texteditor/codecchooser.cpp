@@ -32,36 +32,36 @@ CodecChooser::CodecChooser(Filter filter)
             continue;
         if (const TextCodec codec = TextCodec::codecForMib(mib); codec.isValid()) {
             addItem(codec.fullDisplayName());
-            m_codecs.append(codec);
+            m_encodings.append(codec.name());
         }
     }
     connect(this, &QComboBox::currentIndexChanged,
-            this, [this](int index) { emit codecChanged(codecAt(index)); });
+            this, [this](int index) { emit encodingChanged(encodingAt(index)); });
 }
 
 void CodecChooser::prependNone()
 {
     insertItem(0, "None");
-    m_codecs.prepend({});
+    m_encodings.prepend({});
 }
 
-TextCodec CodecChooser::currentCodec() const
+TextEncoding CodecChooser::currentEncoding() const
 {
-    return codecAt(currentIndex());
+    return encodingAt(currentIndex());
 }
 
-TextCodec CodecChooser::codecAt(int index) const
+TextEncoding CodecChooser::encodingAt(int index) const
 {
     if (index < 0)
         index = 0;
-    return m_codecs[index].isValid() ? m_codecs[index] : TextCodec();
+    return m_encodings[index].isValid() ? m_encodings[index] : TextEncoding();
 }
 
-void CodecChooser::setAssignedCodec(const TextCodec &codec, const QString &name)
+void CodecChooser::setAssignedEncoding(const TextEncoding &encoding, const QString &name)
 {
     int rememberedSystemPosition = -1;
-    for (int i = 0, total = m_codecs.size(); i < total; ++i) {
-        if (codec != m_codecs.at(i))
+    for (int i = 0, total = m_encodings.size(); i < total; ++i) {
+        if (encoding != m_encodings.at(i))
             continue;
         if (name.isEmpty() || itemText(i) == name) {
             setCurrentIndex(i);
@@ -79,7 +79,7 @@ QByteArray CodecChooser::assignedCodecName() const
     const int index = currentIndex();
     return index == 0
             ? QByteArray("System")   // we prepend System to the available codecs
-            : m_codecs.at(index).name();
+            : m_encodings.at(index).name();
 }
 
 } // TextEditor

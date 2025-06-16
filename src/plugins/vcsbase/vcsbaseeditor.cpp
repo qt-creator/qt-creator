@@ -1250,7 +1250,7 @@ static TextEncoding findProjectEncoding(const FilePath &dirPath)
     const auto projects = ProjectExplorer::ProjectManager::projects();
     const auto *p
         = findOrDefault(projects, equal(&ProjectExplorer::Project::projectDirectory, dirPath));
-    return p ? TextEncoding(p->editorConfiguration()->textCodec().name()) : TextEncoding();
+    return p ? p->editorConfiguration()->textEncoding() : TextEncoding();
 }
 
 TextEncoding VcsBaseEditor::getEncoding(const FilePath &source)

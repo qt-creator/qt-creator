@@ -29,7 +29,6 @@ namespace Core { class IEditor; }
 
 namespace Utils {
 class FilePath;
-class TextCodec;
 class TextEncoding;
 };
 
@@ -51,7 +50,6 @@ public:
     void cloneGlobalSettings();
 
     // The default codec is returned in the case the project doesn't override it.
-    Utils::TextCodec textCodec() const;
     Utils::TextEncoding textEncoding() const;
 
     const TextEditor::TypingSettings &typingSettings() const;
@@ -81,7 +79,7 @@ public:
     void setUseIndenter(bool onoff);
     void setWrapColumn(int column);
 
-    void setTextCodec(const Utils::TextCodec &textCodec);
+    void setTextEncoding(const Utils::TextEncoding &textEncoding);
 
     void slotAboutToRemoveProject(ProjectExplorer::Project *project);
 

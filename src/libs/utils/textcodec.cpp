@@ -74,12 +74,12 @@ int TextEncoding::mibEnum() const
     return QTextCodec::codecForName(m_name)->mibEnum();
 }
 
-QString TextEncoding::decode(const QByteArray &encoded) const
+QString TextEncoding::decode(QByteArrayView encoded) const
 {
     return QStringDecoder(m_name).decode(encoded);
 }
 
-QByteArray TextEncoding::encode(const QString &decoded) const
+QByteArray TextEncoding::encode(QStringView decoded) const
 {
     return QStringEncoder(m_name).encode(decoded);
 }

@@ -125,8 +125,8 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
             config, &EditorConfiguration::setBehaviorSettings);
     connect(m_behaviorSettings, &TextEditor::BehaviorSettingsWidget::extraEncodingSettingsChanged,
             config, &EditorConfiguration::setExtraEncodingSettings);
-    connect(m_behaviorSettings, &TextEditor::BehaviorSettingsWidget::textCodecChanged,
-            config, &EditorConfiguration::setTextCodec);
+    connect(m_behaviorSettings, &TextEditor::BehaviorSettingsWidget::textEncodingChanged,
+            config, &EditorConfiguration::setTextEncoding);
 }
 
 void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
@@ -136,7 +136,7 @@ void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
     m_useIndenter->setChecked(config->marginSettings().m_useIndenter);
     m_wrapColumn->setValue(config->marginSettings().m_marginColumn);
     m_behaviorSettings->setCodeStyle(config->codeStyle());
-    m_behaviorSettings->setAssignedCodec(config->textCodec());
+    m_behaviorSettings->setAssignedEncoding(config->textEncoding());
     m_behaviorSettings->setAssignedTypingSettings(config->typingSettings());
     m_behaviorSettings->setAssignedStorageSettings(config->storageSettings());
     m_behaviorSettings->setAssignedBehaviorSettings(config->behaviorSettings());

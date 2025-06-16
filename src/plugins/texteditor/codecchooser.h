@@ -21,16 +21,16 @@ public:
     explicit CodecChooser(Filter filter = Filter::All);
 
     void prependNone();
-    Utils::TextCodec currentCodec() const;
-    void setAssignedCodec(const Utils::TextCodec &codec, const QString &name = {});
+    Utils::TextEncoding currentEncoding() const;
+    void setAssignedEncoding(const Utils::TextEncoding &encoding, const QString &name = {});
     QByteArray assignedCodecName() const;
 
 signals:
-    void codecChanged(const Utils::TextCodec &codec);
+    void encodingChanged(const Utils::TextEncoding &encoding);
 
 private:
-    Utils::TextCodec codecAt(int index) const;
-    QList<Utils::TextCodec> m_codecs;
+    Utils::TextEncoding encodingAt(int index) const;
+    QList<Utils::TextEncoding> m_encodings;
 };
 
 } // namespace TextEditor

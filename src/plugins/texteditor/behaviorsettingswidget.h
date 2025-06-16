@@ -30,7 +30,7 @@ public:
 
     void setActive(bool active);
 
-    void setAssignedCodec(const Utils::TextCodec &codec);
+    void setAssignedEncoding(const Utils::TextEncoding &encoding);
     QByteArray assignedCodecName() const;
 
     void setCodeStyle(ICodeStylePreferences *preferences);
@@ -57,7 +57,7 @@ signals:
     void storageSettingsChanged(const TextEditor::StorageSettings &settings);
     void behaviorSettingsChanged(const TextEditor::BehaviorSettings &settings);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &settings);
-    void textCodecChanged(const Utils::TextCodec &codec);
+    void textEncodingChanged(const Utils::TextEncoding &encoding);
 
 private:
     void slotTypingSettingsChanged();
