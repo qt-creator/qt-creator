@@ -95,6 +95,16 @@ void TextFileFormat::setCodec(const TextCodec &codec)
     m_codec = codec;
 }
 
+TextEncoding TextFileFormat::encoding() const
+{
+    return m_codec.name();
+}
+
+void TextFileFormat::setEncoding(const TextEncoding &encoding)
+{
+    m_codec = TextCodec::codecForName(encoding);
+}
+
 enum { textChunkSize = 65536 };
 
 static bool verifyDecodingError(const QString &text, const TextCodec codec,

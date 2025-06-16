@@ -196,12 +196,6 @@ TextCodec TextCodec::utf32()
     return theUtf32Codec;
 }
 
-TextCodec TextCodec::latin1()
-{
-    static TextCodec theLatin1Codec(QTextCodec::codecForName("latin1"));
-    return theLatin1Codec;
-}
-
 static TextEncoding theEncodingForLocale = TextEncoding(QStringEncoder::System);
 
 void TextCodec::setCodecForLocale(const QByteArray &codecName)

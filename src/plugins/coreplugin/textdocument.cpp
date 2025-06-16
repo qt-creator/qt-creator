@@ -44,7 +44,7 @@ public:
 BaseTextDocument::BaseTextDocument(QObject *parent)
     : IDocument(parent), d(new Internal::TextDocumentPrivate)
 {
-    setCodec(Core::EditorManager::defaultTextCodec());
+    setEncoding(Core::EditorManager::defaultTextEncoding());
     setLineTerminationMode(Core::EditorManager::defaultLineEnding());
 }
 

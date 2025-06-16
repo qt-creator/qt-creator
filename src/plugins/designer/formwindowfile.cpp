@@ -31,7 +31,7 @@ FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *pare
     setParent(parent);
     setId(Utils::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     // Designer needs UTF-8 regardless of settings.
-    setCodec(TextCodec::utf8());
+    setEncoding(TextEncoding::Utf8);
     connect(m_formWindow->core()->formWindowManager(), &QDesignerFormWindowManagerInterface::formWindowRemoved,
             this, &FormWindowFile::slotFormWindowRemoved);
     connect(m_formWindow->commandHistory(), &QUndoStack::indexChanged,

@@ -2073,7 +2073,7 @@ void TextEditorWidget::updateTextLineEndingLabel()
 
 void TextEditorWidget::updateTextCodecLabel()
 {
-    QString text = QString::fromLatin1(d->m_document->codec().name());
+    QString text = QString::fromLatin1(d->m_document->encoding().name());
     d->m_fileEncodingButton->setText(text);
 }
 

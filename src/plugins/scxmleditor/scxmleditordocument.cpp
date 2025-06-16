@@ -29,7 +29,7 @@ ScxmlEditorDocument::ScxmlEditorDocument(MainWidget *designWidget, QObject *pare
     setId(Utils::Id(ScxmlEditor::Constants::K_SCXML_EDITOR_ID));
 
     // Designer needs UTF-8 regardless of settings.
-    setCodec(TextCodec::utf8());
+    setEncoding(TextEncoding::Utf8);
     connect(m_designWidget.data(), &Common::MainWidget::dirtyChanged, this, [this]{
         emit changed();
     });

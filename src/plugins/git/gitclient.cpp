@@ -979,7 +979,7 @@ TextEncoding GitClient::defaultCommitEncoding() const
 {
     // Set default commit encoding to 'UTF-8', when it's not set,
     // to solve displaying error of commit log with non-latin characters.
-    return QStringConverter::Utf8;
+    return TextEncoding::Utf8;
 }
 
 TextEncoding GitClient::encoding(GitClient::EncodingType encodingType, const FilePath &source) const
@@ -2713,7 +2713,7 @@ Result<CommitData> GitClient::enrichCommitData(const FilePath &repoDirectory,
 
     CommitData commitData = commitDataIn;
     const TextEncoding authorEncoding = HostOsInfo::isWindowsHost()
-            ? QStringConverter::Utf8
+            ? TextEncoding::Utf8
             : commitData.commitEncoding;
     const TextCodec authorCodec = TextCodec::codecForName(authorEncoding);
     QByteArray stdOut = result.rawStdOut();
@@ -3572,7 +3572,7 @@ static TextEncoding configFileEncoding()
     // Git for Windows always uses UTF-8 for configuration:
     // https://github.com/msysgit/msysgit/wiki/Git-for-Windows-Unicode-Support#convert-config-files
     static const TextEncoding encoding =
-            HostOsInfo::isWindowsHost() ? QStringConverter::Utf8 : TextEncoding::encodingForLocale();
+            HostOsInfo::isWindowsHost() ? TextEncoding::Utf8 : TextEncoding::encodingForLocale();
     return encoding;
 }
 

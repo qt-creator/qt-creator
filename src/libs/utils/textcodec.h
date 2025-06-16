@@ -82,7 +82,6 @@ public:
     static TextCodec utf8();
     static TextCodec utf16();
     static TextCodec utf32();
-    static TextCodec latin1();
 
     static void setCodecForLocale(const QByteArray &codecName);
 
