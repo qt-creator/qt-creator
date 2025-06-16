@@ -30,7 +30,7 @@ class CodecSelector : public QDialog
 public:
     explicit CodecSelector(BaseTextDocument *doc);
 
-    TextCodec selectedCodec() const;
+    TextEncoding selectedEncoding() const;
 
 private:
     void updateButtons();
@@ -133,12 +133,12 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
 
 void CodecSelector::updateButtons()
 {
-    bool hasCodec = selectedCodec().isValid();
+    bool hasCodec = selectedEncoding().isValid();
     m_reloadButton->setEnabled(!m_isModified && hasCodec);
     m_saveButton->setEnabled(!m_hasDecodingError && hasCodec);
 }
 
-TextCodec CodecSelector::selectedCodec() const
+TextEncoding CodecSelector::selectedEncoding() const
 {
     if (QListWidgetItem *item = m_listWidget->currentItem()) {
         if (!item->isSelected())
@@ -146,7 +146,7 @@ TextCodec CodecSelector::selectedCodec() const
         QString codecName = item->text();
         if (codecName.contains(QLatin1String(" / ")))
             codecName = codecName.left(codecName.indexOf(QLatin1String(" / ")));
-        return TextCodec::codecForName(codecName.toLatin1());
+        return codecName.toLatin1();
     }
     return {};
 }
@@ -167,7 +167,7 @@ CodecSelectorResult askForCodec(BaseTextDocument *doc)
 {
     Internal::CodecSelector dialog(doc);
     const CodecSelectorResult::Action result = CodecSelectorResult::Action(dialog.exec());
-    return {result, dialog.selectedCodec()};
+    return {result, dialog.selectedEncoding()};
 }
 
 } // namespace Core

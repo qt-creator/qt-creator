@@ -829,10 +829,10 @@ Result<> TextDocument::openImpl(const FilePath &filePath,
     return ResultOk;
 }
 
-Result<> TextDocument::reload(const TextCodec &codec)
+Result<> TextDocument::reload(const TextEncoding &encoding)
 {
-    QTC_ASSERT(codec.isValid(), return ResultError("No codec given"));
-    setCodec(codec);
+    QTC_ASSERT(encoding.isValid(), return ResultError("No encoding given"));
+    setEncoding(encoding);
     return reload();
 }
 

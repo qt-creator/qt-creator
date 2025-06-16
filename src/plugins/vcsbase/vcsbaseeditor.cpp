@@ -1239,7 +1239,7 @@ static TextEncoding findFileCodec(const FilePath &source)
 {
     IDocument *document = DocumentModel::documentForFilePath(source);
     if (auto textDocument = qobject_cast<BaseTextDocument *>(document))
-        return textDocument->codec().name();
+        return textDocument->encoding();
     return {};
 }
 

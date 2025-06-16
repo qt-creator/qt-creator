@@ -22,13 +22,15 @@ public:
     ~BaseTextDocument() override;
 
     Utils::TextFileFormat format() const;
+
     Utils::TextCodec codec() const;
-    void setCodec(const Utils::TextCodec &codec);
     Utils::TextEncoding encoding() const;
     void setEncoding(const Utils::TextEncoding &encoding);
     virtual bool supportsCodec(const QByteArray &) const;
+
     void switchUtf8Bom();
     bool supportsUtf8Bom() const;
+
     Utils::TextFileFormat::LineTerminationMode lineTerminationMode() const;
 
     ReadResult read(const Utils::FilePath &filePath);

@@ -2035,14 +2035,14 @@ void TextEditorWidget::selectEncoding()
     const CodecSelectorResult result = Core::askForCodec(doc);
     switch (result.action) {
     case Core::CodecSelectorResult::Reload: {
-        if (Result<> res = doc->reload(result.codec); !res) {
+        if (Result<> res = doc->reload(result.encoding); !res) {
             QMessageBox::critical(this, Tr::tr("File Error"), res.error());
             break;
         }
         break;
     }
     case Core::CodecSelectorResult::Save:
-        doc->setCodec(result.codec);
+        doc->setEncoding(result.encoding);
         EditorManager::saveDocument(textDocument());
         updateTextCodecLabel();
         break;

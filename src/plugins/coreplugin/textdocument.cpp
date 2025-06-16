@@ -130,22 +130,17 @@ TextCodec BaseTextDocument::codec() const
     return d->m_format.codec();
 }
 
-void BaseTextDocument::setCodec(const TextCodec &codec)
-{
-    if (debug)
-        qDebug() << Q_FUNC_INFO << this << codec.displayName();
-    if (supportsCodec(codec.name()))
-        d->m_format.setCodec(codec);
-}
-
 void BaseTextDocument::setEncoding(const TextEncoding &encoding)
 {
-    setCodec(TextCodec::codecForName(encoding));
+    if (debug)
+        qDebug() << Q_FUNC_INFO << this << encoding.name();
+    if (supportsCodec(encoding.name()))
+        d->m_format.setEncoding(encoding);
 }
 
 TextEncoding BaseTextDocument::encoding() const
 {
-    return codec().name();
+    return d->m_format.encoding();
 }
 
 bool BaseTextDocument::supportsCodec(const QByteArray &) const

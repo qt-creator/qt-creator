@@ -13,7 +13,7 @@ struct CORE_EXPORT CodecSelectorResult
 {
     enum Action { Cancel, Reload, Save };
     Action action;
-    Utils::TextCodec codec;
+    Utils::TextEncoding encoding;
 };
 
 CORE_EXPORT CodecSelectorResult askForCodec(class BaseTextDocument *doc);

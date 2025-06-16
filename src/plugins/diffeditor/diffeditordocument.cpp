@@ -301,11 +301,11 @@ bool DiffEditorDocument::selectEncoding()
     const CodecSelectorResult result = askForCodec(this);
     switch (result.action) {
     case CodecSelectorResult::Reload: {
-        setCodec(result.codec);
+        setEncoding(result.encoding);
         return bool(reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents));
     }
     case CodecSelectorResult::Save:
-        setCodec(result.codec);
+        setEncoding(result.encoding);
         return Core::EditorManager::saveDocument(this);
     case CodecSelectorResult::Cancel:
         break;
