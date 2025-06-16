@@ -36,7 +36,7 @@ SearchResultItem searchResult(const FilePath &fileName, const QString &matchingL
 void test_helper(const FilePath &filePath, const SearchResultItems &expectedResults,
                  const QString &term, FindFlags flags = {})
 {
-    const FileListContainer container({filePath}, {TextCodec::encodingForLocale()});
+    const FileListContainer container({filePath}, {TextEncoding::encodingForLocale()});
     QFutureWatcher<SearchResultItems> watcher;
     QSignalSpy ready(&watcher, &QFutureWatcherBase::resultsReadyAt);
     watcher.setFuture(Utils::findInFiles(term, container, flags, {}));

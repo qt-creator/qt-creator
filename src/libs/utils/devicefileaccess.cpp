@@ -1252,13 +1252,13 @@ Result<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(const Fi
 TextEncoding DesktopDeviceFileAccess::processStdOutEncoding(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return TextCodec::encodingForLocale();
+    return TextEncoding::encodingForLocale();
 }
 
 TextEncoding DesktopDeviceFileAccess::processStdErrEncoding(const FilePath &executable) const
 {
     Q_UNUSED(executable)
-    return TextCodec::encodingForLocale();
+    return TextEncoding::encodingForLocale();
 }
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const

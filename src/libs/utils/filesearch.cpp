@@ -233,7 +233,7 @@ static bool getFileContent(const FilePath &filePath, const TextEncoding &encodin
         if (!content)
             return false;
         QTC_CHECK(encoding.isValid());
-        TextEncoding enc = encoding.isValid() ? encoding : TextCodec::encodingForLocale();
+        TextEncoding enc = encoding.isValid() ? encoding : TextEncoding::encodingForLocale();
         *tempString = enc.decode(*content);
     }
     return true;
@@ -560,7 +560,7 @@ static QList<FileContainerIterator::Item> toFileListCache(const FilePaths &fileL
 {
     QList<FileContainerIterator::Item> items;
     items.reserve(fileList.size());
-    const TextEncoding defaultEncoding = TextCodec::encodingForLocale();
+    const TextEncoding defaultEncoding = TextEncoding::encodingForLocale();
     for (int i = 0; i < fileList.size(); ++i)
         items.append({fileList.at(i), encodings.value(i, defaultEncoding)});
     return items;
@@ -629,7 +629,7 @@ SubDirCache::SubDirCache(const FilePaths &directories, const QStringList &filter
                          const TextEncoding &encoding)
     : m_filterFilesFunction(filterFilesFunction(filters, exclusionFilters, filterFileFuntion))
     , m_filterFileFunction(filterFileFuntion)
-    , m_encoding(encoding.isValid() ? encoding : TextCodec::encodingForLocale())
+    , m_encoding(encoding.isValid() ? encoding : TextEncoding::encodingForLocale())
 {
     const qreal maxPer = qreal(s_progressMaximum) / directories.count();
     for (const FilePath &directoryEntry : directories) {

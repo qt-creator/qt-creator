@@ -201,7 +201,7 @@ void TextCodec::setCodecForLocale(const QByteArray &codecName)
     theEncodingForLocale = codecName;
 }
 
-TextEncoding TextCodec::encodingForLocale()
+TextEncoding TextEncoding::encodingForLocale()
 {
     return theEncodingForLocale;
 }

@@ -3572,7 +3572,7 @@ static TextEncoding configFileEncoding()
     // Git for Windows always uses UTF-8 for configuration:
     // https://github.com/msysgit/msysgit/wiki/Git-for-Windows-Unicode-Support#convert-config-files
     static const TextEncoding encoding =
-            HostOsInfo::isWindowsHost() ? QStringConverter::Utf8 : TextCodec::encodingForLocale();
+            HostOsInfo::isWindowsHost() ? QStringConverter::Utf8 : TextEncoding::encodingForLocale();
     return encoding;
 }
 

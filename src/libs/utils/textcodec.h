@@ -38,6 +38,8 @@ public:
     QString decode(const QByteArray &encoded) const;
     QByteArray encode(const QString &decoded) const;
 
+    static TextEncoding encodingForLocale();
+
 private:
     QTCREATOR_UTILS_EXPORT friend bool operator==(const TextEncoding &left, const TextEncoding &right);
     QTCREATOR_UTILS_EXPORT friend bool operator!=(const TextEncoding &left, const TextEncoding &right);
@@ -83,7 +85,6 @@ public:
     static TextCodec latin1();
 
     static void setCodecForLocale(const QByteArray &codecName);
-    static TextEncoding encodingForLocale();
 
 private:
     explicit TextCodec(QTextCodec *codec);
