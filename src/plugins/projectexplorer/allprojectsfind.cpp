@@ -57,23 +57,23 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
 {
     const FilterFilesFunction filterFiles
         = Utils::filterFilesFunction(nameFilters, exclusionFilters);
-    const QMap<FilePath, TextCodec> openEditorEncodings
+    const QMap<FilePath, TextEncoding> openEditorEncodings
         = TextDocument::openedTextDocumentEncodings();
-    QMap<FilePath, TextCodec> codecs;
+    QMap<FilePath, TextEncoding> encodings;
     for (const Project *project : projects) {
         const EditorConfiguration *config = project->editorConfiguration();
-        TextCodec projectCodec = config->useGlobalSettings()
-            ? Core::EditorManager::defaultTextCodec()
-            : config->textCodec();
+        TextEncoding projectEncoding = config->useGlobalSettings()
+            ? Core::EditorManager::defaultTextEncoding()
+            : config->textEncoding();
         const FilePaths filteredFiles = filterFiles(project->files(Project::SourceFiles));
         for (const FilePath &fileName : filteredFiles) {
-            TextCodec codec = openEditorEncodings.value(fileName);
-            if (!codec.isValid())
-                codec = projectCodec;
-            codecs.insert(fileName, codec);
+            TextEncoding encoding = openEditorEncodings.value(fileName);
+            if (!encoding.isValid())
+                encoding = projectEncoding;
+            encodings.insert(fileName, encoding);
         }
     }
-    return FileListContainer(codecs.keys(), codecs.values());
+    return FileListContainer(encodings.keys(), encodings.values());
 }
 
 QString AllProjectsFind::label() const

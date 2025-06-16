@@ -113,6 +113,11 @@ void EditorConfiguration::cloneGlobalSettings()
     d->m_textCodec = Core::EditorManager::defaultTextCodec();
 }
 
+TextEncoding EditorConfiguration::textEncoding() const
+{
+    return TextEncoding(d->m_textCodec.name());
+}
+
 TextCodec EditorConfiguration::textCodec() const
 {
     return d->m_textCodec;

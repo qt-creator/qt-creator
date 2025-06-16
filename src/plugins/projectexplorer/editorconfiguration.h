@@ -30,6 +30,7 @@ namespace Core { class IEditor; }
 namespace Utils {
 class FilePath;
 class TextCodec;
+class TextEncoding;
 };
 
 namespace ProjectExplorer {
@@ -51,6 +52,7 @@ public:
 
     // The default codec is returned in the case the project doesn't override it.
     Utils::TextCodec textCodec() const;
+    Utils::TextEncoding textEncoding() const;
 
     const TextEditor::TypingSettings &typingSettings() const;
     const TextEditor::StorageSettings &storageSettings() const;

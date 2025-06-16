@@ -35,6 +35,9 @@ public:
     bool isUtf8() const;
     int mibEnum() const;
 
+    QString decode(const QByteArray &encoded) const;
+    QByteArray encode(const QString &decoded) const;
+
 private:
     QTCREATOR_UTILS_EXPORT friend bool operator==(const TextEncoding &left, const TextEncoding &right);
     QTCREATOR_UTILS_EXPORT friend bool operator!=(const TextEncoding &left, const TextEncoding &right);

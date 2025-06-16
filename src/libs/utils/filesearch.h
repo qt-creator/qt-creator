@@ -73,7 +73,7 @@ public:
     {
     public:
         FilePath filePath {};
-        Utils::TextCodec codec {};
+        Utils::TextEncoding encoding {};
     };
 
     class Data;
@@ -149,7 +149,7 @@ private:
 class QTCREATOR_UTILS_EXPORT FileListContainer : public FileContainer
 {
 public:
-    FileListContainer(const FilePaths &fileList, const QList<TextCodec> &codecs);
+    FileListContainer(const FilePaths &fileList, const QList<TextEncoding> &encoding);
 };
 
 class QTCREATOR_UTILS_EXPORT SubDirFileContainer : public FileContainer
@@ -158,11 +158,11 @@ public:
     SubDirFileContainer(const FilePaths &directories,
                         const QStringList &filters,
                         const QStringList &exclusionFilters,
-                        const TextCodec &codec = {});
+                        const TextEncoding &encoding = {});
 
     SubDirFileContainer(const FilePaths &directories,
                         const FilterFileFunction &filterFileFuntion = {},
-                        const TextCodec &codec = {});
+                        const TextEncoding &encoding = {});
 };
 
 QTCREATOR_UTILS_EXPORT QFuture<SearchResultItems> findInFiles(const QString &searchTerm,

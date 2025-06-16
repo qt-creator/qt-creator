@@ -68,11 +68,11 @@ QString FindInCurrentFile::displayName() const
 FileContainerProvider FindInCurrentFile::fileContainerProvider() const
 {
     return [fileName = m_currentDocument->filePath()] {
-        const QMap<FilePath, TextCodec> encodings = TextDocument::openedTextDocumentEncodings();
-        TextCodec codec = encodings.value(fileName);
-        if (!codec.isValid())
-            codec = Core::EditorManager::defaultTextCodec();
-        return FileListContainer({fileName}, {codec});
+        const QMap<FilePath, TextEncoding> encodings = TextDocument::openedTextDocumentEncodings();
+        TextEncoding encoding = encodings.value(fileName);
+        if (!encoding.isValid())
+            encoding = Core::EditorManager::defaultTextEncoding();
+        return FileListContainer({fileName}, {encoding});
     };
 }
 

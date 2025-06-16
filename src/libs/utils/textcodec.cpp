@@ -74,6 +74,16 @@ int TextEncoding::mibEnum() const
     return QTextCodec::codecForName(m_name)->mibEnum();
 }
 
+QString TextEncoding::decode(const QByteArray &encoded) const
+{
+    return QStringDecoder(m_name).decode(encoded);
+}
+
+QByteArray TextEncoding::encode(const QString &decoded) const
+{
+    return QStringEncoder(m_name).encode(decoded);
+}
+
 bool operator==(const TextEncoding &left, const TextEncoding &right)
 {
     return left.name() == right.name();

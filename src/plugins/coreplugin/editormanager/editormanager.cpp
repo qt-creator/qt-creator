@@ -3812,6 +3812,11 @@ TextCodec EditorManager::defaultTextCodec()
     return TextCodec::codecForLocale();
 }
 
+TextEncoding EditorManager::defaultTextEncoding()
+{
+    return TextEncoding(defaultTextCodec().name());
+}
+
 /*!
     Returns the default line ending as the user specified in the settings.
 */

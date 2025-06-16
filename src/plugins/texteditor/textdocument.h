@@ -51,7 +51,7 @@ public:
     ~TextDocument() override;
 
     static QMap<Utils::FilePath, QString> openedTextDocumentContents();
-    static QMap<Utils::FilePath, Utils::TextCodec> openedTextDocumentEncodings();
+    static QMap<Utils::FilePath, Utils::TextEncoding> openedTextDocumentEncodings();
     static TextDocument *currentTextDocument();
     static TextDocument *textDocumentForFilePath(const Utils::FilePath &filePath);
     static QString convertToPlainText(const QString &rawText);

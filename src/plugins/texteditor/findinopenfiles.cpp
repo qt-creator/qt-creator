@@ -60,21 +60,21 @@ QString FindInOpenFiles::displayName() const
 FileContainerProvider FindInOpenFiles::fileContainerProvider() const
 {
     return [] {
-        const QMap<FilePath, TextCodec> encodings = TextDocument::openedTextDocumentEncodings();
+        const QMap<FilePath, TextEncoding> docEncodings = TextDocument::openedTextDocumentEncodings();
         FilePaths fileNames;
-        QList<TextCodec> codecs;
+        QList<TextEncoding> encodings;
         const QList<Core::DocumentModel::Entry *> entries = Core::DocumentModel::entries();
         for (Core::DocumentModel::Entry *entry : entries) {
             const FilePath fileName = entry->filePath();
             if (!fileName.isEmpty()) {
                 fileNames.append(fileName);
-                TextCodec codec = encodings.value(fileName);
-                if (!codec.isValid())
-                    codec = Core::EditorManager::defaultTextCodec();
-                codecs.append(codec);
+                TextEncoding encoding = docEncodings.value(fileName);
+                if (!encoding.isValid())
+                    encoding = Core::EditorManager::defaultTextEncoding();
+                encodings.append(encoding);
             }
         }
-        return FileListContainer(fileNames, codecs);
+        return FileListContainer(fileNames, encodings);
     };
 }
 
