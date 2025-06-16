@@ -26,7 +26,7 @@ public:
     Utils::TextCodec codec() const;
     Utils::TextEncoding encoding() const;
     void setEncoding(const Utils::TextEncoding &encoding);
-    virtual bool supportsCodec(const QByteArray &) const;
+    virtual bool supportsEncoding(const Utils::TextEncoding &) const;
 
     void switchUtf8Bom();
     bool supportsUtf8Bom() const;

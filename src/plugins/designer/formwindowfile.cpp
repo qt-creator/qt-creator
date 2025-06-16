@@ -214,9 +214,9 @@ QString FormWindowFile::fallbackSaveAsFileName() const
     return m_suggestedName;
 }
 
-bool FormWindowFile::supportsCodec(const QByteArray &codec) const
+bool FormWindowFile::supportsEncoding(const TextEncoding &encoding) const
 {
-    return TextCodec::isUtf8Codec(codec);
+    return TextCodec::isUtf8Codec(encoding);
 }
 
 Result<> FormWindowFile::writeFile(const Utils::FilePath &filePath) const

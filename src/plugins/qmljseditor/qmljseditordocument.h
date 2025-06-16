@@ -21,11 +21,12 @@ class QmlOutlineModel;
 class QMLJSEDITOR_EXPORT QmlJSEditorDocument : public TextEditor::TextDocument
 {
     Q_OBJECT
+
 public:
     QmlJSEditorDocument(Utils::Id id);
     ~QmlJSEditorDocument() override;
 
-    bool supportsCodec(const QByteArray &codec) const override;
+    bool supportsEncoding(const Utils::TextEncoding &encoding) const override;
 
     const QmlJSTools::SemanticInfo &semanticInfo() const;
     bool isSemanticInfoOutdated() const;

@@ -744,9 +744,9 @@ QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
     setIndenter(createQmlJsIndenter(document()));
 }
 
-bool QmlJSEditorDocument::supportsCodec(const QByteArray &codec) const
+bool QmlJSEditorDocument::supportsEncoding(const TextEncoding &encoding) const
 {
-    return TextCodec::isUtf8Codec(codec);
+    return TextCodec::isUtf8Codec(encoding);
 }
 
 QmlJSEditorDocument::~QmlJSEditorDocument()

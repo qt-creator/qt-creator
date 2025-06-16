@@ -93,7 +93,7 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
     int currentIndex = -1;
     for (const int mib : std::as_const(sortedMibs)) {
         const TextCodec codec = TextCodec::codecForMib(mib);
-        if (!doc->supportsCodec(codec.isValid() ? codec.name() : QByteArray()))
+        if (!doc->supportsEncoding(codec.isValid() ? codec.name() : QByteArray()))
             continue;
         if (!buf.isEmpty()) {
 

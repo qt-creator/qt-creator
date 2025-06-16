@@ -12,8 +12,7 @@ QT_BEGIN_NAMESPACE
 class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
 
 class ResourceHandler;
 
@@ -35,7 +34,7 @@ public:
     bool isSaveAsAllowed() const override;
     Utils::Result<> reload(ReloadFlag flag, ChangeType type) override;
     QString fallbackSaveAsFileName() const override;
-    bool supportsCodec(const QByteArray &codec) const override;
+    bool supportsEncoding(const Utils::TextEncoding &encoding) const override;
 
     // Internal
     void setFallbackSaveAsFileName(const QString &fileName);
@@ -67,5 +66,4 @@ private:
     Utils::Guard m_modificationChangedGuard;
 };
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal

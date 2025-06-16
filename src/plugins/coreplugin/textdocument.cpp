@@ -134,7 +134,7 @@ void BaseTextDocument::setEncoding(const TextEncoding &encoding)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << encoding.name();
-    if (supportsCodec(encoding.name()))
+    if (supportsEncoding(encoding.name()))
         d->m_format.setEncoding(encoding);
 }
 
@@ -143,7 +143,7 @@ TextEncoding BaseTextDocument::encoding() const
     return d->m_format.encoding();
 }
 
-bool BaseTextDocument::supportsCodec(const QByteArray &) const
+bool BaseTextDocument::supportsEncoding(const TextEncoding &) const
 {
     return true;
 }
