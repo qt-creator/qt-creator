@@ -196,10 +196,7 @@ private:
 
     bool canHandle(const Task &task) const override
     {
-        if (task.file.isEmpty())
-            return false;
-        QFileInfo fi(task.file.toFileInfo());
-        return fi.exists() && fi.isFile() && fi.isReadable();
+        return task.file.isReadableFile();
     }
 
     void handle(const Task &task) override
@@ -227,8 +224,7 @@ public:
 private:
     bool canHandle(const Task &task) const override
     {
-        QFileInfo fi(task.file.toFileInfo());
-        if (!fi.exists() || !fi.isFile() || !fi.isReadable())
+        if (!task.file.isReadableFile())
             return false;
         IVersionControl *vc = VcsManager::findVersionControlForDirectory(task.file.absolutePath());
         if (!vc)
