@@ -1085,15 +1085,16 @@ public:
         auto &majorVersionColumn = table.addColumn("majorVersion", Sqlite::StrictColumnType::Integer);
         auto &minorVersionColumn = table.addColumn("minorVersion", Sqlite::StrictColumnType::Integer);
 
-        table.addUniqueIndex({moduleIdColumn, nameColumn},
+        table.addUniqueIndex({nameColumn, moduleIdColumn},
                              "majorVersion IS NULL AND minorVersion IS NULL");
-        table.addUniqueIndex({moduleIdColumn, nameColumn, majorVersionColumn},
+        table.addUniqueIndex({nameColumn, moduleIdColumn, majorVersionColumn},
                              "majorVersion IS NOT NULL AND minorVersion IS NULL");
-        table.addUniqueIndex({moduleIdColumn, nameColumn, majorVersionColumn, minorVersionColumn},
+        table.addUniqueIndex({nameColumn, moduleIdColumn, majorVersionColumn, minorVersionColumn},
                              "majorVersion IS NOT NULL AND minorVersion IS NOT NULL");
 
         table.addIndex({typeIdColumn});
-        table.addIndex({moduleIdColumn, nameColumn});
+        table.addIndex({nameColumn, moduleIdColumn});
+        table.addIndex({moduleIdColumn});
 
         table.initialize(database);
     }
