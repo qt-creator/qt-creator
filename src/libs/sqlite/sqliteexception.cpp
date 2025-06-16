@@ -85,7 +85,11 @@ const char *InputOutputError::what() const noexcept
 
 const char *ConstraintPreventsModification::what() const noexcept
 {
-    return "Sqlite::ConstraintPreventsModification";
+    static std::string text;
+    text = "Sqlite::ConstraintPreventsModification: ";
+    text += message();
+
+    return text.c_str();
 }
 
 const char *NoValuesToFetch::what() const noexcept
