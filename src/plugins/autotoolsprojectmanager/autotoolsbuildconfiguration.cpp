@@ -51,7 +51,7 @@ private:
     void makefileParsingFinished(const MakefileParserOutputData &outputData);
 
     /// Return value for AutotoolsProject::files()
-    QStringList m_files;
+    FilePaths m_files;
 
     /// Responsible for parsing the makefiles asynchronously in a thread
     Tasking::TaskTreeRunner m_parserRunner;
@@ -124,38 +124,31 @@ void AutotoolsBuildSystem::makefileParsingFinished(const MakefileParserOutputDat
     QSet<FilePath> filesToWatch;
 
     // Apply sources to m_files, which are returned at AutotoolsBuildSystem::files()
-    const QFileInfo fileInfo = projectFilePath().toFileInfo();
-    const QDir dir = fileInfo.absoluteDir();
+    const FilePath dir = projectFilePath().parentDir();
     const QStringList files = outputData.m_sources;
-    for (const QString& file : files)
-        m_files.append(dir.absoluteFilePath(file));
+    for (const QString &file : files)
+        m_files.append(dir.pathAppended(file));
 
     // Watch for changes of Makefile.am files. If a Makefile.am file
     // has been changed, the project tree must be reparsed.
     const QStringList makefiles = outputData.m_makefiles;
     for (const QString &makefile : makefiles) {
-        const QString absMakefile = dir.absoluteFilePath(makefile);
-
+        const FilePath absMakefile = dir.pathAppended(makefile);
         m_files.append(absMakefile);
-
-        filesToWatch.insert(FilePath::fromString(absMakefile));
+        filesToWatch.insert(absMakefile);
     }
 
     // Add configure.ac file to project and watch for changes.
-    const QLatin1String configureAc(QLatin1String("configure.ac"));
-    const QFile configureAcFile(fileInfo.absolutePath() + QLatin1Char('/') + configureAc);
+    const FilePath configureAcFile(dir.pathAppended("configure.ac"));
     if (configureAcFile.exists()) {
-        const QString absConfigureAc = dir.absoluteFilePath(configureAc);
-        m_files.append(absConfigureAc);
-
-        filesToWatch.insert(FilePath::fromString(absConfigureAc));
+        m_files.append(configureAcFile);
+        filesToWatch.insert(configureAcFile);
     }
 
     auto newRoot = std::make_unique<ProjectNode>(project()->projectDirectory());
-    for (const QString &f : std::as_const(m_files)) {
-        const FilePath path = FilePath::fromString(f);
-        newRoot->addNestedNode(std::make_unique<FileNode>(path,
-                                                          FileNode::fileTypeForFileName(path)));
+    for (const FilePath &file : std::as_const(m_files)) {
+        newRoot->addNestedNode(std::make_unique<FileNode>(file,
+                                                          FileNode::fileTypeForFileName(file)));
     }
     setRootProjectNode(std::move(newRoot));
     project()->setExtraProjectFiles(filesToWatch);
@@ -183,7 +176,7 @@ void AutotoolsBuildSystem::makefileParsingFinished(const MakefileParserOutputDat
 
     rpp.setIncludePaths(filterIncludes(absSrc, absBuild, outputData.m_includePaths));
     rpp.setMacros(outputData.m_macros);
-    rpp.setFiles(m_files);
+    rpp.setFiles(Utils::transform(m_files, &FilePath::toFSPathString));
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});
 
