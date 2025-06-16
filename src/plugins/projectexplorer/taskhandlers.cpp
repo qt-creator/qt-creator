@@ -18,18 +18,22 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/algorithm.h>
+#include <utils/aspects.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <QHash>
 #include <QTimer>
 
+#include <memory>
+#include <vector>
+
 using namespace Core;
 using namespace Utils;
 
 namespace ProjectExplorer {
 namespace {
-static QObject *g_actionParent = nullptr;
+static QPointer<QObject> g_actionParent;
 static Core::Context g_cmdContext;
 static Internal::RegisterHandlerAction g_onCreateAction;
 static Internal::GetHandlerTasks g_getTasks;
@@ -248,11 +252,13 @@ private:
     }
 };
 
-// FIXME: There should be one handler per LLM
 class ExplainWithAiHandler : public ITaskHandler
 {
 public:
-    ExplainWithAiHandler() : ITaskHandler(createAction()) {}
+    ExplainWithAiHandler(const QString &model)
+        : ITaskHandler(createAction(model))
+        , m_model(model)
+    {}
 
 private:
     bool canHandle(const Task &task) const override
@@ -263,8 +269,8 @@ private:
 
     void handle(const Task &task) override
     {
-        const QStringList llms = availableLanguageModels();
-        QTC_ASSERT(!llms.isEmpty(), return);
+        const CommandLine cmdLine = commandLineForLanguageModel(m_model);
+        QTC_ASSERT(!cmdLine.isEmpty(), return);
 
         QString prompt;
         if (task.origin.isEmpty())
@@ -288,7 +294,7 @@ private:
             }
         }
         const auto process = new Process;
-        process->setCommand(commandLineForLanguageModel(llms.first()));
+        process->setCommand(cmdLine);
         process->setProcessMode(ProcessMode::Writer);
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
@@ -305,16 +311,40 @@ private:
             process->closeWriteChannel();
         });
         QTimer::singleShot(60000, process, [process] { process->kill(); });
-        MessageManager::writeDisrupting(Tr::tr("Querying LLM..."));
+        MessageManager::writeDisrupting(Tr::tr("Querying %1...").arg(m_model));
         process->start();
     }
 
-    QAction *createAction() const
+    QAction *createAction(const QString &model) const
     {
-        const auto action = new QAction(Tr::tr("Get help from AI"));
-        action->setToolTip(Tr::tr("Ask an AI to help with this issue."));
+        const auto action = new QAction(Tr::tr("Get help from %1").arg(model));
+        action->setToolTip(Tr::tr("Ask the %1 LLM to help with this issue.").arg(model));
         return action;
     }
+
+    const QString m_model;
+};
+
+class AiHandlersManager
+{
+public:
+    AiHandlersManager()
+    {
+        QObject::connect(&customLanguageModelsContext(), &BaseAspect::changed,
+                         g_actionParent, [this] { reset(); });
+        reset();
+    }
+
+private:
+    void reset()
+    {
+        m_aiTaskHandlers.clear();
+        for (const QString &model : availableLanguageModels())
+            m_aiTaskHandlers.emplace_back(std::make_unique<ExplainWithAiHandler>(model));
+        updateTaskHandlerActionsState();
+    }
+
+    std::vector<std::unique_ptr<ExplainWithAiHandler>> m_aiTaskHandlers;
 };
 
 } // namespace
@@ -336,7 +366,7 @@ void setupTaskHandlers(
     static const RemoveTaskHandler removeTaskHandler;
     static const ShowInEditorTaskHandler showInEditorTaskHandler;
     static const VcsAnnotateTaskHandler vcsAnnotateTaskHandler;
-    static const ExplainWithAiHandler explainWithAiHandler;
+    static const AiHandlersManager aiHandlersManager;
 
     registerQueuedTaskHandlers();
 }

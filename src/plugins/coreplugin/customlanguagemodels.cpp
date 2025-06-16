@@ -244,7 +244,7 @@ CustomLanguageModels::CustomLanguageModels()
 
 } // namespace
 
-QStringList availableLanguageModels()
+const QStringList availableLanguageModels()
 {
     return Utils::transform(
         customLanguageModels().models.items(), [](const std::shared_ptr<BaseAspect> &aspect) {
@@ -259,6 +259,11 @@ CommandLine commandLineForLanguageModel(const QString &model)
             return m.commandLine();
     }
     return {};
+}
+
+BaseAspect &customLanguageModelsContext()
+{
+    return customLanguageModels();
 }
 
 namespace Internal {

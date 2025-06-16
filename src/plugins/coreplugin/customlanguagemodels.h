@@ -6,10 +6,13 @@
 
 #include <utils/commandline.h>
 
+namespace Utils { class BaseAspect; }
+
 namespace Core {
 
-CORE_EXPORT QStringList availableLanguageModels();
+CORE_EXPORT const QStringList availableLanguageModels();
 CORE_EXPORT Utils::CommandLine commandLineForLanguageModel(const QString &model);
+CORE_EXPORT Utils::BaseAspect &customLanguageModelsContext();
 
 namespace Internal {
 
