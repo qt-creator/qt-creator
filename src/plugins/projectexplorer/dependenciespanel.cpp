@@ -227,21 +227,16 @@ public:
     {
         setUseGlobalSettingsCheckBoxVisible(false);
         setUseGlobalSettingsLabelVisible(false);
-        auto vbox = new QVBoxLayout(this);
-        vbox->setContentsMargins(0, 0, 0, 0);
+
         m_detailsContainer = new Utils::DetailsWidget(this);
         m_detailsContainer->setState(Utils::DetailsWidget::NoSummary);
-        vbox->addWidget(m_detailsContainer);
 
         auto detailsWidget = new QWidget(m_detailsContainer);
         m_detailsContainer->setWidget(detailsWidget);
-        auto layout = new QGridLayout(detailsWidget);
-        layout->setContentsMargins(0, -1, 0, -1);
+
         auto treeView = new DependenciesView(this);
         treeView->setModel(&m_model);
         treeView->setHeaderHidden(true);
-        layout->addWidget(treeView, 0 ,0);
-        layout->addItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed), 0, 1);
 
         m_cascadeSetActiveCheckBox = new QCheckBox;
         m_cascadeSetActiveCheckBox->setText(Tr::tr("Synchronize configuration"));
@@ -249,7 +244,7 @@ public:
         m_cascadeSetActiveCheckBox->setChecked(ProjectManager::isProjectConfigurationCascading());
         connect(m_cascadeSetActiveCheckBox, &QCheckBox::toggled,
                 ProjectManager::instance(), &ProjectManager::setProjectConfigurationCascading);
-        layout->addWidget(m_cascadeSetActiveCheckBox, 1, 0, 2, 1);
+
         m_deployCheckBox = new QCheckBox;
         m_deployCheckBox->setText(Tr::tr("Deploy dependencies"));
         m_deployCheckBox->setToolTip(
@@ -257,7 +252,18 @@ public:
         m_deployCheckBox->setChecked(ProjectManager::deployProjectDependencies());
         connect(m_deployCheckBox, &QCheckBox::toggled,
                 ProjectManager::instance(), &ProjectManager::setDeployProjectDependencies);
+
+        auto layout = new QGridLayout(detailsWidget);
+        layout->setContentsMargins(0, -1, 0, -1);
+        layout->addWidget(treeView, 0 ,0);
+        layout->addItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed), 0, 1);
+        layout->addWidget(m_cascadeSetActiveCheckBox, 1, 0, 2, 1);
         layout->addWidget(m_deployCheckBox, 3, 0, 2, 1);
+
+        auto vbox = new QVBoxLayout(this);
+        vbox->setContentsMargins(0, 0, 0, 0);
+        vbox->addWidget(m_detailsContainer);
+        vbox->addStretch();
     }
 
 private:

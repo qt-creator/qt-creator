@@ -350,17 +350,20 @@ public:
     {
         setUseGlobalSettingsCheckBoxVisible(false);
         setUseGlobalSettingsLabelVisible(false);
-        const auto vbox = new QVBoxLayout(this);
-        vbox->setContentsMargins(0, 0, 0, 0);
+
         const auto envWidget = new EnvironmentWidget(this, EnvironmentWidget::TypeLocal);
         envWidget->setOpenTerminalFunc({});
         envWidget->expand();
-        vbox->addWidget(envWidget);
-        connect(envWidget, &EnvironmentWidget::userChangesChanged,
-                this, [project, envWidget] {
+        envWidget->setUserChanges(project->additionalEnvironment());
+
+        connect(envWidget, &EnvironmentWidget::userChangesChanged, this, [project, envWidget] {
             project->setAdditionalEnvironment(envWidget->userChanges());
         });
-        envWidget->setUserChanges(project->additionalEnvironment());
+
+        const auto vbox = new QVBoxLayout(this);
+        vbox->setContentsMargins(0, 0, 0, 0);
+        vbox->addWidget(envWidget);
+        vbox->addStretch();
     }
 };
 

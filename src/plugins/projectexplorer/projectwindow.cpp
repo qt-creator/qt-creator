@@ -88,7 +88,7 @@ const int PanelVMargin = 14;
 class ProjectPanel final : public QScrollArea
 {
 public:
-    explicit ProjectPanel(QWidget *inner, bool addStretch)
+    explicit ProjectPanel(QWidget *inner)
     {
         setWindowTitle(inner->windowTitle());
         setFocusProxy(inner);
@@ -112,9 +112,6 @@ public:
 
         layout->addWidget(inner);
         //layout->addWidget(new FindToolBarPlaceHolder(this));
-
-        if (addStretch)
-            layout->addStretch(1);
     }
 };
 
@@ -539,7 +536,7 @@ QVariant MiscSettingsPanelItem::data(int column, int role) const
 ProjectPanels MiscSettingsPanelItem::panelWidgets() const
 {
     if (!m_widget) {
-        m_widget = new ProjectPanel(m_factory->createWidget(m_project), false);
+        m_widget = new ProjectPanel(m_factory->createWidget(m_project));
         m_widget->setWindowTitle(m_factory->displayName());
     }
     return {m_widget.get()};
@@ -908,9 +905,9 @@ public:
     ProjectPanels panelWidgets() const final
     {
         if (!m_buildSettingsWidget)
-            m_buildSettingsWidget = new ProjectPanel(createBuildSettingsWidget(target()), true);
+            m_buildSettingsWidget = new ProjectPanel(createBuildSettingsWidget(target()));
         if (!m_runSettingsWidget)
-            m_runSettingsWidget = new ProjectPanel(createRunSettingsWidget(target()), true);
+            m_runSettingsWidget = new ProjectPanel(createRunSettingsWidget(target()));
 
         return { m_buildSettingsWidget.get(), m_runSettingsWidget.get() };
     }
@@ -1116,7 +1113,7 @@ ProjectItemBase *TargetGroupItem::activeItem()
 ProjectPanels TargetGroupItem::panelWidgets() const
 {
     if (!m_targetSetupPage)
-        m_targetSetupPage = new ProjectPanel(new TargetSetupPageWrapper(m_project), false);
+        m_targetSetupPage = new ProjectPanel(new TargetSetupPageWrapper(m_project));
 
     return {m_targetSetupPage.get()};
 }

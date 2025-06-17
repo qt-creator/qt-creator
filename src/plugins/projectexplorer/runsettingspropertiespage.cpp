@@ -183,7 +183,6 @@ class RunSettingsWidget : public QWidget
 {
 public:
     explicit RunSettingsWidget(Target *target);
-    ~RunSettingsWidget() = default;
 
 private:
     void currentRunConfigurationChanged(int index);

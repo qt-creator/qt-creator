@@ -109,6 +109,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
             },
         },
         noMargin,
+        st,
     }.attachTo(this);
     // clang-format on
 

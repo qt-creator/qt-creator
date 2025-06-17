@@ -38,7 +38,6 @@ class BuildSettingsWidget final : public QWidget
 {
 public:
     explicit BuildSettingsWidget(Target *target);
-    ~BuildSettingsWidget() = default;
 
 private:
     void clearWidgets();

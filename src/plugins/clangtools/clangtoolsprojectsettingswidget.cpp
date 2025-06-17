@@ -109,7 +109,8 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(Project *projec
                 }
             }
         },
-        noMargin
+        noMargin,
+        st
     }.attachTo(this);
 
     setUseGlobalSettings(m_projectSettings->useGlobalSettings());
