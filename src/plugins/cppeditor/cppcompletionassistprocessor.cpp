@@ -136,6 +136,15 @@ void CppCompletionAssistProcessor::startOfOperator(QTextDocument *textDocument,
                 case T_SLOT:
                     break; // good
 
+                // For lambdas (both calls and definitions), we don't want a function hint,
+                // and we want to abort an existing one if the lambda is a function parameter,
+                // as it introduces a new context.
+                case T_RBRACKET:
+                case T_RBRACE:
+                    *kind = T_EOF_SYMBOL;
+                    start = INT_MIN;
+                    break;
+
                 default:
                     // that's a bad token :)
                     *kind = T_EOF_SYMBOL;

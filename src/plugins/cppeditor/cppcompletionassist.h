@@ -79,7 +79,7 @@ public:
 private:
     TextEditor::IAssistProposal *createContentProposal();
     TextEditor::IAssistProposal *createHintProposal(QList<CPlusPlus::Function *> symbols) const;
-    bool accepts() const;
+    bool accepts();
 
     int startOfOperator(int positionInDocument, unsigned *kind, bool wantFunctionCall) const;
     int findStartOfName(int pos = -1) const;

@@ -26,6 +26,7 @@ public:
     enum CompletionAction {
         PassThroughToLibClang,
         PassThroughToLibClangAfterLeftParen,
+        AbortExisting,
         CompleteDoxygenKeyword,
         CompleteIncludePath,
         CompletePreprocessorDirective,

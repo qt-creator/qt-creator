@@ -25,6 +25,7 @@
 #include <projectexplorer/headerpath.h>
 
 #include <texteditor/codeassist/assistinterface.h>
+#include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditor.h>
@@ -221,13 +222,14 @@ private:
 class ClangdFunctionHintProcessor : public FunctionHintProcessor
 {
 public:
-    ClangdFunctionHintProcessor(ClangdClient *client, int basePosition);
+    ClangdFunctionHintProcessor(ClangdClient *client, int basePosition, bool abortExisting);
 
 private:
     IAssistProposal *perform() override;
     IFunctionHintProposalModel *createModel(const SignatureHelp &signatureHelp) const override;
 
     ClangdClient * const m_client;
+    const bool m_abortExisting;
 };
 
 ClangdCompletionAssistProvider::ClangdCompletionAssistProvider(ClangdClient *client)
@@ -256,7 +258,7 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
     case ClangCompletionContextAnalyzer::PassThroughToLibClangAfterLeftParen:
         qCDebug(clangdLogCompletion) << "creating function hint processor";
         return new ClangdFunctionHintProcessor(m_client,
-                                               contextAnalyzer.positionForProposal());
+                                               contextAnalyzer.positionForProposal(), false);
     case ClangCompletionContextAnalyzer::CompletePreprocessorDirective:
         qCDebug(clangdLogCompletion) << "creating macro processor";
         return new CustomAssistProcessor(m_client,
@@ -264,6 +266,10 @@ IAssistProcessor *ClangdCompletionAssistProvider::createProcessor(
                                          contextAnalyzer.positionEndOfExpression(),
                                          contextAnalyzer.completionOperator(),
                                          CustomAssistMode::Preprocessor);
+    case ClangCompletionContextAnalyzer::AbortExisting:
+        qCDebug(clangdLogCompletion) << "aborting existing proposal";
+        return new ClangdFunctionHintProcessor(m_client,
+                                               contextAnalyzer.positionForProposal(), true);
     default:
         break;
     }
@@ -733,9 +739,11 @@ QList<AssistProposalItemInterface *> ClangdCompletionAssistProcessor::generateCo
     return itemGenerator(items);
 }
 
-ClangdFunctionHintProcessor::ClangdFunctionHintProcessor(ClangdClient *client, int basePosition)
+ClangdFunctionHintProcessor::ClangdFunctionHintProcessor(ClangdClient *client, int basePosition,
+                                                         bool abortExisting)
     : FunctionHintProcessor(client, basePosition)
     , m_client(client)
+    , m_abortExisting(abortExisting)
 {}
 
 IAssistProposal *ClangdFunctionHintProcessor::perform()
@@ -744,6 +752,10 @@ IAssistProposal *ClangdFunctionHintProcessor::perform()
         setAsyncCompletionAvailableHandler([this](IAssistProposal *proposal) {
             emit m_client->proposalReady(proposal);
         });
+    }
+    if (m_abortExisting) {
+        FunctionHintProposalModelPtr model(new ClangdFunctionHintProposalModel(SignatureHelp()));
+        return new FunctionHintProposal(0, model);
     }
     return FunctionHintProcessor::perform();
 }
@@ -775,7 +787,10 @@ IAssistProcessor *ClangdFunctionHintProvider::createProcessor(
     ClangCompletionContextAnalyzer contextAnalyzer(interface->textDocument(),
                                                    interface->position(), false, {});
     contextAnalyzer.analyze();
-    return new ClangdFunctionHintProcessor(m_client, contextAnalyzer.positionForProposal());
+    const bool abortExisting
+        = contextAnalyzer.completionAction() == ClangCompletionContextAnalyzer::AbortExisting;
+    return new ClangdFunctionHintProcessor(m_client, contextAnalyzer.positionForProposal(),
+                                           abortExisting);
 }
 
 } // namespace ClangCodeModel::Internal

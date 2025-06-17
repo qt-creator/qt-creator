@@ -788,7 +788,7 @@ InternalCppCompletionAssistProcessor::~InternalCppCompletionAssistProcessor() = 
 IAssistProposal * InternalCppCompletionAssistProcessor::performAsync()
 {
     if (interface()->reason() != ExplicitlyInvoked && !accepts())
-        return nullptr;
+        return m_hintProposal;
 
     int index = startCompletionHelper();
     if (index != -1) {
@@ -801,12 +801,18 @@ IAssistProposal * InternalCppCompletionAssistProcessor::performAsync()
     return nullptr;
 }
 
-bool InternalCppCompletionAssistProcessor::accepts() const
+bool InternalCppCompletionAssistProcessor::accepts()
 {
     const int pos = interface()->position();
     unsigned token = T_EOF_SYMBOL;
 
     const int start = startOfOperator(pos, &token, /*want function call=*/ true);
+
+    // Lambda context: We abort any existing proposal by creating a new one with an empty model.
+    if (start == INT_MIN) {
+        m_hintProposal = createHintProposal({});
+        return false;
+    }
     if (start != pos) {
         if (token == T_POUND) {
             const int column = pos - interface()->textDocument()->findBlock(start).position();
@@ -879,6 +885,10 @@ int InternalCppCompletionAssistProcessor::startOfOperator(int positionInDocument
     const QChar ch  = interface()->characterAt(positionInDocument - 1);
     const QChar ch2 = interface()->characterAt(positionInDocument - 2);
     const QChar ch3 = interface()->characterAt(positionInDocument - 3);
+
+    // Lambda context: Abort existing function proposal.
+    if (ch == '{' && ch2 == ']')
+        return INT_MIN;
 
     int start = positionInDocument
                  - CppCompletionAssistProvider::activationSequenceChar(ch, ch2, ch3, kind,

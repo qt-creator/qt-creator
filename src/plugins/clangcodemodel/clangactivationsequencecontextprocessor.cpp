@@ -156,6 +156,11 @@ void ActivationSequenceContextProcessor::processLeftParenOrBrace()
                 case CPlusPlus::T_SLOT:
                     break; // good
 
+                // Special handling for lambdas
+                case CPlusPlus::T_RBRACKET:
+                    m_startOfNamePosition = INT_MIN;
+                    break;
+
                 default:
                     // that's a bad token :)
                     m_completionKind = CPlusPlus::T_EOF_SYMBOL;

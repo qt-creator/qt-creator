@@ -61,6 +61,10 @@ void ClangCompletionContextAnalyzer::analyze()
                 m_document, m_position, m_languageFeatures);
     m_completionOperator = activationSequenceContextProcessor.completionKind();
     int afterOperatorPosition = activationSequenceContextProcessor.startOfNamePosition();
+    if (afterOperatorPosition == INT_MIN) {
+        m_completionAction = AbortExisting;
+        return;
+    }
     m_positionEndOfExpression = activationSequenceContextProcessor.operatorStartPosition();
     m_positionForProposal = activationSequenceContextProcessor.startOfNamePosition();
 
