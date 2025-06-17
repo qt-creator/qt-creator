@@ -200,12 +200,12 @@ CustomLanguageModels::CustomLanguageModels()
             model->name.setVolatileValue(Tr::tr("<New model>"));
         });
         connect(removeButton, &QPushButton::clicked, this, [this, view] {
-            qDebug() << models.items().size() << models.volatileItems().size();
             QTC_ASSERT(view->currentIndex().isValid(), return);
             const auto item = static_cast<LanguageModelItem *>(
                 listModel.itemForIndex(view->currentIndex()));
             QTC_ASSERT(item, return);
-            for (const auto &l = models.volatileItems(); const auto &i : l) {
+            const QList<std::shared_ptr<BaseAspect>> &volatileItems = models.volatileItems();
+            for (const auto &i : volatileItems) {
                 if (item->hasModel(i)) {
                     models.removeItem(i);
                     break;
