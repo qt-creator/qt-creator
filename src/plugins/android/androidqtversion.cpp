@@ -125,6 +125,23 @@ int AndroidQtVersion::minimumNDK() const
     return m_minNdk;
 }
 
+int AndroidQtVersion::defaultMinimumSDK() const
+{
+    const AndroidQtVersion::BuiltWith built = builtWith();
+
+    if (built.androidPlatform > 0)
+        return built.androidPlatform;
+    if (qtVersion() >= QVersionNumber(6, 8))
+        return 28;
+    if (qtVersion() >= QVersionNumber(6, 5))
+        return 26;
+    if (qtVersion() >=QVersionNumber(6, 0))
+        return 23;
+    if (qtVersion() >= QVersionNumber(5, 13))
+        return 21;
+    return 16;
+}
+
 QString AndroidQtVersion::androidDeploymentSettingsFileName(const BuildConfiguration *bc)
 {
     const BuildSystem *bs = bc->buildSystem();
@@ -226,6 +243,8 @@ static AndroidQtVersion::BuiltWith parsePlatforms(const QJsonObject &jsonObject,
         if (ndkVersionString.isNull())
             continue;
         result.ndkVersion = QVersionNumber::fromString(ndkVersionString);
+        const QString androidPlatformString = target.value("android_platform").toString();
+        result.androidPlatform = versionFromPlatformString(androidPlatformString);
         if (result.apiVersion != -1 && !result.ndkVersion.isNull()) {
             if (ok)
                 *ok = true;

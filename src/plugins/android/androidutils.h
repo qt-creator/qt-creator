@@ -48,7 +48,6 @@ QString buildTargetSDK(const ProjectExplorer::BuildConfiguration *bc);
 
 int minimumSDK(const ProjectExplorer::BuildConfiguration *bc);
 int minimumSDK(const ProjectExplorer::Kit *kit);
-int defaultMinimumSDK(const QtSupport::QtVersion *qtVersion);
 
 QStringList applicationAbis(const ProjectExplorer::Kit *k);
 QString archTriplet(const QString &abi);

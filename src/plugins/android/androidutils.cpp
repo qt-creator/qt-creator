@@ -186,8 +186,13 @@ int minimumSDK(const BuildConfiguration *bc)
         return minimumSDK(bc->kit());
 
     const int minSdkVersion = parseMinSdk(*element);
-    if (minSdkVersion == 0)
-        return defaultMinimumSDK(QtSupport::QtKitAspect::qtVersion(bc->kit()));
+    if (minSdkVersion == 0) {
+        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(bc->kit());
+        if (version->isAndroidQtVersion()) {
+            if (const AndroidQtVersion *androidQt = static_cast<const AndroidQtVersion *>(version))
+                return androidQt->defaultMinimumSDK();
+        }
+    }
     return minSdkVersion;
 }
 
@@ -207,8 +212,12 @@ int minimumSDK(const Kit *kit)
         if (element)
             minSdkVersion = parseMinSdk(*element);
     }
-    if (minSdkVersion == 0)
-        return defaultMinimumSDK(version);
+    if (minSdkVersion == 0) {
+        if (version->isAndroidQtVersion()) {
+            if (const AndroidQtVersion *androidQt = static_cast<const AndroidQtVersion *>(version))
+                return androidQt->defaultMinimumSDK();
+        }
+    }
     return minSdkVersion;
 }
 
@@ -472,16 +481,6 @@ void setDeviceApiLevel(BuildConfiguration *bc, int level)
     qCDebug(androidManagerLog) << "Target device API level changed:"
                                << bc->target()->displayName() << level;
     bc->setExtraData(ApiLevelKey, level);
-}
-
-int defaultMinimumSDK(const QtSupport::QtVersion *qtVersion)
-{
-    if (qtVersion && qtVersion->qtVersion() >= QVersionNumber(6, 0))
-        return 23;
-    else if (qtVersion && qtVersion->qtVersion() >= QVersionNumber(5, 13))
-        return 21;
-    else
-        return 16;
 }
 
 QString androidNameForApiLevel(int x)

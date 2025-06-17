@@ -29,6 +29,7 @@ public:
     QString description() const override;
     const QStringList androidAbis() const;
     int minimumNDK() const;
+    int defaultMinimumSDK() const;
 
     static QString androidDeploymentSettingsFileName(const ProjectExplorer::BuildConfiguration *bc);
     static Utils::FilePath androidDeploymentSettings(const ProjectExplorer::BuildConfiguration *bc);
@@ -36,6 +37,7 @@ public:
     struct BuiltWith {
         int apiVersion = -1;
         QVersionNumber ndkVersion;
+        int androidPlatform = -1;
     };
     static BuiltWith parseModulesCoreJson(const QByteArray &modulesCoreJsonData,
                                           bool *ok = nullptr);

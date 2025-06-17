@@ -7,6 +7,7 @@
 #include "androidconstants.h"
 #include "androidtr.h"
 #include "androidutils.h"
+#include "androidqtversion.h"
 #include "splashscreencontainerwidget.h"
 
 #include <coreplugin/icore.h>
@@ -1157,7 +1158,8 @@ void AndroidManifestEditorWidget::updateSdkVersions()
     const Target *target = androidTarget(m_textEditorWidget->textDocument()->filePath());
     if (target) {
         const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
-        minSdk = defaultMinimumSDK(qt);
+        if (qt->isAndroidQtVersion())
+            minSdk = static_cast<const AndroidQtVersion *>(qt)->defaultMinimumSDK();
     }
 
     for (int i = minSdk; i <= targetSdk; ++i) {

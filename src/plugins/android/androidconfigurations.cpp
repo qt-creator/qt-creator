@@ -763,13 +763,16 @@ bool isValidNdk(const FilePath &ndkPath)
 
 QString bestNdkPlatformMatch(int target, const QtVersion *qtVersion)
 {
-    target = std::max(defaultMinimumSDK(qtVersion), target);
+    int minSdk = 0;
+    if (qtVersion->isAndroidQtVersion())
+        minSdk = static_cast<const AndroidQtVersion *>(qtVersion)->defaultMinimumSDK();
+    target = std::max(minSdk, target);
     const QList<int> platforms = availableNdkPlatforms(qtVersion);
     for (const int apiLevel : platforms) {
         if (apiLevel <= target)
             return QString::fromLatin1("android-%1").arg(apiLevel);
     }
-    return QString("android-%1").arg(defaultMinimumSDK(qtVersion));
+    return QString("android-%1").arg(minSdk);
 }
 
 FilePath sdkLocation()
