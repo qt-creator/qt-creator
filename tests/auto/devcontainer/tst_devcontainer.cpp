@@ -4,15 +4,33 @@
 #include <devcontainer/devcontainer.h>
 #include <devcontainer/devcontainerconfig.h>
 
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <QtTest>
+
+using namespace Utils;
+
+static bool testDocker(const FilePath &executable)
+{
+    Process p;
+    p.setCommand({executable, {"info", "--format", "{{.OSType}}"}});
+    p.runBlocking();
+    const QString platform = p.cleanedStdOut().trimmed();
+    return p.result() == ProcessResult::FinishedWithSuccess && platform == "linux";
+}
 
 class tst_DevContainer : public QObject
 {
     Q_OBJECT
 
 private slots:
+    void initTestCase()
+    {
+        if (!testDocker("docker"))
+            QSKIP("Docker is not set up correctly, skipping tests.");
+    }
+
     void readConfig();
     void testCommands();
     void upDockerfile();
