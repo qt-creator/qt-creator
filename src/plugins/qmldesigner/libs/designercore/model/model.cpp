@@ -3327,11 +3327,10 @@ void Model::attachView(AbstractView *view, SL sl)
 {
     NanotraceHR::Tracer tracer{"model attach view",
                                ModelTracing::category(),
+                               keyValue("name", view->name()),
                                keyValue("caller location", sl)};
 
-    auto traceToken = d->traceToken.begin("attachView",
-                                          keyValue("name",
-                                                   std::string_view{view->metaObject()->className()}));
+    auto traceToken = d->traceToken.begin("attachView", keyValue("name", view->name()));
 
     //    Internal::WriteLocker locker(d);
     if (view->kind() == AbstractView::Kind::Rewriter) {
@@ -3361,11 +3360,10 @@ void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify, SL
 {
     NanotraceHR::Tracer tracer{"model detach view",
                                ModelTracing::category(),
+                               keyValue("name", view->name()),
                                keyValue("caller location", sl)};
 
-    auto traceToken = d->traceToken.begin("detachView",
-                                          keyValue("name",
-                                                   std::string_view{view->metaObject()->className()}));
+    auto traceToken = d->traceToken.begin("detachView", keyValue("name", view->name()));
 
     //    Internal::WriteLocker locker(d);
     bool emitNotify = (emitDetachNotify == NotifyView);
