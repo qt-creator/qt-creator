@@ -206,10 +206,8 @@ MesonBuildSystem::MesonBuildSystem(BuildConfiguration *bc)
     connect(bc, &BuildConfiguration::kitChanged, this, [this] {
         updateKit(kit());
     });
-    connect(bc, &MesonBuildConfiguration::buildDirectoryChanged, this, [this] {
-        updateKit(kit());
-        this->triggerParsing();
-    });
+    connect(bc, &MesonBuildConfiguration::buildDirectoryChanged, this,
+            &MesonBuildSystem::buildDirectoryChanged);
     connect(qobject_cast<MesonBuildConfiguration *>(bc),
             &MesonBuildConfiguration::parametersChanged, this, [this] {
         updateKit(kit());
@@ -231,14 +229,6 @@ MesonBuildSystem::MesonBuildSystem(BuildConfiguration *bc)
     });
 
     updateKit(kit());
-    // as specified here https://mesonbuild.com/IDE-integration.html#ide-integration
-    // meson-info.json is the last written file, which ensure that all others introspection
-    // files are ready when a modification is detected on this one.
-    m_IntroWatcher.addFile(buildConfiguration()
-                               ->buildDirectory()
-                               .pathAppended(Constants::MESON_INFO_DIR)
-                               .pathAppended(Constants::MESON_INFO),
-                           Utils::FileSystemWatcher::WatchModifiedDate);
 }
 
 MesonBuildSystem::~MesonBuildSystem()
@@ -296,6 +286,24 @@ QStringList MesonBuildSystem::configArgs(bool isSetup)
            + m_pendingConfigArgs + bc->mesonConfigArgs();
 }
 
+void MesonBuildSystem::buildDirectoryChanged()
+{
+    updateKit(kit());
+    m_IntroWatcher.clear();
+    if (buildConfiguration()->isActive())
+    {
+        // as specified here https://mesonbuild.com/IDE-integration.html#ide-integration
+        // meson-info.json is the last written file, which ensure that all others introspection
+        // files are ready when a modification is detected on this one.
+        m_IntroWatcher.addFile(buildConfiguration()
+                                   ->buildDirectory()
+                                   .pathAppended(Constants::MESON_INFO_DIR)
+                                   .pathAppended(Constants::MESON_INFO),
+                               Utils::FileSystemWatcher::WatchModifiedDate);
+    }
+    this->triggerParsing();
+}
+
 bool MesonBuildSystem::configure()
 {
     LEAVE_IF_BUSY();
@@ -337,6 +345,8 @@ bool MesonBuildSystem::wipe()
 bool MesonBuildSystem::parseProject()
 {
     QTC_ASSERT(buildConfiguration(), return false);
+    if (!buildConfiguration()->isActive()) // Never parse if not active
+        return false;
     if (!isSetup(buildConfiguration()->buildDirectory()) && settings().autorunMeson())
         return configure();
     LEAVE_IF_BUSY();

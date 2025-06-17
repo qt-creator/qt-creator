@@ -42,6 +42,7 @@ private:
     bool needsSetup();
     void parsingCompleted(bool success);
     QStringList configArgs(bool isSetup);
+    void buildDirectoryChanged();
 
     ProjectExplorer::BuildSystem::ParseGuard m_parseGuard;
     MesonProjectParser m_parser;
