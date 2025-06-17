@@ -479,17 +479,18 @@
 
     \title Debug crashed processes on Windows
 
-    The \e{post-mortem} debugger operating mode is available only on Windows,
-    if you installed the debugging tools for Windows.
+    You can launch the debugger in the \e {post-mortem} debugger operating mode
+    if an application crashes on Windows. Select \uicontrol {Debug in \QC} in the
+    error message from the Windows operating system.
 
-    The \QC installation program asks you whether you want to register \QC as a
-    post-mortem debugger. To change the setting, go to
-    \preferences > \uicontrol Debugger >
-    \uicontrol General > \uicontrol {Use \QC for post-mortem debugging}.
+    You can use the post-mortem debugger only on Windows, and you must first
+    install the debugging tools for Windows.
 
-    You can launch the debugger in the post-mortem mode if an application
-    crashes on Windows. Select the \uicontrol {Debug in \QC} button in the error
-    message from the Windows operating system.
+    To register \QC as a post-mortem debugger, go to \preferences >
+    \uicontrol Debugger > \uicontrol General, and then select
+    \uicontrol {Use \QC for post-mortem debugging}.
+
+    \image {qtcreator-preferences-debugger-general.webp} {General tab in Debugger preferences}
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
