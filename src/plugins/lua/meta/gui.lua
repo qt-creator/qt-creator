@@ -152,13 +152,21 @@ function gui.TextEdit(options) end
 ---A Single line text edit
 ---@class LineEdit : Widget
 ---@field rightSideIconPath? FilePath A path to icon
+---@field text string Current text
+local lineEdit = {}
+
+---@class LineEditOptions : WidgetOptions
+---@field rightSideIconPath? FilePath A path to icon
 ---@field placeHolderText? string A placeholder text for intput
 ---@field completer? QCompleter A QCompleter object.
 ---@field onReturnPressed? function The function to be called when Enter is pressed
 ---@field onRightSideIconClicked? function The function to be called when right side icon is clicked
 ---@field text string Current text
+local lineEditOptions = {}
 
-local lineEdit = {}
+---@param options LineEditOptions
+---@return LineEdit
+function gui.LineEdit(options) end
 
 ---@class PushButton : Widget
 local pushButton = {}

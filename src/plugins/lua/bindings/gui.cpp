@@ -739,6 +739,8 @@ void setupGuiModule()
             }),
             "text",
             sol::property(&LineEdit::text, &LineEdit::setText),
+            "rightSideIconPath",
+            sol::property(&LineEdit::setRightSideIconPath),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
