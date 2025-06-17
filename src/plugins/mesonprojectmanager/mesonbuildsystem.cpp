@@ -68,21 +68,21 @@ static KitData createKitData(const Kit *kit)
     data.qtPrefixPath = expander->expand(QString("%{Qt:QT_INSTALL_PREFIX}"));
     data.qtVersionStr = expander->expand(QString("%{Qt:Version}"));
     data.pythonPath = expander->expand(QString("%{Python:Path}"));
-    data.qtVersion = Utils::QtMajorVersion::None;
+    data.qtVersion = QtMajorVersion::None;
     auto version = QVersionNumber::fromString(data.qtVersionStr);
     if (!version.isNull()) {
         switch (version.majorVersion()) {
         case 4:
-            data.qtVersion = Utils::QtMajorVersion::Qt4;
+            data.qtVersion = QtMajorVersion::Qt4;
             break;
         case 5:
-            data.qtVersion = Utils::QtMajorVersion::Qt5;
+            data.qtVersion = QtMajorVersion::Qt5;
             break;
         case 6:
-            data.qtVersion = Utils::QtMajorVersion::Qt6;
+            data.qtVersion = QtMajorVersion::Qt6;
             break;
         default:
-            data.qtVersion = Utils::QtMajorVersion::Unknown;
+            data.qtVersion = QtMajorVersion::Unknown;
         }
     }
     return data;
@@ -223,7 +223,7 @@ MesonBuildSystem::MesonBuildSystem(BuildConfiguration *bc)
     });
     connect(&m_parser, &MesonProjectParser::parsingCompleted, this, &MesonBuildSystem::parsingCompleted);
 
-    connect(&m_IntroWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this] {
+    connect(&m_introWatcher, &FileSystemWatcher::fileChanged, this, [this] {
         if (buildConfiguration()->isActive())
             parseProject();
     });
@@ -244,9 +244,9 @@ void MesonBuildSystem::triggerParsing()
 
 bool MesonBuildSystem::needsSetup()
 {
-    const Utils::FilePath &buildDir = buildConfiguration()->buildDirectory();
-    return (!isSetup(buildDir) || !m_parser.usesSameMesonVersion(buildDir)
-            || !m_parser.matchesKit(m_kitData));
+    const FilePath buildDir = buildConfiguration()->buildDirectory();
+    return !isSetup(buildDir) || !m_parser.usesSameMesonVersion(buildDir)
+            || !m_parser.matchesKit(m_kitData);
 }
 
 void MesonBuildSystem::parsingCompleted(bool success)
@@ -289,19 +289,19 @@ QStringList MesonBuildSystem::configArgs(bool isSetup)
 void MesonBuildSystem::buildDirectoryChanged()
 {
     updateKit(kit());
-    m_IntroWatcher.clear();
-    if (buildConfiguration()->isActive())
-    {
+
+    m_introWatcher.clear();
+    if (buildConfiguration()->isActive()) {
         // as specified here https://mesonbuild.com/IDE-integration.html#ide-integration
         // meson-info.json is the last written file, which ensure that all others introspection
         // files are ready when a modification is detected on this one.
-        m_IntroWatcher.addFile(buildConfiguration()
-                                   ->buildDirectory()
+        m_introWatcher.addFile(buildConfiguration()->buildDirectory()
                                    .pathAppended(Constants::MESON_INFO_DIR)
                                    .pathAppended(Constants::MESON_INFO),
-                               Utils::FileSystemWatcher::WatchModifiedDate);
+                              FileSystemWatcher::WatchModifiedDate);
     }
-    this->triggerParsing();
+
+    triggerParsing();
 }
 
 bool MesonBuildSystem::configure()

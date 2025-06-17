@@ -48,7 +48,7 @@ private:
     MesonProjectParser m_parser;
     std::unique_ptr<ProjectExplorer::ProjectUpdater> m_cppCodeModelUpdater;
     QStringList m_pendingConfigArgs;
-    Utils::FileSystemWatcher m_IntroWatcher;
+    Utils::FileSystemWatcher m_introWatcher;
     KitData m_kitData;
 };
 
