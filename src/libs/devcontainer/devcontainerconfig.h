@@ -128,7 +128,7 @@ struct DEVCONTAINER_EXPORT NonComposeBase
     std::optional<std::variant<int, QString, QList<std::variant<int, QString>>>> appPort;
     std::optional<QStringList> runArgs;
     ShutdownAction shutdownAction = ShutdownAction::StopContainer;
-    std::optional<bool> overrideCommand;
+    bool overrideCommand = true;
     std::optional<QString> workspaceFolder;
     std::optional<QString> workspaceMount;
 
@@ -166,7 +166,7 @@ struct DEVCONTAINER_EXPORT ComposeContainer
     std::optional<QStringList> runServices;
     QString workspaceFolder;
     ShutdownAction shutdownAction = ShutdownAction::StopCompose;
-    std::optional<bool> overrideCommand;
+    bool overrideCommand = true;
 
     static Utils::Result<ComposeContainer> fromJson(const QJsonObject &json);
 

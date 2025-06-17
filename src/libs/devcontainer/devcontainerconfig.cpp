@@ -1154,8 +1154,7 @@ QDebug operator<<(QDebug debug, const DevContainer::ComposeContainer &value)
     debug << ", workspaceFolder=" << value.workspaceFolder;
     debug << ", shutdownAction=" << value.shutdownAction;
 
-    if (value.overrideCommand)
-        debug << ", overrideCommand=" << *value.overrideCommand;
+    debug << ", overrideCommand=" << value.overrideCommand;
 
     debug << ")";
     return debug;
@@ -1174,8 +1173,7 @@ QDebug operator<<(QDebug debug, const DevContainer::NonComposeBase &value)
 
     debug << "shutdownAction=" << value.shutdownAction;
 
-    if (value.overrideCommand)
-        debug << ", overrideCommand=" << *value.overrideCommand;
+    debug << ", overrideCommand=" << value.overrideCommand;
 
     if (value.workspaceFolder)
         debug << ", workspaceFolder=" << *value.workspaceFolder;
