@@ -602,9 +602,15 @@ void ToolBarBackend::openFileByIndex(int i)
     Core::EditorManager::openEditor(fileName, Utils::Id(), Core::EditorManager::DoNotMakeVisible);
 }
 
-void ToolBarBackend::closeCurrentDocument()
+void ToolBarBackend::closeDocument(int i)
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_CLOSE_DOCUMENT);
+    Core::EditorManager::closeDocument(i);
+}
+
+void ToolBarBackend::closeCurrentDocument()
+{
+    QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_CLOSE_CURRENT_DOCUMENT);
     Core::EditorManager::slotCloseCurrentEditorOrDocument();
 }
 

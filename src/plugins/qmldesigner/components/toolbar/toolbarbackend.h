@@ -148,6 +148,7 @@ public:
     Q_INVOKABLE void goForward();
     Q_INVOKABLE void goBackward();
     Q_INVOKABLE void openFileByIndex(int i);
+    Q_INVOKABLE void closeDocument(int i);
     Q_INVOKABLE void closeCurrentDocument();
     Q_INVOKABLE void shareApplicationOnline();
     Q_INVOKABLE void setCurrentWorkspace(const QString &workspace);

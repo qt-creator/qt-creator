@@ -147,11 +147,15 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: splitButton.right
             anchors.leftMargin: 10
+            closeButtonVisible: true
             model: backend.documentModel
 
             property int currentDocumentIndex: backend.documentIndex
             onCurrentDocumentIndexChanged: currentFile.currentIndex =  currentFile.currentDocumentIndex
             onActivated: backend.openFileByIndex(index)
+            onCloseRequest: (idx) => {
+                backend.closeDocument(idx)
+            }
         }
 
         Text {
@@ -199,21 +203,10 @@ Rectangle {
             onClicked: backend.goForward()
         }
 
-        ToolbarButton {
-            id: closeButton
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: forwardButton.right
-            anchors.leftMargin: 10
-            tooltip: qsTr("Close")
-            buttonIcon: StudioTheme.Constants.closeFile_large
-
-            onClicked: backend.closeCurrentDocument()
-        }
-
         CrumbleBar {
             id: flickable
             height: 36
-            anchors.left: closeButton.right
+            anchors.left: forwardButton.right
             anchors.leftMargin: 10
             anchors.right: createComponent.left
             anchors.rightMargin: 10
