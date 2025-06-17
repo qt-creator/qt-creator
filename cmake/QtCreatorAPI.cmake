@@ -4,6 +4,7 @@ endif()
 set(QT_CREATOR_API_DEFINED TRUE)
 
 set(IDE_QT_VERSION_MIN "6.5.3")
+set(IDE_MSVC_VERSION_MIN 19.30) # MSVC2022
 
 include(${CMAKE_CURRENT_LIST_DIR}/QtCreatorAPIInternal.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/QtcSeparateDebugInfo.cmake)

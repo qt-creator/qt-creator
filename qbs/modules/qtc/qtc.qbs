@@ -4,6 +4,8 @@ import qbs.FileInfo
 import qbs.Utilities
 
 Module {
+    Depends { name: "cpp" }
+
     property string qtcreator_display_version: '18.0.0-beta1'
     property string ide_version_major: '17'
     property string ide_version_minor: '0'
@@ -97,4 +99,9 @@ Module {
         "QT_NO_QSNPRINTF",
     ].concat(withPluginTests ? ["WITH_TESTS"] : [])
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
+
+    validate: {
+        if (qbs.toolchain.contains("msvc") && Utilities.versionCompare(cpp.compilerVersion, "19.30.0") < 0)
+            throw "You need at least MSVC2022 to build Qt Creator.";
+    }
 }

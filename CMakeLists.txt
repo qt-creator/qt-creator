@@ -68,6 +68,12 @@ if(MSVC)
   add_compile_options(/wd4573)
 endif()
 
+if (MSVC)
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS ${IDE_MSVC_VERSION_MIN})
+    message(FATAL_ERROR "You need at least MSVC2022 to build Qt Creator.")
+  endif()
+endif()
+
 find_package(Qt6
   ${IDE_QT_VERSION_MIN}
   COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml Core5Compat ${QT_TEST_COMPONENT}

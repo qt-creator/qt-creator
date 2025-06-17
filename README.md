@@ -45,7 +45,7 @@ Prerequisites:
   (Windows 10, RHEL/CentOS 8.8, Ubuntu 22.04, macOS 11 for Qt 6.5.3).
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
-    * MinGW with GCC 11.2 or Visual Studio 2019 or later
+    * MinGW with GCC 11.2 or Visual Studio 2022 or later
     * Python 3.8 or later (optional, needed for the python enabled debug helper)
     * Debugging Tools for Windows (optional, for MSVC debugging support with CDB)
 * On macOS: latest Xcode
@@ -98,7 +98,7 @@ include the version number and compiler ABI. The path to the online installer
 content is not enough.
 
 Note that `/path/to/Qt` doesn't imply the full path depth like:
-`$USER/Qt/6.4.3/gcc_64/lib/cmake/Qt6`, but only `$USER/Qt/6.4.3/gcc_64`.
+`$USER/Qt/6.8.3/gcc_64/lib/cmake/Qt6`, but only `$USER/Qt/6.8.3/gcc_64`.
 
 See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to
 get LLVM.
@@ -147,7 +147,7 @@ include the version number and compiler ABI. The path to the online installer
 content is not enough.
 
 Note that `\path\to\Qt` doesn't imply the full path depth like:
-`c:\Qt\6.4.3\msvc2019_64\lib\cmake\Qt6`, but only `c:/Qt/6.4.3/msvc2019_64`.
+`c:\Qt\6.8.3\msvc2022_64\lib\cmake\Qt6`, but only `c:/Qt/6.8.3/msvc2022_64`.
 The usage of slashes `/` is intentional, since CMake has issues with backslashes `\`
 in `CMAKE_PREFX_PATH`, they are interpreted as escape codes.
 
@@ -227,7 +227,7 @@ CLion...etc) locally:
       "cacheVariables": {
         "CMAKE_CXX_COMPILER": "cl.exe",
         "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_PREFIX_PATH": "c:/Qt/6.4.3/msvc2019_64"
+        "CMAKE_PREFIX_PATH": "c:/Qt/6.8.3/msvc2022_64"
       }
     }
   ]

@@ -22,7 +22,7 @@ Product {
         name: "Qt"
         condition: useQt
         submodules: ["core", "core5compat"]
-        versionAtLeast: "6.2.0"
+        versionAtLeast: "6.5.3"
     }
 
     Depends { name: "qtc" }
