@@ -12,6 +12,9 @@
 #include <utils/qtcprocess.h>
 
 #include <QCryptographicHash>
+#include <QLoggingCategory>
+
+Q_LOGGING_CATEGORY(devcontainerlog, "devcontainer")
 
 using namespace Utils;
 
@@ -159,13 +162,14 @@ static ProcessTask inspectImageTask(
         QJsonParseError error;
         QJsonDocument doc = QJsonDocument::fromJson(output.toUtf8(), &error);
         if (error.error != QJsonParseError::NoError) {
-            qWarning() << "Failed to parse JSON from Docker inspect:" << error.errorString();
-            qWarning().noquote() << output;
+            qCWarning(devcontainerlog)
+                << "Failed to parse JSON from Docker inspect:" << error.errorString();
+            qCWarning(devcontainerlog).noquote() << output;
             return DoneResult::Error;
         }
         if (!doc.isArray() || doc.array().isEmpty()) {
-            qWarning() << "Expected JSON array with one entry from Docker inspect, got:"
-                       << doc.toJson();
+            qCWarning(devcontainerlog)
+                << "Expected JSON array with one entry from Docker inspect, got:" << doc.toJson();
             return DoneResult::Error;
         }
         // Parse into ImageDetails struct
@@ -202,6 +206,8 @@ static ProcessTask inspectImageTask(
             for (const QJsonValue &cmdValue : cmdArray)
                 details.Config.Cmd->append(cmdValue.toString());
         }
+        *imageDetails = details;
+        qCDebug(devcontainerlog) << "Image details:" << details;
 
         return DoneResult::Success;
     };
@@ -275,21 +281,21 @@ static ProcessTask eventMonitor(const InstanceConfig &instanceConfig)
         QObject::connect(&process, &Process::textOnStandardOutput, [&process](const QString &text) {
             QJsonDocument doc = QJsonDocument::fromJson(text.toUtf8());
             if (doc.isNull() || !doc.isObject()) {
-                qWarning() << "Received invalid JSON from Docker events:" << text;
+                qCWarning(devcontainerlog) << "Received invalid JSON from Docker events:" << text;
                 return;
             }
             QJsonObject event = doc.object();
             if (event.contains("status") && event["status"].toString() == "start"
                 && event.contains("id")) {
-                qDebug() << "Container started:" << event["id"].toString();
+                qCDebug(devcontainerlog) << "Container started:" << event["id"].toString();
                 process.stop();
             } else {
-                qWarning() << "Unexpected Docker event:" << event;
+                qCWarning(devcontainerlog) << "Unexpected Docker event:" << event;
             }
         });
 
         QObject::connect(&process, &Process::textOnStandardError, [](const QString &text) {
-            qWarning() << "Docker events error:" << text;
+            qCWarning(devcontainerlog) << "Docker events error:" << text;
         });
     };
 
