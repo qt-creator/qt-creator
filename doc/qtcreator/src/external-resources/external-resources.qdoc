@@ -1,6 +1,15 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
+
+/*!
+    \externalpage https://doc.qt.io/qtcreator-extending/creating-plugins.html
+    \title Creating Plugins
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator-extending/lua-extensions.html
+    \title Extending \QC with Lua
+*/
 /*!
     \externalpage https://doc.qt.io/index.html
     \title Qt Documentation
@@ -296,4 +305,8 @@
 /*!
     \externalpage https://www.gerritcodereview.com/
     \title Gerrit Code Review
+*/
+/*!
+    \externalpage https://chromium.googlesource.com/breakpad/breakpad/+/HEAD/docs/client_design.md
+    \title Google Breakpad
 */

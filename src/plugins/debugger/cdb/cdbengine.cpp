@@ -1363,7 +1363,7 @@ void CdbEngine::handleResolveSymbolHelper(const QList<quint64> &addresses, Disas
         // We have an address from the agent, find closest.
         if (const quint64 closest = findClosestFunctionAddress(addresses, agentAddress)) {
             if (closest <= agentAddress) {
-                functionAddress = closest;
+                functionAddress = std::max(closest, agentAddress - DisassemblerRange / 2);
                 endAddress = agentAddress + DisassemblerRange / 2;
             }
         }

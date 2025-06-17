@@ -100,6 +100,12 @@ public:
 
     void removeFinishedLocalBuilds();
 
+    FilePath lastBauhausBase() const { return m_lastBauhausFromDB; }
+    void setLastBauhausFromDatabase(const FilePath &bauhausDir)
+    {
+        m_lastBauhausFromDB = bauhausDir;
+    }
+
 private:
     void handleLocalBuildOutputFor(const QString &projectName, const QString &line);
 
@@ -108,6 +114,7 @@ private:
 
     QHash<QString, TaskTreeRunner *> m_runningLocalBuilds;
     QHash<QString, LocalBuildInfo> m_localBuildInfos;
+    FilePath m_lastBauhausFromDB;
 };
 
 void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard &dashboard,
@@ -237,6 +244,8 @@ static QSqlDatabase localDashboardDB()
 
 void checkForLocalBuildResults(const QString &projectName, const std::function<void()> &callback)
 {
+    s_localBuildInstance.setLastBauhausFromDatabase({}); // clear old
+
     const FilePath configDbl = FileUtils::homePath().pathAppended(".bauhaus/localbuild/config.dbl");
     if (!configDbl.exists())
         return;
@@ -270,6 +279,14 @@ void checkForLocalBuildResults(const QString &projectName, const std::function<v
     const int count = query.value(0).toUInt(&ok);
     if (!ok || count < 1)
         return;
+
+    query.prepare("SELECT Bauhaus_Base_Dir FROM axLocalProjects WHERE Remote_Project_Name=(:projectName)");
+    query.bindValue(":projectName", projectName);
+    if (query.exec() && query.next()) {
+        FilePath bauhaus = FilePath::fromUserInput(query.value("Bauhaus_Base_Dir").toString());
+        s_localBuildInstance.setLastBauhausFromDatabase(bauhaus);
+        qCDebug(sqlLog) << "set bauhaus base from DB" << bauhaus.toUserOutput();
+    }
 
     if (callback)
         callback();
@@ -351,11 +368,15 @@ public:
     {
         bauhausSuite.setExpectedKind(PathChooser::ExistingDirectory);
         bauhausSuite.setAllowPathFromDevice(false);
-        if (settings().versionInfo())
+        if (!s_localBuildInstance.lastBauhausBase().isEmpty())
+            bauhausSuite.setValue(s_localBuildInstance.lastBauhausBase());
+        else if (settings().versionInfo())
             bauhausSuite.setValue(settings().axivionSuitePath());
         fileOrCommand.setExpectedKind(PathChooser::Any);
         fileOrCommand.setAllowPathFromDevice(false);
         fileOrCommand.setHistoryCompleter("LocalBuildHistory");
+        if (!settings().lastLocalBuildCommand().isEmpty())
+            fileOrCommand.setValue(settings().lastLocalBuildCommand());
         buildType.setLabelText(Tr::tr("Build type:"));
         buildType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
         buildType.setToolTip(Tr::tr("Clean Build: Set environment variable AXIVION_CLEAN_BUILD=1\n"
@@ -535,6 +556,8 @@ bool LocalBuild::startLocalBuildFor(const QString &projectName)
     if (dia.exec() != QDialog::Accepted)
         return false;
 
+    settings().lastLocalBuildCommand.setValue(dia.fileOrCommand());
+    settings().writeSettings();
 
     Environment env = Environment::systemEnvironment();
     updateEnvironmentForLocalBuild(&env);

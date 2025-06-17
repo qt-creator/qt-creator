@@ -9230,6 +9230,8 @@ void TextEditorWidget::applyFontSettings()
         // signal. In turn the default font of the document wont get updated so we need to do that
         // manually here
         document()->setDefaultFont(font);
+        if (auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout()))
+            documentLayout->emitDocumentSizeChanged();
     }
 
     // Line numbers

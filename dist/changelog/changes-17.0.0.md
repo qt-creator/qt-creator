@@ -31,7 +31,7 @@ General
       installed to their details
     * Added version selectors for extensions that are not installed
     * Added support for dropping extension archives onto `Extensions` mode
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-install-extensions.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-install-extensions.html))
 
 Editing
 -------
@@ -44,7 +44,7 @@ Editing
 
 * Updated prebuilt binaries to LLVM 20.1.3
 * Added refactoring actions for adding string literal operators to literals
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-reference-cpp-quick-fixes.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-reference-cpp-quick-fixes.html))
 * Fixed the indentation for function-like built-ins
   ([QTCREATORBUG-32667](https://bugreports.qt.io/browse/QTCREATORBUG-32667))
 * Fixed issues with function-like macros
@@ -92,7 +92,7 @@ Projects
 * Added `Clone into This` for copying the data of a different run configuration
   into the current run configuration
   ([QTCREATORBUG-26825](https://bugreports.qt.io/browse/QTCREATORBUG-26825))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-run-settings.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-run-settings.html))
 * Added the `Add Project Dependency` refactoring action for missing included
   Qt files to add the missing package dependency to the project file
 * Added the `Add #include and Project Dependency` refactoring action for unknown
@@ -101,10 +101,10 @@ Projects
 * Added the option to use custom output parsers for all build or run
   configurations by default in `Preferences > Build & Run > Custom Output Parsers`
   ([QTCREATORBUG-32342](https://bugreports.qt.io/browse/QTCREATORBUG-32342))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-custom-output-parsers.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-custom-output-parsers.html))
 * Added the option to select `qtpaths` instead of `qmake` when registering
   Qt versions
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-project-qmake.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-project-qmake.html))
   ([QTCREATORBUG-32213](https://bugreports.qt.io/browse/QTCREATORBUG-32213))
 * Fixed `Open Terminal Here` in run settings
   ([QTCREATORBUG-32841](https://bugreports.qt.io/browse/QTCREATORBUG-32841))
@@ -119,7 +119,7 @@ Projects
 * Added the option to install missing Qt components with the Qt Online Installer
   when the CMake configuration fails with missing Qt packages
   ([QTCREATORBUG-32323](https://bugreports.qt.io/browse/QTCREATORBUG-32323))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-edit-cmake-config-files.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-edit-cmake-config-files.html))
 * Added the `QTC_RUN` environment variable when parsing presets
   ([QTCREATORBUG-33003](https://bugreports.qt.io/browse/QTCREATORBUG-33003))
   ([Documentation](https://doc.qt.io/qtcreator/creator-build-settings-cmake.html#qtc-run-environment-variable))
@@ -142,7 +142,7 @@ Projects
 
 ### Python
 
-* Added support for `pyproject.toml` projects
+* Added support for `pyproject.toml` projects and adapted the wizards
   ([QTCREATORBUG-22492](https://bugreports.qt.io/browse/QTCREATORBUG-22492),
    [PYSIDE-2714](https://bugreports.qt.io/browse/PYSIDE-2714))
 
@@ -151,6 +151,9 @@ Debugging
 
 ### C++
 
+* CDB
+    * Fixed a crash when debugging coroutines
+      ([QTCREATORBUG-32764](https://bugreports.qt.io/browse/QTCREATORBUG-32764))
 * LLDB
     * Fixed the pretty printer for `QMap` on ARM Macs
       ([QTCREATORBUG-32309](https://bugreports.qt.io/browse/QTCREATORBUG-32309))
@@ -200,14 +203,14 @@ Version Control Systems
   values
 * Added actions for staged changes
   ([QTCREATORBUG-32361](https://bugreports.qt.io/browse/QTCREATORBUG-32361))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-git-diff.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-git-diff.html))
 * Added `Revert` to the actions in the `Instant Blame` tooltip
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-git-reset.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-git-reset.html))
 * Added the option to create annotated tags to the `Add Tag` dialog
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-git-log.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-git-log.html))
 * Added a `Diff & Cancel` option to the `Uncommitted Changes Found` dialog
   ([QTCREATORBUG-25795](https://bugreports.qt.io/browse/QTCREATORBUG-25795))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-17.0/creator-how-to-git-pull.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-git-pull.html))
 * Added a `.gitignore` file when creating a repository in an existing directory
   ([QTCREATORBUG-29776](https://bugreports.qt.io/browse/QTCREATORBUG-29776))
 * Fixed that numbers in file names were interpreted as commit IDs
@@ -233,6 +236,9 @@ Platforms
 * Re-enabled all functionality of the debugger that calls functions on the
   debugged items when using GDB from MinGW
   ([QTCREATORBUG-30661](https://bugreports.qt.io/browse/QTCREATORBUG-30661))
+* Fixed that `qmlls` could keep a lock on files
+  ([QTCREATORBUG-32981](https://bugreports.qt.io/browse/QTCREATORBUG-32981))
+
 
 ### macOS
 
@@ -277,6 +283,7 @@ Burak Hancerli
 Christian Kandeler  
 Christian Stenger  
 Cristian Adam  
+Cristián Maureira-Fredes  
 David Schulz  
 Dmitrii Akshintsev  
 Eike Ziller  
@@ -324,4 +331,5 @@ Tian Shilin
 Tim Jenßen  
 Vikas Pachdha  
 Ville Lavonius  
+Xavier Besson  
 Zoltan Gera  

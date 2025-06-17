@@ -230,6 +230,8 @@ bool Target::removeBuildConfiguration(BuildConfiguration *bc)
     if (BuildManager::isBuilding(bc))
         return false;
 
+    emit ProjectManager::instance()->aboutToRemoveBuildConfiguration(bc);
+
     d->m_buildConfigurations.removeOne(bc);
 
     if (activeBuildConfiguration() == bc) {

@@ -101,6 +101,7 @@ struct LinkWithColumns
 
 static bool issueListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
 static bool progressListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
+static void resetFocusToIssuesTable(); // impl at bottom
 
 static std::optional<PathMapping> findPathMappingMatch(const QString &projectName,
                                                        const Link &link)
@@ -181,8 +182,10 @@ public:
                 if (!computedPath.exists())
                     targetFilePath = mappedPathForLink(link);
                 link.targetFilePath = targetFilePath.isEmpty() ? computedPath : targetFilePath;
-                if (link.targetFilePath.exists())
+                if (link.targetFilePath.exists()) {
                     EditorManager::openEditorAt(link);
+                    resetFocusToIssuesTable();
+                }
             }
             return true;
         } else if (role == BaseTreeView::ItemViewEventRole && !m_id.isEmpty()) {
@@ -222,6 +225,8 @@ public:
 
     bool currentIssueHasValidMapping() const;
 
+    void requestFocusForIssuesTable();
+
 protected:
     void showEvent(QShowEvent *event) override;
 private:
@@ -243,6 +248,7 @@ private:
     void onLocalBuildTriggered();
     void hideOverlays();
     void openFilterHelp();
+    void checkForLocalBuildAndUpdate();
 
     QString m_currentPrefix;
     QString m_currentProject;
@@ -356,7 +362,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         const bool enable = info && !info->versionNumber.isEmpty()
                 && !hasRunningLocalBuild(m_currentProject);
         m_localBuild->setEnabled(enable);
-        checkForLocalBuildResults(m_currentProject, [this] { m_localDashBoard->setEnabled(true); });
+        checkForLocalBuildAndUpdate();
     });
     connect(m_localDashBoard, &QToolButton::clicked, this, &IssuesWidget::switchDashboard);
     m_typesButtonGroup = new QButtonGroup(this);
@@ -619,7 +625,7 @@ void IssuesWidget::updateLocalBuildState(const QString &projectName, int percent
     if (percent != 100 || projectName != m_currentProject)
         return;
     m_localBuild->setEnabled(true);
-    checkForLocalBuildResults(m_currentProject, [this] { m_localDashBoard->setEnabled(true); });
+    checkForLocalBuildAndUpdate();
 }
 
 void IssuesWidget::initDashboardList(const QString &preferredProject)
@@ -959,7 +965,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     std::optional<AxivionVersionInfo> suiteVersionInfo = settings().versionInfo();
     m_localBuild->setEnabled(!m_currentProject.isEmpty()
                              && suiteVersionInfo && !suiteVersionInfo->versionNumber.isEmpty());
-    checkForLocalBuildResults(m_currentProject, [this] { m_localDashBoard->setEnabled(true); });
+    checkForLocalBuildAndUpdate();
 }
 
 void IssuesWidget::updateVersionsFromProjectInfo(const std::optional<Dto::ProjectInfoDto> &info)
@@ -1195,6 +1201,11 @@ bool IssuesWidget::currentIssueHasValidMapping() const
     return true;
 }
 
+void IssuesWidget::requestFocusForIssuesTable()
+{
+    m_issuesView->setFocus();
+}
+
 void IssuesWidget::switchDashboard(bool local)
 {
     if (local) {
@@ -1234,6 +1245,14 @@ void IssuesWidget::openFilterHelp()
     const std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
     if (projInfo && projInfo->issueFilterHelp)
         QDesktopServices::openUrl(resolveDashboardInfoUrl(DashboardMode::Global, *projInfo->issueFilterHelp));
+}
+
+void IssuesWidget::checkForLocalBuildAndUpdate()
+{
+    checkForLocalBuildResults(m_currentProject, [this] {
+        m_localBuild->setEnabled(true);
+        m_localDashBoard->setEnabled(true);
+    });
 }
 
 static void loadImage(QPromise<QImage> &promise, const QByteArray &data)
@@ -1529,6 +1548,8 @@ public:
 
     void showProgressWidget();
 
+    void requestFocusForIssuesTable();
+
 private:
     void removeFinishedBuilds();
 
@@ -1784,6 +1805,11 @@ void AxivionPerspective::showProgressWidget()
     // TODO can we ensure the progress widget is uncollapsed?
 }
 
+void AxivionPerspective::requestFocusForIssuesTable()
+{
+    m_issuesWidget->requestFocusForIssuesTable();
+}
+
 void AxivionPerspective::removeFinishedBuilds()
 {
     removeFinishedLocalBuilds();
@@ -1829,6 +1855,12 @@ static bool progressListContextMenuEvent(const ItemViewEvent &ev)
 {
     QTC_ASSERT(axivionPerspective(), return false);
     return axivionPerspective()->handleProgressContextMenu(ev);
+}
+
+static void resetFocusToIssuesTable()
+{
+    QTC_ASSERT(axivionPerspective(), return);
+    axivionPerspective()->requestFocusForIssuesTable();
 }
 
 void showFilterException(const QString &errorMessage)

@@ -274,6 +274,8 @@ AxivionSettings::AxivionSettings()
     javaHome.setToolTip(Tr::tr("Set it to overwrite global environment or if Axivion fails to "
                                "find java in PATH."));
 
+    lastLocalBuildCommand.setSettingsKey("LastLocalBuildCmd"); // used without UI
+
     m_defaultServerId.setSettingsKey("DefaultDashboardId");
     pathMappingSettings().readSettings();
     AspectContainer::readSettings();

@@ -7,6 +7,7 @@
 #include "mobiledevicelib.h"
 
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QHash>
 #include <QLibrary>

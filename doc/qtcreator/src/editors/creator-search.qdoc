@@ -110,7 +110,7 @@
     \preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Highlight search results on the scrollbar}.
 
-    \image {qtcreator-options-text-editor-display.png} {Display tab in Text Editor preferences}
+    \image {qtcreator-preferences-text-editor-display.webp} {Display tab in Text Editor preferences}
 
     \section1 Search globally
 

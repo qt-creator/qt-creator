@@ -86,7 +86,7 @@
     color of the visualization, change the value of the Visual Whitespace setting
     of the editor color scheme in \uicontrol {Font & Colors}.
 
-    \image {qtcreator-options-text-editor-display.png} {Display tab in Text Editor preferences}
+    \image {qtcreator-preferences-text-editor-display.webp} {Display tab in Text Editor preferences}
 
     \section1 Display right margin
 

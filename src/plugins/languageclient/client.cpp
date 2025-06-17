@@ -24,9 +24,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <languageserverprotocol/completion.h>
 #include <languageserverprotocol/diagnostics.h>
@@ -43,11 +40,9 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <texteditor/codeassist/documentcontentcompletion.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/ioutlinewidget.h>
 #include <texteditor/syntaxhighlighter.h>
-#include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
@@ -152,7 +147,7 @@ public:
         m_documentUpdateTimer.setInterval(500);
         connect(&m_documentUpdateTimer, &QTimer::timeout, this,
                 [this] { sendPostponedDocumentUpdates(Schedule::Now); });
-        connect(ProjectManager::instance(), &ProjectManager::buildConfigurationRemoved,
+        connect(ProjectManager::instance(), &ProjectManager::aboutToRemoveBuildConfiguration,
                 q, &Client::buildConfigurationClosed);
 
         QTC_ASSERT(clientInterface, return);

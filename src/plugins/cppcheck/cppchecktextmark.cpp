@@ -89,7 +89,7 @@ QString CppcheckTextMark::toolTipText(const QString &severityText) const
                 "  <tr>"
                 "    <td colspan='2' align='left' style='padding-left:10px'>%3</td>"
                 "  </tr>"
-                "</table>").arg(m_checkId, severityText, m_message);
+                "</table>").arg(m_checkId, severityText, m_message.toHtmlEscaped());
 }
 
 } // Cppcheck::Internal

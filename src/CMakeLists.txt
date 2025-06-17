@@ -38,7 +38,7 @@ install(EXPORT QtCreator
 file(WRITE ${CMAKE_BINARY_DIR}/cmake/QtCreatorConfig.cmake "
 \# Qt version used for building
 \# A compatible Qt version should be used by externally built plugins
-set(QTC_QT_VERSION ${QT_VERSION})
+set(QTC_QT_VERSION ${Qt6_VERSION})
 
 \# force plugins to same path naming conventions as Qt Creator
 \# otherwise plugins will not be found

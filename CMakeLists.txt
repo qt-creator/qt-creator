@@ -77,7 +77,7 @@ find_package(Qt6
 find_package(Qt6 OPTIONAL_COMPONENTS Quick QuickWidgets Designer DesignerComponentsPrivate
                                      Help SerialPort Svg Tools LinguistTools QUIET)
 
-if (QT_VERSION VERSION_GREATER_EQUAL 6.9.0)
+if (Qt6_VERSION VERSION_GREATER_EQUAL 6.9.0)
   find_package(Qt6 OPTIONAL_COMPONENTS
     CorePrivate
     Core5CompatPrivate
