@@ -63,7 +63,7 @@ Rectangle {
             internal.clear();
             const searchText = searchBox.text.toLowerCase();
             if (searchText.length > 0) {
-                internal.traverse(root.contentItem, searchText);
+                internal.traverse(root.contentItem, searchText, false);
                 internal.searched = true;
             }
         }
@@ -98,7 +98,7 @@ Rectangle {
             });
         }
 
-        function traverse(item, searchText) {
+        function traverse(item, searchText, isInSection) {
             let hideSection = true;
             let hideParentSection = true;
             item.children.forEach((child, index, arr) => {
@@ -135,13 +135,14 @@ Rectangle {
                         }
                     }
                 }
-                hideSection &= internal.traverse(child, searchText);
+                hideSection &= internal.traverse(child, searchText,
+                                                 isInSection || child instanceof HelperWidgets.Section);
                 if (child instanceof HelperWidgets.Section) {
                     const action = hideSection ? internal.enableSearchHideAction
                                                : internal.expandSectionAction;
                     action(child);
 
-                    if (child.__isInEffectsSection && !hideSection)
+                    if (isInSection && !hideSection)
                         hideParentSection = false;
 
                     hideSection = true;
