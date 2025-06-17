@@ -16,7 +16,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 Snapper::Snapper()
     : m_containerFormEditorItem(nullptr),

@@ -5,7 +5,7 @@
 
 #include "propertyeditortracing.h"
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 ListValidator::ListValidator(QObject *parent)
     : QValidator{parent}

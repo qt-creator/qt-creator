@@ -57,7 +57,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = NavigatorTracing::category;
+using NavigatorTracing::category;
 
 static QList<ModelNode> modelNodesFromMimeData(const QMimeData *mimeData, AbstractView *view)
 {

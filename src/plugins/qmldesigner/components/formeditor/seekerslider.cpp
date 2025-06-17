@@ -14,7 +14,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 SeekerSlider::SeekerSlider(QWidget *parent)
     : QSlider(parent)

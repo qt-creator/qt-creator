@@ -18,7 +18,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 RotationManipulator::RotationManipulator(LayerItem *layerItem, FormEditorView *view)
     : m_view(view)

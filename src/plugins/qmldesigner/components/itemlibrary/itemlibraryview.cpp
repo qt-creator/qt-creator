@@ -26,7 +26,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = ItemLibraryTracing::category;
+using ItemLibraryTracing::category;
 
 ItemLibraryView::ItemLibraryView(AsynchronousImageCache &imageCache,
                                  ExternalDependenciesInterface &externalDependencies)

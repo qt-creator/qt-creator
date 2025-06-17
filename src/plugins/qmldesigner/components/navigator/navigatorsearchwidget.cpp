@@ -17,7 +17,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = NavigatorTracing::category;
+using NavigatorTracing::category;
 
 LineEdit::LineEdit(QWidget *parent)
     : QLineEdit(parent)

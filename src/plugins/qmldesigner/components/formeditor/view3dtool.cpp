@@ -12,7 +12,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 View3DTool::View3DTool()
     : QObject(), AbstractCustomTool()

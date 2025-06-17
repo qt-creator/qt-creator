@@ -25,7 +25,7 @@ static Q_LOGGING_CATEGORY(moveManipulatorInfo, "qtc.qmldesigner.formeditor", QtW
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 MoveManipulator::MoveManipulator(LayerItem *layerItem, FormEditorView *view)
     : m_layerItem(layerItem),

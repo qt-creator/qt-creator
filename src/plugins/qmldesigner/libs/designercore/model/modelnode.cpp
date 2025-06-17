@@ -22,7 +22,7 @@ namespace QmlDesigner {
 using namespace QmlDesigner::Internal;
 using NanotraceHR::keyValue;
 
-static const auto category = ModelTracing::category;
+using ModelTracing::category;
 
 /*!
 \class QmlDesigner::ModelNode

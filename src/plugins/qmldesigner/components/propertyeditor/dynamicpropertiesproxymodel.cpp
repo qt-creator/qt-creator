@@ -46,7 +46,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = PropertyEditorTracing::category;
+using PropertyEditorTracing::category;
 
 static const int propertyNameRole = Qt::UserRole + 1;
 static const int propertyTypeRole = Qt::UserRole + 2;

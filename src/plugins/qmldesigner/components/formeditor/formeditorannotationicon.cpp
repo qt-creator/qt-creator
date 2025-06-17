@@ -24,7 +24,7 @@
 namespace QmlDesigner {
 
 const int penWidth = 2;
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 FormEditorAnnotationIcon::FormEditorAnnotationIcon(const ModelNode &modelNode, QGraphicsItem *parent)
     : QGraphicsObject(parent)

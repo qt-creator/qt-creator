@@ -15,7 +15,7 @@
 
 #include <algorithm>
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 GradientPresetItem::GradientPresetItem()
     : m_gradientVal(QGradient())

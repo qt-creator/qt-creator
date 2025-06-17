@@ -25,7 +25,7 @@ class NodeState;
 
 namespace {
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 const Utils::SmallString auxDataString("anchors_");
 

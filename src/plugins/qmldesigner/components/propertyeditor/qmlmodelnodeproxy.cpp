@@ -18,7 +18,7 @@
 
 namespace QmlDesigner {
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 QmlModelNodeProxy::QmlModelNodeProxy(QObject *parent) :
     QObject(parent)

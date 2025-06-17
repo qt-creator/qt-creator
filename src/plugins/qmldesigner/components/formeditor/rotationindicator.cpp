@@ -12,7 +12,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 RotationIndicator::RotationIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)

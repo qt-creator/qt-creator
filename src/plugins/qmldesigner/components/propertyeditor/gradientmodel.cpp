@@ -24,7 +24,7 @@
 
 namespace {
 
-auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 constexpr auto widthBinding = [](const QStringView nodeName) -> QString {
     return QString("%1.width").arg(nodeName);

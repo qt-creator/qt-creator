@@ -12,7 +12,7 @@ using NanotraceHR::keyValue;
 
 namespace {
 
-auto category = ProjectStorageTracing::projectStorageCategory;
+using ProjectStorageTracing::projectStorageCategory;
 
 } // namespace
 
@@ -20,7 +20,7 @@ TypeHasInvalidSourceId::TypeHasInvalidSourceId(const Sqlite::source_location &lo
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("TypeHasInvalidSourceId");
+    projectStorageCategory().threadEvent("TypeHasInvalidSourceId");
 }
 
 const char *TypeHasInvalidSourceId::what() const noexcept
@@ -32,7 +32,7 @@ ModuleDoesNotExists::ModuleDoesNotExists(const Sqlite::source_location &location
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("ModuleDoesNotExists");
+    projectStorageCategory().threadEvent("ModuleDoesNotExists");
 }
 
 const char *ModuleDoesNotExists::what() const noexcept
@@ -44,7 +44,7 @@ ModuleAlreadyExists::ModuleAlreadyExists(const Sqlite::source_location &location
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("ModuleAlreadyExists");
+    projectStorageCategory().threadEvent("ModuleAlreadyExists");
 }
 
 const char *ModuleAlreadyExists::what() const noexcept
@@ -61,16 +61,16 @@ TypeNameDoesNotExists::TypeNameDoesNotExists(std::string_view typeName,
               {"type: ", typeName, ", source id: ", Utils::SmallString::number(sourceId.internalId())}),
           location}
 {
-    category().threadEvent("TypeNameDoesNotExists",
-                           keyValue("type name", typeName),
-                           keyValue("source id", sourceId));
+    projectStorageCategory().threadEvent("TypeNameDoesNotExists",
+                                         keyValue("type name", typeName),
+                                         keyValue("source id", sourceId));
 }
 
 PrototypeChainCycle::PrototypeChainCycle(const Sqlite::source_location &location)
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("PrototypeChainCycle");
+    projectStorageCategory().threadEvent("PrototypeChainCycle");
 }
 
 const char *PrototypeChainCycle::what() const noexcept
@@ -82,7 +82,7 @@ AliasChainCycle::AliasChainCycle(const Sqlite::source_location &location)
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("AliasChainCycle");
+    projectStorageCategory().threadEvent("AliasChainCycle");
 }
 
 const char *AliasChainCycle::what() const noexcept
@@ -94,7 +94,7 @@ CannotParseQmlTypesFile::CannotParseQmlTypesFile(const Sqlite::source_location &
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("CannotParseQmlTypesFile");
+    projectStorageCategory().threadEvent("CannotParseQmlTypesFile");
 }
 
 const char *CannotParseQmlTypesFile::what() const noexcept
@@ -106,7 +106,7 @@ CannotParseQmlDocumentFile::CannotParseQmlDocumentFile(const Sqlite::source_loca
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("CannotParseQmlDocumentFile");
+    projectStorageCategory().threadEvent("CannotParseQmlDocumentFile");
 }
 
 const char *CannotParseQmlDocumentFile::what() const noexcept
@@ -119,7 +119,7 @@ DirectoryInfoHasInvalidProjectSourceId::DirectoryInfoHasInvalidProjectSourceId(
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("DirectoryInfoHasInvalidProjectSourceId");
+    projectStorageCategory().threadEvent("DirectoryInfoHasInvalidProjectSourceId");
 }
 
 const char *DirectoryInfoHasInvalidProjectSourceId::what() const noexcept
@@ -131,7 +131,7 @@ DirectoryInfoHasInvalidSourceId::DirectoryInfoHasInvalidSourceId(const Sqlite::s
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("DirectoryInfoHasInvalidSourceId");
+    projectStorageCategory().threadEvent("DirectoryInfoHasInvalidSourceId");
 }
 
 const char *DirectoryInfoHasInvalidSourceId::what() const noexcept
@@ -143,7 +143,7 @@ DirectoryInfoHasInvalidModuleId::DirectoryInfoHasInvalidModuleId(const Sqlite::s
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("DirectoryInfoHasInvalidModuleId");
+    projectStorageCategory().threadEvent("DirectoryInfoHasInvalidModuleId");
 }
 
 const char *DirectoryInfoHasInvalidModuleId::what() const noexcept
@@ -155,7 +155,7 @@ FileStatusHasInvalidSourceId::FileStatusHasInvalidSourceId(const Sqlite::source_
     : ProjectStorageError{location}
 
 {
-    category().threadEvent("FileStatusHasInvalidSourceId");
+    projectStorageCategory().threadEvent("FileStatusHasInvalidSourceId");
 }
 
 const char *FileStatusHasInvalidSourceId::what() const noexcept
@@ -188,13 +188,14 @@ ExportedTypeCannotBeInserted::ExportedTypeCannotBeInserted(std::string_view erro
                                                            const Sqlite::source_location &location)
     : ProjectStorageErrorWithMessage{"ExportedTypeCannotBeInserted"sv, errorMessage, location}
 {
-    category().threadEvent("ExportedTypeCannotBeInserted", keyValue("error message", errorMessage));
+    projectStorageCategory().threadEvent("ExportedTypeCannotBeInserted",
+                                         keyValue("error message", errorMessage));
 }
 
 TypeAnnotationHasInvalidSourceId::TypeAnnotationHasInvalidSourceId(const Sqlite::source_location &location)
     : ProjectStorageError{location}
 {
-    category().threadEvent("TypeAnnotationHasInvalidSourceId");
+    projectStorageCategory().threadEvent("TypeAnnotationHasInvalidSourceId");
 }
 
 const char *TypeAnnotationHasInvalidSourceId::what() const noexcept

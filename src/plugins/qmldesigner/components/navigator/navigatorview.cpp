@@ -43,7 +43,7 @@
 #include <QPixmap>
 #include <QTimer>
 
-static auto category = QmlDesigner::NavigatorTracing::category;
+using QmlDesigner::NavigatorTracing::category;
 
 inline static void setScenePos(const QmlDesigner::ModelNode &modelNode, const QPointF &pos)
 {

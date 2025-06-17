@@ -30,7 +30,7 @@ using namespace Core;
 
 namespace QmlDesigner {
 
-static const auto category = NavigatorTracing::category;
+using NavigatorTracing::category;
 
 NavigatorWidget::NavigatorWidget(NavigatorView *view)
     : m_treeView(new NavigatorTreeView)

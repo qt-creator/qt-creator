@@ -9,7 +9,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = ItemLibraryTracing::category;
+using ItemLibraryTracing::category;
 
 namespace Internal {
 

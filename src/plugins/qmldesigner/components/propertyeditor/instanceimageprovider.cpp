@@ -7,7 +7,7 @@
 #include <abstractview.h>
 #include <QTimer>
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 constexpr QByteArrayView instanceImageRequestId = "PropertyEditor.InstanceImage_";
 

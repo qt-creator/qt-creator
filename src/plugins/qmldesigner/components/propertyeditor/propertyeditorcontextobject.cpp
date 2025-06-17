@@ -40,7 +40,7 @@
 namespace QmlDesigner {
 
 using namespace Qt::StringLiterals;
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 static Q_LOGGING_CATEGORY(urlSpecifics, "qtc.propertyeditor.specifics", QtWarningMsg)
 

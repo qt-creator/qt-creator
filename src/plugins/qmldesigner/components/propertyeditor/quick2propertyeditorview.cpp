@@ -39,7 +39,7 @@
 
 namespace QmlDesigner {
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 Quick2PropertyEditorView::Quick2PropertyEditorView(AsynchronousImageCache &imageCache)
     : QQuickWidget()

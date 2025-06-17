@@ -8,7 +8,7 @@ namespace QmlDesigner {
 
 using NanotraceHR::keyValue;
 
-static const auto category = ModelTracing::category;
+using ModelTracing::category;
 
 AbstractView *QmlModelNodeFacade::view() const
 {

@@ -8,7 +8,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 ResizeIndicator::ResizeIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)

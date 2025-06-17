@@ -33,7 +33,7 @@ namespace QmlDesigner {
 
 using NanotraceHR::keyValue;
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 FormEditorScene::FormEditorScene(FormEditorWidget *view, FormEditorView *editorView)
         : QGraphicsScene()

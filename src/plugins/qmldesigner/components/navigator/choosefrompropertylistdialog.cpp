@@ -11,7 +11,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = NavigatorTracing::category;
+using NavigatorTracing::category;
 
 // This will filter and return possible properties that the given type can be bound to
 ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &insertInfo,

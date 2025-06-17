@@ -31,7 +31,7 @@ namespace QmlDesigner {
 
 using NanotraceHR::keyValue;
 
-static const auto category = ModelTracing::category;
+using ModelTracing::category;
 
 void QmlObjectNode::setVariantProperty(PropertyNameView name, const QVariant &value, SL sl)
 {

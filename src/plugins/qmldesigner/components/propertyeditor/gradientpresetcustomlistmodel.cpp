@@ -17,7 +17,7 @@
 
 namespace {
 
-auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 const char settingsKey[] = "GradientPresetCustomList";
 const char settingsFileName[] = "GradientPresets.ini";

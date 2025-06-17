@@ -33,7 +33,7 @@
 
 namespace QmlDesigner {
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 PropertyEditorDynamicPropertiesProxyModel::PropertyEditorDynamicPropertiesProxyModel(QObject *parent)
     : DynamicPropertiesProxyModel(parent)

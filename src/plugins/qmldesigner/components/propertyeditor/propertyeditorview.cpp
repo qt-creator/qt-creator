@@ -52,7 +52,7 @@ enum {
 
 namespace QmlDesigner {
 
-static const auto category = PropertyEditorTracing::category;
+using PropertyEditorTracing::category;
 
 constexpr QStringView quick3dImport{u"QtQuick3D"};
 

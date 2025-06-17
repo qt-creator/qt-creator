@@ -30,7 +30,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = ItemLibraryTracing::category;
+using ItemLibraryTracing::category;
 
 // sectionName can be an import url or a category name
 void ItemLibraryModel::saveExpandedState(bool expanded, const QString &sectionName)

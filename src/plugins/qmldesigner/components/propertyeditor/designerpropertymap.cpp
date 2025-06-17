@@ -7,7 +7,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = PropertyEditorTracing::category;
+using PropertyEditorTracing::category;
 
 DesignerPropertyMap::DesignerPropertyMap(QObject *parent) : QQmlPropertyMap(parent)
 {

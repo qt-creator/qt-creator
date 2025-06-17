@@ -25,7 +25,7 @@ namespace QmlDesigner {
 
 #ifdef QDS_BUILD_QMLPARSER
 
-constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
+using ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
 using Storage::IsInsideProject;
 using Tracer = NanotraceHR::Tracer<ProjectStorageTracing::Category>;
@@ -40,7 +40,7 @@ using Storage::TypeNameString;
 
 ComponentWithoutNamespaces createComponentNameWithoutNamespaces(const QList<QQmlJSExportedScope> &objects)
 {
-    NanotraceHR::Tracer tracer{"parse qmltypes file", category()};
+    NanotraceHR::Tracer tracer{"parse qmltypes file", projectStorageUpdaterCategory()};
 
     ComponentWithoutNamespaces componentWithoutNamespaces;
 
@@ -83,7 +83,7 @@ void addImports(Storage::Imports &imports,
 {
     NanotraceHR::Tracer tracer{
         "add imports",
-        category(),
+        projectStorageUpdaterCategory(),
         keyValue("source id", sourceId),
         keyValue("module id", cppModuleId),
     };
@@ -467,7 +467,7 @@ void addType(Storage::Synchronization::Types &types,
              Internal::LastModule &lastQmlModule)
 {
     NanotraceHR::Tracer tracer{"add type",
-                               category(),
+                               projectStorageUpdaterCategory(),
                                keyValue("source id", sourceId),
                                keyValue("module id", cppModuleId)};
 
@@ -507,7 +507,7 @@ void addTypes(Storage::Synchronization::Types &types,
               IsInsideProject isInsideProject,
               Internal::LastModule &lastQmlModule)
 {
-    NanotraceHR::Tracer tracer{"add types", category()};
+    NanotraceHR::Tracer tracer{"add types", projectStorageUpdaterCategory()};
     types.reserve(Utils::usize(objects) + types.size());
 
 
@@ -531,7 +531,7 @@ void QmlTypesParser::parse(const QString &sourceContent,
                            const Storage::Synchronization::DirectoryInfo &directoryInfo,
                            IsInsideProject isInsideProject)
 {
-    NanotraceHR::Tracer tracer{"qmltypes parser parse", category()};
+    NanotraceHR::Tracer tracer{"qmltypes parser parse", projectStorageUpdaterCategory()};
 
     lastQmlModule.name.clear();
     lastQmlModule.id = ModuleId{};

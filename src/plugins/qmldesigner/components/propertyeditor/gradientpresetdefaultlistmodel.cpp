@@ -10,7 +10,7 @@
 #include <QDebug>
 #include <QFile>
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 GradientPresetDefaultListModel::GradientPresetDefaultListModel(QObject *parent)
     : GradientPresetListModel(parent)

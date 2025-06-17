@@ -10,7 +10,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 BindingIndicator::BindingIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)

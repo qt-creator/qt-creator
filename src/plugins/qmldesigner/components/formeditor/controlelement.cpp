@@ -12,7 +12,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 ControlElement::ControlElement(LayerItem *layerItem)
     : m_controlShape(new QGraphicsRectItem(layerItem))

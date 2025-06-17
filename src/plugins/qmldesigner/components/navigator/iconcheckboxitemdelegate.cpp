@@ -23,7 +23,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = NavigatorTracing::category;
+using NavigatorTracing::category;
 
 IconCheckboxItemDelegate::IconCheckboxItemDelegate(QObject *parent, const QIcon &icon)
     : QStyledItemDelegate(parent),

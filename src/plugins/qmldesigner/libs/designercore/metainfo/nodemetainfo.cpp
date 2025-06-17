@@ -39,7 +39,7 @@ namespace {
 using NanotraceHR::keyValue;
 using Storage::ModuleKind;
 
-const auto category = ModelTracing::category;
+using ModelTracing::category;
 
 struct TypeDescription
 {

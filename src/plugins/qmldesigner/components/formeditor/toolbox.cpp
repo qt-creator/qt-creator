@@ -15,7 +15,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 ToolBox::ToolBox(QWidget *parentWidget)
     : Utils::StyledBar(parentWidget)

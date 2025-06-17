@@ -23,7 +23,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 FormEditorGraphicsView::FormEditorGraphicsView(QWidget *parent)
     : QGraphicsView(parent)

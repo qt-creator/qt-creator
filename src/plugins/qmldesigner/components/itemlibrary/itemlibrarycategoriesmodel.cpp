@@ -16,7 +16,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = ItemLibraryTracing::category;
+using ItemLibraryTracing::category;
 
 ItemLibraryCategoriesModel::ItemLibraryCategoriesModel(QObject *parent) :
     QAbstractListModel(parent)

@@ -12,7 +12,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 AnchorIndicator::AnchorIndicator(LayerItem *layerItem)
     : m_layerItem(layerItem)

@@ -9,7 +9,7 @@
 
 #include <QRegularExpression>
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 PropertyNameValidator::PropertyNameValidator(QObject *parent)
     : QValidator(parent)

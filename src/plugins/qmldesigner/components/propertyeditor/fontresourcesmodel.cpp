@@ -33,7 +33,7 @@ using namespace Qt::Literals::StringLiterals;
 
 namespace {
 
-auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 QStringList makeFontFilesFilterList()
 {

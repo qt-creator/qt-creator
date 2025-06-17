@@ -20,7 +20,7 @@
 
 static QString s_lastBrowserPath;
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 FileResourcesModel::FileResourcesModel(QObject *parent)
     : QObject(parent)

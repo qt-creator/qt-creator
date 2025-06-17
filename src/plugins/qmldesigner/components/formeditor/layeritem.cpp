@@ -12,7 +12,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 LayerItem::LayerItem(FormEditorScene* scene)
 {

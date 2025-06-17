@@ -15,7 +15,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 const int toolButtonSize = 14;
 

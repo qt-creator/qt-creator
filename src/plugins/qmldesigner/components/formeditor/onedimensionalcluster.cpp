@@ -10,7 +10,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = FormEditorTracing::category;
+using FormEditorTracing::category;
 
 double sum(const QList<double> & list)
 {

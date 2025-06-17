@@ -12,7 +12,7 @@
 
 namespace QmlDesigner {
 
-static const auto category = PropertyEditorTracing::category;
+using PropertyEditorTracing::category;
 
 /*!
  * \internal

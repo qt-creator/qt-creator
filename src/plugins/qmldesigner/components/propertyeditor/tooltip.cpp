@@ -11,7 +11,7 @@
 #include <QtWidgets/qtwidgetsglobal.h>
 #include <qtooltip.h>
 
-static auto category = QmlDesigner::PropertyEditorTracing::category;
+using QmlDesigner::PropertyEditorTracing::category;
 
 Tooltip::Tooltip(QObject *parent)
     : QObject(parent)

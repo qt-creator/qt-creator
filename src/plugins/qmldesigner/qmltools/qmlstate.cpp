@@ -17,7 +17,7 @@ namespace QmlDesigner {
 
 using NanotraceHR::keyValue;
 
-static const auto category = ModelTracing::category;
+using ModelTracing::category;
 
 QmlPropertyChanges QmlModelState::ensurePropertyChangesForTarget(const ModelNode &node, SL sl)
 {

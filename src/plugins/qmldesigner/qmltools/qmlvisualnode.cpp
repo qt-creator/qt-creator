@@ -31,7 +31,7 @@ namespace QmlDesigner {
 
 using NanotraceHR::keyValue;
 
-static const auto category = ModelTracing::category;
+using ModelTracing::category;
 
 static char imagePlaceHolder[] = "qrc:/qtquickplugin/images/template_image.png";
 

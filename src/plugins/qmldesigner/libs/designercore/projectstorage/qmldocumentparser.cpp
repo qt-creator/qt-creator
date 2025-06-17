@@ -23,7 +23,7 @@ namespace QmlDesigner {
 
 #ifdef QDS_BUILD_QMLPARSER
 
-constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
+using ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
 using Storage::IsInsideProject;
 using Tracer = NanotraceHR::Tracer<ProjectStorageTracing::Category>;
@@ -97,7 +97,7 @@ QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
                                         ProjectStorageType &storage)
 {
     NanotraceHR::Tracer tracer{"create qualified imports",
-                               category(),
+                               projectStorageUpdaterCategory(),
                                keyValue("sourceId", sourceId),
                                keyValue("directoryPath", directoryPath)};
 
@@ -331,7 +331,7 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
                                                         IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"qml document parser parse",
-                               category(),
+                               projectStorageUpdaterCategory(),
                                keyValue("sourceId", sourceId),
                                keyValue("directoryPath", directoryPath)};
 
