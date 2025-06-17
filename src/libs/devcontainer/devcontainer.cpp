@@ -305,8 +305,7 @@ static Result<Group> prepareContainerRecipe(
         connectProcessToLog(process, instanceConfig, Tr::tr("Build Dockerfile"));
 
         const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
-        const FilePath contextPath = configFileDir.resolvePath(
-            containerConfig.context.value_or("."));
+        const FilePath contextPath = configFileDir.resolvePath(containerConfig.context);
         const FilePath dockerFile = configFileDir.resolvePath(containerConfig.dockerfile);
 
         CommandLine buildCmdLine{

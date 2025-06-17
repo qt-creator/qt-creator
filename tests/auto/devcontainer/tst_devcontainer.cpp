@@ -134,7 +134,6 @@ FROM alpine:latest
     DevContainer::DockerfileContainer dockerFileConfig {
         //.appPort = 10,
         .dockerfile = dockerFile.fileName(),
-        .context = std::nullopt,
         .buildOptions = DevContainer::BuildOptions{
             .target = "test",
             .args = {{"arg1", "value1"}, {"arg2", "value2"}},

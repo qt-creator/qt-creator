@@ -139,7 +139,8 @@ struct DEVCONTAINER_EXPORT NonComposeBase
 struct DEVCONTAINER_EXPORT DockerfileContainer : NonComposeBase
 {
     QString dockerfile;
-    std::optional<QString> context;
+    //! Path that the Docker build command should be run from. Relative to the devcontainer.json file.
+    QString context = ".";
     std::optional<BuildOptions> buildOptions;
 
     static Utils::Result<DockerfileContainer> fromJson(const QJsonObject &json);

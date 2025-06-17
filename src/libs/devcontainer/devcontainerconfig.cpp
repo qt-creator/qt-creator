@@ -1119,12 +1119,11 @@ QDebug operator<<(QDebug debug, const DevContainer::DockerfileContainer &value)
     debug.nospace() << "DockerfileContainer(";
     debug << "dockerfile=" << value.dockerfile;
 
-    if (value.context)
-        debug << ", " << "context=" << *value.context;
+    debug << ", " << "context=" << value.context;
 
-    if (value.buildOptions) {
-        debug << (value.context ? ", " : "") << "buildOptions=" << *value.buildOptions;
-    }
+    if (value.buildOptions)
+        debug << ", " << "buildOptions=" << *value.buildOptions;
+
     debug << ")";
     return debug;
 }
