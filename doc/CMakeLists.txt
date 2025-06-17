@@ -56,13 +56,17 @@ function(_add_doc _doc_file _dev_doc_file)
     "${GENERATED_ATTRIBUTIONS_DIR}/creator-attributions.qdoc"
     ${_doc_file}
   )
-  set(litehtml_attributions "${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/qlitehtml/src/3rdparty/qt_attribution.json")
-  if(EXISTS "${litehtml_attributions}")
-    add_qtc_doc_attribution(doc_attributions_litehtml
-      "${litehtml_attributions}"
-      "${GENERATED_ATTRIBUTIONS_DIR}/creator-attributions-litehtml.qdoc"
-      ${_doc_file}
-    )
+  if (Qt6_VERSION VERSION_GREATER_EQUAL 6.8.0)
+    set(litehtml_attributions "${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/qlitehtml/src/3rdparty/qt_attribution.json")
+    if(EXISTS "${litehtml_attributions}")
+      add_qtc_doc_attribution(doc_attributions_litehtml
+        "${litehtml_attributions}"
+        "${GENERATED_ATTRIBUTIONS_DIR}/creator-attributions-litehtml.qdoc"
+        ${_doc_file}
+      )
+    endif()
+  else()
+    message(WARNING "Disabling qt_attribution.json handling for qlitehtml for Qt < 6.8.0")
   endif()
   if (BUILD_DEVELOPER_DOCS)
     _find_all_includes(_all_includes _framework_paths)
