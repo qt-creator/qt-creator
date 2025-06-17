@@ -1098,6 +1098,7 @@ public:
     QAction *m_jumpToFileAction = nullptr;
     QAction *m_jumpToFileInNextSplitAction = nullptr;
     QList<QAction *> m_modifyingActions;
+    bool m_updatePasteActionScheduled = false;
 };
 
 class TextEditorWidgetFind : public BaseTextFind<TextEditorWidget>
@@ -1281,7 +1282,16 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     connect(q, &PlainTextEdit::copyAvailable,
             this, &TextEditorWidgetPrivate::updateCopyAction);
 
-    connect(qApp->clipboard(), &QClipboard::changed, this, &TextEditorWidgetPrivate::updatePasteAction);
+    connect(qApp->clipboard(), &QClipboard::dataChanged, this, [this] {
+        // selecting text with the mouse can cause the clipboard to change quite often and the
+        // check whether the clipboard text is empty in update paste action is potentially
+        // expensive. So we only schedule the update if it is not already scheduled.
+
+        if (m_updatePasteActionScheduled)
+            return;
+        m_updatePasteActionScheduled = true;
+        QTimer::singleShot(100, this, &TextEditorWidgetPrivate::updatePasteAction);
+    });
 
     m_parenthesesMatchingTimer.setSingleShot(true);
     m_parenthesesMatchingTimer.setInterval(50);
@@ -4772,6 +4782,7 @@ void TextEditorWidgetPrivate::updateCopyAction(bool hasCopyableText)
 
 void TextEditorWidgetPrivate::updatePasteAction()
 {
+    m_updatePasteActionScheduled = false;
     if (m_pasteAction)
         m_pasteAction->setEnabled(!q->isReadOnly() && !qApp->clipboard()->text(QClipboard::Mode::Clipboard).isEmpty());
 }
