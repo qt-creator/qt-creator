@@ -1004,7 +1004,7 @@ static FancyLineEdit::AsyncValidationResult validateQtInstallDir(const QString &
                                                                  const FilePath &baseDirectory)
 {
     const FilePath qtDir = FilePath::fromUserInput(input);
-    if (!settingsDirForQtDir(baseDirectory, qtDir).isEmpty()) {
+    if (settingsDirForQtDir(baseDirectory, qtDir).isEmpty()) {
         const FilePaths filesToCheck = settingsFilesToCheck() + qtversionFilesToCheck();
         return make_unexpected(
             "<html><body>"
