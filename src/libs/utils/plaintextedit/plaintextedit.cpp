@@ -196,12 +196,10 @@ public:
 
 
 
-/*! \class PlainTextDocumentLayout
-    \since 4.4
-    \brief The PlainTextDocumentLayout class implements a plain text layout for QTextDocument.
+/*! \class Utils::PlainTextDocumentLayout
+    \inmodule QtCreator
 
-    \ingroup richtext-processing
-    \inmodule QtWidgets
+    \brief The PlainTextDocumentLayout class implements a plain text layout for QTextDocument.
 
    A PlainTextDocumentLayout is required for text documents that can
    be display or edited in a PlainTextEdit. See
@@ -235,14 +233,14 @@ PlainTextDocumentLayout::~PlainTextDocumentLayout() {}
 
 
 /*!
-  \reimp
+  \overload QAbstractTextDocumentLayout::draw()
  */
 void PlainTextDocumentLayout::draw(QPainter *, const PaintContext &)
 {
 }
 
 /*!
-  \reimp
+  \overload QAbstractTextDocumentLayout::hitTest()
  */
 int PlainTextDocumentLayout::hitTest(const QPointF &, Qt::HitTestAccuracy ) const
 {
@@ -255,30 +253,24 @@ int PlainTextDocumentLayout::hitTest(const QPointF &, Qt::HitTestAccuracy ) cons
 }
 
 /*!
-  \reimp
+  \overload QAbstractTextDocumentLayout::pageCount()
  */
 int PlainTextDocumentLayout::pageCount() const
 { return 1; }
 
 /*!
-  \reimp
+  \overload QAbstractTextDocumentLayout::documentSize()
  */
 QSizeF PlainTextDocumentLayout::documentSize() const
 {
     return QSizeF(d->maximumWidth, document()->lineCount());
 }
 
-/*!
-  \reimp
- */
 QRectF PlainTextDocumentLayout::frameBoundingRect(QTextFrame *) const
 {
     return QRectF(0, 0, qMax(d->width, d->maximumWidth), qreal(INT_MAX));
 }
 
-/*!
-  \reimp
- */
 QRectF PlainTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
     if (!block.isValid()) { return QRectF(); }
@@ -300,6 +292,8 @@ QRectF PlainTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 }
 
 /*!
+  \internal
+
   Ensures that \a block has a valid layout
  */
 void PlainTextDocumentLayout::ensureBlockLayout(const QTextBlock &block) const
@@ -312,7 +306,7 @@ void PlainTextDocumentLayout::ensureBlockLayout(const QTextBlock &block) const
 }
 
 
-/*! \property PlainTextDocumentLayout::cursorWidth
+/*! \property Utils::PlainTextDocumentLayout::cursorWidth
 
     This property specifies the width of the cursor in pixels. The default value is 1.
 */
@@ -369,7 +363,8 @@ void PlainTextDocumentLayoutPrivate::relayout()
 }
 
 
-/*! \reimp
+/*!
+  \overload QAbstractTextDocumentLayout::documentChanged()
  */
 void PlainTextDocumentLayout::documentChanged(int from, int charsRemoved, int charsAdded)
 {
@@ -1163,15 +1158,11 @@ void PlainTextEditPrivate::ensureViewportLayouted()
 }
 
 /*!
-    \class PlainTextEdit
-    \since 4.4
+    \class Utils::PlainTextEdit
+    \inmodule QtCreator
+
     \brief The PlainTextEdit class provides a widget that is used to edit and display
     plain text.
-
-    \ingroup richtext-processing
-    \inmodule QtWidgets
-
-    \section1 Introduction and Concepts
 
     PlainTextEdit is an advanced viewer/editor supporting plain
     text. It is optimized to handle large documents and to respond
@@ -1190,7 +1181,7 @@ void PlainTextEditPrivate::ensureViewportLayouted()
 
     The shape of the mouse cursor on a PlainTextEdit is
     Qt::IBeamCursor by default.  It can be changed through the
-    viewport()'s cursor property.
+    \c viewport() cursor property.
 
     \section1 Using PlainTextEdit as a Display Widget
 
@@ -1208,7 +1199,7 @@ void PlainTextEditPrivate::ensureViewportLayouted()
     the widget's width \l WidgetWidth, you can specify whether to
     break on whitespace or anywhere with setWordWrapMode().
 
-    The find() function can be used to find and select a given string
+    The \c find() function can be used to find and select a given string
     within the text.
 
     If you want to limit the total number of paragraphs in a
@@ -1255,16 +1246,16 @@ void PlainTextEditPrivate::ensureViewportLayouted()
     deleting selections. You can retrieve the object that corresponds with
     the user-visible cursor using the textCursor() method. If you want to set
     a selection in PlainTextEdit just create one on a QTextCursor object and
-    then make that cursor the visible cursor using setCursor(). The selection
+    then make that cursor the visible cursor using \c setCursor(). The selection
     can be copied to the clipboard with copy(), or cut to the clipboard with
     cut(). The entire text can be selected using selectAll().
 
     PlainTextEdit holds a QTextDocument object which can be retrieved using the
     document() method. You can also set your own document object using setDocument().
     QTextDocument emits a textChanged() signal if the text changes and it also
-    provides a isModified() function which will return true if the text has been
+    provides an \c isModified() function which will return \c true if the text has been
     modified since it was either loaded or since the last call to setModified
-    with false as argument. In addition it provides methods for undo and redo.
+    with \c false as argument. In addition it provides methods for undo and redo.
 
     \section2 Syntax Highlighting
 
@@ -1325,13 +1316,13 @@ void PlainTextEditPrivate::ensureViewportLayouted()
    editor with line wrap enabled in real time. It also makes for a
    fast log viewer (see setMaximumBlockCount()).
 
-    \sa QTextDocument, QTextCursor
-        {Syntax Highlighter Example}, {Rich Text Processing}
+    \sa {QTextDocument}, {QTextCursor}, {Syntax Highlighter Example},
+    {Rich Text Processing}
 
 */
 
 /*!
-    \property PlainTextEdit::plainText
+    \property Utils::PlainTextEdit::plainText
 
     This property gets and sets the plain text editor's contents. The previous
     contents are removed and undo/redo history is reset when this property is set.
@@ -1342,17 +1333,19 @@ void PlainTextEditPrivate::ensureViewportLayouted()
 */
 
 /*!
-    \property PlainTextEdit::undoRedoEnabled
+    \property Utils::PlainTextEdit::undoRedoEnabled
     \brief whether undo and redo are enabled
 
     Users are only able to undo or redo actions if this property is
-    true, and if there is an action that can be undone (or redone).
+    \c true, and if there is an action that can be undone (or redone).
 
     By default, this property is \c true.
 */
 
 /*!
-    \enum PlainTextEdit::LineWrapMode
+    \enum Utils::PlainTextEdit::LineWrapMode
+
+    Holds the line wrap mode.
 
     \value NoWrap
     \value WidgetWidth
@@ -1451,9 +1444,7 @@ QTextDocument *PlainTextEdit::document() const
 }
 
 /*!
-    \since 5.3
-
-    \property PlainTextEdit::placeholderText
+    \property Utils::PlainTextEdit::placeholderText
     \brief the editor placeholder text
 
     Setting this property makes the editor display a grayed-out
@@ -1513,8 +1504,6 @@ QVariant PlainTextEdit::variantTextCursor() const // needed for testing with Squ
 /*!
     Returns the reference of the anchor at position \a pos, or an
     empty string if no anchor exists at that point.
-
-    \since 4.7
  */
 QString PlainTextEdit::anchorAt(const QPoint &pos) const
 {
@@ -1765,7 +1754,8 @@ void PlainTextEdit::setPlainText(const QString &text)
     \sa PlainTextEdit::setPlainText()
  */
 
-/*! \reimp
+/*!
+    \overload QTextEdit::keyPressEvent()
 */
 void PlainTextEdit::keyPressEvent(QKeyEvent *e)
 {
@@ -1911,7 +1901,8 @@ void PlainTextEdit::keyPressEvent(QKeyEvent *e)
 #endif
 }
 
-/*! \reimp
+/*!
+    \overload QTextEdit::keyReleaseEvent()
 */
 void PlainTextEdit::keyReleaseEvent(QKeyEvent *e)
 {
@@ -1957,8 +1948,6 @@ QVariant PlainTextEdit::loadResource(int type, const QUrl &name)
     return QVariant();
 }
 
-/*! \reimp
-*/
 void PlainTextEdit::resizeEvent(QResizeEvent *e)
 {
     if (e->oldSize().width() != e->size().width())
@@ -2000,7 +1989,8 @@ static void fillBackground(QPainter *p, const QRectF &rect, QBrush brush, const 
 
 
 
-/*! \reimp
+/*!
+    \overload QTextEdit::paintEvent()
 */
 void PlainTextEdit::paintEvent(QPaintEvent *e)
 {
@@ -2152,7 +2142,8 @@ void PlainTextEditPrivate::updateDefaultTextOption()
 }
 
 
-/*! \reimp
+/*!
+    \overload QTextEdit::mousePressEvent()
 */
 void PlainTextEdit::mousePressEvent(QMouseEvent *e)
 {
@@ -2163,7 +2154,8 @@ void PlainTextEdit::mousePressEvent(QMouseEvent *e)
     d->sendControlEvent(e);
 }
 
-/*! \reimp
+/*!
+    \overload QTextEdit::mouseMoveEvent()
 */
 void PlainTextEdit::mouseMoveEvent(QMouseEvent *e)
 {
@@ -2181,7 +2173,8 @@ void PlainTextEdit::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-/*! \reimp
+/*!
+    \overload QTextEdit::mouseReleaseEvent()
 */
 void PlainTextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
@@ -2196,14 +2189,16 @@ void PlainTextEdit::mouseReleaseEvent(QMouseEvent *e)
     d->clickCausedFocus = 0;
 }
 
-/*! \reimp
+/*!
+    \overload QTextEdit::mouseDoubleClickEvent()
 */
 void PlainTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 {
     d->sendControlEvent(e);
 }
 
-/*! \reimp
+/*!
+    \overload QWidget::focusNextPrevChild()
 */
 bool PlainTextEdit::focusNextPrevChild(bool next)
 {
@@ -2214,7 +2209,7 @@ bool PlainTextEdit::focusNextPrevChild(bool next)
 
 #ifndef QT_NO_CONTEXTMENU
 /*!
-  \fn void PlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
+  \internal
 
   Shows the standard context menu created with createStandardContextMenu().
 
@@ -2226,7 +2221,16 @@ bool PlainTextEdit::focusNextPrevChild(bool next)
 
   Information about the event is passed in the \a event object.
 
-  \snippet code/src_gui_widgets_plaintextedit.cpp 0
+  \code
+  void MyQPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
+  {
+      QMenu *menu = createStandardContextMenu();
+      menu->addAction(tr("My Menu Item"));
+      //...
+      menu->exec(event->globalPos());
+      delete menu;
+  }
+  \endcode
 */
 void PlainTextEdit::contextMenuEvent(QContextMenuEvent *e)
 {
@@ -2235,16 +2239,12 @@ void PlainTextEdit::contextMenuEvent(QContextMenuEvent *e)
 #endif // QT_NO_CONTEXTMENU
 
 #if QT_CONFIG(draganddrop)
-/*! \reimp
-*/
 void PlainTextEdit::dragEnterEvent(QDragEnterEvent *e)
 {
     d->inDrag = true;
     d->sendControlEvent(e);
 }
 
-/*! \reimp
-*/
 void PlainTextEdit::dragLeaveEvent(QDragLeaveEvent *e)
 {
     d->inDrag = false;
@@ -2252,8 +2252,6 @@ void PlainTextEdit::dragLeaveEvent(QDragLeaveEvent *e)
     d->sendControlEvent(e);
 }
 
-/*! \reimp
-*/
 void PlainTextEdit::dragMoveEvent(QDragMoveEvent *e)
 {
     d->autoScrollDragPos = e->position().toPoint();
@@ -2262,7 +2260,8 @@ void PlainTextEdit::dragMoveEvent(QDragMoveEvent *e)
     d->sendControlEvent(e);
 }
 
-/*! \reimp
+/*!
+    \overload QTextEdit::dropEvent()
 */
 void PlainTextEdit::dropEvent(QDropEvent *e)
 {
@@ -2273,8 +2272,6 @@ void PlainTextEdit::dropEvent(QDropEvent *e)
 
 #endif // QT_CONFIG(draganddrop)
 
-/*! \reimp
- */
 void PlainTextEdit::inputMethodEvent(QInputMethodEvent *e)
 {
 #ifdef QT_KEYPAD_NAVIGATION
@@ -2293,8 +2290,6 @@ void PlainTextEdit::inputMethodEvent(QInputMethodEvent *e)
     ensureCursorVisible();
 }
 
-/*!\reimp
-*/
 void PlainTextEdit::scrollContentsBy(int dx, int /*dy*/)
 {
     int line = d->topLineForVScrollbarValue(d->vbar()->value());
@@ -2302,8 +2297,6 @@ void PlainTextEdit::scrollContentsBy(int dx, int /*dy*/)
     d->setTopLine(line, dx, d->vbar()->value() - scrollbarLineValue);
 }
 
-/*!\reimp
-*/
 QVariant PlainTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 {
     return inputMethodQuery(property, QVariant());
@@ -2359,8 +2352,6 @@ QVariant PlainTextEdit::inputMethodQuery(Qt::InputMethodQuery query, QVariant ar
     return v;
 }
 
-/*! \reimp
-*/
 void PlainTextEdit::focusInEvent(QFocusEvent *e)
 {
     if (e->reason() == Qt::MouseFocusReason) {
@@ -2370,16 +2361,12 @@ void PlainTextEdit::focusInEvent(QFocusEvent *e)
     d->sendControlEvent(e);
 }
 
-/*! \reimp
-*/
 void PlainTextEdit::focusOutEvent(QFocusEvent *e)
 {
     QAbstractScrollArea::focusOutEvent(e);
     d->sendControlEvent(e);
 }
 
-/*! \reimp
-*/
 void PlainTextEdit::showEvent(QShowEvent *)
 {
     if (d->showCursorOnInitialShow) {
@@ -2389,8 +2376,6 @@ void PlainTextEdit::showEvent(QShowEvent *)
     d->adjustScrollbars();
 }
 
-/*! \reimp
-*/
 void PlainTextEdit::changeEvent(QEvent *e)
 {
     QAbstractScrollArea::changeEvent(e);
@@ -2420,8 +2405,6 @@ void PlainTextEdit::changeEvent(QEvent *e)
     }
 }
 
-/*! \reimp
-*/
 #if QT_CONFIG(wheelevent)
 void PlainTextEdit::wheelEvent(QWheelEvent *e)
 {
@@ -2479,10 +2462,10 @@ void PlainTextEdit::zoomInF(float range)
 #ifndef QT_NO_CONTEXTMENU
 /*!  This function creates the standard context menu which is shown
   when the user clicks on the text edit with the right mouse
-  button. It is called from the default contextMenuEvent() handler.
+  button. It is called from the default \c contextMenuEvent() handler.
   The popup menu's ownership is transferred to the caller.
 
-  We recommend that you use the createStandardContextMenu(QPoint) version instead
+  We recommend that you use the \c createStandardContextMenu(QPoint) version instead
   which will enable the actions that are sensitive to where the user clicked.
 */
 
@@ -2492,10 +2475,9 @@ QMenu *PlainTextEdit::createStandardContextMenu()
 }
 
 /*!
-  \since 5.5
-  This function creates the standard context menu which is shown
+  Creates the standard context menu, which is shown
   when the user clicks on the text edit with the right mouse
-  button. It is called from the default contextMenuEvent() handler
+  button. It is called from the default \c contextMenuEvent() handler
   and it takes the \a position in document coordinates where the mouse click was.
   This can enable actions that are sensitive to the position where the user clicked.
   The popup menu's ownership is transferred to the caller.
@@ -2508,7 +2490,7 @@ QMenu *PlainTextEdit::createStandardContextMenu(const QPoint &position)
 #endif // QT_NO_CONTEXTMENU
 
 /*!
-  returns a QTextCursor at position \a pos (in viewport coordinates).
+  Returns a QTextCursor at position \a pos (in viewport coordinates).
 */
 QTextCursor PlainTextEdit::cursorForPosition(const QPoint &pos) const
 {
@@ -2516,7 +2498,7 @@ QTextCursor PlainTextEdit::cursorForPosition(const QPoint &pos) const
 }
 
 /*!
-  returns a rectangle (in viewport coordinates) that includes the
+  Returns a rectangle (in viewport coordinates) that includes the
   \a cursor.
  */
 QRect PlainTextEdit::cursorRect(const QTextCursor &cursor) const
@@ -2530,7 +2512,7 @@ QRect PlainTextEdit::cursorRect(const QTextCursor &cursor) const
 }
 
 /*!
-  returns a rectangle (in viewport coordinates) that includes the
+  Returns a rectangle (in viewport coordinates) that includes the
   cursor of the text edit.
  */
 QRect PlainTextEdit::cursorRect() const
@@ -2542,7 +2524,7 @@ QRect PlainTextEdit::cursorRect() const
 
 
 /*!
-   \property PlainTextEdit::overwriteMode
+   \property Utils::PlainTextEdit::overwriteMode
    \brief whether text entered by the user will overwrite existing text
 
    As with many text editors, the plain text editor widget can be configured
@@ -2566,9 +2548,8 @@ void PlainTextEdit::setOverwriteMode(bool overwrite)
 }
 
 /*!
-    \property PlainTextEdit::tabStopDistance
+    \property Utils::PlainTextEdit::tabStopDistance
     \brief the tab stop distance in pixels
-    \since 5.10
 
     By default, this property contains a value of 80 pixels.
 
@@ -2595,7 +2576,7 @@ void PlainTextEdit::setTabStopDistance(qreal distance)
 
 
 /*!
-    \property PlainTextEdit::cursorWidth
+    \property Utils::PlainTextEdit::cursorWidth
 
     This property specifies the width of the cursor in pixels. The default value is 1.
 */
@@ -2673,13 +2654,13 @@ void PlainTextEdit::insertFromMimeData(const QMimeData *source)
 }
 
 /*!
-    \property PlainTextEdit::readOnly
+    \property Utils::PlainTextEdit::readOnly
     \brief whether the text edit is read-only
 
     In a read-only text edit the user can only navigate through the
     text and select text; modifying the text is not possible.
 
-    This property's default is false.
+    This property's default is \c false.
 */
 
 bool PlainTextEdit::isReadOnly() const
@@ -2702,7 +2683,7 @@ void PlainTextEdit::setReadOnly(bool ro)
 }
 
 /*!
-    \property PlainTextEdit::textInteractionFlags
+    \property Utils::PlainTextEdit::textInteractionFlags
 
     Specifies how the label should interact with user input if it displays text.
 
@@ -2761,9 +2742,11 @@ QTextCharFormat PlainTextEdit::currentCharFormat() const
     Convenience slot that inserts \a text at the current
     cursor position.
 
-    It is equivalent to
+    It is equivalent to:
 
-    \snippet code/src_gui_widgets_plaintextedit.cpp 1
+    \code
+    edit->textCursor().insertText(text);
+    \endcode
  */
 void PlainTextEdit::insertPlainText(const QString &text)
 {
@@ -2772,6 +2755,8 @@ void PlainTextEdit::insertPlainText(const QString &text)
 
 
 /*!
+    \internal
+
     Moves the cursor by performing the given \a operation.
 
     If \a mode is QTextCursor::KeepAnchor, the cursor selects the text it moves over.
@@ -2786,7 +2771,7 @@ void PlainTextEdit::moveCursor(QTextCursor::MoveOperation operation, QTextCursor
 }
 
 /*!
-    Returns whether text can be pasted from the clipboard into the textedit.
+    Returns whether text can be pasted from the clipboard into the text edit.
 */
 bool PlainTextEdit::canPaste() const
 {
@@ -2794,6 +2779,8 @@ bool PlainTextEdit::canPaste() const
 }
 
 /*!
+    \internal
+
     Convenience function to print the text edit's document to the given \a printer. This
     is equivalent to calling the print method on the document directly except that this
     function also supports QPrinter::Selection as print range.
@@ -2807,12 +2794,12 @@ void PlainTextEdit::print(QPagedPaintDevice *printer) const
 }
 #endif
 
-/*! \property PlainTextEdit::tabChangesFocus
+/*! \property Utils::PlainTextEdit::tabChangesFocus
   \brief whether \uicontrol Tab changes focus or is accepted as input
 
   In some occasions text edits should not allow the user to input
   tabulators or change indentation using the \uicontrol Tab key, as this breaks
-  the focus chain. The default is false.
+  the focus chain. The default is \c false.
 
 */
 
@@ -2827,14 +2814,14 @@ void PlainTextEdit::setTabChangesFocus(bool b)
 }
 
 /*!
-    \property PlainTextEdit::documentTitle
+    \property Utils::PlainTextEdit::documentTitle
     \brief the title of the document parsed from the text.
 
     By default, this property contains an empty string.
 */
 
 /*!
-    \property PlainTextEdit::lineWrapMode
+    \property Utils::PlainTextEdit::lineWrapMode
     \brief the line wrap mode
 
     The default mode is WidgetWidth which causes words to be
@@ -2860,7 +2847,7 @@ void PlainTextEdit::setLineWrapMode(LineWrapMode wrap)
 }
 
 /*!
-    \property PlainTextEdit::wordWrapMode
+    \property Utils::PlainTextEdit::wordWrapMode
     \brief the mode PlainTextEdit will use when wrapping text by words
 
     By default, this property is set to QTextOption::WrapAtWordBoundaryOrAnywhere.
@@ -2882,17 +2869,17 @@ void PlainTextEdit::setWordWrapMode(QTextOption::WrapMode mode)
 }
 
 /*!
-    \property PlainTextEdit::backgroundVisible
-    \brief whether the palette background is visible outside the document area
+    \property Utils::PlainTextEdit::backgroundVisible
+    \brief Whether the palette background is visible outside the document area.
 
-    If set to true, the plain text edit paints the palette background
+    If set to \c true, the plain text edit paints the palette background
     on the viewport area not covered by the text document. Otherwise,
-    if set to false, it won't. The feature makes it possible for
+    if set to \c false, it won't. The feature makes it possible for
     the user to visually distinguish between the area of the document,
     painted with the base color of the palette, and the empty
     area not covered by any document.
 
-    The default is false.
+    The default is \c false.
 */
 
 bool PlainTextEdit::backgroundVisible() const
@@ -2909,18 +2896,18 @@ void PlainTextEdit::setBackgroundVisible(bool visible)
 }
 
 /*!
-    \property PlainTextEdit::centerOnScroll
-    \brief whether the cursor should be centered on screen
+    \property Utils::PlainTextEdit::centerOnScroll
+    \brief Whether the cursor should be centered on screen.
 
-    If set to true, the plain text edit scrolls the document
+    If set to \c true, the plain text edit scrolls the document
     vertically to make the cursor visible at the center of the
     viewport. This also allows the text edit to scroll below the end
-    of the document. Otherwise, if set to false, the plain text edit
+    of the document. Otherwise, if set to \c false, the plain text edit
     scrolls the smallest amount possible to ensure the cursor is
     visible.  The same algorithm is applied to any new line appended
     through appendPlainText().
 
-    The default is false.
+    The default is \c false.
 
     \sa centerCursor(), ensureCursorVisible()
 */
@@ -2941,6 +2928,8 @@ void PlainTextEdit::setCenterOnScroll(bool enabled)
 
 
 /*!
+    \internal
+
     Finds the next occurrence of the string, \a exp, using the given
     \a options. Returns \c true if \a exp was found and changes the
     cursor to select the match; otherwise returns \c false.
@@ -2951,9 +2940,7 @@ bool PlainTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
 }
 
 /*!
-    \fn bool PlainTextEdit::find(const QRegularExpression &exp, QTextDocument::FindFlags options)
-
-    \since 5.13
+    \internal
     \overload
 
     Finds the next occurrence, matching the regular expression, \a exp, using the given
@@ -2985,11 +2972,11 @@ void PlainTextEdit::setTopBlock(const QTextBlock &block)
     text edit.
 
     When text is selected this signal will be emitted with \a yes set
-    to true. If no text has been selected or if the selected text is
-    de-selected this signal is emitted with \a yes set to false.
+    to \c true. If no text has been selected or if the selected text is
+    de-selected this signal is emitted with \a yes set to \c false.
 
-    If \a yes is true then copy() can be used to copy the selection to
-    the clipboard. If \a yes is false then copy() does nothing.
+    If \a yes is \c true then copy() can be used to copy the selection to
+    the clipboard. If \a yes is \c false then copy() does nothing.
 
     \sa selectionChanged()
 */
@@ -3035,10 +3022,10 @@ void PlainTextEdit::setTopBlock(const QTextBlock &block)
 
     This signal is emitted whenever the content of the document
     changes in a way that affects the modification state. If \a
-    changed is true, the document has been modified; otherwise it is
-    false.
+    changed is \c true, the document has been modified; otherwise it is
+    \c false.
 
-    For example, calling setModified(false) on a document and then
+    For example, calling \c setModified(false) on a document and then
     inserting text causes the signal to get emitted. If you undo that
     operation, causing the document to return to its original
     unmodified state, the signal will get emitted again.
@@ -3173,8 +3160,6 @@ void PlainTextEdit::centerCursor()
 
 /*!
   Returns the first visible block.
-
-  \sa blockBoundingRect()
  */
 QTextBlock PlainTextEdit::firstVisibleBlock() const
 {
@@ -3192,7 +3177,8 @@ QTextBlock PlainTextEdit::firstVisibleBlock() const
      visible block is the very first block and the editor displays a
      margin.
 
-     \sa firstVisibleBlock(), horizontalScrollBar(), verticalScrollBar()
+     \sa firstVisibleBlock(), QAbstractScrollArea::horizontalScrollBar(),
+     QAbstractScrollArea::verticalScrollBar()
  */
 QPointF PlainTextEdit::contentOffset() const
 {
@@ -3200,11 +3186,14 @@ QPointF PlainTextEdit::contentOffset() const
 }
 
 
-/*!  Returns the bounding rectangle of the text \a block in content
+/*!
+  \internal
+
+  Returns the bounding rectangle of the text \a block in content
   coordinates. Translate the rectangle with the contentOffset() to get
   visual coordinates on the viewport.
 
-  \sa firstVisibleBlock(), blockBoundingRect()
+  \sa {firstVisibleBlock()}, {blockBoundingRect()}
  */
 QRectF PlainTextEdit::blockBoundingGeometry(const QTextBlock &block) const
 {
@@ -3212,6 +3201,8 @@ QRectF PlainTextEdit::blockBoundingGeometry(const QTextBlock &block) const
 }
 
 /*!
+  \internal
+
   Returns the bounding rectangle of the text \a block in the block's own coordinates.
 
   \sa blockBoundingGeometry()
@@ -3224,7 +3215,7 @@ QRectF PlainTextEdit::blockBoundingRect(const QTextBlock &block) const
 }
 
 /*!
-    \property PlainTextEdit::blockCount
+    \property Utils::PlainTextEdit::blockCount
     \brief the number of text blocks in the document.
 
     By default, in an empty document, this property contains a value of 1.
@@ -3234,7 +3225,7 @@ int PlainTextEdit::blockCount() const
     return document()->blockCount();
 }
 
-/*!  Returns the paint context for the viewport(), useful only when
+/*!  Returns the paint context for the \c viewport(), useful only when
   reimplementing paintEvent().
  */
 QAbstractTextDocumentLayout::PaintContext PlainTextEdit::getPaintContext() const
@@ -3243,7 +3234,7 @@ QAbstractTextDocumentLayout::PaintContext PlainTextEdit::getPaintContext() const
 }
 
 /*!
-    \property PlainTextEdit::maximumBlockCount
+    \property Utils::PlainTextEdit::maximumBlockCount
     \brief the limit for blocks in the document.
 
     Specifies the maximum number of blocks the document may have. If there are
@@ -3272,14 +3263,14 @@ QAbstractTextDocumentLayout::PaintContext PlainTextEdit::getPaintContext() const
     \fn void PlainTextEdit::undoAvailable(bool available)
 
     This signal is emitted whenever undo operations become available
-    (\a available is true) or unavailable (\a available is false).
+    (\a available is \c true) or unavailable (\a available is \c false).
 */
 
 /*!
     \fn void PlainTextEdit::redoAvailable(bool available)
 
     This signal is emitted whenever redo operations become available
-    (\a available is true) or unavailable (\a available is false).
+    (\a available is \c true) or unavailable (\a available is \c false).
 */
 
 } // namespace Utils
