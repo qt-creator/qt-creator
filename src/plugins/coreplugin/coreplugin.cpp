@@ -59,7 +59,9 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QMetaEnum>
 #include <QPushButton>
+#include <QStandardPaths>
 #include <QUuid>
 
 #include <cstdlib>
@@ -245,6 +247,22 @@ static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
         menu->insertSeparator(firstAction);
 }
 
+static void registerStandardLocation(MacroExpander *expander,
+                                                 QStandardPaths::StandardLocation location)
+{
+    static const QMetaEnum metaEnum = QMetaEnum::fromType<QStandardPaths::StandardLocation>();
+    const QLatin1String key(metaEnum.valueToKey(location));
+    expander->registerFileVariables(
+        QByteArray("HostOs:") + key.latin1(),
+        Tr::tr("QStandardPaths::%1 location on the local filesystem.").arg(key),
+        [location] {
+            const QStringList locations =
+                QStandardPaths::standardLocations(location);
+            return locations.isEmpty() ? FilePath()
+                                       : FilePath::fromUserInput(locations.first());
+        });
+}
+
 Result<> CorePlugin::initialize(const QStringList &arguments)
 {
     initTAndCAcceptDialog();
@@ -362,6 +380,11 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
     expander->registerPrefix("Asciify:",
                              Tr::tr("Convert string to pure ASCII."),
                              [expander](const QString &s) { return asciify(expander->expand(s)); });
+
+    registerStandardLocation(expander, QStandardPaths::DocumentsLocation);
+    registerStandardLocation(expander, QStandardPaths::GenericDataLocation);
+    registerStandardLocation(expander, QStandardPaths::HomeLocation);
+    registerStandardLocation(expander, QStandardPaths::TempLocation);
 
     Utils::PathChooser::setAboutToShowContextMenuHandler(&addToPathChooserContextMenu);
 
