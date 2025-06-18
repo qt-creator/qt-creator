@@ -40,7 +40,7 @@ QDebug operator<<(QDebug d, const TextFileFormat &format)
 
     The format comprises
     \list
-    \li Encoding represented by a pointer to a QTextCodec
+    \li Encoding represented by a pointer to a \l QTextCodec
     \li Presence of an UTF8 Byte Order Marker (BOM)
     \li Line feed storage convention
     \endlist
@@ -232,9 +232,8 @@ TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCod
     Reads a text file from \a filePath into a list of strings, \a plainTextList
     using \a defaultCodec and text file format \a format.
 
-    Returns whether decoding was possible without errors. If an errors occur
-    \a errorString is set to the error message, and \a decodingErrorSample is
-    set to a snippet that failed to decode.
+    Returns whether decoding was possible without errors. If errors occur,
+    \a decodingErrorSample is set to a snippet that failed to decode.
 */
 
 TextFileFormat::ReadResult
@@ -254,9 +253,8 @@ TextFileFormat::ReadResult
     Reads a text file from \a filePath into a string, \a plainText using
     \a defaultCodec and text file format \a format.
 
-    Returns whether decoding was possible without errors. If an errors occur
-    \a errorString is set to the error message, and \a decodingErrorSample is
-    set to a snippet that failed to decode.
+    Returns whether decoding was possible without errors. If errors occur,
+    \a decodingErrorSample is set to a snippet that failed to decode.
 */
 
 TextFileFormat::ReadResult
@@ -318,8 +316,7 @@ TextFileFormat::readFile(const FilePath &filePath, const QTextCodec *defaultCode
 /*!
     Writes out a text file to \a filePath into a string, \a plainText.
 
-    Returns whether decoding was possible without errors. If errors occur,
-    returns an error message, \a errorString.
+    Returns whether decoding was possible without errors.
 */
 
 Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) const
