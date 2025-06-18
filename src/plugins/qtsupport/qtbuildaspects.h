@@ -16,14 +16,10 @@ class QTSUPPORT_EXPORT QmlDebuggingAspect : public Utils::TriStateAspect
     Q_OBJECT
 
 public:
-    explicit QmlDebuggingAspect(Utils::AspectContainer *container = nullptr);
-
-    void setBuildConfiguration(const ProjectExplorer::BuildConfiguration *newBuildConfig);
+    explicit QmlDebuggingAspect(ProjectExplorer::BuildConfiguration *buildConfig);
 
 private:
     void addToLayoutImpl(Layouting::Layout &parent) override;
-
-    const ProjectExplorer::BuildConfiguration *m_buildConfig = nullptr;
 };
 
 class QTSUPPORT_EXPORT QtQuickCompilerAspect : public Utils::TriStateAspect
@@ -31,14 +27,10 @@ class QTSUPPORT_EXPORT QtQuickCompilerAspect : public Utils::TriStateAspect
     Q_OBJECT
 
 public:
-    QtQuickCompilerAspect(Utils::AspectContainer *container = nullptr);
-
-    void setBuildConfiguration(const ProjectExplorer::BuildConfiguration *newBuildConfig);
+    QtQuickCompilerAspect(ProjectExplorer::BuildConfiguration *buildConfig);
 
 private:
     void addToLayoutImpl(Layouting::Layout &parent) override;
-
-    const ProjectExplorer::BuildConfiguration *m_buildConfig = nullptr;
 };
 
 } // namespace QtSupport

@@ -1518,8 +1518,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                           return QLatin1String();
                                       });
 
-    qmlDebugging.setBuildConfiguration(this);
-
     setInitialBuildAndCleanSteps();
 
     setInitializer([this](const BuildInfo &info) {

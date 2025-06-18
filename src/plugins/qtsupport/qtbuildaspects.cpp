@@ -23,8 +23,8 @@ using namespace Utils;
 
 namespace QtSupport {
 
-QmlDebuggingAspect::QmlDebuggingAspect(AspectContainer *container)
-    : TriStateAspect(container)
+QmlDebuggingAspect::QmlDebuggingAspect(BuildConfiguration *buildConfig)
+    : TriStateAspect(buildConfig)
 {
     setSettingsKey("EnableQmlDebugging");
     setDisplayName(Tr::tr("QML debugging and profiling:"));
@@ -39,9 +39,11 @@ void QmlDebuggingAspect::addToLayoutImpl(Layouting::Layout &parent)
     parent.addRow({Layouting::empty, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
-        QTC_ASSERT(m_buildConfig, return);
-        Kit *kit = m_buildConfig->kit();
-        const bool supported = kit && QtVersion::isQmlDebuggingSupported(kit, &warningText);
+        BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(container());
+        QTC_ASSERT(buildConfig, return);
+        Kit *kit = buildConfig->kit();
+        QTC_ASSERT(kit, return);
+        const bool supported = QtVersion::isQmlDebuggingSupported(kit, &warningText);
         if (!supported) {
             setValue(TriState::Default);
         } else if (value() == TriState::Enabled) {
@@ -61,22 +63,12 @@ void QmlDebuggingAspect::addToLayoutImpl(Layouting::Layout &parent)
     changeHandler();
 }
 
-void QmlDebuggingAspect::setBuildConfiguration(const BuildConfiguration *buildConfig)
-{
-    m_buildConfig = buildConfig;
-}
-
-QtQuickCompilerAspect::QtQuickCompilerAspect(AspectContainer *container)
-    : TriStateAspect(container)
+QtQuickCompilerAspect::QtQuickCompilerAspect(BuildConfiguration *buildConfig)
+    : TriStateAspect(buildConfig)
 {
     setSettingsKey("QtQuickCompiler");
     setDisplayName(Tr::tr("Qt Quick Compiler:"));
     setValue(buildPropertiesSettings().qtQuickCompiler());
-}
-
-void QtQuickCompilerAspect::setBuildConfiguration(const BuildConfiguration *buildConfig)
-{
-    m_buildConfig = buildConfig;
 }
 
 void QtQuickCompilerAspect::addToLayoutImpl(Layouting::Layout &parent)
@@ -88,16 +80,17 @@ void QtQuickCompilerAspect::addToLayoutImpl(Layouting::Layout &parent)
     parent.addRow({Layouting::empty, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
-        QTC_ASSERT(m_buildConfig, return);
-        Kit *kit = m_buildConfig->kit();
-        const bool supported = kit
-                && QtVersion::isQtQuickCompilerSupported(kit, &warningText);
+        BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(container());
+        QTC_ASSERT(buildConfig, return);
+        Kit *kit = buildConfig->kit();
+        QTC_ASSERT(kit, return);
+        const bool supported = QtVersion::isQtQuickCompilerSupported(kit, &warningText);
         if (!supported)
             setValue(TriState::Default);
         if (value() == TriState::Enabled) {
-            if (auto qmlDebuggingAspect = m_buildConfig->aspect<QmlDebuggingAspect>()) {
+            if (auto qmlDebuggingAspect = buildConfig->aspect<QmlDebuggingAspect>()) {
                 if (qmlDebuggingAspect->value() == TriState::Enabled) {
-                    if (QtVersion *qtVersion = QtKitAspect::qtVersion(m_buildConfig->kit())) {
+                    if (QtVersion *qtVersion = QtKitAspect::qtVersion(kit)) {
                         if (qtVersion->qtVersion() < QVersionNumber(6, 0, 0))
                             warningText = Tr::tr("Disables QML debugging. QML profiling will still work.");
                     }
@@ -113,7 +106,9 @@ void QtQuickCompilerAspect::addToLayoutImpl(Layouting::Layout &parent)
     connect(KitManager::instance(), &KitManager::kitsChanged, warningLabel, changeHandler);
     connect(this, &QmlDebuggingAspect::changed, warningLabel, changeHandler);
     connect(this, &QtQuickCompilerAspect::changed, warningLabel, changeHandler);
-    if (auto qmlDebuggingAspect = m_buildConfig->aspect<QmlDebuggingAspect>())
+
+    BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(container());
+    if (auto qmlDebuggingAspect = buildConfig->aspect<QmlDebuggingAspect>())
         connect(qmlDebuggingAspect, &QmlDebuggingAspect::changed,  warningLabel, changeHandler);
     changeHandler();
 }

@@ -114,11 +114,9 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
     connect(&separateDebugInfoSetting, &BaseAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 
-    qmlDebuggingSetting.setBuildConfiguration(this);
     connect(&qmlDebuggingSetting, &BaseAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 
-    qtQuickCompilerSetting.setBuildConfiguration(this);
     connect(&qtQuickCompilerSetting, &BaseAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 

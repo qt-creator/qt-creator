@@ -162,14 +162,12 @@ QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     });
 
-    qmlDebugging.setBuildConfiguration(this);
     connect(&qmlDebugging, &BaseAspect::changed, this, [this] {
         emit qmlDebuggingChanged();
         emit qmakeBuildConfigurationChanged();
         qmakeBuildSystem()->scheduleUpdateAllNowOrLater();
     });
 
-    useQtQuickCompiler.setBuildConfiguration(this);
     connect(&useQtQuickCompiler, &QtQuickCompilerAspect::changed, this, [this] {
         emit useQtQuickCompilerChanged();
         emit qmakeBuildConfigurationChanged();
