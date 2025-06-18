@@ -146,13 +146,12 @@ def invokeContextMenuOnProject(projectName, menuItem):
     return projItem
 
 def addAndActivateKit(kit):
-    bAndRIndex = getQModelIndexStr("text='Build & Run'", ":Projects.ProjectNavigationTreeView")
     kitString = Targets.getStringForTarget(kit)
     clickToActivate = "<html><body><h3>%s</h3><p><h3>Click to activate</h3>" % kitString
     switchViewTo(ViewConstants.PROJECTS)
     try:
         waitForObject(":Projects.ProjectNavigationTreeView")
-        wanted = getQModelIndexStr("text='%s'" % kitString, bAndRIndex)
+        wanted = getQModelIndexStr("text='%s'" % kitString, ":Projects.ProjectNavigationTreeView")
         index = findObject(wanted)
         if str(index.toolTip).startswith(clickToActivate):
             mouseClick(index)
