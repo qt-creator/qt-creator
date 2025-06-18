@@ -78,10 +78,6 @@ Target::Target(Project *project, Kit *k) :
 {
     QTC_CHECK(d->m_kit);
     connect(DeviceManager::instance(), &DeviceManager::updated, this, &Target::updateDeviceState);
-    KitManager *km = KitManager::instance();
-    connect(km, &KitManager::kitUpdated, this, &Target::handleKitUpdates);
-    connect(km, &KitManager::kitRemoved, this, &Target::handleKitRemoval);
-
 }
 
 Target::~Target()
@@ -89,22 +85,12 @@ Target::~Target()
     qDeleteAll(d->m_buildConfigurations);
 }
 
-void Target::handleKitUpdates(Kit *k)
+void Target::handleKitUpdated()
 {
-    if (k != d->m_kit)
-        return;
-
     updateDeviceState(); // in case the device changed...
 
     emit iconChanged();
     emit kitChanged();
-}
-
-void Target::handleKitRemoval(Kit *k)
-{
-    if (k != d->m_kit)
-        return;
-    project()->removeTarget(this);
 }
 
 void Target::markAsShuttingDown()

@@ -219,11 +219,35 @@ Project::Project(const QString &mimeType, const FilePath &fileName)
 
     // Only set up containernode after d is set so that it will find the project directory!
     d->m_containerNode = std::make_unique<ContainerNode>(this);
+
+    KitManager *km = KitManager::instance();
+    connect(km, &KitManager::kitUpdated, this, &Project::handleKitUpdated);
+    connect(km, &KitManager::kitRemoved, this, &Project::handleKitRemoval);
 }
 
 Project::~Project()
 {
     delete d;
+}
+
+void Project::handleKitUpdated(Kit *k)
+{
+    for (const std::unique_ptr<Target> &target : d->m_targets) {
+        if (k == target->kit()) {
+            target->handleKitUpdated();
+            break;
+        }
+    }
+}
+
+void Project::handleKitRemoval(Kit *k)
+{
+    for (const std::unique_ptr<Target> &target : d->m_targets) {
+        if (k == target->kit()) {
+            removeTarget(target.get());
+            break;
+        }
+    }
 }
 
 QString Project::buildSystemName() const

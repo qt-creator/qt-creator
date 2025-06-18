@@ -264,6 +264,9 @@ private:
     void handleSubTreeChanged(FolderNode *node);
     void setActiveTargetHelper(Target *target);
 
+    void handleKitUpdated(Kit *k);
+    void handleKitRemoval(Kit *k);
+
     friend class ContainerNode;
     ProjectPrivate *d;
 };

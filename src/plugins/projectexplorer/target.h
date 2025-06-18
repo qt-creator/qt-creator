@@ -99,9 +99,7 @@ private:
     bool addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations);
 
     void updateDeviceState();
-
-    void handleKitUpdates(ProjectExplorer::Kit *k);
-    void handleKitRemoval(ProjectExplorer::Kit *k);
+    void handleKitUpdated();
 
     void setActiveBuildConfiguration(BuildConfiguration *configuration);
     const std::unique_ptr<TargetPrivate> d;
