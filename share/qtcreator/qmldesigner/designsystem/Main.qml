@@ -1540,7 +1540,7 @@ Rectangle {
                         onTriggered: {
                             createVariableMenu.insertInitalMode()
                             tableView.model.addProperty(GroupType.Colors,
-                                                        "color_new",
+                                                        "color",
                                                         "#800080",
                                                         false)
                         }
@@ -1552,7 +1552,7 @@ Rectangle {
                         onTriggered: {
                             createVariableMenu.insertInitalMode()
                             tableView.model.addProperty(GroupType.Numbers,
-                                                        "number_new",
+                                                        "number",
                                                         0,
                                                         false)
                         }
@@ -1564,7 +1564,7 @@ Rectangle {
                         onTriggered: {
                             createVariableMenu.insertInitalMode()
                             tableView.model.addProperty(GroupType.Strings,
-                                                        "string_new",
+                                                        "string",
                                                         "String value",
                                                         false)
                         }
@@ -1576,7 +1576,7 @@ Rectangle {
                         onTriggered: {
                             createVariableMenu.insertInitalMode()
                             tableView.model.addProperty(GroupType.Flags,
-                                                        "boolean_new",
+                                                        "flag",
                                                         true,
                                                         false)
                         }
