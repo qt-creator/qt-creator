@@ -443,7 +443,10 @@ public:
                 Row {
                     PushButton {
                         text(Tr::tr("Open Language Server preferences...")),
-                        onClicked(this, [] { ProjectExplorerPlugin::activateProjectPanel(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PANEL); })
+                        onClicked(this, [] {
+                            ProjectExplorerPlugin::activateProjectPanel(
+                                LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PANEL);
+                        })
                     },
                     st,
                 },

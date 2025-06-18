@@ -509,13 +509,11 @@ public:
 
     QVariant data(int column, int role) const final;
     Qt::ItemFlags flags(int column) const final;
-
     ProjectPanels panelWidgets() const final;
-
-    ProjectPanelFactory *factory() const { return m_factory; }
-
     ProjectItemBase *activeItem() final;
     void itemActivatedDirectly() final;
+
+    Id panelId() const { return m_factory->id(); }
 
 protected:
     ProjectPanelFactory *m_factory = nullptr;
@@ -695,10 +693,10 @@ public:
 
     Project *project() const { return m_project; }
 
-    TreeItem *itemForProjectPanel(Utils::Id panelId)
+    TreeItem *itemForProjectPanel(Id panelId)
     {
         return m_miscItem->findChildAtLevel(1, [panelId](const TreeItem *item){
-            return dynamic_cast<const MiscSettingsPanelItem *>(item)->factory()->id() == panelId;
+            return dynamic_cast<const MiscSettingsPanelItem *>(item)->panelId() == panelId;
         });
     }
 
@@ -1627,8 +1625,11 @@ public:
     void activateProjectPanel(Id panelId)
     {
         if (ProjectItem *projectItem = currentProjectItem()) {
-            if (TreeItem *item = projectItem->itemForProjectPanel(panelId))
+            if (TreeItem *item = projectItem->itemForProjectPanel(panelId)) {
                 itemActivated(item->index());
+                m_projectSettingsView->selectionModel()->select(item->index(),
+                    QItemSelectionModel::ClearAndSelect);
+            }
         }
     }
 
@@ -1754,7 +1755,7 @@ ProjectWindow::ProjectWindow()
     setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
-void ProjectWindow::activateProjectPanel(Utils::Id panelId)
+void ProjectWindow::activateProjectPanel(Id panelId)
 {
     d->activateProjectPanel(panelId);
 }
