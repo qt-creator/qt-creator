@@ -336,12 +336,13 @@ Target *Project::addTargetForKit(Kit *kit)
     return pointer;
 }
 
-bool Project::removeTarget(Target *target)
+void Project::removeTarget(Target *target)
 {
-    QTC_ASSERT(target && contains(d->m_targets, target), return false);
+    QTC_ASSERT(target, return);
+    QTC_ASSERT(contains(d->m_targets, target), return);
 
     if (BuildManager::isBuilding(target))
-        return false;
+        return;
 
     target->markAsShuttingDown();
     for (BuildConfiguration * const bc : target->buildConfigurations())
@@ -353,8 +354,6 @@ bool Project::removeTarget(Target *target)
         setActiveTarget(newActiveTarget, SetActive::Cascade);
     }
     emit removedTarget(target);
-
-    return true;
 }
 
 const QList<Target *> Project::targets() const

@@ -89,7 +89,7 @@ public:
     // Target:
     Target *addTargetForDefaultKit();
     Target *addTargetForKit(Kit *kit);
-    bool removeTarget(Target *target);
+    void removeTarget(Target *target);
 
     const QList<Target *> targets() const;
     // Note: activeTarget can be 0 (if no targets are defined).
