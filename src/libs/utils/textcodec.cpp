@@ -29,6 +29,15 @@ static QByteArray canonicalName(const QByteArray &input)
     if (it != s_canonicalNames.end())
         return *it;
 
+    if (input == "System") {
+        QStringDecoder systemDecoder(QStringConverter::System);
+        QTC_CHECK(systemDecoder.isValid());
+        const QByteArray systemCanonicalized = systemDecoder.name();
+        QTC_CHECK(!systemCanonicalized.isEmpty());
+        s_canonicalNames.insert(input, systemCanonicalized);
+        return systemCanonicalized;
+    }
+
     const QStringDecoder builtinDecoder(input);
     if (builtinDecoder.isValid()) {
         const QByteArray builtinCanonicalized = builtinDecoder.name();
