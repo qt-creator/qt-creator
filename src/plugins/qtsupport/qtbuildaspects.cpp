@@ -37,10 +37,12 @@ void QmlDebuggingAspect::addToLayoutImpl(Layouting::Layout &parent)
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
     parent.addRow({Layouting::empty, warningLabel});
-    const auto changeHandler = [this, warningLabel] {
+    const auto changeHandler = [this, warningLabel = QPointer<InfoLabel>(warningLabel)] {
+        QTC_ASSERT(warningLabel, return);
         QString warningText;
         BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(container());
         QTC_ASSERT(buildConfig, return);
+        QTC_ASSERT(buildConfig->target(), return);
         Kit *kit = buildConfig->kit();
         QTC_ASSERT(kit, return);
         const bool supported = QtVersion::isQmlDebuggingSupported(kit, &warningText);
@@ -58,8 +60,8 @@ void QmlDebuggingAspect::addToLayoutImpl(Layouting::Layout &parent)
         if (warningLabel->parentWidget() || !warningLabelsVisible)
             warningLabel->setVisible(warningLabelsVisible);
     };
-    connect(KitManager::instance(), &KitManager::kitsChanged, warningLabel, changeHandler);
-    connect(this, &QmlDebuggingAspect::changed, warningLabel, changeHandler);
+    connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
+    connect(this, &QmlDebuggingAspect::changed, this, changeHandler);
     changeHandler();
 }
 
@@ -78,10 +80,12 @@ void QtQuickCompilerAspect::addToLayoutImpl(Layouting::Layout &parent)
     warningLabel->setElideMode(Qt::ElideNone);
     warningLabel->setVisible(false);
     parent.addRow({Layouting::empty, warningLabel});
-    const auto changeHandler = [this, warningLabel] {
+    const auto changeHandler = [this, warningLabel = QPointer<InfoLabel>(warningLabel)] {
+        QTC_ASSERT(warningLabel, return);
         QString warningText;
         BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(container());
         QTC_ASSERT(buildConfig, return);
+        QTC_ASSERT(buildConfig->target(), return);
         Kit *kit = buildConfig->kit();
         QTC_ASSERT(kit, return);
         const bool supported = QtVersion::isQtQuickCompilerSupported(kit, &warningText);
@@ -103,9 +107,9 @@ void QtQuickCompilerAspect::addToLayoutImpl(Layouting::Layout &parent)
         if (warningLabel->parentWidget())
             warningLabel->setVisible(warningLabelsVisible);
     };
-    connect(KitManager::instance(), &KitManager::kitsChanged, warningLabel, changeHandler);
-    connect(this, &QmlDebuggingAspect::changed, warningLabel, changeHandler);
-    connect(this, &QtQuickCompilerAspect::changed, warningLabel, changeHandler);
+    connect(KitManager::instance(), &KitManager::kitsChanged, this, changeHandler);
+    connect(this, &QmlDebuggingAspect::changed, this, changeHandler);
+    connect(this, &QtQuickCompilerAspect::changed, this, changeHandler);
 
     BuildConfiguration *buildConfig = qobject_cast<BuildConfiguration *>(container());
     if (auto qmlDebuggingAspect = buildConfig->aspect<QmlDebuggingAspect>())
