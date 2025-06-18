@@ -1,5 +1,11 @@
 #include "header.h"
 
 void S::firstFunction() {}
+/**
+ * Comment for secondFunction
+ */
+
 void S::secondFunction() {}
+
+// Comment for ninthFunction
 void S::ninthFunction() {}

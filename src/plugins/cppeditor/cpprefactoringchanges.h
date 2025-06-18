@@ -37,6 +37,7 @@ public:
 
     const CPlusPlus::Token &tokenAt(unsigned index) const;
 
+    int startOf(const CPlusPlus::Token &tok) const;
     int startOf(unsigned index) const;
     int startOf(const CPlusPlus::AST *ast) const;
     int endOf(unsigned index) const;

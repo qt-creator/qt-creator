@@ -224,8 +224,13 @@ int CppRefactoringFile::startOf(unsigned index) const
     if (const auto loc = expansionLoc(index))
         return loc->first;
 
+    return startOf(tokenAt(index));
+}
+
+int CppRefactoringFile::startOf(const CPlusPlus::Token &tok) const
+{
     int line, column;
-    cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsBegin(), &line, &column);
+    cppDocument()->translationUnit()->getPosition(tok.utf16charsBegin(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
 }
 

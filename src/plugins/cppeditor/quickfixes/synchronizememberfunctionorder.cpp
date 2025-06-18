@@ -11,6 +11,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cplusplus/ASTPath.h>
+#include <cplusplus/declarationcomments.h>
 
 #include <QList>
 #include <QHash>
@@ -134,9 +135,9 @@ private:
     {
         CppRefactoringChanges factory{CppModelManager::snapshot()};
 
-        const auto findAstRange = [](const CppRefactoringFile &file, const Link &pos) {
+        const auto findAstRange = [](const CppRefactoringFile &file, const DefLocation &defLoc) {
             const QList<AST *> astPath = ASTPath(
-                file.cppDocument())(pos.targetLine, pos.targetColumn + 1);
+                file.cppDocument())(defLoc.defLoc.targetLine, defLoc.defLoc.targetColumn + 1);
             for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
                 if (const auto funcDef = (*it)->asFunctionDefinition()) {
                     AST *ast = funcDef;
@@ -145,7 +146,11 @@ private:
                          ++next) {
                         ast = *next;
                     }
-                    return file.range(ast);
+                    const QList<Token> commentTokens = commentsForDeclaration(
+                        defLoc.decl, ast, *file.document(), file.cppDocument());
+                    const int start = commentTokens.isEmpty() ? file.startOf(ast)
+                                                              : file.startOf(commentTokens.first());
+                    return ChangeSet::Range{start, file.endOf(ast)};
                 }
             }
             return ChangeSet::Range();
@@ -175,9 +180,9 @@ private:
                 }
                 if (expectedPos == i)
                     continue;
-                const ChangeSet::Range actualRange = findAstRange(*file, actualLoc.defLoc);
+                const ChangeSet::Range actualRange = findAstRange(*file, actualLoc);
                 const ChangeSet::Range expectedRange
-                    = findAstRange(*file, defLocsActualOrder[expectedPos].defLoc);
+                    = findAstRange(*file, defLocsActualOrder[expectedPos]);
                 if (actualRange.end > actualRange.start && expectedRange.end > expectedRange.start)
                     changes.move(actualRange, expectedRange.start);
             }
