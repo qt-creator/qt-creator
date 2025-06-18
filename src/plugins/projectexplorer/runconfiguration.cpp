@@ -503,7 +503,7 @@ ProcessRunData RunConfiguration::runnable() const
     if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())
         r.workingDirectory = r.command.executable().withNewMappedPath(workingDirectoryAspect->workingDirectory());
     if (auto environmentAspect = aspect<EnvironmentAspect>())
-        r.environment = environmentAspect->environment();
+        r.environment = environmentAspect->expandedEnvironment(*macroExpander());
     if (m_runnableModifier)
         m_runnableModifier(r);
 
