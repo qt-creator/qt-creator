@@ -259,11 +259,6 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 ////////////////////////////////////////////////////
 bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
-#ifdef QDS_USE_PROJECTSTORAGE
-    auto specialSnapshotName = QGuiApplication::applicationDisplayName() + "(PROJECTSTORAGE)";
-    QGuiApplication::setApplicationDisplayName(specialSnapshotName);
-#endif
-
     if constexpr (isUsingQmlDesignerLite()) {
         if (!QmlDesignerBasePlugin::isLiteModeEnabled()) {
             QMessageBox::warning(Core::ICore::dialogParent(),
@@ -510,6 +505,15 @@ static bool checkUiQMLNagScreen(const Utils::FilePath &fileName)
 
 void QmlDesignerPlugin::showDesigner()
 {
+    if constexpr (isWithoutQmlDesignerProjectStorage()) {
+        QMessageBox::warning(Core::ICore::dialogParent(),
+                             tr("Qml Designer Plugin"),
+                             tr("Qml Designer Plugin requires Project Storage support.\n"
+                                "Current Qt: %1 is not between PROJECTSTORAGE_QT_MIN_VERSION "
+                                "and PROJECTSTORAGE_QT_MAX_VERSION")
+                                 .arg(QString::fromLatin1(qVersion())));
+    }
+
     QTC_ASSERT(!d->documentManager.hasCurrentDesignDocument(), return);
 
     enforceDelayedInitialize();
