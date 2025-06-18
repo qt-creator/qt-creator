@@ -179,19 +179,15 @@ bool DSThemeManager::addProperty(GroupType gType, const ThemeProperty &p)
         return false;
     }
 
-    const auto generatedName = uniquePropertyName(p.name);
-    if (generatedName != p.name) {
-        qCDebug(dsLog) << "Can not add property. Invalid property name";
-        return false;
-    }
+    const ThemeProperty propWithUniqueName = {uniquePropertyName(p.name), p.value};
 
     // A property is added to all themes.
     DSThemeGroup *dsGroup = propertyGroup(gType);
     QTC_ASSERT(dsGroup, return false);
 
     bool success = true;
-    for (auto itr = m_themes.begin(); itr != m_themes.end(); ++itr)
-        success &= dsGroup->addProperty(itr->first, p);
+    for (auto &[themeId, _] : m_themes)
+        success = dsGroup->addProperty(themeId, propWithUniqueName) && success;
 
     return success;
 }
