@@ -114,7 +114,9 @@ private:
     void trackClientDeletion(Client *client);
 
     void documentOpenedForProject(
-        TextEditor::TextDocument *textDocument, BaseSettings *setting, QList<Client *> &clients);
+        TextEditor::TextDocument *textDocument,
+        BaseSettings *setting,
+        const QList<Client *> &clients);
 
     QList<Client *> reachableClients();
 

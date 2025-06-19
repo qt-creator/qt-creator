@@ -632,7 +632,7 @@ static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document
 }
 
 void LanguageClientManager::documentOpenedForProject(
-    TextEditor::TextDocument *textDocument, BaseSettings *setting, QList<Client *> &clients)
+    TextEditor::TextDocument *textDocument, BaseSettings *setting, const QList<Client *> &clients)
 {
     const Utils::FilePath &filePath = textDocument->filePath();
     for (Project *project : ProjectManager::projects()) {
@@ -660,9 +660,6 @@ void LanguageClientManager::documentOpenedForProject(
                     openDocumentWithClient(textDocument, clientForBc);
                 else
                     clientForBc->openDocument(textDocument);
-                // Since we already opened the document in this client we remove the client
-                // from the list of clients that receive the openDocument call
-                clients.removeAll(clientForBc);
             }
         }
     }
@@ -678,7 +675,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
     const QList<BaseSettings *> settings = sortedSettingsForDocument(document);
     QList<Client *> allClients;
     for (BaseSettings *setting : settings) {
-        QList<Client *> clients = clientsForSetting(setting);
+        const QList<Client *> clients = clientsForSetting(setting);
         switch (setting->m_startBehavior) {
         case BaseSettings::RequiresProject: {
             documentOpenedForProject(textDocument, setting, clients);
@@ -686,16 +683,20 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
         }
         case BaseSettings::RequiresFile: {
             if (clients.isEmpty()) {
-                if (Client *client = startClient(setting); QTC_GUARD(client))
-                    clients << client;
+                Client *client = startClient(setting);
+                QTC_ASSERT(client, break);
+                allClients << client;
+            } else {
+                allClients << clients;
             }
             break;
         }
         case BaseSettings::AlwaysOn:
+            allClients << clients;
+            break;
         case BaseSettings::LastSentinel:
             break;
         }
-        allClients << clients;
     }
 
     for (auto client : std::as_const(allClients)) {
