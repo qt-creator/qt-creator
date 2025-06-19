@@ -262,7 +262,7 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
     }
 
     if (refresh)
-        QTimer::singleShot(10, this, &GitSubmitEditor::updateFileModel);
+        QTimer::singleShot(100, this, &GitSubmitEditor::forceUpdateFileModel);
 }
 
 void GitSubmitEditor::updateFileModel()
