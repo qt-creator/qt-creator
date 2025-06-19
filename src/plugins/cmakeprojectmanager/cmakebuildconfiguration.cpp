@@ -141,7 +141,7 @@ private:
         const QStringList &configurationArguments = QStringList());
     void updatePackageManagerAutoSetup(CMakeConfig &initialList);
 
-    CMakeBuildConfiguration *m_buildConfig;
+    QPointer<CMakeBuildConfiguration> m_buildConfig;
     QTreeView *m_configView;
     ConfigModel *m_configModel;
     CategorySortFilterModel *m_configFilterModel;
