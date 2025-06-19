@@ -7,6 +7,7 @@
 #include "filesysteminterface.h"
 #include "projectstorage.h"
 #include "projectstoragepathwatcherinterface.h"
+#include "projectstoragetracing.h"
 #include "qmldocumentparserinterface.h"
 #include "qmltypesparserinterface.h"
 #include "sourcepathstorage/sourcepath.h"
@@ -15,7 +16,6 @@
 
 #include <functional.h>
 #include <sqlitedatabase.h>
-#include <tracing/qmldesignertracing.h>
 #include <utils/algorithm.h>
 #include <utils/set_algorithm.h>
 
@@ -29,7 +29,7 @@
 
 namespace QmlDesigner {
 using NanotraceHR::keyValue;
-using ProjectStorageTracing::projectStorageUpdaterCategory;
+using ProjectStorageTracing::category;
 using Tracer = NanotraceHR::Tracer<ProjectStorageTracing::Category>;
 
 template<typename String>
@@ -205,7 +205,7 @@ void addModuleExportedImport(Storage::Synchronization::ModuleExportedImports &im
                              std::string_view exportedModuleName)
 {
     NanotraceHR::Tracer tracer{"add module exported imports",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("module id", moduleId),
                                keyValue("exported module id", exportedModuleId),
                                keyValue("version", version),
@@ -231,7 +231,7 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
                               ProjectStorageInterface &projectStorage)
 {
     NanotraceHR::Tracer tracer{"add module exported imports",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("cpp module id", cppModuleId),
                                keyValue("module id", moduleId)};
 
@@ -294,7 +294,7 @@ void ProjectStorageUpdater::update(Update update)
     const Utils::PathString projectDirectory = update.projectDirectory;
 
     NanotraceHR::Tracer tracer{"update",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("Qt directories", qtDirectories),
                                keyValue("project directory", projectDirectory)};
 
@@ -516,7 +516,7 @@ void ProjectStorageUpdater::updateDirectories(const QStringList &directories,
                                               NotUpdatedSourceIds &notUpdatedSourceIds,
                                               WatchedSourceIds &watchedSourceIds)
 {
-    NanotraceHR::Tracer tracer{"update directories", projectStorageUpdaterCategory()};
+    NanotraceHR::Tracer tracer{"update directories", category()};
 
     for (const QString &directory : directories)
         updateDirectory(
@@ -624,7 +624,7 @@ void ProjectStorageUpdater::annotationDirectoryChanged(
     Storage::Synchronization::SynchronizationPackage &package)
 {
     NanotraceHR::Tracer tracer{"annotation directory changed",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("directory path", directoryPath),
                                keyValue("directory id", directoryId)};
 
@@ -640,7 +640,7 @@ void ProjectStorageUpdater::updatePropertyEditorFiles(
     Storage::Synchronization::SynchronizationPackage &package)
 {
     NanotraceHR::Tracer tracer{"update property editor files",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("directory path", directoryPath),
                                keyValue("directory id", directoryId)};
 
@@ -676,9 +676,7 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
                                             WatchedSourceIds &watchedSourceIds,
                                             IsInsideProject isInsideProject)
 {
-    NanotraceHR::Tracer tracer{"update directory",
-                               projectStorageUpdaterCategory(),
-                               keyValue("directory", directoryPath)};
+    NanotraceHR::Tracer tracer{"update directory", category(), keyValue("directory", directoryPath)};
 
     SourcePath qmldirPath{directoryPath + "/qmldir"};
     SourceId qmldirSourceId = m_pathCache.sourceId(qmldirPath);
@@ -766,7 +764,7 @@ void ProjectStorageUpdater::updatePropertyEditorPaths(
     NotUpdatedSourceIds &notUpdatedSourceIds)
 {
     NanotraceHR::Tracer tracer{"update property editor paths",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("property editor resources path", propertyEditorResourcesPath)};
 
     if (propertyEditorResourcesPath.isEmpty())
@@ -810,7 +808,7 @@ void ProjectStorageUpdater::updateTypeAnnotations(const QStringList &directoryPa
                                                   Storage::Synchronization::SynchronizationPackage &package,
                                                   NotUpdatedSourceIds &notUpdatedSourceIds)
 {
-    NanotraceHR::Tracer tracer("update type annotations", projectStorageUpdaterCategory());
+    NanotraceHR::Tracer tracer("update type annotations", category());
 
     std::map<DirectoryPathId, SmallSourceIds<16>> updatedSourceIdsDictonary;
 
@@ -830,7 +828,7 @@ void ProjectStorageUpdater::updateTypeAnnotations(
     std::map<DirectoryPathId, SmallSourceIds<16>> &updatedSourceIdsDictonary)
 {
     NanotraceHR::Tracer tracer("update type annotation directory",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("path", rootDirectoryPath));
 
     if (rootDirectoryPath.isEmpty())
@@ -904,7 +902,7 @@ void ProjectStorageUpdater::updateTypeAnnotation(const QString &directoryPath,
                                                  Storage::Synchronization::SynchronizationPackage &package)
 {
     NanotraceHR::Tracer tracer{"update type annotation path",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("path", filePath),
                                keyValue("directory path", directoryPath)};
 
@@ -927,7 +925,7 @@ void ProjectStorageUpdater::updatePropertyEditorPath(
     long long pathOffset)
 {
     NanotraceHR::Tracer tracer{"update property editor path",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("directory path", directoryPath),
                                keyValue("directory id", directoryId)};
 
@@ -947,7 +945,7 @@ void ProjectStorageUpdater::updatePropertyEditorFilePath(
     long long pathOffset)
 {
     NanotraceHR::Tracer tracer{"update property editor file path",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("directory path", path),
                                keyValue("directory id", directoryId)};
 
@@ -1038,7 +1036,7 @@ void appendProjectChunkSourceIds(ProjectChunkSourceIds &ids,
 void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &changedIdPaths)
 {
     NanotraceHR::Tracer tracer{"paths with ids changed",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("id paths", changedIdPaths)};
 
     try {
@@ -1165,15 +1163,13 @@ void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
                                            IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"parse type infos",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("directory id", directoryId),
                                keyValue("directory path", directoryPath),
                                keyValue("module id", moduleId)};
 
     for (const QString &typeInfo : typeInfos) {
-        NanotraceHR::Tracer tracer{"parse type info",
-                                   projectStorageUpdaterCategory(),
-                                   keyValue("type info", typeInfo)};
+        NanotraceHR::Tracer tracer{"parse type info", category(), keyValue("type info", typeInfo)};
 
         Utils::PathString qmltypesFileName = typeInfo;
         SourceId sourceId = m_pathCache.sourceId(directoryId, qmltypesFileName);
@@ -1216,7 +1212,7 @@ void ProjectStorageUpdater::parseDirectoryInfos(
     WatchedSourceIds &watchedSourceIds,
     IsInsideProject isInsideProject)
 {
-    NanotraceHR::Tracer tracer{"parse project datas", projectStorageUpdaterCategory()};
+    NanotraceHR::Tracer tracer{"parse project datas", category()};
 
     for (const Storage::Synchronization::DirectoryInfo &directoryInfo : directoryInfos) {
         switch (directoryInfo.fileType) {
@@ -1245,9 +1241,7 @@ auto ProjectStorageUpdater::parseTypeInfo(const Storage::Synchronization::Direct
                                           NotUpdatedSourceIds &notUpdatedSourceIds,
                                           IsInsideProject isInsideProject) -> FileState
 {
-    NanotraceHR::Tracer tracer{"parse type info",
-                               projectStorageUpdaterCategory(),
-                               keyValue("qmltypes path", qmltypesPath)};
+    NanotraceHR::Tracer tracer{"parse type info", category(), keyValue("qmltypes path", qmltypesPath)};
 
     auto state = fileState(directoryInfo.sourceId, package, notUpdatedSourceIds);
     switch (state) {
@@ -1293,7 +1287,7 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
                                               IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"parse qml component",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("relative file path", relativeFilePath),
                                keyValue("directory path", directoryPath),
                                keyValue("exported types", exportedTypes),
@@ -1369,9 +1363,7 @@ void ProjectStorageUpdater::parseQmlComponent(SourceId sourceId,
                                               NotUpdatedSourceIds &notUpdatedSourceIds,
                                               IsInsideProject isInsideProject)
 {
-    NanotraceHR::Tracer tracer{"parse qml component",
-                               projectStorageUpdaterCategory(),
-                               keyValue("source id", sourceId)};
+    NanotraceHR::Tracer tracer{"parse qml component", category(), keyValue("source id", sourceId)};
 
     auto state = fileState(sourceId, package, notUpdatedSourceIds);
     if (isUnchanged(state))
@@ -1468,7 +1460,7 @@ void ProjectStorageUpdater::parseQmlComponents(Components components,
                                                IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"parse qml components",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("directory id", directoryId),
                                keyValue("qmldir state", qmldirState)};
 
@@ -1502,7 +1494,7 @@ ProjectStorageUpdater::FileState ProjectStorageUpdater::fileState(
     NotUpdatedSourceIds &notUpdatedSourceIds) const
 {
     NanotraceHR::Tracer tracer{"update property editor paths",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("source id", sourceId)};
 
     auto currentFileStatus = m_fileStatusCache.find(sourceId);

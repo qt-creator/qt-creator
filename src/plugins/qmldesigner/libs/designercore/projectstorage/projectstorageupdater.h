@@ -8,13 +8,12 @@
 #include "projectstorageids.h"
 #include "projectstoragepathwatchernotifierinterface.h"
 #include "projectstoragepathwatchertypes.h"
+#include "projectstoragetracing.h"
 #include "projectstoragetypes.h"
 #include "sourcepathstorage/nonlockingmutex.h"
 #include "sourcepathstorage/sourcepath.h"
 
 #include <modelfwd.h>
-
-#include <tracing/qmldesignertracing.h>
 
 #include <QStringList>
 

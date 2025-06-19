@@ -6,11 +6,11 @@
 
 #include "projectstorage.h"
 #include "projectstorageexceptions.h"
+#include "projectstoragetracing.h"
 
 #include <sourcepathstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
 
-#include <tracing/qmldesignertracing.h>
 
 #ifdef QDS_BUILD_QMLPARSER
 #include <private/qqmldomtop_p.h>
@@ -23,8 +23,8 @@ namespace QmlDesigner {
 
 #ifdef QDS_BUILD_QMLPARSER
 
-using ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
+using ProjectStorageTracing::category;
 using Storage::IsInsideProject;
 using Tracer = NanotraceHR::Tracer<ProjectStorageTracing::Category>;
 
@@ -97,7 +97,7 @@ QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
                                         ProjectStorageType &storage)
 {
     NanotraceHR::Tracer tracer{"create qualified imports",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("sourceId", sourceId),
                                keyValue("directoryPath", directoryPath)};
 
@@ -331,7 +331,7 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
                                                         IsInsideProject isInsideProject)
 {
     NanotraceHR::Tracer tracer{"qml document parser parse",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("sourceId", sourceId),
                                keyValue("directoryPath", directoryPath)};
 

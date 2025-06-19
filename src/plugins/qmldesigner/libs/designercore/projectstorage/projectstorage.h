@@ -10,7 +10,7 @@
 #include "projectstoragetypes.h"
 #include "sourcepathstorage/storagecache.h"
 
-#include <tracing/qmldesignertracing.h>
+#include "projectstoragetracing.h"
 
 #include <sqlitealgorithms.h>
 #include <sqlitedatabase.h>
@@ -30,8 +30,6 @@
 namespace QmlDesigner {
 
 using namespace NanotraceHR::Literals;
-
-using ProjectStorageTracing::projectStorageCategory;
 
 class QMLDESIGNERCORE_EXPORT ProjectStorage final : public ProjectStorageInterface
 {
@@ -136,7 +134,7 @@ public:
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get type id from common type cache",
-                                   projectStorageCategory(),
+                                   ProjectStorageTracing::category(),
                                    keyValue("module name", std::string_view{moduleName}),
                                    keyValue("type name", std::string_view{typeName})};
 
@@ -152,7 +150,7 @@ public:
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get builtin type id from common type cache",
-                                   projectStorageCategory()};
+                                   ProjectStorageTracing::category()};
 
         auto typeId = commonTypeCache_.builtinTypeId<BuiltinType>();
 
@@ -166,7 +164,7 @@ public:
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get builtin type id from common type cache",
-                                   projectStorageCategory()};
+                                   ProjectStorageTracing::category()};
 
         auto typeId = commonTypeCache_.builtinTypeId<builtinType>();
 
@@ -322,30 +320,11 @@ private:
     class ModuleStorageAdapter
     {
     public:
-        auto fetchId(ModuleView module)
-        {
-            NanotraceHR::Tracer tracer{"module stoeage adapter fetch id",
-                                       projectStorageCategory(),
-                                       NanotraceHR::keyValue("module name", module.name),
-                                       NanotraceHR::keyValue("module kind", module.kind)};
-            return storage.fetchModuleId(module.name, module.kind);
-        }
+        auto fetchId(ModuleView module);
 
-        auto fetchValue(ModuleId id)
-        {
-            NanotraceHR::Tracer tracer{"module stoeage adapter fetch value",
-                                       projectStorageCategory(),
-                                       NanotraceHR::keyValue("module id", id)};
+        auto fetchValue(ModuleId id);
 
-            return storage.fetchModule(id);
-        }
-
-        auto fetchAll()
-        {
-            NanotraceHR::Tracer tracer{"module stoeage adapter fetch all", projectStorageCategory()};
-
-            return storage.fetchAllModules();
-        }
+        auto fetchAll();
 
         ProjectStorage &storage;
     };
@@ -895,26 +874,8 @@ private:
                           AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
                           PropertyDeclarationIds &propertyDeclarationIds);
 
-    template<typename Relinkable>
-    void removeRelinkableEntries(std::vector<Relinkable> &relinkables, auto &ids, auto projection)
-    {
-        NanotraceHR::Tracer tracer{"remove relinkable entries", projectStorageCategory()};
-
-        std::vector<Relinkable> newRelinkables;
-        newRelinkables.reserve(relinkables.size());
-
-        std::ranges::sort(ids);
-        std::ranges::sort(relinkables, {}, projection);
-
-        Utils::set_greedy_difference(
-            relinkables,
-            ids,
-            [&](Relinkable &entry) { newRelinkables.push_back(std::move(entry)); },
-            {},
-            projection);
-
-        relinkables = std::move(newRelinkables);
-    }
+    template<typename Relinkable, typename Ids, typename Projection>
+    void removeRelinkableEntries(std::vector<Relinkable> &relinkables, Ids ids, Projection projection);
 
     void syncDeclarations(Storage::Synchronization::Types &types,
                           AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,

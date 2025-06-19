@@ -68,34 +68,6 @@ Category &category()
 
 } // namespace ModelTracing
 
-namespace ProjectStorageTracing {
-
-#ifdef ENABLE_PROJECT_STORAGE_TRACING
-
-Category &projectStorageCategory()
-{
-    thread_local Category category{"project storage",
-                                   Tracing::eventQueueWithStringArguments(),
-                                   Tracing::eventQueueWithoutArguments(),
-                                   projectStorageCategory};
-
-    return category;
-}
-
-Category &projectStorageUpdaterCategory()
-{
-    thread_local Category category{"project storage updater",
-                                   Tracing::eventQueueWithStringArguments(),
-                                   Tracing::eventQueueWithoutArguments(),
-                                   projectStorageCategory};
-
-    return category;
-}
-
-#endif
-
-} // namespace ProjectStorageTracing
-
 namespace SourcePathStorageTracing {
 
 #ifdef ENABLE_SOURCE_PATH_STORAGE_TRACING

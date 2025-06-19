@@ -48,34 +48,6 @@ inline Category category()
 
 } // namespace ModelTracing
 
-namespace ProjectStorageTracing {
-
-#ifdef ENABLE_PROJECT_STORAGE_TRACING
-
-using Category = NanotraceHR::EnabledCategory;
-
-[[gnu::pure]] Category &projectStorageCategory();
-
-[[gnu::pure]] Category &projectStorageUpdaterCategory();
-
-#else
-
-using Category = NanotraceHR::DisabledCategory;
-
-inline Category projectStorageCategory()
-{
-    return {};
-}
-
-inline Category projectStorageUpdaterCategory()
-{
-    return {};
-}
-
-#endif
-
-} // namespace ProjectStorageTracing
-
 namespace SourcePathStorageTracing {
 
 #ifdef ENABLE_SOURCE_PATH_STORAGE_TRACING

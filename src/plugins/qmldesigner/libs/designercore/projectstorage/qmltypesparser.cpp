@@ -4,8 +4,7 @@
 #include "qmltypesparser.h"
 
 #include "projectstorage.h"
-
-#include <tracing/qmldesignertracing.h>
+#include "projectstoragetracing.h"
 
 #include <sqlitedatabase.h>
 
@@ -25,8 +24,8 @@ namespace QmlDesigner {
 
 #ifdef QDS_BUILD_QMLPARSER
 
-using ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
+using ProjectStorageTracing::category;
 using Storage::IsInsideProject;
 using Tracer = NanotraceHR::Tracer<ProjectStorageTracing::Category>;
 using Storage::ModuleKind;
@@ -40,7 +39,7 @@ using Storage::TypeNameString;
 
 ComponentWithoutNamespaces createComponentNameWithoutNamespaces(const QList<QQmlJSExportedScope> &objects)
 {
-    NanotraceHR::Tracer tracer{"parse qmltypes file", projectStorageUpdaterCategory()};
+    NanotraceHR::Tracer tracer{"parse qmltypes file", category()};
 
     ComponentWithoutNamespaces componentWithoutNamespaces;
 
@@ -83,7 +82,7 @@ void addImports(Storage::Imports &imports,
 {
     NanotraceHR::Tracer tracer{
         "add imports",
-        projectStorageUpdaterCategory(),
+        category(),
         keyValue("source id", sourceId),
         keyValue("module id", cppModuleId),
     };
@@ -467,7 +466,7 @@ void addType(Storage::Synchronization::Types &types,
              Internal::LastModule &lastQmlModule)
 {
     NanotraceHR::Tracer tracer{"add type",
-                               projectStorageUpdaterCategory(),
+                               category(),
                                keyValue("source id", sourceId),
                                keyValue("module id", cppModuleId)};
 
@@ -507,7 +506,7 @@ void addTypes(Storage::Synchronization::Types &types,
               IsInsideProject isInsideProject,
               Internal::LastModule &lastQmlModule)
 {
-    NanotraceHR::Tracer tracer{"add types", projectStorageUpdaterCategory()};
+    NanotraceHR::Tracer tracer{"add types", category()};
     types.reserve(Utils::usize(objects) + types.size());
 
 
@@ -531,7 +530,7 @@ void QmlTypesParser::parse(const QString &sourceContent,
                            const Storage::Synchronization::DirectoryInfo &directoryInfo,
                            IsInsideProject isInsideProject)
 {
-    NanotraceHR::Tracer tracer{"qmltypes parser parse", projectStorageUpdaterCategory()};
+    NanotraceHR::Tracer tracer{"qmltypes parser parse", category()};
 
     lastQmlModule.name.clear();
     lastQmlModule.id = ModuleId{};

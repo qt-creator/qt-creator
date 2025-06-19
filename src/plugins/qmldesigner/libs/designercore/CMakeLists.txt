@@ -402,6 +402,7 @@ extend_qtc_library(QmlDesignerCore
     projectstoragepathwatcher.h
     projectstoragepathwatchertypes.h
     projectstorageprinting.h
+    projectstoragetracing.cpp projectstoragetracing.h
     projectstoragetypes.h
     projectstorageupdater.cpp projectstorageupdater.h
     projectstorage.cpp projectstorage.h
