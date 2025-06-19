@@ -28,12 +28,16 @@ using namespace Utils;
 
 namespace Python::Internal {
 
+static const QRegularExpression &tracebackFilePattern()
+{
+    static const QRegularExpression s_filePattern("^(\\s*)(File \"([^\"]+)\", line (\\d+), .*$)");
+    return s_filePattern;
+}
+
 class PythonOutputLineParser : public OutputLineParser
 {
 public:
     PythonOutputLineParser()
-        // Note that moc dislikes raw string literals.
-        : filePattern("^(\\s*)(File \"([^\"]+)\", line (\\d+), .*$)")
     {
         TaskHub::clearTasks(PythonErrorTaskCategory);
     }
@@ -50,7 +54,7 @@ private:
         }
 
         const Id category(PythonErrorTaskCategory);
-        const QRegularExpressionMatch match = filePattern.match(text);
+        const QRegularExpressionMatch match = tracebackFilePattern().match(text);
         if (match.hasMatch()) {
             const LinkSpec link(match.capturedStart(2), match.capturedLength(2), match.captured(2));
             const auto fileName = FilePath::fromString(match.captured(3));
@@ -85,7 +89,7 @@ private:
 
     bool handleLink(const QString &href) final
     {
-        const QRegularExpressionMatch match = filePattern.match(href);
+        const QRegularExpressionMatch match = tracebackFilePattern().match(href);
         if (!match.hasMatch())
             return false;
         const QString fileName = match.captured(3);
@@ -94,7 +98,6 @@ private:
         return true;
     }
 
-    const QRegularExpression filePattern;
     QList<Task> m_tasks;
     bool m_inTraceBack = false;
 };
