@@ -1589,21 +1589,6 @@ TEST_F(ProjectStorage,
     ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
 }
 
-TEST_F(ProjectStorage, synchronize_types_adds_new_types_with_missing_module)
-{
-    auto package{createSimpleSynchronizationPackage()};
-    package.types.push_back(Storage::Synchronization::Type{
-        "QObject2",
-        Storage::Synchronization::ImportedType{},
-        Storage::Synchronization::ImportedType{},
-        TypeTraitsKind::Reference,
-        sourceId3,
-        {Storage::Synchronization::ExportedType{ModuleId::create(22), "Object2"},
-         Storage::Synchronization::ExportedType{pathToModuleId, "Obj2"}}});
-
-    ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::ExportedTypeCannotBeInserted);
-}
-
 TEST_F(ProjectStorage, synchronize_types_adds_new_types_reverse_order)
 {
     auto package{createSimpleSynchronizationPackage()};

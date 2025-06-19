@@ -961,18 +961,17 @@ public:
     Initializer(Database &database, bool isInitialized)
     {
         if (!isInitialized) {
-            auto moduleIdColumn = createModulesTable(database);
-
-            createTypesAndePropertyDeclarationsTables(database, moduleIdColumn);
+            createModulesTable(database);
+            createTypesAndePropertyDeclarationsTables(database);
             createBasesTable(database);
             createPrototypeTable(database);
-            createExportedTypeNamesTable(database, moduleIdColumn);
+            createExportedTypeNamesTable(database);
             createImportedTypeNamesTable(database);
             createEnumerationsTable(database);
             createFunctionsTable(database);
             createSignalsTable(database);
-            createModuleExportedImportsTable(database, moduleIdColumn);
-            createDocumentImportsTable(database, moduleIdColumn);
+            createModuleExportedImportsTable(database);
+            createDocumentImportsTable(database);
             createFileStatusesTable(database);
             createDirectoryInfosTable(database);
             createPropertyEditorPathsTable(database);
@@ -981,8 +980,7 @@ public:
         database.setIsInitialized(true);
     }
 
-    void createTypesAndePropertyDeclarationsTables(
-        Database &database, [[maybe_unused]] const Sqlite::StrictColumn &foreignModuleIdColumn)
+    void createTypesAndePropertyDeclarationsTables(Database &database)
     {
         Sqlite::StrictTable typesTable;
         typesTable.setUseIfNotExists(true);
@@ -1083,18 +1081,14 @@ public:
         table.initialize(database);
     }
 
-    void createExportedTypeNamesTable(Database &database,
-                                      const Sqlite::StrictColumn &foreignModuleIdColumn)
+    void createExportedTypeNamesTable(Database &database)
     {
         Sqlite::StrictTable table;
         table.setUseIfNotExists(true);
         table.setUseWithoutRowId(true);
         table.setName("exportedTypeNames");
         auto &nameColumn = table.addColumn("name", Sqlite::StrictColumnType::Text);
-        auto &moduleIdColumn = table.addForeignKeyColumn("moduleId",
-                                                         foreignModuleIdColumn,
-                                                         Sqlite::ForeignKeyAction::NoAction,
-                                                         Sqlite::ForeignKeyAction::NoAction);
+        auto &moduleIdColumn = table.addColumn("moduleId", Sqlite::StrictColumnType::Integer);
         auto &typeIdColumn = table.addColumn("typeId", Sqlite::StrictColumnType::Integer);
         auto &majorVersionColumn = table.addColumn("majorVersion", Sqlite::StrictColumnType::Integer);
         auto &minorVersionColumn = table.addColumn("minorVersion", Sqlite::StrictColumnType::Integer);
@@ -1178,14 +1172,13 @@ public:
         table.initialize(database);
     }
 
-    Sqlite::StrictColumn createModulesTable(Database &database)
+    void createModulesTable(Database &database)
     {
         Sqlite::StrictTable table;
         table.setUseIfNotExists(true);
         table.setName("modules");
-        auto &modelIdColumn = table.addColumn("moduleId",
-                                              Sqlite::StrictColumnType::Integer,
-                                              {Sqlite::PrimaryKey{}});
+
+        table.addColumn("moduleId", Sqlite::StrictColumnType::Integer, {Sqlite::PrimaryKey{}});
         auto &nameColumn = table.addColumn("name", Sqlite::StrictColumnType::Text);
         auto &kindColumn = table.addColumn("kind", Sqlite::StrictColumnType::Integer);
 
@@ -1193,12 +1186,9 @@ public:
         table.addIndex({kindColumn});
 
         table.initialize(database);
-
-        return std::move(modelIdColumn);
     }
 
-    void createModuleExportedImportsTable(Database &database,
-                                          const Sqlite::StrictColumn &foreignModuleIdColumn)
+    void createModuleExportedImportsTable(Database &database)
     {
         Sqlite::StrictTable table;
         table.setUseIfNotExists(true);
@@ -1206,11 +1196,7 @@ public:
         table.addColumn("moduleExportedImportId",
                         Sqlite::StrictColumnType::Integer,
                         {Sqlite::PrimaryKey{}});
-        auto &moduleIdColumn = table.addForeignKeyColumn("moduleId",
-                                                         foreignModuleIdColumn,
-                                                         Sqlite::ForeignKeyAction::NoAction,
-                                                         Sqlite::ForeignKeyAction::Cascade,
-                                                         Sqlite::Enforment::Immediate);
+        auto &moduleIdColumn = table.addColumn("moduleId", Sqlite::StrictColumnType::Integer);
         auto &sourceIdColumn = table.addColumn("exportedModuleId", Sqlite::StrictColumnType::Integer);
         table.addColumn("isAutoVersion", Sqlite::StrictColumnType::Integer);
         table.addColumn("majorVersion", Sqlite::StrictColumnType::Integer);
@@ -1221,24 +1207,16 @@ public:
         table.initialize(database);
     }
 
-    void createDocumentImportsTable(Database &database,
-                                    const Sqlite::StrictColumn &foreignModuleIdColumn)
+    void createDocumentImportsTable(Database &database)
     {
         Sqlite::StrictTable table;
         table.setUseIfNotExists(true);
         table.setName("documentImports");
         table.addColumn("importId", Sqlite::StrictColumnType::Integer, {Sqlite::PrimaryKey{}});
         auto &sourceIdColumn = table.addColumn("sourceId", Sqlite::StrictColumnType::Integer);
-        auto &moduleIdColumn = table.addForeignKeyColumn("moduleId",
-                                                         foreignModuleIdColumn,
-                                                         Sqlite::ForeignKeyAction::NoAction,
-                                                         Sqlite::ForeignKeyAction::Cascade,
-                                                         Sqlite::Enforment::Immediate);
-        auto &sourceModuleIdColumn = table.addForeignKeyColumn("sourceModuleId",
-                                                               foreignModuleIdColumn,
-                                                               Sqlite::ForeignKeyAction::NoAction,
-                                                               Sqlite::ForeignKeyAction::Cascade,
-                                                               Sqlite::Enforment::Immediate);
+        auto &moduleIdColumn = table.addColumn("moduleId", Sqlite::StrictColumnType::Integer);
+        auto &sourceModuleIdColumn = table.addColumn("sourceModuleId",
+                                                     Sqlite::StrictColumnType::Integer);
         auto &kindColumn = table.addColumn("kind", Sqlite::StrictColumnType::Integer);
         auto &majorVersionColumn = table.addColumn("majorVersion", Sqlite::StrictColumnType::Integer);
         auto &minorVersionColumn = table.addColumn("minorVersion", Sqlite::StrictColumnType::Integer);
