@@ -201,7 +201,7 @@ struct DEVCONTAINER_EXPORT DevContainerCommon
     std::optional<Command> postStartCommand;
     std::optional<Command> postAttachCommand;
     std::optional<WaitFor> waitFor;
-    std::optional<UserEnvProbe> userEnvProbe;
+    UserEnvProbe userEnvProbe = UserEnvProbe::LoginInteractiveShell;
     std::optional<HostRequirements> hostRequirements;
     QJsonObject customizations;
     QJsonObject additionalProperties;

@@ -825,8 +825,7 @@ QDebug operator<<(QDebug debug, const DevContainer::DevContainerCommon &value)
     if (value.waitFor)
         debug << "  waitFor=" << *value.waitFor << "\n";
 
-    if (value.userEnvProbe)
-        debug << "  userEnvProbe=" << *value.userEnvProbe << "\n";
+    debug << "  userEnvProbe=" << value.userEnvProbe << "\n";
 
     if (value.hostRequirements)
         debug << "  hostRequirements=" << *value.hostRequirements << "\n";
