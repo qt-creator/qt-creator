@@ -20,6 +20,7 @@
 #include <utils/plaintextedit/plaintexteditaccessibility.h>
 #include <utils/processreaper.h>
 #include <utils/qtcsettings.h>
+#include <utils/qtcsettings_p.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/terminalcommand.h>
@@ -64,6 +65,7 @@ Q_LOGGING_CATEGORY(sentryLog, "qtc.sentry", QtWarningMsg)
 
 using namespace ExtensionSystem;
 using namespace Utils;
+using namespace Utils::Internal;
 
 enum { OptionIndent = 4, DescriptionIndent = 34 };
 
@@ -773,7 +775,7 @@ int main(int argc, char **argv)
     const QStringList installPluginPaths = getInstallPluginPaths();
     // Re-setup install settings for real
     setupInstallSettings(options.installSettingsPath);
-    QtcSettings *settings = createUserSettings();
+    QtcSettings *userSettings = createUserSettings();
     QtcSettings *installSettings
         = new QtcSettings(QSettings::IniFormat,
                           QSettings::SystemScope,
@@ -788,7 +790,9 @@ int main(int argc, char **argv)
                               INSTALL_SETTINGS_OPTION,
                               Core::Constants::IDE_SETTINGSVARIANT_STR));
     }
-    TerminalCommand::setSettings(settings);
+
+    SettingsSetup::setupSettings(userSettings, installSettings);
+
     setPixmapCacheLimit();
     loadFonts();
 
@@ -821,7 +825,7 @@ int main(int argc, char **argv)
     info.plugins = (appDirPath / RELATIVE_PLUGIN_PATH).cleanPath();
     info.userPluginsRoot = userPluginsRoot();
     info.resources = (appDirPath / RELATIVE_DATA_PATH).cleanPath();
-    info.userResources = userResourcePath(settings->fileName(), Constants::IDE_ID);
+    info.userResources = userResourcePath(userSettings->fileName(), Constants::IDE_ID);
     info.libexec = (appDirPath / RELATIVE_LIBEXEC_PATH).cleanPath();
     // sync with src\tools\qmlpuppet\qmlpuppet\qmlpuppet.cpp -> QString crashReportsPath()
     info.crashReports = info.userResources / "crashpad_reports";
@@ -834,7 +838,7 @@ int main(int argc, char **argv)
         Core::Constants::IDE_DISPLAY_NAME, CrashHandlerSetup::EnableRestart, info.libexec.path());
 
     // depends on AppInfo and QApplication being created
-    const bool crashReportingEnabled = settings->value("CrashReportingEnabled", false).toBool();
+    const bool crashReportingEnabled = userSettings->value("CrashReportingEnabled", false).toBool();
 
 #if defined(ENABLE_CRASHPAD)
     startCrashpad(info, crashReportingEnabled);
@@ -846,18 +850,14 @@ int main(int argc, char **argv)
 
     PluginManager pluginManager;
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
-    PluginManager::setInstallSettings(installSettings);
-    PluginManager::setSettings(settings);
     PluginManager::startProfiling();
-
-    BaseAspect::setQtcSettings(settings);
 
     QTranslator translator;
     QTranslator qtTranslator;
     QStringList uiLanguages = QLocale::system().uiLanguages();
     const QString overrideLanguage = options.hasTestOption
                                          ? QString("C") // force built-in when running tests
-                                         : settings->value("General/OverrideLanguage").toString();
+                                         : userSettings->value("General/OverrideLanguage").toString();
     if (!overrideLanguage.isEmpty())
         uiLanguages.prepend(overrideLanguage);
     if (!options.uiLanguage.isEmpty())
@@ -887,7 +887,7 @@ int main(int argc, char **argv)
         }
     }
 
-    QByteArray overrideCodecForLocale = settings->value("General/OverrideCodecForLocale").toByteArray();
+    QByteArray overrideCodecForLocale = userSettings->value("General/OverrideCodecForLocale").toByteArray();
     if (!overrideCodecForLocale.isEmpty())
         TextEncoding::setEncodingForLocale(overrideCodecForLocale);
 
@@ -1008,7 +1008,10 @@ int main(int argc, char **argv)
                      &pluginManager, &PluginManager::remoteArguments);
 
     // shutdown plugin manager on the exit
-    QObject::connect(&app, &QCoreApplication::aboutToQuit, &pluginManager, &PluginManager::shutdown);
+    QObject::connect(&app, &QCoreApplication::aboutToQuit, &pluginManager, [] {
+        PluginManager::shutdown();
+        SettingsSetup::destroySettings();
+    });
 
     if (Utils::HostOsInfo::isWindowsHost()) {
         // Workaround for QTBUG-130696 and QTCREATORBUG-31890

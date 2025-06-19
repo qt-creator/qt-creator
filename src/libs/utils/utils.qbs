@@ -270,6 +270,7 @@ QtcLibrary {
         "qtcolorbutton.h",
         "qtcsettings.cpp",
         "qtcsettings.h",
+        "qtcsettings_p.h",
         "qtcwidgets.cpp",
         "qtcwidgets.h",
         "ranges.h",

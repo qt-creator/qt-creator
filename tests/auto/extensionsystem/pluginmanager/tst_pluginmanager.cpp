@@ -5,11 +5,15 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/iplugin.h>
 
+#include <utils/qtcsettings_p.h>
+
 #include <QtTest>
 
 #include <QObject>
 
 using namespace ExtensionSystem;
+using namespace Utils;
+using namespace Utils::Internal;
 
 class SignalReceiver;
 
@@ -55,7 +59,7 @@ static Utils::FilePath pluginFolder(const QLatin1String &folder)
 void tst_PluginManager::init()
 {
     m_pm = new PluginManager;
-    PluginManager::setSettings(new Utils::QtcSettings);
+    SettingsSetup::setupSettings(new QtcSettings, new QtcSettings);
     PluginManager::setPluginIID(QLatin1String("plugin"));
     m_objectAdded = new QSignalSpy(m_pm, &PluginManager::objectAdded);
     m_aboutToRemoveObject = new QSignalSpy(m_pm, &PluginManager::aboutToRemoveObject);
@@ -65,6 +69,7 @@ void tst_PluginManager::init()
 void tst_PluginManager::cleanup()
 {
     PluginManager::shutdown();
+    SettingsSetup::destroySettings();
     delete m_pm;
     delete m_objectAdded;
     delete m_aboutToRemoveObject;

@@ -62,4 +62,7 @@ public:
     }
 };
 
+QTCREATOR_UTILS_EXPORT QtcSettings &userSettings();
+QTCREATOR_UTILS_EXPORT QtcSettings &installSettings();
+
 } // namespace Utils

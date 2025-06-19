@@ -6,8 +6,10 @@
 #include <extensionsystem/plugindetailsview.h>
 #include <extensionsystem/pluginerrorview.h>
 #include <extensionsystem/pluginspec.h>
+
 #include <utils/theme/theme.h>
 #include <utils/theme/theme_p.h>
+#include <utils/qtcsettings_p.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -107,7 +109,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     ExtensionSystem::PluginManager manager;
-    manager.setSettings(new QtcSettings);
+    Internal::SettingsSetup::setupSettings(new QtcSettings, new QtcSettings);
 
     manager.setPluginIID(QLatin1String("plugin"));
     setCreatorTheme(new Theme("default", &app));

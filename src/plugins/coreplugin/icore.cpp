@@ -565,9 +565,9 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
 QtcSettings *ICore::settings(QSettings::Scope scope)
 {
     if (scope == QSettings::UserScope)
-        return PluginManager::settings();
+        return &Utils::userSettings();
     else
-        return PluginManager::globalSettings();
+        return &Utils::installSettings();
 }
 
 /*!

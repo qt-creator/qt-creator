@@ -497,8 +497,8 @@ const char sourcePathMappingTargetKeyC[] = "Target";
 void SourcePathMapAspect::writeSettings() const
 {
     const SourcePathMap sourcePathMap = value();
-    QtcSettings *s = qtcSettings();
-    s->beginWriteArray(sourcePathMappingArrayNameC);
+    QtcSettings &s = userSettings();
+    s.beginWriteArray(sourcePathMappingArrayNameC);
     if (!sourcePathMap.isEmpty()) {
         const Key sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
         const Key sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
@@ -506,29 +506,29 @@ void SourcePathMapAspect::writeSettings() const
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
              it != cend;
              ++it, ++i) {
-            s->setArrayIndex(i);
-            s->setValue(sourcePathMappingSourceKey, it.key());
-            s->setValue(sourcePathMappingTargetKey, it.value());
+            s.setArrayIndex(i);
+            s.setValue(sourcePathMappingSourceKey, it.key());
+            s.setValue(sourcePathMappingTargetKey, it.value());
         }
     }
-    s->endArray();
+    s.endArray();
 }
 
 void SourcePathMapAspect::readSettings()
 {
-    QtcSettings *s = qtcSettings();
+    QtcSettings &s = userSettings();
     SourcePathMap sourcePathMap;
-    if (const int count = s->beginReadArray(sourcePathMappingArrayNameC)) {
+    if (const int count = s.beginReadArray(sourcePathMappingArrayNameC)) {
         const Key sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
         const Key sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
         for (int i = 0; i < count; ++i) {
-             s->setArrayIndex(i);
-             const QString key = s->value(sourcePathMappingSourceKey).toString();
-             const QString value = s->value(sourcePathMappingTargetKey).toString();
+             s.setArrayIndex(i);
+             const QString key = s.value(sourcePathMappingSourceKey).toString();
+             const QString value = s.value(sourcePathMappingTargetKey).toString();
              sourcePathMap.insert(key, value);
         }
     }
-    s->endArray();
+    s.endArray();
     setValue(sourcePathMap);
 }
 

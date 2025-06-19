@@ -48,18 +48,6 @@ using namespace Layouting;
 
 namespace Utils {
 
-static QtcSettings *theSettings = nullptr;
-
-void BaseAspect::setQtcSettings(QtcSettings *settings)
-{
-    theSettings = settings;
-}
-
-QtcSettings *BaseAspect::qtcSettings()
-{
-    return theSettings;
-}
-
 BaseAspect::Changes::Changes()
 {
     memset(this, 0, sizeof(*this));
@@ -739,8 +727,7 @@ void BaseAspect::readSettings()
 {
     if (skipSave())
         return;
-    QTC_ASSERT(theSettings, return);
-    const QVariant val = theSettings->value(settingsKey());
+    const QVariant val = Utils::userSettings().value(settingsKey());
     setVariantValue(val.isValid() ? fromSettingsValue(val) : defaultVariantValue(), BeQuiet);
 }
 
@@ -748,10 +735,9 @@ void BaseAspect::writeSettings() const
 {
     if (skipSave())
         return;
-    QTC_ASSERT(theSettings, return);
-    theSettings->setValueWithDefault(settingsKey(),
-                                     toSettingsValue(variantValue()),
-                                     toSettingsValue(defaultVariantValue()));
+    Utils::userSettings().setValueWithDefault(settingsKey(),
+                                              toSettingsValue(variantValue()),
+                                              toSettingsValue(defaultVariantValue()));
 }
 
 void BaseAspect::setFromSettingsTransformation(const SavedValueTransformation &transform)
@@ -3549,16 +3535,14 @@ void BaseAspect::Data::Ptr::operator=(const Ptr &other)
 SettingsGroupNester::SettingsGroupNester(const QStringList &groups)
     : m_groupCount(groups.size())
 {
-    QTC_ASSERT(theSettings, return);
     for (const QString &group : groups)
-        theSettings->beginGroup(keyFromString(group));
+        Utils::userSettings().beginGroup(keyFromString(group));
 }
 
 SettingsGroupNester::~SettingsGroupNester()
 {
-    QTC_ASSERT(theSettings, return);
     for (int i = 0; i != m_groupCount; ++i)
-        theSettings->endGroup();
+        Utils::userSettings().endGroup();
 }
 
 class AddItemCommand : public QUndoCommand

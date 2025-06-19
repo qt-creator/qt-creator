@@ -100,9 +100,7 @@ public:
         QWidget *dialogParent, const QSet<PluginSpec *> &plugins, bool enable);
 
     // Settings
-    static void setSettings(Utils::QtcSettings *settings);
     static Utils::QtcSettings *settings();
-    static void setInstallSettings(Utils::QtcSettings *settings);
     static Utils::QtcSettings *globalSettings();
     static void writeSettings();
 

@@ -121,27 +121,27 @@ void TestSettings::toSettings() const
 {
     AspectContainer::writeSettings();
 
-    QtcSettings *s = BaseAspect::qtcSettings();
-    s->beginGroup(Constants::SETTINGSGROUP);
+    QtcSettings &s = Utils::userSettings();
+    s.beginGroup(Constants::SETTINGSGROUP);
 
     // store frameworks and their current active and grouping state
     for (auto it = frameworks.cbegin(); it != frameworks.cend(); ++it) {
         const Utils::Id &id = it.key();
-        s->setValue(id.toKey(), it.value());
-        s->setValue(id.toKey() + groupSuffix, frameworksGrouping.value(id));
+        s.setValue(id.toKey(), it.value());
+        s.setValue(id.toKey() + groupSuffix, frameworksGrouping.value(id));
     }
     // ..and the testtools as well
     for (auto it = tools.cbegin(); it != tools.cend(); ++it)
-        s->setValue(it.key().toKey(), it.value());
-    s->endGroup();
+        s.setValue(it.key().toKey(), it.value());
+    s.endGroup();
 }
 
 void TestSettings::fromSettings()
 {
     AspectContainer::readSettings();
 
-    QtcSettings *s = BaseAspect::qtcSettings();
-    s->beginGroup(Constants::SETTINGSGROUP);
+    QtcSettings &s = Utils::userSettings();
+    s.beginGroup(Constants::SETTINGSGROUP);
 
     // try to get settings for registered frameworks
     const TestFrameworks &registered = TestFrameworkManager::registeredFrameworks();
@@ -151,18 +151,18 @@ void TestSettings::fromSettings()
         // get their active state
         const Id id = framework->id();
         const Key key = id.toKey();
-        frameworks.insert(id, s->value(key, framework->active()).toBool());
+        frameworks.insert(id, s.value(key, framework->active()).toBool());
         // and whether grouping is enabled
-        frameworksGrouping.insert(id, s->value(key + groupSuffix, framework->grouping()).toBool());
+        frameworksGrouping.insert(id, s.value(key + groupSuffix, framework->grouping()).toBool());
     }
     // ..and for test tools as well
     const TestTools &registeredTools = TestFrameworkManager::registeredTestTools();
     tools.clear();
     for (const ITestTool *testTool : registeredTools) {
-        const Utils::Id id = testTool->id();
-        tools.insert(id, s->value(id.toKey(), testTool->active()).toBool());
+        const Id id = testTool->id();
+        tools.insert(id, s.value(id.toKey(), testTool->active()).toBool());
     }
-    s->endGroup();
+    s.endGroup();
 }
 
 RunAfterBuildMode TestSettings::runAfterBuildMode() const

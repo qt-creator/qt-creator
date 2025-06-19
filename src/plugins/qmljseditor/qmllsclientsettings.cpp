@@ -301,7 +301,7 @@ bool QmllsClientSettings::useQmllsWithBuiltinCodemodelOnProject(Project *project
 // first time initialization: port old settings from the QmlJsEditingSettings AspectContainer
 static void portFromOldSettings(QmllsClientSettings* qmllsClientSettings)
 {
-    QtcSettings *settings = BaseAspect::qtcSettings();
+    QtcSettings *settings = &Utils::userSettings();
 
     const Key baseKey = Key{QmlJSEditor::Constants::SETTINGS_CATEGORY_QML} + "/";
 

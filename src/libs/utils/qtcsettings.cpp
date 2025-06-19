@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qtcsettings.h"
+
+#include "qtcsettings_p.h"
 #include "store.h"
 
 namespace Utils {
@@ -77,6 +79,43 @@ bool QtcSettings::contains(const Key &key) const
 KeyList QtcSettings::childKeys() const
 {
     return keysFromStrings(QSettings::childKeys());
+}
+
+QtcSettings *theUserSettings = nullptr;
+QtcSettings *theInstallSettings = nullptr;
+
+QtcSettings &userSettings()
+{
+    static QtcSettings fallback;
+    QTC_ASSERT(theUserSettings, return fallback);
+    return *theUserSettings;
+}
+
+QtcSettings &installSettings()
+{
+    static QtcSettings fallback;
+    QTC_ASSERT(theInstallSettings, return fallback);
+    return theInstallSettings ? *theInstallSettings : fallback;
+}
+
+void Internal::SettingsSetup::setupSettings(QtcSettings *userSettings, QtcSettings *installSettings)
+{
+    QTC_CHECK(userSettings);
+    QTC_CHECK(!theUserSettings);
+    theUserSettings = userSettings;
+
+    QTC_CHECK(installSettings);
+    QTC_CHECK(!theInstallSettings);
+    theInstallSettings = installSettings;
+}
+
+void Internal::SettingsSetup::destroySettings()
+{
+    delete theUserSettings;
+    theUserSettings = nullptr;
+
+    delete theInstallSettings;
+    theInstallSettings = nullptr;
 }
 
 } // namespace Utils

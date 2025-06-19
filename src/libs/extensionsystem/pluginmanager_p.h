@@ -123,8 +123,6 @@ public:
     qint64 m_totalUntilDelayedInitialize = 0;
     qint64 m_totalStartupMS = 0;
     unsigned m_profilingVerbosity = 0;
-    Utils::QtcSettings *settings = nullptr;
-    Utils::QtcSettings *globalSettings = nullptr;
 
     std::function<bool(PluginSpec *)> acceptTermsAndConditionsCallback;
 

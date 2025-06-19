@@ -138,7 +138,7 @@ add_qtc_library(Utils
     qtcassert.cpp qtcassert.h
     qtcolorbutton.cpp qtcolorbutton.h
     qtcprocess.cpp qtcprocess.h
-    qtcsettings.cpp qtcsettings.h
+    qtcsettings.cpp qtcsettings.h qtcsettings_p.h
     qtcwidgets.cpp qtcwidgets.h
     ranges.h
     reloadpromptutils.cpp reloadpromptutils.h

@@ -201,9 +201,6 @@ public:
 
     Data::Ptr extractData() const;
 
-    static void setQtcSettings(QtcSettings *settings);
-    static QtcSettings *qtcSettings();
-
     // This is expensive. Do not use without good reason
     void writeToSettingsImmediatly() const;
 

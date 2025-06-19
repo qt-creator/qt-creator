@@ -65,7 +65,7 @@ static bool applyKey(const SecretAspect &aspect, CredentialQuery &op)
     return true;
 }
 
-void SecretAspect::readSecret(const std::function<void(Utils::Result<QString>)> &cb) const
+void SecretAspect::readSecret(const std::function<void(Result<QString>)> &cb) const
 {
     d->readCallbacks.push_back(cb);
 
@@ -74,9 +74,10 @@ void SecretAspect::readSecret(const std::function<void(Utils::Result<QString>)> 
 
     if (!QKeychain::isAvailable()) {
         qWarning() << "No Keychain available, reading from plaintext";
-        qtcSettings()->beginGroup("Secrets");
-        auto value = qtcSettings()->value(settingsKey());
-        qtcSettings()->endGroup();
+        QtcSettings &settings = Utils::userSettings();
+        settings.beginGroup("Secrets");
+        QVariant value = settings.value(settingsKey());
+        settings.endGroup();
 
         d->callReadCallbacks(fromSettingsValue(value).toString());
         return;
@@ -126,9 +127,10 @@ void SecretAspect::writeSettings() const
         return;
 
     if (!QKeychain::isAvailable()) {
-        qtcSettings()->beginGroup("Secrets");
-        qtcSettings()->setValue(settingsKey(), toSettingsValue(d->value));
-        qtcSettings()->endGroup();
+        QtcSettings &settings = Utils::userSettings();
+        settings.beginGroup("Secrets");
+        settings.setValue(settingsKey(), toSettingsValue(d->value));
+        settings.endGroup();
         d->wasEdited = false;
         return;
     }

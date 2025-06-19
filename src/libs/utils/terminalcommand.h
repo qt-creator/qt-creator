@@ -13,7 +13,6 @@
 namespace Utils {
 
 class Environment;
-class QtcSettings;
 
 class QTCREATOR_UTILS_EXPORT TerminalCommand
 {
@@ -30,7 +29,6 @@ public:
     QString executeArgs;
     bool needsQuotes = false;
 
-    static void setSettings(QtcSettings *settings);
     static TerminalCommand defaultTerminalEmulator();
     static QList<TerminalCommand> availableTerminalEmulators();
     static TerminalCommand terminalEmulator();
