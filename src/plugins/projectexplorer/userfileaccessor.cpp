@@ -40,67 +40,8 @@ static QString userFileExtension()
 
 namespace {
 
-const char OBSOLETE_VERSION_KEY[] = "ProjectExplorer.Project.Updater.FileVersion";
 const char SHARED_SETTINGS[] = "SharedSettings";
 const char USER_STICKY_KEYS_KEY[] = "UserStickyKeys";
-
-// Version 14 Move builddir into BuildConfiguration
-class UserFileVersion14Upgrader : public VersionUpgrader
-{
-public:
-    UserFileVersion14Upgrader() : VersionUpgrader(14, "3.0-pre1") { }
-    Store upgrade(const Store &map) final;
-};
-
-// Version 15 Use settingsaccessor based class for user file reading/writing
-class UserFileVersion15Upgrader : public VersionUpgrader
-{
-public:
-    UserFileVersion15Upgrader() : VersionUpgrader(15, "3.2-pre1") { }
-    Store upgrade(const Store &map) final;
-};
-
-// Version 16 Changed android deployment
-class UserFileVersion16Upgrader : public VersionUpgrader
-{
-public:
-    UserFileVersion16Upgrader() : VersionUpgrader(16, "3.3-pre1") { }
-    Store upgrade(const Store &data) final;
-private:
-    class OldStepMaps
-    {
-    public:
-        QString defaultDisplayName;
-        QString displayName;
-        Store androidPackageInstall;
-        Store androidDeployQt;
-        bool isEmpty()
-        {
-            return androidPackageInstall.isEmpty() || androidDeployQt.isEmpty();
-        }
-    };
-
-
-    Store removeAndroidPackageStep(Store deployMap);
-    OldStepMaps extractStepMaps(const Store &deployMap);
-    enum NamePolicy { KeepName, RenameBuildConfiguration };
-    Store insertSteps(Store buildConfigurationMap,
-                            const OldStepMaps &oldStepMap,
-                            NamePolicy policy);
-};
-
-// Version 17 Apply user sticky keys per map
-class UserFileVersion17Upgrader : public VersionUpgrader
-{
-public:
-    UserFileVersion17Upgrader() : VersionUpgrader(17, "3.3-pre2") { }
-    Store upgrade(const Store &map) final;
-
-    QVariant process(const QVariant &entry);
-
-private:
-    QVariantList m_sticky;
-};
 
 // Version 18 renames "AutotoolsProjectManager.MakeStep.AdditionalArguments" to
 // "AutotoolsProjectManager.MakeStep.MakeArguments" to account for
@@ -304,10 +245,6 @@ UserFileAccessor::UserFileAccessor(Project *project)
     setSettingsId(projectExplorerSettings().environmentId.toByteArray());
 
     // Register Upgraders:
-    addVersionUpgrader(std::make_unique<UserFileVersion14Upgrader>());
-    addVersionUpgrader(std::make_unique<UserFileVersion15Upgrader>());
-    addVersionUpgrader(std::make_unique<UserFileVersion16Upgrader>());
-    addVersionUpgrader(std::make_unique<UserFileVersion17Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion18Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion19Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion20Upgrader>());
@@ -410,23 +347,6 @@ Store UserFileAccessor::postprocessMerge(const Store &main,
     return MergingSettingsAccessor::postprocessMerge(main, secondary, result);
 }
 
-Store UserFileAccessor::preprocessReadSettings(const Store &data) const
-{
-    Store tmp = MergingSettingsAccessor::preprocessReadSettings(data);
-
-    // Move from old Version field to new one:
-    // This cannot be done in a normal upgrader since the version information is needed
-    // to decide which upgraders to run
-    const Key obsoleteKey = OBSOLETE_VERSION_KEY;
-    const int obsoleteVersion = tmp.value(obsoleteKey, -1).toInt();
-
-    if (obsoleteVersion > versionFromMap(tmp))
-        setVersionInMap(tmp, obsoleteVersion);
-
-    tmp.remove(obsoleteKey);
-    return tmp;
-}
-
 Store UserFileAccessor::prepareToWriteSettings(const Store &data) const
 {
     const Store tmp = MergingSettingsAccessor::prepareToWriteSettings(data);
@@ -441,293 +361,7 @@ Store UserFileAccessor::prepareToWriteSettings(const Store &data) const
         result = tmp;
     }
 
-    // for compatibility with QtC 3.1 and older:
-    result.insert(OBSOLETE_VERSION_KEY, currentVersion());
     return result;
-}
-
-// --------------------------------------------------------------------
-// UserFileVersion14Upgrader:
-// --------------------------------------------------------------------
-
-Store UserFileVersion14Upgrader::upgrade(const Store &map)
-{
-    Store result;
-    for (auto it = map.cbegin(), end = map.cend(); it != end; ++it) {
-        if (it.value().typeId() == QMetaType::QVariantMap)
-            result.insert(it.key(), variantFromStore(upgrade(storeFromVariant(it.value()))));
-        else if (it.key() == "AutotoolsProjectManager.AutotoolsBuildConfiguration.BuildDirectory"
-                 || it.key() == "CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory"
-                 || it.key() == "GenericProjectManager.GenericBuildConfiguration.BuildDirectory"
-                 || it.key() == "Qbs.BuildDirectory"
-                 || it.key() == "Qt4ProjectManager.Qt4BuildConfiguration.BuildDirectory")
-            result.insert("ProjectExplorer.BuildConfiguration.BuildDirectory", it.value());
-        else
-            result.insert(it.key(), it.value());
-    }
-    return result;
-}
-
-// --------------------------------------------------------------------
-// UserFileVersion15Upgrader:
-// --------------------------------------------------------------------
-
-Store UserFileVersion15Upgrader::upgrade(const Store &map)
-{
-    const QList<Change> changes{
-        {"ProjectExplorer.Project.Updater.EnvironmentId", "EnvironmentId"},
-        {"ProjectExplorer.Project.UserStickyKeys", "UserStickyKeys"}
-    };
-    return renameKeys(changes, map);
-}
-
-// --------------------------------------------------------------------
-// UserFileVersion16Upgrader:
-// --------------------------------------------------------------------
-
-UserFileVersion16Upgrader::OldStepMaps UserFileVersion16Upgrader::extractStepMaps(const Store &deployMap)
-{
-    OldStepMaps result;
-    result.defaultDisplayName = deployMap.value("ProjectExplorer.ProjectConfiguration.DefaultDisplayName").toString();
-    result.displayName = deployMap.value("ProjectExplorer.ProjectConfiguration.DisplayName").toString();
-    const Key stepListKey = "ProjectExplorer.BuildConfiguration.BuildStepList.0";
-    Store stepListMap = storeFromVariant(deployMap.value(stepListKey));
-    int stepCount = stepListMap.value("ProjectExplorer.BuildStepList.StepsCount", 0).toInt();
-    Key stepKey = "ProjectExplorer.BuildStepList.Step.";
-    for (int i = 0; i < stepCount; ++i) {
-        Store stepMap = storeFromVariant(stepListMap.value(numberedKey(stepKey, i)));
-        const QString id = stepMap.value("ProjectExplorer.ProjectConfiguration.Id").toString();
-        if (id == "Qt4ProjectManager.AndroidDeployQtStep")
-            result.androidDeployQt = stepMap;
-        else if (id == "Qt4ProjectManager.AndroidPackageInstallationStep")
-            result.androidPackageInstall = stepMap;
-        if (!result.isEmpty())
-            return result;
-
-    }
-    return result;
-}
-
-Store UserFileVersion16Upgrader::removeAndroidPackageStep(Store deployMap)
-{
-    const Key stepListKey = "ProjectExplorer.BuildConfiguration.BuildStepList.0";
-    Store stepListMap = storeFromVariant(deployMap.value(stepListKey));
-    const Key stepCountKey = "ProjectExplorer.BuildStepList.StepsCount";
-    int stepCount = stepListMap.value(stepCountKey, 0).toInt();
-    Key stepKey = "ProjectExplorer.BuildStepList.Step.";
-    int targetPosition = 0;
-    for (int sourcePosition = 0; sourcePosition < stepCount; ++sourcePosition) {
-        Store stepMap = storeFromVariant(stepListMap.value(numberedKey(stepKey, sourcePosition)));
-        if (stepMap.value("ProjectExplorer.ProjectConfiguration.Id").toString()
-                != "Qt4ProjectManager.AndroidPackageInstallationStep") {
-            stepListMap.insert(numberedKey(stepKey, targetPosition), variantFromStore(stepMap));
-            ++targetPosition;
-        }
-    }
-
-    stepListMap.insert(stepCountKey, targetPosition);
-
-    for (int i = targetPosition; i < stepCount; ++i)
-        stepListMap.remove(numberedKey(stepKey, i));
-
-    deployMap.insert(stepListKey, variantFromStore(stepListMap));
-    return deployMap;
-}
-
-Store UserFileVersion16Upgrader::insertSteps(Store buildConfigurationMap,
-                                                   const OldStepMaps &oldStepMap,
-                                                   NamePolicy policy)
-{
-    const Key bslCountKey = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
-    int stepListCount = buildConfigurationMap.value(bslCountKey).toInt();
-
-    const Key bslKey = "ProjectExplorer.BuildConfiguration.BuildStepList.";
-    const Key bslTypeKey = "ProjectExplorer.ProjectConfiguration.Id";
-    for (int bslNumber = 0; bslNumber < stepListCount; ++bslNumber) {
-        Store buildStepListMap = buildConfigurationMap.value(numberedKey(bslKey, bslNumber)).value<Store>();
-        if (buildStepListMap.value(bslTypeKey) != "ProjectExplorer.BuildSteps.Build")
-            continue;
-
-        const Key bslStepCountKey = "ProjectExplorer.BuildStepList.StepsCount";
-
-        int stepCount = buildStepListMap.value(bslStepCountKey).toInt();
-        buildStepListMap.insert(bslStepCountKey, stepCount + 2);
-
-        Store androidPackageInstallStep;
-        Store androidBuildApkStep;
-
-        // common settings of all buildsteps
-        const Key enabledKey = "ProjectExplorer.BuildStep.Enabled";
-        const Key idKey = "ProjectExplorer.ProjectConfiguration.Id";
-        const Key displayNameKey = "ProjectExplorer.ProjectConfiguration.DisplayName";
-        const Key defaultDisplayNameKey = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
-
-        QString displayName = oldStepMap.androidPackageInstall.value(displayNameKey).toString();
-        QString defaultDisplayName = oldStepMap.androidPackageInstall.value(defaultDisplayNameKey).toString();
-        bool enabled = oldStepMap.androidPackageInstall.value(enabledKey).toBool();
-
-        androidPackageInstallStep.insert(idKey, Id("Qt4ProjectManager.AndroidPackageInstallationStep").toSetting());
-        androidPackageInstallStep.insert(displayNameKey, displayName);
-        androidPackageInstallStep.insert(defaultDisplayNameKey, defaultDisplayName);
-        androidPackageInstallStep.insert(enabledKey, enabled);
-
-        displayName = oldStepMap.androidDeployQt.value(keyFromString(displayName)).toString();
-        defaultDisplayName = oldStepMap.androidDeployQt.value(defaultDisplayNameKey).toString();
-        enabled = oldStepMap.androidDeployQt.value(enabledKey).toBool();
-
-        androidBuildApkStep.insert(idKey, Id("QmakeProjectManager.AndroidBuildApkStep").toSetting());
-        androidBuildApkStep.insert(displayNameKey, displayName);
-        androidBuildApkStep.insert(defaultDisplayNameKey, defaultDisplayName);
-        androidBuildApkStep.insert(enabledKey, enabled);
-
-        // settings transferred from AndroidDeployQtStep to QmakeBuildApkStep
-        const Key ProFilePathForInputFile = "ProFilePathForInputFile";
-        const Key DeployActionKey = "Qt4ProjectManager.AndroidDeployQtStep.DeployQtAction";
-        const Key KeystoreLocationKey = "KeystoreLocation";
-        const Key BuildTargetSdkKey = "BuildTargetSdk";
-        const Key VerboseOutputKey = "VerboseOutput";
-
-        QString inputFile = oldStepMap.androidDeployQt.value(ProFilePathForInputFile).toString();
-        int oldDeployAction = oldStepMap.androidDeployQt.value(DeployActionKey).toInt();
-        QString keyStorePath = oldStepMap.androidDeployQt.value(KeystoreLocationKey).toString();
-        QString buildTargetSdk = oldStepMap.androidDeployQt.value(BuildTargetSdkKey).toString();
-        bool verbose = oldStepMap.androidDeployQt.value(VerboseOutputKey).toBool();
-        androidBuildApkStep.insert(ProFilePathForInputFile, inputFile);
-        androidBuildApkStep.insert(DeployActionKey, oldDeployAction);
-        androidBuildApkStep.insert(KeystoreLocationKey, keyStorePath);
-        androidBuildApkStep.insert(BuildTargetSdkKey, buildTargetSdk);
-        androidBuildApkStep.insert(VerboseOutputKey, verbose);
-
-        const Key buildStepKey = "ProjectExplorer.BuildStepList.Step.";
-        buildStepListMap.insert(numberedKey(buildStepKey, stepCount), variantFromStore(androidPackageInstallStep));
-        buildStepListMap.insert(numberedKey(buildStepKey, stepCount + 1), variantFromStore(androidBuildApkStep));
-
-        buildConfigurationMap.insert(numberedKey(bslKey, bslNumber), variantFromStore(buildStepListMap));
-    }
-
-    if (policy == RenameBuildConfiguration) {
-        const Key displayNameKey = "ProjectExplorer.ProjectConfiguration.DisplayName";
-        const Key defaultDisplayNameKey = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
-
-        QString defaultDisplayName = buildConfigurationMap.value(defaultDisplayNameKey).toString();
-        QString displayName = buildConfigurationMap.value(displayNameKey).toString();
-        if (displayName.isEmpty())
-            displayName = defaultDisplayName;
-        QString oldDisplayname = oldStepMap.displayName;
-        if (oldDisplayname.isEmpty())
-            oldDisplayname = oldStepMap.defaultDisplayName;
-
-        displayName.append(" - ");
-        displayName.append(oldDisplayname);
-        buildConfigurationMap.insert(displayNameKey, displayName);
-
-        defaultDisplayName.append(" - ");
-        defaultDisplayName.append(oldStepMap.defaultDisplayName);
-        buildConfigurationMap.insert(defaultDisplayNameKey, defaultDisplayName);
-    }
-
-    return buildConfigurationMap;
-}
-
-Store UserFileVersion16Upgrader::upgrade(const Store &data)
-{
-    int targetCount = data.value("ProjectExplorer.Project.TargetCount", 0).toInt();
-    if (!targetCount)
-        return data;
-
-    Store result = data;
-
-    for (int i = 0; i < targetCount; ++i) {
-        Key targetKey = numberedKey("ProjectExplorer.Project.Target.", i);
-        Store targetMap = storeFromVariant(data.value(targetKey));
-
-        const Key dcCountKey = "ProjectExplorer.Target.DeployConfigurationCount";
-        int deployconfigurationCount = targetMap.value(dcCountKey).toInt();
-        if (!deployconfigurationCount) // should never happen
-            continue;
-
-        QList<OldStepMaps> oldSteps;
-        QList<Store> oldBuildConfigurations;
-
-        Key deployKey = "ProjectExplorer.Target.DeployConfiguration.";
-        for (int j = 0; j < deployconfigurationCount; ++j) {
-            Store deployConfigurationMap
-                    = storeFromVariant(targetMap.value(numberedKey(deployKey, j)));
-            OldStepMaps oldStep = extractStepMaps(deployConfigurationMap);
-            if (!oldStep.isEmpty()) {
-                oldSteps.append(oldStep);
-                deployConfigurationMap = removeAndroidPackageStep(deployConfigurationMap);
-                targetMap.insert(numberedKey(deployKey, j), QVariant::fromValue(deployConfigurationMap));
-            }
-        }
-
-        if (oldSteps.isEmpty()) // no android target?
-            continue;
-
-        const Key bcCountKey = "ProjectExplorer.Target.BuildConfigurationCount";
-        int buildConfigurationCount
-                = targetMap.value(bcCountKey).toInt();
-
-        if (!buildConfigurationCount) // should never happen
-            continue;
-
-        Key bcKey = "ProjectExplorer.Target.BuildConfiguration.";
-        for (int j = 0; j < buildConfigurationCount; ++j) {
-            Store oldBuildConfigurationMap = storeFromVariant(targetMap.value(numberedKey(bcKey, j)));
-            oldBuildConfigurations.append(oldBuildConfigurationMap);
-        }
-
-        QList<Store> newBuildConfigurations;
-
-        NamePolicy policy = oldSteps.size() > 1 ? RenameBuildConfiguration : KeepName;
-
-        for (const Store &oldBuildConfiguration : std::as_const(oldBuildConfigurations)) {
-            for (const OldStepMaps &oldStep : std::as_const(oldSteps)) {
-                Store newBuildConfiguration = insertSteps(oldBuildConfiguration, oldStep, policy);
-                if (!newBuildConfiguration.isEmpty())
-                    newBuildConfigurations.append(newBuildConfiguration);
-            }
-        }
-
-        targetMap.insert(bcCountKey, newBuildConfigurations.size());
-
-        for (int j = 0; j < newBuildConfigurations.size(); ++j)
-            targetMap.insert(numberedKey(bcKey, j), variantFromStore(newBuildConfigurations.at(j)));
-        result.insert(targetKey, variantFromStore(targetMap));
-    }
-
-    return result;
-}
-
-Store UserFileVersion17Upgrader::upgrade(const Store &map)
-{
-    m_sticky = map.value(USER_STICKY_KEYS_KEY).toList();
-    if (m_sticky.isEmpty())
-        return map;
-    return storeFromVariant(process(variantFromStore(map)));
-}
-
-QVariant UserFileVersion17Upgrader::process(const QVariant &entry)
-{
-    switch (entry.typeId()) {
-    case QMetaType::QVariantList: {
-        QVariantList result;
-        for (const QVariant &item : entry.toList())
-            result.append(process(item));
-        return result;
-    }
-    case QMetaType::QVariantMap: {
-        Store result = storeFromVariant(entry);
-        for (Store::iterator i = result.begin(), end = result.end(); i != end; ++i) {
-            QVariant &v = i.value();
-            v = process(v);
-        }
-        result.insert(USER_STICKY_KEYS_KEY, m_sticky);
-        return variantFromStore(result);
-    }
-    default:
-        return entry;
-    }
 }
 
 Store UserFileVersion18Upgrader::upgrade(const Store &map)
@@ -948,39 +582,6 @@ void ProjectExplorerTest::testUserFileAccessor_prepareToReadSettings()
     QCOMPARE(result, data);
 }
 
-void ProjectExplorerTest::testUserFileAccessor_prepareToReadSettingsObsoleteVersion()
-{
-    TestProject project;
-    TestUserFileAccessor accessor(&project);
-
-    Store data;
-    data.insert("ProjectExplorer.Project.Updater.FileVersion", 4);
-    data.insert("Foo", "bar");
-
-    Store result = accessor.preprocessReadSettings(data);
-
-    QCOMPARE(result.count(), data.count());
-    QCOMPARE(result.value("Foo"), data.value("Foo"));
-    QCOMPARE(result.value("Version"), data.value("ProjectExplorer.Project.Updater.FileVersion"));
-}
-
-void ProjectExplorerTest::testUserFileAccessor_prepareToReadSettingsObsoleteVersionNewVersion()
-{
-    TestProject project;
-    TestUserFileAccessor accessor(&project);
-
-    Store data;
-    data.insert("ProjectExplorer.Project.Updater.FileVersion", 4);
-    data.insert("Version", 5);
-    data.insert("Foo", "bar");
-
-    Store result = accessor.preprocessReadSettings(data);
-
-    QCOMPARE(result.count(), data.count() - 1);
-    QCOMPARE(result.value("Foo"), data.value("Foo"));
-    QCOMPARE(result.value("Version"), data.value("Version"));
-}
-
 void ProjectExplorerTest::testUserFileAccessor_prepareToWriteSettings()
 {
     TestProject project;
@@ -1001,12 +602,11 @@ void ProjectExplorerTest::testUserFileAccessor_prepareToWriteSettings()
     data.insert("shared3", "foo");
     Store result = accessor.prepareToWriteSettings(data);
 
-    QCOMPARE(result.count(), data.count() + 3);
+    QCOMPARE(result.count(), data.count() + 2);
     QCOMPARE(result.value("EnvironmentId").toByteArray(),
              projectExplorerSettings().environmentId.toByteArray());
     QCOMPARE(result.value("UserStickyKeys"), QVariant(QStringList({"shared1"})));
     QCOMPARE(result.value("Version").toInt(), accessor.currentVersion());
-    QCOMPARE(result.value("ProjectExplorer.Project.Updater.FileVersion").toInt(), accessor.currentVersion());
     QCOMPARE(result.value("shared1"), data.value("shared1"));
     QCOMPARE(result.value("shared3"), data.value("shared3"));
     QCOMPARE(result.value("unique1"), data.value("unique1"));

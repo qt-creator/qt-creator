@@ -33,7 +33,6 @@ protected:
                                   const Utils::Store &secondary,
                                   const Utils::Store &result) const final;
 
-    Utils::Store preprocessReadSettings(const Utils::Store &data) const final;
     Utils::Store prepareToWriteSettings(const Utils::Store &data) const final;
 
     Utils::SettingsMergeResult merge(const SettingsMergeData &global,

@@ -68,8 +68,6 @@ private slots:
     static void deleteTestToolchains();
 
     void testUserFileAccessor_prepareToReadSettings();
-    void testUserFileAccessor_prepareToReadSettingsObsoleteVersion();
-    void testUserFileAccessor_prepareToReadSettingsObsoleteVersionNewVersion();
     void testUserFileAccessor_prepareToWriteSettings();
     void testUserFileAccessor_mergeSettings();
     void testUserFileAccessor_mergeSettingsEmptyUser();
