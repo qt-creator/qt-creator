@@ -76,8 +76,8 @@ private:
     QComboBox *m_signEntityCombo;
     QCheckBox *m_autoSignCheckbox;
     QLabel *m_signEntityLabel;
-    Utils::InfoLabel *m_infoLabel;
-    Utils::InfoLabel *m_warningLabel;
+    InfoLabel *m_infoLabel;
+    InfoLabel *m_warningLabel;
 };
 
 IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConfiguration,
@@ -88,7 +88,9 @@ IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConf
     , m_isDevice(RunDeviceTypeKitAspect::deviceTypeId(buildConfiguration->kit())
                  == Constants::IOS_DEVICE_TYPE)
 {
-    auto detailsWidget = new Utils::DetailsWidget(this);
+    setWindowTitle(Tr::tr("iOS Settings"));
+
+    auto detailsWidget = new DetailsWidget(this);
     auto container = new QWidget(detailsWidget);
 
     m_qmakeDefaults = new QPushButton(container);
@@ -404,9 +406,7 @@ IosQmakeBuildConfiguration::IosQmakeBuildConfiguration(Target *target, Id id)
 void IosQmakeBuildConfiguration::addSubConfigWidgets(const BuildConfiguration::WidgetAdder &adder)
 {
     // Ownership of this widget is with BuildSettingsWidget
-    adder(new IosSigningSettingsWidget(this, &m_autoManagedSigning, &m_signingIdentifier),
-          Tr::tr("iOS Settings"));
-
+    adder(new IosSigningSettingsWidget(this, &m_autoManagedSigning, &m_signingIdentifier));
     QmakeBuildConfiguration::addSubConfigWidgets(adder);
 }
 
@@ -517,8 +517,7 @@ IosCMakeBuildConfiguration::IosCMakeBuildConfiguration(Target *target, Id id)
 void IosCMakeBuildConfiguration::addSubConfigWidgets(const WidgetAdder &adder)
 {
     // Ownership of this widget is with BuildSettingsWidget
-    adder(new IosSigningSettingsWidget(this, &m_autoManagedSigning, &m_signingIdentifier),
-          Tr::tr("iOS Settings"));
+    adder(new IosSigningSettingsWidget(this, &m_autoManagedSigning, &m_signingIdentifier));
     CMakeBuildConfiguration::addSubConfigWidgets(adder);
 }
 

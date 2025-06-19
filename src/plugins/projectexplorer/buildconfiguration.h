@@ -48,7 +48,7 @@ public:
 
     virtual QWidget *createConfigWidget();
 
-    using WidgetAdder = std::function<void(QWidget *, const QString &)>;
+    using WidgetAdder = std::function<void(QWidget *)>;
     void addConfigWidgets(const WidgetAdder &adder);
     virtual void addSubConfigWidgets(const WidgetAdder &adder);
 

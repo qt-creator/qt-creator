@@ -41,7 +41,7 @@ public:
 
 private:
     void clearWidgets();
-    void addSubWidget(QWidget *widget, const QString &displayName);
+    void addSubWidget(QWidget *widget);
 
     void updateBuildSettings();
     void currentIndexChanged(int index);
@@ -136,13 +136,13 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target)
     connect(m_target, &Target::kitChanged, this, &BuildSettingsWidget::updateAddButtonMenu);
 }
 
-void BuildSettingsWidget::addSubWidget(QWidget *widget, const QString &displayName)
+void BuildSettingsWidget::addSubWidget(QWidget *widget)
 {
     widget->setParent(this);
     widget->setContentsMargins(0, 2, 0, 0);
 
     auto label = new QLabel(this);
-    label->setText(displayName);
+    label->setText(widget->windowTitle());
     label->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
     label->setContentsMargins(0, 18, 0, 0);
 
@@ -186,11 +186,8 @@ void BuildSettingsWidget::updateBuildSettings()
     m_renameButton->setEnabled(!bcs.isEmpty());
     m_cloneButton->setEnabled(!bcs.isEmpty());
 
-    if (m_buildConfiguration) {
-        m_buildConfiguration->addConfigWidgets([this](QWidget *w, const QString &displayName) {
-            addSubWidget(w, displayName);
-        });
-    }
+    if (m_buildConfiguration)
+        m_buildConfiguration->addConfigWidgets([this](QWidget *w) { addSubWidget(w); });
 }
 
 void BuildSettingsWidget::currentIndexChanged(int index)

@@ -72,6 +72,8 @@ class BuildEnvironmentWidget : public QWidget
 public:
     explicit BuildEnvironmentWidget(BuildConfiguration *bc)
     {
+        setWindowTitle(Tr::tr("Build Environment"));
+
         auto clearBox = new QCheckBox(Tr::tr("Clear system environment"), this);
         clearBox->setChecked(!bc->useSystemEnvironment());
 
@@ -113,21 +115,23 @@ class CustomParsersBuildWidget : public QWidget
 public:
     CustomParsersBuildWidget(BuildConfiguration *bc)
     {
-        const auto layout = new QVBoxLayout(this);
-        layout->setContentsMargins(0, 0, 0, 0);
+        setWindowTitle(Tr::tr("Custom Output Parsers"));
 
         const auto pasteStdOutCB = new QCheckBox(Tr::tr("Parse standard output during build"), this);
         pasteStdOutCB->setToolTip(Tr::tr("Makes output parsers look for diagnostics "
                                      "on stdout rather than stderr."));
         pasteStdOutCB->setChecked(bc->parseStdOut());
-        layout->addWidget(pasteStdOutCB);
-
         connect(pasteStdOutCB, &QCheckBox::clicked, bc, &BuildConfiguration::setParseStdOut);
+
         const auto selectionWidget =
                 new CustomParsersSelectionWidget(CustomParsersSelectionWidget::InBuildConfig, this);
+
+        const auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(pasteStdOutCB);
         layout->addWidget(selectionWidget);
 
-        QList<Utils::Id> parsers = bc->customParsers();
+        QList<Id> parsers = bc->customParsers();
         for (const auto &s : ProjectExplorerPlugin::customParsers()) {
             if (s.buildDefault && !parsers.contains(s.id))
                 parsers.append(s.id);
@@ -298,13 +302,13 @@ void BuildConfiguration::setBuildDirectory(const FilePath &dir)
 
 void BuildConfiguration::addConfigWidgets(const WidgetAdder &adder)
 {
-    if (QWidget *generalConfigWidget = createConfigWidget())
-        adder(generalConfigWidget, d->m_configWidgetDisplayName);
+    if (QWidget *generalConfigWidget = createConfigWidget()) {
+        generalConfigWidget->setWindowTitle(d->m_configWidgetDisplayName);
+        adder(generalConfigWidget);
+    }
 
-    //: %1 is the name returned by BuildStepList::displayName
-    const QString title = Tr::tr("%1 Steps");
-    adder(new Internal::BuildStepListWidget(buildSteps()), title.arg(buildSteps()->displayName()));
-    adder(new Internal::BuildStepListWidget(cleanSteps()), title.arg(cleanSteps()->displayName()));
+    adder(new Internal::BuildStepListWidget(buildSteps()));
+    adder(new Internal::BuildStepListWidget(cleanSteps()));
 
     addSubConfigWidgets(adder);
 }
@@ -493,8 +497,8 @@ QWidget *BuildConfiguration::createConfigWidget()
 
 void BuildConfiguration::addSubConfigWidgets(const WidgetAdder &adder)
 {
-    adder(new Internal::BuildEnvironmentWidget(this), Tr::tr("Build Environment"));
-    adder(new Internal::CustomParsersBuildWidget(this), Tr::tr("Custom Output Parsers"));
+    adder(new Internal::BuildEnvironmentWidget(this));
+    adder(new Internal::CustomParsersBuildWidget(this));
 }
 
 BuildSystem *BuildConfiguration::buildSystem() const

@@ -171,6 +171,9 @@ BuildStepListWidget::BuildStepListWidget(BuildStepList *bsl)
 {
     setupUi();
 
+    //: %1 is the name returned by BuildStepList::displayName
+    setWindowTitle(Tr::tr("%1 Steps").arg(bsl->displayName()));
+
     connect(bsl, &BuildStepList::stepInserted, this, &BuildStepListWidget::addBuildStep);
     connect(bsl, &BuildStepList::stepRemoved, this, &BuildStepListWidget::removeBuildStep);
     connect(bsl, &BuildStepList::stepMoved, this, &BuildStepListWidget::stepMoved);
