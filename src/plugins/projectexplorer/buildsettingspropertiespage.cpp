@@ -67,6 +67,7 @@ private:
     QMenu *m_addButtonMenu = nullptr;
 
     QList<QWidget *> m_subWidgets;
+    QVBoxLayout *m_layout = nullptr;
 };
 
 BuildSettingsWidget::BuildSettingsWidget(Target *target)
@@ -74,14 +75,14 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target)
 {
     setWindowTitle(Tr::tr("Build Settings"));
 
-    auto vbox = new QVBoxLayout(this);
-    vbox->setContentsMargins(0, 0, 0, 0);
+    m_layout = new QVBoxLayout(this);
+    m_layout->setContentsMargins(0, 0, 0, 0);
 
     if (!BuildConfigurationFactory::find(m_target)) {
         auto noSettingsLabel = new QLabel(this);
         noSettingsLabel->setText(Tr::tr("No build settings available"));
         noSettingsLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
-        vbox->addWidget(noSettingsLabel);
+        m_layout->addWidget(noSettingsLabel);
         return;
     }
 
@@ -108,8 +109,9 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target)
         hbox->addWidget(m_renameButton);
         hbox->addWidget(m_cloneButton);
         hbox->addStretch();
-        vbox->addLayout(hbox);
+        m_layout->addLayout(hbox);
     }
+    m_layout->addStretch(1);
 
     m_buildConfiguration = m_target->activeBuildConfiguration();
     m_buildConfigurationComboBox->setCurrentIndex(
@@ -146,8 +148,10 @@ void BuildSettingsWidget::addSubWidget(QWidget *widget)
     label->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
     label->setContentsMargins(0, 18, 0, 0);
 
-    layout()->addWidget(label);
-    layout()->addWidget(widget);
+    const int count = m_layout->count(); // last one is the stretch.
+    QTC_CHECK(count >= 1);
+    m_layout->insertWidget(count - 1, label);
+    m_layout->insertWidget(count, widget);
 
     m_subWidgets.append(label);
     m_subWidgets.append(widget);
