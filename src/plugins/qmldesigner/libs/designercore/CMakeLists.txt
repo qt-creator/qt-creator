@@ -360,6 +360,8 @@ extend_qtc_library(QmlDesignerCore
     sourcepathexceptions.h
     sourcepathstorage.cpp
     sourcepathstorage.h
+    sourcepathstoragetracing.cpp
+    sourcepathstoragetracing.h
     sourcepathview.h
     storagecache.h
     storagecacheentry.h

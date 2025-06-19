@@ -4,10 +4,9 @@
 #pragma once
 
 #include "nonlockingmutex.h"
+#include "sourcepathstoragetracing.h"
 #include "storagecacheentry.h"
 #include "storagecachefwd.h"
-
-#include <tracing/qmldesignertracing.h>
 
 #include <sourcepathids.h>
 

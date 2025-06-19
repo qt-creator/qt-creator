@@ -4,8 +4,7 @@
 #include "sourcepathstorage.h"
 
 #include "sourcepathexceptions.h"
-
-#include <tracing/qmldesignertracing.h>
+#include "sourcepathstoragetracing.h"
 
 namespace QmlDesigner {
 

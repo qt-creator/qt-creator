@@ -68,22 +68,4 @@ Category &category()
 
 } // namespace ModelTracing
 
-namespace SourcePathStorageTracing {
-
-#ifdef ENABLE_SOURCE_PATH_STORAGE_TRACING
-
-Category &category()
-{
-    thread_local Category category_{"source path storage",
-                                    Tracing::eventQueueWithStringArguments(),
-                                    Tracing::eventQueueWithoutArguments(),
-                                    category};
-
-    return category_;
-}
-
-#endif
-
-} // namespace SourcePathStorageTracing
-
 } // namespace QmlDesigner

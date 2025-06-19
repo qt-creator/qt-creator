@@ -3,9 +3,9 @@
 
 #include "sourcepathexceptions.h"
 
-#include <tracing/qmldesignertracing.h>
+#include "sourcepathstoragetracing.h"
 
-    namespace QmlDesigner {
+namespace QmlDesigner {
 
 using namespace NanotraceHR::Literals;
 using NanotraceHR::keyValue;

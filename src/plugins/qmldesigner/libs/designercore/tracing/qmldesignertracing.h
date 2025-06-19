@@ -48,23 +48,4 @@ inline Category category()
 
 } // namespace ModelTracing
 
-namespace SourcePathStorageTracing {
-
-#ifdef ENABLE_SOURCE_PATH_STORAGE_TRACING
-
-using Category = NanotraceHR::EnabledCategory;
-
-[[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
-#else
-
-using Category = NanotraceHR::DisabledCategory;
-
-inline Category category()
-{
-    return {};
-}
-
-#endif
-
-} // namespace SourcePathStorageTracing
 } // namespace QmlDesigner
