@@ -24,7 +24,7 @@ struct DEVCONTAINER_EXPORT InstanceConfig
     Utils::FilePath configFilePath;
 
     using LogFunction = std::function<void(const QString &)>;
-    LogFunction logFunction = [](const QString &msg) { qDebug() << msg; };
+    LogFunction logFunction = [](const QString &msg) { qDebug().noquote() << msg; };
 };
 
 class DEVCONTAINER_EXPORT Instance

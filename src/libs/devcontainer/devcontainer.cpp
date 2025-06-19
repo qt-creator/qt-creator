@@ -16,7 +16,7 @@
 #include <QCryptographicHash>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(devcontainerlog, "devcontainer")
+Q_LOGGING_CATEGORY(devcontainerlog, "devcontainer", QtDebugMsg)
 
 using namespace Utils;
 
@@ -26,8 +26,6 @@ struct InstancePrivate
 {
     Config config;
     Tasking::TaskTree taskTree;
-
-    Environment probedUserEnvironment;
 };
 
 Instance::Instance(Config config)
@@ -149,6 +147,13 @@ QDebug operator<<(QDebug debug, const ContainerDetails &details)
     return debug;
 }
 
+struct RunningContainerDetails
+{
+    QString userName;
+    QString userShell;
+    Environment probedUserEnvironment;
+};
+
 struct ImageDetails
 {
     QString Id;
@@ -185,16 +190,18 @@ using namespace Tasking;
 static void connectProcessToLog(
     Process &process, const InstanceConfig &instanceConfig, const QString &context)
 {
-    process.setTextChannelMode(Channel::Output, TextChannelMode::SingleLine);
-    process.setTextChannelMode(Channel::Error, TextChannelMode::SingleLine);
+    process.setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
+    process.setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
     QObject::connect(
         &process, &Process::textOnStandardOutput, [instanceConfig, context](const QString &text) {
-            instanceConfig.logFunction(QString("[%1] %2").arg(context).arg(text.trimmed()));
+            for (const auto &line : text.split('\n'))
+                instanceConfig.logFunction(QString("[%1] %2").arg(context).arg(line.trimmed()));
         });
 
     QObject::connect(
         &process, &Process::textOnStandardError, [instanceConfig, context](const QString &text) {
-            instanceConfig.logFunction(QString("[%1] %2").arg(context).arg(text.trimmed()));
+            for (const auto &line : text.split('\n'))
+                instanceConfig.logFunction(QString("[%1] %2").arg(context).arg(line.trimmed()));
         });
 }
 
@@ -375,6 +382,8 @@ static ProcessTask inspectContainerTask(
             }
         }
 
+        *containerDetails = details;
+
         qCDebug(devcontainerlog) << "Container details:" << details;
 
         return DoneResult::Success;
@@ -538,25 +547,32 @@ static ProcessTask eventMonitor(const InstanceConfig &instanceConfig)
 
         process.setTextChannelMode(Channel::Output, TextChannelMode::SingleLine);
         process.setTextChannelMode(Channel::Error, TextChannelMode::SingleLine);
-        QObject::connect(&process, &Process::textOnStandardOutput, [&process](const QString &text) {
-            QJsonDocument doc = QJsonDocument::fromJson(text.toUtf8());
-            if (doc.isNull() || !doc.isObject()) {
-                qCWarning(devcontainerlog) << "Received invalid JSON from Docker events:" << text;
-                return;
-            }
-            QJsonObject event = doc.object();
-            if (event.contains("status") && event["status"].toString() == "start"
-                && event.contains("id")) {
-                qCDebug(devcontainerlog) << "Container started:" << event["id"].toString();
-                process.stop();
-            } else {
-                qCWarning(devcontainerlog) << "Unexpected Docker event:" << event;
-            }
-        });
+        QObject::connect(
+            &process,
+            &Process::textOnStandardOutput,
+            [&process, instanceConfig](const QString &text) {
+                instanceConfig.logFunction(QString("[Event Monitor] %1").arg(text));
+                QJsonDocument doc = QJsonDocument::fromJson(text.toUtf8());
+                if (doc.isNull() || !doc.isObject()) {
+                    qCWarning(devcontainerlog)
+                        << "Received invalid JSON from Docker events:" << text;
+                    return;
+                }
+                QJsonObject event = doc.object();
+                if (event.contains("status") && event["status"].toString() == "start"
+                    && event.contains("id")) {
+                    qCDebug(devcontainerlog) << "Container started:" << event["id"].toString();
+                    process.stop();
+                } else {
+                    qCWarning(devcontainerlog) << "Unexpected Docker event:" << event;
+                }
+            });
 
-        QObject::connect(&process, &Process::textOnStandardError, [](const QString &text) {
-            qCWarning(devcontainerlog) << "Docker events error:" << text;
-        });
+        QObject::connect(
+            &process, &Process::textOnStandardError, [instanceConfig](const QString &text) {
+                instanceConfig.logFunction(QString("[Event Monitor] %1").arg(text));
+                qCWarning(devcontainerlog) << "Docker events error:" << text;
+            });
     };
 
     return ProcessTask(waitForStartedSetup, DoneResult::Success);
@@ -583,12 +599,15 @@ static QString containerUser(const ContainerDetails &containerDetails)
 }
 
 static ExecutableItem execInContainerTask(
+    const QString &logPrefix,
     const InstanceConfig &instanceConfig,
     const std::variant<std::function<QString()>, std::function<CommandLine()>, CommandLine, QString>
         &cmdLine,
     const ProcessTask::TaskDoneHandler &doneHandler)
 {
-    const auto setupExec = [instanceConfig, cmdLine](Process &process) {
+    const auto setupExec = [instanceConfig, cmdLine, logPrefix](Process &process) {
+        connectProcessToLog(process, instanceConfig, logPrefix);
+
         CommandLine execCmdLine{instanceConfig.dockerCli, {"exec", containerName(instanceConfig)}};
         if (std::holds_alternative<CommandLine>(cmdLine)) {
             execCmdLine.addCommandLineAsArgs(std::get<CommandLine>(cmdLine));
@@ -623,50 +642,54 @@ static ExecutableItem execInContainerTask(
     return ProcessTask{setupExec, doneHandler};
 }
 
-template<typename C>
-static ExecutableItem probeUserEnvTask(C containerConfig, const InstanceConfig &instanceConfig)
+static ExecutableItem probeUserEnvTask(
+    Storage<RunningContainerDetails> containerDetails,
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig)
 {
-    const auto setupProbe = [containerConfig, instanceConfig](Process &process) {
-        if (containerConfig.probeUserEnv == UserEnvProbe::None)
-            return SetupResult::StopWithSuccess;
+    if (commonConfig.userEnvProbe == UserEnvProbe::None)
+        return Group{};
 
-        const QString args = QMap<UserEnvProbe, QString>{
-            {UserEnvProbe::None, "-c"},
-            {UserEnvProbe::InteractiveShell, "-ic"},
-            {UserEnvProbe::LoginShell, "-lc"},
-            {UserEnvProbe::LoginInteractiveShell, "-lic"}}[containerConfig.userEnvProbe];
+    static const QMap<UserEnvProbe, QString> shellLoginMap{
+        {UserEnvProbe::None, "-c"},
+        {UserEnvProbe::InteractiveShell, "-ic"},
+        {UserEnvProbe::LoginShell, "-lc"},
+        {UserEnvProbe::LoginInteractiveShell, "-lic"}};
 
-        connectProcessToLog(process, {}, Tr::tr("Probe User Environment"));
+    const QString shellArg = shellLoginMap[commonConfig.userEnvProbe];
 
-        CommandLine probeCmdLine{
-            instanceConfig.dockerCli,
-            {
-                "exec",
-                containerName(instanceConfig),
-            }};
-        process.setCommand(probeCmdLine);
+    return execInContainerTask(
+        "Probe User Environment",
+        instanceConfig,
+        [containerDetails, shellArg]() -> CommandLine {
+            return {FilePath::fromUserInput(containerDetails->userShell), {shellArg, "printenv"}};
+        },
+        [containerDetails,
+         commonConfig,
+         instanceConfig](const Process &process, DoneWith doneWith) -> DoneResult {
+            if (doneWith == DoneWith::Error) {
+                qCWarning(devcontainerlog)
+                    << "Failed to probe user environment:" << process.verboseExitMessage();
+                return DoneResult::Error;
+            }
 
-        qCDebug(devcontainerlog) << "Probing user environment with command:"
-                                 << process.commandLine().toUserOutput();
-    };
+            const QString output = process.cleanedStdOut().trimmed();
+            if (output.isEmpty()) {
+                qCWarning(devcontainerlog) << "No output from user environment probe.";
+                return DoneResult::Success;
+            }
 
-    const auto doneProbe = [](const Process &process) -> DoneResult {
-        if (process.exitCode() != 0) {
-            qCWarning(devcontainerlog)
-                << "Failed to probe user environment:" << process.cleanedStdErr();
-            return DoneResult::Error;
-        }
-        return DoneResult::Success;
-    };
+            Environment env(output.split('\n', Qt::SkipEmptyParts));
 
-    return ProcessTask{setupProbe, doneProbe};
+            // We don't want to capture the following environment variables:
+            for (const char *key : {"_", "PWD"})
+                env.unset(QLatin1StringView(key));
+
+            containerDetails->probedUserEnvironment = env;
+
+            return DoneResult::Success;
+        });
 }
-
-struct RunningContainerDetails
-{
-    QString userName;
-    QString userShell;
-};
 
 struct UserFromPasswd
 {
@@ -693,9 +716,11 @@ Result<UserFromPasswd> parseUserFromPasswd(const QString &passwdLine)
 static ExecutableItem runningContainerDetailsTask(
     Storage<ContainerDetails> containerDetails,
     Storage<RunningContainerDetails> runningDetails,
+    const DevContainerCommon &commonConfig,
     const InstanceConfig &instanceConfig)
 {
     const ExecutableItem idTask = execInContainerTask(
+        "Get Running Container User",
         instanceConfig,
         CommandLine{"id", {"-un"}},
         [runningDetails](const Process &process, DoneWith doneWith) -> DoneResult {
@@ -712,6 +737,7 @@ static ExecutableItem runningContainerDetailsTask(
         });
 
     const ExecutableItem shellTask = execInContainerTask(
+        "Get Running Container User Shell",
         instanceConfig,
         [containerDetails, runningDetails]() -> CommandLine {
             const QString userName = containerUser(*containerDetails);
@@ -721,7 +747,7 @@ static ExecutableItem runningContainerDetailsTask(
             userEscapedForGrep.replace(QRegularExpression("([.*+?^${}()|[\\]\\\\])"), "\\\\1")
                 .replace('\'', "\\'");
 
-            const CommandLine testGetEnt{
+            CommandLine testGetEnt{
                 "command",
                 {"-v", "getent", {">/dev/null", CommandLine::Raw}, {"2>&1", CommandLine::Raw}}};
             const CommandLine getPasswdViaGetent{"getent", {"passwd", userName}};
@@ -730,17 +756,20 @@ static ExecutableItem runningContainerDetailsTask(
                 {"-E", QString("^(%1|^[^:]*:[^:]*:%1:)").arg(userEscapedForGrep), "/etc/passwd"}};
             const CommandLine trueCmd{"true"};
 
+            testGetEnt.addCommandLineWithAnd(getPasswdViaGetent);
+            testGetEnt.addCommandLineWithOr(getPasswdViaGrep);
+            testGetEnt.addCommandLineWithOr(trueCmd);
+
             CommandLine getShellCmd{"/bin/sh", {"-c"}};
-            getShellCmd.addCommandLineAsArgs(testGetEnt);
-            getShellCmd.addCommandLineWithAnd(getPasswdViaGetent);
-            getShellCmd.addCommandLineWithOr(getPasswdViaGrep);
-            getShellCmd.addCommandLineWithOr(trueCmd);
+            getShellCmd.addCommandLineAsSingleArg(testGetEnt);
             return getShellCmd;
         },
         [containerDetails, runningDetails](const Process &process, DoneWith doneWith) -> DoneResult {
             const QString output = process.cleanedStdOut().trimmed();
 
             runningDetails->userShell = containerDetails->Config.Env.value("SHELL", "/bin/sh");
+            qCDebug(devcontainerlog)
+                << "Running container user shell (default):" << runningDetails->userShell;
 
             if (output.isEmpty() || doneWith == DoneWith::Error) {
                 qCWarning(devcontainerlog) << "Failed to get running container user shell:"
@@ -754,12 +783,16 @@ static ExecutableItem runningContainerDetailsTask(
                 return DoneResult::Error;
             }
 
+            qCDebug(devcontainerlog)
+                << "Running container user:" << user->name << "UID:" << user->uid
+                << "GID:" << user->gid << "Home:" << user->home << "Shell:" << user->shell;
+
             runningDetails->userShell = user->shell;
 
             return DoneResult::Success;
         });
 
-    return Group{idTask, shellTask};
+    return Group{idTask, shellTask, probeUserEnvTask(runningDetails, commonConfig, instanceConfig)};
 }
 
 static Result<Group> prepareContainerRecipe(
@@ -814,7 +847,7 @@ static Result<Group> prepareContainerRecipe(
         When (eventMonitor(instanceConfig), &Process::started) >> Do {
             ProcessTask(setupStart)
         },
-        runningContainerDetailsTask(containerDetails, runningDetails, instanceConfig),
+        runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
     };
     // clang-format on
 }
@@ -874,7 +907,7 @@ static Result<Group> prepareContainerRecipe(
         When (eventMonitor(instanceConfig), &Process::started) >> Do {
             ProcessTask(setupStart)
         },
-        runningContainerDetailsTask(containerDetails, runningDetails, instanceConfig),
+        runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
     };
     // clang-format on
 }
