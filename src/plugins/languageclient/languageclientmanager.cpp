@@ -631,6 +631,43 @@ static QList<BaseSettings *> sortedSettingsForDocument(Core::IDocument *document
     });
 }
 
+void LanguageClientManager::documentOpenedForProject(
+    TextEditor::TextDocument *textDocument, BaseSettings *setting, QList<Client *> &clients)
+{
+    const Utils::FilePath &filePath = textDocument->filePath();
+    for (Project *project : ProjectManager::projects()) {
+        // check whether file is part of this project
+        if (!project->isKnownFile(filePath))
+            continue;
+        for (Target *target : project->targets()) {
+            bool activateDocument = project->activeTarget() == target;
+            for (BuildConfiguration *bc : target->buildConfigurations()) {
+                // check whether we already have a client running for this project
+                Client *clientForBc
+                    = Utils::findOrDefault(clients, Utils::equal(&Client::buildConfiguration, bc));
+
+                // create a client only when valid on the current project
+                if (!clientForBc) {
+                    if (!setting->isValidOnBuildConfiguration(bc))
+                        continue;
+                    clientForBc = startClient(setting, bc);
+                }
+
+                QTC_ASSERT(clientForBc, continue);
+                activateDocument |= clientForBc->activatable()
+                                    && target->activeBuildConfiguration() == bc;
+                if (activateDocument)
+                    openDocumentWithClient(textDocument, clientForBc);
+                else
+                    clientForBc->openDocument(textDocument);
+                // Since we already opened the document in this client we remove the client
+                // from the list of clients that receive the openDocument call
+                clients.removeAll(clientForBc);
+            }
+        }
+    }
+}
+
 void LanguageClientManager::documentOpened(Core::IDocument *document)
 {
     auto textDocument = qobject_cast<TextEditor::TextDocument *>(document);
@@ -644,38 +681,7 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
         QList<Client *> clients = clientsForSetting(setting);
         switch (setting->m_startBehavior) {
         case BaseSettings::RequiresProject: {
-            const Utils::FilePath &filePath = document->filePath();
-            for (Project *project : ProjectManager::projects()) {
-                // check whether file is part of this project
-                if (!project->isKnownFile(filePath))
-                    continue;
-                for (Target *target : project->targets()) {
-                    bool activateDocument = project->activeTarget() == target;
-                    for (BuildConfiguration *bc : target->buildConfigurations()) {
-                        // check whether we already have a client running for this project
-                        Client *clientForBc = Utils::findOrDefault(
-                            clients, Utils::equal(&Client::buildConfiguration, bc));
-
-                        // create a client only when valid on the current project
-                        if (!clientForBc) {
-                            if (!setting->isValidOnBuildConfiguration(bc))
-                                continue;
-                            clientForBc = startClient(setting, bc);
-                        }
-
-                        QTC_ASSERT(clientForBc, continue);
-                        activateDocument |= clientForBc->activatable()
-                                            && target->activeBuildConfiguration() == bc;
-                        if (activateDocument)
-                            openDocumentWithClient(textDocument, clientForBc);
-                        else
-                            clientForBc->openDocument(textDocument);
-                        // Since we already opened the document in this client we remove the client
-                        // from the list of clients that receive the openDocument call
-                        clients.removeAll(clientForBc);
-                    }
-                }
-            }
+            documentOpenedForProject(textDocument, setting, clients);
             break;
         }
         case BaseSettings::RequiresFile: {
