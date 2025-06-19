@@ -230,7 +230,11 @@ QtcPlugin {
     }
 
     QtcTestFiles {
-        files: ["outputparser_test.h", "outputparser_test.cpp"]
+        files: [
+            "jsonwizard/jsonwizard_test.cpp",
+            "outputparser_test.h",
+            "outputparser_test.cpp",
+        ]
     }
 
     QtcTestResources { files: ["testdata/**"] }

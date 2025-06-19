@@ -36,10 +36,6 @@
 #include <QVBoxLayout>
 #include <QVariant>
 
-#ifdef WITH_TESTS
-#include "jsonwizard_test.cpp"
-#endif
-
 using namespace Utils;
 
 namespace ProjectExplorer {
