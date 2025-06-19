@@ -584,7 +584,8 @@ static QString containerUser(const ContainerDetails &containerDetails)
 
 static ExecutableItem execInContainerTask(
     const InstanceConfig &instanceConfig,
-    const std::variant<std::function<QString()>, CommandLine, QString> &cmdLine,
+    const std::variant<std::function<QString()>, std::function<CommandLine()>, CommandLine, QString>
+        &cmdLine,
     const ProcessTask::TaskDoneHandler &doneHandler)
 {
     const auto setupExec = [instanceConfig, cmdLine](Process &process) {
@@ -600,6 +601,13 @@ static ExecutableItem execInContainerTask(
                 return;
             }
             execCmdLine.addArgs({cmd}, CommandLine::Raw);
+        } else if (std::holds_alternative<std::function<CommandLine()>>(cmdLine)) {
+            const CommandLine cmd = std::get<std::function<CommandLine()>>(cmdLine)();
+            if (cmd.isEmpty()) {
+                qCWarning(devcontainerlog) << "Empty command provided for execInContainerTask.";
+                return;
+            }
+            execCmdLine.addCommandLineAsArgs(cmd);
         } else {
             qCWarning(devcontainerlog) << "Unsupported command line type for execInContainerTask.";
             return;
@@ -669,9 +677,10 @@ struct UserFromPasswd
     QString shell;
 };
 
-UserFromPasswd parseUserFromPasswd(const QString &passwdLine)
+Result<UserFromPasswd> parseUserFromPasswd(const QString &passwdLine)
 {
     QStringList row = passwdLine.trimmed().split(QLatin1Char(':'));
+    QTC_ASSERT(row.size() >= 7, return ResultError(Tr::tr("Invalid passwd line: %1").arg(passwdLine)));
     return UserFromPasswd{
         row.value(0),
         row.value(2),
@@ -704,7 +713,7 @@ static ExecutableItem runningContainerDetailsTask(
 
     const ExecutableItem shellTask = execInContainerTask(
         instanceConfig,
-        [containerDetails, runningDetails]() -> QString {
+        [containerDetails, runningDetails]() -> CommandLine {
             const QString userName = containerUser(*containerDetails);
             QString userEscapedForShell = userName;
             userEscapedForShell.replace(QRegularExpression("(['\\\\])"), "\\\\1");
@@ -712,12 +721,20 @@ static ExecutableItem runningContainerDetailsTask(
             userEscapedForGrep.replace(QRegularExpression("([.*+?^${}()|[\\]\\\\])"), "\\\\1")
                 .replace('\'', "\\'");
 
-            const QString getShellCmd
-                = QString(" (command -v getent >/dev/null 2>&1 && getent passwd '%1' || grep -E "
-                          "'^%2|^[^:]*:[^:]*:%2:' /etc/passwd || true)")
-                      .arg(userEscapedForShell)
-                      .arg(userEscapedForGrep);
+            const CommandLine testGetEnt{
+                "command",
+                {"-v", "getent", {">/dev/null", CommandLine::Raw}, {"2>&1", CommandLine::Raw}}};
+            const CommandLine getPasswdViaGetent{"getent", {"passwd", userName}};
+            const CommandLine getPasswdViaGrep{
+                "grep",
+                {"-E", QString("^(%1|^[^:]*:[^:]*:%1:)").arg(userEscapedForGrep), "/etc/passwd"}};
+            const CommandLine trueCmd{"true"};
 
+            CommandLine getShellCmd{"/bin/sh", {"-c"}};
+            getShellCmd.addCommandLineAsArgs(testGetEnt);
+            getShellCmd.addCommandLineWithAnd(getPasswdViaGetent);
+            getShellCmd.addCommandLineWithOr(getPasswdViaGrep);
+            getShellCmd.addCommandLineWithOr(trueCmd);
             return getShellCmd;
         },
         [containerDetails, runningDetails](const Process &process, DoneWith doneWith) -> DoneResult {
@@ -731,7 +748,13 @@ static ExecutableItem runningContainerDetailsTask(
                 return DoneResult::Success;
             }
 
-            runningDetails->userShell = parseUserFromPasswd(output).shell;
+            auto user = parseUserFromPasswd(output);
+            if (!user) {
+                qCWarning(devcontainerlog) << "Failed to parse user from passwd line:" << output;
+                return DoneResult::Error;
+            }
+
+            runningDetails->userShell = user->shell;
 
             return DoneResult::Success;
         });
@@ -744,7 +767,7 @@ static Result<Group> prepareContainerRecipe(
     const DevContainerCommon &commonConfig,
     const InstanceConfig &instanceConfig)
 {
-    const auto setupBuild = [containerConfig, instanceConfig](Process &process) {
+    const auto setupBuildImage = [containerConfig, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, Tr::tr("Build Dockerfile"));
 
         const FilePath configFileDir = instanceConfig.configFilePath.parentDir();
@@ -768,7 +791,7 @@ static Result<Group> prepareContainerRecipe(
     Storage<ContainerDetails> containerDetails;
     Storage<RunningContainerDetails> runningDetails;
 
-    const auto setupCreate =
+    const auto setupCreateContainer =
         [commonConfig, containerConfig, instanceConfig, imageDetails](Process &process) {
             setupCreateContainerFromImage(
                 containerConfig, commonConfig, instanceConfig, *imageDetails, process);
@@ -784,9 +807,9 @@ static Result<Group> prepareContainerRecipe(
         runningDetails,
         containerDetails,
 
-        ProcessTask(setupBuild),
+        ProcessTask(setupBuildImage),
         inspectImageTask(imageDetails, instanceConfig),
-        ProcessTask(setupCreate),
+        ProcessTask(setupCreateContainer),
         inspectContainerTask(containerDetails, instanceConfig),
         When (eventMonitor(instanceConfig), &Process::started) >> Do {
             ProcessTask(setupStart)
@@ -801,7 +824,7 @@ static Result<Group> prepareContainerRecipe(
     const DevContainerCommon &commonConfig,
     const InstanceConfig &instanceConfig)
 {
-    const auto setupPull = [imageConfig, instanceConfig](Process &process) {
+    const auto setupPullImage = [imageConfig, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, "Pull Image");
 
         CommandLine pullCmdLine{instanceConfig.dockerCli, {"pull", imageConfig.image}};
@@ -812,7 +835,7 @@ static Result<Group> prepareContainerRecipe(
             QString("Pulling Image: %1").arg(process.commandLine().toUserOutput()));
     };
 
-    const auto setupTag = [imageConfig, instanceConfig](Process &process) {
+    const auto setupTagImage = [imageConfig, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, "Tag Image");
 
         CommandLine tagCmdLine{
@@ -828,7 +851,7 @@ static Result<Group> prepareContainerRecipe(
     Storage<ContainerDetails> containerDetails;
     Storage<RunningContainerDetails> runningDetails;
 
-    const auto setupCreate =
+    const auto setupCreateContainer =
         [commonConfig, imageConfig, instanceConfig, imageDetails](Process &process) {
             setupCreateContainerFromImage(
                 imageConfig, commonConfig, instanceConfig, *imageDetails, process);
@@ -843,10 +866,10 @@ static Result<Group> prepareContainerRecipe(
         imageDetails,
         containerDetails,
         runningDetails,
-        ProcessTask(setupPull),
-        ProcessTask(setupTag),
+        ProcessTask(setupPullImage),
+        ProcessTask(setupTagImage),
         inspectImageTask(imageDetails, instanceConfig),
-        ProcessTask(setupCreate),
+        ProcessTask(setupCreateContainer),
         inspectContainerTask(containerDetails, instanceConfig),
         When (eventMonitor(instanceConfig), &Process::started) >> Do {
             ProcessTask(setupStart)
