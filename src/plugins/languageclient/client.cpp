@@ -378,8 +378,13 @@ QString Client::name() const
     if (d->m_bc) {
         const QString projectDisplayName = d->m_bc->project()->displayName();
         if (!projectDisplayName.isEmpty()) {
-            //: <language client> for <project>
-            return Tr::tr("%1 for %2").arg(d->m_displayName, projectDisplayName);
+            //: for example: MyServer for MyProject (Qt 1.2.3, Release)
+            return Tr::tr("%1 for %2 (%3, %4)")
+                .arg(
+                    d->m_displayName,
+                    projectDisplayName,
+                    d->m_bc->target()->displayName(),
+                    d->m_bc->displayName());
         }
     }
     return d->m_displayName;
