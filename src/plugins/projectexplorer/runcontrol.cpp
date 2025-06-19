@@ -973,7 +973,7 @@ void RunControlPrivate::showError(const QString &msg)
 
 void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
-    QList<Utils::OutputLineParser *> parsers = createOutputParsers(target());
+    QList<Utils::OutputLineParser *> parsers = createOutputParsers(buildConfiguration());
     if (const auto customParsersAspect = aspectData<CustomParsersAspect>()) {
         for (const Id id : std::as_const(customParsersAspect->parsers)) {
             if (auto parser = createCustomParserFromId(id))
@@ -1581,19 +1581,26 @@ void RunWorker::addStopDependency(RunWorker *dependency)
 
 // Output parser factories
 
-static QList<std::function<OutputLineParser *(Target *)>> g_outputParserFactories;
+static QList<std::function<OutputLineParser *(BuildConfiguration *)>> g_outputParserFactories;
 
-QList<OutputLineParser *> createOutputParsers(Target *target)
+QList<OutputLineParser *> createOutputParsers(BuildConfiguration *bc)
 {
     QList<OutputLineParser *> formatters;
     for (auto factory : std::as_const(g_outputParserFactories)) {
-        if (OutputLineParser *parser = factory(target))
+        if (OutputLineParser *parser = factory(bc))
             formatters << parser;
     }
     return formatters;
 }
 
 void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target *)> &factory)
+{
+    g_outputParserFactories.append(
+        [factory](BuildConfiguration *bc) { return factory(bc ? bc->target() : nullptr); });
+}
+
+void addOutputParserFactory(
+    const std::function<Utils::OutputLineParser *(BuildConfiguration *)> &factory)
 {
     g_outputParserFactories.append(factory);
 }

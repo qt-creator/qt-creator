@@ -22,6 +22,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/infobar.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
@@ -29,6 +30,7 @@
 
 #include <QBoxLayout>
 #include <QComboBox>
+#include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QRegularExpression>
 #include <QTextCursor>
@@ -84,13 +86,27 @@ QString PySideInstaller::usedPySide(const QString &text, const QString &mimeType
     return {};
 }
 
+void PySideInstaller::installPySide(const QUrl &url)
+{
+    FilePath python = FilePath::fromUserInput(QUrl::fromPercentEncoding(url.path().toLatin1()));
+    QTC_ASSERT(python.isExecutableFile(), return);
+    installPySide(python, "PySide6");
+}
+
 PySideInstaller::PySideInstaller()
 {
+    QDesktopServices::setUrlHandler("pysideinstall", this, "installPySide");
+
     connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
             this, &PySideInstaller::handleDocumentOpened);
 }
 
-void PySideInstaller::installPyside(const FilePath &python, const QString &pySide)
+PySideInstaller::~PySideInstaller()
+{
+    QDesktopServices::unsetUrlHandler("pysideinstall");
+}
+
+void PySideInstaller::installPySide(const FilePath &python, const QString &pySide, bool quiet)
 {
     QMap<QVersionNumber, Utils::FilePath> availablePySides;
 
@@ -132,6 +148,17 @@ void PySideInstaller::installPyside(const FilePath &python, const QString &pySid
             emit pySideInstalled(python, pySide);
     });
     if (availablePySides.isEmpty()) {
+        if (!quiet) {
+            QMessageBox::StandardButton selected = CheckableMessageBox::question(
+                Tr::tr("Missing PySide6 installation"),
+                Tr::tr("Install PySide6 via pip for %1?").arg(python.shortNativePath()),
+                {},
+                QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::Yes,
+                QMessageBox::Yes);
+            if (selected == QMessageBox::No)
+                return;
+        }
         install->setPackages({PipPackage(pySide)});
     } else {
         QDialog dialog;
@@ -198,7 +225,7 @@ void PySideInstaller::handlePySideMissing(const FilePath &python,
     const QString message = Tr::tr("%1 installation missing for %2 (%3)")
                                 .arg(pySide, pythonName(python), python.toUserOutput());
     InfoBarEntry info(installPySideInfoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
-    auto installCallback = [this, python, pySide] { installPyside(python, pySide); };
+    auto installCallback = [this, python, pySide] { installPySide(python, pySide, true); };
     const QString installTooltip = Tr::tr("Install %1 for %2 using pip package installer.")
                                        .arg(pySide, python.toUserOutput());
     info.addCustomButton(

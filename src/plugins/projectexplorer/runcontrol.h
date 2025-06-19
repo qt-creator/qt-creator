@@ -264,8 +264,10 @@ public:
 
 PROJECTEXPLORER_EXPORT
 void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target *)> &);
+PROJECTEXPLORER_EXPORT
+void addOutputParserFactory(const std::function<Utils::OutputLineParser *(BuildConfiguration *)> &);
 
-PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(Target *target);
+PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(BuildConfiguration *bc);
 
 class PROJECTEXPLORER_EXPORT RunInterface : public QObject
 {

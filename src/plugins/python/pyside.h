@@ -30,14 +30,18 @@ class PySideInstaller : public QObject
 public:
     void checkPySideInstallation(const Utils::FilePath &python, TextEditor::TextDocument *document);
     static PySideInstaller &instance();
+    void installPySide(const Utils::FilePath &python, const QString &pySide, bool quiet = false);
+
+public slots:
+    void installPySide(const QUrl &url);
 
 signals:
     void pySideInstalled(const Utils::FilePath &python, const QString &pySide);
 
 private:
     PySideInstaller();
+    ~PySideInstaller();
 
-    void installPyside(const Utils::FilePath &python, const QString &pySide);
     void handlePySideMissing(const Utils::FilePath &python,
                              const QString &pySide,
                              TextEditor::TextDocument *document);
