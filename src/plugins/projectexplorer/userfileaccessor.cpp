@@ -192,34 +192,6 @@ static FilePath externalUserFilePath(const Utils::FilePath &projectFilePath, con
 } // namespace
 
 // --------------------------------------------------------------------
-// UserFileBackupStrategy:
-// --------------------------------------------------------------------
-
-class UserFileBackUpStrategy : public Utils::VersionedBackUpStrategy
-{
-public:
-    UserFileBackUpStrategy(UserFileAccessor *accessor) : Utils::VersionedBackUpStrategy(accessor)
-    { }
-
-    FilePaths readFileCandidates(const Utils::FilePath &baseFileName) const final;
-};
-
-FilePaths UserFileBackUpStrategy::readFileCandidates(const FilePath &baseFileName) const
-{
-    const auto *const ac = static_cast<const UserFileAccessor *>(accessor());
-    const FilePath externalUser = ac->externalUserFile();
-    const FilePath projectUser = ac->projectUserFile();
-    QTC_CHECK(!baseFileName.isEmpty());
-    QTC_CHECK(baseFileName == externalUser || baseFileName == projectUser);
-
-    FilePaths result = Utils::VersionedBackUpStrategy::readFileCandidates(projectUser);
-    if (!externalUser.isEmpty())
-        result.append(Utils::VersionedBackUpStrategy::readFileCandidates(externalUser));
-
-    return result;
-}
-
-// --------------------------------------------------------------------
 // UserFileAccessor:
 // --------------------------------------------------------------------
 
