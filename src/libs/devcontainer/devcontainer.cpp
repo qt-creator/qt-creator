@@ -536,26 +536,14 @@ while sleep 1 & wait $!; do :; done
         QString(Tr::tr("Creating Container: %1")).arg(process.commandLine().toUserOutput()));
 }
 
-static void setupStartContainer(const InstanceConfig &instanceConfig, Process &process)
+static ProcessTask eventMonitor(const QString &eventType, const InstanceConfig &instanceConfig)
 {
-    connectProcessToLog(process, instanceConfig, Tr::tr("Start Container"));
-
-    CommandLine startCmdLine{instanceConfig.dockerCli, {"start", containerName(instanceConfig)}};
-    process.setCommand(startCmdLine);
-    process.setWorkingDirectory(instanceConfig.workspaceFolder);
-
-    instanceConfig.logFunction(
-        QString(Tr::tr("Starting Container: %1")).arg(process.commandLine().toUserOutput()));
-}
-
-static ProcessTask eventMonitor(const InstanceConfig &instanceConfig)
-{
-    const auto waitForStartedSetup = [instanceConfig](Process &process) {
+    const auto monitorSetup = [instanceConfig, eventType](Process &process) {
         CommandLine eventsCmdLine
             = {instanceConfig.dockerCli,
                {"events",
-                {"--filter", "event=start"},
-                {"--filter", QString("container=%1-container").arg(imageName(instanceConfig))},
+                {"--filter", QString("event=%1").arg(eventType)},
+                {"--filter", QString("container=%1").arg(containerName(instanceConfig))},
                 {"--format", "{{json .}}"}}};
 
         process.setCommand(eventsCmdLine);
@@ -568,8 +556,9 @@ static ProcessTask eventMonitor(const InstanceConfig &instanceConfig)
         QObject::connect(
             &process,
             &Process::textOnStandardOutput,
-            [&process, instanceConfig](const QString &text) {
+            [&process, eventType, instanceConfig](const QString &text) {
                 instanceConfig.logFunction(QString("[Event Monitor] %1").arg(text));
+
                 QJsonDocument doc = QJsonDocument::fromJson(text.toUtf8());
                 if (doc.isNull() || !doc.isObject()) {
                     qCWarning(devcontainerlog)
@@ -577,7 +566,7 @@ static ProcessTask eventMonitor(const InstanceConfig &instanceConfig)
                     return;
                 }
                 QJsonObject event = doc.object();
-                if (event.contains("status") && event["status"].toString() == "start"
+                if (event.contains("status") && event["status"].toString() == eventType
                     && event.contains("id")) {
                     qCDebug(devcontainerlog) << "Container started:" << event["id"].toString();
                     process.stop();
@@ -593,7 +582,7 @@ static ProcessTask eventMonitor(const InstanceConfig &instanceConfig)
             });
     };
 
-    return ProcessTask(waitForStartedSetup, DoneResult::Success);
+    return ProcessTask(monitorSetup, DoneResult::Success);
 }
 
 static QString containerUser(const ContainerDetails &containerDetails)
@@ -960,6 +949,149 @@ static ExecutableItem runLifecycleHooksRecipe(
     return Group(localItems + remoteItems);
 }
 
+static ExecutableItem containerDoesNotExistTask(const InstanceConfig &instanceConfig)
+{
+    return ProcessTask(
+        [instanceConfig](Process &process) {
+            CommandLine cmdLine{
+                instanceConfig.dockerCli,
+                {"container",
+                 "ls",
+                 "-a",
+                 "--format",
+                 "{{.Names}}",
+                 "--filter",
+                 QString("name=%1").arg(containerName(instanceConfig))}};
+            process.setCommand(cmdLine);
+            process.setWorkingDirectory(instanceConfig.workspaceFolder);
+        },
+        [instanceConfig](const Process &process, DoneWith doneWith) -> DoneResult {
+            if (doneWith == DoneWith::Error) {
+                qCWarning(devcontainerlog)
+                    << "Failed to check if container exists:" << process.cleanedStdErr();
+                return DoneResult::Error;
+            }
+            const QString output = process.cleanedStdOut().trimmed();
+            if (output == containerName(instanceConfig)) {
+                qCWarning(devcontainerlog) << "Container already exists:" << output;
+                return DoneResult::Error;
+            }
+
+            return DoneResult::Success;
+        });
+}
+
+static ExecutableItem containerState(const InstanceConfig &instanceConfig, Storage<QString> state)
+{
+    return ProcessTask(
+        [instanceConfig](Process &process) {
+            CommandLine cmdLine{
+                instanceConfig.dockerCli,
+                {"container",
+                 "ls",
+                 "-a",
+                 "--format",
+                 "{{.State}}",
+                 "--filter",
+                 QString("name=%1").arg(containerName(instanceConfig))}};
+
+            process.setCommand(cmdLine);
+            process.setWorkingDirectory(instanceConfig.workspaceFolder);
+        },
+        [instanceConfig, state](const Process &process, DoneWith doneWith) -> DoneResult {
+            if (doneWith == DoneWith::Error) {
+                qCWarning(devcontainerlog) << "Failed to check if container state"
+                                           << ":" << process.cleanedStdErr();
+                return DoneResult::Error;
+            }
+            *state = process.cleanedStdOut().trimmed();
+            return DoneResult::Success;
+        });
+}
+
+template<typename C>
+static ExecutableItem createContainerRecipe(
+    Storage<ImageDetails> imageDetails,
+    const C &containerConfig,
+    const DevContainerCommon &commonConfig,
+    const InstanceConfig &instanceConfig)
+{
+    auto createContainerSetup =
+        [imageDetails, containerConfig, commonConfig, instanceConfig](Process &process) {
+            setupCreateContainerFromImage(
+                containerConfig, commonConfig, instanceConfig, *imageDetails, process);
+        };
+
+    // clang-format off
+    return Group {
+        If (containerDoesNotExistTask(instanceConfig)) >> Then {
+            ProcessTask(createContainerSetup)
+        }
+    };
+    // clang-format on
+}
+
+static ExecutableItem startContainerRecipe(const InstanceConfig &instanceConfig)
+{
+    const auto start = [instanceConfig] {
+        return ProcessTask([instanceConfig](Process &process) {
+            connectProcessToLog(process, instanceConfig, Tr::tr("Start Container"));
+
+            CommandLine
+                startCmdLine{instanceConfig.dockerCli, {"start", containerName(instanceConfig)}};
+            process.setCommand(startCmdLine);
+            process.setWorkingDirectory(instanceConfig.workspaceFolder);
+
+            instanceConfig.logFunction(
+                QString(Tr::tr("Starting Container: %1")).arg(process.commandLine().toUserOutput()));
+        });
+    };
+
+    const auto unpause = [instanceConfig] {
+        return ProcessTask([instanceConfig](Process &process) {
+            connectProcessToLog(process, instanceConfig, Tr::tr("Resume Container"));
+
+            CommandLine
+                startCmdLine{instanceConfig.dockerCli, {"unpause", containerName(instanceConfig)}};
+            process.setCommand(startCmdLine);
+            process.setWorkingDirectory(instanceConfig.workspaceFolder);
+
+            instanceConfig.logFunction(
+                QString(Tr::tr("Resuming Container: %1")).arg(process.commandLine().toUserOutput()));
+        });
+    };
+
+    Storage<QString> containerStateStorage;
+
+    const auto readyToStart = [containerStateStorage] {
+        return (*containerStateStorage == "created" || *containerStateStorage == "exited")
+                   ? DoneResult::Success
+                   : DoneResult::Error;
+    };
+    const auto paused = [containerStateStorage] {
+        return *containerStateStorage == "paused" ? DoneResult::Success : DoneResult::Error;
+    };
+
+    // clang-format off
+    return Group
+    {
+        containerStateStorage,
+        containerState(instanceConfig, containerStateStorage),
+        Group {
+            If (readyToStart) >> Then {
+                When (eventMonitor("start", instanceConfig), &Process::started) >> Do {
+                    start()
+                }
+            } >> ElseIf (paused) >> Then {
+                When (eventMonitor("unpause", instanceConfig), &Process::started) >> Do {
+                    unpause()
+                }
+            }
+        },
+    };
+    // clang-format on
+}
+
 static Result<Group> prepareContainerRecipe(
     const DockerfileContainer &containerConfig,
     const DevContainerCommon &commonConfig,
@@ -989,16 +1121,6 @@ static Result<Group> prepareContainerRecipe(
     Storage<ContainerDetails> containerDetails;
     Storage<RunningContainerDetails> runningDetails;
 
-    const auto setupCreateContainer =
-        [commonConfig, containerConfig, instanceConfig, imageDetails](Process &process) {
-            setupCreateContainerFromImage(
-                containerConfig, commonConfig, instanceConfig, *imageDetails, process);
-        };
-
-    const auto setupStart = [instanceConfig](Process &process) {
-        setupStartContainer(instanceConfig, process);
-    };
-
     // clang-format off
     return Group {
         imageDetails,
@@ -1007,11 +1129,10 @@ static Result<Group> prepareContainerRecipe(
 
         ProcessTask(setupBuildImage),
         inspectImageTask(imageDetails, instanceConfig, imageName(instanceConfig)),
-        ProcessTask(setupCreateContainer),
+        createContainerRecipe(
+            imageDetails, containerConfig, commonConfig, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig),
-        When (eventMonitor(instanceConfig), &Process::started) >> Do {
-            ProcessTask(setupStart)
-        },
+        startContainerRecipe(instanceConfig),
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
         runLifecycleHooksRecipe(commonConfig, instanceConfig),
     };
@@ -1065,27 +1186,15 @@ static Result<Group> prepareContainerRecipe(
     Storage<ContainerDetails> containerDetails;
     Storage<RunningContainerDetails> runningDetails;
 
-    const auto setupCreateContainer =
-        [commonConfig, imageConfig, instanceConfig, imageDetails](Process &process) {
-            setupCreateContainerFromImage(
-                imageConfig, commonConfig, instanceConfig, *imageDetails, process);
-        };
-
-    const auto setupStart = [instanceConfig](Process &process) {
-        setupStartContainer(instanceConfig, process);
-    };
-
     // clang-format off
     return Group {
         imageDetails,
         containerDetails,
         runningDetails,
         prepareDockerImageRecipe(imageDetails, imageConfig, instanceConfig),
-        ProcessTask(setupCreateContainer),
+        createContainerRecipe(imageDetails, imageConfig, commonConfig, instanceConfig),
         inspectContainerTask(containerDetails, instanceConfig),
-        When (eventMonitor(instanceConfig), &Process::started) >> Do {
-            ProcessTask(setupStart)
-        },
+        startContainerRecipe(instanceConfig),
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
         runLifecycleHooksRecipe(commonConfig, instanceConfig),
     };
