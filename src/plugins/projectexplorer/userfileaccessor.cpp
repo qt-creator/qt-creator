@@ -23,8 +23,12 @@ using KeyVariantPair = std::pair<const Key, QVariant>;
 
 static QString userFileExtension()
 {
-    const QString ext = Utils::appInfo().userFileExtension;
-    return ext.isEmpty() ? QLatin1String(".user") : ext;
+    static const QString qtcExt = qtcEnvironmentVariable("QTC_EXTENSION");
+    if (!qtcExt.isEmpty())
+        return qtcExt;
+    if (!Utils::appInfo().userFileExtension.isEmpty())
+        return Utils::appInfo().userFileExtension;
+    return ".user";
 }
 
 namespace {
@@ -259,16 +263,12 @@ QVariant UserFileAccessor::retrieveSharedSettings() const
 
 FilePath UserFileAccessor::projectUserFile() const
 {
-    static const QString qtcExt = qtcEnvironmentVariable("QTC_EXTENSION");
-    return m_project->projectFilePath().stringAppended(
-        generateSuffix(qtcExt.isEmpty() ? userFileExtension() : qtcExt));
+    return m_project->projectFilePath().stringAppended(generateSuffix(userFileExtension()));
 }
 
 FilePath UserFileAccessor::externalUserFile() const
 {
-    static const QString qtcExt = qtcEnvironmentVariable("QTC_EXTENSION");
-    return externalUserFilePath(m_project->projectFilePath(),
-                                generateSuffix(qtcExt.isEmpty() ? userFileExtension() : qtcExt));
+    return externalUserFilePath(m_project->projectFilePath(), generateSuffix(userFileExtension()));
 }
 
 FilePath UserFileAccessor::sharedFile() const
