@@ -978,6 +978,14 @@ void PropertyEditorView::modelAttached(Model *model)
                                                                != -1);
 }
 
+static PropertyEditorValue *variantToPropertyEditorValue(const QVariant &value)
+{
+    if (value.typeId() == QMetaType::QObjectStar || value.typeId() > QMetaType::User)
+        return qobject_cast<PropertyEditorValue *>(*(QObject **)value.constData());
+
+    return nullptr;
+}
+
 void PropertyEditorView::modelAboutToBeDetached(Model *model)
 {
     NanotraceHR::Tracer tracer{"property editor view model about to be detached", category()};
@@ -987,6 +995,16 @@ void PropertyEditorView::modelAboutToBeDetached(Model *model)
 
     resetView();
     m_dynamicPropertiesModel->reset();
+
+    for (PropertyEditorQmlBackend *qmlBackend : std::as_const(m_qmlBackendHash)) {
+        const QStringList propNames = qmlBackend->backendValuesPropertyMap().keys();
+        for (const QString &propName : propNames) {
+            if (PropertyEditorValue *valueObject = variantToPropertyEditorValue(
+                    qmlBackend->backendValuesPropertyMap().value(propName))) {
+                valueObject->resetMetaInfo();
+            }
+        }
+    }
 }
 
 void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)

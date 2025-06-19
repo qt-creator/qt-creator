@@ -694,6 +694,12 @@ void PropertyEditorValue::registerDeclarativeTypes()
     qmlRegisterType<QQmlPropertyMap>("HelperWidgets", 2, 0, "QQmlPropertyMap");
 }
 
+void PropertyEditorValue::resetMetaInfo()
+{
+    m_propertyType = {};
+    m_propertyMetaInfo = {};
+}
+
 PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue *parent)
     : QObject(parent),
       m_valuesPropertyMap(this)

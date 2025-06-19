@@ -158,6 +158,7 @@ public:
                                  const PropertyMetaInfo &propertyMetaInfo = {});
 
     NodeMetaInfo propertyType() const { return m_propertyType; }
+    void resetMetaInfo();
 
     PropertyEditorNodeWrapper *complexNode();
 
