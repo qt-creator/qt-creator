@@ -52,12 +52,10 @@
 #include "kitmanager.h"
 #include "ldparser.h"
 #include "miniprojecttargetselector.h"
-#include "outputparser_test.h"
 #include "parseissuesdialog.h"
 #include "processstep.h"
 #include "project.h"
 #include "projectcommentssettings.h"
-#include "projectexplorer_test.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
@@ -99,7 +97,6 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileutils.h>
-#include <coreplugin/findplaceholder.h>
 #include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -118,13 +115,11 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
 
 #include <texteditor/findinfiles.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <utils/action.h>
 #include <utils/algorithm.h>
@@ -132,7 +127,6 @@
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
-#include <utils/processhandle.h>
 #include <utils/processinterface.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
@@ -165,6 +159,12 @@
 #include <memory>
 #include <utility>
 #include <vector>
+
+#ifdef WITH_TESTS
+#include "jsonwizard/jsonwizard_test.h"
+#include "outputparser_test.h"
+#include "projectexplorer_test.h"
+#endif
 
 /*!
     \namespace ProjectExplorer
@@ -800,6 +800,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTest<ProjectExplorerTest>();
     addTestCreator(createOutputParserTest);
     addTestCreator(createLdOutputParserTest);
+    addTestCreator(createJsonWizardTest);
 #endif
 
     setupGccToolchains();

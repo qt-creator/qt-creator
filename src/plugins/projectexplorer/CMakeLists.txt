@@ -202,7 +202,7 @@ extend_qtc_plugin(ProjectExplorer
 extend_qtc_plugin(ProjectExplorer
   CONDITION WITH_TESTS
   SOURCES
-    jsonwizard/jsonwizard_test.cpp
+    jsonwizard/jsonwizard_test.cpp jsonwizard/jsonwizard_test.h
     outputparser_test.cpp outputparser_test.h
 )
 
