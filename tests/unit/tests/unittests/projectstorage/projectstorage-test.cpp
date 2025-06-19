@@ -4677,7 +4677,7 @@ TEST_F(ProjectStorage, update_aliases_after_change_property_to_alias)
                                          "objects"))))));
 }
 
-TEST_F(ProjectStorage, check_for_proto_type_cycle_throws)
+TEST_F(ProjectStorage, check_for_alias_type_cycle_throws)
 {
     auto package{createSynchronizationPackageWithRecursiveAliases()};
     package.types[1].propertyDeclarations.clear();
@@ -4688,7 +4688,7 @@ TEST_F(ProjectStorage, check_for_proto_type_cycle_throws)
     ASSERT_THROW(storage.synchronize(package), QmlDesigner::AliasChainCycle);
 }
 
-TEST_F(ProjectStorage, check_for_proto_type_cycle_after_update_throws)
+TEST_F(ProjectStorage, check_for_alias_type_cycle_after_update_throws)
 {
     auto package{createSynchronizationPackageWithRecursiveAliases()};
     storage.synchronize(package);
@@ -4700,6 +4700,21 @@ TEST_F(ProjectStorage, check_for_proto_type_cycle_after_update_throws)
     ASSERT_THROW(storage.synchronize(
                      SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
                  QmlDesigner::AliasChainCycle);
+}
+
+TEST_F(ProjectStorage, check_for_alias_type_cycle_after_update_notifies_about_error)
+{
+    auto package{createSynchronizationPackageWithRecursiveAliases()};
+    storage.synchronize(package);
+    package.types[1].propertyDeclarations.clear();
+    package.types[1].propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
+        "objects", Storage::Synchronization::ImportedType{"AliasItem2"}, "objects"});
+    importsSourceId2.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId2);
+
+    EXPECT_CALL(errorNotifierMock, aliasCycle(Eq("QObject"), Eq("objects"), sourceId2));
+
+    EXPECT_ANY_THROW(storage.synchronize(
+        SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}));
 }
 
 TEST_F(ProjectStorage, qualified_prototype)

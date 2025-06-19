@@ -786,6 +786,12 @@ struct ProjectStorage::Statements
         "FROM propertyDeclarations "
         "WHERE propertyDeclarationId=?1 LIMIT 1",
         database};
+    mutable Sqlite::ReadStatement<2, 1> selectPropertyDeclarationNameAndTypeIdForPropertyDeclarationIdStatement{
+        "SELECT name, typeId "
+        "FROM propertyDeclarations "
+        "WHERE propertyDeclarationId=?1 "
+        "LIMIT 1",
+        database};
     mutable Sqlite::ReadStatement<1, 1> selectSignalDeclarationNamesForTypeStatement{
         "WITH RECURSIVE "
         "  prototypes(typeId) AS ( "
@@ -4447,9 +4453,17 @@ void ProjectStorage::checkForAliasChainCycle(PropertyDeclarationId propertyDecla
     NanotraceHR::Tracer tracer{"check for alias chain cycle",
                                category(),
                                keyValue("property declaration id", propertyDeclarationId)};
-    auto callback = [=](PropertyDeclarationId currentPropertyDeclarationId) {
-        if (propertyDeclarationId == currentPropertyDeclarationId)
+    auto callback = [&](PropertyDeclarationId currentPropertyDeclarationId) {
+        if (propertyDeclarationId == currentPropertyDeclarationId) {
+            auto [propertyName, typeId] = s->selectPropertyDeclarationNameAndTypeIdForPropertyDeclarationIdStatement
+                                              .value<std::tuple<Utils::SmallString, TypeId>>(
+                                                  propertyDeclarationId);
+            auto [typeName, sourceId] = s->selectTypeNameAndSourceIdByTypeIdStatement
+                                            .value<std::tuple<Utils::SmallString, SourceId>>(typeId);
+            errorNotifier->aliasCycle(typeName, propertyName, sourceId);
+
             throw AliasChainCycle{};
+        }
     };
 
     s->selectPropertyDeclarationIdsForAliasChainStatement.readCallback(callback,

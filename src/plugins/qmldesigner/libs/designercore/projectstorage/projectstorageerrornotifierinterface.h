@@ -33,6 +33,10 @@ public:
 
     virtual void qmltypesFileMissing(QStringView qmltypesPath) = 0;
     virtual void prototypeCycle(Utils::SmallStringView typeName, SourceId typeSourceId) = 0;
+    virtual void aliasCycle(Utils::SmallStringView typeName,
+                            Utils::SmallStringView propertyName,
+                            SourceId typeSourceId)
+        = 0;
 
 protected:
     ~ProjectStorageErrorNotifierInterface() = default;

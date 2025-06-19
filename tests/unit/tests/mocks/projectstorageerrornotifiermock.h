@@ -37,4 +37,10 @@ public:
                 prototypeCycle,
                 (Utils::SmallStringView typeName, QmlDesigner::SourceId typeSourceId),
                 (override));
+    MOCK_METHOD(void,
+                aliasCycle,
+                (Utils::SmallStringView typeName,
+                 Utils::SmallStringView propertyName,
+                 QmlDesigner::SourceId typeSourceId),
+                (override));
 };

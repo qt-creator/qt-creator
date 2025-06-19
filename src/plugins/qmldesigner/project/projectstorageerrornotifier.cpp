@@ -98,4 +98,18 @@ void ProjectStorageErrorNotifier::prototypeCycle(Utils::SmallStringView typeName
              m_pathCache.sourcePath(typeSourceId));
 }
 
+void ProjectStorageErrorNotifier::aliasCycle(Utils::SmallStringView typeName,
+                                             Utils::SmallStringView propertyName,
+                                             SourceId typeSourceId)
+{
+    const QString typeNameString{typeName};
+    const QString propertyNameString{propertyName};
+
+    logIssue(ProjectExplorer::Task::Error,
+             Tr::tr("Alias cycle detected for type %1 and property %2 in %3.")
+                 .arg(typeNameString)
+                 .arg(propertyNameString),
+             m_pathCache.sourcePath(typeSourceId));
+}
+
 } // namespace QmlDesigner
