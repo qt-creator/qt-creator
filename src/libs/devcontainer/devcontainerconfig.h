@@ -48,8 +48,8 @@ enum class OnAutoForward { Notify, OpenBrowser, OpenBrowserOnce, OpenPreview, Si
 enum class MountType { Bind, Volume };
 
 // Command can be string, array, or object of commands
-using Command
-    = std::variant<QString, QStringList, std::map<QString, std::variant<QString, QStringList>>>;
+using CommandMap = std::map<QString, std::variant<QString, QStringList>>;
+using Command = std::variant<QString, QStringList, CommandMap>;
 
 // Port attributes structure
 struct PortAttributes

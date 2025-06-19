@@ -195,14 +195,22 @@ static void connectProcessToLog(
     process.setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
     QObject::connect(
         &process, &Process::textOnStandardOutput, [instanceConfig, context](const QString &text) {
-            for (const auto &line : text.split('\n'))
-                instanceConfig.logFunction(QString("[%1] %2").arg(context).arg(line.trimmed()));
+            for (const auto &line : text.split('\n')) {
+                if (context.isEmpty())
+                    instanceConfig.logFunction(line.trimmed());
+                else
+                    instanceConfig.logFunction(QString("[%1] %2").arg(context).arg(line.trimmed()));
+            }
         });
 
     QObject::connect(
         &process, &Process::textOnStandardError, [instanceConfig, context](const QString &text) {
-            for (const auto &line : text.split('\n'))
-                instanceConfig.logFunction(QString("[%1] %2").arg(context).arg(line.trimmed()));
+            for (const auto &line : text.split('\n')) {
+                if (context.isEmpty())
+                    instanceConfig.logFunction(line.trimmed());
+                else
+                    instanceConfig.logFunction(QString("[%1] %2").arg(context).arg(line.trimmed()));
+            }
         });
 }
 
@@ -805,6 +813,150 @@ static ExecutableItem runningContainerDetailsTask(
     return Group{idTask, shellTask, probeUserEnvTask(runningDetails, commonConfig, instanceConfig)};
 }
 
+static ProcessTask lifecycleHookTask(
+    const CommandLine &cmdLine, const InstanceConfig &instanceConfig, const QString &name)
+{
+    return ProcessTask([cmdLine, instanceConfig, name](Process &process) {
+        connectProcessToLog(process, instanceConfig, name);
+        process.setCommand(cmdLine);
+        process.setWorkingDirectory(instanceConfig.workspaceFolder);
+    });
+}
+
+static ExecutableItem singleCommandLifecycleRecipe(
+    const InstanceConfig &instanceConfig,
+    const QString &command,
+    std::optional<CommandLine> dockerExecCmd,
+    const QString &name = {})
+{
+    if (command.isEmpty())
+        return Group{};
+
+    // If dockerExecCmd is provided, we execute the command in the container using a shell.
+    // If not, we execute the command through a host shell.
+    static const CommandLine hostShell = HostOsInfo::isWindowsHost()
+                                             ? CommandLine{"cmd.exe", {"/c"}}
+                                             : CommandLine{"/bin/sh", {"-c"}};
+
+    // We either execute the command in a shell running on the host ...
+    CommandLine cmdLine = dockerExecCmd.value_or(hostShell);
+
+    if (dockerExecCmd) // ... or inside the container, in a shell.
+        cmdLine.addArgs({"/bin/sh", "-c"});
+
+    cmdLine.addArg(command);
+
+    return lifecycleHookTask(cmdLine, instanceConfig, name);
+}
+
+static ExecutableItem singleCommandLifecycleRecipe(
+    const InstanceConfig &instanceConfig,
+    const QStringList &command,
+    std::optional<CommandLine> dockerExecCmd,
+    const QString &name = {})
+{
+    if (command.isEmpty())
+        return Group{};
+
+    const CommandLine cmdLineFromList
+        = CommandLine(FilePath::fromUserInput(command[0]), command.mid(1));
+
+    CommandLine cmdLine;
+    if (dockerExecCmd) {
+        cmdLine = *dockerExecCmd;
+        cmdLine.addCommandLineAsArgs(cmdLineFromList);
+    } else {
+        cmdLine = cmdLineFromList;
+    }
+
+    return lifecycleHookTask(cmdLine, instanceConfig, name);
+}
+
+static ExecutableItem singleCommandLifecycleRecipe(
+    const InstanceConfig &instanceConfig,
+    std::variant<QString, QStringList> command,
+    std::optional<CommandLine> dockerExecCmd,
+    const QString &name = {})
+{
+    // https://containers.dev/implementors/json_reference/#formatting-string-vs-array-properties
+    // * If the command is a QString, it is executed through a shell.
+    // * If its a QStringList, it is executed directly without a shell.
+
+    return std::visit(
+        overloaded{
+            [&](const QString &cmd) {
+                return singleCommandLifecycleRecipe(instanceConfig, cmd, dockerExecCmd, name);
+            },
+            [&](const QStringList &cmd) {
+                return singleCommandLifecycleRecipe(instanceConfig, cmd, dockerExecCmd, name);
+            }},
+        command);
+}
+
+static ExecutableItem lifecycleHookRecipe(
+    const QString &hookName,
+    const InstanceConfig &instanceConfig,
+    std::optional<Command> command,
+    std::optional<CommandLine> dockerExecCmd = std::nullopt)
+{
+    if (!command)
+        return Group{};
+
+    auto logExecution = Sync([instanceConfig, hookName] {
+        instanceConfig.logFunction(QString("Executing the %1 hook from %2")
+                                       .arg(hookName)
+                                       .arg(instanceConfig.configFilePath.fileName()));
+    });
+
+    const QList<GroupItem> cmds = std::visit(
+        overloaded{
+            [&](const QString &cmd) -> GroupItems {
+                return {singleCommandLifecycleRecipe(instanceConfig, cmd, dockerExecCmd, hookName)};
+            },
+            [&](const QStringList &cmd) -> GroupItems {
+                return {singleCommandLifecycleRecipe(instanceConfig, cmd, dockerExecCmd, hookName)};
+            },
+            [&](const CommandMap &map) {
+                GroupItems commands;
+                for (const auto &[name, cmd] : map) {
+                    commands.push_back(
+                        singleCommandLifecycleRecipe(instanceConfig, cmd, dockerExecCmd, name));
+                }
+                return commands;
+            }},
+        *command);
+
+    return Group{logExecution, Group{parallelIdealThreadCountLimit, cmds}};
+}
+
+static ExecutableItem runLifecycleHooksRecipe(
+    DevContainerCommon commonConfig, const InstanceConfig &instanceConfig)
+{
+    const CommandLine dockerExecPrefix
+        = CommandLine{instanceConfig.dockerCli, {"exec", containerName(instanceConfig)}};
+
+    struct Cmd
+    {
+        const QString name;
+        const std::optional<Command> command;
+    };
+    const QList<Cmd> lifecycleHooks
+        = {{"onCreateCommand", commonConfig.onCreateCommand},
+           {"updateContentCommand", commonConfig.updateContentCommand},
+           {"postCreateCommand", commonConfig.postCreateCommand},
+           {"postStartCommand", commonConfig.postStartCommand},
+           {"postAttachCommand", commonConfig.postAttachCommand}};
+
+    GroupItems remoteItems = Utils::transform(lifecycleHooks, [&](const Cmd &hook) -> GroupItem {
+        return lifecycleHookRecipe(hook.name, instanceConfig, hook.command, dockerExecPrefix);
+    });
+
+    GroupItems localItems = {
+        lifecycleHookRecipe("initializeCommand", instanceConfig, commonConfig.initializeCommand)};
+
+    return Group(localItems + remoteItems);
+}
+
 static Result<Group> prepareContainerRecipe(
     const DockerfileContainer &containerConfig,
     const DevContainerCommon &commonConfig,
@@ -858,6 +1010,7 @@ static Result<Group> prepareContainerRecipe(
             ProcessTask(setupStart)
         },
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
+        runLifecycleHooksRecipe(commonConfig, instanceConfig),
     };
     // clang-format on
 }
@@ -931,6 +1084,7 @@ static Result<Group> prepareContainerRecipe(
             ProcessTask(setupStart)
         },
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
+        runLifecycleHooksRecipe(commonConfig, instanceConfig),
     };
     // clang-format on
 }

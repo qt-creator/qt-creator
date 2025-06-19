@@ -84,7 +84,7 @@ Command parseCommand(const QJsonValue &value)
 
     if (value.isObject()) {
         QJsonObject commandObj = value.toObject();
-        std::map<QString, std::variant<QString, QStringList>> commandMap;
+        CommandMap commandMap;
 
         for (auto it = commandObj.begin(); it != commandObj.end(); ++it)
             commandMap[it.key()] = parseStringOrList(it.value());
@@ -850,7 +850,7 @@ QDebug operator<<(QDebug debug, const DevContainer::Command &cmd)
         return debug << "Command(array=" << std::get<QStringList>(cmd) << ")";
 
     debug << "Command(parallel={";
-    const auto &map = std::get<std::map<QString, std::variant<QString, QStringList>>>(cmd);
+    const auto &map = std::get<CommandMap>(cmd);
     bool first = true;
 
     for (const auto &[key, val] : map) {

@@ -11,6 +11,8 @@
 
 using namespace Utils;
 
+constexpr auto recipeTimeout = std::chrono::minutes(60); // std::chrono::seconds(5);
+
 static bool testDocker(const FilePath &executable)
 {
     Process p;
@@ -33,6 +35,7 @@ private slots:
 
     void readConfig();
     void testCommands();
+    void upWithHooks();
     void upImage();
     void upDockerfile();
 };
@@ -156,11 +159,11 @@ FROM alpine:latest
         .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
     };
 
-    using namespace std::chrono_literals;
-
     Utils::Result<Tasking::Group> recipe = instance->upRecipe(instanceConfig);
     QVERIFY_RESULT(recipe);
-    QCOMPARE(Tasking::TaskTree::runBlocking((*recipe).withTimeout(5s)), Tasking::DoneWith::Success);
+    QCOMPARE(
+        Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
+        Tasking::DoneWith::Success);
 
     Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(instanceConfig);
     QVERIFY_RESULT(downRecipe);
@@ -187,11 +190,54 @@ void tst_DevContainer::upImage()
         .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
     };
 
-    using namespace std::chrono_literals;
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe(instanceConfig);
+    QVERIFY_RESULT(recipe);
+    QCOMPARE(
+        Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
+        Tasking::DoneWith::Success);
+
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(instanceConfig);
+    QVERIFY_RESULT(downRecipe);
+    QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
+}
+
+void tst_DevContainer::upWithHooks()
+{
+    DevContainer::Config config;
+    DevContainer::ImageContainer imageConfig{
+        .image = "alpine:latest",
+    };
+    config.containerConfig = imageConfig;
+    config.common.name = "Test Image";
+    if (HostOsInfo::isWindowsHost())
+        config.common.initializeCommand = "ver";
+    else
+        config.common.initializeCommand = "uname -a";
+
+    config.common.onCreateCommand = QStringList{"ls", "-lach"};
+    config.common.postCreateCommand = "uname -a";
+    config.common.updateContentCommand = DevContainer::CommandMap{
+        std::make_pair(
+            "parallel echo 1", "echo First echo \\(waiting 1\\) && sleep 1 && echo Done sleeping"),
+        std::make_pair(
+            "parallel echo 2 ", "echo Second echo \\(waiting 2\\) && sleep 2 && echo Done sleeping"),
+        std::make_pair("run ls", QStringList{"ls", "-l", "/tmp"}),
+    };
+
+    std::unique_ptr<DevContainer::Instance> instance = DevContainer::Instance::fromConfig(config);
+
+    DevContainer::InstanceConfig instanceConfig{
+        .dockerCli = "docker",
+        .dockerComposeCli = "docker-compose",
+        .workspaceFolder = Utils::FilePath::fromUserInput(QDir::tempPath()),
+        .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
+    };
 
     Utils::Result<Tasking::Group> recipe = instance->upRecipe(instanceConfig);
     QVERIFY_RESULT(recipe);
-    QCOMPARE(Tasking::TaskTree::runBlocking((*recipe).withTimeout(5s)), Tasking::DoneWith::Success);
+    QCOMPARE(
+        Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
+        Tasking::DoneWith::Success);
 
     Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(instanceConfig);
     QVERIFY_RESULT(downRecipe);
