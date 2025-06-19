@@ -637,7 +637,7 @@ void LanguageClientManager::documentOpenedForProject(
     const Utils::FilePath &filePath = textDocument->filePath();
     for (Project *project : ProjectManager::projects()) {
         // check whether file is part of this project
-        if (!project->isKnownFile(filePath))
+        if (!project->isKnownFile(filePath) && !filePath.isChildOf(project->projectDirectory()))
             continue;
         for (Target *target : project->targets()) {
             bool activateDocument = project->activeTarget() == target;
