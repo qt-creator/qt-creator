@@ -12,8 +12,6 @@ namespace Internal {
 
 class ShowOutputTaskHandler : public ITaskHandler
 {
-    Q_OBJECT
-
 public:
     explicit ShowOutputTaskHandler(Core::IOutputPane *window, const QString &text,
                                    const QString &tooltip, const QString &shortcut);
