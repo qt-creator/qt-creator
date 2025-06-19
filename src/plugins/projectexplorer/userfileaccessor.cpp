@@ -92,23 +92,6 @@ public:
 
 } // namespace
 
-//
-// Helper functions:
-//
-
-QT_BEGIN_NAMESPACE
-
-class HandlerNode
-{
-public:
-    QSet<QString> strings;
-    QHash<QString, HandlerNode> children;
-};
-
-Q_DECLARE_TYPEINFO(HandlerNode, Q_MOVABLE_TYPE);
-
-QT_END_NAMESPACE
-
 // --------------------------------------------------------------------
 // Helpers:
 // --------------------------------------------------------------------
