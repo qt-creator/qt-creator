@@ -642,7 +642,8 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
     QList<Client *> allClients;
     for (BaseSettings *setting : settings) {
         QList<Client *> clients = clientsForSetting(setting);
-        if (setting->m_startBehavior == BaseSettings::RequiresProject) {
+        switch (setting->m_startBehavior) {
+        case BaseSettings::RequiresProject: {
             const Utils::FilePath &filePath = document->filePath();
             for (Project *project : ProjectManager::projects()) {
                 // check whether file is part of this project
@@ -675,9 +676,18 @@ void LanguageClientManager::documentOpened(Core::IDocument *document)
                     }
                 }
             }
-        } else if (setting->m_startBehavior == BaseSettings::RequiresFile && clients.isEmpty()) {
-            if (Client *client = startClient(setting); QTC_GUARD(client))
-                clients << client;
+            break;
+        }
+        case BaseSettings::RequiresFile: {
+            if (clients.isEmpty()) {
+                if (Client *client = startClient(setting); QTC_GUARD(client))
+                    clients << client;
+            }
+            break;
+        }
+        case BaseSettings::AlwaysOn:
+        case BaseSettings::LastSentinel:
+            break;
         }
         allClients << clients;
     }
