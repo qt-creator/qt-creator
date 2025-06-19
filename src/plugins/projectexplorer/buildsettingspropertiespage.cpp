@@ -190,8 +190,11 @@ void BuildSettingsWidget::updateBuildSettings()
     m_renameButton->setEnabled(!bcs.isEmpty());
     m_cloneButton->setEnabled(!bcs.isEmpty());
 
-    if (m_buildConfiguration)
-        m_buildConfiguration->addConfigWidgets([this](QWidget *w) { addSubWidget(w); });
+    if (m_buildConfiguration) {
+        const QList<QWidget *> configWidgets = m_buildConfiguration->createConfigWidgets();
+        for (QWidget *widget : configWidgets)
+            addSubWidget(widget);
+    }
 }
 
 void BuildSettingsWidget::currentIndexChanged(int index)

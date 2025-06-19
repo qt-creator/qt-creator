@@ -376,7 +376,7 @@ public:
     IosQmakeBuildConfiguration(Target *target, Id id);
 
 private:
-    void addSubConfigWidgets(const BuildConfiguration::WidgetAdder &adder) final;
+    QList<QWidget *> createSubConfigWidgets() final;
     void fromMap(const Store &map) final;
 
     void updateQmakeCommand();
@@ -403,11 +403,15 @@ IosQmakeBuildConfiguration::IosQmakeBuildConfiguration(Target *target, Id id)
             &IosQmakeBuildConfiguration::updateQmakeCommand);
 }
 
-void IosQmakeBuildConfiguration::addSubConfigWidgets(const BuildConfiguration::WidgetAdder &adder)
+QList<QWidget *> IosQmakeBuildConfiguration::createSubConfigWidgets()
 {
+    QList<QWidget *> result;
+
     // Ownership of this widget is with BuildSettingsWidget
-    adder(new IosSigningSettingsWidget(this, &m_autoManagedSigning, &m_signingIdentifier));
-    QmakeBuildConfiguration::addSubConfigWidgets(adder);
+    result.append(new IosSigningSettingsWidget(this, &m_autoManagedSigning, &m_signingIdentifier));
+    result.append(QmakeBuildConfiguration::createSubConfigWidgets());
+
+    return result;
 }
 
 void IosQmakeBuildConfiguration::fromMap(const Store &map)
@@ -488,7 +492,7 @@ public:
     IosCMakeBuildConfiguration(Target *target, Id id);
 
 private:
-    void addSubConfigWidgets(const BuildConfiguration::WidgetAdder &adder) final;
+    QList<QWidget *> createSubConfigWidgets() final;
 
     CMakeProjectManager::CMakeConfig signingFlags() const final;
 
@@ -514,11 +518,15 @@ IosCMakeBuildConfiguration::IosCMakeBuildConfiguration(Target *target, Id id)
             &IosCMakeBuildConfiguration::signingFlagsChanged);
 }
 
-void IosCMakeBuildConfiguration::addSubConfigWidgets(const WidgetAdder &adder)
+QList<QWidget *> IosCMakeBuildConfiguration::createSubConfigWidgets()
 {
+    QList<QWidget *> result;
+
     // Ownership of this widget is with BuildSettingsWidget
-    adder(new IosSigningSettingsWidget(this, &m_autoManagedSigning, &m_signingIdentifier));
-    CMakeBuildConfiguration::addSubConfigWidgets(adder);
+    result.append(new IosSigningSettingsWidget(this, &m_autoManagedSigning, &m_signingIdentifier));
+    result.append(CMakeBuildConfiguration::createSubConfigWidgets());
+
+    return result;
 }
 
 CMakeConfig IosCMakeBuildConfiguration::signingFlags() const

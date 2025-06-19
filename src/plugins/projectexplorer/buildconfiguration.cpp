@@ -300,17 +300,28 @@ void BuildConfiguration::setBuildDirectory(const FilePath &dir)
     emitBuildDirectoryChanged();
 }
 
-void BuildConfiguration::addConfigWidgets(const WidgetAdder &adder)
+QList<QWidget *> BuildConfiguration::createConfigWidgets()
 {
+    QList<QWidget *> result;
     if (QWidget *generalConfigWidget = createConfigWidget()) {
         generalConfigWidget->setWindowTitle(d->m_configWidgetDisplayName);
-        adder(generalConfigWidget);
+        result.append(generalConfigWidget);
     }
 
-    adder(new Internal::BuildStepListWidget(buildSteps()));
-    adder(new Internal::BuildStepListWidget(cleanSteps()));
+    result.append(new Internal::BuildStepListWidget(buildSteps()));
+    result.append(new Internal::BuildStepListWidget(cleanSteps()));
 
-    addSubConfigWidgets(adder);
+    result.append(createSubConfigWidgets());
+
+    return result;
+}
+
+QList<QWidget *> BuildConfiguration::createSubConfigWidgets()
+{
+    return {
+        new Internal::BuildEnvironmentWidget(this),
+        new Internal::CustomParsersBuildWidget(this)
+    };
 }
 
 void BuildConfiguration::doInitialize(const BuildInfo &info)
@@ -493,12 +504,6 @@ QWidget *BuildConfiguration::createConfigWidget()
     form.attachTo(widget);
 
     return named;
-}
-
-void BuildConfiguration::addSubConfigWidgets(const WidgetAdder &adder)
-{
-    adder(new Internal::BuildEnvironmentWidget(this));
-    adder(new Internal::CustomParsersBuildWidget(this));
 }
 
 BuildSystem *BuildConfiguration::buildSystem() const

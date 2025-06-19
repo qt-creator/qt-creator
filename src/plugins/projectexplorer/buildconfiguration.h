@@ -46,11 +46,7 @@ public:
 
     BuildSystem *buildSystem() const;
 
-    virtual QWidget *createConfigWidget();
-
-    using WidgetAdder = std::function<void(QWidget *)>;
-    void addConfigWidgets(const WidgetAdder &adder);
-    virtual void addSubConfigWidgets(const WidgetAdder &adder);
+    QList<QWidget *> createConfigWidgets();
 
     // Maybe the BuildConfiguration is not the best place for the environment
     Utils::Environment baseEnvironment() const;
@@ -175,6 +171,9 @@ signals:
 
 protected:
     void setInitializer(const std::function<void(const BuildInfo &info)> &initializer);
+
+    virtual QWidget *createConfigWidget();
+    virtual QList<QWidget *> createSubConfigWidgets();
 
 private:
     bool addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations);
