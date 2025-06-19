@@ -68,7 +68,7 @@ public:
     void setIncludePaths(const QStringList &includePaths);
     void setPreCompiledHeaders(const Utils::FilePaths &preCompiledHeaders);
     void setPreCompiledHeaders(const QStringList &preCompiledHeaders);
-    void setIncludedFiles(const QStringList &files);
+    void setIncludedFiles(const Utils::FilePaths &files);
 
     void setBuildSystemTarget(const QString &target);
     void setBuildTargetType(BuildTargetType type);

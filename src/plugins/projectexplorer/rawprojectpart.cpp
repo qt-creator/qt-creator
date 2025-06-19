@@ -128,9 +128,9 @@ void RawProjectPart::setPreCompiledHeaders(const QStringList &preCompiledHeaders
     this->precompiledHeaders = preCompiledHeaders;
 }
 
-void RawProjectPart::setIncludedFiles(const QStringList &files)
+void RawProjectPart::setIncludedFiles(const FilePaths &files)
 {
-     includedFiles = files;
+     includedFiles = Utils::transform(files, &FilePath::toFSPathString);
 }
 
 void RawProjectPart::setSelectedForBuilding(bool yesno)

@@ -1022,7 +1022,7 @@ static RawProjectPart generateProjectPart(
     rpp.setPreCompiledHeaders(Utils::toList(pchFiles));
     rpp.setIncludedFiles(
         Utils::transform(arrayToStringList(props.value("cpp.prefixHeaders")), [&](const QString &f) {
-            return refFile.withNewPath(f).toUrlishString();
+            return refFile.withNewPath(f);
         }));
     rpp.setFiles(filePathToSourceArtifact.keys(), {},
                  [filePathToSourceArtifact](const QString &filePath) {
