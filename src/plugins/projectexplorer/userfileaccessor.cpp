@@ -3,25 +3,14 @@
 
 #include "userfileaccessor.h"
 
-#include "abi.h"
 #include "buildsystem.h"
-#include "devicesupport/devicemanager.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
-#include "toolchain.h"
-#include "toolchainmanager.h"
-#include "kit.h"
-#include "kitmanager.h"
 
-#include <coreplugin/icore.h>
-
+#include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/environment.h>
-#include <utils/hostosinfo.h>
-#include <utils/persistentsettings.h>
-#include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 #include <QGuiApplication>
 #include <QRegularExpression>
@@ -109,23 +98,19 @@ static QString generateSuffix(const QString &suffix)
 }
 
 // Return path to shared directory for .user files, create if necessary.
-static inline std::optional<QString> defineExternalUserFileDir()
+static inline std::optional<FilePath> defineExternalUserFileDir()
 {
     const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
     if (Q_LIKELY(!qtcEnvironmentVariableIsSet(userFilePathVariable)))
         return std::nullopt;
-    const QFileInfo fi(qtcEnvironmentVariable(userFilePathVariable));
-    const QString path = fi.absoluteFilePath();
-    if (fi.isDir() || fi.isSymLink())
-        return path;
-    if (fi.exists()) {
-        qWarning() << userFilePathVariable << '=' << QDir::toNativeSeparators(path)
-            << " points to an existing file";
+    const FilePath path = FilePath::fromUserInput(qtcEnvironmentVariable(userFilePathVariable));
+    if (path.isRelativePath()) {
+        qWarning().nospace() << "Ignoring " << userFilePathVariable
+                             << ", which must be an absolute path, but is " << path;
         return std::nullopt;
     }
-    QDir dir;
-    if (!dir.mkpath(path)) {
-        qWarning() << "Cannot create: " << QDir::toNativeSeparators(path);
+    if (const auto res = path.ensureWritableDir(); !res) {
+        qWarning() << res.error();
         return std::nullopt;
     }
     return path;
@@ -161,13 +146,12 @@ static QString makeRelative(QString path)
 // Return complete file path of the .user file.
 static FilePath externalUserFilePath(const Utils::FilePath &projectFilePath, const QString &suffix)
 {
-    static const std::optional<QString> externalUserFileDir = defineExternalUserFileDir();
+    static const std::optional<FilePath> externalUserFileDir = defineExternalUserFileDir();
 
     if (externalUserFileDir) {
         // Recreate the relative project file hierarchy under the shared directory.
-        // PersistentSettingsWriter::write() takes care of creating the path.
-        return FilePath::fromString(
-            *externalUserFileDir + '/' + makeRelative(projectFilePath.toUrlishString()) + suffix);
+        return externalUserFileDir->pathAppended(
+            makeRelative(projectFilePath.toUrlishString()) + suffix);
     }
     return {};
 }
