@@ -624,8 +624,8 @@ void PropertyEditorQmlBackend::setup(const ModelNodes &editorNodes,
                 m_backendModelNode.simplifiedTypeName(),
                 qmlObjectNode.modelNode());
 
-    insertValue("id"_L1, m_backendModelNode.nodeId());
-    insertValue("objectName"_L1, m_backendModelNode.nodeObjectName());
+    insertValue("id"_L1, m_backendModelNode.nodeId(), qmlObjectNode.modelNode());
+    insertValue("objectName"_L1, m_backendModelNode.nodeObjectName(), qmlObjectNode.modelNode());
 
     QmlItemNode itemNode(qmlObjectNode.modelNode());
 
