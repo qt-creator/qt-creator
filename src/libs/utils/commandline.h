@@ -115,6 +115,10 @@ public:
         ArgRef(const char *arg) : m_arg(arg) {}
         ArgRef(const QString &arg) : m_arg(arg) {}
         ArgRef(const QStringList &args) : m_arg(args) {}
+        ArgRef(const QString &arg, RawType)
+            : m_arg(arg)
+            , m_raw(true)
+        {}
         ArgRef(std::initializer_list<QString> args)
             : m_arg(QStringList(args))
         {}
@@ -127,6 +131,7 @@ public:
             std::reference_wrapper<const QStringList>,
             QStringList>
             m_arg;
+        bool m_raw = false;
     };
 
     explicit CommandLine(const FilePath &executable);
