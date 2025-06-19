@@ -396,9 +396,24 @@ inline bool operator&(IsFlow first, IsFlow second)
 struct TraceEventWithoutArguments;
 struct TraceEventWithArguments;
 
+class SpinLock
+{
+public:
+    void lock()
+    {
+        while (flag.test_and_set(std::memory_order_acquire)) {
+        }
+    }
+
+    void unlock() { flag.clear(std::memory_order_release); }
+
+private:
+    std::atomic_flag flag;
+};
+
 struct TaskWithArguments
 {
-    TaskWithArguments(std::unique_lock<std::mutex> lock,
+    TaskWithArguments(std::unique_lock<SpinLock> lock,
                       Utils::span<TraceEventWithArguments> data,
                       std::thread::id threadId)
         : lock{std::move(lock)}
@@ -406,14 +421,14 @@ struct TaskWithArguments
         , threadId{threadId}
     {}
 
-    std::unique_lock<std::mutex> lock;
+    std::unique_lock<SpinLock> lock;
     Utils::span<TraceEventWithArguments> data;
     std::thread::id threadId;
 };
 
 struct TaskWithoutArguments
 {
-    TaskWithoutArguments(std::unique_lock<std::mutex> lock,
+    TaskWithoutArguments(std::unique_lock<SpinLock> lock,
                          Utils::span<TraceEventWithoutArguments> data,
                          std::thread::id threadId)
         : lock{std::move(lock)}
@@ -421,20 +436,20 @@ struct TaskWithoutArguments
         , threadId{threadId}
     {}
 
-    std::unique_lock<std::mutex> lock;
+    std::unique_lock<SpinLock> lock;
     Utils::span<TraceEventWithoutArguments> data;
     std::thread::id threadId;
 };
 
 struct MetaData
 {
-    MetaData(std::unique_lock<std::mutex> lock, std::string key, std::string value)
+    MetaData(std::unique_lock<SpinLock> lock, std::string key, std::string value)
         : lock{std::move(lock)}
         , key{std::move(key)}
         , value{std::move(value)}
     {}
 
-    std::unique_lock<std::mutex> lock;
+    std::unique_lock<SpinLock> lock;
     std::string key;
     std::string value;
 };
@@ -646,7 +661,7 @@ public:
     TraceEventsSpan currentEvents;
     std::size_t eventsIndex = 0;
     IsEnabled isEnabled = IsEnabled::Yes;
-    std::mutex mutex;
+    SpinLock mutex;
     std::thread::id threadId;
 };
 
