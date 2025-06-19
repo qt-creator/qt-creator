@@ -156,6 +156,7 @@ public:
     void addCommandLineAsSingleArg(const CommandLine &cmd);
     void addCommandLineAsSingleArg(const CommandLine &cmd, OsType osType);
     void addCommandLineWithAnd(const CommandLine &cmd);
+    void addCommandLineWithOr(const CommandLine &cmd);
 
     QString toUserOutput() const;
     QString displayName() const;

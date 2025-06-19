@@ -1537,6 +1537,17 @@ void CommandLine::addCommandLineWithAnd(const CommandLine &cmd)
     addCommandLineAsArgs(cmd, Raw);
 }
 
+void CommandLine::addCommandLineWithOr(const CommandLine &cmd)
+{
+    if (m_executable.isEmpty()) {
+        *this = cmd;
+        return;
+    }
+
+    addArgs("||", Raw);
+    addCommandLineAsArgs(cmd, Raw);
+}
+
 void CommandLine::addArgs(const QString &inArgs, RawType)
 {
     ProcessArgs::addArgs(&m_arguments, inArgs);
