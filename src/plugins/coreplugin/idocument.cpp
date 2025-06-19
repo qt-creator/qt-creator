@@ -288,13 +288,10 @@ Id IDocument::id() const
     If the editor is opened from a regular file, \a filePath and \a
     filePath are the same.
 
-    Use \a errorString to return an error message if this document cannot
-    handle the file contents.
-
     Returns whether the file was opened and read successfully.
 
     The default implementation does nothing and returns
-    CannotHandle.
+    \c CannotHandle.
 
     \sa EditorManager::openEditor()
     \sa shouldAutoSave()

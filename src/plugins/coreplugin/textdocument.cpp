@@ -67,9 +67,6 @@ QByteArray BaseTextDocument::decodingErrorSample() const
     Writes out the contents (\a data) of the text file \a filePath.
     Uses the format obtained from the last read() of the file.
 
-    If an error occurs while writing the file, \a errorMessage is set to the
-    error details.
-
     Returns whether the operation was successful.
 */
 
@@ -81,9 +78,6 @@ Result<> BaseTextDocument::write(const FilePath &filePath, const QString &data) 
 /*!
     Writes out the contents (\a data) of the text file \a filePath.
     Uses the custom format \a format.
-
-    If an error occurs while writing the file, \a errorMessage is set to the
-    error details.
 
     Returns whether the operation was successful.
 */
@@ -123,9 +117,6 @@ bool BaseTextDocument::isUtf8Codec(const QByteArray &name)
     Autodetects file format and reads the text file specified by \a filePath
     into a list of strings specified by \a plainTextList.
 
-    If an error occurs while writing the file, \a errorString is set to the
-    error details.
-
     Returns whether the operation was successful.
 */
 
@@ -143,9 +134,6 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath,
 /*!
     Autodetects file format and reads the text file specified by \a filePath
     into \a plainText.
-
-    If an error occurs while writing the file, \a errorString is set to the
-    error details.
 
     Returns whether the operation was successful.
 */

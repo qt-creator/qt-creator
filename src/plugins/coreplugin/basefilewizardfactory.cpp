@@ -89,8 +89,7 @@ Wizard *BaseFileWizardFactory::runWizardImpl(const FilePath &path, Id platform,
     postGenerateFiles(), which is called after generating the files.
 
     \note Instead of using this class, we recommend that you create JSON-based
-    wizards, as instructed in \l{https://doc.qt.io/qtcreator/creator-project-wizards.html}
-    {Adding New Custom Wizards}.
+    wizards, as instructed in \l{Add wizards} and \l {Custom wizards}.
 
     \sa Core::GeneratedFile, Core::WizardDialogParameters, Core::BaseFileWizard
 */
@@ -117,11 +116,10 @@ Wizard *BaseFileWizardFactory::runWizardImpl(const FilePath &path, Id platform,
 /*!
     Physically writes \a files.
 
-    If the files cannot be written, returns \c false and sets \a errorMessage
-    to the message that is displayed to users.
+    If the files cannot be written, returns \c Utils::ResultError.
 
     Re-implement (calling the base implementation) to create files with
-    GeneratedFile::CustomGeneratorAttribute set.
+    \c GeneratedFile::CustomGeneratorAttribute set.
 */
 
 Result<> BaseFileWizardFactory::writeFiles(const GeneratedFiles &files) const
@@ -141,9 +139,7 @@ Result<> BaseFileWizardFactory::writeFiles(const GeneratedFiles &files) const
     specified by \a l are actually created.
 
     The default implementation opens editors with the newly generated files
-    that have GeneratedFile::OpenEditorAttribute set.
-
-    Returns \a errorMessage if errors occur.
+    that have \c GeneratedFile::OpenEditorAttribute set.
 */
 
 Result<> BaseFileWizardFactory::postGenerateFiles(const QWizard *, const GeneratedFiles &l) const
@@ -153,11 +149,10 @@ Result<> BaseFileWizardFactory::postGenerateFiles(const QWizard *, const Generat
 
 /*!
     Opens the editors for the files \a l if their
-    GeneratedFile::OpenEditorAttribute attribute
+    \c GeneratedFile::OpenEditorAttribute attribute
     is set accordingly.
 
-    If the editorrs cannot be opened, returns \c false and dand sets
-    \a errorMessage to the message that is displayed to users.
+    If the editors cannot be opened, returns \c Utils::ResultError.
 */
 
 Result<> BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l)
