@@ -89,4 +89,13 @@ void ProjectStorageErrorNotifier::qmltypesFileMissing(QStringView qmltypesPath)
              qmltypesPath);
 }
 
+void ProjectStorageErrorNotifier::prototypeCycle(Utils::SmallStringView typeName, SourceId typeSourceId)
+{
+    const QString typeNameString{typeName};
+
+    logIssue(ProjectExplorer::Task::Error,
+             Tr::tr("Prototype cycle detected for type %1 in %2.").arg(typeNameString),
+             m_pathCache.sourcePath(typeSourceId));
+}
+
 } // namespace QmlDesigner

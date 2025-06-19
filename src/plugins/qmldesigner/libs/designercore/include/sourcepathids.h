@@ -34,7 +34,7 @@ public:
     using IsBasicId = std::true_type;
     using DatabaseType = long long;
 
-    constexpr explicit SourceId() = default;
+    constexpr SourceId() = default;
 
     static constexpr SourceId create(DirectoryPathId directoryPathId, FileNameId fileNameId)
     {

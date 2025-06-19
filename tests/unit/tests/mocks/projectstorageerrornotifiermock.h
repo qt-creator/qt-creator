@@ -33,4 +33,8 @@ public:
                  QmlDesigner::SourceId qmldirSourceId),
                 (override));
     MOCK_METHOD(void, qmltypesFileMissing, (QStringView qmltypesPath), (override));
+    MOCK_METHOD(void,
+                prototypeCycle,
+                (Utils::SmallStringView typeName, QmlDesigner::SourceId typeSourceId),
+                (override));
 };

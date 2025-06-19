@@ -132,6 +132,8 @@ struct ProjectStorage::Statements
         "defaultPropertyId=propertyDeclarationId "
         "WHERE t.typeId=?",
         database};
+    mutable Sqlite::ReadStatement<2, 1> selectTypeNameAndSourceIdByTypeIdStatement{
+        "SELECT name, sourceId FROM types WHERE typeId=?", database};
     mutable Sqlite::ReadStatement<5, 1> selectExportedTypesByTypeIdStatement{
         "SELECT moduleId, typeId, name, majorVersion, minorVersion "
         "FROM exportedTypeNames "
@@ -4428,9 +4430,13 @@ void ProjectStorage::checkForPrototypeChainCycle(TypeId typeId) const
                                category(),
                                keyValue("type id", typeId)};
 
-    auto callback = [=](TypeId currentTypeId) {
-        if (typeId == currentTypeId)
+    auto callback = [&](TypeId currentTypeId) {
+        if (typeId == currentTypeId) {
+            auto [name, sourceId] = s->selectTypeNameAndSourceIdByTypeIdStatement
+                                        .value<std::tuple<Utils::SmallString, SourceId>>(typeId);
+            errorNotifier->prototypeCycle(name, sourceId);
             throw PrototypeChainCycle{};
+        }
     };
 
     s->selectPrototypeAndExtensionIdsStatement.readCallback(callback, typeId);

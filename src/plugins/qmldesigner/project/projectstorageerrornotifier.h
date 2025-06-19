@@ -28,6 +28,7 @@ public:
                                                 SourceId qmlDocumentSourceId,
                                                 SourceId qmldirSourceId) override;
     void qmltypesFileMissing(QStringView qmltypesPath) override;
+    void prototypeCycle(Utils::SmallStringView typeName, SourceId typeSourceId) override;
 
 private:
     PathCacheType &m_pathCache;

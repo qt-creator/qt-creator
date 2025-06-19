@@ -32,6 +32,7 @@ public:
         = 0;
 
     virtual void qmltypesFileMissing(QStringView qmltypesPath) = 0;
+    virtual void prototypeCycle(Utils::SmallStringView typeName, SourceId typeSourceId) = 0;
 
 protected:
     ~ProjectStorageErrorNotifierInterface() = default;

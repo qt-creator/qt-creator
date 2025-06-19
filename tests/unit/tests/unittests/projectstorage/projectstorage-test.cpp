@@ -4448,6 +4448,32 @@ TEST_F(ProjectStorage, throw_for_prototype_chain_cycles)
                  QmlDesigner::PrototypeChainCycle);
 }
 
+TEST_F(ProjectStorage, notifies_error_for_prototype_chain_cycles)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[1].prototype = Storage::Synchronization::ImportedType{"Object2"};
+    package.types.push_back(Storage::Synchronization::Type{
+        "QObject2",
+        Storage::Synchronization::ImportedType{"Item"},
+        Storage::Synchronization::ImportedType{},
+        TypeTraitsKind::Reference,
+        sourceId3,
+        {Storage::Synchronization::ExportedType{pathToModuleId, "Object2"},
+         Storage::Synchronization::ExportedType{pathToModuleId, "Obj2"}}});
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId3);
+
+    EXPECT_CALL(errorNotifierMock, prototypeCycle(Eq("QObject2"), sourceId3));
+
+    EXPECT_ANY_THROW(
+        storage.synchronize(SynchronizationPackage{package.imports,
+                                                   package.types,
+                                                   {sourceId1, sourceId2, sourceId3},
+                                                   package.moduleDependencies,
+                                                   package.updatedModuleDependencySourceIds}));
+}
+
 TEST_F(ProjectStorage, throw_for_extension_chain_cycles)
 {
     auto package{createSimpleSynchronizationPackage()};
