@@ -243,7 +243,7 @@ TempFileSaver::~TempFileSaver()
 namespace FileUtils {
 
 #ifdef QT_GUI_LIB
-CopyAskingForOverwrite::CopyAskingForOverwrite(const std::function<void (FilePath)> &postOperation)
+CopyAskingForOverwrite::CopyAskingForOverwrite(const std::function<bool (FilePath)> &postOperation)
     : m_postOperation(postOperation)
 {}
 
@@ -287,7 +287,8 @@ CopyHelper CopyAskingForOverwrite::operator()()
                 return false;
             }
             if (m_postOperation)
-                m_postOperation(dest);
+                if (!m_postOperation(dest))
+                    return false;
         }
         m_files.append(dest.absoluteFilePath());
         return true;

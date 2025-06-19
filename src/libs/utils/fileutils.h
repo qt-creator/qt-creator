@@ -34,13 +34,13 @@ using CopyHelper = std::function<bool(const FilePath &, const FilePath &, QStrin
 class QTCREATOR_UTILS_EXPORT CopyAskingForOverwrite
 {
 public:
-    explicit CopyAskingForOverwrite(const std::function<void(FilePath)> &postOperation = {});
+    explicit CopyAskingForOverwrite(const std::function<bool(FilePath)> &postOperation = {});
     CopyHelper operator()();
     FilePaths files() const;
 
 private:
     FilePaths m_files;
-    std::function<void(FilePath)> m_postOperation;
+    std::function<bool(FilePath)> m_postOperation;
     bool m_overwriteAll = false;
     bool m_skipAll = false;
 };
@@ -200,4 +200,3 @@ private:
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FilePath &fn);
 
 } // namespace Utils
-

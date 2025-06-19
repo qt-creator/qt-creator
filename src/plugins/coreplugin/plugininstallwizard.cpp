@@ -34,6 +34,7 @@
 #include <QGuiApplication>
 #include <QLabel>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QTextEdit>
@@ -438,7 +439,8 @@ static void postCopyOperation(FilePath filePath)
     // On macOS, downloaded files get a quarantine flag, remove it, otherwise it is a hassle
     // to get it loaded as a plugin in Qt Creator.
     Process xattr;
-    xattr.setCommand({"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().path()}});
+    xattr.setCommand(
+        {"/usr/bin/xattr", {"-d", "com.apple.quarantine", filePath.absoluteFilePath().path()}});
     using namespace std::chrono_literals;
     xattr.runBlocking(1s);
 }
@@ -541,11 +543,31 @@ InstallResult executePluginInstallWizard(const FilePath &archive, bool prepareFo
                 data.pluginSpec.reset(specs.front());
                 return true;
             } else {
+                QProgressDialog progress(
+                    Tr::tr("Copying plugin files..."), Tr::tr("Cancel"), 0, 0, ICore::dialogParent());
+                progress.setWindowModality(Qt::WindowModal);
+                progress.setMinimumDuration(500);
+
+                auto updateProgress = [&progress](const FilePath &filePath) {
+                    // Incrementing the progress value is needed, as the progress dialog will only
+                    // show up after its minimum duration has passed.
+                    progress.setValue(progress.value() + 1);
+                    progress.setLabelText(Tr::tr("Copying\n%1").arg(filePath.fileName()));
+                    if (progress.wasCanceled())
+                        return false;
+                    return true;
+                };
+
                 QString error;
-                FileUtils::CopyAskingForOverwrite copy(&postCopyOperation);
+                FileUtils::CopyAskingForOverwrite copy(updateProgress);
                 if (!FileUtils::copyRecursively(data.extractedPath, installPath, &error, copy())) {
-                    QMessageBox::warning(
-                        ICore::dialogParent(), Tr::tr("Failed to Copy Plugin Files"), error);
+                    if (!error.isEmpty()) {
+                        QMessageBox::warning(
+                            ICore::dialogParent(), Tr::tr("Failed to Copy Plugin Files"), error);
+                    }
+                    // If the copy failed, we remove the install path to avoid leaving
+                    // a broken plugin behind.
+                    installPath.removeRecursively();
                     return false;
                 }
 
