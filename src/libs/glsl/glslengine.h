@@ -22,6 +22,19 @@ public:
         Error
     };
 
+    struct GLSL_EXPORT Location
+    {
+        int line = -1;
+        int position = -1;
+        int length = -1;
+
+        bool operator==(const Location &rhs) const
+        {
+            return line == rhs.line && position == rhs.position && length == rhs.length;
+        }
+
+    };
+
     DiagnosticMessage();
 
     Kind kind() const;
@@ -36,6 +49,9 @@ public:
     int line() const;
     void setLine(int line);
 
+    void setLocation(const Location &location);
+    Location location() const;
+
     QString message() const;
     void setMessage(const QString &message);
 
@@ -43,8 +59,14 @@ private:
     QString _fileName;
     QString _message;
     Kind _kind;
+    Location _location;
     int _line;
 };
+
+inline size_t qHash(const DiagnosticMessage::Location &location, size_t seed)
+{
+    return ::qHashMulti(seed, location.line, location.position, location.length);
+}
 
 template <typename Type>
 class TypeTable
@@ -106,8 +128,8 @@ public:
     QList<DiagnosticMessage> diagnosticMessages() const;
     void clearDiagnosticMessages();
     void addDiagnosticMessage(const DiagnosticMessage &m);
-    void warning(int line, const QString &message);
-    void error(int line, const QString &message);
+    void warning(const DiagnosticMessage::Location &location, const QString &message);
+    void error(const DiagnosticMessage::Location &location, const QString &message);
 
 private:
     std::unordered_set<QString> _identifiers;

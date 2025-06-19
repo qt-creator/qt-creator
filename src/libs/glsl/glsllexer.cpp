@@ -385,13 +385,3 @@ int Lexer::findKeyword(const char *word, int length) const
     }
     return t & ~Variant_Mask;
 }
-
-void Lexer::warning(int line, const QString &message)
-{
-    _engine->warning(line, message);
-}
-
-void Lexer::error(int line, const QString &message)
-{
-    _engine->error(line, message);
-}

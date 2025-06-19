@@ -343,8 +343,10 @@ void LayoutQualifierAST::accept0(Visitor *visitor)
 
 void QualifiedTypeAST::accept0(Visitor *visitor)
 {
-    if (visitor->visit(this))
+    if (visitor->visit(this)) {
         accept(type, visitor);
+        accept(layout_list, visitor);
+    }
     visitor->endVisit(this);
 }
 

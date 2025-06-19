@@ -114,14 +114,14 @@ private:
     }
     void reduce(int ruleno);
 
-    void warning(int line, const QString &message)
+    void warning(const DiagnosticMessage::Location &loc, const QString &message)
     {
-        _engine->warning(line, message);
+        _engine->warning(loc, message);
     }
 
-    void error(int line, const QString &message)
+    void error(const DiagnosticMessage::Location &loc, const QString &message)
     {
-        _engine->error(line, message);
+        _engine->error(loc, message);
     }
 
     static bool isInterfaceBlockStorageIdentifier(int qualifier)
@@ -143,7 +143,7 @@ private:
     T *makeAstNode()
     {
         T *node = new (_engine->pool()) T ();
-        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        setLocationFromToken(node, yyloc);
         return node;
     }
 
@@ -151,7 +151,10 @@ private:
     T *makeAstNode(A1 a1)
     {
         T *node = new (_engine->pool()) T (a1);
-        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        const DiagnosticMessage::Location &location = locationFromToken(yyloc);
+        node->lineno = location.line;
+        node->position = location.position;
+        node->length = location.length;
         return node;
     }
 
@@ -159,7 +162,10 @@ private:
     T *makeAstNode(A1 a1, A2 a2)
     {
         T *node = new (_engine->pool()) T (a1, a2);
-        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        const DiagnosticMessage::Location &location = locationFromToken(yyloc);
+        node->lineno = location.line;
+        node->position = location.position;
+        node->length = location.length;
         return node;
     }
 
@@ -167,7 +173,7 @@ private:
     T *makeAstNode(A1 a1, A2 a2, A3 a3)
     {
         T *node = new (_engine->pool()) T (a1, a2, a3);
-        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        setLocationFromToken(node, yyloc);
         return node;
     }
 
@@ -175,18 +181,40 @@ private:
     T *makeAstNode(A1 a1, A2 a2, A3 a3, A4 a4)
     {
         T *node = new (_engine->pool()) T (a1, a2, a3, a4);
-        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        setLocationFromToken(node, yyloc);
         return node;
     }
 
     TypeAST *makeBasicType(int token)
     {
         TypeAST *type = new (_engine->pool()) BasicTypeAST(token, spell[token]);
-        type->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        setLocationFromToken(type, yyloc);
         return type;
     }
 
 private:
+    DiagnosticMessage::Location locationFromToken(int index) const
+    {
+        const Token &token = index > -1 ? tokenAt(index) : Token();
+        return DiagnosticMessage::Location{token.line + 1, token.position, token.length};
+    }
+
+    void setLocationFromToken(AST *node, int index) const
+    {
+        const DiagnosticMessage::Location &location = locationFromToken(index);
+        node->lineno = location.line;
+        node->position = location.position;
+        node->length = location.length;
+    }
+
+    void setLocationFromTokens(AST *node, int index, int endIndex)
+    {
+        const Token &token = tokenAt(index);
+        node->lineno = token.line + 1;
+        node->position = token.position;
+        node->length = tokenAt(endIndex).end() - node->position;
+    }
+
     Engine *_engine;
     int _tos;
     int _index;

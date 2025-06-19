@@ -99,6 +99,9 @@ protected:
     bool visit(FunctionDeclarationAST *ast) override;
 
 private:
+    void reportError(AST *ast, const QString &message);
+    void reportWarning(AST *ast, const QString &message);
+
     Engine *_engine;
     Scope *_scope;
     const Type *_type;

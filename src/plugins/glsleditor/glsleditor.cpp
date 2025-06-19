@@ -255,9 +255,10 @@ protected:
     void endVisit(CompoundStatementAST *ast) override
     {
         if (ast->symbol) {
+            QTC_ASSERT(ast->length != -1, return);
             QTextCursor tc(textDocument);
-            tc.setPosition(ast->start);
-            tc.setPosition(ast->end, QTextCursor::KeepAnchor);
+            tc.setPosition(ast->position);
+            tc.setPosition(ast->position + ast->length, QTextCursor::KeepAnchor);
             glslDocument->addRange(tc, ast->symbol);
         }
     }
@@ -287,6 +288,7 @@ private:
     void setSelectedElements();
     void onTooltipRequested(const QPoint &point, int pos);
     QString wordUnderCursor() const;
+    QTextCursor cursorForDiagnosticMessage(const DiagnosticMessage &message) const;
 
     QTimer m_updateDocumentTimer;
     QComboBox *m_outlineCombo = nullptr;
@@ -369,6 +371,26 @@ QString GlslEditorWidget::wordUnderCursor() const
     return word;
 }
 
+QTextCursor GlslEditorWidget::cursorForDiagnosticMessage(const DiagnosticMessage &message) const
+{
+    const DiagnosticMessage::Location &location = message.location();
+    if (location.length >= 0) {
+        QTextCursor cursor(document());
+        cursor.setPosition(location.position);
+        cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, location.length);
+        return cursor;
+    }
+    QTC_CHECK(false);
+    // we only have a line number
+    QTextCursor cursor(document()->findBlockByNumber(message.line() - 1));
+    static const QRegularExpression ws("^(\\s+)");
+    const QRegularExpressionMatch match = ws.match(cursor.block().text());
+    if (match.hasMatch())
+        cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, match.capturedLength(1));
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    return cursor;
+}
+
 void GlslEditorWidget::updateDocumentNow()
 {
     m_updateDocumentTimer.stop();
@@ -429,19 +451,19 @@ void GlslEditorWidget::updateDocumentNow()
 
         QList<QTextEdit::ExtraSelection> sels;
         QSet<int> errors;
+        QSet<DiagnosticMessage::Location> errorsWithLocations;
 
         const QList<DiagnosticMessage> messages = doc->_engine->diagnosticMessages();
         for (const DiagnosticMessage &m : messages) {
             if (! m.line())
                 continue;
-            if (!Utils::insert(errors, m.line()))
-                continue;
-
-            QTextCursor cursor(document()->findBlockByNumber(m.line() - 1));
-            cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+            if (!Utils::insert(errorsWithLocations, m.location())) {
+                if (!Utils::insert(errors, m.line()))
+                    continue;
+            }
 
             QTextEdit::ExtraSelection sel;
-            sel.cursor = cursor;
+            sel.cursor = cursorForDiagnosticMessage(m);
             sel.format = m.isError() ? errorFormat : warningFormat;
             sel.format.setToolTip(m.message());
             sels.append(sel);
@@ -452,20 +474,31 @@ void GlslEditorWidget::updateDocumentNow()
     }
 }
 
+static QStringList diagnosticMessagesToStringList(const QList<DiagnosticMessage> &dMessages,
+                                                  int lineNo, int pos)
+{
+    QStringList fullLine;
+    QStringList specific;
+    for (const DiagnosticMessage &msg : dMessages) {
+        if (lineNo != msg.line())
+            continue;
+        const DiagnosticMessage::Location &loc = msg.location();
+        if (loc.length == -1)
+            fullLine.append(msg.message());
+        else if (loc.position <= pos && loc.position + loc.length >= pos)
+            specific.append(msg.message());
+    }
+    if (fullLine.isEmpty())
+        return specific;
+    return specific + fullLine;
+}
+
 void GlslEditorWidget::onTooltipRequested(const QPoint &point, int pos)
 {
     QTC_ASSERT(m_glslDocument && m_glslDocument->engine(), return);
     const int lineno = document()->findBlock(pos).blockNumber() + 1;
-    const QStringList messages
-            = Utils::transform<QStringList>(
-                Utils::filtered(m_glslDocument->engine()->diagnosticMessages(),
-                                [lineno](const DiagnosticMessage &msg) {
-                    return msg.line() == lineno;
-                }),
-                [](const DiagnosticMessage &msg) {
-        return msg.message();
-    });
-
+    const QStringList messages = diagnosticMessagesToStringList(
+                m_glslDocument->engine()->diagnosticMessages(), lineno, pos);
     if (!messages.isEmpty())
         Utils::ToolTip::show(point, messages.join("<hr/>"), this);
     else

@@ -87,9 +87,6 @@ private:
     void yyinp();
     int yylex_helper(const char **position, int *line);
 
-    void warning(int line, const QString &message);
-    void error(int line, const QString &message);
-
 private:
     Engine *_engine;
     const char *_source;

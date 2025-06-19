@@ -382,14 +382,14 @@ private:
     }
     void reduce(int ruleno);
 
-    void warning(int line, const QString &message)
+    void warning(const DiagnosticMessage::Location &loc, const QString &message)
     {
-        _engine->warning(line, message);
+        _engine->warning(loc, message);
     }
 
-    void error(int line, const QString &message)
+    void error(const DiagnosticMessage::Location &loc, const QString &message)
     {
-        _engine->error(line, message);
+        _engine->error(loc, message);
     }
 
     static bool isInterfaceBlockStorageIdentifier(int qualifier)
@@ -411,7 +411,7 @@ private:
     T *makeAstNode()
     {
         T *node = new (_engine->pool()) T ();
-        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        setLocationFromToken(node, yyloc);
         return node;
     }
 
@@ -419,7 +419,10 @@ private:
     T *makeAstNode(A1 a1)
     {
         T *node = new (_engine->pool()) T (a1);
-        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        const DiagnosticMessage::Location &location = locationFromToken(yyloc);
+        node->lineno = location.line;
+        node->position = location.position;
+        node->length = location.length;
         return node;
     }
 
@@ -427,7 +430,10 @@ private:
     T *makeAstNode(A1 a1, A2 a2)
     {
         T *node = new (_engine->pool()) T (a1, a2);
-        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        const DiagnosticMessage::Location &location = locationFromToken(yyloc);
+        node->lineno = location.line;
+        node->position = location.position;
+        node->length = location.length;
         return node;
     }
 
@@ -435,7 +441,7 @@ private:
     T *makeAstNode(A1 a1, A2 a2, A3 a3)
     {
         T *node = new (_engine->pool()) T (a1, a2, a3);
-        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        setLocationFromToken(node, yyloc);
         return node;
     }
 
@@ -443,18 +449,40 @@ private:
     T *makeAstNode(A1 a1, A2 a2, A3 a3, A4 a4)
     {
         T *node = new (_engine->pool()) T (a1, a2, a3, a4);
-        node->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        setLocationFromToken(node, yyloc);
         return node;
     }
 
     TypeAST *makeBasicType(int token)
     {
         TypeAST *type = new (_engine->pool()) BasicTypeAST(token, spell[token]);
-        type->lineno = yyloc >= 0 ? (_tokens[yyloc].line + 1) : 0;
+        setLocationFromToken(type, yyloc);
         return type;
     }
 
 private:
+    DiagnosticMessage::Location locationFromToken(int index) const
+    {
+        const Token &token = index > -1 ? tokenAt(index) : Token();
+        return DiagnosticMessage::Location{token.line + 1, token.position, token.length};
+    }
+
+    void setLocationFromToken(AST *node, int index) const
+    {
+        const DiagnosticMessage::Location &location = locationFromToken(index);
+        node->lineno = location.line;
+        node->position = location.position;
+        node->length = location.length;
+    }
+
+    void setLocationFromTokens(AST *node, int index, int endIndex)
+    {
+        const Token &token = tokenAt(index);
+        node->lineno = token.line + 1;
+        node->position = token.position;
+        node->length = tokenAt(endIndex).end() - node->position;
+    }
+
     Engine *_engine;
     int _tos;
     int _index;
@@ -611,7 +639,8 @@ AST *Parser::parse(int startToken)
             ++recoveryAttempts;
             if (recoveryAttempts > 10)
                break;
-            const int line = _tokens[yyloc].line + 1;
+            const Token &tok = tokenAt(yyloc);
+            const DiagnosticMessage::Location loc{tok.line + 1, tok.position, tok.length};
             QString message = QLatin1String("Syntax error");
             if (yytoken != -1) {
                 const QLatin1String s(spell[yytoken]);
@@ -647,7 +676,7 @@ AST *Parser::parse(int startToken)
                     if (next > 0) {
                         if (! yyrecovering && ! _recovered) {
                             _recovered = true;
-                            error(line, QString::fromLatin1("Expected `%1'").arg(QLatin1String(spell[*tptr])));
+                            error(loc, QString::fromLatin1("Expected `%1'").arg(QLatin1String(spell[*tptr])));
                         }
 
                         yyrecovering = 3;
@@ -670,7 +699,7 @@ AST *Parser::parse(int startToken)
 
             if (! _recovered) {
                 _recovered = true;
-                error(line, message);
+                error(loc, message);
             }
         }
 
@@ -693,7 +722,9 @@ switch(ruleno) {
 variable_identifier ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<IdentifierExpressionAST>(string(1));
+    IdentifierExpressionAST *expression = makeAstNode<IdentifierExpressionAST>(string(1));
+    setLocationFromToken(expression, location(1));
+    ast(1) = expression;
 }   break;
 ./
 
@@ -742,7 +773,9 @@ case $rule_number: {
 postfix_expression ::= postfix_expression LEFT_BRACKET integer_expression RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_ArrayAccess, expression(1), expression(3));
+    ExpressionAST *exp = expression(3);
+    setLocationFromToken(exp, location(3));
+    ast(1) = makeAstNode<BinaryExpressionAST>(AST::Kind_ArrayAccess, expression(1), exp);
 }   break;
 ./
 
@@ -756,7 +789,9 @@ case $rule_number: {
 postfix_expression ::= postfix_expression DOT IDENTIFIER ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<MemberAccessExpressionAST>(expression(1), string(3));
+    MemberAccessExpressionAST *e = makeAstNode<MemberAccessExpressionAST>(expression(1), string(3));
+    setLocationFromTokens(e, location(1), location(3));
+    ast(1) = e;
 }   break;
 ./
 
@@ -862,14 +897,18 @@ case $rule_number: {
 function_identifier ::= type_specifier ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<FunctionIdentifierAST>(type(1));
+    FunctionIdentifierAST *func = makeAstNode<FunctionIdentifierAST>(type(1));
+    setLocationFromToken(func, location(1));
+    ast(1) = func;
 }   break;
 ./
 
 function_identifier ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<FunctionIdentifierAST>(string(1));
+    FunctionIdentifierAST *func = makeAstNode<FunctionIdentifierAST>(string(1));
+    setLocationFromToken(func, location(1));
+    ast(1) = func;
 }   break;
 ./
 
@@ -1299,17 +1338,20 @@ case $rule_number: {
     const int qualifier = sym(1).type_qualifier.qualifier;
     if ((qualifier & QualifiedTypeAST::Struct) == 0) {
         if (!isInterfaceBlockStorageIdentifier(qualifier)) {
-            int loc = location(1);
-            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            const DiagnosticMessage::Location &loc = locationFromToken(location(1));
             if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
-                error(lineno, "Missing storage qualifier.");
+                error(loc, "Missing storage qualifier.");
             else
-                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+                error(loc, "Used storage qualifier not allowed for interface blocks.");
         }
         TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
-        ast(1) = makeAstNode<TypeDeclarationAST>(type);
+        TypeAST *qualtype = makeAstNode<QualifiedTypeAST>
+                (sym(1).type_qualifier.qualifier, type, sym(1).type_qualifier.layout_list);
+        setLocationFromToken(type, location(2));
+        ast(1) = makeAstNode<TypeDeclarationAST>(qualtype);
     } else {
         TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        setLocationFromToken(type, location(2));
         ast(1) = makeAstNode<TypeDeclarationAST>(type);
     }
 }   break;
@@ -1321,19 +1363,22 @@ case $rule_number: {
     const int qualifier = sym(1).type_qualifier.qualifier;
     if ((qualifier & QualifiedTypeAST::Struct) == 0) {
         if (!isInterfaceBlockStorageIdentifier(qualifier)) {
-            int loc = location(1);
-            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            const DiagnosticMessage::Location &loc = locationFromToken(location(1));
             if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
-                error(lineno, "Missing storage qualifier.");
+                error(loc, "Missing storage qualifier.");
             else
-                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+                error(loc, "Used storage qualifier not allowed for interface blocks.");
         }
         TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        TypeAST *qualtype = makeAstNode<QualifiedTypeAST>
+                (sym(1).type_qualifier.qualifier, type, sym(1).type_qualifier.layout_list);
+        setLocationFromToken(type, location(2));
         ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
             (makeAstNode<TypeDeclarationAST>(type),
-             makeAstNode<VariableDeclarationAST>(type, string(6)));
+             makeAstNode<VariableDeclarationAST>(qualtype, string(6)));
     } else {
         TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        setLocationFromToken(type, location(2));
         TypeAST *qualtype = type;
         if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
             qualtype = makeAstNode<QualifiedTypeAST>
@@ -1353,20 +1398,23 @@ case $rule_number: {
     const int qualifier = sym(1).type_qualifier.qualifier;
     if ((qualifier & QualifiedTypeAST::Struct) == 0) {
         if (!isInterfaceBlockStorageIdentifier(qualifier)) {
-            int loc = location(1);
-            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            const DiagnosticMessage::Location &loc = locationFromToken(location(1));
             if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
-                error(lineno, "Missing storage qualifier.");
+                error(loc, "Missing storage qualifier.");
             else
-                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+                error(loc, "Used storage qualifier not allowed for interface blocks.");
         }
         TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        TypeAST *qualtype = makeAstNode<QualifiedTypeAST>
+                (sym(1).type_qualifier.qualifier, type, sym(1).type_qualifier.layout_list);
+        setLocationFromToken(type, location(2));
         ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
             (makeAstNode<TypeDeclarationAST>(type),
              makeAstNode<VariableDeclarationAST>
-                (makeAstNode<ArrayTypeAST>(type), string(6)));
+                (makeAstNode<ArrayTypeAST>(qualtype), string(6)));
     } else {
         TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        setLocationFromToken(type, location(2));
         TypeAST *qualtype = type;
         if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
             qualtype = makeAstNode<QualifiedTypeAST>
@@ -1387,20 +1435,23 @@ case $rule_number: {
     const int qualifier = sym(1).type_qualifier.qualifier;
     if ((qualifier & QualifiedTypeAST::Struct) == 0) {
         if (!isInterfaceBlockStorageIdentifier(qualifier)) {
-            int loc = location(1);
-            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            const DiagnosticMessage::Location &loc = locationFromToken(location(1));
             if ((qualifier & QualifiedTypeAST::StorageMask) == QualifiedTypeAST::NoStorage)
-                error(lineno, "Missing storage qualifier.");
+                error(loc, "Missing storage qualifier.");
             else
-                error(lineno, "Used storage qualifier not allowed for interface blocks.");
+                error(loc, "Used storage qualifier not allowed for interface blocks.");
         }
         TypeAST *type = makeAstNode<InterfaceBlockAST>(string(2), sym(4).field_list);
+        TypeAST *qualtype = makeAstNode<QualifiedTypeAST>
+                (sym(1).type_qualifier.qualifier, type, sym(1).type_qualifier.layout_list);
+        setLocationFromToken(type, location(2));
         ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
             (makeAstNode<TypeDeclarationAST>(type),
              makeAstNode<VariableDeclarationAST>
-                (makeAstNode<ArrayTypeAST>(type, sym(7).array_specifier), string(6)));
+                (makeAstNode<ArrayTypeAST>(qualtype, sym(7).array_specifier), string(6)));
     } else {
         TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
+        setLocationFromToken(type, location(2));
         TypeAST *qualtype = type;
         if (sym(1).type_qualifier.qualifier != QualifiedTypeAST::Struct) {
             qualtype = makeAstNode<QualifiedTypeAST>
@@ -1585,29 +1636,25 @@ parameter_qualifiers ::= parameter_qualifier parameter_qualifiers ;
 /.
 case $rule_number: {
     if ((sym(1).qualifier & sym(2).qualifier) != 0) {
-        int loc = location(1);
-        int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
-        error(lineno, "Duplicate qualifier.");
+        const DiagnosticMessage::Location &loc = locationFromToken(location(1));
+        error(loc, "Duplicate qualifier.");
     } else if ((sym(1).qualifier & ParameterDeclarationAST::PrecisionMask) != 0
                 && (sym(2).qualifier & ParameterDeclarationAST::PrecisionMask) != 0) {
-        int loc = location(1);
-        int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
-        error(lineno, "Conflicting precision qualifier.");
+        const DiagnosticMessage::Location &loc = locationFromToken(location(1));
+        error(loc, "Conflicting precision qualifier.");
     }
     sym(1).qualifier |= sym(2).qualifier;
     if ((sym(1).qualifier & ParameterDeclarationAST::Const) != 0) {
         if (((sym(1).qualifier & ParameterDeclarationAST::InOut) != 0)
             || (sym(1).qualifier & ParameterDeclarationAST::Out) != 0) {
-            int loc = location(1);
-            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
-            error(lineno, "const cannot be used with out or inout.");
+            const DiagnosticMessage::Location &loc = locationFromToken(location(1));
+            error(loc, "const cannot be used with out or inout.");
         }
     } else if ((sym(1).qualifier & ParameterDeclarationAST::InOut) != 0) {
         if ((sym(1).qualifier & ParameterDeclarationAST::In) != 0
             || (sym(1).qualifier & ParameterDeclarationAST::Out) != 0) {
-            int loc = location(1);
-            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
-            error(lineno, "Duplicate qualifier.");
+            const DiagnosticMessage::Location &loc = locationFromToken(location(1));
+            error(loc, "Duplicate qualifier.");
         }
     }
 }   break;
@@ -1869,21 +1916,27 @@ case $rule_number: {
 layout_qualifier_id ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)nullptr);
+    LayoutQualifierAST *l = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)nullptr);
+    setLocationFromToken(l, location(1));
+    sym(1).layout = l;
 }   break;
 ./
 
 layout_qualifier_id ::= IDENTIFIER EQUAL NUMBER ;
 /.
 case $rule_number: {
-    sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), string(3));
+    LayoutQualifierAST *l = makeAstNode<LayoutQualifierAST>(string(1), string(3));
+    setLocationFromTokens(l, location(1), location(3));
+    sym(1).layout = l;
 }   break;
 ./
 
 layout_qualifier_id ::= SHARED ;
 /.
 case $rule_number: {
-    sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)nullptr);
+    LayoutQualifierAST *l = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)nullptr);
+    setLocationFromToken(l, location(1));
+    sym(1).layout = l;
 }   break;
 ./
 
@@ -1907,9 +1960,8 @@ case $rule_number: {
     if (sym(2).type_qualifier.layout_list)
         sym(1).type_qualifier.layout_list = sym(2).type_qualifier.layout_list;
     if ((sym(1).type_qualifier.qualifier & sym(2).type_qualifier.qualifier) != 0) {
-        int loc = location(1);
-        int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
-        error(lineno, "Duplicate qualifier.");
+        const DiagnosticMessage::Location &loc = locationFromToken(location(1));
+        error(loc, "Duplicate qualifier.");
     }
     // TODO check for too many qualifiers?
     sym(1).type_qualifier.qualifier |= sym(2).type_qualifier.qualifier;
@@ -3395,15 +3447,19 @@ case $rule_number: {
 struct_declarator ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    sym(1).field = makeAstNode<StructTypeAST::Field>(string(1));
+    StructTypeAST::Field *field = makeAstNode<StructTypeAST::Field>(string(1));
+    setLocationFromToken(field, location(1));
+    sym(1).field = field;
 }   break;
 ./
 
 struct_declarator ::= IDENTIFIER array_specifier ;
 /.
 case $rule_number: {
-    sym(1).field = makeAstNode<StructTypeAST::Field>
+    StructTypeAST::Field *field = makeAstNode<StructTypeAST::Field>
         (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)nullptr, sym(2).array_specifier));
+    setLocationFromToken(field, location(1));
+    sym(1).field = field;
 }   break;
 ./
 
@@ -3518,8 +3574,7 @@ compound_statement ::= LEFT_BRACE RIGHT_BRACE ;
 /.
 case $rule_number: {
     CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>();
-    stmt->start = tokenAt(location(1)).begin();
-    stmt->end = tokenAt(location(2)).end();
+    setLocationFromTokens(stmt, location(1), location(2));
     ast(1) = stmt;
 }   break;
 ./
@@ -3528,8 +3583,7 @@ compound_statement ::= LEFT_BRACE statement_list RIGHT_BRACE ;
 /.
 case $rule_number: {
     CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>(sym(2).statement_list);
-    stmt->start = tokenAt(location(1)).begin();
-    stmt->end = tokenAt(location(3)).end();
+    setLocationFromTokens(stmt, location(1), location(3));
     ast(1) = stmt;
 }   break;
 ./
@@ -3552,8 +3606,7 @@ compound_statement_no_new_scope ::= LEFT_BRACE RIGHT_BRACE ;
 /.
 case $rule_number: {
     CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>();
-    stmt->start = tokenAt(location(1)).begin();
-    stmt->end = tokenAt(location(2)).end();
+    setLocationFromTokens(stmt, location(1), location(2));
     ast(1) = stmt;
 }   break;
 ./
@@ -3562,8 +3615,7 @@ compound_statement_no_new_scope ::= LEFT_BRACE statement_list RIGHT_BRACE ;
 /.
 case $rule_number: {
     CompoundStatementAST *stmt = makeAstNode<CompoundStatementAST>(sym(2).statement_list);
-    stmt->start = tokenAt(location(1)).begin();
-    stmt->end = tokenAt(location(3)).end();
+    setLocationFromTokens(stmt, location(1), location(3));
     ast(1) = stmt;
 }   break;
 ./
@@ -3585,7 +3637,9 @@ case $rule_number: {
 expression_statement ::= SEMICOLON ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<CompoundStatementAST>();  // Empty statement
+    CompoundStatementAST *empty = makeAstNode<CompoundStatementAST>();
+    setLocationFromToken(empty, location(1));
+    ast(1) = empty;  // Empty statement
 }   break;
 ./
 
@@ -3606,15 +3660,21 @@ case $rule_number: {
 selection_rest_statement ::= statement ELSE statement ;
 /.
 case $rule_number: {
-    sym(1).ifstmt.thenClause = statement(1);
-    sym(1).ifstmt.elseClause = statement(3);
+    StatementAST *thenClause = statement(1);
+    setLocationFromToken(thenClause, location(1));
+    sym(1).ifstmt.thenClause = thenClause;
+    StatementAST *elseClause = statement(3);
+    setLocationFromToken(elseClause, location(3));
+    sym(1).ifstmt.elseClause = elseClause;
 }   break;
 ./
 
 selection_rest_statement ::= statement ;
 /.
 case $rule_number: {
-    sym(1).ifstmt.thenClause = statement(1);
+    StatementAST *thenClause = statement(1);
+    setLocationFromToken(thenClause, location(1));
+    sym(1).ifstmt.thenClause = thenClause;
     sym(1).ifstmt.elseClause = nullptr;
 }   break;
 ./
@@ -3637,7 +3697,9 @@ case $rule_number: {
 switch_statement ::= SWITCH LEFT_PAREN expression RIGHT_PAREN LEFT_BRACE switch_statement_list RIGHT_BRACE ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<SwitchStatementAST>(expression(3), statement(6));
+    StatementAST *body = statement(6);
+    setLocationFromToken(body, location(6));
+    ast(1) = makeAstNode<SwitchStatementAST>(expression(3), body);
 }   break;
 ./
 
@@ -3672,21 +3734,27 @@ case $rule_number: {
 iteration_statement ::= WHILE LEFT_PAREN condition RIGHT_PAREN statement_no_new_scope ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<WhileStatementAST>(expression(3), statement(5));
+    StatementAST *body = statement(5);
+    setLocationFromToken(body, location(5));
+    ast(1) = makeAstNode<WhileStatementAST>(expression(3), body);
 }   break;
 ./
 
 iteration_statement ::= DO statement WHILE LEFT_PAREN expression RIGHT_PAREN SEMICOLON ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<DoStatementAST>(statement(2), expression(5));
+    StatementAST *body = statement(2);
+    setLocationFromToken(body, location(2));
+    ast(1) = makeAstNode<DoStatementAST>(body, expression(5));
 }   break;
 ./
 
 iteration_statement ::= FOR LEFT_PAREN for_init_statement for_rest_statement RIGHT_PAREN statement_no_new_scope ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<ForStatementAST>(statement(3), sym(4).forstmt.condition, sym(4).forstmt.increment, statement(6));
+    StatementAST *body = statement(6);
+    setLocationFromToken(body, location(6));
+    ast(1) = makeAstNode<ForStatementAST>(statement(3), sym(4).forstmt.condition, sym(4).forstmt.increment, body);
 }   break;
 ./
 

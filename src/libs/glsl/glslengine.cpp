@@ -43,6 +43,17 @@ void DiagnosticMessage::setLine(int line)
     _line = line;
 }
 
+DiagnosticMessage::Location DiagnosticMessage::location() const
+{
+    return _location;
+}
+
+void DiagnosticMessage::setLocation(const Location &location)
+{
+    _location = location;
+    _line = location.line;
+}
+
 QString DiagnosticMessage::message() const
 {
     return _message;
@@ -185,20 +196,20 @@ void Engine::addDiagnosticMessage(const DiagnosticMessage &m)
         _diagnosticMessages.append(m);
 }
 
-void Engine::warning(int line, const QString &message)
+void Engine::warning(const DiagnosticMessage::Location &location, const QString &message)
 {
     DiagnosticMessage m;
     m.setKind(DiagnosticMessage::Warning);
-    m.setLine(line);
+    m.setLocation(location);
     m.setMessage(message);
     addDiagnosticMessage(m);
 }
 
-void Engine::error(int line, const QString &message)
+void Engine::error(const DiagnosticMessage::Location &location, const QString &message)
 {
     DiagnosticMessage m;
     m.setKind(DiagnosticMessage::Error);
-    m.setLine(line);
+    m.setLocation(location);
     m.setMessage(message);
     addDiagnosticMessage(m);
 }

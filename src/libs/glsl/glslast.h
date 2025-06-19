@@ -60,7 +60,7 @@ class GLSL_EXPORT List: public Managed
 {
 public:
     List(const T &value)
-        : value(value), next(this), lineno(0) {}
+        : value(value), next(this), lineno(0), position(0), length(-1) {}
 
     List(List *previous, const T &value)
         : value(value), lineno(0)
@@ -79,6 +79,8 @@ public:
     T value;
     List *next;
     int lineno;
+    int position;
+    int length;
 };
 
 // Append two lists, which are assumed to still be circular, pre-finish.
@@ -267,7 +269,7 @@ public:
     virtual void accept0(Visitor *visitor) = 0;
 
 protected:
-    AST(Kind _kind) : kind(_kind), lineno(0) {}
+    AST(Kind _kind) : kind(_kind), lineno(0), position(0), length(-1) {}
 
     template <typename T>
     static List<T> *finish(List<T> *list)
@@ -280,6 +282,8 @@ protected:
 public: // attributes
     int kind;
     int lineno;
+    int position;
+    int length;
 
 protected:
     ~AST() override {}       // Managed types cannot be deleted.
@@ -510,10 +514,10 @@ class GLSL_EXPORT CompoundStatementAST: public StatementAST
 public:
     CompoundStatementAST()
         : StatementAST(Kind_CompoundStatement), statements(0)
-        , start(0), end(0), symbol(0) {}
+        , symbol(0) {}
     CompoundStatementAST(List<StatementAST *> *_statements)
         : StatementAST(Kind_CompoundStatement), statements(finish(_statements))
-        , start(0), end(0), symbol(0) {}
+        , symbol(0) {}
 
     CompoundStatementAST *asCompoundStatement() override { return this; }
 
@@ -521,8 +525,6 @@ public:
 
 public: // attributes
     List<StatementAST *> *statements;
-    int start;
-    int end;
     Block *symbol; // decoration
 };
 
