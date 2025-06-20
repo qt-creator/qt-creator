@@ -54,10 +54,6 @@ private slots:
 
     void testDeviceManager();
 
-    void testToolChainMerging_data();
-    void testToolChainMerging();
-    static void deleteTestToolchains();
-
     void testUserFileAccessor_prepareToReadSettings();
     void testUserFileAccessor_prepareToWriteSettings();
     void testUserFileAccessor_mergeSettings();

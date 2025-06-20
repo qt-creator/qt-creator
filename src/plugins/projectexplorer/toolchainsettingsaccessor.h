@@ -26,5 +26,7 @@ private:
     QList<Toolchain *> toolChains(const Utils::Store &data) const;
 };
 
+QObject *createToolchainSettingsTest();
+
 } // namespace Internal
 } // namespace ProjectExplorer

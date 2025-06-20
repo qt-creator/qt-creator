@@ -164,6 +164,7 @@
 #include "jsonwizard/jsonwizard_test.h"
 #include "outputparser_test.h"
 #include "projectexplorer_test.h"
+#include "toolchainsettingsaccessor.h"
 #endif
 
 /*!
@@ -743,10 +744,6 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     destroyAppOutputPane();
 
     m_instance = nullptr;
-
-#ifdef WITH_TESTS
-    ProjectExplorerTest::deleteTestToolchains();
-#endif
 }
 
 ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
@@ -1956,6 +1953,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 #ifdef WITH_TESTS
     addTestCreator(&createSanitizerOutputParserTest);
     addTestCreator(&createRunWorkerConflictTest);
+    addTestCreator(&createToolchainSettingsTest);
 #endif
     return ResultOk;
 }
