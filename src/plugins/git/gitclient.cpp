@@ -70,6 +70,7 @@ const char colorOption[] = "--color=always";
 const char patchOption[] = "--patch";
 const char graphOption[] = "--graph";
 const char decorateOption[] = "--decorate";
+const char allBranchesOption[] = "--all";
 
 using namespace Core;
 using namespace DiffEditor;
@@ -639,7 +640,7 @@ public:
         : GitBaseConfig(editor)
     {
         QAction *allBranchesButton = addToggleButton(
-            QStringList{"--all"},
+            QStringList{allBranchesOption},
             Tr::tr("All", "All branches"),
             Tr::tr("Show log for all local branches."));
         mapSetting(allBranchesButton, &settings().allBranches);
@@ -1176,6 +1177,11 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     } else {
         editor->setHighlightingEnabled(false);
     }
+
+    // remove "all branches" option when "log for line" is requested as they conflict
+    if (Utils::anyOf(arguments, [](const QString &arg) { return arg.startsWith("-L "); }))
+        arguments.removeAll(allBranchesOption);
+
     if (!arguments.contains(graphOption) && !arguments.contains(patchOption))
         arguments << normalLogArguments();
 
