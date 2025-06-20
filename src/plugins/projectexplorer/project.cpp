@@ -49,7 +49,6 @@
 #include <QHash>
 
 #ifdef WITH_TESTS
-#include "projectexplorer_test.h"
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/temporarydirectory.h>
 
@@ -1404,11 +1403,10 @@ Project *unwrapProject(const TextEditor::ProjectWrapper &w)
     return reinterpret_cast<Project *>(w.project());
 }
 
-} // ProjectExplorer
 
 #ifdef WITH_TESTS
 
-namespace ProjectExplorer::Internal {
+namespace Internal {
 
 static FilePath constructTestPath(const QString &basePath)
 {
@@ -1466,291 +1464,308 @@ public:
     Target *target = nullptr;
 };
 
-void ProjectExplorerTest::testProject_setup()
+class ProjectTest : public QObject
 {
-    TestProject project;
+    Q_OBJECT
 
-    QCOMPARE(project.displayName(), TEST_PROJECT_DISPLAYNAME);
-
-    QVERIFY(!project.rootProjectNode());
-    QVERIFY(project.containerNode());
-
-    QVERIFY(project.macroExpander());
-
-    QCOMPARE(project.mimeType(), TEST_PROJECT_MIMETYPE);
-    QCOMPARE(project.projectFilePath(), TEST_PROJECT_PATH);
-    QCOMPARE(project.projectDirectory(), TEST_PROJECT_PATH.parentDir());
-
-    QCOMPARE(project.isKnownFile(TEST_PROJECT_PATH), true);
-    QCOMPARE(project.isKnownFile(TEST_PROJECT_NONEXISTING_FILE), false);
-    QCOMPARE(project.isKnownFile(TEST_PROJECT_CPP_FILE), false);
-
-    QCOMPARE(project.files(Project::AllFiles), {TEST_PROJECT_PATH});
-    QCOMPARE(project.files(Project::GeneratedFiles), {});
-
-    QCOMPARE(project.id(), Id(TEST_PROJECT_ID));
-
-    QVERIFY(!project.activeBuildSystem()->isParsing());
-    QVERIFY(!project.activeBuildSystem()->hasParsingData());
-}
-
-void ProjectExplorerTest::testProject_changeDisplayName()
-{
-    TestProject project;
-
-    QSignalSpy spy(&project, &Project::displayNameChanged);
-
-    const QString newName = "other name";
-    project.setDisplayName(newName);
-    QCOMPARE(spy.count(), 1);
-    QVariantList args = spy.takeFirst();
-    QCOMPARE(args, {});
-
-    project.setDisplayName(newName);
-    QCOMPARE(spy.count(), 0);
-}
-
-void ProjectExplorerTest::testProject_parsingSuccess()
-{
-    TestProject project;
-
-    QSignalSpy startSpy(project.activeBuildSystem(), &BuildSystem::parsingStarted);
-    QSignalSpy stopSpy(project.activeBuildSystem(), &BuildSystem::parsingFinished);
-
+private slots:
+    void testSetup()
     {
-        BuildSystem::ParseGuard guard = project.activeBuildSystem()->guardParsingRun();
-        QCOMPARE(startSpy.count(), 1);
-        QCOMPARE(stopSpy.count(), 0);
+        TestProject project;
 
-        QVERIFY(project.activeBuildSystem()->isParsing());
-        QVERIFY(!project.activeBuildSystem()->hasParsingData());
+        QCOMPARE(project.displayName(), TEST_PROJECT_DISPLAYNAME);
 
-        guard.markAsSuccess();
-    }
+        QVERIFY(!project.rootProjectNode());
+        QVERIFY(project.containerNode());
 
-    QCOMPARE(startSpy.count(), 1);
-    QCOMPARE(stopSpy.count(), 1);
-    QCOMPARE(stopSpy.at(0), {QVariant(true)});
+        QVERIFY(project.macroExpander());
 
-    QVERIFY(!project.activeBuildSystem()->isParsing());
-    QVERIFY(project.activeBuildSystem()->hasParsingData());
-}
+        QCOMPARE(project.mimeType(), TEST_PROJECT_MIMETYPE);
+        QCOMPARE(project.projectFilePath(), TEST_PROJECT_PATH);
+        QCOMPARE(project.projectDirectory(), TEST_PROJECT_PATH.parentDir());
 
-void ProjectExplorerTest::testProject_parsingFail()
-{
-    TestProject project;
+        QCOMPARE(project.isKnownFile(TEST_PROJECT_PATH), true);
+        QCOMPARE(project.isKnownFile(TEST_PROJECT_NONEXISTING_FILE), false);
+        QCOMPARE(project.isKnownFile(TEST_PROJECT_CPP_FILE), false);
 
-    QSignalSpy startSpy(project.activeBuildSystem(), &BuildSystem::parsingStarted);
-    QSignalSpy stopSpy(project.activeBuildSystem(), &BuildSystem::parsingFinished);
+        QCOMPARE(project.files(Project::AllFiles), {TEST_PROJECT_PATH});
+        QCOMPARE(project.files(Project::GeneratedFiles), {});
 
-    {
-        BuildSystem::ParseGuard guard = project.activeBuildSystem()->guardParsingRun();
-        QCOMPARE(startSpy.count(), 1);
-        QCOMPARE(stopSpy.count(), 0);
+        QCOMPARE(project.id(), Id(TEST_PROJECT_ID));
 
-        QVERIFY(project.activeBuildSystem()->isParsing());
+        QVERIFY(!project.activeBuildSystem()->isParsing());
         QVERIFY(!project.activeBuildSystem()->hasParsingData());
     }
 
-    QCOMPARE(startSpy.count(), 1);
-    QCOMPARE(stopSpy.count(), 1);
-    QCOMPARE(stopSpy.at(0), {QVariant(false)});
+    void testChangeDisplayName()
+    {
+        TestProject project;
 
-    QVERIFY(!project.activeBuildSystem()->isParsing());
-    QVERIFY(!project.activeBuildSystem()->hasParsingData());
-}
+        QSignalSpy spy(&project, &Project::displayNameChanged);
 
-std::unique_ptr<ProjectNode> createFileTree(Project *project)
-{
-    std::unique_ptr<ProjectNode> root = std::make_unique<ProjectNode>(project->projectDirectory());
-    std::vector<std::unique_ptr<FileNode>> nodes;
-    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_PATH, FileType::Project));
-    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_CPP_FILE, FileType::Source));
-    nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_GENERATED_FILE, FileType::Source));
-    nodes.back()->setIsGenerated(true);
-    root->addNestedNodes(std::move(nodes));
+        const QString newName = "other name";
+        project.setDisplayName(newName);
+        QCOMPARE(spy.count(), 1);
+        QVariantList args = spy.takeFirst();
+        QCOMPARE(args, {});
 
-    return root;
-}
-
-void ProjectExplorerTest::testProject_projectTree()
-{
-    TestProject project;
-    QSignalSpy fileSpy(&project, &Project::fileListChanged);
-
-    project.setRootProjectNode(nullptr);
-    QCOMPARE(fileSpy.count(), 0);
-    QVERIFY(!project.rootProjectNode());
-
-    project.setRootProjectNode(std::make_unique<ProjectNode>(project.projectDirectory()));
-    QCOMPARE(fileSpy.count(), 0);
-    QVERIFY(!project.rootProjectNode());
-
-    std::unique_ptr<ProjectNode> root = createFileTree(&project);
-    ProjectNode *rootNode = root.get();
-    project.setRootProjectNode(std::move(root));
-    QCOMPARE(fileSpy.count(), 1);
-    QCOMPARE(project.rootProjectNode(), rootNode);
-
-    // Test known files:
-    QCOMPARE(project.isKnownFile(TEST_PROJECT_PATH), true);
-    QCOMPARE(project.isKnownFile(TEST_PROJECT_NONEXISTING_FILE), false);
-    QCOMPARE(project.isKnownFile(TEST_PROJECT_CPP_FILE), true);
-    QCOMPARE(project.isKnownFile(TEST_PROJECT_GENERATED_FILE), true);
-
-    FilePaths allFiles = project.files(Project::AllFiles);
-    QCOMPARE(allFiles.count(), 3);
-    QVERIFY(allFiles.contains(TEST_PROJECT_PATH));
-    QVERIFY(allFiles.contains(TEST_PROJECT_CPP_FILE));
-    QVERIFY(allFiles.contains(TEST_PROJECT_GENERATED_FILE));
-
-    QCOMPARE(project.files(Project::GeneratedFiles), {TEST_PROJECT_GENERATED_FILE});
-    FilePaths sourceFiles = project.files(Project::SourceFiles);
-    QCOMPARE(sourceFiles.count(), 2);
-    QVERIFY(sourceFiles.contains(TEST_PROJECT_PATH));
-    QVERIFY(sourceFiles.contains(TEST_PROJECT_CPP_FILE));
-
-    project.setRootProjectNode(nullptr);
-    QCOMPARE(fileSpy.count(), 2);
-    QVERIFY(!project.rootProjectNode());
-}
-
-void ProjectExplorerTest::testProject_multipleBuildConfigs()
-{
-    // Find suitable kit.
-    Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid();
-    });
-    if (!kit)
-        QSKIP("The test requires at least one valid kit.");
-
-    // Copy project from qrc file and set it up.
-    QTemporaryDir * const tempDir = TemporaryDirectory::masterTemporaryDirectory();
-    QVERIFY(tempDir->isValid());
-    const FilePath projectDir = FilePath::fromString(tempDir->path() + "/generic-project");
-    const auto copyResult = FilePath(":/projectexplorer/testdata/generic-project").copyRecursively(projectDir);
-    if (!copyResult)
-        qDebug() << copyResult.error();
-    QVERIFY(copyResult);
-
-    const QFileInfoList files = QDir(projectDir.toUrlishString()).entryInfoList(QDir::Files | QDir::Dirs);
-    for (const QFileInfo &f : files)
-        QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
-    const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended("generic-project.creator"));
-    QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
-    theProject.project()->configureAsExampleProject(kit);
-    QCOMPARE(theProject.project()->targets().size(), 1);
-    Target * const target = theProject.project()->activeTarget();
-    QVERIFY(target);
-    QCOMPARE(target->buildConfigurations().size(), 6);
-    target->setActiveBuildConfiguration(target->buildConfigurations().at(1), SetActive::Cascade);
-    BuildSystem * const bs = theProject.project()->activeBuildSystem();
-    QVERIFY(bs);
-    QCOMPARE(bs, target->activeBuildConfiguration()->buildSystem());
-    if (bs->isWaitingForParse() || bs->isParsing()) {
-        QEventLoop loop;
-        QTimer t;
-        t.setSingleShot(true);
-        connect(&t, &QTimer::timeout, &loop, &QEventLoop::quit);
-        connect(bs, &BuildSystem::parsingFinished, &loop, &QEventLoop::quit);
-        t.start(10000);
-        QVERIFY(loop.exec());
-        QVERIFY(t.isActive());
+        project.setDisplayName(newName);
+        QCOMPARE(spy.count(), 0);
     }
-    QVERIFY(!bs->isWaitingForParse() && !bs->isParsing());
 
-    QCOMPARE(ProjectManager::startupProject(), theProject.project());
-    QCOMPARE(ProjectTree::currentProject(), theProject.project());
-    QVERIFY(EditorManager::openEditor(projectDir.pathAppended("main.cpp")));
-    QVERIFY(ProjectTree::currentNode());
-    ProjectTree::instance()->expandAll();
-    ProjectManager::closeAllProjects(); // QTCREATORBUG-25655
-}
+    void testParsingSuccess()
+    {
+        TestProject project;
 
-void ProjectExplorerTest::testSourceToBinaryMapping()
-{
-    // Find suitable kit.
-    Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid() && ToolchainKitAspect::cxxToolchain(k);
-    });
-    if (!kit)
-        QSKIP("The test requires at least one kit with a toolchain.");
+        QSignalSpy startSpy(project.activeBuildSystem(), &BuildSystem::parsingStarted);
+        QSignalSpy stopSpy(project.activeBuildSystem(), &BuildSystem::parsingFinished);
 
-    const auto toolchain = ToolchainKitAspect::cxxToolchain(kit);
-    QVERIFY(toolchain);
-    if (const auto msvcToolchain = dynamic_cast<Internal::MsvcToolchain *>(toolchain)) {
-        while (!msvcToolchain->environmentInitialized()) {
-            QSignalSpy parsingFinishedSpy(ToolchainManager::instance(),
-                                          &ToolchainManager::toolchainUpdated);
-            QVERIFY(parsingFinishedSpy.wait(10000));
+        {
+            BuildSystem::ParseGuard guard = project.activeBuildSystem()->guardParsingRun();
+            QCOMPARE(startSpy.count(), 1);
+            QCOMPARE(stopSpy.count(), 0);
+
+            QVERIFY(project.activeBuildSystem()->isParsing());
+            QVERIFY(!project.activeBuildSystem()->hasParsingData());
+
+            guard.markAsSuccess();
         }
+
+        QCOMPARE(startSpy.count(), 1);
+        QCOMPARE(stopSpy.count(), 1);
+        QCOMPARE(stopSpy.at(0), {QVariant(true)});
+
+        QVERIFY(!project.activeBuildSystem()->isParsing());
+        QVERIFY(project.activeBuildSystem()->hasParsingData());
     }
 
-    // Copy project from qrc.
-    QTemporaryDir * const tempDir = TemporaryDirectory::masterTemporaryDirectory();
-    QVERIFY(tempDir->isValid());
-    const FilePath projectDir = FilePath::fromString(tempDir->path() + "/multi-target-project");
-    if (!projectDir.exists()) {
-        const auto result = FilePath(":/projectexplorer/testdata/multi-target-project")
-                                .copyRecursively(projectDir);
-        if (!result)
-            qDebug() << result.error();
-        QVERIFY(result);
-        const QFileInfoList files = QDir(projectDir.toUrlishString()).entryInfoList(QDir::Files);
+    void testParsingFail()
+    {
+        TestProject project;
+
+        QSignalSpy startSpy(project.activeBuildSystem(), &BuildSystem::parsingStarted);
+        QSignalSpy stopSpy(project.activeBuildSystem(), &BuildSystem::parsingFinished);
+
+        {
+            BuildSystem::ParseGuard guard = project.activeBuildSystem()->guardParsingRun();
+            QCOMPARE(startSpy.count(), 1);
+            QCOMPARE(stopSpy.count(), 0);
+
+            QVERIFY(project.activeBuildSystem()->isParsing());
+            QVERIFY(!project.activeBuildSystem()->hasParsingData());
+        }
+
+        QCOMPARE(startSpy.count(), 1);
+        QCOMPARE(stopSpy.count(), 1);
+        QCOMPARE(stopSpy.at(0), {QVariant(false)});
+
+        QVERIFY(!project.activeBuildSystem()->isParsing());
+        QVERIFY(!project.activeBuildSystem()->hasParsingData());
+    }
+
+    static std::unique_ptr<ProjectNode> createFileTree(Project *project)
+    {
+        std::unique_ptr<ProjectNode> root = std::make_unique<ProjectNode>(project->projectDirectory());
+        std::vector<std::unique_ptr<FileNode>> nodes;
+        nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_PATH, FileType::Project));
+        nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_CPP_FILE, FileType::Source));
+        nodes.emplace_back(std::make_unique<FileNode>(TEST_PROJECT_GENERATED_FILE, FileType::Source));
+        nodes.back()->setIsGenerated(true);
+        root->addNestedNodes(std::move(nodes));
+
+        return root;
+    }
+
+    void testProjectTree()
+    {
+        TestProject project;
+        QSignalSpy fileSpy(&project, &Project::fileListChanged);
+
+        project.setRootProjectNode(nullptr);
+        QCOMPARE(fileSpy.count(), 0);
+        QVERIFY(!project.rootProjectNode());
+
+        project.setRootProjectNode(std::make_unique<ProjectNode>(project.projectDirectory()));
+        QCOMPARE(fileSpy.count(), 0);
+        QVERIFY(!project.rootProjectNode());
+
+        std::unique_ptr<ProjectNode> root = createFileTree(&project);
+        ProjectNode *rootNode = root.get();
+        project.setRootProjectNode(std::move(root));
+        QCOMPARE(fileSpy.count(), 1);
+        QCOMPARE(project.rootProjectNode(), rootNode);
+
+        // Test known files:
+        QCOMPARE(project.isKnownFile(TEST_PROJECT_PATH), true);
+        QCOMPARE(project.isKnownFile(TEST_PROJECT_NONEXISTING_FILE), false);
+        QCOMPARE(project.isKnownFile(TEST_PROJECT_CPP_FILE), true);
+        QCOMPARE(project.isKnownFile(TEST_PROJECT_GENERATED_FILE), true);
+
+        FilePaths allFiles = project.files(Project::AllFiles);
+        QCOMPARE(allFiles.count(), 3);
+        QVERIFY(allFiles.contains(TEST_PROJECT_PATH));
+        QVERIFY(allFiles.contains(TEST_PROJECT_CPP_FILE));
+        QVERIFY(allFiles.contains(TEST_PROJECT_GENERATED_FILE));
+
+        QCOMPARE(project.files(Project::GeneratedFiles), {TEST_PROJECT_GENERATED_FILE});
+        FilePaths sourceFiles = project.files(Project::SourceFiles);
+        QCOMPARE(sourceFiles.count(), 2);
+        QVERIFY(sourceFiles.contains(TEST_PROJECT_PATH));
+        QVERIFY(sourceFiles.contains(TEST_PROJECT_CPP_FILE));
+
+        project.setRootProjectNode(nullptr);
+        QCOMPARE(fileSpy.count(), 2);
+        QVERIFY(!project.rootProjectNode());
+    }
+
+    void testMultipleBuildConfigs()
+    {
+        // Find suitable kit.
+        Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+            return k->isValid();
+        });
+        if (!kit)
+            QSKIP("The test requires at least one valid kit.");
+
+        // Copy project from qrc file and set it up.
+        QTemporaryDir * const tempDir = TemporaryDirectory::masterTemporaryDirectory();
+        QVERIFY(tempDir->isValid());
+        const FilePath projectDir = FilePath::fromString(tempDir->path() + "/generic-project");
+        const auto copyResult = FilePath(":/projectexplorer/testdata/generic-project").copyRecursively(projectDir);
+        if (!copyResult)
+            qDebug() << copyResult.error();
+        QVERIFY(copyResult);
+
+        const QFileInfoList files = QDir(projectDir.toUrlishString()).entryInfoList(QDir::Files | QDir::Dirs);
         for (const QFileInfo &f : files)
             QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
-    }
-
-    // Load Project.
-    QFETCH(QString, projectFileName);
-    const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended(projectFileName));
-    if (!theProject
-        && !ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(projectFileName))) {
-        QSKIP("This test requires the presence of the qmake/cmake/qbs project managers "
-              "to be fully functional");
-    }
-
-    QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
-    theProject.project()->configureAsExampleProject(kit);
-    QCOMPARE(theProject.project()->targets().size(), 1);
-    BuildSystem * const bs = theProject.project()->activeBuildSystem();
-    QVERIFY(bs);
-    if (bs->isWaitingForParse() || bs->isParsing()) {
-        QSignalSpy parsingFinishedSpy(bs, &BuildSystem::parsingFinished);
-        QVERIFY(parsingFinishedSpy.wait(10000));
-    }
-    QVERIFY(!bs->isWaitingForParse() && !bs->isParsing());
-
-    if (QLatin1String(QTest::currentDataTag()) == QLatin1String("qbs")) {
-        BuildManager::buildProjectWithoutDependencies(theProject.project());
-        if (BuildManager::isBuilding()) {
-            QSignalSpy buildingFinishedSpy(BuildManager::instance(), &BuildManager::buildQueueFinished);
-            QVERIFY(buildingFinishedSpy.wait(10000));
+        const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended("generic-project.creator"));
+        QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
+        theProject.project()->configureAsExampleProject(kit);
+        QCOMPARE(theProject.project()->targets().size(), 1);
+        Target * const target = theProject.project()->activeTarget();
+        QVERIFY(target);
+        QCOMPARE(target->buildConfigurations().size(), 6);
+        target->setActiveBuildConfiguration(target->buildConfigurations().at(1), SetActive::Cascade);
+        BuildSystem * const bs = theProject.project()->activeBuildSystem();
+        QVERIFY(bs);
+        QCOMPARE(bs, target->activeBuildConfiguration()->buildSystem());
+        if (bs->isWaitingForParse() || bs->isParsing()) {
+            QEventLoop loop;
+            QTimer t;
+            t.setSingleShot(true);
+            connect(&t, &QTimer::timeout, &loop, &QEventLoop::quit);
+            connect(bs, &BuildSystem::parsingFinished, &loop, &QEventLoop::quit);
+            t.start(10000);
+            QVERIFY(loop.exec());
+            QVERIFY(t.isActive());
         }
-        QVERIFY(!BuildManager::isBuilding());
-        QSignalSpy projectUpdateSpy(theProject.project(), &Project::fileListChanged);
-        QVERIFY(projectUpdateSpy.wait(5000));
+        QVERIFY(!bs->isWaitingForParse() && !bs->isParsing());
+
+        QCOMPARE(ProjectManager::startupProject(), theProject.project());
+        QCOMPARE(ProjectTree::currentProject(), theProject.project());
+        QVERIFY(EditorManager::openEditor(projectDir.pathAppended("main.cpp")));
+        QVERIFY(ProjectTree::currentNode());
+        ProjectTree::instance()->expandAll();
+        ProjectManager::closeAllProjects(); // QTCREATORBUG-25655
     }
 
-    // Check mapping
-    const auto binariesForSource = [&](const QString &fileName) {
-        return theProject.project()->binariesForSourceFile(projectDir.pathAppended(fileName));
-    };
-    QCOMPARE(binariesForSource("multi-target-project-main.cpp").size(), 1);
-    QCOMPARE(binariesForSource("multi-target-project-lib.cpp").size(), 1);
-    QCOMPARE(binariesForSource("multi-target-project-shared.h").size(), 2);
-}
+    void testSourceToBinaryMapping()
+    {
+        // Find suitable kit.
+        Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+            return k->isValid() && ToolchainKitAspect::cxxToolchain(k);
+        });
+        if (!kit)
+            QSKIP("The test requires at least one kit with a toolchain.");
 
-void ProjectExplorerTest::testSourceToBinaryMapping_data()
-{
-    QTest::addColumn<QString>("projectFileName");
-    QTest::addRow("cmake") << "CMakeLists.txt";
-    QTest::addRow("qbs") << "multi-target-project.qbs";
-    QTest::addRow("qmake") << "multi-target-project.pro";
-}
+        const auto toolchain = ToolchainKitAspect::cxxToolchain(kit);
+        QVERIFY(toolchain);
+        if (const auto msvcToolchain = dynamic_cast<Internal::MsvcToolchain *>(toolchain)) {
+            while (!msvcToolchain->environmentInitialized()) {
+                QSignalSpy parsingFinishedSpy(ToolchainManager::instance(),
+                                              &ToolchainManager::toolchainUpdated);
+                QVERIFY(parsingFinishedSpy.wait(10000));
+            }
+        }
+
+        // Copy project from qrc.
+        QTemporaryDir * const tempDir = TemporaryDirectory::masterTemporaryDirectory();
+        QVERIFY(tempDir->isValid());
+        const FilePath projectDir = FilePath::fromString(tempDir->path() + "/multi-target-project");
+        if (!projectDir.exists()) {
+            const auto result = FilePath(":/projectexplorer/testdata/multi-target-project")
+            .copyRecursively(projectDir);
+            if (!result)
+                qDebug() << result.error();
+            QVERIFY(result);
+            const QFileInfoList files = QDir(projectDir.toUrlishString()).entryInfoList(QDir::Files);
+            for (const QFileInfo &f : files)
+                QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
+        }
+
+        // Load Project.
+        QFETCH(QString, projectFileName);
+        const auto theProject = ProjectExplorerPlugin::openProject(projectDir.pathAppended(projectFileName));
+        if (!theProject
+            && !ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(projectFileName))) {
+            QSKIP("This test requires the presence of the qmake/cmake/qbs project managers "
+                  "to be fully functional");
+        }
+
+        QVERIFY2(theProject, qPrintable(theProject.errorMessage()));
+        theProject.project()->configureAsExampleProject(kit);
+        QCOMPARE(theProject.project()->targets().size(), 1);
+        BuildSystem * const bs = theProject.project()->activeBuildSystem();
+        QVERIFY(bs);
+        if (bs->isWaitingForParse() || bs->isParsing()) {
+            QSignalSpy parsingFinishedSpy(bs, &BuildSystem::parsingFinished);
+            QVERIFY(parsingFinishedSpy.wait(10000));
+        }
+        QVERIFY(!bs->isWaitingForParse() && !bs->isParsing());
+
+        if (QLatin1String(QTest::currentDataTag()) == QLatin1String("qbs")) {
+            BuildManager::buildProjectWithoutDependencies(theProject.project());
+            if (BuildManager::isBuilding()) {
+                QSignalSpy buildingFinishedSpy(BuildManager::instance(), &BuildManager::buildQueueFinished);
+                QVERIFY(buildingFinishedSpy.wait(10000));
+            }
+            QVERIFY(!BuildManager::isBuilding());
+            QSignalSpy projectUpdateSpy(theProject.project(), &Project::fileListChanged);
+            QVERIFY(projectUpdateSpy.wait(5000));
+        }
+
+        // Check mapping
+        const auto binariesForSource = [&](const QString &fileName) {
+            return theProject.project()->binariesForSourceFile(projectDir.pathAppended(fileName));
+        };
+        QCOMPARE(binariesForSource("multi-target-project-main.cpp").size(), 1);
+        QCOMPARE(binariesForSource("multi-target-project-lib.cpp").size(), 1);
+        QCOMPARE(binariesForSource("multi-target-project-shared.h").size(), 2);
+    }
+
+    void testSourceToBinaryMapping_data()
+    {
+        QTest::addColumn<QString>("projectFileName");
+        QTest::addRow("cmake") << "CMakeLists.txt";
+        QTest::addRow("qbs") << "multi-target-project.qbs";
+        QTest::addRow("qmake") << "multi-target-project.pro";
+    }
+};
 
 static TestBuildConfigurationFactory testBuildConfigFactory;
 
-} // ProjectExplorer::Internal
+QObject *createProjectTest()
+{
+    return new ProjectTest;
+}
+
+} // namespace Internal
 
 #endif // WITH_TESTS
+
+} // namepace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <project.moc>
+#endif

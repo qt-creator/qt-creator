@@ -798,6 +798,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createOutputParserTest);
     addTestCreator(createLdOutputParserTest);
     addTestCreator(createJsonWizardTest);
+    addTestCreator(createProjectTest);
 #endif
 
     setupGccToolchains();

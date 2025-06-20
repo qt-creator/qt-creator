@@ -60,16 +60,6 @@ private slots:
     void testUserFileAccessor_mergeSettingsEmptyUser();
     void testUserFileAccessor_mergeSettingsEmptyShared();
 
-    void testProject_setup();
-    void testProject_changeDisplayName();
-    void testProject_parsingSuccess();
-    void testProject_parsingFail();
-    void testProject_projectTree();
-    void testProject_multipleBuildConfigs();
-
-    void testSourceToBinaryMapping();
-    void testSourceToBinaryMapping_data();
-
     void testSessionSwitch();
 
 private:

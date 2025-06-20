@@ -274,4 +274,8 @@ private:
 PROJECTEXPLORER_EXPORT TextEditor::ProjectWrapper wrapProject(Project *p);
 PROJECTEXPLORER_EXPORT Project *unwrapProject(const TextEditor::ProjectWrapper &w);
 
+#ifdef WITH_TESTS
+namespace Internal { QObject *createProjectTest(); }
+#endif
+
 } // namespace ProjectExplorer
