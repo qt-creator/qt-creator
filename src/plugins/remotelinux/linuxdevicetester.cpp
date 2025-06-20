@@ -96,7 +96,6 @@ GroupItem GenericLinuxDeviceTesterPrivate::connectionTask() const
     const auto onDone = [this](const Async<Result<>> &task) {
         const bool success = task.isResultAvailable() && task.result();
         if (success) {
-            // TODO: For master: move the '\n' outside of Tr().
             emit q->progressMessage(Tr::tr("Connected. Now doing extended checks.") + "\n");
         } else {
             emit q->errorMessage(
