@@ -1305,10 +1305,6 @@ void RunControlPrivate::debugMessage(const QString &msg) const
     qCDebug(statesLog()) << msg;
 }
 
-namespace Internal {
-
-} // Internal
-
 ProcessTask processTask(RunControl *runControl,
                         const std::function<SetupResult(Process &)> &startModifier,
                         bool suppressDefaultStdOutHandling)
