@@ -29,10 +29,10 @@ private:
     bool m_suppressIssues = false;
 
     int m_fatalErrorCount = 0;
-
-#if defined WITH_TESTS
-    friend class ProjectExplorerPlugin;
-#endif
 };
+
+#ifdef WITH_TESTS
+namespace Internal { QObject *createGnuMakeParserTest(); }
+#endif
 
 } // namespace ProjectExplorer

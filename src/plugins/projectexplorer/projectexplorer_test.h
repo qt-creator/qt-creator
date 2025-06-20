@@ -28,10 +28,6 @@ private slots:
     void testLinuxIccOutputParsers_data();
     void testLinuxIccOutputParsers();
 
-    void testGnuMakeParserParsing_data();
-    void testGnuMakeParserParsing();
-    void testGnuMakeParserTaskMangling();
-
     void testXcodebuildParserParsing_data();
     void testXcodebuildParserParsing();
 

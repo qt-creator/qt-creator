@@ -162,6 +162,7 @@
 
 #ifdef WITH_TESTS
 #include "abi.h"
+#include "gnumakeparser.h"
 #include "jsonwizard/jsonwizard_test.h"
 #include "outputparser_test.h"
 #include "projectexplorer_test.h"
@@ -799,6 +800,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createAbiTest);
     addTestCreator(createOutputParserTest);
     addTestCreator(createLdOutputParserTest);
+    addTestCreator(createGnuMakeParserTest);
     addTestCreator(createJsonWizardTest);
     addTestCreator(createProjectTest);
 #endif
