@@ -597,13 +597,15 @@ struct ProjectStorage::Statements
     mutable Sqlite::ReadStatement<3> selectAllFileStatusesStatement{
         "SELECT sourceId, size, lastModified FROM fileStatuses ORDER BY sourceId", database};
     mutable Sqlite::ReadStatement<3, 1> selectFileStatusesForSourceIdsStatement{
-        "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId IN carray(?1) "
-        "ORDER "
-        "BY sourceId",
+        "SELECT sourceId, size, lastModified "
+        "FROM fileStatuses "
+        "WHERE sourceId IN carray(?1) "
+        "ORDER BY sourceId",
         database};
-    mutable Sqlite::ReadStatement<3, 1> selectFileStatusesForSourceIdStatement{
-        "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId=?1 ORDER BY "
-        "sourceId",
+    mutable Sqlite::ReadStatement<3, 1> selectFileStatusForSourceIdStatement{
+        "SELECT sourceId, size, lastModified "
+        "FROM fileStatuses "
+        "WHERE sourceId=?1",
         database};
     Sqlite::WriteStatement<3> insertFileStatusStatement{
         "INSERT INTO fileStatuses(sourceId, size, lastModified) VALUES(?1, ?2, ?3)", database};
@@ -2173,7 +2175,7 @@ FileStatus ProjectStorage::fetchFileStatus(SourceId sourceId) const
 {
     NanotraceHR::Tracer tracer{"fetch file status", category(), keyValue("source id", sourceId)};
 
-    auto fileStatus = s->selectFileStatusesForSourceIdStatement.valueWithTransaction<FileStatus>(
+    auto fileStatus = s->selectFileStatusForSourceIdStatement.valueWithTransaction<FileStatus>(
         sourceId);
 
     tracer.end(keyValue("file status", fileStatus));
