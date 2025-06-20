@@ -69,7 +69,7 @@ public:
     QString deviceStateToString() const override;
 
     bool isDisconnected() const;
-    bool tryToConnect();
+    Utils::Result<> tryToConnect();
 
     void attachToSharedConnection(Internal::SshConnectionHandle *sshConnectionHandle,
                                   const ProjectExplorer::SshParameters &sshParams) const;
