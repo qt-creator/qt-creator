@@ -156,6 +156,11 @@ private:
     QMetaObject::Connection m_thisToolchainRemovedConnection;
 };
 
-namespace Internal { void setupGccToolchains(); }
+namespace Internal {
+void setupGccToolchains();
+#ifdef WITH_TESTS
+QObject *createGccToolchainTest();
+#endif
+} // namespace Internal
 
 } // namespace ProjectExplorer

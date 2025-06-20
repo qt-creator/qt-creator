@@ -23,7 +23,6 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
-#include <utils/scopedtimer.h>
 
 #include <QBuffer>
 #include <QCheckBox>
@@ -38,6 +37,11 @@
 #include <QTimer>
 
 #include <memory>
+
+#ifdef WITH_TESTS
+#include <QTest>
+#include <QUrl>
+#endif
 
 namespace {
 static Q_LOGGING_CATEGORY(gccLog, "qtc.projectexplorer.toolchain.gcc", QtWarningMsg);
@@ -2190,169 +2194,174 @@ Toolchain *GccToolchainConfigWidget::toolchainFromBundleId(Id bundleId, Id langu
         });
 }
 
-} // namespace ProjectExplorer
-
 // Unit tests:
-
 #ifdef WITH_TESTS
-#   include "projectexplorer_test.h"
-
-#   include <QTest>
-#   include <QUrl>
-
-namespace ProjectExplorer {
-void ProjectExplorerTest::testGccAbiGuessing_data()
+namespace Internal {
+class GccToolchainTest : public QObject
 {
-    QTest::addColumn<QString>("input");
-    QTest::addColumn<QByteArray>("macros");
-    QTest::addColumn<QStringList>("abiList");
+    Q_OBJECT
 
-    QTest::newRow("invalid input")
+private slots:
+    void testAbiGuessing_data()
+    {
+        QTest::addColumn<QString>("input");
+        QTest::addColumn<QByteArray>("macros");
+        QTest::addColumn<QStringList>("abiList");
+
+        QTest::newRow("invalid input")
             << QString::fromLatin1("Some text")
             << QByteArray("")
             << (QStringList());
-    QTest::newRow("empty input")
+        QTest::newRow("empty input")
             << QString::fromLatin1("")
             << QByteArray("")
             << (QStringList());
-    QTest::newRow("empty input (with macros)")
+        QTest::newRow("empty input (with macros)")
             << QString::fromLatin1("")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n#define __Something\n")
             << (QStringList());
-    QTest::newRow("broken input -- 64bit")
+        QTest::newRow("broken input -- 64bit")
             << QString::fromLatin1("arm-none-foo-gnueabi")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n#define __Something\n")
             << QStringList({"arm-baremetal-generic-elf-64bit"});
-    QTest::newRow("broken input -- 32bit")
+        QTest::newRow("broken input -- 32bit")
             << QString::fromLatin1("arm-none-foo-gnueabi")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n#define __Something\n")
             << QStringList({"arm-baremetal-generic-elf-32bit"});
-    QTest::newRow("totally broken input -- 32bit")
+        QTest::newRow("totally broken input -- 32bit")
             << QString::fromLatin1("foo-bar-foo")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n#define __Something\n")
             << QStringList();
 
-    QTest::newRow("Linux 1 (32bit intel)")
+        QTest::newRow("Linux 1 (32bit intel)")
             << QString::fromLatin1("i686-linux-gnu")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
             << QStringList({"x86-linux-generic-elf-32bit"});
-    QTest::newRow("Linux 2 (32bit intel)")
+        QTest::newRow("Linux 2 (32bit intel)")
             << QString::fromLatin1("i486-linux-gnu")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
             << QStringList({"x86-linux-generic-elf-32bit"});
-    QTest::newRow("Linux 3 (64bit intel)")
+        QTest::newRow("Linux 3 (64bit intel)")
             << QString::fromLatin1("x86_64-linux-gnu")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
             << QStringList("x86-linux-generic-elf-64bit");
-    QTest::newRow("Linux 3 (64bit intel -- non 64bit)")
+        QTest::newRow("Linux 3 (64bit intel -- non 64bit)")
             << QString::fromLatin1("x86_64-linux-gnu")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
             << QStringList({"x86-linux-generic-elf-32bit"});
-    QTest::newRow("Linux 4 (32bit mips)")
+        QTest::newRow("Linux 4 (32bit mips)")
             << QString::fromLatin1("mipsel-linux-uclibc")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4")
             << QStringList({"mips-linux-generic-elf-32bit"});
-    QTest::newRow("Linux 5 (QTCREATORBUG-4690)") // from QTCREATORBUG-4690
+        QTest::newRow("Linux 5 (QTCREATORBUG-4690)") // from QTCREATORBUG-4690
             << QString::fromLatin1("x86_64-redhat-linux6E")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
             << QStringList("x86-linux-generic-elf-64bit");
-    QTest::newRow("Linux 6 (QTCREATORBUG-4690)") // from QTCREATORBUG-4690
+        QTest::newRow("Linux 6 (QTCREATORBUG-4690)") // from QTCREATORBUG-4690
             << QString::fromLatin1("x86_64-redhat-linux")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
             << QStringList("x86-linux-generic-elf-64bit");
-    QTest::newRow("Linux 7 (arm)")
-                << QString::fromLatin1("armv5tl-montavista-linux-gnueabi")
-                << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
-                << QStringList({"arm-linux-generic-elf-32bit"});
-    QTest::newRow("Linux 8 (arm)")
-                << QString::fromLatin1("arm-angstrom-linux-gnueabi")
-                << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
-                << QStringList({"arm-linux-generic-elf-32bit"});
-    QTest::newRow("Linux 9 (ppc)")
-                << QString::fromLatin1("powerpc-nsg-linux")
-                << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
-                << QStringList({"ppc-linux-generic-elf-32bit"});
-    QTest::newRow("Linux 10 (ppc 64bit)")
-                << QString::fromLatin1("powerpc64-suse-linux")
-                << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
-                << QStringList({"ppc-linux-generic-elf-64bit"});
-    QTest::newRow("Linux 11 (64bit mips)")
+        QTest::newRow("Linux 7 (arm)")
+            << QString::fromLatin1("armv5tl-montavista-linux-gnueabi")
+            << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
+            << QStringList({"arm-linux-generic-elf-32bit"});
+        QTest::newRow("Linux 8 (arm)")
+            << QString::fromLatin1("arm-angstrom-linux-gnueabi")
+            << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
+            << QStringList({"arm-linux-generic-elf-32bit"});
+        QTest::newRow("Linux 9 (ppc)")
+            << QString::fromLatin1("powerpc-nsg-linux")
+            << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
+            << QStringList({"ppc-linux-generic-elf-32bit"});
+        QTest::newRow("Linux 10 (ppc 64bit)")
+            << QString::fromLatin1("powerpc64-suse-linux")
+            << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
+            << QStringList({"ppc-linux-generic-elf-64bit"});
+        QTest::newRow("Linux 11 (64bit mips)")
             << QString::fromLatin1("mips64el-linux-uclibc")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8")
             << QStringList({"mips-linux-generic-elf-64bit"});
 
-    QTest::newRow("Mingw 1 (32bit)")
+        QTest::newRow("Mingw 1 (32bit)")
             << QString::fromLatin1("i686-w64-mingw32")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\r\n")
             << QStringList({"x86-windows-msys-pe-32bit"});
-    QTest::newRow("Mingw 2 (64bit)")
+        QTest::newRow("Mingw 2 (64bit)")
             << QString::fromLatin1("i686-w64-mingw32")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\r\n")
             << QStringList({"x86-windows-msys-pe-64bit"});
-    QTest::newRow("Mingw 3 (32 bit)")
+        QTest::newRow("Mingw 3 (32 bit)")
             << QString::fromLatin1("mingw32")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\r\n")
             << QStringList({"x86-windows-msys-pe-32bit"});
-    QTest::newRow("Cross Mingw 1 (64bit)")
+        QTest::newRow("Cross Mingw 1 (64bit)")
             << QString::fromLatin1("amd64-mingw32msvc")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\r\n")
             << QStringList({"x86-windows-msys-pe-64bit"});
-    QTest::newRow("Cross Mingw 2 (32bit)")
+        QTest::newRow("Cross Mingw 2 (32bit)")
             << QString::fromLatin1("i586-mingw32msvc")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\r\n")
             << QStringList({"x86-windows-msys-pe-32bit"});
-    QTest::newRow("Clang 1: windows")
+        QTest::newRow("Clang 1: windows")
             << QString::fromLatin1("x86_64-pc-win32")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\r\n")
             << QStringList("x86-windows-msys-pe-64bit");
-    QTest::newRow("Clang 1: linux")
+        QTest::newRow("Clang 1: linux")
             << QString::fromLatin1("x86_64-unknown-linux-gnu")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
             << QStringList("x86-linux-generic-elf-64bit");
-    QTest::newRow("Mac 1")
+        QTest::newRow("Mac 1")
             << QString::fromLatin1("i686-apple-darwin10")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
             << QStringList({"x86-darwin-generic-mach_o-64bit", "x86-darwin-generic-mach_o-32bit"});
-    QTest::newRow("Mac 2")
+        QTest::newRow("Mac 2")
             << QString::fromLatin1("powerpc-apple-darwin10")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
             << QStringList({"ppc-darwin-generic-mach_o-64bit", "ppc-darwin-generic-mach_o-32bit"});
-    QTest::newRow("Mac 3")
+        QTest::newRow("Mac 3")
             << QString::fromLatin1("i686-apple-darwin9")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
             << QStringList({"x86-darwin-generic-mach_o-32bit", "x86-darwin-generic-mach_o-64bit"});
-    QTest::newRow("Mac IOS")
+        QTest::newRow("Mac IOS")
             << QString::fromLatin1("arm-apple-darwin9")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
             << QStringList({"arm-darwin-generic-mach_o-32bit", "arm-darwin-generic-mach_o-64bit"});
-    QTest::newRow("Intel 1")
+        QTest::newRow("Intel 1")
             << QString::fromLatin1("86_64 x86_64 GNU/Linux")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
             << QStringList("x86-linux-generic-elf-64bit");
-    QTest::newRow("FreeBSD 1")
+        QTest::newRow("FreeBSD 1")
             << QString::fromLatin1("i386-portbld-freebsd9.0")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
             << QStringList({"x86-bsd-freebsd-elf-32bit"});
-    QTest::newRow("FreeBSD 2")
+        QTest::newRow("FreeBSD 2")
             << QString::fromLatin1("i386-undermydesk-freebsd")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
             << QStringList({"x86-bsd-freebsd-elf-32bit"});
-}
+    }
 
-void ProjectExplorerTest::testGccAbiGuessing()
+    void testAbiGuessing()
+    {
+        QFETCH(QString, input);
+        QFETCH(QByteArray, macros);
+        QFETCH(QStringList, abiList);
+
+        const Abis al = guessGccAbi(input, ProjectExplorer::Macro::toMacros(macros));
+        QCOMPARE(al.count(), abiList.count());
+        for (int i = 0; i < al.count(); ++i)
+            QCOMPARE(al.at(i).toString(), abiList.at(i));
+    }
+};
+
+QObject *createGccToolchainTest()
 {
-    QFETCH(QString, input);
-    QFETCH(QByteArray, macros);
-    QFETCH(QStringList, abiList);
-
-    const Abis al = guessGccAbi(input, ProjectExplorer::Macro::toMacros(macros));
-    QCOMPARE(al.count(), abiList.count());
-    for (int i = 0; i < al.count(); ++i)
-        QCOMPARE(al.at(i).toString(), abiList.at(i));
+    return new GccToolchainTest;
 }
+
+} // namespace Internal
+#endif // WITH_TESTS
 
 } // namespace ProjectExplorer
 
-#endif
 
 #include <gcctoolchain.moc>

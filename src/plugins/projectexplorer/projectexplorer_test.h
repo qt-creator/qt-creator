@@ -37,9 +37,6 @@ private slots:
     void testClangClOutputParsers_data();
     void testClangClOutputParsers();
 
-    void testGccAbiGuessing_data();
-    void testGccAbiGuessing();
-
     void testDeviceManager();
 
     void testUserFileAccessor_prepareToReadSettings();
