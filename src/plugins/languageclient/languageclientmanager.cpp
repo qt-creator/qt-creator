@@ -640,7 +640,7 @@ void LanguageClientManager::documentOpenedForProject(
         if (!project->isKnownFile(filePath) && !filePath.isChildOf(project->projectDirectory()))
             continue;
         for (Target *target : project->targets()) {
-            bool activateDocument = project->activeTarget() == target;
+            const bool activateDocument = project->activeTarget() == target;
             for (BuildConfiguration *bc : target->buildConfigurations()) {
                 // check whether we already have a client running for this project
                 Client *clientForBc
@@ -654,11 +654,10 @@ void LanguageClientManager::documentOpenedForProject(
                 }
 
                 QTC_ASSERT(clientForBc, continue);
-                activateDocument |= clientForBc->activatable()
-                                    && target->activeBuildConfiguration() == bc;
-                if (activateDocument)
+                if (activateDocument && clientForBc->activatable()
+                    && target->activeBuildConfiguration() == bc) {
                     openDocumentWithClient(textDocument, clientForBc);
-                else
+                } else
                     clientForBc->openDocument(textDocument);
             }
         }
