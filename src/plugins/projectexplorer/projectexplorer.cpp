@@ -161,6 +161,7 @@
 #include <vector>
 
 #ifdef WITH_TESTS
+#include "abi.h"
 #include "jsonwizard/jsonwizard_test.h"
 #include "outputparser_test.h"
 #include "projectexplorer_test.h"
@@ -795,6 +796,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 
 #ifdef WITH_TESTS
     addTest<ProjectExplorerTest>();
+    addTestCreator(createAbiTest);
     addTestCreator(createOutputParserTest);
     addTestCreator(createLdOutputParserTest);
     addTestCreator(createJsonWizardTest);

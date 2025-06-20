@@ -44,14 +44,6 @@ private slots:
     void testGccAbiGuessing_data();
     void testGccAbiGuessing();
 
-    void testAbiRoundTrips();
-    void testAbiOfBinary_data();
-    void testAbiOfBinary();
-    void testAbiFromTargetTriplet_data();
-    void testAbiFromTargetTriplet();
-    void testAbiUserOsFlavor_data();
-    void testAbiUserOsFlavor();
-
     void testDeviceManager();
 
     void testUserFileAccessor_prepareToReadSettings();

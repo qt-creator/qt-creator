@@ -16,6 +16,11 @@
 #include <QStringList>
 #include <QSysInfo>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#include <QFileInfo>
+#endif
+
 /*!
     \class ProjectExplorer::Abi
 
@@ -1246,409 +1251,415 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
     return result;
 }
 
-} // namespace ProjectExplorer
-
-// Unit tests:
 #ifdef WITH_TESTS
-#   include <QTest>
-#   include <QFileInfo>
+namespace Internal {
 
-#   include "projectexplorer_test.h"
+static bool isGenericFlavor(Abi::OSFlavor f) { return f == Abi::GenericFlavor; }
 
-namespace ProjectExplorer::Internal {
-
-static bool isGenericFlavor(ProjectExplorer::Abi::OSFlavor f)
+class AbiTest : public QObject
 {
-    return f == ProjectExplorer::Abi::GenericFlavor;
-}
+    Q_OBJECT
 
-void ProjectExplorerTest::testAbiRoundTrips()
-{
-    for (int i = 0; i <= Abi::UnknownArchitecture; ++i) {
-        const QString string = Abi::toString(static_cast<Abi::Architecture>(i));
-        const Abi::Architecture arch = Abi::architectureFromString(string);
-        QCOMPARE(static_cast<Abi::Architecture>(i), arch);
-    }
-    for (int i = 0; i <= Abi::UnknownOS; ++i) {
-        const QString string = Abi::toString(static_cast<Abi::OS>(i));
-        const Abi::OS os = Abi::osFromString(string);
-        QCOMPARE(static_cast<Abi::OS>(i), os);
-    }
-    for (const Abi::OSFlavor flavorIt : Abi::allOsFlavors()) {
-        const QString string = Abi::toString(flavorIt);
-        for (int os = 0; os <= Abi::UnknownOS; ++os) {
-            const auto osEnum = static_cast<Abi::OS>(os);
-            const Abi::OSFlavor flavor = Abi::osFlavorFromString(string, osEnum);
-            if (isGenericFlavor(flavorIt) && flavor != Abi::UnknownFlavor)
-                QVERIFY(isGenericFlavor(flavor));
-            else if (flavor == Abi::UnknownFlavor && flavorIt != Abi::UnknownFlavor)
-                QVERIFY(!Abi::flavorsForOs(osEnum).contains(flavorIt));
-            else
-                QCOMPARE(flavorIt, flavor);
+private slots:
+    void testRoundTrips()
+    {
+        for (int i = 0; i <= Abi::UnknownArchitecture; ++i) {
+            const QString string = Abi::toString(static_cast<Abi::Architecture>(i));
+            const Abi::Architecture arch = Abi::architectureFromString(string);
+            QCOMPARE(static_cast<Abi::Architecture>(i), arch);
+        }
+        for (int i = 0; i <= Abi::UnknownOS; ++i) {
+            const QString string = Abi::toString(static_cast<Abi::OS>(i));
+            const Abi::OS os = Abi::osFromString(string);
+            QCOMPARE(static_cast<Abi::OS>(i), os);
+        }
+        for (const Abi::OSFlavor flavorIt : Abi::allOsFlavors()) {
+            const QString string = Abi::toString(flavorIt);
+            for (int os = 0; os <= Abi::UnknownOS; ++os) {
+                const auto osEnum = static_cast<Abi::OS>(os);
+                const Abi::OSFlavor flavor = Abi::osFlavorFromString(string, osEnum);
+                if (isGenericFlavor(flavorIt) && flavor != Abi::UnknownFlavor)
+                    QVERIFY(isGenericFlavor(flavor));
+                else if (flavor == Abi::UnknownFlavor && flavorIt != Abi::UnknownFlavor)
+                    QVERIFY(!Abi::flavorsForOs(osEnum).contains(flavorIt));
+                else
+                    QCOMPARE(flavorIt, flavor);
+            }
+        }
+        for (int i = 0; i <= Abi::UnknownFormat; ++i) {
+            QString string = Abi::toString(static_cast<Abi::BinaryFormat>(i));
+            Abi::BinaryFormat format = Abi::binaryFormatFromString(string);
+            QCOMPARE(static_cast<Abi::BinaryFormat>(i), format);
+        }
+        for (unsigned char i : {0, 8, 16, 32, 64}) {
+            QString string = Abi::toString(i);
+            unsigned char wordwidth = Abi::wordWidthFromString(string);
+            QCOMPARE(i, wordwidth);
         }
     }
-    for (int i = 0; i <= Abi::UnknownFormat; ++i) {
-        QString string = Abi::toString(static_cast<Abi::BinaryFormat>(i));
-        Abi::BinaryFormat format = Abi::binaryFormatFromString(string);
-        QCOMPARE(static_cast<Abi::BinaryFormat>(i), format);
-    }
-    for (unsigned char i : {0, 8, 16, 32, 64}) {
-        QString string = Abi::toString(i);
-        unsigned char wordwidth = Abi::wordWidthFromString(string);
-        QCOMPARE(i, wordwidth);
-    }
-}
 
-void ProjectExplorerTest::testAbiOfBinary_data()
-{
-    QTest::addColumn<QString>("file");
-    QTest::addColumn<QStringList>("abis");
+    void testAbiOfBinary_data()
+    {
+        QTest::addColumn<QString>("file");
+        QTest::addColumn<QStringList>("abis");
 
-    QTest::newRow("no file")
+        QTest::newRow("no file")
             << QString()
             << (QStringList());
-    QTest::newRow("non existing file")
+        QTest::newRow("non existing file")
             << QString::fromLatin1("/does/not/exist")
             << (QStringList());
 
-    // Clone test data from: https://git.qt.io/chstenge/creator-test-data
-    // Set up prefix for test data now that we can be sure to have some tests to run:
-    QString prefix = Utils::qtcEnvironmentVariable("QTC_TEST_EXTRADATALOCATION");
-    if (prefix.isEmpty())
-        return;
-    prefix += "/projectexplorer/abi";
+        // Clone test data from: https://git.qt.io/chstenge/creator-test-data
+        // Set up prefix for test data now that we can be sure to have some tests to run:
+        QString prefix = Utils::qtcEnvironmentVariable("QTC_TEST_EXTRADATALOCATION");
+        if (prefix.isEmpty())
+            return;
+        prefix += "/projectexplorer/abi";
 
-    QFileInfo fi(prefix);
-    if (!fi.exists() || !fi.isDir())
-        return;
-    prefix = fi.absoluteFilePath();
+        QFileInfo fi(prefix);
+        if (!fi.exists() || !fi.isDir())
+            return;
+        prefix = fi.absoluteFilePath();
 
-    QTest::newRow("text file")
+        QTest::newRow("text file")
             << QString::fromLatin1("%1/broken/text.txt").arg(prefix)
             << (QStringList());
 
-    QTest::newRow("static QtCore: win msvc2008")
+        QTest::newRow("static QtCore: win msvc2008")
             << QString::fromLatin1("%1/static/win-msvc2008-release.lib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-32bit"));
-    QTest::newRow("static QtCore: win msvc2008 II")
+        QTest::newRow("static QtCore: win msvc2008 II")
             << QString::fromLatin1("%1/static/win-msvc2008-release2.lib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-64bit"));
-    QTest::newRow("static QtCore: win msvc2008 (debug)")
+        QTest::newRow("static QtCore: win msvc2008 (debug)")
             << QString::fromLatin1("%1/static/win-msvc2008-debug.lib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-32bit"));
-    QTest::newRow("static QtCore: win mingw")
+        QTest::newRow("static QtCore: win mingw")
             << QString::fromLatin1("%1/static/win-mingw.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-unknown-pe-32bit"));
-    QTest::newRow("static QtCore: mac (debug)")
+        QTest::newRow("static QtCore: mac (debug)")
             << QString::fromLatin1("%1/static/mac-32bit-debug.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-darwin-generic-mach_o-32bit"));
-    QTest::newRow("static QtCore: linux 32bit")
+        QTest::newRow("static QtCore: linux 32bit")
             << QString::fromLatin1("%1/static/linux-32bit-release.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-linux-generic-elf-32bit"));
-    QTest::newRow("static QtCore: linux 64bit")
+        QTest::newRow("static QtCore: linux 64bit")
             << QString::fromLatin1("%1/static/linux-64bit-release.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-linux-generic-elf-64bit"));
-    QTest::newRow("static QtCore: asmjs emscripten 32bit (Qt < 5.15)")
+        QTest::newRow("static QtCore: asmjs emscripten 32bit (Qt < 5.15)")
             << QString::fromLatin1("%1/static/asmjs-emscripten.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("asmjs-unknown-unknown-emscripten-32bit"));
-    QTest::newRow("static QtCore: asmjs emscripten 32bit (Qt >= 5.15)")
+        QTest::newRow("static QtCore: asmjs emscripten 32bit (Qt >= 5.15)")
             << QString::fromLatin1("%1/static/asmjs-emscripten-5.15.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("asmjs-unknown-unknown-emscripten-32bit"));
 
-    QTest::newRow("static stdc++: mac fat")
+        QTest::newRow("static stdc++: mac fat")
             << QString::fromLatin1("%1/static/mac-fat.a").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-darwin-generic-mach_o-32bit")
                               << QString::fromLatin1("ppc-darwin-generic-mach_o-32bit")
                               << QString::fromLatin1("x86-darwin-generic-mach_o-64bit"));
 
-    QTest::newRow("executable: win msvc2013 64bit")
+        QTest::newRow("executable: win msvc2013 64bit")
             << QString::fromLatin1("%1/executables/x86-windows-mvsc2013-pe-64bit.exe").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2013-pe-64bit"));
-    QTest::newRow("executable: win msvc2013 32bit")
+        QTest::newRow("executable: win msvc2013 32bit")
             << QString::fromLatin1("%1/executables/x86-windows-mvsc2013-pe-32bit.exe").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2013-pe-32bit"));
-    QTest::newRow("dynamic: win msvc2013 64bit")
+        QTest::newRow("dynamic: win msvc2013 64bit")
             << QString::fromLatin1("%1/dynamic/x86-windows-mvsc2013-pe-64bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2013-pe-64bit"));
-    QTest::newRow("dynamic: win msvc2013 32bit")
+        QTest::newRow("dynamic: win msvc2013 32bit")
             << QString::fromLatin1("%1/dynamic/x86-windows-mvsc2013-pe-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2013-pe-32bit"));
-    QTest::newRow("dynamic QtCore: win msvc2010 64bit")
+        QTest::newRow("dynamic QtCore: win msvc2010 64bit")
             << QString::fromLatin1("%1/dynamic/win-msvc2010-64bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2010-pe-64bit"));
-    QTest::newRow("dynamic QtCore: win msvc2008 32bit")
+        QTest::newRow("dynamic QtCore: win msvc2008 32bit")
             << QString::fromLatin1("%1/dynamic/win-msvc2008-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2008-pe-32bit"));
-    QTest::newRow("dynamic QtCore: win msvc2005 32bit")
+        QTest::newRow("dynamic QtCore: win msvc2005 32bit")
             << QString::fromLatin1("%1/dynamic/win-msvc2005-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2005-pe-32bit"));
-    QTest::newRow("dynamic QtCore: win msys 32bit")
+        QTest::newRow("dynamic QtCore: win msys 32bit")
             << QString::fromLatin1("%1/dynamic/win-mingw-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
-    QTest::newRow("dynamic QtCore: win mingw 64bit")
+        QTest::newRow("dynamic QtCore: win mingw 64bit")
             << QString::fromLatin1("%1/dynamic/win-mingw-64bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-64bit"));
-    QTest::newRow("dynamic QtCore: wince mips msvc2005 32bit")
+        QTest::newRow("dynamic QtCore: wince mips msvc2005 32bit")
             << QString::fromLatin1("%1/dynamic/wince-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("mips-windows-msvc2005-pe-32bit"));
-    QTest::newRow("dynamic QtCore: wince arm msvc2008 32bit")
+        QTest::newRow("dynamic QtCore: wince arm msvc2008 32bit")
             << QString::fromLatin1("%1/dynamic/arm-win-ce-pe-32bit").arg(prefix)
             << (QStringList() << QString::fromLatin1("arm-windows-msvc2008-pe-32bit"));
 
-    QTest::newRow("dynamic stdc++: mac fat")
+        QTest::newRow("dynamic stdc++: mac fat")
             << QString::fromLatin1("%1/dynamic/mac-fat.dylib").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-darwin-generic-mach_o-32bit")
                               << QString::fromLatin1("ppc-darwin-generic-mach_o-32bit")
                               << QString::fromLatin1("x86-darwin-generic-mach_o-64bit"));
-    QTest::newRow("dynamic QtCore: arm linux 32bit")
+        QTest::newRow("dynamic QtCore: arm linux 32bit")
             << QString::fromLatin1("%1/dynamic/arm-linux.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("arm-linux-generic-elf-32bit"));
-    QTest::newRow("dynamic QtCore: arm linux 32bit, using ARM as OSABI")
+        QTest::newRow("dynamic QtCore: arm linux 32bit, using ARM as OSABI")
             << QString::fromLatin1("%1/dynamic/arm-linux2.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("arm-linux-generic-elf-32bit"));
-    QTest::newRow("dynamic QtCore: arm linux 32bit (angstrom)")
+        QTest::newRow("dynamic QtCore: arm linux 32bit (angstrom)")
             << QString::fromLatin1("%1/dynamic/arm-angstrom-linux.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("arm-linux-generic-elf-32bit"));
-    QTest::newRow("dynamic QtCore: sh4 linux 32bit")
+        QTest::newRow("dynamic QtCore: sh4 linux 32bit")
             << QString::fromLatin1("%1/dynamic/sh4-linux.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("sh-linux-generic-elf-32bit"));
-    QTest::newRow("dynamic QtCore: mips linux 32bit")
+        QTest::newRow("dynamic QtCore: mips linux 32bit")
             << QString::fromLatin1("%1/dynamic/mips-linux.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("mips-linux-generic-elf-32bit"));
-    QTest::newRow("dynamic QtCore: projectexplorer/abi/static/win-msvc2010-32bit.libppc be linux 32bit")
+        QTest::newRow("dynamic QtCore: projectexplorer/abi/static/win-msvc2010-32bit.libppc be linux 32bit")
             << QString::fromLatin1("%1/dynamic/ppcbe-linux-32bit.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("ppc-linux-generic-elf-32bit"));
-    QTest::newRow("dynamic QtCore: x86 freebsd 64bit")
+        QTest::newRow("dynamic QtCore: x86 freebsd 64bit")
             << QString::fromLatin1("%1/dynamic/freebsd-elf-64bit.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-bsd-freebsd-elf-64bit"));
-    QTest::newRow("dynamic QtCore: x86 freebsd 64bit")
+        QTest::newRow("dynamic QtCore: x86 freebsd 64bit")
             << QString::fromLatin1("%1/dynamic/freebsd-elf-64bit.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-bsd-freebsd-elf-64bit"));
-    QTest::newRow("dynamic QtCore: x86 freebsd 32bit")
+        QTest::newRow("dynamic QtCore: x86 freebsd 32bit")
             << QString::fromLatin1("%1/dynamic/freebsd-elf-32bit.so").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-bsd-freebsd-elf-32bit"));
 
-    QTest::newRow("executable: x86 win 32bit cygwin executable")
+        QTest::newRow("executable: x86 win 32bit cygwin executable")
             << QString::fromLatin1("%1/executable/cygwin-32bit.exe").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
-    QTest::newRow("executable: x86 win 32bit mingw executable")
+        QTest::newRow("executable: x86 win 32bit mingw executable")
             << QString::fromLatin1("%1/executable/mingw-32bit.exe").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
-}
+    }
 
-void ProjectExplorerTest::testAbiOfBinary()
-{
-    QFETCH(QString, file);
-    QFETCH(QStringList, abis);
+    void testAbiOfBinary()
+    {
+        QFETCH(QString, file);
+        QFETCH(QStringList, abis);
 
-    const Utils::FilePath fp = Utils::FilePath::fromString(file);
-    const QString dataTag = QString::fromLocal8Bit(QTest::currentDataTag());
-    if (!fp.exists() && dataTag != "no file" && dataTag != "non existing file")
-        QSKIP("binary file not present");
+        const Utils::FilePath fp = Utils::FilePath::fromString(file);
+        const QString dataTag = QString::fromLocal8Bit(QTest::currentDataTag());
+        if (!fp.exists() && dataTag != "no file" && dataTag != "non existing file")
+            QSKIP("binary file not present");
 
-    const Abis result = Abi::abisOfBinary(fp);
-    QCOMPARE(result.count(), abis.count());
-    for (int i = 0; i < abis.count(); ++i)
-        QCOMPARE(result.at(i).toString(), abis.at(i));
-}
+        const Abis result = Abi::abisOfBinary(fp);
+        QCOMPARE(result.count(), abis.count());
+        for (int i = 0; i < abis.count(); ++i)
+            QCOMPARE(result.at(i).toString(), abis.at(i));
+    }
 
-void ProjectExplorerTest::testAbiFromTargetTriplet_data()
-{
-    QTest::addColumn<int>("architecture");
-    QTest::addColumn<int>("os");
-    QTest::addColumn<int>("osFlavor");
-    QTest::addColumn<int>("binaryFormat");
-    QTest::addColumn<int>("wordWidth");
+    void testAbiFromTargetTriplet_data()
+    {
+        QTest::addColumn<int>("architecture");
+        QTest::addColumn<int>("os");
+        QTest::addColumn<int>("osFlavor");
+        QTest::addColumn<int>("binaryFormat");
+        QTest::addColumn<int>("wordWidth");
 
-    QTest::newRow("x86_64-apple-darwin") << int(Abi::X86Architecture)
-                                         << int(Abi::DarwinOS) << int(Abi::GenericFlavor)
-                                         << int(Abi::MachOFormat) << 64;
+        QTest::newRow("x86_64-apple-darwin") << int(Abi::X86Architecture)
+                                             << int(Abi::DarwinOS) << int(Abi::GenericFlavor)
+                                             << int(Abi::MachOFormat) << 64;
 
-    QTest::newRow("x86_64-apple-darwin12.5.0") << int(Abi::X86Architecture)
-                                               << int(Abi::DarwinOS) << int(Abi::GenericFlavor)
-                                               << int(Abi::MachOFormat) << 64;
+        QTest::newRow("x86_64-apple-darwin12.5.0") << int(Abi::X86Architecture)
+                                                   << int(Abi::DarwinOS) << int(Abi::GenericFlavor)
+                                                   << int(Abi::MachOFormat) << 64;
 
-    QTest::newRow("x86_64-linux-gnu") << int(Abi::X86Architecture)
-                                      << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
-                                      << int(Abi::ElfFormat) << 64;
+        QTest::newRow("x86_64-linux-gnu") << int(Abi::X86Architecture)
+                                          << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
+                                          << int(Abi::ElfFormat) << 64;
 
-    QTest::newRow("x86_64-pc-mingw32msvc") << int(Abi::X86Architecture)
-                                           << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                           << int(Abi::PEFormat) << 64;
+        QTest::newRow("x86_64-pc-mingw32msvc") << int(Abi::X86Architecture)
+                                               << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
+                                               << int(Abi::PEFormat) << 64;
 
-    QTest::newRow("i586-pc-mingw32msvc") << int(Abi::X86Architecture)
-                                         << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                         << int(Abi::PEFormat) << 32;
+        QTest::newRow("i586-pc-mingw32msvc") << int(Abi::X86Architecture)
+                                             << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
+                                             << int(Abi::PEFormat) << 32;
 
-    QTest::newRow("i686-linux-gnu") << int(Abi::X86Architecture)
-                                    << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
-                                    << int(Abi::ElfFormat) << 32;
-
-    QTest::newRow("i686-linux-android") << int(Abi::X86Architecture)
-                                        << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
+        QTest::newRow("i686-linux-gnu") << int(Abi::X86Architecture)
+                                        << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
                                         << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("i686-pc-linux-android") << int(Abi::X86Architecture)
-                                           << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                           << int(Abi::ElfFormat) << 32;
+        QTest::newRow("i686-linux-android") << int(Abi::X86Architecture)
+                                            << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
+                                            << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("i686-pc-mingw32") << int(Abi::X86Architecture)
-                                     << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                     << int(Abi::PEFormat) << 32;
+        QTest::newRow("i686-pc-linux-android") << int(Abi::X86Architecture)
+                                               << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
+                                               << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("i686-w64-mingw32") << int(Abi::X86Architecture)
-                                      << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                      << int(Abi::PEFormat) << 32;
-
-    QTest::newRow("x86_64-pc-msys") << int(Abi::X86Architecture)
-                                    << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                    << int(Abi::PEFormat) << 64;
-
-    QTest::newRow("x86_64-pc-cygwin") << int(Abi::X86Architecture)
-                                      << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                                      << int(Abi::PEFormat) << 64;
-
-    QTest::newRow("x86-pc-windows-msvc") << int(Abi::X86Architecture)
+        QTest::newRow("i686-pc-mingw32") << int(Abi::X86Architecture)
                                          << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
                                          << int(Abi::PEFormat) << 32;
 
-    QTest::newRow("mingw32") << int(Abi::X86Architecture)
-                             << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
-                             << int(Abi::PEFormat) << 0;
+        QTest::newRow("i686-w64-mingw32") << int(Abi::X86Architecture)
+                                          << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
+                                          << int(Abi::PEFormat) << 32;
 
-    QTest::newRow("arm-linux-android") << int(Abi::ArmArchitecture)
-                                       << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
-                                       << int(Abi::ElfFormat) << 32;
+        QTest::newRow("x86_64-pc-msys") << int(Abi::X86Architecture)
+                                        << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
+                                        << int(Abi::PEFormat) << 64;
 
-    QTest::newRow("arm-linux-androideabi") << int(Abi::ArmArchitecture)
+        QTest::newRow("x86_64-pc-cygwin") << int(Abi::X86Architecture)
+                                          << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
+                                          << int(Abi::PEFormat) << 64;
+
+        QTest::newRow("x86-pc-windows-msvc") << int(Abi::X86Architecture)
+                                             << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
+                                             << int(Abi::PEFormat) << 32;
+
+        QTest::newRow("mingw32") << int(Abi::X86Architecture)
+                                 << int(Abi::WindowsOS) << int(Abi::WindowsMSysFlavor)
+                                 << int(Abi::PEFormat) << 0;
+
+        QTest::newRow("arm-linux-android") << int(Abi::ArmArchitecture)
                                            << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
                                            << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("arm-none-linux-gnueabi") << int(Abi::ArmArchitecture)
-                                            << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
-                                            << int(Abi::ElfFormat) << 32;
+        QTest::newRow("arm-linux-androideabi") << int(Abi::ArmArchitecture)
+                                               << int(Abi::LinuxOS) << int(Abi::AndroidLinuxFlavor)
+                                               << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("mips-linux-gnu") << int(Abi::MipsArchitecture)
-                                    << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
-                                    << int(Abi::ElfFormat) << 32;
+        QTest::newRow("arm-none-linux-gnueabi") << int(Abi::ArmArchitecture)
+                                                << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
+                                                << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("mips64-linux-octeon-gnu") << int(Abi::MipsArchitecture)
-                                             << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
-                                             << int(Abi::ElfFormat) << 64;
+        QTest::newRow("mips-linux-gnu") << int(Abi::MipsArchitecture)
+                                        << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
+                                        << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("mips64el-linux-gnuabi") << int(Abi::MipsArchitecture)
-                                    << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
-                                    << int(Abi::ElfFormat) << 64;
+        QTest::newRow("mips64-linux-octeon-gnu") << int(Abi::MipsArchitecture)
+                                                 << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
+                                                 << int(Abi::ElfFormat) << 64;
 
-    QTest::newRow("arm-wrs-vxworks") << int(Abi::ArmArchitecture)
-                                     << int(Abi::VxWorks) << int(Abi::VxWorksFlavor)
-                                     << int(Abi::ElfFormat) << 32;
-
-    QTest::newRow("x86_64-unknown-openbsd") << int(Abi::X86Architecture)
-                                            << int(Abi::BsdOS) << int(Abi::OpenBsdFlavor)
-                                            << int(Abi::ElfFormat) << 64;
-
-    QTest::newRow("aarch64-unknown-linux-gnu") << int(Abi::ArmArchitecture)
+        QTest::newRow("mips64el-linux-gnuabi") << int(Abi::MipsArchitecture)
                                                << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
                                                << int(Abi::ElfFormat) << 64;
-    QTest::newRow("xtensa-lx106-elf")  << int(Abi::XtensaArchitecture)
-                                       << int(Abi::BareMetalOS) << int(Abi::GenericFlavor)
-                                       << int(Abi::ElfFormat) << 32;
 
-    // Yes, that's the entire triplet
-    QTest::newRow("avr") << int(Abi::AvrArchitecture)
-                         << int(Abi::BareMetalOS) << int(Abi::GenericFlavor)
-                         << int(Abi::ElfFormat) << 16;
+        QTest::newRow("arm-wrs-vxworks") << int(Abi::ArmArchitecture)
+                                         << int(Abi::VxWorks) << int(Abi::VxWorksFlavor)
+                                         << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("avr32") << int(Abi::Avr32Architecture)
-                         << int(Abi::BareMetalOS) << int(Abi::GenericFlavor)
-                         << int(Abi::ElfFormat) << 32;
+        QTest::newRow("x86_64-unknown-openbsd") << int(Abi::X86Architecture)
+                                                << int(Abi::BsdOS) << int(Abi::OpenBsdFlavor)
+                                                << int(Abi::ElfFormat) << 64;
 
-    QTest::newRow("asmjs-unknown-emscripten") << int(Abi::AsmJsArchitecture)
-                                              << int(Abi::UnknownOS) << int(Abi::UnknownFlavor)
-                                              << int(Abi::EmscriptenFormat) << 32;
+        QTest::newRow("aarch64-unknown-linux-gnu") << int(Abi::ArmArchitecture)
+                                                   << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
+                                                   << int(Abi::ElfFormat) << 64;
+        QTest::newRow("xtensa-lx106-elf")  << int(Abi::XtensaArchitecture)
+                                          << int(Abi::BareMetalOS) << int(Abi::GenericFlavor)
+                                          << int(Abi::ElfFormat) << 32;
 
-    QTest::newRow("loongarch64-linux-gnuabi") << int(Abi::LoongArchArchitecture)
-                                    << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
-                                    << int(Abi::ElfFormat) << 64;
-}
+        // Yes, that's the entire triplet
+        QTest::newRow("avr") << int(Abi::AvrArchitecture)
+                             << int(Abi::BareMetalOS) << int(Abi::GenericFlavor)
+                             << int(Abi::ElfFormat) << 16;
 
-void ProjectExplorerTest::testAbiFromTargetTriplet()
-{
-    QFETCH(int, architecture);
-    QFETCH(int, os);
-    QFETCH(int, osFlavor);
-    QFETCH(int, binaryFormat);
-    QFETCH(int, wordWidth);
+        QTest::newRow("avr32") << int(Abi::Avr32Architecture)
+                               << int(Abi::BareMetalOS) << int(Abi::GenericFlavor)
+                               << int(Abi::ElfFormat) << 32;
 
-    const Abi expectedAbi = Abi(Abi::Architecture(architecture),
-                                Abi::OS(os), Abi::OSFlavor(osFlavor),
-                                Abi::BinaryFormat(binaryFormat),
-                                static_cast<unsigned char>(wordWidth));
+        QTest::newRow("asmjs-unknown-emscripten") << int(Abi::AsmJsArchitecture)
+                                                  << int(Abi::UnknownOS) << int(Abi::UnknownFlavor)
+                                                  << int(Abi::EmscriptenFormat) << 32;
 
-    QCOMPARE(Abi::abiFromTargetTriplet(QLatin1String(QTest::currentDataTag())), expectedAbi);
-}
+        QTest::newRow("loongarch64-linux-gnuabi") << int(Abi::LoongArchArchitecture)
+                                                  << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
+                                                  << int(Abi::ElfFormat) << 64;
+    }
 
-void ProjectExplorerTest::testAbiUserOsFlavor_data()
-{
-    QTest::addColumn<int>("os");
-    QTest::addColumn<QString>("osFlavorName");
-    QTest::addColumn<int>("expectedFlavor");
+    void testAbiFromTargetTriplet()
+    {
+        QFETCH(int, architecture);
+        QFETCH(int, os);
+        QFETCH(int, osFlavor);
+        QFETCH(int, binaryFormat);
+        QFETCH(int, wordWidth);
 
-    QTest::newRow("linux-generic flavor")
+        const Abi expectedAbi = Abi(Abi::Architecture(architecture),
+                                    Abi::OS(os), Abi::OSFlavor(osFlavor),
+                                    Abi::BinaryFormat(binaryFormat),
+                                    static_cast<unsigned char>(wordWidth));
+
+        QCOMPARE(Abi::abiFromTargetTriplet(QLatin1String(QTest::currentDataTag())), expectedAbi);
+    }
+
+    void testUserOsFlavor_data()
+    {
+        QTest::addColumn<int>("os");
+        QTest::addColumn<QString>("osFlavorName");
+        QTest::addColumn<int>("expectedFlavor");
+
+        QTest::newRow("linux-generic flavor")
             << int(Abi::LinuxOS) << "generic" << int(Abi::GenericFlavor);
-    QTest::newRow("linux-unknown flavor")
+        QTest::newRow("linux-unknown flavor")
             << int(Abi::LinuxOS) << "unknown" << int(Abi::UnknownFlavor);
-    QTest::newRow("windows-msvc2010 flavor")
+        QTest::newRow("windows-msvc2010 flavor")
             << int(Abi::WindowsOS) << "msvc2010" << int(Abi::WindowsMsvc2010Flavor);
-    QTest::newRow("windows-unknown flavor")
+        QTest::newRow("windows-unknown flavor")
             << int(Abi::WindowsOS) << "unknown" << int(Abi::UnknownFlavor);
 
-    QTest::newRow("windows-msvc2100 flavor")
+        QTest::newRow("windows-msvc2100 flavor")
             << int(Abi::WindowsOS) << "msvc2100" << int(Abi::UnknownFlavor) + 1;
-    QTest::newRow("linux-msvc2100 flavor")
+        QTest::newRow("linux-msvc2100 flavor")
             << int(Abi::LinuxOS) << "msvc2100" << int(Abi::UnknownFlavor) + 1;
 
-    QTest::newRow("windows-msvc2100 flavor reregister")
+        QTest::newRow("windows-msvc2100 flavor reregister")
             << int(Abi::WindowsOS) << "msvc2100" << int(Abi::UnknownFlavor) + 1;
-    QTest::newRow("linux-msvc2100 flavor reregister")
+        QTest::newRow("linux-msvc2100 flavor reregister")
             << int(Abi::LinuxOS) << "msvc2100" << int(Abi::UnknownFlavor) + 1;
-    QTest::newRow("unix-msvc2100 flavor register")
+        QTest::newRow("unix-msvc2100 flavor register")
             << int(Abi::UnixOS) << "msvc2100" << int(Abi::UnknownFlavor) + 1;
-}
+    }
 
-void ProjectExplorerTest::testAbiUserOsFlavor()
+    void testUserOsFlavor()
+    {
+        QFETCH(int, os);
+        QFETCH(QString, osFlavorName);
+        QFETCH(int, expectedFlavor);
+
+        QMap<int, QList<Abi::OSFlavor>> osFlavorMap;
+        for (int i = 0; i <= Abi::UnknownOS; ++i)
+            osFlavorMap.insert(i, Abi::flavorsForOs(static_cast<ProjectExplorer::Abi::OS>(i)));
+
+        Abi::OSFlavor osFlavor = Abi::registerOsFlavor({static_cast<Abi::OS>(os)}, osFlavorName);
+        QCOMPARE(osFlavor, static_cast<Abi::OSFlavor>(expectedFlavor));
+
+        for (int i = 0; i <= Abi::UnknownOS; ++i) {
+            const QList<Abi::OSFlavor> flavors = Abi::flavorsForOs(static_cast<Abi::OS>(i));
+            const QList<Abi::OSFlavor> previousFlavors = osFlavorMap.value(static_cast<Abi::OS>(i));
+            const int previousCount = previousFlavors.count();
+
+            if (i == os && previousCount != flavors.count()) {
+                QVERIFY(flavors.count() == previousCount + 1);
+                QVERIFY(flavors.contains(osFlavor));
+                for (const Abi::OSFlavor &f : previousFlavors) {
+                    if (f == osFlavor)
+                        continue;
+                    QVERIFY(previousFlavors.contains(f));
+                }
+            } else {
+                QCOMPARE(flavors, previousFlavors);
+            }
+        }
+    }
+};
+
+QObject *createAbiTest()
 {
-    QFETCH(int, os);
-    QFETCH(QString, osFlavorName);
-    QFETCH(int, expectedFlavor);
-
-    QMap<int, QList<Abi::OSFlavor>> osFlavorMap;
-    for (int i = 0; i <= Abi::UnknownOS; ++i)
-        osFlavorMap.insert(i, Abi::flavorsForOs(static_cast<ProjectExplorer::Abi::OS>(i)));
-
-     Abi::OSFlavor osFlavor = Abi::registerOsFlavor({static_cast<Abi::OS>(os)}, osFlavorName);
-     QCOMPARE(osFlavor, static_cast<Abi::OSFlavor>(expectedFlavor));
-
-     for (int i = 0; i <= Abi::UnknownOS; ++i) {
-         const QList<Abi::OSFlavor> flavors = Abi::flavorsForOs(static_cast<Abi::OS>(i));
-         const QList<Abi::OSFlavor> previousFlavors = osFlavorMap.value(static_cast<Abi::OS>(i));
-         const int previousCount = previousFlavors.count();
-
-         if (i == os && previousCount != flavors.count()) {
-             QVERIFY(flavors.count() == previousCount + 1);
-             QVERIFY(flavors.contains(osFlavor));
-             for (const Abi::OSFlavor &f : previousFlavors) {
-                 if (f == osFlavor)
-                     continue;
-                 QVERIFY(previousFlavors.contains(f));
-             }
-         } else {
-             QCOMPARE(flavors, previousFlavors);
-         }
-     }
+    return new AbiTest;
 }
 
-} // ProjectExplorer::Internal
+} // namespace Internal
 
 #endif // WITH_TESTS
+
+} // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <abi.moc>
+#endif

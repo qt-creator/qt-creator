@@ -187,4 +187,8 @@ private:
     QString m_param;
 };
 
+#ifdef WITH_TESTS
+namespace Internal { QObject *createAbiTest(); }
+#endif
+
 } // namespace ProjectExplorer
