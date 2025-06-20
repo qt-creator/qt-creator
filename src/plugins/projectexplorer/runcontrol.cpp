@@ -1412,7 +1412,7 @@ ProcessTask processTask(RunControl *runControl,
                 runControl->postMessage(process->readAllStandardOutput(), StdOutFormat, false);
         });
         QObject::connect(&process, &Process::stoppingForcefully, runControl, [runControl] {
-            runControl->postMessage(Tr::tr("Stopping process forcefully ...."), NormalMessageFormat);
+            runControl->postMessage(Tr::tr("Stopping process forcefully..."), NormalMessageFormat);
         });
 
         if (WinDebugInterface::instance()) {
@@ -1433,7 +1433,7 @@ ProcessTask processTask(RunControl *runControl,
         }
         QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, &process,
                          [runControl, process = &process, isLocal = cmdLine.executable().isLocal()] {
-            runControl->postMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
+            runControl->postMessage(Tr::tr("Requesting process to stop..."), NormalMessageFormat);
             process->stop();
             QTimer::singleShot(2 * std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds),
                                process, [runControl, process, isLocal] {

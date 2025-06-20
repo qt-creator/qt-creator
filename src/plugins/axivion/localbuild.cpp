@@ -139,7 +139,7 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
             m_startedDashboardTrees.erase(it);
         });
         if (process.result() != ProcessResult::FinishedWithSuccess) {
-            qCDebug(localDashLog) << "Process failed...." << int(process.result());
+            qCDebug(localDashLog) << "Process failed..." << int(process.result());
             const QString errOutput = process.cleanedStdErr();
             if (errOutput.isEmpty())
                 showErrorMessage(Tr::tr("Failed to start local dashboard."));
