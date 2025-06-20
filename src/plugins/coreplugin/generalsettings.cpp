@@ -185,11 +185,12 @@ GeneralSettingsWidget::GeneralSettingsWidget()
         }
     }
 
+    form.flush();
+    form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
     form.addRow({empty, generalSettings().showShortcutsInContextMenus});
     form.addRow({empty, generalSettings().provideSplitterCursors});
     form.addRow({empty, generalSettings().preferInfoBarOverPopup});
     form.addRow({Row{m_resetWarningsButton, st}});
-    form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
     Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
 
     fillLanguageBox();
