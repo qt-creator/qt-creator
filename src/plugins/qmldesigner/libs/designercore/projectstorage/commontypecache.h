@@ -6,6 +6,7 @@
 #include "projectstoragetypes.h"
 
 #include <modelfwd.h>
+#include <modulesstorage/modulesstorage.h>
 #include <tracing/qmldesignertracing.h>
 
 #include <algorithm>
@@ -268,8 +269,9 @@ class CommonTypeCache
         CacheType<QtQuick, ModuleKind::QmlLibrary, Window>>;
 
 public:
-    CommonTypeCache(const ProjectStorage &projectStorage)
+    CommonTypeCache(const ProjectStorage &projectStorage, ModulesStorage &modulesStorage)
         : m_projectStorage{projectStorage}
+        , m_modulesStorage{modulesStorage}
     {
         NanotraceHR::Tracer tracer{"common type cache constructor", ModelTracing::category()};
 
@@ -374,7 +376,7 @@ private:
                                    ModelTracing::category()};
 
         if (!type.moduleId)
-            type.moduleId = m_projectStorage.fetchModuleIdUnguarded(moduleName, moduleKind);
+            type.moduleId = m_modulesStorage.moduleId(moduleName, moduleKind);
 
         type.typeId = m_projectStorage.fetchTypeIdByModuleIdAndExportedName(type.moduleId, typeName);
     }
@@ -413,6 +415,7 @@ private:
 
 private:
     const ProjectStorage &m_projectStorage;
+    ModulesStorage &m_modulesStorage;
     mutable CommonTypes m_types;
     TypeIdsWithoutProperties m_typesWithoutProperties;
 };

@@ -5,6 +5,7 @@
 
 #include <bindingproperty.h>
 #include <model.h>
+#include <modulesstorage/modulesstorage.h>
 #include <nodeproperty.h>
 #include <projectstoragemock.h>
 #include <projectstoragetriggerupdatemock.h>
@@ -99,21 +100,36 @@ MATCHER_P2(HasGroupBindingProperty,
 class DesignSystemQmlTest : public testing::TestWithParam<QmlDesigner::GroupType>
 {
 protected:
+    struct StaticData
+    {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
+    };
+
+    static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
+
+    static void TearDownTestSuite() { staticData.reset(); }
+
     DesignSystemQmlTest()
         : group(groupType)
     {}
 
+protected:
+    inline static std::unique_ptr<StaticData> staticData;
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
     const QmlDesigner::GroupType groupType = GetParam();
     const QmlDesigner::PropertyName groupName = GroupId(groupType);
     QmlDesigner::DSThemeGroup group;
     NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/model.qm"};
-    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
-                             "QtObject",
-                             {Import::createLibraryImport("QM"),
-                              Import::createLibraryImport("QtQuick")},
-                             QUrl::fromLocalFile(pathCacheMock.path.toQString())};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId,
+                                                               "/path",
+                                                               modulesStorage};
+    QmlDesigner::Model model{
+        {projectStorageMock, pathCacheMock, modulesStorage, projectStorageTriggerUpdateMock},
+        "QtObject",
+        {Import::createLibraryImport("QM"), Import::createLibraryImport("QtQuick")},
+        QUrl::fromLocalFile(pathCacheMock.path.toQString())};
 };
 
 INSTANTIATE_TEST_SUITE_P(DesignSystem,

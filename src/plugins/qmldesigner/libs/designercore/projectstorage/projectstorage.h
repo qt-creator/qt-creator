@@ -42,6 +42,7 @@ class QMLDESIGNERCORE_EXPORT ProjectStorage final : public ProjectStorageInterfa
 public:
     ProjectStorage(Database &database,
                    ProjectStorageErrorNotifierInterface &errorNotifier,
+                   ModulesStorage &modulesStorage,
                    bool isInitialized);
     ~ProjectStorage();
 
@@ -57,13 +58,6 @@ public:
     void addObserver(ProjectStorageObserver *observer) override;
 
     void removeObserver(ProjectStorageObserver *observer) override;
-
-    ModuleId moduleId(Utils::SmallStringView moduleName, Storage::ModuleKind kind) const override;
-
-    SmallModuleIds<128> moduleIdsStartsWith(Utils::SmallStringView startsWith,
-                                            Storage::ModuleKind kind) const override;
-
-    Storage::Module module(ModuleId moduleId) const override;
 
     TypeId typeId(ModuleId moduleId,
                   Utils::SmallStringView exportedTypeName,
@@ -284,94 +278,6 @@ public:
     void resetForTestsOnly();
 
 private:
-    struct ModuleView
-    {
-        ModuleView() = default;
-
-        ModuleView(Utils::SmallStringView name, Storage::ModuleKind kind)
-            : name{name}
-            , kind{kind}
-        {}
-
-        ModuleView(const Storage::Module &module)
-            : name{module.name}
-            , kind{module.kind}
-        {}
-
-        Utils::SmallStringView name;
-        Storage::ModuleKind kind;
-
-        friend std::strong_ordering operator<=>(ModuleView first, ModuleView second)
-        {
-            return std::tie(first.kind, first.name) <=> std::tie(second.kind, second.name);
-        }
-
-        friend bool operator==(const Storage::Module &first, ModuleView second)
-        {
-            return first.name == second.name && first.kind == second.kind;
-        }
-
-        friend bool operator==(ModuleView first, const Storage::Module &second)
-        {
-            return second == first;
-        }
-    };
-
-    class ModuleStorageAdapter
-    {
-    public:
-        auto fetchId(ModuleView module);
-
-        auto fetchValue(ModuleId id);
-
-        auto fetchAll();
-
-        ProjectStorage &storage;
-    };
-
-    friend ModuleStorageAdapter;
-
-    struct ModuleNameLess
-    {
-        bool operator()(ModuleView first, ModuleView second) const noexcept
-        {
-            return first < second;
-        }
-    };
-
-    class ModuleCacheEntry : public StorageCacheEntry<Storage::Module, ModuleView, ModuleId>
-    {
-        using Base = StorageCacheEntry<Storage::Module, ModuleView, ModuleId>;
-
-    public:
-        using Base::Base;
-
-        ModuleCacheEntry(Utils::SmallStringView name, Storage::ModuleKind kind, ModuleId moduleId)
-            : Base{{name, kind}, moduleId}
-        {}
-
-        friend bool operator==(const ModuleCacheEntry &first, const ModuleCacheEntry &second)
-        {
-            return &first == &second && first.value == second.value;
-        }
-
-        friend bool operator==(const ModuleCacheEntry &first, ModuleView second)
-        {
-            return first.value.name == second.name && first.value.kind == second.kind;
-        }
-    };
-
-    using ModuleCacheEntries = std::vector<ModuleCacheEntry>;
-
-    using ModuleCache
-        = StorageCache<Storage::Module, ModuleView, ModuleId, ModuleStorageAdapter, NonLockingMutex, ModuleNameLess, ModuleCacheEntry>;
-
-    ModuleId fetchModuleId(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind);
-
-    Storage::Module fetchModule(ModuleId id);
-
-    ModuleCacheEntries fetchAllModules() const;
-
     enum class ExportedTypesChanged { No, Yes };
 
     void callRefreshMetaInfoCallback(TypeIds &deletedTypeIds,
@@ -645,11 +551,6 @@ private:
     void synchromizeModuleExportedImports(
         Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
         const ModuleIds &updatedModuleIds);
-
-    ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name,
-                                    Storage::ModuleKind moduleKind) const override;
-
-    Storage::Module fetchModuleUnguarded(ModuleId id) const;
 
     void handleAliasPropertyDeclarationsWithPropertyType(
         TypeId typeId, AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
@@ -1007,8 +908,8 @@ public:
     ProjectStorageErrorNotifierInterface *errorNotifier = nullptr; // cannot be null
     Sqlite::ExclusiveNonThrowingDestructorTransaction<Database> exclusiveTransaction;
     std::unique_ptr<Initializer> initializer;
-    mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
-    Storage::Info::CommonTypeCache<ProjectStorageType> commonTypeCache_{*this};
+    ModulesStorage &modulesStorage;
+    Storage::Info::CommonTypeCache<ProjectStorageType> commonTypeCache_;
     QVarLengthArray<ProjectStorageObserver *, 24> observers;
     mutable std::vector<std::optional<SmallTypeIds<12>>> basesCache;
     std::unique_ptr<Statements> s;

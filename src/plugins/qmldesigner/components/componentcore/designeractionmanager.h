@@ -86,7 +86,9 @@ private:
 class QMLDESIGNERCOMPONENTS_EXPORT DesignerActionManager
 {
 public:
-    DesignerActionManager(DesignerActionManagerView *designerActionManagerView, ExternalDependenciesInterface &externalDependencies);
+    DesignerActionManager(DesignerActionManagerView *designerActionManagerView,
+                          ExternalDependenciesInterface &externalDependencies,
+                          ModulesStorage &modulesStorage);
     ~DesignerActionManager();
 
     void addDesignerAction(ActionInterface *newAction);
@@ -137,6 +139,7 @@ private:
     QList<AddResourceHandler> m_addResourceHandler;
     QList<ModelNodePreviewImageHandler> m_modelNodePreviewImageHandlers;
     ExternalDependenciesInterface &m_externalDependencies;
+    ModulesStorage &m_modulesStorage;
     std::unique_ptr<DesignerIcons> m_designerIcons;
     QList<ActionAddedInterface> m_callBacks;
     std::unique_ptr<BundleHelper> m_bundleHelper;

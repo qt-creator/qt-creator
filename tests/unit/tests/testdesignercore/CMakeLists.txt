@@ -303,6 +303,16 @@ extend_qtc_library(TestDesignerCore
 )
 
 extend_qtc_library(TestDesignerCore
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/modulesstorage
+  PUBLIC_INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/modulesstorage
+  SOURCES_PROPERTIES SKIP_AUTOGEN ON
+  SOURCES
+    modulesstorage.cpp
+    modulesstorage.h
+    modulesstorageinterface.h
+)
+
+extend_qtc_library(TestDesignerCore
   SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/sourcepathstorage
   PUBLIC_INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/sourcepathstorage
   SOURCES_PROPERTIES SKIP_AUTOGEN ON

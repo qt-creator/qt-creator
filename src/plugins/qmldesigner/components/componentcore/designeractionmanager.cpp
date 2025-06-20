@@ -2015,14 +2015,16 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isModelOrMaterial));
 
     addDesignerAction(new ModelNodeContextMenuAction(
-                          mergeTemplateCommandId,
-                          mergeTemplateDisplayName,
-                          contextIcon(DesignerIcons::MergeWithTemplateIcon),
-                          rootCategory,
-                          {},
-                          Priorities::MergeWithTemplate,
-                          [&] (const SelectionContext& context) { mergeWithTemplate(context, m_externalDependencies); },
-                          &SelectionContextFunctors::always));
+        mergeTemplateCommandId,
+        mergeTemplateDisplayName,
+        contextIcon(DesignerIcons::MergeWithTemplateIcon),
+        rootCategory,
+        {},
+        Priorities::MergeWithTemplate,
+        [&](const SelectionContext &context) {
+            mergeWithTemplate(context, m_externalDependencies, m_modulesStorage);
+        },
+        &SelectionContextFunctors::always));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           addToContentLibraryCommandId,
@@ -2178,9 +2180,11 @@ ActionInterface *DesignerActionManager::actionByMenuId(const QByteArray &id)
 }
 
 DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designerActionManagerView,
-                                             ExternalDependenciesInterface &externalDependencies)
+                                             ExternalDependenciesInterface &externalDependencies,
+                                             ModulesStorage &modulesStorage)
     : m_designerActionManagerView(designerActionManagerView)
     , m_externalDependencies(externalDependencies)
+    , m_modulesStorage(modulesStorage)
     , m_bundleHelper(std::make_unique<BundleHelper>(designerActionManagerView,
                                                     QmlDesignerPlugin::instance()->mainWidget()))
 {

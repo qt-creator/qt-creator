@@ -43,6 +43,7 @@ public:
     void registerPreviewImageProvider(QQmlEngine *engine) const;
 
     class AsynchronousImageCache &asynchronousImageCache();
+    ModulesStorage &modulesStorage();
     ProjectStorageDependencies projectStorageDependencies();
 
 private:

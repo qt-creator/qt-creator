@@ -42,9 +42,11 @@
 
 namespace QmlDesigner {
 
-TimelineView::TimelineView(ExternalDependenciesInterface &externalDepoendencies)
+TimelineView::TimelineView(ExternalDependenciesInterface &externalDepoendencies,
+                           ModulesStorage &modulesStorage)
     : AbstractView{externalDepoendencies}
     , m_timelineWidget(nullptr)
+    , m_modulesStorage(modulesStorage)
 {
     EasingCurve::registerStreamOperators();
 }
@@ -610,7 +612,9 @@ void TimelineView::registerActions()
     SelectionContextOperation pasteKeyframes = [this](const SelectionContext &context) {
         auto mutator = widget()->graphicsScene()->currentTimeline();
         if (mutator.isValid())
-            TimelineActions::pasteKeyframesToTarget(context.currentSingleSelectedNode(), mutator);
+            TimelineActions::pasteKeyframesToTarget(context.currentSingleSelectedNode(),
+                                                    mutator,
+                                                    m_modulesStorage);
     };
 
     actionManager.addDesignerAction(new ActionGroup(TimelineConstants::timelineCategoryDisplayName,
@@ -664,7 +668,7 @@ void TimelineView::registerActions()
 TimelineWidget *TimelineView::createWidget()
 {
     if (!m_timelineWidget)
-        m_timelineWidget = new TimelineWidget(this);
+        m_timelineWidget = new TimelineWidget(this, m_modulesStorage);
 
     return m_timelineWidget;
 }

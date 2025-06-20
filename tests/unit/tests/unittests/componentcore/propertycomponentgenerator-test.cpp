@@ -54,12 +54,24 @@ constexpr Utils::SmallStringView sourcesPath = UNITTEST_DIR
 class PropertyComponentGenerator : public ::testing::Test
 {
 protected:
+protected:
+    struct StaticData
+    {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
+    };
+
     static void SetUpTestSuite()
     {
+        staticData = std::make_unique<StaticData>();
         simpleReaderNode = createTemplateConfiguration(QString{sourcesPath});
     }
 
-    static void TearDownTestSuite() { simpleReaderNode.reset(); }
+    static void TearDownTestSuite()
+    {
+        simpleReaderNode.reset();
+        staticData.reset();
+    }
 
     static QmlJS::SimpleReaderNode::Ptr createTemplateConfiguration(const QString &propertyEditorResourcesPath)
     {
@@ -172,19 +184,23 @@ protected:
     }
 
 protected:
+    inline static std::unique_ptr<StaticData> staticData;
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
     inline static QSharedPointer<const QmlJS::SimpleReaderNode> simpleReaderNode;
     NiceMock<AbstractViewMock> viewMock;
     NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId,
+                                                               "/path",
+                                                               modulesStorage};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
-                             "Item",
-                             -1,
-                             -1,
-                             nullptr,
-                             std::make_unique<ModelResourceManagementMockWrapper>(
-                                 resourceManagementMock)};
+    QmlDesigner::Model model{
+        {projectStorageMock, pathCacheMock, modulesStorage, projectStorageTriggerUpdateMock},
+        "Item",
+        -1,
+        -1,
+        nullptr,
+        std::make_unique<ModelResourceManagementMockWrapper>(resourceManagementMock)};
     QmlDesigner::PropertyComponentGenerator generator{QString{sourcesPath}, &model};
     QmlDesigner::NodeMetaInfo itemMetaInfo = model.qtQuickItemMetaInfo();
     QmlDesigner::ModuleId qmlModuleId = projectStorageMock.createModule("QML", ModuleKind::QmlLibrary);

@@ -16,7 +16,7 @@
 class ProjectStorageMock : public QmlDesigner::ProjectStorageInterface
 {
 public:
-    ProjectStorageMock();
+    ProjectStorageMock(QmlDesigner::ModulesStorage &modulesStorage);
     virtual ~ProjectStorageMock() = default;
 
     void setupQtQuick();
@@ -129,15 +129,6 @@ public:
     MOCK_METHOD(void, addObserver, (QmlDesigner::ProjectStorageObserver *), (override));
     MOCK_METHOD(void, removeObserver, (QmlDesigner::ProjectStorageObserver *), (override));
 
-    MOCK_METHOD(QmlDesigner::ModuleId,
-                moduleId,
-                (::Utils::SmallStringView, QmlDesigner::Storage::ModuleKind moduleKind),
-                (const, override));
-    MOCK_METHOD(QmlDesigner::SmallModuleIds<128>,
-                moduleIdsStartsWith,
-                (::Utils::SmallStringView, QmlDesigner::Storage::ModuleKind moduleKind),
-                (const, override));
-    MOCK_METHOD(QmlDesigner::Storage::Module, module, (QmlDesigner::ModuleId), (const, override));
 
     MOCK_METHOD(std::optional<QmlDesigner::Storage::Info::PropertyDeclaration>,
                 propertyDeclaration,
@@ -419,16 +410,13 @@ public:
                 propertyEditorPathId,
                 (QmlDesigner::TypeId typeId),
                 (const, override));
-    MOCK_METHOD(QmlDesigner::ModuleId,
-                fetchModuleIdUnguarded,
-                (Utils::SmallStringView name, QmlDesigner::Storage::ModuleKind),
-                (const, override));
     MOCK_METHOD(QmlDesigner::TypeId,
                 fetchTypeIdByModuleIdAndExportedName,
                 (QmlDesigner::ModuleId moduleId, Utils::SmallStringView name),
                 (const, override));
 
-    QmlDesigner::Storage::Info::CommonTypeCache<QmlDesigner::ProjectStorageInterface> typeCache{*this};
+    QmlDesigner::ModulesStorage &modulesStorage;
+    QmlDesigner::Storage::Info::CommonTypeCache<QmlDesigner::ProjectStorageInterface> typeCache;
     std::map<QmlDesigner::TypeId, QmlDesigner::Storage::Info::ExportedTypeNames> exportedTypeName;
     std::map<std::pair<QmlDesigner::TypeId, QmlDesigner::SourceId>, QmlDesigner::Storage::Info::ExportedTypeNames>
         exportedTypeNameBySourceId;
@@ -439,7 +427,9 @@ class ProjectStorageMockWithQtQuick : public ProjectStorageMock
 {
 public:
     ProjectStorageMockWithQtQuick(QmlDesigner::SourceId sourceId,
-                                   Utils::SmallStringView localPathModuleName)
+                                  Utils::SmallStringView localPathModuleName,
+                                  QmlDesigner::ModulesStorage &modulesStorage)
+        : ProjectStorageMock{modulesStorage}
     {
         createModule(localPathModuleName, QmlDesigner::Storage::ModuleKind::PathLibrary);
         setupQtQuick();

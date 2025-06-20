@@ -309,6 +309,14 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
+  SOURCES_PREFIX modulesstorage
+  SOURCES
+    modulesstorage.cpp
+    modulesstorage.h
+    modulesstorageinterface.h
+)
+
+extend_qtc_library(QmlDesignerCore
   INCLUDES rewriter
   SOURCES_PREFIX rewriter
   PUBLIC_DEFINES

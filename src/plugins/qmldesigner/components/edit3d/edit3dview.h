@@ -55,7 +55,7 @@ public:
 #endif
     }
 
-    Edit3DView(ExternalDependenciesInterface &externalDependencies);
+    Edit3DView(ExternalDependenciesInterface &externalDependencies, ModulesStorage &modulesStorage);
 
     bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
@@ -170,6 +170,8 @@ private:
 
     template<typename T, typename = typename std::enable_if<std::is_base_of<AbstractProperty , T>::value>::type>
     void maybeStoreCurrentSceneEnvironment(const QList<T> &propertyList);
+
+    ModulesStorage &m_modulesStorage;
 
     QPointer<Edit3DWidget> m_edit3DWidget;
     QVector<Edit3DAction *> m_leftActions;

@@ -65,8 +65,10 @@ inline static QIcon toolbarIcon(const DesignerIcons::IconId &iconId)
     return DesignerActionManager::instance().toolbarIcon(iconId);
 };
 
-Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
+Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies,
+                       ModulesStorage &modulesStorage)
     : AbstractView{externalDependencies}
+    , m_modulesStorage(modulesStorage)
 {
     m_compressionTimer.setInterval(1000);
     m_compressionTimer.setSingleShot(true);
@@ -1245,7 +1247,7 @@ void Edit3DView::createEdit3DActions()
 
         // BakeLights cleans itself up when its dialog is closed
         if (!m_bakeLights)
-            m_bakeLights = new BakeLights(this);
+            m_bakeLights = new BakeLights(this, m_modulesStorage);
         else
             m_bakeLights->raiseDialog();
     };

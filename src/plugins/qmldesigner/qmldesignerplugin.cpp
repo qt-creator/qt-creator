@@ -174,7 +174,9 @@ class QmlDesignerPluginPrivate
 public:
     ExternalDependencies externalDependencies{QmlDesignerBasePlugin::settings()};
     QmlDesignerProjectManager projectManager{externalDependencies};
-    ViewManager viewManager{projectManager.asynchronousImageCache(), externalDependencies};
+    ViewManager viewManager{projectManager.asynchronousImageCache(),
+                            externalDependencies,
+                            projectManager.modulesStorage()};
     DocumentManager documentManager{projectManager, externalDependencies};
     ShortCutManager shortCutManager;
     DeviceShare::DeviceManager deviceManager;
@@ -673,13 +675,14 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     d->viewManager.registerView(std::make_unique<ConnectionView>(d->externalDependencies));
 
     auto timelineView = d->viewManager.registerView(
-        std::make_unique<TimelineView>(d->externalDependencies));
+        std::make_unique<TimelineView>(d->externalDependencies, d->projectManager.modulesStorage()));
     timelineView->registerActions();
 
     d->viewManager.registerView(std::make_unique<CurveEditorView>(d->externalDependencies));
 
     auto eventlistView = d->viewManager.registerView(
-        std::make_unique<EventListPluginView>(d->externalDependencies));
+        std::make_unique<EventListPluginView>(d->externalDependencies,
+                                              d->projectManager.modulesStorage()));
     eventlistView->registerActions();
 
     auto transitionEditorView = d->viewManager.registerView(

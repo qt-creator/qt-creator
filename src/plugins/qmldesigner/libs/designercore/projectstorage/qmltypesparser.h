@@ -17,6 +17,7 @@ namespace QmlDesigner {
 
 template<typename ProjectStorage, typename Mutex>
 class SourcePathCache;
+class ModulesStorage;
 
 namespace Internal {
 struct LastModule
@@ -31,8 +32,8 @@ class QMLDESIGNERCORE_EXPORT QmlTypesParser final : public QmlTypesParserInterfa
 public:
     using ProjectStorage = QmlDesigner::ProjectStorage;
 #ifdef QDS_BUILD_QMLPARSER
-    QmlTypesParser(ProjectStorage &storage)
-        : m_storage{storage}
+    QmlTypesParser(ModulesStorage &modulesStorage)
+        : m_modulesStorage{modulesStorage}
     {}
 #else
     QmlTypesParser(ProjectStorage &) {}
@@ -46,7 +47,7 @@ public:
 
 private:
 #ifdef QDS_BUILD_QMLPARSER
-    ProjectStorage &m_storage;
+    ModulesStorage &m_modulesStorage;
     Internal::LastModule lastQmlModule;
 #endif
 };

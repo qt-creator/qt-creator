@@ -89,7 +89,8 @@ class TimelineGraphicsScene : public AbstractScrollGraphicsScene
 
 public:
     explicit TimelineGraphicsScene(TimelineWidget *parent,
-                                   ExternalDependenciesInterface &m_externalDependencies);
+                                   ExternalDependenciesInterface &m_externalDependencies,
+                                   ModulesStorage &modulesStorage);
 
     ~TimelineGraphicsScene() override;
 
@@ -195,6 +196,7 @@ private:
     TimelineToolDelegate m_tools;
 
     ExternalDependenciesInterface &m_externalDependencies;
+    ModulesStorage &m_modulesStorage;
 
     // sorted, unique cache of keyframes positions, used for snapping
     QVector<qreal> m_keyframePositionsCache;

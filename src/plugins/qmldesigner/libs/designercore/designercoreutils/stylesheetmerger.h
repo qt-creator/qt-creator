@@ -30,9 +30,11 @@ public:
     void merge();
     static void styleMerge(const Utils::FilePath &templateFile,
                            Model *model,
+                           ModulesStorage &modulesStorage,
                            class ExternalDependenciesInterface &ed);
     static void styleMerge(const QString &qmlTemplateString,
                            Model *model,
+                           ModulesStorage &modulesStorage,
                            class ExternalDependenciesInterface &externalDependencies);
 
 private:

@@ -16,6 +16,7 @@
 #include <filemanager/objectlengthcalculator.h>
 #include <modelnode.h>
 #include <modelnodepositionstorage.h>
+#include <modulesstorage/modulesstorage.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
 #include <projectstorage/projectstorage.h>
@@ -55,9 +56,11 @@ bool debugQmlPuppet(const DesignerSettings &settings)
 }
 
 RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
+                           ModulesStorage &modulesStorage,
                            DifferenceHandling differenceHandling,
                            InstantQmlTextUpdate instantQmlTextUpdate)
     : AbstractView{externalDependencies}
+    , m_modulesStorage{modulesStorage}
     , m_differenceHandling(differenceHandling)
     , m_positionStorage(std::make_unique<ModelNodePositionStorage>())
     , m_modelToTextMerger(std::make_unique<Internal::ModelToTextMerger>(this))
@@ -1018,14 +1021,14 @@ ModuleIds generateModuleIds(const ModelNodes &nodes)
     return moduleIds;
 }
 
-QStringList generateImports(ModuleIds moduleIds, const ProjectStorageType &projectStorage)
+QStringList generateImports(ModuleIds moduleIds, const ModulesStorage &modulesStorage)
 {
     QStringList imports;
     imports.reserve(std::ssize(moduleIds));
 
     for (auto moduleId : moduleIds) {
         using Storage::ModuleKind;
-        auto module = projectStorage.module(moduleId);
+        auto module = modulesStorage.module(moduleId);
         switch (module.kind) {
         case ModuleKind::QmlLibrary:
             imports.push_back("import " + module.name.toQString());
@@ -1041,14 +1044,14 @@ QStringList generateImports(ModuleIds moduleIds, const ProjectStorageType &proje
     return imports;
 }
 
-QStringList generateImports(const ModelNodes &nodes)
+QStringList generateImports(const ModelNodes &nodes, ModulesStorage &modulesStorage)
 {
     if (nodes.empty())
         return {};
 
     auto moduleIds = generateModuleIds(nodes);
 
-    return generateImports(moduleIds, *nodes.front().model()->projectStorage());
+    return generateImports(moduleIds, modulesStorage);
 }
 
 #endif
@@ -1063,7 +1066,7 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
 
     const QList<ModelNode> nodes = modelNode.allSubModelNodesAndThisNode();
 #ifdef QDS_USE_PROJECTSTORAGE
-    auto directPaths = generateImports(nodes);
+    auto directPaths = generateImports(nodes, m_modulesStorage);
 #else
     QSet<QString> directPathsSet;
 

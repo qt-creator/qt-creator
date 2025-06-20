@@ -21,10 +21,12 @@
 
 namespace QmlDesigner {
 
-ComponentView::ComponentView(ExternalDependenciesInterface &externalDependencies)
+ComponentView::ComponentView(ExternalDependenciesInterface &externalDependencies,
+                             ModulesStorage &modulesStorage)
     : AbstractView{externalDependencies}
     , m_standardItemModel(new QStandardItemModel(this))
     , m_componentAction(new ComponentAction(this))
+    , m_modulesStorage(modulesStorage)
 {
     connect(&m_ensureMatLibTimer, &QTimer::timeout, this, &ComponentView::ensureMatLibTriggered);
     m_ensureMatLibTimer.setInterval(500);
@@ -282,7 +284,10 @@ void ComponentView::customNotification(const AbstractView *,
         if (!nodeList.isEmpty())
             node = nodeList[0];
 
-        Import3dDialog::updateImport(this, import3dQml, node,
+        Import3dDialog::updateImport(this,
+                                     m_modulesStorage,
+                                     import3dQml,
+                                     node,
                                      m_importableExtensions3DMap,
                                      m_importOptions3DMap);
     }
@@ -307,8 +312,12 @@ void ComponentView::updateImport3DSupport(const QVariantMap &supportMap)
 
             auto importDlg = new Import3dDialog(fileNames,
                                                 m_importableExtensions3DMap,
-                                                m_importOptions3DMap, {}, {},
-                                                this, Core::ICore::dialogParent());
+                                                m_importOptions3DMap,
+                                                {},
+                                                {},
+                                                this,
+                                                m_modulesStorage,
+                                                Core::ICore::dialogParent());
             int result = importDlg->exec();
 
             return result == QDialog::Accepted ? AddFilesResult::succeeded() : AddFilesResult::cancelled();

@@ -5,10 +5,9 @@
 #include "internalnode_p.h"
 #include "model_p.h"
 
+#include <itemlibraryentry.h>
 #include <modelutils.h>
-
-#include "itemlibraryentry.h"
-#include "sourcepathstorage/sourcepathcache.h"
+#include <sourcepathstorage/sourcepathcache.h>
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include "metainfo.h"
 #endif
@@ -22,6 +21,7 @@
 #include <predicate.h>
 #include <uniquename.h>
 
+#include <modulesstorage/modulesstorage.h>
 #include <projectstorage/projectstorage.h>
 #include <qmldesignerutils/version.h>
 
@@ -57,6 +57,7 @@ ModelPrivate::ModelPrivate(Model *model,
                            std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : projectStorage{&projectStorageDependencies.storage}
     , pathCache{&projectStorageDependencies.cache}
+    , modulesStorage{&projectStorageDependencies.modulesStorage}
     , projectStorageTriggerUpdate{&projectStorageDependencies.triggerUpdate}
     , m_model{model}
     , m_resourceManagement{std::move(resourceManagement)}
@@ -83,6 +84,7 @@ ModelPrivate::ModelPrivate(Model *model,
                            std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
     : projectStorage{&projectStorageDependencies.storage}
     , pathCache{&projectStorageDependencies.cache}
+    , modulesStorage{&projectStorageDependencies.modulesStorage}
     , projectStorageTriggerUpdate{&projectStorageDependencies.triggerUpdate}
     , m_model{model}
     , m_resourceManagement{std::move(resourceManagement)}
@@ -148,7 +150,7 @@ void ModelPrivate::detachAllViews()
 namespace {
 Storage::Imports createStorageImports(const Imports &imports,
                                       Utils::SmallStringView localDirectoryPath,
-                                      ProjectStorageType &projectStorage,
+                                      ModulesStorage &modulesStorage,
                                       SourceId fileId)
 {
     using Storage::ModuleKind;
@@ -157,11 +159,11 @@ Storage::Imports createStorageImports(const Imports &imports,
 
     for (const Import &import : imports) {
         auto moduleKind = import.isLibraryImport() ? ModuleKind::QmlLibrary : ModuleKind::PathLibrary;
-        auto moduleId = projectStorage.moduleId(Utils::SmallString{import.url()}, moduleKind);
+        auto moduleId = modulesStorage.moduleId(Utils::SmallString{import.url()}, moduleKind);
         storageImports.emplace_back(moduleId, import.majorVersion(), import.minorVersion(), fileId);
     }
 
-    auto localDirectoryModuleId = projectStorage.moduleId(localDirectoryPath, ModuleKind::PathLibrary);
+    auto localDirectoryModuleId = modulesStorage.moduleId(localDirectoryPath, ModuleKind::PathLibrary);
 
     storageImports.emplace_back(localDirectoryModuleId, Storage::Version{}, fileId);
 
@@ -187,7 +189,7 @@ void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedIm
 
     if (!removedImports.isEmpty() || !allNewAddedImports.isEmpty()) {
         if (useProjectStorage()) {
-            auto imports = createStorageImports(m_imports, m_localPath, *projectStorage, m_sourceId);
+            auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
             projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
         notifyImportsChanged(allNewAddedImports, removedImports);
@@ -260,7 +262,7 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
             m_sourceId = pathCache->sourceId(SourcePath{path});
             auto found = std::find(path.rbegin(), path.rend(), u'/').base();
             m_localPath = Utils::PathString{QStringView{path.begin(), std::prev(found)}};
-            auto imports = createStorageImports(m_imports, m_localPath, *projectStorage, m_sourceId);
+            auto imports = createStorageImports(m_imports, m_localPath, *modulesStorage, m_sourceId);
             projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
 
@@ -385,7 +387,7 @@ ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView typeN
                 using Storage::ModuleKind;
                 auto moduleKind = found->isLibraryImport() ? ModuleKind::QmlLibrary
                                                            : ModuleKind::PathLibrary;
-                ModuleId moduleId = projectStorage->moduleId(Utils::PathString{found->url()},
+                ModuleId moduleId = modulesStorage->moduleId(Utils::PathString{found->url()},
                                                              moduleKind);
                 ImportId importId = projectStorage->importId(Storage::Import::fromSignedInteger(
                     moduleId, found->majorVersion(), found->minorVersion(), m_sourceId));
@@ -1883,7 +1885,10 @@ ModelPointer Model::createModel(const TypeName &typeName,
                                ModelTracing::category(),
                                keyValue("caller location", sl)};
 
-    return Model::create({*d->projectStorage, *d->pathCache, *d->projectStorageTriggerUpdate},
+    return Model::create({*d->projectStorage,
+                          *d->pathCache,
+                          *d->modulesStorage,
+                          *d->projectStorageTriggerUpdate},
                          typeName,
                          imports(),
                          fileUrl(),
@@ -2222,6 +2227,7 @@ ProjectStorageDependencies Model::projectStorageDependencies() const
 {
     return ProjectStorageDependencies{*d->projectStorage,
                                       *d->pathCache,
+                                      *d->modulesStorage,
                                       *d->projectStorageTriggerUpdate};
 }
 
@@ -3288,7 +3294,7 @@ Module Model::module(Utils::SmallStringView moduleName, Storage::ModuleKind modu
                                    ModelTracing::category(),
                                    keyValue("caller location", sl)};
 
-        return Module(d->projectStorage->moduleId(moduleName, moduleKind), d->projectStorage);
+        return Module(d->modulesStorage->moduleId(moduleName, moduleKind), d->projectStorage);
     }
 
     return {};
@@ -3303,7 +3309,7 @@ SmallModuleIds<128> Model::moduleIdsStartsWith(Utils::SmallStringView startsWith
                                    ModelTracing::category(),
                                    keyValue("caller location", sl)};
 
-        return d->projectStorage->moduleIdsStartsWith(startsWith, kind);
+        return d->modulesStorage->moduleIdsStartsWith(startsWith, kind);
     }
 
     return {};

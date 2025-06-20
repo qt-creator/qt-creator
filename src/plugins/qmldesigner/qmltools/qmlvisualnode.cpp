@@ -400,13 +400,15 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
                                                    const QString &source,
                                                    const QmlVisualNode::Position &position)
 {
+    auto model = view->model();
+
 #ifdef QDS_USE_PROJECTSTORAGE
-    auto inputModel = view->model()->createModel("Item");
+    auto inputModel = model->createModel("Item");
 #else
-    auto inputModel = Model::create("QtQuick.Item", 1, 0, view->model());
+    auto inputModel = Model::create("QtQuick.Item", 1, 0, model);
 #endif
-    inputModel->setFileUrl(view->model()->fileUrl());
-    inputModel->changeImports(view->model()->imports(), {});
+    inputModel->setFileUrl(model->fileUrl());
+    inputModel->changeImports(model->imports(), {});
 
     QPlainTextEdit textEdit;
 
@@ -414,7 +416,9 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     NotIndentingTextEditModifier modifier(textEdit.document());
 
     std::unique_ptr<RewriterView> rewriterView = std::make_unique<RewriterView>(
-        view->externalDependencies(), RewriterView::Amend);
+        view->externalDependencies(),
+        model->projectStorageDependencies().modulesStorage,
+        RewriterView::Amend);
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     rewriterView->setAllowComponentRoot(true);

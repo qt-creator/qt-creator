@@ -129,10 +129,12 @@ namespace QmlDesigner {
 */
 NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager,
                                    ExternalDependenciesInterface &externalDependencies,
+                                   ModulesStorage &modulesStorage,
                                    bool qsbEnabled)
     : AbstractView{externalDependencies}
     , m_connectionManager(connectionManager)
     , m_externalDependencies(externalDependencies)
+    , m_modulesStorage{modulesStorage}
     , m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32)
     , m_restartProcessTimerId(0)
     , m_fileSystemWatcher(new QFileSystemWatcher(this))
@@ -1050,7 +1052,7 @@ bool parentIsBehavior(ModelNode node)
     return false;
 }
 
-TypeName createQualifiedTypeName(const ModelNode &node)
+TypeName createQualifiedTypeName(const ModelNode &node, ModulesStorage &modulesStorage)
 {
     if (!node)
         return {};
@@ -1060,7 +1062,7 @@ TypeName createQualifiedTypeName(const ModelNode &node)
     auto exportedType = model->exportedTypeNameForMetaInfo(node.metaInfo());
     if (exportedType.name.size()) {
         using Storage::ModuleKind;
-        auto module = model->projectStorage()->module(exportedType.moduleId);
+        auto module = modulesStorage.module(exportedType.moduleId);
         Utils::PathString typeName;
         switch (module.kind) {
         case ModuleKind::QmlLibrary:
@@ -1143,7 +1145,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         const auto modelNode = instance.modelNode();
 
         InstanceContainer container(instance.instanceId(),
-                                    createQualifiedTypeName(modelNode),
+                                    createQualifiedTypeName(modelNode, m_modulesStorage),
                                     modelNode.majorVersion(),
                                     modelNode.minorVersion(),
                                     ModelUtils::componentFilePath(modelNode),
@@ -1322,7 +1324,7 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
 
         const auto modelNode = instance.modelNode();
         InstanceContainer container(instance.instanceId(),
-                                    createQualifiedTypeName(modelNode),
+                                    createQualifiedTypeName(modelNode, m_modulesStorage),
                                     modelNode.majorVersion(),
                                     modelNode.minorVersion(),
                                     ModelUtils::componentFilePath(modelNode),
@@ -2019,7 +2021,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
 
     ModelNodePreviewImageData imageData;
     imageData.id = modelNode.id();
-    imageData.type = QString::fromUtf8(createQualifiedTypeName(modelNode));
+    imageData.type = QString::fromUtf8(createQualifiedTypeName(modelNode, m_modulesStorage));
     const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
 
     if (imageSource.isEmpty() && modelNode.metaInfo().isQtQuick3DTexture()) {
@@ -2128,7 +2130,7 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
     if (m_imageDataMap.contains(id)) {
         imageData = m_imageDataMap[id];
     } else {
-        imageData.type = QString::fromLatin1(createQualifiedTypeName(modelNode));
+        imageData.type = QString::fromLatin1(createQualifiedTypeName(modelNode, m_modulesStorage));
         imageData.id = id;
 
         // There might be multiple requests for different preview pixmap sizes.

@@ -61,15 +61,17 @@ void TimelineActions::copyAllKeyframesForTarget(const ModelNode &targetNode,
 }
 
 void TimelineActions::pasteKeyframesToTarget(const ModelNode &targetNode,
-                                             const QmlTimeline &timeline)
+                                             const QmlTimeline &timeline,
+                                             ModulesStorage &modulesStorage)
 {
     if (timeline.isValid()) {
-        auto pasteModel = DesignDocumentView::pasteToModel(targetNode.view()->externalDependencies());
+        auto pasteModel = DesignDocumentView::pasteToModel(targetNode.view()->externalDependencies(),
+                                                           modulesStorage);
 
         if (!pasteModel)
             return;
 
-        DesignDocumentView view{targetNode.view()->externalDependencies()};
+        DesignDocumentView view{targetNode.view()->externalDependencies(), modulesStorage};
         pasteModel->attachView(&view);
 
         if (!view.rootModelNode().isValid())
@@ -238,14 +240,17 @@ std::vector<std::tuple<ModelNode, qreal>> getFramesRelative(const ModelNode &par
     return result;
 }
 
-void TimelineActions::pasteKeyframes(AbstractView *timelineView, const QmlTimeline &timeline)
+void TimelineActions::pasteKeyframes(AbstractView *timelineView,
+                                     const QmlTimeline &timeline,
+                                     ModulesStorage &modulesStorage)
 {
-    auto pasteModel = DesignDocumentView::pasteToModel(timelineView->externalDependencies());
+    auto pasteModel = DesignDocumentView::pasteToModel(timelineView->externalDependencies(),
+                                                       modulesStorage);
 
     if (!pasteModel)
         return;
 
-    DesignDocumentView view{timelineView->externalDependencies()};
+    DesignDocumentView view{timelineView->externalDependencies(), modulesStorage};
     pasteModel->attachView(&view);
 
     if (!view.rootModelNode().isValid())

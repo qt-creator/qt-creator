@@ -20,6 +20,10 @@
 #include <exception>
 #include <variant>
 
+namespace QmlDesigner {
+class ModulesStorage;
+}
+
 namespace QmlDesigner::Storage {
 
 class ItemLibraryEntry;
@@ -43,8 +47,8 @@ class TypeAnnotationReader : protected QmlJS::SimpleAbstractStreamReader
     using json = nlohmann::json;
 
 public:
-    TypeAnnotationReader(ProjectStorageType &projectStorage)
-        : m_projectStorage{projectStorage}
+    TypeAnnotationReader(ModulesStorage &modulesStorage)
+        : m_modulesStorage{modulesStorage}
     {}
 
     Synchronization::TypeAnnotations parseTypeAnnotation(const QString &content,
@@ -117,7 +121,7 @@ private:
     Utils::PathString absoluteFilePathForDocument(Utils::PathString relativeFilePath);
 
 private:
-    ProjectStorageType &m_projectStorage;
+    ModulesStorage &m_modulesStorage;
     Utils::PathString m_directoryPath;
     ParserSate m_parserState = Undefined;
     Synchronization::TypeAnnotations m_typeAnnotations;

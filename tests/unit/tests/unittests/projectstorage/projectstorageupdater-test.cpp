@@ -222,8 +222,13 @@ public:
     {
         Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
         Sqlite::Database sourcePathDatabase{":memory:", Sqlite::JournalMode::Memory};
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
         NiceMock<ProjectStorageErrorNotifierMock> errorNotifierMock;
-        QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
+        QmlDesigner::ProjectStorage storage{database,
+                                            errorNotifierMock,
+                                            modulesStorage,
+                                            database.isInitialized()};
         QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
                                                          sourcePathDatabase.isInitialized()};
     };
@@ -232,14 +237,12 @@ public:
 
     static void TearDownTestSuite() { staticData.reset(); }
 
-    BaseProjectStorageUpdater()
-    {
-        ON_CALL(projectStorageMock, moduleId(_, _)).WillByDefault([&](const auto &name, const auto &kind) {
-            return storage.moduleId(name, kind);
-        });
-    }
+    BaseProjectStorageUpdater() = default;
 
-    ~BaseProjectStorageUpdater() { storage.resetForTestsOnly(); }
+    ~BaseProjectStorageUpdater()
+    {
+        storage.resetForTestsOnly();
+    }
 
     void setFilesUnchanged(const QmlDesigner::SourceIds &sourceIds)
     {
@@ -376,7 +379,7 @@ public:
 
     auto moduleId(Utils::SmallStringView name, ModuleKind kind) const
     {
-        return storage.moduleId(name, kind);
+        return modulesStorage.moduleId(name, kind);
     }
 
     SourceId createDirectorySourceId(Utils::SmallStringView path) const
@@ -391,22 +394,24 @@ public:
     }
 
 protected:
-    NiceMock<FileSystemMock> fileSystemMock;
-    NiceMock<ProjectStorageMock> projectStorageMock;
-    NiceMock<QmlTypesParserMock> qmlTypesParserMock;
-    NiceMock<QmlDocumentParserMock> qmlDocumentParserMock;
-    QmlDesigner::FileStatusCache fileStatusCache{fileSystemMock};
     inline static std::unique_ptr<StaticData> staticData;
     Sqlite::Database &database = staticData->database;
     QmlDesigner::ProjectStorage &storage = staticData->storage;
     QmlDesigner::SourcePathCache<QmlDesigner::SourcePathStorage> sourcePathCache{
         staticData->sourcePathStorage};
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
+    NiceMock<FileSystemMock> fileSystemMock;
+    NiceMock<ProjectStorageMock> projectStorageMock{modulesStorage};
+    NiceMock<QmlTypesParserMock> qmlTypesParserMock;
+    NiceMock<QmlDocumentParserMock> qmlDocumentParserMock;
+    QmlDesigner::FileStatusCache fileStatusCache{fileSystemMock};
     NiceMock<ProjectStoragePathWatcherMock> patchWatcherMock;
     NiceMock<ProjectStorageErrorNotifierMock> errorNotifierMock;
     QmlDesigner::ProjectStorageUpdater updater{fileSystemMock,
                                                projectStorageMock,
                                                fileStatusCache,
                                                sourcePathCache,
+                                               modulesStorage,
                                                qmlDocumentParserMock,
                                                qmlTypesParserMock,
                                                patchWatcherMock,
@@ -472,7 +477,7 @@ public:
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/path/qmldir");
     DirectoryPathId directoryPathId = qmlDirPathSourceId.directoryPathId();
     SourceId directoryPathSourceId = SourceId::create(directoryPathId, QmlDesigner::FileNameId{});
-    ModuleId exampleModuleId = storage.moduleId("Example", ModuleKind::CppLibrary);
+    ModuleId exampleModuleId = modulesStorage.moduleId("Example", ModuleKind::CppLibrary);
 };
 
 TEST_F(ProjectStorageUpdater_get_content_for_qml_types, added_qml_types_file_provides_content)
@@ -545,7 +550,7 @@ public:
     SourceId qmlDocument1_2SourceId = sourcePathCache.sourceId("/path/First2.qml");
     SourceId qmlDocument2SourceId = sourcePathCache.sourceId("/path/Second.qml");
     SourceId qmlDocument2OldSourceId = sourcePathCache.sourceId("/path/OldSecond.qml");
-    ModuleId exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
+    ModuleId exampleModuleId = modulesStorage.moduleId("Example", ModuleKind::QmlLibrary);
 };
 
 TEST_F(ProjectStorageUpdater_get_content_for_qml_documents, add_qml_documents)
@@ -597,7 +602,7 @@ public:
 public:
     QString qmltypes{"Module {\ndependencies: []}"};
     QString qmltypes2{"Module {\ndependencies: [foo]}"};
-    ModuleId exampleCppNativeModuleId{storage.moduleId("Example", ModuleKind::CppLibrary)};
+    ModuleId exampleCppNativeModuleId{modulesStorage.moduleId("Example", ModuleKind::CppLibrary)};
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/root/path/example.qmltypes");
     SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/root/path/example2.qmltypes");
     SourceId qmlDirPathSourceId = sourcePathCache.sourceId("/root/path/qmldir");
@@ -721,7 +726,7 @@ public:
     SourceId qmlDocument1SourceId = sourcePathCache.sourceId("/path/First.qml");
     SourceId qmlDocument1_2SourceId = sourcePathCache.sourceId("/path/First2.qml");
     SourceId qmlDocument2SourceId = sourcePathCache.sourceId("/path/Second.qml");
-    ModuleId exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
+    ModuleId exampleModuleId = modulesStorage.moduleId("Example", ModuleKind::QmlLibrary);
 };
 
 TEST_F(ProjectStorageUpdater_parse_qml_documents, parse_added_qml_documents_in_qt)
@@ -1123,9 +1128,9 @@ public:
     SourceId directoryPathSourceId = SourceId::create(directoryPathId, QmlDesigner::FileNameId{});
     DirectoryPathId annotationDirectoryId = sourcePathCache.directoryPathId("/path/designer");
     SourceId annotationDirectorySourceId = SourceId::create(annotationDirectoryId, FileNameId{});
-    ModuleId qmlModuleId{storage.moduleId("Qml", ModuleKind::QmlLibrary)};
-    ModuleId exampleModuleId{storage.moduleId("Example", ModuleKind::QmlLibrary)};
-    ModuleId exampleCppNativeModuleId{storage.moduleId("Example", ModuleKind::CppLibrary)};
+    ModuleId qmlModuleId{modulesStorage.moduleId("Qml", ModuleKind::QmlLibrary)};
+    ModuleId exampleModuleId{modulesStorage.moduleId("Example", ModuleKind::QmlLibrary)};
+    ModuleId exampleCppNativeModuleId{modulesStorage.moduleId("Example", ModuleKind::CppLibrary)};
     Storage::Import import{qmlModuleId, Storage::Version{2, 3}, qmltypesPathSourceId};
     Type objectType{"QObject",
                     ImportedType{},
@@ -1380,8 +1385,8 @@ public:
 
 public:
     SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/path/example2.qmltypes");
-    ModuleId qmlCppNativeModuleId{storage.moduleId("Qml", ModuleKind::CppLibrary)};
-    ModuleId builtinCppNativeModuleId{storage.moduleId("QML", ModuleKind::CppLibrary)};
+    ModuleId qmlCppNativeModuleId{modulesStorage.moduleId("Qml", ModuleKind::CppLibrary)};
+    ModuleId builtinCppNativeModuleId{modulesStorage.moduleId("QML", ModuleKind::CppLibrary)};
 };
 
 TEST_F(ProjectStorageUpdater_synchronize_qmldir_dependencies, with_multiple_qml_types)
@@ -1491,11 +1496,11 @@ public:
     ProjectStorageUpdater_synchronize_qmldir_imports() {}
 
 public:
-    ModuleId qmlCppNativeModuleId{storage.moduleId("Qml", ModuleKind::CppLibrary)};
-    ModuleId builtinModuleId{storage.moduleId("QML", ModuleKind::QmlLibrary)};
-    ModuleId builtinCppNativeModuleId{storage.moduleId("QML", ModuleKind::CppLibrary)};
-    ModuleId quickModuleId{storage.moduleId("Quick", ModuleKind::QmlLibrary)};
-    ModuleId quickCppNativeModuleId{storage.moduleId("Quick", ModuleKind::CppLibrary)};
+    ModuleId qmlCppNativeModuleId{modulesStorage.moduleId("Qml", ModuleKind::CppLibrary)};
+    ModuleId builtinModuleId{modulesStorage.moduleId("QML", ModuleKind::QmlLibrary)};
+    ModuleId builtinCppNativeModuleId{modulesStorage.moduleId("QML", ModuleKind::CppLibrary)};
+    ModuleId quickModuleId{modulesStorage.moduleId("Quick", ModuleKind::QmlLibrary)};
+    ModuleId quickCppNativeModuleId{modulesStorage.moduleId("Quick", ModuleKind::CppLibrary)};
 };
 
 TEST_F(ProjectStorageUpdater_synchronize_qmldir_imports, imports)
@@ -1702,9 +1707,9 @@ public:
     SourceId qmlDocument1SourceId = sourcePathCache.sourceId("/path/First.qml");
     SourceId qmlDocument1_2SourceId = sourcePathCache.sourceId("/path/First2.qml");
     SourceId qmlDocument2SourceId = sourcePathCache.sourceId("/path/Second.qml");
-    ModuleId exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
-    ModuleId qmlModuleId = storage.moduleId("QtQml", ModuleKind::QmlLibrary);
-    ModuleId pathModuleId = storage.moduleId("/path", ModuleKind::PathLibrary);
+    ModuleId exampleModuleId = modulesStorage.moduleId("Example", ModuleKind::QmlLibrary);
+    ModuleId qmlModuleId = modulesStorage.moduleId("QtQml", ModuleKind::QmlLibrary);
+    ModuleId pathModuleId = modulesStorage.moduleId("/path", ModuleKind::PathLibrary);
     Storage::Import import1{qmlModuleId, Storage::Version{2, 3}, qmlDocument1SourceId};
     Storage::Import import1_2{qmlModuleId, Storage::Version{}, qmlDocument1_2SourceId};
     Storage::Import import2{qmlModuleId, Storage::Version{2}, qmlDocument2SourceId};
@@ -1905,7 +1910,7 @@ TEST_P(synchronize_changed_qml_documents, with_missing_module_name_directory_nam
                       FirstType 2.2 First2.qml
                       SecondType 2.2 Second.qml)"};
     setContent(u"/path/qmldir", qmldir);
-    ModuleId directoryNameModuleId{storage.moduleId("path", ModuleKind::QmlLibrary)};
+    ModuleId directoryNameModuleId{modulesStorage.moduleId("path", ModuleKind::QmlLibrary)};
     setFilesChanged({directoryPathSourceId, qmlDirPathSourceId});
     setFiles(state, {qmlDocument1SourceId, qmlDocument1_2SourceId, qmlDocument2SourceId});
 
@@ -2868,7 +2873,7 @@ public:
     SourceId qmlDocument1SourceId = sourcePathCache.sourceId("/path/one/First.qml");
     SourceId qmlDocument2SourceId = sourcePathCache.sourceId("/path/one/Second.qml");
     SourceId qmlDocument3SourceId = sourcePathCache.sourceId("/path/two/Third.qml");
-    ModuleId exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
+    ModuleId exampleModuleId = modulesStorage.moduleId("Example", ModuleKind::QmlLibrary);
     SourceId qmltypes1SourceId = sourcePathCache.sourceId("/path/one/example.qmltypes");
     SourceId qmltypes2SourceId = sourcePathCache.sourceId("/path/two/example2.qmltypes");
 };
@@ -3349,9 +3354,9 @@ public:
 public:
     SourceId qmlDocument1SourceId = sourcePathCache.sourceId("/root/path/First.qml");
     SourceId qmlDocument2SourceId = sourcePathCache.sourceId("/root/path/Second.qml");
-    ModuleId exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
-    ModuleId qmlModuleId = storage.moduleId("QtQml", ModuleKind::QmlLibrary);
-    ModuleId pathModuleId = storage.moduleId("/root/path", ModuleKind::PathLibrary);
+    ModuleId exampleModuleId = modulesStorage.moduleId("Example", ModuleKind::QmlLibrary);
+    ModuleId qmlModuleId = modulesStorage.moduleId("QtQml", ModuleKind::QmlLibrary);
+    ModuleId pathModuleId = modulesStorage.moduleId("/root/path", ModuleKind::PathLibrary);
     Storage::Import import1{qmlModuleId, Storage::Version{2, 3}, qmlDocument1SourceId};
     Storage::Import import2{qmlModuleId, Storage::Version{2}, qmlDocument2SourceId};
     bool isDocumentUnchanged = state == FileState::Unchanged;
@@ -4006,9 +4011,9 @@ public:
     SourceId qmltypes2SourceId = sourcePathCache.sourceId("/root/path/qmltypes2.qmltypes");
     QString qmltypes1Content{"Module {\ndependencies: [module1]}"};
     QString qmltypes2Content{"Module {\ndependencies: [module2]}"};
-    ModuleId exampleCppModuleId = storage.moduleId("Example", ModuleKind::CppLibrary);
-    ModuleId qmlModuleId = storage.moduleId("QtQml", ModuleKind::QmlLibrary);
-    ModuleId pathModuleId = storage.moduleId("/root/path", ModuleKind::PathLibrary);
+    ModuleId exampleCppModuleId = modulesStorage.moduleId("Example", ModuleKind::CppLibrary);
+    ModuleId qmlModuleId = modulesStorage.moduleId("QtQml", ModuleKind::QmlLibrary);
+    ModuleId pathModuleId = modulesStorage.moduleId("/root/path", ModuleKind::PathLibrary);
     Storage::Import import1{qmlModuleId, Storage::Version{2, 3}, qmltypes1SourceId};
     Storage::Import import2{qmlModuleId, Storage::Version{2}, qmltypes2SourceId};
     bool isQmltypesUnchanged = state == FileState::Unchanged;
@@ -4592,9 +4597,9 @@ public:
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/Controls"});
     SourceId controlsDirectorySourceId = SourceId::create(controlsDirectoryId,
                                                           QmlDesigner::FileNameId{});
-    ModuleId qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
-    ModuleId controlsModuleId = storage.moduleId("QtQuick.Controls", ModuleKind::QmlLibrary);
-    ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
+    ModuleId qtQuickModuleId = modulesStorage.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    ModuleId controlsModuleId = modulesStorage.moduleId("QtQuick.Controls", ModuleKind::QmlLibrary);
+    ModuleId qmlModuleId = modulesStorage.moduleId("QML", ModuleKind::QmlLibrary);
     Update update = {.propertyEditorResourcesPath = propertyEditorQmlPath};
 };
 
@@ -4856,7 +4861,7 @@ public:
         "/path/one/designer/HuoSpecificsDynamic.qml");
     SourceId propertyEditorPaneSourceId = sourcePathCache.sourceId(
         "/path/one/designer/CaoPane.qml");
-    ModuleId barModuleId = storage.moduleId("Bar", ModuleKind::QmlLibrary);
+    ModuleId barModuleId = modulesStorage.moduleId("Bar", ModuleKind::QmlLibrary);
 };
 
 TEST_F(ProjectStorageUpdater_added_property_editor_qml_paths,

@@ -28,7 +28,7 @@ public:
         ModelNodeRole = Qt::UserRole
     };
 
-    ComponentView(ExternalDependenciesInterface &externalDependencies);
+    ComponentView(ExternalDependenciesInterface &externalDependencies, ModulesStorage &modulesStorage);
 
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;
@@ -77,6 +77,7 @@ private: //functions
 private:
     QStandardItemModel *m_standardItemModel;
     ComponentAction *m_componentAction;
+    ModulesStorage &m_modulesStorage;
 
     QVariantMap m_importableExtensions3DMap;
     QVariantMap m_importOptions3DMap;

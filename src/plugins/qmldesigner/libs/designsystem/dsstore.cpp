@@ -77,7 +77,9 @@ std::optional<QString> modelSerializeHelper(
     QPlainTextEdit editor;
     editor.setPlainText(qmlText);
     QmlDesigner::NotIndentingTextEditModifier modifier(editor.document());
-    QmlDesigner::RewriterView view(ed, QmlDesigner::RewriterView::Validate);
+    QmlDesigner::RewriterView view(ed,
+                                   projectStorageDependencies.modulesStorage,
+                                   QmlDesigner::RewriterView::Validate);
     view.setPossibleImportsEnabled(false);
     view.setCheckSemanticErrors(false);
     view.setTextModifier(&modifier);
@@ -481,7 +483,9 @@ std::optional<QString> DSStore::loadCollection(const QString &typeName,
     editor.setPlainText(qmlContent);
 
     QmlDesigner::NotIndentingTextEditModifier modifier(editor.document());
-    RewriterView view(m_ed, QmlDesigner::RewriterView::Validate);
+    RewriterView view(m_ed,
+                      m_projectStorageDependencies.modulesStorage,
+                      QmlDesigner::RewriterView::Validate);
     // QDS-8366
     view.setPossibleImportsEnabled(false);
     view.setCheckSemanticErrors(false);

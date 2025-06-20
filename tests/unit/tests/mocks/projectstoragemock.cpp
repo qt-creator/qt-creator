@@ -51,19 +51,7 @@ void setupBasedOn(ProjectStorageMock &mock)
 ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName,
                                           QmlDesigner::Storage::ModuleKind moduleKind)
 {
-    if (auto id = moduleId(moduleName, moduleKind)) {
-        return id;
-    }
-
-    static ModuleId moduleId;
-    incrementBasicId(moduleId);
-
-    ON_CALL(*this, moduleId(Eq(moduleName), Eq(moduleKind))).WillByDefault(Return(moduleId));
-    ON_CALL(*this, module(Eq(moduleId)))
-        .WillByDefault(Return(QmlDesigner::Storage::Module{moduleName, moduleKind}));
-    ON_CALL(*this, fetchModuleIdUnguarded(Eq(moduleName), Eq(moduleKind))).WillByDefault(Return(moduleId));
-
-    return moduleId;
+    return modulesStorage.moduleId(moduleName, moduleKind);
 }
 
 QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
@@ -391,7 +379,9 @@ void ProjectStorageMock::setHeirs(QmlDesigner::TypeId typeId,
     ON_CALL(*this, heirIds(typeId)).WillByDefault(Return(heirIds));
 }
 
-ProjectStorageMock::ProjectStorageMock()
+ProjectStorageMock::ProjectStorageMock(QmlDesigner::ModulesStorage &modulesStorage)
+    : modulesStorage{modulesStorage}
+    , typeCache{*this, modulesStorage}
 {
     ON_CALL(*this, exportedTypeNames(_)).WillByDefault([&](TypeId id) {
         return exportedTypeName[id];
@@ -501,11 +491,11 @@ void ProjectStorageMock::setupQtQuick()
 
 void ProjectStorageMock::setupQtQuickImportedTypeNameIds(QmlDesigner::SourceId sourceId)
 {
-    auto qmlModuleId = moduleId("QML", ModuleKind::QmlLibrary);
-    auto qtQmlModelsModuleId = moduleId("QtQml.Models", ModuleKind::QmlLibrary);
-    auto qtQuickModuleId = moduleId("QtQuick", ModuleKind::QmlLibrary);
-    auto qtQuickNativeModuleId = moduleId("QtQuick", ModuleKind::CppLibrary);
-    auto qtQuickTimelineModuleId = moduleId("QtQuick.Timeline", ModuleKind::QmlLibrary);
+    auto qmlModuleId = modulesStorage.moduleId("QML", ModuleKind::QmlLibrary);
+    auto qtQmlModelsModuleId = modulesStorage.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
+    auto qtQuickModuleId = modulesStorage.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    auto qtQuickNativeModuleId = modulesStorage.moduleId("QtQuick", ModuleKind::CppLibrary);
+    auto qtQuickTimelineModuleId = modulesStorage.moduleId("QtQuick.Timeline", ModuleKind::QmlLibrary);
 
     createImportedTypeNameId(sourceId, "int", qmlModuleId);
     createImportedTypeNameId(sourceId, "QtObject", qmlModuleId);

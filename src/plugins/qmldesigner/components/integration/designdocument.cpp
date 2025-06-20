@@ -65,7 +65,8 @@ namespace QmlDesigner {
   */
 DesignDocument::DesignDocument([[maybe_unused]] const QUrl &filePath,
                                ProjectStorageDependencies projectStorageDependencies,
-                               ExternalDependenciesInterface &externalDependencies)
+                               ExternalDependenciesInterface &externalDependencies,
+                               ModulesStorage &modulesStorage)
 #ifdef QDS_USE_PROJECTSTORAGE
     : m_documentModel(Model::create(projectStorageDependencies,
                                     "Item",
@@ -74,14 +75,15 @@ DesignDocument::DesignDocument([[maybe_unused]] const QUrl &filePath,
                                     std::make_unique<ModelResourceManagement>()))
 #else
     : m_documentModel(
-        Model::create("QtQuick.Item", 1, 0, nullptr, std::make_unique<ModelResourceManagement>()))
+          Model::create("QtQuick.Item", 1, 0, nullptr, std::make_unique<ModelResourceManagement>()))
     , m_subComponentManager(new SubComponentManager(m_documentModel.get(), externalDependencies))
 #endif
-    , m_rewriterView(new RewriterView(externalDependencies, RewriterView::Amend))
+    , m_rewriterView(new RewriterView(externalDependencies, modulesStorage, RewriterView::Amend))
     , m_documentLoaded(false)
     , m_currentTarget(nullptr)
     , m_projectStorageDependencies(projectStorageDependencies)
     , m_externalDependencies{externalDependencies}
+    , m_modulesStorage{modulesStorage}
 {
 #ifndef QDS_USE_PROJECTSTORAGE
     m_rewriterView->setIsDocumentRewriterView(true);
@@ -225,7 +227,7 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
         return;
 
     QList<ModelNode> movingNodes = nodes;
-    DesignDocumentView view{m_externalDependencies};
+    DesignDocumentView view{m_externalDependencies, m_modulesStorage};
     currentModel()->attachView(&view);
 
     ModelNode targetNode; // the node that new nodes should be placed in
@@ -615,7 +617,7 @@ void DesignDocument::deleteSelected()
 
 void DesignDocument::copySelected()
 {
-    DesignDocumentView view{m_externalDependencies};
+    DesignDocumentView view{m_externalDependencies, m_modulesStorage};
 
     currentModel()->attachView(&view);
 
@@ -630,7 +632,7 @@ void DesignDocument::cutSelected()
 
 void DesignDocument::duplicateSelected()
 {
-    DesignDocumentView view{m_externalDependencies};
+    DesignDocumentView view{m_externalDependencies, m_modulesStorage};
     currentModel()->attachView(&view);
     const QList<ModelNode> selectedNodes = view.selectedModelNodes();
     currentModel()->detachView(&view);
@@ -653,12 +655,12 @@ void DesignDocument::pasteToPosition(const std::optional<QVector3D> &position)
     if (TimelineActions::clipboardContainsKeyframes()) // pasting keyframes is handled in TimelineView
         return;
 
-    auto pasteModel = DesignDocumentView::pasteToModel(m_externalDependencies);
+    auto pasteModel = DesignDocumentView::pasteToModel(m_externalDependencies, m_modulesStorage);
 
     if (!pasteModel)
         return;
 
-    DesignDocumentView view{m_externalDependencies};
+    DesignDocumentView view{m_externalDependencies, m_modulesStorage};
     pasteModel->attachView(&view);
     ModelNode rootNode(view.rootModelNode());
 
@@ -683,7 +685,7 @@ void DesignDocument::selectAll()
     if (!currentModel())
         return;
 
-    DesignDocumentView view{m_externalDependencies};
+    DesignDocumentView view{m_externalDependencies, m_modulesStorage};
     currentModel()->attachView(&view);
 
     QList<ModelNode> allNodesExceptRootNode(view.allModelNodes());

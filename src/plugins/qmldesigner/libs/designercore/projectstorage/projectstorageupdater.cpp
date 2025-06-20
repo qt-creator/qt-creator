@@ -184,12 +184,12 @@ Storage::Synchronization::IsAutoVersion convertToIsAutoVersion(QQmlDirParser::Im
 void addDependencies(Storage::Imports &dependencies,
                      SourceId sourceId,
                      const std::vector<Utils::PathString> &qmldirDependencies,
-                     ProjectStorageInterface &projectStorage,
+                     ModulesStorage &modulesStorage,
                      TracerLiteral message,
                      Tracer &tracer)
 {
     for (std::string_view qmldirDependency : qmldirDependencies) {
-        ModuleId moduleId = projectStorage.moduleId(qmldirDependency, Storage::ModuleKind::CppLibrary);
+        ModuleId moduleId = modulesStorage.moduleId(qmldirDependency, Storage::ModuleKind::CppLibrary);
         auto &import = dependencies.emplace_back(moduleId, Storage::Version{}, sourceId);
         tracer.tick(message, keyValue("import", import));
     }
@@ -228,7 +228,7 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
                               ModuleId cppModuleId,
                               std::string_view moduleName,
                               const QList<QQmlDirParser::Import> &qmldirImports,
-                              ProjectStorageInterface &projectStorage)
+                              ModulesStorage &modulesStorage)
 {
     NanotraceHR::Tracer tracer{"add module exported imports",
                                category(),
@@ -241,7 +241,7 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
 
         Utils::PathString exportedModuleName{qmldirImport.module};
         using Storage::ModuleKind;
-        ModuleId exportedModuleId = projectStorage.moduleId(exportedModuleName,
+        ModuleId exportedModuleId = modulesStorage.moduleId(exportedModuleName,
                                                             ModuleKind::QmlLibrary);
         addModuleExportedImport(imports,
                                 moduleId,
@@ -252,7 +252,7 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
                                 ModuleKind::QmlLibrary,
                                 exportedModuleName);
 
-        ModuleId exportedCppModuleId = projectStorage.moduleId(exportedModuleName,
+        ModuleId exportedCppModuleId = modulesStorage.moduleId(exportedModuleName,
                                                                ModuleKind::CppLibrary);
         addModuleExportedImport(imports,
                                 cppModuleId,
@@ -446,14 +446,14 @@ void ProjectStorageUpdater::updateDirectoryChanged(Utils::SmallStringView direct
     Utils::PathString moduleName{parser.typeNamespace()};
     if (moduleName.empty())
         moduleName = directoryName(directoryPath);
-    ModuleId moduleId = m_projectStorage.moduleId(moduleName, ModuleKind::QmlLibrary);
-    ModuleId cppModuleId = m_projectStorage.moduleId(moduleName, ModuleKind::CppLibrary);
-    ModuleId pathModuleId = m_projectStorage.moduleId(directoryPath, ModuleKind::PathLibrary);
+    ModuleId moduleId = m_modulesStorage.moduleId(moduleName, ModuleKind::QmlLibrary);
+    ModuleId cppModuleId = m_modulesStorage.moduleId(moduleName, ModuleKind::CppLibrary);
+    ModuleId pathModuleId = m_modulesStorage.moduleId(directoryPath, ModuleKind::PathLibrary);
 
     auto imports = filterMultipleEntries(parser.imports());
 
     addModuleExportedImports(
-        package.moduleExportedImports, moduleId, cppModuleId, moduleName, imports, m_projectStorage);
+        package.moduleExportedImports, moduleId, cppModuleId, moduleName, imports, m_modulesStorage);
     tracer.tick("append updated module id", keyValue("module id", moduleId));
     package.updatedModuleIds.push_back(moduleId);
 
@@ -906,7 +906,7 @@ void ProjectStorageUpdater::updateTypeAnnotation(const QString &directoryPath,
                                keyValue("path", filePath),
                                keyValue("directory path", directoryPath)};
 
-    Storage::TypeAnnotationReader reader{m_projectStorage};
+    Storage::TypeAnnotationReader reader{m_modulesStorage};
 
     auto annotations = reader.parseTypeAnnotation(contentFromFile(filePath),
                                                   directoryPath,
@@ -959,7 +959,7 @@ void ProjectStorageUpdater::updatePropertyEditorFilePath(
         moduleName.replace('/', '.');
         if (oldModuleName != moduleName) {
             oldModuleName = moduleName;
-            moduleId = m_projectStorage.moduleId(Utils::SmallString{moduleName},
+            moduleId = m_modulesStorage.moduleId(Utils::SmallString{moduleName},
                                                  Storage::ModuleKind::QmlLibrary);
         }
         Storage::TypeNameString typeName{match.capturedView(2)};
@@ -1180,7 +1180,7 @@ void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
         addDependencies(package.moduleDependencies,
                         sourceId,
                         joinImports(qmldirDependencies, qmldirImports),
-                        m_projectStorage,
+                        m_modulesStorage,
                         "append module dependency",
                         tracer);
 

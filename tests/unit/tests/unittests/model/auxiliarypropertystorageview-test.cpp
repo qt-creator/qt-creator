@@ -31,6 +31,8 @@ protected:
     struct StaticData
     {
         Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
     };
 
     ~AuxiliaryPropertyStorageView() { view.resetForTestsOnly(); }
@@ -41,23 +43,26 @@ protected:
 
     inline static std::unique_ptr<StaticData> staticData;
     Sqlite::Database &database = staticData->database;
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
     NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId,
+                                                               "/path",
+                                                               modulesStorage};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
     QmlDesigner::Imports imports = {QmlDesigner::Import::createLibraryImport("QtQuick")};
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
-                             "Item",
-                             imports,
-                             pathCacheMock.path.toQString(),
-                             std::make_unique<ModelResourceManagementMockWrapper>(
-                                 resourceManagementMock)};
-    QmlDesigner::Model model2{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
-                              "Item",
-                              imports,
-                              pathCacheMock.path.toQString(),
-                              std::make_unique<ModelResourceManagementMockWrapper>(
-                                  resourceManagementMock)};
+    QmlDesigner::Model model{
+        {projectStorageMock, pathCacheMock, modulesStorage, projectStorageTriggerUpdateMock},
+        "Item",
+        imports,
+        pathCacheMock.path.toQString(),
+        std::make_unique<ModelResourceManagementMockWrapper>(resourceManagementMock)};
+    QmlDesigner::Model model2{
+        {projectStorageMock, pathCacheMock, modulesStorage, projectStorageTriggerUpdateMock},
+        "Item",
+        imports,
+        pathCacheMock.path.toQString(),
+        std::make_unique<ModelResourceManagementMockWrapper>(resourceManagementMock)};
     NiceMock<ExternalDependenciesMock> externalDependenciesMock;
     QmlDesigner::AuxiliaryPropertyStorageView view{database, externalDependenciesMock};
     ModelNode rootNode = model.rootModelNode();

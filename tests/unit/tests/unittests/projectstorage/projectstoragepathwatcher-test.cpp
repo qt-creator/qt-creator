@@ -42,10 +42,15 @@ class ProjectStoragePathWatcher : public testing::Test
 protected:
     struct StaticData
     {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
         Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
         Sqlite::Database sourcePathDatabase{":memory:", Sqlite::JournalMode::Memory};
         ProjectStorageErrorNotifierMock errorNotifierMock;
-        QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
+        QmlDesigner::ProjectStorage storage{database,
+                                            errorNotifierMock,
+                                            modulesStorage,
+                                            database.isInitialized()};
         QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
                                                          sourcePathDatabase.isInitialized()};
     };

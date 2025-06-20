@@ -28,7 +28,7 @@ class BakeLights : public QObject
     Q_PROPERTY(bool manualMode READ manualMode WRITE setManualMode NOTIFY manualModeChanged)
 
 public:
-    BakeLights(AbstractView *view);
+    BakeLights(AbstractView *view, ModulesStorage &modulesStorage);
     ~BakeLights();
 
     Q_INVOKABLE void cancel();
@@ -65,6 +65,7 @@ private:
     QPointer<NodeInstanceView> m_nodeInstanceView;
     QPointer<RewriterView> m_rewriterView;
     QPointer<AbstractView> m_view;
+    ModulesStorage &m_modulesStorage;
     QPointer<BakeLightsDataModel> m_dataModel;
     ModelPointer m_model;
     QString m_view3dId;

@@ -387,17 +387,6 @@ struct ProjectStorage::Statements
         database};
     Sqlite::WriteStatement<1> deleteEnumerationDeclarationStatement{
         "DELETE FROM enumerationDeclarations WHERE enumerationDeclarationId=?", database};
-    mutable Sqlite::ReadStatement<1, 2> selectModuleNameStatement{
-        "SELECT moduleId FROM modules WHERE name=?1 AND kind=?2", database};
-    mutable Sqlite::ReadWriteStatement<1, 2> upsertModuleNameStatement{
-        "INSERT INTO modules(name, kind) VALUES(?1, ?2) "
-        "ON CONFLICT DO UPDATE SET name=?1, kind=?2 "
-        "RETURNING moduleId",
-        database};
-    mutable Sqlite::ReadStatement<2, 1> selectModuleStatement{
-        "SELECT name, kind FROM modules WHERE moduleId =?1", database};
-    mutable Sqlite::ReadStatement<3> selectAllModulesStatement{
-        "SELECT name, kind, moduleId FROM modules", database};
     mutable Sqlite::ReadStatement<1, 2> selectTypeIdBySourceIdAndNameStatement{
         "SELECT typeId FROM types WHERE sourceId=?1 and name=?2", database};
     mutable Sqlite::ReadStatement<1, 3> selectTypeIdByModuleIdsAndExportedNameStatement{
@@ -905,13 +894,12 @@ struct ProjectStorage::Statements
         "                   USING(moduleId) "
         "                 WHERE di.sourceId=?)",
         database};
-    mutable Sqlite::ReadStatement<4, 2> selectDirectoryImportsItemLibraryEntriesBySourceIdStatement{
-        "SELECT typeId, etn.name, m.name, t.sourceId "
+    mutable Sqlite::ReadStatement<4, 1> selectDirectoryImportsItemLibraryEntriesBySourceIdStatement{
+        "SELECT typeId, etn.name, moduleId, t.sourceId "
         "FROM documentImports AS di "
         "  JOIN exportedTypeNames AS etn USING(moduleId) "
-        "  JOIN modules AS m USING(moduleId) "
         "  JOIN types AS t USING(typeId)"
-        "WHERE di.sourceId=?1 AND m.kind = ?2",
+        "WHERE di.sourceId=?1",
         database};
     mutable Sqlite::ReadStatement<3, 1> selectItemLibraryPropertiesStatement{
         "SELECT p.value->>0, p.value->>1, p.value->>2 FROM json_each(?1) AS p", database};
@@ -961,7 +949,6 @@ public:
     Initializer(Database &database, bool isInitialized)
     {
         if (!isInitialized) {
-            createModulesTable(database);
             createTypesAndePropertyDeclarationsTables(database);
             createBasesTable(database);
             createPrototypeTable(database);
@@ -1172,22 +1159,6 @@ public:
         table.initialize(database);
     }
 
-    void createModulesTable(Database &database)
-    {
-        Sqlite::StrictTable table;
-        table.setUseIfNotExists(true);
-        table.setName("modules");
-
-        table.addColumn("moduleId", Sqlite::StrictColumnType::Integer, {Sqlite::PrimaryKey{}});
-        auto &nameColumn = table.addColumn("name", Sqlite::StrictColumnType::Text);
-        auto &kindColumn = table.addColumn("kind", Sqlite::StrictColumnType::Integer);
-
-        table.addUniqueIndex({nameColumn, kindColumn});
-        table.addIndex({kindColumn});
-
-        table.initialize(database);
-    }
-
     void createModuleExportedImportsTable(Database &database)
     {
         Sqlite::StrictTable table;
@@ -1306,12 +1277,14 @@ public:
 
 ProjectStorage::ProjectStorage(Database &database,
                                ProjectStorageErrorNotifierInterface &errorNotifier,
+                               ModulesStorage &modulesStorage,
                                bool isInitialized)
     : database{database}
     , errorNotifier{&errorNotifier}
     , exclusiveTransaction{database}
     , initializer{std::make_unique<ProjectStorage::Initializer>(database, isInitialized)}
-    , moduleCache{ModuleStorageAdapter{*this}}
+    , modulesStorage{modulesStorage}
+    , commonTypeCache_{*this, modulesStorage}
     , s{std::make_unique<ProjectStorage::Statements>(database)}
 {
     NanotraceHR::Tracer tracer{"initialize", category()};
@@ -1320,7 +1293,6 @@ ProjectStorage::ProjectStorage(Database &database,
 
     database.walCheckpointFull();
 
-    moduleCache.populate();
 }
 
 ProjectStorage::~ProjectStorage() = default;
@@ -1441,58 +1413,6 @@ void ProjectStorage::removeObserver(ProjectStorageObserver *observer)
 {
     NanotraceHR::Tracer tracer{"remove observer", category()};
     observers.removeOne(observer);
-}
-
-ModuleId ProjectStorage::moduleId(Utils::SmallStringView moduleName, Storage::ModuleKind kind) const
-{
-    NanotraceHR::Tracer tracer{"get module id",
-                               category(),
-                               keyValue("module name", moduleName),
-                               keyValue("module kind", kind)};
-
-    if (moduleName.empty())
-        return ModuleId{};
-
-    auto moduleId = moduleCache.id({moduleName, kind});
-
-    tracer.end(keyValue("module id", moduleId));
-
-    return moduleId;
-}
-
-SmallModuleIds<128> ProjectStorage::moduleIdsStartsWith(Utils::SmallStringView startsWith,
-                                                        Storage::ModuleKind kind) const
-{
-    NanotraceHR::Tracer tracer{"get module ids that starts with",
-                               category(),
-                               keyValue("module name starts with", startsWith),
-                               keyValue("module kind", kind)};
-
-    if (startsWith.isEmpty())
-        return {};
-
-    auto projection = [&](ModuleView view) -> ModuleView {
-        return {view.name.substr(0, startsWith.size()), view.kind};
-    };
-
-    auto moduleIds = moduleCache.ids<128>({startsWith, kind}, projection);
-
-    return moduleIds;
-}
-
-Storage::Module ProjectStorage::module(ModuleId moduleId) const
-{
-    NanotraceHR::Tracer tracer{"get module name", category(), keyValue("module id", moduleId)};
-
-    if (!moduleId)
-        throw ModuleDoesNotExists{};
-
-    auto module = moduleCache.value(moduleId);
-
-    tracer.end(keyValue("module name", module.name));
-    tracer.end(keyValue("module kind", module.kind));
-
-    return {module.name, module.kind};
 }
 
 TypeId ProjectStorage::typeId(ModuleId moduleId,
@@ -1955,18 +1875,22 @@ Storage::Info::ItemLibraryEntries ProjectStorage::directoryImportsItemLibraryEnt
 
     auto callback = [&](TypeId typeId,
                         Utils::SmallStringView typeName,
-                        Utils::SmallStringView import,
+                        ModuleId moduleId,
                         SourceId componentSourceId) {
         if (!isCapitalLetter(typeName.front()))
             return;
 
-        auto &last = entries.emplace_back(typeId, typeName, typeName, "My Components", import);
+        auto module = modulesStorage.module(moduleId);
+        if (module.kind != Storage::ModuleKind::PathLibrary)
+            return;
+
+        auto &last = entries.emplace_back(typeId, typeName, typeName, "My Components", module.name);
         last.moduleKind = Storage::ModuleKind::PathLibrary;
         last.componentSourceId = componentSourceId;
     };
 
     s->selectDirectoryImportsItemLibraryEntriesBySourceIdStatement
-        .readCallbackWithTransaction(callback, sourceId, Storage::ModuleKind::PathLibrary);
+        .readCallbackWithTransaction(callback, sourceId);
 
     tracer.end(keyValue("item library entries", entries));
 
@@ -2369,44 +2293,7 @@ void ProjectStorage::resetForTestsOnly()
 {
     database.clearAllTablesForTestsOnly();
     commonTypeCache_.clearForTestsOnly();
-    moduleCache.clearForTestOnly();
     observers.clear();
-}
-
-ModuleId ProjectStorage::fetchModuleId(Utils::SmallStringView moduleName,
-                                       Storage::ModuleKind moduleKind)
-{
-    NanotraceHR::Tracer tracer{"fetch module id",
-                               category(),
-                               keyValue("module name", moduleName),
-                               keyValue("module kind", moduleKind)};
-
-    auto moduleId = Sqlite::withImplicitTransaction(database, [&] {
-        return fetchModuleIdUnguarded(moduleName, moduleKind);
-    });
-
-    tracer.end(keyValue("module id", moduleId));
-
-    return moduleId;
-}
-
-Storage::Module ProjectStorage::fetchModule(ModuleId id)
-{
-    NanotraceHR::Tracer tracer{"fetch module name", category(), keyValue("module id", id)};
-
-    auto module = Sqlite::withDeferredTransaction(database, [&] { return fetchModuleUnguarded(id); });
-
-    tracer.end(keyValue("module name", module.name));
-    tracer.end(keyValue("module name", module.kind));
-
-    return module;
-}
-
-ProjectStorage::ModuleCacheEntries ProjectStorage::fetchAllModules() const
-{
-    NanotraceHR::Tracer tracer{"fetch all modules", category()};
-
-    return s->selectAllModulesStatement.valuesWithTransaction<ModuleCacheEntry, 128>();
 }
 
 void ProjectStorage::callRefreshMetaInfoCallback(
@@ -2862,39 +2749,6 @@ void ProjectStorage::synchromizeModuleExportedImports(
     };
 
     Sqlite::insertUpdateDelete(range, moduleExportedImports, compareKey, insert, update, remove);
-}
-
-ModuleId ProjectStorage::fetchModuleIdUnguarded(Utils::SmallStringView name,
-                                                Storage::ModuleKind kind) const
-{
-    NanotraceHR::Tracer tracer{"fetch module id ungarded",
-                               category(),
-                               keyValue("module name", name),
-                               keyValue("module kind", kind)};
-
-    auto moduleId = s->selectModuleNameStatement.value<ModuleId>(name, kind);
-
-    if (not moduleId)
-        moduleId = s->upsertModuleNameStatement.value<ModuleId>(name, kind);
-
-    tracer.end(keyValue("module id", moduleId));
-
-    return moduleId;
-}
-
-Storage::Module ProjectStorage::fetchModuleUnguarded(ModuleId id) const
-{
-    NanotraceHR::Tracer tracer{"fetch module ungarded", category(), keyValue("module id", id)};
-
-    auto module = s->selectModuleStatement.value<Storage::Module>(id);
-
-    if (!module)
-        throw ModuleDoesNotExists{};
-
-    tracer.end(keyValue("module name", module.name));
-    tracer.end(keyValue("module name", module.kind));
-
-    return module;
 }
 
 void ProjectStorage::handleAliasPropertyDeclarationsWithPropertyType(
@@ -4942,31 +4796,6 @@ ImportedTypeNameId ProjectStorage::fetchImportedTypeNameId(Storage::Synchronizat
     tracer.end(keyValue("imported type name id", importedTypeNameId));
 
     return importedTypeNameId;
-}
-
-auto ProjectStorage::ModuleStorageAdapter::fetchId(ModuleView module)
-{
-    NanotraceHR::Tracer tracer{"module stoeage adapter fetch id",
-                               category(),
-                               NanotraceHR::keyValue("module name", module.name),
-                               NanotraceHR::keyValue("module kind", module.kind)};
-    return storage.fetchModuleId(module.name, module.kind);
-}
-
-auto ProjectStorage::ModuleStorageAdapter::fetchValue(ModuleId id)
-{
-    NanotraceHR::Tracer tracer{"module stoeage adapter fetch value",
-                               category(),
-                               NanotraceHR::keyValue("module id", id)};
-
-    return storage.fetchModule(id);
-}
-
-auto ProjectStorage::ModuleStorageAdapter::fetchAll()
-{
-    NanotraceHR::Tracer tracer{"module stoeage adapter fetch all", category()};
-
-    return storage.fetchAllModules();
 }
 
 template<typename Relinkable, typename Ids, typename Projection>

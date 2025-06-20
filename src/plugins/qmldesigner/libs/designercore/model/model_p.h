@@ -38,6 +38,7 @@ class AbstractProperty;
 class RewriterView;
 class NodeInstanceView;
 class NodeMetaInfoPrivate;
+class ModulesStorage;
 
 namespace Internal {
 
@@ -345,6 +346,7 @@ private:
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
     NotNullPointer<PathCacheType> pathCache = nullptr;
+    NotNullPointer<ModulesStorage> modulesStorage = nullptr;
     NotNullPointer<ProjectStorageTriggerUpdateInterface> projectStorageTriggerUpdate = nullptr;
     ModelTracing::AsynchronousToken traceToken = ModelTracing::category().beginAsynchronous(
         "Model");

@@ -60,9 +60,10 @@ static QString qmlSourcesPath()
     return Core::ICore::resourcePath("qmldesigner/edit3dQmlSource").toUrlishString();
 }
 
-BakeLights::BakeLights(AbstractView *view)
+BakeLights::BakeLights(AbstractView *view, ModulesStorage &modulesStorage)
     : QObject(view)
     , m_view(view)
+    , m_modulesStorage{modulesStorage}
 {
     m_view3dId = Utils3D::activeView3dId(view);
 
@@ -113,8 +114,12 @@ void BakeLights::bakeLights()
 
     // Start baking process
     m_connectionManager = new BakeLightsConnectionManager;
-    m_rewriterView = new RewriterView{m_view->externalDependencies(), RewriterView::Amend};
-    m_nodeInstanceView = new NodeInstanceView{*m_connectionManager, m_view->externalDependencies()};
+    m_rewriterView = new RewriterView{m_view->externalDependencies(),
+                                      m_modulesStorage,
+                                      RewriterView::Amend};
+    m_nodeInstanceView = new NodeInstanceView{*m_connectionManager,
+                                              m_view->externalDependencies(),
+                                              m_modulesStorage};
 
 #ifdef QDS_USE_PROJECTSTORAGE
     m_model = m_view->model()->createModel("Item");
@@ -227,7 +232,8 @@ void BakeLights::exposeModelsAndLights(const QString &nodeId)
         return;
     }
 
-    RewriterView rewriter{m_view->externalDependencies(), RewriterView::Amend};
+    RewriterView rewriter{m_view->externalDependencies(), m_modulesStorage, RewriterView::Amend};
+
 #ifdef QDS_USE_PROJECTSTORAGE
     auto compModel = m_view->model()->createModel("Item");
 #else

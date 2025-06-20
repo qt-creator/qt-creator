@@ -47,6 +47,17 @@ auto SetExpression(const PropertyMatcher &propertyMatcher, const ExpressionMatch
 class ModelResourceManagement : public testing::Test
 {
 protected:
+    struct StaticData
+    {
+        Sqlite::Database modulesDatabase{":memory:", Sqlite::JournalMode::Memory};
+        QmlDesigner::ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
+    };
+
+    static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
+
+    static void TearDownTestSuite() { staticData.reset(); }
+
+protected:
     ModelResourceManagement()
     {
         model.attachView(&viewMock);
@@ -71,12 +82,19 @@ protected:
     }
 
 protected:
+    inline static std::unique_ptr<StaticData> staticData;
+    QmlDesigner::ModulesStorage &modulesStorage = staticData->modulesStorage;
     NiceMock<AbstractViewMock> viewMock;
     NiceMock<ProjectStorageTriggerUpdateMock> projectStorageTriggerUpdateMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId,
+                                                               "/path",
+                                                               modulesStorage};
     QmlDesigner::ModelResourceManagement management;
-    QmlDesigner::Model model{{projectStorageMock, pathCacheMock, projectStorageTriggerUpdateMock},
+    QmlDesigner::Model model{{projectStorageMock,
+                              pathCacheMock,
+                              modulesStorage,
+                              projectStorageTriggerUpdateMock},
                              "Item",
                              {QmlDesigner::Import::createLibraryImport("QtQtuick")},
                              QUrl::fromLocalFile(pathCacheMock.path.toQString())};

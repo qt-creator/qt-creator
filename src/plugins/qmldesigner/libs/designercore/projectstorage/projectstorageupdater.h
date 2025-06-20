@@ -14,6 +14,7 @@
 #include "sourcepathstorage/sourcepath.h"
 
 #include <modelfwd.h>
+#include <modulesstorage/modulesstorage.h>
 
 #include <QStringList>
 
@@ -43,6 +44,7 @@ public:
                           ProjectStorageType &projectStorage,
                           FileStatusCache &fileStatusCache,
                           PathCacheType &pathCache,
+                          ModulesStorage &modulesStorage,
                           QmlDocumentParserInterface &qmlDocumentParser,
                           QmlTypesParserInterface &qmlTypesParser,
                           class ProjectStoragePathWatcherInterface &pathWatcher,
@@ -53,6 +55,7 @@ public:
         , m_projectStorage{projectStorage}
         , m_fileStatusCache{fileStatusCache}
         , m_pathCache{pathCache}
+        , m_modulesStorage{modulesStorage}
         , m_qmlDocumentParser{qmlDocumentParser}
         , m_qmlTypesParser{qmlTypesParser}
         , m_pathWatcher{pathWatcher}
@@ -267,6 +270,7 @@ private:
     ProjectStorageType &m_projectStorage;
     FileStatusCache &m_fileStatusCache;
     PathCacheType &m_pathCache;
+    ModulesStorage &m_modulesStorage;
     QmlDocumentParserInterface &m_qmlDocumentParser;
     QmlTypesParserInterface &m_qmlTypesParser;
     ProjectStoragePathWatcherInterface &m_pathWatcher;

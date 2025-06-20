@@ -11,9 +11,10 @@
 
 namespace QmlDesigner {
 
-DesignerActionManagerView::DesignerActionManagerView(ExternalDependenciesInterface &externalDependencies)
+DesignerActionManagerView::DesignerActionManagerView(ExternalDependenciesInterface &externalDependencies,
+                                                     ModulesStorage &modulesStorage)
     : AbstractView{externalDependencies}
-    , m_designerActionManager(this, externalDependencies)
+    , m_designerActionManager(this, externalDependencies, modulesStorage)
     , m_isInRewriterTransaction(false)
     , m_setupContextDirty(false)
 {

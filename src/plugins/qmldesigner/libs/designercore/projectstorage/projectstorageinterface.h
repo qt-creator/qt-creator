@@ -31,10 +31,6 @@ public:
     virtual void addObserver(ProjectStorageObserver *observer) = 0;
     virtual void removeObserver(ProjectStorageObserver *observer) = 0;
 
-    virtual ModuleId moduleId(::Utils::SmallStringView name, Storage::ModuleKind kind) const = 0;
-    virtual SmallModuleIds<128>
-    moduleIdsStartsWith(Utils::SmallStringView startsWith, Storage::ModuleKind kind) const = 0;
-    virtual QmlDesigner::Storage::Module module(ModuleId moduleId) const = 0;
     virtual std::optional<Storage::Info::PropertyDeclaration>
     propertyDeclaration(PropertyDeclarationId propertyDeclarationId) const = 0;
     virtual TypeId typeId(ModuleId moduleId,
@@ -127,7 +123,6 @@ protected:
     ProjectStorageInterface() = default;
     ~ProjectStorageInterface() = default;
 
-    virtual ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name, Storage::ModuleKind moduleKind) const = 0;
     virtual TypeId fetchTypeIdByModuleIdAndExportedName(ModuleId moduleId, Utils::SmallStringView name) const = 0;
 };
 

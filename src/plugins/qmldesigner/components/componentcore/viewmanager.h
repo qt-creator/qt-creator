@@ -36,7 +36,8 @@ class QMLDESIGNERCOMPONENTS_EXPORT ViewManager : private WidgetRegistrationInter
 {
 public:
     ViewManager(class AsynchronousImageCache &imageCache,
-                class ExternalDependenciesInterface &externalDependencies);
+                class ExternalDependenciesInterface &externalDependencies,
+                ModulesStorage &modulesStorage);
     ~ViewManager();
     void attachRewriterView();
     void detachRewriterView();

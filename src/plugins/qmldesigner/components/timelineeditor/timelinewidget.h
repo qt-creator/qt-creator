@@ -62,7 +62,7 @@ class TimelineWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit TimelineWidget(TimelineView *view);
+    explicit TimelineWidget(TimelineView *view, class ModulesStorage &modulesStorage);
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     TimelineGraphicsScene *graphicsScene() const;
@@ -98,6 +98,8 @@ private:
     void connectToolbar();
 
     int adjacentFrame(const std::function<qreal(const QVector<qreal> &, qreal)> &fun) const;
+
+    ModulesStorage &m_modulesStorage;
 
     TimelineToolBar *m_toolbar = nullptr;
 

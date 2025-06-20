@@ -64,12 +64,12 @@ ComponentWithoutNamespaces createComponentNameWithoutNamespaces(const QList<QQml
 const Storage::Import &appendImports(Storage::Imports &imports,
                                      const QString &dependency,
                                      SourceId sourceId,
-                                     QmlTypesParser::ProjectStorage &storage)
+                                     ModulesStorage &modulesStorage)
 {
     auto spaceFound = std::ranges::find_if(dependency, [](QChar c) { return c.isSpace(); });
 
     Utils::PathString moduleName{QStringView(dependency.begin(), spaceFound)};
-    ModuleId cppModuleId = storage.moduleId(moduleName, ModuleKind::CppLibrary);
+    ModuleId cppModuleId = modulesStorage.moduleId(moduleName, ModuleKind::CppLibrary);
 
     return imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
 }
@@ -77,7 +77,7 @@ const Storage::Import &appendImports(Storage::Imports &imports,
 void addImports(Storage::Imports &imports,
                 SourceId sourceId,
                 const QStringList &dependencies,
-                QmlTypesParser::ProjectStorage &storage,
+                ModulesStorage &modulesStorage,
                 ModuleId cppModuleId)
 {
     NanotraceHR::Tracer tracer{
@@ -88,14 +88,14 @@ void addImports(Storage::Imports &imports,
     };
 
     for (const QString &dependency : dependencies) {
-        const auto &import = appendImports(imports, dependency, sourceId, storage);
+        const auto &import = appendImports(imports, dependency, sourceId, modulesStorage);
         tracer.tick("append import", keyValue("import", import), keyValue("dependency", dependency));
     }
 
     const auto &import = imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
     tracer.tick("append import", keyValue("import", import));
 
-    if (ModuleId qmlCppModuleId = storage.moduleId("QML", ModuleKind::CppLibrary);
+    if (ModuleId qmlCppModuleId = modulesStorage.moduleId("QML", ModuleKind::CppLibrary);
         cppModuleId != qmlCppModuleId) {
         const auto &import = imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId);
         tracer.tick("append import", keyValue("import", import));
@@ -140,13 +140,13 @@ Storage::Version createVersion(QTypeRevision qmlVersion)
 }
 
 ModuleId getQmlModuleId(const QString &name,
-                        QmlTypesParser::ProjectStorage &storage,
+                        ModulesStorage &modulesStorage,
                         Internal::LastModule &lastQmlModule)
 {
     if (lastQmlModule.name == name)
         return lastQmlModule.id;
 
-    ModuleId moduleId = storage.moduleId(Utils::PathString{name}, ModuleKind::QmlLibrary);
+    ModuleId moduleId = modulesStorage.moduleId(Utils::PathString{name}, ModuleKind::QmlLibrary);
 
     lastQmlModule.name = name;
     lastQmlModule.id = moduleId;
@@ -156,7 +156,7 @@ ModuleId getQmlModuleId(const QString &name,
 
 Storage::Synchronization::ExportedTypes createExports(const QList<QQmlJSScope::Export> &qmlExports,
                                                       Utils::SmallStringView internalName,
-                                                      QmlTypesParser::ProjectStorage &storage,
+                                                      ModulesStorage &modulesStorage,
                                                       ModuleId cppModuleId,
                                                       Internal::LastModule &lastQmlModule)
 {
@@ -166,7 +166,7 @@ Storage::Synchronization::ExportedTypes createExports(const QList<QQmlJSScope::E
     for (const QQmlJSScope::Export &qmlExport : qmlExports) {
         TypeNameString exportedTypeName{qmlExport.type()};
 
-        exportedTypes.emplace_back(getQmlModuleId(qmlExport.package(), storage, lastQmlModule),
+        exportedTypes.emplace_back(getQmlModuleId(qmlExport.package(), modulesStorage, lastQmlModule),
                                    std::move(exportedTypeName),
                                    createVersion(qmlExport.version()));
     }
@@ -460,7 +460,7 @@ void addType(Storage::Synchronization::Types &types,
              SourceId sourceId,
              ModuleId cppModuleId,
              const QQmlJSExportedScope &exportScope,
-             QmlTypesParser::ProjectStorage &storage,
+             ModulesStorage &modulesStorage,
              const ComponentWithoutNamespaces &componentNameWithoutNamespace,
              IsInsideProject isInsideProject,
              Internal::LastModule &lastQmlModule)
@@ -488,7 +488,7 @@ void addType(Storage::Synchronization::Types &types,
                          component.isSingleton(),
                          isInsideProject),
         sourceId,
-        createExports(exports, typeName, storage, cppModuleId, lastQmlModule),
+        createExports(exports, typeName, modulesStorage, cppModuleId, lastQmlModule),
         createProperties(component.ownProperties(), enumerationTypes, componentNameWithoutNamespace),
         std::move(functionsDeclarations),
         std::move(signalDeclarations),
@@ -501,7 +501,7 @@ void addType(Storage::Synchronization::Types &types,
 void addTypes(Storage::Synchronization::Types &types,
               const Storage::Synchronization::DirectoryInfo &directoryInfo,
               const QList<QQmlJSExportedScope> &objects,
-              QmlTypesParser::ProjectStorage &storage,
+              ModulesStorage &modulesStorage,
               const ComponentWithoutNamespaces &componentNameWithoutNamespaces,
               IsInsideProject isInsideProject,
               Internal::LastModule &lastQmlModule)
@@ -515,7 +515,7 @@ void addTypes(Storage::Synchronization::Types &types,
                 directoryInfo.sourceId,
                 directoryInfo.moduleId,
                 object,
-                storage,
+                modulesStorage,
                 componentNameWithoutNamespaces,
                 isInsideProject,
                 lastQmlModule);
@@ -544,11 +544,11 @@ void QmlTypesParser::parse(const QString &sourceContent,
 
     auto componentNameWithoutNamespaces = createComponentNameWithoutNamespaces(components);
 
-    addImports(imports, directoryInfo.sourceId, dependencies, m_storage, directoryInfo.moduleId);
+    addImports(imports, directoryInfo.sourceId, dependencies, m_modulesStorage, directoryInfo.moduleId);
     addTypes(types,
              directoryInfo,
              components,
-             m_storage,
+             m_modulesStorage,
              componentNameWithoutNamespaces,
              isInsideProject,
              lastQmlModule);

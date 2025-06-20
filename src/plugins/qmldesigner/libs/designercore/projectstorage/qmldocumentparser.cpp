@@ -61,7 +61,7 @@ Utils::PathString createNormalizedPath(Utils::SmallStringView directoryPath,
 Storage::Import createImport(const QmlDom::Import &qmlImport,
                              SourceId sourceId,
                              Utils::SmallStringView directoryPath,
-                             ProjectStorageType &storage)
+                             ModulesStorage &modulesStorage)
 {
     using Storage::ModuleKind;
     using QmlUriKind = QQmlJS::Dom::QmlUri::Kind;
@@ -71,17 +71,19 @@ Storage::Import createImport(const QmlDom::Import &qmlImport,
     switch (uri.kind()) {
     case QmlUriKind::AbsolutePath:
     case QmlUriKind::DirectoryUrl: {
-        auto moduleId = storage.moduleId(Utils::PathString{uri.toString()}, ModuleKind::PathLibrary);
+        auto moduleId = modulesStorage.moduleId(Utils::PathString{uri.toString()},
+                                                ModuleKind::PathLibrary);
         return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
     }
     case QmlUriKind::RelativePath: {
         auto path = createNormalizedPath(directoryPath, uri.localPath());
-        auto moduleId = storage.moduleId(createNormalizedPath(directoryPath, uri.localPath()),
-                                         ModuleKind::PathLibrary);
+        auto moduleId = modulesStorage.moduleId(createNormalizedPath(directoryPath, uri.localPath()),
+                                                ModuleKind::PathLibrary);
         return Storage::Import(moduleId, Storage::Version{}, sourceId);
     }
     case QmlUriKind::ModuleUri: {
-        auto moduleId = storage.moduleId(Utils::PathString{uri.moduleUri()}, ModuleKind::QmlLibrary);
+        auto moduleId = modulesStorage.moduleId(Utils::PathString{uri.moduleUri()},
+                                                ModuleKind::QmlLibrary);
         return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
     }
     case QmlUriKind::Invalid:
@@ -94,7 +96,7 @@ Storage::Import createImport(const QmlDom::Import &qmlImport,
 QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
                                         SourceId sourceId,
                                         Utils::SmallStringView directoryPath,
-                                        ProjectStorageType &storage)
+                                        ModulesStorage &modulesStorage)
 {
     NanotraceHR::Tracer tracer{"create qualified imports",
                                category(),
@@ -106,7 +108,7 @@ QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
     for (const QmlDom::Import &qmlImport : qmlImports) {
         if (!qmlImport.importId.isEmpty() && !qmlImport.implicit)
             qualifiedImports.try_emplace(qmlImport.importId,
-                                         createImport(qmlImport, sourceId, directoryPath, storage));
+                                         createImport(qmlImport, sourceId, directoryPath, modulesStorage));
     }
 
     tracer.end(keyValue("qualified imports", qualifiedImports));
@@ -118,23 +120,23 @@ void addImports(Storage::Imports &imports,
                 const QList<QmlDom::Import> &qmlImports,
                 SourceId sourceId,
                 Utils::SmallStringView directoryPath,
-                ProjectStorageType &storage)
+                ModulesStorage &modulesStorage)
 {
     int importCount = 0;
     for (const QmlDom::Import &qmlImport : qmlImports) {
         if (!qmlImport.implicit) {
-            imports.push_back(createImport(qmlImport, sourceId, directoryPath, storage));
+            imports.push_back(createImport(qmlImport, sourceId, directoryPath, modulesStorage));
             ++importCount;
         }
     }
 
     using Storage::ModuleKind;
 
-    auto localDirectoryModuleId = storage.moduleId(directoryPath, ModuleKind::PathLibrary);
+    auto localDirectoryModuleId = modulesStorage.moduleId(directoryPath, ModuleKind::PathLibrary);
     imports.emplace_back(localDirectoryModuleId, Storage::Version{}, sourceId);
     ++importCount;
 
-    auto qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
+    auto qmlModuleId = modulesStorage.moduleId("QML", ModuleKind::QmlLibrary);
     imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId);
     ++importCount;
 
@@ -376,12 +378,12 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
     const auto qualifiedImports = createQualifiedImports(qmlImports,
                                                          sourceId,
                                                          directoryPath,
-                                                         m_storage);
+                                                         m_modulesStorage);
 
     type.traits = createTypeTraits(qmlFile, isInsideProject);
     type.prototype = createImportedTypeName(qmlObject.name(), qualifiedImports);
     type.defaultPropertyName = qmlObject.localDefaultPropertyName();
-    addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_storage);
+    addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_modulesStorage);
 
     addPropertyDeclarations(type, qmlObject, qualifiedImports, file);
     addFunctionAndSignalDeclarations(type, qmlObject);

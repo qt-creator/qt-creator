@@ -3,7 +3,7 @@
 
 #include "typeannotationreader.h"
 
-#include "projectstorage.h"
+#include <modulesstorage/modulesstorage.h>
 
 #include <designercoretr.h>
 
@@ -266,7 +266,7 @@ void TypeAnnotationReader::readTypeProperty(QStringView name, const QVariant &va
         auto [moduleName, typeName] = decomposeTypePath(fullTypeName);
 
         m_typeAnnotations.back().typeName = typeName;
-        m_typeAnnotations.back().moduleId = m_projectStorage.moduleId(moduleName,
+        m_typeAnnotations.back().moduleId = m_modulesStorage.moduleId(moduleName,
                                                                       ModuleKind::QmlLibrary);
 
     } else if (name == "icon"_L1) {

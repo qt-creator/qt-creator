@@ -116,7 +116,9 @@ AddFilesResult addFontToProject(const QStringList &fileNames, const QString &dir
 AddFilesResult addSoundToProject(const QStringList &fileNames, const QString &directory, bool showDialog = true);
 AddFilesResult addShaderToProject(const QStringList &fileNames, const QString &directory, bool showDialog = true);
 AddFilesResult addVideoToProject(const QStringList &fileNames, const QString &directory, bool showDialog = true);
-void mergeWithTemplate(const SelectionContext &selectionContext, ExternalDependenciesInterface &externalDependencies);
+void mergeWithTemplate(const SelectionContext &selectionContext,
+                       ExternalDependenciesInterface &externalDependencies,
+                       ModulesStorage &modulesStorage);
 void removeGroup(const SelectionContext &selectionContext);
 void editAnnotation(const SelectionContext &selectionContext);
 void addMouseAreaFill(const SelectionContext &selectionContext);

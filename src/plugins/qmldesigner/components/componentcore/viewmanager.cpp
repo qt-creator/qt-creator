@@ -52,19 +52,21 @@ class ViewManagerData
 {
 public:
     ViewManagerData(AsynchronousImageCache &imageCache,
-                    ExternalDependenciesInterface &externalDependencies)
+                    ExternalDependenciesInterface &externalDependencies,
+                    ModulesStorage &modulesStorage)
         : debugView{externalDependencies}
         , auxiliaryDataKeyView{auxiliaryDataDatabase, externalDependencies}
-        , designerActionManagerView{externalDependencies}
+        , designerActionManagerView{externalDependencies, modulesStorage}
         , nodeInstanceView(QCoreApplication::arguments().contains("-capture-puppet-stream")
                                ? capturingConnectionManager
                                : connectionManager,
                            externalDependencies,
+                           modulesStorage,
                            true)
         , contentLibraryView{imageCache, externalDependencies}
-        , componentView{externalDependencies}
+        , componentView{externalDependencies, modulesStorage}
 #ifndef QTC_USE_QML_DESIGNER_LITE
-        , edit3DView{externalDependencies}
+        , edit3DView{externalDependencies, modulesStorage}
 #endif
         , formEditorView{externalDependencies}
         , textEditorView{externalDependencies}
@@ -114,8 +116,9 @@ static CrumbleBar *crumbleBar() {
 }
 
 ViewManager::ViewManager(AsynchronousImageCache &imageCache,
-                         ExternalDependenciesInterface &externalDependencies)
-    : d(std::make_unique<ViewManagerData>(imageCache, externalDependencies))
+                         ExternalDependenciesInterface &externalDependencies,
+                         ModulesStorage &modulesStorage)
+    : d(std::make_unique<ViewManagerData>(imageCache, externalDependencies, modulesStorage))
 {
     d->formEditorView.setGotoErrorCallback([this](int line, int column) {
         if (Internal::DesignModeWidget *w = QmlDesignerPlugin::instance()->mainWidget())

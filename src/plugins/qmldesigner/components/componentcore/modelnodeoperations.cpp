@@ -661,7 +661,9 @@ static void addSignal(const QString &typeName,
 #else
     auto model = Model::create("Item", 2, 0);
 #endif
-    RewriterView rewriterView(externanDependencies, RewriterView::Amend);
+    RewriterView rewriterView(externanDependencies,
+                              otherModel->projectStorageDependencies().modulesStorage,
+                              RewriterView::Amend);
 
     auto textEdit = qobject_cast<TextEditor::TextEditorWidget*>
             (Core::EditorManager::currentEditor()->widget());
@@ -893,8 +895,11 @@ void extractComponent(const SelectionContext &selectionContext)
     }
     componentText = QString::fromUtf8(reader.data());
 
+    Model *model = contextView->model();
+    ModulesStorage &modulesStorage = model->projectStorageDependencies().modulesStorage;
+
 #ifdef QDS_USE_PROJECTSTORAGE
-    ModelPointer inputModel = contextView->model()->createModel("Rectangle");
+    ModelPointer inputModel = model->createModel("Rectangle");
 #else
     ModelPointer inputModel = Model::create("QtQuick.Rectangle", 1, 0, contextView->model());
     inputModel->setFileUrl(contextView->model()->fileUrl());
@@ -904,14 +909,14 @@ void extractComponent(const SelectionContext &selectionContext)
     // This is not including the root node by default
     QPlainTextEdit textEdit;
     QString imports;
-    const QList<Import> modelImports = contextView->model()->imports();
+    const QList<Import> modelImports = model->imports();
     for (const Import &import : modelImports)
         imports += "import " + import.toString(true) + QLatin1Char('\n');
 
     textEdit.setPlainText(imports + componentText);
     NotIndentingTextEditModifier modifier(textEdit.document());
 
-    RewriterView rewriterView{contextView->externalDependencies()};
+    RewriterView rewriterView{contextView->externalDependencies(), modulesStorage};
     rewriterView.setCheckSemanticErrors(false);
     rewriterView.setPossibleImportsEnabled(false);
     rewriterView.setTextModifier(&modifier);
@@ -919,10 +924,11 @@ void extractComponent(const SelectionContext &selectionContext)
     rewriterView.restoreAuxiliaryData();
 
     // Merge the nodes in to the current document model
-    ModelPointer pasteModel = DesignDocumentView::pasteToModel(contextView->externalDependencies());
+    ModelPointer pasteModel = DesignDocumentView::pasteToModel(contextView->externalDependencies(),
+                                                               modulesStorage);
     QTC_ASSERT(pasteModel, return);
 
-    DesignDocumentView view{contextView->externalDependencies()};
+    DesignDocumentView view{contextView->externalDependencies(), modulesStorage};
     pasteModel->attachView(&view);
     QTC_ASSERT(view.rootModelNode().isValid(), return);
 
@@ -1576,7 +1582,9 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
     return result;
 }
 
-void mergeWithTemplate(const SelectionContext &selectionContext, ExternalDependenciesInterface &externalDependencies)
+void mergeWithTemplate(const SelectionContext &selectionContext,
+                       ExternalDependenciesInterface &externalDependencies,
+                       ModulesStorage &modulesStorage)
 {
     const Utils::FilePath projectPath = Utils::FilePath::fromString(baseDirectory(selectionContext.view()->model()->fileUrl()));
 
@@ -1585,6 +1593,7 @@ void mergeWithTemplate(const SelectionContext &selectionContext, ExternalDepende
     if (QFileInfo::exists(templateFile)) {
         StylesheetMerger::styleMerge(Utils::FilePath::fromString(templateFile),
                                      selectionContext.view()->model(),
+                                     modulesStorage,
                                      externalDependencies);
     }
 }

@@ -46,10 +46,12 @@ public:
                             const QJsonObject &defaultOpts,
                             const QSet<QString> &preselectedFilesForOverwrite,
                             AbstractView *view,
+                            ModulesStorage &modulesStorage,
                             QWidget *parent = nullptr);
     ~Import3dDialog();
 
     static void updateImport(AbstractView *view,
+                             ModulesStorage &modulesStorage,
                              const Utils::FilePath &import3dQml,
                              const ModelNode &updateNode,
                              const QVariantMap &supportedExts,
@@ -121,6 +123,7 @@ private:
     QPointer<NodeInstanceView> m_nodeInstanceView;
     QPointer<RewriterView> m_rewriterView;
     QPointer<AbstractView> m_view;
+    ModulesStorage &m_modulesStorage;
     ModelPointer m_model;
 
     QMap<QString, ImportData> m_importData;

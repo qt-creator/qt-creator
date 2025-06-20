@@ -57,6 +57,7 @@ public:
 
 public:
     RewriterView(ExternalDependenciesInterface &externalDependencies,
+                 ModulesStorage &modulesStorage,
                  DifferenceHandling differenceHandling = RewriterView::Amend,
                  InstantQmlTextUpdate instantQmlTextUpdate = InstantQmlTextUpdate::No);
     ~RewriterView() override;
@@ -207,6 +208,7 @@ private: //variables
     bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
 
     QPointer<TextModifier> m_textModifier;
+    ModulesStorage &m_modulesStorage;
     int transactionLevel = 0;
     bool m_modificationGroupActive = false;
     bool m_checkSemanticErrors = true;
