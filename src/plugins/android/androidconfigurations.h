@@ -138,9 +138,6 @@ private:
     friend void setupAndroidConfigurations();
     AndroidConfigurations();
 
-    void load();
-    void save();
-
     static void updateAndroidDevice();
 };
 

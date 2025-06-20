@@ -220,8 +220,8 @@ struct SdkForQtVersions
 
 struct AndroidConfigData
 {
-    void load(const QtcSettings &settings);
-    void save(QtcSettings &settings) const;
+    void load();
+    void save() const;
     void parseDependenciesJson();
 
     FilePath m_sdkLocation;
@@ -294,8 +294,11 @@ QLatin1String displayName(const Abi &abi)
     }
 }
 
-void AndroidConfigData::load(const QtcSettings &settings)
+void AndroidConfigData::load()
 {
+    QtcSettings &settings = *Core::ICore::settings();
+    settings.beginGroup(SettingsGroup);
+
     // user settings
     QVariant emulatorArgs = settings.value(EmulatorArgsKey, QString("-netdelay none -netspeed full"));
     if (emulatorArgs.typeId() == QMetaType::QStringList) // Changed in 8.0 from QStringList to QString.
@@ -335,10 +338,15 @@ void AndroidConfigData::load(const QtcSettings &settings)
         m_defaultNdk.clear();
     }
     parseDependenciesJson();
+
+    settings.endGroup();
 }
 
-void AndroidConfigData::save(QtcSettings &settings) const
+void AndroidConfigData::save() const
 {
+    QtcSettings &settings = *Core::ICore::settings();
+    settings.beginGroup(SettingsGroup);
+
     const FilePath sdkSettingsFile = sdkSettingsFileName();
     if (sdkSettingsFile.exists())
         settings.setValue(changeTimeStamp, sdkSettingsFile.lastModified().toMSecsSinceEpoch() / 1000);
@@ -353,6 +361,8 @@ void AndroidConfigData::save(QtcSettings &settings) const
     settings.setValue(EmulatorArgsKey, m_emulatorArgs);
     settings.setValue(AutomaticKitCreationKey, m_automaticKitCreation);
     settings.setValue(SdkFullyConfiguredKey, m_sdkFullyConfigured);
+
+    settings.endGroup();
 }
 
 void AndroidConfigData::parseDependenciesJson()
@@ -1199,7 +1209,8 @@ AndroidConfigurations *m_instance = nullptr;
 
 AndroidConfigurations::AndroidConfigurations()
 {
-    load();
+    AndroidConfig::config().load();
+
     connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
             this, &AndroidConfigurations::updateAndroidDevice);
 
@@ -1209,7 +1220,8 @@ AndroidConfigurations::AndroidConfigurations()
 void AndroidConfigurations::applyConfig()
 {
     emit m_instance->aboutToUpdate();
-    m_instance->save();
+    AndroidConfig::config().save();
+
     updateAndroidDevice();
     registerNewToolchains();
     updateAutomaticKitList();
@@ -1458,22 +1470,6 @@ void AndroidConfigurations::updateAutomaticKitList()
 AndroidConfigurations *AndroidConfigurations::instance()
 {
     return m_instance;
-}
-
-void AndroidConfigurations::save()
-{
-    QtcSettings *settings = Core::ICore::settings();
-    settings->beginGroup(SettingsGroup);
-    AndroidConfig::config().save(*settings);
-    settings->endGroup();
-}
-
-void AndroidConfigurations::load()
-{
-    QtcSettings *settings = Core::ICore::settings();
-    settings->beginGroup(SettingsGroup);
-    AndroidConfig::config().load(*settings);
-    settings->endGroup();
 }
 
 void AndroidConfigurations::updateAndroidDevice()
