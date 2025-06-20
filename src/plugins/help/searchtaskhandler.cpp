@@ -7,7 +7,6 @@
 
 #include <projectexplorer/task.h>
 
-#include <QAction>
 #include <QApplication>
 #include <QClipboard>
 #include <QUrl>

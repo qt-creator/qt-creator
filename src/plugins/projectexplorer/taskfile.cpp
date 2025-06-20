@@ -18,7 +18,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
-#include <QAction>
 #include <QMessageBox>
 
 using namespace Core;

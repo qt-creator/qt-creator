@@ -8,6 +8,7 @@
 
 #include <utils/id.h>
 
+#include <QAction>
 #include <QObject>
 #include <QPointer>
 #include <QString>

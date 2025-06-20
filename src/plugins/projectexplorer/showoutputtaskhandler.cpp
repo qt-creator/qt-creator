@@ -10,8 +10,6 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QAction>
-
 namespace ProjectExplorer {
 namespace Internal {
 
