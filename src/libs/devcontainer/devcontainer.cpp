@@ -26,31 +26,107 @@ namespace DevContainer {
 struct InstancePrivate
 {
     Config config;
+    InstanceConfig instanceConfig;
     Tasking::TaskTree taskTree;
 };
 
-Instance::Instance(Config config)
+// Generates a unique ID for the devcontainer instance based on the workspace folder
+// and config file path.
+QString InstanceConfig::devContainerId() const
+{
+    const QByteArray workspace = workspaceFolder.toUrlishString().toUtf8();
+    const QByteArray config = configFilePath.toUrlishString().toUtf8();
+    QString id = QString::fromLatin1(
+        QCryptographicHash::hash(workspace, QCryptographicHash::Sha256).toHex());
+    return id;
+}
+
+QString InstanceConfig::jsonToString(const QJsonValue &value) const
+{
+    QString str = value.toString();
+    QRegularExpression re("\\$\\{([^}]+)\\}");
+    QRegularExpressionMatchIterator it = re.globalMatch(str);
+
+    if (it.hasNext()) {
+        const QMap<QString, std::function<QString(QStringList)>> replacers = {
+            {"localWorkspaceFolder", [this](const QStringList &) { return workspaceFolder.path(); }},
+            {"localWorkspaceFolderBasename",
+             [this](const QStringList &) { return workspaceFolder.fileName(); }},
+            {"containerWorkspaceFolder",
+             [this](const QStringList &) { return containerWorkspaceFolder.path(); }},
+            {"containerWorkspaceFolderBasename",
+             [this](const QStringList &) { return containerWorkspaceFolder.fileName(); }},
+            {"devcontainerId", [this](const QStringList &) { return devContainerId(); }},
+            {"localEnv",
+             [this](const QStringList &parts) {
+                 if (parts.isEmpty())
+                     return QString();
+                 const QString varname = parts.first();
+                 const QString defaultValue = parts.mid(1).join(':');
+                 return localEnvironment.value_or(varname, defaultValue);
+             }},
+        };
+
+        struct Replace
+        {
+            qsizetype start;
+            qsizetype length;
+            QString replacement;
+        };
+        QList<Replace> replacements;
+
+        while (it.hasNext()) {
+            QRegularExpressionMatch match = it.next();
+            QString varName = match.captured(1);
+            QStringList parts = varName.split(':');
+            QString variableName = parts.takeFirst();
+
+            auto itReplacer = replacers.find(variableName);
+            if (itReplacer != replacers.end()) {
+                QString replacement = itReplacer.value()(parts);
+                replacements.append({match.capturedStart(), match.capturedLength(), replacement});
+            } else if (variableName != "containerEnv") {
+                // Container env is only supported for "remoteEnv", but since it might be valid,
+                // we don't warn about it here.
+                logFunction(Tr::tr("Unsupported variable in devcontainer config:") + variableName);
+            }
+        }
+
+        // Apply replacements in reverse order to avoid messing up indices
+        for (auto it = replacements.crbegin(); it != replacements.crend(); ++it)
+            str.replace(it->start, it->length, std::move(it->replacement));
+    }
+
+    return str;
+}
+
+Instance::Instance(Config config, InstanceConfig instanceConfig)
     : d(std::make_unique<InstancePrivate>())
 {
     d->config = std::move(config);
+    d->instanceConfig = std::move(instanceConfig);
 }
 
-Result<std::unique_ptr<Instance>> Instance::fromFile(const FilePath &filePath)
+Result<std::unique_ptr<Instance>> Instance::fromFile(
+    const FilePath &filePath, InstanceConfig instanceConfig)
 {
     const Result<QByteArray> contents = filePath.fileContents();
     if (!contents)
         return ResultError(contents.error());
 
-    const Result<Config> config = Config::fromJson(*contents);
+    const Result<Config> config
+        = Config::fromJson(*contents, [instanceConfig](const QJsonValue &value) {
+              return instanceConfig.jsonToString(value);
+          });
     if (!config)
         return ResultError(config.error());
 
-    return std::make_unique<Instance>(*config);
+    return std::make_unique<Instance>(*config, instanceConfig);
 }
 
-std::unique_ptr<Instance> Instance::fromConfig(const Config &config)
+std::unique_ptr<Instance> Instance::fromConfig(const Config &config, InstanceConfig instanceConfig)
 {
-    return std::make_unique<Instance>(config);
+    return std::make_unique<Instance>(config, instanceConfig);
 }
 
 Instance::~Instance() {};
@@ -1331,12 +1407,12 @@ static Result<Group> downRecipe(const Config &config, const InstanceConfig &inst
         *config.containerConfig);
 }
 
-Result<> Instance::up(const InstanceConfig &instanceConfig)
+Result<> Instance::up()
 {
     if (!d->config.containerConfig)
         return ResultOk;
 
-    const Utils::Result<Tasking::Group> recipeResult = upRecipe(instanceConfig);
+    const Utils::Result<Tasking::Group> recipeResult = upRecipe();
     if (!recipeResult)
         return ResultError(recipeResult.error());
 
@@ -1346,12 +1422,12 @@ Result<> Instance::up(const InstanceConfig &instanceConfig)
     return ResultOk;
 }
 
-Result<> Instance::down(const InstanceConfig &instanceConfig)
+Result<> Instance::down()
 {
     if (!d->config.containerConfig)
         return ResultOk;
 
-    const Utils::Result<Tasking::Group> recipeResult = downRecipe(instanceConfig);
+    const Utils::Result<Tasking::Group> recipeResult = downRecipe();
     if (!recipeResult)
         return ResultError(recipeResult.error());
     d->taskTree.setRecipe(std::move(*recipeResult));
@@ -1360,14 +1436,14 @@ Result<> Instance::down(const InstanceConfig &instanceConfig)
     return ResultOk;
 }
 
-Result<Tasking::Group> Instance::upRecipe(const InstanceConfig &instanceConfig) const
+Result<Tasking::Group> Instance::upRecipe() const
 {
-    return prepareRecipe(d->config, instanceConfig);
+    return prepareRecipe(d->config, d->instanceConfig);
 }
 
-Result<Tasking::Group> Instance::downRecipe(const InstanceConfig &instanceConfig) const
+Result<Tasking::Group> Instance::downRecipe() const
 {
-    return ::DevContainer::downRecipe(d->config, instanceConfig);
+    return ::DevContainer::downRecipe(d->config, d->instanceConfig);
 }
 
 } // namespace DevContainer

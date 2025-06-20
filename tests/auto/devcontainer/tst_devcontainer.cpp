@@ -33,12 +33,76 @@ private slots:
             QSKIP("Docker is not set up correctly, skipping tests.");
     }
 
+    void instanceConfigToString_data();
+    void instanceConfigToString();
     void readConfig();
     void testCommands();
     void upWithHooks();
     void upImage();
     void upDockerfile();
 };
+
+void tst_DevContainer::instanceConfigToString_data()
+{
+    QTest::addColumn<DevContainer::InstanceConfig>("instanceConfig");
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expectedOutput");
+
+    DevContainer::InstanceConfig instanceConfig{
+        .dockerCli = "docker",
+        .dockerComposeCli = "docker-compose",
+        .workspaceFolder = Utils::FilePath::fromUserInput(QDir::tempPath()),
+        .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
+        .mounts = {},
+    };
+
+    QTest::newRow("default") << instanceConfig << "Hello ${localWorkspaceFolder}"
+                             << QString("Hello %1")
+                                    .arg(instanceConfig.workspaceFolder.toUrlishString());
+    QTest::newRow("workspaceFolderBasename")
+        << instanceConfig << "Hello ${localWorkspaceFolderBasename}"
+        << QString("Hello %1").arg(instanceConfig.workspaceFolder.fileName());
+    QTest::newRow("containerWorkspaceFolder")
+        << instanceConfig << "Hello ${containerWorkspaceFolder}"
+        << QString("Hello %1").arg(instanceConfig.containerWorkspaceFolder.toUrlishString());
+    QTest::newRow("containerWorkspaceFolderBasename")
+        << instanceConfig << "Hello ${containerWorkspaceFolderBasename}"
+        << QString("Hello %1").arg(instanceConfig.containerWorkspaceFolder.fileName());
+    QTest::newRow("devcontainerId") << instanceConfig << "Hello ${devcontainerId}"
+                                    << QString("Hello %1").arg(instanceConfig.devContainerId());
+    QTest::newRow("localEnvPath") << instanceConfig << "Hello ${localEnv:PATH}"
+                                  << QString("Hello %1")
+                                         .arg(instanceConfig.localEnvironment.value_or("PATH", ""));
+    QTest::newRow("localEnvPathDefault")
+        << instanceConfig << "Hello ${localEnv:PATH:default}"
+        << QString("Hello %1").arg(instanceConfig.localEnvironment.value_or("PATH", "default"));
+    QTest::newRow("localEnvNonExistent")
+        << instanceConfig << "Hello ${localEnv:NON_EXISTENT_ENV_VAR}"
+        << QString("Hello %1")
+               .arg(instanceConfig.localEnvironment.value_or("NON_EXISTENT_ENV_VAR", ""));
+    QTest::newRow("localEnvNonExistentDefault")
+        << instanceConfig << "Hello ${localEnv:NON_EXISTENT_ENV_VAR:default}"
+        << QString("Hello %1")
+               .arg(instanceConfig.localEnvironment.value_or("NON_EXISTENT_ENV_VAR", "default"));
+    QTest::newRow("localEnvNonExistentDefaultExtra")
+        << instanceConfig << "Hello ${localEnv:NON_EXISTENT_ENV_VAR:default:extra}"
+        << QString("Hello %1")
+               .arg(instanceConfig.localEnvironment
+                        .value_or("NON_EXISTENT_ENV_VAR", "default:extra"));
+    QTest::newRow("invalid-variable")
+        << instanceConfig << "Hello ${invalidVariable}"
+        << QString("Hello ${invalidVariable}"); // Should not change, as the variable is invalid
+}
+
+void tst_DevContainer::instanceConfigToString()
+{
+    QFETCH(DevContainer::InstanceConfig, instanceConfig);
+    QFETCH(QString, input);
+    QFETCH(QString, expectedOutput);
+
+    QString output = instanceConfig.jsonToString(QJsonValue::fromVariant(input));
+    QCOMPARE(output, expectedOutput);
+}
 
 void tst_DevContainer::readConfig()
 {
@@ -68,7 +132,7 @@ void tst_DevContainer::readConfig()
             }
         }
     },
-    "shutdownAction": "none"
+    "shutdownAction": "none",
     // Features to add to the dev container. More info: https://containers.dev/features.
     // "features": {},
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -79,10 +143,25 @@ void tst_DevContainer::readConfig()
     // "customizations": {},
     // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
     // "remoteUser": "root"
+    "initializeCommand": "echo 'Local Workspace Folder: ${localWorkspaceFolder}'",
+    "onCreateCommand": "echo 'My container id is: ${devcontainerId}'",
+    "postCreateCommand": "echo 'Your PATH is: ${localEnv:PATH}'"
 }
     )json";
 
-    Utils::Result<DevContainer::Config> devContainer = DevContainer::Config::fromJson(jsonData);
+    DevContainer::InstanceConfig instanceConfig{
+        .dockerCli = "docker",
+        .dockerComposeCli = "docker-compose",
+        .workspaceFolder = Utils::FilePath::fromUserInput(QDir::tempPath()),
+        .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
+        .mounts = {},
+    };
+
+    Utils::Result<DevContainer::Config> devContainer
+        = DevContainer::Config::fromJson(jsonData, [instanceConfig](const QJsonValue &value) {
+              return instanceConfig.jsonToString(value);
+          });
+
     QVERIFY_RESULT(devContainer);
     QVERIFY(devContainer->common.name);
     QCOMPARE(*devContainer->common.name, "Minimum spec container (x86_64)");
@@ -103,7 +182,10 @@ void tst_DevContainer::testCommands()
         }
     })";
 
-    Utils::Result<DevContainer::Config> devContainer = DevContainer::Config::fromJson(jsonData);
+    Utils::Result<DevContainer::Config> devContainer
+        = DevContainer::Config::fromJson(jsonData, [](const QJsonValue &value) {
+              return value.toString();
+          });
     QVERIFY_RESULT(devContainer);
     QCOMPARE(devContainer->common.initializeCommand->index(), 0);
     QCOMPARE(std::get<QString>(*devContainer->common.initializeCommand), "echo hello");
@@ -150,22 +232,23 @@ FROM alpine:latest
 
     qDebug() << "DevContainer Config:" << config;
 
-    std::unique_ptr<DevContainer::Instance> instance = DevContainer::Instance::fromConfig(config);
-
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
         .dockerComposeCli = "docker-compose",
         .workspaceFolder = Utils::FilePath::fromUserInput(QDir::tempPath()),
         .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
-    };
+        .mounts = {}};
 
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe(instanceConfig);
+    std::unique_ptr<DevContainer::Instance> instance
+        = DevContainer::Instance::fromConfig(config, instanceConfig);
+
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe();
     QVERIFY_RESULT(recipe);
     QCOMPARE(
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
         Tasking::DoneWith::Success);
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(instanceConfig);
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
 }
@@ -181,22 +264,23 @@ void tst_DevContainer::upImage()
 
     qDebug() << "DevContainer Config:" << config;
 
-    std::unique_ptr<DevContainer::Instance> instance = DevContainer::Instance::fromConfig(config);
-
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
         .dockerComposeCli = "docker-compose",
         .workspaceFolder = Utils::FilePath::fromUserInput(QDir::tempPath()),
         .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
-    };
+        .mounts = {}};
 
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe(instanceConfig);
+    std::unique_ptr<DevContainer::Instance> instance
+        = DevContainer::Instance::fromConfig(config, instanceConfig);
+
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe();
     QVERIFY_RESULT(recipe);
     QCOMPARE(
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
         Tasking::DoneWith::Success);
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(instanceConfig);
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
 }
@@ -224,22 +308,24 @@ void tst_DevContainer::upWithHooks()
         std::make_pair("run ls", QStringList{"ls", "-l", "/tmp"}),
     };
 
-    std::unique_ptr<DevContainer::Instance> instance = DevContainer::Instance::fromConfig(config);
-
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
         .dockerComposeCli = "docker-compose",
         .workspaceFolder = Utils::FilePath::fromUserInput(QDir::tempPath()),
         .configFilePath = Utils::FilePath::fromUserInput(QDir::tempPath()) / "devcontainer.json",
+        .mounts = {},
     };
 
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe(instanceConfig);
+    std::unique_ptr<DevContainer::Instance> instance
+        = DevContainer::Instance::fromConfig(config, instanceConfig);
+
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe();
     QVERIFY_RESULT(recipe);
     QCOMPARE(
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
         Tasking::DoneWith::Success);
 
-    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe(instanceConfig);
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
 }

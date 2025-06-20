@@ -47,17 +47,18 @@ Result<EnumType> parseEnum(
     return defaultValue;
 }
 
-std::variant<QString, QStringList> parseStringOrList(const QJsonValue &value)
+std::variant<QString, QStringList> parseStringOrList(
+    const QJsonValue &value, JsonStringToString jsonStringToString)
 {
     if (value.isString())
-        return value.toString();
+        return jsonStringToString(value);
 
     if (value.isArray()) {
         QStringList list;
         QJsonArray array = value.toArray();
         for (const QJsonValue &v : array) {
             if (v.isString())
-                list.append(v.toString());
+                list.append(jsonStringToString(v));
             else
                 qWarning() << "Expected string in array, found:" << v;
         }
@@ -68,16 +69,16 @@ std::variant<QString, QStringList> parseStringOrList(const QJsonValue &value)
 }
 
 // Parse Command objects (string, array or object)
-Command parseCommand(const QJsonValue &value)
+Command parseCommand(const QJsonValue &value, JsonStringToString jsonStringToString)
 {
     if (value.isString())
-        return value.toString();
+        return jsonStringToString(value);
 
     if (value.isArray()) {
         QStringList commands;
         QJsonArray commandArray = value.toArray();
         for (const QJsonValue &cmd : commandArray)
-            commands.append(cmd.toString());
+            commands.append(jsonStringToString(cmd));
 
         return commands;
     }
@@ -87,7 +88,7 @@ Command parseCommand(const QJsonValue &value)
         CommandMap commandMap;
 
         for (auto it = commandObj.begin(); it != commandObj.end(); ++it)
-            commandMap[it.key()] = parseStringOrList(it.value());
+            commandMap[it.key()] = parseStringOrList(it.value(), jsonStringToString);
 
         return commandMap;
     }
@@ -96,12 +97,13 @@ Command parseCommand(const QJsonValue &value)
     return QString();
 }
 
-Result<DevContainer::Config> DevContainer::Config::fromJson(const QJsonObject &json)
+Result<DevContainer::Config> DevContainer::Config::fromJson(
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     Config config;
 
     // Parse common properties
-    Result<DevContainerCommon> common = DevContainerCommon::fromJson(json);
+    Result<DevContainerCommon> common = DevContainerCommon::fromJson(json, jsonStringToString);
     if (!common)
         return ResultError(common.error());
 
@@ -109,17 +111,19 @@ Result<DevContainer::Config> DevContainer::Config::fromJson(const QJsonObject &j
 
     // Determine and parse the container configuration type
     if (ComposeContainer::isComposeContainer(json)) {
-        Result<ComposeContainer> containerConfig = ComposeContainer::fromJson(json);
+        Result<ComposeContainer> containerConfig
+            = ComposeContainer::fromJson(json, jsonStringToString);
         if (!containerConfig)
             return ResultError(containerConfig.error());
         config.containerConfig = *containerConfig;
     } else if (DockerfileContainer::isDockerfileContainer(json)) {
-        Result<DockerfileContainer> containerConfig = DockerfileContainer::fromJson(json);
+        Result<DockerfileContainer> containerConfig
+            = DockerfileContainer::fromJson(json, jsonStringToString);
         if (!containerConfig)
             return ResultError(containerConfig.error());
         config.containerConfig = *containerConfig;
     } else if (ImageContainer::isImageContainer(json)) {
-        Result<ImageContainer> containerConfig = ImageContainer::fromJson(json);
+        Result<ImageContainer> containerConfig = ImageContainer::fromJson(json, jsonStringToString);
         if (!containerConfig)
             return ResultError(containerConfig.error());
         config.containerConfig = *containerConfig;
@@ -129,15 +133,15 @@ Result<DevContainer::Config> DevContainer::Config::fromJson(const QJsonObject &j
 }
 
 Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJson(
-    const QJsonObject &json)
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     DevContainerCommon common;
 
     if (json.contains("$schema"))
-        common.schema = json["$schema"].toString();
+        common.schema = jsonStringToString(json["$schema"]);
 
     if (json.contains("name"))
-        common.name = json["name"].toString();
+        common.name = jsonStringToString(json["name"]);
 
     if (json.contains("features") && json["features"].isObject()) {
         QJsonObject featuresObj = json["features"].toObject();
@@ -151,7 +155,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
         QStringList features;
         QJsonArray featuresArray = json["overrideFeatureInstallOrder"].toArray();
         for (const QJsonValue &value : featuresArray) {
-            features.append(value.toString());
+            features.append(jsonStringToString(value));
         }
         common.overrideFeatureInstallOrder = features;
     }
@@ -160,7 +164,8 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
         QJsonObject secretsObj = json["secrets"].toObject();
         for (auto it = secretsObj.begin(); it != secretsObj.end(); ++it) {
             if (it.value().isObject())
-                common.secrets[it.key()] = SecretMetadata::fromJson(it.value().toObject());
+                common.secrets[it.key()]
+                    = SecretMetadata::fromJson(it.value().toObject(), jsonStringToString);
         }
     }
 
@@ -171,7 +176,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
             if (value.isDouble())
                 ports.append(value.toInt());
             else if (value.isString())
-                ports.append(value.toString());
+                ports.append(jsonStringToString(value));
         }
         common.forwardPorts = ports;
     }
@@ -180,8 +185,8 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
         QJsonObject portAttrsObj = json["portsAttributes"].toObject();
         for (auto it = portAttrsObj.begin(); it != portAttrsObj.end(); ++it) {
             if (it.value().isObject()) {
-                const Result<PortAttributes> portAttributes = PortAttributes::fromJson(
-                    it.value().toObject());
+                const Result<PortAttributes> portAttributes
+                    = PortAttributes::fromJson(it.value().toObject(), jsonStringToString);
                 if (!portAttributes)
                     return ResultError(portAttributes.error());
                 common.portsAttributes[it.key()] = *portAttributes;
@@ -190,8 +195,8 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
     }
 
     if (json.contains("otherPortsAttributes") && json["otherPortsAttributes"].isObject()) {
-        const Result<PortAttributes> portAttributes = PortAttributes::fromJson(
-            json["otherPortsAttributes"].toObject());
+        const Result<PortAttributes> portAttributes
+            = PortAttributes::fromJson(json["otherPortsAttributes"].toObject(), jsonStringToString);
         if (!portAttributes)
             return ResultError(portAttributes.error());
         common.otherPortsAttributes = *portAttributes;
@@ -204,16 +209,17 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
     if (json.contains("containerEnv") && json["containerEnv"].isObject()) {
         QJsonObject envObj = json["containerEnv"].toObject();
         for (auto it = envObj.begin(); it != envObj.end(); ++it)
-            common.containerEnv[it.key()] = it.value().toString();
+            common.containerEnv[it.key()] = jsonStringToString(it.value());
     }
 
     if (json.contains("containerUser"))
-        common.containerUser = json["containerUser"].toString();
+        common.containerUser = jsonStringToString(json["containerUser"]);
 
     if (json.contains("mounts") && json["mounts"].isArray()) {
         QJsonArray mountsArray = json["mounts"].toArray();
         for (const QJsonValue &value : mountsArray) {
-            const Result<std::variant<Mount, QString>> mount = Mount::fromJsonVariant(value);
+            const Result<std::variant<Mount, QString>> mount
+                = Mount::fromJsonVariant(value, jsonStringToString);
             if (!mount)
                 return ResultError(mount.error());
             common.mounts.push_back(*mount);
@@ -230,7 +236,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
         QStringList capabilities;
         QJsonArray capArray = json["capAdd"].toArray();
         for (const QJsonValue &value : capArray)
-            capabilities.append(value.toString());
+            capabilities.append(jsonStringToString(value));
         common.capAdd = capabilities;
     }
 
@@ -238,7 +244,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
         QStringList secOpts;
         QJsonArray secOptsArray = json["securityOpt"].toArray();
         for (const QJsonValue &value : secOptsArray)
-            secOpts.append(value.toString());
+            secOpts.append(jsonStringToString(value));
         common.securityOpt = secOpts;
     }
 
@@ -248,31 +254,31 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
             if (it.value().isNull())
                 common.remoteEnv[it.key()] = std::nullopt;
             else
-                common.remoteEnv[it.key()] = it.value().toString();
+                common.remoteEnv[it.key()] = jsonStringToString(it.value());
         }
     }
 
     if (json.contains("remoteUser"))
-        common.remoteUser = json["remoteUser"].toString();
+        common.remoteUser = jsonStringToString(json["remoteUser"]);
 
     // Parse all the command fields
     if (json.contains("initializeCommand"))
-        common.initializeCommand = parseCommand(json["initializeCommand"]);
+        common.initializeCommand = parseCommand(json["initializeCommand"], jsonStringToString);
 
     if (json.contains("onCreateCommand"))
-        common.onCreateCommand = parseCommand(json["onCreateCommand"]);
+        common.onCreateCommand = parseCommand(json["onCreateCommand"], jsonStringToString);
 
     if (json.contains("updateContentCommand"))
-        common.updateContentCommand = parseCommand(json["updateContentCommand"]);
+        common.updateContentCommand = parseCommand(json["updateContentCommand"], jsonStringToString);
 
     if (json.contains("postCreateCommand"))
-        common.postCreateCommand = parseCommand(json["postCreateCommand"]);
+        common.postCreateCommand = parseCommand(json["postCreateCommand"], jsonStringToString);
 
     if (json.contains("postStartCommand"))
-        common.postStartCommand = parseCommand(json["postStartCommand"]);
+        common.postStartCommand = parseCommand(json["postStartCommand"], jsonStringToString);
 
     if (json.contains("postAttachCommand"))
-        common.postAttachCommand = parseCommand(json["postAttachCommand"]);
+        common.postAttachCommand = parseCommand(json["postAttachCommand"], jsonStringToString);
 
     if (json.contains("waitFor")) {
         static const std::map<QString, WaitFor> waitForMap
@@ -283,7 +289,7 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
                {"postStartCommand", WaitFor::PostStartCommand}};
 
         const Result<WaitFor> waitFor = parseEnum<WaitFor>(
-            json["waitFor"].toString(), waitForMap, WaitFor::UpdateContentCommand);
+            jsonStringToString(json["waitFor"]), waitForMap, WaitFor::UpdateContentCommand);
 
         if (!waitFor)
             return ResultError(waitFor.error());
@@ -298,7 +304,9 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
                {"loginInteractiveShell", UserEnvProbe::LoginInteractiveShell},
                {"interactiveShell", UserEnvProbe::InteractiveShell}};
         const Result<UserEnvProbe> userEnvProbe = parseEnum<UserEnvProbe>(
-            json["userEnvProbe"].toString(), userEnvProbeMap, UserEnvProbe::LoginInteractiveShell);
+            jsonStringToString(json["userEnvProbe"]),
+            userEnvProbeMap,
+            UserEnvProbe::LoginInteractiveShell);
 
         if (!userEnvProbe)
             return ResultError(userEnvProbe.error());
@@ -307,7 +315,8 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
     }
 
     if (json.contains("hostRequirements") && json["hostRequirements"].isObject())
-        common.hostRequirements = HostRequirements::fromJson(json["hostRequirements"].toObject());
+        common.hostRequirements
+            = HostRequirements::fromJson(json["hostRequirements"].toObject(), jsonStringToString);
 
     if (json.contains("customizations") && json["customizations"].isObject())
         common.customizations = json["customizations"].toObject();
@@ -324,13 +333,14 @@ Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJ
     return common;
 }
 
-Result<> NonComposeBase::fromJson(const QJsonObject &json)
+Result<> NonComposeBase::fromJson(
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     if (json.contains("appPort")) {
         if (json["appPort"].isDouble()) {
             appPort = json["appPort"].toInt();
         } else if (json["appPort"].isString()) {
-            appPort = json["appPort"].toString();
+            appPort = jsonStringToString(json["appPort"]);
         } else if (json["appPort"].isArray()) {
             QList<std::variant<int, QString>> ports;
             QJsonArray portsArray = json["appPort"].toArray();
@@ -338,7 +348,7 @@ Result<> NonComposeBase::fromJson(const QJsonObject &json)
                 if (value.isDouble())
                     ports.append(value.toInt());
                 else if (value.isString())
-                    ports.append(value.toString());
+                    ports.append(jsonStringToString(value));
             }
             appPort = ports;
         }
@@ -348,7 +358,7 @@ Result<> NonComposeBase::fromJson(const QJsonObject &json)
         QStringList args;
         QJsonArray argsArray = json["runArgs"].toArray();
         for (const QJsonValue &value : argsArray)
-            args.append(value.toString());
+            args.append(jsonStringToString(value));
         runArgs = args;
     }
 
@@ -357,7 +367,9 @@ Result<> NonComposeBase::fromJson(const QJsonObject &json)
             = {{"none", ShutdownAction::None}, {"stopContainer", ShutdownAction::StopContainer}};
 
         const Result<ShutdownAction> sa = parseEnum<ShutdownAction>(
-            json["shutdownAction"].toString(), shutdownActionMap, ShutdownAction::StopContainer);
+            jsonStringToString(json["shutdownAction"]),
+            shutdownActionMap,
+            ShutdownAction::StopContainer);
         if (!sa)
             return ResultError(sa.error());
 
@@ -368,10 +380,10 @@ Result<> NonComposeBase::fromJson(const QJsonObject &json)
         overrideCommand = json["overrideCommand"].toBool();
 
     if (json.contains("workspaceFolder"))
-        workspaceFolder = json["workspaceFolder"].toString();
+        workspaceFolder = jsonStringToString(json["workspaceFolder"]);
 
     if (json.contains("workspaceMount"))
-        workspaceMount = json["workspaceMount"].toString();
+        workspaceMount = jsonStringToString(json["workspaceMount"]);
 
     return ResultOk;
 }
@@ -382,43 +394,46 @@ bool ComposeContainer::isComposeContainer(const QJsonObject &json)
            && json.contains("workspaceFolder");
 }
 
-Result<ComposeContainer> ComposeContainer::fromJson(const QJsonObject &json)
+Result<ComposeContainer> ComposeContainer::fromJson(
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     ComposeContainer container;
 
     if (json.contains("dockerComposeFile")) {
         if (json["dockerComposeFile"].isString()) {
-            container.dockerComposeFile = json["dockerComposeFile"].toString();
+            container.dockerComposeFile = jsonStringToString(json["dockerComposeFile"]);
         } else if (json["dockerComposeFile"].isArray()) {
             QStringList composeFiles;
             QJsonArray composeArray = json["dockerComposeFile"].toArray();
             for (const QJsonValue &value : composeArray) {
-                composeFiles.append(value.toString());
+                composeFiles.append(jsonStringToString(value));
             }
             container.dockerComposeFile = composeFiles;
         }
     }
 
     if (json.contains("service"))
-        container.service = json["service"].toString();
+        container.service = jsonStringToString(json["service"]);
 
     if (json.contains("runServices") && json["runServices"].isArray()) {
         QStringList services;
         QJsonArray servicesArray = json["runServices"].toArray();
         for (const QJsonValue &value : servicesArray)
-            services.append(value.toString());
+            services.append(jsonStringToString(value));
         container.runServices = services;
     }
 
     if (json.contains("workspaceFolder"))
-        container.workspaceFolder = json["workspaceFolder"].toString();
+        container.workspaceFolder = jsonStringToString(json["workspaceFolder"]);
 
     if (json.contains("shutdownAction")) {
         static const std::map<QString, ShutdownAction> shutdownActionMap
             = {{"none", ShutdownAction::None}, {"stopCompose", ShutdownAction::StopCompose}};
 
         const Result<ShutdownAction> sa = parseEnum<ShutdownAction>(
-            json["shutdownAction"].toString(), shutdownActionMap, ShutdownAction::StopCompose);
+            jsonStringToString(json["shutdownAction"]),
+            shutdownActionMap,
+            ShutdownAction::StopCompose);
         if (!sa)
             return ResultError(sa.error());
         container.shutdownAction = *sa;
@@ -435,16 +450,17 @@ bool ImageContainer::isImageContainer(const QJsonObject &json)
     return json.contains("image");
 }
 
-Result<ImageContainer> ImageContainer::fromJson(const QJsonObject &json)
+Result<ImageContainer> ImageContainer::fromJson(
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     ImageContainer container;
 
-    Result<> baseResult = container.NonComposeBase::fromJson(json);
+    Result<> baseResult = container.NonComposeBase::fromJson(json, jsonStringToString);
     if (!baseResult)
         return ResultError(baseResult.error());
 
     if (json.contains("image"))
-        container.image = json["image"].toString();
+        container.image = jsonStringToString(json["image"]);
 
     return container;
 }
@@ -454,10 +470,11 @@ bool DockerfileContainer::isDockerfileContainer(const QJsonObject &json)
     return (json.contains("build") && json["build"].isObject()) || json.contains("dockerFile");
 }
 
-Result<DockerfileContainer> DockerfileContainer::fromJson(const QJsonObject &json)
+Result<DockerfileContainer> DockerfileContainer::fromJson(
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     DockerfileContainer container;
-    Result<> baseResult = container.NonComposeBase::fromJson(json);
+    Result<> baseResult = container.NonComposeBase::fromJson(json, jsonStringToString);
     if (!baseResult)
         return ResultError(baseResult.error());
 
@@ -466,49 +483,51 @@ Result<DockerfileContainer> DockerfileContainer::fromJson(const QJsonObject &jso
         QJsonObject buildObj = json["build"].toObject();
 
         if (buildObj.contains("dockerfile"))
-            container.dockerfile = buildObj["dockerfile"].toString();
+            container.dockerfile = jsonStringToString(buildObj["dockerfile"]);
 
         if (buildObj.contains("context"))
-            container.context = buildObj["context"].toString();
+            container.context = jsonStringToString(buildObj["context"]);
 
         // Extract build options
-        container.buildOptions = BuildOptions::fromJson(buildObj);
+        container.buildOptions = BuildOptions::fromJson(buildObj, jsonStringToString);
         return container;
     }
     // Alternative format
     if (json.contains("dockerFile"))
-        container.dockerfile = json["dockerFile"].toString();
+        container.dockerfile = jsonStringToString(json["dockerFile"]);
 
     if (json.contains("context"))
-        container.context = json["context"].toString();
+        container.context = jsonStringToString(json["context"]);
 
     if (json.contains("build") && json["build"].isObject())
-        container.buildOptions = BuildOptions::fromJson(json["build"].toObject());
+        container.buildOptions
+            = BuildOptions::fromJson(json["build"].toObject(), jsonStringToString);
 
     return container;
 }
 
-BuildOptions BuildOptions::fromJson(const QJsonObject &json)
+BuildOptions BuildOptions::fromJson(
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     BuildOptions opts;
 
     if (json.contains("target"))
-        opts.target = json["target"].toString();
+        opts.target = jsonStringToString(json["target"]);
 
     if (json.contains("args") && json["args"].isObject()) {
         QJsonObject argsObj = json["args"].toObject();
         for (auto it = argsObj.begin(); it != argsObj.end(); ++it)
-            opts.args[it.key()] = it.value().toString();
+            opts.args[it.key()] = jsonStringToString(it.value());
     }
 
     if (json.contains("cacheFrom")) {
         if (json["cacheFrom"].isString()) {
-            opts.cacheFrom = json["cacheFrom"].toString();
+            opts.cacheFrom = jsonStringToString(json["cacheFrom"]);
         } else if (json["cacheFrom"].isArray()) {
             QStringList cacheList;
             QJsonArray cacheArray = json["cacheFrom"].toArray();
             for (const QJsonValue &value : cacheArray)
-                cacheList.append(value.toString());
+                cacheList.append(jsonStringToString(value));
             opts.cacheFrom = cacheList;
         }
     }
@@ -516,24 +535,25 @@ BuildOptions BuildOptions::fromJson(const QJsonObject &json)
     if (json.contains("options") && json["options"].isArray()) {
         QJsonArray optionsArray = json["options"].toArray();
         for (const QJsonValue &value : optionsArray)
-            opts.options.append(value.toString());
+            opts.options.append(jsonStringToString(value));
     }
 
     return opts;
 }
 
-Result<std::variant<Mount, QString>> Mount::fromJsonVariant(const QJsonValue &value)
+Result<std::variant<Mount, QString>> Mount::fromJsonVariant(
+    const QJsonValue &value, const JsonStringToString &jsonStringToString)
 {
     if (value.isString())
-        return value.toString();
+        return jsonStringToString(value);
     else if (value.isObject())
-        return Mount::fromJson(value.toObject());
+        return Mount::fromJson(value.toObject(), jsonStringToString);
 
     return ResultError(
         Tr::tr("Invalid mount format: expected string or object, found %1").arg(value.type()));
 }
 
-Result<Mount> Mount::fromJson(const QJsonObject &json)
+Result<Mount> Mount::fromJson(const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     Mount mount;
 
@@ -546,7 +566,7 @@ Result<Mount> Mount::fromJson(const QJsonObject &json)
         = {{"bind", MountType::Bind}, {"volume", MountType::Volume}};
 
     const Result<MountType> mountType
-        = parseEnum<MountType>(json["type"].toString(), mountTypeMap, MountType::Bind);
+        = parseEnum<MountType>(jsonStringToString(json["type"]), mountTypeMap, MountType::Bind);
 
     if (!mountType)
         return ResultError(mountType.error());
@@ -554,27 +574,29 @@ Result<Mount> Mount::fromJson(const QJsonObject &json)
     mount.type = *mountType;
 
     if (json.contains("source"))
-        mount.source = json["source"].toString();
+        mount.source = jsonStringToString(json["source"]);
 
-    mount.target = json["target"].toString();
+    mount.target = jsonStringToString(json["target"]);
 
     return mount;
 }
 
-SecretMetadata SecretMetadata::fromJson(const QJsonObject &json)
+SecretMetadata SecretMetadata::fromJson(
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     SecretMetadata metadata;
 
     if (json.contains("description"))
-        metadata.description = json["description"].toString();
+        metadata.description = jsonStringToString(json["description"]);
 
     if (json.contains("documentationUrl"))
-        metadata.documentationUrl = json["documentationUrl"].toString();
+        metadata.documentationUrl = jsonStringToString(json["documentationUrl"]);
 
     return metadata;
 }
 
-HostRequirements HostRequirements::fromJson(const QJsonObject &json)
+HostRequirements HostRequirements::fromJson(
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     HostRequirements req;
 
@@ -582,33 +604,34 @@ HostRequirements HostRequirements::fromJson(const QJsonObject &json)
         req.cpus = json["cpus"].toInt();
 
     if (json.contains("memory"))
-        req.memory = json["memory"].toString();
+        req.memory = jsonStringToString(json["memory"]);
 
     if (json.contains("storage"))
-        req.storage = json["storage"].toString();
+        req.storage = jsonStringToString(json["storage"]);
 
     if (json.contains("gpu"))
-        req.gpu = GpuRequirements::fromJson(json["gpu"]);
+        req.gpu = GpuRequirements::fromJson(json["gpu"], jsonStringToString);
 
     return req;
 }
 
-GpuRequirements GpuRequirements::fromJson(const QJsonValue &value)
+GpuRequirements GpuRequirements::fromJson(
+    const QJsonValue &json, const JsonStringToString &jsonStringToString)
 {
     GpuRequirements req;
 
-    if (value.isBool())
-        req.requirements = value.toBool();
-    else if (value.isString())
-        req.requirements = value.toString();
-    else if (value.isObject())
-        req.requirements = GpuDetailedRequirements::fromJson(value.toObject());
+    if (json.isBool())
+        req.requirements = json.toBool();
+    else if (json.isString())
+        req.requirements = jsonStringToString(json);
+    else if (json.isObject())
+        req.requirements = GpuDetailedRequirements::fromJson(json.toObject(), jsonStringToString);
 
     return req;
 }
 
 GpuRequirements::GpuDetailedRequirements GpuRequirements::GpuDetailedRequirements::fromJson(
-    const QJsonObject &json)
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     GpuDetailedRequirements req;
 
@@ -616,12 +639,13 @@ GpuRequirements::GpuDetailedRequirements GpuRequirements::GpuDetailedRequirement
         req.cores = json["cores"].toInt();
 
     if (json.contains("memory"))
-        req.memory = json["memory"].toString();
+        req.memory = jsonStringToString(json["memory"]);
 
     return req;
 }
 
-Result<PortAttributes> PortAttributes::fromJson(const QJsonObject &json)
+Result<PortAttributes> PortAttributes::fromJson(
+    const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
     PortAttributes attrs;
 
@@ -634,7 +658,7 @@ Result<PortAttributes> PortAttributes::fromJson(const QJsonObject &json)
                {"silent", OnAutoForward::Silent},
                {"ignore", OnAutoForward::Ignore}};
         const Result<OnAutoForward> onAutoForward = parseEnum<OnAutoForward>(
-            json["onAutoForward"].toString(), onAutoForwardMap, OnAutoForward::Notify);
+            jsonStringToString(json["onAutoForward"]), onAutoForwardMap, OnAutoForward::Notify);
         if (!onAutoForward)
             return ResultError(onAutoForward.error());
         attrs.onAutoForward = *onAutoForward;
@@ -644,18 +668,18 @@ Result<PortAttributes> PortAttributes::fromJson(const QJsonObject &json)
         attrs.elevateIfNeeded = json["elevateIfNeeded"].toBool();
 
     if (json.contains("label"))
-        attrs.label = json["label"].toString();
+        attrs.label = jsonStringToString(json["label"]);
 
     if (json.contains("requireLocalPort"))
         attrs.requireLocalPort = json["requireLocalPort"].toBool();
 
     if (json.contains("protocol"))
-        attrs.protocol = json["protocol"].toString();
+        attrs.protocol = jsonStringToString(json["protocol"]);
 
     return attrs;
 }
 
-Result<Config> Config::fromJson(const QByteArray &data)
+Result<Config> Config::fromJson(const QByteArray &data, const JsonStringToString &jsonStringToString)
 {
     const QByteArray cleanedInput = removeCommentsFromJson(data);
 
@@ -670,7 +694,7 @@ Result<Config> Config::fromJson(const QByteArray &data)
         return ResultError(Tr::tr("Invalid devcontainer json file: expected an object"));
 
     QJsonObject json = doc.object();
-    return Config::fromJson(json);
+    return Config::fromJson(json, jsonStringToString);
 }
 
 QDebug operator<<(QDebug debug, const DevContainer::Config &value)

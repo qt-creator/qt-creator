@@ -51,6 +51,9 @@ enum class MountType { Bind, Volume };
 using CommandMap = std::map<QString, std::variant<QString, QStringList>>;
 using Command = std::variant<QString, QStringList, CommandMap>;
 
+// Returns a string from the provided JSON value. Can modifiy the string to replace variables.
+using JsonStringToString = std::function<QString(const QJsonValue &)>;
+
 // Port attributes structure
 struct PortAttributes
 {
@@ -60,7 +63,9 @@ struct PortAttributes
     bool requireLocalPort = false;
     std::optional<QString> protocol;
 
-    static Utils::Result<PortAttributes> fromJson(const QJsonObject &json);
+    static Utils::Result<PortAttributes> fromJson(
+        const QJsonObject &json, const JsonStringToString &jsonStringToString);
+    static void visitStrings(std::function<void(QString &)> visitor);
 };
 
 // GPU requirements structure
@@ -71,12 +76,14 @@ struct DEVCONTAINER_EXPORT GpuRequirements
         std::optional<int> cores;
         std::optional<QString> memory;
 
-        static GpuDetailedRequirements fromJson(const QJsonObject &json);
+        static GpuDetailedRequirements fromJson(
+            const QJsonObject &json, const JsonStringToString &jsonStringToString);
     };
 
     std::variant<bool, QString, struct GpuDetailedRequirements> requirements;
 
-    static GpuRequirements fromJson(const QJsonValue &value);
+    static GpuRequirements fromJson(
+        const QJsonValue &json, const JsonStringToString &jsonStringToString);
 };
 
 // Host hardware requirements structure
@@ -87,7 +94,8 @@ struct DEVCONTAINER_EXPORT HostRequirements
     std::optional<QString> storage;
     std::optional<GpuRequirements> gpu;
 
-    static HostRequirements fromJson(const QJsonObject &json);
+    static HostRequirements fromJson(
+        const QJsonObject &json, const JsonStringToString &jsonStringToString);
 };
 
 // Secret metadata structure
@@ -96,7 +104,8 @@ struct DEVCONTAINER_EXPORT SecretMetadata
     std::optional<QString> description;
     std::optional<QString> documentationUrl;
 
-    static SecretMetadata fromJson(const QJsonObject &json);
+    static SecretMetadata fromJson(
+        const QJsonObject &json, const JsonStringToString &jsonStringToString);
 };
 
 // Mount structure
@@ -106,9 +115,11 @@ struct DEVCONTAINER_EXPORT Mount
     std::optional<QString> source;
     QString target;
 
-    static Utils::Result<Mount> fromJson(const QJsonObject &json);
+    static Utils::Result<Mount> fromJson(
+        const QJsonObject &json, const JsonStringToString &jsonStringToString);
 
-    static Utils::Result<std::variant<Mount, QString>> fromJsonVariant(const QJsonValue &value);
+    static Utils::Result<std::variant<Mount, QString>> fromJsonVariant(
+        const QJsonValue &value, const JsonStringToString &jsonStringToString);
 };
 
 // Build options structure
@@ -119,7 +130,8 @@ struct DEVCONTAINER_EXPORT BuildOptions
     std::optional<std::variant<QString, QStringList>> cacheFrom;
     QStringList options;
 
-    static BuildOptions fromJson(const QJsonObject &json);
+    static BuildOptions fromJson(
+        const QJsonObject &json, const JsonStringToString &jsonStringToString);
 };
 
 // Non-compose base structure
@@ -132,7 +144,7 @@ struct DEVCONTAINER_EXPORT NonComposeBase
     std::optional<QString> workspaceFolder;
     std::optional<QString> workspaceMount;
 
-    Utils::Result<> fromJson(const QJsonObject &json);
+    Utils::Result<> fromJson(const QJsonObject &json, const JsonStringToString &jsonStringToString);
 };
 
 // Dockerfile container structure
@@ -143,7 +155,8 @@ struct DEVCONTAINER_EXPORT DockerfileContainer : NonComposeBase
     QString context = ".";
     std::optional<BuildOptions> buildOptions;
 
-    static Utils::Result<DockerfileContainer> fromJson(const QJsonObject &json);
+    static Utils::Result<DockerfileContainer> fromJson(
+        const QJsonObject &json, const JsonStringToString &jsonStringToString);
 
     static bool isDockerfileContainer(const QJsonObject &json);
 };
@@ -153,7 +166,8 @@ struct DEVCONTAINER_EXPORT ImageContainer : NonComposeBase
 {
     QString image;
 
-    static Utils::Result<ImageContainer> fromJson(const QJsonObject &json);
+    static Utils::Result<ImageContainer> fromJson(
+        const QJsonObject &json, const JsonStringToString &jsonStringToString);
 
     static bool isImageContainer(const QJsonObject &json);
 };
@@ -168,7 +182,8 @@ struct DEVCONTAINER_EXPORT ComposeContainer
     ShutdownAction shutdownAction = ShutdownAction::StopCompose;
     bool overrideCommand = true;
 
-    static Utils::Result<ComposeContainer> fromJson(const QJsonObject &json);
+    static Utils::Result<ComposeContainer> fromJson(
+        const QJsonObject &json, const JsonStringToString &jsonStringToString);
 
     static bool isComposeContainer(const QJsonObject &json);
 };
@@ -206,7 +221,9 @@ struct DEVCONTAINER_EXPORT DevContainerCommon
     QJsonObject customizations;
     QJsonObject additionalProperties;
 
-    static Utils::Result<DevContainerCommon> fromJson(const QJsonObject &json);
+    static Utils::Result<DevContainerCommon> fromJson(
+        const QJsonObject &json, const JsonStringToString &jsonStringToString);
+    static void visitStrings(std::function<void(QString &)> visitor);
 };
 
 // Complete DevContainer Configuration
@@ -217,8 +234,10 @@ struct DEVCONTAINER_EXPORT Config
     std::optional<std::variant<DockerfileContainer, ImageContainer, ComposeContainer>>
         containerConfig;
 
-    static Utils::Result<Config> fromJson(const QJsonObject &json);
-    static Utils::Result<Config> fromJson(const QByteArray &data);
+    static Utils::Result<Config> fromJson(
+        const QJsonObject &json, const JsonStringToString &jsonStringToString);
+    static Utils::Result<Config> fromJson(
+        const QByteArray &data, const JsonStringToString &jsonStringToString);
 };
 
 // QDebug stream operators for all DevContainer structures
