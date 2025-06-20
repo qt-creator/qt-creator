@@ -80,8 +80,8 @@ Utils::Environment EnvironmentAspect::environment() const
 Environment EnvironmentAspect::expandedEnvironment(const Utils::MacroExpander &expander) const
 {
     Environment expandedEnv;
-    environment().forEachEntry([&](const QString &key, const QString &value, bool) {
-        expandedEnv.set(key, expander.expand(value));
+    environment().forEachEntry([&](const QString &key, const QString &value, bool enabled) {
+        expandedEnv.set(key, expander.expand(value), enabled);
     });
     return expandedEnv;
 }
