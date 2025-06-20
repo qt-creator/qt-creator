@@ -194,6 +194,9 @@ Sqlite::JournalMode projectStorageJournalMode()
 
 [[maybe_unused]] QString qmlPath(::ProjectExplorer::Target *target)
 {
+    if (auto path = qEnvironmentVariable("QDS_QML_DUMMY_DIRECTORY"); path.size())
+        return path;
+
     auto qt = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (qt)
         return qt->qmlPath().cleanPath().path();
