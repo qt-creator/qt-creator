@@ -394,8 +394,34 @@ bool createFakePath(const FilePath& path, const bool is_file = false)
 
 McuSupportTest::McuSupportTest()
     : targetFactory{settingsMockPtr}
-    , compilerDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_DIR_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false, Utils::PathChooser::Kind::ExistingDirectory }
-     , toochainFileDescription{armGccLabel, armGccEnvVar, TOOLCHAIN_FILE_CMAKE_VARIABLE, armGccLabel, armGccDirectorySetting, {}, {}, {}, {}, false, Utils::PathChooser::Kind::ExistingDirectory }
+    , compilerDescription{
+          armGccLabel,
+          armGccEnvVar,
+          TOOLCHAIN_DIR_CMAKE_VARIABLE,
+          armGccLabel,
+          armGccDirectorySetting,
+          {},
+          {},
+          {},
+          {},
+          false,
+          false,
+          PathChooser::Kind::ExistingDirectory
+      }
+    , toochainFileDescription{
+          armGccLabel,
+          armGccEnvVar,
+          TOOLCHAIN_FILE_CMAKE_VARIABLE,
+          armGccLabel,
+          armGccDirectorySetting,
+          {},
+          {},
+          {},
+          {},
+          false,
+          false,
+          PathChooser::Kind::ExistingDirectory
+      }
     , targetDescription {
         "autotest-sourceFile",
         "2.0.1",
@@ -752,6 +778,7 @@ void McuSupportTest::test_createTargets()
                                           {freeRtosDetectionPath},
                                           {},
                                           VersionDetection{},
+                                          false,
                                           true,
                                           Utils::PathChooser::Kind::ExistingDirectory};
     targetDescription.toolchain.id = armGcc;
@@ -805,6 +832,7 @@ void McuSupportTest::test_createPackages()
                                           {freeRtosDetectionPath},
                                           {},
                                           VersionDetection{},
+                                          false,
                                           true,
                                           Utils::PathChooser::Kind::ExistingDirectory};
 
