@@ -16,9 +16,6 @@ class ProjectExplorerTest final : public QObject
     Q_OBJECT
 
 private slots:
-    void testGccOutputParser_data();
-    void testGccOutputParser();
-
     void testCustomOutputParsers_data();
     void testCustomOutputParsers();
 

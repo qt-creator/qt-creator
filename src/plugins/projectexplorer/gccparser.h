@@ -41,4 +41,6 @@ private:
     QRegularExpression m_regExpCc1plus;
 };
 
+namespace Internal { QObject *createGccParserTest(); }
+
 } // namespace ProjectExplorer

@@ -12,6 +12,11 @@
 
 #include <optional>
 
+#ifdef WITH_TESTS
+#include "outputparser_test.h"
+#include <QTest>
+#endif
+
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -277,62 +282,58 @@ bool GccParser::isContinuation(const QString &newLine) const
                || newLine.contains("note:"));
 }
 
-} // ProjectExplorer
-
 // Unit tests:
-
 #ifdef WITH_TESTS
-#   include <QTest>
-
-#   include "projectexplorer_test.h"
-#   include "outputparser_test.h"
-
-namespace ProjectExplorer::Internal {
-
-void ProjectExplorerTest::testGccOutputParser_data()
+namespace Internal {
+class GccParserTest : public QObject
 {
-    QTest::addColumn<QString>("input");
-    QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QStringList>("childStdOutLines");
-    QTest::addColumn<QStringList>("childStdErrLines");
-    QTest::addColumn<Tasks >("tasks");
+    Q_OBJECT
 
-    auto compileTask = [](Task::TaskType type,
-                          const QString &description,
-                          const Utils::FilePath &file,
-                          int line,
-                          int column,
-                          const QList<QTextLayout::FormatRange> formats)
+private slots:
+    void test_data()
     {
-        CompileTask task(type, description, file, line, column);
-        task.formats = formats;
-        return task;
-    };
+        QTest::addColumn<QString>("input");
+        QTest::addColumn<OutputParserTester::Channel>("inputChannel");
+        QTest::addColumn<QStringList>("childStdOutLines");
+        QTest::addColumn<QStringList>("childStdErrLines");
+        QTest::addColumn<Tasks >("tasks");
 
-    auto formatRange = [](int start, int length, const QString &anchorHref = QString())
-    {
-        QTextCharFormat format;
-        format.setAnchorHref(anchorHref);
+        auto compileTask = [](Task::TaskType type,
+                              const QString &description,
+                              const Utils::FilePath &file,
+                              int line,
+                              int column,
+                              const QList<QTextLayout::FormatRange> formats)
+        {
+            CompileTask task(type, description, file, line, column);
+            task.formats = formats;
+            return task;
+        };
 
-        return QTextLayout::FormatRange{start, length, format};
-    };
+        auto formatRange = [](int start, int length, const QString &anchorHref = QString())
+        {
+            QTextCharFormat format;
+            format.setAnchorHref(anchorHref);
 
-    QTest::newRow("pass-through stdout")
+            return QTextLayout::FormatRange{start, length, format};
+        };
+
+        QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QStringList("Sometext") << QStringList()
             << Tasks();
 
-    QTest::newRow("pass-through stderr")
+        QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
             << QStringList() << QStringList("Sometext")
             << Tasks();
 
-    QTest::newRow("ar output")
+        QTest::newRow("ar output")
             << QString::fromLatin1("../../../../x86/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-ar: creating lib/libSkyView.a") << OutputParserTester::STDERR
             << QStringList() << QStringList("../../../../x86/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-ar: creating lib/libSkyView.a")
             << Tasks();
 
-    QTest::newRow("GCCE error")
+        QTest::newRow("GCCE error")
             << QString::fromLatin1("/temp/test/untitled8/main.cpp: In function `int main(int, char**)':\n"
                                    "/temp/test/untitled8/main.cpp:9: error: `sfasdf' undeclared (first use this function)\n"
                                    "/temp/test/untitled8/main.cpp:9: error: (Each undeclared identifier is reported only once for each function it appears in.)")
@@ -356,7 +357,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                FilePath::fromUserInput("/temp/test/untitled8/main.cpp"),
                                9, 0));
 
-    QTest::newRow("GCCE warning")
+        QTest::newRow("GCCE warning")
             << QString::fromLatin1("/src/corelib/global/qglobal.h:1635: warning: inline function `QDebug qDebug()' used but never defined")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
@@ -366,7 +367,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                FilePath::fromUserInput("/src/corelib/global/qglobal.h"),
                                1635, 0));
 
-    QTest::newRow("warning")
+        QTest::newRow("warning")
             << QString::fromLatin1("main.cpp:7:2: warning: Some warning")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
@@ -376,7 +377,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                FilePath::fromUserInput("main.cpp"),
                                7, 2));
 
-    QTest::newRow("GCCE #error")
+        QTest::newRow("GCCE #error")
             << QString::fromLatin1("C:\\temp\\test\\untitled8\\main.cpp:7: #error Symbian error")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
@@ -386,8 +387,8 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8\\main.cpp"),
                                7, 0));
 
-    // Symbian reports #warning(s) twice (using different syntax).
-    QTest::newRow("GCCE #warning1")
+        // Symbian reports #warning(s) twice (using different syntax).
+        QTest::newRow("GCCE #warning1")
             << QString::fromLatin1("C:\\temp\\test\\untitled8\\main.cpp:8: warning: #warning Symbian warning")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
@@ -397,7 +398,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8\\main.cpp"),
                                8, 0));
 
-    QTest::newRow("GCCE #warning2")
+        QTest::newRow("GCCE #warning2")
             << QString::fromLatin1("/temp/test/untitled8/main.cpp:8:2: warning: #warning Symbian warning")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
@@ -407,8 +408,8 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                FilePath::fromUserInput("/temp/test/untitled8/main.cpp"),
                                8, 2));
 
-    QList<QTextLayout::FormatRange> formatRanges;
-    QTest::newRow("Invalid rpath")
+        QList<QTextLayout::FormatRange> formatRanges;
+        QTest::newRow("Invalid rpath")
             << QString::fromLatin1("g++: /usr/local/lib: No such file or directory")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
@@ -416,7 +417,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                 << CompileTask(Task::Error,
                                "/usr/local/lib: No such file or directory"));
 
-    QTest::newRow("unused variable")
+        QTest::newRow("unused variable")
             << QString::fromLatin1("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp: In member function 'void Debugger::Internal::GdbEngine::handleBreakInsert2(const Debugger::Internal::GdbResponse&)':\n"
                                    "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp:2114: warning: unused variable 'index'\n"
                                    "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp:2115: warning: unused variable 'handler'")
@@ -436,7 +437,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                FilePath::fromUserInput("../../../../master/src/plugins/debugger/gdb/gdbengine.cpp"),
                                2115, 0));
 
-    QTest::newRow("gnumakeparser.cpp errors")
+        QTest::newRow("gnumakeparser.cpp errors")
             << QString::fromLatin1("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp: In member function 'void ProjectExplorer::ProjectExplorerPlugin::testGnuMakeParserTaskMangling_data()':\n"
                                    "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp:264: error: expected primary-expression before ':' token\n"
                                    "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp:264: error: expected ';' before ':' token")
@@ -460,7 +461,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                FilePath::fromUserInput("/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp"),
                                264, 0));
 
-    QTest::newRow("distcc error(QTCREATORBUG-904)")
+        QTest::newRow("distcc error(QTCREATORBUG-904)")
             << QString::fromLatin1("distcc[73168] (dcc_get_hostlist) Warning: no hostlist is set; can't distribute work\n"
                                    "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead")
             << OutputParserTester::STDERR
@@ -468,87 +469,87 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                             "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead"}
             << Tasks();
 
-    QTest::newRow("Teambuilder issues")
+        QTest::newRow("Teambuilder issues")
             << QString::fromLatin1("TeamBuilder Client:: error: could not find Scheduler, running Job locally...")
             << OutputParserTester::STDERR
             << QStringList() << QStringList("TeamBuilder Client:: error: could not find Scheduler, running Job locally...")
             << Tasks();
 
-    QTest::newRow("note")
+        QTest::newRow("note")
             << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                 << CompileTask(Task::Unknown,
-                                "initialized from here",
-                                FilePath::fromUserInput("/home/dev/creator/share/qtcreator/debugger/dumper.cpp"),
-                                1079));
+                << CompileTask(Task::Unknown,
+                               "initialized from here",
+                               FilePath::fromUserInput("/home/dev/creator/share/qtcreator/debugger/dumper.cpp"),
+                               1079));
 
-    QTest::newRow("static member function")
+        QTest::newRow("static member function")
             << QString::fromLatin1("/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c: In static member function 'static std::_Rb_tree_node_base* std::_Rb_global<_Dummy>::_Rebalance_for_erase(std::_Rb_tree_node_base*, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&)':\n"
                                    "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c:194: warning: suggest explicit braces to avoid ambiguous 'else'")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                 << compileTask(Task::Warning,
-                                "suggest explicit braces to avoid ambiguous 'else'\n"
-                                "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c: In static member function 'static std::_Rb_tree_node_base* std::_Rb_global<_Dummy>::_Rebalance_for_erase(std::_Rb_tree_node_base*, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&)':\n"
-                                "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c:194: warning: suggest explicit braces to avoid ambiguous 'else'",
-                                FilePath::fromUserInput("/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c"),
-                                194, 0,
-                                QList<QTextLayout::FormatRange>()
-                                    << formatRange(50, 0)
-                                    << formatRange(50, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::0::0")
-                                    << formatRange(117, 216)
-                                    << formatRange(333, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::194::0")
-                                    << formatRange(400, 64)));
+                << compileTask(Task::Warning,
+                               "suggest explicit braces to avoid ambiguous 'else'\n"
+                               "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c: In static member function 'static std::_Rb_tree_node_base* std::_Rb_global<_Dummy>::_Rebalance_for_erase(std::_Rb_tree_node_base*, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&)':\n"
+                               "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c:194: warning: suggest explicit braces to avoid ambiguous 'else'",
+                               FilePath::fromUserInput("/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c"),
+                               194, 0,
+                               QList<QTextLayout::FormatRange>()
+                                   << formatRange(50, 0)
+                                   << formatRange(50, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::0::0")
+                                   << formatRange(117, 216)
+                                   << formatRange(333, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::194::0")
+                                   << formatRange(400, 64)));
 
-    QTest::newRow("rm false positive")
+        QTest::newRow("rm false positive")
             << QString::fromLatin1("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
             << OutputParserTester::STDERR
             << QStringList() << QStringList("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
             << Tasks();
 
-    QTest::newRow("In function")
+        QTest::newRow("In function")
             << QString::fromLatin1("../../scriptbug/main.cpp: In function void foo(i) [with i = double]:\n"
                                    "../../scriptbug/main.cpp:22: instantiated from here\n"
                                    "../../scriptbug/main.cpp:8: warning: unused variable c")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                 << compileTask(Task::Unknown,
-                                "In function void foo(i) [with i = double]:\n"
-                                "../../scriptbug/main.cpp: In function void foo(i) [with i = double]:\n"
-                                "../../scriptbug/main.cpp:22: instantiated from here",
-                                FilePath::fromUserInput("../../scriptbug/main.cpp"),
-                                -1, 0,
-                                QList<QTextLayout::FormatRange>()
-                                    << formatRange(43, 120))
-                 << CompileTask(Task::Warning,
-                                "unused variable c",
-                                FilePath::fromUserInput("../../scriptbug/main.cpp"),
-                                8));
+                << compileTask(Task::Unknown,
+                               "In function void foo(i) [with i = double]:\n"
+                               "../../scriptbug/main.cpp: In function void foo(i) [with i = double]:\n"
+                               "../../scriptbug/main.cpp:22: instantiated from here",
+                               FilePath::fromUserInput("../../scriptbug/main.cpp"),
+                               -1, 0,
+                               QList<QTextLayout::FormatRange>()
+                                   << formatRange(43, 120))
+                << CompileTask(Task::Warning,
+                               "unused variable c",
+                               FilePath::fromUserInput("../../scriptbug/main.cpp"),
+                               8));
 
-    QTest::newRow("instantiated from here")
+        QTest::newRow("instantiated from here")
             << QString::fromLatin1("main.cpp:10: instantiated from here  ")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                 << CompileTask(Task::Unknown,
-                                "instantiated from here",
-                                FilePath::fromUserInput("main.cpp"),
-                                10));
+                << CompileTask(Task::Unknown,
+                               "instantiated from here",
+                               FilePath::fromUserInput("main.cpp"),
+                               10));
 
-    QTest::newRow("In constructor")
+        QTest::newRow("In constructor")
             << QString::fromLatin1("/dev/creator/src/plugins/find/basetextfind.h: In constructor 'Find::BaseTextFind::BaseTextFind(QTextEdit*)':")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                 << CompileTask(Task::Unknown,
-                                "In constructor 'Find::BaseTextFind::BaseTextFind(QTextEdit*)':",
-                                FilePath::fromUserInput("/dev/creator/src/plugins/find/basetextfind.h")));
+                << CompileTask(Task::Unknown,
+                               "In constructor 'Find::BaseTextFind::BaseTextFind(QTextEdit*)':",
+                               FilePath::fromUserInput("/dev/creator/src/plugins/find/basetextfind.h")));
 
-    QTest::newRow("At global scope")
+        QTest::newRow("At global scope")
             << QString::fromLatin1("../../scriptbug/main.cpp: At global scope:\n"
                                    "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
                                    "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
@@ -557,15 +558,15 @@ void ProjectExplorerTest::testGccOutputParser_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                 << compileTask(Task::Unknown,
-                                "At global scope:\n"
-                                "../../scriptbug/main.cpp: At global scope:\n"
-                                "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
-                                "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]",
-                                FilePath::fromUserInput("../../scriptbug/main.cpp"),
-                                -1, 0,
-                                QList<QTextLayout::FormatRange>()
-                                    << formatRange(17, 195))
+                << compileTask(Task::Unknown,
+                               "At global scope:\n"
+                               "../../scriptbug/main.cpp: At global scope:\n"
+                               "../../scriptbug/main.cpp: In instantiation of void bar(i) [with i = double]:\n"
+                               "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]",
+                               FilePath::fromUserInput("../../scriptbug/main.cpp"),
+                               -1, 0,
+                               QList<QTextLayout::FormatRange>()
+                                   << formatRange(17, 195))
                 << CompileTask(Task::Unknown,
                                "instantiated from here",
                                FilePath::fromUserInput("../../scriptbug/main.cpp"),
@@ -575,17 +576,17 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                FilePath::fromUserInput("../../scriptbug/main.cpp"),
                                5));
 
-    QTest::newRow("gcc 4.5 fatal error")
+        QTest::newRow("gcc 4.5 fatal error")
             << QString::fromLatin1("/home/code/test.cpp:54:38: fatal error: test.moc: No such file or directory")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                 << CompileTask(Task::Error,
-                                "test.moc: No such file or directory",
-                                FilePath::fromUserInput("/home/code/test.cpp"),
-                                54, 38));
+                << CompileTask(Task::Error,
+                               "test.moc: No such file or directory",
+                               FilePath::fromUserInput("/home/code/test.cpp"),
+                               54, 38));
 
-    QTest::newRow("instantiated from here should not be an error")
+        QTest::newRow("instantiated from here should not be an error")
             << QString::fromLatin1("../stl/main.cpp: In member function typename _Vector_base<_Tp, _Alloc>::_Tp_alloc_type::const_reference Vector<_Tp, _Alloc>::at(int) [with _Tp = Point, _Alloc = Allocator<Point>]:\n"
                                    "../stl/main.cpp:38:   instantiated from here\n"
                                    "../stl/main.cpp:31: warning: returning reference to temporary\n"
@@ -614,21 +615,21 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                QList<QTextLayout::FormatRange>()
                                    << formatRange(23, 85)));
 
-    formatRanges.clear();
-    if (HostOsInfo::isWindowsHost()) {
-        formatRanges << formatRange(33, 22)
-                     << formatRange(55, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.h::6792::0")
-                     << formatRange(93, 29)
-                     << formatRange(122, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32std.h::25::0")
-                     << formatRange(160, 5)
-                     << formatRange(165, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::0::0")
-                     << formatRange(205, 69)
-                     << formatRange(274, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::7094::0")
-                     << formatRange(314, 48);
-    } else {
-        formatRanges << formatRange(33, 329);
-    }
-    QTest::newRow("GCCE from lines")
+        formatRanges.clear();
+        if (HostOsInfo::isWindowsHost()) {
+            formatRanges << formatRange(33, 22)
+            << formatRange(55, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.h::6792::0")
+            << formatRange(93, 29)
+            << formatRange(122, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32std.h::25::0")
+            << formatRange(160, 5)
+            << formatRange(165, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::0::0")
+            << formatRange(205, 69)
+            << formatRange(274, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::7094::0")
+            << formatRange(314, 48);
+        } else {
+            formatRanges << formatRange(33, 329);
+        }
+        QTest::newRow("GCCE from lines")
             << QString::fromLatin1("In file included from C:/Symbian_SDK/epoc32/include/e32cmn.h:6792,\n"
                                    "                 from C:/Symbian_SDK/epoc32/include/e32std.h:25,\n"
                                    "C:/Symbian_SDK/epoc32/include/e32cmn.inl: In member function 'SSecureId::operator const TSecureId&() const':\n"
@@ -644,7 +645,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                  FilePath::fromUserInput("C:/Symbian_SDK/epoc32/include/e32cmn.inl"),
                                  7094, 0,
                                  formatRanges)};
-    QTest::newRow("In constructor 2")
+        QTest::newRow("In constructor 2")
             << QString::fromUtf8("perfattributes.cpp: In constructor ‘PerfEventAttributes::PerfEventAttributes()’:\n"
                                  "perfattributes.cpp:28:48: warning: ‘void* memset(void*, int, size_t)’ clearing an object of non-trivial type ‘class PerfEventAttributes’; use assignment or value-initialization instead [-Wclass-memaccess]\n"
                                  "   28 |     memset(this, 0, sizeof(PerfEventAttributes));\n"
@@ -661,52 +662,52 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                  28, 48,
                                  QList<QTextLayout::FormatRange>()
                                      << formatRange(170, 400))};
-    QTest::newRow("QTCREATORBUG-2206")
+        QTest::newRow("QTCREATORBUG-2206")
             << QString::fromLatin1("../../../src/XmlUg/targetdelete.c: At top level:")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                 << CompileTask(Task::Unknown,
-                                "At top level:",
-                                FilePath::fromUserInput("../../../src/XmlUg/targetdelete.c")));
+                << CompileTask(Task::Unknown,
+                               "At top level:",
+                               FilePath::fromUserInput("../../../src/XmlUg/targetdelete.c")));
 
-    QTest::newRow("GCCE 4: commandline, includes")
+        QTest::newRow("GCCE 4: commandline, includes")
             << QString::fromLatin1("In file included from /Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h:15,\n"
                                    "                 from <command line>:26:\n"
                                    "/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh:1134:26: warning: no newline at end of file")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << Tasks{compileTask(
-                      Task::Warning,
-                      "no newline at end of file\n"
-                      "In file included from /Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h:15,\n"
-                      "                 from <command line>:26:\n"
-                      "/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh:1134:26: warning: no newline at end of file",
-                      FilePath::fromUserInput("/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh"),
-                      1134, 26,
-                      QList<QTextLayout::FormatRange>()
-                          << formatRange(26, 22)
-                          << formatRange(48, 39, "olpfile:///Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h::15::0")
-                          << formatRange(87, 46)
-                          << formatRange(133, 50, "olpfile:///Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh::1134::26")
-                          << formatRange(183, 44))};
+                   Task::Warning,
+                   "no newline at end of file\n"
+                   "In file included from /Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h:15,\n"
+                   "                 from <command line>:26:\n"
+                   "/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh:1134:26: warning: no newline at end of file",
+                   FilePath::fromUserInput("/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh"),
+                   1134, 26,
+                   QList<QTextLayout::FormatRange>()
+                       << formatRange(26, 22)
+                       << formatRange(48, 39, "olpfile:///Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h::15::0")
+                       << formatRange(87, 46)
+                       << formatRange(133, 50, "olpfile:///Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh::1134::26")
+                       << formatRange(183, 44))};
 
-    QTest::newRow("enumeration warning")
+        QTest::newRow("enumeration warning")
             << QString::fromLatin1("../../../src/shared/proparser/profileevaluator.cpp: In member function 'ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(const ProString&, const ProStringList&)':\n"
                                    "../../../src/shared/proparser/profileevaluator.cpp:2817:9: warning: case value '0' not in enumerated type 'ProFileEvaluator::Private::TestFunc'")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                 << compileTask(Task::Warning,
-                                "case value '0' not in enumerated type 'ProFileEvaluator::Private::TestFunc'\n"
-                                "../../../src/shared/proparser/profileevaluator.cpp: In member function 'ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(const ProString&, const ProStringList&)':\n"
-                                "../../../src/shared/proparser/profileevaluator.cpp:2817:9: warning: case value '0' not in enumerated type 'ProFileEvaluator::Private::TestFunc'",
-                                FilePath::fromUserInput("../../../src/shared/proparser/profileevaluator.cpp"),
-                                2817, 9,
-                                QList<QTextLayout::FormatRange>()
-                                    << formatRange(76, 351)));
+                << compileTask(Task::Warning,
+                               "case value '0' not in enumerated type 'ProFileEvaluator::Private::TestFunc'\n"
+                               "../../../src/shared/proparser/profileevaluator.cpp: In member function 'ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(const ProString&, const ProStringList&)':\n"
+                               "../../../src/shared/proparser/profileevaluator.cpp:2817:9: warning: case value '0' not in enumerated type 'ProFileEvaluator::Private::TestFunc'",
+                               FilePath::fromUserInput("../../../src/shared/proparser/profileevaluator.cpp"),
+                               2817, 9,
+                               QList<QTextLayout::FormatRange>()
+                                   << formatRange(76, 351)));
 
-    QTest::newRow("include with line:column info")
+        QTest::newRow("include with line:column info")
             << QString::fromLatin1("In file included from <command-line>:0:0:\n"
                                    "./mw.h:4:0: warning: \"STUPID_DEFINE\" redefined")
             << OutputParserTester::STDERR
@@ -721,27 +722,27 @@ void ProjectExplorerTest::testGccOutputParser_data()
                    QList<QTextLayout::FormatRange>()
                        << formatRange(26, 88))};
 
-    QTest::newRow("instantiation with line:column info")
+        QTest::newRow("instantiation with line:column info")
             << QString::fromLatin1("file.h: In function 'void UnitTest::CheckEqual(UnitTest::TestResults&, const Expected&, const Actual&, const UnitTest::TestDetails&) [with Expected = unsigned int, Actual = int]':\n"
                                    "file.cpp:87:10: instantiated from here\n"
                                    "file.h:21:5: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << (Tasks()
-                 << compileTask(Task::Unknown,
-                                "In function 'void UnitTest::CheckEqual(UnitTest::TestResults&, const Expected&, const Actual&, const UnitTest::TestDetails&) [with Expected = unsigned int, Actual = int]':\n"
-                                "file.h: In function 'void UnitTest::CheckEqual(UnitTest::TestResults&, const Expected&, const Actual&, const UnitTest::TestDetails&) [with Expected = unsigned int, Actual = int]':\n"
-                                "file.cpp:87:10: instantiated from here",
-                                FilePath::fromUserInput("file.h"),
-                                -1, 0,
-                                QList<QTextLayout::FormatRange>()
-                                    << formatRange(172, 218))
-                 << CompileTask(Task::Warning,
-                                "comparison between signed and unsigned integer expressions [-Wsign-compare]",
-                                FilePath::fromUserInput("file.h"),
-                                21, 5));
+                << compileTask(Task::Unknown,
+                               "In function 'void UnitTest::CheckEqual(UnitTest::TestResults&, const Expected&, const Actual&, const UnitTest::TestDetails&) [with Expected = unsigned int, Actual = int]':\n"
+                               "file.h: In function 'void UnitTest::CheckEqual(UnitTest::TestResults&, const Expected&, const Actual&, const UnitTest::TestDetails&) [with Expected = unsigned int, Actual = int]':\n"
+                               "file.cpp:87:10: instantiated from here",
+                               FilePath::fromUserInput("file.h"),
+                               -1, 0,
+                               QList<QTextLayout::FormatRange>()
+                                   << formatRange(172, 218))
+                << CompileTask(Task::Warning,
+                               "comparison between signed and unsigned integer expressions [-Wsign-compare]",
+                               FilePath::fromUserInput("file.h"),
+                               21, 5));
 
-    QTest::newRow("gcc 4.8")
+        QTest::newRow("gcc 4.8")
             << QString::fromLatin1("In file included from /home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp:31:0:\n"
                                    ".uic/ui_pluginerrorview.h:14:25: fatal error: QtGui/QAction: No such file or directory\n"
                                    " #include <QtGui/QAction>\n"
@@ -762,7 +763,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                        << formatRange(63, 67, "olpfile:///home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp::31::0")
                        << formatRange(130, 146))};
 
-    QTest::newRow("qtcreatorbug-9195")
+        QTest::newRow("qtcreatorbug-9195")
             << QString::fromLatin1("In file included from /usr/include/qt4/QtCore/QString:1:0,\n"
                                    "                 from main.cpp:3:\n"
                                    "/usr/include/qt4/QtCore/qstring.h: In function 'void foo()':\n"
@@ -789,7 +790,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                        << formatRange(197, 33, "olpfile:///usr/include/qt4/QtCore/qstring.h::597::5")
                        << formatRange(230, 99))};
 
-    QTest::newRow("GCC 9 output")
+        QTest::newRow("GCC 9 output")
             << QString("In file included from /usr/include/qt/QtCore/qlocale.h:43,\n"
                        "                 from /usr/include/qt/QtCore/qtextstream.h:46,\n"
                        "                 from /qtc/src/shared/proparser/proitems.cpp:31:\n"
@@ -825,7 +826,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                        "param-type-mismatch.c:1:40: note: expected ‘const char *’ but argument is of type ‘int’\n"
                        "  1 | extern int callee(int one, const char *two, float three);\n"
                        "    |                            ~~~~~~~~~~~~^~~"
-               )
+                       )
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << Tasks{compileTask(Task::Warning,
@@ -872,35 +873,35 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                  15, 4,
                                  QList<QTextLayout::FormatRange>()
                                      << formatRange(93, 460)),
-                      compileTask(Task::Error,
-                                  "‘string’ in namespace ‘std’ does not name a type\n"
-                                  "incomplete.c:1:6: error: ‘string’ in namespace ‘std’ does not name a type\n"
-                                  "  1 | std::string test(void)\n"
-                                  "    |      ^~~~~~\n"
-                                  "incomplete.c:1:1: note: ‘std::string’ is defined in header ‘<string>’; did you forget to ‘#include <string>’?\n"
-                                  " +++ |+#include <string>\n"
-                                  "  1 | std::string test(void)",
-                                  FilePath::fromUserInput("incomplete.c"),
-                                  1, 6,
-                                  QList<QTextLayout::FormatRange>()
-                                      << formatRange(49, 284)),
-                      compileTask(Task::Warning,
-                                  "passing argument 2 of ‘callee’ makes pointer from integer without a cast [-Wint-conversion]\n"
-                                  "param-type-mismatch.c: In function ‘caller’:\n"
-                                  "param-type-mismatch.c:5:24: warning: passing argument 2 of ‘callee’ makes pointer from integer without a cast [-Wint-conversion]\n"
-                                  "  5 |   return callee(first, second, third);\n"
-                                  "    |                        ^~~~~~\n"
-                                  "    |                        |\n"
-                                  "    |                        int\n"
-                                  "param-type-mismatch.c:1:40: note: expected ‘const char *’ but argument is of type ‘int’\n"
-                                  "  1 | extern int callee(int one, const char *two, float three);\n"
-                                  "    |                            ~~~~~~~~~~~~^~~",
-                                  FilePath::fromUserInput("param-type-mismatch.c"),
-                                  5, 24,
-                                  QList<QTextLayout::FormatRange>()
-                                      << formatRange(92, 519))};
+                     compileTask(Task::Error,
+                                 "‘string’ in namespace ‘std’ does not name a type\n"
+                                 "incomplete.c:1:6: error: ‘string’ in namespace ‘std’ does not name a type\n"
+                                 "  1 | std::string test(void)\n"
+                                 "    |      ^~~~~~\n"
+                                 "incomplete.c:1:1: note: ‘std::string’ is defined in header ‘<string>’; did you forget to ‘#include <string>’?\n"
+                                 " +++ |+#include <string>\n"
+                                 "  1 | std::string test(void)",
+                                 FilePath::fromUserInput("incomplete.c"),
+                                 1, 6,
+                                 QList<QTextLayout::FormatRange>()
+                                     << formatRange(49, 284)),
+                     compileTask(Task::Warning,
+                                 "passing argument 2 of ‘callee’ makes pointer from integer without a cast [-Wint-conversion]\n"
+                                 "param-type-mismatch.c: In function ‘caller’:\n"
+                                 "param-type-mismatch.c:5:24: warning: passing argument 2 of ‘callee’ makes pointer from integer without a cast [-Wint-conversion]\n"
+                                 "  5 |   return callee(first, second, third);\n"
+                                 "    |                        ^~~~~~\n"
+                                 "    |                        |\n"
+                                 "    |                        int\n"
+                                 "param-type-mismatch.c:1:40: note: expected ‘const char *’ but argument is of type ‘int’\n"
+                                 "  1 | extern int callee(int one, const char *two, float three);\n"
+                                 "    |                            ~~~~~~~~~~~~^~~",
+                                 FilePath::fromUserInput("param-type-mismatch.c"),
+                                 5, 24,
+                                 QList<QTextLayout::FormatRange>()
+                                     << formatRange(92, 519))};
 
-    QTest::newRow(R"("inlined from")")
+        QTest::newRow(R"("inlined from")")
             << QString("In file included from smallstringvector.h:30,\n"
                        "                 from smallstringio.h:28,\n"
                        "                 from gtest-creator-printing.h:29,\n"
@@ -917,22 +918,22 @@ void ProjectExplorerTest::testGccOutputParser_data()
             << Tasks{compileTask(Task::Warning,
                                  "writing 1 byte into a region of size 0 [-Wstringop-overflow=]\n"
                                  "In file included from smallstringvector.h:30,\n"
-                                                        "                 from smallstringio.h:28,\n"
-                                                        "                 from gtest-creator-printing.h:29,\n"
-                                                        "                 from googletest.h:41,\n"
-                                                        "                 from smallstring-test.cpp:26:\n"
-                                                        "In member function ‘void Utils::BasicSmallString<Size>::append(Utils::SmallStringView) [with unsigned int Size = 31]’,\n"
-                                                        "    inlined from ‘Utils::BasicSmallString<Size>& Utils::BasicSmallString<Size>::operator+=(Utils::SmallStringView) [with unsigned int Size = 31]’ at smallstring.h:471:15,\n"
-                                                        "    inlined from ‘virtual void SmallString_AppendLongSmallStringToShortSmallString_Test::TestBody()’ at smallstring-test.cpp:850:63:\n"
-                                                        "smallstring.h:465:21: warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]\n"
-                                                        "  465 |         at(newSize) = 0;\n"
-                                                        "      |         ~~~~~~~~~~~~^~~",
+                                 "                 from smallstringio.h:28,\n"
+                                 "                 from gtest-creator-printing.h:29,\n"
+                                 "                 from googletest.h:41,\n"
+                                 "                 from smallstring-test.cpp:26:\n"
+                                 "In member function ‘void Utils::BasicSmallString<Size>::append(Utils::SmallStringView) [with unsigned int Size = 31]’,\n"
+                                 "    inlined from ‘Utils::BasicSmallString<Size>& Utils::BasicSmallString<Size>::operator+=(Utils::SmallStringView) [with unsigned int Size = 31]’ at smallstring.h:471:15,\n"
+                                 "    inlined from ‘virtual void SmallString_AppendLongSmallStringToShortSmallString_Test::TestBody()’ at smallstring-test.cpp:850:63:\n"
+                                 "smallstring.h:465:21: warning: writing 1 byte into a region of size 0 [-Wstringop-overflow=]\n"
+                                 "  465 |         at(newSize) = 0;\n"
+                                 "      |         ~~~~~~~~~~~~^~~",
                                  FilePath::fromUserInput("smallstring.h"),
                                  465, 21,
                                  QList<QTextLayout::FormatRange>()
                                      << formatRange(62, 805))};
 
-    QTest::newRow(R"("required from")")
+        QTest::newRow(R"("required from")")
             << QString(
                    "In file included from qmap.h:1,\n"
                    "                 from qvariant.h:47,\n"
@@ -973,7 +974,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                  QList<QTextLayout::FormatRange>()
                                      << formatRange(46, 1458))};
 
-    QTest::newRow(R"("requested here")")
+        QTest::newRow(R"("requested here")")
             << QString(
                    "In file included from tst_addresscache.cpp:21:\n"
                    "In file included from /usr/include/qt/QtTest/QTest:1:\n"
@@ -1006,7 +1007,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                  "                ^",
                                  FilePath::fromUserInput("tst_addresscache.cpp"), 79, 13, {})};
 
-    QTest::newRow(R"("note: here")")
+        QTest::newRow(R"("note: here")")
             << QString(
                    "In file included from qmlprofilerstatisticsmodel.h:31,\n"
                    "                 from qmlprofilerstatisticsmodel.cpp:26:\n"
@@ -1038,7 +1039,7 @@ void ProjectExplorerTest::testGccOutputParser_data()
                                  "      |     ^~~~~~~",
                                  FilePath::fromUserInput("qmlprofilerstatisticsmodel.cpp"), 365, 5, {})};
 
-    QTest::newRow("cc1plus")
+        QTest::newRow("cc1plus")
             << QString(
                    "cc1plus: error: one or more PCH files were found, but they were invalid\n"
                    "cc1plus: error: use -Winvalid-pch for more information\n"
@@ -1048,62 +1049,73 @@ void ProjectExplorerTest::testGccOutputParser_data()
             << OutputParserTester::STDERR
             << QStringList() << QStringList("compilation terminated.")
             << Tasks{
-                   CompileTask(Task::Error, "one or more PCH files were found, but they were invalid"),
-                   CompileTask(Task::Error, "use -Winvalid-pch for more information"),
-                   CompileTask(Task::Error, ".pch/Qt6Core5Compat: No such file or directory", ".pch/Qt6Core5Compat"),
-                   CompileTask(Task::Warning, "-Wformat-security ignored without -Wformat [-Wformat-security]")};
+                     CompileTask(Task::Error, "one or more PCH files were found, but they were invalid"),
+                     CompileTask(Task::Error, "use -Winvalid-pch for more information"),
+                     CompileTask(Task::Error, ".pch/Qt6Core5Compat: No such file or directory", ".pch/Qt6Core5Compat"),
+                     CompileTask(Task::Warning, "-Wformat-security ignored without -Wformat [-Wformat-security]")};
 
-    QTest::newRow("clean path")
+        QTest::newRow("clean path")
             << QString("/home/tim/path/to/sources/./and/more.h:15:22: error: blubb")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
             << Tasks{CompileTask(Task::Error, "blubb", "/home/tim/path/to/sources/and/more.h",
                                  15, 22)};
 
-    QTest::newRow("no line number")
-        << QString::fromUtf8("In file included from /data/dev/creator/src/libs/utils/aspects.cpp:12:\n"
-                             "/data/dev/creator/src/libs/utils/layoutbuilder.h: In instantiation of ‘Layouting::BuilderItem<X, XInterface>::I::I(const Inner&) [with Inner = Utils::BaseAspect; X = Layouting::Row; XInterface = Layouting::LayoutInterface]’:\n"
-                             "/data/dev/creator/src/libs/utils/aspects.cpp:3454:13:   required from here\n"
-                             "/data/dev/creator/src/libs/utils/layoutbuilder.h:79:51: error: use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
-                             "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
-                             "      |                                          ~~~~~~~~^~~~~")
-        << OutputParserTester::STDERR
-        << QStringList() << QStringList()
-        << (Tasks{compileTask(
-               Task::Error,
-               "use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
-               "In file included from /data/dev/creator/src/libs/utils/aspects.cpp:12:\n"
-               "/data/dev/creator/src/libs/utils/layoutbuilder.h: In instantiation of ‘Layouting::BuilderItem<X, XInterface>::I::I(const Inner&) [with Inner = Utils::BaseAspect; X = Layouting::Row; XInterface = Layouting::LayoutInterface]’:\n"
-               "/data/dev/creator/src/libs/utils/aspects.cpp:3454:13:   required from here\n"
-               "/data/dev/creator/src/libs/utils/layoutbuilder.h:79:51: error: use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
-               "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
-               "      |                                          ~~~~~~~~^~~~~",
-               FilePath::fromUserInput("/data/dev/creator/src/libs/utils/aspects.cpp"), 3454, 13,
-               QList<QTextLayout::FormatRange>{
-                   formatRange(82, 22),
-                   formatRange(104, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::12::0"),
-                   formatRange(148, 5),
-                   formatRange(153, 48, "olpfile:///data/dev/creator/src/libs/utils/layoutbuilder.h::0::0"),
-                   formatRange(201, 177),
-                   formatRange(378, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::3454::13"),
-                   formatRange(422, 31),
-                   formatRange(453, 48, "olpfile:///data/dev/creator/src/libs/utils/layoutbuilder.h::79::51"),
-                   formatRange(501, 228)})});
-}
+        QTest::newRow("no line number")
+            << QString::fromUtf8("In file included from /data/dev/creator/src/libs/utils/aspects.cpp:12:\n"
+                                 "/data/dev/creator/src/libs/utils/layoutbuilder.h: In instantiation of ‘Layouting::BuilderItem<X, XInterface>::I::I(const Inner&) [with Inner = Utils::BaseAspect; X = Layouting::Row; XInterface = Layouting::LayoutInterface]’:\n"
+                                 "/data/dev/creator/src/libs/utils/aspects.cpp:3454:13:   required from here\n"
+                                 "/data/dev/creator/src/libs/utils/layoutbuilder.h:79:51: error: use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
+                                 "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
+                                 "      |                                          ~~~~~~~~^~~~~")
+            << OutputParserTester::STDERR
+            << QStringList() << QStringList()
+            << (Tasks{compileTask(
+                   Task::Error,
+                   "use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
+                   "In file included from /data/dev/creator/src/libs/utils/aspects.cpp:12:\n"
+                   "/data/dev/creator/src/libs/utils/layoutbuilder.h: In instantiation of ‘Layouting::BuilderItem<X, XInterface>::I::I(const Inner&) [with Inner = Utils::BaseAspect; X = Layouting::Row; XInterface = Layouting::LayoutInterface]’:\n"
+                   "/data/dev/creator/src/libs/utils/aspects.cpp:3454:13:   required from here\n"
+                   "/data/dev/creator/src/libs/utils/layoutbuilder.h:79:51: error: use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
+                   "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
+                   "      |                                          ~~~~~~~~^~~~~",
+                   FilePath::fromUserInput("/data/dev/creator/src/libs/utils/aspects.cpp"), 3454, 13,
+                   QList<QTextLayout::FormatRange>{
+                                                   formatRange(82, 22),
+                                                   formatRange(104, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::12::0"),
+                                                   formatRange(148, 5),
+                                                   formatRange(153, 48, "olpfile:///data/dev/creator/src/libs/utils/layoutbuilder.h::0::0"),
+                                                   formatRange(201, 177),
+                                                   formatRange(378, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::3454::13"),
+                                                   formatRange(422, 31),
+                                                   formatRange(453, 48, "olpfile:///data/dev/creator/src/libs/utils/layoutbuilder.h::79::51"),
+                                                   formatRange(501, 228)})});
+    }
 
-void ProjectExplorerTest::testGccOutputParser()
+    void test()
+    {
+        OutputParserTester testbench;
+        testbench.setLineParsers({new GccParser});
+        QFETCH(QString, input);
+        QFETCH(OutputParserTester::Channel, inputChannel);
+        QFETCH(Tasks, tasks);
+        QFETCH(QStringList, childStdOutLines);
+        QFETCH(QStringList, childStdErrLines);
+
+        testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
+    }
+};
+
+QObject *createGccParserTest()
 {
-    OutputParserTester testbench;
-    testbench.setLineParsers({new GccParser});
-    QFETCH(QString, input);
-    QFETCH(OutputParserTester::Channel, inputChannel);
-    QFETCH(Tasks, tasks);
-    QFETCH(QStringList, childStdOutLines);
-    QFETCH(QStringList, childStdErrLines);
-
-    testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
+    return new GccParserTest;
 }
 
-} // ProjectExplorer::Internal
-
+} // namespace Internal
 #endif // WITH_TESTS
+
+} // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <gccparser.moc>
+#endif
