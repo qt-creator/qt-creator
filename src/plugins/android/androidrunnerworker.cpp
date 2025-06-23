@@ -33,7 +33,6 @@
 #include <QDateTime>
 #include <QLoggingCategory>
 #include <QRegularExpression>
-#include <QTcpServer>
 
 #include <chrono>
 
@@ -157,7 +156,7 @@ public:
     qint64 m_processUser = -1;
     bool m_useCppDebugger = false;
     QmlDebugServicesPreset m_qmlDebugServices;
-    QUrl m_qmlServer;
+    int m_qmlPort = -1;
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
     Utils::FilePath m_debugServerPath; // On build device, typically as part of ndk
@@ -172,26 +171,8 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     const Id runMode = runControl->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     storage->m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
-    if (debuggingMode && aspect->useQmlDebugger)
-        storage->m_qmlDebugServices = QmlDebuggerServices;
-    else if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
-        storage->m_qmlDebugServices = QmlProfilerServices;
-    else if (runMode == ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE)
-        storage->m_qmlDebugServices = QmlPreviewServices;
-    else
-        storage->m_qmlDebugServices = NoQmlDebugServices;
-
-    if (storage->m_qmlDebugServices != NoQmlDebugServices) {
-        qCDebug(androidRunWorkerLog) << "QML debugging enabled";
-        QTcpServer server;
-        const bool isListening = server.listen(QHostAddress::LocalHost);
-        QTC_ASSERT(isListening,
-                   qDebug() << Tr::tr("No free ports available on host for QML debugging."));
-        storage->m_qmlServer.setScheme(Utils::urlTcpScheme());
-        storage->m_qmlServer.setHost(server.serverAddress().toString());
-        storage->m_qmlServer.setPort(server.serverPort());
-        qCDebug(androidRunWorkerLog) << "QML server:" << storage->m_qmlServer.toDisplayString();
-    }
+    storage->m_qmlDebugServices = glue->qmlDebugServicesPreset();
+    storage->m_qmlPort = runControl->qmlChannel().port();
 
     BuildConfiguration *bc = runControl->buildConfiguration();
     storage->m_packageName = packageName(bc);
@@ -504,12 +485,12 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
         return storage->m_qmlDebugServices != NoQmlDebugServices;
     };
     const auto onTaskTreeSetup = [storage](TaskTree &taskTree) {
-        const QString port = "tcp:" + QString::number(storage->m_qmlServer.port());
+        const QString port = "tcp:" + QString::number(storage->m_qmlPort);
         taskTree.setRecipe({removeForwardPortRecipe(storage.activeStorage(), port, port, "QML")});
     };
     const auto onQmlDebugSync = [storage, cmdStorage] {
         const QString qmljsdebugger = QString("port:%1,block,services:%2")
-            .arg(storage->m_qmlServer.port()).arg(qmlDebugServices(storage->m_qmlDebugServices));
+            .arg(storage->m_qmlPort).arg(qmlDebugServices(storage->m_qmlDebugServices));
 
         if (storage->m_useAppParamsForQmlDebugger) {
             if (!storage->m_extraAppParams.isEmpty())
@@ -638,8 +619,7 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
     };
 
     const auto onDebugSetupFinished = [storage] {
-        storage->m_glue->setStartData(storage->m_qmlServer, storage->m_processPID,
-                                      storage->m_packageDir);
+        storage->m_glue->setStartData(storage->m_processPID, storage->m_packageDir);
     };
 
     return Group {
@@ -773,8 +753,7 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
                 storage->m_processUser = processUser;
                 qCDebug(androidRunWorkerLog) << "Process ID changed to:" << storage->m_processPID;
                 if (!storage->m_useCppDebugger) {
-                    storage->m_glue->setStartData(storage->m_qmlServer, storage->m_processPID,
-                                                  storage->m_packageDir);
+                    storage->m_glue->setStartData(storage->m_processPID, storage->m_packageDir);
                 }
                 return DoneResult::Success;
             }
@@ -830,9 +809,8 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
     // clang-format on
 }
 
-void RunnerInterface::setStartData(const QUrl &qmlChannel, qint64 pid, const QString &packageDir)
+void RunnerInterface::setStartData(qint64 pid, const QString &packageDir)
 {
-    m_runControl->setQmlChannel(qmlChannel);
     m_runControl->setAttachPid(ProcessHandle(pid));
     m_runControl->setDebugChannel(QString("unix-abstract-connect://%1/debug-socket").arg(packageDir));
     emit started();

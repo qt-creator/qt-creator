@@ -5,6 +5,8 @@
 
 #include <solutions/tasking/tasktreerunner.h>
 
+#include <projectexplorer/qmldebugcommandlinearguments.h>
+
 namespace ProjectExplorer { class RunControl; }
 namespace Utils { class Port; }
 
@@ -23,15 +25,17 @@ public:
     void setRunControl(ProjectExplorer::RunControl *runControl) { m_runControl = runControl; }
     void setDeviceSerialNumber(const QString &deviceSerialNumber) { m_deviceSerialNumber = deviceSerialNumber; }
     void setApiLevel(int apiLevel) { m_apiLevel = apiLevel; }
+    void setQmlDebugServicesPreset(ProjectExplorer::QmlDebugServicesPreset services) { m_qmlDebugServices = services; }
 
     // business logic init getters
     ProjectExplorer::RunControl *runControl() const { return m_runControl; }
     QString deviceSerialNumber() const { return m_deviceSerialNumber; }
     int apiLevel() const { return m_apiLevel; }
     bool wasCancelled() const { return m_wasCancelled; };
+    ProjectExplorer::QmlDebugServicesPreset qmlDebugServicesPreset() const { return m_qmlDebugServices; }
 
     // business logic -> GUI
-    void setStartData(const QUrl &qmlChannel, qint64 pid, const QString &packageDir);
+    void setStartData(qint64 pid, const QString &packageDir);
 
     // GUI -> business logic
     void cancel();
@@ -49,6 +53,7 @@ private:
     QString m_deviceSerialNumber;
     bool m_wasCancelled = false;
     int m_apiLevel = -1;
+    ProjectExplorer::QmlDebugServicesPreset m_qmlDebugServices = ProjectExplorer::NoQmlDebugServices;
 };
 
 Tasking::ExecutableItem runnerRecipe(const Tasking::Storage<RunnerInterface> &storage);

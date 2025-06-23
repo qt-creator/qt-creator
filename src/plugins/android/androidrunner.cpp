@@ -7,7 +7,10 @@
 #include "androidconstants.h"
 #include "androiddevice.h"
 #include "androidrunnerworker.h"
+#include "androidtr.h"
 #include "androidutils.h"
+
+#include <debugger/debuggerrunconfigurationaspect.h>
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -22,6 +25,7 @@
 
 #include <QHostAddress>
 #include <QLoggingCategory>
+#include <QTcpServer>
 
 namespace {
 static Q_LOGGING_CATEGORY(androidRunnerLog, "qtc.android.run.androidrunner", QtWarningMsg)
@@ -75,6 +79,32 @@ Group androidRecipe(RunControl *runControl)
         glue->setRunControl(runControl);
         glue->setDeviceSerialNumber(deviceSerialNumber);
         glue->setApiLevel(apiLevel);
+
+        auto aspect = runControl->aspectData<Debugger::DebuggerRunConfigurationAspect>();
+        const Id runMode = runControl->runMode();
+        const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
+        QmlDebugServicesPreset services = NoQmlDebugServices;
+        if (debuggingMode && aspect->useQmlDebugger)
+            services = QmlDebuggerServices;
+        else if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
+            services = QmlProfilerServices;
+        else if (runMode == ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE)
+            services = QmlPreviewServices;
+        glue->setQmlDebugServicesPreset(services);
+
+        if (services != NoQmlDebugServices) {
+            qCDebug(androidRunnerLog) << "QML debugging enabled";
+            QTcpServer server;
+            const bool isListening = server.listen(QHostAddress::LocalHost);
+            QTC_ASSERT(isListening,
+                       qDebug() << Tr::tr("No free ports available on host for QML debugging."));
+            QUrl qmlChannel;
+            qmlChannel.setScheme(Utils::urlTcpScheme());
+            qmlChannel.setHost(server.serverAddress().toString());
+            qmlChannel.setPort(server.serverPort());
+            runControl->setQmlChannel(qmlChannel);
+            qCDebug(androidRunnerLog) << "QML server:" << qmlChannel.toDisplayString();
+        }
 
         auto iface = runStorage().activeStorage();
         QObject::connect(iface, &RunInterface::canceled, glue, &RunnerInterface::cancel);
