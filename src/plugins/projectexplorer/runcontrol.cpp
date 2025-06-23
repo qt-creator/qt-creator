@@ -1432,17 +1432,8 @@ ProcessTask processTask(RunControl *runControl,
             });
         }
         QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, &process,
-                         [runControl, process = &process, isLocal = cmdLine.executable().isLocal()] {
-            runControl->postMessage(Tr::tr("Requesting process to stop..."), NormalMessageFormat);
-            process->stop();
-            QTimer::singleShot(2 * std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds),
-                               process, [runControl, process, isLocal] {
-                runControl->postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
-                if (!isLocal)
-                    runControl->postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
-                process->kill();
-                emit process->done();
-            });
+                         [runControl, process = &process] {
+            handleProcessCancellation(runControl, process);
         });
         return SetupResult::Continue;
     };
@@ -1624,6 +1615,20 @@ Storage<RunInterface> runStorage()
 Canceler canceler()
 {
     return [] { return std::make_pair(runStorage().activeStorage(), &RunInterface::canceled); };
+}
+
+void handleProcessCancellation(RunControl *runControl, Process *process)
+{
+    runControl->postMessage(Tr::tr("Requesting process to stop..."), NormalMessageFormat);
+    process->stop();
+    QTimer::singleShot(2 * std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds),
+                       process, [runControl, process] {
+        runControl->postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
+        if (!process->commandLine().executable().isLocal())
+            runControl->postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
+        process->kill();
+        emit process->done();
+    });
 }
 
 Group errorTask(RunControl *runControl, const QString &message)

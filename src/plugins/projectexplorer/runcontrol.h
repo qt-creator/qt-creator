@@ -272,6 +272,7 @@ signals:
 PROJECTEXPLORER_EXPORT Tasking::Storage<RunInterface> runStorage();
 using Canceler = std::function<std::pair<RunInterface *, void (RunInterface::*)()>()>;
 PROJECTEXPLORER_EXPORT Canceler canceler();
+PROJECTEXPLORER_EXPORT void handleProcessCancellation(RunControl *runControl, Utils::Process *process);
 
 PROJECTEXPLORER_EXPORT Tasking::Group errorTask(RunControl *runControl, const QString &message);
 
