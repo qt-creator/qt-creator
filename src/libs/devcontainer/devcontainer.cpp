@@ -595,6 +595,18 @@ while sleep 1 & wait $!; do :; done
         cmd.append(imageDetails.Config.Entrypoint.value_or(QStringList()));
         cmd.append(imageDetails.Config.Cmd.value_or(QStringList()));
     }
+    QStringList workspaceMountArgs;
+
+    if (containerConfig.workspaceFolder && containerConfig.workspaceMount) {
+        workspaceMountArgs = {"--mount", *containerConfig.workspaceMount};
+    } else {
+        workspaceMountArgs
+            = {"--mount",
+               QString("type=bind,source=%1,target=%2")
+                   .arg(
+                       instanceConfig.workspaceFolder.toUrlishString(),
+                       instanceConfig.containerWorkspaceFolder.toUrlishString())};
+    }
 
     CommandLine createCmdLine{
         instanceConfig.dockerCli,
@@ -602,6 +614,7 @@ while sleep 1 & wait $!; do :; done
          {"--name", containerName(instanceConfig)},
          containerEnvArgs,
          appPortArgs,
+         workspaceMountArgs,
          {"--entrypoint", "/bin/sh"},
          imageName(instanceConfig),
          cmd}};
