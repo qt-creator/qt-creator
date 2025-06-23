@@ -1307,9 +1307,9 @@ void RunControlPrivate::debugMessage(const QString &msg) const
 
 ProcessTask processTask(RunControl *runControl,
                         const std::function<SetupResult(Process &)> &startModifier,
-                        bool suppressDefaultStdOutHandling)
+                        const ProcessSetupConfig &config)
 {
-    const auto onSetup = [runControl, startModifier, suppressDefaultStdOutHandling](Process &process) {
+    const auto onSetup = [runControl, startModifier, config](Process &process) {
         process.setProcessChannelMode(appOutputPane().settings().mergeChannels
                                           ? QProcess::MergedChannels : QProcess::SeparateChannels);
         process.setCommand(runControl->commandLine());
@@ -1405,8 +1405,8 @@ ProcessTask processTask(RunControl *runControl,
         QObject::connect(&process, &Process::readyReadStandardError, runControl, [runControl, process = &process] {
             runControl->postMessage(process->readAllStandardError(), StdErrFormat, false);
         });
-        QObject::connect(&process, &Process::readyReadStandardOutput, runControl, [runControl, suppressDefaultStdOutHandling, process = &process] {
-            if (suppressDefaultStdOutHandling)
+        QObject::connect(&process, &Process::readyReadStandardOutput, runControl, [runControl, config, process = &process] {
+            if (config.suppressDefaultStdOutHandling)
                 emit runControl->stdOutData(process->readAllRawStandardOutput());
             else
                 runControl->postMessage(process->readAllStandardOutput(), StdOutFormat, false);
@@ -1431,10 +1431,12 @@ ProcessTask processTask(RunControl *runControl,
                     runControl->postMessage(message, DebugFormat);
             });
         }
-        QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, &process,
-                         [runControl, process = &process] {
-            handleProcessCancellation(runControl, process);
-        });
+        if (config.setupCanceler) {
+            QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, &process,
+                             [runControl, process = &process] {
+                handleProcessCancellation(runControl, process);
+            });
+        }
         return SetupResult::Continue;
     };
 

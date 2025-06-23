@@ -245,9 +245,16 @@ private:
     const std::unique_ptr<Internal::RunControlPrivate> d;
 };
 
+class ProcessSetupConfig
+{
+public:
+    bool suppressDefaultStdOutHandling = false;
+    bool setupCanceler = true;
+};
+
 PROJECTEXPLORER_EXPORT Utils::ProcessTask processTask(RunControl *runControl,
     const std::function<Tasking::SetupResult(Utils::Process &)> &startModifier = {},
-    bool suppressDefaultStdOutHandling = false);
+    const ProcessSetupConfig &config = {});
 
 class PROJECTEXPLORER_EXPORT ProcessRunnerFactory : public RunWorkerFactory
 {
@@ -290,7 +297,7 @@ static constexpr bool isModifierInvocable()
 template <typename Modifier>
 Utils::ProcessTask processTaskWithModifier(RunControl *runControl,
                                            const Modifier &startModifier = {},
-                                           bool suppressDefaultStdOutHandling = false)
+                                           const ProcessSetupConfig &config = {})
 {
     // R, V stands for: Setup[R]esult, [V]oid
     static constexpr bool isR = isModifierInvocable<Tasking::SetupResult, Modifier, Utils::Process &>();
@@ -299,13 +306,13 @@ Utils::ProcessTask processTaskWithModifier(RunControl *runControl,
                   "Process modifier needs to take (Process &) as an argument and has to return void or "
                   "SetupResult. The passed handler doesn't fulfill these requirements.");
     if constexpr (isR) {
-        return processTask(runControl, startModifier, suppressDefaultStdOutHandling);
+        return processTask(runControl, startModifier, config);
     } else {
         const auto modifier = [startModifier](Utils::Process &process) {
             startModifier(process);
             return Tasking::SetupResult::Continue;
         };
-        return processTask(runControl, modifier, suppressDefaultStdOutHandling);
+        return processTask(runControl, modifier, config);
     }
 }
 
@@ -315,18 +322,18 @@ PROJECTEXPLORER_EXPORT Tasking::Group processRecipe(const Utils::ProcessTask &pr
 template <typename Modifier>
 RunWorker *createProcessWorker(RunControl *runControl,
                                const Modifier &startModifier = {},
-                               bool suppressDefaultStdOutHandling = false)
+                               const ProcessSetupConfig &config = {})
 {
     return new RunWorker(runControl, processRecipe(
-        processTaskWithModifier(runControl, startModifier, suppressDefaultStdOutHandling)));
+        processTaskWithModifier(runControl, startModifier, config)));
 }
 
 template <typename Modifier>
 Tasking::Group processRecipe(RunControl *runControl,
                              const Modifier &startModifier = {},
-                             bool suppressDefaultStdOutHandling = false)
+                             const ProcessSetupConfig &config = {})
 {
-    return processRecipe(processTaskWithModifier(runControl, startModifier, suppressDefaultStdOutHandling));
+    return processRecipe(processTaskWithModifier(runControl, startModifier, config));
 }
 
 

@@ -84,7 +84,7 @@ static ProcessTask qdbDeviceInferiorProcess(RunControl *runControl,
         process.setEnvironment(runControl->environment());
         return Tasking::SetupResult::Continue;
     };
-    return processTaskWithModifier(runControl, modifier, suppressDefaultStdOutHandling);
+    return processTaskWithModifier(runControl, modifier, {suppressDefaultStdOutHandling});
 }
 
 class QdbRunWorkerFactory final : public RunWorkerFactory

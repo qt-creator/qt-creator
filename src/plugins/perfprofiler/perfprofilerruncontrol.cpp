@@ -114,7 +114,7 @@ public:
                 process.setEnvironment(runControl->environment());
                 runControl->appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
             };
-            return processRecipe(runControl, modifier, true);
+            return processRecipe(runControl, modifier, {true});
         });
 
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
