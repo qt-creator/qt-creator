@@ -66,6 +66,7 @@ int main() {
             QSKIP("Docker mount test failed, skipping tests.");
     }
 
+    void processInterface();
     void instanceConfigToString_data();
     void instanceConfigToString();
     void readConfig();
@@ -357,6 +358,78 @@ void tst_DevContainer::upWithHooks()
     QCOMPARE(
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
         Tasking::DoneWith::Success);
+
+    Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
+    QVERIFY_RESULT(downRecipe);
+    QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
+}
+
+void tst_DevContainer::processInterface()
+{
+    DevContainer::ImageContainer imageConfig{
+        .image = "alpine:latest",
+    };
+
+    DevContainer::Config config;
+    config.containerConfig = imageConfig;
+    config.common.name = "Test Image";
+
+    config.common.containerEnv = {
+        {"CONTAINER_TEST", "test_value_container"},
+        {"CONTAINER_VAR", "container_value"},
+        {"CONTAINER_UNSET_ME", "Not unset yet!"},
+        {"CONTAINER_CHANGE_ME", "container_value_to_change"},
+    };
+
+    config.common.remoteEnv = {
+        {"TEST_VAR", "test_value"},
+        {"ANOTHER_VAR", "another_value"},
+        {"CONTAINER_UNSET_ME", std::nullopt},
+        {"CONTAINER_CHANGE_ME", "changed_container_value"},
+    };
+    qDebug() << "DevContainer Config:" << config;
+
+    DevContainer::InstanceConfig instanceConfig{
+        .dockerCli = "docker",
+        .dockerComposeCli = "docker-compose",
+        .workspaceFolder = tempDir,
+        .configFilePath = tempDir / "devcontainer.json",
+        .mounts = {}};
+
+    std::unique_ptr<DevContainer::Instance> instance
+        = DevContainer::Instance::fromConfig(config, instanceConfig);
+
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe();
+    QVERIFY_RESULT(recipe);
+    QCOMPARE(
+        Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
+        Tasking::DoneWith::Success);
+
+    Process process;
+
+    Environment testEnv;
+    testEnv.set("CONTAINER_VAR", "changed_container_value");
+    testEnv.set("CONTAINER_TEST", "", false);
+
+    process.setEnvironment(testEnv);
+    process.setProcessInterfaceCreator([&instance]() { return instance->createProcessInterface(); });
+    process.setCommand({"printenv", {}});
+    process.runBlocking(std::chrono::seconds(10), EventLoopMode::On);
+    const QString output = process.cleanedStdOut().trimmed();
+
+    qDebug().noquote() << "Process output:" << output;
+    qDebug().noquote() << "Process error:" << process.cleanedStdErr().trimmed();
+    qDebug() << process.verboseExitMessage();
+
+    QVERIFY(process.result() == ProcessResult::FinishedWithSuccess);
+
+    Environment firstEnv(output.split('\n', Qt::SkipEmptyParts));
+    QVERIFY(!firstEnv.hasKey("CONTAINER_TEST"));
+    QVERIFY(!firstEnv.hasKey("CONTAINER_UNSET_ME"));
+    QCOMPARE(firstEnv.value("CONTAINER_VAR"), "changed_container_value");
+    QCOMPARE(firstEnv.value("TEST_VAR"), "test_value");
+    QCOMPARE(firstEnv.value("ANOTHER_VAR"), "another_value");
+    QCOMPARE(firstEnv.value("CONTAINER_CHANGE_ME"), "changed_container_value");
 
     Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
     QVERIFY_RESULT(downRecipe);

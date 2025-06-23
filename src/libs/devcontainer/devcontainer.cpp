@@ -1493,4 +1493,107 @@ const Config &Instance::config() const
     return d->config;
 }
 
+class DevContainerProcessInterface : public Utils::WrappedProcessInterface
+{
+public:
+    DevContainerProcessInterface(const Config &config, const InstanceConfig &instanceConfig)
+        : m_config(config)
+        , m_instanceConfig(instanceConfig)
+    {}
+
+    Result<CommandLine> wrapCommmandLine(
+        const ProcessSetupData &setupData, const QString &markerTemplate) const override
+    {
+        CommandLine dockerCmd{m_instanceConfig.dockerCli, {"exec"}};
+
+        const bool inTerminal = setupData.m_terminalMode != TerminalMode::Off
+                                || setupData.m_ptyData.has_value();
+
+        const bool interactive = setupData.m_processMode == ProcessMode::Writer
+                                 || !setupData.m_writeData.isEmpty() || inTerminal;
+
+        if (interactive)
+            dockerCmd.addArg("-i");
+
+        if (inTerminal)
+            dockerCmd.addArg("-t");
+
+        QStringList unsetKeys;
+        Environment remoteEnv;
+        for (const auto &[k, v] : m_config.common.remoteEnv) {
+            if (v)
+                remoteEnv.set(k, *v);
+            else
+                remoteEnv.set(k, {}, false); // We use the disabled state to unset the variable.
+        }
+
+        const Environment env = setupData.m_environment.appliedToEnvironment(remoteEnv);
+
+        if (env.hasChanges()) {
+            env.forEachEntry([&dockerCmd](const QString &key, const QString &value, bool enabled) {
+                if (enabled)
+                    dockerCmd.addArgs({"-e", key + "=" + value});
+                else
+                    dockerCmd.addArgs({"-e", key});
+            });
+        }
+
+        const FilePath workingDirectory = setupData.m_workingDirectory.isEmpty()
+                                              ? m_instanceConfig.containerWorkspaceFolder
+                                              : setupData.m_workingDirectory;
+
+        dockerCmd.addArgs({"-w", workingDirectory.path()});
+
+        dockerCmd.addArg(containerName(m_instanceConfig));
+
+        dockerCmd.addArgs({"/bin/sh", "-c"});
+
+        CommandLine exec("exec");
+        exec.addCommandLineAsArgs(setupData.m_commandLine, CommandLine::Raw);
+
+        if (!setupData.m_ptyData) {
+            //            auto osAndArch = osTypeAndArch();
+            //            if (!osAndArch)
+            //                return make_unexpected(osAndArch.error());
+
+            // Check the executable for existence.
+            CommandLine testType({"type", {}});
+            testType.addArg(
+                setupData.m_commandLine.executable().path(),
+                Utils::OsTypeLinux); //osAndArch->first);
+            testType.addArgs(">/dev/null", CommandLine::Raw);
+
+            // Send PID only if existence was confirmed, so we can correctly notify
+            // a failed start.
+            CommandLine echo("echo");
+            echo.addArgs(markerTemplate.arg("$$"), CommandLine::Raw);
+            echo.addCommandLineWithAnd(exec);
+
+            testType.addCommandLineWithAnd(echo);
+
+            dockerCmd.addCommandLineAsSingleArg(testType);
+        } else {
+            dockerCmd.addCommandLineAsSingleArg(exec);
+        }
+
+        return dockerCmd;
+    }
+
+    void forwardControlSignal(ControlSignal controlSignal, qint64 remotePid) const override
+    {
+        Q_UNUSED(controlSignal);
+        Q_UNUSED(remotePid);
+        QTC_CHECK(false); // Not implemented yet.
+    }
+
+protected:
+    Config m_config;
+    InstanceConfig m_instanceConfig;
+};
+
+ProcessInterface *Instance::createProcessInterface() const
+{
+    return new DevContainerProcessInterface(d->config, d->instanceConfig);
+}
+
 } // namespace DevContainer

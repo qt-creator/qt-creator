@@ -9,6 +9,7 @@
 
 #include <utils/environment.h>
 #include <utils/filepath.h>
+#include <utils/processinterface.h>
 #include <utils/result.h>
 
 #include <memory>
@@ -53,6 +54,8 @@ public:
 
     Utils::Result<> up();   // Create and start the container
     Utils::Result<> down(); // Stop and remove the container
+
+    Utils::ProcessInterface *createProcessInterface() const;
 
     Utils::Result<Tasking::Group> upRecipe() const;
     Utils::Result<Tasking::Group> downRecipe() const;
