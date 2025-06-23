@@ -682,6 +682,8 @@ public:
 
     ProcessInterface *createProcessInterface()
     {
+        if (m_processInterfaceCreator)
+            return m_processInterfaceCreator();
         if (m_setup.m_ptyData)
             return new PtyProcessImpl;
         if (m_setup.m_terminalMode != TerminalMode::Off)
@@ -710,6 +712,8 @@ public:
     std::unique_ptr<ProcessBlockingInterface> m_blockingInterface;
     std::unique_ptr<ProcessInterface> m_process;
     ProcessSetupData m_setup;
+
+    Process::ProcessInterfaceCreator m_processInterfaceCreator;
 
     void handleStarted(qint64 processId, qint64 applicationMainThreadId);
     void handleReadyRead(const QByteArray &outputData, const QByteArray &errorData);
@@ -1165,7 +1169,7 @@ void Process::start()
     }
 
     ProcessInterface *processImpl = nullptr;
-    if (d->m_setup.m_commandLine.executable().isLocal()) {
+    if (d->m_setup.m_commandLine.executable().isLocal() || d->m_processInterfaceCreator) {
         processImpl = d->createProcessInterface();
     } else {
         QTC_ASSERT(s_deviceHooks.processImplHook, return);
@@ -1244,6 +1248,11 @@ void Process::setDisableUnixTerminal()
 void Process::setAbortOnMetaChars(bool abort)
 {
     d->m_setup.m_abortOnMetaChars = abort;
+}
+
+void Process::setProcessInterfaceCreator(const ProcessInterfaceCreator &creator)
+{
+    d->m_processInterfaceCreator = creator;
 }
 
 void Process::setRunAsRoot(bool on)

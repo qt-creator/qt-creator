@@ -111,6 +111,9 @@ public:
     bool isRunAsRoot() const;
     void setAbortOnMetaChars(bool abort);
 
+    using ProcessInterfaceCreator = std::function<ProcessInterface *()>;
+    void setProcessInterfaceCreator(const ProcessInterfaceCreator &creator);
+
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
     QProcess::ProcessChannelMode processChannelMode() const;
 
