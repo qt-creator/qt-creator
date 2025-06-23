@@ -22,6 +22,24 @@ static bool testDocker(const FilePath &executable)
     return p.result() == ProcessResult::FinishedWithSuccess && platform == "linux";
 }
 
+static bool testDockerMount(const FilePath &executable, const FilePath &testDir)
+{
+    Process p;
+    p.setCommand(
+        {executable,
+         {"run",
+          "--rm",
+          "--mount",
+          "type=bind,source=" + testDir.path() + ",target=/mnt/test",
+          "alpine:latest",
+          "ls",
+          "/mnt/test"}});
+    p.runBlocking();
+    qInfo() << "Docker mount test output:" << p.cleanedStdOut().trimmed()
+            << "Error:" << p.cleanedStdErr().trimmed();
+    return p.result() == ProcessResult::FinishedWithSuccess;
+}
+
 class tst_DevContainer : public QObject
 {
     Q_OBJECT
@@ -43,6 +61,9 @@ int main() {
 
         if (!testDocker("docker"))
             QSKIP("Docker is not set up correctly, skipping tests.");
+
+        if (!testDockerMount("docker", tempDir))
+            QSKIP("Docker mount test failed, skipping tests.");
     }
 
     void instanceConfigToString_data();

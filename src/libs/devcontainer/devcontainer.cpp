@@ -558,6 +558,26 @@ static ProcessTask inspectImageTask(
     return ProcessTask{setupInspectImage, doneInspectImage};
 }
 
+static QStringList generateMountArgs(
+    const InstanceConfig &instanceConfig, const DevContainerCommon &commonConfig)
+{
+    auto mountToString = [](const std::variant<Mount, QString> &mount) -> QString {
+        return std::visit(
+            overloaded{
+                [](const Mount &m) {
+                    const QString type = m.type == MountType::Bind ? QString("bind")
+                                                                   : QString("volume");
+                    const QString source = m.source ? ",source=" + *m.source : QString();
+                    return QString("--mount=type=%1,target=%2%3").arg(type).arg(m.target).arg(source);
+                },
+                [](const QString &m) { return QString("--mount=%1").arg(m); }},
+            mount);
+    };
+
+    return Utils::transform<QStringList>(commonConfig.mounts, mountToString)
+           + Utils::transform<QStringList>(instanceConfig.mounts, mountToString);
+}
+
 template<typename C>
 static void setupCreateContainerFromImage(
     const C &containerConfig,
@@ -615,6 +635,7 @@ while sleep 1 & wait $!; do :; done
          containerEnvArgs,
          appPortArgs,
          workspaceMountArgs,
+         generateMountArgs(instanceConfig, commonConfig),
          {"--entrypoint", "/bin/sh"},
          imageName(instanceConfig),
          cmd}};
