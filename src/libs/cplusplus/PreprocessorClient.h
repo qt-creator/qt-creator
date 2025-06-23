@@ -17,31 +17,19 @@ class Pragma;
 
 class CPLUSPLUS_EXPORT MacroArgumentReference
 {
-  int _bytesOffset;
-  int _bytesLength;
-  int _utf16charsOffset;
-  int _utf16charsLength;
-
 public:
-  explicit MacroArgumentReference(int bytesOffset = 0, int bytesLength = 0,
-                                  int utf16charsOffset = 0, int utf16charsLength = 0)
-    : _bytesOffset(bytesOffset)
-    , _bytesLength(bytesLength)
-    , _utf16charsOffset(utf16charsOffset)
-    , _utf16charsLength(utf16charsLength)
-  { }
+    explicit MacroArgumentReference(int bytesOffset = 0, int bytesLength = 0,
+                                    int utf16charsOffset = 0, int utf16charsLength = 0)
+        : bytesOffset(bytesOffset)
+        , bytesLength(bytesLength)
+        , utf16charsOffset(utf16charsOffset)
+        , utf16charsLength(utf16charsLength)
+    {}
 
-  int bytesOffset() const
-  { return _bytesOffset; }
-
-  int bytesLength() const
-  { return _bytesLength; }
-
-  int utf16charsOffset() const
-  { return _utf16charsOffset; }
-
-  int utf16charsLength() const
-  { return _utf16charsLength; }
+    const int bytesOffset;
+    const int bytesLength;
+    const int utf16charsOffset;
+    const int utf16charsLength;
 };
 
 class CPLUSPLUS_EXPORT Client

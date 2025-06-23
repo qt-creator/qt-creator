@@ -542,12 +542,10 @@ void tst_Preprocessor::macro_args_offsets()
     QCOMPARE(usedMacros.size(), 1);
     QVERIFY(usedMacros.contains(macroName));
     MacroArgumentReference argRef = usedMacros.value(macroName).at(0);
-    QCOMPARE(argRef.bytesOffset(), bytesOffset);
-    QCOMPARE(argRef.bytesLength(), bytesLength);
-    QCOMPARE(argRef.utf16charsOffset(), utf16charsOffset);
-    QCOMPARE(argRef.utf16charsLength(), utf16charsLength);
-
-
+    QCOMPARE(argRef.bytesOffset, bytesOffset);
+    QCOMPARE(argRef.bytesLength, bytesLength);
+    QCOMPARE(argRef.utf16charsOffset, utf16charsOffset);
+    QCOMPARE(argRef.utf16charsLength, utf16charsLength);
 }
 
 void tst_Preprocessor::macro_args_offsets_data()
