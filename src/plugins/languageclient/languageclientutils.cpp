@@ -165,13 +165,15 @@ void updateCodeActionRefactoringMarker(Client *client,
         if (action.isValid())
             marker.tooltip = action.title();
         if (action.edit()) {
-            marker.callback = [client, edit = action.edit()](const TextEditorWidget *) {
-                applyWorkspaceEdit(client, *edit);
+            marker.callback = [client = QPointer(client),
+                               edit = action.edit()](const TextEditorWidget *) {
+                if (QTC_GUARD(client))
+                    applyWorkspaceEdit(client, *edit);
             };
         } else if (action.command()) {
             marker.callback = [command = action.command(),
                     client = QPointer(client)](const TextEditorWidget *) {
-                if (client)
+                if (QTC_GUARD(client))
                     client->executeCommand(*command);
             };
         }
