@@ -6,6 +6,8 @@
 #include <utils/filepath.h>
 #include <utils/temporaryfile.h>
 
+namespace Git::Internal {
+
 class TemporaryPatchFile
 {
 public:
@@ -16,3 +18,5 @@ public:
 private:
     std::unique_ptr<Utils::TemporaryFile> patchFile;
 };
+
+} // Git::Internal

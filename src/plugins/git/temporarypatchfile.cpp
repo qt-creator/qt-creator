@@ -9,8 +9,10 @@
 
 using namespace Utils;
 
+namespace Git::Internal {
+
 TemporaryPatchFile::TemporaryPatchFile(const QString &patch)
-    : patchFile(new Utils::TemporaryFile("git-patchfile"))
+    : patchFile(new TemporaryFile("git-patchfile"))
 {
     if (!patchFile->open())
         return;
@@ -23,7 +25,9 @@ TemporaryPatchFile::TemporaryPatchFile(const QString &patch)
     patchFile->close();
 }
 
-Utils::FilePath TemporaryPatchFile::filePath() const
+FilePath TemporaryPatchFile::filePath() const
 {
-    return Utils::FilePath::fromString(patchFile->fileName());
+    return FilePath::fromString(patchFile->fileName());
 }
+
+} // Git::Internal
