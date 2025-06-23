@@ -157,4 +157,29 @@ private:
     friend class Internal::ProcessPrivate;
 };
 
+namespace Internal {
+class WrappedProcessInterfacePrivate;
+}
+
+class QTCREATOR_UTILS_EXPORT WrappedProcessInterface : public ProcessInterface
+{
+public:
+    WrappedProcessInterface();
+    ~WrappedProcessInterface() override;
+
+public:
+    virtual Result<CommandLine> wrapCommmandLine(
+        const ProcessSetupData &setupData, const QString &markerTemplate) const
+        = 0;
+    virtual void forwardControlSignal(ControlSignal controlSignal, qint64 remotePid) const = 0;
+
+public:
+    void start() final;
+    qint64 write(const QByteArray &data) final;
+    void sendControlSignal(ControlSignal controlSignal) final;
+
+private:
+    std::unique_ptr<Internal::WrappedProcessInterfacePrivate> d;
+};
+
 } // namespace Utils
