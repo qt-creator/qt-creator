@@ -166,7 +166,7 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
             return;
 
         FileChangeBlocker fileChangeBlocker(absFilePath);
-        if (PatchTool::runPatch(EditorManager::defaultTextCodec().fromUnicode(patch),
+        if (PatchTool::runPatch(EditorManager::defaultTextEncoding().encode(patch),
                                 workingDirectory, strip, patchAction))
             m_document->reload();
     } else { // PatchEditor
@@ -189,7 +189,7 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
         if (patch.isEmpty())
             return;
 
-        if (PatchTool::runPatch(EditorManager::defaultTextCodec().fromUnicode(patch),
+        if (PatchTool::runPatch(EditorManager::defaultTextEncoding().encode(patch),
                                 FilePath::fromString(contentsCopyDir), 0, patchAction)) {
             if (textDocument->reload(FilePath::fromString(contentsCopyFileName)))
                 m_document->reload();

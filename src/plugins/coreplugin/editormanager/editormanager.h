@@ -129,7 +129,6 @@ public:
 
     static bool autoSaveAfterRefactoring();
 
-    static Utils::TextCodec defaultTextCodec();
     static Utils::TextEncoding defaultTextEncoding();
 
     static Utils::TextFileFormat::LineTerminationMode defaultLineEnding();

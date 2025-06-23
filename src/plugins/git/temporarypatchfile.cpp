@@ -19,8 +19,8 @@ TemporaryPatchFile::TemporaryPatchFile(const QString &patch)
 
     QString normalized = patch;
     normalized.replace("\r\n", "\n").replace('\r', '\n');
-    const TextCodec codec = Core::EditorManager::defaultTextCodec();
-    const QByteArray patchData = codec.isValid() ? codec.fromUnicode(normalized) : normalized.toLocal8Bit();
+    const TextEncoding encoding = Core::EditorManager::defaultTextEncoding();
+    const QByteArray patchData = encoding.isValid() ? encoding.encode(normalized) : normalized.toLocal8Bit();
     patchFile->write(patchData);
     patchFile->close();
 }

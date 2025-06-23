@@ -3790,13 +3790,8 @@ void EditorManager::hideEditorStatusBar(const QString &id)
 }
 
 /*!
-    Returns the default text codec as the user specified in the settings.
+    Returns the default text encoding as the user specified in the settings.
 */
-TextCodec EditorManager::defaultTextCodec()
-{
-    return TextCodec::codecForName(defaultTextEncoding().name());
-}
-
 TextEncoding EditorManager::defaultTextEncoding()
 {
     QtcSettings *settings = ICore::settings();
