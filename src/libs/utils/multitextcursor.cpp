@@ -285,7 +285,8 @@ void MultiTextCursor::insertText(const QString &text, bool selectNewText)
 
 bool equalCursors(const QTextCursor &lhs, const QTextCursor &rhs)
 {
-    return lhs == rhs && lhs.anchor() == rhs.anchor();
+    return lhs == rhs && lhs.anchor() == rhs.anchor()
+           && lhs.verticalMovementX() == rhs.verticalMovementX();
 }
 
 bool MultiTextCursor::operator==(const MultiTextCursor &other) const
