@@ -37,6 +37,7 @@ public:
                             Utils::SmallStringView propertyName,
                             SourceId typeSourceId)
         = 0;
+    virtual void exportedTypeNameIsDuplicate(ModuleId moduleId, Utils::SmallStringView typeName) = 0;
 
 protected:
     ~ProjectStorageErrorNotifierInterface() = default;

@@ -3238,6 +3238,7 @@ void ProjectStorage::synchronizeExportedTypes(
                                                       type.typeId);
 
         } catch (const Sqlite::ConstraintPreventsModification &) {
+            errorNotifier->exportedTypeNameIsDuplicate(type.moduleId, type.name);
             throw QmlDesigner::ExportedTypeCannotBeInserted{type.name};
         }
 

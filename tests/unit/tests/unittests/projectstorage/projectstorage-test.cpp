@@ -1315,6 +1315,24 @@ TEST_F(ProjectStorage, synchronize_types_adds_new_types)
                                                                     "QQuickItem"))))));
 }
 
+TEST_F(ProjectStorage, synchronize_throws_for_duplicate_exported_type_names)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().exportedTypes.push_back(package.types.front().exportedTypes.front());
+
+    ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::ExportedTypeCannotBeInserted);
+}
+
+TEST_F(ProjectStorage, synchronize_notifies_error_for_duplicate_exported_type_names)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().exportedTypes.push_back(package.types.front().exportedTypes.front());
+
+    EXPECT_CALL(errorNotifierMock, exportedTypeNameIsDuplicate(qtQuickModuleId, Eq("Item")));
+
+    EXPECT_ANY_THROW(storage.synchronize(std::move(package)));
+}
+
 TEST_F(ProjectStorage, synchronize_types_adds_new_types_with_extension_chain)
 {
     auto package{createSimpleSynchronizationPackage()};

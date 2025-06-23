@@ -14,8 +14,9 @@ namespace QmlDesigner {
 class QMLDESIGNER_EXPORT ProjectStorageErrorNotifier final : public ProjectStorageErrorNotifierInterface
 {
 public:
-    ProjectStorageErrorNotifier(PathCacheType &pathCache)
+    ProjectStorageErrorNotifier(PathCacheType &pathCache, ModulesStorage &modulesStorage)
         : m_pathCache{pathCache}
+        , m_modulesStorage{modulesStorage}
     {}
 
     void typeNameCannotBeResolved(Utils::SmallStringView typeName, SourceId sourceId) override;
@@ -32,9 +33,11 @@ public:
     void aliasCycle(Utils::SmallStringView typeName,
                     Utils::SmallStringView propertyName,
                     SourceId typeSourceId) override;
+    void exportedTypeNameIsDuplicate(ModuleId moduleId, Utils::SmallStringView typeName) override;
 
 private:
     PathCacheType &m_pathCache;
+    ModulesStorage &m_modulesStorage;
 };
 
 } // namespace QmlDesigner

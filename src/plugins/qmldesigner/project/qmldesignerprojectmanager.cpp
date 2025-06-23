@@ -233,7 +233,7 @@ public:
                        ModulesStorage &modulesStorage)
         : database{project->projectDirectory().pathAppended("projectstorage.db").cleanPath().path(),
                    projectStorageJournalMode()}
-        , errorNotifier{pathCache}
+        , errorNotifier{pathCache, modulesStorage}
         , storage{database, errorNotifier, modulesStorage, database.isInitialized()}
         , fileSystem{pathCache}
         , fileStatusCache(fileSystem)

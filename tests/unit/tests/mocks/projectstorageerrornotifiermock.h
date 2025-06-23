@@ -43,4 +43,8 @@ public:
                  Utils::SmallStringView propertyName,
                  QmlDesigner::SourceId typeSourceId),
                 (override));
+    MOCK_METHOD(void,
+                exportedTypeNameIsDuplicate,
+                (QmlDesigner::ModuleId moduleId, Utils::SmallStringView typeName),
+                (override));
 };
