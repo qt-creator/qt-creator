@@ -131,21 +131,13 @@ public:
     PerfProfilerRunWorkerFactory()
     {
         setId("PerfProfilerRunWorkerFactory");
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             // The following RunWorkerFactories react to that:
             // 1. AppManagerPerfProfilerWorkerFactory
             // 2. PerfRecordWorkerFactory
             // 3. QdbPerfProfilerWorkerFactory
-            RunWorker *perfRecordWorker
-                = runControl->createWorker(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
-            QTC_ASSERT(perfRecordWorker, return perfRecordWorker);
 
-            RunWorker *perfParserWorker = new RunWorker(runControl, perfParserRecipe(runControl));
-            perfParserWorker->addStartDependency(perfRecordWorker);
-            perfParserWorker->addStopDependency(perfRecordWorker);
-            QObject::connect(perfRecordWorker, &RunWorker::stopped, runControl, &RunControl::initiateStop);
             PerfProfilerTool::instance()->onWorkerCreation(runControl);
-
             auto tool = PerfProfilerTool::instance();
             QObject::connect(tool->stopAction(), &QAction::triggered,
                              runControl, &RunControl::initiateStop);
@@ -153,7 +145,15 @@ public:
                              &PerfProfilerTool::onRunControlStarted);
             QObject::connect(runControl, &RunControl::stopped, PerfProfilerTool::instance(),
                              &PerfProfilerTool::onRunControlFinished);
-            return perfParserWorker;
+
+            return Group {
+                parallel,
+                Group {
+                    runControl->createRecipe(ProjectExplorer::Constants::PERFPROFILER_RUNNER),
+                    onGroupDone([runControl] { runControl->initiateStop(); })
+                },
+                perfParserRecipe(runControl)
+            };
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
         addSupportForLocalRunConfigs();
