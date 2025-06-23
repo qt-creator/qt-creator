@@ -1005,10 +1005,13 @@ QSet<QPair<QString, QString>> RewriterView::qrcMapping() const
 namespace {
 #ifdef QDS_USE_PROJECTSTORAGE
 
-ModuleIds generateModuleIds(const ModelNodes &nodes)
+ModuleIds generateModuleIds(const ModelNodes &nodes, const ModulesStorage &modulesStorage)
 {
     ModuleIds moduleIds;
-    moduleIds.reserve(Utils::usize(nodes));
+    moduleIds.reserve(Utils::usize(nodes) + 1);
+
+    moduleIds.push_back(modulesStorage.moduleId("QtQuick", Storage::ModuleKind::QmlLibrary));
+
     for (const auto &node : nodes) {
         auto exportedNames = node.metaInfo().allExportedTypeNames();
         if (exportedNames.size())
@@ -1049,7 +1052,7 @@ QStringList generateImports(const ModelNodes &nodes, ModulesStorage &modulesStor
     if (nodes.empty())
         return {};
 
-    auto moduleIds = generateModuleIds(nodes);
+    auto moduleIds = generateModuleIds(nodes, modulesStorage);
 
     return generateImports(moduleIds, modulesStorage);
 }
