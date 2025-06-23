@@ -206,7 +206,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
         for (Snapshot::const_iterator i = state.snapshot.begin(), ei = state.snapshot.end();
              i != ei;
              ++i) {
-            if (Client::isInjectedFile(i.key().toUrlishString()))
+            if (Client::isInjectedFile(i.key()))
                 newSnapshot.insert(i.value());
         }
         state.snapshot = newSnapshot;

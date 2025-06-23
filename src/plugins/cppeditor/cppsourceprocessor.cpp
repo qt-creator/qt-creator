@@ -217,7 +217,7 @@ bool CppSourceProcessor::checkFile(const FilePath &absoluteFilePath) const
 /// Resolve the given file name to its absolute path w.r.t. the include type.
 FilePath CppSourceProcessor::resolveFile(const FilePath &filePath, IncludeType type)
 {
-    if (isInjectedFile(filePath.path()))
+    if (isInjectedFile(filePath))
         return filePath;
 
     if (filePath.isAbsolutePath())
@@ -406,7 +406,7 @@ void CppSourceProcessor::sourceNeeded(int line, const FilePath &filePath, Includ
     }
     if (m_included.contains(absoluteFilePath))
         return; // We've already seen this file.
-    if (!isInjectedFile(absoluteFilePath.path()))
+    if (!isInjectedFile(absoluteFilePath))
         m_included.insert(absoluteFilePath);
 
     // Already in snapshot? Use it!

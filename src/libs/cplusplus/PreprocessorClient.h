@@ -86,9 +86,10 @@ public:
   virtual void sourceNeeded(int line, const Utils::FilePath &fileName, IncludeType mode,
                             const Utils::FilePaths &initialIncludes = {}) = 0;
 
-  static inline bool isInjectedFile(const QString &fileName)
+  static inline bool isInjectedFile(const Utils::FilePath &filePath)
   {
-      return fileName.startsWith(QLatin1Char('<')) && fileName.endsWith(QLatin1Char('>'));
+      const QStringView path = filePath.pathView();
+      return path.startsWith(QLatin1Char('<')) && path.endsWith(QLatin1Char('>'));
   }
 };
 
