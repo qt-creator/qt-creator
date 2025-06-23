@@ -188,6 +188,7 @@ public:
     Result<QPair<Utils::OsType, Utils::OsArch>> osTypeAndArch() const;
 
     Result<CommandLine> withDockerExecCmd(
+        const QString &markerTemplate,
         const CommandLine &cmd,
         const std::optional<Environment> &env = std::nullopt,
         const std::optional<FilePath> &workDir = std::nullopt,
@@ -294,125 +295,24 @@ public:
     SynchronizedValue<std::unique_ptr<DockerContainerThread>> m_deviceThread;
 };
 
-class DockerProcessImpl : public ProcessInterface
+class DockerProcessImpl : public WrappedProcessInterface
 {
 public:
     DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePrivate *devicePrivate);
-    virtual ~DockerProcessImpl();
 
-private:
-    void start() override;
-    qint64 write(const QByteArray &data) override;
-    void sendControlSignal(ControlSignal controlSignal) final;
+    Result<CommandLine> wrapCommmandLine(
+        const ProcessSetupData &setupData, const QString &markerTemplate) const override;
+    void forwardControlSignal(ControlSignal controlSignal, qint64 remotePid) const override;
 
 private:
     DockerDevicePrivate *m_devicePrivate = nullptr;
     std::weak_ptr<const IDevice> m_device;
-
-    Process m_process;
-    qint64 m_remotePID = 0;
-    bool m_forwardStdout = false;
-    bool m_forwardStderr = false;
-    bool m_hasReceivedFirstOutput = false;
-    QString m_unexpectedStartupOutput;
 };
 
 DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePrivate *devicePrivate)
     : m_devicePrivate(devicePrivate)
     , m_device(device)
-    , m_process(this)
 {
-    connect(&m_process, &Process::started, this, [this] {
-        qCDebug(dockerDeviceLog) << "Process started:" << m_process.commandLine();
-
-        if (m_setup.m_ptyData.has_value()) {
-            m_hasReceivedFirstOutput = true;
-            emit started(m_process.processId(), m_process.applicationMainThreadId());
-        }
-    });
-
-    connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
-        if (m_hasReceivedFirstOutput) {
-            emit readyRead(m_process.readAllRawStandardOutput(), {});
-            return;
-        }
-
-        QByteArray output = m_process.readAllRawStandardOutput();
-        qsizetype idx = output.indexOf('\n');
-        QByteArray firstLine = output.left(idx).trimmed();
-        QByteArray rest = output.mid(idx + 1);
-        qCDebug(dockerDeviceLog) << "Process first line received:" << m_process.commandLine()
-                                 << firstLine;
-
-        if (!firstLine.startsWith("__qtc")) {
-            m_unexpectedStartupOutput = QString::fromUtf8(firstLine);
-            m_process.kill();
-            return;
-        }
-
-        bool ok = false;
-        m_remotePID = firstLine.mid(5, firstLine.size() - 5 - 5).toLongLong(&ok);
-
-        if (ok)
-            emit started(m_remotePID);
-        else {
-            m_unexpectedStartupOutput = QString::fromUtf8(firstLine);
-            m_process.kill();
-            return;
-        }
-
-        m_hasReceivedFirstOutput = true;
-
-        if (m_forwardStdout && rest.size() > 0) {
-            fprintf(stdout, "%s", rest.constData());
-            rest.clear();
-        }
-
-        // In case we already received some error output, send it now.
-        QByteArray stdErr = m_process.readAllRawStandardError();
-        if (stdErr.size() > 0 && m_forwardStderr) {
-            fprintf(stderr, "%s", stdErr.constData());
-            stdErr.clear();
-        }
-
-        if (rest.size() > 0 || stdErr.size() > 0)
-            emit readyRead(rest, stdErr);
-    });
-
-    connect(&m_process, &Process::readyReadStandardError, this, [this] {
-        if (!m_remotePID)
-            return;
-
-        if (m_forwardStderr) {
-            fprintf(stderr, "%s", m_process.readAllRawStandardError().constData());
-            return;
-        }
-
-        emit readyRead({}, m_process.readAllRawStandardError());
-    });
-
-    connect(&m_process, &Process::done, this, [this] {
-        qCDebug(dockerDeviceLog) << "Process exited:" << m_process.commandLine()
-                                 << "with code:" << m_process.resultData().m_exitCode;
-
-        ProcessResultData resultData = m_process.resultData();
-
-        if (m_remotePID == 0 && !m_hasReceivedFirstOutput) {
-            resultData.m_error = QProcess::FailedToStart;
-            resultData.m_errorString = m_unexpectedStartupOutput;
-            qCWarning(dockerDeviceLog) << "Process failed to start:" << m_process.commandLine()
-                                       << ":" << m_unexpectedStartupOutput;
-            QByteArray stdOut = m_process.readAllRawStandardOutput();
-            QByteArray stdErr = m_process.readAllRawStandardError();
-            if (!stdOut.isEmpty())
-                qCWarning(dockerDeviceLog) << "stdout:" << stdOut;
-            if (!stdErr.isEmpty())
-                qCWarning(dockerDeviceLog) << "stderr:" << stdErr;
-        }
-
-        emit done(resultData);
-    });
-
     connect(device.get(), &QObject::destroyed, this, [this] {
         emit done(ProcessResultData{
             -1,
@@ -423,32 +323,13 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
     });
 }
 
-DockerProcessImpl::~DockerProcessImpl()
+Result<CommandLine> DockerProcessImpl::wrapCommmandLine(
+    const ProcessSetupData &setupData, const QString &markerTemplate) const
 {
-    if (m_process.state() == QProcess::Running)
-        sendControlSignal(ControlSignal::Kill);
-}
-
-void DockerProcessImpl::start()
-{
-    m_process.setProcessMode(m_setup.m_processMode);
-    m_process.setTerminalMode(m_setup.m_terminalMode);
-    m_process.setPtyData(m_setup.m_ptyData);
-    m_process.setReaperTimeout(m_setup.m_reaperTimeout);
-    m_process.setWriteData(m_setup.m_writeData);
-    // We need separate channels so we can intercept our Process ID markers.
-    m_process.setProcessChannelMode(QProcess::ProcessChannelMode::SeparateChannels);
-    m_process.setExtraData(m_setup.m_extraData);
-    m_process.setStandardInputFile(m_setup.m_standardInputFile);
-    m_process.setAbortOnMetaChars(m_setup.m_abortOnMetaChars);
-    m_process.setCreateConsoleOnWindows(m_setup.m_createConsoleOnWindows);
-    if (m_setup.m_lowPriority)
-        m_process.setLowPriority();
-
-    m_forwardStdout = m_setup.m_processChannelMode == QProcess::ForwardedChannels
-                      || m_setup.m_processChannelMode == QProcess::ForwardedOutputChannel;
-    m_forwardStderr = m_setup.m_processChannelMode == QProcess::ForwardedChannels
-                      || m_setup.m_processChannelMode == QProcess::ForwardedErrorChannel;
+    QTC_ASSERT(
+        m_devicePrivate,
+        return ResultError(
+            Tr::tr("Docker device is not initialized. Cannot create command line.")));
 
     const bool inTerminal = m_setup.m_terminalMode != TerminalMode::Off
                             || m_setup.m_ptyData.has_value();
@@ -456,67 +337,33 @@ void DockerProcessImpl::start()
     const bool interactive = m_setup.m_processMode == ProcessMode::Writer
                              || !m_setup.m_writeData.isEmpty() || inTerminal;
 
-    const Result<CommandLine> fullCommandLine = m_devicePrivate->withDockerExecCmd(
+    return m_devicePrivate->withDockerExecCmd(
+        markerTemplate,
         m_setup.m_commandLine,
         m_setup.m_environment,
         m_setup.m_workingDirectory,
         interactive,
         inTerminal,
-        !m_process.ptyData().has_value());
+        !setupData.m_ptyData);
+}
 
-    if (!fullCommandLine) {
-        emit done(ProcessResultData{
-            -1,
-            QProcess::ExitStatus::CrashExit,
-            QProcess::ProcessError::FailedToStart,
-            fullCommandLine.error(),
-        });
+void DockerProcessImpl::forwardControlSignal(ControlSignal controlSignal, qint64 remotePid) const
+{
+    QTC_ASSERT(m_devicePrivate, return);
+    auto device = m_device.lock();
+    if (!device)
         return;
-    }
 
-    m_process.setCommand(*fullCommandLine);
-    m_process.start();
-}
-
-qint64 DockerProcessImpl::write(const QByteArray &data)
-{
-    return m_process.writeRaw(data);
-}
-
-void DockerProcessImpl::sendControlSignal(ControlSignal controlSignal)
-{
-    if (!m_setup.m_ptyData.has_value()) {
-        QTC_ASSERT(m_remotePID, return);
-        if (controlSignal == ControlSignal::CloseWriteChannel) {
-            m_process.closeWriteChannel();
-            return;
-        }
-        auto device = m_device.lock();
-        if (!device)
-            return;
-
-        auto dfa = dynamic_cast<DockerDeviceFileAccess *>(device->fileAccess());
-        if (dfa) {
-            static_cast<DockerDeviceFileAccess *>(device->fileAccess())
-                ->signalProcess(m_remotePID, controlSignal);
-        } else {
-            const int signal = controlSignalToInt(controlSignal);
-            Process p;
-            p.setCommand(
-                {device->rootPath().withNewPath("kill"),
-                 {QString("-%1").arg(signal), QString("%2").arg(m_remotePID)}});
-            p.runBlocking();
-        }
+    auto dfa = dynamic_cast<DockerDeviceFileAccess *>(device->fileAccess());
+    if (dfa) {
+        dfa->signalProcess(remotePid, controlSignal);
     } else {
-        // clang-format off
-        switch (controlSignal) {
-        case ControlSignal::Terminate: m_process.terminate();      break;
-        case ControlSignal::Kill:      m_process.kill();           break;
-        case ControlSignal::Interrupt: m_process.interrupt();      break;
-        case ControlSignal::KickOff:   m_process.kickoffProcess(); break;
-        case ControlSignal::CloseWriteChannel: break;
-        }
-        // clang-format on
+        const int signal = controlSignalToInt(controlSignal);
+        Process p;
+        p.setCommand(
+            {device->rootPath().withNewPath("kill"),
+             {QString("-%1").arg(signal), QString("%2").arg(remotePid)}});
+        p.runBlocking();
     }
 }
 
@@ -781,6 +628,7 @@ Result<> DockerDevice::updateContainerAccess() const
 }
 
 Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
+    const QString &markerTemplate,
     const CommandLine &cmd,
     const std::optional<Environment> &env,
     const std::optional<FilePath> &workDir,
@@ -835,7 +683,7 @@ Result<CommandLine> DockerDevicePrivate::withDockerExecCmd(
         // Send PID only if existence was confirmed, so we can correctly notify
         // a failed start.
         CommandLine echo("echo");
-        echo.addArgs("__qtc$$qtc__", CommandLine::Raw);
+        echo.addArgs(markerTemplate.arg("$$"), CommandLine::Raw);
         echo.addCommandLineWithAnd(exec);
 
         testType.addCommandLineWithAnd(echo);
