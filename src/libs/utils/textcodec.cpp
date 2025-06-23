@@ -73,6 +73,16 @@ bool TextEncoding::isValid() const
     return !m_name.isEmpty();
 }
 
+QString TextEncoding::displayName() const
+{
+    return isValid() ? QString::fromLatin1(m_name) : QString("Null codec");
+}
+
+QString TextEncoding::fullDisplayName() const
+{
+    return TextCodec::codecForName(m_name).fullDisplayName();
+}
+
 bool TextEncoding::isUtf8() const
 {
     return m_name == "UTF-8";

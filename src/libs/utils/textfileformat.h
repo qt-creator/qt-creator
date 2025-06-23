@@ -67,9 +67,6 @@ public:
     LineTerminationMode lineTerminationMode = NativeLineTerminator;
     bool hasUtf8Bom = false;
 
-    TextCodec codec() const;
-    void setCodec(const TextCodec &codec);
-
     TextEncoding encoding() const;
     void setEncoding(const TextEncoding &encoding);
 

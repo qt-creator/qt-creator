@@ -23,7 +23,6 @@ public:
 
     Utils::TextFileFormat format() const;
 
-    Utils::TextCodec codec() const;
     Utils::TextEncoding encoding() const;
     void setEncoding(const Utils::TextEncoding &encoding);
     virtual bool supportsEncoding(const Utils::TextEncoding &) const;

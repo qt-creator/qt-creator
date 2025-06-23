@@ -125,11 +125,6 @@ BaseTextDocument::ReadResult BaseTextDocument::read(const FilePath &filePath)
     return res;
 }
 
-TextCodec BaseTextDocument::codec() const
-{
-    return d->m_format.codec();
-}
-
 void BaseTextDocument::setEncoding(const TextEncoding &encoding)
 {
     if (debug)

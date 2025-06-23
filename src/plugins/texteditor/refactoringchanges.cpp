@@ -257,7 +257,7 @@ bool RefactoringFile::apply()
             c.endEditBlock();
 
             // if this document doesn't have an editor, write the result to a file
-            if (!m_editor && m_textFileFormat.codec().isValid()) {
+            if (!m_editor && m_textFileFormat.encoding().isValid()) {
                 QTC_ASSERT(!m_filePath.isEmpty(), return false);
                 // suppress "file has changed" warnings if the file is open in a read-only editor
                 Core::FileChangeBlocker block(m_filePath);

@@ -2116,7 +2116,7 @@ void TextEditorWidgetPrivate::updateCannotDecodeInfo()
             return;
         InfoBarEntry info(selectEncodingId,
             Tr::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
-                .arg(m_document->displayName(), m_document->codec().displayName()));
+                .arg(m_document->displayName(), m_document->encoding().displayName()));
         info.addCustomButton(Tr::tr("Select Encoding"), [this] { q->selectEncoding(); });
         infoBar->addInfo(info);
     } else {

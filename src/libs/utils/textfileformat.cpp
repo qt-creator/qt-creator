@@ -17,7 +17,7 @@ namespace Utils {
 QDebug operator<<(QDebug d, const TextFileFormat &format)
 {
     QDebug nsp = d.nospace();
-    nsp << "TextFileFormat: " << format.codec().fullDisplayName()
+    nsp << "TextFileFormat: " << format.encoding().fullDisplayName()
         << " hasUtf8Bom=" << format.hasUtf8Bom
         << (format.lineTerminationMode == TextFileFormat::LFLineTerminator ? " LF" : " CRLF");
     return d;
@@ -83,16 +83,6 @@ QByteArray TextFileFormat::decodingErrorSample(const QByteArray &data)
 {
     const int p = data.indexOf('\n', 16384);
     return p < 0 ? data : data.left(p);
-}
-
-TextCodec TextFileFormat::codec() const
-{
-    return TextCodec::codecForName(m_encoding);
-}
-
-void TextFileFormat::setCodec(const TextCodec &codec)
-{
-    m_encoding = codec.name();
 }
 
 TextEncoding TextFileFormat::encoding() const

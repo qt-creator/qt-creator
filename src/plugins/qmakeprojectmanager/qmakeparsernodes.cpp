@@ -903,7 +903,7 @@ bool QmakePriFile::setProVariable(const QString &var, const QStringList &values,
 void QmakePriFile::save(const QStringList &lines)
 {
     {
-        QTC_ASSERT(m_textFormat.codec().isValid(), return);
+        QTC_ASSERT(m_textFormat.encoding().isValid(), return);
         FileChangeBlocker changeGuard(filePath());
         if (const Result<> res = m_textFormat.writeFile(filePath(), lines.join('\n')); !res)
             QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("File Error"), res.error());

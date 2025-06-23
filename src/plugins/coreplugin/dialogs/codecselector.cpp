@@ -106,9 +106,10 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
                           buf.constData() + buf.size() - minSize, minSize))
                 continue;
         }
-        if (doc->codec() == codec)
+        const TextEncoding encoding(codec.name());
+        if (doc->encoding() == encoding)
             currentIndex = encodings.count();
-        encodings << codec.fullDisplayName();
+        encodings << encoding.fullDisplayName();
     }
     m_listWidget->addItems(encodings);
     if (currentIndex >= 0)

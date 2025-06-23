@@ -192,7 +192,7 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
 
     TextFileFormat headerFileTextFormat;
     headerFileTextFormat.detectFromData(data);
-    if (!headerFileTextFormat.codec().isValid())
+    if (!headerFileTextFormat.encoding().isValid())
         headerFileTextFormat.setEncoding(EditorManager::defaultTextEncoding());
 
     QString stringContent;
@@ -301,7 +301,7 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
                 }
                 lineCounter++;
             }
-            tmpHeader.write(headerFileTextFormat.codec().fromUnicode(outString));
+            tmpHeader.write(headerFileTextFormat.encoding().encode(outString));
             tmpHeader.close();
         } else {
             // if opening the temp file failed report error

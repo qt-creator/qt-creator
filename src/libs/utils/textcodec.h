@@ -32,6 +32,9 @@ public:
     operator QByteArray() const { return m_name; }
     QByteArray name() const { return m_name; }
 
+    QString displayName() const;
+    QString fullDisplayName() const;
+
     bool isUtf8() const;
     int mibEnum() const;
 
