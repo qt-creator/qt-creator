@@ -799,11 +799,14 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTest<ProjectExplorerTest>();
     addTestCreator(createAbiTest);
     addTestCreator(createGccToolchainTest);
-    addTestCreator(createOutputParserTest);
-    addTestCreator(createLdOutputParserTest);
     addTestCreator(createGnuMakeParserTest);
     addTestCreator(createJsonWizardTest);
+    addTestCreator(createLdOutputParserTest);
+    addTestCreator(createOutputParserTest);
     addTestCreator(createProjectTest);
+    addTestCreator(createRunWorkerConflictTest);
+    addTestCreator(createSanitizerOutputParserTest);
+    addTestCreator(createToolchainSettingsTest);
 #endif
 
     setupGccToolchains();
@@ -1956,11 +1959,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 
     setupWorkspaceProject(this);
 
-#ifdef WITH_TESTS
-    addTestCreator(&createSanitizerOutputParserTest);
-    addTestCreator(&createRunWorkerConflictTest);
-    addTestCreator(&createToolchainSettingsTest);
-#endif
     return ResultOk;
 }
 
