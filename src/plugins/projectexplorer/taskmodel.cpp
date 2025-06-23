@@ -68,19 +68,6 @@ void TaskModel::addCategory(const TaskCategory &category)
     m_categories.insert(category.id, data);
 }
 
-Tasks TaskModel::tasks(Utils::Id categoryId) const
-{
-    if (!categoryId.isValid())
-        return m_tasks;
-
-    Tasks taskList;
-    for (const Task &t : std::as_const(m_tasks)) {
-        if (t.category == categoryId)
-            taskList.append(t);
-    }
-    return taskList;
-}
-
 bool TaskModel::compareTasks(const Task &task1, const Task &task2)
 {
     if (task1.category == task2.category)
@@ -406,7 +393,7 @@ bool TaskFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
 {
     if (source_parent.isValid())
         return true;
-    return filterAcceptsTask(taskModel()->tasks().at(source_row));
+    return filterAcceptsTask(taskModel()->taskAt(source_row));
 }
 
 bool TaskFilterModel::filterAcceptsTask(const Task &task) const
