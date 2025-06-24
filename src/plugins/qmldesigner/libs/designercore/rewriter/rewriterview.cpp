@@ -1024,7 +1024,7 @@ ModuleIds generateModuleIds(const ModelNodes &nodes, const ModulesStorage &modul
     return moduleIds;
 }
 
-QStringList generateImports(ModuleIds moduleIds, const ModulesStorage &modulesStorage)
+QStringList generateImports(ModuleIds moduleIds, const QUrl &docUrl, const ModulesStorage &modulesStorage)
 {
     QStringList imports;
     imports.reserve(std::ssize(moduleIds));
@@ -1036,9 +1036,14 @@ QStringList generateImports(ModuleIds moduleIds, const ModulesStorage &modulesSt
         case ModuleKind::QmlLibrary:
             imports.push_back("import " + module.name.toQString());
             break;
-        case ModuleKind::PathLibrary:
-            imports.push_back("import \"" + module.name.toQString() + "\"");
+        case ModuleKind::PathLibrary: {
+            const Utils::FilePath modulePath = Utils::FilePath::fromString(module.name.toQString());
+            const Utils::FilePath docFile = Utils::FilePath::fromUrl(docUrl);
+            const QString relPathStr = modulePath.relativePathFrom(docFile).toFSPathString();
+            if (relPathStr != ".")
+                imports.push_back("import \"" + relPathStr + "\"");
             break;
+        }
         case ModuleKind::CppLibrary:
             break;
         }
@@ -1054,7 +1059,7 @@ QStringList generateImports(const ModelNodes &nodes, ModulesStorage &modulesStor
 
     auto moduleIds = generateModuleIds(nodes, modulesStorage);
 
-    return generateImports(moduleIds, modulesStorage);
+    return generateImports(moduleIds, nodes.front().model()->fileUrl(), modulesStorage);
 }
 
 #endif
