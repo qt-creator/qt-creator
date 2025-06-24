@@ -156,13 +156,13 @@ std::optional<QString> DSStore::load(const Utils::FilePath &dsModuleDirPath)
     auto addCollectionErr = [&collectionErrors](const QString &name, const QString &e) {
         collectionErrors << QString("Error loading collection %1. %2").arg(name, e);
     };
-    for (auto component : qmlDirParser.components()) {
-        if (!component.fileName.isEmpty()) {
+
+    const auto &moduleComponents = qmlDirParser.components();
+    for (const QmlDirParser::Component &component : moduleComponents) {
+        if (component.fileName.endsWith(".qml", Qt::CaseInsensitive)) {
             const auto collectionPath = dsModuleDirPath.pathAppended(component.fileName);
             if (auto err = loadCollection(component.typeName, collectionPath))
                 addCollectionErr(component.typeName, *err);
-        } else {
-            addCollectionErr(component.typeName, tr("Can not find component file."));
         }
     }
 
