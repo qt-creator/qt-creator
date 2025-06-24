@@ -8,10 +8,6 @@
 #include <QString>
 #include <QStringConverter>
 
-QT_BEGIN_NAMESPACE
-class QTextCodec;
-QT_END_NAMESPACE
-
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT TextEncoding
@@ -54,23 +50,6 @@ private:
     QTCREATOR_UTILS_EXPORT friend bool operator!=(const TextEncoding &left, const TextEncoding &right);
 
     QByteArray m_name;
-};
-
-class QTCREATOR_UTILS_EXPORT TextCodec final
-{
-public:
-    using ConverterState = QStringConverter::State;
-
-    TextCodec();
-
-    QByteArray name() const;
-
-private:
-    explicit TextCodec(QTextCodec *codec);
-
-    QTCREATOR_UTILS_EXPORT friend bool operator==(const TextCodec &left, const TextCodec &right);
-
-    QTextCodec *m_codec = nullptr; // FIXME: Avoid later
 };
 
 } // namespace Utils
