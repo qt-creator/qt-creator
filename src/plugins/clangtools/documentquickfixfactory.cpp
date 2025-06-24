@@ -35,8 +35,8 @@ using DiagnosticRange = QPair<Link, Link>;
 static Range toRange(const QTextDocument *doc, DiagnosticRange locations)
 {
     Range range;
-    range.start = Text::positionInText(doc, locations.first.target.line, locations.first.target.column);
-    range.end = Text::positionInText(doc, locations.second.target.line, locations.second.target.column);
+    range.start = locations.first.target.toPositionInDocument(doc);
+    range.end = locations.second.target.toPositionInDocument(doc);
     return range;
 }
 

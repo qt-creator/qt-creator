@@ -317,10 +317,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
         if (doc && Utils::anyOf(diagnostic.explainingSteps, &ExplainingStep::isFixIt)) {
             TextEditor::RefactorMarker marker;
             marker.tooltip = diagnostic.description;
-            QTextCursor cursor(doc->document());
-            cursor.setPosition(Text::positionInText(doc->document(),
-                                                    diagnostic.location.target.line,
-                                                    diagnostic.location.target.column));
+            QTextCursor cursor = diagnostic.location.target.toTextCursor(doc->document());
             cursor.movePosition(QTextCursor::EndOfLine);
             marker.cursor = cursor;
             marker.type = Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID;

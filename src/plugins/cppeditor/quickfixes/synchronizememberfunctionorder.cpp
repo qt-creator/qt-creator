@@ -111,8 +111,7 @@ private:
                 if (!link.hasValidTarget())
                     return;
                 if (decl->filePath() == link.targetFilePath) {
-                    const int linkPos
-                        = Text::positionInText(doc, link.target.line, link.target.column);
+                    const int linkPos = link.target.toPositionInDocument(doc);
                     if (linkPos == declPos)
                         return;
                 }
