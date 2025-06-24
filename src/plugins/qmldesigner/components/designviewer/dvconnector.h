@@ -3,61 +3,29 @@
 
 #pragma once
 
-#include <QNetworkCookieJar>
 #include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QWebEnginePage>
-#include <QWebEngineProfile>
-#include <QWebEngineView>
 
 #include <qmlprojectmanager/qmlprojectexporter/resourcegenerator.h>
 
 namespace QmlDesigner::DesignViewer {
-
-class CustomWebEnginePage : public QWebEnginePage
-{
-public:
-    CustomWebEnginePage(QWebEngineProfile *profile, QObject *parent = nullptr);
-
-protected:
-    void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level,
-                                  const QString &message,
-                                  int lineNumber,
-                                  const QString &sourceID) override;
-};
-
-class CustomCookieJar : public QNetworkCookieJar
-{
-    Q_OBJECT
-public:
-    CustomCookieJar(QObject *parent = nullptr, const QString &cookieFilePath = "cookies.txt");
-    ~CustomCookieJar();
-
-    void loadCookies();
-    void saveCookies();
-    void clearCookies();
-
-private:
-    const QString m_cookieFilePath;
-};
+class DVAuthenticator;
 
 class DVConnector : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(ConnectorStatus connectorStatus READ connectorStatus NOTIFY connectorStatusUpdated)
     Q_PROPERTY(QByteArray userInfo READ userInfo NOTIFY userInfoReceived)
-    Q_PROPERTY(bool isWebViewerVisible READ isWebViewerVisible NOTIFY webViewerVisibleChanged)
 public:
     explicit DVConnector(QObject *parent = nullptr);
+    ~DVConnector();
 
-    enum ConnectorStatus { FetchingUserInfo, NotLoggedIn, LoggedIn };
+    enum ConnectorStatus { NotLoggedIn, LoggedIn };
     Q_ENUM(ConnectorStatus)
 
 public:
     // getters for UI
     ConnectorStatus connectorStatus() const;
     QByteArray userInfo() const;
-    bool isWebViewerVisible() const;
     Q_INVOKABLE QString loginUrl() const;
 
     void projectList();
@@ -85,17 +53,13 @@ public:
     Q_INVOKABLE void fetchUserInfo();
 
 private:
+    // Qt Login
+    QScopedPointer<DVAuthenticator> m_auth;
+
     // network
     QScopedPointer<QNetworkAccessManager> m_networkAccessManager;
-    QScopedPointer<CustomCookieJar> m_networkCookieJar;
-
-    // login
-    QWebEnginePage *m_webEnginePage;
-    QWebEngineView *m_webEngineView;
-    bool m_isWebViewerVisible;
 
     // status
-    ConnectorStatus m_connectorStatus;
     QByteArray m_userInfo;
 
     // other internals
@@ -108,7 +72,6 @@ private:
         QString description;
         std::function<void(const QByteArray &, const QList<RawHeaderPair> &)> successCallback = nullptr;
         std::function<void(const int, const QString &)> errorPreCallback = nullptr;
-        std::function<void(const int, const QString &)> errorCodeUnauthorizedCallback = nullptr;
         std::function<void(const int, const QString &)> errorCodeOtherCallback = nullptr;
 
         void connectCallbacks(DVConnector *connector)
@@ -122,10 +85,6 @@ private:
 
 private:
     void evaluateReply(const ReplyEvaluatorData &evaluator);
-    bool eventFilter(QObject *obj, QEvent *e) override;
-    void internalLogin();
-    void refreshToken();
-    void fetchUserInfoInternal();
 
 signals:
     // service integration - project related signals

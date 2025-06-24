@@ -342,13 +342,12 @@ Rectangle {
 
                 onActiveFocusItemChanged: {
                     if (dvWindow.activeFocusItem === null && !dvWindow.active
-                        && !shareButton.hover
-                        && !backend.designViewerConnector.isWebViewerVisible)
+                        && !shareButton.hover)
                         dvWindow.close()
                 }
 
                 onVisibleChanged: {
-                    if (dvWindow.visible)
+                    if (dvWindow.visible && backend.designViewerConnector?.connectorStatus === 1)
                         backend.designViewerConnector.fetchUserInfo()
                 }
 
@@ -392,19 +391,6 @@ Rectangle {
 
                     anchors.fill: parent
                     currentIndex: backend.designViewerConnector?.connectorStatus ?? 0
-
-                    // Fetching
-                    Rectangle {
-                        id: fetchingPage
-                        color: StudioTheme.Values.themePopupBackground
-                        Layout.fillWidth: true
-                        implicitHeight: 200
-
-                        BusyIndicator {
-                            anchors.centerIn: parent
-                            running: StackView.status === StackView.Active // TODO test
-                        }
-                    }
 
                     // NotLoggedIn
                     Rectangle {

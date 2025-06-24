@@ -37,7 +37,7 @@ endif()
 
 add_subdirectory(libs)
 
-find_package(Qt6 QUIET COMPONENTS WebSockets WebEngineWidgets)
+find_package(Qt6 QUIET COMPONENTS NetworkAuth)
 
 add_qtc_plugin(QmlDesigner
   PLUGIN_RECOMMENDS QmlPreview
@@ -777,13 +777,13 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
-  CONDITION TARGET Qt::WebEngineWidgets
   SOURCES_PREFIX components/designviewer
   DEPENDS
-    Qt::WebEngineWidgets
+    qtkeychain Qt::NetworkAuth
   PUBLIC_DEFINES DVCONNECTOR_ENABLED
   SOURCES
     dvconnector.cpp dvconnector.h
+    dvauthenticator.cpp dvauthenticator.h
 )
 
 add_qtc_plugin(componentsplugin
