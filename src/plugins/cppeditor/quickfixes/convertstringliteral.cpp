@@ -304,15 +304,13 @@ public:
             return;
         }
 
-        const TextCodec utf8codec = TextCodec::utf8();
-        TextCodec::ConverterState converterState;
         ChangeSet changes;
 
         bool replace = true;
         for (const QByteArray &chunk : std::as_const(newContents)) {
-            const QString str = utf8codec.toUnicode(chunk.constData(), chunk.size(), &converterState);
+            const QString str = QString::fromUtf8(chunk);
             const QByteArray utf8buf = str.toUtf8();
-            if (!utf8codec.canEncode(str) || chunk != utf8buf)
+            if (chunk != utf8buf)
                 return;
             if (replace)
                 changes.replace(startPos + 1, endPos - 1, str);
