@@ -2033,7 +2033,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           rootCategory,
                           QKeySequence(),
                           Priorities::Add3DToContentLib,
-                          &add3DAssetToContentLibrary,
+                          &addNodeToContentLibrary,
                           &enableAddToContentLib,
                           &enableAddToContentLib));
 

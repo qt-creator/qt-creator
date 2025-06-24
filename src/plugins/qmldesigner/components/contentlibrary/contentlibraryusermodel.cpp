@@ -91,10 +91,13 @@ void ContentLibraryUserModel::createCategories()
 
     auto catTexture = new UserTextureCategory{tr("Textures"), userBundlePath.pathAppended("textures")};
 
+    auto cat2D = new UserItemCategory{tr("2D"), userBundlePath.pathAppended("2d"),
+                                      compUtils.user2DBundleId()};
+
     auto cat3D = new UserItemCategory{tr("3D"), userBundlePath.pathAppended("3d"),
                                       compUtils.user3DBundleId()};
 
-    m_userCategories << catMaterial << catTexture << cat3D;
+    m_userCategories << catMaterial << catTexture << cat2D << cat3D;
 
     loadCustomCategories(userBundlePath);
 }
@@ -380,6 +383,9 @@ ContentLibraryUserModel::SectionIndex ContentLibraryUserModel::bundleIdToSection
 
     if (bundleId == compUtils.userMaterialsBundleId())
         return MaterialsSectionIdx;
+
+    if (bundleId == compUtils.user2DBundleId())
+        return Items2DSectionIdx;
 
     if (bundleId == compUtils.user3DBundleId())
         return Items3DSectionIdx;

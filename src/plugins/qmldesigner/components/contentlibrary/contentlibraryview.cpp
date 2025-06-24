@@ -58,6 +58,7 @@ namespace QmlDesigner {
 ContentLibraryView::ContentLibraryView(AsynchronousImageCache &imageCache,
                                        ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
+    , m_compUtils(externalDependencies)
     , m_imageCache(imageCache)
 {}
 
@@ -213,8 +214,11 @@ void ContentLibraryView::connectImporter()
                 if (isMaterialBundle(bundleId)) {
                     applyBundleMaterialToDropTarget({}, typeName);
                 } else if (isItemBundle(bundleId)) {
-                    if (!m_bundleItemTarget)
-                        m_bundleItemTarget = Utils3D::active3DSceneNode(this);
+                    if (!m_bundleItemTarget) {
+                        bool isUser2DBundle = (bundleId == m_compUtils.user2DBundleId());
+                        m_bundleItemTarget = isUser2DBundle ? rootModelNode()
+                                                            : Utils3D::active3DSceneNode(this);
+                    }
 
                     QTC_ASSERT(m_bundleItemTarget, return);
 
@@ -297,16 +301,14 @@ void ContentLibraryView::connectImporter()
 
 bool ContentLibraryView::isMaterialBundle(const QString &bundleId) const
 {
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    return bundleId == compUtils.materialsBundleId() || bundleId == compUtils.userMaterialsBundleId();
+    return bundleId == m_compUtils.materialsBundleId() || bundleId == m_compUtils.userMaterialsBundleId();
 }
 
 // item bundle includes effects and 3D components
 bool ContentLibraryView::isItemBundle(const QString &bundleId) const
 {
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    return bundleId == compUtils.effectsBundleId() || bundleId == compUtils.userEffectsBundleId()
-        || bundleId == compUtils.user3DBundleId();
+    return bundleId == m_compUtils.effectsBundleId() || bundleId == m_compUtils.userEffectsBundleId()
+        || bundleId == m_compUtils.user2DBundleId() || bundleId == m_compUtils.user3DBundleId();
 }
 
 void ContentLibraryView::modelAttached(Model *model)
@@ -329,18 +331,18 @@ void ContentLibraryView::modelAttached(Model *model)
 
     // bundles loading has to happen here, otherwise project path is not ready which will
     // cause bundle items types to resolve incorrectly
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    QString genFolderName = compUtils.generatedComponentsPath().fileName();
+    QString genFolderName = m_compUtils.generatedComponentsPath().fileName();
     bool forceReload = m_generatedFolderName != genFolderName;
 
     m_widget->materialsModel()->loadBundle();
     m_widget->effectsModel()->loadBundle(forceReload);
     m_widget->userModel()->loadBundles(forceReload);
 
-    m_widget->updateImportedState(compUtils.materialsBundleId());
-    m_widget->updateImportedState(compUtils.effectsBundleId());
-    m_widget->updateImportedState(compUtils.userMaterialsBundleId());
-    m_widget->updateImportedState(compUtils.user3DBundleId());
+    m_widget->updateImportedState(m_compUtils.materialsBundleId());
+    m_widget->updateImportedState(m_compUtils.effectsBundleId());
+    m_widget->updateImportedState(m_compUtils.userMaterialsBundleId());
+    m_widget->updateImportedState(m_compUtils.user2DBundleId());
+    m_widget->updateImportedState(m_compUtils.user3DBundleId());
 
     m_generatedFolderName = genFolderName;
 }
@@ -429,12 +431,12 @@ void ContentLibraryView::customNotification(const AbstractView *view,
     } else if (identifier == "drop_bundle_item") {
         QTC_ASSERT(nodeList.size() == 1, return);
 
-        auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-        bool isUser3D = m_draggedBundleItem->type().startsWith(compUtils.user3DBundleType().toLatin1());
-        bool isUserMaterial = m_draggedBundleItem->type().startsWith(compUtils.userMaterialsBundleType().toLatin1());
+        bool isUser2D = m_draggedBundleItem->type().startsWith(m_compUtils.user2DBundleType().toLatin1());
+        bool isUser3D = m_draggedBundleItem->type().startsWith(m_compUtils.user3DBundleType().toLatin1());
+        bool isUserMaterial = m_draggedBundleItem->type().startsWith(m_compUtils.userMaterialsBundleType().toLatin1());
 
         m_bundleItemPos = data.size() == 1 ? data.first() : QVariant();
-        if (isUser3D) {
+        if (isUser2D || isUser3D) {
             m_widget->userModel()->addToProject(m_draggedBundleItem);
         } else if (isUserMaterial) {
             ModelNode matLib = Utils3D::materialLibraryNode(this);
@@ -472,14 +474,12 @@ void ContentLibraryView::customNotification(const AbstractView *view,
     } else if (identifier == "add_assets_to_content_lib") {
         addLibAssets(data.first().toStringList());
         m_widget->showTab(ContentLibraryWidget::TabIndex::UserAssetsTab);
-    } else if (identifier == "add_3d_to_content_lib") {
-        const QList<ModelNode> selected3DNodes = Utils::filtered(selectedModelNodes(),
-                                                                 [](const ModelNode &node) {
-            return node.metaInfo().isQtQuick3DNode();
-        });
-        QTC_ASSERT(!selected3DNodes.isEmpty(), return);
-        m_remainingIconsToSave = selected3DNodes.size();
-        for (const ModelNode &node : selected3DNodes) {
+    } else if (identifier == "add_node_to_content_lib") {
+        QTC_ASSERT(!selectedModelNodes().isEmpty(), return);
+        m_remainingIconsToSave = selectedModelNodes().size();
+        const QList<ModelNode> selectedNodes = selectedModelNodes();
+
+        for (const ModelNode &node : selectedNodes) {
             if (node.isComponent())
                 addLib3DComponent(node);
             else
@@ -630,12 +630,12 @@ void ContentLibraryView::addLibAssets(const QStringList &paths, const QString &b
 }
 
 // TODO: combine this method with BundleHelper::exportComponent()
+// TODO: rename to addLibComponent and change code to work with 2D and 3D components
 void ContentLibraryView::addLib3DComponent(const ModelNode &node)
 {
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
 
-    m_bundleId = compUtils.user3DBundleId();
+    m_bundleId = m_compUtils.user3DBundleId();
 
     Utils::FilePath compFilePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
     Utils::FilePath compDir = compFilePath.parentDir();
@@ -711,20 +711,24 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
 
 void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPixmap)
 {
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-
     m_bundleId.clear();
     Utils::FilePath bundlePath;
 
-    if (node.metaInfo().isQtQuick3DMaterial()) {
+    NodeMetaInfo item = model()->qtQuickItemMetaInfo();
+    NodeMetaInfo material3D = model()->qtQuick3DMaterialMetaInfo();
+    NodeMetaInfo node3D = model()->qtQuick3DNodeMetaInfo();
+    NodeMetaInfo metaInfo = node.metaInfo();
+    NodeMetaInfo nodeType = metaInfo.basedOn(material3D, item, node3D);
+
+    if (nodeType == material3D) {
         bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/");
-        m_bundleId = compUtils.userMaterialsBundleId();
-    } else if (node.metaInfo().isQtQuick3DEffect()) {
-        bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/effects/");
-        m_bundleId = compUtils.userEffectsBundleId();
-    } else if (node.metaInfo().isQtQuick3DNode()) {
+        m_bundleId = m_compUtils.userMaterialsBundleId();
+    } else if (nodeType == node3D) {
         bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
-        m_bundleId = compUtils.user3DBundleId();
+        m_bundleId = m_compUtils.user3DBundleId();
+    } else if (nodeType == item) {
+        bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/2d/");
+        m_bundleId = m_compUtils.user2DBundleId();
     } else {
         qWarning() << __FUNCTION__ << "Unsupported node type";
         return;
@@ -805,12 +809,24 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
 
     // generate and save icon
     QPixmap iconPixmapToSave;
-    if (node.metaInfo().isQtQuick3DCamera())
-        iconPixmapToSave = m_widget->iconProvider()->requestPixmap("camera.png", nullptr, {});
-    else if (node.metaInfo().isQtQuick3DLight())
+
+    if (nodeType == node3D) {
+        NodeMetaInfo camera = model()->qtQuick3DCameraMetaInfo();
+        NodeMetaInfo light = model()->qtQuick3DLightMetaInfo();
+        NodeMetaInfo node3DSubType = metaInfo.basedOn(camera, light);
+
+        if (node3DSubType == camera)
+            iconPixmapToSave = m_widget->iconProvider()->requestPixmap("camera.png", nullptr, {});
+        else if (node3DSubType == light)
+            iconPixmapToSave = m_widget->iconProvider()->requestPixmap("light.png", nullptr, {});
+        else
+            iconPixmapToSave = iconPixmap;
+    } else if (nodeType == item) {
+        // TODO: generate icon for 2D items
         iconPixmapToSave = m_widget->iconProvider()->requestPixmap("light.png", nullptr, {});
-    else
+    } else {
         iconPixmapToSave = iconPixmap;
+    }
 
     if (iconPixmapToSave.isNull()) {
         m_nodeIconHash.insert(node, iconSavePath.toFSPathString());

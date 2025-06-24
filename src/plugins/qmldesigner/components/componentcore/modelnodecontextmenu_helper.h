@@ -10,6 +10,7 @@
 #include <bindingproperty.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
+#include <modelutils.h>
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
@@ -91,10 +92,21 @@ inline bool enableAddToContentLib(const SelectionContext &selectionState)
 
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
 
+    QString user2DBundlePath = compUtils.userBundlePath(compUtils.user2DBundleId())
+                                 .toFSPathString();
+    QString user3DBundlePath = compUtils.userBundlePath(compUtils.user3DBundleId())
+                                 .toFSPathString();
+
     return std::all_of(nodes.cbegin(), nodes.cend(), [&](const ModelNode &node) {
-        bool isInBundle = node.type().startsWith(compUtils.componentBundlesTypePrefix().toLatin1());
-        bool isNode3D = node.metaInfo().isQtQuick3DNode();
-        return isNode3D && !isInBundle;
+        QString nodePath = ModelUtils::componentFilePath(node);
+
+        if (nodePath.isEmpty())
+            return true;
+
+        bool isIn2DBundle = nodePath.startsWith(user2DBundlePath);
+        bool isIn3DBundle = nodePath.startsWith(user3DBundlePath);
+
+        return !isIn2DBundle && !isIn3DBundle;
     });
 }
 

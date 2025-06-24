@@ -85,6 +85,7 @@ private:
     // section indices must match the order in initModel()
     enum SectionIndex { MaterialsSectionIdx = 0,
                         TexturesSectionIdx,
+                        Items2DSectionIdx,
                         Items3DSectionIdx,
                         EffectsSectionIdx };
 

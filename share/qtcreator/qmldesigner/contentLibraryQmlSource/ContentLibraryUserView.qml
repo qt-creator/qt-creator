@@ -228,6 +228,17 @@ Item {
                                         }
                                     }
                                     DelegateChoice {
+                                        roleValue: "User2D"
+                                        delegate: ContentLibraryItem {
+                                            width: root.cellWidth
+                                            height: root.cellHeight
+                                            visible: modelData.bundleItemVisible && !infoText.visible
+
+                                            onShowContextMenu: ctxMenuItem.popupMenu(modelData)
+                                            onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
+                                        }
+                                    }
+                                    DelegateChoice {
                                         roleValue: "User3D"
                                         delegate: ContentLibraryItem {
                                             width: root.cellWidth

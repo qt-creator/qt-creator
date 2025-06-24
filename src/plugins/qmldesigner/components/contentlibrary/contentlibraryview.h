@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "generatedcomponentutils.h"
+
 #include <asynchronousimagecache.h>
 #include <abstractview.h>
 #include <createtexture.h>
@@ -86,6 +88,7 @@ private:
     ContentLibraryMaterial *m_draggedBundleMaterial = nullptr;
     ContentLibraryTexture *m_draggedBundleTexture = nullptr;
     ContentLibraryItem *m_draggedBundleItem = nullptr;
+    GeneratedComponentUtils m_compUtils;
     std::unique_ptr<BundleHelper> m_bundleHelper;
     AsynchronousImageCache &m_imageCache;
     bool m_bundleMaterialAddToSelected = false;
