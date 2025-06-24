@@ -52,7 +52,6 @@ public:
     enum class TabIndex {
         MaterialsTab,
         TexturesTab,
-        EnvironmentsTab,
         EffectsTab,
         UserAssetsTab
     };
@@ -89,7 +88,6 @@ public:
 
     QPointer<ContentLibraryMaterialsModel> materialsModel() const;
     QPointer<ContentLibraryTexturesModel> texturesModel() const;
-    QPointer<ContentLibraryTexturesModel> environmentsModel() const;
     QPointer<ContentLibraryEffectsModel> effectsModel() const;
     QPointer<ContentLibraryUserModel> userModel() const;
 
@@ -159,7 +157,6 @@ private:
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
     QPointer<ContentLibraryTexturesModel> m_texturesModel;
-    QPointer<ContentLibraryTexturesModel> m_environmentsModel;
     QPointer<ContentLibraryEffectsModel> m_effectsModel;
     QPointer<ContentLibraryUserModel> m_userModel;
 

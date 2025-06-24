@@ -18,7 +18,7 @@ class ContentLibraryTexturesModel : public QAbstractListModel
     Q_PROPERTY(bool hasSceneEnv READ hasSceneEnv NOTIFY hasSceneEnvChanged)
 
 public:
-    ContentLibraryTexturesModel(const QString &category, QObject *parent = nullptr);
+    ContentLibraryTexturesModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -51,7 +51,6 @@ private:
     void updateIsEmpty();
 
     QString m_searchText;
-    QString m_category;
     QList<ContentLibraryTexturesCategory *> m_bundleCategories;
     QVariantMap m_modifiedFiles;
     QSet<QString> m_newFiles;

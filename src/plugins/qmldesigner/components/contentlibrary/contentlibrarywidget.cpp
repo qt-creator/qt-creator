@@ -50,7 +50,7 @@
 
 namespace QmlDesigner {
 
-constexpr int TextureBundleMetadataVersion = 1;
+constexpr int TextureBundleMetadataVersion = 2;
 
 static QString propertyEditorResourcesPath()
 {
@@ -133,8 +133,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     : m_iconProvider(Utils::makeUniqueObjectPtr<ContentLibraryIconProvider>())
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
-    , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
-    , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
+    , m_texturesModel(new ContentLibraryTexturesModel(this))
     , m_effectsModel(new ContentLibraryEffectsModel(this))
     , m_userModel(new ContentLibraryUserModel(this))
     , m_showInGraphicalShellMsg(Core::FileUtils::msgGraphicalShellAction())
@@ -152,7 +151,9 @@ ContentLibraryWidget::ContentLibraryWidget()
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
     m_textureBundleUrl = QmlDesignerPlugin::settings()
-                    .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString() + "/textures";
+                             .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL)
+                             .toString()
+                         + "/textures/" + QByteArray::number(TextureBundleMetadataVersion);
 
     m_bundlePath = Paths::bundlesPathSetting();
 
@@ -178,12 +179,11 @@ ContentLibraryWidget::ContentLibraryWidget()
 
     auto map = m_quickWidget->registerPropertyMap("ContentLibraryBackend");
 
-    map->setProperties({{"rootView",          QVariant::fromValue(this)},
-                        {"materialsModel",    QVariant::fromValue(m_materialsModel.data())},
-                        {"texturesModel",     QVariant::fromValue(m_texturesModel.data())},
-                        {"environmentsModel", QVariant::fromValue(m_environmentsModel.data())},
-                        {"effectsModel",      QVariant::fromValue(m_effectsModel.data())},
-                        {"userModel",         QVariant::fromValue(m_userModel.data())}});
+    map->setProperties({{"rootView", QVariant::fromValue(this)},
+                        {"materialsModel", QVariant::fromValue(m_materialsModel.data())},
+                        {"texturesModel", QVariant::fromValue(m_texturesModel.data())},
+                        {"effectsModel", QVariant::fromValue(m_effectsModel.data())},
+                        {"userModel", QVariant::fromValue(m_userModel.data())}});
 
     reloadQmlSource();
     createImporter();
@@ -563,9 +563,6 @@ bool ContentLibraryWidget::fetchTextureBundleJson(const QDir &bundleDir)
                 m_texturesModel->setModifiedFileEntries(modifiedFilesEntries);
                 m_texturesModel->setNewFileEntries(actualNewFiles);
 
-                m_environmentsModel->setModifiedFileEntries(modifiedFilesEntries);
-                m_environmentsModel->setNewFileEntries(actualNewFiles);
-
                 if (newFiles.count() > 0) {
                     fetchNewTextureIcons(existing, newFiles, filePath, bundleDir);
                     return;
@@ -589,7 +586,6 @@ void ContentLibraryWidget::populateTextureBundleModels()
     QString bundleIconPath = m_bundlePath + "/TextureBundleIcons";
 
     m_texturesModel->loadTextureBundle(m_textureBundleUrl, bundleIconPath, jsonData);
-    m_environmentsModel->loadTextureBundle(m_textureBundleUrl, bundleIconPath, jsonData);
 }
 
 bool ContentLibraryWidget::fetchTextureBundleIcons(const QDir &bundleDir)
@@ -639,8 +635,6 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
     QString checksumOnServer;
     if (category == "Textures")
         checksumOnServer = m_texturesModel->removeModifiedFileEntry(textureKey);
-    else if (category == "Environments")
-        checksumOnServer = m_environmentsModel->removeModifiedFileEntry(textureKey);
 
     QJsonObject metaDataObj;
     QFile jsonFile(m_bundlePath + "/texture_bundle.json");
@@ -668,8 +662,6 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
 
     if (category == "Textures")
         m_texturesModel->markTextureHasNoUpdates(subcategory, textureKey);
-    else if (category == "Environments")
-        m_environmentsModel->markTextureHasNoUpdates(subcategory, textureKey);
 }
 
 bool ContentLibraryWidget::has3DNode(const QByteArray &data) const
@@ -844,7 +836,6 @@ void ContentLibraryWidget::updateSearch()
     m_materialsModel->setSearchText(m_filterText);
     m_effectsModel->setSearchText(m_filterText);
     m_texturesModel->setSearchText(m_filterText);
-    m_environmentsModel->setSearchText(m_filterText);
     m_userModel->setSearchText(m_filterText);
     m_quickWidget->update();
 }
@@ -917,11 +908,6 @@ QPointer<ContentLibraryMaterialsModel> ContentLibraryWidget::materialsModel() co
 QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::texturesModel() const
 {
     return m_texturesModel;
-}
-
-QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::environmentsModel() const
-{
-    return m_environmentsModel;
 }
 
 QPointer<ContentLibraryEffectsModel> ContentLibraryWidget::effectsModel() const

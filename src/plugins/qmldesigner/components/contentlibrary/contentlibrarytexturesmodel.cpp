@@ -23,11 +23,11 @@
 
 namespace QmlDesigner {
 
-ContentLibraryTexturesModel::ContentLibraryTexturesModel(const QString &category, QObject *parent)
+inline constexpr QStringView textureCategory{u"Textures"};
+
+ContentLibraryTexturesModel::ContentLibraryTexturesModel(QObject *parent)
     : QAbstractListModel(parent)
-{
-    m_category = category; // textures main category (ex: Textures, Environments)
-}
+{}
 
 int ContentLibraryTexturesModel::rowCount(const QModelIndex &) const
 {
@@ -106,7 +106,7 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &textureBundle
     if (!m_bundleCategories.isEmpty())
         return;
 
-    QDir bundleDir = QString("%1/%2").arg(bundleIconPath, m_category);
+    QDir bundleDir = QString("%1/%2").arg(bundleIconPath, textureCategory);
     QTC_ASSERT(bundleDir.exists(), return);
 
     const QVariantMap imageItems = jsonData.value("image_items").toMap();
@@ -116,16 +116,22 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &textureBundle
         auto category = new ContentLibraryTexturesCategory(this, dir.fileName());
         const QFileInfoList texIconFiles = QDir(dir.filePath()).entryInfoList(QDir::Files);
         for (const QFileInfo &texIcon : texIconFiles) {
-            QString textureUrl = QString("%1/%2/%3/%4.zip").arg(textureBundleUrl, m_category,
-                                                                dir.fileName(), texIcon.baseName());
-            QString iconUrl = QString("%1/icons/%2/%3/%4.png").arg(textureBundleUrl, m_category,
-                                                                   dir.fileName(), texIcon.baseName());
+            QString textureUrl = QString("%1/%2/%3/%4.zip")
+                                     .arg(textureBundleUrl,
+                                          textureCategory,
+                                          dir.fileName(),
+                                          texIcon.baseName());
+            QString iconUrl = QString("%1/icons/%2/%3/%4.png")
+                                  .arg(textureBundleUrl,
+                                       textureCategory,
+                                       dir.fileName(),
+                                       texIcon.baseName());
 
             QString texturePath = QString("%1/%2/%3")
-                                            .arg(Paths::bundlesPathSetting(),
-                                                 m_category,
-                                                 dir.fileName());
-            QString key = QString("%1/%2/%3").arg(m_category, dir.fileName(), texIcon.baseName());
+                                      .arg(Paths::bundlesPathSetting(),
+                                           textureCategory,
+                                           dir.fileName());
+            QString key = QString("%1/%2/%3").arg(textureCategory, dir.fileName(), texIcon.baseName());
             QString fileExt;
             QSize dimensions;
             qint64 sizeInBytes = -1;
@@ -156,7 +162,7 @@ void ContentLibraryTexturesModel::setModifiedFileEntries(const QVariantMap &file
 {
     m_modifiedFiles.clear();
 
-    const QString prefix = m_category + "/";
+    const QString prefix = textureCategory + "/";
     const QStringList keys = files.keys();
 
     for (const QString &key : keys) {
@@ -167,7 +173,7 @@ void ContentLibraryTexturesModel::setModifiedFileEntries(const QVariantMap &file
 
 void ContentLibraryTexturesModel::setNewFileEntries(const QStringList &newFiles)
 {
-    const QString prefix = m_category + "/";
+    const QString prefix = textureCategory + "/";
 
     m_newFiles = Utils::filteredCast<QSet<QString>>(newFiles, [&prefix](const QString &key) {
         return key.startsWith(prefix);

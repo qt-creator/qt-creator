@@ -154,7 +154,6 @@ WidgetInfo ContentLibraryView::widgetInfo()
             ModelNode activeSceneEnv = Utils3D::resolveSceneEnv(this, m_sceneId);
             const bool sceneEnvExists = activeSceneEnv.isValid();
             m_widget->texturesModel()->setHasSceneEnv(sceneEnvExists);
-            m_widget->environmentsModel()->setHasSceneEnv(sceneEnvExists);
         });
 
         connect(m_widget, &ContentLibraryWidget::importBundle, this,
