@@ -3920,10 +3920,10 @@ void ProjectExplorerPluginPrivate::removeFile()
         const bool success = status == RemovedFilesFromProject::Ok
                 || (status == RemovedFilesFromProject::Wildcard && deleteFile);
         if (!success) {
-            TaskHub::addTask(BuildSystemTask(Task::Error,
+            TaskHub::addTask<BuildSystemTask>(Task::Error,
                     Tr::tr("Could not remove file \"%1\" from project \"%2\".")
                         .arg(currentFilePath.toUserOutput(), folderNode->managingProject()->displayName()),
-                    folderNode->managingProject()->filePath()));
+                    folderNode->managingProject()->filePath());
         }
     }
 

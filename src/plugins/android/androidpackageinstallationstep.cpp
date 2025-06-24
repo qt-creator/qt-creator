@@ -180,7 +180,7 @@ void AndroidPackageInstallationStep::reportWarningOrError(const QString &message
 {
     qCDebug(packageInstallationStepLog) << message;
     emit addOutput(message, OutputFormat::ErrorMessage);
-    TaskHub::addTask(BuildSystemTask(type, message));
+    TaskHub::addTask<BuildSystemTask>(type, message);
 }
 
 // AndroidPackageInstallationStepFactory

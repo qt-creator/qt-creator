@@ -1068,7 +1068,7 @@ void AndroidBuildApkStep::reportWarningOrError(const QString &message, Task::Tas
 {
     qCDebug(buildapkstepLog) << message;
     emit addOutput(message, OutputFormat::ErrorMessage);
-    TaskHub::addTask(BuildSystemTask(type, message));
+    TaskHub::addTask<BuildSystemTask>(type, message);
 }
 
 void AndroidBuildApkStep::updateBuildToolsVersionInJsonFile()
@@ -1143,9 +1143,9 @@ void AndroidBuildApkStep::stdError(const QString &output)
 
     if (newOutput.startsWith("warning", Qt::CaseInsensitive)
         || newOutput.startsWith("note", Qt::CaseInsensitive))
-        TaskHub::addTask(BuildSystemTask(Task::Warning, newOutput));
+        TaskHub::addTask<BuildSystemTask>(Task::Warning, newOutput);
     else
-        TaskHub::addTask(BuildSystemTask(Task::Error, newOutput));
+        TaskHub::addTask<BuildSystemTask>(Task::Error, newOutput);
 }
 
 QVariant AndroidBuildApkStep::data(Utils::Id id) const

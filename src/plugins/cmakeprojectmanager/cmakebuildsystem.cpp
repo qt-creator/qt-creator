@@ -1343,15 +1343,13 @@ void CMakeBuildSystem::setParametersAndRequestParse(const BuildDirParameters &pa
 
     const CMakeTool *tool = parameters.cmakeTool();
     if (!tool || !tool->isValid()) {
-        TaskHub::addTask(
-            BuildSystemTask(Task::Error,
-                            Tr::tr("The kit needs to define a CMake tool to parse this project.")));
+        TaskHub::addTask<BuildSystemTask>(
+                    Task::Error, Tr::tr("The kit needs to define a CMake tool to parse this project."));
         return;
     }
     if (!tool->hasFileApi()) {
-        TaskHub::addTask(
-            BuildSystemTask(Task::Error,
-                            CMakeKitAspect::msgUnsupportedVersion(tool->version().fullVersion)));
+        TaskHub::addTask<BuildSystemTask>(
+                    Task::Error, CMakeKitAspect::msgUnsupportedVersion(tool->version().fullVersion));
         return;
     }
     QTC_ASSERT(parameters.isValid(), return );

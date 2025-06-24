@@ -1847,7 +1847,7 @@ void CMakeBuildSystem::setError(const QString &message)
         qCDebug(cmakeBuildConfigurationLog) << "Emitting enabledChanged signal";
         emit buildConfiguration()->enabledChanged();
     }
-    TaskHub::addTask(BuildSystemTask(Task::TaskType::Error, message));
+    TaskHub::addTask<BuildSystemTask>(Task::TaskType::Error, message);
     emit errorOccurred(m_error);
 }
 
@@ -1856,7 +1856,7 @@ void CMakeBuildSystem::setWarning(const QString &message)
     if (m_warning == message)
         return;
     m_warning = message;
-    TaskHub::addTask(BuildSystemTask(Task::TaskType::Warning, message));
+    TaskHub::addTask<BuildSystemTask>(Task::TaskType::Warning, message);
     emit warningOccurred(m_warning);
 }
 

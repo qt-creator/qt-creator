@@ -926,13 +926,13 @@ void Project::createTargetFromMap(const Store &map, int index)
 
         d->m_vanishedTargets.append(targetMap);
         const QString formerKitName = targetMap.value(Target::displayNameKey()).toString();
-        TaskHub::addTask(BuildSystemTask(
+        TaskHub::addTask<BuildSystemTask>(
             Task::Warning,
             ::PE::Tr::tr(
                 "Project \"%1\" was configured for "
                 "kit \"%2\" with id %3, which does not exist anymore. You can create a new kit "
                 "or copy the steps of the vanished kit to another kit in %4 mode.")
-                .arg(displayName(), formerKitName, id.toString(), Tr::tr("Projects"))));
+                .arg(displayName(), formerKitName, id.toString(), Tr::tr("Projects")));
         return;
     }
 

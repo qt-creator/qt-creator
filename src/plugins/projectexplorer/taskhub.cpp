@@ -108,9 +108,9 @@ void TaskHub::addCategory(const TaskCategory &category)
     emit taskHub().categoryAdded(category);
 }
 
-void TaskHub::addTask(Task::TaskType type, const QString &description, Id category)
+void TaskHub::addTask(Task::TaskType type, const QString &description, Utils::Id category)
 {
-    addTask(Task(type, description, {}, -1, category));
+    addTask<Task>(type, description, Utils::FilePath(), -1, category);
 }
 
 void TaskHub::addTask(Task task)

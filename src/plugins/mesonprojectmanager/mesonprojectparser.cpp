@@ -508,7 +508,7 @@ bool MesonProjectParser::run(
 void MesonProjectParser::handleProcessDone()
 {
     if (m_process->result() != ProcessResult::FinishedWithSuccess)
-        TaskHub::addTask(BuildSystemTask{Task::TaskType::Error, m_process->exitMessage()});
+        TaskHub::addTask<BuildSystemTask>(Task::TaskType::Error, m_process->exitMessage());
 
     m_stdo = m_process->readAllRawStandardOutput();
     m_stderr = m_process->readAllRawStandardError();
@@ -565,13 +565,13 @@ bool MesonProjectParser::sanityCheck(const ProcessRunData &runData) const
     const auto &exe = runData.command.executable();
     if (!exe.exists()) {
         //Should only reach this point if Meson exe is removed while a Meson project is opened
-        TaskHub::addTask(BuildSystemTask{
-            Task::TaskType::Error, Tr::tr("Executable does not exist: %1").arg(exe.toUserOutput())});
+        TaskHub::addTask<BuildSystemTask>(
+            Task::TaskType::Error, Tr::tr("Executable does not exist: %1").arg(exe.toUserOutput()));
         return false;
     }
     if (!exe.toFileInfo().isExecutable()) {
-        TaskHub::addTask(BuildSystemTask{
-            Task::TaskType::Error, Tr::tr("Command is not executable: %1").arg(exe.toUserOutput())});
+        TaskHub::addTask<BuildSystemTask>(
+            Task::TaskType::Error, Tr::tr("Command is not executable: %1").arg(exe.toUserOutput()));
         return false;
     }
     return true;

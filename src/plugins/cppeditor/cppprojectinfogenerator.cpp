@@ -38,7 +38,7 @@ ProjectInfo::ConstPtr ProjectInfoGenerator::generate(const QPromise<ProjectInfo:
 
     static const auto showWarning = [](const QString &message) {
         QTimer::singleShot(0, &taskHub(), [message] {
-            TaskHub::addTask(BuildSystemTask(Task::Warning, message));
+            TaskHub::addTask<BuildSystemTask>(Task::Warning, message);
         });
     };
     if (m_cToolchainMissing) {

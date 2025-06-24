@@ -42,8 +42,7 @@ void FileGenerator::logIssue(ProjectExplorer::Task::TaskType type,
                              const QString &text,
                              const Utils::FilePath &file)
 {
-    ProjectExplorer::BuildSystemTask task(type, text, file);
-    ProjectExplorer::TaskHub::addTask(task);
+    ProjectExplorer::TaskHub::addTask<ProjectExplorer::BuildSystemTask>(type, text, file);
     ProjectExplorer::TaskHub::requestPopup();
 }
 

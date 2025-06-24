@@ -193,12 +193,12 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
         // Add the CMakeUserPresets to the resolve hash map
         for (const auto &p : userPresets) {
             if (presetsHash.contains(p.name)) {
-                TaskHub::addTask(
-                    BuildSystemTask(Task::TaskType::Error,
-                                    Tr::tr("CMakeUserPresets.json cannot re-define the %1 preset: %2")
-                                        .arg(presetType)
-                                        .arg(p.name),
-                                    "CMakeUserPresets.json"));
+                TaskHub::addTask<BuildSystemTask>(
+                    Task::TaskType::Error,
+                    Tr::tr("CMakeUserPresets.json cannot re-define the %1 preset: %2")
+                        .arg(presetType)
+                        .arg(p.name),
+                    FilePath::fromString("CMakeUserPresets.json"));
                 TaskHub::requestPopup();
             } else {
                 presetsHash.insert(p.name, p);
@@ -236,10 +236,10 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
     for (auto &buildPreset : presetsData.buildPresets) {
         if (buildPreset.inheritConfigureEnvironment) {
             if (!buildPreset.configurePreset && !buildPreset.hidden) {
-                TaskHub::addTask(BuildSystemTask(
+                TaskHub::addTask<BuildSystemTask>(
                     Task::TaskType::Error,
                     Tr::tr("Build preset %1 is missing a corresponding configure preset.")
-                        .arg(buildPreset.name)));
+                        .arg(buildPreset.name));
                 TaskHub::requestPopup();
             }
 
@@ -311,12 +311,11 @@ void CMakeProject::readPresets()
             if (parser.parse(presetFile, errorMessage, errorLine)) {
                 data = parser.presetsData();
             } else {
-                TaskHub::addTask(BuildSystemTask(Task::TaskType::Error,
-                                                 Tr::tr("Failed to load %1: %2")
-                                                     .arg(presetFile.fileName())
-                                                     .arg(errorMessage),
-                                                 presetFile,
-                                                 errorLine));
+                TaskHub::addTask<BuildSystemTask>(
+                    Task::TaskType::Error,
+                    Tr::tr("Failed to load %1: %2").arg(presetFile.fileName()).arg(errorMessage),
+                    presetFile,
+                    errorLine);
                 TaskHub::requestPopup();
             }
         }
@@ -334,12 +333,12 @@ void CMakeProject::readPresets()
                     Internal::PresetsData includeData = parsePreset(includePath);
                     if (includeData.include) {
                         if (includeStack.contains(includePath)) {
-                            TaskHub::addTask(BuildSystemTask(
+                            TaskHub::addTask<BuildSystemTask>(
                                 Task::TaskType::Warning,
                                 Tr::tr("Attempt to include \"%1\" which was already parsed.")
                                     .arg(includePath.path()),
                                 Utils::FilePath(),
-                                -1));
+                                -1);
                             TaskHub::requestPopup();
                         } else {
                             resolveIncludes(includeData, includeStack);

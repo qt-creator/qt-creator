@@ -369,8 +369,8 @@ void PythonBuildSystem::parse()
 
         TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
         for (const PyProjectTomlError &error : std::as_const(pyProjectTomlParseResult.errors)) {
-            TaskHub::addTask(
-                BuildSystemTask(Task::TaskType::Error, error.description, filePath, error.line));
+            TaskHub::addTask<BuildSystemTask>(
+                Task::TaskType::Error, error.description, filePath, error.line);
         }
 
         if (!pyProjectTomlParseResult.projectName.isEmpty()) {

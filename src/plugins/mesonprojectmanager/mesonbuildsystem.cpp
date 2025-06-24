@@ -265,7 +265,7 @@ void MesonBuildSystem::parsingCompleted(bool success)
         UNLOCK(true);
         emitBuildSystemUpdated();
     } else {
-        TaskHub::addTask(BuildSystemTask(Task::Error, Tr::tr("Meson build: Parsing failed")));
+        TaskHub::addTask<BuildSystemTask>(Task::Error, Tr::tr("Meson build: Parsing failed"));
         UNLOCK(false);
         emitBuildSystemUpdated();
     }

@@ -93,7 +93,7 @@ QList<TargetInformation> TargetInformation::readFromProject(
 
         } catch (const std::exception &e) {
             const QString error = QString("Error parsing package manifest: %1").arg(QString::fromUtf8(e.what()));
-            ProjectExplorer::TaskHub::addTask(BuildSystemTask(ProjectExplorer::Task::Error, error, manifestFilePath));
+            TaskHub::addTask<BuildSystemTask>(Task::Error, error, manifestFilePath);
         }
     }
     return result;

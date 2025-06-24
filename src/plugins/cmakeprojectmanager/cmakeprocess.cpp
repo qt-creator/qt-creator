@@ -147,7 +147,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         if (m_process->result() != ProcessResult::FinishedWithSuccess) {
             const QString message = m_process->exitMessage();
             BuildSystem::appendBuildSystemOutput(addCMakePrefix({{}, message}).join('\n'));
-            TaskHub::addTask(CMakeTask(Task::Error, message));
+            TaskHub::addTask<CMakeTask>(Task::Error, message);
         }
 
         emit finished(m_process->exitCode());

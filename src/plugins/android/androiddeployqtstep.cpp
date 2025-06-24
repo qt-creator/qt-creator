@@ -236,11 +236,11 @@ bool AndroidDeployQtStep::init()
 
     if (qtVersion->supportsMultipleQtAbis() && !info.cpuAbi.isEmpty()
             && !selectedAbis.contains(info.cpuAbi.first())) {
-        TaskHub::addTask(DeploymentTask(Task::Warning,
+        TaskHub::addTask<DeploymentTask>(Task::Warning,
             Tr::tr("Android: The main ABI of the deployment device (%1) is not selected. The app "
                    "execution or debugging might not work properly. Add it from Projects > Build > "
                    "Build Steps > qmake > ABIs.")
-            .arg(info.cpuAbi.first())));
+            .arg(info.cpuAbi.first()));
     }
 
     m_avdName = info.avdName;
@@ -623,9 +623,9 @@ void AndroidDeployQtStep::stdError(const QString &line)
     if (newOutput.startsWith("warning", Qt::CaseInsensitive)
         || newOutput.startsWith("note", Qt::CaseInsensitive)
         || newOutput.startsWith(QLatin1String("All files should be loaded."))) {
-        TaskHub::addTask(DeploymentTask(Task::Warning, newOutput));
+        TaskHub::addTask<DeploymentTask>(Task::Warning, newOutput);
     } else {
-        TaskHub::addTask(DeploymentTask(Task::Error, newOutput));
+        TaskHub::addTask<DeploymentTask>(Task::Error, newOutput);
     }
 }
 
@@ -633,7 +633,7 @@ void AndroidDeployQtStep::reportWarningOrError(const QString &message, Task::Tas
 {
     qCDebug(deployStepLog).noquote() << message;
     emit addOutput(message, OutputFormat::ErrorMessage);
-    TaskHub::addTask(DeploymentTask(type, message));
+    TaskHub::addTask<DeploymentTask>(type, message);
 }
 
 // AndroidDeployQtStepFactory

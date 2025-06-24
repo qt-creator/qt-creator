@@ -44,7 +44,7 @@ static void addTask(Task::TaskType type,
                     int line = -1)
 {
     QMetaObject::invokeMethod(&taskHub(), [=] {
-        TaskHub::addTask(BuildSystemTask(type, description, file, line));
+        TaskHub::addTask<BuildSystemTask>(type, description, file, line);
     });
 }
 

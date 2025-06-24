@@ -825,7 +825,7 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
 
 void QmakeBuildSystem::proFileParseError(const QString &errorMessage, const FilePath &filePath)
 {
-    TaskHub::addTask(QmakeTask(Task::Error, errorMessage, filePath));
+    TaskHub::addTask<QmakeTask>(Task::Error, errorMessage, filePath);
 }
 
 QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFile *qmakeProFile)
@@ -1413,15 +1413,15 @@ void QmakeBuildSystem::testToolChain(Toolchain *tc, const FilePath &path) const
             && pair.second.path().contains("/Contents/Developer/Toolchains/")) {
         return;
     }
-    TaskHub::addTask(
-        BuildSystemTask(Task::Warning,
-                        Tr::tr(
-                            "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
-                            "Please update your kit (%3) or choose a mkspec for qmake that matches "
-                            "your target environment better.")
-                            .arg(path.toUserOutput())
-                            .arg(expected.toUserOutput())
-                            .arg(kit()->displayName())));
+    TaskHub::addTask<BuildSystemTask>(
+        Task::Warning,
+        Tr::tr(
+            "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
+            "Please update your kit (%3) or choose a mkspec for qmake that matches "
+            "your target environment better.")
+            .arg(path.toUserOutput())
+            .arg(expected.toUserOutput())
+            .arg(kit()->displayName()));
     m_toolChainWarnings.insert(pair);
 }
 

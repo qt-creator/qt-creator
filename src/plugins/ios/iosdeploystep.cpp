@@ -56,7 +56,7 @@ public:
         });
         connect(m_toolHandler.get(), &IosToolHandler::message, this, &IosTransfer::message);
         connect(m_toolHandler.get(), &IosToolHandler::errorMsg, this, [this](const QString &message) {
-            TaskHub::addTask(DeploymentTask(Task::Error, message));
+            TaskHub::addTask<DeploymentTask>(Task::Error, message);
             emit errorMessage(message);
         });
         connect(m_toolHandler.get(), &IosToolHandler::didTransferApp, this,
@@ -65,15 +65,15 @@ public:
             disconnect(m_toolHandler.get(), nullptr, this, nullptr);
             m_toolHandler.release()->deleteLater();
             if (status != IosToolHandler::Success && m_expectSuccess) {
-                TaskHub::addTask(DeploymentTask(Task::Error, Tr::tr("Deployment failed. "
-                    "The settings in the Devices window of Xcode might be incorrect.")));
+                TaskHub::addTask<DeploymentTask>(Task::Error, Tr::tr("Deployment failed. "
+                    "The settings in the Devices window of Xcode might be incorrect."));
             }
             emit done(toDoneResult(status == IosToolHandler::Success));
         });
         connect(m_toolHandler.get(), &IosToolHandler::finished, this, [this] {
             disconnect(m_toolHandler.get(), nullptr, this, nullptr);
             m_toolHandler.release()->deleteLater();
-            TaskHub::addTask(DeploymentTask(Task::Error, Tr::tr("Deployment failed.")));
+            TaskHub::addTask<DeploymentTask>(Task::Error, Tr::tr("Deployment failed."));
             emit done(DoneResult::Error);
         });
         m_toolHandler->requestTransferApp(m_bundlePath, m_deviceType->identifier);
@@ -102,8 +102,7 @@ GroupItem createDeviceCtlDeployTask(
 {
     const auto onSetup = [=](Process &process) {
         if (!device) {
-            TaskHub::addTask(
-                DeploymentTask(Task::Error, Tr::tr("Deployment failed. No iOS device found.")));
+            TaskHub::addTask<DeploymentTask>(Task::Error, Tr::tr("Deployment failed. No iOS device found."));
             return SetupResult::StopWithError;
         }
         process.setCommand({FilePath::fromString("/usr/bin/xcrun"),
@@ -226,15 +225,14 @@ GroupItem IosDeployStep::runRecipe()
                                         const std::optional<Task::TaskType> &taskType) {
             emit addOutput(error, OutputFormat::ErrorMessage);
             if (taskType)
-                TaskHub::addTask(DeploymentTask(*taskType, error));
+                TaskHub::addTask<DeploymentTask>(*taskType, error);
         };
         return createDeviceCtlDeployTask(iosdevice(), m_bundlePath, handleProgress, handleError);
     }
     // otherwise use iostool:
     const auto onSetup = [this](IosTransfer &transfer) {
         if (!m_device) {
-            TaskHub::addTask(
-                DeploymentTask(Task::Error, Tr::tr("Deployment failed. No iOS device found.")));
+            TaskHub::addTask<DeploymentTask>(Task::Error, Tr::tr("Deployment failed. No iOS device found."));
             return SetupResult::StopWithError;
         }
         transfer.setDeviceType(m_deviceType);

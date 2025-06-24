@@ -495,13 +495,13 @@ static void handleIosToolErrorMessage(RunControl *runControl, const QString &mes
     QString res(message);
     const QString lockedErr = "Unexpected reply: ELocked (454c6f636b6564) vs OK (4f4b)";
     if (message.contains("AMDeviceStartService returned -402653150")) {
-        TaskHub::addTask(DeploymentTask(
+        TaskHub::addTask<DeploymentTask>(
             Task::Warning,
             Tr::tr("Run failed. "
-                   "The settings in the Organizer window of Xcode might be incorrect.")));
+                   "The settings in the Organizer window of Xcode might be incorrect."));
     } else if (res.contains(lockedErr)) {
         QString message = Tr::tr("The device is locked, please unlock.");
-        TaskHub::addTask(DeploymentTask(Task::Error, message));
+        TaskHub::addTask<DeploymentTask>(Task::Error, message);
         res.replace(lockedErr, message);
     }
     runControl->postMessage(res, StdErrFormat);
@@ -593,8 +593,8 @@ static Group iosToolKicker(const SingleBarrier &barrier, RunControl *runControl,
         if (bundleDir.exists())
             return SetupResult::Continue;
 
-        TaskHub::addTask(DeploymentTask(Task::Warning, Tr::tr("Could not find %1.")
-                                                           .arg(bundleDir.toUserOutput())));
+        TaskHub::addTask<DeploymentTask>(Task::Warning, Tr::tr("Could not find %1.")
+                                                      .arg(bundleDir.toUserOutput()));
         return SetupResult::StopWithError;
     };
 
@@ -741,9 +741,10 @@ static void parametersModifier(RunControl *runControl, DebuggerRunParameters &rp
         const FilePath dsymPath = FilePath::fromString(bundlePath.append(".dSYM"));
         if (dsymPath.exists()
             && dsymPath.lastModified() < data->localExecutable.lastModified()) {
-            TaskHub::addTask(DeploymentTask(Task::Warning,
-                                            Tr::tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
-                                                .arg(dsymPath.toUserOutput())));
+            TaskHub::addTask<DeploymentTask>(
+                Task::Warning,
+                Tr::tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
+                    .arg(dsymPath.toUserOutput()));
         }
     }
 
@@ -799,7 +800,7 @@ static Group debugRecipe(RunControl *runControl)
         const Result<FilePath> deviceSdk = findDeviceSdk(dev);
 
         if (!deviceSdk)
-            TaskHub::addTask(DeploymentTask(Task::Warning, deviceSdk.error()));
+            TaskHub::addTask<DeploymentTask>(Task::Warning, deviceSdk.error());
         else
             rp.setDeviceSymbolsRoot(deviceSdk->path());
     } else {

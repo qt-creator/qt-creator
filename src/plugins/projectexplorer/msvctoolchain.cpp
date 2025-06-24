@@ -784,7 +784,7 @@ void MsvcToolchain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
                         Tr::tr("Falling back to use the cached environment for \"%1\" after:")
                                 .arg(displayName()) + '\n');
                 }
-                TaskHub::addTask(CompileTask(severity, errorMessage));
+                TaskHub::addTask<CompileTask>(severity, errorMessage);
             }
         } else {
             updateEnvironmentModifications(result.environmentItems);
@@ -826,7 +826,7 @@ Utils::Environment MsvcToolchain::readEnvironmentSetting(const Utils::Environmen
             if (result.error) {
                 const QString &errorMessage = *result.error;
                 if (!errorMessage.isEmpty())
-                    TaskHub::addTask(CompileTask(Task::Error, errorMessage));
+                    TaskHub::addTask<CompileTask>(Task::Error, errorMessage);
             } else {
                 resultEnv.modify(result.environmentItems);
             }
