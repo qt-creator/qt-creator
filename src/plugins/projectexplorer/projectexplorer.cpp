@@ -799,6 +799,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
 #ifdef WITH_TESTS
     addTest<ProjectExplorerTest>();
     addTestCreator(createAbiTest);
+    addTestCreator(createCustomParserTest);
     addTestCreator(createGccParserTest);
     addTestCreator(createGccToolchainTest);
     addTestCreator(createGnuMakeParserTest);

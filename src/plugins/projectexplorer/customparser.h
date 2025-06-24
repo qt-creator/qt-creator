@@ -135,6 +135,10 @@ private:
     void updateSummary();
 };
 
+#ifdef WITH_TESTS
+QObject *createCustomParserTest();
+#endif
+
 } // namespace Internal
 } // namespace ProjectExplorer
 

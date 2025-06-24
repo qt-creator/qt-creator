@@ -16,9 +16,6 @@ class ProjectExplorerTest final : public QObject
     Q_OBJECT
 
 private slots:
-    void testCustomOutputParsers_data();
-    void testCustomOutputParsers();
-
     void testClangOutputParser_data();
     void testClangOutputParser();
 
