@@ -15,12 +15,12 @@ using namespace Help::Internal;
 
 bool SearchTaskHandler::canHandle(const ProjectExplorer::Task &task) const
 {
-    return !task.summary.isEmpty();
+    return !task.summary().isEmpty();
 }
 
 void SearchTaskHandler::handle(const ProjectExplorer::Task &task)
 {
-    emit search(QUrl("https://www.google.com/search?q=" + task.summary));
+    emit search(QUrl("https://www.google.com/search?q=" + task.summary()));
 }
 
 QAction *SearchTaskHandler::createAction() const

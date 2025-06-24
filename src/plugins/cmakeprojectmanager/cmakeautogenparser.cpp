@@ -60,7 +60,7 @@ OutputLineParser::Result CMakeAutogenParser::handleLine(const QString &line, Out
         match = m_separatorLine.match(trimmedLine);
         m_expectedState = LINE_DESCRIPTION;
         if (!match.hasMatch())
-            m_lastTask.details.append(trimmedLine);
+            m_lastTask.addToDetails(trimmedLine);
 
         return Status::InProgress;
     }
@@ -71,7 +71,7 @@ OutputLineParser::Result CMakeAutogenParser::handleLine(const QString &line, Out
             flush();
             return Status::Done;
         }
-        m_lastTask.details.append(trimmedLine);
+        m_lastTask.addToDetails(trimmedLine);
 
         return Status::InProgress;
     }
@@ -88,9 +88,12 @@ void CMakeAutogenParser::flush()
     Task t = m_lastTask;
     m_lastTask.clear();
 
-    if (t.summary.isEmpty() && !t.details.isEmpty())
-        t.summary = t.details.takeFirst();
-    m_lines += t.details.count();
+    if (t.summary().isEmpty() && t.hasDetails()) {
+        QStringList details = t.details();
+        t.setSummary(details.takeFirst());
+        t.setDetails(details);
+    }
+    m_lines += t.details().count();
 
     scheduleTask(t, m_lines, 1);
     m_lines = 0;

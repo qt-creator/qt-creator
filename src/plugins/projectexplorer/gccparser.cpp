@@ -171,8 +171,8 @@ void GccParser::gccCreateOrAmendTask(
         && !file.isEmpty() && line > 0) {
         fixTargetLink();
         currentTask().setFile(file);
-        currentTask().line = line;
-        currentTask().column = column;
+        currentTask().setLine(line);
+        currentTask().setColumn(column);
     }
 }
 
@@ -275,9 +275,9 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
 bool GccParser::isContinuation(const QString &newLine) const
 {
     return !currentTask().isNull()
-           && (currentTask().details.last().endsWith(':')
-               || currentTask().details.last().endsWith(',')
-               || currentTask().details.last().contains(" required from ")
+           && (currentTask().details().last().endsWith(':')
+               || currentTask().details().last().endsWith(',')
+               || currentTask().details().last().contains(" required from ")
                || newLine.contains("within this context")
                || newLine.contains("note:"));
 }
@@ -306,7 +306,7 @@ private slots:
                               const QList<QTextLayout::FormatRange> formats)
         {
             CompileTask task(type, description, file, line, column);
-            task.formats = formats;
+            task.setFormats(formats);
             return task;
         };
 

@@ -239,7 +239,7 @@ bool QMakeStep::init()
         bool canContinue = true;
         for (const Task &t : tasks) {
             emit addTask(t);
-            if (t.type == Task::Error)
+            if (t.isError())
                 canContinue = false;
         }
         if (!canContinue) {

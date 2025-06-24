@@ -116,7 +116,8 @@ public:
 private:
     bool canHandle(const Task &task) const override
     {
-        return task.description() == m_pattern.description() && task.category == m_pattern.category;
+        return task.description() == m_pattern.description()
+               && task.category() == m_pattern.category();
     }
 
     void handle(const Task &task) override
@@ -148,7 +149,7 @@ private:
         QStringList lines;
         for (const Task &task : tasks) {
             QString type;
-            switch (task.type) {
+            switch (task.type()) {
             case Task::Error:
                 //: Task is of type: error
                 type = Tr::tr("error:") + QLatin1Char(' ');
@@ -160,7 +161,7 @@ private:
             default:
                 break;
             }
-            lines << task.file.toUserOutput() + ':' + QString::number(task.line)
+            lines << task.file().toUserOutput() + ':' + QString::number(task.line())
                          + ": " + type + task.description();
         }
         setClipboardAndSelection(lines.join('\n'));
@@ -200,14 +201,14 @@ private:
 
     bool canHandle(const Task &task) const override
     {
-        return task.file.isReadableFile();
+        return task.file().isReadableFile();
     }
 
     void handle(const Task &task) override
     {
-        const int column = task.column ? task.column - 1 : 0;
+        const int column = task.column() ? task.column() - 1 : 0;
         EditorManager::openEditorAt(
-            {task.file, task.movedLine, column}, {}, EditorManager::SwitchSplitIfAlreadyVisible);
+            {task.file(), task.line(), column}, {}, EditorManager::SwitchSplitIfAlreadyVisible);
     }
 
     QAction *createAction() const
@@ -228,9 +229,9 @@ public:
 private:
     bool canHandle(const Task &task) const override
     {
-        if (!task.file.isReadableFile())
+        if (!task.file().isReadableFile())
             return false;
-        IVersionControl *vc = VcsManager::findVersionControlForDirectory(task.file.absolutePath());
+        IVersionControl *vc = VcsManager::findVersionControlForDirectory(task.file().absolutePath());
         if (!vc)
             return false;
         return vc->supportsOperation(IVersionControl::AnnotateOperation);
@@ -238,10 +239,10 @@ private:
 
     void handle(const Task &task) override
     {
-        IVersionControl *vc = VcsManager::findVersionControlForDirectory(task.file.absolutePath());
+        IVersionControl *vc = VcsManager::findVersionControlForDirectory(task.file().absolutePath());
         QTC_ASSERT(vc, return);
         QTC_ASSERT(vc->supportsOperation(IVersionControl::AnnotateOperation), return);
-        vc->vcsAnnotate(task.file.absoluteFilePath(), task.movedLine);
+        vc->vcsAnnotate(task.file().absoluteFilePath(), task.line());
     }
 
     QAction *createAction() const
@@ -273,10 +274,10 @@ private:
         QTC_ASSERT(!cmdLine.isEmpty(), return);
 
         QString prompt;
-        if (task.origin.isEmpty())
+        if (task.origin().isEmpty())
             prompt += "A software tool has emitted a diagnostic. ";
         else
-            prompt += QString("The tool \"%1\" has emitted a diagnostic. ").arg(task.origin);
+            prompt += QString("The tool \"%1\" has emitted a diagnostic. ").arg(task.origin());
         prompt += "Please explain what it is about. "
                   "Be as concise and concrete as possible and try to name the root cause."
                   "If you don't know the answer, just say so."
@@ -284,13 +285,13 @@ private:
                   "Do not think for more than a minute. "
                   "Here is the error: ###%1##";
         prompt = prompt.arg(task.description());
-        if (task.file.exists()) {
-            if (const auto contents = task.file.fileContents()) {
+        if (task.file().exists()) {
+            if (const auto contents = task.file().fileContents()) {
                 prompt.append('\n').append(
                     "Ideally, provide your solution in the form of a diff."
                     "Here are the contents of the file that the tool complained about: ###%1###."
                     "The path to the file is ###%2###.");
-                prompt = prompt.arg(QString::fromUtf8(*contents), task.file.toUserOutput());
+                prompt = prompt.arg(QString::fromUtf8(*contents), task.file().toUserOutput());
             }
         }
         const auto process = new Process;

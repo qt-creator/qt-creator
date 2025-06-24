@@ -277,7 +277,7 @@ QWidget *RunConfiguration::createConfigurationWidget()
 
 bool RunConfiguration::isConfigured() const
 {
-    return !Utils::anyOf(checkForIssues(), [](const Task &t) { return t.type == Task::Error; });
+    return !Utils::anyOf(checkForIssues(), &Task::isError);
 }
 
 bool RunConfiguration::isCustomized() const

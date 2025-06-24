@@ -27,7 +27,7 @@ public:
     MakeTask(TaskType type, const QString &description, const Utils::FilePath &file = {},
              int line = -1) : BuildSystemTask(type, description, file, line)
     {
-        origin = "make";
+        setOrigin("make");
     }
 };
 
@@ -90,7 +90,7 @@ static Result parseDescription(const QString &description)
 
 void GnuMakeParser::emitTask(const ProjectExplorer::Task &task)
 {
-    if (task.type == Task::Error) // Assume that all make errors will be follow up errors.
+    if (task.isError()) // Assume that all make errors will be follow up errors.
         m_suppressIssues = true;
     scheduleTask(task, 1, 0);
 }

@@ -57,7 +57,7 @@ public:
               int line = -1)
         : ProjectExplorer::BuildSystemTask(type, description, file, line)
     {
-        origin = "CMake";
+        setOrigin("CMake");
     }
 };
 

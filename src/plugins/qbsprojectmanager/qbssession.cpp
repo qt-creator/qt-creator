@@ -725,7 +725,7 @@ void ErrorInfo::generateTasks(ProjectExplorer::Task::TaskType type) const
 {
     for (const ErrorInfoItem &item : items) {
         BuildSystemTask t(type, item.description, item.filePath, item.line);
-        t.origin = "qbs";
+        t.setOrigin("qbs");
         TaskHub::addTask(t);
     }
 }

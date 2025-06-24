@@ -139,8 +139,8 @@ void setupTaskHubModule()
             sol::meta_function::to_string,
             [](const Task &self) -> QString {
                 return QString("Task{type=%1, category=\"%2\", description=\"%3\"}")
-                    .arg(taskTypeToString(self.type))
-                    .arg(self.category.toString())
+                    .arg(taskTypeToString(self.type()))
+                    .arg(self.category().toString())
                     .arg(self.description());
             },
             "create",
@@ -172,27 +172,25 @@ void setupTaskHubModule()
                     options);
             },
             "id",
-            sol::readonly_property(&Task::taskId),
+            sol::readonly_property([](Task &self) { return self.id(); }),
             "type",
-            sol::readonly_property(&Task::type),
+            sol::readonly_property([](Task &self) { return self.type(); }),
             "options",
-            sol::readonly_property(&Task::options),
+            sol::readonly_property([](Task &self) { return self.options(); }),
             "summary",
-            sol::readonly_property(&Task::summary),
+            sol::readonly_property([](Task &self) { return self.summary(); }),
             "details",
-            sol::readonly_property(&Task::details),
+            sol::readonly_property([](Task &self) { return self.details(); }),
             "file",
-            sol::readonly_property(&Task::file),
+            sol::readonly_property([](Task &self) { return self.file(); }),
             "fileCandidates",
-            sol::readonly_property(&Task::fileCandidates),
+            sol::readonly_property([](Task &self) { return self.fileCandidates(); }),
             "line",
-            sol::readonly_property(&Task::line),
-            "movedLine",
-            sol::readonly_property(&Task::movedLine),
+            sol::readonly_property([](Task &self) { return self.line(); }),
             "column",
-            sol::readonly_property(&Task::column),
+            sol::readonly_property([](Task &self) { return self.column(); }),
             "category",
-            sol::readonly_property([](Task &self) -> QString { return self.category.toString(); }),
+            sol::readonly_property([](Task &self) -> QString { return self.category().toString(); }),
             "description",
             sol::readonly_property([](Task &self) -> QString { return self.description(); }));
 

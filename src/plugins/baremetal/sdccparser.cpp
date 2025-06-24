@@ -47,7 +47,7 @@ void SdccParser::newTask(const Task &task)
 
 void SdccParser::amendDescription(const QString &desc)
 {
-    m_lastTask.details.append(desc);
+    m_lastTask.addToDetails(desc);
     ++m_lines;
 }
 
@@ -74,7 +74,7 @@ OutputLineParser::Result SdccParser::handleLine(const QString &line, OutputForma
         newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(
-            linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
+            linkSpecs, m_lastTask.file(), m_lastTask.line(), m_lastTask.column(), match, FilePathIndex);
         return {Status::InProgress, linkSpecs};
     }
 
@@ -91,7 +91,7 @@ OutputLineParser::Result SdccParser::handleLine(const QString &line, OutputForma
         newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(
-            linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
+            linkSpecs, m_lastTask.file(), m_lastTask.line(), m_lastTask.column(), match, FilePathIndex);
         return {Status::InProgress, linkSpecs};
     }
 

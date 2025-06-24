@@ -97,10 +97,10 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
             m_lines = 1;
             LinkSpecs linkSpecs;
             addLinkSpecForAbsoluteFilePath(
-                linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, 1);
+                linkSpecs, m_lastTask.file(), m_lastTask.line(), m_lastTask.column(), match, 1);
 
-            m_errorOrWarningLine.file = m_lastTask.file;
-            m_errorOrWarningLine.line = m_lastTask.line;
+            m_errorOrWarningLine.file = m_lastTask.file();
+            m_errorOrWarningLine.line = m_lastTask.line();
             m_errorOrWarningLine.function = match.captured(3);
 
             return {Status::InProgress, linkSpecs};
@@ -111,7 +111,7 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
                                          absoluteFilePath(FilePath::fromUserInput(match.captured(1))));
             LinkSpecs linkSpecs;
             addLinkSpecForAbsoluteFilePath(
-                linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, 1);
+                linkSpecs, m_lastTask.file(), m_lastTask.line(), m_lastTask.column(), match, 1);
             m_lines = 1;
             return {Status::InProgress, linkSpecs};
         }
@@ -125,10 +125,10 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
             m_lines = 1;
             LinkSpecs linkSpecs;
             addLinkSpecForAbsoluteFilePath(
-                linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, 1);
+                linkSpecs, m_lastTask.file(), m_lastTask.line(), m_lastTask.column(), match, 1);
 
-            m_errorOrWarningLine.file = m_lastTask.file;
-            m_errorOrWarningLine.line = m_lastTask.line;
+            m_errorOrWarningLine.file = m_lastTask.file();
+            m_errorOrWarningLine.line = m_lastTask.line();
             m_errorOrWarningLine.function = match.captured(4);
 
             return {Status::InProgress, linkSpecs};
@@ -144,8 +144,8 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
                 }
             } else {
                 if (m_skippedFirstEmptyLine)
-                    m_lastTask.details.append(QString());
-                m_lastTask.details.append(trimmedLine.mid(2));
+                    m_lastTask.addToDetails(QString());
+                m_lastTask.addToDetails(trimmedLine.mid(2));
             }
             return {Status::InProgress};
         } else if (trimmedLine.endsWith(QLatin1String("in cmake code at"))) {
@@ -172,22 +172,22 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
         {
             match = m_locationLine.match(trimmedLine);
             QTC_CHECK(match.hasMatch());
-            m_lastTask.file = absoluteFilePath(FilePath::fromUserInput(
-                                                   trimmedLine.mid(0, match.capturedStart())));
-            m_lastTask.line = match.captured(1).toInt();
+            m_lastTask.setFile(absoluteFilePath(FilePath::fromUserInput(
+                                                   trimmedLine.mid(0, match.capturedStart()))));
+            m_lastTask.setLine(match.captured(1).toInt());
             m_expectTripleLineErrorData = LINE_DESCRIPTION;
             LinkSpecs linkSpecs;
             addLinkSpecForAbsoluteFilePath(
                 linkSpecs,
-                m_lastTask.file,
-                m_lastTask.line,
-                m_lastTask.column,
+                m_lastTask.file(),
+                m_lastTask.line(),
+                m_lastTask.column(),
                 0,
                 match.capturedStart());
             return {Status::InProgress, linkSpecs};
         }
     case LINE_DESCRIPTION:
-        m_lastTask.summary = trimmedLine;
+        m_lastTask.setSummary(trimmedLine);
         if (trimmedLine.endsWith(QLatin1Char('\"')))
             m_expectTripleLineErrorData = LINE_DESCRIPTION2;
         else {
@@ -197,7 +197,7 @@ OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, Outp
         }
         return Status::InProgress;
     case LINE_DESCRIPTION2:
-        m_lastTask.details.append(trimmedLine);
+        m_lastTask.addToDetails(trimmedLine);
         m_expectTripleLineErrorData = NONE;
         flush();
         return Status::Done;
@@ -213,22 +213,25 @@ void CMakeOutputParser::flush()
     Task t = m_lastTask;
     m_lastTask.clear();
 
-    if (t.summary.isEmpty() && !t.details.isEmpty())
-        t.summary = t.details.takeFirst();
-    m_lines += t.details.count();
+    if (t.summary().isEmpty() && t.hasDetails()) {
+        QStringList details = t.details();
+        t.setSummary(details.takeFirst());
+        t.setDetails(details);
+    }
+    m_lines += t.details().count();
 
     if (!m_callStack.isEmpty()) {
-        t.file = m_callStack.last().file;
-        t.line = m_callStack.last().line;
+        t.setFile(m_callStack.last().file);
+        t.setLine(m_callStack.last().line);
 
         LinkSpecs specs;
-        t.details << QString();
-        t.details << Tr::tr("Call stack:");
+        t.addToDetails(QString());
+        t.addToDetails(Tr::tr("Call stack:"));
         m_lines += 2;
 
         m_callStack.push_front(m_errorOrWarningLine);
 
-        int offset = t.details.join('\n').size();
+        int offset = t.details().join('\n').size();
         Utils::reverseForeach(m_callStack, [&](const auto &line) {
             const QString fileAndLine = QString("%1:%2").arg(line.file.path()).arg(line.line);
             const QString completeLine = QString("  %1%2").arg(fileAndLine).arg(line.function);
@@ -239,7 +242,7 @@ void CMakeOutputParser::flush()
                                   int(fileAndLine.length()),
                                   createLinkTarget(line.file, line.line, -1)});
 
-            t.details << completeLine;
+            t.addToDetails(completeLine);
             offset += completeLine.length() - 2;
             ++m_lines;
         });

@@ -63,7 +63,7 @@ OutputLineParser::Result KeilParser::parseArmWarningOrErrorDetailsMessage(const 
     newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
     LinkSpecs linkSpecs;
     addLinkSpecForAbsoluteFilePath(
-        linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
+        linkSpecs, m_lastTask.file(), m_lastTask.line(), m_lastTask.column(), match, FilePathIndex);
     return {Status::InProgress, linkSpecs};
 }
 
@@ -99,7 +99,7 @@ OutputLineParser::Result KeilParser::parseMcs51WarningOrErrorDetailsMessage1(con
     newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
     LinkSpecs linkSpecs;
     addLinkSpecForAbsoluteFilePath(
-        linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
+        linkSpecs, m_lastTask.file(), m_lastTask.line(), m_lastTask.column(), match, FilePathIndex);
     return {Status::InProgress, linkSpecs};
 }
 
@@ -120,7 +120,7 @@ OutputLineParser::Result KeilParser::parseMcs51WarningOrErrorDetailsMessage2(con
     newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
     LinkSpecs linkSpecs;
     addLinkSpecForAbsoluteFilePath(
-        linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
+        linkSpecs, m_lastTask.file(), m_lastTask.line(), m_lastTask.column(), match, FilePathIndex);
     return {Status::InProgress, linkSpecs};
 }
 
@@ -232,9 +232,9 @@ void KeilParser::flush()
     if (m_lastTask.isNull())
         return;
 
-    m_lastTask.details = m_snippets;
+    m_lastTask.setDetails(m_snippets);
     m_snippets.clear();
-    m_lines += m_lastTask.details.count();
+    m_lines += m_lastTask.details().count();
     setDetailsFormat(m_lastTask);
     Task t = m_lastTask;
     m_lastTask.clear();

@@ -39,17 +39,17 @@ class TaskMark : public TextEditor::TextMark
 {
 public:
     TaskMark(const Task &task) :
-        TextMark(task.file, task.line, categoryForType(task.type)),
+        TextMark(task.file(), task.line(), categoryForType(task.type())),
         m_task(task)
     {
-        setColor(task.type == Task::Error ? Theme::ProjectExplorer_TaskError_TextMarkColor
-                                          : Theme::ProjectExplorer_TaskWarn_TextMarkColor);
-        setDefaultToolTip(task.type == Task::Error ? Tr::tr("Error")
-                                                   : Tr::tr("Warning"));
-        setPriority(task.type == Task::Error ? TextEditor::TextMark::NormalPriority
-                                             : TextEditor::TextMark::LowPriority);
+        setColor(task.isError() ? Theme::ProjectExplorer_TaskError_TextMarkColor
+                                : Theme::ProjectExplorer_TaskWarn_TextMarkColor);
+        setDefaultToolTip(task.isError() ? Tr::tr("Error")
+                                         : Tr::tr("Warning"));
+        setPriority(task.type() == Task::Error ? TextEditor::TextMark::NormalPriority
+                                               : TextEditor::TextMark::LowPriority);
         setToolTip(task.formattedDescription({Task::WithSummary | Task::WithLinks},
-                                             task.category == Constants::TASK_CATEGORY_COMPILE
+                                             task.category() == Constants::TASK_CATEGORY_COMPILE
                                                  ? Tr::tr("Build Issue") : QString()));
         setIcon(task.icon());
         setVisible(!task.icon().isNull());
@@ -123,16 +123,15 @@ void TaskHub::addTask(Task task)
         return;
     }
 
-    QTC_ASSERT(s_registeredCategories.contains(task.category), return);
+    QTC_ASSERT(s_registeredCategories.contains(task.m_category), return);
     QTC_ASSERT(!task.description().isEmpty(), return);
     QTC_ASSERT(!task.isNull(), return);
     QTC_ASSERT(!task.m_mark, return);
 
-    if (task.file.isEmpty() || task.line <= 0)
-        task.line = -1;
-    task.movedLine = task.line;
+    if (task.m_file.isEmpty() || task.m_line <= 0)
+        task.m_line = -1;
 
-    if ((task.options & Task::AddTextMark) && task.line != -1 && task.type != Task::Unknown)
+    if ((task.m_options & Task::AddTextMark) && task.m_line != -1 && task.m_type != Task::Unknown)
         task.setMark(new TaskMark(task));
     emit taskHub().taskAdded(task);
 }

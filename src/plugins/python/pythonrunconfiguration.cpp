@@ -71,9 +71,10 @@ private:
                 m_tasks.append({Task::Warning, text.trimmed(), {}, -1, category});
             } else {
                 Task &task = m_tasks.back();
-                if (!task.summary.isEmpty())
-                    task.summary += ' ';
-                task.summary += text.trimmed();
+                QString t = text.trimmed();
+                if (!task.summary().isEmpty())
+                    t.prepend(' ');
+                task.addToSummary(t);
             }
         } else {
             // The actual exception. This ends the traceback.

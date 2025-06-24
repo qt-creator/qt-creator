@@ -79,7 +79,7 @@ OutputLineParser::Result LdParser::handleLine(const QString &line, OutputFormat 
 
 bool LdParser::isContinuation(const QString &line) const
 {
-    return currentTask().details.last().endsWith(':') || (!line.isEmpty() && line.at(0).isSpace());
+    return currentTask().details().last().endsWith(':') || (!line.isEmpty() && line.at(0).isSpace());
 }
 
 std::optional<OutputLineParser::Result> LdParser::checkRanlib(
@@ -203,7 +203,7 @@ private slots:
                                     int column,
                                     const QList<QTextLayout::FormatRange> formats) {
             CompileTask task(type, description, file, line, column);
-            task.formats = formats;
+            task.setFormats(formats);
             return task;
         };
 

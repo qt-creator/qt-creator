@@ -47,7 +47,7 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
                 = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured("file")));
         addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, -1, match, "file");
         CompileTask task(type, match.captured("description").trimmed(), file, lineno);
-        task.column = match.captured("column").toInt();
+        task.setColumn(match.captured("column").toInt());
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
     }

@@ -65,18 +65,18 @@ private:
         void addTask(const Task &task)
         {
             ++count;
-            if (task.type == Task::Warning)
+            if (task.isWarning())
                 ++warnings;
-            else if (task.type == Task::Error)
+            else if (task.isError())
                 ++errors;
         }
 
         void removeTask(const Task &task)
         {
             --count;
-            if (task.type == Task::Warning)
+            if (task.isWarning())
                 --warnings;
-            else if (task.type == Task::Error)
+            else if (task.isError())
                 --errors;
         }
 

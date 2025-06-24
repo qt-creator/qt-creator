@@ -54,13 +54,13 @@ OutputLineParser::Result SanitizerParser::handleLine(const QString &line, Output
     QTC_ASSERT(m_id != 0, return Status::NotHandled);
     const QString description = match.captured("desc");
     m_task = Task(Task::Error, description, {}, 0, Constants::TASK_CATEGORY_SANITIZER);
-    m_task.details << line;
+    m_task.addToDetails(line);
     return Status::InProgress;
 }
 
 OutputLineParser::Result SanitizerParser::handleContinuation(const QString &line)
 {
-    m_task.details << line;
+    m_task.addToDetails(line);
 
     if (line == QString("==%1==ABORTING").arg(m_id)) {
         flush();
@@ -85,19 +85,19 @@ OutputLineParser::Result SanitizerParser::handleContinuation(const QString &line
                 R"(^%1(?<desc>.*?) at %2.*$)").arg(summaryPrefix, locationPatternString));
         const QRegularExpressionMatch summaryMatch = summaryPatternWithFile.match(line);
         if (summaryMatch.hasMatch()) {
-            m_task.summary = summaryMatch.captured("desc");
+            m_task.setSummary(summaryMatch.captured("desc"));
             const FilePath file = absoluteFilePath(FilePath::fromUserInput(
                                                        summaryMatch.captured("file")));
             if (fileExists(file)) {
-                m_task.file = file;
-                m_task.line = summaryMatch.captured("line").toInt();
-                m_task.column = summaryMatch.captured("column").toInt();
+                m_task.setFile(file);
+                m_task.setLine(summaryMatch.captured("line").toInt());
+                m_task.setColumn(summaryMatch.captured("column").toInt());
                 addLinkSpecForAbsoluteFilePath(
-                    linkSpecs, file, m_task.line, m_task.column, summaryMatch, "file");
+                    linkSpecs, file, m_task.line(), m_task.column(), summaryMatch, "file");
                 addLinkSpecs(linkSpecs);
             }
         } else {
-            m_task.summary = line.mid(summaryPrefix.length());
+            m_task.setSummary(line.mid(summaryPrefix.length()));
         }
         flush();
         return {Status::Done, linkSpecs};
@@ -117,7 +117,7 @@ OutputLineParser::Result SanitizerParser::handleContinuation(const QString &line
 void SanitizerParser::addLinkSpecs(const LinkSpecs &linkSpecs)
 {
     LinkSpecs adaptedLinkSpecs = linkSpecs;
-    const int offset = std::accumulate(m_task.details.cbegin(), m_task.details.cend() - 1,
+    const int offset = std::accumulate(m_task.details().cbegin(), m_task.details().cend() - 1,
             0, [](int total, const QString &line) { return total + line.length() + 1;});
     for (LinkSpec &ls : adaptedLinkSpecs)
         ls.startPos += offset;
@@ -131,12 +131,14 @@ void SanitizerParser::flush()
 
     setDetailsFormat(m_task, m_linkSpecs);
     static const int maxLen = 50;
-    if (m_task.details.length() > maxLen) {
-        auto cutOffIt = std::next(m_task.details.begin(), maxLen);
-        cutOffIt = m_task.details.insert(cutOffIt, "...");
-        m_task.details.erase(std::next(cutOffIt), std::prev(m_task.details.end()));
+    if (m_task.details().length() > maxLen) {
+        QStringList details = m_task.details();
+        auto cutOffIt = std::next(details.begin(), maxLen);
+        cutOffIt = details.insert(cutOffIt, "...");
+        details.erase(std::next(cutOffIt), std::prev(details.end()));
+        m_task.setDetails(details);
     }
-    scheduleTask(m_task, m_task.details.count());
+    scheduleTask(m_task, m_task.details().count());
     m_task.clear();
     m_linkSpecs.clear();
     m_id = 0;
@@ -211,7 +213,7 @@ These globals were registered at these points:
 SUMMARY: AddressSanitizer: odr-violation: global 'lre_id_continue_table_ascii' at /sda/home/christian/dev/qbs/master/src/src/shared/quickjs/libregexp.c:193:16)",
                 FilePath::fromUserInput("/sda/home/christian/dev/qbs/master/src/src/shared/quickjs/libregexp.c"),
                 193, Constants::TASK_CATEGORY_SANITIZER);
-        odrTask.column = 16;
+        odrTask.setColumn(16);
         QTest::newRow("odr violation")
                 << odrInput
                 << QList<Task>{odrTask}

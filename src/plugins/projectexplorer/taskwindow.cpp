@@ -318,17 +318,17 @@ void TaskWindow::addTask(const Task &task)
     emit tasksChanged();
     navigateStateChanged();
 
-    if ((task.options & Task::FlashWorthy)
-         && task.type == Task::Error
+    if ((task.isFlashWorthy())
+         && task.isError()
          && d->m_filter->filterIncludesErrors()
-         && !d->m_filter->filteredCategories().contains(task.category)) {
+         && !d->m_filter->filteredCategories().contains(task.category())) {
         flash();
     }
 }
 
 void TaskWindow::removeTask(const Task &task)
 {
-    d->m_model->removeTask(task.taskId);
+    d->m_model->removeTask(task.id());
 
     emit tasksChanged();
     navigateStateChanged();
@@ -378,19 +378,19 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
     if (task.isNull())
         return;
 
-    if (!task.file.isEmpty() && !task.file.toFileInfo().isAbsolute()
-            && !task.fileCandidates.empty()) {
-        const FilePath userChoice = Utils::chooseFileFromList(task.fileCandidates);
+    if (task.hasFile() && !task.file().isAbsolutePath()
+            && !task.fileCandidates().empty()) {
+        const FilePath userChoice = Utils::chooseFileFromList(task.fileCandidates());
         if (!userChoice.isEmpty()) {
-            task.file = userChoice;
-            updatedTaskFileName(task, task.file.toUrlishString());
+            task.setFile(userChoice);
+            updatedTaskFileName(task, task.file().toUrlishString());
         }
     }
 
     if (defaultHandler->canHandle(task)) {
         defaultHandler->handle(task);
     } else {
-        if (!task.file.exists())
+        if (!task.file().exists())
             d->m_model->setFileNotFound(taskIndex, true);
     }
 }
@@ -680,7 +680,7 @@ bool TaskView::event(QEvent *e)
 
 void TaskView::showToolTip(const Task &task, const QPoint &pos)
 {
-    if (task.details.isEmpty()) {
+    if (!task.hasDetails()) {
         ToolTip::hideImmediately();
         return;
     }

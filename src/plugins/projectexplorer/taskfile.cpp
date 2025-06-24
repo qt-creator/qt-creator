@@ -215,7 +215,7 @@ TaskFile *TaskFile::openTasks(const FilePath &filePath)
 
 bool StopMonitoringHandler::canHandle(const ProjectExplorer::Task &task) const
 {
-    return task.category == Constants::TASK_CATEGORY_TASKLIST_ID;
+    return task.category() == Constants::TASK_CATEGORY_TASKLIST_ID;
 }
 
 void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)

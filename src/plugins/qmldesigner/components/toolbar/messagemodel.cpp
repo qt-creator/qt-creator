@@ -20,7 +20,7 @@ int MessageModel::errorCount() const
 {
     int count = 0;
     for (const auto &task : m_tasks) {
-        if (task.type == ProjectExplorer::Task::TaskType::Error)
+        if (task.isError())
             count++;
     }
     return count;
@@ -30,7 +30,7 @@ int MessageModel::warningCount() const
 {
     int count = 0;
     for (const auto &task : m_tasks) {
-        if (task.type == ProjectExplorer::Task::TaskType::Warning)
+        if (task.isWarning())
             count++;
     }
     return count;
@@ -53,16 +53,16 @@ void MessageModel::jumpToCode(const QVariant &index)
     if (int idx = index.toInt(&ok); ok) {
         if (idx >= 0 && std::cmp_less(idx, m_tasks.size())) {
             ProjectExplorer::Task task = m_tasks.at(static_cast<size_t>(idx));
-            const int column = task.column ? task.column - 1 : 0;
+            const int column = task.column() ? task.column() - 1 : 0;
 
-            if (Core::EditorManager::openEditor(task.file,
+            if (Core::EditorManager::openEditor(task.file(),
                                                 Utils::Id(),
                                                 Core::EditorManager::DoNotMakeVisible)) {
 
                 auto &viewManager = QmlDesigner::QmlDesignerPlugin::instance()->viewManager();
                 if (auto *editorView = viewManager.textEditorView()) {
                     if (TextEditor::BaseTextEditor *editor = editorView->textEditor()) {
-                        editor->gotoLine(task.line, column);
+                        editor->gotoLine(task.line(), column);
                         editor->widget()->setFocus();
                         editor->editorWidget()->updateFoldingHighlight(QTextCursor());
                     }
@@ -98,10 +98,10 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
         if (role == MessageRole) {
             return m_tasks.at(row).description();
         } else if (role == FileNameRole) {
-            Utils::FilePath path = m_tasks.at(row).file;
+            Utils::FilePath path = m_tasks.at(row).file();
             return path.fileName();
         } else if (role == TypeRole) {
-            ProjectExplorer::Task::TaskType type = m_tasks.at(row).type;
+            ProjectExplorer::Task::TaskType type = m_tasks.at(row).type();
             if (type == ProjectExplorer::Task::TaskType::Error)
                 return "Error";
             else if (type == ProjectExplorer::Task::TaskType::Warning)
@@ -157,7 +157,7 @@ void MessageModel::clearTasks(const Utils::Id &categoryId)
 {
     beginResetModel();
     std::erase_if(m_tasks, [categoryId](const ProjectExplorer::Task &task) {
-        return task.category == categoryId;
+        return task.category() == categoryId;
     });
     endResetModel();
     emit modelChanged();

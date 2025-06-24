@@ -41,16 +41,16 @@ OutputLineParser::Result QtTestParser::handleLine(const QString &line, OutputFor
     const QRegularExpressionMatch match = locationPattern.match(theLine);
     if (match.hasMatch()) {
         LinkSpecs linkSpecs;
-        m_currentTask.file = absoluteFilePath(FilePath::fromString(
-                    QDir::fromNativeSeparators(match.captured("file"))));
-        m_currentTask.line = match.captured("line").toInt();
+        m_currentTask.setFile(absoluteFilePath(FilePath::fromString(
+                    QDir::fromNativeSeparators(match.captured("file")))));
+        m_currentTask.setLine(match.captured("line").toInt());
         addLinkSpecForAbsoluteFilePath(
-            linkSpecs, m_currentTask.file, m_currentTask.line, m_currentTask.column, match, "file");
+            linkSpecs, m_currentTask.file(), m_currentTask.line(), m_currentTask.column(), match, "file");
         emitCurrentTask();
         return {Status::Done, linkSpecs};
     }
     if (line.startsWith("   Actual") || line.startsWith("   Expected")) {
-        m_currentTask.details.append(theLine);
+        m_currentTask.addToDetails(theLine);
         return Status::InProgress;
     }
     return Status::NotHandled;

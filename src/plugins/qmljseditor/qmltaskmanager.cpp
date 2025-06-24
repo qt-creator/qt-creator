@@ -177,9 +177,9 @@ void QmlTaskManager::displayAllResults()
 
 void QmlTaskManager::insertTask(const Task &task)
 {
-    Tasks tasks = m_docsWithTasks.value(task.file);
+    Tasks tasks = m_docsWithTasks.value(task.file());
     tasks.append(task);
-    m_docsWithTasks.insert(task.file, tasks);
+    m_docsWithTasks.insert(task.file(), tasks);
     TaskHub::addTask(task);
 }
 

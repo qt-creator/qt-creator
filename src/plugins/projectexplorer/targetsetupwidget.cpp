@@ -227,14 +227,14 @@ void TargetSetupWidget::update(const TasksGenerator &generator)
     m_detailsWidget->setSummaryText(kit()->displayName());
     if (!kit()->isValid())
         m_detailsWidget->setIcon(Icons::CRITICAL.icon());
-    else if (kit()->hasWarning() || Utils::anyOf(tasks, Utils::equal(&Task::type, Task::Warning)))
+    else if (kit()->hasWarning() || Utils::anyOf(tasks, [](const Task &t) { return t.isWarning(); }))
         m_detailsWidget->setIcon(Icons::WARNING.icon());
     else
         m_detailsWidget->setIcon(kit()->icon());
 
     m_detailsWidget->setToolTip(kit()->toHtml(tasks, ""));
 
-    const Task errorTask = Utils::findOrDefault(tasks, Utils::equal(&Task::type, Task::Error));
+    const Task errorTask = Utils::findOrDefault(tasks, [](const Task &t) { return t.isError(); });
 
     // Kits that where the taskGenarator reports an error are not selectable, because we cannot
     // guarantee that we can handle the project sensibly (e.g. qmake project without Qt).
@@ -378,10 +378,10 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &in
             text.append(QLatin1String("<br>"));
         // set severity:
         QString severity;
-        if (t.type == Task::Error) {
+        if (t.isError()) {
             highestType = Task::Error;
             severity = Tr::tr("<b>Error:</b> ", "Severity is Task::Error");
-        } else if (t.type == Task::Warning) {
+        } else if (t.isWarning()) {
             if (highestType == Task::Unknown)
                 highestType = Task::Warning;
             severity = Tr::tr("<b>Warning:</b> ", "Severity is Task::Warning");

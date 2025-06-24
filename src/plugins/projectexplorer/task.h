@@ -49,29 +49,73 @@ public:
 
     bool isNull() const;
     void clear();
-    void setFile(const Utils::FilePath &file);
     QString description(DescriptionTags tags = WithSummary) const;
+    QString formattedDescription(DescriptionTags tags, const QString &extraHeading = {}) const;
+
+    void addLinkDetail(const QString &link);
+
+    void setFile(const Utils::FilePath &file);
+    bool hasFile() const { return !m_file.isEmpty(); }
+    Utils::FilePath file() const { return m_file; }
+    Utils::FilePaths fileCandidates() const { return m_fileCandidates; }
+
+    unsigned id() const { return m_id; }
+    Utils::Id category() const { return m_category; }
+
+    bool isError() const { return m_type == Error; }
+    bool isWarning() const { return m_type == Warning; }
+    bool hasKnownType() const { return m_type != Unknown; }
+    TaskType type() const { return m_type; }
+    void setType(TaskType type);
+
+    const QStringList &details() const { return m_details; }
+    bool hasDetails() const { return !m_details.isEmpty(); }
+    void addToDetails(const QString &line) { m_details << line; }
+    void clearDetails() { m_details.clear(); }
+    void setDetails(const QStringList &details) { m_details = details; }
+
+    const QList<QTextLayout::FormatRange> &formats() const { return m_formats; }
+    void setFormats(const QList<QTextLayout::FormatRange> &formats) { m_formats = formats; }
+
+    int line() const;
+    void setLine(int line);
+    void updateLine(int line) { m_movedLine = line; }
+
+    int column() const { return m_column; }
+    void setColumn(int col) { m_column = col; }
+
+    QString summary() const { return m_summary; }
+    void setSummary(const QString &summary) { m_summary = summary; }
+    void addToSummary(const QString &s) { m_summary += s; }
+
+    QString origin() const { return m_origin; }
+    void setOrigin(const QString &origin) { m_origin = origin; }
+
     QIcon icon() const;
     void setIcon(const QIcon &icon);
-    QString formattedDescription(DescriptionTags tags, const QString &extraHeading = {}) const;
-    void addLinkDetail(const QString &link);
+
+    Options options() const { return m_options; }
+    bool isFlashWorthy() const { return m_options & FlashWorthy; }
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
     friend PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);
     friend PROJECTEXPLORER_EXPORT size_t qHash(const Task &task);
 
-    unsigned int taskId = 0;
-    TaskType type = Unknown;
-    Options options = AddTextMark | FlashWorthy;
-    QString summary;
-    QStringList details;
-    Utils::FilePath file;
-    Utils::FilePaths fileCandidates;
-    int line = -1;
-    int movedLine = -1; // contains a line number if the line was moved in the editor
-    int column = 0;
-    Utils::Id category;
-    QString origin;
+private:
+    void setMark(TextEditor::TextMark *mark);
+
+    unsigned int m_id = 0;
+    TaskType m_type = Unknown;
+    Options m_options = AddTextMark | FlashWorthy;
+    QString m_summary;
+    QStringList m_details;
+    Utils::FilePath m_file;
+    Utils::FilePaths m_fileCandidates;
+    int m_line = -1;
+    int m_movedLine = -1; // contains a line number if the line was moved in the editor
+    int m_column = 0;
+    Utils::Id m_category;
+    QString m_origin;
 
     // Having a container of QTextLayout::FormatRange in Task isn't that great
     // It would be cleaner to split up the text into
@@ -81,10 +125,7 @@ public:
     // But then again, the wording of the text most likely
     // doesn't work if you split it up, nor are our parsers
     // anywhere near being that good
-    QList<QTextLayout::FormatRange> formats;
-
-private:
-    void setMark(TextEditor::TextMark *mark);
+    QList<QTextLayout::FormatRange> m_formats;
 
     std::shared_ptr<TextEditor::TextMark> m_mark;
     mutable QIcon m_icon;

@@ -40,7 +40,7 @@ void IarParser::newTask(const Task &task)
 {
     flush();
     m_lastTask = task;
-    m_lastTask.origin = "IAR compiler";
+    m_lastTask.setOrigin("IAR compiler");
     m_lines = 1;
 }
 
@@ -119,7 +119,7 @@ OutputLineParser::Result IarParser::parseWarningOrErrorOrFatalErrorDetailsMessag
     m_expectFilePath = false;
     LinkSpecs linkSpecs;
     addLinkSpecForAbsoluteFilePath(
-        linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
+        linkSpecs, m_lastTask.file(), m_lastTask.line(), m_lastTask.column(), match, FilePathIndex);
     return {Status::InProgress, linkSpecs};
 }
 
@@ -205,10 +205,10 @@ void IarParser::flush()
         return;
 
     while (!m_descriptionParts.isEmpty())
-        m_lastTask.summary.append(m_descriptionParts.takeFirst());
-    m_lastTask.details = m_snippets;
+        m_lastTask.addToSummary(m_descriptionParts.takeFirst());
+    m_lastTask.setDetails(m_snippets);
     m_snippets.clear();
-    m_lines += m_lastTask.details.count();
+    m_lines += m_lastTask.details().count();
     setDetailsFormat(m_lastTask);
     amendFilePath();
 

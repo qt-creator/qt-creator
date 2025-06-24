@@ -139,7 +139,7 @@ private slots:
                               const QList<QTextLayout::FormatRange> formats)
         {
             CompileTask task(type, description, file, line, column);
-            task.formats = formats;
+            task.setFormats(formats);
             return task;
         };
 

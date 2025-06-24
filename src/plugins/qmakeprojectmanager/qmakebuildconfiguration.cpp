@@ -271,7 +271,7 @@ void QmakeBuildConfiguration::updateProblemLabel()
             QString text = QLatin1String("<nobr>");
             for (const ProjectExplorer::Task &task : issues) {
                 QString type;
-                switch (task.type) {
+                switch (task.type()) {
                 case ProjectExplorer::Task::Error:
                     type = Tr::tr("Error:");
                     type += QLatin1Char(' ');

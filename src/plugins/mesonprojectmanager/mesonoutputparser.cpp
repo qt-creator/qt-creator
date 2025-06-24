@@ -55,7 +55,7 @@ inline Utils::OutputLineParser::LinkSpecs MesonOutputParser::addTask(
                                                  fileName,
                                                  match.captured(lineNumberCapIndex).toInt());
     addTask(task);
-    addLinkSpecForAbsoluteFilePath(linkSpecs, task.file, task.line, task.column, match, 1);
+    addLinkSpecForAbsoluteFilePath(linkSpecs, task.file(), task.line(), task.column(), match, 1);
 #else
     Q_UNUSED(type)
     Q_UNUSED(line)

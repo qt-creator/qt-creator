@@ -159,7 +159,7 @@ DebuggerRunParameters DebuggerRunParameters::fromRunControl(ProjectExplorer::Run
             if (DebuggerKitAspect::debugger(kit)) {
                 const Tasks tasks = DebuggerKitAspect::validateDebugger(kit);
                 for (const Task &t : tasks) {
-                    if (t.type != Task::Warning)
+                    if (!t.isWarning())
                         params.m_validationErrors.append(t.description());
                 }
             } else {

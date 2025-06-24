@@ -64,7 +64,7 @@ static Task handleNmakeJomMessage(const QString &line)
     }
 
     CompileTask task(type, line.mid(matchLength).trimmed());
-    task.details << line;
+    task.addToDetails(line);
     return task;
 }
 
@@ -277,7 +277,7 @@ void ProjectExplorerTest::testMsvcOutputParsers_data()
                           const QList<QTextLayout::FormatRange> formats)
     {
         CompileTask task(type, description, file, line);
-        task.formats = formats;
+        task.setFormats(formats);
         return task;
     };
 
