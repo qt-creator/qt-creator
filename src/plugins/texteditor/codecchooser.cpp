@@ -22,7 +22,7 @@ static bool isSingleByte(int mib)
 
 CodecChooser::CodecChooser(Filter filter)
 {
-    QList<int> mibs = Utils::sorted(TextCodec::availableMibs());
+    QList<int> mibs = Utils::sorted(TextEncoding::availableMibs());
     QList<int>::iterator firstNonNegative =
         std::find_if(mibs.begin(), mibs.end(), [](int n) { return n >=0; });
     if (firstNonNegative != mibs.end())

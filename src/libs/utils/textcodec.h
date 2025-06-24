@@ -41,9 +41,13 @@ public:
     QByteArray encode(QStringView decoded) const;
 
     static TextEncoding encodingForLocale();
+    static void setEncodingForLocale(const QByteArray &codecName);
+
+    static QList<QByteArray> availableCodecs();
 
     // FIXME: Avoid. Not present in QStringConverter.
     static TextEncoding encodingForMib(int mib);
+    static QList<int> availableMibs();
 
 private:
     QTCREATOR_UTILS_EXPORT friend bool operator==(const TextEncoding &left, const TextEncoding &right);
@@ -60,11 +64,6 @@ public:
     TextCodec();
 
     QByteArray name() const;
-
-    static QList<int> availableMibs();
-    static QList<QByteArray> availableCodecs();
-
-    static void setCodecForLocale(const QByteArray &codecName);
 
 private:
     explicit TextCodec(QTextCodec *codec);

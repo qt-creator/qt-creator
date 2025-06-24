@@ -132,19 +132,19 @@ QByteArray TextCodec::name() const
     return m_codec ? m_codec->name() : QByteArray();
 }
 
-QList<int> TextCodec::availableMibs()
+QList<int> TextEncoding::availableMibs()
 {
     return QTextCodec::availableMibs();
 }
 
-QList<QByteArray> TextCodec::availableCodecs()
+QList<QByteArray> TextEncoding::availableCodecs()
 {
     return QTextCodec::availableCodecs();
 }
 
 static TextEncoding theEncodingForLocale = TextEncoding(QStringEncoder::System);
 
-void TextCodec::setCodecForLocale(const QByteArray &codecName)
+void TextEncoding::setEncodingForLocale(const QByteArray &codecName)
 {
     QTextCodec::setCodecForLocale(QTextCodec::codecForName(codecName));
     theEncodingForLocale = codecName;

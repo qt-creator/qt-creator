@@ -361,7 +361,7 @@ void GeneralSettingsWidget::fillCodecBox() const
 {
     const QByteArray currentCodec = codecForLocale();
 
-    const QByteArrayList codecs = Utils::sorted(TextCodec::availableCodecs());
+    const QByteArrayList codecs = Utils::sorted(TextEncoding::availableCodecs());
     for (const QByteArray &codec : codecs) {
         m_codecBox->addItem(QString::fromLocal8Bit(codec));
         if (codec == currentCodec)
@@ -382,7 +382,7 @@ void GeneralSettingsWidget::setCodecForLocale(const QByteArray &codec)
 {
     QtcSettings *settings = ICore::settings();
     settings->setValueWithDefault(settingsKeyCodecForLocale, codec, {});
-    TextCodec::setCodecForLocale(codec);
+    TextEncoding::setEncodingForLocale(codec);
 }
 
 StyleHelper::ToolbarStyle toolbarStylefromSettings()

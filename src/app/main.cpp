@@ -889,7 +889,7 @@ int main(int argc, char **argv)
 
     QByteArray overrideCodecForLocale = settings->value("General/OverrideCodecForLocale").toByteArray();
     if (!overrideCodecForLocale.isEmpty())
-        TextCodec::setCodecForLocale(overrideCodecForLocale);
+        TextEncoding::setEncodingForLocale(overrideCodecForLocale);
 
     app.setDesktopFileName(IDE_APP_ID);
 

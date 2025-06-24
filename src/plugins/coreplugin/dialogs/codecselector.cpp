@@ -81,7 +81,7 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
 
     QStringList encodings;
 
-    const QList<int> mibs = Utils::sorted(TextCodec::availableMibs());
+    const QList<int> mibs = Utils::sorted(TextEncoding::availableMibs());
     QList<int> sortedMibs;
     for (const int mib : mibs)
         if (mib >= 0)
