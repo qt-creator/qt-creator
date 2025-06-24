@@ -204,8 +204,7 @@ CustomLanguageModels::CustomLanguageModels()
             const auto item = static_cast<LanguageModelItem *>(
                 listModel.itemForIndex(view->currentIndex()));
             QTC_ASSERT(item, return);
-            const QList<std::shared_ptr<BaseAspect>> &volatileItems = models.volatileItems();
-            for (const auto &i : volatileItems) {
+            for (const auto &l = models.volatileItems(); const auto &i : l) {
                 if (item->hasModel(i)) {
                     models.removeItem(i);
                     break;
