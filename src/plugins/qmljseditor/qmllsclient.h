@@ -42,14 +42,16 @@ public:
 
         // Additional token types for the extended semantic highlighting
         QmlLocalId, // object id within the same file
-        QmlExternalId, // object id defined in another file
+        QmlExternalId, // id from a different component, probably accessible via context hierarchy, but not guaranteed
         QmlRootObjectProperty, // qml property defined in the parent scopes
         QmlScopeObjectProperty, // qml property defined in the current scope
         QmlExternalObjectProperty, // qml property defined in the root object of another file
         JsScopeVar, // js variable defined in the current file
         JsImportVar, // js import name that is imported in the qml file
         JsGlobalVar, // js global variables
-        QmlStateName // name of a qml state
+        QmlStateName,  // name of a qml state,
+        Field, // fields of the property chains
+        Unknown, // used for unresolved token types
     };
     Q_ENUM(QmlSemanticTokens);
     explicit QmllsClient(LanguageClient::StdIOClientInterface *interface);

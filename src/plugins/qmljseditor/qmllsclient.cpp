@@ -197,6 +197,10 @@ QmllsClient::QmllsClient(StdIOClientInterface *interface)
                 return C_JS_GLOBAL_VAR;
             case QmlSemanticTokens::QmlStateName:
                 return C_QML_STATE_NAME;
+            case QmlSemanticTokens::Field:
+                return C_FIELD;
+            case QmlSemanticTokens::Unknown:
+                return C_TEXT;
             default:
                 break;
             }
