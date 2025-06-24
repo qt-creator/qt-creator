@@ -80,7 +80,18 @@ QString TextEncoding::displayName() const
 
 QString TextEncoding::fullDisplayName() const
 {
-    return TextCodec::codecForName(m_name).fullDisplayName();
+    QString compoundName = displayName();
+    QTextCodec *codec = m_name == QStringEncoder::nameForEncoding(QStringConverter::System)
+                            ? QTextCodec::codecForLocale()
+                            : QTextCodec::codecForName(m_name);
+
+    if (codec) {
+        for (const QByteArray &alias : codec->aliases()) {
+            compoundName += QLatin1String(" / ");
+            compoundName += QString::fromLatin1(alias);
+        }
+    }
+    return compoundName;
 }
 
 bool TextEncoding::isUtf8() const
@@ -121,23 +132,6 @@ QByteArray TextCodec::name() const
     return m_codec ? m_codec->name() : QByteArray();
 }
 
-QString TextCodec::displayName() const
-{
-    return m_codec ? QString::fromLatin1(m_codec->name()) : QString("Null codec");
-}
-
-QString TextCodec::fullDisplayName() const
-{
-    QString compoundName = displayName();
-    if (m_codec) {
-        for (const QByteArray &alias : m_codec->aliases()) {
-            compoundName += QLatin1String(" / ");
-            compoundName += QString::fromLatin1(alias);
-        }
-    }
-    return compoundName;
-}
-
 QList<int> TextCodec::availableMibs()
 {
     return QTextCodec::availableMibs();
@@ -159,13 +153,6 @@ void TextCodec::setCodecForLocale(const QByteArray &codecName)
 TextEncoding TextEncoding::encodingForLocale()
 {
     return theEncodingForLocale;
-}
-
-TextCodec TextCodec::codecForName(const QByteArray &codecName)
-{
-    if (codecName == QStringEncoder::nameForEncoding(QStringConverter::System))
-        return TextCodec(QTextCodec::codecForLocale());
-    return TextCodec(QTextCodec::codecForName(codecName));
 }
 
 TextEncoding TextEncoding::encodingForMib(int mib)

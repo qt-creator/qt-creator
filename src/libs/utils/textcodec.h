@@ -60,10 +60,6 @@ public:
     TextCodec();
 
     QByteArray name() const;
-    QString displayName() const;
-    QString fullDisplayName() const; // Includes aliases
-
-    static TextCodec codecForName(const QByteArray &codecName);
 
     static QList<int> availableMibs();
     static QList<QByteArray> availableCodecs();
