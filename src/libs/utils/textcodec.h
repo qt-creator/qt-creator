@@ -60,25 +60,15 @@ public:
 
     TextCodec();
 
-    bool isValid() const;
-
     int mibEnum() const;
     QByteArray name() const;
     QString displayName() const;
     QString fullDisplayName() const; // Includes aliases
 
-    QByteArray fromUnicode(QStringView data) const;
-
-    QString toUnicode(const char *data, int size, ConverterState *state) const;
-
     static TextCodec codecForName(const QByteArray &codecName);
 
     static QList<int> availableMibs();
     static QList<QByteArray> availableCodecs();
-
-    static TextCodec utf8();
-    static TextCodec utf16();
-    static TextCodec utf32();
 
     static void setCodecForLocale(const QByteArray &codecName);
 

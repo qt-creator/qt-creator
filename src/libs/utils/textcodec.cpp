@@ -143,11 +143,6 @@ QString TextCodec::fullDisplayName() const
     return compoundName;
 }
 
-bool TextCodec::isValid() const
-{
-    return m_codec;
-}
-
 int TextCodec::mibEnum() const
 {
     return m_codec ? m_codec->mibEnum() : -1;
@@ -163,24 +158,6 @@ QList<QByteArray> TextCodec::availableCodecs()
     return QTextCodec::availableCodecs();
 }
 
-TextCodec TextCodec::utf8()
-{
-    static TextCodec theUtf8Codec(QTextCodec::codecForName("UTF-8"));
-    return theUtf8Codec;
-}
-
-TextCodec TextCodec::utf16()
-{
-    static TextCodec theUtf16Codec(QTextCodec::codecForName("UTF-16"));
-    return theUtf16Codec;
-}
-
-TextCodec TextCodec::utf32()
-{
-    static TextCodec theUtf32Codec(QTextCodec::codecForName("UTF-32"));
-    return theUtf32Codec;
-}
-
 static TextEncoding theEncodingForLocale = TextEncoding(QStringEncoder::System);
 
 void TextCodec::setCodecForLocale(const QByteArray &codecName)
@@ -193,25 +170,6 @@ TextEncoding TextEncoding::encodingForLocale()
 {
     return theEncodingForLocale;
 }
-
-QByteArray TextCodec::fromUnicode(QStringView data) const
-{
-    if (m_codec)
-        return m_codec->fromUnicode(data);
-
-    QTC_CHECK(false);
-    return {};
-}
-
-QString TextCodec::toUnicode(const char *data, int size, ConverterState *state) const
-{
-    if (m_codec)
-        return m_codec->toUnicode(data, size, state);
-
-    QTC_CHECK(false);
-    return {};
-}
-
 
 TextCodec TextCodec::codecForName(const QByteArray &codecName)
 {
