@@ -96,7 +96,8 @@ ProjectStorageUpdater::Components createComponents(
     ModuleId moduleId,
     ModuleId pathModuleId,
     FileSystemInterface &fileSystem,
-    const QString &directory)
+    const QString &directory,
+    ProjectStorageErrorNotifierInterface &errorNotifier)
 {
     ProjectStorageUpdater::Components components;
 
@@ -112,8 +113,11 @@ ProjectStorageUpdater::Components createComponents(
     }
 
     for (const QQmlDirParser::Component &qmlDirParserComponent : qmlDirParserComponents) {
-        if (qmlDirParserComponent.fileName.contains('/'))
+        if (qmlDirParserComponent.fileName.contains('/')) {
+            errorNotifier.exportedTypesAreInADifferentDirectory(moduleId,
+                                                                qmlDirParserComponent.typeName);
             continue;
+        }
         components.push_back({qmlDirParserComponent.fileName,
                               qmlDirParserComponent.typeName,
                               moduleId,
@@ -485,7 +489,8 @@ void ProjectStorageUpdater::updateDirectoryChanged(Utils::SmallStringView direct
                                         moduleId,
                                         pathModuleId,
                                         m_fileSystem,
-                                        directoryPathAsQString),
+                                        directoryPathAsQString,
+                                        m_errorNotifier),
                        directoryId,
                        package,
                        notUpdatedSourceIds,

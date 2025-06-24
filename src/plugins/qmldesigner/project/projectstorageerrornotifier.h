@@ -34,6 +34,7 @@ public:
                     Utils::SmallStringView propertyName,
                     SourceId typeSourceId) override;
     void exportedTypeNameIsDuplicate(ModuleId moduleId, Utils::SmallStringView typeName) override;
+    void exportedTypesAreInADifferentDirectory(ModuleId moduleId, QStringView typeName) override;
 
 private:
     PathCacheType &m_pathCache;

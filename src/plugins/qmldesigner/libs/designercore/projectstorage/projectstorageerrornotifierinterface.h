@@ -38,6 +38,7 @@ public:
                             SourceId typeSourceId)
         = 0;
     virtual void exportedTypeNameIsDuplicate(ModuleId moduleId, Utils::SmallStringView typeName) = 0;
+    virtual void exportedTypesAreInADifferentDirectory(ModuleId moduleId, QStringView typeName) = 0;
 
 protected:
     ~ProjectStorageErrorNotifierInterface() = default;

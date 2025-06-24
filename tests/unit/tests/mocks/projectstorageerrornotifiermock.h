@@ -47,4 +47,8 @@ public:
                 exportedTypeNameIsDuplicate,
                 (QmlDesigner::ModuleId moduleId, Utils::SmallStringView typeName),
                 (override));
+    MOCK_METHOD(void,
+                exportedTypesAreInADifferentDirectory,
+                (QmlDesigner::ModuleId moduleId, QStringView typeName),
+                (override));
 };

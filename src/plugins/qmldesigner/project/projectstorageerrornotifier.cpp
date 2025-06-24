@@ -132,4 +132,15 @@ void ProjectStorageErrorNotifier::exportedTypeNameIsDuplicate(ModuleId moduleId,
                  .arg(QString::fromUtf8(module.name)));
 }
 
+void ProjectStorageErrorNotifier::exportedTypesAreInADifferentDirectory(ModuleId moduleId,
+                                                                        QStringView typeName)
+{
+    auto module = m_modulesStorage.module(moduleId);
+
+    logIssue(ProjectExplorer::Task::Error,
+             Tr::tr("Exported type %1 is in a different directory than the module %2.")
+                 .arg(typeName)
+                 .arg(QString::fromUtf8(module.name)));
+}
+
 } // namespace QmlDesigner
