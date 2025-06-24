@@ -153,14 +153,6 @@ int TextCodec::mibEnum() const
     return m_codec ? m_codec->mibEnum() : -1;
 }
 
-TextCodec TextCodec::codecForLocale()
-{
-    if (QTextCodec *codec = QTextCodec::codecForLocale())
-        return TextCodec(codec);
-    QTC_CHECK(false);
-    return {};
-}
-
 QList<int> TextCodec::availableMibs()
 {
     return QTextCodec::availableMibs();

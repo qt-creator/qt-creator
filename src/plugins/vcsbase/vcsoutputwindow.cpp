@@ -335,7 +335,7 @@ void VcsOutputWindow::setText(const QString &text)
 
 void VcsOutputWindow::setData(const QByteArray &data)
 {
-    setText(TextCodec::codecForLocale().toUnicode(data));
+    setText(TextEncoding::encodingForLocale().decode(data));
 }
 
 void VcsOutputWindow::appendSilently(const QString &text)

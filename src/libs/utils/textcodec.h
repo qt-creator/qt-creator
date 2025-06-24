@@ -74,7 +74,6 @@ public:
 
     static TextCodec codecForName(const QByteArray &codecName);
     static TextCodec codecForMib(int mib);
-    static TextCodec codecForLocale();
 
     static QList<int> availableMibs();
     static QList<QByteArray> availableCodecs();

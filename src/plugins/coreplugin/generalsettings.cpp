@@ -374,7 +374,7 @@ QByteArray GeneralSettingsWidget::codecForLocale()
     QtcSettings *settings = ICore::settings();
     QByteArray codec = settings->value(settingsKeyCodecForLocale).toByteArray();
     if (codec.isEmpty())
-        codec = TextCodec::codecForLocale().name();
+        codec = TextEncoding::encodingForLocale().name();
     return codec;
 }
 
