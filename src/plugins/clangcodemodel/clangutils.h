@@ -78,18 +78,18 @@ public:
 
     bool contains(int line, int column) const
     {
-        if (line < start.targetLine || line > end.targetLine)
+        if (line < start.target.line || line > end.target.line)
             return false;
-        if (line == start.targetLine && column < start.targetLine)
+        if (line == start.target.line && column < start.target.line)
             return false;
-        if (line == end.targetLine && column > end.targetColumn)
+        if (line == end.target.line && column > end.target.column)
             return false;
         return true;
     }
 
     bool contains(const Utils::Link &sourceLocation) const
     {
-        return contains(sourceLocation.targetLine, sourceLocation.targetColumn);
+        return contains(sourceLocation.target.line, sourceLocation.target.column);
     }
 
     Utils::Link start;

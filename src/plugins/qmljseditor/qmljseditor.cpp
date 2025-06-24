@@ -875,8 +875,8 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     Utils::Link link;
     link.targetFilePath = m_modelManager->fileToSource(fileName);
-    link.targetLine = line;
-    link.targetColumn = column - 1; // adjust the column
+    link.target.line = line;
+    link.target.column = column - 1; // adjust the column
 
     auto processPotentialCppLink = [&]() -> bool {
         if (!value->asCppComponentValue() || !projectRootNode) {

@@ -31,7 +31,7 @@ namespace Internal {
 
 static QString lineColumnString(const Link &link)
 {
-    return QString("%1:%2").arg(link.targetLine).arg(link.targetColumn + 1);
+    return QString("%1:%2").arg(link.target.line).arg(link.target.column + 1);
 }
 
 static QString fixitStatus(FixitStatus status)
@@ -124,8 +124,8 @@ QString createDiagnosticToolTipString(
 QString createFullLocationString(const Link &location)
 {
     return location.targetFilePath.toUserOutput()
-            + QLatin1Char(':') + QString::number(location.targetLine)
-            + QLatin1Char(':') + QString::number(location.targetColumn);
+            + QLatin1Char(':') + QString::number(location.target.line)
+            + QLatin1Char(':') + QString::number(location.target.column);
 }
 
 QString hintAboutBuildBeforeAnalysis()

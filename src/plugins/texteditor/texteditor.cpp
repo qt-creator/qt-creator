@@ -8107,7 +8107,7 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
 
     if (!inNextSplit && textDocument()->filePath() == link.targetFilePath) {
         emit addCurrentStateToNavigationHistory();
-        gotoLine(link.targetLine, link.targetColumn, true, true);
+        gotoLine(link.target.line, link.target.column, true, true);
         setFocus();
         return true;
     }
@@ -10610,7 +10610,7 @@ void TextEditorLinkLabel::mouseMoveEvent(QMouseEvent *event)
         return;
 
     auto data = new DropMimeData;
-    data->addFile(m_link.targetFilePath, m_link.targetLine, m_link.targetColumn);
+    data->addFile(m_link.targetFilePath, m_link.target.line, m_link.target.column);
     auto drag = new QDrag(this);
     drag->setMimeData(data);
     drag->exec(Qt::CopyAction);

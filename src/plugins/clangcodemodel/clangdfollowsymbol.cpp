@@ -272,7 +272,7 @@ void ClangdFollowSymbol::Private::sendGotoImplementationRequest(const Link &link
 {
     if (!client->documentForFilePath(link.targetFilePath) && addOpenFile(link.targetFilePath))
         client->openExtraFile(link.targetFilePath);
-    const Position position(link.targetLine - 1, link.targetColumn);
+    const Position position(link.target.line - 1, link.target.column);
     const TextDocumentIdentifier documentId(client->hostPathToServerUri(link.targetFilePath));
     GotoImplementationRequest req(TextDocumentPositionParams(documentId, position));
     req.setResponseCallback([sentinel = QPointer(q), this, reqId = req.id()]
@@ -285,7 +285,7 @@ void ClangdFollowSymbol::Private::sendGotoImplementationRequest(const Link &link
     });
     client->sendMessage(req, ClangdClient::SendDocUpdates::Ignore);
     pendingGotoImplRequests << req.id();
-    qCDebug(clangdLog) << "sending go to implementation request" << link.targetLine;
+    qCDebug(clangdLog) << "sending go to implementation request" << link.target.line;
 }
 
 void ClangdFollowSymbol::VirtualFunctionAssistProcessor::update()
@@ -471,7 +471,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
         const auto symbolInfoHandler = [sentinel = QPointer(q), this, link](
                 const QString &name, const QString &prefix, const MessageId &reqId) {
             qCDebug(clangdLog) << "handling symbol info reply"
-                               << link.targetFilePath.toUserOutput() << link.targetLine;
+                               << link.targetFilePath.toUserOutput() << link.target.line;
             if (!sentinel || !virtualFuncAssistProcessor)
                 return;
             if (!name.isEmpty())
@@ -483,7 +483,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
                 handleDocumentInfoResults();
             }
         };
-        const Position pos(link.targetLine - 1, link.targetColumn);
+        const Position pos(link.target.line - 1, link.target.column);
         const MessageId reqId = client->requestSymbolInfo(link.targetFilePath, pos,
                                                           symbolInfoHandler);
         pendingSymbolInfoRequests << reqId;
@@ -497,7 +497,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
     const TextDocument * const defLinkDoc = client->documentForFilePath(defLinkFilePath);
     const auto defLinkDocVariant = defLinkDoc ? ClangdClient::TextDocOrFile(defLinkDoc)
                                               : ClangdClient::TextDocOrFile(defLinkFilePath);
-    const Position defLinkPos(defLink.targetLine - 1, defLink.targetColumn);
+    const Position defLinkPos(defLink.target.line - 1, defLink.target.column);
     const auto astHandler = [this, sentinel = QPointer(q)]
             (const ClangdAstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for def link";

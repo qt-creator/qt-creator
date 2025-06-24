@@ -259,7 +259,7 @@ QMimeData *CppIncludeHierarchyModel::mimeData(const QModelIndexList &indexes) co
     for (const QModelIndex &index : indexes) {
         auto link = index.data(LinkRole).value<Utils::Link>();
         if (link.hasValidTarget())
-            data->addFile(link.targetFilePath, link.targetLine, link.targetColumn);
+            data->addFile(link.targetFilePath, link.target.line, link.target.column);
     }
     return data;
 }

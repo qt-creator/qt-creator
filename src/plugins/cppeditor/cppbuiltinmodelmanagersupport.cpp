@@ -210,7 +210,7 @@ void BuiltinModelManagerSupport::checkUnused(const Utils::Link &link, SearchResu
     snapshot.insert(cppDoc);
     QTextDocument doc(QString::fromUtf8(contents));
     QTextCursor cursor(&doc);
-    cursor.setPosition(Utils::Text::positionInText(&doc, link.targetLine, link.targetColumn));
+    cursor.setPosition(Utils::Text::positionInText(&doc, link.target.line, link.target.column));
     Internal::CanonicalSymbol cs(cppDoc, snapshot);
     CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
     if (!canonicalSymbol || !canonicalSymbol->identifier())

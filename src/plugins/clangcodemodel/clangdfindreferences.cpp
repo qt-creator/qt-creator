@@ -72,7 +72,7 @@ class ClangdFindReferences::CheckUnusedData
 public:
     CheckUnusedData(ClangdFindReferences *q, const Link &link, SearchResult *search,
                     const LinkHandler &callback)
-        : q(q), link(link), linkAsPosition(link.targetLine, link.targetColumn), search(search),
+        : q(q), link(link), linkAsPosition(link.target.line, link.target.column), search(search),
           callback(callback) {}
     ~CheckUnusedData();
 
@@ -209,14 +209,14 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, const Link &lin
         const QString contents = QString::fromUtf8(*std::move(fileContents));
         QTextDocument doc(contents);
         QTextCursor cursor(&doc);
-        cursor.setPosition(Text::positionInText(&doc, link.targetLine, link.targetColumn));
+        cursor.setPosition(Text::positionInText(&doc, link.target.line, link.target.column));
         cursor.select(QTextCursor::WordUnderCursor);
         d->searchTerm = cursor.selectedText();
         client->openExtraFile(targetFilePath, contents);
         d->checkUnusedData->openedExtraFileForLink = true;
     }
     const TextDocumentIdentifier documentId(client->hostPathToServerUri(targetFilePath));
-    const Position pos(link.targetLine - 1, link.targetColumn);
+    const Position pos(link.target.line - 1, link.target.column);
     ReferenceParams params(TextDocumentPositionParams(documentId, pos));
     params.setContext(ReferenceParams::ReferenceContext(true));
     FindReferencesRequest request(params);
@@ -739,7 +739,7 @@ void ClangdFindLocalReferences::Private::findDefinition()
 void ClangdFindLocalReferences::Private::getDefinitionAst(const Link &link)
 {
     qCDebug(clangdLog) << "received go to definition response" << link.targetFilePath
-                       << link.targetLine << (link.targetColumn + 1);
+                       << link.target.line << (link.target.column + 1);
 
     if (!link.hasValidTarget() || !document
             || link.targetFilePath.canonicalPath() != document->filePath().canonicalPath()) {
@@ -766,7 +766,7 @@ void ClangdFindLocalReferences::Private::checkDefinitionAst(const ClangdAstNode 
         return;
     }
 
-    const Position linkPos(defLink.targetLine - 1, defLink.targetColumn);
+    const Position linkPos(defLink.target.line - 1, defLink.target.column);
     const ClangdAstPath astPath = getAstPath(ast, linkPos);
     bool isVar = false;
     for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
@@ -819,11 +819,11 @@ void ClangdFindLocalReferences::Private::handleReferences(const QList<Location> 
                 = symbolOccurrencesInDeclarationComments(editorWidget, cursor);
             for (const Text::Range &range : occurrencesInComments) {
                 static const auto cmp = [](const Link &l, const Text::Range &r) {
-                    if (l.targetLine < r.begin.line)
+                    if (l.target.line < r.begin.line)
                         return true;
-                    if (l.targetLine > r.begin.line)
+                    if (l.target.line > r.begin.line)
                         return false;
-                    return l.targetColumn < r.begin.column;
+                    return l.target.column < r.begin.column;
                 };
                 const auto it = std::lower_bound(links.begin(), links.end(), range, cmp);
                 links.emplace(it, links.first().targetFilePath, range.begin.line,

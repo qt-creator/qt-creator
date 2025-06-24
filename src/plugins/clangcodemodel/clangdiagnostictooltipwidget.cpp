@@ -41,11 +41,11 @@ QString fileNamePrefix(const Utils::FilePath &mainFilePath, const Utils::Link &l
 
 QString locationToString(const Utils::Link &location)
 {
-    if (location.targetLine <= 0 || location.targetColumn <= 0)
+    if (location.target.line <= 0 || location.target.column <= 0)
         return {};
-    return QString::number(location.targetLine)
+    return QString::number(location.target.line)
          + QStringLiteral(":")
-         + QString::number(location.targetColumn + 1);
+         + QString::number(location.target.column + 1);
 }
 
 void applyFixit(const ClangDiagnostic &diagnostic)

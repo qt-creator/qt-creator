@@ -257,14 +257,14 @@ private:
             if (!link.hasValidTarget())
                 return;
             if (symbol->filePath() == link.targetFilePath) {
-                const int linkPos = Text::positionInText(doc, link.targetLine, link.targetColumn);
+                const int linkPos = Text::positionInText(doc, link.target.line, link.target.column);
                 if (linkPos == symbolPos)
                     return;
             }
             const CppRefactoringFilePtr refactoringFile
                 = getRefactoringFile(link.targetFilePath, state);
             const QList<AST *> astPath = ASTPath(
-                refactoringFile->cppDocument())(link.targetLine, link.targetColumn);
+                refactoringFile->cppDocument())(link.target.line, link.target.column);
             const bool isTemplate = symbol->asTemplate();
             const bool isFunction = symbol->type()->asFunctionType();
             for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {

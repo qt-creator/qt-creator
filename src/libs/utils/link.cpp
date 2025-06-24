@@ -9,8 +9,7 @@ namespace Utils {
 
 Link::Link(const FilePath &filePath, int line, int column)
     : targetFilePath(filePath)
-    , targetLine(line)
-    , targetColumn(column)
+    , target(Text::Position{line, column})
 {}
 
 /*!
@@ -30,10 +29,8 @@ Link Link::fromString(const QString &filePathWithNumbers, bool canContainLineNum
         link.targetFilePath = FilePath::fromUserInput(filePathWithNumbers);
     } else {
         int postfixPos = -1;
-        const Text::Position pos = Text::Position::fromFileName(filePathWithNumbers, postfixPos);
+        link.target = Text::Position::fromFileName(filePathWithNumbers, postfixPos);
         link.targetFilePath = FilePath::fromUserInput(filePathWithNumbers.left(postfixPos));
-        link.targetLine = pos.line;
-        link.targetColumn = pos.column;
     }
     return link;
 }
@@ -47,9 +44,7 @@ bool Link::hasValidTarget() const
 
 bool Link::hasSameLocation(const Link &other) const
 {
-    return targetFilePath == other.targetFilePath
-        && targetLine == other.targetLine
-        && targetColumn == other.targetColumn;
+    return targetFilePath == other.targetFilePath && target == other.target;
 }
 
 bool operator==(const Link &lhs, const Link &rhs)
@@ -61,15 +56,15 @@ bool operator==(const Link &lhs, const Link &rhs)
 
 bool operator<(const Link &first, const Link &second)
 {
-    return std::tie(first.targetFilePath, first.targetLine, first.targetColumn)
-         < std::tie(second.targetFilePath, second.targetLine, second.targetColumn);
+    return std::tie(first.targetFilePath, first.target)
+           < std::tie(second.targetFilePath, second.target);
 }
 
 QDebug operator<<(QDebug dbg, const Link &link)
 {
     dbg.nospace() << "Link(" << link.targetFilePath << ", "
-                  << link.targetLine << ", "
-                  << link.targetColumn << ')';
+                  << link.target.line << ", "
+                  << link.target.column << ')';
     return dbg.space();
 }
 

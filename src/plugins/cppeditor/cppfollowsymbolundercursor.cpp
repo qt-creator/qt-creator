@@ -187,7 +187,7 @@ Link findMacroLink_helper(const QByteArray &name, Document::Ptr doc, const Snaps
             if (macro.name() == name) {
                 Link link;
                 link.targetFilePath = macro.filePath();
-                link.targetLine = macro.line();
+                link.target.line = macro.line();
                 return link;
             }
         }
@@ -651,7 +651,7 @@ void FollowSymbolUnderCursor::findLink(
         } else if (filePath.path() != CppModelManager::configurationFileName().path()) {
             const Macro &macro = use->macro();
             link.targetFilePath = macro.filePath();
-            link.targetLine = macro.line();
+            link.target.line = macro.line();
             link.linkTextStart = use->utf16charsBegin();
             link.linkTextEnd = use->utf16charsEnd();
         }

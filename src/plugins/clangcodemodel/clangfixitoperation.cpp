@@ -83,8 +83,8 @@ Utils::ChangeSet ClangFixItOperation::toChangeSet(
         const auto &range = fixItContainer.range;
         const auto &start = range.start;
         const auto &end = range.end;
-        changeSet.replace(refactoringFile.position(start.targetLine, start.targetColumn + 1),
-                          refactoringFile.position(end.targetLine, end.targetColumn + 1),
+        changeSet.replace(refactoringFile.position(start.target.line, start.target.column + 1),
+                          refactoringFile.position(end.target.line, end.target.column + 1),
                           fixItContainer.text);
     }
 

@@ -1321,7 +1321,7 @@ FilePaths LocatorFileCache::processFilePaths(const QFuture<void> &future,
             filterEntry.displayName = path.fileName();
             filterEntry.filePath = path;
             filterEntry.extraInfo = path.shortNativePath();
-            filterEntry.linkForEditor = Link(path, inputLink.targetLine, inputLink.targetColumn);
+            filterEntry.linkForEditor = Link(path, inputLink.target.line, inputLink.target.column);
             filterEntry.highlightInfo = hasPathSeparator
                 ? ILocatorFilter::highlightInfo(regExp.match(filterEntry.extraInfo),
                                                 LocatorFilterEntry::HighlightInfo::ExtraInfo)

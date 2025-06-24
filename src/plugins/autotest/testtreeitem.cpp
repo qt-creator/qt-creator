@@ -121,9 +121,9 @@ bool ITestTreeItem::lessThan(const ITestTreeItem *other, ITestTreeItem::SortMode
         const int comparison = leftLink.targetFilePath.path()
                                    .compare(rightLink.targetFilePath.path(), Qt::CaseInsensitive);
         if (comparison == 0) {
-            return leftLink.targetLine == rightLink.targetLine
-                    ? leftLink.targetColumn > rightLink.targetColumn
-                    : leftLink.targetLine > rightLink.targetLine;
+            return leftLink.target.line == rightLink.target.line
+                    ? leftLink.target.column > rightLink.target.column
+                    : leftLink.target.line > rightLink.target.line;
         }
         return comparison > 0;
     }

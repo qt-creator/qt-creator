@@ -626,7 +626,7 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
             Result<bool> inserted = insertQtAddTranslations(*cmakeListFile,
                                                                   targetCMakeFile,
                                                                   targetName,
-                                                                  cmakeFile->targetLine,
+                                                                  cmakeFile->target.line,
                                                                   filesToAdd,
                                                                   qtMajorVersion,
                                                                   linguistToolsMissing);
@@ -690,7 +690,7 @@ bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, Fi
             return false;
 
         const FilePath targetCMakeFile = cmakeFile->targetFilePath;
-        const int targetDefinitionLine = cmakeFile->targetLine;
+        const int targetDefinitionLine = cmakeFile->target.line;
 
         std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
         if (!cmakeListFile)
@@ -773,7 +773,7 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
         return std::nullopt;
 
     const FilePath targetCMakeFile = cmakeFile->targetFilePath;
-    const int targetDefinitionLine = cmakeFile->targetLine;
+    const int targetDefinitionLine = cmakeFile->target.line;
 
     std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
     if (!cmakeListFile)
@@ -1171,7 +1171,7 @@ bool CMakeBuildSystem::addDependencies(
         Result<bool> inserted = insertDependencies(
             targetName,
             cmakeFile->targetFilePath,
-            cmakeFile->targetLine,
+            cmakeFile->target.line,
             dependencies,
             qtMajorVersion);
         if (!inserted) {
@@ -1982,8 +1982,8 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
 
         Utils::Link link;
         link.targetFilePath = cmakeFile.path;
-        link.targetLine = arg.Line;
-        link.targetColumn = arg.Column - 1;
+        link.target.line = arg.Line;
+        link.target.column = arg.Column - 1;
         m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
 
         if (func.LowerCaseName() == "option")
@@ -2012,8 +2012,8 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
             // Allow navigation to the imported target
             Utils::Link link;
             link.targetFilePath = cmakeFile.path;
-            link.targetLine = arg.Line;
-            link.targetColumn = arg.Column - 1;
+            link.target.line = arg.Line;
+            link.target.column = arg.Column - 1;
             m_cmakeSymbolsHash.insert(targetName, link);
         }
     };
@@ -2041,8 +2041,8 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
 
         Utils::Link link;
         link.targetFilePath = cmakeFile.path;
-        link.targetLine = arg.Line;
-        link.targetColumn = arg.Column - 1;
+        link.target.line = arg.Line;
+        link.target.column = arg.Column - 1;
         m_cmakeSymbolsHash.insert(it->second, link);
     };
 
@@ -2082,8 +2082,8 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
 
             Utils::Link link;
             link.targetFilePath = cmakeFile.path;
-            link.targetLine = arg.Line;
-            link.targetColumn = arg.Column - 1;
+            link.target.line = arg.Line;
+            link.target.column = arg.Column - 1;
             m_cmakeSymbolsHash.insert(value, link);
         }
     };
@@ -2094,8 +2094,8 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
         if (cmakeFile.path.suffix() == "cmake") {
             Utils::Link link;
             link.targetFilePath = cmakeFile.path;
-            link.targetLine = 1;
-            link.targetColumn = 0;
+            link.target.line = 1;
+            link.target.column = 0;
             m_dotCMakeFilesHash.insert(cmakeFile.path.completeBaseName(), link);
         }
     };
@@ -2126,8 +2126,8 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
         if (!findPackageName.isEmpty() || !configPackageName.isEmpty()) {
             Utils::Link link;
             link.targetFilePath = cmakeFile.path;
-            link.targetLine = 1;
-            link.targetColumn = 0;
+            link.target.line = 1;
+            link.target.column = 0;
             m_findPackagesFilesHash.insert(!findPackageName.isEmpty() ? findPackageName
                                                                       : configPackageName,
                                            link);

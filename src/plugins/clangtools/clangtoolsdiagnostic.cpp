@@ -57,10 +57,10 @@ ProjectExplorer::Task Diagnostic::asTask() const
     Task t(taskType(),
           description,
           location.targetFilePath,
-          location.targetLine,
+          location.target.line,
           taskCategory(),
           icon());
-    t.setColumn(location.targetColumn);
+    t.setColumn(location.target.column);
     return t;
 }
 
@@ -69,8 +69,8 @@ size_t qHash(const Diagnostic &diagnostic)
     return qHash(diagnostic.name)
          ^ qHash(diagnostic.description)
          ^ qHash(diagnostic.location.targetFilePath)
-         ^ diagnostic.location.targetLine
-         ^ diagnostic.location.targetColumn;
+         ^ diagnostic.location.target.line
+         ^ diagnostic.location.target.column;
 }
 
 bool operator==(const Diagnostic &lhs, const Diagnostic &rhs)

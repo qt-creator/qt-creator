@@ -268,7 +268,7 @@ private:
                   : changes.cppFile(targetLoc.targetFilePath);
         const Document::Ptr &targetCppDoc = targetFile->cppDocument();
         const QList<AST *> targetAstPath = ASTPath(targetCppDoc)(
-            targetLoc.targetLine, targetLoc.targetColumn + 1);
+            targetLoc.target.line, targetLoc.target.column + 1);
         if (targetAstPath.isEmpty())
             return;
         const AST *targetDeclAst = nullptr;

@@ -216,8 +216,8 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
                 filterEntry.filePath = file;
                 filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
                 filterEntry.linkForEditor = Link(filterEntry.filePath,
-                                                 link.targetLine,
-                                                 link.targetColumn);
+                                                 link.target.line,
+                                                 link.target.column);
                 filterEntry.completer = [shortcutString, file] {
                     const QString value = shortcutString + ' '
                                           + file.absoluteFilePath().cleanPath().toUserOutput();

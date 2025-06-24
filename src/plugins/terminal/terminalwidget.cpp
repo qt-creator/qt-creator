@@ -433,7 +433,7 @@ std::optional<TerminalSolution::TerminalView::Link> TerminalWidget::toLink(const
             if (link.hasValidTarget()
                 && (link.targetFilePath.scheme().toString().startsWith("http")
                     || link.targetFilePath.exists())) {
-                return Link{link.targetFilePath.toUrlishString(), link.targetLine, link.targetColumn};
+                return Link{link.targetFilePath.toUrlishString(), link.target.line, link.target.column};
             }
         }
         if (!m_cwd.isEmpty() && Utils::allOf(text, [](QChar c) {

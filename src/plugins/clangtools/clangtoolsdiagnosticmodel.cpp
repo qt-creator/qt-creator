@@ -196,7 +196,7 @@ const QList<DiagnosticItem *> &ClangToolsDiagnosticModel::itemsWithSameFixits(
 
 static QString lineColumnString(const Link &location)
 {
-    return QString("%1:%2").arg(location.targetLine).arg(location.targetColumn + 1);
+    return QString("%1:%2").arg(location.target.line).arg(location.target.column + 1);
 }
 
 static QString createExplainingStepToolTipString(const ExplainingStep &step)
@@ -231,7 +231,7 @@ static QString createExplainingStepToolTipString(const ExplainingStep &step)
 static QString createLocationString(const Link &location)
 {
     const QString filePath = location.targetFilePath.toUserOutput();
-    const QString lineNumber = QString::number(location.targetLine);
+    const QString lineNumber = QString::number(location.target.line);
     const QString fileAndLine = filePath + QLatin1Char(':') + lineNumber;
     return QLatin1String("in ") + fileAndLine;
 }
@@ -679,8 +679,8 @@ bool DiagnosticFilterModel::lessThan(const QModelIndex &l, const QModelIndex &r)
             const auto rightText
                 = sourceModel()->data(r, ClangToolsDiagnosticModel::TextRole).toString();
 
-            result = std::tie(leftLoc.targetLine, leftLoc.targetColumn, leftText)
-                     < std::tie(rightLoc.targetLine, rightLoc.targetColumn, rightText);
+            result = std::tie(leftLoc.target.line, leftLoc.target.column, leftText)
+                     < std::tie(rightLoc.target.line, rightLoc.target.column, rightText);
         } else if (itemLeft->level() == 3) {
             Utils::TreeItem *itemRight = model->itemForIndex(r);
             QTC_ASSERT(itemRight, QSortFilterProxyModel::lessThan(l, r));

@@ -1117,8 +1117,8 @@ void tst_filepath::linkFromString()
     QFETCH(int, column);
     const Link link = Link::fromString(testFile, true);
     QCOMPARE(link.targetFilePath, filePath);
-    QCOMPARE(link.targetLine, line);
-    QCOMPARE(link.targetColumn, column);
+    QCOMPARE(link.target.line, line);
+    QCOMPARE(link.target.column, column);
 }
 
 void tst_filepath::linkFromString_data()

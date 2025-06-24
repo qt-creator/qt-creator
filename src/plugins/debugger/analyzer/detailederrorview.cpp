@@ -103,8 +103,8 @@ QVariant DetailedErrorView::locationData(int role, const Link &location)
     case Qt::DisplayRole:
         return location.hasValidTarget() ? QString::fromLatin1("%1:%2:%3")
                                .arg(location.targetFilePath.fileName())
-                               .arg(location.targetLine)
-                               .arg(location.targetColumn + 1)
+                               .arg(location.target.line)
+                               .arg(location.target.column + 1)
                          : QString();
     case Qt::ToolTipRole:
         return location.targetFilePath.isEmpty()

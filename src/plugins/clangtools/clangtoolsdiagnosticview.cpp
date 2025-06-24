@@ -239,7 +239,7 @@ void DiagnosticView::suppressCurrentDiagnosticInline()
         if (!isApplicable)
             continue;
 
-        diagnosticsPerFileAndLine[diag.location.targetFilePath][diag.location.targetLine]
+        diagnosticsPerFileAndLine[diag.location.targetFilePath][diag.location.target.line]
                 << diag.name;
 
         diags << diag;

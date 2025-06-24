@@ -319,8 +319,8 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
             marker.tooltip = diagnostic.description;
             QTextCursor cursor(doc->document());
             cursor.setPosition(Text::positionInText(doc->document(),
-                                                    diagnostic.location.targetLine,
-                                                    diagnostic.location.targetColumn));
+                                                    diagnostic.location.target.line,
+                                                    diagnostic.location.target.column));
             cursor.movePosition(QTextCursor::EndOfLine);
             marker.cursor = cursor;
             marker.type = Constants::CLANG_TOOL_FIXIT_AVAILABLE_MARKER_ID;

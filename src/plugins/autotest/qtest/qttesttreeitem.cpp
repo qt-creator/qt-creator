@@ -182,9 +182,9 @@ struct FunctionLocation {
 static QStringList orderedTestCases(const QList<FunctionLocation> &original)
 {
     auto compare = [](const Link &lhs, const Link &rhs) {
-        if (lhs.targetLine == rhs.targetLine)
-            return lhs.targetColumn - rhs.targetColumn;
-        return lhs.targetLine - rhs.targetLine;
+        if (lhs.target.line == rhs.target.line)
+            return lhs.target.column - rhs.target.column;
+        return lhs.target.line - rhs.target.line;
     };
 
     QList<FunctionLocation> locations = original;

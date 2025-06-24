@@ -495,8 +495,8 @@ void ClangdTestFollowSymbol::test()
     timer.stop();
 
     QCOMPARE(actualLink.targetFilePath, filePath(targetFile));
-    QCOMPARE(actualLink.targetLine, targetLine);
-    QCOMPARE(actualLink.targetColumn + 1, targetColumn);
+    QCOMPARE(actualLink.target.line, targetLine);
+    QCOMPARE(actualLink.target.column + 1, targetColumn);
 }
 
 // Make sure it is safe to call follow symbol in a follow symbol handler. Since follow symbol
@@ -643,7 +643,7 @@ void ClangdTestLocalReferences::test()
     QList<Range> actualRanges;
     const auto handler = [&actualRanges, &loop](const QString &symbol, const Links &links, int) {
         for (const Link &link : links)
-            actualRanges << Range(link.targetLine, link.targetColumn, symbol.length());
+            actualRanges << Range(link.target.line, link.target.column, symbol.length());
         loop.quit();
     };
 

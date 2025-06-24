@@ -190,8 +190,8 @@ static QHash<QString, Link> getLocalSymbolsHash(const QByteArray &content,
 
         Link link;
         link.targetFilePath = filePath;
-        link.targetLine = arg.Line;
-        link.targetColumn = arg.Column - 1;
+        link.target.line = arg.Line;
+        link.target.column = arg.Column - 1;
         hash.insert(QString::fromUtf8(arg.Value), link);
     }
     return hash;

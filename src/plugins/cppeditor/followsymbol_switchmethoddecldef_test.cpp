@@ -153,7 +153,7 @@ public:
                 = dynamic_cast<VirtualFunctionProposalItem *>(model->proposalItem(i));
 
             const QString text = model->text(i);
-            const int line = item->link().targetLine;
+            const int line = item->link().target.line;
 //            Uncomment for updating/generating reference data:
 //            qDebug("<< OverrideItem(QLatin1String(\"%s\"), %d)", qPrintable(text), line);
             result << OverrideItem(text, line);

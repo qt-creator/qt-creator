@@ -62,11 +62,11 @@ private:
             DefLocations &dl = defLocations[link.targetFilePath];
             DefLocation newElem{decl, link};
             const auto cmp = [](const DefLocation &elem, const DefLocation &value) {
-                if (elem.defLoc.targetLine < value.defLoc.targetLine)
+                if (elem.defLoc.target.line < value.defLoc.target.line)
                     return true;
-                if (elem.defLoc.targetLine > value.defLoc.targetLine)
+                if (elem.defLoc.target.line > value.defLoc.target.line)
                     return false;
-                return elem.defLoc.targetColumn < value.defLoc.targetColumn;
+                return elem.defLoc.target.column < value.defLoc.target.column;
             };
             dl.insert(std::lower_bound(dl.begin(), dl.end(), newElem, cmp), newElem);
         }
@@ -112,7 +112,7 @@ private:
                     return;
                 if (decl->filePath() == link.targetFilePath) {
                     const int linkPos
-                        = Text::positionInText(doc, link.targetLine, link.targetColumn);
+                        = Text::positionInText(doc, link.target.line, link.target.column);
                     if (linkPos == declPos)
                         return;
                 }
@@ -137,7 +137,7 @@ private:
 
         const auto findAstRange = [](const CppRefactoringFile &file, const DefLocation &defLoc) {
             const QList<AST *> astPath = ASTPath(
-                file.cppDocument())(defLoc.defLoc.targetLine, defLoc.defLoc.targetColumn + 1);
+                file.cppDocument())(defLoc.defLoc.target.line, defLoc.defLoc.target.column + 1);
             for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
                 if (const auto funcDef = (*it)->asFunctionDefinition()) {
                     AST *ast = funcDef;

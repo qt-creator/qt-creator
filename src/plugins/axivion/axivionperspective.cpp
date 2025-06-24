@@ -851,7 +851,7 @@ static QList<LinkWithColumns> linksForIssue(const std::map<QString, Dto::Any> &i
             it = issueRow.find(line);
             if (it != end && !it->second.isNull()) {
                 QTC_ASSERT(it->second.isDouble(), return);
-                link.targetLine = it->second.getDouble();
+                link.target.line = it->second.getDouble();
                 columns.append(findColumn(it->first));
             }
             links.append({link, columns});
@@ -1858,7 +1858,7 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
     if (const QString path = query.queryItemValue("filename", QUrl::FullyDecoded); !path.isEmpty())
         link.targetFilePath = findFileForIssuePath(FilePath::fromUserInput(path));
     if (const QString line = query.queryItemValue("line"); !line.isEmpty())
-        link.targetLine = line.toInt();
+        link.target.line = line.toInt();
     // column entry is wrong - so, ignore it
     if (link.hasValidTarget() && link.targetFilePath.exists())
         EditorManager::openEditorAt(link);

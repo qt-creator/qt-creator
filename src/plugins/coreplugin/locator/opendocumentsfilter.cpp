@@ -57,8 +57,8 @@ static void matchEditors(QPromise<void> &promise, const LocatorStorage &storage,
             filterEntry.filePath = editorData.fileName;
             filterEntry.extraInfo = filterEntry.filePath.shortNativePath();
             filterEntry.highlightInfo = ILocatorFilter::highlightInfo(match);
-            filterEntry.linkForEditor = Link(filterEntry.filePath, link.targetLine,
-                                             link.targetColumn);
+            filterEntry.linkForEditor = Link(filterEntry.filePath, link.target.line,
+                                             link.target.column);
             if (match.capturedStart() == 0)
                 betterEntries.append(filterEntry);
             else

@@ -6,6 +6,7 @@
 #include "utils_global.h"
 
 #include "filepath.h"
+#include "textutils.h"
 
 namespace Utils {
 
@@ -26,8 +27,7 @@ public:
     int linkTextEnd = -1;
 
     FilePath targetFilePath;
-    int targetLine = 0;
-    int targetColumn = 0;
+    Text::Position target;
 
 private:
     QTCREATOR_UTILS_EXPORT friend bool operator<(const Link &first, const Link &second);
@@ -37,7 +37,7 @@ private:
     QTCREATOR_UTILS_EXPORT friend QDebug operator<<(QDebug dbg, const Link &link);
 
     friend size_t qHash(const Link &l, uint seed = 0)
-    { return qHashMulti(seed, l.targetFilePath, l.targetLine, l.targetColumn); }
+    { return qHashMulti(seed, l.targetFilePath, l.target.line, l.target.column); }
 };
 
 using LinkHandler = std::function<void(const Link &)>;
