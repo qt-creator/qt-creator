@@ -70,8 +70,6 @@ public:
     QString toUnicode(QByteArrayView data) const;
     QString toUnicode(const char *data, int size, ConverterState *state) const;
 
-    bool canEncode(QStringView data) const;
-
     static TextCodec codecForName(const QByteArray &codecName);
     static TextCodec codecForMib(int mib);
 
