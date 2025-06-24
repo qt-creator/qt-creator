@@ -17,6 +17,7 @@
 #include <externaldependenciesinterface.h>
 #include <nodeabstractproperty.h>
 #include <nodeinstanceview.h>
+#include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
@@ -401,6 +402,19 @@ void MaterialBrowserView::bindingPropertiesChanged(const QList<BindingProperty> 
     updatePropertyList(propertyList);
 }
 
+void MaterialBrowserView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
+{
+    QList<ModelNode> modelNodes;
+    for (const AbstractProperty &property : propertyList) {
+        if (property.name() == "data" && property.isNodeListProperty()) {
+            ModelNode node = property.parentModelNode();
+            if (node.id() == Constants::MATERIAL_LIB_ID || node.isRootNode())
+                modelNodes.append(property.toNodeListProperty().directSubNodes());
+        }
+    }
+    handleNodesRemoved(modelNodes);
+}
+
 void MaterialBrowserView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
     updatePropertyList(propertyList);
@@ -443,22 +457,7 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
 
 void MaterialBrowserView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    // removing the material lib node
-    if (removedNode.id() == Constants::MATERIAL_LIB_ID) {
-        m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
-        m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
-        m_widget->clearPreviewCache();
-        return;
-    }
-
-    // not under the material lib
-    if (removedNode.parentProperty().parentModelNode().id() != Constants::MATERIAL_LIB_ID)
-        return;
-
-    if (isMaterial(removedNode))
-        m_widget->materialBrowserModel()->removeMaterial(removedNode);
-    else if (isTexture(removedNode))
-        m_widget->materialBrowserTexturesModel()->removeTexture(removedNode);
+    handleNodesRemoved({removedNode});
 }
 
 void QmlDesigner::MaterialBrowserView::loadPropertyGroups()
@@ -483,6 +482,26 @@ void MaterialBrowserView::requestPreviews()
                 ->previewImageDataForGenericNode(node, {});
     }
     m_previewRequests.clear();
+}
+
+void MaterialBrowserView::handleNodesRemoved(const QList<ModelNode> &removedNodes)
+{
+    for (const auto &removedNode : removedNodes) {
+        if (removedNode.id() == Constants::MATERIAL_LIB_ID) {
+            m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
+            m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
+            m_widget->clearPreviewCache();
+            return;
+        }
+
+        if (removedNode.parentProperty().parentModelNode().id() != Constants::MATERIAL_LIB_ID)
+            continue;
+
+        if (isMaterial(removedNode))
+            m_widget->materialBrowserModel()->removeMaterial(removedNode);
+        else if (isTexture(removedNode))
+            m_widget->materialBrowserTexturesModel()->removeTexture(removedNode);
+    }
 }
 
 void MaterialBrowserView::importsChanged([[maybe_unused]] const Imports &addedImports,

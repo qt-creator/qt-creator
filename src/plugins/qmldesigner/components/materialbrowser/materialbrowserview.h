@@ -42,6 +42,7 @@ public:
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange) override;
     void bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
                                   PropertyChangeFlags propertyChange) override;
+    void propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList) override;
     void propertiesRemoved(const QList<AbstractProperty> &propertyList) override;
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
                         const NodeAbstractProperty &oldPropertyParent,
@@ -82,6 +83,7 @@ private:
     void loadPropertyGroups();
     void requestPreviews();
     ModelNode resolveSceneEnv();
+    void handleNodesRemoved(const QList<ModelNode> &removedNodes);
 
     AsynchronousImageCache &m_imageCache;
     QPointer<MaterialBrowserWidget> m_widget;
