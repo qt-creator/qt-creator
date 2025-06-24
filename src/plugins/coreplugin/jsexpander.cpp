@@ -68,10 +68,12 @@ void JsExpander::registerForExpander(Utils::MacroExpander *macroExpander)
 {
     macroExpander->registerPrefix(
         "JS",
-        Tr::tr("Evaluate simple JavaScript statements.<br>"
-               "Literal '}' characters must be escaped as \"\\}\", "
-               "'\\' characters must be escaped as \"\\\\\", "
-               "and \"%{\" must be escaped as \"%\\{\"."),
+        "1+1",
+        Tr::tr(
+            "Evaluate simple JavaScript statements.<br>"
+            "Literal '}' characters must be escaped as \"\\}\", "
+            "'\\' characters must be escaped as \"\\\\\", "
+            "and \"%{\" must be escaped as \"%\\{\"."),
         [this](QString in) -> QString {
             QString errorMessage;
             QString result = evaluate(in, &errorMessage);

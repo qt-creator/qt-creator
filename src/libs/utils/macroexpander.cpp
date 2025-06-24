@@ -6,6 +6,7 @@
 #include "algorithm.h"
 #include "commandline.h"
 #include "environment.h"
+#include "hostosinfo.h"
 #include "stringutils.h"
 #include "utilstr.h"
 
@@ -186,7 +187,12 @@ public:
     QHash<QByteArray, MacroExpander::StringFunction> m_map;
     QHash<QByteArray, MacroExpander::PrefixFunction> m_prefixMap;
     QList<MacroExpander::ResolverFunction> m_extraResolvers;
-    QMap<QByteArray, QString> m_descriptions;
+    struct Description
+    {
+        QString description;
+        QByteArray exampleUsage;
+    };
+    QMap<QByteArray, Description> m_descriptions;
     QString m_displayName;
     QList<MacroExpanderProvider> m_subProviders;
     bool m_accumulating = false;
@@ -440,7 +446,9 @@ static QByteArray fullPrefix(const QByteArray &prefix)
 
 /*!
  * Makes the given string-valued \a prefix known to the variable manager,
- * together with a localized \a description.
+ * together with a localized \a description. Provide an example for the
+ * value after the prefix in \a {examplePostfix}. That is used to show
+ * an expanded example in the variable chooser.
  *
  * The \a value \c PrefixFunction will be called and gets the full variable name
  * with the prefix stripped as input. It is displayed to users if \a visible is
@@ -450,13 +458,17 @@ static QByteArray fullPrefix(const QByteArray &prefix)
  *
  * \sa registerVariable(), registerIntVariable(), registerFileVariables()
  */
-void MacroExpander::registerPrefix(const QByteArray &prefix, const QString &description,
-                                   const MacroExpander::PrefixFunction &value, bool visible,
-                                   bool availableForExpansion)
+void MacroExpander::registerPrefix(
+    const QByteArray &prefix,
+    const QByteArray &examplePostfix,
+    const QString &description,
+    const MacroExpander::PrefixFunction &value,
+    bool visible,
+    bool availableForExpansion)
 {
     QByteArray tmp = fullPrefix(prefix);
     if (visible)
-        d->m_descriptions.insert(tmp + "<value>", description);
+        d->m_descriptions.insert(tmp + "<value>", {description, tmp + examplePostfix});
     if (availableForExpansion)
         d->m_prefixMap.insert(tmp, value);
 }
@@ -480,7 +492,7 @@ void MacroExpander::registerVariable(
     bool availableForExpansion)
 {
     if (visibleInChooser)
-        d->m_descriptions.insert(variable, description);
+        d->m_descriptions.insert(variable, {description, variable});
     if (availableForExpansion)
         d->m_map.insert(variable, value);
 }
@@ -587,7 +599,12 @@ QList<QByteArray> MacroExpander::visibleVariables() const
  */
 QString MacroExpander::variableDescription(const QByteArray &variable) const
 {
-    return d->m_descriptions.value(variable);
+    return d->m_descriptions.value(variable).description;
+}
+
+QByteArray MacroExpander::variableExampleUsage(const QByteArray &variable) const
+{
+    return d->m_descriptions.value(variable).exampleUsage;
 }
 
 bool MacroExpander::isPrefixVariable(const QByteArray &variable) const
@@ -636,8 +653,11 @@ public:
     GlobalMacroExpander()
     {
         setDisplayName(Tr::tr("Global variables"));
-        registerPrefix("Env", Tr::tr("Access environment variables."),
-                       [](const QString &value) { return qtcEnvironmentVariable(value); });
+        registerPrefix(
+            "Env",
+            HostOsInfo::isWindowsHost() ? "USERNAME" : "USER",
+            Tr::tr("Access environment variables."),
+            [](const QString &value) { return qtcEnvironmentVariable(value); });
     }
 };
 

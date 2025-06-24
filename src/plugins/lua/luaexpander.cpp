@@ -80,11 +80,13 @@ void setupLuaExpander(MacroExpander *expander)
 {
     expander->registerPrefix(
         "Lua",
-        Tr::tr("Evaluate simple Lua statements.<br>"
-               "Literal '}' characters must be escaped as \"\\}\", "
-               "'\\' characters must be escaped as \"\\\\\", "
-               "'#' characters must be escaped as \"\\#\", "
-               "and \"%{\" must be escaped as \"%\\{\"."),
+        "1+1",
+        Tr::tr(
+            "Evaluate simple Lua statements.<br>"
+            "Literal '}' characters must be escaped as \"\\}\", "
+            "'\\' characters must be escaped as \"\\\\\", "
+            "'#' characters must be escaped as \"\\#\", "
+            "and \"%{\" must be escaped as \"%\\{\"."),
         [expander](const QString &statement) -> QString {
             if (statement.isEmpty())
                 return Tr::tr("No Lua statement to evaluate.");

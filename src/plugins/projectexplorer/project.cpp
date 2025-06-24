@@ -1335,15 +1335,16 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                        return bc->buildDirectory().toUserOutput();
                                    return {};
                                });
-    expander->registerPrefix(fullPrefix + "BuildConfig:Env",
-                             //: %1 is something like "Active project"
-                             ::PE::Tr::tr("%1: Variables in the active build environment.")
-                                 .arg(descriptor),
-                             [bcGetter](const QString &var) -> QString {
-                                 if (BuildConfiguration *const bc = bcGetter())
-                                     return bc->environment().expandedValueForKey(var);
-                                 return {};
-                             });
+    expander->registerPrefix(
+        fullPrefix + "BuildConfig:Env",
+        "USER",
+        //: %1 is something like "Active project"
+        ::PE::Tr::tr("%1: Variables in the active build environment.").arg(descriptor),
+        [bcGetter](const QString &var) -> QString {
+            if (BuildConfiguration *const bc = bcGetter())
+                return bc->environment().expandedValueForKey(var);
+            return {};
+        });
 
     expander->registerVariable(fullPrefix + "RunConfig:Name",
                                //: %1 is something like "Active project"
@@ -1363,19 +1364,19 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                             return rc->commandLine().executable();
                                         return {};
                                     });
-    expander
-        ->registerPrefix(fullPrefix + "RunConfig:Env",
-                         //: %1 is something like "Active project"
-                         ::PE::Tr::tr(
-                             "%1: Variables in the environment of the active run configuration.")
-                             .arg(descriptor),
-                         [rcGetter](const QString &var) -> QString {
-                             if (const RunConfiguration *const rc = rcGetter()) {
-                                 if (const auto envAspect = rc->aspect<EnvironmentAspect>())
-                                     return envAspect->environment().expandedValueForKey(var);
-                             }
-                             return {};
-                         });
+    expander->registerPrefix(
+        fullPrefix + "RunConfig:Env",
+        "USER",
+        //: %1 is something like "Active project"
+        ::PE::Tr::tr("%1: Variables in the environment of the active run configuration.")
+            .arg(descriptor),
+        [rcGetter](const QString &var) -> QString {
+            if (const RunConfiguration *const rc = rcGetter()) {
+                if (const auto envAspect = rc->aspect<EnvironmentAspect>())
+                    return envAspect->environment().expandedValueForKey(var);
+            }
+            return {};
+        });
     expander->registerVariable(fullPrefix + "RunConfig:WorkingDir",
                                //: %1 is something like "Active project"
                                ::PE::Tr::tr(

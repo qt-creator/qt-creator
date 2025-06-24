@@ -343,12 +343,17 @@ void RunConfiguration::setupMacroExpander(
     MacroExpander &exp, const RunConfiguration *rc, bool documentationOnly)
 {
     exp.registerPrefix(
-        "RunConfig:Env", Tr::tr("Variables in the run environment."), [rc](const QString &var) {
+        "RunConfig:Env",
+        "USER",
+        Tr::tr("Variables in the run environment."),
+        [rc](const QString &var) {
             if (!rc)
                 return QString();
             const auto envAspect = rc->aspect<EnvironmentAspect>();
             return envAspect ? envAspect->environment().expandedValueForKey(var) : QString();
-        }, true, !documentationOnly);
+        },
+        true,
+        !documentationOnly);
 
     exp.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."), [rc] {
             return rc ? rc->displayName() : QString();

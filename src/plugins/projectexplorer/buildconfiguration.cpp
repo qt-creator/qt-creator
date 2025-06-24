@@ -211,9 +211,11 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
                                     [this] { return buildDirectory(); });
     expander->registerVariable("BuildConfig:Name", Tr::tr("Name of the build configuration"),
             [this] { return displayName(); });
-    expander->registerPrefix("BuildConfig:Env",
-                             Tr::tr("Variables in the build configuration's environment"),
-                             [this](const QString &var) { return environment().expandedValueForKey(var); });
+    expander->registerPrefix(
+        "BuildConfig:Env",
+        "USER",
+        Tr::tr("Variables in the build configuration's environment"),
+        [this](const QString &var) { return environment().expandedValueForKey(var); });
 
     connect(Core::ICore::instance(), &Core::ICore::systemEnvironmentChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);

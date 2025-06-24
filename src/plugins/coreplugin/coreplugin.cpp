@@ -369,17 +369,26 @@ Result<> CorePlugin::initialize(const QStringList &arguments)
                                Tr::tr("The directory where %1 puts custom user data.")
                                    .arg(QGuiApplication::applicationDisplayName()),
                                [] { return ICore::userResourcePath().toUrlishString(); });
-    expander->registerPrefix("CurrentDate:", Tr::tr("The current date (QDate formatstring)."),
-                             [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
-    expander->registerPrefix("CurrentTime:", Tr::tr("The current time (QTime formatstring)."),
-                             [](const QString &fmt) { return QTime::currentTime().toString(fmt); });
+    expander->registerPrefix(
+        "CurrentDate:",
+        "dd.MM.yyyy",
+        Tr::tr("The current date (QDate formatstring)."),
+        [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
+    expander->registerPrefix(
+        "CurrentTime:",
+        "hh:mm:ss",
+        Tr::tr("The current time (QTime formatstring)."),
+        [](const QString &fmt) { return QTime::currentTime().toString(fmt); });
     expander->registerVariable("UUID", Tr::tr("Generate a new UUID."),
                                [] { return QUuid::createUuid().toString(); });
 
-    expander->registerPrefix("#:", Tr::tr("A comment."), [](const QString &) { return QString(); });
-    expander->registerPrefix("Asciify:",
-                             Tr::tr("Convert string to pure ASCII."),
-                             [expander](const QString &s) { return asciify(expander->expand(s)); });
+    expander->registerPrefix("#:", "<comment>", Tr::tr("A comment."), [](const QString &) {
+        return QString();
+    });
+    expander->registerPrefix(
+        "Asciify:", "éΩ", Tr::tr("Convert string to pure ASCII."), [expander](const QString &s) {
+            return asciify(expander->expand(s));
+        });
 
     registerStandardLocation(expander, QStandardPaths::DocumentsLocation);
     registerStandardLocation(expander, QStandardPaths::GenericDataLocation);

@@ -186,10 +186,12 @@ public:
 
         if (role == CurrentValueDisplayRole) {
             QString description = m_expander->variableDescription(m_variable);
-            const QString value = m_expander->value(m_variable).toHtmlEscaped();
+            const QByteArray exampleUsage = m_expander->variableExampleUsage(m_variable);
+            const QString value = m_expander->value(exampleUsage).toHtmlEscaped();
             if (!value.isEmpty())
                 description += QLatin1String("<p>")
-                        + Tr::tr("Current Value: %1").arg(value);
+                               + Tr::tr("Current Value of %{%1}: %2")
+                                     .arg(QString::fromUtf8(exampleUsage), value);
             return description;
         }
 

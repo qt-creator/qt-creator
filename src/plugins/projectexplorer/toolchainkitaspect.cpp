@@ -367,16 +367,19 @@ void ToolchainKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expa
                                });
 
     // After 4.2
-    expander->registerPrefix("Compiler:Name", Tr::tr("Compiler for different languages"),
-                             [kit](const QString &ls) {
-                                 const Toolchain *tc = ToolchainKitAspect::toolchain(kit, findLanguage(ls));
-                                 return tc ? tc->displayName() : Tr::tr("None", "No compiler");
-                             });
-    expander->registerPrefix("Compiler:Executable", Tr::tr("Compiler executable for different languages"),
-                             [kit](const QString &ls) {
-                                 const Toolchain *tc = ToolchainKitAspect::toolchain(kit, findLanguage(ls));
-                                 return tc ? tc->compilerCommand().path() : QString();
-                             });
+    expander->registerPrefix(
+        "Compiler:Name", "C", Tr::tr("Compiler for different languages"), [kit](const QString &ls) {
+            const Toolchain *tc = ToolchainKitAspect::toolchain(kit, findLanguage(ls));
+            return tc ? tc->displayName() : Tr::tr("None", "No compiler");
+        });
+    expander->registerPrefix(
+        "Compiler:Executable",
+        "C",
+        Tr::tr("Compiler executable for different languages"),
+        [kit](const QString &ls) {
+            const Toolchain *tc = ToolchainKitAspect::toolchain(kit, findLanguage(ls));
+            return tc ? tc->compilerCommand().path() : QString();
+        });
 }
 
 QList<OutputLineParser *> ToolchainKitAspectFactory::createOutputParsers(const Kit *k) const

@@ -131,13 +131,16 @@ JsonWizard::JsonWizard()
         *ret = stringValue(name);
         return !ret->isNull();
     });
-    m_expander.registerPrefix("Exists", Tr::tr("Check whether a variable exists.<br>"
-                                           "Returns \"true\" if it does and an empty string if not."),
-                   [this](const QString &value) -> QString
-    {
-        const QString key = QString::fromLatin1("%{") + value + QLatin1Char('}');
-        return m_expander.expand(key) == key ? QString() : QLatin1String("true");
-    });
+    m_expander.registerPrefix(
+        "Exists",
+        "",
+        Tr::tr(
+            "Check whether a variable exists.<br>"
+            "Returns \"true\" if it does and an empty string if not."),
+        [this](const QString &value) -> QString {
+            const QString key = QString::fromLatin1("%{") + value + QLatin1Char('}');
+            return m_expander.expand(key) == key ? QString() : QLatin1String("true");
+        });
     // override default JS macro by custom one that adds Wizard specific features
     m_jsExpander.registerObject("Wizard", new Internal::JsonWizardJsExtension(this));
     m_jsExpander.evaluate("var value = Wizard.value");

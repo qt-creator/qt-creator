@@ -48,6 +48,7 @@ public:
 
     void registerPrefix(
         const QByteArray &prefix,
+        const QByteArray &examplePostfix,
         const QString &description,
         const PrefixFunction &value,
         bool visible = true,
@@ -68,6 +69,7 @@ public:
 
     QList<QByteArray> visibleVariables() const;
     QString variableDescription(const QByteArray &variable) const;
+    QByteArray variableExampleUsage(const QByteArray &variable) const;
     bool isPrefixVariable(const QByteArray &variable) const;
 
     MacroExpanderProviders subProviders() const;

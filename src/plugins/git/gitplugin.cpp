@@ -561,6 +561,7 @@ GitPluginPrivate::GitPluginPrivate()
 
     Utils::globalMacroExpander()->registerPrefix(
         "Git:Config",
+        "user.name",
         Tr::tr("Access git config variables."),
         [this](const QString &value) {
             return gitClient().readConfigValue(currentState().topLevel(), value);
