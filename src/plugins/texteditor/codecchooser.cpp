@@ -30,9 +30,9 @@ CodecChooser::CodecChooser(Filter filter)
     for (int mib : std::as_const(mibs)) {
         if (filter == Filter::SingleByte && !isSingleByte(mib))
             continue;
-        if (const TextCodec codec = TextCodec::codecForMib(mib); codec.isValid()) {
-            addItem(codec.fullDisplayName());
-            m_encodings.append(codec.name());
+        if (const TextEncoding encoding = TextEncoding::encodingForMib(mib); encoding.isValid()) {
+            addItem(encoding.fullDisplayName());
+            m_encodings.append(encoding.name());
         }
     }
     connect(this, &QComboBox::currentIndexChanged,

@@ -43,6 +43,9 @@ public:
 
     static TextEncoding encodingForLocale();
 
+    // FIXME: Avoid. Not present in QStringConverter.
+    static TextEncoding encodingForMib(int mib);
+
 private:
     QTCREATOR_UTILS_EXPORT friend bool operator==(const TextEncoding &left, const TextEncoding &right);
     QTCREATOR_UTILS_EXPORT friend bool operator!=(const TextEncoding &left, const TextEncoding &right);
@@ -66,12 +69,9 @@ public:
 
     QByteArray fromUnicode(QStringView data) const;
 
-    QString toUnicode(const QByteArray &data) const;
-    QString toUnicode(QByteArrayView data) const;
     QString toUnicode(const char *data, int size, ConverterState *state) const;
 
     static TextCodec codecForName(const QByteArray &codecName);
-    static TextCodec codecForMib(int mib);
 
     static QList<int> availableMibs();
     static QList<QByteArray> availableCodecs();

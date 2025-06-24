@@ -2720,13 +2720,12 @@ Result<CommitData> GitClient::enrichCommitData(const FilePath &repoDirectory,
     CommitData commitData = commitDataIn;
     const TextEncoding authorEncoding = HostOsInfo::isWindowsHost()
             ? TextEncoding::Utf8
-            : commitData.commitEncoding;
-    const TextCodec authorCodec = TextCodec::codecForName(authorEncoding);
+            : TextEncoding(commitData.commitEncoding);
     QByteArray stdOut = result.rawStdOut();
     commitData.amendHash = QLatin1String(shiftLogLine(stdOut));
-    commitData.panelData.author = authorCodec.toUnicode(shiftLogLine(stdOut));
-    commitData.panelData.email = authorCodec.toUnicode(shiftLogLine(stdOut));
-    commitData.commitTemplate = TextCodec::codecForName(commitData.commitEncoding).toUnicode(stdOut);
+    commitData.panelData.author = authorEncoding.decode(shiftLogLine(stdOut));
+    commitData.panelData.email = authorEncoding.decode(shiftLogLine(stdOut));
+    commitData.commitTemplate = TextEncoding(commitData.commitEncoding).decode(stdOut);
     return commitData;
 }
 

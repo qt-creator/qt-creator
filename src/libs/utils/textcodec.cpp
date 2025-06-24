@@ -203,24 +203,6 @@ QByteArray TextCodec::fromUnicode(QStringView data) const
     return {};
 }
 
-QString TextCodec::toUnicode(const QByteArray &data) const
-{
-    if (m_codec)
-        return m_codec->toUnicode(data);
-
-    QTC_CHECK(false);
-    return {};
-}
-
-QString TextCodec::toUnicode(QByteArrayView data) const
-{
-    if (m_codec)
-        return m_codec->toUnicode(data.constData(), data.size());
-
-    QTC_CHECK(false);
-    return {};
-}
-
 QString TextCodec::toUnicode(const char *data, int size, ConverterState *state) const
 {
     if (m_codec)
@@ -238,9 +220,11 @@ TextCodec TextCodec::codecForName(const QByteArray &codecName)
     return TextCodec(QTextCodec::codecForName(codecName));
 }
 
-TextCodec TextCodec::codecForMib(int mib)
+TextEncoding TextEncoding::encodingForMib(int mib)
 {
-    return TextCodec(QTextCodec::codecForMib(mib));
+    const QTextCodec *codec = QTextCodec::codecForMib(mib);
+    QTC_ASSERT(codec, return TextEncoding());
+    return TextEncoding(codec->name());
 }
 
 bool operator==(const TextCodec &left, const TextCodec &right)

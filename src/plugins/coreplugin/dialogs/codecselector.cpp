@@ -92,13 +92,13 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
 
     int currentIndex = -1;
     for (const int mib : std::as_const(sortedMibs)) {
-        const TextCodec codec = TextCodec::codecForMib(mib);
-        if (!doc->supportsEncoding(codec.isValid() ? codec.name() : QByteArray()))
+        const TextEncoding encoding = TextEncoding::encodingForMib(mib).name();
+        if (!doc->supportsEncoding(encoding.isValid() ? encoding.name() : QByteArray()))
             continue;
         if (!buf.isEmpty()) {
 
             // slow, should use a feature from QTextCodec or QTextDecoder (but those are broken currently)
-            QByteArray verifyBuf = codec.fromUnicode(codec.toUnicode(buf));
+            QByteArray verifyBuf = encoding.encode(encoding.decode(buf));
             // the minSize trick lets us ignore unicode headers
             int minSize = qMin(verifyBuf.size(), buf.size());
             if (minSize < buf.size() - 4
@@ -106,7 +106,6 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
                           buf.constData() + buf.size() - minSize, minSize))
                 continue;
         }
-        const TextEncoding encoding(codec.name());
         if (doc->encoding() == encoding)
             currentIndex = encodings.count();
         encodings << encoding.fullDisplayName();
