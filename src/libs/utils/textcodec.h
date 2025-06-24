@@ -36,7 +36,6 @@ public:
     QString fullDisplayName() const;
 
     bool isUtf8() const;
-    int mibEnum() const;
 
     QString decode(QByteArrayView encoded) const;
     QByteArray encode(QStringView decoded) const;
@@ -60,7 +59,6 @@ public:
 
     TextCodec();
 
-    int mibEnum() const;
     QByteArray name() const;
     QString displayName() const;
     QString fullDisplayName() const; // Includes aliases

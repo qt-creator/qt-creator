@@ -293,7 +293,7 @@ void tst_LanguageServerProtocol::baseMessageParse()
     QCOMPARE(partial.mimeType, mimeType);
     QVERIFY(partial.encoding.isValid());
     QVERIFY(encoding.isValid());
-    QCOMPARE(partial.encoding.mibEnum(), encoding.mibEnum());
+    QCOMPARE(partial.encoding, encoding);
 }
 
 void tst_LanguageServerProtocol::baseMessageToData_data()

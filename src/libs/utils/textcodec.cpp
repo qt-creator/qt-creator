@@ -88,11 +88,6 @@ bool TextEncoding::isUtf8() const
     return m_name == "UTF-8";
 }
 
-int TextEncoding::mibEnum() const
-{
-    return QTextCodec::codecForName(m_name)->mibEnum();
-}
-
 QString TextEncoding::decode(QByteArrayView encoded) const
 {
     return QStringDecoder(m_name).decode(encoded);
@@ -141,11 +136,6 @@ QString TextCodec::fullDisplayName() const
         }
     }
     return compoundName;
-}
-
-int TextCodec::mibEnum() const
-{
-    return m_codec ? m_codec->mibEnum() : -1;
 }
 
 QList<int> TextCodec::availableMibs()
