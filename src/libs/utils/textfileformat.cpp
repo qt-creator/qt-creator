@@ -95,65 +95,26 @@ void TextFileFormat::setEncoding(const TextEncoding &encoding)
     m_encoding = encoding;
 }
 
-enum { textChunkSize = 65536 };
-
-static bool verifyDecodingError(const QString &text, const TextCodec codec,
-                                const char *data, const int dataSize,
-                                const bool possibleHeader)
-{
-    const QByteArray verifyBuf = codec.fromUnicode(text); // slow
-    // the minSize trick lets us ignore unicode headers
-    const int minSize = qMin(verifyBuf.size(), dataSize);
-    return (minSize < dataSize - (possibleHeader? 4 : 0)
-            || memcmp(verifyBuf.constData() + verifyBuf.size() - minSize,
-                      data + dataSize - minSize,
-                      minSize));
-}
-
 /*!
     Decode a potentially large file in chunks and append it to \a target.
 
     Returns \a data decoded to a string, \a target.
 */
 
-bool TextFileFormat::decode(const QByteArray &dataBA, QString *target) const
+bool TextFileFormat::decode(const QByteArray &data, QString *target) const
 {
     QTC_ASSERT(m_encoding.isValid(), return false);
 
-    TextCodec::ConverterState state;
-    bool hasDecodingError = false;
+    QStringDecoder decoder(m_encoding.name());
+    *target = decoder.decode(data);
 
-    target->clear();
-    target->reserve(dataBA.size()); // Upper bound.
+    if (decoder.hasError())
+        return false;
 
-    const char *start = dataBA.constData();
-    const char *data = start;
-    const char *end  = data + dataBA.size();
-    // Process chunkwise as QTextCodec allocates too much memory when doing it in one
-    // go. An alternative to the code below would be creating a decoder from the codec,
-    // but its failure detection does not seem be working reliably.
-    TextCodec codec = TextCodec::codecForName(m_encoding);
-    for (const char *data = start; data < end; ) {
-        const char *chunkStart = data;
-        const int chunkSize = qMin(int(textChunkSize), int(end - chunkStart));
-        QString text = codec.toUnicode(chunkStart, chunkSize, &state);
-        data += chunkSize;
-        // Process until the end of the current multi-byte character. Remaining might
-        // actually contain more than needed so try one-be-one. If EOF is reached with
-        // and characters remain->encoding error.
-        for ( ; state.remainingChars && data < end ; ++data)
-            text.append(codec.toUnicode(data, 1, &state));
-        if (state.remainingChars)
-            hasDecodingError = true;
-        if (!hasDecodingError)
-            hasDecodingError =
-                verifyDecodingError(text, codec, chunkStart, data - chunkStart,
-                                    chunkStart == start);
-        if (lineTerminationMode == TextFileFormat::CRLFLineTerminator)
-            text.remove(QLatin1Char('\r'));
-        target->append(text);
-    }
-    return !hasDecodingError;
+    if (lineTerminationMode == TextFileFormat::CRLFLineTerminator)
+        target->remove(QLatin1Char('\r'));
+
+    return true;
 }
 
 /*!
