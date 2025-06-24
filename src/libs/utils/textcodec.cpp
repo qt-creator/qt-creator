@@ -237,6 +237,8 @@ bool TextCodec::canEncode(QStringView data) const
 
 TextCodec TextCodec::codecForName(const QByteArray &codecName)
 {
+    if (codecName == QStringEncoder::nameForEncoding(QStringConverter::System))
+        return TextCodec(QTextCodec::codecForLocale());
     return TextCodec(QTextCodec::codecForName(codecName));
 }
 
