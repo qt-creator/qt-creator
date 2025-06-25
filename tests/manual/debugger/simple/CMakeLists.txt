@@ -56,8 +56,6 @@ if (${QT_VERSION_MAJOR} LESS 6)
   if (Qt${QT_VERSION_MAJOR}Script_FOUND)
     target_link_libraries(simple_test_app PRIVATE Qt${QT_VERSION_MAJOR}::Script)
   endif()
-else()
-  target_link_libraries(simple_test_app PRIVATE Qt${QT_VERSION_MAJOR}::Core5Compat)
 endif()
 
 if (Qt${QT_VERSION_MAJOR}Webkit_FOUND)
