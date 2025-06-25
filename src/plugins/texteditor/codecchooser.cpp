@@ -11,16 +11,9 @@ namespace TextEditor {
 
 CodecChooser::CodecChooser()
 {
-    QList<int> mibs = Utils::sorted(TextEncoding::availableMibs());
-    QList<int>::iterator firstNonNegative =
-        std::find_if(mibs.begin(), mibs.end(), [](int n) { return n >=0; });
-    if (firstNonNegative != mibs.end())
-        std::rotate(mibs.begin(), firstNonNegative, mibs.end());
-    for (int mib : std::as_const(mibs)) {
-        if (const TextEncoding encoding = TextEncoding::encodingForMib(mib); encoding.isValid()) {
-            addItem(encoding.fullDisplayName());
-            m_encodings.append(encoding.name());
-        }
+    for (const TextEncoding &encoding : TextEncoding::availableEncodings()) {
+        addItem(encoding.fullDisplayName());
+        m_encodings.append(encoding);
     }
     connect(this, &QComboBox::currentIndexChanged,
             this, [this](int index) { emit encodingChanged(encodingAt(index)); });
