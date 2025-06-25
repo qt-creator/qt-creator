@@ -29,4 +29,6 @@ private:
     bool m_expectSnippet;
 };
 
+namespace Internal { QObject *createClangParserTest(); }
+
 } // namespace ProjectExplorer

@@ -4,7 +4,11 @@
 #include "clangparser.h"
 #include "ldparser.h"
 #include "lldparser.h"
-#include "projectexplorerconstants.h"
+
+#ifdef WITH_TESTS
+#include "outputparser_test.h"
+#include <QTest>
+#endif
 
 using namespace Utils;
 
@@ -111,57 +115,53 @@ Utils::Id ClangParser::id()
     return Utils::Id("ProjectExplorer.OutputParser.Clang");
 }
 
-} // ProjectExplorer
-
 // Unit tests:
-
 #ifdef WITH_TESTS
-#   include <QTest>
-
-#   include "projectexplorer_test.h"
-#   include "outputparser_test.h"
-
-namespace ProjectExplorer::Internal {
-
-void ProjectExplorerTest::testClangOutputParser_data()
+namespace Internal {
+class ClangParserTest : public QObject
 {
-    QTest::addColumn<QString>("input");
-    QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QStringList>("childStdOutLines");
-    QTest::addColumn<QStringList>("childStdErrLines");
-    QTest::addColumn<Tasks>("tasks");
+    Q_OBJECT
 
-    auto compileTask = [](Task::TaskType type,
-                          const QString &description,
-                          const Utils::FilePath &file,
-                          int line,
-                          int column,
-                          const QList<QTextLayout::FormatRange> formats)
+private slots:
+    void test_data()
     {
-        CompileTask task(type, description, file, line, column);
-        task.formats = formats;
-        return task;
-    };
+        QTest::addColumn<QString>("input");
+        QTest::addColumn<OutputParserTester::Channel>("inputChannel");
+        QTest::addColumn<QStringList>("childStdOutLines");
+        QTest::addColumn<QStringList>("childStdErrLines");
+        QTest::addColumn<Tasks>("tasks");
 
-    auto formatRange = [](int start, int length, const QString &anchorHref = QString())
-    {
-        QTextCharFormat format;
-        format.setAnchorHref(anchorHref);
+        auto compileTask = [](Task::TaskType type,
+                              const QString &description,
+                              const Utils::FilePath &file,
+                              int line,
+                              int column,
+                              const QList<QTextLayout::FormatRange> formats)
+        {
+            CompileTask task(type, description, file, line, column);
+            task.formats = formats;
+            return task;
+        };
 
-        return QTextLayout::FormatRange{start, length, format};
-    };
+        auto formatRange = [](int start, int length, const QString &anchorHref = QString())
+        {
+            QTextCharFormat format;
+            format.setAnchorHref(anchorHref);
 
-    QTest::newRow("pass-through stdout")
+            return QTextLayout::FormatRange{start, length, format};
+        };
+
+        QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QStringList("Sometext") << QStringList()
             << Tasks();
 
-    QTest::newRow("pass-through stderr")
+        QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
             << QStringList() << QStringList("Sometext")
             << Tasks();
 
-    QTest::newRow("clang++ warning")
+        QTest::newRow("clang++ warning")
             << QString::fromLatin1("clang++: warning: argument unused during compilation: '-mthreads'")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
@@ -169,7 +169,7 @@ void ProjectExplorerTest::testClangOutputParser_data()
                 << CompileTask(Task::Warning,
                                "argument unused during compilation: '-mthreads'"));
 
-    QTest::newRow("clang++ error")
+        QTest::newRow("clang++ error")
             << QString::fromLatin1("clang++: error: no input files [err_drv_no_input_files]")
             << OutputParserTester::STDERR
             << QStringList() << QStringList()
@@ -177,7 +177,7 @@ void ProjectExplorerTest::testClangOutputParser_data()
                 << CompileTask(Task::Error,
                                "no input files [err_drv_no_input_files]"));
 
-    QTest::newRow("complex warning")
+        QTest::newRow("complex warning")
             << QString::fromLatin1("In file included from ..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qnamespace.h:45:\n"
                                    "..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h(1425) :  warning: unknown attribute 'dllimport' ignored [-Wunknown-attributes]\n"
                                    "class Q_CORE_EXPORT QSysInfo {\n"
@@ -197,86 +197,98 @@ void ProjectExplorerTest::testClangOutputParser_data()
                        << formatRange(61, 278))};
 
         QTest::newRow("note")
-                << QString::fromLatin1("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h:1289:27: note: instantiated from:\n"
-                                       "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
-                                       "                          ^")
-                << OutputParserTester::STDERR
-                << QStringList() << QStringList()
-                << (Tasks()
-                    << compileTask(Task::Unknown,
-                                   "instantiated from:\n"
-                                   "..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h:1289:27: note: instantiated from:\n"
+            << QString::fromLatin1("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h:1289:27: note: instantiated from:\n"
                                    "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
-                                   "                          ^",
-                                   FilePath::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"),
-                                   1289, 27,
-                                   QList<QTextLayout::FormatRange>()
-                                       << formatRange(19, 167)));
+                                   "                          ^")
+            << OutputParserTester::STDERR
+            << QStringList() << QStringList()
+            << (Tasks()
+                << compileTask(Task::Unknown,
+                               "instantiated from:\n"
+                               "..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h:1289:27: note: instantiated from:\n"
+                               "#    define Q_CORE_EXPORT Q_DECL_IMPORT\n"
+                               "                          ^",
+                               FilePath::fromUserInput("..\\..\\..\\QtSDK1.1\\Desktop\\Qt\\4.7.3\\mingw\\include/QtCore/qglobal.h"),
+                               1289, 27,
+                               QList<QTextLayout::FormatRange>()
+                                   << formatRange(19, 167)));
 
         QTest::newRow("fatal error")
-                << QString::fromLatin1("/usr/include/c++/4.6/utility:68:10: fatal error: 'bits/c++config.h' file not found\n"
-                                       "#include <bits/c++config.h>\n"
-                                       "         ^")
-                << OutputParserTester::STDERR
-                << QStringList() << QStringList()
-                << (Tasks()
-                    << compileTask(Task::Error,
-                                   "'bits/c++config.h' file not found\n"
-                                   "/usr/include/c++/4.6/utility:68:10: fatal error: 'bits/c++config.h' file not found\n"
+            << QString::fromLatin1("/usr/include/c++/4.6/utility:68:10: fatal error: 'bits/c++config.h' file not found\n"
                                    "#include <bits/c++config.h>\n"
-                                   "         ^",
-                                   FilePath::fromUserInput("/usr/include/c++/4.6/utility"),
-                                   68, 10,
-                                   QList<QTextLayout::FormatRange>()
-                                       << formatRange(34, 0)
-                                       << formatRange(34, 28, "olpfile:///usr/include/c++/4.6/utility::68::10")
-                                       << formatRange(62, 93)));
+                                   "         ^")
+            << OutputParserTester::STDERR
+            << QStringList() << QStringList()
+            << (Tasks()
+                << compileTask(Task::Error,
+                               "'bits/c++config.h' file not found\n"
+                               "/usr/include/c++/4.6/utility:68:10: fatal error: 'bits/c++config.h' file not found\n"
+                               "#include <bits/c++config.h>\n"
+                               "         ^",
+                               FilePath::fromUserInput("/usr/include/c++/4.6/utility"),
+                               68, 10,
+                               QList<QTextLayout::FormatRange>()
+                                   << formatRange(34, 0)
+                                   << formatRange(34, 28, "olpfile:///usr/include/c++/4.6/utility::68::10")
+                                   << formatRange(62, 93)));
 
         QTest::newRow("line confusion")
-                << QString::fromLatin1("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp:567:51: warning: ?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
-                                       "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
-                                       "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^")
-                << OutputParserTester::STDERR
-                << QStringList() << QStringList()
-                << (Tasks()
-                    << compileTask(Task::Warning,
-                                   "?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
-                                   "/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp:567:51: warning: ?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
+            << QString::fromLatin1("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp:567:51: warning: ?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
                                    "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
-                                   "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^",
-                                   FilePath::fromUserInput("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp"),
-                                   567, 51,
-                                   QList<QTextLayout::FormatRange>()
-                                       << formatRange(74, 0)
-                                       << formatRange(74, 64, "olpfile:///home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp::567::51")
-                                       << formatRange(138, 202)));
+                                   "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^")
+            << OutputParserTester::STDERR
+            << QStringList() << QStringList()
+            << (Tasks()
+                << compileTask(Task::Warning,
+                               "?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
+                               "/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp:567:51: warning: ?: has lower precedence than +; + will be evaluated first [-Wparentheses]\n"
+                               "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
+                               "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^",
+                               FilePath::fromUserInput("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp"),
+                               567, 51,
+                               QList<QTextLayout::FormatRange>()
+                                   << formatRange(74, 0)
+                                   << formatRange(74, 64, "olpfile:///home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp::567::51")
+                                   << formatRange(138, 202)));
 
         QTest::newRow("code sign error")
-                << QString::fromLatin1("Check dependencies\n"
-                                       "Code Sign error: No matching provisioning profiles found: No provisioning profiles with a valid signing identity (i.e. certificate and private key pair) were found.\n"
-                                       "CodeSign error: code signing is required for product type 'Application' in SDK 'iOS 7.0'")
-                << OutputParserTester::STDERR
-                << QStringList() << QStringList("Check dependencies")
-                << (Tasks()
-                    << CompileTask(Task::Error,
-                                   "No matching provisioning profiles found: No provisioning profiles with a valid signing identity (i.e. certificate and private key pair) were found.")
-                    << CompileTask(Task::Error,
-                                   "code signing is required for product type 'Application' in SDK 'iOS 7.0'"));
-}
+            << QString::fromLatin1("Check dependencies\n"
+                                   "Code Sign error: No matching provisioning profiles found: No provisioning profiles with a valid signing identity (i.e. certificate and private key pair) were found.\n"
+                                   "CodeSign error: code signing is required for product type 'Application' in SDK 'iOS 7.0'")
+            << OutputParserTester::STDERR
+            << QStringList() << QStringList("Check dependencies")
+            << (Tasks()
+                << CompileTask(Task::Error,
+                               "No matching provisioning profiles found: No provisioning profiles with a valid signing identity (i.e. certificate and private key pair) were found.")
+                << CompileTask(Task::Error,
+                               "code signing is required for product type 'Application' in SDK 'iOS 7.0'"));
+    }
 
-void ProjectExplorerTest::testClangOutputParser()
+    void test()
+    {
+        OutputParserTester testbench;
+        testbench.setLineParsers(ClangParser::clangParserSuite());
+        QFETCH(QString, input);
+        QFETCH(OutputParserTester::Channel, inputChannel);
+        QFETCH(Tasks, tasks);
+        QFETCH(QStringList, childStdOutLines);
+        QFETCH(QStringList, childStdErrLines);
+
+        testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
+    }
+};
+
+QObject *createClangParserTest()
 {
-    OutputParserTester testbench;
-    testbench.setLineParsers(ClangParser::clangParserSuite());
-    QFETCH(QString, input);
-    QFETCH(OutputParserTester::Channel, inputChannel);
-    QFETCH(Tasks, tasks);
-    QFETCH(QStringList, childStdOutLines);
-    QFETCH(QStringList, childStdErrLines);
-
-    testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
+    return new ClangParserTest;
 }
 
-} // ProjectExplorer::Internal
+} // namespace Internal
 
 #endif // WITH_TESTS
+
+} // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <clangparser.moc>
+#endif
