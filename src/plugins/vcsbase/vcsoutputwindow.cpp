@@ -338,11 +338,6 @@ void VcsOutputWindow::setData(const QByteArray &data)
     setText(TextEncoding::encodingForLocale().decode(data));
 }
 
-void VcsOutputWindow::appendSilently(const QString &text)
-{
-    append((text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n', None, true);
-}
-
 void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silently)
 {
     d->widget.appendLines(text, style, d->repository);
@@ -351,14 +346,24 @@ void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silen
         m_instance->popup(IOutputPane::NoModeSwitch);
 }
 
-void VcsOutputWindow::appendError(const QString &text)
+void VcsOutputWindow::appendSilently(const QString &text)
 {
-    append((text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n', Error, false);
+    append((text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n', None, true);
+}
+
+void VcsOutputWindow::appendMessage(const QString &text)
+{
+    append(text + '\n', Message, true);
 }
 
 void VcsOutputWindow::appendWarning(const QString &text)
 {
     append(text + '\n', Warning, false);
+}
+
+void VcsOutputWindow::appendError(const QString &text)
+{
+    append((text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n', Error, false);
 }
 
 // Helper to format arguments for log windows hiding common password options.
@@ -403,11 +408,6 @@ void VcsOutputWindow::appendShellCommandLine(const QString &text)
 void VcsOutputWindow::appendCommand(const FilePath &workingDirectory, const CommandLine &command)
 {
     appendShellCommandLine(msgExecutionLogEntry(workingDirectory, command));
-}
-
-void VcsOutputWindow::appendMessage(const QString &text)
-{
-    append(text + '\n', Message, true);
 }
 
 void VcsOutputWindow::destroy()

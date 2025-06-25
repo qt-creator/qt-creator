@@ -67,11 +67,14 @@ public slots:
     // Silently append text, do not pop up.
     static void appendSilently(const QString &text);
 
-    // Append red error text and pop up.
-    static void appendError(const QString &text);
+    // Append a blue message text and pop up.
+    static void appendMessage(const QString &text);
 
     // Append dark-yellow warning text and pop up.
     static void appendWarning(const QString &text);
+
+    // Append red error text and pop up.
+    static void appendError(const QString &text);
 
     // Append a command, prepended by a log time stamp. "Executing: vcs -diff"
     // will result in "10:00 Executing: vcs -diff" in bold
@@ -82,9 +85,6 @@ public slots:
     // (see msgExecutionLogEntry).
     static void appendCommand(const Utils::FilePath &workingDirectory,
                               const Utils::CommandLine &command);
-
-    // Append a blue message text and pop up.
-    static void appendMessage(const QString &text);
 
 private:
     friend class Internal::VcsPlugin;
