@@ -6,7 +6,6 @@
 #include "qtcassert.h"
 
 #include <QHash>
-#include <QTextCodec>
 
 #include <set>
 
@@ -83,6 +82,10 @@ QString TextEncoding::displayName() const
 QString TextEncoding::fullDisplayName() const
 {
     QString compoundName = displayName();
+
+#if 0
+    // FIXME: There is no replacement for QTextCodec::aliases() in the
+    // QStringConverter world (yet?).
     QTextCodec *codec = m_name == QStringEncoder::nameForEncoding(QStringConverter::System)
                             ? QTextCodec::codecForLocale()
                             : QTextCodec::codecForName(m_name);
@@ -93,6 +96,7 @@ QString TextEncoding::fullDisplayName() const
             compoundName += QString::fromLatin1(alias);
         }
     }
+#endif
     return compoundName;
 }
 
