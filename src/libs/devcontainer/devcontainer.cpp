@@ -1480,4 +1480,9 @@ Result<Tasking::Group> Instance::downRecipe() const
     return ::DevContainer::downRecipe(d->config, d->instanceConfig);
 }
 
+const Config &Instance::config() const
+{
+    return d->config;
+}
+
 } // namespace DevContainer

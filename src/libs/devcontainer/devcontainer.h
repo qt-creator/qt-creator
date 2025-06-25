@@ -53,6 +53,8 @@ public:
     Utils::Result<Tasking::Group> upRecipe() const;
     Utils::Result<Tasking::Group> downRecipe() const;
 
+    const Config &config() const;
+
 private:
     std::unique_ptr<InstancePrivate> d;
 };
