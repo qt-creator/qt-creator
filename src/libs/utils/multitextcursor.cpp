@@ -164,7 +164,19 @@ QTextCursor MultiTextCursor::takeMainCursor()
     QTextCursor cursor = m_cursorList.back();
     auto it = m_cursorList.end();
     --it;
-    m_cursorMap.erase(it->selectionStart());
+
+    auto mapIt = m_cursorMap.find(it->selectionStart());
+    if (mapIt == m_cursorMap.end()) {
+        // If the QTextCursor has been moved, we cannot find it by selectionStart in the map.
+        // We need to find it by comparing the cursor pointers.
+        mapIt = std::find_if(m_cursorMap.begin(), m_cursorMap.end(), [&it](const auto &pair) {
+            return pair.second == it;
+        });
+    }
+
+    QTC_ASSERT(mapIt != m_cursorMap.end(), return QTextCursor());
+
+    m_cursorMap.erase(mapIt);
     m_cursorList.erase(it);
 
     return cursor;
