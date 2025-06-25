@@ -21,8 +21,6 @@ find_package(Eigen3 QUIET)
 
 if (${QT_VERSION_MAJOR} LESS 6)
   find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Xml)
-else()
-  find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core5Compat)
 endif()
 
 add_executable(simple_test_app simple_test_app.cpp)

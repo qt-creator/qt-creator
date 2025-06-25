@@ -7,7 +7,6 @@ CppApplication {
 
     Depends { name: "Qt.core" }
     Depends { name: "Qt.core-private"; required: false; condition: Qt.core.versionMajor > 4 }
-    Depends { name: "Qt.core5compat"; condition: Qt.core.versionMajor > 5 }
     Depends { name: "Qt.gui" }
     Depends { name: "Qt.xml"; condition: Qt.core.versionMajor < 6 }
     Depends { name: "Qt.widgets"; condition: Qt.core.versionMajor > 4 }

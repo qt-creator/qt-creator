@@ -10,7 +10,6 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "Qt.widgets" }
-    Depends { name: "Qt.core5compat" }
 
     files: [
         "deletesymbolicnamedialog.cpp",
