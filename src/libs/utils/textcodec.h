@@ -25,7 +25,6 @@ public:
 
     bool isValid() const;
 
-    operator QByteArray() const { return m_name; }
     QByteArray name() const { return m_name; }
 
     QString displayName() const;
