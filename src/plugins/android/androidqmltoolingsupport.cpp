@@ -10,6 +10,7 @@
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 
 namespace Android::Internal {
 
@@ -19,12 +20,12 @@ public:
     AndroidQmlToolingSupportFactory()
     {
         setId("AndroidQmlToolingSupportFactory");
-        setProducer([](RunControl *runControl) {
-            auto androidRunner = new RunWorker(runControl, androidRecipe(runControl));
-
-            auto extraWorker = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
-            extraWorker->addStartDependency(androidRunner);
-            return androidRunner;
+        setRecipeProducer([](RunControl *runControl) {
+            return Group {
+                parallel,
+                androidRecipe(runControl),
+                runControl->createRecipe(ProjectExplorer::Constants::QML_PROFILER_RUNNER)
+            };
         });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
