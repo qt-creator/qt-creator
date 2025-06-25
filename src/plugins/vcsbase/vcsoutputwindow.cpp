@@ -340,7 +340,8 @@ void VcsOutputWindow::setData(const QByteArray &data)
 
 void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silently)
 {
-    d->widget.appendLines(text, style, d->repository);
+    const QString lines = (text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n';
+    d->widget.appendLines(lines, style, d->repository);
 
     if (!silently && !d->widget.isVisible())
         m_instance->popup(IOutputPane::NoModeSwitch);
@@ -348,22 +349,22 @@ void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silen
 
 void VcsOutputWindow::appendSilently(const QString &text)
 {
-    append((text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n', None, true);
+    append(text, None, true);
 }
 
 void VcsOutputWindow::appendMessage(const QString &text)
 {
-    append(text + '\n', Message, true);
+    append(text, Message, true);
 }
 
 void VcsOutputWindow::appendWarning(const QString &text)
 {
-    append(text + '\n', Warning, false);
+    append(text, Warning, false);
 }
 
 void VcsOutputWindow::appendError(const QString &text)
 {
-    append((text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n', Error, false);
+    append(text, Error, false);
 }
 
 // Helper to format arguments for log windows hiding common password options.
