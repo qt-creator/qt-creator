@@ -238,8 +238,19 @@ void setupTextEditorModule()
             sol::no_constructor,
             "mainCursor",
             &MultiTextCursor::mainCursor,
+            "setMainCursor",
+            [](MultiTextCursor *self, QTextCursor *cursor) { self->replaceMainCursor(*cursor); },
             "cursors",
             [](MultiTextCursor *self) { return sol::as_table(self->cursors()); },
+            "setCursors",
+            [](MultiTextCursor *self, const sol::table &cursors) {
+                QList<QTextCursor> textCursors;
+                for (const auto &[k, cursor] : cursors) {
+                    if (QTC_GUARD(cursor.is<QTextCursor>()))
+                        textCursors.append(cursor.as<QTextCursor>());
+                }
+                self->setCursors(textCursors);
+            },
             "insertText",
             [](MultiTextCursor *self, const QString &text) { self->insertText(text); });
 
@@ -440,16 +451,12 @@ void setupTextEditorModule()
                 return addEmbeddedWidget(textEditor, toWidget(widget), position);
             },
             "insertExtraToolBarWidget",
-            [](const TextEditorPtr &textEditor,
-               TextEditorWidget::Side side,
-               LayoutOrWidget widget) {
+            [](const TextEditorPtr &textEditor, TextEditorWidget::Side side, LayoutOrWidget widget) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 textEditor->editorWidget()->insertExtraToolBarWidget(side, toWidget(widget));
             },
             "insertExtraToolBarAction",
-            [](const TextEditorPtr &textEditor,
-               TextEditorWidget::Side side,
-               QAction* action) {
+            [](const TextEditorPtr &textEditor, TextEditorWidget::Side side, QAction *action) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 textEditor->editorWidget()->insertExtraToolBarAction(side, action);
             },
@@ -484,6 +491,11 @@ void setupTextEditorModule()
             [](const TextEditorPtr &textEditor) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 return textEditor->editorWidget()->multiTextCursor();
+            },
+            "setCursor",
+            [](const TextEditorPtr &textEditor, MultiTextCursor *cursor) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                textEditor->editorWidget()->setMultiTextCursor(*cursor);
             },
             "hasLockedSuggestion",
             [](const TextEditorPtr &textEditor) {
