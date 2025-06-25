@@ -150,7 +150,6 @@ static TextEncoding theEncodingForLocale = TextEncoding(QStringEncoder::System);
 
 void TextEncoding::setEncodingForLocale(const QByteArray &codecName)
 {
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName(codecName));
     theEncodingForLocale = codecName;
 }
 
