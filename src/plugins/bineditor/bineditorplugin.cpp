@@ -2192,7 +2192,7 @@ public:
         setWidget(m_widget);
         setDuplicateSupported(true);
 
-        auto codecChooser = new CodecChooser(CodecChooser::Filter::All);
+        auto codecChooser = new CodecChooser;
         codecChooser->prependNone();
         connect(codecChooser, &CodecChooser::encodingChanged,
                 m_widget, &BinEditorWidget::setEncoding);

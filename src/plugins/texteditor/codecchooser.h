@@ -16,9 +16,7 @@ class TEXTEDITOR_EXPORT CodecChooser : public QComboBox
     Q_OBJECT
 
 public:
-    enum class Filter { All, SingleByte };
-
-    explicit CodecChooser(Filter filter = Filter::All);
+    CodecChooser();
 
     void prependNone();
     Utils::TextEncoding currentEncoding() const;

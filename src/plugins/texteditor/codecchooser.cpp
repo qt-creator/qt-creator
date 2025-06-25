@@ -9,18 +9,7 @@ using namespace Utils;
 
 namespace TextEditor {
 
-static bool isSingleByte(int mib)
-{
-    // Encodings are listed at https://www.iana.org/assignments/character-sets/character-sets.xhtml
-    return (mib >= 0 && mib <= 16)
-            || (mib >= 81 && mib <= 85)
-            || (mib >= 109 && mib <= 112)
-            || (mib >= 2000 && mib <= 2024)
-            || (mib >= 2028 && mib <= 2100)
-            || (mib >= 2106);
-}
-
-CodecChooser::CodecChooser(Filter filter)
+CodecChooser::CodecChooser()
 {
     QList<int> mibs = Utils::sorted(TextEncoding::availableMibs());
     QList<int>::iterator firstNonNegative =
@@ -28,8 +17,6 @@ CodecChooser::CodecChooser(Filter filter)
     if (firstNonNegative != mibs.end())
         std::rotate(mibs.begin(), firstNonNegative, mibs.end());
     for (int mib : std::as_const(mibs)) {
-        if (filter == Filter::SingleByte && !isSingleByte(mib))
-            continue;
         if (const TextEncoding encoding = TextEncoding::encodingForMib(mib); encoding.isValid()) {
             addItem(encoding.fullDisplayName());
             m_encodings.append(encoding.name());
