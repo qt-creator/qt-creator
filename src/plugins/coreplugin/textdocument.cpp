@@ -129,7 +129,7 @@ void BaseTextDocument::setEncoding(const TextEncoding &encoding)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << this << encoding.name();
-    if (supportsEncoding(encoding.name()))
+    if (supportsEncoding(encoding))
         d->m_format.setEncoding(encoding);
 }
 

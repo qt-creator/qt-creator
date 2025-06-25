@@ -2073,8 +2073,7 @@ void TextEditorWidget::updateTextLineEndingLabel()
 
 void TextEditorWidget::updateTextCodecLabel()
 {
-    QString text = QString::fromLatin1(d->m_document->encoding().name());
-    d->m_fileEncodingButton->setText(text);
+    d->m_fileEncodingButton->setText(d->m_document->encoding().displayName());
 }
 
 QString TextEditorWidget::msgTextTooLarge(quint64 size)

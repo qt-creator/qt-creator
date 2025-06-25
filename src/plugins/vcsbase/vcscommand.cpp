@@ -313,9 +313,9 @@ CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int time
     return CommandResult(process);
 }
 
-void VcsCommand::setEncoding(const TextEncoding &codec)
+void VcsCommand::setEncoding(const TextEncoding &encoding)
 {
-    d->m_encoding = codec;
+    d->m_encoding = encoding;
 }
 
 void VcsCommand::setProgressParser(const ProgressParser &parser)

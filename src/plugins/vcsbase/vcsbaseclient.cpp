@@ -201,7 +201,7 @@ void VcsBaseClientImpl::vcsExecWithEditor(const Utils::FilePath &workingDirector
                                           VcsBaseEditorWidget *editor) const
 {
     VcsCommand *command = createCommand(workingDirectory, editor);
-    command->setEncoding(editor->encoding().name());
+    command->setEncoding(editor->encoding());
     command->addJob({vcsBinary(workingDirectory), arguments}, vcsTimeoutS());
     command->start();
 }

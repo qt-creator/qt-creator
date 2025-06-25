@@ -75,7 +75,7 @@ public:
 
     void addFlags(RunFlags f);
 
-    void setEncoding(const Utils::TextEncoding &codec);
+    void setEncoding(const Utils::TextEncoding &encoding);
 
     void setProgressParser(const Core::ProgressParser &parser);
 
