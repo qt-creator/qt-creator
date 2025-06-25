@@ -2,7 +2,6 @@ add_qtc_library(Utils
   DEPENDS Qt::Qml Qt::Xml Spinner QtCLibArchive
   PUBLIC_DEPENDS
     Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets Qt::PrintSupport
-    Qt::Core5Compat
     Tasking
     $<$<BOOL:${QTC_STATIC_BUILD}>:Spinner>
   SOURCES

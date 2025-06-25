@@ -19,7 +19,7 @@ set(QTCREATOR_RELOCATABLE_INSTALL_PREFIX "@PACKAGE_QTCREATOR_RELOCATABLE_INSTALL
 include(CMakeFindDependencyMacro)
 find_dependency(Qt6 "@IDE_QT_VERSION_MIN@"
   REQUIRED COMPONENTS
-  Concurrent Core Gui Widgets Core5Compat Network PrintSupport Qml Sql
+  Concurrent Core Gui Widgets Network PrintSupport Qml Sql
 )
 find_dependency(Qt6 COMPONENTS Quick QuickWidgets QUIET)
 

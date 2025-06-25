@@ -77,7 +77,7 @@ endif()
 
 find_package(Qt6
   ${IDE_QT_VERSION_MIN}
-  COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml Core5Compat ${QT_TEST_COMPONENT}
+  COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml ${QT_TEST_COMPONENT}
   REQUIRED
 )
 
@@ -87,7 +87,6 @@ find_package(Qt6 OPTIONAL_COMPONENTS Quick QuickWidgets Designer DesignerCompone
 if (Qt6_VERSION VERSION_GREATER_EQUAL 6.9.0)
   find_package(Qt6 OPTIONAL_COMPONENTS
     CorePrivate
-    Core5CompatPrivate
     GuiPrivate
     DesignerComponentsPrivate
     QmlPrivate
@@ -102,20 +101,6 @@ qtc_sbom_begin_project()
 # depending on Qt version and compiler version enable or disable Qml Designer
 # can be overwritten by variable WITH_QMLDESIGNER / QTC_WITH_QMLDESIGNER (env)
 configure_qml_designer(${Qt6_VERSION})
-
-# hack for Qbs which still supports Qt5 and Qt6
-if (TARGET Qt6::Core5CompatPrivate)
-    if (CMAKE_VERSION VERSION_LESS 3.18)
-        set_property(TARGET Qt6::Core5CompatPrivate PROPERTY IMPORTED_GLOBAL TRUE)
-    endif()
-    add_library(Qt6Core5CompatPrivate ALIAS Qt6::Core5CompatPrivate)
-endif()
-if (TARGET Qt6::Core5Compat)
-    if (CMAKE_VERSION VERSION_LESS 3.18)
-        set_property(TARGET Qt6::Core5Compat PROPERTY IMPORTED_GLOBAL TRUE)
-    endif()
-    add_library(Qt6Core5Compat ALIAS Qt6::Core5Compat)
-endif()
 
 # Common intermediate directory for QML modules which are defined via qt_add_qml_module()
 set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml_modules")
