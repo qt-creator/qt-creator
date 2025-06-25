@@ -126,7 +126,7 @@ bool BazaarClient::synchronousUncommit(const FilePath &workingDir,
          << extraOptions;
 
     const CommandResult result = vcsSynchronousExec(workingDir, args);
-    VcsOutputWindow::append(result.cleanedStdOut());
+    VcsOutputWindow::appendSilently(workingDir, result.cleanedStdOut());
     return result.result() == ProcessResult::FinishedWithSuccess;
 }
 

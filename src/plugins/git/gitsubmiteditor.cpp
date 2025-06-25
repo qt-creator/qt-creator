@@ -220,7 +220,7 @@ void GitSubmitEditor::performFileAction(const Utils::FilePath &filePath, FileAct
             const QString message = (action == FileRevertDeletion)
                 ? Tr::tr("File \"%1\" recovered.\n").arg(filePath.toUserOutput())
                 : Tr::tr("File \"%1\" reverted.\n").arg(filePath.toUserOutput());
-            VcsOutputWindow::append(message, VcsOutputWindow::Message);
+            VcsOutputWindow::appendMessage(m_workingDirectory, message);
             refresh = true;
         }
         break;
@@ -305,7 +305,7 @@ void GitSubmitEditor::commitDataRetrieved()
         w->setEnabled(true);
     } else {
         // Nothing to commit left!
-        VcsOutputWindow::appendError(result.error());
+        VcsOutputWindow::appendError(m_workingDirectory, result.error());
         m_model->clear();
         w->setEnabled(false);
     }

@@ -556,7 +556,7 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
                this, &MercurialPluginPrivate::showCommitWidget);
 
     if (status.isEmpty()) {
-        VcsOutputWindow::appendError(Tr::tr("There are no changes to commit."));
+        VcsOutputWindow::appendError(m_submitRepository, Tr::tr("There are no changes to commit."));
         return;
     }
 
@@ -565,13 +565,13 @@ void MercurialPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusI
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
     if (const Result<> res = saver.finalize(); !res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError(m_submitRepository, res.error());
         return;
     }
 
     Core::IEditor *editor = Core::EditorManager::openEditor(saver.filePath(), Constants::COMMIT_ID);
     if (!editor) {
-        VcsOutputWindow::appendError(Tr::tr("Unable to create an editor for the commit."));
+        VcsOutputWindow::appendError(m_submitRepository, Tr::tr("Unable to create an editor for the commit."));
         return;
     }
 

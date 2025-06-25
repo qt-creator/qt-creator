@@ -95,11 +95,13 @@ FetchContext::FetchContext(const std::shared_ptr<GerritChange> &change,
 {
     m_process.setUseCtrlCStub(true);
     connect(&m_process, &Process::done, this, &FetchContext::processDone);
-    connect(&m_process, &Process::readyReadStandardError, this, [this] {
-        VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardError()));
+    connect(&m_process, &Process::readyReadStandardError, this, [this, repository] {
+        VcsBase::VcsOutputWindow::appendSilently(
+            repository, QString::fromLocal8Bit(m_process.readAllRawStandardError()));
     });
-    connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
-        VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
+    connect(&m_process, &Process::readyReadStandardOutput, this, [this, repository] {
+        VcsBase::VcsOutputWindow::appendSilently(
+            repository, QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
     });
     m_process.setWorkingDirectory(repository);
     m_process.setEnvironment(gitClient().processEnvironment(repository));
@@ -121,7 +123,7 @@ void FetchContext::processDone()
 
     if (m_process.result() != ProcessResult::FinishedWithSuccess) {
         if (m_process.result() != ProcessResult::Canceled)
-            VcsBase::VcsOutputWindow::appendError(m_process.exitMessage());
+            VcsBase::VcsOutputWindow::appendError(m_repository, m_process.exitMessage());
         return;
     }
 
@@ -269,7 +271,7 @@ void GerritPlugin::fetch(const std::shared_ptr<GerritChange> &change, int mode)
     // Locate git.
     const Utils::FilePath git = gitClient().vcsBinary(m_dialog->repositoryPath());
     if (git.isEmpty()) {
-        VcsBase::VcsOutputWindow::appendError(Git::Tr::tr("Git is not available."));
+        VcsBase::VcsOutputWindow::appendError({}, Git::Tr::tr("Git is not available."));
         return;
     }
 

@@ -549,7 +549,7 @@ bool FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
 
     QString remoteLocation(dialog.remoteLocation());
     if (remoteLocation.isEmpty() && defaultURL.isEmpty()) {
-        VcsOutputWindow::appendError(Tr::tr("Remote repository is not defined."));
+        VcsOutputWindow::appendError(state.topLevel(), Tr::tr("Remote repository is not defined."));
         return false;
     } else if (remoteLocation == defaultURL) {
         remoteLocation.clear();
@@ -621,7 +621,7 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
                this, &FossilPluginPrivate::showCommitWidget);
 
     if (status.isEmpty()) {
-        VcsOutputWindow::appendError(Tr::tr("There are no changes to commit."));
+        VcsOutputWindow::appendError({}, Tr::tr("There are no changes to commit."));
         return;
     }
 
@@ -630,20 +630,20 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
     if (const Result<> res = saver.finalize(); !res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError({}, res.error());
         return;
     }
 
     IEditor *editor = EditorManager::openEditor(saver.filePath(), Constants::COMMIT_ID);
     if (!editor) {
-        VcsOutputWindow::appendError(Tr::tr("Unable to create an editor for the commit."));
+        VcsOutputWindow::appendError({}, Tr::tr("Unable to create an editor for the commit."));
         return;
     }
 
     CommitEditor *commitEditor = qobject_cast<CommitEditor *>(editor);
 
     if (!commitEditor) {
-        VcsOutputWindow::appendError(Tr::tr("Unable to create a commit editor."));
+        VcsOutputWindow::appendError({}, Tr::tr("Unable to create a commit editor."));
         return;
     }
     setSubmitEditor(commitEditor);

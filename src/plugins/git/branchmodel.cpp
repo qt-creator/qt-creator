@@ -559,7 +559,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
                                         .arg("git for-each-ref")
                                         .arg(workingDirectory.toUserOutput())
                                         .arg(process.cleanedStdErr());
-            VcsBase::VcsOutputWindow::appendError(message);
+            VcsBase::VcsOutputWindow::appendError(workingDirectory, message);
             return;
         }
         const QString output = process.stdOut();
@@ -614,7 +614,7 @@ void BranchModel::renameBranch(const QString &oldName, const QString &newName)
     QString output;
     if (!gitClient().synchronousBranchCmd(d->workingDirectory, {"-m", oldName,  newName},
                                           &output, &errorMessage))
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(d->workingDirectory, errorMessage);
     else
         refresh(d->workingDirectory);
 }
@@ -627,7 +627,7 @@ void BranchModel::renameTag(const QString &oldName, const QString &newName)
                                        &output, &errorMessage)
             || !gitClient().synchronousTagCmd(d->workingDirectory, {"-d", oldName},
                                           &output, &errorMessage)) {
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(d->workingDirectory, errorMessage);
     } else {
         refresh(d->workingDirectory);
     }
@@ -753,7 +753,7 @@ void BranchModel::removeBranch(const QModelIndex &idx)
 
     if (!gitClient().synchronousBranchCmd(d->workingDirectory, {"-D", branch}, &output, &errorMessage)) {
         qCWarning(modelLog) << "removeBranch: git branch delete failed:" << errorMessage;
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(d->workingDirectory, errorMessage);
         return;
     }
     qCDebug(modelLog) << "removeBranch: branch deleted successfully:" << branch;
@@ -774,7 +774,7 @@ void BranchModel::removeTag(const QModelIndex &idx)
 
     if (!gitClient().synchronousTagCmd(d->workingDirectory, {"-d", tag}, &output, &errorMessage)) {
         qCWarning(modelLog) << "removeTag: git tag delete failed:" << errorMessage;
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(d->workingDirectory, errorMessage);
         return;
     }
     qCDebug(modelLog) << "removeTag: tag deleted successfully:" << tag;
@@ -813,7 +813,7 @@ bool BranchModel::branchIsMerged(const QModelIndex &idx)
     if (!gitClient().synchronousBranchCmd(d->workingDirectory, {"-a", "--contains", hash(idx)},
                                           &output, &errorMessage)) {
         qCWarning(modelLog) << "branchIsMerged: git branch contains failed:" << errorMessage;
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(d->workingDirectory, errorMessage);
     }
 
     const QStringList lines = output.split('\n', Qt::SkipEmptyParts);
@@ -882,7 +882,7 @@ QModelIndex BranchModel::addBranch(const QString &name, bool track, const QModel
 
     if (!gitClient().synchronousBranchCmd(d->workingDirectory, args, &output, &errorMessage)) {
         qCWarning(modelLog) << "addBranch: git branch creation failed:" << errorMessage;
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(d->workingDirectory, errorMessage);
         return {};
     }
 

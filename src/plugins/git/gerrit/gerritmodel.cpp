@@ -255,7 +255,7 @@ QueryContext::QueryContext(const QString &query,
     }
     connect(&m_process, &Process::readyReadStandardError, this, [this] {
         const QString text = QString::fromLocal8Bit(m_process.readAllRawStandardError());
-        VcsOutputWindow::appendError(text);
+        VcsOutputWindow::appendError(m_process.workingDirectory(), text);
         m_error.append(text);
     });
     connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
@@ -304,7 +304,7 @@ void QueryContext::processDone()
     if (m_process.result() == ProcessResult::FinishedWithSuccess)
         emit resultRetrieved(m_output);
     else if (m_process.result() != ProcessResult::Canceled)
-        VcsOutputWindow::appendError(m_process.exitMessage());
+        VcsOutputWindow::appendError(m_process.workingDirectory(), m_process.exitMessage());
 
     emit finished();
 }
@@ -753,7 +753,7 @@ static bool parseOutput(const GerritServer &server,
         const QString errorMessage = Git::Tr::tr("Parse error: \"%1\" -> %2")
                                          .arg(QString::fromUtf8(output), error.errorString());
         qWarning() << errorMessage;
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError({}, errorMessage);
         res = false;
     }
     const QJsonArray rootArray = doc.array();
@@ -774,7 +774,7 @@ static bool parseOutput(const GerritServer &server,
         } else {
             const QByteArray jsonObject = QJsonDocument(object).toJson();
             qWarning("%s: Parse error: '%s'.", Q_FUNC_INFO, jsonObject.constData());
-            VcsOutputWindow::appendError(Git::Tr::tr("Parse error: \"%1\"")
+            VcsOutputWindow::appendError({}, Git::Tr::tr("Parse error: \"%1\"")
                                   .arg(QString::fromUtf8(jsonObject)));
             res = false;
         }

@@ -215,13 +215,13 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, PatchAction patchAc
     QString errorMessage;
     if (gitClient().synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
         if (errorMessage.isEmpty())
-            VcsOutputWindow::append(Tr::tr("Chunk successfully staged"));
+            VcsOutputWindow::appendSilently(baseDir, Tr::tr("Chunk successfully staged"));
         else
-            VcsOutputWindow::append(errorMessage);
+            VcsOutputWindow::appendError(baseDir, errorMessage);
         if (patchAction == PatchAction::Revert)
             emit diffChunkReverted();
     } else {
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(baseDir, errorMessage);
     }
 }
 
@@ -277,12 +277,12 @@ QString GitEditorWidget::decorateVersion(const QString &revision) const
 
 QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
+    const Utils::FilePath &repository = sourceWorkingDirectory();
     QStringList revisions;
     QString errorMessage;
     // Get the hashes of the file.
-    if (!gitClient().synchronousParentRevisions(
-                sourceWorkingDirectory(), revision, &revisions, &errorMessage)) {
-        VcsOutputWindow::appendSilently(errorMessage);
+    if (!gitClient().synchronousParentRevisions(repository, revision, &revisions, &errorMessage)) {
+        VcsOutputWindow::appendSilently(repository, errorMessage);
         return {};
     }
     return revisions;

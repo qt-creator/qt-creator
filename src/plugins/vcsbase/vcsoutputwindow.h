@@ -52,34 +52,27 @@ public:
     };
 
 public slots:
-    static void setRepository(const Utils::FilePath &repository);
-    static void clearRepository();
-
     // Set the whole text.
     static void setText(const QString &text);
     // Set text from QProcess' output data using the Locale's converter.
     static void setData(const QByteArray &data);
 
-    // Append text with a certain style (none by default),
-    // and maybe pop up (silent by default)
-    static void append(const QString &text, MessageStyle style = None, bool silently = false);
-
     // Silently append text, do not pop up.
-    static void appendSilently(const QString &text);
+    static void appendSilently(const Utils::FilePath &workingDirectory, const QString &text);
 
     // Append a blue message text and pop up.
-    static void appendMessage(const QString &text);
+    static void appendMessage(const Utils::FilePath &workingDirectory, const QString &text);
 
     // Append dark-yellow warning text and pop up.
-    static void appendWarning(const QString &text);
+    static void appendWarning(const Utils::FilePath &workingDirectory, const QString &text);
 
     // Append red error text and pop up.
-    static void appendError(const QString &text);
+    static void appendError(const Utils::FilePath &workingDirectory, const QString &text);
 
     // Append a command, prepended by a log time stamp. "Executing: vcs -diff"
     // will result in "10:00 Executing: vcs -diff" in bold
     // Filter passwords from URLs while doing this.
-    static void appendShellCommandLine(const QString &text);
+    static void appendShellCommandLine(const Utils::FilePath &workingDirectory, const QString &text);
 
     // Append a standard-formatted entry for command execution
     // (see msgExecutionLogEntry).
@@ -87,6 +80,11 @@ public slots:
                               const Utils::CommandLine &command);
 
 private:
+    // Append text with a certain style (none by default),
+    // and maybe pop up (silent by default)
+    static void append(const Utils::FilePath &workingDirectory, const QString &text,
+                       MessageStyle style = None, bool silently = false);
+
     friend class Internal::VcsPlugin;
     static void destroy();
 

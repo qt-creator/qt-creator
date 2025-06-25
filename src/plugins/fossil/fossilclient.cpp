@@ -579,14 +579,14 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
     CommandResult result = vcsSynchronousExec(workingDirectory, args);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
-    outputWindow->append(sanitizeFossilOutput(result.cleanedStdOut()));
+    outputWindow->appendSilently(workingDirectory, sanitizeFossilOutput(result.cleanedStdOut()));
 
     // check out the created repository file into the working directory
     // --force as it may be not empty e.g. when creating a project from wizard
     result = vcsSynchronousExec(workingDirectory, {"open", "--force", repoFilePath.toUserOutput()});
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
-    outputWindow->append(sanitizeFossilOutput(result.cleanedStdOut()));
+    outputWindow->appendSilently(workingDirectory, sanitizeFossilOutput(result.cleanedStdOut()));
 
     // set user default to admin if specified
     if (!adminUser.isEmpty()) {
@@ -594,7 +594,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
                                     {"user", "default", adminUser, "--user", adminUser});
         if (result.result() != ProcessResult::FinishedWithSuccess)
             return false;
-        outputWindow->append(sanitizeFossilOutput(result.cleanedStdOut()));
+        outputWindow->appendSilently(workingDirectory, sanitizeFossilOutput(result.cleanedStdOut()));
     }
 
     resetCachedVcsInfo(workingDirectory);

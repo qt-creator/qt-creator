@@ -82,14 +82,12 @@ public:
 
 void VcsCommandPrivate::setup()
 {
-    VcsOutputWindow::setRepository(m_defaultWorkingDirectory);
     if (m_flags & RunFlags::ExpectRepoChanges)
         GlobalFileChangeBlocker::instance()->forceBlocked(true);
 }
 
 void VcsCommandPrivate::cleanup()
 {
-    VcsOutputWindow::clearRepository();
     if (m_flags & RunFlags::ExpectRepoChanges)
         GlobalFileChangeBlocker::instance()->forceBlocked(false);
 }
@@ -127,9 +125,8 @@ void VcsCommandPrivate::installStdCallbacks(Process *process)
                               || m_progressParser || !(m_flags & RunFlags::SuppressStdErr))) {
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
         connect(process, &Process::textOnStandardError, this, [this](const QString &text) {
-            VcsOutputWindow::setRepository(m_defaultWorkingDirectory);
             if (!(m_flags & RunFlags::SuppressStdErr))
-                VcsOutputWindow::appendError(text);
+                VcsOutputWindow::appendError(m_defaultWorkingDirectory, text);
             if (m_flags & RunFlags::ProgressiveOutput)
                 emit q->stdErrText(text);
         });
@@ -138,9 +135,8 @@ void VcsCommandPrivate::installStdCallbacks(Process *process)
                          || m_flags & RunFlags::ShowStdOut) {
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
         connect(process, &Process::textOnStandardOutput, this, [this](const QString &text) {
-            VcsOutputWindow::setRepository(m_defaultWorkingDirectory);
             if (m_flags & RunFlags::ShowStdOut)
-                VcsOutputWindow::append(text);
+                VcsOutputWindow::appendSilently(m_defaultWorkingDirectory, text);
             if (m_flags & RunFlags::ProgressiveOutput)
                 emit q->stdOutText(text);
         });
@@ -163,19 +159,20 @@ ProcessResult VcsCommandPrivate::handleDone(Process *process, const Job &job) co
     } else {
         result = process->result();
     }
+    const Utils::FilePath workingDirectory = process->workingDirectory();
     const QString message = Process::exitMessage(process->commandLine(), result,
                                                  process->exitCode(), process->processDuration());
     // Success/Fail message in appropriate window?
     if (result == ProcessResult::FinishedWithSuccess) {
         if (m_flags & RunFlags::ShowSuccessMessage)
-            VcsOutputWindow::appendMessage(message);
+            VcsOutputWindow::appendMessage(workingDirectory, message);
     } else if (!(m_flags & RunFlags::SuppressFailMessage)) {
-        VcsOutputWindow::appendError(message);
+        VcsOutputWindow::appendError(workingDirectory, message);
     }
     if (m_flags & RunFlags::ExpectRepoChanges) {
         // TODO tell the document manager that the directory now received all expected changes
-        // DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
-        VcsManager::emitRepositoryChanged(process->workingDirectory());
+        // DocumentManager::unexpectDirectoryChange(workingDirectory);
+        VcsManager::emitRepositoryChanged(workingDirectory);
     }
     return result;
 }
@@ -306,7 +303,6 @@ CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int time
         return {};
 
     const Internal::VcsCommandPrivate::Job job{command, timeoutS, d->m_defaultWorkingDirectory};
-    VcsOutputWindow::setRepository(d->m_defaultWorkingDirectory);
     d->setupProcess(&process, job);
 
     const EventLoopMode eventLoopMode = d->eventLoopMode();

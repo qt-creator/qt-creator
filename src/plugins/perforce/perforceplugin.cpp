@@ -655,7 +655,8 @@ void PerforcePluginPrivate::updateCheckout(const FilePath &workingDir, const QSt
 
 void PerforcePluginPrivate::printOpenedFileList()
 {
-    const PerforceResponse perforceResponse = runP4Cmd(settings().topLevel(), {"opened"},
+    const Utils::FilePath repository = settings().topLevel();
+    const PerforceResponse perforceResponse = runP4Cmd(repository, {"opened"},
                                               CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (perforceResponse.error || perforceResponse.stdOut.isEmpty())
         return;
@@ -670,9 +671,9 @@ void PerforcePluginPrivate::printOpenedFileList()
         if (delimiterPos > 0)
             mapped = fileNameFromPerforceName(line.left(delimiterPos), true);
         if (mapped.isEmpty())
-            VcsOutputWindow::appendSilently(line);
+            VcsOutputWindow::appendSilently(repository, line);
         else
-            VcsOutputWindow::appendSilently(mapped + QLatin1Char(' ') + line.mid(delimiterPos));
+            VcsOutputWindow::appendSilently(repository, mapped + ' ' + line.mid(delimiterPos));
     }
     VcsOutputWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 }
@@ -686,7 +687,7 @@ void PerforcePluginPrivate::startSubmitProject()
         return;
 
     if (isCommitEditorOpen()) {
-        VcsOutputWindow::appendWarning(Tr::tr("Another submit is currently executed."));
+        VcsOutputWindow::appendWarning({}, Tr::tr("Another submit is currently executed."));
         return;
     }
 
@@ -694,13 +695,14 @@ void PerforcePluginPrivate::startSubmitProject()
     QTC_ASSERT(state.hasProject(), return);
 
     // Revert all unchanged files.
-    if (!revertProject(state.currentProjectTopLevel(), perforceRelativeProjectDirectory(state), true))
+    const Utils::FilePath &repository = state.currentProjectTopLevel();
+    if (!revertProject(repository, perforceRelativeProjectDirectory(state), true))
         return;
     // Start a change
     QStringList args;
 
     args << QLatin1String("change") << QLatin1String("-o");
-    PerforceResponse result = runP4Cmd(state.currentProjectTopLevel(), args,
+    PerforceResponse result = runP4Cmd(repository, args,
                                        RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (result.error) {
         cleanCommitMessageFile();
@@ -711,7 +713,7 @@ void PerforcePluginPrivate::startSubmitProject()
     saver.setAutoRemove(false);
     saver.write(result.stdOut.toLatin1());
     if (const Result<> res = saver.finalize(); !res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError(repository, res.error());
         cleanCommitMessageFile();
         return;
     }
@@ -720,7 +722,7 @@ void PerforcePluginPrivate::startSubmitProject()
     args.clear();
     args << QLatin1String("files");
     args.append(perforceRelativeProjectDirectory(state));
-    PerforceResponse filesResult = runP4Cmd(state.currentProjectTopLevel(), args,
+    PerforceResponse filesResult = runP4Cmd(repository, args,
                                             RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow);
     if (filesResult.error) {
         cleanCommitMessageFile();
@@ -734,7 +736,7 @@ void PerforcePluginPrivate::startSubmitProject()
         depotFileNames.append(line.left(line.lastIndexOf(regexp)));
     }
     if (depotFileNames.isEmpty()) {
-        VcsOutputWindow::appendWarning(Tr::tr("Project has no files"));
+        VcsOutputWindow::appendWarning(repository, Tr::tr("Project has no files"));
         cleanCommitMessageFile();
         return;
     }
@@ -1172,18 +1174,18 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     if (flags & OverrideDiffEnvironment)
         process.setEnvironment(overrideDiffEnvironmentVariable());
     if (!workingDir.isEmpty())
-        process.setWorkingDirectory(workingDir);
 
     // connect stderr to the output window if desired
     if (flags & StdErrToWindow)
-        process.setStdErrCallback([](const QString &lines) { VcsOutputWindow::append(lines); });
+        process.setStdErrCallback([workingDir](const QString &lines) {
+            VcsOutputWindow::appendError(workingDir, lines);
+        });
 
     // connect stdout to the output window if desired
     if (flags & StdOutToWindow) {
-        if (flags & SilentStdOut)
-            process.setStdOutCallback(&VcsOutputWindow::appendSilently);
-        else
-            process.setStdOutCallback([](const QString &lines) { VcsOutputWindow::append(lines); });
+        process.setStdOutCallback([workingDir](const QString &lines) {
+            VcsOutputWindow::appendSilently(workingDir, lines);
+        });
     }
     process.setTimeOutMessageBoxEnabled(true);
     process.setCommand({settings().p4BinaryPath(), args});
@@ -1200,7 +1202,7 @@ PerforceResponse PerforcePluginPrivate::synchronousProcess(const FilePath &worki
     response.stdOut = process.cleanedStdOut();
 
     if (response.error && (flags & ErrorToWindow))
-        VcsOutputWindow::appendError(process.exitMessage());
+        VcsOutputWindow::appendError(workingDir, process.exitMessage());
     return response;
 }
 
@@ -1212,7 +1214,7 @@ PerforceResponse PerforcePluginPrivate::runP4Cmd(const FilePath &workingDir,
                                                  const TextEncoding &encoding) const
 {
     if (!settings().isValid()) {
-        VcsOutputWindow::appendError(Tr::tr("Perforce is not correctly configured."));
+        VcsOutputWindow::appendError(workingDir, Tr::tr("Perforce is not correctly configured."));
         return {};
     }
     QStringList actualArgs = settings().commonP4Arguments(workingDir.toUrlishString());
@@ -1416,21 +1418,22 @@ bool PerforcePluginPrivate::activateCommit()
         return false;
 
     // Pipe file into p4 submit -i
+    const Utils::FilePath workingDirectory = settings().topLevelSymLinkTarget();
     const Result<QByteArray> contents = FilePath::fromString(m_commitMessageFileName).fileContents();
     if (!contents) {
-        VcsOutputWindow::appendError(contents.error());
+        VcsOutputWindow::appendError(workingDirectory, contents.error());
         return false;
     }
 
     QStringList submitArgs;
     submitArgs << QLatin1String("submit") << QLatin1String("-i");
-    const PerforceResponse submitResponse = runP4Cmd(settings().topLevelSymLinkTarget(), submitArgs,
+    const PerforceResponse submitResponse = runP4Cmd(workingDirectory, submitArgs,
                                                      LongTimeOut|RunFullySynchronous|CommandToWindow|StdErrToWindow|ErrorToWindow|ShowBusyCursor,
                                                      {}, normalizeNewlines(contents.value()));
     if (submitResponse.error)
         return false;
 
-    VcsOutputWindow::append(submitResponse.stdOut);
+    VcsOutputWindow::appendSilently(workingDirectory, submitResponse.stdOut);
     if (submitResponse.stdOut.contains(QLatin1String("Out of date files must be resolved or reverted)")))
         QMessageBox::warning(perforceEditor->widget(), Tr::tr("Pending change"), Tr::tr("Could not submit the change, because your workspace was out of date. Created a pending submit instead."));
 
@@ -1473,7 +1476,8 @@ QString fileNameFromPerforceName(const QString &perforceName, bool quiet)
     unsigned flags = RunFullySynchronous;
     if (!quiet)
         flags |= CommandToWindow|StdErrToWindow|ErrorToWindow;
-    const PerforceResponse response = dd->runP4Cmd(settings().topLevelSymLinkTarget(), args, flags);
+    const Utils::FilePath workingDirectory = settings().topLevelSymLinkTarget();
+    const PerforceResponse response = dd->runP4Cmd(workingDirectory, args, flags);
     if (response.error)
         return {};
 
@@ -1487,7 +1491,7 @@ QString fileNameFromPerforceName(const QString &perforceName, bool quiet)
         if (!quiet) {
             //: Failed to run p4 "where" to resolve a Perforce file name to a local
             //: file system name.
-            VcsOutputWindow::appendError(
+            VcsOutputWindow::appendError(workingDirectory,
                 Tr::tr("Error running \"where\" on %1: The file is not mapped.")
                     .arg(QDir::toNativeSeparators(perforceName)));
         }
@@ -1505,12 +1509,12 @@ void PerforcePluginPrivate::setTopLevel(const FilePath &topLevel)
     settings().setTopLevel(topLevel.toUrlishString());
 
     const QString msg = Tr::tr("Perforce repository: %1").arg(topLevel.toUserOutput());
-    VcsOutputWindow::appendSilently(msg);
+    VcsOutputWindow::appendSilently(topLevel, msg);
 }
 
 void PerforcePluginPrivate::slotTopLevelFailed(const QString &errorMessage)
 {
-    VcsOutputWindow::appendSilently(Tr::tr("Perforce: Unable to determine the repository: %1").arg(errorMessage));
+    VcsOutputWindow::appendSilently({}, Tr::tr("Perforce: Unable to determine the repository: %1").arg(errorMessage));
 }
 
 void PerforcePluginPrivate::getTopLevel(const FilePath &workingDirectory, bool isSync)

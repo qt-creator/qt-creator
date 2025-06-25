@@ -228,7 +228,6 @@ class VcsOutputWindowPrivate
 {
 public:
     Internal::OutputWindowPlainTextEdit widget;
-    FilePath repository;
     const QRegularExpression passwordRegExp = QRegularExpression("://([^@:]+):([^@]+)@");
 };
 
@@ -338,33 +337,34 @@ void VcsOutputWindow::setData(const QByteArray &data)
     setText(TextEncoding::encodingForLocale().decode(data));
 }
 
-void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silently)
+void VcsOutputWindow::append(const Utils::FilePath &workingDirectory, const QString &text,
+                             MessageStyle style, bool silently)
 {
     const QString lines = (text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n';
-    d->widget.appendLines(lines, style, d->repository);
+    d->widget.appendLines(lines, style, workingDirectory);
 
     if (!silently && !d->widget.isVisible())
         m_instance->popup(IOutputPane::NoModeSwitch);
 }
 
-void VcsOutputWindow::appendSilently(const QString &text)
+void VcsOutputWindow::appendSilently(const FilePath &workingDirectory, const QString &text)
 {
-    append(text, None, true);
+    append(workingDirectory, text, None, true);
 }
 
-void VcsOutputWindow::appendMessage(const QString &text)
+void VcsOutputWindow::appendMessage(const FilePath &workingDirectory, const QString &text)
 {
-    append(text, Message, true);
+    append(workingDirectory, text, Message, true);
 }
 
-void VcsOutputWindow::appendWarning(const QString &text)
+void VcsOutputWindow::appendWarning(const FilePath &workingDirectory, const QString &text)
 {
-    append(text, Warning, false);
+    append(workingDirectory, text, Warning, false);
 }
 
-void VcsOutputWindow::appendError(const QString &text)
+void VcsOutputWindow::appendError(const FilePath &workingDirectory, const QString &text)
 {
-    append(text, Error, false);
+    append(workingDirectory, text, Error, false);
 }
 
 // Helper to format arguments for log windows hiding common password options.
@@ -401,14 +401,14 @@ QString VcsOutputWindow::msgExecutionLogEntry(const FilePath &workingDir, const 
     return Tr::tr("Running in \"%1\": %2").arg(workingDir.toUserOutput(), maskedCmdline) + '\n';
 }
 
-void VcsOutputWindow::appendShellCommandLine(const QString &text)
+void VcsOutputWindow::appendShellCommandLine(const FilePath &workingDirectory, const QString &text)
 {
-    append(filterPasswordFromUrls(text), Command, true);
+    append(workingDirectory, filterPasswordFromUrls(text), Command, true);
 }
 
 void VcsOutputWindow::appendCommand(const FilePath &workingDirectory, const CommandLine &command)
 {
-    appendShellCommandLine(msgExecutionLogEntry(workingDirectory, command));
+    appendShellCommandLine(workingDirectory, msgExecutionLogEntry(workingDirectory, command));
 }
 
 void VcsOutputWindow::destroy()
@@ -422,16 +422,6 @@ VcsOutputWindow *VcsOutputWindow::instance()
     if (!m_instance)
         (void) new VcsOutputWindow;
     return m_instance;
-}
-
-void VcsOutputWindow::setRepository(const FilePath &repository)
-{
-    d->repository = repository;
-}
-
-void VcsOutputWindow::clearRepository()
-{
-    d->repository.clear();
 }
 
 } // namespace VcsBase

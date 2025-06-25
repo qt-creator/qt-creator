@@ -122,15 +122,15 @@ static void stage(DiffEditorController *diffController, const QString &patch, bo
                                                      &errorMessage, args)) {
         if (errorMessage.isEmpty()) {
             if (revert)
-                VcsOutputWindow::appendSilently(Tr::tr("Chunk successfully unstaged"));
+                VcsOutputWindow::appendSilently(baseDir, Tr::tr("Chunk successfully unstaged"));
             else
-                VcsOutputWindow::appendSilently(Tr::tr("Chunk successfully staged"));
+                VcsOutputWindow::appendSilently(baseDir, Tr::tr("Chunk successfully staged"));
         } else {
-            VcsOutputWindow::appendError(errorMessage);
+            VcsOutputWindow::appendError(baseDir, errorMessage);
         }
         diffController->requestReload();
     } else {
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(baseDir, errorMessage);
     }
 }
 
@@ -759,12 +759,13 @@ static QString msgCannotLaunch(const FilePath &binary)
     return Tr::tr("Cannot launch \"%1\".").arg(binary.toUserOutput());
 }
 
-static inline void msgCannotRun(const QString &message, QString *errorMessage)
+static inline void msgCannotRun(const FilePath &workingDirectory, const QString &message,
+                                QString *errorMessage)
 {
     if (errorMessage)
         *errorMessage = message;
     else
-        VcsOutputWindow::appendError(message);
+        VcsOutputWindow::appendError(workingDirectory, message);
 }
 
 static inline void msgCannotRun(const QStringList &args, const FilePath &workingDirectory,
@@ -775,7 +776,7 @@ static inline void msgCannotRun(const QStringList &args, const FilePath &working
                  workingDirectory.toUserOutput(),
                  error);
 
-    msgCannotRun(message, errorMessage);
+    msgCannotRun(workingDirectory, message, errorMessage);
 }
 
 // ---------------- GitClient
@@ -1248,14 +1249,14 @@ static inline QString msgCannotShow(const QString &hash)
 
 void GitClient::show(const FilePath &source, const QString &id, const QString &name)
 {
+    FilePath workingDirectory = source.isDir() ? source.absoluteFilePath() : source.absolutePath();
+
     if (!canShow(id)) {
-        VcsOutputWindow::appendError(msgCannotShow(id));
+        VcsOutputWindow::appendError(workingDirectory, msgCannotShow(id));
         return;
     }
 
     const QString title = Tr::tr("Git Show \"%1\"").arg(name.isEmpty() ? id : name);
-    FilePath workingDirectory =
-        source.isDir() ? source.absoluteFilePath() : source.absolutePath();
     const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (!repoDirectory.isEmpty())
         workingDirectory = repoDirectory;
@@ -1482,12 +1483,12 @@ void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         const QString stdOut = result.cleanedStdOut().trimmed();
         if (stdOut.isEmpty()) {
-            VcsOutputWindow::appendError(Tr::tr("Nothing to recover"));
+            VcsOutputWindow::appendError(workingDirectory, Tr::tr("Nothing to recover"));
             return;
         }
         const QStringList files = stdOut.split('\n');
         synchronousCheckoutFiles(workingDirectory, files, QString(), nullptr, false);
-        VcsOutputWindow::append(Tr::tr("Files recovered"), VcsOutputWindow::Message);
+        VcsOutputWindow::appendMessage(workingDirectory, Tr::tr("Files recovered"));
     }
 }
 
@@ -1510,7 +1511,7 @@ Result<QString> GitClient::synchronousLog(const FilePath &workingDirectory,
         return result.cleanedStdOut();
 
     QString errorMessage;
-    msgCannotRun(Tr::tr("Cannot obtain log of \"%1\": %2")
+    msgCannotRun(workingDirectory, Tr::tr("Cannot obtain log of \"%1\": %2")
                  .arg(workingDirectory.toUserOutput(), result.cleanedStdErr()), &errorMessage);
     return ResultError(errorMessage);
 }
@@ -1560,7 +1561,7 @@ bool GitClient::synchronousReset(const FilePath &workingDirectory,
 
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments);
     const QString stdOut = result.cleanedStdOut();
-    VcsOutputWindow::append(stdOut);
+    VcsOutputWindow::appendSilently(workingDirectory, stdOut);
     // Note that git exits with 1 even if the operation is successful
     // Assume real failure if the output does not contain "foo.cpp modified"
     // or "Unstaged changes after reset" (git 1.7.0).
@@ -1569,8 +1570,9 @@ bool GitClient::synchronousReset(const FilePath &workingDirectory,
         if (files.isEmpty()) {
             msgCannotRun(arguments, workingDirectory, result.cleanedStdErr(), errorMessage);
         } else {
-            msgCannotRun(Tr::tr("Cannot reset %n files in \"%1\": %2", nullptr, files.size())
-                .arg(workingDirectory.toUserOutput(), result.cleanedStdErr()),
+            msgCannotRun(workingDirectory,
+                         Tr::tr("Cannot reset %n files in \"%1\": %2", nullptr, files.size())
+                            .arg(workingDirectory.toUserOutput(), result.cleanedStdErr()),
                          errorMessage);
         }
         return false;
@@ -1583,7 +1585,7 @@ bool GitClient::synchronousInit(const FilePath &workingDirectory)
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory, QStringList{"init"});
     // '[Re]Initialized...'
-    VcsOutputWindow::append(result.cleanedStdOut());
+    VcsOutputWindow::appendSilently(workingDirectory, result.cleanedStdOut());
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         resetCachedVcsInfo(workingDirectory);
         return true;
@@ -1611,7 +1613,7 @@ bool GitClient::synchronousAddGitignore(const FilePath &workingDirectory)
     Core::GeneratedFile gitIgnoreFile(gitIgnoreDestination);
     gitIgnoreFile.setBinaryContents(gitIgnoreTemplate.fileContents().value());
     if (const Result<> res = gitIgnoreFile.write(); !res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError(workingDirectory, res.error());
         return false;
     }
 
@@ -1642,7 +1644,7 @@ bool GitClient::synchronousCheckoutFiles(const FilePath &workingDirectory, QStri
     const QString fileArg = files.join(", ");
     //: Meaning of the arguments: %1: revision, %2: files, %3: repository,
     //: %4: Error message
-    msgCannotRun(Tr::tr("Cannot checkout \"%1\" of %2 in \"%3\": %4")
+    msgCannotRun(workingDirectory, Tr::tr("Cannot checkout \"%1\" of %2 in \"%3\": %4")
                  .arg(revision, fileArg, workingDirectory.toUserOutput(), result.cleanedStdErr()),
                  errorMessage);
     return false;
@@ -1881,8 +1883,9 @@ QString GitClient::synchronousShortDescription(const FilePath &workingDirectory,
                                    "--max-count=1", revision};
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, RunFlags::NoOutput);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
-        VcsOutputWindow::appendSilently(Tr::tr("Cannot describe revision \"%1\" in \"%2\": %3")
-                        .arg(revision, workingDirectory.toUserOutput(), result.cleanedStdErr()));
+        VcsOutputWindow::appendSilently(workingDirectory,
+            Tr::tr("Cannot describe revision \"%1\" in \"%2\": %3")
+                .arg(revision, workingDirectory.toUserOutput(), result.cleanedStdErr()));
         return revision;
     }
     return stripLastNewline(result.cleanedStdOut());
@@ -1935,10 +1938,10 @@ QString GitClient::synchronousStash(const FilePath &workingDirectory, const QStr
         if (unchanged)
             *unchanged = true;
         if (!(flags & StashIgnoreUnchanged))
-            VcsOutputWindow::appendWarning(msgNoChangedFiles());
+            VcsOutputWindow::appendWarning(workingDirectory, msgNoChangedFiles());
         break;
     case StatusFailed:
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(workingDirectory, errorMessage);
         break;
     }
     if (!success)
@@ -1979,7 +1982,7 @@ static QString stashNameFromMessage(const FilePath &workingDirectory, const QStr
             return stash.name;
     }
     //: Look-up of a stash via its descriptive message failed.
-    msgCannotRun(Tr::tr("Cannot resolve stash message \"%1\" in \"%2\".")
+    msgCannotRun(workingDirectory, Tr::tr("Cannot resolve stash message \"%1\" in \"%2\".")
                  .arg(message, workingDirectory.toUserOutput()), nullptr);
     return {};
 }
@@ -2044,7 +2047,7 @@ QMap<QString,QString> GitClient::synchronousRemotesList(const FilePath &workingD
     QString output;
     QString error;
     if (!synchronousRemoteCmd(workingDirectory, {"-v"}, &output, &error, true)) {
-        msgCannotRun(error, errorMessage);
+        msgCannotRun(workingDirectory, error, errorMessage);
         return result;
     }
 
@@ -2070,7 +2073,7 @@ QStringList GitClient::synchronousSubmoduleStatus(const FilePath &workingDirecto
                                                     RunFlags::NoOutput);
 
     if (result.result() != ProcessResult::FinishedWithSuccess) {
-        msgCannotRun(Tr::tr("Cannot retrieve submodule status of \"%1\": %2")
+        msgCannotRun(workingDirectory, Tr::tr("Cannot retrieve submodule status of \"%1\": %2")
                      .arg(workingDirectory.toUserOutput(), result.cleanedStdErr()), errorMessage);
         return {};
     }
@@ -2143,7 +2146,7 @@ QByteArray GitClient::synchronousShow(const FilePath &workingDirectory, const QS
                                       RunFlags flags) const
 {
     if (!canShow(id)) {
-        VcsOutputWindow::appendError(msgCannotShow(id));
+        VcsOutputWindow::appendError(workingDirectory, msgCannotShow(id));
         return {};
     }
     const QStringList arguments = {"show", decorateOption, noColorOption, "--no-patch", id};
@@ -2592,7 +2595,7 @@ void GitClient::handleGitKFailedToStart(const Environment &env,
                                         const FilePath &oldGitBinDir) const
 {
     QTC_ASSERT(oldTrial != None, return);
-    VcsOutputWindow::appendSilently(msgCannotLaunch(oldGitBinDir / "gitk"));
+    VcsOutputWindow::appendSilently(workingDirectory, msgCannotLaunch(oldGitBinDir / "gitk"));
 
     GitKLaunchTrial nextTrial = None;
 
@@ -2604,7 +2607,7 @@ void GitClient::handleGitKFailedToStart(const Environment &env,
     }
 
     if (nextTrial == None) {
-        VcsOutputWindow::appendError(msgCannotLaunch("gitk"));
+        VcsOutputWindow::appendError(workingDirectory, msgCannotLaunch("gitk"));
         return;
     }
 
@@ -2616,7 +2619,7 @@ bool GitClient::launchGitGui(const FilePath &workingDirectory)
     const QString cannotLaunchGitGui = msgCannotLaunch("git gui");
     FilePath gitBinary = vcsBinary(workingDirectory);
     if (gitBinary.isEmpty()) {
-        VcsOutputWindow::appendError(cannotLaunchGitGui);
+        VcsOutputWindow::appendError(workingDirectory, cannotLaunchGitGui);
         return false;
     }
 
@@ -2626,8 +2629,8 @@ bool GitClient::launchGitGui(const FilePath &workingDirectory)
     connect(process, &Process::done, this, [process, cannotLaunchGitGui] {
         if (process->result() != ProcessResult::FinishedWithSuccess) {
             const QString errorMessage = process->readAllStandardError();
-            VcsOutputWindow::appendError(cannotLaunchGitGui);
-            VcsOutputWindow::appendError(errorMessage);
+            VcsOutputWindow::appendError(process->workingDirectory(), cannotLaunchGitGui);
+            VcsOutputWindow::appendError(process->workingDirectory(), errorMessage);
             process->deleteLater();
         }
     });
@@ -2675,7 +2678,7 @@ bool GitClient::launchGitBash(const FilePath &workingDirectory)
     }
 
     if (!success)
-        VcsOutputWindow::appendError(msgCannotLaunch("git-bash"));
+        VcsOutputWindow::appendError(workingDirectory, msgCannotLaunch("git-bash"));
 
     return success;
 }
@@ -2973,11 +2976,12 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     const CommandResult result = vcsSynchronousExec(repositoryDirectory, arguments,
                                                     RunFlags::UseEventLoop);
     if (result.result() == ProcessResult::FinishedWithSuccess) {
-        VcsOutputWindow::appendMessage(msgCommitted(amendHash, commitCount));
+        VcsOutputWindow::appendMessage(repositoryDirectory, msgCommitted(amendHash, commitCount));
         updateCurrentBranch();
         return true;
     }
-    VcsOutputWindow::appendError(Tr::tr("Cannot commit %n file(s).", nullptr, commitCount) + "\n");
+    VcsOutputWindow::appendError(repositoryDirectory,
+                                 Tr::tr("Cannot commit %n file(s).", nullptr, commitCount) + "\n");
     return false;
 }
 
@@ -3004,7 +3008,8 @@ void GitClient::formatPatch(const Utils::FilePath &workingDirectory, const QStri
 GitClient::RevertResult GitClient::revertI(QStringList files,
                                            bool *ptrToIsDirectory,
                                            QString *errorMessage,
-                                           bool revertStaging)
+                                           bool revertStaging,
+                                           FilePath *repository)
 {
     if (files.empty())
         return RevertCanceled;
@@ -3018,6 +3023,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
         FilePath::fromString(isDirectory ? firstFile.absoluteFilePath() : firstFile.absolutePath());
 
     const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
+    *repository = repoDirectory;
     if (repoDirectory.isEmpty()) {
         *errorMessage = msgRepositoryNotFound(workingDirectory);
         return RevertFailed;
@@ -3089,7 +3095,8 @@ void GitClient::revertFiles(const QStringList &files, bool revertStaging)
 {
     bool isDirectory;
     QString errorMessage;
-    switch (revertI(files, &isDirectory, &errorMessage, revertStaging)) {
+    FilePath repository;
+    switch (revertI(files, &isDirectory, &errorMessage, revertStaging, &repository)) {
     case RevertOk:
         emitFilesChanged(files);
         break;
@@ -3097,11 +3104,11 @@ void GitClient::revertFiles(const QStringList &files, bool revertStaging)
         break;
     case RevertUnchanged: {
         const QString msg = (isDirectory || files.size() > 1) ? msgNoChangedFiles() : Tr::tr("The file is not modified.");
-        VcsOutputWindow::appendWarning(msg);
+        VcsOutputWindow::appendWarning(repository, msg);
     }
         break;
     case RevertFailed:
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(repository, errorMessage);
         break;
     }
 }
@@ -3160,7 +3167,7 @@ void GitClient::synchronousAbortCommand(const FilePath &workingDir, const QStrin
 
     const CommandResult result = vcsSynchronousExec(workingDir, {abortCommand, "--abort"},
                                  RunFlags::ExpectRepoChanges | RunFlags::ShowSuccessMessage);
-    VcsOutputWindow::append(result.cleanedStdOut());
+    VcsOutputWindow::appendSilently(workingDir, result.cleanedStdOut());
 }
 
 QString GitClient::synchronousTrackingBranch(const FilePath &workingDirectory, const QString &branch)
@@ -3364,7 +3371,7 @@ bool GitClient::canRebase(const FilePath &workingDirectory) const
     const FilePath gitDir = findGitDirForRepository(workingDirectory);
     if (gitDir.pathAppended("rebase-apply").exists()
             || gitDir.pathAppended("rebase-merge").exists()) {
-        VcsOutputWindow::appendError(
+        VcsOutputWindow::appendError(workingDirectory,
                     Tr::tr("Rebase, merge or am is in progress. Finish "
                        "or abort it and then try again."));
         return false;
@@ -3498,7 +3505,7 @@ bool GitClient::synchronousStashRemove(const FilePath &workingDirectory, const Q
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         const QString output = result.cleanedStdOut();
         if (!output.isEmpty())
-            VcsOutputWindow::append(output);
+            VcsOutputWindow::appendSilently(workingDirectory, output);
         return true;
     }
     msgCannotRun(arguments, workingDirectory, result.cleanedStdErr(), errorMessage);
@@ -3634,7 +3641,7 @@ bool GitClient::StashInfo::init(const FilePath &workingDirectory, const QString 
     }
 
     if (m_stashResult == StashFailed)
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(m_workingDir, errorMessage);
     return !stashingFailed();
 }
 
@@ -3753,7 +3760,7 @@ QString GitClient::suggestedLocalBranchName(
         if (res)
             initialName = res.value().trimmed();
         else
-            VcsOutputWindow::appendError(res.error());
+            VcsOutputWindow::appendError(workingDirectory, res.error());
     }
     QString suggestedName = initialName;
     int i = 2;
@@ -3797,7 +3804,7 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
             if (!gitClient().synchronousBranchCmd(workingDir,
                                                   {"--no-track", newBranch, change},
                                                   &output, &errorMessage)) {
-                VcsOutputWindow::appendError(errorMessage);
+                VcsOutputWindow::appendError(workingDir, errorMessage);
                 return;
             }
 
@@ -3842,9 +3849,9 @@ void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QStr
                 return QStringList{"-a", "-m", annotation, tag, change};
             };
             gitClient().synchronousTagCmd(workingDir, args(), &output, &errorMessage);
-            VcsOutputWindow::append(output);
+            VcsOutputWindow::appendSilently(workingDir, output);
             if (!errorMessage.isEmpty())
-                VcsOutputWindow::append(errorMessage, VcsOutputWindow::MessageStyle::Error);
+                VcsOutputWindow::appendError(workingDir, errorMessage);
         });
 
         auto resetChange = [workingDir, change](const QByteArray &resetType) {

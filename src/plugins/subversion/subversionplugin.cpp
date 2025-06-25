@@ -684,7 +684,7 @@ void SubversionPluginPrivate::startCommit(const FilePath &workingDir, const QStr
     if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
-        VcsOutputWindow::appendWarning(Tr::tr("Another commit is currently being executed."));
+        VcsOutputWindow::appendWarning(workingDir, Tr::tr("Another commit is currently being executed."));
         return;
     }
 
@@ -699,7 +699,7 @@ void SubversionPluginPrivate::startCommit(const FilePath &workingDir, const QStr
     // Get list of added/modified/deleted files
     const StatusList statusOutput = parseStatusOutput(response.cleanedStdOut());
     if (statusOutput.empty()) {
-        VcsOutputWindow::appendWarning(Tr::tr("There are no modified files."));
+        VcsOutputWindow::appendWarning(workingDir, Tr::tr("There are no modified files."));
         return;
     }
     m_commitRepository = workingDir;
@@ -711,7 +711,7 @@ void SubversionPluginPrivate::startCommit(const FilePath &workingDir, const QStr
     // Create a submit
     saver.write(submitTemplate.toUtf8());
     if (const Result<> res = saver.finalize(); !res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError(m_commitRepository, res.error());
         return;
     }
     m_commitMessageFileName = saver.filePath().toUrlishString();

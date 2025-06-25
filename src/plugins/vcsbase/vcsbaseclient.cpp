@@ -270,7 +270,7 @@ bool VcsBaseClient::synchronousCreateRepository(const FilePath &workingDirectory
     const CommandResult result = vcsSynchronousExec(workingDirectory, args);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
-    VcsOutputWindow::append(result.cleanedStdOut());
+    VcsOutputWindow::appendSilently(workingDirectory, result.cleanedStdOut());
 
     resetCachedVcsInfo(workingDirectory);
 

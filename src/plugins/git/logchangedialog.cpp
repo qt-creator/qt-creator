@@ -85,7 +85,7 @@ bool LogChangeWidget::init(const FilePath &repository, const QString &commit, Lo
     if (m_model->rowCount() > 0)
         return true;
     if (!(flags & Silent))
-        VcsOutputWindow::appendError(GitClient::msgNoCommits(flags & IncludeRemotes));
+        VcsOutputWindow::appendError(repository, GitClient::msgNoCommits(flags & IncludeRemotes));
     return false;
 }
 
@@ -194,7 +194,7 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
 
     const Result<QString> res = gitClient().synchronousLog(repository, arguments, RunFlags::NoOutput);
     if (!res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError(repository, res.error());
         return false;
     }
 

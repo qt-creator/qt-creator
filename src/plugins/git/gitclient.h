@@ -387,7 +387,8 @@ private:
     RevertResult revertI(QStringList files,
                          bool *isDirectory,
                          QString *errorMessage,
-                         bool revertStaging);
+                         bool revertStaging,
+                         Utils::FilePath *repository);
     bool executeAndHandleConflicts(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                                    const QString &abortCommand = {}) const;
     void tryLaunchingGitK(const Utils::Environment &env,

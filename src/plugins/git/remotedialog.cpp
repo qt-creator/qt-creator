@@ -202,7 +202,7 @@ void RemoteDialog::refresh(const FilePath &repository, bool force)
     } else {
         QString errorMessage;
         if (!m_remoteModel->refresh(repository, &errorMessage))
-            VcsBase::VcsOutputWindow::appendError(errorMessage);
+            VcsBase::VcsOutputWindow::appendError(repository, errorMessage);
     }
 }
 

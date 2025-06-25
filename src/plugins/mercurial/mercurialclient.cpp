@@ -136,13 +136,15 @@ user: ...
     // Obtain first line and split by blank-delimited tokens
     const QStringList lines = result.cleanedStdOut().split(QLatin1Char('\n'));
     if (lines.size() < 1) {
-        VcsOutputWindow::appendSilently(msgParentRevisionFailed(workingDirectory, revision,
+        VcsOutputWindow::appendSilently(workingDirectory,
+                                        msgParentRevisionFailed(workingDirectory, revision,
                                         msgParseParentsOutputFailed(result.cleanedStdOut())));
         return {};
     }
     const QStringList changeSets = lines.front().simplified().split(QLatin1Char(' '));
     if (changeSets.size() < 2) {
-        VcsOutputWindow::appendSilently(msgParentRevisionFailed(workingDirectory, revision,
+        VcsOutputWindow::appendSilently(workingDirectory,
+                                        msgParentRevisionFailed(workingDirectory, revision,
                                         msgParseParentsOutputFailed(result.cleanedStdOut())));
         return {};
     }

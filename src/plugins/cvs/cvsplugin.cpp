@@ -672,7 +672,7 @@ void CvsPluginPrivate::vcsDescribe(const FilePath &source, const QString &change
 {
     QString errorMessage;
     if (!describe(source.toUrlishString(), changeNr, &errorMessage))
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(source, errorMessage);
 };
 
 bool CvsPluginPrivate::activateCommit()
@@ -873,7 +873,7 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
     if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
-        VcsOutputWindow::appendWarning(Tr::tr("Another commit is currently being executed."));
+        VcsOutputWindow::appendWarning(workingDir, Tr::tr("Another commit is currently being executed."));
         return;
     }
 
@@ -894,7 +894,7 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
         }
     }
     if (statusOutput.empty()) {
-        VcsOutputWindow::appendWarning(Tr::tr("There are no modified files."));
+        VcsOutputWindow::appendWarning(workingDir, Tr::tr("There are no modified files."));
         return;
     }
     m_commitRepository = workingDir;
@@ -907,7 +907,7 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
     // Create a submit
     saver.write(submitTemplate.toUtf8());
     if (const Result<> res = saver.finalize(); !res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError(m_commitRepository, res.error());
         return;
     }
     m_commitMessageFileName = saver.filePath().toUrlishString();

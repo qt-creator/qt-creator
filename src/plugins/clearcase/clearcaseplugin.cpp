@@ -1193,7 +1193,7 @@ void ClearCasePluginPrivate::ccDiffWithPred(const FilePath &workingDir, const QS
         return; // done here, diff is opened in a new window
     }
     if (!m_settings.extDiffAvailable) {
-        VcsOutputWindow::appendError(Tr::tr("External diff is required to compare multiple files."));
+        VcsOutputWindow::appendError(workingDir, Tr::tr("External diff is required to compare multiple files."));
         return;
     }
     QString result;
@@ -1249,11 +1249,11 @@ void ClearCasePluginPrivate::diffActivity()
     QTC_ASSERT(state.hasTopLevel(), return);
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO;
+    const FilePath topLevel = state.topLevel();
     if (!m_settings.extDiffAvailable) {
-        VcsOutputWindow::appendError(Tr::tr("External diff is required to compare multiple files."));
+        VcsOutputWindow::appendError(topLevel, Tr::tr("External diff is required to compare multiple files."));
         return;
     }
-    FilePath topLevel = state.topLevel();
     const QString activity = QInputDialog::getText(ICore::dialogParent(), Tr::tr("Enter Activity"),
                                              Tr::tr("Activity Name"), QLineEdit::Normal, m_activity);
     if (activity.isEmpty())
@@ -1388,13 +1388,13 @@ void ClearCasePluginPrivate::startCheckIn(const FilePath &workingDir, const QStr
         return;
 
     if (isCheckInEditorOpen()) {
-        VcsOutputWindow::appendWarning(Tr::tr("Another check in is currently being executed."));
+        VcsOutputWindow::appendWarning(workingDir, Tr::tr("Another check in is currently being executed."));
         return;
     }
 
     // Get list of added/modified/deleted files
     if (files.empty()) {
-        VcsOutputWindow::appendWarning(Tr::tr("There are no modified files."));
+        VcsOutputWindow::appendWarning(workingDir, Tr::tr("There are no modified files."));
         return;
     }
     // Create a new submit change file containing the submit template
@@ -1406,7 +1406,7 @@ void ClearCasePluginPrivate::startCheckIn(const FilePath &workingDir, const QStr
     // Create a submit
     saver.write(submitTemplate.toUtf8());
     if (const Result<> res = saver.finalize(); !res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError(workingDir, res.error());
         return;
     }
     m_checkInMessageFilePath = saver.filePath();
@@ -1476,9 +1476,8 @@ void ClearCasePluginPrivate::viewStatus()
     if (m_viewData.name.isEmpty())
         m_viewData = ccGetView(m_topLevel);
     QTC_ASSERT(!m_viewData.name.isEmpty() && !m_settings.disableIndexer, return);
-    VcsOutputWindow::append(QLatin1String("Indexed files status (C=Checked Out, "
-                                          "H=Hijacked, ?=Missing)"),
-                            VcsOutputWindow::Command, true);
+    VcsOutputWindow::appendMessage(m_topLevel, "Indexed files status (C=Checked Out, "
+                                               "H=Hijacked, ?=Missing)");
     bool anymod = false;
     for (StatusMap::ConstIterator it = m_statusMap->constBegin();
          it != m_statusMap->constEnd();
@@ -1492,14 +1491,14 @@ void ClearCasePluginPrivate::viewStatus()
             default: break;
         }
         if (cstat) {
-            VcsOutputWindow::append(QString::fromLatin1("%1    %2\n")
+            VcsOutputWindow::appendSilently(m_topLevel, QString::fromLatin1("%1    %2\n")
                            .arg(cstat)
                            .arg(QDir::toNativeSeparators(it.key())));
             anymod = true;
         }
     }
     if (!anymod)
-        VcsOutputWindow::appendWarning(QLatin1String("No modified files found."));
+        VcsOutputWindow::appendWarning(m_topLevel, QLatin1String("No modified files found."));
 }
 
 void ClearCasePluginPrivate::ccUpdate(const FilePath &workingDir, const QStringList &relativePaths)
@@ -1762,8 +1761,8 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
                 result = runCleartool(topLevel, args, RunFlags::ShowStdOut);
             }
         } else {
-            VcsOutputWindow::append(result.cleanedStdOut());
-            VcsOutputWindow::appendError(result.cleanedStdErr());
+            VcsOutputWindow::appendSilently(topLevel, result.cleanedStdOut());
+            VcsOutputWindow::appendError(topLevel, result.cleanedStdErr());
         }
     }
 

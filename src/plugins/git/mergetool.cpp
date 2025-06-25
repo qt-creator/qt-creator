@@ -169,7 +169,7 @@ void MergeTool::readData()
 {
     QString newData = QString::fromLocal8Bit(m_process.readAllRawStandardOutput());
     newData.remove('\r');
-    VcsOutputWindow::append(newData);
+    VcsOutputWindow::appendSilently(m_process.workingDirectory(), newData);
     QString data = m_unfinishedLine + newData;
     m_unfinishedLine.clear();
     for (;;) {
@@ -215,13 +215,13 @@ void MergeTool::readLine(const QString &line)
 
 void MergeTool::done()
 {
+    const FilePath workingDirectory = m_process.workingDirectory();
     const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
     if (success)
-        VcsOutputWindow::appendMessage(m_process.exitMessage());
+        VcsOutputWindow::appendMessage(workingDirectory, m_process.exitMessage());
     else
-        VcsOutputWindow::appendError(m_process.exitMessage());
+        VcsOutputWindow::appendError(workingDirectory, m_process.exitMessage());
 
-    const FilePath workingDirectory = m_process.workingDirectory();
     gitClient().continueCommandIfNeeded(workingDirectory, success);
     emitRepositoryChanged(workingDirectory);
     deleteLater();
@@ -230,7 +230,7 @@ void MergeTool::done()
 void MergeTool::write(const QString &str)
 {
     m_process.write(str);
-    VcsOutputWindow::append(str);
+    VcsOutputWindow::appendSilently(m_process.workingDirectory(), str);
 }
 
 } // Git::Internal

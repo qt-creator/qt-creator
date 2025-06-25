@@ -654,7 +654,7 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
                         this, &BazaarPluginPrivate::showCommitWidget);
 
     if (status.isEmpty()) {
-        VcsOutputWindow::appendError(Tr::tr("There are no changes to commit."));
+        VcsOutputWindow::appendError(m_submitRepository, Tr::tr("There are no changes to commit."));
         return;
     }
 
@@ -663,20 +663,20 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
     // Keep the file alive, else it removes self and forgets its name
     saver.setAutoRemove(false);
     if (const Result<> res = saver.finalize(); !res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError(m_submitRepository, res.error());
         return;
     }
 
     IEditor *editor = EditorManager::openEditor(saver.filePath(), COMMIT_ID);
     if (!editor) {
-        VcsOutputWindow::appendError(Tr::tr("Unable to create an editor for the commit."));
+        VcsOutputWindow::appendError(m_submitRepository, Tr::tr("Unable to create an editor for the commit."));
         return;
     }
 
     auto commitEditor = qobject_cast<CommitEditor *>(editor);
 
     if (!commitEditor) {
-        VcsOutputWindow::appendError(Tr::tr("Unable to create a commit editor."));
+        VcsOutputWindow::appendError(m_submitRepository, Tr::tr("Unable to create a commit editor."));
         return;
     }
     setSubmitEditor(commitEditor);

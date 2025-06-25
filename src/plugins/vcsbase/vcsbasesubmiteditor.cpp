@@ -434,7 +434,7 @@ void VcsBaseSubmitEditor::accept(VersionControlBase *plugin)
     QString errorMessage;
     const bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
     if (!canCommit) {
-        VcsOutputWindow::appendError(plugin->commitErrorMessage(errorMessage));
+        VcsOutputWindow::appendError({}, plugin->commitErrorMessage(errorMessage));
     } else if (plugin->activateCommit()) {
         close();
     }
@@ -536,8 +536,8 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const FilePath &checkScrip
         return false;
     }
     // Run check process
-    VcsOutputWindow::appendShellCommandLine(msgCheckScript(d->m_checkScriptWorkingDirectory,
-                                                           checkScript));
+    VcsOutputWindow::appendShellCommandLine(d->m_checkScriptWorkingDirectory,
+        msgCheckScript(d->m_checkScriptWorkingDirectory, checkScript));
     Process checkProcess;
     if (!d->m_checkScriptWorkingDirectory.isEmpty())
         checkProcess.setWorkingDirectory(d->m_checkScriptWorkingDirectory);
@@ -547,10 +547,10 @@ bool VcsBaseSubmitEditor::runSubmitMessageCheckScript(const FilePath &checkScrip
 
     const QString stdOut = checkProcess.stdOut();
     if (!stdOut.isEmpty())
-        VcsOutputWindow::appendSilently(stdOut);
+        VcsOutputWindow::appendSilently(d->m_checkScriptWorkingDirectory, stdOut);
     const QString stdErr = checkProcess.stdErr();
     if (!stdErr.isEmpty())
-        VcsOutputWindow::appendSilently(stdErr);
+        VcsOutputWindow::appendSilently(d->m_checkScriptWorkingDirectory, stdErr);
 
     if (!succeeded)
         *errorMessage = checkProcess.exitMessage();

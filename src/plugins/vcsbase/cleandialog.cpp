@@ -69,7 +69,7 @@ static void removeFileRecursion(QPromise<void> &promise, const QFileInfo &f,
 // Cleaning files in the background
 static void runCleanFiles(QPromise<void> &promise, const FilePath &repository,
                           const QStringList &files,
-                          const std::function<void(const QString&)> &errorHandler)
+                          const std::function<void(const FilePath &, const QString &)> &errorHandler)
 {
     QString errorMessage;
     promise.setProgressRange(0, files.size());
@@ -87,14 +87,14 @@ static void runCleanFiles(QPromise<void> &promise, const FilePath &repository,
                                 .arg(repository.toUserOutput());
         errorMessage.insert(0, QLatin1Char('\n'));
         errorMessage.insert(0, msg);
-        errorHandler(errorMessage);
+        errorHandler(repository, errorMessage);
     }
 }
 
-static void handleError(const QString &errorMessage)
+static void handleError(const Utils::FilePath &repository, const QString &errorMessage)
 {
-    QTimer::singleShot(0, VcsOutputWindow::instance(), [errorMessage] {
-        VcsOutputWindow::instance()->appendSilently(errorMessage);
+    QTimer::singleShot(0, VcsOutputWindow::instance(), [repository, errorMessage] {
+        VcsOutputWindow::instance()->appendSilently(repository, errorMessage);
     });
 }
 

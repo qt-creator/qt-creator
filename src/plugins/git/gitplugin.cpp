@@ -1398,7 +1398,7 @@ void GitPluginPrivate::startCommit(CommitType commitType)
     if (raiseSubmitEditor())
         return;
     if (isCommitEditorOpen()) {
-        VcsOutputWindow::appendWarning(Tr::tr("Another submit is currently being executed."));
+        VcsOutputWindow::appendWarning({}, Tr::tr("Another submit is currently being executed."));
         return;
     }
 
@@ -1407,7 +1407,7 @@ void GitPluginPrivate::startCommit(CommitType commitType)
 
     const Result<CommitData> res = gitClient().getCommitData(commitType, state.topLevel());
     if (!res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError(state.topLevel(), res.error());
         return;
     }
     const CommitData data = res.value();
@@ -1424,7 +1424,7 @@ void GitPluginPrivate::startCommit(CommitType commitType)
     saver.setAutoRemove(false);
     saver.write(data.commitTemplate.toLocal8Bit());
     if (const Result<> res = saver.finalize(); !res) {
-        VcsOutputWindow::appendError(res.error());
+        VcsOutputWindow::appendError(m_submitRepository, res.error());
         return;
     }
     m_commitMessageFileName = saver.filePath();
@@ -1671,12 +1671,13 @@ void GitPluginPrivate::applyPatch(const FilePath &workingDirectory, QString file
     QString errorMessage;
     if (gitClient().synchronousApplyPatch(workingDirectory, file, &errorMessage)) {
         if (errorMessage.isEmpty())
-            VcsOutputWindow::appendMessage(Tr::tr("Patch %1 successfully applied to %2")
-                                           .arg(file, workingDirectory.toUserOutput()));
+            VcsOutputWindow::appendMessage(workingDirectory,
+                                           Tr::tr("Patch %1 successfully applied to %2")
+                                               .arg(file, workingDirectory.toUserOutput()));
         else
-            VcsOutputWindow::appendError(errorMessage);
+            VcsOutputWindow::appendError(workingDirectory, errorMessage);
     } else {
-        VcsOutputWindow::appendError(errorMessage);
+        VcsOutputWindow::appendError(workingDirectory, errorMessage);
     }
     gitClient().endStashScope(workingDirectory);
 }
