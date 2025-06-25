@@ -40,10 +40,6 @@ public:
 
     static const QList<TextEncoding> &availableEncodings();
 
-    // FIXME: Avoid. Not present in QStringConverter.
-    static TextEncoding encodingForMib(int mib);
-    static QList<int> availableMibs();
-
 private:
     QTCREATOR_UTILS_EXPORT friend bool operator==(const TextEncoding &left, const TextEncoding &right);
     QTCREATOR_UTILS_EXPORT friend bool operator!=(const TextEncoding &left, const TextEncoding &right);

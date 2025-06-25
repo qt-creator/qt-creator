@@ -121,11 +121,6 @@ bool operator!=(const TextEncoding &left, const TextEncoding &right)
     return left.name() != right.name();
 }
 
-QList<int> TextEncoding::availableMibs()
-{
-    return QTextCodec::availableMibs();
-}
-
 const QList<TextEncoding> &TextEncoding::availableEncodings()
 {
     static const QList<TextEncoding> theAvailableEncoding = [] {
@@ -162,13 +157,6 @@ void TextEncoding::setEncodingForLocale(const QByteArray &codecName)
 TextEncoding TextEncoding::encodingForLocale()
 {
     return theEncodingForLocale;
-}
-
-TextEncoding TextEncoding::encodingForMib(int mib)
-{
-    const QTextCodec *codec = QTextCodec::codecForMib(mib);
-    QTC_ASSERT(codec, return TextEncoding());
-    return TextEncoding(codec->name());
 }
 
 } // namespace Utils
