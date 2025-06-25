@@ -300,10 +300,9 @@ private:
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
         connect(process, &Process::textOnStandardOutput,
                 [](const QString &text) { MessageManager::writeFlashing(text); });
-        connect(process, &Process::textOnStandardError,
-                [](const QString &text) { MessageManager::writeFlashing(text); });
         connect(process, &Process::done, [process] {
-            MessageManager::writeSilently(process->exitMessage());
+            MessageManager::writeSilently(
+                process->exitMessage(Process::FailureMessageFormat::WithStdErr));
             process->deleteLater();
         });
         connect(process, &Process::started, [process, prompt] {
