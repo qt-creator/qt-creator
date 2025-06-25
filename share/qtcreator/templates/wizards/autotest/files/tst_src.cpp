@@ -1,5 +1,5 @@
 %{Cpp:LicenseTemplate}\
-#include <QtTest>
+#include <QTest>
 @if "%{RequireApplication}" == "true"
 %{JS: QtSupport.qtIncludes([ 'QtCore/QCoreApplication' ],
                            [ 'QtCore/QCoreApplication' ]) }\

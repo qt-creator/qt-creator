@@ -1,6 +1,6 @@
 #include "origin.h"
 
-#include <QtTest>
+#include <QTest>
 
 class BaseTest : public Origin
 {
