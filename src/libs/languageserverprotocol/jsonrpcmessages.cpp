@@ -66,10 +66,8 @@ JsonRpcMessage::JsonRpcMessage(const BaseMessage &message)
     if (message.content.isEmpty())
         return;
     QByteArray content;
-    if (message.encoding.isValid() && !message.encoding.isUtf8()) {
-        const QString data = QStringDecoder(message.encoding.name()).decode(message.content);
-        content = QStringEncoder(QStringEncoder::Utf8).encode(data);
-    }
+    if (message.encoding.isValid() && !message.encoding.isUtf8())
+        content = message.encoding.decode(message.content).toUtf8();
     if (content.isEmpty())
         content = message.content;
     QJsonParseError error = {0, QJsonParseError::NoError};
