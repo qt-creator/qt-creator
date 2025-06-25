@@ -30,7 +30,7 @@ if (NOT QT_CREATOR_API_DEFINED)
 
   find_package(Qt6
     COMPONENTS
-      Gui Core Core5Compat Widgets Network Qml Concurrent Test Xml MODULE)
+      Gui Core Widgets Network Qml Concurrent Test Xml MODULE)
   find_package(Threads)
 
   add_subdirectory(${QtCreator_SOURCE_DIR}/src/libs/utils ${CMAKE_CURRENT_BINARY_DIR}/utils)
