@@ -2154,9 +2154,22 @@ ModelNode handleItemLibraryImageDrop(const QString &imagePath,
     ModelNode newModelNode;
 
     if (!dropAsImage3dTexture(targetNode, imagePath, newModelNode, outMoveNodesAfter)) {
-        if (targetNode.metaInfo().isQtQuickImage() || targetNode.metaInfo().isQtQuickBorderImage()) {
+        if (targetNode.metaInfo().isBasedOn(targetNode.model()->qtQuickImageMetaInfo(),
+                                            targetNode.model()->qtQuickBorderImageMetaInfo())) {
             // if dropping an image on an existing image, set the source
-            targetNode.variantProperty("source").setValue(relativePathToQmlFile(imagePath));
+            AddFilesResult result = addImageToProject(
+                {imagePath}, getImagesDefaultDirectory().toUrlishString(), false);
+
+            if (result.status() == AddFilesResult::Failed) {
+                Core::AsynchronousMessageBox::warning(Tr::tr("Failed to Add Image"),
+                                                      Tr::tr("Could not add %1 to project.").arg(imagePath));
+                return {};
+            }
+
+            Utils::FilePath oldPath = Utils::FilePath::fromString(imagePath);
+            Utils::FilePath newPath = getImagesDefaultDirectory().pathAppended(oldPath.fileName());
+
+            targetNode.variantProperty("source").setValue(newPath.toFSPathString());
         } else {
             // create an image
             QmlItemNode newItemNode = QmlItemNode::createQmlItemNodeFromImage(view,
