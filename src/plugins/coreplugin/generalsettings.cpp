@@ -361,10 +361,9 @@ void GeneralSettingsWidget::fillCodecBox() const
 {
     const QByteArray currentCodec = codecForLocale();
 
-    const QByteArrayList codecs = Utils::sorted(TextEncoding::availableCodecs());
-    for (const QByteArray &codec : codecs) {
-        m_codecBox->addItem(QString::fromLocal8Bit(codec));
-        if (codec == currentCodec)
+    for (const TextEncoding &encoding : TextEncoding::availableEncodings()) {
+        m_codecBox->addItem(encoding.displayName());
+        if (encoding.name() == currentCodec)
             m_codecBox->setCurrentIndex(m_codecBox->count() - 1);
     }
 }

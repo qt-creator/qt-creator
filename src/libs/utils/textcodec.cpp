@@ -3,10 +3,13 @@
 
 #include "textcodec.h"
 
+#include "algorithm.h"
 #include "qtcassert.h"
 
 #include <QHash>
 #include <QTextCodec>
+
+#include <set>
 
 namespace Utils {
 
@@ -124,9 +127,23 @@ QList<int> TextEncoding::availableMibs()
     return QTextCodec::availableMibs();
 }
 
-QList<QByteArray> TextEncoding::availableCodecs()
+static QList<TextEncoding> getAvailableEncoding()
 {
-    return QTextCodec::availableCodecs();
+    std::set<QByteArray> encodingNames;
+
+    const QList<QByteArray> codecs = QTextCodec::availableCodecs();
+    for (const QByteArray &codec : codecs)
+        encodingNames.insert(codec);
+
+    return Utils::transform<QList<TextEncoding>>(encodingNames, [](const QByteArray &name) {
+        return TextEncoding(name);
+    });
+}
+
+const QList<TextEncoding> &TextEncoding::availableEncodings()
+{
+    static const QList<TextEncoding> theAvailableEncoding = getAvailableEncoding();
+    return theAvailableEncoding;
 }
 
 static TextEncoding theEncodingForLocale = TextEncoding(QStringEncoder::System);

@@ -38,7 +38,7 @@ public:
     static TextEncoding encodingForLocale();
     static void setEncodingForLocale(const QByteArray &codecName);
 
-    static QList<QByteArray> availableCodecs();
+    static const QList<TextEncoding> &availableEncodings();
 
     // FIXME: Avoid. Not present in QStringConverter.
     static TextEncoding encodingForMib(int mib);

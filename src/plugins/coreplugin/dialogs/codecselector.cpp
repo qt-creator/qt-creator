@@ -79,13 +79,10 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
     m_listWidget = new CodecListWidget(this);
     m_listWidget->setActivationMode(Utils::DoubleClickActivation);
 
-    std::set<QString> encodingNames;
-
-    const QByteArrayList codecs = Utils::sorted(TextEncoding::availableCodecs());
+    QStringList encodingNames;
 
     int currentIndex = -1;
-    for (const QByteArray &codec : codecs) {
-        const TextEncoding encoding(codec);
+    for (const TextEncoding &encoding : TextEncoding::availableEncodings()) {
         if (!doc->supportsEncoding(encoding))
             continue;
         if (!buf.isEmpty()) {
@@ -99,7 +96,7 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
         }
         if (doc->encoding() == encoding)
             currentIndex = encodingNames.size();
-        encodingNames.insert(encoding.fullDisplayName());
+        encodingNames << encoding.fullDisplayName();
     }
     m_listWidget->addItems(QStringList(encodingNames.begin(), encodingNames.end()));
     if (currentIndex >= 0)
