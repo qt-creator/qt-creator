@@ -79,26 +79,17 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
     m_listWidget = new CodecListWidget(this);
     m_listWidget->setActivationMode(Utils::DoubleClickActivation);
 
-    QStringList encodings;
+    std::set<QString> encodingNames;
 
-    const QList<int> mibs = Utils::sorted(TextEncoding::availableMibs());
-    QList<int> sortedMibs;
-    for (const int mib : mibs)
-        if (mib >= 0)
-            sortedMibs += mib;
-    for (const int mib : mibs)
-        if (mib < 0)
-            sortedMibs += mib;
+    const QByteArrayList codecs = Utils::sorted(TextEncoding::availableCodecs());
 
     int currentIndex = -1;
-    for (const int mib : std::as_const(sortedMibs)) {
-        const TextEncoding encoding = TextEncoding::encodingForMib(mib).name();
-        if (!doc->supportsEncoding(encoding.isValid() ? encoding.name() : QByteArray()))
+    for (const QByteArray &codec : codecs) {
+        const TextEncoding encoding(codec);
+        if (!doc->supportsEncoding(encoding))
             continue;
         if (!buf.isEmpty()) {
-
-            // slow, should use a feature from QTextCodec or QTextDecoder (but those are broken currently)
-            QByteArray verifyBuf = encoding.encode(encoding.decode(buf));
+            const QByteArray verifyBuf = encoding.encode(encoding.decode(buf));
             // the minSize trick lets us ignore unicode headers
             int minSize = qMin(verifyBuf.size(), buf.size());
             if (minSize < buf.size() - 4
@@ -107,10 +98,10 @@ CodecSelector::CodecSelector(BaseTextDocument *doc)
                 continue;
         }
         if (doc->encoding() == encoding)
-            currentIndex = encodings.count();
-        encodings << encoding.fullDisplayName();
+            currentIndex = encodingNames.size();
+        encodingNames.insert(encoding.fullDisplayName());
     }
-    m_listWidget->addItems(encodings);
+    m_listWidget->addItems(QStringList(encodingNames.begin(), encodingNames.end()));
     if (currentIndex >= 0)
         m_listWidget->setCurrentRow(currentIndex);
 
