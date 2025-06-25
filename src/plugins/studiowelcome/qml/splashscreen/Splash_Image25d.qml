@@ -33,11 +33,6 @@ Rectangle {
             width: 461
             height: 427
             layer.enabled: true
-            layer.effect: ColorOverlayEffect {
-                id: colorOverlay
-                visible: true
-                color: "#41cd52"
-            }
             scale: 1
         }
     }

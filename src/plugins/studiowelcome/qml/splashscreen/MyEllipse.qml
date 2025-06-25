@@ -13,12 +13,6 @@ EllipseItem {
     height: 391
     opacity: 0.495
     layer.enabled: true
-    layer.effect: FastBlurEffect {
-        id: fastBlur
-        radius: 66
-        transparentBorder: true
-        cached: true
-    }
     fillColor: "#878787"
     strokeColor: "#00ff0000"
 }
