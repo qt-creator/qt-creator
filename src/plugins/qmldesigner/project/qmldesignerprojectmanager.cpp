@@ -54,6 +54,8 @@ using namespace std::chrono_literals;
 
 namespace QmlDesigner {
 
+using ProjectManagingTracing::category;
+
 namespace {
 
 ProjectExplorer::Target *activeTarget(ProjectExplorer::Project *project)
@@ -337,10 +339,13 @@ public:
 };
 
 QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterface &externalDependencies)
-    : m_data{std::make_unique<Data>()}
-    , m_previewImageCacheData{std::make_unique<PreviewImageCacheData>(externalDependencies)}
-    , m_externalDependencies{externalDependencies}
+    : m_externalDependencies{externalDependencies}
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager constructor", category()};
+
+    m_data = std::make_unique<Data>();
+    m_previewImageCacheData = std::make_unique<PreviewImageCacheData>(externalDependencies);
+
     auto editorManager = ::Core::EditorManager::instance();
     QObject::connect(editorManager, &::Core::EditorManager::editorOpened, &dummy, [&](auto *editor) {
         editorOpened(editor);
@@ -372,10 +377,16 @@ QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterfa
     });
 }
 
-QmlDesignerProjectManager::~QmlDesignerProjectManager() = default;
+QmlDesignerProjectManager::~QmlDesignerProjectManager()
+{
+    NanotraceHR::Tracer tracer{"qml designer project manager destructor", category()};
+}
 
 void QmlDesignerProjectManager::registerPreviewImageProvider(QQmlEngine *engine) const
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager register preview image provider",
+                               category()};
+
     auto imageProvider = std::make_unique<ExplicitImageCacheImageProvider>(
         m_previewImageCacheData->cache,
         QImage{previewDefaultImagePath()},
@@ -386,11 +397,15 @@ void QmlDesignerProjectManager::registerPreviewImageProvider(QQmlEngine *engine)
 
 AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager asynchronous image cache", category()};
+
     return imageCacheData()->asynchronousImageCache;
 }
 
 ModulesStorage &QmlDesignerProjectManager::modulesStorage()
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager modules storage", category()};
+
     return m_data->modulesStorage;
 }
 
@@ -419,6 +434,9 @@ namespace {
 
 ProjectStorageDependencies QmlDesignerProjectManager::projectStorageDependencies()
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager project storage dependencies",
+                               category()};
+
     if constexpr (useProjectStorage()) {
         return {m_projectData->projectStorageData->storage,
                 m_data->pathCache,
@@ -432,10 +450,15 @@ ProjectStorageDependencies QmlDesignerProjectManager::projectStorageDependencies
     }
 }
 
-void QmlDesignerProjectManager::editorOpened(::Core::IEditor *) {}
+void QmlDesignerProjectManager::editorOpened(::Core::IEditor *)
+{
+    NanotraceHR::Tracer tracer{"qml designer project manager editor opened", category()};
+}
 
 void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *)
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager current editor changed", category()};
+
     m_previewImageCacheData->timer.start(10s);
 }
 
@@ -524,6 +547,8 @@ QString qtCreatorItemLibraryPath()
 
 void QmlDesignerProjectManager::projectAdded(const ::ProjectExplorer::Project *project)
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager project added", category()};
+
     m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_previewImageCacheData->storage,
                                                                            project,
                                                                            m_data->pathCache,
@@ -544,16 +569,23 @@ void QmlDesignerProjectManager::projectAdded(const ::ProjectExplorer::Project *p
 
 void QmlDesignerProjectManager::aboutToRemoveProject(const ::ProjectExplorer::Project *)
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager about to remove project", category()};
+
     if (m_projectData) {
         m_previewImageCacheData->collector.setTarget(m_projectData->activeTarget);
         m_projectData.reset();
     }
 }
 
-void QmlDesignerProjectManager::projectRemoved(const ::ProjectExplorer::Project *) {}
+void QmlDesignerProjectManager::projectRemoved(const ::ProjectExplorer::Project *)
+{
+    NanotraceHR::Tracer tracer{"qml designer project manager project removed", category()};
+}
 
 void QmlDesignerProjectManager::generatePreview()
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager generate preview", category()};
+
     if (!m_projectData || !m_projectData->activeTarget)
         return;
 
@@ -569,6 +601,8 @@ void QmlDesignerProjectManager::generatePreview()
 
 QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCacheData()
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager image cache data", category()};
+
     std::call_once(imageCacheFlag, [this] {
         m_imageCacheData = std::make_unique<ImageCacheData>(m_externalDependencies);
         auto setTargetInImageCache =
@@ -605,6 +639,8 @@ QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCache
 
 void QmlDesignerProjectManager::activeTargetChanged(ProjectExplorer::Target *target)
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager active target changed", category()};
+
     if (!m_projectData || !m_projectData->projectStorageData)
         return;
 
@@ -624,12 +660,16 @@ void QmlDesignerProjectManager::activeTargetChanged(ProjectExplorer::Target *tar
 
 void QmlDesignerProjectManager::aboutToRemoveTarget(ProjectExplorer::Target *target)
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager about to remove target", category()};
+
     QObject::disconnect(target, nullptr, nullptr, nullptr);
     QObject::disconnect(getQmlBuildSystem(target), nullptr, nullptr, nullptr);
 }
 
 void QmlDesignerProjectManager::kitChanged()
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager kit changed", category()};
+
     QStringList qmldirPaths;
     qmldirPaths.reserve(100);
 
@@ -638,11 +678,15 @@ void QmlDesignerProjectManager::kitChanged()
 
 void QmlDesignerProjectManager::projectChanged()
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager project changed", category()};
+
     update();
 }
 
 void QmlDesignerProjectManager::update()
 {
+    NanotraceHR::Tracer tracer{"qml designer project manager update", category()};
+
     if (!m_projectData || !m_projectData->projectStorageData)
         return;
 

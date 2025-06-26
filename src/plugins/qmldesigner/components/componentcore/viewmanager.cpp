@@ -44,7 +44,7 @@
 
 namespace QmlDesigner {
 
-using ProjectManagerTracing::category;
+using ProjectManagingTracing::category;
 
 static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 
@@ -118,8 +118,11 @@ static CrumbleBar *crumbleBar() {
 ViewManager::ViewManager(AsynchronousImageCache &imageCache,
                          ExternalDependenciesInterface &externalDependencies,
                          ModulesStorage &modulesStorage)
-    : d(std::make_unique<ViewManagerData>(imageCache, externalDependencies, modulesStorage))
 {
+    NanotraceHR::Tracer tracer{"view manager constructor", category()};
+
+    d = std::make_unique<ViewManagerData>(imageCache, externalDependencies, modulesStorage);
+
     d->formEditorView.setGotoErrorCallback([this](int line, int column) {
         if (Internal::DesignModeWidget *w = QmlDesignerPlugin::instance()->mainWidget())
             w->showDockWidget("TextEditor");
@@ -131,10 +134,15 @@ ViewManager::ViewManager(AsynchronousImageCache &imageCache,
     registerNanotraceActions();
 }
 
-ViewManager::~ViewManager() = default;
+ViewManager::~ViewManager()
+{
+    NanotraceHR::Tracer tracer{"view manager destructor", category()};
+}
 
 DesignDocument *ViewManager::currentDesignDocument() const
 {
+    NanotraceHR::Tracer tracer{"view manager get current design document", category()};
+
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
 }
 
@@ -550,16 +558,22 @@ void ViewManager::nextFileIsCalledInternally()
 
 const AbstractView *ViewManager::view() const
 {
+    NanotraceHR::Tracer tracer{"view manager view", category()};
+
     return &d->nodeInstanceView;
 }
 
 AbstractView *ViewManager::view()
 {
+    NanotraceHR::Tracer tracer{"view manager view", category()};
+
     return &d->nodeInstanceView;
 }
 
 TextEditorView *ViewManager::textEditorView()
 {
+    NanotraceHR::Tracer tracer{"view manager text editor view", category()};
+
     return &d->textEditorView;
 }
 
@@ -573,6 +587,8 @@ void ViewManager::emitCustomNotification(const QString &identifier, const QList<
 
 QWidgetAction *ViewManager::componentViewAction() const
 {
+    NanotraceHR::Tracer tracer{"view manager component view action", category()};
+
     return d->componentView.action();
 }
 
@@ -583,6 +599,8 @@ DesignerActionManager &ViewManager::designerActionManager()
 
 const DesignerActionManager &ViewManager::designerActionManager() const
 {
+    NanotraceHR::Tracer tracer{"view manager designer action manager", category()};
+
     return d->designerActionManagerView.designerActionManager();
 }
 

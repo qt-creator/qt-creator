@@ -68,8 +68,8 @@ Category &category()
 
 } // namespace ModelTracing
 
-namespace ProjectManagerTracing {
-#ifdef ENABLE_PROJECT_MANAGER_TRACING
+namespace ProjectManagingTracing {
+#ifdef ENABLE_PROJECT_MANAGING_TRACING
 
 Category &category()
 {
@@ -82,5 +82,5 @@ Category &category()
 }
 #endif
 
-} // namespace ProjectManagerTracing
+} // namespace ProjectManagingTracing
 } // namespace QmlDesigner

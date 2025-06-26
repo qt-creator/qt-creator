@@ -48,9 +48,9 @@ inline Category category()
 
 } // namespace ModelTracing
 
-namespace ProjectManagerTracing {
+namespace ProjectManagingTracing {
 
-#ifdef ENABLE_PROJECT_MANAGER_TRACING
+#ifdef ENABLE_PROJECT_MANAGING_TRACING
 using Category = NanotraceHR::EnabledCategory;
 
 [[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
@@ -64,5 +64,5 @@ inline Category category()
 }
 
 #endif
-} // namespace ProjectManagerTracing
+} // namespace ProjectManagingTracing
 } // namespace QmlDesigner
