@@ -199,7 +199,7 @@ std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool 
 
     // Write qmldir
     Utils::FileSaver saver(moduleDirPath / "qmldir", QIODevice::Text);
-    const QString qmldirContents = QString("Module %1\n%2").arg(moduleImportStr(), singletons.join("\n"));
+    const QString qmldirContents = QString("module %1\n%2").arg(moduleImportStr(), singletons.join("\n"));
     saver.write(qmldirContents.toUtf8());
     if (!saver.finalize())
         errors << tr("Can not write design system qmldir. %1").arg(saver.errorString());
