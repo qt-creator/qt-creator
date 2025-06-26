@@ -354,6 +354,8 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
 DockWidget::~DockWidget()
 {
     delete m_hiddenInnerWidget;
+    // Workaround for QTBUG-136485.
+    disconnect(this, &QDockWidget::visibilityChanged, nullptr, nullptr);
 }
 
 QList<QDockWidget *> DockWidget::docksInArea()
