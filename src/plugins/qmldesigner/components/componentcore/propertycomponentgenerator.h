@@ -46,10 +46,6 @@ private:
     const Entry *findEntry(const NodeMetaInfo &type) const;
     QString generateSubComponentText(Utils::SmallStringView propertyBaseName,
                                      const PropertyMetaInfo &subProperty) const;
-    QString generateComplexComponentText(Utils::SmallStringView propertyName,
-                                         const NodeMetaInfo &propertyType) const;
-    Property generateComplexComponent(const PropertyMetaInfo &property,
-                                      const NodeMetaInfo &propertyType) const;
 
     void setEntries(QmlJS::SimpleReaderNode::Ptr templateConfiguration,
                     Model *model,

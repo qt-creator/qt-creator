@@ -228,68 +228,6 @@ TEST_F(PropertyComponentGenerator,
     ASSERT_THAT(propertyComponent, IsComplexProperty(StrippedStringEq(expected)));
 }
 
-TEST_F(PropertyComponentGenerator,
-       complex_property_is_returned_for_property_without_a_template_and_subproperties)
-{
-    auto stringId = projectStorageMock.createValue(qmlModuleId, "string");
-    auto fooNodeInfo = createTypeWithProperties("Foo", stringId);
-    auto sub1Text = toString(generator.create(fooNodeInfo.property("sub1")), "foo", "sub1");
-    auto sub2Text = toString(generator.create(fooNodeInfo.property("sub2")), "foo", "sub2");
-    auto fooProperty = createProperty(itemMetaInfo.id(), "foo", {}, fooNodeInfo.id());
-    QString expectedText = QStringLiteral(
-        R"xy(
-           Section {
-             caption: "foo - Foo"
-             anchors.left: parent.left
-             anchors.right: parent.right
-             leftPadding: 8
-             rightPadding: 0
-             expanded: false
-             level: 1
-             SectionLayout {
-     )xy");
-    expectedText += sub1Text;
-    expectedText += sub2Text;
-    expectedText += "}}";
-
-    auto propertyComponent = generator.create(fooProperty);
-
-    ASSERT_THAT(propertyComponent, IsComplexProperty(StrippedStringEq(expectedText)));
-}
-
-TEST_F(PropertyComponentGenerator,
-       pointer_readonly_complex_property_is_returned_for_property_without_a_template_and_subproperties)
-{
-    auto stringId = projectStorageMock.createValue(qmlModuleId, "string");
-    auto fooNodeInfo = createTypeWithProperties("Foo", stringId);
-    auto sub1Text = toString(generator.create(fooNodeInfo.property("sub1")), "foo", "sub1");
-    auto sub2Text = toString(generator.create(fooNodeInfo.property("sub2")), "foo", "sub2");
-    auto fooProperty = createProperty(itemMetaInfo.id(),
-                                      "foo",
-                                      QmlDesigner::Storage::PropertyDeclarationTraits::IsPointer
-                                          | QmlDesigner::Storage::PropertyDeclarationTraits::IsReadOnly,
-                                      fooNodeInfo.id());
-    QString expectedText = QStringLiteral(
-        R"xy(
-           Section {
-             caption: "foo - Foo"
-             anchors.left: parent.left
-             anchors.right: parent.right
-             leftPadding: 8
-             rightPadding: 0
-             expanded: false
-             level: 1
-             SectionLayout {
-     )xy");
-    expectedText += sub1Text;
-    expectedText += sub2Text;
-    expectedText += "}}";
-
-    auto propertyComponent = generator.create(fooProperty);
-
-    ASSERT_THAT(propertyComponent, IsComplexProperty(StrippedStringEq(expectedText)));
-}
-
 TEST_F(PropertyComponentGenerator, basic_property_without_template_is_returning_monostate)
 {
     auto fooNodeInfo = createType("Foo");
