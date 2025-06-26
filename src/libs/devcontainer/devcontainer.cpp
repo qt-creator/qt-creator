@@ -839,10 +839,13 @@ static ExecutableItem singleCommandLifecycleRecipe(
                                              : CommandLine{"/bin/sh", {"-c"}};
 
     // We either execute the command in a shell running on the host ...
-    CommandLine cmdLine = dockerExecCmd.value_or(hostShell);
-
-    if (dockerExecCmd) // ... or inside the container, in a shell.
+    CommandLine cmdLine;
+    if (dockerExecCmd) {
+        cmdLine = *dockerExecCmd;
         cmdLine.addArgs({"/bin/sh", "-c"});
+    } else {
+        cmdLine = hostShell;
+    }
 
     cmdLine.addArg(command);
 
