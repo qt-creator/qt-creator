@@ -17,8 +17,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
-#include <qmljs/qmljsmodelmanagerinterface.h>
-
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 
@@ -201,22 +199,19 @@ void PythonBuildSystem::triggerParsing()
 
     setApplicationTargets(appTargets);
 
-    auto modelManager = QmlJS::ModelManagerInterface::instance();
-    if (modelManager) {
-        const auto hiddenRccFolders = project()->files(Project::HiddenRccFolders);
-        auto projectInfo = modelManager->defaultProjectInfoForProject(project(), hiddenRccFolders);
-
-        for (const FileEntry &importPath : std::as_const(m_qmlImportPaths)) {
-            if (!importPath.filePath.isEmpty())
-                projectInfo.importPaths.maybeInsert(importPath.filePath, QmlJS::Dialect::Qml);
-        }
-
-        modelManager->updateProjectInfo(projectInfo, project());
-    }
+    updateQmlCodeModel();
 
     guard.markAsSuccess();
 
     emitBuildSystemUpdated();
+}
+
+void PythonBuildSystem::updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo)
+{
+    for (const FileEntry &importPath : std::as_const(m_qmlImportPaths)) {
+        if (!importPath.filePath.isEmpty())
+            projectInfo.qmlImportPaths.append(importPath.filePath);
+    }
 }
 
 /*!

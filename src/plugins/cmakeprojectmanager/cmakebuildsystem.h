@@ -197,8 +197,6 @@ private:
     void updateProjectData();
     void updateFallbackProjectData();
     QList<ProjectExplorer::ExtraCompiler *> findExtraCompilers();
-    void updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
-                              const QList<QByteArray> &moduleMappings);
     void updateInitialCMakeExpandableVars();
 
     void updateFileSystemNodes();
@@ -218,6 +216,8 @@ private:
     void runCTest();
 
     void setupCMakeSymbolsHash();
+
+    void updateQmlCodeModelInfo(ProjectExplorer::QmlCodeModelInfo &projectInfo) final;
 
     struct ProjectFileArgumentPosition
     {
@@ -269,6 +269,9 @@ private:
 
     QString m_error;
     QString m_warning;
+
+    QStringList m_extraHeaderPaths;
+    QList<QByteArray> m_moduleMappings;
 };
 
 #ifdef WITH_TESTS

@@ -23,6 +23,7 @@ namespace ProjectExplorer {
 
 class BuildConfiguration;
 class BuildSystem;
+class QmlCodeModelInfo;
 class Kit;
 class Project;
 class RunConfiguration;
@@ -128,6 +129,9 @@ signals:
 
     void projectStartedParsing(ProjectExplorer::Project *project);
     void projectFinishedParsing(ProjectExplorer::Project *project);
+
+    void extraProjectInfoChanged(ProjectExplorer::BuildConfiguration *bc,
+                                 const ProjectExplorer::QmlCodeModelInfo &extra);
 
 private:
     static void configureEditor(Core::IEditor *editor, const Utils::FilePath &filePath);

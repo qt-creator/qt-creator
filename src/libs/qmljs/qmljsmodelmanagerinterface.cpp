@@ -1732,14 +1732,6 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfo() c
     return m_syncedData.readLocked()->m_defaultProjectInfo;
 }
 
-ModelManagerInterface::ProjectInfo ModelManagerInterface::defaultProjectInfoForProject(
-    ProjectBase *project, const FilePaths &hiddenRccFolders) const
-{
-    Q_UNUSED(project)
-    Q_UNUSED(hiddenRccFolders)
-    return ModelManagerInterface::ProjectInfo();
-}
-
 void ModelManagerInterface::setDefaultVContext(const ViewerContext &vContext)
 {
     m_syncedData.write(

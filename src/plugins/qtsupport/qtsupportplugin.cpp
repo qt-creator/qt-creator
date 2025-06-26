@@ -25,6 +25,7 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/buildpropertiessettings.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
@@ -140,6 +141,8 @@ void QtSupportPlugin::initialize()
     BuildPropertiesSettings::showQtSettings();
 
     QtVersionManager::initialized();
+
+    Project::setQmlCodeModelInfoFromQtVersionHook(&QtVersion::fillExtraProjectInfo);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QtSupportPlugin::aboutToShutdown()

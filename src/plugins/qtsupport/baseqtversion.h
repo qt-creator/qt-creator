@@ -28,6 +28,7 @@ class FileInProjectFinder;
 
 namespace ProjectExplorer {
 class BuildConfiguration;
+class QmlCodeModelInfo;
 class Kit;
 class Toolchain;
 } // ProjectExplorer
@@ -194,6 +195,9 @@ public:
 
     virtual bool supportsMultipleQtAbis() const;
     virtual bool isAndroidQtVersion() const { return false; };
+
+    static void fillExtraProjectInfo(ProjectExplorer::Kit *kit,
+                                    ProjectExplorer::QmlCodeModelInfo &projectInfo);
 
 protected:
     QtVersion();

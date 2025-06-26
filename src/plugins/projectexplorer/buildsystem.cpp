@@ -343,6 +343,16 @@ void BuildSystem::setRootProjectNode(std::unique_ptr<ProjectNode> &&root)
     project()->setRootProjectNode(std::move(root));
 }
 
+void BuildSystem::updateQmlCodeModel()
+{
+    project()->updateQmlCodeModel(kit(), buildConfiguration());
+}
+
+void BuildSystem::updateQmlCodeModelInfo(QmlCodeModelInfo &)
+{
+    // Nothing by default.
+}
+
 void BuildSystem::emitBuildSystemUpdated()
 {
     emit updated();

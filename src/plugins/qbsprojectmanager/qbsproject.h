@@ -122,7 +122,6 @@ private:
     void prepareForParsing();
     void updateDocuments();
     void updateCppCodeModel();
-    void updateQmlJsCodeModel();
     void updateExtraCompilers();
     void updateApplicationTargets();
     void updateDeploymentInfo();
@@ -133,6 +132,8 @@ private:
     Utils::FilePath locationFilePath(const QJsonObject &loc) const;
     Utils::FilePath groupFilePath(const QJsonObject &group) const;
     QbsBuildConfiguration *qbsBuildConfig() const;
+
+    void updateQmlCodeModelInfo(ProjectExplorer::QmlCodeModelInfo &projectInfo) final;
 
     static bool ensureWriteableQbsFile(const Utils::FilePath &file);
 

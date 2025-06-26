@@ -42,9 +42,10 @@ private:
     };
     QList<FileEntry> processEntries(const QStringList &paths) const;
 
+    void updateQmlCodeModelInfo(ProjectExplorer::QmlCodeModelInfo &projectInfo) final;
+
     QList<FileEntry> m_files;
     QList<FileEntry> m_qmlImportPaths;
 };
-
 
 } // namespace Python::Internal

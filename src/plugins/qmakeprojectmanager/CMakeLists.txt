@@ -1,5 +1,4 @@
 add_qtc_plugin(QmakeProjectManager
-  DEPENDS QmlJS
   PLUGIN_DEPENDS Core CppEditor QtSupport ResourceEditor TextEditor
   SOURCES
     addlibrarywizard.cpp addlibrarywizard.h

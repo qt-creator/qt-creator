@@ -35,6 +35,7 @@ class BuildSystem;
 class ContainerNode;
 class DeployConfiguration;
 class EditorConfiguration;
+class QmlCodeModelInfo;
 class FolderNode;
 class Node;
 class ProjectImporter;
@@ -200,6 +201,15 @@ public:
     void removeVanishedTarget(int index);
     void removeAllVanishedTargets();
     Target *createKitAndTargetFromStore(const Utils::Store &store);
+
+    void collectQmlCodeModelInfo(QmlCodeModelInfo &projectInfo, Kit *kit);
+
+    using QmlCodeModelInfoFromQtVersionHook = void (*)(Kit *, QmlCodeModelInfo &);
+    static void setQmlCodeModelInfoFromQtVersionHook(QmlCodeModelInfoFromQtVersionHook hook);
+
+    static void setQmlCodeModelIsUsed();
+    void updateQmlCodeModel(Kit *kit, BuildConfiguration *bc);
+    QmlCodeModelInfo gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *bc);
 
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);

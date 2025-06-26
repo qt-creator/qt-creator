@@ -128,6 +128,8 @@ private:
                                      const Utils::FilePath &mainFilePath,
                                      const QString &oldFile);
 
+    void updateQmlCodeModelInfo(ProjectExplorer::QmlCodeModelInfo &projectInfo) final;
+
     // this is the main project item
     QSharedPointer<QmlProjectItem> m_projectItem;
     // these are the mcu project items which can be found in the project tree

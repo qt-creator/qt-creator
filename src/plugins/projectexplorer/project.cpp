@@ -40,6 +40,7 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
@@ -47,6 +48,8 @@
 
 #include <QFileDialog>
 #include <QHash>
+
+#include <queue>
 
 #ifdef WITH_TESTS
 #include <coreplugin/editormanager/editormanager.h>
@@ -1401,6 +1404,185 @@ Project *unwrapProject(const TextEditor::ProjectWrapper &w)
     return reinterpret_cast<Project *>(w.project());
 }
 
+static Project::QmlCodeModelInfoFromQtVersionHook s_qtversionExtraProjectInfoHook;
+
+void Project::setQmlCodeModelInfoFromQtVersionHook(QmlCodeModelInfoFromQtVersionHook hook)
+{
+   s_qtversionExtraProjectInfoHook = hook;
+}
+
+static void findAllQrcFiles(const FilePath &filePath, FilePaths &out)
+{
+    filePath.iterateDirectory(
+        [&out](const FilePath &path) {
+            out.append(path.canonicalPath());
+            return IterationPolicy::Continue;
+        },
+        {{"*.qrc"}, QDir::Files});
+}
+
+static bool s_qmlCodeModelIsUsed = false;
+
+void Project::setQmlCodeModelIsUsed()
+{
+    s_qmlCodeModelIsUsed = true;
+}
+
+void Project::updateQmlCodeModel(Kit *kit, BuildConfiguration *bc)
+{
+    if (!s_qmlCodeModelIsUsed)
+        return;
+
+    QmlCodeModelInfo projectInfo = gatherQmlCodeModelInfo(kit, bc);
+
+    emit ProjectManager::instance()->extraProjectInfoChanged(bc, projectInfo);
+}
+
+static FilePaths findGeneratedQrcFiles(const FilePaths &applicationDirectories,
+                                       const FilePaths &hiddenRccFolders)
+{
+    FilePaths result;
+    const qint64 maxFilesToSearch = 8'000; // TODO: Creator 18: load value from settings
+    qint64 searchedFiles = 0;
+
+    std::queue<FilePath> toVisit;
+    for (const FilePath &path : applicationDirectories)
+        toVisit.push(path);
+
+    while (!toVisit.empty()) {
+        FilePath current = toVisit.front();
+        toVisit.pop();
+        current.iterateDirectory(
+            [&toVisit,
+             &searchedFiles,
+             &result](const FilePath &child, const FilePathInfo &childInfo) {
+                if (++searchedFiles > maxFilesToSearch)
+                    return IterationPolicy::Stop;
+                if (childInfo.fileFlags.testFlag(FilePathInfo::DirectoryType)) {
+                    // ignore hidden files except for .qt/rcc and .rcc folders
+                    if (!child.fileName().startsWith(u'.')) {
+                        toVisit.push(child);
+                        return IterationPolicy::Continue;
+                    }
+                    if (child.fileName() == ".qt") {
+                        toVisit.push(child.pathAppended("rcc"));
+                        return IterationPolicy::Continue;
+                    }
+                    if (child.fileName() == ".rcc")
+                        toVisit.push(child);
+                    return IterationPolicy::Continue;
+                }
+                if (childInfo.fileFlags.testFlag(FilePathInfo::FileType) && child.endsWith(".qrc"))
+                    result.append(child);
+                return IterationPolicy::Continue;
+            },
+            {{}, QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::Hidden | QDir::NoDotAndDotDot});
+        if (searchedFiles > maxFilesToSearch)
+            break;
+    }
+
+    for (const FilePath &hiddenRccFolder : hiddenRccFolders)
+        findAllQrcFiles(hiddenRccFolder, result);
+
+    return result;
+}
+
+QmlCodeModelInfo Project::gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *bc)
+{
+    QmlCodeModelInfo projectInfo;
+
+    projectInfo.qmlDumpEnvironment = Environment::systemEnvironment();
+
+    using namespace Utils::Constants;
+    projectInfo.sourceFiles = files([](const Node *n) {
+        static const QSet<QString> qmlTypeNames = {
+            QML_MIMETYPE ,
+            QBS_MIMETYPE,
+            QMLPROJECT_MIMETYPE,
+            QMLTYPES_MIMETYPE,
+            QMLUI_MIMETYPE
+        };
+        if (!Project::SourceFiles(n))
+            return false;
+        const FileNode *fn = n->asFileNode();
+        return fn && fn->fileType() == FileType::QML
+                && qmlTypeNames.contains(Utils::mimeTypeForFile(fn->filePath(),
+                                                                MimeMatchMode::MatchExtension).name());
+    });
+
+    projectInfo.tryQmlDump = false;
+
+    FilePath baseDir;
+    auto addAppDir = [&baseDir, &projectInfo](const FilePath &mdir) {
+        const FilePath dir = mdir.cleanPath();
+        if (!baseDir.path().isEmpty()) {
+            const FilePath rDir = dir.relativePathFromDir(baseDir);
+            // do not add directories outside the build directory
+            // this might happen for example when we think an executable path belongs to
+            // a bundle, and we need to remove extra directories, but that was not the case
+            if (rDir.path().split(u'/').contains(QStringLiteral(u"..")))
+                return;
+        }
+        if (!projectInfo.applicationDirectories.contains(dir))
+            projectInfo.applicationDirectories.append(dir);
+    };
+
+    if (bc) {
+        // Append QML2_IMPORT_PATH if it is defined in build configuration.
+        // It enables qmlplugindump to correctly dump custom plugins or other dependent
+        // plugins that are not installed in default Qt qml installation directory.
+        projectInfo.qmlDumpEnvironment.appendOrSet("QML2_IMPORT_PATH",
+                                                   bc->environment().expandedValueForKey(
+                                                       "QML2_IMPORT_PATH"));
+        // Treat every target (library or application) in the build directory
+
+        FilePath dir = bc->buildDirectory();
+        baseDir = dir.absoluteFilePath();
+        addAppDir(dir);
+
+        // Qml loads modules from the following sources
+        // 1. The build directory of the executable
+        // 2. Any QML_IMPORT_PATH (environment variable) or IMPORT_PATH (parameter to qt_add_qml_module)
+        // 3. The Qt import path
+        // For an IDE things are a bit more complicated because source files might be edited,
+        // and the directory of the executable might be outdated.
+        // Here we try to get the directory of the executable, adding all targets
+        for (const BuildTargetInfo &target : bc->buildSystem()->applicationTargets()) {
+            if (target.targetFilePath.isEmpty())
+                continue;
+            FilePath dir = target.targetFilePath.parentDir();
+            projectInfo.applicationDirectories.append(dir);
+            // unfortunately the build directory of the executable where cmake puts the qml
+            // might be different than the directory of the executable:
+            if (HostOsInfo::isWindowsHost()) {
+                // On Windows systems QML type information is located one directory higher as we build
+                // in dedicated "debug" and "release" directories
+                addAppDir(dir.parentDir());
+            } else if (HostOsInfo::isMacHost()) {
+                // On macOS and iOS when building a bundle this is not the case and
+                // we have to go up up to three additional directories
+                // (BundleName.app/Contents/MacOS or BundleName.app/Contents for iOS)
+                if (dir.fileName() == u"MacOS")
+                    dir = dir.parentDir();
+                if (dir.fileName() == u"Contents")
+                    dir = dir.parentDir().parentDir();
+                addAppDir(dir);
+            }
+        }
+
+        // Let leaves do corrections.
+        bc->buildSystem()->updateQmlCodeModelInfo(projectInfo);
+    }
+
+    // Search recursively in Application Directories for .qrc files.
+    projectInfo.generatedQrcFiles =
+        findGeneratedQrcFiles(projectInfo.applicationDirectories, files(Project::HiddenRccFolders));
+
+    if (s_qtversionExtraProjectInfoHook && kit)
+        s_qtversionExtraProjectInfoHook(kit, projectInfo);
+
+    return projectInfo;
+}
 
 #ifdef WITH_TESTS
 

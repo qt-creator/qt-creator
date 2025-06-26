@@ -98,7 +98,6 @@ public:
     Utils::FilePath executableFor(const QmakeProFile *file);
 
     void updateCppCodeModel();
-    void updateQmlJSCodeModel();
 
     static bool equalFileList(const QStringList &a, const QStringList &b);
 
@@ -169,6 +168,8 @@ private:
 
     void scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay);
     void scheduleUpdateAllLater() { scheduleUpdateAll(QmakeProFile::ParseLater); }
+
+    void updateQmlCodeModelInfo(ProjectExplorer::QmlCodeModelInfo &projectInfo) final;
 
     mutable QSet<const QPair<Utils::FilePath, Utils::FilePath>> m_toolChainWarnings;
 

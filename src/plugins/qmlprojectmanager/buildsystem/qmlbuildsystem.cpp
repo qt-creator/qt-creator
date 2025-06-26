@@ -196,22 +196,17 @@ void QmlBuildSystem::refresh(RefreshOptions options)
         parseProjectFiles();
     }
 
-    auto modelManager = QmlJS::ModelManagerInterface::instance();
-    if (!modelManager)
-        return;
-
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo
-            = modelManager->defaultProjectInfoForProject(project(),
-                                                         project()->files(Project::HiddenRccFolders));
-
-    for (const QString &importPath : absoluteImportPaths())
-        projectInfo.importPaths.maybeInsert(FilePath::fromString(importPath), QmlJS::Dialect::Qml);
-
-    modelManager->updateProjectInfo(projectInfo, project());
+    updateQmlCodeModel();
 
     guard.markAsSuccess();
 
     emit projectChanged();
+}
+
+void QmlBuildSystem::updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo)
+{
+    for (const QString &importPath : absoluteImportPaths())
+        projectInfo.qmlImportPaths.append(FilePath::fromString(importPath));
 }
 
 void QmlBuildSystem::initProjectItem()

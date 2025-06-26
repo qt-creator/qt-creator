@@ -1750,6 +1750,39 @@ bool QtVersion::supportsMultipleQtAbis() const
     return false;
 }
 
+static FilePath qmllsForBinPath(const FilePath &binPath, const QVersionNumber &version)
+{
+    if (version < QVersionNumber(6, 4, 0))
+        return {};
+    QString qmllsExe = "qmlls";
+    if (HostOsInfo::isWindowsHost())
+        qmllsExe = "qmlls.exe";
+    return binPath.resolvePath(qmllsExe);
+}
+
+void QtVersion::fillExtraProjectInfo(Kit *kit, QmlCodeModelInfo &projectInfo)
+{
+    QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
+    if (qtVersion && qtVersion->isValid()) {
+        projectInfo.tryQmlDump = qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
+        projectInfo.qtQmlPath = qtVersion->qmlPath();
+        auto v = qtVersion->qtVersion();
+        projectInfo.qmllsPath = qmllsForBinPath(qtVersion->hostBinPath(), v);
+        projectInfo.qtVersionString = qtVersion->qtVersionString();
+    } else if (!kit->value(QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH, false).toBool()) {
+        projectInfo.qtQmlPath = FilePath::fromUserInput(QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath));
+        projectInfo.qmllsPath = qmllsForBinPath(
+            FilePath::fromUserInput(QLibraryInfo::path(QLibraryInfo::BinariesPath)), QLibraryInfo::version());
+        projectInfo.qtVersionString = QLatin1String(qVersion());
+    }
+
+    projectInfo.qmlDumpPath.clear();
+    if (qtVersion && projectInfo.tryQmlDump) {
+        projectInfo.qmlDumpPath = qtVersion->qmlplugindumpFilePath();
+        projectInfo.qmlDumpHasRelocatableFlag = qtVersion->hasQmlDumpWithRelocatableFlag();
+    }
+}
+
 Tasks QtVersion::reportIssues(const FilePath &proFile, const FilePath &buildDir) const
 {
     return Utils::sorted(reportIssuesImpl(proFile, buildDir));

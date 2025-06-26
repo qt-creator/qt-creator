@@ -9,7 +9,11 @@
 
 #include <QFuture>
 
-namespace ProjectExplorer { class Project; }
+namespace ProjectExplorer {
+class BuildConfiguration;
+class QmlCodeModelInfo;
+class Project;
+}
 
 namespace QmlJSTools::Internal {
 
@@ -22,16 +26,19 @@ public:
     ~ModelManager() override;
 
     void delayedInitialization();
-protected:
+
+private:
     QHash<QString, QmlJS::Dialect> languageForSuffix() const override;
     void writeMessageInternal(const QString &msg) const override;
     WorkingCopy workingCopyInternal() const override;
     void addTaskInternal(const QFuture<void> &result, const QString &msg,
                          const Utils::Id taskId) const override;
-    ProjectInfo defaultProjectInfoForProject(
-        ProjectBase *project, const Utils::FilePaths &hiddenRccFolders) const override;
-private:
+
     void updateDefaultProjectInfo();
+
+    void updateFromBuildConfig(ProjectExplorer::BuildConfiguration *bc,
+                               const ProjectExplorer::QmlCodeModelInfo &extra);
+
     void loadDefaultQmlTypeDescriptions();
     QHash<QString, QmlJS::Dialect> initLanguageForSuffix() const;
 };

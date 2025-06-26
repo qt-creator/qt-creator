@@ -30,6 +30,29 @@ struct TestCaseInfo
     int line = 0;
 };
 
+// Extra infomation needed by QmlJS tools and editor.
+struct QmlCodeModelInfo
+{
+    QList<Utils::FilePath> sourceFiles;
+    Utils::FilePaths qmlImportPaths;
+    QList<Utils::FilePath> activeResourceFiles;
+    QList<Utils::FilePath> allResourceFiles;
+    QList<Utils::FilePath> generatedQrcFiles;
+    QHash<Utils::FilePath, QString> resourceFileContents;
+    QList<Utils::FilePath> applicationDirectories;
+    QHash<QString, QString> moduleMappings; // E.g.: QtQuick.Controls -> MyProject.MyControls
+
+    // whether trying to run qmldump makes sense
+    bool tryQmlDump = false;
+    bool qmlDumpHasRelocatableFlag = true;
+    Utils::FilePath qmlDumpPath;
+    Utils::Environment qmlDumpEnvironment;
+
+    Utils::FilePath qtQmlPath;
+    Utils::FilePath qmllsPath;
+    QString qtVersionString;
+};
+
 // --------------------------------------------------------------------
 // BuildSystem:
 // --------------------------------------------------------------------
@@ -145,6 +168,9 @@ public:
 
     virtual void triggerParsing() = 0;
 
+    void updateQmlCodeModel();
+    virtual void updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo);
+
 signals:
     void parsingStarted();
     void parsingFinished(bool success);
@@ -163,6 +189,7 @@ protected:
     void emitParsingFinished(bool success);
 
     using ExtraCompilerFilter = std::function<bool(const ExtraCompiler *)>;
+
 private:
     void requestParseHelper(int delay); // request a (delayed!) parser run.
 

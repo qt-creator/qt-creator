@@ -9,6 +9,7 @@
 #include "qbsnodes.h"
 #include "qbsnodetreebuilder.h"
 #include "qbspmlogging.h"
+#include "qbsproject.h"
 #include "qbsprojectimporter.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
@@ -514,7 +515,7 @@ void QbsBuildSystem::updateAfterParse()
         updateBuildTargetData();
         updateCppCodeModel();
         updateExtraCompilers();
-        updateQmlJsCodeModel();
+        updateQmlCodeModel();
         m_envCache.clear();
         m_guard.markAsSuccess();
         m_guard = {};
@@ -1134,15 +1135,9 @@ void QbsBuildSystem::updateExtraCompilers()
         session()->requestFilesGeneratedFrom(sourcesForGeneratedFiles);
 }
 
-void QbsBuildSystem::updateQmlJsCodeModel()
+void QbsBuildSystem::updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo)
 {
     OpTimer optimer("updateQmlJsCodeModel");
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    if (!modelManager)
-        return;
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo
-        = modelManager->defaultProjectInfoForProject(project(),
-                                                     project()->files(Project::HiddenRccFolders));
 
     const QJsonObject projectData = session()->projectData();
     if (projectData.isEmpty())
@@ -1151,14 +1146,11 @@ void QbsBuildSystem::updateQmlJsCodeModel()
     forAllProducts(projectData, [&projectInfo](const QJsonObject &product) {
         for (const QJsonValue &path : product.value("properties").toObject()
              .value("qmlImportPaths").toArray()) {
-            projectInfo.importPaths.maybeInsert(Utils::FilePath::fromString(path.toString()),
-                                                QmlJS::Dialect::Qml);
-        }
-    });
+            projectInfo.qmlImportPaths.append(FilePath::fromString(path.toString()));
+    }});
 
     project()->setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID,
                                   !projectInfo.sourceFiles.isEmpty());
-    modelManager->updateProjectInfo(projectInfo, project());
 }
 
 void QbsBuildSystem::updateApplicationTargets()

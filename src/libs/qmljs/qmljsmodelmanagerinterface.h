@@ -145,7 +145,6 @@ public:
     QList<ProjectInfo> projectInfos() const;
     bool containsProject(ProjectBase *project) const;
     ProjectInfo projectInfo(ProjectBase *project) const;
-    void updateProjectInfo(const ProjectInfo &pinfo, ProjectBase *p);
 
     void updateDocument(const QmlJS::Document::Ptr& doc);
     void updateLibraryInfo(const Utils::FilePath &path, const QmlJS::LibraryInfo &info);
@@ -173,9 +172,7 @@ public:
     ViewerContext projectVContext(Dialect language, const Document::Ptr &doc) const;
 
     void setDefaultVContext(const ViewerContext &vContext);
-    virtual ProjectInfo defaultProjectInfo() const;
-    virtual ProjectInfo defaultProjectInfoForProject(ProjectBase *project,
-                                                     const Utils::FilePaths &hiddenRccFolders) const;
+    ProjectInfo defaultProjectInfo() const;
 
     // Blocks until all parsing threads are done. Use for testing only!
     void test_joinAllThreads();
@@ -209,6 +206,8 @@ signals:
     void projectPathChanged(const Utils::FilePath &projectPath);
 
 protected:
+    void updateProjectInfo(const ProjectInfo &pinfo, ProjectBase *p);
+
     Q_INVOKABLE void queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan);
     Q_INVOKABLE void asyncReset();
     virtual void startCppQmlTypeUpdate();

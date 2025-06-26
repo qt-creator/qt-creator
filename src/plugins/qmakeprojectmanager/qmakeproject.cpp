@@ -45,8 +45,6 @@
 #include <proparser/qmakevfs.h>
 #include <proparser/qmakeglobals.h>
 
-#include <qmljs/qmljsmodelmanagerinterface.h>
-
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitaspect.h>
@@ -281,7 +279,7 @@ void QmakeBuildSystem::updateCodeModels()
         return;
 
     updateCppCodeModel();
-    updateQmlJSCodeModel();
+    updateQmlCodeModel();
 }
 
 void QmakeBuildSystem::updateDocuments()
@@ -409,27 +407,15 @@ void QmakeBuildSystem::updateCppCodeModel()
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), rpps}, generators);
 }
 
-void QmakeBuildSystem::updateQmlJSCodeModel()
+void QmakeBuildSystem::updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo)
 {
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    if (!modelManager)
-        return;
-
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo
-        = modelManager->defaultProjectInfoForProject(project(),
-                                                     project()->files(Project::HiddenRccFolders));
-
     const QList<QmakeProFile *> proFiles = rootProFile()->allProFiles();
     const QString device = rootProFile()->deviceRoot();
 
-    projectInfo.importPaths.clear();
-
     bool hasQmlLib = false;
     for (QmakeProFile *file : proFiles) {
-        for (const QString &path : file->variableValue(Variable::QmlImportPath)) {
-            projectInfo.importPaths.maybeInsert(FilePath::fromString(path),
-                                                QmlJS::Dialect::Qml);
-        }
+        for (const QString &path : file->variableValue(Variable::QmlImportPath))
+            projectInfo.qmlImportPaths.append(FilePath::fromString(path));
         const QStringList &exactResources = file->variableValue(Variable::ExactResource);
         const QStringList &cumulativeResources = file->variableValue(Variable::CumulativeResource);
         QString errorMessage;
@@ -466,8 +452,6 @@ void QmakeBuildSystem::updateQmlJSCodeModel()
 
     projectInfo.activeResourceFiles = Utils::filteredUnique(projectInfo.activeResourceFiles);
     projectInfo.allResourceFiles = Utils::filteredUnique(projectInfo.allResourceFiles);
-
-    modelManager->updateProjectInfo(projectInfo, project());
 }
 
 void QmakeBuildSystem::scheduleAsyncUpdateFile(QmakeProFile *file, QmakeProFile::AsyncUpdateDelay delay)

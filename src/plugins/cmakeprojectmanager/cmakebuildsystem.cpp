@@ -37,8 +37,6 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
-#include <qmljs/qmljsmodelmanagerinterface.h>
-
 #include <qtapplicationmanager/appmanagerconstants.h>
 
 #include <qtsupport/qtcppkitinfo.h>
@@ -1690,8 +1688,8 @@ void CMakeBuildSystem::updateProjectData()
     {
         const bool mergedHeaderPathsAndQmlImportPaths = kit()->value(
                     QtSupport::Constants::KIT_HAS_MERGED_HEADER_PATHS_WITH_QML_IMPORT_PATHS, false).toBool();
-        QStringList extraHeaderPaths;
-        QList<QByteArray> moduleMappings;
+        m_extraHeaderPaths.clear();
+        m_moduleMappings.clear();
         for (const RawProjectPart &rpp : std::as_const(rpps)) {
             FilePath moduleMapFile = buildConfiguration()->buildDirectory()
                     .pathAppended("qml_module_mappings/" + rpp.buildSystemTarget);
@@ -1699,18 +1697,18 @@ void CMakeBuildSystem::updateProjectData()
                 const QList<QByteArray> lines = content->split('\n');
                 for (const QByteArray &line : lines) {
                     if (!line.isEmpty())
-                        moduleMappings.append(line.simplified());
+                        m_moduleMappings.append(line.simplified());
                 }
             }
 
             if (mergedHeaderPathsAndQmlImportPaths) {
                 for (const auto &headerPath : rpp.headerPaths) {
                     if (headerPath.type == HeaderPathType::User || headerPath.type == HeaderPathType::System)
-                        extraHeaderPaths.append(headerPath.path);
+                        m_extraHeaderPaths.append(headerPath.path);
                 }
             }
         }
-        updateQmlJSCodeModel(extraHeaderPaths, moduleMappings);
+        updateQmlCodeModel();
     }
     updateInitialCMakeExpandableVars();
 
@@ -2505,35 +2503,22 @@ QList<ExtraCompiler *> CMakeBuildSystem::findExtraCompilers()
     return extraCompilers;
 }
 
-void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
-                                            const QList<QByteArray> &moduleMappings)
+void CMakeBuildSystem::updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo)
 {
-    QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-
-    if (!modelManager)
-        return;
-
-    Project *p = project();
-    QmlJS::ModelManagerInterface::ProjectInfo projectInfo
-        = modelManager->defaultProjectInfoForProject(p, p->files(Project::HiddenRccFolders));
-
-    projectInfo.importPaths.clear();
-
     auto addImports = [&projectInfo](const QString &imports) {
         const QStringList importList = CMakeConfigItem::cmakeSplitValue(imports);
         for (const QString &import : importList)
-            projectInfo.importPaths.maybeInsert(FilePath::fromUserInput(import), QmlJS::Dialect::Qml);
+            projectInfo.qmlImportPaths.append(FilePath::fromUserInput(import));
     };
 
     const CMakeConfig &cm = configurationFromCMake();
     addImports(cm.stringValueOf("QML_IMPORT_PATH"));
     addImports(kit()->value(QtSupport::Constants::KIT_QML_IMPORT_PATH).toString());
 
-    for (const QString &extraHeaderPath : extraHeaderPaths)
-        projectInfo.importPaths.maybeInsert(FilePath::fromString(extraHeaderPath),
-                                            QmlJS::Dialect::Qml);
+    for (const QString &extraHeaderPath : m_extraHeaderPaths)
+        projectInfo.qmlImportPaths.append(FilePath::fromString(extraHeaderPath));
 
-    for (const QByteArray &mm : moduleMappings) {
+    for (const QByteArray &mm : m_moduleMappings) {
         auto kvPair = mm.split('=');
         if (kvPair.size() != 2)
             continue;
@@ -2553,7 +2538,6 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
 
     project()->setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID,
                                   !projectInfo.sourceFiles.isEmpty());
-    modelManager->updateProjectInfo(projectInfo, p);
 }
 
 void CMakeBuildSystem::updateInitialCMakeExpandableVars()
