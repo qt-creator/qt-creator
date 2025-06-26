@@ -276,23 +276,22 @@ void QmlBuildSystem::generateProjectTree()
 {
     auto newRoot = std::make_unique<Internal::QmlProjectNode>(project());
 
-    for (const auto &file : m_projectItem->files()) {
-        const FileType fileType = (file == projectFilePath())
-                ? FileType::Project
-                : FileNode::fileTypeForFileName(file);
+    std::set<Utils::FilePath> uniqueFiles;
+    for (const auto &file : m_projectItem->files())
+        uniqueFiles.insert(file);
 
+    for (const auto &mcuProjectItem : m_mcuProjectItems) {
+        for (const auto &file : mcuProjectItem->files())
+            uniqueFiles.insert(file);
+    }
+
+    for (const auto &file : uniqueFiles) {
+        const FileType fileType = (file == projectFilePath())
+            ? FileType::Project
+            : FileNode::fileTypeForFileName(file);
         newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
     }
 
-    for (const auto &mcuProjectItem : m_mcuProjectItems) {
-        for (const auto &file : mcuProjectItem->files()) {
-            // newRoot->addNestedNode(std::make_unique<FileNode>(file, FileType::Project));
-            const FileType fileType = (file == projectFilePath())
-                                          ? FileType::Project
-                                          : FileNode::fileTypeForFileName(file);
-            newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
-        }
-    }
     if (!projectFilePath().endsWith(Constants::fakeProjectName))
         newRoot->addNestedNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
@@ -441,6 +440,11 @@ QmlBuildSystem *QmlBuildSystem::getStartupBuildSystem()
 void QmlBuildSystem::addQmlProjectModule(const Utils::FilePath &path)
 {
     m_projectItem->addQmlProjectModule(path.toFSPathString());
+}
+
+void QmlBuildSystem::addFileFilter(const Utils::FilePath &path)
+{
+    m_projectItem->addFileFilter(path);
 }
 
 Utils::FilePath QmlBuildSystem::mainFilePath() const

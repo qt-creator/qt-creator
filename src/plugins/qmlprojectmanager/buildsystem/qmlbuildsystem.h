@@ -122,6 +122,8 @@ public:
 
     void addQmlProjectModule(const Utils::FilePath &path);
 
+    void addFileFilter(const Utils::FilePath &path);
+
 signals:
     void projectChanged();
 

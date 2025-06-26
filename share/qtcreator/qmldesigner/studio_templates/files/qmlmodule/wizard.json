@@ -1,0 +1,120 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "Z.QtStudio.QmlModule.2",
+    "category": "H.StudioQMLFiles",
+    "trDescription": "Creates a Qml Module.",
+    "trDisplayName": "Qml Module",
+    "trDisplayCategory": "QML",
+    "icon": "file_qml.png",
+    "platformIndependent": true,
+
+    "options":
+        [
+        { "key": "Destination", "value": "%{JS: %{MockModule} ? '%{TargetPath}/Mock' : '%{TargetPath}'}" },
+        { "key": "HasComponent", "value": "%{JS: '%{ComponentName}'.length !== 0 }" },
+        { "key": "ApplicationImport", "value": "%{QmlProjectName} 1.0" },
+        { "key": "RootItem", "value": "%{JS: %{RootItemCB}.RootItem}" },
+        { "key": "UseImportDefault", "value": "%{JS: false}" }
+    ],
+
+    "pages" :
+        [
+        {
+            "trDisplayName": "Define Module",
+            "trShortTitle": "Details",
+            "typeId": "QmlProjectFields",
+            "data" :
+                [
+                {
+                    "name": "ModuleName",
+                    "trDisplayName": "Module name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "validator": "(?:[A-Z_][a-zA-Z_0-9]*|)",
+                        "fixup": "%{JS: '%{INPUT}'.charAt(0).toUpperCase() + '%{INPUT}'.slice(1) }"
+                    }
+                },
+                {
+                    "name": "QtForMCU",
+                    "trDisplayName": "For MCU",
+                    "type": "CheckBox",
+                    "enabled": false,
+                    "span": true,
+                    "data":
+                    {
+                        "checked": "%{MCU}"
+                    }
+                },
+                {
+                    "name": "MockModule",
+                    "trDisplayName": "Is Mock",
+                    "type": "CheckBox",
+                    "span": true,
+                    "data":
+                    {
+                        "checked": "%{Mock}"
+                    }
+                }
+
+            ]
+        },
+        {
+            "trDisplayName": "Options",
+            "trShortTitle": "Options",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "ComponentName",
+                    "trDisplayName": "Component name:",
+                    "mandatory": false,
+                    "type": "LineEdit",
+                    "data": {
+                        "validator": "(?:[A-Z_][a-zA-Z_0-9]*|)",
+                        "fixup": "%{JS: '%{INPUT}'.charAt(0).toUpperCase() + '%{INPUT}'.slice(1) }"
+                    }
+                },
+                {
+                    "name": "Singleton",
+                    "trDisplayName": "Is Singleton",
+                    "type": "CheckBox",
+                    "span": true,
+                    "data":
+                    {
+                        "checked": false
+                    }
+                }
+            ]
+        }
+    ],
+    "generators" :
+        [
+        {
+            "typeId": "File",
+            "data": [
+            {
+                "source": "qmlproject.tpl",
+                "target": "%{Destination}/%{ModuleName}/%{ModuleName}.qmlproject",
+                "condition": "%{QtForMCU}"
+            },
+            {
+                "source": "file.qml.tpl",
+                "target": "%{Destination}/%{ModuleName}/%{ComponentName}.qml",
+                "condition": "%{HasComponent}",
+                "openInEditor": true
+            }
+            ]
+        },
+        {
+            "typeId": "QmlProjectFile",
+            "data": [
+            {
+                "source": "qmldir.tpl",
+                "target": "%{Destination}/%{ModuleName}/qmldir"
+            }
+            ]
+        }
+        ]
+}

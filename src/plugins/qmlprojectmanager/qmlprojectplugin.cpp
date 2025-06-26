@@ -8,6 +8,7 @@
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
+#include "qmlprojectwizardpage.h"
 #include "projectfilecontenttools.h"
 #include "qmlprojectexporter/cmakegenerator.h"
 #include "qmlprojectexporter/pythongenerator.h"
@@ -412,6 +413,7 @@ void QmlProjectPlugin::initialize()
                     }
                 });
 
+        setupQmlModuleWizard();
         QmlProjectExporter::CMakeGenerator::createMenuAction(this);
         QmlProjectExporter::PythonGenerator::createMenuAction(this);
     }
