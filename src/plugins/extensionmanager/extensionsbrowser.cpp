@@ -32,6 +32,7 @@
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
+#include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcprocess.h>
@@ -67,6 +68,8 @@ Q_LOGGING_CATEGORY(browserLog, "qtc.extensionmanager.browser", QtWarningMsg)
 constexpr int gapSize = GapHXl;
 constexpr int itemWidth = 330;
 constexpr int cellWidth = itemWidth + gapSize;
+
+const char kEnableExternalRepo[] = "EnableExternalRepo";
 
 class OptionChooser : public QComboBox
 {
@@ -531,6 +534,51 @@ static QWidget *extensionViewPlaceHolder()
     // clang-format on
 }
 
+static void setUseExternalRepo(bool useIt)
+{
+    settings().useExternalRepo.setValue(useIt);
+    settings().writeSettings();
+}
+
+static void setRepoMessageVisible(bool visible)
+{
+    InfoBar *infoBar = ICore::popupInfoBar();
+
+    if (!visible) {
+        if (infoBar->containsInfo(kEnableExternalRepo))
+            infoBar->removeInfo(kEnableExternalRepo);
+        return;
+    }
+    if (settings().useExternalRepo() || !infoBar->canInfoBeAdded(kEnableExternalRepo))
+        return;
+
+    InfoBarEntry
+        info(kEnableExternalRepo,
+             Tr::tr("This extension mode displays the Qt Creator Extensions available from "
+                    "configured online sources (such as Qt Creator Extension Store provided by Qt "
+                    "Group).\n\n"
+                    "If you choose to link or connect an external repository, you are acting at "
+                    "your own discretion and risk.\n\n"
+                    "By linking or connecting external repositories, you acknowledge these "
+                    "conditions and accept responsibility for managing associated risks "
+                    "appropriately.\n\n"
+                    "You can manage the use of Extensions in Preferences > Extensions."),
+             InfoBarEntry::GlobalSuppression::Disabled); // Custom buttons do SuppressPersistently
+    info.setTitle(Tr::tr("Use Qt Creator Extensions?"));
+    info.setInfoType(Utils::InfoLabel::Information);
+    info.addCustomButton(
+        Tr::tr("Use"),
+        [] { setUseExternalRepo(true); },
+        {},
+        InfoBarEntry::ButtonAction::SuppressPersistently);
+    info.addCustomButton(
+        Tr::tr("Do not use"),
+        [] { setUseExternalRepo(false); },
+        {},
+        InfoBarEntry::ButtonAction::SuppressPersistently);
+    infoBar->addInfo(info);
+}
+
 ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     : QWidget(parent)
     , d(new ExtensionsBrowserPrivate)
@@ -647,6 +695,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
 
     auto updateExternalRepoSwitch = [externalRepoSwitch] {
         const QSignalBlocker blocker(externalRepoSwitch);
+        setRepoMessageVisible(false);
         externalRepoSwitch->setChecked(settings().useExternalRepo());
     };
     updateExternalRepoSwitch();
@@ -666,10 +715,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
         ICore::showOptionsDialog(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
     });
     connect(&settings().useExternalRepo, &BaseAspect::changed, this, updateExternalRepoSwitch);
-    connect(externalRepoSwitch, &QAbstractButton::toggled, this, [](bool checked) {
-        settings().useExternalRepo.setValue(checked);
-        settings().writeSettings();
-    });
+    connect(externalRepoSwitch, &QAbstractButton::toggled, this, setUseExternalRepo);
     connect(&settings(), &AspectContainer::changed, this, [this] {
         d->dataFetched = false;
         fetchExtensions();
@@ -714,7 +760,14 @@ void ExtensionsBrowser::showEvent(QShowEvent *event)
         d->dataFetched = true;
         fetchExtensions();
     }
+    setRepoMessageVisible(true);
     QWidget::showEvent(event);
+}
+
+void ExtensionsBrowser::hideEvent(QHideEvent *event)
+{
+    setRepoMessageVisible(false);
+    QWidget::hideEvent(event);
 }
 
 QModelIndex ExtensionsBrowser::currentIndex() const

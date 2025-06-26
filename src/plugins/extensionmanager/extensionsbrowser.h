@@ -27,6 +27,7 @@ public:
     int extraListViewWidth() const; // Space for scrollbar, etc.
 
     void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
 
     QModelIndex currentIndex() const;
     void selectIndex(const QModelIndex &index);
