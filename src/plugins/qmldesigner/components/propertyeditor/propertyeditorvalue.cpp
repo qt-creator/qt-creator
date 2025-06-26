@@ -981,7 +981,7 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
 
     QTC_ASSERT(qmlObjectNode.isValid(), return );
 #ifdef QDS_USE_PROJECTSTORAGE
-    for (const auto &property : MetaInfoUtils::addInflatedValueAndReadOnlyProperties(
+    for (const auto &property : MetaInfoUtils::addInflatedValueAndReferenceProperties(
              qmlObjectNode.modelNode().metaInfo().properties())) {
         auto propertyName = property.name();
         createPropertyEditorValue(qmlObjectNode,

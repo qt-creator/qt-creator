@@ -135,8 +135,8 @@ using CompoundPropertyMetaInfos = std::vector<CompoundPropertyMetaInfo>;
 namespace MetaInfoUtils {
 
 QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfos inflateValueProperties(PropertyMetaInfos properties);
-QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfos inflateValueAndReadOnlyProperties(PropertyMetaInfos properties);
-QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfos addInflatedValueAndReadOnlyProperties(PropertyMetaInfos properties);
+QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfos inflateValueAndReferenceProperties(PropertyMetaInfos properties);
+QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfos addInflatedValueAndReferenceProperties(PropertyMetaInfos properties);
 } // namespace MetaInfoUtils
 
 } // namespace QmlDesigner

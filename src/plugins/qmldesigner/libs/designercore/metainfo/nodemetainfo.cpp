@@ -4985,11 +4985,11 @@ void addSubProperties(CompoundPropertyMetaInfos &inflatedProperties,
     inflatedProperties.emplace_back(std::move(propertyMetaInfo));
 }
 
-bool isValueOrNonListReadOnlyReference(const NodeMetaInfo &propertyType,
-                                       const PropertyMetaInfo &property)
+bool isValueOrNonListReference(const NodeMetaInfo &propertyType, const PropertyMetaInfo &property)
 {
-    return propertyType.type() == MetaInfoType::Value
-            || (property.isReadOnly() && !property.isListProperty());
+    return (propertyType.type() == MetaInfoType::Value
+            || propertyType.type() == MetaInfoType::Reference)
+           && !property.isListProperty();
 }
 
 } // namespace
@@ -5009,34 +5009,34 @@ CompoundPropertyMetaInfos MetaInfoUtils::inflateValueProperties(PropertyMetaInfo
     return inflatedProperties;
 }
 
-CompoundPropertyMetaInfos MetaInfoUtils::inflateValueAndReadOnlyProperties(PropertyMetaInfos properties)
+CompoundPropertyMetaInfos MetaInfoUtils::inflateValueAndReferenceProperties(PropertyMetaInfos properties)
 {
     CompoundPropertyMetaInfos inflatedProperties;
     inflatedProperties.reserve(properties.size() * 2);
 
     for (auto &property : properties) {
-        if (auto propertyType = property.propertyType(); isValueOrNonListReadOnlyReference(propertyType, property))
+        if (auto propertyType = property.propertyType();
+            propertyType && isValueOrNonListReference(propertyType, property)) {
             addSubProperties(inflatedProperties, property, propertyType);
-        else
+        } else {
             inflatedProperties.emplace_back(std::move(property));
+        }
     }
 
     return inflatedProperties;
 }
 
-CompoundPropertyMetaInfos MetaInfoUtils::addInflatedValueAndReadOnlyProperties(PropertyMetaInfos properties)
+CompoundPropertyMetaInfos MetaInfoUtils::addInflatedValueAndReferenceProperties(PropertyMetaInfos properties)
 {
     CompoundPropertyMetaInfos inflatedProperties;
     inflatedProperties.reserve(properties.size() * 2);
 
     for (auto &property : properties) {
-        if (auto propertyType = property.propertyType(); isValueOrNonListReadOnlyReference(propertyType, property)) {
+        if (auto propertyType = property.propertyType();
+            propertyType && isValueOrNonListReference(propertyType, property)) {
             addSubProperties(inflatedProperties, property, propertyType);
-            if (!property.isReadOnly())
-                inflatedProperties.emplace_back(std::move(property));
-        } else {
-            inflatedProperties.emplace_back(std::move(property));
         }
+        inflatedProperties.emplace_back(std::move(property));
     }
 
     return inflatedProperties;
