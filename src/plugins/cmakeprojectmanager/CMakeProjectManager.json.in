@@ -34,6 +34,7 @@
         "    <sub-class-of type='text/plain'/>",
         "    <comment>CMake Project file</comment>",
         "    <glob pattern='*.cmake'/>",
+        "    <glob pattern='*.cmake.in'/>",
         "  </mime-type>",
         "  <mime-type type='text/x-cmake-project'>",
         "    <sub-class-of type='text/x-cmake'/>",
