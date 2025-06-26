@@ -16,9 +16,6 @@ class ProjectExplorerTest final : public QObject
     Q_OBJECT
 
 private slots:
-    void testLinuxIccOutputParsers_data();
-    void testLinuxIccOutputParsers();
-
     void testXcodebuildParserParsing_data();
     void testXcodebuildParserParsing();
 

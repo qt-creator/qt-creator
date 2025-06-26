@@ -7,7 +7,7 @@
 
 #include <QRegularExpression>
 
-namespace ProjectExplorer {
+namespace ProjectExplorer::Internal {
 
 class LinuxIccParser : public ProjectExplorer::OutputTaskParser
 {
@@ -29,4 +29,8 @@ private:
     bool m_expectFirstLine = true;
 };
 
-} // namespace ProjectExplorer
+#ifdef WITH_TESTS
+QObject *createLinuxIccParserTest();
+#endif
+
+} // namespace ProjectExplorer::Internal

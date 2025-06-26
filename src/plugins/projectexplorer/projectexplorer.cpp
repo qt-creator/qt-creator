@@ -166,6 +166,7 @@
 #include "gccparser.h"
 #include "gnumakeparser.h"
 #include "jsonwizard/jsonwizard_test.h"
+#include "linuxiccparser.h"
 #include "outputparser_test.h"
 #include "projectexplorer_test.h"
 #include "toolchainsettingsaccessor.h"
@@ -807,6 +808,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createGnuMakeParserTest);
     addTestCreator(createJsonWizardTest);
     addTestCreator(createLdOutputParserTest);
+    addTestCreator(createLinuxIccParserTest);
     addTestCreator(createOutputParserTest);
     addTestCreator(createProjectTest);
     addTestCreator(createRunWorkerConflictTest);
