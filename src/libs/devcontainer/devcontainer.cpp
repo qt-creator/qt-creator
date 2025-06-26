@@ -271,7 +271,7 @@ static void connectProcessToLog(
     process.setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
     QObject::connect(
         &process, &Process::textOnStandardOutput, [instanceConfig, context](const QString &text) {
-            for (const auto &line : text.split('\n')) {
+            for (const auto &line : text.trimmed().split('\n')) {
                 if (context.isEmpty())
                     instanceConfig.logFunction(line.trimmed());
                 else
@@ -281,7 +281,7 @@ static void connectProcessToLog(
 
     QObject::connect(
         &process, &Process::textOnStandardError, [instanceConfig, context](const QString &text) {
-            for (const auto &line : text.split('\n')) {
+            for (const auto &line : text.trimmed().split('\n')) {
                 if (context.isEmpty())
                     instanceConfig.logFunction(line.trimmed());
                 else
