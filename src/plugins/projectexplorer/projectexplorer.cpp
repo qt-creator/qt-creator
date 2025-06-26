@@ -170,6 +170,7 @@
 #include "outputparser_test.h"
 #include "projectexplorer_test.h"
 #include "toolchainsettingsaccessor.h"
+#include "xcodebuildparser.h"
 #endif
 
 /*!
@@ -814,6 +815,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createRunWorkerConflictTest);
     addTestCreator(createSanitizerOutputParserTest);
     addTestCreator(createToolchainSettingsTest);
+    addTestCreator(createXcodebuildParserTest);
 #endif
 
     setupGccToolchains();
