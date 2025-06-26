@@ -276,7 +276,9 @@ FROM alpine:latest
     std::unique_ptr<DevContainer::Instance> instance
         = DevContainer::Instance::fromConfig(config, instanceConfig);
 
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe();
+    DevContainer::RunningInstance runningInstance
+        = std::make_shared<DevContainer::RunningInstanceData>();
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe(runningInstance);
     QVERIFY_RESULT(recipe);
     QCOMPARE(
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
@@ -308,7 +310,9 @@ void tst_DevContainer::upImage()
     std::unique_ptr<DevContainer::Instance> instance
         = DevContainer::Instance::fromConfig(config, instanceConfig);
 
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe();
+    DevContainer::RunningInstance runningInstance
+        = std::make_shared<DevContainer::RunningInstanceData>();
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe(runningInstance);
     QVERIFY_RESULT(recipe);
     QCOMPARE(
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
@@ -353,7 +357,9 @@ void tst_DevContainer::upWithHooks()
     std::unique_ptr<DevContainer::Instance> instance
         = DevContainer::Instance::fromConfig(config, instanceConfig);
 
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe();
+    DevContainer::RunningInstance runningInstance
+        = std::make_shared<DevContainer::RunningInstanceData>();
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe(runningInstance);
     QVERIFY_RESULT(recipe);
     QCOMPARE(
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
@@ -381,12 +387,12 @@ void tst_DevContainer::processInterface()
         {"CONTAINER_CHANGE_ME", "container_value_to_change"},
     };
 
-    config.common.remoteEnv = {
-        {"TEST_VAR", "test_value"},
-        {"ANOTHER_VAR", "another_value"},
-        {"CONTAINER_UNSET_ME", std::nullopt},
-        {"CONTAINER_CHANGE_ME", "changed_container_value"},
-    };
+    config.common.remoteEnv
+        = {{"TEST_VAR", "test_value"},
+           {"ANOTHER_VAR", "another_value"},
+           {"CONTAINER_UNSET_ME", std::nullopt},
+           {"CONTAINER_CHANGE_ME", "changed_container_value"},
+           {"REMOTEENV_FROM_CONTAINER", "${containerEnv:CONTAINER_TEST}"}};
     qDebug() << "DevContainer Config:" << config;
 
     DevContainer::InstanceConfig instanceConfig{
@@ -399,7 +405,9 @@ void tst_DevContainer::processInterface()
     std::unique_ptr<DevContainer::Instance> instance
         = DevContainer::Instance::fromConfig(config, instanceConfig);
 
-    Utils::Result<Tasking::Group> recipe = instance->upRecipe();
+    DevContainer::RunningInstance runningInstance
+        = std::make_shared<DevContainer::RunningInstanceData>();
+    Utils::Result<Tasking::Group> recipe = instance->upRecipe(runningInstance);
     QVERIFY_RESULT(recipe);
     QCOMPARE(
         Tasking::TaskTree::runBlocking((*recipe).withTimeout(recipeTimeout)),
@@ -412,7 +420,8 @@ void tst_DevContainer::processInterface()
     testEnv.set("CONTAINER_TEST", "", false);
 
     process.setEnvironment(testEnv);
-    process.setProcessInterfaceCreator([&instance]() { return instance->createProcessInterface(); });
+    process.setProcessInterfaceCreator(
+        [&]() { return instance->createProcessInterface(runningInstance); });
     process.setCommand({"printenv", {}});
     process.runBlocking(std::chrono::seconds(10), EventLoopMode::On);
     const QString output = process.cleanedStdOut().trimmed();
@@ -430,6 +439,7 @@ void tst_DevContainer::processInterface()
     QCOMPARE(firstEnv.value("TEST_VAR"), "test_value");
     QCOMPARE(firstEnv.value("ANOTHER_VAR"), "another_value");
     QCOMPARE(firstEnv.value("CONTAINER_CHANGE_ME"), "changed_container_value");
+    QCOMPARE(firstEnv.value("REMOTEENV_FROM_CONTAINER"), "test_value_container");
 
     Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
     QVERIFY_RESULT(downRecipe);

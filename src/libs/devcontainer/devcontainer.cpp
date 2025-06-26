@@ -41,62 +41,67 @@ QString InstanceConfig::devContainerId() const
     return id;
 }
 
-QString InstanceConfig::jsonToString(const QJsonValue &value) const
+using Replacers = QMap<QString, std::function<QString(QStringList)>>;
+
+static void substituteVariables(QString &str, const Replacers &replacers)
 {
-    QString str = value.toString();
     QRegularExpression re("\\$\\{([^}]+)\\}");
     QRegularExpressionMatchIterator it = re.globalMatch(str);
 
-    if (it.hasNext()) {
-        const QMap<QString, std::function<QString(QStringList)>> replacers = {
-            {"localWorkspaceFolder", [this](const QStringList &) { return workspaceFolder.path(); }},
-            {"localWorkspaceFolderBasename",
-             [this](const QStringList &) { return workspaceFolder.fileName(); }},
-            {"containerWorkspaceFolder",
-             [this](const QStringList &) { return containerWorkspaceFolder.path(); }},
-            {"containerWorkspaceFolderBasename",
-             [this](const QStringList &) { return containerWorkspaceFolder.fileName(); }},
-            {"devcontainerId", [this](const QStringList &) { return devContainerId(); }},
-            {"localEnv",
-             [this](const QStringList &parts) {
-                 if (parts.isEmpty())
-                     return QString();
-                 const QString varname = parts.first();
-                 const QString defaultValue = parts.mid(1).join(':');
-                 return localEnvironment.value_or(varname, defaultValue);
-             }},
-        };
+    struct Replace
+    {
+        qsizetype start;
+        qsizetype length;
+        QString replacement;
+    };
+    QList<Replace> replacements;
 
-        struct Replace
-        {
-            qsizetype start;
-            qsizetype length;
-            QString replacement;
-        };
-        QList<Replace> replacements;
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+        QString varName = match.captured(1);
+        QStringList parts = varName.split(':');
+        QString variableName = parts.takeFirst();
 
-        while (it.hasNext()) {
-            QRegularExpressionMatch match = it.next();
-            QString varName = match.captured(1);
-            QStringList parts = varName.split(':');
-            QString variableName = parts.takeFirst();
-
-            auto itReplacer = replacers.find(variableName);
-            if (itReplacer != replacers.end()) {
-                QString replacement = itReplacer.value()(parts);
-                replacements.append({match.capturedStart(), match.capturedLength(), replacement});
-            } else if (variableName != "containerEnv") {
-                // Container env is only supported for "remoteEnv", but since it might be valid,
-                // we don't warn about it here.
-                logFunction(Tr::tr("Unsupported variable in devcontainer config:") + variableName);
-            }
+        auto itReplacer = replacers.find(variableName);
+        if (itReplacer != replacers.end()) {
+            QString replacement = itReplacer.value()(parts);
+            replacements.append({match.capturedStart(), match.capturedLength(), replacement});
+        } else {
+            qCWarning(devcontainerlog)
+                << Tr::tr("Unsupported variable in devcontainer config:") << variableName;
         }
-
-        // Apply replacements in reverse order to avoid messing up indices
-        for (auto it = replacements.crbegin(); it != replacements.crend(); ++it)
-            str.replace(it->start, it->length, std::move(it->replacement));
     }
 
+    // Apply replacements in reverse order to avoid messing up indices
+    for (auto it = replacements.crbegin(); it != replacements.crend(); ++it)
+        str.replace(it->start, it->length, std::move(it->replacement));
+}
+
+QString InstanceConfig::jsonToString(const QJsonValue &value) const
+{
+    QString str = value.toString();
+
+    const Replacers replacers
+        = {{"localWorkspaceFolder", [this](const QStringList &) { return workspaceFolder.path(); }},
+           {"localWorkspaceFolderBasename",
+            [this](const QStringList &) { return workspaceFolder.fileName(); }},
+           {"containerWorkspaceFolder",
+            [this](const QStringList &) { return containerWorkspaceFolder.path(); }},
+           {"containerWorkspaceFolderBasename",
+            [this](const QStringList &) { return containerWorkspaceFolder.fileName(); }},
+           {"devcontainerId", [this](const QStringList &) { return devContainerId(); }},
+           {"localEnv",
+            [this](const QStringList &parts) {
+                if (parts.isEmpty())
+                    return QString();
+                const QString varname = parts.first();
+                const QString defaultValue = parts.mid(1).join(':');
+                return localEnvironment.value_or(varname, defaultValue);
+            }},
+           {"containerEnv",
+            [](const QStringList &parts) { return QString("${%1}").arg(parts.join(':')); }}};
+
+    substituteVariables(str, replacers);
     return str;
 }
 
@@ -1213,7 +1218,8 @@ static ExecutableItem startContainerRecipe(const InstanceConfig &instanceConfig)
 static Result<Group> prepareContainerRecipe(
     const DockerfileContainer &containerConfig,
     const DevContainerCommon &commonConfig,
-    const InstanceConfig &instanceConfig)
+    const InstanceConfig &instanceConfig,
+    const RunningInstance &runningInstance)
 {
     const auto setupBuildImage = [containerConfig, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, Tr::tr("Build Dockerfile"));
@@ -1244,7 +1250,6 @@ static Result<Group> prepareContainerRecipe(
         imageDetails,
         runningDetails,
         containerDetails,
-
         ProcessTask(setupBuildImage),
         inspectImageTask(imageDetails, instanceConfig, imageName(instanceConfig)),
         createContainerRecipe(
@@ -1253,6 +1258,9 @@ static Result<Group> prepareContainerRecipe(
         startContainerRecipe(instanceConfig),
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
         runLifecycleHooksRecipe(commonConfig, instanceConfig),
+        Sync([runningInstance, runningDetails](){
+            runningInstance->remoteEnvironment = runningDetails->probedUserEnvironment;
+        }),
     };
     // clang-format on
 }
@@ -1298,7 +1306,8 @@ static ExecutableItem prepareDockerImageRecipe(
 static Result<Group> prepareContainerRecipe(
     const ImageContainer &imageConfig,
     const DevContainerCommon &commonConfig,
-    const InstanceConfig &instanceConfig)
+    const InstanceConfig &instanceConfig,
+    const RunningInstance &runningInstance)
 {
     Storage<ImageDetails> imageDetails;
     Storage<ContainerDetails> containerDetails;
@@ -1315,6 +1324,9 @@ static Result<Group> prepareContainerRecipe(
         startContainerRecipe(instanceConfig),
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
         runLifecycleHooksRecipe(commonConfig, instanceConfig),
+        Sync([runningInstance, runningDetails](){
+            runningInstance->remoteEnvironment = runningDetails->probedUserEnvironment;
+        }),
     };
     // clang-format on
 }
@@ -1322,9 +1334,11 @@ static Result<Group> prepareContainerRecipe(
 static Result<Group> prepareContainerRecipe(
     const ComposeContainer &config,
     const DevContainerCommon &commonConfig,
-    const InstanceConfig &instanceConfig)
+    const InstanceConfig &instanceConfig,
+    const RunningInstance &runningInstance)
 {
     Q_UNUSED(commonConfig);
+    Q_UNUSED(runningInstance);
     const auto setupComposeUp = [config, instanceConfig](Process &process) {
         connectProcessToLog(process, instanceConfig, "Compose Up");
 
@@ -1370,11 +1384,16 @@ static Result<Group> prepareContainerRecipe(
     return ResultError("Docker Compose is not yet supported in DevContainer.");
 }
 
-static Result<Group> prepareRecipe(const Config &config, const InstanceConfig &instanceConfig)
+static Result<Group> prepareRecipe(
+    const Config &config,
+    const InstanceConfig &instanceConfig,
+    const RunningInstance &runningInstance)
 {
     return std::visit(
-        [&instanceConfig, commonConfig = config.common](const auto &containerConfig) {
-            return prepareContainerRecipe(containerConfig, commonConfig, instanceConfig);
+        [&instanceConfig, commonConfig = config.common, runningInstance](
+            const auto &containerConfig) {
+            return prepareContainerRecipe(
+                containerConfig, commonConfig, instanceConfig, runningInstance);
         },
         *config.containerConfig);
 }
@@ -1449,12 +1468,12 @@ static Result<Group> downRecipe(const Config &config, const InstanceConfig &inst
         *config.containerConfig);
 }
 
-Result<> Instance::up()
+Result<> Instance::up(const RunningInstance &runningInstance)
 {
     if (!d->config.containerConfig)
         return ResultOk;
 
-    const Utils::Result<Tasking::Group> recipeResult = upRecipe();
+    const Utils::Result<Tasking::Group> recipeResult = upRecipe(runningInstance);
     if (!recipeResult)
         return ResultError(recipeResult.error());
 
@@ -1478,9 +1497,12 @@ Result<> Instance::down()
     return ResultOk;
 }
 
-Result<Tasking::Group> Instance::upRecipe() const
+Result<Tasking::Group> Instance::upRecipe(const RunningInstance &runningInstance) const
 {
-    return prepareRecipe(d->config, d->instanceConfig);
+    if (!runningInstance)
+        return ResultError(Tr::tr("Running instance cannot be null."));
+
+    return prepareRecipe(d->config, d->instanceConfig, runningInstance);
 }
 
 Result<Tasking::Group> Instance::downRecipe() const
@@ -1496,9 +1518,13 @@ const Config &Instance::config() const
 class DevContainerProcessInterface : public Utils::WrappedProcessInterface
 {
 public:
-    DevContainerProcessInterface(const Config &config, const InstanceConfig &instanceConfig)
+    DevContainerProcessInterface(
+        const Config &config,
+        const InstanceConfig &instanceConfig,
+        const RunningInstance &runningInstance)
         : m_config(config)
         , m_instanceConfig(instanceConfig)
+        , m_runningInstance(runningInstance)
     {}
 
     Result<CommandLine> wrapCommmandLine(
@@ -1521,10 +1547,21 @@ public:
         QStringList unsetKeys;
         Environment remoteEnv;
         for (const auto &[k, v] : m_config.common.remoteEnv) {
-            if (v)
-                remoteEnv.set(k, *v);
-            else
-                remoteEnv.set(k, {}, false); // We use the disabled state to unset the variable.
+            if (v) {
+                QString value = *v;
+                const Replacers replacers = {
+                    {"containerEnv", [this](const QStringList &parts) {
+                         if (parts.isEmpty())
+                             return QString();
+                         const QString varname = parts.first();
+                         const QString defaultValue = parts.mid(1).join(':');
+                         return m_runningInstance->remoteEnvironment.value_or(varname, defaultValue);
+                     }}};
+                substituteVariables(value, replacers);
+                remoteEnv.set(k, value);
+            } else {
+                remoteEnv.set(k, {}, false); // We use the disabled state to unset the variable.}
+            }
         }
 
         const Environment env = setupData.m_environment.appliedToEnvironment(remoteEnv);
@@ -1589,11 +1626,13 @@ public:
 protected:
     Config m_config;
     InstanceConfig m_instanceConfig;
+    RunningInstance m_runningInstance;
 };
 
-ProcessInterface *Instance::createProcessInterface() const
+ProcessInterface *Instance::createProcessInterface(const RunningInstance &runningInstance) const
 {
-    return new DevContainerProcessInterface(d->config, d->instanceConfig);
+    QTC_ASSERT(runningInstance, return nullptr);
+    return new DevContainerProcessInterface(d->config, d->instanceConfig, runningInstance);
 }
 
 } // namespace DevContainer

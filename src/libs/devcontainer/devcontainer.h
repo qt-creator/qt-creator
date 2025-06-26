@@ -38,6 +38,13 @@ struct DEVCONTAINER_EXPORT InstanceConfig
     QString devContainerId() const;
 };
 
+struct DEVCONTAINER_EXPORT RunningInstanceData
+{
+    Utils::Environment remoteEnvironment;
+};
+
+using RunningInstance = std::shared_ptr<RunningInstanceData>;
+
 class DEVCONTAINER_EXPORT Instance
 {
 public:
@@ -52,12 +59,12 @@ public:
 
     ~Instance();
 
-    Utils::Result<> up();   // Create and start the container
+    Utils::Result<> up(const RunningInstance &runningInstance); // Create and start the container
     Utils::Result<> down(); // Stop and remove the container
 
-    Utils::ProcessInterface *createProcessInterface() const;
+    Utils::ProcessInterface *createProcessInterface(const RunningInstance &runningInstance) const;
 
-    Utils::Result<Tasking::Group> upRecipe() const;
+    Utils::Result<Tasking::Group> upRecipe(const RunningInstance &runningInstance) const;
     Utils::Result<Tasking::Group> downRecipe() const;
 
     const Config &config() const;
