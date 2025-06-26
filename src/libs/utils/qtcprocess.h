@@ -192,6 +192,16 @@ public:
     void setForceDefaultErrorModeOnWindows(bool force);
     bool forceDefaultErrorModeOnWindows() const;
 
+    // Use it with care!
+    // That's useful only when process uses ExternalTerminalProcessImpl.
+    // In this case, after the process is finished, you may take the process interface
+    // to keep the external window open and delete the process afterwards, without
+    // closing the external window.
+    // You are responsible for deleting the interface at later point in time, otherwise you leak it.
+    // Deleting the interface will close the external window immediately.
+    // Call it only from slot connected to Process::done() signal.
+    ProcessInterface *takeProcessInterface();
+
 signals:
     void starting(); // On NotRunning -> Starting state transition
     void started();  // On Starting -> Running state transition

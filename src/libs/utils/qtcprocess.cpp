@@ -1300,6 +1300,22 @@ bool Process::forceDefaultErrorModeOnWindows() const
     return d->m_setup.m_forceDefaultErrorMode;
 }
 
+ProcessInterface *Process::takeProcessInterface()
+{
+    QTC_ASSERT(QThread::currentThread() == thread(), return nullptr);
+    QTC_ASSERT(state() == QProcess::NotRunning, return nullptr);
+    QTC_ASSERT(d->m_process, return nullptr);
+    QTC_ASSERT(d->m_process->thread() == thread(), return nullptr);
+    if (d->m_blockingInterface) {
+        d->m_blockingInterface->disconnect();
+        d->m_blockingInterface.release()->deleteLater();
+    }
+    d->clearForRun();
+    d->m_process->disconnect();
+    d->m_process->setParent(nullptr);
+    return d->m_process.release();
+}
+
 void Process::setExtraData(const QString &key, const QVariant &value)
 {
     d->m_setup.m_extraData.insert(key, value);
@@ -1559,6 +1575,11 @@ void Process::stop()
         return;
 
     d->sendControlSignal(ControlSignal::Terminate);
+
+    // done() signal could have been sent synchronously - see TerminalInterface::killInferiorProcess()
+    if (state() == QProcess::NotRunning)
+        return;
+
     d->m_killTimer.start(d->m_process->m_setup.m_reaperTimeout);
 }
 
