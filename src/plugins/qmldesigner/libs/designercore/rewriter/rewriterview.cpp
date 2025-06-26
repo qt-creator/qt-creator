@@ -1005,7 +1005,7 @@ QSet<QPair<QString, QString>> RewriterView::qrcMapping() const
 namespace {
 #ifdef QDS_USE_PROJECTSTORAGE
 
-ModuleIds generateModuleIds(const ModelNodes &nodes, const ModulesStorage &modulesStorage)
+ModuleIds generateModuleIds(const ModelNodes &nodes, const ModulesStorage &modulesStorage, Model *model)
 {
     ModuleIds moduleIds;
     moduleIds.reserve(Utils::usize(nodes) + 1);
@@ -1013,9 +1013,9 @@ ModuleIds generateModuleIds(const ModelNodes &nodes, const ModulesStorage &modul
     moduleIds.push_back(modulesStorage.moduleId("QtQuick", Storage::ModuleKind::QmlLibrary));
 
     for (const auto &node : nodes) {
-        auto exportedNames = node.metaInfo().allExportedTypeNames();
-        if (exportedNames.size())
-            moduleIds.push_back(exportedNames.front().moduleId);
+        auto exportedName = model->exportedTypeNameForMetaInfo(node.metaInfo());
+        if (exportedName.moduleId)
+            moduleIds.push_back(exportedName.moduleId);
     }
 
     std::sort(moduleIds.begin(), moduleIds.end());
@@ -1052,14 +1052,14 @@ QStringList generateImports(ModuleIds moduleIds, const QUrl &docUrl, const Modul
     return imports;
 }
 
-QStringList generateImports(const ModelNodes &nodes, ModulesStorage &modulesStorage)
+QStringList generateImports(const ModelNodes &nodes, const ModulesStorage &modulesStorage, Model *model)
 {
     if (nodes.empty())
         return {};
 
-    auto moduleIds = generateModuleIds(nodes, modulesStorage);
+    auto moduleIds = generateModuleIds(nodes, modulesStorage, model);
 
-    return generateImports(moduleIds, nodes.front().model()->fileUrl(), modulesStorage);
+    return generateImports(moduleIds, model->fileUrl(), modulesStorage);
 }
 
 #endif
@@ -1074,7 +1074,7 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
 
     const QList<ModelNode> nodes = modelNode.allSubModelNodesAndThisNode();
 #ifdef QDS_USE_PROJECTSTORAGE
-    auto directPaths = generateImports(nodes, m_modulesStorage);
+    auto directPaths = generateImports(nodes, m_modulesStorage, model());
 #else
     QSet<QString> directPathsSet;
 
