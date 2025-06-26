@@ -29,21 +29,13 @@ public:
         Warning
     };
 
-    enum Option : char {
-        NoOptions   = 0,
-        AddTextMark = 1 << 0,
-        FlashWorthy = 1 << 1,
-    };
-    using Options = char;
-
     enum DescriptionTag { WithSummary = 1, WithLinks = 2 };
     using DescriptionTags = QFlags<DescriptionTag>;
 
     Task() = default;
     Task(TaskType type, const QString &description,
          const Utils::FilePath &file, int line, Utils::Id category,
-         const QIcon &icon = QIcon(),
-         Options options = AddTextMark | FlashWorthy);
+         const QIcon &icon = QIcon());
 
     static Task compilerMissingTask();
 
@@ -94,8 +86,11 @@ public:
     QIcon icon() const;
     void setIcon(const QIcon &icon);
 
-    Options options() const { return m_options; }
-    bool isFlashWorthy() const { return m_options & FlashWorthy; }
+    bool isFlashworthy() const { return m_flashworthy; }
+    void preventFlashing() { m_flashworthy = false; }
+
+    bool shouldCreateTextMark() const { return m_addTextMark; }
+    void preventTextMarkCreation() { m_addTextMark = false; }
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
     friend PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);
@@ -106,7 +101,7 @@ private:
 
     unsigned int m_id = 0;
     TaskType m_type = Unknown;
-    Options m_options = AddTextMark | FlashWorthy;
+
     QString m_summary;
     QStringList m_details;
     Utils::FilePath m_file;
@@ -116,6 +111,8 @@ private:
     int m_column = 0;
     Utils::Id m_category;
     QString m_origin;
+    bool m_flashworthy = true;
+    bool m_addTextMark = true;
 
     // Having a container of QTextLayout::FormatRange in Task isn't that great
     // It would be cleaner to split up the text into

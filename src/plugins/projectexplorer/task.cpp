@@ -43,8 +43,8 @@ unsigned int Task::s_nextId = 1;
 
 Task::Task(TaskType type_, const QString &description,
            const Utils::FilePath &file, int line, Utils::Id category_,
-           const QIcon &icon, Options options) :
-    m_id(s_nextId), m_type(type_), m_options(options), m_summary(description),
+           const QIcon &icon) :
+    m_id(s_nextId), m_type(type_), m_summary(description),
     m_line(line), m_category(category_), m_icon(icon)
 {
     ++s_nextId;
@@ -137,8 +137,6 @@ void Task::setLine(int line)
     if (m_mark)
         m_mark->move(line);
 }
-
-
 
 QString Task::description(DescriptionTags tags) const
 {

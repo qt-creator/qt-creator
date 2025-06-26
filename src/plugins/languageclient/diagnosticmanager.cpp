@@ -236,8 +236,9 @@ std::optional<Task> DiagnosticManager::createTask(
         doc->filePath(),
         diagnostic.range().start().line() + 1,
         d->m_taskCategory,
-        icon,
-        Task::NoOptions);
+        icon);
+    task.preventFlashing();
+    task.preventTextMarkCreation();
 
     if (const std::optional<CodeDescription> codeDescription = diagnostic.codeDescription())
         task.addLinkDetail(codeDescription->href());

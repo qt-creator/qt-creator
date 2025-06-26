@@ -53,6 +53,24 @@ static QString taskTypeToString(Task::TaskType type)
     }
 }
 
+// Deprecated
+enum Option : char {
+    NoOptions   = 0,
+    AddTextMark = 1 << 0,
+    FlashWorthy = 1 << 1,
+};
+using Options = char;
+
+static Options optionsForTask(const Task &task)
+{
+    Options options = Option::NoOptions;
+    if (task.isFlashworthy())
+        options |= Option::FlashWorthy;
+    if (task.shouldCreateTextMark())
+        options |= Option::AddTextMark;
+    return options;
+}
+
 void setupTaskHubModule()
 {
     registerTaskHubHook("categoryAdded", &TaskHub::categoryAdded);
@@ -98,9 +116,9 @@ void setupTaskHubModule()
         );
 
         taskHub.new_enum("Option",
-            "NoOptions",Task::NoOptions,
-            "AddTextMark", Task::AddTextMark,
-            "FlashWorthy", Task::FlashWorthy
+            "NoOptions",NoOptions,
+            "AddTextMark", AddTextMark,
+            "FlashWorthy", FlashWorthy
         );
 
         taskHub.new_enum("DescriptionTag",
@@ -152,31 +170,46 @@ void setupTaskHubModule()
                 QString category = parameter.get<QString>("category"sv);
                 std::optional<IconFilePathOrString> icon
                     = parameter.get<std::optional<IconFilePathOrString>>("icon"sv);
-                Task::Options options = parameter.get_or<int, std::string_view, int>(
-                    "options"sv, Task::AddTextMark | Task::FlashWorthy);
+                std::optional<Options> options = parameter.get<std::optional<int>>("options"sv);
+                std::optional<bool> shouldCreateTextMark = parameter.get<std::optional<bool>>(
+                    "shouldCreateTextMark"sv);
+                std::optional<bool> flashworthy = parameter.get<std::optional<bool>>(
+                    "flashworthy"sv);
 
                 QIcon qicon = icon ? toIcon(*icon)->icon() : QIcon();
 
                 QTC_ASSERT(
                     type >= Task::Unknown && type <= Task::Warning,
-                    throw sol::error("Type must be one of Task.Type.Unknown, Task.Type.Error, "
-                                     "Task.Type.Warning"));
+                    throw sol::error(
+                        "Type must be one of Task.Type.Unknown, Task.Type.Error, "
+                        "Task.Type.Warning"));
 
-                return Task(
+                Task task(
                     static_cast<Task::TaskType>(type),
                     description,
                     file,
                     line,
                     Id::fromString(category),
-                    qicon,
-                    options);
+                    qicon);
+
+                if ((options && (*options & AddTextMark))
+                    || (shouldCreateTextMark && *shouldCreateTextMark)) {
+                    task.shouldCreateTextMark();
+                }
+                if ((options && !(*options & FlashWorthy)) || (flashworthy && !*flashworthy))
+                    task.preventFlashing();
+                return task;
             },
             "id",
             sol::readonly_property([](Task &self) { return self.id(); }),
             "type",
             sol::readonly_property([](Task &self) { return self.type(); }),
             "options",
-            sol::readonly_property([](Task &self) { return self.options(); }),
+            sol::readonly_property([](Task &self) { return optionsForTask(self); }),
+            "flashworthy",
+            sol::readonly_property([](Task &self) { return self.isFlashworthy(); }),
+            "shouldCreateTextMark",
+            sol::readonly_property([](Task &self) { return self.shouldCreateTextMark(); }),
             "summary",
             sol::readonly_property([](Task &self) { return self.summary(); }),
             "details",

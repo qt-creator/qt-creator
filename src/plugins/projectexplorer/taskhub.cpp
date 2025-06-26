@@ -131,7 +131,7 @@ void TaskHub::addTask(Task task)
     if (task.m_file.isEmpty() || task.m_line <= 0)
         task.m_line = -1;
 
-    if ((task.m_options & Task::AddTextMark) && task.m_line != -1 && task.m_type != Task::Unknown)
+    if (task.shouldCreateTextMark() && task.m_line != -1 && task.m_type != Task::Unknown)
         task.setMark(new TaskMark(task));
     emit taskHub().taskAdded(task);
 }

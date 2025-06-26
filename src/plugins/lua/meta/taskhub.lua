@@ -34,7 +34,9 @@ TaskHub.DescriptionTag = {
 ---@class Task
 ---@field id string The unique identifier of the task.
 ---@field type TaskType The type of the task.
----@field options Option The options of the task. An integer with bitwise AND of `TaskHub::Option`.
+---@field options Option Deprecated: Use `flashworthy` and `shouldCreateTextMark` instead.
+---@field flashworthy boolean Whether the task is flashworthy or not.
+---@field shouldCreateTextMark boolean Whether the task should create a text mark or not.
 ---@field summary string The summary of the task.
 ---@field details string The details of the task.
 ---@field file FilePath The file referenced by the task.
@@ -44,8 +46,6 @@ TaskHub.DescriptionTag = {
 ---@field column integer The column inside `file` referenced by the task.
 ---@field category string The id of the category of the task.
 ---@field description string The description of the task.
-Task = {}
-
 
 ---@class TaskCreateParameters
 ---@field type TaskType
@@ -54,7 +54,9 @@ Task = {}
 ---@field line integer
 ---@field category string
 ---@field icon? Icon|FilePath|string
----@field options? Option
+---@field options? Option Deprecated, use `flashworthy` and `shouldCreateTextMark` instead.
+---@field flashworthy? boolean
+---@field shouldCreateTextMark? boolean
 
 ---Create a new Task from the supplied parameters.
 ---@param parameters TaskCreateParameters

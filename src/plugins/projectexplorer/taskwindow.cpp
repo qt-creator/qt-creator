@@ -318,7 +318,7 @@ void TaskWindow::addTask(const Task &task)
     emit tasksChanged();
     navigateStateChanged();
 
-    if ((task.isFlashWorthy())
+    if (task.isFlashworthy()
          && task.isError()
          && d->m_filter->filterIncludesErrors()
          && !d->m_filter->filteredCategories().contains(task.category())) {
