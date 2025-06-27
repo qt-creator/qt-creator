@@ -103,17 +103,16 @@ Result<> ResourceFile::load()
     if (m_contents.isEmpty()) {
 
         // Regular file
-        QFile file(m_filePath.toUrlishString());
-        if (!file.open(QIODevice::ReadOnly)) {
-            m_error_message = file.errorString();
-            return ResultError(m_error_message);
+        auto readResult = m_filePath.fileContents();
+        if (!readResult){
+                m_error_message = readResult.error();
+                return ResultError(m_error_message);
         }
-        QByteArray data = file.readAll();
+        QByteArray data = readResult.value();
         // Detect line ending style
         m_textFileFormat.detectFromData(data);
         // we always write UTF-8 when saving
         m_textFileFormat.setEncoding(TextEncoding::Utf8);
-        file.close();
 
         QString error_msg;
         int error_line, error_col;
