@@ -245,15 +245,10 @@ void SelectionTool::itemsAboutToRemoved(const QList<FormEditorItem*> &itemList)
         return !itemList.contains(item);
     });
 
-    if (!remaining.isEmpty()) {
-        m_selectionIndicator.setItems(remaining);
-        m_resizeIndicator.setItems(remaining);
-        m_rotationIndicator.setItems(remaining);
-        m_anchorIndicator.setItems(remaining);
-        m_bindingIndicator.setItems(remaining);
-    } else {
+    if (!remaining.isEmpty())
+        setItems(remaining);
+    else
         clear();
-    }
 }
 
 void SelectionTool::clear()
