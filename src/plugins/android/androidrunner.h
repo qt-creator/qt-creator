@@ -5,10 +5,13 @@
 
 #include <projectexplorer/runcontrol.h>
 
+#include <solutions/tasking/barrier.h>
 #include <solutions/tasking/tasktreerunner.h>
 
 namespace Android::Internal {
 
+Tasking::Group androidKicker(const Tasking::SingleBarrier &barrier,
+                             ProjectExplorer::RunControl *runControl);
 Tasking::Group androidRecipe(ProjectExplorer::RunControl *runControl);
 void setupAndroidRunWorker();
 

@@ -37,7 +37,7 @@ using namespace Utils;
 
 namespace Android::Internal {
 
-Group androidRecipe(RunControl *runControl)
+Group androidKicker(const SingleBarrier &barrier, RunControl *runControl)
 {
     BuildConfiguration *bc = runControl->buildConfiguration();
     QTC_ASSERT(bc, return {});
@@ -74,7 +74,7 @@ Group androidRecipe(RunControl *runControl)
         apiLevel = Internal::deviceApiLevel(bc);
     }
 
-    const auto onSetup = [runControl, glueStorage, deviceSerialNumber, apiLevel] {
+    const auto onSetup = [runControl, glueStorage, deviceSerialNumber, apiLevel, barrier] {
         RunnerInterface *glue = glueStorage.activeStorage();
         glue->setRunControl(runControl);
         glue->setDeviceSerialNumber(deviceSerialNumber);
@@ -108,7 +108,8 @@ Group androidRecipe(RunControl *runControl)
 
         auto iface = runStorage().activeStorage();
         QObject::connect(iface, &RunInterface::canceled, glue, &RunnerInterface::cancel);
-        QObject::connect(glue, &RunnerInterface::started, iface, &RunInterface::started);
+        QObject::connect(glue, &RunnerInterface::started, barrier->barrier(), &Barrier::advance,
+                         Qt::QueuedConnection);
         QObject::connect(glue, &RunnerInterface::finished, runControl, [runControl](const QString &errorString) {
             runControl->postMessage(errorString, Utils::NormalMessageFormat);
             if (runControl->isRunning())
@@ -121,6 +122,16 @@ Group androidRecipe(RunControl *runControl)
         onGroupSetup(onSetup),
         avdRecipe ? *avdRecipe : nullItem,
         runnerRecipe(glueStorage)
+    };
+}
+
+Group androidRecipe(RunControl *runControl)
+{
+    const auto kicker = [runControl](const SingleBarrier &barrier) {
+        return androidKicker(barrier, runControl);
+    };
+    return When (kicker) >> Do {
+        Sync([] { emit runStorage()->started(); })
     };
 }
 
