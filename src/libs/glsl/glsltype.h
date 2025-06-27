@@ -33,6 +33,7 @@ public:
     virtual const Struct *asStructType() const { return nullptr; }
     virtual const Function *asFunctionType() const { return nullptr; }
     virtual const InterfaceBlock *asInterfaceBlockType() const { return nullptr; }
+    virtual const SubroutineType *asSubroutineType() const { return nullptr; }
 
     virtual bool isEqualTo(const Type *other) const = 0;
     virtual bool isLessThan(const Type *other) const = 0;

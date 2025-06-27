@@ -257,6 +257,14 @@ Argument *Engine::newArgument(Function *function, const QString &name, const Typ
     return a;
 }
 
+SubroutineType *Engine::newSubroutineType(Scope *scope)
+{
+    SubroutineType *subroutine = new SubroutineType(scope);
+    _symbols.append(subroutine);
+    return subroutine;
+}
+
+
 Variable *Engine::newVariable(Scope *scope, const QString &name, const Type *type, int qualifiers)
 {
     Variable *var = new Variable(scope);

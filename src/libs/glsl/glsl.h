@@ -37,6 +37,7 @@ class MatrixType;
 class ArrayType;
 class SamplerType;
 class ImageType;
+class SubroutineType;
 
 // symbols
 class Symbol;

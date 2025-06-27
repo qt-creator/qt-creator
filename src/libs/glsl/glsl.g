@@ -22,9 +22,11 @@
 %token BVEC2 "bvec2"
 %token BVEC3 "bvec3"
 %token BVEC4 "bvec4"
+%token BUFFER "buffer"
 %token CARET "^"
 %token CASE "case"
 %token CENTROID "centroid"
+%token COHERENT "coherent"
 %token COLON ":"
 %token COMMA ","
 %token CONST "const"
@@ -136,8 +138,11 @@
 %token PATCH "patch"
 %token PERCENT "%"
 %token PLUS "plus"
+%token PRECISE "precise"
 %token PRECISION "precision"
 %token QUESTION "?"
+%token READONLY "readonly"
+%token RESTRICT "restrict"
 %token RETURN "return"
 %token RIGHT_ANGLE ">"
 %token RIGHT_ASSIGN ">>="
@@ -165,6 +170,7 @@
 %token SAMPLERCUBEARRAYSHADOW "samplerCubeArrayShadow"
 %token SAMPLERCUBESHADOW "samplerCubeShadow"
 %token SEMICOLON ";"
+%token SHARED "shared"
 %token SLASH "/"
 %token SMOOTH "smooth"
 %token STAR "*"
@@ -192,7 +198,7 @@
 %token USAMPLER2D "usampler2D"
 %token USAMPLER2DARRAY "usampler2DArray"
 %token USAMPLER2DMS "usampler2DMS"
-%token USAMPLER2DMSARRAY "usampler2DMSarray"
+%token USAMPLER2DMSARRAY "usampler2DMSArray"
 %token USAMPLER2DRECT "usampler2DRect"
 %token USAMPLER3D "usampler3D"
 %token USAMPLERBUFFER "usamplerBuffer"
@@ -207,7 +213,9 @@
 %token VEC4 "vec4"
 %token VERTICAL_BAR "|"
 %token VOID "void"
+%token VOLATILE "volatile"
 %token WHILE "while"
+%token WRITEONLY "writeonly"
 %token XOR_ASSIGN "^="
 %token XOR_OP "^^"
 %token TRUE "true"
@@ -253,6 +261,7 @@ public:
         List<StructTypeAST::Field *> *field_list;
         TranslationUnitAST *translation_unit;
         FunctionIdentifierAST *function_identifier;
+        List<ArrayTypeAST::ArraySpecAST *> *array_specifier;
         AST::Kind kind;
         TypeAST::Precision precision;
         struct {
@@ -271,8 +280,10 @@ public:
         LayoutQualifierAST *layout;
         List<LayoutQualifierAST *> *layout_list;
         struct {
+            TypeAST::Precision precision;
             int qualifier;
             List<LayoutQualifierAST *> *layout_list;
+            List<NamedTypeAST *> *type_name_list;
         } type_qualifier;
         struct {
             TypeAST *type;
@@ -281,6 +292,8 @@ public:
         ParameterDeclarationAST *param_declaration;
         FunctionDeclarationAST *function_declaration;
         InterfaceBlockAST *interface_block;
+        List<IdentifierExpressionAST *> *identifier_list;
+        List<NamedTypeAST *> *type_name_list;
     };
 
     Parser(Engine *engine, const char *source, unsigned size, int variant);
@@ -340,17 +353,17 @@ private:
 
     static bool isInterfaceBlockStorageIdentifier(int qualifier)
     {
-        // TODO Buffer
         qualifier = qualifier & QualifiedTypeAST::StorageMask;
         return (qualifier == QualifiedTypeAST::In
                 || qualifier == QualifiedTypeAST::Out
                 || qualifier == QualifiedTypeAST::Uniform
-                || qualifier == QualifiedTypeAST::CentroidIn
-                || qualifier == QualifiedTypeAST::CentroidOut
-                || qualifier == QualifiedTypeAST::PatchIn
-                || qualifier == QualifiedTypeAST::PatchOut
-                || qualifier == QualifiedTypeAST::SampleIn
-                || qualifier == QualifiedTypeAST::SampleOut);
+                || qualifier == QualifiedTypeAST::Buffer
+                || qualifier == (QualifiedTypeAST::Centroid | QualifiedTypeAST::In)
+                || qualifier == (QualifiedTypeAST::Centroid | QualifiedTypeAST::Out)
+                || qualifier == (QualifiedTypeAST::Patch | QualifiedTypeAST::In)
+                || qualifier == (QualifiedTypeAST::Patch | QualifiedTypeAST::Out)
+                || qualifier == (QualifiedTypeAST::Sample | QualifiedTypeAST::In)
+                || qualifier == (QualifiedTypeAST::Sample | QualifiedTypeAST::Out));
     }
 
     template <typename T>
@@ -1214,7 +1227,14 @@ case $rule_number: {
 declaration ::= function_prototype SEMICOLON ;
 /.
 case $rule_number: {
-    // nothing to do.
+    if (auto q = function(1)->returnType->asQualifiedType()) {
+        if ((q->qualifiers & QualifiedTypeAST::Subroutine) != 0) {
+            SubroutineTypeAST *namedSubroutineType = makeAstNode<SubroutineTypeAST>(function(1));
+            ast(1) = makeAstNode<TypeDeclarationAST>(namedSubroutineType);
+        }
+    } else {
+        // nothing to do
+    }
 }   break;
 ./
 
@@ -1225,7 +1245,7 @@ case $rule_number: {
 }   break;
 ./
 
-declaration ::= PRECISION precision_qualifier type_specifier_no_prec SEMICOLON ;
+declaration ::= PRECISION precision_qualifier type_specifier SEMICOLON ;
 /.
 case $rule_number: {
     ast(1) = makeAstNode<PrecisionDeclarationAST>(sym(2).precision, type(3));
@@ -1320,7 +1340,7 @@ case $rule_number: {
 }   break;
 ./
 
-declaration ::= type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET SEMICOLON ;
+declaration ::= type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE IDENTIFIER array_specifier SEMICOLON ;
 /.
 case $rule_number: {
     const int qualifier = sym(1).type_qualifier.qualifier;
@@ -1337,7 +1357,7 @@ case $rule_number: {
         ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
             (makeAstNode<TypeDeclarationAST>(type),
              makeAstNode<VariableDeclarationAST>
-                (makeAstNode<ArrayTypeAST>(type, expression(8)), string(6)));
+                (makeAstNode<ArrayTypeAST>(type, sym(7).array_specifier), string(6)));
     } else {
         TypeAST *type = makeAstNode<StructTypeAST>(string(2), sym(4).field_list);
         TypeAST *qualtype = type;
@@ -1349,7 +1369,7 @@ case $rule_number: {
         ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
             (makeAstNode<TypeDeclarationAST>(type),
              makeAstNode<VariableDeclarationAST>
-                (makeAstNode<ArrayTypeAST>(qualtype, expression(8)), string(6)));
+                (makeAstNode<ArrayTypeAST>(qualtype, sym(7).array_specifier), string(6)));
     }
 }   break;
 ./
@@ -1361,6 +1381,63 @@ case $rule_number: {
         (sym(1).type_qualifier.qualifier, (TypeAST *)nullptr,
          sym(1).type_qualifier.layout_list);
     ast(1) = makeAstNode<TypeDeclarationAST>(type);
+}   break;
+./
+
+declaration ::= type_qualifier IDENTIFIER SEMICOLON ;
+/.
+case $rule_number: {
+    TypeAST *type = makeAstNode<QualifiedTypeAST>
+        (sym(1).type_qualifier.qualifier, (TypeAST *)nullptr,
+         sym(1).type_qualifier.layout_list);
+    ast(1) = makeAstNode<TypeAndVariableDeclarationAST>
+        (makeAstNode<TypeDeclarationAST>(type),
+         makeAstNode<VariableDeclarationAST>(type, string(2)));
+}   break;
+./
+
+declaration ::= type_qualifier IDENTIFIER identifier_list SEMICOLON ;
+/.
+case $rule_number: {
+    TypeAST *type = makeAstNode<QualifiedTypeAST>
+        (sym(1).type_qualifier.qualifier, (TypeAST *)nullptr,
+         sym(1).type_qualifier.layout_list);
+
+    DeclarationAST * first = makeAstNode<TypeAndVariableDeclarationAST>
+        (makeAstNode<TypeDeclarationAST>(type),
+         makeAstNode<VariableDeclarationAST>(type, string(2)));
+    List<DeclarationAST *> *allDeclarations = makeAstNode<List<DeclarationAST *>>(first);
+
+    // get identifier, convert circular to linked list
+    List<IdentifierExpressionAST *> *idList = sym(3).identifier_list->finish();
+    while (idList) {
+        DeclarationAST *secondary = makeAstNode<TypeAndVariableDeclarationAST>
+            (makeAstNode<TypeDeclarationAST>(type),
+             makeAstNode<VariableDeclarationAST>(type, idList->value->name));
+
+        allDeclarations = appendLists(allDeclarations,
+                                      makeAstNode<List<DeclarationAST *>>(secondary));
+        idList = idList->next;
+    }
+
+    ast(1) = makeAstNode<InitDeclarationAST>(allDeclarations);
+}   break;
+./
+
+identifier_list ::= COMMA IDENTIFIER ;
+/.
+case $rule_number: {
+    IdentifierExpressionAST *id = makeAstNode<IdentifierExpressionAST>(string(2));
+    sym(1).identifier_list = makeAstNode<List<IdentifierExpressionAST *>>(id);
+}   break;
+./
+
+identifier_list ::= identifier_list COMMA IDENTIFIER ;
+/.
+case $rule_number: {
+    IdentifierExpressionAST *id = makeAstNode<IdentifierExpressionAST>(string(3));
+    List<IdentifierExpressionAST *> *nextId = makeAstNode<List<IdentifierExpressionAST *>>(id);
+    sym(1).identifier_list = appendLists(sym(1).identifier_list, nextId);
 }   break;
 ./
 
@@ -1416,60 +1493,82 @@ case $rule_number: {
 }   break;
 ./
 
-parameter_declarator ::= type_specifier IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET ;
+parameter_declarator ::= type_specifier IDENTIFIER array_specifier ;
 /.
 case $rule_number: {
-    sym(1).param_declarator.type = makeAstNode<ArrayTypeAST>(type(1), expression(4));
+    sym(1).param_declarator.type = makeAstNode<ArrayTypeAST>(type(1), sym(3).array_specifier);
     sym(1).param_declarator.name = string(2);
 }   break;
 ./
 
-parameter_declaration ::= parameter_type_qualifier parameter_qualifier parameter_declarator ;
+parameter_declaration ::= parameter_qualifiers parameter_declarator ;
 /.
 case $rule_number: {
+    int qualifier = sym(1).qualifier;
+    // ensure correct general qualifier
+    if ((qualifier & ParameterDeclarationAST::StorageMask) == 0)
+        qualifier |= ParameterDeclarationAST::In;
     ast(1) = makeAstNode<ParameterDeclarationAST>
         (makeAstNode<QualifiedTypeAST>
-            (sym(1).qualifier, sym(3).param_declarator.type,
+            (qualifier & QualifiedTypeAST::MemoryMask, sym(2).param_declarator.type,
              (List<LayoutQualifierAST *> *)nullptr),
-         ParameterDeclarationAST::Qualifier(sym(2).qualifier),
-         sym(3).param_declarator.name);
-}   break;
-./
-
-parameter_declaration ::= parameter_qualifier parameter_declarator ;
-/.
-case $rule_number: {
-    ast(1) = makeAstNode<ParameterDeclarationAST>
-        (sym(2).param_declarator.type,
-         ParameterDeclarationAST::Qualifier(sym(1).qualifier),
+         ParameterDeclarationAST::Qualifier(qualifier),
          sym(2).param_declarator.name);
 }   break;
 ./
 
-parameter_declaration ::= parameter_type_qualifier parameter_qualifier parameter_type_specifier ;
+parameter_declaration ::= parameter_qualifiers parameter_type_specifier ;
 /.
 case $rule_number: {
+    int qualifier = sym(1).qualifier;
+    // ensure correct general qualifier
+    if ((qualifier & ParameterDeclarationAST::StorageMask) == 0)
+        qualifier |= ParameterDeclarationAST::In;
     ast(1) = makeAstNode<ParameterDeclarationAST>
         (makeAstNode<QualifiedTypeAST>
-            (sym(1).qualifier, type(3), (List<LayoutQualifierAST *> *)nullptr),
-         ParameterDeclarationAST::Qualifier(sym(2).qualifier),
+            (qualifier & QualifiedTypeAST::MemoryMask, type(2),
+             (List<LayoutQualifierAST *> *)nullptr),
+         ParameterDeclarationAST::Qualifier(qualifier),
          (const QString *)nullptr);
 }   break;
 ./
 
-parameter_declaration ::= parameter_qualifier parameter_type_specifier ;
+parameter_qualifiers ::= empty ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<ParameterDeclarationAST>
-        (type(2), ParameterDeclarationAST::Qualifier(sym(1).qualifier),
-         (const QString *)nullptr);
+    sym(1).qualifier |= ParameterDeclarationAST::None; // or should we just do nothing?
 }   break;
 ./
 
-parameter_qualifier ::= empty ;
+parameter_qualifiers ::= parameter_qualifier parameter_qualifiers ;
 /.
 case $rule_number: {
-    sym(1).qualifier = ParameterDeclarationAST::In;
+    if ((sym(1).qualifier & sym(2).qualifier) != 0) {
+        int loc = location(1);
+        int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+        error(lineno, "Duplicate qualifier.");
+    } else if ((sym(1).qualifier & ParameterDeclarationAST::PrecisionMask) != 0
+                && (sym(2).qualifier & ParameterDeclarationAST::PrecisionMask) != 0) {
+        int loc = location(1);
+        int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+        error(lineno, "Conflicting precision qualifier.");
+    }
+    sym(1).qualifier |= sym(2).qualifier;
+    if ((sym(1).qualifier & ParameterDeclarationAST::Const) != 0) {
+        if (((sym(1).qualifier & ParameterDeclarationAST::InOut) != 0)
+            || (sym(1).qualifier & ParameterDeclarationAST::Out) != 0) {
+            int loc = location(1);
+            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            error(lineno, "const cannot be used with out or inout.");
+        }
+    } else if ((sym(1).qualifier & ParameterDeclarationAST::InOut) != 0) {
+        if ((sym(1).qualifier & ParameterDeclarationAST::In) != 0
+            || (sym(1).qualifier & ParameterDeclarationAST::Out) != 0) {
+            int loc = location(1);
+            int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+            error(lineno, "Duplicate qualifier.");
+        }
+    }
 }   break;
 ./
 
@@ -1491,6 +1590,76 @@ parameter_qualifier ::= INOUT ;
 /.
 case $rule_number: {
     sym(1).qualifier = ParameterDeclarationAST::InOut;
+}   break;
+./
+
+parameter_qualifier ::= CONST ;
+/.
+case $rule_number: {
+    sym(1).qualifier = ParameterDeclarationAST::Const;
+}   break;
+./
+
+parameter_qualifier ::= PRECISE ;
+/.
+case $rule_number: {
+    sym(1).qualifier = ParameterDeclarationAST::Precise;
+}   break;
+./
+
+parameter_qualifier ::= LOWP ;
+/.
+case $rule_number: {
+    sym(1).qualifier = ParameterDeclarationAST::Lowp;
+}   break;
+./
+
+parameter_qualifier ::= MEDIUMP ;
+/.
+case $rule_number: {
+    sym(1).qualifier = ParameterDeclarationAST::Mediump;
+}   break;
+./
+
+parameter_qualifier ::= HIGHP ;
+/.
+case $rule_number: {
+    sym(1).qualifier = ParameterDeclarationAST::Highp;
+}   break;
+./
+
+parameter_qualifier ::= COHERENT ;
+/.
+case $rule_number: {
+    sym(1).qualifier = ParameterDeclarationAST::Coherent;
+}   break;
+./
+
+parameter_qualifier ::= VOLATILE ;
+/.
+case $rule_number: {
+    sym(1).qualifier = ParameterDeclarationAST::Volatile;
+}   break;
+./
+
+parameter_qualifier ::= RESTRICT ;
+/.
+case $rule_number: {
+    sym(1).qualifier = ParameterDeclarationAST::Restrict;
+}   break;
+./
+
+parameter_qualifier ::= READONLY ;
+/.
+case $rule_number: {
+    sym(1).qualifier = ParameterDeclarationAST::Readonly;
+}   break;
+./
+
+parameter_qualifier ::= WRITEONLY ;
+/.
+case $rule_number: {
+    sym(1).qualifier = ParameterDeclarationAST::Writeonly;
 }   break;
 ./
 
@@ -1519,47 +1688,24 @@ case $rule_number: {
 }   break;
 ./
 
-init_declarator_list ::= init_declarator_list COMMA IDENTIFIER LEFT_BRACKET RIGHT_BRACKET ;
+init_declarator_list ::= init_declarator_list COMMA IDENTIFIER array_specifier ;
 /.
 case $rule_number: {
     TypeAST *type = VariableDeclarationAST::declarationType(sym(1).declaration_list);
-    type = makeAstNode<ArrayTypeAST>(type);
+    type = makeAstNode<ArrayTypeAST>(type, sym(4).array_specifier);
     DeclarationAST *decl = makeAstNode<VariableDeclarationAST>(type, string(3));
     sym(1).declaration_list = makeAstNode< List<DeclarationAST *> >
             (sym(1).declaration_list, decl);
 }   break;
 ./
 
-init_declarator_list ::= init_declarator_list COMMA IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET ;
+init_declarator_list ::= init_declarator_list COMMA IDENTIFIER array_specifier EQUAL initializer ;
 /.
 case $rule_number: {
     TypeAST *type = VariableDeclarationAST::declarationType(sym(1).declaration_list);
-    type = makeAstNode<ArrayTypeAST>(type, expression(5));
-    DeclarationAST *decl = makeAstNode<VariableDeclarationAST>(type, string(3));
-    sym(1).declaration_list = makeAstNode< List<DeclarationAST *> >
-            (sym(1).declaration_list, decl);
-}   break;
-./
-
-init_declarator_list ::= init_declarator_list COMMA IDENTIFIER LEFT_BRACKET RIGHT_BRACKET EQUAL initializer ;
-/.
-case $rule_number: {
-    TypeAST *type = VariableDeclarationAST::declarationType(sym(1).declaration_list);
-    type = makeAstNode<ArrayTypeAST>(type);
+    type = makeAstNode<ArrayTypeAST>(type, sym(4).array_specifier);
     DeclarationAST *decl = makeAstNode<VariableDeclarationAST>
-            (type, string(3), expression(7));
-    sym(1).declaration_list = makeAstNode< List<DeclarationAST *> >
-            (sym(1).declaration_list, decl);
-}   break;
-./
-
-init_declarator_list ::= init_declarator_list COMMA IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET EQUAL initializer ;
-/.
-case $rule_number: {
-    TypeAST *type = VariableDeclarationAST::declarationType(sym(1).declaration_list);
-    type = makeAstNode<ArrayTypeAST>(type, expression(5));
-    DeclarationAST *decl = makeAstNode<VariableDeclarationAST>
-            (type, string(3), expression(8));
+            (type, string(3), expression(6));
     sym(1).declaration_list = makeAstNode< List<DeclarationAST *> >
             (sym(1).declaration_list, decl);
 }   break;
@@ -1590,36 +1736,19 @@ case $rule_number: {
 }   break;
 ./
 
-single_declaration ::= fully_specified_type IDENTIFIER LEFT_BRACKET RIGHT_BRACKET ;
+single_declaration ::= fully_specified_type IDENTIFIER array_specifier ;
 /.
 case $rule_number: {
     ast(1) = makeAstNode<VariableDeclarationAST>
-        (makeAstNode<ArrayTypeAST>(type(1)), string(2));
+        (makeAstNode<ArrayTypeAST>(type(1), sym(3).array_specifier), string(2));
 }   break;
 ./
 
-single_declaration ::= fully_specified_type IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET ;
+single_declaration ::= fully_specified_type IDENTIFIER array_specifier EQUAL initializer ;
 /.
 case $rule_number: {
     ast(1) = makeAstNode<VariableDeclarationAST>
-        (makeAstNode<ArrayTypeAST>(type(1), expression(4)), string(2));
-}   break;
-./
-
-single_declaration ::= fully_specified_type IDENTIFIER LEFT_BRACKET RIGHT_BRACKET EQUAL initializer ;
-/.
-case $rule_number: {
-    ast(1) = makeAstNode<VariableDeclarationAST>
-        (makeAstNode<ArrayTypeAST>(type(1)), string(2), expression(6));
-}   break;
-./
-
-single_declaration ::= fully_specified_type IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET EQUAL initializer ;
-/.
-case $rule_number: {
-    ast(1) = makeAstNode<VariableDeclarationAST>
-        (makeAstNode<ArrayTypeAST>(type(1), expression(4)),
-         string(2), expression(7));
+        (makeAstNode<ArrayTypeAST>(type(1), sym(3).array_specifier), string(2), expression(5));
 }   break;
 ./
 
@@ -1628,13 +1757,6 @@ single_declaration ::= fully_specified_type IDENTIFIER EQUAL initializer ;
 case $rule_number: {
     ast(1) = makeAstNode<VariableDeclarationAST>
         (type(1), string(2), expression(4));
-}   break;
-./
-
-single_declaration ::= INVARIANT IDENTIFIER ;
-/.
-case $rule_number: {
-    ast(1) = makeAstNode<InvariantDeclarationAST>(string(2));
 }   break;
 ./
 
@@ -1685,7 +1807,7 @@ case $rule_number: {
 layout_qualifier ::= LAYOUT LEFT_PAREN layout_qualifier_id_list RIGHT_PAREN ;
 /.
 case $rule_number: {
-    sym(1) = sym(3);
+    sym(1).type_qualifier.layout_list = sym(3).layout_list;
 }   break;
 ./
 
@@ -1717,74 +1839,104 @@ case $rule_number: {
 }   break;
 ./
 
-parameter_type_qualifier ::= CONST ;
+layout_qualifier_id ::= SHARED ;
 /.
 case $rule_number: {
-    sym(1).qualifier = QualifiedTypeAST::Const;
+    sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)nullptr);
 }   break;
 ./
 
-type_qualifier ::= storage_qualifier ;
+precise_qualifier ::= PRECISE ;
 /.
 case $rule_number: {
-    sym(1).type_qualifier.qualifier = sym(1).qualifier;
-    sym(1).type_qualifier.layout_list = nullptr;
+    sym(1).precision = TypeAST::Precise;
 }   break;
 ./
 
-type_qualifier ::= layout_qualifier ;
+type_qualifier ::=  single_type_qualifier ;
 /.
 case $rule_number: {
-    sym(1).type_qualifier.layout_list = sym(1).layout_list;
-    sym(1).type_qualifier.qualifier = 0;
+    // nothing to do.
 }   break;
 ./
 
-type_qualifier ::= layout_qualifier storage_qualifier ;
+type_qualifier ::= type_qualifier single_type_qualifier ;
 /.
 case $rule_number: {
-    sym(1).type_qualifier.layout_list = sym(1).layout_list;
-    sym(1).type_qualifier.qualifier = sym(2).qualifier;
+    if (sym(2).type_qualifier.layout_list)
+        sym(1).type_qualifier.layout_list = sym(2).type_qualifier.layout_list;
+    if ((sym(1).type_qualifier.qualifier & sym(2).type_qualifier.qualifier) != 0) {
+        int loc = location(1);
+        int lineno = loc >= 0 ? (_tokens[loc].line + 1) : 0;
+        error(lineno, "Duplicate qualifier.");
+    }
+    // TODO check for too many qualifiers?
+    sym(1).type_qualifier.qualifier |= sym(2).type_qualifier.qualifier;
+    sym(1).type_qualifier.precision = sym(2).type_qualifier.precision;
+    if (sym(2).type_qualifier.type_name_list)
+        sym(1).type_qualifier.type_name_list = sym(2).type_qualifier.type_name_list;
 }   break;
 ./
 
-type_qualifier ::= interpolation_qualifier storage_qualifier ;
+single_type_qualifier ::= storage_qualifier ;
 /.
 case $rule_number: {
-    sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier;
-    sym(1).type_qualifier.layout_list = nullptr;
+    int qualifier = sym(1).qualifier;
+    sym(1).type_qualifier = {TypeAST::PrecUnspecified, 0, nullptr, nullptr};
+    sym(1).type_qualifier.qualifier = qualifier;
 }   break;
 ./
 
-type_qualifier ::= interpolation_qualifier ;
+single_type_qualifier ::= subroutine_storage_qualifier ;
 /.
 case $rule_number: {
-    sym(1).type_qualifier.qualifier = sym(1).qualifier;
-    sym(1).type_qualifier.layout_list = nullptr;
+    List<NamedTypeAST *> *typeNameList = sym(1).type_name_list;
+    sym(1).type_qualifier = {TypeAST::PrecUnspecified, 0, nullptr, nullptr};
+    sym(1).type_qualifier.qualifier = QualifiedTypeAST::Subroutine;
+    sym(1).type_qualifier.type_name_list = typeNameList;
 }   break;
 ./
 
-type_qualifier ::= invariant_qualifier storage_qualifier ;
+single_type_qualifier ::= layout_qualifier ;
 /.
 case $rule_number: {
-    sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier;
-    sym(1).type_qualifier.layout_list = nullptr;
+    // nothing to do.
 }   break;
 ./
 
-type_qualifier ::= invariant_qualifier interpolation_qualifier storage_qualifier ;
+single_type_qualifier ::= precision_qualifier ;
 /.
 case $rule_number: {
-    sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier | sym(3).qualifier;
-    sym(1).type_qualifier.layout_list = nullptr;
+    TypeAST::Precision precision = sym(1).precision;
+    sym(1).type_qualifier = {TypeAST::PrecUnspecified, 0, nullptr, nullptr};
+    sym(1).type_qualifier.precision = precision;
 }   break;
 ./
 
-type_qualifier ::= INVARIANT ;
+single_type_qualifier ::= interpolation_qualifier ;
 /.
 case $rule_number: {
-    sym(1).type_qualifier.qualifier = QualifiedTypeAST::Invariant;
-    sym(1).type_qualifier.layout_list = nullptr;
+    int qualifier = sym(1).qualifier;
+    sym(1).type_qualifier = {TypeAST::PrecUnspecified, 0, nullptr, nullptr};
+    sym(1).type_qualifier.qualifier = qualifier;
+}   break;
+./
+
+single_type_qualifier ::= invariant_qualifier ;
+/.
+case $rule_number: {
+    int qualifier = sym(1).qualifier;
+    sym(1).type_qualifier = {TypeAST::PrecUnspecified, 0, nullptr, nullptr};
+    sym(1).type_qualifier.qualifier = qualifier;
+}   break;
+./
+
+single_type_qualifier ::= precise_qualifier ;
+/.
+case $rule_number: {
+    TypeAST::Precision precision = sym(1).precision;
+    sym(1).type_qualifier = {TypeAST::PrecUnspecified, 0, nullptr, nullptr};
+    sym(1).type_qualifier.precision = precision;
 }   break;
 ./
 
@@ -1809,10 +1961,10 @@ case $rule_number: {
 }   break;
 ./
 
-storage_qualifier ::= CENTROID VARYING ;
+storage_qualifier ::= CENTROID ;
 /.
 case $rule_number: {
-    sym(1).qualifier = QualifiedTypeAST::CentroidVarying;
+    sym(1).qualifier = QualifiedTypeAST::Centroid;
 }   break;
 ./
 
@@ -1830,45 +1982,17 @@ case $rule_number: {
 }   break;
 ./
 
-storage_qualifier ::= CENTROID IN ;
+storage_qualifier ::= PATCH  ;
 /.
 case $rule_number: {
-    sym(1).qualifier = QualifiedTypeAST::CentroidIn;
+    sym(1).qualifier = QualifiedTypeAST::Patch;
 }   break;
 ./
 
-storage_qualifier ::= CENTROID OUT ;
+storage_qualifier ::= SAMPLE ;
 /.
 case $rule_number: {
-    sym(1).qualifier = QualifiedTypeAST::CentroidOut;
-}   break;
-./
-
-storage_qualifier ::= PATCH IN ;
-/.
-case $rule_number: {
-    sym(1).qualifier = QualifiedTypeAST::PatchIn;
-}   break;
-./
-
-storage_qualifier ::= PATCH OUT ;
-/.
-case $rule_number: {
-    sym(1).qualifier = QualifiedTypeAST::PatchOut;
-}   break;
-./
-
-storage_qualifier ::= SAMPLE IN ;
-/.
-case $rule_number: {
-    sym(1).qualifier = QualifiedTypeAST::SampleIn;
-}   break;
-./
-
-storage_qualifier ::= SAMPLE OUT ;
-/.
-case $rule_number: {
-    sym(1).qualifier = QualifiedTypeAST::SampleOut;
+    sym(1).qualifier = QualifiedTypeAST::Sample;
 }   break;
 ./
 
@@ -1879,41 +2003,132 @@ case $rule_number: {
 }   break;
 ./
 
-type_specifier ::= type_specifier_no_prec ;
+storage_qualifier ::= BUFFER ;
+/.
+case $rule_number: {
+    sym(1).qualifier = QualifiedTypeAST::Buffer;
+}   break;
+./
+
+storage_qualifier ::= SHARED ;
+/.
+case $rule_number: {
+    sym(1).qualifier = QualifiedTypeAST::Shared;
+}   break;
+./
+
+storage_qualifier ::= COHERENT ;
+/.
+case $rule_number: {
+    sym(1).qualifier = QualifiedTypeAST::Coherent;
+} break;
+./
+
+storage_qualifier ::= VOLATILE ;
+/.
+case $rule_number: {
+    sym(1).qualifier = QualifiedTypeAST::Volatile;
+}   break;
+./
+
+storage_qualifier ::= RESTRICT ;
+/.
+case $rule_number: {
+    sym(1).qualifier = QualifiedTypeAST::Restrict;
+}   break;
+./
+
+storage_qualifier ::= READONLY ;
+/.
+case $rule_number: {
+    sym(1).qualifier = QualifiedTypeAST::Readonly;
+}   break;
+./
+
+storage_qualifier ::= WRITEONLY ;
+/.
+case $rule_number: {
+    sym(1).qualifier = QualifiedTypeAST::Writeonly;
+}   break;
+./
+
+storage_qualifier ::= SUBROUTINE ;
+/.
+case $rule_number: {
+    sym(1).qualifier = QualifiedTypeAST::Subroutine;
+}   break;
+./
+
+subroutine_storage_qualifier ::= SUBROUTINE LEFT_PAREN type_name_list RIGHT_PAREN ;
+/.
+case $rule_number: {
+    sym(1).type_name_list = sym(3).type_name_list;
+}   break;
+./
+
+type_name_list ::= IDENTIFIER ;
+/.
+case $rule_number: {
+    NamedTypeAST *namedType = makeAstNode<NamedTypeAST>(string(1));
+    sym(1).type_name_list = makeAstNode<List<NamedTypeAST *>>(namedType);
+}   break;
+./
+
+type_name_list ::= type_name_list COMMA IDENTIFIER ;
+/.
+case $rule_number: {
+    NamedTypeAST *namedType = makeAstNode<NamedTypeAST>(string(3));
+    sym(1).type_name_list = appendLists(sym(1).type_name_list,
+                                        makeAstNode<List<NamedTypeAST *>>(namedType));
+
+}   break;
+./
+
+type_specifier ::= type_specifier_nonarray ;
 /.
 case $rule_number: {
     // nothing to do.
 }   break;
 ./
 
-type_specifier ::= precision_qualifier type_specifier_no_prec ;
+type_specifier ::= type_specifier_nonarray array_specifier ;
 /.
 case $rule_number: {
-    if (!type(2)->setPrecision(sym(1).precision)) {
-        // TODO: issue an error about precision not allowed on this type.
-    }
-    ast(1) = type(2);
+    ast(1) = makeAstNode<ArrayTypeAST>(type(1), sym(2).array_specifier);
 }   break;
 ./
 
-type_specifier_no_prec ::= type_specifier_nonarray ;
+array_specifier ::= LEFT_BRACKET RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    // nothing to do.
+    sym(1).array_specifier = makeAstNode< List<ArrayTypeAST::ArraySpecAST *>>(nullptr);
 }   break;
 ./
 
-type_specifier_no_prec ::= type_specifier_nonarray LEFT_BRACKET RIGHT_BRACKET ;
+array_specifier ::= LEFT_BRACKET conditional_expression RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<ArrayTypeAST>(type(1));
+    ArrayTypeAST::ArraySpecAST *spec = makeAstNode<ArrayTypeAST::ArraySpecAST>(expression(2));
+    sym(1).array_specifier = makeAstNode< List<ArrayTypeAST::ArraySpecAST *>>(spec);
 }   break;
 ./
 
-type_specifier_no_prec ::= type_specifier_nonarray LEFT_BRACKET constant_expression RIGHT_BRACKET ;
+array_specifier ::= array_specifier LEFT_BRACKET RIGHT_BRACKET ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<ArrayTypeAST>(type(1), expression(3));
+    List<ArrayTypeAST::ArraySpecAST *> *empty
+        = makeAstNode< List<ArrayTypeAST::ArraySpecAST *>>(nullptr);
+    sym(1).array_specifier = appendLists(sym(1).array_specifier, empty);
+}   break;
+./
+
+array_specifier ::= array_specifier LEFT_BRACKET conditional_expression RIGHT_BRACKET ;
+/.
+case $rule_number: {
+    ArrayTypeAST::ArraySpecAST *spec = makeAstNode<ArrayTypeAST::ArraySpecAST>(expression(3));
+    List<ArrayTypeAST::ArraySpecAST *> *specifier
+        = makeAstNode< List<ArrayTypeAST::ArraySpecAST *>>(spec);
+    sym(1).array_specifier = appendLists(sym(1).array_specifier, specifier);
 }   break;
 ./
 
@@ -2852,26 +3067,48 @@ case $rule_number: {
 }   break;
 ./
 
-struct_declarator ::= IDENTIFIER LEFT_BRACKET RIGHT_BRACKET ;
+struct_declarator ::= IDENTIFIER array_specifier ;
 /.
 case $rule_number: {
     sym(1).field = makeAstNode<StructTypeAST::Field>
-        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)nullptr));
-}   break;
-./
-
-struct_declarator ::= IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET ;
-/.
-case $rule_number: {
-    sym(1).field = makeAstNode<StructTypeAST::Field>
-        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)nullptr, expression(3)));
+        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)nullptr, sym(2).array_specifier));
 }   break;
 ./
 
 initializer ::= assignment_expression ;
 /.
 case $rule_number: {
-    // nothing to do.
+    List<ExpressionAST *> *expressionList = makeAstNode<List<ExpressionAST *>>(expression(1));
+    sym(1).expression = makeAstNode<InitializerListExpressionAST>(expressionList);
+}   break;
+./
+
+initializer ::= LEFT_BRACE initializer_list RIGHT_BRACE ;
+/.
+case $rule_number: {
+    sym(1).expression = makeAstNode<InitializerListExpressionAST>(sym(2).expression_list);
+}   break;
+./
+
+initializer ::= LEFT_BRACE initializer_list COMMA RIGHT_BRACE ;
+/.
+case $rule_number: {
+    sym(1).expression = makeAstNode<InitializerListExpressionAST>(sym(2).expression_list);
+}   break;
+./
+
+initializer_list ::= initializer ;
+/.
+case $rule_number: {
+    sym(1).expression_list = makeAstNode<List<ExpressionAST *>>(expression(1));
+}   break;
+./
+
+initializer_list ::= initializer_list COMMA initializer ;
+/.
+case $rule_number: {
+    sym(1).expression_list = makeAstNode<List<ExpressionAST *>>
+            (sym(1).expression_list, expression(3));
 }   break;
 ./
 

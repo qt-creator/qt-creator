@@ -1,5 +1,5 @@
 
-#line 222 "./glsl.g"
+#line 230 "./glsl.g"
 
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
@@ -34,6 +34,7 @@ public:
         List<StructTypeAST::Field *> *field_list;
         TranslationUnitAST *translation_unit;
         FunctionIdentifierAST *function_identifier;
+        List<ArrayTypeAST::ArraySpecAST *> *array_specifier;
         AST::Kind kind;
         TypeAST::Precision precision;
         struct {
@@ -52,8 +53,10 @@ public:
         LayoutQualifierAST *layout;
         List<LayoutQualifierAST *> *layout_list;
         struct {
+            TypeAST::Precision precision;
             int qualifier;
             List<LayoutQualifierAST *> *layout_list;
+            List<NamedTypeAST *> *type_name_list;
         } type_qualifier;
         struct {
             TypeAST *type;
@@ -62,6 +65,8 @@ public:
         ParameterDeclarationAST *param_declaration;
         FunctionDeclarationAST *function_declaration;
         InterfaceBlockAST *interface_block;
+        List<IdentifierExpressionAST *> *identifier_list;
+        List<NamedTypeAST *> *type_name_list;
     };
 
     Parser(Engine *engine, const char *source, unsigned size, int variant);
@@ -121,17 +126,17 @@ private:
 
     static bool isInterfaceBlockStorageIdentifier(int qualifier)
     {
-        // TODO Buffer
         qualifier = qualifier & QualifiedTypeAST::StorageMask;
         return (qualifier == QualifiedTypeAST::In
                 || qualifier == QualifiedTypeAST::Out
                 || qualifier == QualifiedTypeAST::Uniform
-                || qualifier == QualifiedTypeAST::CentroidIn
-                || qualifier == QualifiedTypeAST::CentroidOut
-                || qualifier == QualifiedTypeAST::PatchIn
-                || qualifier == QualifiedTypeAST::PatchOut
-                || qualifier == QualifiedTypeAST::SampleIn
-                || qualifier == QualifiedTypeAST::SampleOut);
+                || qualifier == QualifiedTypeAST::Buffer
+                || qualifier == (QualifiedTypeAST::Centroid | QualifiedTypeAST::In)
+                || qualifier == (QualifiedTypeAST::Centroid | QualifiedTypeAST::Out)
+                || qualifier == (QualifiedTypeAST::Patch | QualifiedTypeAST::In)
+                || qualifier == (QualifiedTypeAST::Patch | QualifiedTypeAST::Out)
+                || qualifier == (QualifiedTypeAST::Sample | QualifiedTypeAST::In)
+                || qualifier == (QualifiedTypeAST::Sample | QualifiedTypeAST::Out));
     }
 
     template <typename T>

@@ -15,6 +15,7 @@ class ExpressionAST;
 class IdentifierExpressionAST;
 class LiteralExpressionAST;
 class BinaryExpressionAST;
+class InitializerListExpressionAST;
 class UnaryExpressionAST;
 class TernaryExpressionAST;
 class AssignmentExpressionAST;
@@ -51,6 +52,7 @@ class InvariantDeclarationAST;
 class InitDeclarationAST;
 class FunctionDeclarationAST;
 class InterfaceBlockAST;
+class SubroutineTypeAST;
 class Visitor;
 
 template <typename T>
@@ -142,11 +144,13 @@ public:
 
         // Other expressions
         Kind_Conditional,
+        Kind_Initializer,
         Kind_MemberAccess,
         Kind_FunctionCall,
         Kind_MemberFunctionCall,
         Kind_FunctionIdentifier,
         Kind_DeclarationExpression,
+        Kind_ArraySpecifierExpression,
 
         // Assignment expressions
         Kind_Assign,
@@ -199,6 +203,7 @@ public:
         Kind_InitDeclaration,
         Kind_FunctionDeclaration,
         Kind_InterfaceDeclaration,
+        Kind_SubroutineTypeDeclaration,
     };
 
     virtual TranslationUnitAST *asTranslationUnit() { return 0; }
@@ -207,6 +212,7 @@ public:
     virtual IdentifierExpressionAST *asIdentifierExpression() { return 0; }
     virtual LiteralExpressionAST *asLiteralExpression() { return 0; }
     virtual BinaryExpressionAST *asBinaryExpression() { return 0; }
+    virtual InitializerListExpressionAST *asInitializerListExpression() { return 0; }
     virtual UnaryExpressionAST *asUnaryExpression() { return 0; }
     virtual TernaryExpressionAST *asTernaryExpression() { return 0; }
     virtual AssignmentExpressionAST *asAssignmentExpression() { return 0; }
@@ -235,6 +241,7 @@ public:
     virtual StructTypeAST *asStructType() { return 0; }
     virtual QualifiedTypeAST *asQualifiedType() { return 0; }
     virtual LayoutQualifierAST *asLayoutQualifier() { return 0; }
+    virtual SubroutineTypeAST *asSubroutineType() { return 0; }
 
     virtual DeclarationAST *asDeclaration() { return 0; }
     virtual PrecisionDeclarationAST *asPrecisionDeclaration() { return 0; }
@@ -342,6 +349,20 @@ public:
 public: // attributes
     ExpressionAST *left;
     ExpressionAST *right;
+};
+
+class GLSL_EXPORT InitializerListExpressionAST : public ExpressionAST
+{
+public:
+    InitializerListExpressionAST(List<ExpressionAST *> *_expressions)
+        : ExpressionAST(Kind_Initializer), expressions(finish(_expressions)) {}
+
+    InitializerListExpressionAST *asInitializerListExpression() override { return this; }
+
+    void accept0(Visitor *visitor) override;
+
+public: // attributes
+    List<ExpressionAST *> *expressions;
 };
 
 class GLSL_EXPORT UnaryExpressionAST: public ExpressionAST
@@ -650,7 +671,8 @@ public:
         PrecUnspecified,    // Precision not known, but can be validly set.
         Lowp,
         Mediump,
-        Highp
+        Highp,
+        Precise
     };
 
     TypeAST *asType() override { return this; }
@@ -700,10 +722,26 @@ public: // attributes
 class GLSL_EXPORT ArrayTypeAST: public TypeAST
 {
 public:
+    class GLSL_EXPORT ArraySpecAST : public AST
+    {
+    public:
+        ArraySpecAST()
+            : AST(Kind_ArraySpecifierExpression), size(0) {}
+        ArraySpecAST(ExpressionAST *_size)
+            : AST(Kind_ArraySpecifierExpression), size(_size) {}
+
+        void accept0(Visitor *visitor) override;
+
+    private:
+        ExpressionAST *size;
+    };
+
     ArrayTypeAST(TypeAST *_elementType)
-        : TypeAST(Kind_OpenArrayType), elementType(_elementType), size(0) {}
+        : TypeAST(Kind_OpenArrayType), elementType(_elementType), arraySpecifier(0), size(0) {}
+    ArrayTypeAST(TypeAST *_elementType, List<ArraySpecAST *> *_arraySpecifier)
+        : TypeAST(Kind_ArrayType), elementType(_elementType), arraySpecifier(finish(_arraySpecifier)), size(0) {}
     ArrayTypeAST(TypeAST *_elementType, ExpressionAST *_size)
-        : TypeAST(Kind_ArrayType), elementType(_elementType), size(_size) {}
+        : TypeAST(Kind_ArrayType), elementType(_elementType), arraySpecifier(0), size(_size) {}
 
     ArrayTypeAST *asArrayType() override { return this; }
 
@@ -714,6 +752,7 @@ public:
 
 public: // attributes
     TypeAST *elementType;
+    List<ArraySpecAST *> *arraySpecifier;
     ExpressionAST *size;
 };
 
@@ -784,28 +823,33 @@ public:
 
     enum
     {
-        StorageMask         = 0x000000FF,
+        StorageMask         = 0x00000FFF,
         NoStorage           = 0x00000000,
         Const               = 0x00000001,
         Attribute           = 0x00000002,
         Varying             = 0x00000003,
-        CentroidVarying     = 0x00000004,
-        In                  = 0x00000005,
-        Out                 = 0x00000006,
-        CentroidIn          = 0x00000007,
-        CentroidOut         = 0x00000008,
-        PatchIn             = 0x00000009,
-        PatchOut            = 0x0000000A,
-        SampleIn            = 0x0000000B,
-        SampleOut           = 0x0000000C,
-        Uniform             = 0x0000000D,
-        InterpolationMask   = 0x00000F00,
+        Centroid            = 0x00000004,
+        In                  = 0x00000008,
+        Out                 = 0x00000010,
+        Patch               = 0x00000020,
+        Sample              = 0x00000040,
+        Uniform             = 0x00000080,
+        Buffer              = 0x00000100,
+        Shared              = 0x00000200,
+        Subroutine          = 0x00000400,
+        InterpolationMask   = 0x0000F000,
         NoInterpolation     = 0x00000000,
-        Smooth              = 0x00000100,
-        Flat                = 0x00000200,
-        NoPerspective       = 0x00000300,
-        Invariant           = 0x00010000,
-        Struct              = 0x00020000
+        Smooth              = 0x00001000,
+        Flat                = 0x00002000,
+        NoPerspective       = 0x00004000,
+        MemoryMask          = 0x00FF0000,
+        Coherent            = 0x00010000,
+        Volatile            = 0x00020000,
+        Restrict            = 0x00040000,
+        Readonly            = 0x00080000,
+        Writeonly           = 0x00100000,
+        Invariant           = 0x01000000,
+        Struct              = 0x02000000
     };
 
     QualifiedTypeAST *asQualifiedType() override { return this; }
@@ -851,9 +895,23 @@ class GLSL_EXPORT ParameterDeclarationAST: public DeclarationAST
 public:
     enum Qualifier
     {
-        In,
-        Out,
-        InOut
+        StorageMask     = 0x0000000F,
+        None            = 0x00000000,
+        In              = 0x00000001,
+        Out             = 0x00000002,
+        InOut           = 0x00000004,
+        Const           = 0x00000008,
+        PrecisionMask   = 0x0000FF00,
+        Precise         = 0x00000100,
+        Lowp            = 0x00000200,
+        Mediump         = 0x00000400,
+        Highp           = 0x00000800,
+        MemoryMask      = 0x00FF0000, // memory qualifiers in sync with QualifiedTypeAST
+        Coherent        = 0x00010000,
+        Volatile        = 0x00020000,
+        Restrict        = 0x00040000,
+        Readonly        = 0x00080000,
+        Writeonly       = 0x00100000
     };
     ParameterDeclarationAST(TypeAST *_type, Qualifier _qualifier,
                          const QString *_name)
@@ -988,6 +1046,27 @@ public:
 public: // attributes
     const QString *name;
     List<StructTypeAST::Field *> *fields;
+};
+
+class GLSL_EXPORT SubroutineTypeAST : public TypeAST
+{
+public:
+    SubroutineTypeAST(FunctionDeclarationAST *_functionProto)
+        : TypeAST(Kind_SubroutineTypeDeclaration), name(_functionProto->name),
+          returnType(_functionProto->returnType), params(_functionProto->params)
+    {}
+
+    SubroutineTypeAST *asSubroutineType() override { return this; }
+
+    void accept0(Visitor *visitor) override;
+
+    Precision precision() const override;
+    bool setPrecision(Precision precision) override;
+
+public: // attributes
+    const QString *name;
+    const TypeAST *returnType;
+    List<ParameterDeclarationAST *> *params;
 };
 
 } // namespace GLSL

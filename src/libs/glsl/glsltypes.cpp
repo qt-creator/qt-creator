@@ -506,6 +506,24 @@ bool ImageType::isLessThan(const Type *other) const
     return _kind < img->kind();
 }
 
+bool SubroutineType::isEqualTo(const Type *other) const
+{
+    if (other) {
+        if (const SubroutineType *sub = other->asSubroutineType()) {
+            return _name == sub->_name;
+        }
+    }
+    return false;
+}
+
+bool SubroutineType::isLessThan(const Type *other) const
+{
+    Q_ASSERT(other != nullptr);
+    const SubroutineType *sub = other->asSubroutineType();
+    Q_ASSERT(sub != nullptr);
+    return _name < sub->_name;
+}
+
 OverloadSet::OverloadSet(Scope *enclosingScope)
     : Scope(enclosingScope)
 {

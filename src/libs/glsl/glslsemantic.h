@@ -86,6 +86,7 @@ protected:
     bool visit(StructTypeAST *ast) override;
     bool visit(QualifiedTypeAST *ast) override;
     bool visit(InterfaceBlockAST *ast) override;
+    bool visit(SubroutineTypeAST *ast) override;
 
     // declarations
     bool visit(PrecisionDeclarationAST *ast) override;

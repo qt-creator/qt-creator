@@ -765,6 +765,10 @@ bool Semantic::visit(NamedTypeAST *ast)
                 _type = ty;
                 return false;
             }
+            if (SubroutineType *ty = s->asSubroutine()) {
+                _type = ty;
+                return false;
+            }
         }
         _engine->error(ast->lineno, QString::fromLatin1("Undefined type `%1'").arg(*ast->name));
     }
@@ -775,9 +779,20 @@ bool Semantic::visit(NamedTypeAST *ast)
 bool Semantic::visit(ArrayTypeAST *ast)
 {
     const Type *elementType = type(ast->elementType);
-    Q_UNUSED(elementType)
     ExprResult size = expression(ast->size);
-    _type = _engine->arrayType(elementType); // ### ignore the size for now
+    if (ast->arraySpecifier) {
+        // recursively create array
+        auto createArr = [&](const auto &self, List<ArrayTypeAST::ArraySpecAST *> *spec,
+                const Type *elementType) {
+            if (!spec->next)
+                return _engine->arrayType(elementType);
+
+            return _engine->arrayType(self(self, spec->next, elementType));
+        };
+        _type = createArr(createArr, ast->arraySpecifier, elementType);
+        return false;
+    }
+    _type = _engine->arrayType(elementType); // ### ignore the size if there is no arraySpecifier
     return false;
 }
 
@@ -825,6 +840,21 @@ bool Semantic::visit(InterfaceBlockAST *ast)
             iBlock->add(member);
     }
     (void) switchScope(previousScope);
+    return false;
+}
+
+bool Semantic::visit(SubroutineTypeAST *ast)
+{
+    if (!ast || !ast->name)
+        return false;
+    SubroutineType *subroutine = _engine->newSubroutineType(_scope);
+    if (ast->name)
+        subroutine->setName(*ast->name);
+    if (Scope *s = subroutine->scope())
+        s->add(subroutine);
+    _type = subroutine;
+
+    // returnType & args
     return false;
 }
 

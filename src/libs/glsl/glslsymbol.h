@@ -32,6 +32,7 @@ public:
     virtual OverloadSet *asOverloadSet() { return nullptr; }
     virtual Namespace *asNamespace() { return nullptr; }
     virtual InterfaceBlock *asInterfaceBlock() { return nullptr; }
+    virtual SubroutineType *asSubroutine() { return nullptr; }
 
     virtual const Type *type() const = 0;
 

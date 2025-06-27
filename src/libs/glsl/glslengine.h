@@ -98,6 +98,7 @@ public:
     Argument *newArgument(Function *function, const QString &name, const Type *type);
     Variable *newVariable(Scope *scope, const QString &name, const Type *type, int qualifiers = 0);
     InterfaceBlock *newInterfaceBlock(Scope *scope = nullptr);
+    SubroutineType *newSubroutineType(Scope *scope);
 
     MemoryPool *pool();
 

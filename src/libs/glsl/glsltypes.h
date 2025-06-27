@@ -280,6 +280,29 @@ private:
     int _kind;
 };
 
+class GLSL_EXPORT SubroutineType : public Type, public Symbol
+{
+public:
+    explicit SubroutineType(Scope *scope) : Symbol(scope) {}
+
+    void setReturnType(const Type *returnType) { _returnType = returnType; }
+    const Type *returnType() const { return _returnType; }
+
+    // as symbol
+    SubroutineType *asSubroutine() override { return this; }
+    const Type *type() const override { return this; }
+
+    // as type
+    const SubroutineType *asSubroutineType() const override { return this; }
+    QString toString() const override { return _name; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
+private:
+    const QString _name;
+    const Type *_returnType;
+    const List<Type *> *_args;
+};
+
 class GLSL_EXPORT OverloadSet: public Type, public Scope
 {
 public:

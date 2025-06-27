@@ -323,7 +323,20 @@ static inline int classify5(const char *s) {
 }
 
 static inline int classify6(const char *s) {
-  if (s[0] == 'd') {
+    if (s[0] == 'b') {
+        if (s[1] == 'u') {
+            if (s[2] == 'f') {
+                if (s[3] == 'f') {
+                    if (s[4] == 'e') {
+                        if (s[5] == 'r') {
+                            return Parser::T_BUFFER | Lexer::Variant_GLSL_400;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (s[0] == 'd') {
     if (s[1] == 'o') {
       if (s[2] == 'u') {
         if (s[3] == 'b') {
@@ -414,6 +427,17 @@ static inline int classify6(const char *s) {
           if (s[4] == 'l') {
             if (s[5] == 'e') {
               return Parser::T_SAMPLE | Lexer::Variant_Reserved;
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 'h') {
+      if (s[2] == 'a') {
+        if (s[3] == 'r') {
+          if (s[4] == 'e') {
+            if (s[5] == 'd') {
+              return Parser::T_SHARED | Lexer::Variant_GLSL_400;
             }
           }
         }
@@ -570,6 +594,21 @@ static inline int classify7(const char *s) {
       }
     }
   }
+  else if (s[0] == 'p') {
+    if (s[1] == 'r') {
+      if (s[2] == 'e') {
+        if (s[3] == 'c') {
+          if (s[4] == 'i') {
+            if (s[5] == 's') {
+              if (s[6] == 'e') {
+                return Parser::T_PRECISE | Lexer::Variant_GLSL_400;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (s[0] == 'u') {
     if (s[1] == 'n') {
       if (s[2] == 'i') {
@@ -621,7 +660,19 @@ static inline int classify8(const char *s) {
       }
     }
     else if (s[1] == 'o') {
-      if (s[2] == 'n') {
+      if (s[2] == 'h') {
+          if (s[3] == 'e') {
+            if (s[4] == 'r') {
+              if (s[5] == 'e') {
+                if (s[6] == 'n') {
+                  if (s[7] == 't') {
+                    return Parser::T_COHERENT | Lexer::Variant_GLSL_400;
+                  }
+                }
+              }
+            }
+          }
+      } else if (s[2] == 'n') {
         if (s[3] == 't') {
           if (s[4] == 'i') {
             if (s[5] == 'n') {
@@ -663,6 +714,35 @@ static inline int classify8(const char *s) {
       }
     }
   }
+  else if (s[0] == 'r') {
+    if (s[1] == 'e') {
+      if (s[2] == 'a') {
+        if (s[3] == 'd') {
+          if (s[4] == 'o') {
+            if (s[5] == 'n') {
+              if (s[6] == 'l') {
+                if (s[7] == 'y') {
+                  return Parser::T_READONLY | Lexer::Variant_GLSL_400;
+                }
+              }
+            }
+          }
+        }
+      } else if (s[2] == 's') {
+        if (s[3] == 't') {
+          if (s[4] == 'r') {
+            if (s[5] == 'i') {
+              if (s[6] == 'c') {
+                if (s[7] == 't') {
+                  return Parser::T_RESTRICT | Lexer::Variant_GLSL_400;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (s[0] == 'u') {
     if (s[1] == 'i') {
       if (s[2] == 'm') {
@@ -682,6 +762,23 @@ static inline int classify8(const char *s) {
               else if (s[6] == '3') {
                 if (s[7] == 'D') {
                   return Parser::T_UIMAGE3D | Lexer::Variant_GLSL_400; // 420
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'v') {
+    if (s[1] == 'o') {
+      if (s[2] == 'l') {
+        if (s[3] == 'a') {
+          if (s[4] == 't') {
+            if (s[5] == 'i') {
+              if (s[6] == 'l') {
+                if (s[7] == 'e') {
+                  return Parser::T_VOLATILE | Lexer::Variant_GLSL_400;
                 }
               }
             }
@@ -797,6 +894,25 @@ static inline int classify9(const char *s) {
                 else if (s[7] == '3') {
                   if (s[8] == 'D') {
                     return Parser::T_SAMPLER3D | Lexer::Variant_GLSL_120;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'w') {
+    if (s[1] == 'r') {
+      if (s[2] == 'i') {
+        if (s[3] == 't') {
+          if (s[4] == 'e') {
+            if (s[5] == 'o') {
+              if (s[6] == 'n') {
+                if (s[7] == 'l') {
+                  if (s[8] == 'y') {
+                    return Parser::T_WRITEONLY | Lexer::Variant_GLSL_400;
                   }
                 }
               }
@@ -1960,7 +2076,7 @@ static inline int classify17(const char *s) {
                     if (s[9] == 'D') {
                       if (s[10] == 'M') {
                         if (s[11] == 'S') {
-                          if (s[12] == 'a') {
+                          if (s[12] == 'A') {
                             if (s[13] == 'r') {
                               if (s[14] == 'r') {
                                 if (s[15] == 'a') {
@@ -2309,9 +2425,25 @@ QStringList Lexer::keywords(int variant) {
   if (variant & (Lexer::Variant_GLSL_ES_100 | Lexer::Variant_GLSL_400))
     list += QLatin1String("mediump");
   list += QLatin1String("uniform");
+  if (variant & Lexer::Variant_GLSL_400)
+      list += QLatin1String("buffer");
   list += QLatin1String("varying");
   if (variant & (Lexer::Variant_GLSL_120))
     list += QLatin1String("centroid");
+  if (variant & Lexer::Variant_GLSL_400)
+      list += QLatin1String("coherent");
+  if (variant & Lexer::Variant_GLSL_400)
+      list += QLatin1String("precise");
+  if (variant & Lexer::Variant_GLSL_400)
+      list += QLatin1String("readonly");
+  if (variant & Lexer::Variant_GLSL_400)
+      list += QLatin1String("restrict");
+  if (variant & Lexer::Variant_GLSL_400)
+      list += QLatin1String("shared");
+  if (variant & Lexer::Variant_GLSL_400)
+      list += QLatin1String("volatile");
+  if (variant & Lexer::Variant_GLSL_400)
+      list += QLatin1String("writeonly");
   list += QLatin1String("continue");
   if (variant & (Lexer::Variant_VertexShader))
     list += QLatin1String("attribute");
