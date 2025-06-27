@@ -571,6 +571,9 @@ public:
                 return ResultError(Tr::tr("Project name must be non-empty."));
             return ResultOk;
         });
+        m_projectName.setToolTip(Tr::tr("Project name as it appears in the global dashboard."));
+        m_projectName.setShowToolTipOnLabel(true);
+
         m_analysisPath.setLabelText(Tr::tr("Analysis path:"));
         m_analysisPath.setDisplayStyle(StringAspect::LineEditDisplay);
         m_analysisPath.setValidationFunction([](const QString &text) -> Result<> {
@@ -579,9 +582,17 @@ public:
             const FilePath fp = FilePath::fromString(input.replace('\\', '/'));
             return analysisPathValid(fp);
         });
+        m_analysisPath.setToolTip(Tr::tr("Root path of the analyzed project relative to the used"
+                                         "project path inside the dashboard.\nLeave empty if the "
+                                         "analyzed project refers to the basepath of the analyzed "
+                                         "project."));
+        m_analysisPath.setShowToolTipOnLabel(true);
+
         m_localPath.setLabelText(Tr::tr("Local path:"));
         m_localPath.setExpectedKind(PathChooser::ExistingDirectory);
         m_localPath.setAllowPathFromDevice(false);
+        m_localPath.setToolTip(Tr::tr("Local directory path corresponding to the analyis path."));
+        m_localPath.setShowToolTipOnLabel(true);
 
         using namespace Layouting;
         setLayouter([this] {
