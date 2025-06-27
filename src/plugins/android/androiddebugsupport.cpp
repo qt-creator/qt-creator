@@ -23,6 +23,8 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <solutions/tasking/barrier.h>
+
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
@@ -38,6 +40,7 @@ static Q_LOGGING_CATEGORY(androidDebugSupportLog, "qtc.android.run.androiddebugs
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Android::Internal {
@@ -167,19 +170,13 @@ public:
     AndroidDebugWorkerFactory()
     {
         setId("AndroidDebugWorkerFactory");
-        setProducer([](RunControl *runControl) {
-            auto androidRunner = new RunWorker(runControl, androidRecipe(runControl));
-
-            const DebuggerRunParameters rp = debuggerRunParameters(runControl);
-            auto debugger = createDebuggerWorker(runControl, rp);
-            debugger->addStartDependency(androidRunner);
-
-            QObject::connect(debugger, &RunWorker::started, debugger,
-                             [runControl, packageName = rp.displayName()] {
-                qCDebug(androidDebugSupportLog) << "Starting debugger - package name: " << packageName
-                                                << ", PID: " << runControl->attachPid().pid();
-            });
-            return debugger;
+        setRecipeProducer([](RunControl *runControl) {
+            const auto kicker = [runControl](const SingleBarrier &barrier) {
+                return androidKicker(barrier, runControl);
+            };
+            return When (kicker) >> Do {
+                debuggerRecipe(runControl, debuggerRunParameters(runControl))
+            };
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
