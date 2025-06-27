@@ -487,16 +487,6 @@ void RunControl::forceStop()
     }
 }
 
-RunWorker *RunControl::createWorker(Id runMode)
-{
-    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->kit);
-    for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canCreate(runMode, deviceType, d->runConfigId))
-            return factory->create(this);
-    }
-    return nullptr;
-}
-
 Group RunControl::createRecipe(Id runMode)
 {
     const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->kit);

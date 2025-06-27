@@ -197,7 +197,6 @@ public:
 
     static void provideAskPassEntry(Utils::Environment &env);
 
-    RunWorker *createWorker(Utils::Id runMode);
     Tasking::Group createRecipe(Utils::Id runMode);
 
     bool createMainWorker();
