@@ -64,7 +64,6 @@ private:
 class PROJECTEXPLORER_EXPORT RunWorkerFactory
 {
 public:
-    using WorkerCreator = std::function<RunWorker *(RunControl *)>;
     using RecipeCreator = std::function<Tasking::Group(RunControl *)>;
 
     RunWorkerFactory();
@@ -75,7 +74,6 @@ public:
 
 protected:
     void setId(Utils::Id id) { m_id = id; }
-    void setProducer(const WorkerCreator &producer);
     void setRecipeProducer(const RecipeCreator &producer);
     void setSupportedRunConfigs(const QList<Utils::Id> &runConfigs);
     void addSupportedRunMode(Utils::Id runMode);
@@ -88,10 +86,8 @@ private:
     friend class RunControl;
     friend class Internal::RunWorkerConflictTest;
     bool canCreate(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId) const;
-    RunWorker *create(RunControl *runControl) const;
     Tasking::Group createRecipe(RunControl *runControl) const;
 
-    WorkerCreator m_producer;
     RecipeCreator m_recipeCreator;
     QList<Utils::Id> m_supportedRunModes;
     QList<Utils::Id> m_supportedRunConfigurations;

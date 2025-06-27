@@ -69,17 +69,9 @@ RunWorkerFactory::~RunWorkerFactory()
     g_runWorkerFactories.removeOne(this);
 }
 
-void RunWorkerFactory::setProducer(const WorkerCreator &producer)
-{
-    m_producer = producer;
-}
-
 void RunWorkerFactory::setRecipeProducer(const RecipeCreator &producer)
 {
     m_recipeCreator = producer;
-    setProducer([producer](RunControl *runControl) {
-        return new RunWorker(runControl, producer(runControl));
-    });
 }
 
 void RunWorkerFactory::setSupportedRunConfigs(const QList<Id> &runConfigs)
@@ -118,7 +110,6 @@ void RunWorkerFactory::cloneProduct(Id exitstingStepId)
 {
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
         if (factory->m_id == exitstingStepId) {
-            m_producer = factory->m_producer;
             m_recipeCreator = factory->m_recipeCreator;
             // Other bits are intentionally not copied as they are unlikely to be
             // useful in the cloner's context. The cloner can/has to finish the
@@ -142,12 +133,6 @@ bool RunWorkerFactory::canCreate(Id runMode, Id deviceType, Id runConfigId) cons
         return m_supportedDeviceTypes.contains(deviceType);
 
     return true;
-}
-
-RunWorker *RunWorkerFactory::create(RunControl *runControl) const
-{
-    QTC_ASSERT(m_producer, return nullptr);
-    return m_producer(runControl);
 }
 
 Tasking::Group RunWorkerFactory::createRecipe(RunControl *runControl) const
@@ -513,7 +498,8 @@ bool RunControl::createMainWorker()
     // There should be at most one top-level producer feeling responsible per combination.
     // Breaking a tie should be done by tightening the restrictions on one of them.
     QTC_CHECK(candidates.size() == 1);
-    return candidates.front()->create(this) != nullptr;
+    new RunWorker(this, candidates.front()->createRecipe(this));
+    return true;
 }
 
 bool RunControl::canRun(Id runMode, Id deviceType, Utils::Id runConfigId)
