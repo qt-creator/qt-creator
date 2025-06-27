@@ -3797,14 +3797,15 @@ TextEncoding EditorManager::defaultTextEncoding()
     QtcSettings *settings = ICore::settings();
     const QByteArray codecName =
             settings->value(Constants::SETTINGS_DEFAULTTEXTENCODING).toByteArray();
-
-    if (codecName.isEmpty())
-        return TextEncoding::encodingForLocale();
-
     const TextEncoding candidate(codecName);
     if (candidate.isValid())
         return candidate;
-
+    // Qt5 doesn't return a valid codec when looking up the "System" codec, but will return
+    // such a codec when asking for the codec for locale and no matching codec is available.
+    // So check whether such a codec was saved to the settings.
+    const TextEncoding localeCodec = TextEncoding::encodingForLocale();
+    if (codecName == localeCodec.name())
+        return localeCodec;
     return TextEncoding::Utf8;
 }
 
