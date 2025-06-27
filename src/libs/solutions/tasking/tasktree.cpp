@@ -1914,8 +1914,8 @@ public:
               typename ReturnType = std::invoke_result_t<Handler, Args...>>
     ReturnType invokeHandler(Container *container, Handler &&handler, Args &&...args)
     {
-        QT_ASSERT(!m_guard.isLocked(), qWarning("Nested execution of handlers detected."
-            "This may happen when one task's handler has entered a nested event loop,"
+        QT_ASSERT(!m_guard.isLocked(), qWarning("Nested execution of handlers detected. "
+            "This may happen when one task's handler has entered a nested event loop, "
             "and other task finished during nested event loop's processing, "
             "causing stopping (canceling) the task executing the nested event loop. "
             "This includes the case when QCoreApplication::processEvents() was called from "
