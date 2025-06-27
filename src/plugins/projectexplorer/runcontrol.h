@@ -319,15 +319,6 @@ Utils::ProcessTask processTaskWithModifier(RunControl *runControl,
 PROJECTEXPLORER_EXPORT Tasking::Group processRecipe(const Utils::ProcessTask &processTask);
 
 template <typename Modifier>
-RunWorker *createProcessWorker(RunControl *runControl,
-                               const Modifier &startModifier = {},
-                               const ProcessSetupConfig &config = {})
-{
-    return new RunWorker(runControl, processRecipe(
-        processTaskWithModifier(runControl, startModifier, config)));
-}
-
-template <typename Modifier>
 Tasking::Group processRecipe(RunControl *runControl,
                              const Modifier &startModifier = {},
                              const ProcessSetupConfig &config = {})
