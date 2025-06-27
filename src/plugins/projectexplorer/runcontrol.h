@@ -46,9 +46,6 @@ public:
     explicit RunWorker(RunControl *runControl, const Tasking::Group &recipe);
     ~RunWorker() override;
 
-    void addStartDependency(RunWorker *dependency);
-    void addStopDependency(RunWorker *dependency);
-
 signals:
     void canceled();
 

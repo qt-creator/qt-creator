@@ -213,8 +213,6 @@ public:
     const QPointer<RunControl> runControl;
     TaskTreeRunner taskTreeRunner;
     const Group recipe;
-    QList<RunWorker *> startDependencies;
-    QList<RunWorker *> stopDependencies;
 };
 
 class RunControlPrivateData
@@ -884,21 +882,6 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
         return;
     }
 
-    for (RunWorker *dependent : std::as_const(worker->d->stopDependencies)) {
-        switch (dependent->d->state) {
-        case RunState::Done:
-            break;
-        case RunState::Initialized:
-            dependent->d->state = RunState::Done;
-            break;
-        default:
-            debugMessage("Killing dependent worker");
-            dependent->d->state = RunState::Canceled;
-            QTimer::singleShot(0, dependent, &RunWorker::initiateStop);
-            break;
-        }
-    }
-
     debugMessage("Checking whether all stopped");
     bool allDone = true;
     for (RunWorker *worker : std::as_const(m_workers)) {
@@ -1439,26 +1422,12 @@ RunWorkerPrivate::RunWorkerPrivate(RunWorker *runWorker, RunControl *runControl,
 
 bool RunWorkerPrivate::canStart() const
 {
-    if (state != RunState::Initialized)
-        return false;
-    for (RunWorker *worker : startDependencies) {
-        QTC_ASSERT(worker, continue);
-        if (worker->d->state != RunState::Done && worker->d->state != RunState::Running)
-            return false;
-    }
-    return true;
+    return state == RunState::Initialized;
 }
 
 bool RunWorkerPrivate::canStop() const
 {
-    if (state != RunState::Starting && state != RunState::Running)
-        return false;
-    for (RunWorker *worker : stopDependencies) {
-        QTC_ASSERT(worker, continue);
-        if (worker->d->state != RunState::Done)
-            return false;
-    }
-    return true;
+    return state == RunState::Starting || state == RunState::Running;
 }
 
 /*!
@@ -1547,16 +1516,6 @@ void RunWorker::initiateStop()
 {
     d->runControl->d->debugMessage("Initiate stop");
     emit canceled();
-}
-
-void RunWorker::addStartDependency(RunWorker *dependency)
-{
-    d->startDependencies.append(dependency);
-}
-
-void RunWorker::addStopDependency(RunWorker *dependency)
-{
-    d->stopDependencies.append(dependency);
 }
 
 // Output parser factories
