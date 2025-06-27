@@ -175,8 +175,21 @@ public:
     QnxDebugWorkerFactory()
     {
         setId("QnxDebugWorkerFactory");
-        setProducer([](RunControl *runControl) {
+        setRecipeProducer([](RunControl *runControl) {
             runControl->postMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
+
+            Kit *k = runControl->kit();
+            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
+            rp.setupPortsGatherer(runControl);
+            rp.setStartMode(AttachToRemoteServer);
+            rp.setCloseMode(KillAtClose);
+            rp.setUseCtrlCStub(true);
+            rp.setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));
+            rp.setSkipDebugServer(true);
+            if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {
+                rp.setSysRoot(qtVersion->qnxTarget());
+                rp.modifyDebuggerEnvironment(qtVersion->environment());
+            }
 
             const auto modifier = [runControl](Process &process) {
                 CommandLine cmd = runControl->commandLine();
@@ -192,27 +205,14 @@ public:
                 cmd.setArguments(ProcessArgs::joinArgs(arguments));
                 process.setCommand(cmd);
             };
-            auto worker = createProcessWorker(runControl, modifier);
 
-            auto slog2InfoRunner = new RunWorker(runControl, slog2InfoRecipe(runControl));
-            worker->addStartDependency(slog2InfoRunner);
-
-            Kit *k = runControl->kit();
-            DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
-            rp.setupPortsGatherer(runControl);
-            rp.setStartMode(AttachToRemoteServer);
-            rp.setCloseMode(KillAtClose);
-            rp.setUseCtrlCStub(true);
-            rp.setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));
-            rp.setSkipDebugServer(true);
-            if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {
-                rp.setSysRoot(qtVersion->qnxTarget());
-                rp.modifyDebuggerEnvironment(qtVersion->environment());
-            }
-
-            auto debugger = createDebuggerWorker(runControl, rp);
-            debugger->addStartDependency(worker);
-            return debugger;
+            return Group {
+                parallel,
+                slog2InfoRecipe(runControl),
+                When (processTaskWithModifier(runControl, modifier), &Process::started) >> Do {
+                    debuggerRecipe(runControl, rp)
+                }
+            };
         });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::QNX_RUNCONFIG_ID);
