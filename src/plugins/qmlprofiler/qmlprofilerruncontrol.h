@@ -3,10 +3,7 @@
 
 #pragma once
 
-namespace ProjectExplorer {
-class RunControl;
-class RunWorker;
-}
+namespace ProjectExplorer { class RunControl; }
 namespace Tasking { class Group; }
 
 namespace QmlProfiler::Internal {

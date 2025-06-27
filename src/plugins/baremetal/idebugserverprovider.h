@@ -25,10 +25,7 @@ QT_END_NAMESPACE
 
 namespace Debugger { class DebuggerRunParameters; }
 
-namespace ProjectExplorer {
-class RunControl;
-class RunWorker;
-}
+namespace ProjectExplorer { class RunControl; }
 
 namespace BareMetal::Internal {
 
