@@ -9,9 +9,9 @@
     \title Instanced rendering
 
     Instancing allows duplicating a model with variations. In contrast to using
-    the \uicontrol Repeater3D component, the model and its graphics resources are
-    only allocated once. The rendering of the duplicated instances is done at a
-    low level by the GPU. Depending on the complexity of the model, this can
+    the \uicontrol {3D Repeater} component, the model and its graphics resources
+    are only allocated once. The rendering of the duplicated instances is done at
+    a low level by the GPU. Depending on the complexity of the model, this can
     give a performance improvement of several orders of magnitude.
 
     In practice, instancing is done by defining a table that specifies how each
