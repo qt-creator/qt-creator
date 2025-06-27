@@ -1526,7 +1526,6 @@ void RunWorker::initiateStart()
                 runStorage().activeStorage(), &RunInterface::canceled);
         connect(runStorage().activeStorage(), &RunInterface::started, this, [this] {
             d->runControl->d->onWorkerStarted(this);
-            emit started();
         });
     };
 
@@ -1540,7 +1539,6 @@ void RunWorker::initiateStart()
         if (result == DoneWith::Success) {
             QTC_ASSERT(d && d->runControl && d->runControl->d, return);
             d->runControl->d->onWorkerStopped(this);
-            emit stopped();
         } else {
             d->runControl->d->onWorkerFailed(this, {});
         }

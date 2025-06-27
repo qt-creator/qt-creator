@@ -50,8 +50,6 @@ public:
     void addStopDependency(RunWorker *dependency);
 
 signals:
-    void started();
-    void stopped();
     void canceled();
 
 private:
