@@ -96,8 +96,6 @@ void TextFileFormat::setEncoding(const TextEncoding &encoding)
 }
 
 /*!
-    Decode a potentially large file in chunks and append it to \a target.
-
     Returns \a data decoded to a string, \a target.
 */
 
