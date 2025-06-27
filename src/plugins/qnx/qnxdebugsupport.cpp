@@ -25,6 +25,8 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
+#include <solutions/tasking/barrier.h>
+
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/fileutils.h>
@@ -41,6 +43,7 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Qnx::Internal {
@@ -101,6 +104,19 @@ private:
     PathChooser *m_localExecutable;
 };
 
+static Group attachToProcessRecipe(RunControl *runControl, const DebuggerRunParameters &rp)
+{
+    if (!rp.isCppDebugging())
+        return debuggerRecipe(runControl, rp);
+
+    const auto modifier = [runControl](Process &process) {
+        process.setCommand({QNX_DEBUG_EXECUTABLE, {QString::number(runControl->debugChannel().port())}});
+    };
+    return When (processTaskWithModifier(runControl, modifier), &Process::started) >> Do {
+        debuggerRecipe(runControl, rp)
+    };
+}
+
 void showAttachToProcessDialog()
 {
     auto kitChooser = new KitChooser;
@@ -147,17 +163,7 @@ void showAttachToProcessDialog()
         rp.setSysRoot(qtVersion->qnxTarget());
     rp.setUseContinueInsteadOfRun(true);
 
-    auto debugger = createDebuggerWorker(runControl, rp);
-
-    if (rp.isCppDebugging()) {
-        const auto modifier = [runControl](Process &process) {
-            const int pdebugPort = runControl->debugChannel().port();
-            process.setCommand({QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}});
-        };
-        auto worker = createProcessWorker(runControl, modifier);
-        debugger->addStartDependency(worker);
-    }
-
+    new RunWorker(runControl, attachToProcessRecipe(runControl, rp));
     runControl->start();
 }
 
