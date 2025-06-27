@@ -16,12 +16,6 @@ class ProjectExplorerTest final : public QObject
     Q_OBJECT
 
 private slots:
-    void testMsvcOutputParsers_data();
-    void testMsvcOutputParsers();
-
-    void testClangClOutputParsers_data();
-    void testClangClOutputParsers();
-
     void testDeviceManager();
 
     void testUserFileAccessor_prepareToReadSettings();

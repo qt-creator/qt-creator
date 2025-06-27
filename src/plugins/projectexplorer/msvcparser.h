@@ -38,4 +38,9 @@ private:
     const QRegularExpression m_compileRegExp;
 };
 
+namespace Internal {
+QObject *createMsvcParserTest();
+QObject *createClangClParserTest();
+}
+
 } // namespace ProjectExplorer
