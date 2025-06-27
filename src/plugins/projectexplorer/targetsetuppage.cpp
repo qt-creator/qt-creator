@@ -57,7 +57,7 @@ static TasksGenerator defaultTasksGenerator(const TasksGenerator &childGenerator
     };
 }
 
-class TargetSetupPagePrivate : public QObject
+class TargetSetupPagePrivate
 {
 public:
     explicit TargetSetupPagePrivate(TargetSetupPage *parent);
@@ -96,7 +96,8 @@ public:
     TargetSetupWidget *widget(const Id kitId) const;
     TargetSetupWidget *widget(const Kit *k) const { return k ? widget(k->id()) : nullptr; }
 
-    TargetSetupPage *q;
+    TargetSetupPage * const q;
+    QObject *guard = new QObject{q};
     QWidget *centralWidget;
     QScrollArea *scrollArea;
     QLabel *headerLabel;
@@ -143,7 +144,7 @@ void TargetSetupPage::initializePage()
         d->doInitializePage();
     } else {
         connect(KitManager::instance(), &KitManager::kitsLoaded,
-                d, &TargetSetupPagePrivate::doInitializePage);
+                d->guard, [this] { d->doInitializePage(); });
     }
 }
 
@@ -164,6 +165,7 @@ QList<Id> TargetSetupPage::selectedKits() const
 
 TargetSetupPage::~TargetSetupPage()
 {
+    delete d->guard;
     d->reset();
     delete d->spacer;
     delete d;
@@ -481,31 +483,31 @@ TargetSetupPagePrivate::TargetSetupPagePrivate(TargetSetupPage *parent)
     mainLayout->addWidget(scrollArea, 255);
 
     QObject::connect(noValidKitLabel, &QLabel::linkActivated,
-                     q, &TargetSetupPage::openOptions);
+                     guard, [this] { q->openOptions(); });
 
     QObject::connect(allKitsCheckBox, &QAbstractButton::clicked,
-                     q, &TargetSetupPage::changeAllKitsSelections);
+                     guard, [this] { q->changeAllKitsSelections(); });
 
     const auto toggleTargetWidgetVisibility = [this] {
         for (TargetSetupWidget *widget : widgets)
             toggleVisibility(widget);
     };
     QObject::connect(hideUnsuitableKitsCheckBox, &QCheckBox::toggled,
-                     this, toggleTargetWidgetVisibility);
+                     guard, toggleTargetWidgetVisibility);
 
     QObject::connect(kitFilterLineEdit, &FancyLineEdit::filterChanged,
-                     this, toggleTargetWidgetVisibility);
+                     guard, toggleTargetWidgetVisibility);
 
     KitManager *km = KitManager::instance();
     // do note that those slots are triggered once *per* targetsetuppage
     // thus the same slot can be triggered multiple times on different instances!
-    connect(km, &KitManager::kitAdded, this, &TargetSetupPagePrivate::handleKitAddition);
-    connect(km, &KitManager::kitRemoved, this, &TargetSetupPagePrivate::handleKitRemoval);
-    connect(km, &KitManager::kitUpdated, this, &TargetSetupPagePrivate::handleKitUpdate);
-    connect(importWidget, &ImportWidget::importFrom,
-            this, [this](const FilePath &dir) { import(dir); });
-    connect(KitManager::instance(), &KitManager::kitsChanged,
-            this, &TargetSetupPagePrivate::updateVisibility);
+    QObject::connect(km, &KitManager::kitAdded, guard, [this](Kit *k) { handleKitAddition(k); });
+    QObject::connect(km, &KitManager::kitRemoved, guard, [this](Kit *k) { handleKitRemoval(k); });
+    QObject::connect(km, &KitManager::kitUpdated, guard, [this](Kit *k) { handleKitUpdate(k); });
+    QObject::connect(importWidget, &ImportWidget::importFrom,
+                     guard, [this](const FilePath &dir) { import(dir); });
+    QObject::connect(KitManager::instance(), &KitManager::kitsChanged,
+                     guard, [this] { updateVisibility(); });
 
     toggleTargetWidgetVisibility();
 }
@@ -622,11 +624,11 @@ TargetSetupWidget *TargetSetupPagePrivate::addWidget(Kit *k)
 
 void TargetSetupPagePrivate::connectWidget(TargetSetupWidget *w)
 {
-    connect(w, &TargetSetupWidget::selectedToggled,
-            this, &TargetSetupPagePrivate::kitSelectionChanged);
-    connect(w, &TargetSetupWidget::selectedToggled,
-            q, &QWizardPage::completeChanged);
-    connect(w, &TargetSetupWidget::validToggled, this, [w, this] { toggleVisibility(w); });
+    QObject::connect(w, &TargetSetupWidget::selectedToggled,
+            guard, [this] { kitSelectionChanged(); });
+    QObject::connect(w, &TargetSetupWidget::selectedToggled,
+            guard, [this] { emit q->completeChanged(); });
+    QObject::connect(w, &TargetSetupWidget::validToggled, guard, [w, this] { toggleVisibility(w); });
 }
 
 void TargetSetupPagePrivate::toggleVisibility(TargetSetupWidget *w)
