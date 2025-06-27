@@ -111,8 +111,8 @@ void DebuggerUnitTests::testStateMachine()
     rp.setInferior(rc->runnable());
     rp.setTestCase(TestNoBoundsOfCurrentFunction);
 
-    auto debugger = createDebuggerWorker(runControl, rp);
-    connect(debugger, &RunWorker::stopped,
+    createDebuggerWorker(runControl, rp);
+    connect(runControl, &RunControl::stopped,
             &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
 
     runControl->start();
