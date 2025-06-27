@@ -3,15 +3,19 @@
 
 #include "axivionsettings.h"
 
+#include "axivionplugin.h"
 #include "axiviontr.h"
-#include "coreplugin/messagemanager.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/credentialquery.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 #include <solutions/tasking/tasktree.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
@@ -242,6 +246,13 @@ public:
         return Utils::findOrDefault(m_pathMapping, [projectName](const PathMapping &pm) {
             return pm.isValid() && projectName == pm.projectName;
         }).localPath;
+    }
+
+    bool projectHasAnyPathMapping(const QString &projectName) const
+    {
+        return Utils::indexOf(m_pathMapping, [projectName](const PathMapping &pm) {
+            return pm.projectName == projectName;
+        }) != -1;
     }
 
 private:
@@ -914,6 +925,129 @@ void AxivionSettingsWidget::updateVersionAndBuildDate(QLabel *version, QLabel *b
     std::optional<AxivionVersionInfo> info = settings().versionInfo();
     version->setText(info ? info->versionNumber : QString{});
     buildDate->setText(info ? info->dateTime : QString{});
+}
+
+static PathMapping showPathMappingsDialog(const PathMapping &suggested)
+{
+    QDialog d(ICore::dialogParent());
+    d.setWindowTitle(Tr::tr("Missing Path Mapping"));
+    QVBoxLayout *layout = new QVBoxLayout;
+    auto label = new QLabel(Tr::tr("Configure a valid path mapping for \"%1\" to open "
+                                   "files for this project.").arg(suggested.projectName), &d);
+    layout->addWidget(label);
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, &d);
+    auto ok = buttons->button(QDialogButtonBox::Ok);
+    auto mappingWidget = new QWidget(&d);
+    PathMappingDetails details;
+    details.updateContent(suggested);
+    details.layouter()().attachTo(mappingWidget);
+    layout->addWidget(mappingWidget);
+    ok->setEnabled(suggested.isValid()
+                   && suggested.localPath.resolvePath(suggested.analysisPath).exists());
+    QObject::connect(buttons->button(QDialogButtonBox::Cancel),
+                     &QPushButton::clicked, &d, &QDialog::reject);
+    QObject::connect(ok, &QPushButton::clicked, &d, &QDialog::accept);
+    QObject::connect(&details, &BaseAspect::changed, &d, [&details, ok] {
+        const PathMapping pm = details.toPathMapping();
+        ok->setEnabled(pm.isValid() && pm.localPath.resolvePath(pm.analysisPath).exists());
+    });
+    layout->addWidget(buttons);
+    d.setLayout(layout);
+    d.resize(500, 200);
+
+    if (d.exec() != QDialog::Accepted)
+        return {};
+
+    return details.toPathMapping();
+}
+
+static PathMapping showPathMappingFileOpenDialog(const FilePath &missingPath,
+                                                 const QString &projectName)
+{
+    FilePath result = FileUtils::getOpenFilePath(
+        Tr::tr("Select local file for \"%1\"").arg(missingPath.path()),
+        {}, missingPath.fileName());
+    if (result.isEmpty() || missingPath.fileName() != result.fileName())
+        return {};
+    // create mapping for the selected file and return it
+    std::optional<FilePath> analysisPath = std::nullopt;
+    std::optional<FilePath> local = result.tailRemoved(missingPath.path());
+    if (!local) {
+        local = result.tailRemoved(missingPath.fileName());
+        analysisPath = missingPath.tailRemoved(missingPath.fileName());
+    }
+    QTC_ASSERT(local, return {});
+    return PathMapping{projectName, analysisPath ? *analysisPath : FilePath{}, *local};
+}
+
+bool handleMissingPathMapping(const FilePath &missingPath, const QString &projectName)
+{
+    const bool hasAnyMapping = pathMappingSettings().projectHasAnyPathMapping(projectName);
+
+    QMessageBox mbox(ICore::dialogParent());
+    mbox.setWindowTitle(Tr::tr("Missing Path Mapping"));
+    if (hasAnyMapping) {
+        mbox.setText(Tr::tr("No matching path mapping for \"%1\" configured.").arg(missingPath.path()));
+        mbox.setInformativeText(Tr::tr("To open this file, you need to change the existing or add "
+                                       "another valid path mapping.\n"
+                                       "This may include changing the order of mappings."));
+    } else {
+        mbox.setText(Tr::tr("No path mapping for \"%1\" configured.").arg(missingPath.path()));
+        mbox.setInformativeText(Tr::tr("To open files for this project, specify a valid "
+                                       "path mapping or select a matching local file."));
+    }
+    QPushButton *filechooser = nullptr;
+    if (!hasAnyMapping) {
+        filechooser = new QPushButton(Tr::tr("Select matching file..."));
+        mbox.addButton(filechooser, QMessageBox::AcceptRole);
+    }
+    QPushButton *manual = new QPushButton(hasAnyMapping ? Tr::tr("Change existing...")
+                                                        : Tr::tr("Set up manually..."), &mbox);
+    mbox.addButton(manual, QMessageBox::ActionRole);
+    QPushButton *cancel = mbox.addButton(QMessageBox::Cancel);
+
+    mbox.exec();
+    QAbstractButton *clicked = mbox.clickedButton();
+    if (!clicked || clicked == cancel)
+        return false;
+
+    PathMapping userInput;
+    if (clicked == filechooser) {
+        userInput = showPathMappingFileOpenDialog(missingPath, projectName);
+    } else {
+        // else manually set up / change existing has been clicked
+        if (hasAnyMapping) {
+            // present axivion options to modify existing
+            // FIXME? we have no way to give a hint regarding the missing file path, should we
+            // put the path into the clipboard at least?
+            if (!ICore::showOptionsDialog("Analyzer.Axivion.Settings"))
+                return false;
+            return true;
+        } else {
+            ProjectExplorer::Project *startupProj = ProjectExplorer::ProjectManager::startupProject();
+            const FilePath computedPath = startupProj ? findFileForIssuePath(missingPath)
+                                                      : FilePath{};
+            PathMapping suggested;
+            suggested.projectName = projectName;
+            if (computedPath.exists()) {
+                suggested.localPath = computedPath.chopped(
+                            missingPath.pathView().size() + 1);
+            }
+            userInput = showPathMappingsDialog(suggested);
+        }
+    }
+    if (!userInput.isValid())
+        return false;
+
+    QList<PathMapping> mappings = settings().validPathMappings();
+    if (mappings.contains(userInput)) // do not store an already existing mapping
+        return false;
+    // add and store the new mapping
+    mappings.append(userInput);
+    pathMappingSettings().setVariantValue(pathMappingsToSetting(mappings));
+    pathMappingSettings().writeSettings();
+
+    return true;
 }
 
 // settings pages

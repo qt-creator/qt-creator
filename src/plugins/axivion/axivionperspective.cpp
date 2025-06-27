@@ -249,13 +249,15 @@ public:
                     return link.columns.contains(column);
                 }).link;
 
-                // get the file path either by the open project(s) or by using the path mapping
-                // prefer to use the open project's file instead of some generic approach
-                const FilePath computedPath = findFileForIssuePath(link.targetFilePath);
-                FilePath targetFilePath;
-                if (!computedPath.exists())
+                FilePath targetFilePath = mappedPathForLink(link);
+                if (targetFilePath.isEmpty()) {
+                    std::optional<Dto::ProjectInfoDto> pi = projectInfo();
+                    QTC_ASSERT(pi, return true);
+                    if (!handleMissingPathMapping(link.targetFilePath, pi->name))
+                        return true;
                     targetFilePath = mappedPathForLink(link);
-                link.targetFilePath = targetFilePath.isEmpty() ? computedPath : targetFilePath;
+                }
+                link.targetFilePath = targetFilePath;
                 if (link.targetFilePath.exists()) {
                     EditorManager::openEditorAt(link);
                     resetFocusToIssuesTable();
