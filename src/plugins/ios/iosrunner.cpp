@@ -665,13 +665,14 @@ static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl,
     };
 }
 
-static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = {})
+static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = {},
+                           const std::optional<ExecutableItem> &afterStartedRecipe = {})
 {
     const auto kicker = [runControl, debugInfo](const StoredBarrier &barrier) {
         return iosToolKicker(barrier, runControl, debugInfo);
     };
     return When (kicker) >> Do {
-        Sync([] { emit runStorage()->started(); })
+        afterStartedRecipe ? *afterStartedRecipe : Sync([] { emit runStorage()->started(); })
     };
 }
 
@@ -884,12 +885,10 @@ public:
     IosQmlProfilerWorkerFactory()
     {
         setId("IosQmlProfilerWorkerFactory");
-        setProducer([](RunControl *runControl) {
-            auto runner = new RunWorker(runControl, iosToolRecipe(runControl, {QmlProfilerServices}));
+        setRecipeProducer([](RunControl *runControl) {
             runControl->requestQmlChannel();
-            auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
-            profiler->addStartDependency(runner);
-            return profiler;
+            return iosToolRecipe(runControl, {QmlProfilerServices},
+                                 runControl->createRecipe(ProjectExplorer::Constants::QML_PROFILER_RUNNER));
         });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
