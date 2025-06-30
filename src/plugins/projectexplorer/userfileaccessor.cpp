@@ -14,11 +14,13 @@
 
 #include <QGuiApplication>
 #include <QRegularExpression>
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
 
 using namespace Utils;
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
 
+namespace ProjectExplorer::Internal {
 using KeyVariantPair = std::pair<const Key, QVariant>;
 
 static QString userFileExtension()
@@ -30,8 +32,6 @@ static QString userFileExtension()
         return Utils::appInfo().userFileExtension;
     return ".user";
 }
-
-namespace {
 
 const char SHARED_SETTINGS[] = "SharedSettings";
 const char USER_STICKY_KEYS_KEY[] = "UserStickyKeys";
@@ -83,13 +83,9 @@ public:
     static QVariant process(const QVariant &entry);
 };
 
-} // namespace
-
 // --------------------------------------------------------------------
 // Helpers:
 // --------------------------------------------------------------------
-
-namespace {
 
 static QString generateSuffix(const QString &suffix)
 {
@@ -127,8 +123,6 @@ static QString makeRelative(QString path)
         path.remove(0, 1);
     return path;
 }
-
-} // namespace
 
 // --------------------------------------------------------------------
 // UserFileAccessor:
@@ -453,13 +447,6 @@ QVariant UserFileVersion21Upgrader::process(const QVariant &entry)
 }
 
 #ifdef WITH_TESTS
-
-#include <QTest>
-
-#include "projectexplorer_test.h"
-
-namespace {
-
 class TestUserFileAccessor : public UserFileAccessor
 {
 public:
@@ -477,8 +464,7 @@ private:
     mutable Store m_storedSettings;
 };
 
-
-class TestBuildSystem : public BuildSystem
+class UserFileAccesorTestBuildSystem : public BuildSystem
 {
 public:
     using BuildSystem::BuildSystem;
@@ -486,142 +472,157 @@ private:
     void triggerParsing() override {}
 };
 
-class TestProject : public Project
+class UserFileAccessorTestProject : public Project
 {
 public:
-    TestProject() : Project("x-test/testproject", "/test/project")
+    UserFileAccessorTestProject() : Project("x-test/testproject", "/test/project")
     {
         setDisplayName("Test Project");
-        setBuildSystemCreator<TestBuildSystem>("UserFileAccessorTest");
+        setBuildSystemCreator<UserFileAccesorTestBuildSystem>("UserFileAccessorTest");
     }
 
     bool needsConfiguration() const final { return false; }
 };
 
-} // namespace
-
-void ProjectExplorerTest::testUserFileAccessor_prepareToReadSettings()
+class UserFileAccessorTest : public QObject
 {
-    TestProject project;
-    TestUserFileAccessor accessor(&project);
+    Q_OBJECT
 
-    Store data;
-    data.insert("Version", 4);
-    data.insert("Foo", "bar");
+private slots:
+    void testPrepareToReadSettings()
+    {
+        UserFileAccessorTestProject project;
+        TestUserFileAccessor accessor(&project);
 
-    Store result = accessor.preprocessReadSettings(data);
+        Store data;
+        data.insert("Version", 4);
+        data.insert("Foo", "bar");
 
-    QCOMPARE(result, data);
-}
+        Store result = accessor.preprocessReadSettings(data);
 
-void ProjectExplorerTest::testUserFileAccessor_prepareToWriteSettings()
+        QCOMPARE(result, data);
+    }
+
+    void testPrepareToWriteSettings()
+    {
+        UserFileAccessorTestProject project;
+        TestUserFileAccessor accessor(&project);
+
+        Store sharedData;
+        sharedData.insert("Version", 10);
+        sharedData.insert("shared1", "bar");
+        sharedData.insert("shared2", "baz");
+        sharedData.insert("shared3", "foo");
+
+        accessor.storeSharedSettings(sharedData);
+
+        Store data;
+        data.insert("Version", 10);
+        data.insert("shared1", "bar1");
+        data.insert("unique1", 1234);
+        data.insert("shared3", "foo");
+        Store result = accessor.prepareToWriteSettings(data);
+
+        QCOMPARE(result.count(), data.count() + 2);
+        QCOMPARE(result.value("EnvironmentId").toByteArray(),
+                 projectExplorerSettings().environmentId.toByteArray());
+        QCOMPARE(result.value("UserStickyKeys"), QVariant(QStringList({"shared1"})));
+        QCOMPARE(result.value("Version").toInt(), accessor.currentVersion());
+        QCOMPARE(result.value("shared1"), data.value("shared1"));
+        QCOMPARE(result.value("shared3"), data.value("shared3"));
+        QCOMPARE(result.value("unique1"), data.value("unique1"));
+    }
+
+    void testMergeSettings()
+    {
+        UserFileAccessorTestProject project;
+        TestUserFileAccessor accessor(&project);
+
+        Store sharedData;
+        sharedData.insert("Version", accessor.currentVersion());
+        sharedData.insert("shared1", "bar");
+        sharedData.insert("shared2", "baz");
+        sharedData.insert("shared3", "foooo");
+        TestUserFileAccessor::RestoreData shared("/shared/data", sharedData);
+
+        Store data;
+        data.insert("Version", accessor.currentVersion());
+        data.insert("EnvironmentId", projectExplorerSettings().environmentId.toByteArray());
+        data.insert("UserStickyKeys", QStringList({"shared1"}));
+        data.insert("shared1", "bar1");
+        data.insert("unique1", 1234);
+        data.insert("shared3", "foo");
+        TestUserFileAccessor::RestoreData user("/user/data", data);
+        TestUserFileAccessor::RestoreData result = accessor.mergeSettings(user, shared);
+
+        QVERIFY(!result.hasIssue());
+        QCOMPARE(result.data.count(), data.count() + 1);
+        // mergeSettings does not run updateSettings, so no OriginalVersion will be set
+        QCOMPARE(result.data.value("EnvironmentId").toByteArray(),
+                 projectExplorerSettings().environmentId.toByteArray()); // unchanged
+        QCOMPARE(result.data.value("UserStickyKeys"), QVariant(QStringList({"shared1"}))); // unchanged
+        QCOMPARE(result.data.value("Version").toInt(), accessor.currentVersion()); // forced
+        QCOMPARE(result.data.value("shared1"), data.value("shared1")); // from data
+        QCOMPARE(result.data.value("shared2"), sharedData.value("shared2")); // from shared, missing!
+        QCOMPARE(result.data.value("shared3"), sharedData.value("shared3")); // from shared
+        QCOMPARE(result.data.value("unique1"), data.value("unique1"));
+    }
+
+    void testMergeSettingsEmptyUser()
+    {
+        UserFileAccessorTestProject project;
+        TestUserFileAccessor accessor(&project);
+
+        Store sharedData;
+        sharedData.insert("Version", accessor.currentVersion());
+        sharedData.insert("shared1", "bar");
+        sharedData.insert("shared2", "baz");
+        sharedData.insert("shared3", "foooo");
+        TestUserFileAccessor::RestoreData shared("/shared/data", sharedData);
+
+        Store data;
+        TestUserFileAccessor::RestoreData user("/shared/data", data);
+
+        TestUserFileAccessor::RestoreData result = accessor.mergeSettings(user, shared);
+
+        QVERIFY(!result.hasIssue());
+        QCOMPARE(result.data, sharedData);
+    }
+
+    void testMergeSettingsEmptyShared()
+    {
+        UserFileAccessorTestProject project;
+        TestUserFileAccessor accessor(&project);
+
+        Store sharedData;
+        TestUserFileAccessor::RestoreData shared("/shared/data", sharedData);
+
+        Store data;
+        data.insert("Version", accessor.currentVersion());
+        data.insert("OriginalVersion", accessor.currentVersion());
+        data.insert("EnvironmentId", projectExplorerSettings().environmentId.toByteArray());
+        data.insert("UserStickyKeys", QStringList({"shared1"}));
+        data.insert("shared1", "bar1");
+        data.insert("unique1", 1234);
+        data.insert("shared3", "foo");
+        TestUserFileAccessor::RestoreData user("/shared/data", data);
+
+        TestUserFileAccessor::RestoreData result = accessor.mergeSettings(user, shared);
+
+        QVERIFY(!result.hasIssue());
+        QCOMPARE(result.data, data);
+    }
+};
+
+QObject *createUserFileAccessorTest()
 {
-    TestProject project;
-    TestUserFileAccessor accessor(&project);
-
-    Store sharedData;
-    sharedData.insert("Version", 10);
-    sharedData.insert("shared1", "bar");
-    sharedData.insert("shared2", "baz");
-    sharedData.insert("shared3", "foo");
-
-    accessor.storeSharedSettings(sharedData);
-
-    Store data;
-    data.insert("Version", 10);
-    data.insert("shared1", "bar1");
-    data.insert("unique1", 1234);
-    data.insert("shared3", "foo");
-    Store result = accessor.prepareToWriteSettings(data);
-
-    QCOMPARE(result.count(), data.count() + 2);
-    QCOMPARE(result.value("EnvironmentId").toByteArray(),
-             projectExplorerSettings().environmentId.toByteArray());
-    QCOMPARE(result.value("UserStickyKeys"), QVariant(QStringList({"shared1"})));
-    QCOMPARE(result.value("Version").toInt(), accessor.currentVersion());
-    QCOMPARE(result.value("shared1"), data.value("shared1"));
-    QCOMPARE(result.value("shared3"), data.value("shared3"));
-    QCOMPARE(result.value("unique1"), data.value("unique1"));
-}
-
-void ProjectExplorerTest::testUserFileAccessor_mergeSettings()
-{
-    TestProject project;
-    TestUserFileAccessor accessor(&project);
-
-    Store sharedData;
-    sharedData.insert("Version", accessor.currentVersion());
-    sharedData.insert("shared1", "bar");
-    sharedData.insert("shared2", "baz");
-    sharedData.insert("shared3", "foooo");
-    TestUserFileAccessor::RestoreData shared("/shared/data", sharedData);
-
-    Store data;
-    data.insert("Version", accessor.currentVersion());
-    data.insert("EnvironmentId", projectExplorerSettings().environmentId.toByteArray());
-    data.insert("UserStickyKeys", QStringList({"shared1"}));
-    data.insert("shared1", "bar1");
-    data.insert("unique1", 1234);
-    data.insert("shared3", "foo");
-    TestUserFileAccessor::RestoreData user("/user/data", data);
-    TestUserFileAccessor::RestoreData result = accessor.mergeSettings(user, shared);
-
-    QVERIFY(!result.hasIssue());
-    QCOMPARE(result.data.count(), data.count() + 1);
-    // mergeSettings does not run updateSettings, so no OriginalVersion will be set
-    QCOMPARE(result.data.value("EnvironmentId").toByteArray(),
-             projectExplorerSettings().environmentId.toByteArray()); // unchanged
-    QCOMPARE(result.data.value("UserStickyKeys"), QVariant(QStringList({"shared1"}))); // unchanged
-    QCOMPARE(result.data.value("Version").toInt(), accessor.currentVersion()); // forced
-    QCOMPARE(result.data.value("shared1"), data.value("shared1")); // from data
-    QCOMPARE(result.data.value("shared2"), sharedData.value("shared2")); // from shared, missing!
-    QCOMPARE(result.data.value("shared3"), sharedData.value("shared3")); // from shared
-    QCOMPARE(result.data.value("unique1"), data.value("unique1"));
-}
-
-void ProjectExplorerTest::testUserFileAccessor_mergeSettingsEmptyUser()
-{
-    TestProject project;
-    TestUserFileAccessor accessor(&project);
-
-    Store sharedData;
-    sharedData.insert("Version", accessor.currentVersion());
-    sharedData.insert("shared1", "bar");
-    sharedData.insert("shared2", "baz");
-    sharedData.insert("shared3", "foooo");
-    TestUserFileAccessor::RestoreData shared("/shared/data", sharedData);
-
-    Store data;
-    TestUserFileAccessor::RestoreData user("/shared/data", data);
-
-    TestUserFileAccessor::RestoreData result = accessor.mergeSettings(user, shared);
-
-    QVERIFY(!result.hasIssue());
-    QCOMPARE(result.data, sharedData);
-}
-
-void ProjectExplorerTest::testUserFileAccessor_mergeSettingsEmptyShared()
-{
-    TestProject project;
-    TestUserFileAccessor accessor(&project);
-
-    Store sharedData;
-    TestUserFileAccessor::RestoreData shared("/shared/data", sharedData);
-
-    Store data;
-    data.insert("Version", accessor.currentVersion());
-    data.insert("OriginalVersion", accessor.currentVersion());
-    data.insert("EnvironmentId", projectExplorerSettings().environmentId.toByteArray());
-    data.insert("UserStickyKeys", QStringList({"shared1"}));
-    data.insert("shared1", "bar1");
-    data.insert("unique1", 1234);
-    data.insert("shared3", "foo");
-    TestUserFileAccessor::RestoreData user("/shared/data", data);
-
-    TestUserFileAccessor::RestoreData result = accessor.mergeSettings(user, shared);
-
-    QVERIFY(!result.hasIssue());
-    QCOMPARE(result.data, data);
+    return new UserFileAccessorTest;
 }
 
 #endif // WITH_TESTS
+
+} // namespace Internal
+
+#ifdef WITH_TESTS
+#include <userfileaccessor.moc>
+#endif

@@ -171,8 +171,9 @@
 #include "outputparser_test.h"
 #include "projectexplorer_test.h"
 #include "toolchainsettingsaccessor.h"
+#include "userfileaccessor.h"
 #include "xcodebuildparser.h"
-#endif
+#endif // WITH_TESTS
 
 /*!
     \namespace ProjectExplorer
@@ -819,6 +820,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createRunWorkerConflictTest);
     addTestCreator(createSanitizerOutputParserTest);
     addTestCreator(createToolchainSettingsTest);
+    addTestCreator(createUserFileAccessorTest);
     addTestCreator(createXcodebuildParserTest);
 #endif
 

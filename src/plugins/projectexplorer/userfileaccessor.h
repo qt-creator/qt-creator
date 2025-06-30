@@ -43,5 +43,7 @@ private:
     Project *m_project;
 };
 
+QObject *createUserFileAccessorTest();
+
 } // namespace Internal
 } // namespace ProjectExplorer

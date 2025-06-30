@@ -16,12 +16,6 @@ class ProjectExplorerTest final : public QObject
     Q_OBJECT
 
 private slots:
-    void testUserFileAccessor_prepareToReadSettings();
-    void testUserFileAccessor_prepareToWriteSettings();
-    void testUserFileAccessor_mergeSettings();
-    void testUserFileAccessor_mergeSettingsEmptyUser();
-    void testUserFileAccessor_mergeSettingsEmptyShared();
-
     void testSessionSwitch();
 
 private:
