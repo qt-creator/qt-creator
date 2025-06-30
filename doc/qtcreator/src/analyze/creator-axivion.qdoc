@@ -17,9 +17,8 @@
 
     \section1 View inline annotations in editor
 
-    The editor shows found issues as inline annotations if the project is
-    configured with a path mapping or if the project matches the
-    currently open one and the respective file is part of the project.
+    The editor shows found issues as inline annotations only if the project is
+    configured with a path mapping.
     Hover over an annotation to bring up a tooltip with a short
     description of the issue.
 
@@ -139,6 +138,10 @@
     The easiest way to jump to the \uicontrol {Right location} is to
     select the link in the details or in the \uicontrol {Right Path}
     or \uicontrol {Target Path} column.
+
+    If there is no valid mapping configured for the current selected project
+    you will be prompted to set up a valid path mapping as jumping to the
+    issue relies on having a valid path mapping configured.
 
     \sa {Axivion}{Axivion Preferences}, {Local analysis with Axivion}{Local Analysis},
     {Enable and disable plugins},{Analyze}{How To: Analyze}, {Analyzers},
