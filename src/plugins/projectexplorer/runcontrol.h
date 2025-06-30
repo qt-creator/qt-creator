@@ -200,6 +200,7 @@ public:
     void showOutputPane();
 
     Canceler canceler();
+    void handleProcessCancellation(Utils::Process *process);
 
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
@@ -239,8 +240,6 @@ PROJECTEXPLORER_EXPORT
 void addOutputParserFactory(const std::function<Utils::OutputLineParser *(BuildConfiguration *)> &);
 
 PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(BuildConfiguration *bc);
-
-PROJECTEXPLORER_EXPORT void handleProcessCancellation(RunControl *runControl, Utils::Process *process);
 
 PROJECTEXPLORER_EXPORT Tasking::Group errorTask(RunControl *runControl, const QString &message);
 

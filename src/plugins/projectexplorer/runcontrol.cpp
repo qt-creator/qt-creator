@@ -989,7 +989,7 @@ ProcessTask processTask(RunControl *runControl,
         if (config.setupCanceler) {
             QObject::connect(runControl, &RunControl::canceled, &process,
                              [runControl, process = &process] {
-                handleProcessCancellation(runControl, process);
+                runControl->handleProcessCancellation(process);
             });
         }
         return SetupResult::Continue;
@@ -1049,15 +1049,15 @@ Canceler RunControl::canceler()
     return [this] { return std::make_pair(this, &RunControl::canceled); };
 }
 
-void handleProcessCancellation(RunControl *runControl, Process *process)
+void RunControl::handleProcessCancellation(Process *process)
 {
-    runControl->postMessage(Tr::tr("Requesting process to stop..."), NormalMessageFormat);
+    postMessage(Tr::tr("Requesting process to stop..."), NormalMessageFormat);
     process->stop();
     QTimer::singleShot(2 * std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds()),
-                       process, [runControl, process] {
-        runControl->postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
+                       process, [this, process] {
+        postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
         if (!process->commandLine().executable().isLocal())
-            runControl->postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
+            postMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
         process->kill();
         emit process->done();
     });

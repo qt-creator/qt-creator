@@ -99,7 +99,7 @@ Group localQmlProfilerRecipe(RunControl *runControl)
                 if (stateManager && stateManager->currentState() == QmlProfilerStateManager::AppRunning)
                     stateManager->setCurrentState(QmlProfilerStateManager::AppStopRequested);
             }
-            handleProcessCancellation(runControl, process);
+            runControl->handleProcessCancellation(process);
         };
 
         QObject::connect(clientManager, &QmlProfilerClientManager::connectionFailed,
