@@ -806,6 +806,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createClangParserTest);
     addTestCreator(createClangClParserTest);
     addTestCreator(createCustomParserTest);
+    addTestCreator(createDeviceManagerTest);
     addTestCreator(createGccParserTest);
     addTestCreator(createGccToolchainTest);
     addTestCreator(createGnuMakeParserTest);

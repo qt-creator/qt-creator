@@ -26,6 +26,11 @@
 
 #include <memory>
 
+#ifdef WITH_TESTS
+#include <QSignalSpy>
+#include <QTest>
+#endif
+
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -466,15 +471,8 @@ IDevice::Ptr DeviceManager::defaultDevice(Id deviceType)
     return id.isValid() ? find(id) : IDevice::Ptr();
 }
 
-} // namespace ProjectExplorer
-
-
 #ifdef WITH_TESTS
-#include <projectexplorer/projectexplorer_test.h>
-#include <QSignalSpy>
-#include <QTest>
-
-namespace ProjectExplorer {
+namespace Internal {
 
 class TestDevice : public IDevice
 {
@@ -503,77 +501,94 @@ public:
     }
 };
 
-void ProjectExplorerTest::testDeviceManager()
+class DeviceManagerTest : public QObject
 {
-    TestDeviceFactory factory;
+    Q_OBJECT
 
-    TestDevice::Ptr dev = IDevice::Ptr(new TestDevice);
-    dev->setDisplayName(QLatin1String("blubbdiblubbfurz!"));
-    QVERIFY(dev->isAutoDetected());
-    QCOMPARE(dev->deviceState(), IDevice::DeviceStateUnknown);
-    QCOMPARE(dev->type(), TestDevice::testTypeId());
+private slots:
 
-    QVERIFY(!DeviceManager::find(dev->id()));
-    const int oldDeviceCount = DeviceManager::deviceCount();
+    void test()
+    {
+        TestDeviceFactory factory;
 
-    DeviceManager * const mgr = DeviceManager::instance();
-    QSignalSpy deviceAddedSpy(mgr, &DeviceManager::deviceAdded);
-    QSignalSpy deviceRemovedSpy(mgr, &DeviceManager::deviceRemoved);
-    QSignalSpy deviceUpdatedSpy(mgr, &DeviceManager::deviceUpdated);
-    QSignalSpy updatedSpy(mgr, &DeviceManager::updated);
+        TestDevice::Ptr dev = IDevice::Ptr(new TestDevice);
+        dev->setDisplayName(QLatin1String("blubbdiblubbfurz!"));
+        QVERIFY(dev->isAutoDetected());
+        QCOMPARE(dev->deviceState(), IDevice::DeviceStateUnknown);
+        QCOMPARE(dev->type(), TestDevice::testTypeId());
 
-    DeviceManager::addDevice(dev);
-    QCOMPARE(DeviceManager::deviceCount(), oldDeviceCount + 1);
-    QVERIFY(DeviceManager::find(dev->id()));
-    QVERIFY(DeviceManager::hasDevice(dev->displayName()));
-    QCOMPARE(deviceAddedSpy.count(), 1);
-    QCOMPARE(deviceRemovedSpy.count(), 0);
-    QCOMPARE(deviceUpdatedSpy.count(), 0);
-    QCOMPARE(updatedSpy.count(), 1);
-    deviceAddedSpy.clear();
-    updatedSpy.clear();
+        QVERIFY(!DeviceManager::find(dev->id()));
+        const int oldDeviceCount = DeviceManager::deviceCount();
 
-    DeviceManager::setDeviceState(dev->id(), IDevice::DeviceStateUnknown);
-    QCOMPARE(deviceAddedSpy.count(), 0);
-    QCOMPARE(deviceRemovedSpy.count(), 0);
-    QCOMPARE(deviceUpdatedSpy.count(), 0);
-    QCOMPARE(updatedSpy.count(), 0);
+        DeviceManager * const mgr = DeviceManager::instance();
+        QSignalSpy deviceAddedSpy(mgr, &DeviceManager::deviceAdded);
+        QSignalSpy deviceRemovedSpy(mgr, &DeviceManager::deviceRemoved);
+        QSignalSpy deviceUpdatedSpy(mgr, &DeviceManager::deviceUpdated);
+        QSignalSpy updatedSpy(mgr, &DeviceManager::updated);
 
-    DeviceManager::setDeviceState(dev->id(), IDevice::DeviceReadyToUse);
-    QCOMPARE(DeviceManager::find(dev->id())->deviceState(), IDevice::DeviceReadyToUse);
-    QCOMPARE(deviceAddedSpy.count(), 0);
-    QCOMPARE(deviceRemovedSpy.count(), 0);
-    QCOMPARE(deviceUpdatedSpy.count(), 1);
-    QCOMPARE(updatedSpy.count(), 1);
-    deviceUpdatedSpy.clear();
-    updatedSpy.clear();
+        DeviceManager::addDevice(dev);
+        QCOMPARE(DeviceManager::deviceCount(), oldDeviceCount + 1);
+        QVERIFY(DeviceManager::find(dev->id()));
+        QVERIFY(DeviceManager::hasDevice(dev->displayName()));
+        QCOMPARE(deviceAddedSpy.count(), 1);
+        QCOMPARE(deviceRemovedSpy.count(), 0);
+        QCOMPARE(deviceUpdatedSpy.count(), 0);
+        QCOMPARE(updatedSpy.count(), 1);
+        deviceAddedSpy.clear();
+        updatedSpy.clear();
 
-    TestDevice::Ptr dev3 = IDevice::Ptr(new TestDevice);
-    QVERIFY(dev->id() != dev3->id());
+        DeviceManager::setDeviceState(dev->id(), IDevice::DeviceStateUnknown);
+        QCOMPARE(deviceAddedSpy.count(), 0);
+        QCOMPARE(deviceRemovedSpy.count(), 0);
+        QCOMPARE(deviceUpdatedSpy.count(), 0);
+        QCOMPARE(updatedSpy.count(), 0);
 
-    dev3->setDisplayName(dev->displayName());
-    DeviceManager::addDevice(dev3);
-    QCOMPARE(
-        DeviceManager::deviceAt(DeviceManager::deviceCount() - 1)->displayName(),
-        QString(dev->displayName() + QLatin1Char('2')));
-    QCOMPARE(deviceAddedSpy.count(), 1);
-    QCOMPARE(deviceRemovedSpy.count(), 0);
-    QCOMPARE(deviceUpdatedSpy.count(), 0);
-    QCOMPARE(updatedSpy.count(), 1);
-    deviceAddedSpy.clear();
-    updatedSpy.clear();
+        DeviceManager::setDeviceState(dev->id(), IDevice::DeviceReadyToUse);
+        QCOMPARE(DeviceManager::find(dev->id())->deviceState(), IDevice::DeviceReadyToUse);
+        QCOMPARE(deviceAddedSpy.count(), 0);
+        QCOMPARE(deviceRemovedSpy.count(), 0);
+        QCOMPARE(deviceUpdatedSpy.count(), 1);
+        QCOMPARE(updatedSpy.count(), 1);
+        deviceUpdatedSpy.clear();
+        updatedSpy.clear();
 
-    DeviceManager::removeDevice(dev->id());
-    DeviceManager::removeDevice(dev3->id());
-    QCOMPARE(DeviceManager::deviceCount(), oldDeviceCount);
-    QVERIFY(!DeviceManager::find(dev->id()));
-    QVERIFY(!DeviceManager::find(dev3->id()));
-    QCOMPARE(deviceAddedSpy.count(), 0);
-    QCOMPARE(deviceRemovedSpy.count(), 2);
-    //    QCOMPARE(deviceUpdatedSpy.count(), 0); Uncomment once the "default" stuff is gone.
-    QCOMPARE(updatedSpy.count(), 2);
+        TestDevice::Ptr dev3 = IDevice::Ptr(new TestDevice);
+        QVERIFY(dev->id() != dev3->id());
+
+        dev3->setDisplayName(dev->displayName());
+        DeviceManager::addDevice(dev3);
+        QCOMPARE(
+            DeviceManager::deviceAt(DeviceManager::deviceCount() - 1)->displayName(),
+            QString(dev->displayName() + QLatin1Char('2')));
+        QCOMPARE(deviceAddedSpy.count(), 1);
+        QCOMPARE(deviceRemovedSpy.count(), 0);
+        QCOMPARE(deviceUpdatedSpy.count(), 0);
+        QCOMPARE(updatedSpy.count(), 1);
+        deviceAddedSpy.clear();
+        updatedSpy.clear();
+
+        DeviceManager::removeDevice(dev->id());
+        DeviceManager::removeDevice(dev3->id());
+        QCOMPARE(DeviceManager::deviceCount(), oldDeviceCount);
+        QVERIFY(!DeviceManager::find(dev->id()));
+        QVERIFY(!DeviceManager::find(dev3->id()));
+        QCOMPARE(deviceAddedSpy.count(), 0);
+        QCOMPARE(deviceRemovedSpy.count(), 2);
+        //    QCOMPARE(deviceUpdatedSpy.count(), 0); Uncomment once the "default" stuff is gone.
+        QCOMPARE(updatedSpy.count(), 2);
+    }
+};
+
+QObject *createDeviceManagerTest()
+{
+    return new DeviceManagerTest;
 }
+
+} // namespace Internal
+#endif // WITH_TESTS
 
 } // namespace ProjectExplorer
 
-#endif // WITH_TESTS
+#ifdef WITH_TESTS
+#include <devicemanager.moc>
+#endif

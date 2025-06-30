@@ -15,6 +15,8 @@ class ProjectExplorerPlugin;
 namespace Internal {
 class DeviceManagerPrivate;
 class DeviceSettingsWidget;
+
+QObject *createDeviceManagerTest();
 } // namespace Internal
 
 class PROJECTEXPLORER_EXPORT DeviceManager final : public QObject
