@@ -147,7 +147,7 @@ void setupExternalAnalyzer(QAction *action, Perspective *perspective, Id runMode
         perspective->select();
         RunControl *runControl = new RunControl(runMode);
         runControl->copyDataFromRunConfiguration(runConfig);
-        runControl->createMainWorker();
+        runControl->createMainRecipe();
         runControl->setCommandLine(dlg.commandLine());
         runControl->setWorkingDirectory(dlg.workingDirectory());
         runControl->start();

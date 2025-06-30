@@ -94,7 +94,7 @@ void setupProjectModule()
                     runConfiguration);
 
                 auto startRun = [rc = std::move(rc)]() mutable {
-                    if (!rc->createMainWorker())
+                    if (!rc->createMainRecipe())
                         return;
                     rc.release()->start();
                 };

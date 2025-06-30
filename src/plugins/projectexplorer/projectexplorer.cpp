@@ -2492,7 +2492,7 @@ void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *run
 
     // A user needed interaction may have cancelled the run
     // (by example asking for a process pid or server url).
-    if (!runControl->createMainWorker()) {
+    if (!runControl->createMainRecipe()) {
         delete runControl;
         return;
     }

@@ -479,7 +479,7 @@ Group RunControl::createRecipe(Id runMode)
     return noRecipeTask();
 }
 
-bool RunControl::createMainWorker()
+bool RunControl::createMainRecipe()
 {
     const QList<RunWorkerFactory *> candidates
         = filtered(g_runWorkerFactories, [this](RunWorkerFactory *factory) {
@@ -495,7 +495,7 @@ bool RunControl::createMainWorker()
     // There should be at most one top-level producer feeling responsible per combination.
     // Breaking a tie should be done by tightening the restrictions on one of them.
     QTC_CHECK(candidates.size() == 1);
-    new RunWorker(this, candidates.front()->createRecipe(this));
+    setRunRecipe(candidates.front()->createRecipe(this));
     return true;
 }
 

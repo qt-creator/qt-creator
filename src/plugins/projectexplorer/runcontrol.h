@@ -190,7 +190,7 @@ public:
 
     Tasking::Group createRecipe(Utils::Id runMode);
 
-    bool createMainWorker();
+    bool createMainRecipe();
     static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);
     void postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
 
