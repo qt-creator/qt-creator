@@ -163,7 +163,7 @@ void showAttachToProcessDialog()
         rp.setSysRoot(qtVersion->qnxTarget());
     rp.setUseContinueInsteadOfRun(true);
 
-    new RunWorker(runControl, attachToProcessRecipe(runControl, rp));
+    runControl->setRunRecipe(attachToProcessRecipe(runControl, rp));
     runControl->start();
 }
 
