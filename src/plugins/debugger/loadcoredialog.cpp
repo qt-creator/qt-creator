@@ -359,9 +359,7 @@ void runAttachToCoreDialog()
     if (!sysRoot.isEmpty())
         rp.setSysRoot(sysRoot);
 
-    auto debugger = createDebuggerWorker(runControl, rp);
-    Q_UNUSED(debugger)
-
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
     runControl->start();
 }
 

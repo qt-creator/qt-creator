@@ -111,10 +111,10 @@ void DebuggerUnitTests::testStateMachine()
     rp.setInferior(rc->runnable());
     rp.setTestCase(TestNoBoundsOfCurrentFunction);
 
-    createDebuggerWorker(runControl, rp);
     connect(runControl, &RunControl::stopped,
             &QTestEventLoop::instance(), &QTestEventLoop::exitLoop);
 
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
     runControl->start();
 
     QTestEventLoop::instance().enterLoop(5);

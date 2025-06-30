@@ -1442,9 +1442,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         }
         rp.setUseTerminal(useTerminal);
 
-        auto debugger = createDebuggerWorker(runControl, rp);
-        Q_UNUSED(debugger)
-
+        runControl->setRunRecipe(debuggerRecipe(runControl, rp));
         m_scheduledStarts.append(runControl);
         return true;
     }
@@ -1474,9 +1472,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
 
-        auto debugger = createDebuggerWorker(runControl, rp);
-        Q_UNUSED(debugger)
-
+        runControl->setRunRecipe(debuggerRecipe(runControl, rp));
         m_scheduledStarts.append(runControl);
         return true;
     }
@@ -1649,9 +1645,7 @@ void DebuggerPluginPrivate::attachToLastCore()
     rp.setStartMode(AttachToCore);
     rp.setCloseMode(DetachAtClose);
 
-    auto debugger = createDebuggerWorker(runControl, rp);
-    Q_UNUSED(debugger)
-
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
     runControl->start();
 }
 
@@ -1703,9 +1697,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         rp.setUseContinueInsteadOfRun(true);
         rp.setContinueAfterAttach(false);
 
-        auto debugger = createDebuggerWorker(runControl, rp);
-        Q_UNUSED(debugger)
-
+        runControl->setRunRecipe(debuggerRecipe(runControl, rp));
         runControl->start();
     }
 }
@@ -1774,9 +1766,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     rp.setCloseMode(DetachAtClose);
     rp.setContinueAfterAttach(contAfterAttach);
 
-    auto debugger = createDebuggerWorker(runControl, rp);
-    Q_UNUSED(debugger)
-
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
     runControl->start();
     return runControl;
 }
@@ -2335,9 +2325,7 @@ void DebuggerPlugin::attachExternalApplication(RunControl *rc)
     rp.setStartMode(AttachToLocalProcess);
     rp.setCloseMode(DetachAtClose);
 
-    auto debugger = createDebuggerWorker(runControl, rp);
-    Q_UNUSED(debugger)
-
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
     runControl->start();
 }
 

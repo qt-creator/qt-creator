@@ -1580,8 +1580,7 @@ void HeobData::processFinished()
 
             connect(m_runControl, &RunControl::started, this, &HeobData::debugStarted);
             connect(m_runControl, &RunControl::stopped, this, &HeobData::debugStopped);
-            auto debugger = createDebuggerWorker(m_runControl, rp);
-            Q_UNUSED(debugger)
+            m_runControl->setRunRecipe(debuggerRecipe(m_runControl, rp));
             m_runControl->start();
             return;
         }

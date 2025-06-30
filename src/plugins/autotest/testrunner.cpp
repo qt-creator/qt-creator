@@ -578,8 +578,7 @@ void TestRunner::debugTests()
     DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
     rp.setInferior(inferior);
     rp.setDisplayName(config->displayName());
-    auto debugger = createDebuggerWorker(runControl, rp);
-    Q_UNUSED(debugger)
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
 
     bool useOutputProcessor = true;
     if (Kit *kit = config->project()->activeKit()) {

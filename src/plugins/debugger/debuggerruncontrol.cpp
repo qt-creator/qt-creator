@@ -667,8 +667,7 @@ void EnginesDriver::start()
                 rp.setDisplayName(name);
                 rp.setCoreFilePath(FilePath::fromString(coreFile));
                 rp.setSnapshot(true);
-                auto debugger = createDebuggerWorker(rc, rp);
-                Q_UNUSED(debugger)
+                rc->setRunRecipe(debuggerRecipe(rc, rp));
                 rc->start();
             });
         }
@@ -748,13 +747,6 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
         finalizeRecipe(storage),
         onGroupDone(onDone)
     };
-}
-
-RunWorker *createDebuggerWorker(RunControl *runControl, const DebuggerRunParameters &initialParameters,
-                                const std::function<void(DebuggerRunParameters &)> &parametersModifier)
-{
-    return new RunWorker(runControl,
-                         debuggerRecipe(runControl, initialParameters, parametersModifier));
 }
 
 class DebuggerRunWorkerFactory final : public RunWorkerFactory

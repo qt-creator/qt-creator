@@ -440,9 +440,7 @@ void StartApplicationDialog::run(bool attachRemote)
         rp.setDisplayName(Tr::tr("Attach to %1").arg(rp.remoteChannel().toDisplayString()));
     }
 
-    auto debugger = createDebuggerWorker(runControl, rp);
-    Q_UNUSED(debugger)
-
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
     runControl->start();
 }
 
@@ -588,9 +586,7 @@ void runAttachToQmlPortDialog()
     rp.setRemoteChannel(channel);
     rp.setStartMode(AttachToQmlServer);
 
-    auto debugger = createDebuggerWorker(runControl, rp);
-    Q_UNUSED(debugger)
-
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
     runControl->start();
 }
 
@@ -729,9 +725,7 @@ void runStartRemoteCdbSessionDialog(Kit *kit)
     rp.setCloseMode(KillAtClose);
     rp.setRemoteChannel(dlg.connection());
 
-    auto debugger = createDebuggerWorker(runControl, rp);
-    Q_UNUSED(debugger)
-
+    runControl->setRunRecipe(debuggerRecipe(runControl, rp));
     runControl->start();
 }
 
