@@ -25,6 +25,7 @@
 #include <coreplugin/icore.h>
 
 #include <solutions/tasking/barrier.h>
+#include <solutions/tasking/conditional.h>
 #include <solutions/tasking/tasktree.h>
 #include <solutions/tasking/tasktreerunner.h>
 
@@ -305,7 +306,9 @@ public:
 
     bool isPortsGatherer() const
     { return useDebugChannel || useQmlChannel || usePerfChannel || useWorkerChannel; }
-    QUrl getNextChannel(PortList *portList, const QList<Port> &usedPorts);
+    QUrl getNextChannel(PortList *portList, const QList<Port> &usedPorts) const;
+
+    Group portsGathererRecipe();
 
     RunControl *q;
     Id runMode;
@@ -578,7 +581,7 @@ void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
     m_portsGathererRunner.start(recipe);
 }
 
-QUrl RunControlPrivate::getNextChannel(PortList *portList, const QList<Port> &usedPorts)
+QUrl RunControlPrivate::getNextChannel(PortList *portList, const QList<Port> &usedPorts) const
 {
     QUrl result;
     if (q->device()->sshForwardDebugServerPort()) {
@@ -589,6 +592,47 @@ QUrl RunControlPrivate::getNextChannel(PortList *portList, const QList<Port> &us
     }
     result.setPort(portList->getNextFreePort(usedPorts).number());
     return result;
+}
+
+Group RunControlPrivate::portsGathererRecipe()
+{
+    const Storage<PortsOutputData> portsStorage;
+
+    const auto onSetup = [this] {
+        if (!device) {
+            q->postMessage(Tr::tr("Can't use ports gatherer - no device set."), ErrorMessageFormat);
+            return SetupResult::StopWithError;
+        }
+        q->postMessage(Tr::tr("Checking available ports..."), NormalMessageFormat);
+        return SetupResult::Continue;
+    };
+
+    const auto onDone = [this, portsStorage] {
+        const auto ports = *portsStorage;
+        if (!ports) {
+            q->postMessage(Tr::tr("No free ports found."), ErrorMessageFormat);
+            return DoneResult::Error;
+        }
+        PortList portList = device->freePorts();
+        const QList<Port> usedPorts = *ports;
+        q->postMessage(Tr::tr("Found %n free ports.", nullptr, portList.count()), NormalMessageFormat);
+        if (useDebugChannel)
+            debugChannel = getNextChannel(&portList, usedPorts);
+        if (useQmlChannel)
+            qmlChannel = getNextChannel(&portList, usedPorts);
+        if (usePerfChannel)
+            perfChannel = getNextChannel(&portList, usedPorts);
+        if (useWorkerChannel)
+            workerChannel = getNextChannel(&portList, usedPorts);
+        return DoneResult::Success;
+    };
+
+    return {
+        portsStorage,
+        onGroupSetup(onSetup),
+        device->portsGatheringRecipe(portsStorage),
+        onGroupDone(onDone)
+    };
 }
 
 void RunControl::requestDebugChannel()
@@ -1152,9 +1196,14 @@ void RunControlPrivate::startTaskTree()
         });
     };
 
+    const auto needPortsGatherer = [this] { return isPortsGatherer(); };
+
     const Group recipe {
         runStorage(),
         onGroupSetup(onSetup),
+        If (needPortsGatherer) >> Then {
+            portsGathererRecipe().withCancel(canceler())
+        },
         *m_runRecipe
     };
 
