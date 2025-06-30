@@ -27,15 +27,9 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 {
 }
 
-static RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
-{
-    return new RunWorker(runControl, localQmlProfilerRecipe(runControl));
-}
-
 void LocalQmlProfilerRunnerTest::testRunner()
 {
     std::unique_ptr<RunControl> runControl;
-    QPointer<RunWorker> profiler;
 
     bool running = false;
     bool started = false;
@@ -45,8 +39,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
     runControl->setCommandLine(CommandLine{"\\-/|\\-/"});
-
-    profiler = createLocalQmlProfilerWorker(runControl.get());
+    runControl->setRunRecipe(localQmlProfilerRecipe(runControl.get()));
 
     auto connectRunner = [&] {
         running = false;
@@ -89,7 +82,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     const FilePath app = FilePath::fromString(QCoreApplication::applicationFilePath());
     runControl->setCommandLine({app, {"-test", "QmlProfiler,"}});
-    profiler = createLocalQmlProfilerWorker(runControl.get());
+    runControl->setRunRecipe(localQmlProfilerRecipe(runControl.get()));
     connectRunner();
     runControl->initiateStart();
 
@@ -102,7 +95,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
     runControl->setCommandLine(CommandLine{app});
-    profiler = createLocalQmlProfilerWorker(runControl.get());
+    runControl->setRunRecipe(localQmlProfilerRecipe(runControl.get()));
     connectRunner();
     runControl->initiateStart();
 
@@ -116,7 +109,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
 
     runControl.reset(new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE));
     runControl->setCommandLine({app, {"-test", "QmlProfiler,"}});
-    profiler = createLocalQmlProfilerWorker(runControl.get());
+    runControl->setRunRecipe(localQmlProfilerRecipe(runControl.get()));
     connectRunner();
     runControl->initiateStart();
 
