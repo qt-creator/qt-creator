@@ -101,25 +101,6 @@ static QString generateSuffix(const QString &suffix)
     return result;
 }
 
-// Return path to shared directory for .user files, create if necessary.
-static inline std::optional<FilePath> defineExternalUserFileDir()
-{
-    const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
-    if (Q_LIKELY(!qtcEnvironmentVariableIsSet(userFilePathVariable)))
-        return std::nullopt;
-    const FilePath path = FilePath::fromUserInput(qtcEnvironmentVariable(userFilePathVariable));
-    if (path.isRelativePath()) {
-        qWarning().nospace() << "Ignoring " << userFilePathVariable
-                             << ", which must be an absolute path, but is " << path;
-        return std::nullopt;
-    }
-    if (const auto res = path.ensureWritableDir(); !res) {
-        qWarning() << res.error();
-        return std::nullopt;
-    }
-    return path;
-}
-
 // Return a suitable relative path to be created under the shared .user directory.
 static QString makeRelative(QString path)
 {
@@ -145,19 +126,6 @@ static QString makeRelative(QString path)
     if (path.startsWith(slash)) // Standard UNIX paths: '/foo' -> 'foo'
         path.remove(0, 1);
     return path;
-}
-
-// Return complete file path of the .user file.
-static FilePath externalUserFilePath(const Utils::FilePath &projectFilePath, const QString &suffix)
-{
-    static const std::optional<FilePath> externalUserFileDir = defineExternalUserFileDir();
-
-    if (externalUserFileDir) {
-        // Recreate the relative project file hierarchy under the shared directory.
-        return externalUserFileDir->pathAppended(
-            makeRelative(projectFilePath.toUrlishString()) + suffix);
-    }
-    return {};
 }
 
 } // namespace
@@ -266,9 +234,34 @@ FilePath UserFileAccessor::projectUserFile() const
     return m_project->projectFilePath().stringAppended(generateSuffix(userFileExtension()));
 }
 
+// Return complete file path of the .user file.
 FilePath UserFileAccessor::externalUserFile() const
 {
-    return externalUserFilePath(m_project->projectFilePath(), generateSuffix(userFileExtension()));
+    // Return path to shared directory for .user files, create if necessary.
+    static const auto defineExternalUserFileDir = [] {
+        const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
+        if (Q_LIKELY(!qtcEnvironmentVariableIsSet(userFilePathVariable)))
+            return FilePath();
+        const FilePath path = FilePath::fromUserInput(qtcEnvironmentVariable(userFilePathVariable));
+        if (path.isRelativePath()) {
+            qWarning().nospace() << "Ignoring " << userFilePathVariable
+                                 << ", which must be an absolute path, but is " << path;
+            return FilePath();
+        }
+        if (const auto res = path.ensureWritableDir(); !res) {
+            qWarning() << res.error();
+            return FilePath();
+        }
+        return path;
+    };
+    static const FilePath externalUserFileDir = defineExternalUserFileDir();
+    if (externalUserFileDir.isEmpty())
+        return {};
+
+    // Recreate the relative project file hierarchy under the shared directory.
+    return externalUserFileDir.pathAppended(
+        makeRelative(m_project->projectFilePath().toUrlishString())
+            + generateSuffix(userFileExtension()));
 }
 
 FilePath UserFileAccessor::sharedFile() const
