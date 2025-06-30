@@ -35,28 +35,7 @@ class Target;
 namespace Internal {
 class RunControlPrivate;
 class RunWorkerConflictTest;
-class RunWorkerPrivate;
 } // Internal
-
-class PROJECTEXPLORER_EXPORT RunWorker final : public QObject
-{
-    Q_OBJECT
-
-public:
-    explicit RunWorker(RunControl *runControl, const Tasking::Group &recipe);
-    ~RunWorker() override;
-
-signals:
-    void canceled();
-
-private:
-    void initiateStart();
-    void initiateStop();
-
-    friend class Internal::RunControlPrivate;
-    friend class Internal::RunWorkerPrivate;
-    const std::unique_ptr<Internal::RunWorkerPrivate> d;
-};
 
 class PROJECTEXPLORER_EXPORT RunWorkerFactory
 {
@@ -121,7 +100,6 @@ public:
     void setRunRecipe(const Tasking::Group &group);
 
     void initiateStart();
-    void initiateReStart();
     void initiateStop();
     void forceStop();
 
@@ -229,9 +207,6 @@ signals:
 
 private:
     void setDevice(const IDeviceConstPtr &device);
-
-    friend class RunWorker;
-    friend class Internal::RunWorkerPrivate;
 
     const std::unique_ptr<Internal::RunControlPrivate> d;
 };
