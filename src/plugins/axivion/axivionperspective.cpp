@@ -215,6 +215,16 @@ static FilePath mappedPathForLink(const Link &link)
     return {};
 }
 
+static FilePath requestPathMapping(const Link &link, const QString &projectName)
+{
+
+    if (projectName.isEmpty())
+        return {}; // we fail to create a mapping for empty project name
+    if (!handleMissingPathMapping(link.targetFilePath, projectName)) // mapping still invalid
+        return {};
+    return mappedPathForLink(link);
+}
+
 class IssueListItem final : public ListItem
 {
 public:
@@ -251,11 +261,9 @@ public:
 
                 FilePath targetFilePath = mappedPathForLink(link);
                 if (targetFilePath.isEmpty()) {
-                    std::optional<Dto::ProjectInfoDto> pi = projectInfo();
-                    QTC_ASSERT(pi, return true);
-                    if (!handleMissingPathMapping(link.targetFilePath, pi->name))
-                        return true;
-                    targetFilePath = mappedPathForLink(link);
+                    auto pi = projectInfo();
+                    QTC_ASSERT(pi, return false);
+                    targetFilePath = requestPathMapping(link, pi->name);
                 }
                 link.targetFilePath = targetFilePath;
                 if (link.targetFilePath.exists()) {
@@ -1880,7 +1888,11 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
         return;
     Link link;
     if (const QString path = query.queryItemValue("filename", QUrl::FullyDecoded); !path.isEmpty())
-        link.targetFilePath = findFileForIssuePath(FilePath::fromUserInput(path));
+        link.targetFilePath = FilePath::fromUserInput(path);
+    FilePath targetFilePath = mappedPathForLink(link);
+    if (targetFilePath.isEmpty())
+        targetFilePath = requestPathMapping(link, m_issueDetails->projectName());
+    link.targetFilePath = targetFilePath;
     if (const QString line = query.queryItemValue("line"); !line.isEmpty())
         link.target.line = line.toInt();
     // column entry is wrong - so, ignore it
