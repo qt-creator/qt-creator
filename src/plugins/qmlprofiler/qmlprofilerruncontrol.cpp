@@ -56,7 +56,7 @@ Group qmlProfilerRecipe(RunControl *runControl)
         });
         clientManager->setServer(runControl->qmlChannel());
         clientManager->connectToServer();
-        emit iface->started();
+        runControl->reportStarted();
     };
     const auto onDone = [] {
         if (QmlProfilerTool::instance() == nullptr)

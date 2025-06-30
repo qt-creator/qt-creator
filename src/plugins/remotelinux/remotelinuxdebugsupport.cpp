@@ -40,7 +40,9 @@ public:
     RemoteLinuxRunWorkerFactory()
     {
         setId("RemoteLinuxRunWorkerFactory");
-        setRecipeProducer([](RunControl *runControl) { return processRecipe(processTask(runControl)); });
+        setRecipeProducer([](RunControl *runControl) {
+            return processRecipe(runControl, processTask(runControl));
+        });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
         setSupportedRunConfigs(supportedRunConfigs());

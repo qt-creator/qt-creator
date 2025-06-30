@@ -173,7 +173,7 @@ public:
         setId("QdbPerfProfilerWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return processRecipe(qdbDeviceInferiorProcess(runControl, NoQmlDebugServices, true));
+            return processRecipe(runControl, qdbDeviceInferiorProcess(runControl, NoQmlDebugServices, true));
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);

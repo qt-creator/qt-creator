@@ -37,7 +37,7 @@ ExecutableItem initValgrindRecipe(const Storage<ValgrindSettings> &storage, RunC
     const auto onSetup = [storage, runControl] {
         storage->fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
         if (storage->valgrindExecutable().searchInPath().isExecutableFile()) {
-            emit runStorage()->started();
+            runControl->reportStarted();
             return DoneResult::Success;
         }
         runControl->postMessage(Tr::tr("Valgrind executable \"%1\" not found or not executable.\n"

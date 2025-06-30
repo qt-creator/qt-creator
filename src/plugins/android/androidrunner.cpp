@@ -131,7 +131,7 @@ Group androidRecipe(RunControl *runControl)
         return androidKicker(barrier, runControl);
     };
     return When (kicker) >> Do {
-        Sync([] { emit runStorage()->started(); })
+        Sync([runControl] { runControl->reportStarted(); })
     };
 }
 

@@ -463,8 +463,7 @@ ExecutableItem startEnginesRecipe(const Storage<DebuggerData> &storage)
         driver->showMessage(DebuggerSettings::dump(), LogDebug);
 
         driver->start();
-        QObject::connect(driver, &EnginesDriver::started,
-                         runStorage().activeStorage(), &RunInterface::started);
+        QObject::connect(driver, &EnginesDriver::started, runControl, &RunControl::reportStarted);
         return true;
     };
 

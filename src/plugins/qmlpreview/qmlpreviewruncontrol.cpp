@@ -104,7 +104,7 @@ QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory()
         return Group {
             parallel,
             qmlPreviewRecipe(runControl),
-            Sync([] { emit runStorage()->started(); })
+            Sync([runControl] { runControl->reportStarted(); })
         };
     });
     addSupportedRunMode(Constants::QML_PREVIEW_RUNNER);

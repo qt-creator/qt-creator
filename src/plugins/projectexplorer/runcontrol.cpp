@@ -279,6 +279,12 @@ void RunControl::start()
     ProjectExplorerPlugin::startRunControl(this);
 }
 
+void RunControl::reportStarted()
+{
+    d->debugMessage("Started");
+    emit started();
+}
+
 void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return);
@@ -781,10 +787,6 @@ void RunControlPrivate::startTaskTree()
     const auto onSetup = [this] {
         QObject::connect(q, &RunControl::canceled,
                          runStorage().activeStorage(), &RunInterface::canceled);
-        QObject::connect(runStorage().activeStorage(), &RunInterface::started, q, [this] {
-            debugMessage("Started");
-            emit q->started();
-        });
     };
 
     const auto needPortsGatherer = [this] { return data.isPortsGatherer(); };
@@ -1045,7 +1047,7 @@ void addOutputParserFactory(
 ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
 {
     setId("ProcessRunnerFactory");
-    setRecipeProducer([](RunControl *runControl) { return processRecipe(processTask(runControl)); });
+    setRecipeProducer([](RunControl *runControl) { return processRecipe(runControl, processTask(runControl)); });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     setSupportedRunConfigs(runConfigs);
 }
@@ -1085,11 +1087,11 @@ Group errorTask(RunControl *runControl, const QString &message)
     };
 }
 
-Group processRecipe(const ProcessTask &processTask)
+Group processRecipe(RunControl *runControl, const ProcessTask &processTask)
 {
     return {
         When (processTask, &Process::started) >> Do {
-            Sync([] { emit runStorage()->started(); })
+            Sync([runControl] { runControl->reportStarted(); })
         }
     };
 }

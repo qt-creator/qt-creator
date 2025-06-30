@@ -90,6 +90,7 @@ public:
     Tasking::Group noRecipeTask();
 
     void start();
+    void reportStarted();
 
     void setBuildConfiguration(BuildConfiguration *bc);
     void setKit(Kit *kit);
@@ -240,7 +241,6 @@ class PROJECTEXPLORER_EXPORT RunInterface : public QObject
     Q_OBJECT
 
 signals:
-    void started();  // Recipe -> RunWorker
     void canceled(); // RunWorker -> Recipe
 };
 
@@ -285,14 +285,15 @@ Utils::ProcessTask processTaskWithModifier(RunControl *runControl,
 }
 
 // This recipe notifies the RunControl when process is started.
-PROJECTEXPLORER_EXPORT Tasking::Group processRecipe(const Utils::ProcessTask &processTask);
+PROJECTEXPLORER_EXPORT Tasking::Group processRecipe(RunControl *runControl,
+                                                    const Utils::ProcessTask &processTask);
 
 template <typename Modifier>
 Tasking::Group processRecipe(RunControl *runControl,
                              const Modifier &startModifier = {},
                              const ProcessSetupConfig &config = {})
 {
-    return processRecipe(processTaskWithModifier(runControl, startModifier, config));
+    return processRecipe(runControl, processTaskWithModifier(runControl, startModifier, config));
 }
 
 

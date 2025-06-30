@@ -250,7 +250,7 @@ public:
         setId("AppManagerPerfProfilerWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return processRecipe(inferiorProcess(runControl, NoQmlDebugServices, true));
+            return processRecipe(runControl, inferiorProcess(runControl, NoQmlDebugServices, true));
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);

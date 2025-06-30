@@ -641,7 +641,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
     const Environment environment = buildConfiguration->environment();
 
     const auto onTopSetup = [this, tempDir] {
-        emit runStorage()->started();
+        m_runControl->reportStarted();
         if (tempDir->isValid())
             return SetupResult::Continue;
         m_infoBarWidget->setError(InfoBarWidget::Error,

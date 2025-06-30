@@ -340,7 +340,7 @@ static Group deviceCtlRecipe(RunControl *runControl, bool startStopped)
         return deviceCtlKicker(barrier, runControl, startStopped);
     };
     return When (kicker) >> Do {
-        Sync([] { emit runStorage()->started(); })
+        Sync([runControl] { runControl->reportStarted(); })
     };
 }
 
@@ -376,7 +376,7 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
         if (pid) {
             *pidStorage = *pid;
             runControl->setAttachPid(ProcessHandle(*pid));
-            emit runStorage()->started();
+            runControl->reportStarted();
             return DoneResult::Success;
         }
         runControl->postMessage(pid.error(), ErrorMessageFormat);
@@ -672,7 +672,7 @@ static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = 
         return iosToolKicker(barrier, runControl, debugInfo);
     };
     return When (kicker) >> Do {
-        afterStartedRecipe ? *afterStartedRecipe : Sync([] { emit runStorage()->started(); })
+        afterStartedRecipe ? *afterStartedRecipe : Sync([runControl] { runControl->reportStarted(); })
     };
 }
 
