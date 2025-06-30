@@ -181,6 +181,9 @@ namespace Internal {
 class RunControlPrivateData
 {
 public:
+    bool isPortsGatherer() const
+    { return useDebugChannel || useQmlChannel || usePerfChannel || useWorkerChannel; }
+
     QString displayName;
     ProcessRunData runnable;
     QVariantHash extraData;
@@ -217,13 +220,13 @@ public:
     Utils::ProcessHandle m_attachPid;
 };
 
-class RunControlPrivate : public RunControlPrivateData
+class RunControlPrivate
 {
 public:
     RunControlPrivate(RunControl *parent, Id mode)
         : q(parent), runMode(mode)
     {
-        icon = Icons::RUN_SMALL_TOOLBAR;
+        data.icon = Icons::RUN_SMALL_TOOLBAR;
     }
 
     ~RunControlPrivate()
@@ -231,20 +234,17 @@ public:
         QTC_CHECK(!m_taskTreeRunner.isRunning());
     }
 
-    void copyData(RunControlPrivateData *other) { RunControlPrivateData::operator=(*other); }
-
     void debugMessage(const QString &msg) const;
 
     void startTaskTree();
     void emitStopped();
 
-    bool isPortsGatherer() const
-    { return useDebugChannel || useQmlChannel || usePerfChannel || useWorkerChannel; }
     QUrl getNextChannel(PortList *portList, const QList<Port> &usedPorts) const;
 
     Group portsGathererRecipe();
 
     RunControl *q;
+    RunControlPrivateData data;
     Id runMode;
     TaskTreeRunner m_taskTreeRunner;
 };
@@ -261,7 +261,7 @@ RunControl::RunControl(Id mode) :
 void RunControl::copyDataFromRunControl(RunControl *runControl)
 {
     QTC_ASSERT(runControl, return);
-    d->copyData(runControl->d.get());
+    d->data = runControl->d->data;
 }
 
 Group RunControl::noRecipeTask()
@@ -282,46 +282,46 @@ void RunControl::start()
 void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return);
-    d->runConfigId = runConfig->id();
-    d->runnable = runConfig->runnable();
-    d->extraData = runConfig->extraData();
-    d->displayName = runConfig->expandedDisplayName();
-    d->buildKey = runConfig->buildKey();
-    d->settingsData = runConfig->settingsData();
-    d->aspectData = runConfig->aspectData();
-    d->printEnvironment = runConfig->isPrintEnvironmentEnabled();
+    d->data.runConfigId = runConfig->id();
+    d->data.runnable = runConfig->runnable();
+    d->data.extraData = runConfig->extraData();
+    d->data.displayName = runConfig->expandedDisplayName();
+    d->data.buildKey = runConfig->buildKey();
+    d->data.settingsData = runConfig->settingsData();
+    d->data.aspectData = runConfig->aspectData();
+    d->data.printEnvironment = runConfig->isPrintEnvironmentEnabled();
 
     setBuildConfiguration(runConfig->buildConfiguration());
 
-    d->macroExpander = runConfig->macroExpander();
+    d->data.macroExpander = runConfig->macroExpander();
 }
 
 void RunControl::setBuildConfiguration(BuildConfiguration *bc)
 {
     QTC_ASSERT(bc, return);
-    QTC_CHECK(!d->buildConfiguration);
-    d->buildConfiguration = bc;
+    QTC_CHECK(!d->data.buildConfiguration);
+    d->data.buildConfiguration = bc;
 
-    if (!d->buildKey.isEmpty())
-        d->buildTargetInfo = bc->buildSystem()->buildTarget(d->buildKey);
+    if (!d->data.buildKey.isEmpty())
+        d->data.buildTargetInfo = bc->buildSystem()->buildTarget(d->data.buildKey);
 
-    d->buildDirectory = bc->buildDirectory();
-    d->buildEnvironment = bc->environment();
+    d->data.buildDirectory = bc->buildDirectory();
+    d->data.buildEnvironment = bc->environment();
 
     setKit(bc->kit());
-    d->macroExpander = bc->macroExpander();
-    d->project = bc->project();
+    d->data.macroExpander = bc->macroExpander();
+    d->data.project = bc->project();
 }
 
 void RunControl::setKit(Kit *kit)
 {
     QTC_ASSERT(kit, return);
-    QTC_CHECK(!d->kit);
-    d->kit = kit;
-    d->macroExpander = kit->macroExpander();
+    QTC_CHECK(!d->data.kit);
+    d->data.kit = kit;
+    d->data.macroExpander = kit->macroExpander();
 
-    if (!d->runnable.command.isEmpty()) {
-        setDevice(DeviceManager::deviceForPath(d->runnable.command.executable()));
+    if (!d->data.runnable.command.isEmpty()) {
+        setDevice(DeviceManager::deviceForPath(d->data.runnable.command.executable()));
         QTC_ASSERT(device(), setDevice(RunDeviceKitAspect::device(kit)));
     } else {
         setDevice(RunDeviceKitAspect::device(kit));
@@ -330,8 +330,8 @@ void RunControl::setKit(Kit *kit)
 
 void RunControl::setDevice(const IDevice::ConstPtr &device)
 {
-    QTC_CHECK(!d->device);
-    d->device = device;
+    QTC_CHECK(!d->data.device);
+    d->data.device = device;
 #ifdef WITH_JOURNALD
     if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         JournaldWatcher::instance()->subscribe(this, [this](const JournaldWatcher::LogEntry &entry) {
@@ -344,7 +344,7 @@ void RunControl::setDevice(const IDevice::ConstPtr &device)
                 return;
 
             const qint64 pidNum = static_cast<qint64>(QString::fromLatin1(pid).toInt());
-            if (pidNum != d->applicationProcessHandle.pid())
+            if (pidNum != d->data.applicationProcessHandle.pid())
                 return;
 
             const QString message = QString::fromUtf8(entry.value("MESSAGE")) + "\n";
@@ -363,7 +363,7 @@ RunControl::~RunControl()
 
 void RunControl::setRunRecipe(const Group &group)
 {
-    d->m_runRecipe = group;
+    d->data.m_runRecipe = group;
 }
 
 void RunControl::initiateStart()
@@ -385,9 +385,9 @@ void RunControl::forceStop()
 
 Group RunControl::createRecipe(Id runMode)
 {
-    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->kit);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->data.kit);
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canCreate(runMode, deviceType, d->runConfigId))
+        if (factory->canCreate(runMode, deviceType, d->data.runConfigId))
             return factory->createRecipe(this);
     }
     return noRecipeTask();
@@ -398,8 +398,8 @@ bool RunControl::createMainRecipe()
     const QList<RunWorkerFactory *> candidates
         = filtered(g_runWorkerFactories, [this](RunWorkerFactory *factory) {
               return factory->canCreate(d->runMode,
-                                        RunDeviceTypeKitAspect::deviceTypeId(d->kit),
-                                        d->runConfigId);
+                                        RunDeviceTypeKitAspect::deviceTypeId(d->data.kit),
+                                        d->data.runConfigId);
           });
 
     // There might be combinations that cannot run. But that should have been checked
@@ -445,7 +445,7 @@ Group RunControlPrivate::portsGathererRecipe()
     const Storage<PortsOutputData> portsStorage;
 
     const auto onSetup = [this] {
-        if (!device) {
+        if (!data.device) {
             q->postMessage(Tr::tr("Can't use ports gatherer - no device set."), ErrorMessageFormat);
             return SetupResult::StopWithError;
         }
@@ -459,101 +459,101 @@ Group RunControlPrivate::portsGathererRecipe()
             q->postMessage(Tr::tr("No free ports found."), ErrorMessageFormat);
             return DoneResult::Error;
         }
-        PortList portList = device->freePorts();
+        PortList portList = data.device->freePorts();
         const QList<Port> usedPorts = *ports;
         q->postMessage(Tr::tr("Found %n free ports.", nullptr, portList.count()), NormalMessageFormat);
-        if (useDebugChannel)
-            debugChannel = getNextChannel(&portList, usedPorts);
-        if (useQmlChannel)
-            qmlChannel = getNextChannel(&portList, usedPorts);
-        if (usePerfChannel)
-            perfChannel = getNextChannel(&portList, usedPorts);
-        if (useWorkerChannel)
-            workerChannel = getNextChannel(&portList, usedPorts);
+        if (data.useDebugChannel)
+            data.debugChannel = getNextChannel(&portList, usedPorts);
+        if (data.useQmlChannel)
+            data.qmlChannel = getNextChannel(&portList, usedPorts);
+        if (data.usePerfChannel)
+            data.perfChannel = getNextChannel(&portList, usedPorts);
+        if (data.useWorkerChannel)
+            data.workerChannel = getNextChannel(&portList, usedPorts);
         return DoneResult::Success;
     };
 
     return {
         portsStorage,
         onGroupSetup(onSetup),
-        device->portsGatheringRecipe(portsStorage),
+        data.device->portsGatheringRecipe(portsStorage),
         onGroupDone(onDone)
     };
 }
 
 void RunControl::requestDebugChannel()
 {
-    d->useDebugChannel = true;
+    d->data.useDebugChannel = true;
 }
 
 bool RunControl::usesDebugChannel() const
 {
-    return d->useDebugChannel;
+    return d->data.useDebugChannel;
 }
 
 QUrl RunControl::debugChannel() const
 {
-    return d->debugChannel;
+    return d->data.debugChannel;
 }
 
 void RunControl::setDebugChannel(const QUrl &channel)
 {
-    d->debugChannel = channel;
+    d->data.debugChannel = channel;
 }
 
 void RunControl::requestQmlChannel()
 {
-    d->useQmlChannel = true;
+    d->data.useQmlChannel = true;
 }
 
 bool RunControl::usesQmlChannel() const
 {
-    return d->useQmlChannel;
+    return d->data.useQmlChannel;
 }
 
 QUrl RunControl::qmlChannel() const
 {
-    return d->qmlChannel;
+    return d->data.qmlChannel;
 }
 
 void RunControl::setQmlChannel(const QUrl &channel)
 {
-    d->qmlChannel = channel;
+    d->data.qmlChannel = channel;
 }
 
 void RunControl::requestPerfChannel()
 {
-    d->usePerfChannel = true;
+    d->data.usePerfChannel = true;
 }
 
 bool RunControl::usesPerfChannel() const
 {
-    return d->usePerfChannel;
+    return d->data.usePerfChannel;
 }
 
 QUrl RunControl::perfChannel() const
 {
-    return d->perfChannel;
+    return d->data.perfChannel;
 }
 
 void RunControl::requestWorkerChannel()
 {
-    d->useWorkerChannel = true;
+    d->data.useWorkerChannel = true;
 }
 
 QUrl RunControl::workerChannel() const
 {
-    return d->workerChannel;
+    return d->data.workerChannel;
 }
 
 void RunControl::setAttachPid(ProcessHandle pid)
 {
-    d->m_attachPid = pid;
+    d->data.m_attachPid = pid;
 }
 
 ProcessHandle RunControl::attachPid() const
 {
-    return d->m_attachPid;
+    return d->data.m_attachPid;
 }
 
 void RunControl::showOutputPane()
@@ -586,84 +586,84 @@ Utils::Id RunControl::runMode() const
 
 bool RunControl::isPrintEnvironmentEnabled() const
 {
-    return d->printEnvironment;
+    return d->data.printEnvironment;
 }
 
 const ProcessRunData &RunControl::runnable() const
 {
-    return d->runnable;
+    return d->data.runnable;
 }
 
 const CommandLine &RunControl::commandLine() const
 {
-    return d->runnable.command;
+    return d->data.runnable.command;
 }
 
 void RunControl::setCommandLine(const CommandLine &command)
 {
-    d->runnable.command = command;
+    d->data.runnable.command = command;
 }
 
 const FilePath &RunControl::workingDirectory() const
 {
-    return d->runnable.workingDirectory;
+    return d->data.runnable.workingDirectory;
 }
 
 void RunControl::setWorkingDirectory(const FilePath &workingDirectory)
 {
-    d->runnable.workingDirectory = workingDirectory;
+    d->data.runnable.workingDirectory = workingDirectory;
 }
 
 const Environment &RunControl::environment() const
 {
-    return d->runnable.environment;
+    return d->data.runnable.environment;
 }
 
 void RunControl::setEnvironment(const Environment &environment)
 {
-    d->runnable.environment = environment;
+    d->data.runnable.environment = environment;
 }
 
 const QVariantHash &RunControl::extraData() const
 {
-    return d->extraData;
+    return d->data.extraData;
 }
 
 void RunControl::setExtraData(const QVariantHash &extraData)
 {
-    d->extraData = extraData;
+    d->data.extraData = extraData;
 }
 
 QString RunControl::displayName() const
 {
-    if (d->displayName.isEmpty())
-        return d->runnable.command.executable().toUserOutput();
-    return d->displayName;
+    if (d->data.displayName.isEmpty())
+        return d->data.runnable.command.executable().toUserOutput();
+    return d->data.displayName;
 }
 
 void RunControl::setDisplayName(const QString &displayName)
 {
-    d->displayName = displayName;
+    d->data.displayName = displayName;
 }
 
 void RunControl::setIcon(const Utils::Icon &icon)
 {
-    d->icon = icon;
+    d->data.icon = icon;
 }
 
 Utils::Icon RunControl::icon() const
 {
-    return d->icon;
+    return d->data.icon;
 }
 
 IDevice::ConstPtr RunControl::device() const
 {
-   return d->device;
+   return d->data.device;
 }
 
 BuildConfiguration *RunControl::buildConfiguration() const
 {
-    return d->buildConfiguration;
+    return d->data.buildConfiguration;
 }
 
 Target *RunControl::target() const
@@ -673,57 +673,57 @@ Target *RunControl::target() const
 
 Project *RunControl::project() const
 {
-    return d->project;
+    return d->data.project;
 }
 
 Kit *RunControl::kit() const
 {
-    return d->kit;
+    return d->data.kit;
 }
 
 const MacroExpander *RunControl::macroExpander() const
 {
-    return d->macroExpander;
+    return d->data.macroExpander;
 }
 
 const BaseAspect::Data *RunControl::aspectData(Id instanceId) const
 {
-    return d->aspectData.aspect(instanceId);
+    return d->data.aspectData.aspect(instanceId);
 }
 
 const BaseAspect::Data *RunControl::aspectData(BaseAspect::Data::ClassId classId) const
 {
-    return d->aspectData.aspect(classId);
+    return d->data.aspectData.aspect(classId);
 }
 
 Store RunControl::settingsData(Id id) const
 {
-    return d->settingsData.value(id);
+    return d->data.settingsData.value(id);
 }
 
 QString RunControl::buildKey() const
 {
-    return d->buildKey;
+    return d->data.buildKey;
 }
 
 FilePath RunControl::buildDirectory() const
 {
-    return d->buildDirectory;
+    return d->data.buildDirectory;
 }
 
 Environment RunControl::buildEnvironment() const
 {
-    return d->buildEnvironment;
+    return d->data.buildEnvironment;
 }
 
 FilePath RunControl::targetFilePath() const
 {
-    return d->buildTargetInfo.targetFilePath;
+    return d->data.buildTargetInfo.targetFilePath;
 }
 
 FilePath RunControl::projectFilePath() const
 {
-    return d->buildTargetInfo.projectFilePath;
+    return d->data.buildTargetInfo.projectFilePath;
 }
 
 /*!
@@ -735,13 +735,13 @@ FilePath RunControl::projectFilePath() const
 
 ProcessHandle RunControl::applicationProcessHandle() const
 {
-    return d->applicationProcessHandle;
+    return d->data.applicationProcessHandle;
 }
 
 void RunControl::setApplicationProcessHandle(const ProcessHandle &handle)
 {
-    if (d->applicationProcessHandle != handle) {
-        d->applicationProcessHandle = handle;
+    if (d->data.applicationProcessHandle != handle) {
+        d->data.applicationProcessHandle = handle;
         emit applicationProcessHandleChanged(QPrivateSignal());
     }
 }
@@ -758,8 +758,8 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
         return true;
 
     // Overridden.
-    if (d->promptToStop)
-        return d->promptToStop(optionalPrompt);
+    if (d->data.promptToStop)
+        return d->data.promptToStop(optionalPrompt);
 
     const QString msg = Tr::tr("<html><head/><body><center><i>%1</i> is still running.<center/>"
                            "<center>Force it to quit?</center></body></html>").arg(displayName());
@@ -770,7 +770,7 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
 
 void RunControl::setPromptToStop(const std::function<bool (bool *)> &promptToStop)
 {
-    d->promptToStop = promptToStop;
+    d->data.promptToStop = promptToStop;
 }
 
 void RunControlPrivate::startTaskTree()
@@ -787,7 +787,7 @@ void RunControlPrivate::startTaskTree()
         });
     };
 
-    const auto needPortsGatherer = [this] { return isPortsGatherer(); };
+    const auto needPortsGatherer = [this] { return data.isPortsGatherer(); };
 
     const Group recipe {
         runStorage(),
@@ -795,7 +795,7 @@ void RunControlPrivate::startTaskTree()
         If (needPortsGatherer) >> Then {
             portsGathererRecipe().withCancel(canceler())
         },
-        m_runRecipe
+        data.m_runRecipe
     };
 
     m_taskTreeRunner.start(recipe, {}, [this](DoneWith) {
