@@ -31,16 +31,7 @@ jobs:
             name: "Windows Latest MSVC", artifact: "windows-x64-msvc",
             os: windows-latest,
             cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            is_msvc: true
-          }
-        - {
-            name: "Windows Latest MinGW", artifact: "windows-x64-mingw",
-            os: windows-latest,
-            toolchain: "https://\\${qt_mirror}/online/qtsdkrepository/windows_x86/desktop/tools_mingw1310/qt.tools.win64_mingw1310/13.1.0-202407240918mingw1310.7z",
-            toolchain_path: "Tools/mingw1310_64/bin",
-            cc: "gcc", cxx: "g++",
-            is_msvc: false
+            environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
           }
         - {
             name: "Ubuntu Latest GCC", artifact: "linux-x64",
@@ -224,11 +215,7 @@ jobs:
         string(REPLACE "." "" qt_version_dotless "${qt_version}")
         if ("${{ runner.os }}" STREQUAL "Windows")
           set(url_os "windows_x86")
-          if ("x${{ matrix.config.environment_script }}" STREQUAL "x")
-            set(compiler_id "win64_mingw")
-          elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars64.bat")
-            set(compiler_id "win64_msvc2022_64")
-          endif()
+          set(compiler_id "win64_msvc2022_64")
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")
           set(compiler_id "linux_gcc_64")
@@ -321,21 +308,11 @@ jobs:
 
         if ("${{ runner.os }}" STREQUAL "Windows")
           # deploy "system" runtimes into Qt, so they get deployed as well
-          if ("x${{ matrix.config.environment_script }}" STREQUAL "x")
-            # deploy MinGW
-            foreach(file libwinpthread-1.dll libstdc++-6.dll libgcc_s_seh-1.dll)
-              file(INSTALL "$ENV{GITHUB_WORKSPACE}/${{ matrix.config.toolchain_path }}/${file}"
-                   DESTINATION "qt/bin"
-                   USE_SOURCE_PERMISSIONS)
-            endforeach()
-          else()
-            # deploy MSVC
-            foreach(file vcruntime140.dll concrt140.dll msvcp140_1.dll msvcp140_2.dll
-                         msvcp140_codecvt_ids.dll vcruntime140_1.dll msvcp140.dll)
-              file(INSTALL "C:/Windows/System32/${file}"
-                   DESTINATION "qt/bin")
-            endforeach()
-          endif()
+          foreach(file vcruntime140.dll concrt140.dll msvcp140_1.dll msvcp140_2.dll
+                       msvcp140_codecvt_ids.dll vcruntime140_1.dll msvcp140.dll)
+            file(INSTALL "C:/Windows/System32/${file}"
+                 DESTINATION "qt/bin")
+          endforeach()
         endif()
 
     - name: Download OpenSSL
@@ -418,13 +395,7 @@ jobs:
         set(clang_version "$ENV{CLANG_VERSION}")
 
         if ("${{ runner.os }}" STREQUAL "Windows")
-          if ("x${{ matrix.config.environment_script }}" STREQUAL "x")
-            set(libclang "libclang-release_${clang_version}-based-windows-mingw_64.7z")
-          elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars64.bat")
-            set(libclang "libclang-release_${clang_version}-based-windows-vs2019_64.7z")
-          elseif ("${{ matrix.config.environment_script }}" MATCHES "vcvars32.bat")
-            set(libclang "libclang-release_${clang_version}-based-windows-vs2019_32.7z")
-          endif()
+          set(libclang "libclang-release_${clang_version}-based-windows-vs2019_64.7z")
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(libclang "libclang-release_${clang_version}-based-linux-Ubuntu22.04-gcc11.4-x86_64.7z")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
@@ -459,7 +430,7 @@ jobs:
         file(APPEND "$ENV{GITHUB_OUTPUT}" "libclang_dir=${libclang_dir}")
 
     - name: Download elfutils
-      if: runner.os == 'Windows' && matrix.config.is_msvc || runner.os == 'Linux'
+      if: runner.os == 'Windows' || runner.os == 'Linux'
       id: elfutils
       shell: cmake -P {0}
       run: |
@@ -771,7 +742,7 @@ jobs:
         name: wininterrupt-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
 
     - name: Upload qtcreatorcdbext
-      if: runner.os == 'Windows' && matrix.config.is_msvc
+      if: runner.os == 'Windows'
       uses: actions/upload-artifact@v4
       with:
         path: build/qtcreatorcdbext-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
