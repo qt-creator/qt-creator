@@ -13,7 +13,7 @@ QT_BEGIN_NAMESPACE
 
 namespace Tasking {
 
-class TASKING_EXPORT Barrier final : public QObject
+class TASKING_EXPORT Barrier : public QObject
 {
     Q_OBJECT
 
@@ -41,33 +41,26 @@ private:
 using BarrierTask = SimpleCustomTask<Barrier>;
 
 template <int Limit = 1>
-class SharedBarrier
+class StartedBarrier final : public Barrier
 {
 public:
-    static_assert(Limit > 0, "SharedBarrier's limit should be 1 or more.");
-    SharedBarrier() : m_barrier(new Barrier) {
-        m_barrier->setLimit(Limit);
-        m_barrier->start();
+    static_assert(Limit > 0, "StartedBarrier's limit should be 1 or more.");
+    StartedBarrier()
+    {
+        setLimit(Limit);
+        start();
     }
-    Barrier *barrier() const { return m_barrier.get(); }
-
-private:
-    std::shared_ptr<Barrier> m_barrier;
 };
 
 template <int Limit = 1>
-using MultiBarrier = Storage<SharedBarrier<Limit>>;
-
-// Can't write: "MultiBarrier barrier;". Only "MultiBarrier<> barrier;" would work.
-// Can't have one alias with default type in C++17, getting the following error:
-// alias template deduction only available with C++20.
-using SingleBarrier = MultiBarrier<1>;
+using StoredMultiBarrier = Storage<StartedBarrier<Limit>>;
+using StoredBarrier = StoredMultiBarrier<1>;
 
 template <int Limit>
-ExecutableItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
+ExecutableItem waitForBarrierTask(const StoredMultiBarrier<Limit> &storedBarrier)
 {
-    return BarrierTask([sharedBarrier](Barrier &barrier) {
-        SharedBarrier<Limit> *activeBarrier = sharedBarrier.activeStorage();
+    return BarrierTask([storedBarrier](Barrier &barrier) {
+        Barrier *activeBarrier = storedBarrier.activeStorage();
         if (!activeBarrier) {
             qWarning("The barrier referenced from WaitForBarrier element "
                      "is not reachable in the running tree. "
@@ -76,13 +69,12 @@ ExecutableItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
                      "The WaitForBarrier task finishes with an error. ");
             return SetupResult::StopWithError;
         }
-        Barrier *activeSharedBarrier = activeBarrier->barrier();
-        const std::optional<DoneResult> result = activeSharedBarrier->result();
+        const std::optional<DoneResult> result = activeBarrier->result();
         if (result.has_value()) {
             return *result == DoneResult::Success ? SetupResult::StopWithSuccess
                                                   : SetupResult::StopWithError;
         }
-        QObject::connect(activeSharedBarrier, &Barrier::done, &barrier, &Barrier::stopWithResult);
+        QObject::connect(activeBarrier, &Barrier::done, &barrier, &Barrier::stopWithResult);
         return SetupResult::Continue;
     });
 }
@@ -95,7 +87,7 @@ ExecutableItem signalAwaiter(const typename QtPrivate::FunctionPointer<Signal>::
     });
 }
 
-using BarrierKickerGetter = std::function<ExecutableItem(const SingleBarrier &)>;
+using BarrierKickerGetter = std::function<ExecutableItem(const StoredBarrier &)>;
 
 class TASKING_EXPORT When final
 {
@@ -111,13 +103,13 @@ public:
          WorkflowPolicy policy = WorkflowPolicy::StopOnError)
         : m_workflowPolicy(policy)
     {
-        m_barrierKicker = [taskHandler = customTask.m_taskHandler, signal](const SingleBarrier &barrier) {
+        m_barrierKicker = [taskHandler = customTask.m_taskHandler, signal](const StoredBarrier &barrier) {
             auto handler = std::move(taskHandler);
             const auto wrappedSetupHandler = [originalSetupHandler = std::move(handler.m_setupHandler),
                                               barrier, signal](TaskInterface &taskInterface) {
                 const SetupResult setupResult = std::invoke(originalSetupHandler, taskInterface);
                 Adapter &adapter = static_cast<Adapter &>(taskInterface);
-                QObject::connect(adapter.task(), signal, barrier->barrier(), &Barrier::advance);
+                QObject::connect(adapter.task(), signal, barrier.activeStorage(), &Barrier::advance);
                 return setupResult;
             };
             handler.m_setupHandler = std::move(wrappedSetupHandler);

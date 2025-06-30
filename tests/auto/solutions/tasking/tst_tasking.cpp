@@ -381,20 +381,20 @@ private:
 
 using TickAndDoneTask = SimpleCustomTask<TickAndDone>;
 
-template <typename SharedBarrierType>
+template <typename StoredBarrierType>
 ExecutableItem createBarrierAdvance(const Storage<CustomStorage> &storage,
-                                    const SharedBarrierType &barrier, int taskId)
+                                    const StoredBarrierType &barrier, int taskId)
 {
     return TickAndDoneTask([storage, barrier, taskId](TickAndDone &tickAndDone) {
         tickAndDone.setInterval(1ms);
         storage->m_log.append({taskId, Handler::Setup});
 
         CustomStorage *currentStorage = storage.activeStorage();
-        Barrier *sharedBarrier = barrier->barrier();
-        QObject::connect(&tickAndDone, &TickAndDone::tick, sharedBarrier,
-                         [currentStorage, sharedBarrier, taskId] {
+        Barrier *activeBarrier = barrier.activeStorage();
+        QObject::connect(&tickAndDone, &TickAndDone::tick, activeBarrier,
+                         [currentStorage, activeBarrier, taskId] {
             currentStorage->m_log.append({taskId, Handler::BarrierAdvance});
-            sharedBarrier->advance();
+            activeBarrier->advance();
         });
     });
 }
@@ -2277,7 +2277,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        SingleBarrier barrier;
+        StoredBarrier barrier;
 
         // Test that barrier advance, triggered from inside the task described by
         // createBarrierAdvance, placed BEFORE the group containing the waitFor() element
@@ -2393,7 +2393,7 @@ void tst_Tasking::testTree_data()
 
         // Test two separate single barriers.
 
-        SingleBarrier barrier2;
+        StoredBarrier barrier2;
 
         const Group root5 {
             storage,
@@ -2435,7 +2435,7 @@ void tst_Tasking::testTree_data()
             << TestData{storage, root5, log5, 5, DoneWith::Success, 5};
 
         const auto barrierKicker = [storage](int taskId) {
-            return [storage, taskId](const SingleBarrier &barrier) {
+            return [storage, taskId](const StoredBarrier &barrier) {
                 return createBarrierAdvance(storage, barrier, taskId);
             };
         };
@@ -2502,7 +2502,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        MultiBarrier<2> barrier;
+        StoredMultiBarrier<2> barrier;
 
         // Test that multi barrier advance, triggered from inside the tasks described by
         // createBarrierAdvance, placed BEFORE the group containing the waitFor() element

@@ -219,11 +219,11 @@ static GroupItem killProcess(const Storage<AppInfo> &appInfo)
     return ProcessTask(onSetup, DoneResult::Success); // we tried our best and don't care at this point
 }
 
-static Group deviceCtlKicker(const SingleBarrier &barrier, RunControl *runControl,
+static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runControl,
                              const Storage<AppInfo> &appInfo,
                              const Storage<TemporaryFile> tempFileStorage, bool startStopped)
 {
-    const auto launchApp = [runControl, appInfo, tempFileStorage, startStopped](const SingleBarrier &barrier) {
+    const auto launchApp = [runControl, appInfo, tempFileStorage, startStopped](const StoredBarrier &barrier) {
         const auto onSetup = [runControl, appInfo, tempFileStorage, startStopped, barrier](Process &process) {
             const QStringList startStoppedArg = startStopped ? QStringList("--start-stopped")
                                                              : QStringList();
@@ -241,7 +241,7 @@ static Group deviceCtlKicker(const SingleBarrier &barrier, RunControl *runContro
                                      + QStringList({"--console", appInfo->bundleIdentifier})
                                      + appInfo->arguments;
             process.setCommand({FilePath::fromString("/usr/bin/xcrun"), args});
-            QObject::connect(&process, &Process::started, barrier->barrier(), &Barrier::advance);
+            QObject::connect(&process, &Process::started, barrier.activeStorage(), &Barrier::advance);
 
             QObject::connect(&process, &Process::readyReadStandardError, runControl,
                              [runControl, process = &process] {
@@ -270,7 +270,7 @@ static Group deviceCtlKicker(const SingleBarrier &barrier, RunControl *runContro
     const auto onDone = [runControl, appInfo, barrier](DoneWith result) {
         if (result == DoneWith::Success) {
             runControl->setAttachPid(ProcessHandle(appInfo->processIdentifier));
-            barrier->barrier()->advance();
+            barrier->advance();
         } else {
             runControl->postMessage(Tr::tr("Failed to retrieve process ID."), ErrorMessageFormat);
         }
@@ -303,7 +303,7 @@ static Group killApp(RunControl *runControl, const Storage<AppInfo> &appInfo)
     };
 }
 
-static Group deviceCtlKicker(const SingleBarrier &barrier, RunControl *runControl, bool startStopped)
+static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runControl, bool startStopped)
 {
     const Storage<AppInfo> appInfo;
     const Storage<TemporaryFile> tempFileStorage{QString("devicectl")};
@@ -336,7 +336,7 @@ static Group deviceCtlKicker(const SingleBarrier &barrier, RunControl *runContro
 
 static Group deviceCtlRecipe(RunControl *runControl, bool startStopped)
 {
-    const auto kicker = [runControl, startStopped](const SingleBarrier &barrier) {
+    const auto kicker = [runControl, startStopped](const StoredBarrier &barrier) {
         return deviceCtlKicker(barrier, runControl, startStopped);
     };
     return When (kicker) >> Do {
@@ -579,7 +579,7 @@ static void handleIosToolStartedOnSimulator(
     barrier->advance();
 }
 
-static Group iosToolKicker(const SingleBarrier &barrier, RunControl *runControl, const DebugInfo &debugInfo)
+static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl, const DebugInfo &debugInfo)
 {
     stopRunningRunControl(runControl);
     const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
@@ -603,7 +603,7 @@ static Group iosToolKicker(const SingleBarrier &barrier, RunControl *runControl,
         runner.setDeviceType(deviceType);
         RunInterface *iface = runStorage().activeStorage();
         runner.setStartHandler([runControl, debugInfo, bundleDir, device, iface,
-                                barrier = barrier->barrier()](IosToolHandler *handler) {
+                                barrier = barrier.activeStorage()](IosToolHandler *handler) {
             const auto messageHandler = [runControl](const QString &message) {
                 runControl->postMessage(message, StdOutFormat);
             };
@@ -667,7 +667,7 @@ static Group iosToolKicker(const SingleBarrier &barrier, RunControl *runControl,
 
 static Group iosToolRecipe(RunControl *runControl, const DebugInfo &debugInfo = {})
 {
-    const auto kicker = [runControl, debugInfo](const SingleBarrier &barrier) {
+    const auto kicker = [runControl, debugInfo](const StoredBarrier &barrier) {
         return iosToolKicker(barrier, runControl, debugInfo);
     };
     return When (kicker) >> Do {
@@ -812,7 +812,7 @@ static Group debugRecipe(RunControl *runControl)
     if (isIosRunner) {
         const DebugInfo debugInfo{rp.isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices,
                                   rp.isCppDebugging()};
-        kicker = [runControl, debugInfo](const SingleBarrier &barrier) {
+        kicker = [runControl, debugInfo](const StoredBarrier &barrier) {
             return iosToolKicker(barrier, runControl, debugInfo);
         };
     } else {
@@ -820,7 +820,7 @@ static Group debugRecipe(RunControl *runControl)
             rp.setInferiorExecutable(data->localExecutable);
         const bool warnAboutQml = rp.isQmlDebugging();
         rp.setQmlDebugging(false);
-        kicker = [runControl, warnAboutDebug = rp.isCppDebugging(), warnAboutQml](const SingleBarrier &barrier) {
+        kicker = [runControl, warnAboutDebug = rp.isCppDebugging(), warnAboutQml](const StoredBarrier &barrier) {
             const auto onSetup = [runControl, warnAboutDebug, warnAboutQml] {
                 QTC_ASSERT(warnAboutDebug,
                            runControl->postMessage(msgOnlyCppDebuggingSupported(), ErrorMessageFormat);

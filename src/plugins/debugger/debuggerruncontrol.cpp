@@ -166,7 +166,7 @@ ExecutableItem coreFileRecipe(const Storage<DebuggerData> &storage)
     };
 }
 
-ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const SingleBarrier &barrier)
+ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const StoredBarrier &barrier)
 {
     const auto onSetup = [storage, barrier] {
         DebuggerRunParameters &runParameters = storage->runParameters;
@@ -177,7 +177,7 @@ ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const Single
         if (useCdbConsole)
             runParameters.setUseTerminal(false);
         if (!runParameters.useTerminal()) {
-            barrier->barrier()->advance();
+            barrier->advance();
             return;
         }
 
@@ -192,7 +192,7 @@ ExecutableItem terminalRecipe(const Storage<DebuggerData> &storage, const Single
         process->setRunData(stub);
 
         QObject::connect(process, &Process::started, process,
-                         [runParameters = &runParameters, process, barrier = barrier->barrier()] {
+                         [runParameters = &runParameters, process, barrier = barrier.activeStorage()] {
             runParameters->setApplicationPid(process->processId());
             runParameters->setApplicationMainThreadId(process->applicationMainThreadId());
             barrier->advance();
@@ -704,7 +704,7 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
             parametersModifier(storage->runParameters);
     };
 
-    const auto terminalKicker = [storage](const SingleBarrier &barrier) {
+    const auto terminalKicker = [storage](const StoredBarrier &barrier) {
         return terminalRecipe(storage, barrier);
     };
 

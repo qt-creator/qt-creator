@@ -301,8 +301,8 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
 // The startBarrier is passed when logcat process received "Sending WAIT chunk" message.
 // The settledBarrier is passed when logcat process received "debugger has settled" message.
 static ExecutableItem jdbRecipe(const Storage<RunnerStorage> &storage,
-                                const SingleBarrier &startBarrier,
-                                const SingleBarrier &settledBarrier)
+                                const StoredBarrier &startBarrier,
+                                const StoredBarrier &settledBarrier)
 {
     const auto onSetup = [storage] {
         return storage->m_useCppDebugger ? SetupResult::Continue : SetupResult::StopWithSuccess;
@@ -324,7 +324,7 @@ static ExecutableItem jdbRecipe(const Storage<RunnerStorage> &storage,
         process.setProcessMode(ProcessMode::Writer);
         process.setProcessChannelMode(QProcess::MergedChannels);
         process.setReaperTimeout(s_jdbTimeout);
-        QObject::connect(settledBarrier->barrier(), &Barrier::done, &process, [processPtr = &process] {
+        QObject::connect(settledBarrier.activeStorage(), &Barrier::done, &process, [processPtr = &process] {
             processPtr->write("ignore uncaught java.lang.Throwable\n"
                               "threads\n"
                               "cont\n"
@@ -354,8 +354,8 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
     };
 
     const Storage<Buffer> bufferStorage;
-    const SingleBarrier startJdbBarrier;   // When logcat received "Sending WAIT chunk".
-    const SingleBarrier settledJdbBarrier; // When logcat received "debugger has settled".
+    const StoredBarrier startJdbBarrier;   // When logcat received "Sending WAIT chunk".
+    const StoredBarrier settledJdbBarrier; // When logcat received "debugger has settled".
 
     const auto onTimeSetup = [storage](Process &process) {
         process.setCommand(storage->adbCommand({"shell", "date", "+%s"}));
@@ -368,8 +368,8 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
     const auto onLogcatSetup = [storage, bufferStorage, startJdbBarrier, settledJdbBarrier](Process &process) {
         RunnerStorage *storagePtr = storage.activeStorage();
         Buffer *bufferPtr = bufferStorage.activeStorage();
-        const auto parseLogcat = [storagePtr, bufferPtr, start = startJdbBarrier->barrier(),
-                                  settled = settledJdbBarrier->barrier(), processPtr = &process](
+        const auto parseLogcat = [storagePtr, bufferPtr, start = startJdbBarrier.activeStorage(),
+                                  settled = settledJdbBarrier.activeStorage(), processPtr = &process](
                                      QProcess::ProcessChannel channel) {
             if (storagePtr->m_processPID == -1)
                 return;

@@ -100,13 +100,13 @@ Group ValgrindProcessPrivate::runRecipe() const
     };
 
     Storage<ValgrindStorage> storage;
-    SingleBarrier xmlBarrier;
+    StoredBarrier xmlBarrier;
 
     const auto isSetupValid = [this, storage, xmlBarrier] {
         ValgrindStorage *storagePtr = storage.activeStorage();
         storagePtr->m_valgrindCommand.setExecutable(m_valgrindCommand.executable());
         if (!m_localServerAddress.isNull()) {
-            Barrier *barrier = xmlBarrier->barrier();
+            Barrier *barrier = xmlBarrier.activeStorage();
             const QString ip = m_localServerAddress.toString();
 
             QTcpServer *xmlServer = new QTcpServer;

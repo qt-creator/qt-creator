@@ -37,7 +37,7 @@ using namespace Utils;
 
 namespace Android::Internal {
 
-Group androidKicker(const SingleBarrier &barrier, RunControl *runControl)
+Group androidKicker(const StoredBarrier &barrier, RunControl *runControl)
 {
     BuildConfiguration *bc = runControl->buildConfiguration();
     QTC_ASSERT(bc, return {});
@@ -108,7 +108,7 @@ Group androidKicker(const SingleBarrier &barrier, RunControl *runControl)
 
         auto iface = runStorage().activeStorage();
         QObject::connect(iface, &RunInterface::canceled, glue, &RunnerInterface::cancel);
-        QObject::connect(glue, &RunnerInterface::started, barrier->barrier(), &Barrier::advance,
+        QObject::connect(glue, &RunnerInterface::started, barrier.activeStorage(), &Barrier::advance,
                          Qt::QueuedConnection);
         QObject::connect(glue, &RunnerInterface::finished, runControl, [runControl](const QString &errorString) {
             runControl->postMessage(errorString, Utils::NormalMessageFormat);
@@ -127,7 +127,7 @@ Group androidKicker(const SingleBarrier &barrier, RunControl *runControl)
 
 Group androidRecipe(RunControl *runControl)
 {
-    const auto kicker = [runControl](const SingleBarrier &barrier) {
+    const auto kicker = [runControl](const StoredBarrier &barrier) {
         return androidKicker(barrier, runControl);
     };
     return When (kicker) >> Do {

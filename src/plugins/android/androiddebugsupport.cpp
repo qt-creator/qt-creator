@@ -171,7 +171,7 @@ public:
     {
         setId("AndroidDebugWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
-            const auto kicker = [runControl](const SingleBarrier &barrier) {
+            const auto kicker = [runControl](const StoredBarrier &barrier) {
                 return androidKicker(barrier, runControl);
             };
             return When (kicker) >> Do {

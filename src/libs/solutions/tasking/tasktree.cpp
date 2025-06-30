@@ -1298,7 +1298,7 @@ Group operator>>(const For &forItem, const Do &doItem)
 
 Group operator>>(const When &whenItem, const Do &doItem)
 {
-    const SingleBarrier barrier;
+    const StoredBarrier barrier;
 
     return {
         barrier,

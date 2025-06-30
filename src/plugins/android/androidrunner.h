@@ -10,7 +10,7 @@
 
 namespace Android::Internal {
 
-Tasking::Group androidKicker(const Tasking::SingleBarrier &barrier,
+Tasking::Group androidKicker(const Tasking::StoredBarrier &barrier,
                              ProjectExplorer::RunControl *runControl);
 Tasking::Group androidRecipe(ProjectExplorer::RunControl *runControl);
 void setupAndroidRunWorker();
