@@ -265,8 +265,6 @@ public:
         : q(parent), runMode(mode)
     {
         icon = Icons::RUN_SMALL_TOOLBAR;
-        connect(&m_taskTreeRunner, &TaskTreeRunner::aboutToStart, q, &RunControl::started);
-        connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, &RunControlPrivate::emitStopped);
     }
 
     ~RunControlPrivate() override
@@ -452,12 +450,10 @@ void RunControl::initiateReStart()
 
 void RunControl::initiateStop()
 {
-    if (d->isUsingTaskTree()) {
-        d->m_taskTreeRunner.reset();
-        d->emitStopped();
-    } else {
+    if (d->isUsingTaskTree())
+        emit canceled();
+    else
         d->initiateStop();
-    }
 }
 
 void RunControl::forceStop()
@@ -1144,7 +1140,28 @@ void RunControl::setPromptToStop(const std::function<bool (bool *)> &promptToSto
 
 void RunControlPrivate::startTaskTree()
 {
-    m_taskTreeRunner.start(*m_runRecipe);
+    debugMessage("Starting...");
+    QTC_CHECK(!m_taskTreeRunner.isRunning());
+
+    const auto onSetup = [this] {
+        QObject::connect(q, &RunControl::canceled,
+                         runStorage().activeStorage(), &RunInterface::canceled);
+        connect(runStorage().activeStorage(), &RunInterface::started, q, [this] {
+            debugMessage("Started");
+            emit q->started();
+        });
+    };
+
+    const Group recipe {
+        runStorage(),
+        onGroupSetup(onSetup),
+        *m_runRecipe
+    };
+
+    m_taskTreeRunner.start(recipe, {}, [this](DoneWith) {
+        debugMessage("Done");
+        emitStopped();
+    });
 }
 
 void RunControlPrivate::emitStopped()

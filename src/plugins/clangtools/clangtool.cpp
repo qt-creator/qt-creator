@@ -641,6 +641,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
     const Environment environment = buildConfiguration->environment();
 
     const auto onTopSetup = [this, tempDir] {
+        emit runStorage()->started();
         if (tempDir->isValid())
             return SetupResult::Continue;
         m_infoBarWidget->setError(InfoBarWidget::Error,
@@ -865,7 +866,7 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
                                      == FileSelectionType::CurrentFile;
     const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
     m_runControl->setRunRecipe(runRecipe(runSettings, diagnosticConfig, fileInfos,
-                                         buildBeforeAnalysis));
+                                         buildBeforeAnalysis).withCancel(canceler()));
     m_runControl->start();
 }
 

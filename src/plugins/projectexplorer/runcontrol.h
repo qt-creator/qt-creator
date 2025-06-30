@@ -222,6 +222,7 @@ signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     void aboutToStart();
     void started();
+    void canceled();
     void stopped();
     void applicationProcessHandleChanged(QPrivateSignal);
     void stdOutData(const QByteArray &data);
