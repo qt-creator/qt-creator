@@ -71,6 +71,8 @@ private:
     Utils::Id m_id;
 };
 
+using Canceler = std::function<std::pair<RunControl *, void (RunControl::*)()>()>;
+
 /**
  * A RunControl controls the running of an application or tool
  * on a target device. It controls start and stop, and handles
@@ -197,6 +199,8 @@ public:
 
     void showOutputPane();
 
+    Canceler canceler();
+
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     void aboutToStart();
@@ -236,17 +240,6 @@ void addOutputParserFactory(const std::function<Utils::OutputLineParser *(BuildC
 
 PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(BuildConfiguration *bc);
 
-class PROJECTEXPLORER_EXPORT RunInterface : public QObject
-{
-    Q_OBJECT
-
-signals:
-    void canceled(); // RunWorker -> Recipe
-};
-
-PROJECTEXPLORER_EXPORT Tasking::Storage<RunInterface> runStorage();
-using Canceler = std::function<std::pair<RunInterface *, void (RunInterface::*)()>()>;
-PROJECTEXPLORER_EXPORT Canceler canceler();
 PROJECTEXPLORER_EXPORT void handleProcessCancellation(RunControl *runControl, Utils::Process *process);
 
 PROJECTEXPLORER_EXPORT Tasking::Group errorTask(RunControl *runControl, const QString &message);

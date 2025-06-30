@@ -82,7 +82,7 @@ void setupValgrindProcess(ValgrindProcess *process, RunControl *runControl,
         }
         runControl->showOutputPane();
     });
-    QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, process, &ValgrindProcess::stop);
+    QObject::connect(runControl, &RunControl::canceled, process, &ValgrindProcess::stop);
     process->setValgrindCommand(valgrindCommand);
     process->setDebuggee(runControl->runnable());
     if (auto aspect = runControl->aspectData<TerminalAspect>())

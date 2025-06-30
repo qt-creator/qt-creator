@@ -90,7 +90,7 @@ Group slog2InfoRecipe(RunControl *runControl)
         ProcessTask(onLaunchTimeSetup, onLaunchTimeDone, CallDoneIf::Success),
         ProcessTask(onLogSetup, onLogError, CallDoneIf::Error),
         onGroupDone(onCanceled, CallDoneIf::Error)
-    }.withCancel(canceler());
+    }.withCancel(runControl->canceler());
 }
 
 void SlogData::processRemainingLogData()

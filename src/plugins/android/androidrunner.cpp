@@ -106,8 +106,7 @@ Group androidKicker(const StoredBarrier &barrier, RunControl *runControl)
             qCDebug(androidRunnerLog) << "QML server:" << qmlChannel.toDisplayString();
         }
 
-        auto iface = runStorage().activeStorage();
-        QObject::connect(iface, &RunInterface::canceled, glue, &RunnerInterface::cancel);
+        QObject::connect(runControl, &RunControl::canceled, glue, &RunnerInterface::cancel);
         QObject::connect(glue, &RunnerInterface::started, barrier.activeStorage(), &Barrier::advance,
                          Qt::QueuedConnection);
         QObject::connect(glue, &RunnerInterface::finished, runControl, [runControl](const QString &errorString) {

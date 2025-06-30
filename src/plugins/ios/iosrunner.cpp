@@ -251,8 +251,7 @@ static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runContro
                              [runControl, process = &process] {
                 runControl->postMessage(process->readAllStandardOutput(), StdOutFormat, false);
             });
-            QObject::connect(runStorage().activeStorage(), &RunInterface::canceled,
-                             &process, &Process::stop);
+            QObject::connect(runControl, &RunControl::canceled, &process, &Process::stop);
         };
         const auto onDone = [runControl, appInfo](const Process &process) {
             if (process.error() != QProcess::UnknownError) {
@@ -329,7 +328,7 @@ static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runContro
             initSetup(runControl, appInfo),
             Sync(onSetup),
             killApp(runControl, appInfo),
-        }.withCancel(canceler()),
+        }.withCancel(runControl->canceler()),
         deviceCtlKicker(barrier, runControl, appInfo, tempFileStorage, startStopped)
     };
 }
@@ -448,12 +447,12 @@ static Group deviceCtlPollingTask(RunControl *runControl, const Storage<AppInfo>
 
     return {
         pidStorage,
-        ProcessTask(onLaunchSetup, onLaunchDone).withCancel(canceler()),
+        ProcessTask(onLaunchSetup, onLaunchDone).withCancel(runControl->canceler()),
         Group {
             Forever {
                 timeoutTask(500ms, DoneResult::Success),
                 ProcessTask(onPollSetup, onPollDone)
-            }.withCancel(canceler(), {
+            }.withCancel(runControl->canceler(), {
                 ProcessTask(onStopSetup, onStopDone)
             }),
         },
@@ -479,7 +478,7 @@ static Group deviceCtlPollingRecipe(RunControl *runControl)
             initSetup(runControl, appInfo),
             Sync(onSetup),
             killApp(runControl, appInfo),
-        }.withCancel(canceler()),
+        }.withCancel(runControl->canceler()),
         deviceCtlPollingTask(runControl, appInfo)
     };
 }
@@ -601,8 +600,7 @@ static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl,
     const auto onIosToolSetup = [runControl, debugInfo, bundleDir, deviceType, device,
                                  barrier](IosToolRunner &runner) {
         runner.setDeviceType(deviceType);
-        RunInterface *iface = runStorage().activeStorage();
-        runner.setStartHandler([runControl, debugInfo, bundleDir, device, iface,
+        runner.setStartHandler([runControl, debugInfo, bundleDir, device,
                                 barrier = barrier.activeStorage()](IosToolHandler *handler) {
             const auto messageHandler = [runControl](const QString &message) {
                 runControl->postMessage(message, StdOutFormat);
@@ -629,7 +627,7 @@ static Group iosToolKicker(const StoredBarrier &barrier, RunControl *runControl,
                 [barrier, runControl, debugInfo, handler](qint64 pid) {
                     handleIosToolStartedOnSimulator(barrier, runControl, debugInfo, handler, pid);
                 });
-            QObject::connect(iface, &RunInterface::canceled, handler, [handler] {
+            QObject::connect(runControl, &RunControl::canceled, handler, [handler] {
                 if (handler->isRunning())
                     handler->stop();
             });

@@ -31,12 +31,11 @@ Group qmlProfilerRecipe(RunControl *runControl)
     const auto onSetup = [runControl](Barrier &barrier) {
         QmlProfilerTool::instance()->finalizeRunControl(runControl);
         QmlProfilerClientManager *clientManager = QmlProfilerTool::instance()->clientManager();
-        RunInterface *iface = runStorage().activeStorage();
         QObject::connect(clientManager, &QmlProfilerClientManager::connectionFailed,
                          &barrier, [barrier = &barrier] { barrier->stopWithResult(DoneResult::Error); });
         QObject::connect(clientManager, &QmlProfilerClientManager::connectionClosed,
                          &barrier, &Barrier::advance);
-        QObject::connect(iface, &RunInterface::canceled, &barrier, [barrier = &barrier] {
+        QObject::connect(runControl, &RunControl::canceled, &barrier, [barrier = &barrier] {
             if (QmlProfilerTool::instance() == nullptr) {
                 barrier->stopWithResult(DoneResult::Error);
                 return;
@@ -107,8 +106,7 @@ Group localQmlProfilerRecipe(RunControl *runControl)
                          &process, [handleDone] { handleDone(); });
         QObject::connect(clientManager, &QmlProfilerClientManager::connectionClosed,
                          &process, [handleDone] { handleDone(); });
-        RunInterface *iface = runStorage().activeStorage();
-        QObject::connect(iface, &RunInterface::canceled, &process, [handleDone, process = &process] {
+        QObject::connect(runControl, &RunControl::canceled, &process, [handleDone, process = &process] {
             QmlProfilerStateManager *stateManager = QmlProfilerTool::instance()->stateManager();
             if (QmlProfilerTool::instance() == nullptr || stateManager == nullptr) {
                 handleDone();

@@ -54,8 +54,6 @@ static Group perfParserRecipe(RunControl *runControl)
             tool->setToolActionsEnabled(false);
         });
         QObject::connect(reader, &PerfDataReader::finished, tool, &PerfProfilerTool::onReaderFinished);
-
-        RunInterface *iface = runStorage().activeStorage();
         QObject::connect(reader, &PerfDataReader::processStarted, runControl, &RunControl::reportStarted);
         QObject::connect(reader, &PerfDataReader::processFinished, &barrier, &Barrier::advance);
         QObject::connect(reader, &PerfDataReader::processFailed, &barrier, [barrier = &barrier] {
@@ -71,7 +69,7 @@ static Group perfParserRecipe(RunControl *runControl)
             barrier->stopWithResult(DoneResult::Error);
         });
 
-        QObject::connect(iface, &RunInterface::canceled, reader, &PerfDataReader::stopParser);
+        QObject::connect(runControl, &RunControl::canceled, reader, &PerfDataReader::stopParser);
 
         CommandLine cmd{findPerfParser()};
         reader->addTargetArguments(&cmd, runControl);

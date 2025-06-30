@@ -866,7 +866,7 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
                                      == FileSelectionType::CurrentFile;
     const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
     m_runControl->setRunRecipe(runRecipe(runSettings, diagnosticConfig, fileInfos,
-                                         buildBeforeAnalysis).withCancel(canceler()));
+                                         buildBeforeAnalysis).withCancel(m_runControl->canceler()));
     m_runControl->start();
 }
 

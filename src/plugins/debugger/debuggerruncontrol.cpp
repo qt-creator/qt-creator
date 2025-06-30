@@ -742,7 +742,7 @@ Group debuggerRecipe(RunControl *runControl, const DebuggerRunParameters &initia
                     enginesRecipe
                 }
             }
-        }.withCancel(canceler()),
+        }.withCancel(runControl->canceler()),
         finalizeRecipe(storage),
         onGroupDone(onDone)
     };

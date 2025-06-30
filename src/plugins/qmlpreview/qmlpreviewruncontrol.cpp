@@ -94,7 +94,7 @@ static Group qmlPreviewRecipe(RunControl *runControl)
         AsyncTask<void>(onTranslationSetup),
         QmlPreviewConnectionManagerTask(onPreviewSetup),
         onGroupDone(onDone)
-    }.withCancel(canceler());
+    }.withCancel(runControl->canceler());
 }
 
 QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory()

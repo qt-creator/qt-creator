@@ -784,18 +784,11 @@ void RunControlPrivate::startTaskTree()
     debugMessage("Starting...");
     QTC_CHECK(!m_taskTreeRunner.isRunning());
 
-    const auto onSetup = [this] {
-        QObject::connect(q, &RunControl::canceled,
-                         runStorage().activeStorage(), &RunInterface::canceled);
-    };
-
     const auto needPortsGatherer = [this] { return data.isPortsGatherer(); };
 
     const Group recipe {
-        runStorage(),
-        onGroupSetup(onSetup),
         If (needPortsGatherer) >> Then {
-            portsGathererRecipe().withCancel(canceler())
+            portsGathererRecipe().withCancel(q->canceler())
         },
         data.m_runRecipe
     };
@@ -955,8 +948,7 @@ ProcessTask processTask(RunControl *runControl,
         process.setExtraData(extraData);
         process.setForceDefaultErrorModeOnWindows(true);
 
-        QObject::connect(&process, &Process::started, runStorage().activeStorage(),
-                         [runControl, process = &process] {
+        QObject::connect(&process, &Process::started, [runControl, process = &process] {
             const bool isDesktop = process->commandLine().executable().isLocal();
             if (isDesktop) {
                 // Console processes only know their pid after being started
@@ -995,7 +987,7 @@ ProcessTask processTask(RunControl *runControl,
             });
         }
         if (config.setupCanceler) {
-            QObject::connect(runStorage().activeStorage(), &RunInterface::canceled, &process,
+            QObject::connect(runControl, &RunControl::canceled, &process,
                              [runControl, process = &process] {
                 handleProcessCancellation(runControl, process);
             });
@@ -1052,15 +1044,9 @@ ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
     setSupportedRunConfigs(runConfigs);
 }
 
-Storage<RunInterface> runStorage()
+Canceler RunControl::canceler()
 {
-    static Storage<RunInterface> theRunStorage;
-    return theRunStorage;
-}
-
-Canceler canceler()
-{
-    return [] { return std::make_pair(runStorage().activeStorage(), &RunInterface::canceled); };
+    return [this] { return std::make_pair(this, &RunControl::canceled); };
 }
 
 void handleProcessCancellation(RunControl *runControl, Process *process)
