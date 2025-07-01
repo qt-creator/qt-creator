@@ -156,7 +156,8 @@ void TextEncoding::setEncodingForLocale(const QByteArray &codecName)
 
 TextEncoding TextEncoding::encodingForLocale()
 {
-    return theEncodingForLocale;
+    return TextEncoding(QTextCodec::codecForLocale()->name());
+   // return theEncodingForLocale;
 }
 
 TextEncoding TextEncoding::encodingForMib(int mib)
