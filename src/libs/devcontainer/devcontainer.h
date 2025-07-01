@@ -45,6 +45,10 @@ public:
         const Utils::FilePath &filePath, InstanceConfig instanceConfig);
     static std::unique_ptr<Instance> fromConfig(
         const Config &config, InstanceConfig instanceConfig = {});
+
+    static Utils::Result<Config> configFromFile(
+        const Utils::FilePath &filePath, InstanceConfig instanceConfig);
+
     ~Instance();
 
     Utils::Result<> up();   // Create and start the container

@@ -110,6 +110,16 @@ Instance::Instance(Config config, InstanceConfig instanceConfig)
 Result<std::unique_ptr<Instance>> Instance::fromFile(
     const FilePath &filePath, InstanceConfig instanceConfig)
 {
+    const Result<Config> config = configFromFile(filePath, instanceConfig);
+    if (!config)
+        return ResultError(config.error());
+
+    return std::make_unique<Instance>(*config, instanceConfig);
+}
+
+Result<Config> Instance::configFromFile(
+    const Utils::FilePath &filePath, InstanceConfig instanceConfig)
+{
     const Result<QByteArray> contents = filePath.fileContents();
     if (!contents)
         return ResultError(contents.error());
@@ -118,10 +128,8 @@ Result<std::unique_ptr<Instance>> Instance::fromFile(
         = Config::fromJson(*contents, [instanceConfig](const QJsonValue &value) {
               return instanceConfig.jsonToString(value);
           });
-    if (!config)
-        return ResultError(config.error());
 
-    return std::make_unique<Instance>(*config, instanceConfig);
+    return config;
 }
 
 std::unique_ptr<Instance> Instance::fromConfig(const Config &config, InstanceConfig instanceConfig)
