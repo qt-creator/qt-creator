@@ -852,7 +852,7 @@ void QtcTabBar::paintEvent([[maybe_unused]] QPaintEvent *event)
         const bool hovered = !selected && opt.rect.contains(mapFromGlobal(QCursor::pos()));
         if (selected || (hovered && enabled)) {
             QRect highLightRect = opt.rect;
-            highLightRect.moveTop(highLightRect.height() - 2); // Size of active mode highlight
+            highLightRect.moveTop(highLightRect.height() - StyleHelper::HighlightThickness);
             const QColor color = creatorColor(enabled ? hovered ? Theme::Token_Text_Subtle
                                                                 : Theme::Token_Accent_Default
                                                       : Theme::Token_Foreground_Subtle);

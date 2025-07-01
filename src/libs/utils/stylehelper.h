@@ -87,7 +87,9 @@ namespace SpacingTokens {
     constexpr int GapHL = PrimitiveL;
     constexpr int GapHXl = PrimitiveXl;
     constexpr int GapHXxl = PrimitiveXxl;
-}
+};
+
+constexpr int HighlightThickness = SpacingTokens::PrimitiveXxs;
 
 enum class ToolbarStyle {
     Compact,

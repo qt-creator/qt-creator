@@ -20,6 +20,7 @@
 #include <utils/link.h>
 #include <utils/overlaywidget.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -225,7 +226,8 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
     currentViewOverlay->setAttribute(Qt::WA_OpaquePaintEvent);
     currentViewOverlay->setResizeFunction([this](QWidget *w, const QSize &) {
         const QRect toolbarRect = m_toolBar->geometry();
-        w->setGeometry(toolbarRect.x(), toolbarRect.bottom() - 1, toolbarRect.width(), 2);
+        w->setGeometry(toolbarRect.x(), toolbarRect.bottom() - 1, toolbarRect.width(),
+                       StyleHelper::HighlightThickness);
     });
     currentViewOverlay->setPaintFunction([](QWidget *w, QPainter &p, QPaintEvent *) {
         QColor viewHighlight = w->palette().color(QPalette::Highlight);

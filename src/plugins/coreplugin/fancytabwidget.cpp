@@ -290,7 +290,7 @@ static void paintSelectedTabBackground(QPainter *painter, const QRect &spanRect)
 static void paintHighlight(QPainter *painter, const QRect &rect)
 {
     QRect accentRect = rect;
-    accentRect.setWidth(2);
+    accentRect.setWidth(StyleHelper::HighlightThickness);
     painter->fillRect(accentRect, creatorColor(Theme::FancyToolButtonHighlightColor));
 }
 
