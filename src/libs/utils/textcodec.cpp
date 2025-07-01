@@ -3,7 +3,6 @@
 
 #include "textcodec.h"
 
-#include "algorithm.h"
 #include "qtcassert.h"
 
 #include <QHash>
@@ -127,22 +126,28 @@ QList<int> TextEncoding::availableMibs()
     return QTextCodec::availableMibs();
 }
 
-static QList<TextEncoding> getAvailableEncoding()
-{
-    std::set<QByteArray> encodingNames;
-
-    const QList<QByteArray> codecs = QTextCodec::availableCodecs();
-    for (const QByteArray &codec : codecs)
-        encodingNames.insert(codec);
-
-    return Utils::transform<QList<TextEncoding>>(encodingNames, [](const QByteArray &name) {
-        return TextEncoding(name);
-    });
-}
-
 const QList<TextEncoding> &TextEncoding::availableEncodings()
 {
-    static const QList<TextEncoding> theAvailableEncoding = getAvailableEncoding();
+    static const QList<TextEncoding> theAvailableEncoding = [] {
+        QList<TextEncoding> encodings;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+        std::set<QString> encodingNames;
+        const QList<QString> codecs = QStringConverter::availableCodecs();
+        for (const QString &name : codecs) {
+            const auto [_, inserted] = encodingNames.insert(name);
+            QTC_ASSERT(inserted, continue);
+            TextEncoding encoding(name.toUtf8());
+            QTC_ASSERT(encoding.isValid(), continue);
+            encodings.append(encoding);
+        }
+#else
+        // Before Qt 6.7, QStringConverter::availableCodecs did not exist,
+        // even if Qt was built with ICU. Offer at least the well-known ones.
+        for (int enc = 0; enc < QStringConverter::Encoding::LastEncoding; ++enc)
+            encodings.append(TextEncoding(QStringConverter::Encoding(enc)));
+#endif
+        return encodings;
+    }();
     return theAvailableEncoding;
 }
 
@@ -156,8 +161,7 @@ void TextEncoding::setEncodingForLocale(const QByteArray &codecName)
 
 TextEncoding TextEncoding::encodingForLocale()
 {
-    return TextEncoding(QTextCodec::codecForLocale()->name());
-   // return theEncodingForLocale;
+    return theEncodingForLocale;
 }
 
 TextEncoding TextEncoding::encodingForMib(int mib)
