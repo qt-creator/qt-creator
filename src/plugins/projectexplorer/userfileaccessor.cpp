@@ -7,7 +7,9 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
+#include "projectexplorertr.h"
 
+#include <coreplugin/messagemanager.h>
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/environment.h>
@@ -136,9 +138,36 @@ UserFileAccessor::UserFileAccessor(Project *project)
     setApplicationDisplayName(QGuiApplication::applicationDisplayName());
 
     // Setup:
-    const FilePath externalUser = externalUserFile();
-    const FilePath projectUser = projectUserFile();
-    setBaseFilePath(externalUser.isEmpty() ? projectUser : externalUser);
+    FilePath baseFilePath = externalUserFile();
+    if (baseFilePath.isEmpty()) {
+        const FilePath projectUserV1 = projectUserFileV1();
+        const FilePath projectUserV2 = projectUserFileV2();
+        baseFilePath = projectUserV2;
+        if (projectUserV1.exists() && !projectUserV2.exists()) {
+            const auto migrate = [&] {
+                const auto handleFailure = [&](const QString &error) {
+                    const QString message
+                        = Tr::tr(
+                              "[PROJECT WARNING] Failed to copy project user settings from "
+                              "\"%1\" to new default location \"%2\": %3")
+                              .arg(projectUserV1.toUserOutput(), projectUserV2.toUserOutput(), error);
+
+                    // TODO: Issues pane would be preferable, but we don't have a fitting category.
+                    Core::MessageManager::writeDisrupting(message);
+
+                    baseFilePath = projectUserV1;
+                };
+                const Result<> createdSubDir = projectUserV2.parentDir().ensureWritableDir();
+                if (!createdSubDir)
+                    return handleFailure(createdSubDir.error());
+                const Result<> copiedUserFile = projectUserV1.copyFile(projectUserV2);
+                if (!copiedUserFile)
+                    handleFailure(copiedUserFile.error());
+            };
+            migrate();
+        }
+    }
+    setBaseFilePath(baseFilePath);
 
     auto secondary = std::make_unique<SettingsAccessor>();
     secondary->setDocType(m_docType);
@@ -154,6 +183,21 @@ UserFileAccessor::UserFileAccessor(Project *project)
     addVersionUpgrader(std::make_unique<UserFileVersion19Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion20Upgrader>());
     addVersionUpgrader(std::make_unique<UserFileVersion21Upgrader>());
+}
+
+std::optional<SettingsAccessor::Issue> UserFileAccessor::writeFile(
+    const FilePath &path, const Store &data) const
+{
+    if (const auto issues = SettingsAccessor::writeFile(path, data))
+        return issues;
+
+    const FilePath userFileV1 = projectUserFileV1();
+    const FilePath userFileV2 = projectUserFileV2();
+    if (path == userFileV2 && userFileV1.exists()) {
+        userFileV1.removeFile();
+        userFileV2.copyFile(userFileV1);
+    }
+    return {};
 }
 
 SettingsMergeResult
@@ -217,9 +261,18 @@ QVariant UserFileAccessor::retrieveSharedSettings() const
     return m_project->property(SHARED_SETTINGS);
 }
 
-FilePath UserFileAccessor::projectUserFile() const
+FilePath UserFileAccessor::projectUserFileV1() const
 {
     return m_project->projectFilePath().stringAppended(generateSuffix(userFileExtension()));
+}
+
+FilePath UserFileAccessor::projectUserFileV2() const
+{
+    const FilePath projectFile = m_project->projectFilePath();
+    return projectFile.parentDir()
+        .pathAppended(".qtcreator")
+        .pathAppended(projectFile.fileName())
+        .stringAppended(generateSuffix(userFileExtension()));
 }
 
 // Return complete file path of the .user file.

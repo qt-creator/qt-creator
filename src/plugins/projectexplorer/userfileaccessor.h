@@ -30,10 +30,12 @@ private:
 
     Utils::SettingsMergeResult merge(const SettingsMergeData &global,
                                      const SettingsMergeData &local) const final;
+    std::optional<Issue> writeFile(const Utils::FilePath &path, const Utils::Store &data) const final;
 
     virtual QVariant retrieveSharedSettings() const;
 
-    Utils::FilePath projectUserFile() const;
+    Utils::FilePath projectUserFileV1() const;
+    Utils::FilePath projectUserFileV2() const;
     Utils::FilePath externalUserFile() const;
     Utils::FilePath sharedFile() const;
     Utils::SettingsMergeFunction userStickyTrackerFunction(Utils::KeyList &stickyKeys) const;

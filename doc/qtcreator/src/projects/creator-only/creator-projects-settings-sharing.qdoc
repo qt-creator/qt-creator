@@ -15,7 +15,8 @@
 
     \title Share project settings
 
-    \QC stores user-specific project settings in a \e {.user} file. You can
+    \QC stores user-specific project settings in a \e {.user} file located
+    in a directory \e .qtcreator/ under the project directory. You can
     share these settings between several projects as a \e {.shared} file
     (such as, \c {CMakeLists.txt.shared}, \c {qtcreator.pro.shared}, or
     \c {qtcreator.qbs.shared}). It has the same XML structure as a \e {.user}

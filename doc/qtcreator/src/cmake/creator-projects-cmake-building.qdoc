@@ -47,8 +47,8 @@
     \uicontrol {Initial Configuration} lists the variables that \QC uses to
     configure the CMake project for the first time. It shows the default values
     that come from the kit's CMake configuration in italics. \QC saves the
-    initial configuration list of variables in the project's source
-    directory as the \e CMakeLists.txt.user file.
+    initial configuration list of variables in a file \c CMakeLists.txt.user
+    located in a directory \c .qtcreator under the project's source directory.
 
     \section1 Current Configuration
 
