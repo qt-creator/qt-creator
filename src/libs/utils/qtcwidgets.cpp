@@ -843,6 +843,11 @@ QtcTabBar::QtcTabBar(QWidget *parent)
 void QtcTabBar::paintEvent([[maybe_unused]] QPaintEvent *event)
 {
     QPainter p(this);
+    const int padding = PaddingHXxs;
+    const QRectF borderR = rect().toRectF().adjusted(padding + 0.5, 0.5, -(padding + 0.5), -0.5);
+    p.setPen(creatorColor(isEnabled() ? Theme::Token_Stroke_Subtle
+                                      : Theme::Token_Foreground_Subtle));
+    p.drawLine(borderR.bottomLeft(), borderR.bottomRight());
     p.setFont(TabBarTf.font());
     for (int tabIndex = 0; tabIndex < count(); tabIndex++) {
         QStyleOptionTab opt;
@@ -851,7 +856,7 @@ void QtcTabBar::paintEvent([[maybe_unused]] QPaintEvent *event)
         const bool enabled = isEnabled();
         const bool hovered = !selected && opt.rect.contains(mapFromGlobal(QCursor::pos()));
         if (selected || (hovered && enabled)) {
-            QRect highLightRect = opt.rect;
+            QRect highLightRect = opt.rect.adjusted(padding, 0, -padding, 0);
             highLightRect.moveTop(highLightRect.height() - StyleHelper::HighlightThickness);
             const QColor color = creatorColor(enabled ? hovered ? Theme::Token_Text_Subtle
                                                                 : Theme::Token_Accent_Default
