@@ -213,6 +213,7 @@ private:
 
     void updateEnabledState();
 
+    QObject m_guard;
     QPointer<Target> m_target;
     QPointer<QWidget> m_runConfigurationWidget;
     QPointer<RunConfiguration> m_runConfiguration;
@@ -333,10 +334,9 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
             this, &RunSettingsWidget::renameDeployConfiguration);
 
     connect(m_target, &Target::activeDeployConfigurationChanged,
-            this, &RunSettingsWidget::activeDeployConfigurationChanged);
-
+            &m_guard, [this] { activeDeployConfigurationChanged(); });
     connect(m_target, &Target::activeBuildConfigurationChanged,
-            this, &RunSettingsWidget::initForActiveBuildConfig);
+            &m_guard, [this] { initForActiveBuildConfig(); });
 
     connect(m_addRunToolButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::showAddRunConfigDialog);
@@ -352,17 +352,16 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
             this, &RunSettingsWidget::cloneOtherRunConfiguration);
 
     connect(m_target, &Target::addedRunConfiguration,
-            this, &RunSettingsWidget::updateRemoveToolButtons);
+            &m_guard, [this] { updateRemoveToolButtons(); });
     connect(m_target, &Target::removedRunConfiguration,
-            this, &RunSettingsWidget::updateRemoveToolButtons);
-
+            &m_guard, [this] { updateRemoveToolButtons(); });
     connect(m_target, &Target::addedDeployConfiguration,
-            this, &RunSettingsWidget::updateRemoveToolButtons);
-    connect(m_target, &Target::removedDeployConfiguration,
-            this, &RunSettingsWidget::updateRemoveToolButtons);
+            &m_guard, [this] { updateRemoveToolButtons(); });
+    connect(target, &Target::removedDeployConfiguration,
+            &m_guard, [this] { updateRemoveToolButtons(); });
 
     connect(m_target, &Target::activeRunConfigurationChanged,
-            this, &RunSettingsWidget::activeRunConfigurationChanged);
+            &m_guard, [this] { activeRunConfigurationChanged(); });
 }
 
 void RunSettingsWidget::showAddRunConfigDialog()
