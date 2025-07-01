@@ -713,8 +713,8 @@ class DesktopFilePathWatcher final : public FilePathWatcher
             m_thread.wait();
         }
 
-        bool watch(DesktopFilePathWatcher *watcher) { return d.watch(watcher); }
-        bool removeWatch(DesktopFilePathWatcher *watcher) { return d.removeWatch(watcher); }
+        Result<> watch(DesktopFilePathWatcher *watcher) { return d.watch(watcher); }
+        Result<> removeWatch(DesktopFilePathWatcher *watcher) { return d.removeWatch(watcher); }
 
         static GlobalWatcher &instance()
         {
@@ -727,9 +727,9 @@ class DesktopFilePathWatcher final : public FilePathWatcher
         {
         public:
             void init() { QMetaObject::invokeMethod(this, &Private::_init, Qt::QueuedConnection); }
-            bool watch(DesktopFilePathWatcher *watcher)
+            Result<> watch(DesktopFilePathWatcher *watcher)
             {
-                bool result;
+                Result<> result;
                 QMetaObject::invokeMethod(
                     this,
                     [this, watcher] { return _watch(watcher); },
@@ -744,9 +744,9 @@ class DesktopFilePathWatcher final : public FilePathWatcher
 
                 return result;
             }
-            bool removeWatch(DesktopFilePathWatcher *watcher)
+            Result<> removeWatch(DesktopFilePathWatcher *watcher)
             {
-                bool result;
+                Result<> result;
                 QMetaObject::invokeMethod(
                     this,
                     [this, watcher] { return _removeWatch(watcher); },
@@ -789,32 +789,48 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                     }
                 }
             }
-            bool _watch(DesktopFilePathWatcher *watcher)
+            Result<> _watch(DesktopFilePathWatcher *watcher)
             {
                 const FilePath path = watcher->path();
                 auto it = m_watchClients.find(path);
 
                 if (it == m_watchClients.end()) {
-                    if (!m_watcher->addPath(path.path()))
-                        return false;
+                    if (!m_watcher->addPath(path.path())) {
+                        if (!path.exists()) {
+                            return ResultError(Tr::tr("Failed to watch \"%1\", it does not exist.")
+                                                   .arg(path.toUserOutput()));
+                        }
+
+                        return ResultError(
+                            Tr::tr("Failed to watch \"%1\".").arg(path.toUserOutput()));
+                    }
                     it = m_watchClients.emplace(path);
                 }
                 it->append(watcher);
-                return true;
+                return ResultOk;
             }
 
-            bool _removeWatch(DesktopFilePathWatcher *watcher)
+            Result<> _removeWatch(DesktopFilePathWatcher *watcher)
             {
                 const FilePath path = watcher->path();
                 auto it = m_watchClients.find(path);
-                QTC_ASSERT(it != m_watchClients.end(), return false);
+                QTC_ASSERT(
+                    it != m_watchClients.end(),
+                    return ResultError(
+                        Tr::tr("Failed to remove watcher for \"%1\", it was not found.")
+                            .arg(path.toUserOutput())));
 
                 it->removeOne(watcher);
                 if (it->size() == 0) {
                     m_watchClients.erase(it);
-                    return m_watcher->removePath(path.path());
+                    if (!m_watcher->removePath(path.path())) {
+                        if (!path.exists())
+                            return ResultOk;
+                        return ResultError(
+                            Tr::tr("Failed to remove watcher for \"%1\".").arg(path.toUserOutput()));
+                    }
                 }
-                return true;
+                return ResultOk;
             }
 
         private:
@@ -829,19 +845,14 @@ public:
     DesktopFilePathWatcher(const FilePath &path)
         : m_path(path)
     {
-        if (!GlobalWatcher::instance().watch(this)) {
-            if (path.exists())
-                m_error = Tr::tr("Failed to watch \"%1\".").arg(path.toUserOutput());
-            else
-                m_error
-                    = Tr::tr("Failed to watch \"%1\", it does not exist.").arg(path.toUserOutput());
-        }
+        if (auto result = GlobalWatcher::instance().watch(this); !result)
+            m_error = result.error();
     }
 
     ~DesktopFilePathWatcher()
     {
         if (m_error.isEmpty()) {
-            QTC_CHECK(GlobalWatcher::instance().removeWatch(this));
+            QTC_CHECK_RESULT(GlobalWatcher::instance().removeWatch(this));
         }
     }
 
