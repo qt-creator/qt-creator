@@ -240,6 +240,9 @@ struct DEVCONTAINER_EXPORT Config
         const QByteArray &data, const JsonStringToString &jsonStringToString);
 };
 
+//! Returns a QJsonValue for the specified path. e.g.: customization(config, "qt-creator/device/mount-cmd-bridge")
+DEVCONTAINER_EXPORT QJsonValue customization(const Config &config, const QString &path);
+
 // QDebug stream operators for all DevContainer structures
 DEVCONTAINER_EXPORT QDebug operator<<(QDebug debug, const DevContainer::OnAutoForward &value);
 DEVCONTAINER_EXPORT QDebug operator<<(QDebug debug, const DevContainer::ShutdownAction &value);

@@ -132,6 +132,29 @@ Result<DevContainer::Config> DevContainer::Config::fromJson(
     return config;
 }
 
+QJsonValue customization(const Config &config, const QString &path)
+{
+    QJsonObject current = config.common.customizations;
+    const QStringList parts = path.split(QLatin1Char('/'));
+
+    for (auto it = parts.cbegin(); it != parts.cend(); ++it) {
+        auto itChild = current.constFind(*it);
+        if (itChild == current.end())
+            return QJsonValue();
+
+        if (it + 1 == parts.end())
+            return *itChild;
+
+        if (!itChild.value().isObject()) {
+            // If the child is not an object, we cannot continue
+            return QJsonValue();
+        }
+        current = itChild.value().toObject();
+    }
+
+    return QJsonValue();
+}
+
 Result<DevContainer::DevContainerCommon> DevContainer::DevContainerCommon::fromJson(
     const QJsonObject &json, const JsonStringToString &jsonStringToString)
 {
