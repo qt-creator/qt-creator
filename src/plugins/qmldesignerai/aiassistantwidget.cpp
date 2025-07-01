@@ -74,6 +74,18 @@ bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
         if (keyEvent->key() == Qt::Key_Return && !(keyEvent->modifiers() & Qt::ShiftModifier)) {
             handleMessage();
             return true;
+        } else if (keyEvent->key() == Qt::Key_Up) {
+            if (m_historyIndex > 0)
+                m_textInput->setText(m_inputHistory.at(--m_historyIndex));
+            return true;
+        } else if (keyEvent->key() == Qt::Key_Down) {
+            if (m_historyIndex < m_inputHistory.size() - 1) {
+                m_textInput->setText(m_inputHistory.at(++m_historyIndex));
+            } else {
+                m_historyIndex = m_inputHistory.size();
+                m_textInput->clear();
+            }
+            return true;
         }
     }
     return QWidget::eventFilter(obj, event);
@@ -161,6 +173,8 @@ void AiAssistantWidget::handleMessage()
     if (prompt.isEmpty())
         return;
 
+    m_inputHistory.append(prompt);
+    m_historyIndex = m_inputHistory.size();
     m_textInput->clear();
 
     QString currentQml = QmlDesignerPlugin::instance()->currentDesignDocument()

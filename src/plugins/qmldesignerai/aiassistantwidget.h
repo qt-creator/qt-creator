@@ -45,6 +45,9 @@ private:
 
     std::unique_ptr<QNetworkAccessManager> m_manager;
     QPointer<QNetworkReply> m_reply;
+
+    QStringList m_inputHistory;
+    int m_historyIndex = -1;
 };
 
 } // namespace QmlDesigner
