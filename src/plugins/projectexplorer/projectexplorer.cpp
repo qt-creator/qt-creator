@@ -169,7 +169,6 @@
 #include "linuxiccparser.h"
 #include "msvcparser.h"
 #include "outputparser_test.h"
-#include "projectexplorer_test.h"
 #include "toolchainsettingsaccessor.h"
 #include "userfileaccessor.h"
 #include "xcodebuildparser.h"
@@ -802,7 +801,6 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
         ":/projectexplorer/images/settingscategory_cpp.png");
 
 #ifdef WITH_TESTS
-    addTest<ProjectExplorerTest>();
     addTestCreator(createAbiTest);
     addTestCreator(createClangParserTest);
     addTestCreator(createClangClParserTest);
