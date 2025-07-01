@@ -15,9 +15,6 @@ class ProjectExplorerTest final : public QObject
 {
     Q_OBJECT
 
-private slots:
-    void testSessionSwitch();
-
 private:
     friend class ::ProjectExplorer::ProjectExplorerPlugin;
 };

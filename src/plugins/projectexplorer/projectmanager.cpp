@@ -18,27 +18,20 @@
 #include <coreplugin/foldernavigationwidget.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-#include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/session.h>
-
-#include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/mimeutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
-#include <utils/stylehelper.h>
 
 #include <QDebug>
 #include <QMessageBox>
 #include <QPushButton>
 
 #ifdef WITH_TESTS
-#include "projectexplorer_test.h"
-
 #include <QTemporaryFile>
 #include <QTest>
 #include <vector>
@@ -755,64 +748,82 @@ FilePaths ProjectManager::projectsForSessionName(const QString &session)
 }
 
 #ifdef WITH_TESTS
+namespace Internal {
 
-void ProjectExplorerTest::testSessionSwitch()
-{
-    QVERIFY(SessionManager::createSession("session1"));
-    QVERIFY(SessionManager::createSession("session2"));
-    QTemporaryFile cppFile("main.cpp");
-    QVERIFY(cppFile.open());
-    cppFile.close();
-    QTemporaryFile projectFile1("XXXXXX.pro");
-    QTemporaryFile projectFile2("XXXXXX.pro");
-    struct SessionSpec {
-        SessionSpec(const QString &n, QTemporaryFile &f) : name(n), projectFile(f) {}
-        const QString name;
-        QTemporaryFile &projectFile;
-    };
-    std::vector<SessionSpec> sessionSpecs{SessionSpec("session1", projectFile1),
-                SessionSpec("session2", projectFile2)};
-    for (const SessionSpec &sessionSpec : sessionSpecs) {
-        static const QByteArray proFileContents
+class SessionTest : public QObject {
+    Q_OBJECT
+
+private slots:
+
+    void testSessionSwitch()
+    {
+        QVERIFY(SessionManager::createSession("session1"));
+        QVERIFY(SessionManager::createSession("session2"));
+        QTemporaryFile cppFile("main.cpp");
+        QVERIFY(cppFile.open());
+        cppFile.close();
+        QTemporaryFile projectFile1("XXXXXX.pro");
+        QTemporaryFile projectFile2("XXXXXX.pro");
+        struct SessionSpec {
+            SessionSpec(const QString &n, QTemporaryFile &f) : name(n), projectFile(f) {}
+            const QString name;
+            QTemporaryFile &projectFile;
+        };
+        std::vector<SessionSpec> sessionSpecs{SessionSpec("session1", projectFile1),
+                                              SessionSpec("session2", projectFile2)};
+        for (const SessionSpec &sessionSpec : sessionSpecs) {
+            static const QByteArray proFileContents
                 = "TEMPLATE = app\n"
                   "CONFIG -= qt\n"
                   "SOURCES = " + cppFile.fileName().toLocal8Bit();
-        QVERIFY(sessionSpec.projectFile.open());
-        sessionSpec.projectFile.write(proFileContents);
-        sessionSpec.projectFile.close();
-        QVERIFY(SessionManager::loadSession(sessionSpec.name));
-        const OpenProjectResult openResult
+            QVERIFY(sessionSpec.projectFile.open());
+            sessionSpec.projectFile.write(proFileContents);
+            sessionSpec.projectFile.close();
+            QVERIFY(SessionManager::loadSession(sessionSpec.name));
+            const OpenProjectResult openResult
                 = ProjectExplorerPlugin::openProject(
                     FilePath::fromString(sessionSpec.projectFile.fileName()));
-        if (!ProjectManager::canOpenProjectForMimeType(
-                Utils::mimeTypeForFile(sessionSpec.projectFile.fileName()))) {
-            QEXPECT_FAIL(
-                nullptr,
-                "This test requires the presence of QmakeProjectManager to be fully functional. "
-                "Hint: run this test with \"-load QmakeProjectManager\" option.",
-                Abort);
+            if (!ProjectManager::canOpenProjectForMimeType(
+                    Utils::mimeTypeForFile(sessionSpec.projectFile.fileName()))) {
+                QEXPECT_FAIL(
+                    nullptr,
+                    "This test requires the presence of QmakeProjectManager to be fully functional. "
+                    "Hint: run this test with \"-load QmakeProjectManager\" option.",
+                    Abort);
+            }
+            QVERIFY2(openResult, qPrintable(openResult.errorMessage()));
+            QCOMPARE(openResult.projects().count(), 1);
+            QVERIFY(openResult.project());
+            QCOMPARE(ProjectManager::projects().count(), 1);
         }
-        QVERIFY2(openResult, qPrintable(openResult.errorMessage()));
-        QCOMPARE(openResult.projects().count(), 1);
-        QVERIFY(openResult.project());
-        QCOMPARE(ProjectManager::projects().count(), 1);
-    }
-    for (int i = 0; i < 30; ++i) {
+        for (int i = 0; i < 30; ++i) {
+            QVERIFY(SessionManager::loadSession("session1"));
+            QCOMPARE(SessionManager::activeSession(), "session1");
+            QCOMPARE(ProjectManager::projects().count(), 1);
+            QVERIFY(SessionManager::loadSession("session2"));
+            QCOMPARE(SessionManager::activeSession(), "session2");
+            QCOMPARE(ProjectManager::projects().count(), 1);
+        }
         QVERIFY(SessionManager::loadSession("session1"));
-        QCOMPARE(SessionManager::activeSession(), "session1");
-        QCOMPARE(ProjectManager::projects().count(), 1);
+        ProjectManager::closeAllProjects();
         QVERIFY(SessionManager::loadSession("session2"));
-        QCOMPARE(SessionManager::activeSession(), "session2");
-        QCOMPARE(ProjectManager::projects().count(), 1);
+        ProjectManager::closeAllProjects();
+        QVERIFY(SessionManager::deleteSession("session1"));
+        QVERIFY(SessionManager::deleteSession("session2"));
     }
-    QVERIFY(SessionManager::loadSession("session1"));
-    ProjectManager::closeAllProjects();
-    QVERIFY(SessionManager::loadSession("session2"));
-    ProjectManager::closeAllProjects();
-    QVERIFY(SessionManager::deleteSession("session1"));
-    QVERIFY(SessionManager::deleteSession("session2"));
+};
+
+QObject *createSessionTest()
+{
+    return new SessionTest;
 }
+
+} // namespace Internal
 
 #endif // WITH_TESTS
 
 } // namespace ProjectExplorer
+
+#ifdef WITH_TESTS
+#include <projectmanager.moc>
+#endif

@@ -819,6 +819,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     addTestCreator(createProjectTest);
     addTestCreator(createRunWorkerConflictTest);
     addTestCreator(createSanitizerOutputParserTest);
+    addTestCreator(createSessionTest);
     addTestCreator(createToolchainSettingsTest);
     addTestCreator(createUserFileAccessorTest);
     addTestCreator(createXcodebuildParserTest);

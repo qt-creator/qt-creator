@@ -138,4 +138,6 @@ private:
                                        const IssuesGenerator &issuesGenerator);
 };
 
+namespace Internal { QObject *createSessionTest(); }
+
 } // namespace ProjectExplorer
