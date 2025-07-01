@@ -77,9 +77,10 @@ WrappedProcessInterface::WrappedProcessInterface()
         }
 
         QByteArray output = d->m_process.readAllRawStandardOutput();
-        qsizetype idx = output.indexOf('\n');
-        QByteArrayView firstLine = output.left(idx).trimmed();
-        QByteArrayView rest = output.mid(idx + 1);
+        QByteArrayView outputView(output);
+        qsizetype idx = outputView.indexOf('\n');
+        QByteArrayView firstLine = outputView.left(idx).trimmed();
+        QByteArrayView rest = outputView.mid(idx + 1);
 
         qCDebug(wrappedProcessInterface)
             << "Process first line received:" << d->m_process.commandLine() << firstLine;
