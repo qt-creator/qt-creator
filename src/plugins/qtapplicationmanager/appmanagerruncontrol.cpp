@@ -162,7 +162,7 @@ public:
 
             const Internal::TargetInformation targetInformation(bc);
             if (!targetInformation.isValid())
-                return errorTask(runControl, Tr::tr("Cannot debug: Invalid target information."));
+                return runControl->errorTask(Tr::tr("Cannot debug: Invalid target information."));
 
             FilePath symbolFile;
 
@@ -177,11 +177,11 @@ public:
                                                              || ti.projectFilePath.toUrlishString() == targetInformation.manifest.code;
                                                   }).targetFilePath;
             } else {
-                return errorTask(runControl,
+                return runControl->errorTask(
                     Tr::tr("Cannot debug: Only QML and native applications are supported."));
             }
             if (symbolFile.isEmpty()) {
-                return errorTask(runControl, Tr::tr("Cannot debug: Local executable is not set."));
+                return runControl->errorTask(Tr::tr("Cannot debug: Local executable is not set."));
             }
 
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);

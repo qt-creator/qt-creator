@@ -45,16 +45,16 @@ public:
         setRecipeProducer([](RunControl *runControl) -> Group {
             const auto dev = std::static_pointer_cast<const BareMetalDevice>(runControl->device());
             if (!dev)
-                return errorTask(runControl, Tr::tr("Cannot debug: Kit has no device."));
+                return runControl->errorTask(Tr::tr("Cannot debug: Kit has no device."));
 
             const QString providerId = dev->debugServerProviderId();
             IDebugServerProvider *p = DebugServerProviderManager::findProvider(providerId);
             if (!p)
-                return errorTask(runControl, (Tr::tr("No debug server provider found for %1").arg(providerId)));
+                return runControl->errorTask(Tr::tr("No debug server provider found for %1").arg(providerId));
 
             DebuggerRunParameters rp = DebuggerRunParameters::fromRunControl(runControl);
             if (Result<> res = p->setupDebuggerRunParameters(rp, runControl); !res)
-                return errorTask(runControl, res.error());
+                return runControl->errorTask(res.error());
 
             const std::optional<ProcessTask> targetRunner = p->targetProcess(runControl);
             if (!targetRunner)

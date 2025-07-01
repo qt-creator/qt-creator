@@ -90,6 +90,7 @@ public:
     ~RunControl() final;
 
     Tasking::Group noRecipeTask();
+    Tasking::Group errorTask(const QString &message);
 
     void start();
     void reportStarted();
@@ -240,8 +241,6 @@ PROJECTEXPLORER_EXPORT
 void addOutputParserFactory(const std::function<Utils::OutputLineParser *(BuildConfiguration *)> &);
 
 PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(BuildConfiguration *bc);
-
-PROJECTEXPLORER_EXPORT Tasking::Group errorTask(RunControl *runControl, const QString &message);
 
 // Just a helper
 template <typename Result, typename Function, typename ...Args,

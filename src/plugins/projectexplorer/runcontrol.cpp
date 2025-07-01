@@ -266,12 +266,17 @@ void RunControl::copyDataFromRunControl(RunControl *runControl)
 
 Group RunControl::noRecipeTask()
 {
-    const auto onSync = [this] {
-        postMessage(Tr::tr("No recipe producer."), ErrorMessageFormat);
-        return false;
-    };
+    return errorTask(Tr::tr("No recipe producer."));
+}
 
-    return { Sync(onSync) };
+Group RunControl::errorTask(const QString &message)
+{
+    return {
+        Sync([this, message] {
+           postMessage(message, ErrorMessageFormat);
+           return false;
+        })
+    };
 }
 
 void RunControl::start()
@@ -1061,16 +1066,6 @@ void RunControl::handleProcessCancellation(Process *process)
         process->kill();
         emit process->done();
     });
-}
-
-Group errorTask(RunControl *runControl, const QString &message)
-{
-    return {
-        Sync([runControl, message] {
-            runControl->postMessage(message, ErrorMessageFormat);
-            return DoneResult::Error;
-        })
-    };
 }
 
 Group processRecipe(RunControl *runControl, const ProcessTask &processTask)
