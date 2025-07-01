@@ -1475,7 +1475,10 @@ TextEditorWidget::TextEditorWidget(QWidget *parent)
     setFrameStyle(QFrame::NoFrame);
 }
 
-TextEditorWidget::~TextEditorWidget() = default;
+TextEditorWidget::~TextEditorWidget()
+{
+    abortAssist();
+}
 
 void TextEditorWidget::setTextDocument(const QSharedPointer<TextDocument> &doc)
 {
