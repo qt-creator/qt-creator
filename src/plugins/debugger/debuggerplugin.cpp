@@ -1186,20 +1186,27 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     addCdbOptionPages(&m_optionPages);
 
-    connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange, this, [] {
-        if (ModeManager::currentModeId() == MODE_DEBUG)
-            DebuggerMainWindow::leaveDebugMode();
-    });
+    connect(
+        ModeManager::instance(),
+        &ModeManager::currentModeAboutToChange,
+        DebuggerMainWindow::instance(),
+        [] {
+            if (ModeManager::currentModeId() == MODE_DEBUG)
+                DebuggerMainWindow::leaveDebugMode();
+        });
 
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
-            this, [](Id mode, Id oldMode) {
-        QTC_ASSERT(mode != oldMode, return);
-        if (mode == MODE_DEBUG) {
-            DebuggerMainWindow::enterDebugMode();
-            if (IEditor *editor = EditorManager::currentEditor())
-                editor->widget()->setFocus();
-        }
-    });
+    connect(
+        ModeManager::instance(),
+        &ModeManager::currentModeChanged,
+        DebuggerMainWindow::instance(),
+        [](Id mode, Id oldMode) {
+            QTC_ASSERT(mode != oldMode, return);
+            if (mode == MODE_DEBUG) {
+                DebuggerMainWindow::enterDebugMode();
+                if (IEditor *editor = EditorManager::currentEditor())
+                    editor->widget()->setFocus();
+            }
+        });
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
         this, &DebuggerPluginPrivate::updateDebugWithoutDeployMenu);
