@@ -614,6 +614,7 @@ jobs:
         if (${{github.ref}} MATCHES "tags/v")
           unset(WITH_TESTS)
           unset(NO_DMG)
+          set(WITH_CPACK "--with-cpack")
         endif()
 
         if (NOT "x${{ matrix.config.toolchain_path }}" STREQUAL "x")
@@ -660,7 +661,7 @@ jobs:
             --add-config=-DIDE_REVISION_URL=https://github.com/$ENV{GITHUB_REPOSITORY}/commits/$ENV{GITHUB_SHA}
             --zip-infix=-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}
             --no-qbs
-            --with-cpack
+            ${WITH_CPACK}
           RESULT_VARIABLE result
           COMMAND_ECHO STDOUT
           OUTPUT_VARIABLE output
@@ -749,19 +750,18 @@ jobs:
         name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
 
     - name: Upload Debian package
-      if: runner.os == 'Linux'
+      if: runner.os == 'Linux' && contains(github.ref, 'tags/v')
       uses: actions/upload-artifact@v4
       with:
         path: build/build/qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.deb
         name: qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.deb
 
     - name: Upload MSI package
-      if: runner.os == 'Windows'
+      if: runner.os == 'Windows' && contains(github.ref, 'tags/v')
       uses: actions/upload-artifact@v4
       with:
         path: build/build/qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.msi
         name: qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.msi
-
 
     - name: Upload disk image
       if: runner.os == 'macOS' && contains(github.ref, 'tags/v')
