@@ -99,7 +99,7 @@ static ProcessTask inferiorProcess(RunControl *runControl, QmlDebugServicesPrese
         runControl->postMessage(Tr::tr("Starting Application Manager debugging..."), NormalMessageFormat);
         runControl->postMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
     };
-    return processTaskWithModifier(runControl, modifier, {suppressDefaultStdOutHandling});
+    return runControl->processTaskWithModifier(modifier, {suppressDefaultStdOutHandling});
 }
 
 class AppManagerRunWorkerFactory final : public RunWorkerFactory
@@ -143,7 +143,7 @@ public:
                     cmd.addArg(documentUrl);
                 process.setCommand(cmd);
             };
-            return processRecipe(runControl, modifier);
+            return runControl->processRecipe(modifier);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
@@ -250,7 +250,7 @@ public:
         setId("AppManagerPerfProfilerWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return processRecipe(runControl, inferiorProcess(runControl, NoQmlDebugServices, true));
+            return runControl->processRecipe(inferiorProcess(runControl, NoQmlDebugServices, true));
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);

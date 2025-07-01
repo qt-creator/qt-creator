@@ -36,11 +36,10 @@ public:
                 process.setCommand(cmd);
             };
 
-            const ProcessTask processTask(processTaskWithModifier(runControl, modifier));
             return Group {
                 parallel,
                 slog2InfoRecipe(runControl),
-                When (processTask, &Process::started) >> Do {
+                When (runControl->processTaskWithModifier(modifier), &Process::started) >> Do {
                     runControl->createRecipe(ProjectExplorer::Constants::QML_PROFILER_RUNNER)
                 }
             };

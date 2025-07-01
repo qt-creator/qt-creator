@@ -219,7 +219,7 @@ public:
                     browserId, QString::number(runControl->workerChannel().port())));
                 process.setEnvironment(runControl->buildEnvironment());
             };
-            return processRecipe(runControl, modifier);
+            return runControl->processRecipe(modifier);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);

@@ -73,6 +73,13 @@ private:
 
 using Canceler = std::function<std::pair<RunControl *, void (RunControl::*)()>()>;
 
+class ProcessSetupConfig
+{
+public:
+    bool suppressDefaultStdOutHandling = false;
+    bool setupCanceler = true;
+};
+
 /**
  * A RunControl controls the running of an application or tool
  * on a target device. It controls start and stop, and handles
@@ -91,6 +98,40 @@ public:
 
     Tasking::Group noRecipeTask();
     Tasking::Group errorTask(const QString &message);
+
+    // The returned recipe sends RunControl::started() signal.
+    Tasking::Group processRecipe(const Utils::ProcessTask &processTask);
+    template <typename Modifier>
+    Tasking::Group processRecipe(const Modifier &startModifier = {},
+                                 const ProcessSetupConfig &config = {})
+    {
+        return processRecipe(processTaskWithModifier(startModifier, config));
+    }
+
+    template <typename Modifier>
+    Utils::ProcessTask processTaskWithModifier(const Modifier &startModifier,
+                                               const ProcessSetupConfig &config = {})
+    {
+        // R, V stands for: Setup[R]esult, [V]oid
+        static constexpr bool isR = isModifierInvocable<Tasking::SetupResult, Modifier, Utils::Process &>();
+        static constexpr bool isV = isModifierInvocable<void, Modifier, Utils::Process &>();
+        static_assert(isR || isV,
+                      "Process modifier needs to take (Process &) as an argument and has to return void or "
+                      "SetupResult. The passed handler doesn't fulfill these requirements.");
+        if constexpr (isR) {
+            return processTask(startModifier, config);
+        } else {
+            const auto modifier = [startModifier](Utils::Process &process) {
+                startModifier(process);
+                return Tasking::SetupResult::Continue;
+            };
+            return processTask(modifier, config);
+        }
+    }
+
+    Utils::ProcessTask processTask(
+        const std::function<Tasking::SetupResult(Utils::Process &)> &startModifier = {},
+        const ProcessSetupConfig &config = {});
 
     void start();
     void reportStarted();
@@ -215,19 +256,19 @@ signals:
 private:
     void setDevice(const IDeviceConstPtr &device);
 
+    // Just a helper
+    template <typename Result, typename Function, typename ...Args,
+             typename DecayedFunction = std::decay_t<Function>>
+    static constexpr bool isModifierInvocable()
+    {
+        // Note, that std::is_invocable_r_v doesn't check Result type properly.
+        if constexpr (std::is_invocable_r_v<Result, DecayedFunction, Args...>)
+            return std::is_same_v<Result, std::invoke_result_t<DecayedFunction, Args...>>;
+        return false;
+    }
+
     const std::unique_ptr<Internal::RunControlPrivate> d;
 };
-
-class ProcessSetupConfig
-{
-public:
-    bool suppressDefaultStdOutHandling = false;
-    bool setupCanceler = true;
-};
-
-PROJECTEXPLORER_EXPORT Utils::ProcessTask processTask(RunControl *runControl,
-    const std::function<Tasking::SetupResult(Utils::Process &)> &startModifier = {},
-    const ProcessSetupConfig &config = {});
 
 class PROJECTEXPLORER_EXPORT ProcessRunnerFactory : public RunWorkerFactory
 {
@@ -241,52 +282,6 @@ PROJECTEXPLORER_EXPORT
 void addOutputParserFactory(const std::function<Utils::OutputLineParser *(BuildConfiguration *)> &);
 
 PROJECTEXPLORER_EXPORT QList<Utils::OutputLineParser *> createOutputParsers(BuildConfiguration *bc);
-
-// Just a helper
-template <typename Result, typename Function, typename ...Args,
-          typename DecayedFunction = std::decay_t<Function>>
-static constexpr bool isModifierInvocable()
-{
-    // Note, that std::is_invocable_r_v doesn't check Result type properly.
-    if constexpr (std::is_invocable_r_v<Result, DecayedFunction, Args...>)
-        return std::is_same_v<Result, std::invoke_result_t<DecayedFunction, Args...>>;
-    return false;
-}
-
-template <typename Modifier>
-Utils::ProcessTask processTaskWithModifier(RunControl *runControl,
-                                           const Modifier &startModifier = {},
-                                           const ProcessSetupConfig &config = {})
-{
-    // R, V stands for: Setup[R]esult, [V]oid
-    static constexpr bool isR = isModifierInvocable<Tasking::SetupResult, Modifier, Utils::Process &>();
-    static constexpr bool isV = isModifierInvocable<void, Modifier, Utils::Process &>();
-    static_assert(isR || isV,
-                  "Process modifier needs to take (Process &) as an argument and has to return void or "
-                  "SetupResult. The passed handler doesn't fulfill these requirements.");
-    if constexpr (isR) {
-        return processTask(runControl, startModifier, config);
-    } else {
-        const auto modifier = [startModifier](Utils::Process &process) {
-            startModifier(process);
-            return Tasking::SetupResult::Continue;
-        };
-        return processTask(runControl, modifier, config);
-    }
-}
-
-// This recipe notifies the RunControl when process is started.
-PROJECTEXPLORER_EXPORT Tasking::Group processRecipe(RunControl *runControl,
-                                                    const Utils::ProcessTask &processTask);
-
-template <typename Modifier>
-Tasking::Group processRecipe(RunControl *runControl,
-                             const Modifier &startModifier = {},
-                             const ProcessSetupConfig &config = {})
-{
-    return processRecipe(runControl, processTaskWithModifier(runControl, startModifier, config));
-}
-
 
 #ifdef WITH_TESTS
 namespace Internal { QObject *createRunWorkerConflictTest(); }

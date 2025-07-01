@@ -112,7 +112,7 @@ static Group attachToProcessRecipe(RunControl *runControl, const DebuggerRunPara
     const auto modifier = [runControl](Process &process) {
         process.setCommand({QNX_DEBUG_EXECUTABLE, {QString::number(runControl->debugChannel().port())}});
     };
-    return When (processTaskWithModifier(runControl, modifier), &Process::started) >> Do {
+    return When (runControl->processTaskWithModifier(modifier), &Process::started) >> Do {
         debuggerRecipe(runControl, rp)
     };
 }
@@ -209,7 +209,7 @@ public:
             return Group {
                 parallel,
                 slog2InfoRecipe(runControl),
-                When (processTaskWithModifier(runControl, modifier), &Process::started) >> Do {
+                When (runControl->processTaskWithModifier(modifier), &Process::started) >> Do {
                     debuggerRecipe(runControl, rp)
                 }
             };

@@ -84,7 +84,7 @@ static ProcessTask qdbDeviceInferiorProcess(RunControl *runControl,
         process.setEnvironment(runControl->environment());
         return Tasking::SetupResult::Continue;
     };
-    return processTaskWithModifier(runControl, modifier, {suppressDefaultStdOutHandling});
+    return runControl->processTaskWithModifier(modifier, {suppressDefaultStdOutHandling});
 }
 
 class QdbRunWorkerFactory final : public RunWorkerFactory
@@ -102,7 +102,7 @@ public:
                 cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
                 process.setCommand(cmd);
             };
-            return processRecipe(runControl, modifier);
+            return runControl->processRecipe(modifier);
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
@@ -173,7 +173,7 @@ public:
         setId("QdbPerfProfilerWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            return processRecipe(runControl, qdbDeviceInferiorProcess(runControl, NoQmlDebugServices, true));
+            return runControl->processRecipe(qdbDeviceInferiorProcess(runControl, NoQmlDebugServices, true));
         });
         addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUNNER);
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);

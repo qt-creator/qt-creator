@@ -279,6 +279,15 @@ Group RunControl::errorTask(const QString &message)
     };
 }
 
+Group RunControl::processRecipe(const ProcessTask &processTask)
+{
+    return {
+        When (processTask, &Process::started) >> Do {
+            Sync([this] { reportStarted(); })
+        }
+    };
+}
+
 void RunControl::start()
 {
     ProjectExplorerPlugin::startRunControl(this);
@@ -866,16 +875,15 @@ void RunControlPrivate::debugMessage(const QString &msg) const
     qCDebug(statesLog()) << msg;
 }
 
-ProcessTask processTask(RunControl *runControl,
-                        const std::function<SetupResult(Process &)> &startModifier,
-                        const ProcessSetupConfig &config)
+ProcessTask RunControl::processTask(const std::function<SetupResult(Process &)> &startModifier,
+                                    const ProcessSetupConfig &config)
 {
-    const auto onSetup = [runControl, startModifier, config](Process &process) {
+    const auto onSetup = [this, startModifier, config](Process &process) {
         process.setProcessChannelMode(appOutputPane().settings().mergeChannels
                                           ? QProcess::MergedChannels : QProcess::SeparateChannels);
-        process.setCommand(runControl->commandLine());
-        process.setWorkingDirectory(runControl->workingDirectory());
-        process.setEnvironment(runControl->environment());
+        process.setCommand(commandLine());
+        process.setWorkingDirectory(workingDirectory());
+        process.setEnvironment(environment());
 
         if (startModifier) {
             const SetupResult result = startModifier(process);
@@ -886,12 +894,12 @@ ProcessTask processTask(RunControl *runControl,
         const CommandLine command = process.commandLine();
         const bool isDesktop = command.executable().isLocal();
         if (isDesktop && command.isEmpty()) {
-            runControl->postMessage(Tr::tr("No executable specified."), ErrorMessageFormat);
+            postMessage(Tr::tr("No executable specified."), ErrorMessageFormat);
             return SetupResult::StopWithError;
         }
 
         bool useTerminal = false;
-        if (auto terminalAspect = runControl->aspectData<TerminalAspect>())
+        if (auto terminalAspect = aspectData<TerminalAspect>())
             useTerminal = terminalAspect->useTerminal;
 
         const Environment environment = process.environment();
@@ -899,14 +907,14 @@ ProcessTask processTask(RunControl *runControl,
         process.setReaperTimeout(
             std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds()));
 
-        runControl->postMessage(Tr::tr("Starting %1...").arg(command.displayName()), NormalMessageFormat);
-        if (runControl->isPrintEnvironmentEnabled()) {
-            runControl->postMessage(Tr::tr("Environment:"), NormalMessageFormat);
-            environment.forEachEntry([runControl](const QString &key, const QString &value, bool enabled) {
+        postMessage(Tr::tr("Starting %1...").arg(command.displayName()), NormalMessageFormat);
+        if (isPrintEnvironmentEnabled()) {
+            postMessage(Tr::tr("Environment:"), NormalMessageFormat);
+            environment.forEachEntry([this](const QString &key, const QString &value, bool enabled) {
                 if (enabled)
-                    runControl->postMessage(key + '=' + value, StdOutFormat);
+                    postMessage(key + '=' + value, StdOutFormat);
             });
-            runControl->postMessage({}, StdOutFormat);
+            postMessage({}, StdOutFormat);
         }
 
         CommandLine cmdLine = process.commandLine();
@@ -915,7 +923,7 @@ ProcessTask processTask(RunControl *runControl,
         if (cmdLine.executable().isLocal()) {
             // Running locally.
             bool runAsRoot = false;
-            if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>())
+            if (auto runAsRootAspect = aspectData<RunAsRootAspect>())
                 runAsRoot = runAsRootAspect->value;
 
             if (runAsRoot)
@@ -934,79 +942,78 @@ ProcessTask processTask(RunControl *runControl,
 
         const IDevice::ConstPtr device = DeviceManager::deviceForPath(cmdLine.executable());
         if (device && !device->allowEmptyCommand() && cmdLine.isEmpty()) {
-            runControl->postMessage(Tr::tr("Cannot run: No command given."), NormalMessageFormat);
+            postMessage(Tr::tr("Cannot run: No command given."), NormalMessageFormat);
             return SetupResult::StopWithError;
         }
 
-        QVariantHash extraData = runControl->extraData();
-        QString shellName = runControl->displayName();
+        QVariantHash extra = extraData();
+        QString shellName = displayName();
 
-        if (runControl->buildConfiguration()) {
-            if (BuildConfiguration *buildConfig = runControl->buildConfiguration())
+        if (buildConfiguration()) {
+            if (BuildConfiguration *buildConfig = buildConfiguration())
                 shellName += " - " + buildConfig->displayName();
         }
 
-        extraData[TERMINAL_SHELL_NAME] = shellName;
+        extra[TERMINAL_SHELL_NAME] = shellName;
 
         process.setCommand(cmdLine);
         process.setEnvironment(env);
-        process.setExtraData(extraData);
+        process.setExtraData(extra);
         process.setForceDefaultErrorModeOnWindows(true);
 
-        QObject::connect(&process, &Process::started, [runControl, process = &process] {
+        QObject::connect(&process, &Process::started, [this, process = &process] {
             const bool isDesktop = process->commandLine().executable().isLocal();
             if (isDesktop) {
                 // Console processes only know their pid after being started
                 ProcessHandle pid{process->processId()};
-                runControl->setApplicationProcessHandle(pid);
+                setApplicationProcessHandle(pid);
                 pid.activate();
             }
         });
-        QObject::connect(&process, &Process::readyReadStandardError, runControl, [runControl, process = &process] {
-            runControl->postMessage(process->readAllStandardError(), StdErrFormat, false);
+        QObject::connect(&process, &Process::readyReadStandardError, this, [this, process = &process] {
+            postMessage(process->readAllStandardError(), StdErrFormat, false);
         });
-        QObject::connect(&process, &Process::readyReadStandardOutput, runControl, [runControl, config, process = &process] {
+        QObject::connect(&process, &Process::readyReadStandardOutput, this, [this, config, process = &process] {
             if (config.suppressDefaultStdOutHandling)
-                emit runControl->stdOutData(process->readAllRawStandardOutput());
+                emit stdOutData(process->readAllRawStandardOutput());
             else
-                runControl->postMessage(process->readAllStandardOutput(), StdOutFormat, false);
+                postMessage(process->readAllStandardOutput(), StdOutFormat, false);
         });
-        QObject::connect(&process, &Process::stoppingForcefully, runControl, [runControl] {
-            runControl->postMessage(Tr::tr("Stopping process forcefully..."), NormalMessageFormat);
+        QObject::connect(&process, &Process::stoppingForcefully, this, [this] {
+            postMessage(Tr::tr("Stopping process forcefully..."), NormalMessageFormat);
         });
 
         if (WinDebugInterface::instance()) {
             QObject::connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
-                             &process, [runControl, process = &process] {
+                             &process, [this, process = &process] {
                 QObject::disconnect(WinDebugInterface::instance(), nullptr, process, nullptr);
-                runControl->postMessage(Tr::tr("Cannot retrieve debugging output.")
+                postMessage(Tr::tr("Cannot retrieve debugging output.")
                                             + QLatin1Char('\n'), ErrorMessageFormat);
             });
 
             QObject::connect(WinDebugInterface::instance(), &WinDebugInterface::debugOutput,
-                             &process, [runControl, process = &process](qint64 pid, const QList<QString> &messages) {
+                             &process, [this, process = &process](qint64 pid, const QList<QString> &messages) {
                 if (process->processId() != pid)
                     return;
                 for (const QString &message : messages)
-                    runControl->postMessage(message, DebugFormat);
+                    postMessage(message, DebugFormat);
             });
         }
         if (config.setupCanceler) {
-            QObject::connect(runControl, &RunControl::canceled, &process,
-                             [runControl, process = &process] {
-                runControl->handleProcessCancellation(process);
+            QObject::connect(this, &RunControl::canceled, &process, [this, process = &process] {
+                handleProcessCancellation(process);
             });
         }
         return SetupResult::Continue;
     };
 
-    const auto onDone = [runControl](const Process &process) {
-        runControl->postMessage(process.exitMessage(), NormalMessageFormat);
+    const auto onDone = [this](const Process &process) {
+        postMessage(process.exitMessage(), NormalMessageFormat);
         if (process.usesTerminal()) {
             Process &mutableProcess = const_cast<Process &>(process);
             auto processInterface = mutableProcess.takeProcessInterface();
             if (processInterface)
-                processInterface->setParent(runControl);
+                processInterface->setParent(this);
         }
     };
 
@@ -1044,7 +1051,7 @@ void addOutputParserFactory(
 ProcessRunnerFactory::ProcessRunnerFactory(const QList<Id> &runConfigs)
 {
     setId("ProcessRunnerFactory");
-    setRecipeProducer([](RunControl *runControl) { return processRecipe(runControl, processTask(runControl)); });
+    setRecipeProducer([](RunControl *runControl) { return runControl->processRecipe(runControl->processTask()); });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     setSupportedRunConfigs(runConfigs);
 }
@@ -1066,15 +1073,6 @@ void RunControl::handleProcessCancellation(Process *process)
         process->kill();
         emit process->done();
     });
-}
-
-Group processRecipe(RunControl *runControl, const ProcessTask &processTask)
-{
-    return {
-        When (processTask, &Process::started) >> Do {
-            Sync([runControl] { runControl->reportStarted(); })
-        }
-    };
 }
 
 } // namespace ProjectExplorer

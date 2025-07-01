@@ -97,7 +97,7 @@ FlashRunWorkerFactory::FlashRunWorkerFactory()
             FlashAndRunConfiguration::disabled = false;
             ProjectExplorerPlugin::updateRunActions();
         });
-        return processRecipe(runControl, modifier);
+        return runControl->processRecipe(modifier);
     });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     addSupportedRunConfig(Constants::RUNCONFIGURATION);

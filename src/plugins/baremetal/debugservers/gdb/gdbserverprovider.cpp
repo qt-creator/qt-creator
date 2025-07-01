@@ -174,7 +174,7 @@ std::optional<ProcessTask> GdbServerProvider::targetProcess(RunControl *runContr
 
     // Command arguments are in host OS style as the bare metal's GDB servers are launched
     // on the host, not on that target.
-    return processTaskWithModifier(runControl, [cmd](Process &process) {
+    return runControl->processTaskWithModifier([cmd](Process &process) {
         // Baremetal's GDB servers are launched on the host, not on the target.
         process.setCommand(cmd.toLocal());
     });

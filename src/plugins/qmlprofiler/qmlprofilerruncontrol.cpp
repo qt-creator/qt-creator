@@ -126,7 +126,7 @@ Group localQmlProfilerRecipe(RunControl *runControl)
         clientManager->connectToServer();
     };
 
-    return { processRecipe(runControl, modifier, {false, false}) };
+    return { runControl->processRecipe(modifier, {false, false}) };
 }
 
 // Factories

@@ -41,7 +41,7 @@ public:
     {
         setId("RemoteLinuxRunWorkerFactory");
         setRecipeProducer([](RunControl *runControl) {
-            return processRecipe(runControl, processTask(runControl));
+            return runControl->processRecipe(runControl->processTask());
         });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
@@ -95,7 +95,7 @@ public:
                 cmd.addArg(qmlDebugTcpArguments(services, runControl->qmlChannel()));
                 process.setCommand(cmd);
             };
-            const ProcessTask processTask(processTaskWithModifier(runControl, modifier));
+            const ProcessTask processTask(runControl->processTaskWithModifier(modifier));
             return Group {
                 When (processTask, &Process::started, WorkflowPolicy::StopOnSuccessOrError) >> Do {
                     runControl->createRecipe(runnerIdForRunMode(runControl->runMode()))
