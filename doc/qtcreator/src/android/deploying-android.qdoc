@@ -15,12 +15,12 @@
     Android applications are packaged as ZIP files called Application Packages
     (APK), Android App Bundles (AAB), or Android Archives (AAR). You can
     install and run APK files on a device. You can upload AAB files to the
-    Google Play store.
+    Google Play Store.
 
     \l{Qt for Android} has binaries for armv7a, arm64-v8a, x86, and x86-64.
     To support several different ABIs in your application, build an AAB that
-    has binaries for each of the ABIs. The Google Play store uses the AAB
-    to generate optimized APK packages for the devices that request download
+    has binaries for each of the ABIs. The Google Play Store uses the AAB
+    to generate optimized APK packages for the devices that request downloads
     and automatically signs them with your publisher key.
 
     \QC supports the following methods of deployment for Android applications:
@@ -44,12 +44,12 @@
     packages, select \uicontrol Projects > \uicontrol Build >
     \uicontrol {Build Android APK} > \uicontrol Details.
 
-    For more information about options that you have for running applications,
+    For more information about the options that you have for running applications,
     see \l {Android Run Settings}.
 
     \section1 Packaging Applications
 
-    Because bundling applications as APK packages is not trivial, Qt has the
+    Because bundling applications as APK packages is not simple, Qt has the
     \l {The androiddeployqt Tool}{androiddeployqt} tool. When you deploy an
     application using a \e {Qt for Android kit}, \QC runs the tool to
     create the necessary files and to bundle them into an APK. For more
@@ -79,7 +79,7 @@
     To remove previously installed files from the device, select
     \uicontrol {Uninstall the existing app before deployment}.
 
-    To install a pre-built APK, such as a 3rd-party application to a device,
+    To install a pre-built APK, such as a 3rd-party application, on a device,
     select \uicontrol {Install an APK File}.
 
     \section2 Specifying Settings for Packages
@@ -90,7 +90,7 @@
 
     \image {qtcreator-build-settings-android-apk.webp} {Build Android APK step}
 
-    The \c androiddeployqt tool create APKs based on the settings. For more
+    The \c androiddeployqt tool creates APKs based on the settings. For more
     information about the available options, see \l{androiddeployqt}.
 
     You can view information about what the \c androiddeployqt tool is doing in
@@ -107,7 +107,7 @@
     Usually, you should select the highest API level available.
 
     Usually, you should use the highest version of the Android SDK
-    build-tools for building. If necessary, select another version
+    build tools for building. If necessary, select another version
     in the \uicontrol {Android build-tools version} field.
 
     \section3 Building AABs
@@ -142,7 +142,7 @@
     verify that the future versions of your application are actually created by
     you.
 
-    \warning Keep the key pair in a safe place and take back up copies because
+    \warning Keep the key pair in a safe place and take backup copies because
     you cannot update the application if you lose the key pair.
 
     You can use \QC to generate a keystore and a \e {self-signed} certificate.
@@ -288,7 +288,7 @@
             manually in the manifest file.
     \row
         \li \uicontrol {Target SDK}
-        \li The targeted API level of the application if you set it manually in
+        \li The targeted API level of the application, if you set it manually in
             the manifest file.
     \row
         \li \uicontrol {Application name}
@@ -321,12 +321,12 @@
 
     \section2 Package Names
 
-    Android application packages are usually named by using a hierarchical
+    Android application packages are usually named using a hierarchical
     pattern with the levels in the hierarchy separated by periods (.). In
-    general, a package name begins with the top level domain name of the
-    organization followed by the organization's domain name and any subdomain
+    general, a package name begins with the top-level domain name of the
+    organization, followed by the organization's domain name and any subdomain
     names listed in reverse order. The organization can then choose a specific
-    name for their package. Package names should be written in all lowercase
+    name for its package. Package names should be written in all lowercase
     characters whenever possible. For example, \c {org.qtproject.example}.
 
     Complete conventions for disambiguating package names and rules for naming
@@ -345,7 +345,7 @@
         \li Select \uicontrol Default or \uicontrol Full when using
             Qt Widgets or Qt Quick Controls 1 in your project.
 
-            \note This method uses some Android non-SDK interfaces,
+            \note This method uses some Android non-SDK interfaces
                   that are being restricted by Google starting from Android 9.0
                   (API 28).
         \li Select \uicontrol Minimal when using Qt Quick Controls 2
@@ -368,7 +368,7 @@
         \row
             \li Unspecified
             \li The system chooses the orientation. The policy it uses, and
-                therefore the choices made in specific contexts, may differ
+                therefore the choices made in specific contexts may differ
                 from device to device.
         \row
             \li Behind
@@ -421,8 +421,8 @@
             \li Full sensor
             \li The orientation is determined by the device orientation sensor
                 for any of the four orientations. This is similar to the sensor
-                option, except that it allows any of the four possible screen
-                orientations, regardless of what the device will normally do.
+                option, except it allows any of the four possible screen
+                orientations, regardless of what the device usually does.
                 For example, some devices won't normally use reverse portrait
                 or reverse landscape, but this option enables them.
         \row
@@ -437,7 +437,7 @@
             \li Full user
             \li If the user has locked sensor-based rotation, this option
                 behaves in the same way as the user option. Otherwise, it
-                behaves the same as the full sensor option, and allows any
+                behaves the same as the full sensor option and allows any
                 of the four possible screen orientations.
         \row
             \li Locked
@@ -461,9 +461,8 @@
 
     Specify settings for icons in the \uicontrol {Application icon} tab. Select
     the image with the highest resolution as the \uicontrol {Master icon}.
-    \QC resizes the icon and sets versions of it to be shown on low, medium,
-    high, and extra high DPI displays, as needed. Alternatively, set the icons
-    for each resolution separately.
+    \QC generates and sets resized versions for low, medium, high, and extra high-DPI
+    displays, as needed. Alternatively, set the icons for each resolution separately.
 
     \image {qtcreator-android-manifest-editor-app-icon.webp} {Application icons in Android Manifest Editor}
 
@@ -494,10 +493,10 @@
     \section2 Setting Permissions
 
     Starting from Android 6.0 (API 23), applications have to request permissions
-    at runtime (see \l{QtAndroidPrivate::requestPermission()}). For
-    lower Android API levels, users have to grant the permissions when they
-    install the application. Android OS then grants the application access to the
-    appropriate data and features.
+    at runtime (see \l{QCoreApplication::requestPermission()}). Users must grant
+    these permissions when installing the application for lower Android API levels.
+    The Android OS then grants the application access to the appropriate data and
+    features.
 
     \image {qtcreator-android-manifest-editor-permissions.webp} {Permissions in Android Manifest Editor}
 

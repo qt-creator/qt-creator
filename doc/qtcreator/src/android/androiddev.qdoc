@@ -131,7 +131,7 @@
     C:\Users\Username\AppData\Local\QtProject\qtcreator\android\sdk_definitions.json
     \endcode
 
-    For example, the SDK configuration file sets the NDK version 22.1.7171670
+    For example, the SDK configuration file sets the NDK version to 22.1.7171670
     for use with Qt 6.3, Qt 6.2, and Qt 5.15.9 to 5.15.20:
 
     \badcode
@@ -201,10 +201,10 @@
     \title Manage Android SDK packages
 
     Since Android SDK Tools version 25.3.0, Android has only a command-line
-    tool, \l {sdkmanager}, for SDK package management. To make SDK management
-    easier, \QC has an SDK Manager for
-    installing, updating, and removing SDK packages. You can still use
-    \c sdkmanager for advanced SDK management.
+    tool, \l {sdkmanager}, for SDK package management. To simplify SDK
+    management, \QC has an SDK Manager for installing, updating, and
+    removing SDK packages. You can still use \c sdkmanager for advanced
+    SDK management.
 
     To view the installed Android SDK packages, select \preferences >
     \uicontrol SDKs > \uicontrol Android > \uicontrol {SDK Manager}.
@@ -218,8 +218,7 @@
     IDs include \uicontrol Stable, \uicontrol Beta, \uicontrol Dev, and
     \uicontrol Canary.
 
-    To show and update also obsolete packages, select
-    \uicontrol {Include obsolete}.
+    To show obsolete packages, select \uicontrol {Include obsolete}.
 
     To filter packages, select \uicontrol Available, \uicontrol Installed, or
     \uicontrol All.
@@ -272,7 +271,7 @@
     when you select it in the \l{Build for many platforms}{kit selector} to
     \l{Android Deploy Configuration}{deploy applications} to it.
 
-    \section1 Set prefrences for starting AVDs
+    \section1 Set preferences for starting AVDs
 
     To set preferences for starting an AVD, select \uicontrol {AVD Arguments}.
 
@@ -326,7 +325,7 @@
         \li In \uicontrol {Target ABI / API}, select an Android system image
             architecture (ABI) and \l{What is API Level?}{API level} that you
             installed on the computer.
-        \li In \uicontrol {Skin definition}, select the AVD type, and then
+        \li In \uicontrol {Skin definition}, select the AVD type, then
             select one of the predefined AVD skins or \uicontrol Custom for
             a custom AVD skin.
         \li In \uicontrol {SD card size}, set the size of the SD card for the
