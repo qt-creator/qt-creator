@@ -10,10 +10,9 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
-using namespace ProjectExplorer;
 using namespace Utils;
 
-// ProjectConfiguration
+namespace ProjectExplorer {
 
 ProjectConfiguration::ProjectConfiguration(Target *target, Id id)
     : m_target(target)
@@ -90,7 +89,7 @@ void ProjectConfiguration::fromMap(const Store &map)
     AspectContainer::fromMap(map);
 }
 
-Id ProjectExplorer::idFromMap(const Store &map)
+Id idFromMap(const Store &map)
 {
     return Id::fromSetting(map.value(Constants::CONFIGURATION_ID_KEY));
 }
@@ -99,3 +98,5 @@ QString ProjectConfiguration::expandedDisplayName() const
 {
     return macroExpander()->expand(m_displayName.value());
 }
+
+} // namespace ProjectExplorer
