@@ -188,10 +188,8 @@ int minimumSDK(const BuildConfiguration *bc)
     const int minSdkVersion = parseMinSdk(*element);
     if (minSdkVersion == 0) {
         QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(bc->kit());
-        if (version->isAndroidQtVersion()) {
-            if (const AndroidQtVersion *androidQt = static_cast<const AndroidQtVersion *>(version))
-                return androidQt->defaultMinimumSDK();
-        }
+        if (version && version->isAndroidQtVersion())
+            return static_cast<const AndroidQtVersion *>(version)->defaultMinimumSDK();
     }
     return minSdkVersion;
 }
@@ -204,7 +202,9 @@ int minimumSDK(const Kit *kit)
 {
     int minSdkVersion = -1;
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
-    if (version && version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE)) {
+    if (!version)
+        return minSdkVersion;
+    if (version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE)) {
         const FilePath stockManifestFilePath = version->prefix().pathAppended(
             "src/android/templates/AndroidManifest.xml");
 
@@ -213,10 +213,8 @@ int minimumSDK(const Kit *kit)
             minSdkVersion = parseMinSdk(*element);
     }
     if (minSdkVersion == 0) {
-        if (version->isAndroidQtVersion()) {
-            if (const AndroidQtVersion *androidQt = static_cast<const AndroidQtVersion *>(version))
-                return androidQt->defaultMinimumSDK();
-        }
+        if (version->isAndroidQtVersion())
+            return static_cast<const AndroidQtVersion *>(version)->defaultMinimumSDK();
     }
     return minSdkVersion;
 }
