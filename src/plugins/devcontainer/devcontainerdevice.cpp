@@ -23,6 +23,8 @@ namespace DevContainer {
 
 Device::Device() {}
 
+Device::~Device() {} // Necessary for forward declared unique_ptr
+
 ProjectExplorer::IDeviceWidget *Device::createWidget()
 {
     return nullptr;
@@ -75,6 +77,7 @@ Result<> Device::up(const FilePath &path, InstanceConfig instanceConfig)
 {
     m_instanceConfig = instanceConfig;
     m_processInterfaceCreator = nullptr;
+    m_fileAccess.reset();
 
     ProgressDialog progress;
 
@@ -149,7 +152,7 @@ Result<> Device::up(const FilePath &path, InstanceConfig instanceConfig)
             if (!cmdBridgePath)
                 return ResultError(cmdBridgePath.error());
 
-            const auto fileAccess = std::make_unique<CmdBridge::FileAccess>();
+            auto fileAccess = std::make_unique<CmdBridge::FileAccess>();
 
             Utils::Result<> initResult = [&] {
                 if (options->copyCmdBridge) {
@@ -169,6 +172,7 @@ Result<> Device::up(const FilePath &path, InstanceConfig instanceConfig)
                 return initResult;
 
             setFileAccess(fileAccess.get());
+            m_fileAccess = std::move(fileAccess);
             return ResultOk;
         }();
 

@@ -1,0 +1,12 @@
+{
+    "image": "alpine:latest",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/custom/workspace,type=bind,consistency=cached",
+    "workspaceFolder": "/custom/workspace",
+    "customizations": {
+        "qt-creator": {
+            "device": {
+                "libexec-mount-point": "/custom/libexec/mnt/point"
+            }
+        }
+    }
+}

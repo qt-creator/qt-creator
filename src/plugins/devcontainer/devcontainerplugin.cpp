@@ -33,6 +33,10 @@ struct Private
 
 Q_GLOBAL_STATIC(Private, devContainerPluginPrivate)
 
+#ifdef WITH_TESTS
+QObject *createDevcontainerTest();
+#endif
+
 static Utils::Result<std::shared_ptr<DevContainer::Device>> startDeviceForProject(
     const Utils::FilePath &path,
     ProjectExplorer::Project *project,
@@ -110,6 +114,9 @@ public:
 
     void initialize() final
     {
+#ifdef WITH_TESTS
+        addTestCreator(createDevcontainerTest);
+#endif
         connect(ProjectManager::instance(), &ProjectManager::projectAdded, this, &onProjectAdded);
         connect(ProjectManager::instance(), &ProjectManager::projectRemoved, this, &onProjectRemoved);
 

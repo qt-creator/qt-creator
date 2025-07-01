@@ -7,12 +7,18 @@
 
 #include <utils/qtcprocess.h>
 
+namespace CmdBridge {
+class FileAccess;
+}
+
 namespace DevContainer {
 
 class Device : public ProjectExplorer::IDevice
 {
 public:
     Device();
+    ~Device();
+
     ProjectExplorer::IDeviceWidget *createWidget() override;
 
     Utils::Result<> up(const Utils::FilePath &path, InstanceConfig instanceConfig);
@@ -26,6 +32,7 @@ public: // FilePath stuff
 private:
     Utils::Process::ProcessInterfaceCreator m_processInterfaceCreator;
     InstanceConfig m_instanceConfig;
+    std::unique_ptr<CmdBridge::FileAccess> m_fileAccess;
 };
 
 } // namespace DevContainer
