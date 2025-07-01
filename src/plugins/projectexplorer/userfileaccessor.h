@@ -20,8 +20,6 @@ class UserFileAccessor : public Utils::MergingSettingsAccessor
 public:
     UserFileAccessor(Project *project);
 
-    Project *project() const;
-
     virtual QVariant retrieveSharedSettings() const;
 
     Utils::FilePath projectUserFile() const;
@@ -40,7 +38,7 @@ protected:
 private:
     Utils::SettingsMergeFunction userStickyTrackerFunction(Utils::KeyList &stickyKeys) const;
 
-    Project *m_project;
+    Project * const m_project;
 };
 
 QObject *createUserFileAccessorTest();

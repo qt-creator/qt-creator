@@ -156,12 +156,6 @@ UserFileAccessor::UserFileAccessor(Project *project)
     addVersionUpgrader(std::make_unique<UserFileVersion21Upgrader>());
 }
 
-Project *UserFileAccessor::project() const
-{
-    return m_project;
-}
-
-
 SettingsMergeResult
 UserFileAccessor::merge(const MergingSettingsAccessor::SettingsMergeData &global,
                         const MergingSettingsAccessor::SettingsMergeData &local) const
@@ -220,7 +214,7 @@ SettingsMergeFunction UserFileAccessor::userStickyTrackerFunction(KeyList &stick
 
 QVariant UserFileAccessor::retrieveSharedSettings() const
 {
-    return project()->property(SHARED_SETTINGS);
+    return m_project->property(SHARED_SETTINGS);
 }
 
 FilePath UserFileAccessor::projectUserFile() const
@@ -269,7 +263,7 @@ Store UserFileAccessor::postprocessMerge(const Store &main,
                                          const Store &secondary,
                                          const Store &result) const
 {
-    project()->setProperty(SHARED_SETTINGS, variantFromStore(secondary));
+    m_project->setProperty(SHARED_SETTINGS, variantFromStore(secondary));
     return MergingSettingsAccessor::postprocessMerge(main, secondary, result);
 }
 
