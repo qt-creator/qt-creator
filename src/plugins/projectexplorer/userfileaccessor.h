@@ -20,22 +20,22 @@ class UserFileAccessor : public Utils::MergingSettingsAccessor
 public:
     UserFileAccessor(Project *project);
 
+protected:
+    Utils::Store prepareToWriteSettings(const Utils::Store &data) const final;
+
+private:
+    Utils::Store postprocessMerge(const Utils::Store &main,
+                                  const Utils::Store &secondary,
+                                  const Utils::Store &result) const final;
+
+    Utils::SettingsMergeResult merge(const SettingsMergeData &global,
+                                     const SettingsMergeData &local) const final;
+
     virtual QVariant retrieveSharedSettings() const;
 
     Utils::FilePath projectUserFile() const;
     Utils::FilePath externalUserFile() const;
     Utils::FilePath sharedFile() const;
-
-protected:
-    Utils::Store postprocessMerge(const Utils::Store &main,
-                                  const Utils::Store &secondary,
-                                  const Utils::Store &result) const final;
-
-    Utils::Store prepareToWriteSettings(const Utils::Store &data) const final;
-
-    Utils::SettingsMergeResult merge(const SettingsMergeData &global,
-                                     const SettingsMergeData &local) const final;
-private:
     Utils::SettingsMergeFunction userStickyTrackerFunction(Utils::KeyList &stickyKeys) const;
 
     Project * const m_project;
