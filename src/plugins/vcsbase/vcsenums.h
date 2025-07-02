@@ -20,8 +20,7 @@ enum class RunFlags {
     SuppressCommandLogging = (1 <<  5), // No starting command log entry.
     ShowSuccessMessage     = (1 <<  6), // Show message about successful completion of command.
     ShowStdOut             = (1 <<  7), // Show standard output.
-    ProgressiveOutput      = (1 <<  8), // Emit stdOutText() and stdErrText() signals.
-    ExpectRepoChanges      = (1 <<  9), // Expect changes in repository by the command.
+    ExpectRepoChanges      = (1 <<  8), // Expect changes in repository by the command.
     NoOutput               = SuppressStdErr | SuppressFailMessage | SuppressCommandLogging
 };
 

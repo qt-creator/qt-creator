@@ -69,6 +69,8 @@ public:
     Environment m_environment;
     TextEncoding m_encoding;
     ProgressParser m_progressParser = {};
+    TextChannelCallback m_stdOutCallback = {};
+    TextChannelCallback m_stdErrCallback = {};
     QList<Job> m_jobs;
 
     int m_currentJob = 0;
@@ -121,24 +123,23 @@ void VcsCommandPrivate::setupProcess(Process *process, const Job &job)
 
 void VcsCommandPrivate::installStdCallbacks(Process *process)
 {
-    if (!(m_flags & RunFlags::MergeOutputChannels) && (m_flags & RunFlags::ProgressiveOutput
-                              || m_progressParser || !(m_flags & RunFlags::SuppressStdErr))) {
+    if (!(m_flags & RunFlags::MergeOutputChannels) && (m_stdErrCallback || m_progressParser
+                                                       || !(m_flags & RunFlags::SuppressStdErr))) {
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
         connect(process, &Process::textOnStandardError, this, [this](const QString &text) {
             if (!(m_flags & RunFlags::SuppressStdErr))
                 VcsOutputWindow::appendError(m_defaultWorkingDirectory, text);
-            if (m_flags & RunFlags::ProgressiveOutput)
-                emit q->stdErrText(text);
+            if (m_stdErrCallback)
+                m_stdErrCallback(text);
         });
     }
-    if (m_progressParser || m_flags & RunFlags::ProgressiveOutput
-                         || m_flags & RunFlags::ShowStdOut) {
+    if (m_progressParser || m_stdOutCallback || m_flags & RunFlags::ShowStdOut) {
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
         connect(process, &Process::textOnStandardOutput, this, [this](const QString &text) {
             if (m_flags & RunFlags::ShowStdOut)
                 VcsOutputWindow::appendSilently(m_defaultWorkingDirectory, text);
-            if (m_flags & RunFlags::ProgressiveOutput)
-                emit q->stdOutText(text);
+            if (m_stdOutCallback)
+                m_stdOutCallback(text);
         });
     }
 }
@@ -321,6 +322,16 @@ void VcsCommand::setEncoding(const TextEncoding &encoding)
 void VcsCommand::setProgressParser(const ProgressParser &parser)
 {
     d->m_progressParser = parser;
+}
+
+void VcsCommand::setStdOutCallback(const Utils::TextChannelCallback &callback)
+{
+    d->m_stdOutCallback = callback;
+}
+
+void VcsCommand::setStdErrCallback(const Utils::TextChannelCallback &callback)
+{
+    d->m_stdErrCallback = callback;
 }
 
 CommandResult::CommandResult(const Process &process)

@@ -139,12 +139,13 @@ void GitLabCloneDialog::cloneProject()
     m_command = vc->createInitialCheckoutCommand({m_repositoryCB->currentText(),
                                                   m_pathChooser->absoluteFilePath(),
                                                   m_directoryLE->text(), extraArgs});
-    m_command->addFlags(RunFlags::ProgressiveOutput);
-    connect(m_command, &VcsCommand::stdOutText, this, [this](const QString &text) {
-        m_cloneOutput->appendPlainText(text);
+    m_command->setStdOutCallback([cloneOutput = QPointer<QPlainTextEdit>(m_cloneOutput)](const QString &text) {
+        if (cloneOutput)
+            cloneOutput->appendPlainText(text);
     });
-    connect(m_command, &VcsCommand::stdErrText, this, [this](const QString &text) {
-        m_cloneOutput->appendPlainText(text);
+    m_command->setStdErrCallback([cloneOutput = QPointer<QPlainTextEdit>(m_cloneOutput)](const QString &text) {
+        if (cloneOutput)
+            cloneOutput->appendPlainText(text);
     });
     connect(m_command, &VcsCommand::done, this, [this] {
         cloneFinished(m_command->result() == ProcessResult::FinishedWithSuccess);

@@ -352,12 +352,13 @@ void VcsCommandPage::start(VcsCommand *command)
 
     QTC_ASSERT(m_state != Running, return);
     m_command = command;
-    m_command->addFlags(RunFlags::ProgressiveOutput);
-    connect(m_command, &VcsCommand::stdOutText, this, [this](const QString &text) {
-        m_formatter->appendMessage(text, StdOutFormat);
+    m_command->setStdOutCallback([formatter = QPointer<OutputFormatter>(m_formatter)](const QString &text) {
+        if (formatter)
+            formatter->appendMessage(text, StdOutFormat);
     });
-    connect(m_command, &VcsCommand::stdErrText, this, [this](const QString &text) {
-        m_formatter->appendMessage(text, StdErrFormat);
+    m_command->setStdErrCallback([formatter = QPointer<OutputFormatter>(m_formatter)](const QString &text) {
+        if (formatter)
+            formatter->appendMessage(text, StdErrFormat);
     });
     connect(m_command, &VcsCommand::done, this, [this] {
         finished(m_command->result() == ProcessResult::FinishedWithSuccess);

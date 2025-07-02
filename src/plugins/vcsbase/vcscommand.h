@@ -79,6 +79,9 @@ public:
 
     void setProgressParser(const Core::ProgressParser &parser);
 
+    void setStdOutCallback(const Utils::TextChannelCallback &callback);
+    void setStdErrCallback(const Utils::TextChannelCallback &callback);
+
     static CommandResult runBlocking(const Utils::FilePath &workingDirectory,
                                      const Utils::Environment &environment,
                                      const Utils::CommandLine &command,
@@ -92,8 +95,6 @@ public:
     Utils::ProcessResult result() const;
 
 signals:
-    void stdOutText(const QString &);
-    void stdErrText(const QString &);
     void done();
 
 private:
