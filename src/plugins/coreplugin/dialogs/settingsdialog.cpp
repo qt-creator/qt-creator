@@ -254,7 +254,7 @@ protected:
 
 static bool categoryVisible([[maybe_unused]] const Id &id)
 {
-    if (!Utils::qtcEnvironmentVariableIsSet("QTC_SHOW_QTQUICKDESIGNER_DEVELOPER_UI")) {
+    if (Utils::qtcEnvironmentVariableIsEmpty("QTC_SHOW_QTQUICKDESIGNER_DEVELOPER_UI")) {
         static QStringList list
             = Core::ICore::settings()->value("HideOptionCategories").toStringList();
 
