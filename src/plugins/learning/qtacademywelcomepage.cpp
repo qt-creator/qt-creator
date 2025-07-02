@@ -5,6 +5,7 @@
 
 #include "learningtr.h"
 #include "utils/algorithm.h"
+#include "utils/overlaywidget.h"
 
 #include <coreplugin/welcomepagehelper.h>
 
@@ -405,34 +406,6 @@ static Layouting::Grid createDetailWidget(const CourseItem *course)
     // clang-format on
 }
 
-class MouseCatcher : public QWidget
-{
-    Q_OBJECT
-public:
-    MouseCatcher() { setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding); }
-
-    void mousePressEvent(QMouseEvent *event) override
-    {
-        if (event->type() == QEvent::MouseButtonPress) {
-            QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if (mouseEvent->button() == Qt::LeftButton) {
-                event->accept();
-                emit clicked();
-            }
-        }
-    }
-
-    void paintEvent(QPaintEvent *event) override
-    {
-        Q_UNUSED(event);
-        QPainter painter(this);
-        painter.fillRect(rect(), QColor(0, 0, 0, 128));
-    }
-
-signals:
-    void clicked();
-};
-
 class QtAcademyWelcomePageWidget final : public QWidget
 {
     Q_OBJECT
@@ -475,9 +448,11 @@ public:
         }.emerge();
         // clang-format on
 
-        auto mouseCatcher = new MouseCatcher;
-        connect(mouseCatcher, &MouseCatcher::clicked, this, [this]() {
-            setSelectedCourse(nullptr);
+        auto mouseCatcher = new OverlayWidget(this);
+        mouseCatcher->attachToWidget(m_view);
+        mouseCatcher->setAttribute(Qt::WA_TransparentForMouseEvents, false);
+        mouseCatcher->setPaintFunction([](QWidget *that, QPainter &p, QPaintEvent *) {
+            p.fillRect(that->rect(), QColor(0, 0, 0, 128));
         });
 
         mouseCatcher->setVisible(false);
@@ -503,7 +478,6 @@ public:
             Grid {
                 GridCell({
                     m_view,
-                    mouseCatcher,
                     Align(Qt::AlignCenter, detailWdgt),
                 }),
             },
