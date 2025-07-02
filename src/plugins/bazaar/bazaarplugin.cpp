@@ -56,6 +56,7 @@
 #endif
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
@@ -150,6 +151,7 @@ public:
     void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source, id); }
 
     VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
+    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
     void updateActions(VcsBase::VersionControlBase::ActionState) final;
     bool activateCommit() final;
@@ -945,6 +947,18 @@ VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const InitialCheck
     command->addJob({m_client.vcsBinary(data.baseDirectory),
         {m_client.vcsCommandString(BazaarClient::CloneCommand), data.extraArgs, data.url, data.localName}}, -1);
     return command;
+}
+
+ExecutableItem BazaarPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+{
+    Environment env = m_client.processEnvironment(data.baseDirectory);
+    env.set("BZR_PROGRESS_BAR", "text");
+    const CommandLine command{m_client.vcsBinary(data.baseDirectory),
+                              {m_client.vcsCommandString(BazaarClient::CloneCommand),
+                               data.extraArgs, data.url, data.localName}};
+    return vcsProcessTask({.runData = {command, data.baseDirectory, env},
+                           .stdOutHandler = data.stdOutHandler,
+                           .stdErrHandler = data.stdErrHandler});
 }
 
 } // Bazaar::Internal

@@ -58,6 +58,7 @@
 #endif
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
@@ -149,6 +150,7 @@ public:
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
     VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
+    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
     bool isVcsDirectory(const Utils::FilePath &fileName) const;
 
@@ -1079,6 +1081,18 @@ VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const InitialC
     return command;
 }
 
+ExecutableItem SubversionPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+{
+    CommandLine command{settings().binaryPath()};
+    command << "checkout";
+    command << SubversionClient::AddAuthOptions();
+    command << Subversion::Constants::NON_INTERACTIVE_OPTION << data.extraArgs << data.url << data.localName;
+
+    return vcsProcessTask({.runData = {command, data.baseDirectory,
+                                       subversionClient().processEnvironment(data.baseDirectory)},
+                           .stdOutHandler = data.stdOutHandler,
+                           .stdErrHandler = data.stdErrHandler});
+}
 
 #ifdef WITH_TESTS
 

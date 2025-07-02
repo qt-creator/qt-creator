@@ -56,6 +56,7 @@
 #endif
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
@@ -102,6 +103,7 @@ public:
     }
 
     VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
+    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
     void updateActions(VersionControlBase::ActionState) override;
     bool activateCommit() override;
@@ -983,6 +985,125 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const InitialCheck
 
     return command;
 }
+
+ExecutableItem FossilPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+{
+    const QMap<QString, QString> options = FossilJsExtension::parseArgOptions(data.extraArgs);
+
+    // Two operating modes:
+    //  1) CloneCheckout:
+    //  -- clone from remote-URL or a local-fossil a repository  into a local-clone fossil.
+    //  -- open/checkout the local-clone fossil
+    //  The local-clone fossil must not point to an existing repository.
+    //  Clone URL may be either schema-based (http, ssh, file) or an absolute local path.
+    //
+    //  2) LocalCheckout:
+    //  -- open/checkout an existing local fossil
+    //  Clone URL is an absolute local path and is the same as the local fossil.
+
+    const FilePath checkoutPath = data.baseDirectory.pathAppended(data.localName);
+    const QString fossilFile = options.value("fossil-file");
+    const FilePath fossilFilePath = FilePath::fromUserInput(QDir::fromNativeSeparators(fossilFile));
+    const QString fossilFileNative = fossilFilePath.toUserOutput();
+    const QFileInfo cloneRepository(fossilFilePath.toUrlishString());
+
+    // Check when requested to clone a local repository and clone-into repository file is the same
+    // or not specified.
+    // In this case handle it as local fossil checkout request.
+    const QUrl url(data.url);
+    bool isLocalRepository = (options.value("repository-type") == "localRepo");
+
+    if (url.isLocalFile() || url.isRelative()) {
+        const QFileInfo sourcePath(url.path());
+        isLocalRepository = (sourcePath.canonicalFilePath() == cloneRepository.canonicalFilePath());
+    }
+
+    // set clone repository admin user to configured user name
+    // OR override it with the specified user from clone panel
+    const QString adminUser = options.value("admin-user");
+    const bool disableAutosync = (options.value("settings-autosync") == "off");
+    const QString checkoutBranch = options.value("branch-tag");
+
+    // first create the checkout directory,
+    // as it needs to become a working directory for wizard command jobs
+    checkoutPath.createDir();
+
+    const FilePath binary(fossilClient().vcsBinary(checkoutPath));
+    const Environment env = fossilClient().processEnvironment(checkoutPath);
+
+    GroupItem cloneTask = nullItem;
+    if (!isLocalRepository && !cloneRepository.exists()) {
+        const QString sslIdentityFile = options.value("ssl-identity");
+        const FilePath sslIdentityFilePath = FilePath::fromUserInput(sslIdentityFile);
+        const bool includePrivate = (options.value("include-private") == "true");
+
+        QStringList extraOptions;
+        if (includePrivate)
+            extraOptions << "--private";
+        if (!sslIdentityFile.isEmpty())
+            extraOptions << "--ssl-identity" << sslIdentityFilePath.toUserOutput();
+        if (!adminUser.isEmpty())
+            extraOptions << "--admin-user" << adminUser;
+
+        // Fossil allows saving the remote address and login. This is used to
+        // facilitate autosync (commit/update) functionality.
+        // When no password is given, it prompts for that.
+        // When both username and password are specified, it prompts whether to
+        // save them.
+        // NOTE: In non-interactive context, these prompts won't work.
+        // Fossil currently does not support SSH_ASKPASS way for login query.
+        //
+        // Alternatively, "--once" option does not save the remote details.
+        // In such case remote details must be provided on the command-line every
+        // time. This also precludes autosync.
+        //
+        // So here we want Fossil to save the remote details when specified.
+
+        const CommandLine command{binary,
+                                  {fossilClient().vcsCommandString(FossilClient::CloneCommand),
+                                   extraOptions, data.url, fossilFileNative}};
+        cloneTask = vcsProcessTask({.runData = {command, checkoutPath, env},
+                                    .stdOutHandler = data.stdOutHandler,
+                                    .stdErrHandler = data.stdErrHandler});
+    }
+
+    // check out the cloned repository file into the working copy directory;
+    // by default the latest revision is checked out
+
+    QStringList openArgs({"open", fossilFileNative});
+    if (!checkoutBranch.isEmpty())
+        openArgs << checkoutBranch;
+    const CommandLine openCommand{binary, openArgs};
+    const GroupItem openTask = vcsProcessTask({.runData = {openCommand, checkoutPath, env},
+                                               .stdOutHandler = data.stdOutHandler,
+                                               .stdErrHandler = data.stdErrHandler});
+
+    GroupItem userTask = nullItem;
+    // set user default to admin user if specified
+    if (!isLocalRepository && !adminUser.isEmpty()) {
+        const CommandLine command{binary, {"user", "default", adminUser, "--user", adminUser}};
+        userTask = vcsProcessTask({.runData = {command, checkoutPath, env},
+                                   .stdOutHandler = data.stdOutHandler,
+                                   .stdErrHandler = data.stdErrHandler});
+    }
+
+    GroupItem settingsTask = nullItem;
+    // turn-off autosync if requested
+    if (!isLocalRepository && disableAutosync) {
+        const CommandLine command{binary, {"settings", "autosync", "off"}};
+        settingsTask = vcsProcessTask({.runData = {command, checkoutPath, env},
+                                       .stdOutHandler = data.stdOutHandler,
+                                       .stdErrHandler = data.stdErrHandler});
+    }
+
+    return Group {
+        cloneTask,
+        openTask,
+        userTask,
+        settingsTask
+    };
+}
+
 
 RevertDialog::RevertDialog(const QString &title, QWidget *parent)
     : QDialog(parent)

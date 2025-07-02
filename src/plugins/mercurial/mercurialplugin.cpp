@@ -46,8 +46,9 @@
 #include <QTest>
 #endif
 
-using namespace VcsBase;
+using namespace Tasking;
 using namespace Utils;
+using namespace VcsBase;
 using namespace std::placeholders;
 
 namespace Mercurial::Internal {
@@ -81,6 +82,7 @@ public:
     }
 
     VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
+    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
 private:
     void updateActions(VcsBase::VersionControlBase::ActionState) final;
@@ -726,6 +728,16 @@ VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const InitialCh
                    mercurialClient().processEnvironment(data.baseDirectory));
     command->addJob({settings().binaryPath(), {"clone", data.extraArgs, data.url, data.localName}}, -1);
     return command;
+}
+
+ExecutableItem MercurialPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+{
+    const CommandLine command{settings().binaryPath(),
+                              {"clone", data.extraArgs, data.url, data.localName}};
+    return vcsProcessTask({.runData = {command, data.baseDirectory,
+                                       mercurialClient().processEnvironment(data.baseDirectory)},
+                           .stdOutHandler = data.stdOutHandler,
+                           .stdErrHandler = data.stdErrHandler});
 }
 
 #ifdef WITH_TESTS

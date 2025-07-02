@@ -54,8 +54,9 @@
 #endif
 
 using namespace Core;
-using namespace VcsBase;
+using namespace Tasking;
 using namespace Utils;
+using namespace VcsBase;
 using namespace std::placeholders;
 
 namespace Cvs::Internal {
@@ -181,6 +182,7 @@ public:
     QString vcsOpenText() const final;
 
     VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
+    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
     ///
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
@@ -409,6 +411,18 @@ VcsCommand *CvsPluginPrivate::createInitialCheckoutCommand(const InitialCheckout
     command->setDisplayName(Tr::tr("CVS Checkout"));
     command->addJob({settings().binaryPath(), settings().addOptions(args)}, -1);
     return command;
+}
+
+ExecutableItem CvsPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+{
+    if (data.localName == data.url)
+        return errorTask(data.baseDirectory, Tr::tr("Local name can't be the same as url."));
+
+    const QStringList args = QStringList{"checkout", data.url} + data.extraArgs;
+    const CommandLine command{settings().binaryPath(), settings().addOptions(args)};
+    return vcsProcessTask({.runData = {command, data.baseDirectory, Environment::systemEnvironment()},
+                           .stdOutHandler = data.stdOutHandler,
+                           .stdErrHandler = data.stdErrHandler});
 }
 
 // ------------- CVSPlugin

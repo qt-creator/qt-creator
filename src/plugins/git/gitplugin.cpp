@@ -83,6 +83,7 @@
 Q_DECLARE_METATYPE(Git::Internal::FileStates)
 
 using namespace Core;
+using namespace Tasking;
 using namespace TextEditor;
 using namespace Utils;
 using namespace VcsBase;
@@ -175,6 +176,7 @@ public:
     QString vcsTopic(const FilePath &directory) final;
 
     VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
+    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
     void fillLinkContextMenu(QMenu *menu,
                              const FilePath &workingDirectory,
@@ -1954,6 +1956,17 @@ VcsCommand *GitPluginPrivate::createInitialCheckoutCommand(const InitialCheckout
     command->addJob({gitClient().vcsBinary(data.baseDirectory),
                      {"clone", "--progress", data.extraArgs, data.url, data.localName}}, -1);
     return command;
+}
+
+ExecutableItem GitPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+{
+    const CommandLine command{gitClient().vcsBinary(data.baseDirectory),
+                              {"clone", "--progress", data.extraArgs, data.url, data.localName}};
+    return vcsProcessTask({.runData = {command, data.baseDirectory,
+                            gitClient().processEnvironment(data.baseDirectory)},
+                           .flags = RunFlags::SuppressStdErr,
+                           .stdOutHandler = data.stdOutHandler,
+                           .stdErrHandler = data.stdErrHandler});
 }
 
 GitPluginPrivate::RepoUrl GitPluginPrivate::getRepoUrl(const QString &location) const

@@ -6,6 +6,7 @@
 #include "commonvcssettings.h"
 #include "vcsbasesubmiteditor.h"
 #include "vcsbasetr.h"
+#include "vcscommand.h"
 #include "vcsplugin.h"
 
 #include <coreplugin/documentmanager.h>
@@ -16,6 +17,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+
+#include <solutions/tasking/tasktree.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
@@ -32,8 +35,9 @@
 #include <QTimer>
 
 using namespace Core;
-using namespace Utils;
 using namespace ProjectExplorer;
+using namespace Tasking;
+using namespace Utils;
 
 namespace {
 static Q_LOGGING_CATEGORY(baseLog, "qtc.vcs.base", QtWarningMsg)
@@ -564,6 +568,11 @@ VcsCommand *VersionControlBase::createInitialCheckoutCommand(const InitialChecko
 {
     Q_UNUSED(data)
     return nullptr;
+}
+
+ExecutableItem VersionControlBase::cloneTask(const InitialCheckoutData &data) const
+{
+    return errorTask(data.baseDirectory, Tr::tr("Initial checkout task not implemented."));
 }
 
 bool VersionControlBase::enableMenuAction(ActionState as, QAction *menuAction) const

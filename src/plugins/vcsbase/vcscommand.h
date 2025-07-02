@@ -8,6 +8,8 @@
 
 #include <coreplugin/progressmanager/processprogress.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/filepath.h>
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
@@ -64,6 +66,9 @@ public:
     Utils::TextChannelCallback stdOutHandler = {};
     Utils::TextChannelCallback stdErrHandler = {};
 };
+
+VCSBASE_EXPORT Tasking::ExecutableItem errorTask(const Utils::FilePath &workingDir,
+                                                 const QString &errorMessage);
 
 VCSBASE_EXPORT Utils::ProcessTask vcsProcessTask(const VcsProcessData &data,
     const std::optional<Tasking::Storage<CommandResult>> &resultStorage = {});

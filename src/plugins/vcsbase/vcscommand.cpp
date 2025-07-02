@@ -355,6 +355,14 @@ CommandResult::CommandResult(const VcsCommand &command)
     , m_cleanedStdErr(command.cleanedStdErr())
 {}
 
+ExecutableItem errorTask(const FilePath &workingDir, const QString &errorMessage)
+{
+    return Sync([workingDir, errorMessage] {
+        VcsOutputWindow::appendError(workingDir, errorMessage);
+        return false;
+    });
+}
+
 ProcessTask vcsProcessTask(const VcsProcessData &data,
                            const std::optional<Storage<CommandResult>> &resultStorage)
 {

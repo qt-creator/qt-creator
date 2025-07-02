@@ -11,12 +11,15 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <utils/processenums.h>
+
 #include <QSharedDataPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;
 QT_END_NAMESPACE
 
+namespace Tasking { class ExecutableItem; }
 namespace Utils { class Environment; }
 
 namespace Core {
@@ -111,6 +114,8 @@ public:
     Utils::FilePath baseDirectory;
     QString localName;
     QStringList extraArgs;
+    Utils::TextChannelCallback stdOutHandler = {};
+    Utils::TextChannelCallback stdErrHandler = {};
 };
 
 class VCSBASE_EXPORT VersionControlBase : public Core::IVersionControl
@@ -132,6 +137,8 @@ public:
      * \a extraArgs are passed on to the command being run.
      */
     virtual VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data);
+    virtual Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const;
+
     // Display name of the commit action
     virtual QString commitDisplayName() const;
     virtual QString commitAbortTitle() const;
