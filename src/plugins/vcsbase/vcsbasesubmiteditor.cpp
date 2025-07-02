@@ -573,7 +573,7 @@ QIcon VcsBaseSubmitEditor::submitIcon()
     return Icon({
         {":/vcsbase/images/submit_db.png", Theme::PanelTextColorDark},
         {":/vcsbase/images/submit_arrow.png", Theme::IconsRunColor}
-    }, Icon::Tint | Icon::PunchEdges).icon();
+    }, Icon::MenuTintedStyle).icon();
 }
 
 // Reduce a list of untracked files reported by a VCS down to the files
