@@ -180,11 +180,7 @@ public:
 
     QString vcsOpenText() const final;
 
-    VcsCommand *createInitialCheckoutCommand(const QString &url,
-                                             const Utils::FilePath &baseDirectory,
-                                             const QString &localName,
-                                             const QStringList &extraArgs) final;
-
+    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
 
     ///
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
@@ -402,17 +398,14 @@ QString CvsPluginPrivate::vcsOpenText() const
     return Tr::tr("&Edit");
 }
 
-VcsCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                           const Utils::FilePath &baseDirectory,
-                                                           const QString &localName,
-                                                           const QStringList &extraArgs)
+VcsCommand *CvsPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
 {
-    QTC_ASSERT(localName == url, return nullptr);
+    QTC_ASSERT(data.localName == data.url, return nullptr);
 
     QStringList args;
-    args << QLatin1String("checkout") << url << extraArgs;
+    args << QLatin1String("checkout") << data.url << data.extraArgs;
 
-    auto command = VcsBaseClient::createVcsCommand(baseDirectory, Environment::systemEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(data.baseDirectory, Environment::systemEnvironment());
     command->setDisplayName(Tr::tr("CVS Checkout"));
     command->addJob({settings().binaryPath(), settings().addOptions(args)}, -1);
     return command;

@@ -149,10 +149,7 @@ public:
     }
     void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source, id); }
 
-    VcsCommand *createInitialCheckoutCommand(const QString &url,
-                                             const Utils::FilePath &baseDirectory,
-                                             const QString &localName,
-                                             const QStringList &extraArgs) final;
+    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
 
     // To be connected to the VCSTask's success signal to emit the repository/
     // files changed signals according to the variant's type:
@@ -943,16 +940,13 @@ void BazaarPluginPrivate::vcsAnnotate(const FilePath &file, int line)
     m_client.annotate(file.parentDir(), file.fileName(), line);
 }
 
-VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                              const FilePath &baseDirectory,
-                                                              const QString &localName,
-                                                              const QStringList &extraArgs)
+VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
 {
-    Environment env = m_client.processEnvironment(baseDirectory);
+    Environment env = m_client.processEnvironment(data.baseDirectory);
     env.set("BZR_PROGRESS_BAR", "text");
-    auto command = VcsBaseClient::createVcsCommand(baseDirectory, env);
-    command->addJob({m_client.vcsBinary(baseDirectory),
-        {m_client.vcsCommandString(BazaarClient::CloneCommand), extraArgs, url, localName}}, -1);
+    auto command = VcsBaseClient::createVcsCommand(data.baseDirectory, env);
+    command->addJob({m_client.vcsBinary(data.baseDirectory),
+        {m_client.vcsCommandString(BazaarClient::CloneCommand), data.extraArgs, data.url, data.localName}}, -1);
     return command;
 }
 

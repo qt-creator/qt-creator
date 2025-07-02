@@ -104,6 +104,15 @@ VCSBASE_EXPORT void setSource(Core::IDocument *document, const Utils::FilePath &
 // Returns the source of editor contents.
 VCSBASE_EXPORT Utils::FilePath source(Core::IDocument *document);
 
+class InitialCheckoutData
+{
+public:
+    QString url;
+    Utils::FilePath baseDirectory;
+    QString localName;
+    QStringList extraArgs;
+};
+
 class VCSBASE_EXPORT VersionControlBase : public Core::IVersionControl
 {
     Q_OBJECT
@@ -122,10 +131,7 @@ public:
      *
      * \a extraArgs are passed on to the command being run.
      */
-    virtual VcsCommand *createInitialCheckoutCommand(const QString &url,
-                                                     const Utils::FilePath &baseDirectory,
-                                                     const QString &localName,
-                                                     const QStringList &extraArgs);
+    virtual VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data);
     // Display name of the commit action
     virtual QString commitDisplayName() const;
     virtual QString commitAbortTitle() const;

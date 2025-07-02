@@ -174,10 +174,7 @@ public:
     void vcsDescribe(const FilePath &source, const QString &id) final { gitClient().show(source, id); }
     QString vcsTopic(const FilePath &directory) final;
 
-    VcsCommand *createInitialCheckoutCommand(const QString &url,
-                                             const FilePath &baseDirectory,
-                                             const QString &localName,
-                                             const QStringList &extraArgs) final;
+    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
 
     void fillLinkContextMenu(QMenu *menu,
                              const FilePath &workingDirectory,
@@ -1949,16 +1946,13 @@ QString GitPluginPrivate::vcsTopic(const FilePath &directory)
     return topic;
 }
 
-VcsCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                           const FilePath &baseDirectory,
-                                                           const QString &localName,
-                                                           const QStringList &extraArgs)
+VcsCommand *GitPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
 {
-    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
-                                                   gitClient().processEnvironment(baseDirectory));
+    auto command = VcsBaseClient::createVcsCommand(data.baseDirectory,
+                                                   gitClient().processEnvironment(data.baseDirectory));
     command->addFlags(RunFlags::SuppressStdErr);
-    command->addJob({gitClient().vcsBinary(baseDirectory),
-                     {"clone", "--progress", extraArgs, url, localName}}, -1);
+    command->addJob({gitClient().vcsBinary(data.baseDirectory),
+                     {"clone", "--progress", data.extraArgs, data.url, data.localName}}, -1);
     return command;
 }
 

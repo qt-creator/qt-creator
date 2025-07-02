@@ -148,10 +148,7 @@ public:
     }
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
-    VcsCommand *createInitialCheckoutCommand(const QString &url,
-                                             const Utils::FilePath &baseDirectory,
-                                             const QString &localName,
-                                             const QStringList &extraArgs) final;
+    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
 
     bool isVcsDirectory(const Utils::FilePath &fileName) const;
 
@@ -1069,18 +1066,15 @@ void SubversionPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
     vcsAnnotateHelper(filePath.parentDir(), filePath.fileName(), QString(), line);
 }
 
-VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                                  const Utils::FilePath &baseDirectory,
-                                                                  const QString &localName,
-                                                                  const QStringList &extraArgs)
+VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
 {
     CommandLine args{settings().binaryPath()};
     args << "checkout";
     args << SubversionClient::AddAuthOptions();
-    args << Subversion::Constants::NON_INTERACTIVE_OPTION << extraArgs << url << localName;
+    args << Subversion::Constants::NON_INTERACTIVE_OPTION << data.extraArgs << data.url << data.localName;
 
-    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
-                   subversionClient().processEnvironment(baseDirectory));
+    auto command = VcsBaseClient::createVcsCommand(data.baseDirectory,
+                   subversionClient().processEnvironment(data.baseDirectory));
     command->addJob(args, -1);
     return command;
 }

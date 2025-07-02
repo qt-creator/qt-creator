@@ -136,9 +136,9 @@ void GitLabCloneDialog::cloneProject()
     QTC_ASSERT(vc, return);
     const QStringList extraArgs = m_submodulesCB->isChecked() ? QStringList{ "--recursive" }
                                                               : QStringList{};
-    m_command = vc->createInitialCheckoutCommand(m_repositoryCB->currentText(),
-                                                 m_pathChooser->absoluteFilePath(),
-                                                 m_directoryLE->text(), extraArgs);
+    m_command = vc->createInitialCheckoutCommand({m_repositoryCB->currentText(),
+                                                  m_pathChooser->absoluteFilePath(),
+                                                  m_directoryLE->text(), extraArgs});
     const FilePath workingDirectory = m_pathChooser->absoluteFilePath();
     m_command->addFlags(RunFlags::ProgressiveOutput);
     connect(m_command, &VcsCommand::stdOutText, this, [this](const QString &text) {

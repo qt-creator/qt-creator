@@ -101,10 +101,7 @@ public:
         fossilClient().log(topLevel, {relativeDirectory.path()}, options);
     }
 
-    VcsCommand *createInitialCheckoutCommand(const QString &url,
-                                             const FilePath &baseDirectory,
-                                             const QString &localName,
-                                             const QStringList &extraArgs) final;
+    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
 
     void updateActions(VersionControlBase::ActionState) override;
     bool activateCommit() override;
@@ -887,12 +884,9 @@ void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id)
     fossilClient().view(source, id);
 }
 
-VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sourceUrl,
-                                                              const FilePath &baseDirectory,
-                                                              const QString &localName,
-                                                              const QStringList &extraArgs)
+VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
 {
-    const QMap<QString, QString> options = FossilJsExtension::parseArgOptions(extraArgs);
+    const QMap<QString, QString> options = FossilJsExtension::parseArgOptions(data.extraArgs);
 
     // Two operating modes:
     //  1) CloneCheckout:
@@ -905,7 +899,7 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     //  -- open/checkout an existing local fossil
     //  Clone URL is an absolute local path and is the same as the local fossil.
 
-    const FilePath checkoutPath = baseDirectory.pathAppended(localName);
+    const FilePath checkoutPath = data.baseDirectory.pathAppended(data.localName);
     const QString fossilFile = options.value("fossil-file");
     const FilePath fossilFilePath = FilePath::fromUserInput(QDir::fromNativeSeparators(fossilFile));
     const QString fossilFileNative = fossilFilePath.toUserOutput();
@@ -914,7 +908,7 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     // Check when requested to clone a local repository and clone-into repository file is the same
     // or not specified.
     // In this case handle it as local fossil checkout request.
-    const QUrl url(sourceUrl);
+    const QUrl url(data.url);
     bool isLocalRepository = (options.value("repository-type") == "localRepo");
 
     if (url.isLocalFile() || url.isRelative()) {
@@ -967,7 +961,7 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
 
         command->addJob({fossilClient().vcsBinary(checkoutPath),
             {fossilClient().vcsCommandString(FossilClient::CloneCommand), extraOptions,
-             sourceUrl, fossilFileNative}}, -1);
+             data.url, fossilFileNative}}, -1);
     }
 
     // check out the cloned repository file into the working copy directory;

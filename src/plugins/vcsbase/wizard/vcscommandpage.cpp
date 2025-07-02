@@ -313,8 +313,8 @@ void VcsCommandPage::delayedInitialize()
         extraArgs << tmp;
     }
 
-    VcsCommand *command = vc->createInitialCheckoutCommand(repo, FilePath::fromString(base),
-                                                           name, extraArgs);
+    VcsCommand *command = vc->createInitialCheckoutCommand({repo, FilePath::fromString(base),
+                                                            name, extraArgs});
 
     for (const JobData &job : std::as_const(m_additionalJobs)) {
         QTC_ASSERT(!job.job.isEmpty(), continue);

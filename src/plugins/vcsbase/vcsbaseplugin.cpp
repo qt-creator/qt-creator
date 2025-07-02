@@ -560,15 +560,9 @@ const VcsBasePluginState &VersionControlBase::currentState() const
     return m_state;
 }
 
-VcsCommand *VersionControlBase::createInitialCheckoutCommand(const QString &url,
-                                                               const FilePath &baseDirectory,
-                                                               const QString &localName,
-                                                               const QStringList &extraArgs)
+VcsCommand *VersionControlBase::createInitialCheckoutCommand(const InitialCheckoutData &data)
 {
-    Q_UNUSED(url)
-    Q_UNUSED(baseDirectory)
-    Q_UNUSED(localName)
-    Q_UNUSED(extraArgs)
+    Q_UNUSED(data)
     return nullptr;
 }
 

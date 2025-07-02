@@ -80,10 +80,7 @@ public:
         mercurialClient().view(source, id);
     }
 
-    VcsCommand *createInitialCheckoutCommand(const QString &url,
-                                             const Utils::FilePath &baseDirectory,
-                                             const QString &localName,
-                                             const QStringList &extraArgs) final;
+    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
 
     // To be connected to the HgTask's success signal to emit the repository/
     // files changed signals according to the variant's type:
@@ -727,14 +724,11 @@ void MercurialPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
     mercurialClient().annotate(filePath.parentDir(), filePath.fileName(), line);
 }
 
-VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                                 const Utils::FilePath &baseDirectory,
-                                                                 const QString &localName,
-                                                                 const QStringList &extraArgs)
+VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
 {
-    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
-                   mercurialClient().processEnvironment(baseDirectory));
-    command->addJob({settings().binaryPath(), {"clone", extraArgs, url, localName}}, -1);
+    auto command = VcsBaseClient::createVcsCommand(data.baseDirectory,
+                   mercurialClient().processEnvironment(data.baseDirectory));
+    command->addJob({settings().binaryPath(), {"clone", data.extraArgs, data.url, data.localName}}, -1);
     return command;
 }
 
