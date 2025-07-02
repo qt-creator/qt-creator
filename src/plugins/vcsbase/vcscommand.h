@@ -9,16 +9,11 @@
 #include <coreplugin/progressmanager/processprogress.h>
 
 #include <utils/filepath.h>
-#include <utils/processenums.h>
+#include <utils/processinterface.h>
+#include <utils/qtcprocess.h>
+#include <utils/textcodec.h>
 
 #include <QObject>
-
-namespace Utils {
-class CommandLine;
-class Environment;
-class Process;
-class TextEncoding;
-}
 
 namespace VcsBase {
 
@@ -33,6 +28,7 @@ class VCSBASE_EXPORT CommandResult
 public:
     CommandResult() = default;
     CommandResult(const Utils::Process &process);
+    CommandResult(const Utils::Process &process, Utils::ProcessResult result);
     CommandResult(const VcsCommand &command);
     CommandResult(Utils::ProcessResult result, const QString &exitMessage)
         : m_result(result), m_exitMessage(exitMessage) {}
@@ -56,6 +52,21 @@ private:
 
     QByteArray m_rawStdOut;
 };
+
+class VCSBASE_EXPORT VcsProcessData
+{
+public:
+    Utils::ProcessRunData runData;
+    RunFlags flags = RunFlags::None;
+    ExitCodeInterpreter interpreter = {};
+    Core::ProgressParser progressParser = {};
+    Utils::TextEncoding encoding = {};
+    Utils::TextChannelCallback stdOutHandler = {};
+    Utils::TextChannelCallback stdErrHandler = {};
+};
+
+VCSBASE_EXPORT Utils::ProcessTask vcsProcessTask(const VcsProcessData &data,
+    const std::optional<Tasking::Storage<CommandResult>> &resultStorage = {});
 
 class VCSBASE_EXPORT VcsCommand final : public QObject
 {

@@ -12,10 +12,10 @@
 #include <utils/globalfilechangeblocker.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
-#include <utils/textcodec.h>
 #include <utils/threadutils.h>
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 using namespace std::chrono;
@@ -343,10 +343,109 @@ CommandResult::CommandResult(const Process &process)
     , m_rawStdOut(process.rawStdOut())
 {}
 
+CommandResult::CommandResult(const Process &process, ProcessResult result)
+    : CommandResult(process)
+{
+    m_result = result;
+}
+
 CommandResult::CommandResult(const VcsCommand &command)
     : m_result(command.result())
     , m_cleanedStdOut(command.cleanedStdOut())
     , m_cleanedStdErr(command.cleanedStdErr())
 {}
+
+ProcessTask vcsProcessTask(const VcsProcessData &data,
+                           const std::optional<Storage<CommandResult>> &resultStorage)
+{
+    const auto onSetup = [data](Process &process) {
+        Environment environment = data.runData.environment;
+        VcsBase::setProcessEnvironment(&environment);
+        if (data.flags & RunFlags::ForceCLocale) {
+            environment.set("LANG", "C");
+            environment.set("LANGUAGE", "C");
+        }
+        process.setEnvironment(environment);
+        process.setWorkingDirectory(data.runData.workingDirectory);
+        process.setCommand(data.runData.command);
+        process.setDisableUnixTerminal();
+        process.setUseCtrlCStub(true);
+
+        if (data.flags & RunFlags::ExpectRepoChanges)
+            GlobalFileChangeBlocker::instance()->forceBlocked(true);
+
+        if (!(data.flags & RunFlags::SuppressCommandLogging))
+            VcsOutputWindow::appendCommand(data.runData.workingDirectory, data.runData.command);
+
+        if (data.flags & RunFlags::MergeOutputChannels)
+            process.setProcessChannelMode(QProcess::MergedChannels);
+
+        if (data.encoding.isValid())
+            process.setEncoding(data.encoding);
+
+        const bool installStdError = !(data.flags & RunFlags::MergeOutputChannels)
+            && (data.stdErrHandler || data.progressParser || !(data.flags & RunFlags::SuppressStdErr));
+
+        if (installStdError) {
+            process.setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
+            QObject::connect(&process, &Process::textOnStandardError, &process,
+                             [flags = data.flags, workingDir = process.workingDirectory(),
+                              handler = data.stdErrHandler](const QString &text) {
+                if (!(flags & RunFlags::SuppressStdErr))
+                    VcsOutputWindow::appendError(workingDir, text);
+                if (handler)
+                    handler(text);
+            });
+        }
+        if (data.progressParser || data.stdOutHandler || data.flags & RunFlags::ShowStdOut) {
+            process.setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
+            QObject::connect(&process, &Process::textOnStandardOutput, &process,
+                             [flags = data.flags, workingDir = process.workingDirectory(),
+                              handler = data.stdOutHandler](const QString &text) {
+                if (flags & RunFlags::ShowStdOut)
+                    VcsOutputWindow::appendSilently(workingDir, text);
+                if (handler)
+                    handler(text);
+            });
+        }
+
+        if (data.flags & RunFlags::SuppressCommandLogging)
+            return;
+
+        ProcessProgress *progress = new ProcessProgress(&process);
+        if (data.progressParser)
+            progress->setProgressParser(data.progressParser);
+    };
+    const auto onDone = [data, resultStorage](const Process &process) {
+        if (data.flags & RunFlags::ExpectRepoChanges)
+            GlobalFileChangeBlocker::instance()->forceBlocked(true);
+        ProcessResult result;
+        if (data.interpreter && process.error() != QProcess::FailedToStart
+            && process.exitStatus() == QProcess::NormalExit) {
+            result = data.interpreter(process.exitCode());
+        } else {
+            result = process.result();
+        }
+
+        const FilePath workingDirectory = process.workingDirectory();
+        const QString message = Process::exitMessage(process.commandLine(), result,
+                                                     process.exitCode(), process.processDuration());
+        if (result == ProcessResult::FinishedWithSuccess) {
+            if (data.flags & RunFlags::ShowSuccessMessage)
+                VcsOutputWindow::appendMessage(workingDirectory, message);
+        } else if (!(data.flags & RunFlags::SuppressFailMessage)) {
+            VcsOutputWindow::appendError(workingDirectory, message);
+        }
+        if (data.flags & RunFlags::ExpectRepoChanges) {
+            // TODO tell the document manager that the directory now received all expected changes
+            // DocumentManager::unexpectDirectoryChange(workingDirectory);
+            VcsManager::emitRepositoryChanged(workingDirectory);
+        }
+        if (resultStorage)
+            **resultStorage = CommandResult(process, result);
+        return result == ProcessResult::FinishedWithSuccess;
+    };
+    return ProcessTask(onSetup, onDone);
+}
 
 } // namespace VcsBase
