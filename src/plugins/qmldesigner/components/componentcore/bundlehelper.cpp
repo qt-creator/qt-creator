@@ -367,6 +367,78 @@ void BundleHelper::maybeCloseZip()
         m_zipWriter->close();
 }
 
+static Storage::Info::ExportedTypeNames getTypeNamesForNode(const ModelNode &node, Model *model)
+{
+    using Storage::Info::ExportedTypeName;
+    using Storage::Info::ExportedTypeNames;
+
+    const ModelNodes &allNodes = node.allSubModelNodesAndThisNode();
+    ExportedTypeNames typeNames;
+    typeNames.reserve(Utils::usize(allNodes));
+
+    for (const ModelNode &node : allNodes) {
+        ExportedTypeName exportedName = model->exportedTypeNameForMetaInfo(node.metaInfo());
+        if (exportedName.moduleId)
+            typeNames.push_back(exportedName);
+    }
+
+    std::sort(typeNames.begin(), typeNames.end());
+    typeNames.erase(std::unique(typeNames.begin(), typeNames.end()), typeNames.end());
+
+    return typeNames;
+}
+
+static QString getRelativePath(const std::string_view path, const Model *model)
+{
+    std::filesystem::path filePath{path};
+    std::filesystem::path modelPath(std::u16string_view(model->fileUrl().toLocalFile()));
+    return QString{filePath.lexically_relative(modelPath).generic_u16string()};
+}
+
+static Imports getRequiredImports(const ModelNode &node,
+                                  const ModulesStorage &modulesStorage,
+                                  Model *model)
+{
+    using Storage::Info::ExportedTypeName;
+    using Storage::Info::ExportedTypeNames;
+    using Storage::Module;
+    using Storage::ModuleKind;
+
+    auto createImport = [model](const Module &module) -> Import {
+        switch (module.kind) {
+        case ModuleKind::QmlLibrary:
+            return Import::createLibraryImport(module.name.toQString());
+        case ModuleKind::PathLibrary:
+            return Import::createFileImport(getRelativePath(module.name, model));
+        default:
+            return {};
+        };
+    };
+
+    ExportedTypeNames typeNames = getTypeNamesForNode(node, model);
+    std::ranges::sort(typeNames, {}, &ExportedTypeName::moduleId);
+    auto removedRanges = std::ranges::unique(typeNames, {}, &ExportedTypeName::moduleId);
+    typeNames.erase(removedRanges.begin(), removedRanges.end());
+
+    QVarLengthArray<Module, 32> modules;
+    for (const ExportedTypeName &typeName : typeNames) {
+        const Module &module = modulesStorage.module(typeName.moduleId);
+        if (module.kind == ModuleKind::QmlLibrary || module.kind == ModuleKind::PathLibrary)
+            modules.push_back(module);
+    }
+
+    std::ranges::sort(modules, {}, &Module::name);
+
+    Imports imports;
+    imports.reserve(typeNames.size());
+    for (const Module &module : modules) {
+        if (const Import &import = createImport(module); !import.isEmpty())
+            imports.append(import);
+    }
+
+    return imports;
+}
+
 QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNode &node, int depth)
 {
     static QStringList depListIds;
@@ -375,7 +447,16 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
     QSet<AssetPath> assets;
 
     if (depth == 0) {
-        qml.append("import QtQuick\nimport QtQuick3D\n\n");
+        // add imports
+        Model *model = m_view->model();
+        ModulesStorage &modulesStorage = model->projectStorageDependencies().modulesStorage;
+
+        Imports imports = getRequiredImports(node, modulesStorage, model);
+        QString importsStr = Utils::transform(imports, &Import::toImportString).join(QChar::LineFeed);
+        if (!importsStr.isEmpty())
+            importsStr.append(QString(2, QChar::LineFeed));
+
+        qml.append(importsStr);
         depListIds.clear();
     }
 
