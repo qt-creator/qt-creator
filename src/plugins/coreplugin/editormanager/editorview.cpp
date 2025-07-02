@@ -99,6 +99,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
     m_tabBar->setExpanding(false);
     m_tabBar->setMovable(true);
     m_tabBar->setTabsClosable(true);
+    m_tabBar->setElideMode(Qt::ElideNone);
     m_tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
     m_tabBar->setShape(QTabBar::RoundedNorth);
     connect(m_tabBar, &QTabBar::tabBarClicked, this, &EditorView::activateTab);
