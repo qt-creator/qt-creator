@@ -594,8 +594,13 @@ public:
 
     ValueType operator()() const { return static_cast<ValueType>(SelectionAspect::operator()()); }
     ValueType value() const { return static_cast<ValueType>(SelectionAspect::value()); }
+    void setValue(ValueType value) { SelectionAspect::setValue(int(value)); }
+
     ValueType defaultValue() const { return static_cast<ValueType>(SelectionAspect::defaultValue()); }
+    void setDefaultValue(ValueType value) { SelectionAspect::setDefaultValue(int(value)); }
+
     ValueType volatileValue() const { return static_cast<ValueType>(SelectionAspect::volatileValue()); }
+    void setVolatileValue(ValueType value) { SelectionAspect::setVolatileValue(int(value)); }
 };
 
 class QTCREATOR_UTILS_EXPORT MultiSelectionAspect : public TypedAspect<QStringList>
