@@ -24,6 +24,7 @@ MesonSettings::MesonSettings()
     setSettingsGroup("MesonProjectManager");
 
     autorunMeson.setSettingsKey("meson.autorun");
+    autorunMeson.setDefaultValue(true);
     autorunMeson.setLabelText(Tr::tr("Autorun Meson"));
     autorunMeson.setToolTip(Tr::tr("Automatically run Meson when needed."));
 
