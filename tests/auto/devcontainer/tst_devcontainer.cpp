@@ -9,6 +9,9 @@
 
 #include <QtTest>
 
+// We are making use of named initializers a lot here, and GCC complains if we do not initialize all fields.
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+
 using namespace Utils;
 
 constexpr auto recipeTimeout = std::chrono::minutes(60); // std::chrono::seconds(5);
