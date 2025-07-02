@@ -109,6 +109,13 @@ private:
 
 struct DebuggerData
 {
+    ~DebuggerData() {
+        if (terminalProcess && runControl) {
+            auto processInterface = terminalProcess->takeProcessInterface();
+            if (processInterface)
+                processInterface->setParent(runControl);
+        }
+    }
     DebuggerRunParameters runParameters;
     RunControl *runControl = nullptr;
     EnginesDriver enginesDriver = {};

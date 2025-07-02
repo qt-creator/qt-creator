@@ -111,6 +111,7 @@ public:
     inline QString toPlainText() const
     { return document()->toPlainText(); }
 
+    void setTopBlock(const QTextBlock &block);
     void ensureCursorVisible();
 
     virtual QVariant loadResource(int type, const QUrl &name);

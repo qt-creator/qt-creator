@@ -18,7 +18,6 @@
 #include <cppeditor/cppcodestylesettingspage.h>
 #include <cppeditor/cppcodestylesnippets.h>
 #include <cppeditor/cpphighlighter.h>
-#include <cppeditor/cpptoolssettings.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -35,8 +34,6 @@
 #include <utils/guard.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
-#include <utils/qtcassert.h>
-#include <utils/utilsicons.h>
 
 #include <QComboBox>
 #include <QLabel>
@@ -76,6 +73,8 @@ bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
 ClangFormatConfigWidget::ClangFormatConfigWidget(
     const Project *project, TextEditor::ICodeStylePreferences *codeStyle, QWidget *parent)
     : CodeStyleEditorWidget(parent)
+    , m_preview(new TextEditor::SnippetEditorWidget(this))
+
 {
     m_project = project;
     m_config = std::make_unique<ClangFormatFile>(codeStyle->currentPreferences());
@@ -129,7 +128,15 @@ void ClangFormatConfigWidget::slotCodeStyleChanged(TextEditor::ICodeStylePrefere
 void ClangFormatConfigWidget::updateReadOnlyState()
 {
     const bool isReadOnly = m_config->isReadOnly() || !m_useCustomSettings;
-    setDisabled(isReadOnly);
+    m_preview->setReadOnly(isReadOnly);
+    TextEditor::TextEditorWidget * const widget = editorWidget();
+    QTC_ASSERT(widget, return);
+    widget->setReadOnly(isReadOnly);
+}
+
+TextEditor::TextEditorWidget *ClangFormatConfigWidget::editorWidget() const
+{
+    return TextEditor::TextEditorWidget::fromEditor(m_editor.get());
 }
 
 void ClangFormatConfigWidget::initEditor()
@@ -147,8 +154,6 @@ void ClangFormatConfigWidget::initEditor()
                                          Q_ARG(Core::IDocument *, m_editor->document()));
     invokeMethodForLanguageClientManager("editorOpened",
                                          Q_ARG(Core::IEditor *, m_editor.get()));
-
-    m_editorWidget = m_editor->widget();
 
     m_editorScrollArea->setWidget(m_editor->widget());
     m_editorScrollArea->setWidgetResizable(true);
@@ -192,7 +197,6 @@ void ClangFormatConfigWidget::initPreview(TextEditor::ICodeStylePreferences *cod
     FilePath fileName = m_project ? m_project->projectFilePath().pathAppended("snippet.cpp")
                                   : Core::ICore::userResourcePath("snippet.cpp");
 
-    m_preview = new TextEditor::SnippetEditorWidget(this);
     TextEditor::DisplaySettings displaySettings = m_preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
     m_preview->setDisplaySettings(displaySettings);
@@ -280,9 +284,9 @@ void ClangFormatConfigWidget::reopenClangFormatDocument()
 
 void ClangFormatConfigWidget::apply()
 {
-    if (!m_editorWidget->isEnabled())
+    TextEditor::TextEditorWidget * const widget = editorWidget();
+    if (QTC_GUARD(widget) && widget->isReadOnly())
         return;
-
     m_editor->document()->save(m_config->filePath());
 }
 

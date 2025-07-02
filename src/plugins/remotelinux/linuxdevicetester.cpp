@@ -89,22 +89,25 @@ QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
 
 GroupItem GenericLinuxDeviceTesterPrivate::connectionTask() const
 {
-    const auto onSetup = [this](Async<bool> &task) {
+    const auto onSetup = [this](Async<Result<>> &task) {
         emit q->progressMessage(Tr::tr("Connecting to device..."));
         task.setConcurrentCallData([device = m_device] { return device->tryToConnect(); });
     };
-    const auto onDone = [this](const Async<bool> &task) {
+    const auto onDone = [this](const Async<Result<>> &task) {
         const bool success = task.isResultAvailable() && task.result();
         if (success) {
             // TODO: For master: move the '\n' outside of Tr().
             emit q->progressMessage(Tr::tr("Connected. Now doing extended checks.") + "\n");
         } else {
             emit q->errorMessage(
-                Tr::tr("Basic connectivity test failed, device is considered unusable.") + '\n');
+                Tr::tr("Basic connectivity test failed, device is considered unusable.") + '\n'
+            );
+            if (!task.result().has_value())
+                emit q->errorMessage(task.result().error());
         }
         return toDoneResult(success);
     };
-    return AsyncTask<bool>(onSetup, onDone);
+    return AsyncTask<Result<>>(onSetup, onDone);
 }
 
 GroupItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) const

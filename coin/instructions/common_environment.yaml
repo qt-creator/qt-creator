@@ -7,7 +7,7 @@ instructions:
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_BASE_URL
-            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.9.0/release_content/"
+            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.9.1/release_content/"
           - type: EnvironmentVariable
             variableName: MACOSX_DEPLOYMENT_TARGET
             variableValue: 12.0
@@ -170,7 +170,7 @@ instructions:
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
-            variableValue: "-MacOS-MacOS_14-Clang-MacOS-MacOS_14-X86_64-ARM64.7z"
+            variableValue: "-MacOS-MacOS_15-Clang-MacOS-MacOS_15-X86_64-ARM64.7z"
             enable_if:
               condition: property
               property: features

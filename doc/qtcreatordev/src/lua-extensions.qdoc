@@ -272,3 +272,12 @@
 
     \quotefile ../../../src/plugins/lua/meta/utils.lua
 */
+
+/*!
+    \page lua-extension-meta-texteditor
+    \ingroup lua-modules
+    \title texteditor.lua
+    \brief Access and manipulate text editors.
+
+    \quotefile ../../../src/plugins/lua/meta/texteditor.lua
+*/

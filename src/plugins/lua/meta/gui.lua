@@ -13,6 +13,8 @@ gui.layout = {}
 ---@class Widget : Object
 ---@field visible boolean Whether the widget is visible or not.
 ---@field enabled boolean Whether the widget is enabled or not.
+---@field focus boolean Whether the widget has focus or not.
+---@field toolTip string The tooltip of the widget.
 gui.widget = {}
 
 ---@alias LayoutChild string|BaseAspect|Layout|Widget|function
@@ -26,6 +28,7 @@ gui.widget = {}
 ---@field widgetAttributes? WidgetAttributeMapT<boolean> The widget attributes of the widget.
 ---@field autoFillBackground? boolean A boolean, representing whether the widget should automatically fill its background.
 ---@field sizePolicy? SizePolicy.Policy[] Two size policies of the widget, horizontal and vertical.
+---@field toolTip string The tooltip of the widget.
 gui.baseWidgetOptions = {}
 
 ---@class (exact) WidgetOptions : BaseWidgetOptions

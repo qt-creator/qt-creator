@@ -156,9 +156,17 @@ local MultiTextCursor = {}
 ---@return TextCursor mainCursor The main cursor.
 function MultiTextCursor:mainCursor() end
 
+---Sets the main cursor. (since 17.0.1)
+---@param mainCursor TextCursor to set as the main cursor.
+function MultiTextCursor:setMainCursor(mainCursor) end
+
 ---Returns the cursors.
 ---@return TextCursor[] cursors The cursors.
 function MultiTextCursor:cursors() end
+
+---Sets all cursors. (since 17.0.1)
+---@param cursors TextCursor[] to set as the cursors.
+function MultiTextCursor:setCursors(cursors) end
 
 ---Inserts the passed text at all cursor positions overwriting any selected text.
 ---@param text string The text to insert.
@@ -213,6 +221,10 @@ function TextEditor:document() end
 ---Returns the cursor of the editor.
 ---@return MultiTextCursor cursor The cursor of the editor.
 function TextEditor:cursor() end
+
+---Sets the main cursor of the editor. (since 17.0.1)
+---@param cursor MultiTextCursor to set as the cursor of the editor.
+function TextEditor:setCursor(cursor) end
 
 ---@class EmbeddedWidget
 local EmbeddedWidget = {}

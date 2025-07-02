@@ -28,6 +28,8 @@
 #include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
+#include <remotelinux/remotelinux_constants.h>
+
 #include <qnx/qnxconstants.h>
 #include <qtsupport/qtkitaspect.h>
 
@@ -1178,6 +1180,8 @@ static void setupBuildAndRunDevice(Kit *k, const QString &cmakeSystemName, const
             RunDeviceTypeKitAspect::setDeviceTypeId(k, Ios::Constants::IOS_DEVICE_TYPE);
     } else if (cmakeSystemName == "Emscripten") {
         RunDeviceTypeKitAspect::setDeviceTypeId(k, WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE);
+    } else if (cmakeSystemName == "Linux" && !sysroot.isEmpty()) {
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, RemoteLinux::Constants::GenericLinuxOsType);
     } else if (cmakeSystemName == "QNX") {
         RunDeviceTypeKitAspect::setDeviceTypeId(k, Qnx::Constants::QNX_QNX_OS_TYPE);
     } else if (cmakeSystemName == "VxWorks") {

@@ -412,14 +412,3 @@ def qdump__QmakeProjectManager__QmakePriFileNode(d, value):
 def qdump__QmakeProjectManager__QmakeProFileNode(d, value):
     qdump__ProjectExplorer__FolderNode(d, value)
 
-
-def qdump__Utils__Result(d, value):
-    error, _pad, has_err = value.split('{QString}@b')
-    if has_err:
-        d.putExpandable()
-        d.putValue('Error')
-        if d.isExpanded():
-            with Children(d):
-                d.putSubItem('message', error)
-    else:
-        d.putValue('Ok')

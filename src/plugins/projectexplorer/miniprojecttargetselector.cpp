@@ -914,10 +914,10 @@ void MiniProjectTargetSelector::doLayout()
 
         // Clamp the size of the listwidgets to be at least as high as the sidebar button
         // and at most half the height of the entire Qt Creator window.
+        const int minHeight = alignedWithActionHeight;
+        const int maxHeight = std::max(minHeight, Core::ICore::mainWindow()->height() / 2);
         heightWithoutKitArea = summaryLabelHeight
-                               + qBound(alignedWithActionHeight,
-                                        maxItemCount * 30 + bottomMargin + titleWidgetsHeight,
-                                        Core::ICore::mainWindow()->height() / 2);
+            + qBound(minHeight, maxItemCount * 30 + bottomMargin + titleWidgetsHeight, maxHeight);
 
         int titleY = summaryLabelY + summaryLabelHeight;
         int listY = titleY + titleWidgetsHeight;

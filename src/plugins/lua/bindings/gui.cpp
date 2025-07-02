@@ -676,6 +676,8 @@ void setupGuiModule()
             sol::property([](Widget *self) { return self->emerge()->hasFocus(); }),
             "setFocus",
             [](Widget *self) { self->emerge()->setFocus(); },
+            "toolTip",
+            sol::property(&Widget::setToolTip),
             sol::base_classes,
             sol::bases<Object, Thing>());
 

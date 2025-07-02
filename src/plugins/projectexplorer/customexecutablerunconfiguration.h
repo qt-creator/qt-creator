@@ -30,6 +30,7 @@ private:
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDir{this};
     TerminalAspect terminal{this};
+    RunAsRootAspect runAsRoot{this};
 };
 
 class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFactory

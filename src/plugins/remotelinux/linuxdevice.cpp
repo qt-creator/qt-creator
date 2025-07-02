@@ -323,10 +323,10 @@ public:
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
-    bool tryToConnect(const SshParameters &sshParameters)
+    Result<> tryToConnect(const SshParameters &sshParameters)
     {
         QMutexLocker locker(&m_scriptAccess.m_shellMutex);
-        return setupShell(sshParameters, false).has_value();
+        return setupShell(sshParameters, false);
     }
 
     bool checkDisconnectedWithWarning();
@@ -1343,7 +1343,7 @@ bool LinuxDevice::isDisconnected() const
     return d->m_disconnected();
 }
 
-bool LinuxDevice::tryToConnect()
+Result<> LinuxDevice::tryToConnect()
 {
     return d->tryToConnect(sshParameters());
 }

@@ -542,6 +542,8 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreVali
         version = None
     if templateName in ("Qt Quick 2 Extension Plugin", "Qt Quick Application"):
         result = set([Targets.DESKTOP_6_2_4])
+        if platform.system() in ('Windows', 'Microsoft') and os.getenv('SYSTEST_NEW_SETTINGS') == '1':
+            result.add(Targets.DESKTOP_6_7_3_GCC)
     elif templateName == "XR Application":
         result = set() # we need Qt6.8+
     elif 'Supported Platforms' in text:

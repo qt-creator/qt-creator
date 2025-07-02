@@ -54,14 +54,14 @@ BaseTextFindPrivate::BaseTextFindPrivate()
 */
 
 /*!
-    \fn void Core::BaseTextFind::findScopeChanged(const Utils::MultiTextCursor &cursor)
+    \internal
 
     This signal is emitted when the search
     scope changes to \a cursor.
 */
 
 /*!
-    \fn void Core::BaseTextFind::highlightAllRequested(const QString &txt, Utils::FindFlags findFlags)
+    \internal
 
     This signal is emitted when the search results for \a txt using the given
     \a findFlags should be highlighted in the editor widget.

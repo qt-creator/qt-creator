@@ -4917,7 +4917,7 @@ bool ProjectStorage::isBasedOn_(TypeId typeId, TypeIds... baseTypeIds) const
         return true;
     }
 
-    auto range = s->selectPrototypeAndExtensionIdsStatement.rangeWithTransaction<TypeId>(typeId);
+    auto range = s->selectPrototypeAndExtensionIdsStatement.valuesWithTransaction<TypeId>(typeId);
 
     auto isBasedOn = std::ranges::any_of(range, [&](TypeId currentTypeId) {
         return ((currentTypeId == baseTypeIds) || ...);
