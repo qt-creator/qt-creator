@@ -18,11 +18,6 @@
 #include "iwizardfactory.h"
 #include "vcsmanager.h"
 
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/vcsmanager.h>
-
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/filecrumblabel.h>
 #include <utils/filepath.h>
