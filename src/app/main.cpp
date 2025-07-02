@@ -1007,9 +1007,6 @@ int main(int argc, char **argv)
     QObject::connect(&app, &SharedTools::QtSingleApplication::messageReceived,
                      &pluginManager, &PluginManager::remoteArguments);
 
-    QObject::connect(&app, SIGNAL(fileOpenRequest(QString)), coreplugin->plugin(),
-                     SLOT(fileOpenRequest(QString)));
-
     // shutdown plugin manager on the exit
     QObject::connect(&app, &QCoreApplication::aboutToQuit, &pluginManager, &PluginManager::shutdown);
 

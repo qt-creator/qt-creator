@@ -73,6 +73,8 @@ const char kWarnCrashReportingSetting[] = "WarnCrashReporting";
 
 CorePlugin::CorePlugin()
 {
+    QObject::connect(qApp, SIGNAL(fileOpenRequest(QString)), this, SLOT(fileOpenRequest(QString)));
+
     // Trigger creation as early as possible before anyone else could
     // mess with the systemEnvironment before it is "backed up".
     (void) systemSettings();
