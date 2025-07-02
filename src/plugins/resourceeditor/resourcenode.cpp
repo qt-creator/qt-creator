@@ -236,10 +236,12 @@ ResourceTopLevelNode::ResourceTopLevelNode(const FilePath &filePath,
         m_contents = contents;
     }
 
-    if (filePath.isChildOf(base))
-        setDisplayName(filePath.relativeChildPath(base).toUserOutput());
-    else
-        setDisplayName(filePath.toUserOutput());
+    // device prefix is removed by nativePath()
+    if (filePath.isChildOf(base)){
+        setDisplayName(filePath.relativeChildPath(base).nativePath());
+    } else {
+        setDisplayName(filePath.nativePath());
+    }
 
     addInternalNodes();
 }
