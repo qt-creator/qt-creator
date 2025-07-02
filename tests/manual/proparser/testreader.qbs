@@ -1,5 +1,7 @@
 QtcManualTest {
     name: "Manual ProParser test"
+
+    Depends { name: "Utils" }
     Depends { name: "Qt.core" }
 
     cpp.includePaths: base.concat(["../../../src/shared/proparser/",
