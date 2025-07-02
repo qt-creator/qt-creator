@@ -1,21 +1,22 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "../utils/googletest.h" // IWYU pragma: keep
+#include "utils/googletest.h" // IWYU pragma: keep
 
 #include <qmlprojectmanager/buildsystem/projectitem/converters.h>
 
+#include <3rdparty/googletest/googletest/include/gtest/gtest.h>
 #include <QJsonDocument>
 
 namespace {
-constexpr QLatin1String localTestDataDir{UNITTEST_DIR "/qmlprojectmanager/data"};
+constexpr QLatin1String localTestDataDir{"data"};
 
 class QmlProjectConverter : public testing::TestWithParam<QString>
 {
 public:
     void setDataSource(const QString &dataSetName)
     {
-        m_dataSetDirectory.setPath(localTestDataDir + "/converter/" + dataSetName);
+        m_dataSetDirectory.setPath(localTestDataDir + "/" + dataSetName);
 
         m_qmlProjectFile = Utils::FilePath::fromString(
             QString(m_dataSetDirectory.absolutePath()).append("/testfile.qmlproject"));

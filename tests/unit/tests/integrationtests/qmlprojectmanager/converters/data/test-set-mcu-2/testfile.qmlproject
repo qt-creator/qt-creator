@@ -1,0 +1,29 @@
+import QmlProject 1.3
+
+// This file represents the module contained in the testfile of test-set-mcu-1
+
+// Do not modify without discussing with the MCU team
+
+Project {
+
+    projectRootPath: "../.."
+
+    MCU.Module {
+        uri: "MyModule"
+        generateQmltypes: true
+    }
+
+    QmlFiles {
+        files: [
+            "qml/TextIcon.qml"
+        ]
+    }
+
+    ImageFiles {
+        files: [
+            "images/qt_logo.png"
+        ]
+        MCU.base: "images"
+        MCU.prefix: "logo"
+    }
+}
