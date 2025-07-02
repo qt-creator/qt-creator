@@ -1054,6 +1054,7 @@ class TextDisplayPrivate
 public:
     QString m_message;
     InfoLabel::InfoType m_type;
+    bool m_wordWrap = true;
     QPointer<InfoLabel> m_label;
 };
 
@@ -3162,7 +3163,7 @@ void TextDisplay::addToLayoutImpl(Layout &parent)
         d->m_label = createSubWidget<InfoLabel>(d->m_message, d->m_type);
         d->m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
         d->m_label->setElideMode(Qt::ElideNone);
-        d->m_label->setWordWrap(true);
+        d->m_label->setWordWrap(d->m_wordWrap);
         // Do not use m_label->setVisible(isVisible()) unconditionally, it does not
         // have a QWidget parent yet when used in a LayoutBuilder.
         if (!isVisible())
@@ -3190,6 +3191,13 @@ void TextDisplay::setText(const QString &message)
 {
     d->m_message = message;
     emit changed();
+}
+
+void TextDisplay::setWordWrap(bool on)
+{
+    d->m_wordWrap = on;
+    if (d->m_label)
+        d->m_label->setWordWrap(on);
 }
 
 /*!

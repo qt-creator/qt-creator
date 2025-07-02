@@ -945,6 +945,7 @@ public:
 
     void setIconType(InfoLabel::InfoType t);
     void setText(const QString &message);
+    void setWordWrap(bool on);
 
 private:
     std::unique_ptr<Internal::TextDisplayPrivate> d;
