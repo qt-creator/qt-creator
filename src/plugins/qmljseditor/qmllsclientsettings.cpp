@@ -54,7 +54,6 @@ static const QStringList &supportedMimeTypes()
     static const QStringList mimeTypes
         = {QML_MIMETYPE,
            QMLUI_MIMETYPE,
-           QBS_MIMETYPE,
            QMLPROJECT_MIMETYPE,
            QMLTYPES_MIMETYPE,
            JS_MIMETYPE};

@@ -12,6 +12,12 @@
 
 namespace Utils {
 
+#ifdef Q_QDOC
+template<typename T = void>
+class Result
+{};
+#endif
+
 template<typename T = void>
 using Result = Utils::expected<T, QString>;
 

@@ -708,8 +708,6 @@ void PluginManager::remoteArguments(const QString &serializedArgument, QObject *
     \a foundAppOptions is set to pairs of (\e {option string}, \e argument)
     for any application options that were found.
     The command line options that were not processed can be retrieved via the arguments() function.
-    If an error occurred (like missing argument for an option that requires one), \a errorString contains
-    a descriptive message of the error.
 
     Returns if there was an error.
  */

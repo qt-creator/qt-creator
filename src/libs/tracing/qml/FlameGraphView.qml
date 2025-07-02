@@ -6,7 +6,6 @@ import QtCreator.Tracing
 import QtQml
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Controls.Material
 
 ScrollView {
     id: root

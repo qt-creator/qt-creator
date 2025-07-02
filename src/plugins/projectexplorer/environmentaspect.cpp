@@ -77,6 +77,15 @@ Utils::Environment EnvironmentAspect::environment() const
     return env;
 }
 
+Environment EnvironmentAspect::expandedEnvironment(const Utils::MacroExpander &expander) const
+{
+    Environment expandedEnv;
+    environment().forEachEntry([&](const QString &key, const QString &value, bool enabled) {
+        expandedEnv.set(key, expander.expand(value), enabled);
+    });
+    return expandedEnv;
+}
+
 Environment EnvironmentAspect::modifiedBaseEnvironment() const
 {
     QTC_ASSERT(m_base >= 0 && m_base < m_baseEnvironments.size(), return Environment());

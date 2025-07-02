@@ -578,7 +578,7 @@ void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     QTextCursor cursor = textCursor();
     cursor.setPosition(block.position());
     setTextCursor(cursor);
-    verticalScrollBar()->setValue(blockNumber);
+    setTopBlock(block);
 }
 
 } // namespace DiffEditor::Internal

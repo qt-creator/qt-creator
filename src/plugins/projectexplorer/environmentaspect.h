@@ -25,6 +25,7 @@ public:
 
     // The environment including the user's modifications.
     Utils::Environment environment() const;
+    Utils::Environment expandedEnvironment(const Utils::MacroExpander &expander) const;
 
     // Environment including modifiers, but without explicit user changes.
     Utils::Environment modifiedBaseEnvironment() const;

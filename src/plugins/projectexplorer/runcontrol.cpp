@@ -1442,6 +1442,12 @@ ProcessTask processTask(RunControl *runControl,
 
     const auto onDone = [runControl](const Process &process) {
         runControl->postMessage(process.exitMessage(), NormalMessageFormat);
+        if (process.usesTerminal()) {
+            Process &mutableProcess = const_cast<Process &>(process);
+            auto processInterface = mutableProcess.takeProcessInterface();
+            if (processInterface)
+                processInterface->setParent(runControl);
+        }
     };
 
     return ProcessTask(onSetup, onDone);

@@ -21,7 +21,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor {
 class ICodeStylePreferences;
-class CodeStyleEditorWidget;
+class TextEditorWidget;
 } // namespace TextEditor
 
 namespace Utils {
@@ -56,15 +56,13 @@ private:
     void updatePreview();
     void slotCodeStyleChanged(TextEditor::ICodeStylePreferences *currentPreferences);
     void updateReadOnlyState();
+    TextEditor::TextEditorWidget *editorWidget() const;
 
     const ProjectExplorer::Project *m_project = nullptr;
-    QWidget *m_editorWidget = nullptr;
     QScrollArea *m_editorScrollArea = nullptr;
-    TextEditor::SnippetEditorWidget *m_preview = nullptr;
+    TextEditor::SnippetEditorWidget * const m_preview;
     std::unique_ptr<Core::IEditor> m_editor;
-
     std::unique_ptr<ClangFormatFile> m_config;
-
     Utils::Guard m_ignoreChanges;
     QLabel *m_clangVersion;
     Utils::InfoLabel *m_clangFileIsCorrectText;
