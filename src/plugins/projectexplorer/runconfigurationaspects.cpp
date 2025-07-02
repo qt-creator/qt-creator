@@ -109,7 +109,7 @@ void TerminalAspect::calculateUseTerminal()
     if (m_userSet)
         return;
     bool useTerminal;
-    switch (projectExplorerSettings().terminalMode) {
+    switch (projectExplorerSettings().terminalMode()) {
     case TerminalMode::On: useTerminal = true; break;
     case TerminalMode::Off: useTerminal = false; break;
     default: useTerminal = m_useTerminalHint;
@@ -744,7 +744,7 @@ UseLibraryPathsAspect::UseLibraryPathsAspect(AspectContainer *container)
         setLabel(Tr::tr("Add build library search path to LD_LIBRARY_PATH"),
                  LabelPlacement::AtCheckBox);
     }
-    setValue(projectExplorerSettings().addLibraryPathsToRunEnv);
+    setValue(projectExplorerSettings().addLibraryPathsToRunEnv());
 }
 
 

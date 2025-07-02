@@ -7,6 +7,7 @@
 
 #include <coreplugin/coreconstants.h>
 
+#include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
@@ -18,37 +19,36 @@ enum class TerminalMode { On, Off, Smart };
 enum class BuildBeforeRunMode { Off, WholeProject, AppOnly };
 enum class StopBeforeBuild { None, SameProject, All, SameBuildDir, SameApp };
 
-class ProjectExplorerSettings
+class ProjectExplorerSettings : public Utils::AspectContainer
 {
 public:
-    BuildBeforeRunMode buildBeforeDeploy = BuildBeforeRunMode::WholeProject;
-    int reaperTimeoutInSeconds = 1;
-    bool deployBeforeRun = true;
-    bool saveBeforeBuild = false;
-    bool useJom = true;
-    bool prompToStopRunControl = false;
-    bool automaticallyCreateRunConfigurations = true;
-    bool addLibraryPathsToRunEnv = true;
-    bool closeSourceFilesWithProject = true;
-    bool clearIssuesOnRebuild = true;
-    bool abortBuildAllOnError = true;
-    bool lowBuildPriority = false;
-    bool warnAgainstNonAsciiBuildDir = true;
-    bool showAllKits = true;
-    StopBeforeBuild stopBeforeBuild = Utils::HostOsInfo::isWindowsHost()
-                                          ? StopBeforeBuild::SameProject
-                                          : StopBeforeBuild::None;
-    TerminalMode terminalMode = TerminalMode::Off;
-    Utils::EnvironmentItems appEnvChanges;
+    ProjectExplorerSettings();
+
+    Utils::TypedSelectionAspect<BuildBeforeRunMode> buildBeforeDeploy{this};
+    Utils::IntegerAspect reaperTimeoutInSeconds{this};
+    Utils::BoolAspect deployBeforeRun{this};
+    Utils::BoolAspect saveBeforeBuild{this};
+    Utils::BoolAspect useJom{this};
+    Utils::BoolAspect promptToStopRunControl{this};
+    Utils::BoolAspect automaticallyCreateRunConfigurations{this};
+    Utils::BoolAspect addLibraryPathsToRunEnv{this};
+    Utils::BoolAspect closeSourceFilesWithProject{this};
+    Utils::BoolAspect clearIssuesOnRebuild{this};
+    Utils::BoolAspect abortBuildAllOnError{this};
+    Utils::BoolAspect lowBuildPriority{this};
+    Utils::BoolAspect warnAgainstNonAsciiBuildDir{this};
+    Utils::BoolAspect showAllKits{this};
+    Utils::TypedSelectionAspect<StopBeforeBuild> stopBeforeBuild{this};
+    Utils::TypedSelectionAspect<TerminalMode> terminalMode{this};
+    Utils::TypedAspect<Utils::EnvironmentItems> appEnvChanges{this};
 
     // Add a UUid which is used to identify the development environment.
     // This is used to warn the user when he is trying to open a .user file that was created
     // somewhere else (which might lead to unexpected results).
-    QUuid environmentId;
+    Utils::TypedAspect<QUuid> environmentId;
 };
 
-PROJECTEXPLORER_EXPORT const ProjectExplorerSettings &projectExplorerSettings();
-ProjectExplorerSettings &mutableProjectExplorerSettings();
+PROJECTEXPLORER_EXPORT ProjectExplorerSettings &projectExplorerSettings();
 
 namespace Internal {
 

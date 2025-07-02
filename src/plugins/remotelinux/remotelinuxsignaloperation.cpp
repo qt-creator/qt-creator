@@ -65,7 +65,7 @@ QString RemoteLinuxSignalOperation::killProcessByNameCommandLine(const QString &
           true
         else
           false
-        fi)").arg(filePath).arg(projectExplorerSettings().reaperTimeoutInSeconds);
+        fi)").arg(filePath).arg(projectExplorerSettings().reaperTimeoutInSeconds());
 }
 
 void RemoteLinuxSignalOperation::killProcess(qint64 pid)

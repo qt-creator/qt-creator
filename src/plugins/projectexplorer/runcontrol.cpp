@@ -1326,7 +1326,7 @@ ProcessTask processTask(RunControl *runControl,
         const Environment environment = process.environment();
         process.setTerminalMode(useTerminal ? Utils::TerminalMode::Run : Utils::TerminalMode::Off);
         process.setReaperTimeout(
-            std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds));
+            std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds()));
 
         runControl->postMessage(Tr::tr("Starting %1...").arg(command.displayName()), NormalMessageFormat);
         if (runControl->isPrintEnvironmentEnabled()) {
@@ -1624,7 +1624,7 @@ void handleProcessCancellation(RunControl *runControl, Process *process)
 {
     runControl->postMessage(Tr::tr("Requesting process to stop..."), NormalMessageFormat);
     process->stop();
-    QTimer::singleShot(2 * std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds),
+    QTimer::singleShot(2 * std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds()),
                        process, [runControl, process] {
         runControl->postMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
         if (!process->commandLine().executable().isLocal())

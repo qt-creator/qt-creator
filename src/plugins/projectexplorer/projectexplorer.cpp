@@ -2068,7 +2068,7 @@ void ProjectExplorerPlugin::unloadProject(Project *project)
         BuildManager::cancel();
     }
 
-    if (projectExplorerSettings().closeSourceFilesWithProject && !dd->closeAllFilesInProject(project))
+    if (projectExplorerSettings().closeSourceFilesWithProject() && !dd->closeAllFilesInProject(project))
         return;
 
     dd->addToRecentProjects(project->projectFilePath(), project->displayName());
@@ -2181,7 +2181,7 @@ bool ProjectExplorerPlugin::delayedInitialize()
 
 void ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu()
 {
-    m_runWithoutDeployAction->setVisible(projectExplorerSettings().deployBeforeRun);
+    m_runWithoutDeployAction->setVisible(projectExplorerSettings().deployBeforeRun());
 }
 
 IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
@@ -2816,7 +2816,7 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
 {
     QList<IDocument *> documentsToSave = DocumentManager::modifiedDocuments();
     if (!documentsToSave.isEmpty()) {
-        if (projectExplorerSettings().saveBeforeBuild) {
+        if (projectExplorerSettings().saveBeforeBuild()) {
             bool cancelled = false;
             DocumentManager::saveModifiedDocumentsSilently(documentsToSave, &cancelled);
             if (cancelled)
@@ -3137,7 +3137,7 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
                               && !BuildManager::isBuilding(currentProject)
                               && hasDeploySettings(currentProject);
 
-    if (projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off) {
+    if (projectExplorerSettings().buildBeforeDeploy() != BuildBeforeRunMode::Off) {
         if (hasBuildSettings(project)
                 && !buildSettingsEnabled(project).first)
             enableDeployActions = false;
@@ -3155,7 +3155,7 @@ void ProjectExplorerPluginPrivate::updateDeployActions()
     m_deployProjectOnlyAction->setEnabled(enableDeployActions);
 
     bool enableDeploySessionAction = true;
-    if (projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off) {
+    if (projectExplorerSettings().buildBeforeDeploy() != BuildBeforeRunMode::Off) {
         auto hasDisabledBuildConfiguration = [](Project *project) {
             if (const BuildConfiguration * const bc = activeBuildConfig(project))
                 return !bc->isEnabled();
@@ -3199,8 +3199,8 @@ Result<> ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode)
     if (!activeRC->isEnabled(runMode))
         return ResultError(activeRC->disabledReason(runMode));
 
-    if (projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off
-            && projectExplorerSettings().deployBeforeRun
+    if (projectExplorerSettings().buildBeforeDeploy() != BuildBeforeRunMode::Off
+            && projectExplorerSettings().deployBeforeRun()
             && !BuildManager::isBuilding(project)
             && hasBuildSettings(project)) {
         QPair<bool, QString> buildState = dd->buildSettingsEnabled(project);

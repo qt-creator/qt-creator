@@ -691,7 +691,7 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 
 bool AppOutputPane::optionallyPromptToStop(RunControl *runControl)
 {
-    bool promptToStop = projectExplorerSettings().prompToStopRunControl;
+    bool promptToStop = projectExplorerSettings().promptToStopRunControl();
     if (!runControl->promptToStop(&promptToStop))
         return false;
     setPromptToStopSettings(promptToStop);

@@ -1175,7 +1175,7 @@ static FilePath wrappedMakeCommand(const FilePath &command)
 
 FilePath MsvcToolchain::makeCommand(const Environment &environment) const
 {
-    const bool useJom = projectExplorerSettings().useJom;
+    const bool useJom = projectExplorerSettings().useJom();
     const QString jom("jom.exe");
     const QString nmake("nmake.exe");
     Utils::FilePath tmp;

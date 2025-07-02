@@ -189,8 +189,8 @@ void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &s
     m_skipTargetsCheck = false;
     m_runMode = mode;
     if (mode != TestRunMode::RunAfterBuild
-            && projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off
-            && !projectExplorerSettings().saveBeforeBuild) {
+            && projectExplorerSettings().buildBeforeDeploy() != BuildBeforeRunMode::Off
+            && !projectExplorerSettings().saveBeforeBuild()) {
         if (!ProjectExplorerPlugin::saveModifiedFiles())
             return;
     }
@@ -220,7 +220,7 @@ void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &s
     m_targetConnect = connect(project, &Project::activeTargetChanged,
                               this, [this] { cancelCurrent(KitChanged); });
 
-    if (projectExplorerSettings().buildBeforeDeploy == BuildBeforeRunMode::Off
+    if (projectExplorerSettings().buildBeforeDeploy() == BuildBeforeRunMode::Off
             || mode == TestRunMode::DebugWithoutDeploy
             || mode == TestRunMode::RunWithoutDeploy || mode == TestRunMode::RunAfterBuild) {
         runOrDebugTests();
