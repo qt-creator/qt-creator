@@ -204,7 +204,7 @@ int minimumSDK(const Kit *kit)
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
     if (!version)
         return minSdkVersion;
-    if (version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE)) {
+    if (version->isAndroidQtVersion()) {
         const FilePath stockManifestFilePath = version->prefix().pathAppended(
             "src/android/templates/AndroidManifest.xml");
 
