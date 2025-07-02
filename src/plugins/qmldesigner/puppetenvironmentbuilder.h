@@ -39,6 +39,7 @@ private:
     PuppetType determinePuppetType() const;
     bool usesVirtualKeyboard() const;
     QString getStyleConfigFileName() const;
+    void initEnvironment() const;
     void addKit() const;
     void addRendering() const;
     void addControls() const;

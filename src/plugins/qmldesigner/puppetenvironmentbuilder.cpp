@@ -42,8 +42,7 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
 {
     qCInfo(puppetEnvirmentBuild) << Q_FUNC_INFO;
     m_availablePuppetType = determinePuppetType();
-    m_environment = Utils::Environment::systemEnvironment();
-
+    initEnvironment();
     addKit();
     addRendering();
     addControls();
@@ -111,20 +110,25 @@ QString PuppetEnvironmentBuilder::getStyleConfigFileName() const
     return {};
 }
 
+void PuppetEnvironmentBuilder::initEnvironment() const
+{
+    if (m_availablePuppetType == PuppetType::Fallback)
+        m_environment = Utils::Environment::originalSystemEnvironment();
+    else
+        m_environment = Utils::Environment::systemEnvironment();
+}
+
 void PuppetEnvironmentBuilder::addKit() const
 {
-    if (m_target) {
-        if (m_availablePuppetType == PuppetType::Kit) {
-            m_target->kit()->addToBuildEnvironment(m_environment);
-            const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
-            if (qt) { // Kits without a Qt version should not have a puppet!
-                // Update PATH to include QT_HOST_BINS
-                m_environment.prependOrSetPath(qt->hostBinPath());
-            }
+    if (m_availablePuppetType == PuppetType::Kit && m_target) {
+        m_target->kit()->addToBuildEnvironment(m_environment);
+        const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+        if (qt) { // Kits without a Qt version should not have a puppet!
+            // Update PATH to include QT_HOST_BINS
+            m_environment.prependOrSetPath(qt->hostBinPath());
         }
     }
 }
-
 void PuppetEnvironmentBuilder::addRendering() const
 {
     m_environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
@@ -286,12 +290,18 @@ void PuppetEnvironmentBuilder::addMcuFonts() const
 
 PuppetType PuppetEnvironmentBuilder::determinePuppetType() const
 {
-    if (m_target && m_target->kit() && m_target->kit()->isValid()) {
-        if (m_qmlPuppetPath.isExecutableFile())
-            return PuppetType::Kit;
-    }
+    auto hasValidKit = [&]() -> bool {
+        auto *kit = m_target ? m_target->kit() : nullptr;
+        return kit && kit->isValid();
+    };
 
-    return PuppetType::Fallback;
+    auto isExecutable = [&]() -> bool { return m_qmlPuppetPath.isExecutableFile(); };
+
+    auto inHostBin = [&]() -> bool {
+        auto *qt = QtSupport::QtKitAspect::qtVersion(m_target->kit());
+        return qt && m_qmlPuppetPath.startsWith(qt->hostBinPath().path());
+    };
+
+    return (hasValidKit() && isExecutable() && inHostBin()) ? PuppetType::Kit : PuppetType::Fallback;
 }
-
 } // namespace QmlDesigner
