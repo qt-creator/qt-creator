@@ -11,7 +11,6 @@
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
-#include "devicesupport/sshparameters.h"
 #include "devicesupport/sshsettings.h"
 #include "project.h"
 #include "projectexplorer.h"
@@ -201,7 +200,6 @@ public:
     QPointer<BuildConfiguration> buildConfiguration; // Not owned.
     QPointer<Project> project; // Not owned.
     std::function<bool(bool*)> promptToStop;
-    std::vector<RunWorkerFactory> m_factories;
 
     // A handle to the actual application process.
     ProcessHandle applicationProcessHandle;
@@ -217,7 +215,7 @@ public:
     QUrl qmlChannel;
     QUrl perfChannel;
     QUrl workerChannel;
-    Utils::ProcessHandle m_attachPid;
+    ProcessHandle m_attachPid;
 };
 
 class RunControlPrivate
@@ -253,10 +251,9 @@ public:
 
 using namespace Internal;
 
-RunControl::RunControl(Id mode) :
-    d(std::make_unique<RunControlPrivate>(this,  mode))
-{
-}
+RunControl::RunControl(Id mode)
+    : d(std::make_unique<RunControlPrivate>(this,  mode))
+{}
 
 void RunControl::copyDataFromRunControl(RunControl *runControl)
 {
@@ -433,7 +430,7 @@ bool RunControl::createMainRecipe()
     return true;
 }
 
-bool RunControl::canRun(Id runMode, Id deviceType, Utils::Id runConfigId)
+bool RunControl::canRun(Id runMode, Id deviceType, Id runConfigId)
 {
     for (const RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
         if (factory->canCreate(runMode, deviceType, runConfigId))
@@ -442,7 +439,7 @@ bool RunControl::canRun(Id runMode, Id deviceType, Utils::Id runConfigId)
     return false;
 }
 
-void RunControl::postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine)
+void RunControl::postMessage(const QString &msg, OutputFormat format, bool appendNewLine)
 {
     emit appendMessage((appendNewLine && !msg.endsWith('\n')) ? msg + '\n': msg, format);
 }
@@ -583,7 +580,7 @@ void RunControl::showOutputPane()
 
 void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
-    QList<Utils::OutputLineParser *> parsers = createOutputParsers(buildConfiguration());
+    QList<OutputLineParser *> parsers = createOutputParsers(buildConfiguration());
     if (const auto customParsersAspect = aspectData<CustomParsersAspect>()) {
         for (const Id id : std::as_const(customParsersAspect->parsers)) {
             if (auto parser = createCustomParserFromId(id))
@@ -592,14 +589,14 @@ void RunControl::setupFormatter(OutputFormatter *formatter) const
     }
     formatter->setLineParsers(parsers);
     if (project()) {
-        Utils::FileInProjectFinder fileFinder;
+        FileInProjectFinder fileFinder;
         fileFinder.setProjectDirectory(project()->projectDirectory());
         fileFinder.setProjectFiles(project()->files(Project::AllFiles));
         formatter->setFileFinder(fileFinder);
     }
 }
 
-Utils::Id RunControl::runMode() const
+Id RunControl::runMode() const
 {
     return d->runMode;
 }
@@ -666,12 +663,12 @@ void RunControl::setDisplayName(const QString &displayName)
     d->data.displayName = displayName;
 }
 
-void RunControl::setIcon(const Utils::Icon &icon)
+void RunControl::setIcon(const Icon &icon)
 {
     d->data.icon = icon;
 }
 
-Utils::Icon RunControl::icon() const
+Icon RunControl::icon() const
 {
     return d->data.icon;
 }
@@ -815,7 +812,7 @@ void RunControlPrivate::startTaskTree()
 
 void RunControlPrivate::emitStopped()
 {
-    q->setApplicationProcessHandle(Utils::ProcessHandle());
+    q->setApplicationProcessHandle(ProcessHandle());
     emit q->stopped();
 }
 
@@ -1034,14 +1031,13 @@ QList<OutputLineParser *> createOutputParsers(BuildConfiguration *bc)
     return formatters;
 }
 
-void addOutputParserFactory(const std::function<Utils::OutputLineParser *(Target *)> &factory)
+void addOutputParserFactory(const std::function<OutputLineParser *(Target *)> &factory)
 {
     g_outputParserFactories.append(
         [factory](BuildConfiguration *bc) { return factory(bc ? bc->target() : nullptr); });
 }
 
-void addOutputParserFactory(
-    const std::function<Utils::OutputLineParser *(BuildConfiguration *)> &factory)
+void addOutputParserFactory(const std::function<OutputLineParser *(BuildConfiguration *)> &factory)
 {
     g_outputParserFactories.append(factory);
 }
