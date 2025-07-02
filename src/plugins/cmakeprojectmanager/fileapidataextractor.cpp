@@ -962,18 +962,49 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
     }
 }
 
-static void markCMakeModulesFromPrefixPathAsGenerated(FileApiQtcData &result)
+static void setIsGenerated(QSet<CMakeFileInfo> &cmakeFiles, Node *node, bool isGenerated)
 {
+    // Replace the key in a QSet by searching and inserting the updated key
+    CMakeFileInfo info;
+    info.path = node->path();
+
+    auto it = cmakeFiles.find(info);
+    if (it != cmakeFiles.end()) {
+        info = *it;
+        info.isGenerated = isGenerated;
+        cmakeFiles.insert(info);
+    }
+
+    node->setIsGenerated(isGenerated);
+}
+
+static void markCMakeModulesFromPrefixPathAsGenerated(
+    FileApiQtcData &result, const FilePath &sourceDir, const FilePath &buildDir)
+{
+    const QSet<FilePath> externlPaths = [&result]() {
+        QSet<FilePath> paths;
+        for (const QByteArray var : {"CMAKE_PREFIX_PATH", "CMAKE_FIND_ROOT_PATH"}) {
+            const QStringList pathList = result.cache.stringValueOf(var).split(";");
+            for (const QString &path : pathList)
+                paths.insert(FilePath::fromUserInput(path));
+        }
+        return paths;
+    }();
+
     if (!result.rootProjectNode)
         return;
 
-    result.rootProjectNode->forEachGenericNode([&result](Node *node) {
-        CMakeFileInfo value;
-        value.path = node->path();
-        auto it = result.cmakeFiles.find(value);
-        if (it != result.cmakeFiles.end() && (it->isCMake || it->isExternal))
-            node->setIsGenerated(true);
-    });
+    result.rootProjectNode->forEachGenericNode(
+        [&externlPaths, &sourceDir, &buildDir, &result](Node *node) {
+            for (const FilePath &path : externlPaths) {
+                const bool isExternal = !node->path().isChildOf(sourceDir)
+                                        && !node->path().isChildOf(buildDir);
+                if (node->path().isChildOf(path) && isExternal) {
+                    setIsGenerated(result.cmakeFiles, node, true);
+                    break;
+                }
+            }
+        });
 }
 
 static void setSubprojectBuildSupport(FileApiQtcData &result)
@@ -1039,7 +1070,7 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
     if (input.replyFile.isMultiConfig && input.replyFile.generator != "Ninja Multi-Config")
         result.usesAllCapsTargets = true;
 
-    markCMakeModulesFromPrefixPathAsGenerated(result);
+    markCMakeModulesFromPrefixPathAsGenerated(result, sourceDir, buildDir);
     setSubprojectBuildSupport(result);
 
     return result;

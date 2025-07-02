@@ -1568,7 +1568,7 @@ static QSet<FilePath> projectFilesToWatch(const QSet<CMakeFileInfo> &cmakeFiles)
 {
     QSet<FilePath> result;
     for (const CMakeFileInfo &info : cmakeFiles) {
-        if (!info.isGenerated && !info.isCMake && !info.isExternal)
+        if (!info.isGenerated && !info.isCMake)
             result.insert(info.path);
     }
     return result;
