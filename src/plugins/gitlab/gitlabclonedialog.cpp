@@ -139,7 +139,6 @@ void GitLabCloneDialog::cloneProject()
     m_command = vc->createInitialCheckoutCommand({m_repositoryCB->currentText(),
                                                   m_pathChooser->absoluteFilePath(),
                                                   m_directoryLE->text(), extraArgs});
-    const FilePath workingDirectory = m_pathChooser->absoluteFilePath();
     m_command->addFlags(RunFlags::ProgressiveOutput);
     connect(m_command, &VcsCommand::stdOutText, this, [this](const QString &text) {
         m_cloneOutput->appendPlainText(text);
