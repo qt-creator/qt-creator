@@ -1215,6 +1215,20 @@ static ExecutableItem startContainerRecipe(const InstanceConfig &instanceConfig)
     // clang-format on
 }
 
+static Sync fillRunningInstance(
+    const RunningInstance &runningInstance,
+    const Storage<RunningContainerDetails> &runningDetails,
+    const Storage<ImageDetails> &imageDetails)
+{
+    return Sync([runningInstance, runningDetails, imageDetails]() {
+        runningInstance->remoteEnvironment = runningDetails->probedUserEnvironment;
+
+        runningInstance->osType = osTypeFromString(imageDetails->Os).value_or(OsType::OsTypeOther);
+        runningInstance->osArch
+            = osArchFromString(imageDetails->Architecture).value_or(OsArch::OsArchUnknown);
+    });
+}
+
 static Result<Group> prepareContainerRecipe(
     const DockerfileContainer &containerConfig,
     const DevContainerCommon &commonConfig,
@@ -1258,9 +1272,7 @@ static Result<Group> prepareContainerRecipe(
         startContainerRecipe(instanceConfig),
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
         runLifecycleHooksRecipe(commonConfig, instanceConfig),
-        Sync([runningInstance, runningDetails](){
-            runningInstance->remoteEnvironment = runningDetails->probedUserEnvironment;
-        }),
+        fillRunningInstance(runningInstance, runningDetails, imageDetails)
     };
     // clang-format on
 }
@@ -1324,9 +1336,7 @@ static Result<Group> prepareContainerRecipe(
         startContainerRecipe(instanceConfig),
         runningContainerDetailsTask(containerDetails, runningDetails, commonConfig, instanceConfig),
         runLifecycleHooksRecipe(commonConfig, instanceConfig),
-        Sync([runningInstance, runningDetails](){
-            runningInstance->remoteEnvironment = runningDetails->probedUserEnvironment;
-        }),
+        fillRunningInstance(runningInstance, runningDetails, imageDetails)
     };
     // clang-format on
 }

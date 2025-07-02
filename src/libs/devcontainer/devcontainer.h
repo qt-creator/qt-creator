@@ -40,6 +40,8 @@ struct DEVCONTAINER_EXPORT InstanceConfig
 
 struct DEVCONTAINER_EXPORT RunningInstanceData
 {
+    Utils::OsType osType;
+    Utils::OsArch osArch;
     Utils::Environment remoteEnvironment;
 };
 
