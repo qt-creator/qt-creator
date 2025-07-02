@@ -612,7 +612,7 @@ void ContentLibraryView::addLibAssets(const QStringList &paths, const QString &b
     }
 
     // remove the to-be-overwritten resources from target bundle path
-    m_widget->userModel()->removeTextures(fileNamesToRemove, fullBundlePath);
+    m_widget->userModel()->removeTextures(fileNamesToRemove, fullBundlePath, false);
 
     // copy resources to target bundle path
     for (const Utils::FilePath &sourcePath : sourcePathsToAdd) {

@@ -58,7 +58,7 @@ public:
     void refreshSection(const QString &bundleId);
     void addTextures(const Utils::FilePaths &paths, const Utils::FilePath &bundlePath);
     void reloadTextureCategory(const Utils::FilePath &dirPath);
-    void removeTextures(const QStringList &fileNames, const Utils::FilePath &bundlePath);
+    void removeTextures(const QStringList &fileNames, const Utils::FilePath &bundlePath, bool showConfirmDialog = true);
 
     void removeItemByName(const QString &qmlFileName, const QString &bundleId);
 
@@ -72,7 +72,8 @@ public:
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryItem *mat, bool add = false);
     Q_INVOKABLE void addToProject(ContentLibraryItem *item);
     Q_INVOKABLE void removeFromProject(QObject *item);
-    Q_INVOKABLE void removeTexture(QmlDesigner::ContentLibraryTexture *tex, bool refresh = true);
+    Q_INVOKABLE void removeTexture(QmlDesigner::ContentLibraryTexture *tex, bool refresh = true,
+                                   bool showConfirmDialog = true);
     Q_INVOKABLE void removeFromContentLib(QObject *item);
     Q_INVOKABLE void removeBundleDir(int catIdx);
 

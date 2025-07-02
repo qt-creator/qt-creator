@@ -219,7 +219,8 @@ void ContentLibraryUserModel::reloadTextureCategory(const Utils::FilePath &dirPa
     addTextures(paths, dirPath);
 }
 
-void ContentLibraryUserModel::removeTextures(const QStringList &fileNames, const Utils::FilePath &bundlePath)
+void ContentLibraryUserModel::removeTextures(const QStringList &fileNames,
+                                             const Utils::FilePath &bundlePath, bool showConfirmDialog)
 {
     // note: this method doesn't refresh the model after textures removal
 
@@ -233,30 +234,33 @@ void ContentLibraryUserModel::removeTextures(const QStringList &fileNames, const
         QTC_ASSERT(castedItem, continue);
 
         if (fileNames.contains(castedItem->fileName()))
-            removeTexture(castedItem, false);
+            removeTexture(castedItem, false, showConfirmDialog);
     }
 }
 
-void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex, bool refresh)
+void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex, bool refresh,
+                                            bool showConfirmDialog)
 {
-    bool askBeforeDelete = QmlDesignerPlugin::settings()
-                               .value(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE)
-                               .toBool();
+    if (showConfirmDialog) {
+        bool askBeforeDelete = QmlDesignerPlugin::settings()
+                                   .value(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE)
+                                   .toBool();
 
-    if (askBeforeDelete) {
-        QMessageBox msgBox(QMessageBox::Question,
-                           tr("Confirm texture deletion"),
-                           tr("The selected texture might be in use. Delete anyway?"),
-                           QMessageBox::Yes | QMessageBox::No,
-                           m_widget);
-        QCheckBox *dontAskAgain = new QCheckBox(tr("Don't ask again"), &msgBox);
-        msgBox.setCheckBox(dontAskAgain);
+        if (askBeforeDelete) {
+            QMessageBox msgBox(QMessageBox::Question,
+                               tr("Confirm texture deletion"),
+                               tr("The selected texture might be in use. Delete anyway?"),
+                               QMessageBox::Yes | QMessageBox::No,
+                               m_widget);
+            QCheckBox *dontAskAgain = new QCheckBox(tr("Don't ask again"), &msgBox);
+            msgBox.setCheckBox(dontAskAgain);
 
-        if (msgBox.exec() == QMessageBox::No)
-            return;
+            if (msgBox.exec() == QMessageBox::No)
+                return;
 
-        if (dontAskAgain->isChecked())
-            QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE, false);
+            if (dontAskAgain->isChecked())
+                QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_CONTENTLIB_FILE, false);
+        }
     }
 
     // remove resources
