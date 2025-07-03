@@ -43,8 +43,6 @@ public:
 
     void setCheckoutData(const QString &repo, const QString &baseDir, const QString &name,
                          const QStringList &args);
-    void appendJob(bool skipEmpty, const Utils::FilePath &workDir, const QStringList &command,
-                   const QVariant &condition, int timeoutFactor);
     void setVersionControlId(const QString &id);
     void setRunMessage(const QString &msg);
 
@@ -54,15 +52,6 @@ private:
     void finished(bool success);
 
     enum State { Idle, Running, Failed, Succeeded };
-
-    struct JobData
-    {
-        bool skipEmptyArguments = false;
-        Utils::FilePath workDirectory;
-        QStringList job;
-        QVariant condition;
-        int timeOutFactor;
-    };
 
     QPlainTextEdit *m_logPlainTextEdit = nullptr;
     Utils::OutputFormatter *m_formatter = nullptr;
@@ -79,7 +68,6 @@ private:
     QString m_name;
     QString m_runMessage;
     QStringList m_arguments;
-    QList<JobData> m_additionalJobs;
 };
 
 } // namespace Internal

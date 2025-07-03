@@ -231,13 +231,6 @@
                     "%{argIncludePrivate}",
                     "%{argDisableAutosync}",
                     "%{argFossilFile}"
-                ],
-                "extraJobs" :
-                [
-                    {
-                        "command": "fossil",
-                        "arguments": [ "version" ]
-                    }
                 ]
             }
         }
