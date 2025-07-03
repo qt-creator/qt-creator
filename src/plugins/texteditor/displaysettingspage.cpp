@@ -65,8 +65,7 @@ public:
         connect(enableTextWrappingHintLabel, &QLabel::linkActivated, [] {
             Core::ICore::showOptionsDialog(Constants::TEXT_EDITOR_FONT_SETTINGS); } );
 
-
-        showWrapColumn = new QCheckBox(Tr::tr("Display right &margin at column:"));
+        showWrapColumn = new QCheckBox(Tr::tr("Display right &margin after column:"));
         tintMarginArea = new QCheckBox(Tr::tr("Tint whole margin area"));
 
         wrapColumn = new QSpinBox;
