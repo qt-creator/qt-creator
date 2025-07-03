@@ -571,11 +571,11 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
     // @TODO: what about --template options?
 
     const FilePath fullRepoName = FilePath::fromStringWithExtension(repoName, Constants::FOSSIL_FILE_SUFFIX);
-    const FilePath repoFilePath = repoPath.pathAppended(fullRepoName.toUrlishString());
+    const FilePath repoFilePath = repoPath.pathAppended(fullRepoName.path());
     QStringList args(vcsCommandString(CreateRepositoryCommand));
     if (!adminUser.isEmpty())
         args << "--admin-user" << adminUser;
-    args << extraOptions << repoFilePath.toUserOutput();
+    args << extraOptions << repoFilePath.nativePath();
     CommandResult result = vcsSynchronousExec(workingDirectory, args);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
@@ -583,7 +583,7 @@ bool FossilClient::synchronousCreateRepository(const FilePath &workingDirectory,
 
     // check out the created repository file into the working directory
     // --force as it may be not empty e.g. when creating a project from wizard
-    result = vcsSynchronousExec(workingDirectory, {"open", "--force", repoFilePath.toUserOutput()});
+    result = vcsSynchronousExec(workingDirectory, {"open", "--force", repoFilePath.nativePath()});
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
     outputWindow->appendSilently(workingDirectory, sanitizeFossilOutput(result.cleanedStdOut()));
@@ -964,7 +964,7 @@ void FossilClient::revertFile(const FilePath &workingDir,
 
     // Indicate file list
     VcsCommand *cmd = createCommand(workingDir);
-    const QStringList files = {workingDir.toUrlishString() + "/" + file};
+    const QStringList files = {workingDir.pathAppended(file).path()};
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
@@ -988,7 +988,7 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
 
     // Indicate repository change
     VcsCommand *cmd = createCommand(workingDir);
-    const QStringList files = QStringList(workingDir.toUrlishString());
+    const QStringList files = {workingDir.path()};
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
