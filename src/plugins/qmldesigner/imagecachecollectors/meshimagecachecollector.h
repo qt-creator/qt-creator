@@ -16,7 +16,6 @@ class MeshImageCacheCollector final : public ImageCacheCollectorInterface
 public:
     MeshImageCacheCollector(QSize captureImageMinimumSize,
                             QSize captureImageMaximumSize,
-                            ExternalDependenciesInterface &externalDependencies,
                             ImageCacheCollectorNullImageHandling nullImageHandling = {});
 
     ~MeshImageCacheCollector();

@@ -13,8 +13,6 @@ class Target;
 
 namespace QmlDesigner {
 
-class ExternalDependenciesInterface;
-
 enum class ImageCacheCollectorNullImageHandling { CaptureNullImage, DontCaptureNullImage };
 
 class ImageCacheCollector final : public ImageCacheCollectorInterface
@@ -22,7 +20,6 @@ class ImageCacheCollector final : public ImageCacheCollectorInterface
 public:
     ImageCacheCollector(QSize captureImageMinimumSize,
                         QSize captureImageMaximumSize,
-                        ExternalDependenciesInterface &externalDependencies,
                         ImageCacheCollectorNullImageHandling nullImageHandling = {});
 
     ~ImageCacheCollector();
@@ -55,7 +52,6 @@ private:
     QPointer<ProjectExplorer::Target> m_target;
     QSize captureImageMinimumSize;
     QSize captureImageMaximumSize;
-    ExternalDependenciesInterface &m_externalDependencies;
     ImageCacheCollectorNullImageHandling nullImageHandling{};
 };
 

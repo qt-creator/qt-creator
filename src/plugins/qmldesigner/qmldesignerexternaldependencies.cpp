@@ -27,26 +27,6 @@ double ExternalDependencies::formEditorDevicePixelRatio() const
     return QmlDesignerPlugin::formEditorDevicePixelRatio();
 }
 
-QString ExternalDependencies::defaultPuppetFallbackDirectory() const
-{
-    return Core::ICore::libexecPath().toUrlishString();
-}
-
-QString ExternalDependencies::qmlPuppetFallbackDirectory() const
-{
-    QString puppetFallbackDirectory = m_designerSettings
-                                          .value(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY)
-                                          .toString();
-    if (puppetFallbackDirectory.isEmpty() || !QFileInfo::exists(puppetFallbackDirectory))
-        return defaultPuppetFallbackDirectory();
-    return puppetFallbackDirectory;
-}
-
-QString ExternalDependencies::defaultPuppetToplevelBuildDirectory() const
-{
-    return Core::ICore::userResourcePath("qmlpuppet/").toUrlishString();
-}
-
 QUrl ExternalDependencies::projectUrl() const
 {
     DesignDocument *document = QmlDesignerPlugin::instance()->viewManager().currentDesignDocument();
@@ -153,7 +133,7 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
 {
     PuppetStartData data;
     auto target = ProjectExplorer::ProjectManager::startupTarget();
-    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target, m_designerSettings);
+    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target);
 
     data.puppetPath = puppetPath.toUrlishString();
     data.workingDirectoryPath = workingDirectory.toUrlishString();
@@ -173,7 +153,7 @@ bool ExternalDependencies::instantQmlTextUpdate() const
 Utils::FilePath ExternalDependencies::qmlPuppetPath() const
 {
     auto target = ProjectExplorer::ProjectManager::startupTarget();
-    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target, m_designerSettings);
+    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target);
     return puppetPath;
 }
 

@@ -24,9 +24,6 @@ public:
     ExternalDependenciesInterface &operator=(const ExternalDependenciesInterface &) = delete;
 
     virtual double formEditorDevicePixelRatio() const = 0;
-    virtual QString defaultPuppetFallbackDirectory() const = 0;
-    virtual QString qmlPuppetFallbackDirectory() const = 0;
-    virtual QString defaultPuppetToplevelBuildDirectory() const = 0;
     virtual QUrl projectUrl() const = 0;
     virtual QString projectName() const = 0;
     virtual QString currentProjectDirPath() const = 0;

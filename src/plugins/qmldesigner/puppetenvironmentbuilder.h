@@ -13,7 +13,7 @@ class Target;
 
 namespace QmlDesigner {
 
-enum class PuppetType { Fallback, UserSpace, Kit };
+enum class PuppetType { Fallback, Kit };
 
 class PuppetEnvironmentBuilder
 {

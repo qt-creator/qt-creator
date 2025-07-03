@@ -6,7 +6,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <externaldependenciesinterface.h>
 #include <modulesstorage/modulesstorage.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -135,9 +134,9 @@ auto makeCollectorDispatcherChain(ImageCacheCollector &nodeInstanceCollector,
 class QmlDesignerProjectManager::ImageCacheData
 {
 public:
-    ImageCacheData(ExternalDependenciesInterface &externalDependencies)
-        : meshImageCollector{QSize{300, 300}, QSize{600, 600}, externalDependencies}
-        , nodeInstanceCollector{QSize{300, 300}, QSize{600, 600}, externalDependencies}
+    ImageCacheData()
+        : meshImageCollector{QSize{300, 300}, QSize{600, 600}}
+        , nodeInstanceCollector{QSize{300, 300}, QSize{600, 600}}
     {}
 
 public:
@@ -162,10 +161,9 @@ public:
 class QmlDesignerProjectManager::PreviewImageCacheData
 {
 public:
-    PreviewImageCacheData(ExternalDependenciesInterface &externalDependencies)
+    PreviewImageCacheData()
         : collector{QSize{300, 300},
                     QSize{1000, 1000},
-                    externalDependencies,
                     ImageCacheCollectorNullImageHandling::CaptureNullImage}
     {
         timer.setSingleShot(true);
@@ -306,11 +304,9 @@ public:
     QmlDesignerProjectManagerProjectData(ImageCacheStorage<Sqlite::Database> &storage,
                                          const ::ProjectExplorer::Project *project,
                                          PathCacheType &pathCache,
-                                         ModulesStorage &modulesStorage,
-                                         ExternalDependenciesInterface &externalDependencies)
+                                         ModulesStorage &modulesStorage)
         : collector{QSize{300, 300},
                     QSize{1000, 1000},
-                    externalDependencies,
                     ImageCacheCollectorNullImageHandling::CaptureNullImage}
         , factory{storage, timeStampProvider, collector}
         , projectStorageData{createProjectStorageData(project, pathCache, modulesStorage)}
@@ -338,13 +334,12 @@ public:
     ModulesStorage modulesStorage{modulesDatabase, modulesDatabase.isInitialized()};
 };
 
-QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterface &externalDependencies)
-    : m_externalDependencies{externalDependencies}
+QmlDesignerProjectManager::QmlDesignerProjectManager()
 {
     NanotraceHR::Tracer tracer{"qml designer project manager constructor", category()};
 
     m_data = std::make_unique<Data>();
-    m_previewImageCacheData = std::make_unique<PreviewImageCacheData>(externalDependencies);
+    m_previewImageCacheData = std::make_unique<PreviewImageCacheData>();
 
     auto editorManager = ::Core::EditorManager::instance();
     QObject::connect(editorManager, &::Core::EditorManager::editorOpened, &dummy, [&](auto *editor) {
@@ -549,11 +544,8 @@ void QmlDesignerProjectManager::projectAdded(const ::ProjectExplorer::Project *p
 {
     NanotraceHR::Tracer tracer{"qml designer project manager project added", category()};
 
-    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_previewImageCacheData->storage,
-                                                                           project,
-                                                                           m_data->pathCache,
-                                                                           m_data->modulesStorage,
-                                                                           m_externalDependencies);
+    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(
+        m_previewImageCacheData->storage, project, m_data->pathCache, m_data->modulesStorage);
 
     QObject::connect(project, &::ProjectExplorer::Project::activeTargetChanged, [&](auto *target) {
         activeTargetChanged(target);
@@ -604,7 +596,7 @@ QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCache
     NanotraceHR::Tracer tracer{"qml designer project manager image cache data", category()};
 
     std::call_once(imageCacheFlag, [this] {
-        m_imageCacheData = std::make_unique<ImageCacheData>(m_externalDependencies);
+        m_imageCacheData = std::make_unique<ImageCacheData>();
         auto setTargetInImageCache =
             [imageCacheData = m_imageCacheData.get()](ProjectExplorer::Target *target) {
                 if (target == imageCacheData->nodeInstanceCollector.target())

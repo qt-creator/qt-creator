@@ -62,10 +62,7 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
     restoreValue(settings, DesignerSettingsKey::SHOW_DEBUGVIEW, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_DEBUGVIEW, false);
     restoreValue(settings, DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR, false);
-    restoreValue(settings, DesignerSettingsKey::USE_DEFAULT_PUPPET, true);
     restoreValue(settings, DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION, 0);
-    restoreValue(settings, DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY);
-    restoreValue(settings, DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY);
     restoreValue(settings, DesignerSettingsKey::CONTROLS_STYLE);
     restoreValue(settings, DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT, false);

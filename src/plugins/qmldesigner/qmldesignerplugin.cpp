@@ -175,7 +175,7 @@ class QmlDesignerPluginPrivate
 {
 public:
     ExternalDependencies externalDependencies{QmlDesignerBasePlugin::settings()};
-    QmlDesignerProjectManager projectManager{externalDependencies};
+    QmlDesignerProjectManager projectManager;
     ViewManager viewManager{projectManager.asynchronousImageCache(),
                             externalDependencies,
                             projectManager.modulesStorage()};
@@ -183,7 +183,7 @@ public:
     ShortCutManager shortCutManager;
     DeviceShare::DeviceManager deviceManager;
     RunManager runManager{deviceManager};
-    SettingsPage settingsPage{externalDependencies};
+    SettingsPage settingsPage;
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
     Utils::UniqueObjectPtr<QToolBar> toolBar;

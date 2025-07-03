@@ -143,9 +143,6 @@ public:
         return QUrl::fromLocalFile(QFileInfo(model->fileUrl().toLocalFile()).absolutePath());
     }
 
-    QString defaultPuppetFallbackDirectory() const override { return {}; }
-    QString defaultPuppetToplevelBuildDirectory() const override { return {}; }
-    QString qmlPuppetFallbackDirectory() const override { return {}; }
     QUrl projectUrl() const override { return {}; }
     QString projectName() const override { return {}; }
     void parseItemLibraryDescriptions() override {}
