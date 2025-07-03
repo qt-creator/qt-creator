@@ -18,7 +18,7 @@
 #include <QCryptographicHash>
 #include <QLoggingCategory>
 
-Q_LOGGING_CATEGORY(devcontainerlog, "devcontainer", QtDebugMsg)
+Q_LOGGING_CATEGORY(devcontainerlog, "devcontainer", QtWarningMsg)
 
 using namespace Utils;
 

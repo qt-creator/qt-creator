@@ -40,8 +40,10 @@ static bool testDockerMount(const FilePath &executable, const FilePath &testDir)
           "ls",
           "/mnt/test"}});
     p.runBlocking();
-    qInfo() << "Docker mount test output:" << p.cleanedStdOut().trimmed()
-            << "Error:" << p.cleanedStdErr().trimmed();
+    if (p.result() != ProcessResult::FinishedWithSuccess) {
+        qWarning() << "Docker mount test failed:" << p.verboseExitMessage();
+        return false;
+    }
     return p.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -50,6 +52,12 @@ class tst_DevContainer : public QObject
     Q_OBJECT
 
     const FilePath tempDir = FilePath::fromString(QDir::tempPath()) / "tst_DevContainer";
+
+    QString logMessages;
+
+    std::function<void(const QString &)> logFunction = [this](const QString &msg) {
+        logMessages += msg + '\n';
+    };
 
 private slots:
     void initTestCase()
@@ -69,6 +77,14 @@ int main() {
 
         if (!testDockerMount("docker", tempDir))
             QSKIP("Docker mount test failed, skipping tests.");
+    }
+
+    void init() { logMessages.clear(); }
+
+    void cleanup()
+    {
+        if (QTest::currentTestFailed())
+            qWarning().noquote() << "Log:\n\n" << logMessages;
     }
 
     void processInterface();
@@ -94,7 +110,7 @@ void tst_DevContainer::instanceConfigToString_data()
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
-    };
+        .logFunction = logFunction};
 
     QTest::newRow("default") << instanceConfig << "Hello ${localWorkspaceFolder}"
                              << QString("Hello %1")
@@ -189,7 +205,7 @@ void tst_DevContainer::readConfig()
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
-    };
+        .logFunction = logFunction};
 
     Utils::Result<DevContainer::Config> devContainer
         = DevContainer::Config::fromJson(jsonData, [instanceConfig](const QJsonValue &value) {
@@ -201,7 +217,6 @@ void tst_DevContainer::readConfig()
     QCOMPARE(*devContainer->common.name, "Minimum spec container (x86_64)");
     QVERIFY(devContainer->containerConfig);
     QCOMPARE(devContainer->containerConfig->index(), 0);
-    qDebug() << "Parsed DevContainer:" << *devContainer;
 }
 
 void tst_DevContainer::testCommands()
@@ -236,8 +251,6 @@ void tst_DevContainer::testCommands()
     QCOMPARE(std::get<QString>(commandMap["echo"]), "echo test");
     QCOMPARE(commandMap["ls"].index(), 1);
     QCOMPARE(std::get<QStringList>(commandMap["ls"]), QStringList() << "ls" << "-lach");
-
-    qDebug() << "Parsed DevContainer:" << *devContainer;
 }
 
 void tst_DevContainer::upDockerfile()
@@ -264,14 +277,13 @@ FROM alpine:latest
     config.containerConfig = dockerFileConfig;
     config.common.name = "Test Dockerfile";
 
-    qDebug() << "DevContainer Config:" << config;
-
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
         .dockerComposeCli = "docker-compose",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
-        .mounts = {}};
+        .mounts = {},
+        .logFunction = logFunction};
 
     std::unique_ptr<DevContainer::Instance> instance
         = DevContainer::Instance::fromConfig(config, instanceConfig);
@@ -298,14 +310,13 @@ void tst_DevContainer::upImage()
     config.containerConfig = imageConfig;
     config.common.name = "Test Image";
 
-    qDebug() << "DevContainer Config:" << config;
-
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
         .dockerComposeCli = "docker-compose",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
-        .mounts = {}};
+        .mounts = {},
+        .logFunction = logFunction};
 
     std::unique_ptr<DevContainer::Instance> instance
         = DevContainer::Instance::fromConfig(config, instanceConfig);
@@ -352,7 +363,7 @@ void tst_DevContainer::upWithHooks()
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
-    };
+        .logFunction = logFunction};
 
     std::unique_ptr<DevContainer::Instance> instance
         = DevContainer::Instance::fromConfig(config, instanceConfig);
@@ -393,14 +404,14 @@ void tst_DevContainer::processInterface()
            {"CONTAINER_UNSET_ME", std::nullopt},
            {"CONTAINER_CHANGE_ME", "changed_container_value"},
            {"REMOTEENV_FROM_CONTAINER", "${containerEnv:CONTAINER_TEST}"}};
-    qDebug() << "DevContainer Config:" << config;
 
     DevContainer::InstanceConfig instanceConfig{
         .dockerCli = "docker",
         .dockerComposeCli = "docker-compose",
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
-        .mounts = {}};
+        .mounts = {},
+        .logFunction = logFunction};
 
     std::unique_ptr<DevContainer::Instance> instance
         = DevContainer::Instance::fromConfig(config, instanceConfig);
@@ -426,9 +437,9 @@ void tst_DevContainer::processInterface()
     process.runBlocking(std::chrono::seconds(10), EventLoopMode::On);
     const QString output = process.cleanedStdOut().trimmed();
 
-    qDebug().noquote() << "Process output:" << output;
-    qDebug().noquote() << "Process error:" << process.cleanedStdErr().trimmed();
-    qDebug() << process.verboseExitMessage();
+    logFunction("Process output:" + output);
+    logFunction("Process error:" + process.cleanedStdErr().trimmed());
+    logFunction(process.verboseExitMessage());
 
     QVERIFY(process.result() == ProcessResult::FinishedWithSuccess);
 
@@ -467,7 +478,7 @@ void tst_DevContainer::containerWorkspaceReplacers()
         .workspaceFolder = tempDir,
         .configFilePath = tempDir / "devcontainer.json",
         .mounts = {},
-    };
+        .logFunction = logFunction};
 
     Utils::Result<DevContainer::Config> config
         = DevContainer::Config::fromJson(jsonData, [instanceConfig](const QJsonValue &value) {
