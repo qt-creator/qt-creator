@@ -187,11 +187,6 @@ public:
     QAction *m_menuAction = nullptr;
 
     FilePath m_submitRepository;
-
-    // To be connected to the VcsTask's success signal to emit the repository/
-    // files changed signals according to the variant's type:
-    // String -> repository, StringList -> files
-    void changed(const QVariant &);
 };
 
 static FossilPluginPrivate *dd = nullptr;
@@ -219,7 +214,8 @@ FossilPluginPrivate::FossilPluginPrivate()
         return fossilClient().synchronousTopic(repository);
     });
 
-    connect(&fossilClient(), &VcsBaseClient::changed, this, &FossilPluginPrivate::changed);
+    connect(&fossilClient(), &VcsBaseClient::repositoryChanged, this, &FossilPluginPrivate::repositoryChanged);
+    connect(&fossilClient(), &VcsBaseClient::filesChanged, this, &FossilPluginPrivate::filesChanged);
 
     m_commandLocator = new CommandLocator("Fossil", "fossil", "fossil", this);
     m_commandLocator->setDescription(Tr::tr("Triggers a Fossil version control operation."));
@@ -986,20 +982,6 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const InitialCheck
     }
 
     return command;
-}
-
-void FossilPluginPrivate::changed(const QVariant &v)
-{
-    switch (v.typeId()) {
-    case QMetaType::QString:
-        emit repositoryChanged(FilePath::fromVariant(v));
-        break;
-    case QMetaType::QStringList:
-        emit filesChanged(v.toStringList());
-        break;
-    default:
-        break;
-    }
 }
 
 RevertDialog::RevertDialog(const QString &title, QWidget *parent)

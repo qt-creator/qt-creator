@@ -632,7 +632,7 @@ bool FossilClient::synchronousPull(const FilePath &workingDir, const QString &sr
     const CommandResult result = vcsSynchronousExec(workingDir, args, s_pullFlags);
     const bool success = (result.result() == ProcessResult::FinishedWithSuccess);
     if (success)
-        emit changed(workingDir.toVariant());
+        emit repositoryChanged(workingDir);
     return success;
 }
 
@@ -967,7 +967,7 @@ void FossilClient::revertFile(const FilePath &workingDir,
     const QStringList files = {workingDir.pathAppended(file).path()};
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit changed(files);
+            emit filesChanged(files);
     });
     enqueueJob(cmd, args, workingDir);
 }
@@ -991,7 +991,7 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
     const QStringList files = {workingDir.path()};
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit changed(files);
+            emit filesChanged(files);
     });
     enqueueJob(cmd, args, workingDir);
 }

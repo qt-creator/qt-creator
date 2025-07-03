@@ -82,11 +82,6 @@ public:
 
     VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
 
-    // To be connected to the HgTask's success signal to emit the repository/
-    // files changed signals according to the variant's type:
-    // String -> repository, StringList -> files
-    void changed(const QVariant&);
-
 private:
     void updateActions(VcsBase::VersionControlBase::ActionState) final;
     bool activateCommit() final;
@@ -194,7 +189,8 @@ MercurialPluginPrivate::MercurialPluginPrivate()
 
     Core::Context context(Constants::MERCURIAL_CONTEXT);
 
-    connect(&mercurialClient(), &VcsBaseClient::changed, this, &MercurialPluginPrivate::changed);
+    connect(&mercurialClient(), &VcsBaseClient::repositoryChanged, this, &MercurialPluginPrivate::repositoryChanged);
+    connect(&mercurialClient(), &VcsBaseClient::filesChanged, this, &MercurialPluginPrivate::filesChanged);
     connect(&mercurialClient(), &MercurialClient::needUpdate, this, &MercurialPluginPrivate::update);
 
     const QString prefix = QLatin1String("hg");
@@ -730,20 +726,6 @@ VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const InitialCh
                    mercurialClient().processEnvironment(data.baseDirectory));
     command->addJob({settings().binaryPath(), {"clone", data.extraArgs, data.url, data.localName}}, -1);
     return command;
-}
-
-void MercurialPluginPrivate::changed(const QVariant &v)
-{
-    switch (v.typeId()) {
-    case QMetaType::QString:
-        emit repositoryChanged(FilePath::fromVariant(v));
-        break;
-    case QMetaType::QStringList:
-        emit filesChanged(v.toStringList());
-        break;
-    default:
-        break;
-    }
 }
 
 #ifdef WITH_TESTS

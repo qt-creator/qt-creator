@@ -151,10 +151,6 @@ public:
 
     VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
 
-    // To be connected to the VCSTask's success signal to emit the repository/
-    // files changed signals according to the variant's type:
-    // String -> repository, StringList -> files
-    void changed(const QVariant &);
     void updateActions(VcsBase::VersionControlBase::ActionState) final;
     bool activateCommit() final;
 
@@ -301,7 +297,8 @@ BazaarPluginPrivate::BazaarPluginPrivate()
 {
     Context context(Constants::BAZAAR_CONTEXT);
 
-    connect(&m_client, &VcsBaseClient::changed, this, &BazaarPluginPrivate::changed);
+    connect(&m_client, &VcsBaseClient::repositoryChanged, this, &BazaarPluginPrivate::repositoryChanged);
+    connect(&m_client, &VcsBaseClient::filesChanged, this, &BazaarPluginPrivate::filesChanged);
 
     const QString prefix = QLatin1String("bzr");
     m_commandLocator = new CommandLocator("Bazaar", prefix, prefix, this);
@@ -948,20 +945,6 @@ VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const InitialCheck
     command->addJob({m_client.vcsBinary(data.baseDirectory),
         {m_client.vcsCommandString(BazaarClient::CloneCommand), data.extraArgs, data.url, data.localName}}, -1);
     return command;
-}
-
-void BazaarPluginPrivate::changed(const QVariant &v)
-{
-    switch (v.typeId()) {
-    case QMetaType::QString:
-        emit repositoryChanged(FilePath::fromVariant(v));
-        break;
-    case QMetaType::QStringList:
-        emit filesChanged(v.toStringList());
-        break;
-    default:
-        break;
-    }
 }
 
 } // Bazaar::Internal

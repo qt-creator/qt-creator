@@ -306,7 +306,7 @@ bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
     const bool ok = vcsSynchronousExec(workingDir, args, flags).result()
             == ProcessResult::FinishedWithSuccess;
     if (ok)
-        emit changed(workingDir.toVariant());
+        emit repositoryChanged(workingDir);
     return ok;
 }
 
@@ -434,7 +434,7 @@ void VcsBaseClient::revertFile(const FilePath &workingDir,
     const QStringList files = QStringList(workingDir.pathAppended(file).toUrlishString());
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit changed(files);
+            emit filesChanged(files);
     });
     enqueueJob(cmd, args, workingDir);
 }
@@ -450,7 +450,7 @@ void VcsBaseClient::revertAll(const FilePath &workingDir,
     const QStringList files = QStringList(workingDir.toUrlishString());
     connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit changed(files);
+            emit filesChanged(files);
     });
     enqueueJob(cmd, args, workingDir);
 }
@@ -540,7 +540,7 @@ void VcsBaseClient::update(const FilePath &repositoryRoot, const QString &revisi
     VcsCommand *cmd = createCommand(repositoryRoot);
     connect(cmd, &VcsCommand::done, this, [this, repositoryRoot, cmd] {
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit changed(repositoryRoot.toUrlishString());
+            emit repositoryChanged(repositoryRoot);
     });
     enqueueJob(cmd, args, repositoryRoot);
 }
