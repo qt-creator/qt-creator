@@ -45,7 +45,6 @@
 #include <texteditor/textdocument.h>
 
 #include <QAction>
-#include <QtCore5Compat/qtextcodec.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -176,7 +175,7 @@ void QmlBuildSystem::triggerParsing()
     refresh(RefreshOptions::Project);
 }
 
-Utils::FilePath QmlBuildSystem::canonicalProjectDir() const
+FilePath QmlBuildSystem::canonicalProjectDir() const
 {
     return projectFilePath()
             .canonicalPath()
@@ -205,10 +204,8 @@ void QmlBuildSystem::refresh(RefreshOptions options)
             = modelManager->defaultProjectInfoForProject(project(),
                                                          project()->files(Project::HiddenRccFolders));
 
-    for (const QString &importPath : absoluteImportPaths()) {
-        projectInfo.importPaths.maybeInsert(Utils::FilePath::fromString(importPath),
-                                            QmlJS::Dialect::Qml);
-    }
+    for (const QString &importPath : absoluteImportPaths())
+        projectInfo.importPaths.maybeInsert(FilePath::fromString(importPath), QmlJS::Dialect::Qml);
 
     modelManager->updateProjectInfo(projectInfo, project());
 
@@ -219,7 +216,7 @@ void QmlBuildSystem::refresh(RefreshOptions options)
 
 void QmlBuildSystem::initProjectItem()
 {
-    auto projectPath = projectFilePath();
+    const FilePath projectPath = projectFilePath();
 
     m_projectItem.reset(new QmlProjectItem{projectPath});
 
@@ -235,7 +232,7 @@ void QmlBuildSystem::initMcuProjectItems()
 
     const QStringList mcuProjectFiles = m_projectItem->qmlProjectModules();
     for (const QString &mcuProjectFile : mcuProjectFiles) {
-        Utils::FilePath mcuProjectFilePath = projectFilePath().parentDir().resolvePath(mcuProjectFile);
+        FilePath mcuProjectFilePath = projectFilePath().parentDir().resolvePath(mcuProjectFile);
         auto qmlProjectItem = QSharedPointer<QmlProjectItem>(new QmlProjectItem{mcuProjectFilePath});
 
         m_mcuProjectItems.append(qmlProjectItem);
@@ -245,7 +242,7 @@ void QmlBuildSystem::initMcuProjectItems()
         m_mcuProjectFilesWatcher.addFile(mcuProjectFilePath, FileSystemWatcher::WatchModifiedDate);
 
         connect(&m_mcuProjectFilesWatcher,
-                &Utils::FileSystemWatcher::fileChanged,
+                &FileSystemWatcher::fileChanged,
                 this,
                 [this](const FilePath &file) {
                     Q_UNUSED(file)
@@ -304,11 +301,11 @@ void QmlBuildSystem::generateProjectTree()
 }
 
 bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting,
-                                                 const Utils::FilePath &mainFilePath,
+                                                 const FilePath &mainFilePath,
                                                  const QString &oldFile)
 {
     // make sure to change it also in the qmlproject file
-    const Utils::FilePath qmlProjectFilePath = project()->projectFilePath();
+    const FilePath qmlProjectFilePath = project()->projectFilePath();
     Core::FileChangeBlocker fileChangeBlocker(qmlProjectFilePath);
     const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(
                 qmlProjectFilePath);
@@ -365,7 +362,7 @@ void QmlBuildSystem::setBlockFilesUpdate(bool newBlockFilesUpdate)
     m_blockFilesUpdate = newBlockFilesUpdate;
 }
 
-Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
+FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
 {
     const auto currentProject = project();
 
@@ -378,7 +375,7 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
     if (projectFilePath().endsWith(Constants::fakeProjectName))
         return {};
 
-    const auto getFirstFittingFile = [](const Utils::FilePaths &files) -> Utils::FilePath {
+    const auto getFirstFittingFile = [](const FilePaths &files) -> FilePath {
         for (const auto &file : files) {
             if (file.exists())
                 return file;
@@ -391,15 +388,15 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
 
     //we will check mainUiFile and mainFile twice:
     //first priority if it's ui.qml file, second if it's just a qml file
-    const Utils::FilePath mainUiFile = mainUiFilePath();
+    const FilePath mainUiFile = mainUiFilePath();
     if (mainUiFile.exists() && mainUiFile.completeSuffix() == uiqmlstr)
         return mainUiFile;
 
-    const Utils::FilePath mainQmlFile = mainFilePath();
+    const FilePath mainQmlFile = mainFilePath();
     if (mainQmlFile.exists() && mainQmlFile.completeSuffix() == uiqmlstr)
         return mainQmlFile;
 
-    const Utils::FilePaths uiFiles = currentProject->files([&](const ProjectExplorer::Node *node) {
+    const FilePaths uiFiles = currentProject->files([&](const ProjectExplorer::Node *node) {
         return node->filePath().completeSuffix() == uiqmlstr;
     });
     if (!uiFiles.isEmpty()) {
@@ -415,7 +412,7 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
         return mainQmlFile;
 
     //maybe it's also worth priotizing qml files containing common words like "Screen"?
-    const Utils::FilePaths qmlFiles = currentProject->files([&](const ProjectExplorer::Node *node) {
+    const FilePaths qmlFiles = currentProject->files([&](const ProjectExplorer::Node *node) {
         return node->filePath().completeSuffix() == qmlstr;
     });
     if (!qmlFiles.isEmpty()) {
@@ -424,7 +421,7 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
     }
 
     //if no source files exist in the project, lets try to open the .qmlproject file itself
-    const Utils::FilePath projectFile = projectFilePath();
+    const FilePath projectFile = projectFilePath();
     if (projectFile.exists())
         return projectFile;
 
@@ -436,12 +433,12 @@ QmlBuildSystem *QmlBuildSystem::getStartupBuildSystem()
     return qobject_cast<QmlProjectManager::QmlBuildSystem *>(activeBuildSystemForActiveProject());
 }
 
-void QmlBuildSystem::addQmlProjectModule(const Utils::FilePath &path)
+void QmlBuildSystem::addQmlProjectModule(const FilePath &path)
 {
     m_projectItem->addQmlProjectModule(path.toFSPathString());
 }
 
-Utils::FilePath QmlBuildSystem::mainFilePath() const
+FilePath QmlBuildSystem::mainFilePath() const
 {
     const QString fileName = mainFile();
     if (fileName.isEmpty() || fileName.isNull()) {
@@ -450,7 +447,7 @@ Utils::FilePath QmlBuildSystem::mainFilePath() const
     return projectDirectory().pathAppended(fileName);
 }
 
-Utils::FilePath QmlBuildSystem::mainUiFilePath() const
+FilePath QmlBuildSystem::mainUiFilePath() const
 {
     const QString fileName = mainUiFile();
     if (fileName.isEmpty() || fileName.isNull()) {
@@ -459,18 +456,18 @@ Utils::FilePath QmlBuildSystem::mainUiFilePath() const
     return projectDirectory().pathAppended(fileName);
 }
 
-bool QmlBuildSystem::setMainFileInProjectFile(const Utils::FilePath &newMainFilePath)
+bool QmlBuildSystem::setMainFileInProjectFile(const FilePath &newMainFilePath)
 {
     return setFileSettingInProjectFile("mainFile", newMainFilePath, mainFile());
 }
 
-bool QmlBuildSystem::setMainUiFileInProjectFile(const Utils::FilePath &newMainUiFilePath)
+bool QmlBuildSystem::setMainUiFileInProjectFile(const FilePath &newMainUiFilePath)
 {
     return setMainUiFileInMainFile(newMainUiFilePath)
            && setFileSettingInProjectFile("mainUiFile", newMainUiFilePath, m_projectItem->mainUiFile());
 }
 
-bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFilePath)
+bool QmlBuildSystem::setMainUiFileInMainFile(const FilePath &newMainUiFilePath)
 {
     Core::FileChangeBlocker fileChangeBlocker(mainFilePath());
     const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(mainFilePath());
@@ -502,9 +499,9 @@ bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFil
     return true;
 }
 
-Utils::FilePath QmlBuildSystem::targetDirectory() const
+FilePath QmlBuildSystem::targetDirectory() const
 {
-    Utils::FilePath result;
+    FilePath result;
     if (RunDeviceTypeKitAspect::deviceTypeId(kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         result = canonicalProjectDir();
     } else if (IDevice::ConstPtr device = RunDeviceKitAspect::device(kit())) {
@@ -514,7 +511,7 @@ Utils::FilePath QmlBuildSystem::targetDirectory() const
     return result;
 }
 
-Utils::FilePath QmlBuildSystem::targetFile(const Utils::FilePath &sourceFile) const
+FilePath QmlBuildSystem::targetFile(const FilePath &sourceFile) const
 {
     const FilePath sourceDir = m_projectItem ? m_projectItem->sourceDirectory()
                                              : canonicalProjectDir();
@@ -574,16 +571,15 @@ void QmlBuildSystem::refreshFiles(const QSet<QString> & /*added*/, const QSet<QS
     refresh(RefreshOptions::Files);
     if (!removed.isEmpty()) {
         if (auto modelManager = QmlJS::ModelManagerInterface::instance()) {
-            modelManager->removeFiles(
-                        Utils::transform<QList<Utils::FilePath>>(removed, [](const QString &s) {
-                return Utils::FilePath::fromString(s);
+            modelManager->removeFiles(Utils::transform<FilePaths>(removed, [](const QString &s) {
+                return FilePath::fromString(s);
             }));
         }
     }
     updateDeploymentData();
 }
 
-QVariant QmlBuildSystem::additionalData(Utils::Id id) const
+QVariant QmlBuildSystem::additionalData(Id id) const
 {
     if (id == Constants::customFileSelectorsData)
         return fileSelectors();
@@ -621,20 +617,20 @@ bool QmlBuildSystem::supportsAction(Node *context, ProjectAction action, const N
     return BuildSystem::supportsAction(context, action, node);
 }
 
-bool QmlBuildSystem::addFiles(Node *context, const Utils::FilePaths &filePaths, Utils::FilePaths *)
+bool QmlBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *)
 {
     if (!dynamic_cast<Internal::QmlProjectNode *>(context))
         return false;
 
-    Utils::FilePaths toAdd;
-    for (const Utils::FilePath &filePath : filePaths) {
+    FilePaths toAdd;
+    for (const FilePath &filePath : filePaths) {
         if (!m_projectItem->matchesFile(filePath.toUrlishString()))
             toAdd << filePaths;
     }
     return toAdd.isEmpty();
 }
 
-bool QmlBuildSystem::deleteFiles(Node *context, const Utils::FilePaths &filePaths)
+bool QmlBuildSystem::deleteFiles(Node *context, const FilePaths &filePaths)
 {
     if (dynamic_cast<Internal::QmlProjectNode *>(context))
         return true;
@@ -643,8 +639,8 @@ bool QmlBuildSystem::deleteFiles(Node *context, const Utils::FilePaths &filePath
 }
 
 bool QmlBuildSystem::renameFiles(Node *context,
-                                 const Utils::FilePairs &filesToRename,
-                                 Utils::FilePaths *notRenamed)
+                                 const FilePairs &filesToRename,
+                                 FilePaths *notRenamed)
 {
     if (!dynamic_cast<Internal::QmlProjectNode *>(context))
         return BuildSystem::renameFiles(context, filesToRename, notRenamed);
@@ -693,7 +689,7 @@ bool QmlBuildSystem::qt6Project() const
     return m_projectItem->versionQt() == "6";
 }
 
-Utils::EnvironmentItems QmlBuildSystem::environment() const
+EnvironmentItems QmlBuildSystem::environment() const
 {
     return m_projectItem->environment();
 }
@@ -748,7 +744,7 @@ QStringList QmlBuildSystem::importPaths() const
     return m_projectItem->importPaths();
 }
 
-void QmlBuildSystem::addImportPath(const Utils::FilePath &path)
+void QmlBuildSystem::addImportPath(const FilePath &path)
 {
     m_projectItem->addImportPath(path.toFSPathString());
 }
@@ -761,7 +757,7 @@ QStringList QmlBuildSystem::mockImports() const
 QStringList QmlBuildSystem::absoluteImportPaths() const
 {
     return Utils::transform<QStringList>(allImports(), [&](const QString &importPath) {
-        Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
+        FilePath filePath = FilePath::fromString(importPath);
         if (filePath.isAbsolutePath())
             return projectDirectory().resolvePath(importPath).path();
         return (projectDirectory() / importPath).path();
@@ -771,10 +767,9 @@ QStringList QmlBuildSystem::absoluteImportPaths() const
 QStringList QmlBuildSystem::targetImportPaths() const
 {
     return Utils::transform<QStringList>(allImports(), [&](const QString &importPath) {
-        const Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
-        if (filePath.isAbsolutePath()) {
+        const FilePath filePath = FilePath::fromString(importPath);
+        if (filePath.isAbsolutePath())
             return importPath;
-        }
         return (targetDirectory() / importPath).path();
     });
 }
