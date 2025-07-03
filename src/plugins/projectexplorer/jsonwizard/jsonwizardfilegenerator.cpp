@@ -233,7 +233,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(MacroExpander *expander,
               const Result<Core::GeneratedFile> file = generateFile(f, expander);
               if (!file)
                   *errorMessage = file.error();
-              return file.value();
+              return file.value_or(Core::GeneratedFile());
           });
 
     if (Utils::contains(result, [](const Core::GeneratedFile &gf) {
