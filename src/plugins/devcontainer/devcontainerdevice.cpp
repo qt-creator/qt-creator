@@ -211,9 +211,12 @@ Result<> Device::up(const FilePath &path, InstanceConfig instanceConfig)
     progress.addSource(tree);
 
     const auto doneWith = tree.runBlocking();
-    if (doneWith != Tasking::DoneWith::Success)
-        return ResultError(Tr::tr("Failed to start DevContainer:") + error);
-
+    if (doneWith != Tasking::DoneWith::Success) {
+        if (error.isEmpty())
+            return ResultError(Tr::tr("Unknown error while trying to start DevContainer."));
+        else
+            return ResultError(Tr::tr("Failed to start DevContainer:") + error);
+    }
     return ResultOk;
 }
 

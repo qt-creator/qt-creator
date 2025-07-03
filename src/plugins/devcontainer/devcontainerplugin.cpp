@@ -6,6 +6,7 @@
 #include "devcontainerplugintr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <devcontainer/devcontainer.h>
 
@@ -40,17 +41,26 @@ QObject *createDevcontainerTest();
 static Utils::Result<std::shared_ptr<DevContainer::Device>> startDeviceForProject(
     const Utils::FilePath &path,
     ProjectExplorer::Project *project,
-    const DevContainer::InstanceConfig &instanceConfig)
+    DevContainer::InstanceConfig instanceConfig)
 {
+    QString log;
+    instanceConfig.logFunction = [&log](const QString &message) {
+        log += message + '\n';
+        Core::MessageManager::writeSilently(message);
+    };
+
     auto device = std::make_shared<DevContainer::Device>();
     ProjectExplorer::DeviceManager::addDevice(device);
     Utils::Result<> result = device->up(path, instanceConfig);
     if (!result) {
         ProjectExplorer::DeviceManager::removeDevice(device->id());
-        QMessageBox::critical(
-            Core::ICore::dialogParent(),
-            Tr::tr("DevContainer Error"),
-            Tr::tr("Failed to start DevContainer: %1").arg(result.error()));
+        QMessageBox box(Core::ICore::dialogParent());
+        box.setWindowTitle(Tr::tr("DevContainer Error"));
+        box.setIcon(QMessageBox::Critical);
+        box.setText(result.error());
+        box.setDetailedText(log);
+        box.exec();
+
         return Utils::ResultError(Tr::tr("Failed to start DevContainer for project '%1': %2")
                                       .arg(project->displayName(), result.error()));
     }
