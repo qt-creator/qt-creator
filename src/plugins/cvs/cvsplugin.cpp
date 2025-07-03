@@ -181,7 +181,6 @@ public:
 
     QString vcsOpenText() const final;
 
-    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
     Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
     ///
@@ -398,19 +397,6 @@ void CvsPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 QString CvsPluginPrivate::vcsOpenText() const
 {
     return Tr::tr("&Edit");
-}
-
-VcsCommand *CvsPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
-{
-    QTC_ASSERT(data.localName == data.url, return nullptr);
-
-    QStringList args;
-    args << QLatin1String("checkout") << data.url << data.extraArgs;
-
-    auto command = VcsBaseClient::createVcsCommand(data.baseDirectory, Environment::systemEnvironment());
-    command->setDisplayName(Tr::tr("CVS Checkout"));
-    command->addJob({settings().binaryPath(), settings().addOptions(args)}, -1);
-    return command;
 }
 
 ExecutableItem CvsPluginPrivate::cloneTask(const InitialCheckoutData &data) const

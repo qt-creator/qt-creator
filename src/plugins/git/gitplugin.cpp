@@ -175,7 +175,6 @@ public:
     void vcsDescribe(const FilePath &source, const QString &id) final { gitClient().show(source, id); }
     QString vcsTopic(const FilePath &directory) final;
 
-    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
     Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
     void fillLinkContextMenu(QMenu *menu,
@@ -1946,16 +1945,6 @@ QString GitPluginPrivate::vcsTopic(const FilePath &directory)
     if (!commandInProgress.isEmpty())
         topic += " (" + commandInProgress + ')';
     return topic;
-}
-
-VcsCommand *GitPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
-{
-    auto command = VcsBaseClient::createVcsCommand(data.baseDirectory,
-                                                   gitClient().processEnvironment(data.baseDirectory));
-    command->addFlags(RunFlags::SuppressStdErr);
-    command->addJob({gitClient().vcsBinary(data.baseDirectory),
-                     {"clone", "--progress", data.extraArgs, data.url, data.localName}}, -1);
-    return command;
 }
 
 ExecutableItem GitPluginPrivate::cloneTask(const InitialCheckoutData &data) const

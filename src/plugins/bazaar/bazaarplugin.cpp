@@ -150,7 +150,6 @@ public:
     }
     void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source, id); }
 
-    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
     Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
     void updateActions(VcsBase::VersionControlBase::ActionState) final;
@@ -937,16 +936,6 @@ bool BazaarPluginPrivate::vcsCreateRepository(const FilePath &directory)
 void BazaarPluginPrivate::vcsAnnotate(const FilePath &file, int line)
 {
     m_client.annotate(file.parentDir(), file.fileName(), line);
-}
-
-VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
-{
-    Environment env = m_client.processEnvironment(data.baseDirectory);
-    env.set("BZR_PROGRESS_BAR", "text");
-    auto command = VcsBaseClient::createVcsCommand(data.baseDirectory, env);
-    command->addJob({m_client.vcsBinary(data.baseDirectory),
-        {m_client.vcsCommandString(BazaarClient::CloneCommand), data.extraArgs, data.url, data.localName}}, -1);
-    return command;
 }
 
 ExecutableItem BazaarPluginPrivate::cloneTask(const InitialCheckoutData &data) const

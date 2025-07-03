@@ -131,12 +131,11 @@ public:
     const VcsBasePluginState &currentState() const;
 
     /*!
-     * Return a VcsCommand capable of checking out \a url into \a baseDirectory, where
+     * Return a Task capable of checking out \a url into \a baseDirectory, where
      * a new subdirectory with \a localName will be created.
      *
      * \a extraArgs are passed on to the command being run.
      */
-    virtual VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data);
     virtual Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const;
 
     // Display name of the commit action

@@ -564,12 +564,6 @@ const VcsBasePluginState &VersionControlBase::currentState() const
     return m_state;
 }
 
-VcsCommand *VersionControlBase::createInitialCheckoutCommand(const InitialCheckoutData &data)
-{
-    Q_UNUSED(data)
-    return nullptr;
-}
-
 ExecutableItem VersionControlBase::cloneTask(const InitialCheckoutData &data) const
 {
     return errorTask(data.baseDirectory, Tr::tr("Initial checkout task not implemented."));

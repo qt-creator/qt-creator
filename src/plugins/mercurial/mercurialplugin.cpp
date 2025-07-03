@@ -81,7 +81,6 @@ public:
         mercurialClient().view(source, id);
     }
 
-    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
     Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
 private:
@@ -720,14 +719,6 @@ bool MercurialPluginPrivate::vcsCreateRepository(const FilePath &directory)
 void MercurialPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
     mercurialClient().annotate(filePath.parentDir(), filePath.fileName(), line);
-}
-
-VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
-{
-    auto command = VcsBaseClient::createVcsCommand(data.baseDirectory,
-                   mercurialClient().processEnvironment(data.baseDirectory));
-    command->addJob({settings().binaryPath(), {"clone", data.extraArgs, data.url, data.localName}}, -1);
-    return command;
 }
 
 ExecutableItem MercurialPluginPrivate::cloneTask(const InitialCheckoutData &data) const

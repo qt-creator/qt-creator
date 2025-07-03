@@ -102,7 +102,6 @@ public:
         fossilClient().log(topLevel, {relativeDirectory.path()}, options);
     }
 
-    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
     Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
     void updateActions(VersionControlBase::ActionState) override;
@@ -880,110 +879,6 @@ void FossilPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id)
 {
     fossilClient().view(source, id);
-}
-
-VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
-{
-    const QMap<QString, QString> options = FossilJsExtension::parseArgOptions(data.extraArgs);
-
-    // Two operating modes:
-    //  1) CloneCheckout:
-    //  -- clone from remote-URL or a local-fossil a repository  into a local-clone fossil.
-    //  -- open/checkout the local-clone fossil
-    //  The local-clone fossil must not point to an existing repository.
-    //  Clone URL may be either schema-based (http, ssh, file) or an absolute local path.
-    //
-    //  2) LocalCheckout:
-    //  -- open/checkout an existing local fossil
-    //  Clone URL is an absolute local path and is the same as the local fossil.
-
-    const FilePath checkoutPath = data.baseDirectory.pathAppended(data.localName);
-    const QString fossilFile = options.value("fossil-file");
-    const FilePath fossilFilePath = FilePath::fromUserInput(QDir::fromNativeSeparators(fossilFile));
-    const QString fossilFileNative = fossilFilePath.toUserOutput();
-    const QFileInfo cloneRepository(fossilFilePath.toUrlishString());
-
-    // Check when requested to clone a local repository and clone-into repository file is the same
-    // or not specified.
-    // In this case handle it as local fossil checkout request.
-    const QUrl url(data.url);
-    bool isLocalRepository = (options.value("repository-type") == "localRepo");
-
-    if (url.isLocalFile() || url.isRelative()) {
-        const QFileInfo sourcePath(url.path());
-        isLocalRepository = (sourcePath.canonicalFilePath() == cloneRepository.canonicalFilePath());
-    }
-
-    // set clone repository admin user to configured user name
-    // OR override it with the specified user from clone panel
-    const QString adminUser = options.value("admin-user");
-    const bool disableAutosync = (options.value("settings-autosync") == "off");
-    const QString checkoutBranch = options.value("branch-tag");
-
-    // first create the checkout directory,
-    // as it needs to become a working directory for wizard command jobs
-    checkoutPath.createDir();
-
-    // Setup the wizard page command job
-    auto command = VcsBaseClient::createVcsCommand(checkoutPath,
-                                                   fossilClient().processEnvironment(checkoutPath));
-
-    if (!isLocalRepository
-        && !cloneRepository.exists()) {
-
-        const QString sslIdentityFile = options.value("ssl-identity");
-        const FilePath sslIdentityFilePath = FilePath::fromUserInput(QDir::fromNativeSeparators(sslIdentityFile));
-        const bool includePrivate = (options.value("include-private") == "true");
-
-        QStringList extraOptions;
-        if (includePrivate)
-            extraOptions << "--private";
-        if (!sslIdentityFile.isEmpty())
-            extraOptions << "--ssl-identity" << sslIdentityFilePath.toUserOutput();
-        if (!adminUser.isEmpty())
-            extraOptions << "--admin-user" << adminUser;
-
-        // Fossil allows saving the remote address and login. This is used to
-        // facilitate autosync (commit/update) functionality.
-        // When no password is given, it prompts for that.
-        // When both username and password are specified, it prompts whether to
-        // save them.
-        // NOTE: In non-interactive context, these prompts won't work.
-        // Fossil currently does not support SSH_ASKPASS way for login query.
-        //
-        // Alternatively, "--once" option does not save the remote details.
-        // In such case remote details must be provided on the command-line every
-        // time. This also precludes autosync.
-        //
-        // So here we want Fossil to save the remote details when specified.
-
-        command->addJob({fossilClient().vcsBinary(checkoutPath),
-            {fossilClient().vcsCommandString(FossilClient::CloneCommand), extraOptions,
-             data.url, fossilFileNative}}, -1);
-    }
-
-    // check out the cloned repository file into the working copy directory;
-    // by default the latest revision is checked out
-
-    QStringList args({"open", fossilFileNative});
-    if (!checkoutBranch.isEmpty())
-        args << checkoutBranch;
-    command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
-
-    // set user default to admin user if specified
-    if (!isLocalRepository
-        && !adminUser.isEmpty()) {
-        command->addJob({fossilClient().vcsBinary(checkoutPath),
-                         {"user", "default", adminUser, "--user", adminUser}}, -1);
-    }
-
-    // turn-off autosync if requested
-    if (!isLocalRepository && disableAutosync) {
-        command->addJob({fossilClient().vcsBinary(checkoutPath), {"settings", "autosync", "off"}},
-                        -1);
-    }
-
-    return command;
 }
 
 ExecutableItem FossilPluginPrivate::cloneTask(const InitialCheckoutData &data) const

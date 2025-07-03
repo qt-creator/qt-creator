@@ -149,7 +149,6 @@ public:
     }
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
-    VcsCommand *createInitialCheckoutCommand(const InitialCheckoutData &data) final;
     Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
 
     bool isVcsDirectory(const Utils::FilePath &fileName) const;
@@ -1066,19 +1065,6 @@ bool SubversionPluginPrivate::vcsCreateRepository(const FilePath &)
 void SubversionPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
     vcsAnnotateHelper(filePath.parentDir(), filePath.fileName(), QString(), line);
-}
-
-VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const InitialCheckoutData &data)
-{
-    CommandLine args{settings().binaryPath()};
-    args << "checkout";
-    args << SubversionClient::AddAuthOptions();
-    args << Subversion::Constants::NON_INTERACTIVE_OPTION << data.extraArgs << data.url << data.localName;
-
-    auto command = VcsBaseClient::createVcsCommand(data.baseDirectory,
-                   subversionClient().processEnvironment(data.baseDirectory));
-    command->addJob(args, -1);
-    return command;
 }
 
 ExecutableItem SubversionPluginPrivate::cloneTask(const InitialCheckoutData &data) const
