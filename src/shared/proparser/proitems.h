@@ -9,6 +9,10 @@
 #include <qvector.h>
 #include <qhash.h>
 
+namespace Utils {
+class FilePath;
+}
+
 QT_BEGIN_NAMESPACE
 
 class QTextStream;
@@ -418,6 +422,7 @@ public:
 
     int id() const { return m_id; }
     const QString &fileName() const { return m_fileName; }
+    Utils::FilePath fullName() const;
     const QString &device() const { return m_device; }
     const QString &directoryName() const { return m_directoryName; }
     const QString &items() const { return m_proitems; }

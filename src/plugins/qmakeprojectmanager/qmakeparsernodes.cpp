@@ -1409,7 +1409,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
                 continue;  // Don't attempt to map subdirs here
             const QList<ProFile *> children = includeFiles.value(current->proFile);
             for (ProFile *child : children) {
-                const FilePath childName = FilePath::fromString(child->fileName());
+                const FilePath childName = child->fullName();
                 auto it = current->children.find(childName);
                 if (it == current->children.end()) {
                     auto childTree = new QmakeIncludedPriFile;
@@ -1445,7 +1445,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
             continue;  // Don't attempt to map subdirs here
         const QList<ProFile *> children = includeFiles.value(current->proFile);
         for (ProFile *child : children) {
-            const FilePath childName = FilePath::fromString(child->fileName());
+            const FilePath childName = child->fullName();
             auto it = current->children.find(childName);
             if (it == current->children.end()) {
                 auto childTree = new QmakeIncludedPriFile;

@@ -8,6 +8,7 @@
 #include <qset.h>
 #include <qstringlist.h>
 #include <qtextstream.h>
+#include <utils/filepath.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -457,6 +458,20 @@ ProFile::ProFile(const QString &device, int id, const QString &fileName)
 
 ProFile::~ProFile()
 {
+}
+
+Utils::FilePath ProFile::fullName() const
+{
+    using namespace Utils;
+    const QString &fileName_ = fileName();
+    QString device_ = device();
+    if (device_.isEmpty())
+        return FilePath::fromString(fileName_);
+
+    // Avoiding double slashes in the middle of the path
+    if (device_.endsWith("/") && fileName_.startsWith("/"))
+        device_.removeLast();
+    return FilePath::fromString(device_ + fileName_);
 }
 
 ProString ProFile::getStr(const ushort *&tPtr)
