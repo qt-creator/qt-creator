@@ -993,7 +993,7 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
         if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
     });
-    enqueueJob(createCommand(workingDir), args, workingDir);
+    enqueueJob(cmd, args, workingDir);
 }
 
 QString FossilClient::sanitizeFossilOutput(const QString &output) const
