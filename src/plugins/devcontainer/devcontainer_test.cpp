@@ -7,6 +7,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
@@ -73,6 +74,9 @@ private slots:
         FilePath expectedMainCpp = expectedWorkspaceFolder / "main.cpp";
         QVERIFY(expectedMainCpp.exists());
         QVERIFY(expectedMainCpp.isReadableFile());
+
+        ProjectExplorer::ProjectManager::removeProject(opr.project());
+        QVERIFY(!expectedRootPath.exists());
     }
 };
 

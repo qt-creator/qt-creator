@@ -101,6 +101,8 @@ static void onProjectRemoved(ProjectExplorer::Project *project)
     auto it = devContainerPluginPrivate->devices.find(project);
     if (it == devContainerPluginPrivate->devices.end())
         return;
+
+    DeviceManager::removeDevice(it->second->id());
     devContainerPluginPrivate->devices.erase(it);
 }
 
