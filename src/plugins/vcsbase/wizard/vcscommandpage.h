@@ -48,7 +48,6 @@ public:
 
 private:
     void delayedInitialize();
-    void start(VcsCommand *command);
     void finished(bool success);
 
     enum State { Idle, Running, Failed, Succeeded };

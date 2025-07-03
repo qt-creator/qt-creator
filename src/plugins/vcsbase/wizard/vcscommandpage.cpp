@@ -250,11 +250,6 @@ void VcsCommandPage::delayedInitialize()
 
     VcsCommand *command = vc->createInitialCheckoutCommand({repo, FilePath::fromString(base),
                                                             name, extraArgs});
-    start(command);
-}
-
-void VcsCommandPage::start(VcsCommand *command)
-{
     if (!command) {
         m_logPlainTextEdit->setPlainText(Tr::tr("No job running, please abort."));
         return;
