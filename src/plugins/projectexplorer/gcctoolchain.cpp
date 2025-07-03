@@ -286,9 +286,14 @@ static Abis guessGccAbi(const QString &m, const ProjectExplorer::Macros &macros)
     }
 
     if (os == Abi::DarwinOS) {
-        // Apple does PPC and x86!
-        abiList << Abi(arch, os, flavor, format, width);
-        abiList << Abi(arch, os, flavor, format, width == 64 ? 32 : 64);
+        // Apple does ARM and x86, 32 and 64 bit!
+        abiList << Abi(arch, os, flavor, format, width); // first one is "main" one
+        for (const Abi::Architecture &a : {Abi::ArmArchitecture, Abi::X86Architecture}) {
+            for (const int w : {32, 64}) {
+                if (a != arch || w != width)
+                    abiList << Abi(a, os, flavor, format, w);
+            }
+        }
     } else if (arch == Abi::X86Architecture && (width == 0 || width == 64)) {
         abiList << Abi(arch, os, flavor, format, 64);
         if (width != 64 || (!m.contains("mingw")
