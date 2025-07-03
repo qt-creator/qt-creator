@@ -45,11 +45,14 @@ public:
     Source sources = [] { return std::make_pair(0, 0); };
 
     ProgressDialog()
+        : QProgressDialog(Core::ICore::dialogParent())
     {
-        show();
+        setWindowModality(Qt::WindowModality::ApplicationModal);
         setWindowTitle(Tr::tr("Starting DevContainer"));
         setValue(1);
         setLabelText(Tr::tr("Loading DevContainer..."));
+
+        show();
     }
 
     void addSource(Tasking::TaskTree &taskTree)
@@ -73,13 +76,16 @@ public:
     }
 };
 
-Result<> Device::up(const FilePath &path, InstanceConfig instanceConfig)
+Result<> Device::up(
+    const FilePath &path,
+    InstanceConfig instanceConfig,
+    std::function<void(Utils::Result<>)> callback)
 {
     m_instanceConfig = instanceConfig;
     m_processInterfaceCreator = nullptr;
     m_fileAccess.reset();
 
-    ProgressDialog progress;
+    ProgressDialog *progress = new ProgressDialog();
 
     using namespace Tasking;
 
@@ -90,12 +96,11 @@ Result<> Device::up(const FilePath &path, InstanceConfig instanceConfig)
         QString libExecMountPoint = "/devcontainer/libexec";
     };
 
-    QString error;
     Storage<std::shared_ptr<Instance>> instance;
     Storage<Options> options;
     auto runningInstance = std::make_shared<DevContainer::RunningInstanceData>();
 
-    const auto loadConfig = [&error, &path, &instanceConfig, instance, options]() -> DoneResult {
+    const auto loadConfig = [&path, &instanceConfig, instance, options]() -> DoneResult {
         const auto result = [&]() -> Result<> {
             Result<Config> config = Instance::configFromFile(path, instanceConfig);
             if (!config)
@@ -132,7 +137,8 @@ Result<> Device::up(const FilePath &path, InstanceConfig instanceConfig)
         }();
 
         if (!result) {
-            error = result.error();
+            instanceConfig.logFunction(
+                Tr::tr("Failed to load DevContainer config: %1").arg(result.error()));
             return DoneResult::Error;
         }
         return DoneResult::Success;
@@ -144,7 +150,8 @@ Result<> Device::up(const FilePath &path, InstanceConfig instanceConfig)
         };
     };
 
-    const auto setupCmdBridge = [this, runningInstance, instance, &error, options]() -> DoneResult {
+    const auto setupCmdBridge =
+        [this, instanceConfig, runningInstance, instance, options]() -> DoneResult {
         const auto result = [&]() -> Result<> {
             Utils::Result<Utils::FilePath> cmdBridgePath = CmdBridge::Client::getCmdBridgePath(
                 runningInstance->osType, runningInstance->osArch, Core::ICore::libexecPath());
@@ -177,21 +184,22 @@ Result<> Device::up(const FilePath &path, InstanceConfig instanceConfig)
         }();
 
         if (!result) {
-            error = result.error();
+            instanceConfig.logFunction(Tr::tr("Failed to setup CmdBridge: %1").arg(result.error()));
             return DoneResult::Error;
         }
         return DoneResult::Success;
     };
 
     const auto subTree =
-        [instance, runningInstance, &error, &progress](TaskTree &taskTree) -> SetupResult {
+        [instance, instanceConfig, runningInstance, progress](TaskTree &taskTree) -> SetupResult {
         const Result<Tasking::Group> devcontainerRecipe = (*instance)->upRecipe(runningInstance);
         if (!devcontainerRecipe) {
-            error = devcontainerRecipe.error();
+            instanceConfig.logFunction(
+                Tr::tr("Failed to create DevContainer recipe: %1").arg(devcontainerRecipe.error()));
             return SetupResult::StopWithError;
         }
         taskTree.setRecipe(std::move(*devcontainerRecipe));
-        progress.addSource(taskTree);
+        progress->addSource(taskTree);
         return SetupResult::Continue;
     };
 
@@ -205,18 +213,26 @@ Result<> Device::up(const FilePath &path, InstanceConfig instanceConfig)
     };
     // clang-format on
 
-    Tasking::TaskTree tree;
-    tree.setRecipe(
-        recipe.withCancel([&] { return std::make_pair(&progress, &QProgressDialog::canceled); }));
-    progress.addSource(tree);
+    Tasking::TaskTree *tree = new Tasking::TaskTree();
+    tree->setParent(this);
+    tree->setRecipe(recipe);
+    progress->addSource(*tree);
 
-    const auto doneWith = tree.runBlocking();
-    if (doneWith != Tasking::DoneWith::Success) {
-        if (error.isEmpty())
-            return ResultError(Tr::tr("Unknown error while trying to start DevContainer."));
-        else
-            return ResultError(Tr::tr("Failed to start DevContainer:") + error);
-    }
+    connect(progress, &QProgressDialog::canceled, tree, &Tasking::TaskTree::cancel);
+
+    connect(tree, &Tasking::TaskTree::done, this, [callback](Tasking::DoneWith doneWith) {
+        if (doneWith == Tasking::DoneWith::Error) {
+            callback(ResultError(
+                Tr::tr("Failed to start DevContainer, check General Messages for details")));
+        } else {
+            callback(ResultOk);
+        }
+    });
+
+    connect(tree, &Tasking::TaskTree::done, progress, &QProgressDialog::deleteLater);
+    connect(tree, &Tasking::TaskTree::done, tree, &TaskTree::deleteLater);
+
+    tree->start();
     return ResultOk;
 }
 

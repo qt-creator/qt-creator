@@ -21,7 +21,10 @@ public:
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
 
-    Utils::Result<> up(const Utils::FilePath &path, InstanceConfig instanceConfig);
+    Utils::Result<> up(
+        const Utils::FilePath &path,
+        InstanceConfig instanceConfig,
+        std::function<void(Utils::Result<>)> callback);
 
     Utils::ProcessInterface *createProcessInterface() const override;
 

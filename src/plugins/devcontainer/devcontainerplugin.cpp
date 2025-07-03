@@ -19,6 +19,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <utils/guardedcallback.h>
 #include <utils/infobar.h>
 
 #include <QMessageBox>
@@ -27,48 +28,41 @@ using namespace ProjectExplorer;
 
 namespace DevContainer::Internal {
 
-struct Private
+class Private : public QObject
 {
+    Q_OBJECT
+
+public slots:
+    void onProjectAdded(ProjectExplorer::Project *project);
+    void onProjectRemoved(ProjectExplorer::Project *project);
+
+private:
+    static void startDeviceForProject(
+        Private *d,
+        const Utils::FilePath &path,
+        ProjectExplorer::Project *project,
+        DevContainer::InstanceConfig instanceConfig);
+
+#ifdef WITH_TESTS
+signals:
+    void deviceUpDone();
+#endif
+
+private:
     std::map<ProjectExplorer::Project *, std::shared_ptr<Device>> devices;
 };
 
-Q_GLOBAL_STATIC(Private, devContainerPluginPrivate)
-
-#ifdef WITH_TESTS
-QObject *createDevcontainerTest();
-#endif
-
-static Utils::Result<std::shared_ptr<DevContainer::Device>> startDeviceForProject(
-    const Utils::FilePath &path,
-    ProjectExplorer::Project *project,
-    DevContainer::InstanceConfig instanceConfig)
+void Private::onProjectRemoved(ProjectExplorer::Project *project)
 {
-    QString log;
-    instanceConfig.logFunction = [&log](const QString &message) {
-        log += message + '\n';
-        Core::MessageManager::writeSilently(message);
-    };
+    auto it = devices.find(project);
+    if (it == devices.end())
+        return;
 
-    auto device = std::make_shared<DevContainer::Device>();
-    ProjectExplorer::DeviceManager::addDevice(device);
-    Utils::Result<> result = device->up(path, instanceConfig);
-    if (!result) {
-        ProjectExplorer::DeviceManager::removeDevice(device->id());
-        QMessageBox box(Core::ICore::dialogParent());
-        box.setWindowTitle(Tr::tr("DevContainer Error"));
-        box.setIcon(QMessageBox::Critical);
-        box.setText(result.error());
-        box.setDetailedText(log);
-        box.exec();
-
-        return Utils::ResultError(Tr::tr("Failed to start DevContainer for project '%1': %2")
-                                      .arg(project->displayName(), result.error()));
-    }
-
-    return device;
+    DeviceManager::removeDevice(it->second->id());
+    devices.erase(it);
 }
 
-static void onProjectAdded(ProjectExplorer::Project *project)
+void Private::onProjectAdded(ProjectExplorer::Project *project)
 {
     const Utils::FilePath path = project->projectDirectory() / ".devcontainer"
                                  / "devcontainer.json";
@@ -93,12 +87,9 @@ static void onProjectAdded(ProjectExplorer::Project *project)
         entry.setInfoType(Utils::InfoLabel::Information);
         entry.addCustomButton(
             Tr::tr("Yes"),
-            [project, path, instanceConfig, infoBarId] {
-                auto device = startDeviceForProject(path, project, instanceConfig);
-                if (device) {
-                    devContainerPluginPrivate->devices.insert({project, *device});
-                    Core::ICore::infoBar()->removeInfo(infoBarId);
-                }
+            [this, project, path, instanceConfig, infoBarId] {
+                Core::ICore::infoBar()->removeInfo(infoBarId);
+                startDeviceForProject(this, path, project, instanceConfig);
             },
             Tr::tr("Start DevContainer"));
 
@@ -106,15 +97,59 @@ static void onProjectAdded(ProjectExplorer::Project *project)
     };
 }
 
-static void onProjectRemoved(ProjectExplorer::Project *project)
+void Private::startDeviceForProject(
+    Private *d,
+    const Utils::FilePath &path,
+    ProjectExplorer::Project *project,
+    DevContainer::InstanceConfig instanceConfig)
 {
-    auto it = devContainerPluginPrivate->devices.find(project);
-    if (it == devContainerPluginPrivate->devices.end())
-        return;
+    QString *log = new QString();
+    instanceConfig.logFunction = [log](const QString &message) {
+        *log += message + '\n';
+        Core::MessageManager::writeSilently(message);
+    };
 
-    DeviceManager::removeDevice(it->second->id());
-    devContainerPluginPrivate->devices.erase(it);
+    std::shared_ptr<Device> device = std::make_shared<DevContainer::Device>();
+    ProjectExplorer::DeviceManager::addDevice(device);
+    Utils::Result<> result = device->up(
+        path,
+        instanceConfig,
+        Utils::guardedCallback(d, [d, project, log, device](Utils::Result<> result) {
+            if (result) {
+                d->devices.insert({project, device});
+                delete log;
+#ifdef WITH_TESTS
+                emit d->deviceUpDone();
+#endif
+                return;
+            }
+
+            ProjectExplorer::DeviceManager::removeDevice(device->id());
+
+            QMessageBox box(Core::ICore::dialogParent());
+            box.setWindowTitle(Tr::tr("DevContainer Error"));
+            box.setIcon(QMessageBox::Critical);
+            box.setText(result.error());
+            box.setDetailedText(*log);
+            box.exec();
+
+#ifdef WITH_TESTS
+            emit d->deviceUpDone();
+#endif
+
+            delete log;
+        }));
+
+    if (!result) {
+        QMessageBox::critical(
+            Core::ICore::dialogParent(), Tr::tr("DevContainer Error"), result.error());
+        ProjectExplorer::DeviceManager::removeDevice(device->id());
+    }
 }
+
+#ifdef WITH_TESTS
+QObject *createDevcontainerTest();
+#endif
 
 class DevContainerPlugin final : public ExtensionSystem::IPlugin
 {
@@ -122,18 +157,34 @@ class DevContainerPlugin final : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DevContainerPlugin.json")
 
 public:
-    DevContainerPlugin() {}
+    DevContainerPlugin()
+        : d(std::make_unique<Private>())
+    {}
+
+    std::unique_ptr<DevContainer::Internal::Private> d;
 
     void initialize() final
     {
 #ifdef WITH_TESTS
-        addTestCreator(createDevcontainerTest);
+        addTestCreator([this]() {
+            QObject *tests = createDevcontainerTest();
+            QObject::connect(d.get(), SIGNAL(deviceUpDone()), tests, SIGNAL(deviceUpDone()));
+            return tests;
+        });
 #endif
-        connect(ProjectManager::instance(), &ProjectManager::projectAdded, this, &onProjectAdded);
-        connect(ProjectManager::instance(), &ProjectManager::projectRemoved, this, &onProjectRemoved);
+        connect(
+            ProjectManager::instance(),
+            &ProjectManager::projectAdded,
+            d.get(),
+            &Private::onProjectAdded);
+        connect(
+            ProjectManager::instance(),
+            &ProjectManager::projectRemoved,
+            d.get(),
+            &Private::onProjectRemoved);
 
         for (auto project : ProjectManager::instance()->projects())
-            onProjectAdded(project);
+            d->onProjectAdded(project);
     }
     void extensionsInitialized() final {}
 };

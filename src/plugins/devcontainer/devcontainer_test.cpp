@@ -56,6 +56,9 @@ class Tests : public QObject
 
     const FilePath testData{TESTDATA};
 
+signals:
+    void deviceUpDone();
+
 private slots:
     void initTestCase()
     {
@@ -73,6 +76,8 @@ private slots:
             = ProjectExplorer::ProjectExplorerPlugin::openProject(cmakelists);
 
         QVERIFY(opr);
+
+        QSignalSpy deviceAddedSpy(this, &Tests::deviceUpDone);
 
         InstanceConfig instanceConfig;
         instanceConfig.configFilePath = testData / "simpleproject" / ".devcontainer"
@@ -95,6 +100,11 @@ private slots:
 
         // Trigger loading the DevContainer instance
         yesButton.callback();
+
+        using namespace std::chrono_literals;
+        QVERIFY(deviceAddedSpy.wait(
+            std::chrono::duration_cast<std::chrono::milliseconds>(1min).count()));
+
         FilePath expectedRootPath
             = FilePath::fromParts(u"devcontainer", instanceConfig.devContainerId(), u"/");
         QVERIFY(expectedRootPath.exists());
