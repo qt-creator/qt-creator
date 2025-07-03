@@ -564,7 +564,7 @@ const VcsBasePluginState &VersionControlBase::currentState() const
     return m_state;
 }
 
-ExecutableItem VersionControlBase::cloneTask(const InitialCheckoutData &data) const
+ExecutableItem VersionControlBase::cloneTask(const CloneTaskData &data) const
 {
     return errorTask(data.baseDirectory, Tr::tr("Initial checkout task not implemented."));
 }

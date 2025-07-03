@@ -102,7 +102,7 @@ public:
         fossilClient().log(topLevel, {relativeDirectory.path()}, options);
     }
 
-    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
+    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     void updateActions(VersionControlBase::ActionState) override;
     bool activateCommit() override;
@@ -881,7 +881,7 @@ void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id)
     fossilClient().view(source, id);
 }
 
-ExecutableItem FossilPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+ExecutableItem FossilPluginPrivate::cloneTask(const CloneTaskData &data) const
 {
     const QMap<QString, QString> options = FossilJsExtension::parseArgOptions(data.extraArgs);
 

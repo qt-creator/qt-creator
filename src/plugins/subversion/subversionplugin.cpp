@@ -149,7 +149,7 @@ public:
     }
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
-    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
+    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     bool isVcsDirectory(const Utils::FilePath &fileName) const;
 
@@ -1067,7 +1067,7 @@ void SubversionPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
     vcsAnnotateHelper(filePath.parentDir(), filePath.fileName(), QString(), line);
 }
 
-ExecutableItem SubversionPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+ExecutableItem SubversionPluginPrivate::cloneTask(const CloneTaskData &data) const
 {
     CommandLine command{settings().binaryPath()};
     command << "checkout";

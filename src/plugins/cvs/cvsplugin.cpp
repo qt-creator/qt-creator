@@ -181,7 +181,7 @@ public:
 
     QString vcsOpenText() const final;
 
-    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
+    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     ///
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
@@ -399,7 +399,7 @@ QString CvsPluginPrivate::vcsOpenText() const
     return Tr::tr("&Edit");
 }
 
-ExecutableItem CvsPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+ExecutableItem CvsPluginPrivate::cloneTask(const CloneTaskData &data) const
 {
     if (data.localName == data.url)
         return errorTask(data.baseDirectory, Tr::tr("Local name can't be the same as url."));

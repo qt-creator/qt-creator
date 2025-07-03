@@ -150,7 +150,7 @@ public:
     }
     void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source, id); }
 
-    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
+    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     void updateActions(VcsBase::VersionControlBase::ActionState) final;
     bool activateCommit() final;
@@ -938,7 +938,7 @@ void BazaarPluginPrivate::vcsAnnotate(const FilePath &file, int line)
     m_client.annotate(file.parentDir(), file.fileName(), line);
 }
 
-ExecutableItem BazaarPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+ExecutableItem BazaarPluginPrivate::cloneTask(const CloneTaskData &data) const
 {
     Environment env = m_client.processEnvironment(data.baseDirectory);
     env.set("BZR_PROGRESS_BAR", "text");

@@ -107,7 +107,7 @@ VCSBASE_EXPORT void setSource(Core::IDocument *document, const Utils::FilePath &
 // Returns the source of editor contents.
 VCSBASE_EXPORT Utils::FilePath source(Core::IDocument *document);
 
-class VCSBASE_EXPORT InitialCheckoutData
+class VCSBASE_EXPORT CloneTaskData
 {
 public:
     QString url;
@@ -136,7 +136,7 @@ public:
      *
      * \a extraArgs are passed on to the command being run.
      */
-    virtual Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const;
+    virtual Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const;
 
     // Display name of the commit action
     virtual QString commitDisplayName() const;

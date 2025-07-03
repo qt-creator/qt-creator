@@ -175,7 +175,7 @@ public:
     void vcsDescribe(const FilePath &source, const QString &id) final { gitClient().show(source, id); }
     QString vcsTopic(const FilePath &directory) final;
 
-    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
+    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
     void fillLinkContextMenu(QMenu *menu,
                              const FilePath &workingDirectory,
@@ -1947,7 +1947,7 @@ QString GitPluginPrivate::vcsTopic(const FilePath &directory)
     return topic;
 }
 
-ExecutableItem GitPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+ExecutableItem GitPluginPrivate::cloneTask(const CloneTaskData &data) const
 {
     const CommandLine command{gitClient().vcsBinary(data.baseDirectory),
                               {"clone", "--progress", data.extraArgs, data.url, data.localName}};

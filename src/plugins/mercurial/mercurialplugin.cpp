@@ -81,7 +81,7 @@ public:
         mercurialClient().view(source, id);
     }
 
-    Tasking::ExecutableItem cloneTask(const InitialCheckoutData &data) const final;
+    Tasking::ExecutableItem cloneTask(const CloneTaskData &data) const final;
 
 private:
     void updateActions(VcsBase::VersionControlBase::ActionState) final;
@@ -721,7 +721,7 @@ void MercurialPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
     mercurialClient().annotate(filePath.parentDir(), filePath.fileName(), line);
 }
 
-ExecutableItem MercurialPluginPrivate::cloneTask(const InitialCheckoutData &data) const
+ExecutableItem MercurialPluginPrivate::cloneTask(const CloneTaskData &data) const
 {
     const CommandLine command{settings().binaryPath(),
                               {"clone", data.extraArgs, data.url, data.localName}};
