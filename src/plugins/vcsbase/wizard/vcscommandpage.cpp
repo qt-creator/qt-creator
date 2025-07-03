@@ -28,6 +28,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace VcsBase {
@@ -162,7 +163,7 @@ VcsCommandPage::VcsCommandPage()
 
 VcsCommandPage::~VcsCommandPage()
 {
-    QTC_ASSERT(m_state != Running, QApplication::restoreOverrideCursor());
+    m_taskTreeRunner.cancel();
     delete m_formatter;
 }
 
@@ -176,16 +177,15 @@ void VcsCommandPage::initializePage()
 
 bool VcsCommandPage::isComplete() const
 {
-    return m_state == Succeeded;
+    return m_isComplete;
 }
 
 bool VcsCommandPage::handleReject()
 {
-    if (m_state != Running)
+    if (!m_taskTreeRunner.isRunning())
         return false;
 
-    if (m_command)
-        m_command->cancel();
+    m_taskTreeRunner.cancel();
     return true;
 }
 
@@ -248,62 +248,49 @@ void VcsCommandPage::delayedInitialize()
         extraArgs << tmp;
     }
 
-    VcsCommand *command = vc->createInitialCheckoutCommand({repo, FilePath::fromString(base),
-                                                            name, extraArgs});
-    if (!command) {
-        m_logPlainTextEdit->setPlainText(Tr::tr("No job running, please abort."));
-        return;
-    }
-
-    QTC_ASSERT(m_state != Running, return);
-    m_command = command;
-    m_command->setStdOutCallback([formatter = QPointer<OutputFormatter>(m_formatter)](const QString &text) {
+    const auto outCallback = [formatter = QPointer<OutputFormatter>(m_formatter)](const QString &text) {
         if (formatter)
             formatter->appendMessage(text, StdOutFormat);
-    });
-    m_command->setStdErrCallback([formatter = QPointer<OutputFormatter>(m_formatter)](const QString &text) {
+    };
+    const auto errCallback = [formatter = QPointer<OutputFormatter>(m_formatter)](const QString &text) {
         if (formatter)
             formatter->appendMessage(text, StdErrFormat);
-    });
-    connect(m_command, &VcsCommand::done, this, [this] {
-        finished(m_command->result() == ProcessResult::FinishedWithSuccess);
-    });
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    m_logPlainTextEdit->clear();
-    m_overwriteOutput = false;
-    m_statusLabel->setText(m_startedStatus);
-    m_statusLabel->setPalette(QPalette());
-    m_state = Running;
-    m_command->start();
+    };
 
-    wizard()->button(QWizard::BackButton)->setEnabled(false);
-}
+    const auto onSetup = [this] {
+        QApplication::setOverrideCursor(Qt::WaitCursor);
 
-void VcsCommandPage::finished(bool success)
-{
-    QTC_ASSERT(m_state == Running, return);
+        m_logPlainTextEdit->clear();
+        m_overwriteOutput = false;
+        m_statusLabel->setText(m_startedStatus);
+        m_statusLabel->setPalette(QPalette());
 
-    QString message;
-    QPalette palette;
+        wizard()->button(QWizard::BackButton)->setEnabled(false);
+    };
 
-    if (success) {
-        m_state = Succeeded;
-        message = Tr::tr("Succeeded.");
-        palette.setColor(QPalette::WindowText, creatorColor(Theme::TextColorNormal).name());
-    } else {
-        m_state = Failed;
-        message = Tr::tr("Failed.");
-        palette.setColor(QPalette::WindowText, creatorColor(Theme::TextColorError).name());
-    }
+    const auto onDone = [this](DoneWith result) {
+        QApplication::restoreOverrideCursor();
 
-    m_statusLabel->setText(message);
-    m_statusLabel->setPalette(palette);
+        m_isComplete = result == DoneWith::Success;
+        QPalette palette;
+        const Theme::Color role = m_isComplete ? Theme::TextColorNormal : Theme::TextColorError;
+        palette.setColor(QPalette::WindowText, creatorColor(role).name());
+        m_statusLabel->setPalette(palette);
+        m_statusLabel->setText(m_isComplete ? Tr::tr("Succeeded.") : Tr::tr("Failed."));
 
-    QApplication::restoreOverrideCursor();
-    wizard()->button(QWizard::BackButton)->setEnabled(true);
+        wizard()->button(QWizard::BackButton)->setEnabled(true);
 
-    if (success)
-        emit completeChanged();
+        if (result == DoneWith::Success)
+            emit completeChanged();
+    };
+
+    const Group recipe {
+        onGroupSetup(onSetup),
+        vc->cloneTask({repo, FilePath::fromString(base), name, extraArgs, outCallback, errCallback}),
+        onGroupDone(onDone)
+    };
+
+    m_taskTreeRunner.start(recipe);
 }
 
 void VcsCommandPage::setCheckoutData(const QString &repo, const QString &baseDir, const QString &name,

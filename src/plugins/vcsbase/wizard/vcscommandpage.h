@@ -5,6 +5,8 @@
 
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/filepath.h>
 #include <utils/wizardpage.h>
 
@@ -48,25 +50,22 @@ public:
 
 private:
     void delayedInitialize();
-    void finished(bool success);
-
-    enum State { Idle, Running, Failed, Succeeded };
 
     QPlainTextEdit *m_logPlainTextEdit = nullptr;
     Utils::OutputFormatter *m_formatter = nullptr;
     QLabel *m_statusLabel = nullptr;
 
-    VcsCommand *m_command = nullptr;
     QString m_startedStatus;
     bool m_overwriteOutput = false;
 
-    State m_state = Idle;
+    bool m_isComplete = false;
     QString m_vcsId;
     QString m_repository;
     QString m_directory;
     QString m_name;
     QString m_runMessage;
     QStringList m_arguments;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Internal
