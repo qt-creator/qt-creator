@@ -104,7 +104,7 @@ VCSBASE_EXPORT void setSource(Core::IDocument *document, const Utils::FilePath &
 // Returns the source of editor contents.
 VCSBASE_EXPORT Utils::FilePath source(Core::IDocument *document);
 
-class InitialCheckoutData
+class VCSBASE_EXPORT InitialCheckoutData
 {
 public:
     QString url;
