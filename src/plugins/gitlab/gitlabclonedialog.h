@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -18,8 +20,6 @@ class InfoLabel;
 class PathChooser;
 }
 
-namespace VcsBase { class VcsCommand; }
-
 namespace GitLab {
 
 class Project;
@@ -28,14 +28,13 @@ class GitLabCloneDialog : public QDialog
 {
 public:
     explicit GitLabCloneDialog(const Project &project, QWidget *parent = nullptr);
+    ~GitLabCloneDialog();
 
 private:
     void updateUi();
     void cloneProject();
-    void cancel();
-    void cloneFinished(bool success);
 
-    QComboBox * m_repositoryCB = nullptr;
+    QComboBox *m_repositoryCB = nullptr;
     QCheckBox *m_submodulesCB = nullptr;
     QPushButton *m_cloneButton = nullptr;
     QPushButton *m_cancelButton = nullptr;
@@ -43,8 +42,7 @@ private:
     Utils::PathChooser *m_pathChooser = nullptr;
     Utils::FancyLineEdit *m_directoryLE = nullptr;
     Utils::InfoLabel *m_infoLabel = nullptr;
-    VcsBase::VcsCommand *m_command = nullptr;
-    bool m_commandRunning = false;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace GitLab
