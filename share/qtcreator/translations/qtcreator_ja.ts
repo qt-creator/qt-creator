@@ -40959,18 +40959,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <translation>&quot;VcsCommand&quot; ページの &quot;data&quot; セクションの &quot;%1&quot; の値が未設定やリストではありません。</translation>
     </message>
     <message>
-        <source>Job in &quot;VcsCommand&quot; page is empty.</source>
-        <translation>&quot;VcsCommand&quot; ページの extraJobs が空です。</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page is not an object.</source>
-        <translation>&quot;VcsCommand&quot; ページの extraJobs がオブジェクトではありません。</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page has no &quot;%1&quot; set.</source>
-        <translation>&quot;VcsCommand&quot; ページの extraJobs に &quot;%1&quot; が設定されていません。</translation>
-    </message>
-    <message>
         <source>Checkout</source>
         <translation>チェックアウト</translation>
     </message>

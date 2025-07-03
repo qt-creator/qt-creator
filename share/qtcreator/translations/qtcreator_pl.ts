@@ -57190,18 +57190,6 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
         <translation>&quot;%1&quot; w sekcji &quot;data&quot; na stronie &quot;VcsCommand&quot; jest nieoczekiwanego typu (należy go usunąć lub zmienić typ na listę).</translation>
     </message>
     <message>
-        <source>Job in &quot;VcsCommand&quot; page is empty.</source>
-        <translation>Puste zadanie na stronie &quot;VcsCommand&quot;.</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page is not an object.</source>
-        <translation>Zadanie na stronie &quot;VcsCommand&quot; nie jest obiektem.</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page has no &quot;%1&quot; set.</source>
-        <translation>Brak ustawionego &quot;%1&quot; w zadaniu na stronie &quot;VcsCommand&quot;.</translation>
-    </message>
-    <message>
         <source>Command started...</source>
         <translation>Komenda uruchomiona...</translation>
     </message>

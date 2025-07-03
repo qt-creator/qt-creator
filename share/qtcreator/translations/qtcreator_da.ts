@@ -37726,18 +37726,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <translation>&quot;%1&quot; i &quot;data&quot;-sektion af &quot;VcsCommand&quot;-side har uventet type (usat eller liste).</translation>
     </message>
     <message>
-        <source>Job in &quot;VcsCommand&quot; page is empty.</source>
-        <translation>Job på &quot;VcsCommand&quot;-side er tom.</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page is not an object.</source>
-        <translation>Job på &quot;VcsCommand&quot;-side er ikke et objekt.</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page has no &quot;%1&quot; set.</source>
-        <translation>Job på &quot;VcsCommand&quot;-side har ingen &quot;%1&quot; sat.</translation>
-    </message>
-    <message>
         <source>Checkout</source>
         <translation>Checkout</translation>
     </message>

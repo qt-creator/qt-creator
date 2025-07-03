@@ -67700,18 +67700,6 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
         <translation>&quot;%1&quot; im &quot;data&quot;-Abschnitt der &quot;VcsCommand&quot;-Seite hat einen unerwarteten Typ (nicht angegeben oder List).</translation>
     </message>
     <message>
-        <source>Job in &quot;VcsCommand&quot; page is empty.</source>
-        <translation>Job auf der &quot;VcsCommand&quot;-Seite ist leer.</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page is not an object.</source>
-        <translation>Job auf der &quot;VcsCommand&quot;-Seite ist kein Objekt.</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page has no &quot;%1&quot; set.</source>
-        <translation>Für Job auf der &quot;VcsCommand&quot;-Seite wurde kein &quot;%1&quot; angegeben.</translation>
-    </message>
-    <message>
         <source>Command started...</source>
         <translation>Kommando gestartet...</translation>
     </message>

@@ -67496,18 +67496,6 @@ Vérifiez les paramètres pour vous assurer que Valgrind est installé et dispon
         <translation>«&#xa0;%1&#xa0;» de la section «&#xa0;data&#xa0;» de la page «&#xa0;VcsCommand&#xa0;» possède un type inattendu (unset ou List).</translation>
     </message>
     <message>
-        <source>Job in &quot;VcsCommand&quot; page is empty.</source>
-        <translation>Le job dans la page «&#xa0;VcsCommand&#xa0;» est vide.</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page is not an object.</source>
-        <translation>Le job dans la page «&#xa0;VcsCommand&#xa0;» n&apos;est pas un objet.</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page has no &quot;%1&quot; set.</source>
-        <translation>Le job dans la page « VcsCommand » ne définit pas «&#xa0;%1&#xa0;».</translation>
-    </message>
-    <message>
         <source>Command started...</source>
         <translation>Commande démarrée…</translation>
     </message>

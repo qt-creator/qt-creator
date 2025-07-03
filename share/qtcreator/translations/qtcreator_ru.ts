@@ -47323,18 +47323,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>«%1» секции «data» страницы «VcsCommand» имеет неверный тип (не задано или список).</translation>
     </message>
     <message>
-        <source>Job in &quot;VcsCommand&quot; page is empty.</source>
-        <translation>Job на странице «VcsCommand» пусто.</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page is not an object.</source>
-        <translation>Job на странице «VcsCommand» не является объектом.</translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page has no &quot;%1&quot; set.</source>
-        <translation>Job на странице «VcsCommand» имеет незаданный «%1».</translation>
-    </message>
-    <message>
         <source>Checkout</source>
         <translation>Извлечение</translation>
     </message>

@@ -41286,18 +41286,6 @@ Output:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Job in &quot;VcsCommand&quot; page is empty.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page is not an object.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Job in &quot;VcsCommand&quot; page has no &quot;%1&quot; set.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Checkout</source>
         <translation type="unfinished"></translation>
     </message>
