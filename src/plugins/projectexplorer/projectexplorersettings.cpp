@@ -3,7 +3,6 @@
 
 #include "projectexplorersettings.h"
 
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
@@ -179,7 +178,7 @@ void setPromptToStopSettings(bool promptToStop)
 {
     projectExplorerSettings().promptToStopRunControl.setValue(promptToStop);
     projectExplorerSettings().promptToStopRunControl.writeSettings();
-    emit ProjectExplorerPlugin::instance()->settingsChanged();
+    emit projectExplorerSettings().changed();
 }
 
 void setSaveBeforeBuildSettings(bool saveBeforeBuild)
@@ -204,7 +203,6 @@ public:
         if (projectExplorerSettings().isDirty()) {
             projectExplorerSettings().apply();
             projectExplorerSettings().writeSettings();
-            emit ProjectExplorerPlugin::instance()->settingsChanged();
         }
 
         DocumentManager::setProjectsDirectory(projectsDirectory());

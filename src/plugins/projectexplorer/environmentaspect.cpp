@@ -7,7 +7,6 @@
 #include "environmentaspectwidget.h"
 #include "environmentkitaspect.h"
 #include "kit.h"
-#include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "target.h"
@@ -18,11 +17,8 @@
 using namespace Utils;
 
 namespace ProjectExplorer {
-const char PRINT_ON_RUN_KEY[] = "PE.EnvironmentAspect.PrintOnRun";
 
-// --------------------------------------------------------------------
-// EnvironmentAspect:
-// --------------------------------------------------------------------
+const char PRINT_ON_RUN_KEY[] = "PE.EnvironmentAspect.PrintOnRun";
 
 EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
     : BaseAspect(container)
@@ -36,8 +32,7 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
             env.modify(projectExplorerSettings().appEnvChanges());
             env.modify(EnvironmentKitAspect::runEnvChanges(runConfig->kit()));
         });
-        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-                this, &EnvironmentAspect::environmentChanged);
+        projectExplorerSettings().addOnChanged(this, [this] { emit environmentChanged(); });
     }
 }
 
@@ -61,7 +56,7 @@ void EnvironmentAspect::setBaseEnvironmentBase(int base)
     }
 }
 
-void EnvironmentAspect::setUserEnvironmentChanges(const Utils::EnvironmentItems &diff)
+void EnvironmentAspect::setUserEnvironmentChanges(const EnvironmentItems &diff)
 {
     if (m_userChanges != diff) {
         m_userChanges = diff;
@@ -70,14 +65,14 @@ void EnvironmentAspect::setUserEnvironmentChanges(const Utils::EnvironmentItems 
     }
 }
 
-Utils::Environment EnvironmentAspect::environment() const
+Environment EnvironmentAspect::environment() const
 {
     Environment env = modifiedBaseEnvironment();
     env.modify(userEnvironmentChanges());
     return env;
 }
 
-Environment EnvironmentAspect::expandedEnvironment(const Utils::MacroExpander &expander) const
+Environment EnvironmentAspect::expandedEnvironment(const MacroExpander &expander) const
 {
     Environment expandedEnv;
     environment().forEachEntry([&](const QString &key, const QString &value, bool enabled) {
@@ -171,9 +166,10 @@ Environment EnvironmentAspect::BaseEnvironment::unmodifiedBaseEnvironment() cons
     return getter ? getter() : Environment();
 }
 
-Utils::EnvironmentItems EnvironmentAspect::userEnvironmentChanges() const
+EnvironmentItems EnvironmentAspect::userEnvironmentChanges() const
 {
     emit userChangesUpdateRequested();
     return m_userChanges;
 }
+
 } // namespace ProjectExplorer

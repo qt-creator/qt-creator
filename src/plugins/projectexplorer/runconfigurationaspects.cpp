@@ -9,7 +9,6 @@
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "environmentaspect.h"
-#include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "target.h"
@@ -57,9 +56,9 @@ TerminalAspect::TerminalAspect(AspectContainer *container)
     setSettingsKey("RunConfiguration.UseTerminal");
     addDataExtractor(this, &TerminalAspect::useTerminal, &Data::useTerminal);
     addDataExtractor(this, &TerminalAspect::isUserSet, &Data::isUserSet);
+
     calculateUseTerminal();
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &TerminalAspect::calculateUseTerminal);
+    projectExplorerSettings().addOnChanged(this, [this] { calculateUseTerminal(); });
 }
 
 /*!

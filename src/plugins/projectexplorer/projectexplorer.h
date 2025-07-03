@@ -170,7 +170,6 @@ signals:
 
     void recentProjectsChanged();
 
-    void settingsChanged();
     void customParsersChanged();
 
     void runActionsUpdated();

@@ -13,8 +13,8 @@
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -122,8 +122,8 @@ QWidget *IosBuildStep::createConfigWidget()
                                                  HostOsInfo::hostOs()));
     });
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, updateDetails);
+    projectExplorerSettings().addOnChanged(this, updateDetails);
+
     connect(buildConfiguration(), &BuildConfiguration::kitChanged, this, updateDetails);
     connect(buildConfiguration(), &BuildConfiguration::environmentChanged,
             this, updateDetails);

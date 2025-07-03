@@ -10,8 +10,8 @@
 #include "gnumakeparser.h"
 #include "kit.h"
 #include "processparameters.h"
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "target.h"
 #include "toolchain.h"
@@ -379,8 +379,7 @@ QWidget *MakeStep::createConfigWidget()
     connect(&m_overrideMakeflagsAspect, &BoolAspect::changed, widget, updateDetails);
     connect(&m_buildTargetsAspect, &BaseAspect::changed, widget, updateDetails);
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            widget, updateDetails);
+    projectExplorerSettings().addOnChanged(widget, updateDetails);
 
     connect(buildConfiguration(), &BuildConfiguration::kitChanged, widget, updateDetails);
     connect(buildConfiguration(), &BuildConfiguration::environmentChanged, widget, updateDetails);

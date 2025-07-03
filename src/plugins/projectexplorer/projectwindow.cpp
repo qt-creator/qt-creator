@@ -11,7 +11,6 @@
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 #include "project.h"
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
@@ -1088,10 +1087,7 @@ TargetGroupItem::TargetGroupItem(Project *project)
          scheduleRebuildContents();
     });
 
-    QObject::connect(ProjectExplorerPlugin::instance(),
-                     &ProjectExplorerPlugin::settingsChanged, &m_guard, [this] {
-        scheduleRebuildContents();
-    });
+    projectExplorerSettings().addOnChanged(&m_guard, [this] { scheduleRebuildContents(); });
 
     rebuildContents();
 }

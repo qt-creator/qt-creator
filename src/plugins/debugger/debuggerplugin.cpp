@@ -1202,8 +1202,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             }
         });
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-        this, &DebuggerPluginPrivate::updateDebugWithoutDeployMenu);
+    projectExplorerSettings().addOnChanged(this, [this] { updateDebugWithoutDeployMenu(); });
 
     // Debug mode setup
     m_mode = new DebugMode;

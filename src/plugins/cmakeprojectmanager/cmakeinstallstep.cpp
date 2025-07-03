@@ -16,8 +16,8 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorersettings.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -102,10 +102,8 @@ QWidget *CMakeInstallStep::createConfigWidget()
 
     cmakeArguments.addOnChanged(this, updateDetails);
 
-    connect(ProjectExplorerPlugin::instance(),
-            &ProjectExplorerPlugin::settingsChanged,
-            this,
-            updateDetails);
+    projectExplorerSettings().addOnChanged(this, updateDetails);
+
     connect(buildConfiguration(), &BuildConfiguration::buildDirectoryChanged, this, updateDetails);
     connect(buildConfiguration(), &BuildConfiguration::buildTypeChanged, this, updateDetails);
 

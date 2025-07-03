@@ -73,8 +73,7 @@ BuildDirectoryAspect::BuildDirectoryAspect(BuildConfiguration *bc)
         Core::FileUtils::openTerminal(expandedValue(), bc->environment());
     });
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, &BuildDirectoryAspect::validateInput);
+    projectExplorerSettings().addOnChanged(this, [this] { validateInput(); });
 }
 
 BuildDirectoryAspect::~BuildDirectoryAspect()

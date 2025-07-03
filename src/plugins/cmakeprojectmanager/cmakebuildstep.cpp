@@ -30,8 +30,8 @@
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
@@ -657,13 +657,9 @@ QWidget *CMakeBuildStep::createConfigWidget()
     useStaging.addOnChanged(this, updateDetails);
     stagingDir.addOnChanged(this, updateDetails);
     useiOSAutomaticProvisioningUpdates.addOnChanged(this, updateDetails);
+    projectExplorerSettings().addOnChanged(this, updateDetails);
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, updateDetails);
-
-    connect(buildConfiguration(), &BuildConfiguration::environmentChanged,
-            this, updateDetails);
-
+    connect(buildConfiguration(), &BuildConfiguration::environmentChanged, this, updateDetails);
     connect(this, &CMakeBuildStep::buildTargetsChanged, widget, updateDetails);
 
     return widget;

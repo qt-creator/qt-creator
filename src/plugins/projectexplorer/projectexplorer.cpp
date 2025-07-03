@@ -1911,8 +1911,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     connect(dd->m_projectTreeExpandAllAction, &QAction::triggered,
             ProjectTree::instance(), &ProjectTree::expandAll);
 
-    connect(this, &ProjectExplorerPlugin::settingsChanged,
-            dd, &ProjectExplorerPluginPrivate::updateRunWithoutDeployMenu);
+    projectExplorerSettings().addOnChanged(dd, [] { dd->updateRunWithoutDeployMenu(); });
 
     connect(ICore::instance(), &ICore::newItemDialogStateChanged, dd, [] {
         dd->updateContextMenuActions(ProjectTree::currentNode());

@@ -15,8 +15,8 @@
 #include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -262,8 +262,8 @@ QWidget *IosDsymBuildStep::createConfigWidget()
         updateDetails();
     });
 
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
-            this, updateDetails);
+    projectExplorerSettings().addOnChanged(this, updateDetails);
+
     connect(buildConfiguration(), &BuildConfiguration::kitChanged, this, updateDetails);
     connect(buildConfiguration(), &BuildConfiguration::enabledChanged,
             this, updateDetails);
