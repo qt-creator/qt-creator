@@ -25,8 +25,6 @@ struct DEVCONTAINER_EXPORT InstanceConfig
     Utils::FilePath workspaceFolder;
     Utils::FilePath configFilePath;
 
-    Utils::FilePath containerWorkspaceFolder = "/devcontainer/workspace";
-
     std::vector<std::variant<Mount, QString>> mounts;
 
     Utils::Environment localEnvironment = Utils::Environment::systemEnvironment();

@@ -77,6 +77,7 @@ int main() {
     void upWithHooks();
     void upImage();
     void upDockerfile();
+    void containerWorkspaceReplacers();
 };
 
 void tst_DevContainer::instanceConfigToString_data()
@@ -99,12 +100,6 @@ void tst_DevContainer::instanceConfigToString_data()
     QTest::newRow("workspaceFolderBasename")
         << instanceConfig << "Hello ${localWorkspaceFolderBasename}"
         << QString("Hello %1").arg(instanceConfig.workspaceFolder.fileName());
-    QTest::newRow("containerWorkspaceFolder")
-        << instanceConfig << "Hello ${containerWorkspaceFolder}"
-        << QString("Hello %1").arg(instanceConfig.containerWorkspaceFolder.toUrlishString());
-    QTest::newRow("containerWorkspaceFolderBasename")
-        << instanceConfig << "Hello ${containerWorkspaceFolderBasename}"
-        << QString("Hello %1").arg(instanceConfig.containerWorkspaceFolder.fileName());
     QTest::newRow("devcontainerId") << instanceConfig << "Hello ${devcontainerId}"
                                     << QString("Hello %1").arg(instanceConfig.devContainerId());
     QTest::newRow("localEnvPath") << instanceConfig << "Hello ${localEnv:PATH}"
@@ -447,6 +442,43 @@ void tst_DevContainer::processInterface()
     Utils::Result<Tasking::Group> downRecipe = instance->downRecipe();
     QVERIFY_RESULT(downRecipe);
     QCOMPARE(Tasking::TaskTree::runBlocking(*downRecipe), Tasking::DoneWith::Success);
+}
+
+void tst_DevContainer::containerWorkspaceReplacers()
+{
+    static const QByteArray jsonData = R"json(
+{
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "workspaceFolder": "/custom/workspace/folder",
+    "containerEnv": {
+        "folder": "${containerWorkspaceFolder}",
+        "basename": "${containerWorkspaceFolderBasename}"
+    }
+}
+    )json";
+
+    DevContainer::InstanceConfig instanceConfig{
+        .dockerCli = "docker",
+        .dockerComposeCli = "docker-compose",
+        .workspaceFolder = tempDir,
+        .configFilePath = tempDir / "devcontainer.json",
+        .mounts = {},
+    };
+
+    Utils::Result<DevContainer::Config> config
+        = DevContainer::Config::fromJson(jsonData, [instanceConfig](const QJsonValue &value) {
+              return instanceConfig.jsonToString(value);
+          });
+
+    QVERIFY_RESULT(config);
+    QCOMPARE(config->containerConfig->index(), 0);
+    const auto containerConfig = std::get<DevContainer::DockerfileContainer>(
+        *config->containerConfig);
+    QCOMPARE(containerConfig.workspaceFolder, "/custom/workspace/folder");
+    QCOMPARE((*config).common.containerEnv.at("folder"), "/custom/workspace/folder");
+    QCOMPARE((*config).common.containerEnv.at("basename"), "folder");
 }
 
 QTEST_GUILESS_MAIN(tst_DevContainer)

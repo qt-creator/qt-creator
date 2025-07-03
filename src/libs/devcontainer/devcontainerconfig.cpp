@@ -4,7 +4,9 @@
 #include "devcontainerconfig.h"
 
 #include "devcontainertr.h"
+#include "substitute.h"
 
+#include <utils/overloaded.h>
 #include <utils/stringutils.h>
 
 using namespace Utils;
@@ -48,7 +50,7 @@ Result<EnumType> parseEnum(
 }
 
 std::variant<QString, QStringList> parseStringOrList(
-    const QJsonValue &value, JsonStringToString jsonStringToString)
+    const QJsonValue &value, const JsonStringToString &jsonStringToString)
 {
     if (value.isString())
         return jsonStringToString(value);
@@ -69,7 +71,7 @@ std::variant<QString, QStringList> parseStringOrList(
 }
 
 // Parse Command objects (string, array or object)
-Command parseCommand(const QJsonValue &value, JsonStringToString jsonStringToString)
+Command parseCommand(const QJsonValue &value, const JsonStringToString &jsonStringToString)
 {
     if (value.isString())
         return jsonStringToString(value);
@@ -97,10 +99,34 @@ Command parseCommand(const QJsonValue &value, JsonStringToString jsonStringToStr
     return QString();
 }
 
+static JsonStringToString addContainerWorkspaceReplacers(
+    const QString &workspaceFolder, const JsonStringToString &jsonStringToString)
+{
+    const FilePath workspaceFolderPath = FilePath::fromUserInput(workspaceFolder);
+
+    const Internal::Replacers replacers
+        = {{"containerWorkspaceFolder",
+            [path = workspaceFolderPath.path()](const QStringList &) { return path; }},
+           {"containerWorkspaceFolderBasename",
+            [basename = workspaceFolderPath.fileName()](const QStringList &) { return basename; }}};
+
+    return [previous = jsonStringToString, replacers](const QJsonValue &value) {
+        QString str = previous(value);
+        Internal::substituteVariables(str, replacers);
+        return str;
+    };
+}
+
 Result<DevContainer::Config> DevContainer::Config::fromJson(
-    const QJsonObject &json, const JsonStringToString &jsonStringToString)
+    const QJsonObject &json, JsonStringToString jsonStringToString)
 {
     Config config;
+
+    const QString workspaceFolder = json.contains("workspaceFolder")
+                                        ? jsonStringToString(json["workspaceFolder"])
+                                        : "/devcontainer/workspace";
+
+    jsonStringToString = addContainerWorkspaceReplacers(workspaceFolder, jsonStringToString);
 
     // Parse common properties
     Result<DevContainerCommon> common = DevContainerCommon::fromJson(json, jsonStringToString);
@@ -1221,8 +1247,7 @@ QDebug operator<<(QDebug debug, const DevContainer::NonComposeBase &value)
 
     debug << ", overrideCommand=" << value.overrideCommand;
 
-    if (value.workspaceFolder)
-        debug << ", workspaceFolder=" << *value.workspaceFolder;
+    debug << ", workspaceFolder=" << value.workspaceFolder;
 
     if (value.workspaceMount)
         debug << ", workspaceMount=" << *value.workspaceMount;
@@ -1230,4 +1255,18 @@ QDebug operator<<(QDebug debug, const DevContainer::NonComposeBase &value)
     debug << ")";
     return debug;
 }
+
+FilePath Config::workspaceFolder(const Config &config)
+{
+    if (!config.containerConfig)
+        return "/devcontainer/workspace";
+
+    return FilePath::fromUserInput(std::visit(
+        overloaded{
+            [](const DockerfileContainer &dockerfile) { return dockerfile.workspaceFolder; },
+            [](const ImageContainer &image) { return image.workspaceFolder; },
+            [](const ComposeContainer &compose) { return compose.workspaceFolder; }},
+        *config.containerConfig));
+}
+
 } // namespace DevContainer

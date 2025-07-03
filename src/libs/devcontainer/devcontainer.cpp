@@ -4,6 +4,7 @@
 #include "devcontainer.h"
 
 #include "devcontainertr.h"
+#include "substitute.h"
 
 #include <tasking/barrier.h>
 #include <tasking/conditional.h>
@@ -41,54 +42,14 @@ QString InstanceConfig::devContainerId() const
     return id;
 }
 
-using Replacers = QMap<QString, std::function<QString(QStringList)>>;
-
-static void substituteVariables(QString &str, const Replacers &replacers)
-{
-    QRegularExpression re("\\$\\{([^}]+)\\}");
-    QRegularExpressionMatchIterator it = re.globalMatch(str);
-
-    struct Replace
-    {
-        qsizetype start;
-        qsizetype length;
-        QString replacement;
-    };
-    QList<Replace> replacements;
-
-    while (it.hasNext()) {
-        QRegularExpressionMatch match = it.next();
-        QString varName = match.captured(1);
-        QStringList parts = varName.split(':');
-        QString variableName = parts.takeFirst();
-
-        auto itReplacer = replacers.find(variableName);
-        if (itReplacer != replacers.end()) {
-            QString replacement = itReplacer.value()(parts);
-            replacements.append({match.capturedStart(), match.capturedLength(), replacement});
-        } else {
-            qCWarning(devcontainerlog)
-                << Tr::tr("Unsupported variable in devcontainer config:") << variableName;
-        }
-    }
-
-    // Apply replacements in reverse order to avoid messing up indices
-    for (auto it = replacements.crbegin(); it != replacements.crend(); ++it)
-        str.replace(it->start, it->length, std::move(it->replacement));
-}
-
 QString InstanceConfig::jsonToString(const QJsonValue &value) const
 {
     QString str = value.toString();
 
-    const Replacers replacers
+    const Internal::Replacers replacers
         = {{"localWorkspaceFolder", [this](const QStringList &) { return workspaceFolder.path(); }},
            {"localWorkspaceFolderBasename",
             [this](const QStringList &) { return workspaceFolder.fileName(); }},
-           {"containerWorkspaceFolder",
-            [this](const QStringList &) { return containerWorkspaceFolder.path(); }},
-           {"containerWorkspaceFolderBasename",
-            [this](const QStringList &) { return containerWorkspaceFolder.fileName(); }},
            {"devcontainerId", [this](const QStringList &) { return devContainerId(); }},
            {"localEnv",
             [this](const QStringList &parts) {
@@ -101,7 +62,7 @@ QString InstanceConfig::jsonToString(const QJsonValue &value) const
            {"containerEnv",
             [](const QStringList &parts) { return QString("${%1}").arg(parts.join(':')); }}};
 
-    substituteVariables(str, replacers);
+    Internal::substituteVariables(str, replacers);
     return str;
 }
 
@@ -630,15 +591,15 @@ while sleep 1 & wait $!; do :; done
     }
     QStringList workspaceMountArgs;
 
-    if (containerConfig.workspaceFolder && containerConfig.workspaceMount) {
+    if (containerConfig.workspaceMount) {
         workspaceMountArgs = {"--mount", *containerConfig.workspaceMount};
     } else {
         workspaceMountArgs
             = {"--mount",
                QString("type=bind,source=%1,target=%2")
                    .arg(
-                       instanceConfig.workspaceFolder.toUrlishString(),
-                       instanceConfig.containerWorkspaceFolder.toUrlishString())};
+                       instanceConfig.workspaceFolder.path(),
+                       containerConfig.workspaceFolder)};
     }
 
     CommandLine createCmdLine{
@@ -1559,7 +1520,7 @@ public:
         for (const auto &[k, v] : m_config.common.remoteEnv) {
             if (v) {
                 QString value = *v;
-                const Replacers replacers = {
+                const Internal::Replacers replacers = {
                     {"containerEnv", [this](const QStringList &parts) {
                          if (parts.isEmpty())
                              return QString();
@@ -1567,7 +1528,7 @@ public:
                          const QString defaultValue = parts.mid(1).join(':');
                          return m_runningInstance->remoteEnvironment.value_or(varname, defaultValue);
                      }}};
-                substituteVariables(value, replacers);
+                Internal::substituteVariables(value, replacers);
                 remoteEnv.set(k, value);
             } else {
                 remoteEnv.set(k, {}, false); // We use the disabled state to unset the variable.}
@@ -1586,7 +1547,7 @@ public:
         }
 
         const FilePath workingDirectory = setupData.m_workingDirectory.isEmpty()
-                                              ? m_instanceConfig.containerWorkspaceFolder
+                                              ? Config::workspaceFolder(m_config)
                                               : setupData.m_workingDirectory;
 
         dockerCmd.addArgs({"-w", workingDirectory.path()});

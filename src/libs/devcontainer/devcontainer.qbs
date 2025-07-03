@@ -15,6 +15,8 @@ QtcLibrary {
         "devcontainerconfig.cpp",
         "devcontainerconfig.h",
         "devcontainertr.h",
+        "substitute.cpp",
+        "substitute.h"
     ]
 
     Group {

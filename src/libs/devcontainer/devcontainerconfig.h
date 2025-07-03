@@ -5,6 +5,7 @@
 
 #include "devcontainer_global.h"
 
+#include <utils/filepath.h>
 #include <utils/result.h>
 
 #include <map>
@@ -141,7 +142,7 @@ struct DEVCONTAINER_EXPORT NonComposeBase
     std::optional<QStringList> runArgs;
     ShutdownAction shutdownAction = ShutdownAction::StopContainer;
     bool overrideCommand = true;
-    std::optional<QString> workspaceFolder;
+    QString workspaceFolder = "/devcontainer/workspace";
     std::optional<QString> workspaceMount;
 
     Utils::Result<> fromJson(const QJsonObject &json, const JsonStringToString &jsonStringToString);
@@ -178,7 +179,7 @@ struct DEVCONTAINER_EXPORT ComposeContainer
     std::variant<QString, QStringList> dockerComposeFile;
     QString service;
     std::optional<QStringList> runServices;
-    QString workspaceFolder;
+    QString workspaceFolder = "/devcontainer/workspace";
     ShutdownAction shutdownAction = ShutdownAction::StopCompose;
     bool overrideCommand = true;
 
@@ -234,8 +235,10 @@ struct DEVCONTAINER_EXPORT Config
     std::optional<std::variant<DockerfileContainer, ImageContainer, ComposeContainer>>
         containerConfig;
 
+    static Utils::FilePath workspaceFolder(const Config &config);
+
     static Utils::Result<Config> fromJson(
-        const QJsonObject &json, const JsonStringToString &jsonStringToString);
+        const QJsonObject &json, JsonStringToString jsonStringToString);
     static Utils::Result<Config> fromJson(
         const QByteArray &data, const JsonStringToString &jsonStringToString);
 };

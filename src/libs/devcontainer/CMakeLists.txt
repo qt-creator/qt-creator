@@ -7,4 +7,6 @@ add_qtc_library(DevContainer
     devcontainerconfig.h
     devcontainer_global.h
     devcontainertr.h
+    substitute.cpp
+    substitute.h
 )
