@@ -9,6 +9,7 @@ using namespace QMakeInternal;
 #include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
+#include <utils/filepath.h>
 
 #define fL1S(s) QString::fromLatin1(s)
 
@@ -164,6 +165,7 @@ bool QMakeVfs::writeFile(int id, QIODevice::OpenMode mode, VfsFlags flags,
 
 QMakeVfs::ReadResult QMakeVfs::readFile(int id, QString *contents, QString *errStr)
 {
+    using namespace Utils;
 #ifndef PROEVALUATOR_FULL
 # ifdef PROEVALUATOR_THREAD_SAFE
     QMutexLocker locker(&m_mutex);
@@ -181,29 +183,27 @@ QMakeVfs::ReadResult QMakeVfs::readFile(int id, QString *contents, QString *errS
     }
 #endif
 
-    QFile file(fileNameForId(id));
-    if (!file.open(QIODevice::ReadOnly)) {
-        if (!file.exists()) {
+    FilePath file = FilePath::fromString(fileNameForId(id));
+        if (!file.exists()){
 #ifndef PROEVALUATOR_FULL
-            m_files[id] = m_magicMissing;
+                m_files[id] = m_magicMissing;
 #endif
-            *errStr = fL1S("No such file or directory");
-            return ReadNotFound;
+                *errStr = fL1S("No such file or directory");
+                return ReadNotFound;
         }
-        *errStr = file.errorString();
-        return ReadOtherError;
-    }
-#ifndef PROEVALUATOR_FULL
-    m_files[id] = m_magicExisting;
-#endif
 
-    QByteArray bcont = file.readAll();
-    if (bcont.startsWith("\xef\xbb\xbf")) {
+        Result<QByteArray> readResult = file.fileContents();
+        if (!readResult){
+            *errStr = readResult.error();
+            return ReadOtherError;
+        }
+
+        if (readResult.value().startsWith("\xef\xbb\xbf")) {
         // UTF-8 BOM will cause subtle errors
         *errStr = fL1S("Unexpected UTF-8 BOM");
         return ReadOtherError;
     }
-    *contents = QString::fromLocal8Bit(bcont);
+    *contents = QString::fromLocal8Bit(readResult.value());
     return ReadOk;
 }
 

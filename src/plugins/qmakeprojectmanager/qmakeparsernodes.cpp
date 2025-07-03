@@ -63,7 +63,7 @@ Q_LOGGING_CATEGORY(qmakeNodesLog, "qtc.qmake.nodes", QtWarningMsg)
 class QmakeEvalInput
 {
 public:
-    QString projectDir;
+    FilePath projectDir;
     FilePath projectFilePath;
     FilePath buildDirectory;
     FilePath sysroot;
@@ -108,7 +108,7 @@ public:
     EvalResultState state;
     ProjectType projectType;
 
-    QStringList subProjectsNotToDeploy;
+    FilePaths subProjectsNotToDeploy;
     QSet<FilePath> exactSubdirs;
     QmakeIncludedPriFile includedFiles;
     TargetInformation targetInformation;
@@ -1291,7 +1291,7 @@ bool QmakeProFile::isFileFromWildcard(const QString &filePath) const
 QmakeEvalInput QmakeProFile::evalInput() const
 {
     QmakeEvalInput input;
-    input.projectDir = directoryPath().path();
+    input.projectDir = directoryPath();
     input.projectFilePath = filePath();
     input.buildDirectory = m_buildSystem->buildDir(m_filePath);
     input.sysroot = m_buildSystem->qmakeSysroot();
@@ -1467,9 +1467,9 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
 
     const QString &device = input.qmakeGlobals->device_root;
     const QStringList baseVPathsExact
-            = baseVPaths(exactReader, input.projectDir, input.buildDirectory.path());
+            = baseVPaths(exactReader, input.projectDir.path(), input.buildDirectory.path());
     const QStringList baseVPathsCumulative
-            = baseVPaths(cumulativeReader, input.projectDir, input.buildDirectory.path());
+            = baseVPaths(cumulativeReader, input.projectDir.path(), input.buildDirectory.path());
 
     for (int i = 0; i < static_cast<int>(FileType::FileTypeSize); ++i) {
         const auto type = static_cast<FileType>(i);
@@ -1478,16 +1478,16 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
             QHash<ProString, bool> handled;
             if (result->state == QmakeEvalResult::EvalOk) {
                 const QStringList vPathsExact = fullVPaths(
-                            baseVPathsExact, exactReader, qmakeVariable, input.projectDir);
+                            baseVPathsExact, exactReader, qmakeVariable, input.projectDir.path());
                 auto sourceFiles = exactReader->absoluteFileValues(
-                            qmakeVariable, input.projectDir, vPathsExact, &handled, result->directoriesWithWildcards);
+                            qmakeVariable, input.projectDir.path(), vPathsExact, &handled, result->directoriesWithWildcards);
                 exactSourceFiles[qmakeVariable] = sourceFiles;
                 extractSources(device, proToResult, &result->includedFiles.result, sourceFiles, type, false);
             }
             const QStringList vPathsCumulative = fullVPaths(
-                        baseVPathsCumulative, cumulativeReader, qmakeVariable, input.projectDir);
+                        baseVPathsCumulative, cumulativeReader, qmakeVariable, input.projectDir.path());
             auto sourceFiles = cumulativeReader->absoluteFileValues(
-                        qmakeVariable, input.projectDir, vPathsCumulative, &handled, result->directoriesWithWildcards);
+                        qmakeVariable, input.projectDir.path(), vPathsCumulative, &handled, result->directoriesWithWildcards);
             cumulativeSourceFiles[qmakeVariable] = sourceFiles;
             extractSources(device, proToResult, &result->includedFiles.result, sourceFiles, type, true);
         }
@@ -1500,7 +1500,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
     //   failed, to at least have a best-effort result.
     result->installsList = installsList(exactBuildPassReader,
                                         input.projectFilePath.path(),
-                                        input.projectDir,
+                                        input.projectDir.path(),
                                         input.buildDirectory.path());
     extractInstalls(device, proToResult, &result->includedFiles.result, result->installsList);
 
@@ -1511,7 +1511,7 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         // update other variables
         result->newVarValues[Variable::Defines] = exactReader->values(QLatin1String("DEFINES"));
         result->newVarValues[Variable::IncludePath] = includePaths(exactReader, input.sysroot,
-                                                            input.buildDirectory, input.projectDir);
+                                                            input.buildDirectory, input.projectDir.path());
         result->newVarValues[Variable::CppFlags] = exactReader->values(QLatin1String("QMAKE_CXXFLAGS"));
         result->newVarValues[Variable::CFlags] = exactReader->values(QLatin1String("QMAKE_CFLAGS"));
         result->newVarValues[Variable::ExactSource] =
@@ -1530,13 +1530,13 @@ QmakeEvalResultPtr QmakeProFile::evaluate(const QmakeEvalInput &input)
         result->newVarValues[Variable::CumulativeResource] = fileListForVar(cumulativeSourceFiles, QLatin1String("RESOURCES"));
         result->newVarValues[Variable::PkgConfig] = exactReader->values(QLatin1String("PKGCONFIG"));
         result->newVarValues[Variable::PrecompiledHeader] = ProFileEvaluator::sourcesToFiles(exactReader->fixifiedValues(
-                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir, input.buildDirectory.path(), false));
+                    QLatin1String("PRECOMPILED_HEADER"), input.projectDir.path(), input.buildDirectory.path(), false));
         result->newVarValues[Variable::LibDirectories] = libDirectories(exactReader);
         result->newVarValues[Variable::Config] = exactReader->values(QLatin1String("CONFIG"));
         result->newVarValues[Variable::QmlImportPath] = exactReader->absolutePathValues(
-                    QLatin1String("QML_IMPORT_PATH"), input.projectDir);
+                    QLatin1String("QML_IMPORT_PATH"), input.projectDir.path());
         result->newVarValues[Variable::QmlDesignerImportPath] = exactReader->absolutePathValues(
-                    QLatin1String("QML_DESIGNER_IMPORT_PATH"), input.projectDir);
+                    QLatin1String("QML_DESIGNER_IMPORT_PATH"), input.projectDir.path());
         result->newVarValues[Variable::Makefile] = exactReader->values(QLatin1String("MAKEFILE"));
         result->newVarValues[Variable::Qt] = exactReader->values(QLatin1String("QT"));
         result->newVarValues[Variable::ObjectExt] = exactReader->values(QLatin1String("QMAKE_EXT_OBJ"));
@@ -1703,9 +1703,7 @@ void QmakeProFile::applyEvaluate(const QmakeEvalResultPtr &result)
         // update TargetInformation
         m_qmakeTargetInformation = result->targetInformation;
 
-        m_subProjectsNotToDeploy
-                = Utils::transform(result->subProjectsNotToDeploy,
-                                   [](const QString &s) { return FilePath::fromString(s); });
+        m_subProjectsNotToDeploy = result->subProjectsNotToDeploy;
         m_installsList = result->installsList;
 
         if (m_varValues != result->newVarValues)
@@ -1893,8 +1891,8 @@ QStringList QmakeProFile::libDirectories(QtSupport::ProFileReader *reader)
 }
 
 FilePaths QmakeProFile::subDirsPaths(QtSupport::ProFileReader *reader,
-                                            const QString &projectDir,
-                                            QStringList *subProjectsNotToDeploy,
+                                            const FilePath &projectDir,
+                                            FilePaths *subProjectsNotToDeploy,
                                             QStringList *errors)
 {
     FilePaths subProjectPaths;
@@ -1908,29 +1906,26 @@ FilePaths QmakeProFile::subDirsPaths(QtSupport::ProFileReader *reader,
         //   "SUBDIR = subid
         //    subid.file = realdir/realfile.pro"
 
-        QString realDir;
+        FilePath realDir;
         const QString subDirKey = subDirVar + QLatin1String(".subdir");
         const QString subDirFileKey = subDirVar + QLatin1String(".file");
         if (reader->contains(subDirKey))
-            realDir = reader->value(subDirKey);
+            realDir = FilePath::fromString(reader->value(subDirKey));
         else if (reader->contains(subDirFileKey))
-            realDir = reader->value(subDirFileKey);
+            realDir = FilePath::fromString(reader->value(subDirFileKey));
         else
-            realDir = subDirVar;
-        QFileInfo info(realDir);
-        if (!info.isAbsolute())
-            info.setFile(projectDir + QLatin1Char('/') + realDir);
-        realDir = info.filePath();
+            realDir = FilePath::fromString(subDirVar);
+        if (!realDir.isAbsolutePath())
+            realDir = projectDir / realDir.path();
 
-        QString realFile;
-        if (info.isDir())
-            realFile = QString::fromLatin1("%1/%2.pro").arg(realDir, info.fileName());
+        FilePath realFile;
+        if (realDir.isDir())
+            realFile = realDir.pathAppended(realDir.fileName() + ".pro");
         else
             realFile = realDir;
 
-        if (QFileInfo::exists(realFile)) {
-            realFile = QDir::cleanPath(realFile);
-            subProjectPaths << FilePath::fromString(realFile);
+        if (realFile.exists()) {
+            subProjectPaths << realFile;
             if (subProjectsNotToDeploy && !subProjectsNotToDeploy->contains(realFile)
                     && reader->values(subDirVar + QLatin1String(".CONFIG"))
                         .contains(QLatin1String("no_default_target"))) {
@@ -1939,7 +1934,7 @@ FilePaths QmakeProFile::subDirsPaths(QtSupport::ProFileReader *reader,
         } else {
             if (errors)
                 errors->append(Tr::tr("Could not find .pro file for subdirectory \"%1\" in \"%2\".")
-                               .arg(subDirVar).arg(realDir));
+                               .arg(subDirVar).arg(realDir.toUserOutput()));
         }
     }
 
