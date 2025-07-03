@@ -72,17 +72,8 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
                                              VcsBaseEditorWidget *editor) const
 {
     auto cmd = createVcsCommand(workingDirectory, processEnvironment(workingDirectory));
-    if (editor) {
+    if (editor)
         editor->setCommand(cmd);
-        connect(cmd, &VcsCommand::done, editor, [editor, cmd] {
-            if (cmd->result() != ProcessResult::FinishedWithSuccess) {
-                editor->textDocument()->setPlainText(Tr::tr("Failed to retrieve data."));
-                return;
-            }
-            editor->setPlainText(cmd->cleanedStdOut());
-            editor->gotoDefaultLine();
-        });
-    }
     return cmd;
 }
 

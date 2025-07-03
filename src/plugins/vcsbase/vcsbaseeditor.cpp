@@ -1379,7 +1379,15 @@ void VcsBaseEditorWidget::setCommand(VcsCommand *command)
     if (command) {
         d->m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
         d->m_progressIndicator->attachToWidget(this);
-        connect(command, &VcsCommand::done, this, &VcsBaseEditorWidget::hideProgressIndicator);
+        connect(command, &VcsCommand::done, this, [this, command] {
+            hideProgressIndicator();
+            if (command->result() != ProcessResult::FinishedWithSuccess) {
+                textDocument()->setPlainText(Tr::tr("Failed to retrieve data."));
+                return;
+            }
+            setPlainText(command->cleanedStdOut());
+            gotoDefaultLine();
+        });
         QTimer::singleShot(100, this, &VcsBaseEditorWidget::showProgressIndicator);
     }
 }
