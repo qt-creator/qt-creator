@@ -28,6 +28,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <utils/algorithm.h>
@@ -261,6 +262,9 @@ void LldbEngine::handleLldbStarted()
 
     for (const FilePath &path : rp.solibSearchPath())
         executeDebuggerCommand("settings append target.exec-search-paths " + path.path());
+
+    if (rp.toolChainAbi().osFlavor() == ProjectExplorer::Abi::AndroidLinuxFlavor)
+        executeDebuggerCommand("settings set plugin.jit-loader.gdb.enable off");
 
     const FilePath &executable = rp.inferior().command.executable();
     DebuggerCommand cmd2("setupInferior");
