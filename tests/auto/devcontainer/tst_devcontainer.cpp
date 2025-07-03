@@ -9,8 +9,10 @@
 
 #include <QtTest>
 
+#ifdef __GNUC__
 // We are making use of named initializers a lot here, and GCC complains if we do not initialize all fields.
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
 
 using namespace Utils;
 
