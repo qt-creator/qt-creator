@@ -909,7 +909,6 @@ public:
 
         const FilePath sshPath = SshSettings::sshFilePath();
         CommandLine cmd { sshPath };
-        cmd.addArg("-q");
         cmd.addArgs(m_displaylessSshParameters.connectionOptions(sshPath)
                     << m_displaylessSshParameters.host());
         cmd.addArg("/bin/sh");
