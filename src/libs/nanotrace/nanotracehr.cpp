@@ -149,6 +149,8 @@ void flushEvents(const Utils::span<TraceEvent> events, std::thread::id threadId,
     if (events.empty())
         return;
 
+    std::lock_guard lock{file.flushMutex};
+
     auto &out = file.out;
 
     if (out.is_open()) {
@@ -293,9 +295,9 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::~EventQueue()
 {
     Internal::EventQueueTracker<TraceEvent>::get().removeQueue(this);
 
-    flush();
-
     std::lock_guard _{mutex};
+
+    flush();
 }
 
 template<typename TraceEvent>
@@ -310,8 +312,8 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::setEventsSpans(TraceEventsSpan 
 template<typename TraceEvent>
 void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
 {
-    if (isEnabled == IsEnabled::Yes)
-        flushInThread(*this);
+    if (isEnabled == IsEnabled::Yes && file)
+        flushEvents(currentEvents.subspan(0, eventsIndex), threadId, *file.get());
 
     file.reset();
 }

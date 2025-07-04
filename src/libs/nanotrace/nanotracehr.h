@@ -543,6 +543,7 @@ public:
 
     std::string filePath;
     std::mutex tasksMutex;
+    std::mutex flushMutex;
     std::condition_variable condition;
     bool isRunning = true;
     std::thread thread;
