@@ -568,6 +568,16 @@
         \li \uicontrol {Texture Memory Consumption}
         \li Render
         \li Shows a bar view of total texture memory consumption.
+    \row
+        \li \uicontrol {Render Call}
+        \li Render
+        \li Time taken by a single draw or compute call. Useful for identifying heavy
+            GPU operations.
+    \row
+        \li \uicontrol {Render Pass}
+        \li Render
+        \li Time taken by an entire render pass. Shows grouped rendering operations
+            for frame buffers.
     \endtable
 
     \section1 Viewing Statistics
