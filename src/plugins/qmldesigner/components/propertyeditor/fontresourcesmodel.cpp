@@ -12,11 +12,14 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/taskhub.h>
 #include <qmlprojectmanager/qmlproject.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
 #include <utils/algorithm.h>
 #include <utils/expected.h>
 #include <utils/filepath.h>
+#include <utils/id.h>
 
 #include <QFontDatabase>
 #include <QLatin1String>
@@ -52,12 +55,21 @@ const QStringList &fontFilesFilterList()
     return list;
 }
 
-QString fontFamily(const QString &fontPath)
+std::optional<QString> fontFamily(const QString &fontPath)
 {
     const int fontId = QFontDatabase::addApplicationFont(fontPath);
-    QString fontFamily = QFontDatabase::applicationFontFamilies(fontId).front();
+    const QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontId);
     QFontDatabase::removeApplicationFont(fontId);
-    return fontFamily;
+
+    if (fontFamilies.isEmpty()) {
+        const auto issueType = ProjectExplorer::Task::TaskType::Warning;
+        const auto issueDesc = "Cannot determine font family for font file '%1'"_L1.arg(fontPath);
+        const Utils::Id issueCategory = ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM;
+        ProjectExplorer::TaskHub::addTask(issueType, issueDesc, issueCategory);
+        return {};
+    }
+
+    return fontFamilies.front();
 }
 
 Utils::expected_str<QSet<QString>> mcuFonts()
@@ -70,7 +82,10 @@ Utils::expected_str<QSet<QString>> mcuFonts()
     QSet<QString> fonts;
     const Utils::FilePaths fontFiles = mcuFontsDir->dirEntries({fontFilesFilterList(), QDir::Files});
     for (const auto &file : fontFiles) {
-        fonts.insert(fontFamily(file.absoluteFilePath().toFSPathString()));
+        auto family = fontFamily(file.absoluteFilePath().toFSPathString());
+        if (family) {
+            fonts.insert(*std::move(family));
+        }
     }
 
     return fonts;
@@ -137,7 +152,10 @@ QStringList FontResourcesModel::model() const
 
     QSet<QString> fonts;
     for (const auto &item : m_resourceModel->model()) {
-        fonts.insert(fontFamily(item.absoluteFilePath()));
+        auto family = fontFamily(item.absoluteFilePath());
+        if (family) {
+            fonts.insert(*std::move(family));
+        }
     }
 
     fonts.unite(systemFonts());
