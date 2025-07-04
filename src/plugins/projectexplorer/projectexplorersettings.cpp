@@ -161,7 +161,7 @@ ProjectExplorerSettings::ProjectExplorerSettings()
     }
 
     if (environmentId().isNull()) {
-        environmentId.setValue(QUuid::createUuid());
+        environmentId.setValue(QUuid::createUuid().toByteArray());
         environmentId.writeSettings();
     }
 
