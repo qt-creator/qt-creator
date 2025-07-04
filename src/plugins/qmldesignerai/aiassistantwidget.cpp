@@ -276,7 +276,9 @@ Request: %2
             if (content.endsWith("```"))
                 content.chop(3);
 
-            QmlDesignerPlugin::instance()->currentDesignDocument()->plainTextEdit()->setPlainText(content);
+            auto textModifier = QmlDesignerPlugin::instance()->currentDesignDocument()
+                                    ->rewriterView()->textModifier();
+            textModifier->replace(0, textModifier->text().size(), content);
         }
         m_reply->deleteLater();
     });
