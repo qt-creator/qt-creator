@@ -39,6 +39,11 @@
 
     For more information about creating Qt tests, see \l{Creating a Test}.
 
+    \note While scanning for tests, the parser takes into account only files that
+    directly or indirectly include QTest or QtTest or its equivalent \c {QtTest/qtest.h}
+    and get linked against \c QTestLib when building the project.
+    Files that currently will not be built will be ignored.
+
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
 */
@@ -78,6 +83,13 @@
 
     \QC creates the test in the specified project directory. Edit the .cpp file
     to add private slots for each test function in your test.
+
+    \note While scanning for tests, the parser takes into account only files that
+    directly or indirectly include QuickTest or its equivalent \c {QtQuickTest/quicktest.h}.
+    If one gets found, it tries to detect statements to create a Qt Quick test application
+    and if it can find any it will parse respective QML files. If the C++ part will not
+    be built with the current configuration, there will be no automatic scanning of QML
+    files.
 
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
@@ -139,6 +151,10 @@
     \l{https://github.com/google/googletest/blob/master/docs/primer.md}
     {Google Test Primer}.
 
+    \note While scanning for tests, the parser takes into account only files that
+    directly or indirectly include \c {gtest/gtest.h}. Files that currently will
+    not be built will be ignored.
+
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
 */
@@ -192,6 +208,11 @@
     For more information about creating Boost tests, see
     \l{https://www.boost.org/doc/libs/1_81_0/libs/test/doc/html/index.html}
     {Boost.Test}.
+
+    \note While scanning for tests, the parser takes into account only files that
+    directly or indirectly include one of Boost's test library headers (any include
+    starting with \c {boost/test/} and having the \c {.hpp} suffix).
+    Files that currently will not be built will be ignored.
 
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
@@ -247,6 +268,11 @@
     For more information about creating Catch2 tests, see
     \l{https://github.com/catchorg/Catch2/blob/master/docs/Readme.md}
     {Catch2}.
+
+    \note While scanning for tests, the parser takes into account only files that
+    directly or indirectly include one of the common Catch2 headers
+    (\c {catch2.hpp}, \c {catch_all.hpp}, and some more).
+    Files that currently will not be built will be ignored.
 
     \sa {Test}{How To: Test}, {Select the build system}, {Testing},
     {Test Results}
