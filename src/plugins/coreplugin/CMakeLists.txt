@@ -287,7 +287,6 @@ add_qtc_plugin(Core
     welcomepagehelper.h
     windowsupport.cpp
     windowsupport.h
-  EXPLICIT_MOC dialogs/filepropertiesdialog.h
 )
 
 extend_qtc_plugin(Core
