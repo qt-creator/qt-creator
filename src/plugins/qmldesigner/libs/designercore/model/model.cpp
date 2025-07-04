@@ -92,8 +92,7 @@ ModelPrivate::ModelPrivate(Model *model,
     setFileUrl(fileUrl);
     changeImports(std::move(imports), {});
 
-    m_rootInternalNode = createNode(
-        typeName, -1, -1, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
+    m_rootInternalNode = createNode(typeName, -1, -1, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
 
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
@@ -159,8 +158,14 @@ auto createModuleId(const Import &import,
     if (moduleKind == ModuleKind::QmlLibrary)
         return modulesStorage.moduleId(Utils::SmallString{import.url()}, moduleKind);
 
-    return modulesStorage.moduleId(Utils::SmallString{localDirectoryPath + "/" + import.file()},
-                                   moduleKind);
+    auto path = Utils::PathString::join({localDirectoryPath, "/", Utils::SmallString{import.file()}});
+    auto normalizedPath = std::filesystem::path{std::string_view{path}}.lexically_normal();
+    auto directoryPath = normalizedPath.generic_string();
+    std::string_view modulePath = directoryPath;
+    if (modulePath.back() == '/')
+        modulePath.remove_suffix(1);
+
+    return modulesStorage.moduleId(modulePath, moduleKind);
 }
 
 Storage::Imports createStorageImports(const Imports &imports,
@@ -680,7 +685,8 @@ void ModelPrivate::notifyInstancePropertyChange(Utils::span<const QPair<ModelNod
         using ModelNodePropertyPair = QPair<ModelNode, PropertyName>;
         QList<QPair<ModelNode, PropertyName>> adaptedPropertyList;
         for (const ModelNodePropertyPair &propertyPair : properties) {
-            ModelNodePropertyPair newPair(ModelNode{propertyPair.first.internalNode(), m_model, view}, propertyPair.second);
+            ModelNodePropertyPair newPair(ModelNode{propertyPair.first.internalNode(), m_model, view},
+                                          propertyPair.second);
             adaptedPropertyList.append(newPair);
         }
         view->instancePropertyChanged(adaptedPropertyList);
@@ -948,7 +954,10 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
         QList<AbstractProperty> propertyList;
         Q_ASSERT(view != nullptr);
         for (auto property : internalPropertyList) {
-            AbstractProperty newProperty(property->name(), property->propertyOwner(), m_model, view.data());
+            AbstractProperty newProperty(property->name(),
+                                         property->propertyOwner(),
+                                         m_model,
+                                         view.data());
             propertyList.append(newProperty);
         }
 
@@ -1073,10 +1082,7 @@ void ModelPrivate::notifyNodeTypeChanged(const InternalNodePointer &node,
     NanotraceHR::Tracer tracer{"model private notify node type changed", ModelTracing::category()};
 
     notifyNodeInstanceViewLast([&](AbstractView *view) {
-        view->nodeTypeChanged(ModelNode{node, m_model, view},
-                              type,
-                              majorVersion,
-                              minorVersion);
+        view->nodeTypeChanged(ModelNode{node, m_model, view}, type, majorVersion, minorVersion);
     });
 }
 
@@ -1215,10 +1221,7 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
             oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, m_model, view);
 
         if (!newPropertyName.isEmpty() && newParent && newParent->isValid) {
-            newProperty = NodeAbstractProperty(newPropertyName,
-                                               newParent,
-                                               m_model,
-                                               view);
+            newProperty = NodeAbstractProperty(newPropertyName, newParent, m_model, view);
         }
 
         ModelNode modelNode(node, m_model, view);
@@ -1591,12 +1594,8 @@ void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
         oldParentPropertyName = childNode->parentProperty()->name();
     }
 
-    notifyNodeAboutToBeReparent(childNode,
-                                parentNode,
-                                name,
-                                oldParentNode,
-                                oldParentPropertyName,
-                                propertyChange);
+    notifyNodeAboutToBeReparent(
+        childNode, parentNode, name, oldParentNode, oldParentPropertyName, propertyChange);
 
     InternalNodeAbstractProperty *newParentProperty = nullptr;
     AbstractView::PropertyChangeFlags newPropertyChange = AbstractView::NoAdditionalChanges;

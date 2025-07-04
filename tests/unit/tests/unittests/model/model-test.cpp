@@ -1063,6 +1063,20 @@ TEST_F(Model_Imports, change_imports_is_changing_import_version_with_project_sto
     model.changeImports({qtQuickImport}, {});
 }
 
+TEST_F(Model_Imports, change_imports_is_normalizing_import_path_for_modules)
+{
+    QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
+    ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/bar/."))).WillByDefault(Return(directoryPathId));
+    auto directoryModuleId = modulesStorage.moduleId("/path/foo/bar", ModuleKind::PathLibrary);
+    auto directoryImport = QmlDesigner::Import::createFileImport("foo/bar/../bar/");
+
+    EXPECT_CALL(projectStorageMock,
+                synchronizeDocumentImports(Contains(IsImport(directoryModuleId, filePathId, -1, -1)),
+                                           _));
+
+    model.changeImports({directoryImport}, {});
+}
+
 class Model_Node : public Model
 {};
 
