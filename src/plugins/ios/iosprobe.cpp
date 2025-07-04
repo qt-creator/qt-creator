@@ -76,16 +76,9 @@ void XcodeProbe::setupDefaultToolchains(const QString &devPath)
         clangProfile.cxxCompilerPath = Utils::FilePath::fromFileInfo(clangCppInfo);
 
     QSet<QString> allArchitectures;
-    static const std::map<QString, QStringList> sdkConfigs {
-        {QLatin1String("AppleTVOS"), QStringList("arm64")},
-        {QLatin1String("AppleTVSimulator"), QStringList("x86_64")},
-        {QLatin1String("iPhoneOS"), QStringList { QLatin1String("arm64"), QLatin1String("armv7") }},
-        {QLatin1String("iPhoneSimulator"), QStringList { QLatin1String("x86_64"),
-                        QLatin1String("i386") }},
-        {QLatin1String("MacOSX"), QStringList { QLatin1String("x86_64"), QLatin1String("i386") }},
-        {QLatin1String("WatchOS"), QStringList("armv7k")},
-        {QLatin1String("WatchSimulator"), QStringList("i386")}
-    };
+    static const std::map<QString, QStringList> sdkConfigs{
+        {QLatin1String("iPhoneOS"), QStringList{QLatin1String("arm64")}},
+        {QLatin1String("iPhoneSimulator"), QStringList{QLatin1String("x86_64")}}};
     for (const auto &sdkConfig : sdkConfigs) {
         XcodePlatform::SDK sdk;
         sdk.directoryName = sdkConfig.first;
