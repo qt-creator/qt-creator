@@ -54,6 +54,7 @@ static void updateTabText(QTabBar *tabBar, int index, IDocument *document)
     if (qtcEnvironmentVariableIsSet("QTC_DEBUG_DOCUMENTMODEL") && !data.editor)
         title += " (s)";
     tabBar->setTabText(index, title);
+    tabBar->setTabToolTip(index, document->toolTip());
 }
 
 EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)

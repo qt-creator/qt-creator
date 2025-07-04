@@ -432,9 +432,7 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
     else
         d->m_dragHandle->setIcon(Utils::FileIconProvider::icon(document->filePath()));
 
-    d->m_editorList->setToolTip(document->filePath().isEmpty()
-                                ? document->displayName()
-                                : document->filePath().toUserOutput());
+    d->m_editorList->setToolTip(document->toolTip());
 }
 
 bool EditorToolBar::eventFilter(QObject *obj, QEvent *event)

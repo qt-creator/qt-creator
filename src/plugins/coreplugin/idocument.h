@@ -77,6 +77,8 @@ public:
     void setUniqueDisplayName(const QString &name);
     QString uniqueDisplayName() const;
 
+    QString toolTip() const;
+
     bool isFileReadOnly() const;
     bool isTemporary() const;
     void setTemporary(bool temporary);

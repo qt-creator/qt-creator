@@ -789,4 +789,9 @@ QString IDocument::uniqueDisplayName() const
     return d->uniqueDisplayName;
 }
 
+QString IDocument::toolTip() const
+{
+    return filePath().isEmpty() ? displayName() : filePath().toUserOutput();
+}
+
 } // namespace Core
