@@ -148,6 +148,21 @@ void ModelPrivate::detachAllViews()
 }
 
 namespace {
+auto createModuleId(const Import &import,
+                    Utils::SmallStringView localDirectoryPath,
+                    ModulesStorage &modulesStorage)
+{
+    using Storage::ModuleKind;
+
+    auto moduleKind = import.isLibraryImport() ? ModuleKind::QmlLibrary : ModuleKind::PathLibrary;
+
+    if (moduleKind == ModuleKind::QmlLibrary)
+        return modulesStorage.moduleId(Utils::SmallString{import.url()}, moduleKind);
+
+    return modulesStorage.moduleId(Utils::SmallString{localDirectoryPath + "/" + import.file()},
+                                   moduleKind);
+}
+
 Storage::Imports createStorageImports(const Imports &imports,
                                       Utils::SmallStringView localDirectoryPath,
                                       ModulesStorage &modulesStorage,
@@ -158,8 +173,7 @@ Storage::Imports createStorageImports(const Imports &imports,
     storageImports.reserve(Utils::usize(imports) + 1);
 
     for (const Import &import : imports) {
-        auto moduleKind = import.isLibraryImport() ? ModuleKind::QmlLibrary : ModuleKind::PathLibrary;
-        auto moduleId = modulesStorage.moduleId(Utils::SmallString{import.url()}, moduleKind);
+        ModuleId moduleId = createModuleId(import, localDirectoryPath, modulesStorage);
         storageImports.emplace_back(moduleId, import.majorVersion(), import.minorVersion(), fileId);
     }
 
