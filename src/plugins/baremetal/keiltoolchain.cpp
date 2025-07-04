@@ -276,7 +276,7 @@ static bool isArmArchitecture(Abi::Architecture arch)
 
 static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &args, const Environment &env)
 {
-    if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
+    if (!compiler.isExecutableFile())
         return {};
 
     const Abi::Architecture arch = guessArchitecture(compiler);

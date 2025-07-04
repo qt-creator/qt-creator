@@ -50,7 +50,7 @@ static QString compilerTargetFlag(const Abi &abi)
 static Macros dumpPredefinedMacros(const FilePath &compiler, const Environment &env,
                                    const Abi &abi)
 {
-    if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
+    if (!compiler.isExecutableFile())
         return {};
 
     QTemporaryFile fakeIn("XXXXXX.c");

@@ -57,7 +57,7 @@ static QString cppLanguageOption(const FilePath &compiler)
 static Macros dumpPredefinedMacros(const FilePath &compiler, const QStringList &extraArgs,
                                    const Id languageId, const Environment &env)
 {
-    if (compiler.isEmpty() || !compiler.toFileInfo().isExecutable())
+    if (!compiler.isExecutableFile())
         return {};
 
     // IAR compiler requires an input and output files.
