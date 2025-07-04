@@ -347,23 +347,21 @@ static Layouting::Grid createDetailWidget(const CourseItem *course)
                         Align(Qt::AlignCenter, blackLabel(difficultyLevelTr(course))),
                     }
                 },
-                If(course->reviews.has_value(),
-                    {
-                        Row {
-                            Label {
-                                text(QString("%1")
-                                    .arg(qFloor((reviews.value*5.0) * 10.0) / 10.0, 0, 'g', 2)),
-                            },
-                            Canvas {
-                                fixedSize(QSize{100, 20}),
-                                paint(paintRating),
-                            },
-                            Label {
-                                text(QString("(%1)").arg(reviews.numReviews)),
-                            },
-                        }
+                If (course->reviews.has_value()) >> Then {
+                    Row {
+                        Label {
+                            text(QString("%1")
+                                .arg(qFloor((reviews.value*5.0) * 10.0) / 10.0, 0, 'g', 2)),
+                        },
+                        Canvas {
+                            fixedSize(QSize{100, 20}),
+                            paint(paintRating),
+                        },
+                        Label {
+                            text(QString("(%1)").arg(reviews.numReviews)),
+                        },
                     }
-                ),
+                },
                 st
             },
             Row {
@@ -392,7 +390,7 @@ static Layouting::Grid createDetailWidget(const CourseItem *course)
                 st,
             }
         },
-        If (hasObjectives, {
+        If (hasObjectives) >> Then {
             Column {
                 heading(Tr::tr("Objectives")),
                 Label {
@@ -401,7 +399,7 @@ static Layouting::Grid createDetailWidget(const CourseItem *course)
                 },
                 st
             }
-        }),
+        },
     };
     // clang-format on
 }

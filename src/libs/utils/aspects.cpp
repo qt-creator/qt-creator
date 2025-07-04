@@ -2898,13 +2898,13 @@ void StringListAspect::addToLayoutImpl(Layout &parent)
             createLabel(),
             Row {
                 editor,
-                If { d->allowAdding || d->allowRemoving, {
+                If (d->allowAdding || d->allowRemoving) >> Then {
                     Column {
-                        If { d->allowAdding, {add}, {}},
-                        If { d->allowRemoving, {remove}, {}},
+                        If (d->allowAdding) >> Then {add},
+                        If (d->allowRemoving) >> Then {remove},
                         st,
                     }
-                }, {}},
+                },
             }
         } // clang-format on
     );

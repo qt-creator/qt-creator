@@ -140,7 +140,9 @@ FakeVimSettings::FakeVimSettings()
                 startOfLine,
                 passKeys,
                 blinkingCursor,
-                If { HostOsInfo::isWindowsHost(), { systemEncoding } }
+                If (HostOsInfo::isWindowsHost()) >> Then {
+                    systemEncoding
+                }
             },
             Column {
                 incSearch,

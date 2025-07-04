@@ -113,17 +113,15 @@ PasswordDialog::PasswordDialog(const QString &title,
     // clang-format off
     Column {
         prompt,
-        If {
-            withUsername, {
-                Form {
-                    Tr::tr("User:"), d->m_userNameLineEdit, br,
-                    Tr::tr("Password:"), Row { d->m_passwordLineEdit, showPasswordButton }, br,
-                }
-            }, {
-                Row {
-                    d->m_passwordLineEdit, showPasswordButton,
-                },
+        If (withUsername) >> Then {
+            Form {
+                Tr::tr("User:"), d->m_userNameLineEdit, br,
+                Tr::tr("Password:"), Row { d->m_passwordLineEdit, showPasswordButton }, br,
             }
+        } >> Else {
+            Row {
+                d->m_passwordLineEdit, showPasswordButton,
+            },
         },
         Row {
             d->m_checkBox,

@@ -1336,16 +1336,27 @@ void Canvas::setPaintFunction(const CanvasWidget::PaintFunction &paintFunction)
 
 // Special If
 
-If::If(
-    bool condition,
-    const std::initializer_list<Layout::I> ifcase,
-    const std::initializer_list<Layout::I> elsecase)
-    : used(condition ? ifcase : elsecase)
+If::If(bool condition)
+    : condition(condition)
 {}
 
-void addToLayout(Layout *layout, const If &inner)
+If::If(bool condition, const Items &list)
+    : condition(condition), list(list)
+{}
+
+If operator>>(const If &if_, const Then &then_)
 {
-    for (const Layout::I &item : inner.used)
+    return If(if_.condition, if_.condition ? then_.list : If::Items());
+}
+
+If operator>>(const If &if_, const Else &else_)
+{
+    return If(if_.condition, if_.condition ? If::Items() : else_.list);
+}
+
+void addToLayout(Layout *layout, const If &if_)
+{
+    for (const Layout::I &item : if_.list)
         item.apply(layout);
 }
 

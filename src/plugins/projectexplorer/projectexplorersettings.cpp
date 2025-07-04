@@ -290,7 +290,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                     s.terminalMode, br,
                     s.reaperTimeoutInSeconds, st, br,
                 },
-                If { HostOsInfo::isWindowsHost(), {
+                If (HostOsInfo::isWindowsHost()) >> Then {
                     Label {
                         text("<i>jom</i> is a drop-in replacement for <i>nmake</i> which "
                              "distributes the compilation process to multiple CPU cores. "
@@ -301,7 +301,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                         wordWrap(true)
                     },
                     s.useJom,
-                }}
+                }
             },
         },
         st,

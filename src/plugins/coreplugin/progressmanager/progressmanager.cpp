@@ -194,7 +194,9 @@ InfoWidget::InfoWidget(const InfoBarEntry &info, QPointer<InfoBar> infoBar)
                 Row {
                     Label { bindTo(&titleLabel), text(info.title()) },
                     st,
-                    If { info.hasCancelButton(), { ToolButton { bindTo(&infoWidgetCloseButton) } } }
+                    If (info.hasCancelButton()) >> Then {
+                        ToolButton { bindTo(&infoWidgetCloseButton) }
+                    }
                 },
                 Row {
                     Label { wordWrap(true), text(info.text()) }

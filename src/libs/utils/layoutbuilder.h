@@ -546,14 +546,40 @@ public:
 
 // Special
 
+class QTCREATOR_UTILS_EXPORT Then
+{
+public:
+    Then(std::initializer_list<Layout::I> list) : list(list) {}
+
+    const QList<Layout::I> list;
+};
+
+class QTCREATOR_UTILS_EXPORT Else
+{
+public:
+    Else(std::initializer_list<Layout::I> list) : list(list) {}
+
+    const QList<Layout::I> list;
+};
+
 class QTCREATOR_UTILS_EXPORT If
 {
 public:
-    If(bool condition,
-       const std::initializer_list<Layout::I> ifcase,
-       const std::initializer_list<Layout::I> elsecase = {});
+    explicit If(bool condition);
 
-    const std::initializer_list<Layout::I> used;
+private:
+    friend class Then;
+    friend class Else;
+    friend void addToLayout(Layout *layout, const If &if_);
+
+    using Items = QList<Layout::I>;
+    If(bool condition, const Items &list);
+
+    friend QTCREATOR_UTILS_EXPORT If operator>>(const If &if_, const Then &then_);
+    friend QTCREATOR_UTILS_EXPORT If operator>>(const If &if_, const Else &else_);
+
+    const bool condition;
+    const QList<Layout::I> list;
 };
 
 //

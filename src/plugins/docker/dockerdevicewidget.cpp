@@ -186,7 +186,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 dockerDevice->mounts,
             }, br,
             dockerDevice->portMappings, br,
-            If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
+            If (!dockerDevice->isAutoDetected()) >> Then {
+                detectionControls
+            },
         }, br,
         Tr::tr("Command line:"), createLineLabel, br,
     }.attachTo(this);
