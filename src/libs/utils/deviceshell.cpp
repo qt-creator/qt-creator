@@ -216,12 +216,9 @@ Result<> DeviceShell::start()
             } else if (m_shellProcess->isRunning()) {
                 m_shellProcess->kill();
             }
-            const QString stdErr = m_shellProcess->readAllStandardError();
             m_shellProcess.reset();
-
-            return ResultError(Tr::tr("Failed to install shell script: %1\n%2")
-                                       .arg(installResult.error())
-                                       .arg(stdErr));
+            return ResultError(Tr::tr("Failed to install shell script: %1")
+                                       .arg(installResult.error()));
         },
         Qt::BlockingQueuedConnection,
         &result);
@@ -235,6 +232,10 @@ Result<QByteArray> DeviceShell::checkCommand(const QByteArray &command)
 
     m_shellProcess->writeRaw(checkCmd);
     if (!m_shellProcess->waitForReadyRead()) {
+        if (!m_shellProcess->isRunning()) {
+            return ResultError(
+                m_shellProcess->exitMessage(Process::FailureMessageFormat::WithStdErr));
+        }
         return ResultError(
             Tr::tr("Timeout while trying to check for %1.").arg(QString::fromUtf8(command)));
     }
@@ -292,7 +293,7 @@ Result<> DeviceShell::installShellScript()
                 Tr::tr("Failed to install shell script: %1").arg(QString::fromUtf8(out)));
         }
         if (!out.isEmpty()) {
-            qCWarning(deviceShellLog)
+            qCDebug(deviceShellLog)
                 << "Unexpected output while installing device shell script:" << out;
         }
     }
