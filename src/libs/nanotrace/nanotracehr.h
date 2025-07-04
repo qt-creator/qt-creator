@@ -4,6 +4,7 @@
 #pragma once
 
 #include "nanotraceglobals.h"
+#include "nanotracehrfwd.h"
 
 #include "staticstring.h"
 
@@ -40,7 +41,6 @@ static_assert(Clock::is_steady, "clock should be steady");
 static_assert(std::is_same_v<Clock::duration, std::chrono::nanoseconds>,
               "the steady clock should have nano second resolution");
 
-enum class Tracing { IsDisabled, IsEnabled };
 
 #if __cplusplus >= 202002L && __has_cpp_attribute(msvc::no_unique_address)
 #  define NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
@@ -501,11 +501,6 @@ extern template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEvent
 extern template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
 
-template<Tracing isEnabled>
-class TraceFile;
-
-using EnabledTraceFile = TraceFile<Tracing::IsEnabled>;
-
 NANOTRACE_EXPORT void openFile(EnabledTraceFile &file);
 NANOTRACE_EXPORT void startDispatcher(EnabledTraceFile &file);
 NANOTRACE_EXPORT void finalizeFile(EnabledTraceFile &file);
@@ -582,13 +577,7 @@ public:
     EventQueueTracker &operator=(const EventQueueTracker &) = delete;
     EventQueueTracker &operator=(EventQueueTracker &&) = delete;
 
-    ~EventQueueTracker()
-    {
-        std::lock_guard lock{mutex};
-
-        for (auto queue : queues)
-            queue->flush();
-    }
+    ~EventQueueTracker() = default;
 
     void addQueue(Queue *queue)
     {
@@ -609,20 +598,20 @@ public:
         return tracker;
     }
 
-private:
-    void terminate()
-    {
-        flushAll();
-        if (terminateHandler)
-            terminateHandler();
-    }
-
     void flushAll()
     {
         std::lock_guard lock{mutex};
 
         for (auto queue : queues)
             queue->flush();
+    }
+
+private:
+    void terminate()
+    {
+        flushAll();
+        if (terminateHandler)
+            terminateHandler();
     }
 
 private:

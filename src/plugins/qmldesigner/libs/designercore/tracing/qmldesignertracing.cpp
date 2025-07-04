@@ -3,6 +3,8 @@
 
 #include "qmldesignertracing.h"
 
+#include <nanotrace/tracefile.h>
+
 #include <sqlitebasestatement.h>
 
 namespace QmlDesigner {
@@ -13,31 +15,16 @@ namespace Tracing {
 
 #ifdef ENABLE_QMLDESIGNER_TRACING
 
-namespace {
-
-using TraceFile = NanotraceHR::EnabledTraceFile;
-
-auto traceFile()
-{
-#  ifdef ENABLE_SQLITE_TRACING
-    return Sqlite::traceFile();
-#  else
-    static auto traceFile = std::make_shared<TraceFile>("tracing.json");
-    return traceFile;
-#  endif
-}
-} // namespace
-
 EventQueueWithStringArguments &eventQueueWithStringArguments()
 {
-    thread_local NanotraceHR::EnabledEventQueueWithArguments eventQueue(traceFile());
+    thread_local NanotraceHR::EnabledEventQueueWithArguments eventQueue(NanotraceHR::traceFile());
 
     return eventQueue;
 }
 
 EventQueueWithoutArguments &eventQueueWithoutArguments()
 {
-    thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueue(traceFile());
+    thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueue(NanotraceHR::traceFile());
 
     return eventQueue;
 }

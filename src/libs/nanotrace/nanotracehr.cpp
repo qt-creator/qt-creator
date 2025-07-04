@@ -295,8 +295,6 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::~EventQueue()
 {
     Internal::EventQueueTracker<TraceEvent>::get().removeQueue(this);
 
-    std::lock_guard _{mutex};
-
     flush();
 }
 
@@ -312,6 +310,8 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::setEventsSpans(TraceEventsSpan 
 template<typename TraceEvent>
 void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
 {
+    std::lock_guard _{mutex};
+
     if (isEnabled == IsEnabled::Yes && file)
         flushEvents(currentEvents.subspan(0, eventsIndex), threadId, *file.get());
 

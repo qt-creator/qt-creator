@@ -3,21 +3,17 @@
 
 #include "sqlitetracing.h"
 
+#include <nanotrace/tracefile.h>
+
 namespace Sqlite {
 
 #ifdef ENABLE_SQLITE_TRACING
 
-std::shared_ptr<TraceFile> traceFile()
-{
-    static auto traceFile = std::make_shared<TraceFile>("tracing.json");
-
-    return traceFile;
-}
-
 namespace {
 
-thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueue(traceFile());
-thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueueWithoutArguments(traceFile());
+thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueue(NanotraceHR::traceFile());
+thread_local NanotraceHR::EnabledEventQueueWithoutArguments eventQueueWithoutArguments(
+    NanotraceHR::traceFile());
 
 } // namespace
 

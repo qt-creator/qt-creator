@@ -13,6 +13,10 @@
 #include <windowmanager.h>
 
 #include <coreplugin/icore.h>
+#ifdef ENABLE_TRACING_FILE
+#  include <nanotrace/nanotracehr.h>
+#  include <nanotrace/tracefile.h>
+#endif
 #include <utils/appinfo.h>
 #include <utils/uniqueobjectptr.h>
 
@@ -44,7 +48,14 @@ QmlDesignerBasePlugin::QmlDesignerBasePlugin()
     global = this;
 }
 
-QmlDesignerBasePlugin::~QmlDesignerBasePlugin() = default;
+QmlDesignerBasePlugin::~QmlDesignerBasePlugin()
+{
+#ifdef ENABLE_TRACING_FILE
+    NanotraceHR::Internal::EventQueueTracker<NanotraceHR::TraceEventWithArguments>::get().flushAll();
+    NanotraceHR::Internal::EventQueueTracker<NanotraceHR::TraceEventWithoutArguments>::get().flushAll();
+    NanotraceHR::resetTraceFilePointer();
+#endif
+}
 
 DesignerSettings &QmlDesignerBasePlugin::settings()
 {
