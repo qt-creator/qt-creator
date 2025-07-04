@@ -19,7 +19,10 @@
 
     The \QC development team is aware of the issues described here, and
     therefore, you do not need to report them in the \l{https://bugreports.qt.io}
-    {Qt Project Bug Tracker}.
+    {Qt Project Bug Tracker}. However, if you run into these issues,
+    feel free to check the links to the applicable bug ticket
+    and add your vote or any additional information you might have
+    about your development environment.
 
     For a list of fixed issues and added features, go to \uicontrol Help >
     \uicontrol {Change Log}.

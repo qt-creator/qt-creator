@@ -1505,6 +1505,8 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     if (HostOsInfo::isMacHost() && detector.device->type() == Constants::DESKTOP_DEVICE_TYPE) {
          executables.removeOne(FilePath::fromPathPart(u"/usr/bin/gcc"));
          executables.removeOne(FilePath::fromPathPart(u"/usr/bin/g++"));
+         executables.removeOne(FilePath::fromPathPart(u"/usr/bin/llvm-gcc"));
+         executables.removeOne(FilePath::fromPathPart(u"/usr/bin/llvm-g++"));
     }
 
     Utils::sort(executables);

@@ -85,7 +85,7 @@ static void findAllQrcFiles(const FilePath &filePath, FilePaths &out)
             out.append(path.canonicalPath());
             return IterationPolicy::Continue;
         },
-        {{"*.qrc"}, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories});
+        {{"*.qrc"}, QDir::Files | QDir::Hidden | QDir::NoSymLinks, QDirIterator::Subdirectories});
 }
 
 static FilePaths findGeneratedQrcFiles(const ModelManagerInterface::ProjectInfo &pInfo,

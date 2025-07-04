@@ -355,6 +355,19 @@
     You can use LLDB to debug applications on Android devices that you develop
     with Qt 5.15.9 or later and Qt 6.2 or later.
 
+    Recent releases of \QC have issues with Native (C++) debugging using LLDB
+    on Android.
+
+    This was fixed in \QC 17.0.1. To fix this in earlier releases, go to
+    \preferences > \uicontrol Debugger > \uicontrol GDB, and add the following
+    in \uicontrol {Additional Attach Commands}.
+
+    \badcode
+    settings set plugin.jit-loader.gdb.enable off
+    \endcode
+
+    \image {qtcreator-preferences-debugger-gdb.webp} {GDB tab in Debugger preferences}
+
     You enable debugging in different ways on different Android devices.
     Look for \uicontrol {USB Debugging} under \uicontrol {Developer Options}.
     Tap \uicontrol {Build number} in \uicontrol Settings > \uicontrol About
