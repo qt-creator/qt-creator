@@ -298,18 +298,14 @@ static Result<> updateHeaderFileGuardAfterRename(const FilePath &headerPath,
         }
     }
     const QByteArray encodedContent = headerFileTextFormat.encoding().encode(outString);
-    const Result<qint64> res = tmpHeader.writeFileContents(encodedContent);
+    if (const Result<qint64> res = tmpHeader.writeFileContents(encodedContent); !res)
+        return ResultError(res.error());
 
-    Result<> ret = res.has_value() ? ResultOk : ResultError(res.error());
+    // if the guard was found (and updated updated properly) swap the temp and the target file
+    if (const Result<> res = headerPath.removeFile(); !res)
+        return res;
 
-    if (ret) {
-        // if the guard was found (and updated updated properly) swap the temp and the target file
-        ret = headerPath.removeFile();
-        if (ret)
-            ret = tmpHeader.renameFile(headerPath);
-    }
-
-    return ret;
+    return tmpHeader.renameFile(headerPath);
 }
 
 bool renameFile(const FilePath &orgFilePath, const FilePath &newFilePath,
