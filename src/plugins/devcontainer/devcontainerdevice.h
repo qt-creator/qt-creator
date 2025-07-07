@@ -28,6 +28,8 @@ public:
 
     Utils::ProcessInterface *createProcessInterface() const override;
 
+    Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
+
 public: // FilePath stuff
     bool handlesFile(const Utils::FilePath &filePath) const override;
     Utils::FilePath rootPath() const override;
@@ -36,6 +38,7 @@ private:
     Utils::Process::ProcessInterfaceCreator m_processInterfaceCreator;
     InstanceConfig m_instanceConfig;
     std::unique_ptr<CmdBridge::FileAccess> m_fileAccess;
+    std::optional<Utils::Environment> m_systemEnvironment;
 };
 
 } // namespace DevContainer

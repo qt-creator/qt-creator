@@ -32,7 +32,7 @@ ProjectExplorer::IDeviceWidget *Device::createWidget()
 
 bool Device::handlesFile(const FilePath &filePath) const
 {
-    const Utils::FilePath root = rootPath();
+    const FilePath root = rootPath();
     if (filePath.scheme() == root.scheme() && filePath.host() == root.host())
         return true;
     return false;
@@ -77,13 +77,12 @@ public:
 };
 
 Result<> Device::up(
-    const FilePath &path,
-    InstanceConfig instanceConfig,
-    std::function<void(Utils::Result<>)> callback)
+    const FilePath &path, InstanceConfig instanceConfig, std::function<void(Result<>)> callback)
 {
     m_instanceConfig = instanceConfig;
     m_processInterfaceCreator = nullptr;
     m_fileAccess.reset();
+    m_systemEnvironment.reset();
 
     ProgressDialog *progress = new ProgressDialog();
 
@@ -148,12 +147,13 @@ Result<> Device::up(
         m_processInterfaceCreator = [inst = *instance, runningInstance] {
             return inst->createProcessInterface(runningInstance);
         };
+        m_systemEnvironment = runningInstance->remoteEnvironment;
     };
 
     const auto setupCmdBridge =
         [this, instanceConfig, runningInstance, instance, options]() -> DoneResult {
         const auto result = [&]() -> Result<> {
-            Utils::Result<Utils::FilePath> cmdBridgePath = CmdBridge::Client::getCmdBridgePath(
+            Result<FilePath> cmdBridgePath = CmdBridge::Client::getCmdBridgePath(
                 runningInstance->osType, runningInstance->osArch, Core::ICore::libexecPath());
 
             if (!cmdBridgePath)
@@ -161,7 +161,7 @@ Result<> Device::up(
 
             auto fileAccess = std::make_unique<CmdBridge::FileAccess>();
 
-            Utils::Result<> initResult = [&] {
+            Result<> initResult = [&] {
                 if (options->copyCmdBridge) {
                     return fileAccess->deployAndInit(
                         Core::ICore::libexecPath(), rootPath(), runningInstance->remoteEnvironment);
@@ -236,7 +236,7 @@ Result<> Device::up(
     return ResultOk;
 }
 
-Utils::FilePath Device::rootPath() const
+FilePath Device::rootPath() const
 {
     static QStringView devContainerScheme = u"devcontainer";
     static QStringView root = u"/";
@@ -244,12 +244,19 @@ Utils::FilePath Device::rootPath() const
     return FilePath::fromParts(devContainerScheme, m_instanceConfig.devContainerId(), root);
 }
 
-Utils::ProcessInterface *Device::createProcessInterface() const
+ProcessInterface *Device::createProcessInterface() const
 {
     if (!m_processInterfaceCreator)
         return nullptr;
 
     return m_processInterfaceCreator();
 }
+
+Result<Environment> Device::systemEnvironmentWithError() const
+{
+    if (!m_systemEnvironment)
+        return ResultError(Tr::tr("System environment is not available for this device."));
+    return *m_systemEnvironment;
+};
 
 } // namespace DevContainer
