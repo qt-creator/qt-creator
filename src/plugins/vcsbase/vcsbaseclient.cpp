@@ -188,9 +188,9 @@ void VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
     command->start();
 }
 
-void VcsBaseClientImpl::vcsExecWithEditor(const Utils::FilePath &workingDirectory,
-                                          const QStringList &arguments,
-                                          VcsBaseEditorWidget *editor) const
+void VcsBaseClientImpl::executeInEditor(const Utils::FilePath &workingDirectory,
+                                        const QStringList &arguments,
+                                        VcsBaseEditorWidget *editor) const
 {
     const Storage<CommandResult> resultStorage;
 

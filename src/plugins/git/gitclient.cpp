@@ -1204,7 +1204,7 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     if (!fileName.isEmpty())
         arguments << "--" << fileName;
 
-    vcsExecWithEditor(workingDir, arguments, editor);
+    executeInEditor(workingDir, arguments, editor);
 }
 
 void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
@@ -1233,7 +1233,7 @@ void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
     if (logCount > 0)
         arguments << "-n" << QString::number(logCount);
 
-    vcsExecWithEditor(workingDir, arguments, editor);
+    executeInEditor(workingDir, arguments, editor);
 }
 
 // Do not show "0000" or "^32ae4"
@@ -1348,7 +1348,7 @@ void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file,
     editor->setDefaultLineNumber(lineNumber);
     if (firstLine > 0)
         editor->setFirstLineNumber(firstLine);
-    vcsExecWithEditor(workingDir, arguments, editor);
+    executeInEditor(workingDir, arguments, editor);
 }
 
 void GitClient::checkout(const FilePath &workingDirectory, const QString &ref, StashMode stashMode,
@@ -3263,7 +3263,7 @@ void GitClient::subversionLog(const FilePath &workingDirectory) const
     VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile, encoding(EncodingDefault),
                                                   "svnLog", sourceFile.toUrlishString());
     editor->setWorkingDirectory(workingDirectory);
-    vcsExecWithEditor(workingDirectory, arguments, editor);
+    executeInEditor(workingDirectory, arguments, editor);
 }
 
 void GitClient::subversionDeltaCommit(const FilePath &workingDirectory) const
