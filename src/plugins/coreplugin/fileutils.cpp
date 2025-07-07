@@ -249,60 +249,60 @@ static Result<> updateHeaderFileGuardAfterRename(const FilePath &headerPath,
         lineCounter++;
     }
 
-    Result<> ret = ResultOk;
+    if (guardStartLine == -1)
+        return ResultOk;
+
     const FilePath tmpHeader = headerPath.stringAppended(".tmp");
 
-    if (guardStartLine != -1) {
-        // At least the guard have been found ->
-        // copy the contents of the header to a temporary file with the updated guard lines
-        inStream.seek(0);
+    // At least the guard have been found ->
+    // copy the contents of the header to a temporary file with the updated guard lines
+    inStream.seek(0);
 
-        const auto guardCondition = QString("#ifndef%1%2%3_H%4%5").arg(
-                    guardConditionMatch.captured(2),
-                    guardConditionMatch.captured(3),
-                    headerPath.baseName().toUpper(),
-                    guardConditionMatch.captured(4),
-                    guardConditionMatch.captured(5));
-        // guardDefineRegexp.setPattern(QString("(#define\\s*%1)%2(_H%3\\s*)")
-        const auto guardDefine = QString("%1%2%3").arg(
-                    guardDefineMatch.captured(1),
-                    headerPath.baseName().toUpper(),
-                    guardDefineMatch.captured(2));
-        const auto guardClose = QString("%1%2%3%4%5%6").arg(
-                    guardCloseMatch.captured(1),
-                    guardCloseMatch.captured(2),
-                    guardCloseMatch.captured(3),
-                    headerPath.baseName().toUpper(),
-                    guardCloseMatch.captured(4),
-                    guardCloseMatch.captured(5));
+    const auto guardCondition = QString("#ifndef%1%2%3_H%4%5").arg(
+                guardConditionMatch.captured(2),
+                guardConditionMatch.captured(3),
+                headerPath.baseName().toUpper(),
+                guardConditionMatch.captured(4),
+                guardConditionMatch.captured(5));
+    // guardDefineRegexp.setPattern(QString("(#define\\s*%1)%2(_H%3\\s*)")
+    const auto guardDefine = QString("%1%2%3").arg(
+                guardDefineMatch.captured(1),
+                headerPath.baseName().toUpper(),
+                guardDefineMatch.captured(2));
+    const auto guardClose = QString("%1%2%3%4%5%6").arg(
+                guardCloseMatch.captured(1),
+                guardCloseMatch.captured(2),
+                guardCloseMatch.captured(3),
+                headerPath.baseName().toUpper(),
+                guardCloseMatch.captured(4),
+                guardCloseMatch.captured(5));
 
-        const QString lineEnd =
-                headerFileTextFormat.lineTerminationMode == TextFileFormat::LFLineTerminator
-                ? QStringLiteral("\n") : QStringLiteral("\r\n");
-        // write into temporary string,
-        // after that write with codec into file (QTextStream::setCodec is gone in Qt 6)
-        QString outString;
-        QTextStream outStream(&outString);
-        for (int lineCounter = 0; !inStream.atEnd(); ++lineCounter) {
-            inStream.readLineInto(&line);
-            if (lineCounter == guardStartLine) {
-                outStream << guardCondition << lineEnd;
-                outStream << guardDefine << lineEnd;
-                inStream.readLine();
-                lineCounter++;
-            } else if (lineCounter == guardCloseLine) {
-                outStream << guardClose << lineEnd;
-            } else {
-                outStream << line << lineEnd;
-            }
+    const QString lineEnd =
+            headerFileTextFormat.lineTerminationMode == TextFileFormat::LFLineTerminator
+            ? QStringLiteral("\n") : QStringLiteral("\r\n");
+    // write into temporary string,
+    // after that write with codec into file (QTextStream::setCodec is gone in Qt 6)
+    QString outString;
+    QTextStream outStream(&outString);
+    for (int lineCounter = 0; !inStream.atEnd(); ++lineCounter) {
+        inStream.readLineInto(&line);
+        if (lineCounter == guardStartLine) {
+            outStream << guardCondition << lineEnd;
+            outStream << guardDefine << lineEnd;
+            inStream.readLine();
+            lineCounter++;
+        } else if (lineCounter == guardCloseLine) {
+            outStream << guardClose << lineEnd;
+        } else {
+            outStream << line << lineEnd;
         }
-        const QByteArray content = headerFileTextFormat.encoding().encode(outString);
-        const Result<qint64> res = tmpHeader.writeFileContents(content);
-
-        ret = res.has_value() ? ResultOk : ResultError(res.error());
     }
+    const QByteArray encodedContent = headerFileTextFormat.encoding().encode(outString);
+    const Result<qint64> res = tmpHeader.writeFileContents(encodedContent);
 
-    if (ret && guardStartLine != -1) {
+    Result<> ret = res.has_value() ? ResultOk : ResultError(res.error());
+
+    if (ret) {
         // if the guard was found (and updated updated properly) swap the temp and the target file
         ret = headerPath.removeFile();
         if (ret)
