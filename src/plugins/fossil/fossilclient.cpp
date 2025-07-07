@@ -852,7 +852,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
     SupportedFeatures features = supportedFeatures();
     if (!files.isEmpty()
         && !features.testFlag(TimelinePathFeature)) {
-        logCurrentFile(workingDir, files, extraOptions, enableAnnotationContextMenu, addAuthOptions);
+        logCurrentFile(workingDir, files, extraOptions, enableAnnotationContextMenu);
         return;
     }
 
@@ -899,8 +899,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
 
 void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList &files,
                                   const QStringList &extraOptions,
-                                  bool enableAnnotationContextMenu,
-                                  const std::function<void(CommandLine &)> &addAuthOptions)
+                                  bool enableAnnotationContextMenu)
 {
     // Show commit history for the given file/file-revision
     // NOTE: 'fossil finfo' shows full history from all branches.
@@ -908,7 +907,7 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
     // With newer clients, 'fossil timeline' can handle both repository and file
     SupportedFeatures features = supportedFeatures();
     if (features.testFlag(TimelinePathFeature)) {
-        log(workingDir, files, extraOptions, enableAnnotationContextMenu, addAuthOptions);
+        log(workingDir, files, extraOptions, enableAnnotationContextMenu);
         return;
     }
 
@@ -931,9 +930,9 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
             connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested, this,
-                    [this, workingDir, files, editorConfig, enableAnnotationContextMenu, addAuthOptions] {
+                    [this, workingDir, files, editorConfig, enableAnnotationContextMenu] {
                 logCurrentFile(workingDir, files, editorConfig->arguments(),
-                               enableAnnotationContextMenu, addAuthOptions);
+                               enableAnnotationContextMenu);
             });
             fossilEditor->setEditorConfig(editorConfig);
         }

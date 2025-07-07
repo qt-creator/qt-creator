@@ -76,8 +76,7 @@ public:
              const std::function<void(Utils::CommandLine &)> &addAuthOptions = {}) final;
     void logCurrentFile(const Utils::FilePath &workingDir, const QStringList &files = {},
                         const QStringList &extraOptions = {},
-                        bool enableAnnotationContextMenu = false,
-                        const std::function<void(Utils::CommandLine &)> &addAuthOptions = {});
+                        bool enableAnnotationContextMenu = false);
     void revertFile(const Utils::FilePath &workingDir, const QString &file,
                     const QString &revision = {}, const QStringList &extraOptions = {}) final;
     void revertAll(const Utils::FilePath &workingDir, const QString &revision = {},
