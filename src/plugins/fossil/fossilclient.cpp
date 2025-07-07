@@ -712,7 +712,7 @@ void FossilClient::annotate(const FilePath &workingDir, const QString &file, int
         lineNumber = -1;
     editor->setDefaultLineNumber(lineNumber);
 
-    enqueueJob(createCommand(workingDir, fossilEditor), args, workingDir);
+    executeInEditor(workingDir, args, fossilEditor);
 }
 
 bool FossilClient::isVcsFileOrDirectory(const FilePath &filePath) const
@@ -895,7 +895,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
     args << effectiveArgs;
     if (!files.isEmpty())
          args << "--path" << files;
-    enqueueJob(createCommand(workingDir, fossilEditor), args, workingDir);
+    executeInEditor(workingDir, args, fossilEditor);
 }
 
 void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList &files,
@@ -949,7 +949,7 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
 
     QStringList args(vcsCmdString);
     args << effectiveArgs << files;
-    enqueueJob(createCommand(workingDir, fossilEditor), args, workingDir);
+    executeInEditor(workingDir, args, fossilEditor);
 }
 
 void FossilClient::revertFile(const FilePath &workingDir,

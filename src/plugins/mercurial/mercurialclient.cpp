@@ -222,7 +222,7 @@ void MercurialClient::outgoing(const FilePath &repositoryRoot)
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
                                                   VcsBaseEditor::getEncoding(repositoryRoot),
                                                   "outgoing", repositoryRoot.toUrlishString());
-    enqueueJob(createCommand(repositoryRoot, editor), args, repositoryRoot);
+    executeInEditor(repositoryRoot, args, editor);
 }
 
 void MercurialClient::annotate(const Utils::FilePath &workingDir, const QString &file,

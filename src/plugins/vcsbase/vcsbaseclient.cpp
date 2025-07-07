@@ -341,10 +341,8 @@ void VcsBaseClient::annotate(const Utils::FilePath &workingDir, const QString &f
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
                                                   VcsBaseEditor::getEncoding(source),
                                                   vcsCmdString.toLatin1().constData(), id);
-
-    VcsCommand *cmd = createCommand(workingDir, editor);
     editor->setDefaultLineNumber(lineNumber);
-    enqueueJob(cmd, args, workingDir);
+    executeInEditor(workingDir, args, editor);
 }
 
 void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files)
