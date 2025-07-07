@@ -536,7 +536,7 @@ void VcsBaseClient::view(const FilePath &source,
                                                   VcsBaseEditor::getEncoding(source), "view", id);
 
     const FilePath workingDirPath = source.isFile() ? source.absolutePath() : source;
-    enqueueJob(createCommand(workingDirPath, editor), args, source);
+    executeInEditor(workingDirPath, args, editor);
 }
 
 void VcsBaseClient::update(const FilePath &repositoryRoot, const QString &revision,
