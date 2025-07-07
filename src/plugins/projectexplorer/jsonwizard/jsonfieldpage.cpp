@@ -166,30 +166,24 @@ QVariant JsonFieldPage::Field::toSettings() const
     return {};
 }
 
-JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString *errorMessage)
+Result<JsonFieldPage::Field *> JsonFieldPage::Field::parse(const QVariant &input)
 {
-    if (input.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("Field is not an object.");
-        return nullptr;
-    }
+    if (input.typeId() != QMetaType::QVariantMap)
+        return ResultError(Tr::tr("Field is not an object."));
 
     QVariantMap tmp = input.toMap();
     const QString name = consumeValue(tmp, NAME_KEY).toString();
-    if (name.isEmpty()) {
-        *errorMessage = Tr::tr("Field has no name.");
-        return nullptr;
-    }
+    if (name.isEmpty())
+        return ResultError(Tr::tr("Field has no name."));
+
     const QString type = consumeValue(tmp, TYPE_KEY).toString();
-    if (type.isEmpty()) {
-        *errorMessage = Tr::tr("Field \"%1\" has no type.").arg(name);
-        return nullptr;
-    }
+    if (type.isEmpty())
+        return ResultError(Tr::tr("Field \"%1\" has no type.").arg(name));
 
     Field *data = createFieldData(type);
-    if (!data) {
-        *errorMessage = Tr::tr("Field \"%1\" has unsupported type \"%2\".").arg(name).arg(type);
-        return nullptr;
-    }
+    if (!data)
+        return ResultError(Tr::tr("Field \"%1\" has unsupported type \"%2\".").arg(name).arg(type));
+
     data->setTexts(
         name,
         JsonWizardFactory::localizedString(consumeValue(tmp, DISPLAY_NAME_KEY)),
@@ -204,10 +198,9 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
     data->setPersistenceKey(consumeValue(tmp, PERSISTENCE_KEY_KEY).toString());
 
     QVariant dataVal = consumeValue(tmp, DATA_KEY);
-    if (!data->parseData(dataVal, errorMessage)) {
-        *errorMessage = Tr::tr("When parsing Field \"%1\": %2").arg(name).arg(*errorMessage);
+    if (Result<> res = data->parseData(dataVal); !res) {
         delete data;
-        return nullptr;
+        return ResultError(Tr::tr("When parsing Field \"%1\": %2").arg(name).arg(res.error()));
     }
 
     warnAboutUnsupportedKeys(tmp, name);
@@ -410,24 +403,21 @@ QDebug &operator<<(QDebug &debug, const JsonFieldPage::Field &field)
 // LabelFieldData:
 // --------------------------------------------------------------------
 
-bool LabelField::parseData(const QVariant &data, QString *errorMessage)
+Result<> LabelField::parseData(const QVariant &data)
 {
-    if (data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("Label (\"%1\") data is not an object.").arg(name());
-        return false;
-    }
+    if (data.typeId() != QMetaType::QVariantMap)
+        return ResultError(Tr::tr("Label (\"%1\") data is not an object.").arg(name()));
 
     QVariantMap tmp = data.toMap();
 
     m_wordWrap = consumeValue(tmp, "wordWrap", false).toBool();
     m_text = JsonWizardFactory::localizedString(consumeValue(tmp, "trText"));
 
-    if (m_text.isEmpty()) {
-        *errorMessage = Tr::tr("Label (\"%1\") has no trText.").arg(name());
-        return false;
-    }
+    if (m_text.isEmpty())
+        return ResultError(Tr::tr("Label (\"%1\") has no trText.").arg(name()));
+
     warnAboutUnsupportedKeys(tmp, name(), type());
-    return true;
+    return ResultOk;
 }
 
 QWidget *LabelField::createWidget(const QString &displayName, JsonFieldPage *page)
@@ -445,15 +435,13 @@ QWidget *LabelField::createWidget(const QString &displayName, JsonFieldPage *pag
 // SpacerFieldData:
 // --------------------------------------------------------------------
 
-bool SpacerField::parseData(const QVariant &data, QString *errorMessage)
+Result<> SpacerField::parseData(const QVariant &data)
 {
     if (data.isNull())
-        return true;
+        return ResultOk;
 
-    if (data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("Spacer (\"%1\") data is not an object.").arg(name());
-        return false;
-    }
+    if (data.typeId() != QMetaType::QVariantMap)
+        return ResultError(Tr::tr("Spacer (\"%1\") data is not an object.").arg(name()));
 
     QVariantMap tmp = data.toMap();
 
@@ -461,13 +449,12 @@ bool SpacerField::parseData(const QVariant &data, QString *errorMessage)
     m_factor = consumeValue(tmp, "factor", 1).toInt(&ok);
 
     if (!ok) {
-        *errorMessage = Tr::tr("Spacer (\"%1\") property \"factor\" is no integer value.")
-                .arg(name());
-        return false;
+        return ResultError(Tr::tr("Spacer (\"%1\") property \"factor\" is no integer value.")
+                .arg(name()));
     }
-    warnAboutUnsupportedKeys(tmp, name(), type());
 
-    return true;
+    warnAboutUnsupportedKeys(tmp, name(), type());
+    return ResultOk;
 }
 
 QWidget *SpacerField::createWidget(const QString &displayName, JsonFieldPage *page)
@@ -490,15 +477,13 @@ QWidget *SpacerField::createWidget(const QString &displayName, JsonFieldPage *pa
 // LineEditFieldData:
 // --------------------------------------------------------------------
 
-bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
+Result<> LineEditField::parseData(const QVariant &data)
 {
     if (data.isNull())
-        return true;
+        return ResultOk;
 
-    if (data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("LineEdit (\"%1\") data is not an object.").arg(name());
-        return false;
-    }
+    if (data.typeId() != QMetaType::QVariantMap)
+        return ResultError(Tr::tr("LineEdit (\"%1\") data is not an object.").arg(name()));
 
     QVariantMap tmp = data.toMap();
 
@@ -512,11 +497,10 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     if (!pattern.isEmpty()) {
         m_validatorRegExp = QRegularExpression('^' + pattern + '$');
         if (!m_validatorRegExp.isValid()) {
-            *errorMessage = Tr::tr(
-                    "LineEdit (\"%1\") has an invalid regular expression \"%2\" in \"validator\".")
-                    .arg(name(), pattern);
             m_validatorRegExp = QRegularExpression();
-            return false;
+            return ResultError(Tr::tr(
+                    "LineEdit (\"%1\") has an invalid regular expression \"%2\" in \"validator\".")
+                    .arg(name(), pattern));
         }
     }
     m_fixupExpando = consumeValue(tmp, "fixup").toString();
@@ -527,14 +511,14 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     } else if (completion == "namespaces") {
         m_completion = Completion::Namespaces;
     } else if (!completion.isEmpty()) {
-        *errorMessage = Tr::tr("LineEdit (\"%1\") has an invalid value \"%2\" in \"completion\".")
-                .arg(name(), completion);
-        return false;
+        return ResultError(Tr::tr(
+                "LineEdit (\"%1\") has an invalid value \"%2\" in \"completion\".")
+                .arg(name(), completion));
     }
 
     warnAboutUnsupportedKeys(tmp, name(), type());
 
-    return true;
+    return ResultOk;
 }
 
 QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *page)
@@ -686,17 +670,13 @@ void LineEditField::setText(const QString &text)
 // TextEditFieldData:
 // --------------------------------------------------------------------
 
-
-bool TextEditField::parseData(const QVariant &data, QString *errorMessage)
+Result<> TextEditField::parseData(const QVariant &data)
 {
     if (data.isNull())
-        return true;
+        return ResultOk;
 
-    if (data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("TextEdit (\"%1\") data is not an object.")
-                .arg(name());
-        return false;
-    }
+    if (data.typeId() != QMetaType::QVariantMap)
+        return ResultError(Tr::tr("TextEdit (\"%1\") data is not an object.").arg(name()));
 
     QVariantMap tmp = data.toMap();
 
@@ -705,7 +685,7 @@ bool TextEditField::parseData(const QVariant &data, QString *errorMessage)
     m_acceptRichText = consumeValue(tmp, "richText", true).toBool();
 
     warnAboutUnsupportedKeys(tmp, name(), type());
-    return true;
+    return ResultOk;
 }
 
 QWidget *TextEditField::createWidget(const QString &displayName, JsonFieldPage *page)
@@ -770,15 +750,13 @@ QVariant TextEditField::toSettings() const
 // PathChooserFieldData:
 // --------------------------------------------------------------------
 
-bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
+Result<> PathChooserField::parseData(const QVariant &data)
 {
     if (data.isNull())
-        return true;
+        return ResultOk;
 
-    if (data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("PathChooser data is not an object.");
-        return false;
-    }
+    if (data.typeId() != QMetaType::QVariantMap)
+        return ResultError(Tr::tr("PathChooser data is not an object."));
 
     QVariantMap tmp = data.toMap();
 
@@ -802,15 +780,15 @@ bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
     } else if (kindStr == "any") {
         m_kind = PathChooser::Any;
     } else {
-        *errorMessage = Tr::tr("kind \"%1\" is not one of the supported \"existingDirectory\", "
-                               "\"directory\", \"file\", \"saveFile\", \"existingCommand\", "
-                               "\"command\", \"any\".")
-                .arg(kindStr);
-        return false;
+        return ResultError(
+            Tr::tr("kind \"%1\" is not one of the supported \"existingDirectory\", "
+                   "\"directory\", \"file\", \"saveFile\", \"existingCommand\", "
+                   "\"command\", \"any\".")
+                .arg(kindStr));
     }
 
     warnAboutUnsupportedKeys(tmp, name(), type());
-    return true;
+    return ResultOk;
 }
 
 QWidget *PathChooserField::createWidget(const QString &displayName, JsonFieldPage *page)
@@ -876,29 +854,27 @@ QVariant PathChooserField::toSettings() const
 // CheckBoxFieldData:
 // --------------------------------------------------------------------
 
-bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
+Result<> CheckBoxField::parseData(const QVariant &data)
 {
     if (data.isNull())
-        return true;
+        return ResultOk;
 
-    if (data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("CheckBox (\"%1\") data is not an object.").arg(name());
-        return false;
-    }
+    if (data.typeId() != QMetaType::QVariantMap)
+        return ResultError(Tr::tr("CheckBox (\"%1\") data is not an object.").arg(name()));
 
     QVariantMap tmp = data.toMap();
 
     m_checkedValue = consumeValue(tmp, "checkedValue", true).toString();
     m_uncheckedValue = consumeValue(tmp, "uncheckedValue", false).toString();
     if (m_checkedValue == m_uncheckedValue) {
-        *errorMessage = Tr::tr("CheckBox (\"%1\") values for checked and unchecked state are identical.")
-                .arg(name());
-       return false;
+        return ResultError(
+            Tr::tr("CheckBox (\"%1\") values for checked and unchecked state are identical.")
+                .arg(name()));
     }
     m_checkedExpression = consumeValue(tmp, "checked", false);
 
     warnAboutUnsupportedKeys(tmp, name(), type());
-    return true;
+    return ResultOk;
 }
 
 QWidget *CheckBoxField::createWidget(const QString &displayName, JsonFieldPage *page)
@@ -976,22 +952,20 @@ QVariant CheckBoxField::toSettings() const
 // ListFieldData:
 // --------------------------------------------------------------------
 
-std::unique_ptr<QStandardItem> createStandardItemFromListItem(const QVariant &item, QString *errorMessage)
+static Result<std::unique_ptr<QStandardItem>> createStandardItemFromListItem(const QVariant &item)
 {
-    if (item.typeId() == QMetaType::QVariantList) {
-        *errorMessage = Tr::tr("No JSON lists allowed inside List items.");
-        return {};
-    }
+    if (item.typeId() == QMetaType::QVariantList)
+        return ResultError(Tr::tr("No JSON lists allowed inside List items."));
+
     auto standardItem = std::make_unique<QStandardItem>();
     if (item.typeId() == QMetaType::QVariantMap) {
         QVariantMap tmp = item.toMap();
         const QString key = JsonWizardFactory::localizedString(consumeValue(tmp, "trKey"));
         const QVariant value = consumeValue(tmp, "value", key);
 
-        if (key.isNull() || key.isEmpty()) {
-            *errorMessage  = Tr::tr("No \"key\" found in List items.");
-            return {};
-        }
+        if (key.isNull() || key.isEmpty())
+            return ResultError(Tr::tr("No \"key\" found in List items."));
+
         standardItem->setText(key);
         standardItem->setData(value, ListField::ValueRole);
         standardItem->setData(consumeValue(tmp, "condition", true), ListField::ConditionRole);
@@ -1011,49 +985,41 @@ ListField::ListField() = default;
 
 ListField::~ListField() = default;
 
-bool ListField::parseData(const QVariant &data, QString *errorMessage)
+Result<> ListField::parseData(const QVariant &data)
 {
-    if (data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("%1 (\"%2\") data is not an object.").arg(type(), name());
-        return false;
-    }
+    if (data.typeId() != QMetaType::QVariantMap)
+        return ResultError(Tr::tr("%1 (\"%2\") data is not an object.").arg(type(), name()));
 
     QVariantMap tmp = data.toMap();
 
     bool ok;
     m_index = consumeValue(tmp, "index", 0).toInt(&ok);
     if (!ok) {
-        *errorMessage = Tr::tr("%1 (\"%2\") \"index\" is not an integer value.")
-                .arg(type(), name());
-        return false;
+        return ResultError(Tr::tr("%1 (\"%2\") \"index\" is not an integer value.")
+                .arg(type(), name()));
     }
     m_disabledIndex = consumeValue(tmp, "disabledIndex", -1).toInt(&ok);
     if (!ok) {
-        *errorMessage = Tr::tr("%1 (\"%2\") \"disabledIndex\" is not an integer value.")
-                .arg(type(), name());
-        return false;
+        return ResultError(Tr::tr("%1 (\"%2\") \"disabledIndex\" is not an integer value.")
+                .arg(type(), name()));
     }
 
     const QVariant value = consumeValue(tmp, "items");
-    if (value.isNull()) {
-        *errorMessage = Tr::tr("%1 (\"%2\") \"items\" missing.").arg(type(), name());
-        return false;
-    }
-    if (value.typeId() != QMetaType::QVariantList) {
-        *errorMessage = Tr::tr("%1 (\"%2\") \"items\" is not a JSON list.").arg(type(), name());
-        return false;
-    }
+    if (value.isNull())
+        return ResultError(Tr::tr("%1 (\"%2\") \"items\" missing.").arg(type(), name()));
+
+    if (value.typeId() != QMetaType::QVariantList)
+        return ResultError(Tr::tr("%1 (\"%2\") \"items\" is not a JSON list.").arg(type(), name()));
 
     for (const QVariant &i : value.toList()) {
-        std::unique_ptr<QStandardItem> item = createStandardItemFromListItem(i, errorMessage);
-        QTC_ASSERT(!item || !item->text().isEmpty(), continue);
-        m_itemList.emplace_back(std::move(item));
+        Result<std::unique_ptr<QStandardItem>> item = createStandardItemFromListItem(i);
+        QTC_ASSERT(!item || !(*item)->text().isEmpty(), continue);
+        m_itemList.emplace_back(std::move(*item));
     }
 
     warnAboutUnsupportedKeys(tmp, name(), type());
-    return true;
+    return ResultOk;
 }
-
 
 bool ListField::validate(MacroExpander *expander, QString *message)
 {
@@ -1348,10 +1314,14 @@ void JsonFieldPage::registerFieldFactory(const QString &id, const JsonFieldPage:
 
 bool JsonFieldPage::setup(const QVariant &data)
 {
-    QString errorMessage;
-    const QList<QVariant> fieldList = JsonWizardFactory::objectOrList(data, &errorMessage);
-    for (const QVariant &field : fieldList) {
-        Field *f = JsonFieldPage::Field::parse(field, &errorMessage);
+    const Result<QVariantList> fieldList = JsonWizardFactory::objectOrList(data);
+    if (!fieldList)
+        return false;
+    for (const QVariant &field : *fieldList) {
+        const Result<Field *> res = JsonFieldPage::Field::parse(field);
+        if (!res)
+            continue;
+        Field *f = *res;
         if (!f)
             continue;
         f->createWidget(this);

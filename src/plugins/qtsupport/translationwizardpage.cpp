@@ -157,7 +157,7 @@ private:
                                          data.toMap().value("singleFile").toBool());
     }
 
-    bool validateData(Id, const QVariant &, QString *) final { return true; }
+    Result<> validateData(Id, const QVariant &) final { return ResultOk; }
 };
 
 void setupTranslationWizardPage()

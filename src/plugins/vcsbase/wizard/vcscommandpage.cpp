@@ -81,9 +81,9 @@ WizardPage *VcsCommandPageFactory::create(JsonWizard *wizard, Id typeId, const Q
     return page;
 }
 
-bool VcsCommandPageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
+Result<> VcsCommandPageFactory::validateData(Id typeId, const QVariant &data)
 {
-    QTC_ASSERT(canCreate(typeId), return false);
+    QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
 
     QString em;
     if (data.typeId() != QMetaType::QVariantMap)
@@ -126,10 +126,10 @@ bool VcsCommandPageFactory::validateData(Id typeId, const QVariant &data, QStrin
         }
     }
 
-    if (errorMessage)
-        *errorMessage = em;
+    if (!em.isEmpty())
+        return ResultError(em);
 
-    return em.isEmpty();
+    return ResultOk;
 }
 
 // ----------------------------------------------------------------------

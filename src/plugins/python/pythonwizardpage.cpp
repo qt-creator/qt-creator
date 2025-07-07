@@ -49,7 +49,7 @@ public:
     }
 
     WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) final;
-    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) final;
+    Result<> validateData(Utils::Id typeId, const QVariant &data) final;
 };
 
 WizardPage *PythonWizardPageFactory::create(JsonWizard *wizard, Id typeId, const QVariant &data)
@@ -81,29 +81,24 @@ static bool validItem(const QVariant &item)
     return map.value("PySideVersion").canConvert<QString>();
 }
 
-bool PythonWizardPageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
+Result<> PythonWizardPageFactory::validateData(Id typeId, const QVariant &data)
 {
-    QTC_ASSERT(canCreate(typeId), return false);
+    QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
     const QList<QVariant> items = data.toMap().value("items").toList();
 
     if (items.isEmpty()) {
-        if (errorMessage) {
-            *errorMessage = Tr::tr("\"data\" of a Python wizard page expects a map with \"items\" "
-                                   "containing a list of objects.");
-        }
-        return false;
+        return ResultError(Tr::tr("\"data\" of a Python wizard page expects a map with \"items\" "
+                                  "containing a list of objects."));
     }
 
     if (!Utils::allOf(items, &validItem)) {
-        if (errorMessage) {
-            *errorMessage = Tr::tr(
+        return ResultError(Tr::tr(
                 "An item of Python wizard page data expects a \"trKey\" field containing the UI "
                 "visible string for that Python version and a \"value\" field containing an object "
-                "with a \"PySideVersion\" field used for import statements in the Python files.");
-        }
-        return false;
+                "with a \"PySideVersion\" field used for import statements in the Python files."));
     }
-    return true;
+
+    return ResultOk;
 }
 
 PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySideAndData,

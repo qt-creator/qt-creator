@@ -50,7 +50,7 @@ public:
         QVariant data;
     };
 
-    static QList<QVariant> objectOrList(const QVariant &data, QString *errorMessage);
+    static Utils::Result<QVariantList> objectOrList(const QVariant &data);
 
     static QString localizedString(const QVariant &value);
 
@@ -68,18 +68,17 @@ private:
     // Create all wizards. As other plugins might register factories for derived
     // classes. Called when the new file dialog is shown for the first time.
     static QList<IWizardFactory *> createWizardFactories();
-    static JsonWizardFactory *createWizardFactory(const QVariantMap &data,
-                                                  const Utils::FilePath &baseDir,
-                                                  QString *errorMessage);
+    static Utils::Result<JsonWizardFactory *> createWizardFactory(const QVariantMap &data,
+                                                                  const Utils::FilePath &baseDir);
     static Utils::FilePaths &searchPaths();
     static void resetSearchPaths();
 
     static void setVerbose(int level);
     static int verbose();
 
-    bool initialize(const QVariantMap &data, const Utils::FilePath &baseDir, QString *errorMessage);
+    Utils::Result<> initialize(const QVariantMap &data, const Utils::FilePath &baseDir);
 
-    JsonWizardFactory::Page parsePage(const QVariant &value, QString *errorMessage);
+    Utils::Result<JsonWizardFactory::Page> parsePage(const QVariant &value);
     QVariantMap loadDefaultValues(const QString &fileName);
     QVariant getDataValue(const QLatin1String &key, const QVariantMap &valueSet,
                           const QVariantMap &defaultValueSet, const QVariant &notExistValue={});

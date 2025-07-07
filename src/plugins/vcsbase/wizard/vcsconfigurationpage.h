@@ -23,7 +23,7 @@ public:
 
     Utils::WizardPage *create(ProjectExplorer::JsonWizard *wizard, Utils::Id typeId,
                               const QVariant &data) override;
-    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
+    Utils::Result<> validateData(Utils::Id typeId, const QVariant &data) override;
 };
 
 } // namespace Internal

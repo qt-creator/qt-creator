@@ -69,12 +69,11 @@ private:
 
 Result<> JsonWizardFileGenerator::setup(const QVariant &data)
 {
-    QString errorMessage;
-    const QVariantList list = JsonWizardFactory::objectOrList(data, &errorMessage);
-    if (list.isEmpty())
-        return ResultError(errorMessage);
+    const Result<QVariantList> list = JsonWizardFactory::objectOrList(data);
+    if (!list)
+        return ResultError(list.error());
 
-    for (const QVariant &d : list) {
+    for (const QVariant &d : *list) {
         if (d.typeId() != QMetaType::QVariantMap)
             return ResultError(Tr::tr("Files data list entry is not an object."));
 
@@ -90,9 +89,12 @@ Result<> JsonWizardFileGenerator::setup(const QVariant &data)
         f.isTemporary = tmp.value(QLatin1String("temporary"), false);
         f.openAsProject = tmp.value(QLatin1String("openAsProject"), false);
 
-        f.options = JsonWizard::parseOptions(tmp.value(QLatin1String("options")), &errorMessage);
-        if (!errorMessage.isEmpty())
-            return ResultError(errorMessage);
+        Result<JsonWizard::OptionDefinitions> res =
+            JsonWizard::parseOptions(tmp.value(QLatin1String("options")));
+        if (!res)
+            return ResultError(res.error());
+
+        f.options = *res;
 
         if (f.source.isEmpty() && f.target.isEmpty())
             return ResultError(Tr::tr("Source and target are both empty."));

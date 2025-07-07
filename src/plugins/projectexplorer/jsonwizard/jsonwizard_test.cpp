@@ -88,23 +88,23 @@ class JsonWizardTest : public QObject
 private slots:
     void testEmptyWizard()
     {
-        QString errorMessage;
         const QJsonObject wizard = createGeneralWizard(QJsonObject());
+        const Result<JsonWizardFactory *> res =
+            JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), {});
 
-        const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), {}, &errorMessage));
-        QVERIFY(factory == nullptr);
-        QCOMPARE(qPrintable(errorMessage), "Page has no typeId set.");
+        QVERIFY(!res);
+        QCOMPARE(res.error(), "Page has no typeId set.");
     }
 
     void testEmptyPage()
     {
-        QString errorMessage;
         const QJsonObject pages = createFieldPageJsonObject(QJsonArray());
         const QJsonObject wizard = createGeneralWizard(pages);
+        const Result<JsonWizardFactory *> res =
+            JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), {});
 
-        const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), {}, &errorMessage));
-        QVERIFY(factory == nullptr);
-        QCOMPARE(qPrintable(errorMessage), "When parsing fields of page \"PE.Wizard.Page.Fields\": ");
+        QVERIFY(!res);
+        QCOMPARE(res.error(), "When parsing fields of page \"PE.Wizard.Page.Fields\": Got an empty list.");
     }
 
     void testUnusedKeyAtFields_data()
@@ -125,7 +125,6 @@ private slots:
     {
         QString fieldType(QString::fromLatin1(QTest::currentDataTag()));
         QFETCH(QJsonObject, wrongDataJsonObect);
-        QString errorMessage;
         const QJsonObject pages = QJsonObject{
                                               {"name", "testpage"},
                                               {"trDisplayName", "mytestpage"},
@@ -135,15 +134,17 @@ private slots:
         const QJsonObject wizard = createGeneralWizard(pages);
 
         QTest::ignoreMessage(QtWarningMsg, QRegularExpression("has unsupported keys: wrong"));
-        const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), {}, &errorMessage));
+        const Result<JsonWizardFactory *> res =
+            JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), {});
+
+        QVERIFY(res.has_value());
+
+        FactoryPtr factory(*res);
         QVERIFY(factory);
-        QVERIFY(errorMessage.isEmpty());
     }
 
     void testCheckBox()
     {
-        QString errorMessage;
-
         const QJsonArray widgets({
             createWidget("CheckBox", "Default", QJsonObject()),
             createWidget("CheckBox", "Checked", QJsonObject({{"checked", true}})),
@@ -157,8 +158,13 @@ private slots:
         });
         const QJsonObject pages = createFieldPageJsonObject(widgets);
         const QJsonObject wizardObject = createGeneralWizard(pages);
-        const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
-        QVERIFY2(factory, qPrintable(errorMessage));
+
+        const Result<JsonWizardFactory *> res =
+            JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {});
+
+        QVERIFY(res.has_value());
+        JsonWizardFactory *factory = *res;
+        QVERIFY(factory);
 
         std::unique_ptr<Wizard> wizard{factory->runWizard({}, Id(), QVariantMap())};
 
@@ -180,16 +186,19 @@ private slots:
 
     void testLineEdit()
     {
-        QString errorMessage;
-
         const QJsonArray widgets({
             createWidget("LineEdit", "Default", QJsonObject()),
             createWidget("LineEdit", "WithText", QJsonObject({{"trText", "some text"}}))
         });
         const QJsonObject pages = createFieldPageJsonObject(widgets);
         const QJsonObject wizardObject = createGeneralWizard(pages);
-        const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
-        QVERIFY2(factory, qPrintable(errorMessage));
+
+        const Result<JsonWizardFactory *> res =
+            JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {});
+
+        QVERIFY(res.has_value());
+        const FactoryPtr factory(*res);
+        QVERIFY(factory);
 
         std::unique_ptr<Wizard> wizard{factory->runWizard({}, Id(), QVariantMap())};
         QVERIFY(wizard);
@@ -204,8 +213,6 @@ private slots:
 
     void testComboBox()
     {
-        QString errorMessage;
-
         const QJsonArray items({"abc", "cde", "fgh"});
         QJsonObject disabledComboBoxObject = createWidget("ComboBox", "Disabled", QJsonObject({ {{"disabledIndex", 2}, {"items", items}} }));
         disabledComboBoxObject.insert("enabled", false);
@@ -217,8 +224,13 @@ private slots:
 
         const QJsonObject pages = createFieldPageJsonObject(widgets);
         const QJsonObject wizardObject = createGeneralWizard(pages);
-        const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
-        QVERIFY2(factory, qPrintable(errorMessage));
+
+        const Result<JsonWizardFactory *> res =
+            JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {});
+
+        QVERIFY(res.has_value());
+        const FactoryPtr factory(*res);
+        QVERIFY(factory);
         std::unique_ptr<Wizard> wizard{factory->runWizard({}, Id(), QVariantMap())};
 
         QComboBox *defaultComboBox = findComboBox(wizard.get(), "Default");
@@ -243,8 +255,6 @@ private slots:
         const auto iconInsideResource = [](const QString &relativePathToIcon) {
             return Core::ICore::resourcePath().resolvePath(relativePathToIcon).toUrlishString();
         };
-
-        QString errorMessage;
 
         const QJsonArray items({
             QJsonObject{
@@ -272,8 +282,13 @@ private slots:
 
         const QJsonObject pages = createFieldPageJsonObject(widgets);
         const QJsonObject wizardObject = createGeneralWizard(pages);
-        const FactoryPtr factory(JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {}, &errorMessage));
-        QVERIFY2(factory, qPrintable(errorMessage));
+
+        const Result<JsonWizardFactory *> res =
+            JsonWizardFactory::createWizardFactory(wizardObject.toVariantMap(), {});
+
+        QVERIFY(res.has_value());
+        const FactoryPtr factory(*res);
+        QVERIFY(factory);
         std::unique_ptr<Wizard> wizard{factory->runWizard({}, Id(), QVariantMap())};
 
         auto view = wizard->findChild<QListView *>("FancyIconList");

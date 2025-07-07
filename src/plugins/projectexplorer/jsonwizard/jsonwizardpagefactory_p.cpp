@@ -30,21 +30,21 @@ public:
     FieldPageFactory();
 
     WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) final;
-    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) final;
+    Result<> validateData(Id typeId, const QVariant &data) final;
 };
 
 FieldPageFactory::FieldPageFactory()
 {
     setTypeIdsSuffix(QLatin1String("Fields"));
 
-    JsonFieldPage::registerFieldFactory(QLatin1String("Label"), []() { return new LabelField; });
-    JsonFieldPage::registerFieldFactory(QLatin1String("Spacer"), []() { return new SpacerField; });
-    JsonFieldPage::registerFieldFactory(QLatin1String("LineEdit"), []() { return new LineEditField; });
-    JsonFieldPage::registerFieldFactory(QLatin1String("TextEdit"), []() { return new TextEditField; });
-    JsonFieldPage::registerFieldFactory(QLatin1String("PathChooser"), []() { return new PathChooserField; });
-    JsonFieldPage::registerFieldFactory(QLatin1String("CheckBox"), []() { return new CheckBoxField; });
-    JsonFieldPage::registerFieldFactory(QLatin1String("ComboBox"), []() { return new ComboBoxField; });
-    JsonFieldPage::registerFieldFactory(QLatin1String("IconList"), []() { return new IconListField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("Label"), [] { return new LabelField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("Spacer"), [] { return new SpacerField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("LineEdit"), [] { return new LineEditField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("TextEdit"), [] { return new TextEditField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("PathChooser"), [] { return new PathChooserField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("CheckBox"), [] { return new CheckBoxField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("ComboBox"), [] { return new ComboBoxField; });
+    JsonFieldPage::registerFieldFactory(QLatin1String("IconList"), [] { return new IconListField; });
 }
 
 WizardPage *FieldPageFactory::create(JsonWizard *wizard, Id typeId, const QVariant &data)
@@ -63,25 +63,24 @@ WizardPage *FieldPageFactory::create(JsonWizard *wizard, Id typeId, const QVaria
     return page;
 }
 
-bool FieldPageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
+Result<> FieldPageFactory::validateData(Id typeId, const QVariant &data)
 {
-    QTC_ASSERT(canCreate(typeId), return false);
+    QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
 
-    const QList<QVariant> list = JsonWizardFactory::objectOrList(data, errorMessage);
-    if (list.isEmpty()) {
-        *errorMessage = Tr::tr("When parsing fields of page \"%1\": %2")
-                .arg(typeId.toString()).arg(*errorMessage);
-        return false;
+    const Result<QVariantList> list = JsonWizardFactory::objectOrList(data);
+    if (!list) {
+        return ResultError(Tr::tr("When parsing fields of page \"%1\": %2")
+                .arg(typeId.toString(), list.error()));
     }
 
-    for (const QVariant &v : list) {
-        JsonFieldPage::Field *field = JsonFieldPage::Field::parse(v, errorMessage);
-        if (!field)
-            return false;
-        delete field;
+    for (const QVariant &v : *list) {
+        Result<JsonFieldPage::Field *> res = JsonFieldPage::Field::parse(v);
+        if (!res)
+            return ResultError(res.error());
+        delete res.value();
     }
 
-    return true;
+    return ResultOk;
 }
 
 // --------------------------------------------------------------------
@@ -94,7 +93,7 @@ public:
     FilePageFactory();
 
     WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) override;
-    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) override;
+    Result<> validateData(Id typeId, const QVariant &data) override;
 };
 
 FilePageFactory::FilePageFactory()
@@ -111,15 +110,15 @@ WizardPage *FilePageFactory::create(JsonWizard *wizard, Id typeId, const QVarian
     return new JsonFilePage;
 }
 
-bool FilePageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
+Result<> FilePageFactory::validateData(Id typeId, const QVariant &data)
 {
-    QTC_ASSERT(canCreate(typeId), return false);
+    QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
     if (!data.isNull() && (data.typeId() != QMetaType::QVariantMap || !data.toMap().isEmpty())) {
-        *errorMessage = Tr::tr("\"data\" for a \"File\" page needs to be unset or an empty object.");
-        return false;
+        return ResultError(
+            Tr::tr("\"data\" for a \"File\" page needs to be unset or an empty object."));
     }
 
-    return true;
+    return ResultOk;
 }
 
 // --------------------------------------------------------------------
@@ -136,7 +135,7 @@ public:
     KitsPageFactory();
 
     WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) override;
-    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) override;
+    Result<> validateData(Id typeId, const QVariant &data) override;
     bool defaultSkipForSubprojects() const override { return true; }
 };
 
@@ -159,36 +158,34 @@ WizardPage *KitsPageFactory::create(JsonWizard *wizard, Id typeId, const QVarian
     return page;
 }
 
-static bool validateFeatureList(const QVariantMap &data, const QByteArray &key, QString *errorMessage)
+static Result<> validateFeatureList(const QVariantMap &data, const QByteArray &key)
 {
     QString message;
     JsonKitsPage::parseFeatures(data.value(QLatin1String(key)), &message);
     if (!message.isEmpty()) {
-        *errorMessage = Tr::tr("Error parsing \"%1\" in \"Kits\" page: %2")
-                .arg(QLatin1String(key), message);
-        return false;
+        return ResultError(Tr::tr("Error parsing \"%1\" in \"Kits\" page: %2")
+                .arg(QLatin1String(key), message));
     }
-    return true;
+    return ResultOk;
 }
 
-bool KitsPageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
+Result<> KitsPageFactory::validateData(Id typeId, const QVariant &data)
 {
-    QTC_ASSERT(canCreate(typeId), return false);
+    QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
 
-    if (data.isNull() || data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("\"data\" must be a JSON object for \"Kits\" pages.");
-        return false;
-    }
+    if (data.isNull() || data.typeId() != QMetaType::QVariantMap)
+        return ResultError(Tr::tr("\"data\" must be a JSON object for \"Kits\" pages."));
 
     QVariantMap tmp = data.toMap();
     if (tmp.value(QLatin1String(KEY_PROJECT_FILE)).toString().isEmpty()) {
-        *errorMessage = Tr::tr("\"Kits\" page requires a \"%1\" set.")
-                .arg(QLatin1String(KEY_PROJECT_FILE));
-        return false;
+        return ResultError(Tr::tr("\"Kits\" page requires a \"%1\" set.")
+                .arg(QLatin1String(KEY_PROJECT_FILE)));
     }
 
-    return validateFeatureList(tmp, KEY_REQUIRED_FEATURES, errorMessage)
-            && validateFeatureList(tmp, KEY_PREFERRED_FEATURES, errorMessage);
+    if (auto res = validateFeatureList(tmp, KEY_REQUIRED_FEATURES); !res)
+        return res;
+
+    return validateFeatureList(tmp, KEY_PREFERRED_FEATURES);
 }
 
 // --------------------------------------------------------------------
@@ -204,7 +201,7 @@ public:
     ProjectPageFactory();
 
     WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) override;
-    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) override;
+    Result<> validateData(Id typeId, const QVariant &data) override;
 };
 
 ProjectPageFactory::ProjectPageFactory()
@@ -238,14 +235,12 @@ WizardPage *ProjectPageFactory::create(JsonWizard *wizard, Id typeId, const QVar
     return page;
 }
 
-bool ProjectPageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
+Result<> ProjectPageFactory::validateData(Id typeId, const QVariant &data)
 {
-    Q_UNUSED(errorMessage)
-
-    QTC_ASSERT(canCreate(typeId), return false);
+    QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
     if (!data.isNull() && data.typeId() != QMetaType::QVariantMap) {
-        *errorMessage = Tr::tr("\"data\" must be empty or a JSON object for \"Project\" pages.");
-        return false;
+        return ResultError(
+            Tr::tr("\"data\" must be empty or a JSON object for \"Project\" pages."));
     }
     QVariantMap tmp = data.toMap();
     QString projectNameValidator
@@ -253,14 +248,14 @@ bool ProjectPageFactory::validateData(Id typeId, const QVariant &data, QString *
     if (!projectNameValidator.isNull()) {
         QRegularExpression regularExpression(projectNameValidator);
         if (!regularExpression.isValid()) {
-            *errorMessage = Tr::tr(
+            return ResultError(Tr::tr(
                 "Invalid regular expression \"%1\" in \"%2\". %3").arg(
-                projectNameValidator, QLatin1String(KEY_PROJECT_NAME_VALIDATOR), regularExpression.errorString());
-            return false;
+                projectNameValidator, QLatin1String(KEY_PROJECT_NAME_VALIDATOR),
+                regularExpression.errorString()));
         }
     }
 
-    return true;
+    return ResultOk;
 }
 
 // --------------------------------------------------------------------
@@ -275,7 +270,7 @@ public:
     SummaryPageFactory();
 
     WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) override;
-    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) override;
+    Result<> validateData(Id typeId, const QVariant &data) override;
 };
 
 SummaryPageFactory::SummaryPageFactory()
@@ -295,15 +290,15 @@ WizardPage *SummaryPageFactory::create(JsonWizard *wizard, Id typeId, const QVar
     return page;
 }
 
-bool SummaryPageFactory::validateData(Id typeId, const QVariant &data, QString *errorMessage)
+Result<> SummaryPageFactory::validateData(Id typeId, const QVariant &data)
 {
-    QTC_ASSERT(canCreate(typeId), return false);
-    if (!data.isNull() && (data.typeId() != QMetaType::QVariantMap)) {
-        *errorMessage = Tr::tr("\"data\" for a \"Summary\" page can be unset or needs to be an object.");
-        return false;
+    QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
+    if (!data.isNull() && data.typeId() != QMetaType::QVariantMap) {
+        return ResultError(
+            Tr::tr("\"data\" for a \"Summary\" page can be unset or needs to be an object."));
     }
 
-    return true;
+    return ResultOk;
 }
 
 // Setup

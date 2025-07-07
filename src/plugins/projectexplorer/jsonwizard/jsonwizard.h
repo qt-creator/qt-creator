@@ -92,7 +92,8 @@ public:
 
         friend class JsonWizard;
     };
-    static QList<OptionDefinition> parseOptions(const QVariant &v, QString *errorMessage);
+    using OptionDefinitions = QList<OptionDefinition>;
+    static Utils::Result<OptionDefinitions> parseOptions(const QVariant &v);
 
     static bool boolFromVariant(const QVariant &v, Utils::MacroExpander *expander);
     static QString stringListToArrayString(const QStringList &list,

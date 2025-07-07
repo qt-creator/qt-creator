@@ -241,14 +241,14 @@ void JsonWizard::setValue(const QString &key, const QVariant &value)
     setProperty(key.toUtf8(), value);
 }
 
-QList<JsonWizard::OptionDefinition> JsonWizard::parseOptions(const QVariant &v, QString *errorMessage)
+Result<JsonWizard::OptionDefinitions> JsonWizard::parseOptions(const QVariant &v)
 {
-    QTC_ASSERT(errorMessage, return { });
-
-    QList<JsonWizard::OptionDefinition> result;
+    JsonWizard::OptionDefinitions result;
     if (!v.isNull()) {
-        const QVariantList optList = JsonWizardFactory::objectOrList(v, errorMessage);
-        for (const QVariant &o : optList) {
+        const Result<QVariantList> optList = JsonWizardFactory::objectOrList(v);
+        if (!optList)
+            return ResultError(optList.error());
+        for (const QVariant &o : *optList) {
             QVariantMap optionObject = o.toMap();
             JsonWizard::OptionDefinition odef;
             odef.m_key = optionObject.value(QLatin1String("key")).toString();
@@ -256,16 +256,12 @@ QList<JsonWizard::OptionDefinition> JsonWizard::parseOptions(const QVariant &v, 
             odef.m_condition = optionObject.value(QLatin1String("condition"), true);
             odef.m_evaluate = optionObject.value(QLatin1String("evaluate"), false);
 
-            if (odef.m_key.isEmpty()) {
-                *errorMessage = Tr::tr("No 'key' in options object.");
-                result.clear();
-                break;
-            }
+            if (odef.m_key.isEmpty())
+                return ResultError(Tr::tr("No 'key' in options object."));
+
             result.append(odef);
         }
     }
-
-    QTC_ASSERT(errorMessage->isEmpty() || (!errorMessage->isEmpty() && result.isEmpty()), return result);
     return result;
 }
 

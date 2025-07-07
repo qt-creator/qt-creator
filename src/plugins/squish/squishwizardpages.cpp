@@ -170,12 +170,11 @@ public:
         return new SquishToolkitsPage;
     }
 
-    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) final
+    Result<> validateData(Id typeId, const QVariant &data) final
     {
         Q_UNUSED(data)
-        Q_UNUSED(errorMessage)
-        QTC_ASSERT(canCreate(typeId), return false);
-        return true;
+        QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
+        return ResultOk;
     }
 };
 
@@ -235,10 +234,11 @@ public:
         QTC_ASSERT(canCreate(typeId), return nullptr);
         return new SquishScriptLanguagePage;
     }
-    bool validateData(Id typeId, const QVariant &, QString *) final
+
+    Result<> validateData(Id typeId, const QVariant &) final
     {
-        QTC_ASSERT(canCreate(typeId), return false);
-        return true;
+        QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
+        return ResultOk;
     }
 };
 
@@ -286,12 +286,11 @@ public:
         return new SquishAUTPage;
     }
 
-    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) final
+    Result<> validateData(Id typeId, const QVariant &data) final
     {
         Q_UNUSED(data)
-        Q_UNUSED(errorMessage)
-        QTC_ASSERT(canCreate(typeId), return false);
-        return true;
+        QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
+        return ResultOk;
     }
 };
 

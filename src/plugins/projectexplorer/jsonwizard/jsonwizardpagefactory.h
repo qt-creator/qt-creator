@@ -6,6 +6,7 @@
 #include "../projectexplorer_export.h"
 
 #include <utils/id.h>
+#include <utils/result.h>
 
 #include <QVariant>
 #include <QStringList>
@@ -27,7 +28,7 @@ public:
     virtual Utils::WizardPage *create(JsonWizard *wizard, Utils::Id typeId, const QVariant &data) = 0;
 
     // Basic syntax check for the data taken from the wizard.json file:
-    virtual bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) = 0;
+    virtual Utils::Result<> validateData(Utils::Id typeId, const QVariant &data) = 0;
     virtual bool defaultSkipForSubprojects() const { return false; }
 
 protected:

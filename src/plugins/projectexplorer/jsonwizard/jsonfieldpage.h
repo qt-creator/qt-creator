@@ -40,7 +40,7 @@ public:
         Field();
         virtual ~Field();
 
-        static Field *parse(const QVariant &input, QString *errorMessage);
+        static Utils::Result<Field *> parse(const QVariant &input);
         void createWidget(JsonFieldPage *page);
 
         void adjustState(Utils::MacroExpander *expander);
@@ -68,7 +68,7 @@ public:
 
     protected:
         QWidget *widget() const;
-        virtual bool parseData(const QVariant &data, QString *errorMessage) = 0;
+        virtual Utils::Result<> parseData(const QVariant &data) = 0;
         virtual void initializeData(Utils::MacroExpander *expander) { Q_UNUSED(expander) }
         virtual QWidget *createWidget(const QString &displayName, JsonFieldPage *page) = 0;
         virtual void setup(JsonFieldPage *page, const QString &name)

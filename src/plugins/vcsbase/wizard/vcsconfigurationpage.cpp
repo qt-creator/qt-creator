@@ -51,25 +51,25 @@ WizardPage *VcsConfigurationPageFactory::create(JsonWizard *wizard, Id typeId,
     return page;
 }
 
-bool VcsConfigurationPageFactory::validateData(Id typeId, const QVariant &data,
-                                               QString *errorMessage)
+Result<> VcsConfigurationPageFactory::validateData(Id typeId, const QVariant &data)
 {
-    QTC_ASSERT(canCreate(typeId), return false);
+    QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
 
     if (data.isNull() || data.typeId() != QMetaType::QVariantMap) {
         //: Do not translate "VcsConfiguration", because it is the id of a page.
-        *errorMessage = ProjectExplorer::Tr::tr("\"data\" must be a JSON object for \"VcsConfiguration\" pages.");
-        return false;
+        return ResultError(
+            ProjectExplorer::Tr::tr("\"data\" must be a JSON object for \"VcsConfiguration\" pages."));
     }
 
     QVariantMap tmp = data.toMap();
     const QString vcsId = tmp.value(QLatin1String("vcsId")).toString();
     if (vcsId.isEmpty()) {
         //: Do not translate "VcsConfiguration", because it is the id of a page.
-        *errorMessage = ProjectExplorer::Tr::tr("\"VcsConfiguration\" page requires a \"vcsId\" set.");
-        return false;
+        return ResultError(
+            ProjectExplorer::Tr::tr("\"VcsConfiguration\" page requires a \"vcsId\" set."));
     }
-    return true;
+
+    return ResultOk;
 }
 
 class VcsConfigurationPagePrivate

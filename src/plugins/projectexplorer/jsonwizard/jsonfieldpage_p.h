@@ -66,7 +66,7 @@ private:
     }
 
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
-    bool parseData(const QVariant &data, QString *errorMessage) override;
+    Utils::Result<> parseData(const QVariant &data) override;
 
     bool m_wordWrap = false;
     QString m_text;
@@ -86,7 +86,7 @@ private:
         return result;
     }
 
-    bool parseData(const QVariant &data, QString *errorMessage) override;
+    Utils::Result<> parseData(const QVariant &data) override;
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
     int m_factor = 1;
@@ -95,7 +95,7 @@ private:
 class PROJECTEXPLORER_EXPORT LineEditField : public JsonFieldPage::Field
 {
 private:
-    bool parseData(const QVariant &data, QString *errorMessage) override;
+    Utils::Result<> parseData(const QVariant &data) override;
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
     void setup(JsonFieldPage *page, const QString &name) override;
@@ -146,7 +146,7 @@ public:
 class TextEditField : public JsonFieldPage::Field
 {
 private:
-    bool parseData(const QVariant &data, QString *errorMessage) override;
+    Utils::Result<> parseData(const QVariant &data) override;
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
     void setup(JsonFieldPage *page, const QString &name) override;
@@ -178,7 +178,7 @@ private:
 class PathChooserField : public JsonFieldPage::Field
 {
 private:
-    bool parseData(const QVariant &data, QString *errorMessage) override;
+    Utils::Result<> parseData(const QVariant &data) override;
 
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
     void setEnabled(bool e) override;
@@ -218,7 +218,7 @@ public:
     bool isChecked() const;
 
 private:
-    bool parseData(const QVariant &data, QString *errorMessage) override;
+    Utils::Result<> parseData(const QVariant &data) override;
 
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override;
 
@@ -265,7 +265,7 @@ public:
     virtual bool selectRow(int row);
 
 protected:
-    bool parseData(const QVariant &data, QString *errorMessage) override;
+    Utils::Result<> parseData(const QVariant &data) override;
 
     QWidget *createWidget(const QString &displayName, JsonFieldPage *page) override = 0;
     void setup(JsonFieldPage *page, const QString &name) override = 0;
