@@ -851,7 +851,7 @@ void IssuesWidget::updateVersionItemsEnabledState()
     if (currentDashboardMode() == DashboardMode::Local) {
         std::optional<Dto::ProjectInfoDto> localInfo = localProjectInfo();
         if (QTC_GUARD(localInfo)) {
-            const int versionCount = localInfo->versions.size();
+            const qsizetype versionCount = localInfo->versions.size();
             QTC_ASSERT(versionCount >= 2 && versionCount <= 3, return);
             QStandardItemModel *model = qobject_cast<QStandardItemModel *>(m_localVersions->model());
             QTC_ASSERT(model, return);
@@ -1035,7 +1035,7 @@ IssueListSearch IssuesWidget::searchFromUi() const
     if (m_versionsStack->currentIndex() == int(DashboardMode::Local)) { // local dashboard
         std::optional<Dto::ProjectInfoDto> localInfo = localProjectInfo();
         QTC_ASSERT(localInfo, return search);
-        const int localVersionsCount = localInfo->versions.size();
+        const qsizetype localVersionsCount = localInfo->versions.size();
         QTC_ASSERT(localVersionsCount <= 3, return search);
         switch (m_localVersions->currentIndex()) {
         case LocalVersions::ReferenceVersion:
