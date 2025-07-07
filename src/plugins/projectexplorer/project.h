@@ -106,6 +106,7 @@ public:
     DeployConfiguration *activeDeployConfiguration() const;
     BuildSystem *activeBuildSystem() const;
     bool isParsing() const;
+    QList<BuildConfiguration *> allBuildConfigurations() const;
 
     void setIssuesGenerator(const std::function<Tasks(const Kit *)> &generator);
     virtual Tasks projectIssues(const Kit *k) const;
@@ -214,6 +215,8 @@ public:
     static void setQmlCodeModelIsUsed();
     void updateQmlCodeModel(Kit *kit, BuildConfiguration *bc);
     QmlCodeModelInfo gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *bc);
+
+    void syncRunConfigurations(bool force);
 
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);

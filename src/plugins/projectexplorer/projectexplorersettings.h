@@ -5,11 +5,8 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/coreconstants.h>
-
 #include <utils/aspects.h>
 #include <utils/environment.h>
-#include <utils/hostosinfo.h>
 
 #include <QUuid>
 
@@ -18,6 +15,7 @@ namespace ProjectExplorer {
 enum class TerminalMode { On, Off, Smart };
 enum class BuildBeforeRunMode { Off, WholeProject, AppOnly };
 enum class StopBeforeBuild { None, SameProject, All, SameBuildDir, SameApp };
+enum class SyncRunConfigs { Off, SameKit, All };
 
 class ProjectExplorerSettings : public Utils::AspectContainer
 {
@@ -31,6 +29,7 @@ public:
     Utils::BoolAspect useJom{this};
     Utils::BoolAspect promptToStopRunControl{this};
     Utils::BoolAspect automaticallyCreateRunConfigurations{this};
+    Utils::TypedSelectionAspect<SyncRunConfigs> syncRunConfigurations{this};
     Utils::BoolAspect addLibraryPathsToRunEnv{this};
     Utils::BoolAspect closeSourceFilesWithProject{this};
     Utils::BoolAspect clearIssuesOnRebuild{this};

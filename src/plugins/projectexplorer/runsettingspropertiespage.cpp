@@ -10,6 +10,7 @@
 #include "project.h"
 #include "projectconfigurationmodel.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "runconfiguration.h"
@@ -36,6 +37,7 @@
 #include <QPointer>
 #include <QPushButton>
 #include <QSpacerItem>
+#include <QUuid>
 
 using namespace Utils;
 
@@ -56,11 +58,20 @@ public:
         using RCsPerBuildConfig = QHash<const BuildConfiguration *, RCList>;
         using RCsPerTarget = QHash<const Target *, RCsPerBuildConfig>;
         QHash<const Project *, RCsPerTarget> eligibleRcs;
+        const SyncRunConfigs syncSetting = projectExplorerSettings().syncRunConfigurations.value();
+        const bool considerOtherBuildConfigs = syncSetting == SyncRunConfigs::Off;
+        const bool considerOtherTargets = syncSetting != SyncRunConfigs::All;
         for (const Project * const p : ProjectManager::projects()) {
             RCsPerTarget rcsForProject;
             for (const Target * const t : p->targets()) {
+                if (p == thisRc->project() && t != thisRc->target() && !considerOtherTargets)
+                    continue;
                 RCsPerBuildConfig rcsForTarget;
                 for (const BuildConfiguration * const bc : t->buildConfigurations()) {
+                    if (p == thisRc->project() && bc != thisRc->buildConfiguration()
+                        && !considerOtherBuildConfigs) {
+                        continue;
+                    }
                     RCList rcsForBuildConfig;
                     for (const RunConfiguration * const rc : bc->runConfigurations()) {
                         if (rc != thisRc)
@@ -375,8 +386,13 @@ void RunSettingsWidget::showAddRunConfigDialog()
     if (!newRC)
         return;
     QTC_CHECK(newRC->id() == rci.factory->runConfigurationId());
-    m_target->activeBuildConfiguration()->addRunConfiguration(newRC);
-    m_target->activeBuildConfiguration()->setActiveRunConfiguration(newRC);
+    newRC->setUniqueId(QUuid::createUuid().toString());
+    m_target->activeBuildConfiguration()->addRunConfiguration(newRC, NameHandling::Uniquify);
+    for (BuildConfiguration * const bc : newRC->syncableBuildConfigurations()) {
+        if (RunConfiguration * const otherNewRc = newRC->clone(bc))
+            bc->addRunConfiguration(otherNewRc, NameHandling::Keep);
+    }
+    newRC->makeActive();
     updateRemoveToolButtons();
 }
 
@@ -399,8 +415,13 @@ void RunSettingsWidget::cloneRunConfiguration()
         return;
 
     newRc->setDisplayName(name);
-    m_target->activeBuildConfiguration()->addRunConfiguration(newRc);
-    m_target->activeBuildConfiguration()->setActiveRunConfiguration(newRc);
+    newRc->setUniqueId(QUuid::createUuid().toString());
+    m_target->activeBuildConfiguration()->addRunConfiguration(newRc, NameHandling::Uniquify);
+    for (BuildConfiguration * const bc : newRc->syncableBuildConfigurations()) {
+        if (RunConfiguration * const otherNewRc = newRc->clone(bc))
+            bc->addRunConfiguration(otherNewRc, NameHandling::Keep);
+    }
+    newRc->makeActive();
 }
 
 void RunSettingsWidget::cloneOtherRunConfiguration()
@@ -430,11 +451,15 @@ void RunSettingsWidget::removeRunConfiguration()
     if (msgBox.exec() == QMessageBox::No)
         return;
 
+    rc->forEachLinkedRunConfig([](RunConfiguration *otherRc) {
+        otherRc->buildConfiguration()->removeRunConfiguration(otherRc);
+    });
     m_target->activeBuildConfiguration()->removeRunConfiguration(rc);
     updateRemoveToolButtons();
     m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
     m_cloneRunButton->setEnabled(m_target->activeRunConfiguration());
     m_cloneIntoThisButton->setEnabled(m_target->activeRunConfiguration());
+
 }
 
 void RunSettingsWidget::removeAllRunConfigurations()
@@ -450,7 +475,20 @@ void RunSettingsWidget::removeAllRunConfigurations()
     if (msgBox.exec() == QMessageBox::Cancel)
         return;
 
-    m_target->activeBuildConfiguration()->removeAllRunConfigurations();
+    QList<BuildConfiguration *> affectedBcs;
+    switch (projectExplorerSettings().syncRunConfigurations.value()) {
+    case SyncRunConfigs::Off:
+        affectedBcs << m_target->activeBuildConfiguration();
+        break;
+    case SyncRunConfigs::SameKit:
+        affectedBcs = m_target->buildConfigurations();
+        break;
+    case SyncRunConfigs::All:
+        affectedBcs = m_target->project()->allBuildConfigurations();
+    }
+    for (BuildConfiguration * const bc : std::as_const(affectedBcs))
+        bc->removeAllRunConfigurations();
+
     updateRemoveToolButtons();
     m_renameRunButton->setEnabled(false);
     m_cloneRunButton->setEnabled(false);
@@ -491,6 +529,8 @@ void RunSettingsWidget::renameRunConfiguration()
         return;
 
     m_target->activeRunConfiguration()->setDisplayName(name);
+    m_target->activeRunConfiguration()->forEachLinkedRunConfig(
+        [&name](RunConfiguration *rc) { rc->setDisplayName(name); });
 }
 
 void RunSettingsWidget::currentRunConfigurationChanged(int index)
@@ -508,7 +548,7 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
 
     {
         const GuardLocker locker(m_ignoreChanges);
-        m_target->activeBuildConfiguration()->setActiveRunConfiguration(selectedRunConfiguration);
+        selectedRunConfiguration->makeActive();
     }
 
     // Update the run configuration configuration widget

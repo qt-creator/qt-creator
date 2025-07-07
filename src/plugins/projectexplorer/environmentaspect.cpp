@@ -34,6 +34,7 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
         });
         projectExplorerSettings().addOnChanged(this, [this] { emit environmentChanged(); });
     }
+    connect(this, &EnvironmentAspect::environmentChanged, this, &BaseAspect::changed);
 }
 
 void EnvironmentAspect::setDeviceSelector(Kit *kit, DeviceSelector selector)

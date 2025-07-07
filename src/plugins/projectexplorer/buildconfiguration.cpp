@@ -348,6 +348,8 @@ void BuildConfiguration::doInitialize(const BuildInfo &info)
 
     if (d->m_initializer)
         d->m_initializer(info);
+
+    project()->syncRunConfigurations(true);
 }
 
 bool BuildConfiguration::createBuildDirectory()
@@ -430,7 +432,7 @@ bool BuildConfiguration::addConfigurationsFromMap(
         RunConfiguration *rc = RunConfigurationFactory::restore(this, valueMap);
         if (!rc)
             continue;
-        addRunConfiguration(rc);
+        addRunConfiguration(rc, NameHandling::Keep);
         if (i == activeRc)
             setActiveRunConfiguration(rc);
     }
@@ -753,9 +755,9 @@ void BuildConfiguration::updateDefaultRunConfigurations()
 
     // Do actual changes:
     for (RunConfiguration *rc : std::as_const(newConfigured))
-        addRunConfiguration(rc);
+        addRunConfiguration(rc, NameHandling::Uniquify);
     for (RunConfiguration *rc : std::as_const(newUnconfigured))
-        addRunConfiguration(rc);
+        addRunConfiguration(rc, NameHandling::Uniquify);
 
     // Generate complete list of RCs to remove later:
     QList<RunConfiguration *> removalList;
@@ -798,6 +800,8 @@ void BuildConfiguration::updateDefaultRunConfigurations()
     for (RunConfiguration *rc : std::as_const(removalList))
         removeRunConfiguration(rc);
 
+    if (!newConfigured.isEmpty() || !newUnconfigured.isEmpty())
+        project()->syncRunConfigurations(true);
     emit runConfigurationsUpdated();
     runConfigurationModel()->triggerUpdate();
 }
@@ -807,14 +811,14 @@ const QList<RunConfiguration *> BuildConfiguration::runConfigurations() const
     return d->m_runConfigurations;
 }
 
-void BuildConfiguration::addRunConfiguration(RunConfiguration *rc)
+void BuildConfiguration::addRunConfiguration(RunConfiguration *rc, NameHandling nameHandling)
 {
     QTC_ASSERT(rc && !d->m_runConfigurations.contains(rc), return);
     Q_ASSERT(rc->target() == target());
 
     // Check that we don't have a configuration with the same displayName
     QString configurationDisplayName = rc->displayName();
-    if (!configurationDisplayName.isEmpty()) {
+    if (!configurationDisplayName.isEmpty() && nameHandling == NameHandling::Uniquify) {
         QStringList displayNames = Utils::transform(d->m_runConfigurations,
                                                     &RunConfiguration::displayName);
         configurationDisplayName = Utils::makeUniquelyNumbered(configurationDisplayName,

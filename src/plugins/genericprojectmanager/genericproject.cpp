@@ -678,8 +678,10 @@ Project::RestoreResult GenericProject::fromMap(const Store &map, QString *errorM
             continue;
         }
         for (BuildConfiguration * const bc : t->buildConfigurations()) {
-            if (!bc->activeRunConfiguration())
-                bc->addRunConfiguration(new CustomExecutableRunConfiguration(bc));
+            if (!bc->activeRunConfiguration()) {
+                bc->addRunConfiguration(
+                    new CustomExecutableRunConfiguration(bc), NameHandling::Uniquify);
+            }
         }
     }
 

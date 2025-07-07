@@ -10,6 +10,7 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projectnodes.h"
@@ -44,7 +45,7 @@ namespace ProjectExplorer {
 
 const char BUILD_KEY[] = "ProjectExplorer.RunConfiguration.BuildKey";
 const char CUSTOMIZED_KEY[] = "ProjectExplorer.RunConfiguration.Customized";
-
+const char UNIQUE_ID_KEY[] = "ProjectExplorer.RunConfiguration.UniqueId";
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -241,6 +242,20 @@ RunConfiguration::RunConfiguration(BuildConfiguration *bc, Id id)
     connect(bc->buildSystem(), &BuildSystem::deploymentDataChanged,
             this, &RunConfiguration::update);
     connect(bc, &BuildConfiguration::kitChanged, this, &RunConfiguration::update);
+
+    connect(this, &AspectContainer::subAspectChanged, this, [this](BaseAspect *aspect) {
+        if (!buildKey().isEmpty() && qobject_cast<ExecutableAspect *>(aspect))
+            return;
+        forEachLinkedRunConfig([aspect](RunConfiguration *rc) {
+            // We assume that no run configuration has more than one aspect
+            // of the same type.
+            if (BaseAspect * const other = rc->aspect(aspect->id())) {
+                Store map;
+                aspect->toMap(map);
+                other->fromMap(map);
+            }
+        });
+    });
 }
 
 RunConfiguration::~RunConfiguration() = default;
@@ -339,6 +354,15 @@ BuildSystem *RunConfiguration::buildSystem() const
     return m_buildConfiguration->buildSystem();
 }
 
+bool RunConfiguration::equals(const RunConfiguration *other) const
+{
+    Store map;
+    toMapSimple(map);
+    Store otherMap;
+    other->toMapSimple(otherMap);
+    return map == otherMap;
+}
+
 void RunConfiguration::setupMacroExpander(
     MacroExpander &exp, const RunConfiguration *rc, bool documentationOnly)
 {
@@ -392,6 +416,7 @@ void RunConfiguration::toMapSimple(Store &map) const
     }
 
     map.insert(BUILD_KEY, m_buildKey);
+    map.insert(UNIQUE_ID_KEY, m_uniqueId);
 }
 
 void RunConfiguration::setCommandLineGetter(const CommandLineGetter &cmdGetter)
@@ -447,6 +472,42 @@ void RunConfiguration::cloneFromOther(const RunConfiguration *rc)
     fromMap(copyData);
 }
 
+const QList<BuildConfiguration *> RunConfiguration::syncableBuildConfigurations() const
+{
+    QList<BuildConfiguration *> buildConfigs;
+    switch (projectExplorerSettings().syncRunConfigurations.value()) {
+    case SyncRunConfigs::Off:
+        break;
+    case SyncRunConfigs::SameKit:
+        buildConfigs = target()->buildConfigurations();
+        break;
+    case SyncRunConfigs::All:
+        buildConfigs = project()->allBuildConfigurations();
+        break;
+    }
+    buildConfigs.removeOne(buildConfiguration());
+    return buildConfigs;
+}
+
+void RunConfiguration::forEachLinkedRunConfig(const std::function<void(RunConfiguration *)> &handler)
+{
+    for (BuildConfiguration * const bc : syncableBuildConfigurations()) {
+        for (RunConfiguration * const rc : bc->runConfigurations()) {
+            if (rc->uniqueId() == uniqueId()) {
+                handler(rc);
+                break;
+            }
+        }
+    }
+}
+
+void RunConfiguration::makeActive()
+{
+    buildConfiguration()->setActiveRunConfiguration(this);
+    forEachLinkedRunConfig(
+        [](RunConfiguration *rc) { rc->buildConfiguration()->setActiveRunConfiguration(rc); });
+}
+
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
 {
     BuildSystem *bs = buildSystem();
@@ -469,6 +530,7 @@ void RunConfiguration::fromMap(const Store &map)
 
     m_customized = m_customized || map.value(CUSTOMIZED_KEY, false).toBool();
     m_buildKey = map.value(BUILD_KEY).toString();
+    m_uniqueId = map.value(UNIQUE_ID_KEY).toString();
 
     if (m_usesEmptyBuildKeys) {
         QTC_CHECK(m_buildKey.isEmpty());
@@ -803,6 +865,18 @@ RunConfiguration *activeRunConfigForActiveProject()
 RunConfiguration *activeRunConfigForCurrentProject()
 {
     return activeRunConfig(ProjectTree::currentProject());
+}
+
+QString ProjectExplorer::RunConfiguration::uniqueId() const
+{
+    if (!m_uniqueId.isEmpty())
+        return m_uniqueId;
+    return buildKey();
+}
+
+void RunConfiguration::setUniqueId(const QString &id)
+{
+    m_uniqueId = id;
 }
 
 } // namespace ProjectExplorer

@@ -64,6 +64,29 @@ ProjectExplorerSettings::ProjectExplorerSettings()
     automaticallyCreateRunConfigurations.setLabel(Tr::tr("Create suitable run configurations automatically"));
     automaticallyCreateRunConfigurations.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
 
+    syncRunConfigurations.setSettingsKey("SyncRunConfigurations");
+    syncRunConfigurations.setLabelText(Tr::tr("Keep run configurations in sync:"));
+    syncRunConfigurations.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    syncRunConfigurations.setDefaultValue(SyncRunConfigs::Off);
+    syncRunConfigurations.setToolTip(
+        Tr::tr(
+            "Whether adding, removing or editing a run configuration in one build configuration "
+            "should update other build configurations accordingly."));
+    syncRunConfigurations.addOption(
+        {Tr::tr("Do Not Sync"),
+         Tr::tr("All build configurations have their own set of run configurations."),
+         int(SyncRunConfigs::Off)});
+    syncRunConfigurations.addOption(
+        {Tr::tr("Sync Within One Kit"),
+         Tr::tr("Build configurations in the same kit keep their run configurations in sync."),
+         int(SyncRunConfigs::SameKit)});
+    syncRunConfigurations.addOption(
+        {Tr::tr("Sync Across All Kits"),
+         Tr::tr(
+             "All build configurations in a project keep their run configurations in sync, "
+             "even across kits."),
+         int(SyncRunConfigs::All)});
+
     clearIssuesOnRebuild.setSettingsKey("ClearIssuesOnRebuild");
     clearIssuesOnRebuild.setDefaultValue(true);
     clearIssuesOnRebuild.setLabel(Tr::tr("Clear issues list on new build"));
@@ -288,6 +311,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                     s.buildBeforeDeploy, br,
                     s.stopBeforeBuild, br,
                     s.terminalMode, br,
+                    s.syncRunConfigurations, br,
                     s.reaperTimeoutInSeconds, st, br,
                 },
                 If (HostOsInfo::isWindowsHost()) >> Then {

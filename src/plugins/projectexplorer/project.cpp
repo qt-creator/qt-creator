@@ -16,6 +16,7 @@
 #include "msvctoolchain.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projectnodes.h"
@@ -229,6 +230,8 @@ Project::Project(const QString &mimeType, const FilePath &fileName)
     KitManager *km = KitManager::instance();
     connect(km, &KitManager::kitUpdated, this, &Project::handleKitUpdated);
     connect(km, &KitManager::kitRemoved, this, &Project::handleKitRemoval);
+    connect(&projectExplorerSettings().syncRunConfigurations, &BaseAspect::changed,
+            this, [this] { syncRunConfigurations(false); });
 }
 
 Project::~Project()
@@ -252,6 +255,95 @@ void Project::handleKitRemoval(Kit *k)
         if (k == target->kit()) {
             removeTarget(target.get());
             break;
+        }
+    }
+}
+
+void Project::syncRunConfigurations(bool force)
+{
+    const Key key = "RcSync";
+    const QVariant projectSyncSetting = namedSettings(key);
+    const SyncRunConfigs prevSyncSetting = projectSyncSetting.isValid()
+        ? static_cast<SyncRunConfigs>(projectSyncSetting.toInt()) : SyncRunConfigs::Off;
+    const SyncRunConfigs curSyncSetting = projectExplorerSettings().syncRunConfigurations.value();
+    setNamedSettings(key, static_cast<int>(curSyncSetting));
+
+    // Invariant: If the setting has not changed, everything is as it should be.
+    if (curSyncSetting == prevSyncSetting && !force)
+        return;
+
+    // Nothing to do here: Everything stays as it is for now and will slowly
+    // go out of sync over time.
+    if (curSyncSetting == SyncRunConfigs::Off)
+        return;
+
+    if (curSyncSetting == SyncRunConfigs::SameKit) {
+
+        // Nothing to do here: Everything stays as it is for now and will slowly
+        // go out of sync over time.
+        if (prevSyncSetting == SyncRunConfigs::All && !force)
+            return;
+    }
+
+    // Collect all run configurations.
+    QList<RunConfiguration *> allRcs;
+    for (Target * const t : targets()) {
+        for (BuildConfiguration * const bc : t->buildConfigurations())
+            allRcs << bc->runConfigurations();
+    }
+
+    while (!allRcs.isEmpty()) {
+        RunConfiguration * const rc = allRcs.takeFirst();
+        const QList<BuildConfiguration *> syncableBcs = rc->syncableBuildConfigurations();
+
+        // At the end of this loop, all build configurations in syncableBcs should
+        // have a run configuration with the same uniqueId() as rc, unless the
+        // source and target build configurations are incompatible with regards
+        // to the run configuration, for instance because the target factory
+        // cannot create that type of run configuration.
+        for (BuildConfiguration * const bc : std::as_const(syncableBcs)) {
+
+            // First we check whether this build configuration already has a counterpart
+            // to our run configuration. In that case, we don't need to make a copy.
+            bool needsCloning = true;
+            for (RunConfiguration * const otherRc : bc->runConfigurations()) {
+
+                // The run configurations do not refer to the same application.
+                if (otherRc->buildKey() != rc->buildKey())
+                    continue;
+
+                // These run configs were already linked together in the past, in which
+                // case we keep this relationship alive, or they were both auto-created
+                // and are still in pristine state, which means they are identical.
+                // This also means that the other run configuration does not have to be
+                // handled on its own anymore.
+                if (otherRc->uniqueId() == rc->uniqueId()
+                    && (rc->uniqueId() != rc->buildKey()
+                        || (!rc->isCustomized() && !otherRc->isCustomized()))) {
+                    const bool removed = allRcs.removeOne(otherRc);
+                    QTC_CHECK(removed);
+                    if (rc->isCustomized() || otherRc->isCustomized()) {
+                        otherRc->cloneFromOther(rc);
+                        otherRc->setDisplayName(rc->displayName());
+                    }
+                    needsCloning = false;
+                    break;
+                }
+
+                // These run configs are equal, so we assume they should get linked.
+                if (rc->equals(otherRc)) {
+                    otherRc->setUniqueId(rc->uniqueId());
+                    const bool removed = allRcs.removeOne(otherRc);
+                    QTC_CHECK(removed);
+                    needsCloning = false;
+                    break;
+                }
+            }
+
+            if (needsCloning) {
+                if (const auto clone = rc->clone(bc))
+                    bc->addRunConfiguration(clone, NameHandling::Keep);
+            }
         }
     }
 }
@@ -532,6 +624,14 @@ bool Project::isParsing() const
     return false;
 }
 
+QList<BuildConfiguration *> Project::allBuildConfigurations() const
+{
+    QList<BuildConfiguration *> buildConfigs;
+    for (Target * const t : targets())
+        buildConfigs << t->buildConfigurations();
+    return buildConfigs;
+}
+
 void Project::setIssuesGenerator(const std::function<Tasks(const Kit *)> &generator)
 {
     d->m_issuesGenerator = generator;
@@ -771,6 +871,8 @@ Project::RestoreResult Project::restoreSettings(QString *errorMessage)
     RestoreResult result = fromMap(map, errorMessage);
     if (result == RestoreResult::Ok)
         emit settingsLoaded();
+
+    syncRunConfigurations(false);
 
     return result;
 }

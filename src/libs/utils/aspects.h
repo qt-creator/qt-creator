@@ -1054,6 +1054,7 @@ public:
 signals:
     void applied();
     void fromMapFinished();
+    void subAspectChanged(BaseAspect *aspect);
 
 private:
     std::unique_ptr<Internal::AspectContainerPrivate> d;

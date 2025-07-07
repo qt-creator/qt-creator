@@ -3235,6 +3235,7 @@ void AspectContainer::registerAspect(BaseAspect *aspect, bool takeOwnership)
         d->m_ownedItems.append(aspect);
 
     connect(aspect, &BaseAspect::changed, this, &BaseAspect::changed);
+    connect(aspect, &BaseAspect::changed, this, [this, aspect] { emit subAspectChanged(aspect); });
     connect(aspect, &BaseAspect::volatileValueChanged, this, &BaseAspect::volatileValueChanged);
 }
 

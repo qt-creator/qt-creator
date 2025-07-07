@@ -4367,7 +4367,7 @@ LocatorMatcherTasks RunConfigurationDebugFilter::matchers()
 
 static void switchAcceptor(RunConfiguration *config)
 {
-    activeBuildConfigForActiveProject()->setActiveRunConfiguration(config);
+    config->makeActive();
     QTimer::singleShot(200, ICore::mainWindow(), [name = config->displayName()] {
         if (auto ks = ICore::mainWindow()->findChild<QWidget *>("KitSelector.Button")) {
             ToolTip::show(ks->mapToGlobal(QPoint{25, 25}),

@@ -741,9 +741,9 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
                     static_cast<DeployConfiguration *>(pc), SetActive::Cascade);
             });
     connect(m_listWidgets[RUN], &GenericListWidget::changeActiveProjectConfiguration,
-            this, [this](QObject *pc) {
-                 m_project->activeBuildConfiguration()->setActiveRunConfiguration(static_cast<RunConfiguration *>(pc));
-            });
+            this, [](QObject *pc) {
+        qobject_cast<RunConfiguration *>(pc)->makeActive();
+    });
 }
 
 bool MiniProjectTargetSelector::event(QEvent *event)

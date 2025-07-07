@@ -28,6 +28,8 @@ class Project;
 class RunConfiguration;
 class Target;
 
+enum class NameHandling { Uniquify, Keep };
+
 class PROJECTEXPLORER_EXPORT BuildConfiguration : public ProjectConfiguration
 {
     Q_OBJECT
@@ -78,10 +80,9 @@ public:
     void setActiveDeployConfiguration(DeployConfiguration *dc, SetActive cascade);
     void updateDefaultDeployConfigurations();
     ProjectConfigurationModel *deployConfigurationModel() const;
-
     void updateDefaultRunConfigurations();
     const QList<RunConfiguration *> runConfigurations() const;
-    void addRunConfiguration(RunConfiguration *rc);
+    void addRunConfiguration(RunConfiguration *rc, NameHandling nameHandling);
     void removeRunConfiguration(RunConfiguration *rc);
     void removeAllRunConfigurations();
     RunConfiguration *activeRunConfiguration() const;

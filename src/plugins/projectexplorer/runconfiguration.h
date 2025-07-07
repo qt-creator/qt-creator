@@ -151,6 +151,12 @@ public:
     // The BuildTargetInfo corresponding to the buildKey.
     BuildTargetInfo buildTargetInfo() const;
 
+    // An identifier for the purpose of syncing this run config with its counterparts
+    // in other build configurations.
+    // For auto-created run configurations, this is the build key.
+    QString uniqueId() const;
+    void setUniqueId(const QString &id);
+
     ProjectExplorer::ProjectNode *productNode() const;
 
     template <class T = Utils::AspectContainer> T *currentSettings(Utils::Id id) const
@@ -176,8 +182,13 @@ public:
     void cloneFromOther(const RunConfiguration *rc);
 
     BuildConfiguration *buildConfiguration() const { return m_buildConfiguration; }
+    const QList<BuildConfiguration *> syncableBuildConfigurations() const;
+    void forEachLinkedRunConfig(const std::function<void(RunConfiguration *)> &handler);
+    void makeActive();
 
     BuildSystem *buildSystem() const;
+
+    bool equals(const RunConfiguration *other) const;
 
     static void setupMacroExpander(
         Utils::MacroExpander &exp, const RunConfiguration *rc, bool documentationOnly);
@@ -211,6 +222,7 @@ private:
     RunnableModifier m_runnableModifier;
     Updater m_updater;
     Utils::Store m_pristineState;
+    QString m_uniqueId;
     bool m_customized = false;
     bool m_usesEmptyBuildKeys = false;
 };
