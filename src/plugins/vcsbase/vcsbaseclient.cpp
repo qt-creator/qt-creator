@@ -29,6 +29,7 @@
 #include <QVariant>
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 /*!
@@ -191,10 +192,13 @@ void VcsBaseClientImpl::vcsExecWithEditor(const Utils::FilePath &workingDirector
                                           const QStringList &arguments,
                                           VcsBaseEditorWidget *editor) const
 {
-    VcsCommand *command = createCommand(workingDirectory, editor);
-    command->setEncoding(editor->encoding());
-    command->addJob({vcsBinary(workingDirectory), arguments}, vcsTimeoutS());
-    command->start();
+    const Storage<CommandResult> resultStorage;
+
+    const auto task = vcsProcessTask(
+        {.runData = {{vcsBinary(workingDirectory), arguments}, workingDirectory},
+         .encoding = editor->encoding()}, resultStorage);
+
+    editor->executeTask(task, resultStorage);
 }
 
 int VcsBaseClientImpl::vcsTimeoutS() const
