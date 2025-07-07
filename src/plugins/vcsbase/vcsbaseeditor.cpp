@@ -27,6 +27,10 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <solutions/spinner/spinner.h>
+
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>
@@ -76,6 +80,8 @@
 */
 
 using namespace Core;
+using namespace SpinnerSolution;
+using namespace Tasking;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -564,6 +570,8 @@ public:
     ProgressIndicator *m_progressIndicator = nullptr;
     bool m_fileLogAnnotateEnabled = false;
     bool m_mouseDragging = false;
+
+    TaskTreeRunner m_taskTreeRunner;
 
 private:
     QComboBox *m_entriesComboBox = nullptr;
@@ -1367,6 +1375,37 @@ void VcsBaseEditorWidget::setEditorConfig(VcsBaseEditorConfig *config)
 VcsBaseEditorConfig *VcsBaseEditorWidget::editorConfig() const
 {
     return d->m_config;
+}
+
+void VcsBaseEditorWidget::executeTask(const ExecutableItem &task,
+                                      const Storage<CommandResult> &resultStorage)
+{
+    if (d->m_taskTreeRunner.isRunning())
+        d->m_taskTreeRunner.cancel();
+
+    const Storage<Spinner> spinnerStorage{SpinnerSize::Large, this};
+
+    const auto onSetup = [spinnerStorage] {
+        QTimer::singleShot(100, spinnerStorage.activeStorage(), &Spinner::show);
+    };
+    const auto onDone = [this, resultStorage](DoneWith doneWith) {
+        if (doneWith != DoneWith::Success) {
+            textDocument()->setPlainText(Tr::tr("Failed to retrieve data."));
+            return;
+        }
+        setPlainText(resultStorage->cleanedStdOut());
+        gotoDefaultLine();
+    };
+
+    const Group recipe {
+        spinnerStorage,
+        resultStorage,
+        onGroupSetup(onSetup),
+        task,
+        onGroupDone(onDone)
+    };
+
+    d->m_taskTreeRunner.start(recipe);
 }
 
 void VcsBaseEditorWidget::setCommand(VcsCommand *command)

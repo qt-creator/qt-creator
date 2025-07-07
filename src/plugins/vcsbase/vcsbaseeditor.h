@@ -6,6 +6,7 @@
 #include "vcsbase_global.h"
 
 #include <coreplugin/patchtool.h>
+
 #include <texteditor/texteditor.h>
 
 #include <QSet>
@@ -14,6 +15,12 @@ QT_BEGIN_NAMESPACE
 class QTextCursor;
 QT_END_NAMESPACE
 
+namespace Tasking {
+class ExecutableItem;
+template <typename StorageStruct>
+class Storage;
+}
+
 namespace VcsBase {
 
 namespace Internal {
@@ -21,12 +28,13 @@ class ChangeTextCursorHandler;
 class VcsBaseEditorWidgetPrivate;
 } // namespace Internal
 
+class Annotation;
 class BaseAnnotationHighlighter;
+class CommandResult;
 class VcsBaseEditorConfig;
 class VcsBaseEditorWidget;
 class VcsCommand;
 class VcsEditorFactory;
-class Annotation;
 
 // Documentation inside
 enum EditorContentType
@@ -187,6 +195,9 @@ public:
 
     void setEditorConfig(VcsBaseEditorConfig *config);
     VcsBaseEditorConfig *editorConfig() const;
+
+    void executeTask(const Tasking::ExecutableItem &task,
+                     const Tasking::Storage<CommandResult> &resultStorage);
 
     void setCommand(VcsCommand *command);
     void setDefaultLineNumber(int line);
