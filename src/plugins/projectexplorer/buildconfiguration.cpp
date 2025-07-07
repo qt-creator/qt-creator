@@ -209,6 +209,9 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     expander->registerFileVariables("BuildConfig:BuildDirectory",
                                     Tr::tr("Build directory"),
                                     [this] { return buildDirectory(); });
+    expander->registerFileVariables("Project", Tr::tr("Main file of the project"), [this] {
+        return project()->projectFilePath();
+    });
     expander->registerVariable("BuildConfig:Name", Tr::tr("Name of the build configuration"),
             [this] { return displayName(); });
     expander->registerPrefix(
