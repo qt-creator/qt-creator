@@ -6,6 +6,7 @@
 #include "proitems.h"
 
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
 
 #include <QDir>
 #include <QLoggingCategory>
@@ -394,13 +395,23 @@ void ProWriter::putVarValues(ProFile *profile, QStringList *lines, const QString
 void ProWriter::addFiles(ProFile *profile, QStringList *lines, const QStringList &values,
                          const QString &var, const QString &continuationIndent)
 {
+    using namespace Utils;
     QStringList valuesToWrite;
     QString prefixPwd;
-    QDir baseDir = QFileInfo(profile->fileName()).absoluteDir();
+    FilePath baseDir = FilePath::fromString(profile->fileName()).parentDir();
     if (profile->fileName().endsWith(".pri"))
         prefixPwd = "$$PWD/";
-    for (const QString &v : values)
-        valuesToWrite << (prefixPwd + baseDir.relativeFilePath(v));
+    for (const QString &v : values) {
+        // v may contain a device prefix, that needs to be handled by FilePath.
+        FilePath tmp = FilePath::fromString(v);
+        /* If v does not have a prefix while baseDir does, or if they somehow have
+         * different prefixes we try using prefix of baseDir assuming it is the right one.
+         * Prefixes should be the same for relativePathFromDir to work properly.
+         */
+        if (!tmp.isSameDevice(baseDir))
+            tmp = FilePath::fromParts(baseDir.scheme(), baseDir.host(), tmp.path());
+        valuesToWrite << (prefixPwd + tmp.relativePathFromDir(baseDir).path());
+    }
 
     putVarValues(profile, lines, valuesToWrite, var, AppendValues | MultiLine | AppendOperator,
                  QString(), continuationIndent);
