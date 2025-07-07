@@ -21,22 +21,21 @@
     Use the toolbar buttons or \l{Keyboard Shortcuts}{keyboard shortcuts} to:
 
     \list
-        \li \inlineimage icons/export.png
+        \li \inlineimage {icons/export.png} {Export}
             - Export SVG images to pixmaps or copy an image as a data URL, which
             enables you to include it in web pages as if it were an external
             resource
-        \li \inlineimage icons/original-size.png
+        \li \inlineimage {icons/original-size.png} {Original Size}
             - Return images to their original size
-        \li \inlineimage icons/zoom-in.png
-            - Zoom in and out (\inlineimage icons/zoom-out.png
-            )
-        \li \inlineimage icons/run_small.png
+        \li \inlineimage {icons/zoom-in.png} {Zoom In}
+            - Zoom in and out (\inlineimage {icons/zoom-out.png} {Zoom Out})
+        \li \inlineimage {icons/run_small.png} {Play Animation}
             - Play and pause animated GIF and MNG images
-        \li \inlineimage icons/qtcreator-desktopdevice-button.png
+        \li \inlineimage {icons/qtcreator-desktopdevice-button.png} {Switch Background}
             - Show and hide the image background
-        \li \inlineimage icons/switch-outline.png
+        \li \inlineimage {icons/switch-outline.png} {Switch Outline}
             - Show and hide the image outline
-        \li \inlineimage icons/fittoview.png
+        \li \inlineimage {icons/fittoview.png} {Fit to Screen}
             - Fit images to screen
     \endlist
 
@@ -66,7 +65,7 @@
     \l{View images}{image viewer} to export it to several images of different
     sizes to create a set of pixmaps.
 
-    Select \inlineimage icons/export.png
+    Select \inlineimage {icons/export.png} {Export} (\uicontrol {Export})
     on the toolbar.
 
     You can then use QIcon::addPixmap() to add the pixmaps to icons in

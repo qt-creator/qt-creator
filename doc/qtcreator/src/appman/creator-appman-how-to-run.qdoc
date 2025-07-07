@@ -29,8 +29,8 @@
             the device.
         \li In \uicontrol Projects > \uicontrol {Build & Run}, specify settings
             for deploying and running the application with the selected kit.
-        \li In the kit selector, select \inlineimage icons/run_small.png for the
-            run target.
+        \li In the kit selector, select \inlineimage {icons/run_small.png}
+            {Run} for the run target.
     \endlist
 
     You can see command-line output in the \l {Application Output} view. You

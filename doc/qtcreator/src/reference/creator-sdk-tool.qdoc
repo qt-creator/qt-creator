@@ -163,11 +163,11 @@
         \row
             \li \c {--flavor <NAME>}
             \li Name of the system architecture (ABI).
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--oses <OS>(,<OS>)*}
             \li Operating system that the ABI applies to.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
     \endtable
 
     \section2 ABI Flavor Example
@@ -205,15 +205,15 @@
                 CMake keeps the ID when you update this CMake installation, and
                 therefore, all kits are automatically updated to use the new
                 version.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--name <NAME>}
             \li Name of the CMake installation.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--path <PATH>}
             \li Path to the CMake executable.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {<KEY> <TYPE:VALUE>}
             \li Additional settings as key-value pairs.
@@ -254,7 +254,7 @@
             \li \c {--abi <ABI STRING>}
             \li ABI of the compiler in a format that
                 \c {ProjectExplorer::Abi::fromString()} can parse.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--id <ID>}
             \li ID of the toolchain in the format \c {ToolChainType:some_unique_part},
@@ -280,21 +280,21 @@
                 for their IDs.
 
                 \c {some_unique_part} can be anything. \QC uses GUIDs by default.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--language <ID>}
             \li ID of the input language of the toolchain: \c C or \c Cxx.
                 When you register a C or C++ compiler, make sure to register the
                 corresponding C++ or C compiler as well.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--name <NAME>}
             \li Name of the toolchain.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--path <PATH>}
             \li Path to the compiler executable.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--supportedAbis <ABI STRING>,<ABI STRING>}
             \li List of ABIs that the compiler supports.
@@ -366,11 +366,11 @@
         \row
             \li \c {--id <ID>}
             \li Unique ID of the debugger.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--name <NAME>}
             \li Name of the debugger.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {<KEY> <TYPE:VALUE>}
             \li Additional settings as key-value pairs.
@@ -458,7 +458,7 @@
         \row
             \li \c {--id <ID>}
             \li Unique ID of the device.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--keyFile <STRING>}
             \li Path to the user's private key file.
@@ -466,7 +466,7 @@
         \row
             \li \c {--name <NAME>}
             \li Name of the device.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--origin <INT>}
             \li Whether the device was detected automatically:
@@ -511,7 +511,7 @@
                     \li 1 for a hardware device
                     \li 2 for an emulator, simulator, or virtual device
                 \endlist
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--uname <STRING>}
             \li Username to access the device.
@@ -570,15 +570,15 @@
             \li \c {--id <ID>}
             \li ID of the Qt installation. \QC automatically sets the ID when it
                 detects Qt versions installed on the computer.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--name <NAME>}
             \li Name of the Qt installation.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--qmake <PATH>}
             \li Path to the qmake executable in the Qt installation.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--type <TYPE>}
             \li The type of the Qt version:
@@ -592,7 +592,7 @@
                         WebAssembly.
                 \endlist
                 The string returned by \c {QtVersion::type()}.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {<KEY> <TYPE:VALUE>}
             \li Additional settings as key-value pairs.
@@ -679,7 +679,7 @@
                     \li \c {WebAssemblyDeviceType} for web browsers.
                 \endlist
                 The string returned by \c {IDevice::type()}.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--env <VALUE>}
             \li Environment variable values for the build environment. You can
@@ -698,7 +698,7 @@
             \li \c {--id <ID>}
             \li ID of the kit. \QC automatically sets the ID when it
                 detects Qt versions installed on the computer.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--<LANG>toolchain <ID>}
             \li One of the IDs used when adding compilers with the \c {addTC}
@@ -715,7 +715,7 @@
             \li Name of the kit. You can use variables to generate the kit name
                 based on the kit elements you set with the other operations, such
                 as the Qt version.
-            \li \inlineimage ok.png
+            \li \inlineimage {ok.png} {Yes}
         \row
             \li \c {--qt <ID>}
             \li One of the IDs used when adding Qt versions with the \c {addQt}

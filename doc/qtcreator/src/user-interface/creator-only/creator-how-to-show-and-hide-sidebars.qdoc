@@ -20,15 +20,19 @@
     You can change the view of the sidebars in the following ways:
 
     \list
-        \li To toggle the left sidebar, select \inlineimage {icons/leftsidebaricon.png} {Hide Left Sidebar/Show Left Sidebar}
-            (\uicontrol {Hide Left Sidebar/Show Left Sidebar}) or press
-            \key Alt+0 (\key Cmd+0 on \macos).
-        \li To toggle the right sidebar, select \inlineimage {icons/rightsidebaricon.png} {Hide Right Sidebar/Show Right Sidebar}
-            (\uicontrol {Hide Right Sidebar/Show Right Sidebar}) or press
+        \li To toggle the left sidebar, select
+            \inlineimage {icons/leftsidebaricon.png} {Hide Left Sidebar/Show Left Sidebar}
+            (\uicontrol {Hide Left Sidebar/Show Left Sidebar}) or \key Alt+0
+            (\key Cmd+0 on \macos).
+        \li To toggle the right sidebar, select
+            \inlineimage {icons/rightsidebaricon.png} {Hide Right Sidebar/Show Right Sidebar}
+            (\uicontrol {Hide Right Sidebar/Show Right Sidebar}) or
             \key Alt+Shift+0 (\key Cmd+Shift+0 on \macos).
-        \li To split a sidebar, select \inlineimage {icons/splitbutton_horizontal.png} {Split}
+        \li To split a sidebar, select
+            \inlineimage {icons/splitbutton_horizontal.png} {Split}
             (\uicontrol {Split}). Select new content to view in the split view.
-        \li To close a sidebar view, select \inlineimage {icons/splitbutton_closetop.png} {Close}
+        \li To close a sidebar view, select
+            \inlineimage {icons/splitbutton_closetop.png} {Close}
             (\uicontrol {Close}).
     \endlist
 

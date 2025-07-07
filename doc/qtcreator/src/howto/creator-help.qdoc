@@ -115,9 +115,10 @@
 
     \title Find information in Qt documentation
 
-    \QC installer, \QOI, and other Qt deliverables install documentation as .qch
-    files. View the documentation in the \uicontrol Help mode. To view the
-    currently open document online, select \inlineimage icons/online.png
+    \QC installer, \QOI, and other Qt deliverables install documentation as
+    \c {.qch} files. View the documentation in the \uicontrol Help mode.
+    To view the currently open document online, select
+    \inlineimage {icons/online.png} {Open Online Documentation}
     (\uicontrol {Open Online Documentation}).
 
     By default, \QC registers only the latest available version of the
@@ -181,8 +182,8 @@
 
     \list 1
 
-        \li Select \inlineimage icons/bookmark.png (\uicontrol {Add Bookmark})
-            on the toolbar.
+        \li Select \inlineimage {icons/bookmark.png} {Add Bookmark}
+            (\uicontrol {Add Bookmark}) on the toolbar.
 
         \li In the \uicontrol {Add Bookmark} dialog, select \uicontrol OK to save the
             page title as a bookmark in the selected folder.
@@ -246,7 +247,8 @@
     \QC recreates the index.
 
     If you cannot find words that you know are there, the index might not be
-    complete. To recreate it, select \inlineimage icons/reload_gray.png
+    complete. To recreate it, select
+    \inlineimage {icons/reload_gray.png} {Regenerate Index}
     (\uicontrol {Regenerate Index}).
 
     Punctuation is not included in indexed terms. To find terms that have
@@ -323,7 +325,8 @@
     in \uicontrol {On context help}. To detach the help window, select
     \uicontrol {Always Show in External Window}.
 
-    To change this setting in a help view, select \inlineimage icons/linkicon.png.
+    To change this setting in a help view, select
+    \inlineimage {icons/linkicon.png} {Show Context Help menu}.
 
     \if defined(qtcreator)
     \sa {Read Documentation}{How To: Read Documentation}
@@ -399,8 +402,9 @@
 
             \image {qtcreator-help-filter-attributes.png} {Filters tab in Help preferences}
 
-        \li Select \inlineimage icons/plus.png
-            to add a new filter in the \uicontrol {Add Filter} dialog.
+        \li Select \inlineimage {icons/plus.png} {Add Filter}
+            (\uicontrol {Add Filter}) to add a new filter in
+            the \uicontrol {Add Filter} dialog.
 
         \li In \uicontrol {Filter name}, enter a name for the filter,
             and then select \uicontrol {OK} to return to the \uicontrol Filters
@@ -428,7 +432,8 @@
 
     \section1 Remove filters
 
-    To remove the selected filter, select \inlineimage icons/minus.png.
+    To remove the selected filter, select \inlineimage {icons/minus.png}
+    {Remove Filter} (\uicontrol {Remove Filter}).
 
     \if defined(qtcreator)
     \sa {Read Documentation}{How To: Read Documentation}

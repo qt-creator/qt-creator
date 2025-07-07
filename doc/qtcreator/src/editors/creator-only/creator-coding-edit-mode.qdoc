@@ -255,10 +255,10 @@
 
     \section1 Browse location history
 
-    To browse backward or forward through your location history, click
-    \inlineimage {icons/prev.png} {} (\uicontrol {Go Back}) and
-    \inlineimage {icons/next.png} {} (\uicontrol {Go Forward}) on the editor
-    toolbar.
+    To browse backward or forward through your location history, select
+    \inlineimage {icons/prev.png} {Go Back} (\uicontrol {Go Back}) or
+    \inlineimage {icons/next.png} {Go Forward} (\uicontrol {Go Forward})
+    on the editor toolbar.
 
     To return to the last location where you made a change, go to
     \uicontrol Window > \uicontrol {Go to Last Edit}.
@@ -536,9 +536,9 @@
     \list
 
         \li To split the editor view into a top and bottom view, go to
-            \uicontrol Window > \uicontrol Split, select \key {Ctrl+E, 2}, or
-            select the \inlineimage {icons/splitbutton_horizontal.png} {}
-            (\uicontrol Split) button and then select \uicontrol Split.
+            \uicontrol Window > \uicontrol Split, select \key {Ctrl+E, 2} or
+            \inlineimage {icons/splitbutton_horizontal.png} {Split}
+            (\uicontrol Split), and then select \uicontrol Split.
 
             The \uicontrol Split command creates views below the currently active
             editor view.
@@ -574,8 +574,8 @@
         \li Place the cursor within the view you want to remove and go to
             \uicontrol Window > \uicontrol {Remove Current Split}.
         \li Select \key {Ctrl+E, 0}.
-        \li Select the \inlineimage {icons/splitbutton_closetop.png} {}
-            (\uicontrol {Remove Split}) button.
+        \li Select \inlineimage {icons/splitbutton_closetop.png} {Remove Split}
+            (\uicontrol {Remove Split}).
     \endlist
 
     To remove all but the currently selected split view:

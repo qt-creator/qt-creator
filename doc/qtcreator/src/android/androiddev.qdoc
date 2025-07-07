@@ -77,7 +77,7 @@
             By default, \QC tries to find a supported \l{Adoptium OpenJDK} or
             \l{OpenJDK} installation. If it cannot find one, you must set the
             path manually. If you have not installed a supported JDK, select
-            \inlineimage icons/online.png
+            \inlineimage {icons/online.png} {Open JDK download URL in the system's browser}
             to open the JDK download web page in the default browser.
 
             \note Use a 64-bit JDK because the 32-bit one might cause issues with
@@ -172,7 +172,8 @@
 
     \section1 Download Android NDKs
 
-    To manually download NDKs, select \inlineimage icons/online.png.
+    To manually download NDKs, select {icons/online.png}
+    {Open Android NDK download URL in the system's browser}.
 
     \section1 Set default NDK
 

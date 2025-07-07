@@ -45,7 +45,8 @@
         \li Go to \uicontrol Analyze > \uicontrol {QML Profiler} to profile the
             current application.
             \image {qtcreator-qml-profiler-toolbar.webp} {QML Profiler}
-        \li Select \inlineimage icons/qtcreator-analyze-start-button.png
+        \li Select
+            \inlineimage {icons/qtcreator-analyze-start-button.png} {Start QML Profiler analysis}
             (\uicontrol Start) to start the application from QML Profiler.
     \endlist
 
@@ -53,15 +54,18 @@
     the time running in the \uicontrol Elapsed field.
 
     \note If data collection does not start automatically, select
-    \inlineimage icons/recordfill.png (\uicontrol {Enable Profiling}).
+    \inlineimage {icons/recordfill.png} {Enable Profiling}
+    (\uicontrol {Enable Profiling}).
 
-    Data is collected until you select \inlineimage icons/recordfill.png again.
+    Data is collected until you select
+    \inlineimage {icons/recordfill.png} {Disable Profiling}
+    (\uicontrol {Disable Profiling}).
     Data collection takes time, so expect a delay before seeing data.
 
     Do not use application commands to exit the application because data is
-    sent to QML Profiler when you select \inlineimage icons/recordfill.png.
-    The application stops in seconds. If you exit the application, the data is
-    not sent.
+    sent to QML Profiler when you select
+    \inlineimage {icons/recordfill.png} {Disable Profiling}. The application
+    stops in seconds. If you exit the application, the data is not sent.
 
     Select \uicontrol {Disable Profiling} to disable the automatic start of the
     data collection when an application is launched. Data collection starts when

@@ -36,17 +36,18 @@
             The menu items also display the \l{Keyboard Shortcuts}
             {keyboard shortcuts} that you can use.
         \li Select \key Alt (\key Cmd on \macos) and the number of the view.
-        \li Select \inlineimage icons/output-pane-menu.png
-            , and then select the view to open.
+        \li Select \inlineimage {icons/output-pane-menu.png} {Output view menu},
+            and then select the view to open.
     \endlist
 
-    To maximize an open output view, select the \inlineimage icons/arrowup.png
-    (\uicontrol Maximize) button or select \key {Alt+Shift+9}.
+    To maximize an open output view, select
+    \inlineimage {icons/arrowup.png} {Maximize}
+    (\uicontrol Maximize) or \key {Alt+Shift+9}.
 
-    To increase or decrease the output text size, select \inlineimage icons/plus.png
-    (\uicontrol {Zoom In}) or \inlineimage icons/minus.png
-    (\uicontrol {Zoom Out}), or select \key Ctrl++ or \key Ctrl+-. Zooming is
-    not supported in all output views.
+    To increase or decrease the output text size, select
+    \inlineimage {icons/plus.png} {Zoom In} (\uicontrol {Zoom In}) or \key Ctrl++
+    or \inlineimage {icons/minus.png} {Zoom Out} (\uicontrol {Zoom Out})
+    or \key Ctrl+-. You cannot zoom in some output views.
 
     \section1 Change text encoding
 
@@ -67,7 +68,7 @@
     To filter output, enter a string in the \uicontrol Filter field.
 
     To specify filtering options,
-    select the \inlineimage icons/magnifier.png {Filtering options menu}
+    select the \inlineimage {icons/magnifier.png} {Filtering options menu}
     button. You can filter output by using regular expressions or
     case-sensitivity. Select \uicontrol {Show Non-matching Lines} to
     hide the lines that match the filter.

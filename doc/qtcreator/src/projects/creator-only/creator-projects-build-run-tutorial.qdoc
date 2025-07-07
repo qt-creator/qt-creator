@@ -69,7 +69,7 @@
             automatically detected the installed kit. If you cannot see any kits,
             see \l{Add kits}.
 
-        \li Select \inlineimage icons/run_small.png
+        \li Select \inlineimage {icons/run_small.png} {Run}
             (\uicontrol Run) to build and run the application.
 
         \li To see the compilation progress, select \key{Alt+4} to open

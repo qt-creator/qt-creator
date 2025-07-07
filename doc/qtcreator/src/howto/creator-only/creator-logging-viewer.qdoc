@@ -42,31 +42,31 @@
     saved information, select \uicontrol {Update from Preset}.
 
     To save the content of the displayed messages, select
-    \inlineimage icons/savefile.png
-    (\uicontrol {Save Log}). To copy all or selected messages, select
-    \uicontrol {Copy All} or \uicontrol {Copy Selected Logs} in the
-    context menu.
+    \inlineimage {icons/savefile.png} {Save Log} (\uicontrol {Save Log}).
+    To copy all or selected messages, select \uicontrol {Copy All} or
+    \uicontrol {Copy Selected Logs} in the context menu.
 
     To clean the content of displayed messages select
-    \inlineimage icons/clean_pane_small.png
-    (\uicontrol Clear).
+    \inlineimage {icons/clean_pane_small.png} {Clear} (\uicontrol Clear).
 
-    To temporarily stop logging, select \inlineimage icons/stop_small.png
+    To temporarily stop logging, select
+    \inlineimage {icons/stop_small.png} {Stop Logging}
     (\uicontrol {Stop Logging}). To continue logging, select
-    \inlineimage icons/run_small.png
+    \inlineimage {icons/run_small.png} {Start Logging}
     (\uicontrol {Start Logging}).
 
     By default, logging categories and messages coming directly from Qt are
-    disabled. To display them, select \inlineimage icons/qtlogo-16.png
+    disabled. To display them, select
+    \inlineimage {icons/qtlogo-16.png} {Toggle Qt Internal Logging}
     (\uicontrol {Toggle Qt Internal Logging}).
 
     New messages automatically scroll the message display to the bottom.
-    To stop automatic scrolling, toggle \inlineimage icons/arrowdown.png
-    (\uicontrol {Auto Scroll}).
+    To stop automatic scrolling, toggle
+    \inlineimage {icons/arrowdown.png} {Auto Scroll} (\uicontrol {Auto Scroll}).
 
     By default, messages are listed with a timestamp, without message
     type. To hide and show this information, toggle
-    \inlineimage icons/stopwatch.png
-    (\uicontrol Timestamps) and \inlineimage icons/message.png
+    \inlineimage {icons/stopwatch.png} {Timestamps} (\uicontrol Timestamps)
+    and \inlineimage {icons/message.png} {Message Types}
     (\uicontrol {Message Types}).
 */

@@ -90,10 +90,13 @@
     If you compile and run the above code, however, the application does not
     work correctly due to a logic error. To locate this logic error, step
     through the code using the following buttons:
-    \inlineimage icons/qtcreator-debug-button-stop.png
-    (\uicontrol {Stop Debugger}), \inlineimage icons/debugger_stepover_small.png
-    (\uicontrol {Step Over}), \inlineimage icons/debugger_stepinto_small.png
-    (\uicontrol {Step Into}), and \inlineimage icons/debugger_stepout_small.png
+    \inlineimage {icons/qtcreator-debug-button-stop.png} {Stop Debugger}
+    (\uicontrol {Stop Debugger}),
+    \inlineimage {icons/debugger_stepover_small.png} {Step Over}
+    (\uicontrol {Step Over}),
+    \inlineimage {icons/debugger_stepinto_small.png} {Step Into}
+    (\uicontrol {Step Into}), and
+    \inlineimage {icons/debugger_stepout_small.png} {Step Out}
     (\uicontrol {Step Out}).
 
     \sa {Tutorial: Qt Widgets application}, {Debugging}, {Debuggers}, {Debugger}

@@ -39,13 +39,13 @@
 
             \image {qtcreator-valgrind-memcheck.webp} {Memcheck view}
 
-        \li Select \inlineimage icons/qtcreator-analyze-start-button.png
-            to start the application.
+        \li Select \inlineimage {icons/qtcreator-analyze-start-button.png}
+            {Start} to start the application.
 
         \li Use the application to analyze it.
 
-        \li Select \inlineimage icons/stop_small.png to view the results of the
-            analysis in \uicontrol {Memory Issues}.
+        \li Select \inlineimage {icons/stop_small.png} {Stop} to view the
+            results of the analysis in \uicontrol {Memory Issues}.
 
     \endlist
 
@@ -64,17 +64,17 @@
     Select a line to see the place where a memory leak occurred and a stack trace
     that shows what caused it.
 
-    As an alternative to collecting data, select \inlineimage icons/open.png
-    to load an external log file in XML format into the \uicontrol Memcheck
-    view.
+    As an alternative to collecting data, select
+    \inlineimage {icons/open.png} {Open} to load an external
+    log file in XML format into the \uicontrol Memcheck view.
 
     Move the mouse on a row to view more information about the function.
 
-    To move between rows, select \inlineimage icons/prev.png
-    or \inlineimage icons/next.png.
+    To move between rows, select \inlineimage {icons/prev.png} {Previous}
+    or \inlineimage {icons/next.png} {Next}.
 
-    To filter the results, select \inlineimage icons/filtericon.png, and
-    then select the types of issues to display in the view. You
+    To filter the results, select \inlineimage {icons/filtericon.png} {Filter},
+    and then select the types of issues to display in the view. You
     can view and hide definite and possible memory leaks, uninitialized
     values, invalid calls to \c free(), and external errors.
 
@@ -223,27 +223,27 @@
 
             \image {qtcreator-valgrind-callgrind-toolbar.webp} {Callgrind view toolbar}
 
-        \li Select \inlineimage icons/qtcreator-analyze-start-button.png
+        \li Select \inlineimage {icons/qtcreator-analyze-start-button.png} {Start}
             to start the application.
 
         \li Use the application to analyze it.
 
-        \li Select \inlineimage icons/stop_small.png to view the results of the
-            analysis in the \uicontrol Functions view.
+        \li Select \inlineimage {icons/stop_small.png} {Stop} to view the
+            results of the analysis in the \uicontrol Functions view.
 
     \endlist
 
-    Select \inlineimage icons/pause-icon.png
+    Select \inlineimage {icons/pause-icon.png} {Pause}
     to speed up program execution during profiling by pausing event
     logging. No events are counted while logging is paused.
 
-    Select \inlineimage icons/reload_gray.png
+    Select \inlineimage {icons/reload_gray.png} {Reload}
     to reset all event counters.
 
-    Select \inlineimage icons/clean_pane_small.png
+    Select \inlineimage {icons/clean_pane_small.png} {Clean}
     to discard all collected data.
 
-    Select \inlineimage icons/kcachegrind.png
+    Select \inlineimage {icons/kcachegrind.png} {KCachegrind}
     to view the data in KCachegrind. \QC launches KCachegrind
     and loads the data into it for visualization.
 
@@ -255,11 +255,11 @@
 
     Select \uicontrol Views to show and hide views and view
     titles. The \uicontrol Visualization view is hidden by
-    default. Select \inlineimage icons/redo.png
+    default. Select \inlineimage {icons/redo.png} {Redo}
     to refresh the data displayed in it when it is shown.
 
     As an alternative to collecting data, you can select
-    \inlineimage icons/open.png
+    \inlineimage {icons/open.png} {Open}
     to load an external log file into the \uicontrol Callgrind views.
 
     \image {qtcreator-valgrind-callgrind.png} {Callgrind views}
@@ -273,13 +273,13 @@
     the \uicontrol Callers view and about the called functions in the
     \uicontrol Callees view.
 
-    Select \inlineimage icons/prev.png
-    or \inlineimage icons/next.png
+    Select \inlineimage {icons/prev.png} {Previous}
+    or \inlineimage {icons/next.png} {Next}
     To move between functions in the \uicontrol Callee view.
 
     To set the cost format, select \uicontrol $. You can view absolute
     or relative costs, as well as relative costs to parent. Select
-    \inlineimage icons/filtericon.png
+    \inlineimage {icons/filtericon.png} {Filter}
     to view only profiling info that originated from the project.
 
     To properly handle recursive or circular function calls, enable cycle

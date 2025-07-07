@@ -178,7 +178,7 @@
     \endcode
 
     The property alias exports the button to the code that uses the form.
-    You can use the \inlineimage icons/alias.png
+    You can use the \inlineimage {icons/alias.png} {Export}
     (\uicontrol Export) button in \l Navigator to export a component
     as a property:
 

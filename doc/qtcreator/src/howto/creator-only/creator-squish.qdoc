@@ -165,15 +165,16 @@
     Squish records tests using the scripting language that you specified for the
     test suite. Recordings are made into existing test cases.
 
-    In \uicontrol {Test Suites}, select the \inlineimage icons/recordfill.png
-    (\uicontrol {Record Test Case}) button next to the test case name. The
+    In \uicontrol {Test Suites}, select
+    \inlineimage {icons/recordfill.png} {Record Test Case}
+    (\uicontrol {Record Test Case}) next to the test case name. The
     application under test (AUT) that you selected for the test suite is
     displayed and you can start recording the test case.
 
     \image {qtcreator-squish-control-bar-record-test-case.png} {Squish control bar for recording test cases}
 
-    When you are done, select the \inlineimage icons/stop_small.png
-    (\uicontrol {Stop}) button in the \uicontrol {Control Bar}.
+    When you are done, select \inlineimage {icons/stop_small.png} {Stop}
+    (\uicontrol {Stop}) in \uicontrol {Control Bar}.
 
     Edit recorded test scripts or copy parts of them into manually
     created test scripts.
@@ -185,8 +186,8 @@
     Run a recorded test case to have Squish repeat all the actions that
     you applied when recording the test, but without the pauses that humans are
     prone to but which computers don't need.
-    To run a test case, select the \inlineimage icons/run_small.png
-    (\uicontrol {Run}) button next to the test case in \uicontrol {Test Suites}.
+    To run a test case, select \inlineimage {icons/run_small.png} {Run}
+    (\uicontrol {Run}) next to the test case in \uicontrol {Test Suites}.
 
     \image {qtcreator-squish-control-bar-run-test-case.png} {Squish control bar for running test cases}
 
@@ -211,10 +212,9 @@
     When using symbolic names, you only need to update the real name in the
     object map. You do not need to make any changes to the tests.
 
-    To edit the object map of a test suite, select the
-    \inlineimage icons/objectsmap.png
-    (\uicontrol {Object Map}) button next to the test
-    suite in \uicontrol {Test Suites}.
+    To edit the object map of a test suite, select
+    \inlineimage {icons/objectsmap.png} {Object Map} (\uicontrol {Object Map})
+    next to the test suite in \uicontrol {Test Suites}.
 
     \image {qtcreator-squish-symbolic-names.png} {Symbolic Names view}
 
@@ -229,8 +229,7 @@
     To remove the selected symbolic name or property, select \uicontrol Remove.
 
     To jump to the symbolic name associated to the selected
-    property, select  \inlineimage icons/jumpto.png
-    .
+    property, select \inlineimage {icons/jumpto.png} {Jump To}.
 
     \section1 Inspect local variables
 

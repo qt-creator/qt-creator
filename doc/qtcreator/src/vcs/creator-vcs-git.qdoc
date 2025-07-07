@@ -351,7 +351,7 @@
     To set the maximum number of log entries to show, go to \preferences >
     \uicontrol {Version Control} > \uicontrol Git > \uicontrol {Log count}.
 
-    Select \inlineimage icons/reload_gray.png
+    Select \inlineimage {icons/reload_gray.png} {Reload}
     (\uicontrol Reload) to rescan the files.
 
     \section1 View log entry details
@@ -541,7 +541,7 @@
     \uicontrol {Detect Moves Between Files},
     or \uicontrol {Detect Moves and Copies Between Files}.
 
-    To rescan the files, select \inlineimage icons/reload_gray.png
+    To rescan the files, select \inlineimage {icons/reload_gray.png} {Reload}
     (\uicontrol Reload).
 
     Select the commit identifier to show a detailed description of the change
@@ -907,8 +907,8 @@
     \section1 Filter entries and tags
 
     Old entries and tags are filtered out of the list of branches
-    by default. To include them, select \inlineimage icons/filtericon.png
-    (\uicontrol {Filter Tree}), and then select
+    by default. To include them, select \inlineimage {icons/filtericon.png} {Filter}
+    (\uicontrol {Filter}), and then select
     \uicontrol {Include Old Entries} and \uicontrol {Include Tags}.
 
     To add a tag to a change in the change log, select \uicontrol Branches >
@@ -921,13 +921,13 @@
     For local and remote branches, double-click the branch name to view the
     change log.
 
-    To refresh the list of branches, select \inlineimage icons/reload_gray.png
-    (\uicontrol Refresh).
+    To refresh the list of branches, select
+    \inlineimage {icons/reload_gray.png} {Refresh} (\uicontrol Refresh).
 
     \section1 Add branches
 
     To create a new tracking or non-tracking branch, select
-    \inlineimage icons/plus.png.
+    \inlineimage {icons/plus.png} {Add Branch} (\uicontrol {Add Branch}).
 
     \image {qtcreator-git-add-branch.webp} {Add Branch dialog}
 
@@ -1341,7 +1341,8 @@
             \li Log for line <line>
             \li Shows a log with all the commits that touched the \e line.
         \row
-            \li \inlineimage icons/copy.png
+            \li \inlineimage {icons/copy.png} {Copy Hash to Clipboard}
+                (\uicontrol {Copy Hash to Clipboard})
             \li Copies the full \e hash to the clipboard.
         \row
             \li commit <hash>

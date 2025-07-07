@@ -104,9 +104,9 @@
         \li Name of the kit. You can use variables to generate the kit name
             based on the values you set in the other fields.
 
-            Select the \inlineimage icons/qtcreator-desktopdevice-button.png icon next to the field,
-            and select the image that is displayed in the kit selector for this kit.
-            Select \uicontrol Browse to select an
+            Select \inlineimage {icons/qtcreator-desktopdevice-button.png} {Kit icon}
+            next to the field, and then select the image that is displayed in the
+            kit selector for this kit. Select \uicontrol Browse to select an
             image in a supported file format (for example, PNG). The image is
             scaled to the size 64x64 pixels. For example, using the compiler
             logo as an icon allows you to easily see, which compiler is used to

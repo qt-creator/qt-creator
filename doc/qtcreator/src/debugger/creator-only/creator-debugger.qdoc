@@ -225,7 +225,8 @@
     debugger in the following ways:
 
     \list
-        \li Select \inlineimage icons/qtcreator-debug-button.png
+        \li Select
+            \inlineimage {icons/qtcreator-debug-button.png} {Start Debugging of Startup Project}
             (\uicontrol {Start Debugging of Startup Project}).
         \li Select \key F5.
         \li Enter \c {dr} in the locator, and select the project to debug.
@@ -964,25 +965,25 @@
             \li Keyboard Shortcut
             \li Description
         \row
-            \li \inlineimage icons/qtcreator-debug-button-stop.png
+            \li \inlineimage {icons/qtcreator-debug-button-stop.png} {Stop Debugger}
             \li \uicontrol {Stop Debugger}
             \li \key {Shift+F5}
             \li Stops the debugger.
         \row
-            \li \inlineimage icons/debugger_stepover_small.png
+            \li \inlineimage {icons/debugger_stepover_small.png} {Step Over}
             \li \uicontrol {Step Over}
             \li \key F10 (\key {Command+Shift+O} on \macos)
             \li Steps over the next line inside the function being debugged. It
                 executes the call and moves to the next line to be executed in
                 the function.
         \row
-            \li \inlineimage icons/debugger_stepinto_small.png
+            \li \inlineimage {icons/debugger_stepinto_small.png} {Step Into}
             \li \uicontrol {Step Into}
             \li \key F11 (\key {Command+Shift+I} on \macos)
             \li Steps into the line that it is currently on. For a function call,
                 goes into the function and is ready to continue.
         \row
-            \li \inlineimage icons/debugger_stepout_small.png
+            \li \inlineimage {icons/debugger_stepout_small.png} {Step Out}
             \li \uicontrol {Step Out}
             \li \key {Shift+F11} (\key {Command+Shift+T} on \macos)
             \li Finishes executing the function and exits to the function that
@@ -1003,7 +1004,7 @@
             \li Runs to the selected function when you are stepping into a nested
                 function.
         \row
-            \li \inlineimage icons/qtcreator-debugging-continue.png
+            \li \inlineimage {icons/qtcreator-debugging-continue.png} {Continue}
             \li \uicontrol {Continue}
             \li \key F5
             \li Resumes application execution at the address where it last
@@ -1468,9 +1469,9 @@
     \list
         \li Go to \uicontrol Debug > \uicontrol {Operate by Instruction} while
             the debugger is running.
-        \li Select the \inlineimage icons/debugger_singleinstructionmode.png
-            (\uicontrol {Operate by Instruction}) tool button on the debugger
-            toolbar.
+        \li Select
+            \inlineimage {icons/debugger_singleinstructionmode.png} {Operate by Instruction}
+            (\uicontrol {Operate by Instruction}) on the debugger toolbar.
         \li In the \l {Viewing and Editing Register State}{Registers} view,
             select a value, and then select \uicontrol {Open Disassembler at <value>}
             in the context menu.
@@ -1479,7 +1480,7 @@
     \section1 Starting Disassembler
 
     To start a disassembler from the \uicontrol Registers view, select
-    \uicontrol {Open Disassembler} and  set the disassembler address:
+    \uicontrol {Open Disassembler} and set the disassembler address:
 
     \image {qcreator-debugger-select-start-address.webp} {Select Start Address dialog}
 
@@ -2138,9 +2139,8 @@
 
         \li Make sure you use at least \QC 3.0.1
 
-        \li Select the \inlineimage icons/run_small.png
-            (\uicontrol Run) button to verify that the
-            \l {Run on many platforms}{build and run kit selector}
+        \li Select \inlineimage {icons/run_small.png} {Run} (\uicontrol Run) to
+            check that the \l {Run on many platforms}{build and run kit selector}
             picked a runnable target and you can run the application.
 
         \li Make sure the debugger is \l{Supported Debuggers}{set up properly}.

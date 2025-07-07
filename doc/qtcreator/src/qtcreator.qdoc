@@ -18,9 +18,9 @@
     \div {class="main-navigation"}
     \table borderless 100%
         \row
-            \li \inlineimage icons/installation.png
-            \li \inlineimage icons/getting-started.png
-            \li \inlineimage icons/tutorials.png
+            \li \inlineimage {icons/installation.png} {}
+            \li \inlineimage {icons/getting-started.png} {}
+            \li \inlineimage {icons/tutorials.png} {}
         \row
             \li \b {INSTALLATION}
 
@@ -64,9 +64,9 @@
     \div {class="link-list"}
     \table 100%
         \row
-            \li \inlineimage icons/demo-32x32.png
-            \li \inlineimage icons/build-32x32.png
-            \li \inlineimage icons/settings-32x32.png
+            \li \inlineimage {icons/demo-32x32.png} {}
+            \li \inlineimage {icons/build-32x32.png} {}
+            \li \inlineimage {icons/settings-32x32.png} {}
         \row
                 \li Work with Code
                     \list

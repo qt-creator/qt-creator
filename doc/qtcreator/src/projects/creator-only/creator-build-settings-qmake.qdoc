@@ -27,8 +27,7 @@
 
     Select the build directory in the \uicontrol {Build Directory} field. You
     can use the \l{Use Qt Creator variables}{variables} that are listed when
-    you select the \inlineimage icons/replace.png (\uicontrol {Variables})
-    button.
+    you select \inlineimage {icons/replace.png} {Variables} (\uicontrol {Variables}).
 
     To make in-source builds the default option for all projects, select
     \preferences > \uicontrol {Build & Run} >
@@ -90,7 +89,8 @@
     \image {qtcreator-build-settings-default.webp} {Default Build Properties tab in Build & Run preferences}
 
     In the \uicontrol {Default build directory} field, you can use the variables
-    that are listed when you select \inlineimage icons/replace.png, as well as
+    that are listed when you select \inlineimage {icons/replace.png} {Variables},
+    as well as
     variables that are available for a particular kit. Those you can see when
     you select the button in the \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Build > \uicontrol {Build Settings} > \uicontrol {Build Directory}

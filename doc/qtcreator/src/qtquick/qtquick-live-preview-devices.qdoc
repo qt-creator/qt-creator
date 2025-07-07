@@ -42,7 +42,7 @@
         \li Select the kit for the device in the kit selector (2).
             \image {qtcreator-kit-selector-devices.webp} {Kit selector}
         \else
-        \li In the bottom toolbar, select \inlineimage icons/settings.png
+        \li In the bottom toolbar, select \inlineimage {icons/settings.png} {Preferences}
             and enable the kit predefined for the device type.
             \image {design-studio-kit-selection.webp} {Activating a kit.}
         \li Select the kit for the device in the bottom toolbar.
