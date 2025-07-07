@@ -715,20 +715,19 @@ FilePaths QmakePriFile::formResources(const FilePath &formFile) const
     return FileUtils::toFilePathList(resourceFiles);
 }
 
-bool QmakePriFile::ensureWriteableProFile(const QString &file)
+bool QmakePriFile::ensureWriteableProFile(const FilePath &file)
 {
     // Ensure that the file is not read only
-    QFileInfo fi(file);
-    if (!fi.isWritable()) {
+    if (!file.isWritableFile()) {
         // Try via vcs manager
         Core::IVersionControl *versionControl =
-            Core::VcsManager::findVersionControlForDirectory(FilePath::fromString(fi.absolutePath()));
-        if (!versionControl || !versionControl->vcsOpen(FilePath::fromString(file))) {
-            bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
+            Core::VcsManager::findVersionControlForDirectory(file.parentDir());
+        if (!versionControl || !versionControl->vcsOpen(file)) {
+            bool makeWritable = file.setPermissions(file.permissions() | QFile::WriteUser);
             if (!makeWritable) {
                 QMessageBox::warning(Core::ICore::dialogParent(),
                                      Tr::tr("Failed"),
-                                     Tr::tr("Could not write project file %1.").arg(file));
+                                     Tr::tr("Could not write project file %1.").arg(file.toUserOutput()));
                 return false;
             }
         }
@@ -759,7 +758,7 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile()
 
 bool QmakePriFile::prepareForChange()
 {
-    return saveModifiedEditors() && ensureWriteableProFile(filePath().toUrlishString());
+    return saveModifiedEditors() && ensureWriteableProFile(filePath());
 }
 
 bool QmakePriFile::renameFile(const FilePath &oldFilePath, const FilePath &newFilePath, Change mode)

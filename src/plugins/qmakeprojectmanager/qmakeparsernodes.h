@@ -198,7 +198,7 @@ private:
     void setParent(QmakePriFile *p);
 
     bool prepareForChange();
-    static bool ensureWriteableProFile(const QString &file);
+    static bool ensureWriteableProFile(const Utils::FilePath &file);
     QPair<ProFile *, QStringList> readProFile();
     static QPair<ProFile *, QStringList> readProFileFromContents(const QString &contents);
     void save(const QStringList &lines);
