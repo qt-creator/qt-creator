@@ -195,7 +195,8 @@ void VcsBaseClientImpl::executeInEditor(const Utils::FilePath &workingDirectory,
     const Storage<CommandResult> resultStorage;
 
     const auto task = vcsProcessTask(
-        {.runData = {{vcsBinary(workingDirectory), arguments}, workingDirectory},
+        {.runData = {{vcsBinary(workingDirectory), arguments}, workingDirectory,
+                     processEnvironment(workingDirectory)},
          .encoding = editor->encoding()}, resultStorage);
 
     editor->executeTask(task, resultStorage);
