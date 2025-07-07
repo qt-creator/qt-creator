@@ -457,6 +457,8 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
 
 void CorePlugin::fileOpenRequest(const QString &f)
 {
+    if (ExtensionSystem::PluginManager::isShuttingDown())
+        return;
     remoteCommand(QStringList(), QString(), QStringList(f));
 }
 
