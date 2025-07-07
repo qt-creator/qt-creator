@@ -15,6 +15,8 @@ namespace Utils {
 
 static QByteArray canonicalName(const QByteArray &input)
 {
+    QTC_ASSERT(!input.isEmpty(), return input);
+
     // Avoid construction of too many QStringDecoders to get canonical names.
     static QHash<QByteArray, QByteArray> s_canonicalNames {
         // FIXME: We can save a few more cycles by pre-populatong the well-known ones
