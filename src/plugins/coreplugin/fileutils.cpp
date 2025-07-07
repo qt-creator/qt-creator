@@ -161,12 +161,12 @@ void removeFiles(const FilePaths &filePaths, bool deleteFromFS)
 
     // remove from file system
     for (const FilePath &fp : filePaths) {
-        QFile file(fp.toUrlishString());
-        if (!file.exists()) // could have been deleted by vc
+        if (!fp.exists()) // could have been deleted by vc
             continue;
-        if (!file.remove()) {
+        Result<> removeResult = fp.removeFile();
+        if (!removeResult) {
             MessageManager::writeDisrupting(
-                Tr::tr("Failed to remove file \"%1\".").arg(fp.toUserOutput()));
+                Tr::tr("Failed to remove file \"%1\": %2").arg(fp.toUserOutput()).arg(removeResult.error()));
         }
     }
 }
