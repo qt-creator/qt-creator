@@ -190,6 +190,7 @@ GitLabOptionsWidget::GitLabOptionsWidget()
     if (found.id.isValid()) {
         m_defaultGitLabServer->setCurrentIndex(m_defaultGitLabServer->findData(
                                                    QVariant::fromValue(found)));
+        m_gitLabServerWidget->setGitLabServer(found);
     }
     updateButtonsState();
 
