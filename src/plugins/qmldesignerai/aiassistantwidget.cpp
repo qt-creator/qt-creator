@@ -9,6 +9,7 @@
 
 #include <utils/filepath.h>
 
+#include <QApplication>
 #include <QBuffer>
 #include <QHBoxLayout>
 #include <QJsonArray>
@@ -69,7 +70,11 @@ QString getContent(const QJsonObject &responseObject)
 
 bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == m_textInput.data() && event->type() == QEvent::KeyPress) {
+    if (event->type() == QEvent::EnabledChange) {
+        // Only focus m_textInput if no other view has taken focus through user interaction
+        if (m_textInput->isEnabled() && !QApplication::focusWidget())
+            m_textInput->setFocus();
+    } else if (event->type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
         if (keyEvent->key() == Qt::Key_Return && !(keyEvent->modifiers() & Qt::ShiftModifier)) {
             handleMessage();
@@ -88,6 +93,7 @@ bool AiAssistantWidget::eventFilter(QObject *obj, QEvent *event)
             return true;
         }
     }
+
     return QWidget::eventFilter(obj, event);
 }
 
