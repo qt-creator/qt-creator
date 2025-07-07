@@ -197,7 +197,8 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     expander->setAccumulating(true);
     expander->registerSubProvider([this] { return kit()->macroExpander(); });
     expander->registerVariable("sourceDir", Tr::tr("Source directory"),
-                               [this] { return project()->projectDirectory().toUserOutput(); });
+                               [this] { return project()->projectDirectory().toUserOutput(); },
+                               false);
     expander->registerVariable("BuildSystem:Name", Tr::tr("Build system"), [this] {
         return buildSystem()->name();
     });
@@ -205,7 +206,7 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
         return project()->displayName();
     });
     expander->registerVariable("buildDir", Tr::tr("Build directory"),
-            [this] { return buildDirectory().toUserOutput(); });
+            [this] { return buildDirectory().toUserOutput(); }, false);
     expander->registerFileVariables("BuildConfig:BuildDirectory",
                                     Tr::tr("Build directory"),
                                     [this] { return buildDirectory(); });
