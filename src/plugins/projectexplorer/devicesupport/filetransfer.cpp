@@ -12,6 +12,7 @@
 
 #include <QProcess>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -193,14 +194,26 @@ QString FileTransfer::transferMethodName(FileTransferMethod method)
     return {};
 }
 
-FileTransferTaskAdapter::FileTransferTaskAdapter()
+static void setupTransfer(FileTransfer *transfer, TaskInterface *iface)
 {
-    connect(task(), &FileTransfer::done, this, [this](const ProcessResultData &result) {
+    QObject::connect(transfer, &FileTransfer::done, iface, [iface](const ProcessResultData &result) {
         const bool success = result.m_exitStatus == QProcess::NormalExit
                              && result.m_error == QProcess::UnknownError
                              && result.m_exitCode == 0;
-        emit done(Tasking::toDoneResult(success));
+        emit iface->done(toDoneResult(success));
     });
+}
+
+void FileTransferTaskAdapter::start()
+{
+    setupTransfer(task(), this);
+    task()->start();
+}
+
+void FileTransferTestTaskAdapter::start()
+{
+    setupTransfer(task(), this);
+    task()->test();
 }
 
 } // namespace ProjectExplorer

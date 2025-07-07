@@ -47,17 +47,16 @@ private:
     FileTransferPrivate *d;
 };
 
-class PROJECTEXPLORER_EXPORT FileTransferTaskAdapter : public Tasking::TaskAdapter<FileTransfer>
+class PROJECTEXPLORER_EXPORT FileTransferTaskAdapter final : public Tasking::TaskAdapter<FileTransfer>
 {
 public:
-    FileTransferTaskAdapter();
-    void start() override { task()->start(); }
+    void start() final;
 };
 
-class PROJECTEXPLORER_EXPORT FileTransferTestTaskAdapter final : public FileTransferTaskAdapter
+class PROJECTEXPLORER_EXPORT FileTransferTestTaskAdapter final : public Tasking::TaskAdapter<FileTransfer>
 {
 public:
-    void start() final { task()->test(); }
+    void start() final;
 };
 
 using FileTransferTask = Tasking::CustomTask<FileTransferTaskAdapter>;
