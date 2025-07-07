@@ -29,7 +29,9 @@ void UserTextureCategory::loadBundle(bool force)
     m_bundlePath.ensureWritableDir();
     m_bundlePath.pathAppended("icons").ensureWritableDir();
 
-    addItems(m_bundlePath.dirEntries({Asset::supportedTexture3DSuffixes(), QDir::Files}));
+    const QStringList supportedExtensions = Asset::supportedImageSuffixes()
+                                          + Asset::supportedTexture3DSuffixes();
+    addItems(m_bundlePath.dirEntries({supportedExtensions, QDir::Files}));
 
     m_bundleLoaded = true;
 }

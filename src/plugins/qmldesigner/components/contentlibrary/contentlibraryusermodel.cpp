@@ -211,7 +211,9 @@ void ContentLibraryUserModel::reloadTextureCategory(const Utils::FilePath &dirPa
     UserTextureCategory *texCat = qobject_cast<UserTextureCategory *>(m_userCategories.at(catIdx));
     QTC_ASSERT(texCat, return);
 
-    const Utils::FilePaths &paths = dirPath.dirEntries({Asset::supportedImageSuffixes(), QDir::Files});
+    const QStringList supportedExtensions = Asset::supportedImageSuffixes()
+                                          + Asset::supportedTexture3DSuffixes();
+    const Utils::FilePaths &paths = dirPath.dirEntries({supportedExtensions, QDir::Files});
 
     texCat->clearItems();
     addTextures(paths, dirPath);
