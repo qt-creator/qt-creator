@@ -570,7 +570,7 @@ public:
 private:
     friend class Then;
     friend class Else;
-    friend void addToLayout(Layout *layout, const If &if_);
+    friend QTCREATOR_UTILS_EXPORT void addToLayout(Layout *layout, const If &if_);
 
     using Items = QList<Layout::I>;
     If(bool condition, const Items &list);
