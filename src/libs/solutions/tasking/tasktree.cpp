@@ -2430,7 +2430,6 @@ void TaskTreePrivate::startTask(const std::shared_ptr<RuntimeTask> &node)
                      q, [this, node](DoneResult doneResult) {
         const bool result = invokeTaskDoneHandler(node.get(), toDoneWith(doneResult));
         node->m_setupResult = toSetupResult(result);
-        QObject::disconnect(node->m_task.get(), &TaskInterface::done, q, nullptr);
         node->m_task.release()->deleteLater();
         RuntimeIteration *parentIteration = node->m_parentIteration;
         if (parentIteration->m_container->isStarting())
@@ -2439,7 +2438,7 @@ void TaskTreePrivate::startTask(const std::shared_ptr<RuntimeTask> &node)
         parentIteration->removeChild(node.get());
         childDone(parentIteration, result);
         bumpAsyncCount();
-    });
+    }, Qt::SingleShotConnection);
     node->m_task->start();
 }
 
