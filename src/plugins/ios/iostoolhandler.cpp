@@ -911,7 +911,6 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             errorMsg(Tr::tr("Application launch on simulator failed. %1").arg(response.error()));
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
             stop(-1);
-            emit q->finished();
         }
     };
 
@@ -1003,12 +1002,18 @@ IosToolTaskAdapter::IosToolTaskAdapter() {}
 void IosToolTaskAdapter::start()
 {
     task()->m_iosToolHandler.reset(new IosToolHandler(Internal::IosDeviceType(task()->m_deviceType)));
-    connect(task()->m_iosToolHandler.get(), &IosToolHandler::finished, this, [this] {
-        const Tasking::DoneResult result = task()->m_iosToolHandler->exitCode() == 0
-            ? Tasking::DoneResult::Success : Tasking::DoneResult::Error;
-        task()->m_iosToolHandler.release()->deleteLater();
-        emit done(result);
-    });
+    connect(
+        task()->m_iosToolHandler.get(),
+        &IosToolHandler::finished,
+        this,
+        [this] {
+            const Tasking::DoneResult result = task()->m_iosToolHandler->exitCode() == 0
+                                                   ? Tasking::DoneResult::Success
+                                                   : Tasking::DoneResult::Error;
+            task()->m_iosToolHandler.release()->deleteLater();
+            emit done(result);
+        },
+        Qt::SingleShotConnection);
     task()->m_startHandler(task()->m_iosToolHandler.get());
 }
 
