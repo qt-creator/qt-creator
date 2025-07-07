@@ -6,7 +6,7 @@
     \if defined(qtcreator)
     \previouspage creator-how-tos.html
     \else
-    \previouspage creator-quick-tour.html
+    \previouspage studio-ui.html
     \endif
 
     \ingroup creator-how-to-design
@@ -54,7 +54,7 @@
     \if defined(qtcreator)
     \previouspage creator-how-tos.html
     \else
-    \previouspage creator-quick-tour.html
+    \previouspage studio-ui.html
     \endif
 
     \ingroup creator-how-to-design

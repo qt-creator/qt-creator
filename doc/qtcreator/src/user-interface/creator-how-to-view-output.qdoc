@@ -4,7 +4,7 @@
 /*!
     \page creator-how-to-view-output.html
     \if defined(qtdesignstudio)
-    \previouspage creator-quick-tour.html
+    \previouspage studio-ui.html
     \nextpage creator-reference-application-output-view.html
     \else
     \previouspage creator-how-tos.html
