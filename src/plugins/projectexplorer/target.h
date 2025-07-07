@@ -69,7 +69,6 @@ public:
     Utils::Store toMap() const;
 
     void updateDefaultBuildConfigurations();
-    void updateDefaultRunConfigurations();
 
     ProjectConfigurationModel *buildConfigurationModel() const;
 

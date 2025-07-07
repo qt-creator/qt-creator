@@ -328,7 +328,6 @@ Target *Project::addTargetForKit(Kit *kit)
 
     t->updateDefaultBuildConfigurations();
     QTC_ASSERT(!t->buildConfigurations().isEmpty(), return nullptr);
-    t->updateDefaultRunConfigurations();
 
     addTarget(std::move(t));
 
@@ -1153,10 +1152,8 @@ BuildConfiguration *Project::setup(const BuildInfo &info)
         if (bc)
             t->addBuildConfiguration(bc);
     }
-    if (newTarget) {
-        newTarget->updateDefaultRunConfigurations();
+    if (newTarget)
         addTarget(std::move(newTarget));
-    }
     return bc;
 }
 

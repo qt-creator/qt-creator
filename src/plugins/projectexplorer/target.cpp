@@ -193,6 +193,7 @@ void Target::addBuildConfiguration(BuildConfiguration *bc)
     }
 
     bc->updateDefaultDeployConfigurations();
+    bc->updateDefaultRunConfigurations();
 
     // add it
     d->m_buildConfigurations.push_back(bc);
@@ -348,12 +349,6 @@ void Target::updateDefaultBuildConfigurations()
             addBuildConfiguration(bc);
     }
     QTC_CHECK(!d->m_buildConfigurations.isEmpty());
-}
-
-void Target::updateDefaultRunConfigurations()
-{
-    for (BuildConfiguration * const bc : std::as_const(d->m_buildConfigurations))
-        bc->updateDefaultRunConfigurations();
 }
 
 ProjectConfigurationModel *Target::buildConfigurationModel() const
