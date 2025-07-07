@@ -60,6 +60,16 @@
         \li Select buttons on the editor toolbar.
     \endlist
 
+    \section2 Using Tabbed Editors
+
+    \image {qtcreator-tabs-in-editor.webp} {Tabs in the Edit mode}
+
+    To open files in separate tabs in editors, go to \preferences >
+    \uicontrol Environment > \uicontrol Interface, and then select
+    \uicontrol {Use tabbed editors}.
+
+    \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
+
     \section1 Editor Toolbar
 
     The editor toolbar is context sensitive and shows items relevant to the file
@@ -148,8 +158,6 @@
     To add more space around the toolbar items, go to \preferences >
     \uicontrol Environment > \uicontrol Interface, and
     then select \uicontrol Relaxed in the \uicontrol {Toolbar style} field.
-
-    \image {qtcreator-preferences-environment-interface.webp} {Interface tab in Environment preferences}
 
     \section1 Resizing Views
 
