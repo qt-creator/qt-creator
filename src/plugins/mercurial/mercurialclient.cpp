@@ -193,6 +193,7 @@ bool MercurialClient::managesFile(const FilePath &workingDirectory, const QStrin
     return result.cleanedStdOut().isEmpty();
 }
 
+// TODO: Use FilePath for repository.
 void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &repository)
 {
     QStringList args;
@@ -209,7 +210,7 @@ void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &re
     VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
                                                   VcsBaseEditor::getEncoding(repositoryRoot),
                                                   "incoming", id);
-    enqueueJob(createCommand(FilePath::fromString(repository), editor), args, repositoryRoot);
+    executeInEditor(FilePath::fromString(repository), {vcsBinary(repositoryRoot), args}, editor);
 }
 
 void MercurialClient::outgoing(const FilePath &repositoryRoot)
