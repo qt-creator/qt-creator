@@ -575,20 +575,22 @@ QList<int> ProWriter::removeVarValues(ProFile *profile, QStringList *lines,
 QStringList ProWriter::removeFiles(
         ProFile *profile,
         QStringList *lines,
-        const QDir &proFileDir,
-        const QStringList &values,
+        const Utils::FilePath &proFileDir,
+        const Utils::FilePaths &values,
         const QStringList &vars,
         VarLocations *removedLocations)
 {
+    using namespace Utils;
     // This is a tad stupid - basically, it can remove only entries which
     // the above code added.
     QStringList valuesToFind;
-    for (const QString &absoluteFilePath : values)
-        valuesToFind << proFileDir.relativeFilePath(absoluteFilePath);
+    for (const FilePath &absoluteFilePath : values) {
+        valuesToFind << absoluteFilePath.relativePathFromDir(proFileDir);
+    }
 
     const QStringList notYetChanged =
             Utils::transform(removeVarValues(profile, lines, valuesToFind, vars, removedLocations),
-                             [values](int i) { return values.at(i); });
+                             [values](int i) { return values.at(i).toFSPathString(); });
 
     if (!profile->fileName().endsWith(".pri"))
         return notYetChanged;
@@ -597,10 +599,12 @@ QStringList ProWriter::removeFiles(
     // maybe those files can be found via $$PWD/relativeToPriFile
 
     valuesToFind.clear();
-    const QDir baseDir = QFileInfo(profile->fileName()).absoluteDir();
+    const FilePath baseDir = FilePath::fromString(profile->fileName()).parentDir();
     const QString prefixPwd = "$$PWD/";
-    for (const QString &absoluteFilePath : notYetChanged)
-        valuesToFind << (prefixPwd + baseDir.relativeFilePath(absoluteFilePath));
+    for (const QString &absoluteFilePath : notYetChanged) {
+        auto tmp = FilePath::fromString(absoluteFilePath);
+        valuesToFind << (prefixPwd + tmp.relativePathFromDir(baseDir));
+    }
 
     const QStringList notChanged =
             Utils::transform(removeVarValues(profile, lines, valuesToFind, vars, removedLocations),

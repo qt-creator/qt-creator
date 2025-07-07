@@ -773,12 +773,11 @@ bool QmakePriFile::renameFile(const FilePath &oldFilePath, const FilePath &newFi
     if (!includeFile)
         return false;
 
-    QDir priFileDir = QDir(m_qmakeProFile->directoryPath().toFSPathString());
     ProWriter::VarLocations removedLocations;
     const QStringList notChanged = ProWriter::removeFiles(includeFile,
                                                           &lines,
-                                                          priFileDir,
-                                                          {oldFilePath.path()},
+                                                          m_qmakeProFile->directoryPath(),
+                                                          {oldFilePath},
                                                           varNamesForRemoving(),
                                                           &removedLocations);
 
@@ -849,12 +848,11 @@ void QmakePriFile::changeFiles(const QString &mimeType,
                             continuationIndent());
         notChanged->clear();
     } else { // RemoveFromProFile
-        QDir priFileDir = QDir(m_qmakeProFile->directoryPath().toUrlishString());
         *notChanged = FilePaths::fromStrings(
             ProWriter::removeFiles(includeFile,
                                    &lines,
-                                   priFileDir,
-                                   Utils::transform(filePaths, &FilePath::toUrlishString),
+                                   m_qmakeProFile->directoryPath(),
+                                   filePaths,
                                    varNamesForRemoving()));
     }
 

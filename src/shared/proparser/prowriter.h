@@ -11,6 +11,11 @@ class QDir;
 class ProFile;
 QT_END_NAMESPACE
 
+namespace Utils {
+class FilePath;
+class FilePaths;
+}
+
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -46,8 +51,8 @@ public:
     static QStringList removeFiles(
             ProFile *profile,
             QStringList *lines,
-            const QDir &proFileDir,
-            const QStringList &filePaths,
+            const Utils::FilePath &proFileDir,
+            const Utils::FilePaths &filePaths,
             const QStringList &vars,
             VarLocations *removedLocations = nullptr);
 
