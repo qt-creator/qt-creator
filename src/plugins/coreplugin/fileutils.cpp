@@ -283,8 +283,7 @@ static Result<> updateHeaderFileGuardAfterRename(const FilePath &headerPath,
         // after that write with codec into file (QTextStream::setCodec is gone in Qt 6)
         QString outString;
         QTextStream outStream(&outString);
-        int lineCounter = 0;
-        while (!inStream.atEnd()) {
+        for (int lineCounter = 0; !inStream.atEnd(); ++lineCounter) {
             inStream.readLineInto(&line);
             if (lineCounter == guardStartLine) {
                 outStream << guardCondition << lineEnd;
@@ -296,7 +295,6 @@ static Result<> updateHeaderFileGuardAfterRename(const FilePath &headerPath,
             } else {
                 outStream << line << lineEnd;
             }
-            lineCounter++;
         }
         const QByteArray content = headerFileTextFormat.encoding().encode(outString);
         const Result<qint64> res = tmpHeader.writeFileContents(content);
