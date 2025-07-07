@@ -792,8 +792,7 @@ void FossilClient::view(const FilePath &source, const QString &id, const QString
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
                                                   VcsBaseEditor::getEncoding(source), "view", id);
     editor->setWorkingDirectory(workingDirectory);
-
-    enqueueJob(createCommand(workingDirectory, editor), args + extraOptions, source);
+    executeInEditor(workingDirectory, args + extraOptions, editor);
 }
 
 class FossilLogHighlighter : QSyntaxHighlighter
