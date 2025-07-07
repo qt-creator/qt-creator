@@ -172,13 +172,13 @@ void removeFiles(const FilePaths &filePaths, bool deleteFromFS)
 }
 
 // This method is used to refactor the include guards in the renamed headers
-static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
-                                             const QString &oldHeaderBaseName)
+static Result<> updateHeaderFileGuardAfterRename(const FilePath &headerPath,
+                                                 const QString &oldHeaderBaseName)
 {
-    bool ret = true;
-    QFile headerFile(headerPath);
-    if (!headerFile.open(QFile::ReadOnly | QFile::Text))
-        return false;
+
+    const Result<QByteArray> content = headerPath.fileContents();
+    if (!content)
+        return ResultError(content.error());
 
     QRegularExpression guardConditionRegExp(
                 QString("(#ifndef)(\\s*)(_*)%1_H(_*)(\\s*)").arg(oldHeaderBaseName.toUpper()));
@@ -187,17 +187,14 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
     int guardStartLine = -1;
     int guardCloseLine = -1;
 
-    const QByteArray data = headerFile.readAll();
-    headerFile.close();
-
     TextFileFormat headerFileTextFormat;
-    headerFileTextFormat.detectFromData(data);
+    headerFileTextFormat.detectFromData(*content);
     if (!headerFileTextFormat.encoding().isValid())
         headerFileTextFormat.setEncoding(EditorManager::defaultTextEncoding());
 
     QString stringContent;
-    if (!headerFileTextFormat.decode(data, &stringContent))
-        return false;
+    if (!headerFileTextFormat.decode(*content, &stringContent))
+        return ResultError(Tr::tr("Cannot decode contents."));
 
     QTextStream inStream(&stringContent);
     int lineCounter = 0;
@@ -252,68 +249,66 @@ static bool updateHeaderFileGuardAfterRename(const QString &headerPath,
         lineCounter++;
     }
 
+    Result<> ret = ResultOk;
+    const FilePath tmpHeader = headerPath.stringAppended(".tmp");
+
     if (guardStartLine != -1) {
         // At least the guard have been found ->
         // copy the contents of the header to a temporary file with the updated guard lines
         inStream.seek(0);
 
-        QFileInfo fi(headerFile);
         const auto guardCondition = QString("#ifndef%1%2%3_H%4%5").arg(
                     guardConditionMatch.captured(2),
                     guardConditionMatch.captured(3),
-                    fi.baseName().toUpper(),
+                    headerPath.baseName().toUpper(),
                     guardConditionMatch.captured(4),
                     guardConditionMatch.captured(5));
         // guardDefineRegexp.setPattern(QString("(#define\\s*%1)%2(_H%3\\s*)")
         const auto guardDefine = QString("%1%2%3").arg(
                     guardDefineMatch.captured(1),
-                    fi.baseName().toUpper(),
+                    headerPath.baseName().toUpper(),
                     guardDefineMatch.captured(2));
         const auto guardClose = QString("%1%2%3%4%5%6").arg(
                     guardCloseMatch.captured(1),
                     guardCloseMatch.captured(2),
                     guardCloseMatch.captured(3),
-                    fi.baseName().toUpper(),
+                    headerPath.baseName().toUpper(),
                     guardCloseMatch.captured(4),
                     guardCloseMatch.captured(5));
 
-        QFile tmpHeader(headerPath + ".tmp");
-        if (tmpHeader.open(QFile::WriteOnly)) {
-            const QString lineEnd =
-                    headerFileTextFormat.lineTerminationMode == TextFileFormat::LFLineTerminator
-                    ? QStringLiteral("\n") : QStringLiteral("\r\n");
-            // write into temporary string,
-            // after that write with codec into file (QTextStream::setCodec is gone in Qt 6)
-            QString outString;
-            QTextStream outStream(&outString);
-            int lineCounter = 0;
-            while (!inStream.atEnd()) {
-                inStream.readLineInto(&line);
-                if (lineCounter == guardStartLine) {
-                    outStream << guardCondition << lineEnd;
-                    outStream << guardDefine << lineEnd;
-                    inStream.readLine();
-                    lineCounter++;
-                } else if (lineCounter == guardCloseLine) {
-                    outStream << guardClose << lineEnd;
-                } else {
-                    outStream << line << lineEnd;
-                }
+        const QString lineEnd =
+                headerFileTextFormat.lineTerminationMode == TextFileFormat::LFLineTerminator
+                ? QStringLiteral("\n") : QStringLiteral("\r\n");
+        // write into temporary string,
+        // after that write with codec into file (QTextStream::setCodec is gone in Qt 6)
+        QString outString;
+        QTextStream outStream(&outString);
+        int lineCounter = 0;
+        while (!inStream.atEnd()) {
+            inStream.readLineInto(&line);
+            if (lineCounter == guardStartLine) {
+                outStream << guardCondition << lineEnd;
+                outStream << guardDefine << lineEnd;
+                inStream.readLine();
                 lineCounter++;
+            } else if (lineCounter == guardCloseLine) {
+                outStream << guardClose << lineEnd;
+            } else {
+                outStream << line << lineEnd;
             }
-            tmpHeader.write(headerFileTextFormat.encoding().encode(outString));
-            tmpHeader.close();
-        } else {
-            // if opening the temp file failed report error
-            ret = false;
+            lineCounter++;
         }
+        const QByteArray content = headerFileTextFormat.encoding().encode(outString);
+        const Result<qint64> res = tmpHeader.writeFileContents(content);
+
+        ret = res.has_value() ? ResultOk : ResultError(res.error());
     }
 
     if (ret && guardStartLine != -1) {
         // if the guard was found (and updated updated properly) swap the temp and the target file
-        ret = QFile::remove(headerPath);
+        ret = headerPath.removeFile();
         if (ret)
-            ret = QFile::rename(headerPath + ".tmp", headerPath);
+            ret = tmpHeader.renameFile(headerPath);
     }
 
     return ret;
@@ -349,13 +344,13 @@ void updateHeaderFileGuardIfApplicable(const FilePath &oldFilePath,
 {
     if (handleGuards == HandleIncludeGuards::No)
         return;
-    const bool headerUpdateSuccess = updateHeaderFileGuardAfterRename(newFilePath.toFSPathString(),
-                                                                      oldFilePath.baseName());
+    const Result<> headerUpdateSuccess =
+        updateHeaderFileGuardAfterRename(newFilePath, oldFilePath.baseName());
     if (headerUpdateSuccess)
         return;
     MessageManager::writeDisrupting(
-                Tr::tr("Failed to rename the include guard in file \"%1\".")
-                .arg(newFilePath.toUserOutput()));
+                Tr::tr("Failed to rename the include guard in file \"%1\": %2")
+                .arg(newFilePath.toUserOutput(), headerUpdateSuccess.error()));
 }
 
 } // namespace Core::FileUtils
