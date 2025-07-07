@@ -188,18 +188,24 @@ void VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
     command->start();
 }
 
-void VcsBaseClientImpl::executeInEditor(const Utils::FilePath &workingDirectory,
-                                        const QStringList &arguments,
+void VcsBaseClientImpl::executeInEditor(const FilePath &workingDirectory,
+                                        const CommandLine &command,
                                         VcsBaseEditorWidget *editor) const
 {
     const Storage<CommandResult> resultStorage;
 
     const auto task = vcsProcessTask(
-        {.runData = {{vcsBinary(workingDirectory), arguments}, workingDirectory,
-                     processEnvironment(workingDirectory)},
+        {.runData = {command, workingDirectory, processEnvironment(workingDirectory)},
          .encoding = editor->encoding()}, resultStorage);
 
     editor->executeTask(task, resultStorage);
+}
+
+void VcsBaseClientImpl::executeInEditor(const Utils::FilePath &workingDirectory,
+                                        const QStringList &arguments,
+                                        VcsBaseEditorWidget *editor) const
+{
+    executeInEditor(workingDirectory, {vcsBinary(workingDirectory), arguments}, editor);
 }
 
 int VcsBaseClientImpl::vcsTimeoutS() const
@@ -412,17 +418,15 @@ void VcsBaseClient::log(const FilePath &workingDir,
         }
     }
 
-    CommandLine args{vcsBinary(workingDir), {vcsCmdString}};
+    CommandLine cmd{vcsBinary(workingDir), {vcsCmdString}};
     if (addAuthOptions)
-        addAuthOptions(args);
+        addAuthOptions(cmd);
     if (editorConfig)
-        args << editorConfig->arguments();
+        cmd << editorConfig->arguments();
     else
-        args << extraOptions;
-    args << files;
-    VcsCommand *cmd = createCommand(workingDir, editor);
-    cmd->addJob(args, vcsTimeoutS());
-    cmd->start();
+        cmd << extraOptions;
+    cmd << files;
+    executeInEditor(workingDir, cmd, editor);
 }
 
 void VcsBaseClient::revertFile(const FilePath &workingDir,

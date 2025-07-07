@@ -95,6 +95,9 @@ public:
     void executeInEditor(const Utils::FilePath &workingDirectory,
                          const QStringList &arguments,
                          VcsBaseEditorWidget *editor) const;
+    void executeInEditor(const Utils::FilePath &workingDirectory,
+                         const Utils::CommandLine &command,
+                         VcsBaseEditorWidget *editor) const;
 
 protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);
