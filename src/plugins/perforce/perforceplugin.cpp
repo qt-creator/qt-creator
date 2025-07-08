@@ -574,7 +574,7 @@ void PerforcePluginPrivate::revertCurrentFile()
     PerforceResponse result2 = runP4Cmd(state.currentFileTopLevel(), args,
                                         CommandToWindow|StdOutToWindow|StdErrToWindow|ErrorToWindow);
     if (!result2.error)
-        emit filesChanged(QStringList(state.currentFile().toUrlishString()));
+        emit filesChanged({state.currentFile()});
 }
 
 void PerforcePluginPrivate::diffCurrentFile()

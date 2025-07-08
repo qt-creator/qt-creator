@@ -934,7 +934,7 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
         args << vcsCommandString(RevertCommand) << extraOptions;
     else
         args << "checkout" << revision << "--force" << extraOptions;
-    const QStringList files = {workingDir.path()};
+    const FilePaths files = {workingDir};
     enqueueCommand({.workingDirectory = workingDir, .arguments = args,
                     .commandHandler = [this, files](const CommandResult &result) {
                         if (result.result() == ProcessResult::FinishedWithSuccess)

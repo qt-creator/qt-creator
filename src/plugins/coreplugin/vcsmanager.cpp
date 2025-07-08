@@ -136,8 +136,8 @@ void VcsManager::extensionsInitialized()
     const QList<IVersionControl *> vcs = versionControls();
     for (IVersionControl *vc : vcs) {
         connect(vc, &IVersionControl::filesChanged, DocumentManager::instance(),
-                [](const QStringList &fileNames) {
-            DocumentManager::notifyFilesChangedInternally(FilePaths::fromStrings(fileNames));
+                [](const FilePaths &filePaths) {
+            DocumentManager::notifyFilesChangedInternally(filePaths);
         });
         connect(vc, &IVersionControl::repositoryChanged,
                 m_instance, &VcsManager::repositoryChanged);

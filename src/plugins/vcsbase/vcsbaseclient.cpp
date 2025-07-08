@@ -438,7 +438,7 @@ void VcsBaseClient::revertFile(const FilePath &workingDir,
 {
     QStringList args(vcsCommandString(RevertCommand));
     args << revisionSpec(revision) << extraOptions << file;
-    const QStringList files = QStringList(workingDir.pathAppended(file).toUrlishString());
+    const FilePaths files = {workingDir.pathAppended(file)};
     enqueueCommand({.workingDirectory = workingDir, .arguments = args,
                     .commandHandler = [this, files](const CommandResult &result) {
                         if (result.result() == ProcessResult::FinishedWithSuccess)
@@ -452,7 +452,7 @@ void VcsBaseClient::revertAll(const FilePath &workingDir,
 {
     QStringList args(vcsCommandString(RevertCommand));
     args << revisionSpec(revision) << extraOptions;
-    const QStringList files = QStringList(workingDir.toUrlishString());
+    const FilePaths files = {workingDir};
     enqueueCommand({.workingDirectory = workingDir, .arguments = args,
                     .commandHandler = [this, files](const CommandResult &result) {
                         if (result.result() == ProcessResult::FinishedWithSuccess)

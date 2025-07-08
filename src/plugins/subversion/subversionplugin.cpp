@@ -630,7 +630,7 @@ void SubversionPluginPrivate::revertCurrentFile()
 
     const auto revertResponse = runSvn(state.currentFileTopLevel(), args, RunFlags::ShowStdOut);
     if (revertResponse.result() == ProcessResult::FinishedWithSuccess)
-        emit filesChanged(QStringList(state.currentFile().toUrlishString()));
+        emit filesChanged({state.currentFile()});
 }
 
 void SubversionPluginPrivate::diffProjectDirectory()

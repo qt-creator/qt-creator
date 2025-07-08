@@ -1106,7 +1106,7 @@ bool ClearCasePluginPrivate::vcsUndoCheckOut(const FilePath &workingDir, const Q
     const FilePath absPath = workingDir.pathAppended(fileName);
     if (!m_settings.disableIndexer)
         setStatus(absPath, FileStatus::CheckedIn);
-    emit filesChanged(QStringList(absPath.path()));
+    emit filesChanged({absPath});
     return true;
 }
 
@@ -1168,7 +1168,7 @@ void ClearCasePluginPrivate::undoHijackCurrent()
 
     // revert
     if (vcsUndoHijack(state.currentFileTopLevel(), fileName, keep))
-        emit filesChanged(QStringList(state.currentFile().path()));
+        emit filesChanged({state.currentFile()});
 }
 
 QString ClearCasePluginPrivate::ccGetFileVersion(const FilePath &workingDir, const QString &file) const
@@ -1847,7 +1847,7 @@ bool ClearCasePluginPrivate::vcsCheckIn(const FilePath &messageFile, const QStri
 
         if (!m_settings.disableIndexer)
             setStatus(absPath, FileStatus::CheckedIn);
-        emit filesChanged(files);
+        emit filesChanged(FilePaths::fromStrings(files));
         anySucceeded = true;
         match = checkedIn.match(result.cleanedStdOut(), offset + 12);
         offset = match.capturedStart();

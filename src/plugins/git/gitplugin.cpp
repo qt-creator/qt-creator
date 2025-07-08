@@ -1997,9 +1997,9 @@ void GitPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 
 // "Internal API"
 
-void emitFilesChanged(const QStringList &l)
+void emitFilesChanged(const FilePaths &files)
 {
-    emit dd->filesChanged(l);
+    emit dd->filesChanged(files);
 }
 
 void emitRepositoryChanged(const FilePath &r)

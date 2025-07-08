@@ -813,7 +813,7 @@ void CvsPluginPrivate::revertCurrentFile()
     const auto revertRes = runCvs(state.currentFileTopLevel(),
                            {"update", "-C", state.relativeCurrentFile()}, RunFlags::ShowStdOut);
     if (revertRes.result() == ProcessResult::FinishedWithSuccess)
-        emit filesChanged(QStringList(state.currentFile().toUrlishString()));
+        emit filesChanged({state.currentFile()});
 }
 
 void CvsPluginPrivate::diffProjectDirectory()

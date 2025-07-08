@@ -5,8 +5,6 @@
 
 #include <coreplugin/iversioncontrol.h>
 
-#include <functional>
-
 #include <vcsbase/vcsbaseplugin.h>
 
 namespace VcsBase { class VcsBasePluginState; }
@@ -20,7 +18,7 @@ QString msgRepositoryLabel(const Utils::FilePath &repository);
 QString invalidBranchAndRemoteNamePattern();
 bool isCommitEditorOpen();
 
-void emitFilesChanged(const QStringList &);
+void emitFilesChanged(const Utils::FilePaths &);
 void emitRepositoryChanged(const Utils::FilePath &);
 void emitFileStatusChanged(const Utils::FilePath &repository, const QStringList &files);
 void emitClearFileStatus(const Utils::FilePath &repository);

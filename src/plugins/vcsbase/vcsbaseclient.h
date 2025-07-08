@@ -175,7 +175,7 @@ signals:
     void parsedStatus(const QList<VcsBase::VcsBaseClient::StatusItem> &statusList);
     // Passes on changed signals from VcsJob to Control
     void repositoryChanged(const Utils::FilePath &repository);
-    void filesChanged(const QStringList &files);
+    void filesChanged(const Utils::FilePaths &files);
 
 public:
     enum VcsCommandTag

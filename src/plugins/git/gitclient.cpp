@@ -3101,7 +3101,7 @@ void GitClient::revertFiles(const QStringList &files, bool revertStaging)
     FilePath repository;
     switch (revertI(files, &isDirectory, &errorMessage, revertStaging, &repository)) {
     case RevertOk:
-        emitFilesChanged(files);
+        emitFilesChanged(FilePaths::fromStrings(files));
         break;
     case RevertCanceled:
         break;
