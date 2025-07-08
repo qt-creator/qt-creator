@@ -589,12 +589,12 @@ void SquishTools::setupAndStartRecorder()
     args << "--port" << QString::number(m_serverProcess.port());
     args << "--debugLog" << "alpw"; // TODO make this configurable?
     args << "--record";
-    args << "--suitedir" << m_suitePath.toUserOutput();
+    args << "--suitedir" << m_suitePath.nativePath();
 
     Utils::TemporaryFile tmp("squishsnippetfile-XXXXXX"); // quick and dirty
     QTC_CHECK(tmp.open());
     m_currentRecorderSnippetFile = tmp.filePath();
-    args << "--outfile" << m_currentRecorderSnippetFile.toUserOutput();
+    args << "--outfile" << m_currentRecorderSnippetFile.nativePath();
     tmp.close();
     args << "--lang" << m_suiteConf.langParameter();
     args << "--useWaitFor" << "--recordStart";
@@ -624,7 +624,7 @@ void SquishTools::setupAndStartInspector()
     args << "--port" << QString::number(m_serverProcess.port());
     args << "--debugLog" << "alpw"; // TODO make this configurable?
     args << "--inspect";
-    args << "--suitedir" << m_suitePath.toUserOutput();
+    args << "--suitedir" << m_suitePath.nativePath();
     args << "--autid" << QString::number(m_primaryRunner->autId());
 
     m_secondaryRunner = new SquishRunnerProcess(this);
