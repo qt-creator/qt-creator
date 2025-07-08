@@ -11,7 +11,6 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/filesystemwatcher.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
@@ -421,7 +420,7 @@ QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const FileP
             return;
         }
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
-        FilePaths newDependencies = FileUtils::toFilePathList(typesResult.dependencies);
+        FilePaths newDependencies = FilePaths::fromStrings(typesResult.dependencies);
 
         newDependencies = Utils::toList(Utils::toSet(newDependencies) - *visited.data());
         if (!newDependencies.isEmpty()) {
@@ -564,7 +563,7 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
         if (!typesResult.dependencies.isEmpty())
         {
-            Utils::onFinished(loadDependencies(FileUtils::toFilePathList(typesResult.dependencies),
+            Utils::onFinished(loadDependencies(FilePaths::fromStrings(typesResult.dependencies),
                                                QSharedPointer<QSet<FilePath>>()), this,
                               [typesResult, libraryInfo, libraryPath, this] (const QFuture<PluginDumper::DependencyInfo> &loadFuture)
             {

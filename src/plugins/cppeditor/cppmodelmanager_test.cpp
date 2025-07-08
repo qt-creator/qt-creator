@@ -1300,7 +1300,7 @@ void ModelManagerTest::testSettingsChanges()
     // Set up projects.
     const MyTestDataDir p1Dir("testdata_project1");
     const FilePaths p1Files
-        = Utils::transform({"baz.h", "baz2.h", "baz3.h", "foo.cpp", "foo.h", "main.cpp"},
+        = Utils::transform(QStringList{"baz.h", "baz2.h", "baz3.h", "foo.cpp", "foo.h", "main.cpp"},
                            [&](const QString &fn) { return p1Dir.filePath(fn); });
     const ProjectFiles p1ProjectFiles = Utils::transform(p1Files, [](const FilePath &fp) {
         return ProjectFile(fp, ProjectFile::classify(fp.toUrlishString()));
@@ -1315,7 +1315,7 @@ void ModelManagerTest::testSettingsChanges()
 
     const MyTestDataDir p2Dir("testdata_project2");
     const FilePaths p2Files
-        = Utils::transform({"bar.h", "bar.cpp", "foobar2000.h", "foobar4000.h", "main.cpp"},
+        = Utils::transform(QStringList{"bar.h", "bar.cpp", "foobar2000.h", "foobar4000.h", "main.cpp"},
                            [&](const QString &fn) { return p1Dir.filePath(fn); });
     const ProjectFiles p2ProjectFiles = Utils::transform(p2Files, [](const FilePath &fp) {
         return ProjectFile(fp, ProjectFile::classify(fp.toUrlishString()));

@@ -1546,17 +1546,42 @@ FilePath FilePath::fromSettings(const QVariant &variant)
 
 FilePaths FilePath::fromSettingsList(const QVariant &variant)
 {
-    return transform(variant.toList(), &FilePath::fromSettings);
+    return FilePaths::fromSettings(variant);
 }
 
 QVariant FilePath::toSettingsList(const FilePaths &filePaths)
 {
-    return transform(filePaths, &FilePath::toSettings);
+    return filePaths.toSettings();
 }
 
 QVariant FilePath::toSettings() const
 {
     return toUrlishString();
+}
+
+FilePaths FilePaths::fromSettings(const QVariant &variant)
+{
+    return FilePaths(transform(variant.toList(), &FilePath::fromSettings));
+}
+
+QVariant FilePaths::toSettings() const
+{
+    return transform(*this, &FilePath::toSettings);
+}
+
+FilePaths FilePaths::fromStrings(const QStringList &fileNames)
+{
+    return transform(fileNames, &FilePath::fromString);
+}
+
+QStringList FilePaths::toFsPathStrings() const
+{
+    return transform(*this, &FilePath::toFSPathString);
+}
+
+QString FilePaths::toUserOutput(const QString &separator) const
+{
+    return transform(*this, &FilePath::toUserOutput).join(separator);
 }
 
 /*!

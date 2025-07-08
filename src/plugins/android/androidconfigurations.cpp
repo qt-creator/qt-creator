@@ -302,7 +302,7 @@ void AndroidConfigData::load(const QtcSettings &settings)
         emulatorArgs = ProcessArgs::joinArgs(emulatorArgs.toStringList());
     m_emulatorArgs = emulatorArgs.toString();
     m_sdkLocation = FilePath::fromSettings(settings.value(SDKLocationKey)).cleanPath();
-    m_customNdkList = FilePath::fromSettingsList(settings.value(CustomNdkLocationsKey));
+    m_customNdkList = FilePaths::fromSettings(settings.value(CustomNdkLocationsKey));
     m_defaultNdk = FilePath::fromSettings(settings.value(DefaultNdkLocationKey)).cleanPath();
     m_sdkManagerToolArgs = settings.value(SDKManagerToolArgsKey).toStringList();
     m_openJDKLocation = FilePath::fromSettings(settings.value(OpenJDKLocationKey));
@@ -317,7 +317,7 @@ void AndroidConfigData::load(const QtcSettings &settings)
         m_sdkLocation = FilePath::fromSettings(
                             reader.restoreValue(SDKLocationKey, m_sdkLocation.toSettings()))
                             .cleanPath();
-        m_customNdkList = FilePath::fromSettingsList(reader.restoreValue(CustomNdkLocationsKey));
+        m_customNdkList = FilePaths::fromSettings(reader.restoreValue(CustomNdkLocationsKey));
         m_sdkManagerToolArgs = reader.restoreValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs).toStringList();
         m_openJDKLocation = FilePath::fromSettings(
             reader.restoreValue(OpenJDKLocationKey, m_openJDKLocation.toSettings()));
@@ -345,7 +345,7 @@ void AndroidConfigData::save(QtcSettings &settings) const
 
     // user settings
     settings.setValue(SDKLocationKey, m_sdkLocation.toSettings());
-    settings.setValue(CustomNdkLocationsKey, FilePath::toSettingsList(m_customNdkList));
+    settings.setValue(CustomNdkLocationsKey, m_customNdkList.toSettings());
     settings.setValue(DefaultNdkLocationKey, m_defaultNdk.toSettings());
     settings.setValue(SDKManagerToolArgsKey, m_sdkManagerToolArgs);
     settings.setValue(OpenJDKLocationKey, m_openJDKLocation.toSettings());

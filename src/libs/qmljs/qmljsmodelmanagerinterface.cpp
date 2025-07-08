@@ -1091,7 +1091,7 @@ void ModelManagerInterface::parseLoop(QSet<Utils::FilePath> &scannedPaths,
         }
 #endif
         // get list of referenced files not yet in snapshot or in directories already scanned
-        QList<Utils::FilePath> importedFiles;
+        FilePaths importedFiles;
 
         // update snapshot. requires synchronization, but significantly reduces amount of file
         // system queries for library imports because queries are cached in libraryInfo
@@ -1335,11 +1335,11 @@ void ModelManagerInterface::updateImportPaths()
         return;
 
     PathsAndLanguages allImportPaths;
-    QList<Utils::FilePath> importedFiles;
+    FilePaths importedFiles;
 
     SynchronizedValue<SyncedData>::unique_lock lock = m_syncedData.writeLocked();
 
-    QList<Utils::FilePath> allApplicationDirectories;
+    FilePaths allApplicationDirectories;
     QmlLanguageBundles activeBundles;
     QmlLanguageBundles extendedBundles;
 

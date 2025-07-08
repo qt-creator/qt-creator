@@ -139,7 +139,7 @@ void DirectoryFilter::restoreState(const QJsonObject &object)
     m_filters = toStringList(
         object.value(kFiltersKey).toArray(QJsonArray::fromStringList(kFiltersDefault)));
     if (object.contains(kFilesKey)) {
-        m_cache.setFilePaths(FileUtils::toFilePathList(
+        m_cache.setFilePaths(FilePaths::fromStrings(
             toStringList(object.value(kFilesKey).toArray())));
     }
     m_exclusionFilters = toStringList(

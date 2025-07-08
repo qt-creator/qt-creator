@@ -1486,7 +1486,7 @@ private slots:
         QCOMPARE(project.isKnownFile(TEST_PROJECT_NONEXISTING_FILE), false);
         QCOMPARE(project.isKnownFile(TEST_PROJECT_CPP_FILE), false);
 
-        QCOMPARE(project.files(Project::AllFiles), {TEST_PROJECT_PATH});
+        QCOMPARE(project.files(Project::AllFiles), FilePaths{TEST_PROJECT_PATH});
         QCOMPARE(project.files(Project::GeneratedFiles), {});
 
         QCOMPARE(project.id(), Id(TEST_PROJECT_ID));
@@ -1605,7 +1605,7 @@ private slots:
         QVERIFY(allFiles.contains(TEST_PROJECT_CPP_FILE));
         QVERIFY(allFiles.contains(TEST_PROJECT_GENERATED_FILE));
 
-        QCOMPARE(project.files(Project::GeneratedFiles), {TEST_PROJECT_GENERATED_FILE});
+        QCOMPARE(project.files(Project::GeneratedFiles), FilePaths{TEST_PROJECT_GENERATED_FILE});
         FilePaths sourceFiles = project.files(Project::SourceFiles);
         QCOMPARE(sourceFiles.count(), 2);
         QVERIFY(sourceFiles.contains(TEST_PROJECT_PATH));

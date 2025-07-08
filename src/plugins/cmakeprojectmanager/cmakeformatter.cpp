@@ -153,13 +153,17 @@ public:
         if (dir.isEmpty())
             return FilePaths();
 
-        return filtered(transform({".cmake-format",
-                                   ".cmake-format.py",
-                                   ".cmake-format.json",
-                                   ".cmake-format.yaml",
-                                   "cmake-format.py",
-                                   "cmake-format.json",
-                                   "cmake-format.yaml"},
+        static const QStringList files = {
+            ".cmake-format",
+            ".cmake-format.py",
+            ".cmake-format.json",
+            ".cmake-format.yaml",
+            "cmake-format.py",
+            "cmake-format.json",
+            "cmake-format.yaml"
+        };
+
+        return filtered(transform(files,
                                   [dir](const QString &fileName) {
                                       return dir.pathAppended(fileName);
                                   }),

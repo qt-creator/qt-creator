@@ -9,7 +9,7 @@
 
 namespace Utils {
 class FilePath;
-using FilePaths = QList<class FilePath>;
+class FilePaths;
 } // namespace Utils
 
 namespace McuSupport::Internal {

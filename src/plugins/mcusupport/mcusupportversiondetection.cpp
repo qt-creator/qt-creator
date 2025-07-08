@@ -25,7 +25,7 @@ QString matchRegExp(const QString &text, const QString &regExp)
 }
 
 McuPackageExecutableVersionDetector::McuPackageExecutableVersionDetector(
-    const QList<FilePath> &detectionPaths,
+    const FilePaths &detectionPaths,
     const QStringList &detectionArgs,
     const QString &detectionRegExp)
     : McuPackageVersionDetector()

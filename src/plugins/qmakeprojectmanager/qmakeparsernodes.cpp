@@ -712,7 +712,7 @@ FilePaths QmakePriFile::formResources(const FilePath &formFile) const
     if (reader.hasError())
         qWarning() << "Could not read form file:" << formFile;
 
-    return FileUtils::toFilePathList(resourceFiles);
+    return FilePaths::fromStrings(resourceFiles);
 }
 
 bool QmakePriFile::ensureWriteableProFile(const FilePath &file)
@@ -850,7 +850,7 @@ void QmakePriFile::changeFiles(const QString &mimeType,
         notChanged->clear();
     } else { // RemoveFromProFile
         QDir priFileDir = QDir(m_qmakeProFile->directoryPath().toUrlishString());
-        *notChanged = FileUtils::toFilePathList(
+        *notChanged = FilePaths::fromStrings(
             ProWriter::removeFiles(includeFile,
                                    &lines,
                                    priFileDir,

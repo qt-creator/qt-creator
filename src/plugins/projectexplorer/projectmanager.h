@@ -15,7 +15,7 @@ namespace Core { class IEditor; }
 
 namespace Utils {
 class FilePath;
-using FilePaths = QList<FilePath>;
+class FilePaths;
 class MimeType;
 } // Utils
 

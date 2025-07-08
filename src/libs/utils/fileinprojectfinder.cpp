@@ -520,7 +520,7 @@ FilePaths FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
         qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &hits);
     }
     hits.removeDuplicates();
-    const FilePaths result = FileUtils::toFilePathList(hits);
+    const FilePaths result = FilePaths::fromStrings(hits);
     m_fileCache.insert(fileUrl, result);
     return result;
 }

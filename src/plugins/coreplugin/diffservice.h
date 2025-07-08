@@ -7,7 +7,11 @@
 
 #include <QObject>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class FilePaths;
+}
+
 namespace Core {
 
 class CORE_EXPORT DiffService
@@ -20,7 +24,7 @@ public:
 
     virtual void diffFiles(const Utils::FilePath &leftFilePath,
                            const Utils::FilePath &rightFilePath) = 0;
-    virtual void diffModifiedFiles(const QList<Utils::FilePath> &filePaths) = 0;
+    virtual void diffModifiedFiles(const Utils::FilePaths &filePaths) = 0;
 };
 
 } // namespace Core

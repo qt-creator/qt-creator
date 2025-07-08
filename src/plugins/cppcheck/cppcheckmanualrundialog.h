@@ -7,7 +7,7 @@
 
 namespace Utils {
 class FilePath;
-using FilePaths = QList<FilePath>;
+class FilePaths;
 } // Utils
 
 namespace ProjectExplorer {

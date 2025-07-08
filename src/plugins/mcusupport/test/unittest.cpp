@@ -1296,7 +1296,7 @@ void McuSupportTest::test_legacy_createQtMCUsPackage()
     QVERIFY(qtForMCUsSDK);
     QCOMPARE(qtForMCUsSDK->settingsKey(), Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK);
     QCOMPARE(qtForMCUsSDK->detectionPaths(),
-             {FilePath::fromUserInput(Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH)
+             FilePaths{FilePath::fromUserInput(Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH)
                   .withExecutableSuffix()});
     QCOMPARE(qtForMCUsSDK->path().toUrlishString(), qtForMcuSdkPath);
 }

@@ -959,7 +959,7 @@ void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int 
     lastFile = cnt + unique_list.count() - 1;
 
     Core::VcsManager::promptToAdd(m_resource_file.filePath().absolutePath(),
-                                  FileUtils::toFilePathList(fileNames));
+                                  FilePaths::fromStrings(fileNames));
 }
 
 

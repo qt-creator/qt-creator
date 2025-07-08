@@ -56,9 +56,33 @@ public:
 };
 
 class FilePath;
-using FilePaths = QList<FilePath>;
 using FilePair = std::pair<FilePath, FilePath>;
 using FilePairs = QList<FilePair>;
+
+class QTCREATOR_UTILS_EXPORT FilePaths final : public QList<FilePath>
+{
+public:
+    using QList<FilePath>::QList;
+    FilePaths(const QList<FilePath> &filePaths) : QList<FilePath>(filePaths) {}
+
+    [[nodiscard]] static FilePaths fromSettings(const QVariant &variant);
+    [[nodiscard]] static FilePaths fromStrings(const QStringList &fileNames);
+
+    [[nodiscard]] QVariant toSettings() const;
+    [[nodiscard]] QStringList toFsPathStrings() const;
+    [[nodiscard]] QString toUserOutput(const QString &separator) const;
+};
+
+// Needed with older gcc.
+template<template<typename...> class C = QList, // result container
+         typename F> // Arguments to C
+Q_REQUIRED_RESULT
+auto transform(const FilePaths &container, F function)
+{
+    return transform<C, const QList<FilePath> &>(static_cast<QList<FilePath>>(container), function);
+}
+
+
 QTCREATOR_UTILS_EXPORT FilePaths firstPaths(const FilePairs &pairs);
 QTCREATOR_UTILS_EXPORT FilePaths secondPaths(const FilePairs &pairs);
 
@@ -260,9 +284,6 @@ public:
                                             const FilePathPredicate &filter = {},
                                             MatchScope matchScope = WithAnySuffix) const;
 
-    [[nodiscard]] static FilePaths fromSettingsList(const QVariant &variant);
-    [[nodiscard]] static QVariant toSettingsList(const FilePaths &filePaths);
-
     std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
 
     [[nodiscard]] Result<FilePath> tmpDir() const;
@@ -327,6 +348,13 @@ public:
 
     [[deprecated("Check the documentation for toUrlishString() and choose a better replacement.")]]
     QString toString() const { return toUrlishString(); }
+
+    [[deprecated("Use FilePaths::fromSettings()")]]
+    static FilePaths fromSettingsList(const QVariant &variant);
+    [[deprecated("Use FilePaths::fromStrings()")]]
+    static FilePaths fromStrings(const QStringList &fileNames);
+    [[deprecated("Use FilePaths:toSettings")]]
+    static QVariant toSettingsList(const FilePaths &filePaths);
 
     bool equalsCaseSensitive(const FilePath &other) const;
 

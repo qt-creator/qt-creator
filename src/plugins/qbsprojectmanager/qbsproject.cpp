@@ -354,7 +354,7 @@ ProjectExplorer::DeploymentKnowledge QbsProject::deploymentKnowledge() const
 
 FilePaths QbsBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
-    return FileUtils::toFilePathList(session()->filesGeneratedFrom(sourceFile.toUrlishString()));
+    return FilePaths::fromStrings(session()->filesGeneratedFrom(sourceFile.toUrlishString()));
 }
 
 bool QbsBuildSystem::isProjectEditable() const
@@ -395,7 +395,7 @@ bool QbsBuildSystem::addFilesToProduct(
                 group.value("name").toString());
     if (result.error().hasError()) {
         MessageManager::writeDisrupting(result.error().toString());
-        *notAdded = FileUtils::toFilePathList(result.failedFiles());
+        *notAdded = FilePaths::fromStrings(result.failedFiles());
     }
     return notAdded->isEmpty();
 }

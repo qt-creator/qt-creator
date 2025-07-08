@@ -268,8 +268,7 @@ void Environment::setPathListValue(const QString &varName, const FilePaths &path
 
 QString Environment::valueFromPathList(const FilePaths &paths, OsType osType)
 {
-    return transform(paths, &FilePath::toUserOutput)
-        .join(OsSpecificAspects::pathListSeparator(osType));
+    return paths.toUserOutput(OsSpecificAspects::pathListSeparator(osType));
 }
 
 FilePaths Environment::pathListFromValue(const QString &value, OsType osType)

@@ -40,7 +40,7 @@ void Core::Internal::CorePlugin::test_basefilefilter()
     QFETCH(QList<ReferenceData>, referenceDataList);
 
     LocatorFileCache cache;
-    cache.setFilePaths(FileUtils::toFilePathList(testFiles));
+    cache.setFilePaths(FilePaths::fromStrings(testFiles));
     const LocatorMatcherTasks tasks = {cache.matcher()};
     for (const ReferenceData &reference : std::as_const(referenceDataList)) {
         const LocatorFilterEntries filterEntries = LocatorMatcher::runBlocking(

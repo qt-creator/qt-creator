@@ -696,7 +696,7 @@ void ProjectManagerPrivate::loadSession()
         modeId = Id(Core::Constants::MODE_EDIT);
 
     // find a list of projects to close later
-    const FilePaths fileList = FileUtils::toFilePathList(
+    const FilePaths fileList = FilePaths::fromStrings(
         SessionManager::sessionValue("ProjectList").toStringList());
     const QList<Project *> projectsToRemove
         = Utils::filtered(ProjectManager::projects(), [&fileList](Project *p) {

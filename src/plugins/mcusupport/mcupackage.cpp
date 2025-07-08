@@ -130,7 +130,7 @@ FilePath McuPackage::defaultPath() const
     return m_defaultPath.cleanPath();
 }
 
-QList<FilePath> McuPackage::detectionPaths() const
+FilePaths McuPackage::detectionPaths() const
 {
     return m_detectionPaths;
 }
@@ -382,7 +382,7 @@ const QMap<QString, QString> McuPackage::packageLabelTranslations {
 McuToolchainPackage::McuToolchainPackage(const SettingsHandler::Ptr &settingsHandler,
                                          const QString &label,
                                          const FilePath &defaultPath,
-                                         const QList<FilePath> &detectionPaths,
+                                         const FilePaths &detectionPaths,
                                          const Key &settingsKey,
                                          McuToolchainPackage::ToolchainType type,
                                          const QStringList &versions,

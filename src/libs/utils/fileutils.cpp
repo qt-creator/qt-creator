@@ -785,7 +785,7 @@ Result<FilePath> scratchBufferFilePath(const QString &pattern)
 
 FilePaths toFilePathList(const QStringList &paths)
 {
-    return transform(paths, &FilePath::fromString);
+    return FilePaths::fromStrings(paths);
 }
 
 qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput)

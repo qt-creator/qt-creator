@@ -64,6 +64,7 @@ QTCREATOR_UTILS_EXPORT FilePath commonPath(const FilePaths &paths);
 QTCREATOR_UTILS_EXPORT FilePath homePath();
 QTCREATOR_UTILS_EXPORT Result<FilePath> scratchBufferFilePath(const QString &pattern);
 
+[[deprecated("Use FilePaths::fromStrings")]]
 QTCREATOR_UTILS_EXPORT FilePaths toFilePathList(const QStringList &paths);
 
 QTCREATOR_UTILS_EXPORT qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput);
