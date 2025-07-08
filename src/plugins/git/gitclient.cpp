@@ -3400,23 +3400,17 @@ void GitClient::vcsExecAbortable(const FilePath &workingDirectory, const QString
                                  bool isRebase, const QString &abortCommand,
                                  const QObject *context, const CommandHandler &handler)
 {
+    Q_UNUSED(context) // TODO: Remove arg
     QTC_ASSERT(!arguments.isEmpty(), return);
     const QString abortString = abortCommand.isEmpty() ? arguments.at(0) : abortCommand;
-    VcsCommand *command = createCommand(workingDirectory);
-    command->addFlags(RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
-    // For rebase, Git might request an editor (which means the process keeps running until the
-    // user closes it), so run without timeout.
-    command->addJob({vcsBinary(workingDirectory), arguments}, isRebase ? 0 : vcsTimeoutS());
-    const QObject *actualContext = context ? context : this;
-    connect(command, &VcsCommand::done, actualContext, [=] {
-        const CommandResult result = CommandResult(*command);
-        handleConflictResponse(result, workingDirectory, abortString);
-        if (handler)
-            handler(result);
-    });
-    if (isRebase)
-        command->setProgressParser(GitProgressParser());
-    command->start();
+    const ProgressParser progressParser = isRebase ? GitProgressParser() : ProgressParser();
+    enqueueCommand({workingDirectory, arguments, RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage,
+                    progressParser, {},
+                    [workingDirectory, abortString, handler](const CommandResult &result) {
+                        handleConflictResponse(result, workingDirectory, abortString);
+                        if (handler)
+                            handler(result);
+                    }});
 }
 
 bool GitClient::synchronousRevert(const FilePath &workingDirectory, const QString &commit)
