@@ -159,11 +159,10 @@ static Abi guessAbi(const Macros &macros)
             guessFormat(arch), guessWordWidth(macros)};
 }
 
-static QString buildDisplayName(Abi::Architecture arch, Id language, const QString &version)
+static QString buildDisplayName(Abi::Architecture arch, const QString &version)
 {
     const QString archName = Abi::toString(arch);
-    const QString langName = ToolchainManager::displayNameOfLanguageId(language);
-    return Tr::tr("SDCC %1 (%2, %3)").arg(version, langName, archName);
+    return Tr::tr("SDCC %1 (%2)").arg(version, archName);
 }
 
 static FilePath compilerPathFromEnvironment(const QString &compilerName)
@@ -428,8 +427,7 @@ Toolchains SdccToolchainFactory::autoDetectToolchain(const Candidate &candidate,
         tc->setLanguage(language);
         tc->setCompilerCommand(candidate.compilerPath);
         tc->setTargetAbi(abi);
-        tc->setDisplayName(buildDisplayName(abi.architecture(), language,
-                                            candidate.compilerVersion));
+        tc->setDisplayName(buildDisplayName(abi.architecture(), candidate.compilerVersion));
 
         const auto languageVersion = Toolchain::languageVersion(language, macros);
         tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});

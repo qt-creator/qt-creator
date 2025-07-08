@@ -135,8 +135,7 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
         const FilePath scriptFile = sdk.withNewPath(script).searchInDirectories(env.path());
         toolChain->setCompilerCommand(scriptFile);
 
-        const QString displayName = Tr::tr("Emscripten Compiler %1 for %2")
-                .arg(toolChain->version(), QLatin1String(cLanguage ? "C" : "C++"));
+        const QString displayName = Tr::tr("Emscripten Compiler %1").arg(toolChain->version());
         toolChain->setDisplayName(displayName);
         result.append(toolChain);
     }

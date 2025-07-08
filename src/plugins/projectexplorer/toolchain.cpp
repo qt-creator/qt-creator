@@ -979,7 +979,7 @@ ToolchainFactory *ToolchainBundle::factory() const
 
 QString ToolchainBundle::displayName() const
 {
-    if (!isAutoDetected() || !dynamic_cast<GccToolchain *>(m_toolchains.first()))
+    if (!isSdkProvided() || !dynamic_cast<GccToolchain *>(m_toolchains.first()))
         return get(&Toolchain::displayName);
 
     // Auto-detected GCC toolchains encode language and compiler command in their display names.

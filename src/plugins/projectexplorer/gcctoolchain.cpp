@@ -469,11 +469,12 @@ QString GccToolchain::defaultDisplayName() const
     const Abi abi = targetAbi();
     if (abi.architecture() == Abi::UnknownArchitecture || abi.wordWidth() == 0)
         return type;
-    return Tr::tr("%1 (%2, %3 %4 at %5)").arg(type,
-                                          ToolchainManager::displayNameOfLanguageId(language()),
-                                          Abi::toString(abi.architecture()),
-                                          Abi::toString(abi.wordWidth()),
-                                          compilerCommand().toUserOutput());
+    return Tr::tr("%1 (%2 %3 at \"%4\")")
+        .arg(
+            type,
+            Abi::toString(abi.architecture()),
+            Abi::toString(abi.wordWidth()),
+            compilerCommand().toUserOutput());
 }
 
 LanguageExtensions GccToolchain::defaultLanguageExtensions() const

@@ -243,12 +243,10 @@ static Abi guessAbi(const Macros &macros)
             guessFormat(arch), guessWordWidth(macros)};
 }
 
-static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
-                                const QString &version)
+static QString buildDisplayName(Abi::Architecture arch, const QString &version)
 {
     const auto archName = Abi::toString(arch);
-    const auto langName = ToolchainManager::displayNameOfLanguageId(language);
-    return Tr::tr("IAREW %1 (%2, %3)").arg(version, langName, archName);
+    return Tr::tr("IAREW %1 (%2)").arg(version, archName);
 }
 
 // IarToolchainConfigWidget
@@ -550,8 +548,7 @@ Toolchains IarToolchainFactory::autoDetectToolchain(const Candidate &candidate, 
     tc->setLanguage(languageId);
     tc->setCompilerCommand(candidate.compilerPath);
     tc->setTargetAbi(abi);
-    tc->setDisplayName(buildDisplayName(abi.architecture(), languageId,
-                                        candidate.compilerVersion));
+    tc->setDisplayName(buildDisplayName(abi.architecture(), candidate.compilerVersion));
 
     const auto languageVersion = Toolchain::languageVersion(languageId, macros);
     tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});

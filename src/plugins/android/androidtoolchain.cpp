@@ -196,10 +196,12 @@ ToolchainList autodetectToolchainsFromNdks(
                 Toolchain *tc = findToolchain(compilerCommand, lang, target, alreadyKnown);
 
                 const QString customStr = isCustom ? "Custom " : QString();
-                const QString displayName(customStr + QString("Android Clang (%1, %2, NDK %3)")
-                                         .arg(ToolchainManager::displayNameOfLanguageId(lang),
-                                              AndroidConfig::displayName(abi),
-                                              AndroidConfig::ndkVersion(ndkLocation).toString()));
+                const QString displayName(
+                    customStr
+                    + QString("Android Clang (%1, NDK %2)")
+                          .arg(
+                              AndroidConfig::displayName(abi),
+                              AndroidConfig::ndkVersion(ndkLocation).toString()));
                 if (tc) {
                     // make sure to update the toolchain with current name format
                     if (tc->displayName() != displayName)
