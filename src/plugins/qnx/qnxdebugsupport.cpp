@@ -50,23 +50,17 @@ namespace Qnx::Internal {
 
 const char QNX_DEBUG_EXECUTABLE[] = "pdebug";
 
-static QStringList searchPaths(Kit *kit)
+static FilePaths searchPaths(Kit *kit)
 {
     auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit));
     if (!qtVersion)
         return {};
 
-    const QDir pluginDir(qtVersion->pluginPath().toUrlishString());
-    const QStringList pluginSubDirs = pluginDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    FilePaths searchPaths = qtVersion->pluginPath().dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
 
-    QStringList searchPaths;
-
-    for (const QString &dir : pluginSubDirs)
-        searchPaths << qtVersion->pluginPath().toUrlishString() + '/' + dir;
-
-    searchPaths << qtVersion->libraryPath().toUrlishString();
-    searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/lib").toUrlishString();
-    searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/usr/lib").toUrlishString();
+    searchPaths << qtVersion->libraryPath();
+    searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/lib");
+    searchPaths << qtVersion->qnxTarget().pathAppended(qtVersion->cpuDir() + "/usr/lib");
 
     return searchPaths;
 }
@@ -158,7 +152,7 @@ void showAttachToProcessDialog()
     rp.setSymbolFile(localExecutable);
 //    setRunControlName(Tr::tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
     rp.setDisplayName(Tr::tr("Remote QNX process %1").arg(pid));
-    rp.setSolibSearchPath(FileUtils::toFilePathList(searchPaths(kit)));
+    rp.setSolibSearchPath(searchPaths(kit));
     if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(kit)))
         rp.setSysRoot(qtVersion->qnxTarget());
     rp.setUseContinueInsteadOfRun(true);
@@ -184,7 +178,7 @@ public:
             rp.setStartMode(AttachToRemoteServer);
             rp.setCloseMode(KillAtClose);
             rp.setUseCtrlCStub(true);
-            rp.setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));
+            rp.setSolibSearchPath(searchPaths(k));
             rp.setSkipDebugServer(true);
             if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {
                 rp.setSysRoot(qtVersion->qnxTarget());
