@@ -198,8 +198,7 @@ public:
                     const int pdebugPort = runControl->debugChannel().port();
                     cmd.setExecutable(runControl->device()->filePath(QNX_DEBUG_EXECUTABLE));
                     arguments.append(QString::number(pdebugPort));
-                }
-                if (runControl->usesQmlChannel()) {
+                } else if (runControl->usesQmlChannel()) {
                     arguments.append(qmlDebugTcpArguments(QmlDebuggerServices, runControl->qmlChannel()));
                 }
                 cmd.setArguments(ProcessArgs::joinArgs(arguments));
