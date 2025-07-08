@@ -85,15 +85,6 @@ void VcsBaseClientImpl::setupCommand(Utils::Process &process,
     process.setUseCtrlCStub(true);
 }
 
-void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd,
-                                   const QStringList &args,
-                                   const Utils::FilePath &forDirectory,
-                                   const ExitCodeInterpreter &interpreter) const
-{
-    cmd->addJob({vcsBinary(forDirectory), args}, vcsTimeoutS(), {}, interpreter);
-    cmd->start();
-}
-
 Environment VcsBaseClientImpl::processEnvironment(const FilePath &appliedTo) const
 {
     return appliedTo.deviceEnvironment();
@@ -484,14 +475,12 @@ void VcsBaseClient::revertFile(const FilePath &workingDir,
 {
     QStringList args(vcsCommandString(RevertCommand));
     args << revisionSpec(revision) << extraOptions << file;
-    // Indicate repository change or file list
-    VcsCommand *cmd = createCommand(workingDir);
     const QStringList files = QStringList(workingDir.pathAppended(file).toUrlishString());
-    connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
-        if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit filesChanged(files);
-    });
-    enqueueJob(cmd, args, workingDir);
+    enqueueCommand({.workingDirectory = workingDir, .arguments = args,
+                    .commandHandler = [this, files](const CommandResult &result) {
+                        if (result.result() == ProcessResult::FinishedWithSuccess)
+                            emit filesChanged(files);
+                    }});
 }
 
 void VcsBaseClient::revertAll(const FilePath &workingDir,
@@ -500,14 +489,12 @@ void VcsBaseClient::revertAll(const FilePath &workingDir,
 {
     QStringList args(vcsCommandString(RevertCommand));
     args << revisionSpec(revision) << extraOptions;
-    // Indicate repository change or file list
-    VcsCommand *cmd = createCommand(workingDir);
     const QStringList files = QStringList(workingDir.toUrlishString());
-    connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
-        if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit filesChanged(files);
-    });
-    enqueueJob(cmd, args, workingDir);
+    enqueueCommand({.workingDirectory = workingDir, .arguments = args,
+                    .commandHandler = [this, files](const CommandResult &result) {
+                        if (result.result() == ProcessResult::FinishedWithSuccess)
+                            emit filesChanged(files);
+                    }});
 }
 
 void VcsBaseClient::status(const FilePath &workingDir,
@@ -516,18 +503,17 @@ void VcsBaseClient::status(const FilePath &workingDir,
 {
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions << file;
-    VcsCommand *cmd = createCommand(workingDir);
-    cmd->addFlags(RunFlags::ShowStdOut);
-    enqueueJob(cmd, args, workingDir);
+    enqueueCommand({workingDir, args, RunFlags::ShowStdOut});
 }
 
 void VcsBaseClient::emitParsedStatus(const FilePath &repository, const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions;
-    VcsCommand *cmd = createCommand(repository);
-    connect(cmd, &VcsCommand::done, this, [this, cmd] { statusParser(cmd->cleanedStdOut()); });
-    enqueueJob(cmd, args, repository);
+    enqueueCommand({.workingDirectory = repository, .arguments = args,
+                    .commandHandler = [this](const CommandResult &result) {
+                        statusParser(result.cleanedStdOut());
+                    }});
 }
 
 QString VcsBaseClient::vcsCommandString(VcsCommandTag cmd) const
@@ -568,7 +554,7 @@ void VcsBaseClient::import(const FilePath &repositoryRoot,
 {
     QStringList args(vcsCommandString(ImportCommand));
     args << extraOptions << files;
-    enqueueJob(createCommand(repositoryRoot), args, repositoryRoot);
+    enqueueCommand({repositoryRoot, args});
 }
 
 void VcsBaseClient::view(const FilePath &source,
@@ -592,12 +578,11 @@ void VcsBaseClient::update(const FilePath &repositoryRoot, const QString &revisi
 {
     QStringList args(vcsCommandString(UpdateCommand));
     args << revisionSpec(revision) << extraOptions;
-    VcsCommand *cmd = createCommand(repositoryRoot);
-    connect(cmd, &VcsCommand::done, this, [this, repositoryRoot, cmd] {
-        if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit repositoryChanged(repositoryRoot);
-    });
-    enqueueJob(cmd, args, repositoryRoot);
+    enqueueCommand({.workingDirectory = repositoryRoot, .arguments = args,
+                    .commandHandler = [this, repositoryRoot](const CommandResult &result) {
+                        if (result.result() == ProcessResult::FinishedWithSuccess)
+                            emit repositoryChanged(repositoryRoot);
+                    }});
 }
 
 void VcsBaseClient::commit(const FilePath &repositoryRoot,
@@ -615,11 +600,12 @@ void VcsBaseClient::commit(const FilePath &repositoryRoot,
     //   for example)
     QStringList args(vcsCommandString(CommitCommand));
     args << extraOptions << files;
-    VcsCommand *cmd = createCommand(repositoryRoot);
-    cmd->addFlags(RunFlags::ShowStdOut);
-    if (!commitMessageFile.isEmpty())
-        connect(cmd, &VcsCommand::done, [commitMessageFile] { QFile(commitMessageFile).remove(); });
-    enqueueJob(cmd, args, repositoryRoot);
+    enqueueCommand({.workingDirectory = repositoryRoot, .arguments = args,
+                    .flags = RunFlags::ShowStdOut,
+                    .commandHandler = [commitMessageFile](const CommandResult &) {
+                        if (!commitMessageFile.isEmpty())
+                            QFile(commitMessageFile).remove();
+                    }});
 }
 
 QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const

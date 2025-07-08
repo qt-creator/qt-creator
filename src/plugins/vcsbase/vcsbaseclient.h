@@ -70,11 +70,6 @@ public:
                       const Utils::FilePath &workingDirectory,
                       const QStringList &args) const;
 
-    void enqueueJob(VcsCommand *cmd,
-                    const QStringList &args,
-                    const Utils::FilePath &forDirectory,
-                    const ExitCodeInterpreter &interpreter = {}) const;
-
     virtual Utils::Environment processEnvironment(const Utils::FilePath &appliedTo) const;
 
     // VCS functionality:

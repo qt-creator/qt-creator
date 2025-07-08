@@ -969,15 +969,12 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
         args << vcsCommandString(RevertCommand) << extraOptions;
     else
         args << "checkout" << revision << "--force" << extraOptions;
-
-    // Indicate repository change
-    VcsCommand *cmd = createCommand(workingDir);
     const QStringList files = {workingDir.path()};
-    connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
-        if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit filesChanged(files);
-    });
-    enqueueJob(cmd, args, workingDir);
+    enqueueCommand({.workingDirectory = workingDir, .arguments = args,
+                    .commandHandler = [this, files](const CommandResult &result) {
+                        if (result.result() == ProcessResult::FinishedWithSuccess)
+                            emit filesChanged(files);
+                    }});
 }
 
 QString FossilClient::sanitizeFossilOutput(const QString &output) const
