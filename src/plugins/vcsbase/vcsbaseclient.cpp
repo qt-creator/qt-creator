@@ -166,16 +166,6 @@ void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
     command->start();
 }
 
-void VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
-                                const QStringList &arguments,
-                                RunFlags additionalFlags) const
-{
-    VcsCommand *command = createCommand(workingDirectory);
-    command->addFlags(additionalFlags);
-    command->addJob({vcsBinary(workingDirectory), arguments}, vcsTimeoutS());
-    command->start();
-}
-
 void VcsBaseClientImpl::executeInEditor(const FilePath &workingDirectory,
                                         const CommandLine &command,
                                         VcsBaseEditorWidget *editor) const

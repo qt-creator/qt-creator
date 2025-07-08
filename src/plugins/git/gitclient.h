@@ -150,11 +150,11 @@ public:
                    const QStringList &stagedFileNames) const;
     void diffProject(const Utils::FilePath &workingDirectory,
                      const QString &projectDirectory, DiffMode diffMode = Unstaged) const;
-    void diffUnstagedRepository(const Utils::FilePath &workingDirectory) const
+    void diffUnstagedRepository(const Utils::FilePath &workingDirectory)
     {
         return diffRepository(workingDirectory, {}, {}, Unstaged);
     }
-    void diffStagedRepository(const Utils::FilePath &workingDirectory) const
+    void diffStagedRepository(const Utils::FilePath &workingDirectory)
     {
         return diffRepository(workingDirectory, {}, {}, Staged);
     }
@@ -166,8 +166,8 @@ public:
                     const QString &branchName) const;
     void merge(const Utils::FilePath &workingDirectory, const QStringList &unmergedFileNames = {});
 
-    void status(const Utils::FilePath &workingDirectory) const;
-    void fullStatus(const Utils::FilePath &workingDirectory) const;
+    void status(const Utils::FilePath &workingDirectory);
+    void fullStatus(const Utils::FilePath &workingDirectory);
     void log(const Utils::FilePath &workingDirectory, const QString &fileName = {},
              bool enableAnnotationContextMenu = false, const QStringList &args = {});
     void reflog(const Utils::FilePath &workingDirectory, const QString &branch = {});
@@ -286,9 +286,9 @@ public:
                                       const QString &tracking);
 
     // git svn support (asynchronous).
-    void synchronousSubversionFetch(const Utils::FilePath &workingDirectory) const;
-    void subversionLog(const Utils::FilePath &workingDirectory) const;
-    void subversionDeltaCommit(const Utils::FilePath &workingDirectory) const;
+    void synchronousSubversionFetch(const Utils::FilePath &workingDirectory);
+    void subversionLog(const Utils::FilePath &workingDirectory);
+    void subversionDeltaCommit(const Utils::FilePath &workingDirectory);
 
     void stashPop(const Utils::FilePath &workingDirectory, const QString &stash = {});
     void revertFiles(const QStringList &files, bool revertStaging);
@@ -324,13 +324,13 @@ public:
 
     void continueCommandIfNeeded(const Utils::FilePath &workingDirectory, bool allowContinue = true);
 
-    void launchGitK(const Utils::FilePath &workingDirectory, const QString &fileName) const;
-    void launchGitK(const Utils::FilePath &workingDirectory) const { launchGitK(workingDirectory, QString()); }
+    void launchGitK(const Utils::FilePath &workingDirectory, const QString &fileName);
+    void launchGitK(const Utils::FilePath &workingDirectory) { launchGitK(workingDirectory, QString()); }
     bool launchGitGui(const Utils::FilePath &workingDirectory);
     Utils::FilePath gitBinDirectory() const;
     bool launchGitBash(const Utils::FilePath &workingDirectory);
 
-    void launchRepositoryBrowser(const Utils::FilePath &workingDirectory) const;
+    void launchRepositoryBrowser(const Utils::FilePath &workingDirectory);
 
     QStringList synchronousRepositoryBranches(const QString &repositoryURL,
                                               const Utils::FilePath &workingDirectory = {}) const;

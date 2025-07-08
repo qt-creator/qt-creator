@@ -93,7 +93,7 @@ namespace Git::Internal {
 
 static Q_LOGGING_CATEGORY(log, "qtc.vcs.git", QtWarningMsg);
 
-using GitClientMemberFunc = void (GitClient::*)(const FilePath &) const;
+using GitClientMemberFunc = void (GitClient::*)(const FilePath &);
 
 class GitReflogEditorWidget : public GitEditorWidget
 {

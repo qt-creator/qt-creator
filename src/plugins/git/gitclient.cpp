@@ -1113,14 +1113,14 @@ void GitClient::merge(const FilePath &workingDirectory, const QStringList &unmer
     mergeTool->start(workingDirectory, unmergedFileNames);
 }
 
-void GitClient::status(const FilePath &workingDirectory) const
+void GitClient::status(const FilePath &workingDirectory)
 {
-    vcsExec(workingDirectory, {"status"}, RunFlags::ShowStdOut);
+    enqueueCommand({workingDirectory, {"status"}, RunFlags::ShowStdOut});
 }
 
-void GitClient::fullStatus(const FilePath &workingDirectory) const
+void GitClient::fullStatus(const FilePath &workingDirectory)
 {
-    vcsExec(workingDirectory, {"status", "-u"}, RunFlags::ShowStdOut);
+    enqueueCommand({workingDirectory, {"status", "-u"}, RunFlags::ShowStdOut});
 }
 
 static QStringList normalLogArguments()
@@ -1313,8 +1313,8 @@ void GitClient::archive(const FilePath &workingDirectory, QString commit)
         }
     }
 
-    vcsExec(workingDirectory, {"archive", commit, "-o", archive.absoluteFilePath()},
-            RunFlags::ShowStdOut);
+    enqueueCommand({workingDirectory, {"archive", commit, "-o", archive.absoluteFilePath()},
+                    RunFlags::ShowStdOut});
 }
 
 void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file, int lineNumber,
@@ -1462,7 +1462,7 @@ void GitClient::reset(const FilePath &workingDirectory, const QString &argument,
         }
         flags |= RunFlags::ExpectRepoChanges;
     }
-    vcsExec(workingDirectory, arguments, flags);
+    enqueueCommand({workingDirectory, arguments, flags});
 }
 
 void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, const QString &remote)
@@ -1494,7 +1494,7 @@ void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
 
 void GitClient::addFile(const FilePath &workingDirectory, const QString &fileName)
 {
-    vcsExec(workingDirectory, {"add", fileName});
+    enqueueCommand({workingDirectory, {"add", fileName}});
 }
 
 Result<QString> GitClient::synchronousLog(const FilePath &workingDirectory,
@@ -2515,12 +2515,12 @@ QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryUR
     return branches;
 }
 
-void GitClient::launchGitK(const FilePath &workingDirectory, const QString &fileName) const
+void GitClient::launchGitK(const FilePath &workingDirectory, const QString &fileName)
 {
     tryLaunchingGitK(processEnvironment(workingDirectory), workingDirectory, fileName);
 }
 
-void GitClient::launchRepositoryBrowser(const FilePath &workingDirectory) const
+void GitClient::launchRepositoryBrowser(const FilePath &workingDirectory)
 {
     const FilePath repBrowserBinary = settings().repositoryBrowserCmd();
     if (!repBrowserBinary.isEmpty())
@@ -2997,7 +2997,7 @@ void GitClient::formatPatch(const Utils::FilePath &workingDirectory, const QStri
         return;
 
     const QStringList args = {"format-patch"};
-    vcsExec(workingDirectory, args + patchRange, RunFlags::ShowSuccessMessage);
+    enqueueCommand({workingDirectory, args + patchRange, RunFlags::ShowSuccessMessage});
 }
 
 /* Revert: This function can be called with a file list (to revert single
@@ -3243,13 +3243,13 @@ void GitClient::handleMergeConflicts(const FilePath &workingDir, const QString &
 }
 
 // Subversion: git svn
-void GitClient::synchronousSubversionFetch(const FilePath &workingDirectory) const
+void GitClient::synchronousSubversionFetch(const FilePath &workingDirectory)
 {
     vcsSynchronousExec(workingDirectory, {"svn", "fetch"},
                        RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
 }
 
-void GitClient::subversionLog(const FilePath &workingDirectory) const
+void GitClient::subversionLog(const FilePath &workingDirectory)
 {
     QStringList arguments = {"svn", "log"};
     int logCount = settings().logCount();
@@ -3266,9 +3266,10 @@ void GitClient::subversionLog(const FilePath &workingDirectory) const
     executeInEditor(workingDirectory, arguments, editor);
 }
 
-void GitClient::subversionDeltaCommit(const FilePath &workingDirectory) const
+void GitClient::subversionDeltaCommit(const FilePath &workingDirectory)
 {
-    vcsExec(workingDirectory, {"svn", "dcommit"}, RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
+    enqueueCommand({workingDirectory, {"svn", "dcommit"},
+                    RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage});
 }
 
 enum class PushFailure { Unknown, NonFastForward, NoRemoteBranch };
