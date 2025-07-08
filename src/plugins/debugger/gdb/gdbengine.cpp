@@ -2930,7 +2930,7 @@ void GdbEngine::requestModuleSymbols(const FilePath &modulePath)
     TemporaryFile tf("gdbsymbols");
     if (!tf.open())
         return;
-    QString fileName = tf.fileName();
+    QString fileName = tf.filePath().path();
     tf.close();
     DebuggerCommand cmd("maint print msymbols \"" + fileName + "\" " + modulePath.path(), NeedsTemporaryStop);
     cmd.callback = [modulePath, fileName](const DebuggerResponse &r) {
@@ -3272,7 +3272,7 @@ void GdbEngine::createSnapshot()
     QString fileName;
     Utils::TemporaryFile tf("gdbsnapshot");
     if (tf.open()) {
-        fileName = tf.fileName();
+        fileName = tf.filePath().path();
         tf.close();
         // This must not be quoted, it doesn't work otherwise.
         DebuggerCommand cmd("gcore " + fileName, NeedsTemporaryStop | ConsoleCommand);

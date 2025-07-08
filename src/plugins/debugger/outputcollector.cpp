@@ -14,6 +14,7 @@
 #include <stdlib.h>
 
 #else
+#include <utils/filepath.h>
 #include <utils/temporaryfile.h>
 
 #include <QSocketNotifier>
@@ -61,7 +62,7 @@ bool OutputCollector::listen()
                 m_serverPath.clear();
                 return false;
             }
-            m_serverPath = tf.fileName();
+            m_serverPath = tf.filePath().path();
         }
         // By now the temp file was deleted again
         codedServerPath = QFile::encodeName(m_serverPath);

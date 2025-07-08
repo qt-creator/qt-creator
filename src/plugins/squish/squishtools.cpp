@@ -593,7 +593,7 @@ void SquishTools::setupAndStartRecorder()
 
     Utils::TemporaryFile tmp("squishsnippetfile-XXXXXX"); // quick and dirty
     QTC_CHECK(tmp.open());
-    m_currentRecorderSnippetFile = Utils::FilePath::fromUserInput(tmp.fileName());
+    m_currentRecorderSnippetFile = tmp.filePath();
     args << "--outfile" << m_currentRecorderSnippetFile.toUserOutput();
     tmp.close();
     args << "--lang" << m_suiteConf.langParameter();

@@ -3,8 +3,9 @@
 
 #include "temporaryfile.h"
 
-#include "temporarydirectory.h"
+#include "filepath.h"
 #include "qtcassert.h"
+#include "temporarydirectory.h"
 
 namespace Utils {
 
@@ -15,5 +16,15 @@ TemporaryFile::TemporaryFile(const QString &pattern) :
 }
 
 TemporaryFile::~TemporaryFile() = default;
+
+FilePath TemporaryFile::filePath() const
+{
+    return FilePath::fromString(QTemporaryFile::fileName());
+}
+
+QString TemporaryFile::fileName() const
+{
+    return QTemporaryFile::fileName();
+}
 
 } // namespace Utils

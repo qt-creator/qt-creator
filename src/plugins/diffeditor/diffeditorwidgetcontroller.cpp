@@ -180,7 +180,7 @@ void DiffEditorWidgetController::patch(PatchAction patchAction, int fileIndex, i
         contentsCopy.write(textDocument->contents());
         contentsCopy.close();
 
-        const QString contentsCopyFileName = contentsCopy.fileName();
+        const QString contentsCopyFileName = contentsCopy.filePath().toFSPathString();
         const QString contentsCopyDir = QFileInfo(contentsCopyFileName).absolutePath();
 
         const QString patch = m_document->makePatch(fileIndex, chunkIndex, {}, patchAction, false,

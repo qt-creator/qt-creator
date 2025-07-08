@@ -299,7 +299,7 @@ bool IosDeployStep::checkProvisioningProfile()
 
     f.write(provisionData.mid(start, end - start));
     f.flush();
-    const QSettings provisionPlist(f.fileName(), QSettings::NativeFormat);
+    const QSettings provisionPlist(f.filePath().toFSPathString(), QSettings::NativeFormat);
     if (!provisionPlist.contains(QLatin1String("ProvisionedDevices")))
         return true;
 

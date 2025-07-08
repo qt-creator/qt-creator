@@ -374,7 +374,7 @@ private slots:
         TemporaryFile theMakeFile("Makefile.XXXXXX");
         QVERIFY2(theMakeFile.open(), qPrintable(theMakeFile.errorString()));
         QFileInfo fi(theMakeFile);
-        QVERIFY2(fi.fileName().startsWith("Makefile"), qPrintable(theMakeFile.fileName()));
+        QVERIFY2(fi.fileName().startsWith("Makefile"), qPrintable(theMakeFile.filePath().path()));
 
         OutputParserTester testbench;
         auto *childParser = new GnuMakeParser;
@@ -385,7 +385,7 @@ private slots:
             OutputParserTester::STDERR,
             {MakeTask(Task::Error,
                       "missing separator (did you mean TAB instead of 8 spaces?). Stop.",
-                      FilePath::fromString(theMakeFile.fileName()), 360)},
+                      theMakeFile.filePath(), 360)},
             {}, {});
     }
 };

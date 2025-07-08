@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <utils/filepath.h>
 #include <utils/temporaryfile.h>
 
 #include <QFile>
@@ -106,7 +107,7 @@ public:
 
     Iterator iterator() const
     {
-        Iterator i(file.fileName());
+        Iterator i(file.filePath().toFSPathString());
         i.open();
         return i;
     }
@@ -114,7 +115,7 @@ public:
     template<typename Loader>
     ReplayResult replay(const Loader &loader) const
     {
-        Iterator replayIterator(file.fileName());
+        Iterator replayIterator(file.filePath().toFSPathString());
         if (!replayIterator.open())
             return ReplayOpenFailed;
 
@@ -130,7 +131,7 @@ public:
 
     void clear()
     {
-        if (!file.fileName().isEmpty())
+        if (!file.filePath().isEmpty())
             file.remove();
         stream.setDevice(nullptr);
     }

@@ -63,7 +63,7 @@ static FilePath createOutputFilePath(const FilePath &dirPath, const FilePath &fi
     temporaryFile.setFileTemplate(fileTemplate.path());
     if (temporaryFile.open()) {
         temporaryFile.close();
-        return FilePath::fromString(temporaryFile.fileName());
+        return temporaryFile.filePath();
     }
     return {};
 }

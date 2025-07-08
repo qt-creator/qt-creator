@@ -925,7 +925,7 @@ ExecutableItem CallgrindTool::parseRecipe()
             Debugger::showPermanentStatusMessage(Tr::tr("Failed opening temp file..."));
             return;
         }
-        const FilePath hostOutputFile = FilePath::fromString(dataFile.fileName());
+        const FilePath hostOutputFile = dataFile.filePath();
         *storage = hostOutputFile;
         streamer.setSource(m_remoteOutputFile);
         streamer.setDestination(hostOutputFile);

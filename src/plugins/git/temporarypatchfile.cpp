@@ -27,7 +27,7 @@ TemporaryPatchFile::TemporaryPatchFile(const QString &patch)
 
 FilePath TemporaryPatchFile::filePath() const
 {
-    return FilePath::fromString(patchFile->fileName());
+    return patchFile->filePath();
 }
 
 } // Git::Internal

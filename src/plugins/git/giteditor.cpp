@@ -213,7 +213,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, PatchAction patchAc
     if (patchAction == PatchAction::Revert)
         args << "--reverse";
     QString errorMessage;
-    if (gitClient().synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
+    if (gitClient().synchronousApplyPatch(baseDir, patchFile.filePath().path(), &errorMessage, args)) {
         if (errorMessage.isEmpty())
             VcsOutputWindow::appendSilently(baseDir, Tr::tr("Chunk successfully staged"));
         else

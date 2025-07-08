@@ -110,7 +110,7 @@ void StdIOClientInterface::startImpl()
         if (m_process->result() != ProcessResult::FinishedWithSuccess)
             emit error(QString("%1 (see logs in \"%2\")")
                            .arg(m_process->exitMessage())
-                           .arg(m_logFile.fileName()));
+                           .arg(m_logFile.filePath().toUserOutput()));
         emit finished();
     });
     m_logFile.write(QString("Starting server: %1\nOutput:\n\n").arg(m_cmd.toUserOutput()).toUtf8());

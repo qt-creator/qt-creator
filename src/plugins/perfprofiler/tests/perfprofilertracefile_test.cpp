@@ -106,7 +106,7 @@ void PerfProfilerTraceFileTest::testSaveLoadTraceData()
     {
         PerfProfilerTraceFile traceFile;
         traceFile.setTraceManager(&traceManager);
-        QFile generatedFile(file.fileName());
+        QFile generatedFile(file.filePath().toFSPathString());
         QVERIFY(generatedFile.open(QIODevice::ReadOnly));
         traceManager.initialize();
         traceFile.load(&generatedFile);

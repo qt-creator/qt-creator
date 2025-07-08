@@ -135,7 +135,7 @@ ExecutableItem coreFileRecipe(const Storage<DebuggerData> &storage)
         {
             TemporaryFile tmp("tmpcore-XXXXXX");
             QTC_CHECK(tmp.open());
-            storage->tempCoreFile = FilePath::fromString(tmp.fileName());
+            storage->tempCoreFile = tmp.filePath();
         }
         QFile *tempCoreFile = fileStorage.activeStorage();
         process.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());

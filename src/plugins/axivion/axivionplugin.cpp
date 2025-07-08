@@ -1502,7 +1502,7 @@ void updateEnvironmentForLocalBuild(Environment *env)
         return;
     keyFile.close();
     // set environment variables
-    env->set("AXIVION_PASSFILE", keyFile.fileName());
+    env->set("AXIVION_PASSFILE", keyFile.filePath().path());
     env->set("AXIVION_PASSWORD", QString::fromUtf8(xored.toBase64()));
     env->set("AXIVION_DASHBOARD_URL", dd->m_dashboardInfo->source.toString());
     if (dd->m_dashboardInfo->userName)

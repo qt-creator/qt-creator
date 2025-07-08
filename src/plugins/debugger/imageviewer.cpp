@@ -22,7 +22,8 @@
 #include <QClipboard>
 #include <QApplication>
 #include <QPainter>
-#include <QDir>
+
+using namespace Utils;
 
 namespace Debugger::Internal {
 
@@ -114,15 +115,15 @@ void ImageViewer::clicked(const QString &message)
 // Open Qt Creator's image viewer
 static void openImageViewer(const QImage &image)
 {
-    QString fileName;
+    FilePath filePath;
     {
-        Utils::TemporaryFile temporaryFile("qtcreatorXXXXXX.png");
+        TemporaryFile temporaryFile("qtcreatorXXXXXX.png");
         temporaryFile.setAutoRemove(false);
         image.save(&temporaryFile);
-        fileName = temporaryFile.fileName();
+        filePath = temporaryFile.filePath();
         temporaryFile.close();
     }
-    if (Core::IEditor *e = Core::EditorManager::openEditor(Utils::FilePath::fromString(fileName)))
+    if (Core::IEditor *e = Core::EditorManager::openEditor(filePath))
         e->document()->setProperty(Debugger::Constants::OPENED_BY_DEBUGGER, QVariant(true));
 }
 

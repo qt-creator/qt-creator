@@ -236,7 +236,7 @@ static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runContro
                                           appInfo->device->uniqueInternalDeviceId(),
                                           "--quiet",
                                           "--json-output",
-                                          tempFileStorage->fileName()})
+                                          tempFileStorage->filePath().path()})
                                      + startStoppedArg
                                      + QStringList({"--console", appInfo->bundleIdentifier})
                                      + appInfo->arguments;
@@ -313,7 +313,7 @@ static Group deviceCtlKicker(const StoredBarrier &barrier, RunControl *runContro
                                     ErrorMessageFormat);
             return false;
         }
-        if (!tempFileStorage->open() || tempFileStorage->fileName().isEmpty()) {
+        if (!tempFileStorage->open() || tempFileStorage->filePath().isEmpty()) {
             runControl->postMessage(Tr::tr("Running failed. Failed to create the temporary output file."),
                                     ErrorMessageFormat);
             return false;

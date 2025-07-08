@@ -781,10 +781,9 @@ void QtCreatorIntegration::handleSymbolRenameStage2(
     std::unique_ptr<TemporaryFile> tempFile
             = std::make_unique<TemporaryFile>("XXXXXX" + uiHeader.fileName());
     QTC_ASSERT(tempFile->open(), return);
-    qCDebug(log) << '\t' << tempFile->fileName();
+    qCDebug(log) << '\t' << tempFile->filePath();
     const auto editor = qobject_cast<BaseTextEditor *>(
-                Core::EditorManager::openEditor(FilePath::fromString(tempFile->fileName()), {},
-                                                openFlags));
+                Core::EditorManager::openEditor(tempFile->filePath(), {}, openFlags));
     QTC_ASSERT(editor, return);
     resourceHandler->setTempFile(std::move(tempFile));
     resourceHandler->setEditor(editor);

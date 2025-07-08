@@ -178,14 +178,14 @@ QmlFormatProcess::QmlFormatProcess()
     connect(m_process, &Process::readyReadStandardOutput, [this] {
         const QString output = m_process->readAllStandardOutput();
         if (!output.isEmpty()) {
-            qCInfo(qmlformatlog) << "qmlformat stdout is written to: " << m_logFile.fileName();
+            qCInfo(qmlformatlog) << "qmlformat stdout is written to: " << m_logFile.filePath();
             QTextStream(&m_logFile) << "STDOUT: " << output << '\n';
         }
     });
     connect(m_process, &Process::readyReadStandardError, [this] {
         const QString output = m_process->readAllStandardError();
         if (!output.isEmpty()) {
-            qCInfo(qmlformatlog) << "qmlformat stderr is written to: " << m_logFile.fileName();
+            qCInfo(qmlformatlog) << "qmlformat stderr is written to: " << m_logFile.filePath();
             QTextStream(&m_logFile) << "STDERR: " << output << '\n';
         }
     });

@@ -815,7 +815,8 @@ bool CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *
 // value to a text file and returns the file name to be inserted
 // instead of the expanded field in the parsed template,
 // used for the arguments of a generator script.
-class TemporaryFileTransform {
+class TemporaryFileTransform
+{
 public:
     using TemporaryFilePtr = CustomWizardContext::TemporaryFilePtr;
     using TemporaryFilePtrList = CustomWizardContext::TemporaryFilePtrList;
@@ -830,20 +831,20 @@ private:
 };
 
 TemporaryFileTransform::TemporaryFileTransform(TemporaryFilePtrList *f) :
-    m_files(f), m_pattern(Utils::TemporaryDirectory::masterDirectoryPath() + "/qtcreatorXXXXXX.txt")
+    m_files(f), m_pattern(TemporaryDirectory::masterDirectoryPath() + "/qtcreatorXXXXXX.txt")
 { }
 
 QString TemporaryFileTransform::operator()(const QString &value) const
 {
-    TemporaryFilePtr temporaryFile(new Utils::TemporaryFile(m_pattern));
+    TemporaryFilePtr temporaryFile(new TemporaryFile(m_pattern));
     QTC_ASSERT(temporaryFile->open(), return QString());
 
     temporaryFile->write(value.toLocal8Bit());
-    const QString name = temporaryFile->fileName();
+    const FilePath filePath = temporaryFile->filePath();
     temporaryFile->flush();
     temporaryFile->close();
     m_files->push_back(temporaryFile);
-    return name;
+    return filePath.path();
 }
 
 /*!

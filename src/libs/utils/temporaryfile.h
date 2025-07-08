@@ -9,11 +9,17 @@
 
 namespace Utils {
 
+class FilePath;
+
 class QTCREATOR_UTILS_EXPORT TemporaryFile : public QTemporaryFile
 {
 public:
     explicit TemporaryFile(const QString &pattern);
     ~TemporaryFile();
+
+    FilePath filePath() const;
+
+    [[deprecated("Use filePath")]] QString fileName() const override;
 };
 
 } // namespace Utils

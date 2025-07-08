@@ -47,7 +47,7 @@ public:
         StyleHelper::setPanelWidget(this);
 
         QTC_CHECK(m_recordFile.open());
-        m_recordWidget = new RecordWidget(FilePath::fromString(m_recordFile.fileName()));
+        m_recordWidget = new RecordWidget(m_recordFile.filePath());
 
         m_cropAndTrimStatusWidget = new CropAndTrimWidget;
 
