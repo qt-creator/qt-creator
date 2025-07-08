@@ -95,7 +95,7 @@ bool QmlJSCodeStyleSettings::equals(const QmlJSCodeStyleSettings &rhs) const
 
 QmlJSCodeStyleSettings QmlJSCodeStyleSettings::currentGlobalCodeStyle()
 {
-    QmlJSCodeStylePreferences *QmlJSCodeStylePreferences = QmlJSToolsSettings::globalCodeStyle();
+    QmlJSCodeStylePreferences *QmlJSCodeStylePreferences = globalQmlJSCodeStyle();
     QTC_ASSERT(QmlJSCodeStylePreferences, return QmlJSCodeStyleSettings());
 
     return QmlJSCodeStylePreferences->currentCodeStyleSettings();
@@ -103,7 +103,7 @@ QmlJSCodeStyleSettings QmlJSCodeStyleSettings::currentGlobalCodeStyle()
 
 TextEditor::TabSettings QmlJSCodeStyleSettings::currentGlobalTabSettings()
 {
-    QmlJSCodeStylePreferences *QmlJSCodeStylePreferences = QmlJSToolsSettings::globalCodeStyle();
+    QmlJSCodeStylePreferences *QmlJSCodeStylePreferences = globalQmlJSCodeStyle();
     QTC_ASSERT(QmlJSCodeStylePreferences, return TextEditor::TabSettings());
 
     return QmlJSCodeStylePreferences->currentTabSettings();
@@ -333,9 +333,7 @@ class QmlJSCodeStyleSettingsPageWidget : public Core::IOptionsPageWidget
 public:
     QmlJSCodeStyleSettingsPageWidget()
     {
-
-        QmlJSCodeStylePreferences *originalPreferences
-                = QmlJSToolsSettings::globalCodeStyle();
+        QmlJSCodeStylePreferences *originalPreferences = globalQmlJSCodeStyle();
         m_preferences.setDelegatingPool(originalPreferences->delegatingPool());
         m_preferences.setCodeStyleSettings(originalPreferences->codeStyleSettings());
         m_preferences.setTabSettings(originalPreferences->tabSettings());
@@ -350,7 +348,7 @@ public:
 
     void apply() final
     {
-        QmlJSCodeStylePreferences *originalPreferences = QmlJSToolsSettings::globalCodeStyle();
+        QmlJSCodeStylePreferences *originalPreferences = globalQmlJSCodeStyle();
         if (originalPreferences->codeStyleSettings() != m_preferences.codeStyleSettings()) {
             originalPreferences->setCodeStyleSettings(m_preferences.codeStyleSettings());
             originalPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);

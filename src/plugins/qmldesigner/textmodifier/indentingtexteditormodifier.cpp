@@ -11,7 +11,7 @@ namespace QmlDesigner {
 IndentingTextEditModifier::IndentingTextEditModifier(QTextDocument *document)
     : NotIndentingTextEditModifier{document}
 {
-    m_tabSettings = QmlJSTools::QmlJSToolsSettings::globalCodeStyle()->tabSettings();
+    m_tabSettings = QmlJSTools::globalQmlJSCodeStyle()->tabSettings();
 }
 
 void IndentingTextEditModifier::indent(int offset, int length)

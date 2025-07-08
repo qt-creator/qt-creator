@@ -7,22 +7,10 @@
 
 #include "qmljscodestylesettings.h"
 
-#include <QObject>
-
 namespace QmlJSTools {
 
-/**
- * This class provides a central place for cpp tools settings.
- */
-class QMLJSTOOLS_EXPORT QmlJSToolsSettings : public QObject
-{
-    Q_OBJECT
+QMLJSTOOLS_EXPORT QmlJSCodeStylePreferences *globalQmlJSCodeStyle();
 
-public:
-    explicit QmlJSToolsSettings();
-    ~QmlJSToolsSettings() override;
-
-    static QmlJSCodeStylePreferences *globalCodeStyle();
-};
+namespace Internal { void setupQmlJSToolsSettings(); }
 
 } // namespace QmlJSTools

@@ -20,19 +20,19 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/id.h>
 #include <utils/filepath.h>
+#include <utils/id.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
+#include <utils/shutdownguard.h>
 
 using namespace TextEditor;
+using namespace Utils;
 
 namespace QmlJSTools {
 
 const char idKey[] = "QmlJSGlobal";
-
-static QmlJSCodeStylePreferences *m_globalCodeStyle = nullptr;
 
 class QmlJsCodeStyleEditor final : public CodeStyleEditor
 {
@@ -135,10 +135,17 @@ private:
 
 // QmlJSToolsSettings
 
+class QmlJSToolsSettings final : public QObject
+{
+public:
+    QmlJSToolsSettings();
+    ~QmlJSToolsSettings() final;
+
+    QmlJSCodeStylePreferences m_globalCodeStyle;
+};
+
 QmlJSToolsSettings::QmlJSToolsSettings()
 {
-    QTC_ASSERT(!m_globalCodeStyle, return);
-
     // code style factory
     ICodeStylePreferencesFactory *factory =  new QmlJSCodeStylePreferencesFactory;
 
@@ -149,12 +156,11 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     TextEditorSettings::registerCodeStylePool(Constants::QML_JS_SETTINGS_ID, pool);
 
     // global code style settings
-    m_globalCodeStyle = new QmlJSCodeStylePreferences(this);
-    m_globalCodeStyle->setDelegatingPool(pool);
-    m_globalCodeStyle->setDisplayName(Tr::tr("Global", "Settings"));
-    m_globalCodeStyle->setId(idKey);
-    pool->addCodeStyle(m_globalCodeStyle);
-    TextEditorSettings::registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, m_globalCodeStyle);
+    m_globalCodeStyle.setDelegatingPool(pool);
+    m_globalCodeStyle.setDisplayName(Tr::tr("Global", "Settings"));
+    m_globalCodeStyle.setId(idKey);
+    pool->addCodeStyle(&m_globalCodeStyle);
+    TextEditorSettings::registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, &m_globalCodeStyle);
 
     // built-in settings
     // Qt style
@@ -187,12 +193,12 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     pool->addCodeStyle(qtCodeStyle);
 
     // default delegate for global preferences
-    m_globalCodeStyle->setCurrentDelegate(qtCodeStyle);
+    m_globalCodeStyle.setCurrentDelegate(qtCodeStyle);
 
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    m_globalCodeStyle->fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
+    m_globalCodeStyle.fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 
     // mimetypes to be handled
     using namespace Utils::Constants;
@@ -210,14 +216,22 @@ QmlJSToolsSettings::~QmlJSToolsSettings()
     TextEditorSettings::unregisterCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
     TextEditorSettings::unregisterCodeStylePool(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
     TextEditorSettings::unregisterCodeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
-
-    delete m_globalCodeStyle;
-    m_globalCodeStyle = nullptr;
 }
 
-QmlJSCodeStylePreferences *QmlJSToolsSettings::globalCodeStyle()
+static QmlJSToolsSettings &toolsSettings()
 {
-    return m_globalCodeStyle;
+    static GuardedObject<QmlJSToolsSettings> theQmlJSToolsSettings;
+    return theQmlJSToolsSettings;
+}
+
+QmlJSCodeStylePreferences *globalQmlJSCodeStyle()
+{
+    return &toolsSettings().m_globalCodeStyle;
+}
+
+void Internal::setupQmlJSToolsSettings()
+{
+    (void) toolsSettings();
 }
 
 } // namespace QmlJSTools

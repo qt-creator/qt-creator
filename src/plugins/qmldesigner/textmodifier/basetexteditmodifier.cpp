@@ -50,7 +50,7 @@ TextEditor::TabSettings BaseTextEditModifier::tabSettings() const
 {
     if (m_textEdit)
         return m_textEdit->textDocument()->tabSettings();
-    return QmlJSTools::QmlJSToolsSettings::globalCodeStyle()->tabSettings();
+    return QmlJSTools::globalQmlJSCodeStyle()->tabSettings();
 }
 
 bool BaseTextEditModifier::renameId(const QString &oldId, const QString &newId)

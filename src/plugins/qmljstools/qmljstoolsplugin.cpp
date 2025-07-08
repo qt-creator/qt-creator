@@ -32,7 +32,6 @@ class QmlJSToolsPluginPrivate : public QObject
 public:
     QmlJSToolsPluginPrivate();
 
-    QmlJSToolsSettings settings;
     ModelManager modelManager;
 
     QAction resetCodeModelAction{Tr::tr("Reset Code Model"), nullptr};
@@ -94,6 +93,8 @@ private:
 #ifdef WITH_TESTS
         addTestCreator(createQmlJSToolsTest);
 #endif
+        setupQmlJSToolsSettings();
+
         d = new QmlJSToolsPluginPrivate;
 
         setupQmlJSFunctionsFilter();

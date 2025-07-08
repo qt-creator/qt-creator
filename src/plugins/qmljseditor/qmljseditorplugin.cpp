@@ -277,7 +277,7 @@ static FormatResult reformatByBuiltInFormatter(QPointer<QmlJSEditorDocument> doc
         return FormatResult::Failed;
 
     QmlJSTools::QmlJSCodeStylePreferences *codeStyle
-        = QmlJSTools::QmlJSToolsSettings::globalCodeStyle();
+        = QmlJSTools::globalQmlJSCodeStyle();
     TextEditor::TabSettings tabSettings = codeStyle->currentTabSettings();
     const QString newText = QmlJS::reformat(
         documentPtr,
@@ -368,8 +368,7 @@ FormatResult QmlJSEditorPluginPrivate::reformatFile()
         return FormatResult::Failed;
     }
 
-    QmlJSTools::QmlJSCodeStylePreferences *codeStyle
-        = QmlJSTools::QmlJSToolsSettings::globalCodeStyle();
+    QmlJSTools::QmlJSCodeStylePreferences *codeStyle = QmlJSTools::globalQmlJSCodeStyle();
     const QmlJSCodeStyleSettings settings = codeStyle->currentCodeStyleSettings();
 
     const auto tryReformat = [this, codeStyle](auto formatterFunction) {
