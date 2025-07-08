@@ -2320,19 +2320,24 @@ private slots:
         QTest::newRow("Mac 1")
             << QString::fromLatin1("i686-apple-darwin10")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
-            << QStringList({"x86-darwin-generic-mach_o-64bit", "x86-darwin-generic-mach_o-32bit"});
+            << QStringList({"x86-darwin-generic-mach_o-64bit", "arm-darwin-generic-mach_o-32bit",
+                            "arm-darwin-generic-mach_o-64bit", "x86-darwin-generic-mach_o-32bit"});
         QTest::newRow("Mac 2")
             << QString::fromLatin1("powerpc-apple-darwin10")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
-            << QStringList({"ppc-darwin-generic-mach_o-64bit", "ppc-darwin-generic-mach_o-32bit"});
+            << QStringList({"ppc-darwin-generic-mach_o-64bit", "arm-darwin-generic-mach_o-32bit",
+                            "arm-darwin-generic-mach_o-64bit", "x86-darwin-generic-mach_o-32bit",
+                            "x86-darwin-generic-mach_o-64bit"});
         QTest::newRow("Mac 3")
             << QString::fromLatin1("i686-apple-darwin9")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
-            << QStringList({"x86-darwin-generic-mach_o-32bit", "x86-darwin-generic-mach_o-64bit"});
+            << QStringList({"x86-darwin-generic-mach_o-32bit", "arm-darwin-generic-mach_o-32bit",
+                            "arm-darwin-generic-mach_o-64bit", "x86-darwin-generic-mach_o-64bit"});
         QTest::newRow("Mac IOS")
             << QString::fromLatin1("arm-apple-darwin9")
             << QByteArray("#define __SIZEOF_SIZE_T__ 4\n")
-            << QStringList({"arm-darwin-generic-mach_o-32bit", "arm-darwin-generic-mach_o-64bit"});
+            << QStringList({"arm-darwin-generic-mach_o-32bit", "arm-darwin-generic-mach_o-64bit",
+                            "x86-darwin-generic-mach_o-32bit", "x86-darwin-generic-mach_o-64bit"});
         QTest::newRow("Intel 1")
             << QString::fromLatin1("86_64 x86_64 GNU/Linux")
             << QByteArray("#define __SIZEOF_SIZE_T__ 8\n")
