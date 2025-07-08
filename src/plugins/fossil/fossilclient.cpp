@@ -795,6 +795,12 @@ void FossilClient::view(const FilePath &source, const QString &id, const QString
     executeInEditor(workingDirectory, args + extraOptions, editor);
 }
 
+void FossilClient::update(const Utils::FilePath &repositoryRoot, const QString &revision,
+                          const QStringList &extraOptions)
+{
+    VcsBaseClient::update(repositoryRoot, {}, QStringList{revision} + extraOptions);
+}
+
 class FossilLogHighlighter : QSyntaxHighlighter
 {
 public:
@@ -950,26 +956,6 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
     executeInEditor(workingDir, args, fossilEditor);
 }
 
-void FossilClient::revertFile(const FilePath &workingDir,
-                              const QString &file,
-                              const QString &revision,
-                              const QStringList &extraOptions)
-{
-    QStringList args(vcsCommandString(RevertCommand));
-    if (!revision.isEmpty())
-        args << "-r" << revision;
-    args << extraOptions << file;
-
-    // Indicate file list
-    VcsCommand *cmd = createCommand(workingDir);
-    const QStringList files = {workingDir.pathAppended(file).path()};
-    connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
-        if (cmd->result() == ProcessResult::FinishedWithSuccess)
-            emit filesChanged(files);
-    });
-    enqueueJob(cmd, args, workingDir);
-}
-
 void FossilClient::revertAll(const FilePath &workingDir, const QString &revision, const QStringList &extraOptions)
 {
     // Fossil allows whole tree revert to latest revision (effectively undoing uncommitted changes).
@@ -1040,16 +1026,7 @@ Id FossilClient::vcsEditorKind(VcsCommandTag cmd) const
 
 QStringList FossilClient::revisionSpec(const QString &revision) const
 {
-    // Pass the revision verbatim.
-    // Fossil uses a variety of ways to spec the revisions.
-    // In most cases revision is passed directly (hash) or via tag.
-    // Tag name may need to be prefixed with tag: to disambiguate it from hex (beef).
-    // Handle the revision option per specific command (e.g. diff, revert ).
-
-    QStringList args;
-    if (!revision.isEmpty())
-        args << revision;
-    return args;
+    return revision.isEmpty() ? QStringList{} : QStringList{"-r", revision};
 }
 
 FossilClient::StatusItem FossilClient::parseStatusLine(const QString &line) const

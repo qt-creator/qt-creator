@@ -314,10 +314,7 @@ Utils::Id MercurialClient::vcsEditorKind(VcsCommandTag cmd) const
 
 QStringList MercurialClient::revisionSpec(const QString &revision) const
 {
-    QStringList args;
-    if (!revision.isEmpty())
-        args << QLatin1String("-r") << revision;
-    return args;
+    return revision.isEmpty() ? QStringList{} : QStringList{"-r", revision};
 }
 
 MercurialClient::StatusItem MercurialClient::parseStatusLine(const QString &line) const

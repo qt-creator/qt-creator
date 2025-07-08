@@ -77,8 +77,6 @@ public:
     void logCurrentFile(const Utils::FilePath &workingDir, const QStringList &files = {},
                         const QStringList &extraOptions = {},
                         bool enableAnnotationContextMenu = false);
-    void revertFile(const Utils::FilePath &workingDir, const QString &file,
-                    const QString &revision = {}, const QStringList &extraOptions = {}) final;
     void revertAll(const Utils::FilePath &workingDir, const QString &revision = {},
                    const QStringList &extraOptions = {}) final;
     bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const;
@@ -86,6 +84,8 @@ public:
     unsigned int binaryVersion() const;
     SupportedFeatures supportedFeatures() const;
     void view(const Utils::FilePath &source, const QString &id, const QStringList &extraOptions = {}) final;
+    void update(const Utils::FilePath &repositoryRoot, const QString &revision = {},
+                const QStringList &extraOptions = {});
 
 private:
     static QList<BranchInfo> branchListFromOutput(const QString &output,

@@ -203,10 +203,7 @@ ExitCodeInterpreter BazaarClient::exitCodeInterpreter(VcsCommandTag cmd) const
 
 QStringList BazaarClient::revisionSpec(const QString &revision) const
 {
-    QStringList args;
-    if (!revision.isEmpty())
-        args << QLatin1String("-r") << revision;
-    return args;
+    return revision.isEmpty() ? QStringList{} : QStringList{"-r", revision};
 }
 
 BazaarClient::StatusItem BazaarClient::parseStatusLine(const QString &line) const
