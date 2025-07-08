@@ -14,7 +14,7 @@ Project {
     qdsVersion: "4.0"
     quickVersion: "6.2"
     qt6Project: true
-    qtForMCUs: true
+    qtForMCUs: false
 
     multilanguageSupport: true
     primaryLanguage: "en"

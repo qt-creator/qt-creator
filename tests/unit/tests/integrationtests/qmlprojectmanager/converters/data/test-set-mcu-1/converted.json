@@ -1,6 +1,5 @@
 {
     "deployment": {
-        "enableCMakeGeneration": false,
         "targetDirectory": "/opt/UntitledProject13"
     },
     "environment": {
@@ -19,17 +18,19 @@
                 "*.qml"
             ],
             "mcuProperties": {
+                "copyQmlFiles": true
             },
             "otherProperties": {
             },
             "type": "Qml"
         },
         {
-            "directory": "imports",
+            "directory": "",
             "files": [
+                "qml/Header.qml",
+                "qml/Footer.qml"
             ],
             "filters": [
-                "*.qml"
             ],
             "mcuProperties": {
             },
@@ -38,67 +39,7 @@
             "type": "Qml"
         },
         {
-            "directory": "content",
-            "files": [
-            ],
-            "filters": [
-                "*.js",
-                "*.ts"
-            ],
-            "mcuProperties": {
-            },
-            "otherProperties": {
-            },
-            "type": "JavaScript"
-        },
-        {
-            "directory": "imports",
-            "files": [
-            ],
-            "filters": [
-                "*.js",
-                "*.ts"
-            ],
-            "mcuProperties": {
-            },
-            "otherProperties": {
-            },
-            "type": "JavaScript"
-        },
-        {
-            "directory": "content",
-            "files": [
-            ],
-            "filters": [
-                "*.bmp",
-                "*.dae",
-                "*.gif",
-                "*.hdr",
-                "*.ico",
-                "*.jpeg",
-                "*.jpg",
-                "*.ktx",
-                "*.pbm",
-                "*.pgm",
-                "*.png",
-                "*.ppm",
-                "*.svg",
-                "*.svgz",
-                "*.tif",
-                "*.tiff",
-                "*.webp",
-                "*.xbm",
-                "*.xpm",
-                "*.tga"
-            ],
-            "mcuProperties": {
-            },
-            "otherProperties": {
-            },
-            "type": "Image"
-        },
-        {
-            "directory": "asset_imports",
+            "directory": "assets",
             "files": [
             ],
             "filters": [
@@ -132,123 +73,123 @@
         {
             "directory": "",
             "files": [
-                "qtquickcontrols2.conf"
+                "images/clock.png"
             ],
             "filters": [
             ],
             "mcuProperties": {
+                "resourceCompression": false
             },
             "otherProperties": {
             },
-            "type": ""
+            "type": "Image"
         },
         {
             "directory": "",
             "files": [
+                "images/weather.png",
+                "images/navigation.png"
             ],
             "filters": [
-                "*.conf"
             ],
             "mcuProperties": {
+                "base": "images",
+                "prefix": "assets"
             },
             "otherProperties": {
             },
-            "type": ""
-        },
-        {
-            "directory": ".",
-            "files": [
-            ],
-            "filters": [
-                "qmldir"
-            ],
-            "mcuProperties": {
-            },
-            "otherProperties": {
-            },
-            "type": ""
+            "type": "Image"
         },
         {
             "directory": "",
             "files": [
+                "qmlproject/module/module.qmlproject"
             ],
             "filters": [
-                "*.ttf",
-                "*.otf",
-                "*.ctf"
+            ],
+            "mcuProperties": {
+                "qulModules": [
+                    "Controls",
+                    "Timeline"
+                ]
+            },
+            "otherProperties": {
+            },
+            "type": "Module"
+        },
+        {
+            "directory": "../test-set-mcu-2",
+            "files": [
+            ],
+            "filters": [
             ],
             "mcuProperties": {
             },
             "otherProperties": {
             },
-            "type": ""
+            "type": "Module"
         },
         {
             "directory": "",
             "files": [
+                "fonts/RobotoFonts.fmp"
             ],
             "filters": [
-                "*.wav",
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Font"
+        },
+        {
+            "directory": "",
+            "files": [
+                "src/BoardInterface.h"
+            ],
+            "filters": [
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Interface"
+        },
+        {
+            "directory": "",
+            "files": [
+                "additional_translations/qml_en.ts",
+                "i18n/qml_no.ts"
+            ],
+            "filters": [
+            ],
+            "mcuProperties": {
+                "omitSourceLanguage": true
+            },
+            "otherProperties": {
+            },
+            "type": "Translation"
+        },
+        {
+            "directory": "scripts",
+            "files": [
+            ],
+            "filters": [
+                "*.js",
+                "*.ts"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "JavaScript"
+        },
+        {
+            "directory": "more_files",
+            "files": [
+            ],
+            "filters": [
                 "*.mp3"
-            ],
-            "mcuProperties": {
-            },
-            "otherProperties": {
-            },
-            "type": ""
-        },
-        {
-            "directory": "",
-            "files": [
-            ],
-            "filters": [
-                "*.mp4"
-            ],
-            "mcuProperties": {
-            },
-            "otherProperties": {
-            },
-            "type": ""
-        },
-        {
-            "directory": "",
-            "files": [
-            ],
-            "filters": [
-                "*.glsl",
-                "*.glslv",
-                "*.glslf",
-                "*.vsh",
-                "*.fsh",
-                "*.vert",
-                "*.frag",
-                "*.trag"
-            ],
-            "mcuProperties": {
-            },
-            "otherProperties": {
-            },
-            "type": ""
-        },
-        {
-            "directory": "asset_imports",
-            "files": [
-            ],
-            "filters": [
-                "*.mesh"
-            ],
-            "mcuProperties": {
-            },
-            "otherProperties": {
-            },
-            "type": ""
-        },
-        {
-            "directory": "asset_imports",
-            "files": [
-            ],
-            "filters": [
-                "*.qml"
             ],
             "mcuProperties": {
             },
@@ -260,31 +201,56 @@
     "fileVersion": 1,
     "importPaths": [
         "imports",
-        "asset_imports"
+        "asset_imports",
+        "mcu-modules"
     ],
     "language": {
         "multiLanguageSupport": true,
         "primaryLanguage": "en",
         "supportedLanguages": [
-            "en"
+            "no"
         ]
     },
     "mcu": {
         "config": {
+            "ResourceStorageSections": {
+                "majorVersion": 1,
+                "minorVersion": 1,
+                "name": "QulResources"
+            },
+            "defaultFontFamily": "Roboto",
+            "fontEngine": "Spark",
+            "maxResourceCacheSize": [
+                [
+                    128,
+                    128
+                ],
+                [
+                    16384,
+                    1
+                ]
+            ],
+            "resourceCompression": true
         },
         "enabled": true,
         "module": {
         }
     },
     "otherProperties": {
+        "idBasedTranslations": true,
+        "projectRootPath": ".."
     },
     "qmlprojectDependencies": [
+        "../test-set-mcu-2/converted.qmlproject",
+        "../test-set-mcu-2/source.qmlproject",
+        "mcu-modules/from_importpath/imported_module.qmlproject",
+        "mcu-modules/module.qmlproject",
+        "qmlproject/module/module.qmlproject"
     ],
     "runConfig": {
         "fileSelectors": [
         ],
-        "mainFile": "content/App.qml",
-        "mainUiFile": "content/Screen01.ui.qml",
+        "mainFile": "Main.qml",
         "widgetApp": true
     },
     "shaderTool": {
@@ -303,7 +269,7 @@
     },
     "versions": {
         "designStudio": "4.0",
-        "qt": "6",
+        "qt": "5",
         "qtQuick": "6.2"
     }
 }

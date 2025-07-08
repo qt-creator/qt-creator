@@ -1,74 +1,74 @@
 import QmlProject
 
 Project {
-    mainFile: "content/App.qml"
-    mainUiFile: "content/Screen01.ui.qml"
+    QDS.mainFile: "content/App.qml"
+    QDS.mainUiFile: "content/Screen01.ui.qml"
 
     /* Include .qml, .js, and image files from current directory and subdirectories */
-    QmlFiles {
+    QDS.QmlFiles {
         directory: "content"
     }
 
-    QmlFiles {
+    QDS.QmlFiles {
         directory: "imports"
     }
 
-    JavaScriptFiles {
+    QDS.JavaScriptFiles {
         directory: "content"
     }
 
-    JavaScriptFiles {
+    QDS.JavaScriptFiles {
         directory: "imports"
     }
 
-    ImageFiles {
+    QDS.ImageFiles {
         directory: "content"
     }
 
-    ImageFiles {
+    QDS.ImageFiles {
         directory: "asset_imports"
     }
 
-    Files {
+    QDS.Files {
         files: ["qtquickcontrols2.conf"]
     }
 
-    Files {
+    QDS.Files {
         filter: "*.conf"
     }
 
-    Files {
+    QDS.Files {
         filter: "qmldir"
         directory: "."
     }
 
-    Files {
+    QDS.Files {
         filter: "*.ttf;*.otf;*.ctf"
     }
 
-    Files {
+    QDS.Files {
         filter: "*.wav;*.mp3"
     }
 
-    Files {
+    QDS.Files {
         filter: "*.mp4"
     }
 
-    Files {
+    QDS.Files {
         filter: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag;*.trag"
     }
 
-    Files {
+    QDS.Files {
         filter: "*.mesh"
         directory: "asset_imports"
     }
 
-    Files {
+    QDS.Files {
         filter: "*.qml"
         directory: "asset_imports"
     }
 
-    Environment {
+    QDS.Environment {
         QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
         QT_AUTO_SCREEN_SCALE_FACTOR: "1"
         QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT: "1"
@@ -82,36 +82,35 @@ Project {
        */
     }
 
-    qt6Project: true
+    QDS.qt6Project: true
 
     /* List of plugin directories passed to QML runtime */
-    importPaths: [ "imports", "asset_imports" ]
+    QDS.importPaths: [ "imports", "asset_imports" ]
 
     /* Required for deployment */
-    targetDirectory: "/opt/UntitledProject13"
+    QDS.targetDirectory: "/opt/UntitledProject13"
 
-    enableCMakeGeneration: false
+    QDS.enableCMakeGeneration: false
+    QDS.enablePythonGeneration: false
 
-    qdsVersion: "4.0"
+    QDS.qdsVersion: "4.0"
 
-    quickVersion: "6.2"
-
-    qtForMCUs: true
+    QDS.quickVersion: "6.2"
 
     /* If any modules the project imports require widgets (e.g. QtCharts), widgetApp must be true */
-    widgetApp: true
+    QDS.widgetApp: true
 
     /* args: Specifies command line arguments for qsb tool to generate shaders.
        files: Specifies target files for qsb tool. If path is included, it must be relative to this file.
               Wildcard '*' can be used in the file name part of the path.
               e.g. files: [ "content/shaders/*.vert", "*.frag" ]  */
-    ShaderTool {
+    QDS.ShaderTool {
         args: "-s --glsl \"100 es,120,150\" --hlsl 50 --msl 12"
         files: [ "content/shaders/*" ]
     }
 
-    multilanguageSupport: true
-    supportedLanguages: ["en"]
-    primaryLanguage: "en"
+    QDS.multilanguageSupport: true
+    QDS.supportedLanguages: ["en"]
+    QDS.primaryLanguage: "en"
 
 }

@@ -21,6 +21,10 @@ This pattern structures your tests into three distinct sections:
     Act (When): Execute the code being tested.
     Assert (Then): Verify the result.
 
+> **Note**: integration tests usually feature more complexity compared to unit tests, which makes
+> adhering to the AAA/GWT principle difficult and/or impractical. Thus it is acceptable for
+> integration tests to ignore it.
+
 The test name is descriptive and uses underlines for readability.
 In the Act block, only the code you want to test should exist. Don't
 add the setup code there. It makes the debugging harder because you have
