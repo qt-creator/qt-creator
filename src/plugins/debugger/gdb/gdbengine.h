@@ -229,7 +229,7 @@ private: ////////// General Interface //////////
     // Snapshot specific stuff
     //
     void createSnapshot() final;
-    void handleMakeSnapshot(const DebuggerResponse &response, const QString &coreFile);
+    void handleMakeSnapshot(const DebuggerResponse &response, const Utils::FilePath &coreFile);
 
     //
     // Register specific stuff

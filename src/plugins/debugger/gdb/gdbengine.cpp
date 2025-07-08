@@ -2866,11 +2866,12 @@ void GdbEngine::loadSymbolsForStack()
 }
 
 static void handleShowModuleSymbols(const DebuggerResponse &response,
-                                    const FilePath &modulePath, const QString &fileName)
+                                    const FilePath &modulePath,
+                                    const FilePath &tempFile)
 {
     if (response.resultClass == ResultDone) {
         Symbols symbols;
-        QFile file(fileName);
+        QFile file(tempFile.toFSPathString());
         QTC_CHECK(file.open(QIODevice::ReadOnly));
         // Object file /opt/dev/qt/lib/libQtNetworkMyns.so.4:
         // [ 0] A 0x16bd64 _DYNAMIC  moc_qudpsocket.cpp
@@ -2921,7 +2922,7 @@ static void handleShowModuleSymbols(const DebuggerResponse &response,
         DebuggerEngine::showModuleSymbols(modulePath, symbols);
     } else {
         AsynchronousMessageBox::critical(Tr::tr("Cannot Read Symbols"),
-            Tr::tr("Cannot read symbols for module \"%1\".").arg(fileName));
+            Tr::tr("Cannot read symbols for module \"%1\".").arg(tempFile.toUserOutput()));
     }
 }
 
@@ -2930,11 +2931,12 @@ void GdbEngine::requestModuleSymbols(const FilePath &modulePath)
     TemporaryFile tf("gdbsymbols");
     if (!tf.open())
         return;
-    QString fileName = tf.filePath().path();
+    FilePath filePath = tf.filePath();
     tf.close();
-    DebuggerCommand cmd("maint print msymbols \"" + fileName + "\" " + modulePath.path(), NeedsTemporaryStop);
-    cmd.callback = [modulePath, fileName](const DebuggerResponse &r) {
-        handleShowModuleSymbols(r, modulePath, fileName);
+    DebuggerCommand cmd("maint print msymbols \"" + filePath.path() + "\" "
+                         + modulePath.path(), NeedsTemporaryStop);
+    cmd.callback = [modulePath, filePath](const DebuggerResponse &r) {
+        handleShowModuleSymbols(r, modulePath, filePath);
     };
     runCommand(cmd);
 }
@@ -3269,14 +3271,14 @@ void GdbEngine::handleThreadNames(const DebuggerResponse &response)
 
 void GdbEngine::createSnapshot()
 {
-    QString fileName;
-    Utils::TemporaryFile tf("gdbsnapshot");
+    FilePath filePath;
+    TemporaryFile tf("gdbsnapshot");
     if (tf.open()) {
-        fileName = tf.filePath().path();
+        filePath = tf.filePath();
         tf.close();
         // This must not be quoted, it doesn't work otherwise.
-        DebuggerCommand cmd("gcore " + fileName, NeedsTemporaryStop | ConsoleCommand);
-        cmd.callback = [this, fileName](const DebuggerResponse &r) { handleMakeSnapshot(r, fileName); };
+        DebuggerCommand cmd("gcore " + filePath.path(), NeedsTemporaryStop | ConsoleCommand);
+        cmd.callback = [this, filePath](const DebuggerResponse &r) { handleMakeSnapshot(r, filePath); };
         runCommand(cmd);
     } else {
         AsynchronousMessageBox::critical(Tr::tr("Snapshot Creation Error"),
@@ -3284,7 +3286,7 @@ void GdbEngine::createSnapshot()
     }
 }
 
-void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const QString &coreFile)
+void GdbEngine::handleMakeSnapshot(const DebuggerResponse &response, const FilePath &coreFile)
 {
     if (response.resultClass == ResultDone) {
         emit attachToCoreRequested(coreFile);

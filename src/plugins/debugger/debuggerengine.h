@@ -622,7 +622,7 @@ signals:
     void engineStarted();
     void engineFinished();
     void requestRunControlStop();
-    void attachToCoreRequested(const QString &coreFile);
+    void attachToCoreRequested(const Utils::FilePath &coreFile);
     void postMessageRequested(const QString &msg, Utils::OutputFormat format, bool appendNewLine) const;
     void interruptTerminalRequested();
     void kickoffTerminalProcessRequested();

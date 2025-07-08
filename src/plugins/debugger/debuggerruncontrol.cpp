@@ -653,7 +653,7 @@ void EnginesDriver::start()
         connect(engine, &DebuggerEngine::postMessageRequested, m_runControl, &RunControl::postMessage);
 
         if (engine->isPrimaryEngine()) {
-            connect(engine, &DebuggerEngine::attachToCoreRequested, this, [this](const QString &coreFile) {
+            connect(engine, &DebuggerEngine::attachToCoreRequested, this, [this](const FilePath &coreFile) {
                 auto rc = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
                 rc->copyDataFromRunControl(m_runControl);
                 auto name = QString(
@@ -664,7 +664,7 @@ void EnginesDriver::start()
                 rp.setStartMode(AttachToCore);
                 rp.setCloseMode(DetachAtClose);
                 rp.setDisplayName(name);
-                rp.setCoreFilePath(FilePath::fromString(coreFile));
+                rp.setCoreFilePath(coreFile);
                 rp.setSnapshot(true);
                 rc->setRunRecipe(debuggerRecipe(rc, rp));
                 rc->start();
