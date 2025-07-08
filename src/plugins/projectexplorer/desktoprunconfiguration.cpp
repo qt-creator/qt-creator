@@ -47,6 +47,7 @@ public:
         }
 
         runAsRoot.setVisible(HostOsInfo::isAnyUnixHost());
+        enableCategoriesFilterAspect.setEnabled(kit()->supportsQtCategoryFilter());
 
         environment.addModifier([this](Environment &env) {
             BuildTargetInfo bti = buildTargetInfo();
@@ -85,6 +86,7 @@ private:
     UseDyldSuffixAspect useDyldSuffix{this};
     UseLibraryPathsAspect useLibraryPaths{this};
     RunAsRootAspect runAsRoot{this};
+    EnableCategoriesFilterAspect enableCategoriesFilterAspect{this};
 };
 
 void DesktopRunConfiguration::updateTargetInformation()

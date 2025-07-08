@@ -564,14 +564,24 @@ void Kit::addToRunEnvironment(Environment &env) const
         factory->addToRunEnvironment(this, env);
 }
 
-QString Kit::moduleForHeader(const QString &headerFileName) const
+template<typename T> static T getInfo(const Kit *k, const Id request, const QVariant &input)
 {
     for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
-        const QVariant module = factory->getInfo(this, "moduleForHeader", headerFileName);
-        if (module.canConvert<QString>())
-            return module.toString();
+        const QVariant module = factory->getInfo(k, request, input);
+        if (module.isValid())
+            return module.value<T>();
     }
     return {};
+}
+
+QString Kit::moduleForHeader(const QString &headerFileName) const
+{
+    return getInfo<QString>(this, "moduleForHeader", headerFileName);
+}
+
+bool Kit::supportsQtCategoryFilter() const
+{
+    return getInfo<bool>(this, "supportsQtCategoryFilter", {});
 }
 
 Environment Kit::buildEnvironment() const

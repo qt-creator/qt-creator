@@ -11,12 +11,14 @@
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "runcontrol.h"
+#include "runconfigurationaspects.h"
 #include "showoutputtaskhandler.h"
 #include "windebuginterface.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/session.h>
@@ -28,24 +30,33 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
+#include <utils/basetreeview.h>
+#include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcolorbutton.h>
+#include <utils/storekey.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
+#include <QAbstractListModel>
 #include <QAction>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QColorDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLoggingCategory>
 #include <QMenu>
 #include <QPushButton>
+#include <QSortFilterProxyModel>
 #include <QSpinBox>
+#include <QSplitter>
 #include <QTabBar>
 #include <QTabWidget>
+#include <QTextBlock>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -83,13 +94,144 @@ static QString msgAttachDebuggerTooltip(const QString &handleDescription = QStri
            Tr::tr("Attach debugger to %1").arg(handleDescription);
 }
 
+static inline QString messageTypeToString(QtMsgType type)
+{
+    switch (type) {
+    case QtDebugMsg:
+        return {"Debug"};
+    case QtInfoMsg:
+        return {"Info"};
+    case QtCriticalMsg:
+        return {"Critical"};
+    case QtWarningMsg:
+        return {"Warning"};
+    case QtFatalMsg:
+        return {"Fatal"};
+    default:
+        return {"Unknown"};
+    }
+}
+
+class LoggingCategoryRegistry : public QObject
+{
+    Q_OBJECT
+public:
+    using QObject::QObject;
+
+    ~LoggingCategoryRegistry() { reset(); }
+
+    QMap<QString, QLoggingCategory *> categories() { return m_categories; }
+
+    void onNewCategory(const QString &data)
+    {
+        const QStringList catList = data.split(' ');
+        QTC_ASSERT(catList.size() == 5, return);
+
+        const QString catName = catList.first();
+        if (m_categories.contains(catName))
+            return;
+
+        const auto category = new QLoggingCategory(catName.toUtf8());
+        category->setEnabled(QtDebugMsg, catList.at(1).toInt());
+        category->setEnabled(QtWarningMsg, catList.at(2).toInt());
+        category->setEnabled(QtCriticalMsg, catList.at(3).toInt());
+        category->setEnabled(QtInfoMsg, catList.at(4).toInt());
+
+        m_categories[catName] = category;
+        emit newLogCategory(catName, category);
+    }
+
+    void reset()
+    {
+        qDeleteAll(m_categories);
+        m_categories.clear();
+    }
+
+signals:
+    void newLogCategory(QString name, QLoggingCategory *category);
+
+private:
+    QMap<QString, QLoggingCategory *> m_categories;
+};
+
+class AppOutputWindow : public Core::OutputWindow
+{
+    Q_OBJECT
+
+public:
+    using OutputWindow::OutputWindow;
+
+    void updateCategoriesProperties(const QMap<QString, QLoggingCategory *> &categories)
+    {
+        resetLastFilteredBlockNumber();
+        m_categories = categories;
+    }
+
+    void setFilterEnabled(bool enabled) { m_filterEnabled = enabled; }
+    bool filterEnabled() const { return m_filterEnabled; }
+
+    LoggingCategoryRegistry *registry() { return &m_registry; }
+
+private:
+    TextMatchingFunction makeMatchingFilterFunction() const override
+    {
+        auto parentFilter = OutputWindow::makeMatchingFilterFunction();
+
+        auto filter = [categories = m_categories](const QString &text) {
+            if (categories.isEmpty())
+                return true;
+
+            for (auto i = categories.cbegin(), end = categories.cend(); i != end; ++i) {
+                if (!text.contains(i.key()))
+                    continue;
+                QLoggingCategory * const cat = i.value();
+                if (text.contains("[F]"))
+                    return true;
+                if (text.contains("[D]") && !cat->isDebugEnabled())
+                    return false;
+                if (text.contains("[W]") && !cat->isWarningEnabled())
+                    return false;
+                if (text.contains("[C]") && !cat->isCriticalEnabled())
+                    return false;
+                if (text.contains("[I]") && !cat->isInfoEnabled())
+                    return false;
+                return true;
+            }
+            return true;
+        };
+
+        return [filter, parentFilter](const QString &text) {
+            return filter(text) && parentFilter(text);
+        };
+    }
+
+    bool shouldFilterNewContentOnBlockCountChanged() const override
+    {
+        return m_filterEnabled || OutputWindow::shouldFilterNewContentOnBlockCountChanged();
+    }
+
+    LoggingCategoryRegistry m_registry{this};
+    QMap<QString, QLoggingCategory *> m_categories;
+    bool m_filterEnabled = false;
+};
+
 class TabWidget : public QTabWidget
 {
 public:
     TabWidget(QWidget *parent = nullptr);
 
+    int addTab(QWidget *ow, QWidget* cv, const QString &label);
+
+    QWidget* currentWidget() const;
+    void setCurrentWidget(QWidget *widget);
+    int indexOf(const QWidget *w) const;
+    QWidget *widget(int index) const;
+    QWidget *filtersWidget(int index) const;
+
 private:
     bool eventFilter(QObject *object, QEvent *event) override;
+    QWidget *getActualWidget(QWidget *w, int splitterIndex) const;
+
     int m_tabIndexForMiddleClick = -1;
 };
 
@@ -98,6 +240,48 @@ TabWidget::TabWidget(QWidget *parent)
 {
     tabBar()->installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+int TabWidget::addTab(QWidget *ow, QWidget* cv, const QString &label)
+{
+    QSplitter * splitter = new QSplitter(Qt::Horizontal);
+    splitter->addWidget(ow);
+    splitter->setStretchFactor(0, 2);
+    splitter->addWidget(cv);
+    splitter->setStretchFactor(1, 1);
+    return insertTab(-1, splitter, label);
+}
+
+QWidget *TabWidget::currentWidget() const
+{
+    return getActualWidget(QTabWidget::currentWidget(), 0);
+}
+
+void TabWidget::setCurrentWidget(QWidget *w)
+{
+    for (int i = 0; i < count(); ++i) {
+        if (widget(i) == w)
+            setCurrentIndex(i);
+    }
+}
+
+int TabWidget::indexOf(const QWidget *w) const
+{
+    for (int i = 0; i < count(); ++i) {
+        if (widget(i) == w)
+            return i;
+    }
+    return -1;
+}
+
+QWidget *TabWidget::widget(int index) const
+{
+    return getActualWidget(QTabWidget::widget(index), 0);
+}
+
+QWidget *TabWidget::filtersWidget(int index) const
+{
+    return getActualWidget(QTabWidget::widget(index), 1);
 }
 
 bool TabWidget::eventFilter(QObject *object, QEvent *event)
@@ -124,6 +308,114 @@ bool TabWidget::eventFilter(QObject *object, QEvent *event)
     }
     return QTabWidget::eventFilter(object, event);
 }
+
+QWidget *TabWidget::getActualWidget(QWidget *w, int splitterIndex) const
+{
+    if (const auto splitter = qobject_cast<QSplitter*>(w))
+        return splitter->widget(splitterIndex);
+    return nullptr;
+}
+
+class LoggingCategoryModel : public QAbstractListModel
+{
+    Q_OBJECT
+public:
+    using QAbstractListModel::QAbstractListModel;
+    enum Column { Name, Debug, Warning, Critical, Fatal, Info };
+
+    int columnCount(const QModelIndex &) const final { return 6; }
+    int rowCount(const QModelIndex & = QModelIndex()) const final { return m_categories.size(); }
+
+    void append(QString name, QLoggingCategory *category)
+    {
+        beginInsertRows(QModelIndex(), m_categories.size(), m_categories.size() + 1);
+        m_categories.push_back({name, category});
+        endInsertRows();
+    }
+
+    QVariant data(const QModelIndex &index, int role) const final
+    {
+        if (!index.isValid())
+            return {};
+        if (index.column() == Column::Name && role == Qt::DisplayRole)
+            return m_categories.at(index.row()).first;
+        if (index.column() >= Column::Debug && index.column() <= Column::Info
+            && role == Qt::CheckStateRole) {
+            auto entry = m_categories.at(index.row()).second;
+            const bool isEnabled = entry->isEnabled(
+                static_cast<QtMsgType>(index.column() - Column::Debug));
+            return isEnabled ? Qt::Checked : Qt::Unchecked;
+        }
+        return {};
+    }
+
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) final
+    {
+        if (!index.isValid())
+            return false;
+        if (role == Qt::CheckStateRole && index.column() >= Column::Debug
+            && index.column() <= Column::Info) {
+            QtMsgType msgType = static_cast<QtMsgType>(index.column() - Column::Debug);
+            QLoggingCategory * const cat = m_categories[index.row()].second;
+            bool isEnabled = cat->isEnabled(msgType);
+            const Qt::CheckState current = isEnabled ? Qt::Checked : Qt::Unchecked;
+            if (current != value.toInt()) {
+                cat->setEnabled(msgType, value.toInt() == Qt::Checked);
+                emit categoryChanged(m_categories[index.row()].first, cat);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Qt::ItemFlags flags(const QModelIndex &index) const final
+    {
+        if (!index.isValid() || index.column() == LoggingCategoryModel::Column::Fatal)
+            return Qt::NoItemFlags;
+        if (index.column() == Column::Name)
+            return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
+    }
+
+    QVariant headerData(
+        int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const final
+    {
+        if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
+            return {};
+
+        switch (section) {
+        case Column::Name:
+            return Tr::tr("Category");
+        case Column::Debug:
+            return Tr::tr("Debug");
+        case Column::Warning:
+            return Tr::tr("Warning");
+        case Column::Critical:
+            return Tr::tr("Critical");
+        case Column::Fatal:
+            return Tr::tr("Fatal");
+        case Column::Info:
+            return Tr::tr("Info");
+        default:
+            break;
+        }
+
+        return {};
+    }
+
+    void reset()
+    {
+        beginResetModel();
+        m_categories.clear();
+        endResetModel();
+    }
+
+signals:
+    void categoryChanged(QString name, QLoggingCategory *category);
+
+private:
+    QList<QPair<QString, QLoggingCategory *>> m_categories;
+};
 
 AppOutputPane::RunControlTab::RunControlTab(RunControl *runControl, Core::OutputWindow *w) :
     runControl(runControl), window(w)
@@ -338,9 +630,17 @@ void AppOutputPane::setFocus()
 void AppOutputPane::updateFilter()
 {
     if (RunControlTab * const tab = currentTab()) {
-        tab->window->updateFilterProperties(filterText(), filterCaseSensitivity(),
-                                            filterUsesRegexp(), filterIsInverted(),
-                                            beforeContext(), afterContext());
+        auto appwindow = qobject_cast<AppOutputWindow*>(tab->window);
+        appwindow->updateCategoriesProperties(appwindow->registry()->categories());
+        if (!tab->window->updateFilterProperties(
+                filterText(),
+                filterCaseSensitivity(),
+                filterUsesRegexp(),
+                filterIsInverted(),
+                beforeContext(),
+                afterContext())) {
+            tab->window->filterNewContent();
+        }
     }
 }
 
@@ -402,8 +702,14 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         });
     const auto updateOutputFileName = [this](int index, RunControl *rc) {
         qobject_cast<OutputWindow *>(m_tabWidget->widget(index))
-            //: file name suggested for saving application output, %1 = run configuration display name
-            ->setOutputFileNameHint(Tr::tr("application-output-%1.txt").arg(rc->displayName()));
+        //: file name suggested for saving application output, %1 = run configuration display name
+        ->setOutputFileNameHint(Tr::tr("application-output-%1.txt").arg(rc->displayName()));
+    };
+    const auto updateOutputFiltersWidget = [this](int index, RunControl *rc) {
+        const auto aspect = rc->aspectData<EnableCategoriesFilterAspect>();
+        const bool filterEnabled = aspect && aspect->value;
+        m_tabWidget->filtersWidget(index)->setVisible(filterEnabled);
+        qobject_cast<AppOutputWindow *>(m_tabWidget->widget(index))->setFilterEnabled(filterEnabled);
     };
     if (tab != m_runControlTabs.end()) {
         // Reuse this tab
@@ -421,6 +727,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         QTC_ASSERT(tabIndex != -1, return);
         m_tabWidget->setTabText(tabIndex, rc->displayName());
         updateOutputFileName(tabIndex, rc);
+        updateOutputFiltersWidget(tabIndex, rc);
 
         tab->window->scrollToBottom();
         qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Reusing tab"
@@ -431,7 +738,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     static int counter = 0;
     Id contextId = Id(C_APP_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
-    Core::OutputWindow *ow = new Core::OutputWindow(context, SETTINGS_KEY, m_tabWidget);
+    AppOutputWindow *ow = new AppOutputWindow(context, SETTINGS_KEY, m_tabWidget);
     ow->setWindowTitle(Tr::tr("Application Output Window"));
     ow->setWindowIcon(Icons::WINDOW.icon());
     ow->setWordWrapEnabled(m_settings.wrapOutput);
@@ -464,9 +771,142 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     connect(TextEditor::TextEditorSettings::instance(), &TextEditor::TextEditorSettings::behaviorSettingsChanged,
             ow, updateBehaviorSettings);
 
+    auto qtInternal = new QToolButton;
+    qtInternal->setIcon(Core::Icons::QTLOGO.icon());
+    qtInternal->setToolTip(Tr::tr("Filter Qt Internal Log Categories"));
+    qtInternal->setCheckable(false);
+
+    LoggingCategoryModel *categoryModel = new LoggingCategoryModel(this);
+    QSortFilterProxyModel *sortFilterModel = new QSortFilterProxyModel(this);
+    sortFilterModel->setSourceModel(categoryModel);
+    sortFilterModel->sort(LoggingCategoryModel::Column::Name);
+    sortFilterModel->setFilterKeyColumn(LoggingCategoryModel::Column::Name);
+
+    connect(ow->registry(), &LoggingCategoryRegistry::newLogCategory,
+            categoryModel, &LoggingCategoryModel::append);
+    connect(categoryModel,&LoggingCategoryModel::categoryChanged,
+            this, &AppOutputPane::updateFilter);
+
+    BaseTreeView *categoryView = new BaseTreeView;
+    categoryView->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    categoryView->setFrameStyle(QFrame::Box);
+    categoryView->setAttribute(Qt::WA_MacShowFocusRect, false);
+    categoryView->setSelectionMode(QAbstractItemView::SingleSelection);
+    categoryView->setContextMenuPolicy(Qt::CustomContextMenu);
+    categoryView->setModel(sortFilterModel);
+
+    for (int i = LoggingCategoryModel::Column::Name + 1; i < LoggingCategoryModel::Column::Info; i++)
+        categoryView->resizeColumnToContents(i);
+
+    auto filterEdit = new Utils::FancyLineEdit;
+    filterEdit->setHistoryCompleter("LogFilterCompletionHistory");
+    filterEdit->setFiltering(true);
+    filterEdit->setPlaceholderText(Tr::tr("Filter categories by regular expression"));
+    filterEdit->setValidationFunction(
+        [](const QString &input) {
+            return Utils::asyncRun([input]() -> Utils::Result<QString> {
+                QRegularExpression re(input);
+                if (re.isValid())
+                    return input;
+
+                return ResultError(
+                    Tr::tr("Invalid regular expression: %1").arg(re.errorString()));
+            });
+        });
+    connect(filterEdit,
+            &Utils::FancyLineEdit::textChanged,
+            sortFilterModel,
+            [sortFilterModel](const QString &f) {
+                QRegularExpression re(f);
+                if (re.isValid())
+                    sortFilterModel->setFilterRegularExpression(f);
+            });
+
+    connect(categoryView,
+            &QAbstractItemView::customContextMenuRequested,
+            this,
+            [=] (const QPoint &pos) {
+                QModelIndex idx = categoryView->indexAt(pos);
+
+                QMenu m;
+                auto uncheckAll = new QAction(Tr::tr("Uncheck All"), &m);
+
+                auto isTypeColumn = [](int column) {
+                    return column >= LoggingCategoryModel::Column::Debug
+                           && column <= LoggingCategoryModel::Column::Info;
+                };
+
+                auto setChecked = [sortFilterModel](std::initializer_list<LoggingCategoryModel::Column> columns,
+                                         Qt::CheckState checked) {
+                    for (int row = 0, count = sortFilterModel->rowCount(); row < count; ++row) {
+                        for (int column : columns) {
+                            sortFilterModel->setData(sortFilterModel->index(row, column),
+                                                       checked,
+                                                       Qt::CheckStateRole);
+                        }
+                    }
+                };
+
+                if (idx.isValid() && isTypeColumn(idx.column())) {
+                    const LoggingCategoryModel::Column column = static_cast<LoggingCategoryModel::Column>(
+                        idx.column());
+                    bool isChecked = idx.data(Qt::CheckStateRole).toInt() == Qt::Checked;
+                    const QString uncheckText = isChecked ? Tr::tr("Uncheck All %1") : Tr::tr("Check All %1");
+
+                    uncheckAll->setText(uncheckText.arg(messageTypeToString(
+                        static_cast<QtMsgType>(column - LoggingCategoryModel::Column::Debug))));
+
+                    Qt::CheckState newState = isChecked ? Qt::Unchecked : Qt::Checked;
+
+                    connect(uncheckAll,
+                            &QAction::triggered,
+                            sortFilterModel,
+                            [setChecked, column, newState]() { setChecked({column}, newState); });
+
+                } else {
+                    // No need to add Fatal here, as it is read-only
+                    static auto allColumns = {LoggingCategoryModel::Column::Debug,
+                                              LoggingCategoryModel::Column::Warning,
+                                              LoggingCategoryModel::Column::Critical,
+                                              LoggingCategoryModel::Column::Info};
+
+                    connect(uncheckAll, &QAction::triggered, sortFilterModel, [setChecked]() {
+                        setChecked(allColumns, Qt::Unchecked);
+                    });
+                }
+
+                m.addAction(uncheckAll);
+                m.exec(categoryView->mapToGlobal(pos));
+            });
+
+    connect(qtInternal, &QToolButton::clicked, filterEdit, [filterEdit] {
+        filterEdit->setText("^(qt\\.).+");
+    });
+
+    connect(ow, &OutputWindow::cleanOldOutput, ow, [ow, categoryModel]() {
+        categoryModel->reset();
+        ow->updateCategoriesProperties({});
+        ow->registry()->reset();
+    });
+
+    QWidget* cv = new QWidget;
+
+    using namespace Layouting;
+    // clang-format off
+    Column {
+        noMargin,
+        Row {
+            qtInternal,
+            filterEdit,
+        },
+        categoryView,
+    }.attachTo(cv);
+    // clang-format on
+
     m_runControlTabs.push_back(RunControlTab(rc, ow));
-    m_tabWidget->addTab(ow, rc->displayName());
+    m_tabWidget->addTab(ow, cv, rc->displayName());
     updateOutputFileName(m_tabWidget->count() - 1, rc);
+    updateOutputFiltersWidget(m_tabWidget->count() - 1, rc);
     qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Adding tab for" << rc;
     updateCloseActions();
     setFilteringEnabled(m_tabWidget->count() > 0);
@@ -478,6 +918,8 @@ void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
         window->clear();
     else
         window->grayOutOldContent();
+
+    emit window->cleanOldOutput();
 }
 
 void AppOutputPane::updateFromSettings()
@@ -497,6 +939,16 @@ void AppOutputPane::appendMessage(RunControl *rc, const QString &out, OutputForm
     RunControlTab * const tab = tabFor(rc);
     if (!tab)
         return;
+
+    if (qobject_cast<AppOutputWindow *>(tab->window)->filterEnabled()) {
+        const QStringList lines = out.split('\n');
+        for (const QString &line : lines) {
+            if (line.contains("_logging_categories") && line.contains("CATEGORY:")) {
+                auto appwindow = qobject_cast<AppOutputWindow*>(tab->window);
+                appwindow->registry()->onNewCategory(line.section("CATEGORY:", 1, 1).section('\n', 0, 0));
+            }
+        }
+    }
 
     QString stringToWrite;
     if (format == NormalMessageFormat || format == ErrorMessageFormat) {
@@ -777,9 +1229,12 @@ void AppOutputPane::tabChanged(int i)
 {
     RunControlTab * const controlTab = tabFor(m_tabWidget->widget(i));
     if (i != -1 && controlTab) {
-        controlTab->window->updateFilterProperties(filterText(), filterCaseSensitivity(),
-                                                   filterUsesRegexp(), filterIsInverted(),
-                                                   beforeContext(), afterContext());
+        auto appwindow = qobject_cast<AppOutputWindow*>(controlTab->window);
+        appwindow->updateCategoriesProperties(appwindow->registry()->categories());
+        if (!controlTab->window->updateFilterProperties(filterText(), filterCaseSensitivity(),
+                                                    filterUsesRegexp(), filterIsInverted(),
+                                                    beforeContext(), afterContext()))
+            controlTab->window->filterNewContent();
         enableButtons(controlTab->runControl);
     } else {
         enableDefaultButtons();
@@ -1019,3 +1474,5 @@ QColor AppOutputSettings::effectiveBackgroundColor() const
 
 } // namespace Internal
 } // namespace ProjectExplorer
+
+#include "appoutputpane.moc"

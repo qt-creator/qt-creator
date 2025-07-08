@@ -63,19 +63,22 @@ public:
     void resetZoom() { setFontZoom(0); }
     void setWheelZoomEnabled(bool enabled);
 
-    void updateFilterProperties(
-            const QString &filterText,
-            Qt::CaseSensitivity caseSensitivity,
-            bool regexp,
-            bool isInverted,
-            int beforeContext,
-            int afterContext);
+    bool updateFilterProperties(
+        const QString &filterText,
+        Qt::CaseSensitivity caseSensitivity,
+        bool regexp,
+        bool isInverted,
+        int beforeContext,
+        int afterContext);
 
     void setOutputFileNameHint(const QString &fileName);
+
+    void filterNewContent();
 
 signals:
     void wheelZoom();
     void outputDiscarded();
+    void cleanOldOutput();
 
 public slots:
     void setWordWrapEnabled(bool wrap);
@@ -84,6 +87,12 @@ public slots:
 protected:
     virtual void handleLink(const QPoint &pos);
     virtual void adaptContextMenu(QMenu *menu, const QPoint &pos);
+
+    using TextMatchingFunction = std::function<bool(const QString &text)>;
+    virtual TextMatchingFunction makeMatchingFilterFunction() const;
+    void resetLastFilteredBlockNumber();
+
+    virtual bool shouldFilterNewContentOnBlockCountChanged() const;
 
 private:
     QMimeData *createMimeDataFromSelection() const override;
@@ -98,7 +107,6 @@ private:
 
     using QPlainTextEdit::setFont; // call setBaseFont instead, which respects the zoom factor
     void enableUndoRedo();
-    void filterNewContent();
     void handleNextOutputChunk();
 
     enum class ChunkCompleteness { Complete, Split };
@@ -110,9 +118,6 @@ private:
     void updateAutoScroll();
     qsizetype totalQueuedSize() const;
     qsizetype totalQueuedLines() const;
-
-    using TextMatchingFunction = std::function<bool(const QString &text)>;
-    TextMatchingFunction makeMatchingFunction() const;
 
     Internal::OutputWindowPrivate *d = nullptr;
 };

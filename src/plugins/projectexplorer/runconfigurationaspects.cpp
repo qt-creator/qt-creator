@@ -786,6 +786,22 @@ RunAsRootAspect::RunAsRootAspect(AspectContainer *container)
     setVisible(HostOsInfo::isAnyUnixHost());
 }
 
+/*!
+    \class ProjectExplorer::EnableCategoriesFilterAspect
+    \inmodule QtCreator
+
+    \brief The EnableCategoriesFilterAspect class lets a user specify whether
+    the application output should show the categories filtering widget.
+*/
+
+EnableCategoriesFilterAspect::EnableCategoriesFilterAspect(AspectContainer *container)
+    : BoolAspect(container)
+{
+    setId("EnableCategoriesFilter");
+    setSettingsKey("RunConfiguration.EnableCategoriesFilter");
+    setLabel(Tr::tr("Enable Categories Filtering"), LabelPlacement::AtCheckBox);
+}
+
 Interpreter::Interpreter()
     : id(QUuid::createUuid().toString())
 {}

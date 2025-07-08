@@ -150,6 +150,14 @@ public:
     RunAsRootAspect(Utils::AspectContainer *container = nullptr);
 };
 
+class PROJECTEXPLORER_EXPORT EnableCategoriesFilterAspect : public Utils::BoolAspect
+{
+    Q_OBJECT
+
+public:
+    EnableCategoriesFilterAspect(Utils::AspectContainer *container = nullptr);
+};
+
 class PROJECTEXPLORER_EXPORT ExecutableAspect : public Utils::BaseAspect
 {
     Q_OBJECT

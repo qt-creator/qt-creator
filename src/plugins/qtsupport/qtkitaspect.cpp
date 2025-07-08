@@ -641,10 +641,14 @@ int QtKitAspectFactory::weight(const Kit *k) const
 
 QVariant QtKitAspectFactory::getInfo(const Kit *k, Id request, const QVariant &input) const
 {
-    if (request == "moduleForHeader") {
-        if (const QtVersion * const v = QtKitAspect::qtVersion(k))
-            return v->moduleForHeader(input.toString());
-    }
+    QtVersion * const version = QtKitAspect::qtVersion(k);
+    if (!version || !version->isValid())
+        return {};
+
+    if (request == "moduleForHeader")
+        return version->moduleForHeader(input.toString());
+    if (request == "supportsQtCategoryFilter")
+        return version->qtVersion() >= QVersionNumber(6, 11);
     return {};
 }
 
