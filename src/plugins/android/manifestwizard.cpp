@@ -24,6 +24,8 @@
 #include <utils/qtcassert.h>
 #include <utils/wizard.h>
 
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
+
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
@@ -268,12 +270,14 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy());
     }
 
-    QString androidPackageDir;
     ProjectNode *node = m_buildSystem->project()->findNodeForBuildKey(m_buildKey);
     if (node) {
-        node->addFiles(copy.files());
-        androidPackageDir = node->data(Android::Constants::AndroidPackageSourceDir).toString();
+        const bool isCmakeProject = (m_buildSystem->project()->id() == CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
+        if (!isCmakeProject)
+            node->addFiles(copy.files());
 
+        QString androidPackageDir;
+        androidPackageDir = node->data(Android::Constants::AndroidPackageSourceDir).toString();
         if (androidPackageDir.isEmpty()) {
             // and now time for some magic
             const BuildTargetInfo bti = m_buildSystem->buildTarget(m_buildKey);
