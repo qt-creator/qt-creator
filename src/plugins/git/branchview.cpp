@@ -445,7 +445,7 @@ bool BranchView::checkout()
                 gitClient().synchronousStashRestore(m_repository, stashName, true);
             }
         };
-        m_model->checkoutBranch(selected, this, commandHandler);
+        m_model->checkoutBranch(selected, commandHandler);
     } else if (branchCheckoutDialog.diffRequested()) {
         gitClient().diffRepository(m_repository, {}, {});
     }

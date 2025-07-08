@@ -781,7 +781,7 @@ void BranchModel::removeTag(const QModelIndex &idx)
     removeNode(idx);
 }
 
-void BranchModel::checkoutBranch(const QModelIndex &idx, const QObject *context,
+void BranchModel::checkoutBranch(const QModelIndex &idx,
                                  const CommandHandler &handler)
 {
     qCDebug(modelLog) << "checkoutBranch() called: idx=" << idx;
@@ -794,8 +794,7 @@ void BranchModel::checkoutBranch(const QModelIndex &idx, const QObject *context,
     qCDebug(modelLog) << "checkoutBranch: checking out branch:" << branch;
     // No StashGuard since this function for now is only used with clean working dir.
     // If it is ever used from another place, please add StashGuard here
-    gitClient().checkout(d->workingDirectory, branch, GitClient::StashMode::NoStash,
-                         context, handler);
+    gitClient().checkout(d->workingDirectory, branch, GitClient::StashMode::NoStash, handler);
 }
 
 bool BranchModel::branchIsMerged(const QModelIndex &idx)

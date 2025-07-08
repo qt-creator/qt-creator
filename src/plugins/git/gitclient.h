@@ -130,7 +130,6 @@ public:
 
     void vcsExecAbortable(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                           bool isRebase = false, const QString &abortCommand = {},
-                          const QObject *context = nullptr,
                           const VcsBase::CommandHandler &handler = {});
 
     Utils::FilePath findRepositoryForDirectory(const Utils::FilePath &directory) const;
@@ -202,7 +201,7 @@ public:
                                   bool revertStaging = true);
     enum class StashMode { NoStash, TryStash };
     void checkout(const Utils::FilePath &workingDirectory, const QString &ref,
-                  StashMode stashMode = StashMode::TryStash, const QObject *context = nullptr,
+                  StashMode stashMode = StashMode::TryStash,
                   const VcsBase::CommandHandler &handler = {});
 
     QStringList setupCheckoutArguments(const Utils::FilePath &workingDirectory, const QString &ref);

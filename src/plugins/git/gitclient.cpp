@@ -1352,9 +1352,8 @@ void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file,
 }
 
 void GitClient::checkout(const FilePath &workingDirectory, const QString &ref, StashMode stashMode,
-                         const QObject *context, const CommandHandler &handler)
+                         const CommandHandler &handler)
 {
-    Q_UNUSED(context) // TODO: Remove.
     if (stashMode == StashMode::TryStash && !beginStashScope(workingDirectory, "Checkout"))
         return;
 
@@ -3154,7 +3153,7 @@ void GitClient::pull(const FilePath &workingDirectory, bool rebase)
         if (result.result() == ProcessResult::FinishedWithSuccess)
             updateSubmodulesIfNeeded(workingDirectory, true);
     };
-    vcsExecAbortable(workingDirectory, arguments, rebase, abortCommand, this, commandHandler);
+    vcsExecAbortable(workingDirectory, arguments, rebase, abortCommand, commandHandler);
 }
 
 void GitClient::synchronousAbortCommand(const FilePath &workingDir, const QString &abortCommand)
@@ -3400,9 +3399,8 @@ void GitClient::revert(const FilePath &workingDirectory, const QString &argument
 // Stashing is handled prior to this call.
 void GitClient::vcsExecAbortable(const FilePath &workingDirectory, const QStringList &arguments,
                                  bool isRebase, const QString &abortCommand,
-                                 const QObject *context, const CommandHandler &handler)
+                                 const CommandHandler &handler)
 {
-    Q_UNUSED(context) // TODO: Remove arg
     QTC_ASSERT(!arguments.isEmpty(), return);
     const QString abortString = abortCommand.isEmpty() ? arguments.at(0) : abortCommand;
     const ProgressParser progressParser = isRebase ? GitProgressParser() : ProgressParser();
