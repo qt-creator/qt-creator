@@ -382,9 +382,16 @@ void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files)
     if (editorConfig)
         args << editorConfig->arguments();
     args << files;
-    VcsCommand *command = createCommand(workingDir, editor);
-    command->setEncoding(source.isEmpty() ? TextEncoding() : VcsBaseEditor::getEncoding(source));
-    enqueueJob(command, args, workingDir, exitCodeInterpreter(DiffCommand));
+
+    const Storage<CommandResult> resultStorage;
+
+    const auto task = vcsProcessTask(
+        {.runData = {{vcsBinary(workingDir), args}, workingDir, processEnvironment(workingDir)},
+         .interpreter = exitCodeInterpreter(DiffCommand),
+         .encoding = source.isEmpty() ? TextEncoding() : VcsBaseEditor::getEncoding(source)},
+        resultStorage);
+
+    editor->executeTask(task, resultStorage);
 }
 
 void VcsBaseClient::log(const FilePath &workingDir,
