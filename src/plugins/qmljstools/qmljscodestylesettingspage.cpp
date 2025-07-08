@@ -1,7 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmljscodestylesettingspage.h"
+#include "qmljscodestylesettings.h"
 
 #include "qmlformatsettings.h"
 #include "qmlformatsettingswidget.h"
@@ -16,8 +16,15 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <extensionsystem/pluginmanager.h>
+
+#include <cplusplus/Overview.h>
+
 #include <qmljseditor/qmljseditorconstants.h>
+
+#include <projectexplorer/editorconfiguration.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
+
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/command.h>
 #include <texteditor/displaysettings.h>
@@ -29,21 +36,83 @@
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
+
 #include <utils/commandline.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcassert.h>
 
-#include <QTextStream>
 #include <QVBoxLayout>
 #include <QStandardPaths>
+#include <QStackedWidget>
 
 using namespace TextEditor;
-using namespace QmlJSTools;
-namespace QmlJSTools::Internal {
+using namespace QmlJSTools::Internal;
+using namespace Utils;
+
+namespace QmlJSTools {
 
 constexpr int BuiltinFormatterIndex = QmlCodeStyleWidgetBase::Builtin;
 constexpr int QmlFormatIndex = QmlCodeStyleWidgetBase::QmlFormat;
 constexpr int CustomFormatterIndex = QmlCodeStyleWidgetBase::Custom;
+
+const char lineLengthKey[] = "LineLength";
+const char qmlformatIniContentKey[] = "QmlFormatIniContent";
+const char formatterKey[] = "Formatter";
+const char customFormatterPathKey[] = "CustomFormatterPath";
+const char customFormatterArgumentsKey[] = "CustomFormatterArguments";
+
+// QmlJSCodeStyleSettings
+
+QmlJSCodeStyleSettings::QmlJSCodeStyleSettings() = default;
+
+Store QmlJSCodeStyleSettings::toMap() const
+{
+    return {
+        {formatterKey, formatter},
+        {lineLengthKey, lineLength},
+        {qmlformatIniContentKey, qmlformatIniContent},
+        {customFormatterPathKey, customFormatterPath.toUrlishString()},
+        {customFormatterArgumentsKey, customFormatterArguments}
+    };
+}
+
+void QmlJSCodeStyleSettings::fromMap(const Store &map)
+{
+    lineLength = map.value(lineLengthKey, lineLength).toInt();
+    qmlformatIniContent = map.value(qmlformatIniContentKey, qmlformatIniContent).toString();
+    formatter = static_cast<Formatter>(map.value(formatterKey, formatter).toInt());
+    customFormatterPath = Utils::FilePath::fromString(map.value(customFormatterPathKey).toString());
+    customFormatterArguments = map.value(customFormatterArgumentsKey).toString();
+}
+
+bool QmlJSCodeStyleSettings::equals(const QmlJSCodeStyleSettings &rhs) const
+{
+    return lineLength == rhs.lineLength && qmlformatIniContent == rhs.qmlformatIniContent
+           && formatter == rhs.formatter && customFormatterPath == rhs.customFormatterPath
+           && customFormatterArguments == rhs.customFormatterArguments;
+}
+
+QmlJSCodeStyleSettings QmlJSCodeStyleSettings::currentGlobalCodeStyle()
+{
+    QmlJSCodeStylePreferences *QmlJSCodeStylePreferences = QmlJSToolsSettings::globalCodeStyle();
+    QTC_ASSERT(QmlJSCodeStylePreferences, return QmlJSCodeStyleSettings());
+
+    return QmlJSCodeStylePreferences->currentCodeStyleSettings();
+}
+
+TextEditor::TabSettings QmlJSCodeStyleSettings::currentGlobalTabSettings()
+{
+    QmlJSCodeStylePreferences *QmlJSCodeStylePreferences = QmlJSToolsSettings::globalCodeStyle();
+    QTC_ASSERT(QmlJSCodeStylePreferences, return TextEditor::TabSettings());
+
+    return QmlJSCodeStylePreferences->currentTabSettings();
+}
+
+Id QmlJSCodeStyleSettings::settingsId()
+{
+    return Constants::QML_JS_CODE_STYLE_SETTINGS_ID;
+}
 
 // QmlJSCodeStylePreferencesWidget
 

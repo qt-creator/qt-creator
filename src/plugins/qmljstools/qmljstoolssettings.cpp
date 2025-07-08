@@ -3,8 +3,6 @@
 
 #include "qmljscodestylesettings.h"
 
-#include "qmljscodestylesettingspage.h"
-#include "qmljseditor/qmljseditorconstants.h"
 #include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
@@ -12,6 +10,8 @@
 #include "qmljstoolstr.h"
 
 #include <projectexplorer/project.h>
+
+#include <qmljseditor/qmljseditorconstants.h>
 
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/codestylepool.h>
