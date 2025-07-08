@@ -6,12 +6,14 @@
 #include "fileinsessionfinder.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "taskhub.h"
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textmark.h>
 #include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QFileInfo>
 #include <QGuiApplication>
@@ -20,6 +22,65 @@
 using namespace Utils;
 
 namespace ProjectExplorer {
+
+static TextEditor::TextMarkCategory categoryForType(Task::TaskType type)
+{
+    switch (type) {
+    case Task::Error:
+        return {::ProjectExplorer::Tr::tr("Taskhub Error"), "Task.Mark.Warning"};
+    case Task::Warning:
+        return {::ProjectExplorer::Tr::tr("Taskhub Warning"), "Task.Mark.Error"};
+    default:
+        return {};
+    }
+}
+
+class TaskMark : public TextEditor::TextMark
+{
+public:
+    TaskMark(const Task &task) :
+        TextMark(task.file(), task.line(), categoryForType(task.type())),
+        m_task(task)
+    {
+        setColor(task.isError() ? Theme::ProjectExplorer_TaskError_TextMarkColor
+                                : Theme::ProjectExplorer_TaskWarn_TextMarkColor);
+        setDefaultToolTip(task.isError() ? Tr::tr("Error")
+                                         : Tr::tr("Warning"));
+        setPriority(task.type() == Task::Error ? TextEditor::TextMark::NormalPriority
+                                               : TextEditor::TextMark::LowPriority);
+        setToolTip(task.formattedDescription({Task::WithSummary | Task::WithLinks},
+                                             task.category() == Constants::TASK_CATEGORY_COMPILE
+                                                 ? Tr::tr("Build Issue") : QString()));
+        setIcon(task.icon());
+        setVisible(!task.icon().isNull());
+    }
+
+    bool isClickable() const override { return true; }
+
+    void clicked() override
+    {
+        TaskHub::taskMarkClicked(m_task);
+    }
+
+    void updateFilePath(const FilePath &fileName) override
+    {
+        TaskHub::updateTaskFileName(m_task, fileName.toUrlishString());
+        TextMark::updateFilePath(FilePath::fromString(fileName.toUrlishString()));
+    }
+
+    void updateLineNumber(int lineNumber) override
+    {
+        TaskHub::updateTaskLineNumber(m_task, lineNumber);
+        TextMark::updateLineNumber(lineNumber);
+    }
+
+    void removedFromEditor() override
+    {
+        TaskHub::updateTaskLineNumber(m_task, -1);
+    }
+private:
+    const Task m_task;
+};
 
 static QIcon taskTypeIcon(Task::TaskType t)
 {
@@ -63,13 +124,6 @@ Task Task::compilerMissingTask()
                            Tr::tr("%1 needs a compiler set up to build. "
                                   "Configure a compiler in the kit options.")
                                .arg(QGuiApplication::applicationDisplayName()));
-}
-
-void Task::setMark(TextEditor::TextMark *mark)
-{
-    QTC_ASSERT(mark, return);
-    QTC_ASSERT(!m_mark, return);
-    m_mark = std::shared_ptr<TextEditor::TextMark>(mark);
 }
 
 bool Task::isNull() const
@@ -161,6 +215,12 @@ QIcon Task::icon() const
 void Task::setIcon(const QIcon &icon)
 {
     m_icon = icon;
+}
+
+void Task::createTextMarkIfApplicable()
+{
+    if (!m_mark && m_addTextMark && m_line != -1 && m_type != Task::Unknown)
+        m_mark = std::make_shared<TaskMark>(*this);
 }
 
 QString Task::formattedDescription(DescriptionTags tags, const QString &extraHeading) const

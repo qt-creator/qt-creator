@@ -91,17 +91,15 @@ public:
 
     bool shouldCreateTextMark() const { return m_addTextMark; }
     void preventTextMarkCreation() { m_addTextMark = false; }
+    void createTextMarkIfApplicable();
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
     friend PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);
     friend PROJECTEXPLORER_EXPORT size_t qHash(const Task &task);
 
 private:
-    void setMark(TextEditor::TextMark *mark);
-
     unsigned int m_id = 0;
     TaskType m_type = Unknown;
-
     QString m_summary;
     QStringList m_details;
     Utils::FilePath m_file;
