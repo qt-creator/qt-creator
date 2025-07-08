@@ -349,12 +349,6 @@ CommandResult::CommandResult(const Process &process, ProcessResult result)
     m_result = result;
 }
 
-CommandResult::CommandResult(const VcsCommand &command)
-    : m_result(command.result())
-    , m_cleanedStdOut(command.cleanedStdOut())
-    , m_cleanedStdErr(command.cleanedStdErr())
-{}
-
 ExecutableItem errorTask(const FilePath &workingDir, const QString &errorMessage)
 {
     return Sync([workingDir, errorMessage] {

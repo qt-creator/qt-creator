@@ -21,8 +21,6 @@ namespace VcsBase {
 
 namespace Internal { class VcsCommandPrivate; }
 
-class VcsCommand;
-
 using ExitCodeInterpreter = std::function<Utils::ProcessResult(int /*exitCode*/)>;
 
 class VCSBASE_EXPORT CommandResult
@@ -31,7 +29,6 @@ public:
     CommandResult() = default;
     CommandResult(const Utils::Process &process);
     CommandResult(const Utils::Process &process, Utils::ProcessResult result);
-    CommandResult(const VcsCommand &command);
     CommandResult(Utils::ProcessResult result, const QString &exitMessage)
         : m_result(result), m_exitMessage(exitMessage) {}
 
