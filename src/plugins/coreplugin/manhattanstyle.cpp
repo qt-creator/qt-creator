@@ -448,6 +448,14 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
         // Make QSlider jump on left mouse click
         ret = Qt::LeftButton | Qt::MiddleButton | Qt::RightButton;
         break;
+    case QStyle::SH_TabBar_AllowWheelScrolling:
+        // The wheel event implementation only results in a currentChanged event
+        // which makes it impossible to identify it as a "user triggered" change.
+        // That makes it ugly for tab bars that are 'manually managed' and want to
+        // only react on user changes, like the editor tab bar.
+        // This feature seems to be very Qt specific to begin with, turn it off.
+        ret = false;
+        break;
     default:
         break;
     }
