@@ -162,6 +162,8 @@ void CompilationDbParser::start()
     if (!m_rootPath.isEmpty()) {
         m_treeScanner = new TreeScanner(this);
         m_treeScanner->setFilter([this](const MimeType &mimeType, const FilePath &fn) {
+            if (fn.isDir())
+                return false;
             // Mime checks requires more resources, so keep it last in check list
             bool isIgnored = fn.startsWith(m_projectFilePath.path() + ".user")
                              || TreeScanner::isWellKnownBinary(mimeType, fn);
