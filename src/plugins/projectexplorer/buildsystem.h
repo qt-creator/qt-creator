@@ -178,6 +178,9 @@ public:
     void updateQmlCodeModel();
     virtual void updateQmlCodeModelInfo(QmlCodeModelInfo &projectInfo);
 
+    virtual bool setTargetProperty(Node *context, const QString &property, const QString &value,
+                                   std::string condition);
+
 signals:
     void parsingStarted();
     void parsingFinished(bool success);

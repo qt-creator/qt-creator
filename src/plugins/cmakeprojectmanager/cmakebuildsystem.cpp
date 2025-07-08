@@ -351,14 +351,7 @@ static std::optional<cmListFileFunction> findFunction(
     return std::make_optional(*function);
 }
 
-struct SnippetAndLocation
-{
-    QString snippet;
-    long line = -1;
-    long column = -1;
-};
-
-static SnippetAndLocation generateSnippetAndLocationForSources(
+static CMakeBuildSystem::SnippetAndLocation generateSnippetAndLocationForSources(
         const QString &newSourceFiles,
         const cmListFile &cmakeListFile,
         const cmListFileFunction &function,
@@ -372,7 +365,7 @@ static SnippetAndLocation generateSnippetAndLocationForSources(
                                             "qt6_add_library",
                                             "qt_add_qml_module",
                                             "qt6_add_qml_module"};
-    SnippetAndLocation result;
+    CMakeBuildSystem::SnippetAndLocation result;
     int extraChars = 0;
     auto afterFunctionLastArgument =
         [&result, &extraChars, newSourceFiles](const auto &f) {
@@ -408,8 +401,9 @@ static SnippetAndLocation generateSnippetAndLocationForSources(
         result.line += extraChars;
     return result;
 }
+
 static Result<bool> insertSnippetSilently(const FilePath &cmakeFile,
-                                                const SnippetAndLocation &snippetLocation)
+                                          const CMakeBuildSystem::SnippetAndLocation &snippetLocation)
 {
     BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(
         {cmakeFile, int(snippetLocation.line), int(snippetLocation.column)},
@@ -425,6 +419,139 @@ static Result<bool> insertSnippetSilently(const FilePath &cmakeFile,
     if (!Core::DocumentManager::saveDocument(editor->document()))
         return ResultError("Changes to " + cmakeFile.toUserOutput() + " could not be saved.");
     return true;
+}
+
+CMakeBuildSystem::SnippetAndLocation CMakeBuildSystem::generateSnippetWithTargetPropertyBlock(
+    const QString &projectName, const QString &snippet, const cmListFile &file)
+{
+    SnippetAndLocation result;
+
+    result.snippet = QString("\nset_target_properties(%1 PROPERTIES\n   %2)\n").arg(projectName, snippet);
+
+    auto findAddExecutableFunction = [&file]() -> std::optional<cmListFileFunction> {
+        for (const auto &func : file.Functions) {
+            if (func.LowerCaseName() == "qt_add_executable" || func.LowerCaseName() == "add_executable") {
+                return func;
+            }
+        }
+        return std::nullopt;
+    };
+
+    std::optional<cmListFileFunction> projectFunction = findAddExecutableFunction();
+
+    if (projectFunction) {
+        result.line = projectFunction->LineEnd() + 1;
+        result.column = 0;
+    }
+    return result;
+}
+
+static std::vector<cmListFileFunction> findFunctions(
+    const cmListFile& file, const QString& functionName, const std::string condition)
+{
+    std::vector<cmListFileFunction> functions;
+    std::vector<std::string> conditionStack;
+
+    for (const auto& func : file.Functions)     {
+
+        if (func.LowerCaseName() == "if") {
+            for (const auto& arg : func.Arguments()) {
+                conditionStack.push_back(arg.Value);
+            }
+        } else if (func.LowerCaseName() == "elseif") {
+            if (!conditionStack.empty())
+                conditionStack.pop_back();
+            for (const auto& arg : func.Arguments()) {
+                conditionStack.push_back(arg.Value);
+            }
+        } else if (func.LowerCaseName() == "else") {
+            if (!conditionStack.empty())
+                conditionStack.pop_back();
+            conditionStack.push_back("else");
+        } else if (func.LowerCaseName() == "endif") {
+            if (!conditionStack.empty())
+                conditionStack.pop_back();
+        }
+
+        if (func.LowerCaseName() == functionName.toLower()) {
+            bool shouldAdd = false;
+
+            if (conditionStack.empty()) {
+                shouldAdd = true;
+            } else {
+                for (const auto& cond : conditionStack) {
+                    if (cond == "else" || cond.find(condition) !=  std::string::npos) {
+                        shouldAdd = true;
+                        break;
+                    }
+                }
+            }
+
+            if (shouldAdd)
+                functions.push_back(func);
+        }
+    }
+
+    return functions;
+}
+
+static CMakeBuildSystem::SnippetAndLocation generateSnippetForExistingTargetPropertyBlock(
+    const QString &snippet, const cmListFileFunction &function)
+{
+    CMakeBuildSystem::SnippetAndLocation result;
+    int insertLine = function.Line();
+
+    if (!function.Arguments().empty()) {
+        const auto &lastArg = function.Arguments().back();
+        insertLine = lastArg.Line - 1;
+        result.column = lastArg.Column + lastArg.Value.length() + 1;
+    }
+
+    result.line = insertLine + 1;
+    result.snippet = "\n" + snippet;
+
+    return result;
+}
+
+bool CMakeBuildSystem::setTargetProperty(
+    ProjectExplorer::Node *context, const QString &property, const QString &value, std::string condition)
+{
+    if (!context)
+        return false;
+
+    auto node = dynamic_cast<CMakeTargetNode *>(context);
+    const QString targetName = node->buildKey();
+
+    const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
+    if (!cmakeFile)
+        return false;
+
+    std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(cmakeFile->targetFilePath);
+    if (!cmakeListFile)
+        return false;
+
+    std::vector<cmListFileFunction> functions = findFunctions(*cmakeListFile,  "set_target_properties", condition);
+
+    for (const auto& func : functions) {
+        for (const auto& args : func.Arguments()) {
+            if (args.Value == property) {
+                return false;
+            }
+        }
+    }
+
+    QString snippet;
+    SnippetAndLocation insertLocation;
+
+    snippet = QString("%1 \"%2\"").arg(property, value);
+    if (functions.empty()) {
+        insertLocation = generateSnippetWithTargetPropertyBlock(targetName, snippet, *cmakeListFile);
+    } else {
+        insertLocation = generateSnippetForExistingTargetPropertyBlock(snippet, functions[0]);
+    }
+
+    Result<bool> inserted = insertSnippetSilently(cmakeFile->targetFilePath, insertLocation);
+    return inserted.value_or(false);
 }
 
 static void findLastRelevantArgument(const cmListFileFunction &function,

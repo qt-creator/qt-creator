@@ -274,8 +274,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         if (m_buildSystem->project()->type() != CMakeProjectManager::Constants::CMAKE_PROJECT_ID)
             node->addFiles(copy.files());
 
-        QString androidPackageDir;
-        androidPackageDir = node->data(Android::Constants::AndroidPackageSourceDir).toString();
+        QString androidPackageDir = node->data(Android::Constants::AndroidPackageSourceDir).toString();
         if (androidPackageDir.isEmpty()) {
             const BuildTargetInfo bti = m_buildSystem->buildTarget(m_buildKey);
             const FilePath projectDir = bti.projectFilePath.parentDir();
@@ -290,13 +289,22 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
                                                          ? QString(QLatin1String("QT_")) + Android::Constants::ANDROID_PACKAGE_SOURCE_DIR
                                                          : QString(Android::Constants::ANDROID_PACKAGE_SOURCE_DIR);
 
-                QMessageBox::warning(
-                    this,
-                    Tr::tr("Project File Update Failed"),
-                    Tr::tr(
-                        "Could not automatically update the project file for \"%1\".\n"
-                        "Set the %2 property manually.")
-                        .arg(bti.projectFilePath.toUserOutput(), androidPackageSrcDir));
+                const QString relativePath = m_directory
+                                                 .relativePathFromDir(
+                                                     m_buildSystem->buildTarget(m_buildKey).projectFilePath);
+                androidPackageDir = QString("${CMAKE_CURRENT_SOURCE_DIR}/%1").arg(relativePath);
+
+                bool result = m_buildSystem->setTargetProperty(node, androidPackageSrcDir, androidPackageDir,
+                                                               "ANDROID");
+                if (!result) {
+                    const BuildTargetInfo bti = m_buildSystem->buildTarget(m_buildKey);
+                    QMessageBox::warning(
+                        this,
+                        Tr::tr("Project File not Updated"),
+                        Tr::tr("Could not automatically update the build file for %1.\n"
+                               "Please set %2 manually.")
+                            .arg(bti.projectFilePath.toUserOutput(), Android::Constants::QT_ANDROID_PACKAGE_SOURCE_DIR));
+                }
             }
         }
     }

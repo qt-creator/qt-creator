@@ -55,6 +55,21 @@ public:
     bool addFiles(ProjectExplorer::Node *context,
                   const Utils::FilePaths &filePaths, Utils::FilePaths *) final;
 
+    struct SnippetAndLocation
+    {
+        QString snippet;
+        long line = -1;
+        long column = -1;
+    };
+
+    SnippetAndLocation generateSnippetWithTargetPropertyBlock(const QString &projectName,
+                                                              const QString &snippet,
+                                                              const cmListFile &file);
+
+    bool setTargetProperty(ProjectExplorer::Node *context, const QString &property, const QString &value,
+                           std::string condition = "") final;
+
+
     ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
                                                          const Utils::FilePaths &filePaths,
                                                          Utils::FilePaths *notRemoved

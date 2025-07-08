@@ -188,6 +188,16 @@ bool BuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *notAdd
     return false;
 }
 
+bool BuildSystem::setTargetProperty(ProjectExplorer::Node *context, const QString &property,
+                                    const QString &value, std::string condition)
+{
+    Q_UNUSED(context);
+    Q_UNUSED(property);
+    Q_UNUSED(value);
+    Q_UNUSED(condition);
+    return false;
+}
+
 RemovedFilesFromProject BuildSystem::removeFiles(Node *, const FilePaths &filePaths,
                                                  FilePaths *notRemoved)
 {
