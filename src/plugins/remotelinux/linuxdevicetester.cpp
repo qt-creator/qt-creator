@@ -98,11 +98,11 @@ GroupItem GenericLinuxDeviceTesterPrivate::connectionTask() const
         if (success) {
             emit q->progressMessage(Tr::tr("Connected. Now doing extended checks.") + "\n");
         } else {
+            if (!task.result().has_value())
+                emit q->errorMessage(task.result().error());
             emit q->errorMessage(
                 Tr::tr("Basic connectivity test failed, device is considered unusable.") + '\n'
             );
-            if (!task.result().has_value())
-                emit q->errorMessage(task.result().error());
         }
         return toDoneResult(success);
     };

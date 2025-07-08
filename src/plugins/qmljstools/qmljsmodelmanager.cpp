@@ -47,6 +47,8 @@
 #include <QTimer>
 #include <QSet>
 
+#include <queue>
+
 using namespace Utils;
 using namespace Core;
 using namespace ProjectExplorer;
@@ -85,16 +87,52 @@ static void findAllQrcFiles(const FilePath &filePath, FilePaths &out)
             out.append(path.canonicalPath());
             return IterationPolicy::Continue;
         },
-        {{"*.qrc"}, QDir::Files | QDir::Hidden | QDir::NoSymLinks, QDirIterator::Subdirectories});
+        {{"*.qrc"}, QDir::Files});
 }
 
 static FilePaths findGeneratedQrcFiles(const ModelManagerInterface::ProjectInfo &pInfo,
                                        const FilePaths &hiddenRccFolders)
 {
     FilePaths result;
-    // Search recursively in Application Directories for .qrc files.
-    for (const Utils::FilePath &path : pInfo.applicationDirectories) {
-        findAllQrcFiles(path, result);
+    const qint64 maxFilesToSearch = 8'000; // TODO: Creator 18: load value from settings
+    qint64 searchedFiles = 0;
+
+    std::queue<Utils::FilePath> toVisit;
+    for (const Utils::FilePath &path : pInfo.applicationDirectories)
+        toVisit.push(path);
+
+    while (!toVisit.empty()) {
+        Utils::FilePath current = toVisit.front();
+        toVisit.pop();
+
+        current.iterateDirectory(
+            [&toVisit,
+             &searchedFiles,
+             &result](const FilePath &child, const FilePathInfo &childInfo) {
+                if (++searchedFiles > maxFilesToSearch)
+                    return IterationPolicy::Stop;
+                if (childInfo.fileFlags.testFlag(FilePathInfo::DirectoryType)) {
+                    // ignore hidden files except for .qt/rcc and .rcc folders
+                    if (!child.fileName().startsWith(u'.')) {
+                        toVisit.push(child);
+                        return IterationPolicy::Continue;
+                    }
+                    if (child.fileName() == ".qt") {
+                        toVisit.push(child.pathAppended("rcc"));
+                        return IterationPolicy::Continue;
+                    }
+                    if (child.fileName() == ".rcc")
+                        toVisit.push(child);
+                    return IterationPolicy::Continue;
+                }
+                if (childInfo.fileFlags.testFlag(FilePathInfo::FileType) && child.endsWith(".qrc"))
+                    result.append(child);
+                return IterationPolicy::Continue;
+            },
+            {{}, QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::Hidden | QDir::NoDotAndDotDot});
+
+        if (searchedFiles > maxFilesToSearch)
+            break;
     }
 
     for (const Utils::FilePath &hiddenRccFolder : hiddenRccFolders) {

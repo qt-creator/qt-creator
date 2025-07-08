@@ -651,6 +651,8 @@ static QStringList subList(const QStringList &in, const QString &key)
 
 void PluginManager::remoteArguments(const QString &serializedArgument, QObject *socket)
 {
+    if (isShuttingDown())
+        return;
     if (serializedArgument.isEmpty())
         return;
     QStringList serializedArguments = serializedArgument.split(QLatin1Char('|'));

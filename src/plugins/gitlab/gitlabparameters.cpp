@@ -89,7 +89,7 @@ GitLabServer GitLabServer::fromJson(const QJsonObject &json)
 QStringList GitLabServer::curlArguments() const
 {
     // credentials from .netrc (?), no progress
-    QStringList args = { "-nsS" };
+    QStringList args = { "-sS", "--netrc-optional" };
     if (secure && !validateCert)
         args << "-k";
     return args;

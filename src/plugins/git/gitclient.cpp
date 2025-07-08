@@ -2627,12 +2627,12 @@ bool GitClient::launchGitGui(const FilePath &workingDirectory)
     process->setWorkingDirectory(workingDirectory);
     process->setCommand({gitBinary, {"gui"}});
     connect(process, &Process::done, this, [process, cannotLaunchGitGui] {
-        if (process->result() != ProcessResult::FinishedWithSuccess) {
+        if (process->result() == ProcessResult::StartFailed) {
             const QString errorMessage = process->readAllStandardError();
             VcsOutputWindow::appendError(process->workingDirectory(), cannotLaunchGitGui);
             VcsOutputWindow::appendError(process->workingDirectory(), errorMessage);
-            process->deleteLater();
         }
+        process->deleteLater();
     });
     process->start();
     return true;
