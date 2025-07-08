@@ -8,6 +8,8 @@
 #include "vcscommand.h"
 #include "vcsenums.h"
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/id.h>
 #include <utils/processenums.h>
 #include <utils/textcodec.h>
@@ -97,6 +99,7 @@ public:
     void executeInEditor(const Utils::FilePath &workingDirectory,
                          const Utils::CommandLine &command,
                          VcsBaseEditorWidget *editor) const;
+    void enqueueTask(const Tasking::ExecutableItem &task);
 
 protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);
@@ -105,8 +108,11 @@ protected:
 
 private:
     void saveSettings();
+    void startNextTask();
 
     VcsBaseSettings *m_baseSettings = nullptr; // Aspect based.
+    Tasking::TaskTreeRunner m_taskTreeRunner;
+    QList<Tasking::ExecutableItem> m_taskQueue;
 };
 
 class VCSBASE_EXPORT VcsBaseClient : public VcsBaseClientImpl
