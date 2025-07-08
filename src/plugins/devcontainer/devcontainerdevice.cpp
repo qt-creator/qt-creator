@@ -9,6 +9,8 @@
 #include <client/cmdbridgeclient.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <devcontainer/devcontainerconfig.h>
 
@@ -38,42 +40,57 @@ bool Device::handlesFile(const FilePath &filePath) const
     return false;
 }
 
-class ProgressDialog : public QProgressDialog
+class ProgressPromise : public QPromise<void>
 {
 public:
-    using Source = std::function<std::pair<int, int>()>;
-    Source sources = [] { return std::make_pair(0, 0); };
-
-    ProgressDialog()
-        : QProgressDialog(Core::ICore::dialogParent())
+    struct Progress
     {
-        setWindowModality(Qt::WindowModality::ApplicationModal);
-        setWindowTitle(Tr::tr("Starting DevContainer"));
-        setValue(1);
-        setLabelText(Tr::tr("Loading DevContainer..."));
+        int value;
+        int max;
+        Progress operator+(const Progress &other) const
+        {
+            return {value + other.value, max + other.max};
+        }
+    };
 
-        show();
+    ProgressPromise(Tasking::TaskTree &tree)
+    {
+        Core::FutureProgress *futureProgress = Core::ProgressManager::addTask(
+            future(), Tr::tr("Starting DevContainer"), "DevContainer.Startup");
+        QObject::connect(
+            futureProgress, &Core::FutureProgress::canceled, &tree, &Tasking::TaskTree::cancel);
+        QObject::connect(&tree, &Tasking::TaskTree::destroyed, &tree, [this]() { delete this; });
+
+        addSource(tree);
+        start();
     }
 
     void addSource(Tasking::TaskTree &taskTree)
     {
-        sources = [&taskTree, lastSource = sources]() {
-            auto last = lastSource();
-            return std::make_pair(
-                last.first + taskTree.progressValue(), last.second + taskTree.progressMaximum());
+        sources = [tt = QPointer<Tasking::TaskTree>(&taskTree),
+                   max = taskTree.progressMaximum(),
+                   lastSource = sources]() -> Progress {
+            Progress last = lastSource();
+            if (tt)
+                return last + Progress{tt->progressValue(), max};
+            return last + Progress{max, max};
         };
         update();
-        connect(&taskTree, &Tasking::TaskTree::progressValueChanged, this, &ProgressDialog::update);
+        QObject::connect(&taskTree, &Tasking::TaskTree::progressValueChanged, &taskTree, [this]() {
+            update();
+        });
     }
 
     void update()
     {
-        std::pair<int, int> total = sources();
-        if (maximum() != total.second)
-            setMaximum(total.second);
-        if (value() != total.first)
-            setValue(total.first);
+        Progress total = sources();
+        setProgressRange(0, total.max);
+        setProgressValue(total.value);
     }
+
+private:
+    using Source = std::function<Progress()>;
+    Source sources = []() -> Progress { return {0, 0}; };
 };
 
 Result<> Device::up(
@@ -84,9 +101,22 @@ Result<> Device::up(
     m_fileAccess.reset();
     m_systemEnvironment.reset();
 
-    ProgressDialog *progress = new ProgressDialog();
-
     using namespace Tasking;
+
+    TaskTree *tree = new TaskTree(this);
+    ProgressPromise *progress = new ProgressPromise(*tree);
+
+    connect(tree, &TaskTree::done, this, [progress, callback](DoneWith doneWith) {
+        progress->finish();
+        if (doneWith == DoneWith::Error) {
+            callback(ResultError(
+                Tr::tr("Failed to start DevContainer, check General Messages for details")));
+        } else {
+            callback(ResultOk);
+        }
+    });
+
+    connect(tree, &TaskTree::done, tree, &TaskTree::deleteLater);
 
     struct Options
     {
@@ -213,25 +243,7 @@ Result<> Device::up(
     };
     // clang-format on
 
-    Tasking::TaskTree *tree = new Tasking::TaskTree();
-    tree->setParent(this);
     tree->setRecipe(recipe);
-    progress->addSource(*tree);
-
-    connect(progress, &QProgressDialog::canceled, tree, &Tasking::TaskTree::cancel);
-
-    connect(tree, &Tasking::TaskTree::done, this, [callback](Tasking::DoneWith doneWith) {
-        if (doneWith == Tasking::DoneWith::Error) {
-            callback(ResultError(
-                Tr::tr("Failed to start DevContainer, check General Messages for details")));
-        } else {
-            callback(ResultOk);
-        }
-    });
-
-    connect(tree, &Tasking::TaskTree::done, progress, &QProgressDialog::deleteLater);
-    connect(tree, &Tasking::TaskTree::done, tree, &TaskTree::deleteLater);
-
     tree->start();
     return ResultOk;
 }
