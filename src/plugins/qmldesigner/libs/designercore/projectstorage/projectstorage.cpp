@@ -1886,7 +1886,7 @@ Storage::Info::ItemLibraryEntries ProjectStorage::directoryImportsItemLibraryEnt
         if (module.kind != Storage::ModuleKind::PathLibrary)
             return;
 
-        auto &last = entries.emplace_back(typeId, typeName, typeName, "My Components", module.name);
+        auto &last = entries.emplace_back(typeId, typeName, typeName, "", module.name);
         last.moduleKind = Storage::ModuleKind::PathLibrary;
         last.componentSourceId = componentSourceId;
     };

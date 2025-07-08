@@ -12,6 +12,7 @@
 
 #include <utils/algorithm.h>
 
+#include <filesystem>
 #include <functional>
 
 namespace QmlDesigner {
@@ -36,6 +37,7 @@ public:
     QString customComponentSource;
     QStringList extraFilePaths;
     QString toolTip;
+    SourceId sourceId;
 };
 
 } // namespace Internal
@@ -94,6 +96,31 @@ ItemLibraryEntry ItemLibraryEntry::create(const PathCacheType &pathCache,
     return itemLibraryEntry;
 }
 
+ItemLibraryEntry ItemLibraryEntry::createFromDirectory(const PathCacheType &pathCache,
+                                                       const Storage::Info::ItemLibraryEntry &entry,
+                                                       DirectoryPathId documentDirectoryId,
+                                                       std::string_view documentDirectoryPath)
+{
+    ItemLibraryEntry itemLibraryEntry = ItemLibraryEntry::create(pathCache, entry);
+    auto &m_data = itemLibraryEntry.m_data;
+
+    m_data->sourceId = entry.componentSourceId;
+    m_data->requiredImport.clear();
+
+    if (entry.componentSourceId.directoryPathId() == documentDirectoryId) {
+        m_data->category = "My Components";
+    } else {
+        Utils::PathString componentDirectoryPath = pathCache.directoryPath(
+            entry.componentSourceId.directoryPathId());
+        auto relativePath = std::filesystem::path{std::string_view{componentDirectoryPath}}
+                                .lexically_relative(documentDirectoryPath)
+                                .generic_u16string();
+        m_data->category = QString(relativePath);
+    }
+
+    return itemLibraryEntry;
+}
+
 ItemLibraryEntry::~ItemLibraryEntry() = default;
 
 QString ItemLibraryEntry::name() const
@@ -134,6 +161,11 @@ QStringList ItemLibraryEntry::extraFilePaths() const
 QString ItemLibraryEntry::toolTip() const
 {
     return m_data->toolTip;
+}
+
+SourceId ItemLibraryEntry::sourceId() const
+{
+    return m_data->sourceId;
 }
 
 int ItemLibraryEntry::majorVersion() const
@@ -297,6 +329,21 @@ QList<ItemLibraryEntry> toItemLibraryEntries(const PathCacheType &pathCache,
                                              const Storage::Info::ItemLibraryEntries &entries)
 {
     auto create = std::bind_front(&ItemLibraryEntry::create, std::ref(pathCache));
+    return Utils::transform<QList<ItemLibraryEntry>>(entries, create);
+}
+
+QList<ItemLibraryEntry> toItemLibraryEntriesFromDirectory(const PathCacheType &pathCache,
+                                                          const Storage::Info::ItemLibraryEntries &entries,
+                                                          DirectoryPathId documentDirectoryId,
+                                                          std::string_view documentDirectoryPath)
+{
+    auto create = [&](const auto &entry) -> ItemLibraryEntry {
+        return ItemLibraryEntry::createFromDirectory(pathCache,
+                                                     entry,
+                                                     documentDirectoryId,
+                                                     documentDirectoryPath);
+    };
+
     return Utils::transform<QList<ItemLibraryEntry>>(entries, create);
 }
 

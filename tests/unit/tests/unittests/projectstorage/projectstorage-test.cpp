@@ -8928,7 +8928,7 @@ TEST_F(ProjectStorage, get_directory_imports_item_library_entries_by_source_id)
                 UnorderedElementsAre(IsItemLibraryEntry(fetchTypeId(sourceId2, "QObject"),
                                                         "Object",
                                                         "Object",
-                                                        "My Components",
+                                                        "",
                                                         "/path/to",
                                                         ModuleKind::PathLibrary,
                                                         sourceId2)));

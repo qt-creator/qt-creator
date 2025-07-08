@@ -50,6 +50,10 @@ public:
 
     static ItemLibraryEntry create(const PathCacheType &pathCache,
                                    const Storage::Info::ItemLibraryEntry &entry);
+    static ItemLibraryEntry createFromDirectory(const PathCacheType &pathCache,
+                                                const Storage::Info::ItemLibraryEntry &entry,
+                                                DirectoryPathId documentDirectoryId,
+                                                std::string_view documentDirectoryPath);
 
     QString name() const;
     TypeName typeName() const;
@@ -64,6 +68,7 @@ public:
     QString customComponentSource() const;
     QStringList extraFilePaths() const;
     QString toolTip() const;
+    SourceId sourceId() const;
 
     using Property = QmlDesigner::PropertyContainer;
 
@@ -92,6 +97,12 @@ using ItemLibraryEntries = QList<ItemLibraryEntry>;
 
 QMLDESIGNERCORE_EXPORT QList<ItemLibraryEntry> toItemLibraryEntries(
     const PathCacheType &pathCache, const Storage::Info::ItemLibraryEntries &entries);
+
+QMLDESIGNERCORE_EXPORT QList<ItemLibraryEntry> toItemLibraryEntriesFromDirectory(
+    const PathCacheType &pathCache,
+    const Storage::Info::ItemLibraryEntries &entries,
+    DirectoryPathId documentDirectoryId,
+    std::string_view documentDirectoryPath);
 
 } // namespace QmlDesigner
 

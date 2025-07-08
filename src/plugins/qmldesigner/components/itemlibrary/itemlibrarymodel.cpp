@@ -353,6 +353,7 @@ Import ItemLibraryModel::entryToImport(const ItemLibraryEntry &entry)
     if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
         return Import::createFileImport(entry.requiredImport());
 #endif
+
     return Import::createLibraryImport(entry.requiredImport(), QString::number(entry.majorVersion()) + QLatin1Char('.') +
                                                                QString::number(entry.minorVersion()));
 
@@ -414,7 +415,7 @@ void ItemLibraryModel::update(Model *model)
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     const bool blockNewImports = document->inFileComponentModelActive();
 
-    TypeName currentFileType = QFileInfo(model->fileUrl().toLocalFile()).baseName().toUtf8();
+    SourceId currentDocumentSourceId = model->fileUrlSourceId();
 
     QList<ItemLibraryEntry> itemLibEntries = model->allItemLibraryEntries();
     itemLibEntries.append(model->directoryImportsItemLibraryEntries());
@@ -469,9 +470,10 @@ void ItemLibraryModel::update(Model *model)
             ItemLibraryImport *importSection = nullptr;
             QString catName = entry.category();
             if (isUsable) {
-                if (catName == ItemLibraryImport::userComponentsTitle()) {
-                    if (entry.requiredImport().isEmpty()) { // user components
-                        if (currentFileType == entry.typeName())
+                if (entry.sourceId()) {
+                    if (entry.sourceId().directoryPathId()
+                        == currentDocumentSourceId.directoryPathId()) { // user components
+                        if (currentDocumentSourceId == entry.sourceId())
                             continue;
                         importSection = importHash[ItemLibraryImport::userComponentsTitle()];
                         if (!importSection) {
@@ -482,8 +484,7 @@ void ItemLibraryModel::update(Model *model)
                             importSection->setImportExpanded(loadExpandedState(catName));
                         }
                     } else { // directory import
-                        importSection = importHash[entry.requiredImport()];
-
+                        importSection = importHash[entry.category()];
                     }
                 } else {
                     if (catName.contains("Qt Quick - ")) {

@@ -3224,8 +3224,11 @@ QList<ItemLibraryEntry> Model::directoryImportsItemLibraryEntries([[maybe_unused
                                keyValue("caller location", sl)};
 
     using namespace Storage::Info;
-    return toItemLibraryEntries(*d->pathCache,
-                                d->projectStorage->directoryImportsItemLibraryEntries(d->m_sourceId));
+    return toItemLibraryEntriesFromDirectory(*d->pathCache,
+                                             d->projectStorage->directoryImportsItemLibraryEntries(
+                                                 d->m_sourceId),
+                                             d->m_sourceId.directoryPathId(),
+                                             d->m_localPath);
 #else
     return {};
 #endif

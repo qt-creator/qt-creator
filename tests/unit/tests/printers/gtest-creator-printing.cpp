@@ -13,6 +13,7 @@
 #include <imagecache/imagecachestorageinterface.h>
 #include <imagecacheauxiliarydata.h>
 #include <import.h>
+#include <itemlibraryentry.h>
 #include <modelnode.h>
 #include <nodemetainfo.h>
 #include <projectstorage/filestatus.h>
@@ -602,6 +603,13 @@ std::ostream &operator<<(std::ostream &out, SourceId sourceId)
                << sourceId.directoryPathId().internalId() << ")";
 }
 
+std::ostream &operator<<(std::ostream &out, const ItemLibraryEntry &entry)
+{
+    return out << "(" << entry.typeName() << ", " << entry.name() << ", "
+               << entry.libraryEntryIconPath() << ", " << entry.category() << ", "
+               << entry.requiredImport() << ", " << entry.toolTip() << ", " << entry.templatePath()
+               << ", " << entry.extraFilePaths() << ")";
+}
 namespace Cache {
 
 std::ostream &operator<<(std::ostream &out, const DirectoryPath &directoryPath)
