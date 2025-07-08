@@ -638,8 +638,10 @@ template <typename Task>
 class SimpleTaskAdapter final : public TaskAdapter<Task>
 {
 public:
-    SimpleTaskAdapter() { this->connect(this->task(), &Task::done, this, &TaskInterface::done); }
-    void start() final { this->task()->start(); }
+    void start() final {
+        this->connect(this->task(), &Task::done, this, &TaskInterface::done, Qt::SingleShotConnection);
+        this->task()->start();
+    }
 };
 
 // A convenient helper, when:
@@ -717,9 +719,6 @@ private:
 
 class TASKING_EXPORT TaskTreeTaskAdapter final : public TaskAdapter<TaskTree>
 {
-public:
-    TaskTreeTaskAdapter();
-
 private:
     void start() final;
 };

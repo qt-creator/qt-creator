@@ -89,7 +89,7 @@ public:
         this->connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
             emit this->done(toDoneResult(!m_watcher->isCanceled()));
             m_watcher.release()->deleteLater();
-        });
+        }, Qt::SingleShotConnection);
         this->task()->m_future = this->task()->m_startHandler();
         m_watcher->setFuture(this->task()->m_future);
     }

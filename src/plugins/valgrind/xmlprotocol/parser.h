@@ -56,13 +56,12 @@ private:
 class ParserTaskAdapter final : public Tasking::TaskAdapter<Parser>
 {
 public:
-    ParserTaskAdapter()
-    {
+    void start() final {
         connect(task(), &Parser::done, this, [this](const Utils::Result<> &result) {
             emit done(Tasking::toDoneResult(result == Utils::ResultOk));
-        });
+        }, Qt::SingleShotConnection);
+        task()->start();
     }
-    void start() final { task()->start(); }
 };
 
 using ParserTask = Tasking::CustomTask<ParserTaskAdapter>;

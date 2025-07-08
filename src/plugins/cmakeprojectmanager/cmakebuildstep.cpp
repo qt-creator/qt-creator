@@ -76,7 +76,7 @@ public:
         }
         connect(bs, &BuildSystem::parsingFinished, this, [this](bool success) {
             emit done(toDoneResult(success));
-        });
+        }, Qt::SingleShotConnection);
     }
 };
 

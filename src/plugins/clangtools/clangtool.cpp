@@ -80,7 +80,7 @@ public:
         connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
                 this, [this](bool success) {
             emit done(toDoneResult(success));
-        });
+        }, Qt::SingleShotConnection);
         RunControl *runControl = *task();
         QTC_ASSERT(runControl, emit done(DoneResult::Error); return);
         BuildConfiguration *bc = runControl->buildConfiguration();

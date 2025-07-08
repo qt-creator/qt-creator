@@ -64,23 +64,19 @@ private:
 class QmlPreviewConnectionManagerTaskAdapter final : public Tasking::TaskAdapter<QmlPreviewConnectionManager>
 {
 public:
-    QmlPreviewConnectionManagerTaskAdapter()
+    ~QmlPreviewConnectionManagerTaskAdapter() { task()->disconnectFromServer(); }
+
+private:
+    void start() final
     {
         connect(task(), &QmlPreviewConnectionManager::connectionClosed, this, [this] {
             emit done(Tasking::DoneResult::Success);
-        });
+        }, Qt::SingleShotConnection);
         connect(task(), &QmlPreviewConnectionManager::connectionFailed, this, [this] {
             emit done(Tasking::DoneResult::Error);
-        });
+        }, Qt::SingleShotConnection);
+        task()->connectToServer();
     }
-
-    ~QmlPreviewConnectionManagerTaskAdapter()
-    {
-        task()->disconnectFromServer();
-    }
-
-private:
-    void start() final { task()->connectToServer(); }
 };
 
 using QmlPreviewConnectionManagerTask = Tasking::CustomTask<QmlPreviewConnectionManagerTaskAdapter>;

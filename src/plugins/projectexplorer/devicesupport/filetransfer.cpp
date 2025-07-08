@@ -201,7 +201,7 @@ static void setupTransfer(FileTransfer *transfer, TaskInterface *iface)
                              && result.m_error == QProcess::UnknownError
                              && result.m_exitCode == 0;
         emit iface->done(toDoneResult(success));
-    });
+    }, Qt::SingleShotConnection);
 }
 
 void FileTransferTaskAdapter::start()

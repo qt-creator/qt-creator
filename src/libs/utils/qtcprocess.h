@@ -231,7 +231,6 @@ public:
 class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter final : public Tasking::TaskAdapter<Process>
 {
 public:
-    ProcessTaskAdapter();
     void start() final;
 };
 

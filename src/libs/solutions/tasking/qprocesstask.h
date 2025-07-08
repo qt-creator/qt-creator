@@ -57,12 +57,12 @@ private:
                                  && task()->error() == QProcess::UnknownError
                                  && task()->exitCode() == 0;
             Q_EMIT done(toDoneResult(success));
-        });
+        }, Qt::SingleShotConnection);
         connect(task(), &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
             if (error != QProcess::FailedToStart)
                 return;
             Q_EMIT done(DoneResult::Error);
-        });
+        }, Qt::SingleShotConnection);
         task()->start();
     }
 };

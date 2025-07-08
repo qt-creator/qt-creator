@@ -8,15 +8,11 @@ using namespace Tasking;
 
 namespace LanguageClient {
 
-ClientWorkspaceSymbolRequestTaskAdapter::ClientWorkspaceSymbolRequestTaskAdapter()
+void ClientWorkspaceSymbolRequestTaskAdapter::start()
 {
     task()->setResponseCallback([this](const WorkspaceSymbolRequest::Response &response){
         emit done(toDoneResult(response.result().has_value()));
     });
-}
-
-void ClientWorkspaceSymbolRequestTaskAdapter::start()
-{
     task()->start();
 }
 

@@ -2136,15 +2136,11 @@ void ProcessPrivate::storeEventLoopDebugInfo(const QVariant &value)
         setProperty(QTC_PROCESS_BLOCKING_TYPE, value);
 }
 
-ProcessTaskAdapter::ProcessTaskAdapter()
+void ProcessTaskAdapter::start()
 {
     connect(task(), &Process::done, this, [this] {
         emit done(Tasking::toDoneResult(task()->result() == ProcessResult::FinishedWithSuccess));
-    });
-}
-
-void ProcessTaskAdapter::start()
-{
+    }, Qt::SingleShotConnection);
     task()->start();
 }
 

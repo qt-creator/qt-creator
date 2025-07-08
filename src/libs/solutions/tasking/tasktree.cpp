@@ -3546,14 +3546,11 @@ void TaskTree::setupStorageHandler(const StorageBase &storage,
     }
 }
 
-TaskTreeTaskAdapter::TaskTreeTaskAdapter()
-{
-    connect(task(), &TaskTree::done, this,
-            [this](DoneWith result) { emit done(toDoneResult(result)); });
-}
-
 void TaskTreeTaskAdapter::start()
 {
+    connect(task(), &TaskTree::done, this, [this](DoneWith result) {
+        emit done(toDoneResult(result));
+    }, Qt::SingleShotConnection);
     task()->start();
 }
 

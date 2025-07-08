@@ -47,7 +47,7 @@ void CredentialQueryTaskAdapter::start()
         disconnect(job, &Job::finished, this, nullptr);
         emit done(toDoneResult(success));
         m_guard.release()->deleteLater();
-    });
+    }, Qt::SingleShotConnection);
     job->start();
 }
 

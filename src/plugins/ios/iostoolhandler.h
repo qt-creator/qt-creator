@@ -90,7 +90,6 @@ private:
 class IosToolTaskAdapter final : public Tasking::TaskAdapter<IosToolRunner>
 {
 public:
-    IosToolTaskAdapter();
     void start() final;
 };
 

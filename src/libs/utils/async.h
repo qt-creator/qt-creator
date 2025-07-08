@@ -224,12 +224,12 @@ template <typename ResultType>
 class AsyncTaskAdapter final : public Tasking::TaskAdapter<Async<ResultType>>
 {
 public:
-    AsyncTaskAdapter() {
+    void start() final {
         this->connect(this->task(), &AsyncBase::done, this, [this] {
             emit this->done(Tasking::toDoneResult(!this->task()->isCanceled()));
-        });
+        }, Qt::SingleShotConnection);
+        this->task()->start();
     }
-    void start() final { this->task()->start(); }
 };
 
 template <typename T>

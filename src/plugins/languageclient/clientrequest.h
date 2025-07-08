@@ -71,7 +71,6 @@ class LANGUAGECLIENT_EXPORT ClientWorkspaceSymbolRequestTaskAdapter final
     : public Tasking::TaskAdapter<ClientWorkspaceSymbolRequest>
 {
 public:
-    ClientWorkspaceSymbolRequestTaskAdapter();
     void start() final;
 };
 
