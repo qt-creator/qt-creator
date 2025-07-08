@@ -1203,11 +1203,46 @@ static Result<Group> prepareContainerRecipe(
         const FilePath contextPath = configFileDir.resolvePath(containerConfig.context);
         const FilePath dockerFile = configFileDir.resolvePath(containerConfig.dockerfile);
 
+        const QStringList cacheFromArgs = [&] {
+            if (!containerConfig.buildOptions->cacheFrom)
+                return QStringList{};
+
+            return std::visit(
+                overloaded{
+                    [](const QString &cacheFrom) { return QStringList{"--cache-from", cacheFrom}; },
+                    [](const QStringList &cacheFroms) {
+                        return Utils::transform<QStringList>(cacheFroms, [](const QString &cf) {
+                            return QString("--cache-from=%1").arg(cf);
+                        });
+                    }},
+                *containerConfig.buildOptions->cacheFrom);
+        }();
+
+        const QStringList target = [&] {
+            if (!containerConfig.buildOptions->target)
+                return QStringList{};
+            return QStringList{"--target", *containerConfig.buildOptions->target};
+        }();
+
+        const QStringList extraBuildArgs = [&] {
+            QStringList args;
+            for (const auto &[k, v] : containerConfig.buildOptions->args) {
+                if (v.isEmpty())
+                    args << QStringList{"--build-arg", k};
+                args << QStringList{"--build-arg", QString("%1=%2").arg(k, v)};
+            }
+            return args;
+        }();
+
         CommandLine buildCmdLine{
             instanceConfig.dockerCli,
             {"build",
              {"-f", dockerFile.nativePath()},
              {"-t", imageName(instanceConfig)},
+             containerConfig.buildOptions->options,
+             cacheFromArgs,
+             target,
+             extraBuildArgs,
              contextPath.nativePath()}};
         process.setCommand(buildCmdLine);
         process.setWorkingDirectory(instanceConfig.workspaceFolder);

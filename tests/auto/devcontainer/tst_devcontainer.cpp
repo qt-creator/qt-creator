@@ -259,7 +259,7 @@ void tst_DevContainer::upDockerfile()
     dockerFile.setFileTemplate(QDir::tempPath() + "/DockerfileXXXXXX");
     QVERIFY(dockerFile.open());
     dockerFile.write(R"(
-FROM alpine:latest
+FROM alpine:latest AS test
     )");
     dockerFile.flush();
 
@@ -271,7 +271,7 @@ FROM alpine:latest
             .target = "test",
             .args = {{"arg1", "value1"}, {"arg2", "value2"}},
             .cacheFrom = QStringList{"cache1", "cache2"},
-            .options = QStringList{"--option1", "--option2"},
+            .options = QStringList{"--annotation=testkey=testvalue"},
         },
     };
     config.containerConfig = dockerFileConfig;
