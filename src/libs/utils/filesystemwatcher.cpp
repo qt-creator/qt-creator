@@ -86,8 +86,14 @@ class WatchEntry
 public:
     using WatchMode = FileSystemWatcher::WatchMode;
 
-    explicit WatchEntry(const FilePath &file, WatchMode wm) :
-        watchMode(wm), modifiedTime(file.lastModified()) {}
+    explicit WatchEntry(const FilePath &file, WatchMode wm)
+        : watchMode(wm)
+    {
+        if (watchMode == FileSystemWatcher::WatchModifiedDate) {
+            modifiedTime = file.lastModified();
+            QTC_CHECK(modifiedTime.isValid());
+        }
+    }
 
     bool trigger(const FilePath &fileName);
 
@@ -100,7 +106,9 @@ bool WatchEntry::trigger(const FilePath &filePath)
 {
     if (watchMode == FileSystemWatcher::WatchAllChanges)
         return true;
+
     // Modified changed?
+    QTC_ASSERT(modifiedTime.isValid(), return false);
     const QDateTime newModifiedTime = filePath.exists() ? filePath.lastModified() : QDateTime();
     if (newModifiedTime != modifiedTime) {
         modifiedTime = newModifiedTime;
