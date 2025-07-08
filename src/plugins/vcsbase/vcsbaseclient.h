@@ -51,8 +51,7 @@ public:
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
 
-    VcsCommand *createCommand(const Utils::FilePath &workingDirectory,
-                              VcsBaseEditorWidget *editor = nullptr) const;
+    VcsCommand *createCommand(const Utils::FilePath &workingDirectory) const;
 
     void setupCommand(Utils::Process &process,
                       const Utils::FilePath &workingDirectory,

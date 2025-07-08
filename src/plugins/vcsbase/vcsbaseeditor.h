@@ -33,7 +33,6 @@ class BaseAnnotationHighlighter;
 class CommandResult;
 class VcsBaseEditorConfig;
 class VcsBaseEditorWidget;
-class VcsCommand;
 class VcsEditorFactory;
 
 // Documentation inside
@@ -199,7 +198,6 @@ public:
     void executeTask(const Tasking::ExecutableItem &task,
                      const Tasking::Storage<CommandResult> &resultStorage);
 
-    void setCommand(VcsCommand *command);
     void setDefaultLineNumber(int line);
     void gotoDefaultLine();
 
@@ -260,8 +258,6 @@ private:
     void slotAnnotateRevision(const QString &change);
     void slotApplyDiffChunk(const DiffChunk &chunk, Core::PatchAction patchAction);
     void slotPaste();
-    void showProgressIndicator();
-    void hideProgressIndicator();
 
     bool canApplyDiffChunk(const DiffChunk &dc) const;
     // Revert a patch chunk. Default implementation uses patch.exe

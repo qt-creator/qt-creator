@@ -69,13 +69,9 @@ FilePath VcsBaseClientImpl::vcsBinary(const Utils::FilePath &forDirectory) const
     return m_baseSettings->binaryPath();
 }
 
-VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
-                                             VcsBaseEditorWidget *editor) const
+VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory) const
 {
-    auto cmd = createVcsCommand(workingDirectory, processEnvironment(workingDirectory));
-    if (editor)
-        editor->setCommand(cmd);
-    return cmd;
+    return createVcsCommand(workingDirectory, processEnvironment(workingDirectory));
 }
 
 void VcsBaseClientImpl::setupCommand(Utils::Process &process,

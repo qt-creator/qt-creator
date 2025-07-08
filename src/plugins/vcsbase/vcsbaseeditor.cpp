@@ -36,7 +36,6 @@
 #include <texteditor/syntaxhighlighter.h>
 
 #include <utils/algorithm.h>
-#include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -53,6 +52,7 @@
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextEdit>
+#include <QTimer>
 #include <QUrl>
 
 /*!
@@ -566,8 +566,6 @@ public:
     QString m_annotatePreviousRevisionTextFormat;
     VcsBaseEditorConfig *m_config = nullptr;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
-    QPointer<VcsCommand> m_command;
-    ProgressIndicator *m_progressIndicator = nullptr;
     bool m_fileLogAnnotateEnabled = false;
     bool m_mouseDragging = false;
 
@@ -775,7 +773,6 @@ void VcsBaseEditorWidget::init()
 
 VcsBaseEditorWidget::~VcsBaseEditorWidget()
 {
-    setCommand(nullptr); // abort all running commands
     delete d;
 }
 
@@ -1408,29 +1405,6 @@ void VcsBaseEditorWidget::executeTask(const ExecutableItem &task,
     d->m_taskTreeRunner.start(recipe);
 }
 
-void VcsBaseEditorWidget::setCommand(VcsCommand *command)
-{
-    if (d->m_command) {
-        delete d->m_command;
-        hideProgressIndicator();
-    }
-    d->m_command = command;
-    if (command) {
-        d->m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
-        d->m_progressIndicator->attachToWidget(this);
-        connect(command, &VcsCommand::done, this, [this, command] {
-            hideProgressIndicator();
-            if (command->result() != ProcessResult::FinishedWithSuccess) {
-                textDocument()->setPlainText(Tr::tr("Failed to retrieve data."));
-                return;
-            }
-            setPlainText(command->cleanedStdOut());
-            gotoDefaultLine();
-        });
-        QTimer::singleShot(100, this, &VcsBaseEditorWidget::showProgressIndicator);
-    }
-}
-
 void VcsBaseEditorWidget::setDefaultLineNumber(int line)
 {
     d->m_defaultLineNumber = line;
@@ -1521,19 +1495,6 @@ void VcsBaseEditorWidget::slotPaste()
     auto pasteService = ExtensionSystem::PluginManager::getObject<CodePaster::Service>();
     QTC_ASSERT(pasteService, return);
     pasteService->postCurrentEditor();
-}
-
-void VcsBaseEditorWidget::showProgressIndicator()
-{
-    if (!d->m_progressIndicator) // already stopped and deleted
-        return;
-    d->m_progressIndicator->show();
-}
-
-void VcsBaseEditorWidget::hideProgressIndicator()
-{
-    delete d->m_progressIndicator;
-    d->m_progressIndicator = nullptr;
 }
 
 bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
