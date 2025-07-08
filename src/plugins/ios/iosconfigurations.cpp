@@ -85,6 +85,8 @@ const char profileTeamIdTag[] = "TeamIdentifier";
 static const QString xcodePlistPath = QDir::homePath() + "/Library/Preferences/com.apple.dt.Xcode.plist";
 static const QString provisioningProfileDirPath = QDir::homePath() + "/Library/MobileDevice/Provisioning Profiles";
 
+const char iosDetectionSource[] = "iosdetectionsource";
+
 static Id deviceId(const QString &sdkName)
 {
     if (sdkName.startsWith("iphoneos", Qt::CaseInsensitive))
@@ -112,9 +114,7 @@ static QList<GccToolchain *> autoDetectedIosToolchains()
 {
     const QList<GccToolchain *> toolchains = clangToolchains(ToolchainManager::toolchains());
     return filtered(toolchains, [](GccToolchain *toolChain) {
-        return toolChain->isAutoDetected()
-               && (toolChain->displayName().startsWith("iphone")
-                   || toolChain->displayName().startsWith("Apple Clang")); // TODO tool chains should be marked directly
+        return toolChain->isAutoDetected() && toolChain->detectionSource() == iosDetectionSource;
     });
 }
 
@@ -624,7 +624,6 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                     toolChain = new GccToolchain(ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID,
                                                  GccToolchain::Clang);
                     toolChain->setPriority(Toolchain::PriorityLow);
-                    toolChain->setDetection(Toolchain::AutoDetection);
                     toolChain->setLanguage(l);
                     toolChain->setDisplayName(target.name);
                     toolChain->setPlatformCodeGenFlags(target.backendFlags);
@@ -633,6 +632,8 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                                                   platform.cxxCompilerPath : platform.cCompilerPath);
                     existingClangToolchains.append(toolChain);
                 }
+                toolChain->setDetection(Toolchain::AutoDetection);
+                toolChain->setDetectionSource(iosDetectionSource);
                 toolchains.append(toolChain);
             };
 
