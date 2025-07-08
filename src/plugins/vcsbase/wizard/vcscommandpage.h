@@ -17,11 +17,7 @@ QT_END_NAMESPACE
 
 namespace Utils { class OutputFormatter; }
 
-namespace VcsBase {
-
-class VcsCommand;
-
-namespace Internal {
+namespace VcsBase::Internal {
 
 class VcsCommandPageFactory : public ProjectExplorer::JsonWizardPageFactory
 {
@@ -68,5 +64,4 @@ private:
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
-} // namespace Internal
-} // namespace VcsBase
+} // namespace VcsBase::Internal

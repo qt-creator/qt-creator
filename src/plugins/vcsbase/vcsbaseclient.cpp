@@ -70,11 +70,6 @@ FilePath VcsBaseClientImpl::vcsBinary(const Utils::FilePath &forDirectory) const
     return m_baseSettings->binaryPath();
 }
 
-VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory) const
-{
-    return createVcsCommand(workingDirectory, processEnvironment(workingDirectory));
-}
-
 void VcsBaseClientImpl::setupCommand(Utils::Process &process,
                                      const FilePath &workingDirectory,
                                      const QStringList &args) const
@@ -214,14 +209,6 @@ void VcsBaseClientImpl::startNextTask()
 int VcsBaseClientImpl::vcsTimeoutS() const
 {
     return m_baseSettings->timeout();
-}
-
-VcsCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDir,
-                                                const Environment &environment)
-{
-    auto command = new VcsCommand(defaultWorkingDir, environment);
-    command->setParent(Utils::shutdownGuard());
-    return command;
 }
 
 VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,

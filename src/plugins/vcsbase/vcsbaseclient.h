@@ -55,16 +55,11 @@ public:
     virtual Utils::FilePath vcsBinary(const Utils::FilePath &forDirectory) const;
     int vcsTimeoutS() const;
 
-    static VcsCommand *createVcsCommand(const Utils::FilePath &defaultWorkingDir,
-                                        const Utils::Environment &environment);
-
     VcsBaseEditorWidget *createVcsEditor(Utils::Id kind, QString title,
                                          const Utils::FilePath &source,
                                          const Utils::TextEncoding &encoding,
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
-
-    VcsCommand *createCommand(const Utils::FilePath &workingDirectory) const;
 
     void setupCommand(Utils::Process &process,
                       const Utils::FilePath &workingDirectory,

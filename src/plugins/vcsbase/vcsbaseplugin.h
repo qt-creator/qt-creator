@@ -35,7 +35,6 @@ namespace Internal { class State; }
 class VcsBaseSubmitEditor;
 class VersionControlBase;
 class VcsBasePluginStateData;
-class VcsCommand;
 
 // Documentation inside.
 class VCSBASE_EXPORT VcsBasePluginState
