@@ -376,12 +376,14 @@ ICore::ICore()
     d = new ICorePrivate;
     d->init(); // Separation needed for now as the call triggers other MainWindow calls.
 
-    connect(PluginManager::instance(), &PluginManager::testsFinished,
-            this, [this](int failedTests) {
-        emit coreAboutToClose();
+    connect(PluginManager::instance(), &PluginManager::testsFinished, this, [this](int failedTests) {
+        const bool keepOpenAfterTest = qtcEnvironmentVariableIsSet("QTC_KEEP_OPEN_AFTER_TEST");
+        if (!keepOpenAfterTest)
+            emit coreAboutToClose();
         if (failedTests != 0)
             qWarning("Test run was not successful: %d test(s) failed.", failedTests);
-        QCoreApplication::exit(failedTests);
+        if (!keepOpenAfterTest)
+            QCoreApplication::exit(failedTests);
     });
     connect(PluginManager::instance(), &PluginManager::scenarioFinished,
             this, [this](int exitCode) {
