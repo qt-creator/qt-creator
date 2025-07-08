@@ -1117,9 +1117,10 @@ void IssuesWidget::fetchLocalDashboard()
             return;
         }
         fetchNamedFilters(DashboardMode::Local);
-        fetchTable();
     };
     hideOverlays();
+    m_currentPrefix.clear();
+    m_issuesModel->clear();
     m_issuesView->showProgressIndicator();
     fetchLocalDashboardInfo(onDashboardInfoFetched, m_currentProject);
 }

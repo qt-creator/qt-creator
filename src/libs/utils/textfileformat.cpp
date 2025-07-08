@@ -195,8 +195,7 @@ Result<> TextFileFormat::readFileUtf8(const FilePath &filePath,
 /*!
     Writes out a text file to \a filePath into a string, \a plainText.
 
-    Returns whether decoding was possible without errors. If errors occur,
-    returns an error message, \a errorString.
+    Returns whether decoding was possible without errors.
 */
 
 Result<> TextFileFormat::writeFile(const FilePath &filePath, QString plainText) const

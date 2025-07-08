@@ -3240,7 +3240,7 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Insert:
         if (ro) break;
-        if (e->modifiers() == Qt::NoModifier) {
+        if (e->modifiers() == Qt::NoModifier || e->modifiers() == Qt::KeypadModifier) {
             setOverwriteMode(!inOverwriteMode);
             if (inOverwriteMode) {
                 for (const QTextCursor &cursor : multiTextCursor()) {
