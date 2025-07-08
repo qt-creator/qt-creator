@@ -367,6 +367,21 @@ void BundleHelper::maybeCloseZip()
         m_zipWriter->close();
 }
 
+static QString nodeTypeName(const ModelNode &node, Model *model)
+{
+    using Storage::Info::ExportedTypeName;
+    using Storage::Module;
+
+    ExportedTypeName exportedName = model->exportedTypeNameForMetaInfo(node.metaInfo());
+    if (exportedName.moduleId) {
+        Module moduleStorageModule = model->projectStorageDependencies().modulesStorage.module(
+            exportedName.moduleId);
+        return moduleStorageModule.name.toQString();
+    }
+
+    return QString::fromUtf8(node.type());
+}
+
 static Storage::Info::ExportedTypeNames getTypeNamesForNode(const ModelNode &node, Model *model)
 {
     using Storage::Info::ExportedTypeName;
@@ -452,6 +467,24 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
         ModulesStorage &modulesStorage = model->projectStorageDependencies().modulesStorage;
 
         Imports imports = getRequiredImports(node, modulesStorage, model);
+        auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+        const QString materialsBundleType = compUtils.materialsBundleType();
+
+        // For the exported components we should move Bundles.Materials dependencies to Bundles.UserMaterials
+        // In order to make them portable. So we need to change the imports here as well.
+        for (Import &import : imports) {
+            if (!import.isLibraryImport())
+                continue;
+
+            if (QString importUrl = import.url(); importUrl == materialsBundleType) {
+                importUrl.replace(materialsBundleType, compUtils.userMaterialsBundleType());
+                import = Import::createLibraryImport(importUrl,
+                                                     import.version(),
+                                                     import.alias(),
+                                                     import.importPaths());
+            }
+        }
+
         QString importsStr = Utils::transform(imports, &Import::toImportString).join(QChar::LineFeed);
         if (!importsStr.isEmpty())
             importsStr.append(QString(2, QChar::LineFeed));
@@ -541,7 +574,8 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
 
     if (node.isComponent()) {
         auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-        bool isBundle = node.type().startsWith(compUtils.componentBundlesTypePrefix().toLatin1());
+        bool isBundle = nodeTypeName(node, node.model())
+                            .startsWith(compUtils.componentBundlesTypePrefix() + ".");
 
         if (depth > 0) {
             // add component file to the dependency assets
@@ -549,9 +583,11 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
             assets.insert({compFilePath.parentDir(), compFilePath.fileName()});
         }
 
-        // TODO: use getComponentDependencies() and remove getBundleComponentDependencies()
-        if (isBundle)
-            assets.unite(getBundleComponentDependencies(node));
+        if (isBundle) {
+            Utils::FilePath compFilePath = componentPath(node);
+            Utils::FilePath compDir = compFilePath.parentDir();
+            assets.unite(getComponentDependencies(compFilePath, compDir));
+        }
     }
 
     return {qml, assets};

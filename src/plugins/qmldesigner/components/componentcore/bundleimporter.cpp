@@ -73,11 +73,30 @@ QString BundleImporter::importComponent(const QString &bundleDir,
     if (m_pendingImports.contains(type) && !m_pendingImports[type].isImport)
         return QStringLiteral("Unable to import while unimporting the same type: '%1'").arg(QLatin1String(type));
 
-    if (!qmldirContent.contains(qmlFile)) {
-        qmldirContent.append(qmlType);
-        qmldirContent.append(" 1.0 ");
-        qmldirContent.append(qmlFile);
-        qmldirContent.append('\n');
+    bool typeAdded = false;
+    auto addTypeToQmldir = [&qmldirContent, &typeAdded](const QString &qmlType,
+                                                        const QString &qmlFile) {
+        const QString pattern = QString{"^%1 %2 %3$"}.arg(QRegularExpression::escape(qmlType),
+                                                          QRegularExpression::escape("1.0"),
+                                                          QRegularExpression::escape(qmlFile));
+        const QRegularExpression regex{pattern};
+        if (!qmldirContent.contains(regex)) {
+            qmldirContent.append(qmlType);
+            qmldirContent.append(" 1.0 ");
+            qmldirContent.append(qmlFile);
+            qmldirContent.append('\n');
+            typeAdded = true;
+        }
+    };
+
+    addTypeToQmldir(qmlType, qmlFile);
+#ifdef QDS_USE_PROJECTSTORAGE
+    for (const QString &file : files) {
+        if (const QFileInfo fileInfo{file}; fileInfo.suffix() == "qml")
+            addTypeToQmldir(fileInfo.baseName(), file);
+    }
+#endif
+    if (typeAdded) {
         qmldirPath.writeFileContents(qmldirContent.toUtf8());
         doReset = true;
     }
