@@ -35,6 +35,17 @@ class VcsBaseEditorWidget;
 
 using CommandHandler = std::function<void(const CommandResult &)>;
 
+class VCSBASE_EXPORT VcsCommandData
+{
+public:
+    Utils::FilePath workingDirectory;
+    QStringList arguments;
+    RunFlags flags = RunFlags::None;
+    Core::ProgressParser progressParser = {};
+    Utils::TextEncoding encoding = {};
+    CommandHandler commandHandler = {};
+};
+
 class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
 {
 public:
@@ -100,6 +111,7 @@ public:
                          const Utils::CommandLine &command,
                          VcsBaseEditorWidget *editor) const;
     void enqueueTask(const Tasking::ExecutableItem &task);
+    void enqueueCommand(const VcsCommandData &data);
 
 protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);

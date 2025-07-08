@@ -212,6 +212,37 @@ void VcsBaseClientImpl::enqueueTask(const ExecutableItem &task)
         startNextTask();
 }
 
+void VcsBaseClientImpl::enqueueCommand(const VcsCommandData &data)
+{
+    const Storage<CommandResult> resultStorage;
+
+    const VcsProcessData processData{
+        .runData = {
+            {vcsBinary(data.workingDirectory), data.arguments},
+            data.workingDirectory,
+            processEnvironment(data.workingDirectory)},
+        .flags = data.flags,
+        .progressParser = data.progressParser,
+        .encoding = data.encoding
+    };
+
+    const auto task = data.commandHandler ? vcsProcessTask(processData, resultStorage)
+                                          : vcsProcessTask(processData);
+
+    const auto onDone = [resultStorage, commandHandler = data.commandHandler] {
+        if (commandHandler)
+            commandHandler(*resultStorage);
+    };
+
+    const Group recipe {
+        resultStorage,
+        task,
+        data.commandHandler ? onGroupDone(onDone) : nullItem
+    };
+
+    enqueueTask(recipe);
+}
+
 void VcsBaseClientImpl::startNextTask()
 {
     if (!m_taskQueue.isEmpty())
