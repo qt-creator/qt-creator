@@ -90,12 +90,6 @@ public:
                                      RunFlags flags = RunFlags::None,
                                      int timeoutS = -1, const Utils::TextEncoding &encoding = {}) const;
 
-    void vcsExecWithHandler(const Utils::FilePath &workingDirectory,
-                            const QStringList &arguments,
-                            const QObject *context,
-                            const CommandHandler &handler,
-                            RunFlags additionalFlags = RunFlags::None,
-                            const Utils::TextEncoding &encoding = {}) const;
     void executeInEditor(const Utils::FilePath &workingDirectory,
                          const QStringList &arguments,
                          VcsBaseEditorWidget *editor) const;

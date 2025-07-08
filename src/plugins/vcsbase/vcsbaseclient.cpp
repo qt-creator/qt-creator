@@ -147,25 +147,6 @@ void VcsBaseClientImpl::annotateRevisionRequested(const FilePath &workingDirecto
     annotate(workingDirectory, file, line, changeCopy);
 }
 
-void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
-                                           const QStringList &arguments,
-                                           const QObject *context,
-                                           const CommandHandler &handler,
-                                           RunFlags additionalFlags, const TextEncoding &encoding) const
-{
-    VcsCommand *command = createCommand(workingDirectory);
-    command->addFlags(additionalFlags);
-    command->setEncoding(encoding);
-    command->addJob({vcsBinary(workingDirectory), arguments}, vcsTimeoutS());
-    if (handler) {
-        const QObject *actualContext = context ? context : this;
-        connect(command, &VcsCommand::done, actualContext, [command, handler] {
-            handler(CommandResult(*command));
-        });
-    }
-    command->start();
-}
-
 void VcsBaseClientImpl::executeInEditor(const FilePath &workingDirectory,
                                         const CommandLine &command,
                                         VcsBaseEditorWidget *editor) const

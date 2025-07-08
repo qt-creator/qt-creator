@@ -367,7 +367,7 @@ public:
     Utils::TextEncoding encoding(EncodingType encodingType, const Utils::FilePath &source = {}) const;
 
     void readConfigAsync(const Utils::FilePath &workingDirectory, const QStringList &arguments,
-                         const VcsBase::CommandHandler &handler) const;
+                         const VcsBase::CommandHandler &handler);
 
     static QString styleColorName(TextEditor::TextStyle style);
     static ColorNames colorNames();

@@ -459,8 +459,8 @@ void InstantBlame::perform()
         const FilePath topLevel = currentState().topLevel();
 
         qCDebug(log) << "Running git" << lineDiffOptions.join(' ');
-        gitClient().vcsExecWithHandler(topLevel, lineDiffOptions, this,
-                                       lineDiffHandler, RunFlags::NoOutput, m_encoding);
+        gitClient().enqueueCommand({topLevel, lineDiffOptions, RunFlags::NoOutput, {},
+                                    m_encoding, lineDiffHandler});
     };
     QStringList options = {"blame", "-p"};
     if (settings().instantBlameIgnoreSpaceChanges())
@@ -469,8 +469,8 @@ void InstantBlame::perform()
         options.append("-M");
     options.append({"-L", lineString, "--", filePath.toUrlishString()});
     qCDebug(log) << "Running git" << options.join(' ');
-    gitClient().vcsExecWithHandler(workingDirectory, options, this,
-                                   commandHandler, RunFlags::NoOutput, m_encoding);
+    gitClient().enqueueCommand({workingDirectory, options, RunFlags::NoOutput, {}, m_encoding,
+                                commandHandler});
 }
 
 void InstantBlame::stop()

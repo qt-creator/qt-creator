@@ -973,8 +973,8 @@ void GitClient::updateNextModificationInfo()
 
         emitFileStatusChanged(info.rootPath, statusChangedFiles);
     };
-    vcsExecWithHandler(path, {"status", "-s", "--porcelain", "--ignore-submodules"},
-                       this, command, RunFlags::NoOutput);
+    enqueueCommand({path, {"status", "-s", "--porcelain", "--ignore-submodules"},
+                    RunFlags::NoOutput, {}, {}, command});
 }
 
 TextEncoding GitClient::defaultCommitEncoding() const
@@ -1352,8 +1352,9 @@ void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file,
 }
 
 void GitClient::checkout(const FilePath &workingDirectory, const QString &ref, StashMode stashMode,
-                         const QObject *context, const VcsBase::CommandHandler &handler)
+                         const QObject *context, const CommandHandler &handler)
 {
+    Q_UNUSED(context) // TODO: Remove.
     if (stashMode == StashMode::TryStash && !beginStashScope(workingDirectory, "Checkout"))
         return;
 
@@ -1366,8 +1367,9 @@ void GitClient::checkout(const FilePath &workingDirectory, const QString &ref, S
         if (handler)
             handler(result);
     };
-    vcsExecWithHandler(workingDirectory, arguments, context, commandHandler,
-               RunFlags::ShowStdOut | RunFlags::ExpectRepoChanges | RunFlags::ShowSuccessMessage);
+    enqueueCommand({workingDirectory, arguments,
+                    RunFlags::ShowStdOut | RunFlags::ExpectRepoChanges | RunFlags::ShowSuccessMessage,
+                    {}, {}, commandHandler});
 }
 
 /* method used to setup arguments for checkout, in case user wants to create local branch */
@@ -1472,8 +1474,8 @@ void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, cons
         if (result.result() == ProcessResult::FinishedWithSuccess)
             updateBranches(workingDirectory);
     };
-    vcsExecWithHandler(workingDirectory, arguments, this, commandHandler,
-                       RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
+    enqueueCommand({workingDirectory, arguments,
+                    RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage, {}, {}, commandHandler});
 }
 
 void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
@@ -2314,9 +2316,9 @@ void GitClient::updateSubmodulesIfNeeded(const FilePath &workingDirectory, bool 
         }
     }
 
-    vcsExecWithHandler(workingDirectory, {"submodule", "update"},
-                       this, [this](const CommandResult &) { finishSubmoduleUpdate(); },
-                       RunFlags::ShowStdOut | RunFlags::ExpectRepoChanges);
+    enqueueCommand({workingDirectory, {"submodule", "update"},
+                    RunFlags::ShowStdOut | RunFlags::ExpectRepoChanges, {}, {},
+                    [this](const CommandResult &) { finishSubmoduleUpdate(); }});
 }
 
 void GitClient::finishSubmoduleUpdate()
@@ -3120,8 +3122,8 @@ void GitClient::fetch(const FilePath &workingDirectory, const QString &remote)
         if (result.result() == ProcessResult::FinishedWithSuccess)
             updateBranches(workingDirectory);
     };
-    vcsExecWithHandler(workingDirectory, arguments, this, commandHandler,
-                       RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
+    enqueueCommand({workingDirectory, arguments,
+                    RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage, {}, {}, commandHandler});
 }
 
 bool GitClient::executeAndHandleConflicts(const FilePath &workingDirectory,
@@ -3326,10 +3328,10 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
                 if (result.result() == ProcessResult::FinishedWithSuccess)
                     updateCurrentBranch();
             };
-            vcsExecWithHandler(workingDirectory,
-                               QStringList{"push", "--force-with-lease"} + pushArgs,
-                               this, commandHandler,
-                               RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
+            enqueueCommand({workingDirectory,
+                            QStringList{"push", "--force-with-lease"} + pushArgs,
+                            RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage, {}, {},
+                            commandHandler});
             return;
         }
         // NoRemoteBranch case
@@ -3348,12 +3350,11 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
             if (result.result() == ProcessResult::FinishedWithSuccess)
                 updateBranches(workingDirectory);
         };
-        vcsExecWithHandler(workingDirectory, fallbackCommandParts.mid(1),
-                           this, commandHandler,
-                           RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
+        enqueueCommand({workingDirectory, fallbackCommandParts.mid(1),
+                        RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage, {}, {}, commandHandler});
     };
-    vcsExecWithHandler(workingDirectory, QStringList({"push"}) + pushArgs, this, commandHandler,
-                       RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
+    enqueueCommand({workingDirectory, QStringList({"push"}) + pushArgs,
+                    RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage, {}, {}, commandHandler});
 }
 
 bool GitClient::synchronousMerge(const FilePath &workingDirectory, const QString &branch,
@@ -3470,8 +3471,8 @@ void GitClient::stashPop(const FilePath &workingDirectory, const QString &stash)
     const auto commandHandler = [workingDirectory](const CommandResult &result) {
         handleConflictResponse(result, workingDirectory);
     };
-    vcsExecWithHandler(workingDirectory, arguments, this, commandHandler,
-                       RunFlags::ShowStdOut | RunFlags::ExpectRepoChanges);
+    enqueueCommand({workingDirectory, arguments,
+                    RunFlags::ShowStdOut | RunFlags::ExpectRepoChanges, {}, {}, commandHandler});
 }
 
 bool GitClient::synchronousStashRestore(const FilePath &workingDirectory,
@@ -3594,10 +3595,10 @@ QString GitClient::readOneLine(const FilePath &workingDirectory, const QStringLi
 }
 
 void GitClient::readConfigAsync(const FilePath &workingDirectory, const QStringList &arguments,
-                                const CommandHandler &handler) const
+                                const CommandHandler &handler)
 {
-    vcsExecWithHandler(workingDirectory, arguments, this, handler, RunFlags::NoOutput,
-                       configFileEncoding());
+    enqueueCommand({workingDirectory, arguments, RunFlags::NoOutput, {}, configFileEncoding(),
+                    handler});
 }
 
 QString GitClient::styleColorName(TextEditor::TextStyle style)
