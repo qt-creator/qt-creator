@@ -654,8 +654,8 @@ class TASKING_EXPORT TaskTree final : public QObject
     Q_OBJECT
 
 public:
-    TaskTree();
-    TaskTree(const Group &recipe);
+    TaskTree(QObject *parent = nullptr);
+    TaskTree(const Group &recipe, QObject *parent = nullptr);
     ~TaskTree();
 
     void setRecipe(const Group &recipe);

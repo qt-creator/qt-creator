@@ -3108,8 +3108,9 @@ bool TaskTreePrivate::invokeTaskDoneHandler(RuntimeTask *node, DoneWith doneWith
 
     \sa setRecipe(), start()
 */
-TaskTree::TaskTree()
-    : d(new TaskTreePrivate(this))
+TaskTree::TaskTree(QObject *parent)
+    : QObject(parent)
+    , d(new TaskTreePrivate(this))
 {}
 
 /*!
@@ -3121,7 +3122,7 @@ TaskTree::TaskTree()
 
     \sa setRecipe(), start()
 */
-TaskTree::TaskTree(const Group &recipe) : TaskTree()
+TaskTree::TaskTree(const Group &recipe, QObject *parent) : TaskTree(parent)
 {
     setRecipe(recipe);
 }
