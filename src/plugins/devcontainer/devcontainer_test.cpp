@@ -130,6 +130,10 @@ private slots:
         QVERIFY(expectedMainCpp.exists());
         QVERIFY(expectedMainCpp.isReadableFile());
 
+        QCOMPARE(
+            expectedRootPath.withNewMappedPath(testData / "simpleproject" / "main.cpp"),
+            expectedMainCpp);
+
         ProjectExplorer::ProjectManager::removeProject(opr.project());
         QVERIFY(!expectedRootPath.exists());
     }

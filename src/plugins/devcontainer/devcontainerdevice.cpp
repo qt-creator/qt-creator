@@ -101,6 +101,28 @@ private:
     Source sources = []() -> Progress { return {0, 0}; };
 };
 
+class FileAccess : public CmdBridge::FileAccess
+{
+public:
+    FileAccess(const FilePath &workspaceFolder, const FilePath &workspaceFolderMountPoint)
+        : m_workspaceFolder(workspaceFolder)
+        , m_workspaceFolderMountPoint(workspaceFolderMountPoint)
+    {}
+
+    QString mapToDevicePath(const QString &hostPath) const override
+    {
+        if (hostPath.startsWith(m_workspaceFolder.path())) {
+            return (m_workspaceFolderMountPoint / hostPath.mid(m_workspaceFolder.path().length()))
+                .path();
+        }
+        return hostPath;
+    }
+
+private:
+    const FilePath m_workspaceFolder;
+    const FilePath m_workspaceFolderMountPoint;
+};
+
 Result<> Device::up(
     const FilePath &path, InstanceConfig instanceConfig, std::function<void(Result<>)> callback)
 {
@@ -131,17 +153,23 @@ Result<> Device::up(
         bool mountLibExec = true;
         bool copyCmdBridge = false;
         QString libExecMountPoint = "/devcontainer/libexec";
+        QString workspaceFolderMountPoint;
     };
 
     Storage<std::shared_ptr<Instance>> instance;
     Storage<Options> options;
     auto runningInstance = std::make_shared<DevContainer::RunningInstanceData>();
 
-    const auto loadConfig = [&path, &instanceConfig, instance, options]() -> DoneResult {
+    const auto loadConfig = [&path, &instanceConfig, instance, options, this]() -> DoneResult {
         const auto result = [&]() -> Result<> {
             Result<Config> config = Instance::configFromFile(path, instanceConfig);
             if (!config)
                 return ResultError(config.error());
+
+            if (!config->containerConfig) {
+                return ResultError(
+                    Tr::tr("DevContainer config does not contain a container configuration."));
+            }
 
             options->mountLibExec
                 = DevContainer::customization(*config, "qt-creator/device/mount-libexec")
@@ -162,6 +190,13 @@ Result<> Device::up(
                     .target = options->libExecMountPoint,
                 });
             }
+
+            if (config->common.name)
+                setDisplayName(*config->common.name);
+
+            options->workspaceFolderMountPoint = std::visit(
+                [](const auto &containerConfig) { return containerConfig.workspaceFolder; },
+                *config->containerConfig);
 
             Result<std::unique_ptr<Instance>> instanceResult
                 = DevContainer::Instance::fromConfig(*config, instanceConfig);
@@ -197,7 +232,9 @@ Result<> Device::up(
             if (!cmdBridgePath)
                 return ResultError(cmdBridgePath.error());
 
-            auto fileAccess = std::make_unique<CmdBridge::FileAccess>();
+            auto fileAccess = std::make_unique<FileAccess>(
+                instanceConfig.workspaceFolder,
+                FilePath::fromUserInput(options->workspaceFolderMountPoint));
 
             Result<> initResult = [&] {
                 if (options->copyCmdBridge) {
