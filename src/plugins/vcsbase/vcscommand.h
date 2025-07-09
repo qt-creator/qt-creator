@@ -70,6 +70,11 @@ VCSBASE_EXPORT Tasking::ExecutableItem errorTask(const Utils::FilePath &workingD
 VCSBASE_EXPORT Utils::ProcessTask vcsProcessTask(const VcsProcessData &data,
     const std::optional<Tasking::Storage<CommandResult>> &resultStorage = {});
 
+// TODO: Avoid, migrate to asynchronous task tree recipes.
+VCSBASE_EXPORT CommandResult vcsRunBlocking(const VcsProcessData &data,
+    const std::chrono::seconds timeout = std::chrono::seconds(10),
+    const Utils::EventLoopMode eventLoopMode = {});
+
 class VCSBASE_EXPORT VcsCommand final : public QObject
 {
     Q_OBJECT

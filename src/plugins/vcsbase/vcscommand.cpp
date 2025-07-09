@@ -8,6 +8,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/environment.h>
 #include <utils/globalfilechangeblocker.h>
 #include <utils/qtcprocess.h>
@@ -465,6 +467,26 @@ ProcessTask vcsProcessTask(const VcsProcessData &data,
                            const std::optional<Storage<CommandResult>> &resultStorage)
 {
     return vcsProcessTaskHelper(data, resultStorage);
+}
+
+CommandResult vcsRunBlocking(const VcsProcessData &data, const seconds timeout,
+                             const EventLoopMode eventLoopMode)
+{
+    CommandResult result;
+    const Storage<CommandResult> resultStorage;
+
+    const auto onDone = [resultStorage, &result] { result = *resultStorage; };
+
+    const Group recipe {
+        resultStorage,
+        vcsProcessTaskHelper(data, resultStorage, timeout, eventLoopMode),
+        onGroupDone(onDone)
+    };
+
+    TaskTreeRunner taskTreeRunner;
+    taskTreeRunner.start(recipe);
+    QTC_CHECK(!taskTreeRunner.isRunning());
+    return result;
 }
 
 } // namespace VcsBase
