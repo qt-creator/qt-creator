@@ -27,7 +27,6 @@
 #include <utils/qtcassert.h>
 
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcscommand.h>
 
 #include <QApplication>
 #include <QCheckBox>

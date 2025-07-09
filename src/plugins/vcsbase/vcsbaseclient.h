@@ -23,13 +23,10 @@ QT_BEGIN_NAMESPACE
 class QToolBar;
 QT_END_NAMESPACE
 
-namespace Utils {
-class Process;
-}
+namespace Utils { class Process; }
 
 namespace VcsBase {
 
-class CommandResult;
 class VcsBaseEditorConfig;
 class VcsBaseEditorWidget;
 

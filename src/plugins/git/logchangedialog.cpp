@@ -6,7 +6,6 @@
 #include "gitclient.h"
 #include "gittr.h"
 
-#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/qtcassert.h>

@@ -4,7 +4,6 @@
 #include "vcscommandpage.h"
 
 #include "../vcsbaseplugin.h"
-#include "../vcscommand.h"
 #include "../vcsbasetr.h"
 
 #include <coreplugin/vcsmanager.h>
