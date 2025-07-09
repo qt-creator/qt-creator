@@ -3,6 +3,7 @@
 
 #pragma once
 
-namespace DevContainer {
+namespace DevContainer::Constants {
 const char DEVCONTAINER_DEVICE_TYPE[] = "DevContainerDeviceType";
-}
+const char16_t DEVCONTAINER_FS_SCHEME[] = u"devcontainer";
+} // namespace DevContainer::Constants

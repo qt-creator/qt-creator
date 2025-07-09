@@ -3,6 +3,7 @@
 
 #include "devcontainerdevice.h"
 
+#include "devcontainerplugin_constants.h"
 #include "devcontainerplugintr.h"
 
 #include <client/bridgedfileaccess.h>
@@ -257,7 +258,7 @@ Result<> Device::up(
 
 FilePath Device::rootPath() const
 {
-    static QStringView devContainerScheme = u"devcontainer";
+    static QStringView devContainerScheme = Constants::DEVCONTAINER_FS_SCHEME;
     static QStringView root = u"/";
 
     return FilePath::fromParts(devContainerScheme, m_instanceConfig.devContainerId(), root);

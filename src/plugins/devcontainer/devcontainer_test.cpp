@@ -3,6 +3,8 @@
 
 #include <QtTest>
 
+#include "devcontainerplugin_constants.h"
+
 #include <devcontainer/devcontainer.h>
 
 #include <projectexplorer/project.h>
@@ -105,18 +107,22 @@ private slots:
         QVERIFY(deviceAddedSpy.wait(
             std::chrono::duration_cast<std::chrono::milliseconds>(1min).count()));
 
-        FilePath expectedRootPath
-            = FilePath::fromParts(u"devcontainer", instanceConfig.devContainerId(), u"/");
+        FilePath expectedRootPath = FilePath::fromParts(
+            Constants::DEVCONTAINER_FS_SCHEME, instanceConfig.devContainerId(), u"/");
         QVERIFY(expectedRootPath.exists());
         QVERIFY(!infoBar->containsInfo(infoBarEntryId));
 
         FilePath expectedLibExecMountPoint = FilePath::fromParts(
-            u"devcontainer", instanceConfig.devContainerId(), u"/custom/libexec/mnt/point");
+            Constants::DEVCONTAINER_FS_SCHEME,
+            instanceConfig.devContainerId(),
+            u"/custom/libexec/mnt/point");
         QVERIFY(expectedLibExecMountPoint.exists());
         QVERIFY(expectedLibExecMountPoint.isReadableDir());
 
         FilePath expectedWorkspaceFolder = FilePath::fromParts(
-            u"devcontainer", instanceConfig.devContainerId(), u"/custom/workspace");
+            Constants::DEVCONTAINER_FS_SCHEME,
+            instanceConfig.devContainerId(),
+            u"/custom/workspace");
         QVERIFY(expectedWorkspaceFolder.exists());
         QVERIFY(expectedWorkspaceFolder.isReadableDir());
 

@@ -19,6 +19,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <utils/fsengine/fsengine.h>
 #include <utils/guardedcallback.h>
 #include <utils/infobar.h>
 
@@ -28,9 +29,31 @@ using namespace ProjectExplorer;
 
 namespace DevContainer::Internal {
 
+class DevContainerDeviceFactory;
+
 class Private : public QObject
 {
     Q_OBJECT
+
+public:
+    void init()
+    {
+        deviceFactory = std::make_unique<DevContainerDeviceFactory>();
+
+        connect(
+            ProjectManager::instance(),
+            &ProjectManager::projectAdded,
+            this,
+            &Private::onProjectAdded);
+        connect(
+            ProjectManager::instance(),
+            &ProjectManager::projectRemoved,
+            this,
+            &Private::onProjectRemoved);
+
+        for (auto project : ProjectManager::instance()->projects())
+            onProjectAdded(project);
+    }
 
 public slots:
     void onProjectAdded(ProjectExplorer::Project *project);
@@ -50,6 +73,7 @@ signals:
 
 private:
     std::map<ProjectExplorer::Project *, std::shared_ptr<Device>> devices;
+    std::unique_ptr<DevContainerDeviceFactory> deviceFactory;
 };
 
 void Private::onProjectRemoved(ProjectExplorer::Project *project)
@@ -160,12 +184,20 @@ class DevContainerPlugin final : public ExtensionSystem::IPlugin
 public:
     DevContainerPlugin()
         : d(std::make_unique<Private>())
-    {}
+    {
+        Utils::FSEngine::registerDeviceScheme(Constants::DEVCONTAINER_FS_SCHEME);
+    }
+    ~DevContainerPlugin() final
+    {
+        Utils::FSEngine::unregisterDeviceScheme(Constants::DEVCONTAINER_FS_SCHEME);
+    }
 
     std::unique_ptr<DevContainer::Internal::Private> d;
 
     void initialize() final
     {
+        d->init();
+
 #ifdef WITH_TESTS
         addTestCreator([this]() {
             QObject *tests = createDevcontainerTest();
@@ -173,21 +205,19 @@ public:
             return tests;
         });
 #endif
-        connect(
-            ProjectManager::instance(),
-            &ProjectManager::projectAdded,
-            d.get(),
-            &Private::onProjectAdded);
-        connect(
-            ProjectManager::instance(),
-            &ProjectManager::projectRemoved,
-            d.get(),
-            &Private::onProjectRemoved);
-
-        for (auto project : ProjectManager::instance()->projects())
-            d->onProjectAdded(project);
     }
     void extensionsInitialized() final {}
+};
+
+class DevContainerDeviceFactory final : public ProjectExplorer::IDeviceFactory
+{
+public:
+    DevContainerDeviceFactory()
+        : IDeviceFactory(Constants::DEVCONTAINER_DEVICE_TYPE)
+    {
+        setDisplayName(Tr::tr("Development Container Device"));
+        setIcon(QIcon());
+    }
 };
 
 } // namespace DevContainer::Internal
