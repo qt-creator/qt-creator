@@ -133,6 +133,8 @@ private slots:
         QCOMPARE(
             expectedRootPath.withNewMappedPath(testData / "simpleproject" / "main.cpp"),
             expectedMainCpp);
+        QVERIFY(expectedRootPath.ensureReachable(expectedMainCpp));
+        QCOMPARE(expectedMainCpp.localSource(), testData / "simpleproject" / "main.cpp");
 
         ProjectExplorer::ProjectManager::removeProject(opr.project());
         QVERIFY(!expectedRootPath.exists());

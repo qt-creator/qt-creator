@@ -30,6 +30,9 @@ public:
 
     Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
 
+    bool ensureReachable(const Utils::FilePath &other) const override;
+    Utils::Result<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
+
 public: // FilePath stuff
     bool handlesFile(const Utils::FilePath &filePath) const override;
     Utils::FilePath rootPath() const override;

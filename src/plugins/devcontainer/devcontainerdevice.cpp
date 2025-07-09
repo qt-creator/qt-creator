@@ -118,6 +118,9 @@ public:
         return hostPath;
     }
 
+    FilePath workspaceFolderMountPoint() const { return m_workspaceFolderMountPoint; }
+    FilePath workspaceFolder() const { return m_workspaceFolder; }
+
 private:
     const FilePath m_workspaceFolder;
     const FilePath m_workspaceFolderMountPoint;
@@ -315,5 +318,33 @@ Result<Environment> Device::systemEnvironmentWithError() const
         return ResultError(Tr::tr("System environment is not available for this device."));
     return *m_systemEnvironment;
 };
+
+bool Device::ensureReachable(const FilePath &other) const
+{
+    if (other == m_instanceConfig.workspaceFolder)
+        return true;
+    if (other.isChildOf(m_instanceConfig.workspaceFolder))
+        return true;
+    if (other.isSameDevice(rootPath()))
+        return true;
+
+    return false;
+};
+
+Result<FilePath> Device::localSource(const FilePath &other) const
+{
+    auto fileAccess = static_cast<FileAccess *>(this->fileAccess());
+    if (!fileAccess)
+        return ResultError(Tr::tr("File access is not available for this device."));
+
+    const FilePath workspaceFolderMountPoint = fileAccess->workspaceFolderMountPoint();
+    const FilePath workspaceFolder = fileAccess->workspaceFolder();
+
+    if (other.path().startsWith(workspaceFolderMountPoint.path()))
+        return workspaceFolder / other.path().mid(workspaceFolderMountPoint.path().length());
+
+    return ResultError(
+        Tr::tr("No mapping available for %1 on %2.").arg(other.path(), displayName()));
+}
 
 } // namespace DevContainer
