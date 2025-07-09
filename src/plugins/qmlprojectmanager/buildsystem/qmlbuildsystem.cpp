@@ -390,12 +390,14 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
     const QStringView uiqmlstr = u"ui.qml";
     const QStringView qmlstr = u"qml";
 
-    //we will check mainUiFile and mainFile twice:
-    //first priority if it's ui.qml file, second if it's just a qml file
+    // First we check if mainUiFile is a valid ui.qml or .qml file
     const Utils::FilePath mainUiFile = mainUiFilePath();
-    if (mainUiFile.exists() && mainUiFile.completeSuffix() == uiqmlstr)
+    if (const QString extension = mainUiFile.completeSuffix();
+        mainUiFile.exists() && (extension == uiqmlstr || extension == qmlstr)) {
         return mainUiFile;
+    }
 
+    // Then we check if there are any valid ui.qml files. mainQmlFile is preferred to be checked first.
     const Utils::FilePath mainQmlFile = mainFilePath();
     if (mainQmlFile.exists() && mainQmlFile.completeSuffix() == uiqmlstr)
         return mainQmlFile;
@@ -408,10 +410,7 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
             return file;
     }
 
-    //check the suffix of mainUiFiles again, since there are no ui.qml files:
-    if (mainUiFile.exists() && mainUiFile.completeSuffix() == qmlstr)
-        return mainUiFile;
-
+    //check the suffix of mainQmlFile again, since there are no valid ui.qml files:
     if (mainQmlFile.exists() && mainQmlFile.completeSuffix() == qmlstr)
         return mainQmlFile;
 
