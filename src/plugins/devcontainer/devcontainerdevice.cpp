@@ -23,7 +23,14 @@ using namespace Utils;
 
 namespace DevContainer {
 
-Device::Device() {}
+Device::Device()
+{
+    setDisplayType(Tr::tr("Development Container"));
+    setOsType(OsTypeLinux);
+    setupId(IDevice::AutoDetected);
+    setType("DevContainerType");
+    setMachineType(IDevice::Hardware);
+}
 
 Device::~Device() {} // Necessary for forward declared unique_ptr
 

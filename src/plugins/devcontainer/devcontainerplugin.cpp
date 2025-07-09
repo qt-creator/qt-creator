@@ -110,6 +110,7 @@ void Private::startDeviceForProject(
     };
 
     std::shared_ptr<Device> device = std::make_shared<DevContainer::Device>();
+    device->setDisplayName(Tr::tr("DevContainer for %1").arg(project->displayName()));
     ProjectExplorer::DeviceManager::addDevice(device);
     Utils::Result<> result = device->up(
         path,
