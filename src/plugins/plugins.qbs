@@ -36,6 +36,7 @@ Project {
         "debugger/debugger.qbs",
         "debugger/ptracepreload.qbs",
         "designer/designer.qbs",
+        "devcontainer/devcontainer.qbs",
         "diffeditor/diffeditor.qbs",
         "docker/docker.qbs",
         "effectcomposer/effectcomposer.qbs",
