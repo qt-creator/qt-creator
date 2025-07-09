@@ -1630,9 +1630,15 @@ CommandResult ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
     if (m_settings.ccBinaryPath.isEmpty())
         return CommandResult(ProcessResult::StartFailed, Tr::tr("No ClearCase executable specified."));
 
-    const int timeoutS = m_settings.timeOutS * timeoutMultiplier;
-    return VcsCommand::runBlocking(workingDir, Environment::systemEnvironment(),
-                                   {m_settings.ccBinaryPath, arguments}, flags, timeoutS, encoding);
+    return vcsRunBlocking({
+        .runData = {
+            {m_settings.ccBinaryPath, arguments},
+            workingDir,
+            Environment::systemEnvironment()},
+        .flags = flags,
+        .encoding = encoding},
+        std::chrono::seconds(m_settings.timeOutS * timeoutMultiplier),
+        flags & RunFlags::UseEventLoop ? EventLoopMode::On : EventLoopMode::Off);
 }
 
 IEditor *ClearCasePluginPrivate::showOutputInEditor(const QString& title, const QString &output,

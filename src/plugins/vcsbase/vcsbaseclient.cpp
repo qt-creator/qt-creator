@@ -116,12 +116,11 @@ CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
                                                     int timeoutS,
                                                     const TextEncoding &encoding) const
 {
-    return VcsCommand::runBlocking(workingDir,
-                                   processEnvironment(workingDir),
-                                   cmdLine,
-                                   flags,
-                                   timeoutS > 0 ? timeoutS : vcsTimeoutS(),
-                                   encoding);
+    return vcsRunBlocking({.runData = {cmdLine, workingDir, processEnvironment(workingDir)},
+                           .flags = flags,
+                           .encoding = encoding},
+                          std::chrono::seconds(timeoutS > 0 ? timeoutS : vcsTimeoutS()),
+                          flags & RunFlags::UseEventLoop ? EventLoopMode::On : EventLoopMode::Off);
 }
 
 void VcsBaseClientImpl::resetCachedVcsInfo(const FilePath &workingDir)
