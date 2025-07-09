@@ -51,6 +51,7 @@ static ProjectSettingsWidget *createCopilotProjectPanel(Project *project)
     // clang-format off
     Column {
         settings->enableCopilot,
+        st,
     }.attachTo(widget);
     // clang-format on
 
