@@ -26,6 +26,9 @@
 #include <exception>
 #include <fstream>
 #include <mutex>
+#if defined(__cpp_lib_semaphore) and __cpp_lib_semaphore >= 201907L
+#  include <semaphore>
+#endif
 #include <string>
 #include <string_view>
 #include <thread>
@@ -396,24 +399,39 @@ inline bool operator&(IsFlow first, IsFlow second)
 struct TraceEventWithoutArguments;
 struct TraceEventWithArguments;
 
-class SpinLock
+class SemaphoreLock
 {
 public:
     void lock()
     {
+#if defined(__cpp_lib_semaphore) and __cpp_lib_semaphore >= 201907L
+        semaphore.acquire();
+#else
         while (flag.test_and_set(std::memory_order_acquire)) {
         }
+#endif
     }
 
-    void unlock() { flag.clear(std::memory_order_release); }
+    void unlock()
+    {
+#if defined(__cpp_lib_semaphore) and __cpp_lib_semaphore >= 201907L
+        semaphore.release();
+#else
+        flag.clear(std::memory_order_release);
+#endif
+    }
 
 private:
+#if defined(__cpp_lib_semaphore) and __cpp_lib_semaphore >= 201907L
+    std::binary_semaphore semaphore{1};
+#else
     std::atomic_flag flag;
+#endif
 };
 
 struct TaskWithArguments
 {
-    TaskWithArguments(std::unique_lock<SpinLock> lock,
+    TaskWithArguments(std::unique_lock<SemaphoreLock> lock,
                       Utils::span<TraceEventWithArguments> data,
                       std::thread::id threadId)
         : lock{std::move(lock)}
@@ -421,14 +439,14 @@ struct TaskWithArguments
         , threadId{threadId}
     {}
 
-    std::unique_lock<SpinLock> lock;
+    std::unique_lock<SemaphoreLock> lock;
     Utils::span<TraceEventWithArguments> data;
     std::thread::id threadId;
 };
 
 struct TaskWithoutArguments
 {
-    TaskWithoutArguments(std::unique_lock<SpinLock> lock,
+    TaskWithoutArguments(std::unique_lock<SemaphoreLock> lock,
                          Utils::span<TraceEventWithoutArguments> data,
                          std::thread::id threadId)
         : lock{std::move(lock)}
@@ -436,20 +454,20 @@ struct TaskWithoutArguments
         , threadId{threadId}
     {}
 
-    std::unique_lock<SpinLock> lock;
+    std::unique_lock<SemaphoreLock> lock;
     Utils::span<TraceEventWithoutArguments> data;
     std::thread::id threadId;
 };
 
 struct MetaData
 {
-    MetaData(std::unique_lock<SpinLock> lock, std::string key, std::string value)
+    MetaData(std::unique_lock<SemaphoreLock> lock, std::string key, std::string value)
         : lock{std::move(lock)}
         , key{std::move(key)}
         , value{std::move(value)}
     {}
 
-    std::unique_lock<SpinLock> lock;
+    std::unique_lock<SemaphoreLock> lock;
     std::string key;
     std::string value;
 };
@@ -652,7 +670,7 @@ public:
     TraceEventsSpan currentEvents;
     std::size_t eventsIndex = 0;
     IsEnabled isEnabled = IsEnabled::Yes;
-    SpinLock mutex;
+    SemaphoreLock mutex;
     std::thread::id threadId;
 };
 
