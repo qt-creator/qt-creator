@@ -357,10 +357,40 @@ ExecutableItem errorTask(const FilePath &workingDir, const QString &errorMessage
     });
 }
 
-ProcessTask vcsProcessTask(const VcsProcessData &data,
-                           const std::optional<Storage<CommandResult>> &resultStorage)
+static ProcessTask vcsProcessTaskHelper(
+    const VcsProcessData &data,
+    const std::optional<Storage<CommandResult>> &resultStorage = {},
+    const seconds timeout = seconds(10),
+    const std::optional<EventLoopMode> eventLoopMode = {})
 {
-    const auto onSetup = [data](Process &process) {
+    const auto onDone = [data, resultStorage](const Process &process) {
+        if (data.flags & RunFlags::ExpectRepoChanges)
+            GlobalFileChangeBlocker::instance()->forceBlocked(true);
+        ProcessResult result;
+        if (data.interpreter && process.error() != QProcess::FailedToStart
+            && process.exitStatus() == QProcess::NormalExit) {
+            result = data.interpreter(process.exitCode());
+        } else {
+            result = process.result();
+        }
+
+        const FilePath workingDirectory = process.workingDirectory();
+        const QString message = Process::exitMessage(process.commandLine(), result,
+                                                     process.exitCode(), process.processDuration());
+        if (result == ProcessResult::FinishedWithSuccess) {
+            if (data.flags & RunFlags::ShowSuccessMessage)
+                VcsOutputWindow::appendMessage(workingDirectory, message);
+        } else if (!(data.flags & RunFlags::SuppressFailMessage)) {
+            VcsOutputWindow::appendError(workingDirectory, message);
+        }
+        if (data.flags & RunFlags::ExpectRepoChanges)
+            VcsManager::emitRepositoryChanged(workingDirectory);
+        if (resultStorage)
+            **resultStorage = CommandResult(process, result);
+        return result == ProcessResult::FinishedWithSuccess;
+    };
+
+    const auto onSetup = [data, onDone, timeout, eventLoopMode](Process &process) {
         Environment environment = data.runData.environment;
         VcsBase::setProcessEnvironment(&environment);
         if (data.flags & RunFlags::ForceCLocale) {
@@ -411,43 +441,30 @@ ProcessTask vcsProcessTask(const VcsProcessData &data,
             });
         }
 
-        if (data.flags & RunFlags::SuppressCommandLogging)
-            return;
-
-        ProcessProgress *progress = new ProcessProgress(&process);
-        if (data.progressParser)
-            progress->setProgressParser(data.progressParser);
-    };
-    const auto onDone = [data, resultStorage](const Process &process) {
-        if (data.flags & RunFlags::ExpectRepoChanges)
-            GlobalFileChangeBlocker::instance()->forceBlocked(true);
-        ProcessResult result;
-        if (data.interpreter && process.error() != QProcess::FailedToStart
-            && process.exitStatus() == QProcess::NormalExit) {
-            result = data.interpreter(process.exitCode());
-        } else {
-            result = process.result();
+        if (!(data.flags & RunFlags::SuppressCommandLogging)) {
+            ProcessProgress *progress = new ProcessProgress(&process);
+            if (data.progressParser)
+                progress->setProgressParser(data.progressParser);
         }
 
-        const FilePath workingDirectory = process.workingDirectory();
-        const QString message = Process::exitMessage(process.commandLine(), result,
-                                                     process.exitCode(), process.processDuration());
-        if (result == ProcessResult::FinishedWithSuccess) {
-            if (data.flags & RunFlags::ShowSuccessMessage)
-                VcsOutputWindow::appendMessage(workingDirectory, message);
-        } else if (!(data.flags & RunFlags::SuppressFailMessage)) {
-            VcsOutputWindow::appendError(workingDirectory, message);
+        if (eventLoopMode) {
+            // Can't run EventLoopMode::On in non-GUI thread.
+            QTC_ASSERT(*eventLoopMode == EventLoopMode::Off || isMainThread(),
+                       return SetupResult::StopWithError);
+            process.setTimeOutMessageBoxEnabled(*eventLoopMode == EventLoopMode::On);
+            process.runBlocking(timeout, *eventLoopMode);
+            const bool success = onDone(process);
+            return success ? SetupResult::StopWithSuccess : SetupResult::StopWithError;
         }
-        if (data.flags & RunFlags::ExpectRepoChanges) {
-            // TODO tell the document manager that the directory now received all expected changes
-            // DocumentManager::unexpectDirectoryChange(workingDirectory);
-            VcsManager::emitRepositoryChanged(workingDirectory);
-        }
-        if (resultStorage)
-            **resultStorage = CommandResult(process, result);
-        return result == ProcessResult::FinishedWithSuccess;
+        return SetupResult::Continue;
     };
     return ProcessTask(onSetup, onDone);
+}
+
+ProcessTask vcsProcessTask(const VcsProcessData &data,
+                           const std::optional<Storage<CommandResult>> &resultStorage)
+{
+    return vcsProcessTaskHelper(data, resultStorage);
 }
 
 } // namespace VcsBase
