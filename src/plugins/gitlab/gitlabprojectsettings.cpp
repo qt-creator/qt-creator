@@ -17,6 +17,7 @@
 #include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
@@ -143,33 +144,32 @@ GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Projec
     setUseGlobalSettingsCheckBoxVisible(false);
     setUseGlobalSettingsLabelVisible(true);
     setGlobalSettingsId(Constants::GITLAB_SETTINGS);
+
     // setup ui
-    auto verticalLayout = new QVBoxLayout(this);
-    verticalLayout->setContentsMargins(0, 0, 0, 0);
-    auto formLayout = new QFormLayout;
-    m_hostCB = new QComboBox;
-    formLayout->addRow(Tr::tr("Host:"), m_hostCB);
-    m_linkedGitLabServer = new QComboBox;
-    formLayout->addRow(Tr::tr("Linked GitLab Configuration:"), m_linkedGitLabServer);
-    verticalLayout->addLayout(formLayout);
-    m_infoLabel = new Utils::InfoLabel;
+    m_hostCB = new QComboBox(this);
+    m_linkedGitLabServer = new QComboBox(this);
+    m_infoLabel = new Utils::InfoLabel(this);
     m_infoLabel->setVisible(false);
-    verticalLayout->addWidget(m_infoLabel);
-    auto horizontalLayout = new QHBoxLayout;
-    horizontalLayout->setContentsMargins(0, 0, 0, 0);
-    m_linkWithGitLab = new QPushButton(Tr::tr("Link with GitLab"));
-    horizontalLayout->addWidget(m_linkWithGitLab);
-    m_unlink = new QPushButton(Tr::tr("Unlink from GitLab"));
+    m_linkWithGitLab = new QPushButton(Tr::tr("Link with GitLab"), this);
+    m_unlink = new QPushButton(Tr::tr("Unlink from GitLab"), this);
     m_unlink->setEnabled(false);
-    horizontalLayout->addWidget(m_unlink);
-    m_checkConnection = new QPushButton(Tr::tr("Test Connection"));
+    m_checkConnection = new QPushButton(Tr::tr("Test Connection"), this);
     m_checkConnection->setEnabled(false);
-    horizontalLayout->addWidget(m_checkConnection);
-    horizontalLayout->addStretch(1);
-    verticalLayout->addLayout(horizontalLayout);
-    verticalLayout->addWidget(new QLabel(Tr::tr("Projects linked with GitLab receive event "
-                                                "notifications in the Version Control output "
-                                                "pane.")));
+
+    using namespace Layouting;
+
+    Column {
+        noMargin,
+        Form {
+            Tr::tr("Host:"), m_hostCB, br,
+            Tr::tr("Linked GitLab Configuration"), m_linkedGitLabServer, br,
+        },
+        m_infoLabel,
+        Row { noMargin, m_linkWithGitLab, m_unlink, m_checkConnection, st },
+        Tr::tr("Projects linked with GitLab receive event notifications in the Version Control "
+               "output pane."),
+        st,
+    }.attachTo(this);
 
     connect(m_linkWithGitLab, &QPushButton::clicked, this, [this] {
         checkConnection(Link);
