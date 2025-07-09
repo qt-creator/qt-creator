@@ -13,12 +13,42 @@
 #include <utils/filepath.h>
 #include <utils/infobar.h>
 #include <utils/mimeutils.h>
+#include <utils/qtcprocess.h>
 
 #include <coreplugin/icore.h>
 
 using namespace Utils;
 
 namespace DevContainer::Internal {
+
+static bool testDocker(const FilePath &executable)
+{
+    Process p;
+    p.setCommand({executable, {"info", "--format", "{{.OSType}}"}});
+    p.runBlocking();
+    const QString platform = p.cleanedStdOut().trimmed();
+    return p.result() == ProcessResult::FinishedWithSuccess && platform == "linux";
+}
+
+static bool testDockerMount(const FilePath &executable, const FilePath &testDir)
+{
+    Process p;
+    p.setCommand(
+        {executable,
+         {"run",
+          "--rm",
+          "--mount",
+          "type=bind,source=" + testDir.path() + ",target=/mnt/test",
+          "alpine:latest",
+          "ls",
+          "/mnt/test"}});
+    p.runBlocking();
+    if (p.result() != ProcessResult::FinishedWithSuccess) {
+        qWarning() << "Docker mount test failed:" << p.verboseExitMessage();
+        return false;
+    }
+    return p.result() == ProcessResult::FinishedWithSuccess;
+}
 
 class Tests : public QObject
 {
@@ -27,6 +57,15 @@ class Tests : public QObject
     const FilePath testData{TESTDATA};
 
 private slots:
+    void initTestCase()
+    {
+        if (!testDocker("docker"))
+            QSKIP("Docker is not set up correctly, skipping tests.");
+
+        if (!testDockerMount("docker", testData))
+            QSKIP("Docker mount test failed, skipping tests.");
+    }
+
     void testSimpleProject()
     {
         const auto cmakelists = testData / "simpleproject" / "CMakeLists.txt";
