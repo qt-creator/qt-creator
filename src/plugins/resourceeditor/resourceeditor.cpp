@@ -109,9 +109,9 @@ public:
 
 private:
     void onUndoStackChanged(bool canUndo, bool canRedo);
-    void showContextMenu(const QPoint &globalPoint, const QString &fileName);
+    void showContextMenu(const QPoint &globalPoint, const FilePath &filePath);
     void openCurrentFile();
-    void openFile(const QString &fileName);
+    void openFile(const FilePath &filePath);
     void renameCurrentFile();
     void copyCurrentResourcePath();
     void orderList();
@@ -123,7 +123,7 @@ private:
     ResourceEditorDocument *m_resourceDocument;
     QMenu *m_contextMenu;
     QMenu *m_openWithMenu;
-    QString m_currentFileName;
+    FilePath m_currentFilePath;
     QToolBar *m_toolBar;
     QAction *m_renameAction;
     QAction *m_copyFileNameAction;
@@ -307,22 +307,22 @@ void ResourceEditorImpl::onUndoStackChanged(bool canUndo, bool canRedo)
     }
 }
 
-void ResourceEditorImpl::showContextMenu(const QPoint &globalPoint, const QString &fileName)
+void ResourceEditorImpl::showContextMenu(const QPoint &globalPoint, const FilePath &filePath)
 {
-    EditorManager::populateOpenWithMenu(m_openWithMenu, FilePath::fromString(fileName));
-    m_currentFileName = fileName;
+    EditorManager::populateOpenWithMenu(m_openWithMenu, filePath);
+    m_currentFilePath = filePath;
     m_renameAction->setEnabled(!document()->isFileReadOnly());
     m_contextMenu->popup(globalPoint);
 }
 
 void ResourceEditorImpl::openCurrentFile()
 {
-    openFile(m_currentFileName);
+    openFile(m_currentFilePath);
 }
 
-void ResourceEditorImpl::openFile(const QString &fileName)
+void ResourceEditorImpl::openFile(const FilePath &filePath)
 {
-    EditorManager::openEditor(FilePath::fromString(fileName));
+    EditorManager::openEditor(filePath);
 }
 
 void ResourceEditorImpl::renameCurrentFile()

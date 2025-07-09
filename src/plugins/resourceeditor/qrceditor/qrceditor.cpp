@@ -30,7 +30,7 @@ using namespace Utils;
 
 namespace ResourceEditor::Internal {
 
-class ResourceView : public Utils::TreeView
+class ResourceView : public TreeView
 {
     Q_OBJECT
 
@@ -77,8 +77,8 @@ public:
 
 signals:
     void removeItem();
-    void itemActivated(const QString &fileName);
-    void contextMenuShown(const QPoint &globalPos, const QString &fileName);
+    void itemActivated(const FilePath &filePath);
+    void contextMenuShown(const QPoint &globalPos, const FilePath &filePath);
 
 protected:
     void keyPressEvent(QKeyEvent *e) override;
@@ -310,7 +310,7 @@ private:
 };
 
 ResourceView::ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent) :
-    Utils::TreeView(parent),
+    TreeView(parent),
     m_qrcModel(model),
     m_history(history),
     m_mergeId(-1)
@@ -440,7 +440,7 @@ void ResourceView::keyPressEvent(QKeyEvent *e)
     if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace)
         emit removeItem();
     else
-        Utils::TreeView::keyPressEvent(e);
+        TreeView::keyPressEvent(e);
 }
 
 QModelIndex ResourceView::addPrefix()
@@ -510,7 +510,8 @@ QString ResourceView::currentResourcePath() const
     if (!alias.isEmpty())
         return QLatin1Char(':') + currentPrefix() + QLatin1Char('/') + alias;
 
-    return QLatin1Char(':') + currentPrefix() + QLatin1Char('/') + m_qrcModel->relativePath(m_qrcModel->file(current));
+    return QLatin1Char(':') + currentPrefix() + QLatin1Char('/')
+        + m_qrcModel->relativePath(m_qrcModel->file(current).path());
 }
 
 QString ResourceView::getCurrentValue(NodeProperty property) const
@@ -536,19 +537,19 @@ void ResourceView::changeValue(const QModelIndex &nodeIndex, NodeProperty proper
 
 void ResourceView::onItemActivated(const QModelIndex &index)
 {
-    const QString fileName = m_qrcModel->file(index);
-    if (fileName.isEmpty())
+    const FilePath filePath = m_qrcModel->file(index);
+    if (filePath.isEmpty())
         return;
-    emit itemActivated(fileName);
+    emit itemActivated(filePath);
 }
 
 void ResourceView::showContextMenu(const QPoint &pos)
 {
     const QModelIndex index = indexAt(pos);
-    const QString fileName = m_qrcModel->file(index);
-    if (fileName.isEmpty())
+    const FilePath filePath = m_qrcModel->file(index);
+    if (filePath.isEmpty())
         return;
-    emit contextMenuShown(mapToGlobal(pos), fileName);
+    emit contextMenuShown(mapToGlobal(pos), filePath);
 }
 
 void ResourceView::advanceMergeId()

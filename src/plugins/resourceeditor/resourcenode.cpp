@@ -131,11 +131,11 @@ static bool addFilesToResource(const FilePath &resourceFile,
     if (notAdded)
         notAdded->clear();
     for (const FilePath &path : filePaths) {
-        if (file.contains(index, path.toUrlishString())) {
+        if (file.contains(index, path.path())) {
             if (notAdded)
                 *notAdded << path;
         } else {
-            file.addFile(index, path.toUrlishString());
+            file.addFile(index, path.path());
         }
     }
 
@@ -292,10 +292,10 @@ void ResourceTopLevelNode::addInternalNodes()
         }
         auto currentPrefixNode = static_cast<ResourceFolderNode*>(folderNodes[prefixId]);
 
-        QSet<QString> fileNames;
+        QSet<FilePath> fileNames;
         int filecount = file.fileCount(i);
         for (int j = 0; j < filecount; ++j) {
-            const QString &fileName = file.file(i, j);
+            const FilePath &fileName = file.file(i, j);
             if (fileNames.contains(fileName)) {
                 // The file name is duplicated, skip it
                 // Note: this is wrong, but the qrceditor doesn't allow it either
@@ -305,7 +305,7 @@ void ResourceTopLevelNode::addInternalNodes()
 
             QString alias = file.alias(i, j);
             if (alias.isEmpty())
-                alias = filePath().toFileInfo().absoluteDir().relativeFilePath(fileName);
+                alias = fileName.relativePathFromDir(filePath().absolutePath()).path();
 
             QString prefixWithSlash = prefix;
             if (!prefixWithSlash.endsWith(QLatin1Char('/')))
@@ -352,8 +352,7 @@ void ResourceTopLevelNode::addInternalNodes()
             FolderNode *fn = folderNodes[folderId];
             QTC_CHECK(fn);
             if (fn)
-                fn->addNode(std::make_unique<ResourceFileNode>(FilePath::fromString(fileName),
-                                                               qrcPath, displayName));
+                fn->addNode(std::make_unique<ResourceFileNode>(fileName, qrcPath, displayName));
         }
     }
     compressTree(this);
@@ -416,13 +415,10 @@ bool ResourceTopLevelNode::removeNonExistingFiles()
     if (!file.load())
         return false;
 
-    QFileInfo fi;
-
     for (int i = 0; i < file.prefixCount(); ++i) {
         int fileCount = file.fileCount(i);
         for (int j = fileCount -1; j >= 0; --j) {
-            fi.setFile(file.file(i, j));
-            if (!fi.exists())
+            if (!file.file(i, j).exists())
                 file.removeFile(i, j);
         }
     }
@@ -498,11 +494,11 @@ RemovedFilesFromProject ResourceFolderNode::removeFiles(const FilePaths &filePat
     if (index == -1)
         return RemovedFilesFromProject::Error;
     for (int j = 0; j < file.fileCount(index); ++j) {
-        QString fileName = file.file(index, j);
-        if (!filePaths.contains(FilePath::fromString(fileName)))
+        FilePath filePath = file.file(index, j);
+        if (!filePaths.contains(filePath))
             continue;
         if (notRemoved)
-            notRemoved->removeOne(FilePath::fromString(fileName));
+            notRemoved->removeOne(filePath);
         file.removeFile(index, j);
         --j;
     }
@@ -523,7 +519,7 @@ bool ResourceFolderNode::canRenameFile(const FilePath &oldFilePath, const FilePa
     int index = file.load() ? file.indexOfPrefix(m_prefix, m_lang) : -1;
     if (index != -1) {
         for (int j = 0; j < file.fileCount(index); ++j) {
-            if (file.file(index, j) == oldFilePath.toUrlishString()) {
+            if (file.file(index, j) == oldFilePath) {
                 fileEntryExists = true;
                 break;
             }
@@ -546,8 +542,8 @@ bool ResourceFolderNode::renameFiles(const FilePairs &filesToRename, FilePaths *
     for (const auto &[oldFilePath, newFilePath] : filesToRename) {
         bool found = false;
         for (int j = 0; j < file.fileCount(index); ++j) {
-            if (file.file(index, j) == oldFilePath.toUrlishString()) {
-                file.replaceFile(index, j, newFilePath.toUrlishString());
+            if (file.file(index, j) == oldFilePath) {
+                file.replaceFile(index, j, newFilePath);
                 found = true;
                 break;
             }

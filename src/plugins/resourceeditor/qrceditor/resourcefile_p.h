@@ -119,7 +119,7 @@ public:
 
     int fileCount(int prefix_idx) const;
 
-    QString file(int prefix_idx, int file_idx) const;
+    Utils::FilePath file(int prefix_idx, int file_idx) const;
     QString alias(int prefix_idx, int file_idx) const;
 
     int addFile(int prefix_idx, const QString &file, int file_idx = -1);
@@ -133,9 +133,9 @@ public:
     bool replacePrefixAndLang(int prefix_idx, const QString &prefix, const QString &lang);
     void replaceAlias(int prefix_idx, int file_idx, const QString &alias);
 
-    bool renameFile(const QString &fileName, const QString &newFileName);
+    bool renameFile(const Utils::FilePath &fileName, const Utils::FilePath &newFileName);
 
-    void replaceFile(int pref_idx, int file_idx, const QString &file);
+    void replaceFile(int pref_idx, int file_idx, const Utils::FilePath &file);
     int indexOfPrefix(const QString &prefix, const QString &lang) const;
     int indexOfFile(int pref_idx, const QString &file) const;
 
@@ -202,14 +202,15 @@ public:
 
     QString lang(const QModelIndex &index) const;
     QString alias(const QModelIndex &index) const;
-    QString file(const QModelIndex &index) const;
+    Utils::FilePath file(const QModelIndex &index) const;
 
     virtual QModelIndex addNewPrefix();
     virtual QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
     QStringList existingFilesSubtracted(int prefixIndex, const QStringList &fileNames) const;
     void addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile, int &firstFile, int &lastFile);
     void insertPrefix(int prefixIndex, const QString &prefix, const QString &lang);
-    void insertFile(int prefixIndex, int fileIndex, const QString &fileName, const QString &alias);
+    void insertFile(
+        int prefixIndex, int fileIndex, const QString &fileName, const QString &alias);
     virtual void changePrefix(const QModelIndex &idx, const QString &prefix);
     virtual void changeLang(const QModelIndex &idx, const QString &lang);
     virtual void changeAlias(const QModelIndex &idx, const QString &alias);
@@ -224,7 +225,7 @@ public:
 
 private:
     QString lastResourceOpenDirectory() const;
-    bool renameFile(const QString &fileName, const QString &newFileName);
+    bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &newFileName);
 
 public:
     virtual Utils::Result<> reload();

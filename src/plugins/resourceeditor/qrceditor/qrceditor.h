@@ -5,6 +5,8 @@
 
 #include <coreplugin/minisplitter.h>
 
+#include <utils/filepath.h>
+
 #include <QUndoStack>
 
 QT_BEGIN_NAMESPACE
@@ -42,8 +44,8 @@ public:
     void onRedo();
 
 signals:
-    void itemActivated(const QString &fileName);
-    void showContextMenu(const QPoint &globalPos, const QString &fileName);
+    void itemActivated(const Utils::FilePath &fileName);
+    void showContextMenu(const QPoint &globalPos, const Utils::FilePath &filePath);
     void undoStackChanged(bool canUndo, bool canRedo);
 
 private:
