@@ -129,6 +129,8 @@ private slots:
     void pathComponents();
     void pathComponents_data();
 
+    void symLinks();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -1921,6 +1923,19 @@ void tst_filepath::pathComponents_data()
             << "c:/a/b/c" << QStringList{"c:", "a", "b", "c"};
         QTest::newRow("windows-path-with-dir") << "c:/foo" << QStringList{"c:", "foo"};
     }
+}
+
+void tst_filepath::symLinks()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Creating symbolic links requires special privileges on Windows");
+    const FilePath orig = FilePath::fromString(rootPath).pathAppended("x/y/fileToCopy.txt");
+    QVERIFY(orig.exists());
+    const FilePath link = FilePath::fromString(rootPath).pathAppended("x/fileToCopySymLink.txt");
+    const Result<> res = orig.createSymLink(link);
+    QVERIFY_RESULT(res);
+    QVERIFY(link.isSymLink());
+    QCOMPARE(link.symLinkTarget(), orig);
 }
 
 void tst_filepath::pathComponents()

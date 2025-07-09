@@ -691,6 +691,17 @@ Utils::Result<QFuture<void>> Client::copyFile(const QString &source, const QStri
         "copyfileresult");
 }
 
+Utils::Result<QFuture<void>> Client::createSymLink(const QString &source, const QString &symLink)
+{
+    return createVoidJob(
+        d.get(),
+        QCborMap{
+                 {"Type", "createsymlink"},
+                 {"CreateSymLink", QCborMap{{"Source", source}, {"SymLink", symLink}}},
+                 },
+        "createsymlinkresult");
+}
+
 Utils::Result<QFuture<void>> Client::renameFile(const QString &source, const QString &target)
 {
     return createVoidJob(

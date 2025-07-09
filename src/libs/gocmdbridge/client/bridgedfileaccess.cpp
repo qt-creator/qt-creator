@@ -594,6 +594,19 @@ Result<> FileAccess::copyFile(const FilePath &filePath, const FilePath &target) 
     }
 }
 
+Result<> FileAccess::createSymLink(const FilePath &filePath, const FilePath &symLink) const
+{
+    try {
+        auto f = m_client->createSymLink(filePath.nativePath(), symLink.nativePath());
+        QTC_ASSERT_RESULT(f, return ResultOk);
+        f->waitForFinished();
+        return ResultOk;
+    } catch (const std::exception &e) {
+        return ResultError(
+            Tr::tr("Error creating symbolic link: %1").arg(QString::fromLocal8Bit(e.what())));
+    }
+}
+
 Result<> FileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
     try {

@@ -47,6 +47,7 @@ protected:
     virtual Result<> removeFile(const FilePath &filePath) const;
     virtual Result<> removeRecursively(const FilePath &filePath) const;
     virtual Result<> copyFile(const FilePath &filePath, const FilePath &target) const;
+    virtual Result<> createSymLink(const FilePath &filePath, const FilePath &symLink) const;
     virtual Result<> copyRecursively(const FilePath &filePath, const FilePath &target) const;
     virtual Result<> renameFile(const FilePath &filePath, const FilePath &target) const;
 
@@ -113,6 +114,7 @@ protected:
     Result<> removeFile(const FilePath &filePath) const override;
     Result<> removeRecursively(const FilePath &filePath) const override;
     Result<> copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result<> createSymLink(const FilePath &filePath, const FilePath &symLink) const override;
     Result<> copyRecursively(const FilePath &filePath, const FilePath &target) const override;
     Result<> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
@@ -175,6 +177,7 @@ protected:
     Result<> removeFile(const FilePath &filePath) const override;
     Result<> removeRecursively(const FilePath &filePath) const override;
     Result<> copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result<> createSymLink(const FilePath &filePath, const FilePath &symLink) const override;
     Result<> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePath symLinkTarget(const FilePath &filePath) const override;
@@ -240,6 +243,7 @@ protected:
     Result<> removeFile(const FilePath &filePath) const override;
     Result<> removeRecursively(const FilePath &filePath) const override;
     Result<> copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result<> createSymLink(const FilePath &filePath, const FilePath &symLink) const override;
     Result<> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePathInfo filePathInfo(const FilePath &filePath) const override;

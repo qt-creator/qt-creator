@@ -100,6 +100,7 @@ public:
     Utils::Result<QFuture<void>> createDir(const QString &path);
 
     Utils::Result<QFuture<void>> copyFile(const QString &source, const QString &target);
+    Utils::Result<QFuture<void>> createSymLink(const QString &source, const QString &symLink);
     Utils::Result<QFuture<void>> renameFile(const QString &source, const QString &target);
 
     Utils::Result<QFuture<Utils::FilePath>> createTempFile(const QString &path);

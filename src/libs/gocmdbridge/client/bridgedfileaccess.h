@@ -86,6 +86,8 @@ protected:
 
     Utils::Result<> copyFile(const Utils::FilePath &filePath,
                            const Utils::FilePath &target) const override;
+    Utils::Result<> createSymLink(
+        const Utils::FilePath &filePath, const Utils::FilePath &symLink) const override;
 
     Utils::Result<> renameFile(
         const Utils::FilePath &filePath, const Utils::FilePath &target) const override;

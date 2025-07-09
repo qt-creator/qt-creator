@@ -38,6 +38,7 @@ type command struct {
 	Error string
 
 	CopyFile copyfile
+        CreateSymLink createsymlink
 	RenameFile renamefile
 	SetPermissions setpermissions
 
@@ -108,6 +109,11 @@ type environment struct {
 type copyfile struct {
 	Source string
 	Target string
+}
+
+type createsymlink struct {
+        Source string
+        SymLink string
 }
 
 type renamefile struct {
@@ -323,6 +329,20 @@ func processCopyFile(cmd command, out chan<- []byte) {
 	out <- result
 }
 
+func processCreateSymLink(cmd command, out chan<- []byte) {
+        err := os.Symlink(cmd.CreateSymLink.Source, cmd.CreateSymLink.SymLink)
+        if err != nil {
+                sendError(out, cmd, err)
+                return
+        }
+
+        result, _ := cbor.Marshal(voidresult{
+                Type: "createsymlinkresult",
+                Id:   cmd.Id,
+        })
+        out <- result
+}
+
 func processRenameFile(cmd command, out chan<- []byte) {
 	err := os.Rename(cmd.RenameFile.Source, cmd.RenameFile.Target)
 	if err != nil {
@@ -426,6 +446,8 @@ func processCommand(watcher *WatcherHandler, watchDogChannel chan struct{} ,cmd 
 		}
 	case "copyfile":
 		processCopyFile(cmd, out)
+        case "createsymlink":
+                processCreateSymLink(cmd, out)
 	case "createdir":
 		processCreateDir(cmd, out)
 	case "createtempfile":

@@ -179,6 +179,14 @@ Result<> DeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &ta
         Tr::tr("copyFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
+Result<> DeviceFileAccess::createSymLink(const FilePath &filePath, const FilePath &symLink) const
+{
+    Q_UNUSED(symLink)
+    QTC_CHECK(false);
+    return ResultError(
+        Tr::tr("createSymLink is not implemented for \"%1\".").arg(filePath.toUserOutput()));
+}
+
 static Result<> copyRecursively_fallback(const FilePath &src, const FilePath &target)
 {
     Result<> result = ResultOk;
@@ -549,6 +557,13 @@ Result<> UnavailableDeviceFileAccess::copyFile(const FilePath &filePath, const F
 {
     Q_UNUSED(filePath)
     Q_UNUSED(target)
+    return ResultError(unavailableMessage());
+}
+
+Result<> UnavailableDeviceFileAccess::createSymLink(const FilePath &filePath, const FilePath &symLink) const
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(symLink)
     return ResultError(unavailableMessage());
 }
 
@@ -1124,6 +1139,49 @@ Result<> DesktopDeviceFileAccess::copyFile(const FilePath &filePath, const FileP
             .arg(filePath.toUserOutput(), target.toUserOutput(), srcFile.errorString()));
 }
 
+static Result<> createSymLinkGeneric(const FilePath &filePath, const FilePath &symLink)
+{
+    QFile srcFile(filePath.path());
+    if (srcFile.link(symLink.path()))
+        return ResultOk;
+    return ResultError(srcFile.errorString());
+}
+
+static Result<> createSymLinkWindows(const FilePath &filePath, const FilePath &symLink)
+{
+#ifdef Q_OS_WIN
+    const QString nativeFilePath = filePath.nativePath();
+    const QString nativeSymLink = symLink.nativePath();
+    DWORD flags = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
+    if (filePath.isDir())
+        flags |= SYMBOLIC_LINK_FLAG_DIRECTORY;
+    if (!CreateSymbolicLink(reinterpret_cast<const wchar_t*>(nativeSymLink.utf16()),
+                            reinterpret_cast<const wchar_t*>(nativeFilePath.utf16()), flags)) {
+        return ResultError(qt_error_string(GetLastError()));
+    }
+    return ResultOk;
+#else
+    Q_UNUSED(filePath)
+    Q_UNUSED(symLink)
+    QTC_CHECK(false);
+    return ResultError(
+        Tr::tr("createSymlinkWindows() called unexpectedly on a non-Windows platform."));
+#endif
+}
+
+Result<> DesktopDeviceFileAccess::createSymLink(
+    const FilePath &filePath, const FilePath &symLink) const
+{
+    const Result<> res = HostOsInfo::isWindowsHost()
+                             ? createSymLinkWindows(filePath, symLink)
+                             : createSymLinkGeneric(filePath, symLink);
+    if (res)
+        return res;
+    return ResultError(
+        Tr::tr("Failed to create symbolic link to \"%1\" at \"%2\": %3")
+            .arg(filePath.toUserOutput(), symLink.toUserOutput(), res.error()));
+}
+
 Result<> DesktopDeviceFileAccess::renameFile(
     const FilePath &filePath, const FilePath &target) const
 {
@@ -1523,6 +1581,20 @@ Result<> UnixDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath
                                    .arg(filePath.toUserOutput(),
                                         target.toUserOutput(),
                                         QString::fromUtf8(result.stdErr)));
+    }
+    return ResultOk;
+}
+
+Result<> UnixDeviceFileAccess::createSymLink(const FilePath &filePath, const FilePath &symLink) const
+{
+    const RunResult result = runInShell(
+        {"ln", {"-s", filePath.path(), symLink.path()}, OsType::OsTypeLinux});
+
+    if (result.exitCode != 0) {
+        return ResultError(Tr::tr("Failed to create symbolic link for file \"%1\" at \"%2\": %3")
+                               .arg(filePath.toUserOutput(),
+                                    symLink.toUserOutput(),
+                                    QString::fromUtf8(result.stdErr)));
     }
     return ResultOk;
 }

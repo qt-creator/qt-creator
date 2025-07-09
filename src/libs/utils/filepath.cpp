@@ -2096,6 +2096,23 @@ Result<> FilePath::copyFile(const FilePath &target) const
     return fileAccess()->copyFile(*this, target);
 }
 
+/*!
+    Creates a symbolic link \a symLink pointing to this file path.
+
+    \note On Windows, this function will not work unless you have admin rights
+          or developer mode is enabled.
+*/
+Result<> FilePath::createSymLink(const FilePath &symLink) const
+{
+    if (!isSameDevice(symLink)) {
+        return ResultError(
+            Tr::tr(
+                "Cannot create symbolic link to \"%1\" at \"%2\": Paths do not refer to the "
+                "same device.").arg(toUserOutput(), symLink.toUserOutput()));
+    }
+    return fileAccess()->createSymLink(*this, symLink);
+}
+
 Result<> FilePath::renameFile(const FilePath &target) const
 {
     if (isSameDevice(target))
