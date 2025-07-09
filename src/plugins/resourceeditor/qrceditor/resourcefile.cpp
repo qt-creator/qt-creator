@@ -416,7 +416,7 @@ QString ResourceFile::relativePath(const QString &abs_path) const
          return abs_path;
 
     FilePath abs_path_on_device = m_filePath.withNewPath(abs_path);
-    return abs_path_on_device.relativePathFromDir(m_filePath.parentDir()).path();
+    return abs_path_on_device.relativePathFromDir(m_filePath.parentDir());
 }
 
 QString ResourceFile::absolutePath(const QString &rel_path) const

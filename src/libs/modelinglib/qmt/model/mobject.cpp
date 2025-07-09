@@ -48,7 +48,7 @@ void MObject::setName(const QString &name)
     m_name = name;
 }
 
-void MObject::setLinkedFileName(const FilePath &linkedfilename)
+void MObject::setLinkedFileName(const QString &linkedfilename)
 {
     m_linkedfilename = linkedfilename;
 }

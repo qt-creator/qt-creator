@@ -37,9 +37,8 @@ QStringList getProjectResourceFilesPaths(const ProjectExplorer::Project *project
     const Utils::FilePath dir(project->projectFilePath().parentDir());
 
     for (const FilePath &path : project->files(ProjectExplorer::Project::AllFiles)) {
-        const Utils::FilePath relativePath = path.relativePathFromDir(dir);
-        if (QmlProjectManager::isResource(relativePath))
-            resourceFilesPaths.append(relativePath.path());
+        if (QmlProjectManager::isResource(path))
+            resourceFilesPaths.append(path.relativePathFromDir(dir));
     }
 
     return resourceFilesPaths;

@@ -33,7 +33,7 @@ public:
                                   QString *errorMessage) final;
 private:
     Core::GeneratedFiles scan(const FilePath &dir, const FilePath &base);
-    bool matchesSubdirectoryPattern(const FilePath &path);
+    bool matchesSubdirectoryPattern(const QString &relPath);
 
     QString m_binaryPattern;
     QList<QRegularExpression> m_subDirectoryExpressions;
@@ -87,8 +87,8 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
             [](const Utils::FilePath &filePath) { return int(filePath.path().count('/')); };
     int minDepth = std::numeric_limits<int>::max();
     for (auto it = result.begin(); it != result.end(); ++it) {
-        const Utils::FilePath relPath = it->filePath().relativePathFromDir(projectDir);
-        it->setBinary(binaryPattern.match(relPath.toUrlishString()).hasMatch());
+        const QString relPath = it->filePath().relativePathFromDir(projectDir);
+        it->setBinary(binaryPattern.match(relPath).hasMatch());
         bool found = ProjectManager::canOpenProjectForMimeType(Utils::mimeTypeForFile(relPath));
         if (found) {
             it->setAttributes(it->attributes() | Core::GeneratedFile::OpenProjectAttribute);
@@ -109,10 +109,10 @@ Core::GeneratedFiles JsonWizardScannerGenerator::fileList(Utils::MacroExpander *
     return result;
 }
 
-bool JsonWizardScannerGenerator::matchesSubdirectoryPattern(const Utils::FilePath &path)
+bool JsonWizardScannerGenerator::matchesSubdirectoryPattern(const QString &relPath)
 {
     for (const QRegularExpression &regexp : std::as_const(m_subDirectoryExpressions)) {
-        if (regexp.match(path.path()).hasMatch())
+        if (regexp.match(relPath).hasMatch())
             return true;
     }
     return false;
@@ -126,10 +126,10 @@ Core::GeneratedFiles JsonWizardScannerGenerator::scan(const Utils::FilePath &dir
     if (!dir.exists())
         return result;
 
-    const Utils::FilePaths entries = dir.dirEntries({{}, QDir::AllEntries | QDir::NoDotAndDotDot},
-                                                    QDir::DirsLast | QDir::Name);
-    for (const Utils::FilePath &fi : entries) {
-        const Utils::FilePath relativePath = fi.relativePathFromDir(base);
+    const FilePaths entries = dir.dirEntries({{}, QDir::AllEntries | QDir::NoDotAndDotDot},
+                                             QDir::DirsLast | QDir::Name);
+    for (const FilePath &fi : entries) {
+        const QString relativePath = fi.relativePathFromDir(base);
         if (fi.isDir() && matchesSubdirectoryPattern(relativePath)) {
             result += scan(fi, base);
         } else {

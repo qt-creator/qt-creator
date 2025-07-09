@@ -279,7 +279,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
             const BuildTargetInfo bti = m_buildSystem->buildTarget(m_buildKey);
             const QString value
                 = "$$PWD/"
-                  + bti.projectFilePath.absoluteFilePath().relativePathFromDir(m_directory).path();
+                  + bti.projectFilePath.absoluteFilePath().relativePathFromDir(m_directory);
             bool result = node->setData(Android::Constants::AndroidPackageSourceDir, value);
 
             if (!result) {

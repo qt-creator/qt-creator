@@ -123,7 +123,7 @@ Result<> ModelDocument::load(const FilePath &fileName)
                     .arg(fileName.toUserOutput(), ex.errorMessage()));
     }
 
-    FilePath configPath = d->documentController->projectController()->project()->configPath();
+    QString configPath = d->documentController->projectController()->project()->configPath();
     if (!configPath.isEmpty()) {
         FilePath canonicalPath =fileName.absolutePath().resolvePath(configPath);
         if (!canonicalPath.isEmpty()) {

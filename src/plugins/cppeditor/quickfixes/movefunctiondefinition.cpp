@@ -179,8 +179,9 @@ public:
         if (m_type == MoveFuncDefRefactoringHelper::MoveOutside) {
             setDescription(Tr::tr("Move Definition Outside Class"));
         } else {
-            const FilePath resolved = m_cppFilePath.relativePathFromDir(filePath().parentDir());
-            setDescription(Tr::tr("Move Definition to %1").arg(resolved.displayName()));
+            const QString resolved =
+                m_cppFilePath.relativeNativePathFromDir(filePath().parentDir());
+            setDescription(Tr::tr("Move Definition to %1").arg(resolved));
         }
     }
 
@@ -211,9 +212,9 @@ public:
         if (m_type == MoveFuncDefRefactoringHelper::MoveOutside) {
             setDescription(Tr::tr("Definitions Outside Class"));
         } else {
-            const FilePath resolved = m_cppFilePath.relativePathFromDir(filePath().parentDir());
-            setDescription(Tr::tr("Move All Function Definitions to %1")
-                               .arg(resolved.displayName()));
+            const QString resolved =
+                m_cppFilePath.relativeNativePathFromDir(filePath().parentDir());
+            setDescription(Tr::tr("Move All Function Definitions to %1").arg(resolved));
         }
     }
 
@@ -259,8 +260,9 @@ public:
         } else if (m_toFilePath == m_fromFilePath) {
             setDescription(Tr::tr("Move Definition to Class"));
         } else {
-            const FilePath resolved = m_toFilePath.relativePathFromDir(m_fromFilePath.parentDir());
-            setDescription(Tr::tr("Move Definition to %1").arg(resolved.displayName()));
+            const QString resolved =
+                m_toFilePath.relativeNativePathFromDir(m_fromFilePath.parentDir());
+            setDescription(Tr::tr("Move Definition to %1").arg(resolved));
         }
     }
 

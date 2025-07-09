@@ -675,7 +675,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
                                                        const Utils::FilePath &mainCompDir) const
 {
     QSet<AssetPath> depList;
-    AssetPath compAssetPath = {mainCompDir, filePath.relativePathFromDir(mainCompDir).toFSPathString()};
+    AssetPath compAssetPath = {mainCompDir, filePath.relativePathFromDir(mainCompDir)};
 
 #ifdef QDS_USE_PROJECTSTORAGE
     ModelPointer model = m_view->model()->createModel("Item");
@@ -743,7 +743,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
                             assetPathBase = pValuePath.parentDir();
                         } else {
                             Utils::FilePath assetPath = filePath.parentDir().resolvePath(pValueStr);
-                            assetPathRelative = assetPath.relativePathFromDir(mainCompDir).toFSPathString();
+                            assetPathRelative = assetPath.relativePathFromDir(mainCompDir);
                             assetPathBase = mainCompDir;
                         }
 
@@ -758,7 +758,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
                 if (match.hasMatch()) {
                     Utils::FilePath assetPath = filePath.parentDir().resolvePath(match.captured(1));
-                    QString assetPathRelative = assetPath.relativePathFromDir(mainCompDir).toFSPathString();
+                    QString assetPathRelative = assetPath.relativePathFromDir(mainCompDir);
 
                     QTC_ASSERT(assetPath.exists(), continue);
                     depList.insert({mainCompDir, assetPathRelative});

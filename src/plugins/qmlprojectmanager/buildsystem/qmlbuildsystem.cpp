@@ -510,7 +510,7 @@ FilePath QmlBuildSystem::targetFile(const FilePath &sourceFile) const
 {
     const FilePath sourceDir = m_projectItem ? m_projectItem->sourceDirectory()
                                              : canonicalProjectDir();
-    const FilePath relative = sourceFile.relativePathFromDir(sourceDir);
+    const QString relative = sourceFile.relativePathFromDir(sourceDir);
     return targetDirectory().resolvePath(relative);
 }
 

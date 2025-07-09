@@ -305,7 +305,7 @@ void ResourceTopLevelNode::addInternalNodes()
 
             QString alias = file.alias(i, j);
             if (alias.isEmpty())
-                alias = fileName.relativePathFromDir(filePath().absolutePath()).path();
+                alias = fileName.relativePathFromDir(filePath().absolutePath());
 
             QString prefixWithSlash = prefix;
             if (!prefixWithSlash.endsWith(QLatin1Char('/')))

@@ -1724,16 +1724,24 @@ static QString calcRelativePath(QStringView absolutePath, QStringView absoluteAn
     The debug output will be "../b/ar/file.txt".
 */
 
-FilePath FilePath::relativePathFromDir(const FilePath &anchor) const
+QString FilePath::relativePathFromDir(const FilePath &anchorDir) const
 {
-    QTC_ASSERT(isSameDevice(anchor), return *this);
+    QTC_ASSERT(isSameDevice(anchorDir), return path());
 
     const FilePath absPath = absoluteFilePath();
-    const FilePath absoluteAnchorPath = anchor.absoluteFilePath();
+    const FilePath absoluteAnchorPath = anchorDir.absoluteFilePath();
 
     QString relativeFilePath = calcRelativePath(absPath.pathView(), absoluteAnchorPath.pathView());
 
-    return FilePath::fromString(relativeFilePath);
+    return relativeFilePath;
+}
+
+QString FilePath::relativeNativePathFromDir(const FilePath &anchorDir) const
+{
+    QString rel = relativePathFromDir(anchorDir);
+    if (osType() == OsTypeWindows)
+        rel.replace('/', '\\');
+    return rel;
 }
 
 /*!

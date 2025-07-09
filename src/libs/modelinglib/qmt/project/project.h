@@ -26,14 +26,14 @@ public:
     void setFileName(const Utils::FilePath &fileName);
     MPackage *rootPackage() const { return m_rootPackage; }
     void setRootPackage(MPackage *rootPackage);
-    Utils::FilePath configPath() const { return m_configPath; }
-    void setConfigPath(const Utils::FilePath &configPath);
+    QString configPath() const { return m_configPath; }
+    void setConfigPath(const QString &configPath);
 
 private:
     Uid m_uid;
     Utils::FilePath m_fileName;
     MPackage *m_rootPackage = nullptr;
-    Utils::FilePath m_configPath;
+    QString m_configPath;
 };
 
 } // namespace qmt

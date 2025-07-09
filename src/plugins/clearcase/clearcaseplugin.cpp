@@ -1583,8 +1583,8 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << source << topLevel << changeNr;
     QString description;
-    const FilePath relPath = source.relativePathFromDir(topLevel);
-    const QString id = QString::fromLatin1("%1@@%2").arg(relPath.toUserOutput(), changeNr);
+    const QString relNativePath = source.relativeNativePathFromDir(topLevel);
+    const QString id = QString::fromLatin1("%1@@%2").arg(relNativePath, changeNr);
 
     const TextEncoding encoding = VcsBaseEditor::getEncoding(source);
     const CommandResult result = runCleartool(topLevel, {"describe", id}, RunFlags::None, encoding);
@@ -1704,9 +1704,9 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
         return true;
     }
 
-    const FilePath relFile = absPath.relativePathFromDir(topLevel);
-    const QString file = relFile.nativePath();
-    const QString title = QString::fromLatin1("Checkout %1").arg(file);
+    const QString relFile = absPath.relativePathFromDir(topLevel);
+    const QString relFileNative = absPath.relativeNativePathFromDir(topLevel);
+    const QString title = QString::fromLatin1("Checkout %1").arg(relFileNative);
     CheckOutDialog coDialog(title, m_viewData.isUcm, !m_settings.noComment);
 
     // Only snapshot views can have hijacked files
@@ -1740,7 +1740,7 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
         args << QLatin1String("-ptime");
     if (isHijacked) {
         if (Constants::debug)
-            qDebug() << Q_FUNC_INFO << file << " seems to be hijacked";
+            qDebug() << Q_FUNC_INFO << relFileNative << " seems to be hijacked";
 
         // A hijacked files means that the file is modified but was
         // not checked out. By checking it out now changes will
@@ -1751,17 +1751,17 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
         // args << QLatin1String("-usehijack");
         if (coDialog.isUseHijacked())
             absPath.renameFile(hijackedPath);
-        vcsUndoHijack(topLevel, relFile.path(), false); // don't keep, we've already kept a copy
+        vcsUndoHijack(topLevel, relFile, false); // don't keep, we've already kept a copy
     }
-    args << file;
+    args << relFileNative;
     CommandResult result = runCleartool(topLevel, args,
                                         RunFlags::ShowStdOut | RunFlags::SuppressStdErr);
     if (result.result() != ProcessResult::FinishedWithSuccess) {
         if (result.cleanedStdErr().contains(QLatin1String("Versions other than the selected version"))) {
-            VersionSelector selector(file, result.cleanedStdErr());
+            VersionSelector selector(relFileNative, result.cleanedStdErr());
             if (selector.exec() == QDialog::Accepted) {
                 if (selector.isUpdate())
-                    ccUpdate(workingDir, QStringList(file));
+                    ccUpdate(workingDir, {relFileNative});
                 else
                     args.removeOne(QLatin1String("-query"));
                 result = runCleartool(topLevel, args, RunFlags::ShowStdOut);

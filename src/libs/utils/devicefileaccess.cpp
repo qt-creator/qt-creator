@@ -192,8 +192,8 @@ static Result<> copyRecursively_fallback(const FilePath &src, const FilePath &ta
     Result<> result = ResultOk;
     src.iterateDirectory(
         [&target, &src, &result](const FilePath &path) {
-            const FilePath relative = path.relativePathFromDir(src);
-            const FilePath targetPath = target.pathAppended(relative.path());
+            const QString relative = path.relativePathFromDir(src);
+            const FilePath targetPath = target.pathAppended(relative);
             result = targetPath.parentDir().ensureWritableDir();
             if (!result)
                 return IterationPolicy::Stop;

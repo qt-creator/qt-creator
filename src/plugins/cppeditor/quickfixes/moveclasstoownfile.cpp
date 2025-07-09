@@ -411,7 +411,7 @@ private:
             ChangeSet changes;
             if (isDeclFile) {
                 const FilePath baseDir = refactoringFile->filePath().parentDir();
-                const QString relInclude = headerFilePath.relativePathFromDir(baseDir).path();
+                const QString relInclude = headerFilePath.relativePathFromDir(baseDir);
                 insertNewIncludeDirective('"' + relInclude + '"', refactoringFile,
                                           refactoringFile->cppDocument(), changes);
             }

@@ -35,7 +35,7 @@ void Project::setRootPackage(MPackage *rootPackage)
     m_rootPackage = rootPackage;
 }
 
-void Project::setConfigPath(const FilePath &configPath)
+void Project::setConfigPath(const QString &configPath)
 {
     m_configPath = configPath;
 }

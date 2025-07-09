@@ -1989,11 +1989,11 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
         for (const RewriteCandidate &candidate : it.value()) {
             const QTextBlock &block = file->document()->findBlockByNumber(
                 candidate.includeLine - 1);
-            const FilePath relPathOld = candidate.oldHeaderFilePath.relativePathFromDir(
+            const QString relPathOld = candidate.oldHeaderFilePath.relativePathFromDir(
                 includingFileOld.parentDir());
-            const FilePath relPathNew = candidate.newHeaderFilePath.relativePathFromDir(
+            const QString relPathNew = candidate.newHeaderFilePath.relativePathFromDir(
                 includingFileNew.parentDir());
-            int replaceStart = block.text().indexOf(relPathOld.toUrlishString());
+            int replaceStart = block.text().indexOf(relPathOld);
             QString oldString;
             QString newString;
             if (candidate.isUiHeader || replaceStart == -1) {
@@ -2001,8 +2001,8 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
                 oldString = candidate.oldHeaderFileName;
                 newString = candidate.newHeaderFileName;
             } else {
-                oldString = relPathOld.toUrlishString();
-                newString = relPathNew.toUrlishString();
+                oldString = relPathOld;
+                newString = relPathNew;
             }
             if (replaceStart > -1 && oldString != newString) {
                 changeSet.replace(block.position() + replaceStart,

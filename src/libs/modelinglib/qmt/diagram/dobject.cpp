@@ -129,7 +129,7 @@ bool DObject::hasImage() const
     return !m_image.isNull();
 }
 
-void DObject::setImagePath(const FilePath &path)
+void DObject::setImagePath(const QString &path)
 {
     m_imagePath = path;
 }

@@ -242,7 +242,7 @@ ModelNode CreateTexture::createTextureFromImage(const  Utils::FilePath &assetPat
 
     NodeMetaInfo metaInfo = m_view->model()->qtQuick3DTextureMetaInfo();
 
-    QString textureSource = assetPath.relativePathFromDir(DocumentManager::currentFilePath().parentDir()).toUrlishString();
+    QString textureSource = assetPath.relativePathFromDir(DocumentManager::currentFilePath().parentDir());
 
     ModelNode newTexNode = Utils3D::getTextureDefaultInstance(textureSource, m_view);
     if (!newTexNode.isValid()) {

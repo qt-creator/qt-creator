@@ -181,7 +181,7 @@ void AssetsLibraryView::sync3dImports()
                 targetPath = resPath;
             Utils::FilePath newFile = targetPath.pathAppended(pathTemplate.arg(fileStr));
             QByteArray data;
-            data.append(qmlFile.relativePathFromDir(projPath).toFSPathString().toLatin1());
+            data.append(qmlFile.relativePathFromDir(projPath).toLatin1());
             newFile.writeFileContents(data);
         }
     }

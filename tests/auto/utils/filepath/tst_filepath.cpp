@@ -393,7 +393,7 @@ void tst_filepath::fileName()
 
 void tst_filepath::relativePathFromDir_specials()
 {
-    QString path = FilePath("").relativePathFromDir("").toUrlishString();
+    QString path = FilePath("").relativePathFromDir("");
     QCOMPARE(path, "");
 }
 
@@ -490,9 +490,9 @@ void tst_filepath::relativePathFromDir()
     QFETCH(QString, current);
     QFETCH(QString, anchor);
     QFETCH(QString, result);
-    FilePath actualPath = FilePath::fromString(current)
+    QString actualPath = FilePath::fromString(current)
                               .relativePathFromDir(FilePath::fromString(anchor));
-    QCOMPARE(actualPath.toUrlishString(), result);
+    QCOMPARE(actualPath, result);
 }
 
 void tst_filepath::rootLength_data()

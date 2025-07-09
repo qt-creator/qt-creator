@@ -41,29 +41,29 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
 {
     Utils::FilePath path = overrideBaseDir.isEmpty() ? folder->filePath() : overrideBaseDir;
 
-    Utils::FilePath directoryWithoutPrefix;
+    QString directoryWithoutPrefix;
     bool isRelative = false;
 
     if (path.isEmpty() || path.isRootPath()) {
-        directoryWithoutPrefix = directory;
+        directoryWithoutPrefix = directory.path();
         isRelative = false;
     } else {
         if (directory.isChildOf(path) || directory == path) {
             isRelative = true;
-            directoryWithoutPrefix = directory.relativeChildPath(path);
+            directoryWithoutPrefix = directory.relativeChildPath(path).path();
         } else {
-            const FilePath relativePath = directory.relativePathFromDir(path);
-            if (relativePath.path().count("../") < 5) {
+            const QString relativePath = directory.relativePathFromDir(path);
+            if (relativePath.count("../") < 5) {
                 isRelative = true;
                 directoryWithoutPrefix = relativePath;
             } else {
                 isRelative = false;
                 path.clear();
-                directoryWithoutPrefix = directory;
+                directoryWithoutPrefix = directory.path();
             }
         }
     }
-    QStringList parts = directoryWithoutPrefix.path().split('/', Qt::SkipEmptyParts);
+    QStringList parts = directoryWithoutPrefix.split('/', Qt::SkipEmptyParts);
     if (directory.osType() != OsTypeWindows && !isRelative && !parts.isEmpty())
         parts[0].prepend('/');
 

@@ -1628,11 +1628,11 @@ QmlCodeModelInfo Project::gatherQmlCodeModelInfo(Kit *kit, BuildConfiguration *b
     auto addAppDir = [&baseDir, &projectInfo](const FilePath &mdir) {
         const FilePath dir = mdir.cleanPath();
         if (!baseDir.path().isEmpty()) {
-            const FilePath rDir = dir.relativePathFromDir(baseDir);
+            const QString rDir = dir.relativePathFromDir(baseDir);
             // do not add directories outside the build directory
             // this might happen for example when we think an executable path belongs to
             // a bundle, and we need to remove extra directories, but that was not the case
-            if (rDir.path().split(u'/').contains(QStringLiteral(u"..")))
+            if (rDir.split(u'/').contains(QStringLiteral(u"..")))
                 return;
         }
         if (!projectInfo.applicationDirectories.contains(dir))

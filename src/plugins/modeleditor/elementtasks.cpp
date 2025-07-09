@@ -405,12 +405,12 @@ void ElementTasks::createAndOpenDiagram(const qmt::DElement *element, const qmt:
 
 FilePath ElementTasks::linkedFile(const qmt::MObject *mobject) const
 {
-    FilePath filepath = mobject->linkedFileName();
-    if (!filepath.isEmpty()) {
-        FilePath projectName = d->documentController->projectController()->project()->fileName();
-        filepath = projectName.absolutePath().resolvePath(filepath).canonicalPath();
-    }
-    return filepath;
+    const QString filepath = mobject->linkedFileName();
+    if (filepath.isEmpty())
+        return {};
+
+    FilePath projectName = d->documentController->projectController()->project()->fileName();
+    return projectName.absolutePath().resolvePath(filepath).canonicalPath();
 }
 
 bool ElementTasks::hasLinkedFile(const qmt::MElement *element) const

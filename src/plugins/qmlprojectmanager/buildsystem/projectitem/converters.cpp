@@ -271,7 +271,7 @@ QStringList qmlprojectsFromFilesNodes(const QJsonArray &fileGroups,
         qmlProjectFiles.append(Utils::transform<QStringList>(
             dir.dirEntries(Utils::FileFilter({"*.qmlproject"}, QDir::Files)),
             [&projectRootPath](Utils::FilePath file) {
-                return file.absoluteFilePath().relativePathFromDir(projectRootPath).toFSPathString();
+                return file.absoluteFilePath().relativePathFromDir(projectRootPath);
             }));
     }
 
@@ -341,10 +341,10 @@ QStringList getModuleQmlProjectFiles(const Utils::FilePath &importPath,
 
         // Check the URI against the original import path before adding
         // If we look directly in the search path, the URI doesn't matter
-        const QString relativePath = filePath.parentDir().relativePathFromDir(importPath).path();
+        const QString relativePath = filePath.parentDir().relativePathFromDir(importPath);
         if (isBaseImportPath || uri.replace(".", "/") == relativePath) {
             // If the URI matches the path or the file is directly in the import path, add it
-            qmlProjectFiles.emplace_back(filePath.relativePathFromDir(projectRootPath).toFSPathString());
+            qmlProjectFiles.emplace_back(filePath.relativePathFromDir(projectRootPath));
         }
     }
     return qmlProjectFiles;

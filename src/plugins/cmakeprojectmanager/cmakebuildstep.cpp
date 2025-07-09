@@ -833,9 +833,9 @@ void CMakeBuildStep::updateDeploymentData()
                                                   ? DeployableFile::TypeExecutable
                                                   : DeployableFile::TypeNormal;
 
-            FilePath targetDirPath = filePath.parentDir().relativePathFromDir(rootDir);
+            QString targetDirPath = filePath.parentDir().relativePathFromDir(rootDir);
 
-            const FilePath targetDir = runDevice->rootPath().pathAppended(targetDirPath.path());
+            const FilePath targetDir = runDevice->rootPath().pathAppended(targetDirPath);
             deploymentData.addFile(filePath, targetDir.nativePath(), type);
             return IterationPolicy::Continue;
         };

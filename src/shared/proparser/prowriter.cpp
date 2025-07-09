@@ -410,7 +410,7 @@ void ProWriter::addFiles(ProFile *profile, QStringList *lines, const QStringList
          */
         if (!tmp.isSameDevice(baseDir))
             tmp = FilePath::fromParts(baseDir.scheme(), baseDir.host(), tmp.path());
-        valuesToWrite << (prefixPwd + tmp.relativePathFromDir(baseDir).path());
+        valuesToWrite << (prefixPwd + tmp.relativePathFromDir(baseDir));
     }
 
     putVarValues(profile, lines, valuesToWrite, var, AppendValues | MultiLine | AppendOperator,

@@ -337,8 +337,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
             const QString relativePathSuffix = textDocument()
                                                    ->filePath()
                                                    .parentDir()
-                                                   .relativePathFromDir(project->projectDirectory())
-                                                   .path();
+                                                   .relativePathFromDir(project->projectDirectory());
             buffer.replace("${CMAKE_CURRENT_BINARY_DIR}",
                            bs->buildConfiguration()
                                ->buildDirectory()

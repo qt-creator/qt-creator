@@ -667,7 +667,7 @@ public:
         QTC_ASSERT(projectFilePath().exists(), return);
         if (Result<QJsonObject> json = projectDefinition(projectFilePath())) {
             QJsonArray excludes = (*json)[FILES_EXCLUDE_KEY].toArray();
-            const QString relative = path.relativePathFromDir(projectDirectory()).path();
+            const QString relative = path.relativePathFromDir(projectDirectory());
             if (excludes.contains(relative))
                 return;
             excludes << relative;
