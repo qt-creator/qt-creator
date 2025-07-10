@@ -1479,18 +1479,20 @@ void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, cons
 
 void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
 {
-    const CommandResult result = vcsSynchronousExec(workingDirectory, {"ls-files", "--deleted"},
-                                                    RunFlags::SuppressCommandLogging);
-    if (result.result() == ProcessResult::FinishedWithSuccess) {
-        const QString stdOut = result.cleanedStdOut().trimmed();
-        if (stdOut.isEmpty()) {
-            VcsOutputWindow::appendError(workingDirectory, Tr::tr("Nothing to recover"));
-            return;
+    const auto commandHandler = [this, workingDirectory](const CommandResult &result) {
+        if (result.result() == ProcessResult::FinishedWithSuccess) {
+            const QString stdOut = result.cleanedStdOut().trimmed();
+            if (stdOut.isEmpty()) {
+                VcsOutputWindow::appendError(workingDirectory, Tr::tr("Nothing to recover"));
+                return;
+            }
+            const QStringList files = stdOut.split('\n');
+            synchronousCheckoutFiles(workingDirectory, files, QString(), nullptr, false);
+            VcsOutputWindow::appendMessage(workingDirectory, Tr::tr("Files recovered"));
         }
-        const QStringList files = stdOut.split('\n');
-        synchronousCheckoutFiles(workingDirectory, files, QString(), nullptr, false);
-        VcsOutputWindow::appendMessage(workingDirectory, Tr::tr("Files recovered"));
-    }
+    };
+    enqueueCommand({workingDirectory, {"ls-files", "--deleted"}, RunFlags::SuppressCommandLogging,
+                    {}, {}, commandHandler});
 }
 
 void GitClient::addFile(const FilePath &workingDirectory, const QString &fileName)
