@@ -31,7 +31,7 @@ Device::Device()
     setDisplayType(Tr::tr("Development Container"));
     setOsType(OsTypeLinux);
     setupId(IDevice::AutoDetected, Id::generate());
-    setType("DevContainerType");
+    setType(Constants::DEVCONTAINER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
     setFileAccessFactory([this]() { return m_fileAccess.get(); });
 }
