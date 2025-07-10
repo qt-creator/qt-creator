@@ -400,7 +400,14 @@ Result<Environment> DockerDevicePrivate::fetchEnvironment() const
     }
     const QStringList envLines = QString::fromUtf8(envCaptureProcess.readAllRawStandardOutput())
                                      .split('\n', Qt::SkipEmptyParts);
-    NameValueDictionary envDict;
+
+    const auto osInfo = osTypeAndArch();
+    if (!osInfo) {
+        qCWarning(dockerDeviceLog).noquote()
+            << "Failed to determine OS type and architecture for environment capture:"
+            << osInfo.error() << "Falling back to Linux.";
+    }
+    NameValueDictionary envDict(osInfo.value_or(qMakePair(OsTypeLinux, OsArchX86)).first);
 
     // We don't want to capture the following environment variables:
     static const QStringList filterKeys{"_", "HOSTNAME", "PWD", "HOME"};

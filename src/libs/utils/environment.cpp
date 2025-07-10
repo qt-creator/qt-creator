@@ -47,6 +47,7 @@ Environment::Environment(const NameValuePairs &nameValues)
 
 Environment::Environment(const NameValueDictionary &dict)
 {
+    m_dict.m_osType = dict.osType();
     m_changeItems.append(dict);
 }
 
