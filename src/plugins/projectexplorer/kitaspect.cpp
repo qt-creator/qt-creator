@@ -4,11 +4,15 @@
 #include "kitaspect.h"
 
 #include "devicesupport/devicekitaspects.h"
+#include "devicesupport/idevice.h"
 #include "kit.h"
+#include "kitmanager.h"
 #include "projectexplorertr.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/treemodel.h>
@@ -373,6 +377,155 @@ void KitAspectFactory::handleKitsLoaded()
 const QList<KitAspectFactory *> KitAspectFactory::kitAspectFactories()
 {
     return kitAspectFactoriesStorage().kitAspectFactories();
+}
+
+std::optional<Tasking::ExecutableItem> KitAspectFactory::autoDetect(
+    Kit *kit,
+    const Utils::FilePaths &searchPaths,
+    const QString &detectionSource,
+    std::function<void(QString)> logCallback) const
+{
+    Q_UNUSED(kit);
+    Q_UNUSED(searchPaths);
+    Q_UNUSED(detectionSource);
+    Q_UNUSED(logCallback);
+
+    return std::nullopt;
+}
+
+std::optional<Tasking::ExecutableItem> KitAspectFactory::removeAutoDetected(
+    const QString &detectionSource, std::function<void(QString)> logCallback) const
+{
+    Q_UNUSED(detectionSource);
+    Q_UNUSED(logCallback);
+    return std::nullopt;
+}
+
+void KitAspectFactory::listAutoDetected(
+    const QString &detectionSource, std::function<void(QString)> logCallback) const
+{
+    Q_UNUSED(detectionSource)
+    Q_UNUSED(logCallback)
+}
+
+Tasking::Group kitDetectionRecipe(
+    const IDeviceConstPtr &device, std::function<void(QString)> logCallback)
+{
+    using namespace Tasking;
+    using namespace Utils;
+
+    const auto root = device->rootPath();
+
+    const FilePaths searchPaths
+        = Utils::transform(device->systemEnvironment().path(), [&root](const FilePath &path) {
+              return root.withNewPath(path.path());
+          });
+
+    const QString detectionSource = device->id().toString();
+
+    Kit *kit = KitManager::registerKit([detectionSource, device](Kit *k) {
+        k->setAutoDetected(true);
+        k->setAutoDetectionSource(detectionSource);
+        k->setUnexpandedDisplayName("%{Device:Name}");
+
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
+        RunDeviceKitAspect::setDevice(k, device);
+        BuildDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
+        BuildDeviceKitAspect::setDevice(k, device);
+
+        k->setSticky(BuildDeviceKitAspect::id(), true);
+        k->setSticky(BuildDeviceTypeKitAspect::id(), true);
+    });
+
+    const QList<Tasking::ExecutableItem> detectors = Utils::transform(
+        Utils::filtered(
+            Utils::transform(
+                KitAspectFactory::kitAspectFactories(),
+                [kit, device, searchPaths, detectionSource, logCallback](
+                    const KitAspectFactory *factory) {
+                    return factory->autoDetect(kit, searchPaths, detectionSource, logCallback);
+                }),
+            [](const std::optional<Tasking::ExecutableItem> &item) { return item.has_value(); }),
+        [](const std::optional<Tasking::ExecutableItem> &item) { return item.value(); });
+
+    GroupItems detectorItems{};
+    for (const auto &factory : KitAspectFactory::kitAspectFactories()) {
+        const auto detector = factory->autoDetect(kit, searchPaths, detectionSource, logCallback);
+        if (detector)
+            detectorItems.append({*detector});
+    }
+
+    // clang-format off
+    return Group {
+        Sync([device, logCallback]{
+            logCallback(Tr::tr("Auto detecting Kits for device: %1").arg(device->displayName()));
+        }),
+        Group {
+            parallelIdealThreadCountLimit,
+            detectorItems,
+        },
+        Sync([kit, logCallback] {
+            if (!kit->isValid()) {
+                KitManager::deregisterKit(kit);
+                return;
+            }
+            logCallback(Tr::tr("Detected Kit: %1").arg(kit->displayName()));
+        }),
+    };
+    // clang-format on
+}
+
+Tasking::Group removeDetectedKitsRecipe(
+    const IDeviceConstPtr &device, std::function<void(QString)> logCallback)
+{
+    using namespace Tasking;
+    using namespace Utils;
+
+    const auto root = device->rootPath();
+    const QString detectionSource = device->id().toString();
+
+    GroupItems removerItems{};
+    for (const auto &factory : KitAspectFactory::kitAspectFactories()) {
+        const auto remover = factory->removeAutoDetected(detectionSource, logCallback);
+        if (remover)
+            removerItems.append({remover.value()});
+    }
+
+    const auto removeKits = [device, detectionSource, logCallback]() {
+        logCallback(Tr::tr("Removing auto-detected Kits for device: %1").arg(device->displayName()));
+
+        const auto detectedKits = filtered(KitManager::kits(), [detectionSource](const Kit *k) {
+            return k->isAutoDetected() && k->autoDetectionSource() == detectionSource;
+        });
+
+        for (Kit *kit : detectedKits) {
+            logCallback(Tr::tr("Removing auto-detected Kit: %1").arg(kit->displayName()));
+            KitManager::deregisterKit(kit);
+        }
+    };
+
+    // clang-format off
+    return Group {
+        Sync(removeKits),
+        Group {
+            parallelIdealThreadCountLimit,
+            removerItems,
+        }
+    };
+    // clang-format on
+}
+
+void listAutoDetected(const IDeviceConstPtr &device, std::function<void(QString)> logCallback)
+{
+    const QString detectionSource = device->id().toString();
+
+    for (const auto kit : KitManager::kits()) {
+        if (kit->isAutoDetected() && kit->autoDetectionSource() == detectionSource)
+            logCallback(Tr::tr("Auto-detected Kit: %1").arg(kit->displayName()));
+    }
+
+    for (const auto &factory : KitAspectFactory::kitAspectFactories())
+        factory->listAutoDetected(detectionSource, logCallback);
 }
 
 } // namespace ProjectExplorer

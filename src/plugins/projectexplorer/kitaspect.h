@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include "devicesupport/idevicefwd.h"
 #include "projectexplorer_export.h"
 #include "task.h"
+
+#include <tasking/tasktree.h>
 
 #include <utils/aspects.h>
 
@@ -27,6 +30,15 @@ class OutputLineParser;
 namespace ProjectExplorer {
 class Kit;
 class KitAspect;
+
+PROJECTEXPLORER_EXPORT Tasking::Group kitDetectionRecipe(
+    const IDeviceConstPtr &device, std::function<void(QString)> logCallback);
+
+PROJECTEXPLORER_EXPORT Tasking::Group removeDetectedKitsRecipe(
+    const IDeviceConstPtr &device, std::function<void(QString)> logCallback);
+
+PROJECTEXPLORER_EXPORT void listAutoDetected(
+    const IDeviceConstPtr &device, std::function<void(QString)> logCallback);
 
 /**
  * @brief The KitAspectFactory class
@@ -83,6 +95,18 @@ public:
 
     static void handleKitsLoaded();
     static const QList<KitAspectFactory *> kitAspectFactories();
+
+    virtual std::optional<Tasking::ExecutableItem> autoDetect(
+        Kit *kit,
+        const Utils::FilePaths &searchPaths,
+        const QString &detectionSource,
+        std::function<void(QString)> logCallback) const;
+
+    virtual std::optional<Tasking::ExecutableItem> removeAutoDetected(
+        const QString &detectionSource, std::function<void(QString)> logCallback) const;
+
+    virtual void listAutoDetected(
+        const QString &detectionSource, std::function<void(QString)> logCallback) const;
 
 protected:
     KitAspectFactory();
