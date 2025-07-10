@@ -131,10 +131,10 @@ public:
     virtual bool synchronousMove(const Utils::FilePath &workingDir,
                                  const QString &from, const QString &to,
                                  const QStringList &extraOptions = {});
-    virtual bool synchronousPull(const Utils::FilePath &workingDir,
+    virtual void synchronousPull(const Utils::FilePath &workingDir,
                                  const QString &srcLocation,
                                  const QStringList &extraOptions = {});
-    virtual bool synchronousPush(const Utils::FilePath &workingDir,
+    virtual void synchronousPush(const Utils::FilePath &workingDir,
                                  const QString &dstLocation,
                                  const QStringList &extraOptions = {});
     void annotate(const Utils::FilePath &workingDir, const QString &file,

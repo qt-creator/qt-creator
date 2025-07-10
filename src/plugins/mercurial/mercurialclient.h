@@ -20,7 +20,7 @@ class MercurialClient : public VcsBase::VcsBaseClient
 public:
     MercurialClient();
 
-    bool synchronousPull(const Utils::FilePath &workingDir,
+    void synchronousPull(const Utils::FilePath &workingDir,
                          const QString &srcLocation,
                          const QStringList &extraOptions = {}) override;
     QString branchQuerySync(const QString &repositoryRoot);

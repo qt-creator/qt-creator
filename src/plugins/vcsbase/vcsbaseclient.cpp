@@ -296,29 +296,26 @@ bool VcsBaseClient::synchronousMove(const FilePath &workingDir,
     return vcsSynchronousExec(workingDir, args).result() == ProcessResult::FinishedWithSuccess;
 }
 
-bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
+void VcsBaseClient::synchronousPull(const FilePath &workingDir,
                                     const QString &srcLocation,
                                     const QStringList &extraOptions)
 {
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
     const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
-    const bool ok = vcsSynchronousExec(workingDir, args, flags).result()
-            == ProcessResult::FinishedWithSuccess;
-    if (ok)
+    const CommandResult result = vcsSynchronousExec(workingDir, args, flags);
+    if (result.result() == ProcessResult::FinishedWithSuccess)
         emit repositoryChanged(workingDir);
-    return ok;
 }
 
-bool VcsBaseClient::synchronousPush(const FilePath &workingDir,
+void VcsBaseClient::synchronousPush(const FilePath &workingDir,
                                     const QString &dstLocation,
                                     const QStringList &extraOptions)
 {
     QStringList args;
     args << vcsCommandString(PushCommand) << extraOptions << dstLocation;
     const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
-    return vcsSynchronousExec(workingDir, args, flags).result()
-            == ProcessResult::FinishedWithSuccess;
+    vcsSynchronousExec(workingDir, args, flags);
 }
 
 void VcsBaseClient::annotate(const Utils::FilePath &workingDir, const QString &file,

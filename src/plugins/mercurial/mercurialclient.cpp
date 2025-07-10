@@ -81,7 +81,7 @@ QStringList MercurialDiffEditorController::addConfigurationArguments(const QStri
 
 MercurialClient::MercurialClient() : VcsBaseClient(&Internal::settings()) {}
 
-bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString &srcLocation, const QStringList &extraOptions)
+void MercurialClient::synchronousPull(const FilePath &workingDir, const QString &srcLocation, const QStringList &extraOptions)
 {
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
@@ -90,7 +90,6 @@ bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString 
           RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage | RunFlags::ForceCLocale);
 
     parsePullOutput(result.cleanedStdOut().trimmed());
-    return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
 QString MercurialClient::branchQuerySync(const QString &repositoryRoot)

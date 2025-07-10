@@ -617,39 +617,36 @@ bool FossilClient::synchronousMove(const FilePath &workingDir,
     return vcsSynchronousExec(workingDir, args).result() == ProcessResult::FinishedWithSuccess;
 }
 
-bool FossilClient::synchronousPull(const FilePath &workingDir, const QString &srcLocation, const QStringList &extraOptions)
+void FossilClient::synchronousPull(const FilePath &workingDir, const QString &srcLocation, const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(PullCommand));
     if (srcLocation.isEmpty()) {
         const QString defaultURL(synchronousGetRepositoryURL(workingDir));
         if (defaultURL.isEmpty())
-            return false;
+            return;
     } else {
         args << srcLocation;
     }
 
     args << extraOptions;
     const CommandResult result = vcsSynchronousExec(workingDir, args, s_pullFlags);
-    const bool success = (result.result() == ProcessResult::FinishedWithSuccess);
-    if (success)
+    if (result.result() == ProcessResult::FinishedWithSuccess)
         emit repositoryChanged(workingDir);
-    return success;
 }
 
-bool FossilClient::synchronousPush(const FilePath &workingDir, const QString &dstLocation, const QStringList &extraOptions)
+void FossilClient::synchronousPush(const FilePath &workingDir, const QString &dstLocation, const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(PushCommand));
     if (dstLocation.isEmpty()) {
         const QString defaultURL(synchronousGetRepositoryURL(workingDir));
         if (defaultURL.isEmpty())
-            return false;
+            return;
     } else {
         args << dstLocation;
     }
 
     args << extraOptions;
-    return vcsSynchronousExec(workingDir, args, s_pullFlags).result()
-            == ProcessResult::FinishedWithSuccess;
+    vcsSynchronousExec(workingDir, args, s_pullFlags);
 }
 
 void FossilClient::commit(const FilePath &repositoryRoot, const QStringList &files,
