@@ -62,10 +62,6 @@ public:
                                      const QStringList &extraOptions = {}) final;
     bool synchronousMove(const Utils::FilePath &workingDir, const QString &from, const QString &to,
                          const QStringList &extraOptions = {}) final;
-    void synchronousPull(const Utils::FilePath &workingDir, const QString &srcLocation,
-                         const QStringList &extraOptions = {}) final;
-    void synchronousPush(const Utils::FilePath &workingDir, const QString &dstLocation,
-                         const QStringList &extraOptions = {}) final;
     void commit(const Utils::FilePath &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile, const QStringList &extraOptions = {}) final;
     void annotate(const Utils::FilePath &workingDir, const QString &file,

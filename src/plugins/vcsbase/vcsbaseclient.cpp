@@ -301,7 +301,9 @@ void VcsBaseClient::synchronousPull(const FilePath &workingDir,
                                     const QStringList &extraOptions)
 {
     QStringList args;
-    args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
+    args << vcsCommandString(PullCommand) << extraOptions;
+    if (!srcLocation.isEmpty())
+        args << srcLocation;
     const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
     const CommandResult result = vcsSynchronousExec(workingDir, args, flags);
     if (result.result() == ProcessResult::FinishedWithSuccess)
@@ -313,7 +315,9 @@ void VcsBaseClient::synchronousPush(const FilePath &workingDir,
                                     const QStringList &extraOptions)
 {
     QStringList args;
-    args << vcsCommandString(PushCommand) << extraOptions << dstLocation;
+    args << vcsCommandString(PushCommand) << extraOptions;
+    if (!dstLocation.isEmpty())
+        args << dstLocation;
     const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
     vcsSynchronousExec(workingDir, args, flags);
 }

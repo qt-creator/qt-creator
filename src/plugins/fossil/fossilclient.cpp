@@ -617,26 +617,6 @@ bool FossilClient::synchronousMove(const FilePath &workingDir,
     return vcsSynchronousExec(workingDir, args).result() == ProcessResult::FinishedWithSuccess;
 }
 
-void FossilClient::synchronousPull(const FilePath &workingDir, const QString &srcLocation, const QStringList &extraOptions)
-{
-    QStringList args(vcsCommandString(PullCommand));
-    if (!srcLocation.isEmpty())
-        args << srcLocation;
-    args << extraOptions;
-    const CommandResult result = vcsSynchronousExec(workingDir, args, s_pullFlags);
-    if (result.result() == ProcessResult::FinishedWithSuccess)
-        emit repositoryChanged(workingDir);
-}
-
-void FossilClient::synchronousPush(const FilePath &workingDir, const QString &dstLocation, const QStringList &extraOptions)
-{
-    QStringList args(vcsCommandString(PushCommand));
-    if (!dstLocation.isEmpty())
-        args << dstLocation;
-    args << extraOptions;
-    vcsSynchronousExec(workingDir, args, s_pullFlags);
-}
-
 void FossilClient::commit(const FilePath &repositoryRoot, const QStringList &files,
                           const QString &commitMessageFile, const QStringList &extraOptions)
 {

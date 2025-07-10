@@ -533,16 +533,19 @@ void FossilPluginPrivate::pullOrPush(FossilCommand command)
     }
 
     QStringList extraOptions;
-    if (!remoteLocation.isEmpty() && !dialog.isRememberOptionEnabled())
-        extraOptions << "--once";
+    if (!remoteLocation.isEmpty()) {
+        extraOptions << remoteLocation;
+        if (!dialog.isRememberOptionEnabled())
+            extraOptions << "--once";
+    }
     if (dialog.isPrivateOptionEnabled())
         extraOptions << "--private";
     switch (command) {
     case FossilCommand::Pull:
-        fossilClient().synchronousPull(state.topLevel(), remoteLocation, extraOptions);
+        fossilClient().synchronousPull(state.topLevel(), {}, extraOptions);
         break;
     case FossilCommand::Push:
-        fossilClient().synchronousPush(state.topLevel(), remoteLocation, extraOptions);
+        fossilClient().synchronousPush(state.topLevel(), {}, extraOptions);
         break;
     }
 }
