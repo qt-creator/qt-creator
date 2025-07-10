@@ -1,5 +1,3 @@
-import qbs 1.0
-
 QtcPlugin {
     name: "Docker"
 
@@ -27,8 +25,6 @@ QtcPlugin {
         "dockerplugin.cpp",
         "dockersettings.cpp",
         "dockersettings.h",
-        "kitdetector.cpp",
-        "kitdetector.h",
     ]
 }
 

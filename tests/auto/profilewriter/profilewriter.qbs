@@ -3,7 +3,7 @@ import qbs
 QtcAutotest {
     name: "ProFileWriter autotest"
     Depends { name: "Qt.xml" }
-    Depends { name: "Utils"; cpp.link: false }
+    Depends { name: "Utils" }
     Group {
         name: "Sources from ProParser"
         id: proParserGroup

@@ -35,6 +35,7 @@ QtcPlugin {
         qbs.installDir: qtc.ide_data_path + "/devcontainer_testdata"
         qbs.installSourceBase: "testdata/"
         prefix: "testdata/"
+        fileTags: []
         files: [
             "**/*",
             ".**/*",
