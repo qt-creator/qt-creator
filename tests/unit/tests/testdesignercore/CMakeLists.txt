@@ -5,7 +5,6 @@ add_qtc_library(TestDesignerCore OBJECT
   PROPERTIES SKIP_AUTOGEN ON
   DEPENDS
     Utils
-    Qt::Widgets
     Qt::Qml
     Qt::QmlPrivate
     Qt6::QmlDomPrivate
@@ -14,6 +13,7 @@ add_qtc_library(TestDesignerCore OBJECT
   PUBLIC_DEPENDS
     Threads::Threads
     Qt::Quick
+    Qt::Widgets
     QmlPuppetCommunication
     QmlDesignerUtils
     Sqlite
