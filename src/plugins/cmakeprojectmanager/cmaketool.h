@@ -94,6 +94,7 @@ public:
     QString versionDisplay() const;
 
     bool isAutoDetected() const;
+    void setAutoDetected(bool autoDetected);
     QString displayName() const;
     void setDisplayName(const QString &displayName);
 

@@ -344,6 +344,11 @@ bool CMakeTool::isAutoDetected() const
     return m_isAutoDetected;
 }
 
+void CMakeTool::setAutoDetected(bool autoDetected)
+{
+    m_isAutoDetected = autoDetected;
+}
+
 QString CMakeTool::displayName() const
 {
     return m_displayName;
