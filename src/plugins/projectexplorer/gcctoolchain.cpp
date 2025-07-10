@@ -1553,7 +1553,8 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                                     GccToolchain::Clang));
     known.append(tcs);
 
-    tcs.append(autoDetectSdkClangToolchain(known));
+    if (isLocal)
+        tcs.append(autoDetectSdkClangToolchain(known));
 
     result += tcs;
 
