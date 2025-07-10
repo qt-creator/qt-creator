@@ -462,7 +462,10 @@ void MercurialPluginPrivate::pull()
     dialog.setWindowTitle(Tr::tr("Pull Source"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    mercurialClient().synchronousPull(dialog.workingDir(), dialog.getRepositoryString());
+    mercurialClient().synchronousPull(dialog.workingDir(), dialog.getRepositoryString(), {},
+                                      [](const CommandResult &result) {
+        mercurialClient().parsePullOutput(result.cleanedStdOut().trimmed());
+    });
 }
 
 void MercurialPluginPrivate::push()

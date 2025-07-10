@@ -298,16 +298,20 @@ bool VcsBaseClient::synchronousMove(const FilePath &workingDir,
 
 void VcsBaseClient::synchronousPull(const FilePath &workingDir,
                                     const QString &srcLocation,
-                                    const QStringList &extraOptions)
+                                    const QStringList &extraOptions,
+                                    const CommandHandler &commandHandler)
 {
+    const auto handler = commandHandler ? commandHandler
+                                        : [this, workingDir](const CommandResult &result) {
+        if (result.result() == ProcessResult::FinishedWithSuccess)
+            emit repositoryChanged(workingDir);
+    };
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions;
     if (!srcLocation.isEmpty())
         args << srcLocation;
     const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
-    const CommandResult result = vcsSynchronousExec(workingDir, args, flags);
-    if (result.result() == ProcessResult::FinishedWithSuccess)
-        emit repositoryChanged(workingDir);
+    handler(vcsSynchronousExec(workingDir, args, flags));
 }
 
 void VcsBaseClient::synchronousPush(const FilePath &workingDir,

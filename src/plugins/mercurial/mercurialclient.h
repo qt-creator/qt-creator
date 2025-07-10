@@ -19,9 +19,6 @@ class MercurialClient : public VcsBase::VcsBaseClient
 public:
     MercurialClient();
 
-    void synchronousPull(const Utils::FilePath &workingDir,
-                         const QString &srcLocation,
-                         const QStringList &extraOptions = {}) override;
     QString branchQuerySync(const QString &repositoryRoot);
     QStringList parentRevisionsSync(const Utils::FilePath &workingDirectory,
                              const QString &file /* = QString() */,
@@ -49,6 +46,7 @@ public:
 
     void view(const Utils::FilePath &source, const QString &id,
               const QStringList &extraOptions = QStringList()) override;
+    void parsePullOutput(const QString &output);
 
 protected:
     Utils::Id vcsEditorKind(VcsCommandTag cmd) const override;
@@ -63,7 +61,6 @@ private:
     void requestReload(const QString &documentId, const Utils::FilePath &source,
                        const QString &title, const Utils::FilePath &workingDirectory,
                        const QStringList &args);
-    void parsePullOutput(const QString &output);
 };
 
 MercurialClient &mercurialClient();

@@ -133,7 +133,8 @@ public:
                                  const QStringList &extraOptions = {});
     virtual void synchronousPull(const Utils::FilePath &workingDir,
                                  const QString &srcLocation,
-                                 const QStringList &extraOptions = {});
+                                 const QStringList &extraOptions = {},
+                                 const CommandHandler &commandHandler = {});
     virtual void synchronousPush(const Utils::FilePath &workingDir,
                                  const QString &dstLocation,
                                  const QStringList &extraOptions = {});
