@@ -9,7 +9,6 @@
 #include "dockerdevicewidget.h"
 #include "dockersettings.h"
 #include "dockertr.h"
-#include "kitdetector.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -21,18 +20,10 @@
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/devicesupport/processlist.h>
 #include <projectexplorer/environmentkitaspect.h>
-#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
-#include <projectexplorer/toolchainmanager.h>
-
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtversionfactory.h>
-#include <qtsupport/qtversionmanager.h>
 
 #include <client/bridgedfileaccess.h>
 #include <client/cmdbridgeclient.h>
@@ -999,8 +990,11 @@ Result<Environment> DockerDevice::systemEnvironmentWithError() const
 
 void DockerDevice::aboutToBeRemoved() const
 {
-    KitDetector detector(shared_from_this());
-    detector.undoAutoDetect(id().toString());
+    Tasking::TaskTree tree(
+        ProjectExplorer::removeDetectedKitsRecipe(shared_from_this(), [](const QString &msg) {
+            MessageManager::writeSilently(msg);
+        }));
+    tree.runBlocking();
 }
 
 // Factory

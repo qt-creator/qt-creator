@@ -7,6 +7,8 @@
 #include "dockerdevice.h"
 #include "dockertr.h"
 
+#include <projectexplorer/kitaspect.h>
+
 #include <utils/algorithm.h>
 #include <utils/clangutils.h>
 #include <utils/commandline.h>
@@ -29,7 +31,7 @@ using namespace Utils;
 namespace Docker::Internal {
 
 DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
-    : IDeviceWidget(device), m_kitItemDetector(device)
+    : IDeviceWidget(device)
 {
     auto dockerDevice = std::dynamic_pointer_cast<DockerDevice>(device);
     QTC_ASSERT(dockerDevice, return);
@@ -65,12 +67,23 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     connect(&dockerDevice->mounts, &FilePathListAspect::volatileValueChanged, this, markupMounts);
 
     auto logView = new QTextBrowser;
-    connect(&m_kitItemDetector, &KitDetector::logOutput,
-            logView, &QTextBrowser::append);
 
     auto autoDetectButton = new QPushButton(Tr::tr("Auto-detect Kit Items"));
     auto undoAutoDetectButton = new QPushButton(Tr::tr("Remove Auto-Detected Kit Items"));
     auto listAutoDetectedButton = new QPushButton(Tr::tr("List Auto-Detected Kit Items"));
+
+    connect(&m_detectionRunner, &Tasking::TaskTreeRunner::aboutToStart, [=] {
+        autoDetectButton->setEnabled(false);
+        undoAutoDetectButton->setEnabled(false);
+        listAutoDetectedButton->setEnabled(false);
+        logView->append(Tr::tr("Starting auto-detection..."));
+    });
+    connect(&m_detectionRunner, &Tasking::TaskTreeRunner::done, [=] {
+        autoDetectButton->setEnabled(true);
+        undoAutoDetectButton->setEnabled(true);
+        listAutoDetectedButton->setEnabled(true);
+        logView->append(Tr::tr("Done."));
+    });
 
     auto searchDirsComboBox = new QComboBox;
     searchDirsComboBox->addItem(Tr::tr("Search in PATH"));
@@ -121,25 +134,29 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 if (!clangdPath.isEmpty())
                     dockerDevice->clangdExecutableAspect.setValue(clangdPath);
 
-                m_kitItemDetector.autoDetect(dockerDevice->id().toString(), searchPaths());
+                m_detectionRunner.start(
+                    ProjectExplorer::kitDetectionRecipe(dockerDevice, [logView](const QString &msg) {
+                        logView->append(msg);
+                    }));
 
                 if (DockerApi::instance()->dockerDaemonAvailable().value_or(false) == false)
                     logView->append(Tr::tr("Docker daemon appears to be stopped."));
                 else
                     logView->append(Tr::tr("Docker daemon appears to be running."));
-
-                logView->append(Tr::tr("Detection complete."));
                 updateDaemonStateTexts();
             });
 
     connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, device] {
         logView->clear();
-        m_kitItemDetector.undoAutoDetect(device->id().toString());
+        m_detectionRunner.start(
+            ProjectExplorer::removeDetectedKitsRecipe(device, [logView](const QString &msg) {
+                logView->append(msg);
+            }));
     });
 
-    connect(listAutoDetectedButton, &QPushButton::clicked, this, [this, logView, device] {
+    connect(listAutoDetectedButton, &QPushButton::clicked, this, [logView, device] {
         logView->clear();
-        m_kitItemDetector.listAutoDetected(device->id().toString());
+        listAutoDetected(device, [logView](const QString &msg) { logView->append(msg); });
     });
 
     auto createLineLabel = new QLabel(dockerDevice->createCommandLine().toUserOutput());
