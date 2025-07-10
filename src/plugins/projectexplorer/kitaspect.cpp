@@ -422,53 +422,49 @@ Tasking::Group kitDetectionRecipe(const IDeviceConstPtr &device, const LogCallba
 
     const QString detectionSource = device->id().toString();
 
-    Kit *kit = KitManager::registerKit([detectionSource, device](Kit *k) {
-        k->setAutoDetected(true);
-        k->setAutoDetectionSource(detectionSource);
-        k->setUnexpandedDisplayName("%{Device:Name}");
+    Storage<GroupItems> detectorItems;
+    Storage<Kit *> kit;
 
-        RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
-        RunDeviceKitAspect::setDevice(k, device);
-        BuildDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
-        BuildDeviceKitAspect::setDevice(k, device);
+    const auto setup = [kit, detectorItems, searchPaths, detectionSource, device, logCallback] {
+        logCallback(Tr::tr("Auto detecting Kits for device: %1").arg(device->displayName()));
 
-        k->setSticky(BuildDeviceKitAspect::id(), true);
-        k->setSticky(BuildDeviceTypeKitAspect::id(), true);
-    });
+        *kit = KitManager::registerKit([detectionSource, device](Kit *k) {
+            k->setAutoDetected(true);
+            k->setAutoDetectionSource(detectionSource);
+            k->setUnexpandedDisplayName("%{Device:Name}");
 
-    const QList<Tasking::ExecutableItem> detectors = Utils::transform(
-        Utils::filtered(
-            Utils::transform(
-                KitAspectFactory::kitAspectFactories(),
-                [kit, device, searchPaths, detectionSource, logCallback](
-                    const KitAspectFactory *factory) {
-                    return factory->autoDetect(kit, searchPaths, detectionSource, logCallback);
-                }),
-            [](const std::optional<Tasking::ExecutableItem> &item) { return item.has_value(); }),
-        [](const std::optional<Tasking::ExecutableItem> &item) { return item.value(); });
+            RunDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
+            RunDeviceKitAspect::setDevice(k, device);
+            BuildDeviceTypeKitAspect::setDeviceTypeId(k, device->type());
+            BuildDeviceKitAspect::setDevice(k, device);
 
-    GroupItems detectorItems{};
-    for (const auto &factory : KitAspectFactory::kitAspectFactories()) {
-        const auto detector = factory->autoDetect(kit, searchPaths, detectionSource, logCallback);
-        if (detector)
-            detectorItems.append({*detector});
-    }
+            k->setSticky(BuildDeviceKitAspect::id(), true);
+            k->setSticky(BuildDeviceTypeKitAspect::id(), true);
+        });
+
+        for (const auto &factory : KitAspectFactory::kitAspectFactories()) {
+            const auto detector
+                = factory->autoDetect(*kit, searchPaths, detectionSource, logCallback);
+            if (detector)
+                detectorItems->append({*detector});
+        }
+    };
+
+    const auto setupDetectorTree = [detectorItems](TaskTree &tree) {
+        tree.setRecipe(Group(*detectorItems));
+    };
 
     // clang-format off
     return Group {
-        Sync([device, logCallback]{
-            logCallback(Tr::tr("Auto detecting Kits for device: %1").arg(device->displayName()));
-        }),
-        Group {
-            parallelIdealThreadCountLimit,
-            detectorItems,
-        },
-        Sync([kit, logCallback] {
-            if (!kit->isValid()) {
-                KitManager::deregisterKit(kit);
+        kit, detectorItems,
+        Sync(setup),
+        TaskTreeTask(setupDetectorTree),
+        Sync([kit,logCallback] {
+            if (!(*kit)->isValid()) {
+                KitManager::deregisterKit(*kit);
                 return;
             }
-            logCallback(Tr::tr("Detected Kit: %1").arg(kit->displayName()));
+            logCallback(Tr::tr("Detected Kit: %1").arg((*kit)->displayName()));
         }),
     };
     // clang-format on

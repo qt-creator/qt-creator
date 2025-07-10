@@ -134,10 +134,15 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 if (!clangdPath.isEmpty())
                     dockerDevice->clangdExecutableAspect.setValue(clangdPath);
 
-                m_detectionRunner.start(
-                    ProjectExplorer::kitDetectionRecipe(dockerDevice, [logView](const QString &msg) {
-                        logView->append(msg);
-                    }));
+                const auto log = [logView](const QString &msg) { logView->append(msg); };
+                // clang-format off
+                Tasking::Group recipe {
+                    ProjectExplorer::removeDetectedKitsRecipe(dockerDevice, log),
+                    ProjectExplorer::kitDetectionRecipe(dockerDevice, log)
+                };
+                // clang-format on
+
+                m_detectionRunner.start(recipe);
 
                 if (DockerApi::instance()->dockerDaemonAvailable().value_or(false) == false)
                     logView->append(Tr::tr("Docker daemon appears to be stopped."));
