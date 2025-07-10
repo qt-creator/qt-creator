@@ -3,6 +3,7 @@
 
 #include "debuggeritemmanager.h"
 
+#include "debuggerkitaspect.h"
 #include "debuggertr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -933,6 +934,93 @@ void DebuggerItemModel::saveDebuggers()
     m_writer.save(data);
 
     // Do not save default debuggers as they are set by the SDK.
+}
+
+Tasking::ExecutableItem autoDetectDebuggerRecipe(
+    ProjectExplorer::Kit *kit,
+    const Utils::FilePaths &searchPaths,
+    const QString &detectionSource,
+    std::function<void(QString)> logCallback)
+{
+    QStringList searchFilters
+        = {"gdb-i686-pc-mingw32",
+           "gdb-i686-pc-mingw32.exe",
+           "gdb",
+           "gdb.exe",
+           "lldb",
+           "lldb.exe",
+           "lldb-[1-9]*",
+           "arm-none-eabi-gdb-py.exe",
+           "*-*-*-gdb"};
+
+    if (doEnableNativeDapDebuggers()) {
+        searchFilters.append({
+            "lldb-dap",
+            "lldb-dap.exe",
+            "lldb-dap-*",
+            // LLDB DAP server was named lldb-vscode prior LLVM 18.0.0
+            "lldb-vscode",
+            "lldb-vscode.exe",
+            "lldb-vscode-*",
+        });
+    }
+
+    using namespace Tasking;
+
+    static const auto searchDebuggers = [](QPromise<DebuggerItem> &promise,
+                                           const FilePaths &searchPaths,
+                                           const QString &detectionSource,
+                                           const QStringList &searchFilters) {
+        FilePaths suspects;
+
+        for (const FilePath &path : searchPaths)
+            suspects.append(path.dirEntries({searchFilters, QDir::Files | QDir::Executable}));
+
+        for (const FilePath &command : std::as_const(suspects)) {
+            const Result<DebuggerItem> item = makeAutoDetectedDebuggerItem(command, detectionSource);
+
+            if (item)
+                promise.addResult(*item);
+            else
+                qWarning() << "Failed to auto-detect debugger from" << command.toUserOutput() << ":"
+                           << item.error();
+        }
+    };
+
+    auto setupSearch = [searchPaths, detectionSource, searchFilters](Async<DebuggerItem> &async) {
+        async.setConcurrentCallData(searchDebuggers, searchPaths, detectionSource, searchFilters);
+    };
+
+    auto searchDone = [kit, logCallback](const Async<DebuggerItem> &async) {
+        QList<DebuggerItem> items = async.results();
+        for (const DebuggerItem &item : items) {
+            if (item.isValid() && item.engineType() != NoEngineType) {
+                logCallback(Tr::tr("Found Debugger: \"%1\"").arg(item.command().toUserOutput()));
+                DebuggerItemManager::registerDebugger(item);
+                DebuggerKitAspect::setDebugger(kit, item.id());
+            } else
+                qWarning() << "Invalid debugger item detected?!";
+        }
+    };
+
+    return AsyncTask<DebuggerItem>(setupSearch, searchDone);
+}
+
+Tasking::ExecutableItem removeAutoDetected(
+    const QString &detectionSource, std::function<void(QString)> logCallback)
+{
+    return Tasking::Sync([detectionSource, logCallback]() {
+        const auto debuggers
+            = filtered(DebuggerItemManager::debuggers(), [detectionSource](const DebuggerItem &item) {
+                  return item.isAutoDetected() && item.detectionSource() == detectionSource;
+              });
+
+        for (const auto &debugger : debuggers) {
+            logCallback(
+                Tr::tr("Removing auto-detected debugger: \"%1\"").arg(debugger.displayName()));
+            DebuggerItemManager::deregisterDebugger(debugger.id());
+        }
+    });
 }
 
 } // namespace Internal

@@ -15,6 +15,8 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
+#include <tasking/tasktree.h>
+
 #include <utils/environment.h>
 #include <utils/guard.h>
 #include <utils/filepath.h>
@@ -410,6 +412,30 @@ public:
     ItemList toUserOutput(const Kit *k) const override
     {
         return {{Tr::tr("Debugger"), DebuggerKitAspect::displayString(k)}};
+    }
+
+    std::optional<Tasking::ExecutableItem> autoDetect(
+        Kit *kit,
+        const Utils::FilePaths &searchPaths,
+        const QString &detectionSource,
+        std::function<void(QString)> logCallback) const override
+    {
+        return Internal::autoDetectDebuggerRecipe(kit, searchPaths, detectionSource, logCallback);
+    }
+
+    std::optional<Tasking::ExecutableItem> removeAutoDetected(
+        const QString &detectionSource, std::function<void(QString)> logCallback) const override
+    {
+        return Internal::removeAutoDetected(detectionSource, logCallback);
+    }
+
+    void listAutoDetected(
+        const QString &detectionSource, std::function<void(QString)> logCallback) const override
+    {
+        for (const auto &debugger : DebuggerItemManager::debuggers()) {
+            if (debugger.isAutoDetected() && debugger.detectionSource() == detectionSource)
+                logCallback(Tr::tr("Auto-detected Debugger: \"%1\"").arg(debugger.displayName()));
+        }
     }
 };
 

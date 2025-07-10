@@ -7,6 +7,10 @@
 #include "debuggerconstants.h"
 #include "debuggeritem.h"
 
+#include <projectexplorer/kit.h>
+
+#include <tasking/tasktree.h>
+
 #include <utils/filepath.h>
 #include <utils/treemodel.h>
 
@@ -51,6 +55,15 @@ public:
     bool m_changed;
     bool m_removed = false;
 };
+
+Tasking::ExecutableItem autoDetectDebuggerRecipe(
+    ProjectExplorer::Kit *kit,
+    const Utils::FilePaths &searchPaths,
+    const QString &detectionSource,
+    std::function<void(QString)> logCallback);
+
+Tasking::ExecutableItem removeAutoDetected(
+    const QString &detectionSource, std::function<void(QString)> logCallback);
 
 } // Internal
 } // Debugger
