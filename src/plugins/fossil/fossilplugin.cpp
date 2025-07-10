@@ -542,10 +542,10 @@ void FossilPluginPrivate::pullOrPush(FossilCommand command)
         extraOptions << "--private";
     switch (command) {
     case FossilCommand::Pull:
-        fossilClient().synchronousPull(state.topLevel(), {}, extraOptions);
+        fossilClient().pull(state.topLevel(), {}, extraOptions);
         break;
     case FossilCommand::Push:
-        fossilClient().synchronousPush(state.topLevel(), {}, extraOptions);
+        fossilClient().push(state.topLevel(), {}, extraOptions);
         break;
     }
 }

@@ -586,7 +586,7 @@ void BazaarPluginPrivate::pull()
         extraOptions += QLatin1String("--local");
     if (!dialog.revision().isEmpty())
         extraOptions << QLatin1String("-r") << dialog.revision();
-    m_client.synchronousPull(state.topLevel(), dialog.branchLocation(), extraOptions);
+    m_client.pull(state.topLevel(), dialog.branchLocation(), extraOptions);
 }
 
 void BazaarPluginPrivate::push()
@@ -608,7 +608,7 @@ void BazaarPluginPrivate::push()
         extraOptions += QLatin1String("--create-prefix");
     if (!dialog.revision().isEmpty())
         extraOptions << QLatin1String("-r") << dialog.revision();
-    m_client.synchronousPush(state.topLevel(), dialog.branchLocation(), extraOptions);
+    m_client.push(state.topLevel(), dialog.branchLocation(), extraOptions);
 }
 
 void BazaarPluginPrivate::update()

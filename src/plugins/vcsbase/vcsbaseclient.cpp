@@ -296,10 +296,8 @@ bool VcsBaseClient::synchronousMove(const FilePath &workingDir,
     return vcsSynchronousExec(workingDir, args).result() == ProcessResult::FinishedWithSuccess;
 }
 
-void VcsBaseClient::synchronousPull(const FilePath &workingDir,
-                                    const QString &srcLocation,
-                                    const QStringList &extraOptions,
-                                    const CommandHandler &commandHandler)
+void VcsBaseClient::pull(const FilePath &workingDir, const QString &srcLocation,
+                         const QStringList &extraOptions, const CommandHandler &commandHandler)
 {
     const auto handler = commandHandler ? commandHandler
                                         : [this, workingDir](const CommandResult &result) {
@@ -311,19 +309,18 @@ void VcsBaseClient::synchronousPull(const FilePath &workingDir,
     if (!srcLocation.isEmpty())
         args << srcLocation;
     const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
-    handler(vcsSynchronousExec(workingDir, args, flags));
+    enqueueCommand({workingDir, args, flags, {}, {}, handler});
 }
 
-void VcsBaseClient::synchronousPush(const FilePath &workingDir,
-                                    const QString &dstLocation,
-                                    const QStringList &extraOptions)
+void VcsBaseClient::push(const FilePath &workingDir, const QString &dstLocation,
+                         const QStringList &extraOptions)
 {
     QStringList args;
     args << vcsCommandString(PushCommand) << extraOptions;
     if (!dstLocation.isEmpty())
         args << dstLocation;
     const RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
-    vcsSynchronousExec(workingDir, args, flags);
+    enqueueCommand({workingDir, args, flags});
 }
 
 void VcsBaseClient::annotate(const Utils::FilePath &workingDir, const QString &file,

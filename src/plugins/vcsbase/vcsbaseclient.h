@@ -131,13 +131,10 @@ public:
     virtual bool synchronousMove(const Utils::FilePath &workingDir,
                                  const QString &from, const QString &to,
                                  const QStringList &extraOptions = {});
-    void synchronousPull(const Utils::FilePath &workingDir,
-                         const QString &srcLocation,
-                         const QStringList &extraOptions = {},
-                         const CommandHandler &commandHandler = {});
-    void synchronousPush(const Utils::FilePath &workingDir,
-                         const QString &dstLocation,
-                         const QStringList &extraOptions = {});
+    void pull(const Utils::FilePath &workingDir, const QString &srcLocation,
+              const QStringList &extraOptions = {}, const CommandHandler &commandHandler = {});
+    void push(const Utils::FilePath &workingDir, const QString &dstLocation,
+              const QStringList &extraOptions = {});
     void annotate(const Utils::FilePath &workingDir, const QString &file,
                   int lineNumber = -1, const QString &revision = {},
                   const QStringList &extraOptions = {}, int firstLine = -1) override;
