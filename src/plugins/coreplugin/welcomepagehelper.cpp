@@ -622,34 +622,37 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     }
 
     // The 'Tags:' section
-    painter->setPen(tagsLabelTF.color());
-    painter->setFont(tagsLabelTF.font());
-    painter->drawText(tagsLabelR, tagsLabelTF.drawTextFlags, tagsLabelText);
+    if (!item->tags.empty()) {
+        painter->setPen(tagsLabelTF.color());
+        painter->setFont(tagsLabelTF.font());
+        painter->drawText(tagsLabelR, tagsLabelTF.drawTextFlags, tagsLabelText);
 
-    const QFontMetrics fm = painter->fontMetrics();
+        const QFontMetrics fm = painter->fontMetrics();
 
-    painter->setPen(tagsTF.color());
-    painter->setFont(tagsTF.font());
-    int emptyTagRowsLeft = tagsRowsCount;
-    int xx = 0;
-    int yy = 0;
-    const bool populateTagsRects = m_currentTagRects.empty();
-    for (const QString &tag : item->tags) {
-        const int ww = fm.horizontalAdvance(tag);
-        if (xx + ww > tagsR.width()) {
-            if (--emptyTagRowsLeft == 0)
-                break;
-            yy += fm.lineSpacing();
-            xx = 0;
+        painter->setPen(tagsTF.color());
+        painter->setFont(tagsTF.font());
+        int emptyTagRowsLeft = tagsRowsCount;
+        int xx = 0;
+        int yy = 0;
+        const bool populateTagsRects = m_currentTagRects.empty();
+        for (const QString &tag : item->tags) {
+            const int ww = fm.horizontalAdvance(tag);
+            if (xx + ww > tagsR.width()) {
+                if (--emptyTagRowsLeft == 0)
+                    break;
+                yy += fm.lineSpacing();
+                xx = 0;
+            }
+            const QRect tagRect = QRect(xx, yy, ww, tagsLabelR.height())
+                                      .translated(tagsR.topLeft());
+            painter->drawText(tagRect, tagsTF.drawTextFlags, tag);
+            if (populateTagsRects) {
+                constexpr int grow = tagsHGap / 2;
+                const QRect tagMouseArea = tagRect.adjusted(-grow, -grow, grow, grow);
+                m_currentTagRects.append({ tag, tagMouseArea });
+            }
+            xx += ww + tagsHGap;
         }
-        const QRect tagRect = QRect(xx, yy, ww, tagsLabelR.height()).translated(tagsR.topLeft());
-        painter->drawText(tagRect, tagsTF.drawTextFlags, tag);
-        if (populateTagsRects) {
-            constexpr int grow = tagsHGap / 2;
-            const QRect tagMouseArea = tagRect.adjusted(-grow, -grow, grow, grow);
-            m_currentTagRects.append({ tag, tagMouseArea });
-        }
-        xx += ww + tagsHGap;
     }
 
     painter->restore();
