@@ -381,20 +381,16 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         if (QTC_GUARD(windowMenu)) {
             // reuse EditorManager constants to avoid a second pair of menu actions
             m_gotoPrevious = new QAction(this);
-            cmd = Core::ActionManager::registerAction(m_gotoPrevious,
-                                                      Core::Constants::GOTOPREVINHISTORY,
-                                                      context);
-            windowMenu->addAction(cmd, Core::Constants::G_WINDOW_NAVIGATE);
+            Core::ActionManager::registerAction(
+                m_gotoPrevious, Core::Constants::GOTOPREVINHISTORY, context);
             connect(m_gotoPrevious,
                     &QAction::triggered,
                     openPagesManager(),
                     &OpenPagesManager::gotoPreviousPage);
 
             m_gotoNext = new QAction(this);
-            cmd = Core::ActionManager::registerAction(m_gotoNext,
-                                                      Core::Constants::GOTONEXTINHISTORY,
-                                                      context);
-            windowMenu->addAction(cmd, Core::Constants::G_WINDOW_NAVIGATE);
+            Core::ActionManager::registerAction(
+                m_gotoNext, Core::Constants::GOTONEXTINHISTORY, context);
             connect(m_gotoNext,
                     &QAction::triggered,
                     openPagesManager(),
