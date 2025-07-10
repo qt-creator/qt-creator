@@ -8,6 +8,7 @@
 #include "qtsupportconstants.h"
 #include "qtsupporttr.h"
 #include "qttestparser.h"
+#include "qtversionfactory.h"
 #include "qtversionmanager.h"
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
@@ -23,6 +24,7 @@
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
@@ -136,6 +138,18 @@ private:
                            const QList<int> &removedIds,
                            const QList<int> &changedIds);
     void onKitsLoaded() override;
+
+    std::optional<Tasking::ExecutableItem> autoDetect(
+        Kit *kit,
+        const Utils::FilePaths &searchPaths,
+        const QString &detectionSource,
+        std::function<void(QString)> logCallback) const override;
+
+    std::optional<Tasking::ExecutableItem> removeAutoDetected(
+        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
+
+    void listAutoDetected(
+        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
 };
 
 const QtKitAspectFactory theQtKitAspectFactory;
@@ -419,6 +433,86 @@ void QtKitAspectFactory::onKitsLoaded()
 
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtKitAspectFactory::qtVersionsChanged);
+}
+
+std::optional<Tasking::ExecutableItem> QtKitAspectFactory::autoDetect(
+    Kit *kit,
+    const FilePaths &searchPaths,
+    const QString &detectionSource,
+    std::function<void(QString)> logCallback) const
+{
+    const auto searchQtse = [searchPaths, detectionSource](Async<QtVersion *> &async) {
+        async.setConcurrentCallData(
+            [detectionSource](QPromise<QtVersion *> &promise, FilePaths searchPaths) {
+                QList<QtVersion *> foundQtVersions;
+                const auto handleQmake =
+                    [&detectionSource, &foundQtVersions, &promise](const FilePath &qmake) {
+                        QString error;
+                        QtVersion *qtVersion = QtVersionFactory::createQtVersionFromQMakePath(
+                            qmake, true, detectionSource, &error);
+
+                        if (qtVersion && qtVersion->isValid()) {
+                            // Trigger loading the version data
+                            const Utils::FilePath binPath = qtVersion->binPath();
+
+                            const bool alreadyFound
+                                = Utils::anyOf(foundQtVersions, [qtVersion](QtVersion *other) {
+                                      return qtVersion->mkspecPath() == other->mkspecPath();
+                                  });
+                            if (!alreadyFound) {
+                                foundQtVersions.append(qtVersion);
+                                promise.addResult(qtVersion);
+                            }
+                        }
+                        return IterationPolicy::Continue;
+                    };
+
+                const QStringList candidates
+                    = {"qmake6", "qmake-qt6", "qmake-qt5", "qmake", "qtpaths6", "qtpaths"};
+                for (const FilePath &searchPath : searchPaths) {
+                    searchPath.iterateDirectory(
+                        handleQmake,
+                        {candidates, QDir::Files | QDir::Executable, QDirIterator::Subdirectories});
+                }
+            },
+            searchPaths);
+    };
+
+    const auto qtDetectionDone = [kit, logCallback](const Async<QtVersion *> &async) {
+        const auto versions = async.results();
+
+        for (QtVersion *version : versions) {
+            logCallback(Tr::tr("Detected Qt version: %1").arg(version->displayName()));
+            QtVersionManager::addVersion(version);
+            QtKitAspect::setQtVersion(kit, version);
+        }
+    };
+
+    return AsyncTask<QtVersion *>(searchQtse, qtDetectionDone);
+}
+
+std::optional<Tasking::ExecutableItem> QtKitAspectFactory::removeAutoDetected(
+    const QString &detectionSource, std::function<void(QString)> logCallback) const
+{
+    return Tasking::Sync([detectionSource, logCallback]() {
+        const auto versions = QtVersionManager::versions([detectionSource](const QtVersion *qt) {
+            return qt->detectionSource() == detectionSource;
+        });
+
+        for (QtVersion *version : versions) {
+            logCallback(Tr::tr("Removing Qt version: %1").arg(version->displayName()));
+            QtVersionManager::removeVersion(version);
+        }
+    });
+}
+
+void QtKitAspectFactory::listAutoDetected(
+    const QString &detectionSource, std::function<void(QString)> logCallback) const
+{
+    for (const QtVersion *qt : QtVersionManager::versions()) {
+        if (qt->detectionSource() == detectionSource)
+            logCallback(Tr::tr("Auto-detected Qt version: %1").arg(qt->displayName()));
+    }
 }
 
 Kit::Predicate QtKitAspect::platformPredicate(Id platform)
