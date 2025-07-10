@@ -30,6 +30,7 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/commandline.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
@@ -120,6 +121,18 @@ public:
     void addToMacroExpander(Kit *k, Utils::MacroExpander *expander) const final;
 
     QSet<Utils::Id> availableFeatures(const Kit *k) const final;
+
+    std::optional<Tasking::ExecutableItem> autoDetect(
+        Kit *kit,
+        const Utils::FilePaths &searchPaths,
+        const QString &detectionSource,
+        std::function<void(QString)> logCallback) const override;
+
+    std::optional<Tasking::ExecutableItem> removeAutoDetected(
+        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
+
+    void listAutoDetected(
+        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
 };
 
 class CMakeGeneratorKitAspectFactory : public KitAspectFactory
@@ -301,6 +314,83 @@ QSet<Id> CMakeKitAspectFactory::availableFeatures(const Kit *k) const
     if (CMakeKitAspect::cmakeTool(k))
         return { CMakeProjectManager::Constants::CMAKE_FEATURE_ID };
     return {};
+}
+
+std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
+    Kit *kit,
+    const Utils::FilePaths &searchPaths,
+    const QString &detectionSource,
+    std::function<void(QString)> logCallback) const
+{
+    using namespace Tasking;
+
+    using ResultType = std::vector<std::unique_ptr<CMakeTool>>;
+
+    const auto setup = [searchPaths, detectionSource](Async<ResultType> &async) {
+        async.setConcurrentCallData(
+            [](QPromise<ResultType> &promise,
+               const FilePaths &searchPaths,
+               const QString &detectionSource) {
+                const FilePath cmake = "cmake";
+                const FilePaths candidates = cmake.searchAllInDirectories(searchPaths);
+
+                ResultType result;
+
+                for (const auto &candidate : candidates) {
+                    Id id = Id::fromString(candidate.toUserOutput());
+
+                    auto newTool = std::make_unique<CMakeTool>(CMakeTool::ManualDetection, id);
+                    newTool->setFilePath(candidate);
+                    newTool->setAutoDetected(true);
+                    newTool->setDetectionSource(detectionSource);
+                    newTool->setDisplayName(candidate.toUserOutput());
+                    id = newTool->id();
+
+                    if (newTool->isValid())
+                        result.push_back(std::move(newTool));
+                }
+                promise.addResult(std::move(result));
+            },
+            searchPaths,
+            detectionSource);
+    };
+
+    const auto onDone = [kit, logCallback](const Async<ResultType> &async) {
+        ResultType tools = async.takeResult();
+
+        for (auto &tool : tools) {
+            const Id id = tool->id();
+            CMakeToolManager::registerCMakeTool(std::move(tool));
+            logCallback(Tr::tr("Detected CMake tool: %1").arg(id.toString()));
+            CMakeKitAspect::setCMakeTool(kit, id);
+        }
+    };
+
+    return AsyncTask<ResultType>(setup, onDone);
+}
+
+std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::removeAutoDetected(
+    const QString &detectionSource, std::function<void(QString)> logCallback) const
+{
+    using namespace Tasking;
+
+    return Sync([detectionSource, logCallback]() {
+        QString logMessages;
+        CMakeToolManager::instance()->removeDetectedCMake(detectionSource, &logMessages);
+        for (const auto &line : logMessages.split('\n', Qt::KeepEmptyParts)) {
+            if (!line.isEmpty())
+                logCallback(line);
+        }
+    });
+}
+
+void CMakeKitAspectFactory::listAutoDetected(
+    const QString &detectionSource, std::function<void(QString)> logCallback) const
+{
+    for (const CMakeTool *tool : CMakeToolManager::cmakeTools()) {
+        if (tool->isAutoDetected() && tool->detectionSource() == detectionSource)
+            logCallback(Tr::tr("Auto-detected CMake tool: %1").arg(tool->displayName()));
+    }
 }
 
 QString CMakeKitAspect::msgUnsupportedVersion(const QByteArray &versionString)
