@@ -91,7 +91,7 @@ void TaskModel::addTask(Task task)
     task.createTextMarkIfApplicable();
 
     auto it = std::lower_bound(m_tasks.begin(), m_tasks.end(), task,
-                               std::bind(&TaskModel::compareTasks, this,  _1, task));
+                               std::bind(&TaskModel::compareTasks, this,  _1, _2));
     int i = it - m_tasks.begin();
     beginInsertRows(QModelIndex(), i, i);
     m_tasks.insert(it, task);
@@ -118,7 +118,8 @@ void TaskModel::removeTask(unsigned int id)
 int TaskModel::rowForTask(const Task &task)
 {
     auto it = std::lower_bound(m_tasks.constBegin(), m_tasks.constEnd(), task,
-                               std::bind(&TaskModel::compareTasks, this, _1, task));
+                               std::bind(&TaskModel::compareTasks, this, _1, _2));
+
     if (it == m_tasks.constEnd())
         return -1;
     return it - m_tasks.constBegin();
