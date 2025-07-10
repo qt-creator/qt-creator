@@ -177,7 +177,8 @@ private slots:
         yesButton.callback();
 
         using namespace std::chrono_literals;
-        QVERIFY(deviceAddedSpy.wait(60min));
+        QVERIFY(deviceAddedSpy.wait(
+            std::chrono::duration_cast<std::chrono::milliseconds>(10min).count()));
 
         FilePath expectedRootPath
             = FilePath::fromParts(u"devcontainer", instanceConfig.devContainerId(), u"/");

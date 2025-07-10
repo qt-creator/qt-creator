@@ -453,9 +453,12 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
                 ToolchainDetector detector({}, device, searchPaths);
 
                 for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
-                    const Toolchains detectedToolchains
-                        = Utils::filtered(factory->autoDetect(detector), &Toolchain::isValid);
-                    promise.addResults(detectedToolchains);
+                    const Toolchains detectedToolchains = factory->autoDetect(detector);
+
+                    for (Toolchain *toolchain : detectedToolchains) {
+                        if (toolchain->isValid())
+                            promise.addResult(toolchain);
+                    }
                 }
             },
             DeviceManager::deviceForPath(searchPaths.first()),
