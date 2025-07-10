@@ -65,7 +65,7 @@ class QTSUPPORT_EXPORT ProFileCacheManager : public QObject
     Q_OBJECT
 
 public:
-    static ProFileCacheManager *instance() { return s_instance; }
+    static ProFileCacheManager *instance() { return &s_instance; }
     ProFileCache *cache();
     void discardFiles(const QString &device, const QString &prefix, QMakeVfs *vfs);
     void discardFile(const QString &device, const QString &fileName, QMakeVfs *vfs);
@@ -73,14 +73,14 @@ public:
     void decRefCount();
 
 private:
-    ProFileCacheManager(QObject *parent);
+    ProFileCacheManager();
     ~ProFileCacheManager() override;
     void clear();
     ProFileCache *m_cache = nullptr;
     int m_refCount = 0;
     QTimer m_timer;
 
-    static ProFileCacheManager *s_instance;
+    static thread_local ProFileCacheManager s_instance;
 
     friend class QtSupport::Internal::QtSupportPlugin;
 };

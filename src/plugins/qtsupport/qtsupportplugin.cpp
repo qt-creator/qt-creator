@@ -134,7 +134,6 @@ void QtSupportPlugin::initialize()
 
     QMakeParser::initialize();
     ProFileEvaluator::initialize();
-    new ProFileCacheManager(this);
 
     JsExpander::registerGlobalObject<CodeGenerator>("QtSupport");
 
