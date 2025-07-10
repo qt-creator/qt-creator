@@ -254,6 +254,8 @@ void DeviceManager::removeDevice(Id id)
     const IDevice::Ptr device = mutableDevice(id);
     QTC_ASSERT(device, return);
 
+    device->aboutToBeRemoved();
+
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
     const Id deviceType = device->type();
     {
