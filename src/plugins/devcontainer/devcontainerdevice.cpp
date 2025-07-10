@@ -28,7 +28,7 @@ Device::Device()
 {
     setDisplayType(Tr::tr("Development Container"));
     setOsType(OsTypeLinux);
-    setupId(IDevice::AutoDetected);
+    setupId(IDevice::AutoDetected, Id::generate());
     setType("DevContainerType");
     setMachineType(IDevice::Hardware);
 }
