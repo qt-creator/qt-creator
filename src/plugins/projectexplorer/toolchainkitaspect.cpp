@@ -4,6 +4,7 @@
 #include "toolchainkitaspect.h"
 
 #include "devicesupport/devicekitaspects.h"
+#include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "kit.h"
 #include "kitaspect.h"
@@ -13,6 +14,7 @@
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
 
+#include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/stringutils.h>
@@ -158,6 +160,18 @@ private:
 
     void toolChainUpdated(Toolchain *tc);
     void toolChainsDeregistered();
+
+    std::optional<Tasking::ExecutableItem> autoDetect(
+        Kit *kit,
+        const Utils::FilePaths &searchPaths,
+        const QString &detectionSource,
+        std::function<void(QString)> logCallback) const override;
+
+    std::optional<Tasking::ExecutableItem> removeAutoDetected(
+        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
+
+    void listAutoDetected(
+        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
 };
 
 ToolchainKitAspectFactory::ToolchainKitAspectFactory()
@@ -422,6 +436,76 @@ void ToolchainKitAspectFactory::toolChainsDeregistered()
 {
     for (Kit *k : KitManager::kits())
         fix(k);
+}
+
+std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
+    Kit *kit,
+    const Utils::FilePaths &searchPaths,
+    const QString &detectionSource,
+    std::function<void(QString)> logCallback) const
+{
+    Q_UNUSED(detectionSource);
+    const auto searchToolchains = [searchPaths](Async<Toolchain *> &async) {
+        async.setConcurrentCallData(
+            [](QPromise<Toolchain *> &promise,
+               IDevice::ConstPtr device,
+               const FilePaths &searchPaths) {
+                ToolchainDetector detector({}, device, searchPaths);
+
+                for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
+                    const Toolchains detectedToolchains
+                        = Utils::filtered(factory->autoDetect(detector), &Toolchain::isValid);
+                    promise.addResults(detectedToolchains);
+                }
+            },
+            DeviceManager::deviceForPath(searchPaths.first()),
+            searchPaths);
+    };
+
+    const auto toolchainsDone =
+        [kit, detectionSource, logCallback](const Async<Toolchain *> &async) {
+            const Toolchains toolchains = async.results();
+
+            for (Toolchain *toolchain : toolchains) {
+                toolchain->setDetectionSource(detectionSource);
+                logCallback(Tr::tr("Detected toolchain: %1").arg(toolchain->displayName()));
+            }
+
+            ToolchainManager::registerToolchains(toolchains);
+
+            const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+                toolchains, ToolchainBundle::HandleMissing::CreateAndRegister);
+
+            if (!bundles.isEmpty())
+                ToolchainKitAspect::setBundle(kit, bundles.first());
+        };
+
+    return AsyncTask<Toolchain *>(searchToolchains, toolchainsDone);
+}
+
+std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::removeAutoDetected(
+    const QString &detectionSource, std::function<void(QString)> logCallback) const
+{
+    return Tasking::Sync([=]() {
+        const auto toolchains
+            = filtered(ToolchainManager::toolchains(), [detectionSource](Toolchain *tc) {
+                  return tc->detectionSource() == detectionSource;
+              });
+
+        for (Toolchain *tc : toolchains)
+            logCallback(Tr::tr("Removing auto-detected toolchain: %1").arg(tc->displayName()));
+
+        ToolchainManager::deregisterToolchains(toolchains);
+    });
+}
+
+void ToolchainKitAspectFactory::listAutoDetected(
+    const QString &detectionSource, std::function<void(QString)> logCallback) const
+{
+    for (const Toolchain *tc : ToolchainManager::toolchains()) {
+        if (tc->isAutoDetected() && tc->detectionSource() == detectionSource)
+            logCallback(Tr::tr("Auto-detected toolchain: %1").arg(tc->displayName()));
+    }
 }
 
 const ToolchainKitAspectFactory thsToolChainKitAspectFactory;
