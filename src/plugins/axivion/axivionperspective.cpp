@@ -632,8 +632,13 @@ void IssuesWidget::updateUi(const QString &kind)
             }
         }
     }
-    if (m_currentPrefix.isEmpty())
-        m_currentPrefix = info.issueKinds.size() ? info.issueKinds.front().prefix : QString{};
+    if (m_currentPrefix.isEmpty()) {
+        const int id = m_typesButtonGroup->checkedId();
+        if (id > 0 && id <= int(info.issueKinds.size()))
+            m_currentPrefix = info.issueKinds.at(id - 1).prefix;
+        else
+            m_currentPrefix = info.issueKinds.size() ? info.issueKinds.front().prefix : QString{};
+    }
     fetchTable();
 }
 
