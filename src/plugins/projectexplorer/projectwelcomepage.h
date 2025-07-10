@@ -3,40 +3,18 @@
 
 #pragma once
 
-#include "projectexplorer.h"
-
 #include <coreplugin/iwelcomepage.h>
 
-#include <utils/filepath.h>
-
-#include <QAbstractListModel>
 #include <QCoreApplication>
 
+namespace Utils { class FilePath; }
 namespace Core { class SessionModel; }
 
 namespace ProjectExplorer {
 namespace Internal {
 
+class ProjectModel;
 class SessionsPage;
-
-class ProjectModel : public QAbstractListModel
-{
-    Q_OBJECT
-
-public:
-    enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole, ShortcutRole };
-
-    ProjectModel(QObject *parent = nullptr);
-    int rowCount(const QModelIndex &parent) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    QHash<int, QByteArray> roleNames() const override;
-
-public slots:
-    void resetProjects();
-
-private:
-    RecentProjectsEntries m_projects;
-};
 
 class ProjectWelcomePage : public Core::IWelcomePage
 {

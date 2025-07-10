@@ -85,6 +85,21 @@ static FilePaths pathsForSession(const QString &session, QString *title = nullpt
     return allPaths;
 }
 
+class ProjectModel : public QAbstractListModel
+{
+public:
+    enum { FilePathRole = Qt::UserRole+1, PrettyFilePathRole, ShortcutRole };
+
+    ProjectModel(QObject *parent = nullptr);
+    int rowCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QHash<int, QByteArray> roleNames() const override;
+    void resetProjects();
+
+private:
+    RecentProjectsEntries m_projects;
+};
+
 ProjectModel::ProjectModel(QObject *parent)
     : QAbstractListModel(parent)
 {
@@ -668,7 +683,8 @@ protected:
             if (button == Qt::RightButton) {
                 QMenu contextMenu;
                 QAction *action = new QAction(Tr::tr("Remove Project from Recent Projects"));
-                const auto projectModel = qobject_cast<ProjectModel *>(model);
+                const auto projectModel = dynamic_cast<ProjectModel *>(model);
+                QTC_ASSERT(projectModel, return false);
                 contextMenu.addAction(action);
                 connect(action, &QAction::triggered, this, [idx, projectModel] {
                     const QVariant projectFile = idx.data(ProjectModel::FilePathRole);
