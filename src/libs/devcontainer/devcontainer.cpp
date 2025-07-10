@@ -770,7 +770,7 @@ static ExecutableItem probeUserEnvTask(
                 return DoneResult::Success;
             }
 
-            Environment env(output.split('\n', Qt::SkipEmptyParts));
+            Environment env(output.split('\n', Qt::SkipEmptyParts), Utils::OsTypeLinux);
 
             // We don't want to capture the following environment variables:
             for (const char *key : {"_", "PWD"})
