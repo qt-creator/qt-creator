@@ -68,10 +68,14 @@ Result<> FieldPageFactory::validateData(Id typeId, const QVariant &data)
     QTC_ASSERT(canCreate(typeId), return ResultError(ResultAssert));
 
     const Result<QVariantList> list = JsonWizardFactory::objectOrList(data);
-    if (!list) {
-        return ResultError(Tr::tr("When parsing fields of page \"%1\": %2")
-                .arg(typeId.toString(), list.error()));
-    }
+
+    const QString pattern = Tr::tr("When parsing fields of page \"%1\": %2").arg(typeId.toString());
+
+    if (!list)
+        return ResultError(pattern.arg(list.error()));
+
+    if (list->isEmpty())
+        return ResultError(pattern.arg(Tr::tr("No fields found.")));
 
     for (const QVariant &v : *list) {
         Result<JsonFieldPage::Field *> res = JsonFieldPage::Field::parse(v);

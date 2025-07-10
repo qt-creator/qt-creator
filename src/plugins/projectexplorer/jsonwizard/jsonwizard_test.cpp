@@ -104,7 +104,7 @@ private slots:
             JsonWizardFactory::createWizardFactory(wizard.toVariantMap(), {});
 
         QVERIFY(!res);
-        QCOMPARE(res.error(), "When parsing fields of page \"PE.Wizard.Page.Fields\": Got an empty list.");
+        QCOMPARE(res.error(), "When parsing fields of page \"PE.Wizard.Page.Fields\": No fields found.");
     }
 
     void testUnusedKeyAtFields_data()
