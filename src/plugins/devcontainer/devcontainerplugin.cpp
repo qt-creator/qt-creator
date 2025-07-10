@@ -82,6 +82,9 @@ void Private::onProjectRemoved(ProjectExplorer::Project *project)
     if (it == devices.end())
         return;
 
+    for (auto device : devices)
+        device.second->down();
+
     DeviceManager::removeDevice(it->second->id());
     devices.erase(it);
 }
@@ -127,7 +130,7 @@ void Private::startDeviceForProject(
     ProjectExplorer::Project *project,
     DevContainer::InstanceConfig instanceConfig)
 {
-    QString *log = new QString();
+    std::shared_ptr<QString> log = std::make_shared<QString>();
     instanceConfig.logFunction = [log](const QString &message) {
         *log += message + '\n';
         Core::MessageManager::writeSilently(message);
@@ -142,7 +145,7 @@ void Private::startDeviceForProject(
         Utils::guardedCallback(d, [d, project, log, device](Utils::Result<> result) {
             if (result) {
                 d->devices.insert({project, device});
-                delete log;
+                log->clear();
 #ifdef WITH_TESTS
                 emit d->deviceUpDone();
 #endif
@@ -162,7 +165,7 @@ void Private::startDeviceForProject(
             emit d->deviceUpDone();
 #endif
 
-            delete log;
+            log->clear();
         }));
 
     if (!result) {

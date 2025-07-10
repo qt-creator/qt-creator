@@ -1,0 +1,18 @@
+{
+    "name": "DevContainer with Kit Test",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "options": [
+            "--platform=linux/amd64"
+        ]
+    },
+    "customizations": {
+        "qt-creator": {
+            "kits": [
+                {
+                    "name": "DevContainer Kit"
+                }
+            ]
+        }
+    }
+}

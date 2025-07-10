@@ -26,6 +26,8 @@ public:
         InstanceConfig instanceConfig,
         std::function<void(Utils::Result<>)> callback);
 
+    Utils::Result<> down();
+
     Utils::ProcessInterface *createProcessInterface() const override;
 
     Utils::Result<Utils::Environment> systemEnvironmentWithError() const override;
@@ -42,6 +44,7 @@ private:
     InstanceConfig m_instanceConfig;
     std::unique_ptr<CmdBridge::FileAccess> m_fileAccess;
     std::optional<Utils::Environment> m_systemEnvironment;
+    std::optional<Tasking::ExecutableItem> m_downRecipe;
 };
 
 } // namespace DevContainer

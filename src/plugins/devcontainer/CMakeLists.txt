@@ -1,5 +1,5 @@
 add_qtc_plugin(DevContainerPlugin
-  PLUGIN_DEPENDS Core ProjectExplorer QtSupport
+  PLUGIN_DEPENDS Core ProjectExplorer
   PLUGIN_TEST_DEPENDS CMakeProjectManager
   DEPENDS DevContainer CmdBridgeClient
   SOURCES

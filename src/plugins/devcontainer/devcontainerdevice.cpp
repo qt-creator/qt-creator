@@ -15,6 +15,8 @@
 
 #include <devcontainer/devcontainerconfig.h>
 
+#include <projectexplorer/kitaspect.h>
+
 #include <QLoggingCategory>
 #include <QProgressDialog>
 
@@ -61,10 +63,9 @@ public:
         }
     };
 
-    ProgressPromise(Tasking::TaskTree &tree)
+    ProgressPromise(Tasking::TaskTree &tree, const QString title, Utils::Id id)
     {
-        Core::FutureProgress *futureProgress = Core::ProgressManager::addTask(
-            future(), Tr::tr("Starting DevContainer"), "DevContainer.Startup");
+        Core::FutureProgress *futureProgress = Core::ProgressManager::addTask(future(), title, id);
         QObject::connect(
             futureProgress, &Core::FutureProgress::canceled, &tree, &Tasking::TaskTree::cancel);
         QObject::connect(&tree, &Tasking::TaskTree::destroyed, &tree, [this]() { delete this; });
@@ -133,11 +134,13 @@ Result<> Device::up(
     m_processInterfaceCreator = nullptr;
     m_fileAccess.reset();
     m_systemEnvironment.reset();
+    m_downRecipe.reset();
 
     using namespace Tasking;
 
     TaskTree *tree = new TaskTree(this);
-    ProgressPromise *progress = new ProgressPromise(*tree);
+    ProgressPromise *progress
+        = new ProgressPromise(*tree, Tr::tr("Starting DevContainer"), "DevContainer.Startup");
 
     connect(tree, &TaskTree::done, this, [progress, callback](DoneWith doneWith) {
         progress->finish();
@@ -268,7 +271,7 @@ Result<> Device::up(
         return DoneResult::Success;
     };
 
-    const auto subTree =
+    const auto startDeviceTree =
         [instance, instanceConfig, runningInstance, progress](TaskTree &taskTree) -> SetupResult {
         const Result<Tasking::Group> devcontainerRecipe = (*instance)->upRecipe(runningInstance);
         if (!devcontainerRecipe) {
@@ -281,18 +284,85 @@ Result<> Device::up(
         return SetupResult::Continue;
     };
 
+    const auto onDeviceStarted = [this, instance]() -> DoneResult {
+        auto downRecipe = (*instance)->downRecipe();
+        if (!downRecipe) {
+            qCWarning(devContainerDeviceLog)
+                << "Failed to create down recipe for DevContainer instance:" << downRecipe.error();
+            return DoneResult::Error;
+        }
+
+        m_downRecipe = std::move(*downRecipe);
+        return DoneResult::Success;
+    };
+
+    const auto setupKits = [instance] {
+        QJsonArray kits = customization((*instance)->config(), "qt-creator/kits").toArray();
+
+        for (const QJsonValue &kitValue : kits) {
+            if (!kitValue.isObject())
+                continue;
+
+            const QJsonObject kitObject = kitValue.toObject();
+        }
+
+        return DoneResult::Success;
+    };
+
+    const auto detectionTree = [this, progress, instance, instanceConfig](TaskTree &taskTree) {
+        taskTree.setRecipe(kitDetectionRecipe(shared_from_this(), instanceConfig.logFunction));
+        progress->addSource(taskTree);
+        return SetupResult::Continue;
+    };
+
     // clang-format off
     Group recipe {
         instance, options,
         Sync(loadConfig),
-        TaskTreeTask(subTree),
+        TaskTreeTask(startDeviceTree, onDeviceStarted),
         Sync(setupProcessInterfaceCreator),
-        Sync(setupCmdBridge)
+        Sync(setupCmdBridge),
+        Sync(setupKits),
+        TaskTreeTask(detectionTree)
     };
     // clang-format on
 
     tree->setRecipe(recipe);
     tree->start();
+    return ResultOk;
+}
+
+Utils::Result<> Device::down()
+{
+    if (!m_downRecipe)
+        return ResultError(Tr::tr("DevContainer is not running or has not been started."));
+
+    m_processInterfaceCreator = nullptr;
+    m_fileAccess.reset();
+    m_systemEnvironment.reset();
+
+    using namespace Tasking;
+
+    TaskTree *tree = new TaskTree(this);
+    ProgressPromise *progress
+        = new ProgressPromise(*tree, Tr::tr("Stopping DevContainer"), "DevContainer.Shutdown");
+
+    connect(tree, &TaskTree::done, this, [progress](DoneWith /*doneWith*/) {
+        progress->finish();
+    });
+
+    connect(tree, &TaskTree::done, tree, &TaskTree::deleteLater);
+
+    // clang-format off
+    Group recipe {
+        removeDetectedKitsRecipe(shared_from_this(), m_instanceConfig.logFunction),
+        *m_downRecipe
+    };
+    // clang-format on
+
+    tree->setRecipe(recipe);
+    tree->start();
+
     return ResultOk;
 }
 

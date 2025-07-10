@@ -5,6 +5,8 @@
 
 #include "devcontainerplugin_constants.h"
 
+#include <coreplugin/messagemanager.h>
+
 #include <devcontainer/devcontainer.h>
 
 #include <projectexplorer/project.h>
@@ -69,6 +71,8 @@ private slots:
 
         if (!testDockerMount("docker", testData))
             QSKIP("Docker mount test failed, skipping tests.");
+
+        Core::MessageManager::writeDisrupting("Starting DevContainer tests...");
     }
 
     void testSimpleProject()
@@ -138,6 +142,47 @@ private slots:
 
         ProjectExplorer::ProjectManager::removeProject(opr.project());
         QVERIFY(!expectedRootPath.exists());
+    }
+
+    void testWithKit()
+    {
+        const auto cmakelists = testData / "withkit" / "CMakeLists.txt";
+        ProjectExplorer::OpenProjectResult opr
+            = ProjectExplorer::ProjectExplorerPlugin::openProject(cmakelists);
+
+        QVERIFY(opr);
+
+        QSignalSpy deviceAddedSpy(this, &Tests::deviceUpDone);
+
+        InstanceConfig instanceConfig;
+        instanceConfig.configFilePath = testData / "withkit" / ".devcontainer"
+                                        / "devcontainer.json";
+        instanceConfig.workspaceFolder = opr.project()->projectDirectory();
+
+        const auto infoBarEntryId = Utils::Id::fromString(
+            QString("DevContainer.Instantiate.InfoBar." + instanceConfig.devContainerId()));
+
+        Utils::InfoBar *infoBar = Core::ICore::infoBar();
+        QVERIFY(infoBar->containsInfo(infoBarEntryId));
+        Utils::InfoBarEntry entry
+            = Utils::findOrDefault(infoBar->entries(), [infoBarEntryId](const Utils::InfoBarEntry &e) {
+                  return e.id() == infoBarEntryId;
+              });
+
+        QCOMPARE(entry.id(), infoBarEntryId);
+        QCOMPARE(entry.buttons().size(), 1);
+        auto yesButton = entry.buttons().first();
+
+        // Trigger loading the DevContainer instance
+        yesButton.callback();
+
+        using namespace std::chrono_literals;
+        QVERIFY(deviceAddedSpy.wait(60min));
+
+        FilePath expectedRootPath
+            = FilePath::fromParts(u"devcontainer", instanceConfig.devContainerId(), u"/");
+        QVERIFY(expectedRootPath.exists());
+        QVERIFY(!infoBar->containsInfo(infoBarEntryId));
     }
 };
 
