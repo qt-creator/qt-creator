@@ -630,7 +630,7 @@ class EventQueue<TraceEvent, Tracing::IsEnabled>
 public:
     using IsActive = std::true_type;
 
-    EventQueue(std::shared_ptr<EnabledTraceFile> file);
+    EventQueue(EnabledTraceFile &file);
 
     ~EventQueue();
 
@@ -643,7 +643,8 @@ public:
     EventQueue &operator=(const EventQueue &) = delete;
     EventQueue &operator=(EventQueue &&) = delete;
 
-    std::shared_ptr<EnabledTraceFile> file;
+    bool isFlushed = false;
+    EnabledTraceFile &file;
     std::unique_ptr<TraceEvents> eventArrayOne = std::make_unique<TraceEvents>();
     std::unique_ptr<TraceEvents> eventArrayTwo = std::make_unique<TraceEvents>();
     TraceEventsSpan eventsOne;

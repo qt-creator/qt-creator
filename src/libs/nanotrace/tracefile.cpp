@@ -9,16 +9,16 @@ namespace NanotraceHR {
 
 #ifdef ENABLE_TRACING_FILE
 
-static std::shared_ptr<EnabledTraceFile> &getTraceFile()
+static std::unique_ptr<EnabledTraceFile> &getTraceFile()
 {
-    static auto traceFile = std::make_shared<EnabledTraceFile>("tracing.json");
+    static auto traceFile = std::make_unique<EnabledTraceFile>("tracing.json");
 
     return traceFile;
 }
 
-std::shared_ptr<EnabledTraceFile> traceFile()
+EnabledTraceFile &traceFile()
 {
-    return getTraceFile();
+    return *getTraceFile().get();
 }
 
 void resetTraceFilePointer()

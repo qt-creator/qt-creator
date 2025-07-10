@@ -247,12 +247,12 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
 {
     {
         std::unique_lock taskLock{eventQueue.mutex};
-        std::unique_lock tasksLock{eventQueue.file->tasksMutex};
+        std::unique_lock tasksLock{eventQueue.file.tasksMutex};
 
-        eventQueue.file->tasks.emplace_back(std::in_place_type<typename TraceEvent::Task>,
-                                            std::move(taskLock),
-                                            eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
-                                            eventQueue.threadId);
+        eventQueue.file.tasks.emplace_back(std::in_place_type<typename TraceEvent::Task>,
+                                           std::move(taskLock),
+                                           eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
+                                           eventQueue.threadId);
     }
 
     eventQueue.currentEvents = eventQueue.currentEvents.data() == eventQueue.eventsOne.data()
@@ -260,15 +260,15 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
                                    : eventQueue.eventsOne;
     eventQueue.eventsIndex = 0;
 
-    eventQueue.file->condition.notify_all();
+    eventQueue.file.condition.notify_all();
 }
 
 template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEventWithArguments> &eventQueue);
 template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<TraceEventWithoutArguments> &eventQueue);
 
 template<typename TraceEvent>
-EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(std::shared_ptr<EnabledTraceFile> file)
-    : file{std::move(file)}
+EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile &file)
+    : file{file}
     , threadId{std::this_thread::get_id()}
 {
     setEventsSpans(*eventArrayOne.get(), *eventArrayTwo.get());
@@ -278,14 +278,14 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(std::shared_ptr<EnabledTr
         if (name.size()) {
             {
                 std::unique_lock taskLock{mutex};
-                std::lock_guard _{this->file->tasksMutex};
+                std::lock_guard _{this->file.tasksMutex};
 
-                this->file->tasks.emplace_back(std::in_place_type<MetaData>,
-                                               std::move(taskLock),
-                                               "thread_name",
-                                               name);
+                this->file.tasks.emplace_back(std::in_place_type<MetaData>,
+                                              std::move(taskLock),
+                                              "thread_name",
+                                              name);
             }
-            this->file->condition.notify_all();
+            this->file.condition.notify_all();
         }
     }
 }
@@ -312,10 +312,10 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
 {
     std::lock_guard _{mutex};
 
-    if (isEnabled == IsEnabled::Yes && file)
-        flushEvents(currentEvents.subspan(0, eventsIndex), threadId, *file.get());
+    if (isEnabled == IsEnabled::Yes and not isFlushed)
+        flushEvents(currentEvents.subspan(0, eventsIndex), threadId, file);
 
-    file.reset();
+    isFlushed = true;
 }
 
 template class NANOTRACE_EXPORT_TEMPLATE EventQueue<TraceEventWithArguments, Tracing::IsEnabled>;
