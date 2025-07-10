@@ -234,7 +234,11 @@ void finalizeFile(EnabledTraceFile &file)
     auto &out = file.out;
 
     if (out.is_open()) {
+#ifdef Q_OS_WINDOWS
+        out.seekp(-3, std::ios_base::cur); // removes last comma and new line
+#else
         out.seekp(-2, std::ios_base::cur); // removes last comma and new line
+#endif
         out << R"(],"displayTimeUnit":"ns","otherData":{"version": "Qt Creator )";
         out << QCoreApplication::applicationVersion().toStdString();
         out << R"("}})";
