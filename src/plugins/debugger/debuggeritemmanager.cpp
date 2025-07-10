@@ -696,12 +696,8 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
 
     paths = Utils::filteredUnique(paths);
 
-    const auto addSuspect = [&suspects](const FilePath &entry) {
-        suspects.append(entry);
-        return IterationPolicy::Continue;
-    };
-    for (const FilePath &path : std::as_const(paths))
-        path.iterateDirectory(addSuspect, {filters, QDir::Files | QDir::Executable});
+    for (const FilePath &path : paths)
+        suspects.append(path.dirEntries({filters, QDir::Files | QDir::Executable}));
 
     QStringList logMessages{Tr::tr("Searching debuggers...")};
     for (const FilePath &command : std::as_const(suspects)) {
