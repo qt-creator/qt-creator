@@ -434,7 +434,7 @@ public:
     {
         for (const auto &debugger : DebuggerItemManager::debuggers()) {
             if (debugger.isAutoDetected() && debugger.detectionSource() == detectionSource)
-                logCallback(Tr::tr("Auto-detected Debugger: \"%1\"").arg(debugger.displayName()));
+                logCallback(Tr::tr("Debugger: \"%1\"").arg(debugger.displayName()));
         }
     }
 };

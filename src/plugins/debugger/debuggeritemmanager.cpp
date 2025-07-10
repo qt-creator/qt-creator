@@ -995,7 +995,7 @@ Tasking::ExecutableItem autoDetectDebuggerRecipe(
         QList<DebuggerItem> items = async.results();
         for (const DebuggerItem &item : items) {
             if (item.isValid() && item.engineType() != NoEngineType) {
-                logCallback(Tr::tr("Found Debugger: \"%1\"").arg(item.command().toUserOutput()));
+                logCallback(Tr::tr("Found debugger: \"%1\"").arg(item.command().toUserOutput()));
                 DebuggerItemManager::registerDebugger(item);
                 DebuggerKitAspect::setDebugger(kit, item.id());
             } else
@@ -1016,8 +1016,7 @@ Tasking::ExecutableItem removeAutoDetected(
               });
 
         for (const auto &debugger : debuggers) {
-            logCallback(
-                Tr::tr("Removing auto-detected debugger: \"%1\"").arg(debugger.displayName()));
+            logCallback(Tr::tr("Removing debugger: \"%1\"").arg(debugger.displayName()));
             DebuggerItemManager::deregisterDebugger(debugger.id());
         }
     });

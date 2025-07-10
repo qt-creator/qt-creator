@@ -16,6 +16,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
@@ -471,24 +472,19 @@ FilePath CMakeToolManager::mappedFilePath(Project *project, const FilePath &path
     return fullHashPath.exists() ? fullHashPath : path;
 }
 
-QList<Id> CMakeToolManager::autoDetectCMakeForDevice(const FilePaths &searchPaths,
-                                                const QString &detectionSource,
-                                                QString *logMessage)
+QList<Id> CMakeToolManager::autoDetectCMakeForDevice(
+    const FilePaths &searchPaths, const QString &detectionSource, const LogCallback &logCallback)
 {
     QList<Id> result;
-    QStringList messages{Tr::tr("Searching CMake binaries...")};
     for (const FilePath &path : searchPaths) {
         const FilePath cmake = path.pathAppended("cmake").withExecutableSuffix();
         if (cmake.isExecutableFile()) {
             const Id currentId = registerCMakeByPath(cmake, detectionSource);
             if (currentId.isValid())
                 result.push_back(currentId);
-            messages.append(Tr::tr("Found \"%1\"").arg(cmake.toUserOutput()));
+            logCallback(Tr::tr("Found \"%1\"").arg(cmake.toUserOutput()));
         }
     }
-    if (logMessage)
-        *logMessage = messages.join('\n');
-
     return result;
 }
 
@@ -511,32 +507,29 @@ Id CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QStrin
     return id;
 }
 
-void CMakeToolManager::removeDetectedCMake(const QString &detectionSource, QString *logMessage)
+void CMakeToolManager::removeDetectedCMake(
+    const QString &detectionSource, const LogCallback &logCallback)
 {
-    QStringList logMessages{Tr::tr("Removing CMake entries...")};
     while (true) {
-        auto toRemove = Utils::take(d->m_cmakeTools, Utils::equal(&CMakeTool::detectionSource, detectionSource));
+        auto toRemove = Utils::take(
+            d->m_cmakeTools, Utils::equal(&CMakeTool::detectionSource, detectionSource));
         if (!toRemove.has_value())
             break;
-        logMessages.append(Tr::tr("Removed \"%1\"").arg((*toRemove)->displayName()));
+        logCallback(Tr::tr("Removing CMake tool \"%1\"").arg((*toRemove)->displayName()));
         emit m_instance->cmakeRemoved((*toRemove)->id());
     }
 
     ensureDefaultCMakeToolIsValid();
     updateDocumentation();
-    if (logMessage)
-        *logMessage = logMessages.join('\n');
 }
 
-void CMakeToolManager::listDetectedCMake(const QString &detectionSource, QString *logMessage)
+void CMakeToolManager::listDetectedCMake(
+    const QString &detectionSource, const LogCallback &logCallback)
 {
-    QTC_ASSERT(logMessage, return);
-    QStringList logMessages{Tr::tr("CMake:")};
     for (const auto &tool : std::as_const(d->m_cmakeTools)) {
         if (tool->detectionSource() == detectionSource)
-            logMessages.append(tool->displayName());
+            logCallback(tool->displayName());
     }
-    *logMessage = logMessages.join('\n');
 }
 
 void CMakeToolManager::notifyAboutUpdate(CMakeTool *tool)

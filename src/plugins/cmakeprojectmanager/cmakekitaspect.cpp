@@ -361,7 +361,7 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
         for (auto &tool : tools) {
             const Id id = tool->id();
             CMakeToolManager::registerCMakeTool(std::move(tool));
-            logCallback(Tr::tr("Detected CMake tool: %1").arg(id.toString()));
+            logCallback(Tr::tr("Found CMake tool: %1").arg(id.toString()));
             CMakeKitAspect::setCMakeTool(kit, id);
         }
     };
@@ -375,12 +375,7 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::removeAutoDetected
     using namespace Tasking;
 
     return Sync([detectionSource, logCallback]() {
-        QString logMessages;
-        CMakeToolManager::instance()->removeDetectedCMake(detectionSource, &logMessages);
-        for (const auto &line : logMessages.split('\n', Qt::KeepEmptyParts)) {
-            if (!line.isEmpty())
-                logCallback(line);
-        }
+        CMakeToolManager::instance()->removeDetectedCMake(detectionSource, logCallback);
     });
 }
 
@@ -389,7 +384,7 @@ void CMakeKitAspectFactory::listAutoDetected(
 {
     for (const CMakeTool *tool : CMakeToolManager::cmakeTools()) {
         if (tool->isAutoDetected() && tool->detectionSource() == detectionSource)
-            logCallback(Tr::tr("Auto-detected CMake tool: %1").arg(tool->displayName()));
+            logCallback(Tr::tr("CMake tool: %1").arg(tool->displayName()));
     }
 }
 

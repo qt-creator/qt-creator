@@ -471,7 +471,7 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
 
             for (Toolchain *toolchain : toolchains) {
                 toolchain->setDetectionSource(detectionSource);
-                logCallback(Tr::tr("Detected toolchain: %1").arg(toolchain->displayName()));
+                logCallback(Tr::tr("Found toolchain: %1").arg(toolchain->displayName()));
             }
 
             ToolchainManager::registerToolchains(toolchains);
@@ -496,7 +496,7 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::removeAutoDete
               });
 
         for (Toolchain *tc : toolchains)
-            logCallback(Tr::tr("Removing auto-detected toolchain: %1").arg(tc->displayName()));
+            logCallback(Tr::tr("Removing toolchain: %1").arg(tc->displayName()));
 
         ToolchainManager::deregisterToolchains(toolchains);
     });
@@ -507,7 +507,7 @@ void ToolchainKitAspectFactory::listAutoDetected(
 {
     for (const Toolchain *tc : ToolchainManager::toolchains()) {
         if (tc->isAutoDetected() && tc->detectionSource() == detectionSource)
-            logCallback(Tr::tr("Auto-detected toolchain: %1").arg(tc->displayName()));
+            logCallback(Tr::tr("Toolchain: %1").arg(tc->displayName()));
     }
 }
 

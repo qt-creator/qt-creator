@@ -7,6 +7,8 @@
 
 #include "cmaketool.h"
 
+#include <projectexplorer/kitaspect.h>
+
 #include <utils/filepath.h>
 #include <utils/id.h>
 
@@ -51,13 +53,17 @@ public:
     static Utils::FilePath mappedFilePath(ProjectExplorer::Project *project, const Utils::FilePath &path);
 
 public slots:
-    QList<Utils::Id> autoDetectCMakeForDevice(const Utils::FilePaths &searchPaths,
-                                  const QString &detectionSource,
-                                  QString *logMessage);
-    Utils::Id registerCMakeByPath(const Utils::FilePath &cmakePath,
-                             const QString &detectionSource);
-    void removeDetectedCMake(const QString &detectionSource, QString *logMessage);
-    void listDetectedCMake(const QString &detectionSource, QString *logMessage);
+    QList<Utils::Id> autoDetectCMakeForDevice(
+        const Utils::FilePaths &searchPaths,
+        const QString &detectionSource,
+        const ProjectExplorer::LogCallback &logCallback);
+
+    Utils::Id registerCMakeByPath(const Utils::FilePath &cmakePath, const QString &detectionSource);
+
+    void removeDetectedCMake(
+        const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
+    void listDetectedCMake(
+        const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 
 signals:
     void cmakeAdded (const Utils::Id &id);

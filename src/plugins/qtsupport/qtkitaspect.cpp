@@ -482,7 +482,7 @@ std::optional<Tasking::ExecutableItem> QtKitAspectFactory::autoDetect(
         const auto versions = async.results();
 
         for (QtVersion *version : versions) {
-            logCallback(Tr::tr("Detected Qt version: %1").arg(version->displayName()));
+            logCallback(Tr::tr("Found Qt version: %1").arg(version->displayName()));
             QtVersionManager::addVersion(version);
             QtKitAspect::setQtVersion(kit, version);
         }
@@ -500,7 +500,7 @@ std::optional<Tasking::ExecutableItem> QtKitAspectFactory::removeAutoDetected(
         });
 
         for (QtVersion *version : versions) {
-            logCallback(Tr::tr("Removing Qt version: %1").arg(version->displayName()));
+            logCallback(Tr::tr("Removing Qt: %1").arg(version->displayName()));
             QtVersionManager::removeVersion(version);
         }
     });
@@ -511,7 +511,7 @@ void QtKitAspectFactory::listAutoDetected(
 {
     for (const QtVersion *qt : QtVersionManager::versions()) {
         if (qt->detectionSource() == detectionSource)
-            logCallback(Tr::tr("Auto-detected Qt version: %1").arg(qt->displayName()));
+            logCallback(Tr::tr("Qt: %1").arg(qt->displayName()));
     }
 }
 
