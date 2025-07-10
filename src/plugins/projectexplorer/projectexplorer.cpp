@@ -512,7 +512,7 @@ public:
     void currentModeChanged(Id mode, Id oldMode);
 
     void updateWelcomePage();
-    void loadSesssionTasks();
+    void loadSessionTasks();
 
     void checkForShutdown();
     void timerEvent(QTimerEvent *) override;
@@ -900,7 +900,7 @@ Result<> ProjectExplorerPlugin::initialize(const QStringList &arguments)
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
-            dd, &ProjectExplorerPluginPrivate::loadSesssionTasks);
+            dd, &ProjectExplorerPluginPrivate::loadSessionTasks);
     connect(SessionManager::instance(), &SessionManager::sessionCreated,
             dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
     connect(SessionManager::instance(), &SessionManager::sessionRenamed,
@@ -2428,7 +2428,7 @@ void ProjectExplorerPluginPrivate::updateWelcomePage()
     m_welcomePage.reloadWelcomeScreenData();
 }
 
-void ProjectExplorerPluginPrivate::loadSesssionTasks()
+void ProjectExplorerPluginPrivate::loadSessionTasks()
 {
     const FilePath filePath = FilePath::fromSettings(
         SessionManager::value(Constants::SESSION_TASKFILE_KEY));
