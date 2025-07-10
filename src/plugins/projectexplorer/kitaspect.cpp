@@ -116,9 +116,12 @@ static KitAspectFactories &kitAspectFactoriesStorage()
 class KitAspect::Private
 {
 public:
-    Private(Kit *k, const KitAspectFactory *f) : kit(k), factory(f) {}
+    Private(const Utils::Id &kitId, const KitAspectFactory *f)
+        : kitId(kitId)
+        , factory(f)
+    {}
 
-    Kit * const kit;
+    const Utils::Id kitId;
     const KitAspectFactory * const factory;
     QAction *mutableAction = nullptr;
     Utils::Id managingPageId;
@@ -140,16 +143,17 @@ public:
     bool readOnly = false;
 };
 
-KitAspect::KitAspect(Kit *kit, const KitAspectFactory *factory)
-    : d(new Private(kit, factory))
+KitAspect::KitAspect(Kit *k, const KitAspectFactory *factory)
+    : d(new Private(k->id(), factory))
 {
     const Id id = factory->id();
     d->mutableAction = new QAction(Tr::tr("Mark as Mutable"));
     d->mutableAction->setCheckable(true);
-    d->mutableAction->setChecked(d->kit->isMutable(id));
-    d->mutableAction->setEnabled(!d->kit->isSticky(id));
+    d->mutableAction->setChecked(k->isMutable(id));
+    d->mutableAction->setEnabled(!k->isSticky(id));
     connect(d->mutableAction, &QAction::toggled, this, [this, id] {
-        d->kit->setMutable(id, d->mutableAction->isChecked());
+        if (Kit *k = kit())
+            k->setMutable(id, d->mutableAction->isChecked());
     });
 }
 
@@ -164,10 +168,15 @@ void KitAspect::refresh()
     if (d->listAspects.isEmpty() || d->ignoreChanges.isLocked())
         return;
     const GuardLocker locker(d->ignoreChanges);
+
+    Kit *k = kit();
+    if (!k)
+        return;
+
     for (const Private::ListAspect &la : std::as_const(d->listAspects)) {
         la.spec.resetModel();
         la.comboBox->model()->sort(0);
-        const QVariant itemId = la.spec.getter(*kit());
+        const QVariant itemId = la.spec.getter(*k);
         int idx = la.comboBox->findData(itemId, IdRole);
         if (idx == -1)
             idx = la.comboBox->count() - 1;
@@ -178,7 +187,7 @@ void KitAspect::refresh()
 
 void KitAspect::makeStickySubWidgetsReadOnly()
 {
-    if (!d->kit->isSticky(d->factory->id()))
+    if (!kit()->isSticky(d->factory->id()))
         return;
 
     if (d->manageButton)
@@ -221,7 +230,9 @@ void KitAspect::addListAspectSpec(const ListAspectSpec &listAspectSpec)
             if (d->ignoreChanges.isLocked())
                 return;
             updateTooltip();
-            listAspectSpec.setter(*kit(), comboBox->itemData(comboBox->currentIndex(), IdRole));
+
+            if (Kit *k = kit())
+                listAspectSpec.setter(*k, comboBox->itemData(comboBox->currentIndex(), IdRole));
         });
     connect(listAspectSpec.model, &QAbstractItemModel::modelAboutToBeReset,
             this, [this] { d->ignoreChanges.lock(); });
@@ -295,7 +306,7 @@ QList<KitAspect *> KitAspect::aspectsToEmbed() const
 }
 
 QString KitAspect::msgManage() { return Tr::tr("Manage..."); }
-Kit *KitAspect::kit() const { return d->kit; }
+Kit *KitAspect::kit() const { return KitManager::kit(d->kitId); }
 const KitAspectFactory *KitAspect::factory() const { return d->factory; }
 QAction *KitAspect::mutableAction() const { return d->mutableAction; }
 
