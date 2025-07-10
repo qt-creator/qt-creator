@@ -138,7 +138,7 @@ public:
     void createDirectoryActions(const Context &context);
     void createRepositoryActions(const Context &context);
 
-    bool pullOrPush(SyncMode mode);
+    void pullOrPush(SyncMode mode);
 
     // Variables
     VcsEditorFactory fileLogFactory {{
@@ -517,7 +517,7 @@ void FossilPluginPrivate::createRepositoryActions(const Context &context)
     m_fossilContainer->addAction(command);
 }
 
-bool FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
+void FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
 {
     PullOrPushDialog::Mode pullOrPushMode;
     switch (mode) {
@@ -528,23 +528,23 @@ bool FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
         pullOrPushMode = PullOrPushDialog::PushMode;
         break;
     default:
-        return false;
+        return;
     }
 
     const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return false);
+    QTC_ASSERT(state.hasTopLevel(), return);
 
     PullOrPushDialog dialog(pullOrPushMode, ICore::dialogParent());
     dialog.setLocalBaseDirectory(fossilClient().settings().defaultRepoPath());
     const QString defaultURL(fossilClient().synchronousGetRepositoryURL(state.topLevel()));
     dialog.setDefaultRemoteLocation(defaultURL);
     if (dialog.exec() != QDialog::Accepted)
-        return true;
+        return;
 
     QString remoteLocation(dialog.remoteLocation());
     if (remoteLocation.isEmpty() && defaultURL.isEmpty()) {
         VcsOutputWindow::appendError(state.topLevel(), Tr::tr("Remote repository is not defined."));
-        return false;
+        return;
     } else if (remoteLocation == defaultURL) {
         remoteLocation.clear();
     }
@@ -556,11 +556,11 @@ bool FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
         extraOptions << "--private";
     switch (mode) {
     case SyncPull:
-        return fossilClient().synchronousPull(state.topLevel(), remoteLocation, extraOptions);
+        fossilClient().synchronousPull(state.topLevel(), remoteLocation, extraOptions);
+        break;
     case SyncPush:
-        return fossilClient().synchronousPush(state.topLevel(), remoteLocation, extraOptions);
-    default:
-        return false;
+        fossilClient().synchronousPush(state.topLevel(), remoteLocation, extraOptions);
+        break;
     }
 }
 
