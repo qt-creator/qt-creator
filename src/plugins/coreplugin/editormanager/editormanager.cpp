@@ -15,6 +15,7 @@
 #include "../documentmanager.h"
 #include "../fileutils.h"
 #include "../findplaceholder.h"
+#include "../generalsettings.h"
 #include "../icore.h"
 #include "../iversioncontrol.h"
 #include "../locator/ilocatorfilter.h"
@@ -595,6 +596,28 @@ void EditorManagerPrivate::init()
     gotoNextInHistory.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
     gotoNextInHistory.addOnTriggered(this, &EditorManagerPrivate::gotoNextDocHistory);
 
+    // Goto Previous Tab Action
+    ActionBuilder gotoPrevTab(this, Constants::GOTOPREVTAB);
+    gotoPrevTab.setText(::Core::Tr::tr("Previous Tab"));
+    gotoPrevTab.bindContextAction(&m_gotoPreviousTabAction);
+    gotoPrevTab.bindCommand(&m_gotoPreviousTabCommand);
+    gotoPrevTab.setContext(editDesignContext);
+    gotoPrevTab
+        .setDefaultKeySequence(::Core::Tr::tr("Ctrl+Meta+Left"), ::Core::Tr::tr("Ctrl+Alt+Left"));
+    gotoPrevTab.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
+    gotoPrevTab.addOnTriggered(this, &EditorManagerPrivate::gotoPreviousTab);
+
+    // Goto Next Tab Action
+    ActionBuilder gotoNextTab(this, Constants::GOTONEXTTAB);
+    gotoNextTab.setText(::Core::Tr::tr("Next Tab"));
+    gotoNextTab.bindContextAction(&m_gotoNextTabAction);
+    gotoNextTab.bindCommand(&m_gotoNextTabCommand);
+    gotoNextTab.setContext(editDesignContext);
+    gotoNextTab
+        .setDefaultKeySequence(::Core::Tr::tr("Ctrl+Meta+Right"), ::Core::Tr::tr("Ctrl+Alt+Right"));
+    gotoNextTab.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
+    gotoNextTab.addOnTriggered(this, &EditorManagerPrivate::gotoNextTab);
+
     // Go back in navigation history
     ActionBuilder goBack(this, Constants::GO_BACK);
     goBack.setIcon(Utils::Icons::PREV.icon());
@@ -773,6 +796,7 @@ void EditorManagerPrivate::init()
         [](const FilePath &from, const FilePath &to) {
             EditorManagerPrivate::handleFileRenamed(from, to);
         });
+    setShowingTabs(generalSettings().useTabsInEditorViews.value());
 }
 
 void EditorManagerPrivate::extensionsInitialized()
@@ -1956,6 +1980,15 @@ void EditorManagerPrivate::setShowingTabs(bool visible)
     const QList<EditorView *> allViews = allEditorViews();
     for (EditorView *view : allViews)
         view->setTabsVisible(visible);
+    d->m_gotoNextTabAction->setVisible(visible);
+    d->m_gotoPreviousTabAction->setVisible(visible);
+    if (visible) {
+        d->m_gotoNextTabCommand->removeAttribute(Command::CA_Hide);
+        d->m_gotoPreviousTabCommand->removeAttribute(Command::CA_Hide);
+    } else {
+        d->m_gotoNextTabCommand->setAttribute(Command::CA_Hide);
+        d->m_gotoPreviousTabCommand->setAttribute(Command::CA_Hide);
+    }
 }
 
 EditorWindow *EditorManagerPrivate::createEditorWindow()
@@ -2207,6 +2240,9 @@ void EditorManagerPrivate::updateActions()
     d->m_gotoNextDocHistoryAction->setEnabled(openedCount != 0);
     d->m_gotoPreviousDocHistoryAction->setEnabled(openedCount != 0);
     EditorView *view  = currentEditorView();
+    const bool isMultiTab = view ? (view->tabs().size() > 1) : false;
+    d->m_gotoPreviousTabAction->setEnabled(isMultiTab);
+    d->m_gotoNextTabAction->setEnabled(isMultiTab);
     d->m_goBackAction->setEnabled(view ? view->canGoBack() : false);
     d->m_goForwardAction->setEnabled(view ? view->canGoForward() : false);
     d->m_nextDocAction->setEnabled(DocumentModel::entryCount() > 1);
@@ -2309,6 +2345,20 @@ void EditorManagerPrivate::gotoPreviousDocHistory()
         dialog->selectPreviousEditor();
         showPopupOrSelectDocument();
     }
+}
+
+void EditorManagerPrivate::gotoNextTab()
+{
+    EditorView *view = currentEditorView();
+    QTC_ASSERT(view, return);
+    view->gotoNextTab();
+}
+
+void EditorManagerPrivate::gotoPreviousTab()
+{
+    EditorView *view = currentEditorView();
+    QTC_ASSERT(view, return);
+    view->gotoPreviousTab();
 }
 
 void EditorManagerPrivate::gotoLastEditLocation()

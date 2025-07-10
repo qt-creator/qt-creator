@@ -118,6 +118,8 @@ public:
     void reopenLastClosedDocument();
 
     void goToEditLocation(const EditLocation &location);
+    void gotoNextTab();
+    void gotoPreviousTab();
 
     void addCurrentPositionToNavigationHistory(const QByteArray &saveState = QByteArray());
     void addClosedEditorToCloseHistory(IEditor *editor);

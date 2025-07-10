@@ -942,6 +942,15 @@ void EditorView::goToEditLocation(const EditLocation &location)
     }
 }
 
+void EditorView::gotoNextTab()
+{
+    activateTab((m_tabBar->currentIndex() + 1) % m_tabBar->count());
+}
+
+void EditorView::gotoPreviousTab()
+{
+    activateTab((m_tabBar->currentIndex() + m_tabBar->count() - 1) % m_tabBar->count());
+}
 
 SplitterOrView::SplitterOrView(IEditor *editor)
 {

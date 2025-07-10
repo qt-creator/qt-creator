@@ -31,8 +31,7 @@ void ProxyAction::updateState()
         update(m_action, false);
     } else {
         // no active/delegate action, "visible" action is not enabled/visible
-        if (hasAttribute(Hide))
-            setVisible(false);
+        setVisible(!hasAttribute(Hide));
         setEnabled(false);
     }
 }

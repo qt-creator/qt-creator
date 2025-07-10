@@ -31,6 +31,7 @@ class QtcSettings;
 
 namespace Core {
 
+class Command;
 class EditorManager;
 
 namespace Internal {
@@ -160,6 +161,9 @@ private:
     static void gotoNextDocHistory();
     static void gotoPreviousDocHistory();
 
+    static void gotoNextTab();
+    static void gotoPreviousTab();
+
     static void gotoLastEditLocation();
 
     static void autoSave();
@@ -229,6 +233,10 @@ private:
     QAction *m_closeAllEditorsExceptVisibleAction = nullptr;
     QAction *m_gotoNextDocHistoryAction = nullptr;
     QAction *m_gotoPreviousDocHistoryAction = nullptr;
+    QAction *m_gotoNextTabAction = nullptr;
+    QAction *m_gotoPreviousTabAction = nullptr;
+    Command *m_gotoNextTabCommand = nullptr;
+    Command *m_gotoPreviousTabCommand = nullptr;
     QAction *m_goBackAction = nullptr;
     QAction *m_goForwardAction = nullptr;
     QAction *m_nextDocAction = nullptr;
