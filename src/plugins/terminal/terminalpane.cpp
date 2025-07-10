@@ -412,6 +412,9 @@ void TerminalPane::goToPrev()
 
 void TerminalPane::contextMenuRequested(const QPoint &pos)
 {
+    if (!m_tabWidget.tabBar()->geometry().contains(pos))
+        return;
+
     const int index = m_tabWidget.tabBar()->tabAt(pos);
     const QList<QAction *> actions
         = {m_closeCurrentTabAction, m_closeAllTabsAction, m_closeOtherTabsAction};
