@@ -333,6 +333,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
             return;
         }
 
+        m_issuesView->showProgressIndicator();
+        setFiltersEnabled(false);
         fetchDashboardAndProjectInfo({}, m_dashboardProjects->currentText());
     });
     // row with local build + dashboard, issue types (-> depending on choice, tables below change)
@@ -580,6 +582,8 @@ void IssuesWidget::leaveOrEnterDashboardMode(bool byLocalBuildButton)
         m_versionsStack->setCurrentIndex(int(DashboardMode::Global));
         if (!byLocalBuildButton) {
             QTC_ASSERT(currentDashboardInfo(), reinitProjectList(m_currentProject); return);
+            m_issuesView->showProgressIndicator();
+            setFiltersEnabled(false);
             fetchDashboardAndProjectInfo({}, m_dashboardProjects->currentText());
             return;
         }
@@ -685,6 +689,7 @@ void IssuesWidget::reinitProjectList(const QString &currentProject)
     updateBasicProjectInfo(std::nullopt);
     hideOverlays();
     m_issuesView->showProgressIndicator();
+    setFiltersEnabled(false);
     fetchDashboardAndProjectInfo(onDashboardInfoFetched, currentProject);
 }
 
@@ -1016,6 +1021,9 @@ void IssuesWidget::updateAllFilters(const QVariant &namedFilter)
 
 void IssuesWidget::setFiltersEnabled(bool enabled)
 {
+    const QList<QAbstractButton *> buttons = m_typesButtonGroup->buttons();
+    for (auto kindButton : buttons)
+        kindButton->setEnabled(enabled);
     m_addedFilter->setEnabled(enabled);
     m_removedFilter->setEnabled(enabled);
     m_ownerFilter->setEnabled(enabled);
@@ -1101,6 +1109,7 @@ void IssuesWidget::fetchTable()
         }
         // first time lookup... should we cache and maybe represent old data?
         updateTable();
+        QTC_ASSERT(projectInfo(), m_issuesView->hideProgressIndicator(); return);
         IssueListSearch search = searchFromUi();
         search.computeTotalRowCount = true;
         fetchIssues(dashboardMode, search);
@@ -1213,6 +1222,7 @@ void IssuesWidget::switchDashboard(bool local)
         QTC_ASSERT(!m_currentProject.isEmpty(), return);
         auto callback = [] { switchDashboardMode(DashboardMode::Local, true); };
         m_issuesView->showProgressIndicator();
+        setFiltersEnabled(false);
         startLocalDashboard(m_currentProject, callback);
     } else {
         switchDashboardMode(DashboardMode::Global, true);
