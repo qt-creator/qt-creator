@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "mercurialsettings.h"
 #include <coreplugin/editormanager/ieditor.h>
 #include <vcsbase/vcsbaseclient.h>
 

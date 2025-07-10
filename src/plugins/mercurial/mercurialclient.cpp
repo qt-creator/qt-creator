@@ -4,6 +4,7 @@
 #include "mercurialclient.h"
 
 #include "constants.h"
+#include "mercurialsettings.h"
 #include "mercurialtr.h"
 
 #include <coreplugin/idocument.h>
