@@ -33,6 +33,7 @@ Device::Device()
     setupId(IDevice::AutoDetected, Id::generate());
     setType("DevContainerType");
     setMachineType(IDevice::Hardware);
+    setFileAccessFactory([this]() { return m_fileAccess.get(); });
 }
 
 Device::~Device() {} // Necessary for forward declared unique_ptr
@@ -259,7 +260,6 @@ Result<> Device::up(
             if (!initResult)
                 return initResult;
 
-            setFileAccess(fileAccess.get());
             m_fileAccess = std::move(fileAccess);
             return ResultOk;
         }();
