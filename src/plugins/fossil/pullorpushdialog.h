@@ -17,15 +17,12 @@ namespace Utils { class PathChooser; }
 
 namespace Fossil::Internal {
 
+enum class FossilCommand { Pull, Push };
+
 class PullOrPushDialog : public QDialog
 {
 public:
-    enum Mode {
-        PullMode,
-        PushMode
-    };
-
-    explicit PullOrPushDialog(Mode mode, QWidget *parent = nullptr);
+    explicit PullOrPushDialog(FossilCommand command, QWidget *parent = nullptr);
 
     // Common parameters and options
     QString remoteLocation() const;

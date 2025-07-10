@@ -66,11 +66,6 @@ namespace Fossil::Internal {
 class FossilPluginPrivate final : public VersionControlBase
 {
 public:
-    enum SyncMode {
-        SyncPull,
-        SyncPush
-    };
-
     FossilPluginPrivate();
 
     // IVersionControl
@@ -123,8 +118,8 @@ public:
     void statusMulti();
 
     // Repository menu action slots
-    void pull() { pullOrPush(SyncPull); }
-    void push() { pullOrPush(SyncPush); }
+    void pull() { pullOrPush(FossilCommand::Pull); }
+    void push() { pullOrPush(FossilCommand::Push); }
     void update();
     void configureRepository();
     void commit();
@@ -138,7 +133,7 @@ public:
     void createDirectoryActions(const Context &context);
     void createRepositoryActions(const Context &context);
 
-    void pullOrPush(SyncMode mode);
+    void pullOrPush(FossilCommand command);
 
     // Variables
     VcsEditorFactory fileLogFactory {{
@@ -517,24 +512,12 @@ void FossilPluginPrivate::createRepositoryActions(const Context &context)
     m_fossilContainer->addAction(command);
 }
 
-void FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
+void FossilPluginPrivate::pullOrPush(FossilCommand command)
 {
-    PullOrPushDialog::Mode pullOrPushMode;
-    switch (mode) {
-    case SyncPull:
-        pullOrPushMode = PullOrPushDialog::PullMode;
-        break;
-    case SyncPush:
-        pullOrPushMode = PullOrPushDialog::PushMode;
-        break;
-    default:
-        return;
-    }
-
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    PullOrPushDialog dialog(pullOrPushMode, ICore::dialogParent());
+    PullOrPushDialog dialog(command, ICore::dialogParent());
     dialog.setLocalBaseDirectory(fossilClient().settings().defaultRepoPath());
     const QString defaultURL(fossilClient().synchronousGetRepositoryURL(state.topLevel()));
     dialog.setDefaultRemoteLocation(defaultURL);
@@ -554,11 +537,11 @@ void FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
         extraOptions << "--once";
     if (dialog.isPrivateOptionEnabled())
         extraOptions << "--private";
-    switch (mode) {
-    case SyncPull:
+    switch (command) {
+    case FossilCommand::Pull:
         fossilClient().synchronousPull(state.topLevel(), remoteLocation, extraOptions);
         break;
-    case SyncPush:
+    case FossilCommand::Push:
         fossilClient().synchronousPush(state.topLevel(), remoteLocation, extraOptions);
         break;
     }
