@@ -165,13 +165,13 @@ private:
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const QString &detectionSource,
-        std::function<void(QString)> logCallback) const override;
+        const LogCallback &logCallback) const override;
 
     std::optional<Tasking::ExecutableItem> removeAutoDetected(
-        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
+        const QString &detectionSource, const LogCallback &logCallback) const override;
 
     void listAutoDetected(
-        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
+        const QString &detectionSource, const LogCallback &logCallback) const override;
 };
 
 ToolchainKitAspectFactory::ToolchainKitAspectFactory()
@@ -442,7 +442,7 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
     const QString &detectionSource,
-    std::function<void(QString)> logCallback) const
+    const LogCallback &logCallback) const
 {
     Q_UNUSED(detectionSource);
     const auto searchToolchains = [searchPaths](Async<Toolchain *> &async) {
@@ -484,7 +484,7 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
 }
 
 std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::removeAutoDetected(
-    const QString &detectionSource, std::function<void(QString)> logCallback) const
+    const QString &detectionSource, const LogCallback &logCallback) const
 {
     return Tasking::Sync([=]() {
         const auto toolchains
@@ -500,7 +500,7 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::removeAutoDete
 }
 
 void ToolchainKitAspectFactory::listAutoDetected(
-    const QString &detectionSource, std::function<void(QString)> logCallback) const
+    const QString &detectionSource, const LogCallback &logCallback) const
 {
     for (const Toolchain *tc : ToolchainManager::toolchains()) {
         if (tc->isAutoDetected() && tc->detectionSource() == detectionSource)

@@ -143,13 +143,13 @@ private:
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const QString &detectionSource,
-        std::function<void(QString)> logCallback) const override;
+        const LogCallback &logCallback) const override;
 
     std::optional<Tasking::ExecutableItem> removeAutoDetected(
-        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
+        const QString &detectionSource, const LogCallback &logCallback) const override;
 
     void listAutoDetected(
-        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
+        const QString &detectionSource, const LogCallback &logCallback) const override;
 };
 
 const QtKitAspectFactory theQtKitAspectFactory;
@@ -439,7 +439,7 @@ std::optional<Tasking::ExecutableItem> QtKitAspectFactory::autoDetect(
     Kit *kit,
     const FilePaths &searchPaths,
     const QString &detectionSource,
-    std::function<void(QString)> logCallback) const
+    const LogCallback &logCallback) const
 {
     const auto searchQtse = [searchPaths, detectionSource](Async<QtVersion *> &async) {
         async.setConcurrentCallData(
@@ -492,7 +492,7 @@ std::optional<Tasking::ExecutableItem> QtKitAspectFactory::autoDetect(
 }
 
 std::optional<Tasking::ExecutableItem> QtKitAspectFactory::removeAutoDetected(
-    const QString &detectionSource, std::function<void(QString)> logCallback) const
+    const QString &detectionSource, const LogCallback &logCallback) const
 {
     return Tasking::Sync([detectionSource, logCallback]() {
         const auto versions = QtVersionManager::versions([detectionSource](const QtVersion *qt) {
@@ -507,7 +507,7 @@ std::optional<Tasking::ExecutableItem> QtKitAspectFactory::removeAutoDetected(
 }
 
 void QtKitAspectFactory::listAutoDetected(
-    const QString &detectionSource, std::function<void(QString)> logCallback) const
+    const QString &detectionSource, const LogCallback &logCallback) const
 {
     for (const QtVersion *qt : QtVersionManager::versions()) {
         if (qt->detectionSource() == detectionSource)

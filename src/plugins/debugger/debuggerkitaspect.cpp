@@ -418,19 +418,19 @@ public:
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const QString &detectionSource,
-        std::function<void(QString)> logCallback) const override
+        const LogCallback &logCallback) const override
     {
         return Internal::autoDetectDebuggerRecipe(kit, searchPaths, detectionSource, logCallback);
     }
 
     std::optional<Tasking::ExecutableItem> removeAutoDetected(
-        const QString &detectionSource, std::function<void(QString)> logCallback) const override
+        const QString &detectionSource, const LogCallback &logCallback) const override
     {
         return Internal::removeAutoDetected(detectionSource, logCallback);
     }
 
     void listAutoDetected(
-        const QString &detectionSource, std::function<void(QString)> logCallback) const override
+        const QString &detectionSource, const LogCallback &logCallback) const override
     {
         for (const auto &debugger : DebuggerItemManager::debuggers()) {
             if (debugger.isAutoDetected() && debugger.detectionSource() == detectionSource)

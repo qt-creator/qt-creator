@@ -8,6 +8,7 @@
 #include "debuggeritem.h"
 
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
 
 #include <tasking/tasktree.h>
 
@@ -60,10 +61,10 @@ Tasking::ExecutableItem autoDetectDebuggerRecipe(
     ProjectExplorer::Kit *kit,
     const Utils::FilePaths &searchPaths,
     const QString &detectionSource,
-    std::function<void(QString)> logCallback);
+    const ProjectExplorer::LogCallback &logCallback);
 
 Tasking::ExecutableItem removeAutoDetected(
-    const QString &detectionSource, std::function<void(QString)> logCallback);
+    const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 
 } // Internal
 } // Debugger

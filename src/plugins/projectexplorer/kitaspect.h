@@ -31,14 +31,16 @@ namespace ProjectExplorer {
 class Kit;
 class KitAspect;
 
+using LogCallback = std::function<void(const QString &message)>;
+
 PROJECTEXPLORER_EXPORT Tasking::Group kitDetectionRecipe(
-    const IDeviceConstPtr &device, std::function<void(QString)> logCallback);
+    const IDeviceConstPtr &device, const LogCallback &logCallback);
 
 PROJECTEXPLORER_EXPORT Tasking::Group removeDetectedKitsRecipe(
-    const IDeviceConstPtr &device, std::function<void(QString)> logCallback);
+    const IDeviceConstPtr &device, const LogCallback &logCallback);
 
 PROJECTEXPLORER_EXPORT void listAutoDetected(
-    const IDeviceConstPtr &device, std::function<void(QString)> logCallback);
+    const IDeviceConstPtr &device, const LogCallback &logCallback);
 
 /**
  * @brief The KitAspectFactory class
@@ -100,13 +102,13 @@ public:
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const QString &detectionSource,
-        std::function<void(QString)> logCallback) const;
+        const LogCallback &logCallback) const;
 
     virtual std::optional<Tasking::ExecutableItem> removeAutoDetected(
-        const QString &detectionSource, std::function<void(QString)> logCallback) const;
+        const QString &detectionSource, const LogCallback &logCallback) const;
 
     virtual void listAutoDetected(
-        const QString &detectionSource, std::function<void(QString)> logCallback) const;
+        const QString &detectionSource, const LogCallback &logCallback) const;
 
 protected:
     KitAspectFactory();

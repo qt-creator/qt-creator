@@ -126,13 +126,13 @@ public:
         Kit *kit,
         const Utils::FilePaths &searchPaths,
         const QString &detectionSource,
-        std::function<void(QString)> logCallback) const override;
+        const LogCallback &logCallback) const override;
 
     std::optional<Tasking::ExecutableItem> removeAutoDetected(
-        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
+        const QString &detectionSource, const LogCallback &logCallback) const override;
 
     void listAutoDetected(
-        const QString &detectionSource, std::function<void(QString)> logCallback) const override;
+        const QString &detectionSource, const LogCallback &logCallback) const override;
 };
 
 class CMakeGeneratorKitAspectFactory : public KitAspectFactory
@@ -320,7 +320,7 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
     const QString &detectionSource,
-    std::function<void(QString)> logCallback) const
+    const LogCallback &logCallback) const
 {
     using namespace Tasking;
 
@@ -370,7 +370,7 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::autoDetect(
 }
 
 std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::removeAutoDetected(
-    const QString &detectionSource, std::function<void(QString)> logCallback) const
+    const QString &detectionSource, const LogCallback &logCallback) const
 {
     using namespace Tasking;
 
@@ -385,7 +385,7 @@ std::optional<Tasking::ExecutableItem> CMakeKitAspectFactory::removeAutoDetected
 }
 
 void CMakeKitAspectFactory::listAutoDetected(
-    const QString &detectionSource, std::function<void(QString)> logCallback) const
+    const QString &detectionSource, const LogCallback &logCallback) const
 {
     for (const CMakeTool *tool : CMakeToolManager::cmakeTools()) {
         if (tool->isAutoDetected() && tool->detectionSource() == detectionSource)

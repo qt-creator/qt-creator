@@ -383,7 +383,7 @@ std::optional<Tasking::ExecutableItem> KitAspectFactory::autoDetect(
     Kit *kit,
     const Utils::FilePaths &searchPaths,
     const QString &detectionSource,
-    std::function<void(QString)> logCallback) const
+    const LogCallback &logCallback) const
 {
     Q_UNUSED(kit);
     Q_UNUSED(searchPaths);
@@ -394,7 +394,7 @@ std::optional<Tasking::ExecutableItem> KitAspectFactory::autoDetect(
 }
 
 std::optional<Tasking::ExecutableItem> KitAspectFactory::removeAutoDetected(
-    const QString &detectionSource, std::function<void(QString)> logCallback) const
+    const QString &detectionSource, const LogCallback &logCallback) const
 {
     Q_UNUSED(detectionSource);
     Q_UNUSED(logCallback);
@@ -402,14 +402,13 @@ std::optional<Tasking::ExecutableItem> KitAspectFactory::removeAutoDetected(
 }
 
 void KitAspectFactory::listAutoDetected(
-    const QString &detectionSource, std::function<void(QString)> logCallback) const
+    const QString &detectionSource, const LogCallback &logCallback) const
 {
     Q_UNUSED(detectionSource)
     Q_UNUSED(logCallback)
 }
 
-Tasking::Group kitDetectionRecipe(
-    const IDeviceConstPtr &device, std::function<void(QString)> logCallback)
+Tasking::Group kitDetectionRecipe(const IDeviceConstPtr &device, const LogCallback &logCallback)
 {
     using namespace Tasking;
     using namespace Utils;
@@ -475,11 +474,9 @@ Tasking::Group kitDetectionRecipe(
     // clang-format on
 }
 
-Tasking::Group removeDetectedKitsRecipe(
-    const IDeviceConstPtr &device, std::function<void(QString)> logCallback)
+Tasking::Group removeDetectedKitsRecipe(const IDeviceConstPtr &device, const LogCallback &logCallback)
 {
     using namespace Tasking;
-    using namespace Utils;
 
     const auto root = device->rootPath();
     const QString detectionSource = device->id().toString();
@@ -515,7 +512,7 @@ Tasking::Group removeDetectedKitsRecipe(
     // clang-format on
 }
 
-void listAutoDetected(const IDeviceConstPtr &device, std::function<void(QString)> logCallback)
+void listAutoDetected(const IDeviceConstPtr &device, const LogCallback &logCallback)
 {
     const QString detectionSource = device->id().toString();
 

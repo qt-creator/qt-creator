@@ -940,7 +940,7 @@ Tasking::ExecutableItem autoDetectDebuggerRecipe(
     ProjectExplorer::Kit *kit,
     const Utils::FilePaths &searchPaths,
     const QString &detectionSource,
-    std::function<void(QString)> logCallback)
+    const LogCallback &logCallback)
 {
     QStringList searchFilters
         = {"gdb-i686-pc-mingw32",
@@ -1007,7 +1007,7 @@ Tasking::ExecutableItem autoDetectDebuggerRecipe(
 }
 
 Tasking::ExecutableItem removeAutoDetected(
-    const QString &detectionSource, std::function<void(QString)> logCallback)
+    const QString &detectionSource, const LogCallback &logCallback)
 {
     return Tasking::Sync([detectionSource, logCallback]() {
         const auto debuggers
