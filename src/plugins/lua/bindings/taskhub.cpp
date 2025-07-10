@@ -192,9 +192,9 @@ void setupTaskHubModule()
                     Id::fromString(category),
                     qicon);
 
-                if ((options && (*options & AddTextMark))
-                    || (shouldCreateTextMark && *shouldCreateTextMark)) {
-                    task.shouldCreateTextMark();
+                if ((options && !(*options & AddTextMark))
+                    || (shouldCreateTextMark && !*shouldCreateTextMark)) {
+                    task.preventTextMarkCreation();
                 }
                 if ((options && !(*options & FlashWorthy)) || (flashworthy && !*flashworthy))
                     task.preventFlashing();
