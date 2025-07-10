@@ -3244,10 +3244,10 @@ void GitClient::handleMergeConflicts(const FilePath &workingDir, const QString &
 }
 
 // Subversion: git svn
-void GitClient::synchronousSubversionFetch(const FilePath &workingDirectory)
+void GitClient::subversionFetch(const FilePath &workingDirectory)
 {
-    vcsSynchronousExec(workingDirectory, {"svn", "fetch"},
-                       RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage);
+    enqueueCommand({workingDirectory, {"svn", "fetch"},
+                    RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage});
 }
 
 void GitClient::subversionLog(const FilePath &workingDirectory)

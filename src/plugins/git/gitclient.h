@@ -285,7 +285,7 @@ public:
                                       const QString &tracking);
 
     // git svn support (asynchronous).
-    void synchronousSubversionFetch(const Utils::FilePath &workingDirectory);
+    void subversionFetch(const Utils::FilePath &workingDirectory);
     void subversionLog(const Utils::FilePath &workingDirectory);
     void subversionDeltaCommit(const Utils::FilePath &workingDirectory);
 

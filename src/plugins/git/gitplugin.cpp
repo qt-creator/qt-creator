@@ -919,7 +919,7 @@ GitPluginPrivate::GitPluginPrivate()
                            context, false, &GitClient::subversionLog);
 
     createRepositoryAction(subversionMenu, "Fetch", "Git.Subversion.Fetch",
-                           context, false, &GitClient::synchronousSubversionFetch);
+                           context, false, &GitClient::subversionFetch);
 
     createRepositoryAction(subversionMenu, Tr::tr("DCommit"), "Git.Subversion.DCommit",
                            context, false, &GitClient::subversionDeltaCommit);
