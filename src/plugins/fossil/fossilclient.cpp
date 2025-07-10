@@ -620,14 +620,8 @@ bool FossilClient::synchronousMove(const FilePath &workingDir,
 void FossilClient::synchronousPull(const FilePath &workingDir, const QString &srcLocation, const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(PullCommand));
-    if (srcLocation.isEmpty()) {
-        const QString defaultURL(synchronousGetRepositoryURL(workingDir));
-        if (defaultURL.isEmpty())
-            return;
-    } else {
+    if (!srcLocation.isEmpty())
         args << srcLocation;
-    }
-
     args << extraOptions;
     const CommandResult result = vcsSynchronousExec(workingDir, args, s_pullFlags);
     if (result.result() == ProcessResult::FinishedWithSuccess)
@@ -637,14 +631,8 @@ void FossilClient::synchronousPull(const FilePath &workingDir, const QString &sr
 void FossilClient::synchronousPush(const FilePath &workingDir, const QString &dstLocation, const QStringList &extraOptions)
 {
     QStringList args(vcsCommandString(PushCommand));
-    if (dstLocation.isEmpty()) {
-        const QString defaultURL(synchronousGetRepositoryURL(workingDir));
-        if (defaultURL.isEmpty())
-            return;
-    } else {
+    if (!dstLocation.isEmpty())
         args << dstLocation;
-    }
-
     args << extraOptions;
     vcsSynchronousExec(workingDir, args, s_pullFlags);
 }
