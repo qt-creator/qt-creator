@@ -124,14 +124,18 @@ QHash<ProFile *, QVector<ProFile *> > ProFileReader::includeFiles() const
     return m_includeFiles;
 }
 
-thread_local ProFileCacheManager ProFileCacheManager::s_instance;
-
 ProFileCacheManager::ProFileCacheManager()
 {
     m_timer.setInterval(5000);
     m_timer.setSingleShot(true);
     connect(&m_timer, &QTimer::timeout,
             this, &ProFileCacheManager::clear);
+}
+
+ProFileCacheManager *ProFileCacheManager::instance()
+{
+    static thread_local ProFileCacheManager s_instance;
+    return &s_instance;
 }
 
 void ProFileCacheManager::incRefCount()
