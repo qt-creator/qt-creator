@@ -28,6 +28,7 @@ public:
     bool renameId(const QString &oldId, const QString &newId) override;
     bool moveToComponent(int nodeOffset, const QString &importData) override;
     QStringList autoComplete(QTextDocument *textDocument, int position, bool explicitComplete) override;
+    void convertPosition(int pos, int *line, int *column) const override;
 
 private:
     TextEditor::TextEditorWidget *m_textEdit;

@@ -120,3 +120,8 @@ QStringList BaseTextEditModifier::autoComplete(QTextDocument *textDocument, int 
                                                   document->semanticInfo());
     return {};
 }
+
+void BaseTextEditModifier::convertPosition(int pos, int *line, int *column) const
+{
+    m_textEdit->convertPosition(pos, line, column);
+}

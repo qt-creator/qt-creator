@@ -70,6 +70,8 @@ public:
 
     virtual bool moveToComponent(int nodeOffset, const QString &importData) = 0;
 
+    virtual void convertPosition(int /* pos */, int * /* line */, int * /* column */) const {};
+
 signals:
     void textChanged();
 

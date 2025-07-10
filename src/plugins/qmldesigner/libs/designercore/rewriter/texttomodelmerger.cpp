@@ -21,6 +21,7 @@
 #include "rewriterview.h"
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
+#include <astcheck.h>
 
 #include <externaldependenciesinterface.h>
 #include <import.h>
@@ -1104,7 +1105,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         collectImportErrors(&errors);
 
         if (view()->checkSemanticErrors()) {
-            collectSemanticErrorsAndWarnings(&errors, &warnings);
+            collectSemanticErrorsAndWarningsAst(&errors, &warnings);
 
             if (!errors.isEmpty()) {
                 m_rewriterView->setErrors(errors);
@@ -2294,11 +2295,13 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
         errors->append(DocumentMessage(DesignerCore::Tr::tr("No import for Qt Quick found.")));
 }
 
-void TextToModelMerger::collectSemanticErrorsAndWarnings(
+void TextToModelMerger::collectSemanticErrorsAndWarningsAst(
     [[maybe_unused]] QList<DocumentMessage> *errors, [[maybe_unused]] QList<DocumentMessage> *warnings)
 {
     NanotraceHR::Tracer tracer{"text to model merger collect semantic errors and warnings",
                                category()};
+
+    QList<StaticAnalysis::Message> messages;
 
 #ifndef QDS_USE_PROJECTSTORAGE
     Check check(m_document, m_scopeChain->context());
@@ -2316,9 +2319,14 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(
     }
 
     check.enableQmlDesignerChecks();
+    messages messages = check();
+#else
+    AstCheck check(m_document);
+    messages = check();
+#endif
 
     QUrl fileNameUrl = QUrl::fromLocalFile(m_document->fileName().toUrlishString());
-    const QList<StaticAnalysis::Message> messages = check();
+
     for (const StaticAnalysis::Message &message : messages) {
         if (message.severity == Severity::Error) {
             if (message.type == StaticAnalysis::ErrUnknownComponent)
@@ -2329,7 +2337,6 @@ void TextToModelMerger::collectSemanticErrorsAndWarnings(
         if (message.severity == Severity::Warning)
             warnings->append(DocumentMessage(message.toDiagnosticMessage(), fileNameUrl));
     }
-#endif
 }
 
 void TextToModelMerger::populateQrcMapping(const QString &filePath)

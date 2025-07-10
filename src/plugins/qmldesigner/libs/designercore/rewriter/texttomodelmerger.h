@@ -134,8 +134,8 @@ private:
     void clearImplicitComponent(const ModelNode &node);
     void collectLinkErrors(QList<DocumentMessage> *errors, const ReadingContext &ctxt);
     void collectImportErrors(QList<DocumentMessage> *errors);
-    void collectSemanticErrorsAndWarnings(QList<DocumentMessage> *errors,
-                                          QList<DocumentMessage> *warnings);
+    void collectSemanticErrorsAndWarningsAst(QList<DocumentMessage> *errors,
+                                             QList<DocumentMessage> *warnings);
     void populateQrcMapping(const QString &filePath);
     void addIsoIconQrcMapping(const QUrl &fileUrl);
 

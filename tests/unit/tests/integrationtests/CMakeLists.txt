@@ -16,3 +16,4 @@ add_qtc_library(
 include("integrationtestsapi.cmake")
 
 add_subdirectory(qmlprojectmanager)
+add_subdirectory(qmldesigner)

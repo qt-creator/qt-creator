@@ -688,6 +688,12 @@ void RewriterView::setRemoveImports(bool removeImports)
     m_textToModelMerger->setRemoveImports(removeImports);
 }
 
+void RewriterView::convertPosition(int pos, int *line, int *column) const
+{
+    QTC_ASSERT(m_textModifier, return);
+    m_textModifier->convertPosition(pos, line, column);
+}
+
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
     return m_positionStorage.get();

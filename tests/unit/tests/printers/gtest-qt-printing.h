@@ -29,6 +29,15 @@ std::ostream &operator<<(std::ostream &out, const QVarLengthArray<Type, Size> &a
     return out;
 }
 
+template<typename T>
+std::ostream &operator<<(std::ostream &out, const QVector<T> &vector)
+{
+    out << "[";
+    copy(vector.cbegin(), vector.cend(), std::ostream_iterator<T>(out, ", "));
+    out << "]";
+    return out;
+}
+
 std::ostream &operator<<(std::ostream &out, const QVariant &QVariant);
 std::ostream &operator<<(std::ostream &out, const QString &text);
 std::ostream &operator<<(std::ostream &out, QStringView text);

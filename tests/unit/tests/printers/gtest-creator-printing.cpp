@@ -30,13 +30,6 @@
 #include <designsystem/dsconstants.h>
 
 namespace std {
-template <typename T> ostream &operator<<(ostream &out, const QVector<T> &vector)
-{
-    out << "[";
-    copy(vector.cbegin(), vector.cend(), ostream_iterator<T>(out, ", "));
-    out << "]";
-    return out;
-}
 
 std::ostream &operator<<(std::ostream &out, const monostate &)
 {

@@ -182,6 +182,8 @@ public:
 
     void setRemoveImports(bool removeImports);
 
+    void convertPosition(int pos, int *line, int *column) const;
+
 signals:
     void modelInterfaceProjectUpdated();
 

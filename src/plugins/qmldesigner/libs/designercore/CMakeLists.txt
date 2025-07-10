@@ -34,6 +34,8 @@ extend_qtc_library(QmlDesignerCore
   PUBLIC_INCLUDES designercoreutils
   SOURCES_PREFIX designercoreutils
   SOURCES
+    astcheck.cpp
+    astcheck.h
     functional.h
     generatedcomponentutils.cpp
     generatedcomponentutils.h
