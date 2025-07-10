@@ -358,6 +358,8 @@ static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)
     }
 }
 
+namespace Internal {
+
 EditorManagerPrivate::EditorManagerPrivate(QObject *parent) :
     QObject(parent),
     m_copyFilePathContextAction(new QAction(::Core::Tr::tr("Copy Full Path"), this)),
@@ -2844,6 +2846,8 @@ bool EditorManagerPrivate::hasMoreThanOneview()
     QTC_ASSERT(d->m_editorAreas.size() > 0, return false);
     return d->m_editorAreas.constFirst()->hasSplits();
 }
+
+} // namespace Internal
 
 /*!
     Returns the pointer to the instance. Only use for connecting to signals.
