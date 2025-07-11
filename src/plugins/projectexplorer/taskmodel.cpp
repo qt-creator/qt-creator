@@ -84,11 +84,13 @@ bool TaskModel::compareTasks(const Task &task1, const Task &task2)
     return task1.id() < task2.id();
 }
 
-void TaskModel::addTask(const Task &task)
+void TaskModel::addTask(Task task)
 {
     Q_ASSERT(m_categories.contains(task.category()));
     CategoryData &data = m_categories[task.category()];
     CategoryData &global = m_categories[Utils::Id()];
+
+    task.createTextMarkIfApplicable();
 
     auto it = std::lower_bound(m_tasks.begin(), m_tasks.end(), task,
                                std::bind(&TaskModel::compareTasks, this,  _1, task));

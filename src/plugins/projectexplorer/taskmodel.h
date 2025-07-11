@@ -36,7 +36,7 @@ public:
     void addCategory(const TaskCategory &category);
 
     const Task &taskAt(int index) const { return m_tasks.at(index); }
-    void addTask(const Task &t);
+    void addTask(Task t);
     void removeTask(unsigned int id);
     void clearTasks(Utils::Id categoryId = Utils::Id());
     void updateTaskFileName(const Task &task, const QString &fileName);

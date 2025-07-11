@@ -53,7 +53,6 @@ void TaskHub::addTask(Task task)
 
     if (task.m_file.isEmpty() || task.m_line <= 0)
         task.m_line = -1;
-    task.createTextMarkIfApplicable();
     emit taskHub().taskAdded(task);
 }
 
