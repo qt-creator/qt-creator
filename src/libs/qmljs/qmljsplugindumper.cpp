@@ -78,7 +78,6 @@ void PluginDumper::onLoadBuiltinTypes(const QmlJS::ModelManagerInterface::Projec
     }
 
     runQmlDump(info, QStringList(QLatin1String("--builtins")), info.qtQmlPath);
-    m_qtToInfo.insert(info.qtQmlPath.toUrlishString(), info);
 }
 
 void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,

@@ -8,13 +8,7 @@
 #include <QObject>
 #include <QHash>
 
-QT_BEGIN_NAMESPACE
-class QDir;
-QT_END_NAMESPACE
-
-namespace Utils {
-class Process;
-}
+namespace Utils { class Process; }
 
 namespace QmlJS {
 
@@ -105,7 +99,6 @@ private:
     QHash<Utils::Process *, Utils::FilePath> m_runningQmldumps;
     QList<Plugin> m_plugins;
     QHash<Utils::FilePath, int> m_libraryToPluginIndex;
-    QHash<QString, QmlJS::ModelManagerInterface::ProjectInfo> m_qtToInfo;
 };
 
 } // namespace QmlJS
