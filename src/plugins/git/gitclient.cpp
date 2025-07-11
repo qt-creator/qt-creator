@@ -1452,7 +1452,7 @@ void GitClient::reset(const FilePath &workingDirectory, const QString &argument,
 
     RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
     if (argument == "--hard") {
-        if (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules)) != StatusUnchanged) {
+        if (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules)) != StatusResult::Unchanged) {
             if (QMessageBox::question(
                         Core::ICore::dialogParent(), Tr::tr("Reset"),
                         Tr::tr("All changes in working directory will be discarded. Are you sure?"),
@@ -1920,7 +1920,7 @@ QString GitClient::synchronousStash(const FilePath &workingDirectory, const QStr
     // Check for changes and stash
     QString errorMessage;
     switch (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules), nullptr, &errorMessage)) {
-    case  StatusChanged: {
+    case StatusResult::Changed: {
         message = creatorStashMessage(messageKeyword);
         do {
             if ((flags & StashPromptDescription)) {
@@ -1937,13 +1937,13 @@ QString GitClient::synchronousStash(const FilePath &workingDirectory, const QStr
         } while (false);
         break;
     }
-    case StatusUnchanged:
+    case StatusResult::Unchanged:
         if (unchanged)
             *unchanged = true;
         if (!(flags & StashIgnoreUnchanged))
             VcsOutputWindow::appendWarning(workingDirectory, msgNoChangedFiles());
         break;
-    case StatusFailed:
+    case StatusResult::Failed:
         VcsOutputWindow::appendError(workingDirectory, errorMessage);
         break;
     }
@@ -2329,8 +2329,8 @@ void GitClient::finishSubmoduleUpdate()
     m_updatedSubmodules.clear();
 }
 
-GitClient::StatusResult GitClient::gitStatus(const FilePath &workingDirectory, StatusMode mode,
-                                             QString *output, QString *errorMessage) const
+StatusResult GitClient::gitStatus(const FilePath &workingDirectory, StatusMode mode,
+                                  QString *output, QString *errorMessage) const
 {
     // Run 'status'. Note that git returns exitcode 1 if there are no added files.
     QStringList arguments = {"status"};
@@ -2355,13 +2355,13 @@ GitClient::StatusResult GitClient::gitStatus(const FilePath &workingDirectory, S
         if (errorMessage) {
             *errorMessage = Tr::tr("Cannot obtain status: %1").arg(result.cleanedStdErr());
         }
-        return StatusFailed;
+        return StatusResult::Failed;
     }
     // Unchanged (output text depending on whether -u was passed)
     const bool hasChanges = Utils::contains(stdOut.split('\n'), [](const QString &s) {
                                                 return !s.isEmpty() && !s.startsWith('#');
                                             });
-    return hasChanges ? StatusChanged : StatusUnchanged;
+    return hasChanges ? StatusResult::Changed : StatusResult::Unchanged;
 }
 
 QString GitClient::commandInProgressDescription(const FilePath &workingDirectory) const
@@ -2448,7 +2448,7 @@ void GitClient::continuePreviousGitCommand(const FilePath &workingDirectory,
         break;
     case SkipIfNoChanges:
         hasChanges = gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules))
-            == GitClient::StatusChanged;
+            == StatusResult::Changed;
         if (!hasChanges)
             msgBoxText.prepend(Tr::tr("No changes found.") + ' ');
         break;
@@ -2791,13 +2791,13 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
 
     const StatusResult status = gitStatus(repoDirectory, ShowAll, &output, &errorMessage);
     switch (status) {
-    case  StatusChanged:
+    case StatusResult::Changed:
         break;
-    case StatusUnchanged:
+    case StatusResult::Unchanged:
         if (commitData.commitType == AmendCommit) // amend might be run just for the commit message
             break;
         return ResultError(msgNoChangedFiles());
-    case StatusFailed:
+    case StatusResult::Failed:
         return ResultError(errorMessage);
     }
 
@@ -2811,7 +2811,7 @@ Result<CommitData> GitClient::getCommitData(CommitType commitType, const FilePat
     if (!commitData.parseFilesFromStatus(output))
         return ResultError(msgParseFilesFailed());
 
-    if (status != StatusUnchanged) {
+    if (status != StatusResult::Unchanged) {
         // Filter out untracked files that are not part of the project
         QStringList untrackedFiles = commitData.filterFiles(UntrackedFile);
 
@@ -3035,11 +3035,11 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
     // Check for changes
     QString output;
     switch (gitStatus(repoDirectory, StatusMode(NoUntracked | NoSubmodules), &output, errorMessage)) {
-    case StatusChanged:
+    case StatusResult::Changed:
         break;
-    case StatusUnchanged:
+    case StatusResult::Unchanged:
         return RevertUnchanged;
-    case StatusFailed:
+    case StatusResult::Failed:
         return RevertFailed;
     }
     CommitData data;
@@ -3622,16 +3622,16 @@ bool GitClient::StashInfo::init(const FilePath &workingDirectory, const QString 
     QString statusOutput;
     switch (gitClient().gitStatus(m_workingDir, StatusMode(NoUntracked | NoSubmodules),
                                 &statusOutput, &errorMessage)) {
-    case GitClient::StatusChanged:
+    case StatusResult::Changed:
         if (m_flags & NoPrompt)
             executeStash(command, &errorMessage);
         else
             stashPrompt(command, statusOutput, &errorMessage);
         break;
-    case GitClient::StatusUnchanged:
+    case StatusResult::Unchanged:
         m_stashResult = StashUnchanged;
         break;
-    case GitClient::StatusFailed:
+    case StatusResult::Failed:
         m_stashResult = StashFailed;
         break;
     }

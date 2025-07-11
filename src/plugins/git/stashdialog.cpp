@@ -276,9 +276,9 @@ bool StashDialog::promptForRestore(QString *stash,
     bool modifiedPromptShown = false;
     switch (gitClient().gitStatus(
                 m_repository, StatusMode(NoUntracked | NoSubmodules), nullptr, errorMessage)) {
-    case GitClient::StatusFailed:
+    case StatusResult::Failed:
         return false;
-    case GitClient::StatusChanged: {
+    case StatusResult::Changed: {
             switch (promptModifiedRepository(*stash)) {
             case ModifiedRepositoryCancel:
                 return false;
@@ -298,7 +298,7 @@ bool StashDialog::promptForRestore(QString *stash,
         modifiedPromptShown = true;
     }
         break;
-    case GitClient::StatusUnchanged:
+    case StatusResult::Unchanged:
         break;
     }
     // Prompt for branch or just ask.

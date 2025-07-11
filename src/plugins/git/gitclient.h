@@ -87,6 +87,8 @@ struct Author {
     QString email;
 };
 
+enum class StatusResult { Changed, Unchanged, Failed };
+
 class GITSHARED_EXPORT GitClient : public VcsBase::VcsBaseClientImpl
 {
 public:
@@ -314,7 +316,6 @@ public:
 
     void formatPatch(const Utils::FilePath &workingDirectory, const QStringList &patchRange);
 
-    enum StatusResult { StatusChanged, StatusUnchanged, StatusFailed };
     StatusResult gitStatus(const Utils::FilePath &workingDirectory, StatusMode mode,
                            QString *output = nullptr, QString *errorMessage = nullptr) const;
 
