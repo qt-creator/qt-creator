@@ -52,7 +52,6 @@ public:
 
     static Utils::FilePath mappedFilePath(ProjectExplorer::Project *project, const Utils::FilePath &path);
 
-public slots:
     QList<Utils::Id> autoDetectCMakeForDevice(
         const Utils::FilePaths &searchPaths,
         const QString &detectionSource,
