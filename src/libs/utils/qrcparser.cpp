@@ -29,7 +29,7 @@ class QrcParserPrivate
 public:
     typedef QMap<QString,QStringList> SMap;
     QrcParserPrivate(QrcParser *q);
-    bool parseFile(const QString &path, const QString &contents);
+    bool parseFile(const FilePath &path, const QString &contents);
     QString firstFileAtPath(const QString &path, const QLocale &locale) const;
     void collectFilesAtPath(const QString &path, QStringList *res, const QLocale *locale = nullptr) const;
     bool hasDirAtPath(const QString &path, const QLocale *locale = nullptr) const;
@@ -56,13 +56,13 @@ class QrcCachePrivate
 {
 public:
     QrcCachePrivate(QrcCache *q);
-    QrcParser::Ptr addPath(const QString &path, const QString &contents);
-    void removePath(const QString &path);
-    QrcParser::Ptr updatePath(const QString &path, const QString &contents);
-    QrcParser::Ptr parsedPath(const QString &path);
+    QrcParser::Ptr addPath(const FilePath &path, const QString &contents);
+    void removePath(const FilePath &path);
+    QrcParser::Ptr updatePath(const FilePath &path, const QString &contents);
+    QrcParser::Ptr parsedPath(const FilePath &path);
     void clear();
 private:
-    QHash<QString, QPair<QrcParser::Ptr,int> > m_cache;
+    QHash<FilePath, QPair<QrcParser::Ptr,int> > m_cache;
     QReadWriteLock m_mutex;
 };
 } // namespace Internal
@@ -163,7 +163,7 @@ QrcParser::~QrcParser()
 
     \sa errorMessages(), parseQrcFile()
 */
-bool QrcParser::parseFile(const QString &path, const QString &contents)
+bool QrcParser::parseFile(const FilePath &path, const QString &contents)
 {
     return d->parseFile(path, contents);
 }
@@ -260,7 +260,7 @@ bool QrcParser::isValid() const
 /*!
     Returns the \a contents of the QRC file at \a path.
 */
-QrcParser::Ptr QrcParser::parseQrcFile(const QString &path, const QString &contents)
+QrcParser::Ptr QrcParser::parseQrcFile(const FilePath &path, const QString &contents)
 {
     Ptr res(new QrcParser);
     if (!path.isEmpty())
@@ -300,7 +300,7 @@ QrcCache::~QrcCache()
 
     \sa QrcParser::errorMessages(), QrcParser::parseQrcFile()
 */
-QrcParser::ConstPtr QrcCache::addPath(const QString &path, const QString &contents)
+QrcParser::ConstPtr QrcCache::addPath(const FilePath &path, const QString &contents)
 {
     return d->addPath(path, contents);
 }
@@ -308,7 +308,7 @@ QrcParser::ConstPtr QrcCache::addPath(const QString &path, const QString &conten
 /*!
     Removes \a path from the cache.
 */
-void QrcCache::removePath(const QString &path)
+void QrcCache::removePath(const FilePath &path)
 {
     d->removePath(path);
 }
@@ -316,7 +316,7 @@ void QrcCache::removePath(const QString &path)
 /*!
     Reparses the QRC file at \a path and returns the \a contents of the file.
 */
-QrcParser::ConstPtr QrcCache::updatePath(const QString &path, const QString &contents)
+QrcParser::ConstPtr QrcCache::updatePath(const FilePath &path, const QString &contents)
 {
     return d->updatePath(path, contents);
 }
@@ -324,7 +324,7 @@ QrcParser::ConstPtr QrcCache::updatePath(const QString &path, const QString &con
 /*!
     Returns the cached QRC parser for the QRC file at \a path.
 */
-QrcParser::ConstPtr QrcCache::parsedPath(const QString &path)
+QrcParser::ConstPtr QrcCache::parsedPath(const FilePath &path)
 {
     return d->parsedPath(path);
 }
@@ -344,14 +344,14 @@ namespace Internal {
 QrcParserPrivate::QrcParserPrivate(QrcParser *)
 { }
 
-bool QrcParserPrivate::parseFile(const QString &path, const QString &contents)
+bool QrcParserPrivate::parseFile(const FilePath &path, const QString &contents)
 {
     QDomDocument doc;
-    QDir baseDir(QFileInfo(path).path());
+    QDir baseDir(path.toFileInfo().path());
 
     if (contents.isEmpty()) {
         // Regular file
-        QFile file(path);
+        QFile file(path.toFSPathString());
         if (!file.open(QIODevice::ReadOnly)) {
             m_errorMessages.append(file.errorString());
             return false;
@@ -593,7 +593,7 @@ const QStringList QrcParserPrivate::allUiLanguages(const QLocale *locale) const
 QrcCachePrivate::QrcCachePrivate(QrcCache *)
 { }
 
-QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &contents)
+QrcParser::Ptr QrcCachePrivate::addPath(const FilePath &path, const QString &contents)
 {
     QPair<QrcParser::Ptr,int> currentValue;
     {
@@ -619,7 +619,7 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &cont
     }
 }
 
-void QrcCachePrivate::removePath(const QString &path)
+void QrcCachePrivate::removePath(const FilePath &path)
 {
     QPair<QrcParser::Ptr,int> currentValue;
     {
@@ -636,7 +636,7 @@ void QrcCachePrivate::removePath(const QString &path)
     }
 }
 
-QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path, const QString &contents)
+QrcParser::Ptr QrcCachePrivate::updatePath(const FilePath &path, const QString &contents)
 {
     QrcParser::Ptr newParser = QrcParser::parseQrcFile(path, contents);
     {
@@ -650,7 +650,7 @@ QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path, const QString &c
     }
 }
 
-QrcParser::Ptr QrcCachePrivate::parsedPath(const QString &path)
+QrcParser::Ptr QrcCachePrivate::parsedPath(const FilePath &path)
 {
     QReadLocker l(&m_mutex);
     QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
@@ -664,4 +664,4 @@ void QrcCachePrivate::clear()
 }
 
 } // namespace Internal
-} // namespace QmlJS
+} // namespace Utils

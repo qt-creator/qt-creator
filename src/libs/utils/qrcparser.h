@@ -34,8 +34,10 @@ public:
 
     using Ptr = std::shared_ptr<QrcParser>;
     using ConstPtr = std::shared_ptr<const QrcParser>;
+
     ~QrcParser();
-    bool parseFile(const QString &path, const QString &contents);
+
+    bool parseFile(const FilePath &path, const QString &contents);
     QString firstFileAtPath(const QString &path, const QLocale &locale) const;
     void collectFilesAtPath(const QString &path, QStringList *res, const QLocale *locale = nullptr) const;
     MatchResult longestReverseMatches(const QString &) const;
@@ -49,10 +51,11 @@ public:
     QStringList languages() const;
     bool isValid() const;
 
-    static Ptr parseQrcFile(const QString &path, const QString &contents);
+    static Ptr parseQrcFile(const FilePath &path, const QString &contents);
     static QString normalizedQrcFilePath(const QString &path);
     static QString normalizedQrcDirectoryPath(const QString &path);
     static QString qrcDirectoryPathForQrcFilePath(const QString &file);
+
 private:
     QrcParser();
     QrcParser(const QrcParser &);
@@ -64,12 +67,14 @@ class QTCREATOR_UTILS_EXPORT QrcCache
 public:
     QrcCache();
     ~QrcCache();
-    QrcParser::ConstPtr addPath(const QString &path, const QString &contents);
-    void removePath(const QString &path);
-    QrcParser::ConstPtr updatePath(const QString &path, const QString &contents);
-    QrcParser::ConstPtr parsedPath(const QString &path);
+    QrcParser::ConstPtr addPath(const FilePath &path, const QString &contents);
+    void removePath(const FilePath &path);
+    QrcParser::ConstPtr updatePath(const FilePath &path, const QString &contents);
+    QrcParser::ConstPtr parsedPath(const FilePath &path);
     void clear();
+
 private:
     Internal::QrcCachePrivate *d;
 };
-}
+
+} // Utils

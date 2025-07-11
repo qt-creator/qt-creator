@@ -514,7 +514,7 @@ FilePaths FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
     for (const FilePath &f : m_allQrcFiles) {
         QrcParser::Ptr &qrcParser = m_parserCache[f];
         if (!qrcParser)
-            qrcParser = QrcParser::parseQrcFile(f.toUrlishString(), QString());
+            qrcParser = QrcParser::parseQrcFile(f, QString());
         if (!qrcParser->isValid())
             continue;
         qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &hits);

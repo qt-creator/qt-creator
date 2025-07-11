@@ -1,11 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <utils/qrcparser.h>
+
 #include <QtTest>
 #include <QDebug>
 #include <QLocale>
-
-#include <utils/qrcparser.h>
 
 using namespace Utils;
 
@@ -61,7 +61,7 @@ QStringList tst_QrcParser::allPaths(QrcParser::ConstPtr p)
 void tst_QrcParser::firstAtTest()
 {
     QFETCH(QString, path);
-    QrcParser::Ptr p = QrcParser::parseQrcFile(path, QString());
+    QrcParser::Ptr p = QrcParser::parseQrcFile(FilePath::fromString(path), QString());
     const QStringList paths = allPaths(p);
     for (const QString &qrcPath : paths) {
         QString s1 = p->firstFileAtPath(qrcPath, m_locale);
@@ -79,7 +79,7 @@ void tst_QrcParser::firstAtTest()
 void tst_QrcParser::firstInTest()
 {
     QFETCH(QString, path);
-    QrcParser::Ptr p = QrcParser::parseQrcFile(path, QString());
+    QrcParser::Ptr p = QrcParser::parseQrcFile(FilePath::fromString(path), QString());
     const QStringList paths = allPaths(p);
     for (const QString &qrcPath : paths) {
         if (!qrcPath.endsWith(QLatin1Char('/')))
@@ -119,30 +119,32 @@ void tst_QrcParser::firstInTest()
 void tst_QrcParser::cacheTest()
 {
     QFETCH(QString, path);
-    QVERIFY(!m_cache.parsedPath(path));
-    QrcParser::ConstPtr p0 = m_cache.addPath(path, QString());
+    FilePath filePath = FilePath::fromString(path);
+    QVERIFY(!m_cache.parsedPath(filePath));
+    QrcParser::ConstPtr p0 = m_cache.addPath(filePath, QString());
     QVERIFY(p0);
-    QrcParser::ConstPtr p1 = m_cache.parsedPath(path);
+    QrcParser::ConstPtr p1 = m_cache.parsedPath(filePath);
     QVERIFY(p1.get() == p0.get());
-    QrcParser::ConstPtr p2 = m_cache.addPath(path, QString());
+    QrcParser::ConstPtr p2 = m_cache.addPath(filePath, QString());
     QVERIFY(p2.get() == p1.get());
-    QrcParser::ConstPtr p3 = m_cache.parsedPath(path);
+    QrcParser::ConstPtr p3 = m_cache.parsedPath(filePath);
     QVERIFY(p3.get() == p2.get());
-    QrcParser::ConstPtr p4 = m_cache.updatePath(path, QString());
+    QrcParser::ConstPtr p4 = m_cache.updatePath(filePath, QString());
     QVERIFY(p4.get() != p3.get());
-    QrcParser::ConstPtr p5 = m_cache.parsedPath(path);
+    QrcParser::ConstPtr p5 = m_cache.parsedPath(filePath);
     QVERIFY(p5.get() == p4.get());
-    m_cache.removePath(path);
-    QrcParser::ConstPtr p6 = m_cache.parsedPath(path);
+    m_cache.removePath(filePath);
+    QrcParser::ConstPtr p6 = m_cache.parsedPath(filePath);
     QVERIFY(p6.get() == p5.get());
-    m_cache.removePath(path);
-    QrcParser::ConstPtr p7 = m_cache.parsedPath(path);
+    m_cache.removePath(filePath);
+    QrcParser::ConstPtr p7 = m_cache.parsedPath(filePath);
     QVERIFY(!p7);
 }
 
 void tst_QrcParser::simpleTest()
 {
-    QrcParser::Ptr p = QrcParser::parseQrcFile(QString::fromLatin1(TESTSRCDIR).append(QLatin1String("/simple.qrc")), QString());
+    QrcParser::Ptr p = QrcParser::parseQrcFile(
+        FilePath::fromString(TESTSRCDIR).pathAppended("simple.qrc"), QString());
     QStringList paths = allPaths(p);
     paths.sort();
     QVERIFY(paths == QStringList({ "/", "/cut.jpg", "/images/", "/images/copy.png",

@@ -529,7 +529,7 @@ void ModelManagerInterface::iterateQrcFiles(
     }
 
     for (const Utils::FilePath &qrcFilePath : std::as_const(allQrcs)) {
-        QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath.toFSPathString());
+        QrcParser::ConstPtr qrcFile = m_qrcCache.parsedPath(qrcFilePath);
         if (!qrcFile)
             continue;
         callback(qrcFile);
@@ -644,11 +644,11 @@ void ModelManagerInterface::updateProjectInfo(const ProjectInfo &pinfo, ProjectB
     // update qrc cache
     m_qrcContents = pinfo.resourceFileContents;
     for (const Utils::FilePath &newQrc : std::as_const(pinfo.allResourceFiles))
-        m_qrcCache.addPath(newQrc.toUrlishString(), m_qrcContents.value(newQrc));
+        m_qrcCache.addPath(newQrc, m_qrcContents.value(newQrc));
     for (const Utils::FilePath &newQrc : pinfo.generatedQrcFiles)
-        m_qrcCache.addPath(newQrc.toUrlishString(), m_qrcContents.value(newQrc));
+        m_qrcCache.addPath(newQrc, m_qrcContents.value(newQrc));
     for (const Utils::FilePath &oldQrc : std::as_const(oldInfo.allResourceFiles))
-        m_qrcCache.removePath(oldQrc.toUrlishString());
+        m_qrcCache.removePath(oldQrc);
 
     m_pluginDumper->loadBuiltinTypes(pinfo);
     emit projectInfoUpdated(pinfo);
@@ -727,7 +727,7 @@ void ModelManagerInterface::emitDocumentChangedOnDisk(Document::Ptr doc)
 
 void ModelManagerInterface::updateQrcFile(const Utils::FilePath &path)
 {
-    m_qrcCache.updatePath(path.toUrlishString(), m_qrcContents.value(path));
+    m_qrcCache.updatePath(path, m_qrcContents.value(path));
 }
 
 void ModelManagerInterface::updateDocument(const Document::Ptr &doc)
