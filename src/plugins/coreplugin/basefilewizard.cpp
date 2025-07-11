@@ -5,6 +5,7 @@
 
 #include "basefilewizardfactory.h"
 #include "coreplugintr.h"
+#include "icore.h"
 #include "ifilewizardextension.h"
 
 #include <QMessageBox>
@@ -56,19 +57,19 @@ void BaseFileWizard::accept()
     if (m_files.isEmpty())
         generateFileList();
 
-    QString errorMessage;
-
     // Compile result list and prompt for overwrite
-    switch (BaseFileWizardFactory::promptOverwrite(&m_files, &errorMessage)) {
-    case BaseFileWizardFactory::OverwriteCanceled:
+    Result<BaseFileWizardFactory::OverwriteResult> res =
+        BaseFileWizardFactory::promptOverwrite(&m_files);
+
+    if (!res) {
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("Existing files"), res.error());
         reject();
         return;
-    case BaseFileWizardFactory::OverwriteError:
-        QMessageBox::critical(nullptr, Tr::tr("Existing files"), errorMessage);
+    }
+
+    if (*res == BaseFileWizardFactory::OverwriteCanceled) {
         reject();
         return;
-    case BaseFileWizardFactory::OverwriteOk:
-        break;
     }
 
     for (IFileWizardExtension *ex : std::as_const(g_fileWizardExtensions)) {

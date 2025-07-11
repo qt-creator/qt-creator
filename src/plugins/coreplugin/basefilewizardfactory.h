@@ -78,9 +78,8 @@ protected:
 
     static QString preferredSuffix(const QString &mimeType);
 
-    enum OverwriteResult { OverwriteOk,  OverwriteError,  OverwriteCanceled };
-    static OverwriteResult promptOverwrite(GeneratedFiles *files,
-                                           QString *errorMessage);
+    enum OverwriteResult { OverwriteOk, OverwriteCanceled };
+    static Utils::Result<OverwriteResult> promptOverwrite(GeneratedFiles *files);
     static Utils::Result<> postGenerateOpenEditors(const GeneratedFiles &l);
 
 private:

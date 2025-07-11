@@ -178,8 +178,8 @@ Result<> BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l)
     Returns \a errorMessage if the file cannot be overwritten.
 */
 
-BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(GeneratedFiles *files,
-                                                                QString *errorMessage)
+Result<BaseFileWizardFactory::OverwriteResult>
+    BaseFileWizardFactory::promptOverwrite(GeneratedFiles *files)
 {
     if (debugWizard)
         qDebug() << Q_FUNC_INFO << files;
@@ -229,9 +229,9 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     }
 
     if (oddStuffFound) {
-        *errorMessage = Tr::tr("The project directory %1 contains files which cannot be overwritten:\n%2.")
-                            .arg(commonExistingPath.toUserOutput(), fileNamesMsgPart);
-        return OverwriteError;
+        return ResultError(
+            Tr::tr("The project directory %1 contains files which cannot be overwritten:\n%2.")
+                .arg(commonExistingPath.toUserOutput(), fileNamesMsgPart));
     }
     // Prompt to overwrite existing files.
     PromptOverwriteDialog overwriteDialog;
