@@ -11,6 +11,8 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
 
+#include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
@@ -162,6 +164,69 @@ public:
                                            return python->command.toUserOutput();
                                        return {};
                                    });
+    }
+
+    std::optional<Tasking::ExecutableItem> autoDetect(
+        Kit *kit,
+        const Utils::FilePaths &searchPaths,
+        const QString &detectionSource,
+        const LogCallback &logCallback) const override
+    {
+        Q_UNUSED(kit);
+
+        using namespace Tasking;
+
+        const auto setupSearch = [searchPaths, detectionSource](Async<Interpreter> &task) {
+            const QList<Interpreter> alreadyConfigured = PythonSettings::interpreters();
+
+            task.setConcurrentCallData(
+                [](QPromise<Interpreter> &promise,
+                   const FilePaths &searchPaths,
+                   const QList<Interpreter> &alreadyConfigured,
+                   const QString &detectionSource) {
+                    for (const FilePath &path : searchPaths) {
+                        const FilePath python = path.pathAppended("python3").withExecutableSuffix();
+                        if (!python.isExecutableFile())
+                            continue;
+                        if (Utils::contains(
+                                alreadyConfigured, Utils::equal(&Interpreter::command, python)))
+                            continue;
+
+                        Interpreter interpreter = PythonSettings::createInterpreter(
+                            python, {}, "(" + python.toUserOutput() + ")", detectionSource);
+
+                        promise.addResult(interpreter);
+                    }
+                },
+                searchPaths,
+                alreadyConfigured,
+                detectionSource);
+        };
+
+        const auto searchDone = [detectionSource, logCallback](const Async<Interpreter> &task) {
+            for (const auto &interpreter : task.results()) {
+                PythonSettings::addInterpreter(interpreter, false);
+                logCallback(
+                    Tr::tr("Found \"%1\" (%2)")
+                        .arg(interpreter.name, interpreter.command.toUserOutput()));
+            }
+        };
+
+        return AsyncTask<Interpreter>(setupSearch, searchDone);
+    }
+
+    std::optional<Tasking::ExecutableItem> removeAutoDetected(
+        const QString &detectionSource, const LogCallback &logCallback) const override
+    {
+        return Tasking::Sync([detectionSource, logCallback]() {
+            PythonSettings::removeDetectedPython(detectionSource, logCallback);
+        });
+    }
+
+    void listAutoDetected(
+        const QString &detectionSource, const LogCallback &logCallback) const override
+    {
+        PythonSettings::listDetectedPython(detectionSource, logCallback);
     }
 };
 

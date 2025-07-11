@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
 #include <solutions/tasking/tasktreerunner.h>
@@ -26,6 +27,12 @@ public:
     static Interpreter defaultInterpreter();
     static Interpreter interpreter(const QString &interpreterId);
     static void setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId);
+    static Interpreter createInterpreter(
+        const Utils::FilePath &python,
+        const QString &defaultName,
+        const QString &suffix = {},
+        const QString &detectionSource = {});
+
     static void addInterpreter(const Interpreter &interpreter, bool isDefault = false);
     static Interpreter addInterpreter(const Utils::FilePath &interpreterPath,
                                       bool isDefault = false,
@@ -47,20 +54,16 @@ public:
     static void addKitsForInterpreter(const Interpreter &interpreter, bool force);
     static void removeKitsForInterpreter(const Interpreter &interpreter);
     static bool interpreterIsValid(const Interpreter &interpreter);
+    static void removeDetectedPython(
+        const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
+    static void listDetectedPython(
+        const QString &detectionSource, const ProjectExplorer::LogCallback &logCallback);
 
 signals:
     void interpretersChanged(const QList<Interpreter> &interpreters, const QString &defaultId);
     void pylsConfigurationChanged(const QString &configuration);
     void pylsEnabledChanged(const bool enabled);
     void virtualEnvironmentCreated(const Utils::FilePath &venvPython);
-
-public slots:
-    void detectPythonOnDevice(const Utils::FilePaths &searchPaths,
-                              const QString &deviceName,
-                              const QString &detectionSource,
-                              QString *logMessage);
-    void removeDetectedPython(const QString &detectionSource, QString *logMessage);
-    void listDetectedPython(const QString &detectionSource, QString *logMessage);
 
 private:
     void disableOutdatedPyls();

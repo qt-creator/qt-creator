@@ -61,13 +61,16 @@ using namespace Utils;
 
 namespace Python::Internal {
 
-static Interpreter createInterpreter(const FilePath &python,
-                                     const QString &defaultName,
-                                     const QString &suffix = {})
+Interpreter PythonSettings::createInterpreter(
+    const FilePath &python,
+    const QString &defaultName,
+    const QString &suffix,
+    const QString &detectionSource)
 {
     Interpreter result;
     result.id = QUuid::createUuid().toString();
     result.command = python;
+    result.detectionSource = detectionSource;
 
     Process pythonProcess;
     pythonProcess.setProcessChannelMode(QProcess::MergedChannels);
@@ -636,7 +639,7 @@ static void pythonsFromRegistry(QPromise<QList<Interpreter>> &promise)
             const FilePath &path = FilePath::fromUserInput(regVal.toString());
             const FilePath python = path.pathAppended("python").withExecutableSuffix();
             if (python.exists())
-                pythons << createInterpreter(python, "Python " + versionGroup);
+                pythons << PythonSettings::createInterpreter(python, "Python " + versionGroup);
         }
         pythonRegistry.endGroup();
     }
@@ -655,7 +658,7 @@ static void pythonsFromPath(QPromise<QList<Interpreter>> &promise)
             if (executable.toFileInfo().size() == 0)
                 continue;
             if (executable.exists())
-                pythons << createInterpreter(executable, "Python from Path");
+                pythons << PythonSettings::createInterpreter(executable, "Python from Path");
         }
     } else {
         const QStringList filters = {"python",
@@ -673,7 +676,7 @@ static void pythonsFromPath(QPromise<QList<Interpreter>> &promise)
                 const FilePath executable = FilePath::fromUserInput(fi.canonicalFilePath());
                 if (!used.contains(executable) && executable.exists()) {
                     used.insert(executable);
-                    pythons << createInterpreter(executable, "Python from Path");
+                    pythons << PythonSettings::createInterpreter(executable, "Python from Path");
                 }
             }
         }
@@ -1093,43 +1096,20 @@ void PythonSettings::writeToSettings(QtcSettings *settings)
     settings->endGroup();
 }
 
-void PythonSettings::detectPythonOnDevice(const Utils::FilePaths &searchPaths,
-                                          const QString &deviceName,
-                                          const QString &detectionSource,
-                                          QString *logMessage)
+void PythonSettings::removeDetectedPython(
+    const QString &detectionSource, const LogCallback &logCallback)
 {
-    QStringList messages{Tr::tr("Searching Python binaries...")};
-    auto alreadyConfigured = interpreterOptionsPage().interpreters();
-    for (const FilePath &path : searchPaths) {
-        const FilePath python = path.pathAppended("python3").withExecutableSuffix();
-        if (!python.isExecutableFile())
-            continue;
-        if (Utils::contains(alreadyConfigured, Utils::equal(&Interpreter::command, python)))
-            continue;
-        auto interpreter = createInterpreter(python, "Python on", "on " + deviceName);
-        interpreter.detectionSource = detectionSource;
-        interpreterOptionsPage().addInterpreter(interpreter);
-        messages.append(Tr::tr("Found \"%1\" (%2)").arg(interpreter.name, python.toUserOutput()));
-    }
-    if (logMessage)
-        *logMessage = messages.join('\n');
-}
-
-void PythonSettings::removeDetectedPython(const QString &detectionSource, QString *logMessage)
-{
-    if (logMessage)
-        logMessage->append(Tr::tr("Removing Python") + '\n');
+    for (Interpreter &interpreter : interpreterOptionsPage().interpreterFrom(detectionSource))
+        logCallback(Tr::tr("Removing Python: %1").arg(interpreter.name));
 
     interpreterOptionsPage().removeInterpreterFrom(detectionSource);
 }
 
-void PythonSettings::listDetectedPython(const QString &detectionSource, QString *logMessage)
+void PythonSettings::listDetectedPython(
+    const QString &detectionSource, const LogCallback &logCallback)
 {
-    if (!logMessage)
-        return;
-    logMessage->append(Tr::tr("Python:") + '\n');
     for (Interpreter &interpreter: interpreterOptionsPage().interpreterFrom(detectionSource))
-        logMessage->append(interpreter.name + '\n');
+        logCallback(Tr::tr("Python: %1").arg(interpreter.name));
 }
 
 void PythonSettings::fixupPythonKits()
