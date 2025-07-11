@@ -23,6 +23,8 @@
 
 #include <diffeditor/diffeditorconstants.h>
 
+#include <solutions/tasking/conditional.h>
+
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -1451,19 +1453,33 @@ void GitClient::reset(const FilePath &workingDirectory, const QString &argument,
         arguments << commit;
 
     RunFlags flags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
-    if (argument == "--hard") {
-        if (gitStatus(workingDirectory, StatusMode(NoUntracked | NoSubmodules)) != StatusResult::Unchanged) {
-            if (QMessageBox::question(
-                        Core::ICore::dialogParent(), Tr::tr("Reset"),
-                        Tr::tr("All changes in working directory will be discarded. Are you sure?"),
-                        QMessageBox::Yes | QMessageBox::No,
-                        QMessageBox::No) == QMessageBox::No) {
-                return;
-            }
-        }
+    if (argument == "--hard")
         flags |= RunFlags::ExpectRepoChanges;
-    }
-    enqueueCommand({workingDirectory, arguments, flags});
+
+    const auto isHard = [argument] { return argument == "--hard"; };
+
+    const Storage<StatusResultData> statusResultStorage;
+
+    const auto onStatusDone = [statusResultStorage] {
+        if (statusResultStorage->result == StatusResult::Unchanged)
+            return true;
+
+        return QMessageBox::question(
+                   Core::ICore::dialogParent(), Tr::tr("Reset"),
+                   Tr::tr("All changes in working directory will be discarded. Are you sure?"),
+                   QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes;
+    };
+
+    const Group recipe {
+        If (isHard) >> Then {
+            statusResultStorage,
+            statusTask(workingDirectory, StatusMode(NoUntracked | NoSubmodules), statusResultStorage),
+            onGroupDone(onStatusDone, CallDoneIf::Success)
+        },
+        commandTask({workingDirectory, arguments, flags})
+    };
+
+    enqueueTask(recipe);
 }
 
 void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, const QString &remote)
