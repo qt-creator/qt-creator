@@ -670,9 +670,12 @@ void IssuesWidget::leaveOrEnterDashboardMode(bool byLocalBuildButton)
 {
     GuardLocker lock(m_signalBlocker);
 
+    checkForLocalBuildAndUpdate();
+
     switch (currentDashboardMode()) {
     case DashboardMode::Global:
         m_versionsStack->setCurrentIndex(int(DashboardMode::Global));
+        m_localDashBoard->setChecked(false);
         if (!byLocalBuildButton) {
             QTC_ASSERT(currentDashboardInfo(), reinitProjectList(m_currentProject); return);
             m_issuesView->showProgressIndicator();
@@ -681,7 +684,6 @@ void IssuesWidget::leaveOrEnterDashboardMode(bool byLocalBuildButton)
             return;
         }
 
-        m_localDashBoard->setChecked(false);
         fetchNamedFilters(DashboardMode::Global);
         fetchTable();
         break;
@@ -1314,12 +1316,15 @@ void IssuesWidget::requestFocusForIssuesTable()
 
 void IssuesWidget::switchDashboard(bool local)
 {
+    m_localDashBoard->setEnabled(false); // avoid re-trigger while switching
+
     if (local) {
         QTC_ASSERT(!m_currentProject.isEmpty(), return);
-        auto callback = [] { switchDashboardMode(DashboardMode::Local, true); };
+        auto onSuccess = [] { switchDashboardMode(DashboardMode::Local, true); };
+        auto onFail = [this] { m_localDashBoard->setEnabled(true); };
         m_issuesView->showProgressIndicator();
         setFiltersEnabled(false);
-        startLocalDashboard(m_currentProject, callback);
+        startLocalDashboard(m_currentProject, onSuccess, onFail);
     } else {
         switchDashboardMode(DashboardMode::Global, true);
     }

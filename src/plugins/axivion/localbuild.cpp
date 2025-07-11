@@ -81,7 +81,8 @@ public:
     std::optional<LocalDashboardAccess> localDashboardAccessFor(const QString &projectName) const;
 
     void startDashboard(const QString &projectName, const LocalDashboard &dashboard,
-                        const std::function<void()> &callback);
+                        const std::function<void()> &onSuccess,
+                        const std::function<void()> &onFail);
     bool shutdownAll(const std::function<void()> &callback);
 
     bool startLocalBuildFor(const QString &projectName);
@@ -117,7 +118,8 @@ private:
 };
 
 void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard &dashboard,
-                                const std::function<void()> &callback)
+                                const std::function<void()> &onSuccess,
+                                const std::function<void()> &onFail)
 {
     if (ExtensionSystem::PluginManager::isShuttingDown())
         return;
@@ -127,7 +129,8 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
         process.setEnvironment(dash.environment);
     };
 
-    const auto onDone = [this, callback, dash = dashboard, projectName] (const Process &process) {
+    const auto onDone
+            = [this, onSuccess, onFail, dash = dashboard, projectName](const Process &process) {
         const auto onFinish = qScopeGuard([this, projectName] {
             auto it = m_startedDashboardTrees.find(projectName);
             QTC_ASSERT(it != m_startedDashboardTrees.end(), return);
@@ -141,6 +144,8 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
                 showErrorMessage(Tr::tr("Failed to start local dashboard."));
             else
                 showErrorMessage(errOutput);
+            if (onFail)
+                onFail();
             return;
         }
         const QString output = process.cleanedStdOut();
@@ -159,8 +164,8 @@ void LocalBuild::startDashboard(const QString &projectName, const LocalDashboard
         updated.pass = data.value("password").toString().toUtf8();
 
         m_startedDashboards.insert(updated.id, updated);
-        if (callback)
-            callback();
+        if (onSuccess)
+            onSuccess();
     };
 
     m_startedDashboards.insert(dashboard.id, dashboard);
@@ -307,21 +312,29 @@ static CommandLine parseCommandLine(const QString &jsonArrayCmd)
     return CommandLine{FilePath::fromUserInput(first).withExecutableSuffix(), fullCommand};
 }
 
-void startLocalDashboard(const QString &projectName, const std::function<void ()> &callback)
+void startLocalDashboard(const QString &projectName,
+                         const std::function<void ()> &onSuccess,
+                         const std::function<void ()> &onFail)
 {
     QSqlDatabase db = localDashboardDB();
+    bool failed = false;
+    auto cleanup = qScopeGuard([&db, &failed, onFail]{
+        if (db.isValid())
+            db.close();
+        if (failed && onFail)
+            onFail();
+    });
     QTC_ASSERT(db.isValid(), return); // we should be here only if we had some valid db before
     if (!db.open()) {
         qCDebug(sqlLog) << "open db failed" << db.lastError().text();
         return;
     }
-    auto cleanup = qScopeGuard([&db]{ db.close(); });
 
     QSqlQuery query(db);
     query.prepare("SELECT ID, Dashboard_Start_Command_Line, Dashboard_Stop_Command_Line "
                   "FROM axLocalProjects WHERE Remote_Project_Name=(:projectName)");
     query.bindValue(":projectName", projectName);
-    if (!query.exec() || !query.next())
+    if ((failed = !query.exec()) || (failed = !query.next()))
         return;
 
     const QString id = query.value("ID").toString();
@@ -331,7 +344,7 @@ void startLocalDashboard(const QString &projectName, const std::function<void ()
     query.prepare("SELECT Name, Value FROM axDashboardEnvironments WHERE LocalProject_ID=(:id)");
     query.bindValue(":id", id);
 
-    if (!query.exec())
+    if ((failed = !query.exec()))
         return;
 
     const QString userAgent("Axivion" + QCoreApplication::applicationName() +
@@ -355,7 +368,7 @@ void startLocalDashboard(const QString &projectName, const std::function<void ()
     const CommandLine stop = parseCommandLine(stopCmdLine);
 
     LocalDashboard localDashboard{id, start, stop, env, {}, {}, {}, {}};
-    s_localBuildInstance.startDashboard(projectName, localDashboard, callback);
+    s_localBuildInstance.startDashboard(projectName, localDashboard, onSuccess, onFail);
 }
 
 class LocalBuildDialog : public QDialog

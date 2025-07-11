@@ -15,7 +15,9 @@ struct LocalDashboardAccess
 };
 
 void checkForLocalBuildResults(const QString &projectName, const std::function<void()> &callback);
-void startLocalDashboard(const QString &projectName, const std::function<void()> &callback);
+void startLocalDashboard(const QString &projectName,
+                         const std::function<void()> &onSuccess,
+                         const std::function<void()> &onFail);
 bool shutdownAllLocalDashboards(const std::function<void()> &callback);
 
 std::optional<LocalDashboardAccess> localDashboardAccessFor(const QString &projectName);
