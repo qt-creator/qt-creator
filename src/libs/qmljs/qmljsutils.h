@@ -5,9 +5,9 @@
 
 #include "parser/qmljsastfwd_p.h"
 #include "parser/qmljsdiagnosticmessage_p.h"
-#include "parser/qmljsengine_p.h"
 #include "qmljs_global.h"
 #include "qmljsconstants.h"
+
 #include <utils/filepath.h>
 
 QT_FORWARD_DECLARE_CLASS(QColor)
@@ -19,7 +19,7 @@ QMLJS_EXPORT QString toString(AST::UiQualifiedId *qualifiedId,
                               const QChar delimiter = QLatin1Char('.'));
 
 QMLJS_EXPORT SourceLocation locationFromRange(const SourceLocation &start,
-                                                   const SourceLocation &end);
+                                              const SourceLocation &end);
 
 QMLJS_EXPORT SourceLocation fullLocationForQualifiedId(AST::UiQualifiedId *);
 
@@ -37,9 +37,9 @@ QMLJS_EXPORT DiagnosticMessage errorMessage(const SourceLocation &loc,
 QMLJS_EXPORT bool maybeModuleVersion(const QString &version);
 
 QMLJS_EXPORT const QStringList splitVersion(const QString &version);
-QMLJS_EXPORT QList<Utils::FilePath> modulePaths(const QString &moduleImportName,
-                                                const QString &version,
-                                                const QList<Utils::FilePath> &importPaths);
+QMLJS_EXPORT Utils::FilePaths modulePaths(const QString &moduleImportName,
+                                          const QString &version,
+                                          const Utils::FilePaths &importPaths);
 
 template <class T>
 SourceLocation locationFromRange(const T *node)

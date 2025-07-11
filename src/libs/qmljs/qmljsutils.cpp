@@ -12,8 +12,10 @@
 #include <QDir>
 #include <QRegularExpression>
 
-using namespace QmlJS;
 using namespace QmlJS::AST;
+using namespace Utils;
+
+namespace QmlJS {
 
 /*!
   \namespace QmlJS
@@ -57,7 +59,7 @@ public:
 } // anonymous namespace
 Q_GLOBAL_STATIC(SharedData, sharedData)
 
-QColor QmlJS::toQColor(const QString &qmlColorString)
+QColor toQColor(const QString &qmlColorString)
 {
     QColor color;
     if (qmlColorString.size() == 9 && qmlColorString.at(0) == QLatin1Char('#')) {
@@ -77,7 +79,7 @@ QColor QmlJS::toQColor(const QString &qmlColorString)
     return color;
 }
 
-QString QmlJS::toString(UiQualifiedId *qualifiedId, QChar delimiter)
+QString toString(UiQualifiedId *qualifiedId, QChar delimiter)
 {
     QString result;
 
@@ -91,9 +93,7 @@ QString QmlJS::toString(UiQualifiedId *qualifiedId, QChar delimiter)
     return result;
 }
 
-
-SourceLocation QmlJS::locationFromRange(const SourceLocation &start,
-                                        const SourceLocation &end)
+SourceLocation locationFromRange(const SourceLocation &start, const SourceLocation &end)
 {
     return SourceLocation(start.offset,
                           end.end() - start.begin(),
@@ -101,7 +101,7 @@ SourceLocation QmlJS::locationFromRange(const SourceLocation &start,
                           start.startColumn);
 }
 
-SourceLocation QmlJS::fullLocationForQualifiedId(AST::UiQualifiedId *qualifiedId)
+SourceLocation fullLocationForQualifiedId(AST::UiQualifiedId *qualifiedId)
 {
     SourceLocation start = qualifiedId->identifierToken;
     SourceLocation end = qualifiedId->identifierToken;
@@ -119,7 +119,7 @@ SourceLocation QmlJS::fullLocationForQualifiedId(AST::UiQualifiedId *qualifiedId
 
     \a idBinding is optional out parameter to get the UiScriptBinding for the id binding.
 */
-QString QmlJS::idOfObject(Node *object, UiScriptBinding **idBinding)
+QString idOfObject(Node *object, UiScriptBinding **idBinding)
 {
     if (idBinding)
         *idBinding = nullptr;
@@ -155,7 +155,7 @@ QString QmlJS::idOfObject(Node *object, UiScriptBinding **idBinding)
 /*!
     \returns the UiObjectInitializer if \a object is a UiObjectDefinition or UiObjectBinding, otherwise 0
 */
-UiObjectInitializer *QmlJS::initializerOfObject(Node *object)
+UiObjectInitializer *initializerOfObject(Node *object)
 {
     if (UiObjectDefinition *definition = cast<UiObjectDefinition *>(object))
         return definition->initializer;
@@ -164,7 +164,7 @@ UiObjectInitializer *QmlJS::initializerOfObject(Node *object)
     return nullptr;
 }
 
-UiQualifiedId *QmlJS::qualifiedTypeNameId(Node *node)
+UiQualifiedId *qualifiedTypeNameId(Node *node)
 {
     if (UiObjectBinding *binding = AST::cast<UiObjectBinding *>(node))
         return binding->qualifiedTypeNameId;
@@ -173,14 +173,12 @@ UiQualifiedId *QmlJS::qualifiedTypeNameId(Node *node)
     return nullptr;
 }
 
-DiagnosticMessage QmlJS::errorMessage(const SourceLocation &loc, const QString &message)
+DiagnosticMessage errorMessage(const SourceLocation &loc, const QString &message)
 {
     return DiagnosticMessage(Severity::Error, loc, message);
 }
 
-namespace {
 const QString undefinedVersion = QLatin1String("-1.-1");
-}
 
 /*!
  * \brief Permissive validation of a string representing a module version.
@@ -188,12 +186,12 @@ const QString undefinedVersion = QLatin1String("-1.-1");
  * \return True if \p version is a valid version format (<digit(s)>.<digit(s)>), if it is the
  *         undefined version (-1.-1) or if it is empty.  False otherwise.
  */
-bool QmlJS::maybeModuleVersion(const QString &version) {
+bool maybeModuleVersion(const QString &version) {
     static const QRegularExpression re(QLatin1String("^\\d+\\.-?\\d+$"));
     return version.isEmpty() || version == undefinedVersion || re.match(version).hasMatch();
 }
 
-const QStringList QmlJS::splitVersion(const QString &version)
+const QStringList splitVersion(const QString &version)
 {
     // Successively removing minor and major version numbers.
     QStringList result;
@@ -236,9 +234,7 @@ const QStringList QmlJS::splitVersion(const QString &version)
  * \return The module paths if found, an empty string otherwise
  * \see qmlimportscanner in qtdeclarative/tools
  */
-QList<Utils::FilePath> QmlJS::modulePaths(const QString &name,
-                                          const QString &version,
-                                          const QList<Utils::FilePath> &importPaths)
+FilePaths modulePaths(const QString &name, const QString &version, const FilePaths &importPaths)
 {
     Q_ASSERT(maybeModuleVersion(version));
     if (importPaths.isEmpty())
@@ -248,11 +244,11 @@ QList<Utils::FilePath> QmlJS::modulePaths(const QString &name,
     const QStringList parts = name.split('.', Qt::SkipEmptyParts);
     auto mkpath = [](const QStringList &xs) -> QString { return xs.join(QLatin1Char('/')); };
 
-    QList<Utils::FilePath> result;
-    Utils::FilePath candidate;
+    FilePaths result;
+    FilePath candidate;
 
     for (const QString &versionPart : splitVersion(sanitizedVersion)) {
-        for (const Utils::FilePath &path : importPaths) {
+        for (const FilePath &path : importPaths) {
             for (int i = parts.count() - 1; i >= 0; --i) {
                 candidate = path.pathAppended(QString::fromLatin1("%2.%3/%4")
                                                   .arg(mkpath(parts.mid(0, i + 1)),
@@ -266,7 +262,7 @@ QList<Utils::FilePath> QmlJS::modulePaths(const QString &name,
     }
 
     // Version is empty
-    for (const Utils::FilePath &path : importPaths) {
+    for (const FilePath &path : importPaths) {
         candidate = path.pathAppended(mkpath(parts)).cleanPath();
         if (candidate.exists())
             result << candidate;
@@ -275,8 +271,9 @@ QList<Utils::FilePath> QmlJS::modulePaths(const QString &name,
     return result;
 }
 
-bool QmlJS::isValidBuiltinPropertyType(const QString &name)
+bool isValidBuiltinPropertyType(const QString &name)
 {
     return sharedData()->validBuiltinPropertyNames.contains(name);
 }
 
+} // QmlJS

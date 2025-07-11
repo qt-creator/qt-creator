@@ -24,7 +24,7 @@ struct QMLJS_EXPORT ViewerContext
 
     QStringList selectors;
     std::set<Utils::FilePath> paths;
-    QList<Utils::FilePath> applicationDirectories;
+    Utils::FilePaths applicationDirectories;
     Dialect language = Dialect::Qml;
     Flags flags = AddAllPaths;
 };
