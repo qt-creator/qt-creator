@@ -45,6 +45,8 @@ public:
 
     static bool useCenteredPopupForShortcut();
     static void setUseCenteredPopupForShortcut(bool center);
+    static bool useTabCompletion();
+    static void setUseTabCompletion(bool useTabCompletion);
 
     static void showFilter(ILocatorFilter *filter, LocatorWidget *widget);
 
@@ -65,6 +67,7 @@ private:
     struct Settings
     {
         bool useCenteredPopup = false;
+        bool useTabCompletion = true;
         bool relativePaths = false;
         // only for the default:
         const std::chrono::minutes refreshInterval = std::chrono::minutes(60);
