@@ -576,6 +576,7 @@ LocatorWidget::LocatorWidget(Locator *locator)
     : m_locatorModel(new LocatorModel(this))
     , m_filterMenu(new QMenu(this))
     , m_centeredPopupAction(new QAction(Tr::tr("Open as Centered Popup"), this))
+    , m_useTabCompletion(new QAction(Tr::tr("Use Tab Completion"), this))
     , m_refreshAction(new QAction(Tr::tr("Refresh"), this))
     , m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this))
     , m_fileLineEdit(new FancyLineEdit)
@@ -609,10 +610,14 @@ LocatorWidget::LocatorWidget(Locator *locator)
 
     m_centeredPopupAction->setCheckable(true);
     m_centeredPopupAction->setChecked(Locator::useCenteredPopupForShortcut());
+    m_useTabCompletion->setCheckable(true);
+    m_useTabCompletion->setChecked(Locator::useTabCompletion());
 
     connect(m_filterMenu, &QMenu::aboutToShow, this, [this] {
         m_centeredPopupAction->setChecked(Locator::useCenteredPopupForShortcut());
+        m_useTabCompletion->setChecked(Locator::useTabCompletion());
     });
+
     Utils::addToolTipsToMenu(m_filterMenu);
 
     connect(m_centeredPopupAction, &QAction::toggled, locator, [locator](bool toggled) {
@@ -621,8 +626,10 @@ LocatorWidget::LocatorWidget(Locator *locator)
             QMetaObject::invokeMethod(locator, [] { LocatorManager::show({}); });
         }
     });
+    connect(m_useTabCompletion, &QAction::toggled, locator, &Locator::setUseTabCompletion);
 
     m_filterMenu->addAction(m_centeredPopupAction);
+    m_filterMenu->addAction(m_useTabCompletion);
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
 
@@ -691,6 +698,7 @@ void LocatorWidget::updateFilterList()
     }
     m_filterMenu->addSeparator();
     m_filterMenu->addAction(m_centeredPopupAction);
+    m_filterMenu->addAction(m_useTabCompletion);
     m_filterMenu->addAction(m_refreshAction);
     m_filterMenu->addAction(m_configureAction);
 }
