@@ -597,7 +597,7 @@ void DockWidget::toggleViewInternal(bool open)
     if (d->m_dockArea)
         d->m_dockArea->toggleDockWidgetView(this, open);
 
-    if (d->m_dockArea->isAutoHide())
+    if (d->m_dockArea && d->m_dockArea->isAutoHide())
         d->m_dockArea->autoHideDockContainer()->toggleView(open);
 
     if (open && topLevelDockWidgetBefore)

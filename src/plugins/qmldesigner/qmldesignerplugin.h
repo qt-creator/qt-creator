@@ -22,6 +22,10 @@ namespace Core {
     class IEditor;
 }
 
+namespace ADS {
+    class DockManager;
+}
+
 namespace QmlDesigner {
 
 namespace DeviceShare {
@@ -63,6 +67,7 @@ public:
 
     static DesignerSettings &settings();
     static ExternalDependenciesInterface &externalDependenciesForPluginInitializationOnly(); // if you use it your code smells
+    static ADS::DockManager *dockManagerForPluginInitializationOnly();
 
     DesignDocument *currentDesignDocument() const;
     Internal::DesignModeWidget *mainWidget() const;

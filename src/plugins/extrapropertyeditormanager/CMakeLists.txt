@@ -3,7 +3,7 @@ add_qtc_plugin(ExtraPropertyEditorManager
   PLUGIN_DEPENDS
     QtCreator::QmlDesigner QmlDesigner
   DEPENDS
-    Qt::Core Qt::CorePrivate Qt6::Qml QtCreator::Utils
+    Qt::Core Qt::CorePrivate Qt6::Qml QtCreator::Utils AdvancedDockingSystem
   SOURCES
     extrapropertyeditoraction.cpp extrapropertyeditoraction.h
     extrapropertyeditormanagerplugin.cpp

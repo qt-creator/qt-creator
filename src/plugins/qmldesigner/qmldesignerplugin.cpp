@@ -1069,6 +1069,13 @@ ExternalDependenciesInterface &QmlDesignerPlugin::externalDependenciesForPluginI
     return instance()->d->externalDependencies;
 }
 
+ADS::DockManager *QmlDesignerPlugin::dockManagerForPluginInitializationOnly()
+{
+    NanotraceHR::Tracer tracer{"qml designer plugin dock manager", category()};
+
+    return m_instance->d->mainWidget.dockManager();
+}
+
 DesignerSettings &QmlDesignerPlugin::settings()
 {
     NanotraceHR::Tracer tracer{"qml designer plugin settings", category()};

@@ -24,6 +24,17 @@ static constexpr char mainPropertyEditorId[] = "Properties";
  * The action is specialized to be used for PropertyEditorView and its action.
  */
 
+static bool isViewClosed(AbstractView *view)
+{
+    if (!view->hasWidget())
+        return true;
+    if (auto dockManager = QmlDesignerPlugin::dockManagerForPluginInitializationOnly()) {
+        if (auto dockWidget = dockManager->findDockWidget(view->widgetInfo().uniqueId))
+            return dockWidget->isClosed();
+    }
+    return true;
+}
+
 ExtraPropertyEditorAction::ExtraPropertyEditorAction(QObject *parent)
     : QAction("Properties", parent)
 {
@@ -134,7 +145,7 @@ void ExtraPropertyEditorAction::uncheckIfAllWidgetsHidden()
         return;
 
     for (PropertyEditorView *view : std::as_const(m_views)) {
-        if (auto w = view->widgetInfo().widget; w && w->isVisible())
+        if (!isViewClosed(view))
             return;
     }
     setChecked(false);
