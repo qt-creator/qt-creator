@@ -132,14 +132,17 @@ public:
                                 const QLocale *locale = nullptr,
                                 ProjectBase *project = nullptr,
                                 QrcResourceSelector resources = AllQrcResources);
-    QStringList filesAtQrcPath(const QString &path, const QLocale *locale = nullptr,
-                               ProjectBase *project = nullptr,
-                               QrcResourceSelector resources = AllQrcResources);
-    QMap<QString, QStringList> filesInQrcPath(const QString &path,
-                                              const QLocale *locale = nullptr,
-                                              ProjectBase *project = nullptr,
-                                              bool addDirs = false,
-                                              QrcResourceSelector resources = AllQrcResources);
+    Utils::FilePaths filesAtQrcPath(
+        const QString &path,
+        const QLocale *locale = nullptr,
+        ProjectBase *project = nullptr,
+        QrcResourceSelector resources = AllQrcResources);
+    QMap<QString, Utils::FilePaths> filesInQrcPath(
+        const QString &path,
+        const QLocale *locale = nullptr,
+        ProjectBase *project = nullptr,
+        bool addDirs = false,
+        QrcResourceSelector resources = AllQrcResources);
     Utils::FilePath fileToSource(const Utils::FilePath &file);
 
     QList<ProjectInfo> projectInfos() const;

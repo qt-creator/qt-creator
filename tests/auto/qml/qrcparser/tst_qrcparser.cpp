@@ -49,7 +49,7 @@ QStringList tst_QrcParser::allPaths(QrcParser::ConstPtr p)
         QString pAtt = res.at(iPos++);
         if (!pAtt.endsWith(QLatin1Char('/')))
             continue;
-        QMap<QString,QStringList> content;
+        QMap<QString, FilePaths> content;
         p->collectFilesInPath(pAtt, &content, true);
         const QStringList fileNames = content.keys();
         for (const QString &fileName : fileNames)
@@ -64,10 +64,10 @@ void tst_QrcParser::firstAtTest()
     QrcParser::Ptr p = QrcParser::parseQrcFile(FilePath::fromString(path), QString());
     const QStringList paths = allPaths(p);
     for (const QString &qrcPath : paths) {
-        QString s1 = p->firstFileAtPath(qrcPath, m_locale);
+        FilePath s1 = p->firstFileAtPath(qrcPath, m_locale);
         if (s1.isEmpty())
             continue;
-        QStringList l;
+        FilePaths l;
         p->collectFilesAtPath(qrcPath, &l, &m_locale);
         QCOMPARE(l.value(0), s1);
         l.clear();
@@ -85,7 +85,7 @@ void tst_QrcParser::firstInTest()
         if (!qrcPath.endsWith(QLatin1Char('/')))
             continue;
         for (int addDirs = 0; addDirs < 2; ++addDirs) {
-            QMap<QString,QStringList> s1;
+            QMap<QString, FilePaths> s1;
             p->collectFilesInPath(qrcPath, &s1, addDirs, &m_locale);
             const QStringList keys = s1.keys();
             for (const QString &k : keys) {
@@ -93,7 +93,7 @@ void tst_QrcParser::firstInTest()
                     QCOMPARE(s1.value(k).value(0), p->firstFileAtPath(qrcPath + k, m_locale));
                 }
             }
-            QMap<QString,QStringList> s2;
+            QMap<QString, FilePaths> s2;
             p->collectFilesInPath(qrcPath, &s2, addDirs);
             for (const QString &k : keys) {
                 if (!k.endsWith(QLatin1Char('/'))) {
@@ -105,7 +105,7 @@ void tst_QrcParser::firstInTest()
             const QStringList keys2 = s2.keys();
             for (const QString &k : keys2) {
                 if (!k.endsWith(QLatin1Char('/'))) {
-                    QStringList l;
+                    FilePaths l;
                     p->collectFilesAtPath(qrcPath + k, &l);
                     QCOMPARE(s2.value(k), l);
                 } else {
@@ -151,10 +151,10 @@ void tst_QrcParser::simpleTest()
                                    "/images/cut.png", "/images/new.png", "/images/open.png",
                                    "/images/paste.png", "/images/save.png", "/myresources/",
                                    "/myresources/cut-img.png" }));
-    QString frPath = p->firstFileAtPath(QLatin1String("/cut.jpg"), QLocale(QLatin1String("fr_FR")));
+    QString frPath = p->firstFileAtPath(QLatin1String("/cut.jpg"), QLocale(QLatin1String("fr_FR"))).path();
     QString refFrPath = QString::fromLatin1(TESTSRCDIR).append(QLatin1String("/cut_fr.jpg"));
     QCOMPARE(frPath, refFrPath);
-    QString dePath = p->firstFileAtPath(QLatin1String("/cut.jpg"), QLocale(QLatin1String("de_DE")));
+    QString dePath = p->firstFileAtPath(QLatin1String("/cut.jpg"), QLocale(QLatin1String("de_DE"))).path();
     QString refDePath = QString::fromLatin1(TESTSRCDIR).append(QLatin1String("/cut.jpg"));
     QCOMPARE(dePath, refDePath);
 }

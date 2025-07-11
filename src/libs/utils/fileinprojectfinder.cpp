@@ -510,17 +510,16 @@ FilePaths FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
     const auto fileIt = m_fileCache.constFind(fileUrl);
     if (fileIt != m_fileCache.cend())
         return fileIt.value();
-    QStringList hits;
+    FilePaths result;
     for (const FilePath &f : m_allQrcFiles) {
         QrcParser::Ptr &qrcParser = m_parserCache[f];
         if (!qrcParser)
             qrcParser = QrcParser::parseQrcFile(f, QString());
         if (!qrcParser->isValid())
             continue;
-        qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &hits);
+        qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &result);
     }
-    hits.removeDuplicates();
-    const FilePaths result = FilePaths::fromStrings(hits);
+    FilePath::removeDuplicates(result);
     m_fileCache.insert(fileUrl, result);
     return result;
 }

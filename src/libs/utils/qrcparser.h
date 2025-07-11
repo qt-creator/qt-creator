@@ -38,13 +38,17 @@ public:
     ~QrcParser();
 
     bool parseFile(const FilePath &path, const QString &contents);
-    QString firstFileAtPath(const QString &path, const QLocale &locale) const;
-    void collectFilesAtPath(const QString &path, QStringList *res, const QLocale *locale = nullptr) const;
+    FilePath firstFileAtPath(const QString &path, const QLocale &locale) const;
+    void collectFilesAtPath(
+        const QString &path, FilePaths *res, const QLocale *locale = nullptr) const;
     MatchResult longestReverseMatches(const QString &) const;
     bool hasDirAtPath(const QString &path, const QLocale *locale = nullptr) const;
-    void collectFilesInPath(const QString &path, QMap<QString, QStringList> *res, bool addDirs = false,
-                            const QLocale *locale = nullptr) const;
-    void collectResourceFilesForSourceFile(const QString &sourceFile, QStringList *results,
+    void collectFilesInPath(
+        const QString &path,
+        QMap<QString, FilePaths> *res,
+        bool addDirs = false,
+        const QLocale *locale = nullptr) const;
+    void collectResourceFilesForSourceFile(const FilePath &sourceFile, QStringList *results,
                                            const QLocale *locale = nullptr) const;
 
     QStringList errorMessages() const;

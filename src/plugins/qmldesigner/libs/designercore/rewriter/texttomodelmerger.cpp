@@ -2305,10 +2305,10 @@ void TextToModelMerger::populateQrcMapping(const QString &filePath)
     QString path = removeFileFromQrcPath(filePath);
     const QString fileName = fileForFullQrcPath(filePath);
     path.remove(QLatin1String("qrc:"));
-    QMap<QString,QStringList> map = ModelManagerInterface::instance()->filesInQrcPath(path);
-    const QStringList qrcFilePaths = map.value(fileName, {});
+    QMap<QString, Utils::FilePaths> map = ModelManagerInterface::instance()->filesInQrcPath(path);
+    const Utils::FilePaths qrcFilePaths = map.value(fileName, {});
     if (!qrcFilePaths.isEmpty()) {
-        QString fileSystemPath = qrcFilePaths.constFirst();
+        QString fileSystemPath = qrcFilePaths.constFirst().toFSPathString();
         fileSystemPath.remove(fileName);
         if (path.isEmpty())
             path.prepend(QLatin1String("/"));

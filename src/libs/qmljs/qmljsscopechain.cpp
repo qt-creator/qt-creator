@@ -336,7 +336,7 @@ void ScopeChain::initializeRootScope()
                         || (import.type() == ImportType::QrcFile
                             && ModelManagerInterface::instance()
                                    ->filesAtQrcPath(import.path())
-                                   .contains(m_document->fileName().path()))) {
+                                   .contains(m_document->fileName()))) {
                         QmlComponentChain *component = new QmlComponentChain(otherDoc);
                         componentScopes.insert(otherDoc.data(), component);
                         chain->addInstantiatingComponent(component);

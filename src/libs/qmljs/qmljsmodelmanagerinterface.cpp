@@ -543,31 +543,31 @@ QStringList ModelManagerInterface::qrcPathsForFile(const Utils::FilePath &file,
 {
     QStringList res;
     iterateQrcFiles(project, resources, [&](const QrcParser::ConstPtr &qrcFile) {
-        qrcFile->collectResourceFilesForSourceFile(file.toUrlishString(), &res, locale);
+        qrcFile->collectResourceFilesForSourceFile(file, &res, locale);
     });
     return res;
 }
 
-QStringList ModelManagerInterface::filesAtQrcPath(const QString &path, const QLocale *locale,
-                                         ProjectBase *project,
-                                         QrcResourceSelector resources)
+FilePaths ModelManagerInterface::filesAtQrcPath(const QString &path, const QLocale *locale,
+                                                ProjectBase *project,
+                                                QrcResourceSelector resources)
 {
     QString normPath = QrcParser::normalizedQrcFilePath(path);
-    QStringList res;
+    FilePaths res;
     iterateQrcFiles(project, resources, [&](const QrcParser::ConstPtr &qrcFile) {
         qrcFile->collectFilesAtPath(normPath, &res, locale);
     });
     return res;
 }
 
-QMap<QString, QStringList> ModelManagerInterface::filesInQrcPath(const QString &path,
-                                                                 const QLocale *locale,
-                                                                 ProjectBase *project,
-                                                                 bool addDirs,
-                                                                 QrcResourceSelector resources)
+QMap<QString, FilePaths> ModelManagerInterface::filesInQrcPath(const QString &path,
+                                                               const QLocale *locale,
+                                                               ProjectBase *project,
+                                                               bool addDirs,
+                                                               QrcResourceSelector resources)
 {
     QString normPath = QrcParser::normalizedQrcDirectoryPath(path);
-    QMap<QString, QStringList> res;
+    QMap<QString, FilePaths> res;
     iterateQrcFiles(project, resources, [&](const QrcParser::ConstPtr &qrcFile) {
         qrcFile->collectFilesInPath(normPath, &res, addDirs, locale);
     });
@@ -810,22 +810,19 @@ static void findNewFileImports(const Document::Ptr &doc,
                 }
             }
         } else if (import.type() == ImportType::QrcFile) {
-            const QStringList importPaths
+            const FilePaths importPaths
                     = ModelManagerInterface::instance()->filesAtQrcPath(importName);
-            for (const QString &importStr : importPaths) {
-                Utils::FilePath importPath = Utils::FilePath::fromString(importStr);
+            for (const FilePath &importPath : importPaths) {
                 if (!snapshot.document(importPath))
                     *importedFiles += importPath;
             }
         } else if (import.type() == ImportType::QrcDirectory) {
-            const QMap<QString, QStringList> files
+            const QMap<QString, FilePaths> files
                     = ModelManagerInterface::instance()->filesInQrcPath(importName);
             for (auto qrc = files.cbegin(), end = files.cend(); qrc != end; ++qrc) {
-                if (ModelManagerInterface::guessLanguageOfFile(
-                        Utils::FilePath::fromString(qrc.key()))
+                if (ModelManagerInterface::guessLanguageOfFile(FilePath::fromString(qrc.key()))
                         .isQmlLikeOrJsLanguage()) {
-                    for (const QString &sourceFile : qrc.value()) {
-                        auto sourceFilePath = Utils::FilePath::fromString(sourceFile);
+                    for (const FilePath &sourceFilePath : qrc.value()) {
                         if (!snapshot.document(sourceFilePath))
                             *importedFiles += sourceFilePath;
                     }

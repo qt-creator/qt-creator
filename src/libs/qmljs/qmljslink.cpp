@@ -355,7 +355,7 @@ Import LinkPrivate::importFileOrDirectory(const Document::Ptr &doc, const Import
             import.object = importedDoc->bind()->rootObjectValue();
     } else if (importInfo.type() == ImportType::QrcFile) {
         QLocale locale;
-        QStringList filePaths = ModelManagerInterface::instance()
+        FilePaths filePaths = ModelManagerInterface::instance()
                                     ->filesAtQrcPath(pathStr,
                                                      &locale,
                                                      nullptr,
@@ -363,8 +363,7 @@ Import LinkPrivate::importFileOrDirectory(const Document::Ptr &doc, const Import
         if (filePaths.isEmpty())
             filePaths = ModelManagerInterface::instance()->filesAtQrcPath(pathStr);
         if (!filePaths.isEmpty()) {
-            if (Document::Ptr importedDoc = m_snapshot.document(
-                    FilePath::fromString(filePaths.at(0))))
+            if (Document::Ptr importedDoc = m_snapshot.document(filePaths.at(0)))
                 import.object = importedDoc->bind()->rootObjectValue();
         }
     } else if (importInfo.type() == ImportType::QrcDirectory){
@@ -372,13 +371,12 @@ Import LinkPrivate::importFileOrDirectory(const Document::Ptr &doc, const Import
 
         importLibrary(doc, path, &import, import.object);
 
-        const QMap<QString, QStringList> paths = ModelManagerInterface::instance()->filesInQrcPath(
+        const QMap<QString, FilePaths> paths = ModelManagerInterface::instance()->filesInQrcPath(
             pathStr);
         for (auto iter = paths.cbegin(), end = paths.cend(); iter != end; ++iter) {
             if (ModelManagerInterface::guessLanguageOfFile(FilePath::fromString(iter.key()))
                     .isQmlLikeLanguage()) {
-                Document::Ptr importedDoc = m_snapshot.document(
-                    FilePath::fromString(iter.value().at(0)));
+                Document::Ptr importedDoc = m_snapshot.document(iter.value().at(0));
                 if (importedDoc && importedDoc->bind()->rootObjectValue()) {
                     const QString targetName = QFileInfo(iter.key()).baseName();
                     import.object->setMember(targetName, importedDoc->bind()->rootObjectValue());
