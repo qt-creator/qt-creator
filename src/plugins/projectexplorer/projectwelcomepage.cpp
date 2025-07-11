@@ -250,6 +250,11 @@ static void drawBackgroundRect(QPainter *painter, const QRectF &rect, bool hover
 class BaseDelegate : public QAbstractItemDelegate
 {
 public:
+    BaseDelegate(QObject *parent = nullptr)
+        : QAbstractItemDelegate(parent)
+    {
+    }
+
     static QString toolTip(const QModelIndex &idx, int shortcutRole, const QString &entryType)
     {
         const QString name = idx.data(Qt::DisplayRole).toString();
@@ -641,9 +646,10 @@ private:
 class ProjectDelegate : public BaseDelegate
 {
 public:
-    explicit ProjectDelegate()
-        : BaseDelegate()
-    {}
+    ProjectDelegate(QObject *parent = nullptr)
+        : BaseDelegate(parent)
+    {
+    }
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
         const override
@@ -729,6 +735,16 @@ public:
     }
 };
 
+static TreeView *createRecentProjectsTreeView(QWidget *parent = nullptr, const QString &name = {})
+{
+    auto view = new TreeView(parent, name);
+    view->setUniformRowHeights(true);
+    auto *projectDelegate = new ProjectDelegate(view);
+    view->setItemDelegate(projectDelegate);
+    view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    return view;
+}
+
 class SessionsPage : public QWidget
 {
 public:
@@ -775,11 +791,8 @@ public:
         auto projects = new QWidget;
         {
             auto projectsLabel = new QtcLabel(Tr::tr("Projects"), QtcLabel::Primary);
-            auto projectsList = new TreeView(this, "Recent Projects");
-            projectsList->setUniformRowHeights(true);
+            TreeView *projectsList = createRecentProjectsTreeView(this, "Recent Projects");
             projectsList->setModel(projectWelcomePage->m_projectModel);
-            projectsList->setItemDelegate(&m_projectDelegate);
-            projectsList->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
             QSizePolicy projectsSP(QSizePolicy::Expanding, QSizePolicy::Expanding);
             projectsSP.setHorizontalStretch(5);
             projects->setSizePolicy(projectsSP);
@@ -835,7 +848,6 @@ private:
         }
     }
 
-    ProjectDelegate m_projectDelegate;
     ProjectWelcomePage* const m_projectWelcomePage;
     TreeView *m_sessionList;
 };
@@ -847,6 +859,15 @@ QWidget *ProjectWelcomePage::createWidget() const
     that->createActions();
 
     return widget;
+}
+
+QWidget *ProjectWelcomePage::createRecentProjectsView()
+{
+    TreeView *view = createRecentProjectsTreeView();
+    ProjectModel *model = new ProjectModel(view);
+    model->resetProjects();
+    view->setModel(model);
+    return view;
 }
 
 } // namespace Internal

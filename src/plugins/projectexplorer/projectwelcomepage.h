@@ -29,6 +29,8 @@ public:
 
     void reloadWelcomeScreenData() const;
 
+    static QWidget *createRecentProjectsView();
+
 public slots:
     void newProject();
     void openProject();

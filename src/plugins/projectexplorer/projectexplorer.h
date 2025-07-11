@@ -161,6 +161,8 @@ public:
     static void updateRunActions();
     static void updateVcsActions(const QString &vcsDisplayName);
 
+    static QWidget *createRecentProjectsView();
+
     static Core::OutputWindow *buildSystemOutput();
 
 signals:

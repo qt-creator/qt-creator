@@ -4139,6 +4139,11 @@ void ProjectExplorerPlugin::updateVcsActions(const QString &vcsDisplayName)
     dd->m_vcsLogAction->setText(Tr::tr("%1 Log Directory").arg(vcsDisplayName));
 }
 
+QWidget *ProjectExplorerPlugin::createRecentProjectsView()
+{
+    return ProjectWelcomePage::createRecentProjectsView();
+}
+
 OutputWindow *ProjectExplorerPlugin::buildSystemOutput()
 {
     return dd->m_proWindow->buildSystemOutput();
