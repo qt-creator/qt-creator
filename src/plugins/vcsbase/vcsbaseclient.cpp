@@ -299,10 +299,11 @@ bool VcsBaseClient::synchronousMove(const FilePath &workingDir,
 void VcsBaseClient::pull(const FilePath &workingDir, const QString &srcLocation,
                          const QStringList &extraOptions, const CommandHandler &commandHandler)
 {
-    const auto handler = commandHandler ? commandHandler
-                                        : [this, workingDir](const CommandResult &result) {
+    const auto handler = [this, workingDir, commandHandler](const CommandResult &result) {
         if (result.result() == ProcessResult::FinishedWithSuccess)
             emit repositoryChanged(workingDir);
+        if (commandHandler)
+            commandHandler(result);
     };
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions;
