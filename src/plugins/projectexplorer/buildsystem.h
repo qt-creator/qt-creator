@@ -31,8 +31,9 @@ struct TestCaseInfo
 };
 
 // Extra infomation needed by QmlJS tools and editor.
-struct QmlCodeModelInfo
+class QmlCodeModelInfo
 {
+public:
     QList<Utils::FilePath> sourceFiles;
     Utils::FilePaths qmlImportPaths;
     QList<Utils::FilePath> activeResourceFiles;
