@@ -8,32 +8,14 @@
 
     \title Connecting components to signals
 
-    A signal and handler mechanism enables components to respond to application
-    events, which are represented by \e signals. When a signal is emitted, the
-    corresponding \e {signal handler} is invoked to respond to the event by
-    using scripts or other operations placed in the handler.
+    In a \QDS application, \c signals notify components when a user interacts
+    with them.  When a \c signal is emitted, a \c signal handler runs code
+    in response.
 
-    To receive a notification when a particular signal is emitted for a
-    particular component, the component definition should declare a signal handler
-    named \e {on<Signal>} where \e {<Signal>} is the name of the signal, with
-    the first letter capitalized. The signal handler should contain the
-    JavaScript code to be executed when the signal handler is invoked.
-
-    Components have predefined signals that are emitted when users interact with
-    the application. For example, the \l {Mouse Area} component has a \c clicked
-    signal that is emitted whenever the mouse is clicked within the area. Since
-    the signal name is \c clicked, the signal handler for receiving this signal
-    is named \c onClicked.
-
-    A signal is automatically emitted when the value of a property changes.
-    This type of signal is a \e{property change signal} and signal handlers
-    for these signals are written in the form \c on<Property>Changed, where
-    \e <Property> is the name of the property, with the first letter
-    capitalized.
-
-    For example, the Mouse Area component has a \c pressed property. To receive
-    a notification whenever this property changes, you would use a signal handler
-    called \c onPressedChanged.
+    For example, you can define an action for a \uicontrol Button component with
+    a \c clicked signal. To define an action when a button is clicked, use a
+    signal handler called \c onClicked. Then connect it to an \c action that
+    should take place when a user clicks that button.
 
     For more information about signals and signal handlers, see
     \l{Signal and Handler Event System}.
