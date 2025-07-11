@@ -79,8 +79,9 @@ public:
         emitDataChanged(id);
     }
 
-    void commitNewDevices()
+    void commitChanges()
     {
+        m_markedForDeletion.clear();
         m_newDevices.clear();
         emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {Qt::FontRole});
     }
@@ -165,7 +166,7 @@ void DeviceSettingsWidget::apply()
     for (const Id &id : m_deviceProxyModel.markedForDeletion())
         DeviceManager::removeDevice(id);
 
-    m_deviceProxyModel.commitNewDevices();
+    m_deviceProxyModel.commitChanges();
     updateButtons();
 
     saveSettings();
