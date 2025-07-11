@@ -1071,13 +1071,13 @@ EditorView *SplitterOrView::split(Qt::Orientation orientation)
     SplitterOrView *view = nullptr;
     SplitterOrView *otherView = nullptr;
     IEditor *duplicate = e && e->duplicateSupported() ? EditorManagerPrivate::duplicateEditor(e) : nullptr;
-    m_splitter->addWidget((view = new SplitterOrView(duplicate)));
-    m_splitter->addWidget((otherView = new SplitterOrView(editorView)));
+    m_splitter->addWidget((view = new SplitterOrView(editorView)));
+    m_splitter->addWidget((otherView = new SplitterOrView(duplicate)));
 
     m_layout->setCurrentWidget(m_splitter);
 
-    view->view()->copyNavigationHistoryFrom(editorView);
-    view->view()->setCurrentEditor(duplicate);
+    otherView->view()->copyNavigationHistoryFrom(editorView);
+    otherView->view()->setCurrentEditor(duplicate);
 
     if (orientation == Qt::Horizontal) {
         view->view()->setCloseSplitIcon(Utils::Icons::CLOSE_SPLIT_LEFT.icon());
