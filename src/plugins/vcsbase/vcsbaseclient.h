@@ -89,6 +89,7 @@ public:
                          const Utils::CommandLine &command,
                          VcsBaseEditorWidget *editor) const;
     void enqueueTask(const Tasking::ExecutableItem &task);
+    Tasking::ExecutableItem commandTask(const VcsCommandData &data) const;
     void enqueueCommand(const VcsCommandData &data);
 
 protected:

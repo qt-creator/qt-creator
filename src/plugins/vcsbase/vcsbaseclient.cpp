@@ -168,7 +168,7 @@ void VcsBaseClientImpl::enqueueTask(const ExecutableItem &task)
         startNextTask();
 }
 
-void VcsBaseClientImpl::enqueueCommand(const VcsCommandData &data)
+ExecutableItem VcsBaseClientImpl::commandTask(const VcsCommandData &data) const
 {
     const Storage<CommandResult> resultStorage;
 
@@ -190,13 +190,16 @@ void VcsBaseClientImpl::enqueueCommand(const VcsCommandData &data)
             commandHandler(*resultStorage);
     };
 
-    const Group recipe {
+    return Group {
         resultStorage,
         task,
         data.commandHandler ? onGroupDone(onDone) : nullItem
     };
+}
 
-    enqueueTask(recipe);
+void VcsBaseClientImpl::enqueueCommand(const VcsCommandData &data)
+{
+    enqueueTask(commandTask(data));
 }
 
 void VcsBaseClientImpl::startNextTask()
