@@ -2364,6 +2364,44 @@ StatusResult GitClient::gitStatus(const FilePath &workingDirectory, StatusMode m
     return hasChanges ? StatusResult::Changed : StatusResult::Unchanged;
 }
 
+ExecutableItem GitClient::statusTask(const FilePath &workingDirectory, StatusMode mode,
+                                     const Storage<StatusResultData> &resultStorage) const
+{
+    // Run 'status'. Note that git returns exitcode 1 if there are no added files.
+    QStringList arguments = {"status"};
+    if (mode & NoUntracked)
+        arguments << "--untracked-files=no";
+    else
+        arguments << "--untracked-files=all";
+    if (mode & NoSubmodules)
+        arguments << "--ignore-submodules=all";
+    arguments << "--porcelain" << "-b";
+
+    const auto commandHandler = [resultStorage](const CommandResult &result) {
+        StatusResultData &statusResult = *resultStorage;
+        statusResult.output = result.cleanedStdOut();
+
+        const bool statusRc = result.result() == ProcessResult::FinishedWithSuccess;
+        const bool branchKnown = !statusResult.output.startsWith("## HEAD (no branch)\n");
+        // Is it something really fatal?
+        if (!statusRc && !branchKnown) {
+            statusResult.result = StatusResult::Failed;
+            statusResult.errorMessage = Tr::tr("Cannot obtain status: %1").arg(result.cleanedStdErr());
+            return;
+        }
+        // Unchanged (output text depending on whether -u was passed)
+        const bool hasChanges = Utils::contains(statusResult.output.split('\n'), [](const QString &s) {
+            return !s.isEmpty() && !s.startsWith('#');
+        });
+        statusResult.result = hasChanges ? StatusResult::Changed : StatusResult::Unchanged;
+    };
+
+    return Group {
+        resultStorage,
+        commandTask({workingDirectory, arguments, RunFlags::NoOutput, {}, {}, commandHandler})
+    };
+}
+
 QString GitClient::commandInProgressDescription(const FilePath &workingDirectory) const
 {
     switch (checkCommandInProgress(workingDirectory)) {

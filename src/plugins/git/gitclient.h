@@ -89,6 +89,14 @@ struct Author {
 
 enum class StatusResult { Changed, Unchanged, Failed };
 
+class StatusResultData
+{
+public:
+    StatusResult result = StatusResult::Failed;
+    QString output;
+    QString errorMessage;
+};
+
 class GITSHARED_EXPORT GitClient : public VcsBase::VcsBaseClientImpl
 {
 public:
@@ -318,6 +326,9 @@ public:
 
     StatusResult gitStatus(const Utils::FilePath &workingDirectory, StatusMode mode,
                            QString *output = nullptr, QString *errorMessage = nullptr) const;
+
+    Tasking::ExecutableItem statusTask(const Utils::FilePath &workingDirectory, StatusMode mode,
+                                       const Tasking::Storage<StatusResultData> &resultStorage) const;
 
     CommandInProgress checkCommandInProgress(const Utils::FilePath &workingDirectory) const;
     QString commandInProgressDescription(const Utils::FilePath &workingDirectory) const;
