@@ -55,7 +55,7 @@ private:
     bool checkout();
     bool remove();
     bool rename();
-    bool reset(const QByteArray &resetType);
+    void reset(const QByteArray &resetType);
     Tasking::Group fastForwardMergeRecipe(const std::function<void()> &callback);
     bool merge(bool allowFastForward);
     void rebase();

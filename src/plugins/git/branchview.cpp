@@ -520,20 +520,18 @@ bool BranchView::rename()
     return false;
 }
 
-bool BranchView::reset(const QByteArray &resetType)
+void BranchView::reset(const QByteArray &resetType)
 {
     const QString currentName = m_model->fullName(m_model->currentBranch());
     const QString branchName = m_model->fullName(selectedIndex());
     if (currentName.isEmpty() || branchName.isEmpty())
-        return false;
+        return;
 
     if (QMessageBox::question(this, Tr::tr("Git Reset"), Tr::tr("Reset branch \"%1\" to \"%2\"?")
                               .arg(currentName, branchName),
                               QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
         gitClient().reset(m_repository, QLatin1String("--" + resetType), branchName);
-        return true;
     }
-    return false;
 }
 
 Group BranchView::fastForwardMergeRecipe(const std::function<void()> &callback)
