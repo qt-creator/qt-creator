@@ -92,8 +92,9 @@ static Result<> analysisPathValid(const FilePath &analysisPath)
     if (analysisPath.isEmpty())
         return ResultOk;
 
-    if (!analysisPath.isLocal() || analysisPath.isAbsolutePath())
-        return ResultError(Tr::tr("Path must be relative."));
+    // FIXME enable on master
+    // if (!analysisPath.isLocal())
+    //     return ResultError(Tr::tr("Analysis path must be local."));
 
     static const QRegularExpression invalid("^(.*/)?\\.\\.?(/.*)?$");
     if (invalid.match(analysisPath.path()).hasMatch())
@@ -208,14 +209,32 @@ public:
     {
         QTC_ASSERT(!projectName.isEmpty(), return {});
         QTC_ASSERT(filePath.exists(), return {});
+        FilePath fallback;
+
+        auto handleRelativeAnalysisPath = [](const PathMapping &pm, const FilePath &filePath) {
+            const FilePath sub = filePath.relativeChildPath(pm.localPath);
+            if (pm.analysisPath.isEmpty())
+                return sub;
+            else
+                return pm.analysisPath.pathAppended(sub.path());
+        };
+
         for (const PathMapping &pm : m_pathMapping) {
             if (pm.isValid() && projectName == pm.projectName) {
-                FilePath localPath = pm.localPath.pathAppended(pm.analysisPath.path());
-                if (filePath.isChildOf(localPath))
-                   return filePath.relativeChildPath(localPath);
+                if (pm.analysisPath.isAbsolutePath()) {
+                    if (auto childPath = filePath.prefixRemoved(pm.localPath.path())) {
+                        return pm.analysisPath.pathAppended(childPath->path());
+                    }
+                } else {
+                    if (filePath.isChildOf(pm.localPath))
+                        return handleRelativeAnalysisPath(pm, filePath);
+                }
+            } else if (fallback.isEmpty()) {
+                if (filePath.isChildOf(pm.localPath))
+                    fallback = handleRelativeAnalysisPath(pm, filePath);
             }
         }
-        return {};
+        return fallback;
     }
 
     FilePath localProjectForProjectName(const QString &projectName) const
@@ -568,7 +587,7 @@ public:
     void updateContent(const PathMapping &mapping)
     {
         m_projectName.setValue(mapping.projectName, BaseAspect::BeQuiet);
-        m_analysisPath.setValue(mapping.analysisPath.toUserOutput(), BaseAspect::BeQuiet);
+        m_analysisPath.setValue(mapping.analysisPath.path(), BaseAspect::BeQuiet);
         m_localPath.setValue(mapping.localPath, BaseAspect::BeQuiet);
     }
 
@@ -703,7 +722,7 @@ AxivionSettingsWidget::AxivionSettingsWidget()
                                                             [this](const PathMapping &m) {
         QTreeWidgetItem *item = new QTreeWidgetItem(&m_mappingTree,
                                                     {m.projectName,
-                                                     m.analysisPath.toUserOutput(),
+                                                     m.analysisPath.path(),
                                                      m.localPath.toUserOutput()});
         if (!m.isValid())
             item->setIcon(0, Icons::CRITICAL.icon());
@@ -854,7 +873,7 @@ void AxivionSettingsWidget::mappingChanged()
     QTC_ASSERT(item, return);
     PathMapping modified = m_details.toPathMapping();
     item->setText(0, modified.projectName);
-    item->setText(1, modified.analysisPath.toUserOutput());
+    item->setText(1, modified.analysisPath.path());
     item->setText(2, modified.localPath.toUserOutput());
     item->setIcon(0, modified.isValid() ? QIcon{} : Icons::CRITICAL.icon());
 }

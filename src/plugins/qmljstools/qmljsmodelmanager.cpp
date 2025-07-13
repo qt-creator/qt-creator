@@ -47,6 +47,8 @@
 #include <QTimer>
 #include <QSet>
 
+#include <queue>
+
 using namespace Utils;
 using namespace Core;
 using namespace ProjectExplorer;

@@ -882,6 +882,16 @@ InfoBar *ICore::popupInfoBar()
     return ProgressManagerPrivate::popupInfoBar();
 }
 
+static void setRestartRequested(bool restart)
+{
+    qApp->setProperty("restart", restart);
+}
+
+static bool isRestartRequested()
+{
+    return qApp->property("restart").toBool();
+}
+
 /*!
     Shows a modal dialog that asks the user if they want to restart \QC.
 
@@ -895,6 +905,8 @@ InfoBar *ICore::popupInfoBar()
 */
 bool ICore::askForRestart(const QString &text, const QString &altButtonText)
 {
+    if (isRestartRequested())
+        return true;
     QMessageBox mb(dialogParent());
     mb.setWindowTitle(Tr::tr("Restart Required"));
     mb.setText(text);
@@ -905,7 +917,7 @@ bool ICore::askForRestart(const QString &text, const QString &altButtonText)
     mb.addButton(translatedAltButtonText, QMessageBox::NoRole);
     mb.addButton(Tr::tr("Restart Now"), QMessageBox::YesRole);
 
-    mb.connect(&mb, &QDialog::accepted, ICore::instance(), &ICore::restart, Qt::QueuedConnection);
+    mb.connect(&mb, &QDialog::accepted, ICore::instance(), &ICore::restart);
     mb.exec();
 
     return mb.buttonRole(mb.clickedButton()) == QMessageBox::YesRole;
@@ -1136,22 +1148,14 @@ void ICore::setupScreenShooter(const QString &name, QWidget *w, const QRect &rc)
         new ScreenShooter(w, name, rc);
 }
 
-static void setRestart(bool restart)
-{
-    qApp->setProperty("restart", restart);
-}
-
-static bool isRestartRequested()
-{
-    return qApp->property("restart").toBool();
-}
-
 /*!
     Restarts \QC and restores the last session.
 */
 void ICore::restart()
 {
-    setRestart(true);
+    if (isRestartRequested())
+        return;
+    setRestartRequested(true);
     exit();
 }
 
@@ -1218,8 +1222,10 @@ void ICore::saveSettings(SaveSettingsReason reason)
                 StyleHelper::requestedBaseColor(),
                 QColor(StyleHelper::DEFAULT_BASE_COLOR));
 
-        if (Internal::globalMenuBar() && !Internal::globalMenuBar()->isNativeMenuBar())
+        if (d->m_mainwindow->isVisible() && Internal::globalMenuBar()
+            && !Internal::globalMenuBar()->isNativeMenuBar()) {
             settings->setValue(menubarVisibleKey, Internal::globalMenuBar()->isVisible());
+        }
 
         for (int i = 0; i < QColorDialog::customCount(); ++i) {
             const auto key = Key(colorDialogKey + QByteArray::number(i));
@@ -1590,7 +1596,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     const auto cancelClose = [event] {
         event->ignore();
-        setRestart(false);
+        setRestartRequested(false);
     };
 
     // work around QTBUG-43344

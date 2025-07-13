@@ -109,10 +109,7 @@ static void requestRestart()
         info.setTitle(Tr::tr("Restart Required"));
         info.setInfoType(InfoLabel::Information);
         info.addCustomButton(
-            Tr::tr("Restart Now"),
-            [] { QTimer::singleShot(0, ICore::instance(), &ICore::restart); },
-            {},
-            InfoBarEntry::ButtonAction::Hide);
+            Tr::tr("Restart Now"), [] { ICore::restart(); }, {}, InfoBarEntry::ButtonAction::Hide);
         infoBar->addInfo(info);
     }
 }

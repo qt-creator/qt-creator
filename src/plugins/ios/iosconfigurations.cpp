@@ -623,7 +623,6 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                 if (!toolChain) {
                     toolChain = new GccToolchain(ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID,
                                                  GccToolchain::Clang);
-                    toolChain->setPriority(Toolchain::PriorityLow);
                     toolChain->setLanguage(l);
                     toolChain->setPlatformCodeGenFlags(target.backendFlags);
                     toolChain->setPlatformLinkerFlags(target.backendFlags);
@@ -631,6 +630,7 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                                                   platform.cxxCompilerPath : platform.cCompilerPath);
                     existingClangToolchains.append(toolChain);
                 }
+                toolChain->setPriority(Toolchain::PriorityLow);
                 toolChain->setDetection(Toolchain::AutoDetection);
                 toolChain->setDetectionSource(iosDetectionSource);
                 toolChain->setDisplayName(target.name);
