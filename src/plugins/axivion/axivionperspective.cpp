@@ -103,37 +103,111 @@ static bool issueListContextMenuEvent(const ItemViewEvent &ev); // impl at botto
 static bool progressListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
 static void resetFocusToIssuesTable(); // impl at bottom
 
-static std::optional<PathMapping> findPathMappingMatch(const QString &projectName,
-                                                       const Link &link)
+/**
+ * combine local (absolute) path with analysis path
+ * if analysis path is absolute just return the local path
+ * otherwise check whether the local path ends with (parts of) analysis path
+ * and return the combined path or if no match append analysis to local path
+ *
+ * examples:
+ * local                analysis                    result
+ * /a/b/c               /d/e                        /a/b/c
+ * /a/b/c               d/e                         /a/b/c/d/e
+ * /a/b/c               c                           /a/b
+ * /a/b/c               c/d                         /a/b/c/c/d
+ * /a/b/c               b/c/d                       /a/b/c/b/c/d
+ * /a/b/c               b                           /a/b/c/b
+ * /a/b/c/d             b/d/e                       /a/b/c/d/b/d/e
+ */
+static FilePath combinedPaths(const FilePath &localPath, const FilePath &analysisPath)
 {
-    QTC_ASSERT(!projectName.isEmpty(), return std::nullopt);
+    if (analysisPath.isEmpty() || analysisPath.isAbsolutePath())
+        return localPath;
+
+    const QList<QStringView> localComp = localPath.pathComponents();
+    const QList<QStringView> analysisComp = analysisPath.pathComponents();
+    const int localCount = localComp.size();
+    const int analysisCount = analysisComp.size();
+
+    for (int localBwd = localCount - 1; localBwd >= 0; --localBwd) {
+        // do we have a potential start of match
+        if (localComp.at(localBwd) == analysisComp.first()) {
+            // only if all analysis path components do fit
+            if (localBwd + analysisCount < localCount)
+                continue;
+            int fwd = 1;
+            // check whether all analysis path components match
+            for ( ; fwd < analysisCount && localBwd + fwd < localCount; ++fwd) {
+                if (localComp.at(localBwd + fwd) != analysisComp.at(fwd))
+                    break;
+            }
+            // check whether we broke at a mismatch
+            if (fwd != analysisCount && (localBwd + fwd != localCount))
+                continue;
+
+            QList<QStringView> resultPath = localComp.sliced(0, localBwd);
+            if (resultPath.first() == u"/") // hack for UNIX paths
+                resultPath.replace(0, QStringView{});
+            const QStringList pathStrings = Utils::transform(resultPath, &QStringView::toString);
+            return FilePath::fromUserInput(pathStrings.join('/'));
+        }
+    }
+    return localPath.pathAppended(analysisPath.path());
+}
+
+static QList<PathMapping> findPathMappingMatches(const QString &projectName, const Link &link)
+{
+    QList<PathMapping> result;
+    QTC_ASSERT(!projectName.isEmpty(), return result);
+    const bool pathIsAbsolute = link.targetFilePath.isAbsolutePath();
     for (const PathMapping &mapping : settings().validPathMappings()) {
         if (mapping.projectName != projectName)
             continue;
 
-        if (mapping.analysisPath.isEmpty())
-            return mapping;
-
         QString analysis = mapping.analysisPath.path();
         // ensure we use complete paths
-        if (!analysis.endsWith('/'))
+        if (!analysis.isEmpty() && !analysis.endsWith('/'))
             analysis.append('/');
-        if (!link.targetFilePath.startsWith(analysis))
-            continue;
 
-        return mapping;
+        if (pathIsAbsolute) {
+            if (mapping.analysisPath.isEmpty())
+                continue;
+
+            if (!link.targetFilePath.startsWith(analysis))
+                continue;
+        } else {
+            if (mapping.analysisPath.isAbsolutePath())
+                continue;
+
+            if (!analysis.isEmpty() && !link.targetFilePath.startsWith(analysis))
+                continue;
+
+        }
+
+        result << mapping;
     }
-    return std::nullopt;
+    return result;
 }
 
 static FilePath mappedPathForLink(const Link &link)
 {
     if (const std::optional<Dto::ProjectInfoDto> pInfo = projectInfo()) {
-        if (auto mapping = findPathMappingMatch(pInfo->name, link)) {
+        const QList<PathMapping> mappings = findPathMappingMatches(pInfo->name, link);
+        const bool linkIsRelative = link.targetFilePath.isRelativePath();
+        for (const PathMapping &mapping : mappings) {
+            if (linkIsRelative) {
+                // combine local & analysis paths
+                const FilePath localPath = combinedPaths(mapping.localPath, mapping.analysisPath);
+                const FilePath mapped = localPath.pathAppended(link.targetFilePath.path());
+                if (mapped.exists())
+                    return mapped;
+                continue;
+            }
+            // else absolute paths
             std::optional<FilePath> fp = link.targetFilePath.prefixRemoved(
-                        mapping->analysisPath.path());
-            QTC_CHECK(fp);
-            fp = mapping->localPath.pathAppended(fp->path());
+                        mapping.analysisPath.path());
+            QTC_ASSERT(fp, return {});
+            fp = mapping.localPath.pathAppended(fp->path());
             if (fp->exists())
                 return *fp;
         }
@@ -333,6 +407,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
             return;
         }
 
+        m_issuesView->showProgressIndicator();
+        setFiltersEnabled(false);
         fetchDashboardAndProjectInfo({}, m_dashboardProjects->currentText());
     });
     // row with local build + dashboard, issue types (-> depending on choice, tables below change)
@@ -556,8 +632,13 @@ void IssuesWidget::updateUi(const QString &kind)
             }
         }
     }
-    if (m_currentPrefix.isEmpty())
-        m_currentPrefix = info.issueKinds.size() ? info.issueKinds.front().prefix : QString{};
+    if (m_currentPrefix.isEmpty()) {
+        const int id = m_typesButtonGroup->checkedId();
+        if (id > 0 && id <= int(info.issueKinds.size()))
+            m_currentPrefix = info.issueKinds.at(id - 1).prefix;
+        else
+            m_currentPrefix = info.issueKinds.size() ? info.issueKinds.front().prefix : QString{};
+    }
     fetchTable();
 }
 
@@ -580,6 +661,8 @@ void IssuesWidget::leaveOrEnterDashboardMode(bool byLocalBuildButton)
         m_versionsStack->setCurrentIndex(int(DashboardMode::Global));
         if (!byLocalBuildButton) {
             QTC_ASSERT(currentDashboardInfo(), reinitProjectList(m_currentProject); return);
+            m_issuesView->showProgressIndicator();
+            setFiltersEnabled(false);
             fetchDashboardAndProjectInfo({}, m_dashboardProjects->currentText());
             return;
         }
@@ -685,6 +768,7 @@ void IssuesWidget::reinitProjectList(const QString &currentProject)
     updateBasicProjectInfo(std::nullopt);
     hideOverlays();
     m_issuesView->showProgressIndicator();
+    setFiltersEnabled(false);
     fetchDashboardAndProjectInfo(onDashboardInfoFetched, currentProject);
 }
 
@@ -1016,6 +1100,9 @@ void IssuesWidget::updateAllFilters(const QVariant &namedFilter)
 
 void IssuesWidget::setFiltersEnabled(bool enabled)
 {
+    const QList<QAbstractButton *> buttons = m_typesButtonGroup->buttons();
+    for (auto kindButton : buttons)
+        kindButton->setEnabled(enabled);
     m_addedFilter->setEnabled(enabled);
     m_removedFilter->setEnabled(enabled);
     m_ownerFilter->setEnabled(enabled);
@@ -1101,6 +1188,7 @@ void IssuesWidget::fetchTable()
         }
         // first time lookup... should we cache and maybe represent old data?
         updateTable();
+        QTC_ASSERT(projectInfo(), m_issuesView->hideProgressIndicator(); return);
         IssueListSearch search = searchFromUi();
         search.computeTotalRowCount = true;
         fetchIssues(dashboardMode, search);
@@ -1213,6 +1301,7 @@ void IssuesWidget::switchDashboard(bool local)
         QTC_ASSERT(!m_currentProject.isEmpty(), return);
         auto callback = [] { switchDashboardMode(DashboardMode::Local, true); };
         m_issuesView->showProgressIndicator();
+        setFiltersEnabled(false);
         startLocalDashboard(m_currentProject, callback);
     } else {
         switchDashboardMode(DashboardMode::Global, true);

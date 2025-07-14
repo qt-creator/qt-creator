@@ -90,11 +90,18 @@ QTCREATOR_UTILS_EXPORT void scheduleGC()
         QTimer::singleShot(10s, qApp, [] { stringTable().startGC(); });
 }
 
+// qtbase/3f61f736266ece40d627dcf6214618a22a009fd1 changed QArrayData::{ref_ → m_ref};
+// adapt:
+template <typename S>
+auto getQArrayDataRef(const S *s) -> decltype(s->ref_) { return s->ref_.loadRelaxed(); }
+template <typename S>
+auto getQArrayDataRef(const S *s) -> decltype(s->m_ref) { return s->m_ref.loadRelaxed(); }
+
 static inline bool isDetached(const QString &string, int &bytesSaved)
 {
     if (DebugStringTable) {
         QStringPrivate &data_ptr = const_cast<QString&>(string).data_ptr();
-        const int ref = data_ptr->d_ptr()->ref_;
+        const int ref = getQArrayDataRef(data_ptr->d_ptr());
         bytesSaved += (ref - 1) * string.size();
         if (ref > 10)
             qDebug() << ref << string.size() << string.left(50);

@@ -105,7 +105,7 @@ private:
     BuildDirParameters m_parameters;
 
     // Notification on changes outside of creator:
-    Utils::FileSystemWatcher m_watcher;
+    std::unique_ptr<Utils::FilePathWatcher> m_watcher;
     QDateTime m_lastReplyTimestamp;
 };
 

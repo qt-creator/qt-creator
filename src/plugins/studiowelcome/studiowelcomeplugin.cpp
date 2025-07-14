@@ -168,13 +168,10 @@ public:
         if (m_usageStatisticEnabled == b && m_crashReporterEnabled == b)
             return;
 
-        bool restartPending = ICore::askForRestart(tr("The change will take effect after restart."));
+        ICore::askForRestart(tr("The change will take effect after restart."));
 
         ICore::settings()->setValue(TELEMETRY_INSIGHT_SETTING, b);
         ICore::settings()->setValue(CRASH_REPORTER_SETTING, b);
-
-        if (restartPending)
-            ICore::restart();
     }
 
 signals:

@@ -91,7 +91,7 @@ ProjectExplorerSettings::ProjectExplorerSettings()
 
     showAllKits.setSettingsKey("ShowAllKits");
     showAllKits.setDefaultValue(true);
-    showAllKits.setLabel(Tr::tr("Show all kits in \"Build & Run\" in \"Projects\" mode"));
+    showAllKits.setLabel(Tr::tr("Show all kits in \"Build & Run\" in \"Projects\" mode").replace('&', "&&"));
     showAllKits.setToolTip(
         Tr::tr("Show also inactive kits in \"Build & Run\" in \"Projects\" mode."));
     showAllKits.setLabelPlacement(BoolAspect::LabelPlacement::Compact);

@@ -1120,6 +1120,7 @@ void AxivionPluginPrivate::fetchDashboardAndProjectInfo(const DashboardInfoHandl
 Group tableInfoRecipe(DashboardMode dashboardMode, const QString &prefix,
                       const TableInfoHandler &handler)
 {
+    QTC_ASSERT(dd->m_currentProjectInfo, return {});
     const QUrlQuery query({{"kind", prefix}});
     const QUrl url = constructUrl(dashboardMode, dd->m_currentProjectInfo->name, "issues_meta", query);
     return fetchDataRecipe<Dto::TableInfoDto>(dashboardMode, url, handler);
