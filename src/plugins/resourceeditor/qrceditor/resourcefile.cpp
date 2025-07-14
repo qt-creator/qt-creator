@@ -421,7 +421,7 @@ QString ResourceFile::relativePath(const QString &abs_path) const
 
 QString ResourceFile::absolutePath(const QString &rel_path) const
 {
-    return m_filePath.resolvePath(rel_path).path();
+    return m_filePath.parentDir().resolvePath(rel_path).path();
 }
 
 void ResourceFile::orderList()
