@@ -74,6 +74,8 @@
 using namespace Core;
 using namespace Utils;
 
+Q_LOGGING_CATEGORY(helpLog, "qtc.help", QtWarningMsg)
+
 namespace Help::Internal {
 
 const char kExternalWindowStateKey[] = "Help/ExternalWindowState";
@@ -451,6 +453,7 @@ void HelpPluginPrivate::requestContextHelp()
     const HelpItem tipHelp = tipHelpValue.canConvert<HelpItem>()
                                  ? tipHelpValue.value<HelpItem>()
                                  : HelpItem(tipHelpValue.toString());
+    qCDebug(helpLog) << "Request context help, tool tip:" << tipHelp;
     const QList<IContext *> contexts = ICore::currentContextObjects();
     if (contexts.isEmpty() && !tipHelp.isEmpty()) {
         showContextHelp(tipHelp);
@@ -481,7 +484,9 @@ void HelpPluginPrivate::requestContextHelpFor(QList<QPointer<IContext>> contexts
 
 void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
 {
+    qCDebug(helpLog) << "Show context help" << contextHelp;
     const HelpItem::Links links = contextHelp.bestLinks();
+    HelpItem::debugPrintLinks("Best Links:", contextHelp.links(), links);
     if (links.empty()) {
         // No link found or no context object
         HelpViewer *viewer = showHelpUrl(QUrl(Help::Constants::AboutBlank),
