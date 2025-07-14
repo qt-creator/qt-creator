@@ -251,6 +251,7 @@ QmakeBuildSystem::QmakeBuildSystem(BuildConfiguration *bc)
 
 QmakeBuildSystem::~QmakeBuildSystem()
 {
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
     m_guard = {};
     delete m_cppCodeModelUpdater;
     m_cppCodeModelUpdater = nullptr;

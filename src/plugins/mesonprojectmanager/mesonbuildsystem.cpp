@@ -233,6 +233,8 @@ MesonBuildSystem::MesonBuildSystem(BuildConfiguration *bc)
 
 MesonBuildSystem::~MesonBuildSystem()
 {
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_parseGuard = {};
     qCDebug(mesonBuildSystemLog) << "dtor";
 }
 

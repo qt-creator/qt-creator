@@ -64,6 +64,7 @@ class WorkspaceBuildSystem final : public BuildSystem
 {
 public:
     WorkspaceBuildSystem(BuildConfiguration *bc);
+    ~WorkspaceBuildSystem();
 
     void reparse(bool force);
     void triggerParsing() final;
@@ -166,6 +167,12 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(BuildConfiguration *bc)
 
     connect(project(), &Project::projectFileIsDirty, this, &BuildSystem::requestDelayedParse);
     requestDelayedParse();
+}
+
+WorkspaceBuildSystem::~WorkspaceBuildSystem()
+{
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_parseGuard = {};
 }
 
 void WorkspaceBuildSystem::reparse(bool force)
