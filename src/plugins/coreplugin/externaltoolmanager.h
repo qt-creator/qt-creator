@@ -27,13 +27,6 @@ public:
     static QMap<QString, ExternalTool *> toolsById();
     static void setToolsByCategory(const QMap<QString, QList<ExternalTool *> > &tools);
     static void emitReplaceSelectionRequested(const QString &output);
-    static void readSettings(const QMap<QString, ExternalTool *> &tools,
-                      QMap<QString, QList<ExternalTool*> > *categoryPriorityMap);
-
-    static void parseDirectory(const QString &directory,
-                         QMap<QString, QMultiMap<int, ExternalTool*> > *categoryMenus,
-                         QMap<QString, ExternalTool *> *tools,
-                         bool isPreset = false);
 
 signals:
     void replaceSelectionRequested(const QString &text);

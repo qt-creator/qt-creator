@@ -16,7 +16,6 @@
 
 #include <QAction>
 #include <QDebug>
-#include <QDir>
 #include <QMenu>
 
 using namespace Core::Internal;
@@ -41,6 +40,14 @@ static ExternalToolManagerPrivate *d = nullptr;
 
 static void writeSettings();
 
+static void readSettings(const QMap<QString, ExternalTool *> &tools,
+                         QMap<QString, QList<ExternalTool*> > *categoryPriorityMap);
+
+static void parseDirectory(const FilePath &directory,
+                         QMap<QString, QMultiMap<int, ExternalTool*> > *categoryMenus,
+                         QMap<QString, ExternalTool *> *tools,
+                         bool isPreset = false);
+
 ExternalToolManager::ExternalToolManager()
     : QObject(ICore::instance())
 {
@@ -62,10 +69,10 @@ ExternalToolManager::ExternalToolManager()
 
     QMap<QString, QMultiMap<int, ExternalTool*> > categoryPriorityMap;
     QMap<QString, ExternalTool *> tools;
-    parseDirectory(ICore::userResourcePath("externaltools").toUrlishString(),
+    parseDirectory(ICore::userResourcePath("externaltools"),
                    &categoryPriorityMap,
                    &tools);
-    parseDirectory(ICore::resourcePath("externaltools").toUrlishString(),
+    parseDirectory(ICore::resourcePath("externaltools"),
                    &categoryPriorityMap,
                    &tools,
                    true);
@@ -92,21 +99,20 @@ ExternalToolManager *ExternalToolManager::instance()
     return m_instance;
 }
 
-void ExternalToolManager::parseDirectory(const QString &directory,
-                           QMap<QString, QMultiMap<int, ExternalTool*> > *categoryMenus,
+static void parseDirectory(const FilePath &directory,
+                           QMap<QString, QMultiMap<int, ExternalTool *>> *categoryMenus,
                            QMap<QString, ExternalTool *> *tools,
                            bool isPreset)
 {
     QTC_ASSERT(categoryMenus, return);
     QTC_ASSERT(tools, return);
-    QDir dir(directory, QLatin1String("*.xml"), QDir::Unsorted, QDir::Files | QDir::Readable);
-    const QList<QFileInfo> infoList = dir.entryInfoList();
-    for (const QFileInfo &info : infoList) {
-        const QString &fileName = info.absoluteFilePath();
-        Result<ExternalTool *> res = ExternalTool::createFromFile(FilePath::fromString(fileName),
-                                                                  ICore::userInterfaceLanguage());
+    const FilePaths filePaths = directory.dirEntries({{"*.xml"}, QDir::Files | QDir::Readable});
+    for (const FilePath &filePath : filePaths) {
+        Result<ExternalTool *> res =
+            ExternalTool::createFromFile(filePath, ICore::userInterfaceLanguage());
         if (!res) {
-            qWarning() << Tr::tr("Error while parsing external tool %1: %2").arg(fileName, res.error());
+            qWarning() << Tr::tr("Error while parsing external tool %1: %2")
+                .arg(filePath.toUserOutput(), res.error());
             continue;
         }
         ExternalTool *tool = res.value();
@@ -116,7 +122,8 @@ void ExternalToolManager::parseDirectory(const QString &directory,
                 ExternalTool *other = tools->value(tool->id());
                 other->setPreset(std::shared_ptr<ExternalTool>(tool));
             } else {
-                qWarning() << Tr::tr("Error: External tool in %1 has duplicate id").arg(fileName);
+                qWarning() << Tr::tr("Error: External tool in %1 has duplicate id")
+                    .arg(filePath.toUserOutput());
                 delete tool;
             }
             continue;
@@ -230,8 +237,8 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
     mexternaltools->menu()->addAction(d->m_configureAction);
 }
 
-void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tools,
-                                       QMap<QString, QList<ExternalTool *> > *categoryMap)
+static void readSettings(const QMap<QString, ExternalTool *> &tools,
+                         QMap<QString, QList<ExternalTool *> > *categoryMap)
 {
     QtcSettings *settings = ICore::settings();
     settings->beginGroup("ExternalTools");
