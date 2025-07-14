@@ -1982,17 +1982,18 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
 
     const TextEditor::PlainRefactoringFileFactory changes;
     for (auto it = rewriteCandidates.cbegin(); it != rewriteCandidates.cend(); ++it) {
-        const FilePath &includingFileOld = it.key().first;
+        const FilePath includingFileOldDir = it.key().first.parentDir();
         const FilePath &includingFileNew = it.key().second;
+        const FilePath includingFileNewDir = includingFileNew.parentDir();
         TextEditor::RefactoringFilePtr file = changes.file(includingFileNew);
         ChangeSet changeSet;
         for (const RewriteCandidate &candidate : it.value()) {
             const QTextBlock &block = file->document()->findBlockByNumber(
                 candidate.includeLine - 1);
             const QString relPathOld = candidate.oldHeaderFilePath.relativePathFromDir(
-                includingFileOld.parentDir());
+                includingFileOldDir);
             const QString relPathNew = candidate.newHeaderFilePath.relativePathFromDir(
-                includingFileNew.parentDir());
+                includingFileNewDir);
             int replaceStart = block.text().indexOf(relPathOld);
             QString oldString;
             QString newString;
