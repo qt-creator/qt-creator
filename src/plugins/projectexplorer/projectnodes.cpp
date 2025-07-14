@@ -1004,7 +1004,7 @@ bool ProjectNode::supportsAction(ProjectAction action, const Node *node) const
     return false;
 }
 
-bool ProjectNode::deploysFolder(const QString &folder) const
+bool ProjectNode::deploysFolder(const FilePath &folder) const
 {
     Q_UNUSED(folder)
     return false;

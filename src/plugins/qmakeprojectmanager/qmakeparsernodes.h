@@ -157,7 +157,7 @@ public:
 
     bool folderChanged(const QString &changedFolder, const QSet<Utils::FilePath> &newFiles);
 
-    bool deploysFolder(const QString &folder) const;
+    bool deploysFolder(const Utils::FilePath &folder) const;
 
     QmakeProFile *proFile() const;
     QList<QmakePriFile *> subPriFilesExact() const;

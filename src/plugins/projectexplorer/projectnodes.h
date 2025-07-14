@@ -394,7 +394,7 @@ public:
     bool supportsAction(ProjectAction action, const Node *node) const final;
 
     // by default returns false
-    virtual bool deploysFolder(const QString &folder) const;
+    virtual bool deploysFolder(const Utils::FilePath &folder) const;
 
     ProjectNode *projectNode(const Utils::FilePath &file) const;
 

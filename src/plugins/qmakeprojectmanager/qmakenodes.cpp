@@ -59,7 +59,7 @@ QmakePriFile *QmakePriFileNode::priFile() const
     return m_buildSystem->rootProFile()->findPriFile(filePath());
 }
 
-bool QmakePriFileNode::deploysFolder(const QString &folder) const
+bool QmakePriFileNode::deploysFolder(const FilePath &folder) const
 {
     const QmakePriFile *pri = priFile();
     return pri ? pri->deploysFolder(folder) : false;
@@ -116,12 +116,12 @@ bool QmakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
                 if (folder) {
                     FilePaths list;
                     folder->forEachFolderNode([&](FolderNode *f) { list << f->filePath(); });
-                    if (n->deploysFolder(list.commonPath().toUrlishString()))
+                    if (n->deploysFolder(list.commonPath()))
                         addExistingFiles = false;
                 }
             }
 
-            addExistingFiles = addExistingFiles && !n->deploysFolder(node->filePath().toUrlishString());
+            addExistingFiles = addExistingFiles && !n->deploysFolder(node->filePath());
 
             if (action == AddExistingFile || action == AddExistingDirectory)
                 return addExistingFiles;

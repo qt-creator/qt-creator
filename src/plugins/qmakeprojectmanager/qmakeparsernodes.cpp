@@ -442,9 +442,9 @@ bool QmakePriFile::folderChanged(const QString &changedFolder, const QSet<FilePa
     return true;
 }
 
-bool QmakePriFile::deploysFolder(const QString &folder) const
+bool QmakePriFile::deploysFolder(const FilePath &folder) const
 {
-    QString f = folder;
+    QString f = folder.toUrlishString();
     const QChar slash = QLatin1Char('/');
     if (!f.endsWith(slash))
         f.append(slash);
@@ -599,7 +599,7 @@ bool QmakePriFile::canRenameFile(const FilePath &oldFilePath, const FilePath &ne
     if (newFilePath.isEmpty())
         return false;
 
-    bool changeProFileOptional = deploysFolder(oldFilePath.absolutePath().toUrlishString());
+    bool changeProFileOptional = deploysFolder(oldFilePath.absolutePath());
     if (changeProFileOptional)
         return true;
 
@@ -611,7 +611,7 @@ bool QmakePriFile::renameFile(const FilePath &oldFilePath, const FilePath &newFi
     if (newFilePath.isEmpty())
         return false;
 
-    bool changeProFileOptional = deploysFolder(oldFilePath.absolutePath().toUrlishString());
+    bool changeProFileOptional = deploysFolder(oldFilePath.absolutePath());
     if (renameFile(oldFilePath, newFilePath, Change::Save))
         return true;
     return changeProFileOptional;
