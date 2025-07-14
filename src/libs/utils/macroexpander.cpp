@@ -576,6 +576,12 @@ void MacroExpander::registerFileVariables(
         Tr::tr("%1: File base name without path and suffix.").arg(heading),
         [base] { return base().baseName(); },
         visibleInChooser, availableForExpansion);
+
+    registerVariable(
+        prefix + ":DirName",
+        Tr::tr("%1: File name of the parent directory.").arg(heading),
+        [base] { return base().parentDir().fileName(); },
+        visibleInChooser, availableForExpansion);
 }
 
 void MacroExpander::registerExtraResolver(const MacroExpander::ResolverFunction &value)
