@@ -59,7 +59,9 @@ QTCREATOR_UTILS_EXPORT int indexOfQmakeUnfriendly(const QString &name, int start
 QTCREATOR_UTILS_EXPORT QString qmakeFriendlyName(const QString &name);
 QTCREATOR_UTILS_EXPORT QString normalizedPathName(const QString &name);
 
+[[deprecated("Use FilePaths::commonPath")]]
 QTCREATOR_UTILS_EXPORT FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
+[[deprecated("Use FilePaths::commonPath")]]
 QTCREATOR_UTILS_EXPORT FilePath commonPath(const FilePaths &paths);
 QTCREATOR_UTILS_EXPORT FilePath homePath();
 QTCREATOR_UTILS_EXPORT Result<FilePath> scratchBufferFilePath(const QString &pattern);

@@ -71,6 +71,7 @@ public:
     [[nodiscard]] QVariant toSettings() const;
     [[nodiscard]] QStringList toFsPathStrings() const;
     [[nodiscard]] QString toUserOutput(const QString &separator) const;
+    [[nodiscard]] FilePath commonPath() const;
 };
 
 // Needed with older gcc.

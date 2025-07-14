@@ -545,7 +545,7 @@ IVersionControl *ProjectWizardPage::currentVersionControl()
 
 void ProjectWizardPage::setFiles(const FilePaths &files)
 {
-    m_commonDirectory = FileUtils::commonPath(files);
+    m_commonDirectory = files.commonPath();
     const bool hasCommonDirectory = !m_commonDirectory.isEmpty() && files.size() > 1;
 
     QString fileMessage;

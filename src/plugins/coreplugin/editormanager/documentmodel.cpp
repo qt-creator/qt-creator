@@ -156,7 +156,7 @@ bool DocumentModelPrivate::disambiguateDisplayNames(DocumentModel::Entry *entry)
         return false;
     }
 
-    const FilePath commonAncestor = FileUtils::commonPath(paths);
+    const FilePath commonAncestor = paths.commonPath();
 
     int countWithoutFilePath = 0;
     for (DocumentModel::Entry *e : std::as_const(dups)) {

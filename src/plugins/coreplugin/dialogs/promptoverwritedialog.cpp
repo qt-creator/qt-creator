@@ -74,15 +74,15 @@ PromptOverwriteDialog::PromptOverwriteDialog(QWidget *parent)
 
 PromptOverwriteDialog::~PromptOverwriteDialog() = default;
 
-void PromptOverwriteDialog::setFiles(const FilePaths &l)
+void PromptOverwriteDialog::setFiles(const FilePaths &filePaths)
 {
     // Format checkable list excluding common path
-    const QString nativeCommonPath = FileUtils::commonPath(l).toUserOutput();
-    for (const FilePath &fileName : l) {
-        const QString nativeFileName = fileName.toUserOutput();
+    const QString nativeCommonPath = filePaths.commonPath().toUserOutput();
+    for (const FilePath &filePath : filePaths) {
+        const QString nativeFileName = filePath.toUserOutput();
         const int length = nativeFileName.size() - nativeCommonPath.size() - 1;
         QStandardItem *item = new QStandardItem(nativeFileName.right(length));
-        item->setData(fileName.toVariant(), FileNameRole);
+        item->setData(filePath.toVariant(), FileNameRole);
         item->setFlags(Qt::ItemIsEnabled);
         item->setCheckable(true);
         item->setCheckState(Qt::Checked);

@@ -201,7 +201,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     // Before prompting to overwrite existing files, loop over files and check
     // if there is anything blocking overwriting them (like them being links or folders).
     // Format a file list message as ( "<file1> [readonly], <file2> [folder]").
-    const FilePath commonExistingPath = FileUtils::commonPath(existingFiles);
+    const FilePath commonExistingPath = existingFiles.commonPath();
     const int commonPrefixLen = commonExistingPath.toUserOutput().size() + 1;
     QString fileNamesMsgPart;
     for (const FilePath &filePath : std::as_const(existingFiles)) {

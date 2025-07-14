@@ -59,9 +59,9 @@ void tst_fileutils::commonPath()
     QFETCH(FilePaths, list);
     QFETCH(FilePath, expected);
 
-    const FilePath result = FileUtils::commonPath(list);
+    const FilePath result = list.commonPath();
 
-    QCOMPARE(expected.toUrlishString(), result.toUrlishString());
+    QCOMPARE(expected, result);
 }
 
 void tst_fileutils::commonPath_data()

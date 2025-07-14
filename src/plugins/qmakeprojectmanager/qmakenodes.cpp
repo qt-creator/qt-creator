@@ -116,7 +116,7 @@ bool QmakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
                 if (folder) {
                     FilePaths list;
                     folder->forEachFolderNode([&](FolderNode *f) { list << f->filePath(); });
-                    if (n->deploysFolder(FileUtils::commonPath(list).toUrlishString()))
+                    if (n->deploysFolder(list.commonPath().toUrlishString()))
                         addExistingFiles = false;
                 }
             }

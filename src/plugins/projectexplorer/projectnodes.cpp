@@ -360,7 +360,7 @@ FilePath Node::pathOrDirectory(bool dir) const
             // Otherwise we figure out a commonPath from the subfolders
             FilePaths list;
             folder->forEachFolderNode([&](FolderNode *f) { list << f->filePath(); });
-            location = FileUtils::commonPath(list);
+            location = list.commonPath();
         }
 
         QFileInfo fi = location.toFileInfo();

@@ -145,7 +145,7 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
     // Before prompting to overwrite existing files, loop over files and check
     // if there is anything blocking overwriting them (like them being links or folders).
     // Format a file list message as ( "<file1> [readonly], <file2> [folder]").
-    const QString commonExistingPath = FileUtils::commonPath(existingFiles).toUserOutput();
+    const QString commonExistingPath = existingFiles.commonPath().toUserOutput();
     const int commonPathSize = commonExistingPath.size();
     QString fileNamesMsgPart;
     for (const FilePath &filePath : std::as_const(existingFiles)) {

@@ -2455,6 +2455,52 @@ QString FilePath::withTildeHomePath() const
     return toUrlishString();
 }
 
+FilePath FilePaths::commonPath() const
+{
+    if (isEmpty())
+        return {};
+
+    if (count() == 1)
+        return constFirst();
+
+    const FilePath &first = constFirst();
+    const FilePaths others = mid(1);
+    FilePath result;
+
+    // Common scheme
+    const QStringView commonScheme = first.scheme();
+    auto sameScheme = [&commonScheme] (const FilePath &fp) {
+        return commonScheme == fp.scheme();
+    };
+    if (!allOf(others, sameScheme))
+        return result;
+    result.setParts(commonScheme, {}, {});
+
+    // Common host
+    const QStringView commonHost = first.host();
+    auto sameHost = [&commonHost] (const FilePath &fp) {
+        return commonHost == fp.host();
+    };
+    if (!allOf(others, sameHost))
+        return result;
+    result.setParts(commonScheme, commonHost, {});
+
+    // Common path
+    QString commonPath;
+    auto sameBasePath = [&commonPath] (const FilePath &fp) {
+        return QString(fp.path() + '/').startsWith(commonPath);
+    };
+    const QStringList pathSegments = first.path().split('/');
+    for (const QString &segment : pathSegments) {
+        commonPath += segment + '/';
+        if (!allOf(others, sameBasePath))
+            return result;
+        result.setParts(commonScheme, commonHost, commonPath.chopped(1));
+    }
+
+    return result;
+}
+
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {
     return s << fn.toUrlishString();
