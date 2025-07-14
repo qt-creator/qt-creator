@@ -15,8 +15,6 @@
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
 
-#include <QDir>
-
 enum { FileNameRole = Qt::UserRole + 1 };
 
 using namespace Utils;
@@ -40,7 +38,7 @@ public:
 
 static FilePath fileNameOfItem(const QStandardItem *item)
 {
-    return FilePath::fromString(item->data(FileNameRole).toString());
+    return FilePath::fromVariant(item->data(FileNameRole));
 }
 
 /*!
@@ -84,7 +82,7 @@ void PromptOverwriteDialog::setFiles(const FilePaths &l)
         const QString nativeFileName = fileName.toUserOutput();
         const int length = nativeFileName.size() - nativeCommonPath.size() - 1;
         QStandardItem *item = new QStandardItem(nativeFileName.right(length));
-        item->setData(QVariant(fileName.toUrlishString()), FileNameRole);
+        item->setData(fileName.toVariant(), FileNameRole);
         item->setFlags(Qt::ItemIsEnabled);
         item->setCheckable(true);
         item->setCheckState(Qt::Checked);
