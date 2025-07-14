@@ -351,4 +351,8 @@ DeploymentTask::DeploymentTask(Task::TaskType type, const QString &desc)
     : Task(type, desc, {}, -1, ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT)
 {}
 
+ProjectExplorer::OtherTask::OtherTask(TaskType type, const QString &description)
+    : Task(type, description, {}, -1, Constants::TASK_CATEGORY_OTHER)
+{}
+
 } // namespace ProjectExplorer

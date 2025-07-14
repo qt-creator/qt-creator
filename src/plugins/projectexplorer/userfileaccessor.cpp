@@ -9,7 +9,6 @@
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 
-#include <coreplugin/messagemanager.h>
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/environment.h>
@@ -148,13 +147,10 @@ UserFileAccessor::UserFileAccessor(Project *project)
                 const auto handleFailure = [&](const QString &error) {
                     const QString message
                         = Tr::tr(
-                              "[PROJECT WARNING] Failed to copy project user settings from "
+                              "Failed to copy project user settings from "
                               "\"%1\" to new default location \"%2\": %3")
                               .arg(projectUserV1.toUserOutput(), projectUserV2.toUserOutput(), error);
-
-                    // TODO: Issues pane would be preferable, but we don't have a fitting category.
-                    Core::MessageManager::writeDisrupting(message);
-
+                    m_project->addTask(OtherTask(Task::Warning, message));
                     baseFilePath = projectUserV1;
                 };
                 const Result<> createdSubDir = projectUserV2.parentDir().ensureWritableDir();

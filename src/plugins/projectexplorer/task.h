@@ -154,6 +154,12 @@ public:
     DeploymentTask(TaskType type, const QString &description);
 };
 
+class PROJECTEXPLORER_EXPORT OtherTask : public Task
+{
+public:
+    OtherTask(TaskType type, const QString &description);
+};
+
 using Tasks = QList<Task>;
 
 PROJECTEXPLORER_EXPORT QString toHtml(const Tasks &issues);

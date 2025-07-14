@@ -189,6 +189,7 @@ public:
     std::unique_ptr<Internal::UserFileAccessor> m_accessor;
     QHash<Id, QPair<QString, std::function<void()>>> m_generators;
     std::function<Tasks(const Kit *)> m_issuesGenerator;
+    Tasks m_tasks;
 
     QString m_buildSystemName;
     QString m_displayName;
@@ -204,6 +205,9 @@ public:
 
 ProjectPrivate::~ProjectPrivate()
 {
+    for (const Task &t : std::as_const(m_tasks))
+        TaskHub::removeTask(t);
+
     // Make sure our root node is null when deleting the actual node
     std::unique_ptr<ProjectNode> oldNode = std::move(m_rootProjectNode);
 }
@@ -586,6 +590,12 @@ Tasks Project::projectIssues(const Kit *k) const
     if (d->m_issuesGenerator)
         return d->m_issuesGenerator(k);
     return {};
+}
+
+void Project::addTask(const Task &task)
+{
+    d->m_tasks << task;
+    TaskHub::addTask(task);
 }
 
 bool Project::copySteps(Target *sourceTarget, Target *newTarget)
