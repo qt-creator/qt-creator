@@ -1,7 +1,7 @@
 {
-    "Id" : "extrapropertyeditormanager",
-    "DisplayName" : "Extra Property Editor Manager",
-    "Name" : "ExtraPropertyEditorManager",
+    "Id" : "multipropertyeditor",
+    "DisplayName" : "Multi Property Editor",
+    "Name" : "MultiPropertyEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",
@@ -14,6 +14,6 @@
     "Description" : "Plugin for displaying additional instances of property editor.",
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtdesignstudio",
-    "DisabledByDefault": ${NOT_BUILDING_DESIGNSTUDIO},
+    "DisabledByDefault": false,
     ${IDE_PLUGIN_DEPENDENCIES}
 }

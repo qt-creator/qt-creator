@@ -474,13 +474,13 @@ void PropertyEditorContextObject::setHasMultiSelection(bool b)
     emit hasMultiSelectionChanged();
 }
 
-bool PropertyEditorContextObject::isExtraPropertyEditorPluginEnabled() const
+bool PropertyEditorContextObject::isMultiPropertyEditorPluginEnabled() const
 {
     NanotraceHR::Tracer tracer{
-        "property editor context object is extra property editor plugin enabled", category()};
+        "property editor context object is multi property editor plugin enabled", category()};
 
     const auto plugins = ExtensionSystem::PluginManager::plugins();
-    auto found = std::ranges::find(plugins, "extrapropertyeditormanager"_L1, &ExtensionSystem::PluginSpec::id);
+    auto found = std::ranges::find(plugins, "multipropertyeditor"_L1, &ExtensionSystem::PluginSpec::id);
 
     if (found != plugins.end())
         return (*found)->isEffectivelyEnabled();

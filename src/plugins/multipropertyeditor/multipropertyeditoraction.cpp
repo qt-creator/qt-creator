@@ -1,7 +1,7 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "extrapropertyeditoraction.h"
+#include "multipropertyeditoraction.h"
 
 #include <designmodewidget.h>
 #include <propertyeditorview.h>
@@ -15,8 +15,8 @@ namespace QmlDesigner {
 static constexpr char mainPropertyEditorId[] = "Properties";
 
 /*!
- * \class QmlDesigner::ExtraPropertyEditorAction
- * \inheaderfile extrapropertyeditoraction.h
+ * \class QmlDesigner::MultiPropertyEditorAction
+ * \inheaderfile multipropertyeditoraction.h
  * \internal
  * \brief This action controls or reflects the collective state of all other individual actions.
  * When activated, it enables all associated actions; when deactivated, it disables them.
@@ -35,14 +35,14 @@ static bool isViewClosed(AbstractView *view)
     return true;
 }
 
-ExtraPropertyEditorAction::ExtraPropertyEditorAction(QObject *parent)
+MultiPropertyEditorAction::MultiPropertyEditorAction(QObject *parent)
     : QAction("Properties", parent)
 {
-    connect(this, &QAction::toggled, this, &ExtraPropertyEditorAction::checkAll);
+    connect(this, &QAction::toggled, this, &MultiPropertyEditorAction::checkAll);
     setCheckable(true);
 }
 
-void ExtraPropertyEditorAction::registerView(PropertyEditorView *view)
+void MultiPropertyEditorAction::registerView(PropertyEditorView *view)
 {
     QTC_ASSERT(view, return);
 
@@ -73,7 +73,7 @@ void ExtraPropertyEditorAction::registerView(PropertyEditorView *view)
     });
 }
 
-void ExtraPropertyEditorAction::unregisterView(PropertyEditorView *view)
+void MultiPropertyEditorAction::unregisterView(PropertyEditorView *view)
 {
     QTC_ASSERT(view, return);
 
@@ -92,7 +92,7 @@ void ExtraPropertyEditorAction::unregisterView(PropertyEditorView *view)
     disconnect(view->action(), 0, this, 0);
 }
 
-bool ExtraPropertyEditorAction::eventFilter(QObject *watched, QEvent *event)
+bool MultiPropertyEditorAction::eventFilter(QObject *watched, QEvent *event)
 {
     switch (event->type()) {
     case QEvent::Hide:
@@ -107,19 +107,19 @@ bool ExtraPropertyEditorAction::eventFilter(QObject *watched, QEvent *event)
     return QAction::eventFilter(watched, event);
 }
 
-void ExtraPropertyEditorAction::increaseOne()
+void MultiPropertyEditorAction::increaseOne()
 {
     m_count++;
     setChecked(true);
 }
 
-void ExtraPropertyEditorAction::decreaseOne()
+void MultiPropertyEditorAction::decreaseOne()
 {
     if (--m_count == 0)
         setChecked(false);
 }
 
-void ExtraPropertyEditorAction::checkAll(bool value)
+void MultiPropertyEditorAction::checkAll(bool value)
 {
     for (PropertyEditorView *view : std::as_const(m_views)) {
         bool currentValue = view->action()->isChecked();
@@ -139,7 +139,7 @@ void ExtraPropertyEditorAction::checkAll(bool value)
     QmlDesignerPlugin::instance()->viewManager().hideSingleWidgetTitleBars(mainPropertyEditorId);
 }
 
-void ExtraPropertyEditorAction::uncheckIfAllWidgetsHidden()
+void MultiPropertyEditorAction::uncheckIfAllWidgetsHidden()
 {
     if (!isChecked())
         return;
@@ -151,7 +151,7 @@ void ExtraPropertyEditorAction::uncheckIfAllWidgetsHidden()
     setChecked(false);
 }
 
-void ExtraPropertyEditorAction::setCheckedIfWidgetRegistered(QObject *widgetObject)
+void MultiPropertyEditorAction::setCheckedIfWidgetRegistered(QObject *widgetObject)
 {
     if (isChecked())
         return;
@@ -164,7 +164,7 @@ void ExtraPropertyEditorAction::setCheckedIfWidgetRegistered(QObject *widgetObje
     }
 }
 
-void ExtraPropertyEditorAction::ensureParentId(PropertyEditorView *view)
+void MultiPropertyEditorAction::ensureParentId(PropertyEditorView *view)
 {
     if (!view || view == PropertyEditorView::instance())
         return;
@@ -178,13 +178,13 @@ void ExtraPropertyEditorAction::ensureParentId(PropertyEditorView *view)
     view->setWidgetInfo(widgetInfo);
 }
 
-void ExtraPropertyEditorAction::showExtraWidget(PropertyEditorView *view)
+void MultiPropertyEditorAction::showExtraWidget(PropertyEditorView *view)
 {
     if (auto wr = view->widgetRegistration())
         wr->showExtraWidget(view->widgetInfo());
 }
 
-void ExtraPropertyEditorAction::closeExtraWidget(PropertyEditorView *view)
+void MultiPropertyEditorAction::closeExtraWidget(PropertyEditorView *view)
 {
     if (auto wr = view->widgetRegistration())
         wr->hideExtraWidget(view->widgetInfo());

@@ -5,16 +5,15 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace ExtraPropertyEditorManager {
+namespace QmlDesigner {
 
-class ExtraPropertyEditorManagerPlugin : public ExtensionSystem::IPlugin
+class MultiPropertyEditorPlugin : public ExtensionSystem::IPlugin
 {
         Q_OBJECT
-        Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE
-                              "ExtraPropertyEditorManager.json")
+        Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "MultiPropertyEditor.json")
     public:
         bool initialize(const QStringList &arguments, QString *errorString) override;
         bool delayedInitialize() override;
 };
 
-} //  namespace ExtraPropertyEditorManager
+} // namespace QmlDesigner

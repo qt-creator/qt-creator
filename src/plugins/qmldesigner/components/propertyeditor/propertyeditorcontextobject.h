@@ -51,8 +51,8 @@ class PropertyEditorContextObject : public QObject
 
     Q_PROPERTY(bool isSelectionLocked READ isSelectionLocked WRITE setIsSelectionLocked NOTIFY isSelectionLockedChanged)
 
-    Q_PROPERTY(bool isExtraPropertyEditorPluginEnabled READ isExtraPropertyEditorPluginEnabled
-                   NOTIFY isExtraPropertyEditorPluginEnabledChanged)
+    Q_PROPERTY(bool isMultiPropertyEditorPluginEnabled READ isMultiPropertyEditorPluginEnabled
+                   NOTIFY isMultiPropertyEditorPluginEnabledChanged)
     Q_PROPERTY(bool insightEnabled MEMBER m_insightEnabled NOTIFY insightEnabledChanged)
     Q_PROPERTY(QStringList insightCategories MEMBER m_insightCategories NOTIFY insightCategoriesChanged)
 
@@ -157,7 +157,7 @@ public:
 
     void setIsSelectionLocked(bool lock);
     bool isSelectionLocked() const;
-    bool isExtraPropertyEditorPluginEnabled() const;
+    bool isMultiPropertyEditorPluginEnabled() const;
 
     void setQuickWidget(QQuickWidget *newQuickWidget);
 
@@ -184,7 +184,7 @@ signals:
     void has3DSceneChanged();
     void isQt6ProjectChanged();
     void isSelectionLockedChanged();
-    void isExtraPropertyEditorPluginEnabledChanged();
+    void isMultiPropertyEditorPluginEnabledChanged();
 
     void insightEnabledChanged();
     void insightCategoriesChanged();

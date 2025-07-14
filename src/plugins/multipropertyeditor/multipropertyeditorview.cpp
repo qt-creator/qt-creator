@@ -1,9 +1,9 @@
 // Copyright (C) 2025 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "extrapropertyeditorview.h"
+#include "multipropertyeditorview.h"
 
-#include "extrapropertyeditoraction.h"
+#include "multipropertyeditoraction.h"
 
 #include <propertyeditorview.h>
 #include <qmldesignerplugin.h>
@@ -12,17 +12,17 @@
 #include <utils/algorithm.h>
 namespace QmlDesigner {
 
-ExtraPropertyEditorView::ExtraPropertyEditorView(
+MultiPropertyEditorView::MultiPropertyEditorView(
     class AsynchronousImageCache &imageCache, ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_imageCache{imageCache}
     , m_externalDependencies{externalDependencies}
-    , m_unifiedAction(new ExtraPropertyEditorAction(this))
+    , m_unifiedAction(new MultiPropertyEditorAction(this))
 {}
 
-ExtraPropertyEditorView::~ExtraPropertyEditorView() {};
+MultiPropertyEditorView::~MultiPropertyEditorView() {};
 
-void ExtraPropertyEditorView::customNotification(const AbstractView *view,
+void MultiPropertyEditorView::customNotification(const AbstractView *view,
                                                  const QString &identifier,
                                                  const QList<ModelNode> &nodeList,
                                                  const QList<QVariant> &data)
@@ -55,7 +55,7 @@ void ExtraPropertyEditorView::customNotification(const AbstractView *view,
 }
 
 // Controls and reflects the collective on/off state of all other individual view actions
-ExtraPropertyEditorAction *ExtraPropertyEditorView::unifiedAction() const
+MultiPropertyEditorAction *MultiPropertyEditorView::unifiedAction() const
 {
     return m_unifiedAction;
 }

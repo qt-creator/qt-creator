@@ -45,7 +45,7 @@ Rectangle {
         id: addExtraViewButton
         anchors.right: lockButton.left
         anchors.verticalCenter: parent.verticalCenter
-        visible: has3DScene && isExtraPropertyEditorPluginEnabled
+        visible: has3DScene && isMultiPropertyEditorPluginEnabled
         buttonIcon: StudioTheme.Constants.add_medium
         style: StudioTheme.Values.viewBarButtonStyle
         enabled: true

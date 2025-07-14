@@ -10,12 +10,12 @@ namespace QmlDesigner {
 
 class PropertyEditorView;
 
-class ExtraPropertyEditorAction : public QAction
+class MultiPropertyEditorAction : public QAction
 {
     Q_OBJECT
 
 public:
-    explicit ExtraPropertyEditorAction(QObject *parent);
+    explicit MultiPropertyEditorAction(QObject *parent);
     void registerView(PropertyEditorView *view);
     void unregisterView(PropertyEditorView *view);
 

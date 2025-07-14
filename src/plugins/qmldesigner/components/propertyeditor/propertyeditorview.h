@@ -182,7 +182,7 @@ private: //variables
     QString m_widgetTabName = tr("Properties");
 
     friend class PropertyEditorDynamicPropertiesProxyModel;
-    friend class ExtraPropertyEditorAction;
+    friend class MultiPropertyEditorAction;
 };
 
 } //QmlDesigner
