@@ -139,6 +139,7 @@ private:
     void stdError(const QString &line);
 
     void reportWarningOrError(const QString &message, Task::TaskType type);
+    void setInstallApkError(const QString &details);
 
     QString m_serialNumber;
     QString m_avdName;
@@ -151,6 +152,7 @@ private:
     FilePath m_command;
     FilePath m_workingDirectory;
     Environment m_environment;
+    Task m_installApkError;
 };
 
 AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
@@ -163,6 +165,13 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
     m_uninstallPreviousPackage.setLabel(Tr::tr("Uninstall the existing app before deployment"),
                                          BoolAspect::LabelPlacement::AtCheckBox);
     m_uninstallPreviousPackage.setValue(false);
+}
+
+void AndroidDeployQtStep::setInstallApkError(const QString &details)
+{
+    m_installApkError = OtherTask(
+        Task::DisruptingError, Tr::tr("Could not install custom APK.").append('\n').append(details));
+    TaskHub::addTask(m_installApkError);
 }
 
 bool AndroidDeployQtStep::init()
@@ -526,6 +535,10 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
     installCustomApkButton->setText(Tr::tr("Install an APK File"));
 
     connect(installCustomApkButton, &QAbstractButton::clicked, this, [this] {
+        if (!m_installApkError.isNull()) {
+            TaskHub::removeTask(m_installApkError);
+            m_installApkError.clear();
+        }
         const FilePath packagePath
                 = FileUtils::getOpenFilePath(Tr::tr("Qt Android Installer"),
                                              FileUtils::homePath(),
@@ -554,9 +567,10 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
             *serialNumberStorage = info.serialNumber;
             return SetupResult::StopWithSuccess;
         };
-        const auto onDone = [serialNumberStorage, info](DoneWith result) {
+        const auto onDone = [serialNumberStorage, info, self = QPointer(this)](DoneWith result) {
             if (info.type == IDevice::Emulator && serialNumberStorage->isEmpty()) {
-                Core::MessageManager::writeDisrupting(Tr::tr("Starting Android virtual device failed."));
+                if (self)
+                    self->setInstallApkError(Tr::tr("Starting Android virtual device failed."));
                 return false;
             }
             return result == DoneWith::Success;
@@ -568,13 +582,12 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
                                    "install", "-r", packagePath.path()}};
             process.setCommand(cmd);
         };
-        const auto onAdbDone = [](const Process &process, DoneWith result) {
+        const auto onAdbDone = [self = QPointer(this)](const Process &process, DoneWith result) {
             if (result == DoneWith::Success) {
                 Core::MessageManager::writeSilently(
                     Tr::tr("Android package installation finished with success."));
-            } else {
-                Core::MessageManager::writeDisrupting(Tr::tr("Android package installation failed.")
-                                                      + '\n' + process.cleanedStdErr());
+            } else if (self) {
+                self->setInstallApkError(process.exitMessage());
             }
         };
 
