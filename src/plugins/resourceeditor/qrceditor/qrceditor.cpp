@@ -468,7 +468,7 @@ void ResourceView::refresh()
 QStringList ResourceView::fileNamesToAdd()
 {
     return QFileDialog::getOpenFileNames(this, Tr::tr("Open File"),
-            m_qrcModel->absolutePath(QString()),
+            m_qrcModel->filePath().toFSPathString(),
             Tr::tr("All files (*)"));
 }
 
@@ -511,7 +511,7 @@ QString ResourceView::currentResourcePath() const
         return QLatin1Char(':') + currentPrefix() + QLatin1Char('/') + alias;
 
     return QLatin1Char(':') + currentPrefix() + QLatin1Char('/')
-        + m_qrcModel->relativePath(m_qrcModel->file(current).path());
+        + m_qrcModel->relativePath(m_qrcModel->file(current));
 }
 
 QString ResourceView::getCurrentValue(NodeProperty property) const

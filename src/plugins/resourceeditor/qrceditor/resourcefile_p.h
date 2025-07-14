@@ -47,7 +47,7 @@ private:
 class File : public Node
 {
 public:
-    File(Prefix *prefix, const QString &_name, const QString &_alias = QString());
+    File(Prefix *prefix, const Utils::FilePath &_name, const QString &_alias = QString());
     void checkExistence();
     bool exists();
     void setExists(bool exists);
@@ -56,7 +56,7 @@ public:
     bool operator == (const File &other) const { return name == other.name; }
     bool operator != (const File &other) const { return name != other.name; }
 
-    QString name;
+    Utils::FilePath name;
     QString alias;
     QIcon icon;
 
@@ -142,8 +142,8 @@ public:
     bool contains(const QString &prefix, const QString &lang, const QString &file = QString()) const;
     bool contains(int pref_idx, const QString &file) const;
 
-    QString relativePath(const QString &abs_path) const;
-    QString absolutePath(const QString &rel_path) const;
+    QString relativePath(const Utils::FilePath &abs_path) const;
+    Utils::FilePath absolutePath(const QString &rel_path) const;
 
     void orderList();
 
@@ -218,9 +218,7 @@ public:
     QModelIndex getIndex(const QString &prefix, const QString &lang, const QString &file);
     QModelIndex prefixIndex(const QModelIndex &sel_idx) const;
 
-    QString absolutePath(const QString &path) const
-        { return m_resource_file.absolutePath(path); }
-    QString relativePath(const QString &path) const
+    QString relativePath(const Utils::FilePath &path) const
         { return m_resource_file.relativePath(path); }
 
 private:
@@ -242,7 +240,7 @@ public:
 private:
     QMimeData *mimeData (const QModelIndexList & indexes) const override;
 
-    static bool iconFileExtension(const QString &path);
+    static bool hasIconFileExtension(const QString &path);
     static QString resourcePath(const QString &prefix, const QString &file);
 
 signals:
