@@ -99,6 +99,7 @@ const char TASK_CATEGORY_BUILDSYSTEM[] = "Task.Category.Buildsystem";
 const char TASK_CATEGORY_DEPLOYMENT[] = "Task.Category.Deploy";
 const char TASK_CATEGORY_AUTOTEST[] = "Task.Category.Autotest";
 const char TASK_CATEGORY_SANITIZER[] = "Task.Category.Analyzer";
+const char TASK_CATEGORY_OTHER[] = "Task.Category.Other";
 const char TASK_CATEGORY_TASKLIST_ID[] = "Task.Category.TaskListId";
 
 // Wizard categories

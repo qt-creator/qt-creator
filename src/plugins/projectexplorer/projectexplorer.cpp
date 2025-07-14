@@ -2127,6 +2127,9 @@ void ProjectExplorerPlugin::extensionsInitialized()
     TaskHub::addCategory({Constants::TASK_CATEGORY_TASKLIST_ID,
                           Tr::tr("My Tasks"),
                           Tr::tr("Issues from a task list file (.tasks).")});
+    TaskHub::addCategory({Constants::TASK_CATEGORY_OTHER,
+                          Tr::tr("Other"),
+                          Tr::tr("Issues not covered by a more specialized category.")});
 
     SshSettings::loadSettings(ICore::settings());
     const auto searchPathRetriever = [] {
