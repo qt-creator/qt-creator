@@ -2121,9 +2121,6 @@ void ProjectExplorerPlugin::extensionsInitialized()
     });
 
     BuildManager::extensionsInitialized();
-    TaskHub::addCategory({Constants::TASK_CATEGORY_SANITIZER,
-                          Tr::tr("Sanitizer", "Category for sanitizer issues listed under 'Issues'"),
-                          Tr::tr("Memory handling issues that the address sanitizer found.")});
     TaskHub::addCategory({Constants::TASK_CATEGORY_TASKLIST_ID,
                           Tr::tr("My Tasks"),
                           Tr::tr("Issues from a task list file (.tasks).")});

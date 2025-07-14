@@ -53,7 +53,7 @@ OutputLineParser::Result SanitizerParser::handleLine(const QString &line, Output
     m_id = match.captured("id").toULongLong();
     QTC_ASSERT(m_id != 0, return Status::NotHandled);
     const QString description = match.captured("desc");
-    m_task = Task(Task::Error, description, {}, 0, Constants::TASK_CATEGORY_SANITIZER);
+    m_task = Task(Task::Error, description, {}, 0, Constants::TASK_CATEGORY_OTHER);
     m_task.addToDetails(line);
     return Status::InProgress;
 }
@@ -212,7 +212,7 @@ These globals were registered at these points:
 ==3792966==HINT: if you don't care about these errors you may set ASAN_OPTIONS=detect_odr_violation=0
 SUMMARY: AddressSanitizer: odr-violation: global 'lre_id_continue_table_ascii' at /sda/home/christian/dev/qbs/master/src/src/shared/quickjs/libregexp.c:193:16)",
                 FilePath::fromUserInput("/sda/home/christian/dev/qbs/master/src/src/shared/quickjs/libregexp.c"),
-                193, Constants::TASK_CATEGORY_SANITIZER);
+                193, Constants::TASK_CATEGORY_OTHER);
         odrTask.setColumn(16);
         QTest::newRow("odr violation")
                 << odrInput
@@ -234,7 +234,7 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
         const QStringList leakNonMatchedLines{QString()};
         const Task leakTask(Task::Error,
                 QString("AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).") + leakInput,
-                {}, -1, Constants::TASK_CATEGORY_SANITIZER);
+                {}, -1, Constants::TASK_CATEGORY_OTHER);
         QTest::newRow("leak") << leakInput << QList<Task>{leakTask} << leakNonMatchedLines;
     }
 
