@@ -10,6 +10,7 @@
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/task.h>
 
 #include <utils/environment.h>
 #include <utils/id.h>
@@ -137,6 +138,9 @@ private:
 
     static bool ensureWriteableQbsFile(const Utils::FilePath &file);
 
+    void clearFileUpdateError();
+    void setFileUpdateError(const QString &reason);
+
     QbsSession * const m_session;
     QSet<Core::IDocument *> m_qbsDocuments;
     QJsonObject m_projectData; // TODO: Perhaps store this in the root project node instead?
@@ -155,6 +159,7 @@ private:
     QHash<QString, Utils::Environment> m_envCache;
 
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
+    ProjectExplorer::Task m_fileUpdateError;
 };
 
 } // namespace Internal

@@ -46,13 +46,11 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
-#include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
 
 #include <qtsupport/qtcppkitinfo.h>
@@ -221,6 +219,8 @@ bool QbsBuildSystem::supportsAction(Node *context, ProjectAction action, const N
 
 bool QbsBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
+    clearFileUpdateError();
+
     if (auto n = dynamic_cast<QbsGroupNode *>(context)) {
         FilePaths notAddedDummy;
         if (!notAdded)
@@ -244,6 +244,8 @@ bool QbsBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePat
 RemovedFilesFromProject QbsBuildSystem::removeFiles(Node *context, const FilePaths &filePaths,
                                                     FilePaths *notRemoved)
 {
+    clearFileUpdateError();
+
     if (auto n = dynamic_cast<QbsGroupNode *>(context)) {
         FilePaths notRemovedDummy;
         if (!notRemoved)
@@ -266,6 +268,8 @@ RemovedFilesFromProject QbsBuildSystem::removeFiles(Node *context, const FilePat
 
 bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, FilePaths *notRenamed)
 {
+    clearFileUpdateError();
+
     if (auto *n = dynamic_cast<QbsGroupNode *>(context)) {
         const QbsProductNode * const prdNode = parentQbsProductNode(n);
         QTC_ASSERT(prdNode, return false);
@@ -314,6 +318,8 @@ bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, 
 
 bool QbsBuildSystem::addDependencies(ProjectExplorer::Node *context, const QStringList &dependencies)
 {
+    clearFileUpdateError();
+
     const QStringList lowercaseDeps = transform(dependencies, [](const QString &dep) -> QString {
         QTC_ASSERT(dep.size() > 3, return dep);
         return dep.left(3) + dep.mid(3).toLower();
@@ -385,6 +391,22 @@ bool QbsBuildSystem::ensureWriteableQbsFile(const FilePath &file)
     return true;
 }
 
+void QbsBuildSystem::clearFileUpdateError()
+{
+    if (!m_fileUpdateError.isNull()) {
+        TaskHub::removeTask(m_fileUpdateError);
+        m_fileUpdateError.clear();
+    }
+}
+
+void QbsBuildSystem::setFileUpdateError(const QString &reason)
+{
+    m_fileUpdateError = OtherTask(
+        Task::Error, Tr::tr("Error updating qbs project file.").append('\n').append(reason));
+    TaskHub::addTask(m_fileUpdateError);
+    TaskHub::requestPopup();
+}
+
 bool QbsBuildSystem::addFilesToProduct(
         const FilePaths &filePaths,
         const QJsonObject &product,
@@ -397,7 +419,7 @@ bool QbsBuildSystem::addFilesToProduct(
                 product.value("full-display-name").toString(),
                 group.value("name").toString());
     if (result.error().hasError()) {
-        MessageManager::writeDisrupting(result.error().toString());
+        setFileUpdateError(result.error().toString());
         *notAdded = FilePaths::fromStrings(result.failedFiles());
     }
     return notAdded->isEmpty();
@@ -431,7 +453,7 @@ RemovedFilesFromProject QbsBuildSystem::removeFilesFromProduct(
         return projectFilePath().withNewPath(f);
     });
     if (result.error().hasError())
-        MessageManager::writeDisrupting(result.error().toString());
+        setFileUpdateError(result.error().toString());
     const bool success = notRemoved->isEmpty();
     if (!wildcardFiles.isEmpty())
         *notRemoved += wildcardFiles;
@@ -486,7 +508,7 @@ bool QbsBuildSystem::renameFilesInProduct(
         return projectFilePath().withNewPath(f);
     });
     if (result.error().hasError())
-        MessageManager::writeDisrupting(result.error().toString());
+        setFileUpdateError(result.error().toString());
     return notRenamed->isEmpty();
 }
 
@@ -497,7 +519,7 @@ bool QbsBuildSystem::addDependenciesToProduct(
     const ErrorInfo error = session()->addDependencies(
         deps, product.value("full-display-name").toString(), group.value("name").toString());
     if (error.hasError()) {
-        MessageManager::writeDisrupting(error.toString());
+        setFileUpdateError(error.toString());
         return false;
     }
     return true;
