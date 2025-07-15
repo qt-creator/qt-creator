@@ -198,7 +198,7 @@ Toolchains NimToolchainFactory::autoDetect(const ToolchainDetector &detector) co
         return result;
 
     auto tc = new NimToolchain;
-    tc->setDetection(Toolchain::AutoDetection);
+    tc->setDetectionSource(DetectionSource::FromSystem);
     tc->setCompilerCommand(compilerPath);
     result.append(tc);
     return result;
@@ -209,7 +209,7 @@ Toolchains NimToolchainFactory::detectForImport(const ToolchainDescription &tcd)
     Toolchains result;
     if (tcd.language == Constants::C_NIMLANGUAGE_ID) {
         auto tc = new NimToolchain;
-        tc->setDetection(Toolchain::ManualDetection); // FIXME: sure?
+        tc->setDetectionSource(DetectionSource::Manual); // FIXME: sure?
         tc->setCompilerCommand(tcd.compilerPath);
         result.append(tc);
     }

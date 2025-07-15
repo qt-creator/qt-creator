@@ -49,8 +49,6 @@ QList<ToolchainFactory *> &toolchainFactories()
 class ToolchainPrivate
 {
 public:
-    using Detection = Toolchain::Detection;
-
     explicit ToolchainPrivate(Id typeId) :
         m_id(QUuid::createUuid().toByteArray()),
         m_typeId(typeId),
@@ -72,8 +70,7 @@ public:
     QString m_typeDisplayName;
     Id m_typeId;
     Id m_language;
-    Detection m_detection = Toolchain::UninitializedDetection;
-    QString m_detectionSource;
+    DetectionSource m_detectionSource;
     QString m_explicitCodeModelTargetTriple;
 
     Toolchain::MacrosCache m_predefinedMacrosCache;
@@ -170,17 +167,7 @@ void Toolchain::setDisplayName(const QString &name)
     toolChainUpdated();
 }
 
-bool Toolchain::isAutoDetected() const
-{
-    return detection() == AutoDetection || detection() == AutoDetectionFromSdk;
-}
-
-Toolchain::Detection Toolchain::detection() const
-{
-    return d->m_detection;
-}
-
-QString Toolchain::detectionSource() const
+DetectionSource Toolchain::detectionSource() const
 {
     return d->m_detectionSource;
 }
@@ -202,7 +189,7 @@ Id Toolchain::bundleId() const
     return d->m_bundleId;
 }
 
-void Toolchain::setBundleId(Utils::Id id)
+void Toolchain::setBundleId(Id id)
 {
     d->m_bundleId = id;
 }
@@ -215,7 +202,7 @@ bool Toolchain::canShareBundle(const Toolchain &other) const
 
     if (int(factory()->supportedLanguages().size()) == 1)
         return false;
-    if (detection() != other.detection())
+    if (detectionSource().type != other.detectionSource().type)
         return false;
 
     if (typeId() != Constants::MSVC_TOOLCHAIN_TYPEID
@@ -272,7 +259,7 @@ bool Toolchain::operator == (const Toolchain &tc) const
 
     // We ignore displayname
     return typeId() == tc.typeId()
-            && isAutoDetected() == tc.isAutoDetected()
+            && detectionSource().isAutoDetected() == tc.detectionSource().isAutoDetected() // FIXME: intended?
             && language() == tc.language();
 }
 
@@ -306,8 +293,8 @@ void Toolchain::toMap(Store &result) const
     result.insert(ID_KEY, idToSave);
     result.insert(BUNDLE_ID_KEY, d->m_bundleId.toSetting());
     result.insert(DISPLAY_NAME_KEY, displayName());
-    result.insert(AUTODETECT_KEY, isAutoDetected());
-    result.insert(DETECTION_SOURCE_KEY, d->m_detectionSource);
+    result.insert(AUTODETECT_KEY, d->m_detectionSource.isAutoDetected());
+    result.insert(DETECTION_SOURCE_KEY, d->m_detectionSource.id);
     result.insert(CODE_MODEL_TRIPLE_KEY, d->m_explicitCodeModelTargetTriple);
     // <Compatibility with QtC 4.2>
     int oldLanguageId = -1;
@@ -333,12 +320,7 @@ void Toolchain::toolChainUpdated()
     ToolchainManager::notifyAboutUpdate(this);
 }
 
-void Toolchain::setDetection(Toolchain::Detection de)
-{
-    d->m_detection = de;
-}
-
-void Toolchain::setDetectionSource(const QString &source)
+void Toolchain::setDetectionSource(const DetectionSource &source)
 {
     d->m_detectionSource = source;
 }
@@ -453,8 +435,9 @@ void Toolchain::fromMap(const Store &data)
     d->m_bundleId = Id::fromSetting(data.value(BUNDLE_ID_KEY));
 
     const bool autoDetect = data.value(AUTODETECT_KEY, false).toBool();
-    d->m_detection = autoDetect ? AutoDetection : ManualDetection;
-    d->m_detectionSource = data.value(DETECTION_SOURCE_KEY).toString();
+    d->m_detectionSource.type = autoDetect ? DetectionSource::FromSystem
+                                           : DetectionSource::Manual;
+    d->m_detectionSource.id = data.value(DETECTION_SOURCE_KEY).toString();
 
     d->m_explicitCodeModelTargetTriple = data.value(CODE_MODEL_TRIPLE_KEY).toString();
 
@@ -979,7 +962,7 @@ ToolchainFactory *ToolchainBundle::factory() const
 
 QString ToolchainBundle::displayName() const
 {
-    if (!isSdkProvided() || !dynamic_cast<GccToolchain *>(m_toolchains.first()))
+    if (!detectionSource().isSdkProvided() || !dynamic_cast<GccToolchain *>(m_toolchains.first()))
         return get(&Toolchain::displayName);
 
     // Auto-detected GCC toolchains encode language and compiler command in their display names.

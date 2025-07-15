@@ -114,7 +114,8 @@ static QList<GccToolchain *> autoDetectedIosToolchains()
 {
     const QList<GccToolchain *> toolchains = clangToolchains(ToolchainManager::toolchains());
     return filtered(toolchains, [](GccToolchain *toolChain) {
-        return toolChain->isAutoDetected() && toolChain->detectionSource() == iosDetectionSource;
+        const DetectionSource ds = toolChain->detectionSource();
+        return ds.isAutoDetected() && ds.id == iosDetectionSource;
     });
 }
 
@@ -631,8 +632,7 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                     existingClangToolchains.append(toolChain);
                 }
                 toolChain->setPriority(Toolchain::PriorityLow);
-                toolChain->setDetection(Toolchain::AutoDetection);
-                toolChain->setDetectionSource(iosDetectionSource);
+                toolChain->setDetectionSource({DetectionSource::FromSystem, iosDetectionSource});
                 toolChain->setDisplayName(target.name);
                 toolchains.append(toolChain);
             };

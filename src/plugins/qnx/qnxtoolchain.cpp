@@ -177,11 +177,11 @@ QnxToolchainConfigWidget::QnxToolchainConfigWidget(const ToolchainBundle &bundle
     m_sdpPath->setExpectedKind(PathChooser::ExistingDirectory);
     m_sdpPath->setHistoryCompleter("Qnx.Sdp.History");
     m_sdpPath->setFilePath(bundle.get<QnxToolchain>(&QnxToolchain::sdpPath)());
-    m_sdpPath->setEnabled(!bundle.isAutoDetected());
+    m_sdpPath->setEnabled(!bundle.detectionSource().isAutoDetected());
 
     const Abis abiList = detectTargetAbis(m_sdpPath->filePath());
     m_abiWidget->setAbis(abiList, bundle.targetAbi());
-    m_abiWidget->setEnabled(!bundle.isAutoDetected() && !abiList.isEmpty());
+    m_abiWidget->setEnabled(!bundle.detectionSource().isAutoDetected() && !abiList.isEmpty());
 
     //: SDP refers to 'Software Development Platform'.
     m_mainLayout->addRow(Tr::tr("SDP path:"), m_sdpPath);
@@ -194,7 +194,7 @@ QnxToolchainConfigWidget::QnxToolchainConfigWidget(const ToolchainBundle &bundle
 
 void QnxToolchainConfigWidget::applyImpl()
 {
-    if (bundle().isAutoDetected())
+    if (bundle().detectionSource().isAutoDetected())
         return;
 
     bundle().setTargetAbi(m_abiWidget->currentAbi());

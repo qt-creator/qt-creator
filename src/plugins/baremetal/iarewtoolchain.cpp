@@ -544,7 +544,7 @@ Toolchains IarToolchainFactory::autoDetectToolchain(const Candidate &candidate, 
     const Abi abi = guessAbi(macros);
 
     const auto tc = new IarToolchain;
-    tc->setDetection(Toolchain::AutoDetection);
+    tc->setDetectionSource(DetectionSource::FromSystem);
     tc->setLanguage(languageId);
     tc->setCompilerCommand(candidate.compilerPath);
     tc->setTargetAbi(abi);
@@ -581,7 +581,7 @@ IarToolchainConfigWidget::IarToolchainConfigWidget(const ToolchainBundle &bundle
 
 void IarToolchainConfigWidget::applyImpl()
 {
-    if (bundle().isAutoDetected())
+    if (bundle().detectionSource().isAutoDetected())
         return;
 
     bundle().forEach<IarToolchain>([this](IarToolchain &tc) {
@@ -620,7 +620,7 @@ void IarToolchainConfigWidget::setFromToolchain()
     const QSignalBlocker blocker(this);
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(bundle().extraCodeModelFlags()));
     m_abiWidget->setAbis({}, bundle().targetAbi());
-    m_abiWidget->setEnabled(hasAnyCompiler() && !bundle().isAutoDetected());
+    m_abiWidget->setEnabled(hasAnyCompiler() && !bundle().detectionSource().isAutoDetected());
 }
 
 void IarToolchainConfigWidget::handleCompilerCommandChange(Id language)
@@ -636,7 +636,7 @@ void IarToolchainConfigWidget::handleCompilerCommandChange(Id language)
         const Abi guessed = guessAbi(macros);
         m_abiWidget->setAbis({}, guessed);
     }
-    m_abiWidget->setEnabled(hasAnyCompiler() && !bundle().isAutoDetected());
+    m_abiWidget->setEnabled(hasAnyCompiler() && !bundle().detectionSource().isAutoDetected());
     emit dirty();
 }
 

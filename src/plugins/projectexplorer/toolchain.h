@@ -8,6 +8,7 @@
 #include "abi.h"
 #include "devicesupport/idevicefwd.h"
 #include "headerpath.h"
+#include "kitaspect.h"
 #include "projectmacro.h"
 #include "task.h"
 #include "toolchaincache.h"
@@ -66,13 +67,6 @@ using LanguageCategory = QSet<Utils::Id>;
 class PROJECTEXPLORER_EXPORT Toolchain : public Utils::AspectContainer
 {
 public:
-    enum Detection {
-        ManualDetection,
-        AutoDetection,
-        AutoDetectionFromSdk,
-        UninitializedDetection,
-    };
-
     using Predicate = std::function<bool(const Toolchain *)>;
 
     virtual ~Toolchain();
@@ -80,10 +74,7 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &name);
 
-    bool isAutoDetected() const;
-    bool isSdkProvided() const { return detection() == AutoDetectionFromSdk; }
-    Detection detection() const;
-    QString detectionSource() const;
+    DetectionSource detectionSource() const;
     ToolchainFactory *factory() const;
 
     QByteArray id() const;
@@ -160,8 +151,7 @@ public:
     virtual bool isJobCountSupported() const { return true; }
 
     void setLanguage(Utils::Id language);
-    void setDetection(Detection d);
-    void setDetectionSource(const QString &source);
+    void setDetectionSource(const DetectionSource &source);
 
     static Utils::LanguageVersion cxxLanguageVersion(const QByteArray &cplusplusMacroValue);
     static Utils::LanguageVersion languageVersion(const Utils::Id &language, const Macros &macros);
@@ -284,8 +274,7 @@ public:
     Utils::Id type() const { return get(&Toolchain::typeId); }
     QString typeDisplayName() const { return get(&Toolchain::typeDisplayName); }
     QStringList extraCodeModelFlags() const { return get(&Toolchain::extraCodeModelFlags); }
-    bool isAutoDetected() const { return get(&Toolchain::isAutoDetected); }
-    bool isSdkProvided() const { return get(&Toolchain::isSdkProvided); }
+    DetectionSource detectionSource() const { return get(&Toolchain::detectionSource); }
     Utils::FilePath compilerCommand(Utils::Id language) const;
     Abi targetAbi() const { return get(&Toolchain::targetAbi); }
     QList<Abi> supportedAbis() const { return get(&Toolchain::supportedAbis); }
@@ -298,7 +287,7 @@ public:
     Valid validity() const;
     bool isCompletelyValid() const { return validity() == Valid::All; }
 
-    void setDetection(Toolchain::Detection d) { set(&Toolchain::setDetection, d); }
+    void setDetectionSource(const DetectionSource &s) { set(&Toolchain::setDetectionSource, s); }
     void setCompilerCommand(Utils::Id language, const Utils::FilePath &cmd);
 
     void setDisplayName(const QString &name) { set(&Toolchain::setDisplayName, name); }

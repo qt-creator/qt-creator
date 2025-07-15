@@ -32,8 +32,10 @@
 #include "mcutargetfactorylegacy.h"
 
 #include <baremetal/baremetalconstants.h>
+
 #include <cmakeprojectmanager/cmakeconfigitem.h>
 #include <cmakeprojectmanager/cmakekitaspect.h>
+
 #include <gmock/gmock-actions.h>
 #include <gmock/gmock.h>
 
@@ -61,6 +63,7 @@
 namespace McuSupport::Internal::Test {
 
 using namespace Utils;
+using namespace ProjectExplorer;
 
 using Legacy::Constants::QUL_CMAKE_VAR;
 using Legacy::Constants::QUL_ENV_VAR;
@@ -69,10 +72,6 @@ using Legacy::Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE;
 using Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE;
 
 using CMakeProjectManager::CMakeConfigurationKitAspect;
-using ProjectExplorer::Kit;
-using ProjectExplorer::KitManager;
-using ProjectExplorer::Toolchain;
-using ProjectExplorer::ToolchainManager;
 
 using testing::_;
 using testing::Return;
@@ -208,8 +207,9 @@ const McuTargetDescription::Platform platformDescription{id,
 const Id cxxLanguageId{ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 } // namespace
 
-//Expand variables in a tested {targets, packages} pair
-auto expandTargetsAndPackages = [](Targets &targets, Packages &packages) {
+// Expand variables in a tested {targets, packages} pair
+static void expandTargetsAndPackages(Targets &targets, Packages &packages)
+{
     McuSdkRepository{targets, packages}.expandVariablesAndWildcards();
 };
 
@@ -231,7 +231,7 @@ void verifyIarToolchain(const McuToolchainPackagePtr &iarToolchainPackage)
     iarToolchain = iarToolchainPackage->toolChain(cxxLanguageId);
     QVERIFY(iarToolchain != nullptr);
     QCOMPARE(iarToolchain->displayName(), "IAREW");
-    QCOMPARE(iarToolchain->detection(), Toolchain::UninitializedDetection);
+    QCOMPARE(iarToolchain->detectionSource().type, DetectionSource::Uninitialized);
 }
 
 void verifyArmGccToolchain(const McuToolchainPackagePtr &armGccPackage, const QStringList &versions)

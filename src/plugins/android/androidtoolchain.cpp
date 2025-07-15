@@ -227,7 +227,7 @@ ToolchainList autodetectToolchainsFromNdks(
                 if (auto gccTc = dynamic_cast<GccToolchain*>(tc))
                     gccTc->resetToolchain(compilerCommand);
 
-                tc->setDetection(Toolchain::AutoDetection);
+                tc->setDetectionSource(DetectionSource::FromSystem);
                 ++targetItr;
             }
         }

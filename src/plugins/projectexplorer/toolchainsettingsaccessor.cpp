@@ -157,7 +157,9 @@ static ToolChainOperations mergeToolChainLists(const Toolchains &systemFileTcs,
     Toolchains manualUserFileTcs;
     Toolchains autodetectedUserFileTcs;
     std::tie(autodetectedUserFileTcs, manualUserFileTcs)
-            = Utils::partition(uniqueUserFileTcs, &Toolchain::isAutoDetected);
+            = Utils::partition(uniqueUserFileTcs,[](Toolchain *tc) {
+                return tc->detectionSource().isAutoDetected();
+              });
     const Toolchains autodetectedUserTcs = subtractById(autodetectedUserFileTcs, systemFileTcs);
 
     // Calculate a set of Tcs that were detected before (and saved to userFile) and that
@@ -206,14 +208,16 @@ Toolchains ToolchainSettingsAccessor::restoreToolchains(QWidget *parent) const
     const Toolchains systemFileTcs = toolChains(
         restoreSettings(Core::ICore::installerResourcePath(TOOLCHAIN_FILENAME), parent));
     for (Toolchain * const systemTc : systemFileTcs)
-        systemTc->setDetection(Toolchain::AutoDetectionFromSdk);
+        systemTc->setDetectionSource(DetectionSource::FromSdk);
 
     // read all tool chains from user file.
     const Toolchains userFileTcs = toolChains(restoreSettings(parent));
 
     // Autodetect: Pass autodetected toolchains from user file so the information can be reused:
     const Toolchains autodetectedUserFileTcs
-            = Utils::filtered(userFileTcs, &Toolchain::isAutoDetected);
+            = Utils::filtered(userFileTcs, [](Toolchain *tc) {
+                return tc->detectionSource().isAutoDetected();
+              });
 
     // Autodect from system paths on the desktop device.
     // The restriction is intentional to keep startup and automatic validation a limited effort
@@ -226,8 +230,8 @@ Toolchains ToolchainSettingsAccessor::restoreToolchains(QWidget *parent) const
     // Process ops:
     for (Toolchain *tc : ops.toDemote) {
         // FIXME: We currently only demote local toolchains, as they are not redetected.
-        if (tc->detectionSource().isEmpty())
-            tc->setDetection(Toolchain::ManualDetection);
+        if (tc->detectionSource().id.isEmpty())
+            tc->setDetectionSource(DetectionSource::Manual);
     }
 
     qDeleteAll(ops.toDelete);
@@ -241,7 +245,7 @@ void ToolchainSettingsAccessor::saveToolchains(const Toolchains &toolchains, QWi
 
     int count = 0;
     for (const Toolchain *tc : toolchains) {
-        if (!tc || (!tc->isValid() && tc->isAutoDetected()))
+        if (!tc || (!tc->isValid() && tc->detectionSource().isAutoDetected()))
             continue;
         Store tmp;
         tc->toMap(tmp);
@@ -391,28 +395,28 @@ private slots:
 
         if (!TTC::hasToolChains()) {
             system1 = new TTC("system1");
-            system1->setDetection(Toolchain::AutoDetection);
+            system1->setDetectionSource(DetectionSource::FromSystem);
             system1c = system1->clone(); Q_UNUSED(system1c)
             system2 = new TTC("system2");
-            system2->setDetection(Toolchain::AutoDetection);
+            system2->setDetectionSource(DetectionSource::FromSystem);
             system3i = new TTC("system3", false);
-            system3i->setDetection(Toolchain::AutoDetection);
+            system3i->setDetectionSource(DetectionSource::FromSystem);
             user1 = new TTC("user1");
-            user1->setDetection(Toolchain::ManualDetection);
+            user1->setDetectionSource(DetectionSource::Manual);
             user1c = user1->clone(); Q_UNUSED(user1c)
             user2 = new TTC("user2");
-            user2->setDetection(Toolchain::ManualDetection);
+            user2->setDetectionSource(DetectionSource::Manual);
             user3i = new TTC("user3", false);
-            user3i->setDetection(Toolchain::ManualDetection);
+            user3i->setDetectionSource(DetectionSource::Manual);
             auto1 = new TTC("auto1");
-            auto1->setDetection(Toolchain::AutoDetection);
+            auto1->setDetectionSource(DetectionSource::FromSystem);
             auto1c = auto1->clone();
             auto1_2 = new TTC("auto1");
-            auto1_2->setDetection(Toolchain::AutoDetection);
+            auto1_2->setDetectionSource(DetectionSource::FromSystem);
             auto2 = new TTC("auto2");
-            auto2->setDetection(Toolchain::AutoDetection);
+            auto2->setDetectionSource(DetectionSource::FromSystem);
             auto3i = new TTC("auto3", false);
-            auto3i->setDetection(Toolchain::AutoDetection);
+            auto3i->setDetectionSource(DetectionSource::FromSystem);
         }
 
         QTest::newRow("no toolchains")

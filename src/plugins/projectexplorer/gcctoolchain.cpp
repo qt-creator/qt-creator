@@ -1754,7 +1754,7 @@ Toolchains GccToolchainFactory::autoDetectToolchain(const ToolchainDescription &
         auto tc = new GccToolchain({}, detectedSubType);
 
         tc->setLanguage(tcd.language);
-        tc->setDetection(Toolchain::AutoDetection);
+        tc->setDetectionSource(DetectionSource::FromSystem);
         tc->predefinedMacrosCache()
             ->insert(QStringList(),
                      Toolchain::MacroInspectionReport{*macros,
@@ -1909,7 +1909,7 @@ GccToolchainConfigWidget::GccToolchainConfigWidget(const ToolchainBundle &bundle
 
 void GccToolchainConfigWidget::applyImpl()
 {
-    if (bundle().isAutoDetected())
+    if (bundle().detectionSource().isAutoDetected())
         return;
 
     const Id parentBundleId = m_parentToolchainCombo
@@ -2061,7 +2061,7 @@ void GccToolchainConfigWidget::handlePlatformLinkerFlagsChange()
 void GccToolchain::syncAutodetectedWithParentToolchains()
 {
     if (!HostOsInfo::isWindowsHost() || typeId() != Constants::CLANG_TOOLCHAIN_TYPEID
-        || !isAutoDetected()) {
+        || !detectionSource().isAutoDetected()) {
         return;
     }
 
@@ -2163,7 +2163,7 @@ void GccToolchainConfigWidget::updateParentToolchainComboBox()
     QTC_ASSERT(m_parentToolchainCombo, return);
 
     Id parentBundleId = Id::fromSetting(m_parentToolchainCombo->currentData());
-    if (bundle().isAutoDetected() || m_parentToolchainCombo->count() == 0)
+    if (bundle().detectionSource().isAutoDetected() || m_parentToolchainCombo->count() == 0)
         parentBundleId = bundleIdFromId(bundle().get(&GccToolchain::parentToolchainId));
     const QList<ToolchainBundle> mingwBundles = Utils::filtered(
         ToolchainBundle::collectBundles(ToolchainBundle::HandleMissing::NotApplicable),
@@ -2177,7 +2177,7 @@ void GccToolchainConfigWidget::updateParentToolchainComboBox()
     m_parentToolchainCombo->addItem(parentBundle ? parentBundle->displayName() : QString(),
                                     parentBundle ? parentBundleId.toSetting() : QVariant());
 
-    if (bundle().isAutoDetected())
+    if (bundle().detectionSource().isAutoDetected())
         return;
 
     for (const ToolchainBundle &mingwBundle : mingwBundles) {

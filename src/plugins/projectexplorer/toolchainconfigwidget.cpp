@@ -57,7 +57,7 @@ ToolchainConfigWidget::ToolchainConfigWidget(const ToolchainBundle &bundle)
 void ToolchainConfigWidget::apply()
 {
     m_bundle.setDisplayName(m_nameLineEdit->text());
-    if (!bundle().isAutoDetected()) {
+    if (!bundle().detectionSource().isAutoDetected()) {
         for (const auto &[tc, pathChooser] : std::as_const(m_commands))
             bundle().setCompilerCommand(tc->language(), pathChooser->filePath());
     }

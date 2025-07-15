@@ -423,7 +423,7 @@ Toolchains SdccToolchainFactory::autoDetectToolchain(const Candidate &candidate,
             continue;
 
         const auto tc = new SdccToolchain;
-        tc->setDetection(Toolchain::AutoDetection);
+        tc->setDetectionSource(DetectionSource::FromSystem);
         tc->setLanguage(language);
         tc->setCompilerCommand(candidate.compilerPath);
         tc->setTargetAbi(abi);
@@ -459,7 +459,7 @@ SdccToolchainConfigWidget::SdccToolchainConfigWidget(const ToolchainBundle &bund
 
 void SdccToolchainConfigWidget::applyImpl()
 {
-    if (bundle().isAutoDetected())
+    if (bundle().detectionSource().isAutoDetected())
         return;
 
     bundle().setTargetAbi(m_abiWidget->currentAbi());
@@ -489,7 +489,7 @@ void SdccToolchainConfigWidget::setFromToolchain()
     m_abiWidget->setAbis({}, bundle().targetAbi());
     const bool haveCompiler
         = compilerCommand(ProjectExplorer::Constants::C_LANGUAGE_ID).isExecutableFile();
-    m_abiWidget->setEnabled(haveCompiler && !bundle().isAutoDetected());
+    m_abiWidget->setEnabled(haveCompiler && !bundle().detectionSource().isAutoDetected());
 }
 
 void SdccToolchainConfigWidget::handleCompilerCommandChange()

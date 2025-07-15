@@ -1216,13 +1216,13 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
                     addTemporaryData(ToolchainKitAspect::id(), tc->id(), k);
             }
 
-            Toolchain* toolchain = tcd.tcs.at(0);
+            Toolchain *toolchain = tcd.tcs.at(0);
             if (!cmtcd.originalTargetTriple.isEmpty())
                 toolchain->setExplicitCodeModelTargetTriple(cmtcd.originalTargetTriple);
 
             // Mark CMake presets toolchains as manual
             if (!data->cmakePresetDisplayname.isEmpty() && tcd.areTemporary)
-                toolchain->setDetection(Toolchain::ManualDetection);
+                toolchain->setDetectionSource(DetectionSource::Manual);
 
             ToolchainKitAspect::setToolchain(k, toolchain);
         }

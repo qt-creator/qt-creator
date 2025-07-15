@@ -698,7 +698,7 @@ Toolchains KeilToolchainFactory::autoDetectToolchain(const Candidate &candidate,
     }
 
     const auto tc = new KeilToolchain;
-    tc->setDetection(Toolchain::AutoDetection);
+    tc->setDetectionSource(DetectionSource::FromSystem);
     tc->setLanguage(language);
     tc->setCompilerCommand(candidate.compilerPath);
     tc->m_extraCodeModelFlags.setValue(extraArgs);
@@ -735,7 +735,7 @@ KeilToolchainConfigWidget::KeilToolchainConfigWidget(const ToolchainBundle &bund
 
 void KeilToolchainConfigWidget::applyImpl()
 {
-    if (bundle().isAutoDetected())
+    if (bundle().detectionSource().isAutoDetected())
         return;
 
     bundle().setTargetAbi(m_abiWidget->currentAbi());
@@ -772,7 +772,7 @@ void KeilToolchainConfigWidget::setFromToolchain()
     const QSignalBlocker blocker(this);
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(bundle().extraCodeModelFlags()));
     m_abiWidget->setAbis({}, bundle().targetAbi());
-    m_abiWidget->setEnabled(hasAnyCompiler() && !bundle().isAutoDetected());
+    m_abiWidget->setEnabled(hasAnyCompiler() && !bundle().detectionSource().isAutoDetected());
 }
 
 void KeilToolchainConfigWidget::handleCompilerCommandChange(Id language)

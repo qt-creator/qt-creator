@@ -3,8 +3,8 @@
 
 #include "msvctoolchain.h"
 
-#include "devicesupport/idevice.h"
 #include "abiwidget.h"
+#include "devicesupport/idevice.h"
 #include "gcctoolchain.h"
 #include "msvcparser.h"
 #include "projectexplorer.h"
@@ -1642,7 +1642,7 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
         auto cltc = new ClangClToolchain;
         cltc->setClangPath(clangClPath);
         cltc->setDisplayName(name);
-        cltc->setDetection(Toolchain::AutoDetection);
+        cltc->setDetectionSource(DetectionSource::FromSystem);
         cltc->setLanguage(language);
         cltc->setupVarsBat(toolChain->targetAbi(), toolChain->varsBat(), toolChain->varsBatArg());
         res << cltc;
@@ -1935,7 +1935,7 @@ static void detectCppBuildTools2015(Toolchains *list)
             auto tc = new MsvcToolchain(Constants::MSVC_TOOLCHAIN_TYPEID);
             tc->setupVarsBat(abi, vcVarsBat, QLatin1String(e.varsBatArg));
             tc->setDisplayName(name + QLatin1String(e.postFix));
-            tc->setDetection(Toolchain::AutoDetection);
+            tc->setDetectionSource(DetectionSource::FromSystem);
             tc->setLanguage(language);
             list->append(tc);
         }
@@ -2039,7 +2039,7 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
     detectCppBuildTools2015(&results);
 
     for (Toolchain *tc : std::as_const(results))
-        tc->setDetection(Toolchain::AutoDetection);
+        tc->setDetectionSource(DetectionSource::FromSystem);
 
     return results;
 }

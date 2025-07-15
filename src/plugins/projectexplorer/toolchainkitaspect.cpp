@@ -440,11 +440,10 @@ void ToolchainKitAspectFactory::toolChainsDeregistered()
 
 std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
     Kit *kit,
-    const Utils::FilePaths &searchPaths,
+    const FilePaths &searchPaths,
     const QString &detectionSource,
     const LogCallback &logCallback) const
 {
-    Q_UNUSED(detectionSource);
     const auto searchToolchains = [searchPaths](Async<Toolchain *> &async) {
         async.setConcurrentCallData(
             [](QPromise<Toolchain *> &promise,
@@ -470,7 +469,7 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::autoDetect(
             const Toolchains toolchains = async.results();
 
             for (Toolchain *toolchain : toolchains) {
-                toolchain->setDetectionSource(detectionSource);
+                toolchain->setDetectionSource({DetectionSource::FromSystem, detectionSource});
                 logCallback(Tr::tr("Found toolchain: %1").arg(toolchain->displayName()));
             }
 
@@ -492,7 +491,7 @@ std::optional<Tasking::ExecutableItem> ToolchainKitAspectFactory::removeAutoDete
     return Tasking::Sync([=]() {
         const auto toolchains
             = filtered(ToolchainManager::toolchains(), [detectionSource](Toolchain *tc) {
-                  return tc->detectionSource() == detectionSource;
+                  return tc->detectionSource().id == detectionSource;
               });
 
         for (Toolchain *tc : toolchains)
@@ -506,7 +505,7 @@ void ToolchainKitAspectFactory::listAutoDetected(
     const QString &detectionSource, const LogCallback &logCallback) const
 {
     for (const Toolchain *tc : ToolchainManager::toolchains()) {
-        if (tc->isAutoDetected() && tc->detectionSource() == detectionSource)
+        if (tc->detectionSource().isAutoDetected() && tc->detectionSource().id == detectionSource)
             logCallback(Tr::tr("Toolchain: %1").arg(tc->displayName()));
     }
 }

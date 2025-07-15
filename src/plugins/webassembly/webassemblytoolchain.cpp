@@ -128,7 +128,7 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
                             Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)}) {
         auto toolChain = new WebAssemblyToolChain;
         toolChain->setLanguage(languageId);
-        toolChain->setDetection(Toolchain::AutoDetection);
+        toolChain->setDetectionSource(DetectionSource::FromSystem);
         const bool cLanguage = languageId == ProjectExplorer::Constants::C_LANGUAGE_ID;
         const QString script = QLatin1String(cLanguage ? "emcc" : "em++")
                 + QLatin1String(sdk.osType() == OsTypeWindows ? ".bat" : "");
@@ -147,8 +147,9 @@ void registerToolChains()
 {
     // Remove old toolchains
     const Toolchains oldToolchains = Utils::filtered(
-        ToolchainManager::findToolchains(toolChainAbi()),
-        Utils::equal(&Toolchain::detection, Toolchain::AutoDetection));
+        ToolchainManager::findToolchains(toolChainAbi()), [](Toolchain *tc) {
+            return tc->detectionSource().type == DetectionSource::FromSystem;
+        });
     ToolchainManager::deregisterToolchains(oldToolchains);
 
     // Create new toolchains and register them

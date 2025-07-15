@@ -478,7 +478,7 @@ void CustomToolchainConfigWidget::errorParserChanged(int )
 
 void CustomToolchainConfigWidget::applyImpl()
 {
-    if (bundle().isAutoDetected())
+    if (bundle().detectionSource().isAutoDetected())
         return;
 
     bundle().setTargetAbi(m_abiWidget->currentAbi());

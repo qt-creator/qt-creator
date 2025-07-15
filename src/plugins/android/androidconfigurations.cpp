@@ -1398,7 +1398,8 @@ void AndroidConfigurations::updateAutomaticKitList()
     const QList<ToolchainBundle> bundles = Utils::filtered(
         ToolchainBundle::collectBundles(
             ToolchainManager::toolchains([](const Toolchain *tc) {
-                return tc->isAutoDetected() && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;
+                return tc->detectionSource().isAutoDetected()
+                    && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;
             }),
             ToolchainBundle::HandleMissing::CreateAndRegister),
         [](const ToolchainBundle &b) { return b.isCompletelyValid(); });

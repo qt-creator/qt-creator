@@ -42,6 +42,40 @@ PROJECTEXPLORER_EXPORT Tasking::Group removeDetectedKitsRecipe(
 PROJECTEXPLORER_EXPORT void listAutoDetected(
     const IDeviceConstPtr &device, const LogCallback &logCallback);
 
+class DetectionSource
+{
+public:
+    enum DetectionType {
+        Manual,
+        FromSystem,
+        FromSdk,
+        Uninitialized,
+    };
+
+    DetectionSource() = default;
+    DetectionSource(DetectionType type, const QString &id = {})
+        : type(type), id(id)
+    {}
+
+    bool isAutoDetected() const
+    {
+        return type == FromSystem || type == FromSdk;
+    }
+
+    bool isSdkProvided() const
+    {
+        return type == FromSdk;
+    }
+
+    bool isSystemDetected() const
+    {
+        return type == FromSystem;
+    }
+
+    DetectionType type = Uninitialized;
+    QString id;
+};
+
 /**
  * @brief The KitAspectFactory class
  *

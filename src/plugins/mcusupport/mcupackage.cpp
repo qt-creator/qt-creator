@@ -470,7 +470,7 @@ static Toolchain *armGccToolchain(const FilePath &path, Id language)
             if (!detected.isEmpty()) {
                 toolchain = detected.takeFirst();
                 ToolchainManager::registerToolchains({toolchain});
-                toolchain->setDetection(Toolchain::ManualDetection);
+                toolchain->setDetectionSource(DetectionSource::Manual);
                 toolchain->setDisplayName("Arm GCC");
                 qDeleteAll(detected);
             }
@@ -498,7 +498,7 @@ static Toolchain *iarToolchain(const FilePath &path, Id language)
             std::tie(toRegister, toDelete)
                 = Utils::partition(detected, Utils::equal(&Toolchain::language, language));
             for (Toolchain * const tc : std::as_const(toRegister)) {
-                tc->setDetection(Toolchain::ManualDetection);
+                tc->setDetectionSource(DetectionSource::Manual);
                 tc->setDisplayName("IAREW");
             }
             ToolchainManager::registerToolchains(toRegister);

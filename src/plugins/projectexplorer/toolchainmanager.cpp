@@ -210,7 +210,7 @@ Toolchains ToolchainManager::registerToolchains(const Toolchains &toolchains)
         QTC_ASSERT(!Utils::contains(d->m_toolChains, Utils::equal(&Toolchain::id, tc->id())),
                    notRegistered << tc;
                    continue);
-        if (!tc->isAutoDetected()
+        if (!tc->detectionSource().isAutoDetected()
             && Utils::contains(d->m_toolChains, [tc](const Toolchain *existing) {
                    return *tc == *existing;
                })) {
