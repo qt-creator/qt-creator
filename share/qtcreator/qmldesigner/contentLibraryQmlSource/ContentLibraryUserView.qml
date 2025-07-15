@@ -145,7 +145,7 @@ Item {
                         }
 
                         property alias count: repeater.count
-                        property bool isCustomCat: !["Textures", "Materials", "3D"].includes(section.caption);
+                        property bool isCustomCat: !["Textures", "Materials", "2D", "3D"].includes(section.caption);
 
                         onCountChanged: root.assignMaxCount()
 
