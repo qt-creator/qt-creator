@@ -32,6 +32,7 @@ using namespace VcsBase;
 namespace Git::Internal {
 
 const char GitGrepRef[] = "GitGrepRef";
+const char GitGrepRecurse[] = "GitGrepRecurse";
 
 class GitGrepParameters
 {
@@ -243,12 +244,14 @@ GitGrepParameters GitGrep::gitParameters() const
 void GitGrep::readSettings(const Store &s)
 {
     m_treeLineEdit->setText(s.value(GitGrepRef).toString());
+    m_recurseSubmodules->setChecked(s.value(GitGrepRecurse, false).toBool());
 }
 
 void GitGrep::writeSettings(Store &s) const
 {
     if (!m_treeLineEdit->text().isEmpty())
         s.insert(GitGrepRef, m_treeLineEdit->text());
+    s.insert(GitGrepRecurse, m_recurseSubmodules->isChecked());
 }
 
 SearchExecutor GitGrep::searchExecutor() const
