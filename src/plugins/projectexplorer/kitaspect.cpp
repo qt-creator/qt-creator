@@ -192,7 +192,10 @@ void KitAspect::refresh()
 
 void KitAspect::makeStickySubWidgetsReadOnly()
 {
-    if (!kit()->isSticky(d->factory->id()))
+    auto kit = this->kit();
+    QTC_ASSERT(kit, return);
+
+    if (!kit->isSticky(d->factory->id()))
         return;
 
     if (d->manageButton)
