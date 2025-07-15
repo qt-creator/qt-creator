@@ -25,6 +25,8 @@ struct DEVCONTAINER_EXPORT InstanceConfig
     Utils::FilePath workspaceFolder;
     Utils::FilePath configFilePath;
 
+    bool runProcessesInTerminal = false;
+
     std::vector<std::variant<Mount, QString>> mounts;
 
     Utils::Environment localEnvironment = Utils::Environment::systemEnvironment();

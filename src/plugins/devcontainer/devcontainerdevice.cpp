@@ -161,6 +161,7 @@ Result<> Device::up(
         bool copyCmdBridge = false;
         QString libExecMountPoint = "/devcontainer/libexec";
         QString workspaceFolderMountPoint;
+        bool runProcessesInTerminal = false;
     };
 
     Storage<std::shared_ptr<Instance>> instance;
@@ -189,6 +190,12 @@ Result<> Device::up(
             options->copyCmdBridge
                 = DevContainer::customization(*config, "qt-creator/device/copy-cmd-bridge")
                       .toBool(false);
+
+            options->runProcessesInTerminal
+                = DevContainer::customization(*config, "qt-creator/device/run-processes-in-terminal")
+                      .toBool(false);
+
+            instanceConfig.runProcessesInTerminal = options->runProcessesInTerminal;
 
             if (options->mountLibExec) {
                 instanceConfig.mounts.push_back(Mount{

@@ -1244,8 +1244,11 @@ static Result<Group> prepareContainerRecipe(
              target,
              extraBuildArgs,
              contextPath.nativePath()}};
+
         process.setCommand(buildCmdLine);
         process.setWorkingDirectory(instanceConfig.workspaceFolder);
+        if (instanceConfig.runProcessesInTerminal)
+            process.setTerminalMode(TerminalMode::Run);
 
         instanceConfig.logFunction(
             QString(Tr::tr("Building Dockerfile: %1")).arg(process.commandLine().toUserOutput()));
