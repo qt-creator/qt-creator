@@ -27,7 +27,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
@@ -37,8 +36,6 @@
 
 #include <utils/action.h>
 #include <utils/async.h>
-#include <utils/environment.h>
-#include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
 #include <QFutureWatcher>
@@ -64,6 +61,7 @@ private:
     void createCompilationDBAction();
 
     Utils::Action *m_generateCompilationDBAction = nullptr;
+    Task m_generateCompilationDBError;
     QFutureWatcher<GenerateCompilationDbResult> m_generatorWatcher;
 };
 
@@ -158,23 +156,26 @@ void ClangCodeModelPlugin::createCompilationDBAction()
         m_generateCompilationDBAction->setEnabled(true);
     });
     connect(m_generateCompilationDBAction, &QAction::triggered, this, [this] {
-        if (!m_generateCompilationDBAction->isEnabled()) {
-            MessageManager::writeDisrupting("Cannot generate compilation database: "
-                                            "Generator is already running.");
-            return;
+        if (!m_generateCompilationDBError.isNull()) {
+            TaskHub::removeTask(m_generateCompilationDBError);
+            m_generateCompilationDBError.clear();
         }
+        const auto setError = [this](const QString &reason) {
+            m_generateCompilationDBError = OtherTask(
+                Task::Error,
+                Tr::tr("Cannot generate compilation database.").append('\n').append(reason));
+            TaskHub::addTask(m_generateCompilationDBError);
+            TaskHub::requestPopup();
+        };
+        if (!m_generateCompilationDBAction->isEnabled())
+            return setError(Tr::tr("Generator is already running."));
+
         Project * const project = ProjectManager::startupProject();
-        if (!project) {
-            MessageManager::writeDisrupting("Cannot generate compilation database: "
-                                            "No active project.");
-            return;
-        }
+        if (!project)
+            return setError(Tr::tr("No active project."));
         const ProjectInfo::ConstPtr projectInfo = CppModelManager::projectInfo(project);
-        if (!projectInfo || projectInfo->projectParts().isEmpty()) {
-            MessageManager::writeDisrupting("Cannot generate compilation database: "
-                                            "Project has no C/C++ project parts.");
-            return;
-        }
+        if (!projectInfo || projectInfo->projectParts().isEmpty())
+            return setError(Tr::tr("Project has no C/C++ project parts."));
         m_generateCompilationDBAction->setEnabled(false);
         generateCompilationDB();
     });
