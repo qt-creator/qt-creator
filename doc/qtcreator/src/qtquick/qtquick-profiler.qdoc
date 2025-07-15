@@ -67,10 +67,16 @@
     data collection when an application is launched. Data collection starts when
     you select the button again.
 
-    To save all the collected data, select \uicontrol Analyze >
-    \uicontrol {QML Profiler Options} > \uicontrol {Save QML Trace}. To view the saved
-    data, select \uicontrol {Load QML Trace}. You can also deliver the saved data to
-    others for examination or load data saved by them.
+    \section1 Save and load data
+
+    To save all the collected data in the \c .qzt format, go to
+    \uicontrol Analyze > \uicontrol {QML Profiler Options} and select
+    \uicontrol {Save QML Trace}.
+
+    To view the saved data, select \uicontrol {Load QML Trace}.
+
+    You can also deliver \c .qzt files to others for examination
+    or load files that you receive from them.
 
     \section1 Flush data while profiling
 
