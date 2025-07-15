@@ -291,11 +291,6 @@ FilePath androidBuildDirectory(const BuildConfiguration *bc)
     return buildDirectory(bc) / (Constants::ANDROID_BUILD_DIRECTORY + suffix);
 }
 
-FilePath androidAppProcessDir(const BuildConfiguration *bc)
-{
-    return buildDirectory(bc) / Constants::ANDROID_APP_PROCESS_DIRECTORY;
-}
-
 bool isQt5CmakeProject(const ProjectExplorer::Target *target)
 {
     const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());

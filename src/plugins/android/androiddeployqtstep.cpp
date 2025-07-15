@@ -96,33 +96,6 @@ struct FileToPull
     FilePath to;
 };
 
-static QList<FileToPull> filesToPull(BuildConfiguration *bc)
-{
-    QList<FileToPull> fileList;
-    const FilePath appProcessDir = androidAppProcessDir(bc);
-
-    QString linkerName("linker");
-    QString libDirName("lib");
-    const QString preferredAbi = apkDevicePreferredAbi(bc);
-    if (preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A
-        || preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
-        fileList.append({"/system/bin/app_process64", appProcessDir / "app_process"});
-        libDirName = "lib64";
-        linkerName = "linker64";
-    } else {
-        fileList.append({"/system/bin/app_process32", appProcessDir / "app_process"});
-        fileList.append({"/system/bin/app_process", appProcessDir / "app_process"});
-    }
-
-    fileList.append({"/system/bin/" + linkerName, appProcessDir / linkerName});
-    fileList.append({"/system/" + libDirName + "/libc.so", appProcessDir / "libc.so"});
-
-    for (const FileToPull &file : std::as_const(fileList))
-        qCDebug(deployStepLog).noquote() << "Pulling file from device:" << file.from
-                                         << "to:" << file.to;
-    return fileList;
-}
-
 class AndroidDeployQtStep final : public BuildStep
 {
 public:
@@ -310,8 +283,6 @@ bool AndroidDeployQtStep::init()
     return true;
 }
 
-static void removeFile(const FilePath &path) { path.removeFile(); }
-
 GroupItem AndroidDeployQtStep::runRecipe()
 {
     const Storage<QString> serialNumberStorage;
@@ -330,52 +301,13 @@ GroupItem AndroidDeployQtStep::runRecipe()
         return true;
     };
 
-    const LoopList iterator(filesToPull(buildConfiguration()));
-    const auto onRemoveFileSetup = [iterator](Async<void> &async) {
-        async.setConcurrentCallData(removeFile, iterator->to);
-    };
-
-    const auto onAdbSetup = [this, iterator](Process &process) {
-        const FileToPull &file = *iterator;
-        const FilePath parentDir = file.to.parentDir();
-        if (!parentDir.ensureWritableDir()) {
-            const QString error = QString("Package deploy: Unable to create directory %1.")
-                                      .arg(parentDir.nativePath());
-            reportWarningOrError(error, Task::Error);
-        }
-        const CommandLine cmd{m_adbPath, {adbSelector(m_serialNumber),
-                                          "pull", file.from, file.to.nativePath()}};
-        emit addOutput(Tr::tr("Package deploy: Running command \"%1\".").arg(cmd.toUserOutput()),
-                       OutputFormat::NormalMessage);
-        process.setCommand(cmd);
-    };
-    const auto onAdbDone = [this, iterator](const Process &process, DoneWith result) {
-        if (result != DoneWith::Success) {
-            reportWarningOrError(process.exitMessage(), Task::Error);
-        }
-        const FileToPull &file = *iterator;
-        if (!file.to.exists()) {
-            const QString error = Tr::tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
-                                      .arg(file.from, file.to.nativePath());
-            reportWarningOrError(error, Task::Error);
-        }
-        return true;
-    };
-
     return Group {
         If (!Sync(isAvdNameEmpty)) >> Then {
             serialNumberStorage,
             startAvdRecipe(m_avdName, serialNumberStorage),
             onGroupDone(onSerialNumberDone)
         },
-        deployRecipe(),
-        For (iterator) >> Do {
-            parallelIdealThreadCountLimit,
-            AsyncTask<void>(onRemoveFileSetup)
-        },
-        For (iterator) >> Do {
-            ProcessTask(onAdbSetup, onAdbDone)
-        }
+        deployRecipe()
     };
 }
 
