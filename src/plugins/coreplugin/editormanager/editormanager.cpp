@@ -2889,10 +2889,17 @@ static void assignAction(QAction *self, QAction *other)
 void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry,
                                                  IEditor *editor)
 {
+    EditorManagerPrivate::addSaveAndCloseEditorActions(contextMenu, entry, editor);
+}
+
+void EditorManagerPrivate::addSaveAndCloseEditorActions(
+    QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor, EditorView *view)
+{
     QTC_ASSERT(contextMenu, return);
 
     QPointer<IDocument> contextDocument = entry ? entry->document : nullptr;
     QPointer<IEditor> contextEditor = editor;
+    QPointer<EditorView> contextView = view;
 
     const FilePath filePath = entry ? entry->filePath() : FilePath();
     const bool copyActionsEnabled = !filePath.isEmpty();
@@ -2964,11 +2971,17 @@ void EditorManager::addSaveAndCloseEditorActions(QMenu *contextMenu, DocumentMod
               : ::Core::Tr::tr("Close Editor"),
         entry != nullptr,
         d,
-        [contextEditor, contextDocument] {
-            if (contextEditor)
+        [contextEditor, contextDocument, contextView] {
+            if (contextEditor) {
                 d->closeEditorOrDocument(contextEditor);
-            else if (contextDocument)
-                EditorManager::closeDocuments({contextDocument});
+            } else if (contextDocument) {
+                DocumentModel::Entry *entry = DocumentModel::entryForDocument(contextDocument);
+                if (entry && contextView && contextView->isShowingTabs()) // editor tab
+                    contextView->closeTab(entry);
+                else if (entry) // Open Documents view
+                    EditorManager::closeDocuments({entry});
+                // else the entry vanished somehow, do nothing
+            }
         });
 
     // Close All
@@ -3015,6 +3028,12 @@ void EditorManager::addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry
 */
 void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry)
 {
+    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, entry);
+}
+
+void EditorManagerPrivate::addNativeDirAndOpenWithActions(
+    QMenu *contextMenu, DocumentModel::Entry *entry)
+{
     QTC_ASSERT(contextMenu, return);
     const FilePath filePath = entry ? entry->filePath() : FilePath();
     bool enabled = !filePath.isEmpty();
@@ -3055,11 +3074,17 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
 void EditorManager::addContextMenuActions(
     QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor)
 {
-    EditorManager::addSaveAndCloseEditorActions(contextMenu, entry, editor);
+    EditorManagerPrivate::addContextMenuActions(contextMenu, entry, editor);
+}
+
+void EditorManagerPrivate::addContextMenuActions(
+    QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor, EditorView *view)
+{
+    EditorManagerPrivate::addSaveAndCloseEditorActions(contextMenu, entry, editor, view);
     contextMenu->addSeparator();
     EditorManager::addPinEditorActions(contextMenu, entry);
     contextMenu->addSeparator();
-    EditorManager::addNativeDirAndOpenWithActions(contextMenu, entry);
+    EditorManagerPrivate::addNativeDirAndOpenWithActions(contextMenu, entry);
 }
 
 /*!
@@ -3067,6 +3092,11 @@ void EditorManager::addContextMenuActions(
     suitable for opening the document \a filePath.
 */
 void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
+{
+    EditorManagerPrivate::populateOpenWithMenu(menu, filePath);
+}
+
+void EditorManagerPrivate::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
 {
     menu->clear();
 

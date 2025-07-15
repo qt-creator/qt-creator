@@ -102,20 +102,13 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
     m_tabBar->setElideMode(Qt::ElideNone);
     m_tabBar->setContextMenuPolicy(Qt::CustomContextMenu);
     m_tabBar->setShape(QTabBar::RoundedNorth);
+    m_tabBar->installEventFilter(this);
     connect(m_tabBar, &QTabBar::tabBarClicked, this, &EditorView::activateTab);
     connect(
         m_tabBar,
         &QTabBar::tabCloseRequested,
         this,
-        [this](int index) {
-            const auto data = m_tabBar->tabData(index).value<TabData>();
-            if (data.editor)
-                EditorManagerPrivate::closeEditorOrDocument(data.editor);
-            else {
-                m_tabBar->removeTab(index);
-                EditorManagerPrivate::tabClosed(data.entry);
-            }
-        },
+        [this](int index) { closeTab(index); },
         Qt::QueuedConnection /* do not modify tab bar in tab bar signal */);
     connect(
         m_tabBar,
@@ -127,7 +120,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
                 return;
             const auto data = m_tabBar->tabData(index).value<TabData>();
             QMenu menu;
-            EditorManager::addContextMenuActions(&menu, data.entry, data.editor);
+            EditorManagerPrivate::addContextMenuActions(&menu, data.entry, data.editor, this);
             menu.exec(m_tabBar->mapToGlobal(pos));
         },
         Qt::QueuedConnection);
@@ -508,6 +501,16 @@ bool EditorView::event(QEvent *e)
     return QWidget::event(e);
 }
 
+bool EditorView::eventFilter(QObject *obj, QEvent *e)
+{
+    if (obj == m_tabBar && e->type() == QEvent::MouseButtonPress) {
+        auto me = static_cast<QMouseEvent *>(e);
+        if (me->button() != Qt::LeftButton)
+            return true;
+    }
+    return QWidget::eventFilter(obj, e);
+}
+
 void EditorView::addEditor(IEditor *editor)
 {
     if (m_editors.contains(editor))
@@ -623,6 +626,24 @@ int EditorView::tabForEditor(IEditor *editor) const
             return i;
     }
     return -1;
+}
+
+void EditorView::closeTab(DocumentModel::Entry *entry)
+{
+    closeTab(tabForEntry(entry));
+}
+
+void EditorView::closeTab(int index)
+{
+    if (index < 0 || index >= m_tabBar->count())
+        return;
+    const auto data = m_tabBar->tabData(index).value<TabData>();
+    if (data.editor)
+        EditorManagerPrivate::closeEditorOrDocument(data.editor);
+    else {
+        m_tabBar->removeTab(index);
+        EditorManagerPrivate::tabClosed(data.entry);
+    }
 }
 
 QList<EditorView::TabData> EditorView::tabs() const

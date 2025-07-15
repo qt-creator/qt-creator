@@ -96,6 +96,7 @@ public:
     int tabForEditor(IEditor *editor) const;
     // all "tabs" (even if no actual tabs are shown)
     QList<TabData> tabs() const;
+    void closeTab(DocumentModel::Entry *document);
 
     void showEditorStatusBar(const QString &id,
                            const QString &infoText,
@@ -142,6 +143,7 @@ protected:
     void mousePressEvent(QMouseEvent *e) override;
     void focusInEvent(QFocusEvent *) override;
     bool event(QEvent *e) override;
+    bool eventFilter(QObject *obj, QEvent *e) override;
 
 private:
     friend class SplitterOrView; // for setParentSplitterOrView
@@ -155,6 +157,7 @@ private:
     void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
     int tabForEntry(DocumentModel::Entry *entry) const;
     void activateTab(int index);
+    void closeTab(int index);
 
     void setParentSplitterOrView(SplitterOrView *splitterOrView);
 

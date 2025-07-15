@@ -138,6 +138,12 @@ public:
 
     static void addClosedDocumentToCloseHistory(IEditor *editor);
 
+    static void addContextMenuActions(
+        QMenu *contextMenu,
+        DocumentModel::Entry *entry,
+        IEditor *editor,
+        EditorView *view = nullptr);
+
 public slots:
     static bool saveDocument(Core::IDocument *document);
     static bool saveDocumentAs(Core::IDocument *document);
@@ -195,6 +201,14 @@ private:
                                  QAction *saveAsAction, QAction *revertToSavedAction);
     static void updateWindowTitle();
     static bool skipOpeningBigTextFile(const Utils::FilePath &filePath);
+
+    static void addSaveAndCloseEditorActions(
+        QMenu *contextMenu,
+        DocumentModel::Entry *entry,
+        IEditor *editor,
+        EditorView *view = nullptr);
+    static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
+    static void populateOpenWithMenu(QMenu *menu, const Utils::FilePath &filePath);
 
 private:
     explicit EditorManagerPrivate(QObject *parent);
