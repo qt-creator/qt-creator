@@ -26,6 +26,13 @@ DockerApi *s_instance{nullptr};
 
 DockerApi::DockerApi()
 {
+    Q_ASSERT(QThread::currentThread() == QCoreApplication::instance()->thread());
+    *m_dockerClientBinary.writeLocked() = settings().dockerBinaryPath.effectiveBinary();
+
+    connect(&settings().dockerBinaryPath, &FilePathAspect::changed, this, [this]() {
+        *m_dockerClientBinary.writeLocked() = settings().dockerBinaryPath.effectiveBinary();
+    });
+
     s_instance = this;
 }
 
@@ -140,7 +147,7 @@ std::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 
 FilePath DockerApi::dockerClient()
 {
-    return settings().dockerBinaryPath.effectiveBinary();
+    return m_dockerClientBinary.get();
 }
 
 QFuture<Utils::Result<QList<Network>>> DockerApi::networks()

@@ -6,6 +6,7 @@
 #include <utils/filepath.h>
 #include <utils/guard.h>
 #include <utils/result.h>
+#include <utils/synchronizedvalue.h>
 
 #include <QFuture>
 #include <QMutex>
@@ -58,6 +59,8 @@ private:
 
     std::optional<bool> m_dockerDaemonAvailable;
     QMutex m_daemonCheckGuard;
+
+    Utils::SynchronizedValue<Utils::FilePath> m_dockerClientBinary;
 };
 
 } // Docker::Internal
