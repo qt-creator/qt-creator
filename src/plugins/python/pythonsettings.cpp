@@ -1010,25 +1010,17 @@ QList<Interpreter> PythonSettings::detectPythonVenvs(const FilePath &path)
 void PythonSettings::initFromSettings(QtcSettings *settings)
 {
     settings->beginGroup(settingsGroupKey);
-    const QVariantList interpreters = settings->value(interpreterKey).toList();
-    QList<Interpreter> oldSettings;
-    for (const QVariant &interpreterVar : interpreters) {
-        auto interpreterList = interpreterVar.toList();
-        const Interpreter interpreter{interpreterList.value(0).toString(),
-                                      interpreterList.value(1).toString(),
-                                      FilePath::fromSettings(interpreterList.value(2)),
-                                      interpreterList.value(3, true).toBool(),
-                                      interpreterList.value(4, QString()).toString()};
-        if (interpreterList.size() == 3)
-            oldSettings << interpreter;
-        else if (interpreterList.size() >= 4)
-            m_interpreters << interpreter;
-    }
-
-    for (const Interpreter &interpreter : std::as_const(oldSettings)) {
-        if (Utils::anyOf(m_interpreters, Utils::equal(&Interpreter::id, interpreter.id)))
-            continue;
-        m_interpreters << interpreter;
+    const QVariantList interpreterList = settings->value(interpreterKey).toList();
+    for (const QVariant &interpreterVariant : interpreterList) {
+        auto interpreterMembers = interpreterVariant.toList();
+        if (interpreterMembers.size() <= 3)
+            continue; // old settings, skip
+        m_interpreters << Interpreter{
+            interpreterMembers.value(0).toString(),
+            interpreterMembers.value(1).toString(),
+            FilePath::fromSettings(interpreterMembers.value(2)),
+            interpreterMembers.value(3, true).toBool(),
+            interpreterMembers.value(4, QString()).toString()};
     }
 
     const auto keepInterpreter = [](const Interpreter &interpreter) {
@@ -1076,17 +1068,19 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
 void PythonSettings::writeToSettings(QtcSettings *settings)
 {
     settings->beginGroup(settingsGroupKey);
-    QVariantList interpretersVar;
+    QVariantList interpretersList;
     for (const Interpreter &interpreter : std::as_const(m_interpreters)) {
-        QVariantList interpreterVar{interpreter.id,
-                                    interpreter.name,
-                                    interpreter.command.toSettings()};
-        interpretersVar.append(QVariant(interpreterVar)); // old settings
-        interpreterVar.append(interpreter.autoDetected);
-        interpretersVar.append(QVariant(interpreterVar)); // new settings
-        interpretersVar.append(interpreter.detectionSource);
+        const QVariantList members{
+            interpreter.id,
+            interpreter.name,
+            interpreter.command.toSettings(),
+            interpreter.autoDetected,
+            interpreter.detectionSource};
+        // We need to cast to QVariant() here, otherwise interpretersList will simply append each
+        // member as a separate item.
+        interpretersList.append(QVariant(members)); // new settings
     }
-    settings->setValue(interpreterKey, interpretersVar);
+    settings->setValue(interpreterKey, interpretersList);
     settings->setValue(defaultKey, m_defaultInterpreterId);
 
     settings->setValueWithDefault(pylsConfigurationKey,
