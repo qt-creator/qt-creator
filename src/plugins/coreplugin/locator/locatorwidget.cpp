@@ -512,8 +512,10 @@ void CompletionList::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key()) {
     case Qt::Key_Tab:
-        emit completionRequested(currentIndex());
-        return;
+        if (Locator::useTabCompletion()) {
+            emit completionRequested(currentIndex());
+            return;
+        }
     case Qt::Key_Down:
         next();
         return;

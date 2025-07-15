@@ -140,6 +140,8 @@ CMakeBuildSystem::CMakeBuildSystem(BuildConfiguration *bc)
 
 CMakeBuildSystem::~CMakeBuildSystem()
 {
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_currentGuard = {};
     if (!m_treeScanner.isFinished()) {
         auto future = m_treeScanner.future();
         future.cancel();
@@ -1561,7 +1563,7 @@ static QSet<FilePath> projectFilesToWatch(const QSet<CMakeFileInfo> &cmakeFiles)
 {
     QSet<FilePath> result;
     for (const CMakeFileInfo &info : cmakeFiles) {
-        if (!info.isGenerated && !info.isCMake && !info.isExternal)
+        if (!info.isGenerated && !info.isCMake)
             result.insert(info.path);
     }
     return result;
