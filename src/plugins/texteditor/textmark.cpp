@@ -182,6 +182,10 @@ TextMark::AnnotationRects TextMark::annotationRects(const QRectF &boundingRect,
     rects.text = lineAnnotation().simplified();
     if (rects.text.isEmpty())
         return rects;
+    // truncate the text to a sensible length to avoid expensive width calculation in QFontMetrics
+    // see QTBUG-138487
+    rects.text.truncate(1.2 * boundingRect.width() / fm.averageCharWidth());
+
     rects.fadeInRect = boundingRect;
     rects.fadeInRect.setWidth(fadeInOffset);
     rects.annotationRect = boundingRect;
