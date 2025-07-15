@@ -116,12 +116,12 @@ static KitAspectFactories &kitAspectFactoriesStorage()
 class KitAspect::Private
 {
 public:
-    Private(const Utils::Id &kitId, const KitAspectFactory *f)
-        : kitId(kitId)
+    Private(Kit *kit, const KitAspectFactory *f)
+        : kit(kit)
         , factory(f)
     {}
 
-    const Utils::Id kitId;
+    Kit *kit;
     const KitAspectFactory * const factory;
     QAction *mutableAction = nullptr;
     Utils::Id managingPageId;
@@ -144,8 +144,13 @@ public:
 };
 
 KitAspect::KitAspect(Kit *k, const KitAspectFactory *factory)
-    : d(new Private(k->id(), factory))
+    : d(new Private(k, factory))
 {
+    connect(KitManager::instance(), &KitManager::kitRemoved, this, [this](Kit *k) {
+        if (k == d->kit)
+            d->kit = nullptr;
+    });
+
     const Id id = factory->id();
     d->mutableAction = new QAction(Tr::tr("Mark as Mutable"));
     d->mutableAction->setCheckable(true);
@@ -306,7 +311,10 @@ QList<KitAspect *> KitAspect::aspectsToEmbed() const
 }
 
 QString KitAspect::msgManage() { return Tr::tr("Manage..."); }
-Kit *KitAspect::kit() const { return KitManager::kit(d->kitId); }
+Kit *KitAspect::kit() const
+{
+    return d->kit;
+}
 const KitAspectFactory *KitAspect::factory() const { return d->factory; }
 QAction *KitAspect::mutableAction() const { return d->mutableAction; }
 
