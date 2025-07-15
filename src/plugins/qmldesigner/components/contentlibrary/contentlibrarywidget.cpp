@@ -664,6 +664,28 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
         m_texturesModel->markTextureHasNoUpdates(subcategory, textureKey);
 }
 
+bool ContentLibraryWidget::has2DNode(const QByteArray &data) const
+{
+    QByteArray encodedData = data;
+    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+
+    int internalId = 0;
+    while (!stream.atEnd()) {
+        stream >> internalId;
+
+        if (internalId == 0)
+            continue;
+
+        ModelNode modelNode = QmlDesignerPlugin::instance()->viewManager()
+                                  .view()->modelNodeForInternalId(internalId);
+
+        if (modelNode.metaInfo().isQtQuickItem())
+            return true;
+    }
+
+    return false;
+}
+
 bool ContentLibraryWidget::has3DNode(const QByteArray &data) const
 {
     QByteArray encodedData = data;

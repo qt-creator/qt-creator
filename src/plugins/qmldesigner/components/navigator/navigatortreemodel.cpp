@@ -586,7 +586,8 @@ QMimeData *NavigatorTreeModel::mimeData(const QModelIndexList &modelIndexList) c
             const QModelIndex idModelIndex = modelIndex.sibling(modelIndex.row(), 0);
             if (!rowAlreadyUsedSet.contains(idModelIndex)) {
                 rowAlreadyUsedSet.insert(idModelIndex);
-                encodedModelNodeDataStream << idModelIndex.internalId();
+                qint32 internalId = idModelIndex.internalId();
+                encodedModelNodeDataStream << internalId;
             }
         }
     }

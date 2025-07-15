@@ -150,15 +150,21 @@ Item {
                         onCountChanged: root.assignMaxCount()
 
                         onDropEnter: (drag) => {
-                            let has3DNode = ContentLibraryBackend.rootView
-                                         .has3DNode(drag.getDataAsArrayBuffer(drag.formats[0]))
 
                             let hasTexture = ContentLibraryBackend.rootView
                                          .hasTexture(drag.formats[0], drag.urls)
+                            let isValid2DNode = categoryTitle === "2D"
+                                         && ContentLibraryBackend.rootView
+                                         .has2DNode(drag.getDataAsArrayBuffer(drag.formats[0]))
+                            let isValid3DNode = categoryTitle === "3D"
+                                         && ContentLibraryBackend.rootView
+                                         .has3DNode(drag.getDataAsArrayBuffer(drag.formats[0]))
 
                             drag.accepted = (categoryTitle === "Textures" && hasTexture)
-                                         || (categoryTitle === "Materials" && drag.formats[0] === "application/vnd.qtdesignstudio.material")
-                                         || (categoryTitle === "3D" && has3DNode)
+                                         || (categoryTitle === "Materials"
+                                             && drag.formats[0] === "application/vnd.qtdesignstudio.material")
+                                         || isValid2DNode
+                                         || isValid3DNode
                                          || (section.isCustomCat && hasTexture)
 
                             section.highlight = drag.accepted
@@ -180,8 +186,8 @@ Item {
                                     ContentLibraryBackend.rootView.acceptTextureDrop(drag.getDataAsString(drag.formats[0]))
                             } else if (categoryTitle === "Materials") {
                                 ContentLibraryBackend.rootView.acceptMaterialDrop(drag.getDataAsString(drag.formats[0]))
-                            } else if (categoryTitle === "3D") {
-                                ContentLibraryBackend.rootView.accept3DDrop(drag.getDataAsArrayBuffer(drag.formats[0]))
+                            } else if (categoryTitle === "2D" || categoryTitle === "3D") {
+                                ContentLibraryBackend.rootView.acceptNodeDrop(drag.getDataAsArrayBuffer(drag.formats[0]))
                             } else { // custom bundle folder
 
                                 if (drag.formats[0] === "application/vnd.qtdesignstudio.assets") {

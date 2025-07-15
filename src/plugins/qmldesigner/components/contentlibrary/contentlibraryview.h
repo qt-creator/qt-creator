@@ -66,7 +66,7 @@ private:
     void active3DSceneChanged(qint32 sceneId);
     void updateBundlesQuick3DVersion();
     void addLibAssets(const QStringList &paths, const QString &bundlePath = {});
-    void addLib3DComponent(const ModelNode &node);
+    void addLibComponent(const ModelNode &node);
     void addLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
     void importBundleToContentLib();
     void saveIconToBundle(const auto &image, const QString &iconPath);

@@ -139,7 +139,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
             model()->endDrag();
         });
 
-        connect(m_widget, &ContentLibraryWidget::accept3DDrop, this,
+        connect(m_widget, &ContentLibraryWidget::acceptNodeDrop, this,
                 &ContentLibraryView::decodeAndDropToContentLib);
 
         connect(m_widget,
@@ -481,7 +481,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
 
         for (const ModelNode &node : selectedNodes) {
             if (node.isComponent())
-                addLib3DComponent(node);
+                addLibComponent(node);
             else
                 addLibItem(node);
         }
@@ -630,12 +630,15 @@ void ContentLibraryView::addLibAssets(const QStringList &paths, const QString &b
 }
 
 // TODO: combine this method with BundleHelper::exportComponent()
-// TODO: rename to addLibComponent and change code to work with 2D and 3D components
-void ContentLibraryView::addLib3DComponent(const ModelNode &node)
+void ContentLibraryView::addLibComponent(const ModelNode &node)
 {
-    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
+    bool is3DComponent = node.metaInfo().isQtQuick3DNode();
+    auto bundlePath = is3DComponent
+                    ? Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/")
+                    : Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/2d/");
 
-    m_bundleId = m_compUtils.user3DBundleId();
+    m_bundleId = is3DComponent ? m_compUtils.user3DBundleId()
+                               : m_compUtils.user2DBundleId();
 
     Utils::FilePath compFilePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
     Utils::FilePath compDir = compFilePath.parentDir();
@@ -645,8 +648,8 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
     // confirm overwrite if an item with same name exists
     if (bundlePath.pathAppended(compFileName).exists()) {
         // Show a QML confirmation dialog before proceeding
-        QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("3D Item Exists"),
-            tr("A 3D item with the same name '%1' already exists in the Content Library, are you sure you want to overwrite it?")
+        QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("Item Exists"),
+            tr("An item with the same name '%1' already exists in the Content Library, are you sure you want to overwrite it?")
                     .arg(compFileName), QMessageBox::Yes | QMessageBox::No);
         if (reply == QMessageBox::No)
             return;
@@ -661,7 +664,7 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
 
     const QSet<AssetPath> compDependencies = m_bundleHelper->getComponentDependencies(compFilePath, compDir);
 
-    QStringList filesList; // 3D component's assets (dependencies)
+    QStringList filesList; // component's assets (dependencies)
     for (const AssetPath &asset : compDependencies) {
         Utils::FilePath assetAbsPath = asset.absFilPath();
         QByteArray assetContent = asset.fileContent();
@@ -862,15 +865,13 @@ void ContentLibraryView::decodeAndDropToContentLib(const QByteArray &data)
     }
 
     for (int internalId : std::as_const(internalIds)) {
-        ModelNode node3D = QmlDesignerPlugin::instance()->viewManager()
+        ModelNode node = QmlDesignerPlugin::instance()->viewManager()
                                .view()->modelNodeForInternalId(internalId);
-        if (!node3D.metaInfo().isQtQuick3DNode())
-            continue;
 
-        if (node3D.isComponent())
-            addLib3DComponent(node3D);
+        if (node.isComponent())
+            addLibComponent(node);
         else
-            addLibItem(node3D);
+            addLibItem(node);
     }
 
     model()->endDrag();
