@@ -98,12 +98,19 @@ mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
             // Replace the sdk tool with the user tool, so any user changes do not get lost
             result[userToolIndex] = std::move(userTool);
         } else {
-            if (userTool->isAutoDetected()
-                    && !Utils::contains(autoDetectedTools, Utils::equal(&CMakeTool::cmakeExecutable,
-                                                                        userTool->cmakeExecutable()))) {
+            const bool wasOriginallyAutoDetected = userTool->isAutoDetected();
+            const bool isAutoDetectedAgain = Utils::contains(
+                autoDetectedTools,
+                Utils::equal(&CMakeTool::cmakeExecutable, userTool->cmakeExecutable()));
+            const bool hasAutoDetectionSource = !userTool->detectionSource().isEmpty();
 
-                qWarning() << QString::fromLatin1("Previously SDK provided CMakeTool \"%1\" (%2) dropped.")
-                              .arg(userTool->cmakeExecutable().toUserOutput(), userTool->id().toString());
+            // Tools from the SDK are auto-detected, but don't have an auto-detection source set.
+            // Tools auto-detected from a device by the user have an auto-detection source set.
+            if (wasOriginallyAutoDetected && !isAutoDetectedAgain && !hasAutoDetectionSource) {
+                qWarning() << QString::fromLatin1(
+                                  "Previously SDK provided CMakeTool \"%1\" (%2) dropped.")
+                                  .arg(userTool->cmakeExecutable().toUserOutput())
+                                  .arg(userTool->id().toString());
                 continue;
             }
             result.emplace_back(std::move(userTool));
