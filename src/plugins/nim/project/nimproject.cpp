@@ -148,6 +148,7 @@ class NimBuildSystem final : public BuildSystem
 {
 public:
     explicit NimBuildSystem(BuildConfiguration *bc);
+    ~NimBuildSystem();
 
     bool supportsAction(Node *, ProjectAction action, const Node *node) const final;
     bool addFiles(Node *node, const FilePaths &filePaths, FilePaths *) final;
@@ -185,6 +186,12 @@ NimBuildSystem::NimBuildSystem(BuildConfiguration *bc)
     });
 
     requestDelayedParse();
+}
+
+NimBuildSystem::~NimBuildSystem()
+{
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_guard = {};
 }
 
 void NimBuildSystem::triggerParsing()

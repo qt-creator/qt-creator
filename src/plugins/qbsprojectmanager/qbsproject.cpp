@@ -196,6 +196,8 @@ QbsBuildSystem::QbsBuildSystem(BuildConfiguration *bc)
 
 QbsBuildSystem::~QbsBuildSystem()
 {
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_guard = {};
     m_parseRequest.reset();
     delete m_cppCodeModelUpdater;
     delete m_qbsProjectParser;

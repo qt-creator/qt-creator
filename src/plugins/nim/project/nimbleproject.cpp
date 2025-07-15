@@ -140,6 +140,12 @@ NimbleBuildSystem::NimbleBuildSystem(BuildConfiguration *bc)
     requestDelayedParse();
 }
 
+NimbleBuildSystem::~NimbleBuildSystem()
+{
+    // Trigger any pending parsingFinished signals before destroying any other build system part:
+    m_guard = {};
+}
+
 void NimbleBuildSystem::triggerParsing()
 {
     // Only allow one parsing run at the same time:

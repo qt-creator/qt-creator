@@ -67,8 +67,7 @@ static void selectEditor(OpenEditorsItem *item)
 {
     if (!item)
         return;
-    if (!EditorManagerPrivate::activateEditorForEntry(item->view, item->entry))
-        delete item;
+    EditorManagerPrivate::activateEditorForEntry(item->view, item->entry);
 }
 
 class OpenEditorsView : public QTreeView
